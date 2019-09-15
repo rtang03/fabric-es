@@ -1,0 +1,125 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Chaincode Tests should createCommit 1`] = `
+Object {
+  "entityId": "cc_01",
+  "entityName": "cc_test",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "jun",
+      },
+      "type": "mon",
+    },
+  ],
+  "id": "cc_01",
+  "version": 0,
+}
+`;
+
+exports[`Chaincode Tests should deleteByEntityId 1`] = `
+Object {
+  "123": Object {},
+}
+`;
+
+exports[`Chaincode Tests should deleteByEntityIdCommitId 1`] = `
+Object {
+  "123": Object {},
+}
+`;
+
+exports[`Chaincode Tests should instantiate 1`] = `
+Object {
+  "entityName": "dev_entity",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "April",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "ent_dev_1001",
+  "version": 0,
+}
+`;
+
+exports[`Chaincode Tests should instantiate 2`] = `
+Object {
+  "entityName": "dev_entity",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "May",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "ent_dev_1001",
+  "version": 0,
+}
+`;
+
+exports[`Chaincode Tests should queryByEntityId 1`] = `
+Object {
+  "123": Object {
+    "commitId": "123",
+    "committedAt": "2019",
+    "entityId": "cc_01",
+    "entityName": "cc_test",
+    "events": Array [
+      Object {
+        "payload": Object {
+          "name": "jun",
+        },
+        "type": "mon",
+      },
+    ],
+    "id": "cc_01",
+    "version": "0",
+  },
+}
+`;
+
+exports[`Chaincode Tests should queryByEntityIdCommitId 1`] = `
+Object {
+  "123": Object {
+    "commitId": "123",
+    "committedAt": "2019",
+    "entityId": "cc_01",
+    "entityName": "cc_test",
+    "events": Array [
+      Object {
+        "payload": Object {
+          "name": "jun",
+        },
+        "type": "mon",
+      },
+    ],
+    "id": "cc_01",
+    "version": "0",
+  },
+}
+`;
+
+exports[`Chaincode Tests should queryByEntityName 1`] = `
+Object {
+  "123": Object {
+    "commitId": "123",
+    "committedAt": "2019",
+    "entityId": "cc_01",
+    "entityName": "cc_test",
+    "events": Array [
+      Object {
+        "payload": Object {
+          "name": "jun",
+        },
+        "type": "mon",
+      },
+    ],
+    "id": "cc_01",
+    "version": "0",
+  },
+}
+`;
