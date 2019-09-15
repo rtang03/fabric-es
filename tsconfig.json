@@ -23,7 +23,6 @@
     "jsx": "preserve"
   },
   "exclude": ["node_modules"],
-  "include": ["src"],
   "typedocOptions": {
     "mode": "modules",
     "out": "docs"
