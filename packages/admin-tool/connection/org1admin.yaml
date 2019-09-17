@@ -1,0 +1,12 @@
+name: Org1-Client
+version: 1.0.0
+client:
+  organization: Org1
+  credentialStore:
+    path: ./assets/client-certs/hfc-kvs/org1
+    cryptoStore:
+      path: ./assets/client-certs/hfc-kvs/org1
+  connection:
+    timeout:
+      peer:
+        endorser: '300'

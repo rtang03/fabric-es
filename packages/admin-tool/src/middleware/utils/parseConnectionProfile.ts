@@ -3,9 +3,18 @@ import * as yaml from 'js-yaml';
 import { keys, values } from 'lodash';
 import { Context } from '../types';
 
-export const parseConnectionProfile = async ({ pathToConnection }: Context) => {
+interface OrgDetails {
+  orgName: string;
+  mspid: string;
+  peers: string[];
+  clientPath: string;
+}
+
+export const parseConnectionProfile = async ({
+  pathToConnectionNetwork
+}: Context) => {
   const profile = await yaml.safeLoad(
-    Buffer.from(readFileSync(pathToConnection)).toString()
+    Buffer.from(readFileSync(pathToConnectionNetwork)).toString()
   );
   return {
     getOrderer: () => ({
@@ -17,8 +26,17 @@ export const parseConnectionProfile = async ({ pathToConnection }: Context) => {
       ).toString()
     }),
     getOrganizations: () => ({
-      getMSPIDByOrg: orgName => profile.organizations[orgName].mspid,
-      getOrgs: () => keys(profile.organizations)
+      getMSPIDByOrg: (orgName): string => profile.organizations[orgName].mspid,
+      getOrgs: (): OrgDetails[] =>
+        keys(profile.organizations).map(orgName => ({
+          orgName,
+          mspid: profile.organizations[orgName].mspid,
+          peers: profile.organizations[orgName].peers,
+          clientPath: profile.organizations[orgName].client.path
+        }))
+    }),
+    getPeers: () => ({
+      getPeerHostnames: () => keys(profile.peers)
     })
   };
 };
