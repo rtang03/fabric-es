@@ -32,6 +32,7 @@ export const enrolAdmin = async (
   const { getOrganizations } = await parseConnectionProfile(context);
   const mspid = getOrganizations().getMSPIDByOrg(orgName);
   return Promise.resolve(
+    // client is setUserContext with pre-existing crypto material
     client.createUser({
       username: `${orgName}Admin`,
       mspid,
