@@ -213,6 +213,8 @@ fabric-ca-client enroll -d -u https://peer1.org2.example.com:peer2pw@0.0.0.0:505
 
 mv $CURRENT_DIR/org2/peer0/tls-msp/keystore/$(ls $CURRENT_DIR/org2/peer0/tls-msp/keystore) $CURRENT_DIR/org2/peer0/tls-msp/keystore/key.pem
 mv $CURRENT_DIR/org2/peer1/tls-msp/keystore/$(ls $CURRENT_DIR/org2/peer1/tls-msp/keystore) $CURRENT_DIR/org2/peer1/tls-msp/keystore/key.pem
+mv $CURRENT_DIR/org1/admin/msp/keystore/$(ls $CURRENT_DIR/org1/admin/msp/keystore) $CURRENT_DIR/org1/admin/msp/keystore/key.pem
+mv $CURRENT_DIR/org2/admin/msp/keystore/$(ls $CURRENT_DIR/org2/admin/msp/keystore) $CURRENT_DIR/org2/admin/msp/keystore/key.pem
 
 # Enrol org2 admin
 export FABRIC_CA_CLIENT_HOME=$CURRENT_DIR/org2/admin

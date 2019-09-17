@@ -63,3 +63,6 @@ typings/
 .idea
 
 dist
+
+channel-config/
+client-certs/

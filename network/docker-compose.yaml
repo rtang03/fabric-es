@@ -151,7 +151,7 @@ services:
       - peer0.org1.example.com
     ports:
       - 8051:8051
-      - 8053:8053
+      - 8053:7053
 
   peer0.org2.example.com:
     container_name: peer0.org2.example.com
@@ -188,7 +188,7 @@ services:
       - rca-org2
     ports:
       - 9051:9051
-      - 9053:9053
+      - 9053:7053
 
   peer1.org2.example.com:
     container_name: peer1.org2.example.com
@@ -225,7 +225,7 @@ services:
       - rca-org2
     ports:
       - 10051:10051
-      - 10053:10053
+      - 10053:7053
 
   orderer.example.com:
     container_name: orderer.example.com
@@ -236,7 +236,6 @@ services:
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_GENESISMETHOD=file
       - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/org0/orderer/genesis.block
-      #      - ORDERER_GENERAL_GENESISPROFILE=OrgsOrdererGenesis
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
       - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/org0/orderer/msp
       - ORDERER_GENERAL_TLS_ENABLED=true
@@ -279,8 +278,8 @@ services:
       - orderer.example.com
     command: /bin/bash
     volumes:
-      - ./hosts/org1/peer0:/tmp/hyperledger/org1/peer0
-      - ./hosts/org1/admin:/tmp/hyperledger/org1/admin
+      - ./hosts/org1/peer0/:/tmp/hyperledger/org1/peer0
+      - /Users/tangross/dev/2019/open-platform-dlt/network/hosts/org1/admin/:/tmp/hyperledger/org1/admin
       - ./chaincode/:/opt/gopath/src/github.com/chaincode
     networks:
       - fabric-ca
