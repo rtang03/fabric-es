@@ -1,0 +1,126 @@
+---
+name: first-network-org1
+version: 1.0.0
+client:
+  organization: Org1
+  credentialStore:
+    path: /Users/tangross/dev/2019/open-platform-dlt/packages/admin-tool/assets/client-certs/hfc-kvs/org1
+    cryptoStore:
+      path: /Users/tangross/dev/2019/open-platform-dlt/packages/admin-tool/assets/client-certs/hfc-kvs/org1
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+
+#channels:
+#  eventstore:
+#    orderers:
+#      - orderer.example.com
+#    peers:
+#      peer0.org1.example.com:
+#        endorsingPeer: true
+#        chaincodeQuery: true
+#        ledgerQuery: true
+#        eventSource: true
+#      peer1.org1.example.com:
+#        endorsingPeer: true
+#        chaincodeQuery: false
+#        ledgerQuery: true
+#        eventSource: false
+#      peer0.org2.example.com:
+#        endorsingPeer: true
+#        chaincodeQuery: true
+#        ledgerQuery: true
+#        eventSource: true
+#      peer1.org2.example.com:
+#        endorsingPeer: true
+#        chaincodeQuery: false
+#        ledgerQuery: true
+#        eventSource: false
+#    chaincodes:
+#      - eventstore:v0
+
+organizations:
+  Org1:
+    mspid: Org1MSP
+    peers:
+      - peer0.org1.example.com
+      - peer1.org1.example.com
+    certificateAuthorities:
+      - ca.org1.example.com
+    adminPrivateKey:
+      path: /Users/tangross/dev/2019/open-platform-dlt/network/hosts/org1/admin/msp/keystore/key.pem
+    signedCert:
+      path: /Users/tangross/dev/2019/open-platform-dlt/network/hosts/org1/admin/msp/signcerts/cert.pem
+  Org2:
+    mspid: Org2MSP
+    peers:
+      - peer0.org2.example.com
+      - peer1.org2.example.com
+    certificateAuthorities:
+      - ca.org2.example.com
+    adminPrivateKey:
+      path: /Users/tangross/dev/2019/open-platform-dlt/network/hosts/org2/admin/msp/keystore/key.pem
+    signedCert:
+      path: /Users/tangross/dev/2019/open-platform-dlt/network/hosts/org2/admin/msp/signcerts/cert.pem
+
+orderers:
+  orderer.example.com:
+    url: grpcs://localhost:7050
+    grpcOptions:
+      ssl-target-name-override: orderer.example.com
+#      grpc-max-send-message-length: 4000
+    tlsCACerts:
+      path: /Users/tangross/dev/2019/open-platform-dlt/network/hosts/org0/orderer/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+
+peers:
+  peer0.org1.example.com:
+    url: grpcs://localhost:7051
+    eventUrl: grpcs://localhost:7053
+    tlsCACerts:
+      path: /Users/tangross/dev/2019/open-platform-dlt/network/hosts/org1/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+    grpcOptions:
+      ssl-target-name-override: peer0.org1.example.com
+  peer1.org1.example.com:
+    url: grpcs://localhost:8051
+    eventUrl: grpcs://localhost:8053
+    tlsCACerts:
+      path: /Users/tangross/dev/2019/open-platform-dlt/network/hosts/org1/peer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+    grpcOptions:
+      ssl-target-name-override: peer1.org1.example.com
+  peer0.org2.example.com:
+    url: grpcs://localhost:9051
+    eventUrl: grpcs://localhost:9053
+    tlsCACerts:
+      path: /Users/tangross/dev/2019/open-platform-dlt/network/hosts/org2/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+    grpcOptions:
+      ssl-target-name-override: peer0.org2.example.com
+  peer1.org2.example.com:
+    url: grpcs://localhost:10051
+    eventUrl: grpcs://localhost:10053
+    tlsCACerts:
+      path: /Users/tangross/dev/2019/open-platform-dlt/network/hosts/org2/peer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+    grpcOptions:
+      ssl-target-name-override: peer1.org2.example.com
+
+certificateAuthorities:
+  ca.org1.example.com:
+    url: https://localhost:5054
+    caName: rca-org1
+    tlsCACerts:
+      path: /Users/tangross/dev/2019/open-platform-dlt/network/hosts/org1/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: admin
+        enrollSecret: adminpw
+    httpOptions:
+      verify: false
+  ca.org2.example.com:
+    url: https://localhost:5055
+    caName: rca-org1
+    tlsCACerts:
+      path: /Users/tangross/dev/2019/open-platform-dlt/network/hosts/org2/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: admin
+        enrollSecret: adminpw
+    httpOptions:
+      verify: false

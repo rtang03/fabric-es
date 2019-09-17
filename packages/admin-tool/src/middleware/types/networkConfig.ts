@@ -9,7 +9,7 @@ export interface NetworkConfig {
       url: string;
       name: string;
     };
-    peer1?: {
+    peer0: {
       requests: string;
       events: string;
       hostname: string;
