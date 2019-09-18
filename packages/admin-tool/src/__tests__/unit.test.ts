@@ -1,6 +1,10 @@
 import { exec } from 'child-process-promise';
-import { flatten, filter } from 'lodash';
-import { createChannel, installChaincode, joinChannel } from '../middleware';
+import {
+  createChannel,
+  installChaincode,
+  instantiateChaincode,
+  joinChannel
+} from '../middleware';
 
 const channelName = `testchannel${Math.floor(Math.random() * 1000)}`;
 const cli = `mkdir -p ./assets/channel-config && \
@@ -16,25 +20,27 @@ beforeAll(async () => {
 });
 
 describe('Administrator commands', () => {
-  it('should create channel', async () =>
+  it('should create random channel', async () =>
     await createChannel(channelName).then(result =>
       expect(result).toEqual({ status: 'SUCCESS', info: '' })
     ));
 
   // cannot repeatedly createChannel, join channel
   // it requires docker-compose restart, for running below commands
-  it('should create/join/install', async () => {
+  it('should create/join/install/instantiate', async () => {
     const chaincodeId = 'eventstore';
     await createChannel('eventstore');
-    await joinChannel('eventstore').then(results =>
-      results.forEach(peer => expect(peer.response.status).toEqual(200))
+
+    await joinChannel('eventstore').then(responses =>
+      responses.forEach(({ response: { status } }) => expect(status).toBe(200))
     );
-    await installChaincode({ chaincodeId })
-      .then(results => flatten(results))
-      .then((result: any) =>
-        filter(result, ({ response }) => !!response).forEach(
-          ({ response: { status } }) => expect(status).toEqual(200)
-        )
-      );
+
+    await installChaincode({ chaincodeId }).then(responses =>
+      responses.forEach(({ response: { status } }) => expect(status).toBe(200))
+    );
+
+    await instantiateChaincode({ channelName: 'eventstore', chaincodeId }).then(
+      result => expect(result).toEqual({ status: 'SUCCESS', info: '' })
+    );
   });
 });

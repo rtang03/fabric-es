@@ -1,3 +1,4 @@
+import { ProposalResponse } from 'fabric-client';
 import { flatten } from 'lodash';
 import '../env';
 import { Context } from './types';
@@ -7,7 +8,7 @@ export const joinChannel: (
   channelName: string,
   peers?: string[],
   context?: Context
-) => Promise<any[]> = async (
+) => Promise<ProposalResponse[]> = async (
   channelName,
   peers,
   context = {
@@ -49,7 +50,7 @@ export const joinChannel: (
     hubs.push(...channel.getChannelEventHubsForOrg(mspid));
     // todo: implement event hub listening
   }
-  return Promise.all(promises).then(results => {
+  return Promise.all<ProposalResponse[]>(promises).then(results => {
     if (JSON.stringify(results).includes('error')) {
       throw flatten(results);
     } else return flatten(results);
