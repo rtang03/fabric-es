@@ -7,7 +7,7 @@ export const joinChannel: (
   channelName: string,
   peers?: string[],
   context?: Context
-) => Promise<any> = async (
+) => Promise<any[]> = async (
   channelName,
   peers,
   context = {
@@ -20,18 +20,15 @@ export const joinChannel: (
     pathToConnectionNetwork,
     process.env.PATH_TO_CONNECTION_ORG1_CLIENT
   );
-
   const channel = client.getChannel(channelName);
   if (!channel)
     throw new Error(
       `Channel was not defined in the connection profile: ${channelName}`
     );
-
   const profile = await parseConnectionProfile(context);
   const txId = client.newTransactionID(true);
   const block = await channel.getGenesisBlock({ txId });
-  const promises: Array<Promise<any>> = [];
-
+  const promises = [];
   const hubs = [];
   const { getOrgs } = profile.getOrganizations();
   for (const { orgName, mspid, peers, clientPath } of getOrgs()) {
@@ -52,6 +49,9 @@ export const joinChannel: (
     hubs.push(...channel.getChannelEventHubsForOrg(mspid));
     // todo: implement event hub listening
   }
-
-  return Promise.all(promises).then(results => flatten(results));
+  return Promise.all(promises).then(results => {
+    if (JSON.stringify(results).includes('error')) {
+      throw flatten(results);
+    } else return flatten(results);
+  });
 };
