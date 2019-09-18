@@ -16,7 +16,7 @@ export const createChannel: (
     pathToNetwork: process.env.PATH_TO_NETWORK
   }
 ) => {
-  // load connection profile
+  const { pathToChannelTx, pathToConnectionNetwork } = context;
   const client: Client = await getClientForOrg(
     context.pathToConnectionNetwork,
     process.env.PATH_TO_CONNECTION_ORG1_CLIENT
@@ -34,14 +34,15 @@ export const createChannel: (
 
   // enrol all org's admins, and sign channel configuration
   const config = client.extractChannelConfig(
-    readFileSync(join(__dirname, context.pathToChannelTx, `${channelName}.tx`))
+    readFileSync(join(__dirname, pathToChannelTx, `${channelName}.tx`))
   );
   const { getOrgs } = profile.getOrganizations();
   const signatures = [];
-  for (const { orgName } of getOrgs()) {
+  for (const { orgName, clientPath } of getOrgs()) {
+    const admin = await getClientForOrg(pathToConnectionNetwork, clientPath);
     signatures.push(
-      await enrolAdmin(client, orgName, context).then(() =>
-        client.signChannelConfig(config)
+      await enrolAdmin(admin, orgName, context).then(() =>
+        admin.signChannelConfig(config)
       )
     );
   }
@@ -51,7 +52,6 @@ export const createChannel: (
       return { status: 'SUCCESS' };
     },
     async () =>
-      // userContext is the latest enrolled admin
       await client
         .createChannel({
           config,
