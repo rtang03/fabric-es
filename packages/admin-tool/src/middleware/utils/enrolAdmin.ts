@@ -2,7 +2,7 @@ import * as Client from 'fabric-client';
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { Context } from '../types';
-import { parseConnectionProfile } from './parseConnectionProfile';
+import { connectionProfile } from './connectionProfile';
 
 const readAllFiles = (dir: string) => {
   const files = readdirSync(dir);
@@ -29,7 +29,7 @@ export const enrolAdmin = async (
     `${pathToNetwork}/${orgName}/admin/msp/signcerts`
   );
   const certPEM = readAllFiles(certPath)[0];
-  const { getOrganizations } = await parseConnectionProfile(context);
+  const { getOrganizations } = await connectionProfile(context);
   const mspid = getOrganizations().getMSPIDByOrg(orgName);
   return Promise.resolve(
     // client is setUserContext with pre-existing crypto material

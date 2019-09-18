@@ -1,6 +1,8 @@
 import { exec } from 'child-process-promise';
+import { omit } from 'lodash';
 import {
   createChannel,
+  getInfo,
   installChaincode,
   instantiateChaincode,
   joinChannel
@@ -31,16 +33,26 @@ describe('Administrator commands', () => {
     const chaincodeId = 'eventstore';
     await createChannel('eventstore');
 
-    await joinChannel('eventstore').then(responses =>
-      responses.forEach(({ response: { status } }) => expect(status).toBe(200))
+    await joinChannel('eventstore').then(results =>
+      results.forEach(({ response: { status } }) => expect(status).toBe(200))
     );
 
-    await installChaincode({ chaincodeId }).then(responses =>
-      responses.forEach(({ response: { status } }) => expect(status).toBe(200))
+    await installChaincode({ chaincodeId }).then(results =>
+      results.forEach(({ response: { status } }) => expect(status).toBe(200))
     );
 
     await instantiateChaincode({ channelName: 'eventstore', chaincodeId }).then(
       result => expect(result).toEqual({ status: 'SUCCESS', info: '' })
     );
+
+    const { getInstantiatedChaincodes, getInstalledChaincodes } = await getInfo(
+      'eventstore'
+    );
+
+    await getInstantiatedChaincodes().then(result => console.log(result));
+
+    await getInstalledChaincodes()
+      .then(({ chaincodes }) => chaincodes[0])
+      .then(chaincode => console.log(chaincode));
   });
 });

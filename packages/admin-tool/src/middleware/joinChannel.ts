@@ -2,7 +2,7 @@ import { ProposalResponse } from 'fabric-client';
 import { flatten } from 'lodash';
 import '../env';
 import { Context } from './types';
-import { enrolAdmin, getClientForOrg, parseConnectionProfile } from './utils';
+import { enrolAdmin, getClientForOrg, connectionProfile } from './utils';
 
 export const joinChannel: (
   channelName: string,
@@ -26,12 +26,13 @@ export const joinChannel: (
     throw new Error(
       `Channel was not defined in the connection profile: ${channelName}`
     );
-  const profile = await parseConnectionProfile(context);
+  const { getOrgs } = await connectionProfile(context).then(
+    ({ getOrganizations }) => getOrganizations()
+  );
   const txId = client.newTransactionID(true);
   const block = await channel.getGenesisBlock({ txId });
   const promises = [];
-  const hubs = [];
-  const { getOrgs } = profile.getOrganizations();
+  // const hubs = [];
   for (const { orgName, mspid, peers, clientPath } of getOrgs()) {
     const admin = await getClientForOrg(pathToConnectionNetwork, clientPath);
     await enrolAdmin(admin, orgName, context).then(() => {
@@ -47,8 +48,11 @@ export const joinChannel: (
         )
       );
     });
-    hubs.push(...channel.getChannelEventHubsForOrg(mspid));
-    // todo: implement event hub listening
+    // hubs.push(
+    //   ...admin.getChannel(channelName).getChannelEventHubsForOrg(mspid)
+    // );
+    // optionally, implement the registerBlockEvent of channel hub event
+    // but join channnel does not really matter
   }
   return Promise.all<ProposalResponse[]>(promises).then(results => {
     if (JSON.stringify(results).includes('error')) {
