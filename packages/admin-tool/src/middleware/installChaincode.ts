@@ -1,3 +1,4 @@
+import { ProposalResponse } from 'fabric-client';
 import { flatten } from 'lodash';
 import '../env';
 import { Context } from './types';
@@ -9,7 +10,7 @@ export const installChaincode: (
     chaincodeVersion?: string;
   },
   context?: Context
-) => Promise<any> = async (
+) => Promise<ProposalResponse[]> = async (
   { chaincodeId, chaincodeVersion = '0' },
   context = { pathToConnectionNetwork: process.env.PATH_TO_CONNECTION_PROFILE }
 ) => {
@@ -35,9 +36,13 @@ export const installChaincode: (
       )
     );
   }
-  return Promise.all(promises).then(results => {
+  return Promise.all<ProposalResponse[]>(promises).then(results => {
     if (JSON.stringify(results).includes('error')) {
+      console.log('Install chaincode fails');
+      console.log(JSON.stringify(results).includes('error'));
       throw flatten(results);
-    } else return flatten(results);
+    } else {
+      return flatten(flatten(results)).filter(({ response }) => !!response);
+    }
   });
 };
