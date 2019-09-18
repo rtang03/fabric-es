@@ -10,7 +10,7 @@ interface OrgDetails {
   clientPath: string;
 }
 
-export const parseConnectionProfile = async ({
+export const connectionProfile = async ({
   pathToConnectionNetwork
 }: Context) => {
   const profile = await yaml.safeLoad(

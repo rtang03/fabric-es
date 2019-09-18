@@ -2,7 +2,7 @@ import { ProposalResponse } from 'fabric-client';
 import { flatten } from 'lodash';
 import '../env';
 import { Context } from './types';
-import { getClientForOrg, parseConnectionProfile } from './utils';
+import { connectionProfile, getClientForOrg } from './utils';
 
 export const installChaincode: (
   chaincode: {
@@ -16,9 +16,10 @@ export const installChaincode: (
 ) => {
   const { pathToConnectionNetwork } = context;
   const chaincodePath = process.env.PATH_TO_CHAINCODE || '../chaincode';
-  const profile = await parseConnectionProfile(context);
+  const { getOrgs } = await connectionProfile(context).then(
+    ({ getOrganizations }) => getOrganizations()
+  );
   const promises = [];
-  const { getOrgs } = profile.getOrganizations();
   for (const { peers, clientPath } of getOrgs()) {
     const admin = await getClientForOrg(pathToConnectionNetwork, clientPath);
     const txId = admin.newTransactionID(true);

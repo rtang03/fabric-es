@@ -1,3 +1,3 @@
 export * from './getClientForOrg';
-export * from './parseConnectionProfile';
+export * from './connectionProfile';
 export * from './enrolAdmin';

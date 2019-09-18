@@ -1,6 +1,7 @@
-import { ProposalResponse } from 'fabric-client';
+import { ChaincodeType, ProposalResponse } from 'fabric-client';
+import '../env';
 import { Context } from './types';
-import { getClientForOrg, parseConnectionProfile } from './utils';
+import { connectionProfile, getClientForOrg } from './utils';
 
 export const instantiateChaincode: (
   chaincode: {
@@ -9,6 +10,7 @@ export const instantiateChaincode: (
     args?: string[];
     chaincodeId?: string;
     chaincodeVersion?: string;
+    upgrade?: boolean;
   },
   context?: Context
 ) => Promise<any> = async (
@@ -17,7 +19,8 @@ export const instantiateChaincode: (
     fcn = 'instantiate',
     args = [],
     chaincodeId,
-    chaincodeVersion = '0'
+    chaincodeVersion = '0',
+    upgrade
   },
   context = { pathToConnectionNetwork: process.env.PATH_TO_CONNECTION_PROFILE }
 ) => {
@@ -32,22 +35,23 @@ export const instantiateChaincode: (
     throw new Error(
       `Channel was not defined in the connection profile: ${channelName}`
     );
-  const profile = await parseConnectionProfile(context);
-  const { getPeerHostnames } = profile.getPeers();
+  const { getPeerHostnames } = await connectionProfile(context).then(
+    ({ getPeers }) => getPeers()
+  );
   const txId = client.newTransactionID(true);
   const deployId = txId.getTransactionID();
-  const simulation = await channel.sendInstantiateProposal(
-    {
-      targets: getPeerHostnames(),
-      chaincodeId,
-      chaincodeVersion,
-      chaincodeType: 'node',
-      fcn,
-      args,
-      txId
-    },
-    120000
-  );
+  const request = {
+    targets: getPeerHostnames(),
+    chaincodeId,
+    chaincodeVersion,
+    chaincodeType: 'node' as ChaincodeType,
+    fcn,
+    args,
+    txId
+  };
+  const simulation = upgrade
+    ? await channel.sendUpgradeProposal(request, 120000)
+    : await channel.sendInstantiateProposal(request, 120000);
   const proposalResponses: ProposalResponse[] = simulation[0] as any;
   const proposal = simulation[1];
   const allGood = proposalResponses.reduce(
@@ -67,12 +71,16 @@ export const instantiateChaincode: (
           hub.registerTxEvent(
             deployId,
             (tid, code, blockNumber) => {
-              console.log(`Instantiate committed on peer ${hub.getPeerAddr()}`);
+              console.log(
+                `Instantiate or upgrade committed on peer ${hub.getPeerAddr()}`
+              );
               console.log(`Tx ${tid} has status ${code} in blk ${blockNumber}`);
               clearTimeout(handler);
               if (code !== 'VALID')
-                reject(new Error('Instantiate transaction was invalid'));
-              else resolve('Instantiate transaction was valid');
+                reject(
+                  new Error('Instantiate or upgrade transaction was invalid')
+                );
+              else resolve('Instantiate or upgrade transaction was valid');
             },
             err => {
               clearTimeout(handler);

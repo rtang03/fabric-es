@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import '../env';
 import { Context } from './types';
-import { enrolAdmin, getClientForOrg, parseConnectionProfile } from './utils';
+import { enrolAdmin, getClientForOrg, connectionProfile } from './utils';
 
 export const createChannel: (
   channelName: string,
@@ -23,8 +23,9 @@ export const createChannel: (
   );
 
   // create orderer
-  const profile = await parseConnectionProfile(context);
+  const profile = await connectionProfile(context);
   const { url, tlsCACertsPem, hostname } = profile.getOrderer();
+  const { getOrgs } = profile.getOrganizations();
   const orderer = client.newOrderer(url, {
     pem: tlsCACertsPem,
     'ssl-target-name-override': hostname
@@ -36,7 +37,6 @@ export const createChannel: (
   const config = client.extractChannelConfig(
     readFileSync(join(__dirname, pathToChannelTx, `${channelName}.tx`))
   );
-  const { getOrgs } = profile.getOrganizations();
   const signatures = [];
   for (const { orgName, clientPath } of getOrgs()) {
     const admin = await getClientForOrg(pathToConnectionNetwork, clientPath);
