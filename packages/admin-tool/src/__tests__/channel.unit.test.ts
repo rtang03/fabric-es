@@ -1,5 +1,4 @@
 import { exec } from 'child-process-promise';
-import { omit } from 'lodash';
 import {
   createChannel,
   getInfo,

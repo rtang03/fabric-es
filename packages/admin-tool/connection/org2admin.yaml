@@ -3,9 +3,9 @@ version: 1.0.0
 client:
   organization: Org2
   credentialStore:
-    path: ./assets/client-certs/hfc-kvs/org1
+    path: ./assets/client-certs/hfc-kvs/org2
     cryptoStore:
-      path: ./assets/client-certs/hfc-kvs/org1
+      path: ./assets/client-certs/hfc-kvs/org2
   connection:
     timeout:
       peer:

@@ -22,12 +22,12 @@ export const instantiateChaincode: (
     chaincodeVersion = '0',
     upgrade
   },
-  context = { pathToConnectionNetwork: process.env.PATH_TO_CONNECTION_PROFILE }
+  context = { connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE }
 ) => {
   chaincodeId = (chaincodeId || channelName) as any;
-  const { pathToConnectionNetwork } = context;
+  const { connProfileNetwork } = context;
   const client = await getClientForOrg(
-    pathToConnectionNetwork,
+    connProfileNetwork,
     process.env.PATH_TO_CONNECTION_ORG1_CLIENT
   );
   const channel = client.getChannel(channelName);
@@ -35,13 +35,13 @@ export const instantiateChaincode: (
     throw new Error(
       `Channel was not defined in the connection profile: ${channelName}`
     );
-  const { getPeerHostnames } = await connectionProfile(context).then(
-    ({ getPeers }) => getPeers()
+  const targets = await connectionProfile(context).then(({ getPeers }) =>
+    getPeers().getPeerHostnames()
   );
   const txId = client.newTransactionID(true);
   const deployId = txId.getTransactionID();
   const request = {
-    targets: getPeerHostnames(),
+    targets,
     chaincodeId,
     chaincodeVersion,
     chaincodeType: 'node' as ChaincodeType,
