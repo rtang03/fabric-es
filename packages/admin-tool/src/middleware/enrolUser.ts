@@ -3,7 +3,7 @@ import { Context } from './types';
 import { enrolCAAdmin, getClientForOrg } from './utils';
 import { getFabricCAServices } from './utils/getFabricCAServices';
 
-export const registerUser: (
+export const enrolUser: (
   enrollmentID: string,
   enrollmentSecret: string,
   url: string,

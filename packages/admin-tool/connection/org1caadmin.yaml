@@ -1,11 +1,11 @@
-name: Org1Admin
+name: Org1CAAdmin
 version: 1.0.0
 client:
   organization: Org1
   credentialStore:
-    path: ./assets/client-certs/hfc-kvs/org1
+    path: ./assets/client-certs/hfc-kvs/org1ca
     cryptoStore:
-      path: ./assets/client-certs/hfc-kvs/org1
+      path: ./assets/client-certs/hfc-kvs/org1ca
   connection:
     timeout:
       peer:

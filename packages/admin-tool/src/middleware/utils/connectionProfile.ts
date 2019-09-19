@@ -10,11 +10,9 @@ interface OrgDetails {
   clientPath: string;
 }
 
-export const connectionProfile = async ({
-  pathToConnectionNetwork
-}: Context) => {
+export const connectionProfile = async ({ connProfileNetwork }: Context) => {
   const profile = await yaml.safeLoad(
-    Buffer.from(readFileSync(pathToConnectionNetwork)).toString()
+    Buffer.from(readFileSync(connProfileNetwork)).toString()
   );
   return {
     getOrderer: () => ({

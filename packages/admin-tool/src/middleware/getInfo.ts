@@ -20,15 +20,15 @@ export const getInfo: (
   channelName,
   peer = 'peer0.org1.example.com',
   context = {
-    pathToConnectionNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
+    connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
     pathToNetwork: process.env.PATH_TO_NETWORK
   }
 ) => {
-  const { pathToConnectionNetwork } = context;
+  const { connProfileNetwork } = context;
   const profile = await connectionProfile(context);
   const { getOrgs } = profile.getOrganizations();
   const { orgName, clientPath } = getOrgs()[0];
-  const client = await getClientForOrg(pathToConnectionNetwork, clientPath);
+  const client = await getClientForOrg(connProfileNetwork, clientPath);
   return enrolAdmin(client, orgName, context).then(() => {
     const channel = client.getChannel(channelName);
     if (!channel)

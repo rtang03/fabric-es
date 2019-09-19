@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import '../env';
 import { Context } from './types';
-import { enrolAdmin, getClientForOrg, connectionProfile } from './utils';
+import { connectionProfile, enrolAdmin, getClientForOrg } from './utils';
 
 export const createChannel: (
   channelName: string,
@@ -11,21 +11,21 @@ export const createChannel: (
 ) => Promise<any> = async (
   channelName,
   context = {
-    pathToConnectionNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
+    connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
     pathToChannelTx: process.env.PATH_TO_CHANNEL_CONFIG,
     pathToNetwork: process.env.PATH_TO_NETWORK
   }
 ) => {
-  const { pathToChannelTx, pathToConnectionNetwork } = context;
+  const { pathToChannelTx, connProfileNetwork } = context;
   const client: Client = await getClientForOrg(
-    context.pathToConnectionNetwork,
+    context.connProfileNetwork,
     process.env.PATH_TO_CONNECTION_ORG1_CLIENT
   );
 
   // create orderer
-  const profile = await connectionProfile(context);
-  const { url, tlsCACertsPem, hostname } = profile.getOrderer();
-  const { getOrgs } = profile.getOrganizations();
+  const { getOrderer, getOrganizations } = await connectionProfile(context);
+  const { url, tlsCACertsPem, hostname } = getOrderer();
+  const { getOrgs } = getOrganizations();
   const orderer = client.newOrderer(url, {
     pem: tlsCACertsPem,
     'ssl-target-name-override': hostname
@@ -39,14 +39,14 @@ export const createChannel: (
   );
   const signatures = [];
   for (const { orgName, clientPath } of getOrgs()) {
-    const admin = await getClientForOrg(pathToConnectionNetwork, clientPath);
+    const admin = await getClientForOrg(connProfileNetwork, clientPath);
     signatures.push(
       await enrolAdmin(admin, orgName, context).then(() =>
         admin.signChannelConfig(config)
       )
     );
   }
-  return await channel.getGenesisBlock().then(
+  return channel.getGenesisBlock().then(
     () => {
       console.log(`Got genesis block. Channel: ${channelName} already exists`);
       return { status: 'SUCCESS' };

@@ -12,13 +12,13 @@ export const joinChannel: (
   channelName,
   peers,
   context = {
-    pathToConnectionNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
+    connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
     pathToNetwork: process.env.PATH_TO_NETWORK
   }
 ) => {
-  const { pathToConnectionNetwork } = context;
+  const { connProfileNetwork } = context;
   const client = await getClientForOrg(
-    pathToConnectionNetwork,
+    connProfileNetwork,
     process.env.PATH_TO_CONNECTION_ORG1_CLIENT
   );
   const channel = client.getChannel(channelName);
@@ -34,7 +34,7 @@ export const joinChannel: (
   const promises = [];
   // const hubs = [];
   for (const { orgName, mspid, peers, clientPath } of getOrgs()) {
-    const admin = await getClientForOrg(pathToConnectionNetwork, clientPath);
+    const admin = await getClientForOrg(connProfileNetwork, clientPath);
     await enrolAdmin(admin, orgName, context).then(() => {
       const channel = admin.getChannel(channelName);
       promises.push(

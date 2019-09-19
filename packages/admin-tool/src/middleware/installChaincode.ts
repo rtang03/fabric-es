@@ -12,16 +12,16 @@ export const installChaincode: (
   context?: Context
 ) => Promise<ProposalResponse[]> = async (
   { chaincodeId, chaincodeVersion = '0' },
-  context = { pathToConnectionNetwork: process.env.PATH_TO_CONNECTION_PROFILE }
+  context = { connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE }
 ) => {
-  const { pathToConnectionNetwork } = context;
+  const { connProfileNetwork } = context;
   const chaincodePath = process.env.PATH_TO_CHAINCODE || '../chaincode';
   const { getOrgs } = await connectionProfile(context).then(
     ({ getOrganizations }) => getOrganizations()
   );
   const promises = [];
   for (const { peers, clientPath } of getOrgs()) {
-    const admin = await getClientForOrg(pathToConnectionNetwork, clientPath);
+    const admin = await getClientForOrg(connProfileNetwork, clientPath);
     const txId = admin.newTransactionID(true);
     promises.push(
       admin.installChaincode(

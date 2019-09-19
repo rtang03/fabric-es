@@ -3,24 +3,24 @@ import { Context } from '../types';
 import { connectionProfile } from './connectionProfile';
 import { readAllFiles } from './readAllFiles';
 
-export const enrolAdmin: (
+export const enrolCAAdmin: (
   client: Client,
   orgName: string,
   context: Context
 ) => Promise<Client.User> = async (client, orgName, context) =>
   connectionProfile(context).then(({ getOrganizations }) =>
     client.createUser({
-      username: `${orgName}Admin`,
+      username: `${orgName}CAAdmin`,
       mspid: getOrganizations().getMSPIDByOrg(orgName),
       cryptoContent: {
         privateKeyPEM: Buffer.from(
           readAllFiles(
-            `${context.pathToNetwork}/${orgName}/admin/msp/keystore`
+            `${context.pathToNetwork}/${orgName}/ca/admin/msp/keystore`
           )[0]
         ).toString(),
         signedCertPEM: Buffer.from(
           readAllFiles(
-            `${context.pathToNetwork}/${orgName}/admin/msp/signcerts`
+            `${context.pathToNetwork}/${orgName}/ca/admin/msp/signcerts`
           )[0]
         ).toString()
       },
