@@ -4,4 +4,4 @@ export * from './installChaincode';
 export * from './instantiateChaincode';
 export * from './getInfo';
 export * from './registerUser';
-export * from './enrolUser';
+export * from './enrollAdmin';

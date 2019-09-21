@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Fabric CA unit test should enrol Org1 Admin 1`] = `
+Object {
+  "message": "Successfully enroll admin and import into the wallet",
+  "status": "SUCCESS",
+}
+`;
+
+exports[`Fabric CA unit test should enrol Org1 Admin 2`] = `
+Object {
+  "message": "Identity for \\"admin\\" already exists in the wallet",
+  "status": "SUCCESS",
+}
+`;

@@ -3,16 +3,22 @@ import * as Client from 'fabric-client';
 import { Context } from '../types';
 import { readAllFiles } from './readAllFiles';
 
-export const getFabricCAServices: (
+export const getCAServices: (
   client: Client,
   url: string,
+  orgName: string,
   context: Context
-) => Promise<FabricCAServices> = async (client, url, { pathToNetwork }) =>
+) => Promise<FabricCAServices> = async (
+  client,
+  url,
+  orgName,
+  { pathToNetwork }
+) =>
   new FabricCAServices(
     url,
     {
       trustedRoots: Buffer.from(
-        readAllFiles(`${pathToNetwork}/org1/peer0/assets/ca`)[0]
+        readAllFiles(`${pathToNetwork}/${orgName}/peer0/assets/ca`)[0]
       ),
       verify: true
     },

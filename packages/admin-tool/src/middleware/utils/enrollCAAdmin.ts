@@ -3,7 +3,7 @@ import { Context } from '../types';
 import { connectionProfile } from './connectionProfile';
 import { readAllFiles } from './readAllFiles';
 
-export const enrolCAAdmin: (
+export const enrollCAAdmin: (
   client: Client,
   orgName: string,
   context: Context

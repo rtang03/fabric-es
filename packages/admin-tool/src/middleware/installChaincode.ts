@@ -21,7 +21,7 @@ export const installChaincode: (
   );
   const promises = [];
   for (const { peers, clientPath } of getOrgs()) {
-    const admin = await getClientForOrg(connProfileNetwork, clientPath);
+    const admin = await getClientForOrg(clientPath);
     const txId = admin.newTransactionID(true);
     promises.push(
       admin.installChaincode(

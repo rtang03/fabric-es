@@ -25,10 +25,10 @@ You should see org0, org1, org2, tls directory created.
 - Create genesis block and chanenl.tx
 
 ```shell script
+// in another terminal
 export CURRENT_DIR=$PWD/hosts
 ./bootstrap.sh
 
-// in another terminal
 docker-compose down
 
 // restart in first terminal

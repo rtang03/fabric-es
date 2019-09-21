@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import '../env';
 import { Context } from './types';
-import { connectionProfile, enrolAdmin, getClientForOrg } from './utils';
+import { connectionProfile, enrollAdmin, getClientForOrg } from './utils';
 
 export const createChannel: (
   channelName: string,
@@ -17,10 +17,7 @@ export const createChannel: (
   }
 ) => {
   const { pathToChannelTx, connProfileNetwork } = context;
-  const client: Client = await getClientForOrg(
-    context.connProfileNetwork,
-    process.env.PATH_TO_CONNECTION_ORG1_CLIENT
-  );
+  const client: Client = await getClientForOrg(connProfileNetwork);
 
   // create orderer
   const { getOrderer, getOrganizations } = await connectionProfile(context);
@@ -38,10 +35,10 @@ export const createChannel: (
     readFileSync(join(__dirname, pathToChannelTx, `${channelName}.tx`))
   );
   const signatures = [];
-  for (const { orgName, clientPath } of getOrgs()) {
-    const admin = await getClientForOrg(connProfileNetwork, clientPath);
+  for (const { orgName } of getOrgs()) {
+    const admin = await getClientForOrg(connProfileNetwork);
     signatures.push(
-      await enrolAdmin(admin, orgName, context).then(() =>
+      await enrollAdmin(admin, orgName, context).then(() =>
         admin.signChannelConfig(config)
       )
     );

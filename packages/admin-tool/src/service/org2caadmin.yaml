@@ -1,0 +1,12 @@
+name: Org2CAAdmin
+version: 1.0.0
+client:
+  organization: Org2
+  credentialStore:
+    path: ./assets/client-certs/hfc-kvs/org2ca
+    cryptoStore:
+      path: ./assets/client-certs/hfc-kvs/org2ca
+  connection:
+    timeout:
+      peer:
+        endorser: '300'

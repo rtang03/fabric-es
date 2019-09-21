@@ -249,10 +249,10 @@ cp $CURRENT_DIR/tls-ca/crypto/tls-ca-cert.pem $CURRENT_DIR/org1/msp/tlscacerts/t
 cp $CURRENT_DIR/tls-ca/crypto/tls-ca-cert.pem $CURRENT_DIR/org2/msp/tlscacerts/tls-ca-cert.pem
 
 # Prepare configtx
-cp ./configtx.yaml ./hosts/org0/configtx.yaml
+cp ./configtx.yaml ./hosts/configtx.yaml
 cd $CURRENT_DIR
-configtxgen -profile TwoOrgsOrdererGenesis -channelID syschannel -outputBlock $CURRENT_DIR/org0/orderer/genesis.block
-configtxgen -profile TwoOrgsChannel -channelID mychannel -outputCreateChannelTx $CURRENT_DIR/org0/orderer/channel.tx
+configtxgen -configPath $CURRENT_DIR -profile TwoOrgsOrdererGenesis -channelID syschannel -outputBlock $CURRENT_DIR/org0/orderer/genesis.block
+configtxgen -configPath $CURRENT_DIR -profile TwoOrgsChannel -channelID mychannel -outputCreateChannelTx $CURRENT_DIR/org0/orderer/channel.tx
 cp $CURRENT_DIR/org0/orderer/channel.tx $CURRENT_DIR/org1/peer0/assets/channel.tx
 cp $CURRENT_DIR/org0/orderer/channel.tx $CURRENT_DIR/org2/peer0/assets/channel.tx
 
