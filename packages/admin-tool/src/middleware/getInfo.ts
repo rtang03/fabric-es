@@ -1,6 +1,6 @@
 import '../env';
 import { Context } from './types';
-import { connectionProfile, enrolAdmin, getClientForOrg } from './utils';
+import { connectionProfile, enrollAdmin, getClientForOrg } from './utils';
 
 interface Query {
   getBlockByNumber: (blockNumber) => Promise<any>;
@@ -27,9 +27,9 @@ export const getInfo: (
   const { connProfileNetwork } = context;
   const profile = await connectionProfile(context);
   const { getOrgs } = profile.getOrganizations();
-  const { orgName, clientPath } = getOrgs()[0];
-  const client = await getClientForOrg(connProfileNetwork, clientPath);
-  return enrolAdmin(client, orgName, context).then(() => {
+  const { orgName } = getOrgs()[0];
+  const client = await getClientForOrg(connProfileNetwork);
+  return enrollAdmin(client, orgName, context).then(() => {
     const channel = client.getChannel(channelName);
     if (!channel)
       throw new Error(

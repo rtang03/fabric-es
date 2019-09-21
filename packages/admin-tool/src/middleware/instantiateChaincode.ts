@@ -26,10 +26,7 @@ export const instantiateChaincode: (
 ) => {
   chaincodeId = (chaincodeId || channelName) as any;
   const { connProfileNetwork } = context;
-  const client = await getClientForOrg(
-    connProfileNetwork,
-    process.env.PATH_TO_CONNECTION_ORG1_CLIENT
-  );
+  const client = await getClientForOrg(connProfileNetwork);
   const channel = client.getChannel(channelName);
   if (!channel)
     throw new Error(
@@ -104,7 +101,7 @@ export const instantiateChaincode: (
         proposalResponses
       })
     );
-    return await Promise.all<any>(promises)
+    return Promise.all<any>(promises)
       .then(res => res.pop())
       .then(res => (res!.status === 'SUCCESS' ? res : { error: res }));
   } else {

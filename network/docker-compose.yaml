@@ -31,6 +31,7 @@ services:
       - FABRIC_CA_SERVER_CSR_CN=rca-org0
       - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
       - FABRIC_CA_SERVER_DEBUG=false
+      - FABRIC_CA_SERVER_CA_NAME=ca.org0.example.com
     volumes:
       - ./hosts/org0/ca:/tmp/hyperledger/fabric-ca
     networks:
@@ -50,6 +51,7 @@ services:
       - FABRIC_CA_SERVER_CSR_CN=rca-org1
       - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
       - FABRIC_CA_SERVER_DEBUG=false
+      - FABRIC_CA_SERVER_CA_NAME=ca.org1.example.com
     volumes:
       - ./hosts/org1/ca:/tmp/hyperledger/fabric-ca
     networks:
@@ -69,6 +71,7 @@ services:
       - FABRIC_CA_SERVER_CSR_CN=rca-org2
       - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
       - FABRIC_CA_SERVER_DEBUG=false
+      - FABRIC_CA_SERVER_CA_NAME=ca.org2.example.com
     volumes:
       - ./hosts/org2/ca:/tmp/hyperledger/fabric-ca
     networks:

@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "build": "yarn run clean && tsc",
-    "test:channel": "npm run prepare-asset && ../../node_modules/.bin/jest channel.unit.test",
-    "test:ca": "../../node_modules/.bin/jest ca.unit.test",
+    "test:channel": "npm run prepare-asset && jest channel.unit.test",
+    "test:ca": "rimraf wallet && jest ca.unit.test",
     "prepare-asset": "rimraf assets && mkdir -p ./assets/client-certs/hfc-kvs/org1",
     "clean": "rimraf dist",
     "start": "yarn run build && node ./dist/app.js"

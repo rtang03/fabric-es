@@ -2,7 +2,7 @@ import { ProposalResponse } from 'fabric-client';
 import { flatten } from 'lodash';
 import '../env';
 import { Context } from './types';
-import { enrolAdmin, getClientForOrg, connectionProfile } from './utils';
+import { enrollAdmin, getClientForOrg, connectionProfile } from './utils';
 
 export const joinChannel: (
   channelName: string,
@@ -17,10 +17,7 @@ export const joinChannel: (
   }
 ) => {
   const { connProfileNetwork } = context;
-  const client = await getClientForOrg(
-    connProfileNetwork,
-    process.env.PATH_TO_CONNECTION_ORG1_CLIENT
-  );
+  const client = await getClientForOrg(connProfileNetwork);
   const channel = client.getChannel(channelName);
   if (!channel)
     throw new Error(
@@ -33,9 +30,9 @@ export const joinChannel: (
   const block = await channel.getGenesisBlock({ txId });
   const promises = [];
   // const hubs = [];
-  for (const { orgName, mspid, peers, clientPath } of getOrgs()) {
-    const admin = await getClientForOrg(connProfileNetwork, clientPath);
-    await enrolAdmin(admin, orgName, context).then(() => {
+  for (const { orgName, peers, clientPath } of getOrgs()) {
+    const admin = await getClientForOrg(clientPath);
+    await enrollAdmin(admin, orgName, context).then(() => {
       const channel = admin.getChannel(channelName);
       promises.push(
         channel.joinChannel(
