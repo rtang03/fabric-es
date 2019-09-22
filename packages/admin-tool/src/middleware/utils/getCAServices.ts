@@ -12,13 +12,13 @@ export const getCAServices: (
   client,
   url,
   orgName,
-  { pathToNetwork }
+  { fabricNetwork }
 ) =>
   new FabricCAServices(
     url,
     {
       trustedRoots: Buffer.from(
-        readAllFiles(`${pathToNetwork}/${orgName}/peer0/assets/ca`)[0]
+        readAllFiles(`${fabricNetwork}/${orgName}/peer0/assets/ca`)[0]
       ),
       verify: true
     },

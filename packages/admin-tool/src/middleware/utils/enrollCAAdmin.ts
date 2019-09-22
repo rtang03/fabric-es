@@ -15,12 +15,12 @@ export const enrollCAAdmin: (
       cryptoContent: {
         privateKeyPEM: Buffer.from(
           readAllFiles(
-            `${context.pathToNetwork}/${orgName}/ca/admin/msp/keystore`
+            `${context.fabricNetwork}/${orgName}/ca/admin/msp/keystore`
           )[0]
         ).toString(),
         signedCertPEM: Buffer.from(
           readAllFiles(
-            `${context.pathToNetwork}/${orgName}/ca/admin/msp/signcerts`
+            `${context.fabricNetwork}/${orgName}/ca/admin/msp/signcerts`
           )[0]
         ).toString()
       },

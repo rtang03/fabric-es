@@ -9,7 +9,7 @@ describe('Fabric CA unit test', () => {
     const org = 'Org1';
     const ctx = {
       connProfileNetwork: process.env.PATH_TO_CONNECTION_ORG1,
-      pathToNetwork: process.env.PATH_TO_NETWORK
+      fabricNetwork: process.env.PATH_TO_NETWORK
     };
     await enrollAdmin(org1ID, org1Secret, url, org, ctx).then(result =>
       expect(result).toMatchSnapshot()
@@ -28,7 +28,7 @@ describe('Fabric CA unit test', () => {
     const org = 'Org1';
     const ctx = {
       connProfileNetwork: process.env.PATH_TO_CONNECTION_ORG1,
-      pathToNetwork: process.env.PATH_TO_NETWORK
+      fabricNetwork: process.env.PATH_TO_NETWORK
     };
     await registerUser(user, secret, url, org, ctx).then(result => {
       console.log(result);

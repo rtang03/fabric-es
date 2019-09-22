@@ -1,4 +1,4 @@
-import { FileSystemWallet, Wallet, X509WalletMixin } from 'fabric-network';
+import { FileSystemWallet, X509WalletMixin } from 'fabric-network';
 import '../env';
 import { Context } from './types';
 import { getCAServices, getClientForOrg } from './utils';
@@ -8,8 +8,7 @@ export const enrollAdmin: (
   enrollmentSecret: string,
   url: string,
   orgName: string,
-  context?: Context,
-  wallet?: Wallet
+  context?: Context
 ) => Promise<any> = async (
   enrollmentID,
   enrollmentSecret,
@@ -17,13 +16,13 @@ export const enrollAdmin: (
   orgName,
   context = {
     connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
-    pathToNetwork: process.env.PATH_TO_NETWORK
-  },
-  wallet = new FileSystemWallet('./wallet')
+    fabricNetwork: process.env.PATH_TO_NETWORK,
+    wallet: new FileSystemWallet(process.env.WALLET)
+  }
 ) =>
   getClientForOrg(context.connProfileNetwork).then(async admin => {
     const ca = await getCAServices(admin, url, orgName, context);
-    return wallet.exists('admin').then(async exist =>
+    return context.wallet.exists('admin').then(async exist =>
       exist
         ? {
             status: 'SUCCESS',
@@ -36,7 +35,7 @@ export const enrollAdmin: (
             })
             .then(
               async ({ key, certificate }) =>
-                await wallet.import(
+                await context.wallet.import(
                   'admin',
                   X509WalletMixin.createIdentity(
                     admin.getMspid(),

@@ -5,16 +5,14 @@ import { Context } from './types';
 import { connectionProfile, getClientForOrg } from './utils';
 
 export const installChaincode: (
-  chaincode: {
-    chaincodeId: string;
-    chaincodeVersion?: string;
-  },
+  chaincodeId: string,
+  chaincodeVersion?: string,
   context?: Context
 ) => Promise<ProposalResponse[]> = async (
-  { chaincodeId, chaincodeVersion = '0' },
+  chaincodeId,
+  chaincodeVersion = '0',
   context = { connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE }
 ) => {
-  const { connProfileNetwork } = context;
   const chaincodePath = process.env.PATH_TO_CHAINCODE || '../chaincode';
   const { getOrgs } = await connectionProfile(context).then(
     ({ getOrganizations }) => getOrganizations()

@@ -1,0 +1,193 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Store:privatedata Tests should createCommit 1`] = `
+Object {
+  "entityName": "store_privatedata",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "store_privatedata_test_01",
+  "version": 0,
+}
+`;
+
+exports[`Store:privatedata Tests should queryByEntityId 1`] = `
+Object {
+  "entityName": "store_privatedata",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "store_privatedata_test_01",
+  "version": 0,
+}
+`;
+
+exports[`Store:privatedata Tests should queryByEntityId 2`] = `
+Object {
+  "entityName": "store_privatedata",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "store_privatedata_test_01",
+  "version": 0,
+}
+`;
+
+exports[`Store:privatedata Tests should queryByEntityId 3`] = `
+Object {
+  "entityName": "store_privatedata",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "store_privatedata_test_01",
+  "version": 0,
+}
+`;
+
+exports[`Store:privatedata Tests should queryByEntityId 4`] = `
+Object {
+  "entityName": "store_privatedata",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "store_privatedata_test_01",
+  "version": 0,
+}
+`;
+
+exports[`Store:privatedata Tests should queryByEntityId 5`] = `
+Object {
+  "entityName": "store_privatedata",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "store_privatedata_test_01",
+  "version": 0,
+}
+`;
+
+exports[`Store:privatedata Tests should queryByEntityIdCommitId 1`] = `
+Object {
+  "entityName": "store_privatedata",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "store_privatedata_test_01",
+  "version": 0,
+}
+`;
+
+exports[`Store:privatedata Tests should queryByEntityName 1`] = `
+Object {
+  "entityName": "store_privatedata",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "store_privatedata_test_01",
+  "version": 0,
+}
+`;
+
+exports[`Store:privatedata Tests should queryByEntityName 2`] = `
+Object {
+  "entityName": "store_privatedata",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "store_privatedata_test_01",
+  "version": 0,
+}
+`;
+
+exports[`Store:privatedata Tests should queryByEntityName 3`] = `
+Object {
+  "entityName": "store_privatedata",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "store_privatedata_test_01",
+  "version": 0,
+}
+`;
+
+exports[`Store:privatedata Tests should queryByEntityName 4`] = `
+Object {
+  "entityName": "store_privatedata",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "store_privatedata_test_01",
+  "version": 0,
+}
+`;
+
+exports[`Store:privatedata Tests should queryByEntityName 5`] = `
+Object {
+  "entityName": "store_privatedata",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "store_privatedata_test_01",
+  "version": 0,
+}
+`;

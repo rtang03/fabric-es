@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import '../env';
 import { Context } from './types';
-import { connectionProfile, enrollAdmin, getClientForOrg } from './utils';
+import { connectionProfile, createUser, getClientForOrg } from './utils';
 
 export const createChannel: (
   channelName: string,
@@ -12,11 +12,11 @@ export const createChannel: (
   channelName,
   context = {
     connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
-    pathToChannelTx: process.env.PATH_TO_CHANNEL_CONFIG,
-    pathToNetwork: process.env.PATH_TO_NETWORK
+    channelTx: process.env.PATH_TO_CHANNEL_CONFIG,
+    fabricNetwork: process.env.PATH_TO_NETWORK
   }
 ) => {
-  const { pathToChannelTx, connProfileNetwork } = context;
+  const { channelTx, connProfileNetwork } = context;
   const client: Client = await getClientForOrg(connProfileNetwork);
 
   // create orderer
@@ -32,13 +32,13 @@ export const createChannel: (
 
   // enrol all org's admins, and sign channel configuration
   const config = client.extractChannelConfig(
-    readFileSync(join(__dirname, pathToChannelTx, `${channelName}.tx`))
+    readFileSync(join(__dirname, channelTx, `${channelName}.tx`))
   );
   const signatures = [];
   for (const { orgName } of getOrgs()) {
     const admin = await getClientForOrg(connProfileNetwork);
     signatures.push(
-      await enrollAdmin(admin, orgName, context).then(() =>
+      await createUser(admin, orgName, context).then(() =>
         admin.signChannelConfig(config)
       )
     );

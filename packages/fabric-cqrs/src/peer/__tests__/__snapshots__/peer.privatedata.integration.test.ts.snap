@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Start peer privatedata Tests should Add #1 1`] = `
+Object {
+  "entityName": "privatedata_counter",
+  "events": Array [
+    Object {
+      "type": "ADD",
+    },
+  ],
+  "id": "peer_privatedata_test_01",
+  "version": 0,
+}
+`;

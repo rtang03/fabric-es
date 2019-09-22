@@ -9,6 +9,8 @@ Currently, it shall perform:
 - Join peers of all the organizations to this channel
 - Install the chaincode on every peer joined to the channel
 - Instantiate the chaincode on this channel
+- Enrol org admin, and create file system wallet
+- Register and enrol new user, and create file system wallet
 
 _Next actions_
 

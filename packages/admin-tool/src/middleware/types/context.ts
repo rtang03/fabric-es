@@ -1,5 +1,8 @@
+import { Wallet } from 'fabric-network';
+
 export interface Context {
-  pathToChannelTx?: string;
-  pathToNetwork?: string;
+  channelTx?: string;
+  fabricNetwork?: string;
   connProfileNetwork?: string;
+  wallet?: Wallet;
 }
