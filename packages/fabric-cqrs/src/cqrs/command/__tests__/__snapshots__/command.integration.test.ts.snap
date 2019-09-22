@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CQRS - command Tests should createEntity 1`] = `
+Object {
+  "entityName": "command_test",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "command_unit_test_01",
+  "version": 0,
+}
+`;
+
+exports[`CQRS - command Tests should queryByEntityId 1`] = `
+Object {
+  "entityName": "command_test",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "command_unit_test_01",
+  "version": 0,
+}
+`;
+
+exports[`CQRS - command Tests should queryByEntityIdCommitId 1`] = `
+Object {
+  "entityName": "command_test",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "command_unit_test_01",
+  "version": 0,
+}
+`;
+
+exports[`CQRS - command Tests should queryByEntityName 1`] = `
+Object {
+  "entityName": "command_test",
+  "events": Array [
+    Object {
+      "payload": Object {
+        "name": "me",
+      },
+      "type": "User Created",
+    },
+  ],
+  "id": "command_unit_test_01",
+  "version": 0,
+}
+`;

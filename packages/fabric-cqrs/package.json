@@ -1,0 +1,55 @@
+{
+  "name": "@espresso/fabric-cqrs",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "yarn run clean && tsc",
+    "clean": "rimraf dist",
+    "test:account": "jest account.unit.test",
+    "test:peer.integration": "jest peer.integration.test",
+    "test:peer.privatedata.integration": "jest peer.privatedata.integration.test",
+    "test:command.integration": "jest command.integration.test",
+    "test:service.integration": "jest service.integration.test",
+    "test:service.privatedata.integration": "jest service.privatedata.integration.test",
+    "test:store.privatedata.integration": "jest store.privatedata.integration.test",
+    "unit-test": "jest unit.test",
+    "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/account/enrolAdmin.ts"
+  },
+  "engines": {
+    "node": ">=8",
+    "npm": ">=5"
+  },
+  "private": true,
+  "engineStrict": true,
+  "dependencies": {
+    "@espresso/admin-tool": "1.0.0",
+    "dotenv": "^8.1.0",
+    "fabric-client": "^1.4.4",
+    "fabric-contract-api": "^1.4.2",
+    "fabric-network": "^1.4.4",
+    "js-yaml": "^3.13.1",
+    "lodash": "^4.17.15",
+    "prettyjson": "^1.2.1",
+    "redux": "^4.0.4",
+    "redux-observable": "^1.2.0",
+    "rxjs": "^6.5.3"
+  },
+  "devDependencies": {
+    "@types/bytebuffer": "^5.0.40",
+    "@types/dotenv": "^6.1.1",
+    "@types/jest": "^24.0.18",
+    "@types/js-yaml": "^3.12.1",
+    "@types/lodash": "^4.14.138",
+    "@types/node": "^8.10.54",
+    "jest": "^24.9.0",
+    "prettier": "^1.18.2",
+    "rimraf": "^3.0.0",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.20.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.6.3"
+  }
+}

@@ -2,7 +2,7 @@ import { ProposalResponse } from 'fabric-client';
 import { flatten } from 'lodash';
 import '../env';
 import { Context } from './types';
-import { enrollAdmin, getClientForOrg, connectionProfile } from './utils';
+import { connectionProfile, createUser, getClientForOrg } from './utils';
 
 export const joinChannel: (
   channelName: string,
@@ -13,7 +13,7 @@ export const joinChannel: (
   peers,
   context = {
     connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
-    pathToNetwork: process.env.PATH_TO_NETWORK
+    fabricNetwork: process.env.PATH_TO_NETWORK
   }
 ) => {
   const { connProfileNetwork } = context;
@@ -32,7 +32,7 @@ export const joinChannel: (
   // const hubs = [];
   for (const { orgName, peers, clientPath } of getOrgs()) {
     const admin = await getClientForOrg(clientPath);
-    await enrollAdmin(admin, orgName, context).then(() => {
+    await createUser(admin, orgName, context).then(() => {
       const channel = admin.getChannel(channelName);
       promises.push(
         channel.joinChannel(

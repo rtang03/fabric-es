@@ -36,7 +36,7 @@ describe('Administrator commands', () => {
       results.forEach(({ response: { status } }) => expect(status).toBe(200))
     );
 
-    await installChaincode({ chaincodeId }).then(results =>
+    await installChaincode(chaincodeId).then(results =>
       results.forEach(({ response: { status } }) => expect(status).toBe(200))
     );
 

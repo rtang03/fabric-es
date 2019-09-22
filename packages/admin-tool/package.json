@@ -1,6 +1,8 @@
 {
   "name": "@espresso/admin-tool",
   "version": "1.0.0",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "scripts": {
     "build": "yarn run clean && tsc",
     "test:channel": "npm run prepare-asset && jest channel.unit.test",

@@ -1,9 +1,4 @@
-import {
-  FileSystemWallet,
-  Gateway,
-  Wallet,
-  X509WalletMixin
-} from 'fabric-network';
+import { FileSystemWallet, Gateway, X509WalletMixin } from 'fabric-network';
 import '../env';
 import { Context } from './types';
 import { getClientForOrg } from './utils';
@@ -13,17 +8,16 @@ export const registerUser: (
   enrollmentSecret: string,
   url: string,
   orgName: string,
-  context?: Context,
-  wallet?: Wallet
+  context?: Context
 ) => Promise<any> = async (
   enrollmentID,
   enrollmentSecret,
   url,
   orgName,
-  { connProfileNetwork } = {
-    connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE
-  },
-  wallet = new FileSystemWallet('./wallet')
+  { connProfileNetwork, wallet } = {
+    connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
+    wallet: new FileSystemWallet('./wallet')
+  }
 ) =>
   (await wallet.exists(enrollmentID))
     ? {
