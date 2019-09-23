@@ -114,6 +114,7 @@ export FABRIC_CA_CLIENT_MSPDIR=tls-msp
 export FABRIC_CA_CLIENT_TLS_CERTFILES=$CURRENT_DIR/org1/peer0/assets/tls-ca/tls-ca-cert.pem
 fabric-ca-client enroll -d -u https://peer0.org1.example.com:peer1pw@0.0.0.0:5052 --enrollment.profile tls --csr.hosts peer0.org1.example.com
 
+sleep 2
 # Prepare assets
 mkdir -p $CURRENT_DIR/org1/peer1/assets/ca
 cp $CURRENT_DIR/org1/ca/crypto/ca-cert.pem $CURRENT_DIR/org1/peer1/assets/ca/org1-ca-cert.pem
@@ -211,10 +212,10 @@ export FABRIC_CA_CLIENT_MSPDIR=tls-msp
 export FABRIC_CA_CLIENT_TLS_CERTFILES=$CURRENT_DIR/org2/peer1/assets/tls-ca/tls-ca-cert.pem
 fabric-ca-client enroll -d -u https://peer1.org2.example.com:peer2pw@0.0.0.0:5052 --enrollment.profile tls --csr.hosts peer1.org2.example.com
 
+sleep 2
 mv $CURRENT_DIR/org2/peer0/tls-msp/keystore/$(ls $CURRENT_DIR/org2/peer0/tls-msp/keystore) $CURRENT_DIR/org2/peer0/tls-msp/keystore/key.pem
 mv $CURRENT_DIR/org2/peer1/tls-msp/keystore/$(ls $CURRENT_DIR/org2/peer1/tls-msp/keystore) $CURRENT_DIR/org2/peer1/tls-msp/keystore/key.pem
 mv $CURRENT_DIR/org1/admin/msp/keystore/$(ls $CURRENT_DIR/org1/admin/msp/keystore) $CURRENT_DIR/org1/admin/msp/keystore/key.pem
-mv $CURRENT_DIR/org2/admin/msp/keystore/$(ls $CURRENT_DIR/org2/admin/msp/keystore) $CURRENT_DIR/org2/admin/msp/keystore/key.pem
 
 # Enrol org2 admin
 export FABRIC_CA_CLIENT_HOME=$CURRENT_DIR/org2/admin
@@ -223,6 +224,7 @@ export FABRIC_CA_CLIENT_MSPDIR=msp
 fabric-ca-client enroll -d -u https://Admin@org2.example.com:peer1pw@0.0.0.0:5055
 
 sleep 2
+mv $CURRENT_DIR/org2/admin/msp/keystore/$(ls $CURRENT_DIR/org2/admin/msp/keystore) $CURRENT_DIR/org2/admin/msp/keystore/key.pem
 
 # Prepare admincerts
 mkdir -p $CURRENT_DIR/org2/peer0/msp/admincerts
@@ -253,6 +255,9 @@ cp ./configtx.yaml ./hosts/configtx.yaml
 cd $CURRENT_DIR
 configtxgen -configPath $CURRENT_DIR -profile TwoOrgsOrdererGenesis -channelID syschannel -outputBlock $CURRENT_DIR/org0/orderer/genesis.block
 configtxgen -configPath $CURRENT_DIR -profile TwoOrgsChannel -channelID mychannel -outputCreateChannelTx $CURRENT_DIR/org0/orderer/channel.tx
+
+sleep 1
+
 cp $CURRENT_DIR/org0/orderer/channel.tx $CURRENT_DIR/org1/peer0/assets/channel.tx
 cp $CURRENT_DIR/org0/orderer/channel.tx $CURRENT_DIR/org2/peer0/assets/channel.tx
 

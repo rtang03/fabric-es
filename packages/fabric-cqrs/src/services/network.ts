@@ -1,79 +1,51 @@
-require('dotenv').config();
 import { ChannelEventHub } from 'fabric-client';
 import {
   DefaultEventHandlerStrategies,
+  DefaultQueryHandlerStrategies,
   FileSystemWallet,
   Gateway,
   Network
 } from 'fabric-network';
-import * as fs from 'fs';
-import * as yaml from 'js-yaml';
-import * as path from 'path';
+import { readFileSync } from 'fs';
+import { safeLoad } from 'js-yaml';
+import '../env';
 
-export const getNetwork: (config?: {
-  connectionProfilePath: string;
+export const getNetwork: (option: {
   identity: string;
-  walletRoot: string;
-  wallet: string;
-  channelName: string;
-  hub: string;
+  channelName?: string;
 }) => Promise<{
+  identity: string;
   network: Network;
   gateway: Gateway;
   channelHub: ChannelEventHub;
-}> = async (
-  { connectionProfilePath, identity, wallet, walletRoot, hub, channelName } = {
-    connectionProfilePath: process.env.CONNECTION_PROFILE_PATH,
-    identity: process.env.IDENTITY,
-    walletRoot: process.env.WALLET_ROOT,
-    wallet: process.env.WALLET || 'identity/wallet',
-    hub: process.env.CHANNEL_HUB,
-    channelName: process.env.CHANNEL_NAME
+}> = async ({ identity, channelName }) => {
+  const wallet = new FileSystemWallet(process.env.WALLET || 'assets/wallet');
+  const connectionProfile = process.env.CONNECTION_PROFILE;
+  const hub = process.env.CHANNEL_HUB;
+  const identityExist = await wallet.exists(identity);
+  if (!identityExist) {
+    throw new Error('Please register user, before retrying');
   }
-) => {
-  try {
-    if (!connectionProfilePath) {
-      console.error('Missing CONNECTION_PROFILE_PATH in .env');
-      return null;
-    }
-
-    if (!identity) {
-      console.error('Missing IDENTITY in .env');
-      return null;
-    }
-
-    if (!walletRoot) {
-      console.error('Missing WALLET_ROOT in .env');
-      return null;
-    }
-
-    if (!wallet) {
-      console.error('Missing WALLET in .env');
-      return null;
-    }
-
-    if (!channelName) {
-      console.error('Missing CHANNEL_NAME in .env');
-      return null;
-    }
-
-    const gateway = await new Gateway();
-    const connectionProfile = await yaml.safeLoad(
-      fs.readFileSync(connectionProfilePath, 'utf8')
-    );
-    const connectionOptions = {
-      identity,
-      wallet: await new FileSystemWallet(path.join(walletRoot, wallet)),
-      discovery: { enabled: true, asLocalhost: true },
-      eventHandlerOptions: {
-        strategy: DefaultEventHandlerStrategies.MSPID_SCOPE_ANYFORTX
-      }
-    };
-    await gateway.connect(connectionProfile, connectionOptions);
-    const network = await gateway.getNetwork(channelName);
-    const channelHub = await network.getChannel().getChannelEventHub(hub);
-    return { network, gateway, channelHub };
-  } catch (error) {
-    console.error(error);
+  if (!connectionProfile) {
+    throw new Error('No connection profile defined.');
   }
+  if (!hub) {
+    throw new Error('No channel event hub defined.');
+  }
+
+  const gateway = await new Gateway();
+  await gateway.connect(safeLoad(readFileSync(connectionProfile, 'utf8')), {
+    identity,
+    wallet,
+    discovery: { enabled: false, asLocalhost: true },
+    eventHandlerOptions: {
+      strategy: DefaultEventHandlerStrategies.MSPID_SCOPE_ANYFORTX
+    },
+    queryHandlerOptions: {
+      strategy: DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE
+    }
+  });
+  const network = await gateway.getNetwork(channelName || 'eventstore');
+  const channelHub = network.getChannel().getChannelEventHub(hub);
+  return { identity, network, gateway, channelHub };
 };

@@ -24,7 +24,6 @@ export const instantiateChaincode: (
   },
   context = { connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE }
 ) => {
-  chaincodeId = (chaincodeId || channelName) as any;
   const { connProfileNetwork } = context;
   const client = await getClientForOrg(connProfileNetwork);
   const channel = client.getChannel(channelName);
@@ -39,12 +38,21 @@ export const instantiateChaincode: (
   const deployId = txId.getTransactionID();
   const request = {
     targets,
-    chaincodeId,
+    chaincodeId: chaincodeId || channelName,
     chaincodeVersion,
     chaincodeType: 'node' as ChaincodeType,
     fcn,
     args,
-    txId
+    txId,
+    'endorsement-policy': {
+      identities: [
+        { role: { name: 'member', mspId: 'Org1MSP' } },
+        { role: { name: 'member', mspId: 'Org2MSP' } }
+      ],
+      policy: {
+        '1-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }]
+      }
+    }
   };
   const simulation = upgrade
     ? await channel.sendUpgradeProposal(request, 120000)

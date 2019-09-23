@@ -317,7 +317,7 @@ export class Peer implements IPeer {
   async subscribeHub() {
     this.registerId = await channelEventHub(
       this.option.channelHub
-    ).registerChaincodeEvent({
+    ).registerCCEvent({
       onChannelEventArrived: ({ commit }) => {
         const tid = generateToken();
         console.log('subscribeHub running');
