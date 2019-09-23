@@ -11,19 +11,18 @@ export const submit: (
   args,
   { network }
 ) =>
-  await getContract(network).then(
-    async ({ contract }) =>
-      await contract
-        .createTransaction(fcn)
-        .submit(...args)
-        .then<Record<string, Commit>>((res: any) =>
-          JSON.parse(Buffer.from(JSON.parse(res)).toString())
-        )
-        .catch(error => {
-          console.log(`Error processing Submit transaction. ${error}`);
-          console.error(error.stack);
-          return { error };
-        })
+  await getContract(network).then(({ contract }) =>
+    contract
+      .createTransaction(fcn)
+      .submit(...args)
+      .then<Record<string, Commit>>((res: any) =>
+        JSON.parse(Buffer.from(JSON.parse(res)).toString())
+      )
+      .catch(error => {
+        console.log(`Error processing Submit transaction. ${error}`);
+        console.error(error.stack);
+        return { error };
+      })
   );
 
 export const submit$: (

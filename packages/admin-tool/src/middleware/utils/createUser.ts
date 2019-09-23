@@ -24,6 +24,6 @@ export const createUser: (
           )[0]
         ).toString()
       },
-      skipPersistence: false
+      skipPersistence: true
     })
   );

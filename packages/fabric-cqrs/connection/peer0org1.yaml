@@ -29,14 +29,14 @@ channels:
         ledgerQuery: true
         eventSource: true
     chaincodes:
-      - eventstore:v0
+      - eventstore:0
 
 organizations:
   Org1:
     mspid: Org1MSP
     peers:
       - peer0.org1.example.com
-      - peer1.org1.example.com
+#      - peer1.org1.example.com
     certificateAuthorities:
       - ca.org1.example.com
     adminPrivateKey:

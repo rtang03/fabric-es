@@ -4,10 +4,10 @@ import { Commit, Context } from '../types';
 export const channelEventHub: (
   hub: ChannelEventHub
 ) => {
-  registerChaincodeEvent: (context: Context) => any;
+  registerCCEvent: (context: Context) => Promise<any>;
   close: (registerId: string) => void;
 } = hub => ({
-  registerChaincodeEvent: ({ onChannelEventArrived }) =>
+  registerCCEvent: ({ onChannelEventArrived }) =>
     new Promise((resolve, reject) => {
       hub.connect({ full_block: true }, (err, status) => {
         if (err) {
