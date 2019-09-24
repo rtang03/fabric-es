@@ -30,7 +30,7 @@ _Next actions_
 
 ### Pre-requisite
 
-_Step 0: Bootstrap base network_  
+_Bootstrap base network_  
 Bootstrap the base network, according to [`./network/READMD.md`](network/README.md)  
 This will build the 2-orgs/4-peers/4-CA topology. And, register/enrol:
 
@@ -38,8 +38,17 @@ This will build the 2-orgs/4-peers/4-CA topology. And, register/enrol:
 - Org1 & Org 2 Root CA admins
 - Org1 & Org2 admins
 
-_Step 1: get familar with Admin-tool_  
+_get familar with Admin-tool_  
 See `packages/admin-tool/README.md`
+
+### Getting Started
+docker-compose up
+./bootstrap.sh
+docker-compose down/up
+build chaincode (if chaincode was changed, need to remove pre-existing docker)
+run create/install/instantiate/join channel (if new chaincode is build, it will take much longer time)
+enrolAdmin
+registerUser
 
 ### References
 

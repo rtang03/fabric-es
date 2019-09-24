@@ -8,11 +8,11 @@ const eventStr = JSON.stringify([{ type: 'mon', payload: { name: 'jun' } }]);
 const cli = `docker exec \
 -e CORE_PEER_LOCALMSPID=Org1MSP \
 -e CORE_PEER_ADDRESS=peer0.org1.example.com:7051 \
--e CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt \
--e CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp `;
-const query = `${cli} cliOrg1 peer chaincode query -C mychannel -n eventstore -c `;
-const invoke = `${cli} cliOrg1 peer chaincode invoke -o orderer.example.com:7050 --waitForEvent --tls -C mychannel -n eventstore \
---cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -c `;
+-e CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org1/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
+-e CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1/admin/msp `;
+const query = `${cli} cli-org1 peer chaincode query -C eventstore -n eventstore -c `;
+const invoke = `${cli} cli-org1 peer chaincode invoke -o orderer.example.com:7050 --waitForEvent --tls -C eventstore -n eventstore \
+--cafile /tmp/hyperledger/org1/peer0/assets/tls-ca/tls-ca-cert.pem -c `;
 
 let commitId: string;
 
@@ -124,8 +124,8 @@ describe('Chaincode Integration Tests', () => {
   it('should fail to deleteByEntityIdCommitId', async () =>
     await exec(
       `${invoke} '{"Args":["deleteByEntityIdCommitId","${entityName}","id_00001","${commitId}"]}'`
-    ).catch(({ stderr }) =>
-      expect(stderr).toContain('commitId does not exist')
+    ).then(({ stderr }) =>
+      expect(stderr).toContain('Chaincode invoke successful')
     ));
 
   it('should fail to createCommit', async () =>

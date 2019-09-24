@@ -19,7 +19,7 @@ export const submit: (
         JSON.parse(Buffer.from(JSON.parse(res)).toString())
       )
       .catch(error => {
-        console.log(`Error processing Submit transaction. ${error}`);
+        console.log(`Error processing Submit transaction.`);
         console.error(error.stack);
         return { error };
       })

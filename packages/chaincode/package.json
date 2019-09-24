@@ -18,6 +18,7 @@
     "prepublishOnly": "npm run build",
     "test": "jest",
     "test:public": "jest public",
+    "test:public-unit": "jest public.unit.test",
     "test:private": "jest private.integration.test"
   },
   "engineStrict": true,
