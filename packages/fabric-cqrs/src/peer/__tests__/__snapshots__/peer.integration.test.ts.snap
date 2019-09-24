@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Start peer Tests ADD should ADD #1 1`] = `
+Object {
+  "entityName": "counter",
+  "events": Array [
+    Object {
+      "type": "ADD",
+    },
+  ],
+  "version": 0,
+}
+`;
+
+exports[`Start peer Tests ADD should ADD #2 1`] = `
+Object {
+  "entityName": "counter",
+  "events": Array [
+    Object {
+      "type": "ADD",
+    },
+  ],
+  "version": 0,
+}
+`;

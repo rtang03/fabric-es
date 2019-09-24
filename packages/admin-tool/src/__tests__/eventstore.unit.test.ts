@@ -11,9 +11,17 @@ const channelName = `testchannel${Math.floor(Math.random() * 1000)}`;
 const cli = `mkdir -p ./assets/channel-config && \
 configtxgen -configPath ../../network/hosts -profile TwoOrgsChannel -channelID ${channelName}  -outputCreateChannelTx \
 ./assets/channel-config/${channelName}.tx`;
-
 const cli2 = `configtxgen -configPath ../../network/hosts -profile TwoOrgsChannel -channelID eventstore  -outputCreateChannelTx \
 ./assets/channel-config/eventstore.tx`;
+const endorsementPolicy = {
+  identities: [
+    { role: { name: 'member', mspId: 'Org1MSP' } },
+    { role: { name: 'member', mspId: 'Org2MSP' } }
+  ],
+  policy: {
+    '1-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }]
+  }
+};
 
 beforeAll(async () => {
   await exec(cli).then(({ stderr }) => console.log(stderr));
@@ -40,9 +48,11 @@ describe('Administrator commands', () => {
       results.forEach(({ response: { status } }) => expect(status).toBe(200))
     );
 
-    await instantiateChaincode({ channelName: 'eventstore', chaincodeId }).then(
-      result => expect(result).toEqual({ status: 'SUCCESS', info: '' })
-    );
+    await instantiateChaincode({
+      channelName: 'eventstore',
+      chaincodeId,
+      endorsementPolicy
+    }).then(result => expect(result).toEqual({ status: 'SUCCESS', info: '' }));
 
     const { getInstantiatedChaincodes, getInstalledChaincodes } = await getInfo(
       'eventstore'

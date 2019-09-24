@@ -73,6 +73,17 @@ Orderer: &OrdererDefaults
       Type: ImplicitMeta
       Rule: "ANY Writers"
 
+Capabilities:
+  Channel: &ChannelCapabilities
+    V1_4_2: true
+  Orderer: &OrdererCapabilities
+    V1_4_2: true
+  Application: &ApplicationCapabilities
+    V1_4_2: true
+    V1_3: false
+    V1_2: false
+    V1_1: false
+
 Application: &ApplicationDefaults
   Organizations:
   Policies:
@@ -85,6 +96,8 @@ Application: &ApplicationDefaults
     Admins:
       Type: ImplicitMeta
       Rule: "ANY Admins"
+  Capabilities:
+    <<: *ApplicationCapabilities
 
 Channel: &ChannelDefaults
   Policies:
@@ -97,6 +110,8 @@ Channel: &ChannelDefaults
     Admins:
       Type: ImplicitMeta
       Rule: "ANY Admins"
+  Capabilities:
+    <<: *ChannelCapabilities
 
 Profiles:
   TwoOrgsOrdererGenesis:
@@ -105,6 +120,8 @@ Profiles:
       <<: *OrdererDefaults
       Organizations:
         - *OrdererOrg
+      Capabilities:
+        <<: *OrdererCapabilities
     Consortiums:
       SampleConsortium:
         Organizations:
@@ -119,3 +136,5 @@ Profiles:
       Organizations:
         - *Org1
         - *Org2
+      Capabilities:
+        <<: *ApplicationCapabilities

@@ -1,16 +1,22 @@
-import { ChaincodeType, ProposalResponse } from 'fabric-client';
+import {
+  ChaincodeInstantiateUpgradeRequest,
+  ChaincodeType,
+  ProposalResponse
+} from 'fabric-client';
 import '../env';
 import { Context } from './types';
 import { connectionProfile, getClientForOrg } from './utils';
 
 export const instantiateChaincode: (
-  chaincode: {
+  option: {
     channelName: string;
     fcn?: string;
     args?: string[];
     chaincodeId?: string;
     chaincodeVersion?: string;
     upgrade?: boolean;
+    endorsementPolicy?: any;
+    collectionsConfig?: string;
   },
   context?: Context
 ) => Promise<any> = async (
@@ -20,7 +26,9 @@ export const instantiateChaincode: (
     args = [],
     chaincodeId,
     chaincodeVersion = '0',
-    upgrade
+    upgrade,
+    endorsementPolicy,
+    collectionsConfig
   },
   context = { connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE }
 ) => {
@@ -36,33 +44,30 @@ export const instantiateChaincode: (
   );
   const txId = client.newTransactionID(true);
   const deployId = txId.getTransactionID();
-  const request = {
+  const request: ChaincodeInstantiateUpgradeRequest = {
     targets,
     chaincodeId: chaincodeId || channelName,
     chaincodeVersion,
     chaincodeType: 'node' as ChaincodeType,
     fcn,
     args,
-    txId,
-    'endorsement-policy': {
-      identities: [
-        { role: { name: 'member', mspId: 'Org1MSP' } },
-        { role: { name: 'member', mspId: 'Org2MSP' } }
-      ],
-      policy: {
-        '1-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }]
-      }
-    }
+    txId
   };
+
+  if (endorsementPolicy) {
+    request['endorsement-policy'] = endorsementPolicy;
+  }
+  if (collectionsConfig) {
+    request['collections-config'] = collectionsConfig;
+  }
+
   const simulation = upgrade
-    ? await channel.sendUpgradeProposal(request, (process.env.TIMEOUT ||
-        600000) as number)
-    : await channel.sendInstantiateProposal(request, (process.env.TIMEOUT ||
-        600000) as number);
+    ? await channel.sendUpgradeProposal(request, 600000)
+    : await channel.sendInstantiateProposal(request, 600000);
   const proposalResponses: ProposalResponse[] = simulation[0] as any;
   const proposal = simulation[1];
   const allGood = proposalResponses.reduce(
-    (previous, current) => previous && current!.response!.status === 200,
+    (prev, curr) => prev && curr.response.status === 200,
     true
   );
   if (allGood) {
@@ -74,7 +79,7 @@ export const instantiateChaincode: (
     hubs.forEach(hub =>
       promises.push(
         new Promise((resolve, reject) => {
-          const handler = setTimeout(() => hub.disconnect(), 60000);
+          const handler = setTimeout(() => hub.disconnect(), 600000);
           hub.registerTxEvent(
             deployId,
             (tid, code, blockNumber) => {

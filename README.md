@@ -50,6 +50,15 @@ run create/install/instantiate/join channel (if new chaincode is build, it will 
 enrolAdmin
 registerUser
 
+### Clean up command
+```shell script
+docker volume prune
+docker rm $(docker ps -qf "name=cli-org") -f
+docker rm $(docker ps -aqf "name=eventstore") -f
+docker rm $(docker ps -aqf "name=privatedata") -f
+docker rmi $(docker images -q "dev-*")
+```
+
 ### References
 
 The source is refactored from below repo.  

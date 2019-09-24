@@ -119,9 +119,17 @@ export class PrivateData extends Contract {
       });
       return Buffer.from(
         JSON.stringify({
-          [commit.commitId]: {}
+          status: 'SUCCESS',
+          message: `Commit ${commit.commitId} is deleted`
         })
       );
-    } else throw new Error('commitId does not exist');
+    } else {
+      return Buffer.from(
+        JSON.stringify({
+          status: 'SUCCESS',
+          message: 'commitId does not exist'
+        })
+      );
+    }
   }
 }

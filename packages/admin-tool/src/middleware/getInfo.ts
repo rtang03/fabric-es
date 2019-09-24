@@ -20,7 +20,7 @@ export const getInfo: (
   channelName,
   peer = 'peer0.org1.example.com',
   context = {
-    connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
+    connProfileNetwork: process.env.PATH_TO_CONNECTION_ORG1,
     fabricNetwork: process.env.PATH_TO_NETWORK
   }
 ) => {
