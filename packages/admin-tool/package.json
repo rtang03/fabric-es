@@ -5,7 +5,8 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "yarn run clean && tsc",
-    "test:channel": "npm run prepare-asset && jest channel.unit.test",
+    "test:prepare-eventstore": "npm run prepare-asset && jest eventstore.unit.test",
+    "test:prepare-privatedata": "jest privatedata.unit.test",
     "test:ca": "rimraf wallet && jest ca.unit.test",
     "prepare-asset": "rimraf assets && mkdir -p ./assets/client-certs/hfc-kvs/org1",
     "clean": "rimraf dist",
