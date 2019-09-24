@@ -55,8 +55,10 @@ export const instantiateChaincode: (
     }
   };
   const simulation = upgrade
-    ? await channel.sendUpgradeProposal(request, 120000)
-    : await channel.sendInstantiateProposal(request, 120000);
+    ? await channel.sendUpgradeProposal(request, (process.env.TIMEOUT ||
+        600000) as number)
+    : await channel.sendInstantiateProposal(request, (process.env.TIMEOUT ||
+        600000) as number);
   const proposalResponses: ProposalResponse[] = simulation[0] as any;
   const proposal = simulation[1];
   const allGood = proposalResponses.reduce(

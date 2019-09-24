@@ -17,18 +17,6 @@ Object {
 }
 `;
 
-exports[`Chaincode Tests should deleteByEntityId 1`] = `
-Object {
-  "123": Object {},
-}
-`;
-
-exports[`Chaincode Tests should deleteByEntityIdCommitId 1`] = `
-Object {
-  "123": Object {},
-}
-`;
-
 exports[`Chaincode Tests should instantiate 1`] = `
 Object {
   "entityName": "dev_entity",

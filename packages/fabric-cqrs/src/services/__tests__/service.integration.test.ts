@@ -19,17 +19,19 @@ const entityName = 'dev_test';
 const identity = `service_test${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  console.log('Start');
-  await registerUser({
-    enrollmentID: identity,
-    enrollmentSecret: 'password'
-  }).catch();
-  console.log('Register User');
-  const config = await getNetwork({ identity });
-  console.log('Get Network');
-  network = config.network;
-  gateway = config.gateway;
-  channelHub = config.channelHub;
+  try {
+    await registerUser({
+      enrollmentID: identity,
+      enrollmentSecret: 'password'
+    });
+    const config = await getNetwork({ identity });
+    network = config.network;
+    gateway = config.gateway;
+    channelHub = config.channelHub;
+  } catch (error) {
+    console.error(error);
+    process.exit(-1);
+  }
 });
 
 afterAll(async () => {
@@ -40,25 +42,20 @@ afterAll(async () => {
 describe('Eventstore Tests', () => {
   it('should return channel event hub', async () => {
     event.onChannelEventArrived.mockImplementation(({ commit }) =>
-      console.log(commit.id)
+      console.log(`Receive channel event from Identity: ${commit.id}`)
     );
     registerId = await channelEventHub(channelHub).registerCCEvent(event);
   });
 
-  // it('should query all commits', async () =>
-  //   await evaluate('queryByEntityName', ['dev_entity'], {
-  //     network
-  //   }).then(commits =>
-  //     values<Commit>(commits).forEach(commit =>
-  //       expect(pick(commit, 'entityName')).toEqual({ entityName: 'dev_entity' })
-  //     )
-  //   ));
+  it('should query all commits', async () =>
+    await evaluate('queryByEntityName', ['dev_entity'], {
+      network
+    }).then(commits =>
+      values<Commit>(commits).forEach(commit =>
+        expect(pick(commit, 'entityName')).toEqual({ entityName: 'dev_entity' })
+      )
+    ));
 
-  // it('should delete all dev_test entity', async () =>
-  //   await submit('deleteByEntityId', [entityName, identity], {
-  //     network
-  //   }));
-  //
   it('should create #1', async () =>
     await submit(
       'createCommit',
@@ -75,66 +72,68 @@ describe('Eventstore Tests', () => {
         createdCommit_1 = commit;
         return expect(commit.entityId).toEqual(identity);
       }));
-  //
-  // it('should queryByEntityIdCommitId', async () =>
-  //   await evaluate(
-  //     'queryByEntityIdCommitId',
-  //     [entityName, identity, createdCommit_1.commitId],
-  //     { network }
-  //   )
-  //     .then<Commit>(result => values(result)[0])
-  //     .then(commit => expect(commit).toEqual(createdCommit_1)));
-  //
-  // it('should create #2', async () =>
-  //   await submit(
-  //     'createCommit',
-  //     [
-  //       entityName,
-  //       identity,
-  //       '0',
-  //       JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])
-  //     ],
-  //     { network }
-  //   ));
-  //
-  // it('should queryByEntityName', async () =>
-  //   await evaluate('queryByEntityName', [entityName], {
-  //     network
-  //   }).then(result => expect(keys(result).length).toEqual(2)));
-  //
-  // it('should queryByEntityId #1', async () =>
-  //   await evaluate('queryByEntityId', [entityName, identity], {
-  //     network
-  //   }).then(result => expect(keys(result).length).toEqual(2)));
-  //
-  // it('should deleteByEntityIdCommitId', async () =>
-  //   await submit(
-  //     'deleteByEntityIdCommitId',
-  //     [entityName, identity, createdCommit_1.commitId],
-  //     { network }
-  //   ).then(result => expect(result[createdCommit_1.commitId]).toEqual({})));
-  //
-  // it('should fail to delete non-exist entity by EntityId/CommitId', async () =>
-  //   await submit(
-  //     'deleteByEntityIdCommitId',
-  //     [entityName, identity, createdCommit_1.commitId],
-  //     { network }
-  //   ).then(({ error }) =>
-  //     expect(error.message).toEqual('Endorsement has failed')
-  //   ));
-  //
-  // it('should queryByEntityId #2', async () =>
-  //   await evaluate('queryByEntityId', [entityName, identity], {
-  //     network
-  //   }).then(result => expect(keys(result).length).toEqual(1)));
-  //
-  // it('should deleteByEntityId', async () =>
-  //   await submit('deleteByEntityId', [entityName, identity], {
-  //     network
-  //   }).then(result => expect(values(result)[0]).toEqual({})));
-  //
-  // it('should queryByEntityId #3', async () =>
-  //   await evaluate('queryByEntityId', [entityName, identity], {
-  //     network
-  //   }).then(result => expect(result).toEqual({})));
+
+  it('should queryByEntityIdCommitId', async () =>
+    await evaluate(
+      'queryByEntityIdCommitId',
+      [entityName, identity, createdCommit_1.commitId],
+      { network }
+    )
+      .then<Commit>(result => values(result)[0])
+      .then(commit => expect(commit).toEqual(createdCommit_1)));
+
+  it('should create #2', async () =>
+    await submit(
+      'createCommit',
+      [
+        entityName,
+        identity,
+        '0',
+        JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])
+      ],
+      { network }
+    ));
+
+  it('should queryByEntityName', async () =>
+    await evaluate('queryByEntityName', [entityName], {
+      network
+    }).then(commits =>
+      values<Commit>(commits).map(({ entityName }) =>
+        expect(entityName).toBe('dev_test')
+      )
+    ));
+
+  it('should queryByEntityId #1', async () =>
+    await evaluate('queryByEntityId', [entityName, identity], {
+      network
+    }).then(result => expect(keys(result).length).toEqual(2)));
+
+  it('should deleteByEntityIdCommitId', async () =>
+    await submit(
+      'deleteByEntityIdCommitId',
+      [entityName, identity, createdCommit_1.commitId],
+      { network }
+    ).then(result => expect(result[createdCommit_1.commitId]).toEqual({})));
+
+  it('should fail to delete non-exist entity by EntityId/CommitId', async () =>
+    await submit(
+      'deleteByEntityIdCommitId',
+      [entityName, identity, createdCommit_1.commitId],
+      { network }
+    ).then(({ error }) => expect(error instanceof Error).toEqual(true)));
+
+  it('should queryByEntityId #2', async () =>
+    await evaluate('queryByEntityId', [entityName, identity], {
+      network
+    }).then(result => expect(keys(result).length).toEqual(1)));
+
+  it('should deleteByEntityId', async () =>
+    await submit('deleteByEntityId', [entityName, identity], {
+      network
+    }).then(result => expect(values(result)[0]).toEqual({})));
+
+  it('should queryByEntityId #3', async () =>
+    await evaluate('queryByEntityId', [entityName, identity], {
+      network
+    }).then(result => expect(result).toEqual({})));
 });

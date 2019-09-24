@@ -1,19 +1,31 @@
 import { pick, values } from 'lodash';
 import { Store } from 'redux';
+import { registerUser } from '../../../account/registerUser';
 import { getNetwork } from '../../../services';
+import { Context } from '../../../types';
 import { generateToken } from '../../utils';
 import { action } from '../action';
 import { getStore } from './__utils__/store';
 
-let context: any;
+let context: Context;
 let commitId: string;
 let store: Store;
 const entityName = 'command_test';
 const id = 'command_unit_test_01';
+const identity = `command_test${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  context = await getNetwork();
-  store = getStore(context);
+  try {
+    await registerUser({
+      enrollmentID: identity,
+      enrollmentSecret: 'password'
+    });
+    context = await getNetwork({ identity });
+    store = getStore(context);
+  } catch (error) {
+    console.error(error);
+    process.exit(-1);
+  }
 });
 
 afterAll(async () => {
@@ -25,7 +37,7 @@ describe('CQRS - command Tests', () => {
   it('should deleteByEntityId', done => {
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
-      const { tx_id, error, type } = store.getState().write;
+      const { tx_id, type } = store.getState().write;
       if (tx_id === tid && type === action.DELETE_ERROR) {
         unsubscribe();
         done();

@@ -1,5 +1,5 @@
 import { Context } from 'fabric-contract-api';
-import { omit, pick } from 'lodash';
+import { keys, omit } from 'lodash';
 import { serialize, splitKey } from '.';
 import { Commit } from '..';
 
@@ -63,10 +63,22 @@ export class StateList {
           this.ctx.stub.createCompositeKey('entities', splitKey(key))
         );
         result[commitId] = {};
-      } else throw new Error('no state returned');
+      } else {
+        return {
+          status: 'SUCCESS',
+          message: 'No state returned for deletion'
+        };
+      }
+      // else throw new Error('no state returned');
       if (done) {
         await iterator.close();
-        return Buffer.from(JSON.stringify(result));
+        return Buffer.from(
+          JSON.stringify({
+            status: 'SUCCESS',
+            message: `${keys(result).length} records deleted`,
+            result
+          })
+        );
       }
     }
   }

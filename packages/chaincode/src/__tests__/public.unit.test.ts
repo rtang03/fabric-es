@@ -98,11 +98,11 @@ describe('Chaincode Tests', () => {
     await cc
       .deleteByEntityIdCommitId(context, entityName, id, commitId)
       .then<Record<string, Commit>>((response: any) => JSON.parse(response))
-      .then(response => expect(response).toMatchSnapshot()));
+      .then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should deleteByEntityId', async () =>
     await cc
       .deleteByEntityId(context, entityName, id)
       .then<Record<string, Commit>>((response: any) => JSON.parse(response))
-      .then(response => expect(response).toMatchSnapshot()));
+      .then(({ status }) => expect(status).toBe('SUCCESS')));
 });
