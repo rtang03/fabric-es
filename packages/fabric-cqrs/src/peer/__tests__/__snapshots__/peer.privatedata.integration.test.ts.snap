@@ -8,7 +8,6 @@ Object {
       "type": "ADD",
     },
   ],
-  "id": "peer_privatedata_test_01",
   "version": 0,
 }
 `;

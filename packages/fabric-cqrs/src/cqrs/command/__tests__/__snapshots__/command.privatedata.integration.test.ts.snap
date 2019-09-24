@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CQRS - command Tests should createEntity 1`] = `
+exports[`Store:privatedata Tests should createCommit 1`] = `
 Object {
-  "entityName": "command_test",
+  "entityName": "store_privatedata",
   "events": Array [
     Object {
       "payload": Object {
@@ -15,9 +15,9 @@ Object {
 }
 `;
 
-exports[`CQRS - command Tests should queryByEntityId 1`] = `
+exports[`Store:privatedata Tests should queryByEntityId 1`] = `
 Object {
-  "entityName": "command_test",
+  "entityName": "store_privatedata",
   "events": Array [
     Object {
       "payload": Object {
@@ -30,9 +30,9 @@ Object {
 }
 `;
 
-exports[`CQRS - command Tests should queryByEntityIdCommitId 1`] = `
+exports[`Store:privatedata Tests should queryByEntityIdCommitId 1`] = `
 Object {
-  "entityName": "command_test",
+  "entityName": "store_privatedata",
   "events": Array [
     Object {
       "payload": Object {
@@ -45,9 +45,9 @@ Object {
 }
 `;
 
-exports[`CQRS - command Tests should queryByEntityName 1`] = `
+exports[`Store:privatedata Tests should queryByEntityName 1`] = `
 Object {
-  "entityName": "command_test",
+  "entityName": "store_privatedata",
   "events": Array [
     Object {
       "payload": Object {
