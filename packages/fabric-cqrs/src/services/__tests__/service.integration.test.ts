@@ -113,14 +113,14 @@ describe('Eventstore Tests', () => {
       'deleteByEntityIdCommitId',
       [entityName, identity, createdCommit_1.commitId],
       { network }
-    ).then(result => expect(result[createdCommit_1.commitId]).toEqual({})));
+    ).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should fail to delete non-exist entity by EntityId/CommitId', async () =>
     await submit(
       'deleteByEntityIdCommitId',
       [entityName, identity, createdCommit_1.commitId],
       { network }
-    ).then(({ error }) => expect(error instanceof Error).toEqual(true)));
+    ).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should queryByEntityId #2', async () =>
     await evaluate('queryByEntityId', [entityName, identity], {
@@ -130,7 +130,7 @@ describe('Eventstore Tests', () => {
   it('should deleteByEntityId', async () =>
     await submit('deleteByEntityId', [entityName, identity], {
       network
-    }).then(result => expect(values(result)[0]).toEqual({})));
+    }).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should queryByEntityId #3', async () =>
     await evaluate('queryByEntityId', [entityName, identity], {

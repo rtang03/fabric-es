@@ -1,4 +1,3 @@
-import { ChannelEventHub } from 'fabric-client';
 import { keys, values } from 'lodash';
 import { Store } from 'redux';
 import { projectionDb, queryDatabase } from '.';

@@ -133,7 +133,7 @@ describe('CQRS - command Tests', () => {
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.DELETE_SUCCESS) {
-        expect(result).toEqual({ [commitId]: {} });
+        expect(result.status).toBe('SUCCESS');
         unsubscribe();
         done();
       }

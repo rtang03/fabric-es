@@ -13,7 +13,7 @@
     "test:peer.privatedata.integration": "jest peer.privatedata.integration.test",
     "test:service.privatedata.integration": "jest service.privatedata.integration.test",
     "test:store.privatedata.integration": "jest store.privatedata.integration.test",
-    "unit-test": "jest unit.test",
+    "test:all-unit-test": "jest unit.test",
     "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/account/enrolAdmin.ts"
   },
   "engines": {

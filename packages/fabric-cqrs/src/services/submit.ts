@@ -6,11 +6,9 @@ export const submit: (
   fcn: string,
   args: string[],
   { network }: Context
-) => Promise<Record<string, Commit> | { error: any }> = async (
-  fcn,
-  args,
-  { network }
-) =>
+) => Promise<
+  Record<string, Commit> | { error?: any; status?: string; message?: string }
+> = async (fcn, args, { network }) =>
   await getContract(network).then(({ contract }) =>
     contract
       .createTransaction(fcn)
@@ -21,6 +19,7 @@ export const submit: (
       .catch(error => {
         console.log(`Error processing Submit transaction.`);
         console.error(error.stack);
+        console.log(fcn);
         return { error };
       })
   );
@@ -29,5 +28,6 @@ export const submit$: (
   fcn: string,
   args: string[],
   context: Context
-) => Observable<Record<string, Commit>> = (fcn, args, context) =>
-  from(submit(fcn, args, context));
+) => Observable<
+  Record<string, Commit> | { error?: any; status?: string; message?: string }
+> = (fcn, args, context) => from(submit(fcn, args, context));
