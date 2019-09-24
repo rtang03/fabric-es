@@ -64,10 +64,12 @@ export class StateList {
         );
         result[commitId] = {};
       } else {
-        return {
-          status: 'SUCCESS',
-          message: 'No state returned for deletion'
-        };
+        return Buffer.from(
+          JSON.stringify({
+            status: 'SUCCESS',
+            message: 'No state returned for deletion'
+          })
+        );
       }
       // else throw new Error('no state returned');
       if (done) {
