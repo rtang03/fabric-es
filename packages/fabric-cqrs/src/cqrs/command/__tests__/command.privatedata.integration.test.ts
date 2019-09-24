@@ -1,5 +1,6 @@
-import { keys, pick, values } from 'lodash';
+import { pick, values } from 'lodash';
 import { Store } from 'redux';
+import { registerUser } from '../../../account/registerUser';
 import { getNetwork } from '../../../services';
 import { Commit } from '../../../types';
 import { generateToken } from '../../utils';
@@ -11,11 +12,20 @@ let commitId: string;
 let store: Store;
 const collection = 'Org1PrivateDetails';
 const entityName = 'store_privatedata';
-const id = 'store_privatedata_test_01';
+const identity = `store_privatedata${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  context = await getNetwork();
-  store = getStore(context);
+  try {
+    await registerUser({
+      enrollmentID: identity,
+      enrollmentSecret: 'password'
+    });
+    context = await getNetwork({ identity });
+    store = getStore(context);
+  } catch (error) {
+    console.error(error);
+    process.exit(-1);
+  }
 });
 
 afterAll(async () => {
@@ -31,7 +41,7 @@ describe('Store:privatedata Tests', () => {
         const commit = values(result)[0];
         commitId = commit.commitId;
         expect(
-          pick(commit, 'id', 'entityName', 'version', 'events')
+          pick(commit, 'entityName', 'version', 'events')
         ).toMatchSnapshot();
         unsubscribe();
         done();
@@ -42,7 +52,7 @@ describe('Store:privatedata Tests', () => {
         tx_id: tid,
         args: {
           entityName,
-          id,
+          id: identity,
           version: 0,
           events: [{ type: 'User Created', payload: { name: 'me' } }],
           collection
@@ -57,7 +67,7 @@ describe('Store:privatedata Tests', () => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
         expect(
-          pick(values(result)[0], ['id', 'entityName', 'version', 'events'])
+          pick(values(result)[0], ['entityName', 'version', 'events'])
         ).toMatchSnapshot();
         unsubscribe();
         done();
@@ -66,7 +76,7 @@ describe('Store:privatedata Tests', () => {
     store.dispatch(
       action.queryByEntIdCommitId({
         tx_id: tid,
-        args: { entityName, commitId, id, collection }
+        args: { entityName, commitId, id: identity, collection }
       })
     );
   });
@@ -77,7 +87,7 @@ describe('Store:privatedata Tests', () => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
         values<Commit>(result)
-          .map(commit => pick(commit, 'id', 'entityName', 'version', 'events'))
+          .map(commit => pick(commit, 'entityName', 'version', 'events'))
           .map(commit => expect(commit).toMatchSnapshot());
         unsubscribe();
         done();
@@ -94,7 +104,7 @@ describe('Store:privatedata Tests', () => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
         values<Commit>(result)
-          .map(commit => pick(commit, 'id', 'entityName', 'version', 'events'))
+          .map(commit => pick(commit, 'entityName', 'version', 'events'))
           .map(commit => expect(commit).toMatchSnapshot());
         unsubscribe();
         done();
@@ -103,7 +113,7 @@ describe('Store:privatedata Tests', () => {
     store.dispatch(
       action.queryByEntityId({
         tx_id: tid,
-        args: { entityName, id, collection }
+        args: { entityName, id: identity, collection }
       })
     );
   });
@@ -113,7 +123,7 @@ describe('Store:privatedata Tests', () => {
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.DELETE_SUCCESS) {
-        expect(result).toEqual({ [commitId]: {} });
+        expect(result.status).toBe('SUCCESS');
         unsubscribe();
         done();
       }
@@ -121,7 +131,7 @@ describe('Store:privatedata Tests', () => {
     store.dispatch(
       action.deleteByEntityIdCommitId({
         tx_id: tid,
-        args: { entityName, id, commitId, collection }
+        args: { entityName, id: identity, commitId, collection }
       })
     );
   });

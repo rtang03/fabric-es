@@ -11,7 +11,6 @@ let context: Context;
 let commitId: string;
 let store: Store;
 const entityName = 'command_test';
-const id = 'command_unit_test_01';
 const identity = `command_test${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
@@ -42,9 +41,16 @@ describe('CQRS - command Tests', () => {
         unsubscribe();
         done();
       }
+      if (tx_id === tid && type === action.DELETE_SUCCESS) {
+        unsubscribe();
+        done();
+      }
     });
     store.dispatch(
-      action.deleteByEntityId({ tx_id: tid, args: { entityName, id } })
+      action.deleteByEntityId({
+        tx_id: tid,
+        args: { entityName, id: identity }
+      })
     );
   });
 
@@ -55,7 +61,7 @@ describe('CQRS - command Tests', () => {
       if (tx_id === tid && type === action.CREATE_SUCCESS) {
         commitId = values(result)[0].commitId;
         expect(
-          pick(values(result)[0], ['id', 'entityName', 'version', 'events'])
+          pick(values(result)[0], ['entityName', 'version', 'events'])
         ).toMatchSnapshot();
         unsubscribe();
         done();
@@ -66,7 +72,7 @@ describe('CQRS - command Tests', () => {
         tx_id: tid,
         args: {
           entityName,
-          id,
+          id: identity,
           version: 0,
           events: [{ type: 'User Created', payload: { name: 'me' } }]
         }
@@ -80,7 +86,7 @@ describe('CQRS - command Tests', () => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
         expect(
-          pick(values(result)[0], ['id', 'entityName', 'version', 'events'])
+          pick(values(result)[0], ['entityName', 'version', 'events'])
         ).toMatchSnapshot();
         unsubscribe();
         done();
@@ -89,7 +95,7 @@ describe('CQRS - command Tests', () => {
     store.dispatch(
       action.queryByEntIdCommitId({
         tx_id: tid,
-        args: { entityName, commitId, id }
+        args: { entityName, commitId, id: identity }
       })
     );
   });
@@ -100,7 +106,7 @@ describe('CQRS - command Tests', () => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
         expect(
-          pick(values(result)[0], ['id', 'entityName', 'version', 'events'])
+          pick(values(result)[0], ['entityName', 'version', 'events'])
         ).toMatchSnapshot();
         unsubscribe();
         done();
@@ -117,14 +123,14 @@ describe('CQRS - command Tests', () => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
         expect(
-          pick(values(result)[0], ['id', 'entityName', 'version', 'events'])
+          pick(values(result)[0], ['entityName', 'version', 'events'])
         ).toMatchSnapshot();
         unsubscribe();
         done();
       }
     });
     store.dispatch(
-      action.queryByEntityId({ tx_id: tid, args: { entityName, id } })
+      action.queryByEntityId({ tx_id: tid, args: { entityName, id: identity } })
     );
   });
 
@@ -141,7 +147,7 @@ describe('CQRS - command Tests', () => {
     store.dispatch(
       action.deleteByEntityIdCommitId({
         tx_id: tid,
-        args: { entityName, id, commitId }
+        args: { entityName, id: identity, commitId }
       })
     );
   });

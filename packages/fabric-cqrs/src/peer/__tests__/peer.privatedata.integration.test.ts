@@ -1,4 +1,5 @@
 import { pick } from 'lodash';
+import { registerUser } from '../../account/registerUser';
 import { Counter, CounterEvent, reducer } from '../../example';
 import { getNetwork } from '../../services';
 import { Commit, PrivatedataRepository } from '../../types';
@@ -8,22 +9,31 @@ import { projectionDb, queryDatabase } from './__utils__';
 let peer: Peer;
 let repo: PrivatedataRepository;
 const entityName = 'privatedata_counter';
-const id = 'peer_privatedata_test_01';
+const identity = `peer_privatedata${Math.floor(Math.random() * 1000)}`;
 let commitId: string;
 
 beforeAll(async () => {
-  const networkConfig = await getNetwork();
-  peer = new Peer({
-    ...networkConfig,
-    reducer,
-    queryDatabase,
-    projectionDb,
-    collection: 'Org1PrivateDetails'
-  });
-  repo = peer.getPrivateDataRepo<Counter, CounterEvent>({
-    entityName,
-    reducer
-  });
+  try {
+    await registerUser({
+      enrollmentID: identity,
+      enrollmentSecret: 'password'
+    });
+    const context = await getNetwork({ identity });
+    peer = new Peer({
+      ...context,
+      reducer,
+      queryDatabase,
+      projectionDb,
+      collection: 'Org1PrivateDetails'
+    });
+    repo = peer.getPrivateDataRepo<Counter, CounterEvent>({
+      entityName,
+      reducer
+    });
+  } catch (error) {
+    console.error(error);
+    process.exit(-1);
+  }
 });
 
 afterAll(async () => peer.disconnect());
@@ -31,12 +41,12 @@ afterAll(async () => peer.disconnect());
 describe('Start peer privatedata Tests', () => {
   it('should Add #1', async () =>
     await repo
-      .create(id)
+      .create(identity)
       .save([{ type: 'ADD' }])
       .then((commit: Commit) => {
         commitId = commit.commitId;
         expect(
-          pick(commit, 'id', 'version', 'entityName', 'events')
+          pick(commit, 'version', 'entityName', 'events')
         ).toMatchSnapshot();
       }));
 
@@ -47,11 +57,11 @@ describe('Start peer privatedata Tests', () => {
 
   it('should getById', async () =>
     await repo
-      .getById(id)
+      .getById(identity)
       .then(({ currentState }) => expect(currentState).toEqual({ value: 1 })));
 
   it('should deleteByEntityIdCommitId', async () =>
     await repo
-      .deleteByEntityIdCommitId(id, commitId)
-      .then(result => expect(result[commitId]).toEqual({})));
+      .deleteByEntityIdCommitId(identity, commitId)
+      .then(({ status }) => expect(status).toBe('SUCCESS')));
 });

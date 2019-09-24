@@ -7,12 +7,9 @@ export const submitPrivateData: (
   args: string[],
   transientData: Record<string, Buffer>,
   { network }: Context
-) => Promise<Record<string, Commit> | { error: any }> = async (
-  fcn,
-  args,
-  transientData,
-  { network }
-) =>
+) => Promise<
+  Record<string, Commit> | { error?: any; status?: string; message?: string }
+> = async (fcn, args, transientData, { network }) =>
   await getContract(network, true).then(
     async ({ contract }) =>
       await contract
@@ -34,5 +31,7 @@ export const submitPrivateData$: (
   args: string[],
   transientData: Record<string, Buffer>,
   context: Context
-) => Observable<Record<string, Commit>> = (fcn, args, transientData, context) =>
+) => Observable<
+  Record<string, Commit> | { error?: any; status?: string; message?: string }
+> = (fcn, args, transientData, context) =>
   from(submitPrivateData(fcn, args, transientData, context));
