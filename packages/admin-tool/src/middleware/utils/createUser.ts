@@ -1,6 +1,6 @@
 import * as Client from 'fabric-client';
 import { Context } from '../types';
-import { connectionProfile } from './connectionProfile';
+import { parseConnectionProfile } from './connectionProfile';
 import { readAllFiles } from './readAllFiles';
 
 export const createUser: (
@@ -8,7 +8,7 @@ export const createUser: (
   orgName: string,
   context: Context
 ) => Promise<Client.User> = async (client, orgName, context) =>
-  connectionProfile(context).then(({ getOrganizations }) =>
+  parseConnectionProfile(context).then(({ getOrganizations }) =>
     client.createUser({
       username: `${orgName}Admin`,
       mspid: getOrganizations().getMSPIDByOrg(orgName),

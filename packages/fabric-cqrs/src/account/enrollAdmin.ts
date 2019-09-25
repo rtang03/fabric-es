@@ -3,7 +3,7 @@ import { FileSystemWallet } from 'fabric-network';
 import '../env';
 
 const context: Context = {
-  connProfileNetwork: process.env.CONNECTION_PROFILE,
+  connectionProfile: process.env.CONNECTION_PROFILE,
   fabricNetwork: process.env.NETWORK_LOCATION,
   wallet: new FileSystemWallet(process.env.WALLET)
 };

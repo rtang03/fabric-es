@@ -2,7 +2,7 @@ import { ProposalResponse } from 'fabric-client';
 import { flatten } from 'lodash';
 import '../env';
 import { Context } from './types';
-import { connectionProfile, getClientForOrg } from './utils';
+import { getClientForOrg, parseConnectionProfile } from './utils';
 
 export const installChaincode: (
   chaincodeId: string,
@@ -11,10 +11,10 @@ export const installChaincode: (
 ) => Promise<ProposalResponse[]> = async (
   chaincodeId,
   chaincodeVersion = '0',
-  context = { connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE }
+  context = { connectionProfile: process.env.PATH_TO_CONNECTION_PROFILE }
 ) => {
   const chaincodePath = process.env.PATH_TO_CHAINCODE || '../chaincode';
-  const { getOrgs } = await connectionProfile(context).then(
+  const { getOrgs } = await parseConnectionProfile(context).then(
     ({ getOrganizations }) => getOrganizations()
   );
   const promises = [];

@@ -24,14 +24,12 @@ export const getNetwork: (option: {
   channelHub: ChannelEventHub;
 }> = async ({
   identity,
-  channelName,
-  connectionProfile,
+  channelName = 'eventstore',
+  connectionProfile = process.env.CONNECTION_PROFILE,
   wallet = new FileSystemWallet(process.env.WALLET || 'assets/wallet'),
-  channelEventHub
+  channelEventHub = process.env.CHANNEL_HUB
 }) => {
-  connectionProfile = connectionProfile || process.env.CONNECTION_PROFILE;
-  channelEventHub = channelEventHub || process.env.CHANNEL_HUB;
-  const identityExist = await wallet.exists(identity);
+  const identityExist: boolean = await wallet.exists(identity);
   if (!identityExist) {
     throw new Error('Please register user, before retrying');
   }
@@ -59,7 +57,7 @@ export const getNetwork: (option: {
       console.error(error);
       throw error;
     });
-  const network = await gateway.getNetwork(channelName || 'eventstore');
+  const network = await gateway.getNetwork(channelName);
   const channelHub = network.getChannel().getChannelEventHub(channelEventHub);
   return { identity, network, gateway, channelHub };
 };

@@ -25,7 +25,7 @@ beforeAll(async () => {
       enrollmentID: identityOrg1,
       enrollmentSecret: 'password',
       context: {
-        connProfileNetwork: 'connection/peer0org1.yaml',
+        connectionProfile: 'connection/peer0org1.yaml',
         fabricNetwork: process.env.NETWORK_LOCATION,
         wallet: walletOrg1
       }
@@ -34,7 +34,7 @@ beforeAll(async () => {
       enrollmentID: identityOrg2,
       enrollmentSecret: 'password',
       context: {
-        connProfileNetwork: 'connection/peer0org2.yaml',
+        connectionProfile: 'connection/peer0org2.yaml',
         fabricNetwork: process.env.NETWORK_LOCATION,
         wallet: walletOrg2
       }
@@ -85,6 +85,9 @@ describe('Multiuser Tests', () => {
       { network: contextOrg2.network }
     )
       .then<Commit>(result => values(result)[0])
-      .then(commit => console.log(commit));
+      .then(({ id, entityName }) => {
+        expect(id).toBe(identityOrg1);
+        expect(entityName).toBe(entityName);
+      });
   });
 });

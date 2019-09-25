@@ -9,7 +9,7 @@ export const enrollOrg1Admin = () =>
     'https://0.0.0.0:5054',
     'Org1',
     {
-      connProfileNetwork: 'connection/peer0org1.yaml',
+      connectionProfile: 'connection/peer0org1.yaml',
       fabricNetwork: process.env.NETWORK_LOCATION,
       wallet: new FileSystemWallet('assets/walletOrg1')
     }
@@ -22,7 +22,7 @@ export const enrollOrg2Admin = () =>
     'https://0.0.0.0:5055',
     'Org2',
     {
-      connProfileNetwork: 'connection/peer0org2.yaml',
+      connectionProfile: 'connection/peer0org2.yaml',
       fabricNetwork: process.env.NETWORK_LOCATION,
       wallet: new FileSystemWallet('assets/walletOrg2')
     }
