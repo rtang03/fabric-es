@@ -4,7 +4,8 @@ import {
   DefaultQueryHandlerStrategies,
   FileSystemWallet,
   Gateway,
-  Network
+  Network,
+  Wallet
 } from 'fabric-network';
 import { readFileSync } from 'fs';
 import { safeLoad } from 'js-yaml';
@@ -13,15 +14,23 @@ import '../env';
 export const getNetwork: (option: {
   identity: string;
   channelName?: string;
+  connectionProfile?: string;
+  wallet?: Wallet;
+  channelEventHub?: string;
 }) => Promise<{
   identity: string;
   network: Network;
   gateway: Gateway;
   channelHub: ChannelEventHub;
-}> = async ({ identity, channelName }) => {
-  const wallet = new FileSystemWallet(process.env.WALLET || 'assets/wallet');
-  const connectionProfile = process.env.CONNECTION_PROFILE;
-  const hub = process.env.CHANNEL_HUB;
+}> = async ({
+  identity,
+  channelName,
+  connectionProfile,
+  wallet = new FileSystemWallet(process.env.WALLET || 'assets/wallet'),
+  channelEventHub
+}) => {
+  connectionProfile = connectionProfile || process.env.CONNECTION_PROFILE;
+  channelEventHub = channelEventHub || process.env.CHANNEL_HUB;
   const identityExist = await wallet.exists(identity);
   if (!identityExist) {
     throw new Error('Please register user, before retrying');
@@ -29,23 +38,28 @@ export const getNetwork: (option: {
   if (!connectionProfile) {
     throw new Error('No connection profile defined.');
   }
-  if (!hub) {
+  if (!channelEventHub) {
     throw new Error('No channel event hub defined.');
   }
 
   const gateway = await new Gateway();
-  await gateway.connect(safeLoad(readFileSync(connectionProfile, 'utf8')), {
-    identity,
-    wallet,
-    discovery: { enabled: false, asLocalhost: true },
-    eventHandlerOptions: {
-      strategy: DefaultEventHandlerStrategies.MSPID_SCOPE_ANYFORTX
-    },
-    queryHandlerOptions: {
-      strategy: DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE
-    }
-  });
+  await gateway
+    .connect(safeLoad(readFileSync(connectionProfile, 'utf8')), {
+      identity,
+      wallet,
+      discovery: { enabled: false, asLocalhost: true },
+      eventHandlerOptions: {
+        strategy: DefaultEventHandlerStrategies.MSPID_SCOPE_ANYFORTX
+      },
+      queryHandlerOptions: {
+        strategy: DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      throw error;
+    });
   const network = await gateway.getNetwork(channelName || 'eventstore');
-  const channelHub = network.getChannel().getChannelEventHub(hub);
+  const channelHub = network.getChannel().getChannelEventHub(channelEventHub);
   return { identity, network, gateway, channelHub };
 };

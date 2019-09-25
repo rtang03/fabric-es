@@ -12,7 +12,7 @@ const enrollmentSecret = process.env.ORG_ADMIN_SECRET;
 const url = process.env.ORG_CA_URL;
 const orgName = process.env.ORGNAME;
 
-export const enrollAdmin = async () =>
+export const enrollAdmin = () =>
   enrol(enrollmentID, enrollmentSecret, url, orgName, context);
 
 enrollAdmin()

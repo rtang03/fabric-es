@@ -36,7 +36,7 @@ organizations:
     mspid: Org1MSP
     peers:
       - peer0.org1.example.com
-#      - peer1.org1.example.com
+      - peer1.org1.example.com
     certificateAuthorities:
       - ca.org1.example.com
     adminPrivateKey:
@@ -44,7 +44,7 @@ organizations:
     signedCert:
       path: ../../network/hosts/org1/admin/msp/signcerts/cert.pem
     client:
-      path: ./connection/org1.yaml
+      path: ./connection/peer0org1.yaml
 
 orderers:
   orderer.example.com:

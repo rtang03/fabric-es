@@ -24,13 +24,17 @@ describe('Fabric CA unit test', () => {
   it('should register & enrol new user in Org1', async () => {
     const user = `user${Math.floor(Math.random() * 1000)}@test.com`;
     const secret = 'testpw';
-    const url = 'https://0.0.0.0:5054';
-    const org = 'Org1';
+    // const url = 'https://0.0.0.0:5054';
+    // const org = 'Org1';
     const ctx = {
       connProfileNetwork: process.env.PATH_TO_CONNECTION_ORG1,
       fabricNetwork: process.env.PATH_TO_NETWORK
     };
-    await registerUser(user, secret, url, org, ctx).then(result => {
+    // await registerUser(user, secret, url, org, ctx).then(result => {
+    //   console.log(result);
+    //   expect(result.status).toBe('SUCCESS');
+    // });
+    await registerUser(user, secret, ctx).then(result => {
       console.log(result);
       expect(result.status).toBe('SUCCESS');
     });

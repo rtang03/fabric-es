@@ -67,3 +67,5 @@ dist
 channel-config/
 client-certs/
 wallet/
+walletOrg1/
+walletOrg2/
