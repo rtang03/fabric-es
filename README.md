@@ -46,9 +46,11 @@ docker-compose up
 ./bootstrap.sh
 docker-compose down/up
 build chaincode (if chaincode was changed, need to remove pre-existing docker)
-run create/install/instantiate/join channel (if new chaincode is build, it will take much longer time)
-enrolAdmin
-registerUser
+run eventstore create/install/instantiate/join channel (if new chaincode is build, it will take much longer time)
+run privatedata install/instantiate
+run chaincode test
+enrolAdmin in fabric-cqrs
+run fabric-cqrs test
 
 ### Clean up command
 ```shell script
@@ -64,3 +66,6 @@ docker rmi $(docker images -q "dev-*")
 The source is refactored from below repo.  
 [Sample Code - 1](https://github.com/kevin-hf/kevin-fabric-sdk-node)  
 [IBM Sample Code - 2](https://github.com/PacktPublishing/Handson-Blockchain-Development-with-Hyperledger)
+
+Note that Kelvin's sample is using high level API, but incomplete operational tasks. IBM samples is low level API, but more complete
+operational task. 

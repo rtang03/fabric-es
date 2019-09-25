@@ -8,13 +8,14 @@
     "clean": "rimraf dist",
     "test:account": "jest account.unit.test",
     "test:service.integration": "jest service.integration.test",
+    "test:service.multiusers": "rimraf assets/walletOrg1 && rimraf assets/walletOrg2 && jest service.multiusers.test",
     "test:store.integration": "jest command.integration.test",
     "test:peer.integration": "jest peer.integration.test",
     "test:service.privatedata.integration": "jest service.privatedata.integration.test",
     "test:store.privatedata.integration": "jest command.privatedata.integration.test",
     "test:peer.privatedata.integration": "jest peer.privatedata.integration.test",
     "test:all-unit-test": "jest unit.test",
-    "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/account/enrolAdmin.ts"
+    "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/account/enrollAdmin.ts"
   },
   "engines": {
     "node": ">=8",

@@ -6,28 +6,24 @@ import { getClientForOrg } from './utils';
 export const registerUser: (
   enrollmentID: string,
   enrollmentSecret: string,
-  url: string,
-  orgName: string,
   context?: Context
 ) => Promise<any> = async (
   enrollmentID,
   enrollmentSecret,
-  url,
-  orgName,
   { connProfileNetwork, wallet } = {
     connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
     wallet: new FileSystemWallet('./wallet')
   }
-) =>
-  (await wallet.exists(enrollmentID))
+) => {
+  const adminExist = await wallet.exists('admin');
+  if (!adminExist) {
+    throw new Error('No admin in the wallet; enroll admin before retrying');
+  }
+
+  return (await wallet.exists(enrollmentID))
     ? {
         status: 'SUCCESS',
         message: `Identity for ${enrollmentID} already exists in the wallet`
-      }
-    : !(await wallet.exists('admin'))
-    ? {
-        status: 'SUCCESS',
-        message: `No admin in the wallet; enroll admin before retrying`
       }
     : getClientForOrg(connProfileNetwork).then(async admin => {
         const gateway = new Gateway();
@@ -68,3 +64,4 @@ export const registerUser: (
           message: `Successfully register & enroll ${enrollmentID}; and import into the wallet`
         };
       });
+};
