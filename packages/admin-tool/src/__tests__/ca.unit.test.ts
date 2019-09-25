@@ -8,7 +8,7 @@ describe('Fabric CA unit test', () => {
     const url = 'https://0.0.0.0:5054';
     const org = 'Org1';
     const ctx = {
-      connProfileNetwork: process.env.PATH_TO_CONNECTION_ORG1,
+      connectionProfile: process.env.PATH_TO_CONNECTION_ORG1,
       fabricNetwork: process.env.PATH_TO_NETWORK
     };
     await enrollAdmin(org1ID, org1Secret, url, org, ctx).then(result =>
@@ -27,7 +27,7 @@ describe('Fabric CA unit test', () => {
     // const url = 'https://0.0.0.0:5054';
     // const org = 'Org1';
     const ctx = {
-      connProfileNetwork: process.env.PATH_TO_CONNECTION_ORG1,
+      connectionProfile: process.env.PATH_TO_CONNECTION_ORG1,
       fabricNetwork: process.env.PATH_TO_NETWORK
     };
     // await registerUser(user, secret, url, org, ctx).then(result => {

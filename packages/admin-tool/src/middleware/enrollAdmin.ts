@@ -15,12 +15,12 @@ export const enrollAdmin: (
   url,
   orgName,
   context = {
-    connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
+    connectionProfile: process.env.PATH_TO_CONNECTION_PROFILE,
     fabricNetwork: process.env.PATH_TO_NETWORK,
     wallet: new FileSystemWallet(process.env.WALLET)
   }
 ) =>
-  getClientForOrg(context.connProfileNetwork).then(async admin => {
+  getClientForOrg(context.connectionProfile).then(async admin => {
     const ca = await getCAServices(admin, url, orgName, context);
     return context.wallet.exists('admin').then(async exist =>
       exist

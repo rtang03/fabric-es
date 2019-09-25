@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import '../env';
 import { Context } from './types';
-import { connectionProfile, createUser, getClientForOrg } from './utils';
+import { createUser, getClientForOrg, parseConnectionProfile } from './utils';
 
 export const createChannel: (
   channelName: string,
@@ -11,16 +11,18 @@ export const createChannel: (
 ) => Promise<any> = async (
   channelName,
   context = {
-    connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
+    connectionProfile: process.env.PATH_TO_CONNECTION_PROFILE,
     channelTx: process.env.PATH_TO_CHANNEL_CONFIG,
     fabricNetwork: process.env.PATH_TO_NETWORK
   }
 ) => {
-  const { channelTx, connProfileNetwork } = context;
-  const client: Client = await getClientForOrg(connProfileNetwork);
+  const { channelTx, connectionProfile } = context;
+  const client: Client = await getClientForOrg(connectionProfile);
 
   // create orderer
-  const { getOrderer, getOrganizations } = await connectionProfile(context);
+  const { getOrderer, getOrganizations } = await parseConnectionProfile(
+    context
+  );
   const { url, tlsCACertsPem, hostname } = getOrderer();
   const { getOrgs } = getOrganizations();
   const orderer = client.newOrderer(url, {
@@ -36,7 +38,7 @@ export const createChannel: (
   );
   const signatures = [];
   for (const { orgName } of getOrgs()) {
-    const admin = await getClientForOrg(connProfileNetwork);
+    const admin = await getClientForOrg(connectionProfile);
     signatures.push(
       await createUser(admin, orgName, context).then(() =>
         admin.signChannelConfig(config)

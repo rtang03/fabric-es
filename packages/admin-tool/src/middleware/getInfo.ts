@@ -1,6 +1,6 @@
 import '../env';
 import { Context } from './types';
-import { connectionProfile, createUser, getClientForOrg } from './utils';
+import { createUser, getClientForOrg, parseConnectionProfile } from './utils';
 
 interface Query {
   getBlockByNumber: (blockNumber) => Promise<any>;
@@ -20,15 +20,15 @@ export const getInfo: (
   channelName,
   peer = 'peer0.org1.example.com',
   context = {
-    connProfileNetwork: process.env.PATH_TO_CONNECTION_ORG1,
+    connectionProfile: process.env.PATH_TO_CONNECTION_ORG1,
     fabricNetwork: process.env.PATH_TO_NETWORK
   }
 ) => {
-  const { connProfileNetwork } = context;
-  const profile = await connectionProfile(context);
+  const { connectionProfile } = context;
+  const profile = await parseConnectionProfile(context);
   const { getOrgs } = profile.getOrganizations();
   const { orgName } = getOrgs()[0];
-  const client = await getClientForOrg(connProfileNetwork);
+  const client = await getClientForOrg(connectionProfile);
   return createUser(client, orgName, context).then(() => {
     const channel = client.getChannel(channelName);
     if (!channel)

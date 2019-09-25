@@ -5,7 +5,7 @@ import {
 } from 'fabric-client';
 import '../env';
 import { Context } from './types';
-import { connectionProfile, getClientForOrg } from './utils';
+import { parseConnectionProfile, getClientForOrg } from './utils';
 
 export const instantiateChaincode: (
   option: {
@@ -30,16 +30,16 @@ export const instantiateChaincode: (
     endorsementPolicy,
     collectionsConfig
   },
-  context = { connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE }
+  context = { connectionProfile: process.env.PATH_TO_CONNECTION_PROFILE }
 ) => {
-  const { connProfileNetwork } = context;
-  const client = await getClientForOrg(connProfileNetwork);
+  const { connectionProfile } = context;
+  const client = await getClientForOrg(connectionProfile);
   const channel = client.getChannel(channelName);
   if (!channel)
     throw new Error(
       `Channel was not defined in the connection profile: ${channelName}`
     );
-  const targets = await connectionProfile(context).then(({ getPeers }) =>
+  const targets = await parseConnectionProfile(context).then(({ getPeers }) =>
     getPeers().getPeerHostnames()
   );
   const txId = client.newTransactionID(true);

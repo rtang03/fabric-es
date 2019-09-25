@@ -2,7 +2,7 @@ import { ProposalResponse } from 'fabric-client';
 import { flatten } from 'lodash';
 import '../env';
 import { Context } from './types';
-import { connectionProfile, createUser, getClientForOrg } from './utils';
+import { createUser, getClientForOrg, parseConnectionProfile } from './utils';
 
 export const joinChannel: (
   channelName: string,
@@ -12,18 +12,18 @@ export const joinChannel: (
   channelName,
   peers,
   context = {
-    connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
+    connectionProfile: process.env.PATH_TO_CONNECTION_PROFILE,
     fabricNetwork: process.env.PATH_TO_NETWORK
   }
 ) => {
-  const { connProfileNetwork } = context;
-  const client = await getClientForOrg(connProfileNetwork);
+  const { connectionProfile } = context;
+  const client = await getClientForOrg(connectionProfile);
   const channel = client.getChannel(channelName);
   if (!channel)
     throw new Error(
       `Channel was not defined in the connection profile: ${channelName}`
     );
-  const { getOrgs } = await connectionProfile(context).then(
+  const { getOrgs } = await parseConnectionProfile(context).then(
     ({ getOrganizations }) => getOrganizations()
   );
   const txId = client.newTransactionID(true);

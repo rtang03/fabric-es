@@ -1,6 +1,5 @@
 import '../env';
 import { getInfo, installChaincode, instantiateChaincode } from '../middleware';
-import { filter, includes } from 'lodash';
 
 const channelName = 'eventstore';
 const chaincodeId = 'privatedata';

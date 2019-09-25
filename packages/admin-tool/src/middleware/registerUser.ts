@@ -10,12 +10,12 @@ export const registerUser: (
 ) => Promise<any> = async (
   enrollmentID,
   enrollmentSecret,
-  { connProfileNetwork, wallet } = {
-    connProfileNetwork: process.env.PATH_TO_CONNECTION_PROFILE,
+  { connectionProfile, wallet } = {
+    connectionProfile: process.env.PATH_TO_CONNECTION_PROFILE,
     wallet: new FileSystemWallet('./wallet')
   }
 ) => {
-  const adminExist = await wallet.exists('admin');
+  const adminExist: boolean = await wallet.exists('admin');
   if (!adminExist) {
     throw new Error('No admin in the wallet; enroll admin before retrying');
   }
@@ -25,7 +25,7 @@ export const registerUser: (
         status: 'SUCCESS',
         message: `Identity for ${enrollmentID} already exists in the wallet`
       }
-    : getClientForOrg(connProfileNetwork).then(async admin => {
+    : getClientForOrg(connectionProfile).then(async admin => {
         const gateway = new Gateway();
         await gateway.connect(admin, {
           wallet,
