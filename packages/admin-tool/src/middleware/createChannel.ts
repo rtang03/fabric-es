@@ -31,7 +31,6 @@ export const createChannel: (
   });
   const channel = client.newChannel(channelName);
   channel.addOrderer(orderer);
-
   // enrol all org's admins, and sign channel configuration
   const config = client.extractChannelConfig(
     readFileSync(join(__dirname, channelTx, `${channelName}.tx`))

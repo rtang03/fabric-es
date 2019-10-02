@@ -1,0 +1,59 @@
+{
+  "name": "first-network",
+  "version": "1.0.0",
+  "client": {
+    "tlsEnable": true,
+    "adminUser": "admin",
+    "adminPassword": "adminpw",
+    "enableAuthentication": false,
+    "organization": "Org1",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        },
+        "orderer": "300"
+      }
+    }
+  },
+  "channels": {
+    "eventstore": {
+      "peers": {
+        "peer0.org1.example.com": {}
+      },
+      "connection": {
+        "timeout": {
+          "peer": {
+            "endorser": "6000",
+            "eventHub": "6000",
+            "eventReg": "6000"
+          }
+        }
+      }
+    }
+  },
+  "organizations": {
+    "Org1": {
+      "mspid": "Org1MSP",
+      "fullpath": true,
+      "adminPrivateKey": {
+        "path": "/Users/dev/2019/open-platform-dlt/network/hosts/org1/admin/msp/keystore/key.pem"
+      },
+      "signedCert": {
+        "path": "/Users/dev/2019/open-platform-dlt/network/hosts/org1/admin/msp/signcerts/cert.pem"
+      }
+    }
+  },
+  "peers": {
+    "peer0.org1.example.com": {
+      "tlsCACerts": {
+        "path": "/Users/dev/2019/open-platform-dlt/network/hosts/org1/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem"
+      },
+      "url": "grpcs://peer0.org1.example.com:7051",
+      "eventUrl": "grpcs://peer0.org1.example.com:7053",
+      "grpcOptions": {
+        "ssl-target-name-override": "peer0.org1.example.com"
+      }
+    }
+  }
+}
