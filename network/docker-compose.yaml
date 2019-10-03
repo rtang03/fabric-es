@@ -94,8 +94,8 @@ services:
       - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1/peer0/msp
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=network_fabric-ca
-      #      - FABRIC_LOGGING_SPEC=info
-      - FABRIC_LOGGING_SPEC=grpc=debug:info
+      - FABRIC_LOGGING_SPEC=info
+#      - FABRIC_LOGGING_SPEC=grpc=debug:info
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org1/peer0/tls-msp/signcerts/cert.pem
       - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org1/peer0/tls-msp/keystore/key.pem
@@ -105,6 +105,8 @@ services:
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.example.com:7051
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org1.example.com:8051
       - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+      - CORE_CHAINCODE_LOGGING_LEVEL=INFO
+      - CORE_CHAINCODE_LOGGING_SHIM=INFO
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1/peer0
     volumes:
       - /var/run:/host/var/run
@@ -131,8 +133,8 @@ services:
       - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1/peer1/msp
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=network_fabric-ca
-      #      - FABRIC_LOGGING_SPEC=grpc=info
-      - FABRIC_LOGGING_SPEC=grpc=debug:info
+      - FABRIC_LOGGING_SPEC=info
+#      - FABRIC_LOGGING_SPEC=grpc=debug:info
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org1/peer1/tls-msp/signcerts/cert.pem
       - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org1/peer1/tls-msp/keystore/key.pem
@@ -169,8 +171,8 @@ services:
       - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2/peer0/msp
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=network_fabric-ca
-      #      - FABRIC_LOGGING_SPEC=debug
-      - FABRIC_LOGGING_SPEC=grpc=debug:info
+      - FABRIC_LOGGING_SPEC=info
+#      - FABRIC_LOGGING_SPEC=grpc=debug:info
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org2/peer0/tls-msp/signcerts/cert.pem
       - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org2/peer0/tls-msp/keystore/key.pem
@@ -206,7 +208,8 @@ services:
       - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2/peer1/msp
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=network_fabric-ca
-      - FABRIC_LOGGING_SPEC=grpc=debug:info
+      - FABRIC_LOGGING_SPEC=info
+#      - FABRIC_LOGGING_SPEC=grpc=debug:info
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org2/peer1/tls-msp/signcerts/cert.pem
       - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org2/peer1/tls-msp/keystore/key.pem

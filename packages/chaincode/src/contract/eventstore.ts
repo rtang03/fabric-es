@@ -1,5 +1,5 @@
 import { Context, Contract, Transaction } from 'fabric-contract-api';
-import { ChaincodeStub } from 'fabric-shim';
+import { ChaincodeStub, newLogger } from 'fabric-shim';
 import { omit } from 'lodash';
 import {
   Commit,
@@ -29,9 +29,13 @@ export class EventStore extends Contract {
 
   @Transaction()
   async instantiate(ctx: MyContext) {
-    console.info(
+    const logger = newLogger('eventstore-logger');
+    logger.info(
       '============= START : Initialize Entity Ledger V2 ==========='
     );
+    // console.info(
+    //   '============= START : Initialize Entity Ledger V2 ==========='
+    // );
     const commits: Commit[] = [];
     commits.push(
       createInstance({
@@ -57,6 +61,14 @@ export class EventStore extends Contract {
     return Buffer.from(JSON.stringify(commits));
   }
 
+  // async beforeTransaction(ctx) {
+  //   console.log('===Calling beforeTransaction===');
+  //   console.log(ctx.clientIdentity.getID());
+  //   console.log(ctx.clientIdentity.getMSPID());
+  //   console.log(ctx.clientIdentity.getX509Certificate().subject);
+  //   console.log(ctx.clientIdentity.getX509Certificate().issuer);
+  // }
+
   @Transaction()
   async createCommit(
     ctx: MyContext,
@@ -67,6 +79,19 @@ export class EventStore extends Contract {
   ) {
     if (!id || !entityName || !eventStr || version === undefined)
       throw new Error('createCommit problem: null argument');
+
+    console.log('===version===');
+    console.log(version);
+    if (version === '0') {
+      console.log('---Create Commit before query---');
+      const result = await ctx.stateList.getQueryResult([
+        JSON.stringify(entityName),
+        JSON.stringify(id)
+      ]);
+      console.log('---Create Commit after query---');
+      console.log(result);
+    }
+
     const events = JSON.parse(eventStr);
     const commit = createInstance({ id, version, entityName, events });
     await ctx.stateList.addState(commit);

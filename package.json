@@ -7,8 +7,7 @@
   "workspaces": [
     "packages/admin-tool",
     "packages/chaincode",
-    "packages/fabric-cqrs",
-    "packages/ngac"
+    "packages/fabric-cqrs"
   ],
   "private": true,
   "devDependencies": {
