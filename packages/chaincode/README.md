@@ -13,7 +13,7 @@ cd fabric-samples/first-network
 ./byfn.sh up -l node -f docker-compose-e2e.yaml
 ```
 
-### Start Loger
+### Start Logger
 
 ```shell script
 cd open-platform/packages/configuration/cli
@@ -191,3 +191,19 @@ docker volume prune -f
 docker rmi $(docker images -q "dev-*")
 rm channel-artifacts/genesis.block channel-artifacts/channel.tx
 ```
+
+### Clean up command #2 for ngac
+```shell script
+docker volume prune
+docker rm $(docker ps -qf "name=cli-org") -f
+docker rm $(docker ps -aqf "name=eventstore") -f
+docker rmi $(docker images -q "dev-*")
+```
+
+Temp Steps for developing NGAC
+docker-compose down
+clean up 
+dock-compose up
+build chaincode
+run admin-tools "prepare eventstore"
+run chainchode ngac test

@@ -1,6 +1,6 @@
 import { getPolicyRepo } from '../getPolicyRepo';
-import { policies } from '../policies';
 import { getResourceRepo } from '../getResourceRepo';
+import { policies } from '../policies';
 import {
   CAN_CREATE_USER_ENTITY,
   CAN_UPDATE_USER_ENTITY,

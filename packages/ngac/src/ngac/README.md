@@ -28,10 +28,10 @@ _Administrative Action_
 iam/org1msp/createuser
 
 // use descriptor
-iam/organization+[orgname:org1msp]/action+[actionname:createuser]
+iam/organization?id=org1msp/action?actionname=createuser
 ```
 
-Mandatory tag: `orgname`, `actionname`
+Mandatory tag: `id`, `actionname`
 
 `organization` may be defined as
 
@@ -45,10 +45,10 @@ _Event Action_
 model/org1msp/document/documentcreated
 
 // use descriptor
-model+[projectname:tradefinance]/organization+[orgname:org1msp]/entity+[entityname/document]/documentcreated
+model?projectname=tradefinance/organization?id=org1msp]/entity?id=document]/documentcreated
 ```
 
-Mandatory tag: `orgname`, `entityname`
+Mandatory tag: `id`, `entityname`
 
 _IAM Resource_
 
@@ -57,10 +57,10 @@ _IAM Resource_
 iam/org1msp/actn1234
 
 // use descriptor
-iam/organization+[orgname:org1msp]/account+[acountnumber:actn1234]
+iam/organization?id=org1msp/account?id=actn1234]
 ```
 
-Mandatory tag: `orgname`, `accountnumber`
+Mandatory tag: `id`
 
 _Entity Resource_
 
@@ -69,10 +69,10 @@ _Entity Resource_
 model/org1msp/document/document1234
 
 // use descriptor
-model/organization+[orgname:org1msp]/entity+[entityname:document]/entityId+[entityid:document1234]
+model/organization?id=org1msp/entity?id=document/entityid?id=document1234
 ```
 
-Mandatory tag: `entityname`, `entityid`
+Mandatory tag: `id`
 
 ### Policy Statement
 
@@ -97,7 +97,7 @@ action:
   - iam/*/listusertags
   - iam/*/taguser
   - iam/*/untaguser
-resource: iam/organization+[orgname:${ResourceTag.orgName}]:account+[acountnumber/${PrincipalTag.x509id}]
+resource: iam/organization?id=${ResourceTag.orgName}/account?id=${PrincipalTag.x509id}
 condition:
   stringEquals:
     ResourceTag.accountnumber: ${PrincipalTag.x509id}
@@ -108,9 +108,9 @@ _User create Entity object_
 ```yaml
 effect: allow
 action:
-  - model/*/entity+[entityname:document]/DocumentCreated
-  - model/*/entity+[entityname:document]/DocumentSubmitted
-resource: model/*/entity+[entityname:document]/entityid+[id:${ResourceTag.entityId}]
+  - model/*/entity?id=document/DocumentCreated
+  - model/*/entity?id=document/DocumentSubmitted
+resource: model/*/entity?id=document/entityid?id=${ResourceTag.entityId}
 condition:
   stringEquals:
     ResourceTag.owner: ${PrincipalTag.x509id}
@@ -122,7 +122,7 @@ _Any user can read Entity object in his organization_
 effect: allow
 action:
   - model/*/listentity
-resource: model/*/entity+[entityname:*]/*
+resource: model/organization?id=${PrincipalTag.orgname}/*/*
 condition:
   stringEquals:
     ResourceTag.orgname: ${PrincipalTag.orgname}
@@ -133,6 +133,6 @@ _Contract owner allows signer to sign eContract in different organization_
 ```yaml
 effect: allow
 action:
-  - model/organization+[orgname:${InputTag.signerorgname}]/signcontract
-resource: model/organization+[orgname:${PrincipalTag.orgname}]/${entityName}/${entityId}
+  - model/organization?id=${InputTag.signerorgname}/signcontract
+resource: model/organization?id=${PrincipalTag.orgname}/${entityName}/${entityId}
 ```
