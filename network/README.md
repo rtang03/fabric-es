@@ -28,11 +28,12 @@ You should see org0, org1, org2, tls directory created.
 // in another terminal
 export CURRENT_DIR=$PWD/hosts
 ./bootstrap.sh
+./monitordocker.sh
 
 docker-compose down
 
 // restart in first terminal
-docker-compose up
+docker-compose up -d
 ```
 
 ### Create and join channel

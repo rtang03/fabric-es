@@ -65,7 +65,8 @@ docker rmi $(docker images -q "dev-*")
 
 The source is refactored from below repo.  
 [Sample Code - 1](https://github.com/kevin-hf/kevin-fabric-sdk-node)  
-[IBM Sample Code - 2](https://github.com/PacktPublishing/Handson-Blockchain-Development-with-Hyperledger)
+[IBM Sample Code - 2](https://github.com/PacktPublishing/Handson-Blockchain-Development-with-Hyperledger)  
+[ampretia sample](https://github.com/ampretia/fabric-application-examples)  
 
 Note that Kelvin's sample is using high level API, but incomplete operational tasks. IBM samples is low level API, but more complete
 operational task. 

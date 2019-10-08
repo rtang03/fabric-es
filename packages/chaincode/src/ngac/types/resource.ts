@@ -1,38 +1,32 @@
 import { Context } from 'fabric-contract-api';
-
-export interface Tag {
-  type: '1' | 'N';
-  key: string;
-  value: string | string[];
-  alias?: string;
-  disabled?: boolean;
-}
+import { Attribute } from './attribute';
+import { CONTEXT } from './constant';
 
 export interface Resource {
   key: string;
-  contextTags?: Tag[];
-  projectTags?: Tag[];
-  entityTags?: Tag[];
-  resourceTags?: Tag[];
+  contextAttrs?: Attribute[];
+  mspAttrs?: Attribute[];
+  entityAttrs?: Attribute[];
+  resourceAttrs?: Attribute[];
 }
 
 export const createResource: (option: {
   context: Context;
-  projectTags?: Tag[];
+  mspAttrs?: Attribute[];
   entityName: string;
-  entityTags?: Tag[];
+  entityAttrs?: Attribute[];
   entityId: string;
-  resourceTags?: Tag[];
+  resourceAttrs?: Attribute[];
 }) => Resource = ({
   context,
-  projectTags,
+  mspAttrs,
   entityName,
-  entityTags,
+  entityAttrs,
   entityId,
-  resourceTags
+  resourceAttrs
 }) => {
   const cid = context.clientIdentity;
-  const contextTags: Tag[] = [];
+  const contextAttrs: Attribute[] = [];
   const invoker_mspid = cid.getMSPID();
   const invoker_id = cid.getID();
   const subject_cn = cid.getX509Certificate().subject.commonName;
@@ -43,47 +37,55 @@ export const createResource: (option: {
   const issuer_orgname = cid.getX509Certificate().issuer.organizationName;
 
   if (invoker_mspid)
-    contextTags.push({
+    contextAttrs.push({
       type: '1',
-      key: 'invoker_mspid',
+      key: CONTEXT.INVOKER_MSPID,
       value: invoker_mspid
     });
 
   if (invoker_id)
-    contextTags.push({ type: '1', key: 'invoker_id', value: invoker_id });
+    contextAttrs.push({
+      type: '1',
+      key: CONTEXT.INVOKER_ID,
+      value: invoker_id
+    });
 
   if (subject_cn)
-    contextTags.push({ type: '1', key: 'subject_cn', value: subject_cn });
+    contextAttrs.push({
+      type: '1',
+      key: CONTEXT.SUBJECT_CN,
+      value: subject_cn
+    });
 
   if (subject_orgname)
-    contextTags.push({
+    contextAttrs.push({
       type: '1',
-      key: 'subject_orgname',
+      key: CONTEXT.SUBJECT_ORGNAME,
       value: subject_orgname
     });
 
   if (subject_ouname)
-    contextTags.push({
+    contextAttrs.push({
       type: '1',
-      key: 'subject_ouname',
+      key: CONTEXT.SUBJECT_OUNAME,
       value: subject_ouname
     });
 
   if (issuer_cn)
-    contextTags.push({ type: '1', key: 'issuer_cn', value: issuer_cn });
+    contextAttrs.push({ type: '1', key: 'issuer_cn', value: issuer_cn });
 
   if (issuer_orgname)
-    contextTags.push({
+    contextAttrs.push({
       type: '1',
-      key: 'issuer_orgname',
+      key: CONTEXT.ISSUER_ORGNAME,
       value: issuer_orgname
     });
 
   return {
     key: `model/${invoker_mspid}/${entityName}/${entityId}`,
-    contextTags,
-    projectTags: projectTags || [],
-    entityTags: entityTags || [],
-    resourceTags: resourceTags || []
+    contextAttrs,
+    mspAttrs: mspAttrs || [],
+    entityAttrs: entityAttrs || [],
+    resourceAttrs: resourceAttrs || []
   };
 };

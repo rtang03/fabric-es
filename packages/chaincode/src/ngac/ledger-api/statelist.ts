@@ -1,34 +1,40 @@
 import { Context } from 'fabric-contract-api';
 
-export const splitKey = (key: string) => key.split(':');
+const splitKey = (key: string) => key.split(':');
 
-export const makeKey = (keyParts: any[]) =>
+const makeKey = (keyParts: any[]) =>
   keyParts.map(part => JSON.stringify(part)).join(':');
 
-export const serialize = object => Buffer.from(JSON.stringify(object));
+const serialize = object => Buffer.from(JSON.stringify(object));
 
-export const getStateList: (name: string, context: Context) => any = (
-  name,
-  { stub }
-) => ({
-  getQueryResult: async (attributes: string[]) => {
-    const iterator = await stub.getStateByPartialCompositeKey(name, attributes);
+const stateList: (
+  name: string,
+  context: Context
+) => {
+  getQueryResult: (attributes: string[]) => Promise<any>;
+  addState: any;
+  getState: any;
+  deleteStateByKey: any;
+} = (name, { stub }) => ({
+  getQueryResult: async keyparts => {
+    const iterator = await stub.getStateByPartialCompositeKey(name, keyparts);
     const result = {};
     while (true) {
       const { value, done } = await iterator.next();
       if (value && value.value.toString()) {
         const json = JSON.parse((value.value as Buffer).toString('utf8'));
-        result[json.key] = json;
+        result[json.uri] = json;
       }
       if (done) {
         await iterator.close();
-        return Buffer.from(JSON.stringify(result));
+        return result;
+        // return Buffer.from(JSON.stringify(result));
       }
     }
   },
   addState: async json =>
     await stub.putState(
-      stub.createCompositeKey(name, splitKey(json.key)),
+      stub.createCompositeKey(name, splitKey(json.uri)),
       serialize(json)
     ),
   getState: async key => {
@@ -40,3 +46,5 @@ export const getStateList: (name: string, context: Context) => any = (
   deleteStateByKey: async key =>
     await stub.deleteState(stub.createCompositeKey(name, splitKey(key)))
 });
+
+export default stateList;

@@ -6,7 +6,7 @@ import { Commit } from '..';
 export class StateList {
   constructor(public ctx: Context, public name: string) {}
 
-  async getQueryResult(attributes: string[]) {
+  async getQueryResult(attributes: string[], plainObject?: boolean) {
     const iterator = await this.ctx.stub.getStateByPartialCompositeKey(
       'entities',
       attributes
@@ -20,7 +20,7 @@ export class StateList {
       }
       if (done) {
         await iterator.close();
-        return Buffer.from(JSON.stringify(result));
+        return plainObject ? result : Buffer.from(JSON.stringify(result));
       }
     }
   }

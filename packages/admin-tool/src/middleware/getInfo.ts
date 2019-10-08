@@ -1,3 +1,4 @@
+import { findLast } from 'lodash';
 import '../env';
 import { Context } from './types';
 import { createUser, getClientForOrg, parseConnectionProfile } from './utils';
@@ -10,6 +11,7 @@ interface Query {
   getInstalledChaincodes: () => Promise<any>;
   getInstantiatedChaincodes: () => Promise<any>;
   getChannels: () => Promise<any>;
+  getInstalledCCVersion: (chaincodeId: string) => Promise<string>;
 }
 
 export const getInfo: (
@@ -44,7 +46,14 @@ export const getInfo: (
       getInstalledChaincodes: async () => client.queryInstalledChaincodes(peer),
       getInstantiatedChaincodes: async () =>
         channel.queryInstantiatedChaincodes(peer),
-      getChannels: async () => client.queryChannels(peer)
+      getChannels: async () => client.queryChannels(peer),
+      getInstalledCCVersion: async (cc: string) =>
+        await client
+          .queryInstalledChaincodes(peer)
+          .then(({ chaincodes }) =>
+            findLast(chaincodes, ({ name }) => name === cc)
+          )
+          .then(({ version }) => version)
     };
   });
 };
