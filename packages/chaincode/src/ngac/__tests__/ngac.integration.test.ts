@@ -26,6 +26,14 @@ describe('NGAC Integration Test', () => {
       )}"]}'`
     ).then(({ stderr }) => console.log(stderr)));
 
+  it('should createCommit #1', async () =>
+    await exec(
+      `${invoke} '{"Args":["createCommit","${entityName}","${id}","0","${eventStr.replace(
+        /"/g,
+        '\\"'
+      )}"]}'`
+    ).then(({ stderr }) => console.log(stderr)));
+
   // should fail to create the entityId repeatedl at version 0
   // it('should createCommit #1', async () =>
   //   await exec(

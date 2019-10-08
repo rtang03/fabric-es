@@ -20,7 +20,8 @@
     "test:public-integration": "jest public.integration.test",
     "test:public-unit": "jest public.unit.test",
     "test:private": "jest private.integration.test",
-    "test:ngac": "jest ngac.integration.test"
+    "test:ngac-integration": "jest ngac.integration.test",
+    "test:ngac-unit": "jest ngac.unit.test"
   },
   "engineStrict": true,
   "author": "Ross Tang",
@@ -44,6 +45,6 @@
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.6.3"
+    "typescript": "^3.7.0-beta"
   }
 }

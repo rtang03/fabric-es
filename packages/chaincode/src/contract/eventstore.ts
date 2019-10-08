@@ -1,6 +1,6 @@
 import { Context, Contract, Transaction } from 'fabric-contract-api';
-import { ChaincodeStub, newLogger } from 'fabric-shim';
-import { omit } from 'lodash';
+import { ChaincodeStub } from 'fabric-shim';
+import { isEqual, omit } from 'lodash';
 import {
   Commit,
   createInstance,
@@ -8,10 +8,12 @@ import {
   StateList,
   toRecord
 } from '../ledger-api';
+import { permissionCheck } from '../ngac';
 
 class MyContext extends Context {
   stateList?: StateList;
   stub: ChaincodeStub;
+
   constructor() {
     super();
     this.stateList = new StateList(this, 'entities');
@@ -29,13 +31,7 @@ export class EventStore extends Contract {
 
   @Transaction()
   async instantiate(ctx: MyContext) {
-    const logger = newLogger('eventstore-logger');
-    logger.info(
-      '============= START : Initialize Entity Ledger V2 ==========='
-    );
-    // console.info(
-    //   '============= START : Initialize Entity Ledger V2 ==========='
-    // );
+    console.log('=== START : Initialize eventstore ===');
     const commits: Commit[] = [];
     commits.push(
       createInstance({
@@ -57,17 +53,13 @@ export class EventStore extends Contract {
     for (const commit of commits) {
       await ctx.stateList.addState(commit);
     }
-    console.info('============= END : Initialize Entity Ledger ===========');
+    console.log('=== END : Initialize eventstore ===');
     return Buffer.from(JSON.stringify(commits));
   }
 
-  // async beforeTransaction(ctx) {
-  //   console.log('===Calling beforeTransaction===');
-  //   console.log(ctx.clientIdentity.getID());
-  //   console.log(ctx.clientIdentity.getMSPID());
-  //   console.log(ctx.clientIdentity.getX509Certificate().subject);
-  //   console.log(ctx.clientIdentity.getX509Certificate().issuer);
-  // }
+  async beforeTransaction(context) {
+    await permissionCheck(context);
+  }
 
   @Transaction()
   async createCommit(
@@ -80,16 +72,19 @@ export class EventStore extends Contract {
     if (!id || !entityName || !eventStr || version === undefined)
       throw new Error('createCommit problem: null argument');
 
-    console.log('===version===');
-    console.log(version);
     if (version === '0') {
-      console.log('---Create Commit before query---');
-      const result = await ctx.stateList.getQueryResult([
-        JSON.stringify(entityName),
-        JSON.stringify(id)
-      ]);
-      console.log('---Create Commit after query---');
-      console.log(result);
+      const result = await ctx.stateList.getQueryResult(
+        [JSON.stringify(entityName), JSON.stringify(id)],
+        true
+      );
+      if (!isEqual(result, {})) {
+        return Buffer.from(
+          JSON.stringify({
+            status: 'INVALID',
+            message: 'Fail to create pre-existing entity'
+          })
+        );
+      }
     }
 
     const events = JSON.parse(eventStr);

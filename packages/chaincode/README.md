@@ -192,18 +192,52 @@ docker rmi $(docker images -q "dev-*")
 rm channel-artifacts/genesis.block channel-artifacts/channel.tx
 ```
 
-### Clean up command #2 for ngac
+### Clean up command #2 for NGAC development
+assume no need to setup CA servers  
+
+Exit monitordock.sh
+
 ```shell script
-docker volume prune
-docker rm $(docker ps -qf "name=cli-org") -f
-docker rm $(docker ps -aqf "name=eventstore") -f
+// cd network
+docker-compose down
+docker rm logspout -f
+docker rm $(docker ps -aqf "name=dev") -f
 docker rmi $(docker images -q "dev-*")
+docker-compose up -d 
+./monitordocker.sh
 ```
 
-Temp Steps for developing NGAC
-docker-compose down
-clean up 
-dock-compose up
-build chaincode
-run admin-tools "prepare eventstore"
-run chainchode ngac test
+Build chaincode  
+
+Under admin-tools yarn run "prepare eventstore"  
+
+... continue NGAC development
+
+
+    console.log('===Calling beforeTransaction===');
+    console.log(ctx.clientIdentity.getID());
+    console.log(ctx.clientIdentity.getMSPID());
+    console.log(ctx.clientIdentity.getX509Certificate().subject);
+    console.log(ctx.clientIdentity.getX509Certificate().issuer);
+
+x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=Admin@org1.example.com::/C=US/ST=North Carolina/O=Hyperledger/OU=Fabric/CN=rca-org1
+Org1MSP
+commonName: 'Admin@org1.example.com' }
+commonName: 'rca-org1' }
+
+dev-peer0.org1.example.com-eventstore-2|--👆result 👀-
+dev-peer0.org1.example.com-eventstore-2|{ fcn: 'instantiate', params: [] }
+dev-peer0.org1.example.com-eventstore-2|--args-
+dev-peer0.org1.example.com-eventstore-2|[ 'instantiate' ]
+dev-peer0.org1.example.com-eventstore-2|--strArgs-
+dev-peer0.org1.example.com-eventstore-2|[ 'instantiate' ]
+dev-peer0.org1.example.com-eventstore-2|--creator-
+dev-peer0.org1.example.com-eventstore-2|{ mspid: 'Org1MSP',
+dev-peer0.org1.example.com-eventstore-2|  id_bytes:
+dev-peer0.org1.example.com-eventstore-2|   ByteBuffer {
+dev-peer0.org1.example.com-eventstore-2|     buffer: <Buffer 0a c1 09 0a 69 08 03 10 01 1a 0b 08 b5 f9 dc ec 05 10 c0 d8 88 32 22 0a 65 76 65 6e 74 73 74 6f 72 65 2a 40 30 34 62 38 30 38 30 33 61 35 63 34 38 31 ... >,
+dev-peer0.org1.example.com-eventstore-2|     offset: 128,
+dev-peer0.org1.example.com-eventstore-2|     markedOffset: -1,
+dev-peer0.org1.example.com-eventstore-2|     limit: 1194,
+dev-peer0.org1.example.com-eventstore-2|     littleEndian: true,
+dev-peer0.org1.example.com-eventstore-2|     noAssert: false } }

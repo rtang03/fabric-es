@@ -45,7 +45,7 @@ _Event Action_
 model/org1msp/document/documentcreated
 
 // use descriptor
-model?projectname=tradefinance/organization?id=org1msp]/entity?id=document]/documentcreated
+model?projectname=tradefinance/organization?id=org1msp/entity?id=document/documentcreated
 ```
 
 Mandatory tag: `id`, `entityname`
