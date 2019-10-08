@@ -18,6 +18,7 @@ export const permissionCheck: (
     const commonName = clientIdentity.getX509Certificate().subject.commonName;
     const id = clientIdentity.getID();
     const mspid = clientIdentity.getMSPID();
+
     if (version === '0') {
       resourceAttrs.push({
         type: '1',
