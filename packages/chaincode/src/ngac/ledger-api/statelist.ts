@@ -28,7 +28,6 @@ const stateList: (
       if (done) {
         await iterator.close();
         return result;
-        // return Buffer.from(JSON.stringify(result));
       }
     }
   },
