@@ -24,7 +24,7 @@ const convertKey: (key: string, target: Resource) => string = (key, target) => {
     : null;
 };
 
-interface Assertion {
+export interface Assertion {
   sid: string;
   assertion: boolean;
   message?: string;
@@ -40,70 +40,66 @@ export const policyDecisionEngine: (
   }) => Promise<Assertion[]>;
 } = (policies, context) => ({
   request: async ({ eventTypes, target }) =>
-    new Promise<Assertion[]>(resolve => {
-      const promises = filter(
-        policies,
-        ({ allowedEvents }) => !!intersection(allowedEvents, eventTypes).length
-      ).map(async ({ attributes: { uri }, sid, condition }) => {
-        const parsedKey = convertKey(uri, target);
-        if (!parsedKey)
-          return {
-            sid,
-            assertion: false,
-            message: `Resource does not fulfill the policy's attribute requirement`
-          };
-
-        const attrsRequirement = await ngacRepo(context).getResourceAttrByKey(
-          parsedKey
-        );
-
-        if (!attrsRequirement)
-          return {
-            sid,
-            assertion: false,
-            message: `Cannot find resource attributes`
-          };
-
-        // todo: here optional chaining at condition?.can
-        if (!condition.can)
-          return {
-            sid,
-            assertion: true,
-            message: 'No condition defined'
-          };
-
-        return Object.entries(condition.can)
-          .map(([permission, who]) =>
-            target.resourceAttrs.reduce(
-              // todo: optional chaining at ?.value
-              (prev, { key, value }) =>
-                prev ||
-                (key === who &&
-                  includes(
-                    attrsRequirement.find(({ key }) => key === permission)
-                      .value,
-                    value
-                  )),
-              false
-            )
-              ? {
-                  sid,
-                  assertion: true
-                }
-              : {
-                  sid,
-                  assertion: false
-                }
-          )
-          .reduce(
-            (prev, { assertion }) => ({
+    new Promise<Assertion[]>(resolve =>
+      Promise.all(
+        filter(
+          policies,
+          ({ allowedEvents }) =>
+            !!intersection(allowedEvents, eventTypes).length
+        ).map(async ({ attributes: { uri }, sid, condition }) => {
+          const parsedKey = convertKey(uri, target);
+          if (!parsedKey)
+            return {
               sid,
-              assertion: prev.assertion && assertion
-            }),
-            { sid, assertion: true }
+              assertion: false,
+              message: `Resource does not fulfill the policy's attribute requirement`
+            };
+          const attrsRequirement = await ngacRepo(context).getResourceAttrByKey(
+            parsedKey
           );
-      });
-
-      Promise.all(promises).then(allAssertion => resolve(allAssertion));
-    })
+          return !attrsRequirement
+            ? {
+                sid,
+                assertion: false,
+                message: `Cannot find resource attributes`
+              }
+            : !condition.can
+            ? {
+                sid,
+                assertion: true,
+                message: 'No condition defined'
+              }
+            : Object.entries(condition.can) // todo: optional chaining at ?.can
+                .map(([permission, who]) =>
+                  target.resourceAttrs.reduce(
+                    // todo: optional chaining at ?.value
+                    (prev, { key, value }) =>
+                      prev ||
+                      (key === who &&
+                        includes(
+                          attrsRequirement.find(({ key }) => key === permission)
+                            .value,
+                          value
+                        )),
+                    false
+                  )
+                    ? {
+                        sid,
+                        assertion: true
+                      }
+                    : {
+                        sid,
+                        assertion: false
+                      }
+                )
+                .reduce(
+                  (prev, { assertion }) => ({
+                    sid,
+                    assertion: prev.assertion && assertion
+                  }),
+                  { sid, assertion: true }
+                );
+        })
+      ).then(allAssertion => resolve(allAssertion))
+    )
 });
