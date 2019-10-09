@@ -69,7 +69,7 @@ export const policyDecisionEngine: (
                 assertion: true,
                 message: 'No condition defined'
               }
-            : Object.entries(condition.can) // todo: optional chaining at ?.can
+            : Object.entries(condition.can)
                 .map(([permission, who]) =>
                   target.resourceAttrs.reduce(
                     // todo: optional chaining at ?.value

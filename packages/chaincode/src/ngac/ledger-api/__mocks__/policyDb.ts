@@ -2,6 +2,7 @@ import { NAMESPACE, Policy, RESOURCE } from '../../types';
 
 export const policyDb: () => Policy[] = () => [
   {
+    // Example 1
     policyClass: 'event-creation',
     sid: 'allowCreateDocument',
     allowedEvents: ['DocumentCreated'],
@@ -39,11 +40,4 @@ export const policyDb: () => Policy[] = () => [
   //   },
   //   effect: 'Allow'
   // },
-  // {
-  //   policyClass: 'administrativeRights',
-  //   sid: 'allowTagResource',
-  //   action: [CAN_UPDATE_USER_ENTITY],
-  //   attributes: {},
-  //   effect: 'Allow'
-  // }
 ];

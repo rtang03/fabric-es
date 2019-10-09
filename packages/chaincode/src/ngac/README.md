@@ -2,12 +2,12 @@
 
 ### Tagging
 
-_PrincipalTag_ may include:
+_ContextAttr_ may include:
 
 - orgname (inherit)
 - x509id (inherit)
 
-_ResourceTag_ may include:
+_ResourceAttr_ may include:
 
 - orgname (inherit)
 - entityname (inherit)
@@ -20,87 +20,55 @@ _InputTag_ may include:
 - user defined attribute
 
 ### Naming Convention
-
-_Administrative Action_
-
-```text
-// use fixed value
-iam/org1msp/createuser
-
-// use descriptor
-iam/organization?id=org1msp/action?actionname=createuser
-```
-
-Mandatory tag: `id`, `actionname`
-
-`organization` may be defined as
-
-- fixed value, with optional array of filter `attr:value`
-- `*` wildcard means applicable to any
-
-_Event Action_
-
-```text
-// use fixed value
-model/org1msp/document/documentcreated
-
-// use descriptor
-model?projectname=tradefinance/organization?id=org1msp/entity?id=document/documentcreated
-```
-
-Mandatory tag: `id`, `entityname`
-
-_IAM Resource_
-
-```text
-// use fixed value
-iam/org1msp/actn1234
-
-// use descriptor
-iam/organization?id=org1msp/account?id=actn1234]
-```
-
-Mandatory tag: `id`
+*Every params and field are case sensitive*  
 
 _Entity Resource_
 
 ```text
 // use fixed value
-model/org1msp/document/document1234
+model/Org1MSP/document/document1234
 
 // use descriptor
-model/organization?id=org1msp/entity?id=document/entityid?id=document1234
+model/org?id=Org1MSP/entity?id=document/entityid?id=document1234
 ```
 
 Mandatory tag: `id`
 
 ### Policy Statement
 
-_OrgAmin create and update user for his org_
+_Principal creates new entity object his org_
 
 ```yaml
-effect: allow
-action:
-  - iam/*/createuser
-  - iam/*/updateuser
-resource:
+# Example 1
+policyClass: event-creation
+sid: allowCreateDocument
+effect: Allow
+allowedEvents:
+  - DocumentCreated
+attributes:
+  uri: `${NAMESPACE.MODEL}/${NAMESPACE.ORG}?id=resourceAttrs:${RESOURCE.CREATOR_MSPID}/${NAMESPACE.ENTITY}?id=resourceAttrs:${RESOURCE.ENTITYNAME}`
 condition:
-  stringEquals:
-    PrincipalTag.type: admin
+  can:
+    createDocument: `${RESOURCE.CREATOR_ID}`
 ```
 
-_User can tag his own user defined tag_
+_Principal create new events on pre-existing entity object_
 
 ```yaml
-effect: allow
-action:
-  - iam/*/listusertags
-  - iam/*/taguser
-  - iam/*/untaguser
-resource: iam/organization?id=${ResourceTag.orgName}/account?id=${PrincipalTag.x509id}
+# Example 2
+policyClass: event-creation
+sid: allowUpdateUsername
+effect: Allow
+allowedEvents:
+  - UsernameUpdated
+  - UserTypeUpdated
+attributes: 
+  uri: `${NAMESPACE.MODEL}/${NAMESPACE.ORG}?id=resourceAttrs:${RESOURCE.CREATOR_MSPID}/${NAMESPACE.ENTITY}?id=resourceAttrs:${RESOURCE.ENTITYNAME}/${NAMESPACE.ENTITYID}?id=resourceAttrs:${RESOURCE.ENTITYID}`
 condition:
+  can:
+    updateUsername: `${RESOURCE.???}`
   stringEquals:
-    ResourceTag.accountnumber: ${PrincipalTag.x509id}
+    ContextAttr.MSPID: ${ResourceAttr.creator_mspid}
 ```
 
 _User create Entity object_
