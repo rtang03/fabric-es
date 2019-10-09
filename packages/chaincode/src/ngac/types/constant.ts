@@ -1,5 +1,6 @@
 export enum CONTEXT {
   ISSUER_ORGNAME = 'issuer_orgname',
+  ISSUER_CN = 'issuer_cn',
   SUBJECT_OUNAME = 'subject_ouname',
   SUBJECT_ORGNAME = 'subject_orgname',
   SUBJECT_CN = 'subject_cn',

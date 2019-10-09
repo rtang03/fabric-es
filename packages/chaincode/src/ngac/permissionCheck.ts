@@ -28,9 +28,6 @@ export const permissionCheck: (
   const assertions: Record<string, () => Promise<Assertion[]>> = {
     [FCN.CREATE_COMMIT]: async (): Promise<Assertion[]> => {
       const [entityName, entityId, version, evenStr] = params;
-      const entityAttrs = await ngacRepo(context).getAttrByEntityName(
-        entityName
-      );
       if (version === '0') {
         resourceAttrs.push(getAttr(RESOURCE.ENTITYNAME, entityName));
         resourceAttrs.push(getAttr(RESOURCE.VERSION, version, false));
@@ -49,7 +46,6 @@ export const permissionCheck: (
           context,
           entityName,
           entityId,
-          entityAttrs,
           resourceAttrs,
           mspAttrs
         })
@@ -57,8 +53,5 @@ export const permissionCheck: (
     }
   };
 
-  return assertions[fcn]().then(result => {
-    console.log(result);
-    return result;
-  });
+  return assertions[fcn]();
 };
