@@ -2,7 +2,7 @@ import { permissionCheck } from '../permissionCheck';
 
 jest.mock('../ledger-api/statelist');
 
-const ctx = {
+const context: any = {
   stub: {
     getFunctionAndParameters: jest.fn()
   },
@@ -17,8 +17,8 @@ let entityId;
 let version;
 let eventStr;
 let id;
-ctx.clientIdentity.getMSPID.mockImplementation(() => 'Org1MSP');
-ctx.clientIdentity.getX509Certificate.mockImplementation(() => ({
+context.clientIdentity.getMSPID.mockImplementation(() => 'Org1MSP');
+context.clientIdentity.getX509Certificate.mockImplementation(() => ({
   subject: { commonName: 'Admin@org1.example.com' },
   issuer: { commonName: 'rca-org1' }
 }));
@@ -30,42 +30,41 @@ describe('Example 1: Tests', () => {
     version = '0';
     eventStr = JSON.stringify([{ type: 'DocumentCreated' }]);
     id = 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca';
-  });
-  // policy found and asserted
-  it('Example 1a: should createDocument', async () => {
-    ctx.stub.getFunctionAndParameters.mockImplementationOnce(() => ({
+    context.stub.getFunctionAndParameters.mockImplementation(() => ({
       fcn: 'createCommit',
       params: [entityName, entityId, version, eventStr]
     }));
-    ctx.clientIdentity.getID.mockImplementationOnce(() => id);
-    return permissionCheck(ctx as any).then(assertions =>
+    context.clientIdentity.getID.mockImplementation(() => id);
+  });
+
+  // policy found and asserted
+  it('Example 1a: should createDocument', async () =>
+    await permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
         { sid: 'allowCreateDocument', assertion: true }
       ])
-    );
-  });
+    ));
 
   // policy not found at all
   it('Example 1b: should fail to updateDocument', async () => {
-    eventStr = JSON.stringify([{ type: 'DocumentUpdated' }]);
-    ctx.stub.getFunctionAndParameters.mockImplementationOnce(() => ({
+    context.stub.getFunctionAndParameters.mockImplementationOnce(() => ({
       fcn: 'createCommit',
-      params: [entityName, entityId, version, eventStr]
+      params: [
+        entityName,
+        entityId,
+        version,
+        JSON.stringify([{ type: 'DocumentUpdated' }])
+      ]
     }));
-    ctx.clientIdentity.getID.mockImplementationOnce(() => id);
-    return permissionCheck(ctx as any).then(assertions =>
+    return permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([])
     );
   });
 
   // policy found, but assert false
   it('Example 1c: should fail to createDocument with wrong ID', async () => {
-    ctx.stub.getFunctionAndParameters.mockImplementationOnce(() => ({
-      fcn: 'createCommit',
-      params: [entityName, entityId, version, eventStr]
-    }));
-    ctx.clientIdentity.getID.mockImplementationOnce(() => 'invalid-id');
-    return permissionCheck(ctx as any).then(assertions =>
+    context.clientIdentity.getID.mockImplementationOnce(() => 'invalid-id');
+    return permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
         { sid: 'allowCreateDocument', assertion: false }
       ])
@@ -74,12 +73,11 @@ describe('Example 1: Tests', () => {
 
   // Policy found, but missing resource attributes cannot proceed assertion
   it('Example 1d: should fail to getResourceAttr', async () => {
-    ctx.stub.getFunctionAndParameters.mockImplementationOnce(() => ({
+    context.stub.getFunctionAndParameters.mockImplementationOnce(() => ({
       fcn: 'createCommit',
       params: ['non-existing entityName', entityId, version, eventStr]
     }));
-    ctx.clientIdentity.getID.mockImplementationOnce(() => id);
-    return permissionCheck(ctx as any).then(assertions =>
+    return permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
         {
           sid: 'allowCreateDocument',
@@ -92,13 +90,8 @@ describe('Example 1: Tests', () => {
 
   // Policy found, any MSPID's member is allowed
   it('Example 1e: should fail to createDocument with wrong mspid', async () => {
-    ctx.stub.getFunctionAndParameters.mockImplementationOnce(() => ({
-      fcn: 'createCommit',
-      params: [entityName, entityId, version, eventStr]
-    }));
-    ctx.clientIdentity.getID.mockImplementationOnce(() => id);
-    ctx.clientIdentity.getMSPID.mockImplementationOnce(() => 'Org2MSP');
-    return permissionCheck(ctx as any).then(assertions =>
+    context.clientIdentity.getMSPID.mockImplementationOnce(() => 'Org2MSP');
+    return permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
         {
           sid: 'allowCreateDocument',
@@ -116,12 +109,27 @@ describe('Example 2: Tests', () => {
     version = '1';
     eventStr = JSON.stringify([{ type: 'UsernameUpdated' }]);
     id = 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca';
+    context.stub.getFunctionAndParameters.mockImplementation(() => ({
+      fcn: 'createCommit',
+      params: [entityName, entityId, version, eventStr]
+    }));
+    context.clientIdentity.getID.mockImplementation(() => id);
   });
 
-  // policy found,
-  it('Example 2a: should updateUsername', async () => {});
+  // policy found, createCommit for pre-existing entity.
+  it('Example 2a: should updateUsername', async () =>
+    await permissionCheck({ context }).then(assertions =>
+      expect(assertions).toEqual([
+        { sid: 'allowUpdateUsername', assertion: true }
+      ])
+    ));
 
-  // it ('Example 2: should fail to createDocument, with version > 0', async () => {
-  //
-  // });
+  it('Example 2b: should fail updateUsername, with wrong id', async () => {
+    context.clientIdentity.getID.mockImplementationOnce(() => 'wrong id');
+    return permissionCheck({ context }).then(assertions =>
+      expect(assertions).toEqual([
+        { sid: 'allowUpdateUsername', assertion: false }
+      ])
+    );
+  });
 });

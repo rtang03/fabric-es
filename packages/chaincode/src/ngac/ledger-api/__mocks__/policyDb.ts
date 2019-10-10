@@ -1,4 +1,9 @@
-import { NAMESPACE, Policy, RESOURCE } from '../../types';
+import {
+  CONTEXT as CTX,
+  NAMESPACE as NS,
+  Policy,
+  RESOURCE as RES
+} from '../../types';
 
 export const policyDb: () => Policy[] = () => [
   {
@@ -7,10 +12,25 @@ export const policyDb: () => Policy[] = () => [
     sid: 'allowCreateDocument',
     allowedEvents: ['DocumentCreated'],
     attributes: {
-      uri: `${NAMESPACE.MODEL}/${NAMESPACE.ORG}?id=resourceAttrs:${RESOURCE.CREATOR_MSPID}/${NAMESPACE.ENTITY}?id=resourceAttrs:${RESOURCE.ENTITYNAME}`
+      uri: `${NS.MODEL}/${NS.ORG}?id=resourceAttrs:${RES.CREATOR_MSPID}/${NS.ENTITY}?id=resourceAttrs:${RES.ENTITYNAME}`
     },
     condition: {
-      can: { createDocument: `${RESOURCE.CREATOR_ID}` }
+      hasList: { createDocument: `${RES.CREATOR_ID}` }
+    },
+    effect: 'Allow'
+  },
+  {
+    policyClass: 'event-creation',
+    sid: 'allowUpdateUsername',
+    allowedEvents: ['UsernameUpdated', 'UserTypeUpdated'],
+    attributes: {
+      uri: `${NS.MODEL}/${NS.ORG}?id=resourceAttrs:${RES.CREATOR_MSPID}/${NS.ENTITY}?id=resourceAttrs:${RES.ENTITYNAME}/${NS.ENTITYID}?id=resourceAttrs:${RES.ENTITYID}`
+    },
+    condition: {
+      hasList: { updateUsername: `${CTX.INVOKER_ID}` },
+      stringEquals: {
+        [CTX.INVOKER_MSPID]: `${RES.CREATOR_MSPID}`
+      }
     },
     effect: 'Allow'
   }

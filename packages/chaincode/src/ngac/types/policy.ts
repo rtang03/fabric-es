@@ -19,6 +19,9 @@ export interface Policy {
     // version?: string;
     uri?: string;
   };
-  condition?: any;
+  condition?: {
+    hasList?: Record<string, string>;
+    stringEquals?: Record<string, string>;
+  };
   effect: Effect;
 }
