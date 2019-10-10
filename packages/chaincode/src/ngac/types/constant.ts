@@ -10,6 +10,7 @@ export enum CONTEXT {
 
 export enum RESOURCE {
   ENTITYNAME = 'entityName',
+  ENTITYID = 'entityId',
   VERSION = 'version',
   CREATOR_MSPID = 'creator_mspid',
   CREATOR_CN = 'creator_cn',
@@ -20,8 +21,8 @@ export enum NAMESPACE {
   MODEL = 'model',
   ORG = 'org',
   ENTITY = 'entity',
+  ENTITYID = 'entityid',
   MSP_ATTRIBUTE = 'mspattr',
-  ENTITY_ATTRIBUTE = 'entityattr',
   RESOURCE_ATTRIBUTE = 'resattr',
   POLICY = 'policy'
 }

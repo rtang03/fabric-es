@@ -1,5 +1,5 @@
 import { Context } from 'fabric-contract-api';
-import { NAMESPACE } from '../../types';
+import { NAMESPACE, RESOURCE } from '../../types';
 import { policyDb } from './policyDb';
 
 const stateList = (namespace: string, context: Context) => ({
@@ -13,7 +13,7 @@ const stateList = (namespace: string, context: Context) => ({
           // here, test key is '"model/Org1MSP/dev_ngac"'
           ['"model/Org1MSP/dev_ngac_example1"']: Promise.resolve([
             {
-              type: '1',
+              type: 'N',
               key: 'createDocument',
               value: [
                 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca',
@@ -23,12 +23,27 @@ const stateList = (namespace: string, context: Context) => ({
           ]),
           ['"model/Org1MSP/dev_ngac_example2/ngac_unit_02"']: Promise.resolve([
             {
-              type: '1',
+              type: 'N',
               key: 'updateUsername',
               value: [
                 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca',
                 'x509::/O=Dev/OU=client/CN=User1@example.com::/O=Dev/OU=Dev/CN=rca'
               ]
+            },
+            {
+              type: '1',
+              key: `${RESOURCE.ENTITYID}`,
+              value: 'ngac_unit_02'
+            },
+            {
+              type: '1',
+              key: `${RESOURCE.CREATOR_MSPID}`,
+              value: 'Org1MSP'
+            },
+            {
+              type: '1',
+              key: `${RESOURCE.ENTITYNAME}`,
+              value: 'dev_ngac_example2'
             }
           ])
         }[keyparts]),
