@@ -58,7 +58,16 @@ export class EventStore extends Contract {
   }
 
   async beforeTransaction(context) {
-    await permissionCheck(context);
+    await permissionCheck(context).then(assertions => {
+      if (assertions === [])
+        throw new Error('The submmited event does not in any policy statement');
+
+      // Current strategy design: all corresponding policy statement must assert true;
+      assertions.forEach(({ sid, assertion }) => {
+        if (assertion) return true;
+        else throw new Error(`Policy ${sid} fail`);
+      });
+    });
   }
 
   @Transaction()

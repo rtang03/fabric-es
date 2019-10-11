@@ -1,5 +1,4 @@
 import { Context } from 'fabric-contract-api';
-import { concat } from 'lodash';
 import { ngacRepo } from './ngacRepo';
 import { Assertion, policyDecisionEngine } from './policyDecisionEngine';
 import {
@@ -11,7 +10,11 @@ import {
 } from './types';
 
 enum FCN {
-  CREATE_COMMIT = 'createCommit'
+  CREATE_COMMIT = 'createCommit',
+  QUERY_BY_ENTITYID = 'queryByEntityId',
+  QUERY_BY_ENTITYID_COMMITID = 'queryByEntityIdCommitId',
+  DELETE_BY_ENTITYID_COMMITID = 'deleteByEntityIdCommitId',
+  DELETE_BY_ENTITYID = 'deleteByEntityId'
 }
 
 export const permissionCheck: ({
@@ -32,7 +35,7 @@ export const permissionCheck: ({
   const mspAttrs = await ngacRepo(context).getAttrByMSPID(
     clientIdentity.getMSPID()
   );
-  let resourceAttrs: Attribute[] = [];
+  const resourceAttrs: Attribute[] = [];
   const id = clientIdentity.getID();
   const cn = clientIdentity.getX509Certificate().subject.commonName;
   const mspid = clientIdentity.getMSPID();
@@ -51,21 +54,31 @@ export const permissionCheck: ({
         resourceAttrs.push(getAttr(RESOURCE.CREATOR_ID, id));
       } else {
         const uri = `${NAMESPACE.MODEL}/${mspid}/${entityName}/${entityId}`;
-        const attrs = await ngacRepo(context).getResourceAttrByKey(uri);
+        const attrs = await ngacRepo(context).getResourceAttrByURI(uri);
         resourceAttrs.push(...attrs);
       }
       const eventsJson: any[] = JSON.parse(evenStr);
       const policies = await ngacRepo(context).getPolicyById(id);
-      return policyDecisionEngine(policies, context).request({
-        eventTypes: eventsJson.map(({ type }) => type),
-        target: createResource({
-          context,
-          entityName,
-          entityId,
-          resourceAttrs,
-          mspAttrs
-        })
-      });
-    }
+      return !policies
+        ? [{ sid: 'system', assertion: false, message: 'No policy found' }]
+        : policyDecisionEngine(policies, context).request({
+            eventTypes: eventsJson.map(({ type }) => type),
+            target: createResource({
+              context,
+              entityName,
+              entityId,
+              resourceAttrs,
+              mspAttrs
+            })
+          });
+    },
+    [FCN.QUERY_BY_ENTITYID]: () =>
+      Promise.resolve([{ sid: 'No policy required', assertion: true }]),
+    [FCN.QUERY_BY_ENTITYID_COMMITID]: () =>
+      Promise.resolve([{ sid: 'No policy required', assertion: true }]),
+    [FCN.DELETE_BY_ENTITYID]: () =>
+      Promise.resolve([{ sid: 'No policy required', assertion: true }]),
+    [FCN.DELETE_BY_ENTITYID_COMMITID]: () =>
+      Promise.resolve([{ sid: 'No policy required', assertion: true }])
   }[fcn]() as Promise<Assertion[]>;
 };

@@ -23,6 +23,41 @@ context.clientIdentity.getX509Certificate.mockImplementation(() => ({
   issuer: { commonName: 'rca-org1' }
 }));
 
+/* target.resourceAttrs
+[ { type: '1',
+    key: 'invoker_mspid',
+    value: 'Org1MSP',
+    immutable: true },
+  { type: '1',
+    key: 'invoker_id',
+    value: 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca',
+    immutable: true },
+  { type: '1',
+    key: 'subject_cn',
+    value: 'Admin@org1.example.com',
+    immutable: true },
+  { type: '1', key: 'version', value: '0', immutable: false },
+  { type: '1',
+    key: 'entityName',
+    value: 'dev_ngac_example1',
+    immutable: true },
+  { type: '1',
+    key: 'entityId',
+    value: 'ngac_unit_01',
+    immutable: true },
+  { type: '1',
+    key: 'creator_mspid',
+    value: 'Org1MSP',
+    immutable: true },
+  { type: '1',
+    key: 'creator_cn',
+    value: 'Admin@org1.example.com',
+    immutable: true },
+  { type: '1',
+    key: 'creator_id',
+    value: 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca',
+    immutable: true } ]
+ */
 describe('Example 1: Tests', () => {
   beforeEach(() => {
     entityName = 'dev_ngac_example1';
@@ -38,7 +73,7 @@ describe('Example 1: Tests', () => {
   });
 
   // policy found and asserted
-  it('Example 1a: should createDocument', async () =>
+  it('1a: should createDocument', async () =>
     await permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
         { sid: 'allowCreateDocument', assertion: true }
@@ -46,7 +81,7 @@ describe('Example 1: Tests', () => {
     ));
 
   // policy not found at all
-  it('Example 1b: should fail to updateDocument', async () => {
+  it('1b: should fail updateDocument, which is not allowedEvents', async () => {
     context.stub.getFunctionAndParameters.mockImplementationOnce(() => ({
       fcn: 'createCommit',
       params: [
@@ -62,8 +97,10 @@ describe('Example 1: Tests', () => {
   });
 
   // policy found, but assert false
-  it('Example 1c: should fail to createDocument with wrong ID', async () => {
-    context.clientIdentity.getID.mockImplementationOnce(() => 'invalid-id');
+  it('1c: should fail createDocument with wrong ID, when his policy exists', async () => {
+    context.clientIdentity.getID.mockImplementationOnce(
+      () => 'wrong id + valid policy'
+    );
     return permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
         { sid: 'allowCreateDocument', assertion: false }
@@ -71,8 +108,20 @@ describe('Example 1: Tests', () => {
     );
   });
 
+  // policy found, but assert false
+  it('1d: should fail createDocument with wrong ID, when his policy not exist', async () => {
+    context.clientIdentity.getID.mockImplementationOnce(
+      () => 'wrong id; without valid policy'
+    );
+    return permissionCheck({ context }).then(assertions =>
+      expect(assertions).toEqual([
+        { sid: 'system', assertion: false, message: 'No policy found' }
+      ])
+    );
+  });
+
   // Policy found, but missing resource attributes cannot proceed assertion
-  it('Example 1d: should fail to getResourceAttr', async () => {
+  it('1e: should fail getResourceAttr', async () => {
     context.stub.getFunctionAndParameters.mockImplementationOnce(() => ({
       fcn: 'createCommit',
       params: ['non-existing entityName', entityId, version, eventStr]
@@ -89,7 +138,7 @@ describe('Example 1: Tests', () => {
   });
 
   // Policy found, any MSPID's member is allowed
-  it('Example 1e: should fail to createDocument with wrong mspid', async () => {
+  it('1f: should fail createDocument with wrong mspid', async () => {
     context.clientIdentity.getMSPID.mockImplementationOnce(() => 'Org2MSP');
     return permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
@@ -102,6 +151,37 @@ describe('Example 1: Tests', () => {
   });
 });
 
+/* target.resourceAttrs
+[ { type: '1',
+    key: 'invoker_mspid',
+    value: 'Org1MSP',
+    immutable: true },
+  { type: '1',
+    key: 'invoker_id',
+    value: 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca',
+    immutable: true },
+  { type: '1',
+    key: 'subject_cn',
+    value: 'Admin@org1.example.com',
+    immutable: true },
+  { type: '1', key: 'version', value: '1', immutable: false },
+  { type: '1',
+    key: 'entityName',
+    value: 'dev_ngac_example2',
+    immutable: true },
+  { type: '1',
+    key: 'entityId',
+    value: 'ngac_unit_02',
+    immutable: true },
+  { type: 'N',
+    key: 'updateUsername',
+    value:
+     [ 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca',
+       'x509::/O=Dev/OU=client/CN=User1@example.com::/O=Dev/OU=Dev/CN=rca' ] },
+  { type: '1', key: 'entityId', value: 'ngac_unit_02' },
+  { type: '1', key: 'creator_mspid', value: 'Org1MSP' },
+  { type: '1', key: 'entityName', value: 'dev_ngac_example2' } ]
+ */
 describe('Example 2: Tests', () => {
   beforeEach(() => {
     entityName = 'dev_ngac_example2';
@@ -117,18 +197,31 @@ describe('Example 2: Tests', () => {
   });
 
   // policy found, createCommit for pre-existing entity.
-  it('Example 2a: should updateUsername', async () =>
+  it('2a: should updateUsername', async () =>
     await permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
         { sid: 'allowUpdateUsername', assertion: true }
       ])
     ));
 
-  it('Example 2b: should fail updateUsername, with wrong id', async () => {
-    context.clientIdentity.getID.mockImplementationOnce(() => 'wrong id');
+  it('2b: should fail updateUsername with wrong ID, , when his policy exists', async () => {
+    context.clientIdentity.getID.mockImplementationOnce(
+      () => 'wrong id + valid policy'
+    );
     return permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
         { sid: 'allowUpdateUsername', assertion: false }
+      ])
+    );
+  });
+
+  it('2c: should fail updateUsername with wrong ID, , when his policy not exists', async () => {
+    context.clientIdentity.getID.mockImplementationOnce(
+      () => 'wrong id; without valid policy'
+    );
+    return permissionCheck({ context }).then(assertions =>
+      expect(assertions).toEqual([
+        { sid: 'system', assertion: false, message: 'No policy found' }
       ])
     );
   });

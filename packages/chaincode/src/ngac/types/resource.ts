@@ -1,9 +1,11 @@
 import { Context } from 'fabric-contract-api';
+import { makeKey } from '../utils';
 import { Attribute } from './attribute';
 import { CONTEXT } from './constant';
 
 export interface Resource {
   key: string;
+  uri: string;
   contextAttrs?: Attribute[];
   mspAttrs?: Attribute[];
   resourceAttrs?: Attribute[];
@@ -32,27 +34,24 @@ export const createResource: (option: {
     .organizationalUnitName;
   const issuer_cn = cid.getX509Certificate().issuer.commonName;
   const issuer_orgname = cid.getX509Certificate().issuer.organizationName;
-  const getAttr = (key, value) => ({ type: '1' as any, key, value });
-  if (invoker_mspid)
-    contextAttrs.push(getAttr(CONTEXT.INVOKER_MSPID, invoker_mspid));
+  const attr = (key, value) =>
+    value ? { type: '1' as any, key, value } : null;
 
-  if (invoker_id) contextAttrs.push(getAttr(CONTEXT.INVOKER_ID, invoker_id));
-
-  if (subject_cn) contextAttrs.push(getAttr(CONTEXT.SUBJECT_CN, subject_cn));
-
-  if (subject_orgname)
-    contextAttrs.push(getAttr(CONTEXT.SUBJECT_ORGNAME, subject_orgname));
-
-  if (subject_ouname)
-    contextAttrs.push(getAttr(CONTEXT.SUBJECT_OUNAME, subject_ouname));
-
-  if (issuer_cn) contextAttrs.push(getAttr(CONTEXT.ISSUER_CN, issuer_cn));
-
-  if (issuer_orgname)
-    contextAttrs.push(getAttr(CONTEXT.ISSUER_ORGNAME, issuer_orgname));
+  contextAttrs.push(
+    ...[
+      attr(CONTEXT.INVOKER_MSPID, invoker_mspid),
+      attr(CONTEXT.INVOKER_ID, invoker_id),
+      attr(CONTEXT.SUBJECT_CN, subject_cn),
+      attr(CONTEXT.SUBJECT_ORGNAME, subject_orgname),
+      attr(CONTEXT.SUBJECT_OUNAME, subject_ouname),
+      attr(CONTEXT.ISSUER_CN, issuer_cn),
+      attr(CONTEXT.ISSUER_ORGNAME, issuer_orgname)
+    ].filter(item => !!item)
+  );
 
   return {
-    key: `model/${invoker_mspid}/${entityName}/${entityId}`,
+    key: makeKey(['model', invoker_mspid, entityName, entityId]),
+    uri: `model/${invoker_mspid}/${entityName}/${entityId}`,
     contextAttrs,
     mspAttrs: mspAttrs || [],
     resourceAttrs: resourceAttrs || []

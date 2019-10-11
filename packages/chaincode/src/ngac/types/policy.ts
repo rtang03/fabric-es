@@ -1,6 +1,7 @@
 export type Effect = 'Allow' | 'Deny';
 
 export interface Policy {
+  key: string;
   policyType?: 'identity-based' | 'resource-based';
   policyClass?: string;
   sid: string;
