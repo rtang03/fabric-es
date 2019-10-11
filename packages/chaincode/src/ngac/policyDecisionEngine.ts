@@ -1,33 +1,32 @@
 import { Context } from 'fabric-contract-api';
 import { filter, find, includes, intersection } from 'lodash';
 import { ngacRepo } from './ngacRepo';
-import { Attribute, NAMESPACE, Policy, Resource } from './types';
+import { Attribute, NAMESPACE as NS, Policy, Resource } from './types';
 
-const convertKey: (key: string, target: Resource) => string = (key, target) => {
+const evaluateURI: (uri: string, target: Resource) => string = (
+  uri,
+  target
+) => {
   const getAttr = query => {
-    const [queryKey, queryValue] = query.split('=');
-    // queryKey is not used, because only 'id' is the only query param
-    const [paramKey, paramValue] = queryValue.split(':');
+    const [paramKey, paramValue] = query.split('=')[1].split(':');
     const attribute = find<Attribute>(
       target[paramKey],
       ({ key }) => key === paramValue
     );
-    // todo: change to optional chaining
     return !attribute ? null : (attribute.value as string);
   };
-  const [namespacePart, orgPart, entityPart, entityIdPart] = key.split('/');
+  const [namespace, orgPart, entityPart, entityIdPart] = uri.split('/');
   const [orgname, orgQuery] = orgPart.split('?');
-  const organization: string =
-    orgname === NAMESPACE.ORG ? getAttr(orgQuery) : orgname;
+  const organization: string = orgname === NS.ORG ? getAttr(orgQuery) : orgname;
   const [entityname, entityQuery] = entityPart.split('?');
   const entity: string =
-    entityname === NAMESPACE.ENTITY ? getAttr(entityQuery) : entityname;
+    entityname === NS.ENTITY ? getAttr(entityQuery) : entityname;
   if (!organization || !entity) return null;
   if (entityIdPart) {
     const [id, entityidQuery] = entityIdPart.split('?');
-    const entityId = id === NAMESPACE.ENTITYID ? getAttr(entityidQuery) : id;
-    return `${namespacePart}/${organization}/${entity}/${entityId}`;
-  } else return `${namespacePart}/${organization}/${entity}`;
+    const entityId = id === NS.ENTITYID ? getAttr(entityidQuery) : id;
+    return `${namespace}/${organization}/${entity}/${entityId}`;
+  } else return `${namespace}/${organization}/${entity}`;
 };
 
 export interface Assertion {
@@ -35,6 +34,8 @@ export interface Assertion {
   assertion: boolean;
   message?: string;
 }
+
+const allowOrDeny = { Allow: true, Deny: false };
 
 export const policyDecisionEngine: (
   policies: Policy[],
@@ -52,17 +53,17 @@ export const policyDecisionEngine: (
           policies,
           ({ allowedEvents }) =>
             !!intersection(allowedEvents, eventTypes).length
-        ).map(async ({ attributes: { uri }, sid, condition }) => {
-          const parsedKey = convertKey(uri, target);
-          if (!parsedKey)
+        ).map(async ({ attributes: { uri }, sid, effect, condition }) => {
+          const parsedURI = evaluateURI(uri, target);
+          if (!parsedURI)
             return {
               sid,
-              assertion: false,
+              assertion: !allowOrDeny[effect],
               message: `Resource does not fulfill the policy's attribute requirement`
             };
 
-          const attrsRequirement = await ngacRepo(context).getResourceAttrByKey(
-            parsedKey
+          const attrsRequirement = await ngacRepo(context).getResourceAttrByURI(
+            parsedURI
           );
 
           if (!attrsRequirement)
@@ -95,11 +96,11 @@ export const policyDecisionEngine: (
                 }, false)
                   ? {
                       sid,
-                      assertion: true
+                      assertion: allowOrDeny[effect]
                     }
                   : {
                       sid,
-                      assertion: false
+                      assertion: !allowOrDeny[effect]
                     }
               );
 

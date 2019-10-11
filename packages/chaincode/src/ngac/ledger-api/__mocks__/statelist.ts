@@ -3,7 +3,7 @@ import { NAMESPACE, RESOURCE } from '../../types';
 import { policyDb } from './policyDb';
 
 const stateList = (namespace: string, context: Context) => ({
-  getQueryResult: async keyparts =>
+  getQueryResult: async (keyparts: string[]) =>
     ({
       [NAMESPACE.MSP_ATTRIBUTE]: () =>
         Promise.resolve([{ type: '1', key: 'mspid', value: 'Org1MSP' }]),
@@ -11,7 +11,8 @@ const stateList = (namespace: string, context: Context) => ({
         ({
           // the real key is 'resattr"model/Org1MSP/dev_ngac"' namespace is required
           // here, test key is '"model/Org1MSP/dev_ngac"'
-          ['"model/Org1MSP/dev_ngac_example1"']: Promise.resolve([
+          // ['"model/Org1MSP/dev_ngac_example1"']: Promise.resolve([
+          '"model""Org1MSP""dev_ngac_example1"': Promise.resolve([
             {
               type: 'N',
               key: 'createDocument',
@@ -21,7 +22,8 @@ const stateList = (namespace: string, context: Context) => ({
               ]
             }
           ]),
-          ['"model/Org1MSP/dev_ngac_example2/ngac_unit_02"']: Promise.resolve([
+          // ['"model/Org1MSP/dev_ngac_example2/ngac_unit_02"']: Promise.resolve([
+          '"model""Org1MSP""dev_ngac_example2""ngac_unit_02"': Promise.resolve([
             {
               type: 'N',
               key: 'updateUsername',
@@ -46,8 +48,14 @@ const stateList = (namespace: string, context: Context) => ({
               value: 'dev_ngac_example2'
             }
           ])
-        }[keyparts]),
-      [NAMESPACE.POLICY]: () => Promise.resolve(policyDb())
+        }[keyparts.reduce((prev, curr) => prev + curr, '')]),
+      [NAMESPACE.POLICY]: () =>
+        ({
+          '"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca"': Promise.resolve(
+            policyDb()
+          ),
+          '"wrong id + valid policy"': Promise.resolve(policyDb())
+        }[keyparts[0]])
     }[namespace]())
 });
 

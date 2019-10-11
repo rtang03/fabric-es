@@ -20,6 +20,7 @@ export const policyDb: () => Policy[] = () => [
     effect: 'Allow'
   },
   {
+    // Example 2
     policyClass: 'event-creation',
     sid: 'allowUpdateUsername',
     allowedEvents: ['UsernameUpdated', 'UserTypeUpdated'],
