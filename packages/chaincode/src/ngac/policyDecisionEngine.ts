@@ -1,7 +1,8 @@
 import { Context } from 'fabric-contract-api';
-import { filter, find, includes, intersection } from 'lodash';
+import { filter, find, includes, intersection, isEqual } from 'lodash';
 import { ngacRepo } from './ngacRepo';
 import { Attribute, NAMESPACE as NS, Policy, Resource } from './types';
+import has = Reflect.has;
 
 const evaluateURI: (uri: string, target: Resource) => string = (
   uri,
@@ -62,22 +63,22 @@ export const policyDecisionEngine: (
               message: `Resource does not fulfill the policy's attribute requirement`
             };
 
-          const attrsRequirement = await ngacRepo(context).getResourceAttrByURI(
-            parsedURI
-          );
-
-          if (!attrsRequirement)
-            return {
-              sid,
-              assertion: false,
-              message: `Cannot find resource attributes`
-            };
-
           if (!condition)
             return {
               sid,
               assertion: true,
               message: 'No condition defined'
+            };
+
+          const attrsRequirement = await ngacRepo(context).getResourceAttrByURI(
+            parsedURI
+          );
+
+          if (isEqual(attrsRequirement, []))
+            return {
+              sid,
+              assertion: false,
+              message: `Cannot find resource attributes`
             };
 
           const hasListOf: Assertion[] = !condition.hasList
@@ -87,12 +88,14 @@ export const policyDecisionEngine: (
                   const requirement = attrsRequirement.find(
                     ({ key }) => key === permission
                   );
-                  const assertion: boolean = !requirement
-                    ? false
-                    : type === '1'
-                    ? includes(requirement.value, value)
-                    : !!intersection(requirement.value, value).length;
-                  return prev || (key === who && assertion);
+                  return (
+                    prev ||
+                    (key === who && !requirement
+                      ? false
+                      : type === '1'
+                      ? includes(requirement.value, value)
+                      : !!intersection(requirement.value, value).length)
+                  );
                 }, false)
                   ? {
                       sid,
@@ -107,12 +110,12 @@ export const policyDecisionEngine: (
           const stringEquals: Assertion[] = !condition.stringEquals
             ? [{ sid, assertion: true }]
             : Object.entries(condition.stringEquals)
-                .map(
-                  ([ctxAttr, resAttr]) =>
-                    target.contextAttrs.find(({ key }) => key === ctxAttr)
-                      .value ===
-                    attrsRequirement.find(({ key }) => key === resAttr).value
-                )
+                .map(([ctx, res]) => {
+                  const context = target.contextAttrs;
+                  const left = context.find(({ key }) => key === ctx);
+                  const right = attrsRequirement.find(({ key }) => key === res);
+                  return left && right ? left.value === right.value : false;
+                })
                 .map(assertion => ({ sid, assertion }));
 
           return [...hasListOf, ...stringEquals].reduce(
