@@ -2,7 +2,6 @@ import { Context } from 'fabric-contract-api';
 import { filter, find, includes, intersection, isEqual } from 'lodash';
 import { ngacRepo } from './ngacRepo';
 import { Attribute, NAMESPACE as NS, Policy, Resource } from './types';
-import has = Reflect.has;
 
 const evaluateURI: (uri: string, target: Resource) => string = (
   uri,
@@ -22,7 +21,17 @@ const evaluateURI: (uri: string, target: Resource) => string = (
   const [entityname, entityQuery] = entityPart.split('?');
   const entity: string =
     entityname === NS.ENTITY ? getAttr(entityQuery) : entityname;
-  if (!organization || !entity) return null;
+
+  if (!organization) {
+    console.error('Null organization');
+    return null;
+  }
+
+  if (!entity) {
+    console.error('Null entityName');
+    return null;
+  }
+
   if (entityIdPart) {
     const [id, entityidQuery] = entityIdPart.split('?');
     const entityId = id === NS.ENTITYID ? getAttr(entityidQuery) : id;
@@ -60,7 +69,7 @@ export const policyDecisionEngine: (
             return {
               sid,
               assertion: !allowOrDeny[effect],
-              message: `Resource does not fulfill the policy's attribute requirement`
+              message: `Resource URI fail to parse`
             };
 
           if (!condition)
