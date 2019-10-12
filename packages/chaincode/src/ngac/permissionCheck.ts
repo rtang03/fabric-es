@@ -1,4 +1,5 @@
 import { Context } from 'fabric-contract-api';
+import { isEqual } from 'lodash';
 import { ngacRepo } from './ngacRepo';
 import { Assertion, policyDecisionEngine } from './policyDecisionEngine';
 import {
@@ -26,40 +27,45 @@ export const permissionCheck: ({
 }) => Promise<Assertion[]> = async ({ context, policyClass }) => {
   const { stub, clientIdentity } = context;
   const { fcn, params } = stub.getFunctionAndParameters();
-  const getAttr = (key, value, immutable = true) => ({
-    type: '1' as any,
-    key,
-    value,
-    immutable
-  });
+  const type: any = '1';
+  const attr = (key, value, immutable = true) =>
+    value ? { type, key, value, immutable } : null;
   const mspAttrs = await ngacRepo(context).getAttrByMSPID(
     clientIdentity.getMSPID()
   );
-  const resourceAttrs: Attribute[] = [];
+  let resourceAttrs: Attribute[] = [];
   const id = clientIdentity.getID();
   const cn = clientIdentity.getX509Certificate().subject.commonName;
   const mspid = clientIdentity.getMSPID();
   return {
     [FCN.CREATE_COMMIT]: async (): Promise<Assertion[]> => {
       const [entityName, entityId, version, evenStr] = params;
-      resourceAttrs.push(getAttr(CONTEXT.INVOKER_MSPID, mspid));
-      resourceAttrs.push(getAttr(CONTEXT.INVOKER_ID, id));
-      resourceAttrs.push(getAttr(CONTEXT.SUBJECT_CN, cn));
-      resourceAttrs.push(getAttr(RESOURCE.VERSION, version, false));
-      resourceAttrs.push(getAttr(RESOURCE.ENTITYNAME, entityName));
-      resourceAttrs.push(getAttr(RESOURCE.ENTITYID, entityId));
+      resourceAttrs = [
+        attr(CONTEXT.INVOKER_ID, id),
+        attr(CONTEXT.INVOKER_MSPID, mspid),
+        attr(CONTEXT.SUBJECT_CN, cn)
+      ].filter(item => !!item);
+
       if (version === '0') {
-        resourceAttrs.push(getAttr(RESOURCE.CREATOR_MSPID, mspid));
-        resourceAttrs.push(getAttr(RESOURCE.CREATOR_CN, cn));
-        resourceAttrs.push(getAttr(RESOURCE.CREATOR_ID, id));
+        [
+          attr(RESOURCE.VERSION, version, false),
+          attr(RESOURCE.ENTITYNAME, entityName),
+          attr(RESOURCE.ENTITYID, entityId),
+          attr(RESOURCE.CREATOR_MSPID, mspid),
+          attr(RESOURCE.CREATOR_CN, cn),
+          attr(RESOURCE.CREATOR_ID, id)
+        ]
+          .filter(item => !!item)
+          .forEach(item => resourceAttrs.push(item));
       } else {
         const uri = `${NAMESPACE.MODEL}/${mspid}/${entityName}/${entityId}`;
         const attrs = await ngacRepo(context).getResourceAttrByURI(uri);
-        resourceAttrs.push(...attrs);
+        attrs.forEach(item => resourceAttrs.push(item));
       }
+
       const eventsJson: any[] = JSON.parse(evenStr);
       const policies = await ngacRepo(context).getPolicyById(id);
-      return !policies
+      return isEqual(policies, [])
         ? [{ sid: 'system', assertion: false, message: 'No policy found' }]
         : policyDecisionEngine(policies, context).request({
             eventTypes: eventsJson.map(({ type }) => type),

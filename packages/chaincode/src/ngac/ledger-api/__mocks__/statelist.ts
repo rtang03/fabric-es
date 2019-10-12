@@ -9,9 +9,6 @@ const stateList = (namespace: string, context: Context) => ({
         Promise.resolve([{ type: '1', key: 'mspid', value: 'Org1MSP' }]),
       [NAMESPACE.RESOURCE_ATTRIBUTE]: () =>
         ({
-          // the real key is 'resattr"model/Org1MSP/dev_ngac"' namespace is required
-          // here, test key is '"model/Org1MSP/dev_ngac"'
-          // ['"model/Org1MSP/dev_ngac_example1"']: Promise.resolve([
           '"model""Org1MSP""dev_ngac_example1"': Promise.resolve([
             {
               type: 'N',
@@ -22,7 +19,6 @@ const stateList = (namespace: string, context: Context) => ({
               ]
             }
           ]),
-          // ['"model/Org1MSP/dev_ngac_example2/ngac_unit_02"']: Promise.resolve([
           '"model""Org1MSP""dev_ngac_example2""ngac_unit_02"': Promise.resolve([
             {
               type: 'N',
@@ -44,18 +40,24 @@ const stateList = (namespace: string, context: Context) => ({
             },
             {
               type: '1',
+              key: `${RESOURCE.CREATOR_ID}`,
+              value:
+                'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca'
+            },
+            {
+              type: '1',
               key: `${RESOURCE.ENTITYNAME}`,
               value: 'dev_ngac_example2'
             }
           ])
-        }[keyparts.reduce((prev, curr) => prev + curr, '')]),
+        }[keyparts.reduce((pre, cur) => pre + cur, '')] || Promise.resolve([])),
       [NAMESPACE.POLICY]: () =>
         ({
           '"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca"': Promise.resolve(
             policyDb()
           ),
           '"wrong id + valid policy"': Promise.resolve(policyDb())
-        }[keyparts[0]])
+        }[keyparts[0]] || Promise.resolve([]))
     }[namespace]())
 });
 

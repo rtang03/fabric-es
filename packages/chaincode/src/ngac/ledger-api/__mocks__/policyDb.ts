@@ -8,6 +8,7 @@ import {
 export const policyDb: () => Policy[] = () => [
   {
     // Example 1
+    key: '',
     policyClass: 'event-creation',
     sid: 'allowCreateDocument',
     allowedEvents: ['DocumentCreated'],
@@ -21,6 +22,7 @@ export const policyDb: () => Policy[] = () => [
   },
   {
     // Example 2
+    key: '',
     policyClass: 'event-creation',
     sid: 'allowUpdateUsername',
     allowedEvents: ['UsernameUpdated', 'UserTypeUpdated'],
@@ -30,7 +32,7 @@ export const policyDb: () => Policy[] = () => [
     condition: {
       hasList: { updateUsername: `${CTX.INVOKER_ID}` },
       stringEquals: {
-        [CTX.INVOKER_MSPID]: `${RES.CREATOR_MSPID}`
+        [CTX.INVOKER_ID]: `${RES.CREATOR_ID}`
       }
     },
     effect: 'Allow'

@@ -205,7 +205,7 @@ describe('Example 2: Tests', () => {
     ));
 
   it('2b: should fail updateUsername with wrong ID, , when his policy exists', async () => {
-    context.clientIdentity.getID.mockImplementationOnce(
+    context.clientIdentity.getID.mockImplementation(
       () => 'wrong id + valid policy'
     );
     return permissionCheck({ context }).then(assertions =>
