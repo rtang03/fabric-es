@@ -60,7 +60,12 @@ export const permissionCheck: ({
       } else {
         const uri = `${NAMESPACE.MODEL}/${mspid}/${entityName}/${entityId}`;
         const attrs = await ngacRepo(context).getResourceAttrByURI(uri);
-        attrs.forEach(item => resourceAttrs.push(item));
+
+        if (isEqual(attrs, [])) {
+          return [
+            { sid: 'system', assertion: false, message: 'No resource found' }
+          ];
+        } else attrs.forEach(item => resourceAttrs.push(item));
       }
 
       const eventsJson: any[] = JSON.parse(evenStr);

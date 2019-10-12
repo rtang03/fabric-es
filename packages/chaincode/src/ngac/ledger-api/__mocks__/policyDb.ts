@@ -7,7 +7,7 @@ import {
 
 export const policyDb: () => Policy[] = () => [
   {
-    // Example 1
+    // Example 1: Only authorized id can create
     key: '',
     policyClass: 'event-creation',
     sid: 'allowCreateDocument',
@@ -21,7 +21,7 @@ export const policyDb: () => Policy[] = () => [
     effect: 'Allow'
   },
   {
-    // Example 2
+    // Example 2: Only creator can update
     key: '',
     policyClass: 'event-creation',
     sid: 'allowUpdateUsername',
@@ -36,31 +36,22 @@ export const policyDb: () => Policy[] = () => [
       }
     },
     effect: 'Allow'
+  },
+  {
+    // Example 3: Only same mspid can update
+    key: '',
+    policyClass: 'event-creation',
+    sid: 'allowUpdateTitle',
+    allowedEvents: ['TitleUpdated', 'Title2Updated'],
+    attributes: {
+      uri: `${NS.MODEL}/${NS.ORG}?id=resourceAttrs:${RES.CREATOR_MSPID}/${NS.ENTITY}?id=resourceAttrs:${RES.ENTITYNAME}/${NS.ENTITYID}?id=resourceAttrs:${RES.ENTITYID}`
+    },
+    condition: {
+      hasList: { updateTitle: `${CTX.INVOKER_ID}` },
+      stringEquals: {
+        [CTX.INVOKER_MSPID]: `${RES.CREATOR_MSPID}`
+      }
+    },
+    effect: 'Allow'
   }
-  // {
-  //   policyClass: 'administrativeRights',
-  //   sid: 'allowCreateUser',
-  //   action: ['createuser', 'updateuser'],
-  //   attributes: {
-  //     creatorCN: '${PrincipalTag/cn}',
-  //     creatorID: '${PrincipalTag/id}',
-  //     creatorMSPID: '',
-  //     invokerID: '',
-  //     invokerMSPID: '${PrincipalTag/mspid}',
-  //     entityName: 'dev',
-  //     invokerSubjectCN: '',
-  //     invokerIssuerCN: '',
-  //     version: '',
-  //     resourceType: 'iam'
-  //   },
-  //   condition: {
-  //     stringEquals: { userName: '${accountName}' },
-  //     boolIfExists: { accountPresent: 'false' },
-  //     dataGreaterThan: { currenTime: '2019' },
-  //     stringLike: {
-  //       'orgName:IdentityTag/admin': '${entityType:ResourceTag/canApprove}'
-  //     }
-  //   },
-  //   effect: 'Allow'
-  // },
 ];
