@@ -64,7 +64,7 @@ const TEST_POLICY =
 export const policyDb = {
   [TEST_ID]: Promise.resolve(policies),
   [TEST_POLICY]: Promise.resolve(
-    policies.filter(({ sid }) => sid === 'allowCreateDocument')
+    policies.filter(({ sid }) => sid === 'allowCreateDocument').pop()
   ),
   '"wrong id + valid policy"': Promise.resolve(policies)
 };

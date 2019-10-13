@@ -1,7 +1,13 @@
 import { Context } from 'fabric-contract-api';
 import { filter, find, includes, intersection, isEqual } from 'lodash';
 import { ngacRepo } from './ngacRepo';
-import { Attribute, NAMESPACE as NS, Policy, Resource } from './types';
+import {
+  Assertion,
+  Attribute,
+  NAMESPACE as NS,
+  Policy,
+  Resource
+} from './types';
 
 const evaluateURI: (uri: string, target: Resource) => string = (
   uri,
@@ -38,12 +44,6 @@ const evaluateURI: (uri: string, target: Resource) => string = (
     return `${namespace}/${organization}/${entity}/${entityId}`;
   } else return `${namespace}/${organization}/${entity}`;
 };
-
-export interface Assertion {
-  sid: string;
-  assertion: boolean;
-  message?: string;
-}
 
 const allowOrDeny = { Allow: true, Deny: false };
 

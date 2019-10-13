@@ -12,7 +12,7 @@ export const createPolicy: (option: {
     hasList?: any;
     stringEquals?: any;
   };
-  effect: string;
+  effect?: string;
 }) => any = ({
   context,
   policyClass,
@@ -20,7 +20,7 @@ export const createPolicy: (option: {
   allowedEvents,
   uri,
   condition,
-  effect
+  effect = 'Allow'
 }) => {
   const x509id = context.clientIdentity.getID();
   const key = makeKey([x509id, sid]);

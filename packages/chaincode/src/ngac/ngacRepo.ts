@@ -1,6 +1,12 @@
 import { Context } from 'fabric-contract-api';
 import stateList from './ledger-api/statelist';
-import { NAMESPACE as NS, NgacRepo, Policy, Resource } from './types';
+import {
+  Attribute,
+  NAMESPACE as NS,
+  NgacRepo,
+  Policy,
+  Resource
+} from './types';
 import { makeKey } from './utils';
 
 export const ngacRepo: (context: Context) => NgacRepo = context => ({
@@ -10,14 +16,15 @@ export const ngacRepo: (context: Context) => NgacRepo = context => ({
     await stateList<Resource>(NS.RESOURCE_ATTRIBUTE, context).addState(
       resource
     ),
+  // tested
   addPolicy: async policy =>
     await stateList(NS.POLICY, context).addState(policy),
+  // tested
   getMSPAttrByMSPID: async mspid =>
-    await stateList(NS.MSP_ATTRIBUTE, context).getQueryResult([
-      JSON.stringify(mspid)
-    ]),
+    await stateList(NS.MSP_ATTRIBUTE, context).getState(makeKey([mspid])),
+  // tested
   getResourceAttrByURI: async uri =>
-    await stateList<Resource>(NS.RESOURCE_ATTRIBUTE, context).getQueryResult(
+    await stateList<Attribute>(NS.RESOURCE_ATTRIBUTE, context).getQueryResult(
       uri.split('/').map(part => JSON.stringify(part))
     ),
   // tested

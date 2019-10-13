@@ -1,9 +1,9 @@
 import { Context } from 'fabric-contract-api';
 import { isEqual } from 'lodash';
 import { ngacRepo } from './ngacRepo';
-import { Assertion, policyDecisionEngine } from './policyDecisionEngine';
+import { policyDecisionEngine } from './policyDecisionEngine';
 import { postAssertion } from './postAssertion';
-import { Attribute, CONTEXT, NAMESPACE, RESOURCE } from './types';
+import { Assertion, Attribute, CONTEXT, NAMESPACE, RESOURCE } from './types';
 import { createResource } from './utils';
 
 enum FCN {
@@ -13,6 +13,10 @@ enum FCN {
   DELETE_BY_ENTITYID_COMMITID = 'deleteByEntityIdCommitId',
   DELETE_BY_ENTITYID = 'deleteByEntityId'
 }
+
+const noPolicyRequired = Promise.resolve([
+  { sid: 'system', message: 'No policy required', assertion: true }
+]);
 
 export const permissionCheck: ({
   policyClass,
@@ -84,21 +88,9 @@ export const permissionCheck: ({
               return assertions;
             });
     },
-    [FCN.QUERY_BY_ENTITYID]: () =>
-      Promise.resolve([
-        { sid: 'system', message: 'No policy required', assertion: true }
-      ]),
-    [FCN.QUERY_BY_ENTITYID_COMMITID]: () =>
-      Promise.resolve([
-        { sid: 'system', message: 'No policy required', assertion: true }
-      ]),
-    [FCN.DELETE_BY_ENTITYID]: () =>
-      Promise.resolve([
-        { sid: 'system', message: 'No policy required', assertion: true }
-      ]),
-    [FCN.DELETE_BY_ENTITYID_COMMITID]: () =>
-      Promise.resolve([
-        { sid: 'system', message: 'No policy required', assertion: true }
-      ])
+    [FCN.QUERY_BY_ENTITYID]: () => noPolicyRequired,
+    [FCN.QUERY_BY_ENTITYID_COMMITID]: () => noPolicyRequired,
+    [FCN.DELETE_BY_ENTITYID]: () => noPolicyRequired,
+    [FCN.DELETE_BY_ENTITYID_COMMITID]: () => noPolicyRequired
   }[fcn]() as Promise<Assertion[]>;
 };
