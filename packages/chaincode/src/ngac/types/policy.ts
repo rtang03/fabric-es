@@ -2,12 +2,11 @@ export type Effect = 'Allow' | 'Deny';
 
 export interface Policy {
   key: string;
-  policyType?: 'identity-based' | 'resource-based';
   policyClass?: string;
   sid: string;
-  userAttr?: any;
   allowedEvents: string[];
   attributes: {
+    uri: string;
     // creatorCN?: string;
     // creatorID?: string;
     // creatorMSPID?: string;
@@ -18,7 +17,6 @@ export interface Policy {
     // type?: string;
     // entityName?: string;
     // version?: string;
-    uri?: string;
   };
   condition?: {
     hasList?: Record<string, string>;

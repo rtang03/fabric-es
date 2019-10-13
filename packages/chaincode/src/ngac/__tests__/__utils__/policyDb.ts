@@ -5,7 +5,7 @@ import {
   RESOURCE as RES
 } from '../../types';
 
-export const policyDb: () => Policy[] = () => [
+const policies: Policy[] = [
   {
     // Example 1: Only authorized id can create
     key: '',
@@ -55,3 +55,16 @@ export const policyDb: () => Policy[] = () => [
     effect: 'Allow'
   }
 ];
+
+const TEST_ID =
+  '"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca"';
+const TEST_POLICY =
+  '"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca""allowCreateDocument"';
+
+export const policyDb = {
+  [TEST_ID]: Promise.resolve(policies),
+  [TEST_POLICY]: Promise.resolve(
+    policies.filter(({ sid }) => sid === 'allowCreateDocument')
+  ),
+  '"wrong id + valid policy"': Promise.resolve(policies)
+};

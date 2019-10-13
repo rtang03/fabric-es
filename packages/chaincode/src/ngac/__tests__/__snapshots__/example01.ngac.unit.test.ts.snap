@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Example 1: Tests 1a: should createDocument 1`] = `
+Array [
+  Object {
+    "immutable": true,
+    "key": "invoker_id",
+    "type": "1",
+    "value": "x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca",
+  },
+  Object {
+    "immutable": true,
+    "key": "invoker_mspid",
+    "type": "1",
+    "value": "Org1MSP",
+  },
+  Object {
+    "immutable": true,
+    "key": "subject_cn",
+    "type": "1",
+    "value": "Admin@org1.example.com",
+  },
+  Object {
+    "immutable": false,
+    "key": "version",
+    "type": "1",
+    "value": "0",
+  },
+  Object {
+    "immutable": true,
+    "key": "entityName",
+    "type": "1",
+    "value": "dev_ngac_example1",
+  },
+  Object {
+    "immutable": true,
+    "key": "entityId",
+    "type": "1",
+    "value": "ngac_unit_01",
+  },
+  Object {
+    "immutable": true,
+    "key": "creator_mspid",
+    "type": "1",
+    "value": "Org1MSP",
+  },
+  Object {
+    "immutable": true,
+    "key": "creator_cn",
+    "type": "1",
+    "value": "Admin@org1.example.com",
+  },
+  Object {
+    "immutable": true,
+    "key": "creator_id",
+    "type": "1",
+    "value": "x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca",
+  },
+]
+`;

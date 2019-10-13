@@ -1,19 +1,31 @@
 import { Context } from 'fabric-contract-api';
 import stateList from './ledger-api/statelist';
-import { NAMESPACE as NS, NgacRepo } from './types';
+import { NAMESPACE as NS, NgacRepo, Policy, Resource } from './types';
+import { makeKey } from './utils';
 
 export const ngacRepo: (context: Context) => NgacRepo = context => ({
-  getAttrByMSPID: async mspid =>
+  addMSPAttr: async resource =>
+    await stateList(NS.MSP_ATTRIBUTE, context).addState(resource),
+  addResourceAttr: async resource =>
+    await stateList<Resource>(NS.RESOURCE_ATTRIBUTE, context).addState(
+      resource
+    ),
+  addPolicy: async policy =>
+    await stateList(NS.POLICY, context).addState(policy),
+  getMSPAttrByMSPID: async mspid =>
     await stateList(NS.MSP_ATTRIBUTE, context).getQueryResult([
       JSON.stringify(mspid)
     ]),
   getResourceAttrByURI: async uri =>
-    await stateList(NS.RESOURCE_ATTRIBUTE, context).getQueryResult(
+    await stateList<Resource>(NS.RESOURCE_ATTRIBUTE, context).getQueryResult(
       uri.split('/').map(part => JSON.stringify(part))
     ),
-  // getPolicyBy X509's id
-  getPolicyById: async id =>
-    await stateList(NS.POLICY, context).getQueryResult([JSON.stringify(id)]),
-  addResourceAttr: async resource =>
-    await stateList(NS.RESOURCE_ATTRIBUTE, context).addState(resource)
+  // tested
+  getPolicyById: async x509id =>
+    await stateList<Policy>(NS.POLICY, context).getQueryResult([
+      JSON.stringify(x509id)
+    ]),
+  // tested
+  getPolicyByIdSid: async (x509id, sid) =>
+    await stateList<Policy>(NS.POLICY, context).getState(makeKey([x509id, sid]))
 });

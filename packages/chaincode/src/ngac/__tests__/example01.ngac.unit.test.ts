@@ -1,4 +1,6 @@
+import { ngacRepo } from '../ngacRepo';
 import { permissionCheck } from '../permissionCheck';
+import { mspAttributeDb, policyDb, resourceAttributeDb } from './__utils__';
 
 jest.mock('../ledger-api/statelist');
 
@@ -10,7 +12,10 @@ const context: any = {
     getMSPID: jest.fn(),
     getID: jest.fn(),
     getX509Certificate: jest.fn()
-  }
+  },
+  resourceAttributeDb,
+  mspAttributeDb,
+  policyDb
 };
 let entityName;
 let entityId;
@@ -23,41 +28,6 @@ context.clientIdentity.getX509Certificate.mockImplementation(() => ({
   issuer: { commonName: 'rca-org1' }
 }));
 
-/* target.resourceAttrs
-[ { type: '1',
-    key: 'invoker_mspid',
-    value: 'Org1MSP',
-    immutable: true },
-  { type: '1',
-    key: 'invoker_id',
-    value: 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca',
-    immutable: true },
-  { type: '1',
-    key: 'subject_cn',
-    value: 'Admin@org1.example.com',
-    immutable: true },
-  { type: '1', key: 'version', value: '0', immutable: false },
-  { type: '1',
-    key: 'entityName',
-    value: 'dev_ngac_example1',
-    immutable: true },
-  { type: '1',
-    key: 'entityId',
-    value: 'ngac_unit_01',
-    immutable: true },
-  { type: '1',
-    key: 'creator_mspid',
-    value: 'Org1MSP',
-    immutable: true },
-  { type: '1',
-    key: 'creator_cn',
-    value: 'Admin@org1.example.com',
-    immutable: true },
-  { type: '1',
-    key: 'creator_id',
-    value: 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca',
-    immutable: true } ]
- */
 describe('Example 1: Tests', () => {
   beforeEach(() => {
     entityName = 'dev_ngac_example1';
@@ -73,12 +43,16 @@ describe('Example 1: Tests', () => {
   });
 
   // policy found and asserted
-  it('1a: should createDocument', async () =>
+  it('1a: should createDocument', async () => {
     await permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
         { sid: 'allowCreateDocument', assertion: true }
       ])
-    ));
+    );
+    await ngacRepo(context)
+      .getResourceAttrByURI('model/Org1MSP/dev_ngac_example1/ngac_unit_01')
+      .then(attr => expect(attr).toMatchSnapshot());
+  });
 
   // policy not found at all
   it('1b: should fail updateDocument, which is not allowedEvents', async () => {
@@ -137,14 +111,16 @@ describe('Example 1: Tests', () => {
     );
   });
 
-  // Policy found, any MSPID's member is allowed
+  // The Invoker's mspid is Org2MSP, but there is no such resource
+  // URL 'model/Org2MSP/dev_ngac_example1' in the resourceAttr mock database
   it('1f: should fail createDocument with wrong mspid', async () => {
-    context.clientIdentity.getMSPID.mockImplementationOnce(() => 'Org2MSP');
+    context.clientIdentity.getMSPID.mockImplementation(() => 'Org2MSP');
     return permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
         {
           sid: 'allowCreateDocument',
-          assertion: true
+          assertion: false,
+          message: 'Cannot find resource attributes'
         }
       ])
     );
