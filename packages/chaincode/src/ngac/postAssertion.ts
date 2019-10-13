@@ -1,7 +1,6 @@
 import { Context } from 'fabric-contract-api';
 import { ngacRepo } from './ngacRepo';
-import { Assertion } from './policyDecisionEngine';
-import { Resource } from './types';
+import { Assertion, Resource } from './types';
 
 export const postAssertion = async (
   assertions: Assertion[],

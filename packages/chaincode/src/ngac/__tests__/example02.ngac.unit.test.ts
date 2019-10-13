@@ -1,4 +1,5 @@
 import { permissionCheck } from '../permissionCheck';
+import { mspAttributeDb, policyDb, resourceAttributeDb } from './__utils__';
 
 jest.mock('../ledger-api/statelist');
 
@@ -10,7 +11,10 @@ const context: any = {
     getMSPID: jest.fn(),
     getID: jest.fn(),
     getX509Certificate: jest.fn()
-  }
+  },
+  resourceAttributeDb,
+  mspAttributeDb,
+  policyDb
 };
 let entityName;
 let entityId;

@@ -1,26 +1,26 @@
 import { Context } from 'fabric-contract-api';
-import { Policy, Resource } from '../types';
+import { Attribute, Policy, Resource } from '../types';
 import { splitKey } from '../utils';
 
 const serialize = object => Buffer.from(JSON.stringify(object));
 
-const stateList: <T extends Resource | Policy = any>(
+const stateList: <T extends Resource | Attribute | Policy = any>(
   name: string,
   context: Context
 ) => {
-  getQueryResult: (attributes: string[]) => Promise<any>;
-  addState: any;
-  getState: any;
+  getQueryResult: (keyparts: string[]) => Promise<T[]>;
+  addState: (item: T) => void;
+  getState: (key: string) => Promise<T>;
   deleteStateByKey: any;
-} = <T extends Resource | Policy = any>(name, { stub }) => ({
-  getQueryResult: async (keyparts: string[]) => {
+} = <T extends Attribute | Resource | Policy = any>(name, { stub }) => ({
+  getQueryResult: async keyparts => {
     const iterator = await stub.getStateByPartialCompositeKey(name, keyparts);
-    const result = {};
+    const result: T[] = [];
     while (true) {
       const { value, done } = await iterator.next();
       if (value && value.value.toString()) {
-        const json = JSON.parse((value.value as Buffer).toString('utf8'));
-        result[json.key] = json;
+        const json: T = JSON.parse((value.value as Buffer).toString('utf8'));
+        result.push(json);
       }
       if (done) {
         await iterator.close();
@@ -28,7 +28,7 @@ const stateList: <T extends Resource | Policy = any>(
       }
     }
   },
-  addState: async (item: T) =>
+  addState: async item =>
     await stub.putState(
       stub.createCompositeKey(name, splitKey(item.key)),
       serialize(item)
