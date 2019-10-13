@@ -1,9 +1,10 @@
 import { Context } from 'fabric-contract-api';
 import { Policy, Resource } from '../types';
+import { splitKey } from '../utils';
 
 const serialize = object => Buffer.from(JSON.stringify(object));
 
-const stateList: (
+const stateList: <T extends Resource | Policy = any>(
   name: string,
   context: Context
 ) => {
@@ -29,17 +30,17 @@ const stateList: (
   },
   addState: async (item: T) =>
     await stub.putState(
-      stub.createCompositeKey(name, item.key.split(':')),
+      stub.createCompositeKey(name, splitKey(item.key)),
       serialize(item)
     ),
   getState: async key => {
     const data = await stub.getState(
-      stub.createCompositeKey(name, key.split(':'))
+      stub.createCompositeKey(name, splitKey(key))
     );
     return data.toString() ? JSON.parse(data.toString()) : {};
   },
   deleteStateByKey: async key =>
-    await stub.deleteState(stub.createCompositeKey(name, key.split(':')))
+    await stub.deleteState(stub.createCompositeKey(name, splitKey(key)))
 });
 
 export default stateList;

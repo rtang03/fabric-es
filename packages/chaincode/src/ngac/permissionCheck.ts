@@ -2,13 +2,9 @@ import { Context } from 'fabric-contract-api';
 import { isEqual } from 'lodash';
 import { ngacRepo } from './ngacRepo';
 import { Assertion, policyDecisionEngine } from './policyDecisionEngine';
-import {
-  Attribute,
-  CONTEXT,
-  createResource,
-  NAMESPACE,
-  RESOURCE
-} from './types';
+import { postAssertion } from './postAssertion';
+import { Attribute, CONTEXT, NAMESPACE, RESOURCE } from './types';
+import { createResource } from './utils';
 
 enum FCN {
   CREATE_COMMIT = 'createCommit',
@@ -30,7 +26,7 @@ export const permissionCheck: ({
   const type: any = '1';
   const attr = (key, value, immutable = true) =>
     value ? { type, key, value, immutable } : null;
-  const mspAttrs = await ngacRepo(context).getAttrByMSPID(
+  const mspAttrs = await ngacRepo(context).getMSPAttrByMSPID(
     clientIdentity.getMSPID()
   );
   let resourceAttrs: Attribute[] = [];
@@ -69,27 +65,40 @@ export const permissionCheck: ({
       }
 
       const eventsJson: any[] = JSON.parse(evenStr);
+      const eventTypes = eventsJson.map(({ type }) => type);
       const policies = await ngacRepo(context).getPolicyById(id);
+      const target = createResource({
+        context,
+        entityName,
+        entityId,
+        resourceAttrs,
+        mspAttrs
+      });
+
       return isEqual(policies, [])
         ? [{ sid: 'system', assertion: false, message: 'No policy found' }]
-        : policyDecisionEngine(policies, context).request({
-            eventTypes: eventsJson.map(({ type }) => type),
-            target: createResource({
-              context,
-              entityName,
-              entityId,
-              resourceAttrs,
-              mspAttrs
-            })
-          });
+        : policyDecisionEngine(policies, context)
+            .request({ eventTypes, target })
+            .then(async assertions => {
+              await postAssertion(assertions, target, context);
+              return assertions;
+            });
     },
     [FCN.QUERY_BY_ENTITYID]: () =>
-      Promise.resolve([{ sid: 'No policy required', assertion: true }]),
+      Promise.resolve([
+        { sid: 'system', message: 'No policy required', assertion: true }
+      ]),
     [FCN.QUERY_BY_ENTITYID_COMMITID]: () =>
-      Promise.resolve([{ sid: 'No policy required', assertion: true }]),
+      Promise.resolve([
+        { sid: 'system', message: 'No policy required', assertion: true }
+      ]),
     [FCN.DELETE_BY_ENTITYID]: () =>
-      Promise.resolve([{ sid: 'No policy required', assertion: true }]),
+      Promise.resolve([
+        { sid: 'system', message: 'No policy required', assertion: true }
+      ]),
     [FCN.DELETE_BY_ENTITYID_COMMITID]: () =>
-      Promise.resolve([{ sid: 'No policy required', assertion: true }])
+      Promise.resolve([
+        { sid: 'system', message: 'No policy required', assertion: true }
+      ])
   }[fcn]() as Promise<Assertion[]>;
 };
