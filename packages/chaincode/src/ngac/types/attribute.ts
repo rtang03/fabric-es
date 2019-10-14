@@ -1,5 +1,5 @@
 export interface Attribute {
-  type: '1' | 'N';
+  type: string; // '1' | 'N';
   key: string;
   value: string | string[];
   alias?: string;

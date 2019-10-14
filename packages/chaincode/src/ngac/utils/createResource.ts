@@ -15,8 +15,13 @@ export const createResource: (option: {
   entityId,
   resourceAttrs
 }) => {
+  if (!entityName || !context || !resourceAttrs) {
+    return null;
+  }
   const cid = context.clientIdentity;
   const contextAttrs: Attribute[] = [];
+
+  // todo: replace with optional chaining to avoid TypeError: cannot read property of undefined
   const invoker_mspid = cid.getMSPID();
   const invoker_id = cid.getID();
   const subject_cn = cid.getX509Certificate().subject.commonName;

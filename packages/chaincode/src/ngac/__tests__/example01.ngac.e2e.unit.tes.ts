@@ -23,7 +23,7 @@ context.clientIdentity.getX509Certificate.mockImplementation(() => ({
   issuer: { commonName: 'rca-org1' }
 }));
 
-describe('Example 3: Tests', () => {
+describe('Example 1: Consolidated Tests', () => {
   beforeEach(() => {
     entityName = 'dev_ngac_example3';
     entityId = 'ngac_unit_03';
