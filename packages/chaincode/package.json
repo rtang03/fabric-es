@@ -21,8 +21,9 @@
     "test:public-unit": "jest public.unit.test",
     "test:private": "jest private.integration.test",
     "test:ngac-integration": "jest ngac.integration.test",
-    "test:ngac-unit": "jest ngac.unit.test",
-    "test:ngac-crud-unit": "jest ngac.crud.unit.test"
+    "test:ngac-pe-unit": "jest ngac.pe.unit.test",
+    "test:ngac-crud-unit": "jest ngac.crud.unit.test",
+    "test:ngac-e2e-unit": "jest ngac.e2e.unit.test"
   },
   "engineStrict": true,
   "author": "Ross Tang",

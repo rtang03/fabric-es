@@ -22,5 +22,5 @@ export interface Policy {
     hasList?: Record<string, string>;
     stringEquals?: Record<string, string>;
   };
-  effect: Effect;
+  effect: string;
 }

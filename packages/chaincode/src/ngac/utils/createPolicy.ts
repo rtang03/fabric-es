@@ -1,10 +1,9 @@
 import { Context } from 'fabric-contract-api';
-import { NAMESPACE, Policy } from '../types';
-import { makeKey } from './makeKey';
+import { Policy } from '../types';
 
 export const createPolicy: (option: {
   context: Context;
-  policyClass: string;
+  policyClass?: string;
   sid: string;
   allowedEvents: string[];
   uri: string;
@@ -13,9 +12,9 @@ export const createPolicy: (option: {
     stringEquals?: any;
   };
   effect?: string;
-}) => any = ({
+}) => Policy = ({
   context,
-  policyClass,
+  policyClass = 'default',
   sid,
   allowedEvents,
   uri,
@@ -23,7 +22,19 @@ export const createPolicy: (option: {
   effect = 'Allow'
 }) => {
   const x509id = context.clientIdentity.getID();
-  const key = makeKey([x509id, sid]);
+  const key = `${JSON.stringify(x509id)}${JSON.stringify(sid)}`;
+
+  if (
+    !x509id ||
+    !sid ||
+    !uri ||
+    !context ||
+    !allowedEvents ||
+    !allowedEvents.length
+  ) {
+    return null;
+  }
+
   const basePolicy = {
     key,
     policyClass,

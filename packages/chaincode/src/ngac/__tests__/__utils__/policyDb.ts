@@ -8,7 +8,7 @@ import {
 const policies: Policy[] = [
   {
     // Example 1: Only authorized id can create
-    key: '',
+    key: `"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca""allowCreateDocument"`,
     policyClass: 'event-creation',
     sid: 'allowCreateDocument',
     allowedEvents: ['DocumentCreated'],
@@ -22,7 +22,7 @@ const policies: Policy[] = [
   },
   {
     // Example 2: Only creator can update
-    key: '',
+    key: `"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca""allowUpdateUsername"`,
     policyClass: 'event-creation',
     sid: 'allowUpdateUsername',
     allowedEvents: ['UsernameUpdated', 'UserTypeUpdated'],
@@ -39,7 +39,7 @@ const policies: Policy[] = [
   },
   {
     // Example 3: Only same mspid can update
-    key: '',
+    key: `"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca""allowUpdateTitle"`,
     policyClass: 'event-creation',
     sid: 'allowUpdateTitle',
     allowedEvents: ['TitleUpdated', 'Title2Updated'],
