@@ -58,7 +58,7 @@ context.clientIdentity.getX509Certificate.mockImplementation(() => ({
   { type: '1', key: 'creator_mspid', value: 'Org1MSP' },
   { type: '1', key: 'entityName', value: 'dev_ngac_example2' } ]
  */
-describe('Example 2: Tests', () => {
+describe('Example 2: PolicyEngine Tests', () => {
   beforeEach(() => {
     entityName = 'dev_ngac_example2';
     entityId = 'ngac_unit_02';

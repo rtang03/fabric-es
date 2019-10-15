@@ -57,84 +57,88 @@ export const policyDecisionEngine: (
   }) => Promise<Assertion[]>;
 } = (policies, context) => ({
   request: async ({ eventTypes, target }) =>
-    new Promise<Assertion[]>(resolve =>
-      Promise.all(
-        filter(
-          policies,
-          ({ allowedEvents }) =>
-            !!intersection(allowedEvents, eventTypes).length
-        ).map(async ({ attributes: { uri }, sid, effect, condition }) => {
-          const parsedURI = evaluateURI(uri, target);
-          if (!parsedURI)
-            return {
-              sid,
-              assertion: !allowOrDeny[effect],
-              message: `Resource URI fail to parse`
-            };
+    new Promise<Assertion[]>(resolve => {
+      const promises = filter(
+        policies,
+        ({ allowedEvents }) => !!intersection(allowedEvents, eventTypes).length
+      ).map(async ({ attributes: { uri }, sid, effect, condition }) => {
+        const parsedURI = evaluateURI(uri, target);
+        if (!parsedURI)
+          return {
+            sid,
+            assertion: !allowOrDeny[effect],
+            message: `Resource URI fail to parse`
+          };
 
-          if (!condition)
-            return {
-              sid,
-              assertion: true,
-              message: 'No condition defined'
-            };
+        if (!condition)
+          return {
+            sid,
+            assertion: true,
+            message: 'No condition defined'
+          };
 
-          const attrsRequirement = await ngacRepo(context).getResourceAttrByURI(
-            parsedURI
-          );
+        const requirement = await ngacRepo(context).getResourceAttrByURI(
+          parsedURI
+        );
 
-          if (isEqual(attrsRequirement, []))
-            return {
-              sid,
-              assertion: false,
-              message: `Cannot find resource attributes`
-            };
+        if (isEqual(requirement, []))
+          return {
+            sid,
+            assertion: false,
+            message: `Cannot find resource attributes`
+          };
 
-          const hasListOf: Assertion[] = !condition.hasList
-            ? [{ sid, assertion: true }]
-            : Object.entries(condition.hasList).map(([permission, who]) =>
-                target.resourceAttrs.reduce((prev, { type, key, value }) => {
-                  const requirement = attrsRequirement.find(
-                    ({ key }) => key === permission
-                  );
-                  return (
-                    prev ||
-                    (key === who && !requirement
-                      ? false
-                      : type === '1'
-                      ? includes(requirement.value, value)
-                      : !!intersection(requirement.value, value).length)
-                  );
-                }, false)
-                  ? {
-                      sid,
-                      assertion: allowOrDeny[effect]
-                    }
-                  : {
-                      sid,
-                      assertion: !allowOrDeny[effect]
-                    }
-              );
+        const hasList: Assertion[] = !condition.hasList
+          ? [{ sid, assertion: true }]
+          : Object.entries(condition.hasList).map(([permission, who]) =>
+              target.resourceAttrs.reduce((prev, { type, key, value }) => {
+                const attribute = requirement.find(
+                  ({ key }) => key === permission
+                );
 
-          const stringEquals: Assertion[] = !condition.stringEquals
-            ? [{ sid, assertion: true }]
-            : Object.entries(condition.stringEquals)
-                .map(([ctx, res]) => {
-                  const context = target.contextAttrs;
-                  const left = context.find(({ key }) => key === ctx);
-                  const right = attrsRequirement.find(({ key }) => key === res);
-                  return left && right ? left.value === right.value : false;
-                })
-                .map(assertion => ({ sid, assertion }));
+                return !attribute
+                  ? false
+                  : prev ||
+                      (key === who && !attribute
+                        ? false
+                        : type === '1'
+                        ? includes(attribute.value, value)
+                        : !!intersection(attribute.value, value).length);
+              }, false)
+                ? {
+                    sid,
+                    assertion: allowOrDeny[effect]
+                  }
+                : {
+                    sid,
+                    assertion: !allowOrDeny[effect]
+                  }
+            );
 
-          return [...hasListOf, ...stringEquals].reduce(
-            (prev, { assertion }) => ({
-              sid,
-              assertion: prev.assertion && assertion
-            }),
-            { sid, assertion: true }
-          );
-        })
-      ).then(allAssertion => resolve(allAssertion))
-    )
+        const stringEquals: Assertion[] = !condition.stringEquals
+          ? [{ sid, assertion: true }]
+          : Object.entries(condition.stringEquals)
+              .map(([ctx, res]) => {
+                const context = target.contextAttrs;
+                const left = context.find(({ key }) => key === ctx);
+                const right = requirement.find(({ key }) => key === res);
+                return left && right ? left.value === right.value : false;
+              })
+              .map(assertion => ({ sid, assertion }));
+
+        return [...hasList, ...stringEquals].reduce(
+          (prev, { assertion }) => ({
+            sid,
+            assertion: prev.assertion && assertion
+          }),
+          { sid, assertion: true }
+        );
+      });
+
+      return isEqual(promises, [])
+        ? resolve([
+            { sid: 'system', assertion: false, message: 'No policy found' }
+          ])
+        : Promise.all(promises).then(allAssertion => resolve(allAssertion));
+    })
 });

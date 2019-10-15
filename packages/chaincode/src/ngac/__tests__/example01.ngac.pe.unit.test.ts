@@ -28,7 +28,7 @@ context.clientIdentity.getX509Certificate.mockImplementation(() => ({
   issuer: { commonName: 'rca-org1' }
 }));
 
-describe('Example 1: Tests', () => {
+describe('Example 1: PolicyEngine Tests', () => {
   beforeEach(() => {
     entityName = 'dev_ngac_example1';
     entityId = 'ngac_unit_01';
@@ -66,7 +66,9 @@ describe('Example 1: Tests', () => {
       ]
     }));
     return permissionCheck({ context }).then(assertions =>
-      expect(assertions).toEqual([])
+      expect(assertions).toEqual([
+        { sid: 'system', assertion: false, message: 'No policy found' }
+      ])
     );
   });
 
