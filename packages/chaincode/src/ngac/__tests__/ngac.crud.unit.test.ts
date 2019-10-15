@@ -28,7 +28,7 @@ context.clientIdentity.getX509Certificate.mockImplementation(() => ({
   issuer: { commonName: 'rca-org1' }
 }));
 
-describe('NgacRepo Tests', () => {
+describe('NgacRepo CRUD Tests', () => {
   beforeEach(() => {
     context.clientIdentity.getID.mockImplementation(() => x509id);
   });

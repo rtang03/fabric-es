@@ -16,7 +16,7 @@ const policies: Policy[] = [
       uri: `${NS.MODEL}/${NS.ORG}?id=resourceAttrs:${RES.CREATOR_MSPID}/${NS.ENTITY}?id=resourceAttrs:${RES.ENTITYNAME}`
     },
     condition: {
-      hasList: { createDocument: `${RES.CREATOR_ID}` }
+      hasList: { createDocument: RES.CREATOR_ID }
     },
     effect: 'Allow'
   },
@@ -30,9 +30,9 @@ const policies: Policy[] = [
       uri: `${NS.MODEL}/${NS.ORG}?id=resourceAttrs:${RES.CREATOR_MSPID}/${NS.ENTITY}?id=resourceAttrs:${RES.ENTITYNAME}/${NS.ENTITYID}?id=resourceAttrs:${RES.ENTITYID}`
     },
     condition: {
-      hasList: { updateUsername: `${CTX.INVOKER_ID}` },
+      hasList: { updateUsername: CTX.INVOKER_ID },
       stringEquals: {
-        [CTX.INVOKER_ID]: `${RES.CREATOR_ID}`
+        [CTX.INVOKER_ID]: RES.CREATOR_ID
       }
     },
     effect: 'Allow'
@@ -47,9 +47,9 @@ const policies: Policy[] = [
       uri: `${NS.MODEL}/${NS.ORG}?id=resourceAttrs:${RES.CREATOR_MSPID}/${NS.ENTITY}?id=resourceAttrs:${RES.ENTITYNAME}/${NS.ENTITYID}?id=resourceAttrs:${RES.ENTITYID}`
     },
     condition: {
-      hasList: { updateTitle: `${CTX.INVOKER_ID}` },
+      hasList: { updateTitle: CTX.INVOKER_ID },
       stringEquals: {
-        [CTX.INVOKER_MSPID]: `${RES.CREATOR_MSPID}`
+        [CTX.INVOKER_MSPID]: RES.CREATOR_MSPID
       }
     },
     effect: 'Allow'

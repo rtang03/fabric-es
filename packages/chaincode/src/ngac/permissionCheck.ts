@@ -71,6 +71,7 @@ export const permissionCheck: ({
       const eventsJson: any[] = JSON.parse(evenStr);
       const eventTypes = eventsJson.map(({ type }) => type);
       const policies = await ngacRepo(context).getPolicyById(id);
+
       const target = createResource({
         context,
         entityName,
@@ -78,7 +79,6 @@ export const permissionCheck: ({
         resourceAttrs,
         mspAttrs
       });
-
       return isEqual(policies, [])
         ? [{ sid: 'system', assertion: false, message: 'No policy found' }]
         : policyDecisionEngine(policies, context)

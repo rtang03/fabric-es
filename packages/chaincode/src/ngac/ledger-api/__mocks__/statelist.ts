@@ -25,11 +25,23 @@ const stateList = (
   getQueryResult: async (keyparts: string[]) =>
     ({
       [NS.RESOURCE_ATTRIBUTE]: () => resDb[createKey(keyparts)] || noResult,
-      [NS.POLICY]: () => policyDb[keyparts[0]] || noResult
+      [NS.POLICY]: () =>
+        // to overcome the limitation of KV database, need to imitate policy root, in JSON object.
+        // below statement returns policy root. Note that policy root only exist in mocking Policy Db.
+        // in real hyperledger, it does not exist.
+        policyDb[keyparts[0]] ||
+        // return policies array
+        Promise.all(
+          Object.entries(policyDb)
+            .filter(([key, value]) => key.startsWith(keyparts[0]))
+            .map(([key, value]) => value)
+        ) ||
+        noResult
     }[namespace]()),
   getState: async inputkey =>
     ({
       [NS.MSP_ATTRIBUTE]: key => mspDb[key] || noResult,
+      [NS.RESOURCE_ATTRIBUTE]: key => resDb[key] || noResult,
       [NS.POLICY]: key => policyDb[key] || noResult
     }[namespace](createKey(splitKey(inputkey)))),
   addState: async (inputkey: string, item: any) =>
@@ -42,7 +54,6 @@ const stateList = (
     ({
       [NS.MSP_ATTRIBUTE]: key => deleteRecord(mspDb, key),
       [NS.POLICY]: key => deleteRecord(policyDb, key)
-      // [NS.RESOURCE_ATTRIBUTE]: key => deleteRecord(resDb, key),
     }[namespace](createKey(splitKey(inputkey)))),
   deleteStatesByKeyRange: async (keyparts: string[]) =>
     ({

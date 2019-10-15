@@ -14,4 +14,5 @@ export interface NgacRepo {
   getPolicyById: (x509id: string) => Promise<Policy[]>;
   getPolicyByIdSid: (x509id: string, sid: string) => Promise<Policy>;
   getResourceAttrByURI: (uri: string) => Promise<Attribute[]>;
+  upsertResourceAttr: (resource: Resource) => Promise<Attribute[]>;
 }
