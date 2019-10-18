@@ -1,10 +1,11 @@
 import { exec } from 'child-process-promise';
 import { pick, values } from 'lodash';
 import { Commit } from '..';
+import { parseResult, toString } from './__utils__';
 
 const entityName = 'dev_entity';
 const id = 'ent_dev_1001';
-const eventStr = JSON.stringify([{ type: 'mon', payload: { name: 'jun' } }]);
+const eventStr = toString([{ type: 'mon', payload: { name: 'jun' } }]);
 const cli = `docker exec \
 -e CORE_PEER_LOCALMSPID=Org1MSP \
 -e CORE_PEER_ADDRESS=peer0.org1.example.com:7051 \
@@ -18,10 +19,8 @@ let commitId: string;
 
 describe('Chaincode Integration Tests', () => {
   it('should queryByEntityName #1', async () =>
-    await exec(`${query} '{"Args":["queryByEntityName", "${entityName}"]}'`)
-      .then<any[]>(({ stdout }) =>
-        values(JSON.parse(Buffer.from(JSON.parse(stdout)).toString()))
-      )
+    exec(`${query} '{"Args":["queryByEntityName", "${entityName}"]}'`)
+      .then<any[]>(({ stdout }) => values(parseResult(stdout)))
       .then(commits =>
         commits
           .map(commit => pick(commit, 'entityName'))
@@ -29,12 +28,8 @@ describe('Chaincode Integration Tests', () => {
       ));
 
   it('should queryByEntityId', async () =>
-    await exec(
-      `${query} '{"Args":["queryByEntityId","${entityName}","${id}"]}'`
-    )
-      .then<any[]>(({ stderr, stdout }) =>
-        values(JSON.parse(Buffer.from(JSON.parse(stdout)).toString()))
-      )
+    exec(`${query} '{"Args":["queryByEntityId","${entityName}","${id}"]}'`)
+      .then<any[]>(({ stderr, stdout }) => values(parseResult(stdout)))
       .then(commits =>
         commits
           .map(commit => pick(commit, 'entityName', 'id'))
@@ -58,81 +53,56 @@ describe('Chaincode Integration Tests', () => {
    -c '{"Args":["createCommit", "dev_entity", "ent_dev_1001", "0","[{\"type\":\"mon\"}]"]}'
    */
   it('should createCommit #1', async () =>
-    await exec(
-      `${invoke} '{"Args":["createCommit","${entityName}","id_00001","0","${eventStr.replace(
-        /"/g,
-        '\\"'
-      )}"]}'`
+    exec(
+      `${invoke} '{"Args":["createCommit","${entityName}","id_00001","0","${eventStr}"]}'`
     ).then(({ stderr }) => expect(stderr).toContain('result: status:200')));
 
   it('should createCommit #2', async () =>
-    await exec(
-      `${invoke} '{"Args":["createCommit","${entityName}","id_00001","0","${eventStr.replace(
-        /"/g,
-        '\\"'
-      )}"]}'`
+    exec(
+      `${invoke} '{"Args":["createCommit","${entityName}","id_00001","0","${eventStr}"]}'`
     ).then(({ stderr }) => expect(stderr).toContain('result: status:200')));
 
   it('should queryByEntityId #2', async () =>
-    await exec(
-      `${query} '{"Args":["queryByEntityId","${entityName}","id_00001"]}'`
-    )
-      .then(
-        ({ stdout }) =>
-          values(
-            JSON.parse(Buffer.from(JSON.parse(stdout)).toString())
-          )[0] as Commit
-      )
+    exec(`${query} '{"Args":["queryByEntityId","${entityName}","id_00001"]}'`)
+      .then(({ stdout }) => values(parseResult(stdout))[0] as Commit)
       .then(commit => {
         commitId = commit.commitId;
         expect(commit.id).toEqual('id_00001');
       }));
 
   it('should queryByEntityIdCommitId', async () =>
-    await exec(
+    exec(
       `${query} '{"Args":["queryByEntityIdCommitId","${entityName}","id_00001","${commitId}"]}'`
     )
-      .then(
-        ({ stdout }) =>
-          values(
-            JSON.parse(Buffer.from(JSON.parse(stdout)).toString())
-          )[0] as Commit
-      )
+      .then(({ stdout }) => values(parseResult(stdout))[0] as Commit)
       .then(commit => expect(commit.commitId).toEqual(commitId)));
 
   it('should deleteByEntityIdCommitId', async () =>
-    await exec(
+    exec(
       `${invoke} '{"Args":["deleteByEntityIdCommitId","${entityName}","id_00001","${commitId}"]}'`
     ).then(({ stderr }) => expect(stderr).toContain('result: status:200')));
 
   // bug: this has timming bug. Sometimes, when above two createCommit has not completed, before this test starts.
   // Then, nothing can be deleted. This is testing bug; its underlying implementation works fine.
   it('should deleteByEntityId', async () =>
-    await exec(
+    exec(
       `${invoke} '{"Args":["deleteByEntityId","${entityName}","id_00001"]}'`
     ).then(({ stderr }) => expect(stderr).toContain('result: status:200')));
 
   it('should fail to queryByEntityId', async () =>
-    await exec(
-      `${query} '{"Args":["queryByEntityId","${entityName}","id_00001"]}'`
-    )
-      .then(({ stdout }) =>
-        JSON.parse(Buffer.from(JSON.parse(stdout)).toString())
-      )
+    exec(`${query} '{"Args":["queryByEntityId","${entityName}","id_00001"]}'`)
+      .then(({ stdout }) => parseResult(stdout))
       .then(commits => expect(commits).toEqual({})));
 
   it('should fail to deleteByEntityIdCommitId', async () =>
-    await exec(
+    exec(
       `${invoke} '{"Args":["deleteByEntityIdCommitId","${entityName}","id_00001","${commitId}"]}'`
     ).then(({ stderr }) =>
       expect(stderr).toContain('Chaincode invoke successful')
     ));
 
   it('should fail to createCommit', async () =>
-    await exec(
-      `${invoke} '{"Args":["createCommit","${entityName}","","0","${eventStr.replace(
-        /"/g,
-        '\\"'
-      )}"]}'`
+    exec(
+      `${invoke} '{"Args":["createCommit","${entityName}","","0","${eventStr}"]}'`
     ).catch(({ stderr }) => expect(stderr).toContain('null argument')));
 });

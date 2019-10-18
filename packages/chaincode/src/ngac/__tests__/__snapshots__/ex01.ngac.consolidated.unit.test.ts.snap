@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Example 1: Consolidated Tests should create policy 1`] = `
+exports[`Example 1: PolicyEngine/CRUD Tests should create policy 1`] = `
 Object {
   "allowedEvents": Array [
     "SubjectCreated",
@@ -14,7 +14,7 @@ Object {
     },
   },
   "effect": "Allow",
-  "key": "\\"x509::/O=Dev/OU=client/CN=Tester01@example.com\\"\\"allowCreateSubject\\"",
+  "key": "\\"x509::/O=Dev/OU=client/CN=Tester01@example.com\\"~\\"allowCreateSubject\\"",
   "policyClass": "consolidated-test",
   "sid": "allowCreateSubject",
 }

@@ -35,8 +35,8 @@ beforeAll(async () => {
 afterAll(async () => await gateway.disconnect());
 
 describe('Event store Tests: Privatedata', () => {
-  it('should createCommit #1', async () => {
-    await submitPrivateData(
+  it('should createCommit #1', async () =>
+    submitPrivateData(
       'privatedata:createCommit',
       [org1, entityName, identity, '0'],
       transient,
@@ -46,22 +46,20 @@ describe('Event store Tests: Privatedata', () => {
       .then(commit => {
         createdCommit_1 = commit;
         return expect(commit.entityId).toEqual(identity);
-      });
-  });
+      }));
 
-  it('should createCommit #2', async () => {
-    await submitPrivateData(
+  it('should createCommit #2', async () =>
+    submitPrivateData(
       'privatedata:createCommit',
       [org1, entityName, identity, '0'],
       transient,
       { network }
     )
       .then<Commit>(result => values(result)[0])
-      .then(commit => (createdCommit_2 = commit));
-  });
+      .then(commit => (createdCommit_2 = commit)));
 
   it('should queryByEntityId #1', async () =>
-    await evaluate(
+    evaluate(
       'privatedata:queryByEntityId',
       [org1, entityName, identity],
       { network },
@@ -71,7 +69,7 @@ describe('Event store Tests: Privatedata', () => {
     ));
 
   it('should queryByEntityName', async () =>
-    await evaluate(
+    evaluate(
       'privatedata:queryByEntityName',
       [org1, entityName],
       { network },
@@ -83,7 +81,7 @@ describe('Event store Tests: Privatedata', () => {
     ));
 
   it('should deleteByEntityIdCommitId #1', async () =>
-    await submitPrivateData(
+    submitPrivateData(
       'privatedata:deleteByEntityIdCommitId',
       [org1, entityName, identity, createdCommit_1.commitId],
       null,
@@ -91,7 +89,7 @@ describe('Event store Tests: Privatedata', () => {
     ).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should fail to deleteByEntityIdCommitId', async () =>
-    await submitPrivateData(
+    submitPrivateData(
       'privatedata:deleteByEntityIdCommitId',
       [org1, entityName, identity, createdCommit_1.commitId],
       null,
@@ -99,7 +97,7 @@ describe('Event store Tests: Privatedata', () => {
     ).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should deleteByEntityIdCommitId #2', async () =>
-    await submitPrivateData(
+    submitPrivateData(
       'privatedata:deleteByEntityIdCommitId',
       [org1, entityName, identity, createdCommit_2.commitId],
       null,

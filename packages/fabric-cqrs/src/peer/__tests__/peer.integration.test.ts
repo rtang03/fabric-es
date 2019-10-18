@@ -39,13 +39,13 @@ afterAll(async () => {
 });
 
 it('Setup test - 1', async () =>
-  await repo
+  repo
     .deleteByEntityId(identity)
     .then(() => true)
     .catch(() => true));
 
 it('Setup test - 2', async () =>
-  await repo
+  repo
     .deleteByEntityName_query()
     .then(({ status }) => status)
     .then(res => expect(res).toEqual('all records deleted successfully')));
@@ -53,14 +53,14 @@ it('Setup test - 2', async () =>
 describe('Start peer Tests', () => {
   describe('ADD', () => {
     it('should ADD #1', async () =>
-      await repo
+      repo
         .create(identity)
         .save([{ type: 'ADD' }])
         .then(result => pick(result, 'version', 'entityName', 'events'))
         .then(result => expect(result).toMatchSnapshot()));
 
     it('should ADD #2', async () =>
-      await repo
+      repo
         .create(identity)
         .save([{ type: 'ADD' }])
         .then(result => pick(result, 'version', 'entityName', 'events'))

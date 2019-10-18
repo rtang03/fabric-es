@@ -40,7 +40,7 @@ afterAll(async () => peer.disconnect());
 
 describe('Start peer privatedata Tests', () => {
   it('should Add #1', async () =>
-    await repo
+    repo
       .create(identity)
       .save([{ type: 'ADD' }])
       .then((commit: Commit) => {
@@ -51,17 +51,17 @@ describe('Start peer privatedata Tests', () => {
       }));
 
   it('should getByEntityName', async () =>
-    await repo
+    repo
       .getByEntityName()
       .then(({ entities }) => expect(entities).toEqual([{ value: 1 }])));
 
   it('should getById', async () =>
-    await repo
+    repo
       .getById(identity)
       .then(({ currentState }) => expect(currentState).toEqual({ value: 1 })));
 
   it('should deleteByEntityIdCommitId', async () =>
-    await repo
+    repo
       .deleteByEntityIdCommitId(identity, commitId)
       .then(({ status }) => expect(status).toBe('SUCCESS')));
 });

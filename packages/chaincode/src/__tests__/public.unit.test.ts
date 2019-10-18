@@ -49,7 +49,7 @@ ctx.stub.getState.mockResolvedValue(value);
 
 describe('Chaincode Tests', () => {
   it('should instantiate', async () =>
-    await cc
+    cc
       .instantiate(context)
       .then<any[]>((response: any) => JSON.parse(response))
       .then(json =>
@@ -64,7 +64,7 @@ describe('Chaincode Tests', () => {
       ));
 
   it('should createCommit', async () =>
-    await cc
+    cc
       .createCommit(context, entityName, id, version, eventStr)
       .then<Commit>((response: any) => values(JSON.parse(response))[0])
       .then(({ id, entityName, version, entityId, events }) => ({
@@ -77,31 +77,31 @@ describe('Chaincode Tests', () => {
       .then(commit => expect(commit).toMatchSnapshot()));
 
   it('should queryByEntityName', async () =>
-    await cc
+    cc
       .queryByEntityName(context, entityName)
       .then<Record<string, Commit>>((response: any) => JSON.parse(response))
       .then(response => expect(response).toMatchSnapshot()));
 
   it('should queryByEntityId', async () =>
-    await cc
+    cc
       .queryByEntityId(context, entityName, id)
       .then<Record<string, Commit>>((response: any) => JSON.parse(response))
       .then(response => expect(response).toMatchSnapshot()));
 
   it('should queryByEntityIdCommitId', async () =>
-    await cc
+    cc
       .queryByEntityIdCommitId(context, entityName, id, commitId)
       .then<Record<string, Commit>>((response: any) => JSON.parse(response))
       .then(response => expect(response).toMatchSnapshot()));
 
   it('should deleteByEntityIdCommitId', async () =>
-    await cc
+    cc
       .deleteByEntityIdCommitId(context, entityName, id, commitId)
       .then<Record<string, Commit>>((response: any) => JSON.parse(response))
       .then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should deleteByEntityId', async () =>
-    await cc
+    cc
       .deleteByEntityId(context, entityName, id)
       .then<Record<string, Commit>>((response: any) => JSON.parse(response))
       .then(({ status }) => expect(status).toBe('SUCCESS')));
