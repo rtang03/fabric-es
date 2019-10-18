@@ -30,7 +30,7 @@ beforeAll(async () => {
 
 describe('Administrator commands', () => {
   it('should create random channel', async () =>
-    await createChannel(channelName).then(result =>
+    createChannel(channelName).then(result =>
       expect(result).toEqual({ status: 'SUCCESS', info: '' })
     ));
 

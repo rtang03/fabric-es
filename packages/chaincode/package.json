@@ -20,10 +20,10 @@
     "test:public-integration": "jest public.integration.test",
     "test:public-unit": "jest public.unit.test",
     "test:private": "jest private.integration.test",
-    "test:ngac-integration-test": "jest ngac.integration.test",
     "test:ngac-policy-engine-unit-test": "jest ngac.pe.unit.test",
     "test:ngac-crud-unit-test": "jest ngac.crud.unit.test",
-    "test:ngac-consolidated-unit-test": "jest ngac.consolidated.unit.test"
+    "test:ngac-consolidated-unit-test": "jest ngac.consolidated.unit.test",
+    "test:ngac-crud-integration-test": "jest ngac.crud.integration.test"
   },
   "engineStrict": true,
   "author": "Ross Tang",

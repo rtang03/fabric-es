@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`NgacRepo Tests should addPolicy 1`] = `
+exports[`NgacRepo CRUD Tests should addPolicy 1`] = `
 Object {
   "allowedEvents": Array [
     "TradeCreated",
@@ -9,7 +9,7 @@ Object {
     "uri": "model/Org0MSP/trade/trade_unit_01",
   },
   "effect": "Allow",
-  "key": "\\"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca\\"\\"allowCreateTrade\\"",
+  "key": "\\"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca\\"~\\"allowCreateTrade\\"",
   "policyClass": "unit-test",
   "sid": "allowCreateTrade",
 }

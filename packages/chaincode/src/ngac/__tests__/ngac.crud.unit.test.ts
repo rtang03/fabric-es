@@ -34,7 +34,7 @@ describe('NgacRepo CRUD Tests', () => {
   });
 
   it('should getPolicyById by x509id', async () =>
-    await ngacRepo(context)
+    ngacRepo(context)
       .getPolicyById(x509id)
       .then(policies =>
         policies.forEach(({ policyClass }) =>
@@ -43,27 +43,27 @@ describe('NgacRepo CRUD Tests', () => {
       ));
 
   it('should fail getPolicyById: wrong x509id', async () =>
-    await ngacRepo(context)
+    ngacRepo(context)
       .getPolicyById('incorrect x509id')
       .then(policies => expect(policies).toEqual([])));
 
   it('should getPolicyByIdSid, by x509id, statement id', async () =>
-    await ngacRepo(context)
+    ngacRepo(context)
       .getPolicyByIdSid(x509id, sid)
       .then(({ sid }) => expect(sid).toBe('allowCreateDocument')));
 
   it('should fail getPolicyByIdSid: wrong x509id', async () =>
-    await ngacRepo(context)
+    ngacRepo(context)
       .getPolicyByIdSid('incorrect x509id', sid)
       .then(policy => expect(policy).toEqual([])));
 
   it('should fail getPolicyByIdSid: wrong sid', async () =>
-    await ngacRepo(context)
+    ngacRepo(context)
       .getPolicyByIdSid(x509id, 'incorrect sid')
       .then(policy => expect(policy).toEqual([])));
 
   it('should getMSPAttrByMSPID, by mspid', async () =>
-    await ngacRepo(context)
+    ngacRepo(context)
       .getMSPAttrByMSPID(mspid)
       .then(attributes =>
         expect(attributes).toEqual([
@@ -72,17 +72,17 @@ describe('NgacRepo CRUD Tests', () => {
       ));
 
   it('should fail getMSPAttrByMSPID: wrong mspid', async () =>
-    await ngacRepo(context)
+    ngacRepo(context)
       .getMSPAttrByMSPID('incorrect mspid')
       .then(attributes => expect(attributes).toEqual([])));
 
   it('should getResourceAttrByURI', async () =>
-    await ngacRepo(context)
+    ngacRepo(context)
       .getResourceAttrByURI(uri)
       .then(attributes => expect(attributes[0].key).toEqual('createDocument')));
 
   it('should fail getResourceAttrByURI: wrong uri', async () =>
-    await ngacRepo(context)
+    ngacRepo(context)
       .getResourceAttrByURI('incorrect-uri')
       .then(attributes => expect(attributes).toEqual([])));
 

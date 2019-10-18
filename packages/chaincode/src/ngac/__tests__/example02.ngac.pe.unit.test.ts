@@ -74,7 +74,7 @@ describe('Example 2: PolicyEngine Tests', () => {
 
   // policy found, createCommit for pre-existing entity.
   it('2a: should updateUsername', async () =>
-    await permissionCheck({ context }).then(assertions =>
+    permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
         { sid: 'allowUpdateUsername', assertion: true }
       ])

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Example 1: Tests 1a: should createDocument 1`] = `
+exports[`Example 1: PolicyEngine Tests 1a: should createDocument 1`] = `
 Array [
   Object {
     "immutable": true,
