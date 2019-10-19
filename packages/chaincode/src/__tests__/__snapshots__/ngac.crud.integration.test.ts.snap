@@ -17,14 +17,12 @@ Object {
 
 exports[`Chaincode Ngac CRUD Integration Tests should getResourceAttrByURI 1`] = `
 Array [
-  Array [
-    Object {
-      "key": "createTest",
-      "type": "1",
-      "value": Array [
-        "x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=Admin@org1.example.com::/C=US/ST=North Carolina/O=Hyperledger/OU=Fabric/CN=rca-org1",
-      ],
-    },
-  ],
+  Object {
+    "key": "createTest",
+    "type": "1",
+    "value": Array [
+      "x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=Admin@org1.example.com::/C=US/ST=North Carolina/O=Hyperledger/OU=Fabric/CN=rca-org1",
+    ],
+  },
 ]
 `;

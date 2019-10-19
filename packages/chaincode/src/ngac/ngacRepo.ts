@@ -62,12 +62,7 @@ export const ngacRepo: (context: Context) => NgacRepo = context => ({
           makeKey([mspid])
         )
       : null,
-  getResourceAttrByURI: async uri =>
-    uri
-      ? stateList<Attribute>(NS.RESOURCE_ATTRIBUTE, context).getQueryResult(
-          uri.split('/').map(part => JSON.stringify(part))
-        )
-      : null,
+
   getPolicyById: async x509id =>
     x509id
       ? stateList<Policy>(NS.POLICY, context).getQueryResult([
@@ -77,5 +72,17 @@ export const ngacRepo: (context: Context) => NgacRepo = context => ({
   getPolicyByIdSid: async (x509id, sid) =>
     x509id && sid
       ? stateList<Policy>(NS.POLICY, context).getState(makeKey([x509id, sid]))
+      : null,
+  getResourceAttrGroupByURI: async uri =>
+    uri
+      ? stateList<Attribute[]>(NS.RESOURCE_ATTRIBUTE, context).getQueryResult(
+          uri.split('/').map(part => JSON.stringify(part))
+        )
+      : null,
+  getResourceAttrByURI: async uri =>
+    uri
+      ? stateList<Attribute[]>(NS.RESOURCE_ATTRIBUTE, context).getState(
+          makeKey(uri.split('/'))
+        )
       : null
 });

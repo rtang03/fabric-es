@@ -27,16 +27,12 @@ describe('Chaincode Ngac CRUD Integration Tests', () => {
   // [ [ { type: '1', key: 'createTest', value: [Array] } ],
   //   [ { type: '1', key: 'createCRUDTest', value: 'x509id' },
   //     { type: '1', key: 'username', value: 'bob' } ] ]
-
   it('should getResourceAttrByURI', async () =>
     exec(
       `${query} '{"Args":["getResourceAttrByURI", "model/Org1MSP/ngactest"]}'`
     )
       .then(({ stdout }) => parseResult(stdout))
-      .then(
-        attributes => console.log(attributes)
-        // attributes.map(({ type }) => expect(type).toEqual('1'))
-      ));
+      .then(attributes => expect(attributes).toMatchSnapshot()));
 
   it('should getPolicyById', async () =>
     exec(`${query} '{"Args":["getPolicyById", "${id}"]}'`)

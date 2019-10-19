@@ -83,7 +83,7 @@ describe('NgacRepo CRUD Tests', () => {
 
   it('should fail getResourceAttrByURI: wrong uri', async () =>
     ngacRepo(context)
-      .getResourceAttrByURI('incorrect-uri')
+      .getResourceAttrGroupByURI('incorrect-uri')
       .then(attributes => expect(attributes).toEqual([])));
 
   it('should addPolicy', async () => {
@@ -197,7 +197,7 @@ describe('NgacRepo CRUD Tests', () => {
       .then(attrs => expect(attrs).toEqual(resourceAttrs));
 
     await ngacRepo(context)
-      .getResourceAttrByURI(resource.uri)
+      .getResourceAttrGroupByURI(resource.uri)
       .then(attrs => expect(attrs).toEqual(resourceAttrs));
   });
 
@@ -209,7 +209,7 @@ describe('NgacRepo CRUD Tests', () => {
         expect(key).toEqual(['"model""Org1MSP""Trade""unit_test_1010"'])
       );
     await ngacRepo(context)
-      .getResourceAttrByURI(uri)
+      .getResourceAttrGroupByURI(uri)
       .then(attrs => expect(attrs).toEqual([]));
   });
 });
