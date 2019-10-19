@@ -50,7 +50,7 @@ describe('Example 1: PolicyEngine Tests', () => {
       ])
     );
     await ngacRepo(context)
-      .getResourceAttrByURI('model/Org1MSP/dev_ngac_example1/ngac_unit_01')
+      .getResourceAttrGroupByURI('model/Org1MSP/dev_ngac_example1/ngac_unit_01')
       .then(attr => expect(attr).toMatchSnapshot());
   });
 
