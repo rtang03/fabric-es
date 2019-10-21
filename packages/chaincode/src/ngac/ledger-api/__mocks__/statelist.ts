@@ -53,11 +53,12 @@ const stateList = (
   deleteStateByKey: async inputkey =>
     ({
       [NS.MSP_ATTRIBUTE]: key => deleteRecord(mspDb, key),
+      [NS.RESOURCE_ATTRIBUTE]: key => deleteRecord(resDb, key),
       [NS.POLICY]: key => deleteRecord(policyDb, key)
     }[namespace](createKey(splitKey(inputkey)))),
   deleteStatesByKeyRange: async (keyparts: string[]) =>
     ({
-      [NS.RESOURCE_ATTRIBUTE]: () => deleteRecords(resDb, keyparts),
+      // [NS.RESOURCE_ATTRIBUTE]: () => deleteRecords(resDb, keyparts),
       [NS.POLICY]: () => deleteRecords(policyDb, keyparts)
     }[namespace]())
 });

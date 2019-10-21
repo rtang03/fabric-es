@@ -15,7 +15,7 @@ export interface NgacRepo {
   // delete one policy by id
   deletePolicyByIdSid: (x509id: string, sid: string) => Promise<string>;
   // delete attribute group by URI
-  deleteReourceAttrByURI: (uri: string) => Promise<string[]>;
+  deleteReourceAttrByURI: (uri: string) => Promise<string>;
   // delete attribute group by MSPID
   getMSPAttrByMSPID: (mspid: string) => Promise<Attribute[]>;
   // get policies by id
