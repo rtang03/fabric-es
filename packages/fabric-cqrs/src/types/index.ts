@@ -9,3 +9,6 @@ export * from './queryDatabase';
 export * from './projectionDb';
 export * from './peer';
 export * from './privatedataRepository';
+export * from './ngac';
+export * from './attribute';
+export * from './policy';

@@ -3,7 +3,7 @@ import { registerUser } from '../../account/registerUser';
 import { Counter, CounterEvent, reducer } from '../../example';
 import { getNetwork } from '../../services';
 import { Commit, PrivatedataRepository } from '../../types';
-import { Peer } from '../peer';
+import { getPeer, Peer } from '../peer';
 import { projectionDb, queryDatabase } from './__utils__';
 
 let peer: Peer;
@@ -19,7 +19,7 @@ beforeAll(async () => {
       enrollmentSecret: 'password'
     });
     const context = await getNetwork({ identity });
-    peer = new Peer({
+    peer = getPeer({
       ...context,
       reducer,
       queryDatabase,
@@ -53,7 +53,7 @@ describe('Start peer privatedata Tests', () => {
   it('should getByEntityName', async () =>
     repo
       .getByEntityName()
-      .then(({ entities }) => expect(entities).toEqual([{ value: 1 }])));
+      .then(({ data }) => expect(data).toEqual([{ value: 1 }])));
 
   it('should getById', async () =>
     repo

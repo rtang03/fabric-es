@@ -62,7 +62,6 @@ export const ngacRepo: (context: Context) => NgacRepo = context => ({
           makeKey([mspid])
         )
       : null,
-
   getPolicyById: async x509id =>
     x509id
       ? stateList<Policy>(NS.POLICY, context).getQueryResult([

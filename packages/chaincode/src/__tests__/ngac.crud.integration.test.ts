@@ -23,10 +23,6 @@ describe('Chaincode Ngac CRUD Integration Tests', () => {
         expect(result).toEqual([{ type: '1', key: 'mspid', value: 'Org1MSP' }])
       ));
 
-  // todo: have bug
-  // [ [ { type: '1', key: 'createTest', value: [Array] } ],
-  //   [ { type: '1', key: 'createCRUDTest', value: 'x509id' },
-  //     { type: '1', key: 'username', value: 'bob' } ] ]
   it('should getResourceAttrByURI', async () =>
     exec(
       `${query} '{"Args":["getResourceAttrByURI", "model/Org1MSP/ngactest"]}'`

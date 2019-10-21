@@ -4,7 +4,7 @@ import { keys, pick, values } from 'lodash';
 import { channelEventHub, evaluate, getNetwork, submit } from '..';
 import { registerUser } from '../../account/registerUser';
 import '../../env';
-import { Commit } from '../../types';
+import { toCommit } from '../../types/commit';
 
 let network: Network;
 let gateway: Gateway;
@@ -51,9 +51,13 @@ describe('Eventstore Tests', () => {
     evaluate('queryByEntityName', ['dev_entity'], {
       network
     }).then(commits =>
-      values<Commit>(commits).forEach(commit =>
-        expect(pick(commit, 'entityName')).toEqual({ entityName: 'dev_entity' })
-      )
+      values(commits)
+        .map(commit => toCommit(JSON.stringify(commit)))
+        .forEach(commit =>
+          expect(pick(commit, 'entityName')).toEqual({
+            entityName: 'dev_entity'
+          })
+        )
     ));
 
   it('should create #1', async () =>
@@ -67,7 +71,8 @@ describe('Eventstore Tests', () => {
       ],
       { network }
     )
-      .then<Commit>(result => values(result)[0])
+      .then(result => values(result)[0])
+      .then(commit => toCommit(JSON.stringify(commit)))
       .then(commit => {
         createdCommit_1 = commit;
         return expect(commit.entityId).toEqual(identity);
@@ -79,28 +84,33 @@ describe('Eventstore Tests', () => {
       [entityName, identity, createdCommit_1.commitId],
       { network }
     )
-      .then<Commit>(result => values(result)[0])
+      .then(result => values(result)[0])
+      .then(commit => toCommit(JSON.stringify(commit)))
       .then(commit => expect(commit).toEqual(createdCommit_1)));
 
   it('should create #2', async () =>
+    // cannot be version: '0' again, this is give error object, instead of Commit object
     submit(
       'createCommit',
       [
         entityName,
         identity,
-        '0',
+        '1',
         JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])
       ],
       { network }
-    ));
+    )
+      .then(result => values(result)[0])
+      .then(commit => toCommit(JSON.stringify(commit)))
+      .then(({ entityName }) => expect(entityName).toEqual('dev_test')));
 
   it('should queryByEntityName', async () =>
     evaluate('queryByEntityName', [entityName], {
       network
     }).then(commits =>
-      values<Commit>(commits).map(({ entityName }) =>
-        expect(entityName).toBe('dev_test')
-      )
+      values(commits)
+        .map(commit => toCommit(JSON.stringify(commit)))
+        .map(({ entityName }) => expect(entityName).toBe('dev_test'))
     ));
 
   it('should queryByEntityId #1', async () =>
@@ -136,4 +146,30 @@ describe('Eventstore Tests', () => {
     evaluate('queryByEntityId', [entityName, identity], {
       network
     }).then(result => expect(result).toEqual({})));
+
+  it('should create #3 at version 0', async () =>
+    submit(
+      'createCommit',
+      [
+        entityName,
+        identity,
+        '0',
+        JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])
+      ],
+      { network }
+    ));
+
+  it('should fail repeatedly reate #4 at version 0', async () =>
+    submit(
+      'createCommit',
+      [
+        entityName,
+        identity,
+        '0',
+        JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])
+      ],
+      { network }
+    ).then(result =>
+      expect(result).toEqual({ status: 'ERROR', message: 'createCommit fails' })
+    ));
 });
