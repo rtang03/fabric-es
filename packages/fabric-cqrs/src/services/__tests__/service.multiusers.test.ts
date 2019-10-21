@@ -2,7 +2,8 @@ import { FileSystemWallet } from 'fabric-network';
 import { values } from 'lodash';
 import { registerUser } from '../../account/registerUser';
 import '../../env';
-import { Commit, Context } from '../../types';
+import { Context } from '../../types';
+import { Commit, toCommit } from '../../types/commit';
 import { evaluate } from '../evaluate';
 import { getNetwork } from '../network';
 import { submit } from '../submit';
@@ -75,7 +76,8 @@ describe('Multiuser Tests', () => {
       ],
       { network: contextOrg1.network }
     )
-      .then<Commit>(result => values(result)[0])
+      .then(result => values(result)[0])
+      .then(commit => toCommit(JSON.stringify(commit)))
       .then(commit => (createdCommit_1 = commit));
 
     // query at org2
@@ -84,7 +86,8 @@ describe('Multiuser Tests', () => {
       [entityName, identityOrg1, createdCommit_1.commitId],
       { network: contextOrg2.network }
     )
-      .then<Commit>(result => values(result)[0])
+      .then(result => values(result)[0])
+      .then(commit => toCommit(JSON.stringify(commit)))
       .then(({ id, entityName }) => {
         expect(id).toBe(identityOrg1);
         expect(entityName).toBe(entityName);

@@ -1,4 +1,4 @@
-import { Commit } from '../types';
+import { Commit } from '.';
 
 export type Repository<TEntity = any, TEvent = any> = {
   create: (
@@ -6,7 +6,7 @@ export type Repository<TEntity = any, TEvent = any> = {
   ) => {
     save: (events: TEvent[]) => Promise<Commit | { error: any }>;
   };
-  getByEntityName: () => Promise<{ entities: TEntity[] }>;
+  getByEntityName: () => Promise<{ data: TEntity[] }>;
   getById: (
     id: string
   ) => Promise<{
@@ -16,7 +16,7 @@ export type Repository<TEntity = any, TEvent = any> = {
       version?: number
     ) => Promise<Commit | { error: any }>;
   }>;
-  getCommitById: (id: string) => Promise<{ commits: Commit[] }>;
+  getCommitById: (id: string) => Promise<{ data: Commit[] }>;
   getProjection: ({
     where,
     all,
@@ -25,7 +25,7 @@ export type Repository<TEntity = any, TEvent = any> = {
     where?: Record<string, string>;
     all?: boolean;
     contain?: string;
-  }) => Promise<{ projections: TEntity[] }>;
+  }) => Promise<{ data: TEntity[] }>;
   deleteByEntityId?: (id: string) => Promise<any>;
   deleteByEntityName_query?: () => Promise<any>;
 };

@@ -109,12 +109,6 @@ export class EventStore extends Contract {
       );
       if (!isEqual(result, {})) {
         return getErrorMessage('createCommit');
-        // Buffer.from(
-        //   JSON.stringify({
-        //     status: 'INVALID',
-        //     message: 'Fail to create pre-existing entity'
-        //   })
-        // );
       }
     }
     const events = JSON.parse(eventStr);

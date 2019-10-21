@@ -6,7 +6,7 @@ export type PrivatedataRepository<TEntity = any, TEvent = any> = {
   ) => {
     save: (events: TEvent[]) => Promise<Commit | { error: any }>;
   };
-  getByEntityName: () => Promise<{ entities: TEntity[] }>;
+  getByEntityName: () => Promise<{ data: TEntity[] }>;
   getById: (
     id: string
   ) => Promise<{

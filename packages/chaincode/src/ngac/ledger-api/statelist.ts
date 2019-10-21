@@ -48,8 +48,11 @@ const stateList: <T extends Attribute | Attribute[] | Resource | Policy = any>(
     );
     return data.toString() ? JSON.parse(data.toString()) : {};
   },
-  deleteStateByKey: async key =>
-    await stub.deleteState(stub.createCompositeKey(namespace, splitKey(key))),
+  deleteStateByKey: async inputkey => {
+    const key = stub.createCompositeKey(namespace, splitKey(inputkey));
+    await stub.deleteState(key);
+    return key;
+  },
   deleteStatesByKeyRange: async keyparts => {
     const iterator = await stub.getStateByPartialCompositeKey(
       namespace,

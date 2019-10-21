@@ -59,12 +59,12 @@ export const getMockRepository = <TEntity, TEvent>(
       });
     }),
   getByEntityName: () =>
-    Promise.resolve<{ entities: TEntity[] }>({
-      entities: getEntities({ entityName, reducer, mockdb })
+    Promise.resolve<{ data: TEntity[] }>({
+      data: getEntities({ entityName, reducer, mockdb })
     }),
   getCommitById: id =>
-    Promise.resolve<{ commits: Commit[] }>({
-      commits: filter(values<Commit>(mockdb), ({ entityId }) => entityId === id)
+    Promise.resolve<{ data: Commit[] }>({
+      data: filter(values<Commit>(mockdb), ({ entityId }) => entityId === id)
     }),
   getProjection: ({
     where,

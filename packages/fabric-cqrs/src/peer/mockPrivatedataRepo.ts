@@ -59,7 +59,7 @@ export const getPrivatedataMockRepository = <TEntity, TEvent>(
       });
     }),
   getByEntityName: () =>
-    Promise.resolve<{ entities: TEntity[] }>({
-      entities: getEntities({ entityName, reducer, mockdb })
+    Promise.resolve<{ data: TEntity[] }>({
+      data: getEntities({ entityName, reducer, mockdb })
     })
 });

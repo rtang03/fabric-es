@@ -1,5 +1,6 @@
 import { ChannelEventHub } from 'fabric-client';
 import { Gateway, Network } from 'fabric-network';
+import { NgacRepo } from './ngac';
 import { PrivatedataRepository } from './privatedataRepository';
 import { ProjectionDb } from './projectionDb';
 import { QueryDatabase } from './queryDatabase';
@@ -17,7 +18,7 @@ export interface Option {
   // pubSub?: any;
 }
 
-export type IPeer = {
+export interface Peer {
   getPrivateDataRepo: <TEntity = any, TEvent = any>({
     entityName: string,
     reducer: Reducer
@@ -36,4 +37,26 @@ export type IPeer = {
   subscribeHub: () => void;
   unsubscribeHub: () => void;
   disconnect: () => void;
-};
+  getNgacRepo: NgacRepo;
+}
+
+// export type IPeer = {
+//   getPrivateDataRepo: <TEntity = any, TEvent = any>({
+//     entityName: string,
+//     reducer: Reducer
+//   }) => PrivatedataRepository<TEntity, TEvent>;
+//   getRepository: <TEntity = any, TEvent = any>({
+//     entityName: string,
+//     reducer: Reducer
+//   }) => Repository<TEntity, TEvent>;
+//   reconcile: ({
+//     entityName,
+//     reducer
+//   }: {
+//     entityName: string;
+//     reducer: Reducer;
+//   }) => Promise<{ result: any }>;
+//   subscribeHub: () => void;
+//   unsubscribeHub: () => void;
+//   disconnect: () => void;
+// };
