@@ -10,7 +10,7 @@ export function createCommit<TEvent extends BaseEvent = any>({
   entityName: string;
   version: number;
   events: TEvent[];
-}): Commit<TEvent> {
+}): Commit {
   const now = Date.now();
   const date = new Date(now).toISOString().replace(/[^0-9]/g, '');
   const commitId = `${date}`;

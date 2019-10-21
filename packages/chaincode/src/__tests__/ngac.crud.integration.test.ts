@@ -99,11 +99,6 @@ describe('Chaincode Ngac CRUD Integration Tests', () => {
     ).then(({ stderr }) => expect(stderr).toContain('result: status:200'));
   });
 
-  // it('should deleteReourceAttrByURI', async () =>
-  //   exec(
-  //     `${invoke} '{"Args":["deleteReourceAttrByURI", "model/Org1MSP/ngactest/entityid_001"]}'`
-  //   ).then(({ stderr }) => console.log(stderr)));
-
   it('should upsertResourceAttr', async () => {
     const resourceAttrsStr = toString([
       { type: '1', key: 'username', value: 'bob' }
@@ -112,4 +107,9 @@ describe('Chaincode Ngac CRUD Integration Tests', () => {
       `${invoke} '{"Args":["upsertResourceAttr", "${entityName}", "${entityId}", "${resourceAttrsStr}"]}'`
     ).then(({ stderr }) => expect(stderr).toContain('result: status:200'));
   });
+
+  it('should deleteReourceAttrByURI', async () =>
+    exec(
+      `${invoke} '{"Args":["deleteReourceAttrByURI", "model/Org1MSP/ngactest/entityid_001"]}'`
+    ).then(({ stderr }) => expect(stderr).toContain('result: status:200')));
 });

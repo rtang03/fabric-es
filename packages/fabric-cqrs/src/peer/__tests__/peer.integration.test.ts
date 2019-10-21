@@ -2,8 +2,8 @@ import { find, pick } from 'lodash';
 import { registerUser } from '../../account/registerUser';
 import { Counter, CounterEvent, reducer } from '../../example';
 import { getNetwork } from '../../services';
-import { Repository } from '../../types';
-import { getPeer, Peer } from '../peer';
+import { Peer, Repository } from '../../types';
+import { getPeer } from '../peer';
 import { projectionDb, queryDatabase } from './__utils__';
 
 let peer: Peer;
@@ -56,59 +56,61 @@ describe('Start peer Tests', () => {
       .create(identity)
       .save([{ type: 'ADD' }])
       .then(result => pick(result, 'version', 'entityName', 'events'))
-      .then(
-        result => console.log(result)
-        // expect(result).toMatchSnapshot())
-      ));
+      .then(result => expect(result).toMatchSnapshot()));
 
   it('should ADD #2', async () =>
     await repo
-      .create(identity)
-      .save([{ type: 'ADD' }])
+      .getById(identity)
+      .then(({ save }) => save([{ type: 'ADD' }]))
       .then(result => pick(result, 'version', 'entityName', 'events'))
-      .then(
-        result => console.log(result)
-        // expect(result).toMatchSnapshot())
+      .then(result =>
+        expect(result).toEqual({
+          version: 1,
+          entityName: 'counter',
+          events: [{ type: 'ADD' }]
+        })
       ));
+});
 
-  // it('should Query', done => {
-  //   setTimeout(async () => {
-  //     await repo
-  //       .getByEntityName()
-  //       .then(result => expect(result).toEqual({ entities: [{ value: 2 }] }));
-  //
-  //     await repo
-  //       .getById(identity)
-  //       .then(({ currentState }) => currentState)
-  //       .then(result => expect(result).toEqual({ value: 2 }));
-  //
-  //     await repo
-  //       .getCommitById(identity)
-  //       .then(({ data }) => data)
-  //       .then(result => expect(result.length).toEqual(2));
-  //
-  //     await repo
-  //       .getProjection({ all: true })
-  //       .then(({ data }) => data)
-  //       .then(result => find(result, { id: identity }))
-  //       .then(result => expect(result).toEqual({ id: identity, value: 2 }));
-  //
-  //     await repo
-  //       .getProjection({ where: { id: identity } })
-  //       .then(({ data }) => data)
-  //       .then(result => find(result, { id: identity }))
-  //       .then(result => expect(result).toEqual({ id: identity, value: 2 }));
-  //
-  //     await repo
-  //       .getProjection({ contain: 'peer_test' })
-  //       .then(({ data }) => data)
-  //       .then(results =>
-  //         results.forEach(({ id }) =>
-  //           expect(id.startsWith('peer_test')).toBe(true)
-  //         )
-  //       );
-  //
-  //     done();
-  //   }, 10000);
-  // });
+describe('Query', () => {
+  it('should Query', done => {
+    setTimeout(async () => {
+      await repo
+        .getByEntityName()
+        .then(result => expect(result).toEqual({ data: [{ value: 2 }] }));
+
+      await repo
+        .getById(identity)
+        .then(({ currentState }) => currentState)
+        .then(result => expect(result).toEqual({ value: 2 }));
+
+      await repo
+        .getCommitById(identity)
+        .then(({ data }) => data)
+        .then(result => expect(result.length).toEqual(2));
+
+      await repo
+        .getProjection({ all: true })
+        .then(({ data }) => data)
+        .then(result => find(result, { id: identity }))
+        .then(result => expect(result).toEqual({ id: identity, value: 2 }));
+
+      await repo
+        .getProjection({ where: { id: identity } })
+        .then(({ data }) => data)
+        .then(result => find(result, { id: identity }))
+        .then(result => expect(result).toEqual({ id: identity, value: 2 }));
+
+      await repo
+        .getProjection({ contain: 'peer_test' })
+        .then(({ data }) => data)
+        .then(results =>
+          results.forEach(({ id }) =>
+            expect(id.startsWith('peer_test')).toBe(true)
+          )
+        );
+
+      done();
+    }, 10000);
+  });
 });

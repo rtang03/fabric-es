@@ -52,8 +52,8 @@ export const ngacRepo: (context: Context) => NgacRepo = context => ({
       : null,
   deleteReourceAttrByURI: async uri =>
     uri
-      ? stateList(NS.RESOURCE_ATTRIBUTE, context).deleteStatesByKeyRange(
-          uri.split('/').map(part => JSON.stringify(part))
+      ? stateList(NS.RESOURCE_ATTRIBUTE, context).deleteStateByKey(
+          makeKey(uri.split('/'))
         )
       : null,
   getMSPAttrByMSPID: async mspid =>

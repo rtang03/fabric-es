@@ -134,4 +134,19 @@ describe('Ngac CRUD Integration Tests', () => {
       }
     ).then(attributes => expect(attributes).toEqual(expectedResult));
   });
+
+  it('should deleteReourceAttrByURI', async () => {
+    await submitNgac(
+      'deleteReourceAttrByURI',
+      [`model/Org1MSP/${entityName}/${entityId}`],
+      { network }
+    ).then(({ status }) => expect(status).toEqual('SUCCESS'));
+    await evaluateNgac(
+      'getResourceAttrByURI',
+      [`model/Org1MSP/${entityName}/${entityId}`],
+      {
+        network
+      }
+    ).then(attributes => expect(attributes).toEqual({}));
+  });
 });
