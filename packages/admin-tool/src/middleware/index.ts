@@ -5,3 +5,5 @@ export * from './instantiateChaincode';
 export * from './getInfo';
 export * from './registerUser';
 export * from './enrollAdmin';
+export * from './enrollCAAdmin';
+export * from './identity';

@@ -1,4 +1,5 @@
 import '../env';
+import { FileSystemWallet } from 'fabric-network';
 import { enrollAdmin, registerUser } from '../middleware';
 
 describe('Fabric CA unit test', () => {
@@ -9,7 +10,8 @@ describe('Fabric CA unit test', () => {
     const org = 'Org1';
     const ctx = {
       connectionProfile: process.env.PATH_TO_CONNECTION_ORG1,
-      fabricNetwork: process.env.PATH_TO_NETWORK
+      fabricNetwork: process.env.PATH_TO_NETWORK,
+      wallet: new FileSystemWallet('./wallet')
     };
     await enrollAdmin(org1ID, org1Secret, url, org, ctx).then(result =>
       expect(result).toMatchSnapshot()
@@ -28,7 +30,8 @@ describe('Fabric CA unit test', () => {
     // const org = 'Org1';
     const ctx = {
       connectionProfile: process.env.PATH_TO_CONNECTION_ORG1,
-      fabricNetwork: process.env.PATH_TO_NETWORK
+      fabricNetwork: process.env.PATH_TO_NETWORK,
+      wallet: new FileSystemWallet('./wallet')
     };
     // await registerUser(user, secret, url, org, ctx).then(result => {
     //   console.log(result);

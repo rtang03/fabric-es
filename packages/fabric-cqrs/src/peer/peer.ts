@@ -6,7 +6,7 @@ import { getStore } from '../store';
 import { Option, Peer } from '../types';
 import { ngacRepo, privateDataRepo, reconcile, repository } from './utils';
 
-export const getPeer: (option: Option) => Peer = option => {
+export const createPeer: (option: Option) => Peer = option => {
   let registerId: any;
   const {
     channelHub,
