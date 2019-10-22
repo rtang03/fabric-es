@@ -47,7 +47,6 @@ describe('Example 1: PolicyEngine/CRUD Tests', () => {
       { type: '1', key: 'env', value: 'test' }
     ];
     const mspResource = createMSPResource({ context, mspId, mspAttrs });
-
     await ngacRepo(context)
       .addMSPAttr(mspResource)
       .then(attrs => expect(attrs).toEqual(mspAttrs));

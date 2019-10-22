@@ -52,8 +52,7 @@ beforeAll(async () => {
       wallet: walletOrg2,
       channelEventHub: 'peer0.org2.example.com'
     });
-  } catch (error) {
-    console.error(error);
+  } catch {
     process.exit(-1);
   }
 });

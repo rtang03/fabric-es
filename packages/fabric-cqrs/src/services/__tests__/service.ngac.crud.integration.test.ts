@@ -1,8 +1,7 @@
 import { Gateway, Network } from 'fabric-network';
-import { registerUser } from '../../account/registerUser';
+import { bootstrap } from '../../account/registerUser';
 import { Policy } from '../../types';
 import evaluateNgac from '../evaluateNgac';
-import { getNetwork } from '../network';
 import submitNgac from '../submitNgac';
 
 let network: Network;
@@ -11,23 +10,13 @@ let gateway: Gateway;
 const identity = `service_ngac_test${Math.floor(Math.random() * 1000)}`;
 const id =
   'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=Admin@org1.example.com::/C=US/ST=North Carolina/O=Hyperledger/OU=Fabric/CN=rca-org1';
-const mspId = 'Org100MSP';
 const entityName = 'ngac_service_test';
 const entityId = 'entity_id_1001';
 
 beforeAll(async () => {
-  try {
-    await registerUser({
-      enrollmentID: identity,
-      enrollmentSecret: 'password'
-    });
-    const config = await getNetwork({ identity });
-    network = config.network;
-    gateway = config.gateway;
-  } catch (error) {
-    console.error(error);
-    process.exit(-1);
-  }
+  const config = await bootstrap(identity);
+  network = config.network;
+  gateway = config.gateway;
 });
 
 afterAll(async () => await gateway.disconnect());

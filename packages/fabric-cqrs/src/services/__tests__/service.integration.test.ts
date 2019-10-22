@@ -1,8 +1,8 @@
 import { ChannelEventHub } from 'fabric-client';
 import { Gateway, Network } from 'fabric-network';
 import { keys, pick, values } from 'lodash';
-import { channelEventHub, evaluate, getNetwork, submit } from '..';
-import { registerUser } from '../../account/registerUser';
+import { channelEventHub, evaluate, submit } from '..';
+import { bootstrap } from '../../account/registerUser';
 import '../../env';
 import { toCommit } from '../../types/commit';
 
@@ -19,19 +19,10 @@ const entityName = 'dev_test';
 const identity = `service_test${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  try {
-    await registerUser({
-      enrollmentID: identity,
-      enrollmentSecret: 'password'
-    });
-    const config = await getNetwork({ identity });
-    network = config.network;
-    gateway = config.gateway;
-    channelHub = config.channelHub;
-  } catch (error) {
-    console.error(error);
-    process.exit(-1);
-  }
+  const config = await bootstrap(identity);
+  network = config.network;
+  gateway = config.gateway;
+  channelHub = config.channelHub;
 });
 
 afterAll(async () => {

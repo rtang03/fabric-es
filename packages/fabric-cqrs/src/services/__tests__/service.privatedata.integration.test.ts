@@ -1,7 +1,7 @@
 import { Gateway, Network } from 'fabric-network';
 import { values } from 'lodash';
-import { evaluate, getNetwork, submitPrivateData } from '..';
-import { registerUser } from '../../account/registerUser';
+import { evaluate, submitPrivateData } from '..';
+import { bootstrap } from '../../account/registerUser';
 import { Commit } from '../../types';
 
 let network: Network;
@@ -18,18 +18,9 @@ const transient = {
 const identity = `service_privatedata${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  try {
-    await registerUser({
-      enrollmentID: identity,
-      enrollmentSecret: 'password'
-    });
-    const config = await getNetwork({ identity });
-    network = config.network;
-    gateway = config.gateway;
-  } catch (error) {
-    console.error(error);
-    process.exit(-1);
-  }
+  const config = await bootstrap(identity);
+  network = config.network;
+  gateway = config.gateway;
 });
 
 afterAll(async () => await gateway.disconnect());

@@ -1,9 +1,8 @@
 import { find, pick } from 'lodash';
-import { registerUser } from '../../account/registerUser';
+import { bootstrap } from '../../account/registerUser';
 import { Counter, CounterEvent, reducer } from '../../example';
-import { getNetwork } from '../../services';
 import { Peer, Repository } from '../../types';
-import { getPeer } from '../peer';
+import { createPeer } from '../peer';
 import { projectionDb, queryDatabase } from './__utils__';
 
 let peer: Peer;
@@ -12,25 +11,16 @@ const entityName = 'counter';
 const identity = `peer_test${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  try {
-    await registerUser({
-      enrollmentID: identity,
-      enrollmentSecret: 'password'
-    });
-    const context = await getNetwork({ identity });
-    peer = getPeer({
-      ...context,
-      reducer,
-      queryDatabase,
-      projectionDb,
-      collection: 'Org1PrivateDetails'
-    });
-    await peer.subscribeHub();
-    repo = peer.getRepository<Counter, CounterEvent>({ entityName, reducer });
-  } catch (error) {
-    console.error(error);
-    process.exit(-1);
-  }
+  const context = await bootstrap(identity);
+  peer = createPeer({
+    ...context,
+    reducer,
+    queryDatabase,
+    projectionDb,
+    collection: 'Org1PrivateDetails'
+  });
+  await peer.subscribeHub();
+  repo = peer.getRepository<Counter, CounterEvent>({ entityName, reducer });
 });
 
 afterAll(async () => {
@@ -51,14 +41,13 @@ describe('Start peer Tests', () => {
       .then(({ status }) => status)
       .then(res => expect(res).toEqual('all records deleted successfully')));
 
-  it('should ADD #1', async () =>
+  it('should ADD #1', async () => {
     await repo
       .create(identity)
       .save([{ type: 'ADD' }])
       .then(result => pick(result, 'version', 'entityName', 'events'))
-      .then(result => expect(result).toMatchSnapshot()));
+      .then(result => expect(result).toMatchSnapshot());
 
-  it('should ADD #2', async () =>
     await repo
       .getById(identity)
       .then(({ save }) => save([{ type: 'ADD' }]))
@@ -69,7 +58,8 @@ describe('Start peer Tests', () => {
           entityName: 'counter',
           events: [{ type: 'ADD' }]
         })
-      ));
+      );
+  });
 });
 
 describe('Query', () => {

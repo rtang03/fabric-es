@@ -22,8 +22,7 @@ beforeAll(async () => {
     });
     context = await getNetwork({ identity });
     store = getStore(context);
-  } catch (error) {
-    console.error(error);
+  } catch {
     process.exit(-1);
   }
 });

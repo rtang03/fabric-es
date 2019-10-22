@@ -1,6 +1,6 @@
 import { Store } from 'redux';
 import { action } from '..';
-import { reducer } from '../../../example/reducer';
+import { reducer } from '../../../example';
 import { projectionDb, queryDatabase } from '../../../peer';
 import { Commit } from '../../../types';
 import { action as queryAction } from '../../query';

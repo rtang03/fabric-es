@@ -1,9 +1,8 @@
 import { pick } from 'lodash';
-import { registerUser } from '../../account/registerUser';
+import { bootstrap } from '../../account/registerUser';
 import { Counter, CounterEvent, reducer } from '../../example';
-import { getNetwork } from '../../services';
-import { Commit, PrivatedataRepository } from '../../types';
-import { getPeer, Peer } from '../peer';
+import { Commit, Peer, PrivatedataRepository } from '../../types';
+import { createPeer } from '../peer';
 import { projectionDb, queryDatabase } from './__utils__';
 
 let peer: Peer;
@@ -13,27 +12,18 @@ const identity = `peer_privatedata${Math.floor(Math.random() * 1000)}`;
 let commitId: string;
 
 beforeAll(async () => {
-  try {
-    await registerUser({
-      enrollmentID: identity,
-      enrollmentSecret: 'password'
-    });
-    const context = await getNetwork({ identity });
-    peer = getPeer({
-      ...context,
-      reducer,
-      queryDatabase,
-      projectionDb,
-      collection: 'Org1PrivateDetails'
-    });
-    repo = peer.getPrivateDataRepo<Counter, CounterEvent>({
-      entityName,
-      reducer
-    });
-  } catch (error) {
-    console.error(error);
-    process.exit(-1);
-  }
+  const context = bootstrap(identity);
+  peer = createPeer({
+    ...context,
+    reducer,
+    queryDatabase,
+    projectionDb,
+    collection: 'Org1PrivateDetails'
+  });
+  repo = peer.getPrivateDataRepo<Counter, CounterEvent>({
+    entityName,
+    reducer
+  });
 });
 
 afterAll(async () => peer.disconnect());
