@@ -1,5 +1,5 @@
 import { FileSystemWallet, Gateway, X509WalletMixin } from 'fabric-network';
-import '../env';
+// import '../env';
 import { Context } from './types';
 import { getClientForOrg } from './utils';
 

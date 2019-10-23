@@ -1,5 +1,6 @@
 import { Context } from 'fabric-contract-api';
 import { Policy } from '../types';
+import { createId } from './createId';
 import { makeKey } from './makeKey';
 
 export const createPolicy: (option: {
@@ -22,7 +23,10 @@ export const createPolicy: (option: {
   condition,
   effect = 'Allow'
 }) => {
-  const x509id = context.clientIdentity.getID();
+  const x509id = createId([
+    context.clientIdentity.getMSPID(),
+    context.clientIdentity.getX509Certificate().subject.commonName
+  ]);
   const key = makeKey([x509id, sid]);
 
   if (

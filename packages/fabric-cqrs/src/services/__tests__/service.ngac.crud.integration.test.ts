@@ -1,5 +1,5 @@
 import { Gateway, Network } from 'fabric-network';
-import { bootstrap } from '../../account/registerUser';
+import { bootstrap, createId } from '../../account';
 import { Policy } from '../../types';
 import evaluateNgac from '../evaluateNgac';
 import submitNgac from '../submitNgac';
@@ -8,8 +8,7 @@ let network: Network;
 let gateway: Gateway;
 
 const identity = `service_ngac_test${Math.floor(Math.random() * 1000)}`;
-const id =
-  'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=Admin@org1.example.com::/C=US/ST=North Carolina/O=Hyperledger/OU=Fabric/CN=rca-org1';
+const id = createId(['Org1MSP', 'Admin@org1.example.com']);
 const entityName = 'ngac_service_test';
 const entityId = 'entity_id_1001';
 

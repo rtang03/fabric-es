@@ -4,11 +4,13 @@ import {
   Policy,
   RESOURCE as RES
 } from '../../types';
+import { createId } from '../../utils';
 
 const policies: Policy[] = [
   {
     // Example 1: Only authorized id can create
-    key: `"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca""allowCreateDocument"`,
+    // key: `"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca""allowCreateDocument"`,
+    key: `"${createId(['Org1MSP', 'Admin@example.com'])}""allowCreateDocument"`,
     policyClass: 'event-creation',
     sid: 'allowCreateDocument',
     allowedEvents: ['DocumentCreated'],
@@ -22,7 +24,7 @@ const policies: Policy[] = [
   },
   {
     // Example 2: Only creator can update
-    key: `"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca""allowUpdateUsername"`,
+    key: `"${createId(['Org1MSP', 'Admin@example.com'])}""allowUpdateUsername"`,
     policyClass: 'event-creation',
     sid: 'allowUpdateUsername',
     allowedEvents: ['UsernameUpdated', 'UserTypeUpdated'],
@@ -39,7 +41,7 @@ const policies: Policy[] = [
   },
   {
     // Example 3: Only same mspid can update
-    key: `"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca""allowUpdateTitle"`,
+    key: `"${createId(['Org1MSP', 'Admin@example.com'])}""allowUpdateTitle"`,
     policyClass: 'event-creation',
     sid: 'allowUpdateTitle',
     allowedEvents: ['TitleUpdated', 'Title2Updated'],
@@ -53,18 +55,39 @@ const policies: Policy[] = [
       }
     },
     effect: 'Allow'
+  },
+  {
+    key: `"${createId(['Org1MSP', 'Admin@example.com'])}""allowCreateTrade"`,
+    policyClass: 'event-creation',
+    sid: 'allowCreateTrade',
+    allowedEvents: ['TradeCreated'],
+    attributes: {
+      uri: `${NS.MODEL}/${NS.ORG}?id=resourceAttrs:${RES.CREATOR_MSPID}/${NS.ENTITY}?id=resourceAttrs:${RES.ENTITYNAME}`
+    },
+    condition: {
+      hasList: { createTrade: RES.CREATOR_ID }
+    },
+    effect: 'Allow'
   }
 ];
 
-const TEST_ID =
-  '"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca"';
-const TEST_POLICY =
-  '"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca""allowCreateDocument"';
+const TEST_ID = `"${createId(['Org1MSP', 'Admin@example.com'])}"`;
+const TEST_POLICY = `"${createId([
+  'Org1MSP',
+  'Admin@example.com'
+])}""allowCreateDocument"`;
+const TEST_POLICY2 = `"${createId([
+  'Org1MSP',
+  'Admin@example.com'
+])}""allowCreateTrade"`;
 
 export const policyDb = {
   [TEST_ID]: Promise.resolve(policies),
   [TEST_POLICY]: Promise.resolve(
     policies.filter(({ sid }) => sid === 'allowCreateDocument').pop()
+  ),
+  [TEST_POLICY2]: Promise.resolve(
+    policies.filter(({ sid }) => sid === 'allowCreateTrade').pop()
   ),
   '"wrong id + valid policy"': Promise.resolve(policies)
 };

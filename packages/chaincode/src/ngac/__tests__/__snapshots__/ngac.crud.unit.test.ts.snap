@@ -9,7 +9,7 @@ Object {
     "uri": "model/Org0MSP/trade/trade_unit_01",
   },
   "effect": "Allow",
-  "key": "\\"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca\\"~\\"allowCreateTrade\\"",
+  "key": "\\"Org1MSP::Admin@example.com\\"~\\"allowCreateTrade\\"",
   "policyClass": "unit-test",
   "sid": "allowCreateTrade",
 }

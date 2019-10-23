@@ -1,5 +1,5 @@
 import { Contract, Network } from 'fabric-network';
-import '../env';
+// import '../env';
 
 export const getContract: (
   network: Network,

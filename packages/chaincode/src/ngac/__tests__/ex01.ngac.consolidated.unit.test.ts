@@ -1,7 +1,7 @@
 import { ngacRepo } from '../ngacRepo';
 import { permissionCheck } from '../permissionCheck';
 import { CONTEXT, NAMESPACE as NS, RESOURCE, RESOURCE as RES } from '../types';
-import { createPolicy, createResource } from '../utils';
+import { createId, createPolicy, createResource } from '../utils';
 import { createMSPResource } from '../utils/createMSPResource';
 import { mspAttributeDb, policyDb, resourceAttributeDb } from './__utils__';
 
@@ -27,7 +27,7 @@ let eventStr;
 let id;
 context.clientIdentity.getMSPID.mockImplementation(() => 'Org3MSP');
 context.clientIdentity.getX509Certificate.mockImplementation(() => ({
-  subject: { commonName: 'Admin@org3.example.com' },
+  subject: { commonName: 'Tester01@example.com' },
   issuer: { commonName: 'rca-org3' }
 }));
 
@@ -56,9 +56,9 @@ describe('Example 1: PolicyEngine/CRUD Tests', () => {
     const resourceAttrs = [
       { type: '1', key: 'entityNameOwner', value: 'tester' },
       {
-        type: '1',
+        type: 'N',
         key: 'createSubject',
-        value: ['x509::/O=Dev/OU=client/CN=Tester01@example.com']
+        value: [createId(['Org3MSP', 'Tester01@example.com'])]
       }
     ];
     await ngacRepo(context)
@@ -139,9 +139,9 @@ describe('Example 1: PolicyEngine/CRUD Tests', () => {
   it('should add resourceAttribute of updateSubject', async () => {
     const resourceAttrs = [
       {
-        type: '1',
+        type: 'N',
         key: 'updateSubject',
-        value: ['x509::/O=Dev/OU=client/CN=Tester01@example.com']
+        value: [createId(['Org3MSP', 'Tester01@example.com'])]
       }
     ];
     await ngacRepo(context)
@@ -159,9 +159,9 @@ describe('Example 1: PolicyEngine/CRUD Tests', () => {
       .then(attribute =>
         expect(attribute).toEqual([
           {
-            type: '1',
+            type: 'N',
             key: 'updateSubject',
-            value: ['x509::/O=Dev/OU=client/CN=Tester01@example.com']
+            value: [createId(['Org3MSP', 'Tester01@example.com'])]
           }
         ])
       );

@@ -11,17 +11,17 @@ export interface NgacRepo {
   addResourceAttr: (resource: Resource) => Promise<Attribute[]>;
   deleteMSPAttrByMSPID: (mspid: string) => Promise<string>;
   // delete all policies by id
-  deletePolicyById: (x509id: string) => Promise<string[]>;
+  deletePolicyById: (id: string) => Promise<string[]>;
   // delete one policy by id
-  deletePolicyByIdSid: (x509id: string, sid: string) => Promise<string>;
+  deletePolicyByIdSid: (id: string, sid: string) => Promise<string>;
   // delete attribute group by URI
   deleteReourceAttrByURI: (uri: string) => Promise<string>;
   // delete attribute group by MSPID
   getMSPAttrByMSPID: (mspid: string) => Promise<Attribute[]>;
   // get policies by id
-  getPolicyById: (x509id: string) => Promise<Policy[]>;
+  getPolicyById: (id: string) => Promise<Policy[]>;
   // get one policy
-  getPolicyByIdSid: (x509id: string, sid: string) => Promise<Policy>;
+  getPolicyByIdSid: (id: string, sid: string) => Promise<Policy>;
   // get array of attribute group by URI path segment
   // this API may be useless; no such use case. This is not exposed as chaincode interface
   getResourceAttrGroupByURI: (uri: string) => Promise<Attribute[][]>;

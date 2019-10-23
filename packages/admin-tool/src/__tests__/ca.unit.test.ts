@@ -1,5 +1,5 @@
-import '../env';
 import { FileSystemWallet } from 'fabric-network';
+import '../env';
 import { enrollAdmin, registerUser } from '../middleware';
 
 describe('Fabric CA unit test', () => {

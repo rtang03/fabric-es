@@ -70,7 +70,10 @@ export class EventStore extends Contract {
           {
             type: '1',
             key: 'createTest',
-            value: [context.clientIdentity.getID()]
+            value: makeKey([
+              context.clientIdentity.getMSPID(),
+              context.clientIdentity.getX509Certificate().subject.commonName
+            ])
           }
         ]
       })
@@ -82,20 +85,30 @@ export class EventStore extends Contract {
   async beforeTransaction(context) {
     const mspId = context.clientIdentity.getMSPID();
     if (mspId !== 'Org1MSP') {
-      console.log('---Permission is being checked---');
-      await permissionCheck(context).then(assertions => {
-        if (assertions === [])
-          console.error('The submmited event does not in any policy statement');
-        // throw new Error(
-        //   'The submmited event does not in any policy statement'
-        // );
-
-        // Current strategy design: all corresponding policy statement must assert true;
-        assertions.forEach(({ sid, assertion }) => {
-          // if (!assertion) throw new Error(`Policy ${sid} fail`);
-          console.log(`${sid} is asserted: ${assertion}`);
+      console.log(
+        `👀 is checking permission for: ${
+          context.clientIdentity.getX509Certificate().subject.commonName
+        }`
+      );
+      await permissionCheck({ context })
+        .then(assertions => {
+          if (assertions === []) {
+            console.info(
+              'The permission check does not have any policy statement'
+            );
+            return true;
+          }
+          // Current strategy design: all corresponding policy statement must assert true;
+          assertions.forEach(({ sid, assertion }) => {
+            console.log(`Policy "${sid}" asserts: ${assertion}`);
+            if (!assertion) throw new Error(`Policy "${sid}" assertion fails.`);
+          });
+          return true;
+        })
+        .catch(error => {
+          console.error(error);
+          throw error;
         });
-      });
     }
   }
 
@@ -263,19 +276,19 @@ export class EventStore extends Contract {
   }
 
   @Transaction()
-  async deletePolicyById(context: MyContext, x509id: string) {
-    if (!x509id) throw new Error('deletePolicyById problem: null argument');
-    const policies = await ngacRepo(context).deletePolicyById(x509id);
+  async deletePolicyById(context: MyContext, id: string) {
+    if (!id) throw new Error('deletePolicyById problem: null argument');
+    const policies = await ngacRepo(context).deletePolicyById(id);
     return policies
       ? getSuccessMessage(`${policies.length} record(s) is deleted`)
       : getErrorMessage('deletePolicyById');
   }
 
   @Transaction()
-  async deletePolicyByIdSid(context: MyContext, x509id: string, sid: string) {
-    if (!x509id || !sid)
+  async deletePolicyByIdSid(context: MyContext, id: string, sid: string) {
+    if (!id || !sid)
       throw new Error('deletePolicyByIdSid problem: null argument');
-    const keyDeleted = await ngacRepo(context).deletePolicyByIdSid(x509id, sid);
+    const keyDeleted = await ngacRepo(context).deletePolicyByIdSid(id, sid);
     return keyDeleted
       ? getSuccessMessage(`${keyDeleted} is deleted`)
       : getErrorMessage('deletePolicyByIdSid');
@@ -318,19 +331,18 @@ export class EventStore extends Contract {
   }
 
   @Transaction(false)
-  async getPolicyById(context: MyContext, x509id: string) {
-    if (!x509id) throw new Error('getPolicyById problem: null argument');
-    const policies = await ngacRepo(context).getPolicyById(x509id);
+  async getPolicyById(context: MyContext, id: string) {
+    if (!id) throw new Error('getPolicyById problem: null argument');
+    const policies = await ngacRepo(context).getPolicyById(id);
     return policies
       ? Buffer.from(JSON.stringify(policies))
       : getErrorMessage('getPolicyById');
   }
 
   @Transaction(false)
-  async getPolicyByIdSid(context: MyContext, x509id: string, sid: string) {
-    if (!x509id || !sid)
-      throw new Error('getPolicyByIdSid problem: null argument');
-    const policies = await ngacRepo(context).getPolicyByIdSid(x509id, sid);
+  async getPolicyByIdSid(context: MyContext, id: string, sid: string) {
+    if (!id || !sid) throw new Error('getPolicyByIdSid problem: null argument');
+    const policies = await ngacRepo(context).getPolicyByIdSid(id, sid);
     return policies
       ? Buffer.from(JSON.stringify(policies))
       : getErrorMessage('getPolicyByIdSid');

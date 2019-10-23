@@ -1,10 +1,11 @@
 import { exec } from 'child-process-promise';
+import { createId } from '../ngac/utils';
 import { parseResult, toString } from './__utils__';
 
 const entityName = 'ngactest';
 const entityId = 'entityid_001';
-const id =
-  'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=Admin@org1.example.com::/C=US/ST=North Carolina/O=Hyperledger/OU=Fabric/CN=rca-org1';
+const id = createId(['Org1MSP', 'Admin@org1.example.com']);
+// 'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=Admin@org1.example.com::/C=US/ST=North Carolina/O=Hyperledger/OU=Fabric/CN=rca-org1';
 const cli = `docker exec \
 -e CORE_PEER_LOCALMSPID=Org1MSP \
 -e CORE_PEER_ADDRESS=peer0.org1.example.com:7051 \

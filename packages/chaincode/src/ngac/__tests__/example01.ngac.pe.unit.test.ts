@@ -1,5 +1,6 @@
 import { ngacRepo } from '../ngacRepo';
 import { permissionCheck } from '../permissionCheck';
+import { createId } from '../utils';
 import { mspAttributeDb, policyDb, resourceAttributeDb } from './__utils__';
 
 jest.mock('../ledger-api/statelist');
@@ -22,19 +23,19 @@ let entityId;
 let version;
 let eventStr;
 let id;
-context.clientIdentity.getMSPID.mockImplementation(() => 'Org1MSP');
-context.clientIdentity.getX509Certificate.mockImplementation(() => ({
-  subject: { commonName: 'Admin@org1.example.com' },
-  issuer: { commonName: 'rca-org1' }
-}));
 
 describe('Example 1: PolicyEngine Tests', () => {
   beforeEach(() => {
+    context.clientIdentity.getMSPID.mockImplementation(() => 'Org1MSP');
+    context.clientIdentity.getX509Certificate.mockImplementation(() => ({
+      subject: { commonName: 'Admin@example.com' },
+      issuer: { commonName: 'rca-org1' }
+    }));
     entityName = 'dev_ngac_example1';
     entityId = 'ngac_unit_01';
     version = '0';
     eventStr = JSON.stringify([{ type: 'DocumentCreated' }]);
-    id = 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca';
+    id = createId(['Org1MSP', 'Admin@example.com']);
     context.stub.getFunctionAndParameters.mockImplementation(() => ({
       fcn: 'createCommit',
       params: [entityName, entityId, version, eventStr]
@@ -73,25 +74,14 @@ describe('Example 1: PolicyEngine Tests', () => {
   });
 
   // policy found, but assert false
-  it('1c: should fail createDocument with wrong ID, when his policy exists', async () => {
-    context.clientIdentity.getID.mockImplementationOnce(
-      () => 'wrong id + valid policy'
-    );
+  it('1c: should fail createDocument with wrong ID', async () => {
+    context.clientIdentity.getX509Certificate.mockImplementation(() => ({
+      subject: { commonName: 'wrong@example.com' },
+      issuer: { commonName: 'rca-org1' }
+    }));
     return permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
-        { sid: 'allowCreateDocument', assertion: false }
-      ])
-    );
-  });
-
-  // policy found, but assert false
-  it('1d: should fail createDocument with wrong ID, when his policy not exist', async () => {
-    context.clientIdentity.getID.mockImplementationOnce(
-      () => 'wrong id; without valid policy'
-    );
-    return permissionCheck({ context }).then(assertions =>
-      expect(assertions).toEqual([
-        { sid: 'system', assertion: false, message: 'No policy found' }
+        { sid: 'system', message: 'No policy found', assertion: false }
       ])
     );
   });
@@ -113,16 +103,15 @@ describe('Example 1: PolicyEngine Tests', () => {
     );
   });
 
-  // The Invoker's mspid is Org2MSP, but there is no such resource
-  // URL 'model/Org2MSP/dev_ngac_example1' in the resourceAttr mock database
+  // The Invoker's mspid is Org2MSP, cannot find the policy
   it('1f: should fail createDocument with wrong mspid', async () => {
     context.clientIdentity.getMSPID.mockImplementation(() => 'Org2MSP');
     return permissionCheck({ context }).then(assertions =>
       expect(assertions).toEqual([
         {
-          sid: 'allowCreateDocument',
+          sid: 'system',
           assertion: false,
-          message: 'Cannot find resource attributes'
+          message: 'No policy found'
         }
       ])
     );

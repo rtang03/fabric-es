@@ -1,5 +1,6 @@
 import { Context } from 'fabric-contract-api';
 import { Attribute, CONTEXT, Resource } from '../types';
+import { createId } from './createId';
 import { makeKey } from './makeKey';
 
 export const createMSPResource: (option: {
@@ -15,8 +16,12 @@ export const createMSPResource: (option: {
   const contextAttrs: Attribute[] = [];
 
   // todo: replace with optional chaining to avoid TypeError: cannot read property of undefined
+  // const invoker_id = cid.getID();
+  const invoker_id = createId([
+    cid.getMSPID(),
+    cid.getX509Certificate().subject.commonName
+  ]);
   const invoker_mspid = cid.getMSPID();
-  const invoker_id = cid.getID();
   const subject_cn = cid.getX509Certificate().subject.commonName;
   const subject_orgname = cid.getX509Certificate().subject.organizationName;
   const subject_ouname = cid.getX509Certificate().subject

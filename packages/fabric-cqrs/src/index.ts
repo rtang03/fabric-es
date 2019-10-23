@@ -1,5 +1,5 @@
 export {
-  Peer,
+  createPeer,
   getMockRepository,
   getPrivatedataMockRepository,
   projectionDb,

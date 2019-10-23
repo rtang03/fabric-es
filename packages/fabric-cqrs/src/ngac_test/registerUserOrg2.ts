@@ -1,11 +1,7 @@
 import { Context, registerUser as register } from '@espresso/admin-tool';
-import { config } from 'dotenv';
 import { ChannelEventHub } from 'fabric-client';
 import { FileSystemWallet, Gateway, Network } from 'fabric-network';
-import { resolve } from 'path';
 import { getNetwork } from '../services';
-
-config({ path: resolve(__dirname, '../.env.ngac.org2.test') });
 
 const defaultContext: Context = {
   connectionProfile: process.env.CONNECTION_PROFILE,
@@ -37,7 +33,8 @@ export const bootstrap: (
       enrollmentSecret: 'password'
     });
     return await getNetwork({ identity });
-  } catch {
+  } catch (err) {
+    console.log(err);
     process.exit(-1);
   }
 };
