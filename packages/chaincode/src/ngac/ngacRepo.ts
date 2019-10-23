@@ -28,7 +28,18 @@ export const ngacRepo: (context: Context) => NgacRepo = context => ({
     return attributes
       ? stateList<Attribute[]>(NS.RESOURCE_ATTRIBUTE, context).addState(
           resource.key,
-          attributes.concat(resource.resourceAttrs)
+          attributes.concat(resource.resourceAttrs).map(attribute => {
+            if (attribute.key === 'version') {
+              let version = parseInt(attribute.value as string, 10);
+              return {
+                type: '1',
+                key: 'version',
+                value: `${++version}`,
+                immutable: false
+              };
+            }
+            return attribute;
+          })
         )
       : null;
   },

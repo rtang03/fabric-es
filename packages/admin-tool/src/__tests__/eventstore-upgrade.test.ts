@@ -1,3 +1,4 @@
+import '../env';
 import { getInfo, installChaincode, instantiateChaincode } from '../middleware';
 
 const endorsementPolicy = {

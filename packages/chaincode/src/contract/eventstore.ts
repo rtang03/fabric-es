@@ -94,14 +94,17 @@ export class EventStore extends Contract {
         .then(assertions => {
           if (assertions === []) {
             console.info(
-              'The permission check does not have any policy statement'
+              '⁉️ Permission request does not have any active policy.'
             );
             return true;
           }
           // Current strategy design: all corresponding policy statement must assert true;
-          assertions.forEach(({ sid, assertion }) => {
-            console.log(`Policy "${sid}" asserts: ${assertion}`);
-            if (!assertion) throw new Error(`Policy "${sid}" assertion fails.`);
+          assertions.forEach(({ sid, assertion, message }) => {
+            console.log(`♨️ Policy "${sid}" asserts: ${assertion}`);
+            if (!assertion)
+              throw new Error(
+                `🚫 Policy "${sid}" assertion fails: ${message}.`
+              );
           });
           return true;
         })

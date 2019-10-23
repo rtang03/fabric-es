@@ -19,7 +19,6 @@ export const submit: (
       .catch(error => {
         console.log(`Error processing Submit transaction.`);
         console.error(error.stack);
-        console.log(fcn);
         return { error };
       })
   );

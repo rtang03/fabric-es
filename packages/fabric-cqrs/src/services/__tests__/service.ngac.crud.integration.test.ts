@@ -1,5 +1,6 @@
 import { Gateway, Network } from 'fabric-network';
-import { bootstrap, createId } from '../../account';
+import { bootstrap } from '../../account';
+import { createId } from '../../createId';
 import { Policy } from '../../types';
 import evaluateNgac from '../evaluateNgac';
 import submitNgac from '../submitNgac';

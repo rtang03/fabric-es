@@ -1,5 +1,5 @@
 import { find, pick } from 'lodash';
-import { bootstrap } from '../../account/registerUser';
+import { bootstrap } from '../../account';
 import { Counter, CounterEvent, reducer } from '../../example';
 import { Peer, Repository } from '../../types';
 import { createPeer } from '../peer';
