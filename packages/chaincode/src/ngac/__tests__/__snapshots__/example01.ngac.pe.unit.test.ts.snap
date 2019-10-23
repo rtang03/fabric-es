@@ -6,7 +6,7 @@ Array [
     "immutable": true,
     "key": "invoker_id",
     "type": "1",
-    "value": "x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca",
+    "value": "Org1MSP::Admin@example.com",
   },
   Object {
     "immutable": true,
@@ -18,7 +18,7 @@ Array [
     "immutable": true,
     "key": "subject_cn",
     "type": "1",
-    "value": "Admin@org1.example.com",
+    "value": "Admin@example.com",
   },
   Object {
     "immutable": false,
@@ -48,13 +48,13 @@ Array [
     "immutable": true,
     "key": "creator_cn",
     "type": "1",
-    "value": "Admin@org1.example.com",
+    "value": "Admin@example.com",
   },
   Object {
     "immutable": true,
     "key": "creator_id",
     "type": "1",
-    "value": "x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca",
+    "value": "Org1MSP::Admin@example.com",
   },
 ]
 `;

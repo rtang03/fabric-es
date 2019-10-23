@@ -1,6 +1,6 @@
 import { ngacRepo } from '../ngacRepo';
 import { NAMESPACE, Policy } from '../types';
-import { createPolicy, createResource } from '../utils';
+import { createId, createPolicy, createResource } from '../utils';
 import { createMSPResource } from '../utils/createMSPResource';
 import { mspAttributeDb, policyDb, resourceAttributeDb } from './__utils__';
 
@@ -17,14 +17,14 @@ const context: any = {
   policyDb
 };
 
-const x509id =
-  'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca';
+const x509id = createId(['Org1MSP', 'Admin@example.com']);
+// 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca';
 const sid = 'allowCreateDocument';
 const mspid = 'Org1MSP';
 const uri = 'model/Org1MSP/dev_ngac_example1';
 context.clientIdentity.getMSPID.mockImplementation(() => 'Org1MSP');
 context.clientIdentity.getX509Certificate.mockImplementation(() => ({
-  subject: { commonName: 'Admin@org1.example.com' },
+  subject: { commonName: 'Admin@example.com' },
   issuer: { commonName: 'rca-org1' }
 }));
 
@@ -103,16 +103,14 @@ describe('NgacRepo CRUD Tests', () => {
       });
     await ngacRepo(context)
       .getPolicyByIdSid(x509id, policy.sid)
-      .then(policy => expect(policy).toEqual(policyAdded));
+      .then(({ sid }) => expect(sid).toEqual(policyAdded.sid));
   });
 
   it('should deletePolicyByIdSid', async () => {
     await ngacRepo(context)
       .deletePolicyByIdSid(x509id, 'allowCreateTrade')
       .then(keyDeleted =>
-        expect(keyDeleted).toBe(
-          '"x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca""allowCreateTrade"'
-        )
+        expect(keyDeleted).toBe(`"${x509id}""allowCreateTrade"`)
       );
     await ngacRepo(context)
       .getPolicyByIdSid(x509id, 'allowCreateTrade')
@@ -120,8 +118,8 @@ describe('NgacRepo CRUD Tests', () => {
   });
 
   it('should deletePolicyById', async () => {
-    const id01 = 'id-deletePolicyById';
-    context.clientIdentity.getID.mockImplementation(() => id01);
+    // const id01 = 'id-deletePolicyById';
+    context.clientIdentity.getMSPID.mockImplementation(() => 'Org0MSP');
     const policy1 = createPolicy({
       context,
       policyClass: 'unit-test',
@@ -147,13 +145,11 @@ describe('NgacRepo CRUD Tests', () => {
       .addPolicy(policy2)
       .then(policy => (policy2Added = policy));
 
+    const id = createId(['Org0MSP', 'Admin@example.com']);
     await ngacRepo(context)
-      .deletePolicyById(id01)
+      .deletePolicyById(id)
       .then(keysDeleted =>
-        expect(keysDeleted).toEqual([
-          '"id-deletePolicyById""allowCreateLoan"',
-          '"id-deletePolicyById""allowSignature"'
-        ])
+        keysDeleted.forEach(key => expect(key.startsWith(`"${id}"`)).toBe(true))
       );
   });
 
@@ -183,6 +179,7 @@ describe('NgacRepo CRUD Tests', () => {
   });
 
   it('should addResourceAttr', async () => {
+    context.clientIdentity.getMSPID.mockImplementation(() => 'Org1MSP');
     const entityName = 'Trade';
     const entityId = 'unit_test_1010';
     const resourceAttrs = [{ type: '1', key: 'owner', value: 'me' }];
@@ -206,7 +203,7 @@ describe('NgacRepo CRUD Tests', () => {
     await ngacRepo(context)
       .deleteReourceAttrByURI(uri)
       .then(key =>
-        expect(key).toEqual(['"model""Org1MSP""Trade""unit_test_1010"'])
+        expect(key).toEqual('"model""Org1MSP""Trade""unit_test_1010"')
       );
     await ngacRepo(context)
       .getResourceAttrGroupByURI(uri)

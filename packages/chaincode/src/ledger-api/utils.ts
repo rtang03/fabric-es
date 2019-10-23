@@ -1,10 +1,10 @@
 import { assign } from 'lodash';
 import { Commit } from '..';
 
-export const splitKey = (key: string) => key.split(':');
+export const splitKey = (key: string) => key.split('~');
 
 export const makeKey = (keyParts: any[]) =>
-  keyParts.map(part => JSON.stringify(part)).join(':');
+  keyParts.map(part => JSON.stringify(part)).join('~');
 
 export const serialize = object => Buffer.from(JSON.stringify(object));
 

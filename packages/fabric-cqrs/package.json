@@ -18,7 +18,8 @@
     "test:store.privatedata.integration": "jest command.privatedata.integration.test",
     "test:peer.privatedata.integration": "jest peer.privatedata.integration.test",
     "test:all-unit-test": "jest unit.test",
-    "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/account/enrollAdmin.ts"
+    "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/account/enrollAdmin.ts",
+    "enrollAdminOrg2": "rimraf assets/walletOrg2/admin && ./node_modules/.bin/ts-node src/ngac_test/enrollAdmin.ts"
   },
   "engines": {
     "node": ">=8",

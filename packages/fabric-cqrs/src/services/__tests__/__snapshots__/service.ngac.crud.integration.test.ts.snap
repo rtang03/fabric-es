@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Chaincode Ngac CRUD Integration Tests should getPolicyByIdSid 1`] = `
+exports[`Ngac CRUD Integration Tests should getPolicyByIdSid 1`] = `
 Object {
   "allowedEvents": Array [
     "TestCreated",
@@ -15,7 +15,7 @@ Object {
 }
 `;
 
-exports[`Chaincode Ngac CRUD Integration Tests should getResourceAttrByURI 1`] = `
+exports[`Ngac CRUD Integration Tests should getResourceAttrByURI 1`] = `
 Array [
   Object {
     "key": "createTest",

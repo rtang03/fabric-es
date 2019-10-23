@@ -40,15 +40,15 @@ export const ngacRepo: (context: Context) => NgacRepo = context => ({
     mspid
       ? stateList(NS.MSP_ATTRIBUTE, context).deleteStateByKey(makeKey([mspid]))
       : null,
-  deletePolicyById: async x509id =>
-    x509id
+  deletePolicyById: async id =>
+    id
       ? stateList(NS.POLICY, context).deleteStatesByKeyRange([
-          JSON.stringify(x509id)
+          JSON.stringify(id)
         ])
       : null,
-  deletePolicyByIdSid: async (x509id, sid) =>
-    x509id && sid
-      ? stateList(NS.POLICY, context).deleteStateByKey(makeKey([x509id, sid]))
+  deletePolicyByIdSid: async (id, sid) =>
+    id && sid
+      ? stateList(NS.POLICY, context).deleteStateByKey(makeKey([id, sid]))
       : null,
   deleteReourceAttrByURI: async uri =>
     uri
@@ -62,15 +62,15 @@ export const ngacRepo: (context: Context) => NgacRepo = context => ({
           makeKey([mspid])
         )
       : null,
-  getPolicyById: async x509id =>
-    x509id
+  getPolicyById: async id =>
+    id
       ? stateList<Policy>(NS.POLICY, context).getQueryResult([
-          JSON.stringify(x509id)
+          JSON.stringify(id)
         ])
       : null,
-  getPolicyByIdSid: async (x509id, sid) =>
-    x509id && sid
-      ? stateList<Policy>(NS.POLICY, context).getState(makeKey([x509id, sid]))
+  getPolicyByIdSid: async (id, sid) =>
+    id && sid
+      ? stateList<Policy>(NS.POLICY, context).getState(makeKey([id, sid]))
       : null,
   getResourceAttrGroupByURI: async uri =>
     uri

@@ -9,7 +9,7 @@ import {
 } from 'fabric-network';
 import { readFileSync } from 'fs';
 import { safeLoad } from 'js-yaml';
-import '../env';
+// import '../env';
 
 export const getNetwork: (option: {
   identity: string;

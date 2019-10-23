@@ -1,4 +1,5 @@
 import { RESOURCE } from '../../types';
+import { createId } from '../../utils';
 
 export const resourceAttributeDb = {
   '"model""Org1MSP""dev_ngac_example1"': Promise.resolve([
@@ -6,8 +7,8 @@ export const resourceAttributeDb = {
       type: 'N',
       key: 'createDocument',
       value: [
-        'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca',
-        'x509::/O=Dev/OU=client/CN=User1@example.com::/O=Dev/OU=Dev/CN=rca'
+        `${createId(['Org1MSP', 'Admin@example.com'])}`,
+        `${createId(['Org1MSP', 'User1@example.com'])}`
       ]
     }
   ]),
@@ -16,8 +17,8 @@ export const resourceAttributeDb = {
       type: 'N',
       key: 'updateUsername',
       value: [
-        'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca',
-        'x509::/O=Dev/OU=client/CN=User1@example.com::/O=Dev/OU=Dev/CN=rca'
+        `${createId(['Org1MSP', 'Admin@example.com'])}`,
+        `${createId(['Org1MSP', 'User1@example.com'])}`
       ]
     },
     {
@@ -33,7 +34,7 @@ export const resourceAttributeDb = {
     {
       type: '1',
       key: `${RESOURCE.CREATOR_ID}`,
-      value: 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca'
+      value: `${createId(['Org1MSP', 'Admin@example.com'])}`
     },
     {
       type: '1',
@@ -46,8 +47,8 @@ export const resourceAttributeDb = {
       type: 'N',
       key: 'updateTitle',
       value: [
-        'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca',
-        'x509::/O=Dev/OU=client/CN=User1@example.com::/O=Dev/OU=Dev/CN=rca'
+        `${createId(['Org1MSP', 'Admin@example.com'])}`,
+        `${createId(['Org1MSP', 'User1@example.com'])}`
       ]
     },
     {
@@ -63,7 +64,7 @@ export const resourceAttributeDb = {
     {
       type: '1',
       key: `${RESOURCE.CREATOR_ID}`,
-      value: 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca'
+      value: `${createId(['Org1MSP', 'Admin@example.com'])}`
     },
     {
       type: '1',
@@ -76,8 +77,8 @@ export const resourceAttributeDb = {
       type: 'N',
       key: 'updateTitle',
       value: [
-        'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca',
-        'x509::/O=Dev/OU=client/CN=User1@example.com::/O=Dev/OU=Dev/CN=rca'
+        `${createId(['Org1MSP', 'Admin@example.com'])}`,
+        `${createId(['Org1MSP', 'User1@example.com'])}`
       ]
     },
     {
@@ -93,7 +94,7 @@ export const resourceAttributeDb = {
     {
       type: '1',
       key: `${RESOURCE.CREATOR_ID}`,
-      value: 'x509::/O=Dev/OU=client/CN=Admin@example.com::/O=Dev/OU=Dev/CN=rca'
+      value: `${createId(['Org1MSP', 'Admin@example.com'])}`
     },
     {
       type: '1',

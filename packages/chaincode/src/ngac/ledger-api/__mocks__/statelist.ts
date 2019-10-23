@@ -1,5 +1,5 @@
 import { keys } from 'lodash';
-import { NAMESPACE as NS, Policy } from '../../types';
+import { NAMESPACE as NS } from '../../types';
 import { splitKey } from '../../utils';
 
 const noResult = Promise.resolve([]);
@@ -12,7 +12,7 @@ const deleteRecord = (db: any, key: string) => {
 };
 const deleteRecords = (db: any, keyparts: string[]) =>
   keys(db)
-    .filter(key => key.startsWith(createKey(keyparts)))
+    .filter(key => key.startsWith(keyparts[0]))
     .map(key => {
       delete db[key];
       return key;

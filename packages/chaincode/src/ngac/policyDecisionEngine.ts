@@ -95,7 +95,6 @@ export const policyDecisionEngine: (
                 const attribute = requirement.find(
                   ({ key }) => key === permission
                 );
-
                 return !attribute
                   ? false
                   : prev ||
