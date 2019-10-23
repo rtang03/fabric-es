@@ -1,4 +1,5 @@
 import { exec } from 'child-process-promise';
+import '../env';
 import {
   createChannel,
   getInfo,

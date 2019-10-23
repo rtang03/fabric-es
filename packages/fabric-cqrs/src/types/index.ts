@@ -12,3 +12,4 @@ export * from './privatedataRepository';
 export * from './ngac';
 export * from './attribute';
 export * from './policy';
+export * from './constant';

@@ -104,6 +104,10 @@ describe('Example 1: PolicyEngine/CRUD Tests', () => {
     );
   });
 
+  // note that the mocked implementation is based on unit test;
+  // it invokes permissionCheck directly, and skip the EventStore Contract
+  // it can use version = '0'. The corresponding integration test cannot
+  // repeat the same logic, coz re-create version '0' will fail.
   it('should fail createNothing', async () => {
     eventStr = JSON.stringify([{ type: 'NothingCreated' }]);
     context.stub.getFunctionAndParameters.mockImplementation(() => ({
@@ -125,7 +129,7 @@ describe('Example 1: PolicyEngine/CRUD Tests', () => {
       allowedEvents: ['SubjectUpdated'],
       uri: `${NS.MODEL}/${NS.ORG}?id=resourceAttrs:${RES.CREATOR_MSPID}/${NS.ENTITY}?id=resourceAttrs:${RES.ENTITYNAME}/${NS.ENTITYID}?id=resourceAttrs:${RES.ENTITYID}`,
       condition: {
-        hasList: { updateSubject: `${RES.CREATOR_ID}` },
+        hasList: { updateSubject: RES.CREATOR_ID },
         stringEquals: { [CONTEXT.INVOKER_MSPID]: RESOURCE.CREATOR_MSPID }
       },
       effect: 'Allow'
