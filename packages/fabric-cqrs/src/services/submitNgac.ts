@@ -20,9 +20,8 @@ export const submitNgac: <T = any>(
         JSON.parse(Buffer.from(JSON.parse(res)).toString())
       )
       .catch(error => {
-        console.log(`Error processing Submit transaction.`);
-        console.error(error.stack);
-        console.log(fcn);
+        console.log(`Error processing Submit transaction: ${fcn}`);
+        // console.error(error.stack);
         return { error };
       })
   );

@@ -1,16 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Ngac Permission Tests should pass permission check 1`] = `
-Array [
-  Object {
-    "key": "mspid",
-    "type": "1",
-    "value": "Org2MSP",
-  },
-]
-`;
-
-exports[`Ngac Permission Tests should pass permission check 2`] = `
 Object {
   "allowedEvents": Array [
     "DocCreated",
@@ -29,44 +19,17 @@ Object {
 }
 `;
 
-exports[`Ngac Permission Tests should pass permission check 3`] = `
-Array [
-  Object {
-    "key": "createDoc",
-    "type": "1",
-    "value": "Org2MSP::Admin@org2.example.com",
-  },
-]
-`;
-
-exports[`Ngac Permission Tests should pass permission check 4`] = `
-Object {
-  "entityName": "doc",
-  "events": Array [
-    Object {
-      "payload": Object {
-        "data": "Mydata",
-      },
-      "type": "DocCreated",
-    },
-  ],
-  "version": 0,
-}
-`;
-
 exports[`Permission Test 2 should should pass the test, for existing entityId 1`] = `
 Object {
   "allowedEvents": Array [
     "DocUpdated",
   ],
-  "attributes": Object {
-    "uri": "model/Org2MSP/doc/doc_0_8672",
-  },
   "condition": Object {
     "hasList": Object {
       "updateDoc": "creator_id",
     },
     "stringEquals": Object {
+      "invoker_id": "creator_id",
       "invoker_mspid": "creator_mspid",
     },
   },

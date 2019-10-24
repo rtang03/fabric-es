@@ -15,8 +15,8 @@ export const evaluateNgac: <T = any>(
           JSON.parse(Buffer.from(JSON.parse(res)).toString())
         )
         .catch(error => {
-          console.log(`Error processing Evaluate transaction`);
-          console.error(error.stack);
+          console.log(`Error processing Evaluate transaction: ${fcn}`);
+          // console.error(error.stack);
           return { error };
         })
   );

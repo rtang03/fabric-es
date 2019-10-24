@@ -1,4 +1,5 @@
 import { Context } from 'fabric-contract-api';
+import { assign, values } from 'lodash';
 import stateList from './ledger-api/statelist';
 import { Attribute, NAMESPACE as NS, NgacRepo, Policy } from './types';
 import { makeKey } from './utils';
@@ -25,12 +26,18 @@ export const ngacRepo: (context: Context) => NgacRepo = context => ({
       context
     ).getState(resource.key);
 
-    return attributes
+    const newAttrs = {};
+    resource.resourceAttrs.forEach(attr => (newAttrs[attr.key] = attr));
+    const existingAttrs = {};
+    attributes.forEach(attr => (existingAttrs[attr.key] = attr));
+    const resultAttrs = values<Attribute>(assign({}, existingAttrs, newAttrs));
+
+    return resultAttrs
       ? stateList<Attribute[]>(NS.RESOURCE_ATTRIBUTE, context).addState(
           resource.key,
-          attributes.concat(resource.resourceAttrs).map(attribute => {
-            if (attribute.key === 'version') {
-              let version = parseInt(attribute.value as string, 10);
+          resultAttrs.map(attr => {
+            if (attr.key === 'version') {
+              let version = parseInt(attr.value as string, 10);
               return {
                 type: '1',
                 key: 'version',
@@ -38,7 +45,7 @@ export const ngacRepo: (context: Context) => NgacRepo = context => ({
                 immutable: false
               };
             }
-            return attribute;
+            return attr;
           })
         )
       : null;

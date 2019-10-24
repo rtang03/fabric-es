@@ -88,22 +88,29 @@ export const policyDecisionEngine: (
             message: `Cannot find resource attributes`
           };
 
+        // const debug = context.clientIdentity
+        //   .getX509Certificate()
+        //   .subject.commonName.startsWith('faker');
+
         const hasList: Assertion[] = !condition.hasList
-          ? [{ sid, assertion: true }]
-          : Object.entries(condition.hasList).map(([permission, who]) =>
-              target.resourceAttrs.reduce((prev, { type, key, value }) => {
-                const attribute = requirement.find(
-                  ({ key }) => key === permission
-                );
-                return !attribute
-                  ? false
-                  : prev ||
-                      (key === who && !attribute
-                        ? false
-                        : type === '1'
-                        ? includes(attribute.value, value)
-                        : !!intersection(attribute.value, value).length);
-              }, false)
+          ? [{ sid, assertion: true, message: 'No hasList condition defined' }]
+          : Object.entries(condition.hasList).map(([permission, who]) => {
+              return target.resourceAttrs.reduce(
+                (prev, { type, key, value }) => {
+                  const attribute = requirement.find(
+                    ({ key }) => key === permission
+                  );
+                  return !attribute
+                    ? false
+                    : prev ||
+                        (key === who && !attribute
+                          ? false
+                          : type === '1'
+                          ? includes(attribute.value, value)
+                          : !!intersection(attribute.value, value).length);
+                },
+                false
+              )
                 ? {
                     sid,
                     assertion: allowOrDeny[effect]
@@ -111,8 +118,8 @@ export const policyDecisionEngine: (
                 : {
                     sid,
                     assertion: !allowOrDeny[effect]
-                  }
-            );
+                  };
+            });
 
         const stringEquals: Assertion[] = !condition.stringEquals
           ? [{ sid, assertion: true }]

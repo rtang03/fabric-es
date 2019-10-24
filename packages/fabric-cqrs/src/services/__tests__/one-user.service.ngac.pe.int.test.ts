@@ -7,21 +7,31 @@ import { omit, pick, values } from 'lodash';
 import { createId } from '../../createId';
 import { bootstrap } from '../../ngac_test/registerUserOrg2';
 import { Attribute, Commit, CONTEXT, RESOURCE } from '../../types';
+import evaluateNgac from '../evaluateNgac';
 import { submit } from '../submit';
 import submitNgac from '../submitNgac';
 
 let network: Network;
 let gateway: Gateway;
+let fakerNetwork: Network;
+let fakerGateway: Gateway;
 
-const identity = `svs_org2_pe_test${Math.floor(Math.random() * 1000)}`;
+const identity = `svs_org2_pe_test${Math.floor(Math.random() * 10000)}`;
+const faker = `faker_${Math.floor(Math.random() * 10000)}`;
 
 beforeAll(async () => {
   const ctx = await bootstrap(identity);
   network = ctx.network;
   gateway = ctx.gateway;
+  const fakerCtx = await bootstrap(faker);
+  fakerNetwork = fakerCtx.network;
+  fakerGateway = fakerCtx.gateway;
 });
 
-afterAll(async () => await gateway.disconnect());
+afterAll(async () => {
+  await gateway.disconnect();
+  await fakerGateway.disconnect();
+});
 
 const mspId = 'Org2MSP';
 const entityName = 'doc';
@@ -35,7 +45,7 @@ const sid = 'allowCreateDoc';
 const url = `model/${mspId}/${entityName}`;
 const condition = JSON.stringify({ hasList: { createDoc: 'creator_id' } });
 const allowedEvents = JSON.stringify(['DocCreated']);
-const id = createId([mspId, 'Admin@org2.example.com']);
+const id = createId([mspId, identity]);
 const resourceAttr = [{ type: '1', key: 'createDoc', value: id }];
 
 describe('Ngac Permission Tests', () => {
@@ -43,7 +53,7 @@ describe('Ngac Permission Tests', () => {
     // create Org2MSP attribute
     await submitNgac('addMSPAttr', [mspId, JSON.stringify(mspAttrs)], {
       network
-    }).then(attributes => expect(attributes).toMatchSnapshot());
+    }).then(attributes => expect(attributes).toEqual(mspAttrs));
 
     // should create policy
     await submitNgac(
@@ -61,7 +71,7 @@ describe('Ngac Permission Tests', () => {
       'addResourceAttr',
       [entityName, '', JSON.stringify(resourceAttr)],
       { network }
-    ).then(attributes => expect(attributes).toMatchSnapshot());
+    ).then(attributes => expect(attributes).toEqual(resourceAttr));
 
     // should createDoc
     await submit('createCommit', [entityName, entityId, '0', eventsStr], {
@@ -69,7 +79,13 @@ describe('Ngac Permission Tests', () => {
     })
       .then<Commit>(result => values(result)[0])
       .then(commit => pick(commit, 'entityName', 'version', 'events'))
-      .then(commit => expect(commit).toMatchSnapshot());
+      .then(commit =>
+        expect(commit).toEqual({
+          entityName,
+          version: 0,
+          events: [{ type: 'DocCreated', payload: { data: 'Mydata' } }]
+        })
+      );
   });
 });
 
@@ -81,7 +97,10 @@ describe('Permission Test 2', () => {
     const allowedEvents = JSON.stringify(['DocUpdated']);
     const condition = JSON.stringify({
       hasList: { updateDoc: RESOURCE.CREATOR_ID },
-      stringEquals: { [CONTEXT.INVOKER_MSPID]: RESOURCE.CREATOR_MSPID }
+      stringEquals: {
+        [CONTEXT.INVOKER_MSPID]: RESOURCE.CREATOR_MSPID,
+        [CONTEXT.INVOKER_ID]: RESOURCE.CREATOR_ID
+      }
     });
     await submitNgac(
       'addPolicy',
@@ -90,7 +109,7 @@ describe('Permission Test 2', () => {
         network
       }
     )
-      .then(policy => omit(policy, 'key'))
+      .then(policy => omit(policy, 'key', 'attributes'))
       .then(policy => expect(policy).toMatchSnapshot());
 
     // upsert resourceAttribute of updateDoc
@@ -124,11 +143,90 @@ describe('Permission Test 2', () => {
 });
 
 describe('Rejected Permission Test', () => {
-  it('should createNothing, when policy found', async () => {
-    const eventsStr = JSON.stringify([{ type: 'NothingCreated' }]);
-    const entityId = `doc_1_${Math.floor(Math.random() * 10000)}`;
-    return submit('createCommit', [entityName, entityId, '0', eventsStr], {
+  it('should fail createNothing, when no policy found', async () =>
+    submit(
+      'createCommit',
+      [
+        entityName,
+        `doc_1_${Math.floor(Math.random() * 10000)}`,
+        '0',
+        JSON.stringify([{ type: 'NothingCreated' }])
+      ],
+      {
+        network
+      }
+    ).then(({ error: { message } }) =>
+      expect(message).toContain('No policy found')
+    ));
+});
+
+describe('NGAC CRUD query', () => {
+  it('should getMSPAttrByMSPID', async () =>
+    evaluateNgac('getMSPAttrByMSPID', [mspId], { network }).then(attrs =>
+      expect(attrs).toEqual([{ type: '1', key: 'mspid', value: 'Org2MSP' }])
+    ));
+
+  it('should getResourceAttrByURI', async () => {
+    await evaluateNgac(
+      'getResourceAttrByURI',
+      [`model/Org2MSP/${entityName}`],
+      { network }
+    ).then(attrs =>
+      expect(attrs).toEqual([{ type: '1', key: 'createDoc', value: id }])
+    );
+
+    // Below is tested working, but keep comment out, for simplicity
+    // await evaluateNgac(
+    //   'getResourceAttrByURI',
+    //   [`model/Org2MSP/${entityName}/${entityId}`],
+    //   { network }
+    // ).then(result => console.log(result));
+
+    // Below is tested working, but keep comment out, for simplicity
+    // await evaluateNgac('getPolicyById', [id], {
+    //   network
+    // }).then(result => console.log(result));
+  });
+});
+
+describe('Permission Test 3', () => {
+  it('should fail updateDoc within unauthorized user', async () => {
+    const network = fakerNetwork;
+    const eventsStr = JSON.stringify([
+      { type: 'DocUpdated', payload: { data: 'update me again' } }
+    ]);
+
+    await submit('createCommit', [entityName, entityId, '2', eventsStr], {
       network
-    }).then(({ error }) => expect(error.message).toContain('No policy found'));
+    }).then(({ error: { message } }) =>
+      expect(message).toContain('No policy found')
+    );
+
+    const sid = 'allowUpadateDoc';
+    const url = `model/${mspId}/${entityName}/${entityId}`;
+    const allowedEvents = JSON.stringify(['DocUpdated']);
+    const condition = JSON.stringify({
+      hasList: { updateDoc: RESOURCE.CREATOR_ID },
+      stringEquals: {
+        [CONTEXT.INVOKER_MSPID]: RESOURCE.CREATOR_MSPID,
+        // below statement guards the permission
+        // if remove, anyone can invoke updateDoc
+        // todo: add new function in chaincode for update and upsert policy
+        [CONTEXT.INVOKER_ID]: RESOURCE.CREATOR_ID
+      }
+    });
+    await submitNgac(
+      'addPolicy',
+      [pClass, sid, url, allowedEvents, condition],
+      {
+        network
+      }
+    );
+
+    await submit('createCommit', [entityName, entityId, '2', eventsStr], {
+      network
+    }).then(({ error: { message } }) =>
+      expect(message).toContain(`"allowUpadateDoc" assertion fails`)
+    );
   });
 });
