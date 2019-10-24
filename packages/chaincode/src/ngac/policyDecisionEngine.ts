@@ -1,5 +1,5 @@
 import { Context } from 'fabric-contract-api';
-import { filter, find, includes, intersection, isEqual } from 'lodash';
+import { filter, find, intersection, isEqual } from 'lodash';
 import { ngacRepo } from './ngacRepo';
 import {
   Assertion,
@@ -8,6 +8,7 @@ import {
   Policy,
   Resource
 } from './types';
+import { hasList, stringEquals } from './utils';
 
 const evaluateURI: (uri: string, target: Resource) => string = (
   uri,
@@ -88,51 +89,29 @@ export const policyDecisionEngine: (
             message: `Cannot find resource attributes`
           };
 
-        // const debug = context.clientIdentity
-        //   .getX509Certificate()
-        //   .subject.commonName.startsWith('faker');
+        const debug: boolean = context.clientIdentity
+          .getX509Certificate()
+          .subject.commonName.startsWith('faker');
 
-        const hasList: Assertion[] = !condition.hasList
-          ? [{ sid, assertion: true, message: 'No hasList condition defined' }]
-          : Object.entries(condition.hasList).map(([permission, who]) => {
-              return target.resourceAttrs.reduce(
-                (prev, { type, key, value }) => {
-                  const attribute = requirement.find(
-                    ({ key }) => key === permission
-                  );
-                  return !attribute
-                    ? false
-                    : prev ||
-                        (key === who && !attribute
-                          ? false
-                          : type === '1'
-                          ? includes(attribute.value, value)
-                          : !!intersection(attribute.value, value).length);
-                },
-                false
-              )
-                ? {
-                    sid,
-                    assertion: allowOrDeny[effect]
-                  }
-                : {
-                    sid,
-                    assertion: !allowOrDeny[effect]
-                  };
-            });
+        const hasListAssertion = hasList({
+          sid,
+          effect,
+          condition,
+          requirement,
+          resourceAttrs: target.resourceAttrs,
+          debug
+        });
 
-        const stringEquals: Assertion[] = !condition.stringEquals
-          ? [{ sid, assertion: true }]
-          : Object.entries(condition.stringEquals)
-              .map(([ctx, res]) => {
-                const context = target.contextAttrs;
-                const left = context.find(({ key }) => key === ctx);
-                const right = requirement.find(({ key }) => key === res);
-                return left && right ? left.value === right.value : false;
-              })
-              .map(assertion => ({ sid, assertion }));
+        const stringEqualsAssertion = stringEquals({
+          sid,
+          effect,
+          debug,
+          requirement,
+          condition,
+          contextAttrs: target.contextAttrs
+        });
 
-        return [...hasList, ...stringEquals].reduce(
+        return [...hasListAssertion, ...stringEqualsAssertion].reduce(
           (prev, { assertion }) => ({
             sid,
             assertion: prev.assertion && assertion

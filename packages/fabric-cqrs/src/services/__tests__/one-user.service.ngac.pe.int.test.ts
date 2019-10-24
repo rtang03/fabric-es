@@ -202,10 +202,13 @@ describe('Permission Test 3', () => {
       expect(message).toContain('No policy found')
     );
 
+    // should fail because stringEquals requires that
+    // only invoker must be resource creator
     const sid = 'allowUpadateDoc';
     const url = `model/${mspId}/${entityName}/${entityId}`;
     const allowedEvents = JSON.stringify(['DocUpdated']);
-    const condition = JSON.stringify({
+    let condition = JSON.stringify({
+      // hasList is optional
       hasList: { updateDoc: RESOURCE.CREATOR_ID },
       stringEquals: {
         [CONTEXT.INVOKER_MSPID]: RESOURCE.CREATOR_MSPID,
@@ -227,6 +230,20 @@ describe('Permission Test 3', () => {
       network
     }).then(({ error: { message } }) =>
       expect(message).toContain(`"allowUpadateDoc" assertion fails`)
+    );
+
+    // should pass
+    condition = JSON.stringify({
+      stringEquals: {
+        [CONTEXT.INVOKER_MSPID]: RESOURCE.CREATOR_MSPID,
+      }
+    });
+    await submitNgac(
+      'addPolicy',
+      [pClass, sid, url, allowedEvents, condition],
+      {
+        network
+      }
     );
   });
 });

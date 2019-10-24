@@ -23,7 +23,8 @@
     "test:ngac-policy-engine-unit-test": "jest ngac.pe.unit.test",
     "test:ngac-crud-unit-test": "jest ngac.crud.unit.test",
     "test:ngac-consolidated-unit-test": "jest ngac.consolidated.unit.test",
-    "test:ngac-crud-integration-test": "jest ngac.crud.integration.test"
+    "test:ngac-crud-integration-test": "jest ngac.crud.integration.test",
+    "test:policy.unit.test": "jest hasList.policy.unit.test"
   },
   "engineStrict": true,
   "author": "Ross Tang",
