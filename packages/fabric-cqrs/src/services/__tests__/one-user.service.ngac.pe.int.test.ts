@@ -208,7 +208,7 @@ describe('Permission Test 3', () => {
     const url = `model/${mspId}/${entityName}/${entityId}`;
     const allowedEvents = JSON.stringify(['DocUpdated']);
     let condition = JSON.stringify({
-      // hasList is optional
+      // below hasList is optional, coz CREATOR_ID is always correct
       hasList: { updateDoc: RESOURCE.CREATOR_ID },
       stringEquals: {
         [CONTEXT.INVOKER_MSPID]: RESOURCE.CREATOR_MSPID,
@@ -232,10 +232,11 @@ describe('Permission Test 3', () => {
       expect(message).toContain(`"allowUpadateDoc" assertion fails`)
     );
 
-    // should pass
+    // Modify the policy
     condition = JSON.stringify({
+      hasList: { updateDoc: CONTEXT.INVOKER_ID },
       stringEquals: {
-        [CONTEXT.INVOKER_MSPID]: RESOURCE.CREATOR_MSPID,
+        [CONTEXT.INVOKER_MSPID]: RESOURCE.CREATOR_MSPID
       }
     });
     await submitNgac(
@@ -245,5 +246,12 @@ describe('Permission Test 3', () => {
         network
       }
     );
+
+    // after policy is modified above, it should revert to Pass.
+    await submit('createCommit', [entityName, entityId, '2', eventsStr], {
+      network
+    })
+      .then<Commit>(result => values(result)[0])
+      .then(commit => expect(commit.entityName).toEqual(entityName));
   });
 });
