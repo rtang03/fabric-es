@@ -10,7 +10,6 @@
     "test:service.integration": "jest service.integration.test",
     "test:service.ngac.crud.integration": "jest service.ngac.crud.integration.test",
     "test:service.ngac.pe.int.1u": "jest one-user.service.ngac.pe.int.test",
-    "test:service.ngac.pe.int.xu": "jest x-user.service.ngac.pe.int.test",
     "test:service.multiusers": "rimraf assets/walletOrg1 && rimraf assets/walletOrg2 && jest service.multiusers.test",
     "test:store.integration": "jest command.integration.test",
     "test:peer.integration": "jest peer.integration.test",
