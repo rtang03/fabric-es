@@ -103,7 +103,7 @@ export class EventStore extends Contract {
             console.log(`♨️ Policy "${sid}" asserts: ${assertion}`);
             if (!assertion)
               throw new Error(
-                `🚫 Policy "${sid}" assertion fails: ${message}.`
+                `🚫 Policy "${sid}" assertion fails: ${message || 'no info.'}.`
               );
           });
           return true;
