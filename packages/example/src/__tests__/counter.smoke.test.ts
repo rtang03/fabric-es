@@ -5,6 +5,7 @@ import {
   Repository
 } from '@espresso/fabric-cqrs';
 import { Gateway, Network } from 'fabric-network';
+import { pick } from 'lodash';
 import '../env';
 import { Counter, CounterEvent, reducer } from '../reducer';
 
@@ -16,7 +17,9 @@ const entityName = 'ex_counter';
 const enrollmentId = `counter_ex_test${Math.floor(Math.random() * 10000)}`;
 
 beforeAll(async () => {
-  const context = await bootstrapNetwork({ enrollmentId });
+  const context = await bootstrapNetwork({
+    enrollmentId
+  });
   network = context.network;
   gateway = context.gateway;
   peer = createPeer({ ...context, reducer, collection: 'Org1PrivateDetails' });
@@ -29,6 +32,25 @@ afterAll(async () => {
   gateway.disconnect();
 });
 
-describe('Example Test', async () => {
-  it('should Add', async () => {});
+/**
+ * This is smoke test only, to validate gateway connection
+ */
+describe('Example Smoke Test', () => {
+  beforeAll(async () => {
+    await repo
+      .deleteByEntityId(enrollmentId)
+      .then(() => true)
+      .catch(() => true);
+    await repo
+      .deleteByEntityName_query()
+      .then(({ status }) => status)
+      .then(res => expect(res).toEqual('all records deleted successfully'));
+  });
+
+  it('should Add', async () =>
+    repo
+      .create(enrollmentId)
+      .save([{ type: 'ADD' }])
+      .then(result => pick(result, 'version', 'entityName', 'events'))
+      .then(result => expect(result).toMatchSnapshot()));
 });

@@ -5,25 +5,24 @@ export interface CounterEvent {
 }
 
 export interface Counter {
-  id: string;
+  id?: string;
   value: number;
 }
 
 export const reducer: Reducer<Counter> = (
   history: CounterEvent[],
-  initial: Counter
-): Counter =>
-  history.reduce(
-    ({ id, value }, { type }) =>
-      ({
-        ['ADD']: () => {
-          value++;
-          return { id, value };
-        },
-        ['MINUS']: () => {
-          value--;
-          return { id, value };
-        }
-      }[type]()),
-    initial
-  );
+  initial = { value: 0 }
+): Counter => history.reduce(reducerFcn, initial);
+
+const reducerFcn = ({ value }, { type }: CounterEvent) => {
+  switch (type) {
+    case 'ADD':
+      value++;
+      return { value };
+    case 'MINUS':
+      value--;
+      return { value };
+    default:
+      return { value };
+  }
+};
