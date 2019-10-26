@@ -7,6 +7,8 @@
   "workspaces": [
     "packages/admin-tool",
     "packages/chaincode",
+    "packages/common",
+    "packages/example",
     "packages/fabric-cqrs"
   ],
   "private": true,

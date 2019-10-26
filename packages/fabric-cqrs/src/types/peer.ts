@@ -39,24 +39,3 @@ export interface Peer {
   disconnect: () => void;
   getNgacRepo: NgacRepo;
 }
-
-// export type IPeer = {
-//   getPrivateDataRepo: <TEntity = any, TEvent = any>({
-//     entityName: string,
-//     reducer: Reducer
-//   }) => PrivatedataRepository<TEntity, TEvent>;
-//   getRepository: <TEntity = any, TEvent = any>({
-//     entityName: string,
-//     reducer: Reducer
-//   }) => Repository<TEntity, TEvent>;
-//   reconcile: ({
-//     entityName,
-//     reducer
-//   }: {
-//     entityName: string;
-//     reducer: Reducer;
-//   }) => Promise<{ result: any }>;
-//   subscribeHub: () => void;
-//   unsubscribeHub: () => void;
-//   disconnect: () => void;
-// };

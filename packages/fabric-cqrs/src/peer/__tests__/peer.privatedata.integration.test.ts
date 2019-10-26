@@ -1,5 +1,6 @@
 import { pick } from 'lodash';
-import { bootstrap } from '../../account/registerUser';
+import { bootstrapNetwork } from '../../account';
+import '../../env';
 import { Counter, CounterEvent, reducer } from '../../example';
 import { Commit, Peer, PrivatedataRepository } from '../../types';
 import { createPeer } from '../peer';
@@ -8,11 +9,11 @@ import { projectionDb, queryDatabase } from './__utils__';
 let peer: Peer;
 let repo: PrivatedataRepository;
 const entityName = 'privatedata_counter';
-const identity = `peer_privatedata${Math.floor(Math.random() * 1000)}`;
+const enrollmentId = `peer_privatedata${Math.floor(Math.random() * 1000)}`;
 let commitId: string;
 
 beforeAll(async () => {
-  const context = bootstrap(identity);
+  const context = await bootstrapNetwork({ enrollmentId });
   peer = createPeer({
     ...context,
     reducer,
@@ -31,7 +32,7 @@ afterAll(async () => peer.disconnect());
 describe('Start peer privatedata Tests', () => {
   it('should Add #1', async () =>
     repo
-      .create(identity)
+      .create(enrollmentId)
       .save([{ type: 'ADD' }])
       .then((commit: Commit) => {
         commitId = commit.commitId;
@@ -47,11 +48,11 @@ describe('Start peer privatedata Tests', () => {
 
   it('should getById', async () =>
     repo
-      .getById(identity)
+      .getById(enrollmentId)
       .then(({ currentState }) => expect(currentState).toEqual({ value: 1 })));
 
   it('should deleteByEntityIdCommitId', async () =>
     repo
-      .deleteByEntityIdCommitId(identity, commitId)
+      .deleteByEntityIdCommitId(enrollmentId, commitId)
       .then(({ status }) => expect(status).toBe('SUCCESS')));
 });

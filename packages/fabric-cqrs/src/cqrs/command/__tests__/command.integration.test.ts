@@ -1,6 +1,7 @@
 import { pick, values } from 'lodash';
 import { Store } from 'redux';
-import { bootstrap } from '../../../account/registerUser';
+import { bootstrapNetwork } from '../../../account';
+import '../../../env';
 import { Context } from '../../../types';
 import { generateToken } from '../../utils';
 import { action } from '../action';
@@ -10,10 +11,10 @@ let context: Context;
 let commitId: string;
 let store: Store;
 const entityName = 'command_test';
-const identity = `command_test${Math.floor(Math.random() * 1000)}`;
+const enrollmentId = `command_test${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  context = await bootstrap(identity);
+  context = await bootstrapNetwork({ enrollmentId });
   store = getStore(context);
 });
 
@@ -39,7 +40,7 @@ describe('CQRS - command Tests', () => {
     store.dispatch(
       action.deleteByEntityId({
         tx_id: tid,
-        args: { entityName, id: identity }
+        args: { entityName, id: enrollmentId }
       })
     );
   });
@@ -62,7 +63,7 @@ describe('CQRS - command Tests', () => {
         tx_id: tid,
         args: {
           entityName,
-          id: identity,
+          id: enrollmentId,
           version: 0,
           events: [{ type: 'User Created', payload: { name: 'me' } }]
         }
@@ -85,7 +86,7 @@ describe('CQRS - command Tests', () => {
     store.dispatch(
       action.queryByEntIdCommitId({
         tx_id: tid,
-        args: { entityName, commitId, id: identity }
+        args: { entityName, commitId, id: enrollmentId }
       })
     );
   });
@@ -120,7 +121,10 @@ describe('CQRS - command Tests', () => {
       }
     });
     store.dispatch(
-      action.queryByEntityId({ tx_id: tid, args: { entityName, id: identity } })
+      action.queryByEntityId({
+        tx_id: tid,
+        args: { entityName, id: enrollmentId }
+      })
     );
   });
 
@@ -137,7 +141,7 @@ describe('CQRS - command Tests', () => {
     store.dispatch(
       action.deleteByEntityIdCommitId({
         tx_id: tid,
-        args: { entityName, id: identity, commitId }
+        args: { entityName, id: enrollmentId, commitId }
       })
     );
   });

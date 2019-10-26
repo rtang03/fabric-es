@@ -9,27 +9,26 @@ import {
 } from 'fabric-network';
 import { readFileSync } from 'fs';
 import { safeLoad } from 'js-yaml';
-// import '../env';
 
 export const getNetwork: (option: {
-  identity: string;
+  enrollmentId: string;
   channelName?: string;
   connectionProfile?: string;
   wallet?: Wallet;
   channelEventHub?: string;
 }) => Promise<{
-  identity: string;
+  enrollmentId: string;
   network: Network;
   gateway: Gateway;
   channelHub: ChannelEventHub;
 }> = async ({
-  identity,
+  enrollmentId,
   channelName = 'eventstore',
   connectionProfile = process.env.CONNECTION_PROFILE,
   wallet = new FileSystemWallet(process.env.WALLET || 'assets/wallet'),
   channelEventHub = process.env.CHANNEL_HUB
 }) => {
-  const identityExist: boolean = await wallet.exists(identity);
+  const identityExist: boolean = await wallet.exists(enrollmentId);
   if (!identityExist) {
     throw new Error('Please register user, before retrying');
   }
@@ -43,7 +42,7 @@ export const getNetwork: (option: {
   const gateway = await new Gateway();
   await gateway
     .connect(safeLoad(readFileSync(connectionProfile, 'utf8')), {
-      identity,
+      identity: enrollmentId,
       wallet,
       discovery: { enabled: false, asLocalhost: true },
       eventHandlerOptions: {
@@ -59,5 +58,5 @@ export const getNetwork: (option: {
     });
   const network = await gateway.getNetwork(channelName);
   const channelHub = network.getChannel().getChannelEventHub(channelEventHub);
-  return { identity, network, gateway, channelHub };
+  return { enrollmentId, network, gateway, channelHub };
 };

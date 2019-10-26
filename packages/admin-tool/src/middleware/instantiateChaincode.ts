@@ -5,7 +5,7 @@ import {
 } from 'fabric-client';
 import '../env';
 import { Context } from './types';
-import { parseConnectionProfile, getClientForOrg } from './utils';
+import { getClientForOrg, parseConnectionProfile } from './utils';
 
 export const instantiateChaincode: (
   option: {
