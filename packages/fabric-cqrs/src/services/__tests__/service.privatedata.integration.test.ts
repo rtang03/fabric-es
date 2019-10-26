@@ -1,7 +1,8 @@
 import { Gateway, Network } from 'fabric-network';
 import { values } from 'lodash';
 import { evaluate, submitPrivateData } from '..';
-import { bootstrap } from '../../account/registerUser';
+import { bootstrapNetwork } from '../../account';
+import '../../env';
 import { Commit } from '../../types';
 
 let network: Network;
@@ -15,10 +16,10 @@ const transient = {
     JSON.stringify([{ type: 'Created', payload: { name: 'me' } }])
   )
 };
-const identity = `service_privatedata${Math.floor(Math.random() * 1000)}`;
+const enrollmentId = `service_privatedata${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  const config = await bootstrap(identity);
+  const config = await bootstrapNetwork({ enrollmentId });
   network = config.network;
   gateway = config.gateway;
 });
@@ -29,20 +30,20 @@ describe('Event store Tests: Privatedata', () => {
   it('should createCommit #1', async () =>
     submitPrivateData(
       'privatedata:createCommit',
-      [org1, entityName, identity, '0'],
+      [org1, entityName, enrollmentId, '0'],
       transient,
       { network }
     )
       .then<Commit>(result => values(result)[0])
       .then(commit => {
         createdCommit_1 = commit;
-        return expect(commit.entityId).toEqual(identity);
+        return expect(commit.entityId).toEqual(enrollmentId);
       }));
 
   it('should createCommit #2', async () =>
     submitPrivateData(
       'privatedata:createCommit',
-      [org1, entityName, identity, '0'],
+      [org1, entityName, enrollmentId, '0'],
       transient,
       { network }
     )
@@ -52,11 +53,11 @@ describe('Event store Tests: Privatedata', () => {
   it('should queryByEntityId #1', async () =>
     evaluate(
       'privatedata:queryByEntityId',
-      [org1, entityName, identity],
+      [org1, entityName, enrollmentId],
       { network },
       true
     ).then(result =>
-      values(result).map(commit => expect(commit.id).toEqual(identity))
+      values(result).map(commit => expect(commit.id).toEqual(enrollmentId))
     ));
 
   it('should queryByEntityName', async () =>
@@ -74,7 +75,7 @@ describe('Event store Tests: Privatedata', () => {
   it('should deleteByEntityIdCommitId #1', async () =>
     submitPrivateData(
       'privatedata:deleteByEntityIdCommitId',
-      [org1, entityName, identity, createdCommit_1.commitId],
+      [org1, entityName, enrollmentId, createdCommit_1.commitId],
       null,
       { network }
     ).then(({ status }) => expect(status).toBe('SUCCESS')));
@@ -82,7 +83,7 @@ describe('Event store Tests: Privatedata', () => {
   it('should fail to deleteByEntityIdCommitId', async () =>
     submitPrivateData(
       'privatedata:deleteByEntityIdCommitId',
-      [org1, entityName, identity, createdCommit_1.commitId],
+      [org1, entityName, enrollmentId, createdCommit_1.commitId],
       null,
       { network }
     ).then(({ status }) => expect(status).toBe('SUCCESS')));
@@ -90,7 +91,7 @@ describe('Event store Tests: Privatedata', () => {
   it('should deleteByEntityIdCommitId #2', async () =>
     submitPrivateData(
       'privatedata:deleteByEntityIdCommitId',
-      [org1, entityName, identity, createdCommit_2.commitId],
+      [org1, entityName, enrollmentId, createdCommit_2.commitId],
       null,
       { network }
     ).then(({ status }) => expect(status).toBe('SUCCESS')));

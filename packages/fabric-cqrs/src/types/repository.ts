@@ -1,6 +1,6 @@
 import { Commit } from '.';
 
-export type Repository<TEntity = any, TEvent = any> = {
+export interface Repository<TEntity = any, TEvent = any> {
   create: (
     id: string
   ) => {
@@ -28,4 +28,4 @@ export type Repository<TEntity = any, TEvent = any> = {
   }) => Promise<{ data: TEntity[] }>;
   deleteByEntityId?: (id: string) => Promise<any>;
   deleteByEntityName_query?: () => Promise<any>;
-};
+}

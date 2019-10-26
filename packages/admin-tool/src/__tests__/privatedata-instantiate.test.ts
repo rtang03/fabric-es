@@ -13,6 +13,9 @@ const endorsementPolicy = {
   }
 };
 
+/**
+ * Instantiate Privatedata chaincode in Org1
+ */
 describe('Private data: Administrator commands', () => {
   it('should install/instantiate', async () => {
     const { getInstantiatedChaincodes, getInstalledChaincodes } = await getInfo(

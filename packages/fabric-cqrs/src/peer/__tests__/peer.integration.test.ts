@@ -1,5 +1,6 @@
 import { find, pick } from 'lodash';
-import { bootstrap } from '../../account';
+import { bootstrapNetwork } from '../../account';
+import '../../env';
 import { Counter, CounterEvent, reducer } from '../../example';
 import { Peer, Repository } from '../../types';
 import { createPeer } from '../peer';
@@ -8,10 +9,10 @@ import { projectionDb, queryDatabase } from './__utils__';
 let peer: Peer;
 let repo: Repository<Counter, CounterEvent>;
 const entityName = 'counter';
-const identity = `peer_test${Math.floor(Math.random() * 1000)}`;
+const enrollmentId = `peer_test${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  const context = await bootstrap(identity);
+  const context = await bootstrapNetwork({ enrollmentId });
   peer = createPeer({
     ...context,
     reducer,
@@ -29,27 +30,26 @@ afterAll(async () => {
 });
 
 describe('Start peer Tests', () => {
-  it('Setup test - 1', async () =>
+  beforeAll(async () => {
     await repo
-      .deleteByEntityId(identity)
+      .deleteByEntityId(enrollmentId)
       .then(() => true)
-      .catch(() => true));
-
-  it('Setup test - 2', async () =>
+      .catch(() => true);
     await repo
       .deleteByEntityName_query()
       .then(({ status }) => status)
-      .then(res => expect(res).toEqual('all records deleted successfully')));
+      .then(res => expect(res).toEqual('all records deleted successfully'));
+  });
 
   it('should ADD #1', async () => {
     await repo
-      .create(identity)
+      .create(enrollmentId)
       .save([{ type: 'ADD' }])
       .then(result => pick(result, 'version', 'entityName', 'events'))
       .then(result => expect(result).toMatchSnapshot());
 
     await repo
-      .getById(identity)
+      .getById(enrollmentId)
       .then(({ save }) => save([{ type: 'ADD' }]))
       .then(result => pick(result, 'version', 'entityName', 'events'))
       .then(result =>
@@ -70,26 +70,26 @@ describe('Query', () => {
         .then(result => expect(result).toEqual({ data: [{ value: 2 }] }));
 
       await repo
-        .getById(identity)
+        .getById(enrollmentId)
         .then(({ currentState }) => currentState)
         .then(result => expect(result).toEqual({ value: 2 }));
 
       await repo
-        .getCommitById(identity)
+        .getCommitById(enrollmentId)
         .then(({ data }) => data)
         .then(result => expect(result.length).toEqual(2));
 
       await repo
         .getProjection({ all: true })
         .then(({ data }) => data)
-        .then(result => find(result, { id: identity }))
-        .then(result => expect(result).toEqual({ id: identity, value: 2 }));
+        .then(result => find(result, { id: enrollmentId }))
+        .then(result => expect(result).toEqual({ id: enrollmentId, value: 2 }));
 
       await repo
-        .getProjection({ where: { id: identity } })
+        .getProjection({ where: { id: enrollmentId } })
         .then(({ data }) => data)
-        .then(result => find(result, { id: identity }))
-        .then(result => expect(result).toEqual({ id: identity, value: 2 }));
+        .then(result => find(result, { id: enrollmentId }))
+        .then(result => expect(result).toEqual({ id: enrollmentId, value: 2 }));
 
       await repo
         .getProjection({ contain: 'peer_test' })

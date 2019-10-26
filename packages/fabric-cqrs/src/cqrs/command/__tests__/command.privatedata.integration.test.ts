@@ -1,7 +1,6 @@
 import { pick, values } from 'lodash';
 import { Store } from 'redux';
-import { registerUser } from '../../../account/registerUser';
-import { getNetwork } from '../../../services';
+import { bootstrapNetwork } from '../../../account';
 import { Commit } from '../../../types';
 import { generateToken } from '../../utils';
 import { action } from '../action';
@@ -12,15 +11,11 @@ let commitId: string;
 let store: Store;
 const collection = 'Org1PrivateDetails';
 const entityName = 'store_privatedata';
-const identity = `store_privatedata${Math.floor(Math.random() * 1000)}`;
+const enrollmentId = `store_privatedata${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
   try {
-    await registerUser({
-      enrollmentID: identity,
-      enrollmentSecret: 'password'
-    });
-    context = await getNetwork({ identity });
+    context = await bootstrapNetwork({ enrollmentId });
     store = getStore(context);
   } catch {
     process.exit(-1);
@@ -51,7 +46,7 @@ describe('Store:privatedata Tests', () => {
         tx_id: tid,
         args: {
           entityName,
-          id: identity,
+          id: enrollmentId,
           version: 0,
           events: [{ type: 'User Created', payload: { name: 'me' } }],
           collection
@@ -75,7 +70,7 @@ describe('Store:privatedata Tests', () => {
     store.dispatch(
       action.queryByEntIdCommitId({
         tx_id: tid,
-        args: { entityName, commitId, id: identity, collection }
+        args: { entityName, commitId, id: enrollmentId, collection }
       })
     );
   });
@@ -112,7 +107,7 @@ describe('Store:privatedata Tests', () => {
     store.dispatch(
       action.queryByEntityId({
         tx_id: tid,
-        args: { entityName, id: identity, collection }
+        args: { entityName, id: enrollmentId, collection }
       })
     );
   });
@@ -130,7 +125,7 @@ describe('Store:privatedata Tests', () => {
     store.dispatch(
       action.deleteByEntityIdCommitId({
         tx_id: tid,
-        args: { entityName, id: identity, commitId, collection }
+        args: { entityName, id: enrollmentId, commitId, collection }
       })
     );
   });

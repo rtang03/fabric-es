@@ -2,7 +2,7 @@ import { ChannelEventHub } from 'fabric-client';
 import { Gateway, Network } from 'fabric-network';
 import { keys, pick, values } from 'lodash';
 import { channelEventHub, evaluate, submit } from '..';
-import { bootstrap } from '../../account/registerUser';
+import { bootstrapNetwork } from '../../account';
 import '../../env';
 import { toCommit } from '../../types/commit';
 
@@ -16,10 +16,10 @@ let createdCommit_1: any;
 // In real implementation, it is replaced by queryAction.merge action.
 const event = { onChannelEventArrived: jest.fn() };
 const entityName = 'dev_test';
-const identity = `service_test${Math.floor(Math.random() * 1000)}`;
+const enrollmentId = `service_test${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  const config = await bootstrap(identity);
+  const config = await bootstrapNetwork({ enrollmentId });
   network = config.network;
   gateway = config.gateway;
   channelHub = config.channelHub;
@@ -56,7 +56,7 @@ describe('Eventstore Tests', () => {
       'createCommit',
       [
         entityName,
-        identity,
+        enrollmentId,
         '0',
         JSON.stringify([{ type: 'User Created', payload: { name: 'me' } }])
       ],
@@ -66,13 +66,13 @@ describe('Eventstore Tests', () => {
       .then(commit => toCommit(JSON.stringify(commit)))
       .then(commit => {
         createdCommit_1 = commit;
-        return expect(commit.entityId).toEqual(identity);
+        return expect(commit.entityId).toEqual(enrollmentId);
       }));
 
   it('should queryByEntityIdCommitId', async () =>
     evaluate(
       'queryByEntityIdCommitId',
-      [entityName, identity, createdCommit_1.commitId],
+      [entityName, enrollmentId, createdCommit_1.commitId],
       { network }
     )
       .then(result => values(result)[0])
@@ -85,7 +85,7 @@ describe('Eventstore Tests', () => {
       'createCommit',
       [
         entityName,
-        identity,
+        enrollmentId,
         '1',
         JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])
       ],
@@ -105,36 +105,36 @@ describe('Eventstore Tests', () => {
     ));
 
   it('should queryByEntityId #1', async () =>
-    evaluate('queryByEntityId', [entityName, identity], {
+    evaluate('queryByEntityId', [entityName, enrollmentId], {
       network
     }).then(result => expect(keys(result).length).toEqual(2)));
 
   it('should deleteByEntityIdCommitId', async () =>
     submit(
       'deleteByEntityIdCommitId',
-      [entityName, identity, createdCommit_1.commitId],
+      [entityName, enrollmentId, createdCommit_1.commitId],
       { network }
     ).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should fail to delete non-exist entity by EntityId/CommitId', async () =>
     submit(
       'deleteByEntityIdCommitId',
-      [entityName, identity, createdCommit_1.commitId],
+      [entityName, enrollmentId, createdCommit_1.commitId],
       { network }
     ).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should queryByEntityId #2', async () =>
-    evaluate('queryByEntityId', [entityName, identity], {
+    evaluate('queryByEntityId', [entityName, enrollmentId], {
       network
     }).then(result => expect(keys(result).length).toEqual(1)));
 
   it('should deleteByEntityId', async () =>
-    submit('deleteByEntityId', [entityName, identity], {
+    submit('deleteByEntityId', [entityName, enrollmentId], {
       network
     }).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should queryByEntityId #3', async () =>
-    evaluate('queryByEntityId', [entityName, identity], {
+    evaluate('queryByEntityId', [entityName, enrollmentId], {
       network
     }).then(result => expect(result).toEqual({})));
 
@@ -143,7 +143,7 @@ describe('Eventstore Tests', () => {
       'createCommit',
       [
         entityName,
-        identity,
+        enrollmentId,
         '0',
         JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])
       ],
@@ -155,7 +155,7 @@ describe('Eventstore Tests', () => {
       'createCommit',
       [
         entityName,
-        identity,
+        enrollmentId,
         '0',
         JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])
       ],

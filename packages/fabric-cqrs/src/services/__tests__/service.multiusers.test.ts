@@ -1,6 +1,6 @@
 import { FileSystemWallet } from 'fabric-network';
 import { values } from 'lodash';
-import { registerUser } from '../../account/registerUser';
+import { registerUser } from '../../account';
 import '../../env';
 import { Context } from '../../types';
 import { Commit, toCommit } from '../../types/commit';
@@ -23,7 +23,7 @@ beforeAll(async () => {
     await enrollOrg1Admin();
     await enrollOrg2Admin();
     await registerUser({
-      enrollmentID: identityOrg1,
+      enrollmentId: identityOrg1,
       enrollmentSecret: 'password',
       context: {
         connectionProfile: 'connection/peer0org1.yaml',
@@ -32,7 +32,7 @@ beforeAll(async () => {
       }
     });
     await registerUser({
-      enrollmentID: identityOrg2,
+      enrollmentId: identityOrg2,
       enrollmentSecret: 'password',
       context: {
         connectionProfile: 'connection/peer0org2.yaml',
@@ -41,13 +41,13 @@ beforeAll(async () => {
       }
     });
     contextOrg1 = await getNetwork({
-      identity: identityOrg1,
+      enrollmentId: identityOrg1,
       connectionProfile: 'connection/peer0org1.yaml',
       wallet: walletOrg1,
       channelEventHub: 'peer0.org1.example.com'
     });
     contextOrg2 = await getNetwork({
-      identity: identityOrg2,
+      enrollmentId: identityOrg2,
       connectionProfile: 'connection/peer0org2.yaml',
       wallet: walletOrg2,
       channelEventHub: 'peer0.org2.example.com'

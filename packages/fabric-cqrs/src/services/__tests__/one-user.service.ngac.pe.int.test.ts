@@ -4,8 +4,8 @@ config({ path: resolve(__dirname, '../../../.env.ngac.org2.test') });
 
 import { Gateway, Network } from 'fabric-network';
 import { omit, pick, values } from 'lodash';
+import { bootstrapNetwork } from '../../account';
 import { createId } from '../../createId';
-import { bootstrap } from '../../ngac_test/registerUserOrg2';
 import { Attribute, Commit, CONTEXT, RESOURCE } from '../../types';
 import evaluateNgac from '../evaluateNgac';
 import { submit } from '../submit';
@@ -20,10 +20,10 @@ const identity = `svs_org2_pe_test${Math.floor(Math.random() * 10000)}`;
 const faker = `faker_${Math.floor(Math.random() * 10000)}`;
 
 beforeAll(async () => {
-  const ctx = await bootstrap(identity);
+  const ctx = await bootstrapNetwork({ enrollmentId: identity });
   network = ctx.network;
   gateway = ctx.gateway;
-  const fakerCtx = await bootstrap(faker);
+  const fakerCtx = await bootstrapNetwork({ enrollmentId: faker });
   fakerNetwork = fakerCtx.network;
   fakerGateway = fakerCtx.gateway;
 });

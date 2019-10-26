@@ -1,6 +1,7 @@
 import { Gateway, Network } from 'fabric-network';
-import { bootstrap } from '../../account';
+import { bootstrapNetwork } from '../../account';
 import { createId } from '../../createId';
+import '../../env';
 import { Policy } from '../../types';
 import evaluateNgac from '../evaluateNgac';
 import submitNgac from '../submitNgac';
@@ -8,13 +9,13 @@ import submitNgac from '../submitNgac';
 let network: Network;
 let gateway: Gateway;
 
-const identity = `service_ngac_test${Math.floor(Math.random() * 1000)}`;
+const enrollmentId = `service_ngac_test${Math.floor(Math.random() * 1000)}`;
 const id = createId(['Org1MSP', 'Admin@org1.example.com']);
 const entityName = 'ngac_service_test';
 const entityId = 'entity_id_1001';
 
 beforeAll(async () => {
-  const config = await bootstrap(identity);
+  const config = await bootstrapNetwork({ enrollmentId });
   network = config.network;
   gateway = config.gateway;
 });
