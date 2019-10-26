@@ -7,7 +7,7 @@ import { getNetwork } from '../services';
 const defaultContext: Context = {
   connectionProfile: process.env.CONNECTION_PROFILE,
   fabricNetwork: process.env.NETWORK_LOCATION,
-  wallet: new FileSystemWallet(process.env.WALLET)
+  wallet: process.env.WALLET ? new FileSystemWallet(process.env.WALLET) : null
 };
 
 export const registerUser: (option: {
@@ -24,6 +24,10 @@ export const registerUser: (option: {
  * Check local wallet has pre-existing enrollmentId
  * if not, attempt to register AND enrol new enrollmentId
  * import the newly created enrollmentId into local wallet
+ *
+ * This call is used for integration test; each test requires
+ * a newly registered user. For non-test scenario, can
+ * use getNetwork directly, skipping registerUser
  * todo: it assume all registered user has 1-to-1 mapping to local wallet
  * it currently does not handle the situation, where there exists a registered user
  * without local wallet. As a RFE, we need an additional function to enrol user

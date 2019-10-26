@@ -11,7 +11,7 @@ const context: Context = {
 enrollAdmin(
   process.env.ORG_ADMIN_ID,
   process.env.ORG_ADMIN_SECRET,
-  process.env.ORG_CA_UR,
+  process.env.ORG_CA_URL,
   process.env.ORGNAME,
   context
 )

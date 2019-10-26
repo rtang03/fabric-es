@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Example Smoke Test should Add 1`] = `
+Object {
+  "entityName": "ex_counter",
+  "events": Array [
+    Object {
+      "type": "ADD",
+    },
+  ],
+  "version": 0,
+}
+`;
