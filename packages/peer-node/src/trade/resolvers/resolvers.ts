@@ -30,7 +30,7 @@ export const tradeResolver: Resolvers<TQuery, Trade> = {
       }
     ): Promise<Trade[] | { error: any }> =>
       getByEntityName()
-        .then(({ entities }) => entities || [])
+        .then(({ data }) => data || [])
         .catch(error => ({ error })),
     getCommitByTradeId: async (
       _,
@@ -44,7 +44,7 @@ export const tradeResolver: Resolvers<TQuery, Trade> = {
       }
     ): Promise<Commit[] | { error: any }> =>
       getCommitById(id)
-        .then(({ commits }) => commits || [])
+        .then(({ data }) => data || [])
         .catch(error => ({ error })),
     getPaginatedTrade: async (
       _,
@@ -59,11 +59,11 @@ export const tradeResolver: Resolvers<TQuery, Trade> = {
     ): Promise<Paginated<Trade> | { error: any }> =>
       getByEntityName()
         .then(
-          ({ entities }: { entities: any[] }) =>
+          ({ data }: { data: any[] }) =>
             ({
-              entities: entities || [],
-              hasMore: entities.length > cursor,
-              total: entities.length
+              entities: data || [],
+              hasMore: data.length > cursor,
+              total: data.length
             } as Paginated<Trade>)
         )
         .catch(error => ({ error })),

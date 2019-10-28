@@ -1,14 +1,8 @@
-import { Context, registerUser as register } from '@espresso/admin-tool';
+import { Context, createUser } from '@espresso/admin-tool';
 import { ChannelEventHub } from 'fabric-client';
 import { FileSystemWallet, Gateway, Network } from 'fabric-network';
 import '../env';
 import { getNetwork } from '../services';
-
-const defaultContext: Context = {
-  connectionProfile: process.env.CONNECTION_PROFILE,
-  fabricNetwork: process.env.NETWORK_LOCATION,
-  wallet: process.env.WALLET ? new FileSystemWallet(process.env.WALLET) : null
-};
 
 export const registerUser: (option: {
   enrollmentId: string;
@@ -17,8 +11,12 @@ export const registerUser: (option: {
 }) => any = async ({
   enrollmentId,
   enrollmentSecret,
-  context = defaultContext
-}) => register(enrollmentId, enrollmentSecret, context);
+  context = {
+    connectionProfile: process.env.CONNECTION_PROFILE,
+    fabricNetwork: process.env.NETWORK_LOCATION,
+    wallet: process.env.WALLET ? new FileSystemWallet(process.env.WALLET) : null
+  }
+}) => createUser(enrollmentId, enrollmentSecret, context);
 
 /**
  * Check local wallet has pre-existing enrollmentId

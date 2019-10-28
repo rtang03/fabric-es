@@ -1,5 +1,4 @@
 require('events').EventEmitter.defaultMaxListeners = 15;
-require('dotenv').config();
 import { buildFederatedSchema } from '@apollo/federation';
 import {
   reduceToDocument,
@@ -10,8 +9,9 @@ import {
   User,
   UserEvent
 } from '@espresso/common';
-import { getNetwork, Peer } from '@espresso/fabric-cqrs';
+import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
+import './env';
 import { resolvers, typeDefs } from './trade';
 import { DataSources, FabricData } from './types';
 
@@ -20,9 +20,10 @@ let networkConfig;
 
 const bootstrap = async () => {
   console.log('♨️♨️ Bootstraping Trade - Onchain  ♨️♨️');
-  networkConfig = await getNetwork();
+  const enrollmentId = 'admin';
+  networkConfig = await getNetwork({ enrollmentId });
   // note: the default reducer is reduceToDocument
-  const { reconcile, getRepository, subscribeHub } = new Peer({
+  const { reconcile, getRepository, subscribeHub } = createPeer({
     ...networkConfig,
     reducer: reduceToDocument,
     collection: 'Org1PrivateDetails'
@@ -42,11 +43,14 @@ const bootstrap = async () => {
   const server = new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),
     playground: true,
-    subscriptions: { path: '/graphql' },
+    // subscriptions: { path: '/graphql' },
     dataSources: (): DataSources => ({
       tradeDataSource: new FabricData({ repo: tradeRepo }),
       userDataSource: new FabricData({ repo: userRepo })
-    })
+    }),
+    context: ({ req }) => {
+      console.log(req.headers);
+    }
   });
 
   server.listen({ port }).then(({ url }) => {

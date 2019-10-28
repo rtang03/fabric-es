@@ -37,7 +37,7 @@ export const resolvers: Resolvers<TQuery, Document> = {
         }
       }
     ): Promise<Document[] | { error: any }> =>
-      getByEntityName().then(({ entities }) => entities || []),
+      getByEntityName().then(({ data }) => data || []),
     getCommitByDocumentId: async (
       _,
       { id },
@@ -49,7 +49,7 @@ export const resolvers: Resolvers<TQuery, Document> = {
         }
       }
     ): Promise<Commit[] | { error: any }> =>
-      getCommitById(id).then(({ commits }) => commits || []),
+      getCommitById(id).then(({ data }) => data || []),
     getPaginatedDocument: async (
       _,
       { cursor = 10 },
@@ -62,11 +62,11 @@ export const resolvers: Resolvers<TQuery, Document> = {
       }
     ): Promise<Paginated<Document> | { error: any }> =>
       getByEntityName().then(
-        ({ entities }: { entities: any[] }) =>
+        ({ data }: { data: any[] }) =>
           ({
-            entities: entities || [],
-            hasMore: entities.length > cursor,
-            total: entities.length
+            entities: data || [],
+            hasMore: data.length > cursor,
+            total: data.length
           } as Paginated<Document>)
       ),
     getDocumentById: async (

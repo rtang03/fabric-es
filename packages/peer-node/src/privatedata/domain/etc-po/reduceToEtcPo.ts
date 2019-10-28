@@ -1,30 +1,29 @@
 import { EtcPo, EtcPoEvent } from '../../types/etc-po';
 
-export function reduceToEtcPo(history: EtcPoEvent[], initialState?: EtcPo): EtcPo {
-  const etcPoReducer = (etcPo: EtcPo, { type, payload }: any): EtcPo => {
-    const defaultValues = {
-      body: null,
-      document: null
-    };
-
-    switch (type) {
+export const reduceToEtcPo: (
+  history: EtcPoEvent[],
+  initialState?: EtcPo
+) => EtcPo = (history, initialState) =>
+  history.reduce((etcPo: EtcPo, event: EtcPoEvent): EtcPo => {
+    switch (event.type) {
       case 'EtcPoCreated':
         return {
-          ...defaultValues,
-          id: payload.id,
-          ownerId: payload.ownerId,
-          document: { documentId: payload.id }
+          ...{
+            body: null,
+            document: null
+          },
+          id: event.payload.id,
+          ownerId: event.payload.ownerId,
+          document: { documentId: event.payload.id }
         };
 
       case 'EtcPoBodyUpdated':
         return {
           ...etcPo,
-          id: payload.id,
-          body: payload.body
+          id: event.payload.id,
+          body: event.payload.body
         };
       default:
         return etcPo;
     }
-  };
-  return history.reduce(etcPoReducer, initialState);
-}
+  }, initialState);

@@ -8,11 +8,9 @@ export const etcPoCommandHandler: ({
   etcPoRepo: PrivatedataRepository<EtcPo, EtcPoEvent>;
 }) => EtcPoCommandHandler = ({ etcPoRepo }) => ({
   CreateEtcPo: async ({ userId, payload: { id, body, timestamp } }) =>
-    await etcPoRepo
-      .create(id)
-      .save(createEtcPo({ userId, id, body, timestamp })),
+    etcPoRepo.create(id).save(createEtcPo({ userId, id, body, timestamp })),
   UpdateBody: async ({ userId, payload: { id, body, timestamp } }) =>
-    await etcPoRepo
+    etcPoRepo
       .getById(id)
       .then(({ save }) => save(updateBody({ userId, id, body, timestamp })))
 });

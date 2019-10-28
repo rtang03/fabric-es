@@ -6,25 +6,24 @@ import { createServer } from 'http';
 import jwt from 'jsonwebtoken';
 import jwks from 'jwks-rsa';
 import morgan from 'morgan';
+import './env';
 
-require('dotenv').config();
+class AuthenticatedDataSource extends RemoteGraphQLDataSource {
+  willSendRequest({ request, context }: { request; context: any }) {
+    // pass client_id to underlying service. For offchain resolvers, it needs
+    // additional auth check, to be implementated in the resolver
+    // see https://auth0.com/blog/develop-modern-apps-with-react-graphql-apollo-and-add-authentication/#Secure-your-GraphQL-API-with-Auth0
+    request.http.headers.set('client_id', context.client_id);
+  }
+}
 
 const gateway = new ApolloGateway({
   serviceList: [
     { name: 'trade', url: 'http://localhost:14001/graphql' },
-    { name: 'document', url: 'http://localhost:14003/graphql' },
-    { name: 'privatedata', url: 'http://localhost:14002/graphql' }
+    // { name: 'document', url: 'http://localhost:14003/graphql' },
+    // { name: 'privatedata', url: 'http://localhost:14002/graphql' }
   ],
-  buildService: ({ name, url }) =>
-    new RemoteGraphQLDataSource({
-      url,
-      willSendRequest: ({ request, context }: { request; context: any }) => {
-        // pass client_id to underlying service. For offchain resolvers, it needs
-        // additional auth check, to be implementated in the resolver
-        // see https://auth0.com/blog/develop-modern-apps-with-react-graphql-apollo-and-add-authentication/#Secure-your-GraphQL-API-with-Auth0
-        request.http.headers.set('client_id', context.client_id);
-      }
-    })
+  buildService: ({ url }) => new AuthenticatedDataSource({ url })
 });
 
 const PORT = process.env.PORT || 4000;
@@ -46,10 +45,9 @@ const options = {
 };
 
 const bootstrap = async () => {
-  const { schema, executor } = await gateway.load();
   const server = new ApolloServer({
-    schema,
-    executor,
+    gateway,
+    subscriptions: false,
     context: async ({ req }) => {
       let client_id;
       let token = req.headers.authorization;

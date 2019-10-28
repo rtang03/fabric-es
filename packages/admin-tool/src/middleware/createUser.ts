@@ -2,7 +2,7 @@ import { FileSystemWallet, Gateway, X509WalletMixin } from 'fabric-network';
 import { Context } from './types';
 import { getClientForOrg } from './utils';
 
-export const registerUser: (
+export const createUser: (
   enrollmentID: string,
   enrollmentSecret: string,
   context?: Context
@@ -31,7 +31,7 @@ export const registerUser: (
           identity: 'admin',
           discovery: { enabled: true, asLocalhost: true }
         });
-        const ca = await gateway.getClient().getCertificateAuthority();
+        const ca = gateway.getClient().getCertificateAuthority();
         await ca.register(
           {
             enrollmentID,
