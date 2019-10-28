@@ -3,7 +3,7 @@
     "outDir": "dist",
     "target": "es2017",
     "moduleResolution": "node",
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "module": "commonjs",
     "declaration": false,
     "sourceMap": false,

@@ -91,17 +91,17 @@ afterAll(async () => {
 
 describe('User Entity: Unit Test', () => {
   it('should return AboutUser', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({ query: ABOUT_USER })
       .then(({ data }) => expect(data).toEqual({ aboutUser: 'User Entity' })));
 
   it('should query: getAllUser', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({ query: USERS })
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should query: getPaginatedUser', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: PAGINATED_USER,
         variables: { cursor: 10 }
@@ -109,7 +109,7 @@ describe('User Entity: Unit Test', () => {
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should query: getUserById', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: USER_BY_ID,
         variables: { id: 'example@gmail.com' }
@@ -117,7 +117,7 @@ describe('User Entity: Unit Test', () => {
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should query: getCommitByUserId', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: USER_COMMITS,
         variables: { id: 'example@gmail.com' }
@@ -125,7 +125,7 @@ describe('User Entity: Unit Test', () => {
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should create user', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: CREATE_USER,
         variables: {
@@ -142,19 +142,19 @@ describe('User Entity: Unit Test', () => {
 
 describe('Trade Entity: Unit Test', () => {
   it('should return AboutTrade', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({ query: ABOUT_TRADE })
       .then(({ data }) =>
         expect(data).toEqual({ aboutTrade: 'Trade Entity' })
       ));
 
   it('should query: getAllTrade', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({ query: TRADES })
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should query: getPaginatedTrade', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: PAGINATED_TRADE,
         variables: { cursor: 10 }
@@ -162,7 +162,7 @@ describe('Trade Entity: Unit Test', () => {
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should query: getTradeById', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: TRADE_BY_ID,
         variables: { id: '1542385172441' }
@@ -170,7 +170,7 @@ describe('Trade Entity: Unit Test', () => {
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should query: getCommitByTradeId', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: TRADE_COMMITS,
         variables: { id: '1542385172441' }
@@ -178,7 +178,7 @@ describe('Trade Entity: Unit Test', () => {
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should create trade', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: CREATE_TRADE,
         variables: {
@@ -195,19 +195,19 @@ describe('Trade Entity: Unit Test', () => {
 
 describe('Document Entity: Unit Test', () => {
   it('should return AboutDocument', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({ query: ABOUT_DOCUMENT })
       .then(({ data }) =>
         expect(data).toEqual({ aboutDocument: 'Document Entity' })
       ));
 
   it('should query: getAllDocument', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({ query: DOCUMENTS })
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should query: getPaginatedTrade', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: PAGINATED_DOCUMENT,
         variables: { cursor: 10 }
@@ -215,7 +215,7 @@ describe('Document Entity: Unit Test', () => {
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should query: getDocumentById', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: DOCUMENT_BY_ID,
         variables: { id: '1542385173331' }
@@ -223,7 +223,7 @@ describe('Document Entity: Unit Test', () => {
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should query: getCommitByDocumentId', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: DOCUMENT_COMMITS,
         variables: { id: '1542385172441' }
@@ -231,7 +231,7 @@ describe('Document Entity: Unit Test', () => {
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should create document', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: CREATE_DOCUMENT,
         variables: {
@@ -248,7 +248,7 @@ describe('Document Entity: Unit Test', () => {
       ));
 
   it('should query Trade and Document', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: TRADE_DOC_BY_ID,
         variables: { id: '123123123' }
@@ -258,12 +258,12 @@ describe('Document Entity: Unit Test', () => {
 
 describe('EtcPo: Unit Test', () => {
   it('should return AboutEtcPo', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({ query: ABOUT_ETCPO })
       .then(({ data }) => expect(data).toEqual({ aboutEtcPo: 'Etc Po Info' })));
 
   it('should create EtcPo', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: CREATE_ETCPO,
         variables: {
@@ -277,7 +277,7 @@ describe('EtcPo: Unit Test', () => {
       ));
 
   it('should query: getEtcPoById', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: ETCPO_BY_ID,
         variables: { id: '321321321' }
@@ -285,7 +285,7 @@ describe('EtcPo: Unit Test', () => {
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should run federated query: getDocumentEtcById', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: DOCUMENT_ETCPO_BY_ID,
         variables: { id: '321321321' }

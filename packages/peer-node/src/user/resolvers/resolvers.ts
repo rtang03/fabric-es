@@ -36,7 +36,7 @@ export const userResolver: Resolvers<TQuery, User> = {
       }
     ): Promise<User[] | { error: any }> =>
       getByEntityName()
-        .then(({ entities }) => entities || [])
+        .then(({ data }) => data || [])
         .catch(error => ({ error })),
     getCommitByUserId: async (
       _,
@@ -50,7 +50,7 @@ export const userResolver: Resolvers<TQuery, User> = {
       }
     ): Promise<Commit[] | { error: any }> =>
       getCommitById(id)
-        .then(({ commits }) => commits || [])
+        .then(({ data }) => data || [])
         .catch(error => ({ error })),
     getPaginatedUser: async (
       _,
@@ -65,11 +65,11 @@ export const userResolver: Resolvers<TQuery, User> = {
     ): Promise<Paginated<User> | { error: any }> =>
       getByEntityName()
         .then(
-          ({ entities }: { entities: any[] }) =>
+          ({ data }: { data: any[] }) =>
             ({
-              entities: entities || [],
-              hasMore: entities.length > cursor,
-              total: entities.length
+              entities: data || [],
+              hasMore: data.length > cursor,
+              total: data.length
             } as Paginated<User>)
         )
         .catch(error => ({ error })),

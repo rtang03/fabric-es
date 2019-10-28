@@ -3,10 +3,10 @@
 // For production-grade, other PubSub, e.g. Redis may replace event emmitter, in fabric-rx-cqrs
 // Thereafter, below line is no longer required.
 require('events').EventEmitter.defaultMaxListeners = 15;
-require('dotenv').config();
 import { buildFederatedSchema } from '@apollo/federation';
-import { getNetwork, Peer } from '@espresso/fabric-cqrs';
+import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
+import './env';
 import { EtcPo, EtcPoEvent, resolvers, typeDefs } from './privatedata';
 import { reduceToEtcPo } from './privatedata/domain/etc-po';
 import { FabricData } from './types';
@@ -18,8 +18,9 @@ const collection = 'Org1PrivateDetails';
 
 const bootstrap = async () => {
   console.log('♨️♨️ Bootstraping Doc-Etc - Offchain ♨️♨️');
-  networkConfig = await getNetwork();
-  const { getPrivateDataRepo } = new Peer({
+  const enrollmentId = '';
+  networkConfig = await getNetwork({ enrollmentId });
+  const { getPrivateDataRepo } = createPeer({
     ...networkConfig,
     reducer: reduceToEtcPo,
     collection

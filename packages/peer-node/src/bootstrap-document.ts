@@ -1,5 +1,4 @@
 require('events').EventEmitter.defaultMaxListeners = 15;
-require('dotenv').config();
 import { buildFederatedSchema } from '@apollo/federation';
 import {
   Document,
@@ -12,9 +11,10 @@ import {
   User,
   UserEvent
 } from '@espresso/common';
-import { getNetwork, Peer } from '@espresso/fabric-cqrs';
+import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { resolvers, typeDefs } from './document';
+import './env';
 import { DataSources, FabricData } from './types';
 
 let networkConfig;
@@ -23,8 +23,9 @@ const collection = 'Org1PrivateDetails';
 
 const bootstrap = async () => {
   console.log('♨️♨️ Bootstraping Document - Onchain  ♨️♨️');
-  networkConfig = await getNetwork();
-  const { reconcile, getRepository, subscribeHub } = new Peer({
+  const enrollmentId = '';
+  networkConfig = await getNetwork({ enrollmentId });
+  const { reconcile, getRepository, subscribeHub } = createPeer({
     ...networkConfig,
     reducer: reduceToDocument,
     collection

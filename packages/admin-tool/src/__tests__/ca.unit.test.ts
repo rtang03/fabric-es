@@ -1,6 +1,6 @@
 import { FileSystemWallet } from 'fabric-network';
 import '../env';
-import { enrollAdmin, registerUser } from '../middleware';
+import { enrollAdmin, createUser } from '../middleware';
 
 describe('Fabric CA unit test', () => {
   it('should enrol Org1 Admin', async () => {
@@ -37,7 +37,7 @@ describe('Fabric CA unit test', () => {
     //   console.log(result);
     //   expect(result.status).toBe('SUCCESS');
     // });
-    await registerUser(user, secret, ctx).then(result => {
+    await createUser(user, secret, ctx).then(result => {
       console.log(result);
       expect(result.status).toBe('SUCCESS');
     });

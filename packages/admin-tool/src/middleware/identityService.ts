@@ -1,10 +1,12 @@
+import { IIdentityRequest } from 'fabric-ca-client';
 import { FileSystemWallet, Gateway } from 'fabric-network';
 import { Context } from './types';
 import { getClientForOrg } from './utils';
 
-export const identity: (
+export const identityService: (
   context?: Context
 ) => Promise<{
+  create: (identityRequest: IIdentityRequest) => Promise<any>;
   getAll: () => Promise<any>;
   getOne: (enrollmentId: string) => Promise<any>;
 }> = async (
@@ -26,6 +28,7 @@ export const identity: (
       .getUserContext('ca_admin', true);
     const service = ca.newIdentityService();
     return {
+      create: request => service.create(request, registrar),
       getAll: () => service.getAll(registrar),
       getOne: (enrollmentId: string) => service.getOne(enrollmentId, registrar)
     };

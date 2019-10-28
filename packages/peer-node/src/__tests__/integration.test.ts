@@ -10,10 +10,10 @@ import {
   User,
   UserEvent
 } from '@espresso/common';
-import { getNetwork, Peer } from '@espresso/fabric-cqrs';
+import { createPeer, getNetwork, Peer } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
-import { omit, pick, values } from 'lodash';
+import { omit, pick } from 'lodash';
 import {
   CREATE_DOCUMENT,
   DOCUMENT_ETCPO_BY_ID,
@@ -58,8 +58,10 @@ const prefix = 'int_test_';
 
 beforeAll(async () => {
   // Document Service
-  docNetworkConfig = await getNetwork();
-  docPeer = new Peer({
+
+  const enrollmentId = '';
+  docNetworkConfig = await getNetwork({ enrollmentId });
+  docPeer = createPeer({
     ...docNetworkConfig,
     collection,
     reducer: reduceToDocument
@@ -92,8 +94,9 @@ beforeAll(async () => {
   await documentService.listen({ port: 14001 });
 
   // Trade Service
-  tradeNetworkConfig = await getNetwork();
-  tradePeer = new Peer({
+  // todo: bug
+  tradeNetworkConfig = await getNetwork({ enrollmentId: null });
+  tradePeer = createPeer({
     ...tradeNetworkConfig,
     collection,
     reducer: reduceToDocument
@@ -120,8 +123,8 @@ beforeAll(async () => {
   await tradeService.listen({ port: 14002 });
 
   // Privatedata Service
-  privateNetworkConfig = await getNetwork();
-  privatePeer = new Peer({
+  privateNetworkConfig = await getNetwork({ enrollmentId });
+  privatePeer = createPeer({
     ...privateNetworkConfig,
     collection,
     reducer: reduceToEtcPo
@@ -159,7 +162,7 @@ let commitId: string;
 
 describe('User Entity: Integration Test', () => {
   it('should create user', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: CREATE_USER,
         variables: {
@@ -207,7 +210,7 @@ describe('User Entity: Integration Test', () => {
 
 describe('Trade Entity: Integration Test', () => {
   it('should create trade', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: CREATE_TRADE,
         variables: {
@@ -224,7 +227,7 @@ describe('Trade Entity: Integration Test', () => {
 
 describe('Document Entity: Integration Test', () => {
   it('should create document', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: CREATE_DOCUMENT,
         variables: {
@@ -243,7 +246,7 @@ describe('Document Entity: Integration Test', () => {
 
 describe('Etc Privatedata: Integration Test', () => {
   it('should create EtcPo', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({
         query: CREATE_ETCPO,
         variables: {
@@ -257,12 +260,12 @@ describe('Etc Privatedata: Integration Test', () => {
       .then(result => expect(result).toMatchSnapshot()));
 
   it('should query: getEtcPoById', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({ query: ETCPO_BY_ID, variables: { id: '321321321' } })
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
   it('should run federated query: getDocumentEtcById', async () =>
-    await createTestClient(server)
+    createTestClient(server)
       .query({ query: DOCUMENT_ETCPO_BY_ID, variables: { id: '321321321' } })
       .then(({ data }) => expect(data).toMatchSnapshot()));
 });

@@ -23,6 +23,7 @@ export const createPeer: (option: Option) => Peer = option => {
   option.queryDatabase = queryDatabase || queryDb;
   const store = getStore(option);
   return {
+    getNgacRepo: ngacRepo(option.network),
     getPrivateDataRepo: privateDataRepo(store, collection),
     getRepository: repository(store),
     reconcile: reconcile(store),
@@ -36,7 +37,6 @@ export const createPeer: (option: Option) => Peer = option => {
       });
     },
     unsubscribeHub: () => channelHub.unregisterChaincodeEvent(registerId, true),
-    disconnect: () => gateway.disconnect(),
-    getNgacRepo: ngacRepo(option.network)
+    disconnect: () => gateway.disconnect()
   };
 };

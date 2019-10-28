@@ -1,2 +1,2 @@
 export { Context } from './middleware/types';
-export { enrollAdmin, registerUser } from './middleware';
+export { enrollAdmin, createUser } from './middleware';

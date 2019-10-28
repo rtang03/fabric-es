@@ -9,7 +9,8 @@
     "packages/chaincode",
     "packages/common",
     "packages/example",
-    "packages/fabric-cqrs"
+    "packages/fabric-cqrs",
+    "packages/peer-node"
   ],
   "private": true,
   "devDependencies": {
