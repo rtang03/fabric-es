@@ -49,7 +49,7 @@ describe('Example Smoke Test', () => {
 
   it('should Add', async () =>
     repo
-      .create(enrollmentId)
+      .create({ enrollmentId, id: enrollmentId })
       .save([{ type: 'ADD' }])
       .then(result => pick(result, 'version', 'entityName', 'events'))
       .then(result => expect(result).toMatchSnapshot()));

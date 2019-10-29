@@ -7,7 +7,7 @@ export const submit: (
   args: string[],
   { network }: Context
 ) => Promise<
-  Record<string, Commit> | { error?: any; status?: string; message?: string }
+  Record<string, Commit> & { error?: any; status?: string; message?: string }
 > = async (fcn, args, { network }) =>
   await getContract(network).then(({ contract }) =>
     contract
@@ -18,7 +18,7 @@ export const submit: (
       )
       .catch(error => {
         console.log(`Error processing Submit transaction: ${fcn}`);
-        // console.error(error.stack);
+        console.error(error.stack);
         return { error };
       })
   );

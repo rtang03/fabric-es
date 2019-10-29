@@ -18,17 +18,18 @@ export const repository: (
   entityName,
   reducer
 }) => ({
-  create: id => ({
+  create: ({ enrollmentId, id }) => ({
     save: events =>
       getPromiseToSave({
         id,
         entityName,
         version: 0,
         events,
-        store
+        store,
+        enrollmentId
       })
   }),
-  getById: id =>
+  getById: ({ enrollmentId, id }) =>
     new Promise<{
       currentState: TEntity;
       save: (events: TEvent[]) => Promise<Commit | { error: any }>;
@@ -47,7 +48,8 @@ export const repository: (
                 entityName,
                 events,
                 version: keys(result).length,
-                store
+                store,
+                enrollmentId
               })
           });
         }

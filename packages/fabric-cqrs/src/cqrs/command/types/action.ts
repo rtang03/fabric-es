@@ -11,6 +11,7 @@ export interface CreateAction {
       events: BaseEvent[];
       collection?: string;
     };
+    enrollmentId?: string;
   };
 }
 

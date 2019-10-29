@@ -8,16 +8,17 @@ const user: User = {
   name: 'Mr Test',
   mergedUserIds: ['id0001']
 };
+const enrollmentId = '';
 
 describe('User CommandHandler', () => {
   it('shall create user', async () => {
-    await userCommandHandler({ userRepo, tradeRepo }).CreateUser({
+    await userCommandHandler({ enrollmentId, userRepo, tradeRepo }).CreateUser({
       userId: user.userId,
       payload: { name: user.name, timestamp: Date.now() }
     });
 
     return await userRepo
-      .getById(user.userId)
+      .getById({ enrollmentId, id: user.userId })
       .then(({ currentState }) => expect(currentState).toEqual(user));
   });
 });

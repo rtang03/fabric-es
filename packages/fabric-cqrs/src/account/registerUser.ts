@@ -42,7 +42,7 @@ export const bootstrapNetwork: (option: {
   enrollmentId: string;
   network: Network;
   gateway: Gateway;
-  channelHub: ChannelEventHub;
+  channelHub?: ChannelEventHub;
 }> = async ({ enrollmentId, enrollmentSecret = 'password', context }) => {
   try {
     await registerUser({
@@ -50,7 +50,7 @@ export const bootstrapNetwork: (option: {
       enrollmentSecret,
       context
     });
-    return await getNetwork({ enrollmentId });
+    return await getNetwork({ enrollmentId, channelEventHubExisted: true });
   } catch {
     console.log('Fail to register user');
     process.exit(-1);

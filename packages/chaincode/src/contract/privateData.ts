@@ -26,13 +26,14 @@ export class PrivateData extends Contract {
     return new MyContext();
   }
 
-  async instantiate(ctx: MyContext) {
-    console.info('=========== START : Initialize PrivateData =========');
-    console.info('============= END : Initialize PrivateData ===========');
+  async instantiate(context: MyContext) {
+    const logger = context.logging.getLogger('instantiate');
+    logger.info('=========== START : Initialize PrivateData =========');
+    logger.info('============= END : Initialize PrivateData ===========');
   }
 
   async createCommit(
-    { stub, stateList }: MyContext,
+    context: MyContext,
     collection: string,
     entityName: string,
     id: string,
@@ -42,7 +43,9 @@ export class PrivateData extends Contract {
       throw new Error(
         'createCommit: null argument: id, version, entityName, collection'
       );
-    const transientMap = stub.getTransient();
+    const logger = context.logging.getLogger('createCommit');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
+    const transientMap = context.stub.getTransient();
     if (!transientMap) throw new Error('Error getting transient');
 
     // @ts-ignore
@@ -50,40 +53,43 @@ export class PrivateData extends Contract {
     const eventStr = Buffer.from(byteBuffer.toArrayBuffer()).toString();
     const events = JSON.parse(eventStr);
     const commit = createInstance({ id, version, entityName, events });
-    console.log('CommitId created:');
-    console.log(commit.commitId);
-    await stateList.addState(collection, commit);
+    logger.info(`CommitId created: ${commit.commitId}`);
+    await context.stateList.addState(collection, commit);
     return Buffer.from(JSON.stringify(toRecord(omit(commit, 'key'))));
   }
 
   async queryByEntityName(
-    ctx: MyContext,
+    context: MyContext,
     collection: string,
     entityName: string
   ) {
     if (!entityName)
       throw new Error('queryPrivateDataByEntityName problem: null argument');
-    return await ctx.stateList.getQueryResult(collection, [
+    const logger = context.logging.getLogger('queryByEntityName');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
+    return await context.stateList.getQueryResult(collection, [
       JSON.stringify(entityName)
     ]);
   }
 
   async queryByEntityId(
-    ctx: MyContext,
+    context: MyContext,
     collection: string,
     entityName: string,
     id: string
   ) {
     if (!id || !entityName || !collection)
       throw new Error('queryPrivateDataByEntityId problem: null argument');
-    return await ctx.stateList.getQueryResult(collection, [
+    const logger = context.logging.getLogger('queryByEntityId');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
+    return await context.stateList.getQueryResult(collection, [
       JSON.stringify(entityName),
       JSON.stringify(id)
     ]);
   }
 
   async queryByEntityIdCommitId(
-    ctx: MyContext,
+    context: MyContext,
     collection: string,
     entityName: string,
     id: string,
@@ -91,8 +97,10 @@ export class PrivateData extends Contract {
   ) {
     if (!id || !entityName || !commitId)
       throw new Error('getPrivateData problem: null argument');
+    const logger = context.logging.getLogger('queryByEntityIdCommitId');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const key = makeKey([entityName, id, commitId]);
-    const commit = await ctx.stateList.getState(collection, key);
+    const commit = await context.stateList.getState(collection, key);
     const result = {};
     if (commit && commit.commitId) {
       result[commit.commitId] = omit(commit, 'key');
@@ -101,7 +109,7 @@ export class PrivateData extends Contract {
   }
 
   async deleteByEntityIdCommitId(
-    ctx: MyContext,
+    context: MyContext,
     collection: string,
     entityName: string,
     id: string,
@@ -111,10 +119,12 @@ export class PrivateData extends Contract {
       throw new Error(
         'deletePrivateDataByEntityIdCommitId problem: null argument'
       );
+    const logger = context.logging.getLogger('deleteByEntityIdCommitId');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const key = makeKey([entityName, id, commitId]);
-    const commit = await ctx.stateList.getState(collection, key);
+    const commit = await context.stateList.getState(collection, key);
     if (commit && commit.key) {
-      await ctx.stateList.deleteState(collection, commit).catch(err => {
+      await context.stateList.deleteState(collection, commit).catch(err => {
         throw new Error(err);
       });
       return Buffer.from(

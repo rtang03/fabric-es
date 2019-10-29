@@ -17,25 +17,26 @@ import {
 } from '../domain/types';
 
 export const docCommandHandler: (option: {
+  enrollmentId: string;
   userRepo: UserRepo;
   tradeRepo: TradeRepo;
   docRepo: DocRepo;
-}) => DocCommandHandler = ({ userRepo, tradeRepo, docRepo }) => ({
+}) => DocCommandHandler = ({ enrollmentId, userRepo, tradeRepo, docRepo }) => ({
   CreateDocument: async ({
     userId,
     payload: { tradeId, documentId, description, title, link, timestamp }
   }) => {
     // todo: check if user not exist (i.e. null), and throw exception.
     const user = await userRepo
-      .getById(userId)
+      .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => currentState);
 
     // todo: check if trade not exist (i.e. null), and throw exception.
     const trade = await tradeRepo
-      .getById(tradeId)
+      .getById({ enrollmentId, id: tradeId })
       .then(({ currentState }) => currentState);
 
-    return docRepo.create(documentId).save(
+    return docRepo.create({ enrollmentId, id: documentId }).save(
       createDocument({
         user,
         trade,
@@ -53,25 +54,27 @@ export const docCommandHandler: (option: {
   }) => {
     // todo: check if user not exist (i.e. null), and throw exception.
     const user = await userRepo
-      .getById(userId)
+      .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => currentState);
 
     // todo: check if trade not exist (i.e. null), and throw exception.
     const trade = await tradeRepo
-      .getById(tradeId)
+      .getById({ enrollmentId, id: tradeId })
       .then(({ currentState }) => currentState);
 
     // todo: check if document not exist (i.e. null), and throw exception.
-    return docRepo.getById(documentId).then(({ currentState, save }) =>
-      save(
-        banDocument({
-          user,
-          trade,
-          document: currentState,
-          timestamp
-        })
-      )
-    );
+    return docRepo
+      .getById({ enrollmentId, id: documentId })
+      .then(({ currentState, save }) =>
+        save(
+          banDocument({
+            user,
+            trade,
+            document: currentState,
+            timestamp
+          })
+        )
+      );
   },
   DeleteDocument: async ({
     userId,
@@ -79,25 +82,27 @@ export const docCommandHandler: (option: {
   }) => {
     // todo: check if user not exist (i.e. null), and throw exception.
     const user = await userRepo
-      .getById(userId)
+      .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => currentState);
 
     // todo: check if trade not exist (i.e. null), and throw exception.
     const trade = await tradeRepo
-      .getById(tradeId)
+      .getById({ enrollmentId, id: tradeId })
       .then(({ currentState }) => currentState);
 
     // todo: check if document not exist (i.e. null), and throw exception.
-    return docRepo.getById(documentId).then(({ currentState, save }) =>
-      save(
-        deleteDocument({
-          user,
-          trade,
-          document: currentState,
-          timestamp
-        })
-      )
-    );
+    return docRepo
+      .getById({ enrollmentId, id: documentId })
+      .then(({ currentState, save }) =>
+        save(
+          deleteDocument({
+            user,
+            trade,
+            document: currentState,
+            timestamp
+          })
+        )
+      );
   },
   UnbanDocument: async ({
     userId,
@@ -105,25 +110,27 @@ export const docCommandHandler: (option: {
   }) => {
     // todo: check if user not exist (i.e. null), and throw exception.
     const user = await userRepo
-      .getById(userId)
+      .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => currentState);
 
     // todo: check if trade not exist (i.e. null), and throw exception.
     const trade = await tradeRepo
-      .getById(tradeId)
+      .getById({ enrollmentId, id: tradeId })
       .then(({ currentState }) => currentState);
 
     // todo: check if document not exist (i.e. null), and throw exception.
-    return docRepo.getById(documentId).then(({ currentState, save }) =>
-      save(
-        unbanDocument({
-          user,
-          trade,
-          document: currentState,
-          timestamp
-        })
-      )
-    );
+    return docRepo
+      .getById({ enrollmentId, id: documentId })
+      .then(({ currentState, save }) =>
+        save(
+          unbanDocument({
+            user,
+            trade,
+            document: currentState,
+            timestamp
+          })
+        )
+      );
   },
   DefineDocumentDescription: async ({
     userId,
@@ -131,26 +138,28 @@ export const docCommandHandler: (option: {
   }) => {
     // todo: check if user not exist (i.e. null), and throw exception.
     const user = await userRepo
-      .getById(userId)
+      .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => currentState);
 
     // todo: check if trade not exist (i.e. null), and throw exception.
     const trade = await tradeRepo
-      .getById(tradeId)
+      .getById({ enrollmentId, id: tradeId })
       .then(({ currentState }) => currentState);
 
     // todo: check if document not exist (i.e. null), and throw exception.
-    return docRepo.getById(documentId).then(({ currentState, save }) =>
-      save(
-        defineDocumentDescription({
-          user,
-          trade,
-          document: currentState,
-          description,
-          timestamp
-        })
-      )
-    );
+    return docRepo
+      .getById({ enrollmentId, id: documentId })
+      .then(({ currentState, save }) =>
+        save(
+          defineDocumentDescription({
+            user,
+            trade,
+            document: currentState,
+            description,
+            timestamp
+          })
+        )
+      );
   },
   DefineDocumentLink: async ({
     userId,
@@ -158,26 +167,28 @@ export const docCommandHandler: (option: {
   }) => {
     // todo: check if user not exist (i.e. null), and throw exception.
     const user = await userRepo
-      .getById(userId)
+      .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => currentState);
 
     // todo: check if trade not exist (i.e. null), and throw exception.
     const trade = await tradeRepo
-      .getById(tradeId)
+      .getById({ enrollmentId, id: tradeId })
       .then(({ currentState }) => currentState);
 
     // todo: check if document not exist (i.e. null), and throw exception.
-    return docRepo.getById(documentId).then(({ currentState, save }) =>
-      save(
-        defineDocumentLink({
-          user,
-          trade,
-          document: currentState,
-          link,
-          timestamp
-        })
-      )
-    );
+    return docRepo
+      .getById({ enrollmentId, id: documentId })
+      .then(({ currentState, save }) =>
+        save(
+          defineDocumentLink({
+            user,
+            trade,
+            document: currentState,
+            link,
+            timestamp
+          })
+        )
+      );
   },
   DefineDocumentTitle: async ({
     userId,
@@ -185,26 +196,28 @@ export const docCommandHandler: (option: {
   }) => {
     // todo: check if user not exist (i.e. null), and throw exception.
     const user = await userRepo
-      .getById(userId)
+      .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => currentState);
 
     // todo: check if trade not exist (i.e. null), and throw exception.
     const trade = await tradeRepo
-      .getById(tradeId)
+      .getById({ enrollmentId, id: tradeId })
       .then(({ currentState }) => currentState);
 
     // todo: check if document not exist (i.e. null), and throw exception.
-    return docRepo.getById(documentId).then(({ currentState, save }) =>
-      save(
-        defineDocumentTitle({
-          user,
-          trade,
-          document: currentState,
-          title,
-          timestamp
-        })
-      )
-    );
+    return docRepo
+      .getById({ enrollmentId, id: documentId })
+      .then(({ currentState, save }) =>
+        save(
+          defineDocumentTitle({
+            user,
+            trade,
+            document: currentState,
+            title,
+            timestamp
+          })
+        )
+      );
   },
   RejectApprovedDocument: async ({
     userId,
@@ -212,25 +225,27 @@ export const docCommandHandler: (option: {
   }) => {
     // todo: check if user not exist (i.e. null), and throw exception.
     const user = await userRepo
-      .getById(userId)
+      .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => currentState);
 
     // todo: check if trade not exist (i.e. null), and throw exception.
     const trade = await tradeRepo
-      .getById(tradeId)
+      .getById({ enrollmentId, id: tradeId })
       .then(({ currentState }) => currentState);
 
     // todo: check if document not exist (i.e. null), and throw exception.
-    return docRepo.getById(documentId).then(({ currentState, save }) =>
-      save(
-        rejectApprovedDocument({
-          user,
-          trade,
-          document: currentState,
-          timestamp
-        })
-      )
-    );
+    return docRepo
+      .getById({ enrollmentId, id: documentId })
+      .then(({ currentState, save }) =>
+        save(
+          rejectApprovedDocument({
+            user,
+            trade,
+            document: currentState,
+            timestamp
+          })
+        )
+      );
   },
   ResubmitDocument: async ({
     userId,
@@ -238,24 +253,26 @@ export const docCommandHandler: (option: {
   }) => {
     // todo: check if user not exist (i.e. null), and throw exception.
     const user = await userRepo
-      .getById(userId)
+      .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => currentState);
 
     // todo: check if trade not exist (i.e. null), and throw exception.
     const trade = await tradeRepo
-      .getById(tradeId)
+      .getById({ enrollmentId, id: tradeId })
       .then(({ currentState }) => currentState);
 
     // todo: check if document not exist (i.e. null), and throw exception.
-    return docRepo.getById(documentId).then(({ currentState, save }) =>
-      save(
-        resubmitDocument({
-          user,
-          trade,
-          document: currentState,
-          timestamp
-        })
-      )
-    );
+    return docRepo
+      .getById({ enrollmentId, id: documentId })
+      .then(({ currentState, save }) =>
+        save(
+          resubmitDocument({
+            user,
+            trade,
+            document: currentState,
+            timestamp
+          })
+        )
+      );
   }
 });
