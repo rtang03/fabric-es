@@ -1,3 +1,4 @@
+import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import {
   ABOUT_DOCUMENT,
@@ -46,9 +47,9 @@ import {
 import { etcPoRepo } from './__utils__/mock-privatedata';
 
 let server;
-let documentService;
-let tradeService;
-let privatedataService;
+let documentService: ApolloServer;
+let tradeService: ApolloServer;
+let privatedataService: ApolloServer;
 
 beforeAll(async () => {
   documentService = getApolloServer({

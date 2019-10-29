@@ -11,10 +11,14 @@ export const etcPoResolvers: Resolvers<TArgEtcPo> = {
       {
         dataSources: {
           etcDataSource: { privatedataRepo }
-        }
+        },
+        enrollmentId
       }
     ): Promise<Commit> =>
-      etcPoCommandHandler({ etcPoRepo: privatedataRepo }).CreateEtcPo({
+      etcPoCommandHandler({
+        enrollmentId,
+        etcPoRepo: privatedataRepo
+      }).CreateEtcPo({
         userId,
         payload: { id, body, timestamp: Date.now() }
       }),
@@ -26,10 +30,11 @@ export const etcPoResolvers: Resolvers<TArgEtcPo> = {
           etcDataSource: {
             privatedataRepo: { getById }
           }
-        }
+        },
+        enrollmentId
       }
     ): Promise<EtcPo | { error: any }> =>
-      getById(id)
+      getById({ enrollmentId, id })
         .then(({ currentState }) => currentState)
         .catch(error => ({ error }))
   },
@@ -44,6 +49,6 @@ export const etcPoResolvers: Resolvers<TArgEtcPo> = {
           }
         }
       }
-    ) => getById(documentId).then(({ currentState }) => currentState)
+    ) => getById({ id: documentId }).then(({ currentState }) => currentState)
   }
 };

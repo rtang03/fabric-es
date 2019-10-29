@@ -32,7 +32,7 @@ afterAll(async () => peer.disconnect());
 describe('Start peer privatedata Tests', () => {
   it('should Add #1', async () =>
     repo
-      .create(enrollmentId)
+      .create({ enrollmentId, id: enrollmentId })
       .save([{ type: 'ADD' }])
       .then((commit: Commit) => {
         commitId = commit.commitId;
@@ -48,7 +48,7 @@ describe('Start peer privatedata Tests', () => {
 
   it('should getById', async () =>
     repo
-      .getById(enrollmentId)
+      .getById({ enrollmentId, id: enrollmentId })
       .then(({ currentState }) => expect(currentState).toEqual({ value: 1 })));
 
   it('should deleteByEntityIdCommitId', async () =>

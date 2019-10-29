@@ -30,7 +30,7 @@ export const privateDataRepo: (
   entityName,
   reducer
 }) => ({
-  create: id => ({
+  create: ({ enrollmentId, id }) => ({
     save: events =>
       getPromiseToSave({
         id,
@@ -38,10 +38,11 @@ export const privateDataRepo: (
         version: 0,
         events,
         store,
-        collection
+        collection,
+        enrollmentId
       })
   }),
-  getById: id =>
+  getById: ({ enrollmentId, id }) =>
     new Promise<{
       currentState: TEntity;
       save: (events: TEvent[]) => Promise<Commit | { error: any }>;
@@ -60,7 +61,8 @@ export const privateDataRepo: (
                 events,
                 version: keys(result).length,
                 store,
-                collection
+                collection,
+                enrollmentId
               })
           });
         }

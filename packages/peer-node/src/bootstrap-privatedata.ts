@@ -18,8 +18,11 @@ const collection = 'Org1PrivateDetails';
 
 const bootstrap = async () => {
   console.log('♨️♨️ Bootstraping Doc-Etc - Offchain ♨️♨️');
-  const enrollmentId = '';
-  networkConfig = await getNetwork({ enrollmentId });
+  const enrollmentId = 'admin';
+  networkConfig = await getNetwork({
+    enrollmentId,
+    channelEventHubExisted: true
+  });
   const { getPrivateDataRepo } = createPeer({
     ...networkConfig,
     reducer: reduceToEtcPo,

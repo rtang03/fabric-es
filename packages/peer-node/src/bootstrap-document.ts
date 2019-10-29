@@ -23,8 +23,11 @@ const collection = 'Org1PrivateDetails';
 
 const bootstrap = async () => {
   console.log('♨️♨️ Bootstraping Document - Onchain  ♨️♨️');
-  const enrollmentId = '';
-  networkConfig = await getNetwork({ enrollmentId });
+  const enrollmentId = 'admin';
+  networkConfig = await getNetwork({
+    enrollmentId,
+    channelEventHubExisted: true
+  });
   const { reconcile, getRepository, subscribeHub } = createPeer({
     ...networkConfig,
     reducer: reduceToDocument,

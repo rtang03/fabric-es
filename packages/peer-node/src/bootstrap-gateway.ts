@@ -7,21 +7,13 @@ import jwt from 'jsonwebtoken';
 import jwks from 'jwks-rsa';
 import morgan from 'morgan';
 import './env';
-
-class AuthenticatedDataSource extends RemoteGraphQLDataSource {
-  willSendRequest({ request, context }: { request; context: any }) {
-    // pass client_id to underlying service. For offchain resolvers, it needs
-    // additional auth check, to be implementated in the resolver
-    // see https://auth0.com/blog/develop-modern-apps-with-react-graphql-apollo-and-add-authentication/#Secure-your-GraphQL-API-with-Auth0
-    request.http.headers.set('client_id', context.client_id);
-  }
-}
+import { AuthenticatedDataSource } from './utils';
 
 const gateway = new ApolloGateway({
   serviceList: [
     { name: 'trade', url: 'http://localhost:14001/graphql' },
-    // { name: 'document', url: 'http://localhost:14003/graphql' },
-    // { name: 'privatedata', url: 'http://localhost:14002/graphql' }
+    { name: 'document', url: 'http://localhost:14003/graphql' },
+    { name: 'privatedata', url: 'http://localhost:14002/graphql' }
   ],
   buildService: ({ url }) => new AuthenticatedDataSource({ url })
 });
@@ -51,6 +43,8 @@ const bootstrap = async () => {
     context: async ({ req }) => {
       let client_id;
       let token = req.headers.authorization;
+      console.log('GATEWAY');
+      console.log(req.headers);
       if (token && token.startsWith('Bearer ')) {
         token = token.slice(7, token.length);
         client_id = await new Promise((resolve, reject) =>
@@ -59,6 +53,7 @@ const bootstrap = async () => {
           )
         );
       }
+      console.log(client_id);
       return { client_id };
     }
   });

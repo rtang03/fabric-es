@@ -1,15 +1,17 @@
 import { Commit } from '../types';
 
 export type PrivatedataRepository<TEntity = any, TEvent = any> = {
-  create: (
-    id: string
-  ) => {
+  create: (option: {
+    enrollmentId: string;
+    id: string;
+  }) => {
     save: (events: TEvent[]) => Promise<Commit | { error: any }>;
   };
   getByEntityName: () => Promise<{ data: TEntity[] }>;
-  getById: (
-    id: string
-  ) => Promise<{
+  getById: (option: {
+    enrollmentId: string;
+    id: string;
+  }) => Promise<{
     currentState: TEntity;
     save: (
       events: TEvent[],

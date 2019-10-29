@@ -58,9 +58,11 @@ const prefix = 'int_test_';
 
 beforeAll(async () => {
   // Document Service
-
-  const enrollmentId = '';
-  docNetworkConfig = await getNetwork({ enrollmentId });
+  const enrollmentId = 'admin';
+  docNetworkConfig = await getNetwork({
+    enrollmentId,
+    channelEventHubExisted: true
+  });
   docPeer = createPeer({
     ...docNetworkConfig,
     collection,
@@ -94,8 +96,10 @@ beforeAll(async () => {
   await documentService.listen({ port: 14001 });
 
   // Trade Service
-  // todo: bug
-  tradeNetworkConfig = await getNetwork({ enrollmentId: null });
+  tradeNetworkConfig = await getNetwork({
+    enrollmentId,
+    channelEventHubExisted: true
+  });
   tradePeer = createPeer({
     ...tradeNetworkConfig,
     collection,
