@@ -5,7 +5,7 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "module": "commonjs",
-    "declaration": false,
+    "declaration": true,
     "sourceMap": false,
     "types": ["node", "jest", "@types/bytebuffer"],
     "lib": ["es2017", "dom", "esnext.asynciterable"],

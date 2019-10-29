@@ -9,9 +9,13 @@ export const resolvers: Resolvers<TQuery, Document> = {
     createDocument: async (
       _,
       { description, documentId, link, title, tradeId, userId },
-      { dataSources: { docDataSource, tradeDataSource, userDataSource } }
+      {
+        dataSources: { docDataSource, tradeDataSource, userDataSource },
+        enrollmentId
+      }
     ): Promise<Commit> =>
       docCommandHandler({
+        enrollmentId,
         docRepo: docDataSource.repo,
         tradeRepo: tradeDataSource.repo,
         userRepo: userDataSource.repo
@@ -79,7 +83,8 @@ export const resolvers: Resolvers<TQuery, Document> = {
           }
         }
       }
-    ): Promise<Document> => getById(id).then(({ currentState }) => currentState)
+    ): Promise<Document> =>
+      getById({ id }).then(({ currentState }) => currentState)
   },
   Trade: {
     documents: (
@@ -108,6 +113,6 @@ export const resolvers: Resolvers<TQuery, Document> = {
         }
       }
     ): Promise<Document> =>
-      getById(documentId).then(({ currentState }) => currentState)
+      getById({ id: documentId }).then(({ currentState }) => currentState)
   }
 };

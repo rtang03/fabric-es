@@ -9,9 +9,10 @@ export const tradeResolver: Resolvers<TQuery, Trade> = {
     createTrade: async (
       _,
       { userId, title, tradeId, description },
-      { dataSources: { tradeDataSource, userDataSource } }
+      { dataSources: { tradeDataSource, userDataSource }, enrollmentId }
     ): Promise<Commit> =>
       tradeCommandHandler({
+        enrollmentId,
         userRepo: userDataSource.repo,
         tradeRepo: tradeDataSource.repo
       }).CreateTrade({
@@ -78,7 +79,7 @@ export const tradeResolver: Resolvers<TQuery, Trade> = {
         }
       }
     ): Promise<Trade | { error: any }> =>
-      getById(id)
+      getById({ id })
         .then(({ currentState }) => currentState)
         .catch(error => ({ error }))
   },
@@ -92,6 +93,6 @@ export const tradeResolver: Resolvers<TQuery, Trade> = {
           }
         }
       }
-    ) => getById(tradeId).then(({ currentState }) => currentState)
+    ) => getById({ id: tradeId }).then(({ currentState }) => currentState)
   }
 };

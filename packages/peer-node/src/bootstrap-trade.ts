@@ -1,4 +1,4 @@
-require('events').EventEmitter.defaultMaxListeners = 15;
+// require('events').EventEmitter.defaultMaxListeners = 15;
 import { buildFederatedSchema } from '@apollo/federation';
 import {
   reduceToDocument,
@@ -21,7 +21,10 @@ let networkConfig;
 const bootstrap = async () => {
   console.log('♨️♨️ Bootstraping Trade - Onchain  ♨️♨️');
   const enrollmentId = 'admin';
-  networkConfig = await getNetwork({ enrollmentId });
+  networkConfig = await getNetwork({
+    enrollmentId,
+    channelEventHubExisted: true
+  });
   // note: the default reducer is reduceToDocument
   const { reconcile, getRepository, subscribeHub } = createPeer({
     ...networkConfig,
@@ -43,13 +46,15 @@ const bootstrap = async () => {
   const server = new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),
     playground: true,
-    // subscriptions: { path: '/graphql' },
     dataSources: (): DataSources => ({
       tradeDataSource: new FabricData({ repo: tradeRepo }),
       userDataSource: new FabricData({ repo: userRepo })
     }),
     context: ({ req }) => {
-      console.log(req.headers);
+      console.log(`${req.headers.client_id} is authenticated.`);
+      return {
+        enrollmentId: 'admin'
+      };
     }
   });
 

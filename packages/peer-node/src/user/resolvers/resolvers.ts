@@ -15,9 +15,10 @@ export const userResolver: Resolvers<TQuery, User> = {
     createUser: async (
       _,
       { name, userId },
-      { dataSources: { userDataSource, tradeDataSource } }
+      { dataSources: { userDataSource, tradeDataSource }, enrollmentId }
     ): Promise<Commit> =>
       userCommandHandler({
+        enrollmentId,
         userRepo: userDataSource.repo,
         tradeRepo: tradeDataSource.repo
       }).CreateUser({
@@ -84,7 +85,7 @@ export const userResolver: Resolvers<TQuery, User> = {
         }
       }
     ): Promise<User | { error: any }> =>
-      getById(id)
+      getById({ id })
         .then(({ currentState }) => currentState)
         .catch(error => ({ error }))
   }

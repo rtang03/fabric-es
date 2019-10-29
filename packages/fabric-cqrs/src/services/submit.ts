@@ -1,6 +1,9 @@
+import * as Client from 'fabric-client';
 import { from, Observable } from 'rxjs';
 import { Commit, Context } from '../types';
 import { getContract } from './contract';
+
+const logger = Client.getLogger('SUBMIT');
 
 export const submit: (
   fcn: string,
@@ -17,8 +20,8 @@ export const submit: (
         JSON.parse(Buffer.from(JSON.parse(res)).toString())
       )
       .catch(error => {
-        console.log(`Error processing Submit transaction: ${fcn}`);
-        console.error(error.stack);
+        logger.info(`Error processing Submit transaction: ${fcn}`);
+        logger.error(error.stack);
         return { error };
       })
   );

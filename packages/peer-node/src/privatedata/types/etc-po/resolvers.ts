@@ -22,6 +22,7 @@ export type Resolvers<TArg = any> = {
       args: TArg[P],
       ctx: {
         dataSources: DataSources;
+        enrollmentId: string;
       },
       info?: GraphQLResolveInfo
     ) =>

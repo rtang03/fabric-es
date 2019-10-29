@@ -9,7 +9,7 @@ export type Resolvers<TArg, TEntity extends User | Trade | Document> = {
     [P in keyof Partial<TArg>]: (
       parent: null | undefined,
       args: TArg[P],
-      ctx: { dataSources: DataSources },
+      ctx: { dataSources: DataSources; enrollmentId: string },
       info?: GraphQLResolveInfo
     ) =>
       | string

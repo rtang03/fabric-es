@@ -25,7 +25,7 @@ export const getPrivatedataMockRepository = <TEntity, TEvent>(
   entityName: string,
   reducer: (history) => TEntity
 ): PrivatedataRepository<TEntity, TEvent> => ({
-  create: id => ({
+  create: ({ enrollmentId, id }) => ({
     save: events => {
       const entity: Commit = createCommit({
         id,
@@ -37,7 +37,7 @@ export const getPrivatedataMockRepository = <TEntity, TEvent>(
       return Promise.resolve(omit(entity, ['events']));
     }
   }),
-  getById: id =>
+  getById: ({ enrollmentId, id }) =>
     new Promise<any>(resolve => {
       const matched = filter(
         values<Commit>(mockdb),
