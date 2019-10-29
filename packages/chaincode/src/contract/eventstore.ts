@@ -22,7 +22,8 @@ export class EventStore extends Contract {
 
   @Transaction()
   async instantiate(context: MyContext) {
-    console.log('=== START : Initialize eventstore ===');
+    const logger = context.logging.getLogger('instantiate');
+    logger.info('=== START : Initialize eventstore ===');
     const commits: Commit[] = [];
     commits.push(
       createInstance({
@@ -44,8 +45,8 @@ export class EventStore extends Contract {
     for (const commit of commits) {
       await context.stateList.addState(commit);
     }
-    console.log('=== END : Initialize eventstore ===');
-    console.log('=== START : Initialize ngac ===');
+    logger.info('=== END : Initialize eventstore ===');
+    logger.info('=== START : Initialize ngac ===');
     await ngacRepo(context).addPolicy(
       createPolicy({
         context,
@@ -78,14 +79,15 @@ export class EventStore extends Contract {
         ]
       })
     );
-    console.log('=== END : Initialize ngac ===');
+    logger.info('=== END : Initialize ngac ===');
     return Buffer.from(JSON.stringify(commits));
   }
 
   async beforeTransaction(context) {
     const mspId = context.clientIdentity.getMSPID();
+    const logger = context.logging.getLogger('Permission');
     if (mspId !== 'Org1MSP') {
-      console.log(
+      logger.info(
         `👀 is checking permission for: ${
           context.clientIdentity.getX509Certificate().subject.commonName
         }`
@@ -93,14 +95,14 @@ export class EventStore extends Contract {
       await permissionCheck({ context })
         .then(assertions => {
           if (assertions === []) {
-            console.info(
+            logger.info(
               '⁉️ Permission request does not have any active policy.'
             );
             return true;
           }
           // Current strategy design: all corresponding policy statement must assert true;
           assertions.forEach(({ sid, assertion, message }) => {
-            console.log(`♨️ Policy "${sid}" asserts: ${assertion}`);
+            logger.info(`♨️ Policy "${sid}" asserts: ${assertion}`);
             if (!assertion)
               throw new Error(
                 `🚫 Policy "${sid}" assertion fails: ${message || 'no info.'}.`
@@ -109,7 +111,7 @@ export class EventStore extends Contract {
           return true;
         })
         .catch(error => {
-          console.error(error);
+          logger.error(error);
           throw error;
         });
     }
@@ -117,7 +119,7 @@ export class EventStore extends Contract {
 
   @Transaction()
   async createCommit(
-    ctx: MyContext,
+    context: MyContext,
     entityName: string,
     id: string,
     version: string,
@@ -125,36 +127,42 @@ export class EventStore extends Contract {
   ) {
     if (!id || !entityName || !eventStr || version === undefined)
       throw new Error('createCommit problem: null argument');
-    if (version === '0') {
-      const result = await ctx.stateList.getQueryResult(
-        [JSON.stringify(entityName), JSON.stringify(id)],
-        true
-      );
-      if (!isEqual(result, {})) {
-        return getErrorMessage('createCommit');
-      }
-    }
+    const logger = context.logging.getLogger('createCommit');
+    // if (version === '0') {
+    //   const result = await ctx.stateList.getQueryResult(
+    //     [JSON.stringify(entityName), JSON.stringify(id)],
+    //     true
+    //   );
+    //   if (!isEqual(result, {})) {
+    //     return getErrorMessage('createCommit');
+    //   }
+    // }
     const events = JSON.parse(eventStr);
     const commit = createInstance({ id, version, entityName, events });
-    await ctx.stateList.addState(commit);
+    await context.stateList.addState(commit);
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const evt: any = omit(commit, 'key');
     evt.entityId = evt.id;
-    ctx.stub.setEvent('createCommit', Buffer.from(JSON.stringify(evt)));
+    context.stub.setEvent('createCommit', Buffer.from(JSON.stringify(evt)));
     return Buffer.from(JSON.stringify(toRecord(omit(commit, 'key'))));
   }
 
   @Transaction(false)
-  async queryByEntityName(ctx: MyContext, entityName: string) {
+  async queryByEntityName(context: MyContext, entityName: string) {
     if (!entityName)
       throw new Error('queryByEntityName problem: null argument');
-    return await ctx.stateList.getQueryResult([JSON.stringify(entityName)]);
+    const logger = context.logging.getLogger('queryByEntityName');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
+    return context.stateList.getQueryResult([JSON.stringify(entityName)]);
   }
 
   @Transaction(false)
-  async queryByEntityId(ctx: MyContext, entityName: string, id: string) {
+  async queryByEntityId(context: MyContext, entityName: string, id: string) {
     if (!id || !entityName)
       throw new Error('queryByEntityId problem: null argument');
-    return await ctx.stateList.getQueryResult([
+    const logger = context.logging.getLogger('queryByEntityId');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
+    return context.stateList.getQueryResult([
       JSON.stringify(entityName),
       JSON.stringify(id)
     ]);
@@ -162,15 +170,17 @@ export class EventStore extends Contract {
 
   @Transaction(false)
   async queryByEntityIdCommitId(
-    ctx: MyContext,
+    context: MyContext,
     entityName: string,
     id: string,
     commitId: string
   ) {
     if (!id || !entityName || !commitId)
       throw new Error('queryByEntityIdCommitId problem: null argument');
+    const logger = context.logging.getLogger('queryByEntityIdCommitId');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const key = makeKey([entityName, id, commitId]);
-    const commit = await ctx.stateList.getState(key);
+    const commit = await context.stateList.getState(key);
     const result = {};
     if (commit && commit.commitId) {
       result[commit.commitId] = omit(commit, 'key');
@@ -180,17 +190,19 @@ export class EventStore extends Contract {
 
   @Transaction()
   async deleteByEntityIdCommitId(
-    ctx: MyContext,
+    context: MyContext,
     entityName: string,
     id: string,
     commitId: string
   ) {
     if (!id || !entityName || !commitId)
       throw new Error('deleteEntityByCommitId problem: null argument');
+    const logger = context.logging.getLogger('deleteByEntityIdCommitId');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const key = makeKey([entityName, id, commitId]);
-    const commit = await ctx.stateList.getState(key);
+    const commit = await context.stateList.getState(key);
     if (commit && commit.key) {
-      await ctx.stateList.deleteState(commit).catch(err => {
+      await context.stateList.deleteState(commit).catch(err => {
         throw new Error(err);
       });
       return getSuccessMessage(`Commit ${commit.commitId} is deleted`);
@@ -200,10 +212,12 @@ export class EventStore extends Contract {
   }
 
   @Transaction()
-  async deleteByEntityId(ctx: MyContext, entityName: string, id: string) {
+  async deleteByEntityId(context: MyContext, entityName: string, id: string) {
     if (!id || !entityName)
       throw new Error('deleteByEntityId problem: null argument');
-    return await ctx.stateList.deleteStateByEnityId([
+    const logger = context.logging.getLogger('deleteByEntityId');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
+    return context.stateList.deleteStateByEnityId([
       JSON.stringify(entityName),
       JSON.stringify(id)
     ]);
@@ -221,6 +235,8 @@ export class EventStore extends Contract {
   ) {
     if (!policyClass || !sid || !uri || !eventsStr)
       throw new Error('addPolicy problem: null argument');
+    const logger = context.logging.getLogger('addPolicy');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const allowedEvents = JSON.parse(eventsStr);
     const condition = conditionStr ? JSON.parse(conditionStr) : null;
     const policy = await ngacRepo(context).addPolicy(
@@ -242,6 +258,8 @@ export class EventStore extends Contract {
   async addMSPAttr(context: MyContext, mspId: string, mspAttrsStr: string) {
     if (!mspId || !mspAttrsStr)
       throw new Error('addMSPAttr problem: null argument');
+    const logger = context.logging.getLogger('addMSPAttr');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const mspAttrs = JSON.parse(mspAttrsStr);
     const attributes = await ngacRepo(context).addMSPAttr(
       createMSPResource({ context, mspId, mspAttrs })
@@ -260,6 +278,8 @@ export class EventStore extends Contract {
   ) {
     if (!entityName || !resourceAttrsStr)
       throw new Error('addResourceAttr problem: null argument');
+    const logger = context.logging.getLogger('addResourceAttr');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const resourceAttrs = JSON.parse(resourceAttrsStr);
     const attributes = await ngacRepo(context).addResourceAttr(
       createResource({ context, entityName, entityId, resourceAttrs })
@@ -272,6 +292,8 @@ export class EventStore extends Contract {
   @Transaction()
   async deleteMSPAttrByMSPID(context: MyContext, mspId: string) {
     if (!mspId) throw new Error('deleteMSPAttrByMSPID problem: null argument');
+    const logger = context.logging.getLogger('deleteMSPAttrByMSPID');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const msp = await ngacRepo(context).deleteMSPAttrByMSPID(mspId);
     return msp
       ? getSuccessMessage(`${mspId} is successfully deleted`)
@@ -281,6 +303,8 @@ export class EventStore extends Contract {
   @Transaction()
   async deletePolicyById(context: MyContext, id: string) {
     if (!id) throw new Error('deletePolicyById problem: null argument');
+    const logger = context.logging.getLogger('deletePolicyById');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const policies = await ngacRepo(context).deletePolicyById(id);
     return policies
       ? getSuccessMessage(`${policies.length} record(s) is deleted`)
@@ -291,6 +315,8 @@ export class EventStore extends Contract {
   async deletePolicyByIdSid(context: MyContext, id: string, sid: string) {
     if (!id || !sid)
       throw new Error('deletePolicyByIdSid problem: null argument');
+    const logger = context.logging.getLogger('deletePolicyByIdSid');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const keyDeleted = await ngacRepo(context).deletePolicyByIdSid(id, sid);
     return keyDeleted
       ? getSuccessMessage(`${keyDeleted} is deleted`)
@@ -300,6 +326,8 @@ export class EventStore extends Contract {
   @Transaction()
   async deleteReourceAttrByURI(context: MyContext, uri: string) {
     if (!uri) throw new Error('deleteReourceAttrByURI problem: null argument');
+    const logger = context.logging.getLogger('deleteReourceAttrByURI');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const keyDeleted = await ngacRepo(context).deleteReourceAttrByURI(uri);
     return keyDeleted
       ? getSuccessMessage(`${keyDeleted} is deleted`)
@@ -315,6 +343,8 @@ export class EventStore extends Contract {
   ) {
     if (!entityId || !entityName || !resourceAttrsStr)
       throw new Error('addResourceAttr problem: null argument');
+    const logger = context.logging.getLogger('upsertResourceAttr');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const resourceAttrs = JSON.parse(resourceAttrsStr);
     const attributes = await ngacRepo(context).upsertResourceAttr(
       createResource({ context, entityId, entityName, resourceAttrs })
@@ -327,6 +357,8 @@ export class EventStore extends Contract {
   @Transaction(false)
   async getMSPAttrByMSPID(context: MyContext, mspid: string) {
     if (!mspid) throw new Error('getMSPAttrByMSPID problem: null argument');
+    const logger = context.logging.getLogger('getMSPAttrByMSPID');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const attributes = await ngacRepo(context).getMSPAttrByMSPID(mspid);
     return attributes
       ? Buffer.from(JSON.stringify(attributes))
@@ -336,6 +368,8 @@ export class EventStore extends Contract {
   @Transaction(false)
   async getPolicyById(context: MyContext, id: string) {
     if (!id) throw new Error('getPolicyById problem: null argument');
+    const logger = context.logging.getLogger('getPolicyById');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const policies = await ngacRepo(context).getPolicyById(id);
     return policies
       ? Buffer.from(JSON.stringify(policies))
@@ -345,6 +379,8 @@ export class EventStore extends Contract {
   @Transaction(false)
   async getPolicyByIdSid(context: MyContext, id: string, sid: string) {
     if (!id || !sid) throw new Error('getPolicyByIdSid problem: null argument');
+    const logger = context.logging.getLogger('getPolicyByIdSid');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const policies = await ngacRepo(context).getPolicyByIdSid(id, sid);
     return policies
       ? Buffer.from(JSON.stringify(policies))
@@ -354,6 +390,8 @@ export class EventStore extends Contract {
   @Transaction(false)
   async getResourceAttrByURI(context: MyContext, uri: string) {
     if (!uri) throw new Error('getResourceAttrByURI problem: null argument');
+    const logger = context.logging.getLogger('getResourceAttrByURI');
+    logger.info(`Submitter: ${context.clientIdentity.getID()}`);
     const attributes = await ngacRepo(context).getResourceAttrByURI(uri);
     return attributes
       ? Buffer.from(JSON.stringify(attributes))

@@ -8,7 +8,7 @@ export const submitPrivateData: (
   transientData: Record<string, Buffer>,
   { network }: Context
 ) => Promise<
-  Record<string, Commit> | { error?: any; status?: string; message?: string }
+  Record<string, Commit> & { error?: any; status?: string; message?: string }
 > = async (fcn, args, transientData, { network }) =>
   await getContract(network, true).then(
     async ({ contract }) =>

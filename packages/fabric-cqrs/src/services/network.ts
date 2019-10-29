@@ -16,17 +16,19 @@ export const getNetwork: (option: {
   connectionProfile?: string;
   wallet?: Wallet;
   channelEventHub?: string;
+  channelEventHubExisted?: boolean;
 }) => Promise<{
   enrollmentId: string;
   network: Network;
   gateway: Gateway;
-  channelHub: ChannelEventHub;
+  channelHub?: ChannelEventHub;
 }> = async ({
   enrollmentId,
   channelName = 'eventstore',
   connectionProfile = process.env.CONNECTION_PROFILE,
   wallet = new FileSystemWallet(process.env.WALLET || 'assets/wallet'),
-  channelEventHub = process.env.CHANNEL_HUB
+  channelEventHub = process.env.CHANNEL_HUB,
+  channelEventHubExisted
 }) => {
   const identityExist: boolean = await wallet.exists(enrollmentId);
   if (!identityExist) {
@@ -40,23 +42,34 @@ export const getNetwork: (option: {
   }
 
   const gateway = await new Gateway();
-  await gateway
-    .connect(safeLoad(readFileSync(connectionProfile, 'utf8')), {
-      identity: enrollmentId,
-      wallet,
-      discovery: { enabled: false, asLocalhost: true },
-      eventHandlerOptions: {
-        strategy: DefaultEventHandlerStrategies.MSPID_SCOPE_ANYFORTX
-      },
-      queryHandlerOptions: {
-        strategy: DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE
-      }
-    })
-    .catch(error => {
-      console.error(error);
-      throw error;
-    });
+  const connect = (identity: string) =>
+    gateway
+      .connect(safeLoad(readFileSync(connectionProfile, 'utf8')), {
+        identity,
+        wallet,
+        discovery: { enabled: false, asLocalhost: true },
+        eventHandlerOptions: {
+          strategy: DefaultEventHandlerStrategies.MSPID_SCOPE_ANYFORTX
+        },
+        queryHandlerOptions: {
+          strategy: DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        throw error;
+      });
+
+  await connect(enrollmentId);
+
   const network = await gateway.getNetwork(channelName);
-  const channelHub = network.getChannel().getChannelEventHub(channelEventHub);
-  return { enrollmentId, network, gateway, channelHub };
+
+  return channelEventHubExisted
+    ? {
+        enrollmentId,
+        network,
+        gateway,
+        channelHub: network.getChannel().getChannelEventHub(channelEventHub)
+      }
+    : { enrollmentId, network, gateway };
 };

@@ -6,16 +6,19 @@ import {
 import { TradeRepo, UserCommandHandler, UserRepo } from '../domain/types';
 
 export const userCommandHandler: (option: {
+  enrollmentId: string;
   userRepo: UserRepo;
   tradeRepo: TradeRepo;
-}) => UserCommandHandler = ({ userRepo, tradeRepo }) => ({
+}) => UserCommandHandler = ({ enrollmentId, userRepo, tradeRepo }) => ({
   CreateUser: async ({ userId, payload: { name, timestamp } }) =>
-    await userRepo.create(userId).save(createUser({ userId, name, timestamp })),
+    await userRepo
+      .create({ enrollmentId, id: userId })
+      .save(createUser({ userId, name, timestamp })),
   DeclineReviewInvitation: async ({
     userId,
     payload: { documentId, tradeId, timestamp }
   }) =>
-    await userRepo.getById(userId).then(({ save }) =>
+    await userRepo.getById({ enrollmentId, id: userId }).then(({ save }) =>
       save(
         declineReviewInvitation({
           reviewOwnerId: userId,
@@ -29,7 +32,7 @@ export const userCommandHandler: (option: {
     userId,
     payload: { documentId, tradeId, timestamp }
   }) =>
-    await userRepo.getById(userId).then(({ save }) =>
+    await userRepo.getById({ enrollmentId, id: userId }).then(({ save }) =>
       save(
         expireReviewInvitation({
           reviewOwnerId: userId,

@@ -16,6 +16,7 @@ export const createChannel: (
     fabricNetwork: process.env.PATH_TO_NETWORK
   }
 ) => {
+  const logger = Client.getLogger('CREATE_CHANNEL');
   const { channelTx, connectionProfile } = context;
   const client: Client = await getClientForOrg(connectionProfile);
 
@@ -35,6 +36,7 @@ export const createChannel: (
   const config = client.extractChannelConfig(
     readFileSync(join(__dirname, channelTx, `${channelName}.tx`))
   );
+  logger.debug('Extract channel.tx');
   const signatures = [];
   for (const { orgName } of getOrgs()) {
     const admin = await getClientForOrg(connectionProfile);
@@ -46,7 +48,7 @@ export const createChannel: (
   }
   return channel.getGenesisBlock().then(
     () => {
-      console.log(`Got genesis block. Channel: ${channelName} already exists`);
+      logger.info(`Got genesis block. Channel: ${channelName} already exists`);
       return { status: 'SUCCESS' };
     },
     async () =>
@@ -59,10 +61,13 @@ export const createChannel: (
           txId: client.newTransactionID(true)
         })
         .then(result => {
-          console.log(`Channel ${channelName} does not exist yet`);
+          logger.info(`Channel ${channelName} does not exist yet`);
           if (result.status === 'SUCCESS') {
             return result;
-          } else throw new Error('Failed to create the channel.');
+          } else {
+            logger.error('Failed to create the channel.');
+            throw new Error('Failed to create the channel.');
+          }
         })
   );
 };
