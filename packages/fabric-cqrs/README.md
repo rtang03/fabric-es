@@ -7,5 +7,7 @@ If admin is not previously enrolled, or the network is redeployed, need to run
 yarn run enrollAdmin
 ```
 
-### Run peer integration test
+Notes:
+- If running test `yarn run test:service.ngac.pe.int.1u`, you need to prepare another admin from 
+org2, i.e. need to run `yarn run enrollAdminOrg2` beforehand.
 
