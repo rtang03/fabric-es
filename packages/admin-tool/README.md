@@ -1,2 +1,10 @@
-https://github.com/kevin-hf/kevin-fabric-sdk-node/tree/master/app
-https://github.com/PacktPublishing/Handson-Blockchain-Development-with-Hyperledger/tree/master/network
+### Notes
+
+Currently, it does two major functions
+- install/instantiate/upgrade eventstore chaincode
+- install/instantiate/upgrade privata chaincode
+
+The collections definition of privatadata is at `collections.json`, is tentative. 
+Later, when there is clearer requirement, it shall modify.  
+
+Besides, it provides the helper functions, e.g. `createUser`, to other packages. 

@@ -6,14 +6,13 @@
   "scripts": {
     "build": "yarn run clean && tsc",
     "test:install-instantiate-eventstore": "npm run prepare-asset && jest eventstore-instantiate.test",
-    "test:idnstall-upgrade-eventstore": "npm run prepare-asset && jest eventstore-upgrade.test",
+    "test:install-upgrade-eventstore": "npm run prepare-asset && jest eventstore-upgrade.test",
     "test:install-instantiate-privatedata": "npm run prepare-asset && jest privatedata-instantiate.test",
     "test:install-upgrade-privatedata": "npm run prepare-asset && jest privatedata-upgrade.test",
     "test:ca": "rimraf wallet && jest ca.unit.test",
     "test:ca-identity": "jest ca.identity.unit.test",
     "prepare-asset": "rimraf assets && mkdir -p ./assets/client-certs/hfc-kvs/org1",
-    "clean": "rimraf dist",
-    "start": "yarn run build && node ./dist/app.js"
+    "clean": "rimraf dist"
   },
   "private": true,
   "engineStrict": true,
