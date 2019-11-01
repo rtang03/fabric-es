@@ -8,6 +8,7 @@
     "packages/app-etc",
     "packages/app-erp",
     "packages/admin-tool",
+    "packages/caliper",
     "packages/chaincode",
     "packages/common",
     "packages/example",
