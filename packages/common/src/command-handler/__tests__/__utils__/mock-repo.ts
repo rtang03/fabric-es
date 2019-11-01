@@ -5,12 +5,17 @@ import {
   reduceToUser
 } from '../../../domain/entities';
 import {
+  Loan,
+  LoanEvent,
+  loanReducer,
+} from '../../../domain/loan';
+import {
   Document,
   DocumentEvent,
   Trade,
   TradeEvent,
   User,
-  UserEvent
+  UserEvent,
 } from '../../../domain/types';
 
 export const mockdb: Record<string, Commit> = {
@@ -398,4 +403,10 @@ export const userRepo = getMockRepository<User, UserEvent>(
   mockdb,
   'user',
   reduceToUser
+);
+
+export const loanRepo = getMockRepository<Loan, LoanEvent>(
+  mockdb,
+  'loan',
+  loanReducer
 );
