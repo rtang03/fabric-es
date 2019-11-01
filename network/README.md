@@ -7,16 +7,9 @@ https://www.lijiaocn.com/%E9%A1%B9%E7%9B%AE/2018/05/04/fabric-ca-example.html
 
 ## Getting Started
 
-If you fork the project, or run repeated tests, you may remove `hosts` directories.
+If you fork the project, or run repeated tests, you may remove `hosts` directories, which is .gitignore.
 
-```shell script
-docker-compose up
-```
-
-It should create rca-org0, rca-org1, rca-org2. Because the peers and orderer are not properly configured, those containers will fail to start, don't bother now.
-You should see org0, org1, org2, tls directory created.
-
-### Bootstrap
+## MANDATORY: Bootstrap
 
 - Setup TLS CA server
 - Setup TLS client admin
@@ -24,17 +17,33 @@ You should see org0, org1, org2, tls directory created.
 - Register and enrol admins for orderer and peers
 - Create genesis block and chanenl.tx
 
+### Preparing Network and CAs
+
 ```shell script
-// in another terminal
-export CURRENT_DIR=$PWD/hosts
-./bootstrap.sh
-./monitordocker.sh
-
-docker-compose down
-
-// restart in first terminal
+// in terminal 1
 docker-compose up -d
 ```
+
+It should create rca-org0, rca-org1, rca-org2. Because the peers and orderer are not properly configured, those containers will fail to start, don't bother now.
+You should see org0, org1, org2, tls directory created.
+
+```shell script
+// in terminal 2
+// cd project_root/network
+export CURRENT_DIR=$PWD/hosts
+
+// bootstrap.sh will setup Fabric CA. After it, you should see new subdirectory 'hosts'
+./bootstrap.sh
+
+// restart in terminal 1. After it, you should additionally see organization peers, and clis. 
+docker-compose down
+docker-compose up -d
+
+// Run logger tool
+./monitordocker.sh
+```
+
+## OPTIONAL: MANUAL STEPS
 
 ### Create and join channel
 
@@ -65,6 +74,7 @@ peer channel join -b /tmp/hyperledger/org2/peer0/assets/mychannel.block
 ```
 
 To explore later
+
 ```shell script
 // BUG: anchor peer for org1
 // This command is error. When peer0.org2 join the channel in the later step, there will lead to non-stop authenticateRemotePeer error.
@@ -111,7 +121,6 @@ docker exec -e CORE_PEER_ADDRESS=peer0.org1.example.com:7051 -e CORE_PEER_MSPCON
 peer chaincode query -C mychannel -n mycc -c '{"Args":["query","a"]}'
 # return 90
 ```
-
 
 ## Troubleshooting commands
 
