@@ -8,7 +8,7 @@ const callback = {
   init: async (blockchain, context, args) => {
     bc = blockchain;
     contx = context;
-    return Promise.resolve();
+    return true;
   },
   run: async () => {
     const results: TxStatus[] = await bc.querySmartContract(
@@ -29,7 +29,7 @@ const callback = {
     }
     return results;
   },
-  end: () => Promise.resolve()
+  end: async () => true
 };
 
 export = callback;

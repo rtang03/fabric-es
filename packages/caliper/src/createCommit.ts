@@ -16,7 +16,7 @@ const callback = {
     clientIdx = context.clientIdx;
     // todo: may vary the payload
     bytesize = args.bytesize;
-    return Promise.resolve();
+    return true;
   },
   run: async () => {
     const entityId = 'cal_test_' + txIndex;
@@ -40,7 +40,7 @@ const callback = {
     const waiting = new Promise(resolve => setTimeout(() => resolve(true), 3000));
     await waiting;
     await Promise.all(tearDown);
-    return Promise.resolve();
+    return true;
   }
 };
 
