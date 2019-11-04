@@ -12,11 +12,14 @@ import {
   UseMiddleware
 } from 'type-graphql';
 import { getConnection } from 'typeorm';
-import { createAccessToken, createRefreshToken } from './auth';
-import { User } from './entity/User';
-import { isAuth } from './isAuth';
-import { sendRefreshToken } from './sendRefreshToken';
-import { MyContext } from './types';
+import { User } from '../entity/User';
+import { MyContext } from '../types';
+import {
+  createAccessToken,
+  createRefreshToken,
+  isAuth,
+  sendRefreshToken
+} from '../utils';
 
 @ObjectType()
 class LoginResponse {
@@ -98,7 +101,6 @@ export class UserResolver {
     }
 
     // login successful
-
     sendRefreshToken(res, createRefreshToken(user));
 
     return {
