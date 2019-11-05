@@ -55,7 +55,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-packages/account/.env.test
+.env
 
 # next.js build output
 .next
@@ -66,4 +66,7 @@ hosts/
 
 channel-config/
 client-certs/
-wallet/
+assets/
+caliper.log
+dist/
+report.html

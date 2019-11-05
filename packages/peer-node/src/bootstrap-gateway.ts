@@ -63,6 +63,8 @@ const bootstrap = async () => {
   app.use(bodyParser.json());
   app.use(morgan('tiny'));
   server.applyMiddleware({ app });
+  // unnecessary change to nodejs http server
+  // keep the code for now, may cleanup later
   const httpServer = createServer(app);
   httpServer.listen(PORT, () => {
     console.log(`🚀 Server at http://localhost:${PORT}${server.graphqlPath}`);
