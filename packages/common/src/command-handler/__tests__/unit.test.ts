@@ -8,63 +8,64 @@ beforeAll(async () => {
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
     userId: 'USER001', payload: { loanId: 'LOAN000', loanProductId: 'PROD001', timestamp: 1566984732743 }
   });
-  const s0 = await loanRepo.getById({ enrollmentId, id: 'LOAN000' }).then(({ currentState }) => {
-    console.log('LOAN000', currentState);
-    return currentState.status;
-  });
+  // const s0 = await loanRepo.getById({ enrollmentId, id: 'LOAN000' }).then(({ currentState }) => {
+  //   console.log('LOAN000', currentState);
+  //   return currentState.status;
+  // });
 
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
     userId: 'USER001', payload: { loanId: 'LOAN001', loanProductId: 'PROD001', timestamp: 1566984732743 }
   });
-  const s1 = await loanRepo.getById({ enrollmentId, id: 'LOAN001' }).then(({ currentState }) => {
-    console.log('LOAN001', currentState);
-    process.nextTick(() => setTimeout(() => true, 0));
-    return currentState.status;
-  });
+  // const s1 = await loanRepo.getById({ enrollmentId, id: 'LOAN001' }).then(({ currentState }) => {
+  //   // console.log('LOAN001', currentState);
+  //   process.nextTick(() => setTimeout(() => true, 100));
+  //   return currentState.status;
+  // });
 
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
     userId: 'USER001', payload: { loanId: 'LOAN002', loanProductId: 'PROD002', description: 'YOHOWAREYOU', timestamp: 1566984732843 }
   });
-  const s2 = await loanRepo.getById({ enrollmentId, id: 'LOAN002' }).then(({ currentState }) => {
-    console.log('LOAN002', currentState);
-    return currentState.status;
-  });
+  // const s2 = await loanRepo.getById({ enrollmentId, id: 'LOAN002' }).then(({ currentState }) => {
+  //   // console.log('LOAN002', currentState);
+  //   process.nextTick(() => setTimeout(() => true, 100));
+  //   return currentState.status;
+  // });
 
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
     userId: 'USER001', payload: { loanId: 'LOAN003', loanProductId: 'PROD003', description: 'YOIMFINETHX', timestamp: 1566984732853 }
   });
-  const s3 = await loanRepo.getById({ enrollmentId, id: 'LOAN003' }).then(({ currentState }) => {
-    console.log('LOAN003', currentState.status);
-    return currentState.status;
-  });
+  // const s3 = await loanRepo.getById({ enrollmentId, id: 'LOAN003' }).then(({ currentState }) => {
+  //   // console.log('LOAN003', currentState.status);
+  //   return currentState.status;
+  // });
 
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
     userId: 'USER001', payload: { loanId: 'LOAN004', loanProductId: 'PROD004', timestamp: 1566984732863 }
   });
-  const s4 = await loanRepo.getById({ enrollmentId, id: 'LOAN004' }).then(({ currentState }) => {
-    console.log('LOAN004', currentState.status);
-    return currentState.status;
-  });
+  // const s4 = await loanRepo.getById({ enrollmentId, id: 'LOAN004' }).then(({ currentState }) => {
+  //   // console.log('LOAN004', currentState.status);
+  //   return currentState.status;
+  // });
 
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
     userId: 'USER001', payload: { loanId: 'LOAN005', loanProductId: 'PROD001', description: 'GOODTOHEAR!', timestamp: 1566984732873 }
   });
-  const s5 = await loanRepo.getById({ enrollmentId, id: 'LOAN005' }).then(({ currentState }) => {
-    console.log('LOAN005', currentState.status);
-    if ((currentState.status >= 0) && (currentState.ownerId === 'USER001') && (currentState.loanId === 'LOAN005') && (currentState.timestamp > 0) && currentState.loanProductId && currentState.description) {
-      return currentState;
-    } else {
-      return -1;
-    }
-  });
+  // const s5 = await loanRepo.getById({ enrollmentId, id: 'LOAN005' }).then(({ currentState }) => {
+  //   // console.log('LOAN005', currentState.status);
+  //   if ((currentState.status >= 0) && (currentState.ownerId === 'USER001') && (currentState.loanId === 'LOAN005') && (currentState.timestamp > 0) && currentState.loanProductId && currentState.description) {
+  //     return currentState;
+  //   } else {
+  //     return -1;
+  //   }
+  // });
 
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
     userId: 'USER001', payload: { loanId: 'LOAN006', loanProductId: 'PROD002', timestamp: 1566984732883 }
   });
-  const s6 = await loanRepo.getById({ enrollmentId, id: 'LOAN006' }).then(({ currentState }) => {
-    console.log('LOAN006', currentState);
-    return currentState.status;
-  });
+  // const s6 = await loanRepo.getById({ enrollmentId, id: 'LOAN006' }).then(({ currentState }) => {
+  //   // console.log('LOAN006', currentState);
+  //   return currentState.status;
+  // });
 });
 
 describe('Loan CommandHandler test', () => {

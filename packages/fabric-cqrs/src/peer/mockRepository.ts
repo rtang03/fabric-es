@@ -21,71 +21,95 @@ const getEntities = ({ mockdb, entityName, reducer }) =>
   ).map(events => reducer(events));
 
 export const getMockRepository = <TEntity, TEvent>(
-         mockdb: Record<string, Commit>,
-         entityName: string,
-         reducer: (history) => TEntity
-       ): Repository<TEntity, TEvent> => ({
-         create: ({ id }) => ({
-           save: events => {
-             const entity: Commit = createCommit({
-               id,
-               entityName,
-               version: 0,
-               events
-             });
-             mockdb[entity.commitId] = entity;
-             return Promise.resolve(omit(entity, ['events']));
-           }
-         }),
-         getById: ({ id }) =>
-           new Promise<any>(resolve => {
-             const matched = filter(
-               values<Commit>(mockdb),
-               ({ entityId }) => entityId === id
-             );
-             const matchEvents = getHistory(matched);
-             resolve({
-               currentState: reducer(matchEvents),
-               save: events => {
-                 const entity = createCommit({
-                   id,
-                   entityName,
-                   version: matched.length,
-                   events
-                 });
-                 mockdb[entity.commitId] = entity;
-                 return Promise.resolve(omit(entity, 'events'));
-               }
-             });
-           }),
-         getByEntityName: () =>
-           Promise.resolve<{ data: TEntity[] }>({
-             data: getEntities({ entityName, reducer, mockdb })
-           }),
-         getCommitById: id =>
-           Promise.resolve<{ data: Commit[] }>({
-             data: filter(
-               values<Commit>(mockdb),
-               ({ entityId }) => entityId === id
-             )
-           }),
-         getProjection: ({
-           where,
-           all, // not implemented
-           contain // not implemented
-         }: {
-           where?: Record<string, string>;
-           all?: boolean;
-           contain?: string;
-         }) => {
-           const entities: TEntity[] = getEntities({
-             entityName,
-             reducer,
-             mockdb
-           });
-           // @ts-ignore
-           return Promise.resolve<{ projections: TEntity[] }>({
-             projections: where ? filter(entities, where) : []
-           });
-         }
-       });
+  mockdb: Record<string, Commit>,
+  entityName: string,
+  reducer: (history) => TEntity
+): Repository<TEntity, TEvent> => ({
+  create: ({ id }) => ({
+    save: events => {
+      const entity: Commit = createCommit({
+        id,
+        entityName,
+        version: 0,
+        events
+      });
+      mockdb[entity.commitId] = entity;
+      return new Promise(resolve =>
+        setTimeout(() => resolve(omit(entity, ['events'])), 50)
+      );
+    }
+  }),
+  getById: ({ id }) =>
+    new Promise<any>(resolve => {
+      const matched = filter(
+        values<Commit>(mockdb),
+        ({ entityId }) => entityId === id
+      );
+      const matchEvents = getHistory(matched);
+      setTimeout(
+        () =>
+          resolve({
+            currentState: reducer(matchEvents),
+            save: events => {
+              const entity = createCommit({
+                id,
+                entityName,
+                version: matched.length,
+                events
+              });
+              mockdb[entity.commitId] = entity;
+              return Promise.resolve(omit(entity, 'events'));
+            }
+          }),
+        50
+      );
+    }),
+  getByEntityName: () =>
+    new Promise(resolve => {
+      setTimeout(
+        () =>
+          resolve({
+            data: getEntities({ entityName, reducer, mockdb })
+          }),
+        50
+      );
+    }),
+  getCommitById: id =>
+    new Promise(resolve => {
+      setTimeout(
+        () =>
+          resolve({
+            data: filter(
+              values<Commit>(mockdb),
+              ({ entityId }) => entityId === id
+            )
+          }),
+        50
+      );
+    }),
+  getProjection: ({
+    where,
+    all, // not implemented
+    contain // not implemented
+  }: {
+    where?: Record<string, string>;
+    all?: boolean;
+    contain?: string;
+  }) => {
+    const entities: TEntity[] = getEntities({
+      entityName,
+      reducer,
+      mockdb
+    });
+    return new Promise(resolve => {
+      setTimeout(
+        () =>
+          resolve({
+            // @ts-ignore
+            projections: where ? filter(entities, where) : []
+          }),
+        50
+      );
+    });
+  }
+});
