@@ -32,7 +32,6 @@
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.6.0",
     "js-yaml": "^3.13.1",
-    "lodash": "^4.17.15",
     "morgan": "^1.9.1",
     "prettyjson": "^1.2.1"
   },
