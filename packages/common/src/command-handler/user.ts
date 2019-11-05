@@ -3,13 +3,12 @@ import {
   declineReviewInvitation,
   expireReviewInvitation
 } from '../domain/entities/user';
-import { TradeRepo, UserCommandHandler, UserRepo } from '../domain/types';
+import { UserCommandHandler, UserRepo } from '../domain/types';
 
 export const userCommandHandler: (option: {
   enrollmentId: string;
   userRepo: UserRepo;
-  tradeRepo: TradeRepo;
-}) => UserCommandHandler = ({ enrollmentId, userRepo, tradeRepo }) => ({
+}) => UserCommandHandler = ({ enrollmentId, userRepo }) => ({
   CreateUser: async ({ userId, payload: { name, timestamp } }) =>
     await userRepo
       .create({ enrollmentId, id: userId })
