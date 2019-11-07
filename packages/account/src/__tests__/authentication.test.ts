@@ -139,25 +139,25 @@ describe('Authentication Tests', () => {
       .expect(({ body: { data } }) => expect(data).toEqual({ logout: true })));
 });
 
-// describe('Fabric CA Identity Service', () => {
-//   it('should query all identities', async () =>
-//     request(app)
-//       .post('/graphql')
-//       .send({ operationName: 'getAllIdentity', query: CA_IDENTITIES })
-//       .expect(({ body: { data } }) =>
-//         expect(data.getAllIdentity).toBeDefined()
-//       ));
-//
-//   it('should query by enrollmentId', async () =>
-//     request(app)
-//       .post('/graphql')
-//       .send({
-//         operationName: 'getIdentityByEnrollmentId',
-//         query: CA_IDENTITY,
-//         variables: { enrollmentId }
-//       })
-//       .expect(
-//         ({ body: { data } }) =>
-//           expect(data.getIdentityByEnrollmentId).toBeDefined
-//       ));
-// });
+describe('Fabric CA Identity Service', () => {
+  it('should query all identities', async () =>
+    request(app)
+      .post('/graphql')
+      .send({ operationName: 'getAllIdentity', query: CA_IDENTITIES })
+      .expect(({ body: { data } }) =>
+        expect(data.getAllIdentity).toBeDefined()
+      ));
+
+  it('should query by enrollmentId', async () =>
+    request(app)
+      .post('/graphql')
+      .send({
+        operationName: 'getIdentityByEnrollmentId',
+        query: CA_IDENTITY,
+        variables: { enrollmentId }
+      })
+      .expect(
+        ({ body: { data } }) =>
+          expect(data.getIdentityByEnrollmentId).toBeDefined
+      ));
+});
