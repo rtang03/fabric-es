@@ -1,79 +1,57 @@
 import { LoanErrors, LoanStatus } from '../../domain/loan';
 import { loanCommandHandler } from '../loan';
+import { userCommandHandler } from '../user';
 import { loanRepo, userRepo } from './__utils__';
 
 const enrollmentId = '';
+const userId = 'USER001';
 
 beforeAll(async () => {
-  await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
-    userId: 'USER001', payload: { loanId: 'LOAN000', loanProductId: 'PROD001', timestamp: 1566984732743 }
+  await userCommandHandler({ enrollmentId, userRepo }).CreateUser({
+    userId,
+    payload: { name: 'Zero Zero One', timestamp: Date.now() }
   });
-  // const s0 = await loanRepo.getById({ enrollmentId, id: 'LOAN000' }).then(({ currentState }) => {
-  //   console.log('LOAN000', currentState);
-  //   return currentState.status;
-  // });
 
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
-    userId: 'USER001', payload: { loanId: 'LOAN001', loanProductId: 'PROD001', timestamp: 1566984732743 }
+    userId, payload: { loanId: 'LOAN000', reference: 'REFN000', loanProductId: 'PROD001', timestamp: Date.now() }
   });
-  // const s1 = await loanRepo.getById({ enrollmentId, id: 'LOAN001' }).then(({ currentState }) => {
-  //   // console.log('LOAN001', currentState);
-  //   process.nextTick(() => setTimeout(() => true, 100));
-  //   return currentState.status;
-  // });
 
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
-    userId: 'USER001', payload: { loanId: 'LOAN002', loanProductId: 'PROD002', description: 'YOHOWAREYOU', timestamp: 1566984732843 }
+    userId, payload: { loanId: 'LOAN001', reference: 'REFN001', loanProductId: 'PROD001', timestamp: Date.now() }
   });
-  // const s2 = await loanRepo.getById({ enrollmentId, id: 'LOAN002' }).then(({ currentState }) => {
-  //   // console.log('LOAN002', currentState);
-  //   process.nextTick(() => setTimeout(() => true, 100));
-  //   return currentState.status;
-  // });
 
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
-    userId: 'USER001', payload: { loanId: 'LOAN003', loanProductId: 'PROD003', description: 'YOIMFINETHX', timestamp: 1566984732853 }
+    userId, payload: { loanId: 'LOAN002', reference: 'REFN002', loanProductId: 'PROD002', description: 'YOHOWAREYOU', timestamp: Date.now() }
   });
-  // const s3 = await loanRepo.getById({ enrollmentId, id: 'LOAN003' }).then(({ currentState }) => {
-  //   // console.log('LOAN003', currentState.status);
-  //   return currentState.status;
-  // });
 
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
-    userId: 'USER001', payload: { loanId: 'LOAN004', loanProductId: 'PROD004', timestamp: 1566984732863 }
+    userId, payload: { loanId: 'LOAN003', reference: 'REFN003', loanProductId: 'PROD003', description: 'YOIMFINETHX', timestamp: Date.now() }
   });
-  // const s4 = await loanRepo.getById({ enrollmentId, id: 'LOAN004' }).then(({ currentState }) => {
-  //   // console.log('LOAN004', currentState.status);
-  //   return currentState.status;
-  // });
 
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
-    userId: 'USER001', payload: { loanId: 'LOAN005', loanProductId: 'PROD001', description: 'GOODTOHEAR!', timestamp: 1566984732873 }
+    userId, payload: { loanId: 'LOAN004', reference: 'REFN004', loanProductId: 'PROD004', timestamp: Date.now() }
   });
-  // const s5 = await loanRepo.getById({ enrollmentId, id: 'LOAN005' }).then(({ currentState }) => {
-  //   // console.log('LOAN005', currentState.status);
-  //   if ((currentState.status >= 0) && (currentState.ownerId === 'USER001') && (currentState.loanId === 'LOAN005') && (currentState.timestamp > 0) && currentState.loanProductId && currentState.description) {
-  //     return currentState;
-  //   } else {
-  //     return -1;
-  //   }
-  // });
 
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
-    userId: 'USER001', payload: { loanId: 'LOAN006', loanProductId: 'PROD002', timestamp: 1566984732883 }
+    userId, payload: { loanId: 'LOAN005', reference: 'REFN005', loanProductId: 'PROD001', description: 'GOODTOHEAR!', timestamp: Date.now() }
   });
-  // const s6 = await loanRepo.getById({ enrollmentId, id: 'LOAN006' }).then(({ currentState }) => {
-  //   // console.log('LOAN006', currentState);
-  //   return currentState.status;
-  // });
+
+  await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+    userId, payload: { loanId: 'LOAN006', reference: 'REFN006', loanProductId: 'PROD002', timestamp: Date.now() }
+  });
+
+  await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+    userId, payload: { loanId: 'LOAN008', reference: 'REFN008', loanProductId: 'PROD003', timestamp: Date.now() }
+  });
 });
 
 describe('Loan CommandHandler test', () => {
   it('creating a new loan', async () => {
     await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
-      userId: 'USER001',
+      userId,
       payload: {
         loanId: 'LOAN007',
+        reference: 'REFN007',
         loanProductId: 'PROD007',
         timestamp: 1566984733093
       }
@@ -92,11 +70,12 @@ describe('Loan CommandHandler test', () => {
   it('creating a loan without loan product', async () => {
     expect.assertions(1);
     return loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
-      userId: 'USER001',
+      userId,
       payload: {
         loanId: 'LOAN099',
+        reference: 'REFN099',
         loanProductId: null,
-        timestamp: 1566984733193
+        timestamp: Date.now()
       }
     }).catch(error =>
       expect(error).toEqual(LoanErrors.requiredDataMissing)
@@ -105,27 +84,28 @@ describe('Loan CommandHandler test', () => {
 
   it('cancel a loan', async () => {
     await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).CancelLoan({
-      userId: 'USER001',
+      userId,
       payload: {
         loanId: 'LOAN000',
-        timestamp: 1566984733293
+        timestamp: Date.now()
       }
     });
     return await loanRepo
       .getById({ enrollmentId, id: 'LOAN000' })
-      .then(({ currentState }) =>
+      .then(({ currentState }) => {
         expect(
           (currentState.loanProductId === 'PROD001') &&
           (currentState.status === LoanStatus.cancelled)
-        ).toBeTruthy());
+        ).toBeTruthy();
+      });
   });
 
   it('reject a loan', async () => {
     await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).RejectLoan({
-      userId: 'USER001',
+      userId,
       payload: {
         loanId: 'LOAN001',
-        timestamp: 1566984733493
+        timestamp: Date.now()
       }
     });
     return loanRepo
@@ -139,10 +119,10 @@ describe('Loan CommandHandler test', () => {
 
   it('approve a loan', async () => {
     await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApproveLoan({
-      userId: 'USER001',
+      userId,
       payload: {
         loanId: 'LOAN002',
-        timestamp: 1566984733593
+        timestamp: Date.now()
       }
     });
     return await loanRepo
@@ -150,16 +130,17 @@ describe('Loan CommandHandler test', () => {
       .then(({ currentState }) =>
         expect(
           (currentState.loanProductId === 'PROD002') &&
+          (currentState.description === 'YOHOWAREYOU') &&
           (currentState.status === LoanStatus.approved)
         ).toBeTruthy());
   });
 
   it('return a loan', async () => {
     await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ReturnLoan({
-      userId: 'USER001',
+      userId,
       payload: {
         loanId: 'LOAN003',
-        timestamp: 1566984733693
+        timestamp: Date.now()
       }
     });
     return await loanRepo
@@ -173,10 +154,10 @@ describe('Loan CommandHandler test', () => {
 
   it('expire a loan', async () => {
     await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ExpireLoan({
-      userId: 'USER001',
+      userId,
       payload: {
         loanId: 'LOAN004',
-        timestamp: 1566984733793
+        timestamp: Date.now()
       }
     });
     return await loanRepo
@@ -190,11 +171,11 @@ describe('Loan CommandHandler test', () => {
 
   it('update description of a loan', async () => {
     await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).DefineLoanDescription({
-      userId: 'USER001',
+      userId,
       payload: {
         loanId: 'LOAN005',
         description: 'HOWAREYOU?',
-        timestamp: 1566984733893
+        timestamp: Date.now()
       }
     });
     return loanRepo
@@ -208,11 +189,11 @@ describe('Loan CommandHandler test', () => {
 
   it('add description to a loan', async () => {
     await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).DefineLoanDescription({
-      userId: 'USER001',
+      userId,
       payload: {
         loanId: 'LOAN006',
         description: 'BUGGYSW',
-        timestamp: 1566984733993
+        timestamp: Date.now()
       }
     });
     return await loanRepo
@@ -226,16 +207,45 @@ describe('Loan CommandHandler test', () => {
 
   it('update loan product of a loan', async () => {
     await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).UpdateLoanProduct({
-      userId: 'USER001',
+      userId,
       payload: {
         loanId: 'LOAN007',
         loanProductId: 'XXXXXXX',
-        timestamp: 1566984734093
+        timestamp: Date.now()
       }
     });
     return await loanRepo
       .getById({ enrollmentId, id: 'LOAN007' })
       .then(({ currentState }) =>
         expect(currentState.loanProductId === 'XXXXXXX').toBeTruthy());
+  });
+
+  it('creating a loan without loan reference', async () => {
+    expect.assertions(1);
+    return loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+      userId,
+      payload: {
+        loanId: 'LOAN099',
+        reference: null,
+        loanProductId: 'PROD099',
+        timestamp: Date.now()
+      }
+    }).catch(error =>
+      expect(error).toEqual(LoanErrors.requiredDataMissing)
+    );
+  });
+
+  it('updating loan reference after the loan is created', async () => {
+    expect.assertions(1);
+    return loanCommandHandler({ enrollmentId, userRepo, loanRepo }).DefineLoanReference({
+      userId,
+      payload: {
+        loanId: 'LOAN002',
+        reference: 'REFN012',
+        timestamp: Date.now()
+      }
+    }).catch(error =>
+      expect(error).toEqual(LoanErrors.invalidOperation)
+    );
   });
 });
