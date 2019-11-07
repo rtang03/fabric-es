@@ -1,6 +1,6 @@
 // prettier-ignore
 export const LOGIN = `
-  mutation login(
+  mutation login (
     $email: String!
     $password: String!
   ) {

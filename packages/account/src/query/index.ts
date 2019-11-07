@@ -2,3 +2,8 @@ export * from './hello';
 export * from './users';
 export * from './register';
 export * from './login';
+export * from './me';
+export * from './bye';
+export * from './logout';
+export * from './ca-Identities';
+export * from './ca-identity';
