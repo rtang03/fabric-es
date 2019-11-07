@@ -7,6 +7,7 @@ export class Loan {
 
   loanId: string;
   description?: string;
+  reference: string;
   loanProductId: string;
   status: LoanStatus;
   ownerId: string;
