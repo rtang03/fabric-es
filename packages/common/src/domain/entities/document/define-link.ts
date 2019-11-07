@@ -3,9 +3,9 @@ import {
   DocumentEvent,
   errors,
   privileges,
-  Trade,
-  User
+  Trade
 } from '../../types';
+import { User } from '../../user';
 
 /**
  * Define document link

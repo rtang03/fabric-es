@@ -1,5 +1,6 @@
-import { TradeEvent, TradePrivilegeDefined, User } from '../../types';
+import { TradeEvent, TradePrivilegeDefined } from '../../types';
 import { errors, Privilege, privileges } from '../../types';
+import { User, UserInfo } from '../../user';
 
 /**
  * Create trade

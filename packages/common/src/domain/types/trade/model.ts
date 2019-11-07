@@ -1,4 +1,5 @@
-import { PrivilegeConditions, UserInfo } from '..';
+import { PrivilegeConditions } from '..';
+import { UserInfo } from '../../user';
 
 class Editors {
   invited: UserInfo[];

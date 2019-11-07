@@ -1,4 +1,4 @@
-export interface PublicCommands {
+export interface UserCommands {
   CreateUser: {
     userId: string;
     payload: {

@@ -1,7 +1,7 @@
 import { Repository } from '@espresso/fabric-cqrs';
+import { User, UserEvent } from '../user';
 import { Document, DocumentEvent } from './document';
 import { Trade, TradeEvent } from './trade';
-import { User, UserEvent } from './user';
 
 /**
  * Document Repository

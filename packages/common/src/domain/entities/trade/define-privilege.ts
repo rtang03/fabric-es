@@ -1,4 +1,5 @@
-import { errors, privileges, Trade, TradeEvent, User } from '../../types';
+import { errors, privileges, Trade, TradeEvent } from '../../types';
+import { User, UserInfo } from '../../user';
 
 export const defineTradePrivilege = ({
   user,
