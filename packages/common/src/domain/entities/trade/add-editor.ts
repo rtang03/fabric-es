@@ -2,10 +2,9 @@ import {
   errors,
   privileges,
   Trade,
-  TradeEvent,
-  User,
-  UserInfo
+  TradeEvent
 } from '../../types';
+import { User, UserInfo } from '../../user';
 
 export const addTradeEditor = ({
   user,

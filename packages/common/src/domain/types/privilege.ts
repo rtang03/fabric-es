@@ -1,6 +1,7 @@
 import { isArray } from 'lodash';
 
-import { Trade, TradePermission, User } from '.';
+import { Trade, TradePermission } from '.';
+import { User } from '../user';
 
 export type Privilege =
   | 'canApproveDocument'

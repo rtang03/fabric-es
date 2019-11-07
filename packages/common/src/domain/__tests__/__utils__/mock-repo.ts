@@ -1,22 +1,24 @@
 import { Commit, getMockRepository } from '@espresso/fabric-cqrs';
 import {
   reduceToDocument,
-  reduceToTrade,
-  reduceToUser
+  reduceToTrade
 } from '../../../domain/entities';
-import {
-  Loan,
-  LoanEvent,
-  loanReducer,
-} from '../../../domain/loan';
 import {
   Document,
   DocumentEvent,
   Trade,
-  TradeEvent,
+  TradeEvent
+} from '../../../domain/types';
+import {
+  Loan,
+  LoanEvent,
+  loanReducer,
+} from '../../loan';
+import {
   User,
   UserEvent,
-} from '../../../domain/types';
+  userReducer
+} from '../../user';
 
 export const mockdb: Record<string, Commit> = {
   '20181114163145704:example@gmail.com': {
@@ -402,7 +404,7 @@ export const tradeRepo = getMockRepository<Trade, TradeEvent>(
 export const userRepo = getMockRepository<User, UserEvent>(
   mockdb,
   'user',
-  reduceToUser
+  userReducer
 );
 
 export const loanRepo = getMockRepository<Loan, LoanEvent>(

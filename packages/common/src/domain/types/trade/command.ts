@@ -1,4 +1,4 @@
-import { UserEvent, UserInfo } from '../user';
+import { UserEvent, UserInfo } from '../../user';
 import { TradePermission } from './model';
 
 export interface PublicCommands {

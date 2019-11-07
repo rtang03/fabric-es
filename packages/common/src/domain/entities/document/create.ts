@@ -1,4 +1,5 @@
-import { DocumentEvent, errors, privileges, Trade, User } from '../../types';
+import { DocumentEvent, errors, privileges, Trade } from '../../types';
+import { User } from '../../user';
 
 /**
  * Create document

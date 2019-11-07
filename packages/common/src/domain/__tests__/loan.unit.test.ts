@@ -1,5 +1,4 @@
-import { LoanErrors, LoanStatus } from '../../domain/loan';
-import { loanCommandHandler } from '../loan';
+import { loanCommandHandler, LoanErrors, LoanStatus } from '../loan';
 import { userCommandHandler } from '../user';
 import { loanRepo, userRepo } from './__utils__';
 

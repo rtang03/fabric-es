@@ -1,5 +1,4 @@
 export * from './document';
-export * from './user';
 export * from './trade';
 export * from './privilege';
 export * from './errors';

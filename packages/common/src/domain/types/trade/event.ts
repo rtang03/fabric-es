@@ -1,5 +1,5 @@
 import { BaseEvent } from '@espresso/fabric-cqrs';
-import { UserInfo } from '../user';
+import { UserInfo } from '../../user';
 import { TradePermission } from './model';
 
 export interface TradeCreated extends BaseEvent {

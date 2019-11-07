@@ -1,12 +1,12 @@
-import { User, UserEvent } from '../../types';
+import { User, UserEvent } from '.';
 
 /**
  * User Reducer
  * @param history
  * @param initialState
  */
-export function reduceToUser(history: UserEvent[], initialState?: User): User {
-  const userReducer = (user: User, event: UserEvent): User => {
+export function userReducer(history: UserEvent[], initialState?: User): User {
+  const reducer = (user: User, event: UserEvent): User => {
     switch (event.type) {
       case 'UserCreated':
         return {
@@ -24,5 +24,5 @@ export function reduceToUser(history: UserEvent[], initialState?: User): User {
     }
   };
 
-  return history.reduce(userReducer, initialState);
+  return history.reduce(reducer, initialState);
 }

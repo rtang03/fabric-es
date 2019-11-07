@@ -1,5 +1,5 @@
-import { LoanCommandHandler, LoanErrors, LoanRepo } from '../domain/loan';
-import { UserRepo } from '../domain/types';
+import { LoanCommandHandler, LoanErrors, LoanRepo } from '.';
+import { UserRepo } from '../types';
 
 export const loanCommandHandler: (
   option: {

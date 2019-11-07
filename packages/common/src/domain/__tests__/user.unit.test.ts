@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { User } from '../../domain/types';
+import { User } from '../user';
 import { userCommandHandler } from '../user';
 import { docRepo, tradeRepo, userRepo } from './__utils__';
 

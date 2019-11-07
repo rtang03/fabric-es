@@ -1,4 +1,5 @@
-import { errors, Trade, TradeEvent, User, UserInfo } from '../../types';
+import { errors, Trade, TradeEvent } from '../../types';
+import { User, UserInfo } from '../../user';
 
 export const confirmTradeEditor = ({
   editor,
