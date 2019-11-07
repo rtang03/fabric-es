@@ -1,15 +1,26 @@
-import { ApolloServer } from 'apollo-server';
 import { Express } from 'express';
+import { FileSystemWallet } from 'fabric-network';
+import { omit } from 'lodash';
 import request from 'supertest';
 import { User } from '../entity/User';
 import '../env';
-import { HELLO, LOGIN, REGISTER, USERS } from '../query';
-import { UserResolver } from '../resolvers';
+import {
+  BYE,
+  CA_IDENTITIES,
+  CA_IDENTITY,
+  HELLO,
+  LOGIN,
+  LOGOUT,
+  ME,
+  REGISTER,
+  USERS
+} from '../query';
+import { AdminResolver, UserResolver } from '../resolvers';
 import { createHttpServer } from '../utils';
 
 // https://github.com/rtang03/open-platform/tree/master/packages/doc-etc/src/user/query
 
-const connection = {
+const dbConnection = {
   name: 'default',
   type: 'postgres' as any,
   host: 'localhost',
@@ -22,13 +33,22 @@ const connection = {
   dropSchema: true,
   entities: [User]
 };
+const fabricConfig = {
+  connectionProfile: process.env.CONNECTION_PROFILE,
+  wallet: new FileSystemWallet(process.env.WALLET)
+};
 
 let app: Express;
+let accessToken: string;
+const email = `tester${Math.floor(Math.random() * 10000)}@example.com`;
+const password = 'password';
+const enrollmentId = 'rca-org1-admin';
 
 beforeAll(async () => {
   app = await createHttpServer({
-    connection,
-    resolvers: [UserResolver]
+    dbConnection,
+    resolvers: [UserResolver, AdminResolver],
+    fabricConfig
   });
 });
 
@@ -59,7 +79,7 @@ describe('Authentication Tests', () => {
       .send({
         operationName: 'register',
         query: REGISTER,
-        variables: { email: 'tester@example.com', password: 'password' }
+        variables: { email, password }
       })
       .expect(({ body: { data } }) =>
         expect(data).toEqual({ register: true })
@@ -71,9 +91,73 @@ describe('Authentication Tests', () => {
       .send({
         operationName: 'login',
         query: LOGIN,
-        variables: { email: 'tester@example.com', password: 'password' }
+        variables: { email, password }
       })
-      .expect(({ body: { data } }) =>
-        expect(data!.login!.accessToken).toBeDefined()
+      .expect(({ body: { data } }) => {
+        accessToken = data!.login!.accessToken;
+        expect(data!.login!.accessToken).toBeDefined();
+      }));
+
+  it('should get myProfile', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `Bearer ${accessToken}`)
+      .send({ operationName: 'me', query: ME })
+      .expect(({ body: { data: { me } } }) =>
+        expect(omit(me, 'attrs', 'affiliation')).toEqual({
+          id: email,
+          email,
+          type: 'client',
+          caname: 'ca.org1.example.com',
+          max_enrollments: -1
+        })
       ));
+
+  it('should fail to get myProfile', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `Bearer 123456789`)
+      .send({ operationName: 'me', query: ME })
+      .expect(({ body: { data, errors } }) => {
+        expect(errors[0].message).toEqual('jwt malformed');
+        expect(data).toEqual({ me: null });
+      }));
+
+  it('should bye', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `Bearer ${accessToken}`)
+      .send({ operationName: 'bye', query: BYE })
+      .expect(({ body: { data } }) =>
+        expect(data).toEqual({ bye: 'your user id is: 1' })
+      ));
+
+  it('should logout', async () =>
+    request(app)
+      .post('/graphql')
+      .send({ operationName: 'logout', query: LOGOUT })
+      .expect(({ body: { data } }) => expect(data).toEqual({ logout: true })));
 });
+
+// describe('Fabric CA Identity Service', () => {
+//   it('should query all identities', async () =>
+//     request(app)
+//       .post('/graphql')
+//       .send({ operationName: 'getAllIdentity', query: CA_IDENTITIES })
+//       .expect(({ body: { data } }) =>
+//         expect(data.getAllIdentity).toBeDefined()
+//       ));
+//
+//   it('should query by enrollmentId', async () =>
+//     request(app)
+//       .post('/graphql')
+//       .send({
+//         operationName: 'getIdentityByEnrollmentId',
+//         query: CA_IDENTITY,
+//         variables: { enrollmentId }
+//       })
+//       .expect(
+//         ({ body: { data } }) =>
+//           expect(data.getIdentityByEnrollmentId).toBeDefined
+//       ));
+// });

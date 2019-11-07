@@ -3,12 +3,19 @@ import { FileSystemWallet, Gateway } from 'fabric-network';
 import { Context } from './types';
 import { getClientForOrg } from './utils';
 
+export interface ServiceResponse {
+  result?: any;
+  errors?: Array<{ code: number; message: string }>;
+  messages?: Array<{ code: number; message: string }>;
+  success?: boolean;
+}
+
 export const identityService: (
   context?: Context
 ) => Promise<{
   create: (identityRequest: IIdentityRequest) => Promise<any>;
-  getAll: () => Promise<any>;
-  getOne: (enrollmentId: string) => Promise<any>;
+  getAll: () => Promise<ServiceResponse>;
+  getOne: (enrollmentId: string) => Promise<ServiceResponse>;
 }> = async (
   { connectionProfile, wallet } = {
     connectionProfile: process.env.PATH_TO_CONNECTION_PROFILE,
@@ -29,7 +36,7 @@ export const identityService: (
     const service = ca.newIdentityService();
     return {
       create: request => service.create(request, registrar),
-      getAll: () => service.getAll(registrar),
-      getOne: (enrollmentId: string) => service.getOne(enrollmentId, registrar)
+      getAll: () => service.getAll(registrar) as Promise<ServiceResponse>,
+      getOne: (enrollmentId: string) => service.getOne(enrollmentId, registrar) as Promise<ServiceResponse>
     };
   });

@@ -1,13 +1,11 @@
 // prettier-ignore
-export const ME = `
-  query me {
-    me {
+export const CA_IDENTITIES = `
+  query getAllIdentity {
+    getAllIdentity {
       id
-      email
       type
       affiliation
       max_enrollments
-      caname
       attrs {
         name
         value
