@@ -1,10 +1,10 @@
 import {
   Document,
-  DocumentEvent,
-  Trade,
-  TradeEvent,
+  DocumentEvents,
+  Loan,
+  LoanEvents,
   User,
-  UserEvent
+  UserEvents
 } from '@espresso/common';
 import { PrivatedataRepository, Repository } from '@espresso/fabric-cqrs';
 import { DataSource } from 'apollo-datasource';
@@ -33,8 +33,8 @@ export class FabricData<TEntity = any, TEvent = any> extends DataSource {
 }
 
 export type DataSources = {
-  docDataSource?: FabricData<Document, DocumentEvent>;
-  tradeDataSource?: FabricData<Trade, TradeEvent>;
-  userDataSource?: FabricData<User, UserEvent>;
+  docDataSource?: FabricData<Document, DocumentEvents>;
+  loanDataSource?: FabricData<Loan, LoanEvents>;
+  userDataSource?: FabricData<User, UserEvents>;
   etcDataSource?: FabricData<EtcPo, EtcPoEvent>;
 };

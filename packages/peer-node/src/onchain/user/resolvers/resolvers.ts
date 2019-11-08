@@ -1,9 +1,9 @@
 import { User, userCommandHandler } from '@espresso/common';
 import { Commit } from '@espresso/fabric-cqrs';
-import { Paginated, Resolvers } from '../../types';
+import { Paginated, Resolvers } from '../../../types';
 import { TQuery } from '../types';
 
-export const userResolver: Resolvers<TQuery, User> = {
+export const resolvers: Resolvers<TQuery, User> = {
   Query: {
     aboutUser: () => 'User Entity',
     me: () =>
@@ -15,12 +15,11 @@ export const userResolver: Resolvers<TQuery, User> = {
     createUser: async (
       _,
       { name, userId },
-      { dataSources: { userDataSource, tradeDataSource }, enrollmentId }
+      { dataSources: { userDataSource }, enrollmentId }
     ): Promise<Commit> =>
       userCommandHandler({
         enrollmentId,
-        userRepo: userDataSource.repo,
-        tradeRepo: tradeDataSource.repo
+        userRepo: userDataSource.repo
       }).CreateUser({
         userId,
         payload: { name, timestamp: Date.now() }
