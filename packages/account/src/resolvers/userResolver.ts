@@ -1,7 +1,5 @@
 import { createUser, identityService } from '@espresso/admin-tool';
-import { AuthenticationError } from 'apollo-server';
 import { compare, hash } from 'bcrypt';
-import { verify } from 'jsonwebtoken';
 import { assign, pick } from 'lodash';
 import {
   Arg,
@@ -26,14 +24,6 @@ import {
 import { Attribute, Identity } from './adminResolver';
 
 @ObjectType()
-class LoginResponse {
-  @Field()
-  accessToken: string;
-  @Field(() => User)
-  user: User;
-}
-
-@ObjectType()
 class UserProfile {
   @Field()
   email: string;
@@ -49,6 +39,16 @@ class UserProfile {
   attrs: Attribute[];
   @Field()
   caname?: string;
+}
+
+@ObjectType()
+class LoginResponse {
+  @Field()
+  accessToken: string;
+  @Field(() => User)
+  user?: User;
+  @Field(() => UserProfile)
+  userProfile?: UserProfile;
 }
 
 @Resolver()
@@ -78,11 +78,13 @@ export class UserResolver {
     let user: Pick<User, 'email'>;
     let caIdentity: Identity;
 
-    if (payload.userId) {
+    // should change to optional chaining when prettier is fixed
+    const userId = payload ? payload.userId : null;
+
+    if (userId) {
       try {
         // user profile database
-        user = await User.findOne(payload.userId).then(u => pick(u, 'email'));
-
+        user = await User.findOne(userId).then(u => pick(u, 'email'));
         // ca server
         const { result, success } = await identityService(fabricConfig).then(
           ({ getOne }) => getOne(user.email)
@@ -90,37 +92,21 @@ export class UserResolver {
         if (success) caIdentity = result;
         else return null;
       } catch (err) {
-        console.log(err);
+        console.error(err);
         return null;
       }
-    } else throw new AuthenticationError(payload.error);
+    } else return null;
 
     return assign({}, user, caIdentity);
-  }
-
-  @Mutation(() => Boolean)
-  async logout(@Ctx() { res }: MyContext) {
-    sendRefreshToken(res, '');
-    return true;
-  }
-
-  @Mutation(() => Boolean)
-  async revokeRefreshTokensForUser(@Arg('userId', () => Int) userId: number) {
-    await getConnection()
-      .getRepository(User)
-      .increment({ id: userId }, 'tokenVersion', 1);
-
-    return true;
   }
 
   @Mutation(() => LoginResponse)
   async login(
     @Arg('email') email: string,
     @Arg('password') password: string,
-    @Ctx() { res }: MyContext
+    @Ctx() { res, fabricConfig }: MyContext
   ): Promise<LoginResponse> {
     const user = await User.findOne({ where: { email } });
-
     if (!user) {
       throw new Error('could not find user');
     }
@@ -130,11 +116,18 @@ export class UserResolver {
       throw new Error('bad password');
     }
 
+    const caIdentity: Identity = await identityService(fabricConfig)
+      .then(({ getOne }) => getOne(user.email))
+      .then(({ result, success }) => (success ? result : null));
+
+    if (!caIdentity) throw new Error('could not find CA Identity');
+
     sendRefreshToken(res, createRefreshToken(user));
 
     return {
       accessToken: createAccessToken(user),
-      user
+      user,
+      userProfile: assign({}, user, caIdentity)
     };
   }
 
@@ -168,6 +161,21 @@ export class UserResolver {
       await User.delete({ email });
       return false;
     }
+
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async logout(@Ctx() { res }: MyContext) {
+    sendRefreshToken(res, '');
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async revokeRefreshTokensForUser(@Arg('userId', () => Int) userId: number) {
+    await getConnection()
+      .getRepository(User)
+      .increment({ id: userId }, 'tokenVersion', 1);
 
     return true;
   }

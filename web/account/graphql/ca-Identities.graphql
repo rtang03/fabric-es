@@ -1,0 +1,12 @@
+query getAllIdentity {
+  getAllIdentity {
+    id
+    type
+    affiliation
+    max_enrollments
+    attrs {
+      name
+      value
+    }
+  }
+}
