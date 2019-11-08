@@ -1,19 +1,22 @@
-import { ApolloServer } from 'apollo-server';
 import { ApolloServer as ApolloServerExpress } from 'apollo-server-express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express, { Express } from 'express';
+import express, { Express, Request, Response } from 'express';
+import { FileSystemWallet } from 'fabric-network';
+import { verify } from 'jsonwebtoken';
 import { buildSchema } from 'type-graphql';
 import { ConnectionOptions, createConnection } from 'typeorm';
 import { refresh_token } from '../routes';
+import { MyContext } from '../types';
 
 export const createHttpServer: (option: {
-  connection?: ConnectionOptions;
+  dbConnection?: ConnectionOptions;
   resolvers: any[];
-}) => Promise<Express> = async ({
-  connection,
-  resolvers
-}) => {
+  fabricConfig: {
+    connectionProfile: string;
+    wallet: FileSystemWallet;
+  };
+}) => Promise<Express> = async ({ dbConnection, resolvers, fabricConfig }) => {
   const app = express();
   app.use(
     cors({
@@ -24,17 +27,32 @@ export const createHttpServer: (option: {
   app.use(cookieParser());
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
-  app.get('/', (_, res) => res.status(200).send({ data: 'hello'}));
+  app.get('/', (_, res) => res.status(200).send({ data: 'hello' }));
   app.post('/refresh_token', refresh_token);
 
-  await createConnection(connection);
+  await createConnection(dbConnection);
 
   const schema = await buildSchema({ resolvers });
   const server = new ApolloServerExpress({
     schema,
-    context: ({ req, res }) => ({ req, res })
+    context: ({ req, res }: { req: Request; res: Response }): MyContext => {
+      const authorization = req.headers.authorization;
+      let payload;
+
+      if (authorization) {
+        const token = authorization.split(' ')[1];
+        try {
+          payload = verify(token, process.env.ACCESS_TOKEN_SECRET!);
+        } catch (err) {
+          const error = err.message || 'authentication error';
+          payload = { error };
+        }
+      }
+
+      return { req, res, fabricConfig, payload };
+    }
   });
-  server.applyMiddleware({ app: app, cors: false });
+  server.applyMiddleware({ app, cors: false });
 
   return app;
 };

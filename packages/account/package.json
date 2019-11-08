@@ -8,8 +8,8 @@
     "build": "yarn run clean && tsc",
     "clean": "rimraf dist",
     "test:auth": "jest --forceExit --detectOpenHandles authentication.test",
-    "test:integration": "jest integration.test",
-    "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/enrollAdmin.ts"
+    "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/enrollAdmin.ts",
+    "enrollCaAdmin": "rimraf assets/wallet/ca_admin && ./node_modules/.bin/ts-node src/enrollCaAdmin.ts"
   },
   "engines": {
     "node": ">=8",
@@ -27,9 +27,7 @@
     "dotenv": "^8.1.0",
     "express": "^4.17.1",
     "graphql": "^14.5.8",
-    "graphql-tag": "^2.10.1",
     "jsonwebtoken": "^8.5.1",
-    "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
     "morgan": "^1.9.1",
     "pg": "^7.12.1",
@@ -51,7 +49,6 @@
     "@types/lodash": "^4.14.138",
     "@types/node": "^12.7.5",
     "@types/supertest": "^2.0.8",
-    "apollo-server-testing": "^2.9.7",
     "nodemon": "^1.19.4",
     "jest": "^24.9.0",
     "prettier": "^1.18.2",
@@ -62,6 +59,6 @@
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.7.0-beta"
+    "typescript": "^3.7.2"
   }
 }
