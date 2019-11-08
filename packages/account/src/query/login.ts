@@ -9,6 +9,22 @@ export const LOGIN = `
       password: $password
     ) {
       accessToken
+      user {
+        id
+        email
+      }
+      userProfile {
+        id
+        email
+        type
+        affiliation
+        max_enrollments
+        caname
+        attrs {
+          name
+          value
+        }
+      }
     }
   }
 `;

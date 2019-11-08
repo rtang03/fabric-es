@@ -17,9 +17,10 @@ export const authenticatedContext: (option: {
   if (authorization) {
     const token = authorization.split(' ')[1];
     try {
-      payload = verify(token, process.env.ACCESS_TOKEN_SECRET!);
+      payload = verify(token, process.env.ACCESS_TOKEN_SECRET!) || {};
     } catch (err) {
       const error = err.message || 'authentication error';
+      // currently, payload.error is unused.
       payload = { error };
     }
   }

@@ -118,10 +118,9 @@ describe('Authentication Tests', () => {
       .post('/graphql')
       .set('authorization', `Bearer 123456789`)
       .send({ operationName: 'me', query: ME })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors[0].message).toEqual('jwt malformed');
-        expect(data).toEqual({ me: null });
-      }));
+      .expect(({ body: { data, errors } }) =>
+        expect(data).toEqual({ me: null })
+      ));
 
   it('should bye', async () =>
     request(app)

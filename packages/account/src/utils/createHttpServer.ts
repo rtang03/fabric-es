@@ -30,7 +30,11 @@ export const createHttpServer: (option: {
   app.get('/', (_, res) => res.status(200).send({ data: 'hello' }));
   app.post('/refresh_token', refresh_token);
 
-  await createConnection(dbConnection);
+  if (dbConnection) {
+    await createConnection(dbConnection);
+  } else {
+    await createConnection();
+  }
 
   const schema = await buildSchema({ resolvers });
   const server = new ApolloServerExpress({
