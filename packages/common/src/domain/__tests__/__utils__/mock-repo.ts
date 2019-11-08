@@ -1,17 +1,12 @@
 import { Commit, getMockRepository } from '@espresso/fabric-cqrs';
 import {
-  reduceToDocument,
-  reduceToTrade
-} from '../../../domain/entities';
-import {
   Document,
-  DocumentEvent,
-  Trade,
-  TradeEvent
-} from '../../../domain/types';
+  DocumentEvents,
+  documentReducer
+} from '../../document';
 import {
   Loan,
-  LoanEvent,
+  LoanEvents,
   loanReducer,
 } from '../../loan';
 import {
@@ -121,218 +116,37 @@ export const mockdb: Record<string, Commit> = {
     events: [
       {
         payload: {
-          tradeId: '123456',
-          ownerId: 'example@gmail.com',
+          loanId: '123456',
+          userId: 'example@gmail.com',
           timestamp: 1542336654365
         },
-        type: 'TradeCreated'
+        type: 'LoanApplied'
       },
       {
         payload: {
-          tradeId: '123456',
+          loanId: '123456',
           timestamp: 1542336654365,
-          title: 'How to Eat the Best Fruit'
+          reference: 'How to Eat the Best Fruit'
         },
-        type: 'TradeTitleDefined'
+        type: 'LoanReferenceDefined'
       },
       {
         payload: {
           description:
             'After having a mild stroke each time my boyfriend brought home the wrong type of fruit',
-          tradeId: '123456',
+          loanId: '123456',
           timestamp: 1542336654365
         },
-        type: 'TradeDescriptionDefined'
+        type: 'LoanDescriptionDefined'
       },
       {
         payload: {
-          tradeId: '123456',
-          privilege: 'canUpdateTrade',
-          permission: { users: ['example@gmail.com'] }
+          loanId: '123456',
+          timestamp: 1542336654365,
+          loaner: 'Dai Yee Lung'
         },
-        type: 'TradePrivilegeDefined'
+        type: 'LoanerDefined'
       },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canUpdatePrivilege',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canUpdateEditor',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canDeleteTrade',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canCreateDocument',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canDeleteDocument',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canBanDocument',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canUpdateDocument',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      }
-    ]
-  },
-  '20181116075104080:123456': {
-    committedAt: '1542354664080',
-    entityName: 'loan.ts',
-    entityId: '123456',
-    id: '123456',
-    commitId: '20181116075104080:123456',
-    version: 1,
-    events: [
-      {
-        payload: {
-          tradeId: '123456',
-          timestamp: 1542354664066,
-          title: 'How to Eat the Best Fruit? Good !!'
-        },
-        type: 'TradeTitleDefined'
-      }
-    ]
-  },
-  '20181116162111794:1542385172441': {
-    committedAt: '1542385271794',
-    entityName: 'loan.ts',
-    entityId: '1542385172441',
-    id: '1542385172441',
-    commitId: '20181116162111794:1542385172441',
-    version: 0,
-    events: [
-      {
-        payload: {
-          tradeId: '1542385172441',
-          ownerId: 'example@gmail.com',
-          timestamp: 1542385271789
-        },
-        type: 'TradeCreated'
-      },
-      {
-        payload: {
-          tradeId: '1542385172441',
-          timestamp: 1542385271789,
-          title: 'Do Your Job to Stop Tech Monopolies'
-        },
-        type: 'TradeTitleDefined'
-      },
-      {
-        payload: {
-          description:
-            'The U.K. Parliament released a trove of emails illuminating the inner workings of Facebook.',
-          tradeId: '1542385172441',
-          timestamp: 1542385271789
-        },
-        type: 'TradeDescriptionDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canUpdateTrade',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canUpdatePrivilege',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canUpdateRankCalcParams',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canUpdateEditor',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canDeleteTrade',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canCreateDocument',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canDeleteDocument',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canBanDocument',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      },
-      {
-        payload: {
-          tradeId: '123456',
-          privilege: 'canUpdateDocument',
-          permission: { users: ['example@gmail.com'] }
-        },
-        type: 'TradePrivilegeDefined'
-      }
     ]
   },
   '20181124064622771:1542385173331': {
@@ -345,8 +159,7 @@ export const mockdb: Record<string, Commit> = {
     events: [
       {
         payload: {
-          ownerId: 'example@gmail.com',
-          tradeId: '123456',
+          userId: 'example@gmail.com',
           documentId: '1542385173331',
           timestamp: 1543041982770
         },
@@ -355,27 +168,26 @@ export const mockdb: Record<string, Commit> = {
       {
         payload: {
           documentId: '1542385173331',
-          link: 'Document Link - 0',
-          timestamp: 1543041982770
-        },
-        type: 'DocumentLinkDefined'
-      },
-      {
-        payload: {
-          documentId: '1542385173331',
-          description:
-            'The Commonwealth Scholarships are intended for students from developing Commonwealth countries who wants to pursue Master’s study in the UK. These scholarships are funded by the UK Department for International Development (DFID).  Each Scholarship provides airfare to and from United Kingdom, tuition and examination fees, personal maintaining allowance, thesis grant (if applicable), initial arrival allowance, among others.',
-          timestamp: 1543041982770
-        },
-        type: 'DocumentDescriptionDefined'
-      },
-      {
-        payload: {
-          documentId: '1542385173331',
           title: 'Top 15+ UK Scholarships for International Students',
           timestamp: 1543041982770
         },
         type: 'DocumentTitleDefined'
+      },
+      {
+        payload: {
+          documentId: '1542385173331',
+          reference: 'REF0001',
+          timestamp: 1543041982770
+        },
+        type: 'DocumentReferenceDefined'
+      },
+      {
+        payload: {
+          documentId: '1542385173331',
+          loanId: '123456',
+          timestamp: 1543041982770
+        },
+        type: 'DocumentLoanIdDefined'
       },
       {
         payload: {
@@ -389,26 +201,20 @@ export const mockdb: Record<string, Commit> = {
   }
 };
 
-export const docRepo = getMockRepository<Document, DocumentEvent>(
-  mockdb,
-  'document',
-  reduceToDocument
-);
-
-export const tradeRepo = getMockRepository<Trade, TradeEvent>(
-  mockdb,
-  'trade',
-  reduceToTrade
-);
-
 export const userRepo = getMockRepository<User, UserEvent>(
   mockdb,
   'user',
   userReducer
 );
 
-export const loanRepo = getMockRepository<Loan, LoanEvent>(
+export const loanRepo = getMockRepository<Loan, LoanEvents>(
   mockdb,
   'loan',
   loanReducer
+);
+
+export const documentRepo = getMockRepository<Document, DocumentEvents>(
+  mockdb,
+  'document',
+  documentReducer
 );

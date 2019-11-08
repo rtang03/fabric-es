@@ -1,26 +1,25 @@
-import { Loan, LoanEvent, LoanStatus } from '.';
+import { Loan, LoanEvents, LoanStatus } from '.';
 
 export const loanReducer = (
-  history: LoanEvent[],
+  history: LoanEvents[],
   initialState?: Loan
 ): Loan => {
-  const reducer = (loan: Loan, event: LoanEvent): Loan => {
+  const reducer = (loan: Loan, event: LoanEvents): Loan => {
     switch (event.type) {
-      case 'applied':
+      case 'LoanApplied':
         return {
           loanId: event.payload.loanId,
-          status: LoanStatus[event.type],
           ownerId: event.payload.userId,
+          status: LoanStatus[event.type],
           timestamp: event.payload.timestamp,
           reference: null,
-          loanProductId: null
+          loaner: null
         };
-      case 'cancelled':
-      case 'approved':
-      case 'returned':
-      case 'rejected':
-      case 'expired':
-        // loan.status = LoanStatus[event.type];
+      case 'LoanCancelled':
+      case 'LoanApproved':
+      case 'LoanReturned':
+      case 'LoanRejected':
+      case 'LoanExpired':
         return {
           ...loan,
           status: LoanStatus[event.type]
@@ -35,10 +34,10 @@ export const loanReducer = (
           ...loan,
           description: event.payload.description
         };
-      case 'LoanProductDefined':
+      case 'LoanerDefined':
         return {
           ...loan,
-          loanProductId: event.payload.loanProductId
+          loaner: event.payload.loaner
         };
     }
   };

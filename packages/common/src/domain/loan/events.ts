@@ -1,7 +1,7 @@
 import { BaseEvent } from '@espresso/fabric-cqrs';
 
 export interface LoanApplied extends BaseEvent {
-  readonly type: 'applied';
+  readonly type: 'LoanApplied';
   payload: {
     loanId: string;
     userId: string;
@@ -10,7 +10,7 @@ export interface LoanApplied extends BaseEvent {
 }
 
 export interface LoanCancelled extends BaseEvent {
-  readonly type: 'cancelled';
+  readonly type: 'LoanCancelled';
   payload: {
     loanId: string;
     userId: string;
@@ -19,7 +19,7 @@ export interface LoanCancelled extends BaseEvent {
 }
 
 export interface LoanApproved extends BaseEvent {
-  readonly type: 'approved';
+  readonly type: 'LoanApproved';
   payload: {
     loanId: string;
     userId: string;
@@ -28,7 +28,7 @@ export interface LoanApproved extends BaseEvent {
 }
 
 export interface LoanReturned extends BaseEvent {
-  readonly type: 'returned';
+  readonly type: 'LoanReturned';
   payload: {
     loanId: string;
     userId: string;
@@ -37,7 +37,7 @@ export interface LoanReturned extends BaseEvent {
 }
 
 export interface LoanRejected extends BaseEvent {
-  readonly type: 'rejected';
+  readonly type: 'LoanRejected';
   payload: {
     loanId: string;
     userId: string;
@@ -46,7 +46,7 @@ export interface LoanRejected extends BaseEvent {
 }
 
 export interface LoanExpired extends BaseEvent {
-  readonly type: 'expired';
+  readonly type: 'LoanExpired';
   payload: {
     loanId: string;
     userId: string;
@@ -74,17 +74,17 @@ export interface LoanDescriptionDefined extends BaseEvent {
   };
 }
 
-export interface LoanProductDefined extends BaseEvent {
-  readonly type: 'LoanProductDefined';
+export interface LoanerDefined extends BaseEvent {
+  readonly type: 'LoanerDefined';
   payload: {
     loanId: string;
     userId: string;
-    loanProductId: string;
+    loaner: string;
     timestamp: number;
   };
 }
 
-export type LoanEvent =
+export type LoanEvents =
   LoanApplied |
   LoanCancelled |
   LoanApproved |
@@ -93,4 +93,4 @@ export type LoanEvent =
   LoanExpired |
   LoanReferenceDefined |
   LoanDescriptionDefined |
-  LoanProductDefined;
+  LoanerDefined;
