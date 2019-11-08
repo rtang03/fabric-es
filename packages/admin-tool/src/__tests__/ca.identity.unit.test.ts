@@ -1,7 +1,7 @@
 import { FileSystemWallet } from 'fabric-network';
 import '../env';
 import { identityService } from '../middleware';
-import { enrollCAAdmin } from '../middleware';
+import { enrollCaAdmin } from '../middleware';
 
 describe('Fabric CA Identity Service Unit Test', () => {
   it('should enrol Org1 CA Admin', async () => {
@@ -14,7 +14,7 @@ describe('Fabric CA Identity Service Unit Test', () => {
       fabricNetwork: process.env.PATH_TO_NETWORK,
       wallet: new FileSystemWallet('./wallet')
     };
-    await enrollCAAdmin(caAdmin, caAdminSecret, url, org, ctx).then(
+    await enrollCaAdmin(caAdmin, caAdminSecret, url, org, ctx).then(
       ({ status }) => expect(status).toEqual('SUCCESS')
     );
 

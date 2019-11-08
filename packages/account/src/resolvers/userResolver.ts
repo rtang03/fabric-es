@@ -1,5 +1,8 @@
+import { createUser, identityService } from '@espresso/admin-tool';
+import { AuthenticationError } from 'apollo-server';
 import { compare, hash } from 'bcrypt';
 import { verify } from 'jsonwebtoken';
+import { assign, pick } from 'lodash';
 import {
   Arg,
   Ctx,
@@ -20,6 +23,7 @@ import {
   isAuth,
   sendRefreshToken
 } from '../utils';
+import { Attribute, Identity } from './adminResolver';
 
 @ObjectType()
 class LoginResponse {
@@ -29,6 +33,24 @@ class LoginResponse {
   user: User;
 }
 
+@ObjectType()
+class UserProfile {
+  @Field()
+  email: string;
+  @Field()
+  id: string;
+  @Field()
+  type: string;
+  @Field()
+  affiliation: string;
+  @Field(() => Int)
+  max_enrollments: number;
+  @Field(() => [Attribute])
+  attrs: Attribute[];
+  @Field()
+  caname?: string;
+}
+
 @Resolver()
 export class UserResolver {
   @Query(() => String)
@@ -36,10 +58,12 @@ export class UserResolver {
     return 'hi!';
   }
 
+  // option 1: authentication via using type-graphql middleware
   @Query(() => String)
   @UseMiddleware(isAuth)
   bye(@Ctx() { payload }: MyContext) {
-    console.log(payload);
+    // console.log(payload);
+    // { userId: 1, iat: 1572942436, exp: 1572943336 }
     return `your user id is: ${payload!.userId}`;
   }
 
@@ -48,28 +72,35 @@ export class UserResolver {
     return User.find();
   }
 
-  @Query(() => User, { nullable: true })
-  me(@Ctx() context: MyContext) {
-    const authorization = context.req.headers.authorization;
+  // option 2: authentication via context
+  @Query(() => UserProfile, { nullable: true })
+  async me(@Ctx() { payload, fabricConfig }: MyContext): Promise<UserProfile> {
+    let user: Pick<User, 'email'>;
+    let caIdentity: Identity;
 
-    if (!authorization) {
-      return null;
-    }
+    if (payload.userId) {
+      try {
+        // user profile database
+        user = await User.findOne(payload.userId).then(u => pick(u, 'email'));
 
-    try {
-      const token = authorization.split(' ')[1];
-      const payload: any = verify(token, process.env.ACCESS_TOKEN_SECRET!);
-      return User.findOne(payload.userId);
-    } catch (err) {
-      console.log(err);
-      return null;
-    }
+        // ca server
+        const { result, success } = await identityService(fabricConfig).then(
+          ({ getOne }) => getOne(user.email)
+        );
+        if (success) caIdentity = result;
+        else return null;
+      } catch (err) {
+        console.log(err);
+        return null;
+      }
+    } else throw new AuthenticationError(payload.error);
+
+    return assign({}, user, caIdentity);
   }
 
   @Mutation(() => Boolean)
   async logout(@Ctx() { res }: MyContext) {
     sendRefreshToken(res, '');
-
     return true;
   }
 
@@ -95,12 +126,10 @@ export class UserResolver {
     }
 
     const valid = await compare(password, user.password);
-
     if (!valid) {
       throw new Error('bad password');
     }
 
-    // login successful
     sendRefreshToken(res, createRefreshToken(user));
 
     return {
@@ -112,8 +141,12 @@ export class UserResolver {
   @Mutation(() => Boolean)
   async register(
     @Arg('email') email: string,
-    @Arg('password') password: string
+    @Arg('password') password: string,
+    @Ctx() { fabricConfig }: MyContext
   ) {
+    const exist = await User.findOne({ email });
+    if (exist) return false;
+
     const hashedPassword = await hash(password, 12);
 
     try {
@@ -122,7 +155,17 @@ export class UserResolver {
         password: hashedPassword
       });
     } catch (err) {
-      console.log(err);
+      console.error('Insert local database error.');
+      console.error(err);
+      return false;
+    }
+
+    try {
+      await createUser(email, password, fabricConfig);
+    } catch (err) {
+      console.error('Create Fabric CA identity error.');
+      console.error(err);
+      await User.delete({ email });
       return false;
     }
 
