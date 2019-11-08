@@ -11,7 +11,7 @@ import {
 } from '../../loan';
 import {
   User,
-  UserEvent,
+  UserEvents,
   userReducer
 } from '../../user';
 
@@ -201,7 +201,7 @@ export const mockdb: Record<string, Commit> = {
   }
 };
 
-export const userRepo = getMockRepository<User, UserEvent>(
+export const userRepo = getMockRepository<User, UserEvents>(
   mockdb,
   'user',
   userReducer

@@ -1,10 +1,10 @@
-import { Document, Trade, User } from '@espresso/common';
+import { Document, Loan, User } from '@espresso/common';
 import { Commit } from '@espresso/fabric-cqrs';
 import { GraphQLResolveInfo } from 'graphql';
 import { DataSources } from './dataSources';
 import { Paginated } from './paginated';
 
-export type Resolvers<TArg, TEntity extends User | Trade | Document> = {
+export type Resolvers<TArg, TEntity extends User | Loan | Document> = {
   Query: {
     [P in keyof Partial<TArg>]: (
       parent: null | undefined,
@@ -19,16 +19,16 @@ export type Resolvers<TArg, TEntity extends User | Trade | Document> = {
       | Promise<Commit>
       | Promise<Commit[] | { error: any }>;
   };
-  Trade?: {
+  Loan?: {
     documents?: (
-      { tradeId: string },
+      { loanId: string },
       _args: any,
       ctx: { dataSources: DataSources }
     ) => Promise<Document[]>;
     __resolveReference?: (
-      Trade,
+      Loan,
       ctx: { dataSources: DataSources }
-    ) => Promise<Trade>;
+    ) => Promise<Loan>;
   };
   Document?: {
     __resolveReference?: (

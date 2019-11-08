@@ -5,3 +5,7 @@ export const Errors = {
   invalidOperation: () => new Error('INVALID_OPERATION'),
   requiredDataMissing: () => new Error('REQUIRED_DATA_MISSING')
 };
+
+export * from './user';
+export * from './loan';
+export * from './document';
