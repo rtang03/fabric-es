@@ -5,7 +5,7 @@ export interface LoanCommands {
       loanId: string;
       description?: string;
       reference: string;
-      loanProductId: string;
+      loaner: string;
       timestamp: number;
     }
   };
@@ -60,11 +60,11 @@ export interface LoanCommands {
       timestamp: number;
     }
   };
-  UpdateLoanProduct: {
+  UpdateLoaner: {
     userId: string;
     payload: {
       loanId: string;
-      loanProductId: string;
+      loaner: string;
       timestamp: number;
     }
   };

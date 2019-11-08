@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { User } from '../user';
 import { userCommandHandler } from '../user';
-import { docRepo, tradeRepo, userRepo } from './__utils__';
+import { userRepo } from './__utils__';
 
 const user: User = {
   userId: 'id0001',

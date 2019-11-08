@@ -1,5 +1,15 @@
-import { LoanCommandHandler, LoanErrors, LoanRepo } from '.';
-import { UserRepo } from '../types';
+import { LoanCommandHandler, LoanRepo } from '.';
+import { Errors } from '..';
+import { UserRepo } from '../user';
+
+const LoanErrors = {
+  loanNotFound: (loanId) => new Error(`LOAN_NOT_FOUND: id: ${loanId}`),
+  loanCancelled: () => new Error('LOAN_CANCELLED'),
+  loanApproved: () => new Error('LOAN_APPROVED'),
+  loanReturned: () => new Error('LOAN_RETURNED'),
+  loanRejected: () => new Error('LOAN_REJECTED'),
+  loanExpired: () => new Error('LOAN_EXPIRED')
+};
 
 export const loanCommandHandler: (
   option: {
@@ -12,23 +22,21 @@ export const loanCommandHandler: (
 }) => ({
   ApplyLoan: async ({
     userId,
-    payload: { loanId, description, reference, loanProductId, timestamp }
+    payload: { loanId, description, reference, loaner, timestamp }
   }) => {
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw LoanErrors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege;
       });
-    if (!reference) throw LoanErrors.requiredDataMissing;
-    if (!loanProductId) throw LoanErrors.requiredDataMissing;
+    if (!reference) throw Errors.requiredDataMissing;
+    if (!loaner) throw Errors.requiredDataMissing;
     const events: any = [
-      { type: 'applied', payload: { loanId, userId, timestamp }},
+      { type: 'LoanApplied', payload: { loanId, userId, timestamp }},
       { type: 'LoanReferenceDefined', payload: { loanId, userId, reference, timestamp }},
-      { type: 'LoanProductDefined', payload: { loanId, userId, loanProductId, timestamp }}
+      { type: 'LoanerDefined', payload: { loanId, userId, loaner, timestamp }}
     ];
-    if (describe) {
-      events.push({ type: 'LoanDescriptionDefined', payload: { loanId, userId, description, timestamp }});
-    }
+    if (description) events.push({ type: 'LoanDescriptionDefined', payload: { loanId, userId, description, timestamp }});
     return loanRepo
       .create({ enrollmentId, id: loanId })
       .save(events);
@@ -40,14 +48,14 @@ export const loanCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw LoanErrors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege;
       });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {
         if (!currentState) throw LoanErrors.loanNotFound(loanId);
         return save([{
-          type: 'cancelled',
+          type: 'LoanCancelled',
           payload: { loanId, userId, timestamp }
         }]);
       });
@@ -59,14 +67,14 @@ export const loanCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw LoanErrors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege;
       });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {
         if (!currentState) throw LoanErrors.loanNotFound(loanId);
         return save([{
-          type: 'approved',
+          type: 'LoanApproved',
           payload: { loanId, userId, timestamp }
         }]);
       });
@@ -78,14 +86,14 @@ export const loanCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw LoanErrors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege;
       });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {
         if (!currentState) throw LoanErrors.loanNotFound(loanId);
         return save([{
-          type: 'returned',
+          type: 'LoanReturned',
           payload: { loanId, userId, timestamp }
         }]);
       });
@@ -97,14 +105,14 @@ export const loanCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw LoanErrors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege;
       });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {
         if (!currentState) throw LoanErrors.loanNotFound(loanId);
         return save([{
-          type: 'rejected',
+          type: 'LoanRejected',
           payload: { loanId, userId, timestamp }
         }]);
       });
@@ -116,14 +124,14 @@ export const loanCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw LoanErrors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege;
       });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {
         if (!currentState) throw LoanErrors.loanNotFound(loanId);
         return save([{
-          type: 'expired',
+          type: 'LoanExpired',
           payload: { loanId, userId, timestamp }
         }]);
       });
@@ -135,13 +143,13 @@ export const loanCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw LoanErrors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege;
       });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {
         if (!currentState) throw LoanErrors.loanNotFound(loanId);
-        if (currentState.reference) throw LoanErrors.invalidOperation; // Readonly field
+        if (currentState.reference) throw Errors.invalidOperation; // Readonly field
         return save([{
           type: 'LoanReferenceDefined',
           payload: { loanId, userId, reference, timestamp }
@@ -155,7 +163,7 @@ export const loanCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw LoanErrors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege;
       });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
@@ -167,22 +175,22 @@ export const loanCommandHandler: (
         }]);
       });
   },
-  UpdateLoanProduct: async ({
+  UpdateLoaner: async ({
     userId,
-    payload: { loanId, loanProductId, timestamp }
+    payload: { loanId, loaner, timestamp }
   }) => {
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw LoanErrors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege;
       });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {
         if (!currentState) throw LoanErrors.loanNotFound(loanId);
         return save([{
-          type: 'LoanProductDefined',
-          payload: { loanId, userId, loanProductId, timestamp }
+          type: 'LoanerDefined',
+          payload: { loanId, userId, loaner, timestamp }
         }]);
       });
   }
