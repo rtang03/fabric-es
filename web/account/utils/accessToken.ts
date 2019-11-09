@@ -4,6 +4,4 @@ export const setAccessToken = (s: string) => {
   accessToken = s;
 };
 
-export const getAccessToken = () => {
-  return accessToken;
-};
+export const getAccessToken = () => accessToken;
