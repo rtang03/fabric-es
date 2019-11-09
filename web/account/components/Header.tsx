@@ -1,7 +1,14 @@
 import Link from 'next/link';
 import React from 'react';
+import styled from 'styled-components';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 import { setAccessToken } from '../utils/accessToken';
+
+const Title = styled.span`
+  font-size: 24px;
+  cursor: pointer;
+  color: ${({ theme }) => theme.colors.primary};
+`;
 
 export const Header: React.FC<any> = () => {
   const { data, loading } = useMeQuery();
@@ -20,20 +27,28 @@ export const Header: React.FC<any> = () => {
   return (
     <header>
       <nav>
-        <Link href='/'>
-          <a>Home</a>
+        <Link href="/">
+          <Title>
+            <a>Home</a>
+          </Title>
         </Link>{' '}
         |{' '}
-        <Link href='/register'>
-          <a>Register</a>
+        <Link href="/register">
+          <Title>
+            <a>Register</a>
+          </Title>
         </Link>{' '}
         |{' '}
-        <Link href='/login'>
-          <a>Login</a>
+        <Link href="/login">
+          <Title>
+            <a>Login</a>
+          </Title>
         </Link>{' '}
         |{' '}
-        <Link href='/bye'>
-          <a>bye</a>
+        <Link href="/bye">
+          <Title>
+            <a>Bye</a>
+          </Title>
         </Link>{' '}
         |{' '}
         {!loading && data && data.me ? (
