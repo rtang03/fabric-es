@@ -7,21 +7,21 @@ export default () => {
 
   if (!data) {
     return (
-      <Layout>
+      <Layout title="Home">
         <div>loading...</div>
       </Layout>
     );
   }
 
   return (
-    <Layout>
+    <Layout title="Home">
       <div>
-        <div>users:</div>
+        <div>List of users:</div>
         <ul>
-          {data.users.map(x => {
+          {data.users.map(({ id, email }) => {
             return (
-              <li key={x.id}>
-                {x.email}, {x.id}
+              <li key={id}>
+                {email}, {id}
               </li>
             );
           })}

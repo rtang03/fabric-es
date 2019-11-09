@@ -1,5 +1,5 @@
-import { Button, Checkbox, FormControlLabel } from '@material-ui/core';
-import { Field, FieldAttributes, Form, Formik, useField } from 'formik';
+import { Button } from '@material-ui/core';
+import { Form, Formik } from 'formik';
 import Router from 'next/router';
 import React from 'react';
 import * as yup from 'yup';
@@ -22,7 +22,7 @@ export default () => {
   const [register] = useRegisterMutation();
 
   return (
-    <Layout title="Acount | Register">
+    <Layout title="Account | Register">
       <Formik
         validateOnChange={true}
         initialValues={{ email: '', password: ''}}
@@ -47,7 +47,7 @@ export default () => {
             </div>
             <div>
               <Button disabled={isSubmitting} type="submit">
-                submit
+                Register
               </Button>
             </div>
             <hr />
