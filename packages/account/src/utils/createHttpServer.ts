@@ -4,10 +4,18 @@ import cors from 'cors';
 import express, { Express, Request, Response } from 'express';
 import { FileSystemWallet } from 'fabric-network';
 import { verify } from 'jsonwebtoken';
+import { OAuth2Server } from 'oauth2-server-typescript';
 import { buildSchema } from 'type-graphql';
 import { ConnectionOptions, createConnection } from 'typeorm';
-import { refresh_token } from '../routes';
+import {
+  authenticate,
+  authorize,
+  redirect,
+  refresh_token,
+  token
+} from '../routes';
 import { MyContext } from '../types';
+import { model } from './model';
 
 export const createHttpServer: (option: {
   dbConnection?: ConnectionOptions;
@@ -17,10 +25,23 @@ export const createHttpServer: (option: {
     wallet: FileSystemWallet;
   };
 }) => Promise<Express> = async ({ dbConnection, resolvers, fabricConfig }) => {
+  const oauth = new OAuth2Server({
+    model,
+    debug: true,
+    allowBearerTokensInQueryString: true,
+    accessTokenLifetime: 4 * 60 * 60
+  });
+
+  if (dbConnection) {
+    await createConnection(dbConnection);
+  } else {
+    await createConnection();
+  }
+
   const app = express();
   app.use(
     cors({
-      origin: process.env.CORS_ORIGIN || 'http://localhost:4000',
+      origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
       credentials: true
     })
   );
@@ -29,12 +50,9 @@ export const createHttpServer: (option: {
   app.use(express.urlencoded({ extended: false }));
   app.get('/', (_, res) => res.status(200).send({ data: 'hello' }));
   app.post('/refresh_token', refresh_token);
-
-  if (dbConnection) {
-    await createConnection(dbConnection);
-  } else {
-    await createConnection();
-  }
+  app.post('/oauth/token', token(oauth));
+  // app.get('/oauth/authorize', redirect);
+  // app.post('/oauth/authorize', authorize(oauth));
 
   const schema = await buildSchema({ resolvers });
   const server = new ApolloServerExpress({
@@ -52,7 +70,6 @@ export const createHttpServer: (option: {
           payload = { error };
         }
       }
-
       return { req, res, fabricConfig, payload };
     }
   });
