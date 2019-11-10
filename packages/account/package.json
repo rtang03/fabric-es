@@ -30,6 +30,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "morgan": "^1.9.1",
+    "oauth2-server-typescript": "^5.0.0-dev.3",
     "pg": "^7.12.1",
     "prettyjson": "^1.2.1",
     "reflect-metadata": "^0.1.13",

@@ -94,8 +94,8 @@ describe('Authentication Tests', () => {
         variables: { email, password }
       })
       .expect(({ body: { data } }) => {
-        accessToken = data!.login!.accessToken;
-        expect(data!.login!.accessToken).toBeDefined();
+        accessToken = data!.login!.access_token;
+        expect(data!.login!.access_token).toBeDefined();
       }));
 
   it('should get myProfile', async () =>
