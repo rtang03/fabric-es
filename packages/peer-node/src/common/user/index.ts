@@ -1,3 +1,3 @@
 export * from './typeDefs';
-export { resolvers } from './resolvers';
+export * from './resolvers';
 export * from './query';
