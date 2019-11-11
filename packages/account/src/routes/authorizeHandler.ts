@@ -2,7 +2,7 @@ import express from 'express';
 import { OAuth2Server, Request, Response } from 'oauth2-server-typescript';
 import util from 'util';
 
-export const authorize = (oauth: OAuth2Server, options?: any) => (
+export const authorizeHandler = (oauth: OAuth2Server, options?: any) => (
   req: express.Request,
   res: express.Response
 ) => {
@@ -18,5 +18,7 @@ export const authorize = (oauth: OAuth2Server, options?: any) => (
   }
   const request = new Request(req);
   const response = new Response(res);
-  return oauth.authorize(request, response, options);
+  const result = oauth.authorize(request, response, options);
+  console.log(result);
+  return result;
 };
