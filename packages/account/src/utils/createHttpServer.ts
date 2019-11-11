@@ -9,10 +9,10 @@ import { buildSchema } from 'type-graphql';
 import { ConnectionOptions, createConnection } from 'typeorm';
 import {
   authenticate,
-  authorize,
-  redirect,
+  authorizeHandler,
+  loginHandler,
   refresh_token,
-  token
+  tokenHandler
 } from '../routes';
 import { MyContext } from '../types';
 import { model } from './model';
@@ -49,10 +49,12 @@ export const createHttpServer: (option: {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.get('/', (_, res) => res.status(200).send({ data: 'hello' }));
+  app.get('/home', (_, res) => res.status(200).send({ data: 'please login' }));
   app.post('/refresh_token', refresh_token);
-  app.post('/oauth/token', token(oauth));
-  // app.get('/oauth/authorize', redirect);
-  // app.post('/oauth/authorize', authorize(oauth));
+  app.post('/oauth/token', tokenHandler(oauth));
+  app.post('/oauth/refresh_token', tokenHandler(oauth));
+  // app.get('/oauth/authorize', loginHandler);
+  // app.post('/oauth/authorize', authorizeHandler(oauth));
 
   const schema = await buildSchema({ resolvers });
   const server = new ApolloServerExpress({

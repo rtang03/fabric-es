@@ -10,9 +10,14 @@ import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
 import { OUser } from '../entity/OUser';
 import { RefreshToken } from '../entity/RefreshToken';
+import { createAccessToken, createRefreshToken } from './auth';
 
 export const model: Model = {
   request: undefined,
+  generateAccessToken: async (client: IClient, user: OUser, scope) =>
+    createAccessToken(user),
+  generateRefreshToken: async (client: IClient, user: OUser, scope) =>
+    createRefreshToken(user),
   getAccessToken: async (access_token: string) => {
     const token = await AccessToken.findOne({ access_token });
     const user = await OUser.findOne({ id: token.client_id });
@@ -50,7 +55,13 @@ export const model: Model = {
     };
   },
   getClient: async (client_id: string, client_secret?: string) => {
-    const client = await Client.findOne({ client_id, client_secret });
+    const client = client_secret
+      ? await Client.findOne({ client_id, client_secret }).catch(error =>
+          console.error(error)
+        )
+      : await Client.findOne({ client_id }).catch(error =>
+          console.error(error)
+        );
     return client
       ? {
           id: client.id,
@@ -61,6 +72,7 @@ export const model: Model = {
   },
   getUser: async (username: string, password: string) => {
     // todo: check against the passsword salt
+    // todo: check against Fabric CA identity
     return await OUser.findOne({ username });
   },
   getUserFromClient: async (client: IClient) => {
