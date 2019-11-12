@@ -94,8 +94,8 @@ describe('Authentication Tests', () => {
         variables: { email, password }
       })
       .expect(({ body: { data } }) => {
-        accessToken = data!.login!.accessToken;
-        expect(data!.login!.accessToken).toBeDefined();
+        accessToken = data!.login!.access_token;
+        expect(data!.login!.access_token).toBeDefined();
       }));
 
   it('should get myProfile', async () =>
@@ -118,10 +118,9 @@ describe('Authentication Tests', () => {
       .post('/graphql')
       .set('authorization', `Bearer 123456789`)
       .send({ operationName: 'me', query: ME })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors[0].message).toEqual('jwt malformed');
-        expect(data).toEqual({ me: null });
-      }));
+      .expect(({ body: { data, errors } }) =>
+        expect(data).toEqual({ me: null })
+      ));
 
   it('should bye', async () =>
     request(app)
