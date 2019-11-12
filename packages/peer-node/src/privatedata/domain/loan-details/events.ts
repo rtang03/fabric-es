@@ -35,6 +35,16 @@ export interface LoanContactDefined extends BaseEvent {
   };
 }
 
+export interface LoanTypeDefined extends BaseEvent {
+  readonly type: 'LoanTypeDefined';
+  payload: {
+    loanId: string;
+    userId: string;
+    loanType: string;
+    timestamp: number;
+  };
+}
+
 export interface LoanStartDateDefined extends BaseEvent {
   readonly type: 'LoanStartDateDefined';
   payload: {
@@ -94,3 +104,15 @@ export interface LoanCommentDefined extends BaseEvent {
     timestamp: number;
   };
 }
+
+export type LoanDetailsEvents =
+  LoanDetailsCreated |
+  LoanRequesterDefined |
+  LoanContactDefined |
+  LoanTypeDefined |
+  LoanStartDateDefined |
+  LoanTenorDefined |
+  LoanCurrencyDefined |
+  LoanRequestedAmtDefined |
+  LoanApprovedAmtDefined |
+  LoanCommentDefined;

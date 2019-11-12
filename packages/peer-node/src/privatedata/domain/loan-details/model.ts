@@ -29,4 +29,5 @@ export class LoanDetails {
   requestedAmt: number;
   approvedAmt?: number;
   comment?: string;
+  timestamp: number;
 }

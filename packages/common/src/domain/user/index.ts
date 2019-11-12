@@ -6,8 +6,8 @@ import { User } from './model';
 
 export * from './model';
 export * from './events';
-export * from './reducer';
 export * from './commands';
+export * from './reducer';
 export * from './handler';
 export type UserRepo = Repository<User, UserEvents>;
 export type UserCommandHandler = CommandHandler<UserCommands>;
