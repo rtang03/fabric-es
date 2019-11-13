@@ -3,8 +3,7 @@ import {
   getPrivatedataMockRepository,
   PrivatedataRepository
 } from '@espresso/fabric-cqrs';
-import { EtcPo, EtcPoEvent } from '../../privatedata';
-import { reduceToEtcPo } from '../../privatedata/domain/etc-po';
+import { LoanDetails, LoanDetailsEvents, loanDetailsReducer } from '../../privatedata';
 
 const db: Record<string, Commit> = {
   '20181114163145704:example@gmail.com': {
@@ -27,7 +26,8 @@ const db: Record<string, Commit> = {
   }
 };
 
-export const etcPoRepo: PrivatedataRepository = getPrivatedataMockRepository<
-  EtcPo,
-  EtcPoEvent
->(db, 'privatedata', reduceToEtcPo);
+export const localRepo: PrivatedataRepository = getPrivatedataMockRepository<LoanDetails, LoanDetailsEvents>(
+  db,
+  'privatedata',
+  loanDetailsReducer
+);

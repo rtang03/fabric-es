@@ -11,8 +11,8 @@ import {
 } from '@espresso/common';
 import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
+import { resolvers, typeDefs } from './common/loan';
 import './env';
-import { resolvers, typeDefs } from './onchain/loan';
 import { DataSources, FabricData } from './types';
 
 const port = 14001;

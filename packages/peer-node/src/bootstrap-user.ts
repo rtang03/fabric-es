@@ -1,53 +1,37 @@
-// require('events').EventEmitter.defaultMaxListeners = 15;
-import { buildFederatedSchema } from '@apollo/federation';
-import {
-  reduceToDocument,
-  reduceToTrade,
-  reduceToUser,
-  Trade,
-  TradeEvent,
-  User,
-  UserEvent
-} from '@espresso/common';
+import { User, UserEvents, userReducer } from '@espresso/common';
 import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
+import { resolvers, typeDefs } from './common/user';
 import './env';
-import { resolvers, typeDefs } from './trade';
 import { DataSources, FabricData } from './types';
 
-const port = 14001;
+const port = 14004;
 let networkConfig;
 
 const bootstrap = async () => {
-  console.log('♨️♨️ Bootstraping Trade - Onchain  ♨️♨️');
+  console.log('♨️♨️ Bootstraping User - Onchain  ♨️♨️');
   const enrollmentId = 'admin';
   networkConfig = await getNetwork({
     enrollmentId,
     channelEventHubExisted: true
   });
-  // note: the default reducer is reduceToDocument
+  
   const { reconcile, getRepository, subscribeHub } = createPeer({
     ...networkConfig,
-    reducer: reduceToDocument,
+    reducer: userReducer,
     collection: 'Org1PrivateDetails'
   });
-  const tradeRepo = getRepository<Trade, TradeEvent>({
-    entityName: 'trade',
-    reducer: reduceToTrade
-  });
-  const userRepo = getRepository<User, UserEvent>({
+  const userRepo = getRepository<User, UserEvents>({
     entityName: 'user',
-    reducer: reduceToUser
+    reducer: userReducer
   });
   await subscribeHub();
-  await reconcile({ entityName: 'trade', reducer: reduceToTrade });
-  await reconcile({ entityName: 'user', reducer: reduceToUser });
+  await reconcile({ entityName: 'user', reducer: userReducer });
 
   const server = new ApolloServer({
-    schema: buildFederatedSchema([{ typeDefs, resolvers }]),
+    typeDefs, resolvers,
     playground: true,
     dataSources: (): DataSources => ({
-      tradeDataSource: new FabricData({ repo: tradeRepo }),
       userDataSource: new FabricData({ repo: userRepo })
     }),
     context: ({ req }) => {

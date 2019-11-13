@@ -5,7 +5,7 @@ export const resolvers = {
   Query: {
     getCommitsByLoanId: async (_, { loanId }, { dataSources: { loanDataSource }}): Promise<Commit[] | { error: any }> =>
       loanDataSource.repo.getCommitById(loanId)
-        .then(({ data}) => data || [])
+        .then(({ data }) => data || [])
         .catch(error => ({ error })),
     getLoanById:  async (_, { loanId }, { dataSources: { loanDataSource }}): Promise<Loan | { error: any }> =>
       loanDataSource.repo.getById({ id: loanId })

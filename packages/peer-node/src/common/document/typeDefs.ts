@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 export const typeDefs = gql`
   type Query {
-    getCommitsByDocumentId(id: String!): [DocumentCommit]!
+    getCommitsByDocumentId(documentId: String!): [DocumentCommit]!
     getDocumentById(documentId: String!): Document
   }
 

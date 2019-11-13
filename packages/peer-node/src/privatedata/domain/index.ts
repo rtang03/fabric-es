@@ -1,1 +1,1 @@
-export * from './etc-po';
+export * from './loan-details';

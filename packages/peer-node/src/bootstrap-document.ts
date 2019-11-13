@@ -2,18 +2,18 @@ require('events').EventEmitter.defaultMaxListeners = 15;
 import { buildFederatedSchema } from '@apollo/federation';
 import {
   Document,
-  DocumentEvent,
-  reduceToDocument,
-  reduceToTrade,
-  reduceToUser,
-  Trade,
-  TradeEvent,
+  DocumentEvents,
+  documentReducer,
+  Loan,
+  LoanEvents,
+  loanReducer,
   User,
-  UserEvent
+  UserEvents,
+  userReducer
 } from '@espresso/common';
 import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
-import { resolvers, typeDefs } from './document';
+import { resolvers, typeDefs } from './common/document';
 import './env';
 import { DataSources, FabricData } from './types';
 
@@ -30,29 +30,29 @@ const bootstrap = async () => {
   });
   const { reconcile, getRepository, subscribeHub } = createPeer({
     ...networkConfig,
-    reducer: reduceToDocument,
+    reducer: documentReducer,
     collection
   });
-  const tradeRepo = getRepository<Trade, TradeEvent>({
+  const loanRepo = getRepository<Loan, LoanEvents>({
     entityName: 'trade',
-    reducer: reduceToTrade
+    reducer: loanReducer
   });
-  const userRepo = getRepository<User, UserEvent>({
+  const userRepo = getRepository<User, UserEvents>({
     entityName: 'user',
-    reducer: reduceToUser
+    reducer: userReducer
   });
-  const documentRepo = getRepository<Document, DocumentEvent>({
+  const documentRepo = getRepository<Document, DocumentEvents>({
     entityName: 'document',
-    reducer: reduceToDocument
+    reducer: documentReducer
   });
   // Invoke the Fabric Channel Event Listener, based on .env variable CHANNEL_HUB
   await subscribeHub();
 
   // As a bootstrap process, clone on-chain Trade entity to local in-memory query DB, and restore final state with reduceToTrade
   // For production-grade, local in-memory query database, may refactor to using Redis, for better scalability
-  await reconcile({ entityName: 'trade', reducer: reduceToTrade });
-  await reconcile({ entityName: 'user', reducer: reduceToUser });
-  await reconcile({ entityName: 'document', reducer: reduceToDocument });
+  await reconcile({ entityName: 'loan', reducer: loanReducer });
+  await reconcile({ entityName: 'user', reducer: userReducer });
+  await reconcile({ entityName: 'document', reducer: documentReducer });
 
   const server = new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),
@@ -60,7 +60,7 @@ const bootstrap = async () => {
     subscriptions: { path: '/graphql' },
     dataSources: (): DataSources => ({
       docDataSource: new FabricData({ repo: documentRepo }),
-      tradeDataSource: new FabricData({ repo: tradeRepo }),
+      loanDataSource: new FabricData({ repo: loanRepo }),
       userDataSource: new FabricData({ repo: userRepo })
     })
   });
