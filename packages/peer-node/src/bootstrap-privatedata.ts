@@ -7,13 +7,12 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import './env';
-import { EtcPo, EtcPoEvent, resolvers, typeDefs } from './privatedata';
-import { reduceToEtcPo } from './privatedata/domain/etc-po';
+import { LoanDetails, LoanDetailsEvents, loanDetailsReducer, resolvers, typeDefs } from './privatedata';
 import { FabricData } from './types';
 
 let networkConfig;
 const port = 14002;
-const entityName = 'etcPo';
+const entityName = 'privatedata';
 const collection = 'Org1PrivateDetails';
 
 const bootstrap = async () => {
@@ -25,18 +24,18 @@ const bootstrap = async () => {
   });
   const { getPrivateDataRepo } = createPeer({
     ...networkConfig,
-    reducer: reduceToEtcPo,
+    reducer: loanDetailsReducer,
     collection
   });
-  const etcPoRepo = getPrivateDataRepo<EtcPo, EtcPoEvent>({
+  const dtlsRepo = getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
     entityName,
-    reducer: reduceToEtcPo
+    reducer: loanDetailsReducer
   });
-  const etcPoDataSource = new FabricData({ privatedataRepo: etcPoRepo });
+  const dtlsDataSource = new FabricData({ privatedataRepo: dtlsRepo });
   const server = new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),
     playground: true,
-    dataSources: () => ({ etcPoDataSource })
+    dataSources: () => ({ dtlsDataSource })
   });
   server.listen({ port }).then(({ url }) => {
     console.log(`🚀 Server ready at ${url}`);

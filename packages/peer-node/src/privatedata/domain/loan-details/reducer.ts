@@ -1,4 +1,4 @@
-import { ContactInfo, LoanDetails, LoanDetailsEvents, LoanRequester } from '.';
+import { LoanDetails, LoanDetailsEvents } from '.';
 
 export const loanDetailsReducer = (
   history: LoanDetailsEvents[],
