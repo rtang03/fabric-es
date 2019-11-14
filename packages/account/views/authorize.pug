@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  .w3-container
+    p Path: #{redirect}
+    p Client Id: #{client_id}
+    p Redirect URI: #{redirect_uri}
+    form(method='POST' action='/oauth/authorize')
+      input(type='hidden' id='redirect' name='redirect' value=redirect )
+      input(type='hidden' id='client_id' name='client_id' value=client_id )
+      input(type='hidden' id='redirect_uri' name='redirect_uri' value=redirect_uri )
+      input(type='hidden' id='user_id' name='user' value=locals.user_id )
+      input(type='hidden' id='state' name='state' value=state )
+      input(type='hidden' id='response_type' name='response_type' value=response_type )
+      input(type='hidden' id='grant_type' name='grant_type' value=grant_type )
+      button.btn.btn-primary(type='submit') Grant Access
