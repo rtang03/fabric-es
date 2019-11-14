@@ -1,17 +1,17 @@
 import gql from 'graphql-tag';
 
 export const typeDefs = gql`
-type Query {
+extend type Query {
   getCommitsByLoanId(loanId: String!): [LoanCommit]!
   getLoanById(loanId: String!): Loan
 }
 
 type Mutation {
   applyLoan(
-    userId: String!
-    loanId: String!
-    description: String
-    reference: String!
+    userId: String!,
+    loanId: String!,
+    description: String,
+    reference: String!,
     loaner: String!
   ): LoanCommit
   cancelLoan(userId: String!, loanId: String!): LoanCommit
