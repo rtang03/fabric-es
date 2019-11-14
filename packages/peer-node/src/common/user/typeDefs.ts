@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export const typeDefs = gql`
-type Query {
+extend type Query {
   getCommitsByUserId(userId: String!): [UserCommit]!
   getPaginatedUser(cursor: Int = 10): PaginatedUsers!
   getUserById(userId: String!): User!
