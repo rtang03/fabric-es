@@ -7,15 +7,10 @@ import { verify } from 'jsonwebtoken';
 import { OAuth2Server } from 'oauth2-server-typescript';
 import { buildSchema } from 'type-graphql';
 import { ConnectionOptions, createConnection } from 'typeorm';
-import {
-  authenticate,
-  authorizeHandler,
-  loginHandler,
-  refresh_token,
-  tokenHandler
-} from '../routes';
+import { createModel } from '.';
+import { refresh_token } from '../middleware';
+import { indexRouter } from '../routes';
 import { MyContext } from '../types';
-import { model } from './model';
 
 export const createHttpServer: (option: {
   dbConnection?: ConnectionOptions;
@@ -26,10 +21,9 @@ export const createHttpServer: (option: {
   };
 }) => Promise<Express> = async ({ dbConnection, resolvers, fabricConfig }) => {
   const oauth = new OAuth2Server({
-    model,
+    model: createModel(),
     debug: true,
-    allowBearerTokensInQueryString: true,
-    accessTokenLifetime: 4 * 60 * 60
+    allowBearerTokensInQueryString: true
   });
 
   if (dbConnection) {
@@ -39,6 +33,7 @@ export const createHttpServer: (option: {
   }
 
   const app = express();
+  app.set('view engine', 'pug');
   app.use(
     cors({
       origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
@@ -48,19 +43,14 @@ export const createHttpServer: (option: {
   app.use(cookieParser());
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
-  app.get('/', (_, res) => res.status(200).send({ data: 'hello' }));
-  app.get('/home', (_, res) => res.status(200).send({ data: 'please login' }));
+  app.use('/', indexRouter(oauth));
   app.post('/refresh_token', refresh_token);
-  app.post('/oauth/token', tokenHandler(oauth));
-  app.post('/oauth/refresh_token', tokenHandler(oauth));
-  // app.get('/oauth/authorize', loginHandler);
-  // app.post('/oauth/authorize', authorizeHandler(oauth));
 
   const schema = await buildSchema({ resolvers });
   const server = new ApolloServerExpress({
     schema,
     context: ({ req, res }: { req: Request; res: Response }): MyContext => {
-      const authorization = req.headers.authorization;
+      const authorization = req.headers!.authorization;
       let payload;
 
       if (authorization) {
