@@ -56,10 +56,10 @@ beforeAll(async () => {
 afterAll(async () => new Promise(done => setTimeout(() => done(), 500)));
 
 describe('Authentication Tests', () => {
-  it('should response the GET method, /', async () =>
-    request(app)
-      .get('/')
-      .then(({ body }) => expect(body).toEqual({ data: 'hello' })));
+  // it('should response the GET method, /', async () =>
+    // request(app)
+    //   .get('/')
+    //   .then(({ body }) => expect(body).toEqual({ data: 'hello' })));
 
   it('should query Hello', async () =>
     request(app)

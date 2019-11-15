@@ -1,14 +1,16 @@
-import { BaseEntity, Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn
+} from 'typeorm';
 
 @Entity('oauth_clients')
 export class Client extends BaseEntity {
-  @PrimaryColumn('text')
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @PrimaryColumn('text')
-  client_id: string;
-
-  @PrimaryColumn('text')
+  @Column('text')
   client_secret: string;
 
   @Column('simple-array')
@@ -17,6 +19,6 @@ export class Client extends BaseEntity {
   @Column('simple-array')
   grants: string[];
 
-  @Column('text')
+  @Column({ type: 'text', nullable: true })
   user_id: string;
 }
