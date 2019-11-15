@@ -89,6 +89,13 @@ beforeAll(async () => {
   });
   await localService.listen({ port: 14003 });
   server = await constructTestServer();
+
+  await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
+    documentId: '990000101', userId: 'josh@fake.it', title: 'Test Title 101', reference: 'DOC0101', link: 'test-link-0101'
+  }});
+  await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
+    documentId: '990000102', userId: 'josh@fake.it', title: 'Test Title 102', reference: 'DOC0102', link: 'test-link-0102'
+  }});
 });
 
 afterAll(async () => {
@@ -165,6 +172,31 @@ describe('Document Entity: Unit Test', () => {
       .then(({ data: { createDocument: { id } } }) =>
         expect(id).toEqual('321321321')
       ));
+
+  it('delete document', async () => {
+    const { query, mutate } = createTestClient(server);
+    mutate({ mutation: DELETE_DOCUMENT, variables: { userId: 'josh@fake.it', documentId: '990000101' }}).then(data => {
+      console.log('NO1', data);
+    }).catch(error => {
+      console.log('OO1', error);
+    });
+    const doc: any = await query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: '990000101' }}).then(data => {
+      console.log('MO1', data);
+      return data;
+    });
+    expect(doc.documentId === '990000101' && doc.status === 1).toBeTruthy();
+  });
+
+  // it('restrict document access', async () => {
+  //   const { query, mutate } = createTestClient(server);
+  //   mutate({ mutation: RESTRICT_DOCUMENT_ACCESS, variables: { userId: 'josh@fake.it', documentId: '990000102' }});
+  //   const doc: any = await query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: '990000102' }}).then(data => {
+  //     console.log('MO2', data);
+  //     return data;
+  //   });
+  //   expect(doc.documentId === '990000102' && doc.status === 2).toBeTruthy();
+  // });
+
 });
 
 describe('Loan Entity: Unit Test', () => {
