@@ -1,0 +1,18 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='https://www.w3schools.com/w3css/4/w3.css')
+    link(rel='shortcut icon', href='//cdn2.auth0.com/styleguide/latest/lib/logos/img/favicon.png')
+    script(src="https://code.jquery.com/jquery-3.1.1.min.js")
+  body
+    nav.w3-bar.w3-border.w3-light-grey( role="navigation" )
+      .w3-bar-item.w3-text-grey Authorization Server
+      a(href="/").w3-bar-item.w3-button Home
+      if locals.user
+        a(href="/user" id="profileDropDown").w3-bar-item.w3-button Profile
+        a(id="qsLogoutBtn" href="/logout").w3-bar-item.w3-button Log Out
+      else
+        a(id="qsLoginBtn" href="/login").w3-bar-item.w3-button Log In
+    block content
