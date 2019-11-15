@@ -24,7 +24,7 @@ export const resolvers = {
       })
   },
   Loan: {
-    __resolveReference: ({ loanId }, { dataSources: { loanDataSource }}) =>
+    __resolveReference: ({ loanId }, { dataSources: { loanDataSource }}): Promise<Loan> =>
       loanDataSource.repo.getById({ id: loanId })
         .then(({ currentState }) => currentState)
   }

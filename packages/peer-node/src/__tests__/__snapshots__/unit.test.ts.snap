@@ -1,19 +1,44 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Document Entity: Unit Test should query: getCommitByDocumentId 1`] = `
+exports[`Document Entity: Unit Test query: getCommitByDocumentId 1`] = `
 Object {
-  "getCommitsByDocumentId": Array [],
+  "getCommitsByDocumentId": Array [
+    Object {
+      "commitId": "20181124064622771:1542385173331",
+      "committedAt": "1542385173331",
+      "entityName": "document",
+      "events": Array [
+        Object {
+          "type": "DocumentCreated",
+        },
+        Object {
+          "type": "DocumentTitleDefined",
+        },
+        Object {
+          "type": "DocumentReferenceDefined",
+        },
+        Object {
+          "type": "DocumentLoanIdDefined",
+        },
+        Object {
+          "type": "DocumentLinkDefined",
+        },
+      ],
+      "id": "1542385173331",
+      "version": 0,
+    },
+  ],
 }
 `;
 
-exports[`Document Entity: Unit Test should query: getDocumentById 1`] = `
+exports[`Document Entity: Unit Test query: getDocumentById 1`] = `
 Object {
   "getDocumentById": Object {
     "documentId": "1542385173331",
-    "link": "www.example.com",
+    "link": "localhost/doc/1542385173331",
     "loanId": "123456",
-    "ownerId": "example@gmail.com",
-    "reference": "REF0001",
+    "ownerId": "josh@fake.it",
+    "reference": "REF1542385173331",
     "status": "0",
     "timestamp": "1543041982770",
     "title": "Top 15+ UK Scholarships for International Students",
@@ -21,37 +46,128 @@ Object {
 }
 `;
 
-exports[`Loan Entity: Unit Test should query: getCommitsByLoanId 1`] = `
+exports[`Loan Entity: Unit Test federated query: getLoanById 1`] = `
 Object {
-  "getCommitsByLoanId": Array [],
+  "getLoanById": Object {
+    "description": "Loan requested by an undisclosed party to an unknown bank",
+    "documents": Array [
+      Object {
+        "documentId": "1542385173331",
+        "link": "localhost/doc/1542385173331",
+        "reference": "REF1542385173331",
+        "status": "0",
+        "timestamp": "1543041982770",
+        "title": "Top 15+ UK Scholarships for International Students",
+      },
+      Object {
+        "documentId": "1542385174331",
+        "link": "localhost/doc/1542385174331",
+        "reference": "REF1542385174331",
+        "status": "0",
+        "timestamp": "1543041984770",
+        "title": "The Mother of All Invoices",
+      },
+    ],
+    "loanId": "123456",
+    "loaner": "Dai Yee Lung",
+    "ownerId": "josh@fake.it",
+    "reference": "REF123456",
+    "status": "0",
+    "timestamp": "1542336654365",
+  },
 }
 `;
 
-exports[`Loan Entity: Unit Test should query: getLoanById 1`] = `
+exports[`Loan Entity: Unit Test query: getCommitsByLoanId 1`] = `
 Object {
-  "getLoanById": null,
-}
-`;
-
-exports[`LoanDetails: Unit Test should query: getLoanDetailsById 1`] = `undefined`;
-
-exports[`User Entity: Unit Test should query: getCommitsByUserId 1`] = `
-Object {
-  "getCommitsByUserId": Array [
+  "getCommitsByLoanId": Array [
     Object {
-      "commitId": "20181114163145704:example@gmail.com",
-      "committedAt": "1542213105704",
-      "entityName": "typeDefs.onchain.ts.ts",
+      "commitId": "20181116025054374:123456",
+      "committedAt": "1542336654374",
+      "entityName": "loan",
       "events": Array [
         Object {
-          "type": "UserCreated",
+          "type": "LoanApplied",
+        },
+        Object {
+          "type": "LoanReferenceDefined",
+        },
+        Object {
+          "type": "LoanDescriptionDefined",
+        },
+        Object {
+          "type": "LoanerDefined",
         },
       ],
-      "id": "example@gmail.com",
+      "id": "123456",
       "version": 0,
     },
   ],
 }
 `;
 
-exports[`User Entity: Unit Test should query: getUserById 1`] = `null`;
+exports[`LoanDetails: Unit Test federated query: getLoanDetailsById 1`] = `
+Object {
+  "getLoanDetailsById": Object {
+    "approvedAmt": null,
+    "comment": null,
+    "contact": Object {
+      "email": "josh@fake.it",
+      "name": "Josh",
+      "phone": "555-01234",
+      "salutation": "Mr.",
+      "title": "Owner",
+    },
+    "currency": "CNY",
+    "loan": Object {
+      "description": "Loan requested by an undisclosed party to an unknown bank",
+      "ownerId": "josh@fake.it",
+      "reference": "REF123456",
+      "status": "0",
+      "timestamp": "1542336654365",
+    },
+    "loanId": "123456",
+    "lonaType": null,
+    "requestedAmt": 900000,
+    "requester": Object {
+      "name": "Josh's Tailor",
+      "registration": "BR00001",
+      "type": "Textile",
+    },
+    "startDate": "1542336644365",
+    "tenor": 90,
+    "timestamp": "1542336654365",
+  },
+}
+`;
+
+exports[`User Entity: Unit Test query: getCommitsByUserId 1`] = `
+Object {
+  "getCommitsByUserId": Array [
+    Object {
+      "commitId": "20181114163145704:josh@fake.it",
+      "committedAt": "1542213105704",
+      "entityName": "user",
+      "events": Array [
+        Object {
+          "type": "UserCreated",
+        },
+      ],
+      "id": "josh@fake.it",
+      "version": 0,
+    },
+  ],
+}
+`;
+
+exports[`User Entity: Unit Test query: getUserById 1`] = `
+Object {
+  "getUserById": Object {
+    "mergedUserIds": Array [
+      "josh@fake.it",
+    ],
+    "name": "Josh",
+    "userId": "josh@fake.it",
+  },
+}
+`;

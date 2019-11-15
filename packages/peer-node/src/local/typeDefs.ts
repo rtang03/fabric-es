@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 
 export const typeDefs = gql`
   extend type Query {
-    getCommitsByLoanDetails(loanId: String!): [LocalCommit]!
     getLoanDetailsById(loanId: String!): LoanDetails!
   }
 
@@ -19,7 +18,7 @@ export const typeDefs = gql`
       requestedAmt: Float!,
       approvedAmt: Float,
       comment: String
-    ): LoanDetails
+    ): LocalCommit
   }
 
   type LoanDetails @key(fields: "loanId") {
@@ -34,6 +33,7 @@ export const typeDefs = gql`
     approvedAmt: Float
     comment: String
     timestamp: String!
+    loan: Loan
   }
 
   input LoanRequesterInput {
@@ -70,9 +70,9 @@ export const typeDefs = gql`
     committedAt: String
     entityId: String
   }
-`;
 
-// extend type Document @key(fields: "documentId") {
-//   documentId: String! @external
-//   etcPo: EtcPo
-// }
+  extend type Loan @key(fields: "loanId") {
+    loanId: String! @external
+    details: LoanDetails
+  }
+`;
