@@ -1,55 +1,54 @@
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import {
-  ABOUT_DOCUMENT,
   CREATE_DOCUMENT,
-  DOCUMENT_BY_ID,
-  DOCUMENT_COMMITS,
-  DOCUMENT_ETCPO_BY_ID,
-  DOCUMENTS,
-  PAGINATED_DOCUMENT,
+  DELETE_DOCUMENT,
+  GET_COMMITS_BY_DOCUMENT,
+  GET_DOCUMENT_BY_ID,
   resolvers as docResolvers,
+  RESTRICT_DOCUMENT_ACCESS,
   typeDefs as docTypeDefs
-} from '../document';
+} from '../common/document';
 import {
-  ABOUT_ETCPO,
-  CREATE_ETCPO,
-  ETCPO_BY_ID,
-  resolvers as privatedataResolvers,
-  typeDefs as privatedataTypeDefs
-} from '../privatedata';
+  APPLY_LOAN,
+  APPROVE_LOAN,
+  CANCEL_LOAN,
+  EXPIRE_LOAN,
+  GET_COMMITS_BY_LOAN,
+  GET_LOAN_BY_ID,
+  REJECT_LOAN,
+  resolvers as loanResolvers,
+  RETURN_LOAN,
+  typeDefs as loanTypeDefs
+} from '../common/loan';
 import {
-  ABOUT_TRADE,
-  CREATE_TRADE,
-  PAGINATED_TRADE,
-  resolvers as tradeResolvers,
-  TRADE_BY_ID,
-  TRADE_COMMITS,
-  TRADE_DOC_BY_ID,
-  TRADES,
-  typeDefs as tradeTypeDefs
-} from '../trade';
-import {
-  ABOUT_USER,
   CREATE_USER,
-  PAGINATED_USER,
-  USER_BY_ID,
-  USER_COMMITS,
-  USERS
-} from '../user';
+  GET_COMMITS_BY_USER,
+  GET_USER_BY_ID,
+  GET_USERS_BY_PAGE,
+  resolvers as userResolvers,
+  typeDefs as userTypeDefs
+} from '../common/user';
+import {
+  CREATE_LOAN_DETAILS,
+  GET_DETAILS_BY_ID,
+  resolvers as localResolvers,
+  typeDefs as localTypeDefs
+} from '../local';
 import {
   constructTestServer,
   documentRepo,
   getApolloServer,
-  tradeRepo,
+  loanDetailsRepo,
+  loanRepo,
   userRepo
 } from './__utils__';
-import { etcPoRepo } from './__utils__/mock-privatedata';
 
 let server;
 let documentService: ApolloServer;
-let tradeService: ApolloServer;
-let privatedataService: ApolloServer;
+let loanService: ApolloServer;
+let userService: ApolloServer;
+let localService: ApolloServer;
 
 beforeAll(async () => {
   documentService = getApolloServer({
@@ -57,239 +56,219 @@ beforeAll(async () => {
     resolvers: docResolvers,
     dataSources: () => ({
       docDataSource: { repo: documentRepo },
-      userDataSource: { repo: userRepo },
-      tradeDataSource: { repo: tradeRepo }
+      userDataSource: { repo: userRepo }
     })
   });
   await documentService.listen({ port: 14001 });
 
-  tradeService = getApolloServer({
-    typeDefs: tradeTypeDefs,
-    resolvers: tradeResolvers,
+  loanService = getApolloServer({
+    typeDefs: loanTypeDefs,
+    resolvers: loanResolvers,
     dataSources: () => ({
-      userDataSource: { repo: userRepo },
-      tradeDataSource: { repo: tradeRepo }
+      loanDataSource: { repo: loanRepo },
+      userDataSource: { repo: userRepo }
     })
   });
-  await tradeService.listen({ port: 14002 });
+  await loanService.listen({ port: 14002 });
 
-  privatedataService = getApolloServer({
-    typeDefs: privatedataTypeDefs,
-    resolvers: privatedataResolvers,
+  userService = getApolloServer({
+    typeDefs: userTypeDefs,
+    resolvers: userResolvers,
     dataSources: () => ({
-      etcDataSource: { privatedataRepo: etcPoRepo }
+      userDataSource: { repo: userRepo }
     })
   });
-  await privatedataService.listen({ port: 14003 });
+  await userService.listen({ port: 14004 });
+
+  localService = getApolloServer({
+    typeDefs: localTypeDefs,
+    resolvers: localResolvers,
+    dataSources: () => ({
+      loanDetailsDataSource: { repo: loanDetailsRepo }
+    })
+  });
+  await localService.listen({ port: 14003 });
   server = await constructTestServer();
+
+  await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
+    documentId: '990000101', userId: 'josh@fake.it', title: 'Test Title 101', reference: 'DOC0101', link: 'test-link-0101'
+  }});
+  await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
+    documentId: '990000102', userId: 'josh@fake.it', title: 'Test Title 102', reference: 'DOC0102', link: 'test-link-0102'
+  }});
 });
 
 afterAll(async () => {
   await documentService.stop();
-  await tradeService.stop();
-  await privatedataService.stop();
+  await loanService.stop();
+  await userService.stop();
+  await localService.stop();
 });
 
 describe('User Entity: Unit Test', () => {
-  it('should return AboutUser', async () =>
-    createTestClient(server)
-      .query({ query: ABOUT_USER })
-      .then(({ data }) => expect(data).toEqual({ aboutUser: 'User Entity' })));
-
-  it('should query: getAllUser', async () =>
-    createTestClient(server)
-      .query({ query: USERS })
-      .then(({ data }) => expect(data).toMatchSnapshot()));
-
-  it('should query: getPaginatedUser', async () =>
+  it('query: getUserById', async () =>
     createTestClient(server)
       .query({
-        query: PAGINATED_USER,
-        variables: { cursor: 10 }
+        query: GET_USER_BY_ID,
+        variables: { userId: 'josh@fake.it' }
       })
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
-  it('should query: getUserById', async () =>
+  it('query: getCommitsByUserId', async () =>
     createTestClient(server)
       .query({
-        query: USER_BY_ID,
-        variables: { id: 'example@gmail.com' }
+        query: GET_COMMITS_BY_USER,
+        variables: { userId: 'josh@fake.it' }
       })
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
-  it('should query: getCommitByUserId', async () =>
+  it('mutation: createUser', async () =>
     createTestClient(server)
-      .query({
-        query: USER_COMMITS,
-        variables: { id: 'example@gmail.com' }
-      })
-      .then(({ data }) => expect(data).toMatchSnapshot()));
-
-  it('should create user', async () =>
-    createTestClient(server)
-      .query({
-        query: CREATE_USER,
+      .mutate({
+        mutation: CREATE_USER,
         variables: {
-          name: 'Create Test User',
-          userId: 'test@gmail.com'
+          name: 'Pete',
+          userId: 'pete@fake.it'
         }
       })
       .then(({ data: { createUser: { id } } }) =>
-        expect(id).toEqual('test@gmail.com')
-      ));
-
-  // todo: subscription
-});
-
-describe('Trade Entity: Unit Test', () => {
-  it('should return AboutTrade', async () =>
-    createTestClient(server)
-      .query({ query: ABOUT_TRADE })
-      .then(({ data }) =>
-        expect(data).toEqual({ aboutTrade: 'Trade Entity' })
-      ));
-
-  it('should query: getAllTrade', async () =>
-    createTestClient(server)
-      .query({ query: TRADES })
-      .then(({ data }) => expect(data).toMatchSnapshot()));
-
-  it('should query: getPaginatedTrade', async () =>
-    createTestClient(server)
-      .query({
-        query: PAGINATED_TRADE,
-        variables: { cursor: 10 }
-      })
-      .then(({ data }) => expect(data).toMatchSnapshot()));
-
-  it('should query: getTradeById', async () =>
-    createTestClient(server)
-      .query({
-        query: TRADE_BY_ID,
-        variables: { id: '1542385172441' }
-      })
-      .then(({ data }) => expect(data).toMatchSnapshot()));
-
-  it('should query: getCommitByTradeId', async () =>
-    createTestClient(server)
-      .query({
-        query: TRADE_COMMITS,
-        variables: { id: '1542385172441' }
-      })
-      .then(({ data }) => expect(data).toMatchSnapshot()));
-
-  it('should create trade', async () =>
-    createTestClient(server)
-      .query({
-        query: CREATE_TRADE,
-        variables: {
-          tradeId: '123123123',
-          userId: 'test@gmail.com',
-          title: 'test-title',
-          description: 'test-description'
-        }
-      })
-      .then(({ data: { createTrade: { id } } }) =>
-        expect(id).toEqual('123123123')
+        expect(id).toEqual('pete@fake.it')
       ));
 });
 
 describe('Document Entity: Unit Test', () => {
-  it('should return AboutDocument', async () =>
-    createTestClient(server)
-      .query({ query: ABOUT_DOCUMENT })
-      .then(({ data }) =>
-        expect(data).toEqual({ aboutDocument: 'Document Entity' })
-      ));
-
-  it('should query: getAllDocument', async () =>
-    createTestClient(server)
-      .query({ query: DOCUMENTS })
-      .then(({ data }) => expect(data).toMatchSnapshot()));
-
-  it('should query: getPaginatedTrade', async () =>
+  it('query: getDocumentById', async () =>
     createTestClient(server)
       .query({
-        query: PAGINATED_DOCUMENT,
-        variables: { cursor: 10 }
+        query: GET_DOCUMENT_BY_ID,
+        variables: { documentId: '1542385173331' }
       })
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
-  it('should query: getDocumentById', async () =>
+  it('query: getCommitByDocumentId', async () =>
     createTestClient(server)
       .query({
-        query: DOCUMENT_BY_ID,
-        variables: { id: '1542385173331' }
+        query: GET_COMMITS_BY_DOCUMENT,
+        variables: { documentId: '1542385173331' }
       })
       .then(({ data }) => expect(data).toMatchSnapshot()));
 
-  it('should query: getCommitByDocumentId', async () =>
+  it('create document', async () =>
     createTestClient(server)
-      .query({
-        query: DOCUMENT_COMMITS,
-        variables: { id: '1542385172441' }
-      })
-      .then(({ data }) => expect(data).toMatchSnapshot()));
-
-  it('should create document', async () =>
-    createTestClient(server)
-      .query({
-        query: CREATE_DOCUMENT,
+      .mutate({
+        mutation: CREATE_DOCUMENT,
         variables: {
           documentId: '321321321',
-          tradeId: '123123123',
-          userId: 'test@gmail.com',
+          userId: 'josh@fake.it',
           title: 'test-title',
-          description: 'test-description',
-          link: 'test-link'
+          reference: 'DOC0009',
+          link: 'test-link-0009'
         }
       })
+      // .then(data => {
+      //   console.log('YO', data);
+      //   return data;
+      // })
       .then(({ data: { createDocument: { id } } }) =>
         expect(id).toEqual('321321321')
       ));
 
-  it('should query Trade and Document', async () =>
+  it('delete document', async () => {
+    const { query, mutate } = createTestClient(server);
+    mutate({ mutation: DELETE_DOCUMENT, variables: { userId: 'josh@fake.it', documentId: '990000101' }}).then(data => {
+      console.log('NO1', data);
+    }).catch(error => {
+      console.log('OO1', error);
+    });
+    const doc: any = await query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: '990000101' }}).then(data => {
+      console.log('MO1', data);
+      return data;
+    });
+    expect(doc.documentId === '990000101' && doc.status === 1).toBeTruthy();
+  });
+
+  // it('restrict document access', async () => {
+  //   const { query, mutate } = createTestClient(server);
+  //   mutate({ mutation: RESTRICT_DOCUMENT_ACCESS, variables: { userId: 'josh@fake.it', documentId: '990000102' }});
+  //   const doc: any = await query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: '990000102' }}).then(data => {
+  //     console.log('MO2', data);
+  //     return data;
+  //   });
+  //   expect(doc.documentId === '990000102' && doc.status === 2).toBeTruthy();
+  // });
+
+});
+
+describe('Loan Entity: Unit Test', () => {
+  it('query: getCommitsByLoanId', async () =>
     createTestClient(server)
       .query({
-        query: TRADE_DOC_BY_ID,
-        variables: { id: '123123123' }
+        query: GET_COMMITS_BY_LOAN,
+        variables: { loanId: '123456' }
+      })
+      .then(({ data }) => expect(data).toMatchSnapshot()));
+
+  it('create loan', async () =>
+    createTestClient(server)
+      .mutate({
+        mutation: APPLY_LOAN,
+        variables: {
+          loanId: '123123123',
+          userId: 'josh@fake.it',
+          reference: 'MYTRADE0001',
+          loaner: 'LOANER0003',
+          description: 'test-description'
+        }
+      })
+      .then(({ data: { applyLoan: { id } } }) =>
+        expect(id).toEqual('123123123')
+      ));
+
+  it('federated query: getLoanById', async () =>
+    createTestClient(server)
+      .query({
+        query: GET_LOAN_BY_ID,
+        variables: { loanId: '123456' }
       })
       .then(({ data }) => expect(data).toMatchSnapshot()));
 });
 
-describe('EtcPo: Unit Test', () => {
-  it('should return AboutEtcPo', async () =>
+describe('LoanDetails: Unit Test', () => {
+  it('mutation: createLoanDetails', async () =>
     createTestClient(server)
-      .query({ query: ABOUT_ETCPO })
-      .then(({ data }) => expect(data).toEqual({ aboutEtcPo: 'Etc Po Info' })));
-
-  it('should create EtcPo', async () =>
-    createTestClient(server)
-      .query({
-        query: CREATE_ETCPO,
+      .mutate({
+        mutation: CREATE_LOAN_DETAILS,
         variables: {
-          id: '321321321',
-          userId: 'test@gmail.com',
-          body: 'etc po details'
+          loanId: '321321321',
+          userId: 'example@gmail.com',
+          registration: 'BR0000001',
+          companyName: 'Pete N Co. Ltd',
+          requesterType: 'Money Launderer',
+          salutation: 'Mr.',
+          contactName: 'Pete',
+          contactTitle: 'Owner',
+          contactPhone: '555-12345',
+          contactEmail: 'pete@fake.it',
+          loanType: 'Post-shipment',
+          startDate: '2019-10-11',
+          tenor: 60,
+          currency: 'HKD',
+          requestedAmt: 50000.0
         }
       })
-      .then(({ data: { createEtcPo: { id } } }) =>
+      // .then(data => {
+      //   console.log('YO', data);
+      //   return data;
+      // })
+      .then(({ data: { createLoanDetails: { id } } }) =>
         expect(id).toEqual('321321321')
       ));
 
-  it('should query: getEtcPoById', async () =>
+  it('federated query: getLoanDetailsById', async () =>
     createTestClient(server)
       .query({
-        query: ETCPO_BY_ID,
-        variables: { id: '321321321' }
-      })
-      .then(({ data }) => expect(data).toMatchSnapshot()));
-
-  it('should run federated query: getDocumentEtcById', async () =>
-    createTestClient(server)
-      .query({
-        query: DOCUMENT_ETCPO_BY_ID,
-        variables: { id: '321321321' }
+        query: GET_DETAILS_BY_ID,
+        variables: { loanId: '123456' }
       })
       .then(({ data }) => expect(data).toMatchSnapshot()));
 });
