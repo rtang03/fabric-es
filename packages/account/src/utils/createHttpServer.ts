@@ -15,7 +15,7 @@ import { MyContext } from '../types';
 export const createHttpServer: (option: {
   dbConnection?: ConnectionOptions;
   resolvers: any[];
-  fabricConfig: {
+  fabricConfig?: {
     connectionProfile: string;
     wallet: FileSystemWallet;
   };

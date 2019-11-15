@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { FileSystemWallet } from 'fabric-network';
+import { OAuth2Server } from 'oauth2-server-typescript/dist';
 
 export interface MyContext {
   req: Request;
@@ -9,4 +10,5 @@ export interface MyContext {
     connectionProfile: string;
     wallet: FileSystemWallet;
   };
+  oauthServer?: OAuth2Server;
 }

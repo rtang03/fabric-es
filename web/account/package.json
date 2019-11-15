@@ -38,6 +38,7 @@
     "@types/react-dom": "^16.9.1",
     "@types/styled-components": "^4.1.22",
     "@types/yup": "^0.26.24",
+    "prettier": "^1.19.1",
     "typescript": "3.7.2"
   },
   "license": "ISC"
