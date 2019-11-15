@@ -1,317 +1,151 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Document Entity: Unit Test should query Trade and Document 1`] = `
+exports[`Document Entity: Unit Test query: getCommitByDocumentId 1`] = `
 Object {
-  "getTradeById": Object {
-    "description": "test-description",
+  "getCommitsByDocumentId": Array [
+    Object {
+      "commitId": "20181124064622771:1542385173331",
+      "committedAt": "1542385173331",
+      "entityName": "document",
+      "events": Array [
+        Object {
+          "type": "DocumentCreated",
+        },
+        Object {
+          "type": "DocumentTitleDefined",
+        },
+        Object {
+          "type": "DocumentReferenceDefined",
+        },
+        Object {
+          "type": "DocumentLoanIdDefined",
+        },
+        Object {
+          "type": "DocumentLinkDefined",
+        },
+      ],
+      "id": "1542385173331",
+      "version": 0,
+    },
+  ],
+}
+`;
+
+exports[`Document Entity: Unit Test query: getDocumentById 1`] = `
+Object {
+  "getDocumentById": Object {
+    "documentId": "1542385173331",
+    "link": "localhost/doc/1542385173331",
+    "loanId": "123456",
+    "ownerId": "josh@fake.it",
+    "reference": "REF1542385173331",
+    "status": "0",
+    "timestamp": "1543041982770",
+    "title": "Top 15+ UK Scholarships for International Students",
+  },
+}
+`;
+
+exports[`Loan Entity: Unit Test federated query: getLoanById 1`] = `
+Object {
+  "getLoanById": Object {
+    "description": "Loan requested by an undisclosed party to an unknown bank",
     "documents": Array [
       Object {
-        "description": "test-description",
-        "documentId": "321321321",
-        "title": "test-title",
-      },
-    ],
-    "title": "test-title",
-    "tradeId": "123123123",
-  },
-}
-`;
-
-exports[`Document Entity: Unit Test should query: getAllDocument 1`] = `
-Object {
-  "getAllDocument": Array [
-    Object {
-      "description": "The Commonwealth Scholarships are intended for students from developing Commonwealth countries who wants to pursue Master’s study in the UK. These scholarships are funded by the UK Department for International Development (DFID).  Each Scholarship provides airfare to and from United Kingdom, tuition and examination fees, personal maintaining allowance, thesis grant (if applicable), initial arrival allowance, among others.",
-      "documentId": "1542385173331",
-      "link": "www.example.com",
-      "ownerId": "example@gmail.com",
-      "title": "Top 15+ UK Scholarships for International Students",
-      "tradeId": "123456",
-    },
-  ],
-}
-`;
-
-exports[`Document Entity: Unit Test should query: getCommitByDocumentId 1`] = `
-Object {
-  "getCommitByDocumentId": Array [
-    Object {
-      "commitId": "20181116162111794:1542385172441",
-      "committedAt": "1542385271794",
-      "entityName": "trade",
-      "events": Array [
-        Object {
-          "type": "TradeCreated",
-        },
-        Object {
-          "type": "TradeTitleDefined",
-        },
-        Object {
-          "type": "TradeDescriptionDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradeStageRuleDefined",
-        },
-        Object {
-          "type": "TradeRankEventDefined",
-        },
-        Object {
-          "type": "TradeRankEventDefined",
-        },
-        Object {
-          "type": "TradeRankGroupDefined",
-        },
-      ],
-      "id": "1542385172441",
-      "version": 0,
-    },
-  ],
-}
-`;
-
-exports[`Document Entity: Unit Test should query: getDocumentById 1`] = `
-Object {
-  "getDocumentById": Object {
-    "description": "The Commonwealth Scholarships are intended for students from developing Commonwealth countries who wants to pursue Master’s study in the UK. These scholarships are funded by the UK Department for International Development (DFID).  Each Scholarship provides airfare to and from United Kingdom, tuition and examination fees, personal maintaining allowance, thesis grant (if applicable), initial arrival allowance, among others.",
-    "documentId": "1542385173331",
-    "link": "www.example.com",
-    "ownerId": "example@gmail.com",
-    "title": "Top 15+ UK Scholarships for International Students",
-    "tradeId": "123456",
-  },
-}
-`;
-
-exports[`Document Entity: Unit Test should query: getPaginatedTrade 1`] = `
-Object {
-  "getPaginatedDocument": Object {
-    "entities": Array [
-      Object {
-        "description": "The Commonwealth Scholarships are intended for students from developing Commonwealth countries who wants to pursue Master’s study in the UK. These scholarships are funded by the UK Department for International Development (DFID).  Each Scholarship provides airfare to and from United Kingdom, tuition and examination fees, personal maintaining allowance, thesis grant (if applicable), initial arrival allowance, among others.",
         "documentId": "1542385173331",
-        "link": "www.example.com",
-        "ownerId": "example@gmail.com",
+        "link": "localhost/doc/1542385173331",
+        "reference": "REF1542385173331",
+        "status": "0",
+        "timestamp": "1543041982770",
         "title": "Top 15+ UK Scholarships for International Students",
-        "tradeId": "123456",
+      },
+      Object {
+        "documentId": "1542385174331",
+        "link": "localhost/doc/1542385174331",
+        "reference": "REF1542385174331",
+        "status": "0",
+        "timestamp": "1543041984770",
+        "title": "The Mother of All Invoices",
       },
     ],
-    "hasMore": false,
-    "total": 1,
+    "loanId": "123456",
+    "loaner": "Dai Yee Lung",
+    "ownerId": "josh@fake.it",
+    "reference": "REF123456",
+    "status": "0",
+    "timestamp": "1542336654365",
   },
 }
 `;
 
-exports[`EtcPo: Unit Test should query: getEtcPoById 1`] = `
+exports[`Loan Entity: Unit Test query: getCommitsByLoanId 1`] = `
 Object {
-  "getEtcPoById": Object {
-    "body": "etc po details",
-    "document": Object {
-      "title": "test-title",
-      "tradeId": "123123123",
-    },
-    "id": "321321321",
-    "ownerId": "test@gmail.com",
-  },
-}
-`;
-
-exports[`EtcPo: Unit Test should run federated query: getDocumentEtcById 1`] = `
-Object {
-  "getDocumentById": Object {
-    "description": "test-description",
-    "documentId": "321321321",
-    "etcPo": Object {
-      "body": "etc po details",
-    },
-    "link": "test-link",
-    "ownerId": "test@gmail.com",
-    "title": "test-title",
-    "trade": Object {
-      "description": "test-description",
-      "title": "test-title",
-    },
-    "tradeId": "123123123",
-  },
-}
-`;
-
-exports[`Trade Entity: Unit Test should query: getAllTrade 1`] = `
-Object {
-  "getAllTrade": Array [
+  "getCommitsByLoanId": Array [
     Object {
-      "description": "After having a mild stroke each time my boyfriend brought home the wrong type of fruit",
-      "title": "How to Eat the Best Fruit? Good !!",
-      "tradeId": "123456",
-    },
-    Object {
-      "description": "The U.K. Parliament released a trove of emails illuminating the inner workings of Facebook.",
-      "title": "Do Your Job to Stop Tech Monopolies",
-      "tradeId": "1542385172441",
-    },
-  ],
-}
-`;
-
-exports[`Trade Entity: Unit Test should query: getCommitByTradeId 1`] = `
-Object {
-  "getCommitByTradeId": Array [
-    Object {
-      "commitId": "20181116162111794:1542385172441",
-      "committedAt": "1542385271794",
-      "entityName": "trade",
+      "commitId": "20181116025054374:123456",
+      "committedAt": "1542336654374",
+      "entityName": "loan",
       "events": Array [
         Object {
-          "type": "TradeCreated",
+          "type": "LoanApplied",
         },
         Object {
-          "type": "TradeTitleDefined",
+          "type": "LoanReferenceDefined",
         },
         Object {
-          "type": "TradeDescriptionDefined",
+          "type": "LoanDescriptionDefined",
         },
         Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradePrivilegeDefined",
-        },
-        Object {
-          "type": "TradeStageRuleDefined",
-        },
-        Object {
-          "type": "TradeRankEventDefined",
-        },
-        Object {
-          "type": "TradeRankEventDefined",
-        },
-        Object {
-          "type": "TradeRankGroupDefined",
+          "type": "LoanerDefined",
         },
       ],
-      "id": "1542385172441",
+      "id": "123456",
       "version": 0,
     },
   ],
 }
 `;
 
-exports[`Trade Entity: Unit Test should query: getPaginatedTrade 1`] = `
+exports[`LoanDetails: Unit Test federated query: getLoanDetailsById 1`] = `
 Object {
-  "getPaginatedTrade": Object {
-    "entities": Array [
-      Object {
-        "description": "After having a mild stroke each time my boyfriend brought home the wrong type of fruit",
-        "title": "How to Eat the Best Fruit? Good !!",
-        "tradeId": "123456",
-      },
-      Object {
-        "description": "The U.K. Parliament released a trove of emails illuminating the inner workings of Facebook.",
-        "title": "Do Your Job to Stop Tech Monopolies",
-        "tradeId": "1542385172441",
-      },
-    ],
-    "hasMore": false,
-    "total": 2,
+  "getLoanDetailsById": Object {
+    "approvedAmt": null,
+    "comment": null,
+    "contact": Object {
+      "email": "josh@fake.it",
+      "name": "Josh",
+      "phone": "555-01234",
+      "salutation": "Mr.",
+      "title": "Owner",
+    },
+    "currency": "CNY",
+    "loan": Object {
+      "description": "Loan requested by an undisclosed party to an unknown bank",
+      "ownerId": "josh@fake.it",
+      "reference": "REF123456",
+      "status": "0",
+      "timestamp": "1542336654365",
+    },
+    "loanId": "123456",
+    "lonaType": null,
+    "requestedAmt": 900000,
+    "requester": Object {
+      "name": "Josh's Tailor",
+      "registration": "BR00001",
+      "type": "Textile",
+    },
+    "startDate": "1542336644365",
+    "tenor": 90,
+    "timestamp": "1542336654365",
   },
 }
 `;
 
-exports[`Trade Entity: Unit Test should query: getTradeById 1`] = `
+exports[`User Entity: Unit Test query: getCommitsByUserId 1`] = `
 Object {
-  "getTradeById": Object {
-    "description": "The U.K. Parliament released a trove of emails illuminating the inner workings of Facebook.",
-    "title": "Do Your Job to Stop Tech Monopolies",
-    "tradeId": "1542385172441",
-  },
-}
-`;
-
-exports[`User Entity: Unit Test should query: getAllUser 1`] = `
-Object {
-  "getAllUser": Array [
+  "getCommitsByUserId": Array [
     Object {
-      "name": "Mr. Example",
-      "userId": "example@gmail.com",
-    },
-    Object {
-      "name": "Mr Editor",
-      "userId": "editor@gmail.com",
-    },
-    Object {
-      "name": "Mr Reviewer",
-      "userId": "reviewer@gmail.com",
-    },
-    Object {
-      "name": "Mr Voter",
-      "userId": "voter@gmail.com",
-    },
-    Object {
-      "name": "Mr canUpdateTrade",
-      "userId": "canUpdateTrade@gmail.com",
-    },
-  ],
-}
-`;
-
-exports[`User Entity: Unit Test should query: getCommitByUserId 1`] = `
-Object {
-  "getCommitByUserId": Array [
-    Object {
-      "commitId": "20181114163145704:example@gmail.com",
+      "commitId": "20181114163145704:josh@fake.it",
       "committedAt": "1542213105704",
       "entityName": "user",
       "events": Array [
@@ -319,50 +153,21 @@ Object {
           "type": "UserCreated",
         },
       ],
-      "id": "example@gmail.com",
+      "id": "josh@fake.it",
       "version": 0,
     },
   ],
 }
 `;
 
-exports[`User Entity: Unit Test should query: getPaginatedUser 1`] = `
-Object {
-  "getPaginatedUser": Object {
-    "entities": Array [
-      Object {
-        "name": "Mr. Example",
-        "userId": "example@gmail.com",
-      },
-      Object {
-        "name": "Mr Editor",
-        "userId": "editor@gmail.com",
-      },
-      Object {
-        "name": "Mr Reviewer",
-        "userId": "reviewer@gmail.com",
-      },
-      Object {
-        "name": "Mr Voter",
-        "userId": "voter@gmail.com",
-      },
-      Object {
-        "name": "Mr canUpdateTrade",
-        "userId": "canUpdateTrade@gmail.com",
-      },
-    ],
-    "hasMore": false,
-    "total": 5,
-  },
-}
-`;
-
-exports[`User Entity: Unit Test should query: getUserById 1`] = `
+exports[`User Entity: Unit Test query: getUserById 1`] = `
 Object {
   "getUserById": Object {
-    "mergedUserIds": null,
-    "name": "Mr. Example",
-    "userId": "example@gmail.com",
+    "mergedUserIds": Array [
+      "josh@fake.it",
+    ],
+    "name": "Josh",
+    "userId": "josh@fake.it",
   },
 }
 `;
