@@ -4,10 +4,10 @@ export const CREATE_LOAN_DETAILS = gql`
 mutation CreateLoanDetails(
   $userId: String!,
   $loanId: String!,
-  $requesterRegy: String!,
-  $requesterName: String!,
+  $registration: String!,
+  $companyName: String!,
   $requesterType: String,
-  $contactSalu: String,
+  $salutation: String,
   $contactName: String!,
   $contactTitle: String,
   $contactPhone: String!,
@@ -23,13 +23,13 @@ mutation CreateLoanDetails(
   createLoanDetails(
     userId: $userId,
     loanId: $loanId,
-    input: {
-      registration: $requesterRegy,
-      name: $requesterName,
+    requester: {
+      registration: $registration,
+      name: $companyName,
       type: $requesterType
     },
-    input: {
-      salutation: $contactSalu,
+    contact: {
+      salutation: $salutation,
       name: $contactName,
       title: $contactTitle,
       phone: $contactPhone,
@@ -51,21 +51,31 @@ mutation CreateLoanDetails(
   }
 }`;
 
-export const GET_COMMITS_BY_DETAILS = gql`
-query GetCommitsByLoanDetails($loanId: String!) {
-  getCommitsByLoanDetails(loanId: $loanId) {
-    id
-    entityName
-    version
-    commitId
-    committedAt
-  }
-}`;
+// export const GET_COMMITS_BY_DETAILS = gql`
+// query GetCommitsByLoanDetails($loanId: String!) {
+//   getCommitsByLoanDetails(loanId: $loanId) {
+//     id
+//     entityName
+//     version
+//     commitId
+//     committedAt
+//     events {
+//       type
+//     }
+//   }
+// }`;
 
 export const GET_DETAILS_BY_ID = gql`
 query GetLoanDetailsById($loanId: String!) {
   getLoanDetailsById(loanId: $loanId) {
     loanId
+    loan {
+      ownerId
+      description
+      reference
+      status
+      timestamp
+    }
     requester {
       registration
       name

@@ -1,4 +1,4 @@
-import { Document, documentCommandHandler } from '@espresso/common';
+import { Document, documentCommandHandler, DocumentStatus } from '@espresso/common';
 import { Commit } from '@espresso/fabric-cqrs';
 
 export const resolvers = {
@@ -23,9 +23,14 @@ export const resolvers = {
         payload: { documentId, loanId, title, reference, link, timestamp: Date.now() }
       })
   },
+  Loan: {
+    documents: ({ loanId }, _, { dataSources: { docDataSource }}) =>
+      docDataSource.repo.getProjection({ where: { loanId }})
+        .then(({ projections }) => projections)
+  },
   Document: {
-    __resolveReference: ({ documentId }, { dataSources: { docDataSource }}) =>
-      docDataSource.repo.getById({ id: documentId })
-        .then(({ currentState }) => currentState)
+    loan(documents) {
+      return { __typename: 'Loan', loanId: documents.loanId };
+    }
   }
 };

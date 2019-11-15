@@ -28,6 +28,7 @@ export const typeDefs = gql`
     link: String!
     status: String!
     timestamp: String!
+    loan: Loan
   }
 
   type DocEvent {
@@ -42,5 +43,10 @@ export const typeDefs = gql`
     committedAt: String
     entityId: String
     events: [DocEvent!]
+  }
+
+  extend type Loan @key(fields: "loanId") {
+    loanId: String! @external
+    documents: [Document]
   }
 `;

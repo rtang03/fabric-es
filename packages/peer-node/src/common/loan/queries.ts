@@ -102,5 +102,13 @@ query GetLoanById($loanId: String!) {
     loaner
     status
     timestamp
+    documents {
+      documentId
+      title
+      reference
+      link
+      status
+      timestamp
+    }
   }
 }`;

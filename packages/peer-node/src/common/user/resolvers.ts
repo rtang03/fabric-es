@@ -29,7 +29,7 @@ export const resolvers = {
         .catch(error => ({ error })),
     getUserById: async (
       _, { userId }, { dataSources: { userDataSource }}): Promise<User | { error: any }> =>
-      userDataSource.repo.getById({ userId })
+      userDataSource.repo.getById({ id: userId })
         .then(({ currentState }) => currentState)
         .catch(error => ({ error }))
   },
