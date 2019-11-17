@@ -5,7 +5,7 @@
     "test": ""
   },
   "workspaces": [
-    "packages/account",
+    "packages/oauth",
     "packages/app-etc",
     "packages/app-erp",
     "packages/admin-tool",
