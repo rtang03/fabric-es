@@ -8,23 +8,23 @@ import {
 } from '@espresso/common';
 import { PrivatedataRepository, Repository } from '@espresso/fabric-cqrs';
 import { DataSource } from 'apollo-datasource';
-import { LoanDetails, LoanDetailsEvents } from '../privatedata';
+import { LoanDetails, LoanDetailsEvents } from '../local';
 
 export class FabricData<TEntity = any, TEvent = any> extends DataSource {
   context;
   repo;
-  privatedataRepo;
+  localRepo;
 
   constructor({
     repo,
-    privatedataRepo
+    localRepo
   }: {
     repo?: Repository<TEntity, TEvent>;
-    privatedataRepo?: PrivatedataRepository<TEntity, TEvent>;
+    localRepo?: PrivatedataRepository<TEntity, TEvent>;
   }) {
     super();
     this.repo = repo;
-    this.privatedataRepo = privatedataRepo;
+    this.localRepo = localRepo;
   }
 
   initialize(config) {

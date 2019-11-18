@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 export const typeDefs = gql`
   extend type Query {
-    getCommitsByDocumentId(documentId: String!): [DocumentCommit]!
+    getCommitsByDocumentId(documentId: String!): [DocCommit]!
     getDocumentById(documentId: String!): Document
   }
 
@@ -14,9 +14,17 @@ export const typeDefs = gql`
       title: String,
       reference: String!,
       link: String!
-    ): DocumentCommit
-    deleteDocument(userId: String!, documentId: String!): DocumentCommit
-    restrictAccess(userId: String!, documentId: String!): DocumentCommit
+    ): DocResponse
+    deleteDocument(userId: String!, documentId: String!): DocResponse
+    restrictAccess(userId: String!, documentId: String!): DocResponse
+    updateDocument(
+      userId: String!
+      documentId: String!
+      loanId: String
+      title: String
+      reference: String
+      link: String
+    ): [DocResponse]!
   }
 
   type Document @key(fields: "documentId") {
@@ -26,16 +34,23 @@ export const typeDefs = gql`
     title: String
     reference: String!
     link: String!
-    status: String!
+    status: Int!
     timestamp: String!
     loan: Loan
   }
+
+  extend type Loan @key(fields: "loanId") {
+    loanId: String! @external
+    documents: [Document]
+  }
+
+  union DocResponse = DocCommit | DocError
 
   type DocEvent {
     type: String
   }
 
-  type DocumentCommit {
+  type DocCommit {
     id: String
     entityName: String
     version: Int
@@ -45,8 +60,8 @@ export const typeDefs = gql`
     events: [DocEvent!]
   }
 
-  extend type Loan @key(fields: "loanId") {
-    loanId: String! @external
-    documents: [Document]
+  type DocError {
+    message: String!
+    stack: String
   }
 `;

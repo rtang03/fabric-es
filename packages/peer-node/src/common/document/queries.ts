@@ -17,33 +17,78 @@ mutation CreateDocument(
     reference: $reference,
     link: $link
   ) {
-    id
-    entityName
-    version
-    commitId
-    committedAt
+    ... on DocCommit {
+      id
+      entityName
+      version
+      commitId
+      committedAt
+    }
+    ... on DocError {
+      message
+    }
   }
 }`;
 
 export const DELETE_DOCUMENT = gql`
 mutation DeleteDocument($userId: String!, $documentId: String!) {
   deleteDocument(userId: $userId, documentId: $documentId) {
-    id
-    entityName
-    version
-    commitId
-    committedAt
+    ... on DocCommit {
+      id
+      entityName
+      version
+      commitId
+      committedAt
+    }
+    ... on DocError {
+      message
+    }
   }
 }`;
 
 export const RESTRICT_DOCUMENT_ACCESS = gql`
 mutation RestrictAccess($userId: String!, $documentId: String!) {
   restrictAccess(userId: $userId, documentId: $documentId) {
-    id
-    entityName
-    version
-    commitId
-    committedAt
+    ... on DocCommit {
+      id
+      entityName
+      version
+      commitId
+      committedAt
+    }
+    ... on DocError {
+      message
+    }
+  }
+}`;
+
+export const UPDATE_DOCUMENT = gql`
+mutation UpdateDocument(
+  $userId: String!
+  $documentId: String!
+  $loanId: String
+  $title: String
+  $reference: String
+  $link: String
+) {
+  updateDocument(
+    userId: $userId
+    documentId: $documentId
+    loanId: $loanId
+    title: $title
+    reference: $reference
+    link: $link
+  ) {
+    ... on DocCommit {
+      id
+      entityName
+      version
+      commitId
+      committedAt
+    }
+    ... on DocError {
+      message
+    }
   }
 }`;
 

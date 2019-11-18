@@ -39,7 +39,7 @@ Object {
     "loanId": "123456",
     "ownerId": "josh@fake.it",
     "reference": "REF1542385173331",
-    "status": "0",
+    "status": 0,
     "timestamp": "1543041982770",
     "title": "Top 15+ UK Scholarships for International Students",
   },
@@ -55,7 +55,7 @@ Object {
         "documentId": "1542385173331",
         "link": "localhost/doc/1542385173331",
         "reference": "REF1542385173331",
-        "status": "0",
+        "status": 0,
         "timestamp": "1543041982770",
         "title": "Top 15+ UK Scholarships for International Students",
       },
@@ -63,16 +63,15 @@ Object {
         "documentId": "1542385174331",
         "link": "localhost/doc/1542385174331",
         "reference": "REF1542385174331",
-        "status": "0",
+        "status": 0,
         "timestamp": "1543041984770",
         "title": "The Mother of All Invoices",
       },
     ],
     "loanId": "123456",
-    "loaner": "Dai Yee Lung",
     "ownerId": "josh@fake.it",
     "reference": "REF123456",
-    "status": "0",
+    "status": 0,
     "timestamp": "1542336654365",
   },
 }
@@ -94,9 +93,6 @@ Object {
         },
         Object {
           "type": "LoanDescriptionDefined",
-        },
-        Object {
-          "type": "LoanerDefined",
         },
       ],
       "id": "123456",
@@ -123,7 +119,7 @@ Object {
       "description": "Loan requested by an undisclosed party to an unknown bank",
       "ownerId": "josh@fake.it",
       "reference": "REF123456",
-      "status": "0",
+      "status": 0,
       "timestamp": "1542336654365",
     },
     "loanId": "123456",
@@ -157,6 +153,25 @@ Object {
       "version": 0,
     },
   ],
+}
+`;
+
+exports[`User Entity: Unit Test query: getPaginatedUser 1`] = `
+Object {
+  "getPaginatedUser": Object {
+    "entities": Array [
+      Object {
+        "name": "Josh",
+        "userId": "josh@fake.it",
+      },
+      Object {
+        "name": "Pete",
+        "userId": "pete@fake.it",
+      },
+    ],
+    "hasMore": false,
+    "total": 2,
+  },
 }
 `;
 
