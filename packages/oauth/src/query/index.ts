@@ -8,3 +8,4 @@ export * from './logout';
 export * from './registerUser';
 export * from './createRootClient';
 export * from './createApplication';
+export * from './createAppForAuthCode';

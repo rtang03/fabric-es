@@ -11,4 +11,5 @@ export interface MyContext {
     wallet: FileSystemWallet;
   };
   oauth2Server?: OAuth2Server;
+  oauthOptions?: any;
 }

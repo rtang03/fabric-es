@@ -65,7 +65,7 @@
     "tslint-plugin-prettier": "^2.0.1",
     "typescript": "^3.7.2"
   },
-  "nohist": [
+  "nohoist": [
     "class-validator"
   ]
 }

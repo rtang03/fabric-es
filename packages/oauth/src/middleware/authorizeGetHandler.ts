@@ -1,14 +1,7 @@
-import Express from 'express';
+import { Request, Response } from 'express';
 import http from 'http-status';
-import { OAuth2Server, Request, Response } from 'oauth2-server-typescript';
-import { AuthorizationCode } from 'oauth2-server-typescript';
-import { OUser } from '../entity/OUser';
 
-export const authorizeGetHandler = (oauth: OAuth2Server) => async (
-  req: Express.Request,
-  res: Express.Response,
-  next: Express.NextFunction
-) => {
+export const authorizeGetHandler = (req: Request, res: Response) => {
   const {
     client_id,
     redirect_uri,
@@ -16,30 +9,28 @@ export const authorizeGetHandler = (oauth: OAuth2Server) => async (
     response_type,
     grant_type
   } = req.query;
-  const path = req.path;
-  if (!req?.app?.locals?.user_id) {
-    return res.redirect(
-      `/login?redirect=${path}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}&response_type=${response_type}&grant_type=${grant_type}`
-    );
-  }
-  await oauth
-    .authorize(new Request(req), new Response(res), {
-      authenticateHandler: {
-        handle: async () =>
-          req!.app!.locals!.user_id
-            ? await OUser.findOne({ id: req.app.locals.user_id })
-            : { id: null }
-      }
-    })
-    .then((code: AuthorizationCode) => {
-      res.locals.oauth = { code };
-      res.redirect(
-        `${code.redirectUri}?code=${code.authorizationCode}?state=${state}`
-      );
-    })
-    .catch(error => {
-      console.error(error);
-      return res.status(http.BAD_REQUEST).send({ ok: false, error });
-    });
-  next();
+  const redirect = req.path;
+  res.locals.user_id = req!.app!.locals!.user_id;
+  return !client_id
+    ? res.status(http.BAD_REQUEST).send({ error: 'client_id is missing' })
+    : !redirect_uri
+    ? res.status(http.BAD_REQUEST).send({ error: 'redirect_uri is missing' })
+    : !state
+    ? res.status(http.BAD_REQUEST).send({ error: 'state is missing' })
+    : !response_type
+    ? res.status(http.BAD_REQUEST).send({ error: 'response_type is missing' })
+    : !grant_type
+    ? res.status(http.BAD_REQUEST).send({ error: 'grant_type is missing' })
+    : !req.app.locals.user_id
+    ? res.redirect(
+        `/login?redirect=${redirect}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}&response_type=${response_type}&grant_type=${grant_type}`
+      )
+    : res.render('authorize', {
+        redirect,
+        client_id,
+        redirect_uri,
+        state,
+        response_type,
+        grant_type
+      });
 };

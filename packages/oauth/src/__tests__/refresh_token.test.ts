@@ -78,7 +78,7 @@ describe('Refresh Token Grant Type Tests', () => {
           admin_password
         }
       })
-      .expect(({ body }) => expect(body.data.register).toEqual(true)));
+      .expect(({ body }) => expect(body.data.register).toBeTruthy()));
 
   it('should /oauth/token', async () => {
     await request(app)
@@ -90,7 +90,7 @@ describe('Refresh Token Grant Type Tests', () => {
       .expect(({ body }) => {
         console.log(body.token.accessTokenExpiresAt);
         refreshToken = body.token.refreshToken;
-        expect(body.ok).toEqual(true);
+        expect(body.ok).toBeTruthy();
         expect(body.token.client.id).toEqual(client_id);
       });
 
@@ -105,7 +105,7 @@ describe('Refresh Token Grant Type Tests', () => {
           )
           .expect(({ body }) => {
             console.log(body.token.accessTokenExpiresAt);
-            expect(body.ok).toEqual(true);
+            expect(body.ok).toBeTruthy();
           }),
       3000
     );

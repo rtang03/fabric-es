@@ -21,11 +21,12 @@ export const tokenHandler = (
   if (
     req.body.grant_type !== 'password' &&
     req.body.grant_type !== 'refresh_token' &&
-    req.body.grant_type !== 'client_credentials'
+    req.body.grant_type !== 'client_credentials' &&
+    req.body.grant_type !== 'authorization_code'
   )
     return res.status(http.BAD_REQUEST).send({
       ok: false,
-      message: 'invalid grant type, use "password" or "refresh_token", "client_credentials"'
+      message: 'invalid grant type, use "password" or "refresh_token", "client_credentials", "authorization_code"'
     });
 
   if (req.body.grant_type === 'password') {
