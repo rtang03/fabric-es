@@ -74,16 +74,6 @@ export interface LoanDescriptionDefined extends BaseEvent {
   };
 }
 
-export interface LoanerDefined extends BaseEvent {
-  readonly type: 'LoanerDefined';
-  payload: {
-    loanId: string;
-    userId: string;
-    loaner: string;
-    timestamp: number;
-  };
-}
-
 export type LoanEvents =
   LoanApplied |
   LoanCancelled |
@@ -92,5 +82,4 @@ export type LoanEvents =
   LoanRejected |
   LoanExpired |
   LoanReferenceDefined |
-  LoanDescriptionDefined |
-  LoanerDefined;
+  LoanDescriptionDefined;

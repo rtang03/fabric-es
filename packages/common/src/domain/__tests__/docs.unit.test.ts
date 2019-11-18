@@ -1,4 +1,3 @@
-import { Errors } from '../';
 import { documentCommandHandler, DocumentStatus } from '../document';
 import { loanCommandHandler } from '../loan';
 import { userCommandHandler } from '../user';
@@ -14,7 +13,7 @@ beforeAll(async () => {
   });
 
   await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
-    userId, payload: { loanId: 'LOANID001', reference: 'LOANREF001', loaner: 'BANK001', description: 'HOWAREYOUTODAY', timestamp: Date.now() }
+    userId, payload: { loanId: 'LOANID001', reference: 'LOANREF001', description: 'HOWAREYOUTODAY', timestamp: Date.now() }
   });
 
   await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
@@ -80,8 +79,8 @@ describe('Document CommandHandler test', () => {
         link: null,
         timestamp: Date.now()
       }
-    }).catch(error =>
-      expect(error).toEqual(Errors.requiredDataMissing)
+    }).catch(({ message }) =>
+      expect(message).toEqual('REQUIRED_DATA_MISSING')
     );
   });
 
@@ -143,6 +142,19 @@ describe('Document CommandHandler test', () => {
       );
   });
 
+  it('updating a non-existing document', async () => {
+    await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).DefineDocumentTitle({
+      userId,
+      payload: {
+        documentId: '999999999',
+        title: 'Hello There Limited',
+        timestamp: Date.now()
+      }
+    }).catch(({ message }) =>
+      expect(message).toEqual('DOCUMENT_NOT_FOUND: id: 999999999')
+    );
+  });
+
   it('add loan ID to a document', async () => {
     await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).DefineDocumentLoanId({
       userId,
@@ -172,8 +184,8 @@ describe('Document CommandHandler test', () => {
         reference: 'DOCREF099',
         timestamp: Date.now()
       }
-    }).catch(error =>
-      expect(error).toEqual(Errors.invalidOperation)
+    }).catch(({ message }) =>
+      expect(message).toEqual('INVALID_OPERATION')
     );
   });
 
