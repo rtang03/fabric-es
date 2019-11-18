@@ -6,5 +6,5 @@ export * from './me';
 export * from './updateUser';
 export * from './logout';
 export * from './registerUser';
-export * from './_ca-identity';
 export * from './createRootClient';
+export * from './createApplication';
