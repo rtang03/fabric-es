@@ -7,7 +7,7 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import './env';
-import { LoanDetails, LoanDetailsEvents, loanDetailsReducer, resolvers, typeDefs } from './privatedata';
+import { LoanDetails, LoanDetailsEvents, loanDetailsReducer, resolvers, typeDefs } from './local';
 import { FabricData } from './types';
 
 let networkConfig;
@@ -31,7 +31,7 @@ const bootstrap = async () => {
     entityName,
     reducer: loanDetailsReducer
   });
-  const dtlsDataSource = new FabricData({ privatedataRepo: dtlsRepo });
+  const dtlsDataSource = new FabricData({ localRepo: dtlsRepo });
   const server = new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),
     playground: true,

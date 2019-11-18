@@ -66,15 +66,7 @@ export const mockdb: Record<string, Commit> = {
           timestamp: 1542336654365
         },
         type: 'LoanDescriptionDefined'
-      },
-      {
-        payload: {
-          loanId: '123456',
-          timestamp: 1542336654365,
-          loaner: 'Dai Yee Lung'
-        },
-        type: 'LoanerDefined'
-      },
+      }
     ]
   },
   '20181124064622771:1542385173331': {

@@ -11,14 +11,19 @@ type Mutation {
     userId: String!,
     loanId: String!,
     description: String,
-    reference: String!,
-    loaner: String!
-  ): LoanCommit
-  cancelLoan(userId: String!, loanId: String!): LoanCommit
-  approveLoan(userId: String!, loanId: String!): LoanCommit
-  returnLoan(userId: String!, loanId: String!): LoanCommit
-  rejectLoan(userId: String!, loanId: String!): LoanCommit
-  expireLoan(userId: String!, loanId: String!): LoanCommit
+    reference: String!
+  ): LoanResponse
+  cancelLoan(userId: String!, loanId: String!): LoanResponse
+  approveLoan(userId: String!, loanId: String!): LoanResponse
+  returnLoan(userId: String!, loanId: String!): LoanResponse
+  rejectLoan(userId: String!, loanId: String!): LoanResponse
+  expireLoan(userId: String!, loanId: String!): LoanResponse
+  updateLoan(
+    userId: String!
+    loanId: String!
+    description: String
+    reference: String
+  ): [LoanResponse]!
 }
 
 type Loan @key(fields: "loanId") {
@@ -26,10 +31,11 @@ type Loan @key(fields: "loanId") {
   ownerId: String!
   description: String
   reference: String!
-  loaner: String!
-  status: String!
+  status: Int!
   timestamp: String!
 }
+
+union LoanResponse = LoanCommit | LoanError
 
 type LoanEvent {
   type: String
@@ -43,5 +49,10 @@ type LoanCommit {
   committedAt: String
   entityId: String
   events: [LoanEvent!]
+}
+
+type LoanError {
+  message: String!
+  stack: String
 }
 `;
