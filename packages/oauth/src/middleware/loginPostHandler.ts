@@ -1,11 +1,12 @@
+import { compare } from 'bcrypt';
 import { Request, Response } from 'express';
 import http from 'http-status';
 import { OUser } from '../entity/OUser';
 
 export const loginPostHandler = async (req: Request, res: Response) => {
-  const email = req.body.email;
-  const user = await OUser.findOne({ where: { email } });
   const {
+    email,
+    password,
     redirect,
     client_id,
     redirect_uri,
@@ -13,8 +14,35 @@ export const loginPostHandler = async (req: Request, res: Response) => {
     grant_type,
     response_type
   } = req.body;
-  const path = req.body!.redirect || '/home';
+  const user = await OUser.findOne({ where: { email } });
+  if (!user)
+    return res.render('login', {
+      redirect,
+      client_id,
+      redirect_uri,
+      message: 'no such user'
+    });
+
   res.app.locals.user_id = user.id;
+  if (!password)
+    return res.render('login', {
+      redirect,
+      client_id,
+      redirect_uri,
+      message: 'bad password'
+    });
+
+  const valid = await compare(password, user.password);
+
+  if (!valid)
+    return res.render('login', {
+      redirect,
+      client_id,
+      redirect_uri,
+      message: 'bad password'
+    });
+
+  const path = req.body!.redirect || '/home';
   return !client_id
     ? res.status(http.BAD_REQUEST).send({ error: 'client_id is missing' })
     : !redirect_uri
@@ -25,8 +53,6 @@ export const loginPostHandler = async (req: Request, res: Response) => {
     ? res.status(http.BAD_REQUEST).send({ error: 'response_type is missing' })
     : !grant_type
     ? res.status(http.BAD_REQUEST).send({ error: 'grant_type is missing' })
-    : !user
-    ? res.render('login', { redirect, client_id, redirect_uri })
     : res.redirect(
         `${path}?client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}&response_type=${response_type}&grant_type=${grant_type}`
       );

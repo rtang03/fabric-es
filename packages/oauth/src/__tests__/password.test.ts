@@ -45,7 +45,16 @@ const admin_password = process.env.ADMIN_PASSWORD || 'admin';
 beforeAll(async () => {
   app = await createHttpServer({
     dbConnection,
-    resolvers: [OUserResolver, ClientResolver]
+    resolvers: [OUserResolver, ClientResolver],
+    oauthOptions: {
+      requireClientAuthentication: {
+        password: false,
+        refreshToken: false,
+        authorization_code: true
+      },
+      accessTokenLifetime: 300,
+      refreshTokenLifetime: 1500
+    }
   });
 });
 
@@ -74,7 +83,7 @@ describe('Password Grant Type Tests', () => {
         query: REGISTER_ADMIN,
         variables: { email, password, username, admin_password }
       })
-      .expect(({ body }) => expect(body.data.register).toEqual(true)));
+      .expect(({ body }) => expect(body.data.register).toBeTruthy()));
 
   it('should login new (admin) user', async () =>
     request(app)
@@ -87,7 +96,7 @@ describe('Password Grant Type Tests', () => {
       .expect(({ body: { data }, header }) => {
         refreshToken = header['set-cookie'][0].split('; ')[0].split('=')[1];
         accessToken = data.login.accessToken;
-        expect(data.login.ok).toBe(true);
+        expect(data.login.ok).toBeTruthy();
         expect(data.login.accessToken).toBeDefined();
         expect(data.login.user.email).toEqual(email);
         expect(data.login.user.username).toEqual(username);
@@ -126,7 +135,7 @@ describe('Password Grant Type Tests', () => {
       .post('/graphql')
       .set('authorization', `Bearer 123456789`)
       .send({ operationName: 'Me', query: ME })
-      .expect(({ body }) => expect(body.data.me).toEqual(null)));
+      .expect(({ body }) => expect(body.data.me).toBeNull()));
 
   it('should update user', async () =>
     request(app)
@@ -137,7 +146,7 @@ describe('Password Grant Type Tests', () => {
         query: UPDATE_USER,
         variables: { email: 'changed@example.com', username: 'changed_user' }
       })
-      .expect(({ body }) => expect(body.data.updateUser).toEqual(true)));
+      .expect(({ body }) => expect(body.data.updateUser).toBeTruthy()));
 
   it('should register (non-admin) user', async () =>
     request(app)
@@ -147,7 +156,7 @@ describe('Password Grant Type Tests', () => {
         query: REGISTER_USER,
         variables: { email, password, username }
       })
-      .expect(({ body }) => expect(body.data.register).toEqual(true)));
+      .expect(({ body }) => expect(body.data.register).toBeTruthy()));
 
   it('should login (non-admin) user', async () =>
     request(app)
@@ -159,7 +168,7 @@ describe('Password Grant Type Tests', () => {
       })
       .expect(({ body: { data } }) => {
         accessToken = data.login.accessToken;
-        expect(data.login.ok).toBe(true);
+        expect(data.login.ok).toBeTruthy();
         expect(data.login.accessToken).toBeDefined();
         expect(data.login.user.email).toEqual(email);
         expect(data.login.user.username).toEqual(username);

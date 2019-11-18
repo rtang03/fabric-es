@@ -22,8 +22,6 @@ export const createHttpServer: (option: {
   modelOptions = {
     accessTokenSecret: process.env.ACCESS_TOKEN_SECRET!,
     refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET!,
-    authorizationCode: process.env.AUTHORIZATION_CODE,
-    authCodeOptions: { expiresIn: '5m' }
   },
   oauthOptions = {
     requireClientAuthentication: { password: false, refresh_token: false },
@@ -79,7 +77,7 @@ export const createHttpServer: (option: {
           payload = { error };
         }
       }
-      return { req, res, payload, oauth2Server };
+      return { req, res, payload, oauth2Server, oauthOptions };
     }
   });
   server.applyMiddleware({ app, cors: false });

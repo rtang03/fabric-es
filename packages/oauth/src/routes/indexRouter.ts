@@ -17,9 +17,9 @@ export const indexRouter = (oauthServer: OAuth2Server, options?: any) => {
   router.post('/oauth/token', tokenHandler(oauthServer, options));
   router.post('/oauth/refresh_token', tokenHandler(oauthServer, options));
   router.post('/oauth/authenticate', authenticateHandler(oauthServer));
-  router.post('/oauth/authorize', authorizeGetHandler(oauthServer));
+  router.post('/oauth/authorize', authorizePostHandler(oauthServer, options));
   router.get('/login', loginGetHandler);
   router.post('/login', loginPostHandler);
-  router.get('/oauth/authorize', authorizePostHandler);
+  router.get('/oauth/authorize', authorizeGetHandler);
   return router;
 };

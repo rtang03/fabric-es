@@ -1,8 +1,4 @@
-import {
-  AuthenticationError,
-  ForbiddenError,
-  UserInputError
-} from 'apollo-server';
+import { AuthenticationError, UserInputError } from 'apollo-server';
 import { compare, hash } from 'bcrypt';
 import { pick } from 'lodash';
 import { Request, Response, Token } from 'oauth2-server-typescript';
@@ -61,10 +57,12 @@ export class OUserResolver {
   async login(
     @Arg('email') email: string,
     @Arg('password') password: string,
-    @Ctx() { res, req, oauth2Server }: MyContext
+    @Ctx() { res, req, oauth2Server, oauthOptions }: MyContext
   ): Promise<LoginResponse> {
     const user = await OUser.findOne({ email });
     if (!user) throw new AuthenticationError('could not find user');
+
+    if (!password) throw new UserInputError('bad password');
 
     const valid = await compare(password, user.password);
     if (!valid) throw new UserInputError('bad password');
@@ -80,9 +78,7 @@ export class OUserResolver {
     req.headers['content-type'] = 'application/x-www-form-urlencoded';
 
     return oauth2Server
-      .token(new Request(req), new Response(res), {
-        requireClientAuthentication: { password: false, refresh_token: false }
-      })
+      .token(new Request(req), new Response(res), oauthOptions)
       .then(({ accessToken, refreshToken }: Token) => {
         sendRefreshToken(res, refreshToken);
         return {

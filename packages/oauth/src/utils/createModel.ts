@@ -17,16 +17,12 @@ export const createModel: (option?: {
   accessTokenOptions: any;
   refreshTokenSecret: string;
   refreshTokenOptions: any;
-  authorizationCode: string;
-  authCodeOptions: any;
 }) => Model = (
   option = {
     accessTokenSecret: process.env.ACCESS_TOKEN_SECRET!,
     accessTokenOptions: { expiresIn: '15m' },
     refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET!,
     refreshTokenOptions: { expiresIn: '7d' },
-    authorizationCode: process.env.AUTHORIZATION_CODE,
-    authCodeOptions: { expiresIn: '5m' }
   }
 ) => ({
   request: undefined,
@@ -42,8 +38,6 @@ export const createModel: (option?: {
     if (client?.id) payload.client_id = client.id;
     return sign(payload, option.refreshTokenSecret, option.refreshTokenOptions);
   },
-  generateAuthorizationCode: async (client: IClient, user: OUser, scope) =>
-    sign({ userId: user.id }, option.authorizationCode, option.authCodeOptions),
   getAccessToken: async (access_token: string) => {
     const token = await AccessToken.findOne({ access_token });
     if (!token) return null;
