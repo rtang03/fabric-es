@@ -6,7 +6,12 @@ import { Client } from '../entity/Client';
 import { OUser } from '../entity/OUser';
 import { RefreshToken } from '../entity/RefreshToken';
 import '../env';
-import { CREATE_ROOT_CLIENT, REGISTER_ADMIN } from '../query';
+import {
+  CREATE_APPLICATION,
+  CREATE_ROOT_CLIENT,
+  LOGIN,
+  REGISTER_ADMIN
+} from '../query';
 import { ClientResolver } from '../resolvers/clientResolver';
 import { OUserResolver } from '../resolvers/ouserResolver';
 import { createHttpServer } from '../utils';
@@ -18,7 +23,7 @@ const dbConnection = {
   port: 5432,
   username: 'postgres',
   password: 'postgres',
-  database: 'testrefreshtoken',
+  database: 'testclientcredentials',
   logging: false,
   synchronize: true,
   dropSchema: true,
@@ -26,29 +31,38 @@ const dbConnection = {
 };
 
 let app: Express;
+let accessToken: string;
 let refreshToken: string;
 let client_id: string;
+let client_secret: string;
 const username = `tester${Math.floor(Math.random() * 10000)}`;
 const email = `${username}@example.com`;
 const password = 'password';
 const admin_password = process.env.ADMIN_PASSWORD || 'admin';
+const applicationName = 'testApp';
+const redirect_uri = 'optional';
+const grants = ['client_credentials', 'password', 'refresh_token'];
 
 beforeAll(async () => {
   app = await createHttpServer({
     dbConnection,
     resolvers: [OUserResolver, ClientResolver],
     oauthOptions: {
-      requireClientAuthentication: { password: false, refresh_token: false },
-      accessTokenLifetime: 5, // seconds
-      refreshTokenLifetime: 10
+      requireClientAuthentication: {
+        password: false,
+        refresh_token: false,
+        client_credentials: true
+      },
+      accessTokenLifetime: 120, // seconds
+      refreshTokenLifetime: 240
     }
   });
 });
 
 // this is workaround for unfinished handler issue with jest and supertest
-afterAll(async () => new Promise(done => setTimeout(() => done(), 15000)));
+afterAll(async () => new Promise(done => setTimeout(() => done(), 500)));
 
-describe('Refresh Token Grant Type Tests', () => {
+describe('Client Credentials Grant Type Tests', () => {
   it('should create RootClient', async () =>
     request(app)
       .post('/graphql')
@@ -60,10 +74,7 @@ describe('Refresh Token Grant Type Tests', () => {
           password: 'admin'
         }
       })
-      .expect(({ body: { data } }) => {
-        client_id = data.createRootClient;
-        expect(data.createRootClient).toBeDefined();
-      }));
+      .expect(({ body }) => expect(body.data.createRootClient).toBeDefined()));
 
   it('should register new (admin) user', async () =>
     request(app)
@@ -80,53 +91,48 @@ describe('Refresh Token Grant Type Tests', () => {
       })
       .expect(({ body }) => expect(body.data.register).toEqual(true)));
 
-  it('should /oauth/token', async () => {
-    await request(app)
+  it('should login new (admin) user', async () =>
+    request(app)
+      .post('/graphql')
+      .send({
+        operationName: 'Login',
+        query: LOGIN,
+        variables: { email, password }
+      })
+      .expect(({ body: { data }, header }) => {
+        refreshToken = header['set-cookie'][0].split('; ')[0].split('=')[1];
+        accessToken = data.login.accessToken;
+        expect(data.login.ok).toBe(true);
+        expect(data.login.accessToken).toBeDefined();
+        expect(data.login.user.email).toEqual(email);
+        expect(data.login.user.username).toEqual(username);
+      }));
+
+  it('should create application client', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer ${accessToken}`)
+      .send({
+        operationName: 'CreateApplication',
+        query: CREATE_APPLICATION,
+        variables: { applicationName, grants }
+      })
+      .expect(({ body: { data } }) => {
+        client_id = data.createApplication.client_id;
+        client_secret = data.createApplication.client_secret;
+        expect(data.createApplication.ok).toEqual(true);
+        expect(data.createApplication.redirect_uri).toEqual(null);
+      }));
+
+  it('should /oauth/token', async () =>
+    request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
       .send(
-        `client_id=${client_id}&grant_type=password&username=${username}&password=${password}&scope=default`
+        `client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials&scope=default`
       )
       .expect(({ body }) => {
-        console.log(body.token.accessTokenExpiresAt);
-        refreshToken = body.token.refreshToken;
         expect(body.ok).toEqual(true);
         expect(body.token.client.id).toEqual(client_id);
-      });
-
-    // refresh token, before accessToken expires
-    setTimeout(
-      async () =>
-        await request(app)
-          .post('/oauth/refresh_token')
-          .set('Context-Type', 'application/x-www-form-urlencoded')
-          .send(
-            `client_id=${client_id}&grant_type=refresh_token&scope=default&refresh_token=${refreshToken}`
-          )
-          .expect(({ body }) => {
-            console.log(body.token.accessTokenExpiresAt);
-            expect(body.ok).toEqual(true);
-          }),
-      3000
-    );
-
-    // refresh token, after refreshToken expires
-    setTimeout(
-      async () =>
-        await request(app)
-          .post('/oauth/refresh_token')
-          .set('Context-Type', 'application/x-www-form-urlencoded')
-          .send(
-            `client_id=${client_id}&grant_type=refresh_token&scope=default&refresh_token=${refreshToken}`
-          )
-          .expect(({ body }) =>
-            expect(body).toEqual({
-              ok: false,
-              token: '',
-              message: 'Invalid grant: refresh token is invalid'
-            })
-          ),
-      11000
-    );
-  });
+      }));
 });

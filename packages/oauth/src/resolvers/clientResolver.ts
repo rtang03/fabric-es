@@ -2,7 +2,9 @@ import { randomBytes } from 'crypto';
 import {
   Arg,
   Ctx,
+  Field,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
   UseMiddleware
@@ -18,6 +20,20 @@ const generateSecret = len =>
     .replace(/\//g, '_')
     .replace(/=/g, '');
 
+@ObjectType()
+class CreateAppResponse {
+  @Field()
+  ok: boolean;
+  @Field()
+  client_id: string;
+  @Field()
+  applicationName: string;
+  @Field()
+  client_secret: string;
+  @Field({ nullable: true })
+  redirect_uri: string;
+}
+
 @Resolver()
 export class ClientResolver {
   @Query(() => String)
@@ -31,27 +47,36 @@ export class ClientResolver {
     return Client.find();
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => CreateAppResponse)
   @UseMiddleware(isAdmin)
   async createApplication(
+    @Ctx() { payload }: MyContext,
     @Arg('applicationName') applicationName: string,
-    @Arg('redirect_uris') uri: string,
     @Arg('grants', () => [String]) grants: string[],
-    @Ctx() { payload }: MyContext
-  ) {
+    @Arg('redirect_uri', { nullable: true }) redirect_uri?: string
+  ): Promise<CreateAppResponse> {
     const user_id = payload?.userId;
-    return Client.insert({
-      applicationName,
-      client_secret: generateSecret(8),
-      grants,
-      redirect_uris: [uri],
-      user_id
-    })
-      .then(() => true)
-      .catch(error => {
-        console.error(error);
-        return false;
-      });
+    const client_secret = generateSecret(8);
+    return user_id
+      ? Client.insert({
+          applicationName,
+          client_secret,
+          grants,
+          redirect_uris: redirect_uri ? [redirect_uri] : [],
+          user_id
+        })
+          .then<CreateAppResponse>(({ identifiers }) => ({
+            ok: true,
+            client_id: identifiers[0].id,
+            client_secret,
+            applicationName,
+            redirect_uri
+          }))
+          .catch(error => {
+            console.error(error);
+            return null;
+          })
+      : null;
   }
 
   @Mutation(() => String)
@@ -61,7 +86,6 @@ export class ClientResolver {
   ) {
     const root = await Client.findOne({ applicationName: 'root' });
     if (root) throw new Error('Root client already exist');
-
     return admin === process.env.ADMIN &&
       password === process.env.ADMIN_PASSWORD
       ? Client.insert({
@@ -89,5 +113,4 @@ export class ClientResolver {
   async getRootClientId() {
     return Client.findOne({ applicationName: 'root' }).then(({ id }) => id);
   }
-
 }

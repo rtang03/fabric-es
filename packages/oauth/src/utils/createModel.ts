@@ -30,18 +30,18 @@ export const createModel: (option?: {
   }
 ) => ({
   request: undefined,
-  generateAccessToken: async (client: IClient, user: OUser, scope) =>
-    sign(
-      { userId: user.id },
-      option.accessTokenSecret,
-      option.accessTokenOptions
-    ),
-  generateRefreshToken: async (client: IClient, user: OUser, scope) =>
-    sign(
-      { userId: user.id },
-      option.refreshTokenSecret,
-      option.refreshTokenOptions
-    ),
+  generateAccessToken: async (client: IClient, user: OUser, scope) => {
+    const payload: any = {};
+    if (user?.id) payload.userId = user.id;
+    if (client?.id) payload.client_id = client.id;
+    return sign(payload, option.accessTokenSecret, option.accessTokenOptions);
+  },
+  generateRefreshToken: async (client: IClient, user: OUser, scope) => {
+    const payload: any = {};
+    if (user?.id) payload.userId = user.id;
+    if (client?.id) payload.client_id = client.id;
+    return sign(payload, option.refreshTokenSecret, option.refreshTokenOptions);
+  },
   generateAuthorizationCode: async (client: IClient, user: OUser, scope) =>
     sign({ userId: user.id }, option.authorizationCode, option.authCodeOptions),
   getAccessToken: async (access_token: string) => {
@@ -154,13 +154,28 @@ export const createModel: (option?: {
     };
   },
   saveToken: async (token: IToken, client: IClient, user: OUser) => {
-    await AccessToken.insert({
-      access_token: token.accessToken,
-      expires_at: token.accessTokenExpiresAt,
-      scope: token.scope,
-      client_id: client.id,
-      user_id: user.id
+    const exist = await AccessToken.findOne({
+      access_token: token.accessToken
     });
+    if (exist)
+      await AccessToken.update(
+        { access_token: token.accessToken },
+        {
+          access_token: token.accessToken,
+          expires_at: token.accessTokenExpiresAt,
+          scope: token.scope,
+          client_id: client.id,
+          user_id: user.id
+        }
+      );
+    else
+      await AccessToken.insert({
+        access_token: token.accessToken,
+        expires_at: token.accessTokenExpiresAt,
+        scope: token.scope,
+        client_id: client.id,
+        user_id: user.id
+      });
 
     if (token.refreshToken) {
       await RefreshToken.insert({

@@ -9,7 +9,7 @@ import '../env';
 import { CREATE_ROOT_CLIENT, REGISTER_ADMIN } from '../query';
 import { ClientResolver } from '../resolvers/clientResolver';
 import { OUserResolver } from '../resolvers/ouserResolver';
-import { createHttpServer, createModel } from '../utils';
+import { createHttpServer } from '../utils';
 
 const dbConnection = {
   name: 'default',
@@ -18,7 +18,7 @@ const dbConnection = {
   port: 5432,
   username: 'postgres',
   password: 'postgres',
-  database: 'testrefreshtoken',
+  database: 'testauthorizationcode',
   logging: false,
   synchronize: true,
   dropSchema: true,
@@ -40,7 +40,6 @@ beforeAll(async () => {
     resolvers: [OUserResolver, ClientResolver],
     oauthOptions: {
       requireClientAuthentication: { password: false, refresh_token: false },
-      // used by oauth server's token table
       accessTokenLifetime: 5,
       refreshTokenLifetime: 10
     }
@@ -99,38 +98,5 @@ describe('Refresh Token Grant Type Tests', () => {
         expect(body.ok).toEqual(true);
         expect(body.token.client.id).toEqual(client_id);
       });
-
-    // refresh token, before accessToken expires
-    setTimeout(
-      async () =>
-        await request(app)
-          .post('/oauth/refresh_token')
-          .set('Context-Type', 'application/x-www-form-urlencoded')
-          .send(
-            `client_id=${client_id}&grant_type=refresh_token&scope=default&refresh_token=${refreshToken}`
-          )
-          .expect(({ body }) => {
-            console.log(body.token.accessTokenExpiresAt);
-            expect(body.ok).toEqual(true);
-          }),
-      3000
-    );
-
-    // refresh token, after refreshToken expires
-    setTimeout(
-      async () =>
-        await request(app)
-          .post('/oauth/refresh_token')
-          .set('Context-Type', 'application/x-www-form-urlencoded')
-          .send(
-            `client_id=${client_id}&grant_type=refresh_token&scope=default&refresh_token=${refreshToken}`
-          )
-          .expect(({ body }) => {
-            console.log(body.token.accessTokenExpiresAt);
-            console.log(body);
-            // expect(body.ok).toEqual(true);
-          }),
-      11000
-    );
   });
 });

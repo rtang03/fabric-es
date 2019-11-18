@@ -8,7 +8,6 @@ import { RefreshToken } from '../entity/RefreshToken';
 import '../env';
 import {
   CREATE_ROOT_CLIENT,
-  HELLO,
   LOGIN,
   ME,
   REGISTER_ADMIN,
@@ -75,9 +74,7 @@ describe('Password Grant Type Tests', () => {
         query: REGISTER_ADMIN,
         variables: { email, password, username, admin_password }
       })
-      .expect(({ body: { data } }) =>
-        expect(data).toEqual({ register: true })
-      ));
+      .expect(({ body }) => expect(body.data.register).toEqual(true)));
 
   it('should login new (admin) user', async () =>
     request(app)
@@ -129,7 +126,7 @@ describe('Password Grant Type Tests', () => {
       .post('/graphql')
       .set('authorization', `Bearer 123456789`)
       .send({ operationName: 'Me', query: ME })
-      .expect(({ body: { data } }) => expect(data).toEqual({ me: null })));
+      .expect(({ body }) => expect(body.data.me).toEqual(null)));
 
   it('should update user', async () =>
     request(app)
@@ -140,7 +137,7 @@ describe('Password Grant Type Tests', () => {
         query: UPDATE_USER,
         variables: { email: 'changed@example.com', username: 'changed_user' }
       })
-      .expect(({ body: { data } }) => expect(data.updateUser).toEqual(true)));
+      .expect(({ body }) => expect(body.data.updateUser).toEqual(true)));
 
   it('should register (non-admin) user', async () =>
     request(app)
@@ -150,9 +147,7 @@ describe('Password Grant Type Tests', () => {
         query: REGISTER_USER,
         variables: { email, password, username }
       })
-      .expect(({ body: { data } }) =>
-        expect(data).toEqual({ register: true })
-      ));
+      .expect(({ body }) => expect(body.data.register).toEqual(true)));
 
   it('should login (non-admin) user', async () =>
     request(app)
