@@ -24,10 +24,10 @@ export const documentCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege();
       });
-    if (!reference) throw Errors.requiredDataMissing;
-    if (!link) throw Errors.requiredDataMissing;
+    if (!reference) throw Errors.requiredDataMissing();
+    if (!link) throw Errors.requiredDataMissing();
     const events: any = [
       { type: 'DocumentCreated', payload: { documentId, userId, timestamp }},
       { type: 'DocumentReferenceDefined', payload: { documentId, userId, reference, timestamp }},
@@ -46,7 +46,7 @@ export const documentCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege();
       });
     return documentRepo
       .getById({ enrollmentId, id: documentId })
@@ -65,7 +65,7 @@ export const documentCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege();
       });
     return documentRepo
       .getById({ enrollmentId, id: documentId })
@@ -84,13 +84,13 @@ export const documentCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege();
       });
     return documentRepo
       .getById({ enrollmentId, id: documentId })
       .then(({ currentState, save }) => {
         if (!currentState) throw DocumentErrors.documentNotFound(documentId);
-        if (currentState.reference) throw Errors.invalidOperation; // Readonly field
+        if (currentState.reference) throw Errors.invalidOperation(); // Readonly field
         return save([{
           type: 'DocumentReferenceDefined',
           payload: { documentId, userId, reference, timestamp }
@@ -104,7 +104,7 @@ export const documentCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege();
       });
     return documentRepo
       .getById({ enrollmentId, id: documentId })
@@ -123,7 +123,7 @@ export const documentCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege();
       });
     return documentRepo
       .getById({ enrollmentId, id: documentId })
@@ -142,7 +142,7 @@ export const documentCommandHandler: (
     await userRepo
       .getById({ enrollmentId, id: userId })
       .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege;
+        if (!currentState) throw Errors.insufficientPrivilege();
       });
     return documentRepo
       .getById({ enrollmentId, id: documentId })

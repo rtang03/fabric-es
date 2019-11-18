@@ -12,8 +12,7 @@ export const loanReducer = (
           ownerId: event.payload.userId,
           status: LoanStatus[event.type],
           timestamp: event.payload.timestamp,
-          reference: null,
-          loaner: null
+          reference: null
         };
       case 'LoanCancelled':
       case 'LoanApproved':
@@ -33,11 +32,6 @@ export const loanReducer = (
         return {
           ...loan,
           description: event.payload.description
-        };
-      case 'LoanerDefined':
-        return {
-          ...loan,
-          loaner: event.payload.loaner
         };
     }
   };

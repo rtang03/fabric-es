@@ -14,14 +14,54 @@ export const resolvers = {
   },
   Mutation: {
     createDocument: async (
-      _,
-      { userId, documentId, loanId, title, reference, link },
-      { dataSources: { docDataSource, userDataSource }, enrollmentId }
+      _, { userId, documentId, loanId, title, reference, link }, { dataSources: { docDataSource, userDataSource }, enrollmentId }
     ): Promise<Commit> =>
       documentCommandHandler({ enrollmentId, userRepo: userDataSource.repo, documentRepo: docDataSource.repo }).CreateDocument({
         userId,
         payload: { documentId, loanId, title, reference, link, timestamp: Date.now() }
-      })
+      }),
+    deleteDocument: async (
+      _, { userId, documentId }, { dataSources: { docDataSource, userDataSource }, enrollmentId }
+    ): Promise<Commit> =>
+      documentCommandHandler({ enrollmentId, userRepo: userDataSource.repo, documentRepo: docDataSource.repo }).DeleteDocument({
+        userId, payload: { documentId, timestamp: Date.now() }
+      }),
+    restrictAccess: async (
+      _, { userId, documentId }, { dataSources: { docDataSource, userDataSource }, enrollmentId }
+    ): Promise<Commit> =>
+      documentCommandHandler({ enrollmentId, userRepo: userDataSource.repo, documentRepo: docDataSource.repo }).RestrictDocumentAccess({
+        userId, payload: { documentId, timestamp: Date.now() }
+      }),
+    updateDocument: async (
+      _, { userId, documentId, loanId, title, reference, link }, { dataSources: { docDataSource, userDataSource }, enrollmentId }
+    ): Promise<Commit[] | { error: any }> => {
+      const result: Commit[] = [];
+      if (loanId) {
+        const c = await documentCommandHandler({ enrollmentId, userRepo: userDataSource.repo, documentRepo: docDataSource.repo }).DefineDocumentLoanId({
+          userId, payload: { documentId, loanId, timestamp: Date.now() }
+        }).then(data => data).catch(({ message, stack }) => ({ message, stack }));
+        result.push(c);
+      }
+      if (title) {
+        const c = await documentCommandHandler({ enrollmentId, userRepo: userDataSource.repo, documentRepo: docDataSource.repo }).DefineDocumentTitle({
+          userId, payload: { documentId, title, timestamp: Date.now() }
+        }).then(data => data).catch(({ message, stack }) => ({ message, stack }));
+        result.push(c);
+      }
+      if (reference) {
+        const c = await documentCommandHandler({ enrollmentId, userRepo: userDataSource.repo, documentRepo: docDataSource.repo }).DefineDocumentReference({
+          userId, payload: { documentId, reference, timestamp: Date.now() }
+        }).then(data => data).catch(({ message, stack }) => ({ message, stack }));
+        result.push(c);
+      }
+      if (link) {
+        const c = await documentCommandHandler({ enrollmentId, userRepo: userDataSource.repo, documentRepo: docDataSource.repo }).DefineDocumentLink({
+          userId, payload: { documentId, link, timestamp: Date.now() }
+        }).then(data => data).catch(({ message, stack }) => ({ message, stack }));
+        result.push(c);
+      }
+      return result;
+    }
   },
   Loan: {
     documents: ({ loanId }, _, { dataSources: { docDataSource }}) =>
@@ -31,6 +71,17 @@ export const resolvers = {
   Document: {
     loan(documents) {
       return { __typename: 'Loan', loanId: documents.loanId };
+    }
+  },
+  DocResponse: {
+    __resolveType(obj, _, __) {
+      if (obj.commitId) {
+        return 'DocCommit';
+      }
+      if (obj.message) {
+        return 'DocError';
+      }
+      return {};
     }
   }
 };
