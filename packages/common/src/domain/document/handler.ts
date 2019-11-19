@@ -77,25 +77,8 @@ export const documentCommandHandler: (
         }]);
       });
   },
-  DefineDocumentReference: async ({
-    userId,
-    payload: { documentId, reference, timestamp }
-  }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
-    return documentRepo
-      .getById({ enrollmentId, id: documentId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw DocumentErrors.documentNotFound(documentId);
-        if (currentState.reference) throw Errors.invalidOperation(); // Readonly field
-        return save([{
-          type: 'DocumentReferenceDefined',
-          payload: { documentId, userId, reference, timestamp }
-        }]);
-      });
+  DefineDocumentReference: async (_) => {
+    throw Errors.invalidOperation(); // Readonly field
   },
   DefineDocumentLink: async ({
     userId,

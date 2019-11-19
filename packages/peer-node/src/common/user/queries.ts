@@ -3,11 +3,16 @@ import gql from 'graphql-tag';
 export const CREATE_USER = gql`
 mutation CreateUser($name: String!, $userId: String!) {
   createUser(name: $name, userId: $userId) {
-    id
-    entityName
-    version
-    commitId
-    committedAt
+    ... on UserCommit {
+      id
+      entityName
+      version
+      commitId
+      committedAt
+    }
+    ... on UserError {
+      message
+    }
   }
 }`;
 
