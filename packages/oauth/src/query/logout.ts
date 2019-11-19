@@ -1,6 +1,6 @@
 // prettier-ignore
 export const LOGOUT = `
-  mutation logout {
+  mutation Logout {
     logout 
   }
 `;

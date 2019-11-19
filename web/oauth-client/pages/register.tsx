@@ -5,9 +5,10 @@ import React from 'react';
 import * as yup from 'yup';
 import { MyTextField } from '../components';
 import Layout from '../components/Layout';
-import { useRegisterMutation } from '../generated/graphql';
+import { useRegisterUserMutation } from '../generated/graphql';
 
 const validationSchema = yup.object({
+  username: yup.string().required(),
   email: yup
     .string()
     .required()
@@ -19,31 +20,30 @@ const validationSchema = yup.object({
 });
 
 export default () => {
-  const [register] = useRegisterMutation();
+  const [register] = useRegisterUserMutation();
 
   return (
     <Layout title="Account | Register">
       <Formik
         validateOnChange={true}
-        initialValues={{ email: '', password: ''}}
+        initialValues={{ email: '', password: '', username: '' }}
         validationSchema={validationSchema}
-        onSubmit={async ({ email, password }, { setSubmitting }) => {
+        onSubmit={async ({ email, password, username }, { setSubmitting }) => {
           setSubmitting(true);
-          const response = await register({ variables: { email, password } });
-          console.log(response);
+          await register({ variables: { email, password, username } });
           setSubmitting(false);
           await Router.push('/');
         }}>
         {({ values, isSubmitting }) => (
           <Form>
             <div>
+              <MyTextField name="username" placeholder="username" />
+            </div>
+            <div>
               <MyTextField name="email" placeholder="email" />
             </div>
             <div>
-              <MyTextField
-                name="password"
-                placeholder="password"
-              />
+              <MyTextField name="password" placeholder="password" />
             </div>
             <div>
               <Button disabled={isSubmitting} type="submit">

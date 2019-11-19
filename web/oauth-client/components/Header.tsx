@@ -45,11 +45,11 @@ export const Header: React.FC<any> = () => {
           </Title>
         </Link>{' '}
         |{' '}
-        <Link href="/bye">
-          <Title>
-            <a>Bye</a>
-          </Title>
-        </Link>{' '}
+        {/*<Link href="/client">*/}
+        {/*  <Title>*/}
+        {/*    <a>Client</a>*/}
+        {/*  </Title>*/}
+        {/*</Link>{' '}*/}
         |{' '}
         {!loading && data && data.me ? (
           <button

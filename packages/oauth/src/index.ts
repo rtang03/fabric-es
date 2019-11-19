@@ -1,1 +1,1 @@
-export { authenticatedContext, createHttpServer } from './utils';
+export { createHttpServer } from './utils';
