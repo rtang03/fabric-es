@@ -34,7 +34,9 @@ export const getPrivatedataMockRepository = <TEntity, TEvent>(
         events
       });
       mockdb[entity.commitId] = entity;
-      return Promise.resolve(omit(entity, ['events']));
+      return new Promise(resolve =>
+        setTimeout(() => resolve(omit(entity, ['events'])), 50)
+      );
     }
   }),
   getById: ({ enrollmentId, id }) =>
@@ -44,22 +46,32 @@ export const getPrivatedataMockRepository = <TEntity, TEvent>(
         ({ entityId }) => entityId === id
       );
       const matchEvents = getHistory(matched);
-      resolve({
-        currentState: reducer(matchEvents),
-        save: events => {
-          const entity = createCommit({
-            id,
-            entityName,
-            version: matched.length,
-            events
-          });
-          mockdb[entity.commitId] = entity;
-          return Promise.resolve(omit(entity, 'events'));
-        }
-      });
+      setTimeout(
+        () =>
+          resolve({
+            currentState: reducer(matchEvents),
+            save: events => {
+              const entity = createCommit({
+                id,
+                entityName,
+                version: matched.length,
+                events
+              });
+              mockdb[entity.commitId] = entity;
+              return Promise.resolve(omit(entity, 'events'));
+            }
+          }),
+        50
+      );
     }),
   getByEntityName: () =>
-    Promise.resolve<{ data: TEntity[] }>({
-      data: getEntities({ entityName, reducer, mockdb })
+    new Promise(resolve => {
+      setTimeout(
+        () =>
+          resolve({
+            data: getEntities({ entityName, reducer, mockdb })
+          }),
+        50
+      );
     })
 });

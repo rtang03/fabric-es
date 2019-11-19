@@ -3,7 +3,7 @@
   "rules": {
     "indent": [true, "spaces", 2],
     "linebreak-style": [true, "LF"],
-    "quotemark": [true, "single"],
+    "quotemark": [true, "single", "jsx-double"],
     "semicolon": [true, "always"],
     "no-console": false,
     "curly": false,

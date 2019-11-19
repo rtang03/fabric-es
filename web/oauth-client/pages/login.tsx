@@ -33,12 +33,10 @@ export default () => {
           const response = await login({
             variables: { email, password },
             update: (store, { data }) => {
-              if (!data) {
-                return null;
-              }
+              if (!data) return null;
               store.writeQuery<MeQuery>({
                 query: MeDocument,
-                data: { me: data.login.userProfile }
+                data: { me: data.login.user }
               });
             }
           });

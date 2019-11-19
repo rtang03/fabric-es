@@ -16,7 +16,7 @@ const isServer = () => typeof window === 'undefined';
 
 export function withApollo(PageComponent: any, { ssr = true } = {}) {
   const WithApollo = ({
-    apolloClient,
+    apolloClient: client,
     serverAccessToken,
     apolloState,
     ...pageProps
@@ -24,8 +24,12 @@ export function withApollo(PageComponent: any, { ssr = true } = {}) {
     if (!isServer() && !getAccessToken()) {
       setAccessToken(serverAccessToken);
     }
-    const client = apolloClient || initApolloClient(apolloState);
-    return <PageComponent {...pageProps} apolloClient={client} />;
+    return (
+      <PageComponent
+        {...pageProps}
+        apolloClient={client || initApolloClient(apolloState)}
+      />
+    );
   };
 
   if (process.env.NODE_ENV !== 'production') {
@@ -52,15 +56,18 @@ export function withApollo(PageComponent: any, { ssr = true } = {}) {
       let serverAccessToken = '';
 
       if (isServer()) {
-        const cookies = cookie.parse(req.headers.cookie);
+        const cookies = cookie.parse(req.headers.cookie || '');
         if (cookies.jid) {
-          const response = await fetch('http://localhost:4000/refresh_token', {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-              cookie: 'jid=' + cookies.jid
+          const response = await fetch(
+            'http://localhost:4000/oauth/refresh_token',
+            {
+              method: 'POST',
+              credentials: 'include',
+              headers: {
+                cookie: 'jid=' + cookies.jid
+              }
             }
-          });
+          );
           const data = await response.json();
           serverAccessToken = data.accessToken;
         }
@@ -81,9 +88,7 @@ export function withApollo(PageComponent: any, { ssr = true } = {}) {
       if (typeof window === 'undefined') {
         // When redirecting, the response is finished.
         // No point in continuing to render
-        if (res && res.finished) {
-          return {};
-        }
+        if (res && res.finished) return {};
 
         if (ssr) {
           try {
@@ -121,7 +126,6 @@ export function withApollo(PageComponent: any, { ssr = true } = {}) {
       };
     };
   }
-
   return WithApollo;
 }
 
@@ -134,16 +138,11 @@ let apolloClient: ApolloClient<NormalizedCacheObject> | null = null;
 function initApolloClient(initState: any, serverAccessToken?: string) {
   // Make sure to create a new client for every server-side request so that data
   // isn't shared between connections (which would be bad)
-  if (isServer()) {
-    return createApolloClient(initState, serverAccessToken);
-  }
-
+  if (isServer()) return createApolloClient(initState, serverAccessToken);
   // Reuse client on the client-side
-  if (!apolloClient) {
+  if (!apolloClient)
     // setAccessToken(cookie.parse(document.cookie).test);
     apolloClient = createApolloClient(initState);
-  }
-
   return apolloClient;
 }
 
@@ -158,11 +157,7 @@ function createApolloClient(initialState = {}, serverAccessToken?: string) {
     accessTokenField: 'accessToken',
     isTokenValidOrUndefined: () => {
       const token = getAccessToken();
-
-      if (!token) {
-        return true;
-      }
-
+      if (!token) return true;
       try {
         const { exp } = jwtDecode(token);
         return Date.now() < exp * 1000;
@@ -170,12 +165,11 @@ function createApolloClient(initialState = {}, serverAccessToken?: string) {
         return false;
       }
     },
-    fetchAccessToken: () => {
-      return fetch('http://localhost:4000/refresh_token', {
+    fetchAccessToken: () =>
+      fetch('http://localhost:4000/oauth/refresh_token', {
         method: 'POST',
         credentials: 'include'
-      });
-    },
+      }),
     handleFetch: accessToken => {
       setAccessToken(accessToken);
     },
