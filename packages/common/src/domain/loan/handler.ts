@@ -134,25 +134,8 @@ export const loanCommandHandler: (
         }]);
       });
   },
-  DefineLoanReference: async ({
-    userId,
-    payload: { loanId, reference, timestamp }
-  }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
-    return loanRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanErrors.loanNotFound(loanId);
-        if (currentState.reference) throw Errors.invalidOperation(); // Readonly field
-        return save([{
-          type: 'LoanReferenceDefined',
-          payload: { loanId, userId, reference, timestamp }
-        }]);
-      });
+  DefineLoanReference: async (_) => {
+    throw Errors.invalidOperation(); // Readonly field
   },
   DefineLoanDescription: async ({
     userId,

@@ -35,7 +35,8 @@ import {
   CREATE_LOAN_DETAILS,
   GET_DETAILS_BY_ID,
   resolvers as localResolvers,
-  typeDefs as localTypeDefs
+  typeDefs as localTypeDefs,
+  UPDATE_LOAN_DETAILS
 } from '../local';
 import {
   constructTestServer,
@@ -110,6 +111,9 @@ beforeAll(async () => {
   await createTestClient(server).mutate({ mutation: APPLY_LOAN, variables: {
     loanId: '980000006', userId: 'josh@fake.it', reference: 'REF0006', description: 'test-description-0006'
   }});
+  await createTestClient(server).mutate({ mutation: APPLY_LOAN, variables: {
+    loanId: '980000007', userId: 'josh@fake.it', reference: 'REF0007', description: 'test-description-0007'
+  }});
 
   await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
     documentId: '990000101', userId: 'josh@fake.it', title: 'Test Title 101', reference: 'DOC0101', link: 'test-link-0101'
@@ -120,6 +124,24 @@ beforeAll(async () => {
   await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
     documentId: '990000103', userId: 'josh@fake.it', title: 'Test Title 103', reference: 'DOC0103', link: 'test-link-0103'
   }});
+
+  await createTestClient(server).mutate({ mutation: CREATE_LOAN_DETAILS, variables: {
+      loanId: '980000007',
+      userId: 'josh@fake.it',
+      registration: 'BR0000002',
+      companyName: 'Pete N Co. Ltd',
+      requesterType: 'Money Launderer',
+      salutation: 'Mr.',
+      contactName: 'Pete',
+      contactTitle: 'Owner',
+      contactPhone: '555-12345',
+      contactEmail: 'pete@fake.it',
+      loanType: 'Post-shipment',
+      startDate: '2019-10-11',
+      tenor: 60,
+      currency: 'HKD',
+      requestedAmt: 50000.0
+    }});
 });
 
 afterAll(async () => {
@@ -138,7 +160,7 @@ describe('User Entity: Unit Test', () => {
       }).then(({ data }) => expect(data).toMatchSnapshot()
   ));
 
-  it('query: getCommitsByUserId', async () =>
+  it('query commits by userId', async () =>
     createTestClient(server)
       .query({
         query: GET_COMMITS_BY_USER,
@@ -146,7 +168,7 @@ describe('User Entity: Unit Test', () => {
       }).then(({ data }) => expect(data).toMatchSnapshot()
   ));
 
-  it('mutation: createUser', async () =>
+  it('create user', async () =>
     createTestClient(server)
       .mutate({
         mutation: CREATE_USER,
@@ -158,7 +180,7 @@ describe('User Entity: Unit Test', () => {
         expect(id).toEqual('pete@fake.it')
   ));
 
-  it('query: getPaginatedUser', async () =>
+  it('query paginated user', async () =>
     createTestClient(server)
       .query({
         query: GET_USERS_BY_PAGE,
@@ -168,7 +190,7 @@ describe('User Entity: Unit Test', () => {
 });
 
 describe('Document Entity: Unit Test', () => {
-  it('query: getDocumentById', async () =>
+  it('query document by ID', async () =>
     createTestClient(server)
       .query({
         query: GET_DOCUMENT_BY_ID,
@@ -176,7 +198,7 @@ describe('Document Entity: Unit Test', () => {
       }).then(({ data }) => expect(data).toMatchSnapshot()
   ));
 
-  it('query: getCommitByDocumentId', async () =>
+  it('query commit by documentId', async () =>
     createTestClient(server)
       .query({
         query: GET_COMMITS_BY_DOCUMENT,
@@ -203,6 +225,37 @@ describe('Document Entity: Unit Test', () => {
       .then(({ data: { createDocument: { id } } }) => expect(id).toEqual('321321321')
   ));
 
+  it('create and read document', async () => {
+    const { query, mutate } = createTestClient(server);
+    await mutate({
+      mutation: CREATE_DOCUMENT,
+      variables: {
+        documentId: '990000104',
+        userId: 'josh@fake.it',
+        title: 'test-title',
+        reference: 'DOC0104',
+        link: 'test-link-0104'
+      }
+    }).then(_ =>
+      query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: '990000104' }})
+        .then(({ data: { getDocumentById: { reference, status }}}) =>
+          expect((reference === 'DOC0104') && (status === 0)).toBeTruthy()
+    ));
+  });
+
+  it('create document without link', async () =>
+    createTestClient(server)
+      .mutate({
+        mutation: CREATE_DOCUMENT,
+        variables: {
+          documentId: '990000109',
+          userId: 'josh@fake.it',
+          title: 'test-title',
+          reference: 'DOC0009'
+        }
+      }).catch(({ message }) => expect(message).toEqual('REQUIRED_DATA_MISSINGX'))
+  );
+
   it('delete document', async () => {
     const { query, mutate } = createTestClient(server);
     await mutate({ mutation: DELETE_DOCUMENT, variables: { userId: 'josh@fake.it', documentId: '990000101' }});
@@ -210,6 +263,12 @@ describe('Document Entity: Unit Test', () => {
       expect((documentId === '990000101') && (status === 1)).toBeTruthy()
     );
   });
+
+  it('delete non-existing document', async () =>
+    createTestClient(server)
+      .mutate({ mutation: DELETE_DOCUMENT, variables: { userId: 'josh@fake.it', documentId: '990000109' }})
+        .catch(({ message }) => expect(message).toEqual('DOCUMENT_NOT_FOUND: id: 99000X109')
+  ));
 
   it('restrict document access', async () => {
     const { query, mutate } = createTestClient(server);
@@ -236,10 +295,38 @@ describe('Document Entity: Unit Test', () => {
         expect((commit.length === 2) && (errors.length === 1)).toBeTruthy();
       })
   );
+
+  it('update and read document', async () => {
+    const { query, mutate } = createTestClient(server);
+    mutate({
+      mutation: UPDATE_DOCUMENT,
+      variables: {
+        userId: 'josh@fake.it',
+        documentId: '990000104',
+        loanId: '980000001',
+        title: 'Update Title 104!!!',
+        reference: 'Updated-Ref-104'
+      }
+    }).then(({ data: { updateDocument }}) => {
+      const { commit, errors } = {
+        commit: updateDocument.filter(r => r.commitId).length,
+        errors: updateDocument.filter(r => r.message).length
+      };
+
+      query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: '990000104' }})
+        .then(({ data: { getDocumentById: { title, reference, status }}}) =>
+          expect(
+            (commit === 2) && (errors === 1) &&
+            (title === 'Update Title 104!!!') &&
+            (status === 0) &&
+            (reference === 'DOC0104')
+          ).toBeTruthy());
+    });
+  });
 });
 
 describe('Loan Entity: Unit Test', () => {
-  it('query: getCommitsByLoanId', async () =>
+  it('query commits by loanId', async () =>
     createTestClient(server)
       .query({
         query: GET_COMMITS_BY_LOAN,
@@ -258,6 +345,35 @@ describe('Loan Entity: Unit Test', () => {
           description: 'test-description'
         }
       }).then(({ data: { applyLoan: { id }}}) => expect(id).toEqual('123123123')
+  ));
+
+  it('create and read loan', async () => {
+    const { query, mutate } = createTestClient(server);
+    mutate({
+      mutation: APPLY_LOAN,
+      variables: {
+        loanId: '123123124',
+        userId: 'josh@fake.it',
+        reference: 'MYTRADE0002',
+        description: 'test-description-v2'
+      }
+    }).then(_ =>
+      query({ query: GET_LOAN_BY_ID, variables: { loanId: '123123124' }})
+        .then(({ data: { getLoanById: { reference, status }}}) =>
+          expect((reference === 'MYTRADE0002') && (status === 0)).toBeTruthy()
+    ));
+  });
+
+  it('create loan without reference', async () =>
+    createTestClient(server)
+      .mutate({
+        mutation: APPLY_LOAN,
+        variables: {
+          loanId: '123123125',
+          userId: 'josh@fake.it',
+          description: 'test-description'
+        }
+      }).catch(({ message }) => expect(message).toEqual('REQUIRED_DATA_MISSING')
   ));
 
   it('cancel loan', async () => {
@@ -284,6 +400,12 @@ describe('Loan Entity: Unit Test', () => {
       ));
   });
 
+  it('return non-existing loan', async () =>
+    createTestClient(server)
+      .mutate({ mutation: RETURN_LOAN, variables: { loanId: '123123125', userId: 'josh@fake.it' }})
+        .catch(({ message }) => expect(message).toEqual('LOAN_NOT_FOUND: id: 123123126')
+  ));
+
   it('reject loan', async () => {
     const { query, mutate } = createTestClient(server);
     return mutate({ mutation: REJECT_LOAN, variables: { loanId: '980000004', userId: 'josh@fake.it' }}).then(_ =>
@@ -300,7 +422,7 @@ describe('Loan Entity: Unit Test', () => {
       ));
   });
 
-  it('federated query: getLoanById', async () =>
+  it('federated query loan by ID', async () =>
     createTestClient(server)
       .query({
         query: GET_LOAN_BY_ID,
@@ -324,10 +446,37 @@ describe('Loan Entity: Unit Test', () => {
         expect((commit.length === 1) && (errors.length === 1)).toBeTruthy();
       })
   );
+
+  it('update and read loan', async () => {
+    const { query, mutate } = createTestClient(server);
+    mutate({
+      mutation: UPDATE_LOAN,
+      variables: {
+        loanId: '123123124',
+        userId: 'josh@fake.it',
+        reference: 'MYTRADE0099',
+        description: 'test-description-v79'
+      }
+    }).then(({ data: { updateLoan }}) => {
+      const { commit, errors } = {
+        commit: updateLoan.filter(r => r.commitId).length,
+        errors: updateLoan.filter(r => r.message).length
+      };
+
+      return query({ query: GET_LOAN_BY_ID, variables: { loanId: '123123124' }})
+        .then(({ data: { getLoanById: { description, reference, status }}}) =>
+          expect(
+            (commit === 1) && (errors === 1) &&
+            (description === 'test-description-v79') &&
+            (status === 0) &&
+            (reference === 'MYTRADE0002')
+          ).toBeTruthy());
+    });
+  });
 });
 
 describe('LoanDetails: Unit Test', () => {
-  it('mutation: createLoanDetails', async () =>
+  it('create loan details', async () =>
     createTestClient(server)
       .mutate({
         mutation: CREATE_LOAN_DETAILS,
@@ -355,13 +504,92 @@ describe('LoanDetails: Unit Test', () => {
       // })
       .then(({ data: { createLoanDetails: { id } } }) =>
         expect(id).toEqual('321321321')
-      ));
+  ));
 
-  it('federated query: getLoanDetailsById', async () =>
+  it('create loan details without currency', async () =>
+    createTestClient(server)
+      .mutate({
+        mutation: CREATE_LOAN_DETAILS,
+        variables: {
+          loanId: '321321329',
+          userId: 'example@gmail.com',
+          registration: 'BR0000001',
+          companyName: 'Pete N Co. Ltd',
+          requesterType: 'Money Launderer',
+          salutation: 'Mr.',
+          contactName: 'Pete',
+          contactTitle: 'Owner',
+          contactPhone: '555-12345',
+          contactEmail: 'pete@fake.it',
+          loanType: 'Post-shipment',
+          startDate: '2019-10-11',
+          tenor: 60,
+          requestedAmt: 50000.0
+        }
+      }).catch(({ message }) =>
+        expect(message).toEqual('REQUIRED_DATA_MISSING')
+  ));
+
+  it('update loan details', async () => {
+    const { query, mutate } = createTestClient(server);
+    await mutate({
+        mutation: UPDATE_LOAN_DETAILS,
+        variables: {
+          loanId: '980000007',
+          userId: 'josh@fake.it',
+          companyName: 'Pete and Co. Ltd',
+          contactName: 'John',
+          tenor: 30,
+          approvedAmt: 40000.0,
+          comment: 'Approved'
+        }
+      }).then(({ data: { updateLoanDetails }}) => {
+        const { commit, errors } = {
+          commit: updateLoanDetails.filter(r => r.commitId).length,
+          errors: updateLoanDetails.filter(r => r.message).length
+        };
+
+        return query({query: GET_DETAILS_BY_ID, variables: { loanId: '980000007' }})
+          .then(({ data: { getLoanDetailsById: { requester, contact, tenor, requestedAmt, approvedAmt, comment } }}) => {
+            expect(
+              (commit === 4) && (errors === 1) &&
+              (requester.name === 'Pete N Co. Ltd') &&
+              (contact.name === 'John') &&
+              (contact.email === 'pete@fake.it') &&
+              (tenor === 30) &&
+              (requestedAmt === 50000.0) &&
+              (approvedAmt === 40000.0) &&
+              (comment === 'Approved')
+            ).toBeTruthy();
+          });
+      });
+  });
+
+  it('update non-existing loan details', async () =>
+    createTestClient(server)
+      .mutate({
+        mutation: UPDATE_LOAN_DETAILS,
+        variables: {
+          loanId: '980006719',
+          userId: 'josh@fake.it',
+          contactName: 'John',
+          tenor: 30,
+          approvedAmt: 40000.0,
+          comment: 'Approved'
+        }
+      }).catch(({ message }) => expect(message).toEqual('LOAN_DETAILS_NOT_FOUND: id: 980006718'))
+      // .catch(error => {
+      //   console.log('X', error.message);
+      //   expect(error.message).toEqual('LOAN_DETAILS_NOT_FOUND: id: 980006718');
+      // })
+  );
+
+  it('federated query loan details by ID', async () =>
     createTestClient(server)
       .query({
         query: GET_DETAILS_BY_ID,
         variables: { loanId: '123456' }
       })
-      .then(({ data }) => expect(data).toMatchSnapshot()));
+      .then(({ data }) => expect(data).toMatchSnapshot()
+  ));
 });

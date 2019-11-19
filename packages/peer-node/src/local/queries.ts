@@ -43,27 +43,18 @@ mutation CreateLoanDetails(
     approvedAmt: $approvedAmt,
     comment: $comment
   ) {
-    id
-    entityName
-    version
-    commitId
-    committedAt
+    ... on LocalCommit {
+      id
+      entityName
+      version
+      commitId
+      committedAt
+    }
+    ... on LocalError {
+      message
+    }
   }
 }`;
-
-// export const GET_COMMITS_BY_DETAILS = gql`
-// query GetCommitsByLoanDetails($loanId: String!) {
-//   getCommitsByLoanDetails(loanId: $loanId) {
-//     id
-//     entityName
-//     version
-//     commitId
-//     committedAt
-//     events {
-//       type
-//     }
-//   }
-// }`;
 
 export const GET_DETAILS_BY_ID = gql`
 query GetLoanDetailsById($loanId: String!) {
@@ -96,5 +87,61 @@ query GetLoanDetailsById($loanId: String!) {
     approvedAmt
     comment
     timestamp
+  }
+}`;
+
+export const UPDATE_LOAN_DETAILS = gql`
+mutation UpdateLoanDetails(
+  $userId: String!,
+  $loanId: String!,
+  $registration: String,
+  $companyName: String,
+  $requesterType: String,
+  $salutation: String,
+  $contactName: String,
+  $contactTitle: String,
+  $contactPhone: String,
+  $contactEmail: String,
+  $loanType: String,
+  $startDate: String,
+  $tenor: Int,
+  $currency: String,
+  $requestedAmt: Float,
+  $approvedAmt: Float,
+  $comment: String
+) {
+  updateLoanDetails(
+    userId: $userId,
+    loanId: $loanId,
+    requester: {
+      registration: $registration,
+      name: $companyName,
+      type: $requesterType
+    },
+    contact: {
+      salutation: $salutation,
+      name: $contactName,
+      title: $contactTitle,
+      phone: $contactPhone,
+      email: $contactEmail
+    },
+    loanType: $loanType,
+    startDate: $startDate,
+    tenor: $tenor,
+    currency: $currency,
+    requestedAmt: $requestedAmt,
+    approvedAmt: $approvedAmt,
+    comment: $comment
+  ) {
+    ... on LocalCommit {
+      id
+      entityName
+      version
+      commitId
+      committedAt
+    }
+    ... on LocalError {
+      message
+    }
   }
 }`;
