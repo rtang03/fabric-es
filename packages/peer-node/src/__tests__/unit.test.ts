@@ -152,7 +152,7 @@ afterAll(async () => {
 });
 
 describe('User Entity: Unit Test', () => {
-  it('query: getUserById', async () =>
+  it('query user by ID', async () =>
     createTestClient(server)
       .query({
         query: GET_USER_BY_ID,
