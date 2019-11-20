@@ -18,7 +18,20 @@ export const typeDefs = gql`
       requestedAmt: Float!,
       approvedAmt: Float,
       comment: String
-    ): LocalCommit
+    ): LocalResponse
+    updateLoanDetails(
+      userId: String!,
+      loanId: String!,
+      requester: LoanRequesterInput,
+      contact: ContactInfoInput,
+      loanType: String,
+      startDate: String,
+      tenor: Int,
+      currency: String,
+      requestedAmt: Float,
+      approvedAmt: Float,
+      comment: String
+    ): [LocalResponse]!
   }
 
   type LoanDetails @key(fields: "loanId") {
@@ -37,8 +50,8 @@ export const typeDefs = gql`
   }
 
   input LoanRequesterInput {
-    registration: String!
-    name: String!
+    registration: String
+    name: String
     type: String
   }
   type LoanRequester {
@@ -49,10 +62,10 @@ export const typeDefs = gql`
 
   input ContactInfoInput {
     salutation: String
-    name: String!
+    name: String
     title: String
-    phone: String!
-    email: String!
+    phone: String
+    email: String
   }
   type ContactInfo {
     salutation: String
@@ -62,6 +75,8 @@ export const typeDefs = gql`
     email: String!
   }
 
+  union LocalResponse = LocalCommit | LocalError
+
   type LocalCommit {
     id: String
     entityName: String
@@ -69,6 +84,11 @@ export const typeDefs = gql`
     commitId: String
     committedAt: String
     entityId: String
+  }
+
+  type LocalError {
+    message: String!
+    stack: String
   }
 
   extend type Loan @key(fields: "loanId") {

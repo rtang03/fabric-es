@@ -44,5 +44,16 @@ export const resolvers = {
         userId,
         payload: { name, timestamp: Date.now() }
       }),
+  },
+  UserResponse: {
+    __resolveType(obj, _, __) {
+      if (obj.commitId) {
+        return 'UserCommit';
+      }
+      if (obj.message) {
+        return 'UserError';
+      }
+      return {};
+    }
   }
 };
