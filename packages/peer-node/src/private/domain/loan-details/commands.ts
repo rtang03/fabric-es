@@ -1,4 +1,4 @@
-import { ContactInfo, LoanRequester } from '.';
+import { ContactInfo, LoanRequester } from '../loan-details';
 
 export interface LoanDetailsCommands {
   CreateLoanDetails: {

@@ -37,7 +37,7 @@ import {
   resolvers as localResolvers,
   typeDefs as localTypeDefs,
   UPDATE_LOAN_DETAILS
-} from '../local';
+} from '../private';
 import {
   constructTestServer,
   documentRepo,
@@ -253,7 +253,8 @@ describe('Document Entity: Unit Test', () => {
           title: 'test-title',
           reference: 'DOC0009'
         }
-      }).catch(({ message }) => expect(message).toEqual('REQUIRED_DATA_MISSINGX'))
+      }).then(({ errors }) =>
+        expect(errors && (errors.length > 0) && (errors[0].message === 'Variable "$link" of required type "String!" was not provided.')).toBeTruthy())
   );
 
   it('delete document', async () => {
@@ -267,8 +268,9 @@ describe('Document Entity: Unit Test', () => {
   it('delete non-existing document', async () =>
     createTestClient(server)
       .mutate({ mutation: DELETE_DOCUMENT, variables: { userId: 'josh@fake.it', documentId: '990000109' }})
-        .catch(({ message }) => expect(message).toEqual('DOCUMENT_NOT_FOUND: id: 99000X109')
-  ));
+        .then(({ errors }) =>
+          expect(errors && (errors.length > 0) && (errors[0].message === 'DOCUMENT_NOT_FOUND: id: 990000109')).toBeTruthy())
+  );
 
   it('restrict document access', async () => {
     const { query, mutate } = createTestClient(server);
@@ -373,8 +375,9 @@ describe('Loan Entity: Unit Test', () => {
           userId: 'josh@fake.it',
           description: 'test-description'
         }
-      }).catch(({ message }) => expect(message).toEqual('REQUIRED_DATA_MISSING')
-  ));
+      }).then(({ errors }) =>
+        expect(errors && (errors.length > 0) && (errors[0].message === 'Variable "$reference" of required type "String!" was not provided.')).toBeTruthy())
+  );
 
   it('cancel loan', async () => {
     const { query, mutate } = createTestClient(server);
@@ -403,8 +406,9 @@ describe('Loan Entity: Unit Test', () => {
   it('return non-existing loan', async () =>
     createTestClient(server)
       .mutate({ mutation: RETURN_LOAN, variables: { loanId: '123123125', userId: 'josh@fake.it' }})
-        .catch(({ message }) => expect(message).toEqual('LOAN_NOT_FOUND: id: 123123126')
-  ));
+        .then(({ errors }) =>
+          expect(errors && (errors.length > 0) && (errors[0].message === 'LOAN_NOT_FOUND: id: 123123125')).toBeTruthy())
+  );
 
   it('reject loan', async () => {
     const { query, mutate } = createTestClient(server);
@@ -526,9 +530,9 @@ describe('LoanDetails: Unit Test', () => {
           tenor: 60,
           requestedAmt: 50000.0
         }
-      }).catch(({ message }) =>
-        expect(message).toEqual('REQUIRED_DATA_MISSING')
-  ));
+      }).then(({ errors }) =>
+        expect(errors && (errors.length > 0) && (errors[0].message === 'Variable "$currency" of required type "String!" was not provided.')).toBeTruthy())
+  );
 
   it('update loan details', async () => {
     const { query, mutate } = createTestClient(server);
@@ -577,11 +581,12 @@ describe('LoanDetails: Unit Test', () => {
           approvedAmt: 40000.0,
           comment: 'Approved'
         }
-      }).catch(({ message }) => expect(message).toEqual('LOAN_DETAILS_NOT_FOUND: id: 980006718'))
-      // .catch(error => {
-      //   console.log('X', error.message);
-      //   expect(error.message).toEqual('LOAN_DETAILS_NOT_FOUND: id: 980006718');
-      // })
+      })
+      .then(({ data: { updateLoanDetails } }) =>
+        expect(
+          updateLoanDetails && (updateLoanDetails.length > 0) &&
+          (updateLoanDetails[0].message === 'LOAN_DETAILS_NOT_FOUND: id: 980006719')
+        ).toBeTruthy())
   );
 
   it('federated query loan details by ID', async () =>

@@ -7,7 +7,7 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import './env';
-import { LoanDetails, LoanDetailsEvents, loanDetailsReducer, resolvers, typeDefs } from './local';
+import { LoanDetails, LoanDetailsEvents, loanDetailsReducer, resolvers, typeDefs } from './private';
 import { FabricData } from './types';
 
 let networkConfig;

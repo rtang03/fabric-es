@@ -3,7 +3,7 @@ import {
   getPrivatedataMockRepository,
   PrivatedataRepository
 } from '@espresso/fabric-cqrs';
-import { LoanDetails, LoanDetailsEvents, loanDetailsReducer } from '../../local';
+import { LoanDetails, LoanDetailsEvents, loanDetailsReducer } from '../../private';
 
 const db: Record<string, Commit> = {
   '20181114163145794:123456': {
