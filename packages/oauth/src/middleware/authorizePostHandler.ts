@@ -36,7 +36,7 @@ export const authorizePostHandler = (
     .then((code: AuthorizationCode) => {
       res.locals.oauth = { code };
       res.redirect(
-        `${code.redirectUri}?code=${code.authorizationCode}?state=${state}`
+        `${code.redirectUri}?code=${code.authorizationCode}&state=${state}`
       );
     })
     .catch(error => {
