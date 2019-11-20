@@ -1,36 +1,9 @@
 import { Errors } from '@espresso/common';
-import { LoanDetailsCommandHandler, LoanDetailsRepo } from '.';
-import { ContactInfo, LoanRequester } from './model';
+import { LoanDetailsCommandHandler, LoanDetailsRepo } from '../loan-details';
 
 const LoanDetailsErrors = {
   loanDetailsNotFound: (loanId) => new Error(`LOAN_DETAILS_NOT_FOUND: id: ${loanId}`)
 };
-
-// const buildReqPayload: any = (loanId: string, userId: string, requester: LoanRequester, timestamp: number) => {
-//   const payload: any = {
-//     loanId,
-//     userId,
-//     registration: requester.registration,
-//     name: requester.name,
-//     timestamp
-//   };
-//   if (requester.type) payload.type = requester.type;
-//   return payload;
-// };
-
-// const buildCntPayload: any = (original: any, loanId: string, userId: string, contact: ContactInfo, timestamp: number) => {
-//   const payload: any = {
-//     loanId,
-//     userId,
-//     name: contact.name,
-//     phone: contact.phone,
-//     email: contact.email,
-//     timestamp
-//   };
-//   if (contact.salutation) payload.salutation = contact.salutation;
-//   if (contact.title) payload.title = contact.title;
-//   return payload;
-// };
 
 export const loanDetailsCommandHandler: (
   option: {
