@@ -175,7 +175,7 @@ Object {
 }
 `;
 
-exports[`User Entity: Unit Test query: getUserById 1`] = `
+exports[`User Entity: Unit Test query user by ID 1`] = `
 Object {
   "getUserById": Object {
     "mergedUserIds": Array [

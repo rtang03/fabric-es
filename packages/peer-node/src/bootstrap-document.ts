@@ -34,7 +34,7 @@ const bootstrap = async () => {
     collection
   });
   const loanRepo = getRepository<Loan, LoanEvents>({
-    entityName: 'trade',
+    entityName: 'loan',
     reducer: loanReducer
   });
   const userRepo = getRepository<User, UserEvents>({
