@@ -1,35 +1,8 @@
 import { Errors } from '@espresso/common';
-import { LoanDetailsCommandHandler, LoanDetailsRepo } from '.';
-import { ContactInfo, LoanRequester } from './model';
+import { LoanDetailsCommandHandler, LoanDetailsRepo } from '../loan-details';
 
 const LoanDetailsErrors = {
   loanDetailsNotFound: (loanId) => new Error(`LOAN_DETAILS_NOT_FOUND: id: ${loanId}`)
-};
-
-const buildReqPayload: any = (loanId: string, userId: string, requester: LoanRequester, timestamp: number) => {
-  const payload: any = {
-    loanId,
-    userId,
-    registration: requester.registration,
-    name: requester.name,
-    timestamp
-  };
-  if (requester.type) payload.type = requester.type;
-  return payload;
-};
-
-const buildCntPayload: any = (loanId: string, userId: string, contact: ContactInfo, timestamp: number) => {
-  const payload: any = {
-    loanId,
-    userId,
-    name: contact.name,
-    phone: contact.phone,
-    email: contact.email,
-    timestamp
-  };
-  if (contact.salutation) payload.salutation = contact.salutation;
-  if (contact.title) payload.title = contact.title;
-  return payload;
 };
 
 export const loanDetailsCommandHandler: (
@@ -44,16 +17,16 @@ export const loanDetailsCommandHandler: (
     userId,
     payload: { loanId, requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment, timestamp }
   }) => {
-    if (!requester) throw Errors.requiredDataMissing;
-    if (!contact) throw Errors.requiredDataMissing;
-    if (!startDate) throw Errors.requiredDataMissing;
-    if (!tenor) throw Errors.requiredDataMissing;
-    if (!currency) throw Errors.requiredDataMissing;
-    if (!requestedAmt) throw Errors.requiredDataMissing;
+    if (!requester || !requester.registration || !requester.name) throw Errors.requiredDataMissing();
+    if (!contact || !contact.name || !contact.phone || !contact.email) throw Errors.requiredDataMissing();
+    if (!startDate) throw Errors.requiredDataMissing();
+    if (!tenor) throw Errors.requiredDataMissing();
+    if (!currency) throw Errors.requiredDataMissing();
+    if (!requestedAmt) throw Errors.requiredDataMissing();
     const events: any = [
       { type: 'LoanDetailsCreated', payload: { loanId, userId, timestamp }},
-      { type: 'LoanRequesterDefined', payload: buildReqPayload(loanId, userId, requester, timestamp) },
-      { type: 'LoanContactDefined', payload: buildCntPayload(loanId, userId, contact, timestamp) },
+      { type: 'LoanRequesterDefined', payload: { loanId, userId, timestamp, ...requester }},
+      { type: 'LoanContactDefined', payload: { loanId, userId, timestamp, ...contact }},
       { type: 'LoanStartDateDefined', payload: { loanId, userId, startDate, timestamp }},
       { type: 'LoanTenorDefined', payload: { loanId, userId, tenor, timestamp }},
       { type: 'LoanCurrencyDefined', payload: { loanId, userId, currency, timestamp }},
@@ -66,32 +39,23 @@ export const loanDetailsCommandHandler: (
       .create({ enrollmentId, id: loanId })
       .save(events);
   },
-  DefineLoanRequester: async ({
-    userId,
-    payload: { loanId, requester, timestamp }
-  }) => {
-    return loanDetailsRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
-        if (currentState.requester) throw Errors.invalidOperation; // Readonly field
-        return save([{
-          type: 'LoanRequesterDefined',
-          payload: buildReqPayload(loanId, userId, requester, timestamp)
-        }]);
-      });
+  DefineLoanRequester: async (_) => {
+    throw Errors.invalidOperation(); // Readonly field
   },
   DefineLoanContact: async ({
     userId,
     payload: { loanId, contact, timestamp }
   }) => {
     return loanDetailsRepo
-      .getById({ enrollmentId, id: userId })
+      .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {
         if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
+        const payload = {
+          loanId, userId, timestamp, ...currentState.contact
+        };
         return save([{
           type: 'LoanContactDefined',
-          payload: buildCntPayload(loanId, userId, contact, timestamp)
+          payload: Object.assign(payload, contact)
         }]);
       });
   },

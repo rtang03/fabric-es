@@ -9,7 +9,7 @@ extend type Query {
 }
 
 type Mutation {
-  createUser(name: String!, userId: String!): UserCommit
+  createUser(name: String!, userId: String!): UserResponse
 }
 
 type User @key(fields: "userId") {
@@ -25,6 +25,8 @@ type PaginatedUsers {
   otherInfo: [String!]!
 }
 
+union UserResponse = UserCommit | UserError
+
 type UserEvent {
   type: String
 }
@@ -37,5 +39,10 @@ type UserCommit {
   committedAt: String
   entityId: String
   events: [UserEvent!]
+}
+
+type UserError {
+  message: String!
+  stack: String
 }
 `;

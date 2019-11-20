@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Document Entity: Unit Test query: getCommitByDocumentId 1`] = `
+exports[`Document Entity: Unit Test query commit by documentId 1`] = `
 Object {
   "getCommitsByDocumentId": Array [
     Object {
@@ -31,7 +31,7 @@ Object {
 }
 `;
 
-exports[`Document Entity: Unit Test query: getDocumentById 1`] = `
+exports[`Document Entity: Unit Test query document by ID 1`] = `
 Object {
   "getDocumentById": Object {
     "documentId": "1542385173331",
@@ -46,7 +46,7 @@ Object {
 }
 `;
 
-exports[`Loan Entity: Unit Test federated query: getLoanById 1`] = `
+exports[`Loan Entity: Unit Test federated query loan by ID 1`] = `
 Object {
   "getLoanById": Object {
     "description": "Loan requested by an undisclosed party to an unknown bank",
@@ -77,7 +77,7 @@ Object {
 }
 `;
 
-exports[`Loan Entity: Unit Test query: getCommitsByLoanId 1`] = `
+exports[`Loan Entity: Unit Test query commits by loanId 1`] = `
 Object {
   "getCommitsByLoanId": Array [
     Object {
@@ -102,7 +102,7 @@ Object {
 }
 `;
 
-exports[`LoanDetails: Unit Test federated query: getLoanDetailsById 1`] = `
+exports[`LoanDetails: Unit Test federated query loan details by ID 1`] = `
 Object {
   "getLoanDetailsById": Object {
     "approvedAmt": null,
@@ -137,7 +137,7 @@ Object {
 }
 `;
 
-exports[`User Entity: Unit Test query: getCommitsByUserId 1`] = `
+exports[`User Entity: Unit Test query commits by userId 1`] = `
 Object {
   "getCommitsByUserId": Array [
     Object {
@@ -156,7 +156,7 @@ Object {
 }
 `;
 
-exports[`User Entity: Unit Test query: getPaginatedUser 1`] = `
+exports[`User Entity: Unit Test query paginated user 1`] = `
 Object {
   "getPaginatedUser": Object {
     "entities": Array [
