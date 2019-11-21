@@ -18,7 +18,7 @@ export const Header: React.FC<any> = () => {
 
   if (loading) {
     body = null;
-  } else if (data && data.me) {
+  } else if (data?.me) {
     body = <div>you are logged in as: {data.me.email}</div>;
   } else {
     body = <div>not logged in</div>;
@@ -44,18 +44,10 @@ export const Header: React.FC<any> = () => {
             <a>Login</a>
           </Title>
         </Link>{' '}
-        |{' '}
-        {/*<Link href="/client">*/}
-        {/*  <Title>*/}
-        {/*    <a>Client</a>*/}
-        {/*  </Title>*/}
-        {/*</Link>{' '}*/}
-        |{' '}
         {!loading && data && data.me ? (
           <button
             onClick={async () => {
               await logout();
-              setAccessToken('');
               await client!.resetStore();
             }}>
             logout

@@ -53,7 +53,6 @@ app.prepare().then(() => {
   });
 
   server.get('*', (req, res) => handle(req, res));
-  // tslint:disable-next-line:no-console
 
   server.listen(port, err => {
     if (err) throw err;
