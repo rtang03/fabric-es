@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`User Entity: Integration Test query commits of user 1`] = `undefined`;
+
+exports[`User Entity: Integration Test query user by ID 1`] = `
+Object {
+  "getUserById": Object {
+    "mergedUserIds": Array [
+      "new@fake.it",
+    ],
+    "name": "New User",
+    "userId": "new@fake.it",
+  },
+}
+`;
