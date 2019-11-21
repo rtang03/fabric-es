@@ -58,18 +58,19 @@ export function withApollo(PageComponent: any, { ssr = true } = {}) {
       if (isServer()) {
         const cookies = cookie.parse(req.headers.cookie || '');
         if (cookies.jid) {
-          const response = await fetch(
-            'http://localhost:4000/oauth/refresh_token',
-            {
-              method: 'POST',
-              credentials: 'include',
-              headers: {
-                cookie: 'jid=' + cookies.jid
-              }
-            }
-          );
-          const data = await response.json();
-          serverAccessToken = data.accessToken;
+        //   const response = await fetch(
+        //     'http://localhost:4000/oauth/refresh_token',
+        //     {
+        //       method: 'POST',
+        //       credentials: 'include',
+        //       headers: {
+        //         cookie: 'jid=' + cookies.jid
+        //       }
+        //     }
+        //   );
+        //   const data = await response.json();
+        //   serverAccessToken = data.accessToken;
+        serverAccessToken = cookies.jid;
         }
       }
 
@@ -196,7 +197,7 @@ function createApolloClient(initialState = {}, serverAccessToken?: string) {
 
   return new ApolloClient({
     ssrMode: typeof window === 'undefined', // Disables forceFetch on the server (so queries are only run once)
-    link: ApolloLink.from([refreshLink, authLink, errorLink, httpLink]),
+    link: ApolloLink.from([authLink, errorLink, httpLink]),
     cache: new InMemoryCache().restore(initialState),
     connectToDevTools: true
   });
