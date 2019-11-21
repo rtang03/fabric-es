@@ -43,7 +43,7 @@ export const queryDatabase: QueryDatabase = {
   queryByEntityId: ({ entityName, id }) =>
     new Promise(resolve => {
       const data: Record<string, Commit> = {};
-      console.log('logging "db"... ', db);
+      // console.log('logging "db"... ', db);
       // filter(db, obj => obj.id === id && obj.entityName === entityName).forEach(
       filter(db, { id, entityName }).forEach(obj => (data[obj.commitId] = obj));
       resolve({ data });
@@ -57,6 +57,7 @@ export const queryDatabase: QueryDatabase = {
   merge: ({ commit }) =>
     new Promise(resolve => {
       db[commit.commitId] = commit;
+      // console.log('after merge:', db);
       const data = {};
       data[commit.commitId] = commit;
       resolve({ data });

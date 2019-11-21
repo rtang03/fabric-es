@@ -19,6 +19,9 @@ app.prepare().then(() => {
     csrf({ cookie: true })
   ]);
 
+  server.get('/auth_uri', (_, res) =>
+    res.status(200).send( process.env.AUTHORIZATION_URI || '' )
+  );
   server.get('/callback', async (req, res) => {
     const grant_type = 'authorization_code';
     const client_id = process.env.CLIENT_ID;
@@ -38,16 +41,11 @@ app.prepare().then(() => {
             maxAge: 900000,
             httpOnly: true
           });
-          res.cookie('rid', data.token.refreshToken, {
-            maxAge: 13600000,
-            httpOnly: true
-          });
         }
         return res.redirect('/');
       })
       .catch(error => {
         res.clearCookie('jid');
-        res.clearCookie('rid');
         console.log(error);
       });
   });
