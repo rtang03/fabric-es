@@ -51,7 +51,7 @@ let server;
 let documentService: ApolloServer;
 let loanService: ApolloServer;
 let userService: ApolloServer;
-let localService: ApolloServer;
+let privateService: ApolloServer;
 
 beforeAll(async () => {
   documentService = getApolloServer({
@@ -83,14 +83,14 @@ beforeAll(async () => {
   });
   await userService.listen({ port: 14004 });
 
-  localService = getApolloServer({
+  privateService = getApolloServer({
     typeDefs: localTypeDefs,
     resolvers: localResolvers,
     dataSources: () => ({
       loanDetailsDataSource: { repo: loanDetailsRepo }
     })
   });
-  await localService.listen({ port: 14003 });
+  await privateService.listen({ port: 14003 });
   server = await constructTestServer();
 
   await createTestClient(server).mutate({ mutation: APPLY_LOAN, variables: {
@@ -148,7 +148,7 @@ afterAll(async () => {
   await documentService.stop();
   await loanService.stop();
   await userService.stop();
-  await localService.stop();
+  await privateService.stop();
 });
 
 describe('User Entity: Unit Test', () => {

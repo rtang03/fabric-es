@@ -123,7 +123,7 @@ Object {
       "timestamp": "1542336654365",
     },
     "loanId": "123456",
-    "lonaType": null,
+    "loanType": "Post-shipment",
     "requestedAmt": 900000,
     "requester": Object {
       "name": "Josh's Tailor",
