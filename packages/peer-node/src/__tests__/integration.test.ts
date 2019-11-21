@@ -1,11 +1,11 @@
 require('dotenv').config();
 import {
-  Document,
-  DocumentEvents,
-  documentReducer,
-  Loan,
-  LoanEvents,
-  loanReducer,
+  // Document,
+  // DocumentEvents,
+  // documentReducer,
+  // Loan,
+  // LoanEvents,
+  // loanReducer,
   User,
   UserEvents,
   userReducer
@@ -14,43 +14,43 @@ import { createPeer, getNetwork, Peer } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 // import { omit, pick } from 'lodash';
-import {
-  CREATE_DOCUMENT,
-  GET_DOCUMENT_BY_ID,
-  resolvers as docResolvers,
-  typeDefs as docTypeDefs
-} from '../common/document';
-import {
-  APPLY_LOAN,
-  APPROVE_LOAN,
-  CANCEL_LOAN,
-  EXPIRE_LOAN,
-  GET_COMMITS_BY_LOAN,
-  GET_LOAN_BY_ID,
-  REJECT_LOAN,
-  resolvers as loanResolvers,
-  RETURN_LOAN,
-  typeDefs as loanTypeDefs,
-  UPDATE_LOAN
-} from '../common/loan';
+// import {
+//   CREATE_DOCUMENT,
+//   GET_DOCUMENT_BY_ID,
+//   resolvers as docResolvers,
+//   typeDefs as docTypeDefs
+// } from '../common/document';
+// import {
+//   APPLY_LOAN,
+//   APPROVE_LOAN,
+//   CANCEL_LOAN,
+//   EXPIRE_LOAN,
+//   GET_COMMITS_BY_LOAN,
+//   GET_LOAN_BY_ID,
+//   REJECT_LOAN,
+//   resolvers as loanResolvers,
+//   RETURN_LOAN,
+//   typeDefs as loanTypeDefs,
+//   UPDATE_LOAN
+// } from '../common/loan';
 import {
   CREATE_USER,
   GET_COMMITS_BY_USER,
-  GET_USER_BY_ID,
-  GET_USERS_BY_PAGE,
+  // GET_USER_BY_ID,
+  // GET_USERS_BY_PAGE,
   resolvers as userResolvers,
   typeDefs as userTypeDefs
 } from '../common/user';
-import {
-  CREATE_LOAN_DETAILS,
-  GET_DETAILS_BY_ID,
-  LoanDetails,
-  LoanDetailsEvents,
-  loanDetailsReducer,
-  resolvers as privateResolvers,
-  typeDefs as privateTypeDefs,
-  UPDATE_LOAN_DETAILS
-} from '../private';
+// import {
+//   CREATE_LOAN_DETAILS,
+//   GET_DETAILS_BY_ID,
+//   LoanDetails,
+//   LoanDetailsEvents,
+//   loanDetailsReducer,
+//   resolvers as privateResolvers,
+//   typeDefs as privateTypeDefs,
+//   UPDATE_LOAN_DETAILS
+// } from '../private';
 import { constructTestServer, getApolloServer } from './__utils__';
 
 let server;
@@ -217,31 +217,31 @@ describe('User Entity: Integration Test', () => {
         query: CREATE_USER,
         variables: {
           name: 'New User',
-          userId: 'new@fake.it'
+          userId: 'user3@fake.it'
         }
       })
-      .then(data => {
-        console.log('create user', data);
-        return data;
-      })
-      .then(({ data: { createUser } }) => expect(createUser.id).toEqual('new@fake.it'))
+      // .then(data => {
+      //   console.log('create user', data);
+      //   return data;
+      // })
+      .then(({ data: { createUser } }) => expect(createUser.id).toEqual('user3@fake.it'))
       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
   );
 
-  it('query user by ID', async () =>
-    createTestClient(server).query({ query: GET_USER_BY_ID, variables: { userId: 'new@fake.it' }})
-      .then(data => {
-        console.log('user by ID', data);
-        return data;
-      })
-      .then(({ data }) => expect(data).toMatchSnapshot())
-      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-  );
+  // it('query user by ID', async () =>
+  //   createTestClient(server).query({ query: GET_USER_BY_ID, variables: { userId: 'new@fake.it' }})
+  //     .then(data => {
+  //       console.log('user by ID', data);
+  //       return data;
+  //     })
+  //     .then(({ data }) => expect(data).toMatchSnapshot())
+  //     .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  // );
 
   it('query commits of user', async () =>
-    createTestClient(server).query({ query: GET_COMMITS_BY_USER, variables: { userId: 'new@fake.it' }})
+    createTestClient(server).query({ query: GET_COMMITS_BY_USER, variables: { userId: 'user1@fake.it' }})
       .then(({ data }) => {
-        console.log('commits of user', data.getCommitsByUserId);
+        console.log('query commits of user... ', data.getCommitsByUserId);
         return data;
       })
       .then(({ data }) => expect(data).toMatchSnapshot())
