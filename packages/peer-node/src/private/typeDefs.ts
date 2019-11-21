@@ -38,7 +38,7 @@ export const typeDefs = gql`
     loanId: String!
     requester: LoanRequester!
     contact: ContactInfo!
-    lonaType: String
+    loanType: String
     startDate: String!
     tenor: Int!
     currency: String!

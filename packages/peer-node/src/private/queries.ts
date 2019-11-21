@@ -79,7 +79,7 @@ query GetLoanDetailsById($loanId: String!) {
       phone
       email
     }
-    lonaType
+    loanType
     startDate
     tenor
     currency
