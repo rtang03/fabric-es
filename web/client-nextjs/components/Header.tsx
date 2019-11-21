@@ -2,10 +2,10 @@ import Link from 'next/link';
 import React from 'react';
 import styled from 'styled-components';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
-import { setAccessToken } from '../utils/accessToken';
 
 const Title = styled.span`
   font-size: 24px;
+  font-family: sans-serif;
   cursor: pointer;
   color: ${({ theme }) => theme.colors.primary};
 `;
@@ -19,9 +19,9 @@ export const Header: React.FC<any> = () => {
   if (loading) {
     body = null;
   } else if (data?.me) {
-    body = <div>you are logged in as: {data.me.email}</div>;
+    body = <div><p>you are logged in as: {data.me.email}</p></div>;
   } else {
-    body = <div>not logged in</div>;
+    body = <div><p>not logged in</p></div>;
   }
 
   return (
@@ -44,7 +44,7 @@ export const Header: React.FC<any> = () => {
             <a>Login</a>
           </Title>
         </Link>{' '}
-        {!loading && data && data.me ? (
+        {!loading && data?.me ? (
           <button
             onClick={async () => {
               await logout();
@@ -55,6 +55,7 @@ export const Header: React.FC<any> = () => {
         ) : null}
       </nav>
       {body}
+      <hr/>
     </header>
   );
 };

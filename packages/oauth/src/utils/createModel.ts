@@ -22,7 +22,7 @@ export const createModel: (option?: {
     accessTokenSecret: process.env.ACCESS_TOKEN_SECRET!,
     accessTokenOptions: { expiresIn: '15m' },
     refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET!,
-    refreshTokenOptions: { expiresIn: '7d' },
+    refreshTokenOptions: { expiresIn: '7d' }
   }
 ) => ({
   request: undefined,
@@ -30,12 +30,14 @@ export const createModel: (option?: {
     const payload: any = {};
     if (user?.id) payload.userId = user.id;
     if (client?.id) payload.client_id = client.id;
+    option.accessTokenOptions.subject = client.id;
     return sign(payload, option.accessTokenSecret, option.accessTokenOptions);
   },
   generateRefreshToken: async (client: IClient, user: OUser, scope) => {
     const payload: any = {};
     if (user?.id) payload.userId = user.id;
     if (client?.id) payload.client_id = client.id;
+    option.refreshTokenOptions.subject = client.id;
     return sign(payload, option.refreshTokenSecret, option.refreshTokenOptions);
   },
   getAccessToken: async (access_token: string) => {
