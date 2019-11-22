@@ -36,6 +36,14 @@ Object {
   "getDocumentById": Object {
     "documentId": "1542385173331",
     "link": "localhost/doc/1542385173331",
+    "loan": Object {
+      "description": "Loan requested by an undisclosed party to an unknown bank",
+      "loanId": "123456",
+      "ownerId": "josh@fake.it",
+      "reference": "REF123456",
+      "status": 0,
+      "timestamp": "1542336654365",
+    },
     "loanId": "123456",
     "ownerId": "josh@fake.it",
     "reference": "REF1542385173331",

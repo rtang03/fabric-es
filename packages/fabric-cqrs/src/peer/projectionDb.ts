@@ -15,6 +15,7 @@ export const projectionDb: ProjectionDb = {
       if (all) {
         resolve({ data: values(db) });
       } else if (where) {
+        console.log('fabric-cqrs/projectionDb.ts', where, values(db));
         resolve({ data: filter(values(db), where) });
       } else if (contain) {
         resolve({

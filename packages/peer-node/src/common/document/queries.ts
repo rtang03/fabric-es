@@ -117,5 +117,13 @@ query GetDocumentById($documentId: String!) {
     link
     status
     timestamp
+    loan {
+      loanId
+      ownerId
+      description
+      reference
+      status
+      timestamp
+    }
   }
 }`;
