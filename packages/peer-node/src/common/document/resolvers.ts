@@ -64,12 +64,19 @@ export const resolvers = {
     }
   },
   Loan: {
-    documents: ({ loanId }, _, { dataSources: { docDataSource }}) =>
-      docDataSource.repo.getProjection({ where: { loanId }})
-        .then(({ projections }) => projections)
+    documents: ({ loanId }, _, { dataSources: { docDataSource }}) => {
+      // console.log('001 resolvers (document) - Loan: documents:', `loanId: ${loanId}`);
+      return docDataSource.repo.getProjection({ where: { loanId }})
+        .then(data => {
+          console.log('peer-node/document/resolvers.ts - Loan: documents:', `loanId: ${loanId}`, data.projections);
+          return data;
+        })
+        .then(({ projections }) => projections);
+    }
   },
   Document: {
     loan(documents) {
+      console.log('peer-node/document/resolvers.ts - Document: loan(documents):', documents);
       return { __typename: 'Loan', loanId: documents.loanId };
     }
   },
