@@ -195,7 +195,12 @@ describe('Document Entity: Unit Test', () => {
       .query({
         query: GET_DOCUMENT_BY_ID,
         variables: { documentId: '1542385173331' }
-      }).then(({ data }) => expect(data).toMatchSnapshot()
+      })
+      // .then(data => {
+      //   console.log('query document by ID', data.data.getDocumentById);
+      //   return data;
+      // })
+      .then(({ data }) => expect(data).toMatchSnapshot()
   ));
 
   it('query commit by documentId', async () =>
@@ -431,7 +436,12 @@ describe('Loan Entity: Unit Test', () => {
       .query({
         query: GET_LOAN_BY_ID,
         variables: { loanId: '123456' }
-      }).then(({ data }) => expect(data).toMatchSnapshot()
+      })
+      // .then(data => {
+      //   console.log('federated query loan by ID', data.data.getLoanById);
+      //   return data;
+      // })
+      .then(({ data }) => expect(data).toMatchSnapshot()
   ));
 
   it('update loan', async () =>
