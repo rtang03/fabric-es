@@ -9,6 +9,7 @@ import { ngacRepo, privateDataRepo, reconcile, repository } from './utils';
 export const createPeer: (option: Option) => Peer = option => {
   let registerId: any;
   const {
+    defaultEntityName,
     channelHub,
     gateway,
     projectionDb,
@@ -19,8 +20,8 @@ export const createPeer: (option: Option) => Peer = option => {
     console.error('null privatedata collection');
     throw new Error('Null privatedata collection');
   }
-  option.projectionDb = projectionDb || projDB;
-  option.queryDatabase = queryDatabase || queryDb;
+  option.projectionDb = projectionDb || projDB(defaultEntityName);
+  option.queryDatabase = queryDatabase || queryDb();
   const store = getStore(option);
   return {
     getNgacRepo: ngacRepo(option.network),
@@ -31,7 +32,7 @@ export const createPeer: (option: Option) => Peer = option => {
       registerId = await channelEventHub(channelHub).registerCCEvent({
         onChannelEventArrived: ({ commit }) => {
           const tid = generateToken();
-          console.log('subscribeHub running');
+          console.log('subscribed event arrives');
           store.dispatch(action.merge({ tx_id: tid, args: { commit } }));
         }
       });

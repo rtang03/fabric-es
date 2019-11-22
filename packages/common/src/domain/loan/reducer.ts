@@ -1,9 +1,6 @@
 import { Loan, LoanEvents, LoanStatus } from '.';
 
-export const loanReducer = (
-  history: LoanEvents[],
-  initialState?: Loan
-): Loan => {
+export function loanReducer(history: LoanEvents[], initialState?: Loan): Loan {
   const reducer = (loan: Loan, event: LoanEvents): Loan => {
     switch (event.type) {
       case 'LoanApplied':
@@ -37,4 +34,4 @@ export const loanReducer = (
   };
 
   return history.reduce(reducer, initialState);
-};
+}

@@ -10,40 +10,45 @@ import {
   UserEvents,
   userReducer
 } from '@espresso/common';
-import { createPeer, getNetwork, Peer, Repository } from '@espresso/fabric-cqrs';
+import {
+  createPeer,
+  getNetwork,
+  Peer,
+  Repository
+} from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import {
   CREATE_DOCUMENT,
-  GET_COMMITS_BY_DOCUMENT,
-  GET_DOCUMENT_BY_ID,
+  // GET_COMMITS_BY_DOCUMENT,
+  // GET_DOCUMENT_BY_ID,
   resolvers as docResolvers,
   typeDefs as docTypeDefs
 } from '../common/document';
 import {
   APPLY_LOAN,
-  APPROVE_LOAN,
-  CANCEL_LOAN,
-  EXPIRE_LOAN,
-  GET_COMMITS_BY_LOAN,
+  // APPROVE_LOAN,
+  // CANCEL_LOAN,
+  // EXPIRE_LOAN,
+  // GET_COMMITS_BY_LOAN,
   GET_LOAN_BY_ID,
-  REJECT_LOAN,
+  // REJECT_LOAN,
   resolvers as loanResolvers,
-  RETURN_LOAN,
-  typeDefs as loanTypeDefs,
-  UPDATE_LOAN
+  // RETURN_LOAN,
+  typeDefs as loanTypeDefs
+  // UPDATE_LOAN
 } from '../common/loan';
 import {
   CREATE_USER,
-  GET_COMMITS_BY_USER,
-  GET_USER_BY_ID,
+  // GET_COMMITS_BY_USER,
+  // GET_USER_BY_ID,
   // GET_USERS_BY_PAGE,
   resolvers as userResolvers,
   typeDefs as userTypeDefs
 } from '../common/user';
 import {
-  CREATE_LOAN_DETAILS,
-  GET_DETAILS_BY_ID,
+  // CREATE_LOAN_DETAILS,
+  // GET_DETAILS_BY_ID,
   LoanDetails,
   LoanDetailsEvents,
   loanDetailsReducer,
@@ -80,14 +85,30 @@ beforeAll(async () => {
   });
   docPeer = createPeer({
     ...docNetworkConfig,
+    defaultEntityName: prefix + 'document',
     collection,
     reducer: documentReducer
   });
   await docPeer.subscribeHub();
-  const docRepo: Repository = docPeer.getRepository<Document, DocumentEvents>({
-    entityName: prefix + 'document',
-    reducer: documentReducer
+  documentService = getApolloServer({
+    typeDefs: docTypeDefs,
+    resolvers: docResolvers,
+    dataSources: () => ({
+      docDataSource: {
+        repo: docPeer.getRepository<Document, DocumentEvents>({
+          entityName: prefix + 'document',
+          reducer: documentReducer
+        })
+      },
+      userDataSource: {
+        repo: docPeer.getRepository<User, UserEvents>({
+          entityName: prefix + 'user',
+          reducer: userReducer
+        })
+      }
+    })
   });
+  await documentService.listen({ port: 14001 });
 
   // Loan Service
   const loanNetworkConfig = await getNetwork({
@@ -96,14 +117,30 @@ beforeAll(async () => {
   });
   loanPeer = createPeer({
     ...loanNetworkConfig,
+    defaultEntityName: prefix + 'loan',
     collection,
     reducer: loanReducer
   });
   await loanPeer.subscribeHub();
-  const loanRepo: Repository = loanPeer.getRepository<Loan, LoanEvents>({
-    entityName: prefix + 'loan',
-    reducer: loanReducer
+  loanService = getApolloServer({
+    typeDefs: loanTypeDefs,
+    resolvers: loanResolvers,
+    dataSources: () => ({
+      userDataSource: {
+        repo: loanPeer.getRepository<User, UserEvents>({
+          entityName: prefix + 'user',
+          reducer: userReducer
+        })
+      },
+      loanDataSource: {
+        repo: loanPeer.getRepository<Loan, LoanEvents>({
+          entityName: prefix + 'loan',
+          reducer: loanReducer
+        })
+      }
+    })
   });
+  await loanService.listen({ port: 14002 });
 
   // User Service
   const userNetworkConfig = await getNetwork({
@@ -112,40 +149,21 @@ beforeAll(async () => {
   });
   userPeer = createPeer({
     ...userNetworkConfig,
+    defaultEntityName: prefix + 'user',
     collection,
     reducer: userReducer
   });
   await userPeer.subscribeHub();
-  const userRepo: Repository = userPeer.getRepository<User, UserEvents>({
-    entityName: prefix + 'user',
-    reducer: userReducer
-  });
-
-  documentService = getApolloServer({
-    typeDefs: docTypeDefs,
-    resolvers: docResolvers,
-    dataSources: () => ({
-      docDataSource: { repo: docRepo },
-      userDataSource: { repo: userRepo }
-    })
-  });
-  await documentService.listen({ port: 14001 });
-
-  loanService = getApolloServer({
-    typeDefs: loanTypeDefs,
-    resolvers: loanResolvers,
-    dataSources: () => ({
-      userDataSource: { repo: userRepo },
-      loanDataSource: { repo: loanRepo }
-    })
-  });
-  await loanService.listen({ port: 14002 });
-
   userService = getApolloServer({
     typeDefs: userTypeDefs,
     resolvers: userResolvers,
     dataSources: () => ({
-      userDataSource: { repo: userRepo }
+      userDataSource: {
+        repo: userPeer.getRepository<User, UserEvents>({
+          entityName: prefix + 'user',
+          reducer: userReducer
+        })
+      }
     })
   });
   await userService.listen({ port: 14004 });
@@ -174,15 +192,19 @@ beforeAll(async () => {
   server = await constructTestServer();
 
   // Initial data
-  await createTestClient(server).mutate({ mutation: CREATE_USER, variables: { name: 'The new User', userId: `t${timestamp}` }});
-  await createTestClient(server).mutate({ mutation: APPLY_LOAN,
-        variables: {
-          loanId: `k${timestamp}`,
-          userId: `t${timestamp}`,
-          reference: 'MYLOAN0001',
-          description: 'loan-description'
-        }
-      })
+  await createTestClient(server).mutate({
+    mutation: CREATE_USER,
+    variables: { name: 'The new User', userId: `t${timestamp}` }
+  });
+  await createTestClient(server).mutate({
+    mutation: APPLY_LOAN,
+    variables: {
+      loanId: `k${timestamp}`,
+      userId: `t${timestamp}`,
+      reference: 'MYLOAN0001',
+      description: 'loan-description'
+    }
+  });
   await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
     documentId: `e${timestamp}`, loanId: `k${timestamp}`, userId: `t${timestamp}`, title: 'Test Title 101', reference: 'DOC0101', link: 'test-link-0101'
   }});
@@ -359,18 +381,27 @@ afterAll(async () => {
 describe('Federated queries', () => {
   it('federated query loan by ID', done =>
     setTimeout(async () => {
-      await createTestClient(server).query({ query: GET_LOAN_BY_ID, variables: { loanId: `k${timestamp}` }})
+      await createTestClient(server)
+        .query({
+          query: GET_LOAN_BY_ID,
+          variables: { loanId: `k${timestamp}` }
+        })
         .then(data => {
           console.log('peer-node/integration.test.ts', data.data.getLoanById);
           return data;
         })
-        .then(({ data: { getLoanById: { description, reference, status, documents }}}) =>
-          // expect({ description, reference, status, documents }).toMatchSnapshot())
-          expect(true).toBeTruthy())
+        .then(
+          ({
+            data: {
+              getLoanById: { description, reference, status, documents }
+            }
+          }) =>
+            // expect({ description, reference, status, documents }).toMatchSnapshot())
+            expect(true).toBeTruthy()
+        )
         .catch(_ => expect(false).toBeTruthy()); // Normally should not enter here, force the test to fail otherwise
       done();
-      }, 10000)
-  );
+    }, 10000));
 
   // it('federated query loan details by ID', async () =>
   //   createTestClient(server).query({ query: GET_DETAILS_BY_ID, variables: { loanId }})
@@ -405,4 +436,3 @@ describe('Federated queries', () => {
   //     .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
   // );
 });
-

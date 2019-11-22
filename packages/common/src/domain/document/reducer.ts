@@ -1,9 +1,9 @@
 import { Document, DocumentEvents, DocumentStatus } from '.';
 
-export const documentReducer = (
+export function documentReducer(
   history: DocumentEvents[],
   initialState?: Document
-): Document => {
+): Document {
   const reducer = (document: Document, event: DocumentEvents): Document => {
     switch (event.type) {
       case 'DocumentCreated':
@@ -45,4 +45,4 @@ export const documentReducer = (
   };
 
   return history.reduce(reducer, initialState);
-};
+}
