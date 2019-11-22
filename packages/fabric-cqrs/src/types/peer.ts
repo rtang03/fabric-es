@@ -8,6 +8,7 @@ import { Reducer } from './reducer';
 import { Repository } from './repository';
 
 export interface Option {
+  defaultEntityName?: string;
   reducer?: Reducer;
   queryDatabase?: QueryDatabase;
   projectionDb?: ProjectionDb;

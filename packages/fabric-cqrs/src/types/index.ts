@@ -3,7 +3,7 @@ export * from './commit';
 export * from './context';
 export * from './reducer';
 export * from './repository';
-export * from './test-repository';
+// export * from './test-repository';
 export * from './state';
 export * from './queryDatabase';
 export * from './projectionDb';

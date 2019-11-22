@@ -68,10 +68,10 @@ export const resolvers = {
       // console.log('001 resolvers (document) - Loan: documents:', `loanId: ${loanId}`);
       return docDataSource.repo.getProjection({ where: { loanId }})
         .then(data => {
-          console.log('peer-node/document/resolvers.ts - Loan: documents:', `loanId: ${loanId}`, data.projections);
+          console.log('peer-node/document/resolvers.ts - Loan: documents:', `loanId: ${loanId}`, data);
           return data;
         })
-        .then(({ projections }) => projections);
+        .then(({ data }) => data);
     }
   },
   Document: {
