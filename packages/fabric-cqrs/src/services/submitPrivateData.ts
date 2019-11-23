@@ -1,12 +1,13 @@
+import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
-import { Commit, Context } from '../types';
+import { Commit } from '../types';
 import { getContract } from './contract';
 
 export const submitPrivateData: (
   fcn: string,
   args: string[],
   transientData: Record<string, Buffer>,
-  { network }: Context
+  { network }: { network: Network }
 ) => Promise<
   Record<string, Commit> & { error?: any; status?: string; message?: string }
 > = async (fcn, args, transientData, { network }) =>
@@ -30,8 +31,8 @@ export const submitPrivateData$: (
   fcn: string,
   args: string[],
   transientData: Record<string, Buffer>,
-  context: Context
+  { network }: { network: Network }
 ) => Observable<
   Record<string, Commit> | { error?: any; status?: string; message?: string }
-> = (fcn, args, transientData, context) =>
-  from(submitPrivateData(fcn, args, transientData, context));
+> = (fcn, args, transientData, options) =>
+  from(submitPrivateData(fcn, args, transientData, options));

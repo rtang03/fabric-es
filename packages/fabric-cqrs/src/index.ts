@@ -2,8 +2,8 @@ export {
   createPeer,
   getMockRepository,
   getPrivatedataMockRepository,
-  projectionDb,
-  queryDatabase
+  createProjectionDb,
+  createQueryDatabase
 } from './peer';
 export { bootstrapNetwork } from './account';
 export { getNetwork } from './services';

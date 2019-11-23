@@ -1,12 +1,12 @@
-import { projectionDb as projDB, queryDatabase as queryDb } from '.';
+import { createProjectionDb, createQueryDatabase } from '.';
 import { action } from '../cqrs/query';
 import { generateToken } from '../cqrs/utils';
 import { channelEventHub } from '../services';
 import { getStore } from '../store';
-import { Option, Peer } from '../types';
+import { Peer, PeerOptions } from '../types';
 import { ngacRepo, privateDataRepo, reconcile, repository } from './utils';
 
-export const createPeer: (option: Option) => Peer = option => {
+export const createPeer: (options: PeerOptions) => Peer = options => {
   let registerId: any;
   const {
     defaultEntityName,
@@ -15,16 +15,16 @@ export const createPeer: (option: Option) => Peer = option => {
     projectionDb,
     queryDatabase,
     collection
-  } = option;
+  } = options;
   if (!collection) {
     console.error('null privatedata collection');
     throw new Error('Null privatedata collection');
   }
-  option.projectionDb = projectionDb || projDB(defaultEntityName);
-  option.queryDatabase = queryDatabase || queryDb();
-  const store = getStore(option);
+  options.projectionDb = projectionDb || createProjectionDb(defaultEntityName);
+  options.queryDatabase = queryDatabase || createQueryDatabase();
+  const store = getStore(options);
   return {
-    getNgacRepo: ngacRepo(option.network),
+    getNgacRepo: ngacRepo(options.network),
     getPrivateDataRepo: privateDataRepo(store, collection),
     getRepository: repository(store),
     reconcile: reconcile(store),

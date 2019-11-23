@@ -1,11 +1,12 @@
+import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
-import { Commit, Context } from '../types';
+import { Commit } from '../types';
 import { getContract } from './contract';
 
 export const evaluate: (
   fcn: string,
   args: string[],
-  { network }: Context,
+  { network }: { network: Network },
   privatedata?: boolean
 ) => Promise<Record<string, Commit> | { error: any }> = async (
   fcn,
@@ -31,9 +32,9 @@ export const evaluate: (
 export const evaluate$: (
   fcn: string,
   args: string[],
-  context: Context,
+  { network }: { network: Network },
   privatedata?: boolean
-) => Observable<Record<string, Commit>> = (fcn, args, context, privatedata) =>
-  from(evaluate(fcn, args, context, privatedata));
+) => Observable<Record<string, Commit>> = (fcn, args, options, privatedata) =>
+  from(evaluate(fcn, args, options, privatedata));
 
 export default evaluate$;

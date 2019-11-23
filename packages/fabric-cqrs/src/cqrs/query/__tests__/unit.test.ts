@@ -1,7 +1,7 @@
 import { pick, values } from 'lodash';
 import { Store } from 'redux';
 import { action } from '..';
-import { queryDatabase } from '../../../peer';
+import { createQueryDatabase } from '../../../peer';
 import { Commit } from '../../../types';
 import { createCommit, generateToken } from '../../utils';
 import { getStore } from './__utils__/store';
@@ -14,7 +14,7 @@ const events = [{ type: 'User Created', payload: { name: 'May' } }];
 const commit1 = createCommit({ id, version: 0, entityName, events });
 
 beforeAll(async () => {
-  context = { queryDatabase };
+  context = { queryDatabase: createQueryDatabase() };
   store = getStore(context);
 });
 

@@ -1,13 +1,13 @@
 import { Store } from 'redux';
 import { action } from '..';
-import { queryDatabase } from '../../../peer';
+import { createQueryDatabase } from '../../../peer';
 import { generateToken } from '../../utils';
 import { getStore } from './__utils__/store';
 
 jest.mock('../../../services/evaluate');
 
 let store: Store;
-const context: any = { queryDatabase };
+const context: any = { queryDatabase: createQueryDatabase() };
 
 beforeAll(async () => {
   store = getStore(context);

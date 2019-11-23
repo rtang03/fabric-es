@@ -3,8 +3,9 @@ import { bootstrapNetwork } from '../../account';
 import '../../env';
 import { Counter, CounterEvent, reducer } from '../../example';
 import { Commit, Peer, PrivatedataRepository } from '../../types';
+import { createProjectionDb } from '../createProjectionDb';
+import { createQueryDatabase } from '../createQueryDatabase';
 import { createPeer } from '../peer';
-import { projectionDb, queryDatabase } from './__utils__';
 
 let peer: Peer;
 let repo: PrivatedataRepository;
@@ -16,9 +17,10 @@ beforeAll(async () => {
   const context = await bootstrapNetwork({ enrollmentId });
   peer = createPeer({
     ...context,
-    reducer,
-    queryDatabase,
-    projectionDb,
+    defaultReducer: reducer,
+    defaultEntityName: entityName,
+    queryDatabase: createQueryDatabase(),
+    projectionDb: createProjectionDb(entityName),
     collection: 'Org1PrivateDetails'
   });
   repo = peer.getPrivateDataRepo<Counter, CounterEvent>({

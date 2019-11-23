@@ -1,5 +1,5 @@
-export * from './queryDatabase';
-export * from './projectionDb';
+export * from './createQueryDatabase';
+export * from './createProjectionDb';
 export * from './peer';
 export * from './mockRepository';
 export * from './mockPrivatedataRepo';

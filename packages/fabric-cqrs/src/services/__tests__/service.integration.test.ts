@@ -150,17 +150,4 @@ describe('Eventstore Tests', () => {
       { network }
     ));
 
-  it('should fail repeatedly reate #4 at version 0', async () =>
-    submit(
-      'createCommit',
-      [
-        entityName,
-        enrollmentId,
-        '0',
-        JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])
-      ],
-      { network }
-    ).then(result =>
-      expect(result).toEqual({ status: 'ERROR', message: 'createCommit fails' })
-    ));
 });

@@ -2,15 +2,15 @@ import { FileSystemWallet } from 'fabric-network';
 import { values } from 'lodash';
 import { registerUser } from '../../account';
 import '../../env';
-import { Context } from '../../types';
+import { PeerOptions } from '../../types';
 import { Commit, toCommit } from '../../types/commit';
 import { evaluate } from '../evaluate';
 import { getNetwork } from '../network';
 import { submit } from '../submit';
 import { enrollOrg1Admin, enrollOrg2Admin } from './__utils__';
 
-let contextOrg1: Context;
-let contextOrg2: Context;
+let contextOrg1: Partial<PeerOptions>;
+let contextOrg2: Partial<PeerOptions>;
 let createdCommit_1: Commit;
 const entityName = 'dev_multiusers_test';
 const identityOrg1 = `org1user_test${Math.floor(Math.random() * 1000)}`;

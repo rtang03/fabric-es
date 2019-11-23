@@ -86,8 +86,8 @@ beforeAll(async () => {
   docPeer = createPeer({
     ...docNetworkConfig,
     defaultEntityName: prefix + 'document',
+    defaultReducer: documentReducer,
     collection,
-    reducer: documentReducer
   });
   await docPeer.subscribeHub();
   documentService = getApolloServer({
@@ -118,8 +118,8 @@ beforeAll(async () => {
   loanPeer = createPeer({
     ...loanNetworkConfig,
     defaultEntityName: prefix + 'loan',
+    defaultReducer: loanReducer,
     collection,
-    reducer: loanReducer
   });
   await loanPeer.subscribeHub();
   loanService = getApolloServer({
@@ -150,8 +150,8 @@ beforeAll(async () => {
   userPeer = createPeer({
     ...userNetworkConfig,
     defaultEntityName: prefix + 'user',
+    defaultReducer: userReducer,
     collection,
-    reducer: userReducer
   });
   await userPeer.subscribeHub();
   userService = getApolloServer({
@@ -173,7 +173,8 @@ beforeAll(async () => {
   privatePeer = createPeer({
     ...privateNetworkConfig,
     collection,
-    reducer: loanDetailsReducer
+    defaultEntityName: prefix + 'loanDetails',
+    defaultReducer: loanDetailsReducer
   });
   privateService = getApolloServer({
     typeDefs: privateTypeDefs,

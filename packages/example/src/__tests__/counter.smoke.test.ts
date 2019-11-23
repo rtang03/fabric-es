@@ -22,7 +22,12 @@ beforeAll(async () => {
   });
   network = context.network;
   gateway = context.gateway;
-  peer = createPeer({ ...context, reducer, collection: 'Org1PrivateDetails' });
+  peer = createPeer({
+    ...context,
+    defaultEntityName: entityName,
+    defaultReducer: reducer,
+    collection: 'Org1PrivateDetails'
+  });
   await peer.subscribeHub();
   repo = peer.getRepository<Counter, CounterEvent>({ entityName, reducer });
 });
