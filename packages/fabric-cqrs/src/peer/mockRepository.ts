@@ -92,7 +92,7 @@ export const getMockRepository = <TEntity, TEvent>(
     all, // not implemented
     contain // not implemented
   }: {
-    where?: Record<string, string>;
+    where?: any;
     all?: boolean;
     contain?: string;
   }) => {
@@ -105,8 +105,7 @@ export const getMockRepository = <TEntity, TEvent>(
       setTimeout(
         () =>
           resolve({
-            // @ts-ignore
-            projections: where ? filter(entities, where) : []
+            data: where ? filter(entities, where) : []
           }),
         50
       );

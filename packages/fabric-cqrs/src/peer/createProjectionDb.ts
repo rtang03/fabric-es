@@ -1,15 +1,13 @@
 import { assign, filter, groupBy, isNumber, keys, values } from 'lodash';
 import { Commit, ProjectionDb } from '../types';
 
-// const db: Record<string, any> = {};
-
 const getHistory = (commits: Commit[]): any[] => {
   const history = [];
   commits.forEach(({ events }) => events.forEach(item => history.push(item)));
   return history;
 };
 
-export const projectionDb: (
+export const createProjectionDb: (
   defaultEntityName: string
 ) => ProjectionDb = defaultEntityName => {
   const db: Record<string, any> = {};
@@ -19,7 +17,7 @@ export const projectionDb: (
         if (all) {
           resolve({ data: values(db) });
         } else if (where) {
-          console.log('fabric-cqrs/projectionDb.ts', where, values(db));
+          // console.log('fabric-cqrs/projectionDb.ts', where, values(db));
           resolve({ data: filter(values(db), where) });
         } else if (contain) {
           resolve({

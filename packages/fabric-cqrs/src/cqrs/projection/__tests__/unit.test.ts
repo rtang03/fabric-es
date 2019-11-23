@@ -1,14 +1,18 @@
 import { Store } from 'redux';
 import { action } from '..';
 import { reducer } from '../../../example';
-import { projectionDb, queryDatabase } from '../../../peer';
+import { createProjectionDb, createQueryDatabase } from '../../../peer';
 import { Commit } from '../../../types';
 import { action as queryAction } from '../../query';
 import { generateToken } from '../../utils';
 import { getStore } from './__utils__/store';
 
 let store: Store;
-const context: any = { projectionDb, queryDatabase, reducer };
+const context: any = {
+  projectionDb: createProjectionDb('test-entity'),
+  queryDatabase: createQueryDatabase(),
+  reducer
+};
 
 beforeAll(() => {
   store = getStore(context);

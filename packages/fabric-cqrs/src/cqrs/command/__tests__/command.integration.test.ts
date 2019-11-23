@@ -2,12 +2,12 @@ import { pick, values } from 'lodash';
 import { Store } from 'redux';
 import { bootstrapNetwork } from '../../../account';
 import '../../../env';
-import { Context } from '../../../types';
+import { PeerOptions} from '../../../types';
 import { generateToken } from '../../utils';
 import { action } from '../action';
 import { getStore } from './__utils__/store';
 
-let context: Context;
+let context: Partial<PeerOptions>;
 let commitId: string;
 let store: Store;
 const entityName = 'command_test';
@@ -66,7 +66,11 @@ describe('CQRS - command Tests', () => {
           id: enrollmentId,
           version: 0,
           events: [{ type: 'User Created', payload: { name: 'me' } }]
-        }
+        },
+        // Special attention: createAction will be based on newly created account (given below
+        // enrollmentId; to using a new Fabric contract, to submit transaction, and based on its x509
+        // cert. Other actions does not require to supply enrollmentId, and will keep using admin ecert
+        enrollmentId
       })
     );
   });

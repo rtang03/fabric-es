@@ -1,5 +1,6 @@
 import { ChannelEventHub } from 'fabric-client';
 import { Gateway, Network } from 'fabric-network';
+import { Commit } from './commit';
 import { NgacRepo } from './ngac';
 import { PrivatedataRepository } from './privatedataRepository';
 import { ProjectionDb } from './projectionDb';
@@ -7,15 +8,16 @@ import { QueryDatabase } from './queryDatabase';
 import { Reducer } from './reducer';
 import { Repository } from './repository';
 
-export interface Option {
-  defaultEntityName?: string;
-  reducer?: Reducer;
+export interface PeerOptions {
+  defaultEntityName: string;
+  defaultReducer: Reducer;
   queryDatabase?: QueryDatabase;
   projectionDb?: ProjectionDb;
   network?: Network;
   gateway?: Gateway;
   channelHub?: ChannelEventHub;
   collection: string;
+  onChannelEventArrived?: ({ commit }: { commit: Commit }) => void;
   // pubSub?: any;
 }
 

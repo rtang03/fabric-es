@@ -50,7 +50,11 @@ describe('Store:privatedata Tests', () => {
           version: 0,
           events: [{ type: 'User Created', payload: { name: 'me' } }],
           collection
-        }
+        },
+        // Special attention: createAction will be based on newly created account (given below
+        // enrollmentId; to using a new Fabric contract, to submit transaction, and based on its x509
+        // cert. Other actions does not require to supply enrollmentId, and will keep using admin ecert
+        enrollmentId
       })
     );
   });

@@ -4,7 +4,7 @@ import { commandEpic, reducer as write } from '../cqrs/command';
 import { projectionEpic, reducer as projection } from '../cqrs/projection';
 import { queryEpic, reducer as query } from '../cqrs/query';
 import { reconcileEpic, reducer as reconcile } from '../cqrs/reconcile';
-import { Context } from '../types';
+import { PeerOptions } from '../types';
 
 const rootEpic = combineEpics(
   ...commandEpic,
@@ -15,9 +15,23 @@ const rootEpic = combineEpics(
 
 const rootReducer = combineReducers({ write, projection, query, reconcile });
 
-export const getStore: (context: Context) => Store = context => {
+export const getStore: (options: Partial<PeerOptions>) => Store = ({
+  queryDatabase,
+  projectionDb,
+  defaultReducer,
+  gateway,
+  network,
+  onChannelEventArrived
+}) => {
   const epicMiddleware = createEpicMiddleware({
-    dependencies: context
+    dependencies: {
+      queryDatabase,
+      projectionDb,
+      reducer: defaultReducer,
+      gateway,
+      network,
+      onChannelEventArrived
+    }
   });
   const store = createStore(rootReducer, applyMiddleware(epicMiddleware));
   epicMiddleware.run(rootEpic);

@@ -1,16 +1,16 @@
 import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import { projectionEpic, reducer as projection } from '../..';
-import { Context } from '../../../../types';
+import { PeerOptions } from '../../../../types';
 import { queryEpic, reducer as query } from '../../../query';
 
 const rootEpic = combineEpics(...projectionEpic, ...queryEpic);
 
 const rootReducer = combineReducers({ projection, query });
 
-export const getStore: (context: Context) => Store = context => {
+export const getStore: (options: Partial<PeerOptions>) => Store = options => {
   const epicMiddleware = createEpicMiddleware({
-    dependencies: context
+    dependencies: options
   });
   const store = createStore(rootReducer, applyMiddleware(epicMiddleware));
   epicMiddleware.run(rootEpic);

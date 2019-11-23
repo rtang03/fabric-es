@@ -1,10 +1,10 @@
-import { Context } from '../types';
+import { Network } from 'fabric-network';
 import { getContract } from './contract';
 
 export const submitNgac: <T = any>(
   fcn: string,
   args: string[],
-  { network }: Context
+  { network }: { network: Network }
 ) => Promise<T | { error?: any; status?: string; message?: string }> = async <
   T = any
 >(
