@@ -20,7 +20,7 @@ app.prepare().then(() => {
   ]);
 
   server.get('/auth_uri', (_, res) =>
-    res.status(200).send( process.env.AUTHORIZATION_URI || '' )
+    res.status(200).send(process.env.AUTHORIZATION_URI || '')
   );
   server.get('/callback', async (req, res) => {
     const grant_type = 'authorization_code';
@@ -29,7 +29,7 @@ app.prepare().then(() => {
     const redirect_uri = process.env.REDIRECT_URI;
     const code = req.query.code;
     const body = `client_id=${client_id}&grant_type=${grant_type}&client_secret=${client_secret}&code=${code}&redirect_uri=${redirect_uri}`;
-    await fetch('http://localhost:4000/oauth/token', {
+    await fetch(process.env.TOKEN_URI || 'http://localhost:4000/oauth/token', {
       method: 'post',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body

@@ -21,7 +21,7 @@ export const createHttpServer: (option: {
   resolvers,
   modelOptions = {
     accessTokenSecret: process.env.ACCESS_TOKEN_SECRET!,
-    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET!,
+    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET!
   },
   oauthOptions = {
     requireClientAuthentication: { password: false, refresh_token: false },
@@ -71,7 +71,9 @@ export const createHttpServer: (option: {
       if (authorization) {
         const token = authorization.split(' ')[1];
         try {
-          payload = verify(token, process.env.ACCESS_TOKEN_SECRET!);
+          payload = verify(token, process.env.ACCESS_TOKEN_SECRET!, {
+            ignoreExpiration: false
+          });
         } catch (err) {
           const error = err.message || 'authentication error';
           payload = { error };

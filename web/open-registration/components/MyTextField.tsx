@@ -1,8 +1,8 @@
-import { TextField } from '@material-ui/core';
+import TextField from '@material-ui/core/TextField';
 import { FieldAttributes, useField } from 'formik';
 import React from 'react';
 
-export const MyTextField: React.FC<FieldAttributes<{}>> = ({
+export const MyTextField: React.FC<FieldAttributes<any>> = ({
   placeholder,
   ...props
 }) => {
