@@ -63,10 +63,12 @@ export function withApollo(PageComponent: any, { ssr = true } = {}) {
         : {};
 
       // Only on the server
-      if (typeof window === 'undefined') {
+      if (isServer()) {
         // When redirecting, the response is finished.
         // No point in continuing to render
-        if (res && res.finished) return {};
+        if (res && res.finished) {
+          return {};
+        }
 
         if (ssr) {
           try {
@@ -125,12 +127,12 @@ function initApolloClient(initState: any, serverAccessToken?: string) {
 
 function createApolloClient(initialState = {}, serverAccessToken?: string) {
   const httpLink = new HttpLink({
-    uri: 'http://localhost:4000/graphql',
+    uri: process.env.API_GATEWAY_URI || 'http://localhost:4000/graphql',
     credentials: 'include',
     fetch
   });
 
-  const authLink = setContext((_request, { headers }) => ({
+  const authLink = setContext((request, { headers }) => ({
     headers: {
       ...headers,
       authorization: serverAccessToken ? `bearer ${serverAccessToken}` : ''
@@ -143,7 +145,7 @@ function createApolloClient(initialState = {}, serverAccessToken?: string) {
   });
 
   return new ApolloClient({
-    ssrMode: typeof window === 'undefined', // Disables forceFetch on the server (so queries are only run once)
+    ssrMode: isServer(), // Disables forceFetch on the server (so queries are only run once)
     link: ApolloLink.from([authLink, errorLink, httpLink]),
     cache: new InMemoryCache().restore(initialState),
     connectToDevTools: true

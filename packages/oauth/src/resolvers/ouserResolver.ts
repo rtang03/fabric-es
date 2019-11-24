@@ -80,7 +80,7 @@ export class OUserResolver {
     return oauth2Server
       .token(new Request(req), new Response(res), oauthOptions)
       .then(({ accessToken, refreshToken }: Token) => {
-        sendRefreshToken(res, refreshToken);
+        sendRefreshToken(res, accessToken);
         return {
           ok: true,
           accessToken,
