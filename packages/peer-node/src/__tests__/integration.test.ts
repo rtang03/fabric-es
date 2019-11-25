@@ -13,42 +13,43 @@ import {
 import {
   createPeer,
   getNetwork,
-  Peer,
-  Repository
+  Peer
 } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import {
   CREATE_DOCUMENT,
-  // GET_COMMITS_BY_DOCUMENT,
-  // GET_DOCUMENT_BY_ID,
+  DELETE_DOCUMENT,
+  GET_COMMITS_BY_DOCUMENT,
+  GET_DOCUMENT_BY_ID,
   resolvers as docResolvers,
-  typeDefs as docTypeDefs
+  typeDefs as docTypeDefs,
+  UPDATE_DOCUMENT
 } from '../common/document';
 import {
   APPLY_LOAN,
-  // APPROVE_LOAN,
-  // CANCEL_LOAN,
-  // EXPIRE_LOAN,
-  // GET_COMMITS_BY_LOAN,
+  APPROVE_LOAN,
+  CANCEL_LOAN,
+  EXPIRE_LOAN,
+  GET_COMMITS_BY_LOAN,
   GET_LOAN_BY_ID,
-  // REJECT_LOAN,
+  REJECT_LOAN,
   resolvers as loanResolvers,
-  // RETURN_LOAN,
-  typeDefs as loanTypeDefs
-  // UPDATE_LOAN
+  RETURN_LOAN,
+  typeDefs as loanTypeDefs,
+  UPDATE_LOAN
 } from '../common/loan';
 import {
   CREATE_USER,
-  // GET_COMMITS_BY_USER,
-  // GET_USER_BY_ID,
-  // GET_USERS_BY_PAGE,
+  GET_COMMITS_BY_USER,
+  GET_USER_BY_ID,
+  GET_USERS_BY_PAGE,
   resolvers as userResolvers,
   typeDefs as userTypeDefs
 } from '../common/user';
 import {
-  // CREATE_LOAN_DETAILS,
-  // GET_DETAILS_BY_ID,
+  CREATE_LOAN_DETAILS,
+  GET_DETAILS_BY_ID,
   LoanDetails,
   LoanDetailsEvents,
   loanDetailsReducer,
@@ -195,22 +196,42 @@ beforeAll(async () => {
   // Initial data
   await createTestClient(server).mutate({
     mutation: CREATE_USER,
-    variables: { name: 'The new User', userId: `t${timestamp}` }
+    variables: { name: 'The new User2', userId: `v${timestamp}` }
   });
   await createTestClient(server).mutate({
-    mutation: APPLY_LOAN,
-    variables: {
-      loanId: `k${timestamp}`,
-      userId: `t${timestamp}`,
-      reference: 'MYLOAN0001',
-      description: 'loan-description'
-    }
+    mutation: CREATE_USER,
+    variables: { name: 'The new User3', userId: `w${timestamp}` }
   });
-  await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
-    documentId: `e${timestamp}`, loanId: `k${timestamp}`, userId: `t${timestamp}`, title: 'Test Title 101', reference: 'DOC0101', link: 'test-link-0101'
+  await createTestClient(server).mutate({
+    mutation: APPLY_LOAN, variables: {
+      loanId: `m${timestamp}`, userId: `v${timestamp}`, reference: 'MYLOAN0001', description: 'loan-description'
+  }});
+  await createTestClient(server).mutate({
+    mutation: APPLY_LOAN, variables: {
+      loanId: `n${timestamp}`, userId: `v${timestamp}`, reference: 'MYLOAN0002', description: 'loan-description-2'
   }});
   await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
-    documentId: `f${timestamp}`, loanId: `k${timestamp}`, userId: `t${timestamp}`, title: 'Test Title 102', reference: 'DOC0102', link: 'test-link-0102'
+    documentId: `e${timestamp}`, loanId: `m${timestamp}`, userId: `v${timestamp}`, title: 'Test Title 101', reference: 'DOC0101', link: 'test-link-0101'
+  }});
+  await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
+    documentId: `f${timestamp}`, loanId: `m${timestamp}`, userId: `v${timestamp}`, title: 'Test Title 102', reference: 'DOC0102', link: 'test-link-0102'
+  }});
+  await createTestClient(server).mutate({ mutation: CREATE_LOAN_DETAILS, variables: {
+      loanId: `m${timestamp}`,
+      userId: `v${timestamp}`,
+      registration: 'BR000000X',
+      companyName: 'Peter Hook Ltd',
+      requesterType: 'Money Launderer',
+      salutation: 'Mr.',
+      contactName: 'Hook',
+      contactTitle: 'Owner',
+      contactPhone: '555-23456',
+      contactEmail: 'hook@fake.it',
+      loanType: 'Post-shipment',
+      startDate: '2019-10-12',
+      tenor: 60,
+      currency: 'HKD',
+      requestedAmt: 70000.0
   }});
 });
 
@@ -229,155 +250,194 @@ afterAll(async () => {
   await server.stop();
 });
 
-// describe('User Integration Test', () => {
-//   it('create user', async () =>
-//     createTestClient(server)
-//       .mutate({
-//         mutation: CREATE_USER,
-//         variables: { name: 'The new User', userId }
-//       })
-//       // .then(data => {
-//       //   console.log('create user', data);
-//       //   return data;
-//       // })
-//       .then(({ data: { createUser } }) => expect(createUser.id).toEqual(userId))
-//       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-//   );
+describe('User Integration Test', () => {
+  it('create user', async () =>
+    createTestClient(server)
+      .mutate({
+        mutation: CREATE_USER,
+        variables: { name: 'The new User', userId }
+      })
+      // .then(data => {
+      //   console.log('create user', data);
+      //   return data;
+      // })
+      .then(({ data: { createUser }}) => expect(createUser.id).toEqual(userId))
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
 
-//   it('query commits of user', async () =>
-//     createTestClient(server).query({ query: GET_COMMITS_BY_USER, variables: { userId }})
-//       .then(({ data: { getCommitsByUserId }}) =>
-//         expect(getCommitsByUserId.map(({ entityName, events }) => ({ entityName, events }))).toMatchSnapshot())
-//       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-//   );
+  it('query commits of user', async () =>
+    createTestClient(server).query({ query: GET_COMMITS_BY_USER, variables: { userId: `v${timestamp}` }})
+      .then(({ data: { getCommitsByUserId }}) =>
+        expect(getCommitsByUserId.map(({ entityName, events }) => ({ entityName, events }))).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
 
-//   it('query user by ID', async () =>
-//     createTestClient(server).query({ query: GET_USER_BY_ID, variables: { userId }})
-//       .then(({ data: { getUserById } }) => expect(getUserById.name).toEqual('The new User'))
-//       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-//   );
-// });
+  it('query user by ID', async () =>
+    createTestClient(server).query({ query: GET_USER_BY_ID, variables: { userId: `w${timestamp}` }})
+      .then(({ data: { getUserById }}) => expect(getUserById.name).toEqual('The new User3'))
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
 
-// describe('Loan Integration Test', () => {
-//   it('apply loan', async () =>
-//     createTestClient(server)
-//       .mutate({
-//         mutation: APPLY_LOAN,
-//         variables: {
-//           loanId,
-//           userId,
-//           reference: 'MYTRADE0001',
-//           description: 'test-description'
-//         }
-//       })
-//       .then(({ data: { applyLoan } }) => expect(applyLoan.id).toEqual(loanId))
-//       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-//   );
+  it('query paginated user', async () =>
+    createTestClient(server)
+      .query({
+        query: GET_USERS_BY_PAGE,
+        variables: { cursor: 10 }
+      })
+      .then(({ data: { getPaginatedUser: { total, hasMore, entities: [{ name }]}}}) =>
+        expect({ getPaginatedUser: { total, hasMore, entities: [{ name }]}}).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
+});
 
-//   it('query commits of loan', async () =>
-//     createTestClient(server).query({ query: GET_COMMITS_BY_LOAN, variables: { loanId }})
-//       .then(({ data: { getCommitsByLoanId }}) =>
-//         expect(getCommitsByLoanId.map(({ entityName, events }) => ({ entityName, events }))).toMatchSnapshot())
-//       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-//   );
+describe('Loan Integration Test', () => {
+  it('apply loan', async () =>
+    createTestClient(server)
+      .mutate({
+        mutation: APPLY_LOAN,
+        variables: {
+          loanId,
+          userId,
+          reference: 'MYTRADE0001',
+          description: 'test-description'
+        }
+      })
+      .then(({ data: { applyLoan } }) => expect(applyLoan.id).toEqual(loanId))
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
 
-//   it('query loan by ID', async () =>
-//     createTestClient(server).query({ query: GET_LOAN_BY_ID, variables: { loanId }})
-//       .then(({ data: { getLoanById: { description, reference, status }}}) =>
-//         expect({ description, reference, status }).toMatchSnapshot())
-//       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-//   );
-// });
+  it('query commits of loan', async () =>
+    createTestClient(server).query({ query: GET_COMMITS_BY_LOAN, variables: { loanId: `m${timestamp}` }})
+      .then(({ data: { getCommitsByLoanId }}) =>
+        expect(getCommitsByLoanId.map(({ entityName, events }) => ({ entityName, events }))).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
 
-// describe('Loan Details Integration Test', () => {
-//   it('create loan details', async () =>
-//     createTestClient(server)
-//       .mutate({
-//         mutation: CREATE_LOAN_DETAILS,
-//         variables: {
-//           loanId,
-//           userId,
-//           registration: 'BR0000001',
-//           companyName: 'Pete N Co. Ltd',
-//           requesterType: 'Money Launderer',
-//           salutation: 'Mr.',
-//           contactName: 'Pete',
-//           contactTitle: 'Owner',
-//           contactPhone: '555-12345',
-//           contactEmail: 'pete@fake.it',
-//           loanType: 'Post-shipment',
-//           startDate: '2019-10-11',
-//           tenor: 60,
-//           currency: 'HKD',
-//           requestedAmt: 50000.0
-//         }
-//       })
-//       .then(({ data: { createLoanDetails } }) => expect(createLoanDetails.id).toEqual(loanId))
-//       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-//   );
+  it('query loan by ID', async () =>
+    createTestClient(server).query({ query: GET_LOAN_BY_ID, variables: { loanId: `m${timestamp}` }})
+      .then(({ data: { getLoanById: { description, reference, status }}}) =>
+        expect({ description, reference, status }).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
+});
 
-//   it('query loan details by ID', async () =>
-//     createTestClient(server).query({ query: GET_DETAILS_BY_ID, variables: { loanId }})
-//       .then(({ data: { getLoanDetailsById: { requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment }}}) =>
-//         expect({ requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment }).toMatchSnapshot())
-//       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-//   );
-// });
+describe('Loan Details Integration Test', () => {
+  it('create loan details', async () =>
+    createTestClient(server)
+      .mutate({
+        mutation: CREATE_LOAN_DETAILS,
+        variables: {
+          loanId,
+          userId,
+          registration: 'BR0000001',
+          companyName: 'Pete N Co. Ltd',
+          requesterType: 'Money Launderer',
+          salutation: 'Mr.',
+          contactName: 'Pete',
+          contactTitle: 'Owner',
+          contactPhone: '555-12345',
+          contactEmail: 'pete@fake.it',
+          loanType: 'Post-shipment',
+          startDate: '2019-10-11',
+          tenor: 60,
+          currency: 'HKD',
+          requestedAmt: 50000.0
+        }
+      })
+      .then(({ data: { createLoanDetails } }) => expect(createLoanDetails.id).toEqual(loanId))
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
 
-// describe('Document Integration Test', () => {
-//   it('create document', async () =>
-//     createTestClient(server)
-//       .mutate({
-//         mutation: CREATE_DOCUMENT,
-//         variables: {
-//           documentId,
-//           userId,
-//           loanId,
-//           title: 'test-title',
-//           reference: 'DOCREF0001',
-//           link: 'test-link-0001'
-//         }
-//       })
-//       .then(({ data: { createDocument } }) => expect(createDocument.id).toEqual(documentId))
-//       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-//   );
+  it('query loan details by ID', async () =>
+    createTestClient(server).query({ query: GET_DETAILS_BY_ID, variables: { loanId: `m${timestamp}` }})
+      // .then(data => {
+      //   console.log('query loan details by ID', data.data.getLoanDetailsById);
+      //   return data;
+      // })
+      .then(({ data: { getLoanDetailsById: { requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment }}}) =>
+        expect({ requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment }).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
+});
 
-//   it('query commits of document', async () =>
-//     createTestClient(server).query({ query: GET_COMMITS_BY_DOCUMENT, variables: { documentId }})
-//       .then(({ data: { getCommitsByDocumentId }}) =>
-//         expect(getCommitsByDocumentId.map(({ entityName, events }) => ({ entityName, events }))).toMatchSnapshot())
-//       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-//   );
+describe('Document Integration Test', () => {
+  it('create document', async () =>
+    createTestClient(server)
+      .mutate({
+        mutation: CREATE_DOCUMENT,
+        variables: {
+          documentId,
+          userId,
+          loanId,
+          title: 'test-title',
+          reference: 'DOCREF0001',
+          link: 'test-link-0001'
+        }
+      })
+      .then(({ data: { createDocument } }) => expect(createDocument.id).toEqual(documentId))
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
 
-//   it('query document by ID', async () =>
-//     createTestClient(server).query({ query: GET_DOCUMENT_BY_ID, variables: { documentId }})
-//       .then(({ data: { getDocumentById: { title, reference, link, status }}}) =>
-//         expect({ title, reference, link, status }).toMatchSnapshot())
-//       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-//   );
+  it('query commits of document', async () =>
+    createTestClient(server).query({ query: GET_COMMITS_BY_DOCUMENT, variables: { documentId: `e${timestamp}` }})
+      .then(({ data: { getCommitsByDocumentId }}) =>
+        expect(getCommitsByDocumentId.map(({ entityName, events }) => ({ entityName, events }))).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
 
-//   it('query eocument by ID', async () =>
-//     createTestClient(server).query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: `e${timestamp}` }})
-//       .then(data => {
-//         console.log('query eocument by ID', data.data.getDocumentById);
-//         return data;
-//       })
-//       .then(({ data: { getDocumentById: { title, reference, link, status }}}) =>
-//         expect({ title, reference, link, status }).toMatchSnapshot())
-//       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-//   );
+  // it('query document by ID', async () =>
+  //   createTestClient(server).query({ query: GET_DOCUMENT_BY_ID, variables: { documentId }})
+  //     .then(({ data: { getDocumentById: { title, reference, link, status }}}) =>
+  //       expect({ title, reference, link, status }).toMatchSnapshot())
+  //     .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  // );
 
-//   it('query focument by ID', async () =>
-//     createTestClient(server).query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: `f${timestamp}` }})
-//       .then(data => {
-//         console.log('query focument by ID', data.data.getDocumentById);
-//         return data;
-//       })
-//       .then(({ data: { getDocumentById: { title, reference, link, status }}}) =>
-//         expect({ title, reference, link, status }).toMatchSnapshot())
-//       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-//   );
-// });
+  it('query eocument by ID', async () =>
+    createTestClient(server).query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: `e${timestamp}` }})
+      // .then(data => {
+      //   console.log('query eocument by ID', data.data.getDocumentById);
+      //   return data;
+      // })
+      .then(({ data: { getDocumentById: { title, reference, link, status }}}) =>
+        expect({ title, reference, link, status }).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
+
+  it('query focument by ID', async () =>
+    createTestClient(server).query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: `f${timestamp}` }})
+      // .then(data => {
+      //   console.log('query focument by ID', data.data.getDocumentById);
+      //   return data;
+      // })
+      .then(({ data: { getDocumentById: { title, reference, link, status }}}) =>
+        expect({ title, reference, link, status }).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
+
+  it('delete document', done => {
+    const { query, mutate } = createTestClient(server);
+    return mutate({ mutation: DELETE_DOCUMENT, variables: { userId: `v${timestamp}`, documentId: `f${timestamp}` }}).then(_ =>
+      setTimeout(async () => {
+        query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: `f${timestamp}` }})
+          // .then(data => {
+          //   console.log('query deleted document by ID', data.data.getDocumentById);
+          //   return data;
+          // })
+          .then(({ data: { getDocumentById: { documentId: docId, status }}}) => {
+            expect(docId).toEqual(`f${timestamp}`);
+            expect(status).toEqual(1);
+          });
+        done();
+      }, 500));
+  });
+
+  it('delete non-existing document', async () =>
+    createTestClient(server)
+      .mutate({ mutation: DELETE_DOCUMENT, variables: { userId: `v${timestamp}`, documentId: '990000109' }})
+        .then(({ errors }) =>
+          expect(errors && (errors.length > 0) && (errors[0].message === 'DOCUMENT_NOT_FOUND: id: 990000109')).toBeTruthy())
+  );
+});
 
 describe('Federated queries', () => {
   it('federated query loan by ID', done =>
@@ -385,55 +445,87 @@ describe('Federated queries', () => {
       await createTestClient(server)
         .query({
           query: GET_LOAN_BY_ID,
-          variables: { loanId: `k${timestamp}` }
+          variables: { loanId: `m${timestamp}` }
         })
-        .then(data => {
-          console.log('peer-node/integration.test.ts', data.data.getLoanById);
-          return data;
-        })
+        // .then(data => {
+        //   console.log('peer-node/integration.test.ts - GET_LOAN_BY_ID', data.data.getLoanById);
+        //   return data;
+        // })
         .then(
           ({
             data: {
-              getLoanById: { description, reference, status, documents }
+              getLoanById: {
+                description,
+                reference,
+                status,
+                documents: { link, reference: ref, status: sts, title },
+                details: {
+                  requester: { registration, name: companyName },
+                  contact: { name: contactName, phone, email },
+                  loanType, startDate, tenor, currency, requestedAmt
+                }
+              }
             }
-          }) =>
-            // expect({ description, reference, status, documents }).toMatchSnapshot())
-            expect(true).toBeTruthy()
-        )
+          }) => expect({
+            description,
+            reference,
+            status,
+            documents: { link, ref, sts, title },
+            details: {
+              requester: { registration, companyName },
+              contact: { contactName, phone, email },
+              loanType, startDate, tenor, currency, requestedAmt
+            }
+          }).toMatchSnapshot())
         .catch(_ => expect(false).toBeTruthy()); // Normally should not enter here, force the test to fail otherwise
       done();
-    }, 10000));
+    }, 100)
+  );
 
-  // it('federated query loan details by ID', async () =>
-  //   createTestClient(server).query({ query: GET_DETAILS_BY_ID, variables: { loanId }})
-  //     .then(({
-  //       data: {
-  //         getLoanDetailsById: {
-  //           loan: { description, reference, status },
-  //           requester,
-  //           contact,
-  //           loanType,
-  //           startDate,
-  //           tenor,
-  //           currency,
-  //           requestedAmt,
-  //           approvedAmt,
-  //           comment
-  //         }
-  //       }
-  //     }) =>
-  //       expect({
-  //         loan: { description, reference, status },
-  //         requester,
-  //         contact,
-  //         loanType,
-  //         startDate,
-  //         tenor,
-  //         currency,
-  //         requestedAmt,
-  //         approvedAmt,
-  //         comment
-  //       }).toMatchSnapshot())
-  //     .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-  // );
+  it('federated query document by ID', done =>
+    setTimeout(async () => {
+      await createTestClient(server).query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: `f${timestamp}` }})
+        // .then(data => {
+        //   console.log('peer-node/integration.test.ts - GET_DOCUMENT_BY_ID', data.data.getDocumentById);
+        //   return data;
+        // })
+        .then(({ data: { getDocumentById: { title, reference, link, loan: { description, status }}}}) =>
+          expect({ title, reference, link, loan: { description, status } }).toMatchSnapshot())
+        .catch(_ => expect(false).toBeTruthy()); // Normally should not enter here, force the test to fail otherwise
+      done();
+    }, 100)
+  );
+
+  it('federated query loan details by ID', async () =>
+    createTestClient(server).query({ query: GET_DETAILS_BY_ID, variables: { loanId }})
+      .then(({
+        data: {
+          getLoanDetailsById: {
+            loan: { description, reference, status },
+            requester,
+            contact,
+            loanType,
+            startDate,
+            tenor,
+            currency,
+            requestedAmt,
+            approvedAmt,
+            comment
+          }
+        }
+      }) =>
+        expect({
+          loan: { description, reference, status },
+          requester,
+          contact,
+          loanType,
+          startDate,
+          tenor,
+          currency,
+          requestedAmt,
+          approvedAmt,
+          comment
+        }).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
 });

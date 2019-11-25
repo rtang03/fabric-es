@@ -79,6 +79,12 @@ export const resolvers = {
       return result;
     }
   },
+  Loan: {
+    details: (loan, _, { dataSources: { loanDetailsDataSource }}) => {
+      return loanDetailsDataSource.repo.getById({ id: loan.loanId })
+        .then(({ currentState }) => currentState);
+    }
+  },
   LoanDetails: {
     loan(details) {
       return { __typename: 'Loan', loanId: details.loanId };

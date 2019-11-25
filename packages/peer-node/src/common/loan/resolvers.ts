@@ -71,7 +71,7 @@ export const resolvers = {
   },
   Loan: {
     __resolveReference: ({ loanId }, { dataSources: { loanDataSource }}): Promise<Loan> => {
-      console.log('peer-node/loan/resolvers.ts - Loan: __resolveReference:', `loanId: ${loanId}`);
+      // console.log('peer-node/loan/resolvers.ts - Loan: __resolveReference:', `loanId: ${loanId}`);
       return loanDataSource.repo.getById({ id: loanId })
         .then(({ currentState }) => currentState);
     }

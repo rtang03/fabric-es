@@ -1,0 +1,193 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Document Integration Test query commits of document 1`] = `
+Array [
+  Object {
+    "entityName": "int_test_document",
+    "events": Array [
+      Object {
+        "type": "DocumentCreated",
+      },
+      Object {
+        "type": "DocumentReferenceDefined",
+      },
+      Object {
+        "type": "DocumentLinkDefined",
+      },
+      Object {
+        "type": "DocumentLoanIdDefined",
+      },
+      Object {
+        "type": "DocumentTitleDefined",
+      },
+    ],
+  },
+]
+`;
+
+exports[`Document Integration Test query eocument by ID 1`] = `
+Object {
+  "link": "test-link-0101",
+  "reference": "DOC0101",
+  "status": 0,
+  "title": "Test Title 101",
+}
+`;
+
+exports[`Document Integration Test query focument by ID 1`] = `
+Object {
+  "link": "test-link-0102",
+  "reference": "DOC0102",
+  "status": 0,
+  "title": "Test Title 102",
+}
+`;
+
+exports[`Federated queries federated query document by ID 1`] = `
+Object {
+  "link": "test-link-0102",
+  "loan": Object {
+    "description": "loan-description",
+    "status": 0,
+  },
+  "reference": "DOC0102",
+  "title": "Test Title 102",
+}
+`;
+
+exports[`Federated queries federated query loan by ID 1`] = `
+Object {
+  "description": "loan-description",
+  "details": Object {
+    "contact": Object {
+      "contactName": "Hook",
+      "email": "hook@fake.it",
+      "phone": "555-23456",
+    },
+    "currency": "HKD",
+    "loanType": "Post-shipment",
+    "requestedAmt": 70000,
+    "requester": Object {
+      "companyName": "Peter Hook Ltd",
+      "registration": "BR000000X",
+    },
+    "startDate": "2019-10-12",
+    "tenor": 60,
+  },
+  "documents": Object {
+    "link": undefined,
+    "ref": undefined,
+    "sts": undefined,
+    "title": undefined,
+  },
+  "reference": "MYLOAN0001",
+  "status": 0,
+}
+`;
+
+exports[`Federated queries federated query loan details by ID 1`] = `
+Object {
+  "approvedAmt": null,
+  "comment": null,
+  "contact": Object {
+    "email": "pete@fake.it",
+    "name": "Pete",
+    "phone": "555-12345",
+    "salutation": "Mr.",
+    "title": "Owner",
+  },
+  "currency": "HKD",
+  "loan": Object {
+    "description": "test-description",
+    "reference": "MYTRADE0001",
+    "status": 0,
+  },
+  "loanType": "Post-shipment",
+  "requestedAmt": 50000,
+  "requester": Object {
+    "name": "Pete N Co. Ltd",
+    "registration": "BR0000001",
+    "type": "Money Launderer",
+  },
+  "startDate": "2019-10-11",
+  "tenor": 60,
+}
+`;
+
+exports[`Loan Details Integration Test query loan details by ID 1`] = `
+Object {
+  "approvedAmt": null,
+  "comment": null,
+  "contact": Object {
+    "email": "hook@fake.it",
+    "name": "Hook",
+    "phone": "555-23456",
+    "salutation": "Mr.",
+    "title": "Owner",
+  },
+  "currency": "HKD",
+  "loanType": "Post-shipment",
+  "requestedAmt": 70000,
+  "requester": Object {
+    "name": "Peter Hook Ltd",
+    "registration": "BR000000X",
+    "type": "Money Launderer",
+  },
+  "startDate": "2019-10-12",
+  "tenor": 60,
+}
+`;
+
+exports[`Loan Integration Test query commits of loan 1`] = `
+Array [
+  Object {
+    "entityName": "int_test_loan",
+    "events": Array [
+      Object {
+        "type": "LoanApplied",
+      },
+      Object {
+        "type": "LoanReferenceDefined",
+      },
+      Object {
+        "type": "LoanDescriptionDefined",
+      },
+    ],
+  },
+]
+`;
+
+exports[`Loan Integration Test query loan by ID 1`] = `
+Object {
+  "description": "loan-description",
+  "reference": "MYLOAN0001",
+  "status": 0,
+}
+`;
+
+exports[`User Integration Test query commits of user 1`] = `
+Array [
+  Object {
+    "entityName": "int_test_user",
+    "events": Array [
+      Object {
+        "type": "UserCreated",
+      },
+    ],
+  },
+]
+`;
+
+exports[`User Integration Test query paginated user 1`] = `
+Object {
+  "getPaginatedUser": Object {
+    "entities": Array [
+      Object {
+        "name": "The new User2",
+      },
+    ],
+    "hasMore": false,
+    "total": 3,
+  },
+}
+`;
