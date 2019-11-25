@@ -58,6 +58,27 @@ exports[`Loan Entity: Unit Test federated query loan by ID 1`] = `
 Object {
   "getLoanById": Object {
     "description": "Loan requested by an undisclosed party to an unknown bank",
+    "details": Object {
+      "approvedAmt": null,
+      "comment": null,
+      "contact": Object {
+        "email": "josh@fake.it",
+        "name": "Josh",
+        "phone": "555-01234",
+        "salutation": "Mr.",
+        "title": "Owner",
+      },
+      "currency": "CNY",
+      "loanType": "Post-shipment",
+      "requestedAmt": 900000,
+      "requester": Object {
+        "name": "Josh's Tailor",
+        "registration": "BR00001",
+        "type": "Textile",
+      },
+      "startDate": "1542336644365",
+      "tenor": 90,
+    },
     "documents": Array [
       Object {
         "documentId": "1542385173331",

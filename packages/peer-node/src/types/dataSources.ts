@@ -13,18 +13,18 @@ import { LoanDetails, LoanDetailsEvents } from '../private';
 export class FabricData<TEntity = any, TEvent = any> extends DataSource {
   context;
   repo;
-  localRepo;
+  privateRepo;
 
   constructor({
     repo,
-    localRepo
+    privateRepo
   }: {
     repo?: Repository<TEntity, TEvent>;
-    localRepo?: PrivatedataRepository<TEntity, TEvent>;
+    privateRepo?: PrivatedataRepository<TEntity, TEvent>;
   }) {
     super();
     this.repo = repo;
-    this.localRepo = localRepo;
+    this.privateRepo = privateRepo;
   }
 
   initialize(config) {
@@ -36,5 +36,5 @@ export type DataSources = {
   docDataSource?: FabricData<Document, DocumentEvents>;
   loanDataSource?: FabricData<Loan, LoanEvents>;
   userDataSource?: FabricData<User, UserEvents>;
-  dtlsDataSource?: FabricData<LoanDetails, LoanDetailsEvents>;
+  loanDetailsDataSource?: FabricData<LoanDetails, LoanDetailsEvents>;
 };
