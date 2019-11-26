@@ -4,9 +4,9 @@ import {
   Document,
   DocumentEvents,
   documentReducer,
-  Loan,
-  LoanEvents,
-  loanReducer,
+  // Loan,
+  // LoanEvents,
+  // loanReducer,
   User,
   UserEvents,
   userReducer
@@ -33,10 +33,10 @@ const bootstrap = async () => {
     reducer: documentReducer,
     collection
   });
-  const loanRepo = getRepository<Loan, LoanEvents>({
-    entityName: 'loan',
-    reducer: loanReducer
-  });
+  // const loanRepo = getRepository<Loan, LoanEvents>({
+  //   entityName: 'loan',
+  //   reducer: loanReducer
+  // });
   const userRepo = getRepository<User, UserEvents>({
     entityName: 'user',
     reducer: userReducer
@@ -50,7 +50,7 @@ const bootstrap = async () => {
 
   // As a bootstrap process, clone on-chain Trade entity to local in-memory query DB, and restore final state with reduceToTrade
   // For production-grade, local in-memory query database, may refactor to using Redis, for better scalability
-  await reconcile({ entityName: 'loan', reducer: loanReducer });
+  // await reconcile({ entityName: 'loan', reducer: loanReducer });
   await reconcile({ entityName: 'user', reducer: userReducer });
   await reconcile({ entityName: 'document', reducer: documentReducer });
 
@@ -60,7 +60,7 @@ const bootstrap = async () => {
     subscriptions: { path: '/graphql' },
     dataSources: (): DataSources => ({
       docDataSource: new FabricData({ repo: documentRepo }),
-      loanDataSource: new FabricData({ repo: loanRepo }),
+      // loanDataSource: new FabricData({ repo: loanRepo }),
       userDataSource: new FabricData({ repo: userRepo })
     })
   });

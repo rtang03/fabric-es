@@ -8,7 +8,7 @@ import {
 } from '@espresso/common';
 import { PrivatedataRepository, Repository } from '@espresso/fabric-cqrs';
 import { DataSource } from 'apollo-datasource';
-import { LoanDetails, LoanDetailsEvents } from '../private';
+import { DocContents, DocContentsEvents, LoanDetails, LoanDetailsEvents } from '../private';
 
 export class FabricData<TEntity = any, TEvent = any> extends DataSource {
   context;
@@ -37,4 +37,5 @@ export type DataSources = {
   loanDataSource?: FabricData<Loan, LoanEvents>;
   userDataSource?: FabricData<User, UserEvents>;
   loanDetailsDataSource?: FabricData<LoanDetails, LoanDetailsEvents>;
+  docContentsDataSource?: FabricData<DocContents, DocContentsEvents>;
 };
