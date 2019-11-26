@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 export const typeDefs = gql`
   extend type Query {
     getLoanDetailsById(loanId: String!): LoanDetails!
+    getDocContentsById(documentId: String!): DocContents!
   }
 
   type Mutation {
@@ -32,8 +33,13 @@ export const typeDefs = gql`
       approvedAmt: Float,
       comment: String
     ): [LocalResponse]!
+    createDataDocContents(userId: String!, documentId: String!, body: String!): LocalResponse
+    createFileDocContents(userId: String!, documentId: String!, format: String!, link: String!): LocalResponse
   }
 
+  """
+  Local Type: Loan Details
+  """
   type LoanDetails @key(fields: "loanId") {
     loanId: String!
     requester: LoanRequester!
@@ -75,6 +81,32 @@ export const typeDefs = gql`
     email: String!
   }
 
+  """
+  Local Type: Doc Contents
+  """
+  type DocContents @key(fields: "documentId") {
+    documentId: String!
+    content: Contents!
+    timestamp: String!
+    document: Document
+  }
+
+  union Contents = Data | File
+
+  # Free style document content as structural data
+  type Data {
+    body: String!
+  }
+
+  # Note: this File entity is Private Data, but the uploaded files themselves are entirly off-chain
+  type File {
+    format: String!
+    link: String!
+  }
+
+  """
+  Mutation responses
+  """
   union LocalResponse = LocalCommit | LocalError
 
   type LocalCommit {
@@ -91,8 +123,16 @@ export const typeDefs = gql`
     stack: String
   }
 
+  """
+  Federated types
+  """
   extend type Loan @key(fields: "loanId") {
     loanId: String! @external
     details: LoanDetails
+  }
+
+  extend type Document @key(fields: "documentId") {
+    documentId: String! @external
+    contents: DocContents
   }
 `;

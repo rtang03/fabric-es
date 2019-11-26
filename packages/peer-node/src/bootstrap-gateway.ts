@@ -13,7 +13,7 @@ const gateway = new ApolloGateway({
   serviceList: [
     { name: 'loan', url: 'http://localhost:14001/graphql' },
     { name: 'document', url: 'http://localhost:14003/graphql' },
-    { name: 'privatedata', url: 'http://localhost:14002/graphql' },
+    { name: 'private', url: 'http://localhost:14002/graphql' },
     { name: 'user', url: 'http://localhost:14004/graphql' }
   ],
   buildService: ({ url }) => new AuthenticatedDataSource({ url })
