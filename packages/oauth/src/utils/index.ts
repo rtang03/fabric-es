@@ -1,5 +1,5 @@
 export * from './isAdmin';
-export * from './sendRefreshToken';
+export * from './sendToken';
 export * from './createHttpServer';
 export * from './createModel';
 export * from './createToken';

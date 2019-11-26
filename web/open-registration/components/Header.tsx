@@ -1,55 +1,51 @@
-// import Link from 'next/link';
-import React from 'react';
-import { useLogoutMutation, useMeQuery } from '../generated/graphql';
+import Router from 'next/router';
+import React, { useEffect } from 'react';
+import { useLogoutMutation, useMeLazyQuery } from '../generated/graphql';
+import { setAccessToken } from '../utils';
 import Link from './Link';
 
 export const Header: React.FC<any> = () => {
-  const { data, loading } = useMeQuery();
-  const [logout, { client }] = useLogoutMutation();
+  const [me, { data, loading, client }] = useMeLazyQuery();
+  const [logout] = useLogoutMutation();
+  // const client = useApolloClient();
 
-  let body: any = null;
+  useEffect(() => {
+    if (!data?.me) me();
+  }, []);
 
-  if (loading) {
-    body = null;
-  } else if (data?.me) {
-    body = (
-      <div>
-        <p>you are logged in as: {data.me.email}</p>
-      </div>
-    );
-  } else {
-    body = (
-      <div>
-        <p>not logged in</p>
-      </div>
-    );
-  }
+  const body = loading ? null : data?.me ? (
+    <div>
+      <p>you are logged in as: {data.me.email}</p>
+    </div>
+  ) : (
+    <div>
+      <p>not logged in</p>
+    </div>
+  );
 
   return (
     <header>
       <nav>
-        <Link href="/">
-          <a>Home</a>
-        </Link>{' '}
-        |{' '}
-        <Link href="/register" color="secondary">
-          <a>Register</a>
-        </Link>{' '}
-        |{' '}
-        <Link href="/login">
-          <a>Login</a>
-        </Link>{' '}
-        |{' '}
-        <Link href="/enroll">
-          <a>Enroll</a>
-        </Link>
-        {!loading && data?.me ? (
+        <Link href="/">Home</Link>
+        {!loading && !data?.me ? (
           <React.Fragment>
             {' '}
             |{' '}
+            <Link href="/register" color="secondary">
+              Register
+            </Link>{' '}
+            | <Link href="/login">Login</Link>
+          </React.Fragment>
+        ) : !loading && data?.me ? (
+          <React.Fragment>
+            {' '}
+            | <Link href="/application">Application</Link> |{' '}
+            <Link href="/enroll">Enroll</Link> |{' '}
             <button
               onClick={async () => {
                 await logout();
+                setAccessToken('');
+                await Router.replace('/');
                 await client!.resetStore();
               }}>
               logout

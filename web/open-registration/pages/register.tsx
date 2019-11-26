@@ -1,8 +1,6 @@
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
 import Container from '@material-ui/core/Container';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
 import { makeStyles, Theme } from '@material-ui/core/styles';
@@ -13,6 +11,7 @@ import Router from 'next/router';
 import React from 'react';
 import * as yup from 'yup';
 import { MyTextField } from '../components';
+import DisplayErrorMessage from '../components/DisplayErrorMessage';
 import Layout from '../components/Layout';
 import { useRegisterUserMutation } from '../generated/graphql';
 
@@ -56,8 +55,8 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-export default () => {
-  const [register] = useRegisterUserMutation();
+const Register: React.FC<any> = () => {
+  const [register, { error }] = useRegisterUserMutation();
   const classes = useStyles();
 
   return (
@@ -78,9 +77,15 @@ export default () => {
             { setSubmitting }
           ) => {
             setSubmitting(true);
-            await register({ variables: { email, password, username } });
-            setSubmitting(false);
-            await Router.push('/');
+            return register({ variables: { email, password, username } })
+              .then(() => {
+                setSubmitting(false);
+                Router.push('/');
+              })
+              .catch(err => {
+                setSubmitting(false);
+                console.error(err);
+              });
           }}>
           {({ values, isSubmitting }) => (
             <Form className={classes.form}>
@@ -126,10 +131,11 @@ export default () => {
                 type="submit">
                 Register
               </Button>
+              <DisplayErrorMessage error={error} />
               <Grid container justify="flex-end">
                 <Grid item>
                   <Link href="#" variant="body2">
-                    Already have an account? Sign in
+                    Already have an account? Log In
                   </Link>
                 </Grid>
               </Grid>
@@ -140,3 +146,5 @@ export default () => {
     </Layout>
   );
 };
+
+export default Register;

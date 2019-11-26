@@ -1,0 +1,9 @@
+query GetPublicClients {
+  getPublicClients {
+    id
+    applicationName
+    user_id
+    redirect_uris
+    grants
+  }
+}
