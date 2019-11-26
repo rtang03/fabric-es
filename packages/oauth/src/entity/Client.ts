@@ -27,4 +27,8 @@ export class Client extends BaseEntity {
   @Field()
   @Column({ type: 'text', nullable: true })
   user_id: string;
+
+  @Field()
+  @Column()
+  is_system_app: boolean;
 }

@@ -19,6 +19,7 @@ export type Client = {
   redirect_uris: Array<Scalars['String']>,
   grants: Array<Scalars['String']>,
   user_id: Scalars['String'],
+  is_system_app: Scalars['Boolean'],
 };
 
 export type CreateAppResponse = {
@@ -39,12 +40,20 @@ export type LoginResponse = {
 
 export type Mutation = {
    __typename?: 'Mutation',
+  createRegularApp: CreateAppResponse,
   createApplication: CreateAppResponse,
   createRootClient: Scalars['String'],
   login: LoginResponse,
   register: Scalars['Boolean'],
   logout: Scalars['Boolean'],
   updateUser: Scalars['Boolean'],
+};
+
+
+export type MutationCreateRegularAppArgs = {
+  redirect_uri?: Maybe<Scalars['String']>,
+  grants: Array<Scalars['String']>,
+  applicationName: Scalars['String']
 };
 
 
@@ -85,13 +94,16 @@ export type OUser = {
   id: Scalars['String'],
   email: Scalars['String'],
   username: Scalars['String'],
+  is_admin: Scalars['Boolean'],
 };
 
 export type Query = {
    __typename?: 'Query',
   helloClient: Scalars['String'],
-  clients: Array<Client>,
   getRootClientId: Scalars['String'],
+  getPublicClients: Array<Client>,
+  getClients?: Maybe<Array<Client>>,
+  getAllClients: Array<Client>,
   hello: Scalars['String'],
   users: Array<OUser>,
   me?: Maybe<OUser>,
@@ -123,6 +135,21 @@ export type CreateAppForAuthCodeMutation = (
   ) }
 );
 
+export type CreateRegularAppMutationVariables = {
+  applicationName: Scalars['String'],
+  grants: Array<Scalars['String']>,
+  redirect_uri: Scalars['String']
+};
+
+
+export type CreateRegularAppMutation = (
+  { __typename?: 'Mutation' }
+  & { createRegularApp: (
+    { __typename?: 'CreateAppResponse' }
+    & Pick<CreateAppResponse, 'ok' | 'applicationName' | 'client_id' | 'client_secret' | 'redirect_uri'>
+  ) }
+);
+
 export type CreateApplicationMutationVariables = {
   applicationName: Scalars['String'],
   grants: Array<Scalars['String']>
@@ -135,6 +162,28 @@ export type CreateApplicationMutation = (
     { __typename?: 'CreateAppResponse' }
     & Pick<CreateAppResponse, 'ok' | 'client_id' | 'client_secret' | 'redirect_uri'>
   ) }
+);
+
+export type GetClientsQueryVariables = {};
+
+
+export type GetClientsQuery = (
+  { __typename?: 'Query' }
+  & { getClients: Maybe<Array<(
+    { __typename?: 'Client' }
+    & Pick<Client, 'id' | 'client_secret' | 'applicationName' | 'user_id' | 'redirect_uris' | 'grants'>
+  )>> }
+);
+
+export type GetPublicClientsQueryVariables = {};
+
+
+export type GetPublicClientsQuery = (
+  { __typename?: 'Query' }
+  & { getPublicClients: Array<(
+    { __typename?: 'Client' }
+    & Pick<Client, 'id' | 'applicationName' | 'user_id' | 'redirect_uris' | 'grants'>
+  )> }
 );
 
 export type HelloQueryVariables = {};
@@ -298,6 +347,44 @@ export function useCreateAppForAuthCodeMutation(baseOptions?: ApolloReactHooks.M
 export type CreateAppForAuthCodeMutationHookResult = ReturnType<typeof useCreateAppForAuthCodeMutation>;
 export type CreateAppForAuthCodeMutationResult = ApolloReactCommon.MutationResult<CreateAppForAuthCodeMutation>;
 export type CreateAppForAuthCodeMutationOptions = ApolloReactCommon.BaseMutationOptions<CreateAppForAuthCodeMutation, CreateAppForAuthCodeMutationVariables>;
+export const CreateRegularAppDocument = gql`
+    mutation CreateRegularApp($applicationName: String!, $grants: [String!]!, $redirect_uri: String!) {
+  createRegularApp(applicationName: $applicationName, grants: $grants, redirect_uri: $redirect_uri) {
+    ok
+    applicationName
+    client_id
+    client_secret
+    redirect_uri
+  }
+}
+    `;
+export type CreateRegularAppMutationFn = ApolloReactCommon.MutationFunction<CreateRegularAppMutation, CreateRegularAppMutationVariables>;
+
+/**
+ * __useCreateRegularAppMutation__
+ *
+ * To run a mutation, you first call `useCreateRegularAppMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateRegularAppMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createRegularAppMutation, { data, loading, error }] = useCreateRegularAppMutation({
+ *   variables: {
+ *      applicationName: // value for 'applicationName'
+ *      grants: // value for 'grants'
+ *      redirect_uri: // value for 'redirect_uri'
+ *   },
+ * });
+ */
+export function useCreateRegularAppMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateRegularAppMutation, CreateRegularAppMutationVariables>) {
+        return ApolloReactHooks.useMutation<CreateRegularAppMutation, CreateRegularAppMutationVariables>(CreateRegularAppDocument, baseOptions);
+      }
+export type CreateRegularAppMutationHookResult = ReturnType<typeof useCreateRegularAppMutation>;
+export type CreateRegularAppMutationResult = ApolloReactCommon.MutationResult<CreateRegularAppMutation>;
+export type CreateRegularAppMutationOptions = ApolloReactCommon.BaseMutationOptions<CreateRegularAppMutation, CreateRegularAppMutationVariables>;
 export const CreateApplicationDocument = gql`
     mutation CreateApplication($applicationName: String!, $grants: [String!]!) {
   createApplication(applicationName: $applicationName, grants: $grants) {
@@ -334,6 +421,79 @@ export function useCreateApplicationMutation(baseOptions?: ApolloReactHooks.Muta
 export type CreateApplicationMutationHookResult = ReturnType<typeof useCreateApplicationMutation>;
 export type CreateApplicationMutationResult = ApolloReactCommon.MutationResult<CreateApplicationMutation>;
 export type CreateApplicationMutationOptions = ApolloReactCommon.BaseMutationOptions<CreateApplicationMutation, CreateApplicationMutationVariables>;
+export const GetClientsDocument = gql`
+    query GetClients {
+  getClients {
+    id
+    client_secret
+    applicationName
+    user_id
+    redirect_uris
+    grants
+  }
+}
+    `;
+
+/**
+ * __useGetClientsQuery__
+ *
+ * To run a query within a React component, call `useGetClientsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetClientsQuery` returns an object from Apollo Client that contains loading, error, and data properties 
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetClientsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetClientsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetClientsQuery, GetClientsQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetClientsQuery, GetClientsQueryVariables>(GetClientsDocument, baseOptions);
+      }
+export function useGetClientsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetClientsQuery, GetClientsQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<GetClientsQuery, GetClientsQueryVariables>(GetClientsDocument, baseOptions);
+        }
+export type GetClientsQueryHookResult = ReturnType<typeof useGetClientsQuery>;
+export type GetClientsLazyQueryHookResult = ReturnType<typeof useGetClientsLazyQuery>;
+export type GetClientsQueryResult = ApolloReactCommon.QueryResult<GetClientsQuery, GetClientsQueryVariables>;
+export const GetPublicClientsDocument = gql`
+    query GetPublicClients {
+  getPublicClients {
+    id
+    applicationName
+    user_id
+    redirect_uris
+    grants
+  }
+}
+    `;
+
+/**
+ * __useGetPublicClientsQuery__
+ *
+ * To run a query within a React component, call `useGetPublicClientsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPublicClientsQuery` returns an object from Apollo Client that contains loading, error, and data properties 
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPublicClientsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPublicClientsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetPublicClientsQuery, GetPublicClientsQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetPublicClientsQuery, GetPublicClientsQueryVariables>(GetPublicClientsDocument, baseOptions);
+      }
+export function useGetPublicClientsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetPublicClientsQuery, GetPublicClientsQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<GetPublicClientsQuery, GetPublicClientsQueryVariables>(GetPublicClientsDocument, baseOptions);
+        }
+export type GetPublicClientsQueryHookResult = ReturnType<typeof useGetPublicClientsQuery>;
+export type GetPublicClientsLazyQueryHookResult = ReturnType<typeof useGetPublicClientsLazyQuery>;
+export type GetPublicClientsQueryResult = ApolloReactCommon.QueryResult<GetPublicClientsQuery, GetPublicClientsQueryVariables>;
 export const HelloDocument = gql`
     query Hello {
   hello

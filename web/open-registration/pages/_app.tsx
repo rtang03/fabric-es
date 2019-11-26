@@ -3,8 +3,8 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/core/styles';
 import App from 'next/app';
 import React from 'react';
+import { withApollo } from '../utils';
 import theme from '../utils/theme';
-import { withApollo } from '../utils/withApollo';
 
 class MyApp extends App<any> {
   componentDidMount() {
