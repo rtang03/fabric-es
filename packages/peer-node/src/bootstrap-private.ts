@@ -8,7 +8,7 @@ import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import './env';
 import { LoanDetails, LoanDetailsEvents, loanDetailsReducer, resolvers, typeDefs } from './private';
-import { FabricData } from './types';
+import { DataSources, FabricData } from './types';
 
 let networkConfig;
 const port = 14002;
@@ -27,15 +27,17 @@ const bootstrap = async () => {
     reducer: loanDetailsReducer,
     collection
   });
-  const dtlsRepo = getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
+  const loanDetailsRepo = getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
     entityName,
     reducer: loanDetailsReducer
   });
-  const dtlsDataSource = new FabricData({ localRepo: dtlsRepo });
+
   const server = new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),
     playground: true,
-    dataSources: () => ({ dtlsDataSource })
+    dataSources: (): DataSources => ({
+      loanDetailsDataSource: new FabricData({ privateRepo: loanDetailsRepo })
+    })
   });
   server.listen({ port }).then(({ url }) => {
     console.log(`🚀 Server ready at ${url}`);

@@ -163,5 +163,26 @@ query GetLoanById($loanId: String!) {
       status
       timestamp
     }
+    details {
+      requester {
+        registration
+        name
+        type
+      }
+      contact {
+        salutation
+        name
+        title
+        phone
+        email
+      }
+      loanType
+      startDate
+      tenor
+      currency
+      requestedAmt
+      approvedAmt
+      comment
+    }
   }
 }`;

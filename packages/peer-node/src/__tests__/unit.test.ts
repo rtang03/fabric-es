@@ -32,7 +32,10 @@ import {
   typeDefs as userTypeDefs
 } from '../common/user';
 import {
+  CREATE_DATA_DOC_CONTENTS,
+  CREATE_FILE_DOC_CONTENTS,
   CREATE_LOAN_DETAILS,
+  GET_CONTENTS_BY_ID,
   GET_DETAILS_BY_ID,
   resolvers as localResolvers,
   typeDefs as localTypeDefs,
@@ -40,6 +43,7 @@ import {
 } from '../private';
 import {
   constructTestServer,
+  docContentsRepo,
   documentRepo,
   getApolloServer,
   loanDetailsRepo,
@@ -87,7 +91,8 @@ beforeAll(async () => {
     typeDefs: localTypeDefs,
     resolvers: localResolvers,
     dataSources: () => ({
-      loanDetailsDataSource: { repo: loanDetailsRepo }
+      loanDetailsDataSource: { repo: loanDetailsRepo },
+      docContentsDataSource: { repo: docContentsRepo }
     })
   });
   await privateService.listen({ port: 14003 });
@@ -489,6 +494,63 @@ describe('Loan Entity: Unit Test', () => {
   });
 });
 
+describe('DocContents: Unit Test', () => {
+  it('create doc contents: data', async () =>
+    createTestClient(server)
+      .mutate({
+        mutation: CREATE_DATA_DOC_CONTENTS,
+        variables: {
+          userId: 'example@gmail.com',
+          documentId: '990000103',
+          body: '{ "seq": 1, "type": "Invoice", "ref": "REF001" }'
+        }
+      })
+      // .then(data => {
+      //   console.log('YO', data);
+      //   return data;
+      // })
+      .then(({ data: { createDataDocContents: { id } } }) =>
+        expect(id).toEqual('990000103'))
+  );
+
+  it('create doc contents: file', async () =>
+    createTestClient(server)
+      .mutate({
+        mutation: CREATE_FILE_DOC_CONTENTS,
+        variables: {
+          userId: 'example@gmail.com',
+          documentId: '990000104',
+          format: 'PDF',
+          link: 'localhost/990000104'
+        }
+      })
+      // .then(data => {
+      //   console.log('YO', data);
+      //   return data;
+      // })
+      .then(({ data: { createFileDocContents: { id } } }) =>
+        expect(id).toEqual('990000104'))
+  );
+
+  it('query doc contents: data', async () =>
+    createTestClient(server)
+      .query({
+        query: GET_CONTENTS_BY_ID,
+        variables: { loanId: '1542385173331' }
+      })
+      .then(({ data }) => expect(data).toMatchSnapshot()
+  ));
+
+  it('query doc contents: file', async () =>
+    createTestClient(server)
+      .query({
+        query: GET_CONTENTS_BY_ID,
+        variables: { loanId: '1542385174331' }
+      })
+      .then(({ data }) => expect(data).toMatchSnapshot()
+  ));
+});
+
 describe('LoanDetails: Unit Test', () => {
   it('create loan details', async () =>
     createTestClient(server)
@@ -608,3 +670,43 @@ describe('LoanDetails: Unit Test', () => {
       .then(({ data }) => expect(data).toMatchSnapshot()
   ));
 });
+
+// describe('Debug Unit Test', () => {
+//   const timestamp = 1542336654365;
+//   const loanId = 'L0001';
+//   const userId = 'usr01';
+//   const gevents: any = [
+//     { type: 'GenericDocCreated'      , payload: { id: '0001', userId, timestamp }},
+//     { type: 'GenericDocBodyDefined'  , payload: { id: '0001', userId, timestamp, body: '{ "message": "hello how are you" }' }},
+//     { type: 'GenericDocLoanIdDefined', payload: { id: '0001', userId, timestamp, loanId: 'L0001' }}
+//   ];
+//   const devents: any = [
+//     { type: 'LoanDetailsCreated'     , payload: { loanId, userId, timestamp }},
+//     { type: 'LoanRequesterDefined'   , payload: { loanId, userId, timestamp, registration: 'BR00X', name: 'Some Co. Ltd.' }},
+//     { type: 'LoanContactDefined'     , payload: { loanId, userId, timestamp, name: 'Chan Tai Man', phone: '555-99901', email: 'ctm@fake.it' }},
+//     { type: 'LoanStartDateDefined'   , payload: { loanId, userId, timestamp, startDate: 1542336554365 }},
+//     { type: 'LoanTenorDefined'       , payload: { loanId, userId, timestamp, tenor: 55 }},
+//     { type: 'LoanCurrencyDefined'    , payload: { loanId, userId, timestamp, currency: 'HKD' }},
+//     { type: 'LoanRequestedAmtDefined', payload: { loanId, userId, timestamp, requestedAmt: 30000.5 }}
+//   ];
+  
+//   it('test merged reducer - genericDoc', () => {
+//     const p = privateReducer(gevents, null);
+//     expect(p).toStrictEqual(genericDocReducer(gevents, null));
+//   });
+
+//   it('test merged reducer - loanDetails', () => {
+//     const p = privateReducer(devents, null);
+//     expect(p).toStrictEqual(loanDetailsReducer(devents, null));
+//   });
+
+//   it('test loanDetails reducer with genericDoc events', () => {
+//     const x = loanDetailsReducer(gevents, null);
+//     expect(x).toBeUndefined();
+//   });
+
+//   it('test genericDoc reducer with loanDetails events', () => {
+//     const x = genericDocReducer(devents, null);
+//     expect(x).toBeUndefined();
+//   });
+// });

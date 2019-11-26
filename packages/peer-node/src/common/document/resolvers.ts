@@ -67,16 +67,16 @@ export const resolvers = {
     documents: ({ loanId }, _, { dataSources: { docDataSource }}) => {
       // console.log('001 resolvers (document) - Loan: documents:', `loanId: ${loanId}`);
       return docDataSource.repo.getProjection({ where: { loanId }})
-        .then(data => {
-          console.log('peer-node/document/resolvers.ts - Loan: documents:', `loanId: ${loanId}`, data);
-          return data;
-        })
+        // .then(data => {
+        //   console.log('peer-node/document/resolvers.ts - Loan: documents:', `loanId: ${loanId}`, data);
+        //   return data;
+        // })
         .then(({ data }) => data);
     }
   },
   Document: {
     loan(documents) {
-      console.log('peer-node/document/resolvers.ts - Document: loan(documents):', documents);
+      // console.log('peer-node/document/resolvers.ts - Document: loan(documents):', documents);
       return { __typename: 'Loan', loanId: documents.loanId };
     }
   },
