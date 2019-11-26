@@ -1,10 +1,14 @@
 import { Commit } from '@espresso/fabric-cqrs';
-import { LoanDetails, loanDetailsCommandHandler } from '.';
+import { DocContents, docContentsCommandHandler, LoanDetails, loanDetailsCommandHandler } from '.';
 
 export const resolvers = {
   Query: {
     getLoanDetailsById: async (_, { loanId }, { dataSources: { loanDetailsDataSource }}): Promise<LoanDetails | { error: any }> =>
       loanDetailsDataSource.repo.getById({ id: loanId })
+        .then(({ currentState }) => currentState)
+        .catch(error => ({ error })),
+    getDocContentsById: async (_, { documentId }, { dataSources: { docContentsDataSource }}): Promise<DocContents | { error: any }> =>
+      docContentsDataSource.repo.getById({ id: documentId })
         .then(({ currentState }) => currentState)
         .catch(error => ({ error }))
   },
@@ -77,7 +81,17 @@ export const resolvers = {
         result.push(c);
       }
       return result;
-    }
+    },
+    createDataDocContents: async (_, { userId, documentId, body }, { dataSources: { docContentsDataSource }, enrollmentId }): Promise<Commit> =>
+      docContentsCommandHandler({ enrollmentId, docContentsRepo: docContentsDataSource.repo }).CreateDocContents({
+        userId,
+        payload: { documentId, content: { body }, timestamp: Date.now() }
+      }),
+    createFileDocContents: async (_, { userId, documentId, format, link }, { dataSources: { docContentsDataSource }, enrollmentId }): Promise<Commit> =>
+      docContentsCommandHandler({ enrollmentId, docContentsRepo: docContentsDataSource.repo }).CreateDocContents({
+        userId,
+        payload: { documentId, content: { format, link }, timestamp: Date.now() }
+      }),
   },
   Loan: {
     details: (loan, _, { dataSources: { loanDetailsDataSource }}) => {
@@ -88,6 +102,28 @@ export const resolvers = {
   LoanDetails: {
     loan(details) {
       return { __typename: 'Loan', loanId: details.loanId };
+    }
+  },
+  Document: {
+    contents: (document, _, { dataSources: { docContentsDataSource }}) => {
+      return docContentsDataSource.repo.getById({ id: document.documentId })
+        .then(({ currentState }) => currentState);
+    }
+  },
+  DocContents: {
+    document(contents) {
+      return { __typename: 'Document', documentId: contents.documentId };
+    }
+  },
+  Contents: {
+    __resolveType(obj, _, __) {
+      if (obj.body) {
+        return 'Data';
+      }
+      if (obj.format) {
+        return 'File';
+      }
+      return {};
     }
   },
   LocalResponse: {
