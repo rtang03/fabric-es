@@ -50,7 +50,7 @@ export function withApollo(PageComponent: any, { ssr = true } = {}) {
         const cookies = cookie.parse(req.headers.cookie || '');
         if (cookies.jid) setAccessToken(cookies.jid);
       } else {
-        const jscookie =  await import('js-cookie');
+        const jscookie = await import('js-cookie');
         const token = jscookie.get().jid;
         if (token) setAccessToken(token);
       }
