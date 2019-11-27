@@ -80,8 +80,7 @@ export const mockdb: Record<string, Commit> = {
       { payload: { userId: 'josh@fake.it', documentId: '1542385173331', timestamp: 1543041982770 }, type: 'DocumentCreated' },
       { payload: { documentId: '1542385173331', title: 'Top 15+ UK Scholarships for International Students', timestamp: 1543041982770 }, type: 'DocumentTitleDefined' },
       { payload: { documentId: '1542385173331', reference: 'REF1542385173331', timestamp: 1543041982770 }, type: 'DocumentReferenceDefined' },
-      { payload: { documentId: '1542385173331', loanId: '123456', timestamp: 1543041982770 }, type: 'DocumentLoanIdDefined' },
-      { payload: { documentId: '1542385173331', link: 'localhost/doc/1542385173331', timestamp: 1543041982770 }, type: 'DocumentLinkDefined' }
+      { payload: { documentId: '1542385173331', loanId: '123456', timestamp: 1543041982770 }, type: 'DocumentLoanIdDefined' }
     ]
   },
   '20181124064622777:1542385174331': {
@@ -95,8 +94,7 @@ export const mockdb: Record<string, Commit> = {
       { payload: { userId: 'josh@fake.it', documentId: '1542385174331', timestamp: 1543041984770 }, type: 'DocumentCreated' },
       { payload: { documentId: '1542385174331', title: 'The Mother of All Invoices', timestamp: 1543041984770 }, type: 'DocumentTitleDefined' },
       { payload: { documentId: '1542385174331', reference: 'REF1542385174331', timestamp: 1543041984770 }, type: 'DocumentReferenceDefined' },
-      { payload: { documentId: '1542385174331', loanId: '123456', timestamp: 1543041984770 }, type: 'DocumentLoanIdDefined' },
-      { payload: { documentId: '1542385174331', link: 'localhost/doc/1542385174331', timestamp: 1543041984770 }, type: 'DocumentLinkDefined' }
+      { payload: { documentId: '1542385174331', loanId: '123456', timestamp: 1543041984770 }, type: 'DocumentLoanIdDefined' }
     ]
   }
 };

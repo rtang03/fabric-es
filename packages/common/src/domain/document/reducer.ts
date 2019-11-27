@@ -12,8 +12,7 @@ export function documentReducer(
           ownerId: event.payload.userId,
           status: DocumentStatus[event.type],
           timestamp: event.payload.timestamp,
-          reference: null,
-          link: null
+          reference: null
         };
       case 'DocumentDeleted':
       case 'DocumentRestricted':
@@ -25,11 +24,6 @@ export function documentReducer(
         return {
           ...document,
           reference: event.payload.reference
-        };
-      case 'DocumentLinkDefined':
-        return {
-          ...document,
-          link: event.payload.link
         };
       case 'DocumentLoanIdDefined':
         return {

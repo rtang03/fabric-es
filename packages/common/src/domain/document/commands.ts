@@ -6,7 +6,6 @@ export interface DocumentCommands {
       loanId?: string;
       title?: string;
       reference: string;
-      link: string;
       timestamp: number;
     }
   };
@@ -29,14 +28,6 @@ export interface DocumentCommands {
     payload: {
       documentId: string;
       reference: string;
-      timestamp: number;
-    }
-  };
-  DefineDocumentLink: {
-    userId: string;
-    payload: {
-      documentId: string;
-      link: string;
       timestamp: number;
     }
   };

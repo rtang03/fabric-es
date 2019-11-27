@@ -16,7 +16,6 @@ export class Document {
   loanId?: string;
   title?: string;
   reference: string;
-  link: string;
   status: DocumentStatus;
   timestamp: number;
 }

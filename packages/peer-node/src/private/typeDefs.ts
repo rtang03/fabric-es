@@ -37,9 +37,9 @@ export const typeDefs = gql`
     createFileDocContents(userId: String!, documentId: String!, format: String!, link: String!): LocalResponse
   }
 
-  """
-  Local Type: Loan Details
-  """
+  ###
+  # Local Type: Loan Details
+  ###
   type LoanDetails @key(fields: "loanId") {
     loanId: String!
     requester: LoanRequester!
@@ -81,17 +81,17 @@ export const typeDefs = gql`
     email: String!
   }
 
-  """
-  Local Type: Doc Contents
-  """
+  ###
+  # Local Type: Doc Contents
+  ###
   type DocContents @key(fields: "documentId") {
     documentId: String!
-    content: Contents!
+    content: Docs!
     timestamp: String!
     document: Document
   }
 
-  union Contents = Data | File
+  union Docs = Data | File
 
   # Free style document content as structural data
   type Data {
@@ -104,9 +104,9 @@ export const typeDefs = gql`
     link: String!
   }
 
-  """
-  Mutation responses
-  """
+  ###
+  # Mutation responses
+  ###
   union LocalResponse = LocalCommit | LocalError
 
   type LocalCommit {
@@ -123,9 +123,9 @@ export const typeDefs = gql`
     stack: String
   }
 
-  """
-  Federated types
-  """
+  ###
+  # Federated types
+  ###
   extend type Loan @key(fields: "loanId") {
     loanId: String! @external
     details: LoanDetails

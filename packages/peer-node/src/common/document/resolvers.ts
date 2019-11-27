@@ -14,11 +14,11 @@ export const resolvers = {
   },
   Mutation: {
     createDocument: async (
-      _, { userId, documentId, loanId, title, reference, link }, { dataSources: { docDataSource, userDataSource }, enrollmentId }
+      _, { userId, documentId, loanId, title, reference }, { dataSources: { docDataSource, userDataSource }, enrollmentId }
     ): Promise<Commit> =>
       documentCommandHandler({ enrollmentId, userRepo: userDataSource.repo, documentRepo: docDataSource.repo }).CreateDocument({
         userId,
-        payload: { documentId, loanId, title, reference, link, timestamp: Date.now() }
+        payload: { documentId, loanId, title, reference, timestamp: Date.now() }
       }),
     deleteDocument: async (
       _, { userId, documentId }, { dataSources: { docDataSource, userDataSource }, enrollmentId }
@@ -33,7 +33,7 @@ export const resolvers = {
         userId, payload: { documentId, timestamp: Date.now() }
       }),
     updateDocument: async (
-      _, { userId, documentId, loanId, title, reference, link }, { dataSources: { docDataSource, userDataSource }, enrollmentId }
+      _, { userId, documentId, loanId, title, reference }, { dataSources: { docDataSource, userDataSource }, enrollmentId }
     ): Promise<Commit[] | { error: any }> => {
       const result: Commit[] = [];
       if (loanId) {
@@ -54,12 +54,6 @@ export const resolvers = {
         }).then(data => data).catch(({ message, stack }) => ({ message, stack }));
         result.push(c);
       }
-      if (link) {
-        const c = await documentCommandHandler({ enrollmentId, userRepo: userDataSource.repo, documentRepo: docDataSource.repo }).DefineDocumentLink({
-          userId, payload: { documentId, link, timestamp: Date.now() }
-        }).then(data => data).catch(({ message, stack }) => ({ message, stack }));
-        result.push(c);
-      }
       return result;
     }
   },
@@ -75,6 +69,10 @@ export const resolvers = {
     }
   },
   Document: {
+    __resolveReference: ({ documentId }, { dataSources: { docDataSource }}): Promise<Document> => {
+      return docDataSource.repo.getById({ id: documentId })
+        .then(({ currentState }) => currentState);
+    },
     loan(documents) {
       // console.log('peer-node/document/resolvers.ts - Document: loan(documents):', documents);
       return { __typename: 'Loan', loanId: documents.loanId };
