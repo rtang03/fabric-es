@@ -44,8 +44,6 @@ const bootstrap = async () => {
     context: async ({ req }) => {
       let client_id;
       let token = req.headers.authorization;
-      console.log('GATEWAY');
-      console.log(req.headers);
       if (token && token.startsWith('Bearer ')) {
         token = token.slice(7, token.length);
         client_id = await new Promise((resolve, reject) =>
