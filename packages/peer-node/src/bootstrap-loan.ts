@@ -1,7 +1,6 @@
 // require('events').EventEmitter.defaultMaxListeners = 15;
 import { buildFederatedSchema } from '@apollo/federation';
 import {
-  documentReducer,
   Loan,
   LoanEvents,
   loanReducer,
@@ -25,10 +24,11 @@ const bootstrap = async () => {
     enrollmentId,
     channelEventHubExisted: true
   });
-  // note: the default reducer is documentReducer
+
   const { reconcile, getRepository, subscribeHub } = createPeer({
     ...networkConfig,
-    reducer: documentReducer,
+    defaultEntityName: 'loan',
+    defaultReducer: loanReducer,
     collection: 'Org1PrivateDetails'
   });
   const loanRepo = getRepository<Loan, LoanEvents>({
