@@ -143,6 +143,8 @@ const Application: NextPage<any> = () => {
                     setSubmitting(false);
                     console.log(response);
                     if (response?.data) {
+                      // todo: double check it
+                      refetch();
                       setCreateAppResponse(response.data.createRegularApp);
                     }
                   })

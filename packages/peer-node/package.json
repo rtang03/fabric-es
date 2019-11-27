@@ -13,7 +13,8 @@
     "svs-privatedata": "node ./dist/bootstrap-privatedata.js",
     "start-services": "yarn build && concurrently \"npm:svs-*\"",
     "start-gateway": "node ./dist/bootstrap-gateway.js",
-    "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/enrollAdmin.ts"
+    "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/enrollAdmin.ts",
+    "start-test": "ts-node ./src/bootstrap-peer.ts"
   },
   "engines": {
     "node": ">=8",
