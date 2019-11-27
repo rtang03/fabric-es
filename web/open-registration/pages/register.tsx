@@ -7,6 +7,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { Form, Formik } from 'formik';
+import { NextPage } from 'next';
 import Router from 'next/router';
 import React from 'react';
 import * as yup from 'yup';
@@ -55,7 +56,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const Register: React.FC<any> = () => {
+const Register: NextPage<any> = () => {
   const [register, { error }] = useRegisterUserMutation();
   const classes = useStyles();
 

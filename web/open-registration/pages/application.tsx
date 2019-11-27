@@ -4,7 +4,8 @@ import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { Form, Formik } from 'formik';
-import React, { useEffect } from 'react';
+import { NextPage } from 'next';
+import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import { MyTextField } from '../components';
 import DisplayErrorMessage from '../components/DisplayErrorMessage';
@@ -39,26 +40,23 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const Application: React.FC<any> = () => {
-  const [getClients, { data, error, loading }] = useGetClientsLazyQuery();
+const Application: NextPage<any> = () => {
+  const [createAppResponse, setCreateAppResponse] = useState({});
+  const [
+    getClients,
+    { data, error, loading, refetch }
+  ] = useGetClientsLazyQuery({
+    fetchPolicy: 'cache-and-network'
+  });
   const [
     createRegularApp,
     { error: createAppError }
   ] = useCreateRegularAppMutation();
-  // const { data: meData, loading: meLoading } = useMeQuery();
   const classes = useStyles();
 
   useEffect(() => {
-    if (!data?.getClients) getClients();
-  }, []);
-
-  const body =
-    !loading && !!data ? (
-      <React.Fragment>
-        <pre>{JSON.stringify(data, null, 2)}</pre>
-        {/*<p>No of my application clients: {data.length}</p>*/}
-      </React.Fragment>
-    ) : null;
+    if (!loading && data === undefined && error === undefined) getClients();
+  });
 
   const validationSchema = yup.object({
     applicationName: yup
@@ -72,89 +70,131 @@ const Application: React.FC<any> = () => {
 
   return (
     <Layout title="Application">
-      <Container component="main" maxWidth="sm">
-        <div>
-          <Typography component="h1" variant="h5">
-            My Application Clients
-          </Typography>
-        </div>
-        {body}
-        <DisplayErrorMessage error={error} />
-        <hr />
-        <Typography component="h1" variant="h6">
-          Create Client Application
-        </Typography>
-        <Formik
-          initialValues={{ applicationName: '', redirect_uri: '' }}
-          validateOnChange={true}
-          validationSchema={validationSchema}
-          onSubmit={async (
-            { applicationName, redirect_uri },
-            { setSubmitting }
-          ) => {
-            setSubmitting(true);
-            return createRegularApp({
-              variables: {
-                applicationName,
-                redirect_uri,
-                grants: [
-                  'password',
-                  'authorization_code',
-                  'refresh_token',
-                  'client_credentials',
-                  'implicit'
-                ]
-              }
-            })
-              .then(clientApp => {
-                setSubmitting(false);
-                console.log(clientApp);
-              })
-              .catch(err => {
-                setSubmitting(false);
-                console.error(err);
-              });
-          }}>
-          {({ values, isSubmitting }) => (
-            <Form className={classes.form}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <MyTextField
-                    name="applicationName"
-                    placeholder="application name"
-                    variant="outlined"
-                    margin="normal"
-                    fullwidth
-                    autoFocus
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <MyTextField
-                    name="redirect_uri"
-                    placeholder="redirect URI"
-                    variant="outlined"
-                    margin="normal"
-                    fullwidth
-                  />
-                </Grid>
-                <p />
-                <Button
-                  className={classes.submit}
-                  variant="contained"
-                  color="primary"
-                  disabled={isSubmitting}
-                  type="submit">
-                  Create
+      <Container component="main" maxWidth="lg">
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <div>
+              <Typography component="h1" variant="h6">
+                List of Client Applications
+              </Typography>
+            </div>
+            <Formik initialValues={{}} onSubmit={async () => refetch()}>
+              <Form>
+                <Button type="submit" variant="outlined" color="secondary">
+                  Refresh
                 </Button>
-                <DisplayErrorMessage error={createAppError} />
-              </Grid>
-              {/*<pre>Input</pre>*/}
-              {/*<pre>{JSON.stringify(values, null, 2)}</pre>*/}
-            </Form>
-          )}
-        </Formik>
-        <button onClick={() => getClients()}>Click me</button>
-        {/*<pre>{JSON.stringify(clients, null, 2)}</pre>*/}
+              </Form>
+            </Formik>
+            <DisplayErrorMessage error={error} />
+            {!loading && !!data?.getClients ? (
+              <React.Fragment>
+                <p>No of my application clients: {data.getClients!.length}</p>
+                <pre>
+                  {JSON.stringify(
+                    data.getClients.map(
+                      ({
+                        id,
+                        client_secret,
+                        applicationName,
+                        redirect_uris
+                      }) => ({
+                        id,
+                        client_secret,
+                        applicationName,
+                        redirect_uris
+                      })
+                    ),
+                    null,
+                    2
+                  )}
+                </pre>
+              </React.Fragment>
+            ) : (
+              <div />
+            )}
+          </Grid>
+          <Grid item xs={6}>
+            <Typography component="h1" variant="h6">
+              Create Client Application
+            </Typography>
+            <Formik
+              initialValues={{ applicationName: '', redirect_uri: '' }}
+              validateOnChange={true}
+              validationSchema={validationSchema}
+              onSubmit={async (
+                { applicationName, redirect_uri },
+                { setSubmitting }
+              ) => {
+                setSubmitting(true);
+                return createRegularApp({
+                  variables: {
+                    applicationName,
+                    redirect_uri,
+                    grants: [
+                      'password',
+                      'authorization_code',
+                      'refresh_token',
+                      'client_credentials',
+                      'implicit'
+                    ]
+                  }
+                })
+                  .then(response => {
+                    setSubmitting(false);
+                    console.log(response);
+                    if (response?.data) {
+                      setCreateAppResponse(response.data.createRegularApp);
+                    }
+                  })
+                  .catch(err => {
+                    setSubmitting(false);
+                    console.error(err);
+                  });
+              }}>
+              {({ values, isSubmitting }) => (
+                <Form className={classes.form}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <MyTextField
+                        name="applicationName"
+                        placeholder="application name"
+                        variant="outlined"
+                        margin="normal"
+                        fullwidth
+                        autoFocus
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <MyTextField
+                        name="redirect_uri"
+                        placeholder="redirect URI"
+                        variant="outlined"
+                        margin="normal"
+                        fullwidth
+                      />
+                    </Grid>
+                    <p />
+                    <Button
+                      className={classes.submit}
+                      variant="contained"
+                      color="primary"
+                      disabled={isSubmitting}
+                      type="submit">
+                      Create
+                    </Button>
+                    <DisplayErrorMessage error={createAppError} />
+                  </Grid>
+                  {Object.keys(createAppResponse).length ? (
+                    <React.Fragment>
+                      <pre>Application Created:</pre>
+                      <pre>{JSON.stringify(createAppResponse, null, 2)}</pre>
+                    </React.Fragment>
+                  ) : null}
+                </Form>
+              )}
+            </Formik>
+          </Grid>
+        </Grid>
       </Container>
     </Layout>
   );

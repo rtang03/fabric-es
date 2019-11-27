@@ -12,17 +12,14 @@ import Typography from '@material-ui/core/Typography';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { Form, Formik } from 'formik';
 import fetch from 'isomorphic-unfetch';
+import { NextPage, NextPageContext } from 'next';
 import Router from 'next/router';
 import React from 'react';
 import * as yup from 'yup';
 import { MyTextField } from '../components';
 import DisplayErrorMessage from '../components/DisplayErrorMessage';
 import Layout from '../components/Layout';
-import {
-  MeDocument,
-  MeQuery,
-  useLoginMutation
-} from '../generated/graphql';
+import { MeDocument, MeQuery, useLoginMutation } from '../generated/graphql';
 
 const validationSchema = yup.object({
   email: yup
@@ -61,7 +58,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const Login = ({ auth_uri }: { auth_uri: string }) => {
+const Login: NextPage<{ auth_uri: string }> = ({ auth_uri }) => {
   const [login, { error }] = useLoginMutation();
   const classes = useStyles();
 
@@ -166,7 +163,7 @@ const Login = ({ auth_uri }: { auth_uri: string }) => {
   );
 };
 
-Login.getInitialProps = async (context: any) => {
+Login.getInitialProps = async (context: NextPageContext) => {
   const res = await fetch('http://localhost:3000/auth_uri');
   const auth_uri = await res.text();
   return { auth_uri };
