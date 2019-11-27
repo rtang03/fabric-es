@@ -1,5 +1,32 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`DocContents: Unit Test query doc contents: data 1`] = `
+Object {
+  "getDocContentsById": Object {
+    "content": Object {
+      "body": "{ \\"message\\": \\"hello how are you\\" }",
+    },
+    "document": null,
+    "documentId": "1542385173331",
+    "timestamp": "1542336654369",
+  },
+}
+`;
+
+exports[`DocContents: Unit Test query doc contents: file 1`] = `
+Object {
+  "getDocContentsById": Object {
+    "content": Object {
+      "format": "PDF",
+      "link": "localhost/1542385174331",
+    },
+    "document": null,
+    "documentId": "1542385174331",
+    "timestamp": "1542336654369",
+  },
+}
+`;
+
 exports[`Document Entity: Unit Test query commit by documentId 1`] = `
 Object {
   "getCommitsByDocumentId": Array [
@@ -20,9 +47,6 @@ Object {
         Object {
           "type": "DocumentLoanIdDefined",
         },
-        Object {
-          "type": "DocumentLinkDefined",
-        },
       ],
       "id": "1542385173331",
       "version": 0,
@@ -34,8 +58,12 @@ Object {
 exports[`Document Entity: Unit Test query document by ID 1`] = `
 Object {
   "getDocumentById": Object {
+    "contents": Object {
+      "content": Object {
+        "body": "{ \\"message\\": \\"hello how are you\\" }",
+      },
+    },
     "documentId": "1542385173331",
-    "link": "localhost/doc/1542385173331",
     "loan": Object {
       "description": "Loan requested by an undisclosed party to an unknown bank",
       "loanId": "123456",
@@ -82,7 +110,6 @@ Object {
     "documents": Array [
       Object {
         "documentId": "1542385173331",
-        "link": "localhost/doc/1542385173331",
         "reference": "REF1542385173331",
         "status": 0,
         "timestamp": "1543041982770",
@@ -90,7 +117,6 @@ Object {
       },
       Object {
         "documentId": "1542385174331",
-        "link": "localhost/doc/1542385174331",
         "reference": "REF1542385174331",
         "status": 0,
         "timestamp": "1543041984770",

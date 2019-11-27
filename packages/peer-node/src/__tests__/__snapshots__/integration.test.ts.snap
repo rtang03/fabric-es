@@ -1,5 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Doc Contents Integration Test query doc content again by ID 1`] = `
+Object {
+  "body": "{ \\"id\\": \\"doc0009\\", \\"type\\": \\"Bill Lay Ding\\", \\"ref\\": \\"ref0009\\" }",
+}
+`;
+
+exports[`Doc Contents Integration Test query doc content by ID 1`] = `
+Object {
+  "format": "PDF",
+  "link": "localhost/docontent0008",
+}
+`;
+
 exports[`Document Integration Test query commits of document 1`] = `
 Array [
   Object {
@@ -10,9 +23,6 @@ Array [
       },
       Object {
         "type": "DocumentReferenceDefined",
-      },
-      Object {
-        "type": "DocumentLinkDefined",
       },
       Object {
         "type": "DocumentLoanIdDefined",
@@ -27,7 +37,6 @@ Array [
 
 exports[`Document Integration Test query eocument by ID 1`] = `
 Object {
-  "link": "test-link-0101",
   "reference": "DOC0101",
   "status": 0,
   "title": "Test Title 101",
@@ -36,28 +45,56 @@ Object {
 
 exports[`Document Integration Test query focument by ID 1`] = `
 Object {
-  "link": "test-link-0102",
   "reference": "DOC0102",
   "status": 0,
   "title": "Test Title 102",
 }
 `;
 
+exports[`Document Integration Test query gocument by ID 1`] = `
+Object {
+  "reference": "DOC0103",
+  "status": 0,
+  "title": "Test Title 103",
+}
+`;
+
+exports[`Federated queries federated query doc contents by ID 1`] = `
+Object {
+  "content": Object {
+    "format": "PDF",
+    "link": "localhost/docontent0008",
+  },
+  "document": Object {
+    "reference": "DOC0102",
+    "status": 1,
+    "title": "Test Title 102",
+  },
+}
+`;
+
 exports[`Federated queries federated query document by ID 1`] = `
 Object {
-  "link": "test-link-0102",
+  "contents": Object {
+    "content": Object {
+      "format": "PDF",
+      "link": "localhost/docontent0008",
+    },
+  },
   "loan": Object {
-    "description": "loan-description",
+    "description": "loan-description-1",
+    "reference": "MYLOAN0001",
     "status": 0,
   },
   "reference": "DOC0102",
+  "status": 1,
   "title": "Test Title 102",
 }
 `;
 
 exports[`Federated queries federated query loan by ID 1`] = `
 Object {
-  "description": "loan-description",
+  "description": "loan-description-1",
   "details": Object {
     "contact": Object {
       "contactName": "Hook",
@@ -74,12 +111,18 @@ Object {
     "startDate": "2019-10-12",
     "tenor": 60,
   },
-  "documents": Object {
-    "link": undefined,
-    "ref": undefined,
-    "sts": undefined,
-    "title": undefined,
-  },
+  "documents": Array [
+    Object {
+      "reference": "DOC0101",
+      "status": 0,
+      "title": "Test Title 101",
+    },
+    Object {
+      "reference": "DOC0102",
+      "status": 1,
+      "title": "Test Title 102",
+    },
+  ],
   "reference": "MYLOAN0001",
   "status": 0,
 }
@@ -99,7 +142,7 @@ Object {
   "currency": "HKD",
   "loan": Object {
     "description": "test-description",
-    "reference": "MYTRADE0001",
+    "reference": "MYLOAN0001",
     "status": 0,
   },
   "loanType": "Post-shipment",
@@ -111,6 +154,30 @@ Object {
   },
   "startDate": "2019-10-11",
   "tenor": 60,
+}
+`;
+
+exports[`Loan Details Integration Test query loan details again by ID 1`] = `
+Object {
+  "approvedAmt": null,
+  "comment": null,
+  "contact": Object {
+    "email": "crime@fake.it",
+    "name": "Locke",
+    "phone": "555-33457",
+    "salutation": "Mr.",
+    "title": "Owner",
+  },
+  "currency": "HKD",
+  "loanType": "Post-shipment",
+  "requestedAmt": 210000,
+  "requester": Object {
+    "name": "John Locke Ltd",
+    "registration": "BR000000Y",
+    "type": "Gangster",
+  },
+  "startDate": "2019-10-13",
+  "tenor": 77,
 }
 `;
 
@@ -159,7 +226,7 @@ Array [
 
 exports[`Loan Integration Test query loan by ID 1`] = `
 Object {
-  "description": "loan-description",
+  "description": "loan-description-1",
   "reference": "MYLOAN0001",
   "status": 0,
 }
@@ -182,9 +249,9 @@ exports[`User Integration Test query paginated user 1`] = `
 Object {
   "getPaginatedUser": Object {
     "entities": Array [
-      Object {
-        "name": "The new User2",
-      },
+      "The new User 2",
+      "The new User 3",
+      "The new User",
     ],
     "hasMore": false,
     "total": 3,

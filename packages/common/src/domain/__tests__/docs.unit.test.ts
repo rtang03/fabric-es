@@ -17,27 +17,27 @@ beforeAll(async () => {
   });
 
   await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
-    userId, payload: { documentId: 'DOCID001', loanId: 'LOANID001', title: 'The Mother of All Purchase Orders', reference: 'DOCREF001', link: 'localhost/D001', timestamp: Date.now() }
+    userId, payload: { documentId: 'DOCID001', loanId: 'LOANID001', title: 'The Mother of All Purchase Orders', reference: 'DOCREF001', timestamp: Date.now() }
   });
 
   await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
-    userId, payload: { documentId: 'DOCID002', loanId: 'LOANID002', title: 'The Father of All Purchase Orders', reference: 'DOCREF002', link: 'localhost/D002', timestamp: Date.now() }
+    userId, payload: { documentId: 'DOCID002', loanId: 'LOANID002', title: 'The Father of All Purchase Orders', reference: 'DOCREF002', timestamp: Date.now() }
   });
 
   await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
-    userId, payload: { documentId: 'DOCID003', title: 'The Daughter of All Purchase Orders', reference: 'DOCREF003', link: 'localhost/D003', timestamp: Date.now() }
+    userId, payload: { documentId: 'DOCID003', title: 'The Daughter of All Purchase Orders', reference: 'DOCREF003', timestamp: Date.now() }
   });
 
   await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
-    userId, payload: { documentId: 'DOCID004', reference: 'DOCREF004', link: 'localhost/D004', timestamp: Date.now() }
+    userId, payload: { documentId: 'DOCID004', reference: 'DOCREF004', timestamp: Date.now() }
   });
 
   await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
-    userId, payload: { documentId: 'DOCID005', loanId: 'LOANID005', reference: 'DOCREF005', link: 'localhost/D005', timestamp: Date.now() }
+    userId, payload: { documentId: 'DOCID005', loanId: 'LOANID005', reference: 'DOCREF005', timestamp: Date.now() }
   });
 
   await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
-    userId, payload: { documentId: 'DOCID006', title: 'The Grandy of All Purchase Orders', loanId: 'LOANID006', reference: 'DOCREF006', link: 'localhost/D006', timestamp: Date.now() }
+    userId, payload: { documentId: 'DOCID006', title: 'The Grandy of All Purchase Orders', loanId: 'LOANID006', reference: 'DOCREF006', timestamp: Date.now() }
   });
 });
 
@@ -50,7 +50,6 @@ describe('Document CommandHandler test', () => {
         loanId: 'LOANID001',
         title: 'Very Important Document',
         reference: 'DOCREF010',
-        link: 'localhost/D010',
         timestamp: Date.now()
       }
     });
@@ -59,7 +58,6 @@ describe('Document CommandHandler test', () => {
       .then(({ currentState }) =>
         expect(
           (currentState.title === 'Very Important Document') &&
-          (currentState.link === 'localhost/D010') &&
           (currentState.loanId === 'LOANID001') &&
           (currentState.reference === 'DOCREF010') &&
           (currentState.status === DocumentStatus.DocumentCreated)
@@ -67,7 +65,7 @@ describe('Document CommandHandler test', () => {
       );
   });
 
-  it('creating a document without a link', async () => {
+  it('creating a document without reference', async () => {
     expect.assertions(1);
     return documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
       userId,
@@ -75,8 +73,7 @@ describe('Document CommandHandler test', () => {
         documentId: 'DOCID099',
         loanId: 'LOANID001',
         title: 'Very Important Document 2',
-        reference: 'DOCREF099',
-        link: null,
+        reference: null,
         timestamp: Date.now()
       }
     }).catch(({ message }) =>
@@ -97,7 +94,6 @@ describe('Document CommandHandler test', () => {
       .then(({ currentState }) =>
         expect(
           (currentState.title === 'The Mother of All Purchase Orders') &&
-          (currentState.link === 'localhost/D001') &&
           (currentState.status === DocumentStatus.DocumentDeleted)
         ).toBeTruthy()
       );
@@ -116,7 +112,6 @@ describe('Document CommandHandler test', () => {
       .then(({ currentState }) =>
         expect(
           (currentState.title === 'The Father of All Purchase Orders') &&
-          (currentState.link === 'localhost/D002') &&
           (currentState.status === DocumentStatus.DocumentRestricted)
         ).toBeTruthy()
       );
@@ -136,7 +131,6 @@ describe('Document CommandHandler test', () => {
       .then(({ currentState }) =>
         expect(
           (currentState.title === 'Hello There Limited') &&
-          (currentState.link === 'localhost/D003') &&
           (currentState.status === DocumentStatus.DocumentCreated)
         ).toBeTruthy()
       );
@@ -169,7 +163,6 @@ describe('Document CommandHandler test', () => {
       .then(({ currentState }) =>
         expect(
           (currentState.loanId === 'LOANID004') &&
-          (currentState.link === 'localhost/D004') &&
           (currentState.status === DocumentStatus.DocumentCreated)
         ).toBeTruthy()
       );
@@ -187,25 +180,5 @@ describe('Document CommandHandler test', () => {
     }).catch(({ message }) =>
       expect(message).toEqual('INVALID_OPERATION')
     );
-  });
-
-  it('update link of a document', async () => {
-    await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).DefineDocumentLink({
-      userId,
-      payload: {
-        documentId: 'DOCID006',
-        link: 'localhost/D021',
-        timestamp: Date.now()
-      }
-    });
-    return documentRepo
-      .getById({ enrollmentId, id: 'DOCID006' })
-      .then(({ currentState }) =>
-        expect(
-          (currentState.title === 'The Grandy of All Purchase Orders') &&
-          (currentState.link === 'localhost/D021') &&
-          (currentState.status === DocumentStatus.DocumentCreated)
-        ).toBeTruthy()
-      );
   });
 });

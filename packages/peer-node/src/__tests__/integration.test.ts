@@ -48,7 +48,13 @@ import {
   typeDefs as userTypeDefs
 } from '../common/user';
 import {
+  CREATE_DATA_DOC_CONTENTS,
+  CREATE_FILE_DOC_CONTENTS,
   CREATE_LOAN_DETAILS,
+  DocContents,
+  DocContentsEvents,
+  docContentsReducer,
+  GET_CONTENTS_BY_ID,
   GET_DETAILS_BY_ID,
   LoanDetails,
   LoanDetailsEvents,
@@ -186,6 +192,12 @@ beforeAll(async () => {
           entityName: prefix + 'loanDetails',
           reducer: loanDetailsReducer
         })
+      },
+      docContentsDataSource: {
+        repo: privatePeer.getPrivateDataRepo<DocContents, DocContentsEvents>({
+          entityName: prefix + 'docContents',
+          reducer: docContentsReducer
+        })
       }
     })
   });
@@ -196,25 +208,28 @@ beforeAll(async () => {
   // Initial data
   await createTestClient(server).mutate({
     mutation: CREATE_USER,
-    variables: { name: 'The new User2', userId: `v${timestamp}` }
+    variables: { name: 'The new User 2', userId: `v${timestamp}` }
   });
   await createTestClient(server).mutate({
     mutation: CREATE_USER,
-    variables: { name: 'The new User3', userId: `w${timestamp}` }
+    variables: { name: 'The new User 3', userId: `w${timestamp}` }
   });
   await createTestClient(server).mutate({
     mutation: APPLY_LOAN, variables: {
-      loanId: `m${timestamp}`, userId: `v${timestamp}`, reference: 'MYLOAN0001', description: 'loan-description'
+      loanId: `m${timestamp}`, userId: `v${timestamp}`, reference: 'MYLOAN0001', description: 'loan-description-1'
   }});
   await createTestClient(server).mutate({
     mutation: APPLY_LOAN, variables: {
       loanId: `n${timestamp}`, userId: `v${timestamp}`, reference: 'MYLOAN0002', description: 'loan-description-2'
   }});
   await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
-    documentId: `e${timestamp}`, loanId: `m${timestamp}`, userId: `v${timestamp}`, title: 'Test Title 101', reference: 'DOC0101', link: 'test-link-0101'
+    documentId: `e${timestamp}`, loanId: `m${timestamp}`, userId: `v${timestamp}`, title: 'Test Title 101', reference: 'DOC0101'
   }});
   await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
-    documentId: `f${timestamp}`, loanId: `m${timestamp}`, userId: `v${timestamp}`, title: 'Test Title 102', reference: 'DOC0102', link: 'test-link-0102'
+    documentId: `f${timestamp}`, loanId: `m${timestamp}`, userId: `w${timestamp}`, title: 'Test Title 102', reference: 'DOC0102'
+  }});
+  await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
+    documentId: `g${timestamp}`, loanId: `n${timestamp}`, userId: `v${timestamp}`, title: 'Test Title 103', reference: 'DOC0103'
   }});
   await createTestClient(server).mutate({ mutation: CREATE_LOAN_DETAILS, variables: {
       loanId: `m${timestamp}`,
@@ -233,6 +248,32 @@ beforeAll(async () => {
       currency: 'HKD',
       requestedAmt: 70000.0
   }});
+  await createTestClient(server).mutate({ mutation: CREATE_LOAN_DETAILS, variables: {
+    loanId: `n${timestamp}`,
+    userId: `w${timestamp}`,
+    registration: 'BR000000Y',
+    companyName: 'John Locke Ltd',
+    requesterType: 'Gangster',
+    salutation: 'Mr.',
+    contactName: 'Locke',
+    contactTitle: 'Owner',
+    contactPhone: '555-33457',
+    contactEmail: 'crime@fake.it',
+    loanType: 'Post-shipment',
+    startDate: '2019-10-13',
+    tenor: 77,
+    currency: 'HKD',
+    requestedAmt: 210000.0
+}});
+await createTestClient(server).mutate({ mutation: CREATE_DATA_DOC_CONTENTS, variables: {
+    userId: `v${timestamp}`, documentId: `e${timestamp}`, body: '{ "id": "doc0007", "type": "Airway bill", "ref": "ref0007" }'
+  }});
+  await createTestClient(server).mutate({ mutation: CREATE_FILE_DOC_CONTENTS, variables: {
+    userId: `w${timestamp}`, documentId: `f${timestamp}`, format: 'PDF', link: 'localhost/docontent0008'
+  }});
+  await createTestClient(server).mutate({ mutation: CREATE_DATA_DOC_CONTENTS, variables: {
+    userId: `v${timestamp}`, documentId: `g${timestamp}`, body: '{ "id": "doc0009", "type": "Bill Lay Ding", "ref": "ref0009" }'
+  }});
 });
 
 afterAll(async () => {
@@ -249,6 +290,20 @@ afterAll(async () => {
   await privateService.stop();
   await server.stop();
 });
+
+// To run integration tests:
+// * First time:
+//   - do something networkish...
+// * Each time after bringing down the Fabric network:
+//   1. @[proj root]/network > docker rm logspout -f
+//   2. @[proj root]/network > docker-compose down
+// * Each time if a Fabric network is not up:
+//   1. @[proj root]/network > docker-compose up -d
+//   2. @[proj root]/network > ./monitordocker.sh
+//   3. @[proj root]/packages/admin-tool > yarn run test:install-instantiate-eventstore
+//   4. @[proj root]/packages/admin-tool > yarn run test:install-instantiate-privatedata
+// * Each time:
+//   - yarn test:integtration [-u]
 
 describe('User Integration Test', () => {
   it('create user', async () =>
@@ -274,7 +329,7 @@ describe('User Integration Test', () => {
 
   it('query user by ID', async () =>
     createTestClient(server).query({ query: GET_USER_BY_ID, variables: { userId: `w${timestamp}` }})
-      .then(({ data: { getUserById }}) => expect(getUserById.name).toEqual('The new User3'))
+      .then(({ data: { getUserById }}) => expect(getUserById.name).toEqual('The new User 3'))
       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
   );
 
@@ -284,8 +339,16 @@ describe('User Integration Test', () => {
         query: GET_USERS_BY_PAGE,
         variables: { cursor: 10 }
       })
-      .then(({ data: { getPaginatedUser: { total, hasMore, entities: [{ name }]}}}) =>
-        expect({ getPaginatedUser: { total, hasMore, entities: [{ name }]}}).toMatchSnapshot())
+      .then(({ data: { getPaginatedUser: {
+        total,
+        hasMore,
+        entities
+      }}}) =>
+        expect({ getPaginatedUser: {
+          total,
+          hasMore,
+          entities: entities.map(x => x.name)
+        }}).toMatchSnapshot())
       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
   );
 });
@@ -297,8 +360,8 @@ describe('Loan Integration Test', () => {
         mutation: APPLY_LOAN,
         variables: {
           loanId,
-          userId,
-          reference: 'MYTRADE0001',
+          userId: `w${timestamp}`,
+          reference: 'MYLOAN0001',
           description: 'test-description'
         }
       })
@@ -328,7 +391,7 @@ describe('Loan Details Integration Test', () => {
         mutation: CREATE_LOAN_DETAILS,
         variables: {
           loanId,
-          userId,
+          userId: `v${timestamp}`,
           registration: 'BR0000001',
           companyName: 'Pete N Co. Ltd',
           requesterType: 'Money Launderer',
@@ -358,6 +421,13 @@ describe('Loan Details Integration Test', () => {
         expect({ requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment }).toMatchSnapshot())
       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
   );
+
+  it('query loan details again by ID', async () =>
+    createTestClient(server).query({ query: GET_DETAILS_BY_ID, variables: { loanId: `n${timestamp}` }})
+      .then(({ data: { getLoanDetailsById: { requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment }}}) =>
+        expect({ requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment }).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
 });
 
 describe('Document Integration Test', () => {
@@ -370,8 +440,7 @@ describe('Document Integration Test', () => {
           userId,
           loanId,
           title: 'test-title',
-          reference: 'DOCREF0001',
-          link: 'test-link-0001'
+          reference: 'DOCREF0001'
         }
       })
       .then(({ data: { createDocument } }) => expect(createDocument.id).toEqual(documentId))
@@ -385,21 +454,14 @@ describe('Document Integration Test', () => {
       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
   );
 
-  // it('query document by ID', async () =>
-  //   createTestClient(server).query({ query: GET_DOCUMENT_BY_ID, variables: { documentId }})
-  //     .then(({ data: { getDocumentById: { title, reference, link, status }}}) =>
-  //       expect({ title, reference, link, status }).toMatchSnapshot())
-  //     .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
-  // );
-
   it('query eocument by ID', async () =>
     createTestClient(server).query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: `e${timestamp}` }})
       // .then(data => {
       //   console.log('query eocument by ID', data.data.getDocumentById);
       //   return data;
       // })
-      .then(({ data: { getDocumentById: { title, reference, link, status }}}) =>
-        expect({ title, reference, link, status }).toMatchSnapshot())
+      .then(({ data: { getDocumentById: { title, reference, status }}}) =>
+        expect({ title, reference, status }).toMatchSnapshot())
       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
   );
 
@@ -409,8 +471,15 @@ describe('Document Integration Test', () => {
       //   console.log('query focument by ID', data.data.getDocumentById);
       //   return data;
       // })
-      .then(({ data: { getDocumentById: { title, reference, link, status }}}) =>
-        expect({ title, reference, link, status }).toMatchSnapshot())
+      .then(({ data: { getDocumentById: { title, reference, status }}}) =>
+        expect({ title, reference, status }).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
+
+  it('query gocument by ID', async () =>
+    createTestClient(server).query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: `g${timestamp}` }})
+      .then(({ data: { getDocumentById: { title, reference, status }}}) =>
+        expect({ title, reference, status }).toMatchSnapshot())
       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
   );
 
@@ -439,6 +508,36 @@ describe('Document Integration Test', () => {
   );
 });
 
+describe('Doc Contents Integration Test', () => {
+  it('create doc contents', async () =>
+    createTestClient(server).mutate({
+      mutation: CREATE_FILE_DOC_CONTENTS,
+      variables: {
+        userId: `w${timestamp}`, documentId, format: 'PDF', link: 'localhost/docontent0006'
+      }})
+      .then(({ data: { createFileDocContents } }) => expect(createFileDocContents.id).toEqual(documentId))
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
+
+  it('query doc content by ID', async () =>
+    createTestClient(server).query({ query: GET_CONTENTS_BY_ID, variables: { documentId: `f${timestamp}` }})
+      // .then(data => {
+      //   console.log('peer-node/integration.test.ts - GET_CONTENTS_BY_ID 001', data.data.getDocContentsById);
+      //   return data;
+      // })
+      .then(({ data: { getDocContentsById: { content: { format, link }}}}) =>
+        expect({ format, link }).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
+
+  it('query doc content again by ID', async () =>
+    createTestClient(server).query({ query: GET_CONTENTS_BY_ID, variables: { documentId: `g${timestamp}` }})
+      .then(({ data: { getDocContentsById: { content: { body }}}}) =>
+        expect({ body }).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
+});
+
 describe('Federated queries', () => {
   it('federated query loan by ID', done =>
     setTimeout(async () => {
@@ -458,7 +557,7 @@ describe('Federated queries', () => {
                 description,
                 reference,
                 status,
-                documents: { link, reference: ref, status: sts, title },
+                documents,
                 details: {
                   requester: { registration, name: companyName },
                   contact: { name: contactName, phone, email },
@@ -466,17 +565,22 @@ describe('Federated queries', () => {
                 }
               }
             }
-          }) => expect({
-            description,
-            reference,
-            status,
-            documents: { link, ref, sts, title },
-            details: {
-              requester: { registration, companyName },
-              contact: { contactName, phone, email },
-              loanType, startDate, tenor, currency, requestedAmt
-            }
-          }).toMatchSnapshot())
+          }) =>
+            expect({
+              description,
+              reference,
+              status,
+              documents: documents.map(x => ({
+                reference: x.reference,
+                status: x.status,
+                title: x.title
+              })),
+              details: {
+                requester: { registration, companyName },
+                contact: { contactName, phone, email },
+                loanType, startDate, tenor, currency, requestedAmt
+              }
+            }).toMatchSnapshot())
         .catch(_ => expect(false).toBeTruthy()); // Normally should not enter here, force the test to fail otherwise
       done();
     }, 100)
@@ -489,8 +593,20 @@ describe('Federated queries', () => {
         //   console.log('peer-node/integration.test.ts - GET_DOCUMENT_BY_ID', data.data.getDocumentById);
         //   return data;
         // })
-        .then(({ data: { getDocumentById: { title, reference, link, loan: { description, status }}}}) =>
-          expect({ title, reference, link, loan: { description, status } }).toMatchSnapshot())
+        .then(({ data: { getDocumentById: {
+          title,
+          reference,
+          status,
+          loan: { description, reference: ref, status: sts },
+          contents: { content: { format, link }}
+        }}}) =>
+          expect({
+            title,
+            reference,
+            status,
+            loan: { description, reference: ref, status: sts },
+            contents: { content: { format, link }}
+          }).toMatchSnapshot())
         .catch(_ => expect(false).toBeTruthy()); // Normally should not enter here, force the test to fail otherwise
       done();
     }, 100)
@@ -525,6 +641,23 @@ describe('Federated queries', () => {
           requestedAmt,
           approvedAmt,
           comment
+        }).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
+  );
+
+  it('federated query doc contents by ID', async () =>
+  createTestClient(server).query({ query: GET_CONTENTS_BY_ID, variables: { documentId: `f${timestamp}` }})
+      // .then(data => {
+      //   console.log('peer-node/integration.test.ts - GET_CONTENTS_BY_ID 001', data.data.getDocContentsById);
+      //   return data;
+      // })
+      .then(({ data: { getDocContentsById: {
+        document: { title, reference, status },
+        content: { format, link }
+      }}}) =>
+        expect({
+          document: { title, reference, status },
+          content: { format, link }
         }).toMatchSnapshot())
       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
   );

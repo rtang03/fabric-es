@@ -159,7 +159,6 @@ query GetLoanById($loanId: String!) {
       documentId
       title
       reference
-      link
       status
       timestamp
     }

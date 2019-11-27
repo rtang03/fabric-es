@@ -12,8 +12,7 @@ export const typeDefs = gql`
       documentId: String!,
       loanId: String,
       title: String,
-      reference: String!,
-      link: String!
+      reference: String!
     ): DocResponse
     deleteDocument(userId: String!, documentId: String!): DocResponse
     restrictAccess(userId: String!, documentId: String!): DocResponse
@@ -23,7 +22,6 @@ export const typeDefs = gql`
       loanId: String
       title: String
       reference: String
-      link: String
     ): [DocResponse]!
   }
 
@@ -33,7 +31,6 @@ export const typeDefs = gql`
     loanId: String
     title: String
     reference: String!
-    link: String!
     status: Int!
     timestamp: String!
     loan: Loan
