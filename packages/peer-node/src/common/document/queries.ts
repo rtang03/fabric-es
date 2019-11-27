@@ -6,16 +6,14 @@ mutation CreateDocument(
   $documentId: String!,
   $loanId: String,
   $title: String,
-  $reference: String!,
-  $link: String!
+  $reference: String!
 ) {
   createDocument(
     userId: $userId,
     documentId: $documentId,
     loanId: $loanId,
     title: $title,
-    reference: $reference,
-    link: $link
+    reference: $reference
   ) {
     ... on DocCommit {
       id
@@ -69,7 +67,6 @@ mutation UpdateDocument(
   $loanId: String
   $title: String
   $reference: String
-  $link: String
 ) {
   updateDocument(
     userId: $userId
@@ -77,7 +74,6 @@ mutation UpdateDocument(
     loanId: $loanId
     title: $title
     reference: $reference
-    link: $link
   ) {
     ... on DocCommit {
       id
@@ -114,7 +110,6 @@ query GetDocumentById($documentId: String!) {
     loanId
     title
     reference
-    link
     status
     timestamp
     loan {
@@ -124,6 +119,17 @@ query GetDocumentById($documentId: String!) {
       reference
       status
       timestamp
+    }
+    contents {
+      content {
+        ... on Data {
+          body
+        }
+        ... on File {
+          format
+          link
+        }
+      }
     }
   }
 }`;

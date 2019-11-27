@@ -152,20 +152,21 @@ mutation CreateDataDocContents(
   $documentId: String!,
   $body: String!
 ) {
-  createDataDocContents(
-    userId: $userId,
-    documentId: $documentId,
-    body: $body
-) {
-  ... on LocalCommit {
-    id
-    entityName
-    version
-    commitId
-    committedAt
-  }
-  ... on LocalError {
-    message
+    createDataDocContents(
+      userId: $userId,
+      documentId: $documentId,
+      body: $body
+  ) {
+    ... on LocalCommit {
+      id
+      entityName
+      version
+      commitId
+      committedAt
+    }
+    ... on LocalError {
+      message
+    }
   }
 }`;
 
@@ -181,16 +182,17 @@ mutation CreateFileDocContents(
     documentId: $documentId,
     format: $format,
     link: $link
-) {
-  ... on LocalCommit {
-    id
-    entityName
-    version
-    commitId
-    committedAt
-  }
-  ... on LocalError {
-    message
+  ) {
+    ... on LocalCommit {
+      id
+      entityName
+      version
+      commitId
+      committedAt
+    }
+    ... on LocalError {
+      message
+    }
   }
 }`;
 

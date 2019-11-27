@@ -19,7 +19,7 @@ export const documentCommandHandler: (
 }) => ({
   CreateDocument: async ({
     userId,
-    payload: { documentId, loanId, title, reference, link, timestamp }
+    payload: { documentId, loanId, title, reference, timestamp }
   }) => {
     await userRepo
       .getById({ enrollmentId, id: userId })
@@ -27,11 +27,9 @@ export const documentCommandHandler: (
         if (!currentState) throw Errors.insufficientPrivilege();
       });
     if (!reference) throw Errors.requiredDataMissing();
-    if (!link) throw Errors.requiredDataMissing();
     const events: any = [
       { type: 'DocumentCreated', payload: { documentId, userId, timestamp }},
-      { type: 'DocumentReferenceDefined', payload: { documentId, userId, reference, timestamp }},
-      { type: 'DocumentLinkDefined', payload: { documentId, userId, link, timestamp }}
+      { type: 'DocumentReferenceDefined', payload: { documentId, userId, reference, timestamp }}
     ];
     if (loanId) events.push({ type: 'DocumentLoanIdDefined', payload: { documentId, userId, loanId, timestamp }});
     if (title) events.push({ type: 'DocumentTitleDefined', payload: { documentId, userId, title, timestamp }});
@@ -79,25 +77,6 @@ export const documentCommandHandler: (
   },
   DefineDocumentReference: async (_) => {
     throw Errors.invalidOperation(); // Readonly field
-  },
-  DefineDocumentLink: async ({
-    userId,
-    payload: { documentId, link, timestamp }
-  }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
-    return documentRepo
-      .getById({ enrollmentId, id: documentId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw DocumentErrors.documentNotFound(documentId);
-        return save([{
-          type: 'DocumentLinkDefined',
-          payload: { documentId, userId, link, timestamp }
-        }]);
-      });
   },
   DefineDocumentLoanId: async ({
     userId,
