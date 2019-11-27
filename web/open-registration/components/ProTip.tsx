@@ -22,16 +22,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-export default function ProTip() {
+const ProTip: React.FC<any> = () => {
   const classes = useStyles();
   return (
     <Typography className={classes.root} color="textSecondary">
       <LightBulbIcon className={classes.lightBulb} />
-      Pro tip: See more{' '}
-      <Link href="http://localhost:3000">
-        examples
-      </Link>{' '}
-      on the documentation.
+      Pro tip: See more <Link href="http://localhost:3000">examples</Link> on
+      the documentation.
     </Typography>
   );
-}
+};
+
+export default ProTip;

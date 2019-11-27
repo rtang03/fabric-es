@@ -1,7 +1,7 @@
 import Express from 'express';
 import http from 'http-status';
 import { OAuth2Server, Request, Response } from 'oauth2-server-typescript';
-import { sendRefreshToken } from '../utils';
+import { sendToken } from '../utils';
 
 export const tokenHandler = (
   oauth: OAuth2Server,
@@ -46,7 +46,7 @@ export const tokenHandler = (
     .token(new Request(req), new Response(res), options)
     .then(token => {
       res.locals.oauth = { token };
-      sendRefreshToken(res, token.refreshToken);
+      sendToken(res, token.refreshToken);
       res.status(http.OK).send({ ok: true, token });
     })
     .catch(error => {

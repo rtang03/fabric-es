@@ -1,5 +1,7 @@
+// For use by client_credential grant type, which does not require redirect_uri
+
 // prettier-ignore
-export const CREATE_APPLICATION = `
+export const CREATE_SYSTEM_APPLICATION = `
   mutation CreateApplication (
     $applicationName: String!
     $grants: [String!]!

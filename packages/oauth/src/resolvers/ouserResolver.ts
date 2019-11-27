@@ -15,7 +15,7 @@ import {
 import { Client } from '../entity/Client';
 import { OUser } from '../entity/OUser';
 import { MyContext } from '../types';
-import { isAdmin, sendRefreshToken } from '../utils';
+import { isAdmin, sendToken } from '../utils';
 
 @ObjectType()
 class LoginResponse {
@@ -80,7 +80,7 @@ export class OUserResolver {
     return oauth2Server
       .token(new Request(req), new Response(res), oauthOptions)
       .then(({ accessToken, refreshToken }: Token) => {
-        sendRefreshToken(res, accessToken);
+        sendToken(res, accessToken);
         return {
           ok: true,
           accessToken,
@@ -107,7 +107,7 @@ export class OUserResolver {
           username,
           email,
           password: hashedPassword,
-          isAdmin: adminPassword
+          is_admin: adminPassword
             ? adminPassword === process.env.ADMIN_PASSWORD
             : false
         })
@@ -120,7 +120,7 @@ export class OUserResolver {
 
   @Mutation(() => Boolean)
   async logout(@Ctx() { res }: MyContext) {
-    sendRefreshToken(res, '');
+    sendToken(res, '');
     return true;
   }
 
