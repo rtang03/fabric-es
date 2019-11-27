@@ -67,10 +67,12 @@ export const createHttpServer: (option: {
     context: ({ req, res }: { req: Request; res: Response }): MyContext => {
       const authorization = req.headers!.authorization;
       let payload;
-
       if (authorization) {
         const token = authorization.split(' ')[1];
         try {
+          // Todo: it verify based on JWT expiry. And, is fine.
+          // if later, if implementing manual revoke of accessToken, via api.
+          // below verify need refactor to check validity using oauth.authenticate() method
           payload = verify(token, process.env.ACCESS_TOKEN_SECRET!, {
             ignoreExpiration: false
           });

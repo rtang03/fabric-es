@@ -1,4 +1,6 @@
+import { AuthenticationError } from 'apollo-server-errors';
 import { randomBytes } from 'crypto';
+import { omit } from 'lodash';
 import {
   Arg,
   Ctx,
@@ -36,18 +38,82 @@ class CreateAppResponse {
 
 @Resolver()
 export class ClientResolver {
+  /**
+   *   Do not require authentication
+   */
   @Query(() => String)
   helloClient() {
     return 'hi! developer';
   }
 
-  @Query(() => [Client])
+  @Query(() => String, { nullable: true })
+  async getRootClientId() {
+    return Client.findOne({ applicationName: 'root' }).then(({ id }) => id);
+  }
+
+  @Query(() => [Client], { nullable: true })
+  async getPublicClients() {
+    return Client.find().then(clients =>
+      clients.map(item => omit(item, 'client_secret'))
+    );
+  }
+
+  /**
+   * used by app owner
+   */
+  @Query(() => [Client], { nullable: true })
+  async getClients(@Ctx() { payload }: MyContext) {
+    const user_id = payload?.userId;
+    if (!user_id) throw new AuthenticationError('could not find user');
+
+    return Client.find({ user_id });
+  }
+
+  @Mutation(() => CreateAppResponse, { nullable: true })
+  async createRegularApp(
+    @Ctx() { payload }: MyContext,
+    @Arg('applicationName') applicationName: string,
+    @Arg('grants', () => [String]) grants: string[],
+    @Arg('redirect_uri', { nullable: true }) redirect_uri?: string
+  ): Promise<CreateAppResponse> {
+    const user_id = payload?.userId;
+    const client_secret = generateSecret(8);
+
+    if (!user_id) throw new AuthenticationError('could not find user');
+
+    return Client.insert({
+      applicationName,
+      client_secret,
+      grants,
+      redirect_uris: redirect_uri ? [redirect_uri] : [],
+      user_id,
+      is_system_app: false
+    })
+      .then<CreateAppResponse>(({ identifiers }) => ({
+        ok: true,
+        client_id: identifiers[0].id,
+        client_secret,
+        applicationName,
+        redirect_uri
+        // is_system_app: false
+      }))
+      .catch(error => {
+        console.error(error);
+        return null;
+      });
+  }
+
+  /**
+   * used by OAuth Root Admin
+   */
+  @Query(() => [Client], { nullable: true })
   @UseMiddleware(isAdmin)
-  async clients() {
+  async getAllClients() {
     return Client.find();
   }
 
-  @Mutation(() => CreateAppResponse)
+  // create system application
+  @Mutation(() => CreateAppResponse, { nullable: true })
   @UseMiddleware(isAdmin)
   async createApplication(
     @Ctx() { payload }: MyContext,
@@ -57,29 +123,31 @@ export class ClientResolver {
   ): Promise<CreateAppResponse> {
     const user_id = payload?.userId;
     const client_secret = generateSecret(8);
-    return user_id
-      ? Client.insert({
-          applicationName,
-          client_secret,
-          grants,
-          redirect_uris: redirect_uri ? [redirect_uri] : [],
-          user_id
-        })
-          .then<CreateAppResponse>(({ identifiers }) => ({
-            ok: true,
-            client_id: identifiers[0].id,
-            client_secret,
-            applicationName,
-            redirect_uri
-          }))
-          .catch(error => {
-            console.error(error);
-            return null;
-          })
-      : null;
+
+    return Client.insert({
+      applicationName,
+      client_secret,
+      grants,
+      redirect_uris: redirect_uri ? [redirect_uri] : [],
+      user_id,
+      is_system_app: true
+    })
+      .then<CreateAppResponse>(({ identifiers }) => ({
+        ok: true,
+        client_id: identifiers[0].id,
+        client_secret,
+        applicationName,
+        redirect_uri,
+        is_system_app: true
+      }))
+      .catch(error => {
+        console.error(error);
+        return null;
+      });
   }
 
-  @Mutation(() => String)
+  // used by Oauth root admin, to create bootstrap admin user
+  @Mutation(() => String, { nullable: true })
   async createRootClient(
     @Arg('admin') admin: string,
     @Arg('password') password: string
@@ -99,7 +167,8 @@ export class ClientResolver {
             'implicit'
           ],
           redirect_uris: ['http://localhost:4000'],
-          user_id: 'admin'
+          user_id: 'admin',
+          is_system_app: true
         })
           .then(({ identifiers }) => identifiers[0].id)
           .catch(error => {
@@ -107,10 +176,5 @@ export class ClientResolver {
             return null;
           })
       : null;
-  }
-
-  @Query(() => String)
-  async getRootClientId() {
-    return Client.findOne({ applicationName: 'root' }).then(({ id }) => id);
   }
 }

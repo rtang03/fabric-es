@@ -7,7 +7,7 @@ import { OUser } from '../entity/OUser';
 import { RefreshToken } from '../entity/RefreshToken';
 import '../env';
 import {
-  CREATE_APPLICATION,
+  CREATE_SYSTEM_APPLICATION,
   CREATE_ROOT_CLIENT,
   LOGIN,
   REGISTER_ADMIN
@@ -113,7 +113,7 @@ describe('Client Credentials Grant Type Tests', () => {
       .set('authorization', `bearer ${accessToken}`)
       .send({
         operationName: 'CreateApplication',
-        query: CREATE_APPLICATION,
+        query: CREATE_SYSTEM_APPLICATION,
         variables: { applicationName, grants }
       })
       .expect(({ body: { data } }) => {

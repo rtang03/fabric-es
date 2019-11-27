@@ -16,8 +16,13 @@ import Router from 'next/router';
 import React from 'react';
 import * as yup from 'yup';
 import { MyTextField } from '../components';
+import DisplayErrorMessage from '../components/DisplayErrorMessage';
 import Layout from '../components/Layout';
-import { MeDocument, MeQuery, useLoginMutation } from '../generated/graphql';
+import {
+  MeDocument,
+  MeQuery,
+  useLoginMutation
+} from '../generated/graphql';
 
 const validationSchema = yup.object({
   email: yup
@@ -27,6 +32,7 @@ const validationSchema = yup.object({
   password: yup
     .string()
     .required()
+    .trim()
     .min(8)
 });
 
@@ -56,8 +62,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const Login = ({ auth_uri }: { auth_uri: string }) => {
-  const [login] = useLoginMutation();
+  const [login, { error }] = useLoginMutation();
   const classes = useStyles();
+
   return (
     <Layout title="Account | Login">
       <Container component="main" maxWidth="xs">
@@ -79,7 +86,7 @@ const Login = ({ auth_uri }: { auth_uri: string }) => {
           validationSchema={validationSchema}
           onSubmit={async ({ email, password }, { setSubmitting }) => {
             setSubmitting(true);
-            const response = await login({
+            return login({
               variables: { email, password },
               update: (store, { data }) => {
                 if (!data) return null;
@@ -88,12 +95,17 @@ const Login = ({ auth_uri }: { auth_uri: string }) => {
                   data: { me: data.login.user }
                 });
               }
-            });
-            console.log(response);
-            setSubmitting(false);
-            await Router.push('/');
+            })
+              .then(() => {
+                setSubmitting(false);
+                Router.push('/');
+              })
+              .catch(err => {
+                setSubmitting(false);
+                console.error(err);
+              });
           }}>
-          {({ values, isSubmitting }) => (
+          {({ isSubmitting }) => (
             <Form className={classes.form}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
@@ -132,6 +144,7 @@ const Login = ({ auth_uri }: { auth_uri: string }) => {
                 type="submit">
                 Log In
               </Button>
+              <DisplayErrorMessage error={error} />
               <Grid container justify="flex-end">
                 <Grid item>
                   <Link href="#" variant="body2">
@@ -140,12 +153,10 @@ const Login = ({ auth_uri }: { auth_uri: string }) => {
                 </Grid>
                 <Grid item>
                   <Link href="#" variant="body2">
-                    {`Don't have an account? \n Sign Up`}
+                    {`Don't have an account? \n Register Me`}
                   </Link>
                 </Grid>
               </Grid>
-              {/*<hr />*/}
-              {/*<pre>Input</pre>*/}
               {/*<pre>{JSON.stringify(values, null, 2)}</pre>*/}
             </Form>
           )}

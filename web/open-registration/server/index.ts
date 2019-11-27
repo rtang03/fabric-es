@@ -1,10 +1,10 @@
-require('dotenv').config();
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import csrf from 'csurf';
 import express from 'express';
 import fetch from 'isomorphic-unfetch';
-import next from 'next';
+import next, { NextApiRequest, NextApiResponse } from 'next';
+import '../utils/env';
 
 const port = parseInt(process.env.PORT || '3000', 10);
 const dev = process.env.NODE_ENV !== 'production';

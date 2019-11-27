@@ -1,0 +1,17 @@
+mutation CreateRegularApp (
+  $applicationName: String!
+  $grants: [String!]!
+  $redirect_uri: String!
+) {
+  createRegularApp (
+    applicationName: $applicationName
+    grants: $grants
+    redirect_uri: $redirect_uri
+  ) {
+    ok
+    applicationName
+    client_id
+    client_secret
+    redirect_uri
+  }
+}

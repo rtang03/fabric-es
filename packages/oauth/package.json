@@ -10,7 +10,8 @@
     "test:authorization_code": "jest --forceExit --detectOpenHandles authorization_code.test",
     "test:client_credentials": "jest --forceExit --detectOpenHandles client_credentials.test",
     "test:refresh_token": "jest --forceExit --detectOpenHandles refresh_token.test",
-    "test:password": "jest --forceExit --detectOpenHandles password.test"
+    "test:password": "jest --forceExit --detectOpenHandles password.test",
+    "test:client_app": "jest --forceExit --detectOpenHandles client_app.test"
   },
   "engines": {
     "node": ">=8",

@@ -26,7 +26,7 @@ const dbConnection = {
   port: 5432,
   username: 'postgres',
   password: 'postgres',
-  database: 'testdatabase',
+  database: 'testpassword',
   logging: false,
   synchronize: true,
   dropSchema: true,
@@ -35,7 +35,6 @@ const dbConnection = {
 
 let app: Express;
 let accessToken: string;
-let refreshToken: string;
 let client_id: string;
 const username = `tester${Math.floor(Math.random() * 10000)}`;
 const email = `${username}@example.com`;
@@ -94,7 +93,7 @@ describe('Password Grant Type Tests', () => {
         variables: { email, password }
       })
       .expect(({ body: { data }, header }) => {
-        refreshToken = header['set-cookie'][0].split('; ')[0].split('=')[1];
+        // refreshToken = header['set-cookie'][0].split('; ')[0].split('=')[1];
         accessToken = data.login.accessToken;
         expect(data.login.ok).toBeTruthy();
         expect(data.login.accessToken).toBeDefined();
@@ -115,7 +114,7 @@ describe('Password Grant Type Tests', () => {
       .post('/graphql')
       .set('authorization', `bearer ${accessToken}`)
       .send({ operationName: 'Users', query: USERS })
-      .expect(({ body: { data } }) => {
+      .expect(({ body: { data, errors } }) => {
         expect(data.users[0].email).toEqual(email);
         expect(data.users[0].username).toEqual(username);
       }));
@@ -137,6 +136,8 @@ describe('Password Grant Type Tests', () => {
       .send({ operationName: 'Me', query: ME })
       .expect(({ body }) => expect(body.data.me).toBeNull()));
 
+  // update-user is a pre-requisite of next test: register (non-admin) user
+  // coz the email/username is inserted again.
   it('should update user', async () =>
     request(app)
       .post('/graphql')
@@ -182,4 +183,16 @@ describe('Password Grant Type Tests', () => {
       .expect(({ body: { errors } }) => {
         expect(errors[0].message).toEqual('require admin privilege');
       }));
+
+  it('should fail to login non-exist user', async () =>
+    request(app)
+      .post('/graphql')
+      .send({
+        operationName: 'Login',
+        query: LOGIN,
+        variables: { email: 'faker@example.com', password }
+      })
+      .expect(({ body: { errors } }) =>
+        expect(errors[0].message).toEqual('cannot find user')
+      ));
 });

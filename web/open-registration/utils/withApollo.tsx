@@ -4,16 +4,17 @@ import { ApolloLink } from 'apollo-link';
 import { setContext } from 'apollo-link-context';
 import { onError } from 'apollo-link-error';
 import { HttpLink } from 'apollo-link-http';
-import cookie from 'cookie';
 import fetch from 'isomorphic-unfetch';
 import Head from 'next/head';
 import React from 'react';
 const isServer = () => typeof window === 'undefined';
+let accessToken = '';
+export const getAccessToken = () => accessToken;
+export const setAccessToken = (token: string) => accessToken = token;
 
 export function withApollo(PageComponent: any, { ssr = true } = {}) {
   const WithApollo = ({
     apolloClient: client,
-    serverAccessToken,
     apolloState,
     ...pageProps
   }: any) => (
@@ -44,18 +45,21 @@ export function withApollo(PageComponent: any, { ssr = true } = {}) {
         ctx: { req, res }
       } = ctx;
 
-      let serverAccessToken = '';
-
       if (isServer()) {
+        const cookie = await import('cookie');
         const cookies = cookie.parse(req.headers.cookie || '');
-        if (cookies.jid) serverAccessToken = cookies.jid;
+        if (cookies.jid) setAccessToken(cookies.jid);
+      } else {
+        const jscookie =  await import('js-cookie');
+        const token = jscookie.get().jid;
+        if (token) setAccessToken(token);
       }
 
       // Run all GraphQL queries in the component tree
       // and extract the resulting data
       const apolloClient = (ctx.ctx.apolloClient = initApolloClient(
         {},
-        serverAccessToken
+        getAccessToken()
       ));
 
       const pageProps = PageComponent.getInitialProps
@@ -102,7 +106,6 @@ export function withApollo(PageComponent: any, { ssr = true } = {}) {
       return {
         ...pageProps,
         apolloState,
-        serverAccessToken
       };
     };
   }
@@ -115,10 +118,10 @@ let apolloClient: ApolloClient<NormalizedCacheObject> | null = null;
  * Always creates a new apollo client on the server
  * Creates or reuses apollo client in the browser.
  */
-function initApolloClient(initState: any, serverAccessToken?: string) {
+function initApolloClient(initState: any, token?: string) {
   // Make sure to create a new client for every server-side request so that data
   // isn't shared between connections (which would be bad)
-  if (isServer()) return createApolloClient(initState, serverAccessToken);
+  if (isServer()) return createApolloClient(initState, token);
 
   // Reuse client on the client-side
   if (!apolloClient) apolloClient = createApolloClient(initState);
@@ -132,15 +135,21 @@ function createApolloClient(initialState = {}, serverAccessToken?: string) {
     fetch
   });
 
-  const authLink = setContext((request, { headers }) => ({
-    headers: {
-      ...headers,
-      authorization: serverAccessToken ? `bearer ${serverAccessToken}` : ''
-    }
-  }));
+  const authLink = setContext((request, { headers }) => {
+    const token = serverAccessToken || getAccessToken();
+    return {
+      headers: {
+        ...headers,
+        authorization: token ? `bearer ${token}` : ''
+      }
+    };
+  });
 
   const errorLink = onError(({ graphQLErrors, networkError }) => {
-    if (graphQLErrors) console.info(graphQLErrors);
+    if (graphQLErrors) {
+      if (graphQLErrors[0].message !== 'could not find user')
+        console.info(graphQLErrors);
+    }
     if (networkError) console.error(networkError);
   });
 

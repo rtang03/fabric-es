@@ -19,6 +19,7 @@ export class OUser extends BaseEntity {
   @Column('text')
   password: string;
 
+  @Field()
   @Column()
-  isAdmin: boolean;
+  is_admin: boolean;
 }

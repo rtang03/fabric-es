@@ -1,13 +1,13 @@
-// For use by authorization_code grant type, which requires redirect_uri
+// For use by application owner, which does not check for oauth root admin
 
 // prettier-ignore
-export const CREATE_APP_FOR_AUTHCODE = `
-  mutation CreateApplication (
+export const CREATE_REGULAR_APP = `
+  mutation CreateRegularApp (
     $applicationName: String!
-    $redirect_uri: String!
     $grants: [String!]!
+    $redirect_uri: String!
   ) {
-    createApplication (
+    createRegularApp (
       applicationName: $applicationName
       grants: $grants
       redirect_uri: $redirect_uri

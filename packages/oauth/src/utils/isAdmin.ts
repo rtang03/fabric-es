@@ -7,6 +7,6 @@ export const isAdmin: MiddlewareFn<MyContext> = async ({ context }, next) => {
   const id = context.payload?.userId;
   const user = await OUser.findOne({ id });
   if (!user) throw new AuthenticationError('could not find user');
-  if (!user.isAdmin) throw new ForbiddenError('require admin privilege');
+  if (!user.is_admin) throw new ForbiddenError('require admin privilege');
   return next();
 };
