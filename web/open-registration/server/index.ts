@@ -5,6 +5,7 @@ import express from 'express';
 import fetch from 'isomorphic-unfetch';
 import next, { NextApiRequest, NextApiResponse } from 'next';
 import '../utils/env';
+import { parseNetwork } from '../utils';
 
 const port = parseInt(process.env.PORT || '3000', 10);
 const dev = process.env.NODE_ENV !== 'production';
@@ -48,6 +49,11 @@ app.prepare().then(() => {
         res.clearCookie('jid');
         console.log(error);
       });
+  });
+
+  server.get('/network', async (_, res) => {
+    const peers = require('./network.json');
+    res.status(200).send(peers);
   });
 
   server.get('*', (req, res) => handle(req, res));
