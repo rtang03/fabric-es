@@ -7,16 +7,15 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import './env';
-import { LoanDetails, LoanDetailsEvents, loanDetailsReducer, resolvers, typeDefs } from './private';
+import { DocContents, DocContentsEvents, docContentsReducer, LoanDetails, LoanDetailsEvents, loanDetailsReducer, resolvers, typeDefs } from './private';
 import { DataSources, FabricData } from './types';
 
 let networkConfig;
 const port = 14002;
-const entityName = 'privatedata';
 const collection = 'Org1PrivateDetails';
 
 const bootstrap = async () => {
-  console.log('♨️♨️ Bootstraping Doc-Etc - Offchain ♨️♨️');
+  console.log('♨️♨️ Bootstraping private data - Offchain ♨️♨️');
   const enrollmentId = 'admin';
   networkConfig = await getNetwork({
     enrollmentId,
@@ -24,20 +23,32 @@ const bootstrap = async () => {
   });
   const { getPrivateDataRepo } = createPeer({
     ...networkConfig,
-    reducer: loanDetailsReducer,
+    defaultEntityName: 'loanDetails',
+    defaultReducer: loanDetailsReducer,
     collection
   });
   const loanDetailsRepo = getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
-    entityName,
+    entityName: 'loanDetails',
     reducer: loanDetailsReducer
+  });
+  const docContentsRepo = getPrivateDataRepo<DocContents, DocContentsEvents>({
+    entityName: 'docContents',
+    reducer: docContentsReducer
   });
 
   const server = new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),
     playground: true,
     dataSources: (): DataSources => ({
-      loanDetailsDataSource: new FabricData({ privateRepo: loanDetailsRepo })
-    })
+      loanDetailsDataSource: new FabricData({ repo: loanDetailsRepo }),
+      docContentsDataSource: new FabricData({ repo: docContentsRepo })
+    }),
+    context: ({ req }) => {
+      console.log(`${req.headers.client_id} is authenticated.`);
+      return {
+        enrollmentId: 'admin'
+      };
+    }
   });
   server.listen({ port }).then(({ url }) => {
     console.log(`🚀 Server ready at ${url}`);

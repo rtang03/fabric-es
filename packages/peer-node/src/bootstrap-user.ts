@@ -1,3 +1,4 @@
+import { buildFederatedSchema } from '@apollo/federation';
 import { User, UserEvents, userReducer } from '@espresso/common';
 import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
@@ -18,7 +19,8 @@ const bootstrap = async () => {
   
   const { reconcile, getRepository, subscribeHub } = createPeer({
     ...networkConfig,
-    reducer: userReducer,
+    defaultEntityName: 'user',
+    defaultReducer: userReducer,
     collection: 'Org1PrivateDetails'
   });
   const userRepo = getRepository<User, UserEvents>({
@@ -29,7 +31,7 @@ const bootstrap = async () => {
   await reconcile({ entityName: 'user', reducer: userReducer });
 
   const server = new ApolloServer({
-    typeDefs, resolvers,
+    schema: buildFederatedSchema([{ typeDefs, resolvers }]),
     playground: true,
     dataSources: (): DataSources => ({
       userDataSource: new FabricData({ repo: userRepo })
