@@ -8,9 +8,10 @@
     "clean": "rimraf dist",
     "test:unit": "jest unit.test",
     "test:integration": "jest integration.test",
-    "svs-document": "node ./dist/bootstrap-document.js",
-    "svs-trade": "node ./dist/bootstrap-trade.js",
-    "svs-privatedata": "node ./dist/bootstrap-privatedata.js",
+    "svs-docu": "node ./dist/bootstrap-document.js",
+    "svs-loan": "node ./dist/bootstrap-loan.js",
+    "svs-user": "node ./dist/bootstrap-user.js",
+    "svs-priv": "node ./dist/bootstrap-private.js",
     "start-services": "yarn build && concurrently \"npm:svs-*\"",
     "start-gateway": "node ./dist/bootstrap-gateway.js",
     "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/enrollAdmin.ts"

@@ -13,18 +13,14 @@ import { DocContents, DocContentsEvents, LoanDetails, LoanDetailsEvents } from '
 export class FabricData<TEntity = any, TEvent = any> extends DataSource {
   context;
   repo;
-  privateRepo;
 
   constructor({
-    repo,
-    privateRepo
+    repo
   }: {
-    repo?: Repository<TEntity, TEvent>;
-    privateRepo?: PrivatedataRepository<TEntity, TEvent>;
+    repo?: Repository<TEntity, TEvent> | PrivatedataRepository<TEntity, TEvent>;
   }) {
     super();
     this.repo = repo;
-    this.privateRepo = privateRepo;
   }
 
   initialize(config) {

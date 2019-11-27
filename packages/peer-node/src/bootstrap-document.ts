@@ -4,9 +4,6 @@ import {
   Document,
   DocumentEvents,
   documentReducer,
-  // Loan,
-  // LoanEvents,
-  // loanReducer,
   User,
   UserEvents,
   userReducer
@@ -30,13 +27,10 @@ const bootstrap = async () => {
   });
   const { reconcile, getRepository, subscribeHub } = createPeer({
     ...networkConfig,
-    reducer: documentReducer,
+    defaultEntityName: 'document',
+    defaultReducer: documentReducer,
     collection
   });
-  // const loanRepo = getRepository<Loan, LoanEvents>({
-  //   entityName: 'loan',
-  //   reducer: loanReducer
-  // });
   const userRepo = getRepository<User, UserEvents>({
     entityName: 'user',
     reducer: userReducer
@@ -60,9 +54,14 @@ const bootstrap = async () => {
     subscriptions: { path: '/graphql' },
     dataSources: (): DataSources => ({
       docDataSource: new FabricData({ repo: documentRepo }),
-      // loanDataSource: new FabricData({ repo: loanRepo }),
       userDataSource: new FabricData({ repo: userRepo })
-    })
+    }),
+    context: ({ req }) => {
+      console.log(`${req.headers.client_id} is authenticated.`);
+      return {
+        enrollmentId: 'admin'
+      };
+    }
   });
 
   server.listen({ port }).then(({ url }) => {
