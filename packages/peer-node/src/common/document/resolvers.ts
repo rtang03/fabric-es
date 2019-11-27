@@ -69,8 +69,8 @@ export const resolvers = {
     }
   },
   Document: {
-    __resolveReference: ({ documentID }, { dataSources: { docDataSource }}): Promise<Document> => {
-      return docDataSource.repo.getById({ id: documentID })
+    __resolveReference: ({ documentId }, { dataSources: { docDataSource }}): Promise<Document> => {
+      return docDataSource.repo.getById({ id: documentId })
         .then(({ currentState }) => currentState);
     },
     loan(documents) {
