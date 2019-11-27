@@ -121,13 +121,13 @@ beforeAll(async () => {
   }});
 
   await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
-    documentId: '990000101', userId: 'josh@fake.it', title: 'Test Title 101', reference: 'DOC0101', link: 'test-link-0101'
+    documentId: '990000101', userId: 'josh@fake.it', title: 'Test Title 101', reference: 'DOC0101'
   }});
   await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
-    documentId: '990000102', userId: 'josh@fake.it', title: 'Test Title 102', reference: 'DOC0102', link: 'test-link-0102'
+    documentId: '990000102', userId: 'josh@fake.it', title: 'Test Title 102', reference: 'DOC0102'
   }});
   await createTestClient(server).mutate({ mutation: CREATE_DOCUMENT, variables: {
-    documentId: '990000103', userId: 'josh@fake.it', title: 'Test Title 103', reference: 'DOC0103', link: 'test-link-0103'
+    documentId: '990000103', userId: 'josh@fake.it', title: 'Test Title 103', reference: 'DOC0103'
   }});
 
   await createTestClient(server).mutate({ mutation: CREATE_LOAN_DETAILS, variables: {
@@ -224,8 +224,7 @@ describe('Document Entity: Unit Test', () => {
           documentId: '321321321',
           userId: 'josh@fake.it',
           title: 'test-title',
-          reference: 'DOC0009',
-          link: 'test-link-0009'
+          reference: 'DOC0009'
         }
       })
       // .then(data => {
@@ -243,8 +242,7 @@ describe('Document Entity: Unit Test', () => {
         documentId: '990000104',
         userId: 'josh@fake.it',
         title: 'test-title',
-        reference: 'DOC0104',
-        link: 'test-link-0104'
+        reference: 'DOC0104'
       }
     }).then(_ =>
       query({ query: GET_DOCUMENT_BY_ID, variables: { documentId: '990000104' }})
@@ -253,18 +251,17 @@ describe('Document Entity: Unit Test', () => {
     ));
   });
 
-  it('create document without link', async () =>
+  it('create document without reference', async () =>
     createTestClient(server)
       .mutate({
         mutation: CREATE_DOCUMENT,
         variables: {
           documentId: '990000109',
           userId: 'josh@fake.it',
-          title: 'test-title',
-          reference: 'DOC0009'
+          title: 'test-title'
         }
       }).then(({ errors }) =>
-        expect(errors && (errors.length > 0) && (errors[0].message === 'Variable "$link" of required type "String!" was not provided.')).toBeTruthy())
+        expect(errors && (errors.length > 0) && (errors[0].message === 'Variable "$reference" of required type "String!" was not provided.')).toBeTruthy())
   );
 
   it('delete document', async () => {
@@ -536,7 +533,7 @@ describe('DocContents: Unit Test', () => {
     createTestClient(server)
       .query({
         query: GET_CONTENTS_BY_ID,
-        variables: { loanId: '1542385173331' }
+        variables: { documentId: '1542385173331' }
       })
       .then(({ data }) => expect(data).toMatchSnapshot()
   ));
@@ -545,7 +542,7 @@ describe('DocContents: Unit Test', () => {
     createTestClient(server)
       .query({
         query: GET_CONTENTS_BY_ID,
-        variables: { loanId: '1542385174331' }
+        variables: { documentId: '1542385174331' }
       })
       .then(({ data }) => expect(data).toMatchSnapshot()
   ));

@@ -37,16 +37,6 @@ export interface DocumentReferenceDefined extends BaseEvent {
   };
 }
 
-export interface DocumentLinkDefined extends BaseEvent {
-  readonly type: 'DocumentLinkDefined';
-  payload: {
-    documentId: string;
-    userId: string;
-    link: string;
-    timestamp: number;
-  };
-}
-
 export interface DocumentLoanIdDefined extends BaseEvent {
   readonly type: 'DocumentLoanIdDefined';
   payload: {
@@ -72,6 +62,5 @@ export type DocumentEvents =
   DocumentDeleted |
   DocumentAccessRestricted |
   DocumentReferenceDefined |
-  DocumentLinkDefined |
   DocumentLoanIdDefined |
   DocumentTitleDefined;

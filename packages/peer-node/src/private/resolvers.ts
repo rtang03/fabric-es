@@ -115,7 +115,7 @@ export const resolvers = {
       return { __typename: 'Document', documentId: contents.documentId };
     }
   },
-  Contents: {
+  Docs: {
     __resolveType(obj, _, __) {
       if (obj.body) {
         return 'Data';
