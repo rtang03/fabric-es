@@ -1,17 +1,12 @@
 import Router from 'next/router';
-import React, { useEffect } from 'react';
-import { useLogoutMutation, useMeLazyQuery } from '../generated/graphql';
+import React from 'react';
+import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 import { setAccessToken } from '../utils';
 import Link from './Link';
 
 export const Header: React.FC<any> = () => {
-  const [me, { data, loading, client }] = useMeLazyQuery();
+  const { data, loading, client } = useMeQuery();
   const [logout] = useLogoutMutation();
-  // const client = useApolloClient();
-
-  useEffect(() => {
-    if (!data?.me) me();
-  }, []);
 
   const body = loading ? null : data?.me ? (
     <div>
@@ -39,8 +34,8 @@ export const Header: React.FC<any> = () => {
         ) : !loading && data?.me ? (
           <React.Fragment>
             {' '}
-            | <Link href="/application">Application</Link> |{' '}
-            <Link href="/enroll">Enroll</Link> |{' '}
+            | <Link href="/application">Client App</Link> |{' '}
+            <Link href="/peer">Peer Node</Link> |{' '}
             <button
               onClick={async () => {
                 await logout();
