@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export const typeDefs = gql`
-extend type Query {
+type Query {
   getCommitsByLoanId(loanId: String!): [LoanCommit]!
   getLoanById(loanId: String!): Loan
 }

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export const typeDefs = gql`
-  extend type Query {
+  type Query {
     getLoanDetailsById(loanId: String!): LoanDetails!
     getDocContentsById(documentId: String!): DocContents!
   }
