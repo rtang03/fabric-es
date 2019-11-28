@@ -15,7 +15,16 @@
     "start-services": "yarn build && concurrently \"npm:svs-*\"",
     "start-gateway": "node ./dist/bootstrap-gateway.js",
     "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/enrollAdmin.ts",
-    "start-test": "ts-node ./src/bootstrap-peer.ts"
+    "enrollOrg1Admin": "rimraf assets/walletOrg1/admin && ./node_modules/.bin/ts-node src/enrollOrg1Admin.ts",
+    "enrollOrg2Admin": "rimraf assets/walletOrg2/admin && ./node_modules/.bin/ts-node src/enrollOrg2Admin.ts",
+    "s-peer": "ts-node ./src/service-peer.ts",
+    "service-doc": "node ./dist/service-doc.js",
+    "service-usr": "node ./dist/service-usr.js",
+    "service-loan": "node ./dist/service-loan.js",
+    "service-priv": "node ./dist/service-private.js",
+    "start-microservice": "yarn build && concurrently \"npm:service-*\"",
+    "start-new-gateway": "node ./dist/gateway.js",
+    "generate-types": "graphql-codegen --config src/generated/codegen.yml"
   },
   "engines": {
     "node": ">=8",
@@ -24,10 +33,10 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@espresso/admin-tool": "1.0.0",
-    "@espresso/fabric-cqrs": "1.0.0",
     "@apollo/federation": "^0.10.2",
     "@apollo/gateway": "^0.10.8",
+    "@espresso/admin-tool": "1.0.0",
+    "@espresso/fabric-cqrs": "1.0.0",
     "apollo-server": "^2.9.7",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
@@ -39,9 +48,10 @@
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
     "graphql-tools": "^4.0.6",
+    "js-yaml": "^3.13.1",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.6.0",
-    "js-yaml": "^3.13.1",
+    "listr": "^0.14.3",
     "lodash": "^4.17.15",
     "morgan": "^1.9.1",
     "prettyjson": "^1.2.1"
@@ -49,9 +59,9 @@
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
     "@types/body-parser": "^1.17.1",
-    "@types/express": "^4.17.1",
     "@types/bytebuffer": "^5.0.40",
     "@types/dotenv": "^6.1.1",
+    "@types/express": "^4.17.1",
     "@types/jest": "^24.0.18",
     "@types/js-yaml": "^3.12.1",
     "@types/jsonwebtoken": "^8.3.5",
