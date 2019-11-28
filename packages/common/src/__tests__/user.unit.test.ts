@@ -1,6 +1,5 @@
 import 'reflect-metadata';
-import { User } from '../user';
-import { userCommandHandler } from '../user';
+import { User, userCommandHandler } from '../user';
 import { userRepo } from './__utils__';
 
 const user: User = {

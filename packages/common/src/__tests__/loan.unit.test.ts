@@ -11,42 +11,42 @@ beforeAll(async () => {
     payload: { name: 'Zero Zero One', timestamp: Date.now() }
   });
 
-  await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId, payload: { loanId: 'LOANID000', reference: 'LOANREF000', timestamp: Date.now() }
   });
 
-  await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId, payload: { loanId: 'LOANID001', reference: 'LOANREF001', timestamp: Date.now() }
   });
 
-  await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId, payload: { loanId: 'LOANID002', reference: 'LOANREF002', description: 'YOHOWAREYOU', timestamp: Date.now() }
   });
 
-  await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId, payload: { loanId: 'LOANID003', reference: 'LOANREF003', description: 'YOIMFINETHX', timestamp: Date.now() }
   });
 
-  await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId, payload: { loanId: 'LOANID004', reference: 'LOANREF004', timestamp: Date.now() }
   });
 
-  await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId, payload: { loanId: 'LOANID005', reference: 'LOANREF005', description: 'GOODTOHEAR!', timestamp: Date.now() }
   });
 
-  await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId, payload: { loanId: 'LOANID006', reference: 'LOANREF006', timestamp: Date.now() }
   });
 
-  await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId, payload: { loanId: 'LOANID008', reference: 'LOANREF008', timestamp: Date.now() }
   });
 });
 
 describe('Loan CommandHandler test', () => {
   it('creating a new loan', async () => {
-    await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+    await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
       userId,
       payload: {
         loanId: 'LOANID007',
@@ -65,7 +65,7 @@ describe('Loan CommandHandler test', () => {
   });
 
   it('cancel a loan', async () => {
-    await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).CancelLoan({
+    await loanCommandHandler({ enrollmentId, loanRepo }).CancelLoan({
       userId,
       payload: {
         loanId: 'LOANID000',
@@ -83,7 +83,7 @@ describe('Loan CommandHandler test', () => {
   });
 
   it('reject a loan', async () => {
-    await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).RejectLoan({
+    await loanCommandHandler({ enrollmentId, loanRepo }).RejectLoan({
       userId,
       payload: {
         loanId: 'LOANID001',
@@ -100,7 +100,7 @@ describe('Loan CommandHandler test', () => {
   });
 
   it('approve a loan', async () => {
-    await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApproveLoan({
+    await loanCommandHandler({ enrollmentId, loanRepo }).ApproveLoan({
       userId,
       payload: {
         loanId: 'LOANID002',
@@ -118,7 +118,7 @@ describe('Loan CommandHandler test', () => {
   });
 
   it('return a loan', async () => {
-    await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ReturnLoan({
+    await loanCommandHandler({ enrollmentId, loanRepo }).ReturnLoan({
       userId,
       payload: {
         loanId: 'LOANID003',
@@ -135,7 +135,7 @@ describe('Loan CommandHandler test', () => {
   });
 
   it('expire a loan', async () => {
-    await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ExpireLoan({
+    await loanCommandHandler({ enrollmentId, loanRepo }).ExpireLoan({
       userId,
       payload: {
         loanId: 'LOANID004',
@@ -152,7 +152,7 @@ describe('Loan CommandHandler test', () => {
   });
 
   it('update description of a loan', async () => {
-    await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).DefineLoanDescription({
+    await loanCommandHandler({ enrollmentId, loanRepo }).DefineLoanDescription({
       userId,
       payload: {
         loanId: 'LOANID005',
@@ -170,7 +170,7 @@ describe('Loan CommandHandler test', () => {
   });
 
   it('update a non-existing loan', async () => {
-    await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).DefineLoanDescription({
+    await loanCommandHandler({ enrollmentId, loanRepo }).DefineLoanDescription({
       userId,
       payload: {
         loanId: '99999999999',
@@ -183,7 +183,7 @@ describe('Loan CommandHandler test', () => {
   });
 
   it('add description to a loan', async () => {
-    await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).DefineLoanDescription({
+    await loanCommandHandler({ enrollmentId, loanRepo }).DefineLoanDescription({
       userId,
       payload: {
         loanId: 'LOANID006',
@@ -202,7 +202,7 @@ describe('Loan CommandHandler test', () => {
 
   it('creating a loan without loan reference', async () => {
     expect.assertions(1);
-    return loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+    return loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
       userId,
       payload: {
         loanId: 'LOAN099',
@@ -216,7 +216,7 @@ describe('Loan CommandHandler test', () => {
 
   it('updating loan reference after the loan is created', async () => {
     expect.assertions(1);
-    return loanCommandHandler({ enrollmentId, userRepo, loanRepo }).DefineLoanReference({
+    return loanCommandHandler({ enrollmentId, loanRepo }).DefineLoanReference({
       userId,
       payload: {
         loanId: 'LOANID002',
