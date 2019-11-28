@@ -1,36 +1,13 @@
+import {
+  documentResolvers,
+  documentTypeDefs,
+  loanResolvers,
+  loanTypeDefs,
+  userResolvers,
+  userTypeDefs
+} from '@espresso/common';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
-import {
-  CREATE_DOCUMENT,
-  DELETE_DOCUMENT,
-  GET_COMMITS_BY_DOCUMENT,
-  GET_DOCUMENT_BY_ID,
-  resolvers as docResolvers,
-  RESTRICT_DOCUMENT_ACCESS,
-  typeDefs as docTypeDefs,
-  UPDATE_DOCUMENT
-} from '../common/document';
-import {
-  APPLY_LOAN,
-  APPROVE_LOAN,
-  CANCEL_LOAN,
-  EXPIRE_LOAN,
-  GET_COMMITS_BY_LOAN,
-  GET_LOAN_BY_ID,
-  REJECT_LOAN,
-  resolvers as loanResolvers,
-  RETURN_LOAN,
-  typeDefs as loanTypeDefs,
-  UPDATE_LOAN
-} from '../common/loan';
-import {
-  CREATE_USER,
-  GET_COMMITS_BY_USER,
-  GET_USER_BY_ID,
-  GET_USERS_BY_PAGE,
-  resolvers as userResolvers,
-  typeDefs as userTypeDefs
-} from '../common/user';
 import {
   CREATE_DATA_DOC_CONTENTS,
   CREATE_FILE_DOC_CONTENTS,
@@ -41,6 +18,31 @@ import {
   typeDefs as localTypeDefs,
   UPDATE_LOAN_DETAILS
 } from '../private';
+import {
+  CREATE_DOCUMENT,
+  DELETE_DOCUMENT,
+  GET_COMMITS_BY_DOCUMENT,
+  GET_DOCUMENT_BY_ID,
+  RESTRICT_DOCUMENT_ACCESS,
+  UPDATE_DOCUMENT
+} from '../queries/document';
+import {
+  APPLY_LOAN,
+  APPROVE_LOAN,
+  CANCEL_LOAN,
+  EXPIRE_LOAN,
+  GET_COMMITS_BY_LOAN,
+  GET_LOAN_BY_ID,
+  REJECT_LOAN,
+  RETURN_LOAN,
+  UPDATE_LOAN
+} from '../queries/loan';
+import {
+  CREATE_USER,
+  GET_COMMITS_BY_USER,
+  GET_USER_BY_ID,
+  GET_USERS_BY_PAGE
+} from '../queries/user';
 import {
   constructTestServer,
   docContentsRepo,
@@ -59,21 +61,19 @@ let privateService: ApolloServer;
 
 beforeAll(async () => {
   documentService = getApolloServer({
-    typeDefs: docTypeDefs,
-    resolvers: docResolvers,
+    typeDefs: documentTypeDefs,
+    resolvers: documentResolvers,
     dataSources: () => ({
-      docDataSource: { repo: documentRepo },
-      userDataSource: { repo: userRepo }
+      document: { repo: documentRepo }
     })
   });
-  await documentService.listen({ port: 14001 });
+  await documentService.listen({ port: 14003 });
 
   loanService = getApolloServer({
     typeDefs: loanTypeDefs,
     resolvers: loanResolvers,
     dataSources: () => ({
-      loanDataSource: { repo: loanRepo },
-      userDataSource: { repo: userRepo }
+      loan: { repo: loanRepo }
     })
   });
   await loanService.listen({ port: 14002 });
@@ -82,20 +82,20 @@ beforeAll(async () => {
     typeDefs: userTypeDefs,
     resolvers: userResolvers,
     dataSources: () => ({
-      userDataSource: { repo: userRepo }
+      user: { repo: userRepo }
     })
   });
-  await userService.listen({ port: 14004 });
+  await userService.listen({ port: 14001 });
 
   privateService = getApolloServer({
     typeDefs: localTypeDefs,
     resolvers: localResolvers,
     dataSources: () => ({
-      loanDetailsDataSource: { repo: loanDetailsRepo },
-      docContentsDataSource: { repo: docContentsRepo }
+      loanDetails: { repo: loanDetailsRepo },
+      docContents: { repo: docContentsRepo }
     })
   });
-  await privateService.listen({ port: 14003 });
+  await privateService.listen({ port: 14004 });
   server = await constructTestServer();
 
   await createTestClient(server).mutate({ mutation: APPLY_LOAN, variables: {
@@ -181,7 +181,8 @@ describe('User Entity: Unit Test', () => {
           name: 'Pete',
           userId: 'pete@fake.it'
         }
-      }).then(({ data: { createUser: { id } } }) =>
+      })
+      .then(({ data: { createUser: { id } } }) =>
         expect(id).toEqual('pete@fake.it')
   ));
 

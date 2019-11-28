@@ -1,77 +1,23 @@
+// NodeJS event emitter is used to listen event arrival from on-chain write operation.
+// This is default implementation of PubSub() of GraphQL Subscription
+// For production-grade, other PubSub, e.g. Redis may replace event emmitter, in fabric-rx-cqrs
+// Thereafter, below line is no longer required.
 require('events').EventEmitter.defaultMaxListeners = 15;
-import { buildFederatedSchema } from '@apollo/federation';
 import {
   Document,
   DocumentEvents,
   documentReducer,
-  User,
-  UserEvents,
-  userReducer
+  documentResolvers,
+  documentTypeDefs
 } from '@espresso/common';
-import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
-import { ApolloServer } from 'apollo-server';
-import { resolvers, typeDefs } from './common/document';
 import './env';
-import { DataSources, FabricData } from './types';
+import { bootstrap } from './utils/bootstrap';
 
-let networkConfig;
-const port = 14003;
-const collection = 'Org1PrivateDetails';
-
-const bootstrap = async () => {
-  console.log('♨️♨️ Bootstraping Document - Onchain  ♨️♨️');
-  const enrollmentId = 'admin';
-  networkConfig = await getNetwork({
-    enrollmentId,
-    channelEventHubExisted: true
-  });
-  const { reconcile, getRepository, subscribeHub } = createPeer({
-    ...networkConfig,
-    defaultEntityName: 'document',
-    defaultReducer: documentReducer,
-    collection
-  });
-  const userRepo = getRepository<User, UserEvents>({
-    entityName: 'user',
-    reducer: userReducer
-  });
-  const documentRepo = getRepository<Document, DocumentEvents>({
-    entityName: 'document',
-    reducer: documentReducer
-  });
-  // Invoke the Fabric Channel Event Listener, based on .env variable CHANNEL_HUB
-  await subscribeHub();
-
-  // As a bootstrap process, clone on-chain Trade entity to local in-memory query DB, and restore final state with reduceToTrade
-  // For production-grade, local in-memory query database, may refactor to using Redis, for better scalability
-  // await reconcile({ entityName: 'loan', reducer: loanReducer });
-  await reconcile({ entityName: 'user', reducer: userReducer });
-  await reconcile({ entityName: 'document', reducer: documentReducer });
-
-  const server = new ApolloServer({
-    schema: buildFederatedSchema([{ typeDefs, resolvers }]),
-    playground: true,
-    subscriptions: { path: '/graphql' },
-    dataSources: (): DataSources => ({
-      docDataSource: new FabricData({ repo: documentRepo }),
-      userDataSource: new FabricData({ repo: userRepo })
-    }),
-    context: ({ req }) => {
-      console.log(`${req.headers.client_id} is authenticated.`);
-      return {
-        enrollmentId: 'admin'
-      };
-    }
-  });
-
-  server.listen({ port }).then(({ url }) => {
-    console.log(`🚀 Server ready at ${url}`);
-  });
-};
-
-bootstrap().catch(error => {
-  console.log(error);
-  console.error(error.stack);
-  networkConfig.gateway.disconnect();
-  process.exit(0);
+bootstrap<Document, DocumentEvents>({
+  entityName: 'document',
+  port: 14003,
+  enrollmentId: 'admin',
+  reducer: documentReducer,
+  typeDefs: documentTypeDefs,
+  resolvers: documentResolvers
 });

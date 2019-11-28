@@ -12,38 +12,38 @@ beforeAll(async () => {
     payload: { name: 'Zero Zero Two', timestamp: Date.now() }
   });
 
-  await loanCommandHandler({ enrollmentId, userRepo, loanRepo }).ApplyLoan({
+  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId, payload: { loanId: 'LOANID001', reference: 'LOANREF001', description: 'HOWAREYOUTODAY', timestamp: Date.now() }
   });
 
-  await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
+  await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
     userId, payload: { documentId: 'DOCID001', loanId: 'LOANID001', title: 'The Mother of All Purchase Orders', reference: 'DOCREF001', timestamp: Date.now() }
   });
 
-  await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
+  await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
     userId, payload: { documentId: 'DOCID002', loanId: 'LOANID002', title: 'The Father of All Purchase Orders', reference: 'DOCREF002', timestamp: Date.now() }
   });
 
-  await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
+  await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
     userId, payload: { documentId: 'DOCID003', title: 'The Daughter of All Purchase Orders', reference: 'DOCREF003', timestamp: Date.now() }
   });
 
-  await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
+  await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
     userId, payload: { documentId: 'DOCID004', reference: 'DOCREF004', timestamp: Date.now() }
   });
 
-  await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
+  await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
     userId, payload: { documentId: 'DOCID005', loanId: 'LOANID005', reference: 'DOCREF005', timestamp: Date.now() }
   });
 
-  await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
+  await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
     userId, payload: { documentId: 'DOCID006', title: 'The Grandy of All Purchase Orders', loanId: 'LOANID006', reference: 'DOCREF006', timestamp: Date.now() }
   });
 });
 
 describe('Document CommandHandler test', () => {
   it('creating a new document', async () => {
-    await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
+    await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
       userId,
       payload: {
         documentId: 'DOCID010',
@@ -67,7 +67,7 @@ describe('Document CommandHandler test', () => {
 
   it('creating a document without reference', async () => {
     expect.assertions(1);
-    return documentCommandHandler({ enrollmentId, userRepo, documentRepo }).CreateDocument({
+    return documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
       userId,
       payload: {
         documentId: 'DOCID099',
@@ -82,7 +82,7 @@ describe('Document CommandHandler test', () => {
   });
 
   it('delete a document', async () => {
-    await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).DeleteDocument({
+    await documentCommandHandler({ enrollmentId, documentRepo }).DeleteDocument({
       userId,
       payload: {
         documentId: 'DOCID001',
@@ -100,7 +100,7 @@ describe('Document CommandHandler test', () => {
   });
 
   it('restrict access to a document', async () => {
-    await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).RestrictDocumentAccess({
+    await documentCommandHandler({ enrollmentId, documentRepo }).RestrictDocumentAccess({
       userId,
       payload: {
         documentId: 'DOCID002',
@@ -118,7 +118,7 @@ describe('Document CommandHandler test', () => {
   });
 
   it('update title of a document', async () => {
-    await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).DefineDocumentTitle({
+    await documentCommandHandler({ enrollmentId, documentRepo }).DefineDocumentTitle({
       userId,
       payload: {
         documentId: 'DOCID003',
@@ -137,7 +137,7 @@ describe('Document CommandHandler test', () => {
   });
 
   it('updating a non-existing document', async () => {
-    await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).DefineDocumentTitle({
+    await documentCommandHandler({ enrollmentId, documentRepo }).DefineDocumentTitle({
       userId,
       payload: {
         documentId: '999999999',
@@ -150,7 +150,7 @@ describe('Document CommandHandler test', () => {
   });
 
   it('add loan ID to a document', async () => {
-    await documentCommandHandler({ enrollmentId, userRepo, documentRepo }).DefineDocumentLoanId({
+    await documentCommandHandler({ enrollmentId, documentRepo }).DefineDocumentLoanId({
       userId,
       payload: {
         documentId: 'DOCID004',
@@ -170,7 +170,7 @@ describe('Document CommandHandler test', () => {
 
   it('update reference of a document', async () => {
     expect.assertions(1);
-    return documentCommandHandler({ enrollmentId, userRepo, documentRepo }).DefineDocumentReference({
+    return documentCommandHandler({ enrollmentId, documentRepo }).DefineDocumentReference({
       userId,
       payload: {
         documentId: 'DOCID005',
