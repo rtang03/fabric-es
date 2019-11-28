@@ -32,7 +32,7 @@ export const createPeer: (options: PeerOptions) => Peer = options => {
       registerId = await channelEventHub(channelHub).registerCCEvent({
         onChannelEventArrived: ({ commit }) => {
           const tid = generateToken();
-          console.log('subscribed event arrives');
+          // console.log('subscribed event arrives');
           store.dispatch(action.merge({ tx_id: tid, args: { commit } }));
         }
       });

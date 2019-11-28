@@ -16,7 +16,7 @@ export const channelEventHub: (
           console.error(err);
           reject(err);
         } else {
-          console.info('Channel event hub connected');
+          // console.info('Channel event hub connected');
           resolve(
             hub.registerChaincodeEvent(
               'eventstore',
