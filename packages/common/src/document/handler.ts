@@ -1,6 +1,5 @@
 import { DocumentCommandHandler, DocumentRepo } from '.';
 import { Errors } from '..';
-import { UserRepo } from '../user';
 
 const DocumentErrors = {
   documentNotFound: (documentId) => new Error(`DOCUMENT_NOT_FOUND: id: ${documentId}`),
@@ -11,21 +10,15 @@ const DocumentErrors = {
 export const documentCommandHandler: (
   option: {
     enrollmentId: string;
-    userRepo: UserRepo;
     documentRepo: DocumentRepo;
   }
 ) => DocumentCommandHandler = ({
-  enrollmentId, userRepo, documentRepo
+  enrollmentId, documentRepo
 }) => ({
   CreateDocument: async ({
     userId,
     payload: { documentId, loanId, title, reference, timestamp }
   }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
     if (!reference) throw Errors.requiredDataMissing();
     const events: any = [
       { type: 'DocumentCreated', payload: { documentId, userId, timestamp }},
@@ -41,11 +34,6 @@ export const documentCommandHandler: (
     userId,
     payload: { documentId, timestamp }
   }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
     return documentRepo
       .getById({ enrollmentId, id: documentId })
       .then(({ currentState, save }) => {
@@ -60,11 +48,6 @@ export const documentCommandHandler: (
     userId,
     payload: { documentId, timestamp }
   }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
     return documentRepo
       .getById({ enrollmentId, id: documentId })
       .then(({ currentState, save }) => {
@@ -82,11 +65,6 @@ export const documentCommandHandler: (
     userId,
     payload: { documentId, loanId, timestamp }
   }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
     return documentRepo
       .getById({ enrollmentId, id: documentId })
       .then(({ currentState, save }) => {
@@ -101,11 +79,6 @@ export const documentCommandHandler: (
     userId,
     payload: { documentId, title, timestamp }
   }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
     return documentRepo
       .getById({ enrollmentId, id: documentId })
       .then(({ currentState, save }) => {

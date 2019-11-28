@@ -3,12 +3,18 @@ import {
   Document,
   DocumentEvents,
   documentReducer,
+  documentResolvers,
+  documentTypeDefs,
   Loan,
   LoanEvents,
   loanReducer,
+  loanResolvers,
+  loanTypeDefs,
   User,
   UserEvents,
-  userReducer
+  userReducer,
+  userResolvers,
+  userTypeDefs
 } from '@espresso/common';
 import {
   createPeer,
@@ -17,36 +23,6 @@ import {
 } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
-import {
-  CREATE_DOCUMENT,
-  DELETE_DOCUMENT,
-  GET_COMMITS_BY_DOCUMENT,
-  GET_DOCUMENT_BY_ID,
-  resolvers as docResolvers,
-  typeDefs as docTypeDefs,
-  UPDATE_DOCUMENT
-} from '../common/document';
-import {
-  APPLY_LOAN,
-  APPROVE_LOAN,
-  CANCEL_LOAN,
-  EXPIRE_LOAN,
-  GET_COMMITS_BY_LOAN,
-  GET_LOAN_BY_ID,
-  REJECT_LOAN,
-  resolvers as loanResolvers,
-  RETURN_LOAN,
-  typeDefs as loanTypeDefs,
-  UPDATE_LOAN
-} from '../common/loan';
-import {
-  CREATE_USER,
-  GET_COMMITS_BY_USER,
-  GET_USER_BY_ID,
-  GET_USERS_BY_PAGE,
-  resolvers as userResolvers,
-  typeDefs as userTypeDefs
-} from '../common/user';
 import {
   CREATE_DATA_DOC_CONTENTS,
   CREATE_FILE_DOC_CONTENTS,
@@ -63,6 +39,30 @@ import {
   typeDefs as privateTypeDefs,
   UPDATE_LOAN_DETAILS
 } from '../private';
+import {
+  CREATE_DOCUMENT,
+  DELETE_DOCUMENT,
+  GET_COMMITS_BY_DOCUMENT,
+  GET_DOCUMENT_BY_ID,
+  UPDATE_DOCUMENT
+} from '../queries/document';
+import {
+  APPLY_LOAN,
+  APPROVE_LOAN,
+  CANCEL_LOAN,
+  EXPIRE_LOAN,
+  GET_COMMITS_BY_LOAN,
+  GET_LOAN_BY_ID,
+  REJECT_LOAN,
+  RETURN_LOAN,
+  UPDATE_LOAN
+} from '../queries/loan';
+import {
+  CREATE_USER,
+  GET_COMMITS_BY_USER,
+  GET_USER_BY_ID,
+  GET_USERS_BY_PAGE,
+} from '../queries/user';
 import { constructTestServer, getApolloServer } from './__utils__';
 
 let server;
@@ -98,24 +98,18 @@ beforeAll(async () => {
   });
   await docPeer.subscribeHub();
   documentService = getApolloServer({
-    typeDefs: docTypeDefs,
-    resolvers: docResolvers,
+    typeDefs: documentTypeDefs,
+    resolvers: documentResolvers,
     dataSources: () => ({
-      docDataSource: {
+      document: {
         repo: docPeer.getRepository<Document, DocumentEvents>({
           entityName: prefix + 'document',
           reducer: documentReducer
         })
-      },
-      userDataSource: {
-        repo: docPeer.getRepository<User, UserEvents>({
-          entityName: prefix + 'user',
-          reducer: userReducer
-        })
       }
     })
   });
-  await documentService.listen({ port: 14001 });
+  await documentService.listen({ port: 14003 });
 
   // Loan Service
   const loanNetworkConfig = await getNetwork({
@@ -133,13 +127,7 @@ beforeAll(async () => {
     typeDefs: loanTypeDefs,
     resolvers: loanResolvers,
     dataSources: () => ({
-      userDataSource: {
-        repo: loanPeer.getRepository<User, UserEvents>({
-          entityName: prefix + 'user',
-          reducer: userReducer
-        })
-      },
-      loanDataSource: {
+      loan: {
         repo: loanPeer.getRepository<Loan, LoanEvents>({
           entityName: prefix + 'loan',
           reducer: loanReducer
@@ -165,7 +153,7 @@ beforeAll(async () => {
     typeDefs: userTypeDefs,
     resolvers: userResolvers,
     dataSources: () => ({
-      userDataSource: {
+      user: {
         repo: userPeer.getRepository<User, UserEvents>({
           entityName: prefix + 'user',
           reducer: userReducer
@@ -173,7 +161,7 @@ beforeAll(async () => {
       }
     })
   });
-  await userService.listen({ port: 14004 });
+  await userService.listen({ port: 14001 });
 
   // Private data Service
   const privateNetworkConfig = await getNetwork({ enrollmentId });
@@ -187,13 +175,13 @@ beforeAll(async () => {
     typeDefs: privateTypeDefs,
     resolvers: privateResolvers,
     dataSources: () => ({
-      loanDetailsDataSource: {
+      loanDetails: {
         repo: privatePeer.getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
           entityName: prefix + 'loanDetails',
           reducer: loanDetailsReducer
         })
       },
-      docContentsDataSource: {
+      docContents: {
         repo: privatePeer.getPrivateDataRepo<DocContents, DocContentsEvents>({
           entityName: prefix + 'docContents',
           reducer: docContentsReducer
@@ -201,7 +189,7 @@ beforeAll(async () => {
       }
     })
   });
-  await privateService.listen({ port: 14003 });
+  await privateService.listen({ port: 14004 });
 
   server = await constructTestServer();
 

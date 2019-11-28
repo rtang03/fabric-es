@@ -4,28 +4,24 @@
 // Thereafter, below line is no longer required.
 require('events').EventEmitter.defaultMaxListeners = 15;
 import { buildFederatedSchema } from '@apollo/federation';
+import { DataSrc } from '@espresso/common';
 import { createPeer, getNetwork } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import './env';
 import { DocContents, DocContentsEvents, docContentsReducer, LoanDetails, LoanDetailsEvents, loanDetailsReducer, resolvers, typeDefs } from './private';
-import { DataSources, FabricData } from './types';
 
-let networkConfig;
-const port = 14002;
-const collection = 'Org1PrivateDetails';
+const _bootstrap = async (networkConfig, port, enrollmentId) => {
+  console.log(`♨️♨️  Bootstraping off-chain private data for '${process.env.ORGNAME}'...`);
 
-const bootstrap = async () => {
-  console.log('♨️♨️ Bootstraping private data - Offchain ♨️♨️');
-  const enrollmentId = 'admin';
   networkConfig = await getNetwork({
     enrollmentId,
     channelEventHubExisted: true
   });
   const { getPrivateDataRepo } = createPeer({
     ...networkConfig,
-    defaultEntityName: 'loanDetails',
+    defaultEntityName: 'private',
     defaultReducer: loanDetailsReducer,
-    collection
+    collection: process.env.COLLECTION
   });
   const loanDetailsRepo = getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
     entityName: 'loanDetails',
@@ -39,9 +35,9 @@ const bootstrap = async () => {
   const server = new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),
     playground: true,
-    dataSources: (): DataSources => ({
-      loanDetailsDataSource: new FabricData({ repo: loanDetailsRepo }),
-      docContentsDataSource: new FabricData({ repo: docContentsRepo })
+    dataSources: () => ({
+      loanDetails: new DataSrc({ repo: loanDetailsRepo }),
+      docContents: new DataSrc({ repo: docContentsRepo })
     }),
     context: ({ req }) => {
       console.log(`${req.headers.client_id} is authenticated.`);
@@ -51,13 +47,25 @@ const bootstrap = async () => {
     }
   });
   server.listen({ port }).then(({ url }) => {
-    console.log(`🚀 Server ready at ${url}`);
+    console.log(`🚀 '${process.env.ORGNAME}' - Private Data ready at ${url}`);
   });
 };
 
-bootstrap().catch(error => {
-  console.log(error);
-  console.error(error.stack);
-  networkConfig.gateway.disconnect();
-  process.exit(0);
-});
+export const bootstrap = async ({ port, enrollmentId }: {
+  port: number;
+  enrollmentId: string;
+}) => {
+  const networkConfig = await getNetwork({
+    enrollmentId,
+    channelEventHubExisted: true
+  });
+
+  _bootstrap(networkConfig, port, enrollmentId)
+    .catch(error => {
+      console.log(error);
+      console.error(error.stack);
+      networkConfig.gateway.disconnect();
+      process.exit(0);
+    });
+};
+bootstrap({ port: 14004, enrollmentId: 'admin'});

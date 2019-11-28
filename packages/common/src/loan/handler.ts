@@ -1,6 +1,5 @@
 import { LoanCommandHandler, LoanRepo } from '.';
 import { Errors } from '..';
-import { UserRepo } from '../user';
 
 const LoanErrors = {
   loanNotFound: (loanId) => new Error(`LOAN_NOT_FOUND: id: ${loanId}`),
@@ -14,21 +13,15 @@ const LoanErrors = {
 export const loanCommandHandler: (
   option: {
     enrollmentId: string;
-    userRepo: UserRepo;
     loanRepo: LoanRepo;
   }
 ) => LoanCommandHandler = ({
-  enrollmentId, userRepo, loanRepo
+  enrollmentId, loanRepo
 }) => ({
   ApplyLoan: async ({
     userId,
     payload: { loanId, description, reference, timestamp }
   }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
     if (!reference) throw Errors.requiredDataMissing();
     const events: any = [
       { type: 'LoanApplied', payload: { loanId, userId, timestamp }},
@@ -43,11 +36,6 @@ export const loanCommandHandler: (
     userId,
     payload: { loanId, timestamp }
   }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {
@@ -62,11 +50,6 @@ export const loanCommandHandler: (
     userId,
     payload: { loanId, timestamp }
   }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {
@@ -81,11 +64,6 @@ export const loanCommandHandler: (
     userId,
     payload: { loanId, timestamp }
   }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {
@@ -100,11 +78,6 @@ export const loanCommandHandler: (
     userId,
     payload: { loanId, timestamp }
   }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {
@@ -119,11 +92,6 @@ export const loanCommandHandler: (
     userId,
     payload: { loanId, timestamp }
   }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {
@@ -141,11 +109,6 @@ export const loanCommandHandler: (
     userId,
     payload: { loanId, description, timestamp }
   }) => {
-    await userRepo
-      .getById({ enrollmentId, id: userId })
-      .then(({ currentState }) => {
-        if (!currentState) throw Errors.insufficientPrivilege();
-      });
     return loanRepo
       .getById({ enrollmentId, id: loanId })
       .then(({ currentState, save }) => {

@@ -1,4 +1,4 @@
-import { CommandHandler } from '@espresso/common';
+import { CommandHandler, DataSrc } from '@espresso/common';
 import { PrivatedataRepository } from '@espresso/fabric-cqrs';
 import { DocContentsCommands } from './commands';
 import { DocContentsEvents } from './events';
@@ -11,3 +11,4 @@ export * from './reducer';
 export * from './handler';
 export type DocContentsRepo = PrivatedataRepository<DocContents, DocContentsEvents>;
 export type DocContentsCommandHandler = CommandHandler<DocContentsCommands>;
+export type DocContentsDS = DataSrc<DocContents, DocContentsEvents>;
