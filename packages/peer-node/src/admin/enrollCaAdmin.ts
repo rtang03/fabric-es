@@ -1,12 +1,13 @@
-import '../env';
-
-import { enrollAdmin } from '@espresso/admin-tool';
+import { enrollCaAdmin } from '@espresso/admin-tool';
+import { config } from 'dotenv';
 import { FileSystemWallet } from 'fabric-network';
+import { resolve } from 'path';
+config({ path: resolve(__dirname, '../../.env.test') });
 
-enrollAdmin(
-  process.env.ORG_ADMIN_ID,
-  process.env.ORG_ADMIN_SECRET,
-  process.env.ORG_CA_URL,
+enrollCaAdmin(
+  process.env.CA_ENROLLMENT_ID_ADMIN,
+  process.env.CA_ENROLLMENT_SECRET_ADMIN,
+  process.env.CA_URL,
   process.env.ORGNAME,
   {
     connectionProfile: process.env.CONNECTION_PROFILE,

@@ -1,8 +1,9 @@
+import '../../env';
+
 import { Gateway, Network } from 'fabric-network';
 import { values } from 'lodash';
 import { evaluate, submitPrivateData } from '..';
 import { bootstrapNetwork } from '../../account';
-import '../../env';
 import { Commit } from '../../types';
 
 let network: Network;

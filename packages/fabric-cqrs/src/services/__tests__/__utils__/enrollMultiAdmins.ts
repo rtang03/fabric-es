@@ -1,6 +1,7 @@
+import '../../../env';
+
 import { enrollAdmin } from '@espresso/admin-tool';
 import { FileSystemWallet } from 'fabric-network';
-import '../../../env';
 
 export const enrollOrg1Admin = () =>
   enrollAdmin(

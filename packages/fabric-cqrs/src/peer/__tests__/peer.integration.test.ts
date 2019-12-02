@@ -1,6 +1,7 @@
+import '../../env';
+
 import { find, pick } from 'lodash';
 import { bootstrapNetwork } from '../../account';
-import '../../env';
 import { Counter, CounterEvent, reducer } from '../../example';
 import { Peer, Repository } from '../../types';
 import { createProjectionDb } from '../createProjectionDb';

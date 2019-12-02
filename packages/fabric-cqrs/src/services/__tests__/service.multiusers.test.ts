@@ -1,7 +1,8 @@
+import '../../env';
+
 import { FileSystemWallet } from 'fabric-network';
 import { values } from 'lodash';
 import { registerUser } from '../../account';
-import '../../env';
 import { PeerOptions } from '../../types';
 import { Commit, toCommit } from '../../types/commit';
 import { evaluate } from '../evaluate';

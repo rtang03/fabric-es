@@ -1,7 +1,8 @@
+import '../../../env';
+
 import { pick, values } from 'lodash';
 import { Store } from 'redux';
 import { bootstrapNetwork } from '../../../account';
-import '../../../env';
 import { PeerOptions} from '../../../types';
 import { generateToken } from '../../utils';
 import { action } from '../action';
