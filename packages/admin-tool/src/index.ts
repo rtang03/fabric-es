@@ -4,5 +4,7 @@ export {
   enrollCaAdmin,
   createUser,
   ServiceResponse,
-  identityService
+  createIdentityService,
+  getPeerInfo
 } from './middleware';
+export { CaIdentity } from './middleware/types';

@@ -1,24 +1,25 @@
+import { Block, BlockchainInfo } from 'fabric-client';
 import { findLast } from 'lodash';
-import '../env';
 import { Context } from './types';
 import { createUser, getClientForOrg, parseConnectionProfile } from './utils';
 
-interface Query {
-  getBlockByNumber: (blockNumber) => Promise<any>;
-  getTransactionByID: (txId) => Promise<any>;
+interface SdkClientQuery {
+  getBlockByNumber: (blockNumber) => Promise<Block>;
   getBlockByHash: (hash) => Promise<any>;
-  getChainInfo: () => Promise<any>;
+  getChainInfo: () => Promise<BlockchainInfo>;
+  getChannels: () => Promise<any>;
   getInstalledChaincodes: () => Promise<any>;
   getInstantiatedChaincodes: () => Promise<any>;
-  getChannels: () => Promise<any>;
   getInstalledCCVersion: (chaincodeId: string) => Promise<string>;
+  getMspid: () => Promise<string>;
+  getTransactionByID: (txId) => Promise<any>;
 }
 
-export const getInfo: (
+export const getPeerInfo: (
   channelName: string,
   peer?: string,
   context?: Context
-) => Promise<Query> = async (
+) => Promise<SdkClientQuery> = async (
   channelName,
   peer = 'peer0.org1.example.com',
   context = {
@@ -33,27 +34,30 @@ export const getInfo: (
   const client = await getClientForOrg(connectionProfile);
   return createUser(client, orgName, context).then(() => {
     const channel = client.getChannel(channelName);
-    if (!channel)
+    if (!channel) {
+      console.error('No channel');
       throw new Error(
         `Channel was not defined in the connection profile: ${channelName}`
       );
+    }
     return {
-      getBlockByNumber: async blockNumber =>
-        await channel.queryBlock(blockNumber),
-      getTransactionByID: async txId => await channel.queryTransaction(txId),
-      getBlockByHash: async hash => channel.queryBlockByHash(Buffer.from(hash)),
+      getBlockByHash: async hash => channel.queryBlockByHash(hash),
+      getBlockByNumber: async blockNumber => channel.queryBlock(blockNumber),
       getChainInfo: async () => channel.queryInfo(peer),
+      getChannels: async () => client.queryChannels(peer),
       getInstalledChaincodes: async () => client.queryInstalledChaincodes(peer),
       getInstantiatedChaincodes: async () =>
         channel.queryInstantiatedChaincodes(peer),
-      getChannels: async () => client.queryChannels(peer),
       getInstalledCCVersion: async (cc: string) =>
-        await client
+        client
           .queryInstalledChaincodes(peer)
           .then(({ chaincodes }) =>
             findLast(chaincodes, ({ name }) => name === cc)
           )
-          .then(({ version }) => version)
+          .then(({ version }) => version),
+      getMspid: async () => client.getMspid(),
+      getTransactionByID: async txId => channel.queryTransaction(txId)
+      // get: async () => cli
     };
   });
 };

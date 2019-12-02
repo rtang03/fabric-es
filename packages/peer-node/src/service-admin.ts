@@ -1,29 +1,22 @@
+require('./env');
 import { buildFederatedSchema } from '@apollo/federation';
 import { ApolloServer } from 'apollo-server';
-import gql from 'graphql-tag';
-import * as Listr from 'listr';
-import './env';
-import { Resolvers } from './generated/peer-resolvers-types';
+import { FileSystemWallet } from 'fabric-network';
+import { createResolvers, typeDefs } from './admin';
 
 const port = 15000;
-const typeDefs = gql`
-  type Query {
-    getPeerInfo: PeerInfo!
-  }
-  type PeerInfo {
-    name: String!
-    url: String!
-  }
-`;
 
-const resolvers: Resolvers = {
-  Query: {
-    getPeerInfo: () => Promise.resolve({ name: '', url: '' }),
-  }
-};
-
-const bootstrap = async () => {
+(async () => {
   console.log('♨️♨️ Bootstraping Peer Node API  ♨️♨️');
+  const resolvers = await createResolvers({
+    channelName: process.env.CHANNEL_NAME,
+    peerName: process.env.PEER_NAME,
+    context: {
+      connectionProfile: process.env.CONNECTION_PROFILE,
+      fabricNetwork: process.env.NETWORK_LOCATION,
+      wallet: new FileSystemWallet(process.env.WALLET)
+    }
+  });
   const server = new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),
     playground: true,
@@ -34,11 +27,9 @@ const bootstrap = async () => {
     }
   });
   server.listen({ port }).then(({ url }) => {
-    console.log(`🚀 Server ready at ${url}`);
+    console.log(`🚀 Server ready at ${url}graphql`);
   });
-};
-
-bootstrap().catch(error => {
+})().catch(error => {
   console.log(error);
   console.error(error.stack);
   process.exit(0);

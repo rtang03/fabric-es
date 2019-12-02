@@ -1,9 +1,10 @@
+import '../../env';
+
 import { ChannelEventHub } from 'fabric-client';
 import { Gateway, Network } from 'fabric-network';
 import { keys, pick, values } from 'lodash';
 import { channelEventHub, evaluate, submit } from '..';
 import { bootstrapNetwork } from '../../account';
-import '../../env';
 import { toCommit } from '../../types/commit';
 
 let network: Network;

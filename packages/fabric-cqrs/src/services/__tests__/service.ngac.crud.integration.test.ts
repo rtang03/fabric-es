@@ -1,7 +1,8 @@
+import '../../env';
+
 import { Gateway, Network } from 'fabric-network';
 import { bootstrapNetwork } from '../../account';
 import { createId } from '../../createId';
-import '../../env';
 import { Policy } from '../../types';
 import evaluateNgac from '../evaluateNgac';
 import submitNgac from '../submitNgac';

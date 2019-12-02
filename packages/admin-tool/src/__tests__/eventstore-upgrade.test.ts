@@ -1,5 +1,5 @@
 import '../env';
-import { getInfo, installChaincode, instantiateChaincode } from '../middleware';
+import { getPeerInfo, installChaincode, instantiateChaincode } from '../middleware';
 
 const endorsementPolicy = {
   identities: [
@@ -18,7 +18,7 @@ describe('Administrator commands', () => {
       getInstalledCCVersion,
       getInstantiatedChaincodes,
       getInstalledChaincodes
-    } = await getInfo('eventstore');
+    } = await getPeerInfo('eventstore');
     const chaincodeVersion = await getInstalledCCVersion('eventstore')
       .then(version => parseInt(version, 10))
       .then(version => `${++version}`);

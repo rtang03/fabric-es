@@ -1,7 +1,8 @@
+import '../env';
+
 import { Context, createUser } from '@espresso/admin-tool';
 import { ChannelEventHub } from 'fabric-client';
 import { FileSystemWallet, Gateway, Network } from 'fabric-network';
-import '../env';
 import { getNetwork } from '../services';
 
 export const registerUser: (option: {

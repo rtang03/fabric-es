@@ -1,5 +1,5 @@
 import '../env';
-import { getInfo, installChaincode, instantiateChaincode } from '../middleware';
+import { getPeerInfo, installChaincode, instantiateChaincode } from '../middleware';
 
 const channelName = 'eventstore';
 const chaincodeId = 'privatedata';
@@ -19,7 +19,7 @@ describe('Private data: Administrator commands', () => {
       getInstantiatedChaincodes,
       getInstalledChaincodes,
       getInstalledCCVersion
-    } = await getInfo(channelName);
+    } = await getPeerInfo(channelName);
 
     const chaincodeVersion = await getInstalledCCVersion('privatedata')
       .then(version => parseInt(version, 10))

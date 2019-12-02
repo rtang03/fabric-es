@@ -1,5 +1,5 @@
 import '../env';
-import { getInfo, installChaincode, instantiateChaincode } from '../middleware';
+import { getPeerInfo, installChaincode, instantiateChaincode } from '../middleware';
 
 const channelName = 'eventstore';
 const chaincodeId = 'privatedata';
@@ -18,7 +18,7 @@ const endorsementPolicy = {
  */
 describe('Private data: Administrator commands', () => {
   it('should install/instantiate', async () => {
-    const { getInstantiatedChaincodes, getInstalledChaincodes } = await getInfo(
+    const { getInstantiatedChaincodes, getInstalledChaincodes } = await getPeerInfo(
       channelName
     );
     const notInstalled = await getInstalledChaincodes().then(({ chaincodes }) =>

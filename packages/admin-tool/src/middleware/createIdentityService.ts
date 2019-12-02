@@ -1,21 +1,23 @@
 import { IIdentityRequest } from 'fabric-ca-client';
 import { FileSystemWallet, Gateway } from 'fabric-network';
-import { Context } from './types';
+import { CaIdentity, Context } from './types';
 import { getClientForOrg } from './utils';
 
-export interface ServiceResponse {
-  result?: any;
+export interface ServiceResponse<T = any> {
+  result?: T;
   errors?: Array<{ code: number; message: string }>;
   messages?: Array<{ code: number; message: string }>;
   success?: boolean;
 }
 
-export const identityService: (
+export const createIdentityService: (
   context?: Context
 ) => Promise<{
   create: (identityRequest: IIdentityRequest) => Promise<any>;
-  getAll: () => Promise<ServiceResponse>;
-  getOne: (enrollmentId: string) => Promise<ServiceResponse>;
+  getAll: () => Promise<ServiceResponse<{ identities: CaIdentity[] }>>;
+  getByEnrollmentId: (
+    enrollmentId: string
+  ) => Promise<ServiceResponse<CaIdentity>>;
 }> = async (
   { connectionProfile, wallet } = {
     connectionProfile: process.env.PATH_TO_CONNECTION_PROFILE,
@@ -34,9 +36,19 @@ export const identityService: (
       .getClient()
       .getUserContext('ca_admin', true);
     const service = ca.newIdentityService();
+    // the addition of overriding type is to avoid false warning during type check
+    // the orignal IServiceResponse of Fabric SDK is buggy, is different from
+    // the actual return value.
     return {
+      // not currently used. Mainly use createUser function instead
       create: request => service.create(request, registrar),
-      getAll: () => service.getAll(registrar) as Promise<ServiceResponse>,
-      getOne: (enrollmentId: string) => service.getOne(enrollmentId, registrar) as Promise<ServiceResponse>
+      getAll: () =>
+        service.getAll(registrar) as Promise<
+          ServiceResponse<{ identities: CaIdentity[] }>
+        >,
+      getByEnrollmentId: (enrollmentId: string) =>
+        service.getOne(enrollmentId, registrar) as Promise<
+          ServiceResponse<CaIdentity>
+        >
     };
   });

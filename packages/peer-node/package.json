@@ -17,14 +17,15 @@
     "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/enrollAdmin.ts",
     "enrollOrg1Admin": "rimraf assets/walletOrg1/admin && ./node_modules/.bin/ts-node src/enrollOrg1Admin.ts",
     "enrollOrg2Admin": "rimraf assets/walletOrg2/admin && ./node_modules/.bin/ts-node src/enrollOrg2Admin.ts",
-    "s-peer": "ts-node ./src/service-peer.ts",
+    "s-peer": "ts-node ./src/service-admin.ts",
     "service-doc": "node ./dist/service-doc.js",
     "service-usr": "node ./dist/service-usr.js",
     "service-loan": "node ./dist/service-loan.js",
     "service-priv": "node ./dist/service-private.js",
     "start-microservice": "yarn build && concurrently \"npm:service-*\"",
     "start-new-gateway": "node ./dist/gateway.js",
-    "generate-types": "graphql-codegen --config src/generated/codegen.yml"
+    "generate-types": "graphql-codegen --config src/generated/codegen.yml",
+    "enrollCaAdmin": "rimraf assets/wallet/ca_admin && ./node_modules/.bin/ts-node src/admin/enrollCaAdmin.ts"
   },
   "engines": {
     "node": ">=8",
@@ -38,6 +39,7 @@
     "@espresso/admin-tool": "1.0.0",
     "@espresso/fabric-cqrs": "1.0.0",
     "apollo-server": "^2.9.7",
+    "arraybuffer-to-string": "^1.0.2",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
     "concurrently": "^5.0.0",

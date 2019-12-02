@@ -1,6 +1,6 @@
 import { FileSystemWallet } from 'fabric-network';
 import '../env';
-import { identityService } from '../middleware';
+import { createIdentityService } from '../middleware';
 import { enrollCaAdmin } from '../middleware';
 
 describe('Fabric CA Identity Service Unit Test', () => {
@@ -18,7 +18,7 @@ describe('Fabric CA Identity Service Unit Test', () => {
       ({ status }) => expect(status).toEqual('SUCCESS')
     );
 
-    const { getAll } = await identityService();
+    const { getAll } = await createIdentityService();
     await getAll().then(({ result: { identities } }) =>
       console.log(identities)
     );

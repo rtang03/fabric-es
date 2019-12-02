@@ -2,7 +2,7 @@ import { exec } from 'child-process-promise';
 import '../env';
 import {
   createChannel,
-  getInfo,
+  getPeerInfo,
   installChaincode,
   instantiateChaincode,
   joinChannel
@@ -55,7 +55,7 @@ describe('Administrator commands', () => {
       endorsementPolicy
     }).then(result => expect(result).toEqual({ status: 'SUCCESS', info: '' }));
 
-    const { getInstantiatedChaincodes, getInstalledChaincodes } = await getInfo(
+    const { getInstantiatedChaincodes, getInstalledChaincodes } = await getPeerInfo(
       'eventstore'
     );
 

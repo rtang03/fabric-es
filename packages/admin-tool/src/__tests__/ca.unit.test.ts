@@ -1,6 +1,6 @@
 import { FileSystemWallet } from 'fabric-network';
 import '../env';
-import { enrollAdmin, createUser } from '../middleware';
+import { createUser, enrollAdmin } from '../middleware';
 
 describe('Fabric CA unit test', () => {
   it('should enrol Org1 Admin', async () => {
