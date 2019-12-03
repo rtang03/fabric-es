@@ -1,13 +1,13 @@
-import { ApolloGateway } from '@apollo/gateway';
+require('./env');
+import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
 import express from 'express';
 import { createServer } from 'http';
 import jwt from 'jsonwebtoken';
 import jwks from 'jwks-rsa';
-import morgan from 'morgan';
-import './env';
-import { AuthenticatedDataSource } from './utils';
+// import morgan from 'morgan';
+// import { AuthenticatedDataSource } from './utils';
 
 const gateway = new ApolloGateway({
   serviceList: [
@@ -16,7 +16,7 @@ const gateway = new ApolloGateway({
     { name: 'document', url: 'http://localhost:14003/graphql' },
     { name: 'private',  url: 'http://localhost:14004/graphql' }
   ],
-  buildService: ({ url }) => new AuthenticatedDataSource({ url })
+  buildService: ({ url }) => new RemoteGraphQLDataSource({ url })
 });
 
 const PORT = process.env.PORT || 4000;
@@ -52,7 +52,6 @@ const bootstrap = async () => {
           )
         );
       }
-      console.log(client_id);
       return { client_id };
     }
   });
@@ -60,7 +59,7 @@ const bootstrap = async () => {
   const app = express();
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
-  app.use(morgan('tiny'));
+  // app.use(morgan('tiny'));
   server.applyMiddleware({ app });
   // unnecessary change to nodejs http server
   // keep the code for now, may cleanup later
