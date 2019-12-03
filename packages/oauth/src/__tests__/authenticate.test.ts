@@ -6,12 +6,7 @@ import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
 import { OUser } from '../entity/OUser';
 import { RefreshToken } from '../entity/RefreshToken';
-import {
-  CREATE_ROOT_CLIENT,
-  CREATE_SYSTEM_APPLICATION,
-  LOGIN,
-  REGISTER_ADMIN
-} from '../query';
+import { CREATE_ROOT_CLIENT, LOGIN, REGISTER_ADMIN } from '../query';
 import { ClientResolver, OUserResolver } from '../resolvers';
 import { createHttpServer } from '../utils';
 
@@ -22,7 +17,7 @@ const dbConnection = {
   port: 5432,
   username: 'postgres',
   password: 'postgres',
-  database: 'testclientcredentials',
+  database: 'testauthenticate',
   logging: false,
   synchronize: true,
   dropSchema: true,
@@ -31,15 +26,11 @@ const dbConnection = {
 
 let app: Express;
 let accessToken: string;
-let refreshToken: string;
 let client_id: string;
-let client_secret: string;
 const username = `tester${Math.floor(Math.random() * 10000)}`;
 const email = `${username}@example.com`;
 const password = 'password';
 const admin_password = process.env.ADMIN_PASSWORD || 'admin';
-const applicationName = 'testApp';
-const grants = ['client_credentials', 'password', 'refresh_token'];
 
 beforeAll(async () => {
   app = await createHttpServer({
@@ -48,31 +39,30 @@ beforeAll(async () => {
     oauthOptions: {
       requireClientAuthentication: {
         password: false,
-        refresh_token: false,
-        client_credentials: true
+        refreshToken: false,
+        authorization_code: true
       },
-      accessTokenLifetime: 120, // seconds
-      refreshTokenLifetime: 240
+      accessTokenLifetime: 300,
+      refreshTokenLifetime: 1500
     }
   });
 });
 
-// this is workaround for unfinished handler issue with jest and supertest
 afterAll(async () => new Promise(done => setTimeout(() => done(), 500)));
 
-describe('Client Credentials Grant Type Tests', () => {
+describe('Authenticate Tests', () => {
   it('should create RootClient', async () =>
     request(app)
       .post('/graphql')
       .send({
         operationName: 'CreateRootClient',
         query: CREATE_ROOT_CLIENT,
-        variables: {
-          admin: 'admin',
-          password: 'admin'
-        }
+        variables: { admin: 'admin', password: 'admin' }
       })
-      .expect(({ body }) => expect(body.data.createRootClient).toBeDefined()));
+      .expect(({ body: { data } }) => {
+        client_id = data.createRootClient;
+        expect(typeof data.createRootClient).toBe('string');
+      }));
 
   it('should register new (admin) user', async () =>
     request(app)
@@ -80,12 +70,7 @@ describe('Client Credentials Grant Type Tests', () => {
       .send({
         operationName: 'Register',
         query: REGISTER_ADMIN,
-        variables: {
-          email,
-          password,
-          username,
-          admin_password
-        }
+        variables: { email, password, username, admin_password }
       })
       .expect(({ body }) => expect(body.data.register).toBeTruthy()));
 
@@ -97,40 +82,21 @@ describe('Client Credentials Grant Type Tests', () => {
         query: LOGIN,
         variables: { email, password }
       })
-      .expect(({ body: { data }, header }) => {
-        refreshToken = header['set-cookie'][0].split('; ')[0].split('=')[1];
+      .expect(({ body: { data } }) => {
         accessToken = data.login.accessToken;
         expect(data.login.ok).toBeTruthy();
-        expect(data.login.accessToken).toBeDefined();
+        expect(typeof data.login.accessToken).toBe('string');
         expect(data.login.user.email).toEqual(email);
         expect(data.login.user.username).toEqual(username);
       }));
 
-  it('should create application client', async () =>
+  it('should authenticate request', async () =>
     request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${accessToken}`)
-      .send({
-        operationName: 'CreateApplication',
-        query: CREATE_SYSTEM_APPLICATION,
-        variables: { applicationName, grants }
-      })
-      .expect(({ body: { data } }) => {
-        client_id = data.createApplication.client_id;
-        client_secret = data.createApplication.client_secret;
-        expect(data.createApplication.ok).toBeTruthy();
-        expect(data.createApplication.redirect_uri).toBeNull();
-      }));
-
-  it('should /oauth/token', async () =>
-    request(app)
-      .post('/oauth/token')
-      .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(
-        `client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials&scope=default`
-      )
+      .post('/oauth/authenticate')
+      .set('authorization', `Bearer ${accessToken}`)
       .expect(({ body }) => {
-        expect(body.ok).toBeTruthy();
-        expect(body.token.client.id).toEqual(client_id);
+        expect(body.ok).toEqual(true);
+        expect(body.authenticated).toEqual(true);
+        expect(typeof body.user_id).toEqual('string');
       }));
 });

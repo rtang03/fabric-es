@@ -4,7 +4,7 @@ import { ApolloServer } from 'apollo-server';
 import { FileSystemWallet } from 'fabric-network';
 import { createResolvers, typeDefs } from './admin';
 
-const port = 15000;
+const port = process.env.ADMINISTRATOR_PORT || 15000;
 
 (async () => {
   console.log('♨️♨️ Bootstraping Peer Node API  ♨️♨️');
@@ -20,11 +20,9 @@ const port = 15000;
   const server = new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),
     playground: true,
-    context: ({ req }) => {
-      return {
-        enrollmentId: 'some'
-      };
-    }
+    context: ({ req: { headers } }) => ({
+      user_id: headers?.user_id
+    })
   });
   server.listen({ port }).then(({ url }) => {
     console.log(`🚀 Server ready at ${url}graphql`);

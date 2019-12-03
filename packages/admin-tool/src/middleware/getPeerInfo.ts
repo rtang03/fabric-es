@@ -1,18 +1,22 @@
-import { Block, BlockchainInfo } from 'fabric-client';
+import { Block, BlockchainInfo, CollectionQueryResponse } from 'fabric-client';
 import { findLast } from 'lodash';
 import { Context } from './types';
 import { createUser, getClientForOrg, parseConnectionProfile } from './utils';
 
 interface SdkClientQuery {
-  getBlockByNumber: (blockNumber) => Promise<Block>;
-  getBlockByHash: (hash) => Promise<any>;
+  getBlockByNumber: (blockNumber: number) => Promise<Block>;
+  getBlockByHash: (hash: Buffer) => Promise<Block>;
   getChainInfo: () => Promise<BlockchainInfo>;
   getChannels: () => Promise<any>;
   getInstalledChaincodes: () => Promise<any>;
   getInstantiatedChaincodes: () => Promise<any>;
   getInstalledCCVersion: (chaincodeId: string) => Promise<string>;
   getMspid: () => Promise<string>;
-  getTransactionByID: (txId) => Promise<any>;
+  getTransactionByID: (txId: string) => Promise<any>;
+  getCollectionsConfig: (request: {
+    chaincodeId: string;
+    target: string;
+  }) => Promise<CollectionQueryResponse[]>;
 }
 
 export const getPeerInfo: (
@@ -41,6 +45,7 @@ export const getPeerInfo: (
       );
     }
     return {
+      // below method not properly tested
       getBlockByHash: async hash => channel.queryBlockByHash(hash),
       getBlockByNumber: async blockNumber => channel.queryBlock(blockNumber),
       getChainInfo: async () => channel.queryInfo(peer),
@@ -48,16 +53,18 @@ export const getPeerInfo: (
       getInstalledChaincodes: async () => client.queryInstalledChaincodes(peer),
       getInstantiatedChaincodes: async () =>
         channel.queryInstantiatedChaincodes(peer),
-      getInstalledCCVersion: async (cc: string) =>
+      getInstalledCCVersion: async chaincodeId =>
         client
           .queryInstalledChaincodes(peer)
           .then(({ chaincodes }) =>
-            findLast(chaincodes, ({ name }) => name === cc)
+            findLast(chaincodes, ({ name }) => name === chaincodeId)
           )
           .then(({ version }) => version),
       getMspid: async () => client.getMspid(),
-      getTransactionByID: async txId => channel.queryTransaction(txId)
-      // get: async () => cli
+      // below method not properly tested
+      getTransactionByID: async txId => channel.queryTransaction(txId),
+      getCollectionsConfig: async ({ chaincodeId, target }) =>
+        channel.queryCollectionsConfig({ chaincodeId, target })
     };
   });
 };

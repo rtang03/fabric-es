@@ -79,6 +79,25 @@ export const createResolvers: (option: {
               )
             : []
         ),
+      getCollectionConfigs: async () =>
+        peerInfo
+          .getCollectionsConfig({
+            chaincodeId: 'privatedata',
+            target: peerName
+          })
+          .then(configs =>
+            configs
+              ? configs.map(config => ({
+                  name: config.name,
+                  typ: config.type,
+                  required_peer_count: config.required_peer_count,
+                  maximum_peer_count: config.maximum_peer_count,
+                  member_read_only: config.member_only_read,
+                  block_to_live: config.block_to_live,
+                  policy: JSON.stringify(config.policy)
+                }))
+              : []
+          ),
       getBlockByNumber: async (_, { blockNumber }: { blockNumber: number }) => {
         const chain = await peerInfo.getChainInfo();
         if (chain.height.low <= blockNumber) return null;

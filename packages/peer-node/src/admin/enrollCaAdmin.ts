@@ -1,8 +1,9 @@
-import { enrollCaAdmin } from '@espresso/admin-tool';
 import { config } from 'dotenv';
-import { FileSystemWallet } from 'fabric-network';
 import { resolve } from 'path';
 config({ path: resolve(__dirname, '../../.env.test') });
+
+import { enrollCaAdmin } from '@espresso/admin-tool';
+import { FileSystemWallet } from 'fabric-network';
 
 enrollCaAdmin(
   process.env.CA_ENROLLMENT_ID_ADMIN,

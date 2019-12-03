@@ -1,11 +1,13 @@
+import { config } from 'dotenv';
+import { resolve } from 'path';
+config({ path: resolve(__dirname, '../.env.test') });
+
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import csrf from 'csurf';
 import express from 'express';
 import fetch from 'isomorphic-unfetch';
-import next, { NextApiRequest, NextApiResponse } from 'next';
-import '../utils/env';
-import { parseNetwork } from '../utils';
+import next from 'next';
 
 const port = parseInt(process.env.PORT || '3000', 10);
 const dev = process.env.NODE_ENV !== 'production';
@@ -20,6 +22,10 @@ app.prepare().then(() => {
     csrf({ cookie: true })
   ]);
 
+  server.get('/oauth_server_uri', (_, res) =>
+    res.status(200).send(process.env.OAUTH_SERVER_URI || '')
+  );
+
   server.get('/auth_uri', (_, res) =>
     res.status(200).send(process.env.AUTHORIZATION_URI || '')
   );
@@ -30,6 +36,7 @@ app.prepare().then(() => {
     const redirect_uri = process.env.REDIRECT_URI;
     const code = req.query.code;
     const body = `client_id=${client_id}&grant_type=${grant_type}&client_secret=${client_secret}&code=${code}&redirect_uri=${redirect_uri}`;
+    // Todo: should change to 3300 port
     await fetch(process.env.TOKEN_URI || 'http://localhost:4000/oauth/token', {
       method: 'post',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

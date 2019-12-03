@@ -14,7 +14,7 @@ export const authenticateHandler = (
     .authenticate(new Request(req), new Response(res), options)
     .then(token => {
       res.locals.oauth = { token };
-      if (token) res.status(http.OK).send({ ok: true, authenticated: true });
+      if (token) res.status(http.OK).send({ ok: true, authenticated: true, user_id: token.user.id});
       else res.status(http.OK).send({ ok: true, authenticated: false });
     })
     .catch(error => {

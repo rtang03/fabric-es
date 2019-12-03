@@ -10,7 +10,7 @@ import React from 'react';
 const isServer = () => typeof window === 'undefined';
 let accessToken = '';
 export const getAccessToken = () => accessToken;
-export const setAccessToken = (token: string) => accessToken = token;
+export const setAccessToken = (token: string) => (accessToken = token);
 
 export function withApollo(PageComponent: any, { ssr = true } = {}) {
   const WithApollo = ({
@@ -105,7 +105,7 @@ export function withApollo(PageComponent: any, { ssr = true } = {}) {
 
       return {
         ...pageProps,
-        apolloState,
+        apolloState
       };
     };
   }
@@ -130,7 +130,7 @@ function initApolloClient(initState: any, token?: string) {
 
 function createApolloClient(initialState = {}, serverAccessToken?: string) {
   const httpLink = new HttpLink({
-    uri: process.env.API_GATEWAY_URI || 'http://localhost:4000/graphql',
+    uri: 'http://localhost:3300/graphql',
     credentials: 'include',
     fetch
   });

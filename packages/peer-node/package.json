@@ -18,12 +18,7 @@
     "enrollOrg1Admin": "rimraf assets/walletOrg1/admin && ./node_modules/.bin/ts-node src/enrollOrg1Admin.ts",
     "enrollOrg2Admin": "rimraf assets/walletOrg2/admin && ./node_modules/.bin/ts-node src/enrollOrg2Admin.ts",
     "s-peer": "ts-node ./src/service-admin.ts",
-    "service-doc": "node ./dist/service-doc.js",
-    "service-usr": "node ./dist/service-usr.js",
-    "service-loan": "node ./dist/service-loan.js",
-    "service-priv": "node ./dist/service-private.js",
-    "start-microservice": "yarn build && concurrently \"npm:service-*\"",
-    "start-new-gateway": "node ./dist/gateway.js",
+    "start-new-gateway": "ts-node ./src/gateway.ts",
     "generate-types": "graphql-codegen --config src/generated/codegen.yml",
     "enrollCaAdmin": "rimraf assets/wallet/ca_admin && ./node_modules/.bin/ts-node src/admin/enrollCaAdmin.ts"
   },
@@ -52,10 +47,10 @@
     "graphql-tools": "^4.0.6",
     "js-yaml": "^3.13.1",
     "jsonwebtoken": "^8.5.1",
-    "jwks-rsa": "^1.6.0",
     "listr": "^0.14.3",
     "lodash": "^4.17.15",
     "morgan": "^1.9.1",
+    "node-fetch": "^2.6.0",
     "prettyjson": "^1.2.1"
   },
   "devDependencies": {
@@ -69,6 +64,7 @@
     "@types/jsonwebtoken": "^8.3.5",
     "@types/lodash": "^4.14.138",
     "@types/node": "^8.10.54",
+    "@types/node-fetch": "^2.5.4",
     "apollo-server-testing": "^2.9.7",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",

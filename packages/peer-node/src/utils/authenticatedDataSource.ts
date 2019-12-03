@@ -6,5 +6,6 @@ export class AuthenticatedDataSource extends RemoteGraphQLDataSource {
     // additional auth check, to be implementated in the resolver
     // see https://auth0.com/blog/develop-modern-apps-with-react-graphql-apollo-and-add-authentication/#Secure-your-GraphQL-API-with-Auth0
     request.http.headers.set('client_id', context.client_id);
+    request.http.headers.set('user_id', context.user_id);
   }
 }
