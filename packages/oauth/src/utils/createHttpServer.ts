@@ -2,9 +2,8 @@ import { ApolloServer } from 'apollo-server-express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Express, Request, Response } from 'express';
-import { FileSystemWallet } from 'fabric-network';
 import { verify } from 'jsonwebtoken';
-import { Model, OAuth2Server } from 'oauth2-server-typescript';
+import { OAuth2Server } from 'oauth2-server-typescript';
 import { buildSchema } from 'type-graphql';
 import { ConnectionOptions, createConnection } from 'typeorm';
 import { createModel } from '.';
@@ -42,11 +41,8 @@ export const createHttpServer: (option: {
     allowBearerTokensInQueryString: true
   });
 
-  if (dbConnection) {
-    await createConnection(dbConnection);
-  } else {
-    await createConnection();
-  }
+  if (dbConnection) await createConnection(dbConnection);
+  else await createConnection();
 
   const app = express();
   app.set('view engine', 'pug');
@@ -65,7 +61,7 @@ export const createHttpServer: (option: {
   const server = new ApolloServer({
     schema,
     context: ({ req, res }: { req: Request; res: Response }): MyContext => {
-      const authorization = req.headers!.authorization;
+      const authorization = req.headers?.authorization;
       let payload;
       if (authorization) {
         const token = authorization.split(' ')[1];

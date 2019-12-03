@@ -1,3 +1,4 @@
+require('../env');
 import { Express } from 'express';
 import request from 'supertest';
 import { AccessToken } from '../entity/AccessToken';
@@ -5,7 +6,6 @@ import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
 import { OUser } from '../entity/OUser';
 import { RefreshToken } from '../entity/RefreshToken';
-import '../env';
 import {
   CREATE_ROOT_CLIENT,
   LOGIN,
@@ -15,8 +15,7 @@ import {
   UPDATE_USER,
   USERS
 } from '../query';
-import { ClientResolver } from '../resolvers/clientResolver';
-import { OUserResolver } from '../resolvers/ouserResolver';
+import { ClientResolver, OUserResolver } from '../resolvers';
 import { createHttpServer } from '../utils';
 
 const dbConnection = {
@@ -193,6 +192,6 @@ describe('Password Grant Type Tests', () => {
         variables: { email: 'faker@example.com', password }
       })
       .expect(({ body: { errors } }) =>
-        expect(errors[0].message).toEqual('cannot find user')
+        expect(errors[0].message).toEqual('could not find user')
       ));
 });

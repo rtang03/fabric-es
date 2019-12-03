@@ -1,4 +1,4 @@
-import express from 'express';
+import Express from 'express';
 import { OAuth2Server } from 'oauth2-server-typescript/lib/server';
 import {
   authenticateHandler,
@@ -10,7 +10,7 @@ import {
 } from '../middleware';
 
 export const indexRouter = (oauthServer: OAuth2Server, options?: any) => {
-  const router = express.Router();
+  const router = Express.Router();
   router.get('/', (_, res) => {
     res.render('index', { title: 'Authorization' });
   });

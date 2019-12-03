@@ -1,14 +1,17 @@
+require('./env');
 import 'reflect-metadata';
-import './env';
-import { ClientResolver } from './resolvers/clientResolver';
-import { OUserResolver } from './resolvers/ouserResolver';
+import { ClientResolver, OUserResolver } from './resolvers';
 import { createHttpServer } from './utils';
+
+const port = process.env.OAUTH_SERVER_PORT || 4000;
 
 (async () => {
   const app = await createHttpServer({
-    resolvers: [OUserResolver, ClientResolver],
+    resolvers: [OUserResolver, ClientResolver]
   });
-  app.listen(4000, () => console.log('🎉 Express server started'));
+  app.listen(port, () =>
+    console.log(`🎉 Express server started, at port: ${port}`)
+  );
 })().catch(error => {
   console.log(error);
   console.error(error.stack);

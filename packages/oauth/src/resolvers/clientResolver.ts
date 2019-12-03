@@ -166,6 +166,7 @@ export class ClientResolver {
             'client_credentials',
             'implicit'
           ],
+          // redirect_uris is not required
           redirect_uris: ['http://localhost:4000'],
           user_id: 'admin',
           is_system_app: true

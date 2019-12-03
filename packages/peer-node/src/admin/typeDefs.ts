@@ -18,6 +18,16 @@ export const typeDefs = gql`
     getCaIdentityByEnrollmentId(enrollmentId: String!): CaIdentity
     listWallet: [WalletEntry!]!
     isWalletEntryExist(label: String!): Boolean!
+    getCollectionConfigs: [CollectionConfig!]!
+  }
+  type CollectionConfig {
+    name: String!
+    typ: String!
+    required_peer_count: Int!
+    maximum_peer_count: Int!
+    block_to_live: Int!
+    member_read_only: Boolean!
+    policy: String!
   }
   type WalletEntry {
     label: String!

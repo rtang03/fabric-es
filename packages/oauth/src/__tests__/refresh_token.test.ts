@@ -1,3 +1,4 @@
+require('../env');
 import { Express } from 'express';
 import request from 'supertest';
 import { AccessToken } from '../entity/AccessToken';
@@ -5,10 +6,8 @@ import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
 import { OUser } from '../entity/OUser';
 import { RefreshToken } from '../entity/RefreshToken';
-import '../env';
 import { CREATE_ROOT_CLIENT, REGISTER_ADMIN } from '../query';
-import { ClientResolver } from '../resolvers/clientResolver';
-import { OUserResolver } from '../resolvers/ouserResolver';
+import { ClientResolver,OUserResolver } from '../resolvers';
 import { createHttpServer } from '../utils';
 
 const dbConnection = {
