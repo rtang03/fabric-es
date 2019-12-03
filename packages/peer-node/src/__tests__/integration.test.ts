@@ -1,68 +1,60 @@
 require('../env');
 import {
+  createPeer,
+  getNetwork,
+  Peer
+} from '@espresso/fabric-cqrs';
+import {
+  APPLY_LOAN,
+  APPROVE_LOAN,
+  CANCEL_LOAN,
+  CREATE_DATA_DOC_CONTENTS,
+  CREATE_DOCUMENT,
+  CREATE_FILE_DOC_CONTENTS,
+  CREATE_LOAN_DETAILS,
+  CREATE_USER,
+  DELETE_DOCUMENT,
+  DocContents,
+  DocContentsEvents,
+  docContentsReducer,
   Document,
   DocumentEvents,
   documentReducer,
   documentResolvers,
   documentTypeDefs,
+  EXPIRE_LOAN,
+  GET_COMMITS_BY_DOCUMENT,
+  GET_COMMITS_BY_LOAN,
+  GET_COMMITS_BY_USER,
+  GET_CONTENTS_BY_ID,
+  GET_DETAILS_BY_ID,
+  GET_DOCUMENT_BY_ID,
+  GET_LOAN_BY_ID,
+  GET_USER_BY_ID,
+  GET_USERS_BY_PAGE,
   Loan,
+  LoanDetails,
+  LoanDetailsEvents,
+  loanDetailsReducer,
   LoanEvents,
   loanReducer,
   loanResolvers,
   loanTypeDefs,
+  REJECT_LOAN,
+  resolvers as privateResolvers,
+  RETURN_LOAN,
+  typeDefs as privateTypeDefs,
+  UPDATE_DOCUMENT,
+  UPDATE_LOAN,
+  UPDATE_LOAN_DETAILS,
   User,
   UserEvents,
   userReducer,
   userResolvers,
   userTypeDefs
-} from '@espresso/common';
-import {
-  createPeer,
-  getNetwork,
-  Peer
-} from '@espresso/fabric-cqrs';
+} from '@espresso/model-loan';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
-import {
-  CREATE_DATA_DOC_CONTENTS,
-  CREATE_FILE_DOC_CONTENTS,
-  CREATE_LOAN_DETAILS,
-  DocContents,
-  DocContentsEvents,
-  docContentsReducer,
-  GET_CONTENTS_BY_ID,
-  GET_DETAILS_BY_ID,
-  LoanDetails,
-  LoanDetailsEvents,
-  loanDetailsReducer,
-  resolvers as privateResolvers,
-  typeDefs as privateTypeDefs,
-  UPDATE_LOAN_DETAILS
-} from '../private';
-import {
-  CREATE_DOCUMENT,
-  DELETE_DOCUMENT,
-  GET_COMMITS_BY_DOCUMENT,
-  GET_DOCUMENT_BY_ID,
-  UPDATE_DOCUMENT
-} from '../queries/document';
-import {
-  APPLY_LOAN,
-  APPROVE_LOAN,
-  CANCEL_LOAN,
-  EXPIRE_LOAN,
-  GET_COMMITS_BY_LOAN,
-  GET_LOAN_BY_ID,
-  REJECT_LOAN,
-  RETURN_LOAN,
-  UPDATE_LOAN
-} from '../queries/loan';
-import {
-  CREATE_USER,
-  GET_COMMITS_BY_USER,
-  GET_USER_BY_ID,
-  GET_USERS_BY_PAGE,
-} from '../queries/user';
 import { constructTestServer, getApolloServer } from './__utils__';
 
 let server;

@@ -1,7 +1,7 @@
 require('./env');
 import { buildFederatedSchema } from '@apollo/federation';
-import { DataSrc } from '@espresso/common';
 import { createPeer, getNetwork, PeerOptions, PrivatedataRepository, Repository } from '@espresso/fabric-cqrs';
+import { DataSrc } from '@espresso/model-loan';
 import { ApolloServer } from 'apollo-server';
 
 export const prepare = async ({

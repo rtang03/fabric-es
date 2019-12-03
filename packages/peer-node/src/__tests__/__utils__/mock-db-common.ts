@@ -1,3 +1,4 @@
+import { Commit, getMockRepository, Repository } from '@espresso/fabric-cqrs';
 import {
   Document,
   DocumentEvents,
@@ -8,8 +9,7 @@ import {
   User,
   UserEvents,
   userReducer
-} from '@espresso/common';
-import { Commit, getMockRepository, Repository } from '@espresso/fabric-cqrs';
+} from '@espresso/model-loan';
 
 /**
  * WARNING: Any change of sample data, will impact the Snapshot Testing.

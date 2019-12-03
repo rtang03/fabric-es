@@ -4,7 +4,7 @@ import {
   loanReducer,
   loanResolvers,
   loanTypeDefs
-} from '@espresso/common';
+} from '@espresso/model-loan';
 import { bootstrap, prepare } from './start-service';
 
 prepare({

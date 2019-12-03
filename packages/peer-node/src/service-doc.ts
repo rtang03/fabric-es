@@ -4,7 +4,7 @@ import {
   documentReducer,
   documentResolvers,
   documentTypeDefs
-} from '@espresso/common';
+} from '@espresso/model-loan';
 import { bootstrap, prepare } from './start-service';
 
 prepare({
