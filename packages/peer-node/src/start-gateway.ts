@@ -7,7 +7,7 @@ import { createServer } from 'http';
 import jwt from 'jsonwebtoken';
 import jwks from 'jwks-rsa';
 // import morgan from 'morgan';
-// import { AuthenticatedDataSource } from './utils';
+import { AuthenticatedDataSource } from './utils';
 
 const gateway = new ApolloGateway({
   serviceList: [
@@ -16,7 +16,7 @@ const gateway = new ApolloGateway({
     { name: 'document', url: 'http://localhost:14003/graphql' },
     { name: 'private',  url: 'http://localhost:14004/graphql' }
   ],
-  buildService: ({ url }) => new RemoteGraphQLDataSource({ url })
+  buildService: ({ url }) => new AuthenticatedDataSource({ url })
 });
 
 const PORT = process.env.PORT || 4000;

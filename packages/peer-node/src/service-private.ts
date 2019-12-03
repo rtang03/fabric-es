@@ -7,7 +7,7 @@ import {
   loanDetailsReducer,
   resolvers,
   typeDefs
-} from './private';
+} from '@espresso/model-loan';
 import { bootstrap, prepare } from './start-service';
 
 prepare({

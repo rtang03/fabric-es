@@ -1,48 +1,40 @@
 import {
-  documentResolvers,
-  documentTypeDefs,
-  loanResolvers,
-  loanTypeDefs,
-  userResolvers,
-  userTypeDefs
-} from '@espresso/common';
-import { ApolloServer } from 'apollo-server';
-import { createTestClient } from 'apollo-server-testing';
-import {
-  CREATE_DATA_DOC_CONTENTS,
-  CREATE_FILE_DOC_CONTENTS,
-  CREATE_LOAN_DETAILS,
-  GET_CONTENTS_BY_ID,
-  GET_DETAILS_BY_ID,
-  resolvers as localResolvers,
-  typeDefs as localTypeDefs,
-  UPDATE_LOAN_DETAILS
-} from '../private';
-import {
-  CREATE_DOCUMENT,
-  DELETE_DOCUMENT,
-  GET_COMMITS_BY_DOCUMENT,
-  GET_DOCUMENT_BY_ID,
-  RESTRICT_DOCUMENT_ACCESS,
-  UPDATE_DOCUMENT
-} from '../queries/document';
-import {
   APPLY_LOAN,
   APPROVE_LOAN,
   CANCEL_LOAN,
-  EXPIRE_LOAN,
-  GET_COMMITS_BY_LOAN,
-  GET_LOAN_BY_ID,
-  REJECT_LOAN,
-  RETURN_LOAN,
-  UPDATE_LOAN
-} from '../queries/loan';
-import {
+  CREATE_DATA_DOC_CONTENTS,
+  CREATE_DOCUMENT,
+  CREATE_FILE_DOC_CONTENTS,
+  CREATE_LOAN_DETAILS,
   CREATE_USER,
+  DELETE_DOCUMENT,
+  documentResolvers,
+  documentTypeDefs,
+  EXPIRE_LOAN,
+  GET_COMMITS_BY_DOCUMENT,
+  GET_COMMITS_BY_LOAN,
   GET_COMMITS_BY_USER,
+  GET_CONTENTS_BY_ID,
+  GET_DETAILS_BY_ID,
+  GET_DOCUMENT_BY_ID,
+  GET_LOAN_BY_ID,
   GET_USER_BY_ID,
-  GET_USERS_BY_PAGE
-} from '../queries/user';
+  GET_USERS_BY_PAGE,
+  loanResolvers,
+  loanTypeDefs,
+  REJECT_LOAN,
+  resolvers as localResolvers,
+  RESTRICT_DOCUMENT_ACCESS,
+  RETURN_LOAN,
+  typeDefs as localTypeDefs,
+  UPDATE_DOCUMENT,
+  UPDATE_LOAN,
+  UPDATE_LOAN_DETAILS,
+  userResolvers,
+  userTypeDefs
+} from '@espresso/model-loan';
+import { ApolloServer } from 'apollo-server';
+import { createTestClient } from 'apollo-server-testing';
 import {
   constructTestServer,
   docContentsRepo,
