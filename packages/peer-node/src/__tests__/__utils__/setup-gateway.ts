@@ -1,6 +1,6 @@
-import { ApolloGateway } from '@apollo/gateway';
+import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import { ApolloServer } from 'apollo-server-express';
-import { AuthenticatedDataSource } from '../../utils';
+// import { AuthenticatedDataSource } from '../../utils';
 
 const gateway = new ApolloGateway({
   serviceList: [
@@ -9,7 +9,7 @@ const gateway = new ApolloGateway({
     { name: 'document', url: 'http://localhost:14003/graphql' },
     { name: 'private',  url: 'http://localhost:14004/graphql' }
   ],
-  buildService: ({ url }) => new AuthenticatedDataSource({ url })
+  buildService: ({ url }) => new RemoteGraphQLDataSource({ url })
 });
 
 export const constructTestServer: () => Promise<ApolloServer> = async () =>
