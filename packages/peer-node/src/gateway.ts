@@ -5,7 +5,13 @@ import bodyParser from 'body-parser';
 import express from 'express';
 import morgan from 'morgan';
 import fetch from 'node-fetch';
-import { AuthenticatedDataSource } from './utils';
+
+class AuthenticatedDataSource extends RemoteGraphQLDataSource {
+  willSendRequest({ request, context }: { request: any; context: any }) {
+    request.http.headers.set('client_id', context.client_id);
+    request.http.headers.set('user_id', context.user_id);
+  }
+}
 
 const gateway = new ApolloGateway({
   serviceList: [
@@ -49,7 +55,10 @@ const authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
   app.use(morgan('tiny'));
-  server.applyMiddleware({ app });
+  server.applyMiddleware({
+    app,
+    cors: { origin: 'http://localhost:3000', credentials: true }
+  });
   app.listen(PORT, () => {
     console.log(`🚀 Server at http://localhost:${PORT}${server.graphqlPath}`);
   });
