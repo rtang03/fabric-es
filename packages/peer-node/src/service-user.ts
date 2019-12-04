@@ -5,28 +5,19 @@ import {
   userResolvers,
   userTypeDefs
 } from '@espresso/model-loan';
-import { bootstrap, prepare } from './start-service';
+import { startService } from './start-service';
 
-prepare({
+startService({
   enrollmentId: 'admin',
   defaultEntityName: 'user',
   defaultReducer: userReducer
-}).then(({ getRepository, getPrivateDataRepo, reconcile, subscribeHub, ...rest }) => {
-  bootstrap({
+}).then(({ config, getRepository }) => {
+  config({
     port: 14001,
     typeDefs: userTypeDefs,
-    resolvers: userResolvers,
-    repositories: [
-      {
-        entityName: 'user',
-        repository: getRepository<User, UserEvents>({
-          entityName: 'user',
-          reducer: userReducer
-        })
-      }
-    ],
-    reconcile,
-    subscribeHub,
-    ...rest
-  });
+    resolvers: userResolvers
+  }).addRepository('user', getRepository<User, UserEvents>({
+    entityName: 'user',
+    reducer: userReducer
+  })).run();
 });

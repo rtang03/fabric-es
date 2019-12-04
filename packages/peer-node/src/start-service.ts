@@ -1,17 +1,19 @@
 require('./env');
 import { buildFederatedSchema } from '@apollo/federation';
-import { createPeer, getNetwork, PeerOptions, PrivatedataRepository, Repository } from '@espresso/fabric-cqrs';
+import { createPeer, getNetwork, PeerOptions, PrivatedataRepository, Reducer, Repository } from '@espresso/fabric-cqrs';
 import { DataSrc } from '@espresso/model-loan';
 import { ApolloServer } from 'apollo-server';
 
-export const prepare = async ({
+export const startService = async ({
   enrollmentId,
   defaultEntityName,
-  defaultReducer
+  defaultReducer,
+  isPrivate = false
 }: {
   enrollmentId: string;
   defaultEntityName: string;
-  defaultReducer: any;
+  defaultReducer: Reducer;
+  isPrivate?: boolean;
 }) => {
   const networkConfig = await getNetwork({
     enrollmentId,
@@ -25,63 +27,54 @@ export const prepare = async ({
     collection: process.env.COLLECTION
   });
 
+  const result = (isPrivate) ? {
+    getPrivateDataRepo
+  } : {
+    getRepository
+  };
+
   return {
-    networkConfig,
-    enrollmentId,
-    reconcile,
-    getRepository,
-    getPrivateDataRepo,
-    subscribeHub,
-    defaultEntityName,
-    defaultReducer
+    ...result,
+    config: ({port, typeDefs, resolvers}) => {
+      const repositories: Array<{ entityName: string, repository: Repository | PrivatedataRepository }> = [];
+
+      async function run() {
+        _start({
+          isPrivate,
+          port,
+          typeDefs,
+          resolvers,
+          repositories,
+          reconcile,
+          subscribeHub,
+          enrollmentId,
+          defaultEntityName,
+          defaultReducer
+        }).catch(error => {
+          console.log(error);
+          console.error(error.stack);
+          networkConfig.gateway.disconnect();
+          process.exit(0);
+        });
+      }
+
+      function addRepository(entityName: string, repository: Repository | PrivatedataRepository) {
+        repositories.push({ entityName, repository });
+        return {
+          run,
+          addRepository
+        };
+      }
+
+      return {
+        addRepository
+      };
+    }
   };
 };
 
-export const bootstrap = async ({
-  port,
-  typeDefs,
-  resolvers,
-  repositories,
-  reconcile,
-  subscribeHub,
-  networkConfig,
-  enrollmentId,
-  defaultEntityName,
-  defaultReducer
-}: {
-  port: number;
-  typeDefs: any;
-  resolvers: any;
-  repositories: Array<{
-    entityName: string,
-    repository: Repository | PrivatedataRepository
-  }>;
-  reconcile?: any;
-  subscribeHub?: any;
-  enrollmentId: string;
-  networkConfig: any;
-  defaultEntityName?: string;
-  defaultReducer?: any;
-}) => {
-  bootstrap3({
-    port,
-    typeDefs,
-    resolvers,
-    repositories,
-    reconcile,
-    subscribeHub,
-    enrollmentId,
-    defaultEntityName,
-    defaultReducer
-  }).catch(error => {
-    console.log(error);
-    console.error(error.stack);
-    networkConfig.gateway.disconnect();
-    process.exit(0);
-  });
-};
-
-const bootstrap3 = async ({
+const _start = async ({
+  isPrivate,
   port,
   typeDefs,
   resolvers,
@@ -92,6 +85,7 @@ const bootstrap3 = async ({
   defaultEntityName,
   defaultReducer
 }: {
+  isPrivate: boolean;
   port: number;
   typeDefs: any;
   resolvers: any;
@@ -105,7 +99,7 @@ const bootstrap3 = async ({
   defaultEntityName?: string;
   defaultReducer?: any;
 }) => {
-  if (reconcile && subscribeHub) {
+  if (!isPrivate) {
     console.log(`♨️♨️  '${process.env.ORGNAME}' - Starting micro-service for on-chain entity '${defaultEntityName}'...`);
     await subscribeHub();
     await reconcile({ entityName: defaultEntityName, reducer: defaultReducer });
