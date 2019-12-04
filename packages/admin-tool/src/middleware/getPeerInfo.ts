@@ -1,4 +1,9 @@
-import { Block, BlockchainInfo, CollectionQueryResponse } from 'fabric-client';
+import {
+  Block,
+  BlockchainInfo,
+  ChannelPeer,
+  CollectionQueryResponse
+} from 'fabric-client';
 import { findLast } from 'lodash';
 import { Context } from './types';
 import { createUser, getClientForOrg, parseConnectionProfile } from './utils';
@@ -17,6 +22,7 @@ interface SdkClientQuery {
     chaincodeId: string;
     target: string;
   }) => Promise<CollectionQueryResponse[]>;
+  getChannelPeers: () => Promise<ChannelPeer[]>;
 }
 
 export const getPeerInfo: (
@@ -64,7 +70,8 @@ export const getPeerInfo: (
       // below method not properly tested
       getTransactionByID: async txId => channel.queryTransaction(txId),
       getCollectionsConfig: async ({ chaincodeId, target }) =>
-        channel.queryCollectionsConfig({ chaincodeId, target })
+        channel.queryCollectionsConfig({ chaincodeId, target }),
+      getChannelPeers: async () => channel.getChannelPeers()
     };
   });
 };

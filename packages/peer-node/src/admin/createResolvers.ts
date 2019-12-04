@@ -47,6 +47,14 @@ export const createResolvers: (option: {
         )
     },
     Query: {
+      getChannelPeers: async () =>
+        peerInfo.getChannelPeers().then(peers =>
+          peers.map(peer => ({
+            name: peer.getName(),
+            mspid: peer.getMspid(),
+            url: peer.getUrl()
+          }))
+        ),
       isWalletEntryExist: async (_, { label }: { label: string }) =>
         wallet.exists(label),
       listWallet: async () => wallet.list().then(result => result ?? []),

@@ -4,6 +4,7 @@ config({ path: resolve(__dirname, '../.env.test') });
 
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import csrf from 'csurf';
 import express from 'express';
 import fetch from 'isomorphic-unfetch';
@@ -19,16 +20,13 @@ app.prepare().then(() => {
   server.use([
     bodyParser.urlencoded({ extended: true }),
     cookieParser('secret'),
-    csrf({ cookie: true })
+    csrf({ cookie: true }),
   ]);
-
-  server.get('/oauth_server_uri', (_, res) =>
-    res.status(200).send(process.env.OAUTH_SERVER_URI || '')
-  );
 
   server.get('/auth_uri', (_, res) =>
     res.status(200).send(process.env.AUTHORIZATION_URI || '')
   );
+
   server.get('/callback', async (req, res) => {
     const grant_type = 'authorization_code';
     const client_id = process.env.CLIENT_ID;
@@ -37,7 +35,7 @@ app.prepare().then(() => {
     const code = req.query.code;
     const body = `client_id=${client_id}&grant_type=${grant_type}&client_secret=${client_secret}&code=${code}&redirect_uri=${redirect_uri}`;
     // Todo: should change to 3300 port
-    await fetch(process.env.TOKEN_URI || 'http://localhost:4000/oauth/token', {
+    await fetch(process.env.TOKEN_URI || 'http://localhost:3300/oauth/token', {
       method: 'post',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body
@@ -57,12 +55,6 @@ app.prepare().then(() => {
         console.log(error);
       });
   });
-
-  server.get('/network', async (_, res) => {
-    const peers = require('./network.json');
-    res.status(200).send(peers);
-  });
-
   server.get('*', (req, res) => handle(req, res));
 
   server.listen(port, err => {

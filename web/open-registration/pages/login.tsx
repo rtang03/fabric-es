@@ -19,7 +19,11 @@ import * as yup from 'yup';
 import { MyTextField } from '../components';
 import DisplayErrorMessage from '../components/DisplayErrorMessage';
 import Layout from '../components/Layout';
-import { MeDocument, MeQuery, useLoginMutation } from '../generated/graphql';
+import {
+  MeDocument,
+  MeQuery,
+  useLoginMutation
+} from '../generated/oauth-server-graphql';
 
 const validationSchema = yup.object({
   email: yup
@@ -59,7 +63,10 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const Login: NextPage<{ auth_uri: string }> = ({ auth_uri }) => {
-  const [login, { error }] = useLoginMutation();
+  const [login, { error }] = useLoginMutation({
+    context: { backend: 'oauth' }
+  });
+
   const classes = useStyles();
 
   return (

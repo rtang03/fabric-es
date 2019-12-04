@@ -6,8 +6,8 @@
     "build": "next build && tsc --project tsconfig.server.json",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "type-check": "tsc",
-    "gen": "graphql-codegen --config codegen.yml",
-    "gen2": "graphql-codegen --config codegen2.yml"
+    "generate-hook:oauth-server": "graphql-codegen --config codegen.oauth-server.yml",
+    "generate-hook:peer-node": "graphql-codegen --config codegen.peer-node.yml"
   },
   "dependencies": {
     "@apollo/react-hooks": "^3.1.3",
