@@ -1,0 +1,54 @@
+
+# Enroll {{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}}'s Admin
+export FABRIC_CA_CLIENT_TLS_CERTFILES={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}}/{{{artifacts.caserver-home}}}{{#artifacts.caserver-home}}/{{/artifacts.caserver-home}}ca-cert.pem
+export FABRIC_CA_CLIENT_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}}/admin
+
+fabric-ca-client enroll -d -u https://{{orgs.tls.ca.admin}}:{{orgs.tls.ca.adminpw}}@0.0.0.0:{{orgs.tls.ca.port}}
+{{#orgs.peer}}
+{{#peers.endpoints}}
+fabric-ca-client register -d --id.name {{-}}{{network.host-delimiter}}{{domain}} --id.secret {{-}}PW --id.type peer -u https://0.0.0.0:{{orgs.tls.ca.port}}
+{{/peers.endpoints}}
+{{/orgs.peer}}
+{{#orgs.orderer.orderers.endpoints}}
+fabric-ca-client register -d --id.name {{-}}{{network.host-delimiter}}{{orgs.orderer.domain}} --id.secret ordererPW --id.type orderer -u https://0.0.0.0:{{orgs.tls.ca.port}}
+{{/orgs.orderer.orderers.endpoints}}
+
+{{#orgs.peer}}
+{{#peers.endpoints}}
+#############
+# {{name}} {{-}}#
+#############
+
+# Copy certificate of the TLS CA for {{name}} {{-}}
+mkdir -p {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/assets/tls-ca
+cp {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}}/admin/msp/cacerts/0-0-0-0-{{orgs.tls.ca.port}}.pem {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/assets/tls-ca/tls-ca-cert.pem
+
+# Enroll {{name}} {{-}}
+export FABRIC_CA_CLIENT_MSPDIR=tls-msp
+export FABRIC_CA_CLIENT_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}
+export FABRIC_CA_CLIENT_TLS_CERTFILES={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://{{-}}{{network.host-delimiter}}{{domain}}:{{-}}PW@0.0.0.0:{{orgs.tls.ca.port}} --enrollment.profile tls --csr.hosts {{-}}{{network.host-delimiter}}{{domain}}
+
+mv {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/keystore/* {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/keystore/key.pem
+
+{{/peers.endpoints}}
+{{/orgs.peer}}
+
+###########
+# Orderer #
+###########
+
+{{#orgs.orderer.orderers.endpoints}}
+# Copy certificate of {{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}} for {{orgs.orderer.name}} {{-}}
+mkdir -p {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/{{-}}/assets/tls-ca
+cp {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}}/admin/msp/cacerts/0-0-0-0-{{orgs.tls.ca.port}}.pem {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/{{-}}/assets/tls-ca/tls-ca-cert.pem
+
+# Enroll Org 0 Orderer 1
+export FABRIC_CA_CLIENT_MSPDIR=tls-msp
+export FABRIC_CA_CLIENT_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/{{-}}
+export FABRIC_CA_CLIENT_TLS_CERTFILES={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/{{-}}/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://{{-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:ordererPW@0.0.0.0:{{orgs.tls.ca.port}} --enrollment.profile tls --csr.hosts {{-}}{{network.host-delimiter}}{{orgs.orderer.domain}}
+
+mv {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/{{-}}/tls-msp/keystore/* {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/{{-}}/tls-msp/keystore/key.pem
+
+{{/orgs.orderer.orderers.endpoints}}

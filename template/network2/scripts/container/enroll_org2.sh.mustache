@@ -1,0 +1,39 @@
+# Copy TLS Cert
+mkdir -p {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/ca/crypto
+cp {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.ca.host}}{{network.host-delimiter}}{{orgs.peer.1.domain}}/{{{artifacts.caserver-home}}}/ca-cert.pem {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/ca/crypto
+
+# Register and Enroll
+export FABRIC_CA_CLIENT_TLS_CERTFILES={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/ca/crypto/ca-cert.pem
+export FABRIC_CA_CLIENT_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/ca/admin
+fabric-ca-client enroll -d -u https://{{orgs.peer.1.ca.admin}}:{{orgs.peer.1.ca.adminpw}}@0.0.0.0:{{orgs.peer.1.ca.port}}
+{{#orgs.peer.1.peers.endpoints}}
+fabric-ca-client register -d --id.name {{-}}{{network.host-delimiter}}{{orgs.peer.1.domain}} --id.secret {{-}}PW --id.type peer -u https://0.0.0.0:{{orgs.peer.1.ca.port}}
+{{/orgs.peer.1.peers.endpoints}}
+fabric-ca-client register -d --id.name admin-{{orgs.peer.1.domain}} --id.secret {{orgs.peer.1.name}}AdminPW --id.type user -u https://0.0.0.0:{{orgs.peer.1.ca.port}}
+fabric-ca-client register -d --id.name user-{{orgs.peer.1.domain}} --id.secret {{orgs.peer.1.name}}UserPW --id.type user -u https://0.0.0.0:{{orgs.peer.1.ca.port}}
+
+{{#orgs.peer.1.peers.endpoints}}
+# Copy Trusted Root Cert of {{orgs.peer.1.name}} to {{-}}
+mkdir -p {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/{{-}}/assets/ca
+cp {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/ca/admin/msp/cacerts/0-0-0-0-{{orgs.peer.1.ca.port}}.pem {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/{{-}}/assets/ca/{{orgs.peer.1.domain}}-ca-cert.pem
+
+# Enroll {{-}}
+export FABRIC_CA_CLIENT_TLS_CERTFILES={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/{{-}}/assets/ca/{{orgs.peer.1.domain}}-ca-cert.pem
+export FABRIC_CA_CLIENT_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/{{-}}
+fabric-ca-client enroll -d -u https://{{-}}{{network.host-delimiter}}{{orgs.peer.1.domain}}:{{-}}PW@0.0.0.0:{{orgs.peer.1.ca.port}}
+
+{{/orgs.peer.1.peers.endpoints}}
+# Enroll {{orgs.peer.1.name}}'s Admin
+export FABRIC_CA_CLIENT_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/admin
+export FABRIC_CA_CLIENT_TLS_CERTFILES={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/{{orgs.peer.1.peers.endpoints.0.-}}/assets/ca/{{orgs.peer.1.domain}}-ca-cert.pem
+export FABRIC_CA_CLIENT_MSPDIR=msp
+fabric-ca-client enroll -d -u https://admin-{{orgs.peer.1.domain}}:{{orgs.peer.1.name}}AdminPW@0.0.0.0:{{orgs.peer.1.ca.port}}
+
+{{#orgs.peer.1.peers.endpoints}}
+# Copy admin cert to {{-}}
+mkdir -p {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/{{-}}/msp/admincerts
+cp {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/admin/msp/signcerts/cert.pem {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/{{-}}/msp/admincerts/{{orgs.peer.1.domain}}-admin-cert.pem
+{{/orgs.peer.1.peers.endpoints}}
+
+# Rename admin key
+mv {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/admin/msp/keystore/* {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/admin/msp/keystore/key.pem

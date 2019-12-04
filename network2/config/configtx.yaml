@@ -1,0 +1,209 @@
+################################################################################
+#
+#   Section: Organizations
+#
+#   - This section defines the different organizational identities which will
+#   be referenced later in the configuration.
+#
+################################################################################
+Organizations:
+
+   - &org0
+
+      Name: org0
+
+      # ID to load the MSP definition as
+      ID: org0MSP
+
+      # MSPDir is the filesystem path which contains the MSP configuration
+      MSPDir: ../artifacts/crypto-config/org0/msp
+
+      Policies:
+         Readers:
+            Type: Signature
+            Rule: "OR('org0MSP.member')"
+         Writers:
+            Type: Signature
+            Rule: "OR('org0MSP.member')"
+         Admins:
+            Type: Signature
+            Rule: "OR('org0MSP.admin')"
+
+   - &org1
+
+      Name: org1
+
+      # ID to load the MSP definition as
+      ID: org1MSP
+
+      # MSPDir is the filesystem path which contains the MSP configuration
+      MSPDir: ../artifacts/crypto-config/org1/msp
+
+      Policies:
+         Readers:
+            Type: Signature
+            Rule: "OR('org1MSP.member')"
+         Writers:
+            Type: Signature
+            Rule: "OR('org1MSP.member')"
+         Admins:
+            Type: Signature
+            Rule: "OR('org1MSP.admin')"
+
+      OrdererEndpoints:
+         - orderer1-org0:7050
+
+      AnchorPeers:
+         # AnchorPeers defines the location of peers which can be used
+         # for cross org gossip communication.  Note, this value is only
+         # encoded in the genesis block in the Application section context
+         - Host: peer1-org1
+           Port: 7051
+
+   - &org2
+
+      Name: org2
+
+      # ID to load the MSP definition as
+      ID: org2MSP
+
+      # MSPDir is the filesystem path which contains the MSP configuration
+      MSPDir: ../artifacts/crypto-config/org2/msp
+
+      Policies:
+         Readers:
+            Type: Signature
+            Rule: "OR('org2MSP.member')"
+         Writers:
+            Type: Signature
+            Rule: "OR('org2MSP.member')"
+         Admins:
+            Type: Signature
+            Rule: "OR('org2MSP.admin')"
+
+      OrdererEndpoints:
+         - orderer1-org0:7050
+
+      AnchorPeers:
+         # AnchorPeers defines the location of peers which can be used
+         # for cross org gossip communication.  Note, this value is only
+         # encoded in the genesis block in the Application section context
+         - Host: peer1-org2
+           Port: 7051
+
+Capabilities:
+   Channel: &ChannelCapabilities
+      V1_4_3: true
+      V1_3: false
+      V1_1: false
+   Orderer: &OrdererCapabilities
+      V1_4_2: true
+      V1_1: false
+   Application: &ApplicationCapabilities
+      V1_4_2: true
+      V1_3: false
+      V1_2: false
+      V1_1: false
+
+################################################################################
+#
+#   SECTION: Application
+#
+#   This section defines the values to encode into a config transaction or
+#   genesis block for application related parameters
+#
+################################################################################
+Application: &ApplicationDefaults
+
+   # Organizations is the list of orgs which are defined as participants on
+   # the application side of the network
+   Organizations:
+   Policies:
+      Readers:
+         Type: ImplicitMeta
+         Rule: "ANY Readers"
+      Writers:
+         Type: ImplicitMeta
+         Rule: "ANY Writers"
+      Admins:
+         Type: ImplicitMeta
+         Rule: "MAJORITY Admins"
+
+   Capabilities:
+      <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+
+   OrdererType: solo
+   Addresses:
+      - orderer1-org0:7050
+   BatchTimeout: 2s
+   BatchSize:
+      MaxMessageCount: 500
+      AbsoluteMaxBytes: 99 MB
+      PreferredMaxBytes: 2 MB
+   MaxChannels: 10
+   Organizations:
+   Policies:
+      Readers:
+         Type: ImplicitMeta
+         Rule: "ANY Readers"
+      Writers:
+         Type: ImplicitMeta
+         Rule: "ANY Writers"
+      Admins:
+         Type: ImplicitMeta
+         Rule: "MAJORITY Admins"
+      BlockValidation:
+         Type: ImplicitMeta
+         Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+   Policies:
+      Readers:
+         Type: ImplicitMeta
+         Rule: "ANY Readers"
+      Writers:
+         Type: ImplicitMeta
+         Rule: "ANY Writers"
+      Admins:
+         Type: ImplicitMeta
+         Rule: "MAJORITY Admins"
+
+   Capabilities:
+      <<: *ChannelCapabilities
+
+################################################################################
+#
+#   Profile
+#
+#   - Different configuration profiles may be encoded here to be specified
+#   as parameters to the configtxgen tool
+#
+################################################################################
+Profiles:
+
+   OrgsOrdererGenesis:
+      <<: *ChannelDefaults
+      Orderer:
+         <<: *OrdererDefaults
+         Organizations:
+            - *org0
+         Capabilities:
+            <<: *OrdererCapabilities
+      Consortiums:
+         SampleConsortium:
+            Organizations:
+               - *org1
+               - *org2
+
+   OrgsChannel:
+      Consortium: SampleConsortium
+      <<: *ChannelDefaults
+      Application:
+         <<: *ApplicationDefaults
+         Organizations:
+            - *org1
+            - *org2
+         Capabilities:
+            <<: *ApplicationCapabilities
