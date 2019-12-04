@@ -58,8 +58,8 @@ export const startService = async ({
         });
       }
 
-      function addRepository(entityName: string, repository: Repository | PrivatedataRepository) {
-        repositories.push({ entityName, repository });
+      function addRepository(repository: Repository | PrivatedataRepository) {
+        repositories.push({ entityName: repository.getEntityName(), repository });
         return {
           run,
           addRepository

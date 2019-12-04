@@ -16,7 +16,7 @@ startService({
     port: 14003,
     typeDefs: documentTypeDefs,
     resolvers: documentResolvers
-  }).addRepository('document', getRepository<Document, DocumentEvents>({
+  }).addRepository(getRepository<Document, DocumentEvents>({
     entityName: 'document',
     reducer: documentReducer
   })).run();

@@ -154,5 +154,6 @@ export const repository: (
         }
       });
       store.dispatch(deleteByEntityName({ tx_id: tid, args: { entityName } }));
-    })
+    }),
+  getEntityName: () => entityName
 });
