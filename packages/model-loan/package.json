@@ -15,18 +15,10 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@espresso/admin-tool": "1.0.0",
-    "@espresso/fabric-cqrs": "1.0.0",
-    "dotenv": "^8.1.0",
-    "js-yaml": "^3.13.1",
-    "prettyjson": "^1.2.1"
+    "@espresso/fabric-cqrs": "1.0.0"
   },
   "devDependencies": {
-    "@types/bytebuffer": "^5.0.40",
-    "@types/dotenv": "^6.1.1",
     "@types/jest": "^24.0.18",
-    "@types/js-yaml": "^3.12.1",
-    "@types/node": "^8.10.54",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",
