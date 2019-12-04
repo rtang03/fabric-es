@@ -16,7 +16,7 @@ startService({
     port: 14002,
     typeDefs: loanTypeDefs,
     resolvers: loanResolvers
-  }).addRepository('loan', getRepository<Loan, LoanEvents>({
+  }).addRepository(getRepository<Loan, LoanEvents>({
     entityName: 'loan',
     reducer: loanReducer
   })).run();

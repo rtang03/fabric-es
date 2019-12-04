@@ -30,4 +30,5 @@ export interface Repository<TEntity = any, TEvent = any> {
   }) => Promise<{ data: TEntity[] }>;
   deleteByEntityId?: (id: string) => Promise<any>;
   deleteByEntityName_query?: () => Promise<any>;
+  getEntityName: () => string;
 }

@@ -20,10 +20,10 @@ startService({
     port: 14004,
     typeDefs,
     resolvers
-  }).addRepository('loanDetails', getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
+  }).addRepository(getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
     entityName: 'loanDetails',
     reducer: loanDetailsReducer
-  })).addRepository('docContents', getPrivateDataRepo<DocContents, DocContentsEvents>({
+  })).addRepository(getPrivateDataRepo<DocContents, DocContentsEvents>({
     entityName: 'docContents',
     reducer: docContentsReducer
   })).run();

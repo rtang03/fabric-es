@@ -16,7 +16,7 @@ startService({
     port: 14001,
     typeDefs: userTypeDefs,
     resolvers: userResolvers
-  }).addRepository('user', getRepository<User, UserEvents>({
+  }).addRepository(getRepository<User, UserEvents>({
     entityName: 'user',
     reducer: userReducer
   })).run();
