@@ -1,3 +1,6 @@
+import { makeStyles, Theme } from '@material-ui/core';
+import Container from '@material-ui/core/Container';
+import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { omit } from 'lodash';
 import { NextPage } from 'next';
@@ -8,23 +11,33 @@ import { useGetPublicClientsQuery } from '../generated/oauth-server-graphql';
 import { useGetChannelPeersQuery } from '../generated/peer-node-graphql';
 
 const Peer: NextPage = () => {
-  const { data, error, loading } = useGetPublicClientsQuery({
+  const {
+    data: clientsData,
+    error: clientsError,
+    loading: clientsLoading
+  } = useGetPublicClientsQuery({
     context: { backend: 'oauth' }
   });
-  const { data: peersData, loading: peersLoading } = useGetChannelPeersQuery({
+  const {
+    data: peersData,
+    error: peersError,
+    loading: peersLoading
+  } = useGetChannelPeersQuery({
     context: { backend: 'peer' }
   });
 
-  const clientApps = loading ? null : data?.getPublicClients ? (
+  const clientApps = clientsLoading ? null : clientsData?.getPublicClients ? (
     <React.Fragment>
       <pre>
         {JSON.stringify(
-          data.getPublicClients.map(app => omit(app, '__typename', 'grants')),
+          clientsData.getPublicClients.map(app =>
+            omit(app, '__typename', 'grants')
+          ),
           null,
           2
         )}
       </pre>
-      <p>No of available hosts: {data?.getPublicClients.length}</p>
+      <p>No of available hosts: {clientsData?.getPublicClients.length}</p>
     </React.Fragment>
   ) : null;
 
@@ -41,20 +54,29 @@ const Peer: NextPage = () => {
   ) : null;
 
   return (
-    <Layout title="Network">
-      <div>
-        <Typography component="h1" variant="h6">
-          Show all peers in current channel
-        </Typography>
-      </div>
-      {peers}
-      <div>
-        <Typography component="h1" variant="h6">
-          Show all client applications
-        </Typography>
-      </div>
-      {clientApps}
-      <DisplayErrorMessage error={error} />
+    <Layout title="Peer Info">
+      <Container component="main" maxWidth="lg">
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <div>
+              <Typography component="h1" variant="h6">
+                Show all peers in current channel
+              </Typography>
+            </div>
+            {peers}
+            <DisplayErrorMessage error={peersError} />
+          </Grid>
+          <Grid item xs={6}>
+            <div>
+              <Typography component="h1" variant="h6">
+                Show all client applications
+              </Typography>
+            </div>
+            {clientApps}
+            <DisplayErrorMessage error={clientsError} />
+          </Grid>
+        </Grid>
+      </Container>
     </Layout>
   );
 };

@@ -43,8 +43,8 @@ export const Header: React.FC<any> = () => {
           <React.Fragment>
             {' '}
             | <Link href="/application">Client App</Link> |{' '}
-            <Link href="/peer">Network Info</Link> |{' '}
-            <Link href="/profile">My Profile</Link> |{' '}
+            <Link href="/peer">Peer Info</Link> |{' '}
+            <Link href="/enrollment">Enrollment</Link> |{' '}
             <button
               onClick={async () => {
                 await logout();
