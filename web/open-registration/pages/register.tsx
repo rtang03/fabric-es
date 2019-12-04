@@ -14,7 +14,7 @@ import * as yup from 'yup';
 import { MyTextField } from '../components';
 import DisplayErrorMessage from '../components/DisplayErrorMessage';
 import Layout from '../components/Layout';
-import { useRegisterUserMutation } from '../generated/graphql';
+import { useRegisterUserMutation } from '../generated/oauth-server-graphql';
 
 const validationSchema = yup.object({
   username: yup
@@ -57,7 +57,10 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const Register: NextPage<any> = () => {
-  const [register, { error }] = useRegisterUserMutation();
+  const [register, { error }] = useRegisterUserMutation({
+    context: { backend: 'oauth' }
+  });
+
   const classes = useStyles();
 
   return (

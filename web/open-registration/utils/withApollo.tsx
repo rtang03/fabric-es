@@ -8,7 +8,10 @@ import fetch from 'isomorphic-unfetch';
 import Head from 'next/head';
 import React from 'react';
 const isServer = () => typeof window === 'undefined';
+const servers = require('../servers.json');
+
 let accessToken = '';
+
 export const getAccessToken = () => accessToken;
 export const setAccessToken = (token: string) => (accessToken = token);
 
@@ -129,10 +132,19 @@ function initApolloClient(initState: any, token?: string) {
 }
 
 function createApolloClient(initialState = {}, serverAccessToken?: string) {
-  const httpLink = new HttpLink({
-    uri: 'http://localhost:3300/graphql',
+  const oauthLink = new HttpLink({
+    uri: servers.oauth_server_uri, // 'http://localhost:3300/graphql',
     credentials: 'include',
-    fetch
+    fetch,
+  });
+
+  const peerNodeLink = new HttpLink({
+    uri: servers.peer_node_uri, // 'http://localhost:4000/graphql',
+    credentials: 'include',
+    fetch,
+    fetchOptions: {
+      mode: 'cors'
+    }
   });
 
   const authLink = setContext((request, { headers }) => {
@@ -153,9 +165,15 @@ function createApolloClient(initialState = {}, serverAccessToken?: string) {
     if (networkError) console.error(networkError);
   });
 
+  const link = ApolloLink.split(
+    ({ getContext }) => getContext().backend === 'oauth',
+    ApolloLink.from([authLink, errorLink, oauthLink]),
+    ApolloLink.from([authLink, errorLink, peerNodeLink])
+  );
+
   return new ApolloClient({
     ssrMode: isServer(), // Disables forceFetch on the server (so queries are only run once)
-    link: ApolloLink.from([authLink, errorLink, httpLink]),
+    link,
     cache: new InMemoryCache().restore(initialState),
     connectToDevTools: true
   });

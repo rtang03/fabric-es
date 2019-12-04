@@ -19,6 +19,12 @@ export const typeDefs = gql`
     listWallet: [WalletEntry!]!
     isWalletEntryExist(label: String!): Boolean!
     getCollectionConfigs: [CollectionConfig!]!
+    getChannelPeers: [ChannelPeer!]!
+  }
+  type ChannelPeer {
+    mspid: String!
+    name: String!
+    url: String!
   }
   type CollectionConfig {
     name: String!
