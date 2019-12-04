@@ -13,7 +13,7 @@ import Layout from '../components/Layout';
 import {
   useCreateRegularAppMutation,
   useGetClientsLazyQuery
-} from '../generated/graphql';
+} from '../generated/oauth-server-graphql';
 
 const useStyles = makeStyles((theme: Theme) => ({
   '@global': {
@@ -41,17 +41,21 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const Application: NextPage<any> = () => {
-  const [createAppResponse, setCreateAppResponse] = useState({});
+  const [createAppResponse, setCreateAppResponse] = useState<any>({});
+
   const [
     getClients,
     { data, error, loading, refetch }
   ] = useGetClientsLazyQuery({
-    fetchPolicy: 'cache-and-network'
+    fetchPolicy: 'cache-and-network',
+    context: { backend: 'oauth' }
   });
+
   const [
     createRegularApp,
     { error: createAppError }
-  ] = useCreateRegularAppMutation();
+  ] = useCreateRegularAppMutation({ context: { backend: 'oauth' } });
+
   const classes = useStyles();
 
   useEffect(() => {

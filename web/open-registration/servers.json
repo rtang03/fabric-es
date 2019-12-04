@@ -1,0 +1,4 @@
+{
+  "oauth_server_uri" : "http://localhost:3300/graphql",
+  "peer_node_uri" : "http://localhost:4000/graphql"
+}

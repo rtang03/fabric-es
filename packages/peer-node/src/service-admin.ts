@@ -21,7 +21,8 @@ const port = process.env.ADMINISTRATOR_PORT || 15000;
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),
     playground: true,
     context: ({ req: { headers } }) => ({
-      user_id: headers?.user_id
+      user_id: headers?.user_id,
+      enrollmentId: 'admin'
     })
   });
   server.listen({ port }).then(({ url }) => {

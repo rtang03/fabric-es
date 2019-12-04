@@ -80,6 +80,7 @@ export const createHttpServer: (option: {
       return { req, res, payload, oauth2Server, oauthOptions };
     }
   });
+  // todo: double if we should use cors in OAuth server
   server.applyMiddleware({ app, cors: false });
 
   return app;

@@ -1,12 +1,20 @@
 import Router from 'next/router';
 import React from 'react';
-import { useLogoutMutation, useMeQuery } from '../generated/graphql';
+import {
+  useLogoutMutation,
+  useMeQuery
+} from '../generated/oauth-server-graphql';
 import { setAccessToken } from '../utils';
 import Link from './Link';
 
 export const Header: React.FC<any> = () => {
-  const { data, loading, client } = useMeQuery();
-  const [logout] = useLogoutMutation();
+  const { data, loading, client } = useMeQuery({
+    context: { backend: 'oauth' }
+  });
+
+  const [logout] = useLogoutMutation({
+    context: { backend: 'oauth' }
+  });
 
   const body = loading ? null : data?.me ? (
     <div>
@@ -35,7 +43,8 @@ export const Header: React.FC<any> = () => {
           <React.Fragment>
             {' '}
             | <Link href="/application">Client App</Link> |{' '}
-            <Link href="/peer">Peer Node</Link> |{' '}
+            <Link href="/peer">Network Info</Link> |{' '}
+            <Link href="/profile">My Profile</Link> |{' '}
             <button
               onClick={async () => {
                 await logout();
