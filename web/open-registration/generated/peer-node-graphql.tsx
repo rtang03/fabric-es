@@ -95,7 +95,7 @@ export type Query = {
   getInstalledChaincodes: Array<Chaincode>;
   getInstantiatedChaincodes: Array<Chaincode>;
   getInstalledCCVersion: Scalars['String'];
-  getCaIdentities: Array<CaIdentity>;
+  getCaIdentities?: Maybe<Array<CaIdentity>>;
   getCaIdentityByEnrollmentId?: Maybe<CaIdentity>;
   listWallet: Array<WalletEntry>;
   isWalletEntryExist: Scalars['Boolean'];
@@ -151,6 +151,26 @@ export type X509Attribute = {
   value: Scalars['String'];
 };
 
+export type GetCaIdentityByEnrollmentIdQueryVariables = {
+  enrollmentId: Scalars['String'];
+};
+
+export type GetCaIdentityByEnrollmentIdQuery = { __typename?: 'Query' } & {
+  getCaIdentityByEnrollmentId: Maybe<
+    { __typename?: 'CaIdentity' } & Pick<
+      CaIdentity,
+      'id' | 'typ' | 'affiliation' | 'max_enrollments'
+    > & {
+        attrs: Array<
+          { __typename?: 'X509Attribute' } & Pick<
+            X509Attribute,
+            'name' | 'value'
+          >
+        >;
+      }
+  >;
+};
+
 export type GetChannelPeersQueryVariables = {};
 
 export type GetChannelPeersQuery = { __typename?: 'Query' } & {
@@ -159,6 +179,88 @@ export type GetChannelPeersQuery = { __typename?: 'Query' } & {
   >;
 };
 
+export type IsWalletEntryExistQueryVariables = {
+  label: Scalars['String'];
+};
+
+export type IsWalletEntryExistQuery = { __typename?: 'Query' } & Pick<
+  Query,
+  'isWalletEntryExist'
+>;
+
+export type RegisterAndEnrollUserMutationVariables = {
+  enrollmentId: Scalars['String'];
+  enrollmentSecret: Scalars['String'];
+};
+
+export type RegisterAndEnrollUserMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'registerAndEnrollUser'
+>;
+
+export const GetCaIdentityByEnrollmentIdDocument = gql`
+  query GetCaIdentityByEnrollmentId($enrollmentId: String!) {
+    getCaIdentityByEnrollmentId(enrollmentId: $enrollmentId) {
+      id
+      typ
+      affiliation
+      max_enrollments
+      attrs {
+        name
+        value
+      }
+    }
+  }
+`;
+
+/**
+ * __useGetCaIdentityByEnrollmentIdQuery__
+ *
+ * To run a query within a React component, call `useGetCaIdentityByEnrollmentIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCaIdentityByEnrollmentIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCaIdentityByEnrollmentIdQuery({
+ *   variables: {
+ *      enrollmentId: // value for 'enrollmentId'
+ *   },
+ * });
+ */
+export function useGetCaIdentityByEnrollmentIdQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    GetCaIdentityByEnrollmentIdQuery,
+    GetCaIdentityByEnrollmentIdQueryVariables
+  >
+) {
+  return ApolloReactHooks.useQuery<
+    GetCaIdentityByEnrollmentIdQuery,
+    GetCaIdentityByEnrollmentIdQueryVariables
+  >(GetCaIdentityByEnrollmentIdDocument, baseOptions);
+}
+export function useGetCaIdentityByEnrollmentIdLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    GetCaIdentityByEnrollmentIdQuery,
+    GetCaIdentityByEnrollmentIdQueryVariables
+  >
+) {
+  return ApolloReactHooks.useLazyQuery<
+    GetCaIdentityByEnrollmentIdQuery,
+    GetCaIdentityByEnrollmentIdQueryVariables
+  >(GetCaIdentityByEnrollmentIdDocument, baseOptions);
+}
+export type GetCaIdentityByEnrollmentIdQueryHookResult = ReturnType<
+  typeof useGetCaIdentityByEnrollmentIdQuery
+>;
+export type GetCaIdentityByEnrollmentIdLazyQueryHookResult = ReturnType<
+  typeof useGetCaIdentityByEnrollmentIdLazyQuery
+>;
+export type GetCaIdentityByEnrollmentIdQueryResult = ApolloReactCommon.QueryResult<
+  GetCaIdentityByEnrollmentIdQuery,
+  GetCaIdentityByEnrollmentIdQueryVariables
+>;
 export const GetChannelPeersDocument = gql`
   query GetChannelPeers {
     getChannelPeers {
@@ -215,4 +317,113 @@ export type GetChannelPeersLazyQueryHookResult = ReturnType<
 export type GetChannelPeersQueryResult = ApolloReactCommon.QueryResult<
   GetChannelPeersQuery,
   GetChannelPeersQueryVariables
+>;
+export const IsWalletEntryExistDocument = gql`
+  query IsWalletEntryExist($label: String!) {
+    isWalletEntryExist(label: $label)
+  }
+`;
+
+/**
+ * __useIsWalletEntryExistQuery__
+ *
+ * To run a query within a React component, call `useIsWalletEntryExistQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIsWalletEntryExistQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIsWalletEntryExistQuery({
+ *   variables: {
+ *      label: // value for 'label'
+ *   },
+ * });
+ */
+export function useIsWalletEntryExistQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    IsWalletEntryExistQuery,
+    IsWalletEntryExistQueryVariables
+  >
+) {
+  return ApolloReactHooks.useQuery<
+    IsWalletEntryExistQuery,
+    IsWalletEntryExistQueryVariables
+  >(IsWalletEntryExistDocument, baseOptions);
+}
+export function useIsWalletEntryExistLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    IsWalletEntryExistQuery,
+    IsWalletEntryExistQueryVariables
+  >
+) {
+  return ApolloReactHooks.useLazyQuery<
+    IsWalletEntryExistQuery,
+    IsWalletEntryExistQueryVariables
+  >(IsWalletEntryExistDocument, baseOptions);
+}
+export type IsWalletEntryExistQueryHookResult = ReturnType<
+  typeof useIsWalletEntryExistQuery
+>;
+export type IsWalletEntryExistLazyQueryHookResult = ReturnType<
+  typeof useIsWalletEntryExistLazyQuery
+>;
+export type IsWalletEntryExistQueryResult = ApolloReactCommon.QueryResult<
+  IsWalletEntryExistQuery,
+  IsWalletEntryExistQueryVariables
+>;
+export const RegisterAndEnrollUserDocument = gql`
+  mutation RegisterAndEnrollUser(
+    $enrollmentId: String!
+    $enrollmentSecret: String!
+  ) {
+    registerAndEnrollUser(
+      enrollmentId: $enrollmentId
+      enrollmentSecret: $enrollmentSecret
+    )
+  }
+`;
+export type RegisterAndEnrollUserMutationFn = ApolloReactCommon.MutationFunction<
+  RegisterAndEnrollUserMutation,
+  RegisterAndEnrollUserMutationVariables
+>;
+
+/**
+ * __useRegisterAndEnrollUserMutation__
+ *
+ * To run a mutation, you first call `useRegisterAndEnrollUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterAndEnrollUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [registerAndEnrollUserMutation, { data, loading, error }] = useRegisterAndEnrollUserMutation({
+ *   variables: {
+ *      enrollmentId: // value for 'enrollmentId'
+ *      enrollmentSecret: // value for 'enrollmentSecret'
+ *   },
+ * });
+ */
+export function useRegisterAndEnrollUserMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    RegisterAndEnrollUserMutation,
+    RegisterAndEnrollUserMutationVariables
+  >
+) {
+  return ApolloReactHooks.useMutation<
+    RegisterAndEnrollUserMutation,
+    RegisterAndEnrollUserMutationVariables
+  >(RegisterAndEnrollUserDocument, baseOptions);
+}
+export type RegisterAndEnrollUserMutationHookResult = ReturnType<
+  typeof useRegisterAndEnrollUserMutation
+>;
+export type RegisterAndEnrollUserMutationResult = ApolloReactCommon.MutationResult<
+  RegisterAndEnrollUserMutation
+>;
+export type RegisterAndEnrollUserMutationOptions = ApolloReactCommon.BaseMutationOptions<
+  RegisterAndEnrollUserMutation,
+  RegisterAndEnrollUserMutationVariables
 >;

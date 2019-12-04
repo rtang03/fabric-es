@@ -55,6 +55,24 @@ export type ChannelInfo = {
   channel_id: Scalars['String'],
 };
 
+export type ChannelPeer = {
+   __typename?: 'ChannelPeer',
+  mspid: Scalars['String'],
+  name: Scalars['String'],
+  url: Scalars['String'],
+};
+
+export type CollectionConfig = {
+   __typename?: 'CollectionConfig',
+  name: Scalars['String'],
+  typ: Scalars['String'],
+  required_peer_count: Scalars['Int'],
+  maximum_peer_count: Scalars['Int'],
+  block_to_live: Scalars['Int'],
+  member_read_only: Scalars['Boolean'],
+  policy: Scalars['String'],
+};
+
 export type Endorsement = {
    __typename?: 'Endorsement',
   endoser_mspid: Scalars['String'],
@@ -82,10 +100,12 @@ export type Query = {
   getInstalledChaincodes: Array<Chaincode>,
   getInstantiatedChaincodes: Array<Chaincode>,
   getInstalledCCVersion: Scalars['String'],
-  getCaIdentities: Array<CaIdentity>,
+  getCaIdentities?: Maybe<Array<CaIdentity>>,
   getCaIdentityByEnrollmentId?: Maybe<CaIdentity>,
   listWallet: Array<WalletEntry>,
   isWalletEntryExist: Scalars['Boolean'],
+  getCollectionConfigs: Array<CollectionConfig>,
+  getChannelPeers: Array<ChannelPeer>,
 };
 
 
@@ -224,6 +244,8 @@ export type ResolversTypes = {
   X509Attribute: ResolverTypeWrapper<X509Attribute>,
   WalletEntry: ResolverTypeWrapper<WalletEntry>,
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
+  CollectionConfig: ResolverTypeWrapper<CollectionConfig>,
+  ChannelPeer: ResolverTypeWrapper<ChannelPeer>,
   Mutation: ResolverTypeWrapper<{}>,
   ChannelInfo: ResolverTypeWrapper<ChannelInfo>,
 };
@@ -243,6 +265,8 @@ export type ResolversParentTypes = {
   X509Attribute: X509Attribute,
   WalletEntry: WalletEntry,
   Boolean: Scalars['Boolean'],
+  CollectionConfig: CollectionConfig,
+  ChannelPeer: ChannelPeer,
   Mutation: {},
   ChannelInfo: ChannelInfo,
 };
@@ -287,6 +311,22 @@ export type ChannelInfoResolvers<ContextType = any, ParentType extends Resolvers
   channel_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
 };
 
+export type ChannelPeerResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChannelPeer'] = ResolversParentTypes['ChannelPeer']> = {
+  mspid?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+};
+
+export type CollectionConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['CollectionConfig'] = ResolversParentTypes['CollectionConfig']> = {
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+  typ?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+  required_peer_count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>,
+  maximum_peer_count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>,
+  block_to_live?: Resolver<ResolversTypes['Int'], ParentType, ContextType>,
+  member_read_only?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>,
+  policy?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+};
+
 export type EndorsementResolvers<ContextType = any, ParentType extends ResolversParentTypes['Endorsement'] = ResolversParentTypes['Endorsement']> = {
   endoser_mspid?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   id_bytes?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
@@ -305,10 +345,12 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getInstalledChaincodes?: Resolver<Array<ResolversTypes['Chaincode']>, ParentType, ContextType>,
   getInstantiatedChaincodes?: Resolver<Array<ResolversTypes['Chaincode']>, ParentType, ContextType>,
   getInstalledCCVersion?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryGetInstalledCcVersionArgs, 'chaincode_id'>>,
-  getCaIdentities?: Resolver<Array<ResolversTypes['CaIdentity']>, ParentType, ContextType>,
+  getCaIdentities?: Resolver<Maybe<Array<ResolversTypes['CaIdentity']>>, ParentType, ContextType>,
   getCaIdentityByEnrollmentId?: Resolver<Maybe<ResolversTypes['CaIdentity']>, ParentType, ContextType, RequireFields<QueryGetCaIdentityByEnrollmentIdArgs, 'enrollmentId'>>,
   listWallet?: Resolver<Array<ResolversTypes['WalletEntry']>, ParentType, ContextType>,
   isWalletEntryExist?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryIsWalletEntryExistArgs, 'label'>>,
+  getCollectionConfigs?: Resolver<Array<ResolversTypes['CollectionConfig']>, ParentType, ContextType>,
+  getChannelPeers?: Resolver<Array<ResolversTypes['ChannelPeer']>, ParentType, ContextType>,
 };
 
 export type TransactionDataResolvers<ContextType = any, ParentType extends ResolversParentTypes['TransactionData'] = ResolversParentTypes['TransactionData']> = {
@@ -345,6 +387,8 @@ export type Resolvers<ContextType = any> = {
   CaIdentity?: CaIdentityResolvers<ContextType>,
   Chaincode?: ChaincodeResolvers<ContextType>,
   ChannelInfo?: ChannelInfoResolvers<ContextType>,
+  ChannelPeer?: ChannelPeerResolvers<ContextType>,
+  CollectionConfig?: CollectionConfigResolvers<ContextType>,
   Endorsement?: EndorsementResolvers<ContextType>,
   Mutation?: MutationResolvers<ContextType>,
   Query?: QueryResolvers<ContextType>,
