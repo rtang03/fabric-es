@@ -73,5 +73,6 @@ export const getPrivatedataMockRepository = <TEntity, TEvent>(
           }),
         50
       );
-    })
+    }),
+  getEntityName: () => entityName
 });
