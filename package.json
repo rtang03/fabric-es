@@ -5,15 +5,15 @@
     "test": ""
   },
   "workspaces": [
+    "packages/example",
     "packages/oauth",
-    "packages/app-etc",
-    "packages/app-erp",
     "packages/admin-tool",
     "packages/caliper",
     "packages/chaincode",
-    "packages/common",
-    "packages/example",
     "packages/fabric-cqrs",
+    "packages/model-loan",
+    "packages/gw-etc",
+    "packages/gw-erp",
     "packages/peer-node"
   ],
   "private": true,

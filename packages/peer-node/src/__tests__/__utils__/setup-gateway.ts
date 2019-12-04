@@ -1,4 +1,4 @@
-import { ApolloGateway } from '@apollo/gateway';
+import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import { ApolloServer } from 'apollo-server-express';
 import { AuthenticatedDataSource } from '../../utils';
 
