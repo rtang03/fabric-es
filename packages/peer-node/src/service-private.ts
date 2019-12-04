@@ -8,33 +8,23 @@ import {
   resolvers,
   typeDefs
 } from '@espresso/model-loan';
-import { bootstrap, prepare } from './start-service';
+import { startService } from './start-service';
 
-prepare({
+startService({
   enrollmentId: 'admin',
   defaultEntityName: 'private',
-  defaultReducer: loanDetailsReducer
-}).then(({ getRepository, getPrivateDataRepo, reconcile, subscribeHub, ...rest }) => {
-  bootstrap({
+  defaultReducer: loanDetailsReducer,
+  isPrivate: true
+}).then(({ config, getPrivateDataRepo }) => {
+  config({
     port: 14004,
     typeDefs,
-    resolvers,
-    repositories: [
-      {
-        entityName: 'loanDetails',
-        repository: getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
-          entityName: 'loanDetails',
-          reducer: loanDetailsReducer
-        })
-      },
-      {
-        entityName: 'docContents',
-        repository: getPrivateDataRepo<DocContents, DocContentsEvents>({
-          entityName: 'docContents',
-          reducer: docContentsReducer
-        })
-      }
-    ],
-    ...rest
-  });
+    resolvers
+  }).addRepository('loanDetails', getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
+    entityName: 'loanDetails',
+    reducer: loanDetailsReducer
+  })).addRepository('docContents', getPrivateDataRepo<DocContents, DocContentsEvents>({
+    entityName: 'docContents',
+    reducer: docContentsReducer
+  })).run();
 });
