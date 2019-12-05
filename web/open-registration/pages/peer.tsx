@@ -27,7 +27,7 @@ const Peer: NextPage = () => {
   });
 
   const clientApps = clientsLoading ? null : clientsData?.getPublicClients ? (
-    <React.Fragment>
+    <>
       <pre>
         {JSON.stringify(
           clientsData.getPublicClients.map(app =>
@@ -38,11 +38,11 @@ const Peer: NextPage = () => {
         )}
       </pre>
       <p>No of available hosts: {clientsData?.getPublicClients.length}</p>
-    </React.Fragment>
+    </>
   ) : null;
 
   const peers = peersLoading ? null : peersData?.getChannelPeers ? (
-    <React.Fragment>
+    <>
       <pre>
         {JSON.stringify(
           peersData?.getChannelPeers.map(peer => omit(peer, '__typename')),
@@ -50,7 +50,7 @@ const Peer: NextPage = () => {
           2
         )}
       </pre>
-    </React.Fragment>
+    </>
   ) : null;
 
   return (

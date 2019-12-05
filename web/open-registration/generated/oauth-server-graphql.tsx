@@ -101,6 +101,12 @@ export type Query = {
   hello: Scalars['String'];
   users: Array<OUser>;
   me?: Maybe<OUser>;
+  verifyPassword: Scalars['Boolean'];
+};
+
+export type QueryVerifyPasswordArgs = {
+  password: Scalars['String'];
+  user_id: Scalars['String'];
 };
 
 export type CreateRootClientMutationVariables = {
@@ -261,6 +267,16 @@ export type UsersQuery = { __typename?: 'Query' } & {
     { __typename?: 'OUser' } & Pick<OUser, 'id' | 'email' | 'username'>
   >;
 };
+
+export type VerifyPasswordQueryVariables = {
+  user_id: Scalars['String'];
+  password: Scalars['String'];
+};
+
+export type VerifyPasswordQuery = { __typename?: 'Query' } & Pick<
+  Query,
+  'verifyPassword'
+>;
 
 export const CreateRootClientDocument = gql`
   mutation CreateRootClient($admin: String!, $password: String!) {
@@ -1021,4 +1037,59 @@ export type UsersLazyQueryHookResult = ReturnType<typeof useUsersLazyQuery>;
 export type UsersQueryResult = ApolloReactCommon.QueryResult<
   UsersQuery,
   UsersQueryVariables
+>;
+export const VerifyPasswordDocument = gql`
+  query VerifyPassword($user_id: String!, $password: String!) {
+    verifyPassword(user_id: $user_id, password: $password)
+  }
+`;
+
+/**
+ * __useVerifyPasswordQuery__
+ *
+ * To run a query within a React component, call `useVerifyPasswordQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVerifyPasswordQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVerifyPasswordQuery({
+ *   variables: {
+ *      user_id: // value for 'user_id'
+ *      password: // value for 'password'
+ *   },
+ * });
+ */
+export function useVerifyPasswordQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    VerifyPasswordQuery,
+    VerifyPasswordQueryVariables
+  >
+) {
+  return ApolloReactHooks.useQuery<
+    VerifyPasswordQuery,
+    VerifyPasswordQueryVariables
+  >(VerifyPasswordDocument, baseOptions);
+}
+export function useVerifyPasswordLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    VerifyPasswordQuery,
+    VerifyPasswordQueryVariables
+  >
+) {
+  return ApolloReactHooks.useLazyQuery<
+    VerifyPasswordQuery,
+    VerifyPasswordQueryVariables
+  >(VerifyPasswordDocument, baseOptions);
+}
+export type VerifyPasswordQueryHookResult = ReturnType<
+  typeof useVerifyPasswordQuery
+>;
+export type VerifyPasswordLazyQueryHookResult = ReturnType<
+  typeof useVerifyPasswordLazyQuery
+>;
+export type VerifyPasswordQueryResult = ApolloReactCommon.QueryResult<
+  VerifyPasswordQuery,
+  VerifyPasswordQueryVariables
 >;

@@ -12,9 +12,13 @@ import * as yup from 'yup';
 import { MyTextField } from '../components';
 import DisplayErrorMessage from '../components/DisplayErrorMessage';
 import Layout from '../components/Layout';
-import { useMeQuery } from '../generated/oauth-server-graphql';
+import {
+  useMeQuery,
+  useVerifyPasswordLazyQuery
+} from '../generated/oauth-server-graphql';
 import {
   useGetCaIdentityByEnrollmentIdLazyQuery,
+  useGetPeerInfoLazyQuery,
   useIsWalletEntryExistLazyQuery,
   useRegisterAndEnrollUserMutation
 } from '../generated/peer-node-graphql';
@@ -24,7 +28,6 @@ const validationSchema = yup.object({
     .string()
     .required()
     .trim()
-    .min(8)
 });
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -38,10 +41,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center'
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main
   },
   form: {
     width: '100%', // Fix IE 11 issue.
@@ -80,6 +79,20 @@ const Enrollment: NextPage = () => {
     context: { backend: 'peer' }
   });
 
+  const [
+    getPeerInfo,
+    { data: peerInfoData, loading: peerInfoLoading, error: peerInfoError }
+  ] = useGetPeerInfoLazyQuery({
+    context: { backend: 'peer' }
+  });
+
+  const [
+    verifyPw,
+    { data: verifyPwData, loading: verifyPwLoading }
+  ] = useVerifyPasswordLazyQuery({
+    context: { backend: 'oauth' }
+  });
+
   const [register, { error: registerError }] = useRegisterAndEnrollUserMutation(
     {
       context: { backend: 'peer' }
@@ -105,33 +118,76 @@ const Enrollment: NextPage = () => {
       !!user_id
     )
       getIsWalletEntryExist();
+
+    if (
+      !peerInfoLoading &&
+      peerInfoData === undefined &&
+      peerInfoError === undefined &&
+      !!user_id
+    )
+      getPeerInfo();
   });
 
   const caIdentity = idLoading ? null : (
-    <React.Fragment>
+    <>
       {idData?.getCaIdentityByEnrollmentId ? (
-        <pre>
-          {JSON.stringify(
-            omit(idData?.getCaIdentityByEnrollmentId, '__typename')
-          )}
-        </pre>
+        <>
+          <div>
+            <Typography variant="caption">Enrollment Certificate</Typography>
+          </div>
+          <pre>
+            {JSON.stringify(
+              omit(idData?.getCaIdentityByEnrollmentId, '__typename'),
+              null,
+              2
+            )}
+          </pre>
+        </>
       ) : (
         <div>You are not registered with certificate authority.</div>
       )}
       <DisplayErrorMessage error={idError} />
-    </React.Fragment>
+    </>
+  );
+
+  const peerInfo = peerInfoLoading ? null : (
+    <>
+      {peerInfoData?.getPeerInfo ? (
+        <>
+          <div>
+            <Typography variant="caption">
+              Organization: {peerInfoData.getPeerInfo.mspid}
+            </Typography>
+          </div>
+          <div>
+            <Typography variant="caption">
+              Peer: {peerInfoData.getPeerInfo.peerName}
+            </Typography>
+          </div>
+        </>
+      ) : (
+        <React.Fragment />
+      )}
+      <DisplayErrorMessage error={peerInfoError} />
+    </>
   );
 
   const walletStatus = walletExistLoading ? null : (
-    <React.Fragment>
+    <>
       {walletExistData?.isWalletEntryExist ? (
         <div>You have enrolled digital wallet.</div>
       ) : (
         <div>You have not enrolled digital wallet.</div>
       )}
       <DisplayErrorMessage error={walletExistError} />
-    </React.Fragment>
+    </>
   );
+
+  const validateSecret = (password: string) => {
+    verifyPw({
+      variables: { user_id: user_id as string, password }
+    });
+  };
 
   return (
     <Layout title="Account | Enrollment">
@@ -150,15 +206,10 @@ const Enrollment: NextPage = () => {
         <div>
           <Typography variant="h6">Enrollment Target</Typography>
         </div>
-        <div>
-          <Typography variant="caption">Organization: </Typography>
-        </div>
-        <div>
-          <Typography variant="caption">Peer: </Typography>
-        </div>
+        <div>{peerInfo}</div>
         <Formik
-          initialValues={{ enrollmentSecret: '' }}
           validateOnChange={true}
+          initialValues={{ enrollmentSecret: '' }}
           validationSchema={validationSchema}
           onSubmit={async ({ enrollmentSecret }, { setSubmitting }) => {
             setSubmitting(true);
@@ -188,16 +239,29 @@ const Enrollment: NextPage = () => {
                     variant="outlined"
                     required
                     fullWidth
-                    name="password"
+                    name="enrollmentSecret"
                     placeholder="password"
-                    autoComplete="current-password"
+                    type="password"
+                    validate={validateSecret}
+                    disabled={idData?.getCaIdentityByEnrollmentId !== undefined}
                   />
+                  {!verifyPwLoading && verifyPwData ? (
+                    <Typography variant="caption" color="secondary">
+                      {verifyPwData.verifyPassword ? '' : 'Mis-match'}
+                    </Typography>
+                  ) : (
+                    <React.Fragment />
+                  )}
                 </Grid>
                 <Button
+                  className={classes.submit}
                   type="submit"
                   variant="contained"
                   color="primary"
-                  disabled={isSubmitting}>
+                  disabled={
+                    idData?.getCaIdentityByEnrollmentId !== undefined ||
+                    !verifyPwData?.verifyPassword
+                  }>
                   Enroll
                 </Button>
                 <DisplayErrorMessage error={registerError} />

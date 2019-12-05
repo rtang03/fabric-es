@@ -205,7 +205,12 @@ export const createResolvers: (option: {
         peerInfo.getChainInfo().then(({ height: { low } }) => low),
       getChannelInfo: async () =>
         peerInfo.getChannels().then(({ channels }) => channels),
-      getMspid: async () => peerInfo.getMspid()
+      getMspid: async () => peerInfo.getMspid(),
+      getPeerName: async () => peerName,
+      getPeerInfo: async () => ({
+        mspid: await peerInfo.getMspid(),
+        peerName
+      })
     }
   };
 };
