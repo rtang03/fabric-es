@@ -6,7 +6,7 @@ import {
 import {
   DocContents, DocContentsEvents, docContentsReducer,
   LoanDetails, LoanDetailsEvents, loanDetailsReducer
-} from '@espresso/model-loan-private';
+} from '../..';
 
 const db: Record<string, Commit> = {
   '20181114163145794:123456': {

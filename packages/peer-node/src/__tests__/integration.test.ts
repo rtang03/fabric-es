@@ -5,18 +5,22 @@ import {
   Peer
 } from '@espresso/fabric-cqrs';
 import {
+  CREATE_USER,
+  GET_COMMITS_BY_USER,
+  GET_USER_BY_ID,
+  GET_USERS_BY_PAGE,
+  User,
+  UserEvents,
+  userReducer,
+  userResolvers,
+  userTypeDefs
+} from '@espresso/model-common';
+import {
   APPLY_LOAN,
   APPROVE_LOAN,
   CANCEL_LOAN,
-  CREATE_DATA_DOC_CONTENTS,
   CREATE_DOCUMENT,
-  CREATE_FILE_DOC_CONTENTS,
-  CREATE_LOAN_DETAILS,
-  CREATE_USER,
   DELETE_DOCUMENT,
-  DocContents,
-  DocContentsEvents,
-  docContentsReducer,
   Document,
   DocumentEvents,
   documentReducer,
@@ -25,34 +29,34 @@ import {
   EXPIRE_LOAN,
   GET_COMMITS_BY_DOCUMENT,
   GET_COMMITS_BY_LOAN,
-  GET_COMMITS_BY_USER,
-  GET_CONTENTS_BY_ID,
-  GET_DETAILS_BY_ID,
   GET_DOCUMENT_BY_ID,
   GET_LOAN_BY_ID,
-  GET_USER_BY_ID,
-  GET_USERS_BY_PAGE,
   Loan,
-  LoanDetails,
-  LoanDetailsEvents,
-  loanDetailsReducer,
   LoanEvents,
   loanReducer,
   loanResolvers,
   loanTypeDefs,
   REJECT_LOAN,
-  resolvers as privateResolvers,
   RETURN_LOAN,
-  typeDefs as privateTypeDefs,
   UPDATE_DOCUMENT,
-  UPDATE_LOAN,
-  UPDATE_LOAN_DETAILS,
-  User,
-  UserEvents,
-  userReducer,
-  userResolvers,
-  userTypeDefs
+  UPDATE_LOAN
 } from '@espresso/model-loan';
+import {
+  CREATE_DATA_DOC_CONTENTS,
+  CREATE_FILE_DOC_CONTENTS,
+  CREATE_LOAN_DETAILS,
+  DocContents,
+  DocContentsEvents,
+  docContentsReducer,
+  GET_CONTENTS_BY_ID,
+  GET_DETAILS_BY_ID,
+  LoanDetails,
+  LoanDetailsEvents,
+  loanDetailsReducer,
+  resolvers as privateResolvers,
+  typeDefs as privateTypeDefs,
+  UPDATE_LOAN_DETAILS
+} from '@espresso/model-loan-private';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import { constructTestServer, getApolloServer } from './__utils__';

@@ -1,5 +1,5 @@
 {
-  "name": "@espresso/model-loan",
+  "name": "@espresso/model-loan-private",
   "version": "1.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
