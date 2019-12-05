@@ -22,4 +22,5 @@ export type PrivatedataRepository<TEntity = any, TEvent = any> = {
     id: string,
     commitId: string
   ) => Promise<Record<string, any>>;
+  getEntityName: () => string;
 };

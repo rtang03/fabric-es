@@ -121,5 +121,6 @@ export const privateDataRepo: (
           args: { entityName, id, commitId, collection }
         })
       );
-    })
+    }),
+  getEntityName: () => entityName
 });

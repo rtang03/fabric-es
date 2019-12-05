@@ -1,0 +1,4 @@
+docker exec {{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}} bash -c "/setup/enroll_tls.sh"
+docker exec {{orgs.orderer.ca.host}}{{network.host-delimiter}}{{orgs.orderer.domain}} bash -c "/setup/enroll_org0.sh"
+docker exec {{orgs.peer.0.ca.host}}{{network.host-delimiter}}{{orgs.peer.0.domain}} bash -c "/setup/enroll_org1.sh"
+docker exec {{orgs.peer.1.ca.host}}{{network.host-delimiter}}{{orgs.peer.1.domain}} bash -c "/setup/enroll_org2.sh"

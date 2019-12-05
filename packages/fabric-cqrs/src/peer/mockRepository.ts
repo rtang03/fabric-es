@@ -110,5 +110,6 @@ export const getMockRepository = <TEntity, TEvent>(
         50
       );
     });
-  }
+  },
+  getEntityName: () => entityName
 });

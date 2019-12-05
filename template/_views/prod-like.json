@@ -1,0 +1,141 @@
+{
+    "network": {
+        "name": "openplatform",
+        "host-delimiter": ".",
+        "compose-project-name": "fdi",
+        "consortium": "BankingHK",
+        "orderer-channel": "ordererchannel",
+        "peer-channels": [
+            "loanapp"
+        ],
+        "nodes": [
+        ]
+    },
+
+    "artifacts": {
+        "local": "../artifacts",
+        "docker": "/var/artifacts",
+        "crypto": "crypto-config",
+        "production": "production",
+        "caserver-home": "server",
+        "orderer-home": "orderer",
+        "peers-working-dir": "/opt/gopath/src/github.com/hyperledger/fabric"
+    },
+
+    "orgs": {
+        "tls": {
+            "domain": "hktfp.com",
+            "ca": {
+                "host": "tls-ca",
+                "port": "6052",
+                "admin": "tls-ca-admin",
+                "adminpw": "tls-ca-adminPW"
+            }
+        },
+        "orderer": {
+            "name": "hktfp",
+            "id": "HktfpMSP",
+            "domain": "hktfp.com",
+            "orderers": {
+                "type": "solo",
+                "use-kafka": false,
+                "port": "7050",
+                "batch-timeout": "2s",
+                "max-message-count": "500",
+                "absolute-max-bytes": "99 MB",
+                "preferred-max-bytes": "2 MB",
+                "max-channels": "10",
+                "genesis-profile": "SampleInsecureKafka",
+                "endpoints": [
+                    {
+                        "-": "orderer0",
+                        "islast": true
+                    }
+                ]
+            },
+            "kafkas": {
+                "retry-shortinterval": "1s",
+                "retry-shorttotal": "30s",
+                "endpoints": [
+                ],
+                "ports": [
+                    "9092",
+                    "9093"
+                ]
+            },
+            "zookeepers": {
+                "endpoints": [
+                ],
+                "ports": [
+                    "2181",
+                    "2888",
+                    "3888"
+                ]
+            },
+            "ca": {
+                "host": "rca",
+                "port": "6053",
+                "admin": "rca-hktfp-admin",
+                "adminpw": "rca-hktfp-adminPW"
+            }
+        },
+        "peer": [
+            {
+                "name": "etc",
+                "id": "EtcMSP",
+                "domain": "etradeconnect.net",
+                "peers": {
+                    "anchor": "peer0",
+                    "endpoints": [
+                        {
+                            "-": "peer0",
+                            "port": "7051",
+                            "chaincode-port": "7052",
+                            "eventhub-port": "7053"
+                        },
+                        {
+                            "-": "peer1",
+                            "port": "7151",
+                            "chaincode-port": "7152",
+                            "eventhub-port": "7153"
+                        }
+                    ]
+                },
+                "ca": {
+                    "host": "rca",
+                    "port": "6054",
+                    "admin": "rca-etradeconnect-admin",
+                    "adminpw": "rca-etradeconnect-adminPW"
+                }
+            },
+            {
+                "name": "pbctfp",
+                "id": "PbctfpMSP",
+                "domain": "pbctfp.net",
+                "peers": {
+                    "anchor": "peer0",
+                    "endpoints": [
+                        {
+                            "-": "peer0",
+                            "port": "7251",
+                            "chaincode-port": "7252",
+                            "eventhub-port": "7253"
+                        },
+                        {
+                            "-": "peer1",
+                            "port": "7351",
+                            "chaincode-port": "7352",
+                            "eventhub-port": "7353"
+                        }
+                    ]
+                },
+                "ca": {
+                    "host": "rca",
+                    "port": "6055",
+                    "admin": "rca-pboc-admin",
+                    "adminpw": "rca-pboc-adminPW"
+                }
+            }
+        ]
+    }
+}
