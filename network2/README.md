@@ -7,15 +7,6 @@ Prerequsites: docker and docker-compose
 
 ***
 
-## Table of Content
-
-[Topology](#topology) \
-[Setup Fabric Network](#setup-fabric-network) \
-[Clean Up](#clean-up) \
-[FAQ](#faq)
-
-***
-
 ## Topology
 
 ![Logical Topology](config/logical_topology_solo.png)
@@ -36,6 +27,14 @@ To start the network, run the start command.
 2019-12-04 09:15:43.664 UTC [msp.identity] Sign -> DEBU 03d Sign: digest: FF6F1ED2B403296BADD42899EC8248CF229BFDAD41AD9A899BF22C28BE095A4A 
 Blockchain info: {"height":1,"currentBlockHash":"/6tan/EbdYXfSSDV2DYcEUf8IdfEBWbB4vpNkmQP4lc="}
 The network is started.
+```
+
+***
+
+## Install and instaniate chaincode
+
+```bash
+./installcc.sh
 ```
 
 ***
