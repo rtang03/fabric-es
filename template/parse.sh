@@ -1,10 +1,10 @@
 #!/bin/sh
 
-view="./views/v1.json"
+view="./_views/v1.json"
 
 # If view is inputed, use the inputted view, otherwise use the default one.
 if [ $# -eq 1 ]; then
-    view="./views/$1.json"
+    view="./_views/$1.json"
 fi
 
 files="find . -name '*.mustache' -print"
