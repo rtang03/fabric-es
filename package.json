@@ -11,7 +11,9 @@
     "packages/caliper",
     "packages/chaincode",
     "packages/fabric-cqrs",
+    "packages/model-common",
     "packages/model-loan",
+    "packages/model-loan-private",
     "packages/gw-etc",
     "packages/gw-erp",
     "packages/peer-node"
