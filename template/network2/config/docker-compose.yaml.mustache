@@ -129,3 +129,15 @@ services:
             - ../../packages/chaincode:{{{artifacts.peers-working-dir}}}/chaincode
 
     {{/orgs.peer}}
+  postgres01:
+    container_name: postgres01
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=account01
+    volumes:
+      - ./hosts/postgres01:/var/lib/postgresql/data
+    command: postgres
+    ports:
+      - 5432

@@ -222,3 +222,15 @@ services:
             - ../scripts/container:/setup
             - ../../packages/chaincode:/opt/gopath/src/github.com/hyperledger/fabric/chaincode
 
+  postgres01:
+    container_name: postgres01
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=account01
+    volumes:
+      - ./hosts/postgres01:/var/lib/postgresql/data
+    command: postgres
+    ports:
+      - 5432
