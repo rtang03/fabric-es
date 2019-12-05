@@ -1,0 +1,15 @@
+
+export CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.0.domain}}/admin/msp
+export CORE_PEER_ADDRESS={{orgs.peer.0.peers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.peer.0.domain}}:{{orgs.peer.0.peers.endpoints.0.port}}
+
+peer chaincode instantiate -o {{orgs.orderer.orderers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:{{orgs.orderer.orderers.port}} -C {{network.peer-channels.0}} -n eventstore -v 1.0 -l node \
+    -c '{"Args":["eventstore:instantiate"]}' -P "OR ('{{orgs.peer.0.id}}.member', '{{orgs.peer.1.id}}.member')" \
+    --tls --cafile {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.0.domain}}/{{orgs.peer.0.peers.endpoints.0.-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+
+sleep 5
+
+peer chaincode instantiate -o {{orgs.orderer.orderers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:{{orgs.orderer.orderers.port}} -C {{network.peer-channels.0}} -n privatedata -v 1.0 -l node \
+    -c '{"Args":["privatedata:instantiate"]}' -P "OR ('{{orgs.peer.0.id}}.member', '{{orgs.peer.1.id}}.member')" \
+    --collections-config {{{artifacts.peers-working-dir}}}/chaincode/collections.json \
+    --tls --cafile {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.0.domain}}/{{orgs.peer.0.peers.endpoints.0.-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+
