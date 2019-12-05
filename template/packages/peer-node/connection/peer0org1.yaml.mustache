@@ -1,0 +1,77 @@
+---
+name: {{network.compose-project-name}}_{{network.name}}-{{orgs.peer.0.domain}}
+version: 1.0.0
+
+client:
+  organization: {{orgs.peer.0.name}}
+  credentialStore:
+    path: ./assets/client-certs/hfc-kvs/{{orgs.peer.0.domain}}
+    cryptoStore:
+      path: ./assets/client-certs/hfc-kvs/{{orgs.peer.0.domain}}
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+
+channels:
+  eventstore:
+    orderers:
+      - {{orgs.orderer.orderers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.orderer.domain}}
+    peers:
+      {{#orgs.peer.0.peers.endpoints}}
+      {{-}}{{network.host-delimiter}}{{orgs.peer.0.domain}}:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      {{/orgs.peer.0.peers.endpoints}}
+    chaincodes:
+      - eventstore:0
+
+organizations:
+  {{orgs.peer.0.name}}:
+    mspid: {{orgs.peer.0.id}}
+    peers:
+      {{#orgs.peer.0.peers.endpoints}}
+      - {{-}}{{network.host-delimiter}}{{orgs.peer.0.domain}}
+      {{/orgs.peer.0.peers.endpoints}}
+    certificateAuthorities:
+      - {{orgs.peer.0.ca.host}}{{network.host-delimiter}}{{orgs.peer.0.domain}}
+    adminPrivateKey:
+      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.0.domain}}/admin/msp/keystore/key.pem
+    signedCert:
+      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.0.domain}}/admin/msp/signcerts/cert.pem
+    client:
+      path: ./connection/peer0org1.yaml
+
+orderers:
+  orderer.example.com:
+    url: grpcs://localhost:{{orgs.orderer.orderers.port}}
+    grpcOptions:
+      ssl-target-name-override: {{orgs.orderer.orderers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.orderer.domain}}
+    #      grpc-max-send-message-length: 4000
+    tlsCACerts:
+      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/{{orgs.orderer.orderers.endpoints.0.-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+
+peers:
+  {{#orgs.peer.0.peers.endpoints}}
+  {{-}}{{network.host-delimiter}}{{orgs.peer.0.domain}}:
+    url: grpcs://localhost:{{port}}
+    eventUrl: grpcs://localhost:{{eventhub-port}}
+    tlsCACerts:
+      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.0.domain}}/{{-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+    grpcOptions:
+      ssl-target-name-override: {{-}}{{network.host-delimiter}}{{orgs.peer.0.domain}}
+  {{/orgs.peer.0.peers.endpoints}}
+
+certificateAuthorities:
+  {{orgs.peer.0.ca.host}}{{network.host-delimiter}}{{orgs.peer.0.domain}}:
+    url: https://localhost:{{orgs.peer.0.ca.port}}
+    caName: {{orgs.peer.0.ca.host}}{{network.host-delimiter}}{{orgs.peer.0.domain}}
+    tlsCACerts:
+      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.0.domain}}/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: {{orgs.peer.0.ca.admin}}
+        enrollSecret: {{orgs.peer.0.ca.adminpw}}
+    httpOptions:
+      verify: false

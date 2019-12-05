@@ -1,0 +1,142 @@
+version: '2'
+
+networks:
+    {{network.name}}:
+
+services:
+
+    {{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}}:
+        extends:
+            file: nodebase.yaml
+            service: ca
+        container_name: {{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}}
+        restart: always
+        environment:
+            - HYPERLEDGER_VOL={{{artifacts.docker}}}
+            - FABRIC_CA_SERVER_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}}/{{{artifacts.caserver-home}}}
+            - FABRIC_CA_SERVER_CSR_CN={{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}}
+        ports:
+            - {{orgs.tls.ca.port}}:{{orgs.tls.ca.port}}
+        command: sh -c 'fabric-ca-server start -d -b {{orgs.tls.ca.admin}}:{{orgs.tls.ca.adminpw}} --cfg.affiliations.allowremove --cfg.identities.allowremove --port {{orgs.tls.ca.port}}'
+        volumes:
+            - ../scripts/container:/setup
+            - {{{artifacts.local}}}:{{{artifacts.docker}}}
+
+    {{orgs.orderer.ca.host}}{{network.host-delimiter}}{{orgs.orderer.domain}}:
+        extends:
+            file: nodebase.yaml
+            service: ca
+        container_name: {{orgs.orderer.ca.host}}{{network.host-delimiter}}{{orgs.orderer.domain}}
+        restart: always
+        environment:
+            - HYPERLEDGER_VOL={{{artifacts.docker}}}
+            - FABRIC_CA_SERVER_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.ca.host}}{{network.host-delimiter}}{{orgs.orderer.domain}}/{{{artifacts.caserver-home}}}
+            - FABRIC_CA_SERVER_CSR_CN={{orgs.orderer.ca.host}}{{network.host-delimiter}}{{orgs.orderer.domain}}
+        ports:
+            - {{orgs.orderer.ca.port}}:{{orgs.orderer.ca.port}}
+        command: sh -c 'fabric-ca-server start -d -b {{orgs.orderer.ca.admin}}:{{orgs.orderer.ca.adminpw}} --cfg.affiliations.allowremove --cfg.identities.allowremove --port {{orgs.orderer.ca.port}}'
+        volumes:
+            - ../scripts/container:/setup
+            - {{{artifacts.local}}}:{{{artifacts.docker}}}
+
+    {{#orgs.peer}}
+    {{ca.host}}{{network.host-delimiter}}{{domain}}:
+        extends:
+            file: nodebase.yaml
+            service: ca
+        container_name: {{ca.host}}{{network.host-delimiter}}{{domain}}
+        restart: always
+        environment:
+            - HYPERLEDGER_VOL={{{artifacts.docker}}}
+            - FABRIC_CA_SERVER_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{ca.host}}{{network.host-delimiter}}{{domain}}/{{{artifacts.caserver-home}}}
+            - FABRIC_CA_SERVER_CSR_CN={{ca.host}}{{network.host-delimiter}}{{domain}}
+        ports:
+            - {{ca.port}}:{{ca.port}}
+        command: sh -c 'fabric-ca-server start -d -b {{ca.admin}}:{{ca.adminpw}} --cfg.affiliations.allowremove  --cfg.identities.allowremove --port {{ca.port}}'
+        volumes:
+            - ../scripts/container:/setup
+            - {{{artifacts.local}}}:{{{artifacts.docker}}}
+
+    {{/orgs.peer}}
+    {{#orgs.peer}}
+    {{#peers.endpoints}}
+    {{-}}{{network.host-delimiter}}{{domain}}:
+        extends:
+            file: nodebase.yaml
+            service: peer
+        container_name: {{-}}{{network.host-delimiter}}{{domain}}
+        environment:
+            - CORE_PEER_ID={{-}}{{network.host-delimiter}}{{domain}}
+            - CORE_PEER_ADDRESS={{-}}{{network.host-delimiter}}{{domain}}:{{port}}
+            - CORE_PEER_LOCALMSPID={{id}}
+            - CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/msp
+            - CORE_PEER_TLS_CERT_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/signcerts/cert.pem
+            - CORE_PEER_TLS_KEY_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/keystore/key.pem
+            - CORE_PEER_TLS_ROOTCERT_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+            - CORE_PEER_GOSSIP_EXTERNALENDPOINT={{-}}{{network.host-delimiter}}{{domain}}:{{port}}
+            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:{{chaincode-port}}
+        working_dir: {{{artifacts.peers-working-dir}}}/{{domain}}/{{-}}
+        volumes:
+            - /var/run:/host/var/run
+            - {{{artifacts.local}}}/{{{artifacts.production}}}{{#artifacts.production}}/{{/artifacts.production}}{{domain}}/{{-}}:{{{artifacts.docker}}}/production
+            - {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}:{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}
+        ports:
+            - {{port}}:{{port}}
+
+    {{/peers.endpoints}}
+    {{/orgs.peer}}
+    {{#orgs.orderer}}
+    {{#orderers.endpoints}}
+    {{-}}{{network.host-delimiter}}{{domain}}:
+        extends:
+            file: nodebase.yaml
+            service: orderer
+        container_name: {{-}}{{network.host-delimiter}}{{domain}}
+        environment:
+            - ORDERER_HOST={{-}}{{network.host-delimiter}}{{domain}}
+            - ORDERER_HOME={{{artifacts.docker}}}/{{{artifacts.orderer-home}}}
+            - ORDERER_GENERAL_LOCALMSPID={{id}}
+            - ORDERER_GENERAL_LOCALMSPDIR={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/msp
+            - ORDERER_GENERAL_TLS_CERTIFICATE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_TLS_PRIVATEKEY={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_TLS_ROOTCAS=[{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem]
+            - ORDERER_GENERAL_GENESISFILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/genesis.block
+        volumes:
+            - {{{artifacts.local}}}/{{{artifacts.production}}}{{#artifacts.production}}/{{/artifacts.production}}{{domain}}/{{-}}:{{{artifacts.docker}}}/production
+            - {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}:{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}
+
+    {{/orderers.endpoints}}
+    {{/orgs.orderer}}
+    {{#orgs.peer}}
+    cli{{network.host-delimiter}}{{domain}}:
+        extends:
+            file: nodebase.yaml
+            service: cli
+        container_name: cli{{network.host-delimiter}}{{domain}}
+        environment:
+            - HYPERLEDGER_VOL={{{artifacts.docker}}}
+            - CORE_PEER_ID=cli{{network.host-delimiter}}{{domain}}
+            - CORE_PEER_ADDRESS={{peers.endpoints.0.-}}{{network.host-delimiter}}{{domain}}:{{peers.endpoints.0.port}}
+            - CORE_PEER_LOCALMSPID={{id}}
+            - CORE_PEER_TLS_ROOTCERT_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{peers.endpoints.0.-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+            - CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{peers.endpoints.0.-}}/msp
+        working_dir: {{{artifacts.peers-working-dir}}}/{{domain}}
+        command: sh
+        volumes:
+            - {{{artifacts.local}}}:{{{artifacts.docker}}}
+            - ../scripts/container:/setup
+            - ../../packages/chaincode:{{{artifacts.peers-working-dir}}}/chaincode
+
+    {{/orgs.peer}}
+    postgres01:
+        container_name: postgres01
+        image: postgres
+        environment:
+            - POSTGRES_PASSWORD=docker
+            - POSTGRES_USER=postgres
+            - POSTGRES_DB=account01
+        volumes:
+            - {{{artifacts.local}}}/postgres01:/var/lib/postgresql/data
+        command: postgres
+        ports:
+            - 5432
