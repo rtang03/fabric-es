@@ -1,0 +1,35 @@
+# Import common.sh
+. `pwd`/common.sh
+
+# {{orgs.orderer.name}}
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/admincerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/cacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/tlscacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/users
+
+sudo cp  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/{{orgs.orderer.orderers.endpoints.0.-}}/msp/admincerts/{{orgs.orderer.domain}}-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/admincerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/{{orgs.orderer.orderers.endpoints.0.-}}/assets/ca/{{orgs.orderer.domain}}-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/cacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/{{orgs.orderer.orderers.endpoints.0.-}}/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/tlscacerts
+
+{{#orgs.peer}}
+# {{name}}
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/admincerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/cacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/tlscacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/users
+
+sudo cp  ${_CRYPTO_CONFIG_DIR}/{{domain}}/{{peers.endpoints.0.-}}/msp/admincerts/{{domain}}-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/admincerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/{{domain}}/{{peers.endpoints.0.-}}/assets/ca/{{domain}}-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/cacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/{{domain}}/{{peers.endpoints.0.-}}/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/tlscacerts
+
+{{/orgs.peer}}
+
+cd ${_FABRIC_DIR}; 
+export FABRIC_CFG_PATH=${PWD}
+${_FABRIC_DIR}/../bin/configtxgen -profile OrgsOrdererGenesis -outputBlock genesis.block -channelID {{network.orderer-channel}}
+${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputCreateChannelTx channel.tx -channelID {{network.peer-channels.0}}
+
+{{#orgs.orderer.orderers.endpoints}}
+sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/{{-}}
+{{/orgs.orderer.orderers.endpoints}}
+sudo mv channel.tx       ${_CRYPTO_CONFIG_DIR}/{{orgs.peer.0.domain}}/{{orgs.peer.0.peers.endpoints.0.-}}/assets
