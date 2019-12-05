@@ -30,6 +30,8 @@ export function loanReducer(history: LoanEvents[], initialState?: Loan): Loan {
           ...loan,
           description: event.payload.description
         };
+      default:
+        return loan; // NOTE!!! VERY IMPORTANT! do not omit this case, otherwise will return null if contain unrecognized events
     }
   };
 

@@ -74,6 +74,8 @@ export const loanDetailsReducer = (
           ...details,
           comment: event.payload.comment
         };
+      default:
+        return details; // NOTE!!! VERY IMPORTANT! do not omit this case, otherwise will return null if contain unrecognized events
     }
   };
 

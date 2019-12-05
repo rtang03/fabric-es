@@ -20,7 +20,7 @@ export function userReducer(history: UserEvents[], initialState?: User): User {
           ...user
         };
       default:
-        return user;
+        return user; // NOTE!!! VERY IMPORTANT! do not omit this case, otherwise will return null if contain unrecognized events
     }
   };
 

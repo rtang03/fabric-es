@@ -25,6 +25,8 @@ export const docContentsReducer = (
             link: event.payload.link
           }
         };
+      default:
+        return content; // NOTE!!! VERY IMPORTANT! do not omit this case, otherwise will return null if contain unrecognized events
     }
   };
 
