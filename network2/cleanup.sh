@@ -22,4 +22,8 @@ docker rmi -f $(docker images | grep fabcar | awk '{print $3}')
 docker rmi -f $(docker images | grep eventstore | awk '{print $3}')
 docker rmi -f $(docker images | grep privatedata | awk '{print $3}')
 
+# Cleanup chaincode builds
+sudo rm -rf ${_CHAINCODE_DIR}/dist
+sudo rm -rf ${_CHAINCODE_DIR}/node_modules
+
 sleep 5
