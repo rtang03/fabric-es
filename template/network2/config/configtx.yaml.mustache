@@ -1,0 +1,193 @@
+################################################################################
+#
+#   Section: Organizations
+#
+#   - This section defines the different organizational identities which will
+#   be referenced later in the configuration.
+#
+################################################################################
+Organizations:
+
+   - &{{orgs.orderer.name}}
+
+      Name: {{orgs.orderer.name}}
+
+      # ID to load the MSP definition as
+      ID: {{orgs.orderer.id}}
+
+      # MSPDir is the filesystem path which contains the MSP configuration
+      MSPDir: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/msp
+
+      Policies:
+         Readers:
+            Type: Signature
+            Rule: "OR('{{orgs.orderer.id}}.member')"
+         Writers:
+            Type: Signature
+            Rule: "OR('{{orgs.orderer.id}}.member')"
+         Admins:
+            Type: Signature
+            Rule: "OR('{{orgs.orderer.id}}.admin')"
+
+   {{#orgs.peer}}
+   - &{{name}}
+
+      Name: {{name}}
+
+      # ID to load the MSP definition as
+      ID: {{id}}
+
+      # MSPDir is the filesystem path which contains the MSP configuration
+      MSPDir: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/msp
+
+      Policies:
+         Readers:
+            Type: Signature
+            Rule: "OR('{{id}}.member')"
+         Writers:
+            Type: Signature
+            Rule: "OR('{{id}}.member')"
+         Admins:
+            Type: Signature
+            Rule: "OR('{{id}}.admin')"
+
+      OrdererEndpoints:
+         {{#orgs.orderer.orderers.endpoints}}
+         - {{-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:{{orgs.orderer.orderers.port}}
+         {{/orgs.orderer.orderers.endpoints}}
+
+      AnchorPeers:
+         # AnchorPeers defines the location of peers which can be used
+         # for cross org gossip communication.  Note, this value is only
+         # encoded in the genesis block in the Application section context
+         - Host: {{peers.anchor}}{{network.host-delimiter}}{{domain}}
+           Port: 7051
+
+   {{/orgs.peer}}
+Capabilities:
+   Channel: &ChannelCapabilities
+      V1_4_3: true
+      V1_3: false
+      V1_1: false
+   Orderer: &OrdererCapabilities
+      V1_4_2: true
+      V1_1: false
+   Application: &ApplicationCapabilities
+      V1_4_2: true
+      V1_3: false
+      V1_2: false
+      V1_1: false
+
+################################################################################
+#
+#   SECTION: Application
+#
+#   This section defines the values to encode into a config transaction or
+#   genesis block for application related parameters
+#
+################################################################################
+Application: &ApplicationDefaults
+
+   # Organizations is the list of orgs which are defined as participants on
+   # the application side of the network
+   Organizations:
+   Policies:
+      Readers:
+         Type: ImplicitMeta
+         Rule: "ANY Readers"
+      Writers:
+         Type: ImplicitMeta
+         Rule: "ANY Writers"
+      Admins:
+         Type: ImplicitMeta
+         Rule: "MAJORITY Admins"
+
+   Capabilities:
+      <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+
+   OrdererType: {{orgs.orderer.orderers.type}}
+   Addresses:
+      {{#orgs.orderer.orderers.endpoints}}
+      - {{-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:{{orgs.orderer.orderers.port}}
+      {{/orgs.orderer.orderers.endpoints}}
+   BatchTimeout: {{orgs.orderer.orderers.batch-timeout}}
+   BatchSize:
+      MaxMessageCount: {{orgs.orderer.orderers.max-message-count}}
+      AbsoluteMaxBytes: {{orgs.orderer.orderers.absolute-max-bytes}}
+      PreferredMaxBytes: {{orgs.orderer.orderers.preferred-max-bytes}}
+   MaxChannels: {{orgs.orderer.orderers.max-channels}}
+   {{#orgs.orderer.orderers.use-kafka}}
+   Kafka:
+      Brokers:
+         {{#orgs.orderer.kafkas.endpoints}}
+         - {{.}}:{{orgs.orderer.kafkas.ports.0}}
+         {{/orgs.orderer.kafkas.endpoints}}
+   {{/orgs.orderer.orderers.use-kafka}}
+   Organizations:
+   Policies:
+      Readers:
+         Type: ImplicitMeta
+         Rule: "ANY Readers"
+      Writers:
+         Type: ImplicitMeta
+         Rule: "ANY Writers"
+      Admins:
+         Type: ImplicitMeta
+         Rule: "MAJORITY Admins"
+      BlockValidation:
+         Type: ImplicitMeta
+         Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+   Policies:
+      Readers:
+         Type: ImplicitMeta
+         Rule: "ANY Readers"
+      Writers:
+         Type: ImplicitMeta
+         Rule: "ANY Writers"
+      Admins:
+         Type: ImplicitMeta
+         Rule: "MAJORITY Admins"
+
+   Capabilities:
+      <<: *ChannelCapabilities
+
+################################################################################
+#
+#   Profile
+#
+#   - Different configuration profiles may be encoded here to be specified
+#   as parameters to the configtxgen tool
+#
+################################################################################
+Profiles:
+
+   OrgsOrdererGenesis:
+      <<: *ChannelDefaults
+      Orderer:
+         <<: *OrdererDefaults
+         Organizations:
+            - *{{orgs.orderer.name}}
+         Capabilities:
+            <<: *OrdererCapabilities
+      Consortiums:
+         {{network.consortium}}:
+            Organizations:
+               {{#orgs.peer}}
+               - *{{name}}
+               {{/orgs.peer}}
+
+   OrgsChannel:
+      Consortium: {{network.consortium}}
+      <<: *ChannelDefaults
+      Application:
+         <<: *ApplicationDefaults
+         Organizations:
+            {{#orgs.peer}}
+            - *{{name}}
+            {{/orgs.peer}}
+         Capabilities:
+            <<: *ApplicationCapabilities
