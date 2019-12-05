@@ -17,7 +17,7 @@ services:
             - FABRIC_CA_SERVER_CSR_CN={{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}}
         ports:
             - {{orgs.tls.ca.port}}:{{orgs.tls.ca.port}}
-        command: sh -c 'fabric-ca-server start -d -b {{orgs.tls.ca.admin}}:{{orgs.tls.ca.adminpw}} --port {{orgs.tls.ca.port}}'
+        command: sh -c 'fabric-ca-server start -d -b {{orgs.tls.ca.admin}}:{{orgs.tls.ca.adminpw}} --cfg.affiliations.allowremove --cfg.identities.allowremove --port {{orgs.tls.ca.port}}'
         volumes:
             - ../scripts/container:/setup
             - {{{artifacts.local}}}:{{{artifacts.docker}}}
@@ -34,7 +34,7 @@ services:
             - FABRIC_CA_SERVER_CSR_CN={{orgs.orderer.ca.host}}{{network.host-delimiter}}{{orgs.orderer.domain}}
         ports:
             - {{orgs.orderer.ca.port}}:{{orgs.orderer.ca.port}}
-        command: sh -c 'fabric-ca-server start -d -b {{orgs.orderer.ca.admin}}:{{orgs.orderer.ca.adminpw}} --port {{orgs.orderer.ca.port}}'
+        command: sh -c 'fabric-ca-server start -d -b {{orgs.orderer.ca.admin}}:{{orgs.orderer.ca.adminpw}} --cfg.affiliations.allowremove --cfg.identities.allowremove --port {{orgs.orderer.ca.port}}'
         volumes:
             - ../scripts/container:/setup
             - {{{artifacts.local}}}:{{{artifacts.docker}}}
@@ -52,7 +52,7 @@ services:
             - FABRIC_CA_SERVER_CSR_CN={{ca.host}}{{network.host-delimiter}}{{domain}}
         ports:
             - {{ca.port}}:{{ca.port}}
-        command: sh -c 'fabric-ca-server start -d -b {{ca.admin}}:{{ca.adminpw}} --port {{ca.port}}'
+        command: sh -c 'fabric-ca-server start -d -b {{ca.admin}}:{{ca.adminpw}} --cfg.affiliations.allowremove  --cfg.identities.allowremove --port {{ca.port}}'
         volumes:
             - ../scripts/container:/setup
             - {{{artifacts.local}}}:{{{artifacts.docker}}}

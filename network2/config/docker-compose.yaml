@@ -17,7 +17,7 @@ services:
             - FABRIC_CA_SERVER_CSR_CN=ca-tls
         ports:
             - 6052:6052
-        command: sh -c 'fabric-ca-server start -d -b tls-ca-admin:tls-ca-adminPW --port 6052'
+        command: sh -c 'fabric-ca-server start -d -b tls-ca-admin:tls-ca-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 6052'
         volumes:
             - ../scripts/container:/setup
             - ../artifacts:/var/artifacts
@@ -34,7 +34,7 @@ services:
             - FABRIC_CA_SERVER_CSR_CN=rca-org0
         ports:
             - 6053:6053
-        command: sh -c 'fabric-ca-server start -d -b rca-org0-admin:rca-org0-adminPW --port 6053'
+        command: sh -c 'fabric-ca-server start -d -b rca-org0-admin:rca-org0-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 6053'
         volumes:
             - ../scripts/container:/setup
             - ../artifacts:/var/artifacts
@@ -51,7 +51,7 @@ services:
             - FABRIC_CA_SERVER_CSR_CN=rca-org1
         ports:
             - 6054:6054
-        command: sh -c 'fabric-ca-server start -d -b rca-org1-admin:rca-org1-adminPW --port 6054'
+        command: sh -c 'fabric-ca-server start -d -b rca-org1-admin:rca-org1-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 6054'
         volumes:
             - ../scripts/container:/setup
             - ../artifacts:/var/artifacts
@@ -68,7 +68,7 @@ services:
             - FABRIC_CA_SERVER_CSR_CN=rca-org2
         ports:
             - 6055:6055
-        command: sh -c 'fabric-ca-server start -d -b rca-org2-admin:rca-org2-adminPW --port 6055'
+        command: sh -c 'fabric-ca-server start -d -b rca-org2-admin:rca-org2-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 6055'
         volumes:
             - ../scripts/container:/setup
             - ../artifacts:/var/artifacts
