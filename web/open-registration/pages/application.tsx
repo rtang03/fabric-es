@@ -91,7 +91,7 @@ const Application: NextPage<any> = () => {
             </Formik>
             <DisplayErrorMessage error={error} />
             {!loading && !!data?.getClients ? (
-              <React.Fragment>
+              <>
                 <p>No of my application clients: {data.getClients!.length}</p>
                 <pre>
                   {JSON.stringify(
@@ -112,7 +112,7 @@ const Application: NextPage<any> = () => {
                     2
                   )}
                 </pre>
-              </React.Fragment>
+              </>
             ) : (
               <div />
             )}

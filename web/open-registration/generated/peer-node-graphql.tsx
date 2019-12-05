@@ -86,6 +86,12 @@ export type MutationRegisterAndEnrollUserArgs = {
   enrollmentSecret: Scalars['String'];
 };
 
+export type PeerInfo = {
+  __typename?: 'PeerInfo';
+  mspid: Scalars['String'];
+  peerName: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
   _service: _Service;
@@ -101,6 +107,8 @@ export type Query = {
   isWalletEntryExist: Scalars['Boolean'];
   getCollectionConfigs: Array<CollectionConfig>;
   getChannelPeers: Array<ChannelPeer>;
+  getPeerName: Scalars['String'];
+  getPeerInfo: PeerInfo;
 };
 
 export type QueryGetBlockByNumberArgs = {
@@ -176,6 +184,15 @@ export type GetChannelPeersQueryVariables = {};
 export type GetChannelPeersQuery = { __typename?: 'Query' } & {
   getChannelPeers: Array<
     { __typename?: 'ChannelPeer' } & Pick<ChannelPeer, 'mspid' | 'name' | 'url'>
+  >;
+};
+
+export type GetPeerInfoQueryVariables = {};
+
+export type GetPeerInfoQuery = { __typename?: 'Query' } & {
+  getPeerInfo: { __typename?: 'PeerInfo' } & Pick<
+    PeerInfo,
+    'peerName' | 'mspid'
   >;
 };
 
@@ -317,6 +334,60 @@ export type GetChannelPeersLazyQueryHookResult = ReturnType<
 export type GetChannelPeersQueryResult = ApolloReactCommon.QueryResult<
   GetChannelPeersQuery,
   GetChannelPeersQueryVariables
+>;
+export const GetPeerInfoDocument = gql`
+  query GetPeerInfo {
+    getPeerInfo {
+      peerName
+      mspid
+    }
+  }
+`;
+
+/**
+ * __useGetPeerInfoQuery__
+ *
+ * To run a query within a React component, call `useGetPeerInfoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPeerInfoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPeerInfoQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPeerInfoQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    GetPeerInfoQuery,
+    GetPeerInfoQueryVariables
+  >
+) {
+  return ApolloReactHooks.useQuery<GetPeerInfoQuery, GetPeerInfoQueryVariables>(
+    GetPeerInfoDocument,
+    baseOptions
+  );
+}
+export function useGetPeerInfoLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    GetPeerInfoQuery,
+    GetPeerInfoQueryVariables
+  >
+) {
+  return ApolloReactHooks.useLazyQuery<
+    GetPeerInfoQuery,
+    GetPeerInfoQueryVariables
+  >(GetPeerInfoDocument, baseOptions);
+}
+export type GetPeerInfoQueryHookResult = ReturnType<typeof useGetPeerInfoQuery>;
+export type GetPeerInfoLazyQueryHookResult = ReturnType<
+  typeof useGetPeerInfoLazyQuery
+>;
+export type GetPeerInfoQueryResult = ApolloReactCommon.QueryResult<
+  GetPeerInfoQuery,
+  GetPeerInfoQueryVariables
 >;
 export const IsWalletEntryExistDocument = gql`
   query IsWalletEntryExist($label: String!) {

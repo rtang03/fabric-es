@@ -91,6 +91,12 @@ export type MutationRegisterAndEnrollUserArgs = {
   enrollmentSecret: Scalars['String']
 };
 
+export type PeerInfo = {
+   __typename?: 'PeerInfo',
+  mspid: Scalars['String'],
+  peerName: Scalars['String'],
+};
+
 export type Query = {
    __typename?: 'Query',
   _service: _Service,
@@ -106,6 +112,8 @@ export type Query = {
   isWalletEntryExist: Scalars['Boolean'],
   getCollectionConfigs: Array<CollectionConfig>,
   getChannelPeers: Array<ChannelPeer>,
+  getPeerName: Scalars['String'],
+  getPeerInfo: PeerInfo,
 };
 
 
@@ -246,6 +254,7 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
   CollectionConfig: ResolverTypeWrapper<CollectionConfig>,
   ChannelPeer: ResolverTypeWrapper<ChannelPeer>,
+  PeerInfo: ResolverTypeWrapper<PeerInfo>,
   Mutation: ResolverTypeWrapper<{}>,
   ChannelInfo: ResolverTypeWrapper<ChannelInfo>,
 };
@@ -267,6 +276,7 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'],
   CollectionConfig: CollectionConfig,
   ChannelPeer: ChannelPeer,
+  PeerInfo: PeerInfo,
   Mutation: {},
   ChannelInfo: ChannelInfo,
 };
@@ -337,6 +347,11 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   registerAndEnrollUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRegisterAndEnrollUserArgs, 'enrollmentId' | 'enrollmentSecret'>>,
 };
 
+export type PeerInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['PeerInfo'] = ResolversParentTypes['PeerInfo']> = {
+  mspid?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+  peerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+};
+
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   _service?: Resolver<ResolversTypes['_Service'], ParentType, ContextType>,
   getChainHeight?: Resolver<ResolversTypes['Int'], ParentType, ContextType>,
@@ -351,6 +366,8 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   isWalletEntryExist?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryIsWalletEntryExistArgs, 'label'>>,
   getCollectionConfigs?: Resolver<Array<ResolversTypes['CollectionConfig']>, ParentType, ContextType>,
   getChannelPeers?: Resolver<Array<ResolversTypes['ChannelPeer']>, ParentType, ContextType>,
+  getPeerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+  getPeerInfo?: Resolver<ResolversTypes['PeerInfo'], ParentType, ContextType>,
 };
 
 export type TransactionDataResolvers<ContextType = any, ParentType extends ResolversParentTypes['TransactionData'] = ResolversParentTypes['TransactionData']> = {
@@ -391,6 +408,7 @@ export type Resolvers<ContextType = any> = {
   CollectionConfig?: CollectionConfigResolvers<ContextType>,
   Endorsement?: EndorsementResolvers<ContextType>,
   Mutation?: MutationResolvers<ContextType>,
+  PeerInfo?: PeerInfoResolvers<ContextType>,
   Query?: QueryResolvers<ContextType>,
   TransactionData?: TransactionDataResolvers<ContextType>,
   TransactionResponse?: TransactionResponseResolvers<ContextType>,
