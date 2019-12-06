@@ -41,7 +41,7 @@ The network is started.
 
 ## Clean Up
 
-If everything is good. We can clean up the environment. :tada::tada:
+If everything is good, we can clean up the environment. :tada::tada:
 
 ```bash
 ./cleanup.sh
