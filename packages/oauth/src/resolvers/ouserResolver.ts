@@ -1,3 +1,4 @@
+import { stringEquals } from '@espresso/chaincode/dist/ngac';
 import { AuthenticationError, UserInputError } from 'apollo-server';
 import { compare, hash } from 'bcrypt';
 import { pick } from 'lodash';
@@ -61,7 +62,6 @@ export class OUserResolver {
   ): Promise<LoginResponse> {
     const user = await OUser.findOne({ email });
     if (!user) throw new AuthenticationError('could not find user');
-
     if (!password) throw new UserInputError('bad password');
 
     const valid = await compare(password, user.password);
@@ -90,6 +90,17 @@ export class OUserResolver {
       .catch(error => {
         throw new AuthenticationError(error);
       });
+  }
+
+  @Query(() => Boolean)
+  async verifyPassword(
+    @Arg('user_id') user_id: string,
+    @Arg('password') password: string
+  ): Promise<boolean> {
+    const user = await OUser.findOne({ id: user_id });
+    if (!user) throw new AuthenticationError('could not find user');
+    if (!password) throw new UserInputError('bad password');
+    return compare(password, user.password);
   }
 
   @Mutation(() => Boolean)

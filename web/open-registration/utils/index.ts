@@ -1,2 +1,2 @@
 export * from './withApollo';
-export * from './parseNetwork';
+export * from './theme';
