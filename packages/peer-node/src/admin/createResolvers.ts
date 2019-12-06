@@ -5,6 +5,7 @@ import {
 } from '@espresso/admin-tool';
 import ab2str from 'arraybuffer-to-string';
 import { FileSystemWallet } from 'fabric-network';
+import { includes } from 'lodash';
 import { Resolvers } from '../generated/peer-resolvers-types';
 
 export const createResolvers: (option: {
@@ -37,14 +38,17 @@ export const createResolvers: (option: {
           enrollmentSecret
         }: { enrollmentId: string; enrollmentSecret: string }
       ) =>
-        idService.getByEnrollmentId(enrollmentId).then(({ result }) =>
-          result?.id
-            ? null
-            : createUser(enrollmentId, enrollmentSecret, {
+        idService
+          .getByEnrollmentId(enrollmentId)
+          .then(() => false)
+          .catch(error => {
+            if (includes(error.message, 'Failed to get User')) {
+              return createUser(enrollmentId, enrollmentSecret, {
                 connectionProfile,
                 wallet
-              }).then(result => result?.status === 'SUCCESS')
-        )
+              }).then(result => result?.status === 'SUCCESS');
+            } else throw error;
+          })
     },
     Query: {
       getChannelPeers: async () =>
@@ -62,31 +66,43 @@ export const createResolvers: (option: {
         _,
         { enrollmentId }: { enrollmentId: string }
       ) =>
-        idService.getByEnrollmentId(enrollmentId).then(({ result }) =>
-          result
-            ? {
-                id: result.id,
-                typ: result.type,
-                affiliation: result.affiliation,
-                max_enrollments: result.max_enrollments,
-                attrs: result.attrs
-              }
-            : null
-        ),
+        idService
+          .getByEnrollmentId(enrollmentId || '')
+          .then(({ result }) =>
+            result
+              ? {
+                  id: result.id,
+                  typ: result.type,
+                  affiliation: result.affiliation,
+                  max_enrollments: result.max_enrollments,
+                  attrs: result.attrs
+                }
+              : null
+          )
+          .catch(error => {
+            if (includes(error.message, 'Failed to get User')) return null;
+            else throw error;
+          }),
       getCaIdentities: async () =>
-        idService.getAll().then(({ result }) =>
-          result?.identities
-            ? result.identities.map(
-                ({ id, type, affiliation, max_enrollments, attrs }) => ({
-                  id,
-                  typ: type,
-                  affiliation,
-                  max_enrollments,
-                  attrs
-                })
-              )
-            : []
-        ),
+        idService
+          .getAll()
+          .then(({ result }) =>
+            result?.identities
+              ? result.identities.map(
+                  ({ id, type, affiliation, max_enrollments, attrs }) => ({
+                    id,
+                    typ: type,
+                    affiliation,
+                    max_enrollments,
+                    attrs
+                  })
+                )
+              : []
+          )
+          .catch(error => {
+            if (includes(error.message, 'Failed to get User')) return [];
+            else throw error;
+          }),
       getCollectionConfigs: async () =>
         peerInfo
           .getCollectionsConfig({
@@ -189,7 +205,12 @@ export const createResolvers: (option: {
         peerInfo.getChainInfo().then(({ height: { low } }) => low),
       getChannelInfo: async () =>
         peerInfo.getChannels().then(({ channels }) => channels),
-      getMspid: async () => peerInfo.getMspid()
+      getMspid: async () => peerInfo.getMspid(),
+      getPeerName: async () => peerName,
+      getPeerInfo: async () => ({
+        mspid: await peerInfo.getMspid(),
+        peerName
+      })
     }
   };
 };

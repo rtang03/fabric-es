@@ -1,3 +1,7 @@
+cd ../packages/chaincode
+yarn install
+yarn build
+
 # Install chaincode
 docker exec cli-org1 bash -c "/setup/install_chaincode.sh org1 peer1 eventstore 1.0 7051"
 docker exec cli-org1 bash -c "/setup/install_chaincode.sh org1 peer1 privatedata 1.0 7051"

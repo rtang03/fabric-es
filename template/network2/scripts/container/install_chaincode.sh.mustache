@@ -18,10 +18,10 @@ export CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#a
 export CORE_PEER_ADDRESS=${peer}{{network.host-delimiter}}${org}:${port}
 
 # Build Chaincode
-cd {{{artifacts.peers-working-dir}}}/chaincode
-npm install
-npm run build
-sleep 3
+# cd {{{artifacts.peers-working-dir}}}/chaincode
+# npm install
+# npm run build
+# sleep 3
 
 # Install Chaincode
 peer chaincode install -n ${name} -v ${version} -p {{{artifacts.peers-working-dir}}}/chaincode -l node \
