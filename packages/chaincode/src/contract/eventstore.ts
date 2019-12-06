@@ -83,6 +83,7 @@ export class EventStore extends Contract {
     return Buffer.from(JSON.stringify(commits));
   }
 
+/*
   async beforeTransaction(context) {
     const mspId = context.clientIdentity.getMSPID();
     const logger = context.logging.getLogger('Permission');
@@ -116,6 +117,7 @@ export class EventStore extends Contract {
         });
     }
   }
+*/
 
   @Transaction()
   async createCommit(
