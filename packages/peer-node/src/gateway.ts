@@ -31,25 +31,20 @@ const authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
   const server = new ApolloServer({
     gateway,
     subscriptions: false,
-    context: async ({ req }) => {
-      let user_id;
-      const authorization = req.headers?.authorization;
-      if (authorization) {
-        const token = authorization.split(' ')[1];
-        const headers = {
-          authorization: `Bearer ${token}`
-        };
-        user_id = await fetch(authenticationCheck, {
-          method: 'POST',
-          headers
-        })
-          .then<{ ok: boolean; authenticated: boolean; user_id: string }>(res =>
-            res.json()
-          )
-          .then(res => (res?.authenticated ? res?.user_id : null));
-      }
-      return { user_id };
-    }
+    context: async ({ req: { headers } }) =>
+      headers?.authorization
+        ? fetch(authenticationCheck, {
+            method: 'POST',
+            headers: {
+              authorization: `Bearer ${headers.authorization.split(' ')[1]}`
+            }
+          })
+            .then<{ ok: boolean; authenticated: boolean; user_id: string }>(
+              res => res.json()
+            )
+            .then(res => (res?.authenticated ? res?.user_id : null))
+            .then(user_id => ({ user_id }))
+        : {}
   });
   const app = express();
   app.use(bodyParser.urlencoded({ extended: true }));

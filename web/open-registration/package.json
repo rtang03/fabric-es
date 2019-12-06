@@ -7,7 +7,7 @@
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "type-check": "tsc",
     "generate-hook:oauth-server": "graphql-codegen --config codegen.oauth-server.yml",
-    "generate-hook:peer-node": "graphql-codegen --config codegen.peer-node.yml"
+    "generate-hook:all": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
     "@apollo/react-hooks": "^3.1.3",
