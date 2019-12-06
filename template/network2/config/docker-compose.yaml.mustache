@@ -140,3 +140,5 @@ services:
         command: postgres
         ports:
             - 5432
+        networks:
+            - {{network.name}}
