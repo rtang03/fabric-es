@@ -14,12 +14,18 @@ export const typeDefs = gql`
     getInstalledChaincodes: [Chaincode!]!
     getInstantiatedChaincodes: [Chaincode!]!
     getInstalledCCVersion(chaincode_id: String!): String!
-    getCaIdentities: [CaIdentity!]!
+    getCaIdentities: [CaIdentity!]
     getCaIdentityByEnrollmentId(enrollmentId: String!): CaIdentity
     listWallet: [WalletEntry!]!
     isWalletEntryExist(label: String!): Boolean!
     getCollectionConfigs: [CollectionConfig!]!
     getChannelPeers: [ChannelPeer!]!
+    getPeerName: String!
+    getPeerInfo: PeerInfo!
+  }
+  type PeerInfo {
+    mspid: String!
+    peerName: String!
   }
   type ChannelPeer {
     mspid: String!

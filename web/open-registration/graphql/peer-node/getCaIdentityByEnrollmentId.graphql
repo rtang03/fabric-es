@@ -1,0 +1,16 @@
+query GetCaIdentityByEnrollmentId (
+  $enrollmentId: String!
+) {
+  getCaIdentityByEnrollmentId (
+    enrollmentId: $enrollmentId
+  ) {
+    id
+    typ
+    affiliation
+    max_enrollments
+    attrs {
+      name
+      value
+    }
+  }
+}

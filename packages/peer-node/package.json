@@ -18,7 +18,8 @@
     "s-peer": "ts-node ./src/service-admin.ts",
     "start-new-gateway": "ts-node ./src/gateway.ts",
     "generate-types": "graphql-codegen --config src/generated/codegen.yml",
-    "enrollCaAdmin": "rimraf assets/wallet/ca_admin && ./node_modules/.bin/ts-node src/admin/enrollCaAdmin.ts"
+    "enrollCaAdmin": "rimraf assets/wallet/ca_admin && ./node_modules/.bin/ts-node src/admin/enrollCaAdmin.ts",
+    "test-service-admin:integration": "jest int.test"
   },
   "engines": {
     "node": ">=8",

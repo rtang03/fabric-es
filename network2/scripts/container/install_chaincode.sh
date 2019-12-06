@@ -18,10 +18,10 @@ export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${org}/admin/msp
 export CORE_PEER_ADDRESS=${peer}-${org}:${port}
 
 # Build Chaincode
-cd /opt/gopath/src/github.com/hyperledger/fabric/chaincode
-npm install
-npm run build
-sleep 3
+# cd /opt/gopath/src/github.com/hyperledger/fabric/chaincode
+# npm install
+# npm run build
+# sleep 3
 
 # Install Chaincode
 peer chaincode install -n ${name} -v ${version} -p /opt/gopath/src/github.com/hyperledger/fabric/chaincode -l node \

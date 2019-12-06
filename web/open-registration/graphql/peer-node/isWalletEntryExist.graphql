@@ -1,0 +1,7 @@
+query IsWalletEntryExist (
+  $label: String!
+) {
+  isWalletEntryExist (
+    label: $label
+  )
+}
