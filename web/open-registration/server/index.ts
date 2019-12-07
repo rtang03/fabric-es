@@ -3,25 +3,56 @@ import { resolve } from 'path';
 config({ path: resolve(__dirname, '../.env.test') });
 
 import bodyParser from 'body-parser';
+import Cookie from 'cookie';
 import cookieParser from 'cookie-parser';
-import cors from 'cors';
 import csrf from 'csurf';
 import express from 'express';
 import fetch from 'isomorphic-unfetch';
 import next from 'next';
+import { settings } from './settings';
+import { tabs } from './tabs';
 
+const peerNodeUri =
+  require('../servers.json').peer_node_uri || 'http://localhost:4000/graphql';
 const port = parseInt(process.env.PORT || '3000', 10);
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
+const expressPlayground = require('graphql-playground-middleware-express')
+  .default;
 
 app.prepare().then(() => {
   const server = express();
   server.use([
     bodyParser.urlencoded({ extended: true }),
     cookieParser('secret'),
-    csrf({ cookie: true }),
+    csrf({ cookie: true })
   ]);
+
+  server.get(
+    '/playground',
+    // todo: custom schema. In future, may use custom schema to override realtime introspection
+    expressPlayground({
+      env: process.env.NODE_ENV || 'development',
+      endpoint: peerNodeUri,
+      workspaceName: 'Espresso',
+      config: {
+        projects: {
+          Espresso: {
+            extensions: {
+              endpoints: {
+                'peer0.org1': {
+                  url: peerNodeUri
+                }
+              }
+            }
+          }
+        }
+      },
+      tabs,
+      settings
+    })
+  );
 
   server.get('/auth_uri', (_, res) =>
     res.status(200).send(process.env.AUTHORIZATION_URI || '')

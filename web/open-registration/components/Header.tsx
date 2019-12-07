@@ -45,6 +45,7 @@ export const Header: React.FC<any> = () => {
             | <Link href="/application">Client App</Link> |{' '}
             <Link href="/peer">Peer Info</Link> |{' '}
             <Link href="/enrollment">Enrollment</Link> |{' '}
+            <Link href="/playground">Playground</Link> |{' '}
             <button
               onClick={async () => {
                 await logout();

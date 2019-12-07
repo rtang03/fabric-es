@@ -2,14 +2,18 @@ require('./env');
 import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
+import Cookie from 'cookie';
 import express from 'express';
 import morgan from 'morgan';
 import fetch from 'node-fetch';
 
 class AuthenticatedDataSource extends RemoteGraphQLDataSource {
   willSendRequest({ request, context }: { request: any; context: any }) {
-    request.http.headers.set('client_id', context.client_id);
-    request.http.headers.set('user_id', context.user_id);
+    if (context?.client_id)
+      request.http.headers.set('client_id', context.client_id);
+    if (context?.user_id) request.http.headers.set('user_id', context.user_id);
+    if (context?.is_admin)
+      request.http.headers.set('is_admin', context.is_admin);
   }
 }
 
@@ -31,20 +35,36 @@ const authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
   const server = new ApolloServer({
     gateway,
     subscriptions: false,
-    context: async ({ req: { headers } }) =>
-      headers?.authorization
+    context: async ({ req: { headers } }) => {
+      const cookies = Cookie.parse((headers.cookie as string) || '');
+      const token = cookies?.jid
+        ? cookies.jid
+        : headers?.authorization
+        ? headers.authorization.split(' ')[1]
+        : null;
+      return token
         ? fetch(authenticationCheck, {
             method: 'POST',
-            headers: {
-              authorization: `Bearer ${headers.authorization.split(' ')[1]}`
-            }
+            headers: { authorization: `Bearer ${token}` }
           })
-            .then<{ ok: boolean; authenticated: boolean; user_id: string }>(
-              res => res.json()
+            .then<{
+              ok: boolean;
+              authenticated: boolean;
+              user_id: string;
+              is_admin: boolean;
+              client_id: string;
+            }>(res => res.json())
+            .then(res =>
+              res?.authenticated
+                ? {
+                    user_id: res.user_id,
+                    is_admin: res.is_admin,
+                    client_id: res.client_id
+                  }
+                : {}
             )
-            .then(res => (res?.authenticated ? res?.user_id : null))
-            .then(user_id => ({ user_id }))
-        : {}
+        : {};
+    }
   });
   const app = express();
   app.use(bodyParser.urlencoded({ extended: true }));

@@ -75,7 +75,7 @@ export type CollectionConfig = {
 
 export type Endorsement = {
    __typename?: 'Endorsement',
-  endoser_mspid: Scalars['String'],
+  endorser_mspid: Scalars['String'],
   id_bytes: Scalars['String'],
   signature: Scalars['String'],
 };
@@ -338,7 +338,7 @@ export type CollectionConfigResolvers<ContextType = any, ParentType extends Reso
 };
 
 export type EndorsementResolvers<ContextType = any, ParentType extends ResolversParentTypes['Endorsement'] = ResolversParentTypes['Endorsement']> = {
-  endoser_mspid?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+  endorser_mspid?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   id_bytes?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   signature?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
 };
