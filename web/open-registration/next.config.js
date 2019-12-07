@@ -4,9 +4,8 @@ module.exports = {
     if (!isServer) {
       config.node = {
         fs: 'empty'
-      }
+      };
     }
-
-    return config
+    return config;
   }
-}
+};

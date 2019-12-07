@@ -50,7 +50,7 @@ export const createModel: (option?: {
           accessToken: token.access_token,
           accessTokenExpiresAt: token.expires_at,
           client,
-          user: { id: user.id }
+          user: { id: user.id, is_admin: user.is_admin, client_id: client.id }
         }
       : null;
   },
