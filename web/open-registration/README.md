@@ -11,9 +11,12 @@ Port default is 3000; and it is CORS enabled to `localhost:3000`.
 
 ### Getting Started
 For the first time setup,
+Go to `http://localhost:3300/graphql`
+- Create root client application, using Graphql Playground. This is not part of this UI app.
+
+Go to `http://localhost:3000`
 - Register new user
 - Login with new user
-- Create root client application
 - Enroll yourself
 - Start using Playground
 
@@ -24,3 +27,4 @@ For the first time setup,
 [Next + Oauth2 + cookie](https://github.com/whoisryosuke/nextjs-oauth2-cookie-auth/blob/master/utils/withAuth.js)
 [Graphql Playground](https://github.com/prisma-labs/graphql-playground/tree/master/packages/graphql-playground-react)
 [customized iql](https://github.com/ericclemmons/customized-graphiql)
+[Starter project](https://github.com/tomanagle/Apollo-Next.js-GraphQL-starter)
