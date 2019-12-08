@@ -1,7 +1,7 @@
 import { Field, ObjectType } from 'type-graphql';
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@ObjectType()
+@ObjectType({ description: 'Client application' })
 @Entity('oauth_clients')
 export class Client extends BaseEntity {
   @Field(() => String)

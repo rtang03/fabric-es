@@ -6,7 +6,7 @@
   },
   "workspaces": [
     "packages/example",
-    "packages/oauth",
+    "packages/authentication",
     "packages/admin-tool",
     "packages/caliper",
     "packages/chaincode",

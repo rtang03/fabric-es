@@ -1,4 +1,3 @@
-import { stringEquals } from '@espresso/chaincode/dist/ngac';
 import { AuthenticationError, UserInputError } from 'apollo-server';
 import { compare, hash } from 'bcrypt';
 import { pick } from 'lodash';

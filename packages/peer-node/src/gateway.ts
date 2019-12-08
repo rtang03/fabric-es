@@ -4,6 +4,7 @@ import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
 import Cookie from 'cookie';
 import express from 'express';
+import jwt from 'jsonwebtoken';
 import morgan from 'morgan';
 import fetch from 'node-fetch';
 
@@ -42,6 +43,13 @@ const authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
         : headers?.authorization
         ? headers.authorization.split(' ')[1]
         : null;
+      // todo: There are two options, for authenticationCheck.
+      // Option 1: Below is a chatty authentication, which requires check, for every incoming request.
+      // Option 2: Alternatively, we can stick to local JWT check, and decode.
+      // We need to decide if we need option 2, at the same time.
+      // One suggests: for admin access, use 1; for non-admin access, use 2
+      // Option 2 has drawback, which peer-node demands ACCESS_TOKEN_SECRET
+      // const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
       return token
         ? fetch(authenticationCheck, {
             method: 'POST',
