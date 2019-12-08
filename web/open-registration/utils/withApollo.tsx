@@ -133,13 +133,13 @@ function initApolloClient(initState: any, token?: string) {
 
 function createApolloClient(initialState = {}, serverAccessToken?: string) {
   const oauthLink = new HttpLink({
-    uri: servers.oauth_server_uri, // 'http://localhost:3300/graphql',
+    uri: servers.oauth_server_uri,
     credentials: 'include',
     fetch,
   });
 
   const peerNodeLink = new HttpLink({
-    uri: servers.peer_node_uri, // 'http://localhost:4000/graphql',
+    uri: servers.peer_node_uri,
     credentials: 'include',
     fetch,
     fetchOptions: {
