@@ -30,7 +30,8 @@ export const createModel: (option?: {
     const payload: any = {};
     if (user?.id) payload.userId = user.id;
     if (client?.id) payload.client_id = client.id;
-    option.accessTokenOptions.subject = client.id;
+    if (user?.is_admin) payload.is_admin = user.is_admin;
+    option.accessTokenOptions.subject = user.id;
     return sign(payload, option.accessTokenSecret, option.accessTokenOptions);
   },
   generateRefreshToken: async (client: IClient, user: OUser, scope) => {
@@ -50,7 +51,7 @@ export const createModel: (option?: {
           accessToken: token.access_token,
           accessTokenExpiresAt: token.expires_at,
           client,
-          user: { id: user.id }
+          user: { id: user.id, is_admin: user.is_admin, client_id: client.id }
         }
       : null;
   },

@@ -96,7 +96,7 @@ const Login: NextPage<{ auth_uri: string }> = ({ auth_uri }) => {
                 if (!data) return null;
                 store.writeQuery<MeQuery>({
                   query: MeDocument,
-                  data: { me: data.login.user }
+                  data: { me: data?.login?.user }
                 });
               }
             })

@@ -3,6 +3,7 @@ import {
   createUser,
   getPeerInfo
 } from '@espresso/admin-tool';
+import { AuthenticationError, ForbiddenError } from 'apollo-server';
 import ab2str from 'arraybuffer-to-string';
 import { FileSystemWallet } from 'fabric-network';
 import { includes } from 'lodash';
@@ -61,48 +62,59 @@ export const createResolvers: (option: {
         ),
       isWalletEntryExist: async (_, { label }: { label: string }) =>
         wallet.exists(label),
-      listWallet: async () => wallet.list().then(result => result ?? []),
+      listWallet: async (_, __, { is_admin }) => {
+        if (is_admin) return wallet.list().then(result => result ?? []);
+        else throw new ForbiddenError('require administrative right');
+      },
       getCaIdentityByEnrollmentId: async (
         _,
-        { enrollmentId }: { enrollmentId: string }
-      ) =>
-        idService
-          .getByEnrollmentId(enrollmentId || '')
-          .then(({ result }) =>
-            result
-              ? {
-                  id: result.id,
-                  typ: result.type,
-                  affiliation: result.affiliation,
-                  max_enrollments: result.max_enrollments,
-                  attrs: result.attrs
-                }
-              : null
-          )
-          .catch(error => {
-            if (includes(error.message, 'Failed to get User')) return null;
-            else throw error;
-          }),
-      getCaIdentities: async () =>
-        idService
-          .getAll()
-          .then(({ result }) =>
-            result?.identities
-              ? result.identities.map(
-                  ({ id, type, affiliation, max_enrollments, attrs }) => ({
-                    id,
-                    typ: type,
-                    affiliation,
-                    max_enrollments,
-                    attrs
-                  })
-                )
-              : []
-          )
-          .catch(error => {
-            if (includes(error.message, 'Failed to get User')) return [];
-            else throw error;
-          }),
+        { enrollmentId }: { enrollmentId: string },
+        { user_id }
+      ) => {
+        if (!user_id) throw new AuthenticationError('require log in');
+        if (user_id === enrollmentId)
+          return idService
+            .getByEnrollmentId(enrollmentId || '')
+            .then(({ result }) =>
+              result
+                ? {
+                    id: result.id,
+                    typ: result.type,
+                    affiliation: result.affiliation,
+                    max_enrollments: result.max_enrollments,
+                    attrs: result.attrs
+                  }
+                : null
+            )
+            .catch(error => {
+              if (includes(error.message, 'Failed to get User')) return null;
+              else throw error;
+            });
+        else throw new ForbiddenError('unauthorized access');
+      },
+      getCaIdentities: async (_, __, { is_admin }) => {
+        if (is_admin)
+          return idService
+            .getAll()
+            .then(({ result }) =>
+              result?.identities
+                ? result.identities.map(
+                    ({ id, type, affiliation, max_enrollments, attrs }) => ({
+                      id,
+                      typ: type,
+                      affiliation,
+                      max_enrollments,
+                      attrs
+                    })
+                  )
+                : []
+            )
+            .catch(error => {
+              if (includes(error.message, 'Failed to get User')) return [];
+              else throw error;
+            });
+        else throw new ForbiddenError('require administrative right');
+      },
       getCollectionConfigs: async () =>
         peerInfo
           .getCollectionsConfig({
@@ -170,7 +182,7 @@ export const createResolvers: (option: {
                   endorsements: data.actions[0].payload.action.endorsements.map(
                     item => {
                       return {
-                        endoser_mspid: item.endorser.Mspid,
+                        endorser_mspid: item.endorser.Mspid,
                         id_bytes: item.endorser.IdBytes,
                         signature: JSON.stringify(item.signature)
                       };

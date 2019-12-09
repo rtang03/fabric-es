@@ -1,6 +1,12 @@
 import { ApolloGateway } from '@apollo/gateway';
 import { ApolloServer } from 'apollo-server-express';
-import { AuthenticatedDataSource } from '../../utils';
+
+class AuthenticatedDataSource extends RemoteGraphQLDataSource {
+  willSendRequest({ request, context }: { request: any; context: any }) {
+    request.http.headers.set('client_id', context.client_id);
+    request.http.headers.set('user_id', context.user_id);
+  }
+}
 
 const gateway = new ApolloGateway({
   serviceList: [

@@ -1,4 +1,3 @@
-import { stringEquals } from '@espresso/chaincode/dist/ngac';
 import { AuthenticationError, UserInputError } from 'apollo-server';
 import { compare, hash } from 'bcrypt';
 import { pick } from 'lodash';
@@ -35,13 +34,18 @@ export class OUserResolver {
     return 'hi!';
   }
 
-  @Query(() => [OUser])
+  @Query(() => [OUser], {
+    description: 'List of all users; administrator required'
+  })
   @UseMiddleware(isAdmin)
   async users() {
     return OUser.find();
   }
 
-  @Query(() => OUser, { nullable: true })
+  @Query(() => OUser, {
+    nullable: true,
+    description: 'User profile; authentication required'
+  })
   async me(@Ctx() { payload }: MyContext): Promise<OUser> {
     const id = payload?.userId;
     return id
@@ -92,7 +96,9 @@ export class OUserResolver {
       });
   }
 
-  @Query(() => Boolean)
+  @Query(() => Boolean, {
+    description: 'Verify user and password; no authentication required'
+  })
   async verifyPassword(
     @Arg('user_id') user_id: string,
     @Arg('password') password: string
@@ -108,7 +114,11 @@ export class OUserResolver {
     @Arg('username') username: string,
     @Arg('email') email: string,
     @Arg('password') password: string,
-    @Arg('admin_password', { nullable: true }) adminPassword?: string
+    @Arg('admin_password', {
+      nullable: true,
+      description: 'if provided, it registers administrator account'
+    })
+    adminPassword?: string
   ) {
     const exist = await OUser.findOne({ email });
     const hashedPassword = await hash(password, 12);
@@ -135,7 +145,7 @@ export class OUserResolver {
     return true;
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, { description: 'authentication required' })
   async updateUser(
     @Ctx() { payload }: MyContext,
     @Arg('email') email?: string,

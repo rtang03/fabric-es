@@ -71,7 +71,7 @@ export const typeDefs = gql`
     payload: String!
   }
   type Endorsement {
-    endoser_mspid: String!
+    endorser_mspid: String!
     id_bytes: String!
     signature: String!
   }
