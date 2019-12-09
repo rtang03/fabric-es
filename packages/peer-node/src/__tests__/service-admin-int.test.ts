@@ -1,9 +1,15 @@
 require('../env');
-import { ApolloGateway } from '@apollo/gateway';
+import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import gql from 'graphql-tag';
-import { AuthenticatedDataSource } from '../utils';
+
+class AuthenticatedDataSource extends RemoteGraphQLDataSource {
+  willSendRequest({ request, context }: { request: any; context: any }) {
+    request.http.headers.set('client_id', context.client_id);
+    request.http.headers.set('user_id', context.user_id);
+  }
+}
 
 let apollo: ApolloServer;
 const enrollmentId = `${Math.floor(

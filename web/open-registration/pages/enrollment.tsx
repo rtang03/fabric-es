@@ -259,8 +259,8 @@ const Enrollment: NextPage = () => {
                   variant="contained"
                   color="primary"
                   disabled={
-                    idData?.getCaIdentityByEnrollmentId !== undefined ||
-                    !verifyPwData?.verifyPassword
+                    (idData !== undefined && !verifyPwData?.verifyPassword) ||
+                    !!idData?.getCaIdentityByEnrollmentId?.id
                   }>
                   Enroll
                 </Button>

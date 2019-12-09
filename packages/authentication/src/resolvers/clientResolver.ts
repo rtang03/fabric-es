@@ -46,12 +46,18 @@ export class ClientResolver {
     return 'hi! developer';
   }
 
-  @Query(() => String, { nullable: true })
+  @Query(() => String, {
+    nullable: true,
+    description: 'client_id of root app; no authentication required'
+  })
   async getRootClientId() {
     return Client.findOne({ applicationName: 'root' }).then(({ id }) => id);
   }
 
-  @Query(() => [Client], { nullable: true })
+  @Query(() => [Client], {
+    nullable: true,
+    description: 'Public list of client apps; no authentication required'
+  })
   async getPublicClients() {
     return Client.find().then(clients =>
       clients.map(item => omit(item, 'client_secret'))
@@ -61,7 +67,10 @@ export class ClientResolver {
   /**
    * used by app owner
    */
-  @Query(() => [Client], { nullable: true })
+  @Query(() => [Client], {
+    nullable: true,
+    description: 'List of client apps owned by me; authentication required'
+  })
   async getClients(@Ctx() { payload }: MyContext) {
     const user_id = payload?.userId;
     if (!user_id) throw new AuthenticationError('could not find user');
@@ -69,11 +78,16 @@ export class ClientResolver {
     return Client.find({ user_id });
   }
 
-  @Mutation(() => CreateAppResponse, { nullable: true })
+  @Mutation(() => CreateAppResponse, {
+    nullable: true,
+    description:
+      'Create regular client app with all grant types; authentication required'
+  })
   async createRegularApp(
     @Ctx() { payload }: MyContext,
     @Arg('applicationName') applicationName: string,
-    @Arg('grants', () => [String]) grants: string[],
+    @Arg('grants', () => [String])
+    grants: string[],
     @Arg('redirect_uri', { nullable: true }) redirect_uri?: string
   ): Promise<CreateAppResponse> {
     const user_id = payload?.userId;
@@ -106,14 +120,20 @@ export class ClientResolver {
   /**
    * used by OAuth Root Admin
    */
-  @Query(() => [Client], { nullable: true })
+  @Query(() => [Client], {
+    nullable: true,
+    description: 'List of all client apps; administrator required'
+  })
   @UseMiddleware(isAdmin)
   async getAllClients() {
     return Client.find();
   }
 
   // create system application
-  @Mutation(() => CreateAppResponse, { nullable: true })
+  @Mutation(() => CreateAppResponse, {
+    nullable: true,
+    description: 'Create system application; administrator required'
+  })
   @UseMiddleware(isAdmin)
   async createApplication(
     @Ctx() { payload }: MyContext,
@@ -147,10 +167,14 @@ export class ClientResolver {
   }
 
   // used by Oauth root admin, to create bootstrap admin user
-  @Mutation(() => String, { nullable: true })
+  @Mutation(() => String, {
+    nullable: true,
+    description: 'Create root client application'
+  })
   async createRootClient(
-    @Arg('admin') admin: string,
-    @Arg('password') password: string
+    @Arg('admin', { description: 'Input "admin"' }) admin: string,
+    @Arg('password', { description: 'Input predefined password of root admin' })
+    password: string
   ) {
     const root = await Client.findOne({ applicationName: 'root' });
     if (root) throw new Error('Root client already exist');

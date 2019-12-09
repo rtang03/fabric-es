@@ -10,7 +10,7 @@ export default () => {
         <Typography component="h1" variant="h5">
           Open Registration Client
         </Typography>
-        <ProTip/>
+        <ProTip />
       </div>
     </Layout>
   );
