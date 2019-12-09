@@ -28,9 +28,9 @@ yarn run enrollCaAdmin
 ```
 
 Step: 2  
-The docker-compose of development network, of this repo shall start the Postgresql. You simply create database `account01`.  
+The docker-compose of development network, of this repo shall start the Postgresql. You simply create database `auth_db`.  
 Or, alternatively, you may use a separately installed Postgresql and with proper setting, and create 
-database `account01`. Need not create tables/schema.
+database `auth_db`. Need not create tables/schema.
 
 ```text
 TYPEORM_SCHEMA=public
@@ -38,7 +38,7 @@ TYPEORM_CONNECTION=postgres
 TYPEORM_HOST=localhost
 TYPEORM_USERNAME=postgres
 TYPEORM_PASSWORD=postgres
-TYPEORM_DATABASE=account01
+TYPEORM_DATABASE=auth_db
 TYPEORM_PORT=5432
 TYPEORM_SYNCHRONIZE=true
 TYPEORM_LOGGING=true
@@ -70,6 +70,9 @@ As an example, third party client app shall request authorization code.
 ```text
 http://localhost:4000/oauth/authorize?redirect=/oauth/authorize&client_id=c0096eeb-2a27-4819-b073-a0d45f98f6ee&redirect_uri=http://example.com/callback&grant_type=authorization_code&state=9999&response_type=code
 ```
+
+TODO:
+When register new user, need to check duplicated email and username. 
 
 ### Reference Material
 
