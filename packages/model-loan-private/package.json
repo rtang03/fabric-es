@@ -1,0 +1,33 @@
+{
+  "name": "@espresso/model-loan-private",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "yarn run clean && tsc",
+    "test": "yarn build && ./node_modules/.bin/jest unit.test",
+    "clean": "rimraf dist"
+  },
+  "engines": {
+    "node": ">=8",
+    "npm": ">=5"
+  },
+  "private": true,
+  "engineStrict": true,
+  "dependencies": {
+    "@espresso/fabric-cqrs": "1.0.0",
+    "@espresso/model-common": "1.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.18",
+    "jest": "^24.9.0",
+    "prettier": "^1.19.1",
+    "rimraf": "^3.0.0",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.20.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.7.2"
+  }
+}

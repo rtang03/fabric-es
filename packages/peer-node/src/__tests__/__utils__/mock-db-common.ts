@@ -1,14 +1,16 @@
 import { Commit, getMockRepository, Repository } from '@espresso/fabric-cqrs';
 import {
+  User,
+  UserEvents,
+  userReducer
+} from '@espresso/model-common';
+import {
   Document,
   DocumentEvents,
   documentReducer,
   Loan,
   LoanEvents,
   loanReducer,
-  User,
-  UserEvents,
-  userReducer
 } from '@espresso/model-loan';
 
 /**

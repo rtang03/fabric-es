@@ -1,38 +1,42 @@
 import {
+  CREATE_USER,
+  GET_COMMITS_BY_USER,
+  GET_USER_BY_ID,
+  GET_USERS_BY_PAGE,
+  userResolvers,
+  userTypeDefs
+} from '@espresso/model-common';
+import {
   APPLY_LOAN,
   APPROVE_LOAN,
   CANCEL_LOAN,
-  CREATE_DATA_DOC_CONTENTS,
   CREATE_DOCUMENT,
-  CREATE_FILE_DOC_CONTENTS,
-  CREATE_LOAN_DETAILS,
-  CREATE_USER,
   DELETE_DOCUMENT,
   documentResolvers,
   documentTypeDefs,
   EXPIRE_LOAN,
   GET_COMMITS_BY_DOCUMENT,
   GET_COMMITS_BY_LOAN,
-  GET_COMMITS_BY_USER,
-  GET_CONTENTS_BY_ID,
-  GET_DETAILS_BY_ID,
   GET_DOCUMENT_BY_ID,
   GET_LOAN_BY_ID,
-  GET_USER_BY_ID,
-  GET_USERS_BY_PAGE,
   loanResolvers,
   loanTypeDefs,
   REJECT_LOAN,
-  resolvers as localResolvers,
   RESTRICT_DOCUMENT_ACCESS,
   RETURN_LOAN,
-  typeDefs as localTypeDefs,
   UPDATE_DOCUMENT,
   UPDATE_LOAN,
-  UPDATE_LOAN_DETAILS,
-  userResolvers,
-  userTypeDefs
 } from '@espresso/model-loan';
+import {
+  CREATE_DATA_DOC_CONTENTS,
+  CREATE_FILE_DOC_CONTENTS,
+  CREATE_LOAN_DETAILS,
+  GET_CONTENTS_BY_ID,
+  GET_DETAILS_BY_ID,
+  resolvers as localResolvers,
+  typeDefs as localTypeDefs,
+  UPDATE_LOAN_DETAILS
+} from '@espresso/model-loan-private';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import {
