@@ -17,7 +17,6 @@ import Router from 'next/router';
 import React from 'react';
 import * as yup from 'yup';
 import { MyTextField } from '../components';
-import DisplayErrorMessage from '../components/DisplayErrorMessage';
 import Layout from '../components/Layout';
 import {
   MeDocument,
@@ -109,7 +108,7 @@ const Login: NextPage<{ auth_uri: string }> = ({ auth_uri }) => {
                 console.error(err);
               });
           }}>
-          {({ isSubmitting }) => (
+          {({ values, errors, isSubmitting }) => (
             <Form className={classes.form}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
@@ -144,11 +143,19 @@ const Login: NextPage<{ auth_uri: string }> = ({ auth_uri }) => {
                 className={classes.submit}
                 variant="contained"
                 color="primary"
-                disabled={isSubmitting}
+                disabled={
+                  isSubmitting ||
+                  (!!errors?.email && !values?.email) ||
+                  (!!errors?.password && !values?.password)
+                }
                 type="submit">
                 Log In
               </Button>
-              <DisplayErrorMessage error={error} />
+              <div>
+                <Typography variant="caption" color="textSecondary">
+                  {error?.graphQLErrors[0].message}
+                </Typography>
+              </div>
               <Grid container justify="flex-end">
                 <Grid item>
                   <Link href="#" variant="body2">
@@ -156,12 +163,11 @@ const Login: NextPage<{ auth_uri: string }> = ({ auth_uri }) => {
                   </Link>
                 </Grid>
                 <Grid item>
-                  <Link href="#" variant="body2">
+                  <Link href="/register" variant="body2">
                     {`Don't have an account? \n Register Me`}
                   </Link>
                 </Grid>
               </Grid>
-              {/*<pre>{JSON.stringify(values, null, 2)}</pre>*/}
             </Form>
           )}
         </Formik>

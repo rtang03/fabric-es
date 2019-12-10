@@ -8,7 +8,6 @@ import { NextPage } from 'next';
 import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import { MyTextField } from '../components';
-import DisplayErrorMessage from '../components/DisplayErrorMessage';
 import Layout from '../components/Layout';
 import {
   useCreateRegularAppMutation,
@@ -89,7 +88,11 @@ const Application: NextPage<any> = () => {
                 </Button>
               </Form>
             </Formik>
-            <DisplayErrorMessage error={error} />
+            <div>
+              <Typography variant="caption" color="textSecondary">
+                {error?.graphQLErrors[0].message}
+              </Typography>
+            </div>
             {!loading && !!data?.getClients ? (
               <>
                 <p>No of my application clients: {data.getClients!.length}</p>
@@ -188,7 +191,11 @@ const Application: NextPage<any> = () => {
                       type="submit">
                       Create
                     </Button>
-                    <DisplayErrorMessage error={createAppError} />
+                    <div>
+                      <Typography variant="caption" color="textSecondary">
+                        {createAppError?.graphQLErrors[0].message}
+                      </Typography>
+                    </div>
                   </Grid>
                   {Object.keys(createAppResponse).length ? (
                     <React.Fragment>

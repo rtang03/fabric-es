@@ -12,9 +12,12 @@ import Router from 'next/router';
 import React from 'react';
 import * as yup from 'yup';
 import { MyTextField } from '../components';
-import DisplayErrorMessage from '../components/DisplayErrorMessage';
 import Layout from '../components/Layout';
-import { useRegisterUserMutation } from '../generated/oauth-server-graphql';
+import { MyCheckbox } from '../components/MyCheckbox';
+import {
+  useRegisterAdminMutation,
+  useRegisterUserMutation
+} from '../generated/oauth-server-graphql';
 
 const validationSchema = yup.object({
   username: yup
@@ -28,7 +31,9 @@ const validationSchema = yup.object({
   password: yup
     .string()
     .required()
-    .min(8)
+    .min(8),
+  isAdmin: yup.boolean(),
+  admin_password: yup.string().min(4)
 });
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -57,9 +62,14 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const Register: NextPage<any> = () => {
-  const [register, { error }] = useRegisterUserMutation({
+  const [register, { error: registerError }] = useRegisterUserMutation({
     context: { backend: 'oauth' }
   });
+
+  const [
+    registerAdmin,
+    { error: registerAdminError }
+  ] = useRegisterAdminMutation({ context: { backend: 'oauth' } });
 
   const classes = useStyles();
 
@@ -74,24 +84,42 @@ const Register: NextPage<any> = () => {
         </Typography>
         <Formik
           validateOnChange={true}
-          initialValues={{ email: '', password: '', username: '' }}
+          initialValues={{
+            email: '',
+            password: '',
+            username: '',
+            isAdmin: false,
+            admin_password: ''
+          }}
           validationSchema={validationSchema}
           onSubmit={async (
-            { email, password, username },
+            { email, password, username, isAdmin, admin_password },
             { setSubmitting }
           ) => {
             setSubmitting(true);
-            return register({ variables: { email, password, username } })
-              .then(() => {
-                setSubmitting(false);
-                Router.push('/');
-              })
-              .catch(err => {
-                setSubmitting(false);
-                console.error(err);
-              });
+            return isAdmin && admin_password
+              ? registerAdmin({
+                  variables: { email, password, username, admin_password }
+                })
+                  .then(() => {
+                    setSubmitting(false);
+                    Router.push('/');
+                  })
+                  .catch(err => {
+                    setSubmitting(false);
+                    console.error(err);
+                  })
+              : register({ variables: { email, password, username } })
+                  .then(() => {
+                    setSubmitting(false);
+                    Router.push('/');
+                  })
+                  .catch(err => {
+                    setSubmitting(false);
+                    console.error(err);
+                  });
           }}>
-          {({ values, isSubmitting }) => (
+          {({ values, errors, isSubmitting }) => (
             <Form className={classes.form}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
@@ -125,20 +153,48 @@ const Register: NextPage<any> = () => {
                     autoComplete="current-password"
                   />
                 </Grid>
+                <Grid item xs={8}>
+                  <MyTextField
+                    disabled={!values?.isAdmin}
+                    variant="outlined"
+                    fullWidth
+                    name="admin_password"
+                    placeholder="admin password"
+                    type="password"
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <MyCheckbox
+                    label="admin"
+                    name="isAdmin"
+                    labelPlacement="end"
+                  />
+                </Grid>
               </Grid>
               <p />
               <Button
                 variant="contained"
                 color="primary"
                 className={classes.submit}
-                disabled={isSubmitting}
+                disabled={
+                  isSubmitting ||
+                  (!!errors?.username && !values?.username) ||
+                  (!!errors?.email && !values?.email) ||
+                  (!!errors?.password && !values?.password)
+                }
                 type="submit">
                 Register
               </Button>
-              <DisplayErrorMessage error={error} />
+              <div>
+                <Typography variant="caption" color="textSecondary">
+                  {values?.isAdmin
+                    ? registerAdminError?.graphQLErrors[0].message
+                    : registerError?.graphQLErrors[0].message}
+                </Typography>
+              </div>
               <Grid container justify="flex-end">
                 <Grid item>
-                  <Link href="#" variant="body2">
+                  <Link href="/login" variant="body2">
                     Already have an account? Log In
                   </Link>
                 </Grid>

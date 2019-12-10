@@ -4,6 +4,7 @@ import React from 'react';
 
 export const MyTextField: React.FC<FieldAttributes<any>> = ({
   placeholder,
+  disabled = false,
   ...props
 }) => {
   const [field, meta] = useField<{}>(props);
@@ -11,6 +12,7 @@ export const MyTextField: React.FC<FieldAttributes<any>> = ({
   return (
     <TextField
       placeholder={placeholder}
+      disabled={disabled}
       {...field}
       helperText={errorText}
       error={!!errorText}
