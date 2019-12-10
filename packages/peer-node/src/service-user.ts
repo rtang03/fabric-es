@@ -4,7 +4,7 @@ import {
   userReducer,
   userResolvers,
   userTypeDefs
-} from '@espresso/model-loan';
+} from '@espresso/model-common';
 import { startService } from './start-service';
 
 startService({
