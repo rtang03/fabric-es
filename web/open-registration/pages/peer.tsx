@@ -1,11 +1,9 @@
-import { makeStyles, Theme } from '@material-ui/core';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { omit } from 'lodash';
 import { NextPage } from 'next';
 import React from 'react';
-import DisplayErrorMessage from '../components/DisplayErrorMessage';
 import Layout from '../components/Layout';
 import { useGetPublicClientsQuery } from '../generated/oauth-server-graphql';
 import { useGetChannelPeersQuery } from '../generated/peer-node-graphql';
@@ -64,7 +62,11 @@ const Peer: NextPage = () => {
               </Typography>
             </div>
             {peers}
-            <DisplayErrorMessage error={peersError} />
+            <div>
+              <Typography variant="caption" color="textSecondary">
+                {peersError?.graphQLErrors[0].message}
+              </Typography>
+            </div>
           </Grid>
           <Grid item xs={6}>
             <div>
@@ -73,7 +75,11 @@ const Peer: NextPage = () => {
               </Typography>
             </div>
             {clientApps}
-            <DisplayErrorMessage error={clientsError} />
+            <div>
+              <Typography variant="caption" color="textSecondary">
+                {clientsError?.graphQLErrors[0].message}
+              </Typography>
+            </div>
           </Grid>
         </Grid>
       </Container>
