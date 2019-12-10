@@ -20,8 +20,7 @@ export const tabs = [
       creator_mspid
       id_bytes
       input_args
-      key
-      value
+      rwset
       response {
         status
         message

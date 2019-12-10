@@ -116,27 +116,32 @@ export class OUserResolver {
     @Arg('password') password: string,
     @Arg('admin_password', {
       nullable: true,
-      description: 'if provided, it registers administrator account'
+      description: 'if provided, it registers as administrator'
     })
     adminPassword?: string
   ) {
-    const exist = await OUser.findOne({ email });
+    const usernameExist = await OUser.findOne({ username });
+    if (usernameExist) throw new UserInputError('username already exists');
+
+    const emailExist = await OUser.findOne({ email });
+    if (emailExist) throw new UserInputError('email already exists');
+
+    const validAdminPassword = adminPassword === process.env.ADMIN_PASSWORD;
+    if (adminPassword && !validAdminPassword)
+      throw new UserInputError('admin password mismatch');
+
     const hashedPassword = await hash(password, 12);
-    return exist
-      ? false
-      : OUser.insert({
-          username,
-          email,
-          password: hashedPassword,
-          is_admin: adminPassword
-            ? adminPassword === process.env.ADMIN_PASSWORD
-            : false
-        })
-          .then(() => true)
-          .catch(error => {
-            console.error(error);
-            return false;
-          });
+    return OUser.insert({
+      username,
+      email,
+      password: hashedPassword,
+      is_admin: adminPassword === process.env.ADMIN_PASSWORD
+    })
+      .then(() => true)
+      .catch(error => {
+        console.error(error);
+        return false;
+      });
   }
 
   @Mutation(() => Boolean)

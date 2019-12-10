@@ -80,8 +80,7 @@ export const typeDefs = gql`
     creator_mspid: String!
     id_bytes: String!
     input_args: [String!]!
-    key: String!
-    value: String!
+    rwset: String!
     response: TransactionResponse!
     endorsements: [Endorsement!]!
   }

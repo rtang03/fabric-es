@@ -7,6 +7,7 @@ import { HttpLink } from 'apollo-link-http';
 import fetch from 'isomorphic-unfetch';
 import Head from 'next/head';
 import React from 'react';
+
 const isServer = () => typeof window === 'undefined';
 const servers = require('../servers.json');
 
@@ -53,6 +54,10 @@ export function withApollo(PageComponent: any, { ssr = true } = {}) {
         const cookies = cookie.parse(req.headers.cookie || '');
         if (cookies.jid) setAccessToken(cookies.jid);
       } else {
+        // todo: this can be improved, by making httpOnly in cookie.
+        // later, to refactor that the gateway accepts dual methods to carry token
+        // 1. in headers, and 2. in req.cookie.
+        // the AuthLink can be removed, and according this js-cookie be removed as weel
         const jscookie = await import('js-cookie');
         const token = jscookie.get().jid;
         if (token) setAccessToken(token);
@@ -135,7 +140,7 @@ function createApolloClient(initialState = {}, serverAccessToken?: string) {
   const oauthLink = new HttpLink({
     uri: servers.oauth_server_uri,
     credentials: 'include',
-    fetch,
+    fetch
   });
 
   const peerNodeLink = new HttpLink({
@@ -159,8 +164,9 @@ function createApolloClient(initialState = {}, serverAccessToken?: string) {
 
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors) {
-      if (graphQLErrors[0].message !== 'could not find user')
-        console.info(graphQLErrors);
+      const message = graphQLErrors[0].message;
+      // const caughtError = ['could not find user', 'email already exist'];
+      console.error(message);
     }
     if (networkError) console.error(networkError);
   });

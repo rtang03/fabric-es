@@ -142,8 +142,7 @@ export type TransactionData = {
   creator_mspid: Scalars['String'],
   id_bytes: Scalars['String'],
   input_args: Array<Scalars['String']>,
-  key: Scalars['String'],
-  value: Scalars['String'],
+  rwset: Scalars['String'],
   response: TransactionResponse,
   endorsements: Array<Endorsement>,
 };
@@ -375,8 +374,7 @@ export type TransactionDataResolvers<ContextType = any, ParentType extends Resol
   creator_mspid?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   id_bytes?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   input_args?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>,
-  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
-  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+  rwset?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   response?: Resolver<ResolversTypes['TransactionResponse'], ParentType, ContextType>,
   endorsements?: Resolver<Array<ResolversTypes['Endorsement']>, ParentType, ContextType>,
 };
