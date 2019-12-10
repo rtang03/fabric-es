@@ -152,13 +152,9 @@ export const createResolvers: (option: {
                   input_args: data.actions[0].payload.chaincode_proposal_payload.input.chaincode_spec.input.args.map(
                     arg => ab2str(arg, 'utf8')
                   ),
-                  key: JSON.stringify(
+                  rwset: JSON.stringify(
                     data.actions[0].payload.action.proposal_response_payload
-                      .extension.results.ns_rwset[0].rwset.writes[0].key
-                  ),
-                  value: JSON.stringify(
-                    data.actions[0].payload.action.proposal_response_payload
-                      .extension.results.ns_rwset[0].rwset.writes[0].value
+                      .extension.results
                   ),
                   response: {
                     status:

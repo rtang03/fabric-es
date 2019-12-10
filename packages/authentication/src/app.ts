@@ -10,7 +10,7 @@ const port = process.env.OAUTH_SERVER_PORT || 4000;
     resolvers: [OUserResolver, ClientResolver]
   });
   app.listen(port, () =>
-    console.log(`🎉 Express server started, at port: ${port}`)
+    console.log(`🎉 Authentication server started, at port: ${port}`)
   );
 })().catch(error => {
   console.log(error);
