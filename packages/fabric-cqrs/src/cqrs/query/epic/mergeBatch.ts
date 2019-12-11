@@ -1,6 +1,6 @@
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
+import { map, mergeMap, tap } from 'rxjs/operators';
 import { QueryDatabase } from '../../../types';
 import { action } from '../action';
 import { MergeBatchAction } from '../types';
@@ -17,7 +17,13 @@ export default (
       from(
         context.queryDatabase
           .mergeBatch({ entityName, commits })
-          .then(({ data }) => action.mergeBatchSuccess({ tx_id, result: data }))
+          .then(({ data }) =>
+            action.mergeBatchSuccess({
+              tx_id,
+              result: data,
+              args: { entityName, commits }
+            })
+          )
       )
     )
   );

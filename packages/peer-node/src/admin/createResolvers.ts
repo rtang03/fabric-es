@@ -166,8 +166,9 @@ export const createResolvers: (option: {
                     arg => ab2str(arg, 'utf8')
                   ),
                   rwset: JSON.stringify(
-                    data.actions[0].payload.action.proposal_response_payload
-                      .extension.results
+                    data
+                    // data.actions[0].payload.action.proposal_response_payload
+                    //   .extension.results
                   ),
                   response: {
                     status:
