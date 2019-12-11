@@ -1,7 +1,7 @@
 import { Errors } from '@espresso/model-common';
 import { LoanCommandHandler, LoanRepo } from '.';
 
-const LoanErrors = {
+export const LoanErrors = {
   loanNotFound: (loanId) => new Error(`LOAN_NOT_FOUND: id: ${loanId}`),
   loanCancelled: () => new Error('LOAN_CANCELLED'),
   loanApproved: () => new Error('LOAN_APPROVED'),

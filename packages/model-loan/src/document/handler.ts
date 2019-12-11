@@ -1,7 +1,7 @@
 import { Errors } from '@espresso/model-common';
 import { DocumentCommandHandler, DocumentRepo } from '.';
 
-const DocumentErrors = {
+export const DocumentErrors = {
   documentNotFound: (documentId) => new Error(`DOCUMENT_NOT_FOUND: id: ${documentId}`),
   documentCancelled: () => new Error('DOCUMENT_CANCELLED'),
   documentApproved: () => new Error('DOCUMENT_APPROVED'),
