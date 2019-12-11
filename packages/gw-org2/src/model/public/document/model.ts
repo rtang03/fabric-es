@@ -1,6 +1,4 @@
-export enum DocumentStatus {
-  DocumentCreated, DocumentDeleted, DocumentRestricted
-}
+import { Document as SuperDocument, DocumentStatus } from '@espresso/model-loan';
 
 /**
  * **Document** represents any supporting resources, such as trade documents, shipping documents, custom declarations, associating
@@ -8,15 +6,8 @@ export enum DocumentStatus {
  * also utilize the `reference` property as their internal identifier unique within their individual organizations. The on-chain
  * portion of a document is a placeholder, with a resource locator (the `link` property) pointing to the document's details
  */
-export class Document {
+export class Document extends SuperDocument {
   static type: 'document';
 
-  documentId: string;
-  ownerId: string;
-  loanId?: string;
-  title?: string;
-  reference: string;
   link: string;
-  status: DocumentStatus;
-  timestamp: number;
 }

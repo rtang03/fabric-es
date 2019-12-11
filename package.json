@@ -16,6 +16,7 @@
     "packages/model-loan-private",
     "packages/gw-org1",
     "packages/gw-org2",
+    "packages/gw-org3",
     "packages/peer-node"
   ],
   "private": true,

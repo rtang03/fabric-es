@@ -1,11 +1,6 @@
 import { Errors } from '@espresso/model-common';
+import { documentCommandHandler as superCommandHandler, DocumentErrors } from '@espresso/model-loan';
 import { DocumentCommandHandler, DocumentRepo } from '.';
-
-const DocumentErrors = {
-  documentNotFound: (documentId) => new Error(`DOCUMENT_NOT_FOUND: id: ${documentId}`),
-  documentCancelled: () => new Error('DOCUMENT_CANCELLED'),
-  documentApproved: () => new Error('DOCUMENT_APPROVED'),
-};
 
 export const documentCommandHandler: (
   option: {
@@ -15,6 +10,7 @@ export const documentCommandHandler: (
 ) => DocumentCommandHandler = ({
   enrollmentId, documentRepo
 }) => ({
+  ...superCommandHandler({ enrollmentId, documentRepo }),
   CreateDocument: async ({
     userId,
     payload: { documentId, loanId, title, reference, link, timestamp }
@@ -30,65 +26,6 @@ export const documentCommandHandler: (
     return documentRepo
       .create({ enrollmentId, id: documentId })
       .save(events);
-  },
-  DeleteDocument: async ({
-    userId,
-    payload: { documentId, timestamp }
-  }) => {
-    return documentRepo
-      .getById({ enrollmentId, id: documentId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw DocumentErrors.documentNotFound(documentId);
-        return save([{
-          type: 'DocumentDeleted',
-          payload: { documentId, userId, timestamp }
-        }]);
-      });
-  },
-  RestrictDocumentAccess: async ({
-    userId,
-    payload: { documentId, timestamp }
-  }) => {
-    return documentRepo
-      .getById({ enrollmentId, id: documentId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw DocumentErrors.documentNotFound(documentId);
-        return save([{
-          type: 'DocumentRestricted',
-          payload: { documentId, userId, timestamp }
-        }]);
-      });
-  },
-  DefineDocumentReference: async (_) => {
-    throw Errors.invalidOperation(); // Readonly field
-  },
-  DefineDocumentLoanId: async ({
-    userId,
-    payload: { documentId, loanId, timestamp }
-  }) => {
-    return documentRepo
-      .getById({ enrollmentId, id: documentId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw DocumentErrors.documentNotFound(documentId);
-        return save([{
-          type: 'DocumentLoanIdDefined',
-          payload: { documentId, userId, loanId, timestamp }
-        }]);
-      });
-  },
-  DefineDocumentTitle: async ({
-    userId,
-    payload: { documentId, title, timestamp }
-  }) => {
-    return documentRepo
-      .getById({ enrollmentId, id: documentId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw DocumentErrors.documentNotFound(documentId);
-        return save([{
-          type: 'DocumentTitleDefined',
-          payload: { documentId, userId, title, timestamp }
-        }]);
-      });
   },
   DefineDocumentLink: async ({
     userId,

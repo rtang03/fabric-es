@@ -1,5 +1,5 @@
 import { Commit } from '@espresso/fabric-cqrs';
-import { DocContents, docContentsCommandHandler, DocContentsDS } from '.';
+import { DocContents, docContentsCommandHandler, DocContentsDS } from '@espresso/model-loan-private';
 
 export const resolvers = {
   Query: {

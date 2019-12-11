@@ -1,4 +1,5 @@
-import { Document, DocumentEvents, DocumentStatus } from '.';
+import { DocumentStatus } from '@espresso/model-loan';
+import { Document, DocumentEvents } from '.';
 
 export function documentReducer(
   history: DocumentEvents[],
@@ -41,6 +42,8 @@ export function documentReducer(
           ...document,
           link: event.payload.link
         };
+      default:
+        return document;
     }
   };
 

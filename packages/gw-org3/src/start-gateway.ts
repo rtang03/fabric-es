@@ -20,15 +20,15 @@ export class AuthenticatedDataSource extends RemoteGraphQLDataSource {
 
 const gateway = new ApolloGateway({
   serviceList: [
-    { name: 'user',     url: 'http://localhost:14021/graphql' },
-    { name: 'loan',     url: 'http://localhost:14022/graphql' },
-    { name: 'document', url: 'http://localhost:14023/graphql' },
-    { name: 'private',  url: 'http://localhost:14024/graphql' }
+    { name: 'user',     url: 'http://localhost:14031/graphql' },
+    { name: 'loan',     url: 'http://localhost:14032/graphql' },
+    { name: 'document', url: 'http://localhost:14033/graphql' },
+    { name: 'private',  url: 'http://localhost:14034/graphql' }
   ],
   buildService: ({ url }) => new AuthenticatedDataSource({ url })
 });
 
-const PORT = process.env.PORT || 4002;
+const PORT = process.env.PORT || 4003;
 
 const client = jwks({
   jwksUri: `https://tangross.auth0.com/.well-known/jwks.json`
