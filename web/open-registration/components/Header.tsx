@@ -26,6 +26,8 @@ export const Header: React.FC<any> = () => {
     </div>
   );
 
+  const is_admin = data?.me?.is_admin;
+
   return (
     <header>
       <nav>
@@ -42,9 +44,17 @@ export const Header: React.FC<any> = () => {
         ) : !loading && data?.me ? (
           <>
             {' '}
-            | <Link href="/application">Client App</Link> |{' '}
-            {/*<Link href="/peer">Peer Info</Link> |{' '}*/}
+            |{' '}
+            {is_admin ? (
+              <>
+                <Link href="/application">Client App</Link> |{' '}
+                <Link href="/peer">Peer Info</Link> |{' '}
+              </>
+            ) : (
+              <React.Fragment />
+            )}
             <Link href="/enrollment">Enrollment</Link> |{' '}
+            <Link href="/profile">Profile</Link> |{' '}
             <Link href="/playground">Playground</Link> |{' '}
             <button
               onClick={async () => {
