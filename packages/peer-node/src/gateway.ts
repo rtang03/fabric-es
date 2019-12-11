@@ -4,7 +4,6 @@ import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
 import Cookie from 'cookie';
 import express from 'express';
-// import jwt from 'jsonwebtoken';
 import morgan from 'morgan';
 import fetch from 'node-fetch';
 
