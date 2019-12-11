@@ -1,6 +1,11 @@
-import { AuthenticationError, UserInputError } from 'apollo-server';
+import {
+  ApolloError,
+  AuthenticationError,
+  UserInputError,
+  ValidationError
+} from 'apollo-server';
 import { compare, hash } from 'bcrypt';
-import { pick } from 'lodash';
+import { omit } from 'lodash';
 import { Request, Response, Token } from 'oauth2-server-typescript';
 import {
   Arg,
@@ -46,16 +51,16 @@ export class OUserResolver {
     nullable: true,
     description: 'User profile; authentication required'
   })
-  async me(@Ctx() { payload }: MyContext): Promise<OUser> {
+  async me(@Ctx() { payload }: MyContext): Promise<Partial<OUser>> {
     const id = payload?.userId;
-    return id
-      ? await OUser.findOne({ id })
-          .then(u => pick(u, 'id', 'email', 'username'))
-          .catch(err => {
-            console.error(err);
-            return null;
-          })
-      : null;
+    if (!id) return null;
+
+    return OUser.findOne({ id })
+      .then(u => omit(u, 'password'))
+      .catch(err => {
+        console.error(err);
+        throw new ApolloError(err.message);
+      });
   }
 
   @Mutation(() => LoginResponse)
@@ -66,13 +71,14 @@ export class OUserResolver {
   ): Promise<LoginResponse> {
     const user = await OUser.findOne({ email });
     if (!user) throw new AuthenticationError('could not find user');
+
     if (!password) throw new UserInputError('bad password');
 
     const valid = await compare(password, user.password);
-    if (!valid) throw new UserInputError('bad password');
+    if (!valid) throw new ValidationError('bad password');
 
     const client = await Client.findOne({ applicationName: 'root' });
-    if (!client) throw new Error('Root client not exist');
+    if (!client) throw new ApolloError('Root client not exist');
 
     req.body.grant_type = 'password';
     req.body.username = user.username;
@@ -88,7 +94,7 @@ export class OUserResolver {
         return {
           ok: true,
           accessToken,
-          user: pick(user, 'email', 'username', 'id')
+          user: omit(user, 'password')
         };
       })
       .catch(error => {
@@ -105,7 +111,9 @@ export class OUserResolver {
   ): Promise<boolean> {
     const user = await OUser.findOne({ id: user_id });
     if (!user) throw new AuthenticationError('could not find user');
+
     if (!password) throw new UserInputError('bad password');
+
     return compare(password, user.password);
   }
 
@@ -128,9 +136,10 @@ export class OUserResolver {
 
     const validAdminPassword = adminPassword === process.env.ADMIN_PASSWORD;
     if (adminPassword && !validAdminPassword)
-      throw new UserInputError('admin password mismatch');
+      throw new ValidationError('admin password mismatch');
 
     const hashedPassword = await hash(password, 12);
+
     return OUser.insert({
       username,
       email,
@@ -140,7 +149,7 @@ export class OUserResolver {
       .then(() => true)
       .catch(error => {
         console.error(error);
-        return false;
+        throw new ApolloError(error.message);
       });
   }
 
@@ -155,27 +164,41 @@ export class OUserResolver {
     @Ctx() { payload }: MyContext,
     @Arg('email') email?: string,
     @Arg('username') username?: string
-  ) {
+  ): Promise<boolean> {
     const id = payload?.userId;
+    if (!id) throw new AuthenticationError('error in authorization header');
+
     const user = await OUser.findOne({ id });
-    if (!user) return false;
+    if (!user) throw new ApolloError('could not find user');
+
     if (email) user.email = email;
+
     if (username) user.username = username;
-    return email && username
-      ? await OUser.save(user)
+
+    return email || username
+      ? OUser.save(user)
           .then(() => true)
           .catch(error => {
             console.error(error);
-            return false;
+            throw new ApolloError(error.message);
           })
       : false;
   }
 
-  // todo: future use case
-  // @Mutation(() => Boolean)
-  // async removeUser() {
-  //   return true;
-  // }
+  @Mutation(() => Boolean)
+  async deleteUser(@Ctx() { payload }: MyContext): Promise<boolean> {
+    const id = payload?.userId;
+    if (!id) throw new AuthenticationError('error in authorization header');
+
+    return OUser.delete(id)
+      .then(() => true)
+      .catch(error => {
+        console.error(error);
+        throw new ApolloError(error.message);
+      });
+  }
+
+  // Currently refreshToken is disabled
   // @Mutation(() => Boolean)
   // @UseMiddleware(isAdmin)
   // async revokeRefreshTokensForUser(@Arg('email') email: string) {

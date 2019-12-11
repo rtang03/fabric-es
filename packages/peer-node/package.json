@@ -17,7 +17,7 @@
     "enrollAdmin": "rimraf assets/_wallet/admin && ./node_modules/.bin/ts-node src/enrollAdmin.ts",
     "svs-admin": "nodemon --exec ts-node ./src/service-admin.ts",
     "start-new-gateway": "nodemon --exec ts-node ./src/gateway.ts",
-    "generate-types": "graphql-codegen --config src/generated/codegen.yml",
+    "generate-types-for-admin": "graphql-codegen --config src/generated/codegen.yml",
     "enrollCaAdmin": "rimraf assets/_wallet/ca_admin && ./node_modules/.bin/ts-node src/admin/enrollCaAdmin.ts",
     "test-service-admin:integration": "jest int.test"
   },

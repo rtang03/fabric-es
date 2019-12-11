@@ -5,6 +5,7 @@ export const ME = `
       id
       email
       username
+      is_admin
     }
   }
 `;

@@ -1,9 +1,10 @@
 import Typography from '@material-ui/core/Typography';
+import { NextPage } from 'next';
 import React from 'react';
 import Layout from '../components/Layout';
 import ProTip from '../components/ProTip';
 
-export default () => {
+const Index: NextPage = () => {
   return (
     <Layout title="Home">
       <div>
@@ -15,3 +16,5 @@ export default () => {
     </Layout>
   );
 };
+
+export default Index;
