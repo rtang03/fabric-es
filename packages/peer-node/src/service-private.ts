@@ -8,7 +8,7 @@ import {
   resolvers,
   typeDefs
 } from '@espresso/model-loan-private';
-import { startService } from './start-service';
+import { startService } from './utils/start-service';
 
 startService({
   enrollmentId: 'admin',
