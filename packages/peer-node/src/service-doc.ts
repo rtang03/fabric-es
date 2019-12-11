@@ -5,7 +5,7 @@ import {
   documentResolvers,
   documentTypeDefs
 } from '@espresso/model-loan';
-import { startService } from './start-service';
+import { startService } from './utils/start-service';
 
 startService({
   enrollmentId: 'admin',

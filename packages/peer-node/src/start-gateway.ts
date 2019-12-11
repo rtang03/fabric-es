@@ -1,5 +1,5 @@
 require('./env');
-import { ApolloGateway } from '@apollo/gateway';
+import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
 import express from 'express';
@@ -7,7 +7,16 @@ import { createServer } from 'http';
 import jwt from 'jsonwebtoken';
 import jwks from 'jwks-rsa';
 // import morgan from 'morgan';
-import { AuthenticatedDataSource } from './utils';
+
+export class AuthenticatedDataSource extends RemoteGraphQLDataSource {
+  willSendRequest({ request, context }: { request: any; context: any }) {
+    // pass client_id to underlying service. For offchain resolvers, it needs
+    // additional auth check, to be implementated in the resolver
+    // see https://auth0.com/blog/develop-modern-apps-with-react-graphql-apollo-and-add-authentication/#Secure-your-GraphQL-API-with-Auth0
+    request.http.headers.set('client_id', context.client_id);
+    request.http.headers.set('user_id', context.user_id);
+  }
+}
 
 const gateway = new ApolloGateway({
   serviceList: [

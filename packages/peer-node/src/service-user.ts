@@ -5,7 +5,7 @@ import {
   userResolvers,
   userTypeDefs
 } from '@espresso/model-common';
-import { startService } from './start-service';
+import { startService } from './utils/start-service';
 
 startService({
   enrollmentId: 'admin',
