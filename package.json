@@ -14,10 +14,10 @@
     "packages/model-common",
     "packages/model-loan",
     "packages/model-loan-private",
+    "packages/gw-node",
     "packages/gw-org1",
     "packages/gw-org2",
-    "packages/gw-org3",
-    "packages/peer-node"
+    "packages/gw-org3"
   ],
   "private": true,
   "devDependencies": {
