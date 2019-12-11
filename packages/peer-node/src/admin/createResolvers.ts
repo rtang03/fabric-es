@@ -3,7 +3,12 @@ import {
   createUser,
   getPeerInfo
 } from '@espresso/admin-tool';
-import { AuthenticationError, ForbiddenError } from 'apollo-server';
+import {
+  ApolloError,
+  AuthenticationError,
+  ForbiddenError,
+  ValidationError
+} from 'apollo-server';
 import ab2str from 'arraybuffer-to-string';
 import { FileSystemWallet } from 'fabric-network';
 import { includes } from 'lodash';
@@ -25,11 +30,19 @@ export const createResolvers: (option: {
   const peerInfo = await getPeerInfo(channelName, peerName, {
     connectionProfile,
     fabricNetwork
+  }).catch(err => {
+    console.error(err);
+    throw new ApolloError('peer-info error');
   });
+
   const idService = await createIdentityService({
     connectionProfile,
     wallet
+  }).catch(err => {
+    console.error(err);
+    throw new ApolloError('identity service error');
   });
+
   return {
     Mutation: {
       registerAndEnrollUser: async (
@@ -48,7 +61,7 @@ export const createResolvers: (option: {
                 connectionProfile,
                 wallet
               }).then(result => result?.status === 'SUCCESS');
-            } else throw error;
+            } else throw new ValidationError(error.message);
           })
     },
     Query: {
@@ -88,7 +101,7 @@ export const createResolvers: (option: {
             )
             .catch(error => {
               if (includes(error.message, 'Failed to get User')) return null;
-              else throw error;
+              else throw new ValidationError(error.message);
             });
         else throw new ForbiddenError('unauthorized access');
       },
@@ -98,7 +111,7 @@ export const createResolvers: (option: {
             .getAll()
             .then(({ result }) =>
               result?.identities
-                ? result.identities.map(
+                ? result?.identities.map(
                     ({ id, type, affiliation, max_enrollments, attrs }) => ({
                       id,
                       typ: type,
@@ -111,7 +124,7 @@ export const createResolvers: (option: {
             )
             .catch(error => {
               if (includes(error.message, 'Failed to get User')) return [];
-              else throw error;
+              else throw new ValidationError(error?.message);
             });
         else throw new ForbiddenError('require administrative right');
       },

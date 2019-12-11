@@ -12,17 +12,15 @@ export type Scalars = {
 };
 
 export type _Service = {
-  __typename?: '_Service';
   /**
    * The sdl representing the federated service capabilities. Includes federation
    * directives, removes federation types, and includes rest of full schema after
    * schema directives have been applied
-   **/
+   */
   sdl?: Maybe<Scalars['String']>;
 };
 
 export type Block = {
-  __typename?: 'Block';
   block_number: Scalars['String'];
   previous_hash: Scalars['String'];
   data_hash: Scalars['String'];
@@ -31,7 +29,6 @@ export type Block = {
 };
 
 export type CaIdentity = {
-  __typename?: 'CaIdentity';
   id: Scalars['String'];
   typ: Scalars['String'];
   affiliation: Scalars['String'];
@@ -40,26 +37,22 @@ export type CaIdentity = {
 };
 
 export type Chaincode = {
-  __typename?: 'Chaincode';
   name: Scalars['String'];
   version: Scalars['Int'];
   path: Scalars['String'];
 };
 
 export type ChannelInfo = {
-  __typename?: 'ChannelInfo';
   channel_id: Scalars['String'];
 };
 
 export type ChannelPeer = {
-  __typename?: 'ChannelPeer';
   mspid: Scalars['String'];
   name: Scalars['String'];
   url: Scalars['String'];
 };
 
 export type CollectionConfig = {
-  __typename?: 'CollectionConfig';
   name: Scalars['String'];
   typ: Scalars['String'];
   required_peer_count: Scalars['Int'];
@@ -70,14 +63,12 @@ export type CollectionConfig = {
 };
 
 export type Endorsement = {
-  __typename?: 'Endorsement';
-  endoser_mspid: Scalars['String'];
+  endorser_mspid: Scalars['String'];
   id_bytes: Scalars['String'];
   signature: Scalars['String'];
 };
 
 export type Mutation = {
-  __typename?: 'Mutation';
   registerAndEnrollUser: Scalars['Boolean'];
 };
 
@@ -87,13 +78,11 @@ export type MutationRegisterAndEnrollUserArgs = {
 };
 
 export type PeerInfo = {
-  __typename?: 'PeerInfo';
   mspid: Scalars['String'];
   peerName: Scalars['String'];
 };
 
 export type Query = {
-  __typename?: 'Query';
   _service: _Service;
   getChainHeight: Scalars['Int'];
   getBlockByNumber?: Maybe<Block>;
@@ -128,33 +117,28 @@ export type QueryIsWalletEntryExistArgs = {
 };
 
 export type TransactionData = {
-  __typename?: 'TransactionData';
   tx_id: Scalars['String'];
   creator_mspid: Scalars['String'];
   id_bytes: Scalars['String'];
   input_args: Array<Scalars['String']>;
-  key: Scalars['String'];
-  value: Scalars['String'];
+  rwset: Scalars['String'];
   response: TransactionResponse;
   endorsements: Array<Endorsement>;
 };
 
 export type TransactionResponse = {
-  __typename?: 'TransactionResponse';
   status: Scalars['String'];
   message: Scalars['String'];
   payload: Scalars['String'];
 };
 
 export type WalletEntry = {
-  __typename?: 'WalletEntry';
   label: Scalars['String'];
   mspId?: Maybe<Scalars['String']>;
   identifier?: Maybe<Scalars['String']>;
 };
 
 export type X509Attribute = {
-  __typename?: 'X509Attribute';
   name: Scalars['String'];
   value: Scalars['String'];
 };
@@ -163,54 +147,38 @@ export type GetCaIdentityByEnrollmentIdQueryVariables = {
   enrollmentId: Scalars['String'];
 };
 
-export type GetCaIdentityByEnrollmentIdQuery = { __typename?: 'Query' } & {
+export type GetCaIdentityByEnrollmentIdQuery = {
   getCaIdentityByEnrollmentId: Maybe<
-    { __typename?: 'CaIdentity' } & Pick<
-      CaIdentity,
-      'id' | 'typ' | 'affiliation' | 'max_enrollments'
-    > & {
-        attrs: Array<
-          { __typename?: 'X509Attribute' } & Pick<
-            X509Attribute,
-            'name' | 'value'
-          >
-        >;
-      }
+    Pick<CaIdentity, 'id' | 'typ' | 'affiliation' | 'max_enrollments'> & {
+      attrs: Array<Pick<X509Attribute, 'name' | 'value'>>;
+    }
   >;
 };
 
 export type GetChannelPeersQueryVariables = {};
 
-export type GetChannelPeersQuery = { __typename?: 'Query' } & {
-  getChannelPeers: Array<
-    { __typename?: 'ChannelPeer' } & Pick<ChannelPeer, 'mspid' | 'name' | 'url'>
-  >;
+export type GetChannelPeersQuery = {
+  getChannelPeers: Array<Pick<ChannelPeer, 'mspid' | 'name' | 'url'>>;
 };
 
 export type GetPeerInfoQueryVariables = {};
 
-export type GetPeerInfoQuery = { __typename?: 'Query' } & {
-  getPeerInfo: { __typename?: 'PeerInfo' } & Pick<
-    PeerInfo,
-    'peerName' | 'mspid'
-  >;
+export type GetPeerInfoQuery = {
+  getPeerInfo: Pick<PeerInfo, 'peerName' | 'mspid'>;
 };
 
 export type IsWalletEntryExistQueryVariables = {
   label: Scalars['String'];
 };
 
-export type IsWalletEntryExistQuery = { __typename?: 'Query' } & Pick<
-  Query,
-  'isWalletEntryExist'
->;
+export type IsWalletEntryExistQuery = Pick<Query, 'isWalletEntryExist'>;
 
 export type RegisterAndEnrollUserMutationVariables = {
   enrollmentId: Scalars['String'];
   enrollmentSecret: Scalars['String'];
 };
 
-export type RegisterAndEnrollUserMutation = { __typename?: 'Mutation' } & Pick<
+export type RegisterAndEnrollUserMutation = Pick<
   Mutation,
   'registerAndEnrollUser'
 >;

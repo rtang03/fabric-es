@@ -1,6 +1,6 @@
 overwrite: true
-schema: "http://localhost:15000/graphql"
 generates:
+  schema: "http://localhost:15000/graphql"
   src/generated/peer-resolvers-types.ts:
     plugins:
       - typescript

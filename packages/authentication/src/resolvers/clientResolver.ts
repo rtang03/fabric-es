@@ -1,4 +1,9 @@
-import { AuthenticationError } from 'apollo-server-errors';
+import {
+  ApolloError,
+  AuthenticationError,
+  UserInputError,
+  ValidationError
+} from 'apollo-server-errors';
 import { randomBytes } from 'crypto';
 import { omit } from 'lodash';
 import {
@@ -51,7 +56,12 @@ export class ClientResolver {
     description: 'client_id of root app; no authentication required'
   })
   async getRootClientId() {
-    return Client.findOne({ applicationName: 'root' }).then(({ id }) => id);
+    return Client.findOne({ applicationName: 'root' })
+      .then(({ id }) => id)
+      .catch(error => {
+        console.error(error);
+        throw new ApolloError(error.message);
+      });
   }
 
   @Query(() => [Client], {
@@ -59,9 +69,12 @@ export class ClientResolver {
     description: 'Public list of client apps; no authentication required'
   })
   async getPublicClients() {
-    return Client.find().then(clients =>
-      clients.map(item => omit(item, 'client_secret'))
-    );
+    return Client.find()
+      .then(clients => clients.map(item => omit(item, 'client_secret')))
+      .catch(error => {
+        console.error(error);
+        throw new ApolloError(error.message);
+      });
   }
 
   /**
@@ -73,9 +86,13 @@ export class ClientResolver {
   })
   async getClients(@Ctx() { payload }: MyContext) {
     const user_id = payload?.userId;
-    if (!user_id) throw new AuthenticationError('could not find user');
+    if (!user_id)
+      throw new AuthenticationError('error in authorization header');
 
-    return Client.find({ user_id });
+    return Client.find({ user_id }).catch(error => {
+      console.error(error);
+      throw new ApolloError(error.message);
+    });
   }
 
   @Mutation(() => CreateAppResponse, {
@@ -91,9 +108,10 @@ export class ClientResolver {
     @Arg('redirect_uri', { nullable: true }) redirect_uri?: string
   ): Promise<CreateAppResponse> {
     const user_id = payload?.userId;
-    const client_secret = generateSecret(8);
+    if (!user_id)
+      throw new AuthenticationError('error in authorization header');
 
-    if (!user_id) throw new AuthenticationError('could not find user');
+    const client_secret = generateSecret(8);
 
     return Client.insert({
       applicationName,
@@ -113,7 +131,50 @@ export class ClientResolver {
       }))
       .catch(error => {
         console.error(error);
-        return null;
+        throw new ApolloError(error.message);
+      });
+  }
+
+  @Mutation(() => Boolean)
+  async updateRegularApp(
+    @Ctx() { payload }: MyContext,
+    @Arg('client_id') client_id: string,
+    @Arg('applicationName') applicationName?: string,
+    @Arg('redirect_uri') redirect_uri?: string
+  ): Promise<boolean> {
+    const id = payload?.userId;
+    if (!id) throw new AuthenticationError('error in authorization header');
+
+    const client = await Client.findOne({ id: client_id });
+    if (!client) throw new ApolloError('could not find client');
+
+    if (applicationName) client.applicationName = applicationName;
+
+    if (redirect_uri) client.redirect_uris = [redirect_uri];
+
+    return applicationName || redirect_uri
+      ? Client.save(client)
+          .then(() => true)
+          .catch(error => {
+            console.error(error);
+            throw new ApolloError(error.message);
+          })
+      : false;
+  }
+
+  @Mutation(() => Boolean)
+  async deleteRegularApp(
+    @Ctx() { payload }: MyContext,
+    @Arg('client_id') client_id: string
+  ): Promise<boolean> {
+    const id = payload?.userId;
+    if (!id) throw new AuthenticationError('error in authorization header');
+
+    return Client.delete(client_id)
+      .then(() => true)
+      .catch(error => {
+        console.error(error);
+        throw new ApolloError(error.message);
       });
   }
 
@@ -126,7 +187,10 @@ export class ClientResolver {
   })
   @UseMiddleware(isAdmin)
   async getAllClients() {
-    return Client.find();
+    return Client.find().catch(error => {
+      console.error(error);
+      throw new ApolloError(error.message);
+    });
   }
 
   // create system application
@@ -142,6 +206,9 @@ export class ClientResolver {
     @Arg('redirect_uri', { nullable: true }) redirect_uri?: string
   ): Promise<CreateAppResponse> {
     const user_id = payload?.userId;
+    if (!user_id)
+      throw new AuthenticationError('error in authorization header');
+
     const client_secret = generateSecret(8);
 
     return Client.insert({
@@ -162,9 +229,11 @@ export class ClientResolver {
       }))
       .catch(error => {
         console.error(error);
-        return null;
+        throw new ApolloError(error.message);
       });
   }
+
+  // todo: update/delete system app
 
   // used by Oauth root admin, to create bootstrap admin user
   @Mutation(() => String, {
@@ -177,29 +246,29 @@ export class ClientResolver {
     password: string
   ) {
     const root = await Client.findOne({ applicationName: 'root' });
-    if (root) throw new Error('Root client already exist');
-    return admin === process.env.ADMIN &&
-      password === process.env.ADMIN_PASSWORD
-      ? Client.insert({
-          applicationName: 'root',
-          client_secret: 'secret',
-          grants: [
-            'password',
-            'authorization_code',
-            'refresh_token',
-            'client_credentials',
-            'implicit'
-          ],
-          // redirect_uris is not required
-          redirect_uris: ['http://localhost:4000'],
-          user_id: 'admin',
-          is_system_app: true
-        })
-          .then(({ identifiers }) => identifiers[0].id)
-          .catch(error => {
-            console.error(error);
-            return null;
-          })
-      : null;
+    if (root) throw new ApolloError('Root client already exist');
+
+    if (admin === process.env.ADMIN && password === process.env.ADMIN_PASSWORD)
+      return Client.insert({
+        applicationName: 'root',
+        client_secret: 'secret',
+        grants: [
+          'password',
+          'authorization_code',
+          'refresh_token',
+          'client_credentials',
+          'implicit'
+        ],
+        // redirect_uris is not required
+        redirect_uris: ['http://localhost:4000'],
+        user_id: 'admin',
+        is_system_app: true
+      })
+        .then(({ identifiers }) => identifiers[0].id)
+        .catch(error => {
+          console.error(error);
+          throw new ApolloError(error.message);
+        });
+    else throw new ValidationError('admin password mis-match');
   }
 }
