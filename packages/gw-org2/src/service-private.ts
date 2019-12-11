@@ -1,7 +1,9 @@
 import {
   LoanDetails,
   LoanDetailsEvents,
-  loanDetailsReducer,
+  loanDetailsReducer
+} from '@espresso/model-loan-private';
+import {
   resolvers,
   typeDefs
 } from './model/private';
