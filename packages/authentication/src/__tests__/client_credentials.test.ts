@@ -1,4 +1,7 @@
-require('../env');
+import { config } from 'dotenv';
+import { resolve } from 'path';
+config({ path: resolve(__dirname, './__utils__/.env.test') });
+
 import { Express } from 'express';
 import request from 'supertest';
 import { AccessToken } from '../entity/AccessToken';
@@ -69,10 +72,13 @@ describe('Client Credentials Grant Type Tests', () => {
         query: CREATE_ROOT_CLIENT,
         variables: {
           admin: 'admin',
-          password: 'admin'
+          password: 'admin_test'
         }
       })
-      .expect(({ body }) => expect(body.data.createRootClient).toBeDefined()));
+      .expect(({ body: { data, errors } }) => {
+        if (errors) expect(errors).toBeUndefined();
+        expect(typeof data?.createRootClient).toBe('string');
+      }));
 
   it('should register new (admin) user', async () =>
     request(app)
@@ -87,7 +93,10 @@ describe('Client Credentials Grant Type Tests', () => {
           admin_password
         }
       })
-      .expect(({ body }) => expect(body.data.register).toBeTruthy()));
+      .expect(({ body: { data, errors } }) => {
+        if (errors) expect(errors).toBeUndefined();
+        expect(data?.register).toBeTruthy();
+      }));
 
   it('should login new (admin) user', async () =>
     request(app)
@@ -97,7 +106,8 @@ describe('Client Credentials Grant Type Tests', () => {
         query: LOGIN,
         variables: { email, password }
       })
-      .expect(({ body: { data }, header }) => {
+      .expect(({ body: { data, errors }, header }) => {
+        if (errors) expect(errors).toBeUndefined();
         refreshToken = header['set-cookie'][0].split('; ')[0].split('=')[1];
         accessToken = data.login.accessToken;
         expect(data.login.ok).toBeTruthy();
@@ -115,7 +125,8 @@ describe('Client Credentials Grant Type Tests', () => {
         query: CREATE_SYSTEM_APPLICATION,
         variables: { applicationName, grants }
       })
-      .expect(({ body: { data } }) => {
+      .expect(({ body: { data, errors } }) => {
+        if (errors) expect(errors).toBeUndefined();
         client_id = data.createApplication.client_id;
         client_secret = data.createApplication.client_secret;
         expect(data.createApplication.ok).toBeTruthy();
@@ -129,8 +140,10 @@ describe('Client Credentials Grant Type Tests', () => {
       .send(
         `client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials&scope=default`
       )
-      .expect(({ body }) => {
-        expect(body.ok).toBeTruthy();
-        expect(body.token.client.id).toEqual(client_id);
+      .expect(({ status, body }) => {
+        expect(status).toBe(200);
+        expect(body?.ok).toBeTruthy();
+        expect(typeof body.token.accessToken).toBe('string');
+        expect(body?.token?.client?.id).toEqual(client_id);
       }));
 });

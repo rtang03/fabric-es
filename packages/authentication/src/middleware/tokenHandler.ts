@@ -1,6 +1,7 @@
 import Express from 'express';
 import http from 'http-status';
 import { OAuth2Server, Request, Response } from 'oauth2-server-typescript';
+import { INVALID_GRANT_TYPE, MISSING_CLIENT_ID } from '../types';
 import { sendToken } from '../utils';
 
 export const tokenHandler = (
@@ -13,10 +14,10 @@ export const tokenHandler = (
   res: Express.Response,
   next: Express.NextFunction
 ) => {
-  if (!req.body.client_id)
+  if (!req?.body?.client_id)
     return res
       .status(http.BAD_REQUEST)
-      .send({ ok: false, message: 'missing client_id' });
+      .send({ ok: false, message: MISSING_CLIENT_ID });
 
   if (
     req.body.grant_type !== 'password' &&
@@ -26,21 +27,21 @@ export const tokenHandler = (
   )
     return res.status(http.BAD_REQUEST).send({
       ok: false,
-      message: 'invalid grant type, use "password" or "refresh_token", "client_credentials", "authorization_code"'
+      message: INVALID_GRANT_TYPE
     });
 
   if (req.body.grant_type === 'password') {
-    if (!req.body.username)
+    if (!req?.body?.username)
       return res
         .status(http.BAD_REQUEST)
         .send({ ok: false, message: 'missing username' });
-    if (!req.body.password)
+    if (!req?.body?.password)
       return res
         .status(http.BAD_REQUEST)
         .send({ ok: false, message: 'missing password' });
   }
 
-  req.body.scope = req.body.scope && 'default';
+  req.body.scope = req?.body?.scope && 'default';
 
   await oauth
     .token(new Request(req), new Response(res), options)
@@ -50,7 +51,7 @@ export const tokenHandler = (
       res.status(http.OK).send({ ok: true, token });
     })
     .catch(error => {
-      return res.status(http.BAD_REQUEST).send({ ok: false, token: '', message: error.message });
+      res.status(http.BAD_REQUEST).send({ ok: false, message: error.message });
     });
 
   next();

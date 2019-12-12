@@ -17,7 +17,13 @@ import {
   UseMiddleware
 } from 'type-graphql';
 import { Client } from '../entity/Client';
-import { MyContext } from '../types';
+import {
+  ADMIN_PASSWORD_MISMATCH,
+  ALREADY_EXIST,
+  AUTH_HEADER_ERROR,
+  CLIENT_NOT_FOUND,
+  MyContext
+} from '../types';
 import { isAdmin } from '../utils';
 
 const generateSecret = len =>
@@ -86,8 +92,7 @@ export class ClientResolver {
   })
   async getClients(@Ctx() { payload }: MyContext) {
     const user_id = payload?.userId;
-    if (!user_id)
-      throw new AuthenticationError('error in authorization header');
+    if (!user_id) throw new AuthenticationError(AUTH_HEADER_ERROR);
 
     return Client.find({ user_id }).catch(error => {
       console.error(error);
@@ -108,8 +113,7 @@ export class ClientResolver {
     @Arg('redirect_uri', { nullable: true }) redirect_uri?: string
   ): Promise<CreateAppResponse> {
     const user_id = payload?.userId;
-    if (!user_id)
-      throw new AuthenticationError('error in authorization header');
+    if (!user_id) throw new AuthenticationError(AUTH_HEADER_ERROR);
 
     const client_secret = generateSecret(8);
 
@@ -139,14 +143,15 @@ export class ClientResolver {
   async updateRegularApp(
     @Ctx() { payload }: MyContext,
     @Arg('client_id') client_id: string,
-    @Arg('applicationName') applicationName?: string,
-    @Arg('redirect_uri') redirect_uri?: string
+    @Arg('applicationName', { nullable: true }) applicationName?: string,
+    @Arg('redirect_uri', { nullable: true }) redirect_uri?: string
   ): Promise<boolean> {
     const id = payload?.userId;
-    if (!id) throw new AuthenticationError('error in authorization header');
+    if (!id) throw new AuthenticationError(AUTH_HEADER_ERROR);
 
-    const client = await Client.findOne({ id: client_id });
-    if (!client) throw new ApolloError('could not find client');
+    const client = await Client.findOne({ id: client_id }).catch(() => {
+      throw new UserInputError(CLIENT_NOT_FOUND);
+    });
 
     if (applicationName) client.applicationName = applicationName;
 
@@ -168,14 +173,19 @@ export class ClientResolver {
     @Arg('client_id') client_id: string
   ): Promise<boolean> {
     const id = payload?.userId;
-    if (!id) throw new AuthenticationError('error in authorization header');
+    if (!id) throw new AuthenticationError(AUTH_HEADER_ERROR);
 
-    return Client.delete(client_id)
-      .then(() => true)
-      .catch(error => {
-        console.error(error);
-        throw new ApolloError(error.message);
-      });
+    const client = await Client.findOne({ id: client_id }).catch(() => {
+      throw new UserInputError(CLIENT_NOT_FOUND);
+    });
+
+    return client
+      ? Client.delete(client_id)
+          .then(() => true)
+          .catch(error => {
+            throw new ApolloError(error.message);
+          })
+      : false;
   }
 
   /**
@@ -206,8 +216,7 @@ export class ClientResolver {
     @Arg('redirect_uri', { nullable: true }) redirect_uri?: string
   ): Promise<CreateAppResponse> {
     const user_id = payload?.userId;
-    if (!user_id)
-      throw new AuthenticationError('error in authorization header');
+    if (!user_id) throw new AuthenticationError(AUTH_HEADER_ERROR);
 
     const client_secret = generateSecret(8);
 
@@ -246,7 +255,7 @@ export class ClientResolver {
     password: string
   ) {
     const root = await Client.findOne({ applicationName: 'root' });
-    if (root) throw new ApolloError('Root client already exist');
+    if (root) throw new ValidationError(ALREADY_EXIST);
 
     if (admin === process.env.ADMIN && password === process.env.ADMIN_PASSWORD)
       return Client.insert({
@@ -269,6 +278,6 @@ export class ClientResolver {
           console.error(error);
           throw new ApolloError(error.message);
         });
-    else throw new ValidationError('admin password mis-match');
+    else throw new ValidationError(ADMIN_PASSWORD_MISMATCH);
   }
 }

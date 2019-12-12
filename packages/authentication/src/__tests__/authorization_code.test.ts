@@ -1,4 +1,7 @@
-require('../env');
+import { config } from 'dotenv';
+import { resolve } from 'path';
+config({ path: resolve(__dirname, './__utils__/.env.test') });
+
 import { Express } from 'express';
 import request from 'supertest';
 import { AccessToken } from '../entity/AccessToken';
@@ -13,6 +16,17 @@ import {
   REGISTER_ADMIN
 } from '../query';
 import { ClientResolver, OUserResolver } from '../resolvers';
+import {
+  INVALID_CLIENT,
+  INVALID_GRANT_TYPE,
+  INVALID_URI,
+  MISSING_CLIENT_ID,
+  MISSING_CODE,
+  MISSING_GRANT_TYPE,
+  MISSING_REDIRECT_URI,
+  MISSING_RESPONSE_TYPE,
+  MISSING_STATE
+} from '../types';
 import { createHttpServer } from '../utils';
 
 const dbConnection = {
@@ -75,10 +89,13 @@ describe('Authorization Code Grant Type Tests', () => {
         query: CREATE_ROOT_CLIENT,
         variables: {
           admin: 'admin',
-          password: 'admin'
+          password: 'admin_test'
         }
       })
-      .expect(({ body }) => expect(body.data.createRootClient).toBeDefined()));
+      .expect(({ body: { data, errors } }) => {
+        if (errors) expect(errors).toBeUndefined();
+        expect(typeof data?.createRootClient).toBe('string');
+      }));
 
   it('should register new (admin) user', async () =>
     request(app)
@@ -93,7 +110,10 @@ describe('Authorization Code Grant Type Tests', () => {
           admin_password
         }
       })
-      .expect(({ body }) => expect(body.data.register).toEqual(true)));
+      .expect(({ body: { data, errors } }) => {
+        if (errors) expect(errors).toBeUndefined();
+        expect(data?.register).toBeTruthy();
+      }));
 
   it('should login new (admin) user', async () =>
     request(app)
@@ -103,7 +123,8 @@ describe('Authorization Code Grant Type Tests', () => {
         query: LOGIN,
         variables: { email, password }
       })
-      .expect(({ body: { data }, header }) => {
+      .expect(({ body: { data, errors }, header }) => {
+        if (errors) expect(errors).toBeUndefined();
         refreshToken = header['set-cookie'][0].split('; ')[0].split('=')[1];
         accessToken = data.login.accessToken;
         user_id = data.login.user.id;
@@ -122,11 +143,97 @@ describe('Authorization Code Grant Type Tests', () => {
         query: CREATE_APP_FOR_AUTHCODE,
         variables: { applicationName, grants, redirect_uri }
       })
-      .expect(({ body: { data } }) => {
+      .expect(({ body: { data, errors } }) => {
+        if (errors) expect(errors).toBeUndefined();
         client_id = data.createApplication.client_id;
         client_secret = data.createApplication.client_secret;
-        expect(data.createApplication.ok).toEqual(true);
+        expect(data.createApplication.ok).toBeTruthy();
         expect(data.createApplication.redirect_uri).toEqual(redirect_uri);
+      }));
+
+  it('should fail to get /oauth/authorize: missing client_id', async () =>
+    request(app)
+      .get('/oauth/authorize')
+      .query({
+        redirect: '/oauth/authorize',
+        client_id: null,
+        client_secret,
+        redirect_uri,
+        state,
+        grant_type,
+        response_type: 'code'
+      })
+      .expect(({ status, body }) => {
+        expect(status).toEqual(400);
+        expect(body?.message).toEqual(MISSING_CLIENT_ID);
+      }));
+
+  it('should fail to get /oauth/authorize: missing redirect_uri', async () =>
+    request(app)
+      .get('/oauth/authorize')
+      .query({
+        redirect: '/oauth/authorize',
+        client_id,
+        client_secret,
+        redirect_uri: null,
+        state,
+        grant_type,
+        response_type: 'code'
+      })
+      .expect(({ status, body }) => {
+        expect(status).toEqual(400);
+        expect(body?.message).toEqual(MISSING_REDIRECT_URI);
+      }));
+
+  it('should fail to get /oauth/authorize: missing state', async () =>
+    request(app)
+      .get('/oauth/authorize')
+      .query({
+        redirect: '/oauth/authorize',
+        client_id,
+        client_secret,
+        redirect_uri,
+        state: null,
+        grant_type,
+        response_type: 'code'
+      })
+      .expect(({ status, body }) => {
+        expect(status).toEqual(400);
+        expect(body?.message).toEqual(MISSING_STATE);
+      }));
+
+  it('should fail to get /oauth/authorize: missing grant_type', async () =>
+    request(app)
+      .get('/oauth/authorize')
+      .query({
+        redirect: '/oauth/authorize',
+        client_id,
+        client_secret,
+        redirect_uri,
+        state,
+        grant_type: null,
+        response_type: 'code'
+      })
+      .expect(({ status, body }) => {
+        expect(status).toEqual(400);
+        expect(body?.message).toEqual(MISSING_GRANT_TYPE);
+      }));
+
+  it('should fail to get /oauth/authorize: missing response_type', async () =>
+    request(app)
+      .get('/oauth/authorize')
+      .query({
+        redirect: '/oauth/authorize',
+        client_id,
+        client_secret,
+        redirect_uri,
+        state,
+        grant_type,
+        response_type: null
+      })
+      .expect(({ status, body }) => {
+        expect(status).toEqual(400);
+        expect(body?.message).toEqual(MISSING_RESPONSE_TYPE);
       }));
 
   it('should get /oauth/authorize', async () =>
@@ -163,10 +270,72 @@ describe('Authorization Code Grant Type Tests', () => {
       .redirects(1)
       .expect(({ text }) => {
         user_id = text.split(`"user" value="`)[1].split(`"><`)[0];
-        expect(user_id).toBeDefined();
+        expect(typeof user_id).toBe('string');
       }));
 
-  it('should post /oauth/authorize, (get authorization code)', async () =>
+  it('should fail to post /oauth/authorize (auth_code): missing client_id', async () =>
+    request(app)
+      .post('/oauth/authorize')
+      .set('Context-Type', 'application/x-www-form-urlencoded')
+      .send({
+        user_id,
+        client_id: null,
+        client_secret,
+        redirect_uri,
+        state,
+        grant_type,
+        response_type
+      })
+      .expect(({ status, body }) => {
+        expect(status).toEqual(400);
+        expect(body?.ok).toBeFalsy();
+        expect(body?.authorization_code).toBeFalsy();
+        expect(body?.message).toEqual(MISSING_CLIENT_ID);
+      }));
+
+  it('should fail to post /oauth/authorize (auth_code): missing state', async () =>
+    request(app)
+      .post('/oauth/authorize')
+      .set('Context-Type', 'application/x-www-form-urlencoded')
+      .send({
+        user_id,
+        client_id,
+        client_secret,
+        redirect_uri,
+        state: null,
+        grant_type,
+        response_type
+      })
+      .expect(({ status, body }) => {
+        expect(status).toEqual(400);
+        expect(body?.ok).toBeFalsy();
+        expect(body?.authorization_code).toBeFalsy();
+        expect(body?.message).toEqual(MISSING_STATE);
+      }));
+
+  it('should fail to post /oauth/authorize (auth_code): missing response_type', async () =>
+    request(app)
+      .post('/oauth/authorize')
+      .set('Context-Type', 'application/x-www-form-urlencoded')
+      .send({
+        user_id,
+        client_id,
+        client_secret,
+        redirect_uri,
+        state,
+        grant_type,
+        response_type: null
+      })
+      .expect(({ status, body }) => {
+        expect(status).toEqual(400);
+        expect(body?.ok).toBeFalsy();
+        expect(body?.authorization_code).toBeFalsy();
+        expect(body?.message).toEqual(MISSING_RESPONSE_TYPE);
+      }));
+
+  // Note: grant_type and/or redirect_uri is nullable. Do not seem to impact.
+  // But this is a bit strange.
+  it('should post /oauth/authorize, (get auth_code)', async () =>
     request(app)
       .post('/oauth/authorize')
       .set('Context-Type', 'application/x-www-form-urlencoded')
@@ -179,10 +348,76 @@ describe('Authorization Code Grant Type Tests', () => {
         grant_type,
         response_type
       })
-      .expect(({ header: { location } }) => {
+      .expect(({ status, header: { location } }) => {
+        expect(status).toBe(302);
         code = location.split('code=')[1].split('?state')[0];
         expect(location.startsWith('http://example.com/callback'));
         expect(location.endsWith(`state=${state}`));
+      }));
+
+  it('should fail to obtain access token: missing client_id', async () =>
+    request(app)
+      .post('/oauth/token')
+      .set('Context-Type', 'application/x-www-form-urlencoded')
+      .send(
+        `client_id=&grant_type=${grant_type}&client_secret=${client_secret}&code=${code}&redirect_uri=${redirect_uri}`
+      )
+      .expect(({ status, body }) => {
+        expect(status).toBe(400);
+        expect(body?.ok).toBeFalsy();
+        expect(body?.message).toEqual(MISSING_CLIENT_ID);
+      }));
+
+  it('should fail to obtain access token: invalid grant_type', async () =>
+    request(app)
+      .post('/oauth/token')
+      .set('Context-Type', 'application/x-www-form-urlencoded')
+      .send(
+        `client_id=${client_id}&grant_type=&client_secret=${client_secret}&code=${code}&redirect_uri=${redirect_uri}`
+      )
+      .expect(({ status, body }) => {
+        expect(status).toBe(400);
+        expect(body?.ok).toBeFalsy();
+        expect(body?.message).toEqual(INVALID_GRANT_TYPE);
+      }));
+
+  it('should fail to obtain access token: missing client_secret', async () =>
+    request(app)
+      .post('/oauth/token')
+      .set('Context-Type', 'application/x-www-form-urlencoded')
+      .send(
+        `client_id=${client_id}&grant_type=${grant_type}&client_secret=&code=${code}&redirect_uri=${redirect_uri}`
+      )
+      .expect(({ status, body }) => {
+        expect(status).toBe(400);
+        expect(body?.ok).toBeFalsy();
+        expect(body?.message).toEqual(INVALID_CLIENT);
+      }));
+
+  it('should fail to obtain access token: missing auth_code', async () =>
+    request(app)
+      .post('/oauth/token')
+      .set('Context-Type', 'application/x-www-form-urlencoded')
+      .send(
+        `client_id=${client_id}&grant_type=${grant_type}&client_secret=${client_secret}&code=&redirect_uri=${redirect_uri}`
+      )
+      .expect(({ status, body }) => {
+        expect(status).toBe(400);
+        expect(body?.ok).toBeFalsy();
+        expect(body?.message).toEqual(MISSING_CODE);
+      }));
+
+  it('should fail to obtain access token: invalid redirect_uri', async () =>
+    request(app)
+      .post('/oauth/token')
+      .set('Context-Type', 'application/x-www-form-urlencoded')
+      .send(
+        `client_id=${client_id}&grant_type=${grant_type}&client_secret=${client_secret}&code=${code}&redirect_uri=`
+      )
+      .expect(({ status, body }) => {
+        expect(status).toBe(400);
+        expect(body?.ok).toBeFalsy();
+        expect(body?.message).toEqual(INVALID_URI);
       }));
 
   it('should obtain access token', async () =>
@@ -192,9 +427,10 @@ describe('Authorization Code Grant Type Tests', () => {
       .send(
         `client_id=${client_id}&grant_type=${grant_type}&client_secret=${client_secret}&code=${code}&redirect_uri=${redirect_uri}`
       )
-      .expect(({ body }) => {
-        expect(body.ok).toBeTruthy();
-        expect(body.token.accessToken).toBeDefined();
-        expect(body.token.client.id).toEqual(client_id);
+      .expect(({ status, body }) => {
+        expect(status).toBe(200);
+        expect(body?.ok).toBeTruthy();
+        expect(typeof body.token.accessToken).toBe('string');
+        expect(body?.token?.client?.id).toEqual(client_id);
       }));
 });

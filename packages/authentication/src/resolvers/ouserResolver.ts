@@ -19,7 +19,15 @@ import {
 } from 'type-graphql';
 import { Client } from '../entity/Client';
 import { OUser } from '../entity/OUser';
-import { MyContext } from '../types';
+import {
+  ADMIN_PASSWORD_MISMATCH,
+  ALREADY_EXIST,
+  AUTH_HEADER_ERROR,
+  BAD_PASSWORD,
+  MyContext,
+  ROOT_CLIENT_NOT_FOUND,
+  USER_NOT_FOUND
+} from '../types';
 import { isAdmin, sendToken } from '../utils';
 
 @ObjectType()
@@ -72,13 +80,13 @@ export class OUserResolver {
     const user = await OUser.findOne({ email });
     if (!user) throw new AuthenticationError('could not find user');
 
-    if (!password) throw new UserInputError('bad password');
+    if (!password) throw new UserInputError(BAD_PASSWORD);
 
     const valid = await compare(password, user.password);
-    if (!valid) throw new ValidationError('bad password');
+    if (!valid) throw new ValidationError(BAD_PASSWORD);
 
     const client = await Client.findOne({ applicationName: 'root' });
-    if (!client) throw new ApolloError('Root client not exist');
+    if (!client) throw new ValidationError(ROOT_CLIENT_NOT_FOUND);
 
     req.body.grant_type = 'password';
     req.body.username = user.username;
@@ -110,9 +118,9 @@ export class OUserResolver {
     @Arg('password') password: string
   ): Promise<boolean> {
     const user = await OUser.findOne({ id: user_id });
-    if (!user) throw new AuthenticationError('could not find user');
+    if (!user) throw new AuthenticationError(USER_NOT_FOUND);
 
-    if (!password) throw new UserInputError('bad password');
+    if (!password) throw new UserInputError(BAD_PASSWORD);
 
     return compare(password, user.password);
   }
@@ -129,14 +137,14 @@ export class OUserResolver {
     adminPassword?: string
   ) {
     const usernameExist = await OUser.findOne({ username });
-    if (usernameExist) throw new UserInputError('username already exists');
+    if (usernameExist) throw new UserInputError(ALREADY_EXIST);
 
     const emailExist = await OUser.findOne({ email });
-    if (emailExist) throw new UserInputError('email already exists');
+    if (emailExist) throw new UserInputError(ALREADY_EXIST);
 
     const validAdminPassword = adminPassword === process.env.ADMIN_PASSWORD;
     if (adminPassword && !validAdminPassword)
-      throw new ValidationError('admin password mismatch');
+      throw new ValidationError(ADMIN_PASSWORD_MISMATCH);
 
     const hashedPassword = await hash(password, 12);
 
@@ -162,14 +170,16 @@ export class OUserResolver {
   @Mutation(() => Boolean, { description: 'authentication required' })
   async updateUser(
     @Ctx() { payload }: MyContext,
-    @Arg('email') email?: string,
-    @Arg('username') username?: string
+    @Arg('email', { nullable: true }) email?: string,
+    @Arg('username', { nullable: true }) username?: string
   ): Promise<boolean> {
     const id = payload?.userId;
-    if (!id) throw new AuthenticationError('error in authorization header');
+    if (!id) throw new AuthenticationError(AUTH_HEADER_ERROR);
 
-    const user = await OUser.findOne({ id });
-    if (!user) throw new ApolloError('could not find user');
+    const user = await OUser.findOne({ id }).catch(() => {
+      throw new ValidationError(USER_NOT_FOUND);
+    });
+    if (!user) throw new ValidationError(USER_NOT_FOUND);
 
     if (email) user.email = email;
 
@@ -185,18 +195,22 @@ export class OUserResolver {
       : false;
   }
 
-  @Mutation(() => Boolean)
-  async deleteUser(@Ctx() { payload }: MyContext): Promise<boolean> {
-    const id = payload?.userId;
-    if (!id) throw new AuthenticationError('error in authorization header');
-
-    return OUser.delete(id)
-      .then(() => true)
-      .catch(error => {
-        console.error(error);
-        throw new ApolloError(error.message);
-      });
-  }
+  // Todo: Re-think if it should allow physical removal of OUser entity, or set is_deleted boolean flag
+  // @Mutation(() => Boolean)
+  // async deleteUser(
+  //   @Ctx() { payload }: MyContext,
+  //   @Arg('user_id') user_id: string
+  // ): Promise<boolean> {
+  //   const id = payload?.userId;
+  //   if (!id) throw new AuthenticationError(AUTH_HEADER_ERROR);
+  //
+  //   return OUser.delete(id)
+  //     .then(() => true)
+  //     .catch(error => {
+  //       console.error(error);
+  //       throw new ApolloError(error.message);
+  //     });
+  // }
 
   // Currently refreshToken is disabled
   // @Mutation(() => Boolean)
