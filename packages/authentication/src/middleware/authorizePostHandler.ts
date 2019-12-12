@@ -27,7 +27,7 @@ export const authorizePostHandler = (
   }
   options.authenticateHandler = {
     handle: async () =>
-      req!.app!.locals!.user_id
+      req?.app?.locals?.user_id
         ? await OUser.findOne({ id: req.app.locals.user_id })
         : { id: null }
   };
@@ -40,8 +40,9 @@ export const authorizePostHandler = (
       );
     })
     .catch(error => {
-      console.error(error);
-      return res.status(http.BAD_REQUEST).send({ ok: false, error });
+      res
+        .status(http.BAD_REQUEST)
+        .send({ ok: false, authorization_code: false, message: error.message });
     });
   next();
 };
