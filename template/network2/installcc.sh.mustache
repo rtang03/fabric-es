@@ -5,10 +5,10 @@ yarn build
 # Install chaincode
 {{#orgs.peer}}
 {{#peers.endpoints}}
-docker exec cli{{network.host-delimiter}}{{domain}} bash -c "/setup/install_chaincode.sh {{domain}} {{-}} eventstore 1.0 {{orgs.peer.0.peers.endpoints.0.port}}"
-docker exec cli{{network.host-delimiter}}{{domain}} bash -c "/setup/install_chaincode.sh {{domain}} {{-}} privatedata 1.0 {{orgs.peer.0.peers.endpoints.0.port}}"
+docker exec cli{{network.host-delimiter}}{{domain}} sh -c "/setup/install_chaincode.sh {{domain}} {{-}} eventstore 1.0 {{orgs.peer.0.peers.endpoints.0.port}}"
+docker exec cli{{network.host-delimiter}}{{domain}} sh -c "/setup/install_chaincode.sh {{domain}} {{-}} privatedata 1.0 {{orgs.peer.0.peers.endpoints.0.port}}"
 {{/peers.endpoints}}
 {{/orgs.peer}}
 
 # Instantiate chaincode
-docker exec cli{{network.host-delimiter}}{{orgs.peer.0.domain}} bash -c "/setup/instantiate_chaincode_org1.sh"
+docker exec cli{{network.host-delimiter}}{{orgs.peer.0.domain}} sh -c "/setup/instantiate_chaincode_org1.sh"
