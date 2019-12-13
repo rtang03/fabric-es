@@ -54,7 +54,7 @@ export const Header: React.FC<any> = () => {
               <React.Fragment />
             )}
             <Link href="/enrollment">Enrollment</Link> |{' '}
-            <Link href="/profile">Profile</Link> |{' '}
+            {/*<Link href="/profile">Profile</Link> |{' '}*/}
             <Link href="/playground">Playground</Link> |{' '}
             <button
               onClick={async () => {

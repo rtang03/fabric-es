@@ -1,32 +1,10 @@
 require('./env');
-import { buildFederatedSchema } from '@apollo/federation';
-import { ApolloServer } from 'apollo-server';
-import { FileSystemWallet } from 'fabric-network';
-import { createResolvers, typeDefs } from './admin';
+import { createFederatedAdmin } from './admin';
 
 const port = process.env.ADMINISTRATOR_PORT || 15000;
 
 (async () => {
-  console.log('♨️♨️ Bootstraping Peer Node API  ♨️♨️');
-  const resolvers = await createResolvers({
-    channelName: process.env.CHANNEL_NAME,
-    peerName: process.env.PEER_NAME,
-    context: {
-      connectionProfile: process.env.CONNECTION_PROFILE,
-      fabricNetwork: process.env.NETWORK_LOCATION,
-      wallet: new FileSystemWallet(process.env.WALLET)
-    }
-  });
-  const server = new ApolloServer({
-    schema: buildFederatedSchema([{ typeDefs, resolvers }]),
-    playground: true,
-    context: ({ req: { headers } }) => ({
-      user_id: headers.user_id,
-      is_admin: headers.is_admin,
-      client_id: headers.client_id,
-      enrollmentId: headers.user_id
-    })
-  });
+  const server = await createFederatedAdmin();
   server.listen({ port }).then(({ url }) => {
     console.log(`🚀 Server ready at ${url}graphql`);
   });

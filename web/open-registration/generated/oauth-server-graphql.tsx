@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
 import * as ApolloReactCommon from '@apollo/react-common';
 import * as ApolloReactHooks from '@apollo/react-hooks';
+import gql from 'graphql-tag';
 export type Maybe<T> = T | null;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -50,7 +50,6 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   /** authentication required */
   updateUser: Scalars['Boolean'];
-  deleteUser: Scalars['Boolean'];
 };
 
 export type MutationCreateRegularAppArgs = {
@@ -60,8 +59,8 @@ export type MutationCreateRegularAppArgs = {
 };
 
 export type MutationUpdateRegularAppArgs = {
-  redirect_uri: Scalars['String'];
-  applicationName: Scalars['String'];
+  redirect_uri?: Maybe<Scalars['String']>;
+  applicationName?: Maybe<Scalars['String']>;
   client_id: Scalars['String'];
 };
 
@@ -93,8 +92,8 @@ export type MutationRegisterArgs = {
 };
 
 export type MutationUpdateUserArgs = {
-  username: Scalars['String'];
-  email: Scalars['String'];
+  username?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
 };
 
 /** User */
@@ -254,8 +253,8 @@ export type RegisterUserMutationVariables = {
 export type RegisterUserMutation = Pick<Mutation, 'register'>;
 
 export type UpdateUserMutationVariables = {
-  email: Scalars['String'];
-  username: Scalars['String'];
+  email?: Maybe<Scalars['String']>;
+  username?: Maybe<Scalars['String']>;
 };
 
 export type UpdateUserMutation = Pick<Mutation, 'updateUser'>;
@@ -934,7 +933,7 @@ export type RegisterUserMutationOptions = ApolloReactCommon.BaseMutationOptions<
   RegisterUserMutationVariables
 >;
 export const UpdateUserDocument = gql`
-  mutation UpdateUser($email: String!, $username: String!) {
+  mutation UpdateUser($email: String, $username: String) {
     updateUser(email: $email, username: $username)
   }
 `;

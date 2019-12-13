@@ -13,6 +13,7 @@ import ab2str from 'arraybuffer-to-string';
 import { FileSystemWallet } from 'fabric-network';
 import { includes } from 'lodash';
 import { Resolvers } from '../generated/peer-resolvers-types';
+import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from './contants';
 
 export const createResolvers: (option: {
   channelName: string;
@@ -66,25 +67,41 @@ export const createResolvers: (option: {
     },
     Query: {
       getChannelPeers: async () =>
-        peerInfo.getChannelPeers().then(peers =>
-          peers.map(peer => ({
-            name: peer.getName(),
-            mspid: peer.getMspid(),
-            url: peer.getUrl()
-          }))
-        ),
+        peerInfo
+          .getChannelPeers()
+          .then(peers =>
+            peers.map(peer => ({
+              name: peer.getName(),
+              mspid: peer.getMspid(),
+              url: peer.getUrl()
+            }))
+          )
+          .catch(error => {
+            console.error(error);
+            throw new ApolloError(error.message);
+          }),
       isWalletEntryExist: async (_, { label }: { label: string }) =>
-        wallet.exists(label),
+        wallet.exists(label).catch(error => {
+          console.error(error);
+          throw new ApolloError(error.message);
+        }),
       listWallet: async (_, __, { is_admin }) => {
-        if (is_admin) return wallet.list().then(result => result ?? []);
-        else throw new ForbiddenError('require administrative right');
+        if (is_admin)
+          return wallet
+            .list()
+            .then(result => result ?? [])
+            .catch(error => {
+              console.error(error);
+              throw new ApolloError(error.message);
+            });
+        else throw new ForbiddenError(UNAUTHORIZED_ACCESS);
       },
       getCaIdentityByEnrollmentId: async (
         _,
         { enrollmentId }: { enrollmentId: string },
         { user_id }
       ) => {
-        if (!user_id) throw new AuthenticationError('require log in');
+        if (!user_id) throw new AuthenticationError(USER_NOT_FOUND);
         if (user_id === enrollmentId)
           return idService
             .getByEnrollmentId(enrollmentId || '')
@@ -103,7 +120,7 @@ export const createResolvers: (option: {
               if (includes(error.message, 'Failed to get User')) return null;
               else throw new ValidationError(error.message);
             });
-        else throw new ForbiddenError('unauthorized access');
+        else throw new ForbiddenError(UNAUTHORIZED_ACCESS);
       },
       getCaIdentities: async (_, __, { is_admin }) => {
         if (is_admin)
@@ -126,7 +143,7 @@ export const createResolvers: (option: {
               if (includes(error.message, 'Failed to get User')) return [];
               else throw new ValidationError(error?.message);
             });
-        else throw new ForbiddenError('require administrative right');
+        else throw new ForbiddenError(UNAUTHORIZED_ACCESS);
       },
       getCollectionConfigs: async () =>
         peerInfo
@@ -146,7 +163,11 @@ export const createResolvers: (option: {
                   policy: JSON.stringify(config.policy)
                 }))
               : []
-          ),
+          )
+          .catch(error => {
+            console.error(error);
+            throw new ApolloError(error.message);
+          }),
       getBlockByNumber: async (_, { blockNumber }: { blockNumber: number }) => {
         const chain = await peerInfo.getChainInfo();
         if (chain.height.low <= blockNumber) return null;
@@ -166,9 +187,8 @@ export const createResolvers: (option: {
                     arg => ab2str(arg, 'utf8')
                   ),
                   rwset: JSON.stringify(
-                    data
-                    // data.actions[0].payload.action.proposal_response_payload
-                    //   .extension.results
+                    data.actions[0].payload.action.proposal_response_payload
+                      .extension.results
                   ),
                   response: {
                     status:
@@ -204,30 +224,62 @@ export const createResolvers: (option: {
           : null;
       },
       getInstalledChaincodes: async () =>
-        peerInfo.getInstalledChaincodes().then(({ chaincodes }) =>
-          chaincodes.map(cc => ({
-            name: cc.name,
-            version: cc.version,
-            path: cc.path
-          }))
-        ),
+        peerInfo
+          .getInstalledChaincodes()
+          .then(({ chaincodes }) =>
+            chaincodes.map(cc => ({
+              name: cc.name,
+              version: cc.version,
+              path: cc.path
+            }))
+          )
+          .catch(error => {
+            console.error(error);
+            throw new ApolloError(error.message);
+          }),
       getInstantiatedChaincodes: async () =>
-        peerInfo.getInstantiatedChaincodes().then(({ chaincodes }) =>
-          chaincodes.map(cc => ({
-            name: cc.name,
-            version: cc.version,
-            path: cc.path
-          }))
-        ),
+        peerInfo
+          .getInstantiatedChaincodes()
+          .then(({ chaincodes }) =>
+            chaincodes.map(cc => ({
+              name: cc.name,
+              version: cc.version,
+              path: cc.path
+            }))
+          )
+          .catch(error => {
+            console.error(error);
+            throw new ApolloError(error.message);
+          }),
       getInstalledCCVersion: async (
         _,
         { chaincode_id }: { chaincode_id: string }
-      ) => peerInfo.getInstalledCCVersion(chaincode_id),
+      ) =>
+        peerInfo.getInstalledCCVersion(chaincode_id).catch(error => {
+          console.error(error);
+          throw new ApolloError(error.message);
+        }),
       getChainHeight: async () =>
-        peerInfo.getChainInfo().then(({ height: { low } }) => low),
+        peerInfo
+          .getChainInfo()
+          .then(({ height: { low } }) => low)
+          .catch(error => {
+            console.error(error);
+            throw new ApolloError(error.message);
+          }),
       getChannelInfo: async () =>
-        peerInfo.getChannels().then(({ channels }) => channels),
-      getMspid: async () => peerInfo.getMspid(),
+        peerInfo
+          .getChannels()
+          .then(({ channels }) => channels)
+          .catch(error => {
+            console.error(error);
+            throw new ApolloError(error.message);
+          }),
+      getMspid: async () =>
+        peerInfo.getMspid().catch(error => {
+          console.error(error);
+          throw new ApolloError(error.message);
+        }),
       getPeerName: async () => peerName,
       getPeerInfo: async () => ({
         mspid: await peerInfo.getMspid(),

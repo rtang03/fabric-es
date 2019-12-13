@@ -102,7 +102,7 @@ describe('Client app Tests', () => {
         variables: { admin: 'admin', password: 'admin_test' }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         client_id = data?.createRootClient;
         expect(data?.createRootClient).toBeDefined();
       }));
@@ -129,7 +129,7 @@ describe('Client app Tests', () => {
         variables: { email, password, username, admin_password }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data?.register).toBeTruthy();
       }));
 
@@ -182,7 +182,7 @@ describe('Client app Tests', () => {
         variables: { email, password }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).not.toBeUndefined();
+        expect(errors).toBeUndefined();
         accessToken = data.login.accessToken;
         expect(data?.login?.ok).toBeTruthy();
         expect(data?.login?.accessToken).toBeDefined();
@@ -200,7 +200,7 @@ describe('Client app Tests', () => {
         variables: { applicationName, grants, redirect_uri }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         client_id = data?.createApplication?.client_id;
         client_secret = data?.createApplication?.client_secret;
         expect(data?.createApplication?.ok).toEqual(true);
@@ -212,7 +212,7 @@ describe('Client app Tests', () => {
       .post('/graphql')
       .send({ operation: 'GetPublicClients', query: GET_PUBLIC_CLIENTS })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         const clients: Client[] = data.getPublicClients;
         expect(clients?.length).toEqual(2);
         expect(clients[0]?.applicationName).toEqual('root');
@@ -228,7 +228,7 @@ describe('Client app Tests', () => {
         variables: { email: regularEmail, username: regularUsername, password }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data?.register).toBeTruthy();
       }));
 
@@ -254,7 +254,7 @@ describe('Client app Tests', () => {
         variables: { email: regularEmail, password }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         accessToken = data.login.accessToken;
         expect(data?.login?.ok).toBeTruthy();
         expect(data?.login?.accessToken).toBeDefined();
@@ -272,7 +272,7 @@ describe('Client app Tests', () => {
         variables: { applicationName: 'newClientApp', grants, redirect_uri }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         const result = data.createRegularApp;
         client_id = result.client_id;
         client_secret = result.client_secret;
@@ -285,7 +285,7 @@ describe('Client app Tests', () => {
       .post('/graphql')
       .send({ operation: 'GetPublicClients', query: GET_PUBLIC_CLIENTS })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         const clients: Client[] = data.getPublicClients;
         expect(clients?.length).toEqual(3);
         expect(clients[0]?.applicationName).toEqual('root');
@@ -299,7 +299,7 @@ describe('Client app Tests', () => {
       .set('authorization', `bearer ${accessToken}`)
       .send({ operation: 'GetClients', query: GET_CLIENTS })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         const clients: Client[] = data.getClients;
         expect(clients?.length).toEqual(1);
         expect(clients[0]?.applicationName).toEqual('newClientApp');
@@ -329,7 +329,7 @@ describe('Client app Tests', () => {
         variables: { client_id, applicationName: 'changed-name' }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data?.updateRegularApp).toBeTruthy();
       }));
 
@@ -346,7 +346,7 @@ describe('Client app Tests', () => {
         }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data?.updateRegularApp).toBeTruthy();
       }));
 
@@ -374,7 +374,7 @@ describe('Client app Tests', () => {
         variables: { client_id }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data?.deleteRegularApp).toBeTruthy();
       }));
 
@@ -401,7 +401,7 @@ describe('Client app Tests', () => {
         variables: { email: 'changed_email@example.com' }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data?.updateUser).toBeTruthy();
       }));
 
@@ -415,7 +415,7 @@ describe('Client app Tests', () => {
         variables: { username: 'changed-name' }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data?.updateUser).toBeTruthy();
       }));
 });

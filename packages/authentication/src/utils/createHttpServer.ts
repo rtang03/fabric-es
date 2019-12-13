@@ -1,4 +1,5 @@
 import { ApolloServer } from 'apollo-server-express';
+import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Express, Request, Response } from 'express';
@@ -53,6 +54,7 @@ export const createHttpServer: (option: {
     })
   );
   app.use(cookieParser());
+  app.use(bodyParser.urlencoded({ extended: true }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use('/', indexRouter(oauth2Server, oauthOptions));

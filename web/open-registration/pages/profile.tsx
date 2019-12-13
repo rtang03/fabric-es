@@ -1,9 +1,12 @@
+import { FormControlLabel, FormGroup, Switch } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Form, Formik } from 'formik';
 import { NextPage } from 'next';
-import React, { useEffect } from 'react';
+import Router from 'next/router';
+import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import { MyTextField } from '../components';
 import Layout from '../components/Layout';
@@ -11,6 +14,11 @@ import {
   useMeQuery,
   useUpdateUserMutation
 } from '../generated/oauth-server-graphql';
+
+/**
+ * todo: has bugs. Don't bother now. After update of email, will automatically logout
+ * but the useUpdateUserMutuation works well.
+ */
 
 const validationSchema = yup.object({
   username: yup
@@ -20,7 +28,7 @@ const validationSchema = yup.object({
   email: yup
     .string()
     .required()
-    .email(),
+    .email()
 });
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -45,7 +53,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const Profile: NextPage = () => {
-  const { data: meData, loading: meLoading } = useMeQuery({
+  const [editMode, setEditMode] = useState(false);
+  const { data: meData, loading: meLoading, refetch } = useMeQuery({
     context: { backend: 'oauth' }
   });
   const user = meLoading ? null : meData?.me;
@@ -53,31 +62,63 @@ const Profile: NextPage = () => {
   const emailaddress = user?.email;
   const is_admin = user?.is_admin;
 
-  // const [updateUser, { data, error, loading }] = useUpdateUserMutation({
-  //   context: { backend: 'oauth' }
-  // });
-  //
-  // useEffect(() => {
-  // });
+  const handleChange = () => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditMode(event.target.checked);
+  };
+
+  const [
+    updateUser,
+    { data: updateUserData, error: updateUserError, loading: updateUserLoading }
+  ] = useUpdateUserMutation({
+    context: { backend: 'oauth' }
+  });
+
+  useEffect(() => {
+    refetch();
+  });
 
   const classes = useStyles();
 
   return (
     <Layout title="Profile">
       <Container component="main" maxWidth="lg">
+        <FormGroup row>
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={editMode}
+                onChange={handleChange()}
+                value="editMode"
+                color={editMode ? 'primary' : 'secondary'}
+              />
+            }
+            label={editMode ? 'Unlock' : 'Lock'}
+          />
+        </FormGroup>
         <Formik
           validateOnChange={true}
           initialValues={{ username: uname, email: emailaddress }}
           validationSchema={validationSchema}
-          onSubmit={async ({ username, email }) => {
-            console.log('submit');
-            return null;
+          onSubmit={async ({ username, email }, { setSubmitting }) => {
+            setSubmitting(true);
+            return updateUser({ variables: { email, username } })
+              .then(() => {
+                setSubmitting(false);
+                refetch();
+                Router.push('/');
+              })
+              .catch(err => {
+                setSubmitting(false);
+                console.error(err);
+              });
           }}>
-          {({ values }) => (
+          {({ values, errors, isSubmitting }) => (
             <Form className={classes.form}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
                   <MyTextField
+                    disabled={!editMode}
                     label="User Name"
                     variant="outlined"
                     required
@@ -88,6 +129,7 @@ const Profile: NextPage = () => {
                 </Grid>
                 <Grid item xs={12}>
                   <MyTextField
+                    disabled={!editMode}
                     label="Email"
                     variant="outlined"
                     required
@@ -96,6 +138,19 @@ const Profile: NextPage = () => {
                     placeholder={values.email}
                   />
                 </Grid>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  className={classes.submit}
+                  disabled={
+                    !editMode ||
+                    isSubmitting ||
+                    (!!errors?.username && !values?.username) ||
+                    (!!errors?.email && !values?.email)
+                  }
+                  type="submit">
+                  Save
+                </Button>
               </Grid>
             </Form>
           )}

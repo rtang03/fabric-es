@@ -8,20 +8,20 @@ export const typeDefs = gql`
     ): Boolean!
   }
   type Query {
-    getChainHeight: Int!
     getBlockByNumber(blockNumber: Int!): Block
-    getMspid: String!
+    getCaIdentities: [CaIdentity!]
+    getCaIdentityByEnrollmentId(enrollmentId: String!): CaIdentity
+    getChainHeight: Int!
+    getChannelPeers: [ChannelPeer!]!
+    getCollectionConfigs: [CollectionConfig!]!
     getInstalledChaincodes: [Chaincode!]!
     getInstantiatedChaincodes: [Chaincode!]!
     getInstalledCCVersion(chaincode_id: String!): String!
-    getCaIdentities: [CaIdentity!]
-    getCaIdentityByEnrollmentId(enrollmentId: String!): CaIdentity
-    listWallet: [WalletEntry!]!
-    isWalletEntryExist(label: String!): Boolean!
-    getCollectionConfigs: [CollectionConfig!]!
-    getChannelPeers: [ChannelPeer!]!
-    getPeerName: String!
+    getMspid: String!
     getPeerInfo: PeerInfo!
+    getPeerName: String!
+    isWalletEntryExist(label: String!): Boolean!
+    listWallet: [WalletEntry!]!
   }
   type PeerInfo {
     mspid: String!
