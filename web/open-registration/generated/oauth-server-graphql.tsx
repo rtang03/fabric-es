@@ -11,8 +11,8 @@ export type Scalars = {
   Float: number;
 };
 
+/** Client application */
 export type Client = {
-  __typename?: 'Client';
   id: Scalars['String'];
   applicationName: Scalars['String'];
   client_secret: Scalars['String'];
@@ -23,7 +23,6 @@ export type Client = {
 };
 
 export type CreateAppResponse = {
-  __typename?: 'CreateAppResponse';
   ok: Scalars['Boolean'];
   client_id: Scalars['String'];
   applicationName: Scalars['String'];
@@ -32,27 +31,42 @@ export type CreateAppResponse = {
 };
 
 export type LoginResponse = {
-  __typename?: 'LoginResponse';
   ok: Scalars['Boolean'];
   accessToken: Scalars['String'];
   user: OUser;
 };
 
 export type Mutation = {
-  __typename?: 'Mutation';
+  /** Create regular client app with all grant types; authentication required */
   createRegularApp?: Maybe<CreateAppResponse>;
+  updateRegularApp: Scalars['Boolean'];
+  deleteRegularApp: Scalars['Boolean'];
+  /** Create system application; administrator required */
   createApplication?: Maybe<CreateAppResponse>;
+  /** Create root client application */
   createRootClient?: Maybe<Scalars['String']>;
   login: LoginResponse;
   register: Scalars['Boolean'];
   logout: Scalars['Boolean'];
+  /** authentication required */
   updateUser: Scalars['Boolean'];
+  deleteUser: Scalars['Boolean'];
 };
 
 export type MutationCreateRegularAppArgs = {
   redirect_uri?: Maybe<Scalars['String']>;
   grants: Array<Scalars['String']>;
   applicationName: Scalars['String'];
+};
+
+export type MutationUpdateRegularAppArgs = {
+  redirect_uri: Scalars['String'];
+  applicationName: Scalars['String'];
+  client_id: Scalars['String'];
+};
+
+export type MutationDeleteRegularAppArgs = {
+  client_id: Scalars['String'];
 };
 
 export type MutationCreateApplicationArgs = {
@@ -83,8 +97,8 @@ export type MutationUpdateUserArgs = {
   email: Scalars['String'];
 };
 
+/** User */
 export type OUser = {
-  __typename?: 'OUser';
   id: Scalars['String'];
   email: Scalars['String'];
   username: Scalars['String'];
@@ -92,15 +106,21 @@ export type OUser = {
 };
 
 export type Query = {
-  __typename?: 'Query';
   helloClient: Scalars['String'];
+  /** client_id of root app; no authentication required */
   getRootClientId?: Maybe<Scalars['String']>;
+  /** Public list of client apps; no authentication required */
   getPublicClients?: Maybe<Array<Client>>;
+  /** List of client apps owned by me; authentication required */
   getClients?: Maybe<Array<Client>>;
+  /** List of all client apps; administrator required */
   getAllClients?: Maybe<Array<Client>>;
   hello: Scalars['String'];
+  /** List of all users; administrator required */
   users: Array<OUser>;
+  /** User profile; authentication required */
   me?: Maybe<OUser>;
+  /** Verify user and password; no authentication required */
   verifyPassword: Scalars['Boolean'];
 };
 
@@ -114,10 +134,7 @@ export type CreateRootClientMutationVariables = {
   password: Scalars['String'];
 };
 
-export type CreateRootClientMutation = { __typename?: 'Mutation' } & Pick<
-  Mutation,
-  'createRootClient'
->;
+export type CreateRootClientMutation = Pick<Mutation, 'createRootClient'>;
 
 export type CreateAppForAuthCodeMutationVariables = {
   applicationName: Scalars['String'];
@@ -125,9 +142,9 @@ export type CreateAppForAuthCodeMutationVariables = {
   grants: Array<Scalars['String']>;
 };
 
-export type CreateAppForAuthCodeMutation = { __typename?: 'Mutation' } & {
+export type CreateAppForAuthCodeMutation = {
   createApplication: Maybe<
-    { __typename?: 'CreateAppResponse' } & Pick<
+    Pick<
       CreateAppResponse,
       'ok' | 'client_id' | 'client_secret' | 'redirect_uri'
     >
@@ -140,9 +157,9 @@ export type CreateRegularAppMutationVariables = {
   redirect_uri: Scalars['String'];
 };
 
-export type CreateRegularAppMutation = { __typename?: 'Mutation' } & {
+export type CreateRegularAppMutation = {
   createRegularApp: Maybe<
-    { __typename?: 'CreateAppResponse' } & Pick<
+    Pick<
       CreateAppResponse,
       'ok' | 'applicationName' | 'client_id' | 'client_secret' | 'redirect_uri'
     >
@@ -154,9 +171,9 @@ export type CreateApplicationMutationVariables = {
   grants: Array<Scalars['String']>;
 };
 
-export type CreateApplicationMutation = { __typename?: 'Mutation' } & {
+export type CreateApplicationMutation = {
   createApplication: Maybe<
-    { __typename?: 'CreateAppResponse' } & Pick<
+    Pick<
       CreateAppResponse,
       'ok' | 'client_id' | 'client_secret' | 'redirect_uri'
     >
@@ -165,10 +182,10 @@ export type CreateApplicationMutation = { __typename?: 'Mutation' } & {
 
 export type GetClientsQueryVariables = {};
 
-export type GetClientsQuery = { __typename?: 'Query' } & {
+export type GetClientsQuery = {
   getClients: Maybe<
     Array<
-      { __typename?: 'Client' } & Pick<
+      Pick<
         Client,
         | 'id'
         | 'client_secret'
@@ -183,10 +200,10 @@ export type GetClientsQuery = { __typename?: 'Query' } & {
 
 export type GetPublicClientsQueryVariables = {};
 
-export type GetPublicClientsQuery = { __typename?: 'Query' } & {
+export type GetPublicClientsQuery = {
   getPublicClients: Maybe<
     Array<
-      { __typename?: 'Client' } & Pick<
+      Pick<
         Client,
         'id' | 'applicationName' | 'user_id' | 'redirect_uris' | 'grants'
       >
@@ -196,35 +213,27 @@ export type GetPublicClientsQuery = { __typename?: 'Query' } & {
 
 export type HelloQueryVariables = {};
 
-export type HelloQuery = { __typename?: 'Query' } & Pick<Query, 'hello'>;
+export type HelloQuery = Pick<Query, 'hello'>;
 
 export type LoginMutationVariables = {
   email: Scalars['String'];
   password: Scalars['String'];
 };
 
-export type LoginMutation = { __typename?: 'Mutation' } & {
-  login: { __typename?: 'LoginResponse' } & Pick<
-    LoginResponse,
-    'ok' | 'accessToken'
-  > & {
-      user: { __typename?: 'OUser' } & Pick<OUser, 'id' | 'email' | 'username'>;
-    };
+export type LoginMutation = {
+  login: Pick<LoginResponse, 'ok' | 'accessToken'> & {
+    user: Pick<OUser, 'id' | 'email' | 'username' | 'is_admin'>;
+  };
 };
 
 export type LogoutMutationVariables = {};
 
-export type LogoutMutation = { __typename?: 'Mutation' } & Pick<
-  Mutation,
-  'logout'
->;
+export type LogoutMutation = Pick<Mutation, 'logout'>;
 
 export type MeQueryVariables = {};
 
-export type MeQuery = { __typename?: 'Query' } & {
-  me: Maybe<
-    { __typename?: 'OUser' } & Pick<OUser, 'id' | 'email' | 'username'>
-  >;
+export type MeQuery = {
+  me: Maybe<Pick<OUser, 'id' | 'email' | 'username' | 'is_admin'>>;
 };
 
 export type RegisterAdminMutationVariables = {
@@ -234,10 +243,7 @@ export type RegisterAdminMutationVariables = {
   admin_password: Scalars['String'];
 };
 
-export type RegisterAdminMutation = { __typename?: 'Mutation' } & Pick<
-  Mutation,
-  'register'
->;
+export type RegisterAdminMutation = Pick<Mutation, 'register'>;
 
 export type RegisterUserMutationVariables = {
   username: Scalars['String'];
@@ -245,27 +251,19 @@ export type RegisterUserMutationVariables = {
   password: Scalars['String'];
 };
 
-export type RegisterUserMutation = { __typename?: 'Mutation' } & Pick<
-  Mutation,
-  'register'
->;
+export type RegisterUserMutation = Pick<Mutation, 'register'>;
 
 export type UpdateUserMutationVariables = {
   email: Scalars['String'];
   username: Scalars['String'];
 };
 
-export type UpdateUserMutation = { __typename?: 'Mutation' } & Pick<
-  Mutation,
-  'updateUser'
->;
+export type UpdateUserMutation = Pick<Mutation, 'updateUser'>;
 
 export type UsersQueryVariables = {};
 
-export type UsersQuery = { __typename?: 'Query' } & {
-  users: Array<
-    { __typename?: 'OUser' } & Pick<OUser, 'id' | 'email' | 'username'>
-  >;
+export type UsersQuery = {
+  users: Array<Pick<OUser, 'id' | 'email' | 'username'>>;
 };
 
 export type VerifyPasswordQueryVariables = {
@@ -273,10 +271,7 @@ export type VerifyPasswordQueryVariables = {
   password: Scalars['String'];
 };
 
-export type VerifyPasswordQuery = { __typename?: 'Query' } & Pick<
-  Query,
-  'verifyPassword'
->;
+export type VerifyPasswordQuery = Pick<Query, 'verifyPassword'>;
 
 export const CreateRootClientDocument = gql`
   mutation CreateRootClient($admin: String!, $password: String!) {
@@ -683,6 +678,7 @@ export const LoginDocument = gql`
         id
         email
         username
+        is_admin
       }
     }
   }
@@ -780,6 +776,7 @@ export const MeDocument = gql`
       id
       email
       username
+      is_admin
     }
   }
 `;

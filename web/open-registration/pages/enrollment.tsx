@@ -10,7 +10,6 @@ import { NextPage } from 'next';
 import React, { useEffect } from 'react';
 import * as yup from 'yup';
 import { MyTextField } from '../components';
-import DisplayErrorMessage from '../components/DisplayErrorMessage';
 import Layout from '../components/Layout';
 import {
   useMeQuery,
@@ -146,7 +145,11 @@ const Enrollment: NextPage = () => {
       ) : (
         <div>You are not registered with certificate authority.</div>
       )}
-      <DisplayErrorMessage error={idError} />
+      <div>
+        <Typography variant="caption" color="textSecondary">
+          {idError?.graphQLErrors[0].message}
+        </Typography>
+      </div>
     </>
   );
 
@@ -168,7 +171,11 @@ const Enrollment: NextPage = () => {
       ) : (
         <React.Fragment />
       )}
-      <DisplayErrorMessage error={peerInfoError} />
+      <div>
+        <Typography variant="caption" color="textSecondary">
+          {peerInfoError?.graphQLErrors[0].message}
+        </Typography>
+      </div>
     </>
   );
 
@@ -179,7 +186,11 @@ const Enrollment: NextPage = () => {
       ) : (
         <div>You have not enrolled digital wallet.</div>
       )}
-      <DisplayErrorMessage error={walletExistError} />
+      <div>
+        <Typography variant="caption" color="textSecondary">
+          {walletExistError?.graphQLErrors[0].message}
+        </Typography>
+      </div>
     </>
   );
 
@@ -243,7 +254,7 @@ const Enrollment: NextPage = () => {
                     placeholder="password"
                     type="password"
                     validate={validateSecret}
-                    disabled={idData?.getCaIdentityByEnrollmentId !== undefined}
+                    disabled={idData?.getCaIdentityByEnrollmentId?.id !== undefined}
                   />
                   {!verifyPwLoading && verifyPwData ? (
                     <Typography variant="caption" color="secondary">
@@ -259,12 +270,16 @@ const Enrollment: NextPage = () => {
                   variant="contained"
                   color="primary"
                   disabled={
-                    idData?.getCaIdentityByEnrollmentId !== undefined ||
-                    !verifyPwData?.verifyPassword
+                    (idData !== undefined && !verifyPwData?.verifyPassword) ||
+                    !!idData?.getCaIdentityByEnrollmentId?.id
                   }>
                   Enroll
                 </Button>
-                <DisplayErrorMessage error={registerError} />
+                <div>
+                  <Typography variant="caption" color="textSecondary">
+                    {registerError?.graphQLErrors[0].message}
+                  </Typography>
+                </div>
               </Grid>
             </Form>
           )}

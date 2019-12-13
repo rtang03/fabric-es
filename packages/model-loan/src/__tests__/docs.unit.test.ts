@@ -1,6 +1,6 @@
-import { documentCommandHandler, DocumentStatus } from '../public/document';
-import { loanCommandHandler } from '../public/loan';
-import { userCommandHandler } from '../public/user';
+import { userCommandHandler } from '@espresso/model-common';
+import { documentCommandHandler, DocumentStatus } from '../document';
+import { loanCommandHandler } from '../loan';
 import { documentRepo, loanRepo, userRepo } from './__utils__';
 
 const enrollmentId = '';

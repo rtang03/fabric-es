@@ -39,7 +39,11 @@ export const createProjectionDb: (
       }),
     upsertMany: ({ commits, reducer }) =>
       new Promise(resolve => {
-        const group = groupBy(commits, ({ id }) => id);
+        const filterCommits = filter(
+          commits,
+          ({ entityName }) => entityName === defaultEntityName
+        );
+        const group = groupBy(filterCommits, ({ id }) => id);
         const entities = [];
         keys(group).forEach(id =>
           entities.push(assign({ id }, reducer(getHistory(values(group[id])))))

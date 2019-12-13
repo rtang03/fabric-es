@@ -26,25 +26,36 @@ export const Header: React.FC<any> = () => {
     </div>
   );
 
+  const is_admin = data?.me?.is_admin;
+
   return (
     <header>
       <nav>
         <Link href="/">Home</Link>
         {!loading && !data?.me ? (
-          <React.Fragment>
+          <>
             {' '}
             |{' '}
             <Link href="/register" color="secondary">
               Register
             </Link>{' '}
             | <Link href="/login">Login</Link>
-          </React.Fragment>
+          </>
         ) : !loading && data?.me ? (
-          <React.Fragment>
+          <>
             {' '}
-            | <Link href="/application">Client App</Link> |{' '}
-            <Link href="/peer">Peer Info</Link> |{' '}
+            |{' '}
+            {is_admin ? (
+              <>
+                <Link href="/application">Client App</Link> |{' '}
+                <Link href="/peer">Peer Info</Link> |{' '}
+              </>
+            ) : (
+              <React.Fragment />
+            )}
             <Link href="/enrollment">Enrollment</Link> |{' '}
+            <Link href="/profile">Profile</Link> |{' '}
+            <Link href="/playground">Playground</Link> |{' '}
             <button
               onClick={async () => {
                 await logout();
@@ -54,7 +65,7 @@ export const Header: React.FC<any> = () => {
               }}>
               logout
             </button>
-          </React.Fragment>
+          </>
         ) : null}
       </nav>
       {body}

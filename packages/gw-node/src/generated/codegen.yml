@@ -1,0 +1,9 @@
+overwrite: true
+generates:
+  schema: "http://localhost:15000/graphql"
+  src/generated/peer-resolvers-types.ts:
+    plugins:
+      - typescript
+      - typescript-resolvers
+    config:
+      useIndexSignature: false

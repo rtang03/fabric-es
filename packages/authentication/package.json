@@ -1,0 +1,73 @@
+{
+  "name": "@espresso/authentication",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "start": "nodemon --exec ts-node src/app.ts",
+    "build": "yarn run clean && tsc",
+    "clean": "rimraf dist",
+    "test:authorization_code": "jest --forceExit --detectOpenHandles authorization_code.test",
+    "test:client_credentials": "jest --forceExit --detectOpenHandles client_credentials.test",
+    "test:refresh_token": "jest --forceExit --detectOpenHandles refresh_token.test",
+    "test:password": "jest --forceExit --detectOpenHandles password.test",
+    "test:authenticate": "jest --forceExit --detectOpenHandles authenticate.test",
+    "test:client_app": "jest --forceExit --detectOpenHandles client_app.test"
+  },
+  "engines": {
+    "node": ">=8",
+    "npm": ">=5"
+  },
+  "private": true,
+  "engineStrict": true,
+  "dependencies": {
+    "@espresso/admin-tool": "1.0.0",
+    "apollo-server": "^2.9.7",
+    "bcrypt": "^3.0.6",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.4",
+    "cors": "^2.8.5",
+    "dotenv": "^8.1.0",
+    "express": "^4.17.1",
+    "graphql": "^14.5.8",
+    "http-status": "^1.4.1",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.15",
+    "morgan": "^1.9.1",
+    "oauth2-server-typescript": "^5.0.0-dev.3",
+    "pg": "^7.12.1",
+    "prettyjson": "^1.2.1",
+    "pug": "^2.0.4",
+    "reflect-metadata": "^0.1.13",
+    "type-graphql": "^0.17.5",
+    "typeorm": "^0.2.20"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/body-parser": "^1.17.1",
+    "@types/cookie-parser": "^1.4.2",
+    "@types/express": "^4.17.1",
+    "@types/cors": "^2.8.6",
+    "@types/dotenv": "^6.1.1",
+    "@types/jest": "^24.0.18",
+    "@types/js-yaml": "^3.12.1",
+    "@types/jsonwebtoken": "^8.3.5",
+    "@types/lodash": "^4.14.138",
+    "@types/node": "^12.7.5",
+    "@types/supertest": "^2.0.8",
+    "nodemon": "^1.19.4",
+    "jest": "^24.9.0",
+    "prettier": "^1.19.1",
+    "rimraf": "^3.0.0",
+    "supertest": "^4.0.2",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.20.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.7.2"
+  },
+  "nohoist": [
+    "class-validator"
+  ]
+}

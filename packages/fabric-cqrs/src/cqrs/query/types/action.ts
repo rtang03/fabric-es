@@ -51,7 +51,7 @@ export interface MergeAction {
 
 export interface MergeBatchAction {
   type: string;
-  payload: {
+  payload?: {
     tx_id: string;
     args: {
       entityName: string;

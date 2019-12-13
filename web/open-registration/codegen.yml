@@ -1,6 +1,7 @@
 overwrite: true
 hooks:
-  afterOneFileWrite:
+  afterAllFileWrite:
+    - tslint --fix
     - prettier --write
 generates:
   generated/oauth-server-graphql.tsx:
@@ -15,6 +16,9 @@ generates:
       withComponent: false
       withHooks: true
       reactApolloVersion: 3
+      skipTypename: true
+      apolloReactCommonImportFrom: '@apollo/react-common'
+      apolloReactHooksImportFrom: '@apollo/react-hooks'
   generated/peer-node-graphql.tsx:
     documents: "graphql/peer-node/*.graphql"
     schema: "http://localhost:15000/graphql"
@@ -27,3 +31,6 @@ generates:
       withComponent: false
       withHooks: true
       reactApolloVersion: 3
+      skipTypename: true
+      apolloReactCommonImportFrom: '@apollo/react-common'
+      apolloReactHooksImportFrom: '@apollo/react-hooks'
