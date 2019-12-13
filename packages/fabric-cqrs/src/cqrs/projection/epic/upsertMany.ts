@@ -1,9 +1,10 @@
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
+import { map, mergeMap, tap } from 'rxjs/operators';
 import { ProjectionDb, Reducer } from '../../../types';
 import { action } from '../action';
 import { UpsertManyAction } from '../types';
+import { isEqual } from 'lodash';
 
 export default (
   action$: Observable<UpsertManyAction>,
@@ -15,9 +16,13 @@ export default (
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { commits } }) =>
       from(
-        context.projectionDb
-          .upsertMany({ commits, reducer: context.reducer })
-          .then(({ data }) => action.upsertManySuccess({ tx_id, result: data }))
+        isEqual(commits, {})
+          ? Promise.resolve(action.upsertManySuccess({ tx_id, result: null }))
+          : context.projectionDb
+              .upsertMany({ commits, reducer: context.reducer })
+              .then(({ data }) =>
+                action.upsertManySuccess({ tx_id, result: data })
+              )
       )
     )
   );
