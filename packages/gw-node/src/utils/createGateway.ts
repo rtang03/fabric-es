@@ -1,9 +1,8 @@
-require('./env');
 import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
 import Cookie from 'cookie';
-import express from 'express';
+import express, { Express } from 'express';
 import morgan from 'morgan';
 import fetch from 'node-fetch';
 
@@ -17,21 +16,28 @@ class AuthenticatedDataSource extends RemoteGraphQLDataSource {
   }
 }
 
-const gateway = new ApolloGateway({
-  serviceList: [
+export const createGateway: (option: {
+  serviceList?: any;
+  authenticationCheck?: string;
+  useCors?: boolean;
+  corsOrigin?: string;
+}) => Promise<Express> = async ({
+  serviceList = [
     {
       name: 'admin',
       url: process.env.ADMINISTRATOR_URI || 'http://localhost:15000/graphql'
     }
   ],
-  buildService: ({ url }) => new AuthenticatedDataSource({ url })
-});
+  authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
+    'http://localhost:3300/oauth'}/authenticate`,
+  useCors = false,
+  corsOrigin = process.env.CORS || 'http://localhost:3000'
+}) => {
+  const gateway = new ApolloGateway({
+    serviceList,
+    buildService: ({ url }) => new AuthenticatedDataSource({ url })
+  });
 
-const PORT = process.env.PORT || 4000;
-const authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
-  'http://localhost:3300/oauth'}/authenticate`;
-
-(async () => {
   const server = new ApolloServer({
     gateway,
     subscriptions: false,
@@ -77,15 +83,12 @@ const authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
   app.use(morgan('tiny'));
-  server.applyMiddleware({
-    app,
-    cors: { origin: 'http://localhost:3000', credentials: true }
-  });
-  app.listen(PORT, () => {
-    console.log(`🚀 Server at http://localhost:${PORT}${server.graphqlPath}`);
-  });
-})().catch(error => {
-  console.log(error);
-  console.error(error.stack);
-  process.exit(0);
-});
+  if (useCors)
+    server.applyMiddleware({
+      app,
+      cors: { origin: corsOrigin, credentials: true }
+    });
+  else
+    server.applyMiddleware({ app, });
+  return app;
+};

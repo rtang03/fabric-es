@@ -1,15 +1,12 @@
-require('../env');
-import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
+const { resolve } = require('path');
+require('dotenv').config({
+  path: resolve(__dirname, './__utils__/.env.test')
+});
+import { ApolloGateway } from '@apollo/gateway';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import gql from 'graphql-tag';
-
-class AuthenticatedDataSource extends RemoteGraphQLDataSource {
-  willSendRequest({ request, context }: { request: any; context: any }) {
-    request.http.headers.set('client_id', context.client_id);
-    request.http.headers.set('user_id', context.user_id);
-  }
-}
+import { AuthDataSource } from './__utils__';
 
 let apollo: ApolloServer;
 const enrollmentId = `${Math.floor(
@@ -28,7 +25,7 @@ beforeAll(() => {
         url: 'http://localhost:15000/graphql'
       }
     ],
-    buildService: ({ url }) => new AuthenticatedDataSource({ url })
+    buildService: ({ url }) => new AuthDataSource({ url })
   });
   apollo = new ApolloServer({
     gateway,

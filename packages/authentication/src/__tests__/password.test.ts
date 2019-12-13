@@ -73,7 +73,7 @@ describe('Password Grant Type Tests', () => {
         variables: { admin: 'admin', password: 'admin_test' }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         client_id = data.createRootClient;
         expect(typeof data?.createRootClient).toBe('string');
       }));
@@ -87,7 +87,7 @@ describe('Password Grant Type Tests', () => {
         variables: { email, password, username, admin_password }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data?.register).toBeTruthy();
       }));
 
@@ -100,7 +100,7 @@ describe('Password Grant Type Tests', () => {
         variables: { email, password }
       })
       .expect(({ body: { data, errors }, header }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         // refreshToken = header['set-cookie'][0].split('; ')[0].split('=')[1];
         accessToken = data.login.accessToken;
         expect(data?.login?.ok).toBeTruthy();
@@ -123,7 +123,7 @@ describe('Password Grant Type Tests', () => {
       .set('authorization', `bearer ${accessToken}`)
       .send({ operationName: 'Users', query: USERS })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data.users[0].email).toEqual(email);
         expect(data.users[0].username).toEqual(username);
       }));
@@ -134,7 +134,7 @@ describe('Password Grant Type Tests', () => {
       .set('authorization', `bearer ${accessToken}`)
       .send({ operationName: 'Me', query: ME })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data.me.email).toEqual(email);
         expect(data.me.username).toEqual(username);
       }));
@@ -145,7 +145,7 @@ describe('Password Grant Type Tests', () => {
       .set('authorization', `Bearer 123456789`)
       .send({ operationName: 'Me', query: ME })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data?.me).toBeNull();
       }));
 
@@ -161,7 +161,7 @@ describe('Password Grant Type Tests', () => {
         variables: { email: 'changed@example.com', username: 'changed_user' }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data?.updateUser).toBeTruthy();
       }));
 
@@ -174,7 +174,7 @@ describe('Password Grant Type Tests', () => {
         variables: { email, password, username }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data?.register).toBeTruthy();
       }));
 
@@ -187,7 +187,7 @@ describe('Password Grant Type Tests', () => {
         variables: { email, password }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         accessToken = data.login.accessToken;
         expect(data.login.ok).toBeTruthy();
         expect(data.login.accessToken).toBeDefined();

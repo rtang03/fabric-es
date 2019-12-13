@@ -64,7 +64,7 @@ describe('Authenticate Tests', () => {
         variables: { admin: 'admin', password: 'admin_test' }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         client_id = data.createRootClient;
         expect(typeof data.createRootClient).toBe('string');
       }));
@@ -78,7 +78,7 @@ describe('Authenticate Tests', () => {
         variables: { email, password, username, admin_password }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data?.register).toBeTruthy();
       }));
 
@@ -91,7 +91,7 @@ describe('Authenticate Tests', () => {
         variables: { email, password }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         accessToken = data.login.accessToken;
         expect(data?.login?.ok).toBeTruthy();
         expect(typeof data.login.accessToken).toBe('string');

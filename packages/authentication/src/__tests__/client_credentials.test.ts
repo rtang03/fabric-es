@@ -76,7 +76,7 @@ describe('Client Credentials Grant Type Tests', () => {
         }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(typeof data?.createRootClient).toBe('string');
       }));
 
@@ -94,7 +94,7 @@ describe('Client Credentials Grant Type Tests', () => {
         }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         expect(data?.register).toBeTruthy();
       }));
 
@@ -107,7 +107,7 @@ describe('Client Credentials Grant Type Tests', () => {
         variables: { email, password }
       })
       .expect(({ body: { data, errors }, header }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         refreshToken = header['set-cookie'][0].split('; ')[0].split('=')[1];
         accessToken = data.login.accessToken;
         expect(data.login.ok).toBeTruthy();
@@ -126,7 +126,7 @@ describe('Client Credentials Grant Type Tests', () => {
         variables: { applicationName, grants }
       })
       .expect(({ body: { data, errors } }) => {
-        if (errors) expect(errors).toBeUndefined();
+        expect(errors).toBeUndefined();
         client_id = data.createApplication.client_id;
         client_secret = data.createApplication.client_secret;
         expect(data.createApplication.ok).toBeTruthy();

@@ -16,10 +16,11 @@
     "start-gateway": "yarn build && node ./dist/start-gateway.js",
     "enrollAdmin": "rimraf assets/_wallet/admin && ./node_modules/.bin/ts-node src/enrollAdmin.ts",
     "svs-admin": "nodemon --exec ts-node ./src/service-admin.ts",
-    "start-new-gateway": "nodemon --exec ts-node ./src/gateway.ts",
+    "start-admin-only-gateway": "nodemon --exec ts-node src/admin-only-gateway.ts",
     "generate-types-for-admin": "graphql-codegen --config src/generated/codegen.yml",
     "enrollCaAdmin": "rimraf assets/_wallet/ca_admin && ./node_modules/.bin/ts-node src/admin/enrollCaAdmin.ts",
-    "test-service-admin:integration": "jest int.test"
+    "test-service-admin:integration": "jest basic-int.test",
+    "test-service-admin:auth:integration": "jest --forceExit --detectOpenHandles auth-int.test"
   },
   "engines": {
     "node": ">=8",
@@ -31,6 +32,7 @@
     "@apollo/federation": "^0.10.2",
     "@apollo/gateway": "^0.10.8",
     "@espresso/admin-tool": "1.0.0",
+    "@espresso/authentication": "1.0.0",
     "@espresso/fabric-cqrs": "1.0.0",
     "@espresso/model-common": "1.0.0",
     "@espresso/model-loan": "1.0.0",
@@ -68,6 +70,7 @@
     "@types/js-yaml": "^3.12.1",
     "@types/jsonwebtoken": "^8.3.5",
     "@types/lodash": "^4.14.138",
+    "@types/morgan": "^1.7.37",
     "@types/node": "^8.10.54",
     "@types/node-fetch": "^2.5.4",
     "apollo-server-testing": "^2.9.7",
