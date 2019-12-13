@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 ## install_chaincode.sh [org] [peer] [name] [version] [port]
 ## Example: ./install_chaincode.sh org1 peer1 eventstore 1.0 7051
 if [ $# -ne 5 ]
