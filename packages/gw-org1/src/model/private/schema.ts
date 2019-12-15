@@ -2,7 +2,8 @@ import gql from 'graphql-tag';
 
 export const typeDefs = gql`
   type Query {
-    getDocContentsById(documentId: String!): DocContents!
+    # getDocContentsById(documentId: String!): DocContents!
+    getDocContentsById(documentId: String!): DocContents
   }
 
   type Mutation {

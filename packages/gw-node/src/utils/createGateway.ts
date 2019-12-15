@@ -26,6 +26,10 @@ export const createGateway: (option: {
     {
       name: 'admin',
       url: process.env.ADMINISTRATOR_URI || 'http://localhost:15000/graphql'
+    },
+    {
+      name: 'remote-data',
+      url: 'http://localhost:16000/graphql'
     }
   ],
   authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||

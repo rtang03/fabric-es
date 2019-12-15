@@ -24,7 +24,13 @@ export const typeDefs = gql`
     listWallet: [WalletEntry!]!
   }
   type PeerInfo {
+    """
+    MSP Id
+    """
     mspid: String!
+    """
+    Peer Name
+    """
     peerName: String!
   }
   type ChannelPeer {

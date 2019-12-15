@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "start": "nodemon --exec ts-node src/app.ts",
+    "dev-auth": "nodemon --exec ts-node src/app.ts",
     "build": "yarn run clean && tsc",
     "clean": "rimraf dist",
     "test:authorization_code": "jest --forceExit --detectOpenHandles authorization_code.test",

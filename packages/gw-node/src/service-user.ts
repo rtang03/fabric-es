@@ -1,3 +1,5 @@
+require('./env');
+
 import {
   User,
   UserEvents,

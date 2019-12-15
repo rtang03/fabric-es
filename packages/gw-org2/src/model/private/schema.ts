@@ -2,7 +2,8 @@ import gql from 'graphql-tag';
 
 export const typeDefs = gql`
   type Query {
-    getLoanDetailsById(loanId: String!): LoanDetails!
+    # getLoanDetailsById(loanId: String!): LoanDetails!
+    getLoanDetailsById(loanId: String!): LoanDetails
   }
 
   type Mutation {

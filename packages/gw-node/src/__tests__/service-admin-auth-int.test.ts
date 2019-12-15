@@ -8,7 +8,7 @@ import { Express } from 'express';
 import http from 'http';
 import fetch from 'node-fetch';
 import request from 'supertest';
-import { createFederatedAdmin } from '../admin';
+import { createAdminService } from '../admin';
 import {
   MISSING_VARIABLE,
   UNAUTHORIZED_ACCESS,
@@ -69,7 +69,7 @@ type QueryResponse = {
 
 beforeAll(async () => {
   // step 1: start admin service (federated service)
-  federatedAdminServer = await createFederatedAdmin();
+  federatedAdminServer = await createAdminService();
   await federatedAdminServer.listen({ port });
 
   // step 2: prepare federated gateway
