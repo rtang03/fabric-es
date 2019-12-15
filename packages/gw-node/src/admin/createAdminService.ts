@@ -4,7 +4,7 @@ import { FileSystemWallet } from 'fabric-network';
 import { createResolvers } from './createResolvers';
 import { typeDefs } from './typeDefs';
 
-export const createFederatedAdmin = async () => {
+export const createAdminService = async () => {
   console.log('♨️♨️ Bootstraping Peer Node API  ♨️♨️');
   const resolvers = await createResolvers({
     channelName: process.env.CHANNEL_NAME,

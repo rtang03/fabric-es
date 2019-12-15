@@ -12,7 +12,7 @@ import {
 import ab2str from 'arraybuffer-to-string';
 import { FileSystemWallet } from 'fabric-network';
 import { includes } from 'lodash';
-import { Resolvers } from '../generated/peer-resolvers-types';
+import { Resolvers } from '../generated/admin-resolvers-types';
 import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from './contants';
 
 export const createResolvers: (option: {

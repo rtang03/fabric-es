@@ -1,3 +1,5 @@
+require('./env');
+
 import {
   Loan,
   LoanEvents,

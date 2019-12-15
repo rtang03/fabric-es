@@ -1,10 +1,10 @@
 require('./env');
-import { createFederatedAdmin } from './admin';
+import { createAdminService } from './admin';
 
 const port = process.env.ADMINISTRATOR_PORT || 15000;
 
 (async () => {
-  const server = await createFederatedAdmin();
+  const server = await createAdminService();
   server.listen({ port }).then(({ url }) => {
     console.log(`🚀 Server ready at ${url}graphql`);
   });
