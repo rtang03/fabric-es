@@ -1,84 +1,28 @@
 require('./env');
-import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
-import { ApolloServer } from 'apollo-server-express';
-import bodyParser from 'body-parser';
-import express from 'express';
-import { createServer } from 'http';
-import jwt from 'jsonwebtoken';
-import jwks from 'jwks-rsa';
-// import morgan from 'morgan';
-
-export class AuthenticatedDataSource extends RemoteGraphQLDataSource {
-  willSendRequest({ request, context }: { request: any; context: any }) {
-    // pass client_id to underlying service. For offchain resolvers, it needs
-    // additional auth check, to be implementated in the resolver
-    // see https://auth0.com/blog/develop-modern-apps-with-react-graphql-apollo-and-add-authentication/#Secure-your-GraphQL-API-with-Auth0
-    request.http.headers.set('client_id', context.client_id);
-    request.http.headers.set('user_id', context.user_id);
-  }
-}
-
-const gateway = new ApolloGateway({
-  serviceList: [
-    { name: 'user',     url: 'http://localhost:14011/graphql' },
-    { name: 'loan',     url: 'http://localhost:14012/graphql' },
-    { name: 'document', url: 'http://localhost:14013/graphql' },
-    { name: 'private',  url: 'http://localhost:14014/graphql' }
-  ],
-  buildService: ({ url }) => new AuthenticatedDataSource({ url })
-});
+import { createGateway } from '@espresso/gw-node';
 
 const PORT = process.env.PORT || 4001;
+const authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
+'http://localhost:3300/oauth'}/authenticate`;
 
-const client = jwks({
-  jwksUri: `https://tangross.auth0.com/.well-known/jwks.json`
-});
-
-const getKey = (header, cb) =>
-  client.getSigningKey(header.kid, (err, key: any) => {
-    const signingKey = key.publicKey || key.rsaPublicKey;
-    cb(null, signingKey);
+(async () => {
+  const app = await createGateway({
+    serviceList: [
+      { name: 'user',     url: 'http://localhost:14011/graphql' },
+      { name: 'loan',     url: 'http://localhost:14012/graphql' },
+      { name: 'document', url: 'http://localhost:14013/graphql' },
+      { name: 'private',  url: 'http://localhost:14014/graphql' },
+      { name: 'remote-loan-details', url: 'http://localhost:14015/graphql' },
+      { name: 'admin', url: 'http://localhost:15001/graphql' }
+    ],
+    authenticationCheck,
+    useCors: true,
+    debug: false
   });
-
-const options = {
-  audience: 'urn:espresso',
-  issuer: `https://tangross.auth0.com/`,
-  algorithms: ['RS256']
-};
-
-const bootstrap = async () => {
-  const server = new ApolloServer({
-    gateway,
-    subscriptions: false,
-    context: async ({ req }) => {
-      let client_id;
-      let token = req.headers.authorization;
-      if (token && token.startsWith('Bearer ')) {
-        token = token.slice(7, token.length);
-        client_id = await new Promise((resolve, reject) =>
-          jwt.verify(token, getKey, options, (err, decoded: any) =>
-            err ? reject(err) : resolve(decoded.azp)
-          )
-        );
-      }
-      return { client_id };
-    }
+  app.listen(PORT, () => {
+    console.log(`🚀 Server at http://localhost:${PORT}/graphql`);
   });
-
-  const app = express();
-  app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(bodyParser.json());
-  // app.use(morgan('tiny'));
-  server.applyMiddleware({ app });
-  // unnecessary change to nodejs http server
-  // keep the code for now, may cleanup later
-  const httpServer = createServer(app);
-  httpServer.listen(PORT, () => {
-    console.log(`🚀 Server at http://localhost:${PORT}${server.graphqlPath}`);
-  });
-};
-
-bootstrap().catch(error => {
+})().catch(error => {
   console.log(error);
   console.error(error.stack);
   process.exit(0);

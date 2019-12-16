@@ -15,3 +15,4 @@ export * from './GET_CLIENTS';
 export * from './CREATE_REGULAR_APP';
 export * from './DELETE_REGULAR_APP';
 export * from './DELETE_USER';
+export * from './GET_ROOT_CLIENT';
