@@ -63,7 +63,7 @@ export class ClientResolver {
   })
   async getRootClientId() {
     return Client.findOne({ applicationName: 'root' })
-      .then(({ id }) => id)
+      .then(res => res?.id)
       .catch(error => {
         console.error(error);
         throw new ApolloError(error.message);
