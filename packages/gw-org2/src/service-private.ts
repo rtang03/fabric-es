@@ -1,13 +1,11 @@
+require('./env');
+import { startService } from '@espresso/gw-node';
 import {
   LoanDetails,
   LoanDetailsEvents,
   loanDetailsReducer
 } from '@espresso/model-loan-private';
-import {
-  resolvers,
-  typeDefs
-} from './model/private';
-import { startService } from './start-service';
+import { resolvers, typeDefs } from './model/private';
 
 startService({
   enrollmentId: 'admin',
@@ -19,8 +17,12 @@ startService({
     port: 14024,
     typeDefs,
     resolvers
-  }).addRepository(getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
-    entityName: 'loanDetails',
-    reducer: loanDetailsReducer
-  })).run();
+  })
+    .addRepository(
+      getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
+        entityName: 'loanDetails',
+        reducer: loanDetailsReducer
+      })
+    )
+    .run();
 });

@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 
 export const resolvers = {
   Document: {
-    contents: async ({ documentId }, _, { remoteData }: RemoteData) =>
+    _contents: async ({ documentId }, _, { remoteData }: RemoteData) =>
       remoteData({
         query: gql`
           query GetDocContentsById($documentId: String!) {

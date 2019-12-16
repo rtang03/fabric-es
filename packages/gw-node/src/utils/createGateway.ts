@@ -21,6 +21,7 @@ export const createGateway: (option: {
   authenticationCheck?: string;
   useCors?: boolean;
   corsOrigin?: string;
+  debug?: boolean;
 }) => Promise<Express> = async ({
   serviceList = [
     {
@@ -35,11 +36,13 @@ export const createGateway: (option: {
   authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
     'http://localhost:3300/oauth'}/authenticate`,
   useCors = false,
-  corsOrigin = process.env.CORS || 'http://localhost:3000'
+  corsOrigin = process.env.CORS || 'http://localhost:3000',
+  debug = false
 }) => {
   const gateway = new ApolloGateway({
     serviceList,
-    buildService: ({ url }) => new AuthenticatedDataSource({ url })
+    buildService: ({ url }) => new AuthenticatedDataSource({ url }),
+    debug
   });
 
   const server = new ApolloServer({
@@ -92,7 +95,6 @@ export const createGateway: (option: {
       app,
       cors: { origin: corsOrigin, credentials: true }
     });
-  else
-    server.applyMiddleware({ app, });
+  else server.applyMiddleware({ app });
   return app;
 };

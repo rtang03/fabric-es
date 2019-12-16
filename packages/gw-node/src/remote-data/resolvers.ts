@@ -1,3 +1,4 @@
+import { ApolloError } from 'apollo-server';
 import gql from 'graphql-tag';
 import { RemoteData } from './remoteData';
 
@@ -24,6 +25,9 @@ export const resolvers = {
         `,
         operationName: 'GetDocContentsById',
         variables: { documentId }
+      }).then(({ data, errors }) => {
+        if (errors) throw new ApolloError(errors[0].message);
+        return data?.getDocContentsById;
       })
   },
   DocContents: {

@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 export const typeDefs = gql`
   type LoanDetails @key(fields: "loanId") {
-    loanId: String
+    loanId: String!
     requester: LoanRequester!
     contact: ContactInfo!
     loanType: String
@@ -13,7 +13,7 @@ export const typeDefs = gql`
     approvedAmt: Float
     comment: String
     timestamp: String!
-    # loan: Loan
+    loan: Loan
   }
 
   type ContactInfo {
@@ -32,6 +32,9 @@ export const typeDefs = gql`
 
   extend type Loan @key(fields: "loanId") {
     loanId: String! @external
-    details: LoanDetails
+    """
+    LoanDetail from org2
+    """
+    _details: LoanDetails
   }
 `;

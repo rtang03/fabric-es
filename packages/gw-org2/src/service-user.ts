@@ -1,3 +1,5 @@
+require('./env');
+import { startService } from '@espresso/gw-node';
 import {
   User,
   UserEvents,
@@ -5,7 +7,6 @@ import {
   userResolvers,
   userTypeDefs
 } from '@espresso/model-common';
-import { startService } from './start-service';
 
 startService({
   enrollmentId: 'admin',
