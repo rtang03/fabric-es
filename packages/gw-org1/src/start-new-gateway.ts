@@ -12,10 +12,12 @@ const authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
       { name: 'loan',     url: 'http://localhost:14012/graphql' },
       { name: 'document', url: 'http://localhost:14013/graphql' },
       { name: 'private',  url: 'http://localhost:14014/graphql' },
-      { name: 'remote-data', url: 'http://localhost:14015/graphql' }
+      { name: 'remote-loan-details', url: 'http://localhost:14015/graphql' },
+      { name: 'admin', url: 'http://localhost:15001/graphql' }
     ],
     authenticationCheck,
-    useCors: true
+    useCors: true,
+    debug: false
   });
   app.listen(PORT, () => {
     console.log(`🚀 Server at http://localhost:${PORT}/graphql`);

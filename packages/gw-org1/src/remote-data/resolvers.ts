@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 
 export const resolvers = {
   Loan: {
-    details: async ({ loanId }, _, { remoteData }: RemoteData) =>
+    _details: async ({ loanId }, _, { remoteData }: RemoteData) =>
       remoteData({
         query: gql`
           query GetLoanDetailsById($loanId: String!) {
@@ -31,7 +31,8 @@ export const resolvers = {
               comment
               timestamp
             }
-          }`,
+          }
+        `,
         operationName: 'GetLoanDetailsById',
         variables: { loanId }
       }).then(({ data, errors }) => {

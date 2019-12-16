@@ -1,4 +1,3 @@
-// require('./env'); <== cannot add here, bug
 import { buildFederatedSchema } from '@apollo/federation';
 import { createPeer, getNetwork, PeerOptions, PrivatedataRepository, Reducer, Repository } from '@espresso/fabric-cqrs';
 import { DataSrc } from '@espresso/model-common';

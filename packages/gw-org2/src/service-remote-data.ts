@@ -14,7 +14,7 @@ const uri = 'http://localhost:4001/graphql';
     resolvers
   });
   server.listen({ port }).then(({ url }) => {
-    console.log(`🚀 Server ready at ${url}graphql`);
+    console.log(`🚀 Remote data: "${name}" at ${uri} ready at ${url}graphql`);
   });
 })().catch(error => {
   console.log(error);

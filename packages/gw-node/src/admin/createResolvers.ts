@@ -13,7 +13,12 @@ import ab2str from 'arraybuffer-to-string';
 import { FileSystemWallet } from 'fabric-network';
 import { includes } from 'lodash';
 import { Resolvers } from '../generated/admin-resolvers-types';
-import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from './contants';
+import {
+  IDENTITY_SERVICE_ERROR,
+  PEER_INFO_ERROR,
+  UNAUTHORIZED_ACCESS,
+  USER_NOT_FOUND
+} from './contants';
 
 export const createResolvers: (option: {
   channelName: string;
@@ -33,7 +38,7 @@ export const createResolvers: (option: {
     fabricNetwork
   }).catch(err => {
     console.error(err);
-    throw new ApolloError('peer-info error');
+    throw new ApolloError(PEER_INFO_ERROR);
   });
 
   const idService = await createIdentityService({
@@ -41,7 +46,7 @@ export const createResolvers: (option: {
     wallet
   }).catch(err => {
     console.error(err);
-    throw new ApolloError('identity service error');
+    throw new ApolloError(IDENTITY_SERVICE_ERROR);
   });
 
   return {

@@ -1,3 +1,5 @@
+require('./env');
+import { startService } from '@espresso/gw-node';
 import {
   Document,
   DocumentEvents,
@@ -5,7 +7,6 @@ import {
   documentResolvers,
   documentTypeDefs
 } from './model/public/document';
-import { startService } from './start-service';
 
 startService({
   enrollmentId: 'admin',
@@ -16,8 +17,12 @@ startService({
     port: 14023,
     typeDefs: documentTypeDefs,
     resolvers: documentResolvers
-  }).addRepository(getRepository<Document, DocumentEvents>({
-    entityName: 'document',
-    reducer: documentReducer
-  })).run();
+  })
+    .addRepository(
+      getRepository<Document, DocumentEvents>({
+        entityName: 'document',
+        reducer: documentReducer
+      })
+    )
+    .run();
 });

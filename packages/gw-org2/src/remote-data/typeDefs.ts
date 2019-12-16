@@ -5,7 +5,7 @@ export const typeDefs = gql`
     documentId: String
     content: Docs
     timestamp: String
-    # document: Document
+    document: Document
   }
   union Docs = Data | File
   type Data {
@@ -17,6 +17,9 @@ export const typeDefs = gql`
   }
   extend type Document @key(fields: "documentId") {
     documentId: String! @external
-    contents: DocContents
+    """
+    Doc Contents from org1
+    """
+    _contents: DocContents
   }
 `;

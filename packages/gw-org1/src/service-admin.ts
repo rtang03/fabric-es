@@ -1,5 +1,5 @@
 require('./env');
-import { createAdminService } from './admin';
+import { createAdminService } from '@espresso/gw-node';
 
 const port = process.env.ADMINISTRATOR_PORT || 15001;
 

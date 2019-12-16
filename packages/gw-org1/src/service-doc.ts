@@ -1,3 +1,5 @@
+require('./env');
+import { startService } from '@espresso/gw-node';
 import {
   Document,
   DocumentEvents,
@@ -5,7 +7,6 @@ import {
   documentResolvers,
   documentTypeDefs
 } from '@espresso/model-loan';
-import { startService } from './start-service';
 
 startService({
   enrollmentId: 'admin',
