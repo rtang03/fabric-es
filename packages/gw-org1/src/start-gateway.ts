@@ -3,7 +3,7 @@ import { createGateway } from '@espresso/gw-node';
 
 const PORT = process.env.PORT || 4001;
 const authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
-'http://localhost:3300/oauth'}/authenticate`;
+'http://localhost:3301/oauth'}/authenticate`;
 
 (async () => {
   const app = await createGateway({

@@ -74,15 +74,20 @@ export const createGateway: (option: {
               is_admin: boolean;
               client_id: string;
             }>(res => res.json())
-            .then(res =>
-              res?.authenticated
-                ? {
-                    user_id: res.user_id,
-                    is_admin: res.is_admin,
-                    client_id: res.client_id
-                  }
-                : {}
-            )
+            .then(res => {
+              if (res?.authenticated)
+                return {
+                  user_id: res.user_id,
+                  is_admin: res.is_admin,
+                  client_id: res.client_id
+                };
+              else {
+                // e.g. res returns
+                // { ok: false, authenticated: false, message: 'Invalid token: access token has expired' }
+                return {};
+              }
+            })
+            .catch(error => console.error(error))
         : {};
     }
   });

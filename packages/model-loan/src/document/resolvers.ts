@@ -1,5 +1,8 @@
 import { Commit } from '@espresso/fabric-cqrs';
+import { AuthenticationError } from 'apollo-server-errors';
 import { Document, documentCommandHandler, DocumentDS } from '.';
+
+const NOT_AUTHENICATED = 'no enrollment id';
 
 export const resolvers = {
   Query: {
@@ -7,20 +10,23 @@ export const resolvers = {
       _,
       { documentId },
       { dataSources: { document } }: { dataSources: { document: DocumentDS } }
-    ): Promise<Commit[] | { error: any }> =>
+    ): Promise<Commit[]> =>
       document.repo
         .getCommitById(documentId)
         .then(({ data }) => data || [])
-        .catch(error => ({ error })),
+        .catch(({ error }) => error),
     getDocumentById: async (
       _,
       { documentId },
-      { dataSources: { document } }: { dataSources: { document: DocumentDS } }
-    ): Promise<Document | { error: any }> =>
+      {
+        dataSources: { document },
+        enrollmentId
+      }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+    ): Promise<Document> =>
       document.repo
-        .getById({ id: documentId })
+        .getById({ id: documentId, enrollmentId })
         .then(({ currentState }) => currentState)
-        .catch(error => ({ error }))
+        .catch(({ error }) => error)
   },
   Mutation: {
     createDocument: async (
@@ -31,13 +37,23 @@ export const resolvers = {
         enrollmentId
       }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      documentCommandHandler({
-        enrollmentId,
-        documentRepo: document.repo
-      }).CreateDocument({
-        userId,
-        payload: { documentId, loanId, title, reference, timestamp: Date.now() }
-      }),
+      !enrollmentId
+        ? new AuthenticationError(NOT_AUTHENICATED)
+        : documentCommandHandler({
+            enrollmentId,
+            documentRepo: document.repo
+          })
+            .CreateDocument({
+              userId,
+              payload: {
+                documentId,
+                loanId,
+                title,
+                reference,
+                timestamp: Date.now()
+              }
+            })
+            .catch(({ error }) => error),
     deleteDocument: async (
       _,
       { userId, documentId },
@@ -46,13 +62,17 @@ export const resolvers = {
         enrollmentId
       }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      documentCommandHandler({
-        enrollmentId,
-        documentRepo: document.repo
-      }).DeleteDocument({
-        userId,
-        payload: { documentId, timestamp: Date.now() }
-      }),
+      !enrollmentId
+        ? new AuthenticationError(NOT_AUTHENICATED)
+        : documentCommandHandler({
+            enrollmentId,
+            documentRepo: document.repo
+          })
+            .DeleteDocument({
+              userId,
+              payload: { documentId, timestamp: Date.now() }
+            })
+            .catch(({ error }) => error),
     restrictAccess: async (
       _,
       { userId, documentId },
@@ -61,13 +81,17 @@ export const resolvers = {
         enrollmentId
       }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      documentCommandHandler({
-        enrollmentId,
-        documentRepo: document.repo
-      }).RestrictDocumentAccess({
-        userId,
-        payload: { documentId, timestamp: Date.now() }
-      }),
+      !enrollmentId
+        ? new AuthenticationError(NOT_AUTHENICATED)
+        : documentCommandHandler({
+            enrollmentId,
+            documentRepo: document.repo
+          })
+            .RestrictDocumentAccess({
+              userId,
+              payload: { documentId, timestamp: Date.now() }
+            })
+            .catch(({ error }) => error),
     updateDocument: async (
       _,
       { userId, documentId, loanId, title, reference },
@@ -76,6 +100,8 @@ export const resolvers = {
         enrollmentId
       }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit[] | { error: any }> => {
+      if (!enrollmentId) throw new AuthenticationError(NOT_AUTHENICATED);
+
       const result: Commit[] = [];
       if (loanId) {
         const c = await documentCommandHandler({
@@ -124,42 +150,28 @@ export const resolvers = {
       { loanId },
       _,
       { dataSources: { document } }: { dataSources: { document: DocumentDS } }
-    ) => {
-      // console.log('001 resolvers (document) - Loan: documents:', `loanId: ${loanId}`);
-      return (
-        document.repo
-          .getProjection({ where: { loanId } })
-          // .then(data => {
-          //   console.log('peer-node/document/resolvers.ts - Loan: documents:', `loanId: ${loanId}`, data);
-          //   return data;
-          // })
-          .then(({ data }) => data)
-      );
-    }
+    ) =>
+      document.repo
+        .getProjection({ where: { loanId } })
+        .then(({ data }) => data)
+        .catch(({ error }) => error)
   },
   Document: {
     __resolveReference: (
       { documentId },
-      { dataSources: { document } }: { dataSources: { document: DocumentDS } }
-    ): Promise<Document> => {
-      return document.repo
-        .getById({ id: documentId })
-        .then(({ currentState }) => currentState);
-    },
-    loan(documents) {
-      // console.log('peer-node/document/resolvers.ts - Document: loan(documents):', documents);
-      return { __typename: 'Loan', loanId: documents.loanId };
-    }
+      {
+        dataSources: { document },
+        enrollmentId
+      }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+    ): Promise<Document> =>
+      document.repo
+        .getById({ id: documentId, enrollmentId })
+        .then(({ currentState }) => currentState)
+        .catch(({ error }) => error),
+    loan: ({ loanId }) => ({ __typename: 'Loan', loanId })
   },
   DocResponse: {
-    __resolveType(obj, _, __) {
-      if (obj.commitId) {
-        return 'DocCommit';
-      }
-      if (obj.message) {
-        return 'DocError';
-      }
-      return {};
-    }
+    __resolveType: obj =>
+      obj.commitId ? 'DocCommit' : obj.message ? 'DocError' : {}
   }
 };

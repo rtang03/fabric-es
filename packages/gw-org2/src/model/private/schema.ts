@@ -25,7 +25,7 @@ export const typeDefs = gql`
       requester: LoanRequesterInput,
       contact: ContactInfoInput,
       loanType: String,
-      startDate: String,
+      startDate: String!,
       tenor: Int,
       currency: String,
       requestedAmt: Float,

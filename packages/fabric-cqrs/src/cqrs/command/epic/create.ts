@@ -1,6 +1,6 @@
 import { assign } from 'lodash';
 import { ofType } from 'redux-observable';
-import { from, Observable } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 import { getNetwork, submit$, submitPrivateData$ } from '../../../services';
 import { dispatchResult } from '../../utils';
@@ -20,19 +20,25 @@ export default (action$: Observable<CreateAction>, _, context) =>
       from(
         getNetwork({
           enrollmentId: payload.enrollmentId
-        }).then(({ network, gateway }) =>
-          assign({}, payload, { network, gateway })
-        )
+        })
+          .then(({ network, gateway }) =>
+            assign({}, payload, { network, gateway })
+          )
+          .catch(error => assign({}, payload, { error }))
       )
     ),
-    mergeMap(
-      ({
-        tx_id,
-        args: { id, entityName, events, version, collection },
-        network,
-        gateway
-      }) =>
-        collection
+    mergeMap((getNetwork: any) => {
+      if (getNetwork.error)
+        return of(
+          action.createError({
+            tx_id: getNetwork.tx_id,
+            error: getNetwork.error
+          })
+        );
+      else {
+        const { tx_id, args, network, gateway } = getNetwork;
+        const { id, entityName, events, version, collection } = args;
+        return collection
           ? submitPrivateData$(
               'privatedata:createCommit',
               [collection, entityName, id, version.toString()],
@@ -49,6 +55,7 @@ export default (action$: Observable<CreateAction>, _, context) =>
             ).pipe(
               tap(() => gateway.disconnect()),
               dispatchResult(tx_id, action.createSuccess, action.createError)
-            )
-    )
+            );
+      }
+    })
   );

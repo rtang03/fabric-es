@@ -1,10 +1,10 @@
 import { RemoteData } from '@espresso/gw-node';
-import { ApolloError } from 'apollo-server';
 import gql from 'graphql-tag';
+import { Resolvers } from '../generated/remotedata-resolvers';
 
-export const resolvers = {
+export const resolvers: Resolvers = {
   Document: {
-    _contents: async ({ documentId }, _, { remoteData }: RemoteData) =>
+    _contents: async ({ documentId }, { token }, { remoteData }: RemoteData) =>
       remoteData({
         query: gql`
           query GetDocContentsById($documentId: String!) {
@@ -24,20 +24,14 @@ export const resolvers = {
           }
         `,
         operationName: 'GetDocContentsById',
-        variables: { documentId }
-      }).then(({ data, errors }) => {
-        if (errors) throw new ApolloError(errors[0].message);
-        return data?.getDocContentsById;
-      })
+        variables: { documentId },
+        token
+      }).then(({ data }) => data?.getDocContentsById)
   },
   DocContents: {
     document: ({ documentId }) => ({ __typename: 'Document', documentId })
   },
   Docs: {
-    __resolveType: obj => (obj?.body ? 'Data' : obj?.format ? 'File' : {})
-  },
-  LocalResponse: {
-    __resolveType: obj =>
-      obj?.commitId ? 'LocalCommit' : obj?.message ? 'LocalError' : {}
+    __resolveType: (obj: any) => (obj?.body ? 'Data' : obj?.format ? 'File' : null)
   }
 };

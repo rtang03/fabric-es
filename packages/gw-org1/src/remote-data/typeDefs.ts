@@ -35,6 +35,6 @@ export const typeDefs = gql`
     """
     LoanDetail from org2
     """
-    _details: LoanDetails
+    _details(token: String): LoanDetails
   }
 `;

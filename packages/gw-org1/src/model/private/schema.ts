@@ -17,7 +17,7 @@ export const typeDefs = gql`
   type DocContents @key(fields: "documentId") {
     documentId: String!
     content: Docs!
-    timestamp: String!
+    timestamp: Int!
     document: Document
   }
 

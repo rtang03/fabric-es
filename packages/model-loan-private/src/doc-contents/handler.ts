@@ -1,18 +1,19 @@
 import { Errors } from '@espresso/model-common';
-import { DataContent, DocContentsCommandHandler, DocContentsRepo, FileContent } from '.';
+import {
+  DataContent,
+  DocContentsCommandHandler,
+  DocContentsRepo,
+  FileContent
+} from '.';
 
 const DocContentsErrors = {
-  docContentsNotFound: (id) => new Error(`DOC_CONTENTS_NOT_FOUND: id: ${id}`)
+  docContentsNotFound: id => new Error(`DOC_CONTENTS_NOT_FOUND: id: ${id}`)
 };
 
-export const docContentsCommandHandler: (
-  option: {
-    enrollmentId: string;
-    docContentsRepo: DocContentsRepo;
-  }
-) => DocContentsCommandHandler = ({
-  enrollmentId, docContentsRepo
-}) => ({
+export const docContentsCommandHandler: (option: {
+  enrollmentId: string;
+  docContentsRepo: DocContentsRepo;
+}) => DocContentsCommandHandler = ({ enrollmentId, docContentsRepo }) => ({
   CreateDocContents: async ({
     userId,
     payload: { documentId, content, timestamp }
@@ -21,15 +22,24 @@ export const docContentsCommandHandler: (
     const data = content as DataContent;
     const file = content as FileContent;
     const events: any = [
-      { type: 'DocContentsCreated', payload: { documentId, userId, timestamp }}
+      { type: 'DocContentsCreated', payload: { documentId, userId, timestamp } }
     ];
-    if (data.body) events.push({
-      type: 'DocContentsDataDefined', payload: { documentId, userId, body: data.body, timestamp }
-    });
-    if (file.format) events.push({
-      type: 'DocContentsFileDefined',
-      payload: { documentId, userId, format: file.format, link: file.link, timestamp }
-    });
+    if (data.body)
+      events.push({
+        type: 'DocContentsDataDefined',
+        payload: { documentId, userId, body: data.body, timestamp }
+      });
+    if (file.format)
+      events.push({
+        type: 'DocContentsFileDefined',
+        payload: {
+          documentId,
+          userId,
+          format: file.format,
+          link: file.link,
+          timestamp
+        }
+      });
     return docContentsRepo
       .create({ enrollmentId, id: documentId })
       .save(events);
@@ -37,29 +47,33 @@ export const docContentsCommandHandler: (
   DefineDocContentsData: async ({
     userId,
     payload: { documentId, content, timestamp }
-  }) => {
-    return docContentsRepo
+  }) =>
+    docContentsRepo
       .getById({ enrollmentId, id: documentId })
       .then(({ currentState, save }) => {
-        if (!currentState) throw DocContentsErrors.docContentsNotFound(documentId);
-        return save([{
-          type: 'DocContentsDataDefined',
-          payload: { documentId, userId, timestamp, ...content }
-        }]);
-      });
-  },
+        if (!currentState)
+          throw DocContentsErrors.docContentsNotFound(documentId);
+        return save([
+          {
+            type: 'DocContentsDataDefined',
+            payload: { documentId, userId, timestamp, ...content }
+          }
+        ]);
+      }),
   DefineDocContentsFile: async ({
     userId,
     payload: { documentId, content, timestamp }
-  }) => {
-    return docContentsRepo
+  }) =>
+    docContentsRepo
       .getById({ enrollmentId, id: documentId })
       .then(({ currentState, save }) => {
-        if (!currentState) throw DocContentsErrors.docContentsNotFound(documentId);
-        return save([{
-          type: 'DocContentsFileDefined',
-          payload: { documentId, userId, timestamp, ...content }
-        }]);
-      });
-  }
+        if (!currentState)
+          throw DocContentsErrors.docContentsNotFound(documentId);
+        return save([
+          {
+            type: 'DocContentsFileDefined',
+            payload: { documentId, userId, timestamp, ...content }
+          }
+        ]);
+      })
 });
