@@ -25,6 +25,7 @@
     "no-unused-expression": false,
     "interface-over-type-literal": false,
     "no-namespace": false,
-    "no-shadowed-variable": false
+    "no-shadowed-variable": false,
+    "jsdoc-format": false
   }
 }

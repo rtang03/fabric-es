@@ -13,7 +13,6 @@ export const createRemoteDataService: (option: {
   resolvers: any;
 }) => any = async ({ name, uri, typeDefs, resolvers }) => {
   console.log(`♨️♨️ Bootstraping Remote Data API - ${name} ♨️♨️`);
-  const link = new HttpLink({ uri, fetch });
 
   return new ApolloServer({
     schema: buildFederatedSchema({
@@ -21,20 +20,21 @@ export const createRemoteDataService: (option: {
       resolvers
     }),
     playground: true,
-    context: (): RemoteData => ({
-      remoteData: ({
-        query,
-        variables,
-        context,
-        operationName
-      }: {
-        query: any;
-        variables?: any;
-        operationName?: string;
-        context?: any;
-      }) =>
+    context: ({ req: { headers } }): RemoteData => ({
+      user_id: headers.user_id as string,
+      is_admin: headers.is_admin as string,
+      client_id: headers.client_id as string,
+      enrollmentId: headers.user_id as string,
+      remoteData: ({ query, variables, context, operationName, token }) =>
         makePromise(
-          execute(link, { query, variables, operationName, context })
+          execute(
+            new HttpLink({
+              uri,
+              fetch,
+              headers: { authorization: `Bearer ${token}` }
+            }),
+            { query, variables, operationName, context }
+          )
         ).catch(error => {
           console.error(error);
           throw new ApolloError(error.message);

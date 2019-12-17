@@ -1,5 +1,12 @@
 import { buildFederatedSchema } from '@apollo/federation';
-import { createPeer, getNetwork, PeerOptions, PrivatedataRepository, Reducer, Repository } from '@espresso/fabric-cqrs';
+import {
+  createPeer,
+  getNetwork,
+  PeerOptions,
+  PrivatedataRepository,
+  Reducer,
+  Repository
+} from '@espresso/fabric-cqrs';
 import { DataSrc } from '@espresso/model-common';
 import { ApolloServer } from 'apollo-server';
 
@@ -19,23 +26,27 @@ export const startService = async ({
     channelEventHubExisted: true
   });
 
-  const { reconcile, getRepository, getPrivateDataRepo, subscribeHub } = createPeer({
+  const {
+    reconcile,
+    getRepository,
+    getPrivateDataRepo,
+    subscribeHub
+  } = createPeer({
     ...(networkConfig as Partial<PeerOptions>),
     defaultEntityName,
     defaultReducer,
     collection: process.env.COLLECTION
   });
 
-  const result = (isPrivate) ? {
-    getPrivateDataRepo
-  } : {
-    getRepository
-  };
+  const result = isPrivate ? { getPrivateDataRepo } : { getRepository };
 
   return {
     ...result,
-    config: ({port, typeDefs, resolvers}) => {
-      const repositories: Array<{ entityName: string, repository: Repository | PrivatedataRepository }> = [];
+    config: ({ port, typeDefs, resolvers }) => {
+      const repositories: Array<{
+        entityName: string;
+        repository: Repository | PrivatedataRepository;
+      }> = [];
 
       async function run() {
         _start({
@@ -58,16 +69,14 @@ export const startService = async ({
       }
 
       function addRepository(repository: Repository | PrivatedataRepository) {
-        repositories.push({ entityName: repository.getEntityName(), repository });
-        return {
-          run,
-          addRepository
-        };
+        repositories.push({
+          entityName: repository.getEntityName(),
+          repository
+        });
+        return { run, addRepository };
       }
 
-      return {
-        addRepository
-      };
+      return { addRepository };
     }
   };
 };
@@ -89,8 +98,8 @@ const _start = async ({
   typeDefs: any;
   resolvers: any;
   repositories: Array<{
-    entityName: string,
-    repository: Repository | PrivatedataRepository
+    entityName: string;
+    repository: Repository | PrivatedataRepository;
   }>;
   reconcile?: any;
   subscribeHub?: any;
@@ -99,32 +108,42 @@ const _start = async ({
   defaultReducer?: any;
 }) => {
   if (!isPrivate) {
-    console.log(`♨️♨️  '${process.env.ORGNAME}' - Starting micro-service for on-chain entity '${defaultEntityName}'...`);
+    console.log(
+      `♨️♨️  '${process.env.ORGNAME}' - Starting micro-service for on-chain entity '${defaultEntityName}'...`
+    );
     await subscribeHub();
     await reconcile({ entityName: defaultEntityName, reducer: defaultReducer });
-  } else {
-    console.log(`♨️♨️  '${process.env.ORGNAME}' - Starting micro-service for off-chain private data...`);
-  }
+  } else
+    console.log(
+      `♨️♨️  '${process.env.ORGNAME}' - Starting micro-service for off-chain private data...`
+    );
 
   const server = new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),
     playground: true,
     dataSources: () =>
-      repositories.reduce((obj, item) => {
-        return {
+      repositories.reduce(
+        (obj, { entityName, repository }) => ({
           ...obj,
-          [item.entityName]: new DataSrc({ repo: item.repository })
-        };
-      }, {}),
-    context: ({ req }) => {
-      // console.log(`${req.headers.client_id} is authenticated.`);
+          [entityName]: new DataSrc({ repo: repository })
+        }),
+        {}
+      ),
+    context: ({ req: { headers } }) => {
       return {
-        enrollmentId
+        user_id: headers.user_id,
+        is_admin: headers.is_admin,
+        client_id: headers.client_id,
+        enrollmentId: headers.user_id
       };
     }
   });
 
-  server.listen({ port }).then(({ url }) => {
-    console.log(`🚀  '${process.env.ORGNAME}' - '${defaultEntityName}' available at ${url}`);
-  });
+  server
+    .listen({ port })
+    .then(({ url }) =>
+      console.log(
+        `🚀  '${process.env.ORGNAME}' - '${defaultEntityName}' available at ${url}`
+      )
+    );
 };

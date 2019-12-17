@@ -20,6 +20,6 @@ export const typeDefs = gql`
     """
     Doc Contents from org1
     """
-    _contents: DocContents
+    _contents(token: String): DocContents
   }
 `;

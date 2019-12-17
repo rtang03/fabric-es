@@ -1,10 +1,10 @@
 import { RemoteData } from '@espresso/gw-node';
-import { ApolloError } from 'apollo-server';
 import gql from 'graphql-tag';
+import { Resolvers } from '../generated/remotedata-resolvers';
 
-export const resolvers = {
+export const resolvers: Resolvers = {
   Loan: {
-    _details: async ({ loanId }, _, { remoteData }: RemoteData) =>
+    _details: async ({ loanId }, { token }, { remoteData }: RemoteData) =>
       remoteData({
         query: gql`
           query GetLoanDetailsById($loanId: String!) {
@@ -34,17 +34,11 @@ export const resolvers = {
           }
         `,
         operationName: 'GetLoanDetailsById',
-        variables: { loanId }
-      }).then(({ data, errors }) => {
-        if (errors) throw new ApolloError(errors[0].message);
-        return data?.getLoanDetailsById;
-      })
+        variables: { loanId },
+        token
+      }).then(({ data }) => data?.getLoanDetailsById)
   },
   LoanDetails: {
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId })
-  },
-  LocalResponse: {
-    __resolveType: obj =>
-      obj?.commitId ? 'LocalCommit' : obj?.message ? 'LocalError' : {}
   }
 };

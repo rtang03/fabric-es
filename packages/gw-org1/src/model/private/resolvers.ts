@@ -1,62 +1,95 @@
 import { Commit } from '@espresso/fabric-cqrs';
-import { DocContents, docContentsCommandHandler, DocContentsDS } from '@espresso/model-loan-private';
+import {
+  DocContents,
+  docContentsCommandHandler,
+  DocContentsDS
+} from '@espresso/model-loan-private';
+import { AuthenticationError } from 'apollo-server-errors';
+import { Resolvers } from '../../generated/private-resolvers';
 
-export const resolvers = {
+const NOT_AUTHENICATED = 'no enrollment id';
+
+export const resolvers: Resolvers = {
   Query: {
     getDocContentsById: async (
-      _, { documentId }, { dataSources: { docContents }}: { dataSources: { docContents: DocContentsDS }}
-    ): Promise<DocContents | { error: any }> =>
-      docContents.repo.getById({ id: documentId })
+      _,
+      { documentId },
+      {
+        dataSources: { docContents },
+        enrollmentId
+      }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
+    ): Promise<DocContents> =>
+      docContents.repo
+        .getById({ id: documentId, enrollmentId })
         .then(({ currentState }) => currentState)
-        .catch(error => ({ error }))
+        .catch(({ error }) => error)
   },
   Mutation: {
     createDataDocContents: async (
-      _, { userId, documentId, body }, { dataSources: { docContents }, enrollmentId }: { dataSources: { docContents: DocContentsDS }, enrollmentId: string }
+      _,
+      { userId, documentId, body },
+      {
+        dataSources: { docContents },
+        enrollmentId
+      }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      docContentsCommandHandler({ enrollmentId, docContentsRepo: docContents.repo }).CreateDocContents({
-        userId,
-        payload: { documentId, content: { body }, timestamp: Date.now() }
-      }),
+      !enrollmentId
+        ? new AuthenticationError(NOT_AUTHENICATED)
+        : docContentsCommandHandler({
+            enrollmentId,
+            docContentsRepo: docContents.repo
+          })
+            .CreateDocContents({
+              userId,
+              payload: { documentId, content: { body }, timestamp: Date.now() }
+            })
+            .catch(({ error }) => error),
     createFileDocContents: async (
-      _, { userId, documentId, format, link }, { dataSources: { docContents }, enrollmentId }: { dataSources: { docContents: DocContentsDS }, enrollmentId: string }
+      _,
+      { userId, documentId, format, link },
+      {
+        dataSources: { docContents },
+        enrollmentId
+      }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      docContentsCommandHandler({ enrollmentId, docContentsRepo: docContents.repo }).CreateDocContents({
-        userId,
-        payload: { documentId, content: { format, link }, timestamp: Date.now() }
-      }),
+      !enrollmentId
+        ? new AuthenticationError(NOT_AUTHENICATED)
+        : docContentsCommandHandler({
+            enrollmentId,
+            docContentsRepo: docContents.repo
+          })
+            .CreateDocContents({
+              userId,
+              payload: {
+                documentId,
+                content: { format, link },
+                timestamp: Date.now()
+              }
+            })
+            .catch(({ error }) => error)
   },
   Document: {
-    contents: (document, _, { dataSources: { docContents }}: { dataSources: { docContents: DocContentsDS }}) => {
-      return docContents.repo.getById({ id: document.documentId })
-        .then(({ currentState }) => currentState);
-    }
+    contents: (
+      { documentId },
+      _,
+      {
+        dataSources: { docContents },
+        enrollmentId
+      }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
+    ) =>
+      docContents.repo
+        .getById({ id: documentId, enrollmentId })
+        .then(({ currentState }) => currentState)
+        .catch(({ error }) => error)
   },
   DocContents: {
-    document(contents) {
-      return { __typename: 'Document', documentId: contents.documentId };
-    }
+    document: ({ documentId }) => ({ __typename: 'Document', documentId })
   },
   Docs: {
-    __resolveType(obj, _, __) {
-      if (obj.body) {
-        return 'Data';
-      }
-      if (obj.format) {
-        return 'File';
-      }
-      return {};
-    }
+    __resolveType: (obj: any) => (obj.body ? 'Data' : obj.format ? 'File' : null)
   },
   LocalResponse: {
-    __resolveType(obj, _, __) {
-      if (obj.commitId) {
-        return 'LocalCommit';
-      }
-      if (obj.message) {
-        return 'LocalError';
-      }
-      return {};
-    }
+    __resolveType: (obj: any) =>
+      obj.commitId ? 'LocalCommit' : obj.message ? 'LocalError' : null
   }
 };

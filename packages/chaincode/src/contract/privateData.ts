@@ -1,3 +1,4 @@
+import { hash } from 'bcrypt';
 import { Context, Contract } from 'fabric-contract-api';
 import { ChaincodeStub } from 'fabric-shim';
 import { omit } from 'lodash';
@@ -55,7 +56,8 @@ export class PrivateData extends Contract {
     const commit = createInstance({ id, version, entityName, events });
     logger.info(`CommitId created: ${commit.commitId}`);
     await context.stateList.addState(collection, commit);
-    return Buffer.from(JSON.stringify(toRecord(omit(commit, 'key'))));
+    (commit as any).hash = hash(events, 12);
+    return Buffer.from(JSON.stringify(toRecord(omit(commit, 'key', 'events'))));
   }
 
   async queryByEntityName(

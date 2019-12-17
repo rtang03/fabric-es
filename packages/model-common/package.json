@@ -6,7 +6,8 @@
   "scripts": {
     "build": "yarn run clean && tsc",
     "test": "yarn build && ./node_modules/.bin/jest unit.test",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "gen-resolvers-type": "graphql-codegen --config codegen.yml"
   },
   "engines": {
     "node": ">=8",

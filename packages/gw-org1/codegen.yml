@@ -1,0 +1,26 @@
+overwrite: true
+hooks:
+  afterAllFileWrite:
+    - tslint --fix
+    - prettier --write
+generates:
+  src/generated/private-resolvers.ts:
+    schema: "http://localhost:14014/graphql"
+    plugins:
+      - typescript
+      - typescript-resolvers
+    config:
+      useIndexSignature: false
+      namingConvention:
+        typeNames: change-case#pascalCase
+        transformUnderscore: true
+  src/generated/remotedata-resolvers.ts:
+    schema: "http://localhost:14015/graphql"
+    plugins:
+      - typescript
+      - typescript-resolvers
+    config:
+      useIndexSignature: false
+      namingConvention:
+        typeNames: change-case#pascalCase
+        transformUnderscore: true
