@@ -17,7 +17,8 @@
     "packages/gw-node",
     "packages/gw-org1",
     "packages/gw-org2",
-    "packages/gw-org3"
+    "packages/gw-org3",
+    "packages/multi-org-tests"
   ],
   "private": true,
   "devDependencies": {
