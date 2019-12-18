@@ -1,0 +1,28 @@
+
+export CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.0.domain}}/admin/msp
+export CORE_PEER_ADDRESS={{orgs.peer.0.peers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.peer.0.domain}}:{{orgs.peer.0.peers.endpoints.0.port}}
+export ORDERER_URL={{orgs.orderer.orderers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:{{orgs.orderer.orderers.port}}
+export CHANNEL={{network.peer-channels.0}}
+export CA_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.0.domain}}/{{orgs.peer.0.peers.endpoints.0.-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+
+# Invoke event store
+peer chaincode invoke -o ${ORDERER_URL} -C ${CHANNEL} -n eventstore --waitForEvent \
+    -c '{"Args":["createCommit", "dev_entity", "ent_dev_1001", "0","[{\"type\":\"mon\"}]"]}' \
+    --tls --cafile ${CA_FILE}
+
+# Query event store
+peer chaincode invoke -o ${ORDERER_URL} -C ${CHANNEL} -n eventstore --waitForEvent \
+    -c '{"Args":["eventstore:queryByEntityName","dev_entity"]}' \
+    --tls --cafile ${CA_FILE}
+
+# Invoke private data
+export COMMIT=$(echo -n "{\"eventString\":\"[]\"}" | base64 | tr -d \\n)
+peer chaincode invoke -o ${ORDERER_URL} -C ${CHANNEL} -n privatedata --waitForEvent \
+    -c '{"Args":["privatedata:createCommit","{{orgs.peer.0.name}}PrivateDetails","private_entityName","private_1001","0"]}' \
+    --transient "{\"eventstr\":\"$COMMIT\"}" \
+    --tls --cafile ${CA_FILE}
+
+# Query private data
+peer chaincode invoke -o ${ORDERER_URL} -C ${CHANNEL} -n privatedata --waitForEvent \
+    -c '{"Args":["privatedata:queryByEntityName","{{orgs.peer.0.name}}PrivateDetails","private_entityName"]}' \
+    --tls --cafile ${CA_FILE}

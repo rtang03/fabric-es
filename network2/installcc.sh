@@ -14,3 +14,6 @@ docker exec cli-org2 sh -c "/setup/install_chaincode.sh org2 peer2 privatedata 1
 
 # Instantiate chaincode
 docker exec cli-org1 sh -c "/setup/instantiate_chaincode_org1.sh"
+
+# Invoke chaincode
+docker exec cli-org1 sh -c "/setup/invoke_chaincode_org1.sh"
