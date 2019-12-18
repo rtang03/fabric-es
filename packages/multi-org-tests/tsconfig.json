@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "target": "es2017",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "declaration": true,
+    "sourceMap": false,
+    "types": ["node", "jest", "@types/bytebuffer"],
+    "lib": ["es2017", "dom", "esnext.asynciterable"],
+    "rootDir": "src",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+  },
+  "exclude": ["node_modules", "dist"]
+}
