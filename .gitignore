@@ -69,3 +69,5 @@ client-certs/
 wallet/
 
 .npmrc
+
+.DS_Store
