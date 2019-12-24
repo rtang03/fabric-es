@@ -1,0 +1,163 @@
+{
+    "network": {
+        "name": "fabric",
+        "host-delimiter": ".",
+        "compose-project-name": "openplatform",
+        "consortium": "SampleConsortium",
+        "orderer-channel": "syschannel",
+        "peer-channels": [
+            "eventstore"
+        ],
+        "nodes": [
+        ]
+    },
+    "artifacts": {
+        "local": "../artifacts",
+        "docker": "/tmp/hyperledger",
+        "crypto": "",
+        "production": "production",
+        "caserver-home": "crypto",
+        "orderer-home": "orderer",
+        "peers-working-dir": "/opt/gopath/src/github.com/hyperledger/fabric"
+    },
+    "orgs": {
+        "tls": {
+            "domain": "tls",
+            "ca": {
+                "host": "ca",
+                "port": "5052",
+                "admin": "tls-ca-admin",
+                "adminpw": "tls-ca-adminPW"
+            }
+        },
+        "orderer": {
+            "name": "OrdererOrg",
+            "id": "OrdererMSP",
+            "domain": "example.com",
+            "orderers": {
+                "type": "etcdraft",
+                "use-kafka": false,
+                "use-raft": true,
+                "batch-timeout": "2s",
+                "max-message-count": "500",
+                "absolute-max-bytes": "99 MB",
+                "preferred-max-bytes": "2 MB",
+                "max-channels": "10",
+                "genesis-profile": "SampleInsecureKafka",
+                "raft-tick-interval": "500ms",
+                "raft-election-tick": "10",
+                "raft-heartbeat-tick": "1",
+                "raft-max-inflight-blocks": "5",
+                "raft-snapshot-interval-size": "20 MB",
+                "endpoints": [
+                    {
+                        "-": "orderer1",
+                        "ext-port": "7050"
+                    },
+                    {
+                        "-": "orderer2",
+                        "ext-port": "7150"
+                    },
+                    {
+                        "-": "orderer3",
+                        "ext-port": "7250"
+                    },
+                    {
+                        "-": "orderer4",
+                        "ext-port": "7350"
+                    },
+                    {
+                        "-": "orderer5",
+                        "ext-port": "7450",
+                        "islast": true
+                    }
+                ]
+            },
+            "kafkas": {
+                "retry-shortinterval": "1s",
+                "retry-shorttotal": "30s",
+                "endpoints": [
+                ],
+                "ports": [
+                    "9092",
+                    "9093"
+                ]
+            },
+            "zookeepers": {
+                "endpoints": [
+                ],
+                "ports": [
+                    "2181",
+                    "2888",
+                    "3888"
+                ]
+            },
+            "ca": {
+                "host": "rca",
+                "port": "5053",
+                "admin": "rca-org0-admin",
+                "adminpw": "rca-org0-adminPW"
+            }
+        },
+        "peer": [
+            {
+                "name": "Org1MSP",
+                "id": "Org1MSP",
+                "domain": "org1.example.com",
+                "peers": {
+                    "anchor": "peer0",
+                    "anchor-port": "7051",
+                    "endpoints": [
+                        {
+                            "-": "peer0",
+                            "port": "7051",
+                            "chaincode-port": "7052",
+                            "eventhub-port": "7053"
+                        },
+                        {
+                            "-": "peer1",
+                            "port": "8051",
+                            "chaincode-port": "8052",
+                            "eventhub-port": "8053"
+                        }
+                    ]
+                },
+                "ca": {
+                    "host": "rca",
+                    "port": "5054",
+                    "admin": "rca-org1-admin",
+                    "adminpw": "rca-org1-adminPW"
+                }
+            },
+            {
+                "name": "Org2MSP",
+                "id": "org2MSP",
+                "domain": "org2.example.com",
+                "peers": {
+                    "anchor": "peer0",
+                    "anchor-port": "9051",
+                    "endpoints": [
+                        {
+                            "-": "peer0",
+                            "port": "9051",
+                            "chaincode-port": "9052",
+                            "eventhub-port": "9053"
+                        },
+                        {
+                            "-": "peer1",
+                            "port": "10051",
+                            "chaincode-port": "10052",
+                            "eventhub-port": "10053"
+                        }
+                    ]
+                },
+                "ca": {
+                    "host": "rca",
+                    "port": "5055",
+                    "admin": "rca-org2-admin",
+                    "adminpw": "rca-org2-adminPW"
+                }
+            }
+        ]
+    }
+}
