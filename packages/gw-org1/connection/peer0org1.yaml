@@ -1,13 +1,13 @@
 ---
-name: first-network-org1
+name: openplatform_fabric-Org1MSP
 version: 1.0.0
 
 client:
-  organization: Org1
+  organization: Org1MSP
   credentialStore:
-    path: ./assets/client-certs/hfc-kvs/org1
+    path: ./assets/client-certs/hfc-kvs/org1.example.com
     cryptoStore:
-      path: ./assets/client-certs/hfc-kvs/org1
+      path: ./assets/client-certs/hfc-kvs/org1.example.com
   connection:
     timeout:
       peer:
@@ -16,7 +16,7 @@ client:
 channels:
   eventstore:
     orderers:
-      - orderer.example.com
+      - orderer1.example.com
     peers:
       peer0.org1.example.com:
         endorsingPeer: true
@@ -29,56 +29,56 @@ channels:
         ledgerQuery: true
         eventSource: true
     chaincodes:
-      - eventstore:0
+      - eventstore:1.0
 
 organizations:
-  Org1:
+  Org1MSP:
     mspid: Org1MSP
     peers:
       - peer0.org1.example.com
       - peer1.org1.example.com
     certificateAuthorities:
-      - ca.org1.example.com
+      - rca.org1.example.com
     adminPrivateKey:
-      path: ../../network/hosts/org1/admin/msp/keystore/key.pem
+      path: ../../network2/config/../artifacts/org1.example.com/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../network/hosts/org1/admin/msp/signcerts/cert.pem
+      path: ../../network2/config/../artifacts/org1.example.com/admin/msp/signcerts/cert.pem
     client:
       path: ./connection/peer0org1.yaml
 
 orderers:
   orderer.example.com:
-    url: grpcs://localhost:7050
+    url: grpcs://localhost:
     grpcOptions:
-      ssl-target-name-override: orderer.example.com
+      ssl-target-name-override: orderer1.example.com
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../network/hosts/org0/orderer/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../network2/config/../artifacts/example.com/orderer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 peers:
   peer0.org1.example.com:
     url: grpcs://localhost:7051
     eventUrl: grpcs://localhost:7053
     tlsCACerts:
-      path: ../../network/hosts/org1/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../network2/config/../artifacts/org1.example.com/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
       ssl-target-name-override: peer0.org1.example.com
   peer1.org1.example.com:
     url: grpcs://localhost:8051
     eventUrl: grpcs://localhost:8053
     tlsCACerts:
-      path: ../../network/hosts/org1/peer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../network2/config/../artifacts/org1.example.com/peer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
       ssl-target-name-override: peer1.org1.example.com
 
 certificateAuthorities:
-  ca.org1.example.com:
+  rca.org1.example.com:
     url: https://localhost:5054
-    caName: ca.org1.example.com
+    caName: rca.org1.example.com
     tlsCACerts:
-      path: ../../network/hosts/org1/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../network2/config/../artifacts/org1.example.com/msp/tlscacerts/tls-ca-cert.pem
     registrar:
       - enrollId: rca-org1-admin
-        enrollSecret: rca-org1-adminpw
+        enrollSecret: rca-org1-adminPW
     httpOptions:
       verify: false
