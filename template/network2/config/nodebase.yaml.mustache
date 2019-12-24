@@ -19,8 +19,6 @@ services:
             - ORDERER_GENERAL_TLS_ENABLED=true
             - ORDERER_GENERAL_LOGLEVEL=debug
             - ORDERER_DEBUG_BROADCASTTRACEDIR={{{artifacts.docker}}}/{{{artifacts.orderer-home}}}/data/logs
-        ports:
-            - {{orgs.orderer.orderers.port}}:{{orgs.orderer.orderers.port}}
         networks:
             - {{network.name}}
 

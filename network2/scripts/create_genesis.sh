@@ -38,4 +38,8 @@ ${_FABRIC_DIR}/../bin/configtxgen -profile OrgsOrdererGenesis -outputBlock genes
 ${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputCreateChannelTx channel.tx -channelID mychannel
 
 sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/org0/orderer1
+sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/org0/orderer2
+sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/org0/orderer3
+sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/org0/orderer4
+sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/org0/orderer5
 sudo mv channel.tx       ${_CRYPTO_CONFIG_DIR}/org1/peer1/assets

@@ -37,18 +37,40 @@
             "id": "org0MSP",
             "domain": "org0",
             "orderers": {
-                "type": "solo",
+                "type": "etcdraft",
                 "use-kafka": false,
-                "port": "7050",
+                "use-raft": true,
                 "batch-timeout": "2s",
                 "max-message-count": "500",
                 "absolute-max-bytes": "99 MB",
                 "preferred-max-bytes": "2 MB",
                 "max-channels": "10",
                 "genesis-profile": "SampleInsecureKafka",
+                "raft-tick-interval": "500ms",
+                "raft-election-tick": "10",
+                "raft-heartbeat-tick": "1",
+                "raft-max-inflight-blocks": "5",
+                "raft-snapshot-interval-size": "20 MB",
                 "endpoints": [
                     {
                         "-": "orderer1",
+                        "ext-port": "7050"
+                    },
+                    {
+                        "-": "orderer2",
+                        "ext-port": "7150"
+                    },
+                    {
+                        "-": "orderer3",
+                        "ext-port": "7250"
+                    },
+                    {
+                        "-": "orderer4",
+                        "ext-port": "7350"
+                    },
+                    {
+                        "-": "orderer5",
+                        "ext-port": "7450",
                         "islast": true
                     }
                 ]
@@ -86,6 +108,7 @@
                 "domain": "org1",
                 "peers": {
                     "anchor": "peer1",
+                    "anchor-port": "7051",
                     "endpoints": [
                         {
                             "-": "peer1",
@@ -114,6 +137,7 @@
                 "domain": "org2",
                 "peers": {
                     "anchor": "peer1",
+                    "anchor-port": "7251",
                     "endpoints": [
                         {
                             "-": "peer1",
