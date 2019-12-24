@@ -9,13 +9,8 @@
 Organizations:
 
    - &{{orgs.orderer.name}}
-
       Name: {{orgs.orderer.name}}
-
-      # ID to load the MSP definition as
       ID: {{orgs.orderer.id}}
-
-      # MSPDir is the filesystem path which contains the MSP configuration
       MSPDir: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/msp
 
       Policies:
@@ -31,13 +26,8 @@ Organizations:
 
    {{#orgs.peer}}
    - &{{name}}
-
       Name: {{name}}
-
-      # ID to load the MSP definition as
       ID: {{id}}
-
-      # MSPDir is the filesystem path which contains the MSP configuration
       MSPDir: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/msp
 
       Policies:
@@ -53,15 +43,12 @@ Organizations:
 
       OrdererEndpoints:
          {{#orgs.orderer.orderers.endpoints}}
-         - {{-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:{{orgs.orderer.orderers.port}}
+         - {{-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:{{ext-port}}
          {{/orgs.orderer.orderers.endpoints}}
 
       AnchorPeers:
-         # AnchorPeers defines the location of peers which can be used
-         # for cross org gossip communication.  Note, this value is only
-         # encoded in the genesis block in the Application section context
          - Host: {{peers.anchor}}{{network.host-delimiter}}{{domain}}
-           Port: 7051
+           Port: {{peers.anchor-port}}
 
    {{/orgs.peer}}
 Capabilities:
@@ -110,7 +97,7 @@ Orderer: &OrdererDefaults
    OrdererType: {{orgs.orderer.orderers.type}}
    Addresses:
       {{#orgs.orderer.orderers.endpoints}}
-      - {{-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:{{orgs.orderer.orderers.port}}
+      - {{-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:{{ext-port}}
       {{/orgs.orderer.orderers.endpoints}}
    BatchTimeout: {{orgs.orderer.orderers.batch-timeout}}
    BatchSize:
@@ -125,6 +112,24 @@ Orderer: &OrdererDefaults
          - {{.}}:{{orgs.orderer.kafkas.ports.0}}
          {{/orgs.orderer.kafkas.endpoints}}
    {{/orgs.orderer.orderers.use-kafka}}
+   {{#orgs.orderer.orderers.use-raft}}
+   EtcdRaft:
+      Consenters:
+         {{#orgs.orderer.orderers.endpoints}}
+         - Host: {{-}}{{network.host-delimiter}}{{orgs.orderer.domain}}
+           Port: {{ext-port}}
+           ClientTLSCert: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/{{-}}/tls-msp/signcerts/cert.pem
+           ServerTLSCert: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/{{-}}/tls-msp/signcerts/cert.pem
+         {{/orgs.orderer.orderers.endpoints}}
+
+      Options:
+         TickInterval: {{orgs.orderer.orderers.raft-tick-interval}}
+         ElectionTick: {{orgs.orderer.orderers.raft-election-tick}}
+         HeartbeatTick: {{orgs.orderer.orderers.raft-heartbeat-tick}}
+         MaxInflightBlocks: {{orgs.orderer.orderers.raft-max-inflight-blocks}}
+         SnapshotIntervalSize: {{orgs.orderer.orderers.raft-snapshot-interval-size}}
+   {{/orgs.orderer.orderers.use-raft}}
+
    Organizations:
    Policies:
       Readers:

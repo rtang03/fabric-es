@@ -9,13 +9,8 @@
 Organizations:
 
    - &org0
-
       Name: org0
-
-      # ID to load the MSP definition as
       ID: org0MSP
-
-      # MSPDir is the filesystem path which contains the MSP configuration
       MSPDir: ../artifacts/crypto-config/org0/msp
 
       Policies:
@@ -30,13 +25,8 @@ Organizations:
             Rule: "OR('org0MSP.admin')"
 
    - &org1
-
       Name: org1
-
-      # ID to load the MSP definition as
       ID: org1MSP
-
-      # MSPDir is the filesystem path which contains the MSP configuration
       MSPDir: ../artifacts/crypto-config/org1/msp
 
       Policies:
@@ -52,22 +42,18 @@ Organizations:
 
       OrdererEndpoints:
          - orderer1-org0:7050
+         - orderer2-org0:7150
+         - orderer3-org0:7250
+         - orderer4-org0:7350
+         - orderer5-org0:7450
 
       AnchorPeers:
-         # AnchorPeers defines the location of peers which can be used
-         # for cross org gossip communication.  Note, this value is only
-         # encoded in the genesis block in the Application section context
          - Host: peer1-org1
            Port: 7051
 
    - &org2
-
       Name: org2
-
-      # ID to load the MSP definition as
       ID: org2MSP
-
-      # MSPDir is the filesystem path which contains the MSP configuration
       MSPDir: ../artifacts/crypto-config/org2/msp
 
       Policies:
@@ -83,13 +69,14 @@ Organizations:
 
       OrdererEndpoints:
          - orderer1-org0:7050
+         - orderer2-org0:7150
+         - orderer3-org0:7250
+         - orderer4-org0:7350
+         - orderer5-org0:7450
 
       AnchorPeers:
-         # AnchorPeers defines the location of peers which can be used
-         # for cross org gossip communication.  Note, this value is only
-         # encoded in the genesis block in the Application section context
          - Host: peer1-org2
-           Port: 7051
+           Port: 7251
 
 Capabilities:
    Channel: &ChannelCapabilities
@@ -134,15 +121,49 @@ Application: &ApplicationDefaults
 
 Orderer: &OrdererDefaults
 
-   OrdererType: solo
+   OrdererType: etcdraft
    Addresses:
       - orderer1-org0:7050
+      - orderer2-org0:7150
+      - orderer3-org0:7250
+      - orderer4-org0:7350
+      - orderer5-org0:7450
    BatchTimeout: 2s
    BatchSize:
       MaxMessageCount: 500
       AbsoluteMaxBytes: 99 MB
       PreferredMaxBytes: 2 MB
    MaxChannels: 10
+   EtcdRaft:
+      Consenters:
+         - Host: orderer1-org0
+           Port: 7050
+           ClientTLSCert: ../artifacts/crypto-config/org0/orderer1/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/org0/orderer1/tls-msp/signcerts/cert.pem
+         - Host: orderer2-org0
+           Port: 7150
+           ClientTLSCert: ../artifacts/crypto-config/org0/orderer2/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/org0/orderer2/tls-msp/signcerts/cert.pem
+         - Host: orderer3-org0
+           Port: 7250
+           ClientTLSCert: ../artifacts/crypto-config/org0/orderer3/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/org0/orderer3/tls-msp/signcerts/cert.pem
+         - Host: orderer4-org0
+           Port: 7350
+           ClientTLSCert: ../artifacts/crypto-config/org0/orderer4/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/org0/orderer4/tls-msp/signcerts/cert.pem
+         - Host: orderer5-org0
+           Port: 7450
+           ClientTLSCert: ../artifacts/crypto-config/org0/orderer5/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/org0/orderer5/tls-msp/signcerts/cert.pem
+
+      Options:
+         TickInterval: 500ms
+         ElectionTick: 10
+         HeartbeatTick: 1
+         MaxInflightBlocks: 5
+         SnapshotIntervalSize: 20 MB
+
    Organizations:
    Policies:
       Readers:

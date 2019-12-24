@@ -19,8 +19,6 @@ services:
             - ORDERER_GENERAL_TLS_ENABLED=true
             - ORDERER_GENERAL_LOGLEVEL=debug
             - ORDERER_DEBUG_BROADCASTTRACEDIR=/var/artifacts/orderer/data/logs
-        ports:
-            - 7050:7050
         networks:
             - fabric
 
