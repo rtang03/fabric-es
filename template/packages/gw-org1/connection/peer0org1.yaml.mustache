@@ -29,7 +29,7 @@ channels:
       - eventstore:1.0
 
 organizations:
-  {{orgs.peer.0.name}}:
+  {{orgs.peer.0.domain}}:
     mspid: {{orgs.peer.0.id}}
     peers:
       {{#orgs.peer.0.peers.endpoints}}
@@ -45,8 +45,8 @@ organizations:
       path: ./connection/peer0org1.yaml
 
 orderers:
-  orderer.example.com:
-    url: grpcs://localhost:{{orgs.orderer.orderers.port}}
+  {{orgs.orderer.orderers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:
+    url: grpcs://localhost:{{orgs.orderer.orderers.endpoints.0.ext-port}}
     grpcOptions:
       ssl-target-name-override: {{orgs.orderer.orderers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.orderer.domain}}
     #      grpc-max-send-message-length: 4000

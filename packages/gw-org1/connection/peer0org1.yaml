@@ -32,7 +32,7 @@ channels:
       - eventstore:1.0
 
 organizations:
-  Org1MSP:
+  org1.example.com:
     mspid: Org1MSP
     peers:
       - peer0.org1.example.com
@@ -47,8 +47,8 @@ organizations:
       path: ./connection/peer0org1.yaml
 
 orderers:
-  orderer.example.com:
-    url: grpcs://localhost:
+  orderer1.example.com:
+    url: grpcs://localhost:7050
     grpcOptions:
       ssl-target-name-override: orderer1.example.com
     #      grpc-max-send-message-length: 4000

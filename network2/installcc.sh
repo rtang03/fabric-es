@@ -1,5 +1,5 @@
 cd ../packages/chaincode
-yarn install
+# yarn install
 yarn build
 
 # Install chaincode
