@@ -1,46 +1,46 @@
 # Copy TLS Cert
-mkdir -p /var/artifacts/crypto-config/org2/ca/crypto
-cp /var/artifacts/crypto-config/rca-org2/server/ca-cert.pem /var/artifacts/crypto-config/org2/ca/crypto
+mkdir -p /tmp/hyperledger/org2.example.com/ca/crypto
+cp /tmp/hyperledger/rca.org2.example.com/crypto/ca-cert.pem /tmp/hyperledger/org2.example.com/ca/crypto
 
 # Register and Enroll
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/org2/ca/crypto/ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/org2/ca/admin
-fabric-ca-client enroll -d -u https://rca-org2-admin:rca-org2-adminPW@0.0.0.0:6055
-fabric-ca-client register -d --id.name peer1-org2 --id.secret peer1PW --id.type peer -u https://0.0.0.0:6055
-fabric-ca-client register -d --id.name peer2-org2 --id.secret peer2PW --id.type peer -u https://0.0.0.0:6055
-fabric-ca-client register -d --id.name admin-org2 --id.secret org2AdminPW --id.type user -u https://0.0.0.0:6055
-fabric-ca-client register -d --id.name user-org2 --id.secret org2UserPW --id.type user -u https://0.0.0.0:6055
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/org2.example.com/ca/crypto/ca-cert.pem
+export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/org2.example.com/ca/admin
+fabric-ca-client enroll -d -u https://rca-org2-admin:rca-org2-adminPW@0.0.0.0:5055
+fabric-ca-client register -d --id.name peer0.org2.example.com --id.secret peer0PW --id.type peer -u https://0.0.0.0:5055
+fabric-ca-client register -d --id.name peer1.org2.example.com --id.secret peer1PW --id.type peer -u https://0.0.0.0:5055
+fabric-ca-client register -d --id.name admin-org2.example.com --id.secret Org2MSPAdminPW --id.type user -u https://0.0.0.0:5055
+fabric-ca-client register -d --id.name user-org2.example.com --id.secret Org2MSPUserPW --id.type user -u https://0.0.0.0:5055
 
-# Copy Trusted Root Cert of org2 to peer1
-mkdir -p /var/artifacts/crypto-config/org2/peer1/assets/ca
-cp /var/artifacts/crypto-config/org2/ca/admin/msp/cacerts/0-0-0-0-6055.pem /var/artifacts/crypto-config/org2/peer1/assets/ca/org2-ca-cert.pem
+# Copy Trusted Root Cert of Org2MSP to peer0
+mkdir -p /tmp/hyperledger/org2.example.com/peer0/assets/ca
+cp /tmp/hyperledger/org2.example.com/ca/admin/msp/cacerts/0-0-0-0-5055.pem /tmp/hyperledger/org2.example.com/peer0/assets/ca/org2.example.com-ca-cert.pem
+
+# Enroll peer0
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/org2.example.com/peer0/assets/ca/org2.example.com-ca-cert.pem
+export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/org2.example.com/peer0
+fabric-ca-client enroll -d -u https://peer0.org2.example.com:peer0PW@0.0.0.0:5055
+
+# Copy Trusted Root Cert of Org2MSP to peer1
+mkdir -p /tmp/hyperledger/org2.example.com/peer1/assets/ca
+cp /tmp/hyperledger/org2.example.com/ca/admin/msp/cacerts/0-0-0-0-5055.pem /tmp/hyperledger/org2.example.com/peer1/assets/ca/org2.example.com-ca-cert.pem
 
 # Enroll peer1
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/org2/peer1/assets/ca/org2-ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/org2/peer1
-fabric-ca-client enroll -d -u https://peer1-org2:peer1PW@0.0.0.0:6055
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/org2.example.com/peer1/assets/ca/org2.example.com-ca-cert.pem
+export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/org2.example.com/peer1
+fabric-ca-client enroll -d -u https://peer1.org2.example.com:peer1PW@0.0.0.0:5055
 
-# Copy Trusted Root Cert of org2 to peer2
-mkdir -p /var/artifacts/crypto-config/org2/peer2/assets/ca
-cp /var/artifacts/crypto-config/org2/ca/admin/msp/cacerts/0-0-0-0-6055.pem /var/artifacts/crypto-config/org2/peer2/assets/ca/org2-ca-cert.pem
-
-# Enroll peer2
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/org2/peer2/assets/ca/org2-ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/org2/peer2
-fabric-ca-client enroll -d -u https://peer2-org2:peer2PW@0.0.0.0:6055
-
-# Enroll org2's Admin
-export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/org2/admin
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/org2/peer1/assets/ca/org2-ca-cert.pem
+# Enroll Org2MSP's Admin
+export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/org2.example.com/admin
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/org2.example.com/peer0/assets/ca/org2.example.com-ca-cert.pem
 export FABRIC_CA_CLIENT_MSPDIR=msp
-fabric-ca-client enroll -d -u https://admin-org2:org2AdminPW@0.0.0.0:6055
+fabric-ca-client enroll -d -u https://admin-org2.example.com:Org2MSPAdminPW@0.0.0.0:5055
 
+# Copy admin cert to peer0
+mkdir -p /tmp/hyperledger/org2.example.com/peer0/msp/admincerts
+cp /tmp/hyperledger/org2.example.com/admin/msp/signcerts/cert.pem /tmp/hyperledger/org2.example.com/peer0/msp/admincerts/org2.example.com-admin-cert.pem
 # Copy admin cert to peer1
-mkdir -p /var/artifacts/crypto-config/org2/peer1/msp/admincerts
-cp /var/artifacts/crypto-config/org2/admin/msp/signcerts/cert.pem /var/artifacts/crypto-config/org2/peer1/msp/admincerts/org2-admin-cert.pem
-# Copy admin cert to peer2
-mkdir -p /var/artifacts/crypto-config/org2/peer2/msp/admincerts
-cp /var/artifacts/crypto-config/org2/admin/msp/signcerts/cert.pem /var/artifacts/crypto-config/org2/peer2/msp/admincerts/org2-admin-cert.pem
+mkdir -p /tmp/hyperledger/org2.example.com/peer1/msp/admincerts
+cp /tmp/hyperledger/org2.example.com/admin/msp/signcerts/cert.pem /tmp/hyperledger/org2.example.com/peer1/msp/admincerts/org2.example.com-admin-cert.pem
 
 # Rename admin key
-mv /var/artifacts/crypto-config/org2/admin/msp/keystore/* /var/artifacts/crypto-config/org2/admin/msp/keystore/key.pem
+mv /tmp/hyperledger/org2.example.com/admin/msp/keystore/* /tmp/hyperledger/org2.example.com/admin/msp/keystore/key.pem

@@ -1,6 +1,6 @@
 [
   {
-    "name": "Org1PrivateDetails",
+    "name": "Org1MSPPrivateDetails",
     "policy": "OR('Org1MSP.member')",
     "requiredPeerCount": 0,
     "maxPeerCount": 4,
@@ -8,8 +8,8 @@
     "memberOnlyRead": true
   },
   {
-    "name": "Org2PrivateDetails",
-    "policy": "OR('Org2MSP.member')",
+    "name": "Org2MSPPrivateDetails",
+    "policy": "OR('org2MSP.member')",
     "requiredPeerCount": 0,
     "maxPeerCount": 4,
     "blockToLive": 0,
