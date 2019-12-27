@@ -9,7 +9,7 @@ Prerequsites: docker and docker-compose
 
 ## Topology
 
-![Logical Topology](config/logical_topology_solo.png)
+![Logical Topology](config/logical_topology_raft.png)
 
 ***
 

@@ -31,7 +31,7 @@ services:
             - CORE_PEER_TLS_ENABLED=true
             - CORE_PEER_GOSSIP_USELEADERELECTION=true
             - CORE_PEER_GOSSIP_ORGLEADER=false
-            - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+            - CORE_PEER_PROFILE_ENABLED=true
         networks:
             - {{network.name}}
 

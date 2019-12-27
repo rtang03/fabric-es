@@ -14,7 +14,7 @@ peer channel join -b /tmp/hyperledger/org1.example.com/peer0/assets/eventstore.b
 peer channel getinfo -c eventstore
 
 # peer1 joining the channel
-export CORE_PEER_ADDRESS=peer1.org1.example.com:7051
+export CORE_PEER_ADDRESS=peer1.org1.example.com:8051
 peer channel join -b /tmp/hyperledger/org1.example.com/peer0/assets/eventstore.block
 peer channel getinfo -c eventstore
 

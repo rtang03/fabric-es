@@ -68,6 +68,7 @@ services:
         environment:
             - CORE_PEER_ID={{-}}{{network.host-delimiter}}{{domain}}
             - CORE_PEER_ADDRESS={{-}}{{network.host-delimiter}}{{domain}}:{{port}}
+            - CORE_PEER_LISTENADDRESS=0.0.0.0:{{port}}
             - CORE_PEER_LOCALMSPID={{id}}
             - CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/msp
             - CORE_PEER_TLS_CERT_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/signcerts/cert.pem
@@ -83,6 +84,7 @@ services:
             - {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}:{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}
         ports:
             - {{port}}:{{port}}
+            - {{eventhub-port}}:{{eventhub-port}}
 
     {{/peers.endpoints}}
     {{/orgs.peer}}

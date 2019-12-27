@@ -81,6 +81,7 @@ services:
         environment:
             - CORE_PEER_ID=peer0.org1.example.com
             - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+            - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
             - CORE_PEER_LOCALMSPID=Org1MSP
             - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1.example.com/peer0/msp
             - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org1.example.com/peer0/tls-msp/signcerts/cert.pem
@@ -96,6 +97,7 @@ services:
             - ../artifacts/org1.example.com/peer0:/tmp/hyperledger/org1.example.com/peer0
         ports:
             - 7051:7051
+            - 7053:7053
 
     peer1.org1.example.com:
         extends:
@@ -105,6 +107,7 @@ services:
         environment:
             - CORE_PEER_ID=peer1.org1.example.com
             - CORE_PEER_ADDRESS=peer1.org1.example.com:8051
+            - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
             - CORE_PEER_LOCALMSPID=Org1MSP
             - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1.example.com/peer1/msp
             - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org1.example.com/peer1/tls-msp/signcerts/cert.pem
@@ -120,6 +123,7 @@ services:
             - ../artifacts/org1.example.com/peer1:/tmp/hyperledger/org1.example.com/peer1
         ports:
             - 8051:8051
+            - 8053:8053
 
     peer0.org2.example.com:
         extends:
@@ -129,6 +133,7 @@ services:
         environment:
             - CORE_PEER_ID=peer0.org2.example.com
             - CORE_PEER_ADDRESS=peer0.org2.example.com:9051
+            - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
             - CORE_PEER_LOCALMSPID=org2MSP
             - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2.example.com/peer0/msp
             - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org2.example.com/peer0/tls-msp/signcerts/cert.pem
@@ -144,6 +149,7 @@ services:
             - ../artifacts/org2.example.com/peer0:/tmp/hyperledger/org2.example.com/peer0
         ports:
             - 9051:9051
+            - 9053:9053
 
     peer1.org2.example.com:
         extends:
@@ -153,6 +159,7 @@ services:
         environment:
             - CORE_PEER_ID=peer1.org2.example.com
             - CORE_PEER_ADDRESS=peer1.org2.example.com:10051
+            - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
             - CORE_PEER_LOCALMSPID=org2MSP
             - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2.example.com/peer1/msp
             - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org2.example.com/peer1/tls-msp/signcerts/cert.pem
@@ -168,6 +175,7 @@ services:
             - ../artifacts/org2.example.com/peer1:/tmp/hyperledger/org2.example.com/peer1
         ports:
             - 10051:10051
+            - 10053:10053
 
     orderer1.example.com:
         extends:
