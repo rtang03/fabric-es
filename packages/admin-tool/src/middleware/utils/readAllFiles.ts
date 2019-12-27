@@ -9,3 +9,7 @@ export const readAllFiles: (dir: string) => Buffer[] = dir => {
   });
   return certs;
 };
+
+export const readFile: (file: string) => Buffer = file => {
+  return readFileSync(file);
+};

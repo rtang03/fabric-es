@@ -32,7 +32,7 @@ channels:
       - eventstore:1.0
 
 organizations:
-  org1.example.com:
+  Org1MSP:
     mspid: Org1MSP
     peers:
       - peer0.org1.example.com

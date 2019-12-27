@@ -8,6 +8,8 @@ interface OrgDetails {
   mspid: string;
   peers: string[];
   clientPath: string;
+  adminPrivateKeyPath: string;
+  signedCertPath: string;
 }
 
 export const parseConnectionProfile = async ({
@@ -32,7 +34,9 @@ export const parseConnectionProfile = async ({
           orgName,
           mspid: profile.organizations[orgName].mspid,
           peers: profile.organizations[orgName].peers,
-          clientPath: profile.organizations[orgName].client.path
+          clientPath: profile.organizations[orgName].client.path,
+          adminPrivateKeyPath: profile.organizations[orgName].adminPrivateKey.path,
+          signedCertPath: profile.organizations[orgName].signedCert.path
         }))
     }),
     getPeers: () => ({
