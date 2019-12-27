@@ -5,321 +5,321 @@ networks:
 
 services:
 
-    ca-tls:
+    ca.tls:
         extends:
             file: nodebase.yaml
             service: ca
-        container_name: ca-tls
+        container_name: ca.tls
         restart: always
         environment:
-            - HYPERLEDGER_VOL=/var/artifacts
-            - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/ca-tls/server
-            - FABRIC_CA_SERVER_CSR_CN=ca-tls
+            - HYPERLEDGER_VOL=/tmp/hyperledger
+            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/ca.tls/crypto
+            - FABRIC_CA_SERVER_CSR_CN=ca.tls
         ports:
-            - 6052:6052
-        command: sh -c 'fabric-ca-server start -d -b tls-ca-admin:tls-ca-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 6052'
+            - 5052:5052
+        command: sh -c 'fabric-ca-server start -d -b tls-ca-admin:tls-ca-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 5052'
         volumes:
             - ../scripts/container:/setup
-            - ../artifacts:/var/artifacts
+            - ../artifacts:/tmp/hyperledger
 
-    rca-org0:
+    rca.example.com:
         extends:
             file: nodebase.yaml
             service: ca
-        container_name: rca-org0
+        container_name: rca.example.com
         restart: always
         environment:
-            - HYPERLEDGER_VOL=/var/artifacts
-            - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/rca-org0/server
-            - FABRIC_CA_SERVER_CSR_CN=rca-org0
+            - HYPERLEDGER_VOL=/tmp/hyperledger
+            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/rca.example.com/crypto
+            - FABRIC_CA_SERVER_CSR_CN=rca.example.com
         ports:
-            - 6053:6053
-        command: sh -c 'fabric-ca-server start -d -b rca-org0-admin:rca-org0-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 6053'
+            - 5053:5053
+        command: sh -c 'fabric-ca-server start -d -b rca-org0-admin:rca-org0-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 5053'
         volumes:
             - ../scripts/container:/setup
-            - ../artifacts:/var/artifacts
+            - ../artifacts:/tmp/hyperledger
 
-    rca-org1:
+    rca.org1.example.com:
         extends:
             file: nodebase.yaml
             service: ca
-        container_name: rca-org1
+        container_name: rca.org1.example.com
         restart: always
         environment:
-            - HYPERLEDGER_VOL=/var/artifacts
-            - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/rca-org1/server
-            - FABRIC_CA_SERVER_CSR_CN=rca-org1
+            - HYPERLEDGER_VOL=/tmp/hyperledger
+            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/rca.org1.example.com/crypto
+            - FABRIC_CA_SERVER_CSR_CN=rca.org1.example.com
         ports:
-            - 6054:6054
-        command: sh -c 'fabric-ca-server start -d -b rca-org1-admin:rca-org1-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 6054'
+            - 5054:5054
+        command: sh -c 'fabric-ca-server start -d -b rca-org1-admin:rca-org1-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 5054'
         volumes:
             - ../scripts/container:/setup
-            - ../artifacts:/var/artifacts
+            - ../artifacts:/tmp/hyperledger
 
-    rca-org2:
+    rca.org2.example.com:
         extends:
             file: nodebase.yaml
             service: ca
-        container_name: rca-org2
+        container_name: rca.org2.example.com
         restart: always
         environment:
-            - HYPERLEDGER_VOL=/var/artifacts
-            - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/rca-org2/server
-            - FABRIC_CA_SERVER_CSR_CN=rca-org2
+            - HYPERLEDGER_VOL=/tmp/hyperledger
+            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/rca.org2.example.com/crypto
+            - FABRIC_CA_SERVER_CSR_CN=rca.org2.example.com
         ports:
-            - 6055:6055
-        command: sh -c 'fabric-ca-server start -d -b rca-org2-admin:rca-org2-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 6055'
+            - 5055:5055
+        command: sh -c 'fabric-ca-server start -d -b rca-org2-admin:rca-org2-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 5055'
         volumes:
             - ../scripts/container:/setup
-            - ../artifacts:/var/artifacts
+            - ../artifacts:/tmp/hyperledger
 
-    peer1-org1:
+    peer0.org1.example.com:
         extends:
             file: nodebase.yaml
             service: peer
-        container_name: peer1-org1
+        container_name: peer0.org1.example.com
         environment:
-            - CORE_PEER_ID=peer1-org1
-            - CORE_PEER_ADDRESS=peer1-org1:7051
-            - CORE_PEER_LOCALMSPID=org1MSP
-            - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/org1/peer1/msp
-            - CORE_PEER_TLS_CERT_FILE=/var/artifacts/crypto-config/org1/peer1/tls-msp/signcerts/cert.pem
-            - CORE_PEER_TLS_KEY_FILE=/var/artifacts/crypto-config/org1/peer1/tls-msp/keystore/key.pem
-            - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/org1/peer1/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
-            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1-org1:7051
+            - CORE_PEER_ID=peer0.org1.example.com
+            - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+            - CORE_PEER_LOCALMSPID=Org1MSP
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1.example.com/peer0/msp
+            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org1.example.com/peer0/tls-msp/signcerts/cert.pem
+            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org1.example.com/peer0/tls-msp/keystore/key.pem
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org1.example.com/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.example.com:7051
             - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1/peer1
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1.example.com/peer0
         volumes:
             - /var/run:/host/var/run
-            - ../artifacts/production/org1/peer1:/var/artifacts/production
-            - ../artifacts/crypto-config/org1/peer1:/var/artifacts/crypto-config/org1/peer1
+            - ../artifacts/production/org1.example.com/peer0:/tmp/hyperledger/production
+            - ../artifacts/org1.example.com/peer0:/tmp/hyperledger/org1.example.com/peer0
         ports:
             - 7051:7051
 
-    peer2-org1:
+    peer1.org1.example.com:
         extends:
             file: nodebase.yaml
             service: peer
-        container_name: peer2-org1
+        container_name: peer1.org1.example.com
         environment:
-            - CORE_PEER_ID=peer2-org1
-            - CORE_PEER_ADDRESS=peer2-org1:7151
-            - CORE_PEER_LOCALMSPID=org1MSP
-            - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/org1/peer2/msp
-            - CORE_PEER_TLS_CERT_FILE=/var/artifacts/crypto-config/org1/peer2/tls-msp/signcerts/cert.pem
-            - CORE_PEER_TLS_KEY_FILE=/var/artifacts/crypto-config/org1/peer2/tls-msp/keystore/key.pem
-            - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/org1/peer2/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
-            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2-org1:7151
-            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7152
-        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1/peer2
+            - CORE_PEER_ID=peer1.org1.example.com
+            - CORE_PEER_ADDRESS=peer1.org1.example.com:8051
+            - CORE_PEER_LOCALMSPID=Org1MSP
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1.example.com/peer1/msp
+            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org1.example.com/peer1/tls-msp/signcerts/cert.pem
+            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org1.example.com/peer1/tls-msp/keystore/key.pem
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org1.example.com/peer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org1.example.com:8051
+            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1.example.com/peer1
         volumes:
             - /var/run:/host/var/run
-            - ../artifacts/production/org1/peer2:/var/artifacts/production
-            - ../artifacts/crypto-config/org1/peer2:/var/artifacts/crypto-config/org1/peer2
+            - ../artifacts/production/org1.example.com/peer1:/tmp/hyperledger/production
+            - ../artifacts/org1.example.com/peer1:/tmp/hyperledger/org1.example.com/peer1
         ports:
-            - 7151:7151
+            - 8051:8051
 
-    peer1-org2:
+    peer0.org2.example.com:
         extends:
             file: nodebase.yaml
             service: peer
-        container_name: peer1-org2
+        container_name: peer0.org2.example.com
         environment:
-            - CORE_PEER_ID=peer1-org2
-            - CORE_PEER_ADDRESS=peer1-org2:7251
+            - CORE_PEER_ID=peer0.org2.example.com
+            - CORE_PEER_ADDRESS=peer0.org2.example.com:9051
             - CORE_PEER_LOCALMSPID=org2MSP
-            - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/org2/peer1/msp
-            - CORE_PEER_TLS_CERT_FILE=/var/artifacts/crypto-config/org2/peer1/tls-msp/signcerts/cert.pem
-            - CORE_PEER_TLS_KEY_FILE=/var/artifacts/crypto-config/org2/peer1/tls-msp/keystore/key.pem
-            - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/org2/peer1/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
-            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1-org2:7251
-            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7252
-        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org2/peer1
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2.example.com/peer0/msp
+            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org2.example.com/peer0/tls-msp/signcerts/cert.pem
+            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org2.example.com/peer0/tls-msp/keystore/key.pem
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org2.example.com/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.example.com:9051
+            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org2.example.com/peer0
         volumes:
             - /var/run:/host/var/run
-            - ../artifacts/production/org2/peer1:/var/artifacts/production
-            - ../artifacts/crypto-config/org2/peer1:/var/artifacts/crypto-config/org2/peer1
+            - ../artifacts/production/org2.example.com/peer0:/tmp/hyperledger/production
+            - ../artifacts/org2.example.com/peer0:/tmp/hyperledger/org2.example.com/peer0
         ports:
-            - 7251:7251
+            - 9051:9051
 
-    peer2-org2:
+    peer1.org2.example.com:
         extends:
             file: nodebase.yaml
             service: peer
-        container_name: peer2-org2
+        container_name: peer1.org2.example.com
         environment:
-            - CORE_PEER_ID=peer2-org2
-            - CORE_PEER_ADDRESS=peer2-org2:7351
+            - CORE_PEER_ID=peer1.org2.example.com
+            - CORE_PEER_ADDRESS=peer1.org2.example.com:10051
             - CORE_PEER_LOCALMSPID=org2MSP
-            - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/org2/peer2/msp
-            - CORE_PEER_TLS_CERT_FILE=/var/artifacts/crypto-config/org2/peer2/tls-msp/signcerts/cert.pem
-            - CORE_PEER_TLS_KEY_FILE=/var/artifacts/crypto-config/org2/peer2/tls-msp/keystore/key.pem
-            - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/org2/peer2/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
-            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2-org2:7351
-            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7352
-        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org2/peer2
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2.example.com/peer1/msp
+            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org2.example.com/peer1/tls-msp/signcerts/cert.pem
+            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org2.example.com/peer1/tls-msp/keystore/key.pem
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org2.example.com/peer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org2.example.com:10051
+            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:10052
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org2.example.com/peer1
         volumes:
             - /var/run:/host/var/run
-            - ../artifacts/production/org2/peer2:/var/artifacts/production
-            - ../artifacts/crypto-config/org2/peer2:/var/artifacts/crypto-config/org2/peer2
+            - ../artifacts/production/org2.example.com/peer1:/tmp/hyperledger/production
+            - ../artifacts/org2.example.com/peer1:/tmp/hyperledger/org2.example.com/peer1
         ports:
-            - 7351:7351
+            - 10051:10051
 
-    orderer1-org0:
+    orderer1.example.com:
         extends:
             file: nodebase.yaml
             service: orderer
-        container_name: orderer1-org0
+        container_name: orderer1.example.com
         environment:
-            - ORDERER_HOST=orderer1-org0
-            - ORDERER_HOME=/var/artifacts/orderer
-            - ORDERER_GENERAL_LOCALMSPID=org0MSP
-            - ORDERER_GENERAL_LOCALMSPDIR=/var/artifacts/crypto-config/org0/orderer1/msp
-            - ORDERER_GENERAL_TLS_CERTIFICATE=/var/artifacts/crypto-config/org0/orderer1/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/artifacts/crypto-config/org0/orderer1/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_TLS_ROOTCAS=[/var/artifacts/crypto-config/org0/orderer1/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]
-            - ORDERER_GENERAL_GENESISFILE=/var/artifacts/crypto-config/org0/orderer1/genesis.block
-            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/artifacts/crypto-config/org0/orderer1/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/artifacts/crypto-config/org0/orderer1/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/artifacts/crypto-config/org0/orderer1/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]
+            - ORDERER_HOST=orderer1.example.com
+            - ORDERER_HOME=/tmp/hyperledger/orderer
+            - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/example.com/orderer1/msp
+            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/example.com/orderer1/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/example.com/orderer1/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/example.com/orderer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/example.com/orderer1/genesis.block
+            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/example.com/orderer1/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/example.com/orderer1/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7050
         volumes:
-            - ../artifacts/production/org0/orderer1:/var/artifacts/production
-            - ../artifacts/crypto-config/org0/orderer1:/var/artifacts/crypto-config/org0/orderer1
+            - ../artifacts/production/example.com/orderer1:/tmp/hyperledger/production
+            - ../artifacts/example.com/orderer1:/tmp/hyperledger/example.com/orderer1
         ports:
             - 7050:7050
 
-    orderer2-org0:
+    orderer2.example.com:
         extends:
             file: nodebase.yaml
             service: orderer
-        container_name: orderer2-org0
+        container_name: orderer2.example.com
         environment:
-            - ORDERER_HOST=orderer2-org0
-            - ORDERER_HOME=/var/artifacts/orderer
-            - ORDERER_GENERAL_LOCALMSPID=org0MSP
-            - ORDERER_GENERAL_LOCALMSPDIR=/var/artifacts/crypto-config/org0/orderer2/msp
-            - ORDERER_GENERAL_TLS_CERTIFICATE=/var/artifacts/crypto-config/org0/orderer2/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/artifacts/crypto-config/org0/orderer2/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_TLS_ROOTCAS=[/var/artifacts/crypto-config/org0/orderer2/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]
-            - ORDERER_GENERAL_GENESISFILE=/var/artifacts/crypto-config/org0/orderer2/genesis.block
-            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/artifacts/crypto-config/org0/orderer2/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/artifacts/crypto-config/org0/orderer2/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/artifacts/crypto-config/org0/orderer2/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]
+            - ORDERER_HOST=orderer2.example.com
+            - ORDERER_HOME=/tmp/hyperledger/orderer
+            - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/example.com/orderer2/msp
+            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/example.com/orderer2/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/example.com/orderer2/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/example.com/orderer2/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/example.com/orderer2/genesis.block
+            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/example.com/orderer2/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/example.com/orderer2/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer2/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7150
         volumes:
-            - ../artifacts/production/org0/orderer2:/var/artifacts/production
-            - ../artifacts/crypto-config/org0/orderer2:/var/artifacts/crypto-config/org0/orderer2
+            - ../artifacts/production/example.com/orderer2:/tmp/hyperledger/production
+            - ../artifacts/example.com/orderer2:/tmp/hyperledger/example.com/orderer2
         ports:
             - 7150:7150
 
-    orderer3-org0:
+    orderer3.example.com:
         extends:
             file: nodebase.yaml
             service: orderer
-        container_name: orderer3-org0
+        container_name: orderer3.example.com
         environment:
-            - ORDERER_HOST=orderer3-org0
-            - ORDERER_HOME=/var/artifacts/orderer
-            - ORDERER_GENERAL_LOCALMSPID=org0MSP
-            - ORDERER_GENERAL_LOCALMSPDIR=/var/artifacts/crypto-config/org0/orderer3/msp
-            - ORDERER_GENERAL_TLS_CERTIFICATE=/var/artifacts/crypto-config/org0/orderer3/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/artifacts/crypto-config/org0/orderer3/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_TLS_ROOTCAS=[/var/artifacts/crypto-config/org0/orderer3/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]
-            - ORDERER_GENERAL_GENESISFILE=/var/artifacts/crypto-config/org0/orderer3/genesis.block
-            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/artifacts/crypto-config/org0/orderer3/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/artifacts/crypto-config/org0/orderer3/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/artifacts/crypto-config/org0/orderer3/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]
+            - ORDERER_HOST=orderer3.example.com
+            - ORDERER_HOME=/tmp/hyperledger/orderer
+            - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/example.com/orderer3/msp
+            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/example.com/orderer3/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/example.com/orderer3/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/example.com/orderer3/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/example.com/orderer3/genesis.block
+            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/example.com/orderer3/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/example.com/orderer3/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer3/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7250
         volumes:
-            - ../artifacts/production/org0/orderer3:/var/artifacts/production
-            - ../artifacts/crypto-config/org0/orderer3:/var/artifacts/crypto-config/org0/orderer3
+            - ../artifacts/production/example.com/orderer3:/tmp/hyperledger/production
+            - ../artifacts/example.com/orderer3:/tmp/hyperledger/example.com/orderer3
         ports:
             - 7250:7250
 
-    orderer4-org0:
+    orderer4.example.com:
         extends:
             file: nodebase.yaml
             service: orderer
-        container_name: orderer4-org0
+        container_name: orderer4.example.com
         environment:
-            - ORDERER_HOST=orderer4-org0
-            - ORDERER_HOME=/var/artifacts/orderer
-            - ORDERER_GENERAL_LOCALMSPID=org0MSP
-            - ORDERER_GENERAL_LOCALMSPDIR=/var/artifacts/crypto-config/org0/orderer4/msp
-            - ORDERER_GENERAL_TLS_CERTIFICATE=/var/artifacts/crypto-config/org0/orderer4/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/artifacts/crypto-config/org0/orderer4/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_TLS_ROOTCAS=[/var/artifacts/crypto-config/org0/orderer4/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]
-            - ORDERER_GENERAL_GENESISFILE=/var/artifacts/crypto-config/org0/orderer4/genesis.block
-            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/artifacts/crypto-config/org0/orderer4/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/artifacts/crypto-config/org0/orderer4/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/artifacts/crypto-config/org0/orderer4/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]
+            - ORDERER_HOST=orderer4.example.com
+            - ORDERER_HOME=/tmp/hyperledger/orderer
+            - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/example.com/orderer4/msp
+            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/example.com/orderer4/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/example.com/orderer4/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/example.com/orderer4/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/example.com/orderer4/genesis.block
+            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/example.com/orderer4/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/example.com/orderer4/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer4/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7350
         volumes:
-            - ../artifacts/production/org0/orderer4:/var/artifacts/production
-            - ../artifacts/crypto-config/org0/orderer4:/var/artifacts/crypto-config/org0/orderer4
+            - ../artifacts/production/example.com/orderer4:/tmp/hyperledger/production
+            - ../artifacts/example.com/orderer4:/tmp/hyperledger/example.com/orderer4
         ports:
             - 7350:7350
 
-    orderer5-org0:
+    orderer5.example.com:
         extends:
             file: nodebase.yaml
             service: orderer
-        container_name: orderer5-org0
+        container_name: orderer5.example.com
         environment:
-            - ORDERER_HOST=orderer5-org0
-            - ORDERER_HOME=/var/artifacts/orderer
-            - ORDERER_GENERAL_LOCALMSPID=org0MSP
-            - ORDERER_GENERAL_LOCALMSPDIR=/var/artifacts/crypto-config/org0/orderer5/msp
-            - ORDERER_GENERAL_TLS_CERTIFICATE=/var/artifacts/crypto-config/org0/orderer5/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/artifacts/crypto-config/org0/orderer5/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_TLS_ROOTCAS=[/var/artifacts/crypto-config/org0/orderer5/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]
-            - ORDERER_GENERAL_GENESISFILE=/var/artifacts/crypto-config/org0/orderer5/genesis.block
-            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/artifacts/crypto-config/org0/orderer5/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/artifacts/crypto-config/org0/orderer5/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/artifacts/crypto-config/org0/orderer5/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]
+            - ORDERER_HOST=orderer5.example.com
+            - ORDERER_HOME=/tmp/hyperledger/orderer
+            - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/example.com/orderer5/msp
+            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/example.com/orderer5/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/example.com/orderer5/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/example.com/orderer5/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/example.com/orderer5/genesis.block
+            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/example.com/orderer5/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/example.com/orderer5/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer5/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7450
         volumes:
-            - ../artifacts/production/org0/orderer5:/var/artifacts/production
-            - ../artifacts/crypto-config/org0/orderer5:/var/artifacts/crypto-config/org0/orderer5
+            - ../artifacts/production/example.com/orderer5:/tmp/hyperledger/production
+            - ../artifacts/example.com/orderer5:/tmp/hyperledger/example.com/orderer5
         ports:
             - 7450:7450
 
-    cli-org1:
+    cli.org1.example.com:
         extends:
             file: nodebase.yaml
             service: cli
-        container_name: cli-org1
+        container_name: cli.org1.example.com
         environment:
-            - HYPERLEDGER_VOL=/var/artifacts
-            - CORE_PEER_ID=cli-org1
-            - CORE_PEER_ADDRESS=peer1-org1:7051
-            - CORE_PEER_LOCALMSPID=org1MSP
-            - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/org1/peer1/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
-            - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/org1/peer1/msp
-        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1
+            - HYPERLEDGER_VOL=/tmp/hyperledger
+            - CORE_PEER_ID=cli.org1.example.com
+            - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+            - CORE_PEER_LOCALMSPID=Org1MSP
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org1.example.com/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1.example.com/peer0/msp
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1.example.com
         command: sh
         volumes:
-            - ../artifacts:/var/artifacts
+            - ../artifacts:/tmp/hyperledger
             - ../scripts/container:/setup
             - ../../packages/chaincode:/opt/gopath/src/github.com/hyperledger/fabric/chaincode
 
-    cli-org2:
+    cli.org2.example.com:
         extends:
             file: nodebase.yaml
             service: cli
-        container_name: cli-org2
+        container_name: cli.org2.example.com
         environment:
-            - HYPERLEDGER_VOL=/var/artifacts
-            - CORE_PEER_ID=cli-org2
-            - CORE_PEER_ADDRESS=peer1-org2:7251
+            - HYPERLEDGER_VOL=/tmp/hyperledger
+            - CORE_PEER_ID=cli.org2.example.com
+            - CORE_PEER_ADDRESS=peer0.org2.example.com:9051
             - CORE_PEER_LOCALMSPID=org2MSP
-            - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/org2/peer1/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
-            - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/org2/peer1/msp
-        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org2
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org2.example.com/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2.example.com/peer0/msp
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org2.example.com
         command: sh
         volumes:
-            - ../artifacts:/var/artifacts
+            - ../artifacts:/tmp/hyperledger
             - ../scripts/container:/setup
             - ../../packages/chaincode:/opt/gopath/src/github.com/hyperledger/fabric/chaincode
 
