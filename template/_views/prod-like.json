@@ -120,7 +120,8 @@
                             "-": "peer1",
                             "port": "7151",
                             "chaincode-port": "7152",
-                            "eventhub-port": "7153"
+                            "eventhub-port": "7153",
+                            "islast": true
                         }
                     ]
                 },
@@ -149,7 +150,8 @@
                             "-": "peer1",
                             "port": "7351",
                             "chaincode-port": "7352",
-                            "eventhub-port": "7353"
+                            "eventhub-port": "7353",
+                            "islast": true
                         }
                     ]
                 },
