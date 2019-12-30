@@ -137,7 +137,7 @@ services:
             - ../../packages/chaincode:{{{artifacts.peers-working-dir}}}/chaincode
 
     {{/orgs.peer}}
-    postgres01:
+    {{app.postgres.name}}:
         container_name: {{app.postgres.name}}
         image: postgres
         environment:
