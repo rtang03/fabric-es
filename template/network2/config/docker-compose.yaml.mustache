@@ -148,6 +148,6 @@ services:
             - {{{artifacts.local}}}/postgres01:/var/lib/postgresql/data
         command: postgres
         ports:
-            - 5432
+            - 5432:5432
         networks:
             - {{network.name}}

@@ -346,6 +346,6 @@ services:
             - ../artifacts/postgres01:/var/lib/postgresql/data
         command: postgres
         ports:
-            - 5432
+            - 5432:5432
         networks:
             - fabric
