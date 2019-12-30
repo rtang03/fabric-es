@@ -31,6 +31,16 @@ sudo cp  ${_CRYPTO_CONFIG_DIR}/org2.example.com/peer0/msp/admincerts/org2.exampl
 sudo cp  ${_CRYPTO_CONFIG_DIR}/org2.example.com/peer0/assets/ca/org2.example.com-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/org2.example.com/msp/cacerts
 sudo cp  ${_CRYPTO_CONFIG_DIR}/org2.example.com/peer0/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/org2.example.com/msp/tlscacerts
 
+# Org3MSP
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/org3.neworg.com/msp/admincerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/org3.neworg.com/msp/cacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/org3.neworg.com/msp/tlscacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/org3.neworg.com/msp/users
+
+sudo cp  ${_CRYPTO_CONFIG_DIR}/org3.neworg.com/peer0/msp/admincerts/org3.neworg.com-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/org3.neworg.com/msp/admincerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/org3.neworg.com/peer0/assets/ca/org3.neworg.com-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/org3.neworg.com/msp/cacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/org3.neworg.com/peer0/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/org3.neworg.com/msp/tlscacerts
+
 
 cd ${_FABRIC_DIR}; 
 export FABRIC_CFG_PATH=${PWD}

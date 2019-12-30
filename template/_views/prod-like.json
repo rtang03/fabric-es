@@ -104,6 +104,7 @@
         "peer": [
             {
                 "name": "etc",
+                "script-naming": "org1",
                 "id": "EtcMSP",
                 "domain": "etradeconnect.net",
                 "peers": {
@@ -134,6 +135,7 @@
             },
             {
                 "name": "pbctfp",
+                "script-naming": "org2",
                 "id": "PbctfpMSP",
                 "domain": "pbctfp.net",
                 "peers": {
@@ -160,6 +162,37 @@
                     "port": "6055",
                     "admin": "rca-pboc-admin",
                     "adminpw": "rca-pboc-adminPW"
+                }
+            },
+            {
+                "name": "hsbc",
+                "script-naming": "org3",
+                "id": "HsbcMSP",
+                "domain": "hsbc.com.hk",
+                "peers": {
+                    "anchor": "peer0",
+                    "anchor-port": "7451",
+                    "endpoints": [
+                        {
+                            "-": "peer0",
+                            "port": "7451",
+                            "chaincode-port": "7452",
+                            "eventhub-port": "7453"
+                        },
+                        {
+                            "-": "peer1",
+                            "port": "7551",
+                            "chaincode-port": "7552",
+                            "eventhub-port": "7553",
+                            "islast": true
+                        }
+                    ]
+                },
+                "ca": {
+                    "host": "rca",
+                    "port": "5054",
+                    "admin": "rca-hsbc-admin",
+                    "adminpw": "rca-hsbc-adminPW"
                 }
             }
         ]
