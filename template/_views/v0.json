@@ -102,6 +102,7 @@
         "peer": [
             {
                 "name": "Org1MSP",
+                "script-naming": "org1",
                 "id": "Org1MSP",
                 "domain": "org1.example.com",
                 "peers": {
@@ -132,6 +133,7 @@
             },
             {
                 "name": "Org2MSP",
+                "script-naming": "org2",
                 "id": "org2MSP",
                 "domain": "org2.example.com",
                 "peers": {
@@ -158,6 +160,37 @@
                     "port": "5055",
                     "admin": "rca-org2-admin",
                     "adminpw": "rca-org2-adminPW"
+                }
+            },
+            {
+                "name": "Org3MSP",
+                "script-naming": "org3",
+                "id": "Org3MSP",
+                "domain": "org3.neworg.com",
+                "peers": {
+                    "anchor": "peer0",
+                    "anchor-port": "11051",
+                    "endpoints": [
+                        {
+                            "-": "peer0",
+                            "port": "11051",
+                            "chaincode-port": "11052",
+                            "eventhub-port": "11053"
+                        },
+                        {
+                            "-": "peer1",
+                            "port": "12051",
+                            "chaincode-port": "12052",
+                            "eventhub-port": "12053",
+                            "islast": true
+                        }
+                    ]
+                },
+                "ca": {
+                    "host": "rca",
+                    "port": "5056",
+                    "admin": "rca-org3-admin",
+                    "adminpw": "rca-org3-adminPW"
                 }
             }
         ]

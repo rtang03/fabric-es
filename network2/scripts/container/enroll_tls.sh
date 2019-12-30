@@ -8,6 +8,8 @@ fabric-ca-client register -d --id.name peer0.org1.example.com --id.secret peer0P
 fabric-ca-client register -d --id.name peer1.org1.example.com --id.secret peer1PW --id.type peer -u https://0.0.0.0:5052
 fabric-ca-client register -d --id.name peer0.org2.example.com --id.secret peer0PW --id.type peer -u https://0.0.0.0:5052
 fabric-ca-client register -d --id.name peer1.org2.example.com --id.secret peer1PW --id.type peer -u https://0.0.0.0:5052
+fabric-ca-client register -d --id.name peer0.org3.neworg.com --id.secret peer0PW --id.type peer -u https://0.0.0.0:5052
+fabric-ca-client register -d --id.name peer1.org3.neworg.com --id.secret peer1PW --id.type peer -u https://0.0.0.0:5052
 fabric-ca-client register -d --id.name orderer1.example.com --id.secret ordererPW --id.type orderer -u https://0.0.0.0:5052
 fabric-ca-client register -d --id.name orderer2.example.com --id.secret ordererPW --id.type orderer -u https://0.0.0.0:5052
 fabric-ca-client register -d --id.name orderer3.example.com --id.secret ordererPW --id.type orderer -u https://0.0.0.0:5052
@@ -77,6 +79,38 @@ export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/org2.example.com/peer1/as
 fabric-ca-client enroll -d -u https://peer1.org2.example.com:peer1PW@0.0.0.0:5052 --enrollment.profile tls --csr.hosts peer1.org2.example.com,127.0.0.1
 
 mv /tmp/hyperledger/org2.example.com/peer1/tls-msp/keystore/* /tmp/hyperledger/org2.example.com/peer1/tls-msp/keystore/key.pem
+
+#############
+# Org3MSP peer0#
+#############
+
+# Copy certificate of the TLS CA for Org3MSP peer0
+mkdir -p /tmp/hyperledger/org3.neworg.com/peer0/assets/tls-ca
+cp /tmp/hyperledger/ca.tls/admin/msp/cacerts/0-0-0-0-5052.pem /tmp/hyperledger/org3.neworg.com/peer0/assets/tls-ca/tls-ca-cert.pem
+
+# Enroll Org3MSP peer0
+export FABRIC_CA_CLIENT_MSPDIR=tls-msp
+export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/org3.neworg.com/peer0
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/org3.neworg.com/peer0/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://peer0.org3.neworg.com:peer0PW@0.0.0.0:5052 --enrollment.profile tls --csr.hosts peer0.org3.neworg.com,127.0.0.1
+
+mv /tmp/hyperledger/org3.neworg.com/peer0/tls-msp/keystore/* /tmp/hyperledger/org3.neworg.com/peer0/tls-msp/keystore/key.pem
+
+#############
+# Org3MSP peer1#
+#############
+
+# Copy certificate of the TLS CA for Org3MSP peer1
+mkdir -p /tmp/hyperledger/org3.neworg.com/peer1/assets/tls-ca
+cp /tmp/hyperledger/ca.tls/admin/msp/cacerts/0-0-0-0-5052.pem /tmp/hyperledger/org3.neworg.com/peer1/assets/tls-ca/tls-ca-cert.pem
+
+# Enroll Org3MSP peer1
+export FABRIC_CA_CLIENT_MSPDIR=tls-msp
+export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/org3.neworg.com/peer1
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/org3.neworg.com/peer1/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://peer1.org3.neworg.com:peer1PW@0.0.0.0:5052 --enrollment.profile tls --csr.hosts peer1.org3.neworg.com,127.0.0.1
+
+mv /tmp/hyperledger/org3.neworg.com/peer1/tls-msp/keystore/* /tmp/hyperledger/org3.neworg.com/peer1/tls-msp/keystore/key.pem
 
 
 ###########

@@ -78,6 +78,33 @@ Organizations:
          - Host: peer0.org2.example.com
            Port: 9051
 
+   - &Org3MSP
+      Name: Org3MSP
+      ID: Org3MSP
+      MSPDir: ../artifacts/org3.neworg.com/msp
+
+      Policies:
+         Readers:
+            Type: Signature
+            Rule: "OR('Org3MSP.member')"
+         Writers:
+            Type: Signature
+            Rule: "OR('Org3MSP.member')"
+         Admins:
+            Type: Signature
+            Rule: "OR('Org3MSP.admin')"
+
+      OrdererEndpoints:
+         - orderer1.example.com:7050
+         - orderer2.example.com:7150
+         - orderer3.example.com:7250
+         - orderer4.example.com:7350
+         - orderer5.example.com:7450
+
+      AnchorPeers:
+         - Host: peer0.org3.neworg.com
+           Port: 11051
+
 Capabilities:
    Channel: &ChannelCapabilities
       V1_4_3: true
@@ -217,6 +244,7 @@ Profiles:
             Organizations:
                - *Org1MSP
                - *Org2MSP
+               - *Org3MSP
 
    OrgsChannel:
       Consortium: SampleConsortium
@@ -226,5 +254,6 @@ Profiles:
          Organizations:
             - *Org1MSP
             - *Org2MSP
+            - *Org3MSP
          Capabilities:
             <<: *ApplicationCapabilities

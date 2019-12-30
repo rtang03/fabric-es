@@ -1,2 +1,3 @@
-docker exec cli{{network.host-delimiter}}{{orgs.peer.0.domain}} sh -c "/setup/join_channel_org1.sh"
-docker exec cli{{network.host-delimiter}}{{orgs.peer.1.domain}} sh -c "/setup/join_channel_org2.sh"
+{{#orgs.peer}}
+docker exec cli{{network.host-delimiter}}{{domain}} sh -c "/setup/join_channel_{{script-naming}}.sh"
+{{/orgs.peer}}
