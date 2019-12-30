@@ -163,5 +163,13 @@
                 }
             }
         ]
+    },
+    "app": {
+        "postgres": {
+            "name": "postgres01",
+            "dbname": "account01",
+            "user": "postgres",
+            "password": "docker"
+        }
     }
 }

@@ -138,14 +138,14 @@ services:
 
     {{/orgs.peer}}
     postgres01:
-        container_name: postgres01
+        container_name: {{app.postgres.name}}
         image: postgres
         environment:
-            - POSTGRES_PASSWORD=docker
-            - POSTGRES_USER=postgres
-            - POSTGRES_DB=account01
+            - POSTGRES_PASSWORD={{app.postgres.password}}
+            - POSTGRES_USER={{app.postgres.user}}
+            - POSTGRES_DB={{app.postgres.dbname}}
         volumes:
-            - {{{artifacts.local}}}/postgres01:/var/lib/postgresql/data
+            - {{{artifacts.local}}}/{{app.postgres.name}}:/var/lib/postgresql/data
         command: postgres
         ports:
             - 5432:5432
