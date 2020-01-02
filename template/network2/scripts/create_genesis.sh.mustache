@@ -23,7 +23,7 @@ sudo cp  ${_CRYPTO_CONFIG_DIR}/{{domain}}/{{peers.endpoints.0.-}}/assets/ca/{{do
 sudo cp  ${_CRYPTO_CONFIG_DIR}/{{domain}}/{{peers.endpoints.0.-}}/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/tlscacerts
 
 {{/orgs.peer}}
-# Ubuntu requires ownership of order certs
+# Ubuntu requires ownership of orderer certs
 sudo chown -R $(whoami):$(whoami) ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}
 
 cd ${_FABRIC_DIR}; 
