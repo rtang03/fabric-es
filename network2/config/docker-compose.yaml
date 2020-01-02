@@ -15,6 +15,7 @@ services:
             - HYPERLEDGER_VOL=/tmp/hyperledger
             - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/ca.tls/crypto
             - FABRIC_CA_SERVER_CSR_CN=ca.tls
+            - FABRIC_CA_SERVER_CA_NAME=ca.tls
         ports:
             - 5052:5052
         command: sh -c 'fabric-ca-server start -d -b tls-ca-admin:tls-ca-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 5052'
@@ -32,6 +33,7 @@ services:
             - HYPERLEDGER_VOL=/tmp/hyperledger
             - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/rca.example.com/crypto
             - FABRIC_CA_SERVER_CSR_CN=rca.example.com
+            - FABRIC_CA_SERVER_CA_NAME=rca.example.com
         ports:
             - 5053:5053
         command: sh -c 'fabric-ca-server start -d -b rca-org0-admin:rca-org0-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 5053'
@@ -49,6 +51,7 @@ services:
             - HYPERLEDGER_VOL=/tmp/hyperledger
             - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/rca.org1.example.com/crypto
             - FABRIC_CA_SERVER_CSR_CN=rca.org1.example.com
+            - FABRIC_CA_SERVER_CA_NAME=rca.org1.example.com
         ports:
             - 5054:5054
         command: sh -c 'fabric-ca-server start -d -b rca-org1-admin:rca-org1-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 5054'
@@ -66,6 +69,7 @@ services:
             - HYPERLEDGER_VOL=/tmp/hyperledger
             - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/rca.org2.example.com/crypto
             - FABRIC_CA_SERVER_CSR_CN=rca.org2.example.com
+            - FABRIC_CA_SERVER_CA_NAME=rca.org2.example.com
         ports:
             - 5055:5055
         command: sh -c 'fabric-ca-server start -d -b rca-org2-admin:rca-org2-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 5055'
@@ -83,6 +87,7 @@ services:
             - HYPERLEDGER_VOL=/tmp/hyperledger
             - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/rca.org3.neworg.com/crypto
             - FABRIC_CA_SERVER_CSR_CN=rca.org3.neworg.com
+            - FABRIC_CA_SERVER_CA_NAME=rca.org3.neworg.com
         ports:
             - 5056:5056
         command: sh -c 'fabric-ca-server start -d -b rca-org3-admin:rca-org3-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 5056'
