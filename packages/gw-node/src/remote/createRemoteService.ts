@@ -6,7 +6,7 @@ import nodeFetch from 'node-fetch';
 import { RemoteData } from './remoteData';
 const fetch = nodeFetch as any;
 
-export const createRemoteDataService: (option: {
+export const createRemoteService: (option: {
   name: string;
   uri: string;
   typeDefs: any;
