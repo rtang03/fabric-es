@@ -28,7 +28,7 @@ export const createUser: (
         const gateway = new Gateway();
         await gateway.connect(admin, {
           wallet,
-          identity: 'admin',
+          identity: 'ca_admin',
           discovery: { enabled: true, asLocalhost: true }
         });
         const ca = gateway.getClient().getCertificateAuthority();
