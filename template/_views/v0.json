@@ -134,7 +134,7 @@
             {
                 "name": "Org2MSP",
                 "script-naming": "org2",
-                "id": "org2MSP",
+                "id": "Org2MSP",
                 "domain": "org2.example.com",
                 "peers": {
                     "anchor": "peer0",

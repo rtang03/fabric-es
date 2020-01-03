@@ -13,7 +13,7 @@ const authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
       { name: 'document', url: 'http://localhost:14023/graphql' },
       { name: 'private', url: 'http://localhost:14024/graphql' },
       { name: 'remote-doc-contents', url: 'http://localhost:14025/graphql' },
-      { name: 'admin', url: 'http://localhost:15002/graphql' }
+      { name: 'admin', url: 'http://localhost:15021/graphql' }
     ],
     authenticationCheck,
     useCors: true,

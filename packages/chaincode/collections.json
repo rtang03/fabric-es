@@ -9,7 +9,7 @@
   },
   {
     "name": "Org2MSPPrivateDetails",
-    "policy": "OR('org2MSP.member')",
+    "policy": "OR('Org2MSP.member')",
     "requiredPeerCount": 0,
     "maxPeerCount": 4,
     "blockToLive": 0,
