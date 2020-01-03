@@ -24,7 +24,7 @@ sudo cp  ${_CRYPTO_CONFIG_DIR}/{{domain}}/{{peers.endpoints.0.-}}/assets/tls-ca/
 
 {{/orgs.peer}}
 # Ubuntu requires ownership of orderer certs
-sudo chown -R $(whoami):$(whoami) ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}
+sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}
 
 cd ${_FABRIC_DIR}; 
 export FABRIC_CFG_PATH=${PWD}
