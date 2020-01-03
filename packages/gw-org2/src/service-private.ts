@@ -1,5 +1,5 @@
 require('./env');
-import { startService } from '@espresso/gw-node';
+import { createService } from '@espresso/gw-node';
 import {
   LoanDetails,
   LoanDetailsEvents,
@@ -7,22 +7,25 @@ import {
 } from '@espresso/model-loan-private';
 import { resolvers, typeDefs } from './model/private';
 
-startService({
+createService({
   enrollmentId: 'admin',
   defaultEntityName: 'private',
   defaultReducer: loanDetailsReducer,
   isPrivate: true
-}).then(({ config, getPrivateDataRepo }) => {
-  config({
-    port: 14024,
+}).then(async ({ config, getPrivateDataRepo }) => {
+  const app = await config({
     typeDefs,
     resolvers
-  })
-    .addRepository(
-      getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
-        entityName: 'loanDetails',
-        reducer: loanDetailsReducer
-      })
-    )
-    .run();
+  }).addRepository(getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
+    entityName: 'docContents',
+    reducer: loanDetailsReducer
+  })).create();
+
+  app
+    .listen({ port: 14024 })
+    .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'private data' available at ${url}`));
+}).catch(error => {
+  console.log(error);
+  console.error(error.stack);
+  process.exit(0);
 });

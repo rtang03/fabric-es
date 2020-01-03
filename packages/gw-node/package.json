@@ -6,22 +6,23 @@
   "scripts": {
     "build": "yarn run clean && tsc",
     "clean": "rimraf dist",
-    "test:unit": "jest unit.test",
-    "test:integration": "jest integration.test",
     "service-docu": "node ./dist/service-doc.js",
     "service-loan": "node ./dist/service-loan.js",
     "service-user": "node ./dist/service-user.js",
     "service-priv": "node ./dist/service-private.js",
     "start-services": "yarn build && concurrently \"npm:service-*\"",
     "start-gateway": "yarn build && node ./dist/start-gateway.js",
-    "enrollAdmin": "rimraf assets/_wallet/admin && ./node_modules/.bin/ts-node src/enrollAdmin.ts",
     "svs-admin": "nodemon --exec ts-node ./src/service-admin.ts",
     "svs-remote-data": "nodemon --exec ts-node ./src/service-remote-data.ts",
     "start-admin-gateway": "nodemon --exec ts-node src/admin-only-gateway.ts",
     "generate-types-for-admin": "graphql-codegen --config src/generated/codegen.yml",
-    "enrollCaAdmin": "rimraf assets/_wallet/ca_admin && ./node_modules/.bin/ts-node src/admin/enrollCaAdmin.ts",
+    "enrollAdmin": "rimraf assets/_wallet/admin && ./node_modules/.bin/ts-node src/__tests__/__utils__/enrollAdmin.ts",
+    "enrollCaAdmin": "rimraf assets/_wallet/ca_admin && ./node_modules/.bin/ts-node src/__tests__/__utils__/enrollCaAdmin.ts",
+    "test:unit": "jest unit.test",
+    "test:integration": "jest integration.test",
     "test-service-admin:integration": "jest basic-int.test",
-    "test-service-admin:auth:integration": "jest --forceExit --detectOpenHandles auth-int.test"
+    "test-service-admin:auth:integration": "jest --forceExit --detectOpenHandles auth-int.test",
+    "test-service-all:integration": "jest --forceExit --detectOpenHandles all-int.test"
   },
   "engines": {
     "node": ">=8",
