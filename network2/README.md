@@ -34,6 +34,11 @@ The network is started.
 ## Install and instaniate chaincode
 
 ```bash
+# Note: Yarn install is required for the FIRST TIME only
+cd ../packages/chaincode
+yarn install
+cd ../../network2
+
 ./installcc.sh
 ```
 
