@@ -156,7 +156,7 @@ services:
             - CORE_PEER_ID=peer0.org2.example.com
             - CORE_PEER_ADDRESS=peer0.org2.example.com:9051
             - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
-            - CORE_PEER_LOCALMSPID=org2MSP
+            - CORE_PEER_LOCALMSPID=Org2MSP
             - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2.example.com/peer0/msp
             - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org2.example.com/peer0/tls-msp/signcerts/cert.pem
             - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org2.example.com/peer0/tls-msp/keystore/key.pem
@@ -182,7 +182,7 @@ services:
             - CORE_PEER_ID=peer1.org2.example.com
             - CORE_PEER_ADDRESS=peer1.org2.example.com:10051
             - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
-            - CORE_PEER_LOCALMSPID=org2MSP
+            - CORE_PEER_LOCALMSPID=Org2MSP
             - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2.example.com/peer1/msp
             - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org2.example.com/peer1/tls-msp/signcerts/cert.pem
             - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org2.example.com/peer1/tls-msp/keystore/key.pem
@@ -399,7 +399,7 @@ services:
             - HYPERLEDGER_VOL=/tmp/hyperledger
             - CORE_PEER_ID=cli.org2.example.com
             - CORE_PEER_ADDRESS=peer0.org2.example.com:9051
-            - CORE_PEER_LOCALMSPID=org2MSP
+            - CORE_PEER_LOCALMSPID=Org2MSP
             - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org2.example.com/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
             - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2.example.com/peer0/msp
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org2.example.com

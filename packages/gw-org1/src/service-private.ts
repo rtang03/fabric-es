@@ -23,7 +23,7 @@ createService({
 
   app
     .listen({ port: 14014 })
-    .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'private data *' available at ${url}`));
+    .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'private data' available at ${url}`));
 }).catch(error => {
   console.log(error);
   console.error(error.stack);

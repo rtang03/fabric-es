@@ -40,8 +40,8 @@ const dbConnection = createDbConnection({
   host: 'localhost',
   port: 5432,
   username: 'postgres',
-  password: 'postgres',
-  database: 'testgwnode',
+  password: 'docker',
+  database: 'gw-org1',
   logging: false,
   synchronize: true,
   dropSchema: true
@@ -52,8 +52,9 @@ let federatedAdminServer: ApolloServer;
 let app: Express;
 let accessToken: string;
 let user_id: string;
+const authPort = process.env.OAUTH_SERVER_PORT || 3300;
 const port = 15000;
-const authUri = 'http://localhost:3300/graphql';
+const authUri = `http://localhost:${authPort}/graphql`;
 const headers = { 'content-type': 'application/json' };
 const username = `tester${Math.floor(Math.random() * 10000)}`;
 const email = `${username}@example.com`;
@@ -85,7 +86,7 @@ beforeAll(async () => {
   // step 3: start authentication server (expressjs)
   const auth = await createAuthServer({ dbConnection });
   authServer = http.createServer(auth);
-  authServer.listen(3300);
+  authServer.listen(authPort);
 });
 
 afterAll(async () => {

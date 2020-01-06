@@ -23,7 +23,7 @@ createService({
 
   app
     .listen({ port: 14011 })
-    .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'user*****' available at ${url}`));
+    .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'user' available at ${url}`));
 }).catch(error => {
   console.log(error);
   console.error(error.stack);

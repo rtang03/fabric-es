@@ -1,5 +1,5 @@
 require('./env');
-import { startService } from '@espresso/gw-node';
+import { createService } from '@espresso/gw-node';
 import {
   User,
   UserEvents,
@@ -8,17 +8,24 @@ import {
   userTypeDefs
 } from '@espresso/model-common';
 
-startService({
+createService({
   enrollmentId: 'admin',
   defaultEntityName: 'user',
   defaultReducer: userReducer
-}).then(({ config, getRepository }) => {
-  config({
-    port: 14021,
+}).then(async ({ config, getRepository }) => {
+  const app = await config({
     typeDefs: userTypeDefs,
     resolvers: userResolvers
   }).addRepository(getRepository<User, UserEvents>({
     entityName: 'user',
     reducer: userReducer
-  })).run();
+  })).create();
+
+  app
+    .listen({ port: 14021 })
+    .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'user' available at ${url}`));
+}).catch(error => {
+  console.log(error);
+  console.error(error.stack);
+  process.exit(0);
 });
