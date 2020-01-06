@@ -2,25 +2,25 @@
 . `pwd`/common.sh
 
 # {{orgs.orderer.name}}
-mkdir -p ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/admincerts
-mkdir -p ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/cacerts
-mkdir -p ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/tlscacerts
-mkdir -p ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/users
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/admincerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/cacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/tlscacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/users
 
-cp  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/{{orgs.orderer.orderers.endpoints.0.-}}/msp/admincerts/{{orgs.orderer.domain}}-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/admincerts
-cp  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/{{orgs.orderer.orderers.endpoints.0.-}}/assets/ca/{{orgs.orderer.domain}}-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/cacerts
-cp  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/{{orgs.orderer.orderers.endpoints.0.-}}/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/tlscacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/{{orgs.orderer.orderers.endpoints.0.-}}/msp/admincerts/{{orgs.orderer.domain}}-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/admincerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/{{orgs.orderer.orderers.endpoints.0.-}}/assets/ca/{{orgs.orderer.domain}}-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/cacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/{{orgs.orderer.orderers.endpoints.0.-}}/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/msp/tlscacerts
 
 {{#orgs.peer}}
 # {{name}}
-mkdir -p ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/admincerts
-mkdir -p ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/cacerts
-mkdir -p ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/tlscacerts
-mkdir -p ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/users
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/admincerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/cacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/tlscacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/users
 
-cp  ${_CRYPTO_CONFIG_DIR}/{{domain}}/{{peers.endpoints.0.-}}/msp/admincerts/{{domain}}-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/admincerts
-cp  ${_CRYPTO_CONFIG_DIR}/{{domain}}/{{peers.endpoints.0.-}}/assets/ca/{{domain}}-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/cacerts
-cp  ${_CRYPTO_CONFIG_DIR}/{{domain}}/{{peers.endpoints.0.-}}/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/tlscacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/{{domain}}/{{peers.endpoints.0.-}}/msp/admincerts/{{domain}}-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/admincerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/{{domain}}/{{peers.endpoints.0.-}}/assets/ca/{{domain}}-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/cacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/{{domain}}/{{peers.endpoints.0.-}}/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{domain}}/msp/tlscacerts
 
 {{/orgs.peer}}
 
@@ -30,6 +30,6 @@ ${_FABRIC_DIR}/../bin/configtxgen -profile OrgsOrdererGenesis -outputBlock genes
 ${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputCreateChannelTx channel.tx -channelID {{network.peer-channels.0}}
 
 {{#orgs.orderer.orderers.endpoints}}
-cp genesis.block    ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/{{-}}
+sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/{{orgs.orderer.domain}}/{{-}}
 {{/orgs.orderer.orderers.endpoints}}
-mv channel.tx       ${_CRYPTO_CONFIG_DIR}/{{orgs.peer.0.domain}}/{{orgs.peer.0.peers.endpoints.0.-}}/assets
+sudo mv channel.tx       ${_CRYPTO_CONFIG_DIR}/{{orgs.peer.0.domain}}/{{orgs.peer.0.peers.endpoints.0.-}}/assets
