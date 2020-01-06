@@ -1,5 +1,5 @@
 require('./env');
-import { startService } from '@espresso/gw-node';
+import { createService } from '@espresso/gw-node';
 import {
   Loan,
   LoanEvents,
@@ -8,17 +8,24 @@ import {
   loanTypeDefs
 } from '@espresso/model-loan';
 
-startService({
+createService({
   enrollmentId: 'admin',
   defaultEntityName: 'loan',
   defaultReducer: loanReducer
-}).then(({ config, getRepository }) => {
-  config({
-    port: 14022,
+}).then(async ({ config, getRepository }) => {
+  const app = await config({
     typeDefs: loanTypeDefs,
     resolvers: loanResolvers
   }).addRepository(getRepository<Loan, LoanEvents>({
     entityName: 'loan',
     reducer: loanReducer
-  })).run();
+  })).create();
+
+  app
+    .listen({ port: 14022 })
+    .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'loan' available at ${url}`));
+}).catch(error => {
+  console.log(error);
+  console.error(error.stack);
+  process.exit(0);
 });

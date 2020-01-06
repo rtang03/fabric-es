@@ -53,19 +53,19 @@ Organizations:
 
    - &Org2MSP
       Name: Org2MSP
-      ID: org2MSP
+      ID: Org2MSP
       MSPDir: ../artifacts/org2.example.com/msp
 
       Policies:
          Readers:
             Type: Signature
-            Rule: "OR('org2MSP.member')"
+            Rule: "OR('Org2MSP.member')"
          Writers:
             Type: Signature
-            Rule: "OR('org2MSP.member')"
+            Rule: "OR('Org2MSP.member')"
          Admins:
             Type: Signature
-            Rule: "OR('org2MSP.admin')"
+            Rule: "OR('Org2MSP.admin')"
 
       OrdererEndpoints:
          - orderer1.example.com:7050
