@@ -3,7 +3,7 @@ import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
 import Cookie from 'cookie';
 import express, { Express } from 'express';
-import morgan from 'morgan';
+// import morgan from 'morgan';
 import fetch from 'node-fetch';
 
 class AuthenticatedDataSource extends RemoteGraphQLDataSource {
@@ -94,7 +94,7 @@ export const createGateway: (option: {
   const app = express();
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
-  app.use(morgan('tiny'));
+  // app.use(morgan('tiny'));
   if (useCors)
     server.applyMiddleware({
       app,
