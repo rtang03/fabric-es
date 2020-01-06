@@ -154,3 +154,16 @@ services:
             - 5432:5432
         networks:
             - {{network.name}}
+
+    cadvisor:
+        container_name: cadvisor
+        image: google/cadvisor
+        restart: always
+        volumes:
+            - /:/rootfs:ro
+            - /var/run:/var/run:ro
+            - /sys:/sys:ro
+            - /var/lib/docker/:/var/lib/docker:ro
+            - /dev/disk/:/dev/disk:ro
+        ports:
+            - 8080:8080

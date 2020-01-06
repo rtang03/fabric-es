@@ -1,5 +1,3 @@
-#!/bin/sh
-
 # Import common.sh
 cd scripts
 . common.sh
