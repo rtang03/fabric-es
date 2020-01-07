@@ -9,9 +9,10 @@ import {
 } from '@espresso/model-loan';
 
 createService({
-  enrollmentId: 'admin',
+  enrollmentId: process.env.ENROLLMENT_ID_ADMIN,
   defaultEntityName: 'loan',
-  defaultReducer: loanReducer
+  defaultReducer: loanReducer,
+  collection: process.env.COLLECTION
 }).then(async ({ config, getRepository }) => {
   const app = await config({
     typeDefs: loanTypeDefs,
@@ -22,7 +23,7 @@ createService({
   })).create();
 
   app
-    .listen({ port: 14012 })
+    .listen({ port: process.env.SERVICE_LOAN_PORT })
     .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'loan' available at ${url}`));
 }).catch(error => {
   console.log(error);

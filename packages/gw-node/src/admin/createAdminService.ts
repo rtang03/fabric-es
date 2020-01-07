@@ -4,15 +4,23 @@ import { FileSystemWallet } from 'fabric-network';
 import { createResolvers } from './createResolvers';
 import { typeDefs } from './typeDefs';
 
-export const createAdminService = async () => {
-  console.log('♨️♨️ Bootstraping Peer Node API  ♨️♨️');
+export const createAdminService = async ({
+  channelName, peerName, connectionProfile, fabricNetwork, walletPath
+}: {
+  channelName: string;
+  peerName: string;
+  connectionProfile: string;
+  fabricNetwork: string;
+  walletPath: string;
+}) => {
+  console.log('♨️♨️  Bootstraping administration micro-service  ♨️♨️');
   const resolvers = await createResolvers({
-    channelName: process.env.CHANNEL_NAME,
-    peerName: process.env.PEER_NAME,
+    channelName,
+    peerName,
     context: {
-      connectionProfile: process.env.CONNECTION_PROFILE,
-      fabricNetwork: process.env.NETWORK_LOCATION,
-      wallet: new FileSystemWallet(process.env.WALLET)
+      connectionProfile,
+      fabricNetwork,
+      wallet: new FileSystemWallet(walletPath)
     }
   });
   return new ApolloServer({

@@ -8,10 +8,12 @@ import {
   documentTypeDefs
 } from '@espresso/model-loan';
 
+console.log('HO', process.env.ENROLLMENT_ID_ADMIN);
 createService({
-  enrollmentId: 'admin',
+  enrollmentId: process.env.ENROLLMENT_ID_ADMIN,
   defaultEntityName: 'document',
-  defaultReducer: documentReducer
+  defaultReducer: documentReducer,
+  collection: process.env.COLLECTION
 }).then(async ({ config, getRepository }) => {
   const app = await config({
     typeDefs: documentTypeDefs,
@@ -22,7 +24,7 @@ createService({
   })).create();
 
   app
-    .listen({ port: 14013 })
+    .listen({ port: process.env.SERVICE_DOCUMENT_PORT })
     .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'document' available at ${url}`));
 }).catch(error => {
   console.log(error);

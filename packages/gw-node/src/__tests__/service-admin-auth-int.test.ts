@@ -70,7 +70,13 @@ type QueryResponse = {
 
 beforeAll(async () => {
   // step 1: start admin service (federated service)
-  federatedAdminServer = await createAdminService();
+  federatedAdminServer = await createAdminService({
+    channelName: process.env.CHANNEL_NAME,
+    peerName: process.env.PEER_NAME,
+    connectionProfile: process.env.CONNECTION_PROFILE,
+    fabricNetwork: process.env.NETWORK_LOCATION,
+    walletPath: process.env.WALLET
+  });
   await federatedAdminServer.listen({ port });
 
   // step 2: prepare federated gateway

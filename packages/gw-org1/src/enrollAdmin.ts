@@ -2,6 +2,7 @@ require('./env');
 import { enrollAdmin } from '@espresso/admin-tool';
 import { FileSystemWallet } from 'fabric-network';
 
+console.log('HA', process.env.ORG_ADMIN_ID);
 enrollAdmin(
   process.env.ORG_ADMIN_ID,
   process.env.ORG_ADMIN_SECRET,
