@@ -26,17 +26,16 @@ export const createGateway: (option: {
   serviceList = [
     {
       name: 'admin',
-      url: process.env.ADMINISTRATOR_URI || 'http://localhost:15000/graphql'
+      url: 'http://localhost:15000/graphql'
     },
     {
       name: 'remote-data',
       url: 'http://localhost:16000/graphql'
     }
   ],
-  authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
-    'http://localhost:3300/oauth'}/authenticate`,
+  authenticationCheck = 'http://localhost:3300/oauth/authenticate',
   useCors = false,
-  corsOrigin = process.env.CORS || 'http://localhost:3000',
+  corsOrigin = 'http://localhost:3000',
   debug = false
 }) => {
   const gateway = new ApolloGateway({

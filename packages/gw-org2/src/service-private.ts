@@ -8,9 +8,10 @@ import {
 import { resolvers, typeDefs } from './model/private';
 
 createService({
-  enrollmentId: 'admin',
+  enrollmentId: process.env.ENROLLMENT_ID_ADMIN,
   defaultEntityName: 'private',
   defaultReducer: loanDetailsReducer,
+  collection: process.env.COLLECTION,
   isPrivate: true
 }).then(async ({ config, getPrivateDataRepo }) => {
   const app = await config({

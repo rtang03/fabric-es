@@ -2,9 +2,9 @@ require('./env');
 import { createRemoteService } from '@espresso/gw-node';
 import { resolvers, typeDefs } from './remote-data';
 
-const port = 14015;
-const name = 'LoanDetails';
-const uri = 'http://localhost:4002/graphql';
+const port = process.env.REMOTE_LOAN_DETAILS_PORT;
+const name = process.env.REMOTE_LOAN_DETAILS_NAME;
+const uri = process.env.REMOTE_LOAN_DETAILS_URI;
 
 (async () => {
   const server = await createRemoteService({

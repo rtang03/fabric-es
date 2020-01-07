@@ -434,7 +434,7 @@ services:
         environment:
             - POSTGRES_PASSWORD=docker
             - POSTGRES_USER=postgres
-            - POSTGRES_DB=account01
+            - POSTGRES_DB=postgres
         volumes:
             - ../artifacts/postgres01:/var/lib/postgresql/data
         command: postgres

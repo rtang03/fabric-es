@@ -9,9 +9,10 @@ import {
 } from './model/public/document';
 
 createService({
-  enrollmentId: 'admin',
+  enrollmentId: process.env.ENROLLMENT_ID_ADMIN,
   defaultEntityName: 'document',
-  defaultReducer: documentReducer
+  defaultReducer: documentReducer,
+  collection: process.env.COLLECTION
 }).then(async ({ config, getRepository }) => {
   const app = await config({
     typeDefs: documentTypeDefs,
