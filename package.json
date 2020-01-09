@@ -18,7 +18,8 @@
     "packages/gw-org1",
     "packages/gw-org2",
     "packages/gw-org3",
-    "packages/multi-org-tests"
+    "packages/multi-org-tests",
+    "packages/operator"
   ],
   "private": true,
   "devDependencies": {

@@ -71,3 +71,5 @@ wallet/
 .npmrc
 
 .DS_Store
+
+docs
