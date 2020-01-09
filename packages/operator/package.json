@@ -1,0 +1,48 @@
+{
+  "name": "@espresso/operator",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "yarn run clean && tsc",
+    "test:ca-identity": "jest ca.identity.unit.test",
+    "prepare-asset": "rimraf assets && mkdir -p ./assets/client-certs/hfc-kvs/org1",
+    "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
+    "scenario": "npm run prepare-asset && ts-node src/scenario/deploy2Orgs2Peers.ts",
+    "clean": "rimraf dist"
+  },
+  "private": true,
+  "engineStrict": true,
+  "dependencies": {
+    "dotenv": "^8.1.0",
+    "fabric-client": "^1.4.4",
+    "fabric-contract-api": "^1.4.4",
+    "fabric-network": "^1.4.4",
+    "js-yaml": "^3.13.1",
+    "lodash": "^4.17.15",
+    "prettyjson": "^1.2.1",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/bytebuffer": "^5.0.40",
+    "@types/dotenv": "^6.1.1",
+    "@types/jest": "^24.0.18",
+    "@types/js-yaml": "^3.12.1",
+    "@types/lodash": "^4.14.138",
+    "@types/node": "^8.10.59",
+    "child-process-promise": "^2.2.1",
+    "execa": "3.4.0",
+    "jest": "^24.9.0",
+    "listr": "^0.14.3",
+    "prettier": "^1.19.1",
+    "rimraf": "^3.0.0",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.20.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typedoc": "^0.15.6",
+    "typedoc-plugin-markdown": "^2.2.16",
+    "typescript": "^3.7.2"
+  }
+}

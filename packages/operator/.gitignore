@@ -55,21 +55,16 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-packages/authentication/.env.test
+.env
 
 # next.js build output
 .next
 
-.idea/
+.idea
 
-hosts/
+dist
 
 channel-config/
 client-certs/
-wallet/
-
-.npmrc
-
-.DS_Store
-
-docs
+wallet
+assets

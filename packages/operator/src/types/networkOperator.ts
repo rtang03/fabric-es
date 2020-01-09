@@ -1,0 +1,70 @@
+import {
+  Block,
+  BlockchainInfo,
+  BroadcastResponse,
+  ChannelPeer,
+  ChannelQueryResponse,
+  CollectionQueryResponse,
+  ProposalErrorResponse,
+  ProposalResponse,
+  ProposalResponseObject
+} from 'fabric-client';
+
+export interface Queries {
+  getChannels: (peerName: string) => Promise<ChannelQueryResponse>;
+  getBlockByNumber: (blockNumber: number) => Promise<Block>;
+  getChainInfo: () => Promise<BlockchainInfo>;
+  getInstalledChaincodes: () => Promise<any>;
+  getInstantiatedChaincodes: () => Promise<any>;
+  getInstalledCCVersion: (chaincodeId: string) => Promise<string>;
+  getMspid: () => Promise<string>;
+  getTransactionByID: (txId: string) => Promise<any>;
+  getCollectionsConfig: (request: {
+    chaincodeId: string;
+    target: string;
+  }) => Promise<CollectionQueryResponse[]>;
+  getChannelPeers: () => Promise<ChannelPeer[]>;
+}
+
+export interface NetworkOperator {
+  createChannel: (option: {
+    channelTxPath: string;
+  }) => Promise<BroadcastResponse>;
+  getQueries: (option: { peerName: string }) => Promise<Queries>;
+  identityService: (option: {
+    caAdmin: string;
+    asLocalhost: boolean;
+  }) => Promise<{
+    create: (request) => Promise<any>;
+    getAll: () => Promise<any>;
+    getByEnrollmentId: (enrollmentId: string) => Promise<any>;
+  }>;
+  install: (option: {
+    chaincodeId: string;
+    chaincodeVersion: string;
+    chaincodePath: string;
+    timeout?: number;
+  }) => Promise<ProposalResponseObject>;
+  instantiate: (option: {
+    chaincodeId: string;
+    chaincodeVersion: string;
+    fcn: string;
+    args: string[];
+    upgrade: boolean;
+    endorsementPolicy: any;
+    collectionsConfig?: string;
+    timeout?: number;
+  }) => Promise<BroadcastResponse & { results: any }>;
+  joinChannel: (option: {
+    targets: string[];
+  }) => Promise<ProposalResponse[] | ProposalErrorResponse[]>;
+  registerAndEnroll: (option: {
+    identity: string;
+    enrollmentId: string;
+    enrollmentSecret: string;
+    asLocalhost?: boolean;
+  }) => Promise<BroadcastResponse>;
+  updateAnchorPeers: (option: {
+    configUpdatePath: string;
+  }) => Promise<BroadcastResponse>;
+}
