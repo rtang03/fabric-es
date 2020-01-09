@@ -86,37 +86,47 @@ let uSrvPriv: ApolloServer;
 let adminSrv: ApolloServer;
 
 beforeAll(async () => {
-  uSrvUser = await createService({ enrollmentId: 'admin', defaultEntityName: 'user', defaultReducer: userReducer })
-    .then(async ({ config, getRepository }) =>
-      config({ typeDefs: userTypeDefs, resolvers: userResolvers })
-        .addRepository(getRepository<User, UserEvents>({ entityName: 'user', reducer: userReducer }))
-        .create());
+  uSrvUser = await createService({
+    enrollmentId: 'admin', defaultEntityName: 'user', defaultReducer: userReducer, collection: process.env.COLLECTION
+  }).then(async ({ config, getRepository }) =>
+    config({ typeDefs: userTypeDefs, resolvers: userResolvers })
+      .addRepository(getRepository<User, UserEvents>({ entityName: 'user', reducer: userReducer }))
+      .create());
   await uSrvUser.listen({ port: 14051 });
 
-  uSrvLoan = await createService({ enrollmentId: 'admin', defaultEntityName: 'loan', defaultReducer: loanReducer })
-    .then(async ({ config, getRepository }) =>
-      config({ typeDefs: loanTypeDefs, resolvers: loanResolvers })
-        .addRepository(getRepository<Loan, LoanEvents>({ entityName: 'loan', reducer: loanReducer }))
-        .create());
+  uSrvLoan = await createService({
+    enrollmentId: 'admin', defaultEntityName: 'loan', defaultReducer: loanReducer, collection: process.env.COLLECTION
+  }).then(async ({ config, getRepository }) =>
+    config({ typeDefs: loanTypeDefs, resolvers: loanResolvers })
+      .addRepository(getRepository<Loan, LoanEvents>({ entityName: 'loan', reducer: loanReducer }))
+      .create());
   await uSrvLoan.listen({ port: 14052 });
 
-  uSrvDocu = await createService({ enrollmentId: 'admin', defaultEntityName: 'document', defaultReducer: documentReducer })
-    .then(async ({ config, getRepository }) =>
-      config({ typeDefs: documentTypeDefs, resolvers: documentResolvers })
-        .addRepository(getRepository<Document, DocumentEvents>({ entityName: 'document', reducer: documentReducer }))
-        .create());
+  uSrvDocu = await createService({
+    enrollmentId: 'admin', defaultEntityName: 'document', defaultReducer: documentReducer, collection: process.env.COLLECTION
+  }).then(async ({ config, getRepository }) =>
+    config({ typeDefs: documentTypeDefs, resolvers: documentResolvers })
+      .addRepository(getRepository<Document, DocumentEvents>({ entityName: 'document', reducer: documentReducer }))
+      .create());
   await uSrvDocu.listen({ port: 14053 });
 
-  uSrvPriv = await createService({ enrollmentId: 'admin', defaultEntityName: 'private', defaultReducer: docContentsReducer, isPrivate: true })
-    .then(async ({ config, getPrivateDataRepo }) =>
-      config({ typeDefs, resolvers })
-        .addRepository(getPrivateDataRepo<DocContents, DocContentsEvents>({ entityName: 'docContents', reducer: docContentsReducer }))
-        .addRepository(getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({ entityName: 'loanDetails', reducer: loanDetailsReducer }))
-        .create());
+  uSrvPriv = await createService({
+    enrollmentId: 'admin', defaultEntityName: 'private', defaultReducer: docContentsReducer, collection: process.env.COLLECTION, isPrivate: true
+  }).then(async ({ config, getPrivateDataRepo }) =>
+    config({ typeDefs, resolvers })
+      .addRepository(getPrivateDataRepo<DocContents, DocContentsEvents>({ entityName: 'docContents', reducer: docContentsReducer }))
+      .addRepository(getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({ entityName: 'loanDetails', reducer: loanDetailsReducer }))
+      .create());
   await uSrvPriv.listen({ port: 14054 });
 
   // step 1: start admin service (federated service)
-  adminSrv = await createAdminService();
+  adminSrv = await createAdminService({
+    channelName: process.env.CHANNEL_NAME,
+    peerName: process.env.PEER_NAME,
+    connectionProfile: process.env.CONNECTION_PROFILE,
+    fabricNetwork: process.env.NETWORK_LOCATION,
+    walletPath: process.env.WALLET
+  });
   await adminSrv.listen({ port: 15051 });
 
   // step 2: prepare federated gateway

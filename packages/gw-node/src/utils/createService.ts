@@ -14,11 +14,13 @@ export const createService = async ({
   enrollmentId,
   defaultEntityName,
   defaultReducer,
+  collection,
   isPrivate = false
 }: {
   enrollmentId: string;
   defaultEntityName: string;
   defaultReducer: Reducer;
+  collection: string;
   isPrivate?: boolean;
 }) => {
   const networkConfig = await getNetwork({
@@ -35,7 +37,7 @@ export const createService = async ({
     ...(networkConfig as Partial<PeerOptions>),
     defaultEntityName,
     defaultReducer,
-    collection: process.env.COLLECTION
+    collection
   });
 
   const result = isPrivate ? { getPrivateDataRepo } : { getRepository };
@@ -51,13 +53,13 @@ export const createService = async ({
       async function create(): Promise<ApolloServer> {
         if (!isPrivate) {
           console.log(
-            `♨️♨️  '${process.env.ORGNAME}' - Starting micro-service for on-chain entity '${defaultEntityName}'...`
+            `♨️♨️  Starting micro-service for on-chain entity '${defaultEntityName}'...`
           );
           await subscribeHub();
           await reconcile({ entityName: defaultEntityName, reducer: defaultReducer });
         } else
           console.log(
-            `♨️♨️  '${process.env.ORGNAME}' - Starting micro-service for off-chain private data...`
+            `♨️♨️  Starting micro-service for off-chain private data...`
           );
       
         const server = new ApolloServer({

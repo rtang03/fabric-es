@@ -131,6 +131,41 @@
                     "port": "6054",
                     "admin": "rca-org1-admin",
                     "adminpw": "rca-org1-adminPW"
+                },
+                "gw": {
+                    "host": "localhost",
+                    "port": "4001",
+                    "auth": {
+                        "host": "localhost",
+                        "port": "3311",
+                        "path": "/oauth/authenticate",
+                        "dbserver": "postgres01",
+                        "dbname": "gw-org1",
+                        "dbuser": "postgres",
+                        "password": "docker",
+                        "dbhost": "localhost",
+                        "dbport": "5432",
+                        "adminport": "15011"
+                    },
+                    "services": {
+                        "remote-loan-details": {
+                            "port": "14015",
+                            "name": "LoanDetails",
+                            "uri": "http://localhost:4002/graphql"
+                        },
+                        "private": {
+                            "port": "14014"
+                        },
+                        "user": {
+                            "port": "14011"
+                        },
+                        "loan": {
+                            "port": "14012"
+                        },
+                        "document": {
+                            "port": "14013"
+                        }
+                    }
                 }
             },
             {
@@ -162,6 +197,41 @@
                     "port": "6055",
                     "admin": "rca-org2-admin",
                     "adminpw": "rca-org2-adminPW"
+                },
+                "gw": {
+                    "host": "localhost",
+                    "port": "4002",
+                    "auth": {
+                        "host": "localhost",
+                        "port": "3321",
+                        "path": "/oauth/authenticate",
+                        "dbserver": "postgres01",
+                        "dbname": "gw-org2",
+                        "dbuser": "postgres",
+                        "password": "docker",
+                        "dbhost": "localhost",
+                        "dbport": "5432",
+                        "adminport": "15021"
+                    },
+                    "services": {
+                        "remote-doc-contents": {
+                            "port": "14025",
+                            "name": "DocContents",
+                            "uri": "http://localhost:4001/graphql"
+                        },
+                        "private": {
+                            "port": "14024"
+                        },
+                        "user": {
+                            "port": "14021"
+                        },
+                        "loan": {
+                            "port": "14022"
+                        },
+                        "document": {
+                            "port": "14023"
+                        }
+                    }
                 }
             },
             {
@@ -193,16 +263,38 @@
                     "port": "6056",
                     "admin": "rca-org3-admin",
                     "adminpw": "rca-org3-adminPW"
+                },
+                "gw": {
+                    "host": "localhost",
+                    "port": "4003",
+                    "auth": {
+                        "host": "localhost",
+                        "port": "3331",
+                        "path": "/oauth/authenticate",
+                        "dbserver": "postgres01",
+                        "dbname": "gw-org3",
+                        "dbuser": "postgres",
+                        "password": "docker",
+                        "dbhost": "localhost",
+                        "dbport": "5432",
+                        "adminport": "15031"
+                    },
+                    "services": {
+                        "private": {
+                            "port": "14034"
+                        },
+                        "user": {
+                            "port": "14031"
+                        },
+                        "loan": {
+                            "port": "14032"
+                        },
+                        "document": {
+                            "port": "14033"
+                        }
+                    }
                 }
             }
         ]
-    },
-    "app": {
-        "postgres": {
-            "name": "postgres01",
-            "dbname": "account01",
-            "user": "postgres",
-            "password": "docker"
-        }
     }
 }
