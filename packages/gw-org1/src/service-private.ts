@@ -8,9 +8,10 @@ import {
 import { resolvers, typeDefs } from './model/private';
 
 createService({
-  enrollmentId: 'admin',
+  enrollmentId: process.env.ENROLLMENT_ID_ADMIN,
   defaultEntityName: 'private',
   defaultReducer: docContentsReducer,
+  collection: process.env.COLLECTION,
   isPrivate: true
 }).then(async ({ config, getPrivateDataRepo }) => {
   const app = await config({
@@ -22,7 +23,7 @@ createService({
   })).create();
 
   app
-    .listen({ port: 14014 })
+    .listen({ port: process.env.SERVICE_PRIVATE_PORT })
     .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'private data' available at ${url}`));
 }).catch(error => {
   console.log(error);

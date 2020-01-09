@@ -9,9 +9,10 @@ import {
 } from '@espresso/model-common';
 
 createService({
-  enrollmentId: 'admin',
+  enrollmentId: process.env.ENROLLMENT_ID_ADMIN,
   defaultEntityName: 'user',
-  defaultReducer: userReducer
+  defaultReducer: userReducer,
+  collection: process.env.COLLECTION
 }).then(async ({ config, getRepository }) => {
   const app = await config({
     typeDefs: userTypeDefs,

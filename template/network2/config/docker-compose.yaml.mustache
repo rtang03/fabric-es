@@ -140,18 +140,18 @@ services:
             - ../../packages/chaincode:{{{artifacts.peers-working-dir}}}/chaincode
 
     {{/orgs.peer}}
-    {{app.postgres.name}}:
-        container_name: {{app.postgres.name}}
+    {{orgs.peer.0.gw.auth.dbserver}}:
+        container_name: {{orgs.peer.0.gw.auth.dbserver}}
         image: postgres
         environment:
-            - POSTGRES_PASSWORD={{app.postgres.password}}
-            - POSTGRES_USER={{app.postgres.user}}
-            - POSTGRES_DB={{app.postgres.dbname}}
+            - POSTGRES_PASSWORD={{orgs.peer.0.gw.auth.password}}
+            - POSTGRES_USER={{orgs.peer.0.gw.auth.dbuser}}
+            - POSTGRES_DB={{orgs.peer.0.gw.auth.dbuser}}
         volumes:
-            - {{{artifacts.local}}}/{{app.postgres.name}}:/var/lib/postgresql/data
+            - {{{artifacts.local}}}/{{orgs.peer.0.gw.auth.dbserver}}:/var/lib/postgresql/data
         command: postgres
         ports:
-            - 5432:5432
+            - {{orgs.peer.0.gw.auth.dbport}}:{{orgs.peer.0.gw.auth.dbport}}
         networks:
             - {{network.name}}
 
