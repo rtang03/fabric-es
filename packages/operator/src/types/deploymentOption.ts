@@ -1,4 +1,4 @@
 export interface DeploymentOption {
-  renderer?: any;
+  verbose?: boolean;
   collapse?: boolean;
 }

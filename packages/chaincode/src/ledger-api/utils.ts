@@ -11,21 +11,23 @@ export const serialize = object => Buffer.from(JSON.stringify(object));
 export const toRecord = (commit: Partial<Commit>) =>
   assign({}, { [commit.commitId]: commit });
 
+export const createCommitId = () =>
+  `${new Date(Date.now()).toISOString().replace(/[^0-9]/g, '')}`;
+
 export const createInstance = ({
   id,
   entityName,
   version,
-  events
+  events,
+  commitId
 }: {
   id: string;
   entityName: string;
   version: string;
   events: any[];
+  commitId: string;
 }) => {
   const now = Date.now();
-  const date = new Date(now).toISOString().replace(/[^0-9]/g, '');
-  // NOTE: THIS REQUIRE VISIT
-  const commitId = `${date}`.slice(0, -2);
   const committedAt = now.toString();
 
   return new Commit({

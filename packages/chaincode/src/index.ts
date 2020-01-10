@@ -1,6 +1,6 @@
 import { EventStore } from './contract/eventstore';
 import { PrivateData } from './contract/privateData';
-import { BaseEvent, Commit, createInstance } from './ledger-api';
+import { BaseEvent, Commit, createCommitId, createInstance } from './ledger-api';
 import { CONTEXT, NAMESPACE, RESOURCE } from './ngac/types';
 
 export {

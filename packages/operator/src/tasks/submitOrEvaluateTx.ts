@@ -13,6 +13,7 @@ import {
   MISSING_FCN,
   MISSING_WALLET_LABEL
 } from '../types';
+import { createCommitId } from '../utils';
 
 export const submitOrEvaluateTx = (
   option: CreateNetworkOperatorOption
@@ -72,11 +73,14 @@ export const submitOrEvaluateTx = (
           logger.error(util.format('evaluate tx error in %s: %j', fcn, error));
           return { error };
         }),
-    submit: () =>
-      network
+    submit: () => {
+      const input_args =
+        fcn === 'createCommit' ? [...args, createCommitId()] : args;
+
+      return network
         .getContract(chaincodeId)
         .createTransaction(fcn)
-        .submit(...args)
+        .submit(...input_args)
         .then<Record<string, Commit>>((res: any) => {
           logger.info(util.format('successfully submit tx: %s', fcn));
           return JSON.parse(Buffer.from(JSON.parse(res)).toString());
@@ -84,6 +88,7 @@ export const submitOrEvaluateTx = (
         .catch(error => {
           logger.error(util.format('submit tx error in %s: %j', fcn, error));
           return { error };
-        })
+        });
+    }
   };
 };

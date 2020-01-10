@@ -12,11 +12,13 @@ export const install = (option: CreateNetworkOperatorOption) => async ({
   chaincodeId,
   chaincodeVersion,
   chaincodePath,
+  targets,
   timeout = 60000
 }: {
   chaincodeId: string;
   chaincodeVersion: string;
   chaincodePath: string;
+  targets: string[];
   timeout?: number;
 }) => {
   if (!chaincodeId) throw new Error(MISSING_CHAINCODE_ID);
@@ -40,7 +42,7 @@ export const install = (option: CreateNetworkOperatorOption) => async ({
   channel.addOrderer(orderer);
 
   // TODO: In V2, need not install every peers individually
-  const targets = client.getPeersForOrg().map(p => p.getName());
+  // const targets = client.getPeersForOrg().map(p => p.getName());
   const txId = client.newTransactionID(true);
 
   logger.info(

@@ -1,7 +1,8 @@
 import * as Client from 'fabric-client';
 import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
-import { Commit, PeerOptions } from '../types';
+import { createCommitId } from '../peer/utils';
+import { Commit } from '../types';
 import { getContract } from './contract';
 
 const logger = Client.getLogger('SUBMIT');
@@ -12,11 +13,14 @@ export const submit: (
   { network }: { network: Network }
 ) => Promise<
   Record<string, Commit> & { error?: any; status?: string; message?: string }
-> = async (fcn, args, { network }) =>
-  await getContract(network).then(({ contract }) =>
+> = async (fcn, args, { network }) => {
+  const input_args =
+    fcn === 'createCommit' ? [...args, createCommitId()] : args;
+
+  return getContract(network).then(({ contract }) =>
     contract
       .createTransaction(fcn)
-      .submit(...args)
+      .submit(...input_args)
       .then<Record<string, Commit>>((res: any) =>
         JSON.parse(Buffer.from(JSON.parse(res)).toString())
       )
@@ -26,6 +30,7 @@ export const submit: (
         return { error };
       })
   );
+};
 
 export const submit$: (
   fcn: string,
