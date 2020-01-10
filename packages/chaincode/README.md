@@ -59,3 +59,14 @@ docker rmi $(docker images -q "dev-*")
 docker-compose up -d
 ./monitordocker.sh
 ```
+
+_Important Note:_   
+See _createInstance_  `src/ledger-api/utils.ts`, the commitId is created 
+based on timestamp in ms. While the chaincodes will invoke at different times, 
+the same transaction in different chaincode will result in different commitId. 
+This introduces error of repeated createCommit, and result in error world state.
+As a workaround, truncate the timestamp by 2 digits, which add extra time tolerance
+to handle the different chaincode invocation time. But this imposes new constraint
+that same entityId cannot be invoked at > 10 TPS. 
+
+It should revisit this arrangement, when running performance test on cloud.  

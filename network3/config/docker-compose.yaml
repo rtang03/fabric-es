@@ -112,6 +112,7 @@ services:
             - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org1.example.com:8051
             - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.example.com:7051
             - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+            - CORE_VM_DOCKER_ATTACHSTDOUT=true
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org1MSP/peer0.org1.example.com
         volumes:
             - /var/run:/host/var/run
@@ -138,6 +139,7 @@ services:
             - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.example.com:7051
             - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org1.example.com:8051
             - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+            - CORE_VM_DOCKER_ATTACHSTDOUT=true
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org1MSP/peer1.org1.example.com
         volumes:
             - /var/run:/host/var/run
@@ -164,6 +166,7 @@ services:
             - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org2.example.com:10051
             - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.example.com:9051
             - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+            - CORE_VM_DOCKER_ATTACHSTDOUT=true
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org2MSP/peer0.org2.example.com
         volumes:
             - /var/run:/host/var/run
@@ -190,6 +193,7 @@ services:
             - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.example.com:9051
             - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org2.example.com:10051
             - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:10052
+            - CORE_VM_DOCKER_ATTACHSTDOUT=true
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org2MSP/peer1.org2.example.com
         volumes:
             - /var/run:/host/var/run

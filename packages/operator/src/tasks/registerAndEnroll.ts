@@ -23,43 +23,34 @@ export const registerAndEnroll = (
   identity,
   enrollmentId,
   enrollmentSecret,
-  asLocalhost = true
+  asLocalhost = true,
+  eventHandlerStrategies = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
+  queryHandlerStrategies = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE
 }: {
   identity: string;
   enrollmentId: string;
   enrollmentSecret: string;
   asLocalhost?: boolean;
-}): Promise<BroadcastResponse> => {
+  eventHandlerStrategies?: any;
+  queryHandlerStrategies?: any;
+}): Promise<{
+  disconnect: () => void;
+  registerAndEnroll: () => Promise<BroadcastResponse>;
+}> => {
   if (!identity) throw new Error(MISSING_WALLET_LABEL);
   if (!enrollmentId) throw new Error(MISSING_ENROLLMENTID);
   if (!enrollmentSecret) throw new Error(MISSING_ENROLLMENTSECRET);
 
   const logger = Client.getLogger('Register and enroll user');
   const { fabricNetwork, connectionProfile, wallet } = option;
-
-  // TODO: in v2, wallet.exists is deprecated, and replaced by wallet.get()
-  const adminExist = await wallet.exists(identity);
-  if (!adminExist) throw new Error(ORG_ADMIN_NOT_EXIST);
-
-  const enrollmentIdExist = await wallet.exists(enrollmentId);
-  if (!enrollmentIdExist)
-    return {
-      status: SUCCESS,
-      info: IDENTITY_ALREADY_EXIST
-    };
-
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
   const mspId = client.getMspid();
   const gateway = new Gateway();
   await gateway.connect(connectionProfile, {
     identity,
     wallet,
-    eventHandlerOptions: {
-      strategy: DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX
-    },
-    queryHandlerOptions: {
-      strategy: DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE
-    },
+    eventHandlerOptions: { strategy: eventHandlerStrategies },
+    queryHandlerOptions: { strategy: queryHandlerStrategies },
     discovery: { asLocalhost, enabled: true }
   });
 
@@ -69,40 +60,57 @@ export const registerAndEnroll = (
 
   const caService = gateway.getClient().getCertificateAuthority();
 
-  const register = await caService.register(
-    {
-      enrollmentID: enrollmentId,
-      enrollmentSecret,
-      affiliation: '',
-      maxEnrollments: -1,
-      role: 'user'
-    },
-    gateway.getCurrentIdentity()
-  );
-
-  logger.info(util.format('Register user: %s at %s', enrollmentId, mspId));
-  logger.debug(util.format('register ca user: %j at %s', register, mspId));
-
-  const { key, certificate } = await caService.enroll({
-    enrollmentID: enrollmentId,
-    enrollmentSecret
-  });
-
-  // TODO: In v2, wallet.import() is deprecated, and replaced by wallet.put()
-  const enroll = await wallet.import(
-    enrollmentId,
-    X509WalletMixin.createIdentity(
-      client.getMspid(),
-      certificate,
-      key.toBytes()
-    )
-  );
-
-  logger.info(util.format('Enroll user: %s at %s', enrollmentId, mspId));
-  logger.debug(util.format('enroll ca user at %s: %j ', mspId, enroll));
-
+  // todo: future usage, it may (a) enroll user, w/o register, (b) or register only
   return {
-    status: SUCCESS,
-    info: `Successfully register & enroll ${enrollmentId}; and import into the wallet`
+    disconnect: () => gateway.disconnect(),
+    registerAndEnroll: async () => {
+      // TODO: in v2, wallet.exists is deprecated, and replaced by wallet.get()
+      const adminExist = await wallet.exists(identity);
+      if (!adminExist) throw new Error(ORG_ADMIN_NOT_EXIST);
+
+      const enrollmentIdExist = await wallet.exists(enrollmentId);
+      if (!enrollmentIdExist)
+        return {
+          status: SUCCESS,
+          info: IDENTITY_ALREADY_EXIST
+        };
+
+      const register = await caService.register(
+        {
+          enrollmentID: enrollmentId,
+          enrollmentSecret,
+          affiliation: '',
+          maxEnrollments: -1,
+          role: 'user'
+        },
+        gateway.getCurrentIdentity()
+      );
+
+      logger.info(util.format('Register user: %s at %s', enrollmentId, mspId));
+      logger.debug(util.format('register ca user: %j at %s', register, mspId));
+
+      const { key, certificate } = await caService.enroll({
+        enrollmentID: enrollmentId,
+        enrollmentSecret
+      });
+
+      // TODO: In v2, wallet.import() is deprecated, and replaced by wallet.put()
+      const enroll = await wallet.import(
+        enrollmentId,
+        X509WalletMixin.createIdentity(
+          client.getMspid(),
+          certificate,
+          key.toBytes()
+        )
+      );
+
+      logger.info(util.format('Enroll user: %s at %s', enrollmentId, mspId));
+      logger.debug(util.format('enroll ca user at %s: %j ', mspId, enroll));
+
+      return {
+        status: SUCCESS,
+        info: `Successfully register & enroll ${enrollmentId}; and import into the wallet`
+      };
+    }
   };
 };
