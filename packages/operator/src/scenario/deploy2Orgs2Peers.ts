@@ -5,19 +5,13 @@ import { FileSystemWallet } from 'fabric-network';
 import Listr from 'listr';
 import { createNetworkOperator } from '../createNetworkOperator';
 import { enrollAdmin } from '../enrollAdmin';
-import { CHANNEL_ALREADY_EXIST } from '../types';
-import { logger } from '../utils';
-
-interface DeploymentOption {
-  renderer?: any;
-  collapse?: boolean;
-}
-
-const isProposalResponse = (input: any): input is ProposalResponse =>
-  (input as ProposalResponse).endorsement !== undefined;
-
-const isProposalErrorResponse = (input: any): input is ProposalErrorResponse =>
-  (input as ProposalErrorResponse).message !== undefined;
+import { CHANNEL_ALREADY_EXIST, DeploymentOption } from '../types';
+import {
+  isCommitRecord,
+  isProposalErrorResponse,
+  isProposalResponse,
+  logger
+} from '../utils';
 
 const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
   option = { renderer: 'verbose', collapse: false }
@@ -379,6 +373,44 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
               }
             }
           })
+      },
+      {
+        title: '[Org1MSP] Query result',
+        task: (ctx, task) =>
+          org1Operator
+            .submitOrEvaluateTx({
+              asLocalhost: true,
+              chaincodeId: 'eventstore',
+              fcn: 'queryByEntityName',
+              args: ['dev_entity'],
+              identity: 'admin-org1.example.com'
+            })
+            .then(async ({ disconnect, evaluate }) => {
+              const result = await evaluate();
+              if (isCommitRecord(result))
+                task.title = '[Org1MSP] Query result is validated';
+              else task.title = '[Org1MSP] Query result validation fails';
+              disconnect();
+            })
+      },
+      {
+        title: '[Org2MSP] Query result',
+        task: (ctx, task) =>
+          org2Operator
+            .submitOrEvaluateTx({
+              asLocalhost: true,
+              chaincodeId: 'eventstore',
+              fcn: 'queryByEntityName',
+              args: ['dev_entity'],
+              identity: 'admin-org2.example.com'
+            })
+            .then(async ({ disconnect, evaluate }) => {
+              const result = await evaluate();
+              if (isCommitRecord(result))
+                task.title = '[Org2MSP] Query result is validated';
+              else task.title = '[Org2MSP] Query result validation fails';
+              disconnect();
+            })
       }
     ],
     // @ts-ignore

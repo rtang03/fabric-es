@@ -130,15 +130,6 @@ export class EventStore extends Contract {
     if (!id || !entityName || !eventStr || version === undefined)
       throw new Error('createCommit problem: null argument');
     const logger = context.logging.getLogger('createCommit');
-    // if (version === '0') {
-    //   const result = await ctx.stateList.getQueryResult(
-    //     [JSON.stringify(entityName), JSON.stringify(id)],
-    //     true
-    //   );
-    //   if (!isEqual(result, {})) {
-    //     return getErrorMessage('createCommit');
-    //   }
-    // }
     const events = JSON.parse(eventStr);
     const commit = createInstance({ id, version, entityName, events });
     await context.stateList.addState(commit);

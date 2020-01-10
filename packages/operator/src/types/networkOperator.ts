@@ -9,6 +9,7 @@ import {
   ProposalResponse,
   ProposalResponseObject
 } from 'fabric-client';
+import { Commit } from '@espresso/fabric-cqrs';
 
 export interface Queries {
   getChannels: (peerName: string) => Promise<ChannelQueryResponse>;
@@ -63,7 +64,25 @@ export interface NetworkOperator {
     enrollmentId: string;
     enrollmentSecret: string;
     asLocalhost?: boolean;
-  }) => Promise<BroadcastResponse>;
+    eventHandlerStrategies?: any;
+    queryHandlerStrategies?: any;
+  }) => Promise<{
+    disconnect: () => void;
+    registerAndEnroll: () => Promise<BroadcastResponse>;
+  }>;
+  submitOrEvaluateTx: (option: {
+    identity: string;
+    chaincodeId: string;
+    fcn: string;
+    args?: string[];
+    eventHandlerStrategies?: any;
+    queryHandlerStrategies?: any;
+    asLocalhost: boolean;
+  }) => Promise<{
+    disconnect: () => void;
+    evaluate: () => Promise<Record<string, Commit> | { error: any }>;
+    submit: () => Promise<Record<string, Commit> | { error: any }>;
+  }>;
   updateAnchorPeers: (option: {
     configUpdatePath: string;
   }) => Promise<BroadcastResponse>;

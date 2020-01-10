@@ -6,3 +6,4 @@ export * from './joinChannel';
 export * from './updateAnchorPeers';
 export * from './instantiateOrUpgrade';
 export * from './install';
+export * from './submitOrEvaluateTx';

@@ -7,6 +7,7 @@ import {
   instantiateOrUpdate,
   joinChannel,
   registerAndEnroll,
+  submitOrEvaluateTx,
   updateAnchorPeers
 } from './tasks';
 import {
@@ -43,13 +44,14 @@ export const createNetworkOperator = async (
   };
 
   return {
+    createChannel: createChannel(args),
     getQueries: getQueries(args),
     identityService: identityService(args),
-    registerAndEnroll: registerAndEnroll(args),
-    createChannel: createChannel(args),
     install: install(args),
     instantiate: instantiateOrUpdate(args),
     joinChannel: joinChannel(args),
+    registerAndEnroll: registerAndEnroll(args),
+    submitOrEvaluateTx: submitOrEvaluateTx(args),
     updateAnchorPeers: updateAnchorPeers(args)
   };
 };
