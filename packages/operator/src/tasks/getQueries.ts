@@ -24,23 +24,22 @@ export const getQueries = (option: CreateNetworkOperatorOption) => async ({
   channel.addOrderer(orderer);
 
   return {
-    getBlockByNumber: async blockNumber => channel.queryBlock(blockNumber),
-    getChainInfo: async () => channel.queryInfo(peerName),
-    getChannels: async () => client.queryChannels(peerName),
-    getInstalledChaincodes: async () =>
-      client.queryInstalledChaincodes(peerName),
-    getInstantiatedChaincodes: async () =>
+    getBlockByNumber: blockNumber => channel.queryBlock(blockNumber),
+    getChainInfo: () => channel.queryInfo(peerName),
+    getChannels: () => client.queryChannels(peerName),
+    getInstalledChaincodes: () => client.queryInstalledChaincodes(peerName),
+    getInstantiatedChaincodes: () =>
       channel.queryInstantiatedChaincodes(peerName),
-    getInstalledCCVersion: async chaincodeId =>
+    getInstalledCCVersion: chaincodeId =>
       client
         .queryInstalledChaincodes(peerName)
         .then(({ chaincodes }) =>
           findLast(chaincodes, ({ name }) => name === chaincodeId)
         )
-        .then(({ version }) => version),
+        .then(result => result?.version),
     getMspid: async () => client.getMspid(),
-    getTransactionByID: async txId => channel.queryTransaction(txId),
-    getCollectionsConfig: async ({ chaincodeId, target }) =>
+    getTransactionByID: txId => channel.queryTransaction(txId),
+    getCollectionsConfig: ({ chaincodeId, target }) =>
       channel.queryCollectionsConfig({ chaincodeId, target }),
     getChannelPeers: async () => channel.getChannelPeers()
   };

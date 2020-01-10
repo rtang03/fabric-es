@@ -1,11 +1,10 @@
-import '../../env';
-
+require('../../env');
 import { ChannelEventHub } from 'fabric-client';
 import { Gateway, Network } from 'fabric-network';
 import { keys, pick, values } from 'lodash';
 import { channelEventHub, evaluate, submit } from '..';
 import { bootstrapNetwork } from '../../account';
-import { toCommit } from '../../types/commit';
+import { toCommit } from '../../types/commit'; // do not shorten it
 
 let network: Network;
 let gateway: Gateway;
@@ -150,5 +149,4 @@ describe('Eventstore Tests', () => {
       ],
       { network }
     ));
-
 });

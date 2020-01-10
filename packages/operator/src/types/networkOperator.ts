@@ -1,3 +1,4 @@
+import { Commit } from '@espresso/fabric-cqrs';
 import {
   Block,
   BlockchainInfo,
@@ -9,7 +10,6 @@ import {
   ProposalResponse,
   ProposalResponseObject
 } from 'fabric-client';
-import { Commit } from '@espresso/fabric-cqrs';
 
 export interface Queries {
   getChannels: (peerName: string) => Promise<ChannelQueryResponse>;
@@ -45,6 +45,7 @@ export interface NetworkOperator {
     chaincodeVersion: string;
     chaincodePath: string;
     timeout?: number;
+    targets: string[];
   }) => Promise<ProposalResponseObject>;
   instantiate: (option: {
     chaincodeId: string;

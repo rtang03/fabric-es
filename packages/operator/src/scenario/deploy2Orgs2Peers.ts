@@ -3,22 +3,23 @@ import execa from 'execa';
 import Client, { ProposalErrorResponse, ProposalResponse } from 'fabric-client';
 import { FileSystemWallet } from 'fabric-network';
 import Listr from 'listr';
+import UpdaterRenderer from 'listr-update-renderer';
 import { createNetworkOperator } from '../createNetworkOperator';
 import { enrollAdmin } from '../enrollAdmin';
 import { CHANNEL_ALREADY_EXIST, DeploymentOption } from '../types';
 import {
+  installChaincodeSubTask,
   isCommitRecord,
-  isProposalErrorResponse,
-  isProposalResponse,
+  joinChannelSubTask,
   logger
 } from '../utils';
 
 const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
-  option = { renderer: 'verbose', collapse: false }
+  option = { verbose: true, collapse: false }
 ) => {
   Client.setLogger(logger);
   Client.setConfigSetting('initialize-with-discovery', true);
-  const { renderer, collapse } = option;
+  const { verbose, collapse } = option;
   // TODO: In v2, below API is deprecated
   const walletOrg1 = new FileSystemWallet('./assets/walletOrg1');
   const walletOrg2 = new FileSystemWallet('./assets/walletOrg2');
@@ -156,27 +157,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
             .joinChannel({
               targets: ['peer0.org1.example.com', 'peer1.org1.example.com']
             })
-            .then(
-              (responses: any) =>
-                new Listr(
-                  responses.map(res =>
-                    isProposalResponse(res)
-                      ? {
-                          title: `joined: ${res.peer.name} status: ${res.response.status}`,
-                          task: () => res.response.status
-                        }
-                      : isProposalErrorResponse(res)
-                      ? {
-                          title: res.message,
-                          task: () => task.skip('join channel error')
-                        }
-                      : {
-                          title: 'unknown error',
-                          task: () => task.skip('unknown error')
-                        }
-                  )
-                )
-            )
+            .then((responses: any[]) => joinChannelSubTask(responses, task))
       },
       {
         title: '[Org1MSP] Update anchor peers',
@@ -223,27 +204,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
             .joinChannel({
               targets: ['peer0.org2.example.com', 'peer1.org2.example.com']
             })
-            .then(
-              (responses: any) =>
-                new Listr(
-                  responses.map(res =>
-                    isProposalResponse(res)
-                      ? {
-                          title: `joined: ${res.peer.name} status: ${res.response.status}`,
-                          task: () => res.response.status
-                        }
-                      : isProposalErrorResponse(res)
-                      ? {
-                          title: res.message,
-                          task: () => task.skip('join channel error')
-                        }
-                      : {
-                          title: 'unknown error',
-                          task: () => task.skip('unknown error')
-                        }
-                  )
-                )
-            )
+            .then((responses: any[]) => joinChannelSubTask(responses, task))
       },
       {
         title: '[Org2MSP] Update anchor peers',
@@ -284,6 +245,10 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
           ])
       },
       {
+        title: 'Build chaincode',
+        task: () => execa('yarn', ['run', 'build-chaincode'])
+      },
+      {
         title: '[Org1MSP] Install chaincode',
         task: (ctx, task) =>
           org1Operator
@@ -291,32 +256,13 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
               chaincodeId: 'eventstore',
               chaincodeVersion: '1.0',
               chaincodePath: '../chaincode',
+              targets: ['peer0.org1.example.com','peer1.org1.example.com'],
               timeout: 60000
             })
             .then<Array<ProposalResponse | ProposalErrorResponse>>(
               result => result[0]
             )
-            .then(
-              responses =>
-                new Listr(
-                  responses.map(res =>
-                    isProposalResponse(res)
-                      ? {
-                          title: `installed ${res.peer.name}`,
-                          task: () => Promise.resolve()
-                        }
-                      : isProposalErrorResponse(res)
-                      ? {
-                          title: res.message,
-                          task: () => task.skip('installation error')
-                        }
-                      : {
-                          title: 'unknown error',
-                          task: () => task.skip('unknown error')
-                        }
-                  )
-                )
-            )
+            .then(responses => installChaincodeSubTask(responses, task))
       },
       {
         title: '[Org2MSP] Install chaincode',
@@ -326,32 +272,13 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
               chaincodeId: 'eventstore',
               chaincodeVersion: '1.0',
               chaincodePath: '../chaincode',
-              timeout: 60000
+              timeout: 60000,
+              targets: ['peer0.org2.example.com','peer1.org2.example.com'],
             })
             .then<Array<ProposalResponse | ProposalErrorResponse>>(
               result => result[0]
             )
-            .then(
-              responses =>
-                new Listr(
-                  responses.map(res =>
-                    isProposalResponse(res)
-                      ? {
-                          title: `installed ${res.peer.name}`,
-                          task: () => Promise.resolve()
-                        }
-                      : isProposalErrorResponse(res)
-                      ? {
-                          title: res.message,
-                          task: () => task.skip('installation error')
-                        }
-                      : {
-                          title: 'unknown error',
-                          task: () => task.skip('unknown error')
-                        }
-                  )
-                )
-            )
+            .then(responses => installChaincodeSubTask(responses, task))
       },
       {
         title: 'Instantiate chaincode',
@@ -414,11 +341,11 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
       }
     ],
     // @ts-ignore
-    { renderer, collapse }
+    { renderer: verbose ? 'verbose' : UpdaterRenderer, collapse }
   );
 };
 
-bootstrap().then(tasks =>
+bootstrap({ verbose: true, collapse: false }).then(tasks =>
   tasks
     .run()
     .then(() => {
