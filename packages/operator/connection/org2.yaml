@@ -40,7 +40,7 @@ organizations:
       - peer0.org2.example.com
       - peer1.org2.example.com
     certificateAuthorities:
-      - ca.org2.example.com
+      - rca.org2.example.com
     adminPrivateKey:
       path: ../../network3/config/../artifacts/Org2MSP/admin/msp/keystore/key.pem
     signedCert:

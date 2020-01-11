@@ -1,9 +1,8 @@
-import '../../../env';
-
+require('../../../env');
 import { pick, values } from 'lodash';
 import { Store } from 'redux';
 import { bootstrapNetwork } from '../../../account';
-import { PeerOptions} from '../../../types';
+import { PeerOptions } from '../../../types';
 import { generateToken } from '../../utils';
 import { action } from '../action';
 import { getStore } from './__utils__/store';
@@ -15,7 +14,10 @@ const entityName = 'command_test';
 const enrollmentId = `command_test${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  context = await bootstrapNetwork({ enrollmentId });
+  context = await bootstrapNetwork({
+    enrollmentId,
+    enrollmentSecret: 'password'
+  });
   store = getStore(context);
 });
 

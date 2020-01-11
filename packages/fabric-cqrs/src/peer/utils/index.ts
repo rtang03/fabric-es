@@ -6,3 +6,4 @@ export * from './privateDataRepo';
 export * from './repository';
 export * from './ngacRepo';
 export * from './createCommitId';
+export * from './logger';

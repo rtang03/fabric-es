@@ -6,6 +6,7 @@
   "scripts": {
     "build": "yarn run clean && tsc",
     "clean": "rimraf dist",
+    "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
     "service-docu": "node ./dist/service-doc.js",
     "service-loan": "node ./dist/service-loan.js",
     "service-user": "node ./dist/service-user.js",
@@ -57,7 +58,8 @@
     "lodash": "^4.17.15",
     "morgan": "^1.9.1",
     "node-fetch": "^2.6.0",
-    "prettyjson": "^1.2.1"
+    "prettyjson": "^1.2.1",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
@@ -82,6 +84,8 @@
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
+    "typedoc": "^0.15.6",
+    "typedoc-plugin-markdown": "^2.2.16",
     "typescript": "^3.7.2"
   }
 }

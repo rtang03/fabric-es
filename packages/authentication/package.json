@@ -12,7 +12,8 @@
     "test:refresh_token": "jest --forceExit --detectOpenHandles refresh_token.test",
     "test:password": "jest --forceExit --detectOpenHandles password.test",
     "test:authenticate": "jest --forceExit --detectOpenHandles authenticate.test",
-    "test:client_app": "jest --forceExit --detectOpenHandles client_app.test"
+    "test:client_app": "jest --forceExit --detectOpenHandles client_app.test",
+    "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts"
   },
   "engines": {
     "node": ">=8",
@@ -21,7 +22,6 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@espresso/admin-tool": "1.0.0",
     "apollo-server": "^2.9.7",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
@@ -40,7 +40,8 @@
     "pug": "^2.0.4",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^0.17.5",
-    "typeorm": "^0.2.20"
+    "typeorm": "^0.2.20",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
@@ -65,6 +66,8 @@
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
+    "typedoc": "^0.15.6",
+    "typedoc-plugin-markdown": "^2.2.16",
     "typescript": "^3.7.2"
   },
   "nohoist": [

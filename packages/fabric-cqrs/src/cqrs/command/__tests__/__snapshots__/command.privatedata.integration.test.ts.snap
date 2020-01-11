@@ -3,14 +3,6 @@
 exports[`Store:privatedata Tests should createCommit 1`] = `
 Object {
   "entityName": "store_privatedata",
-  "events": Array [
-    Object {
-      "payload": Object {
-        "name": "me",
-      },
-      "type": "User Created",
-    },
-  ],
   "version": 0,
 }
 `;

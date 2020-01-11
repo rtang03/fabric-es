@@ -1,3 +1,4 @@
+require('../../../env');
 import { pick, values } from 'lodash';
 import { Store } from 'redux';
 import { bootstrapNetwork } from '../../../account';
@@ -15,7 +16,10 @@ const enrollmentId = `store_privatedata${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
   try {
-    context = await bootstrapNetwork({ enrollmentId });
+    context = await bootstrapNetwork({
+      enrollmentId,
+      enrollmentSecret: 'password'
+    });
     store = getStore(context);
   } catch {
     process.exit(-1);

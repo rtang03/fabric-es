@@ -1,11 +1,11 @@
-import * as Client from 'fabric-client';
+import Client from 'fabric-client';
 import { Network } from 'fabric-network';
+import { keys } from 'lodash';
 import { from, Observable } from 'rxjs';
+import util from 'util';
 import { createCommitId } from '../peer/utils';
 import { Commit } from '../types';
 import { getContract } from './contract';
-
-const logger = Client.getLogger('SUBMIT');
 
 export const submit: (
   fcn: string,
@@ -14,6 +14,8 @@ export const submit: (
 ) => Promise<
   Record<string, Commit> & { error?: any; status?: string; message?: string }
 > = async (fcn, args, { network }) => {
+  const logger = Client.getLogger('Submit tx');
+
   const input_args =
     fcn === 'createCommit' ? [...args, createCommitId()] : args;
 
@@ -21,12 +23,13 @@ export const submit: (
     contract
       .createTransaction(fcn)
       .submit(...input_args)
-      .then<Record<string, Commit>>((res: any) =>
-        JSON.parse(Buffer.from(JSON.parse(res)).toString())
-      )
+      .then<Record<string, Commit>>((res: any) => {
+        const result = JSON.parse(Buffer.from(JSON.parse(res)).toString());
+        logger.info(util.format('tx response: %j', result));
+        return result;
+      })
       .catch(error => {
-        logger.info(`Error processing Submit transaction: ${fcn}`);
-        logger.error(error.stack);
+        logger.error(util.format('error in %s: %j', fcn, error));
         return { error };
       })
   );

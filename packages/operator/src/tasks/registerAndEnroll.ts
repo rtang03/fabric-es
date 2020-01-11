@@ -46,14 +46,13 @@ export const registerAndEnroll = (
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
   const mspId = client.getMspid();
   const gateway = new Gateway();
-  await gateway.connect(connectionProfile, {
+  await gateway.connect(client, {
     identity,
     wallet,
     eventHandlerOptions: { strategy: eventHandlerStrategies },
     queryHandlerOptions: { strategy: queryHandlerStrategies },
     discovery: { asLocalhost, enabled: true }
   });
-
   logger.info(
     util.format('gateway connected: %s', gateway.getClient().getMspid())
   );
@@ -69,7 +68,7 @@ export const registerAndEnroll = (
       if (!adminExist) throw new Error(ORG_ADMIN_NOT_EXIST);
 
       const enrollmentIdExist = await wallet.exists(enrollmentId);
-      if (!enrollmentIdExist)
+      if (enrollmentIdExist)
         return {
           status: SUCCESS,
           info: IDENTITY_ALREADY_EXIST

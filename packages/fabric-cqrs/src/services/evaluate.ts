@@ -2,6 +2,8 @@ import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
 import { Commit } from '../types';
 import { getContract } from './contract';
+import Client from 'fabric-client';
+import util from "util";
 
 export const evaluate: (
   fcn: string,
@@ -13,21 +15,25 @@ export const evaluate: (
   args,
   { network },
   privatedata = false
-) =>
-  await getContract(network, privatedata).then(
+) => {
+  const logger = Client.getLogger('Evaluate tx');
+
+  return getContract(network, privatedata).then(
     async ({ contract }) =>
       await contract
         .createTransaction(fcn)
         .evaluate(...args)
-        .then<Record<string, Commit>>((res: any) =>
-          JSON.parse(Buffer.from(JSON.parse(res)).toString())
-        )
+        .then<Record<string, Commit>>((res: any) => {
+          const result = JSON.parse(Buffer.from(JSON.parse(res)).toString());
+          logger.info(util.format('tx response: %j', result));
+          return result;
+        })
         .catch(error => {
-          console.log(`Error processing Evaluate transaction: ${fcn}`);
-          // console.error(error.stack);
+          logger.error(util.format('error in %s: %j', fcn, error));
           return { error };
         })
   );
+};
 
 export const evaluate$: (
   fcn: string,

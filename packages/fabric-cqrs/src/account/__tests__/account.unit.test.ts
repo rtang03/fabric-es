@@ -1,3 +1,4 @@
+require('../../env');
 import { registerUser } from '../registerUser';
 
 describe('Account service', () => {
@@ -5,8 +6,10 @@ describe('Account service', () => {
     const enrollmentId = `user${Math.floor(Math.random() * 1000)}@account.com`;
     const enrollmentSecret = 'userpw';
 
-    await registerUser({ enrollmentId, enrollmentSecret }).then(({ message }) =>
-      expect(message.startsWith('Successfully register & enroll')).toBe(true)
+    await registerUser({ enrollmentId, enrollmentSecret }).then(result =>
+      expect(result?.info.startsWith('Successfully register & enroll')).toBe(
+        true
+      )
     );
   });
 });

@@ -1,5 +1,4 @@
-import '../../env';
-
+require('../../env');
 import { find, pick } from 'lodash';
 import { bootstrapNetwork } from '../../account';
 import { Counter, CounterEvent, reducer } from '../../example';
@@ -14,7 +13,10 @@ const entityName = 'counter';
 const enrollmentId = `peer_test${Math.floor(Math.random() * 10000)}`;
 
 beforeAll(async () => {
-  const context = await bootstrapNetwork({ enrollmentId });
+  const context = await bootstrapNetwork({
+    enrollmentId,
+    enrollmentSecret: 'password'
+  });
   peer = createPeer({
     ...context,
     defaultReducer: reducer,
@@ -57,9 +59,8 @@ describe('Start peer Tests', () => {
       .then(result => pick(result, 'version', 'entityName', 'events'))
       .then(result =>
         expect(result).toEqual({
-          version: 0,
+          version: 1,
           entityName: 'counter',
-          events: [{ type: 'ADD' }]
         })
       );
   });
@@ -103,6 +104,6 @@ describe('Query', () => {
           )
         );
       done();
-    }, 10000);
+    }, 6000);
   });
 });
