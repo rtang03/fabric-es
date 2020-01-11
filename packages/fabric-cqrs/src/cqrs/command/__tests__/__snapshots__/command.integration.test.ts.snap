@@ -3,14 +3,6 @@
 exports[`CQRS - command Tests should createEntity 1`] = `
 Object {
   "entityName": "command_test",
-  "events": Array [
-    Object {
-      "payload": Object {
-        "name": "me",
-      },
-      "type": "User Created",
-    },
-  ],
   "version": 0,
 }
 `;

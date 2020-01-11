@@ -1,4 +1,13 @@
-import { Commit } from '@espresso/fabric-cqrs';
+export interface Commit {
+  id?: string;
+  entityName?: string;
+  version?: number;
+  commitId?: string;
+  committedAt?: string;
+  entityId?: string;
+  events?: any[];
+}
+
 import {
   Block,
   BlockchainInfo,

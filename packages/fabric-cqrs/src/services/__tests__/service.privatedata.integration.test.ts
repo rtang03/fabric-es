@@ -1,5 +1,4 @@
-import '../../env';
-
+require('../../env');
 import { Gateway, Network } from 'fabric-network';
 import { values } from 'lodash';
 import { evaluate, submitPrivateData } from '..';
@@ -20,7 +19,10 @@ const transient = {
 const enrollmentId = `service_privatedata${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  const config = await bootstrapNetwork({ enrollmentId });
+  const config = await bootstrapNetwork({
+    enrollmentId,
+    enrollmentSecret: 'password'
+  });
   network = config.network;
   gateway = config.gateway;
 });

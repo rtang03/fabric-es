@@ -3,11 +3,6 @@
 exports[`Start peer Tests should ADD #1 1`] = `
 Object {
   "entityName": "counter",
-  "events": Array [
-    Object {
-      "type": "ADD",
-    },
-  ],
   "version": 0,
 }
 `;

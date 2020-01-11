@@ -1,7 +1,7 @@
 require('../../env');
 import { ChannelEventHub } from 'fabric-client';
 import { Gateway, Network } from 'fabric-network';
-import { keys, pick, values } from 'lodash';
+import { keys, omit, pick, values } from 'lodash';
 import { channelEventHub, evaluate, submit } from '..';
 import { bootstrapNetwork } from '../../account';
 import { toCommit } from '../../types/commit'; // do not shorten it
@@ -19,7 +19,10 @@ const entityName = 'dev_test';
 const enrollmentId = `service_test${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  const config = await bootstrapNetwork({ enrollmentId });
+  const config = await bootstrapNetwork({
+    enrollmentId,
+    enrollmentSecret: 'password'
+  });
   network = config.network;
   gateway = config.gateway;
   channelHub = config.channelHub;
@@ -77,7 +80,7 @@ describe('Eventstore Tests', () => {
     )
       .then(result => values(result)[0])
       .then(commit => toCommit(JSON.stringify(commit)))
-      .then(commit => expect(commit).toEqual(createdCommit_1)));
+      .then(commit => expect(omit(commit, 'events')).toEqual(createdCommit_1)));
 
   it('should create #2', async () =>
     // cannot be version: '0' again, this is give error object, instead of Commit object

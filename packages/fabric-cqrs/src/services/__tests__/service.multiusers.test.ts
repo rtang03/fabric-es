@@ -1,14 +1,18 @@
-import '../../env';
-
+require('../../env');
 import { FileSystemWallet } from 'fabric-network';
 import { values } from 'lodash';
 import { registerUser } from '../../account';
 import { PeerOptions } from '../../types';
-import { Commit, toCommit } from '../../types/commit';
+import { Commit, toCommit } from '../../types/commit'; // do not shorten it
 import { evaluate } from '../evaluate';
 import { getNetwork } from '../network';
 import { submit } from '../submit';
-import { enrollOrg1Admin, enrollOrg2Admin } from './__utils__';
+import {
+  enrollOrg1Admin,
+  enrollOrg1CaAdmin,
+  enrollOrg2Admin,
+  enrollOrg2CaAdmin
+} from './__utils__';
 
 let contextOrg1: Partial<PeerOptions>;
 let contextOrg2: Partial<PeerOptions>;
@@ -21,25 +25,25 @@ const walletOrg2 = new FileSystemWallet('assets/walletOrg2');
 
 beforeAll(async () => {
   try {
-    await enrollOrg1Admin();
-    await enrollOrg2Admin();
+    await enrollOrg1Admin(walletOrg1);
+    await enrollOrg2Admin(walletOrg2);
+    await enrollOrg1CaAdmin(walletOrg1);
+    await enrollOrg2CaAdmin(walletOrg2);
     await registerUser({
       enrollmentId: identityOrg1,
       enrollmentSecret: 'password',
-      context: {
-        connectionProfile: 'connection/peer0org1.yaml',
-        fabricNetwork: process.env.NETWORK_LOCATION,
-        wallet: walletOrg1
-      }
+      connectionProfile: 'connection/peer0org1.yaml',
+      fabricNetwork: process.env.NETWORK_LOCATION,
+      wallet: walletOrg1,
+      caAdmin: 'rca-org1-admin'
     });
     await registerUser({
       enrollmentId: identityOrg2,
       enrollmentSecret: 'password',
-      context: {
-        connectionProfile: 'connection/peer0org2.yaml',
-        fabricNetwork: process.env.NETWORK_LOCATION,
-        wallet: walletOrg2
-      }
+      connectionProfile: 'connection/peer0org2.yaml',
+      fabricNetwork: process.env.NETWORK_LOCATION,
+      wallet: walletOrg2,
+      caAdmin: 'rca-org2-admin'
     });
     contextOrg1 = await getNetwork({
       enrollmentId: identityOrg1,
@@ -53,7 +57,8 @@ beforeAll(async () => {
       wallet: walletOrg2,
       channelEventHub: 'peer0.org2.example.com'
     });
-  } catch {
+  } catch (error) {
+    console.error(error);
     process.exit(-1);
   }
 });
@@ -72,7 +77,7 @@ describe('Multiuser Tests', () => {
         entityName,
         identityOrg1,
         '0',
-        JSON.stringify([{ type: 'User Created', payload: { name: 'me' } }])
+        JSON.stringify([{ type: 'Created', payload: { name: 'me' } }])
       ],
       { network: contextOrg1.network }
     )

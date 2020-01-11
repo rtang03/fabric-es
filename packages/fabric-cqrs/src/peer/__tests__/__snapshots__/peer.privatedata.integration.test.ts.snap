@@ -3,11 +3,6 @@
 exports[`Start peer privatedata Tests should Add #1 1`] = `
 Object {
   "entityName": "privatedata_counter",
-  "events": Array [
-    Object {
-      "type": "ADD",
-    },
-  ],
   "version": 0,
 }
 `;

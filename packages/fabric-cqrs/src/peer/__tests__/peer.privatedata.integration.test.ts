@@ -1,6 +1,6 @@
+require('../../env');
 import { pick } from 'lodash';
 import { bootstrapNetwork } from '../../account';
-import '../../env';
 import { Counter, CounterEvent, reducer } from '../../example';
 import { Commit, Peer, PrivatedataRepository } from '../../types';
 import { createProjectionDb } from '../createProjectionDb';
@@ -14,7 +14,10 @@ const enrollmentId = `peer_privatedata${Math.floor(Math.random() * 1000)}`;
 let commitId: string;
 
 beforeAll(async () => {
-  const context = await bootstrapNetwork({ enrollmentId });
+  const context = await bootstrapNetwork({
+    enrollmentId,
+    enrollmentSecret: 'password'
+  });
   peer = createPeer({
     ...context,
     defaultReducer: reducer,
@@ -39,7 +42,7 @@ describe('Start peer privatedata Tests', () => {
       .then((commit: Commit) => {
         commitId = commit.commitId;
         expect(
-          pick(commit, 'version', 'entityName', 'events')
+          pick(commit, 'version', 'entityName')
         ).toMatchSnapshot();
       }));
 

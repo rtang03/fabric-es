@@ -17,6 +17,9 @@ export const getNetwork: (option: {
   wallet?: Wallet;
   channelEventHub?: string;
   channelEventHubExisted?: boolean;
+  eventHandlerStrategy?: any;
+  queryHandlerStrategy?: any;
+  asLocalhost?: boolean;
 }) => Promise<{
   enrollmentId: string;
   network: Network;
@@ -26,9 +29,12 @@ export const getNetwork: (option: {
   enrollmentId,
   channelName = 'eventstore',
   connectionProfile = process.env.CONNECTION_PROFILE,
-  wallet = new FileSystemWallet(process.env.WALLET || 'assets/wallet'),
+  wallet = new FileSystemWallet(process.env.WALLET),
   channelEventHub = process.env.CHANNEL_HUB,
-  channelEventHubExisted
+  channelEventHubExisted,
+  eventHandlerStrategy = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
+  queryHandlerStrategy = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
+  asLocalhost = true
 }) => {
   const identityExist: boolean = await wallet.exists(enrollmentId);
   if (!identityExist) {
@@ -47,12 +53,12 @@ export const getNetwork: (option: {
       .connect(safeLoad(readFileSync(connectionProfile, 'utf8')), {
         identity,
         wallet,
-        discovery: { enabled: false, asLocalhost: true },
+        discovery: { enabled: false, asLocalhost },
         eventHandlerOptions: {
-          strategy: DefaultEventHandlerStrategies.MSPID_SCOPE_ANYFORTX
+          strategy: eventHandlerStrategy
         },
         queryHandlerOptions: {
-          strategy: DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE
+          strategy: queryHandlerStrategy
         }
       })
       .catch(error => {
