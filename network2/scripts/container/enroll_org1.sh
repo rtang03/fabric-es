@@ -9,8 +9,7 @@ fabric-ca-client enroll -d -u https://rca-org1-admin:rca-org1-adminPW@0.0.0.0:50
 
 fabric-ca-client register -d --id.name peer0.org1.example.com --id.secret peer0PW --id.type peer -u https://0.0.0.0:5054
 fabric-ca-client register -d --id.name peer1.org1.example.com --id.secret peer1PW --id.type peer -u https://0.0.0.0:5054
-fabric-ca-client register -d --id.name admin-org1.example.com --id.secret Org1MSPAdminPW --id.type user -u https://0.0.0.0:5054
-fabric-ca-client register -d --id.name user-org1.example.com --id.secret Org1MSPUserPW --id.type user -u https://0.0.0.0:5054
+fabric-ca-client register -d --id.name admin-org1.example.com --id.secret Org1MSPAdminPW --id.type admin --id.attrs "hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -u https://0.0.0.0:5054
 
 # Copy Trusted Root Cert of Org1MSP to peer0
 mkdir -p /tmp/hyperledger/org1.example.com/peer0/assets/ca

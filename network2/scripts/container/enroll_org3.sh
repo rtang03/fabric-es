@@ -8,8 +8,7 @@ export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/org3.neworg.com/ca/admin
 fabric-ca-client enroll -d -u https://rca-org3-admin:rca-org3-adminPW@0.0.0.0:5056
 fabric-ca-client register -d --id.name peer0.org3.neworg.com --id.secret peer0PW --id.type peer -u https://0.0.0.0:5056
 fabric-ca-client register -d --id.name peer1.org3.neworg.com --id.secret peer1PW --id.type peer -u https://0.0.0.0:5056
-fabric-ca-client register -d --id.name admin-org3.neworg.com --id.secret Org3MSPAdminPW --id.type user -u https://0.0.0.0:5056
-fabric-ca-client register -d --id.name user-org3.neworg.com --id.secret Org3MSPUserPW --id.type user -u https://0.0.0.0:5056
+fabric-ca-client register -d --id.name admin-org3.neworg.com --id.secret Org3MSPAdminPW --id.type admin --id.attrs "hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -u https://0.0.0.0:5056
 
 # Copy Trusted Root Cert of Org3MSP to peer0
 mkdir -p /tmp/hyperledger/org3.neworg.com/peer0/assets/ca
