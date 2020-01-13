@@ -5,6 +5,7 @@ import {
   ValidationError
 } from 'apollo-server-errors';
 import { randomBytes } from 'crypto';
+import ClientLogger from 'fabric-client';
 import { omit } from 'lodash';
 import {
   Arg,
@@ -16,6 +17,8 @@ import {
   Resolver,
   UseMiddleware
 } from 'type-graphql';
+import util from 'util';
+import { Logger } from 'winston';
 import { Client } from '../entity/Client';
 import {
   ADMIN_PASSWORD_MISMATCH,
@@ -49,6 +52,12 @@ class CreateAppResponse {
 
 @Resolver()
 export class ClientResolver {
+  logger: Logger;
+
+  constructor() {
+    this.logger = ClientLogger.getLogger('ClientResolver.js');
+  }
+
   /**
    *   Do not require authentication
    */
@@ -62,11 +71,12 @@ export class ClientResolver {
     description: 'client_id of root app; no authentication required'
   })
   async getRootClientId() {
+    this.logger.info('getRootClientId');
     return Client.findOne({ applicationName: 'root' })
       .then(res => res?.id)
       .catch(error => {
-        console.error(error);
-        throw new ApolloError(error.message);
+        this.logger.warn(util.format('getRootClientId: %s', error.message));
+        return new ApolloError(error);
       });
   }
 
@@ -75,11 +85,12 @@ export class ClientResolver {
     description: 'Public list of client apps; no authentication required'
   })
   async getPublicClients() {
+    this.logger.info('getPublicClients');
     return Client.find()
       .then(clients => clients.map(item => omit(item, 'client_secret')))
       .catch(error => {
-        console.error(error);
-        throw new ApolloError(error.message);
+        this.logger.warn(util.format('getPublicClients: %s', error.message));
+        return new ApolloError(error);
       });
   }
 
@@ -91,12 +102,13 @@ export class ClientResolver {
     description: 'List of client apps owned by me; authentication required'
   })
   async getClients(@Ctx() { payload }: MyContext) {
+    this.logger.info('getClients');
     const user_id = payload?.userId;
     if (!user_id) throw new AuthenticationError(AUTH_HEADER_ERROR);
 
     return Client.find({ user_id }).catch(error => {
-      console.error(error);
-      throw new ApolloError(error.message);
+      this.logger.warn(util.format('getClients: %s', error.message));
+      return new ApolloError(error);
     });
   }
 
@@ -111,7 +123,8 @@ export class ClientResolver {
     @Arg('grants', () => [String])
     grants: string[],
     @Arg('redirect_uri', { nullable: true }) redirect_uri?: string
-  ): Promise<CreateAppResponse> {
+  ): Promise<CreateAppResponse | ApolloError> {
+    this.logger.info('createRegularApp');
     const user_id = payload?.userId;
     if (!user_id) throw new AuthenticationError(AUTH_HEADER_ERROR);
 
@@ -125,17 +138,27 @@ export class ClientResolver {
       user_id,
       is_system_app: false
     })
-      .then<CreateAppResponse>(({ identifiers }) => ({
-        ok: true,
-        client_id: identifiers[0].id,
-        client_secret,
-        applicationName,
-        redirect_uri
-        // is_system_app: false
-      }))
+      .then<CreateAppResponse>(({ identifiers }) => {
+        this.logger.info(
+          util.format(
+            'createRegularApp: %s, %s',
+            identifiers[0].id,
+            applicationName
+          )
+        );
+
+        return {
+          ok: true,
+          client_id: identifiers[0].id,
+          client_secret,
+          applicationName,
+          redirect_uri
+          // is_system_app: false
+        };
+      })
       .catch(error => {
-        console.error(error);
-        throw new ApolloError(error.message);
+        this.logger.warn(util.format('getClients: %s', error.message));
+        return new ApolloError(error);
       });
   }
 
@@ -145,11 +168,16 @@ export class ClientResolver {
     @Arg('client_id') client_id: string,
     @Arg('applicationName', { nullable: true }) applicationName?: string,
     @Arg('redirect_uri', { nullable: true }) redirect_uri?: string
-  ): Promise<boolean> {
+  ): Promise<boolean | ApolloError> {
+    this.logger.info('updateRegularApp');
     const id = payload?.userId;
-    if (!id) throw new AuthenticationError(AUTH_HEADER_ERROR);
+    if (!id) {
+      this.logger.warn(AUTH_HEADER_ERROR);
+      throw new AuthenticationError(AUTH_HEADER_ERROR);
+    }
 
     const client = await Client.findOne({ id: client_id }).catch(() => {
+      this.logger.warn(CLIENT_NOT_FOUND);
       throw new UserInputError(CLIENT_NOT_FOUND);
     });
 
@@ -161,8 +189,10 @@ export class ClientResolver {
       ? Client.save(client)
           .then(() => true)
           .catch(error => {
-            console.error(error);
-            throw new ApolloError(error.message);
+            this.logger.warn(
+              util.format('updateRegularApp: %s', error.message)
+            );
+            return new ApolloError(error);
           })
       : false;
   }
@@ -171,11 +201,17 @@ export class ClientResolver {
   async deleteRegularApp(
     @Ctx() { payload }: MyContext,
     @Arg('client_id') client_id: string
-  ): Promise<boolean> {
+  ): Promise<boolean | ApolloError> {
+    this.logger.info('deleteRegularApp');
     const id = payload?.userId;
-    if (!id) throw new AuthenticationError(AUTH_HEADER_ERROR);
+
+    if (!id) {
+      this.logger.warn(AUTH_HEADER_ERROR);
+      throw new AuthenticationError(AUTH_HEADER_ERROR);
+    }
 
     const client = await Client.findOne({ id: client_id }).catch(() => {
+      this.logger.warn(CLIENT_NOT_FOUND);
       throw new UserInputError(CLIENT_NOT_FOUND);
     });
 
@@ -183,7 +219,10 @@ export class ClientResolver {
       ? Client.delete(client_id)
           .then(() => true)
           .catch(error => {
-            throw new ApolloError(error.message);
+            this.logger.warn(
+              util.format('deleteRegularApp: %s', error.message)
+            );
+            return new ApolloError(error);
           })
       : false;
   }
@@ -197,9 +236,10 @@ export class ClientResolver {
   })
   @UseMiddleware(isAdmin)
   async getAllClients() {
+    this.logger.info('getAllClients');
     return Client.find().catch(error => {
-      console.error(error);
-      throw new ApolloError(error.message);
+      this.logger.warn(util.format('getAllClients: %s', error.message));
+      return new ApolloError(error);
     });
   }
 
@@ -214,9 +254,14 @@ export class ClientResolver {
     @Arg('applicationName') applicationName: string,
     @Arg('grants', () => [String]) grants: string[],
     @Arg('redirect_uri', { nullable: true }) redirect_uri?: string
-  ): Promise<CreateAppResponse> {
+  ): Promise<CreateAppResponse | ApolloError> {
+    this.logger.info('createApplication');
     const user_id = payload?.userId;
-    if (!user_id) throw new AuthenticationError(AUTH_HEADER_ERROR);
+
+    if (!user_id) {
+      this.logger.warn(AUTH_HEADER_ERROR);
+      throw new AuthenticationError(AUTH_HEADER_ERROR);
+    }
 
     const client_secret = generateSecret(8);
 
@@ -228,17 +273,27 @@ export class ClientResolver {
       user_id,
       is_system_app: true
     })
-      .then<CreateAppResponse>(({ identifiers }) => ({
-        ok: true,
-        client_id: identifiers[0].id,
-        client_secret,
-        applicationName,
-        redirect_uri,
-        is_system_app: true
-      }))
+      .then<CreateAppResponse>(({ identifiers }) => {
+        this.logger.info(
+          util.format(
+            'createApplication: %s, %s',
+            identifiers[0].id,
+            applicationName
+          )
+        );
+
+        return {
+          ok: true,
+          client_id: identifiers[0].id,
+          client_secret,
+          applicationName,
+          redirect_uri,
+          is_system_app: true
+        };
+      })
       .catch(error => {
-        console.error(error);
-        throw new ApolloError(error.message);
+        this.logger.warn(util.format('createApplication: %s', error.message));
+        return new ApolloError(error);
       });
   }
 
@@ -254,6 +309,7 @@ export class ClientResolver {
     @Arg('password', { description: 'Input predefined password of root admin' })
     password: string
   ) {
+    this.logger.info('createRootClient');
     const root = await Client.findOne({ applicationName: 'root' });
     if (root) throw new ValidationError(ALREADY_EXIST);
 
@@ -273,10 +329,14 @@ export class ClientResolver {
         user_id: 'admin',
         is_system_app: true
       })
-        .then(({ identifiers }) => identifiers[0].id)
+        .then(result => {
+          const id = result.identifiers[0].id;
+          this.logger.info(util.format('createRootClient: %s', id));
+          return id;
+        })
         .catch(error => {
-          console.error(error);
-          throw new ApolloError(error.message);
+          this.logger.warn(util.format('createRootClient: %s', error.message));
+          return new ApolloError(error);
         });
     else throw new ValidationError(ADMIN_PASSWORD_MISMATCH);
   }

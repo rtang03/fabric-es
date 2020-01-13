@@ -23,8 +23,8 @@ export const createAuthServer: (option: {
       refreshToken: false,
       authorization_code: true
     },
-    accessTokenLifetime: 300,
-    refreshTokenLifetime: 1500
+    accessTokenLifetime: 900,
+    refreshTokenLifetime: 1800
   }
 }) =>
   createHttpServer({

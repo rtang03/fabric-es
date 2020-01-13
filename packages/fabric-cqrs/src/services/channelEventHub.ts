@@ -12,7 +12,7 @@ export const channelEventHub: (
 } = hub => ({
   registerCCEvent: ({ onChannelEventArrived }) =>
     new Promise((resolve, reject) => {
-      const logger = Client.getLogger('ChannelEventHub');
+      const logger = Client.getLogger('channelEventHub.js');
       hub.connect({ full_block: true }, (err, status) => {
         if (err) {
           logger.error(err);
@@ -24,20 +24,20 @@ export const channelEventHub: (
               'eventstore',
               'createCommit',
               ({ tx_id, payload }) => {
-                logger.info(`Channel event arrived: ${tx_id}`);
+                logger.info(`channel event arrive: ${tx_id}`);
+                logger.debug('channel event arrive: %s, %j', tx_id, payload);
+
                 const channelEvent = payload.toString('utf8');
                 try {
                   const commit: Commit = JSON.parse(channelEvent);
                   commit.version = parseInt(commit.version as any, 10);
                   onChannelEventArrived({ commit });
                 } catch (e) {
-                  logger.error('Error to parse the incoming channel events');
+                  logger.error(util.format('parse the incoming events, %j', e));
                 }
               },
               error => {
-                logger.error(
-                  util.format('Error in chaincode event: %j', error)
-                );
+                logger.error(util.format('chaincode event: %j', error));
               }
             )
           );

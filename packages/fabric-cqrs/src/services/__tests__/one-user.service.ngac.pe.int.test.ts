@@ -20,10 +20,16 @@ const identity = `svs_org2_pe_test${Math.floor(Math.random() * 10000)}`;
 const faker = `faker_${Math.floor(Math.random() * 10000)}`;
 
 beforeAll(async () => {
-  const ctx = await bootstrapNetwork({ enrollmentId: identity });
+  const ctx = await bootstrapNetwork({
+    enrollmentId: identity,
+    enrollmentSecret: 'password'
+  });
   network = ctx.network;
   gateway = ctx.gateway;
-  const fakerCtx = await bootstrapNetwork({ enrollmentId: faker });
+  const fakerCtx = await bootstrapNetwork({
+    enrollmentId: faker,
+    enrollmentSecret: 'password'
+  });
   fakerNetwork = fakerCtx.network;
   fakerGateway = fakerCtx.gateway;
 });

@@ -25,7 +25,7 @@ export const install = (option: CreateNetworkOperatorOption) => async ({
   if (!chaincodeVersion) throw new Error(MISSING_CC_VERSION);
   if (!chaincodePath) throw new Error(MISSING_CHAINCODE_PATH);
 
-  const logger = Client.getLogger('Install chaincode');
+  const logger = Client.getLogger('install.js');
   const {
     channelName,
     fabricNetwork,

@@ -1,6 +1,5 @@
 import Client from 'fabric-client';
 import { Network } from 'fabric-network';
-import { keys } from 'lodash';
 import { from, Observable } from 'rxjs';
 import util from 'util';
 import { createCommitId } from '../peer/utils';
@@ -14,7 +13,7 @@ export const submit: (
 ) => Promise<
   Record<string, Commit> & { error?: any; status?: string; message?: string }
 > = async (fcn, args, { network }) => {
-  const logger = Client.getLogger('Submit tx');
+  const logger = Client.getLogger('submit.js');
 
   const input_args =
     fcn === 'createCommit' ? [...args, createCommitId()] : args;
@@ -25,7 +24,8 @@ export const submit: (
       .submit(...input_args)
       .then<Record<string, Commit>>((res: any) => {
         const result = JSON.parse(Buffer.from(JSON.parse(res)).toString());
-        logger.info(util.format('tx response: %j', result));
+        logger.info(util.format('successful response'));
+        logger.debug(util.format('tx response: %j', result));
         return result;
       })
       .catch(error => {

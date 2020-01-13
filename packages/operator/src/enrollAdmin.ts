@@ -17,7 +17,7 @@ import {
 import { getClientForOrg } from './utils';
 
 export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
-  const logger = Client.getLogger('Enroll admin');
+  const logger = Client.getLogger('enrollAdmin.js');
   const {
     enrollmentID,
     enrollmentSecret,

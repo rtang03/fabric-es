@@ -11,13 +11,13 @@ import {
   installChaincodeSubTask,
   isCommitRecord,
   joinChannelSubTask,
-  logger
 } from '../utils';
 
 const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
   option = { verbose: true, collapse: false }
 ) => {
-  Client.setLogger(logger);
+  // if uncomment, logs goes into file logger
+  // Client.setLogger(logger);
   Client.setConfigSetting('initialize-with-discovery', true);
   const { verbose, collapse } = option;
   // TODO: In v2, below API is deprecated

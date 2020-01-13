@@ -1,7 +1,9 @@
 import Express from 'express';
+import Client from 'fabric-client';
 import http from 'http-status';
 import { OAuth2Server, Request, Response } from 'oauth2-server-typescript';
 import { AuthorizationCode } from 'oauth2-server-typescript';
+import util from 'util';
 import { OUser } from '../entity/OUser';
 
 export const authorizePostHandler = (
@@ -12,6 +14,8 @@ export const authorizePostHandler = (
   res: Express.Response,
   next: Express.NextFunction
 ) => {
+  const logger = Client.getLogger('authorizePostHandler.js');
+
   const {
     client_id,
     redirect_uri,
@@ -19,27 +23,39 @@ export const authorizePostHandler = (
     response_type,
     grant_type
   } = req.body;
+
   const path = req.path;
-  if (!req?.app?.locals?.user_id) {
+
+  if (!req?.app?.locals?.user_id)
     return res.redirect(
       `/login?redirect=${path}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}&response_type=${response_type}&grant_type=${grant_type}`
     );
-  }
+
   options.authenticateHandler = {
     handle: async () =>
       req?.app?.locals?.user_id
         ? await OUser.findOne({ id: req.app.locals.user_id })
         : { id: null }
   };
+
   await oauth
     .authorize(new Request(req), new Response(res), options)
     .then((code: AuthorizationCode) => {
+      logger.info(
+        util.format(
+          'authorization code is obtained: %s',
+          !req?.app?.locals?.user_id
+        )
+      );
+
       res.locals.oauth = { code };
       res.redirect(
         `${code.redirectUri}?code=${code.authorizationCode}&state=${state}`
       );
     })
     .catch(error => {
+      logger.warn(util.format('authorization fail: %s', error.message));
+
       res
         .status(http.BAD_REQUEST)
         .send({ ok: false, authorization_code: false, message: error.message });

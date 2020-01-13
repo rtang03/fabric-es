@@ -5,7 +5,7 @@ export const logger = createLogger({
   exitOnError: false,
   format: format.json(),
   transports: [
-    new transports.File({ filename: `./logs/fabric-cqrs.log` }),
+    new transports.File({ filename: `./logs/all.log` }),
     new transports.File({
       filename: `./logs/error.log`,
       level: 'error'

@@ -1,7 +1,6 @@
-import { registerAndEnroll } from '@espresso/operator';
+import { registerAndEnroll as prepare } from '@espresso/operator';
 import Client, { ChannelEventHub } from 'fabric-client';
 import { FileSystemWallet, Gateway, Network, Wallet } from 'fabric-network';
-import { logger } from '../peer/utils';
 import { getNetwork } from '../services';
 
 export const registerUser: (option: {
@@ -19,8 +18,9 @@ export const registerUser: (option: {
   wallet = new FileSystemWallet(process.env.WALLET),
   caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN
 }) => {
-  Client.setLogger(logger);
-  const operator = await registerAndEnroll({
+  const logger = Client.getLogger('registerUser.js');
+
+  const operator = await prepare({
     fabricNetwork,
     connectionProfile,
     wallet
@@ -31,6 +31,8 @@ export const registerUser: (option: {
   });
 
   const result = await operator.registerAndEnroll();
+  logger.info('registerAndEnroll complete');
+
   operator.disconnect();
   return result;
 };

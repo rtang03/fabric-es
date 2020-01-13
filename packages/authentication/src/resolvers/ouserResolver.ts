@@ -5,6 +5,7 @@ import {
   ValidationError
 } from 'apollo-server';
 import { compare, hash } from 'bcrypt';
+import ClientLogger from 'fabric-client';
 import { omit } from 'lodash';
 import { Request, Response, Token } from 'oauth2-server-typescript';
 import {
@@ -17,6 +18,8 @@ import {
   Resolver,
   UseMiddleware
 } from 'type-graphql';
+import util from 'util';
+import { Logger } from 'winston';
 import { Client } from '../entity/Client';
 import { OUser } from '../entity/OUser';
 import {
@@ -42,6 +45,12 @@ class LoginResponse {
 
 @Resolver()
 export class OUserResolver {
+  logger: Logger;
+
+  constructor() {
+    this.logger = ClientLogger.getLogger('OUserResolver.js');
+  }
+
   @Query(() => String)
   hello() {
     return 'hi!';
@@ -52,6 +61,7 @@ export class OUserResolver {
   })
   @UseMiddleware(isAdmin)
   async users() {
+    this.logger.info('users');
     return OUser.find();
   }
 
@@ -60,6 +70,7 @@ export class OUserResolver {
     description: 'User profile; authentication required'
   })
   async me(@Ctx() { payload }: MyContext): Promise<Partial<OUser>> {
+    this.logger.info('me');
     const id = payload?.userId;
     if (!id) return null;
 
@@ -77,6 +88,7 @@ export class OUserResolver {
     @Arg('password') password: string,
     @Ctx() { res, req, oauth2Server, oauthOptions }: MyContext
   ): Promise<LoginResponse> {
+    this.logger.info('login');
     const user = await OUser.findOne({ email });
     if (!user) throw new AuthenticationError('could not find user');
 
@@ -117,6 +129,7 @@ export class OUserResolver {
     @Arg('user_id') user_id: string,
     @Arg('password') password: string
   ): Promise<boolean> {
+    this.logger.info('verifyPassword');
     const user = await OUser.findOne({ id: user_id });
     if (!user) throw new AuthenticationError(USER_NOT_FOUND);
 
@@ -136,6 +149,7 @@ export class OUserResolver {
     })
     adminPassword?: string
   ) {
+    this.logger.info('register');
     const usernameExist = await OUser.findOne({ username });
     if (usernameExist) throw new UserInputError(ALREADY_EXIST);
 
@@ -163,6 +177,7 @@ export class OUserResolver {
 
   @Mutation(() => Boolean)
   async logout(@Ctx() { res }: MyContext) {
+    this.logger.info('logout');
     sendToken(res, '');
     return true;
   }
@@ -173,6 +188,7 @@ export class OUserResolver {
     @Arg('email', { nullable: true }) email?: string,
     @Arg('username', { nullable: true }) username?: string
   ): Promise<boolean> {
+    this.logger.info('updateUser');
     const id = payload?.userId;
     if (!id) throw new AuthenticationError(AUTH_HEADER_ERROR);
 

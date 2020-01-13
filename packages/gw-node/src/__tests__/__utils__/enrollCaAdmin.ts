@@ -1,21 +1,23 @@
 const { resolve } = require('path');
-require('dotenv').config({
-  path: resolve(__dirname, './.env.test')
-});
-import { enrollCaAdmin } from '@espresso/admin-tool';
+const path = resolve(__dirname, '../../../.env.test');
+require('dotenv').config({ path });
+
+import { enrollAdmin } from '@espresso/operator';
 import { FileSystemWallet } from 'fabric-network';
 
-enrollCaAdmin(
-  process.env.CA_ENROLLMENT_ID_ADMIN,
-  process.env.CA_ENROLLMENT_SECRET_ADMIN,
-  process.env.CA_URL,
-  process.env.ORGNAME,
-  {
-    connectionProfile: process.env.CONNECTION_PROFILE,
+enrollAdmin({
+  caUrl: process.env.ORG_CA_URL,
+  enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
+  enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
+  mspId: process.env.MSPID,
+  label: process.env.CA_ENROLLMENT_ID_ADMIN,
+  context: {
     fabricNetwork: process.env.NETWORK_LOCATION,
+    connectionProfile: process.env.CONNECTION_PROFILE,
+    // TODO: In V2, below api is deprecated
     wallet: new FileSystemWallet(process.env.WALLET)
   }
-)
+})
   .then(result => console.log(result))
   .catch(error => {
     console.error(error);

@@ -42,7 +42,7 @@ export const submitOrEvaluateTx = (
   if (!chaincodeId) throw new Error(MISSING_CHAINCODE_ID);
   if (!fcn) throw new Error(MISSING_FCN);
 
-  const logger = Client.getLogger('Register and enroll user');
+  const logger = Client.getLogger('submitOrEvaluateTx.js');
   const { channelName, fabricNetwork, connectionProfile, wallet } = option;
   const gateway = new Gateway();
 

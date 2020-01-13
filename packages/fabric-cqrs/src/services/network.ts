@@ -1,4 +1,5 @@
 import { ChannelEventHub } from 'fabric-client';
+import Client from 'fabric-client';
 import {
   DefaultEventHandlerStrategies,
   DefaultQueryHandlerStrategies,
@@ -9,6 +10,7 @@ import {
 } from 'fabric-network';
 import { readFileSync } from 'fs';
 import { safeLoad } from 'js-yaml';
+import util from 'util';
 
 export const getNetwork: (option: {
   enrollmentId: string;
@@ -36,18 +38,24 @@ export const getNetwork: (option: {
   queryHandlerStrategy = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
   asLocalhost = true
 }) => {
+  const logger = Client.getLogger('getNetwork.js');
+
   const identityExist: boolean = await wallet.exists(enrollmentId);
   if (!identityExist) {
+    logger.warn('no enrollmentId in the wallet');
     throw new Error('Please register user, before retrying');
   }
   if (!connectionProfile) {
-    throw new Error('No connection profile defined.');
+    logger.warn('no connection profile provided');
+    throw new Error('No connection profile provided');
   }
   if (!channelEventHub) {
-    throw new Error('No channel event hub defined.');
+    logger.warn('no channel event hub provided');
+    throw new Error('No channel event hub provided');
   }
 
   const gateway = await new Gateway();
+
   const connect = (identity: string) =>
     gateway
       .connect(safeLoad(readFileSync(connectionProfile, 'utf8')), {
@@ -62,7 +70,7 @@ export const getNetwork: (option: {
         }
       })
       .catch(error => {
-        console.error(error);
+        logger.error(util.format('cannot connect gateway, %j', error));
         throw error;
       });
 

@@ -21,3 +21,6 @@ export const INVALID_CLIENT = 'Invalid client: cannot retrieve client credential
 export const MISSING_CODE = 'Missing parameter: `code`';
 export const INVALID_URI = 'Invalid request: `redirect_uri` is not a valid URI';
 export const INVALID_REFRESH_TOKEN = 'Invalid grant: refresh token is invalid';
+
+export const AUTHENTICATION_FAIL = 'authentication fail';
+export const AUTHENTICATION_SUCCESS = 'authentication succeed';

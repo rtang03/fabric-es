@@ -1,30 +1,33 @@
+import Client from 'fabric-client';
 import { assign } from 'lodash';
 import { ofType } from 'redux-observable';
 import { from, Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
+import util from 'util';
 import { getNetwork, submit$, submitPrivateData$ } from '../../../services';
 import { dispatchResult } from '../../utils';
 import { action } from '../action';
 import { CreateAction } from '../types';
 
-export default (action$: Observable<CreateAction>, _, context) =>
-  action$.pipe(
+export default (action$: Observable<CreateAction>, _, context) => {
+  const logger = Client.getLogger('create.js');
+
+  return action$.pipe(
     ofType(action.CREATE),
     map(({ payload }) => payload),
-    // create epic is different from other command side epic. It is using enrollmentId, given by payload
-    // to submit transaction, so that the submission is based individual x509 cert. This is used for
-    // policy engine inside chaincode.
-    // the other epic requires no further authorization check, and therefore, submit or evaluate
-    // transaction using 'admin' account.
     mergeMap(payload =>
       from(
         getNetwork({
           enrollmentId: payload.enrollmentId
         })
-          .then(({ network, gateway }) =>
-            assign({}, payload, { network, gateway })
-          )
-          .catch(error => assign({}, payload, { error }))
+          .then(({ network, gateway }) => {
+            logger.info('getNetwork succeed');
+            return assign({}, payload, { network, gateway });
+          })
+          .catch(error => {
+            logger.error(util.format('getNework error: %s', error.message));
+            return assign({}, payload, { error });
+          })
       )
     ),
     mergeMap((getNetwork: any) => {
@@ -38,6 +41,9 @@ export default (action$: Observable<CreateAction>, _, context) =>
       else {
         const { tx_id, args, network, gateway } = getNetwork;
         const { id, entityName, events, version, collection } = args;
+
+        logger.debug(util.format('input_args: %j', args));
+
         return collection
           ? submitPrivateData$(
               'privatedata:createCommit',
@@ -45,7 +51,15 @@ export default (action$: Observable<CreateAction>, _, context) =>
               { eventstr: Buffer.from(JSON.stringify(events)) },
               { network: network || context.network }
             ).pipe(
-              tap(() => gateway.disconnect()),
+              tap(commits => {
+                logger.debug(
+                  util.format(
+                    'dispatch submitPrivateData response: %j',
+                    commits
+                  )
+                );
+                gateway.disconnect();
+              }),
               dispatchResult(tx_id, action.createSuccess, action.createError)
             )
           : submit$(
@@ -53,9 +67,15 @@ export default (action$: Observable<CreateAction>, _, context) =>
               [entityName, id, version.toString(), JSON.stringify(events)],
               { network: network || context.network }
             ).pipe(
-              tap(() => gateway.disconnect()),
+              tap(commits => {
+                logger.debug(
+                  util.format('dispatch submit response: %j', commits)
+                );
+                gateway.disconnect();
+              }),
               dispatchResult(tx_id, action.createSuccess, action.createError)
             );
       }
     })
   );
+};

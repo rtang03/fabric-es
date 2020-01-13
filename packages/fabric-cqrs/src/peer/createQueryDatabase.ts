@@ -1,26 +1,29 @@
+import Client from 'fabric-client';
 import { filter, remove, values } from 'lodash';
 import { Commit, QueryDatabase } from '../types';
 
 export const createQueryDatabase: () => QueryDatabase = () => {
+  const logger = Client.getLogger('createQueryDatabase');
+
   let db: Record<string, Commit> = {
-    '20181208155814606': {
-      commitId: '20181208155814606',
-      committedAt: '1544284694606',
-      entityName: 'dev_test',
-      entityId: 'ent_test_1001',
-      id: 'ent_test_1001',
-      version: 0,
-      events: [
-        {
-          type: 'UserCreated',
-          payload: {
-            userId: 'ent_test_1001',
-            name: 'Mr X',
-            timestamp: 1544284694606
-          }
-        }
-      ]
-    }
+    // '20181208155814606': {
+    //   commitId: '20181208155814606',
+    //   committedAt: '1544284694606',
+    //   entityName: 'dev_test',
+    //   entityId: 'ent_test_1001',
+    //   id: 'ent_test_1001',
+    //   version: 0,
+    //   events: [
+    //     {
+    //       type: 'UserCreated',
+    //       payload: {
+    //         userId: 'ent_test_1001',
+    //         name: 'Mr X',
+    //         timestamp: 1544284694606
+    //       }
+    //     }
+    //   ]
+    // }
   };
   let newDB;
 
@@ -31,6 +34,8 @@ export const createQueryDatabase: () => QueryDatabase = () => {
         remove(newDB, { id, entityName });
         db = {};
         newDB.forEach(obj => (db[obj.commitId] = obj));
+
+        logger.info('deleteByEntityId complete');
         resolve({ status: '1 number of record deleted successful' });
       }),
     deleteByEntityName: ({ entityName }) =>
@@ -39,22 +44,27 @@ export const createQueryDatabase: () => QueryDatabase = () => {
         remove(newDB, { entityName });
         db = {};
         newDB.forEach(obj => (db[obj.commitId] = obj));
+
+        logger.info('deleteByEntityName complete');
         resolve({ status: 'all records deleted successfully' });
       }),
     queryByEntityId: ({ entityName, id }) =>
       new Promise(resolve => {
         const data: Record<string, Commit> = {};
-        // console.log('logging "db"... ', db);
         // filter(db, obj => obj.id === id && obj.entityName === entityName).forEach(
         filter(db, { id, entityName }).forEach(
           obj => (data[obj.commitId] = obj)
         );
+
+        logger.info('queryByEntityId complete');
         resolve({ data });
       }),
     queryByEntityName: ({ entityName }) =>
       new Promise(resolve => {
         const data: Record<string, Commit> = {};
         filter(db, { entityName }).forEach(obj => (data[obj.commitId] = obj));
+
+        logger.info('queryByEntityName complete');
         resolve({ data });
       }),
     merge: ({ commit }) =>
@@ -63,6 +73,8 @@ export const createQueryDatabase: () => QueryDatabase = () => {
         // console.log('after merge:', db);
         const data = {};
         data[commit.commitId] = commit;
+
+        logger.info('merge complete');
         resolve({ data });
       }),
     mergeBatch: ({ entityName, commits }) =>
@@ -76,6 +88,8 @@ export const createQueryDatabase: () => QueryDatabase = () => {
           db[commit.commitId] = commit;
           data[commit.commitId] = {};
         });
+
+        logger.info('mergeBatch complete');
         resolve({ data });
       })
   };

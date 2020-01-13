@@ -1,17 +1,20 @@
+import Client from 'fabric-client';
+import { isEqual } from 'lodash';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 import { ProjectionDb, Reducer } from '../../../types';
 import { action } from '../action';
 import { UpsertManyAction } from '../types';
-import { isEqual } from 'lodash';
 
 export default (
   action$: Observable<UpsertManyAction>,
   _,
   context: { projectionDb: ProjectionDb; reducer: Reducer }
-) =>
-  action$.pipe(
+) => {
+  const logger = Client.getLogger('upsertMany.js');
+
+  return action$.pipe(
     ofType(action.UPSERT_MANY),
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { commits } }) =>
@@ -20,9 +23,12 @@ export default (
           ? Promise.resolve(action.upsertManySuccess({ tx_id, result: null }))
           : context.projectionDb
               .upsertMany({ commits, reducer: context.reducer })
-              .then(({ data }) =>
-                action.upsertManySuccess({ tx_id, result: data })
-              )
+              .then(({ data }) => {
+                logger.info('projectionDb upsertMany successful');
+
+                return action.upsertManySuccess({ tx_id, result: data });
+              })
       )
     )
   );
+};

@@ -1,38 +1,51 @@
-const { resolve } = require('path');
 require('dotenv').config({
-  path: resolve(__dirname, './__utils__/.env.test')
+  path: require('path').resolve(__dirname, '../../../.env.test')
 });
+
 import { createAuthServer, createDbConnection } from '@espresso/authentication';
 import { ApolloError, ApolloServer } from 'apollo-server';
 import { Express } from 'express';
+import Client from 'fabric-client';
 import http from 'http';
 import fetch from 'node-fetch';
 import request from 'supertest';
-import { createAdminService } from '../admin';
-import {
-  MISSING_VARIABLE,
-  UNAUTHORIZED_ACCESS,
-  USER_NOT_FOUND
-} from '../admin/contants';
 import {
   CREATE_ROOT_CLIENT,
+  createGateway,
   GET_BLOCK_BY_NUMBER,
   GET_CA_IDENTITIES,
   GET_CA_IDENTITY_BY_ENROLLMENT_ID,
   GET_CHAIN_HEIGHT,
-  GET_CHANNEL_PEERS,
-  GET_COLLECTION_CONFIGS,
   GET_INSTALLED_CC_VERSION,
   GET_INSTALLED_CHAINCODES,
   GET_INSTANTIATED_CHAINCODES,
-  GET_PEERINFO,
   IS_WALLET_ENTRY_EXIST,
   LIST_WALLET,
+  logger,
   LOGIN,
   REGISTER_ADMIN,
   REGISTER_AND_ENROLL_USER
-} from '../admin/query';
-import { createGateway } from '../utils/createGateway'; // do not use shorten path
+} from '../..';
+import {
+  MISSING_VARIABLE,
+  UNAUTHORIZED_ACCESS,
+  USER_NOT_FOUND
+} from '../constants';
+import { createAdminServiceV2 } from '../createAdminServiceV2';
+
+let app: Express;
+let authServer: http.Server;
+let federatedAdminServer: ApolloServer;
+let accessToken: string;
+let user_id: string;
+const port = 15000;
+const authPort = process.env.OAUTH_SERVER_PORT;
+const authUri = `http://localhost:${authPort}/graphql`;
+const headers = { 'content-type': 'application/json' };
+const username = `tester${Math.floor(Math.random() * 10000)}`;
+const email = `${username}@example.com`;
+const password = 'password';
+const admin_password = process.env.ADMIN_PASSWORD || 'admin_test';
 
 const dbConnection = createDbConnection({
   name: 'default',
@@ -41,25 +54,11 @@ const dbConnection = createDbConnection({
   port: 5432,
   username: 'postgres',
   password: 'docker',
-  database: 'gw-org1',
+  database: 'gw-node-admin-test',
   logging: false,
   synchronize: true,
   dropSchema: true
 });
-
-let authServer: http.Server;
-let federatedAdminServer: ApolloServer;
-let app: Express;
-let accessToken: string;
-let user_id: string;
-const authPort = process.env.OAUTH_SERVER_PORT || 3300;
-const port = 15000;
-const authUri = `http://localhost:${authPort}/graphql`;
-const headers = { 'content-type': 'application/json' };
-const username = `tester${Math.floor(Math.random() * 10000)}`;
-const email = `${username}@example.com`;
-const password = 'password';
-const admin_password = process.env.ADMIN_PASSWORD || 'admin_test';
 
 type QueryResponse = {
   body: {
@@ -69,10 +68,16 @@ type QueryResponse = {
 };
 
 beforeAll(async () => {
+  // if uncomment, send to file logger
+  // Client.setLogger(logger);
+
   // step 1: start admin service (federated service)
-  federatedAdminServer = await createAdminService({
-    channelName: process.env.CHANNEL_NAME,
+  federatedAdminServer = await createAdminServiceV2({
+    ordererName: process.env.ORDERER_NAME,
+    ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
     peerName: process.env.PEER_NAME,
+    caAdminEnrollmentId: process.env.CA_ENROLLMENT_ID_ADMIN,
+    channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     fabricNetwork: process.env.NETWORK_LOCATION,
     walletPath: process.env.WALLET
@@ -86,7 +91,8 @@ beforeAll(async () => {
         name: 'admin',
         url: `http://localhost:${port}/graphql`
       }
-    ]
+    ],
+    authenticationCheck: 'http://localhost:3311/oauth/authenticate'
   });
 
   // step 3: start authentication server (expressjs)
@@ -103,7 +109,7 @@ afterAll(async () => {
 
 // require a running Fabric network
 // run service.integration.test in fabric-cqrs, if no pre-existing onchain data
-describe('Authenticted Service Admin Int Tests', () => {
+describe('Service-admin Integration Tests', () => {
   it('should createRootClient', async () =>
     fetch(authUri, {
       method: 'POST',
@@ -119,6 +125,7 @@ describe('Authenticted Service Admin Int Tests', () => {
         expect(typeof data?.createRootClient).toEqual('string')
       ));
 
+  /*
   it('should register new (admin) user', async () =>
     fetch(authUri, {
       method: 'POST',
@@ -163,18 +170,18 @@ describe('Authenticted Service Admin Int Tests', () => {
         expect(data?.getBlockByNumber).toBeNull();
       }));
 
-  it('should getBlockByNumber', async () =>
-    request(app)
-      .post('/graphql')
-      .send({
-        operationName: 'GetBlockByNumber',
-        query: GET_BLOCK_BY_NUMBER,
-        variables: { blockNumber: 6 }
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(data?.getBlockByNumber.block_number).toEqual('6');
-      }));
+  // it('should getBlockByNumber', async () =>
+  //   request(app)
+  //     .post('/graphql')
+  //     .send({
+  //       operationName: 'GetBlockByNumber',
+  //       query: GET_BLOCK_BY_NUMBER,
+  //       variables: { blockNumber: 10 }
+  //     })
+  //     .expect(({ body: { data, errors } }) => {
+  //       expect(errors).toBeUndefined();
+  //       expect(data?.getBlockByNumber.block_number).toEqual('10');
+  //     }));
 
   it('should fail to getCaIdentities: without accessToken', async () =>
     request(app)
@@ -252,46 +259,6 @@ describe('Authenticted Service Admin Int Tests', () => {
         expect(data?.isWalletEntryExist).toBeTruthy();
       }));
 
-  it('should getCaIdentities: with (admin) accessToken', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${accessToken}`)
-      .send({
-        operationName: 'GetCaIdentities',
-        query: GET_CA_IDENTITIES
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(data?.getCaIdentities[0].id).toEqual('rca-org1-admin');
-      }));
-
-  it('should getChannelPeers', async () =>
-    request(app)
-      .post('/graphql')
-      .send({ operationName: 'GetChannelPeers', query: GET_CHANNEL_PEERS })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(data?.getChannelPeers[0]).toEqual({
-          name: 'peer0.org1.example.com',
-          mspid: 'Org1MSP',
-          url: 'grpcs://localhost:7051'
-        });
-      }));
-
-  it('should getCollectionConfigs', async () =>
-    request(app)
-      .post('/graphql')
-      .send({
-        operationName: 'GetCollectionConfigs',
-        query: GET_COLLECTION_CONFIGS
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(data?.getCollectionConfigs[0].name).toEqual(
-          'Org1PrivateDetails'
-        );
-      }));
-
   it('should getInstalledChaincodes', async () =>
     request(app)
       .post('/graphql')
@@ -352,18 +319,6 @@ describe('Authenticted Service Admin Int Tests', () => {
         expect(typeof data?.getChainHeight).toEqual('number');
       }));
 
-  it('should getPeerInfo', async () =>
-    request(app)
-      .post('/graphql')
-      .send({ operationName: 'GetPeerInfo', query: GET_PEERINFO })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(data?.getPeerInfo).toEqual({
-          peerName: 'peer0.org1.example.com',
-          mspid: 'Org1MSP'
-        });
-      }));
-
   it('should fail to getCaIdentityByEnrollmentId: without accessToken', async () =>
     request(app)
       .post('/graphql')
@@ -418,4 +373,5 @@ describe('Authenticted Service Admin Int Tests', () => {
         expect(errors).toBeUndefined();
         expect(data?.getCaIdentityByEnrollmentId.id).toEqual(user_id);
       }));
+*/
 });
