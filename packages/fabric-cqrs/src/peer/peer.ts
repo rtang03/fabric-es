@@ -1,3 +1,5 @@
+import Client from 'fabric-client';
+import util from 'util';
 import { createProjectionDb, createQueryDatabase } from '.';
 import { action } from '../cqrs/query';
 import { generateToken } from '../cqrs/utils';
@@ -7,6 +9,8 @@ import { Peer, PeerOptions } from '../types';
 import { ngacRepo, privateDataRepo, reconcile, repository } from './utils';
 
 export const createPeer: (options: PeerOptions) => Peer = options => {
+  const logger = Client.getLogger('createPeer.js');
+
   let registerId: any;
   const {
     defaultEntityName,
@@ -16,23 +20,30 @@ export const createPeer: (options: PeerOptions) => Peer = options => {
     queryDatabase,
     collection
   } = options;
+
   if (!collection) {
-    console.error('null privatedata collection');
+    logger.error('null privatedata collection');
     throw new Error('Null privatedata collection');
   }
   options.projectionDb = projectionDb || createProjectionDb(defaultEntityName);
   options.queryDatabase = queryDatabase || createQueryDatabase();
+
   const store = getStore(options);
+
   return {
     getNgacRepo: ngacRepo(options.network),
     getPrivateDataRepo: privateDataRepo(store, collection),
     getRepository: repository(store),
     reconcile: reconcile(store),
     subscribeHub: async () => {
+      logger.info('subcribe channel event hub');
+
       registerId = await channelEventHub(channelHub).registerCCEvent({
         onChannelEventArrived: ({ commit }) => {
           const tid = generateToken();
-          // console.log('subscribed event arrives');
+          logger.info('subscribed event arrives');
+          logger.debug(util.format('subscribed event arrives, %j', commit));
+
           store.dispatch(action.merge({ tx_id: tid, args: { commit } }));
         }
       });

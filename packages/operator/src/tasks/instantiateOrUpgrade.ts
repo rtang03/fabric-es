@@ -34,7 +34,7 @@ export const instantiateOrUpdate = option => async ({
   if (!chaincodeId) throw new Error(MISSING_CHAINCODE_ID);
   if (!chaincodeVersion) throw new Error(MISSING_CC_VERSION);
 
-  const logger = Client.getLogger('Instantiate or update cc');
+  const logger = Client.getLogger('instantiateOrUpdate.js');
   const {
     channelName,
     fabricNetwork,

@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Express, Request, Response } from 'express';
+import Client from 'fabric-client';
 import { verify } from 'jsonwebtoken';
 import { OAuth2Server } from 'oauth2-server-typescript';
 import { buildSchema } from 'type-graphql';
@@ -29,6 +30,8 @@ export const createHttpServer: (option: {
     refreshTokenLifetime: 604800 // second or = 7d
   }
 }) => {
+  const logger = Client.getLogger('createHttpServer.js');
+
   modelOptions.accessTokenOptions = {
     expiresIn: `${oauthOptions.accessTokenLifetime}s`
   };
@@ -44,6 +47,8 @@ export const createHttpServer: (option: {
 
   if (dbConnection) await createConnection(dbConnection);
   else await createConnection();
+
+  logger.debug('connect db successfully');
 
   const app = express();
   app.set('view engine', 'pug');

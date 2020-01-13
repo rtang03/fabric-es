@@ -1,3 +1,4 @@
+import Client from 'fabric-client';
 import { assign, filter, groupBy, isNumber, keys, values } from 'lodash';
 import { Commit, ProjectionDb } from '../types';
 
@@ -10,16 +11,23 @@ const getHistory = (commits: Commit[]): any[] => {
 export const createProjectionDb: (
   defaultEntityName: string
 ) => ProjectionDb = defaultEntityName => {
+  const logger = Client.getLogger('createProjectionDb');
+
   const db: Record<string, any> = {};
   return {
     find: ({ all, contain, where }) =>
       new Promise(resolve => {
         if (all) {
+          logger.info('return all');
+
           resolve({ data: values(db) });
         } else if (where) {
-          // console.log('fabric-cqrs/projectionDb.ts', where, values(db));
+          logger.info('where clause');
+
           resolve({ data: filter(values(db), where) });
         } else if (contain) {
+          logger.info('contain clause');
+
           resolve({
             data: filter(values(db), item =>
               JSON.stringify(item).includes(
@@ -35,6 +43,8 @@ export const createProjectionDb: (
         if (defaultEntityName === entityName) {
           db[id] = assign({ id }, reducer(getHistory(values(commit))));
         }
+
+        logger.info('upsert complete');
         resolve({ data: { [id]: {} } });
       }),
     upsertMany: ({ commits, reducer }) =>
@@ -53,6 +63,8 @@ export const createProjectionDb: (
           db[entity.id] = entity;
           data[entity.id] = {};
         });
+
+        logger.info('upsertMany complete');
         resolve({ data });
       })
   };

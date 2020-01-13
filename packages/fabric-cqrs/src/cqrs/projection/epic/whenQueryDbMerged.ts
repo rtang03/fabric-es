@@ -1,3 +1,4 @@
+import Client from 'fabric-client';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
@@ -16,15 +17,21 @@ export default (
     queryDatabase: QueryDatabase;
     reducer: Reducer;
   }
-) =>
-  action$.pipe(
+) => {
+  const logger = Client.getLogger('whenQueryDbMerged.js');
+
+  return action$.pipe(
     ofType(queryAction.MERGE_SUCCESS),
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName, id } }) =>
       from(
         context.queryDatabase
           .queryByEntityId({ entityName, id })
-          .then(({ data }) => action.upsert({ tx_id, args: { commit: data } }))
+          .then(({ data }) => {
+            logger.info('whenQueryDbMerged done');
+            return action.upsert({ tx_id, args: { commit: data } });
+          })
       )
     )
   );
+};

@@ -18,12 +18,10 @@ import {
   MISSING_WALLET,
   NetworkOperator
 } from './types';
-import { logger } from './utils';
 
 export const createNetworkOperator = async (
   option: CreateNetworkOperatorOption
 ): Promise<NetworkOperator> => {
-  Client.setLogger(logger);
   const { channelName, ordererTlsCaCert, ordererName, context } = option;
   const fabricNetwork = context?.fabricNetwork;
   const connectionProfile = context?.connectionProfile;

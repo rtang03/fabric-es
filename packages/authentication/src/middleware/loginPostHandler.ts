@@ -1,9 +1,13 @@
 import { compare } from 'bcrypt';
 import { Request, Response } from 'express';
+import Client from 'fabric-client';
 import http from 'http-status';
+import util from 'util';
 import { OUser } from '../entity/OUser';
 
 export const loginPostHandler = async (req: Request, res: Response) => {
+  const logger = Client.getLogger('loginPostHandler.js');
+
   const {
     email,
     password,
@@ -14,7 +18,9 @@ export const loginPostHandler = async (req: Request, res: Response) => {
     grant_type,
     response_type
   } = req.body;
+
   const user = await OUser.findOne({ where: { email } });
+
   if (!user)
     return res.render('login', {
       redirect,
@@ -24,6 +30,7 @@ export const loginPostHandler = async (req: Request, res: Response) => {
     });
 
   res.app.locals.user_id = user.id;
+
   if (!password)
     return res.render('login', {
       redirect,
@@ -34,15 +41,19 @@ export const loginPostHandler = async (req: Request, res: Response) => {
 
   const valid = await compare(password, user.password);
 
-  if (!valid)
+  if (!valid) {
+    logger.warn(util.format('user & password mis-match: %s', user.id));
+
     return res.render('login', {
       redirect,
       client_id,
       redirect_uri,
       message: 'bad password'
     });
+  }
 
   const path = req.body!.redirect || '/home';
+
   return !client_id
     ? res.status(http.BAD_REQUEST).send({ error: 'client_id is missing' })
     : !redirect_uri

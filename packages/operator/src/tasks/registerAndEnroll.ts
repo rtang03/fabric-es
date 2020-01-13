@@ -41,7 +41,8 @@ export const registerAndEnroll = (
   if (!enrollmentId) throw new Error(MISSING_ENROLLMENTID);
   if (!enrollmentSecret) throw new Error(MISSING_ENROLLMENTSECRET);
 
-  const logger = Client.getLogger('Register and enroll user');
+  const logger = Client.getLogger('registerAndEnroll.js');
+
   const { fabricNetwork, connectionProfile, wallet } = option;
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
   const mspId = client.getMspid();

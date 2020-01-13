@@ -3,6 +3,7 @@
 
 export { createGateway } from './utils/createGateway';
 export { createService } from './utils/createService';
+export { logger } from './utils/logger';
 export { createAdminService } from './admin/createAdminService';
 export { createRemoteService } from './remote/createRemoteService';
 export { RemoteData } from './remote/remoteData';

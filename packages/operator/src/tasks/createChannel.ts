@@ -16,7 +16,7 @@ export const createChannel = (option: CreateNetworkOperatorOption) => async ({
 }): Promise<BroadcastResponse> => {
   if (!channelTxPath) throw new Error(MISSING_CONFIG_TX);
 
-  const logger = Client.getLogger('Create channel');
+  const logger = Client.getLogger('createChannel.js');
   const {
     channelName,
     connectionProfile,

@@ -2,7 +2,6 @@ const { resolve } = require('path');
 require('dotenv').config({
   path: resolve(__dirname, './__utils__/.env.test')
 });
-import { enrollAdmin } from '@espresso/admin-tool';
 import { createAuthServer, createDbConnection } from '@espresso/authentication';
 import {
   User,
@@ -44,7 +43,7 @@ import {
   MISSING_VARIABLE,
   UNAUTHORIZED_ACCESS,
   USER_NOT_FOUND
-} from '../admin/contants';
+} from '../admin/constants';
 import {
   CREATE_ROOT_CLIENT,
   GET_BLOCK_BY_NUMBER,

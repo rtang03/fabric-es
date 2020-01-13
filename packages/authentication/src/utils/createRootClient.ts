@@ -1,10 +1,18 @@
+import Client from 'fabric-client';
 import fetch from 'node-fetch';
+import util from 'util';
 import { CREATE_ROOT_CLIENT, GET_ROOT_CLIENT } from '../query';
 
 const headers = { 'content-type': 'application/json' };
 
-export const createRootClient = async (uri: string) => {
-  const isRootClientExist = await fetch(uri, {
+export const createRootClient = async (option: {
+  uri: string;
+  admin: string;
+  admin_password: string;
+}) => {
+  const logger = Client.getLogger('createRootClient.js');
+
+  const isRootClientExist = await fetch(option.uri, {
     method: 'POST',
     headers,
     body: JSON.stringify({
@@ -15,27 +23,32 @@ export const createRootClient = async (uri: string) => {
     .then(res => res.json())
     .then(({ data }) => {
       if (data?.getRootClientId)
-        console.log(`Root client app: ${data.getRootClientId}`);
+        logger.info(`Root client app: ${data.getRootClientId}`);
+      else logger.warn('Root client does not exist');
+
       return !!data?.getRootClientId;
     });
+
   if (!isRootClientExist) {
-    await fetch(uri, {
+    await fetch(option.uri, {
       method: 'POST',
       headers,
       body: JSON.stringify({
         operationName: 'CreateRootClient',
         query: CREATE_ROOT_CLIENT,
         variables: {
-          admin: process.env.ADMIN,
-          password: process.env.ADMIN_PASSWORD
+          admin: option.admin,
+          password: option.admin_password
         }
       })
     })
       .then(res => res.json())
       .then(({ data }) => {
         const result = data?.createRootClient || 'Unknown Error';
-        console.log(`Root client created: ${result}`);
+        logger.info(`Root client created: ${result}`);
       })
-      .catch(error => console.error(error));
+      .catch(error => {
+        logger.warn(util.format('CreateRootClient: %s', error.message));
+      });
   }
 };

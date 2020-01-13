@@ -1,4 +1,4 @@
-require('../env');
+require('../env'); // Todo: <== this point to invalid env.ts
 import {
   createPeer,
   getNetwork,

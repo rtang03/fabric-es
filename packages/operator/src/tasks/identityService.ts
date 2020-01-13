@@ -14,7 +14,7 @@ export const identityService = (option: CreateNetworkOperatorOption) => async ({
   caAdmin: string;
   asLocalhost: boolean;
 }) => {
-  const logger = Client.getLogger('Identity service');
+  const logger = Client.getLogger('identityService.js');
   const { connectionProfile, wallet } = option;
   const gateway = new Gateway();
   await gateway.connect(connectionProfile, {

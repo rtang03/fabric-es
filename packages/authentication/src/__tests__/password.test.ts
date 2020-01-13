@@ -28,7 +28,7 @@ const dbConnection = {
   host: 'localhost',
   port: 5432,
   username: 'postgres',
-  password: 'postgres',
+  password: 'docker',
   database: 'testpassword',
   logging: false,
   synchronize: true,

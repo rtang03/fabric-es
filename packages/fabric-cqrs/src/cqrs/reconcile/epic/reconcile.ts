@@ -1,13 +1,17 @@
+import Client from 'fabric-client';
 import { Store } from 'redux';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
+import util from 'util';
 import { action as command } from '../../command/action';
 import { action } from '../action';
 import { ReconcileAction } from '../types';
 
-export default (action$: Observable<ReconcileAction>) =>
-  action$.pipe(
+export default (action$: Observable<ReconcileAction>) => {
+  const logger = Client.getLogger('reconcile.js');
+
+  return action$.pipe(
     ofType(action.RECONCILE),
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName, reducer }, store }) =>
@@ -17,8 +21,15 @@ export default (action$: Observable<ReconcileAction>) =>
             const state = store.getState().write;
             const tid = state.tx_id;
             const { type, result } = state;
+
             if (tx_id === tid && type === command.QUERY_SUCCESS) {
+              logger.info(command.QUERY_SUCCESS);
+              logger.debug(
+                util.format('tx_id: %s, type: %s', tid, command.QUERY_SUCCESS)
+              );
+
               unsubscribe();
+
               resolve(
                 action.merge({
                   tx_id,
@@ -28,10 +39,14 @@ export default (action$: Observable<ReconcileAction>) =>
               );
             }
           });
+
           (store as Store).dispatch(
             command.queryByEntityName({ tx_id, args: { entityName } })
           );
+
+          logger.info(`dispatch ${command.QUERY_BY_ENTITY_NAME}: ${tx_id}`);
         })
       )
     )
   );
+};

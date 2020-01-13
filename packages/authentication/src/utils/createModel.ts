@@ -1,3 +1,4 @@
+import ClientLogger from 'fabric-client';
 import { sign } from 'jsonwebtoken';
 import {
   AuthorizationCode as IAuthorizationCode,
@@ -6,6 +7,7 @@ import {
   RefreshToken as IRefreshToken,
   Token as IToken
 } from 'oauth2-server-typescript';
+import util from 'util';
 import { AccessToken } from '../entity/AccessToken';
 import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
@@ -27,25 +29,44 @@ export const createModel: (option?: {
 ) => ({
   request: undefined,
   generateAccessToken: async (client: IClient, user: OUser, scope) => {
+    const logger = ClientLogger.getLogger('createModel.js');
     const payload: any = {};
     if (user?.id) payload.userId = user.id;
     if (client?.id) payload.client_id = client.id;
     if (user?.is_admin) payload.is_admin = user.is_admin;
     option.accessTokenOptions.subject = user.id;
-    return sign(payload, option.accessTokenSecret, option.accessTokenOptions);
+    const tok = sign(
+      payload,
+      option.accessTokenSecret,
+      option.accessTokenOptions
+    );
+    logger.info(`generateAccessToken for ${user.id}`);
+
+    return tok;
   },
   generateRefreshToken: async (client: IClient, user: OUser, scope) => {
+    const logger = ClientLogger.getLogger('createModel.js');
     const payload: any = {};
     if (user?.id) payload.userId = user.id;
     if (client?.id) payload.client_id = client.id;
     option.refreshTokenOptions.subject = client.id;
-    return sign(payload, option.refreshTokenSecret, option.refreshTokenOptions);
+    const tok = sign(
+      payload,
+      option.refreshTokenSecret,
+      option.refreshTokenOptions
+    );
+    logger.info(`generateRefreshToken for ${user.id}`);
+
+    return tok;
   },
   getAccessToken: async (access_token: string) => {
+    const logger = ClientLogger.getLogger('createModel.js');
     const token = await AccessToken.findOne({ access_token });
     if (!token) return null;
     const user = await OUser.findOne({ id: token.user_id });
     const client = await Client.findOne({ id: token.client_id });
+    logger.info(`getAccessToken for ${user.id}`);
+
     return user && client
       ? {
           accessToken: token.access_token,
@@ -56,10 +77,13 @@ export const createModel: (option?: {
       : null;
   },
   getRefreshToken: async (refresh_token: string) => {
+    const logger = ClientLogger.getLogger('createModel.js');
     const token = await RefreshToken.findOne({ refresh_token });
     if (!token) return null;
     const user = await OUser.findOne({ id: token.user_id });
     const client = await Client.findOne({ id: token.client_id });
+    logger.info(`getRefreshToken for ${user.id}`);
+
     return user && client
       ? {
           refreshToken: token.refresh_token,
@@ -71,10 +95,13 @@ export const createModel: (option?: {
       : null;
   },
   getAuthorizationCode: async (authorization_code: string) => {
+    const logger = ClientLogger.getLogger('createModel.js');
     const code = await AuthorizationCode.findOne({ authorization_code });
     if (!code) return null;
     const user = await OUser.findOne({ id: code.user_id });
     const client = await Client.findOne({ id: code.client_id });
+    logger.info(`getAuthorizationCode for ${user.id}`);
+
     return client && user
       ? {
           authorizationCode: code.authorization_code,
@@ -87,12 +114,17 @@ export const createModel: (option?: {
       : null;
   },
   getClient: async (client_id: string, client_secret?: string) => {
+    const logger = ClientLogger.getLogger('createModel.js');
     const client = client_secret
       ? await Client.findOne({ id: client_id, client_secret }).catch(error =>
-          console.error(error)
+          logger.warn(
+            util.format('getClient for %s, %s', client_id, error.message)
+          )
         )
       : await Client.findOne({ id: client_id }).catch(error =>
-          console.error(error)
+          logger.warn(
+            util.format('getClient for %s, %s', client_id, error.message)
+          )
         );
     return client
       ? {
@@ -104,25 +136,45 @@ export const createModel: (option?: {
       : null;
   },
   getUser: async (username: string) => {
+    const logger = ClientLogger.getLogger('createModel.js');
+    logger.info(`getUser for ${username}`);
+
     return await OUser.findOne({ username });
   },
   getUserFromClient: async (client: IClient) => {
+    const logger = ClientLogger.getLogger('createModel.js');
+    logger.info(
+      util.format(
+        'getUserFromClient for client %s, user %s',
+        client.id,
+        client.user_id
+      )
+    );
+
     return OUser.findOne({ id: client.user_id });
   },
   revokeAuthorizationCode: async (code: IAuthorizationCode) => {
+    const logger = ClientLogger.getLogger('createModel.js');
     await AuthorizationCode.delete({
       authorization_code: code.authorizationCode
     }).catch(error => {
-      console.error(error);
+      logger.warn(
+        util.format(
+          'revokeAuthorizationCode for client %s, %s',
+          code?.client?.id,
+          error.message
+        )
+      );
       return false;
     });
     return true;
   },
   revokeToken: async (token: IRefreshToken) => {
+    const logger = ClientLogger.getLogger('createModel.js');
     await RefreshToken.delete({
       refresh_token: token.refreshToken
     }).catch(error => {
-      console.error(error);
+      logger.warn(util.format('revokeToken: %s', error.message));
       return false;
     });
     return true;
@@ -132,6 +184,7 @@ export const createModel: (option?: {
     client: IClient,
     user: OUser
   ): Promise<IAuthorizationCode> => {
+    const logger = ClientLogger.getLogger('createModel.js');
     const authCode = {
       authorization_code: code.authorizationCode,
       expires_at: code.expiresAt,
@@ -141,6 +194,14 @@ export const createModel: (option?: {
       user_id: user.id
     };
     await AuthorizationCode.insert(authCode);
+    logger.info(
+      util.format(
+        'saveAuthorizationCode for client %s, user %s',
+        client.id,
+        user.id
+      )
+    );
+
     return {
       authorizationCode: authCode.authorization_code,
       expiresAt: authCode.expires_at,
@@ -151,10 +212,11 @@ export const createModel: (option?: {
     };
   },
   saveToken: async (token: IToken, client: IClient, user: OUser) => {
+    const logger = ClientLogger.getLogger('createModel.js');
     const exist = await AccessToken.findOne({
       access_token: token.accessToken
     });
-    if (exist)
+    if (exist) {
       await AccessToken.update(
         { access_token: token.accessToken },
         {
@@ -165,7 +227,8 @@ export const createModel: (option?: {
           user_id: user.id
         }
       );
-    else
+      logger.info(`accessToken updated for user ${user.id}`);
+    } else {
       await AccessToken.insert({
         access_token: token.accessToken,
         expires_at: token.accessTokenExpiresAt,
@@ -173,6 +236,8 @@ export const createModel: (option?: {
         client_id: client.id,
         user_id: user.id
       });
+      logger.info(`accessToken inserted for user ${user.id}`);
+    }
 
     if (token.refreshToken) {
       await RefreshToken.insert({
@@ -182,7 +247,9 @@ export const createModel: (option?: {
         client_id: client.id,
         user_id: user.id
       });
+      logger.info(`refreshToken inserted for user ${user.id}`);
     }
+
     return {
       accessToken: token.accessToken,
       accessTokenExpiresAt: token.accessTokenExpiresAt,

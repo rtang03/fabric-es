@@ -18,7 +18,7 @@ import {
   PEER_INFO_ERROR,
   UNAUTHORIZED_ACCESS,
   USER_NOT_FOUND
-} from './contants';
+} from './constants';
 
 export const createResolvers: (option: {
   channelName: string;

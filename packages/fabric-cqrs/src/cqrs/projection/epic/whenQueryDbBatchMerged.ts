@@ -1,7 +1,6 @@
-import { AnyAction } from 'redux';
 import { ofType } from 'redux-observable';
 import { Observable } from 'rxjs';
-import { map, mergeMap, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Commit, ProjectionDb, QueryDatabase, Reducer } from '../../../types';
 import { action as queryAction } from '../../query/action';
 import { action } from '../action';
@@ -22,11 +21,12 @@ export default (
     queryDatabase: QueryDatabase;
     reducer: Reducer;
   }
-) =>
-  action$.pipe(
+) => {
+  return action$.pipe(
     ofType(queryAction.MERGE_BATCH_SUCCESS),
     map(({ payload }) => payload),
     map(({ tx_id, args: { commits } }) => {
       return action.upsertMany({ tx_id, args: { commits } });
     })
   );
+};

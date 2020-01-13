@@ -16,7 +16,10 @@ const entityName = 'ngac_service_test';
 const entityId = 'entity_id_1001';
 
 beforeAll(async () => {
-  const config = await bootstrapNetwork({ enrollmentId });
+  const config = await bootstrapNetwork({
+    enrollmentId,
+    enrollmentSecret: 'password'
+  });
   network = config.network;
   gateway = config.gateway;
 });
@@ -39,17 +42,18 @@ describe('Ngac CRUD Integration Tests', () => {
     }).then(attributes => expect(attributes).toMatchSnapshot()));
 
   it('should getPolicyById', async () =>
-    evaluateNgac('getPolicyById', [id], { network }).then(
-      (policies: Policy[]) =>
-        policies.forEach(({ key }) =>
-          expect(key.startsWith(JSON.stringify(id))).toBe(true)
-        )
+    evaluateNgac('getPolicyById', [id], {
+      network
+    }).then((policies: Policy[]) =>
+      policies.forEach(({ key }) =>
+        expect(key.startsWith(JSON.stringify(id))).toBe(true)
+      )
     ));
 
   it('should getPolicyByIdSid', async () =>
-    evaluateNgac('getPolicyByIdSid', [id, 'allowCreateTest'], { network }).then(
-      policy => expect(policy).toMatchSnapshot()
-    ));
+    evaluateNgac('getPolicyByIdSid', [id, 'allowCreateTest'], {
+      network
+    }).then(policy => expect(policy).toMatchSnapshot()));
 
   it('should addPolicy', async () => {
     const pClass = 'service-ngac-crud-policy';
