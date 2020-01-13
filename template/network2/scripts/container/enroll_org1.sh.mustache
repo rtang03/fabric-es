@@ -10,8 +10,7 @@ fabric-ca-client enroll -d -u https://{{orgs.peer.0.ca.admin}}:{{orgs.peer.0.ca.
 {{#orgs.peer.0.peers.endpoints}}
 fabric-ca-client register -d --id.name {{-}}{{network.host-delimiter}}{{orgs.peer.0.domain}} --id.secret {{-}}PW --id.type peer -u https://0.0.0.0:{{orgs.peer.0.ca.port}}
 {{/orgs.peer.0.peers.endpoints}}
-fabric-ca-client register -d --id.name admin-{{orgs.peer.0.domain}} --id.secret {{orgs.peer.0.name}}AdminPW --id.type user -u https://0.0.0.0:{{orgs.peer.0.ca.port}}
-fabric-ca-client register -d --id.name user-{{orgs.peer.0.domain}} --id.secret {{orgs.peer.0.name}}UserPW --id.type user -u https://0.0.0.0:{{orgs.peer.0.ca.port}}
+fabric-ca-client register -d --id.name admin-{{orgs.peer.0.domain}} --id.secret {{orgs.peer.0.name}}AdminPW --id.type admin --id.attrs "hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -u https://0.0.0.0:{{orgs.peer.0.ca.port}}
 
 {{#orgs.peer.0.peers.endpoints}}
 # Copy Trusted Root Cert of {{orgs.peer.0.name}} to {{-}}

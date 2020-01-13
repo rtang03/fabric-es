@@ -83,7 +83,7 @@ services:
         working_dir: {{{artifacts.peers-working-dir}}}/{{domain}}/{{-}}
         volumes:
             - /var/run:/host/var/run
-            - {{{artifacts.local}}}/{{{artifacts.production}}}{{#artifacts.production}}/{{/artifacts.production}}{{domain}}/{{-}}:{{{artifacts.docker}}}/production
+#            - {{{artifacts.local}}}/{{{artifacts.production}}}{{#artifacts.production}}/{{/artifacts.production}}{{domain}}/{{-}}:{{{artifacts.docker}}}/production
             - {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}:{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}
         ports:
             - {{port}}:{{port}}
@@ -112,7 +112,7 @@ services:
             - ORDERER_GENERAL_CLUSTER_ROOTCAS=[{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem]
             - ORDERER_GENERAL_LISTENPORT={{ext-port}}
         volumes:
-            - {{{artifacts.local}}}/{{{artifacts.production}}}{{#artifacts.production}}/{{/artifacts.production}}{{domain}}/{{-}}:{{{artifacts.docker}}}/production
+#            - {{{artifacts.local}}}/{{{artifacts.production}}}{{#artifacts.production}}/{{/artifacts.production}}{{domain}}/{{-}}:{{{artifacts.docker}}}/production
             - {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}:{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}
         ports:
             - {{ext-port}}:{{ext-port}}
