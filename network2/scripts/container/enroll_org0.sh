@@ -12,7 +12,7 @@ fabric-ca-client register -d --id.name orderer2.example.com --id.secret ordererP
 fabric-ca-client register -d --id.name orderer3.example.com --id.secret ordererPW --id.type orderer -u https://0.0.0.0:5053
 fabric-ca-client register -d --id.name orderer4.example.com --id.secret ordererPW --id.type orderer -u https://0.0.0.0:5053
 fabric-ca-client register -d --id.name orderer5.example.com --id.secret ordererPW --id.type orderer -u https://0.0.0.0:5053
-fabric-ca-client register -d --id.name admin-example.com --id.secret OrdererOrgAdminPW --id.type admin --id.attrs "hf.Registrar.Roles=client,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -u https://0.0.0.0:5053
+fabric-ca-client register -d --id.name admin-example.com --id.secret OrdererOrgAdminPW --id.type admin --id.attrs "hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -u https://0.0.0.0:5053
 
 # Copy Trusted Root Cert of OrdererOrg orderer1
 mkdir -p /tmp/hyperledger/example.com/orderer1/assets/ca
