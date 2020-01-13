@@ -115,7 +115,7 @@ services:
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1.example.com/peer0
         volumes:
             - /var/run:/host/var/run
-            - ../artifacts/production/org1.example.com/peer0:/tmp/hyperledger/production
+#            - ../artifacts/production/org1.example.com/peer0:/tmp/hyperledger/production
             - ../artifacts/org1.example.com/peer0:/tmp/hyperledger/org1.example.com/peer0
         ports:
             - 7051:7051
@@ -141,7 +141,7 @@ services:
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1.example.com/peer1
         volumes:
             - /var/run:/host/var/run
-            - ../artifacts/production/org1.example.com/peer1:/tmp/hyperledger/production
+#            - ../artifacts/production/org1.example.com/peer1:/tmp/hyperledger/production
             - ../artifacts/org1.example.com/peer1:/tmp/hyperledger/org1.example.com/peer1
         ports:
             - 8051:8051
@@ -167,7 +167,7 @@ services:
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org2.example.com/peer0
         volumes:
             - /var/run:/host/var/run
-            - ../artifacts/production/org2.example.com/peer0:/tmp/hyperledger/production
+#            - ../artifacts/production/org2.example.com/peer0:/tmp/hyperledger/production
             - ../artifacts/org2.example.com/peer0:/tmp/hyperledger/org2.example.com/peer0
         ports:
             - 9051:9051
@@ -193,7 +193,7 @@ services:
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org2.example.com/peer1
         volumes:
             - /var/run:/host/var/run
-            - ../artifacts/production/org2.example.com/peer1:/tmp/hyperledger/production
+#            - ../artifacts/production/org2.example.com/peer1:/tmp/hyperledger/production
             - ../artifacts/org2.example.com/peer1:/tmp/hyperledger/org2.example.com/peer1
         ports:
             - 10051:10051
@@ -219,7 +219,7 @@ services:
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org3.neworg.com/peer0
         volumes:
             - /var/run:/host/var/run
-            - ../artifacts/production/org3.neworg.com/peer0:/tmp/hyperledger/production
+#            - ../artifacts/production/org3.neworg.com/peer0:/tmp/hyperledger/production
             - ../artifacts/org3.neworg.com/peer0:/tmp/hyperledger/org3.neworg.com/peer0
         ports:
             - 11051:11051
@@ -245,7 +245,7 @@ services:
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org3.neworg.com/peer1
         volumes:
             - /var/run:/host/var/run
-            - ../artifacts/production/org3.neworg.com/peer1:/tmp/hyperledger/production
+#            - ../artifacts/production/org3.neworg.com/peer1:/tmp/hyperledger/production
             - ../artifacts/org3.neworg.com/peer1:/tmp/hyperledger/org3.neworg.com/peer1
         ports:
             - 12051:12051
@@ -270,7 +270,7 @@ services:
             - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7050
         volumes:
-            - ../artifacts/production/example.com/orderer1:/tmp/hyperledger/production
+#            - ../artifacts/production/example.com/orderer1:/tmp/hyperledger/production
             - ../artifacts/example.com/orderer1:/tmp/hyperledger/example.com/orderer1
         ports:
             - 7050:7050
@@ -294,7 +294,7 @@ services:
             - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer2/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7150
         volumes:
-            - ../artifacts/production/example.com/orderer2:/tmp/hyperledger/production
+#            - ../artifacts/production/example.com/orderer2:/tmp/hyperledger/production
             - ../artifacts/example.com/orderer2:/tmp/hyperledger/example.com/orderer2
         ports:
             - 7150:7150
@@ -318,7 +318,7 @@ services:
             - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer3/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7250
         volumes:
-            - ../artifacts/production/example.com/orderer3:/tmp/hyperledger/production
+#            - ../artifacts/production/example.com/orderer3:/tmp/hyperledger/production
             - ../artifacts/example.com/orderer3:/tmp/hyperledger/example.com/orderer3
         ports:
             - 7250:7250
@@ -342,7 +342,7 @@ services:
             - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer4/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7350
         volumes:
-            - ../artifacts/production/example.com/orderer4:/tmp/hyperledger/production
+#            - ../artifacts/production/example.com/orderer4:/tmp/hyperledger/production
             - ../artifacts/example.com/orderer4:/tmp/hyperledger/example.com/orderer4
         ports:
             - 7350:7350
@@ -366,7 +366,7 @@ services:
             - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer5/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7450
         volumes:
-            - ../artifacts/production/example.com/orderer5:/tmp/hyperledger/production
+#            - ../artifacts/production/example.com/orderer5:/tmp/hyperledger/production
             - ../artifacts/example.com/orderer5:/tmp/hyperledger/example.com/orderer5
         ports:
             - 7450:7450
