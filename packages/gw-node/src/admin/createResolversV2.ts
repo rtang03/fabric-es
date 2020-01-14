@@ -2,7 +2,7 @@ import { createNetworkOperator } from '@espresso/operator';
 import {
   ApolloError,
   AuthenticationError,
-  ForbiddenError,
+  ForbiddenError
 } from 'apollo-server';
 import ab2str from 'arraybuffer-to-string';
 import Client from 'fabric-client';
@@ -31,56 +31,97 @@ export const createResolversV2: (option: {
   wallet,
   asLocalhost
 }) => {
-  const logger = Client.getLogger('createResolversV2');
-  const operator = await createNetworkOperator({
-    channelName,
-    ordererTlsCaCert,
-    ordererName,
-    context: {
-      fabricNetwork,
-      connectionProfile,
-      wallet
-    }
-  });
+  const logger = Client.getLogger('createResolversV2.js');
+
+  let operator;
+  try {
+    operator = await createNetworkOperator({
+      channelName,
+      ordererTlsCaCert,
+      ordererName,
+      context: {
+        fabricNetwork,
+        connectionProfile,
+        wallet
+      }
+    });
+  } catch (e) {
+    logger.error(util.format('createNetworkOperator error: %j', e));
+    throw new Error(e);
+  }
 
   const queries = await operator.getQueries({ peerName });
-  const ca = await operator.identityService({
-    caAdmin: caAdminEnrollmentId,
-    asLocalhost
-  });
+
+  let ca;
+  try {
+    ca = await operator.identityService({
+      caAdmin: caAdminEnrollmentId,
+      asLocalhost
+    });
+  } catch (e) {
+    logger.error(util.format('createNetworkOperator error: %j', e));
+    throw new Error(e);
+  }
 
   return {
     Mutation: {
       registerAndEnrollUser: async (
         _,
         {
+          administrator,
           enrollmentId,
           enrollmentSecret
-        }: { enrollmentId: string; enrollmentSecret: string },
+        }: {
+          administrator: string;
+          enrollmentId: string;
+          enrollmentSecret: string;
+        },
         { is_admin }
       ) => {
-        is_admin = true;
-        return is_admin
-          ? operator.registerAndEnroll({
-              enrollmentId,
-              enrollmentSecret,
-              identity: enrollmentId,
-              asLocalhost
-            })
-          : new ForbiddenError(UNAUTHORIZED_ACCESS);
+        if (!is_admin) {
+          logger.warn('registerAndEnrollUser: %s', UNAUTHORIZED_ACCESS);
+          new ForbiddenError(UNAUTHORIZED_ACCESS);
+        }
+
+        const { disconnect, registerAndEnroll } = await operator
+          .registerAndEnroll({
+            enrollmentId,
+            enrollmentSecret,
+            identity: administrator,
+            asLocalhost
+          })
+          .catch(error => {
+            logger.warn(util.format('registerAndEnroll: %j', error));
+            return new ApolloError(error);
+          });
+
+        const registerResult = await registerAndEnroll();
+
+        disconnect();
+
+        if (registerResult instanceof Error) {
+          logger.error(
+            util.format('registerAndEnroll error: %j', registerResult)
+          );
+          return new ApolloError(registerResult.message);
+        }
+
+        return registerResult?.status === 'SUCCESS';
       }
     },
     Query: {
       getBlockByNumber: async (_, { blockNumber }: { blockNumber: number }) => {
-        logger.info('getBlockByNumber');
-
         const chain = await queries.getChainInfo();
+
         if (chain.height.low <= blockNumber) {
-          logger.info('blockNumber is higher than chain height');
+          logger.warn('blockNumber is higher than chain height');
           return null;
         }
 
         const block = await queries.getBlockByNumber(blockNumber);
+
+        logger.info(`getBlockByNumber ${blockNumber}`);
+
         return block
           ? {
               block_number: block.header.number,
@@ -137,66 +178,84 @@ export const createResolversV2: (option: {
         { enrollmentId }: { enrollmentId: string },
         { user_id }
       ) => {
-        logger.info('getCaIdentityByEnrollmentId');
+        if (!user_id) {
+          logger.warn(`getCaIdentityByEnrollmentId, ${USER_NOT_FOUND}`);
+          return new AuthenticationError(USER_NOT_FOUND);
+        }
 
-        if (!user_id) throw new AuthenticationError(USER_NOT_FOUND);
-        return user_id === enrollmentId
-          ? ca.getByEnrollmentId(enrollmentId || '').then(({ result }) =>
-              result
-                ? {
-                    id: result.id,
-                    typ: result.type,
-                    affiliation: result.affiliation,
-                    max_enrollments: result.max_enrollments,
-                    attrs: result.attrs
-                  }
-                : null
-            )
-          : new ForbiddenError(UNAUTHORIZED_ACCESS);
-      },
-      getInstalledChaincodes: async () => {
-        logger.info('getInstalledChaincodes');
+        if (user_id !== enrollmentId) {
+          logger.warn(`getCaIdentityByEnrollmentId, ${UNAUTHORIZED_ACCESS}`);
+          return new ForbiddenError(UNAUTHORIZED_ACCESS);
+        }
 
-        return queries.getInstalledChaincodes().then(({ chaincodes }) =>
-          chaincodes.map(cc => ({
-            name: cc.name,
-            version: cc.version,
-            path: cc.path
-          }))
-        );
+        return ca
+          .getByEnrollmentId(enrollmentId || '')
+          .then(({ result }) => {
+            if (result) {
+              logger.info(`getCaIdentityByEnrollmentId: ${enrollmentId}`);
+              return {
+                id: result.id,
+                typ: result.type,
+                affiliation: result.affiliation,
+                max_enrollments: result.max_enrollments,
+                attrs: result.attrs
+              };
+            } else {
+              logger.warn(`getCaIdentityByEnrollmentId fail: ${enrollmentId}`);
+              return null;
+            }
+          })
+          .catch(error => {
+            logger.warn(
+              util.format('getCaIdentityByEnrollmentId error: %j', error)
+            );
+            return new ApolloError(error);
+          });
       },
-      getInstantiatedChaincodes: async () => {
-        logger.info('getInstantiatedChaincodes');
-
-        return queries.getInstantiatedChaincodes().then(({ chaincodes }) =>
-          chaincodes.map(cc => ({
-            name: cc.name,
-            version: cc.version,
-            path: cc.path
-          }))
-        );
-      },
+      getInstalledChaincodes: async () =>
+        queries.getInstalledChaincodes().then(({ chaincodes }) =>
+          chaincodes.map(cc => {
+            logger.info(`getInstalledChaincodes: ${cc.name}:${cc.version}`);
+            return {
+              name: cc.name,
+              version: cc.version,
+              path: cc.path
+            };
+          })
+        ),
+      getInstantiatedChaincodes: async () =>
+        queries.getInstantiatedChaincodes().then(({ chaincodes }) =>
+          chaincodes.map(cc => {
+            logger.info(`getInstantiatedChaincodes: ${cc.name}:${cc.version}`);
+            return {
+              name: cc.name,
+              version: cc.version,
+              path: cc.path
+            };
+          })
+        ),
       getInstalledCCVersion: async (
         _,
         { chaincode_id }: { chaincode_id: string }
       ) => {
-        logger.info('getInstalledCCVersion');
-
-        return queries.getInstalledCCVersion(chaincode_id);
+        const ver = await queries.getInstalledCCVersion(chaincode_id);
+        logger.info('getInstalledCCVersion: ' + ver);
+        return ver;
       },
       getChainHeight: async () => {
-        logger.info('getChainHeight');
-
-        return queries.getChainInfo().then(({ height: { low } }) => low);
+        const height = await queries
+          .getChainInfo()
+          .then(({ height: { low } }) => low);
+        logger.info('getChainHeight: ' + height);
+        return height;
       },
       getMspid: async () => {
-        logger.info('getMspid');
-
-        return queries.getMspid();
+        const mspid = queries.getMspid();
+        logger.info('getMspid: ' + mspid);
+        return mspid;
       },
       getPeerName: async () => {
-        logger.info('getPeerName');
-
+        logger.info('getPeerName: ' + peerName);
         return peerName;
       },
       isWalletExist: async (_, { label }: { label: string }) => {
@@ -208,10 +267,11 @@ export const createResolversV2: (option: {
         });
       },
       listWallet: async (_, __, { is_admin }) => {
-        logger.info('listWallet');
-
         return is_admin
-          ? wallet.list().then(result => result ?? [])
+          ? wallet.list().then(result => {
+              logger.info('listWallet size: ' + result.length);
+              return result ?? [];
+            })
           : new ForbiddenError(UNAUTHORIZED_ACCESS);
       }
     }

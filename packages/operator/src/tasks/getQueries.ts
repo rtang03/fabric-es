@@ -1,4 +1,3 @@
-import Client from 'fabric-client';
 import { readFileSync } from 'fs';
 import { findLast } from 'lodash';
 import { CreateNetworkOperatorOption, Queries } from '../types';
@@ -9,7 +8,6 @@ export const getQueries = (option: CreateNetworkOperatorOption) => async ({
 }: {
   peerName: string;
 }): Promise<Queries> => {
-  // const logger = Client.getLogger('getQueries');
   const {
     connectionProfile,
     fabricNetwork,
@@ -17,6 +15,7 @@ export const getQueries = (option: CreateNetworkOperatorOption) => async ({
     ordererTlsCaCert,
     ordererName
   } = option;
+
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
   const channel = client.getChannel(channelName);
   const orderer = client.newOrderer(client.getOrderer(ordererName).getUrl(), {

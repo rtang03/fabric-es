@@ -78,7 +78,7 @@ export interface NetworkOperator {
     queryHandlerStrategies?: any;
   }) => Promise<{
     disconnect: () => void;
-    registerAndEnroll: () => Promise<BroadcastResponse>;
+    registerAndEnroll: () => Promise<BroadcastResponse | Error>;
   }>;
   submitOrEvaluateTx: (option: {
     identity: string;

@@ -35,7 +35,7 @@ export const registerAndEnroll = (
   queryHandlerStrategies?: any;
 }): Promise<{
   disconnect: () => void;
-  registerAndEnroll: () => Promise<BroadcastResponse>;
+  registerAndEnroll: () => Promise<BroadcastResponse | Error>;
 }> => {
   if (!identity) throw new Error(MISSING_WALLET_LABEL);
   if (!enrollmentId) throw new Error(MISSING_ENROLLMENTID);
@@ -54,6 +54,7 @@ export const registerAndEnroll = (
     queryHandlerOptions: { strategy: queryHandlerStrategies },
     discovery: { asLocalhost, enabled: true }
   });
+
   logger.info(
     util.format('gateway connected: %s', gateway.getClient().getMspid())
   );
@@ -69,43 +70,65 @@ export const registerAndEnroll = (
       if (!adminExist) throw new Error(ORG_ADMIN_NOT_EXIST);
 
       const enrollmentIdExist = await wallet.exists(enrollmentId);
-      if (enrollmentIdExist)
-        return {
-          status: SUCCESS,
-          info: IDENTITY_ALREADY_EXIST
-        };
 
-      const register = await caService.register(
-        {
+      if (enrollmentIdExist) {
+        logger.warn(`registerAndEnroll: ${IDENTITY_ALREADY_EXIST}`);
+        return new Error(IDENTITY_ALREADY_EXIST);
+      }
+
+      try {
+        await caService.register(
+          {
+            enrollmentID: enrollmentId,
+            enrollmentSecret,
+            affiliation: '',
+            maxEnrollments: -1,
+            role: 'user'
+          },
+          gateway.getCurrentIdentity()
+        );
+      } catch (e) {
+        logger.error(util.format('operator fail to register: %j', e));
+        return new Error(e);
+      }
+
+      logger.info(util.format('register user: %s at %s', enrollmentId, mspId));
+
+      let key: any;
+      let certificate: any;
+
+      try {
+        const enroll = await caService.enroll({
           enrollmentID: enrollmentId,
-          enrollmentSecret,
-          affiliation: '',
-          maxEnrollments: -1,
-          role: 'user'
-        },
-        gateway.getCurrentIdentity()
-      );
-
-      logger.info(util.format('Register user: %s at %s', enrollmentId, mspId));
-      logger.debug(util.format('register ca user: %j at %s', register, mspId));
-
-      const { key, certificate } = await caService.enroll({
-        enrollmentID: enrollmentId,
-        enrollmentSecret
-      });
+          enrollmentSecret
+        });
+        key = enroll.key;
+        certificate = enroll.certificate;
+      } catch (e) {
+        logger.error(util.format('operator fail to enroll: %j', e));
+        return new Error(e);
+      }
 
       // TODO: In v2, wallet.import() is deprecated, and replaced by wallet.put()
-      const enroll = await wallet.import(
-        enrollmentId,
-        X509WalletMixin.createIdentity(
-          client.getMspid(),
-          certificate,
-          key.toBytes()
-        )
-      );
+      let walletImport: any;
+      try {
+        walletImport = await wallet.import(
+          enrollmentId,
+          X509WalletMixin.createIdentity(
+            client.getMspid(),
+            certificate,
+            key.toBytes()
+          )
+        );
+      } catch (e) {
+        logger.error(util.format('operator fail to import: %j', e));
+        return new Error(e);
+      }
 
       logger.info(util.format('Enroll user: %s at %s', enrollmentId, mspId));
-      logger.debug(util.format('enroll ca user at %s: %j ', mspId, enroll));
+      logger.debug(
+        util.format('enroll ca user at %s: %j ', mspId, walletImport)
+      );
 
       return {
         status: SUCCESS,

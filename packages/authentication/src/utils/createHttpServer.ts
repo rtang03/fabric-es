@@ -17,7 +17,11 @@ export const createHttpServer: (option: {
   resolvers: any[];
   modelOptions?: any;
   oauthOptions?: any;
+  rootAdmin: string;
+  rootAdminPassword: string;
 }) => Promise<Express> = async ({
+  rootAdmin,
+  rootAdminPassword,
   dbConnection,
   resolvers,
   modelOptions = {
@@ -81,10 +85,20 @@ export const createHttpServer: (option: {
           });
         } catch (err) {
           const error = err.message || 'authentication error';
+          logger.warn(`verify token: ${error}`);
+
           payload = { error };
         }
       }
-      return { req, res, payload, oauth2Server, oauthOptions };
+      return {
+        req,
+        res,
+        payload,
+        oauth2Server,
+        oauthOptions,
+        rootAdminPassword,
+        rootAdmin
+      };
     }
   });
   // todo: double if we should use cors in OAuth server

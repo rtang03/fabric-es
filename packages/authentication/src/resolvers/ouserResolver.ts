@@ -69,16 +69,22 @@ export class OUserResolver {
     nullable: true,
     description: 'User profile; authentication required'
   })
-  async me(@Ctx() { payload }: MyContext): Promise<Partial<OUser>> {
-    this.logger.info('me');
+  async me(
+    @Ctx() { payload }: MyContext
+  ): Promise<Partial<OUser> | ApolloError> {
     const id = payload?.userId;
-    if (!id) return null;
+    if (!id) {
+      this.logger.warn(`me: ${AUTH_HEADER_ERROR}`);
+      // intentionally return null to indicate non-authenticated access, for use by web UI
+      // instead of using 'return new AuthenticationError(AUTH_HEADER_ERROR);'
+      return null;
+    }
 
     return OUser.findOne({ id })
       .then(u => omit(u, 'password'))
-      .catch(err => {
-        console.error(err);
-        throw new ApolloError(err.message);
+      .catch(error => {
+        this.logger.warn(util.format('could not find user record, %j', error));
+        return new ApolloError(error);
       });
   }
 
@@ -87,18 +93,29 @@ export class OUserResolver {
     @Arg('email') email: string,
     @Arg('password') password: string,
     @Ctx() { res, req, oauth2Server, oauthOptions }: MyContext
-  ): Promise<LoginResponse> {
-    this.logger.info('login');
+  ): Promise<LoginResponse | ApolloError> {
     const user = await OUser.findOne({ email });
-    if (!user) throw new AuthenticationError('could not find user');
+    if (!user) {
+      this.logger.warn(`login: ${USER_NOT_FOUND}`);
+      return new AuthenticationError(USER_NOT_FOUND);
+    }
 
-    if (!password) throw new UserInputError(BAD_PASSWORD);
+    if (!password) {
+      this.logger.warn(`login: ${BAD_PASSWORD}`);
+      throw new UserInputError(BAD_PASSWORD);
+    }
 
     const valid = await compare(password, user.password);
-    if (!valid) throw new ValidationError(BAD_PASSWORD);
+    if (!valid) {
+      this.logger.warn(`login: ${BAD_PASSWORD}`);
+      return new ValidationError(BAD_PASSWORD);
+    }
 
     const client = await Client.findOne({ applicationName: 'root' });
-    if (!client) throw new ValidationError(ROOT_CLIENT_NOT_FOUND);
+    if (!client) {
+      this.logger.warn(`login: ${ROOT_CLIENT_NOT_FOUND}`);
+      return new ValidationError(ROOT_CLIENT_NOT_FOUND);
+    }
 
     req.body.grant_type = 'password';
     req.body.username = user.username;
@@ -140,6 +157,7 @@ export class OUserResolver {
 
   @Mutation(() => Boolean)
   async register(
+    @Ctx() { rootAdmin, rootAdminPassword }: MyContext,
     @Arg('username') username: string,
     @Arg('email') email: string,
     @Arg('password') password: string,
@@ -149,16 +167,23 @@ export class OUserResolver {
     })
     adminPassword?: string
   ) {
-    this.logger.info('register');
     const usernameExist = await OUser.findOne({ username });
-    if (usernameExist) throw new UserInputError(ALREADY_EXIST);
+    if (usernameExist) {
+      this.logger.warn(`register: username ${ALREADY_EXIST}`);
+      throw new UserInputError(ALREADY_EXIST);
+    }
 
     const emailExist = await OUser.findOne({ email });
-    if (emailExist) throw new UserInputError(ALREADY_EXIST);
+    if (emailExist) {
+      this.logger.warn(`register: email ${ALREADY_EXIST}`);
+      throw new UserInputError(ALREADY_EXIST);
+    }
 
-    const validAdminPassword = adminPassword === process.env.ADMIN_PASSWORD;
-    if (adminPassword && !validAdminPassword)
+    const validAdminPassword = adminPassword === rootAdminPassword;
+    if (adminPassword && !validAdminPassword) {
+      this.logger.warn(`register: ${ADMIN_PASSWORD_MISMATCH}`);
       throw new ValidationError(ADMIN_PASSWORD_MISMATCH);
+    }
 
     const hashedPassword = await hash(password, 12);
 
@@ -166,12 +191,17 @@ export class OUserResolver {
       username,
       email,
       password: hashedPassword,
-      is_admin: adminPassword === process.env.ADMIN_PASSWORD
+      is_admin: adminPassword === rootAdminPassword
     })
-      .then(() => true)
+      .then(() => {
+        this.logger.info(`${username} user profile created`);
+        return true;
+      })
       .catch(error => {
-        console.error(error);
-        throw new ApolloError(error.message);
+        this.logger.warn(
+          util.format('create [%s] user profile fail: %j', username, error)
+        );
+        return new ApolloError(error);
       });
   }
 
@@ -187,15 +217,19 @@ export class OUserResolver {
     @Ctx() { payload }: MyContext,
     @Arg('email', { nullable: true }) email?: string,
     @Arg('username', { nullable: true }) username?: string
-  ): Promise<boolean> {
-    this.logger.info('updateUser');
+  ): Promise<boolean | ApolloError> {
     const id = payload?.userId;
-    if (!id) throw new AuthenticationError(AUTH_HEADER_ERROR);
+    if (!id) {
+      this.logger.info(`updateUser: ${AUTH_HEADER_ERROR}`);
+      return new AuthenticationError(AUTH_HEADER_ERROR);
+    }
 
-    const user = await OUser.findOne({ id }).catch(() => {
-      throw new ValidationError(USER_NOT_FOUND);
-    });
-    if (!user) throw new ValidationError(USER_NOT_FOUND);
+    const user = await OUser.findOne({ id });
+
+    if (!user) {
+      this.logger.info(`updateUser: ${USER_NOT_FOUND}`);
+      return new ValidationError(USER_NOT_FOUND);
+    }
 
     if (email) user.email = email;
 
@@ -203,10 +237,13 @@ export class OUserResolver {
 
     return email || username
       ? OUser.save(user)
-          .then(() => true)
+          .then(() => {
+            this.logger.info(`updateUser successfully: ${username}`);
+            return true;
+          })
           .catch(error => {
-            console.error(error);
-            throw new ApolloError(error.message);
+            this.logger.warn(util.format('updateUser error: %j', error));
+            return new ApolloError(error);
           })
       : false;
   }

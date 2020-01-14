@@ -9,6 +9,7 @@ import {
 } from '@espresso/fabric-cqrs';
 import { DataSrc } from '@espresso/model-common';
 import { ApolloServer } from 'apollo-server';
+import Client from 'fabric-client';
 
 export const createService = async ({
   enrollmentId,
@@ -23,6 +24,8 @@ export const createService = async ({
   collection: string;
   isPrivate?: boolean;
 }) => {
+  const logger = Client.getLogger('createService.js');
+
   const networkConfig = await getNetwork({
     enrollmentId,
     channelEventHubExisted: true
@@ -52,17 +55,26 @@ export const createService = async ({
 
       async function create(): Promise<ApolloServer> {
         if (!isPrivate) {
-          console.log(
+          logger.info(
             `♨️♨️  Starting micro-service for on-chain entity '${defaultEntityName}'...`
           );
           await subscribeHub();
-          await reconcile({ entityName: defaultEntityName, reducer: defaultReducer });
+
+          logger.info('subscribe event hub complete');
+
+          await reconcile({
+            entityName: defaultEntityName,
+            reducer: defaultReducer
+          });
+
+          logger.info(`reconcile complete: ${defaultEntityName}`);
+
         } else
-          console.log(
+          logger.info(
             `♨️♨️  Starting micro-service for off-chain private data...`
           );
-      
-        const server = new ApolloServer({
+
+        return new ApolloServer({
           schema: buildFederatedSchema([{ typeDefs, resolvers }]),
           playground: true,
           dataSources: () =>
@@ -73,17 +85,13 @@ export const createService = async ({
               }),
               {}
             ),
-          context: ({ req: { headers } }) => {
-            return {
-              user_id: headers.user_id,
-              is_admin: headers.is_admin,
-              client_id: headers.client_id,
-              enrollmentId: headers.user_id
-            };
-          }
+          context: ({ req: { headers } }) => ({
+            user_id: headers.user_id,
+            is_admin: headers.is_admin,
+            client_id: headers.client_id,
+            enrollmentId: headers.user_id
+          })
         });
-
-        return server;
       }
 
       function addRepository(repository: Repository | PrivatedataRepository) {

@@ -3,8 +3,10 @@ import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
 import Cookie from 'cookie';
 import express, { Express } from 'express';
-import morgan from 'morgan';
+import Client from 'fabric-client';
+// import morgan from 'morgan';
 import fetch from 'node-fetch';
+import util from 'util';
 
 export class AuthenticatedDataSource extends RemoteGraphQLDataSource {
   willSendRequest({ request, context }: { request: any; context: any }) {
@@ -38,6 +40,8 @@ export const createGateway: (option: {
   corsOrigin = 'http://localhost:3000',
   debug = false
 }) => {
+  const logger = Client.getLogger('createGateway.js');
+
   const gateway = new ApolloGateway({
     serviceList,
     buildService: ({ url }) => new AuthenticatedDataSource({ url }),
@@ -74,31 +78,42 @@ export const createGateway: (option: {
               client_id: string;
             }>(res => res.json())
             .then(res => {
-              if (res?.authenticated)
+              if (res?.authenticated) {
+                logger.info(`authenticationCheck succeed: ${res.user_id}`);
+
                 return {
                   user_id: res.user_id,
                   is_admin: res.is_admin,
                   client_id: res.client_id
                 };
-              else {
+              } else {
                 // e.g. res returns
                 // { ok: false, authenticated: false, message: 'Invalid token: access token has expired' }
+                logger.warn(`authenticationCheck fail: ${res.user_id}`);
+
                 return {};
               }
             })
-            .catch(error => console.error(error))
+            .catch(error => {
+              logger.error(util.format('authenticationCheck error: %j', error));
+              return {};
+            })
         : {};
     }
   });
+
   const app = express();
+
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
-  app.use(morgan('tiny'));
+  // app.use(morgan('tiny'));
+
   if (useCors)
     server.applyMiddleware({
       app,
       cors: { origin: corsOrigin, credentials: true }
     });
   else server.applyMiddleware({ app });
+
   return app;
 };

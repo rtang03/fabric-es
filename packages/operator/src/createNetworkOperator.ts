@@ -22,15 +22,32 @@ import {
 export const createNetworkOperator = async (
   option: CreateNetworkOperatorOption
 ): Promise<NetworkOperator> => {
+  const logger = Client.getLogger('createNetworkOperator.js');
+
   const { channelName, ordererTlsCaCert, ordererName, context } = option;
   const fabricNetwork = context?.fabricNetwork;
   const connectionProfile = context?.connectionProfile;
   const wallet = context?.wallet;
 
-  if (!channelName) throw new Error(MISSING_CHANNELNAME);
-  if (!connectionProfile) throw new Error(MISSING_CONNECTION_PROFILE);
-  if (!fabricNetwork) throw new Error(MISSING_FABRIC_NETWORK);
-  if (!wallet) throw new Error(MISSING_WALLET);
+  if (!channelName) {
+    logger.error(MISSING_CHANNELNAME);
+
+    throw new Error(MISSING_CHANNELNAME);
+  }
+  if (!connectionProfile) {
+    logger.error(MISSING_CONNECTION_PROFILE);
+
+    throw new Error(MISSING_CONNECTION_PROFILE);
+  }
+  if (!fabricNetwork) {
+    logger.error(MISSING_FABRIC_NETWORK);
+
+    throw new Error(MISSING_FABRIC_NETWORK);
+  }
+  if (!wallet) {
+    logger.error(MISSING_WALLET);
+    throw new Error(MISSING_WALLET);
+  }
 
   const args = {
     channelName,

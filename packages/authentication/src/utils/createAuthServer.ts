@@ -15,6 +15,8 @@ export const createDbConnection = (connectionOptions: any) => ({
 export const createAuthServer: (option: {
   dbConnection: any;
   oauthOptions?: any;
+  rootAdmin: string;
+  rootAdminPassword: string;
 }) => Promise<Express> = ({
   dbConnection,
   oauthOptions = {
@@ -25,10 +27,14 @@ export const createAuthServer: (option: {
     },
     accessTokenLifetime: 900,
     refreshTokenLifetime: 1800
-  }
+  },
+  rootAdmin,
+  rootAdminPassword
 }) =>
   createHttpServer({
     dbConnection,
     resolvers: [ClientResolver, OUserResolver],
-    oauthOptions
+    oauthOptions,
+    rootAdmin,
+    rootAdminPassword
   });

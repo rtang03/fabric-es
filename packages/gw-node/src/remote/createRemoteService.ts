@@ -2,8 +2,11 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { execute, makePromise } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import { ApolloError, ApolloServer } from 'apollo-server';
+import Client from 'fabric-client';
 import nodeFetch from 'node-fetch';
+import util from 'util';
 import { RemoteData } from './remoteData';
+
 const fetch = nodeFetch as any;
 
 export const createRemoteService: (option: {
@@ -12,7 +15,9 @@ export const createRemoteService: (option: {
   typeDefs: any;
   resolvers: any;
 }) => any = async ({ name, uri, typeDefs, resolvers }) => {
-  console.log(`♨️♨️ Bootstraping Remote Data API - ${name} ♨️♨️`);
+  const logger = Client.getLogger('createRemoteService');
+
+  logger.info(`♨️♨️ Bootstraping Remote Data API - ${name} ♨️♨️`);
 
   return new ApolloServer({
     schema: buildFederatedSchema({
@@ -36,8 +41,8 @@ export const createRemoteService: (option: {
             { query, variables, operationName, context }
           )
         ).catch(error => {
-          console.error(error);
-          throw new ApolloError(error.message);
+          logger.error(util.format('executeHttpLink, %j', error));
+          return new ApolloError(error);
         })
     })
   });
