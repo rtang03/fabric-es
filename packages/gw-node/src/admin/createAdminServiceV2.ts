@@ -2,6 +2,12 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { ApolloServer } from 'apollo-server';
 import Client from 'fabric-client';
 import { FileSystemWallet } from 'fabric-network';
+import {
+  MISSING_CHANNELNAME,
+  MISSING_CONNECTION_PROFILE,
+  MISSING_FABRIC_NETWORK,
+  MISSING_WALLET
+} from './constants';
 import { createResolversV2 } from './createResolversV2';
 import { typeDefs } from './typeDefsV2';
 
@@ -28,7 +34,29 @@ export const createAdminServiceV2 = async ({
   asLocalhost?: boolean;
   playground?: boolean;
 }) => {
-  // const logger = Client.getLogger('createAdminServiceV2');
+  const logger = Client.getLogger('createAdminServiceV2.js');
+
+  if (!channelName) {
+    logger.error(MISSING_CHANNELNAME);
+
+    throw new Error(MISSING_CHANNELNAME);
+  }
+  if (!connectionProfile) {
+    logger.error(MISSING_CONNECTION_PROFILE);
+
+    throw new Error(MISSING_CONNECTION_PROFILE);
+  }
+  if (!fabricNetwork) {
+    logger.error(MISSING_FABRIC_NETWORK);
+
+    throw new Error(MISSING_FABRIC_NETWORK);
+  }
+
+  if (!walletPath) {
+    logger.error(MISSING_WALLET);
+
+    throw new Error(MISSING_WALLET);
+  }
 
   const resolvers = await createResolversV2({
     channelName,
@@ -41,6 +69,8 @@ export const createAdminServiceV2 = async ({
     wallet: new FileSystemWallet(walletPath),
     asLocalhost
   });
+
+  logger.info('createResolvers complete');
 
   return new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),

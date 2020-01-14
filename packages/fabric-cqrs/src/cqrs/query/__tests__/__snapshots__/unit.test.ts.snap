@@ -28,23 +28,7 @@ Object {
 }
 `;
 
-exports[`CQRS - query Tests should queryByEntityId 1`] = `
-Object {
-  "entityName": "dev_test",
-  "events": Array [
-    Object {
-      "payload": Object {
-        "name": "Mr X",
-        "timestamp": 1544284694606,
-        "userId": "ent_test_1001",
-      },
-      "type": "UserCreated",
-    },
-  ],
-  "id": "ent_test_1001",
-  "version": 0,
-}
-`;
+exports[`CQRS - query Tests should queryByEntityId 1`] = `Object {}`;
 
 exports[`CQRS - query Tests should queryByEntityName #2 1`] = `
 Object {
@@ -78,20 +62,4 @@ Object {
 }
 `;
 
-exports[`CQRS - query Tests should queryByEntityName 1`] = `
-Object {
-  "entityName": "dev_test",
-  "events": Array [
-    Object {
-      "payload": Object {
-        "name": "Mr X",
-        "timestamp": 1544284694606,
-        "userId": "ent_test_1001",
-      },
-      "type": "UserCreated",
-    },
-  ],
-  "id": "ent_test_1001",
-  "version": 0,
-}
-`;
+exports[`CQRS - query Tests should queryByEntityName 1`] = `Object {}`;

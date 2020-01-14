@@ -1,5 +1,5 @@
 const { resolve } = require('path');
-const path = resolve(__dirname, '../../../.env.test');
+const path = resolve(__dirname, '../../../.env.test.n3');
 require('dotenv').config({ path });
 
 import { enrollAdmin } from '@espresso/operator';

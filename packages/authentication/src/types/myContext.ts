@@ -12,4 +12,6 @@ export interface MyContext {
   };
   oauth2Server?: OAuth2Server;
   oauthOptions?: any;
+  rootAdmin?: string;
+  rootAdminPassword?: string;
 }

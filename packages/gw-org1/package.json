@@ -16,8 +16,9 @@
     "server-gw-org1": "node ./dist/start-gateway.js",
     "server-auth-org1": "node ./dist/start-auth-server",
     "start-server-org1": "yarn build && concurrently \"npm:server-*\"",
-    "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/enrollAdmin.ts",
-    "enrollCaAdmin": "rimraf assets/wallet/ca_admin && ./node_modules/.bin/ts-node src/enrollCaAdmin.ts",
+    "enrollAdmin": "rimraf assets/wallet/admin-org1.example.com && ./node_modules/.bin/ts-node src/enrollAdmin.ts",
+    "enrollAdmin-2": "rimraf assets/wallet/admin-org1.example.com && npm run build && node ./dist/enrollAdmin.js",
+    "enrollCaAdmin": "rimraf assets/wallet/rca-org1-admin && ./node_modules/.bin/ts-node src/enrollCaAdmin.ts",
     "gen-resolvers-type": "graphql-codegen --config codegen.yml"
   },
   "engines": {

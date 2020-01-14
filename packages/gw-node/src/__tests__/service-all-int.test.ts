@@ -56,7 +56,7 @@ import {
   GET_INSTALLED_CHAINCODES,
   GET_INSTANTIATED_CHAINCODES,
   GET_PEERINFO,
-  IS_WALLET_ENTRY_EXIST,
+  IS_WALLET_EXIST,
   LIST_WALLET,
   LOGIN,
   REGISTER_ADMIN,
@@ -141,6 +141,8 @@ beforeAll(async () => {
 
   // step 3: start authentication server (expressjs)
   const auth = await createAuthServer({
+    rootAdmin: process.env.ADMIN,
+    rootAdminPassword: process.env.ADMIN_PASSWORD,
     dbConnection: createDbConnection({
       name: 'default',
       type: 'postgres' as any,

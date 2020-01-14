@@ -21,10 +21,18 @@ const port = process.env.OAUTH_SERVER_PORT || 3302;
 const uri = `http://localhost:${port}/graphql`;
 
 (async () => {
-  const authServer = await createAuthServer({ dbConnection });
+  const authServer = await createAuthServer({
+    dbConnection,
+    rootAdminPassword: process.env.ADMIN_PASSWORD,
+    rootAdmin: process.env.ADMIN
+  });
   authServer.listen(port, async () => {
     console.log(`🚀  Auth server started at port: http://localhost:${port}`);
-    await createRootClient(uri);
+    await createRootClient({
+      uri,
+      admin_password: process.env.ADMIN_PASSWORD,
+      admin: process.env.ADMIN
+    });
   });
 })().catch(error => {
   console.log(error);

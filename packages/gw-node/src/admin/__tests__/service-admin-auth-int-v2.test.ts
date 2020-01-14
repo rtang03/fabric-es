@@ -1,5 +1,5 @@
 require('dotenv').config({
-  path: require('path').resolve(__dirname, '../../../.env.test')
+  path: './.env.test.n3'
 });
 
 import { createAuthServer, createDbConnection } from '@espresso/authentication';
@@ -19,7 +19,7 @@ import {
   GET_INSTALLED_CC_VERSION,
   GET_INSTALLED_CHAINCODES,
   GET_INSTANTIATED_CHAINCODES,
-  IS_WALLET_ENTRY_EXIST,
+  IS_WALLET_EXIST,
   LIST_WALLET,
   logger,
   LOGIN,
@@ -44,21 +44,10 @@ const authUri = `http://localhost:${authPort}/graphql`;
 const headers = { 'content-type': 'application/json' };
 const username = `tester${Math.floor(Math.random() * 10000)}`;
 const email = `${username}@example.com`;
-const password = 'password';
-const admin_password = process.env.ADMIN_PASSWORD || 'admin_test';
-
-const dbConnection = createDbConnection({
-  name: 'default',
-  type: 'postgres' as any,
-  host: 'localhost',
-  port: 5432,
-  username: 'postgres',
-  password: 'docker',
-  database: 'gw-node-admin-test',
-  logging: false,
-  synchronize: true,
-  dropSchema: true
-});
+const password = 'mypassword';
+const root_admin = process.env.ADMIN || 'root_admin';
+const admin_password = process.env.ADMIN_PASSWORD || 'root_admin_password';
+const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 
 type QueryResponse = {
   body: {
@@ -69,7 +58,7 @@ type QueryResponse = {
 
 beforeAll(async () => {
   // if uncomment, send to file logger
-  // Client.setLogger(logger);
+  Client.setLogger(logger);
 
   // step 1: start admin service (federated service)
   federatedAdminServer = await createAdminServiceV2({
@@ -82,6 +71,7 @@ beforeAll(async () => {
     fabricNetwork: process.env.NETWORK_LOCATION,
     walletPath: process.env.WALLET
   });
+
   await federatedAdminServer.listen({ port });
 
   // step 2: prepare federated gateway
@@ -96,7 +86,22 @@ beforeAll(async () => {
   });
 
   // step 3: start authentication server (expressjs)
-  const auth = await createAuthServer({ dbConnection });
+  const auth = await createAuthServer({
+    dbConnection: createDbConnection({
+      name: 'default',
+      type: 'postgres' as any,
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'docker',
+      database: 'gw-node-admin-test',
+      logging: false,
+      synchronize: true,
+      dropSchema: true
+    }),
+    rootAdminPassword: process.env.ADMIN_PASSWORD,
+    rootAdmin: process.env.ADMIN
+  });
   authServer = http.createServer(auth);
   authServer.listen(authPort);
 });
@@ -110,6 +115,22 @@ afterAll(async () => {
 // require a running Fabric network
 // run service.integration.test in fabric-cqrs, if no pre-existing onchain data
 describe('Service-admin Integration Tests', () => {
+  it('should fail to createRootClient: wrong password', async () =>
+    fetch(authUri, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        operationName: 'CreateRootClient',
+        query: CREATE_ROOT_CLIENT,
+        variables: { admin: root_admin, password: 'wrong password' }
+      })
+    })
+      .then(res => res.json())
+      .then(({ data, errors }) => {
+        expect(data.createRootClient).toBeNull();
+        expect(errors[0].message).toEqual('admin password mis-match');
+      }));
+
   it('should createRootClient', async () =>
     fetch(authUri, {
       method: 'POST',
@@ -117,15 +138,31 @@ describe('Service-admin Integration Tests', () => {
       body: JSON.stringify({
         operationName: 'CreateRootClient',
         query: CREATE_ROOT_CLIENT,
-        variables: { admin: 'admin', password: 'admin_test' }
+        variables: { admin: root_admin, password: admin_password }
       })
     })
       .then(res => res.json())
-      .then(({ data }) =>
-        expect(typeof data?.createRootClient).toEqual('string')
-      ));
+      .then(({ data, errors }) => {
+        expect(typeof data.createRootClient).toEqual('string');
+        expect(errors).toBeUndefined();
+      }));
 
-  /*
+  it('should fail to createRootClient again', async () =>
+    fetch(authUri, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        operationName: 'CreateRootClient',
+        query: CREATE_ROOT_CLIENT,
+        variables: { admin: root_admin, password: admin_password }
+      })
+    })
+      .then(res => res.json())
+      .then(({ data, errors }) => {
+        expect(data.createRootClient).toBeNull();
+        expect(errors[0].message).toEqual('already exist');
+      }));
+
   it('should register new (admin) user', async () =>
     fetch(authUri, {
       method: 'POST',
@@ -137,7 +174,42 @@ describe('Service-admin Integration Tests', () => {
       })
     })
       .then(res => res.json())
-      .then(({ data }) => expect(data?.register).toBeTruthy()));
+      .then(({ data, errors }) => {
+        expect(errors).toBeUndefined();
+        expect(data.register).toBeTruthy();
+      }));
+
+  it('should fail to register new (admin) user, again', async () =>
+    fetch(authUri, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        operationName: 'Register',
+        query: REGISTER_ADMIN,
+        variables: { email, password, username, admin_password }
+      })
+    })
+      .then(res => res.json())
+      .then(({ data, errors }) => {
+        expect(data).toBeNull();
+        expect(errors[0].message).toEqual('already exist');
+      }));
+
+  it('should fail to login new (admin) user', async () =>
+    fetch(authUri, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        operationName: 'Login',
+        query: LOGIN,
+        variables: { email, password: 'bad password' }
+      })
+    })
+      .then(res => res.json())
+      .then(({ data, errors }) => {
+        expect(data).toBeNull();
+        expect(errors[0].message).toEqual('bad password');
+      }));
 
   it('should login new (admin) user', async () =>
     fetch(authUri, {
@@ -150,9 +222,10 @@ describe('Service-admin Integration Tests', () => {
       })
     })
       .then(res => res.json())
-      .then(({ data }) => {
+      .then(({ data, errors }) => {
         accessToken = data.login.accessToken;
         user_id = data.login.user.id;
+        expect(errors).toBeUndefined();
         expect(typeof data?.login?.accessToken).toEqual('string');
         expect(data?.login?.ok).toBeTruthy();
       }));
@@ -182,18 +255,6 @@ describe('Service-admin Integration Tests', () => {
   //       expect(errors).toBeUndefined();
   //       expect(data?.getBlockByNumber.block_number).toEqual('10');
   //     }));
-
-  it('should fail to getCaIdentities: without accessToken', async () =>
-    request(app)
-      .post('/graphql')
-      .send({
-        operationName: 'GetCaIdentities',
-        query: GET_CA_IDENTITIES
-      })
-      .expect(({ body: { data, errors } }: QueryResponse) => {
-        expect(data?.getCaIdentities).toBeNull();
-        expect(errors[0].message).toEqual(UNAUTHORIZED_ACCESS);
-      }));
 
   it('should fail to listWallet: without accessToken', async () =>
     request(app)
@@ -225,8 +286,8 @@ describe('Service-admin Integration Tests', () => {
     request(app)
       .post('/graphql')
       .send({
-        operationName: 'IsWalletEntryExist',
-        query: IS_WALLET_ENTRY_EXIST
+        operationName: 'IsWalletExist',
+        query: IS_WALLET_EXIST
       })
       .expect(({ body: { data, errors } }) => {
         expect(data).toBeUndefined();
@@ -237,8 +298,8 @@ describe('Service-admin Integration Tests', () => {
     request(app)
       .post('/graphql')
       .send({
-        operationName: 'IsWalletEntryExist',
-        query: IS_WALLET_ENTRY_EXIST,
+        operationName: 'IsWalletExist',
+        query: IS_WALLET_EXIST,
         variables: { label: 'no such label' }
       })
       .expect(({ body: { data, errors } }) => {
@@ -250,13 +311,13 @@ describe('Service-admin Integration Tests', () => {
     request(app)
       .post('/graphql')
       .send({
-        operationName: 'IsWalletEntryExist',
-        query: IS_WALLET_ENTRY_EXIST,
-        variables: { label: 'admin' }
+        operationName: 'IsWalletExist',
+        query: IS_WALLET_EXIST,
+        variables: { label: 'admin-org1.example.com' }
       })
       .expect(({ body: { data, errors } }) => {
         expect(errors).toBeUndefined();
-        expect(data?.isWalletEntryExist).toBeTruthy();
+        expect(data?.isWalletExist).toBeTruthy();
       }));
 
   it('should getInstalledChaincodes', async () =>
@@ -307,7 +368,7 @@ describe('Service-admin Integration Tests', () => {
       })
       .expect(({ body: { data, errors } }) => {
         if (errors) expect(errors).toBeUndefined();
-        expect(data?.getInstalledCCVersion).toEqual('0');
+        expect(data?.getInstalledCCVersion).toEqual('1.0');
       }));
 
   it('should getChainHeight', async () =>
@@ -342,7 +403,9 @@ describe('Service-admin Integration Tests', () => {
         variables: { enrollmentId: user_id }
       })
       .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
+        expect(
+          errors[0].message.startsWith('Error: fabric-ca request identities')
+        ).toBeTruthy();
         expect(data?.getCaIdentityByEnrollmentId).toBeNull();
       }));
 
@@ -353,11 +416,15 @@ describe('Service-admin Integration Tests', () => {
       .send({
         operationName: 'RegisterAndEnrollUser',
         query: REGISTER_AND_ENROLL_USER,
-        variables: { enrollmentId: user_id, enrollmentSecret: password }
+        variables: {
+          administrator: caAdmin,
+          enrollmentId: user_id,
+          enrollmentSecret: password
+        }
       })
       .expect(({ body: { data, errors } }) => {
         expect(errors).toBeUndefined();
-        expect(data?.registerAndEnrollUser).toBeTruthy();
+        expect(data.registerAndEnrollUser).toBeTruthy();
       }));
 
   it('should getCaIdentityByEnrollmentId, after registerAndEnroll', async () =>
@@ -371,7 +438,6 @@ describe('Service-admin Integration Tests', () => {
       })
       .expect(({ body: { data, errors } }) => {
         expect(errors).toBeUndefined();
-        expect(data?.getCaIdentityByEnrollmentId.id).toEqual(user_id);
+        expect(data.getCaIdentityByEnrollmentId.id).toEqual(user_id);
       }));
-*/
 });

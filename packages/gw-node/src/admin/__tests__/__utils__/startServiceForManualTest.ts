@@ -1,6 +1,7 @@
 require('dotenv').config({
-  path: require('path').resolve(__dirname, '../../../../.env.test')
+  path: './.env.test.n3'
 });
+
 import Client from 'fabric-client';
 import { logger } from '../../..';
 import { createAdminServiceV2 } from '../../createAdminServiceV2';
@@ -9,6 +10,7 @@ const port = 15000;
 
 (async () => {
   Client.setLogger(logger);
+
   const server = await createAdminServiceV2({
     ordererName: process.env.ORDERER_NAME,
     ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
@@ -19,8 +21,9 @@ const port = 15000;
     fabricNetwork: process.env.NETWORK_LOCATION,
     walletPath: process.env.WALLET
   });
+
   server.listen({ port }).then(({ url }) => {
-    console.log(`🚀 Admin Service ready at ${url}graphql`);
+    console.log(`🚀 admin Service for manual test at ${url}graphql`);
   });
 })().catch(error => {
   console.log(error);

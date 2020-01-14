@@ -63,6 +63,8 @@ const response_type = 'code';
 
 beforeAll(async () => {
   app = await createHttpServer({
+    rootAdmin: process.env.ADMIN,
+    rootAdminPassword: process.env.ADMIN_PASSWORD,
     dbConnection,
     resolvers: [OUserResolver, ClientResolver],
     oauthOptions: {

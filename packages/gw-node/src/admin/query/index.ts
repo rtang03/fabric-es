@@ -9,7 +9,7 @@ export * from './GET_CHANNEL_PEERS';
 export * from './GET_CHAIN_HEIGHT';
 export * from './GET_COLLECTION_CONFIGS';
 export * from './GET_PEERINFO';
-export * from './IS_WALLET_ENTRY_EXIST';
+export * from './IS_WALLET_EXIST';
 export * from './LIST_WALLET';
 export * from './LOGIN';
 export * from './REGISTER_ADMIN';

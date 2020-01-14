@@ -72,6 +72,7 @@ export class ClientResolver {
   })
   async getRootClientId() {
     this.logger.info('getRootClientId');
+
     return Client.findOne({ applicationName: 'root' })
       .then(res => res?.id)
       .catch(error => {
@@ -124,9 +125,11 @@ export class ClientResolver {
     grants: string[],
     @Arg('redirect_uri', { nullable: true }) redirect_uri?: string
   ): Promise<CreateAppResponse | ApolloError> {
-    this.logger.info('createRegularApp');
     const user_id = payload?.userId;
-    if (!user_id) throw new AuthenticationError(AUTH_HEADER_ERROR);
+    if (!user_id) {
+      this.logger.info('createRegularApp: ' + AUTH_HEADER_ERROR);
+      throw new AuthenticationError(AUTH_HEADER_ERROR);
+    }
 
     const client_secret = generateSecret(8);
 
@@ -171,6 +174,7 @@ export class ClientResolver {
   ): Promise<boolean | ApolloError> {
     this.logger.info('updateRegularApp');
     const id = payload?.userId;
+
     if (!id) {
       this.logger.warn(AUTH_HEADER_ERROR);
       throw new AuthenticationError(AUTH_HEADER_ERROR);
@@ -237,6 +241,7 @@ export class ClientResolver {
   @UseMiddleware(isAdmin)
   async getAllClients() {
     this.logger.info('getAllClients');
+
     return Client.find().catch(error => {
       this.logger.warn(util.format('getAllClients: %s', error.message));
       return new ApolloError(error);
@@ -307,16 +312,20 @@ export class ClientResolver {
   async createRootClient(
     @Arg('admin', { description: 'Input "admin"' }) admin: string,
     @Arg('password', { description: 'Input predefined password of root admin' })
-    password: string
+    password: string,
+    @Ctx() { rootAdmin, rootAdminPassword }: MyContext
   ) {
-    this.logger.info('createRootClient');
     const root = await Client.findOne({ applicationName: 'root' });
-    if (root) throw new ValidationError(ALREADY_EXIST);
 
-    if (admin === process.env.ADMIN && password === process.env.ADMIN_PASSWORD)
+    if (root) {
+      this.logger.warn(`createRootClient ${ALREADY_EXIST}`);
+      return new ValidationError(ALREADY_EXIST);
+    }
+
+    if (admin === rootAdmin && password === rootAdminPassword)
       return Client.insert({
         applicationName: 'root',
-        client_secret: 'secret',
+        client_secret: rootAdminPassword,
         grants: [
           'password',
           'authorization_code',
@@ -326,7 +335,7 @@ export class ClientResolver {
         ],
         // redirect_uris is not required
         redirect_uris: ['http://localhost:4000'],
-        user_id: 'admin',
+        user_id: rootAdmin,
         is_system_app: true
       })
         .then(result => {
@@ -338,6 +347,6 @@ export class ClientResolver {
           this.logger.warn(util.format('createRootClient: %s', error.message));
           return new ApolloError(error);
         });
-    else throw new ValidationError(ADMIN_PASSWORD_MISMATCH);
+    else return new ValidationError(ADMIN_PASSWORD_MISMATCH);
   }
 }
