@@ -1,5 +1,7 @@
 import { Commit } from '@espresso/fabric-cqrs';
-import { AuthenticationError } from 'apollo-server-errors';
+import { ApolloError, AuthenticationError } from 'apollo-server-errors';
+import Client from 'fabric-client';
+import util from 'util';
 import { User, userCommandHandler, UserDS } from '.';
 import { Paginated } from '..';
 
@@ -17,17 +19,25 @@ export const resolvers = {
       _,
       { userId },
       { dataSources: { user } }: { dataSources: { user: UserDS } }
-    ): Promise<Commit[]> =>
-      user.repo
+    ): Promise<Commit[]> => {
+      const logger = Client.getLogger('user-resolvers.js');
+
+      return user.repo
         .getCommitById(userId)
         .then(({ data }) => data || [])
-        .catch(({ error }) => error),
+        .catch(({ error }) => {
+          logger.warn(util.format('getCommitsByUserId error: %j', error));
+          return error;
+        });
+    },
     getPaginatedUser: async (
       _,
       { cursor = 10 },
       { dataSources: { user } }: { dataSources: { user: UserDS } }
-    ): Promise<Paginated<User>> =>
-      user.repo
+    ): Promise<Paginated<User>> => {
+      const logger = Client.getLogger('user-resolvers.js');
+
+      return user.repo
         .getByEntityName()
         .then(
           ({ data }: { data: any[] }) =>
@@ -37,7 +47,11 @@ export const resolvers = {
               total: data.length
             } as Paginated<User>)
         )
-        .catch(({ error }) => error),
+        .catch(({ error }) => {
+          logger.warn(util.format('getPaginatedUser error: %j', error));
+          return error;
+        });
+    },
     getUserById: async (
       _,
       { userId },
@@ -45,11 +59,17 @@ export const resolvers = {
         dataSources: { user },
         enrollmentId
       }: { dataSources: { user: UserDS }; enrollmentId: string }
-    ): Promise<User> =>
-      user.repo
+    ): Promise<User> => {
+      const logger = Client.getLogger('user-resolvers.js');
+
+      return user.repo
         .getById({ id: userId, enrollmentId })
         .then(({ currentState }) => currentState)
-        .catch(({ error }) => error)
+        .catch(({ error }) => {
+          logger.warn(util.format('getUserById error: %j', error));
+          return error;
+        });
+    }
   },
   Mutation: {
     createUser: async (
@@ -59,18 +79,27 @@ export const resolvers = {
         dataSources: { user },
         enrollmentId
       }: { dataSources: { user: UserDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : userCommandHandler({
-            enrollmentId,
-            userRepo: user.repo
-          })
-            .CreateUser({
-              userId,
-              payload: { name, timestamp: Date.now() }
-            })
-            .catch(({ error }) => error)
+    ): Promise<Commit | ApolloError> => {
+      const logger = Client.getLogger('user-resolvers.js');
+
+      if (!enrollmentId) {
+        logger.warn(`createUser error: ${NOT_AUTHENICATED}`);
+        return new AuthenticationError(NOT_AUTHENICATED);
+      }
+
+      return userCommandHandler({
+        enrollmentId,
+        userRepo: user.repo
+      })
+        .CreateUser({
+          userId,
+          payload: { name, timestamp: Date.now() }
+        })
+        .catch(({ error }) => {
+          logger.warn(util.format('createUser error: %j', error));
+          return error;
+        });
+    }
   },
   UserResponse: {
     __resolveType: (obj: any) =>
