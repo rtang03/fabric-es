@@ -42,7 +42,11 @@ sudo cp  ${_CRYPTO_CONFIG_DIR}/Org3MSP/peer0.org3.neworg.com/assets/ca/org3.newo
 sudo cp  ${_CRYPTO_CONFIG_DIR}/Org3MSP/peer0.org3.neworg.com/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/Org3MSP/msp/tlscacerts
 
 # Ubuntu requires ownership of orderer certs
-sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/example.com
+sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer1.example.com
+sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer2.example.com
+sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer3.example.com
+sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer4.example.com
+sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer5.example.com
 
 cd ${_FABRIC_DIR}; 
 export FABRIC_CFG_PATH=${PWD}
