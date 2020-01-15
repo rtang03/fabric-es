@@ -13,7 +13,7 @@ services:
         restart: always
         environment:
             - HYPERLEDGER_VOL={{{artifacts.docker}}}
-            - FABRIC_CA_SERVER_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}}/{{{artifacts.caserver-home}}}
+            - FABRIC_CA_SERVER_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.tls.ca.server-home}}}
             - FABRIC_CA_SERVER_CSR_CN={{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}}
             - FABRIC_CA_SERVER_CA_NAME={{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}}
         ports:
@@ -31,7 +31,7 @@ services:
         restart: always
         environment:
             - HYPERLEDGER_VOL={{{artifacts.docker}}}
-            - FABRIC_CA_SERVER_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.ca.host}}{{network.host-delimiter}}{{orgs.orderer.domain}}/{{{artifacts.caserver-home}}}
+            - FABRIC_CA_SERVER_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.orderer.ca.server-home}}}
             - FABRIC_CA_SERVER_CSR_CN={{orgs.orderer.ca.host}}{{network.host-delimiter}}{{orgs.orderer.domain}}
             - FABRIC_CA_SERVER_CA_NAME={{orgs.orderer.ca.host}}{{network.host-delimiter}}{{orgs.orderer.domain}}
         ports:
@@ -50,7 +50,7 @@ services:
         restart: always
         environment:
             - HYPERLEDGER_VOL={{{artifacts.docker}}}
-            - FABRIC_CA_SERVER_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{ca.host}}{{network.host-delimiter}}{{domain}}/{{{artifacts.caserver-home}}}
+            - FABRIC_CA_SERVER_HOME={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{ca.server-home}}}
             - FABRIC_CA_SERVER_CSR_CN={{ca.host}}{{network.host-delimiter}}{{domain}}
             - FABRIC_CA_SERVER_CA_NAME={{ca.host}}{{network.host-delimiter}}{{domain}}
         ports:
@@ -73,18 +73,18 @@ services:
             - CORE_PEER_ADDRESS={{-}}{{network.host-delimiter}}{{domain}}:{{port}}
             - CORE_PEER_LISTENADDRESS=0.0.0.0:{{port}}
             - CORE_PEER_LOCALMSPID={{id}}
-            - CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/msp
-            - CORE_PEER_TLS_CERT_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/signcerts/cert.pem
-            - CORE_PEER_TLS_KEY_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/keystore/key.pem
-            - CORE_PEER_TLS_ROOTCERT_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+            - CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/msp
+            - CORE_PEER_TLS_CERT_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/signcerts/cert.pem
+            - CORE_PEER_TLS_KEY_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/keystore/key.pem
+            - CORE_PEER_TLS_ROOTCERT_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
             - CORE_PEER_GOSSIP_BOOTSTRAP={{^islast}}{{peers.endpoints.1.-}}{{network.host-delimiter}}{{domain}}:{{peers.endpoints.1.port}}{{/islast}}{{#islast}}{{peers.endpoints.0.-}}{{network.host-delimiter}}{{domain}}:{{peers.endpoints.0.port}}{{/islast}}
             - CORE_PEER_GOSSIP_EXTERNALENDPOINT={{-}}{{network.host-delimiter}}{{domain}}:{{port}}
             - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:{{chaincode-port}}
-        working_dir: {{{artifacts.peers-working-dir}}}/{{domain}}/{{-}}
+        working_dir: {{{artifacts.peers-working-dir}}}/{{{cert-path}}}
         volumes:
             - /var/run:/host/var/run
-#            - {{{artifacts.local}}}/{{{artifacts.production}}}{{#artifacts.production}}/{{/artifacts.production}}{{domain}}/{{-}}:{{{artifacts.docker}}}/production
-            - {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}:{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}
+#            - {{{artifacts.local}}}/{{{artifacts.production}}}{{#artifacts.production}}/{{/artifacts.production}}{{{cert-path}}}:{{{artifacts.docker}}}/production
+            - {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}:{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}
         ports:
             - {{port}}:{{port}}
             - {{eventhub-port}}:{{eventhub-port}}
@@ -102,18 +102,18 @@ services:
             - ORDERER_HOST={{-}}{{network.host-delimiter}}{{domain}}
             - ORDERER_HOME={{{artifacts.docker}}}/{{{artifacts.orderer-home}}}
             - ORDERER_GENERAL_LOCALMSPID={{id}}
-            - ORDERER_GENERAL_LOCALMSPDIR={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/msp
-            - ORDERER_GENERAL_TLS_CERTIFICATE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_TLS_PRIVATEKEY={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_TLS_ROOTCAS=[{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem]
-            - ORDERER_GENERAL_GENESISFILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/genesis.block
-            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem]
+            - ORDERER_GENERAL_LOCALMSPDIR={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/msp
+            - ORDERER_GENERAL_TLS_CERTIFICATE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_TLS_PRIVATEKEY={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_TLS_ROOTCAS=[{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem]
+            - ORDERER_GENERAL_GENESISFILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/genesis.block
+            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem]
             - ORDERER_GENERAL_LISTENPORT={{ext-port}}
         volumes:
-#            - {{{artifacts.local}}}/{{{artifacts.production}}}{{#artifacts.production}}/{{/artifacts.production}}{{domain}}/{{-}}:{{{artifacts.docker}}}/production
-            - {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}:{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{-}}
+#            - {{{artifacts.local}}}/{{{artifacts.production}}}{{#artifacts.production}}/{{/artifacts.production}}{{{cert-path}}}:{{{artifacts.docker}}}/production
+            - {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}:{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}
         ports:
             - {{ext-port}}:{{ext-port}}
 
@@ -130,8 +130,8 @@ services:
             - CORE_PEER_ID=cli{{network.host-delimiter}}{{domain}}
             - CORE_PEER_ADDRESS={{peers.endpoints.0.-}}{{network.host-delimiter}}{{domain}}:{{peers.endpoints.0.port}}
             - CORE_PEER_LOCALMSPID={{id}}
-            - CORE_PEER_TLS_ROOTCERT_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{peers.endpoints.0.-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
-            - CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/{{peers.endpoints.0.-}}/msp
+            - CORE_PEER_TLS_ROOTCERT_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{peers.endpoints.0.cert-path}}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+            - CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{peers.endpoints.0.cert-path}}}/msp
         working_dir: {{{artifacts.peers-working-dir}}}/{{domain}}
         command: sh
         volumes:

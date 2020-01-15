@@ -1,9 +1,9 @@
 
-export CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1.example.com/admin/msp
+export CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/Org1MSP/admin/msp
 export CORE_PEER_ADDRESS=peer0.org1.example.com:7051
 export ORDERER_URL=orderer1.example.com:7050
 export CHANNEL=eventstore
-export CA_FILE=/tmp/hyperledger/org1.example.com/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+export CA_FILE=/tmp/hyperledger/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 # Invoke event store
 peer chaincode invoke -o ${ORDERER_URL} -C ${CHANNEL} -n eventstore --waitForEvent \

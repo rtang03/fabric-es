@@ -11,7 +11,7 @@ Organizations:
    - &{{orgs.orderer.name}}
       Name: {{orgs.orderer.name}}
       ID: {{orgs.orderer.id}}
-      MSPDir: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/msp
+      MSPDir: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.orderer.msp-path}}}
 
       Policies:
          Readers:
@@ -28,7 +28,7 @@ Organizations:
    - &{{name}}
       Name: {{name}}
       ID: {{id}}
-      MSPDir: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{domain}}/msp
+      MSPDir: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{msp-path}}}
 
       Policies:
          Readers:
@@ -96,9 +96,11 @@ Orderer: &OrdererDefaults
 
    OrdererType: {{orgs.orderer.orderers.type}}
    Addresses:
-      {{#orgs.orderer.orderers.endpoints}}
-      - {{-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:{{ext-port}}
-      {{/orgs.orderer.orderers.endpoints}}
+      {{#orgs.orderer}}
+      {{#orderers.endpoints}}
+      - {{-}}{{network.host-delimiter}}{{domain}}:{{ext-port}}
+      {{/orderers.endpoints}}
+      {{/orgs.orderer}}
    BatchTimeout: {{orgs.orderer.orderers.batch-timeout}}
    BatchSize:
       MaxMessageCount: {{orgs.orderer.orderers.max-message-count}}
@@ -118,8 +120,8 @@ Orderer: &OrdererDefaults
          {{#orgs.orderer.orderers.endpoints}}
          - Host: {{-}}{{network.host-delimiter}}{{orgs.orderer.domain}}
            Port: {{ext-port}}
-           ClientTLSCert: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/{{-}}/tls-msp/signcerts/cert.pem
-           ServerTLSCert: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/{{-}}/tls-msp/signcerts/cert.pem
+           ClientTLSCert: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/signcerts/cert.pem
+           ServerTLSCert: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/signcerts/cert.pem
          {{/orgs.orderer.orderers.endpoints}}
 
       Options:
@@ -164,8 +166,8 @@ Channel: &ChannelDefaults
 #
 #   Profile
 #
-#   - Different configuration profiles may be encoded here to be specified
-#   as parameters to the configtxgen tool
+#   Different configuration profiles may be encoded here to be specified as
+#   parameters to the configtxgen tool.
 #
 ################################################################################
 Profiles:

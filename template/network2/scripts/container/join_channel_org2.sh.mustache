@@ -1,14 +1,14 @@
-cp {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.0.domain}}/{{orgs.peer.0.peers.endpoints.0.-}}/assets/{{network.peer-channels.0}}.block {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/{{orgs.peer.1.peers.endpoints.0.-}}/assets
+cp {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.0.peers.endpoints.0.cert-path}}}/assets/{{network.peer-channels.0}}.block {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.1.peers.endpoints.0.cert-path}}}/assets
 
-mkdir -p {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/admin/msp/admincerts
-cp {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/{{orgs.peer.1.peers.endpoints.0.-}}/msp/admincerts/{{orgs.peer.1.domain}}-admin-cert.pem {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/admin/msp/admincerts
+mkdir -p {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.1.admin-cert-path}}}/msp/admincerts
+cp {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.1.peers.endpoints.0.cert-path}}}/msp/admincerts/{{orgs.peer.1.domain}}-admin-cert.pem {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.1.admin-cert-path}}}/msp/admincerts
 
-export CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/admin/msp
+export CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.1.admin-cert-path}}}/msp
 
 {{#orgs.peer.1.peers.endpoints}}
 # {{-}} joining the channel
 export CORE_PEER_ADDRESS={{-}}{{network.host-delimiter}}{{orgs.peer.1.domain}}:{{port}}
-peer channel join -b {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/{{orgs.peer.1.peers.endpoints.0.-}}/assets/{{network.peer-channels.0}}.block
+peer channel join -b {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.1.peers.endpoints.0.cert-path}}}/assets/{{network.peer-channels.0}}.block
 peer channel getinfo -c {{network.peer-channels.0}}
 
 {{/orgs.peer.1.peers.endpoints}}

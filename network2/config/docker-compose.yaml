@@ -13,7 +13,7 @@ services:
         restart: always
         environment:
             - HYPERLEDGER_VOL=/tmp/hyperledger
-            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/ca.tls/crypto
+            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/TLS-CA/server
             - FABRIC_CA_SERVER_CSR_CN=ca.tls
             - FABRIC_CA_SERVER_CA_NAME=ca.tls
         ports:
@@ -31,7 +31,7 @@ services:
         restart: always
         environment:
             - HYPERLEDGER_VOL=/tmp/hyperledger
-            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/rca.example.com/crypto
+            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/OrdererMSP/ca/server
             - FABRIC_CA_SERVER_CSR_CN=rca.example.com
             - FABRIC_CA_SERVER_CA_NAME=rca.example.com
         ports:
@@ -49,7 +49,7 @@ services:
         restart: always
         environment:
             - HYPERLEDGER_VOL=/tmp/hyperledger
-            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/rca.org1.example.com/crypto
+            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/Org1MSP/ca/server
             - FABRIC_CA_SERVER_CSR_CN=rca.org1.example.com
             - FABRIC_CA_SERVER_CA_NAME=rca.org1.example.com
         ports:
@@ -67,7 +67,7 @@ services:
         restart: always
         environment:
             - HYPERLEDGER_VOL=/tmp/hyperledger
-            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/rca.org2.example.com/crypto
+            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/Org2MSP/ca/server
             - FABRIC_CA_SERVER_CSR_CN=rca.org2.example.com
             - FABRIC_CA_SERVER_CA_NAME=rca.org2.example.com
         ports:
@@ -85,7 +85,7 @@ services:
         restart: always
         environment:
             - HYPERLEDGER_VOL=/tmp/hyperledger
-            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/rca.org3.neworg.com/crypto
+            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/Org3MSP/ca/server
             - FABRIC_CA_SERVER_CSR_CN=rca.org3.neworg.com
             - FABRIC_CA_SERVER_CA_NAME=rca.org3.neworg.com
         ports:
@@ -105,18 +105,18 @@ services:
             - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
             - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
             - CORE_PEER_LOCALMSPID=Org1MSP
-            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1.example.com/peer0/msp
-            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org1.example.com/peer0/tls-msp/signcerts/cert.pem
-            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org1.example.com/peer0/tls-msp/keystore/key.pem
-            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org1.example.com/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/Org1MSP/peer0.org1.example.com/msp
+            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/Org1MSP/peer0.org1.example.com/tls-msp/signcerts/cert.pem
+            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/Org1MSP/peer0.org1.example.com/tls-msp/keystore/key.pem
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
             - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org1.example.com:8051
             - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.example.com:7051
             - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1.example.com/peer0
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org1MSP/peer0.org1.example.com
         volumes:
             - /var/run:/host/var/run
-#            - ../artifacts/production/org1.example.com/peer0:/tmp/hyperledger/production
-            - ../artifacts/org1.example.com/peer0:/tmp/hyperledger/org1.example.com/peer0
+#            - ../artifacts/production/Org1MSP/peer0.org1.example.com:/tmp/hyperledger/production
+            - ../artifacts/Org1MSP/peer0.org1.example.com:/tmp/hyperledger/Org1MSP/peer0.org1.example.com
         ports:
             - 7051:7051
             - 7053:7053
@@ -131,18 +131,18 @@ services:
             - CORE_PEER_ADDRESS=peer1.org1.example.com:8051
             - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
             - CORE_PEER_LOCALMSPID=Org1MSP
-            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1.example.com/peer1/msp
-            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org1.example.com/peer1/tls-msp/signcerts/cert.pem
-            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org1.example.com/peer1/tls-msp/keystore/key.pem
-            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org1.example.com/peer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/Org1MSP/peer1.org1.example.com/msp
+            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/Org1MSP/peer1.org1.example.com/tls-msp/signcerts/cert.pem
+            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/Org1MSP/peer1.org1.example.com/tls-msp/keystore/key.pem
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/Org1MSP/peer1.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
             - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.example.com:7051
             - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org1.example.com:8051
             - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
-        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1.example.com/peer1
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org1MSP/peer1.org1.example.com
         volumes:
             - /var/run:/host/var/run
-#            - ../artifacts/production/org1.example.com/peer1:/tmp/hyperledger/production
-            - ../artifacts/org1.example.com/peer1:/tmp/hyperledger/org1.example.com/peer1
+#            - ../artifacts/production/Org1MSP/peer1.org1.example.com:/tmp/hyperledger/production
+            - ../artifacts/Org1MSP/peer1.org1.example.com:/tmp/hyperledger/Org1MSP/peer1.org1.example.com
         ports:
             - 8051:8051
             - 8053:8053
@@ -157,18 +157,18 @@ services:
             - CORE_PEER_ADDRESS=peer0.org2.example.com:9051
             - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
             - CORE_PEER_LOCALMSPID=Org2MSP
-            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2.example.com/peer0/msp
-            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org2.example.com/peer0/tls-msp/signcerts/cert.pem
-            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org2.example.com/peer0/tls-msp/keystore/key.pem
-            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org2.example.com/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/Org2MSP/peer0.org2.example.com/msp
+            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/Org2MSP/peer0.org2.example.com/tls-msp/signcerts/cert.pem
+            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/Org2MSP/peer0.org2.example.com/tls-msp/keystore/key.pem
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/Org2MSP/peer0.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
             - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org2.example.com:10051
             - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.example.com:9051
             - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
-        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org2.example.com/peer0
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org2MSP/peer0.org2.example.com
         volumes:
             - /var/run:/host/var/run
-#            - ../artifacts/production/org2.example.com/peer0:/tmp/hyperledger/production
-            - ../artifacts/org2.example.com/peer0:/tmp/hyperledger/org2.example.com/peer0
+#            - ../artifacts/production/Org2MSP/peer0.org2.example.com:/tmp/hyperledger/production
+            - ../artifacts/Org2MSP/peer0.org2.example.com:/tmp/hyperledger/Org2MSP/peer0.org2.example.com
         ports:
             - 9051:9051
             - 9053:9053
@@ -183,18 +183,18 @@ services:
             - CORE_PEER_ADDRESS=peer1.org2.example.com:10051
             - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
             - CORE_PEER_LOCALMSPID=Org2MSP
-            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2.example.com/peer1/msp
-            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org2.example.com/peer1/tls-msp/signcerts/cert.pem
-            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org2.example.com/peer1/tls-msp/keystore/key.pem
-            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org2.example.com/peer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/Org2MSP/peer1.org2.example.com/msp
+            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/Org2MSP/peer1.org2.example.com/tls-msp/signcerts/cert.pem
+            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/Org2MSP/peer1.org2.example.com/tls-msp/keystore/key.pem
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/Org2MSP/peer1.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
             - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.example.com:9051
             - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org2.example.com:10051
             - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:10052
-        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org2.example.com/peer1
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org2MSP/peer1.org2.example.com
         volumes:
             - /var/run:/host/var/run
-#            - ../artifacts/production/org2.example.com/peer1:/tmp/hyperledger/production
-            - ../artifacts/org2.example.com/peer1:/tmp/hyperledger/org2.example.com/peer1
+#            - ../artifacts/production/Org2MSP/peer1.org2.example.com:/tmp/hyperledger/production
+            - ../artifacts/Org2MSP/peer1.org2.example.com:/tmp/hyperledger/Org2MSP/peer1.org2.example.com
         ports:
             - 10051:10051
             - 10053:10053
@@ -209,18 +209,18 @@ services:
             - CORE_PEER_ADDRESS=peer0.org3.neworg.com:11051
             - CORE_PEER_LISTENADDRESS=0.0.0.0:11051
             - CORE_PEER_LOCALMSPID=Org3MSP
-            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org3.neworg.com/peer0/msp
-            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org3.neworg.com/peer0/tls-msp/signcerts/cert.pem
-            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org3.neworg.com/peer0/tls-msp/keystore/key.pem
-            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org3.neworg.com/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/Org3MSP/peer0.org3.neworg.com/msp
+            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/Org3MSP/peer0.org3.neworg.com/tls-msp/signcerts/cert.pem
+            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/Org3MSP/peer0.org3.neworg.com/tls-msp/keystore/key.pem
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/Org3MSP/peer0.org3.neworg.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
             - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org3.neworg.com:12051
             - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org3.neworg.com:11051
             - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:11052
-        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org3.neworg.com/peer0
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org3MSP/peer0.org3.neworg.com
         volumes:
             - /var/run:/host/var/run
-#            - ../artifacts/production/org3.neworg.com/peer0:/tmp/hyperledger/production
-            - ../artifacts/org3.neworg.com/peer0:/tmp/hyperledger/org3.neworg.com/peer0
+#            - ../artifacts/production/Org3MSP/peer0.org3.neworg.com:/tmp/hyperledger/production
+            - ../artifacts/Org3MSP/peer0.org3.neworg.com:/tmp/hyperledger/Org3MSP/peer0.org3.neworg.com
         ports:
             - 11051:11051
             - 11053:11053
@@ -235,18 +235,18 @@ services:
             - CORE_PEER_ADDRESS=peer1.org3.neworg.com:12051
             - CORE_PEER_LISTENADDRESS=0.0.0.0:12051
             - CORE_PEER_LOCALMSPID=Org3MSP
-            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org3.neworg.com/peer1/msp
-            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/org3.neworg.com/peer1/tls-msp/signcerts/cert.pem
-            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/org3.neworg.com/peer1/tls-msp/keystore/key.pem
-            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org3.neworg.com/peer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/Org3MSP/peer1.org3.neworg.com/msp
+            - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/Org3MSP/peer1.org3.neworg.com/tls-msp/signcerts/cert.pem
+            - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/Org3MSP/peer1.org3.neworg.com/tls-msp/keystore/key.pem
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/Org3MSP/peer1.org3.neworg.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
             - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org3.neworg.com:11051
             - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org3.neworg.com:12051
             - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:12052
-        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org3.neworg.com/peer1
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org3MSP/peer1.org3.neworg.com
         volumes:
             - /var/run:/host/var/run
-#            - ../artifacts/production/org3.neworg.com/peer1:/tmp/hyperledger/production
-            - ../artifacts/org3.neworg.com/peer1:/tmp/hyperledger/org3.neworg.com/peer1
+#            - ../artifacts/production/Org3MSP/peer1.org3.neworg.com:/tmp/hyperledger/production
+            - ../artifacts/Org3MSP/peer1.org3.neworg.com:/tmp/hyperledger/Org3MSP/peer1.org3.neworg.com
         ports:
             - 12051:12051
             - 12053:12053
@@ -260,18 +260,18 @@ services:
             - ORDERER_HOST=orderer1.example.com
             - ORDERER_HOME=/tmp/hyperledger/orderer
             - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
-            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/example.com/orderer1/msp
-            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/example.com/orderer1/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/example.com/orderer1/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/example.com/orderer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
-            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/example.com/orderer1/genesis.block
-            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/example.com/orderer1/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/example.com/orderer1/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer1/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/OrdererMSP/orderer1.example.com/msp
+            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/OrdererMSP/orderer1.example.com/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/OrdererMSP/orderer1.example.com/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/OrdererMSP/orderer1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/OrdererMSP/orderer1.example.com/genesis.block
+            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/OrdererMSP/orderer1.example.com/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/OrdererMSP/orderer1.example.com/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/OrdererMSP/orderer1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7050
         volumes:
-#            - ../artifacts/production/example.com/orderer1:/tmp/hyperledger/production
-            - ../artifacts/example.com/orderer1:/tmp/hyperledger/example.com/orderer1
+#            - ../artifacts/production/OrdererMSP/orderer1.example.com:/tmp/hyperledger/production
+            - ../artifacts/OrdererMSP/orderer1.example.com:/tmp/hyperledger/OrdererMSP/orderer1.example.com
         ports:
             - 7050:7050
 
@@ -284,18 +284,18 @@ services:
             - ORDERER_HOST=orderer2.example.com
             - ORDERER_HOME=/tmp/hyperledger/orderer
             - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
-            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/example.com/orderer2/msp
-            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/example.com/orderer2/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/example.com/orderer2/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/example.com/orderer2/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
-            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/example.com/orderer2/genesis.block
-            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/example.com/orderer2/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/example.com/orderer2/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer2/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/OrdererMSP/orderer2.example.com/msp
+            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/OrdererMSP/orderer2.example.com/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/OrdererMSP/orderer2.example.com/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/OrdererMSP/orderer2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/OrdererMSP/orderer2.example.com/genesis.block
+            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/OrdererMSP/orderer2.example.com/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/OrdererMSP/orderer2.example.com/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/OrdererMSP/orderer2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7150
         volumes:
-#            - ../artifacts/production/example.com/orderer2:/tmp/hyperledger/production
-            - ../artifacts/example.com/orderer2:/tmp/hyperledger/example.com/orderer2
+#            - ../artifacts/production/OrdererMSP/orderer2.example.com:/tmp/hyperledger/production
+            - ../artifacts/OrdererMSP/orderer2.example.com:/tmp/hyperledger/OrdererMSP/orderer2.example.com
         ports:
             - 7150:7150
 
@@ -308,18 +308,18 @@ services:
             - ORDERER_HOST=orderer3.example.com
             - ORDERER_HOME=/tmp/hyperledger/orderer
             - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
-            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/example.com/orderer3/msp
-            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/example.com/orderer3/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/example.com/orderer3/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/example.com/orderer3/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
-            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/example.com/orderer3/genesis.block
-            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/example.com/orderer3/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/example.com/orderer3/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer3/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/OrdererMSP/orderer3.example.com/msp
+            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/OrdererMSP/orderer3.example.com/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/OrdererMSP/orderer3.example.com/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/OrdererMSP/orderer3.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/OrdererMSP/orderer3.example.com/genesis.block
+            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/OrdererMSP/orderer3.example.com/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/OrdererMSP/orderer3.example.com/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/OrdererMSP/orderer3.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7250
         volumes:
-#            - ../artifacts/production/example.com/orderer3:/tmp/hyperledger/production
-            - ../artifacts/example.com/orderer3:/tmp/hyperledger/example.com/orderer3
+#            - ../artifacts/production/OrdererMSP/orderer3.example.com:/tmp/hyperledger/production
+            - ../artifacts/OrdererMSP/orderer3.example.com:/tmp/hyperledger/OrdererMSP/orderer3.example.com
         ports:
             - 7250:7250
 
@@ -332,18 +332,18 @@ services:
             - ORDERER_HOST=orderer4.example.com
             - ORDERER_HOME=/tmp/hyperledger/orderer
             - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
-            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/example.com/orderer4/msp
-            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/example.com/orderer4/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/example.com/orderer4/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/example.com/orderer4/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
-            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/example.com/orderer4/genesis.block
-            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/example.com/orderer4/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/example.com/orderer4/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer4/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/OrdererMSP/orderer4.example.com/msp
+            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/OrdererMSP/orderer4.example.com/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/OrdererMSP/orderer4.example.com/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/OrdererMSP/orderer4.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/OrdererMSP/orderer4.example.com/genesis.block
+            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/OrdererMSP/orderer4.example.com/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/OrdererMSP/orderer4.example.com/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/OrdererMSP/orderer4.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7350
         volumes:
-#            - ../artifacts/production/example.com/orderer4:/tmp/hyperledger/production
-            - ../artifacts/example.com/orderer4:/tmp/hyperledger/example.com/orderer4
+#            - ../artifacts/production/OrdererMSP/orderer4.example.com:/tmp/hyperledger/production
+            - ../artifacts/OrdererMSP/orderer4.example.com:/tmp/hyperledger/OrdererMSP/orderer4.example.com
         ports:
             - 7350:7350
 
@@ -356,18 +356,18 @@ services:
             - ORDERER_HOST=orderer5.example.com
             - ORDERER_HOME=/tmp/hyperledger/orderer
             - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
-            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/example.com/orderer5/msp
-            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/example.com/orderer5/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/example.com/orderer5/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/example.com/orderer5/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
-            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/example.com/orderer5/genesis.block
-            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/example.com/orderer5/tls-msp/signcerts/cert.pem
-            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/example.com/orderer5/tls-msp/keystore/key.pem
-            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/example.com/orderer5/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/OrdererMSP/orderer5.example.com/msp
+            - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/OrdererMSP/orderer5.example.com/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/OrdererMSP/orderer5.example.com/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/OrdererMSP/orderer5.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+            - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/OrdererMSP/orderer5.example.com/genesis.block
+            - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/OrdererMSP/orderer5.example.com/tls-msp/signcerts/cert.pem
+            - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/OrdererMSP/orderer5.example.com/tls-msp/keystore/key.pem
+            - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/OrdererMSP/orderer5.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
             - ORDERER_GENERAL_LISTENPORT=7450
         volumes:
-#            - ../artifacts/production/example.com/orderer5:/tmp/hyperledger/production
-            - ../artifacts/example.com/orderer5:/tmp/hyperledger/example.com/orderer5
+#            - ../artifacts/production/OrdererMSP/orderer5.example.com:/tmp/hyperledger/production
+            - ../artifacts/OrdererMSP/orderer5.example.com:/tmp/hyperledger/OrdererMSP/orderer5.example.com
         ports:
             - 7450:7450
 
@@ -381,8 +381,8 @@ services:
             - CORE_PEER_ID=cli.org1.example.com
             - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
             - CORE_PEER_LOCALMSPID=Org1MSP
-            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org1.example.com/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
-            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1.example.com/peer0/msp
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/Org1MSP/peer0.org1.example.com/msp
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1.example.com
         command: sh
         volumes:
@@ -400,8 +400,8 @@ services:
             - CORE_PEER_ID=cli.org2.example.com
             - CORE_PEER_ADDRESS=peer0.org2.example.com:9051
             - CORE_PEER_LOCALMSPID=Org2MSP
-            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org2.example.com/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
-            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2.example.com/peer0/msp
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/Org2MSP/peer0.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/Org2MSP/peer0.org2.example.com/msp
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org2.example.com
         command: sh
         volumes:
@@ -419,8 +419,8 @@ services:
             - CORE_PEER_ID=cli.org3.neworg.com
             - CORE_PEER_ADDRESS=peer0.org3.neworg.com:11051
             - CORE_PEER_LOCALMSPID=Org3MSP
-            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org3.neworg.com/peer0/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
-            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org3.neworg.com/peer0/msp
+            - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/Org3MSP/peer0.org3.neworg.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+            - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/Org3MSP/peer0.org3.neworg.com/msp
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org3.neworg.com
         command: sh
         volumes:
