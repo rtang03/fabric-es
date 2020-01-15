@@ -7,7 +7,7 @@ export CA_FILE=/tmp/hyperledger/org1.example.com/peer0/tls-msp/tlscacerts/tls-0-
 
 # Invoke event store
 peer chaincode invoke -o ${ORDERER_URL} -C ${CHANNEL} -n eventstore --waitForEvent \
-    -c '{"Args":["createCommit", "dev_entity", "ent_dev_1001", "0","[{\"type\":\"mon\"}]"]}' \
+    -c '{"Args":["createCommit", "dev_entity", "ent_dev_1001", "0","[{\"type\":\"mon\"}]", "ent_dev_1001"]}' \
     --tls --cafile ${CA_FILE}
 
 # Query event store
@@ -18,7 +18,7 @@ peer chaincode invoke -o ${ORDERER_URL} -C ${CHANNEL} -n eventstore --waitForEve
 # Invoke private data
 export COMMIT=$(echo -n "{\"eventString\":\"[]\"}" | base64 | tr -d \\n)
 peer chaincode invoke -o ${ORDERER_URL} -C ${CHANNEL} -n privatedata --waitForEvent \
-    -c '{"Args":["privatedata:createCommit","Org1MSPPrivateDetails","private_entityName","private_1001","0"]}' \
+    -c '{"Args":["privatedata:createCommit","Org1MSPPrivateDetails","private_entityName","private_1001","0","private_1001"]}' \
     --transient "{\"eventstr\":\"$COMMIT\"}" \
     --tls --cafile ${CA_FILE}
 
