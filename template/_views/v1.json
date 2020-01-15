@@ -17,7 +17,6 @@
         "docker": "/var/artifacts",
         "crypto": "crypto-config",
         "production": "production",
-        "caserver-home": "server",
         "orderer-home": "orderer",
         "peers-working-dir": "/opt/gopath/src/github.com/hyperledger/fabric"
     },
@@ -29,13 +28,18 @@
                 "host": "ca",
                 "port": "6052",
                 "admin": "tls-ca-admin",
-                "adminpw": "tls-ca-adminPW"
+                "adminpw": "tls-ca-adminPW",
+                "admin-cert-path": "ca-tls/admin",
+                "server-home": "ca-tls/server"
             }
         },
         "orderer": {
             "name": "org0",
             "id": "org0MSP",
             "domain": "org0",
+            "msp-path": "org0/msp",
+            "admin-cert-path": "org0/admin",
+            "ca-server-cert-path": "org0/ca/crypto",
             "orderers": {
                 "type": "etcdraft",
                 "use-kafka": false,
@@ -54,23 +58,28 @@
                 "endpoints": [
                     {
                         "-": "orderer1",
-                        "ext-port": "7050"
+                        "ext-port": "7050",
+                        "cert-path": "org0/orderer1"
                     },
                     {
                         "-": "orderer2",
-                        "ext-port": "7150"
+                        "ext-port": "7150",
+                        "cert-path": "org0/orderer2"
                     },
                     {
                         "-": "orderer3",
-                        "ext-port": "7250"
+                        "ext-port": "7250",
+                        "cert-path": "org0/orderer3"
                     },
                     {
                         "-": "orderer4",
-                        "ext-port": "7350"
+                        "ext-port": "7350",
+                        "cert-path": "org0/orderer4"
                     },
                     {
                         "-": "orderer5",
                         "ext-port": "7450",
+                        "cert-path": "org0/orderer5",
                         "islast": true
                     }
                 ]
@@ -98,7 +107,9 @@
                 "host": "rca",
                 "port": "6053",
                 "admin": "rca-org0-admin",
-                "adminpw": "rca-org0-adminPW"
+                "adminpw": "rca-org0-adminPW",
+                "admin-cert-path": "org0/ca/admin",
+                "server-home": "org0/ca/server"
             }
         },
         "peer": [
@@ -107,6 +118,9 @@
                 "script-naming": "org1",
                 "id": "org1MSP",
                 "domain": "org1",
+                "msp-path": "org1/msp",
+                "admin-cert-path": "org1/admin",
+                "ca-server-cert-path": "org1/ca/crypto",
                 "peers": {
                     "anchor": "peer1",
                     "anchor-port": "7051",
@@ -115,13 +129,15 @@
                             "-": "peer1",
                             "port": "7051",
                             "chaincode-port": "7052",
-                            "eventhub-port": "7053"
+                            "eventhub-port": "7053",
+                            "cert-path": "org1/peer1"
                         },
                         {
                             "-": "peer2",
                             "port": "7151",
                             "chaincode-port": "7152",
                             "eventhub-port": "7153",
+                            "cert-path": "org1/peer2",
                             "islast": true
                         }
                     ]
@@ -130,7 +146,9 @@
                     "host": "rca",
                     "port": "6054",
                     "admin": "rca-org1-admin",
-                    "adminpw": "rca-org1-adminPW"
+                    "adminpw": "rca-org1-adminPW",
+                    "admin-cert-path": "org1/ca/admin",
+                    "server-home": "org1/ca/server"
                 },
                 "gw": {
                     "host": "localhost",
@@ -173,6 +191,9 @@
                 "script-naming": "org2",
                 "id": "org2MSP",
                 "domain": "org2",
+                "msp-path": "org2/msp",
+                "admin-cert-path": "org2/admin",
+                "ca-server-cert-path": "org2/ca/crypto",
                 "peers": {
                     "anchor": "peer1",
                     "anchor-port": "7251",
@@ -181,13 +202,15 @@
                             "-": "peer1",
                             "port": "7251",
                             "chaincode-port": "7252",
-                            "eventhub-port": "7253"
+                            "eventhub-port": "7253",
+                            "cert-path": "org2/peer1"
                         },
                         {
                             "-": "peer2",
                             "port": "7351",
                             "chaincode-port": "7352",
                             "eventhub-port": "7353",
+                            "cert-path": "org2/peer2",
                             "islast": true
                         }
                     ]
@@ -196,7 +219,9 @@
                     "host": "rca",
                     "port": "6055",
                     "admin": "rca-org2-admin",
-                    "adminpw": "rca-org2-adminPW"
+                    "adminpw": "rca-org2-adminPW",
+                    "admin-cert-path": "org2/ca/admin",
+                    "server-home": "org2/ca/server"
                 },
                 "gw": {
                     "host": "localhost",
@@ -239,6 +264,9 @@
                 "script-naming": "org3",
                 "id": "org3MSP",
                 "domain": "org3",
+                "msp-path": "org3/msp",
+                "admin-cert-path": "org3/admin",
+                "ca-server-cert-path": "org3/ca/crypto",
                 "peers": {
                     "anchor": "peer1",
                     "anchor-port": "7451",
@@ -247,13 +275,15 @@
                             "-": "peer1",
                             "port": "7451",
                             "chaincode-port": "7452",
-                            "eventhub-port": "7453"
+                            "eventhub-port": "7453",
+                            "cert-path": "org3/peer1"
                         },
                         {
                             "-": "peer2",
                             "port": "7551",
                             "chaincode-port": "7552",
                             "eventhub-port": "7553",
+                            "cert-path": "org3/peer2",
                             "islast": true
                         }
                     ]
@@ -262,7 +292,9 @@
                     "host": "rca",
                     "port": "6056",
                     "admin": "rca-org3-admin",
-                    "adminpw": "rca-org3-adminPW"
+                    "adminpw": "rca-org3-adminPW",
+                    "admin-cert-path": "org3/ca/admin",
+                    "server-home": "org3/ca/server"
                 },
                 "gw": {
                     "host": "localhost",
