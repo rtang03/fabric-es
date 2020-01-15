@@ -1,9 +1,9 @@
-## install_chaincode.sh [org] [peer] [name] [version] [port]
-## Example: ./install_chaincode.sh org1 peer1 eventstore 1.0 7051
-if [ $# -ne 5 ]
+## install_chaincode.sh [org] [peer] [name] [version] [port] [admin cert path] [peer cert path]
+## Example: ./install_chaincode.sh org1 peer1 eventstore 1.0 7051 org1/admin org1/peer0
+if [ $# -ne 7 ]
 then
-    echo [`date +"%Y-%m-%d %H:%M:%S"`] "Usage: install_chaincode.sh [org] [peer] [name] [version] [port]" \
-         "(e.g. : ./install_chaincode.sh org1 peer1 eventstore 1.0 7051)"
+    echo [`date +"%Y-%m-%d %H:%M:%S"`] "Usage: install_chaincode.sh [org] [peer] [name] [version] [port] [admin cert path] [peer cert path]" \
+         "(e.g. : ./install_chaincode.sh org1 peer1 eventstore 1.0 7051 org1/admin org1/peer0)"
     exit 1
 fi
 
@@ -12,18 +12,14 @@ peer="$2"
 name="$3"
 version="$4"
 port="$5"
+adm_crt_path="$6"
+peer_crt_path="$7"
 
-export CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}${org}/admin/msp
+export CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}${adm_crt_path}/msp
 export CORE_PEER_ADDRESS=${peer}{{network.host-delimiter}}${org}:${port}
-
-# Build Chaincode
-# cd {{{artifacts.peers-working-dir}}}/chaincode
-# npm install
-# npm run build
-# sleep 3
 
 # Install Chaincode
 peer chaincode install -n ${name} -v ${version} -p {{{artifacts.peers-working-dir}}}/chaincode -l node \
-    --tls --cafile {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}${org}/${peer}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+    --tls --cafile {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}${peer_crt_path}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
 
 peer chaincode list --installed
