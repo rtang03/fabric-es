@@ -30,7 +30,7 @@ fabric-ca-client enroll -d -u https://peer1.org2.example.com:peer1PW@0.0.0.0:505
 
 # Enroll Org2MSP's Admin
 export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/Org2MSP/admin
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/Org2MSP&#x2F;peer0.org2.example.com/assets/ca/org2.example.com-ca-cert.pem
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/Org2MSP/peer0.org2.example.com/assets/ca/org2.example.com-ca-cert.pem
 export FABRIC_CA_CLIENT_MSPDIR=msp
 fabric-ca-client enroll -d -u https://admin-org2.example.com:Org2MSPAdminPW@0.0.0.0:5055
 

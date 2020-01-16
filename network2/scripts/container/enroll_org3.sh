@@ -30,7 +30,7 @@ fabric-ca-client enroll -d -u https://peer1.org3.neworg.com:peer1PW@0.0.0.0:5056
 
 # Enroll Org3MSP's Admin
 export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/Org3MSP/admin
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/Org3MSP&#x2F;peer0.org3.neworg.com/assets/ca/org3.neworg.com-ca-cert.pem
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/Org3MSP/peer0.org3.neworg.com/assets/ca/org3.neworg.com-ca-cert.pem
 export FABRIC_CA_CLIENT_MSPDIR=msp
 fabric-ca-client enroll -d -u https://admin-org3.neworg.com:Org3MSPAdminPW@0.0.0.0:5056
 
