@@ -6,7 +6,6 @@ cp /tmp/hyperledger/Org1MSP/ca/server/ca-cert.pem /tmp/hyperledger/Org1MSP/ca/cr
 export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/Org1MSP/ca/crypto/ca-cert.pem
 export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/Org1MSP/ca/admin
 fabric-ca-client enroll -d -u https://rca-org1-admin:rca-org1-adminPW@0.0.0.0:5054
-
 fabric-ca-client register -d --id.name peer0.org1.example.com --id.secret peer0PW --id.type peer -u https://0.0.0.0:5054
 fabric-ca-client register -d --id.name peer1.org1.example.com --id.secret peer1PW --id.type peer -u https://0.0.0.0:5054
 fabric-ca-client register -d --id.name admin-org1.example.com --id.secret Org1MSPAdminPW --id.type admin --id.attrs "hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -u https://0.0.0.0:5054
