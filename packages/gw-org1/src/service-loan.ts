@@ -9,7 +9,7 @@ import {
 } from '@espresso/model-loan';
 
 createService({
-  enrollmentId: process.env.ENROLLMENT_ID_ADMIN,
+  enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'loan',
   defaultReducer: loanReducer,
   collection: process.env.COLLECTION

@@ -9,7 +9,7 @@ import {
 } from './model/public/document';
 
 createService({
-  enrollmentId: process.env.ENROLLMENT_ID_ADMIN,
+  enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'document',
   defaultReducer: documentReducer,
   collection: process.env.COLLECTION
@@ -23,7 +23,7 @@ createService({
   })).create();
 
   app
-    .listen({ port: 14023 })
+    .listen({ port: process.env.SERVICE_DOCUMENT_PORT })
     .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'document' available at ${url}`));
 }).catch(error => {
   console.log(error);

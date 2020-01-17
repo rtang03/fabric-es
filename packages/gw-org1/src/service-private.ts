@@ -8,7 +8,7 @@ import {
 import { resolvers, typeDefs } from './model/private';
 
 createService({
-  enrollmentId: process.env.ENROLLMENT_ID_ADMIN,
+  enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'private',
   defaultReducer: docContentsReducer,
   collection: process.env.COLLECTION,

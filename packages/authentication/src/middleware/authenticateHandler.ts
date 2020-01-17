@@ -21,7 +21,7 @@ export const authenticateHandler = (
       res.locals.oauth = { token };
       if (token) {
 
-        logger.info(util.format('%s: %s', AUTHENTICATION_SUCCESS, token?.user?.id));
+        logger.debug(util.format('%s: %s', AUTHENTICATION_SUCCESS, token?.user?.id));
 
         res.status(http.OK).send({
           ok: true,
@@ -31,7 +31,7 @@ export const authenticateHandler = (
           client_id: token.user.client_id
         });
       } else {
-        logger.warn(util.format('%s: %s', AUTHENTICATION_FAIL));
+        logger.debug(util.format('%s: %s', AUTHENTICATION_FAIL));
 
         res.status(http.OK).send({ ok: true, authenticated: false });
       }

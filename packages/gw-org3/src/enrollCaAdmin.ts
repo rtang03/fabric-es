@@ -4,10 +4,10 @@ import { FileSystemWallet } from 'fabric-network';
 
 enrollAdmin({
   caUrl: process.env.ORG_CA_URL,
-  enrollmentID: process.env.ORG_ADMIN_ID,
-  enrollmentSecret: process.env.ORG_ADMIN_SECRET,
+  enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
+  enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
   mspId: process.env.MSPID,
-  label: process.env.ORG_ADMIN_ID,
+  label: process.env.CA_ENROLLMENT_ID_ADMIN,
   context: {
     fabricNetwork: process.env.NETWORK_LOCATION,
     connectionProfile: process.env.CONNECTION_PROFILE,
@@ -21,10 +21,10 @@ enrollAdmin({
     process.exit(-1);
   });
 
-// enrollAdmin(
-//   process.env.ORG_ADMIN_ID,
-//   process.env.ORG_ADMIN_SECRET,
-//   process.env.ORG_CA_URL,
+// enrollCaAdmin(
+//   process.env.CA_ENROLLMENT_ID_ADMIN,
+//   process.env.CA_ENROLLMENT_SECRET_ADMIN,
+//   process.env.CA_URL,
 //   process.env.ORGNAME,
 //   {
 //     connectionProfile: process.env.CONNECTION_PROFILE,
