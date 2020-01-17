@@ -1,19 +1,18 @@
 require('./env');
 import { createGateway } from '@espresso/gw-node';
 
-const PORT = process.env.PORT || 4002;
-const authenticationCheck = `${process.env.AUTHORIZATION_SERVER_URI ||
-  'http://localhost:3300/oauth'}/authenticate`;
+const PORT = process.env.GATEWAY_PORT || 4002;
+const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI || 'http://localhost:3301/oauth/authenticate';
 
 (async () => {
   const app = await createGateway({
     serviceList: [
-      { name: 'user', url: 'http://localhost:14021/graphql' },
-      { name: 'loan', url: 'http://localhost:14022/graphql' },
-      { name: 'document', url: 'http://localhost:14023/graphql' },
-      { name: 'private', url: 'http://localhost:14024/graphql' },
-      { name: 'remote-doc-contents', url: 'http://localhost:14025/graphql' },
-      { name: 'admin', url: 'http://localhost:15021/graphql' }
+      { name: 'user',     url: `http://localhost:${process.env.SERVICE_USER_PORT}/graphql` },
+      { name: 'loan',     url: `http://localhost:${process.env.SERVICE_LOAN_PORT}/graphql` },
+      { name: 'document', url: `http://localhost:${process.env.SERVICE_DOCUMENT_PORT}/graphql` },
+      { name: 'private',  url: `http://localhost:${process.env.SERVICE_PRIVATE_PORT}/graphql` },
+      { name: 'remote-doc-contents', url: `http://localhost:${process.env.REMOTE_DOC_CONTENTS_PORT}/graphql` },
+      { name: 'admin', url: `http://localhost:${process.env.ADMINISTRATOR_PORT}/graphql` }
     ],
     authenticationCheck,
     useCors: true,

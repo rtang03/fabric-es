@@ -9,7 +9,7 @@ import {
 } from '@espresso/model-common';
 
 createService({
-  enrollmentId: process.env.ENROLLMENT_ID_ADMIN,
+  enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'user',
   defaultReducer: userReducer,
   collection: process.env.COLLECTION
@@ -23,7 +23,7 @@ createService({
   })).create();
 
   app
-    .listen({ port: 14021 })
+    .listen({ port: process.env.SERVICE_USER_PORT })
     .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'user' available at ${url}`));
 }).catch(error => {
   console.log(error);

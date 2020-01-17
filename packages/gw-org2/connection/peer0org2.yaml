@@ -43,8 +43,6 @@ organizations:
       path: ../../network2/config/../artifacts/Org2MSP/admin/msp/keystore/key.pem
     signedCert:
       path: ../../network2/config/../artifacts/Org2MSP/admin/msp/signcerts/cert.pem
-    client:
-      path: ./connection/peer0org1.yaml
 
 orderers:
   orderer1.example.com:

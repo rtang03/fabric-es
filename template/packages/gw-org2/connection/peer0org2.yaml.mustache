@@ -41,8 +41,6 @@ organizations:
       path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.1.admin-cert-path}}}/msp/keystore/key.pem
     signedCert:
       path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.1.admin-cert-path}}}/msp/signcerts/cert.pem
-    client:
-      path: ./connection/peer0org1.yaml
 
 orderers:
   {{orgs.orderer.orderers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:

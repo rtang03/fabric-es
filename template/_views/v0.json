@@ -310,6 +310,16 @@
                         "adminport": "15031"
                     },
                     "services": {
+                        "remote-doc-contents": {
+                            "port": "14035",
+                            "name": "DocContents",
+                            "uri": "http://localhost:4001/graphql"
+                        },
+                        "remote-loan-details": {
+                            "port": "14036",
+                            "name": "LoanDetails",
+                            "uri": "http://localhost:4002/graphql"
+                        },
                         "private": {
                             "port": "14034"
                         },
