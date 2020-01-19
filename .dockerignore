@@ -1,0 +1,9 @@
+*
+!package.json
+!tsconfig.json
+!packages/authentication/package.json
+!packages/authentication/tsconfig.json
+!packages/authentication/dist
+!packages/authentication/views
+!packages/authentication/public
+!packages/authentication/.env.prod

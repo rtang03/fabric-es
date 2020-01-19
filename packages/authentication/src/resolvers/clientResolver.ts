@@ -3,10 +3,9 @@ import {
   AuthenticationError,
   UserInputError,
   ValidationError
-} from 'apollo-server-errors';
+} from 'apollo-server-express';
 import { randomBytes } from 'crypto';
-import ClientLogger from 'fabric-client';
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
 import {
   Arg,
   Ctx,
@@ -27,7 +26,7 @@ import {
   CLIENT_NOT_FOUND,
   MyContext
 } from '../types';
-import { isAdmin } from '../utils';
+import { getLogger, isAdmin } from '../utils';
 
 const generateSecret = len =>
   randomBytes(len)
@@ -55,7 +54,7 @@ export class ClientResolver {
   logger: Logger;
 
   constructor() {
-    this.logger = ClientLogger.getLogger('ClientResolver.js');
+    this.logger = getLogger('ClientResolver.js');
   }
 
   /**
@@ -76,7 +75,7 @@ export class ClientResolver {
     return Client.findOne({ applicationName: 'root' })
       .then(res => res?.id)
       .catch(error => {
-        this.logger.warn(util.format('getRootClientId: %s', error.message));
+        this.logger.warn(util.format('getRootClientId: %j', error));
         return new ApolloError(error);
       });
   }
@@ -87,6 +86,7 @@ export class ClientResolver {
   })
   async getPublicClients() {
     this.logger.info('getPublicClients');
+
     return Client.find()
       .then(clients => clients.map(item => omit(item, 'client_secret')))
       .catch(error => {
