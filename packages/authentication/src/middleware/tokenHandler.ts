@@ -1,10 +1,9 @@
 import Express from 'express';
-import Client from 'fabric-client';
 import http from 'http-status';
 import { OAuth2Server, Request, Response } from 'oauth2-server-typescript';
 import util from 'util';
 import { INVALID_GRANT_TYPE, MISSING_CLIENT_ID } from '../types';
-import { sendToken } from '../utils';
+import { getLogger, sendToken } from '../utils';
 
 export const tokenHandler = (
   oauth: OAuth2Server,
@@ -16,7 +15,7 @@ export const tokenHandler = (
   res: Express.Response,
   next: Express.NextFunction
 ) => {
-  const logger = Client.getLogger('tokenHandler.js');
+  const logger = getLogger('tokenHandler.js');
 
   if (!req?.body?.client_id) {
     logger.warn('MISSING_CLIENT_ID');

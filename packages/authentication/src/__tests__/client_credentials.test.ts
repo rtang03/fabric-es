@@ -58,6 +58,10 @@ beforeAll(async () => {
       },
       accessTokenLifetime: 120, // seconds
       refreshTokenLifetime: 240
+    },
+    modelOptions: {
+      accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
+      refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET
     }
   });
 });

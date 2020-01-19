@@ -1,12 +1,12 @@
 import { compare } from 'bcrypt';
 import { Request, Response } from 'express';
-import Client from 'fabric-client';
 import http from 'http-status';
 import util from 'util';
 import { OUser } from '../entity/OUser';
+import { getLogger } from '../utils';
 
 export const loginPostHandler = async (req: Request, res: Response) => {
-  const logger = Client.getLogger('loginPostHandler.js');
+  const logger = getLogger('loginPostHandler.js');
 
   const {
     email,

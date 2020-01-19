@@ -80,3 +80,12 @@ When register new user, need to check duplicated email and username.
 [Implement Client login](https://github.com/auth0-samples/auth0-nodejs-webapp-sample/blob/dependabot/npm_and_yarn/01-Login/pug-2.0.4/01-Login/routes/auth.js)
 [Implement Client App Authorize](https://github.com/auth0-samples/auth0-regular-webapp-login-with-sso-and-api/blob/master/utils/authorize.js)
 [type-graphq + federation](https://github.com/MichalLytek/type-graphql/blob/master/examples/apollo-federation/helpers/buildFederatedSchema.ts)
+
+35.239.77.51
+fdi-test-net:us-central1:fdi-test-net
+
+sudo lsof -iTCP -sTCP:LISTEN -n -P
+
+221.124.121.144
+
+https://cloud.google.com/sql/docs/postgres/connect-admin-ip#install-mysql-client
