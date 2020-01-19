@@ -79,7 +79,7 @@ export const createGateway: (option: {
             }>(res => res.json())
             .then(res => {
               if (res?.authenticated) {
-                logger.info(`authenticationCheck succeed: ${res.user_id}`);
+                logger.debug(`authenticationCheck succeed: ${res.user_id}`);
 
                 return {
                   user_id: res.user_id,
@@ -89,7 +89,7 @@ export const createGateway: (option: {
               } else {
                 // e.g. res returns
                 // { ok: false, authenticated: false, message: 'Invalid token: access token has expired' }
-                logger.warn(`authenticationCheck fail: ${res.user_id}`);
+                logger.debug(`authenticationCheck fail: ${res.user_id}`);
 
                 return {};
               }

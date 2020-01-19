@@ -38,11 +38,9 @@ organizations:
     certificateAuthorities:
       - {{orgs.peer.1.ca.host}}{{network.host-delimiter}}{{orgs.peer.1.domain}}
     adminPrivateKey:
-      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/admin/msp/keystore/key.pem
+      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.1.admin-cert-path}}}/msp/keystore/key.pem
     signedCert:
-      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/admin/msp/signcerts/cert.pem
-    client:
-      path: ./connection/peer0org1.yaml
+      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.1.admin-cert-path}}}/msp/signcerts/cert.pem
 
 orderers:
   {{orgs.orderer.orderers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:
@@ -51,7 +49,7 @@ orderers:
       ssl-target-name-override: {{orgs.orderer.orderers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.orderer.domain}}
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.orderer.domain}}/{{orgs.orderer.orderers.endpoints.0.-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.orderer.orderers.endpoints.0.cert-path}}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
 
 peers:
   {{#orgs.peer.1.peers.endpoints}}
@@ -59,7 +57,7 @@ peers:
     url: grpcs://localhost:{{port}}
     eventUrl: grpcs://localhost:{{eventhub-port}}
     tlsCACerts:
-      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/{{-}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
     grpcOptions:
       ssl-target-name-override: {{-}}{{network.host-delimiter}}{{orgs.peer.1.domain}}
   {{/orgs.peer.1.peers.endpoints}}
@@ -69,7 +67,7 @@ certificateAuthorities:
     url: https://localhost:{{orgs.peer.1.ca.port}}
     caName: {{orgs.peer.1.ca.host}}{{network.host-delimiter}}{{orgs.peer.1.domain}}
     tlsCACerts:
-      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{orgs.peer.1.domain}}/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../network2/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.1.msp-path}}}/tlscacerts/tls-ca-cert.pem
     registrar:
       - enrollId: {{orgs.peer.1.ca.admin}}
         enrollSecret: {{orgs.peer.1.ca.adminpw}}

@@ -11,7 +11,7 @@ Organizations:
    - &OrdererOrg
       Name: OrdererOrg
       ID: OrdererMSP
-      MSPDir: ../artifacts/example.com/msp
+      MSPDir: ../artifacts/OrdererMSP/msp
 
       Policies:
          Readers:
@@ -27,7 +27,7 @@ Organizations:
    - &Org1MSP
       Name: Org1MSP
       ID: Org1MSP
-      MSPDir: ../artifacts/org1.example.com/msp
+      MSPDir: ../artifacts/Org1MSP/msp
 
       Policies:
          Readers:
@@ -54,7 +54,7 @@ Organizations:
    - &Org2MSP
       Name: Org2MSP
       ID: Org2MSP
-      MSPDir: ../artifacts/org2.example.com/msp
+      MSPDir: ../artifacts/Org2MSP/msp
 
       Policies:
          Readers:
@@ -81,7 +81,7 @@ Organizations:
    - &Org3MSP
       Name: Org3MSP
       ID: Org3MSP
-      MSPDir: ../artifacts/org3.neworg.com/msp
+      MSPDir: ../artifacts/Org3MSP/msp
 
       Policies:
          Readers:
@@ -165,24 +165,24 @@ Orderer: &OrdererDefaults
       Consenters:
          - Host: orderer1.example.com
            Port: 7050
-           ClientTLSCert: ../artifacts/example.com/orderer1/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/example.com/orderer1/tls-msp/signcerts/cert.pem
+           ClientTLSCert: ../artifacts/OrdererMSP/orderer1.example.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/OrdererMSP/orderer1.example.com/tls-msp/signcerts/cert.pem
          - Host: orderer2.example.com
            Port: 7150
-           ClientTLSCert: ../artifacts/example.com/orderer2/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/example.com/orderer2/tls-msp/signcerts/cert.pem
+           ClientTLSCert: ../artifacts/OrdererMSP/orderer2.example.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/OrdererMSP/orderer2.example.com/tls-msp/signcerts/cert.pem
          - Host: orderer3.example.com
            Port: 7250
-           ClientTLSCert: ../artifacts/example.com/orderer3/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/example.com/orderer3/tls-msp/signcerts/cert.pem
+           ClientTLSCert: ../artifacts/OrdererMSP/orderer3.example.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/OrdererMSP/orderer3.example.com/tls-msp/signcerts/cert.pem
          - Host: orderer4.example.com
            Port: 7350
-           ClientTLSCert: ../artifacts/example.com/orderer4/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/example.com/orderer4/tls-msp/signcerts/cert.pem
+           ClientTLSCert: ../artifacts/OrdererMSP/orderer4.example.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/OrdererMSP/orderer4.example.com/tls-msp/signcerts/cert.pem
          - Host: orderer5.example.com
            Port: 7450
-           ClientTLSCert: ../artifacts/example.com/orderer5/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/example.com/orderer5/tls-msp/signcerts/cert.pem
+           ClientTLSCert: ../artifacts/OrdererMSP/orderer5.example.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/OrdererMSP/orderer5.example.com/tls-msp/signcerts/cert.pem
 
       Options:
          TickInterval: 500ms
@@ -225,8 +225,8 @@ Channel: &ChannelDefaults
 #
 #   Profile
 #
-#   - Different configuration profiles may be encoded here to be specified
-#   as parameters to the configtxgen tool
+#   Different configuration profiles may be encoded here to be specified as
+#   parameters to the configtxgen tool.
 #
 ################################################################################
 Profiles:

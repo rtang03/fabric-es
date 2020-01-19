@@ -21,7 +21,6 @@ enrollAdmin({
     process.exit(-1);
   });
 
-// console.log('HA', process.env.ORG_ADMIN_ID);
 // enrollAdmin(
 //   process.env.ORG_ADMIN_ID,
 //   process.env.ORG_ADMIN_SECRET,

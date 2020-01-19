@@ -59,7 +59,7 @@ export const createModel: (option?: {
     if (!token) return null;
     const user = await OUser.findOne({ id: token.user_id });
     const client = await Client.findOne({ id: token.client_id });
-    logger.info(`getAccessToken for ${user.id}`);
+    logger.debug(`getAccessToken for ${user.id}`);
 
     return user && client
       ? {

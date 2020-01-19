@@ -9,7 +9,7 @@ import {
 } from '@espresso/model-loan';
 
 createService({
-  enrollmentId: process.env.ENROLLMENT_ID_ADMIN,
+  enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'loan',
   defaultReducer: loanReducer,
   collection: process.env.COLLECTION
@@ -23,7 +23,7 @@ createService({
   })).create();
 
   app
-    .listen({ port: 14022 })
+    .listen({ port: process.env.SERVICE_LOAN_PORT })
     .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'loan' available at ${url}`));
 }).catch(error => {
   console.log(error);
