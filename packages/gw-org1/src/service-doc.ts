@@ -8,9 +8,8 @@ import {
   documentTypeDefs
 } from '@espresso/model-loan';
 
-console.log('HO', process.env.ENROLLMENT_ID_ADMIN);
 createService({
-  enrollmentId: process.env.ENROLLMENT_ID_ADMIN,
+  enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'document',
   defaultReducer: documentReducer,
   collection: process.env.COLLECTION

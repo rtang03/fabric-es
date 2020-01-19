@@ -1,0 +1,17 @@
+{{#orgs.peer}}
+-- SPLIT WITH AWK --
+cp {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.0.peers.endpoints.0.cert-path}}}/assets/{{network.peer-channels.0}}.block {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{peers.endpoints.0.cert-path}}}/assets
+
+mkdir -p {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{admin-cert-path}}}/msp/admincerts
+cp {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{peers.endpoints.0.cert-path}}}/msp/admincerts/{{domain}}-admin-cert.pem {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{admin-cert-path}}}/msp/admincerts
+
+export CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{admin-cert-path}}}/msp
+
+{{#peers.endpoints}}
+# {{-}} joining the channel
+export CORE_PEER_ADDRESS={{-}}{{network.host-delimiter}}{{domain}}:{{port}}
+peer channel join -b {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{peers.endpoints.0.cert-path}}}/assets/{{network.peer-channels.0}}.block
+peer channel getinfo -c {{network.peer-channels.0}}
+
+{{/peers.endpoints}}
+{{/orgs.peer}}

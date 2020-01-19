@@ -8,7 +8,7 @@ import {
 import { resolvers, typeDefs } from './model/private';
 
 createService({
-  enrollmentId: process.env.ENROLLMENT_ID_ADMIN,
+  enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'private',
   defaultReducer: loanDetailsReducer,
   collection: process.env.COLLECTION,
@@ -23,7 +23,7 @@ createService({
   })).create();
 
   app
-    .listen({ port: 14024 })
+    .listen({ port: process.env.SERVICE_PRIVATE_PORT })
     .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'private data' available at ${url}`));
 }).catch(error => {
   console.log(error);

@@ -1,26 +1,36 @@
+require('./env');
+import { createService } from '@espresso/gw-node';
 import {
+  DocContents,
+  DocContentsEvents,
+  docContentsReducer,
   LoanDetails,
   LoanDetailsEvents,
-  loanDetailsReducer
-} from '@espresso/model-loan-private';
-import {
+  loanDetailsReducer,
   resolvers,
   typeDefs
-} from './model/private';
-import { startService } from './start-service';
+} from '@espresso/model-loan-private';
 
-startService({
-  enrollmentId: 'admin',
+createService({
+  enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'private',
   defaultReducer: loanDetailsReducer,
+  collection: process.env.COLLECTION,
   isPrivate: true
-}).then(({ config, getPrivateDataRepo }) => {
-  config({
-    port: 14034,
+}).then(async ({ config, getPrivateDataRepo }) => {
+  const app = await config({
     typeDefs,
     resolvers
-  }).addRepository(getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
-    entityName: 'loanDetails',
-    reducer: loanDetailsReducer
-  })).run();
+  })
+  .addRepository(getPrivateDataRepo<DocContents, DocContentsEvents>({ entityName: 'docContents', reducer: docContentsReducer }))
+  .addRepository(getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({ entityName: 'loanDetails', reducer: loanDetailsReducer }))
+  .create();
+
+  app
+    .listen({ port: process.env.SERVICE_PRIVATE_PORT })
+    .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'private data' available at ${url}`));
+}).catch(error => {
+  console.log(error);
+  console.error(error.stack);
+  process.exit(0);
 });
