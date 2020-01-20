@@ -1,6 +1,7 @@
+import { GET_DETAILS_BY_ID, RemoteData } from '@espresso/model-loan-private';
 import gql from 'graphql-tag';
 
-export const typeDefs = gql`
+export const remoteTypeDefs = gql`
   type LoanDetails @key(fields: "loanId") {
     loanId: String!
     requester: LoanRequester!
@@ -38,3 +39,19 @@ export const typeDefs = gql`
     _details(token: String): LoanDetails
   }
 `;
+
+export const remoteResolvers = {
+  Loan: {
+    _details: async ({ loanId }, { token }, { remoteData }: RemoteData) => {
+      return remoteData({
+        query: GET_DETAILS_BY_ID,
+        operationName: 'GetLoanDetailsById',
+        variables: { loanId },
+        token
+      }).then(({ data }) => data?.getLoanDetailsById);
+    }
+  },
+  LoanDetails: {
+    loan: ({ loanId }) => ({ __typename: 'Loan', loanId })
+  },
+};

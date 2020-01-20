@@ -18,7 +18,7 @@ createService({
     typeDefs,
     resolvers
   }).addRepository(getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
-    entityName: 'docContents',
+    entityName: 'loanDetails',
     reducer: loanDetailsReducer
   })).create();
 
