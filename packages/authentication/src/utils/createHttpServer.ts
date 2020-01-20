@@ -1,21 +1,19 @@
 import { ApolloServer } from 'apollo-server-express';
-import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
-import cors from 'cors';
 import express, { Express, Request, Response } from 'express';
-import Client from 'fabric-client';
 import { verify } from 'jsonwebtoken';
 import { OAuth2Server } from 'oauth2-server-typescript';
 import { buildSchema } from 'type-graphql';
 import { ConnectionOptions, createConnection } from 'typeorm';
-import { createModel } from '.';
+import util from 'util';
+import { createModel, getLogger } from '.';
 import { indexRouter } from '../routes';
 import { MyContext } from '../types';
 
 export const createHttpServer: (option: {
   dbConnection?: ConnectionOptions;
   resolvers: any[];
-  modelOptions?: any;
+  modelOptions: any;
   oauthOptions?: any;
   rootAdmin: string;
   rootAdminPassword: string;
@@ -24,17 +22,14 @@ export const createHttpServer: (option: {
   rootAdminPassword,
   dbConnection,
   resolvers,
-  modelOptions = {
-    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET!,
-    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET!
-  },
+  modelOptions,
   oauthOptions = {
     requireClientAuthentication: { password: false, refresh_token: false },
     accessTokenLifetime: 900, // second or = 15m
     refreshTokenLifetime: 604800 // second or = 7d
   }
 }) => {
-  const logger = Client.getLogger('createHttpServer.js');
+  const logger = getLogger('createHttpServer.js');
 
   modelOptions.accessTokenOptions = {
     expiresIn: `${oauthOptions.accessTokenLifetime}s`
@@ -49,28 +44,38 @@ export const createHttpServer: (option: {
     allowBearerTokensInQueryString: true
   });
 
-  if (dbConnection) await createConnection(dbConnection);
-  else await createConnection();
+  try {
+    if (dbConnection) await createConnection(dbConnection);
+    else await createConnection();
+  } catch (error) {
+    logger.error(
+      util.format('typeorm createConnection error: %j, %j', dbConnection, error)
+    );
+    process.exit();
+  }
 
-  logger.debug('connect db successfully');
+  logger.info(`connect db: ${dbConnection.name}`);
 
   const app = express();
   app.set('view engine', 'pug');
-  app.use(
-    cors({
-      origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-      credentials: true
-    })
-  );
   app.use(cookieParser());
-  app.use(bodyParser.urlencoded({ extended: true }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use('/', indexRouter(oauth2Server, oauthOptions));
 
-  const schema = await buildSchema({ resolvers });
+  let schema: any;
+
+  try {
+    schema = await buildSchema({ resolvers });
+  } catch (error) {
+    logger.error(util.format('graphql build schema error: %j', error));
+    process.exit();
+  }
+
   const server = new ApolloServer({
     schema,
+    introspection: true,
+    playground: true,
     context: ({ req, res }: { req: Request; res: Response }): MyContext => {
       const authorization = req.headers?.authorization;
       let payload;
@@ -80,7 +85,7 @@ export const createHttpServer: (option: {
           // Todo: it verify based on JWT expiry. And, is fine.
           // if later, if implementing manual revoke of accessToken, via api.
           // below verify need refactor to check validity using oauth.authenticate() method
-          payload = verify(token, process.env.ACCESS_TOKEN_SECRET!, {
+          payload = verify(token, modelOptions.accessTokenSecret, {
             ignoreExpiration: false
           });
         } catch (err) {

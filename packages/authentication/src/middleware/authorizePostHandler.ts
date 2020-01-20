@@ -1,10 +1,10 @@
 import Express from 'express';
-import Client from 'fabric-client';
 import http from 'http-status';
 import { OAuth2Server, Request, Response } from 'oauth2-server-typescript';
 import { AuthorizationCode } from 'oauth2-server-typescript';
 import util from 'util';
 import { OUser } from '../entity/OUser';
+import { getLogger } from '../utils';
 
 export const authorizePostHandler = (
   oauth: OAuth2Server,
@@ -14,7 +14,7 @@ export const authorizePostHandler = (
   res: Express.Response,
   next: Express.NextFunction
 ) => {
-  const logger = Client.getLogger('authorizePostHandler.js');
+  const logger = getLogger('authorizePostHandler.js');
 
   const {
     client_id,

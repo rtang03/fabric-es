@@ -1,11 +1,11 @@
 import { AuthenticationError, ForbiddenError } from 'apollo-server-errors';
-import Client from 'fabric-client';
 import { MiddlewareFn } from 'type-graphql';
 import { OUser } from '../entity/OUser';
 import { MyContext } from '../types';
+import { getLogger } from './getLogger';
 
 export const isAdmin: MiddlewareFn<MyContext> = async ({ context }, next) => {
-  const logger = Client.getLogger('isAdmin.js');
+  const logger = getLogger('isAdmin.js');
 
   const id = context.payload?.userId;
 
