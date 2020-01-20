@@ -1,7 +1,7 @@
-import Client from 'fabric-client';
 import fetch from 'node-fetch';
 import util from 'util';
 import { CREATE_ROOT_CLIENT, GET_ROOT_CLIENT } from '../query';
+import { getLogger } from './getLogger';
 
 const headers = { 'content-type': 'application/json' };
 
@@ -10,7 +10,7 @@ export const createRootClient = async (option: {
   admin: string;
   admin_password: string;
 }) => {
-  const logger = Client.getLogger('createRootClient.js');
+  const logger = getLogger('createRootClient.js');
 
   const isRootClientExist = await fetch(option.uri, {
     method: 'POST',
@@ -43,9 +43,11 @@ export const createRootClient = async (option: {
       })
     })
       .then(res => res.json())
-      .then(({ data }) => {
+      .then(({ data, errors }) => {
         const result = data?.createRootClient || 'Unknown Error';
         logger.info(`Root client created: ${result}`);
+        if (errors)
+          logger.error(util.format('createRootClient error: %j', errors));
       })
       .catch(error => {
         logger.warn(util.format('CreateRootClient: %s', error.message));

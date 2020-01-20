@@ -1,9 +1,9 @@
 import Express from 'express';
-import Client from 'fabric-client';
 import http from 'http-status';
 import { OAuth2Server, Request, Response } from 'oauth2-server-typescript';
 import util from 'util';
 import { AUTHENTICATION_FAIL, AUTHENTICATION_SUCCESS } from '../types';
+import { getLogger } from '../utils';
 
 export const authenticateHandler = (
   oauth: OAuth2Server,
@@ -13,15 +13,15 @@ export const authenticateHandler = (
   res: Express.Response,
   next: Express.NextFunction
 ) => {
-  const logger = Client.getLogger('authenticateHandler.js');
-
+  const logger = getLogger('authenticateHandler.js');
   await oauth
     .authenticate(new Request(req), new Response(res), options)
     .then(token => {
       res.locals.oauth = { token };
       if (token) {
-
-        logger.debug(util.format('%s: %s', AUTHENTICATION_SUCCESS, token?.user?.id));
+        logger.info(
+          util.format('%s: %s', AUTHENTICATION_SUCCESS, token?.user?.id)
+        );
 
         res.status(http.OK).send({
           ok: true,
@@ -31,7 +31,7 @@ export const authenticateHandler = (
           client_id: token.user.client_id
         });
       } else {
-        logger.debug(util.format('%s: %s', AUTHENTICATION_FAIL));
+        logger.warn(util.format('%s: %s', AUTHENTICATION_FAIL));
 
         res.status(http.OK).send({ ok: true, authenticated: false });
       }

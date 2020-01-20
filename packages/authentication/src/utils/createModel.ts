@@ -1,4 +1,3 @@
-import ClientLogger from 'fabric-client';
 import { sign } from 'jsonwebtoken';
 import {
   AuthorizationCode as IAuthorizationCode,
@@ -13,23 +12,17 @@ import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
 import { OUser } from '../entity/OUser';
 import { RefreshToken } from '../entity/RefreshToken';
+import { getLogger } from './getLogger';
 
 export const createModel: (option?: {
   accessTokenSecret: string;
   accessTokenOptions: any;
   refreshTokenSecret: string;
   refreshTokenOptions: any;
-}) => Model = (
-  option = {
-    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET!,
-    accessTokenOptions: { expiresIn: '15m' },
-    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET!,
-    refreshTokenOptions: { expiresIn: '7d' }
-  }
-) => ({
+}) => Model = option => ({
   request: undefined,
   generateAccessToken: async (client: IClient, user: OUser, scope) => {
-    const logger = ClientLogger.getLogger('createModel.js');
+    const logger = getLogger('createModel.js');
     const payload: any = {};
     if (user?.id) payload.userId = user.id;
     if (client?.id) payload.client_id = client.id;
@@ -45,7 +38,8 @@ export const createModel: (option?: {
     return tok;
   },
   generateRefreshToken: async (client: IClient, user: OUser, scope) => {
-    const logger = ClientLogger.getLogger('createModel.js');
+    const logger = getLogger('createModel.js');
+
     const payload: any = {};
     if (user?.id) payload.userId = user.id;
     if (client?.id) payload.client_id = client.id;
@@ -60,7 +54,7 @@ export const createModel: (option?: {
     return tok;
   },
   getAccessToken: async (access_token: string) => {
-    const logger = ClientLogger.getLogger('createModel.js');
+    const logger = getLogger('createModel.js');
     const token = await AccessToken.findOne({ access_token });
     if (!token) return null;
     const user = await OUser.findOne({ id: token.user_id });
@@ -77,7 +71,7 @@ export const createModel: (option?: {
       : null;
   },
   getRefreshToken: async (refresh_token: string) => {
-    const logger = ClientLogger.getLogger('createModel.js');
+    const logger = getLogger('createModel.js');
     const token = await RefreshToken.findOne({ refresh_token });
     if (!token) return null;
     const user = await OUser.findOne({ id: token.user_id });
@@ -95,7 +89,7 @@ export const createModel: (option?: {
       : null;
   },
   getAuthorizationCode: async (authorization_code: string) => {
-    const logger = ClientLogger.getLogger('createModel.js');
+    const logger = getLogger('createModel.js');
     const code = await AuthorizationCode.findOne({ authorization_code });
     if (!code) return null;
     const user = await OUser.findOne({ id: code.user_id });
@@ -114,18 +108,16 @@ export const createModel: (option?: {
       : null;
   },
   getClient: async (client_id: string, client_secret?: string) => {
-    const logger = ClientLogger.getLogger('createModel.js');
+    const logger = getLogger('createModel.js');
     const client = client_secret
-      ? await Client.findOne({ id: client_id, client_secret }).catch(error =>
-          logger.warn(
-            util.format('getClient for %s, %s', client_id, error.message)
-          )
-        )
-      : await Client.findOne({ id: client_id }).catch(error =>
-          logger.warn(
-            util.format('getClient for %s, %s', client_id, error.message)
-          )
-        );
+      ? await Client.findOne({ id: client_id, client_secret }).catch(error => {
+          logger.warn(util.format('getClient for %s, %j', client_id, error));
+          return null;
+        })
+      : await Client.findOne({ id: client_id }).catch(error => {
+          logger.warn(util.format('getClient for %s, %j', client_id, error));
+          return null;
+        });
     return client
       ? {
           id: client.id,
@@ -136,13 +128,13 @@ export const createModel: (option?: {
       : null;
   },
   getUser: async (username: string) => {
-    const logger = ClientLogger.getLogger('createModel.js');
+    const logger = getLogger('createModel.js');
     logger.info(`getUser for ${username}`);
 
     return await OUser.findOne({ username });
   },
   getUserFromClient: async (client: IClient) => {
-    const logger = ClientLogger.getLogger('createModel.js');
+    const logger = getLogger('createModel.js');
     logger.info(
       util.format(
         'getUserFromClient for client %s, user %s',
@@ -154,7 +146,7 @@ export const createModel: (option?: {
     return OUser.findOne({ id: client.user_id });
   },
   revokeAuthorizationCode: async (code: IAuthorizationCode) => {
-    const logger = ClientLogger.getLogger('createModel.js');
+    const logger = getLogger('createModel.js');
     await AuthorizationCode.delete({
       authorization_code: code.authorizationCode
     }).catch(error => {
@@ -170,7 +162,7 @@ export const createModel: (option?: {
     return true;
   },
   revokeToken: async (token: IRefreshToken) => {
-    const logger = ClientLogger.getLogger('createModel.js');
+    const logger = getLogger('createModel.js');
     await RefreshToken.delete({
       refresh_token: token.refreshToken
     }).catch(error => {
@@ -184,7 +176,7 @@ export const createModel: (option?: {
     client: IClient,
     user: OUser
   ): Promise<IAuthorizationCode> => {
-    const logger = ClientLogger.getLogger('createModel.js');
+    const logger = getLogger('createModel.js');
     const authCode = {
       authorization_code: code.authorizationCode,
       expires_at: code.expiresAt,
@@ -212,7 +204,7 @@ export const createModel: (option?: {
     };
   },
   saveToken: async (token: IToken, client: IClient, user: OUser) => {
-    const logger = ClientLogger.getLogger('createModel.js');
+    const logger = getLogger('createModel.js');
     const exist = await AccessToken.findOne({
       access_token: token.accessToken
     });

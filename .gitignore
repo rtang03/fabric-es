@@ -73,3 +73,5 @@ wallet/
 .DS_Store
 
 docs
+
+NOTE.md

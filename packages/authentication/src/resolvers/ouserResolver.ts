@@ -3,9 +3,8 @@ import {
   AuthenticationError,
   UserInputError,
   ValidationError
-} from 'apollo-server';
+} from 'apollo-server-express';
 import { compare, hash } from 'bcrypt';
-import ClientLogger from 'fabric-client';
 import { omit } from 'lodash';
 import { Request, Response, Token } from 'oauth2-server-typescript';
 import {
@@ -31,7 +30,7 @@ import {
   ROOT_CLIENT_NOT_FOUND,
   USER_NOT_FOUND
 } from '../types';
-import { isAdmin, sendToken } from '../utils';
+import { getLogger, isAdmin, sendToken } from '../utils';
 
 @ObjectType()
 class LoginResponse {
@@ -48,7 +47,7 @@ export class OUserResolver {
   logger: Logger;
 
   constructor() {
-    this.logger = ClientLogger.getLogger('OUserResolver.js');
+    this.logger = getLogger('OUserResolver.js');
   }
 
   @Query(() => String)

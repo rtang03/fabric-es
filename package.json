@@ -2,24 +2,11 @@
   "name": "open-platform-dlt",
   "version": "1.0.0",
   "scripts": {
-    "test": ""
+    "build:authentication": "lerna run build:prod --scope=@espresso/authentication",
+    "build:gw-org1": "lerna run build --scope={@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/authentication,@espresso/fabric-cqrs,@espresso/gw-node,@espresso/gw-org1}"
   },
   "workspaces": [
-    "packages/example",
-    "packages/authentication",
-    "packages/admin-tool",
-    "packages/caliper",
-    "packages/chaincode",
-    "packages/fabric-cqrs",
-    "packages/model-common",
-    "packages/model-loan",
-    "packages/model-loan-private",
-    "packages/gw-node",
-    "packages/gw-org1",
-    "packages/gw-org2",
-    "packages/gw-org3",
-    "packages/multi-org-tests",
-    "packages/operator"
+    "packages/*"
   ],
   "private": true,
   "devDependencies": {
@@ -31,6 +18,8 @@
     "@graphql-codegen/typescript-type-graphql": "^1.9.1",
     "@graphql-codegen/typescript-resolvers": "^1.9.0",
     "@graphql-codegen/typescript-react-apollo": "^1.9.1",
+    "copyfiles": "^2.1.1",
+    "lerna": "^3.20.2",
     "listr": "^0.14.3",
     "listr-silent-renderer": "^1.1.1",
     "listr-update-renderer": "^0.5.0",
