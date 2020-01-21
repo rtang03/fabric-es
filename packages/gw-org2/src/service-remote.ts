@@ -1,10 +1,10 @@
 require('./env');
 import { createRemoteService } from '@espresso/gw-node';
-import { remoteResolvers, remoteTypeDefs } from './model/remotes-org2';
+import { remoteResolvers, remoteTypeDefs } from './model/remotes';
 
-const port = process.env.REMOTE_ORG2_PORT;
-const name = process.env.REMOTE_ORG2_NAME;
-const uri = process.env.REMOTE_ORG2_URI;
+const port = process.env.REMOTE_ORG1_PORT;
+const name = process.env.REMOTE_ORG1_NAME;
+const uri = process.env.REMOTE_ORG1_URI;
 
 (async () => {
   const server = await createRemoteService({

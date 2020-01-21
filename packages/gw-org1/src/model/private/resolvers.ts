@@ -5,11 +5,11 @@ import {
   DocContentsDS
 } from '@espresso/model-loan-private';
 import { AuthenticationError } from 'apollo-server-errors';
-import { Resolvers } from '../../generated/private-resolvers';
+// import { Resolvers } from '../../generated/private-resolvers';
 
 const NOT_AUTHENICATED = 'no enrollment id';
 
-export const resolvers: Resolvers = {
+export const resolvers = {
   Query: {
     getDocContentsById: async (
       _,

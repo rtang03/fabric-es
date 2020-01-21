@@ -56,7 +56,7 @@ mutation CreateLoanDetails(
   }
 }`;
 
-export const GET_DETAILS_BY_ID = gql`
+export const GET_LOAN_DETAILS_BY_ID = gql`
 query GetLoanDetailsById($loanId: String!) {
   getLoanDetailsById(loanId: $loanId) {
     loanId
@@ -67,6 +67,33 @@ query GetLoanDetailsById($loanId: String!) {
       status
       timestamp
     }
+    requester {
+      registration
+      name
+      type
+    }
+    contact {
+      salutation
+      name
+      title
+      phone
+      email
+    }
+    loanType
+    startDate
+    tenor
+    currency
+    requestedAmt
+    approvedAmt
+    comment
+    timestamp
+  }
+}`;
+
+export const GET_DETAILS_BY_ID = gql`
+query GetLoanDetailsById($loanId: String!) {
+  getLoanDetailsById(loanId: $loanId) {
+    loanId
     requester {
       registration
       name
@@ -196,7 +223,7 @@ mutation CreateFileDocContents(
   }
 }`;
 
-export const GET_CONTENTS_BY_ID = gql`
+export const GET_DOC_CONTENTS_BY_ID = gql`
 query GetDocContentsById($documentId: String!) {
   getDocContentsById(documentId: $documentId) {
     documentId
@@ -208,6 +235,23 @@ query GetDocContentsById($documentId: String!) {
       status
       timestamp
     }
+    content {
+      ... on Data {
+        body
+      }
+      ... on File {
+        format
+        link
+      }
+    }
+    timestamp
+  }
+}`;
+
+export const GET_CONTENTS_BY_ID = gql`
+query GetDocContentsById($documentId: String!) {
+  getDocContentsById(documentId: $documentId) {
+    documentId
     content {
       ... on Data {
         body
