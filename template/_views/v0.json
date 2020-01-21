@@ -224,10 +224,15 @@
                         "adminport": "15011"
                     },
                     "services": {
-                        "remote-loan-details": {
+                        "remote-org2": {
                             "port": "14015",
-                            "name": "LoanDetails",
+                            "name": "Org2",
                             "uri": "http://localhost:4002/graphql"
+                        },
+                        "remote-org3": {
+                            "port": "14016",
+                            "name": "Org3",
+                            "uri": "http://localhost:4003/graphql"
                         },
                         "private": {
                             "port": "14014"
@@ -315,9 +320,9 @@
                         "adminport": "15021"
                     },
                     "services": {
-                        "remote-doc-contents": {
+                        "remote-org1": {
                             "port": "14025",
-                            "name": "DocContents",
+                            "name": "Org1",
                             "uri": "http://localhost:4001/graphql"
                         },
                         "private": {
@@ -406,14 +411,14 @@
                         "adminport": "15031"
                     },
                     "services": {
-                        "remote-doc-contents": {
+                        "remote-org1": {
                             "port": "14035",
-                            "name": "DocContents",
+                            "name": "Org1",
                             "uri": "http://localhost:4001/graphql"
                         },
-                        "remote-loan-details": {
+                        "remote-org2": {
                             "port": "14036",
-                            "name": "LoanDetails",
+                            "name": "Org2",
                             "uri": "http://localhost:4002/graphql"
                         },
                         "private": {
