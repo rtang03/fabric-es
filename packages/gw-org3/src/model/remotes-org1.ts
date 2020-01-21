@@ -2,7 +2,7 @@ import { GET_CONTENTS_BY_ID, RemoteData } from '@espresso/model-loan-private';
 import gql from 'graphql-tag';
 
 export const remoteTypeDefs = gql`
-  type Org1DocContents @key(fields: "documentId") {
+  type Org1MSP_DocContents @key(fields: "documentId") {
     documentId: String!
     content: Docs!
     timestamp: String!
@@ -25,13 +25,13 @@ export const remoteTypeDefs = gql`
     """
     Doc Contents from org1
     """
-    _contents(token: String): Org1DocContents
+    Org1MSP_contents(token: String): Org1MSP_DocContents
   }
 `;
 
 export const remoteResolvers = {
   Document: {
-    _contents: async ({ documentId }, { token }, { remoteData }: RemoteData) => {
+    Org1MSP_contents: async ({ documentId }, { token }, { remoteData }: RemoteData) => {
       return remoteData({
         query: GET_CONTENTS_BY_ID,
         operationName: 'GetDocContentsById',

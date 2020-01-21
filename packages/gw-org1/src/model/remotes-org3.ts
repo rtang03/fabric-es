@@ -1,13 +1,8 @@
+import { GET_CONTENTS_BY_ID, GET_DETAILS_BY_ID, RemoteData } from '@espresso/model-loan-private';
 import gql from 'graphql-tag';
-import { RemoteData } from '.';
-import { GET_CONTENTS_BY_ID, GET_DETAILS_BY_ID } from './queries';
 
 export const remoteTypeDefs = gql`
-  """
-  This is a sample implementation. The Underscores (_) should be replaced with the Org's MSP ID
-  """
-
-  type _LoanDetails @key(fields: "loanId") {
+  type Org3MSP_LoanDetails @key(fields: "loanId") {
     loanId: String!
     requester: LoanRequester!
     contact: ContactInfo!
@@ -39,12 +34,12 @@ export const remoteTypeDefs = gql`
   extend type Loan @key(fields: "loanId") {
     loanId: String! @external
     """
-    Remote LoanDetails
+    LoanDetail from org3
     """
-    _details(token: String): _LoanDetails
+    Org3MSP_details(token: String): Org3MSP_LoanDetails
   }
 
-  type _DocContents @key(fields: "documentId") {
+  type Org3MSP_DocContents @key(fields: "documentId") {
     documentId: String!
     content: Docs!
     timestamp: String!
@@ -65,15 +60,15 @@ export const remoteTypeDefs = gql`
   extend type Document @key(fields: "documentId") {
     documentId: String! @external
     """
-    Remote DocContents
+    DocContents from org3
     """
-    _contents(token: String): _DocContents
+    Org3MSP_contents(token: String): Org3MSP_DocContents
   }
 `;
 
 export const remoteResolvers = {
   Loan: {
-    _details: async ({ loanId }, { token }, { remoteData }: RemoteData) => {
+    Org3MSP_details: async ({ loanId }, { token }, { remoteData }: RemoteData) => {
       return remoteData({
         query: GET_DETAILS_BY_ID,
         operationName: 'GetLoanDetailsById',
@@ -86,7 +81,7 @@ export const remoteResolvers = {
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId })
   },
   Document: {
-    _contents: async ({ documentId }, { token }, { remoteData }: RemoteData) => {
+    Org3MSP_contents: async ({ documentId }, { token }, { remoteData }: RemoteData) => {
       return remoteData({
         query: GET_CONTENTS_BY_ID,
         operationName: 'GetDocContentsById',

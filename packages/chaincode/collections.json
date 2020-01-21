@@ -14,13 +14,5 @@
     "maxPeerCount": 4,
     "blockToLive": 0,
     "memberOnlyRead": true
-  },
-  {
-    "name": "Org3MSPPrivateDetails",
-    "policy": "OR('Org3MSP.member')",
-    "requiredPeerCount": 0,
-    "maxPeerCount": 4,
-    "blockToLive": 0,
-    "memberOnlyRead": true
   }
 ]
