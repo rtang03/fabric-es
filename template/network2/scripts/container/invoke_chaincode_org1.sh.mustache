@@ -18,7 +18,7 @@ peer chaincode invoke -o ${ORDERER_URL} -C ${CHANNEL} -n eventstore --waitForEve
 # Invoke private data
 export COMMIT=$(echo -n "{\"eventString\":\"[]\"}" | base64 | tr -d \\n)
 peer chaincode invoke -o ${ORDERER_URL} -C ${CHANNEL} -n privatedata --waitForEvent \
-    -c '{"Args":["privatedata:createCommit","Org1MSPPrivateDetails","private_entityName","private_1001","0","private_1001"]}' \
+    -c '{"Args":["privatedata:createCommit","{{orgs.peer.0.name}}PrivateDetails","private_entityName","private_1001","0","private_1001"]}' \
     --transient "{\"eventstr\":\"$COMMIT\"}" \
     --tls --cafile ${CA_FILE}
 
