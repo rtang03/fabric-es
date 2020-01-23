@@ -31,8 +31,8 @@ import {
   CREATE_DATA_DOC_CONTENTS,
   CREATE_FILE_DOC_CONTENTS,
   CREATE_LOAN_DETAILS,
-  GET_CONTENTS_BY_ID,
-  GET_DETAILS_BY_ID,
+  GET_DOC_CONTENTS_BY_ID,
+  GET_LOAN_DETAILS_BY_ID,
   resolvers as localResolvers,
   typeDefs as localTypeDefs,
   UPDATE_LOAN_DETAILS
@@ -529,7 +529,7 @@ describe('DocContents: Unit Test', () => {
   it('query doc contents: data', async () =>
     createTestClient(server)
       .query({
-        query: GET_CONTENTS_BY_ID,
+        query: GET_DOC_CONTENTS_BY_ID,
         variables: { documentId: '1542385173331' }
       })
       .then(({ data }) => expect(data).toMatchSnapshot()
@@ -538,7 +538,7 @@ describe('DocContents: Unit Test', () => {
   it('query doc contents: file', async () =>
     createTestClient(server)
       .query({
-        query: GET_CONTENTS_BY_ID,
+        query: GET_DOC_CONTENTS_BY_ID,
         variables: { documentId: '1542385174331' }
       })
       .then(({ data }) => expect(data).toMatchSnapshot()
@@ -619,7 +619,7 @@ describe('LoanDetails: Unit Test', () => {
           errors: updateLoanDetails.filter(r => r.message).length
         };
 
-        return query({query: GET_DETAILS_BY_ID, variables: { loanId: '980000007' }})
+        return query({query: GET_LOAN_DETAILS_BY_ID, variables: { loanId: '980000007' }})
           .then(({ data: { getLoanDetailsById: { requester, contact, tenor, requestedAmt, approvedAmt, comment } }}) => {
             expect(
               (commit === 4) && (errors === 1) &&
@@ -658,7 +658,7 @@ describe('LoanDetails: Unit Test', () => {
   it('federated query loan details by ID', async () =>
     createTestClient(server)
       .query({
-        query: GET_DETAILS_BY_ID,
+        query: GET_LOAN_DETAILS_BY_ID,
         variables: { loanId: '123456' }
       })
       .then(({ data }) => expect(data).toMatchSnapshot()

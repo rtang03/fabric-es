@@ -11,7 +11,8 @@ const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI || 'http://loca
       { name: 'loan',     url: `http://localhost:${process.env.SERVICE_LOAN_PORT}/graphql` },
       { name: 'document', url: `http://localhost:${process.env.SERVICE_DOCUMENT_PORT}/graphql` },
       { name: 'private',  url: `http://localhost:${process.env.SERVICE_PRIVATE_PORT}/graphql` },
-      { name: 'remote-loan-details', url: `http://localhost:${process.env.REMOTE_LOAN_DETAILS_PORT}/graphql` },
+      { name: 'remote-org2', url: `http://localhost:${process.env.REMOTE_ORG2_PORT}/graphql` },
+      { name: 'remote-org3', url: `http://localhost:${process.env.REMOTE_ORG3_PORT}/graphql` },
       { name: 'admin', url: `http://localhost:${process.env.ADMINISTRATOR_PORT}/graphql` }
     ],
     authenticationCheck,

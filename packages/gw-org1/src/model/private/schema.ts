@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 
 export const typeDefs = gql`
   type Query {
-    # getDocContentsById(documentId: String!): DocContents!
     getDocContentsById(documentId: String!): DocContents
   }
 
@@ -17,7 +16,7 @@ export const typeDefs = gql`
   type DocContents @key(fields: "documentId") {
     documentId: String!
     content: Docs!
-    timestamp: Int!
+    timestamp: String!
     document: Document
   }
 

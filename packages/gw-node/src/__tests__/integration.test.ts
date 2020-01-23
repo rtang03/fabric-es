@@ -48,8 +48,8 @@ import {
   DocContents,
   DocContentsEvents,
   docContentsReducer,
-  GET_CONTENTS_BY_ID,
-  GET_DETAILS_BY_ID,
+  GET_DOC_CONTENTS_BY_ID,
+  GET_LOAN_DETAILS_BY_ID,
   LoanDetails,
   LoanDetailsEvents,
   loanDetailsReducer,
@@ -396,7 +396,7 @@ describe('Loan Details Integration Test', () => {
   );
 
   it('query loan details by ID', async () =>
-    createTestClient(server).query({ query: GET_DETAILS_BY_ID, variables: { loanId: `m${timestamp}` }})
+    createTestClient(server).query({ query: GET_LOAN_DETAILS_BY_ID, variables: { loanId: `m${timestamp}` }})
       // .then(data => {
       //   console.log('query loan details by ID', data.data.getLoanDetailsById);
       //   return data;
@@ -407,7 +407,7 @@ describe('Loan Details Integration Test', () => {
   );
 
   it('query loan details again by ID', async () =>
-    createTestClient(server).query({ query: GET_DETAILS_BY_ID, variables: { loanId: `n${timestamp}` }})
+    createTestClient(server).query({ query: GET_LOAN_DETAILS_BY_ID, variables: { loanId: `n${timestamp}` }})
       .then(({ data: { getLoanDetailsById: { requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment }}}) =>
         expect({ requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment }).toMatchSnapshot())
       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
@@ -504,9 +504,9 @@ describe('Doc Contents Integration Test', () => {
   );
 
   it('query doc content by ID', async () =>
-    createTestClient(server).query({ query: GET_CONTENTS_BY_ID, variables: { documentId: `f${timestamp}` }})
+    createTestClient(server).query({ query: GET_DOC_CONTENTS_BY_ID, variables: { documentId: `f${timestamp}` }})
       // .then(data => {
-      //   console.log('peer-node/integration.test.ts - GET_CONTENTS_BY_ID 001', data.data.getDocContentsById);
+      //   console.log('peer-node/integration.test.ts - GET_DOC_CONTENTS_BY_ID 001', data.data.getDocContentsById);
       //   return data;
       // })
       .then(({ data: { getDocContentsById: { content: { format, link }}}}) =>
@@ -515,7 +515,7 @@ describe('Doc Contents Integration Test', () => {
   );
 
   it('query doc content again by ID', async () =>
-    createTestClient(server).query({ query: GET_CONTENTS_BY_ID, variables: { documentId: `g${timestamp}` }})
+    createTestClient(server).query({ query: GET_DOC_CONTENTS_BY_ID, variables: { documentId: `g${timestamp}` }})
       .then(({ data: { getDocContentsById: { content: { body }}}}) =>
         expect({ body }).toMatchSnapshot())
       .catch(_ => expect(false).toBeTruthy()) // Normally should not enter here, force the test to fail otherwise
@@ -597,7 +597,7 @@ describe('Federated queries', () => {
   );
 
   it('federated query loan details by ID', async () =>
-    createTestClient(server).query({ query: GET_DETAILS_BY_ID, variables: { loanId }})
+    createTestClient(server).query({ query: GET_LOAN_DETAILS_BY_ID, variables: { loanId }})
       .then(({
         data: {
           getLoanDetailsById: {
@@ -630,9 +630,9 @@ describe('Federated queries', () => {
   );
 
   it('federated query doc contents by ID', async () =>
-  createTestClient(server).query({ query: GET_CONTENTS_BY_ID, variables: { documentId: `f${timestamp}` }})
+  createTestClient(server).query({ query: GET_DOC_CONTENTS_BY_ID, variables: { documentId: `f${timestamp}` }})
       // .then(data => {
-      //   console.log('peer-node/integration.test.ts - GET_CONTENTS_BY_ID 001', data.data.getDocContentsById);
+      //   console.log('peer-node/integration.test.ts - GET_DOC_CONTENTS_BY_ID 001', data.data.getDocContentsById);
       //   return data;
       // })
       .then(({ data: { getDocContentsById: {
