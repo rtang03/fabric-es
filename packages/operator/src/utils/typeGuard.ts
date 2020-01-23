@@ -1,5 +1,5 @@
-import { Commit } from '@espresso/fabric-cqrs';
 import { ProposalErrorResponse, ProposalResponse } from 'fabric-client';
+import { Commit } from '../types';
 
 export const isProposalResponse = (input: any): input is ProposalResponse =>
   (input as ProposalResponse).endorsement !== undefined;

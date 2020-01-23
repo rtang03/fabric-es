@@ -21,7 +21,8 @@ export const createAdminServiceV2 = async ({
   fabricNetwork,
   walletPath,
   asLocalhost = true,
-  playground = true
+  playground = true,
+  introspection = true
 }: {
   channelName: string;
   ordererTlsCaCert: string;
@@ -33,6 +34,7 @@ export const createAdminServiceV2 = async ({
   walletPath: string;
   asLocalhost?: boolean;
   playground?: boolean;
+  introspection?: boolean;
 }) => {
   const logger = Client.getLogger('createAdminServiceV2.js');
 
@@ -75,6 +77,7 @@ export const createAdminServiceV2 = async ({
   return new ApolloServer({
     schema: buildFederatedSchema([{ typeDefs, resolvers }]),
     playground,
+    introspection,
     context: ({ req: { headers } }) => ({
       user_id: headers.user_id,
       is_admin: headers.is_admin,

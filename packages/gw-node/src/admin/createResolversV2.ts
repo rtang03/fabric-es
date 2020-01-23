@@ -82,22 +82,23 @@ export const createResolversV2: (option: {
           logger.warn('registerAndEnrollUser: %s', UNAUTHORIZED_ACCESS);
           new ForbiddenError(UNAUTHORIZED_ACCESS);
         }
+        let registerResult;
 
-        const { disconnect, registerAndEnroll } = await operator
-          .registerAndEnroll({
+        try {
+          const res = await operator.registerAndEnroll({
             enrollmentId,
             enrollmentSecret,
             identity: administrator,
             asLocalhost
-          })
-          .catch(error => {
-            logger.warn(util.format('registerAndEnroll: %j', error));
-            return new ApolloError(error);
           });
-
-        const registerResult = await registerAndEnroll();
-
-        disconnect();
+          registerResult = await res.registerAndEnroll();
+          res.disconnect();
+        } catch (error) {
+          logger.warn(
+            util.format('prepare registerAndEnroll error: %j', error)
+          );
+          return new ApolloError(error);
+        }
 
         if (registerResult instanceof Error) {
           logger.error(
@@ -105,7 +106,6 @@ export const createResolversV2: (option: {
           );
           return new ApolloError(registerResult.message);
         }
-
         return registerResult?.status === 'SUCCESS';
       }
     },
