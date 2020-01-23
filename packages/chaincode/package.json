@@ -30,6 +30,7 @@
   "author": "Ross Tang",
   "license": "Apache-2.0",
   "dependencies": {
+    "@types/bytebuffer": "^5.0.40",
     "bcrypt": "^3.0.7",
     "fabric-contract-api": "~1.4.2",
     "fabric-shim": "~1.4.2",

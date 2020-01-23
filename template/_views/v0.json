@@ -37,6 +37,8 @@
             "domain": "example.com",
             "msp-path": "OrdererMSP/msp",
             "admin-cert-path": "OrdererMSP/admin",
+            "admin-cert-user": "admin-example.com",
+            "admin-cert-pw": "sR7w9xWY",
             "ca-server-cert-path": "OrdererMSP/ca/crypto",
             "orderers": {
                 "type": "etcdraft",
@@ -57,27 +59,67 @@
                     {
                         "-": "orderer1",
                         "ext-port": "7050",
-                        "cert-path": "OrdererMSP/orderer1.example.com"
+                        "cert-path": "OrdererMSP/orderer1.example.com",
+                        "tls": {
+                            "user": "orderer1.example.com",
+                            "pw": "PCzEE5x2"
+                        },
+                        "cert": {
+                            "user": "orderer1.example.com",
+                            "pw": "DPCxKv8m"
+                        }
                     },
                     {
                         "-": "orderer2",
                         "ext-port": "7150",
-                        "cert-path": "OrdererMSP/orderer2.example.com"
+                        "cert-path": "OrdererMSP/orderer2.example.com",
+                        "tls": {
+                            "user": "orderer2.example.com",
+                            "pw": "E9Rd54w2"
+                        },
+                        "cert": {
+                            "user": "orderer2.example.com",
+                            "pw": "PCzEE5x2"
+                        }
                     },
                     {
                         "-": "orderer3",
                         "ext-port": "7250",
-                        "cert-path": "OrdererMSP/orderer3.example.com"
+                        "cert-path": "OrdererMSP/orderer3.example.com",
+                        "tls": {
+                            "user": "orderer3.example.com",
+                            "pw": "x4Y95QFC"
+                        },
+                        "cert": {
+                            "user": "orderer3.example.com",
+                            "pw": "T2ZNRe8x"
+                        }
                     },
                     {
                         "-": "orderer4",
                         "ext-port": "7350",
-                        "cert-path": "OrdererMSP/orderer4.example.com"
+                        "cert-path": "OrdererMSP/orderer4.example.com",
+                        "tls": {
+                            "user": "orderer4.example.com",
+                            "pw": "gf4ZKPSU"
+                        },
+                        "cert": {
+                            "user": "orderer4.example.com",
+                            "pw": "7B5qMkhg"
+                        }
                     },
                     {
                         "-": "orderer5",
                         "ext-port": "7450",
                         "cert-path": "OrdererMSP/orderer5.example.com",
+                        "tls": {
+                            "user": "orderer5.example.com",
+                            "pw": "NhZM2pLZ"
+                        },
+                        "cert": {
+                            "user": "orderer5.example.com",
+                            "pw": "p8Maufjr"
+                        },
                         "islast": true
                     }
                 ]
@@ -118,6 +160,8 @@
                 "domain": "org1.example.com",
                 "msp-path": "Org1MSP/msp",
                 "admin-cert-path": "Org1MSP/admin",
+                "admin-cert-user": "admin-org1.example.com",
+                "admin-cert-pw": "Heym2rQK",
                 "ca-server-cert-path": "Org1MSP/ca/crypto",
                 "peers": {
                     "anchor": "peer0",
@@ -128,7 +172,15 @@
                             "port": "7051",
                             "chaincode-port": "7052",
                             "eventhub-port": "7053",
-                            "cert-path": "Org1MSP/peer0.org1.example.com"
+                            "cert-path": "Org1MSP/peer0.org1.example.com",
+                            "tls": {
+                                "user": "peer0.org1.example.com",
+                                "pw": "9d8vdCdk"
+                            },
+                            "cert": {
+                                "user": "peer0.org1.example.com",
+                                "pw": "Tt4g3KLH"
+                            }
                         },
                         {
                             "-": "peer1",
@@ -136,6 +188,14 @@
                             "chaincode-port": "8052",
                             "eventhub-port": "8053",
                             "cert-path": "Org1MSP/peer1.org1.example.com",
+                            "tls": {
+                                "user": "peer1.org1.example.com",
+                                "pw": "Trxg68PA"
+                            },
+                            "cert": {
+                                "user": "peer1.org1.example.com",
+                                "pw": "C2npBNcf"
+                            },
                             "islast": true
                         }
                     ]
@@ -164,10 +224,15 @@
                         "adminport": "15011"
                     },
                     "services": {
-                        "remote-loan-details": {
+                        "remote-org2": {
                             "port": "14015",
-                            "name": "LoanDetails",
+                            "name": "Org2",
                             "uri": "http://localhost:4002/graphql"
+                        },
+                        "remote-org3": {
+                            "port": "14016",
+                            "name": "Org3",
+                            "uri": "http://localhost:4003/graphql"
                         },
                         "private": {
                             "port": "14014"
@@ -191,6 +256,8 @@
                 "domain": "org2.example.com",
                 "msp-path": "Org2MSP/msp",
                 "admin-cert-path": "Org2MSP/admin",
+                "admin-cert-user": "admin-org2.example.com",
+                "admin-cert-pw": "mEN6bpQW",
                 "ca-server-cert-path": "Org2MSP/ca/crypto",
                 "peers": {
                     "anchor": "peer0",
@@ -201,7 +268,15 @@
                             "port": "9051",
                             "chaincode-port": "9052",
                             "eventhub-port": "9053",
-                            "cert-path": "Org2MSP/peer0.org2.example.com"
+                            "cert-path": "Org2MSP/peer0.org2.example.com",
+                            "tls": {
+                                "user": "peer0.org2.example.com",
+                                "pw": "zkZDG96L"
+                            },
+                            "cert": {
+                                "user": "peer0.org2.example.com",
+                                "pw": "4PBPEkwt"
+                            }
                         },
                         {
                             "-": "peer1",
@@ -209,6 +284,14 @@
                             "chaincode-port": "10052",
                             "eventhub-port": "10053",
                             "cert-path": "Org2MSP/peer1.org2.example.com",
+                            "tls": {
+                                "user": "peer1.org2.example.com",
+                                "pw": "4KnyJmwB"
+                            },
+                            "cert": {
+                                "user": "peer1.org2.example.com",
+                                "pw": "Q528SdnZ"
+                            },
                             "islast": true
                         }
                     ]
@@ -237,9 +320,9 @@
                         "adminport": "15021"
                     },
                     "services": {
-                        "remote-doc-contents": {
+                        "remote-org1": {
                             "port": "14025",
-                            "name": "DocContents",
+                            "name": "Org1",
                             "uri": "http://localhost:4001/graphql"
                         },
                         "private": {
@@ -265,6 +348,8 @@
                 "msp-path": "Org3MSP/msp",
                 "admin-cert-path": "Org3MSP/admin",
                 "ca-server-cert-path": "Org3MSP/ca/crypto",
+                "admin-cert-user": "admin-org3.neworg.com",
+                "admin-cert-pw": "mEN6bpQW",
                 "peers": {
                     "anchor": "peer0",
                     "anchor-port": "11051",
@@ -274,7 +359,15 @@
                             "port": "11051",
                             "chaincode-port": "11052",
                             "eventhub-port": "11053",
-                            "cert-path": "Org3MSP/peer0.org3.neworg.com"
+                            "cert-path": "Org3MSP/peer0.org3.neworg.com",
+                            "tls": {
+                                "user": "peer0.org3.neworg.com",
+                                "pw": "zkZDG96L"
+                            },
+                            "cert": {
+                                "user": "peer0.org3.neworg.com",
+                                "pw": "4PBPEkwt"
+                            }
                         },
                         {
                             "-": "peer1",
@@ -282,6 +375,14 @@
                             "chaincode-port": "12052",
                             "eventhub-port": "12053",
                             "cert-path": "Org3MSP/peer1.org3.neworg.com",
+                            "tls": {
+                                "user": "peer1.org3.neworg.com",
+                                "pw": "4KnyJmwB"
+                            },
+                            "cert": {
+                                "user": "peer1.org3.neworg.com",
+                                "pw": "Q528SdnZ"
+                            },
                             "islast": true
                         }
                     ]
@@ -310,14 +411,14 @@
                         "adminport": "15031"
                     },
                     "services": {
-                        "remote-doc-contents": {
+                        "remote-org1": {
                             "port": "14035",
-                            "name": "DocContents",
+                            "name": "Org1",
                             "uri": "http://localhost:4001/graphql"
                         },
-                        "remote-loan-details": {
+                        "remote-org2": {
                             "port": "14036",
-                            "name": "LoanDetails",
+                            "name": "Org2",
                             "uri": "http://localhost:4002/graphql"
                         },
                         "private": {
