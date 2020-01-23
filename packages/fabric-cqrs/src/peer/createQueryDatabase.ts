@@ -5,26 +5,7 @@ import { Commit, QueryDatabase } from '../types';
 export const createQueryDatabase: () => QueryDatabase = () => {
   const logger = Client.getLogger('createQueryDatabase');
 
-  let db: Record<string, Commit> = {
-    // '20181208155814606': {
-    //   commitId: '20181208155814606',
-    //   committedAt: '1544284694606',
-    //   entityName: 'dev_test',
-    //   entityId: 'ent_test_1001',
-    //   id: 'ent_test_1001',
-    //   version: 0,
-    //   events: [
-    //     {
-    //       type: 'UserCreated',
-    //       payload: {
-    //         userId: 'ent_test_1001',
-    //         name: 'Mr X',
-    //         timestamp: 1544284694606
-    //       }
-    //     }
-    //   ]
-    // }
-  };
+  let db: Record<string, Commit> = {};
   let newDB;
 
   return {

@@ -7,3 +7,7 @@
 !packages/authentication/views
 !packages/authentication/public
 !packages/authentication/.env.prod
+!packages/gw-node/package.json
+!packages/gw-node/tsconfig.json
+!packages/gw-node/dist
+!packages/gw-node/.env.admin-service.prod

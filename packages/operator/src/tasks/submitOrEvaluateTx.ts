@@ -1,4 +1,3 @@
-import { Commit } from '@espresso/fabric-cqrs';
 import Client from 'fabric-client';
 import {
   DefaultEventHandlerStrategies,
@@ -8,6 +7,7 @@ import {
 } from 'fabric-network';
 import util from 'util';
 import {
+  Commit,
   CreateNetworkOperatorOption,
   MISSING_CHAINCODE_ID,
   MISSING_FCN,

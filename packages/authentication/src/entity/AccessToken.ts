@@ -4,12 +4,17 @@ import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
 export class AccessToken extends BaseEntity {
   @PrimaryColumn('text')
   access_token: string;
+
+  // @Column('datetime')
   @Column('timestamp without time zone')
   expires_at: Date;
+
   @Column('text')
   client_id: string;
+
   @Column('text')
   user_id: string;
+
   @Column('text')
   scope: string;
 }
