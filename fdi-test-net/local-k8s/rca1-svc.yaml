@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rca1
+  labels:
+    run: rca1
+spec:
+  type: ClusterIP
+  selector:
+    name: rca1
+  ports:
+    - protocol: TCP
+      port: 6054
+      name: grpc
