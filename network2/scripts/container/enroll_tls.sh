@@ -1,179 +1,179 @@
 
-# Enroll ca.tls's Admin
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/TLS-CA/server/ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/TLS-CA/admin
+# Enroll tls-ca.hktfp.com's Admin
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HktfpMSP/tls/server/ca-cert.pem
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HktfpMSP/tls/admin
 
-fabric-ca-client enroll -d -u https://tls-ca-admin:tls-ca-adminPW@0.0.0.0:5052
-fabric-ca-client register -d --id.name peer0.org1.example.com --id.secret 9d8vdCdk --id.type peer -u https://0.0.0.0:5052
-fabric-ca-client register -d --id.name peer1.org1.example.com --id.secret Trxg68PA --id.type peer -u https://0.0.0.0:5052
-fabric-ca-client register -d --id.name peer0.org2.example.com --id.secret zkZDG96L --id.type peer -u https://0.0.0.0:5052
-fabric-ca-client register -d --id.name peer1.org2.example.com --id.secret 4KnyJmwB --id.type peer -u https://0.0.0.0:5052
-fabric-ca-client register -d --id.name peer0.org3.neworg.com --id.secret zkZDG96L --id.type peer -u https://0.0.0.0:5052
-fabric-ca-client register -d --id.name peer1.org3.neworg.com --id.secret 4KnyJmwB --id.type peer -u https://0.0.0.0:5052
-fabric-ca-client register -d --id.name orderer1.example.com --id.secret PCzEE5x2 --id.type orderer -u https://0.0.0.0:5052
-fabric-ca-client register -d --id.name orderer2.example.com --id.secret E9Rd54w2 --id.type orderer -u https://0.0.0.0:5052
-fabric-ca-client register -d --id.name orderer3.example.com --id.secret x4Y95QFC --id.type orderer -u https://0.0.0.0:5052
-fabric-ca-client register -d --id.name orderer4.example.com --id.secret gf4ZKPSU --id.type orderer -u https://0.0.0.0:5052
-fabric-ca-client register -d --id.name orderer5.example.com --id.secret NhZM2pLZ --id.type orderer -u https://0.0.0.0:5052
+fabric-ca-client enroll -d -u https://tls-ca-admin:tls-ca-adminPW@0.0.0.0:6052
+fabric-ca-client register -d --id.name peer0.etradeconnect.net --id.secret 9d8vdCdk --id.type peer -u https://0.0.0.0:6052
+fabric-ca-client register -d --id.name peer1.etradeconnect.net --id.secret Trxg68PA --id.type peer -u https://0.0.0.0:6052
+fabric-ca-client register -d --id.name peer0.pbctfp.net --id.secret zkZDG96L --id.type peer -u https://0.0.0.0:6052
+fabric-ca-client register -d --id.name peer1.pbctfp.net --id.secret 4KnyJmwB --id.type peer -u https://0.0.0.0:6052
+fabric-ca-client register -d --id.name peer0.hsbc.com.hk --id.secret zkZDG96L --id.type peer -u https://0.0.0.0:6052
+fabric-ca-client register -d --id.name peer1.hsbc.com.hk --id.secret 4KnyJmwB --id.type peer -u https://0.0.0.0:6052
+fabric-ca-client register -d --id.name orderer0.hktfp.com --id.secret PCzEE5x2 --id.type orderer -u https://0.0.0.0:6052
+fabric-ca-client register -d --id.name orderer1.hktfp.com --id.secret E9Rd54w2 --id.type orderer -u https://0.0.0.0:6052
+fabric-ca-client register -d --id.name orderer2.hktfp.com --id.secret x4Y95QFC --id.type orderer -u https://0.0.0.0:6052
+fabric-ca-client register -d --id.name orderer3.hktfp.com --id.secret gf4ZKPSU --id.type orderer -u https://0.0.0.0:6052
+fabric-ca-client register -d --id.name orderer4.hktfp.com --id.secret NhZM2pLZ --id.type orderer -u https://0.0.0.0:6052
 
 #############
-# Org1MSP peer0#
+# etc peer0#
 #############
 
-# Copy certificate of the TLS CA for Org1MSP peer0
-mkdir -p /tmp/hyperledger/Org1MSP/peer0.org1.example.com/assets/tls-ca
-cp /tmp/hyperledger/TLS-CA/admin/msp/cacerts/0-0-0-0-5052.pem /tmp/hyperledger/Org1MSP/peer0.org1.example.com/assets/tls-ca/tls-ca-cert.pem
+# Copy certificate of the TLS CA for etc peer0
+mkdir -p /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/tls-ca
+cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem
 
-# Enroll Org1MSP peer0
+# Enroll etc peer0
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/Org1MSP/peer0.org1.example.com
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/Org1MSP/peer0.org1.example.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://peer0.org1.example.com:9d8vdCdk@0.0.0.0:5052 --enrollment.profile tls --csr.hosts peer0.org1.example.com,127.0.0.1
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://peer0.etradeconnect.net:9d8vdCdk@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer0.etradeconnect.net,127.0.0.1
 
-mv /tmp/hyperledger/Org1MSP/peer0.org1.example.com/tls-msp/keystore/* /tmp/hyperledger/Org1MSP/peer0.org1.example.com/tls-msp/keystore/key.pem
+mv /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/keystore/* /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/keystore/key.pem
 
 #############
-# Org1MSP peer1#
+# etc peer1#
 #############
 
-# Copy certificate of the TLS CA for Org1MSP peer1
-mkdir -p /tmp/hyperledger/Org1MSP/peer1.org1.example.com/assets/tls-ca
-cp /tmp/hyperledger/TLS-CA/admin/msp/cacerts/0-0-0-0-5052.pem /tmp/hyperledger/Org1MSP/peer1.org1.example.com/assets/tls-ca/tls-ca-cert.pem
+# Copy certificate of the TLS CA for etc peer1
+mkdir -p /var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/assets/tls-ca
+cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem
 
-# Enroll Org1MSP peer1
+# Enroll etc peer1
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/Org1MSP/peer1.org1.example.com
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/Org1MSP/peer1.org1.example.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://peer1.org1.example.com:Trxg68PA@0.0.0.0:5052 --enrollment.profile tls --csr.hosts peer1.org1.example.com,127.0.0.1
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://peer1.etradeconnect.net:Trxg68PA@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer1.etradeconnect.net,127.0.0.1
 
-mv /tmp/hyperledger/Org1MSP/peer1.org1.example.com/tls-msp/keystore/* /tmp/hyperledger/Org1MSP/peer1.org1.example.com/tls-msp/keystore/key.pem
+mv /var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/tls-msp/keystore/* /var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/tls-msp/keystore/key.pem
 
 #############
-# Org2MSP peer0#
+# pbctfp peer0#
 #############
 
-# Copy certificate of the TLS CA for Org2MSP peer0
-mkdir -p /tmp/hyperledger/Org2MSP/peer0.org2.example.com/assets/tls-ca
-cp /tmp/hyperledger/TLS-CA/admin/msp/cacerts/0-0-0-0-5052.pem /tmp/hyperledger/Org2MSP/peer0.org2.example.com/assets/tls-ca/tls-ca-cert.pem
+# Copy certificate of the TLS CA for pbctfp peer0
+mkdir -p /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/tls-ca
+cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/tls-ca/tls-ca-cert.pem
 
-# Enroll Org2MSP peer0
+# Enroll pbctfp peer0
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/Org2MSP/peer0.org2.example.com
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/Org2MSP/peer0.org2.example.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://peer0.org2.example.com:zkZDG96L@0.0.0.0:5052 --enrollment.profile tls --csr.hosts peer0.org2.example.com,127.0.0.1
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://peer0.pbctfp.net:zkZDG96L@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer0.pbctfp.net,127.0.0.1
 
-mv /tmp/hyperledger/Org2MSP/peer0.org2.example.com/tls-msp/keystore/* /tmp/hyperledger/Org2MSP/peer0.org2.example.com/tls-msp/keystore/key.pem
+mv /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/keystore/* /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/keystore/key.pem
 
 #############
-# Org2MSP peer1#
+# pbctfp peer1#
 #############
 
-# Copy certificate of the TLS CA for Org2MSP peer1
-mkdir -p /tmp/hyperledger/Org2MSP/peer1.org2.example.com/assets/tls-ca
-cp /tmp/hyperledger/TLS-CA/admin/msp/cacerts/0-0-0-0-5052.pem /tmp/hyperledger/Org2MSP/peer1.org2.example.com/assets/tls-ca/tls-ca-cert.pem
+# Copy certificate of the TLS CA for pbctfp peer1
+mkdir -p /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/assets/tls-ca
+cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/assets/tls-ca/tls-ca-cert.pem
 
-# Enroll Org2MSP peer1
+# Enroll pbctfp peer1
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/Org2MSP/peer1.org2.example.com
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/Org2MSP/peer1.org2.example.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://peer1.org2.example.com:4KnyJmwB@0.0.0.0:5052 --enrollment.profile tls --csr.hosts peer1.org2.example.com,127.0.0.1
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://peer1.pbctfp.net:4KnyJmwB@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer1.pbctfp.net,127.0.0.1
 
-mv /tmp/hyperledger/Org2MSP/peer1.org2.example.com/tls-msp/keystore/* /tmp/hyperledger/Org2MSP/peer1.org2.example.com/tls-msp/keystore/key.pem
+mv /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/keystore/* /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/keystore/key.pem
 
 #############
-# Org3MSP peer0#
+# hsbc peer0#
 #############
 
-# Copy certificate of the TLS CA for Org3MSP peer0
-mkdir -p /tmp/hyperledger/Org3MSP/peer0.org3.neworg.com/assets/tls-ca
-cp /tmp/hyperledger/TLS-CA/admin/msp/cacerts/0-0-0-0-5052.pem /tmp/hyperledger/Org3MSP/peer0.org3.neworg.com/assets/tls-ca/tls-ca-cert.pem
+# Copy certificate of the TLS CA for hsbc peer0
+mkdir -p /var/artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk/assets/tls-ca
+cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk/assets/tls-ca/tls-ca-cert.pem
 
-# Enroll Org3MSP peer0
+# Enroll hsbc peer0
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/Org3MSP/peer0.org3.neworg.com
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/Org3MSP/peer0.org3.neworg.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://peer0.org3.neworg.com:zkZDG96L@0.0.0.0:5052 --enrollment.profile tls --csr.hosts peer0.org3.neworg.com,127.0.0.1
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://peer0.hsbc.com.hk:zkZDG96L@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer0.hsbc.com.hk,127.0.0.1
 
-mv /tmp/hyperledger/Org3MSP/peer0.org3.neworg.com/tls-msp/keystore/* /tmp/hyperledger/Org3MSP/peer0.org3.neworg.com/tls-msp/keystore/key.pem
+mv /var/artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk/tls-msp/keystore/* /var/artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk/tls-msp/keystore/key.pem
 
 #############
-# Org3MSP peer1#
+# hsbc peer1#
 #############
 
-# Copy certificate of the TLS CA for Org3MSP peer1
-mkdir -p /tmp/hyperledger/Org3MSP/peer1.org3.neworg.com/assets/tls-ca
-cp /tmp/hyperledger/TLS-CA/admin/msp/cacerts/0-0-0-0-5052.pem /tmp/hyperledger/Org3MSP/peer1.org3.neworg.com/assets/tls-ca/tls-ca-cert.pem
+# Copy certificate of the TLS CA for hsbc peer1
+mkdir -p /var/artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk/assets/tls-ca
+cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk/assets/tls-ca/tls-ca-cert.pem
 
-# Enroll Org3MSP peer1
+# Enroll hsbc peer1
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/Org3MSP/peer1.org3.neworg.com
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/Org3MSP/peer1.org3.neworg.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://peer1.org3.neworg.com:4KnyJmwB@0.0.0.0:5052 --enrollment.profile tls --csr.hosts peer1.org3.neworg.com,127.0.0.1
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://peer1.hsbc.com.hk:4KnyJmwB@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer1.hsbc.com.hk,127.0.0.1
 
-mv /tmp/hyperledger/Org3MSP/peer1.org3.neworg.com/tls-msp/keystore/* /tmp/hyperledger/Org3MSP/peer1.org3.neworg.com/tls-msp/keystore/key.pem
+mv /var/artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk/tls-msp/keystore/* /var/artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk/tls-msp/keystore/key.pem
 
 
 ###########
 # Orderer #
 ###########
 
-# Copy certificate of ca.tls for OrdererOrg orderer1
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer1.example.com/assets/tls-ca
-cp /tmp/hyperledger/TLS-CA/admin/msp/cacerts/0-0-0-0-5052.pem /tmp/hyperledger/OrdererMSP/orderer1.example.com/assets/tls-ca/tls-ca-cert.pem
+# Copy certificate of tls-ca.hktfp.com for hktfp orderer0
+mkdir -p /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/assets/tls-ca
+cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/assets/tls-ca/tls-ca-cert.pem
 
-# Enroll for OrdererOrg orderer1
+# Enroll for hktfp orderer0
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/OrdererMSP/orderer1.example.com
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/OrdererMSP/orderer1.example.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer1.example.com:PCzEE5x2@0.0.0.0:5052 --enrollment.profile tls --csr.hosts orderer1.example.com,127.0.0.1
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://orderer0.hktfp.com:PCzEE5x2@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer0.hktfp.com,127.0.0.1
 
-mv /tmp/hyperledger/OrdererMSP/orderer1.example.com/tls-msp/keystore/* /tmp/hyperledger/OrdererMSP/orderer1.example.com/tls-msp/keystore/key.pem
+mv /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/keystore/* /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/keystore/key.pem
 
-# Copy certificate of ca.tls for OrdererOrg orderer2
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer2.example.com/assets/tls-ca
-cp /tmp/hyperledger/TLS-CA/admin/msp/cacerts/0-0-0-0-5052.pem /tmp/hyperledger/OrdererMSP/orderer2.example.com/assets/tls-ca/tls-ca-cert.pem
+# Copy certificate of tls-ca.hktfp.com for hktfp orderer1
+mkdir -p /var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/assets/tls-ca
+cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/assets/tls-ca/tls-ca-cert.pem
 
-# Enroll for OrdererOrg orderer2
+# Enroll for hktfp orderer1
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/OrdererMSP/orderer2.example.com
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/OrdererMSP/orderer2.example.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer2.example.com:E9Rd54w2@0.0.0.0:5052 --enrollment.profile tls --csr.hosts orderer2.example.com,127.0.0.1
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://orderer1.hktfp.com:E9Rd54w2@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer1.hktfp.com,127.0.0.1
 
-mv /tmp/hyperledger/OrdererMSP/orderer2.example.com/tls-msp/keystore/* /tmp/hyperledger/OrdererMSP/orderer2.example.com/tls-msp/keystore/key.pem
+mv /var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/tls-msp/keystore/* /var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/tls-msp/keystore/key.pem
 
-# Copy certificate of ca.tls for OrdererOrg orderer3
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer3.example.com/assets/tls-ca
-cp /tmp/hyperledger/TLS-CA/admin/msp/cacerts/0-0-0-0-5052.pem /tmp/hyperledger/OrdererMSP/orderer3.example.com/assets/tls-ca/tls-ca-cert.pem
+# Copy certificate of tls-ca.hktfp.com for hktfp orderer2
+mkdir -p /var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/assets/tls-ca
+cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/assets/tls-ca/tls-ca-cert.pem
 
-# Enroll for OrdererOrg orderer3
+# Enroll for hktfp orderer2
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/OrdererMSP/orderer3.example.com
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/OrdererMSP/orderer3.example.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer3.example.com:x4Y95QFC@0.0.0.0:5052 --enrollment.profile tls --csr.hosts orderer3.example.com,127.0.0.1
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://orderer2.hktfp.com:x4Y95QFC@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer2.hktfp.com,127.0.0.1
 
-mv /tmp/hyperledger/OrdererMSP/orderer3.example.com/tls-msp/keystore/* /tmp/hyperledger/OrdererMSP/orderer3.example.com/tls-msp/keystore/key.pem
+mv /var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/tls-msp/keystore/* /var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/tls-msp/keystore/key.pem
 
-# Copy certificate of ca.tls for OrdererOrg orderer4
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer4.example.com/assets/tls-ca
-cp /tmp/hyperledger/TLS-CA/admin/msp/cacerts/0-0-0-0-5052.pem /tmp/hyperledger/OrdererMSP/orderer4.example.com/assets/tls-ca/tls-ca-cert.pem
+# Copy certificate of tls-ca.hktfp.com for hktfp orderer3
+mkdir -p /var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/assets/tls-ca
+cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/assets/tls-ca/tls-ca-cert.pem
 
-# Enroll for OrdererOrg orderer4
+# Enroll for hktfp orderer3
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/OrdererMSP/orderer4.example.com
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/OrdererMSP/orderer4.example.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer4.example.com:gf4ZKPSU@0.0.0.0:5052 --enrollment.profile tls --csr.hosts orderer4.example.com,127.0.0.1
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://orderer3.hktfp.com:gf4ZKPSU@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer3.hktfp.com,127.0.0.1
 
-mv /tmp/hyperledger/OrdererMSP/orderer4.example.com/tls-msp/keystore/* /tmp/hyperledger/OrdererMSP/orderer4.example.com/tls-msp/keystore/key.pem
+mv /var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/keystore/* /var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/keystore/key.pem
 
-# Copy certificate of ca.tls for OrdererOrg orderer5
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer5.example.com/assets/tls-ca
-cp /tmp/hyperledger/TLS-CA/admin/msp/cacerts/0-0-0-0-5052.pem /tmp/hyperledger/OrdererMSP/orderer5.example.com/assets/tls-ca/tls-ca-cert.pem
+# Copy certificate of tls-ca.hktfp.com for hktfp orderer4
+mkdir -p /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/assets/tls-ca
+cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/assets/tls-ca/tls-ca-cert.pem
 
-# Enroll for OrdererOrg orderer5
+# Enroll for hktfp orderer4
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/OrdererMSP/orderer5.example.com
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/OrdererMSP/orderer5.example.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer5.example.com:NhZM2pLZ@0.0.0.0:5052 --enrollment.profile tls --csr.hosts orderer5.example.com,127.0.0.1
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/assets/tls-ca/tls-ca-cert.pem
+fabric-ca-client enroll -d -u https://orderer4.hktfp.com:NhZM2pLZ@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer4.hktfp.com,127.0.0.1
 
-mv /tmp/hyperledger/OrdererMSP/orderer5.example.com/tls-msp/keystore/* /tmp/hyperledger/OrdererMSP/orderer5.example.com/tls-msp/keystore/key.pem
+mv /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/keystore/* /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/keystore/key.pem
 

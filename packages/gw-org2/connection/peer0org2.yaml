@@ -1,13 +1,13 @@
 ---
-name: openplatform_fabric-Org2MSP
+name: fdi_openplatform-pbctfp
 version: 1.0.0
 
 client:
-  organization: Org2MSP
+  organization: pbctfp
   credentialStore:
-    path: ./assets/client-certs/hfc-kvs/org2.example.com
+    path: ./assets/client-certs/hfc-kvs/pbctfp.net
     cryptoStore:
-      path: ./assets/client-certs/hfc-kvs/org2.example.com
+      path: ./assets/client-certs/hfc-kvs/pbctfp.net
   connection:
     timeout:
       peer:
@@ -16,14 +16,14 @@ client:
 channels:
   eventstore:
     orderers:
-      - orderer1.example.com
+      - orderer0.hktfp.com
     peers:
-      peer0.org2.example.com:
+      peer0.pbctfp.net:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.org2.example.com:
+      peer1.pbctfp.net:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -32,51 +32,51 @@ channels:
       - eventstore:1.0
 
 organizations:
-  Org2MSP:
-    mspid: Org2MSP
+  PbctfpMSP:
+    mspid: PbctfpMSP
     peers:
-      - peer0.org2.example.com
-      - peer1.org2.example.com
+      - peer0.pbctfp.net
+      - peer1.pbctfp.net
     certificateAuthorities:
-      - rca.org2.example.com
+      - rca.pbctfp.net
     adminPrivateKey:
-      path: ../../network2/config/../artifacts/Org2MSP/admin/msp/keystore/key.pem
+      path: ../../network2/config/../artifacts/crypto-config/PbctfpMSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../network2/config/../artifacts/Org2MSP/admin/msp/signcerts/cert.pem
+      path: ../../network2/config/../artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem
 
 orderers:
-  orderer1.example.com:
+  orderer0.hktfp.com:
     url: grpcs://localhost:7050
     grpcOptions:
-      ssl-target-name-override: orderer1.example.com
+      ssl-target-name-override: orderer0.hktfp.com
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../network2/config/../artifacts/OrdererMSP/orderer1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../network2/config/../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 
 peers:
-  peer0.org2.example.com:
-    url: grpcs://localhost:9051
-    eventUrl: grpcs://localhost:9053
+  peer0.pbctfp.net:
+    url: grpcs://localhost:7251
+    eventUrl: grpcs://localhost:7253
     tlsCACerts:
-      path: ../../network2/config/../artifacts/Org2MSP/peer0.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../network2/config/../artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.org2.example.com
-  peer1.org2.example.com:
-    url: grpcs://localhost:10051
-    eventUrl: grpcs://localhost:10053
+      ssl-target-name-override: peer0.pbctfp.net
+  peer1.pbctfp.net:
+    url: grpcs://localhost:7351
+    eventUrl: grpcs://localhost:7353
     tlsCACerts:
-      path: ../../network2/config/../artifacts/Org2MSP/peer1.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../network2/config/../artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.org2.example.com
+      ssl-target-name-override: peer1.pbctfp.net
 
 certificateAuthorities:
-  rca.org2.example.com:
-    url: https://localhost:5055
-    caName: rca.org2.example.com
+  rca.pbctfp.net:
+    url: https://localhost:6055
+    caName: rca.pbctfp.net
     tlsCACerts:
-      path: ../../network2/config/../artifacts/Org2MSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../network2/config/../artifacts/crypto-config/PbctfpMSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
-      - enrollId: rca-org2-admin
-        enrollSecret: rca-org2-adminPW
+      - enrollId: rca-pboc-admin
+        enrollSecret: rca-pboc-adminPW
     httpOptions:
       verify: false

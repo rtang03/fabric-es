@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orderer4
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: orderer4
+  template:
+    metadata:
+      labels:
+        name: orderer4
+    spec:
+      hostAliases:
+        - ip: "10.110.110.119"
+          hostnames:
+            - "orderer0.hktfp.com"
+        - ip: "10.99.150.69"
+          hostnames:
+            - "orderer1.hktfp.com"
+        - ip: "10.104.94.102"
+          hostnames:
+            - "orderer2.hktfp.com"
+        - ip: "10.101.85.41"
+          hostnames:
+            - "orderer3.hktfp.com"
+        - ip: "127.0.0.1"
+          hostnames:
+            - "orderer4.hktfp.com"
+        - ip: "10.111.189.116"
+          hostnames:
+            - "peer0.etradeconnect.net"
+        - ip: "10.99.157.159"
+          hostnames:
+            - "peer1.etradeconnect.net"
+        - ip: "10.111.251.178"
+          hostnames:
+            - "peer0.pbctfp.net"
+        - ip: "10.97.226.93"
+          hostnames:
+            - "peer1.pbctfp.net"
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: task-pv-claim
+      containers:
+        - name: orderer
+          image: hyperledger/fabric-orderer:1.4.3
+          command: ['sh', '-c', 'orderer']
+          env:
+            - name: TZ
+              value: "Asia/Hong Kong"
+            - name: ORDERER_CFG_PATH
+              value: /var/artifacts/
+            - name: CONFIGTX_ORDERER_ADDRESSES
+              value: "orderer3.hktfp.com:7450"
+            - name: ORDERER_GENERAL_LISTENADDRESS
+              value: 0.0.0.0
+            - name: ORDERER_GENERAL_LISTENPORT
+              value: "7450"
+            - name: ORDERER_GENERAL_LOGLEVEL
+              value: debug
+            - name: ORDERER_GENERAL_LOCALMSPID
+              value: HktfpMSP
+            - name: ORDERER_HOME
+              value: /var/artifacts/orderer
+            - name: ORDERER_GENERAL_LOCALMSPDIR
+              value: /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/msp
+            - name: ORDERER_GENERAL_GENESISMETHOD
+              value: file
+            - name: ORDERER_GENERAL_GENESISFILE
+              value: /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/genesis.block
+            - name: ORDERER_GENERAL_TLS_ENABLED
+              value: "true"
+            - name: ORDERER_GENERAL_TLS_CERTIFICATE
+              value: /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/signcerts/cert.pem
+            - name: ORDERER_GENERAL_TLS_PRIVATEKEY
+              value: /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/keystore/key.pem
+            - name: ORDERER_GENERAL_TLS_ROOTCAS
+              value: /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+            - name: ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE
+              value: /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/signcerts/cert.pem
+            - name: ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY
+              value: /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/keystore/key.pem
+            - name: ORDERER_GENERAL_CLUSTER_ROOTCAS
+              value: /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+          volumeMounts:
+            - mountPath: /var/artifacts
+              name: fabricfiles
