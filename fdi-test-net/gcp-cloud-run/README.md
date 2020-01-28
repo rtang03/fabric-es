@@ -1,6 +1,10 @@
-#! /bin/bash
-yarn build:authentication
-DOCKER_BUILDKIT=1 docker build --no-cache -f ./fdi-test-net/authentication-server/Dockerfile -t=gcr.io/fdi-test-net/auth-server:1.0 .
+
+_NOTE: not test yet. Path maybe wrong._
+
+DOCKER_BUILDKIT=1 docker build --no-cache -f ./authentication-server/Dockerfile -t=gcr.io/fdi-test-net/auth-server:1.0 .
+
+DOCKER_BUILDKIT=1 docker build --no-cache -f ./fabric-ca/Dockerfile -t=gcr.io/fdi-test-net/fabric-ca:1.4.4 .
+
 docker run -e TYPEORM_HOST=xxx.xxx.xxx.xxx \
 -e TYPEORM_USERNAME=postgres \
 -e TYPEORM_PASSWORD=docker \

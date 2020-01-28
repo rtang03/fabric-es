@@ -12,9 +12,11 @@ RUN mkdir /home/node/app/ \
 WORKDIR /home/node/app
 
 COPY --chown=node:node ./*.json ./
-COPY --chown=node:node ./packages/gw-node/*.json ./packages/gw-node/
-COPY --chown=node:node ./packages/gw-node/dist ./packages/gw-node/dist
-COPY --chown=node:node ./packages/gw-node/.env.admin-service.prod ./packages/gw-node/.env
+COPY --chown=node:node ./packages/authentication/*.json ./packages/authentication/
+COPY --chown=node:node ../../../packages/authentication/dist ./packages/authentication/dist
+COPY --chown=node:node ../../../packages/authentication/.env.prod ./packages/authentication/.env
+COPY --chown=node:node ../../../packages/authentication/public ./packages/authentication/public
+COPY --chown=node:node ../../../packages/authentication/views ./packages/authentication/views
 
 RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
   && curl -fSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz" \
@@ -29,8 +31,8 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
 
 USER node
 
-WORKDIR /home/node/app/packages/gw-node
+WORKDIR /home/node/app/packages/authentication
 
-CMD [ "node", "./dist/admin/app.js"]
+CMD [ "node", "./dist/app.js"]
 
 EXPOSE 8080
