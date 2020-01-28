@@ -4,6 +4,9 @@ metadata:
   name: task-pv-claim
 spec:
   storageClassName: manual
+  selector:
+    matchLabels:
+      name: fabricfiles
   accessModes:
     - ReadWriteMany
   resources:

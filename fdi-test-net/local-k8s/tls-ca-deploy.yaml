@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tls-ca
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: tls-ca
+    spec:
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: task-pv-claim
+      containers:
+        - name: rca0
+          image: hyperledger/fabric-ca:1.4.3
+          command: ["sh", "-c", "fabric-ca-server start --cfg.identities.allowremove -d --port 6052"]
+          env:
+            - name: TZ
+              value: "Asia/Hong_Kong"
+            - name: FABRIC_CA_SERVER_HOME
+              value: /var/artifacts/crypto-config/HktfpMSP/tls/server
+            - name: FABRIC_CA_SERVER_TLS_ENABLED
+              value: "true"
+            - name: FABRIC_CA_SERVER_CSR_CN
+              value: "tls-ca.hktfp.com"
+            - name: FABRIC_CA_SERVER_CSR_HOSTS
+              value: 0.0.0.0
+            - name: FABRIC_CA_SERVER_DEBUG
+              value: "true"
+            - name: FABRIC_CA_SERVER_CA_NAME
+              value: "tls-ca.hktfp.com"
+            - name: GODEBUG
+              value: "netdns=go"
+          volumeMounts:
+            - mountPath: /var/artifacts
+              name: fabricfiles

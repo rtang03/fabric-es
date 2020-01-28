@@ -1,6 +1,12 @@
 ```shell script
-# copy cryto-material into k8s persistentVolume
+# copy cryto-material into k8s persistentVolume 
+# todo: to be replaced by kubectl cp 
 cp -R ../network2/artifacts/crypto-config /tmp/data
+
+kubectl exec -it fabric-tools -- mkdir /var/artifacts/chaincode
+
+# todo: build chaincode prod
+kubectl cp ../../packages/chaincode/ fabric-tools:/var/artifacts/
 ```
 
 ```shell script

@@ -50,9 +50,9 @@ spec:
           command: ['sh', '-c', 'orderer']
           env:
             - name: TZ
-              value: "Asia/Hong Kong"
+              value: "Asia/Hong_Kong"
             - name: ORDERER_CFG_PATH
-              value: /var/artifacts/
+              value: /etc/hyperledger/fabric/
             - name: CONFIGTX_ORDERER_ADDRESSES
               value: "orderer2.hktfp.com:7250"
             - name: ORDERER_GENERAL_LISTENADDRESS
