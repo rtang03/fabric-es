@@ -15,3 +15,8 @@ peer channel join -b {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.c
 peer channel getinfo -c {{network.peer-channels.0}}
 
 {{/orgs.peer.0.peers.endpoints}}
+# Update anchor peer
+peer channel update -c {{network.peer-channels.0}} -f {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.0.peers.endpoints.0.cert-path}}}/assets/{{orgs.peer.0.name}}Anchors.tx \
+    -o {{orgs.orderer.orderers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:{{orgs.orderer.orderers.endpoints.0.ext-port}} \
+    --tls --cafile {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.0.peers.endpoints.0.cert-path}}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+
