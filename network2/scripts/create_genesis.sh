@@ -62,5 +62,11 @@ sudo mv channel.tx       ${_CRYPTO_CONFIG_DIR}/EtcMSP/peer0.etradeconnect.net/as
 
 # Update Anchor peer
 ${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate etcAnchors.tx -channelID loanapp -asOrg etc
+mkdir -p ${_CRYPTO_CONFIG_DIR}/EtcMSP/peer0.etradeconnect.net/assets
+sudo mv etcAnchors.tx ${_CRYPTO_CONFIG_DIR}/EtcMSP/peer0.etradeconnect.net/assets
 ${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate pbctfpAnchors.tx -channelID loanapp -asOrg pbctfp
+mkdir -p ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/peer0.pbctfp.net/assets
+sudo mv pbctfpAnchors.tx ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/peer0.pbctfp.net/assets
 ${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate hsbcAnchors.tx -channelID loanapp -asOrg hsbc
+mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets
+sudo mv hsbcAnchors.tx ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets
