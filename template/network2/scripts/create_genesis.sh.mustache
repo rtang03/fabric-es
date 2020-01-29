@@ -41,4 +41,6 @@ sudo mv channel.tx       ${_CRYPTO_CONFIG_DIR}/{{{orgs.peer.0.peers.endpoints.0.
 # Update Anchor peer
 {{#orgs.peer}}
 ${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate {{name}}Anchors.tx -channelID {{network.peer-channels.0}} -asOrg {{name}}
+mkdir -p ${_CRYPTO_CONFIG_DIR}/{{{peers.endpoints.0.cert-path}}}/assets
+sudo mv {{name}}Anchors.tx ${_CRYPTO_CONFIG_DIR}/{{{peers.endpoints.0.cert-path}}}/assets
 {{/orgs.peer}}
