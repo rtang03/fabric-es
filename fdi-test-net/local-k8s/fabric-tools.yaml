@@ -3,6 +3,43 @@ kind: Pod
 metadata:
   name: fabric-tools
 spec:
+  hostAliases:
+    - ip: "10.104.54.113"
+      hostnames:
+        - "rca.hktfp.com"
+    - ip: "10.109.90.181"
+      hostnames:
+        - "rca.etradeconnect.net"
+    - ip: "10.108.87.210"
+      hostnames:
+        - "rca.pbctfp.net"
+    - ip: "10.110.110.119"
+      hostnames:
+        - "orderer0.hktfp.com"
+    - ip: "10.99.150.69"
+      hostnames:
+        - "orderer1.hktfp.com"
+    - ip: "10.104.94.102"
+      hostnames:
+        - "orderer2.hktfp.com"
+    - ip: "10.101.85.41"
+      hostnames:
+        - "orderer3.hktfp.com"
+    - ip: "10.101.105.49"
+      hostnames:
+        - "orderer4.hktfp.com"
+    - ip: "10.111.189.116"
+      hostnames:
+        - "peer0.etradeconnect.net"
+    - ip: "10.99.157.159"
+      hostnames:
+        - "peer1.etradeconnect.net"
+    - ip: "10.111.251.178"
+      hostnames:
+        - "peer0.pbctfp.net"
+    - ip: "10.97.226.93"
+      hostnames:
+        - "peer1.pbctfp.net"
   volumes:
     - name: fabricfiles
       persistentVolumeClaim:
