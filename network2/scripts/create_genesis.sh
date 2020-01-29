@@ -59,3 +59,8 @@ sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer2.hktfp.com
 sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer3.hktfp.com
 sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer4.hktfp.com
 sudo mv channel.tx       ${_CRYPTO_CONFIG_DIR}/EtcMSP/peer0.etradeconnect.net/assets
+
+# Update Anchor peer
+${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate etcAnchors.tx -channelID loanapp -asOrg etc
+${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate pbctfpAnchors.tx -channelID loanapp -asOrg pbctfp
+${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate hsbcAnchors.tx -channelID loanapp -asOrg hsbc
