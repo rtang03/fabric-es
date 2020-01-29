@@ -13,6 +13,18 @@ spec:
         name: orderer0
     spec:
       hostAliases:
+        - ip: "10.107.191.68"
+          hostnames:
+            - "tls-ca.hktfp.com"
+        - ip: "10.104.54.113"
+          hostnames:
+            - "rca.hktfp.com"
+        - ip: "10.109.90.181"
+          hostnames:
+            - "rca.etradeconnect.net"
+        - ip: "10.108.87.210"
+          hostnames:
+            - "rca.pbctfp.net"
         - ip: "127.0.0.1"
           hostnames:
             - "orderer0.hktfp.com"
