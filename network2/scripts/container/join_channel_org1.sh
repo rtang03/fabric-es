@@ -18,3 +18,8 @@ export CORE_PEER_ADDRESS=peer1.etradeconnect.net:7151
 peer channel join -b /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/loanapp.block
 peer channel getinfo -c loanapp
 
+# Update anchor peer
+peer channel update -c loanapp -f /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/etcAnchors.tx \
+    -o orderer0.hktfp.com:7050 \
+    --tls --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+
