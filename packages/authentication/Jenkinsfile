@@ -1,9 +1,9 @@
 pipeline {
     agent {
+        label 'master'
         docker {
             image 'build:5000/node8-build' 
             args '-p 3000:3000'
-            label 'node-v8.17.0-slim-build'
             registryUrl 'https://build:5000'
             registryCredentialsId 'docker-registry-login'
         }
