@@ -11,8 +11,12 @@ spec:
     metadata:
       labels:
         name: orderer3
+        app: orderer
     spec:
       hostAliases:
+        - ip: "10.1.0.141"
+          hostnames:
+            - "fabric-tools"
         - ip: "10.107.191.68"
           hostnames:
             - "tls-ca.hktfp.com"
@@ -25,13 +29,13 @@ spec:
         - ip: "10.108.87.210"
           hostnames:
             - "rca.pbctfp.net"
-        - ip: "10.110.110.119"
+        - ip: "10.110.10.122"
           hostnames:
             - "orderer0.hktfp.com"
-        - ip: "10.99.150.69"
+        - ip: "10.101.107.162"
           hostnames:
             - "orderer1.hktfp.com"
-        - ip: "10.104.94.102"
+        - ip: "10.105.80.240"
           hostnames:
             - "orderer2.hktfp.com"
         - ip: "127.0.0.1"
@@ -97,6 +101,10 @@ spec:
               value: /var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/keystore/key.pem
             - name: ORDERER_GENERAL_CLUSTER_ROOTCAS
               value: /var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+            - name: ORDERER_GENERAL_LEDGERTYPE
+              value: file
+            - name: ORDERER_FILELEDGER_LOCATION
+              value: /var/artifacts/production/orderer3
           volumeMounts:
             - mountPath: /var/artifacts
               name: fabricfiles

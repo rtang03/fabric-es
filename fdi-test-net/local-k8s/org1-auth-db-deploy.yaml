@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: org1-auth-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: org1-auth-db
+  template:
+    metadata:
+      labels:
+        name: org1-auth-db
+    spec:
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: task-pv-claim
+      containers:
+        - name: postgres
+          image: postgres:12-alpine
+          env:
+            - name: TZ
+              value: "Asia/Hong_Kong"
+            - name: DATABASE_DATABASE
+              value: org1_auth_db
+            - name: DATABASE_USERNAME
+              value: postgres
+            - name: DATABASE_PASSWORD
+              value: password
+          volumeMounts:
+            - mountPath: /var/artifacts
+              name: fabricfiles
