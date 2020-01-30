@@ -11,8 +11,12 @@ spec:
     metadata:
       labels:
         name: org1peer0
+        app: peer
     spec:
       hostAliases:
+        - ip: "10.1.0.141"
+          hostnames:
+            - "fabric-tools"
         - ip: "10.107.191.68"
           hostnames:
             - "tls-ca.hktfp.com"
@@ -25,13 +29,13 @@ spec:
         - ip: "10.108.87.210"
           hostnames:
             - "rca.pbctfp.net"
-        - ip: "10.110.110.119"
+        - ip: "10.110.10.122"
           hostnames:
             - "orderer0.hktfp.com"
-        - ip: "10.99.150.69"
+        - ip: "10.101.107.162"
           hostnames:
             - "orderer1.hktfp.com"
-        - ip: "10.104.94.102"
+        - ip: "10.105.80.240"
           hostnames:
             - "orderer2.hktfp.com"
         - ip: "10.101.85.41"
@@ -56,6 +60,9 @@ spec:
         - name: fabricfiles
           persistentVolumeClaim:
             claimName: task-pv-claim
+        - name: production
+          persistentVolumeClaim:
+            claimName: org1peer0-pv-claim
         - name: dockersocket
           hostPath:
             path: /var/run/docker.sock
@@ -86,8 +93,6 @@ spec:
               value: "false"
             - name: CORE_PEER_GOSSIP_USELEADERELECTION
               value: "true"
-            - name: CORE_PEER_PROFILE_ENABLED
-              value: "true"
             - name: FABRIC_LOGGING_SPEC
               value: "grpc=debug:info"
             - name: CORE_VM_ENDPOINT
@@ -108,7 +113,11 @@ spec:
               value: /etc/hyperledger/fabric/
             - name: ORDERER_URL
               value: orderer0.hktfp.com:7050
+            - name: CORE_VM_DOCKER_ATTACHSTDOUT
+              value: "true"
           volumeMounts:
+            - mountPath: /var/hyperledger/production
+              name: production
             - mountPath: /var/artifacts
               name: fabricfiles
             - mountPath: /host/var/run/docker.sock

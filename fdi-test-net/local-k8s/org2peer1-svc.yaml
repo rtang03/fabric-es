@@ -7,7 +7,7 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    name: org1peer1
+    name: org2peer1
   ports:
     - protocol: TCP
       port: 7351
