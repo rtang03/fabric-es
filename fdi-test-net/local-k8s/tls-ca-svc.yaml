@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: tls-ca
+  name: tls-ca-hktfp
   labels:
-    run: tls-ca
+    run: tls-ca-hktfp
 spec:
   type: ClusterIP
   selector:

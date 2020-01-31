@@ -41,14 +41,14 @@ Organizations:
             Rule: "OR('EtcMSP.admin')"
 
       OrdererEndpoints:
-         - orderer0.hktfp.com:7050
-         - orderer1.hktfp.com:7150
-         - orderer2.hktfp.com:7250
-         - orderer3.hktfp.com:7350
-         - orderer4.hktfp.com:7450
+         - orderer0-hktfp:7050
+         - orderer1-hktfp:7150
+         - orderer2-hktfp:7250
+         - orderer3-hktfp:7350
+         - orderer4-hktfp:7450
 
       AnchorPeers:
-         - Host: peer0.etradeconnect.net
+         - Host: peer0-etradeconnect
            Port: 7051
 
    - &pbctfp
@@ -68,14 +68,14 @@ Organizations:
             Rule: "OR('PbctfpMSP.admin')"
 
       OrdererEndpoints:
-         - orderer0.hktfp.com:7050
-         - orderer1.hktfp.com:7150
-         - orderer2.hktfp.com:7250
-         - orderer3.hktfp.com:7350
-         - orderer4.hktfp.com:7450
+         - orderer0-hktfp:7050
+         - orderer1-hktfp:7150
+         - orderer2-hktfp:7250
+         - orderer3-hktfp:7350
+         - orderer4-hktfp:7450
 
       AnchorPeers:
-         - Host: peer0.pbctfp.net
+         - Host: peer0-pbctfp
            Port: 7251
 
    - &hsbc
@@ -95,14 +95,14 @@ Organizations:
             Rule: "OR('HsbcMSP.admin')"
 
       OrdererEndpoints:
-         - orderer0.hktfp.com:7050
-         - orderer1.hktfp.com:7150
-         - orderer2.hktfp.com:7250
-         - orderer3.hktfp.com:7350
-         - orderer4.hktfp.com:7450
+         - orderer0-hktfp:7050
+         - orderer1-hktfp:7150
+         - orderer2-hktfp:7250
+         - orderer3-hktfp:7350
+         - orderer4-hktfp:7450
 
       AnchorPeers:
-         - Host: peer0.hsbc.com.hk
+         - Host: peer0-hsbc
            Port: 7451
 
 Capabilities:
@@ -150,11 +150,11 @@ Orderer: &OrdererDefaults
 
    OrdererType: etcdraft
    Addresses:
-      - orderer0.hktfp.com:7050
-      - orderer1.hktfp.com:7150
-      - orderer2.hktfp.com:7250
-      - orderer3.hktfp.com:7350
-      - orderer4.hktfp.com:7450
+      - orderer0-hktfp:7050
+      - orderer1-hktfp:7150
+      - orderer2-hktfp:7250
+      - orderer3-hktfp:7350
+      - orderer4-hktfp:7450
    BatchTimeout: 2s
    BatchSize:
       MaxMessageCount: 500
@@ -163,23 +163,23 @@ Orderer: &OrdererDefaults
    MaxChannels: 10
    EtcdRaft:
       Consenters:
-         - Host: orderer0.hktfp.com
+         - Host: orderer0-hktfp
            Port: 7050
            ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/signcerts/cert.pem
            ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/signcerts/cert.pem
-         - Host: orderer1.hktfp.com
+         - Host: orderer1-hktfp
            Port: 7150
            ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/tls-msp/signcerts/cert.pem
            ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/tls-msp/signcerts/cert.pem
-         - Host: orderer2.hktfp.com
+         - Host: orderer2-hktfp
            Port: 7250
            ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/tls-msp/signcerts/cert.pem
            ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/tls-msp/signcerts/cert.pem
-         - Host: orderer3.hktfp.com
+         - Host: orderer3-hktfp
            Port: 7350
            ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/signcerts/cert.pem
            ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/signcerts/cert.pem
-         - Host: orderer4.hktfp.com
+         - Host: orderer4-hktfp
            Port: 7450
            ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/signcerts/cert.pem
            ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/signcerts/cert.pem

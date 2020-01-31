@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: org2peer0
+  name: peer0-pbctfp
   labels:
-    run: org2peer0
+    run: peer0-pbctfp
 spec:
   type: ClusterIP
   selector:
