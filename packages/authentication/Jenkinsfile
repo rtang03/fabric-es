@@ -24,11 +24,15 @@ pipeline {
             steps {
                 sh yarnInstall
                 sh yarnBuild
+                sh 'ls -l'
+                sh 'ls -l packages/authentication'
             }
         }
         stage('Docker Build') {
             agent { label 'master' }
             steps {
+                sh 'ls -l'
+                sh 'ls -l packages/authentication'
                 sh 'docker build -t build:5000/authentication-server:latest fdi-test-net/gcp-cloud-run/authentication-server'
             }
         }
