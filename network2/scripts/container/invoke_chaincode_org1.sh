@@ -1,7 +1,7 @@
 
 export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp
-export CORE_PEER_ADDRESS=peer0-etradeconnect:7051
-export ORDERER_URL=orderer0-hktfp:7050
+export CORE_PEER_ADDRESS=peer0.etradeconnect.net:7051
+export ORDERER_URL=orderer0.hktfp.com:7050
 export CHANNEL=loanapp
 export CA_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 

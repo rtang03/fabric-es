@@ -16,7 +16,7 @@ adm_crt_path="$6"
 peer_crt_path="$7"
 
 export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${adm_crt_path}/msp
-export CORE_PEER_ADDRESS=${peer}-${org}:${port}
+export CORE_PEER_ADDRESS=${peer}.${org}:${port}
 
 # Install Chaincode
 peer chaincode install -n ${name} -v ${version} -p /opt/gopath/src/github.com/hyperledger/fabric/chaincode -l node \
