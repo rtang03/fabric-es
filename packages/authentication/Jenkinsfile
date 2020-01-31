@@ -7,6 +7,8 @@ pipeline {
 
         yarnInstall = 'yarn install --ignore-engines'
         yarnBuild = 'yarn build:authentication'
+
+        dockerBuild = 'docker build -t build:5000/authentication-server:latest packages/authentication'
     }
 
     agent none
@@ -24,16 +26,13 @@ pipeline {
             steps {
                 sh yarnInstall
                 sh yarnBuild
-                sh 'ls -l'
-                sh 'ls -l packages/authentication'
             }
         }
         stage('Docker Build') {
             agent { label 'master' }
             steps {
-                sh 'ls -l'
-                sh 'ls -l packages/authentication'
-                sh 'docker build -t build:5000/authentication-server:latest fdi-test-net/gcp-cloud-run/authentication-server'
+                sh 'rm .dockerignore'
+                sh dockerBuild
             }
         }
     }
