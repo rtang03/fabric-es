@@ -1,5 +1,5 @@
 
-# Enroll tls-ca.hktfp.com's Admin
+# Enroll tls-ca-hktfp's Admin
 export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HktfpMSP/tls/server/ca-cert.pem
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HktfpMSP/tls/admin
 
@@ -28,7 +28,7 @@ cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem 
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net
 export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://peer0.etradeconnect.net:9d8vdCdk@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer0.etradeconnect.net,127.0.0.1
+fabric-ca-client enroll -d -u https://peer0.etradeconnect.net:9d8vdCdk@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer0-etradeconnect,127.0.0.1
 
 mv /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/keystore/* /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/keystore/key.pem
 
@@ -44,7 +44,7 @@ cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem 
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net
 export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://peer1.etradeconnect.net:Trxg68PA@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer1.etradeconnect.net,127.0.0.1
+fabric-ca-client enroll -d -u https://peer1.etradeconnect.net:Trxg68PA@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer1-etradeconnect,127.0.0.1
 
 mv /var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/tls-msp/keystore/* /var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/tls-msp/keystore/key.pem
 
@@ -60,7 +60,7 @@ cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem 
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net
 export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://peer0.pbctfp.net:zkZDG96L@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer0.pbctfp.net,127.0.0.1
+fabric-ca-client enroll -d -u https://peer0.pbctfp.net:zkZDG96L@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer0-pbctfp,127.0.0.1
 
 mv /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/keystore/* /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/keystore/key.pem
 
@@ -76,7 +76,7 @@ cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem 
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net
 export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://peer1.pbctfp.net:4KnyJmwB@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer1.pbctfp.net,127.0.0.1
+fabric-ca-client enroll -d -u https://peer1.pbctfp.net:4KnyJmwB@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer1-pbctfp,127.0.0.1
 
 mv /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/keystore/* /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/keystore/key.pem
 
@@ -92,7 +92,7 @@ cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem 
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk
 export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://peer0.hsbc.com.hk:zkZDG96L@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer0.hsbc.com.hk,127.0.0.1
+fabric-ca-client enroll -d -u https://peer0.hsbc.com.hk:zkZDG96L@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer0-hsbc,127.0.0.1
 
 mv /var/artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk/tls-msp/keystore/* /var/artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk/tls-msp/keystore/key.pem
 
@@ -108,7 +108,7 @@ cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem 
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk
 export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://peer1.hsbc.com.hk:4KnyJmwB@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer1.hsbc.com.hk,127.0.0.1
+fabric-ca-client enroll -d -u https://peer1.hsbc.com.hk:4KnyJmwB@0.0.0.0:6052 --enrollment.profile tls --csr.hosts peer1-hsbc,127.0.0.1
 
 mv /var/artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk/tls-msp/keystore/* /var/artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk/tls-msp/keystore/key.pem
 
@@ -117,7 +117,7 @@ mv /var/artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk/tls-msp/keystore/* /va
 # Orderer #
 ###########
 
-# Copy certificate of tls-ca.hktfp.com for hktfp orderer0
+# Copy certificate of tls-ca-hktfp for hktfp orderer0
 mkdir -p /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/assets/tls-ca
 cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/assets/tls-ca/tls-ca-cert.pem
 
@@ -125,11 +125,11 @@ cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem 
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com
 export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer0.hktfp.com:PCzEE5x2@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer0.hktfp.com,127.0.0.1
+fabric-ca-client enroll -d -u https://orderer0.hktfp.com:PCzEE5x2@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer0-hktfp,127.0.0.1
 
 mv /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/keystore/* /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/keystore/key.pem
 
-# Copy certificate of tls-ca.hktfp.com for hktfp orderer1
+# Copy certificate of tls-ca-hktfp for hktfp orderer1
 mkdir -p /var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/assets/tls-ca
 cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/assets/tls-ca/tls-ca-cert.pem
 
@@ -137,11 +137,11 @@ cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem 
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com
 export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer1.hktfp.com:E9Rd54w2@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer1.hktfp.com,127.0.0.1
+fabric-ca-client enroll -d -u https://orderer1.hktfp.com:E9Rd54w2@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer1-hktfp,127.0.0.1
 
 mv /var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/tls-msp/keystore/* /var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/tls-msp/keystore/key.pem
 
-# Copy certificate of tls-ca.hktfp.com for hktfp orderer2
+# Copy certificate of tls-ca-hktfp for hktfp orderer2
 mkdir -p /var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/assets/tls-ca
 cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/assets/tls-ca/tls-ca-cert.pem
 
@@ -149,11 +149,11 @@ cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem 
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com
 export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer2.hktfp.com:x4Y95QFC@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer2.hktfp.com,127.0.0.1
+fabric-ca-client enroll -d -u https://orderer2.hktfp.com:x4Y95QFC@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer2-hktfp,127.0.0.1
 
 mv /var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/tls-msp/keystore/* /var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/tls-msp/keystore/key.pem
 
-# Copy certificate of tls-ca.hktfp.com for hktfp orderer3
+# Copy certificate of tls-ca-hktfp for hktfp orderer3
 mkdir -p /var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/assets/tls-ca
 cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/assets/tls-ca/tls-ca-cert.pem
 
@@ -161,11 +161,11 @@ cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem 
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com
 export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer3.hktfp.com:gf4ZKPSU@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer3.hktfp.com,127.0.0.1
+fabric-ca-client enroll -d -u https://orderer3.hktfp.com:gf4ZKPSU@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer3-hktfp,127.0.0.1
 
 mv /var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/keystore/* /var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/keystore/key.pem
 
-# Copy certificate of tls-ca.hktfp.com for hktfp orderer4
+# Copy certificate of tls-ca-hktfp for hktfp orderer4
 mkdir -p /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/assets/tls-ca
 cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/assets/tls-ca/tls-ca-cert.pem
 
@@ -173,7 +173,7 @@ cp /var/artifacts/crypto-config/HktfpMSP/tls/admin/msp/cacerts/0-0-0-0-6052.pem 
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com
 export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer4.hktfp.com:NhZM2pLZ@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer4.hktfp.com,127.0.0.1
+fabric-ca-client enroll -d -u https://orderer4.hktfp.com:NhZM2pLZ@0.0.0.0:6052 --enrollment.profile tls --csr.hosts orderer4-hktfp,127.0.0.1
 
 mv /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/keystore/* /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/keystore/key.pem
 

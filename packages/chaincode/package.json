@@ -14,7 +14,7 @@
     "pretest": "npm run lint",
     "start": "fabric-chaincode-node start",
     "build": "rimraf dist && tsc",
-    "build:prod": "yarn run clean && tsc -p ./tsconfig.prod.json",
+    "build:prod": "rimraf dist && tsc -p ./tsconfig.prod.json",
     "build:watch": "tsc -w",
     "prepublishOnly": "npm run build",
     "test": "jest",

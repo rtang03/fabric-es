@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rca2
+  name: rca-pbctfp
 spec:
   replicas: 1
   selector:
@@ -12,49 +12,6 @@ spec:
       labels:
         name: rca2
     spec:
-      hostAliases:
-        - ip: "10.1.0.141"
-          hostnames:
-            - "fabric-tools"
-        - ip: "10.107.191.68"
-          hostnames:
-            - "tls-ca.hktfp.com"
-        - ip: "10.104.54.113"
-          hostnames:
-            - "rca.hktfp.com"
-        - ip: "10.109.90.181"
-          hostnames:
-            - "rca.etradeconnect.net"
-        - ip: "127.0.0.1"
-          hostnames:
-            - "rca.pbctfp.net"
-        - ip: "10.110.10.122"
-          hostnames:
-            - "orderer0.hktfp.com"
-        - ip: "10.101.107.162"
-          hostnames:
-            - "orderer1.hktfp.com"
-        - ip: "10.105.80.240"
-          hostnames:
-            - "orderer2.hktfp.com"
-        - ip: "10.101.85.41"
-          hostnames:
-            - "orderer3.hktfp.com"
-        - ip: "10.101.105.49"
-          hostnames:
-            - "orderer4.hktfp.com"
-        - ip: "10.111.189.116"
-          hostnames:
-            - "peer0.etradeconnect.net"
-        - ip: "10.99.157.159"
-          hostnames:
-            - "peer1.etradeconnect.net"
-        - ip: "10.111.251.178"
-          hostnames:
-            - "peer0.pbctfp.net"
-        - ip: "10.97.226.93"
-          hostnames:
-            - "peer1.pbctfp.net"
       volumes:
         - name: fabricfiles
           persistentVolumeClaim:
@@ -71,13 +28,13 @@ spec:
             - name: FABRIC_CA_SERVER_TLS_ENABLED
               value: "true"
             - name: FABRIC_CA_SERVER_CSR_CN
-              value: "rca.pbctfp.net"
+              value: "rca-pbctfp"
             - name: FABRIC_CA_SERVER_CSR_HOSTS
               value: 0.0.0.0
             - name: FABRIC_CA_SERVER_DEBUG
               value: "true"
             - name: FABRIC_CA_SERVER_CA_NAME
-              value: "rca.pbctfp.net"
+              value: "rca-pbctfp"
             - name: GODEBUG
               value: "netdns=go"
           volumeMounts:

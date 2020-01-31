@@ -64,30 +64,6 @@ kubectl get svc
 # tls-ca         ClusterIP   10.107.191.68    <none>        6052/TCP                     20h
 ```
 
-Note that service's ip is stable, even the bounded pod is later removed. And, we shall use service ip instead of 
-pod ip; to update the deployment files. For EACH of deployment file, need to make sure the _hostAliases_ are correctly
-configured. The _hostAliases_ will produce the correct `/etc/hosts` in each pod. This is essential for inter-pod communication.
-
-```yaml
-# see below example in orderer0-deploy.yaml
-template:
-    metadata:
-      labels:
-        name: orderer0
-    spec:
-      hostAliases:
-        - ip: "10.107.191.68"
-          hostnames:
-            - "tls-ca.hktfp.com"
-        - ip: "10.104.54.113"
-          hostnames:
-            - "rca.hktfp.com"
-        - ip: "10.109.90.181"
-          hostnames:
-            - "rca.etradeconnect.net"
-        - ip: "10.108.87.210"
-```
-
 ### Deploy persistent volume
 
 ```shell script
@@ -153,7 +129,7 @@ kubectl apply -f org1peer0-deploy.yaml
 kubectl apply -f org1peer1-deploy.yaml
 kubectl apply -f org2peer0-deploy.yaml
 kubectl apply -f org2peer1-deploy.yaml
-kubectl apply -f org1-auth-db-deploy.yaml
+# kubectl apply -f org1-auth-db-deploy.yaml
 # kubectl apply -f org1-auth-deploy.yaml
 
 # optionally, open a new terminal. show logs for orderers
@@ -166,24 +142,24 @@ kubectl logs -f -l app=peer --all-containers
 ### Validate the deployment status
 ```shell script
 # optionally, check fabric-tools pod ready, before continue
-kubectl get pods --output=wide
+kubectl get pods --o wide
 
 # should output:
 # NAME                         READY   STATUS    RESTARTS   AGE     IP           NODE             NOMINATED NODE   READINESS GATES
-# fabric-tools                 1/1     Running   0          15h     10.1.0.113   docker-desktop   <none>           <none>
-# orderer0-84bd7cbd5b-tjh9c    1/1     Running   0          23m     10.1.0.127   docker-desktop   <none>           <none>
-# orderer1-7f4dcd97bb-pml28    1/1     Running   0          21m     10.1.0.128   docker-desktop   <none>           <none>
-# orderer2-6fcdfb9776-kh9mx    1/1     Running   0          21m     10.1.0.129   docker-desktop   <none>           <none>
-# orderer3-56869f899f-rvdq7    1/1     Running   0          21m     10.1.0.130   docker-desktop   <none>           <none>
-# orderer4-6647fdccf8-cgmch    1/1     Running   0          21m     10.1.0.131   docker-desktop   <none>           <none>
-# org1peer0-69dd4f648f-t8mfr   1/1     Running   0          7m44s   10.1.0.138   docker-desktop   <none>           <none>
-# org1peer1-7b8446f47d-pb6tb   1/1     Running   0          7m52s   10.1.0.137   docker-desktop   <none>           <none>
-# org2peer0-68f84bcc88-ggrp2   1/1     Running   0          7m24s   10.1.0.139   docker-desktop   <none>           <none>
-# org2peer1-5986674c5b-qkbkb   1/1     Running   0          7m19s   10.1.0.140   docker-desktop   <none>           <none>
-# rca0-5945f8b558-kql8t        1/1     Running   0          17h     10.1.0.100   docker-desktop   <none>           <none>
-# rca1-67bdcf748f-78lzk        1/1     Running   0          17h     10.1.0.101   docker-desktop   <none>           <none>
-# rca2-54d76df7b6-6rm2t        1/1     Running   0          17h     10.1.0.102   docker-desktop   <none>           <none>
-# tls-ca-65b5858c66-r6tnm      1/1     Running   0          17h     10.1.0.99    docker-desktop   <none>           <none>
+# fabric-tools-68b996d8cd-hl9pw   1/1     Running   0          105m   10.1.0.142   docker-desktop   <none>           <none>
+# orderer0-654d5f59fc-pp7b5       1/1     Running   0          86m    10.1.0.156   docker-desktop   <none>           <none>
+# orderer1-7d9b874c49-ftlxg       1/1     Running   0          85m    10.1.0.157   docker-desktop   <none>           <none>
+# orderer2-7bddf8656f-mzlsr       1/1     Running   0          85m    10.1.0.158   docker-desktop   <none>           <none>
+# orderer3-5567fb7cdd-66jbn       1/1     Running   0          85m    10.1.0.159   docker-desktop   <none>           <none>
+# orderer4-86f44bf9b7-xnfmk       1/1     Running   0          85m    10.1.0.160   docker-desktop   <none>           <none>
+# org1peer0-f4669fd58-q69gj       1/1     Running   0          84m    10.1.0.161   docker-desktop   <none>           <none>
+# org1peer1-6f45d6bfbc-wgtzx      1/1     Running   0          84m    10.1.0.162   docker-desktop   <none>           <none>
+# org2peer0-67f7f59f75-5n2sz      1/1     Running   0          84m    10.1.0.163   docker-desktop   <none>           <none>
+# org2peer1-6c46998975-9c9kz      1/1     Running   0          84m    10.1.0.164   docker-desktop   <none>           <none>
+# rca0-5fc59ffd65-4bbwr           1/1     Running   0          100m   10.1.0.153   docker-desktop   <none>           <none>
+# rca1-5489985dfb-2sc8m           1/1     Running   0          100m   10.1.0.154   docker-desktop   <none>           <none>
+# rca2-5c5977c48f-w4mbk           1/1     Running   0          100m   10.1.0.155   docker-desktop   <none>           <none>
+# tls-ca-848fc7df7-4hrtt          1/1     Running   0          100m   10.1.0.152   docker-desktop   <none>           <none>
 
 # optionally, check the service is correctly bound to pod
 kubectl describe pod [pod-id]
@@ -205,11 +181,11 @@ kubectl exec -it fabric-tools bash
 
 # create channel
 export CORE_PEER_LOCALMSPID=EtcMSP
-export CORE_PEER_ADDRESS=peer0.etradeconnect.net:7051
+export CORE_PEER_ADDRESS=peer0-etradeconnect:7051
 export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp
-peer channel create -c loanapp -f /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/channel.tx -o orderer0.hktfp.com:7050 \
-    --outputBlock /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/loanapp.block \
-    --tls --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+peer channel create -c loanapp -f /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/channel.tx -o orderer0-hktfp:7050 \
+ --outputBlock /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/loanapp.block --tls \
+ --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 
 # should output:
 # 2020-01-29 22:51:55.436 HKT [msp.identity] Sign -> DEBU 08d Sign: plaintext: 0AEA080A1308051A06088BB8C6F10522...5C3D5E779ACD12080A021A0012021A00
@@ -218,7 +194,7 @@ peer channel create -c loanapp -f /var/artifacts/crypto-config/EtcMSP/peer0.etra
 
 # join channel
 export CORE_PEER_LOCALMSPID=EtcMSP
-export CORE_PEER_ADDRESS=peer0.etradeconnect.net:7051
+export CORE_PEER_ADDRESS=peer0-etradeconnect:7051
 export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp
 export CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 peer channel join -b /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/loanapp.block
@@ -230,7 +206,7 @@ peer channel join -b /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net
 #peer channel update -o orderer0.hktfp.com:7050 -c loanapp -f /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/etcAnchors.tx \
 #--tls --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 
-export CORE_PEER_ADDRESS=peer1.etradeconnect.net:7151
+export CORE_PEER_ADDRESS=peer1-etradeconnect:7151
 peer channel join -b /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/loanapp.block
 
 # check channel peers has joined
@@ -244,10 +220,10 @@ exit
 
 ### org2 join channel
 ```shell script
-kubectl exec -it fabric-tools bash
+kubectl exec -it fabric-tools-68b996d8cd-hl9pw bash
 
 export CORE_PEER_LOCALMSPID=PbctfpMSP
-export CORE_PEER_ADDRESS=peer0.pbctfp.net:7251
+export CORE_PEER_ADDRESS=peer0-pbctfp:7251
 export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/PbctfpMSP/admin/msp
 export CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 peer channel join -b /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/loanapp.block
@@ -256,20 +232,76 @@ peer channel join -b /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/ass
 #peer channel update -o orderer0.hktfp.com:7050 -c loanapp -f /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/pbctfpAnchors.tx \
 #--tls --cafile /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 
-export CORE_PEER_ADDRESS=peer1.pbctfp.net:7351
+export CORE_PEER_ADDRESS=peer1-pbctfp:7351
 peer channel join -b /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/loanapp.block
 
 exit
 ```
 
-
-### Install chaincode
+### build chaincode
 ```shell script
+# ~/packages/chaincode
+yarn run build:prod
+```
 
+### install chaincodes
+```shell script
+# cd ~/fdi-test-net/local-k8s
+# kubectl exec -it [fabric-tools POD] -- mkdir /var/artifacts/chaincode
+# example => 
 kubectl exec -it fabric-tools -- mkdir /var/artifacts/chaincode
 
-# todo: build chaincode prod
-kubectl cp ../../packages/chaincode/ fabric-tools:/var/artifacts/
+# kubectl cp ../chaincode/abac/ [fabric-tools POD]:/var/artifacts/chaincode
+# example => 
+kubectl cp ../../packages/chaincode/dist fabric-tools:/var/artifacts/chaincode
+kubectl cp ../../packages/chaincode/src fabric-tools:/var/artifacts/chaincode
+kubectl cp ../../packages/chaincode/package.json fabric-tools:/var/artifacts/chaincode
+kubectl cp ../../packages/chaincode/tsconfig.json fabric-tools:/var/artifacts/chaincode
+kubectl cp ../../packages/chaincode/collections.json fabric-tools:/var/artifacts/chaincode
+
+kubectl exec -it fabric-tools bash
+
+cd /var/artifacts/chaincode
+npm i --production
+
+# install org1peer0
+export CORE_PEER_LOCALMSPID=EtcMSP
+export CORE_PEER_ADDRESS=peer0-etradeconnect:7051
+export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+peer chaincode install -n eventstore -v 2.0 -p /var/artifacts/chaincode -l node
+
+# should output:
+# 2020-01-30 22:30:04.497 HKT [chaincodeCmd] install -> INFO 0ff Installed remotely response:<status:200 payload:"OK" >
+
+# optionally, check result:
+# peer chaincode list --installed
+
+# install org1peer1
+export CORE_PEER_ADDRESS=peer1-etradeconnect:7151
+peer chaincode install -n eventstore -v 2.0 -p /var/artifacts/chaincode -l node
+
+# install org2peer0
+export CORE_PEER_LOCALMSPID=PbctfpMSP
+export CORE_PEER_ADDRESS=peer0-pbctfp:7251
+export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/PbctfpMSP/admin/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+peer chaincode install -n eventstore -v 2.0 -p /var/artifacts/chaincode -l node
+
+# install org2peer1
+export CORE_PEER_ADDRESS=peer1-pbctfp:7351
+peer chaincode install -n eventstore -v 2.0 -p /var/artifacts/chaincode -l node
+
+# instantiate chaincode
+export CORE_PEER_LOCALMSPID=EtcMSP
+export CORE_PEER_ADDRESS=peer0-etradeconnect:7051
+export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+peer chaincode instantiate -C loanapp -n eventstore -v 2.0 -l node -c '{"Args":["eventstore:instantiate"]}' \
+ -o orderer0-hktfp:7050 -P "OR ('EtcMSP.member','PbctfpMSP.member','HsbcMSP.member')" \
+--tls --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+
+exit
 ```
 
 ### Useful commands

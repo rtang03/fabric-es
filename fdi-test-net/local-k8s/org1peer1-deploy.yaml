@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: org1peer1
+  name: peer1-etradeconnect
 spec:
   replicas: 1
   selector:
@@ -14,49 +14,6 @@ spec:
         app: peer
         org: org1
     spec:
-      hostAliases:
-        - ip: "10.1.0.141"
-          hostnames:
-            - "fabric-tools"
-        - ip: "10.107.191.68"
-          hostnames:
-            - "tls-ca.hktfp.com"
-        - ip: "10.104.54.113"
-          hostnames:
-            - "rca.hktfp.com"
-        - ip: "10.109.90.181"
-          hostnames:
-            - "rca.etradeconnect.net"
-        - ip: "10.108.87.210"
-          hostnames:
-            - "rca.pbctfp.net"
-        - ip: "10.110.10.122"
-          hostnames:
-            - "orderer0.hktfp.com"
-        - ip: "10.101.107.162"
-          hostnames:
-            - "orderer1.hktfp.com"
-        - ip: "10.105.80.240"
-          hostnames:
-            - "orderer2.hktfp.com"
-        - ip: "10.101.85.41"
-          hostnames:
-            - "orderer3.hktfp.com"
-        - ip: "10.101.105.49"
-          hostnames:
-            - "orderer4.hktfp.com"
-        - ip: "10.111.189.116"
-          hostnames:
-            - "peer0.etradeconnect.net"
-        - ip: "127.0.0.1"
-          hostnames:
-            - "peer1.etradeconnect.net"
-        - ip: "10.111.251.178"
-          hostnames:
-            - "peer0.pbctfp.net"
-        - ip: "10.97.226.93"
-          hostnames:
-            - "peer1.pbctfp.net"
       volumes:
         - name: fabricfiles
           persistentVolumeClaim:
@@ -77,7 +34,7 @@ spec:
             - name: CORE_PEER_ADDRESSAUTODETECT
               value: "true"
             - name: CORE_PEER_ID
-              value: "peer1.etradeconnect.net:7151"
+              value: "peer1-etradeconnect:7151"
             - name: CORE_PEER_LISTENADDRESS
               value: 0.0.0.0:7151
             - name: CORE_PEER_EVENTS_ADDRESS
@@ -85,11 +42,11 @@ spec:
             - name: CORE_PEER_CHAINCODELISTENADDRESS
               value: 0.0.0.0:7152
             - name: CORE_PEER_GOSSIP_BOOTSTRAP
-              value: "peer1.etradeconnect.net:7151"
+              value: "peer1-etradeconnect:7151"
             - name: CORE_PEER_GOSSIP_ENDPOINT
-              value: "peer1.etradeconnect.net:7151"
+              value: "peer1-etradeconnect:7151"
             - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
-              value: "peer1.etradeconnect.net:7151"
+              value: "peer1-etradeconnect:7151"
             - name: CORE_PEER_GOSSIP_ORGLEADER
               value: "false"
             - name: CORE_PEER_GOSSIP_USELEADERELECTION
@@ -113,7 +70,7 @@ spec:
             - name: FABRIC_CFG_PATH
               value: /etc/hyperledger/fabric/
             - name: ORDERER_URL
-              value: orderer1.hktfp.com:7150
+              value: orderer1-hktfp:7150
           volumeMounts:
             - mountPath: /var/hyperledger/production
               name: production

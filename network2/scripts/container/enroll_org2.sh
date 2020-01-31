@@ -12,34 +12,34 @@ fabric-ca-client register -d --id.name admin-pbctfp.net --id.secret mEN6bpQW --i
 
 # Copy Trusted Root Cert of pbctfp to peer0
 mkdir -p /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/ca
-cp /var/artifacts/crypto-config/PbctfpMSP/ca/admin/msp/cacerts/0-0-0-0-6055.pem /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/ca/pbctfp.net-ca-cert.pem
+cp /var/artifacts/crypto-config/PbctfpMSP/ca/admin/msp/cacerts/0-0-0-0-6055.pem /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/ca/pbctfp-ca-cert.pem
 
 # Enroll peer0
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/ca/pbctfp.net-ca-cert.pem
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/ca/pbctfp-ca-cert.pem
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net
 fabric-ca-client enroll -d -u https://peer0.pbctfp.net:4PBPEkwt@0.0.0.0:6055
 
 # Copy Trusted Root Cert of pbctfp to peer1
 mkdir -p /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/assets/ca
-cp /var/artifacts/crypto-config/PbctfpMSP/ca/admin/msp/cacerts/0-0-0-0-6055.pem /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/assets/ca/pbctfp.net-ca-cert.pem
+cp /var/artifacts/crypto-config/PbctfpMSP/ca/admin/msp/cacerts/0-0-0-0-6055.pem /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/assets/ca/pbctfp-ca-cert.pem
 
 # Enroll peer1
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/assets/ca/pbctfp.net-ca-cert.pem
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/assets/ca/pbctfp-ca-cert.pem
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net
 fabric-ca-client enroll -d -u https://peer1.pbctfp.net:Q528SdnZ@0.0.0.0:6055
 
 # Enroll pbctfp's Admin
 export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/PbctfpMSP/admin
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/ca/pbctfp.net-ca-cert.pem
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/ca/pbctfp-ca-cert.pem
 export FABRIC_CA_CLIENT_MSPDIR=msp
 fabric-ca-client enroll -d -u https://admin-pbctfp.net:mEN6bpQW@0.0.0.0:6055
 
 # Copy admin cert to peer0
 mkdir -p /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/msp/admincerts
-cp /var/artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/msp/admincerts/pbctfp.net-admin-cert.pem
+cp /var/artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/msp/admincerts/pbctfp-admin-cert.pem
 # Copy admin cert to peer1
 mkdir -p /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/msp/admincerts
-cp /var/artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/msp/admincerts/pbctfp.net-admin-cert.pem
+cp /var/artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/msp/admincerts/pbctfp-admin-cert.pem
 
 # Rename admin key
 mv /var/artifacts/crypto-config/PbctfpMSP/admin/msp/keystore/* /var/artifacts/crypto-config/PbctfpMSP/admin/msp/keystore/key.pem

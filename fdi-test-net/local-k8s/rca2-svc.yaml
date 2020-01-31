@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: rca2
+  name: rca-pbctfp
   labels:
-    run: rca2
+    run: rca-pbctfp
 spec:
   type: ClusterIP
   selector:

@@ -5,9 +5,9 @@ version: 1.0.0
 client:
   organization: etc
   credentialStore:
-    path: ./assets/client-certs/hfc-kvs/etradeconnect.net
+    path: ./assets/client-certs/hfc-kvs/etradeconnect
     cryptoStore:
-      path: ./assets/client-certs/hfc-kvs/etradeconnect.net
+      path: ./assets/client-certs/hfc-kvs/etradeconnect
   connection:
     timeout:
       peer:
@@ -16,14 +16,14 @@ client:
 channels:
   eventstore:
     orderers:
-      - orderer0.hktfp.com
+      - orderer0-hktfp
     peers:
-      peer0.etradeconnect.net:
+      peer0-etradeconnect:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.etradeconnect.net:
+      peer1-etradeconnect:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -35,44 +35,44 @@ organizations:
   EtcMSP:
     mspid: EtcMSP
     peers:
-      - peer0.etradeconnect.net
-      - peer1.etradeconnect.net
+      - peer0-etradeconnect
+      - peer1-etradeconnect
     certificateAuthorities:
-      - rca.etradeconnect.net
+      - rca-etradeconnect
     adminPrivateKey:
       path: ../../network2/config/../artifacts/crypto-config/EtcMSP/admin/msp/keystore/key.pem
     signedCert:
       path: ../../network2/config/../artifacts/crypto-config/EtcMSP/admin/signcerts/cert.pem
 
 orderers:
-  orderer0.hktfp.com:
+  orderer0-hktfp:
     url: grpcs://localhost:7050
     grpcOptions:
-      ssl-target-name-override: orderer0.hktfp.com
+      ssl-target-name-override: orderer0-hktfp
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
       path: ../../network2/config/../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 
 peers:
-  peer0.etradeconnect.net:
+  peer0-etradeconnect:
     url: grpcs://localhost:7051
     eventUrl: grpcs://localhost:7053
     tlsCACerts:
       path: ../../network2/config/../artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.etradeconnect.net
-  peer1.etradeconnect.net:
+      ssl-target-name-override: peer0-etradeconnect
+  peer1-etradeconnect:
     url: grpcs://localhost:7151
     eventUrl: grpcs://localhost:7153
     tlsCACerts:
       path: ../../network2/config/../artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.etradeconnect.net
+      ssl-target-name-override: peer1-etradeconnect
 
 certificateAuthorities:
-  rca.etradeconnect.net:
+  rca-etradeconnect:
     url: https://localhost:6054
-    caName: rca.etradeconnect.net
+    caName: rca-etradeconnect
     tlsCACerts:
       path: ../../network2/config/../artifacts/crypto-config/EtcMSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
