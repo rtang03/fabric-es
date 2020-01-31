@@ -32,6 +32,8 @@ pipeline {
             agent { label 'master' }
             steps {
                 sh 'rm .dockerignore'
+                sh 'ls -lat'
+                sh 'ls -lat ./packages/authentication'
                 sh dockerBuild
             }
         }
