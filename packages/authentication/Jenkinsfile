@@ -1,18 +1,40 @@
 pipeline {
-    agent {
-        label 'master'
-        docker {
-            image 'build:5000/node8-build' 
-            args '-p 3000:3000'
-            registryUrl 'https://build:5000'
-            registryCredentialsId 'docker-registry-login'
-        }
+
+    environment {
+        registryCredential = 'docker-registry-login'
+        registryUrl = 'https://build:5000'
+        nodeImage = 'build:5000/node8-build'
+
+        yarnInstall = 'yarn install --ignore-engines'
+        yarnBuild = 'yarn build:authentication'
+
+        dockerBuild = 'docker build -t build:5000/authentication-server:latest packages/authentication'
     }
+
+    agent none
+
     stages {
-        stage('Build') { 
+        stage('Yarn Build') {
+            agent {
+                docker {
+                    image nodeImage
+                    args '-p 3000:3000'
+                    registryUrl registryUrl
+                    registryCredentialsId registryCredential
+                }
+            }
             steps {
-                sh 'yarn install --ignore-engines'
-                sh 'yarn build:authentication'
+                sh yarnInstall
+                sh yarnBuild
+            }
+        }
+        stage('Docker Build') {
+            agent { label 'master' }
+            steps {
+                sh 'rm .dockerignore'
+                sh 'ls -lat'
+                sh 'ls -lat ./packages/authentication'
+                sh dockerBuild
             }
         }
     }
