@@ -44,7 +44,7 @@ spec:
             - name: ORDERER_GENERAL_GENESISMETHOD
               value: file
             - name: ORDERER_GENERAL_GENESISFILE
-              value: /var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/genesis.block
+              value: /var/artifacts/genesis.block
             - name: ORDERER_GENERAL_TLS_ENABLED
               value: "true"
             - name: ORDERER_GENERAL_TLS_CERTIFICATE

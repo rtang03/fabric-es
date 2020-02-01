@@ -33,6 +33,8 @@ spec:
             - name: CORE_PEER_ADDRESSAUTODETECT
               value: "true"
             - name: CORE_PEER_ID
+              value: peer0-etradeconnect
+            - name: CORE_PEER_ADDRESS
               value: "peer0-etradeconnect:7051"
             - name: CORE_PEER_LISTENADDRESS
               value: 0.0.0.0:7051
