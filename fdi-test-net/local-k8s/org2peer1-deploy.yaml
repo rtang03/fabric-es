@@ -33,6 +33,8 @@ spec:
             - name: CORE_PEER_ADDRESSAUTODETECT
               value: "true"
             - name: CORE_PEER_ID
+              value: peer1-pbctfp
+            - name: CORE_PEER_ADDRESS
               value: "peer1-pbctfp:7351"
             - name: CORE_PEER_LISTENADDRESS
               value: 0.0.0.0:7351

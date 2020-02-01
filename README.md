@@ -13,7 +13,7 @@ After successful deployment, the development network will be created at `network
 will use it. The deployment is performed with shell script.
 
 _Bootstrap base network_  
-Bootstrap the base network, according to [`./network/READMD.md`](network/README.md)  
+Bootstrap the base network, according to [`./network/READMD.md`](_archive/network/README.md)  
 This will build the 2-orgs/4-peers/4-CA topology. And, register/enrol:
 
 - TLS CA admin
