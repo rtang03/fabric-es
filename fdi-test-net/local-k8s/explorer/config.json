@@ -1,0 +1,10 @@
+{
+  "network-configs": {
+    "dev": {
+      "name": "dev",
+      "profile": "/var/artifacts/explorer/app/fdi-connection.json",
+      "enableAuthentication": false
+    }
+  },
+  "license": "Apache-2.0"
+}
