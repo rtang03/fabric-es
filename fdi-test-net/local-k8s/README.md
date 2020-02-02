@@ -23,7 +23,7 @@ docker-compose down
 
 # copy crypto material from network2 to fdi-test-net, if not existed.
 # todo: should later refactor to not depend on network2. And, directly generated from ./parse.sh
-# cp ~/network2/artifact 
+# cp ~/network2/artifact
 ```
 
 ### Deploy services and update hostAliases
@@ -116,7 +116,7 @@ kubectl cp ./artifacts/crypto-config/ fabric-tools:/var/artifacts/
 kubectl cp ./configtx.yaml fabric-tools:/var/artifacts
 
 # generate genesis.block and channel.tx
-kubectl exec fabric-tools -- configtxgen -configPath=/var/artifacts -profile OrgsOrdererGenesis -outputBlock /var/artifacts/genesis.block -channelID ordererchannel 
+kubectl exec fabric-tools -- configtxgen -configPath=/var/artifacts -profile OrgsOrdererGenesis -outputBlock /var/artifacts/genesis.block -channelID ordererchannel
 kubectl exec fabric-tools -- configtxgen -configPath=/var/artifacts -profile OrgsChannel -outputCreateChannelTx /var/artifacts/channel.tx -channelID loanapp
 
 # generate anchor peer tx
@@ -176,8 +176,10 @@ kubectl get pods --o wide
 # rca2-5c5977c48f-w4mbk           1/1     Running   0          100m   10.1.0.155   docker-desktop   <none>           <none>
 # tls-ca-848fc7df7-4hrtt          1/1     Running   0          100m   10.1.0.152   docker-desktop   <none>           <none>
 
-# optionally, check the service is correctly bound to pod
-kubectl describe pod [pod-id]
+# optionally, validate launched deployment is correctly bound to service
+# check org1peer0
+pod=$(kubectl get pods | grep peer0-etradeconnect | awk '{print $1}')
+kubectl describe pod $pod
 
 # optionally, show logs
 kubectl logs -l name=org1peer0
@@ -216,7 +218,9 @@ export CORE_PEER_LOCALMSPID=EtcMSP
 export CORE_PEER_ADDRESS="peer0-etradeconnect:7051"
 export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp
 export CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
-peer channel fetch newest -o orderer0-hktfp:7050 -c loanapp --tls --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+peer channel fetch newest -o orderer0-hktfp:7050 -c loanapp --tls \
+ --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+
 peer channel join -b /var/artifacts/loanapp_newest.block
 
 # should output:
@@ -237,7 +241,7 @@ peer channel join -b /var/artifacts/loanapp_newest.block
 peer channel list
 
 # should output:
-# loanap
+# loanapp
 ```
 
 ### org2 join channel
@@ -316,20 +320,80 @@ export CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etr
 peer chaincode instantiate -C loanapp -n eventstore -v 1.0 -l node -c '{"Args":["eventstore:instantiate"]}' \
  -o orderer0-hktfp:7050 -P "OR ('EtcMSP.member','PbctfpMSP.member','HsbcMSP.member')" \
 --tls --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+```
+
+### Query
+
+```shell script
+export CORE_PEER_LOCALMSPID=EtcMSP
+export CORE_PEER_ADDRESS="peer0-etradeconnect:7051"
+export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+peer chaincode query -C loanapp -n eventstore -c '{"args":["eventstore:queryByEntityName", "dev_entity"]}'
 
 exit
 ```
+### Hyperledger Explorer
+```shell script
+kubectl exec fabric-tools -- mkdir -p explorer/db
+kubectl exec fabric-tools -- mkdir -p explorer/app
+kubectl cp ./explorer/run.sh fabric-tools:/var/artifacts/explorer/app
+kubectl cp ./explorer/createdb.sh fabric-tools:/var/artifacts/explorer/db
+kubectl exec fabric-tools -- wget -O /var/artifacts/explorer/db/explorerpg.sql https://raw.githubusercontent.com/hyperledger/blockchain-explorer/master/app/persistence/fabric/postgreSQL/db/explorerpg.sql
+kubectl exec fabric-tools -- wget -O /var/artifacts/explorer/db/updatepg.sql https://raw.githubusercontent.com/hyperledger/blockchain-explorer/master/app/persistence/fabric/postgreSQL/db/updatepg.sql
+kubectl exec fabric-tools -- chmod +x /var/artifacts/explorer/app/run.sh
+kubectl exec fabric-tools -- chmod +x /var/artifacts/explorer/app/createdb.sh
 
+# seed db for Hyperledger Explorer
+export db_hktfp=$(kubectl get pods | grep db-hktfp | awk '{print $1}')
+kubectl exec -it $db_hktfp -- bash
+cd /var/artifacts/explorer/db
+apk update
+apk add jq
+apk add nodejs
+apk add sudo
+rm -rf /var/cache/apk/*
+chmod +x ./createdb.sh
+./createdb.sh
+exit
+
+kubectl cp ./explorer/fdi-connection.json fabric-tools:/var/artifacts/explorer/app
+kubectl cp ./explorer/config.json fabric-tools:/var/artifacts/explorer/app
+kubectl apply -f explorer-deploy.yaml
+
+# WARNING: it expose to clusterIP via http://localhost:8080 is not available now
+```
+
+
+### Cleanup commands
+```shell script
+kubectl delete -f cli.yaml
+kubectl delete -f tls-ca-deploy.yaml
+kubectl delete -f rca0-deploy.yaml
+kubectl delete -f rca1-deploy.yaml
+kubectl delete -f rca2-deploy.yaml
+kubectl delete -f orderer0-deploy.yaml
+kubectl delete -f orderer1-deploy.yaml
+kubectl delete -f orderer2-deploy.yaml
+kubectl delete -f orderer3-deploy.yaml
+kubectl delete -f orderer4-deploy.yaml
+kubectl delete -f org1peer0-deploy.yaml
+kubectl delete -f org1peer1-deploy.yaml
+kubectl delete -f org2peer0-deploy.yaml
+kubectl delete -f org2peer1-deploy.yaml
+kubectl delete -f db0-deploy.yaml
+```
 ### Useful commands
 
 ```shell script
 chmod a+rx /fabric/* -R
-kubectl get pod [pod-id] --watch
-kubectl logs -f -l app=orderer --all-containers
 kubectl top pod POD_NAME --containers
+sudo lsof -i :5432 # find existing postgres instance
 ```
 
 ### Reference
 
 [Fabric raft deployment on k8s](https://medium.com/@oap.py/deploying-hyperledger-fabric-on-kubernetes-raft-consensus-685e3c4bb0ad)
 [sample project](https://github.com/feitnomore/hyperledger-fabric-kubernetes)
+[Hyperledger Explorer](https://github.com/hyperledger/blockchain-explorer/blob/master/examples)
+

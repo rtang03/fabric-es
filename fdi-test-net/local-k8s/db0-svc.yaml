@@ -1,15 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: org1-auth-db
+  name: db-hktfp
   labels:
-    run: org1-auth-db
+    run: db-hktfp
 spec:
   type: ClusterIP
   selector:
-    name: org1-auth-db
+    name: db0
   ports:
     - protocol: TCP
       port: 5432
-      targetPort: 5432
       name: pgsql
