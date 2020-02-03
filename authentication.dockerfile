@@ -12,6 +12,7 @@ RUN mkdir /home/node/app/ \
 WORKDIR /home/node/app
 
 COPY --chown=node:node ./*.json ./
+COPY --chown=node:node ./packages/authentication/entrypoint.sh ./packages/authentication/
 COPY --chown=node:node ./packages/authentication/*.json ./packages/authentication/
 COPY --chown=node:node ./packages/authentication/dist/ ./packages/authentication/dist/
 COPY --chown=node:node ./packages/authentication/.env.prod ./packages/authentication/.env
@@ -33,6 +34,7 @@ USER node
 
 WORKDIR /home/node/app/packages/authentication
 
+ENTRYPOINT ["/home/node/app/packages/authentication/entrypoint.sh"]
 CMD [ "node", "./dist/app.js"]
 
 EXPOSE 8080
