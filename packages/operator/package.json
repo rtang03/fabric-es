@@ -5,6 +5,7 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "yarn run clean && tsc",
+    "build:prod": "yarn run clean && tsc -p ./tsconfig.prod.json",
     "build-chaincode": "cd ../chaincode && yarn run build",
     "prepare-asset": "rimraf assets && mkdir -p ./assets/client-certs/hfc-kvs/org1",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",

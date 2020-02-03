@@ -5,6 +5,7 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "yarn run clean && tsc",
+    "build:prod": "yarn run clean && tsc -p ./tsconfig.prod.json",
     "clean": "rimraf dist",
     "service-docu": "node ./dist/service-doc.js",
     "service-loan": "node ./dist/service-loan.js",
