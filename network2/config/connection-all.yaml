@@ -139,7 +139,7 @@ certificateAuthorities:
         enrollSecret: rca-etradeconnect-adminPW
     httpOptions:
       verify: false
-    rca.pbctfp.net:
+  rca.pbctfp.net:
     url: https://localhost:6055
     caName: rca.pbctfp.net
     tlsCACerts:
@@ -149,7 +149,7 @@ certificateAuthorities:
         enrollSecret: rca-pboc-adminPW
     httpOptions:
       verify: false
-    rca.hsbc.com.hk:
+  rca.hsbc.com.hk:
     url: https://localhost:5054
     caName: rca.hsbc.com.hk
     tlsCACerts:
@@ -159,4 +159,3 @@ certificateAuthorities:
         enrollSecret: rca-hsbc-adminPW
     httpOptions:
       verify: false
-  
