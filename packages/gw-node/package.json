@@ -5,6 +5,7 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "yarn run clean && tsc",
+    "build:prod": "yarn run clean && tsc -p ./tsconfig.prod.json",
     "clean": "rimraf dist",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
     "generate-types-for-admin": "graphql-codegen --config src/generated/codegen.yml",
