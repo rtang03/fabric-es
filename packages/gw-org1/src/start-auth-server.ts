@@ -24,7 +24,9 @@ const uri = `http://localhost:${port}/graphql`;
   const authServer = await createAuthServer({
     dbConnection,
     rootAdminPassword: process.env.ADMIN_PASSWORD,
-    rootAdmin: process.env.ADMIN
+    rootAdmin: process.env.ADMIN,
+    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
+    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET
   });
   authServer.listen(port, async () => {
     console.log(`🚀  Auth server started at port: http://localhost:${port}`);
