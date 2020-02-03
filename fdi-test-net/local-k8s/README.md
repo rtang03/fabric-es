@@ -362,6 +362,9 @@ kubectl cp ./explorer/config.json fabric-tools:/var/artifacts/explorer/app
 kubectl apply -f explorer-deploy.yaml
 
 # WARNING: it expose to clusterIP via http://localhost:8080 is not available now
+# Temporily, use port forward
+kubectl port-forward deployment/explorer-app 8080:8080
+
 ```
 
 
