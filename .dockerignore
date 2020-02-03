@@ -1,6 +1,7 @@
 *
 !package.json
 !tsconfig.json
+!packages/authentication/entrypoint.sh
 !packages/authentication/package.json
 !packages/authentication/tsconfig.json
 !packages/authentication/dist
