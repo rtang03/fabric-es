@@ -16,7 +16,7 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@espresso/admin-tool": "1.0.0",
+    "@espresso/operator": "1.0.0",
     "@espresso/fabric-cqrs": "1.0.0",
     "dotenv": "^8.1.0",
     "fabric-network": "^1.4.4",

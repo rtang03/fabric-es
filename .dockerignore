@@ -24,5 +24,5 @@
 !packages/model-loan-private/dist
 !packages/gw-org1/package.json
 !packages/gw-org1/dist
-!packages/gw-org1/run.sh
+!deployments/gw-org-dev-net/build-artifacts/run.sh
 !packages/gw-org1/.env.prod

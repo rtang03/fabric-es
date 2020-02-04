@@ -27,7 +27,7 @@ COPY --chown=node:node ./packages/model-loan-private/dist ./packages/model-loan-
 COPY --chown=node:node ./packages/gw-org1/*.json ./packages/gw-org1/
 COPY --chown=node:node ./packages/gw-org1/dist ./packages/gw-org1/
 COPY --chown=node:node ./packages/gw-org1/.env.prod ./packages/gw-org1/.env
-COPY --chown=node:node ./packages/gw-org1/run.sh ./packages/gw-org1/
+COPY --chown=node:node deployments/gw-org-dev-net/build-artifacts/run.sh ./packages/gw-org1/
 
 WORKDIR /home/node/app/packages/gw-org1
 
