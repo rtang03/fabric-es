@@ -15,7 +15,13 @@ Prerequsites: docker and docker-compose
 
 ## Setup Fabric Network
 
-To start the network, run the start command.
+1. Before starting the network, ensure the binary directory is set correctly. Update the "_BIN_DIR" variable in [scripts/common.sh](scripts/common.sh)
+
+```console
+_BIN_DIR="/Users/xxx/Desktop/workspace/fabric-samples/bin"
+```
+
+2. To start the network, run the start command.
 (Note: It may asks you for the sudo password to perform the copy and cleanup jobs)
 
 ```bash
@@ -35,10 +41,11 @@ The network is started.
 
 ```bash
 # Note: Yarn install is required for the FIRST TIME only
-cd ../packages/chaincode
+cd ../../packages/chaincode
 yarn install
-cd ../../network2
 
+# Note: You need to ENSURE collecions.json is set correctly
+cd ../../deployments/boilerplate
 ./installcc.sh
 ```
 
@@ -53,11 +60,3 @@ If everything is good, we can clean up the environment. :tada::tada:
 ```
 
 ***
-
-## FAQ
-
-The binaries are in *MacOS* version. In case you are working with another OS and the executables in *bin* directory do not work, please download the hyperledger fabric sample code and copy the corresponding executables to the *bin* directory.
-
-```console
-curl -sSL http://bit.ly/2ysbOFE | bash -s
-```
