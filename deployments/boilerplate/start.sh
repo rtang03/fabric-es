@@ -1,7 +1,7 @@
 cp config/.env.boilerplate config/.env
 
-./cleanup.sh
-sleep 2
+#./cleanup.sh
+#sleep 2
 cd scripts
 ./up.sh
 ./gen_certs.sh
