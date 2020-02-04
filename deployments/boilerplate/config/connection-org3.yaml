@@ -1,13 +1,13 @@
 ---
-name: fdi_openplatform-hsbc
+name: openplatform_fabric-Org3MSP
 version: 1.0.0
 
 client:
-  organization: hsbc
+  organization: Org3MSP
   credentialStore:
-    path: ./assets/client-certs/hfc-kvs/hsbc.com.hk
+    path: ./assets/client-certs/hfc-kvs/org3.neworg.com
     cryptoStore:
-      path: ./assets/client-certs/hfc-kvs/hsbc.com.hk
+      path: ./assets/client-certs/hfc-kvs/org3.neworg.com
   connection:
     timeout:
       peer:
@@ -16,14 +16,14 @@ client:
 channels:
   eventstore:
     orderers:
-      - orderer0.hktfp.com
+      - orderer1.example.com
     peers:
-      peer0.hsbc.com.hk:
+      peer0.org3.neworg.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.hsbc.com.hk:
+      peer1.org3.neworg.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -32,51 +32,51 @@ channels:
       - eventstore:1.0
 
 organizations:
-  HsbcMSP:
-    mspid: HsbcMSP
+  Org3MSP:
+    mspid: Org3MSP
     peers:
-      - peer0.hsbc.com.hk
-      - peer1.hsbc.com.hk
+      - peer0.org3.neworg.com
+      - peer1.org3.neworg.com
     certificateAuthorities:
-      - rca.hsbc.com.hk
+      - rca.org3.neworg.com
     adminPrivateKey:
-      path: ../../network2/config/../artifacts/crypto-config/HsbcMSP/admin/msp/keystore/key.pem
+      path: ../../network2/config/../artifacts/Org3MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../network2/config/../artifacts/crypto-config/HsbcMSP/admin/msp/signcerts/cert.pem
+      path: ../../network2/config/../artifacts/Org3MSP/admin/msp/signcerts/cert.pem
 
 orderers:
-  orderer0.hktfp.com:
+  orderer1.example.com:
     url: grpcs://localhost:7050
     grpcOptions:
-      ssl-target-name-override: orderer0.hktfp.com
+      ssl-target-name-override: orderer1.example.com
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../network2/config/../artifacts/OrdererMSP/orderer1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 peers:
-  peer0.hsbc.com.hk:
-    url: grpcs://localhost:7451
-    eventUrl: grpcs://localhost:7453
+  peer0.org3.neworg.com:
+    url: grpcs://localhost:11051
+    eventUrl: grpcs://localhost:11053
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../network2/config/../artifacts/Org3MSP/peer0.org3.neworg.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.hsbc.com.hk
-  peer1.hsbc.com.hk:
-    url: grpcs://localhost:7551
-    eventUrl: grpcs://localhost:7553
+      ssl-target-name-override: peer0.org3.neworg.com
+  peer1.org3.neworg.com:
+    url: grpcs://localhost:12051
+    eventUrl: grpcs://localhost:12053
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../network2/config/../artifacts/Org3MSP/peer1.org3.neworg.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.hsbc.com.hk
+      ssl-target-name-override: peer1.org3.neworg.com
 
 certificateAuthorities:
-  rca.hsbc.com.hk:
-    url: https://localhost:5054
-    caName: rca.hsbc.com.hk
+  rca.org3.neworg.com:
+    url: https://localhost:5056
+    caName: rca.org3.neworg.com
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/HsbcMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../network2/config/../artifacts/Org3MSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
-      - enrollId: rca-hsbc-admin
-        enrollSecret: rca-hsbc-adminPW
+      - enrollId: rca-org3-admin
+        enrollSecret: rca-org3-adminPW
     httpOptions:
       verify: false

@@ -24,7 +24,7 @@ _BIN_DIR="/Users/xxx/Desktop/workspace/fabric-samples/bin"
 2. To start the network, run the start command.
 (Note: It may asks you for the sudo password to perform the copy and cleanup jobs)
 
-```bash
+```shell script
 ./start.sh
 ```
 
@@ -39,7 +39,7 @@ The network is started.
 
 ## Install and instaniate chaincode
 
-```bash
+```shell script
 # Note: Yarn install is required for the FIRST TIME only
 cd ../../packages/chaincode
 yarn install
@@ -55,7 +55,7 @@ cd ../../deployments/boilerplate
 
 If everything is good, we can clean up the environment. :tada::tada:
 
-```bash
+```shell script
 ./cleanup.sh
 ```
 
