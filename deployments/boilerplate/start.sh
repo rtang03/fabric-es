@@ -1,3 +1,5 @@
+cp config/.env.boilerplate config/.env
+
 ./cleanup.sh
 sleep 2
 cd scripts
