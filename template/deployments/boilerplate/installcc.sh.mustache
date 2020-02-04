@@ -1,0 +1,17 @@
+cd ../../packages/chaincode
+# yarn install
+yarn build
+
+# Install chaincode
+{{#orgs.peer}}
+{{#peers.endpoints}}
+docker exec cli{{network.host-delimiter}}{{domain}} sh -c "/setup/install_chaincode.sh {{domain}} {{-}} eventstore 1.0 {{port}} {{{admin-cert-path}}} {{{cert-path}}}"
+docker exec cli{{network.host-delimiter}}{{domain}} sh -c "/setup/install_chaincode.sh {{domain}} {{-}} privatedata 1.0 {{port}} {{{admin-cert-path}}} {{{cert-path}}}"
+{{/peers.endpoints}}
+{{/orgs.peer}}
+
+# Instantiate chaincode
+docker exec cli{{network.host-delimiter}}{{orgs.peer.0.domain}} sh -c "/setup/instantiate_chaincode_org1.sh"
+
+# Invoke chaincode
+docker exec cli{{network.host-delimiter}}{{orgs.peer.0.domain}} sh -c "/setup/invoke_chaincode_org1.sh"
