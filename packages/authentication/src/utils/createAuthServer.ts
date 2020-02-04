@@ -20,6 +20,7 @@ export const createAuthServer: (option: {
   oauthOptions?: any;
   rootAdmin: string;
   rootAdminPassword: string;
+  // todo: make it non-optional
   accessTokenSecret?: string;
   refreshTokenSecret?: string;
 }) => Promise<Express> = ({

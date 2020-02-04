@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "build:authentication": "lerna run build:prod --scope=@espresso/authentication",
-    "build:lib": "lerna run build:prod --scope={@espresso/fabric-cqrs,@espresso/operator,@espresso/gw-node}",
+    "build:lib": "lerna run build --scope={@espresso/fabric-cqrs,@espresso/operator,@espresso/gw-node}",
     "build:gw-org1": "lerna run build:prod --scope={@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/gw-org1}",
     "build:gw-org2": "lerna run build:prod --scope={@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/gw-org2}"
   },
