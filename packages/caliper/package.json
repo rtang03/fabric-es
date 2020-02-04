@@ -17,8 +17,8 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@espresso/admin-tool": "1.0.0",
     "@espresso/fabric-cqrs": "1.0.0",
+    "@espresso/operator":  "1.0.0",
     "@hyperledger/caliper-cli": "^0.2.0",
     "dotenv": "^8.1.0",
     "fabric-ca-client": "^1.4.4",
