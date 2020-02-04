@@ -77,24 +77,6 @@ services:
             - ../scripts/container:/setup
             - ../artifacts:/tmp/hyperledger
 
-#    rca.org3.neworg.com:
-#        extends:
-#            file: nodebase.yaml
-#            service: ca
-#        container_name: rca.org3.neworg.com
-#        restart: always
-#        environment:
-#            - HYPERLEDGER_VOL=/tmp/hyperledger
-#            - FABRIC_CA_SERVER_HOME=/tmp/hyperledger/rca.org3.neworg.com/crypto
-#            - FABRIC_CA_SERVER_CSR_CN=rca.org3.neworg.com
-#            - FABRIC_CA_SERVER_CA_NAME=rca.org3.neworg.com
-#        ports:
-#            - 5056:5056
-#        command: sh -c 'fabric-ca-server start -d -b rca-org3-admin:rca-org3-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 5056'
-#        volumes:
-#            - ../scripts/container:/setup
-#            - ../artifacts:/tmp/hyperledger
-
     peer0.org1.example.com:
         extends:
             file: nodebase.yaml
