@@ -6,6 +6,11 @@
   "scripts": {
     "build": "yarn run clean && tsc",
     "build:prod": "yarn run clean && tsc -p ./tsconfig.prod.json",
+    "package": "yarn run build:cleanup && yarn run cp:package.json && yarn run cp:env && yarn run cp:dist",
+    "build:cleanup": "rimraf ../../.build/packages/gw-org1 && mkdir -p ../../.build/packages/gw-org1",
+    "cp:package.json": "cp ./package.json ../../.build/packages/gw-org1/",
+    "cp:dist": "cp -R ./dist ../../.build/packages/gw-org1/",
+    "cp:env": "cp ./.env.prod ../../.build/packages/gw-org1/.env",
     "clean": "rimraf dist",
     "service-docu": "node ./dist/service-doc.js",
     "service-loan": "node ./dist/service-loan.js",

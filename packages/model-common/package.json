@@ -6,6 +6,10 @@
   "scripts": {
     "build": "yarn run clean && tsc",
     "build:prod": "yarn run clean && tsc -p ./tsconfig.prod.json",
+    "package": "yarn run build:cleanup && yarn run cp:package.json && yarn run cp:dist",
+    "build:cleanup": "rimraf ../../.build/packages/model-common && mkdir -p ../../.build/packages/model-common",
+    "cp:package.json": "cp ./package.json ../../.build/packages/model-common/",
+    "cp:dist": "cp -R ./dist ../../.build/packages/model-common/",
     "test": "yarn build && ./node_modules/.bin/jest unit.test",
     "clean": "rimraf dist",
     "gen-resolvers-type": "graphql-codegen --config codegen.yml"
