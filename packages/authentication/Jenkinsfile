@@ -39,8 +39,9 @@ pipeline {
             agent { label 'master' }
             steps {
                 withCredentials([usernamePassword(credentialsId: registryCredential, passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-                sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword} build:5000"
-                sh 'docker push ' + imgName
+                    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword} build:5000"
+                    sh 'docker push ' + imgName
+                }
             }
         }
     }
