@@ -7,9 +7,9 @@ import {
   Reducer,
   Repository
 } from '@espresso/fabric-cqrs';
-import { DataSrc } from '@espresso/model-common';
 import { ApolloServer } from 'apollo-server';
 import Client from 'fabric-client';
+import { DataSrc } from '..';
 
 export const createService = async ({
   enrollmentId,

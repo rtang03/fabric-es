@@ -10,8 +10,8 @@ const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI || 'http://loca
       { name: 'user',     url: `http://localhost:${process.env.SERVICE_USER_PORT}/graphql` },
       { name: 'loan',     url: `http://localhost:${process.env.SERVICE_LOAN_PORT}/graphql` },
       { name: 'document', url: `http://localhost:${process.env.SERVICE_DOCUMENT_PORT}/graphql` },
+      { name: 'loanDetails',  url: `http://localhost:14034/graphql` },
       { name: 'docContents',  url: `http://localhost:14035/graphql` },
-      { name: 'laonDetails',  url: `http://localhost:${process.env.SERVICE_PRIVATE_PORT}/graphql` },
       { name: 'admin', url: `http://localhost:${process.env.ADMINISTRATOR_PORT}/graphql` }
     ],
     authenticationCheck,

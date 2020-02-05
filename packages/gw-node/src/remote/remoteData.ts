@@ -1,8 +1,8 @@
 export interface RemoteData {
-  user_id?: string,
-  is_admin?: string,
-  client_id?: string,
-  enrollmentId?: string,
+  user_id?: string;
+  is_admin?: string;
+  client_id?: string;
+  enrollmentId?: string;
   remoteData: (operation: {
     uri: string;
     query: any;
