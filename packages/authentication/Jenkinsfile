@@ -11,7 +11,7 @@ pipeline {
         yarnBuild = 'yarn build:authentication'
 
         imgName = 'build:5000/${baseName}:latest'
-        dockerBuild = 'docker build -t auth-server -f ${baseName}.dockerfile .'
+        dockerBuild = 'docker build -t ${imgName} -f ${baseName}.dockerfile .'
 
         dockerhubCredential = 'dockerhub-login'
         imgNameHub = 'hktfp5/${baseName}:latest'
