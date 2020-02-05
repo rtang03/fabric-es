@@ -1,20 +1,18 @@
 pipeline {
 
     environment {
-        baseName = 'gw-org2'
-
         registryCredential = 'docker-registry-login'
         registryUrl = 'https://build:5000'
         nodeImage = 'build:5000/node8-build'
 
         yarnInstall = 'yarn install --ignore-engines'
-        yarnBuild = 'yarn build:${baseName}'
+        yarnBuild = 'yarn build:gw-org2'
 
-        imgName = 'build:5000/${baseName}:latest'
-        dockerBuild = 'docker build -t ${imgName} -f ${baseName}.dockerfile .'
+        imgName = 'build:5000/gw-org2:latest'
+        dockerBuild = 'docker build -t ${imgName} -f gw-org2.dockerfile .'
 
         dockerhubCredential = 'dockerhub-login'
-        imgNameHub = 'hktfp5/${baseName}:latest'
+        imgNameHub = 'hktfp5/gw-org2:latest'
     }
 
     agent none
