@@ -10,20 +10,3 @@
 
 export * from './doc-contents';
 export * from './loan-details';
-export * from './schema';
-export * from './resolvers';
-export * from './queries';
-export * from './remotes';
-export interface RemoteData {
-  user_id?: string,
-  is_admin?: string,
-  client_id?: string,
-  enrollmentId?: string,
-  remoteData: (operation: {
-    query: any;
-    context?: any;
-    operationName?: string;
-    variables?: any;
-    token?: string;
-  }) => Promise<any>;
-}

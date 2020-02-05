@@ -1,72 +1,72 @@
 # Import common.sh
 . `pwd`/common.sh
 
-# hktfp
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HktfpMSP/msp/admincerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HktfpMSP/msp/cacerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HktfpMSP/msp/tlscacerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HktfpMSP/msp/users
+# OrdererOrg
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/OrdererMSP/msp/admincerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/OrdererMSP/msp/cacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/OrdererMSP/msp/tlscacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/OrdererMSP/msp/users
 
-sudo cp  ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer0.hktfp.com/msp/admincerts/hktfp.com-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/HktfpMSP/msp/admincerts
-sudo cp  ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer0.hktfp.com/assets/ca/hktfp.com-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/HktfpMSP/msp/cacerts
-sudo cp  ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer0.hktfp.com/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/HktfpMSP/msp/tlscacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer1.example.com/msp/admincerts/example.com-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/OrdererMSP/msp/admincerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer1.example.com/assets/ca/example.com-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/OrdererMSP/msp/cacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer1.example.com/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/OrdererMSP/msp/tlscacerts
 
-# etc
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/EtcMSP/msp/admincerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/EtcMSP/msp/cacerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/EtcMSP/msp/tlscacerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/EtcMSP/msp/users
+# Org1MSP
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/Org1MSP/msp/admincerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/Org1MSP/msp/cacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/Org1MSP/msp/tlscacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/Org1MSP/msp/users
 
-sudo cp  ${_CRYPTO_CONFIG_DIR}/EtcMSP/peer0.etradeconnect.net/msp/admincerts/etradeconnect.net-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/EtcMSP/msp/admincerts
-sudo cp  ${_CRYPTO_CONFIG_DIR}/EtcMSP/peer0.etradeconnect.net/assets/ca/etradeconnect.net-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/EtcMSP/msp/cacerts
-sudo cp  ${_CRYPTO_CONFIG_DIR}/EtcMSP/peer0.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/EtcMSP/msp/tlscacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/Org1MSP/peer0.org1.example.com/msp/admincerts/org1.example.com-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/Org1MSP/msp/admincerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/Org1MSP/peer0.org1.example.com/assets/ca/org1.example.com-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/Org1MSP/msp/cacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/Org1MSP/peer0.org1.example.com/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/Org1MSP/msp/tlscacerts
 
-# pbctfp
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/msp/admincerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/msp/cacerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/msp/tlscacerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/msp/users
+# Org2MSP
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/Org2MSP/msp/admincerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/Org2MSP/msp/cacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/Org2MSP/msp/tlscacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/Org2MSP/msp/users
 
-sudo cp  ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/peer0.pbctfp.net/msp/admincerts/pbctfp.net-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/msp/admincerts
-sudo cp  ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/peer0.pbctfp.net/assets/ca/pbctfp.net-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/msp/cacerts
-sudo cp  ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/peer0.pbctfp.net/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/msp/tlscacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/Org2MSP/peer0.org2.example.com/msp/admincerts/org2.example.com-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/Org2MSP/msp/admincerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/Org2MSP/peer0.org2.example.com/assets/ca/org2.example.com-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/Org2MSP/msp/cacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/Org2MSP/peer0.org2.example.com/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/Org2MSP/msp/tlscacerts
 
-# hsbc
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/admincerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/cacerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/tlscacerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/users
+# Org3MSP
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/Org3MSP/msp/admincerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/Org3MSP/msp/cacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/Org3MSP/msp/tlscacerts
+sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/Org3MSP/msp/users
 
-sudo cp  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/msp/admincerts/hsbc.com.hk-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/admincerts
-sudo cp  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets/ca/hsbc.com.hk-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/cacerts
-sudo cp  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/tlscacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/Org3MSP/peer0.org3.neworg.com/msp/admincerts/org3.neworg.com-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/Org3MSP/msp/admincerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/Org3MSP/peer0.org3.neworg.com/assets/ca/org3.neworg.com-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/Org3MSP/msp/cacerts
+sudo cp  ${_CRYPTO_CONFIG_DIR}/Org3MSP/peer0.org3.neworg.com/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/Org3MSP/msp/tlscacerts
 
 # Ubuntu requires ownership of orderer certs
-sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer0.hktfp.com
-sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer1.hktfp.com
-sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer2.hktfp.com
-sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer3.hktfp.com
-sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer4.hktfp.com
+sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer1.example.com
+sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer2.example.com
+sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer3.example.com
+sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer4.example.com
+sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer5.example.com
 
 cd ${_FABRIC_DIR}; 
 export FABRIC_CFG_PATH=${PWD}
-${_FABRIC_DIR}/../bin/configtxgen -profile OrgsOrdererGenesis -outputBlock genesis.block -channelID ordererchannel
-${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputCreateChannelTx channel.tx -channelID loanapp
+${_FABRIC_DIR}/../bin/configtxgen -profile OrgsOrdererGenesis -outputBlock genesis.block -channelID syschannel
+${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputCreateChannelTx channel.tx -channelID eventstore
 
-sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer0.hktfp.com
-sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer1.hktfp.com
-sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer2.hktfp.com
-sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer3.hktfp.com
-sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer4.hktfp.com
-sudo mv channel.tx       ${_CRYPTO_CONFIG_DIR}/EtcMSP/peer0.etradeconnect.net/assets
+sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer1.example.com
+sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer2.example.com
+sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer3.example.com
+sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer4.example.com
+sudo cp genesis.block    ${_CRYPTO_CONFIG_DIR}/OrdererMSP/orderer5.example.com
+sudo mv channel.tx       ${_CRYPTO_CONFIG_DIR}/Org1MSP/peer0.org1.example.com/assets
 
 # Update Anchor peer
-${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate etcAnchors.tx -channelID loanapp -asOrg etc
-mkdir -p ${_CRYPTO_CONFIG_DIR}/EtcMSP/peer0.etradeconnect.net/assets
-sudo mv etcAnchors.tx ${_CRYPTO_CONFIG_DIR}/EtcMSP/peer0.etradeconnect.net/assets
-${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate pbctfpAnchors.tx -channelID loanapp -asOrg pbctfp
-mkdir -p ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/peer0.pbctfp.net/assets
-sudo mv pbctfpAnchors.tx ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/peer0.pbctfp.net/assets
-${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate hsbcAnchors.tx -channelID loanapp -asOrg hsbc
-mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets
-sudo mv hsbcAnchors.tx ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets
+${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate Org1MSPAnchors.tx -channelID eventstore -asOrg Org1MSP
+mkdir -p ${_CRYPTO_CONFIG_DIR}/Org1MSP/peer0.org1.example.com/assets
+sudo mv Org1MSPAnchors.tx ${_CRYPTO_CONFIG_DIR}/Org1MSP/peer0.org1.example.com/assets
+${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate Org2MSPAnchors.tx -channelID eventstore -asOrg Org2MSP
+mkdir -p ${_CRYPTO_CONFIG_DIR}/Org2MSP/peer0.org2.example.com/assets
+sudo mv Org2MSPAnchors.tx ${_CRYPTO_CONFIG_DIR}/Org2MSP/peer0.org2.example.com/assets
+${_FABRIC_DIR}/../bin/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate Org3MSPAnchors.tx -channelID eventstore -asOrg Org3MSP
+mkdir -p ${_CRYPTO_CONFIG_DIR}/Org3MSP/peer0.org3.neworg.com/assets
+sudo mv Org3MSPAnchors.tx ${_CRYPTO_CONFIG_DIR}/Org3MSP/peer0.org3.neworg.com/assets
