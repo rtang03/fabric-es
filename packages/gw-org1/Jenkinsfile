@@ -1,14 +1,14 @@
 pipeline {
 
     environment {
-        baseName = 'auth-server'
+        baseName = 'gw-org1'
 
         registryCredential = 'docker-registry-login'
         registryUrl = 'https://build:5000'
         nodeImage = 'build:5000/node8-build'
 
         yarnInstall = 'yarn install --ignore-engines'
-        yarnBuild = 'yarn build:authentication'
+        yarnBuild = 'yarn build:${baseName}'
 
         imgName = 'build:5000/${baseName}:latest'
         dockerBuild = 'docker build -t ${imgName} -f ${baseName}.dockerfile .'
