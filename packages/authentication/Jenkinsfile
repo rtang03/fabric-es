@@ -1,18 +1,21 @@
 pipeline {
 
     environment {
+        baseName = 'auth-server'
+
+        regServer = 'build'
         registryCredential = 'docker-registry-login'
-        registryUrl = 'https://build:5000'
-        nodeImage = 'build:5000/node8-build'
+        registryUrl = 'https://${regServer}:5000'
+        nodeImage = '${regServer}:5000/node8-build'
 
         yarnInstall = 'yarn install --ignore-engines'
         yarnBuild = 'yarn build:authentication'
 
-        imgName = 'build:5000/auth-server:latest'
-        dockerBuild = 'docker build -t ${imgName} -f auth-server.dockerfile .'
+        imgName = '${regServer}:5000/${baseName}:latest'
+        dockerBuild = 'docker build -t ${regServer}:5000/${baseName}:latest -f ${baseName}.dockerfile .'
 
         dockerhubCredential = 'dockerhub-login'
-        imgNameHub = 'hktfp5/auth-server:latest'
+        imgNameHub = 'hktfp5/${baseName}:latest'
     }
 
     agent none
@@ -42,7 +45,7 @@ pipeline {
             agent { label 'master' }
             steps {
                 withCredentials([usernamePassword(credentialsId: registryCredential, passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-                    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword} build:5000"
+                    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword} ${regServer}:5000"
                     sh "docker push ${imgName}"
                 }
             }
