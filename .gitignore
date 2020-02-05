@@ -74,7 +74,6 @@ wallet/
 
 docs
 
-NOTE.md
 authentication-server/.env
 artifacts
 .output
