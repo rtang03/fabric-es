@@ -8,7 +8,8 @@ pipeline {
         yarnInstall = 'yarn install --ignore-engines'
         yarnBuild = 'yarn build:authentication'
 
-        dockerBuild = 'docker build -t build:5000/authentication-server:latest -f authentication.dockerfile .'
+        imgName = 'build:5000/authentication-server:latest'
+        dockerBuild = 'docker build -t ' + imgName + ' -f authentication.dockerfile .'
     }
 
     agent none
@@ -32,6 +33,14 @@ pipeline {
             agent { label 'master' }
             steps {
                 sh dockerBuild
+            }
+        }
+        stage('Docker Push') {
+            agent { label 'master' }
+            steps {
+                withCredentials([usernamePassword(credentialsId: registryCredential, passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+                sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword} build:5000"
+                sh 'docker push ' + imgName
             }
         }
     }
