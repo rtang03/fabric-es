@@ -6,6 +6,10 @@
   "scripts": {
     "build": "yarn run clean && tsc",
     "build:prod": "yarn run clean && tsc -p ./tsconfig.prod.json",
+    "package": "yarn run build:cleanup && yarn run cp:package.json && yarn run cp:dist",
+    "build:cleanup": "rimraf ../../.build/packages/fabric-cqrs && mkdir -p ../../.build/packages/fabric-cqrs",
+    "cp:package.json": "cp ./package.json ../../.build/packages/fabric-cqrs/",
+    "cp:dist": "cp -R ./dist ../../.build/packages/fabric-cqrs/",
     "clean": "rimraf dist",
     "test:account": "jest account.unit.test",
     "test:service.integration": "jest service.integration.test",

@@ -4,7 +4,7 @@
 export { createGateway } from './utils/createGateway';
 export { createService } from './utils/createService';
 export { logger } from './utils/logger';
-export { createAdminService } from './admin/createAdminService';
+// export { createAdminService } from './admin/createAdminService';
 export { createAdminServiceV2 } from './admin/createAdminServiceV2';
 export { createRemoteService } from './remote/createRemoteService';
 export { RemoteData } from './remote/remoteData';

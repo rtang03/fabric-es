@@ -77,3 +77,4 @@ docs
 authentication-server/.env
 artifacts
 .output
+.build

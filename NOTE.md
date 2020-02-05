@@ -1,7 +1,7 @@
 ### Instruction
 ```shell script
 # build it locally
-docker build --no-cache -f ./authentication.dockerfile -t hktfp5/auth-server:1.0 .
+DOCKER_BUILD=1 docker build --no-cache -f ./auth-server.dockerfile -t hktfp5/auth-server:1.0 .
 
 # Using Google Cloud SQL
 docker run -e TYPEORM_HOST=35.239.77.51 \
@@ -34,4 +34,7 @@ Step 4: Whitelist your IP
 Note: currently, I have create only one database `auth_db` instance
 
 ### Run Auth Server  
-open http://localhost:3900  
+open http://localhost:3900/graphql
+
+
+DOCKER_BUILD=1 docker build --no-cache -f ./gw-org1.dockerfile -t espresso/gw-org1:1.0 .
