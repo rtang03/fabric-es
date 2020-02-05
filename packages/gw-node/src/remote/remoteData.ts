@@ -4,6 +4,7 @@ export interface RemoteData {
   client_id?: string,
   enrollmentId?: string,
   remoteData: (operation: {
+    uri: string;
     query: any;
     context?: any;
     operationName?: string;

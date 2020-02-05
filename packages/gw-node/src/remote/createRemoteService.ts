@@ -11,10 +11,9 @@ const fetch = nodeFetch as any;
 
 export const createRemoteService: (option: {
   name: string;
-  uri: string;
   typeDefs: any;
   resolvers: any;
-}) => any = async ({ name, uri, typeDefs, resolvers }) => {
+}) => any = async ({ name, typeDefs, resolvers }) => {
   const logger = Client.getLogger('createRemoteService');
 
   logger.info(`♨️♨️ Bootstraping Remote Data API - ${name} ♨️♨️`);
@@ -30,7 +29,7 @@ export const createRemoteService: (option: {
       is_admin: headers.is_admin as string,
       client_id: headers.client_id as string,
       enrollmentId: headers.user_id as string,
-      remoteData: ({ query, variables, context, operationName, token }) =>
+      remoteData: ({ uri, query, variables, context, operationName, token }) =>
         makePromise(
           execute(
             new HttpLink({

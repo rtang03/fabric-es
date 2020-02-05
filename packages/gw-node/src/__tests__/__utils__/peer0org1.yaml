@@ -1,13 +1,13 @@
 ---
-name: fdi_openplatform-etc
+name: openplatform_fabric-Org1MSP
 version: 1.0.0
 
 client:
-  organization: etc
+  organization: Org1MSP
   credentialStore:
-    path: ./assets/client-certs/hfc-kvs/etradeconnect.net
+    path: ./assets/client-certs/hfc-kvs/org1.example.com
     cryptoStore:
-      path: ./assets/client-certs/hfc-kvs/etradeconnect.net
+      path: ./assets/client-certs/hfc-kvs/org1.example.com
   connection:
     timeout:
       peer:
@@ -16,14 +16,14 @@ client:
 channels:
   eventstore:
     orderers:
-      - orderer0.hktfp.com
+      - orderer1.example.com
     peers:
-      peer0.etradeconnect.net:
+      peer0.org1.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.etradeconnect.net:
+      peer1.org1.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -32,51 +32,51 @@ channels:
       - eventstore:1.0
 
 organizations:
-  EtcMSP:
-    mspid: EtcMSP
+  Org1MSP:
+    mspid: Org1MSP
     peers:
-      - peer0.etradeconnect.net
-      - peer1.etradeconnect.net
+      - peer0.org1.example.com
+      - peer1.org1.example.com
     certificateAuthorities:
-      - rca.etradeconnect.net
+      - rca.org1.example.com
     adminPrivateKey:
-      path: ../../network2/config/../artifacts/crypto-config/EtcMSP/admin/msp/keystore/key.pem
+      path: ../../network2/config/../artifacts/Org1MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../network2/config/../artifacts/crypto-config/EtcMSP/admin/signcerts/cert.pem
+      path: ../../network2/config/../artifacts/Org1MSP/admin/signcerts/cert.pem
 
 orderers:
-  orderer0.hktfp.com:
+  orderer1.example.com:
     url: grpcs://localhost:7050
     grpcOptions:
-      ssl-target-name-override: orderer0.hktfp.com
+      ssl-target-name-override: orderer1.example.com
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../network2/config/../artifacts/OrdererMSP/orderer1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 peers:
-  peer0.etradeconnect.net:
+  peer0.org1.example.com:
     url: grpcs://localhost:7051
     eventUrl: grpcs://localhost:7053
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../network2/config/../artifacts/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.etradeconnect.net
-  peer1.etradeconnect.net:
-    url: grpcs://localhost:7151
-    eventUrl: grpcs://localhost:7153
+      ssl-target-name-override: peer0.org1.example.com
+  peer1.org1.example.com:
+    url: grpcs://localhost:8051
+    eventUrl: grpcs://localhost:8053
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../network2/config/../artifacts/Org1MSP/peer1.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.etradeconnect.net
+      ssl-target-name-override: peer1.org1.example.com
 
 certificateAuthorities:
-  rca.etradeconnect.net:
-    url: https://localhost:6054
-    caName: rca.etradeconnect.net
+  rca.org1.example.com:
+    url: https://localhost:5054
+    caName: rca.org1.example.com
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/EtcMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../network2/config/../artifacts/Org1MSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
-      - enrollId: rca-etradeconnect-admin
-        enrollSecret: rca-etradeconnect-adminPW
+      - enrollId: rca-org1-admin
+        enrollSecret: rca-org1-adminPW
     httpOptions:
       verify: false

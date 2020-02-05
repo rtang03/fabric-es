@@ -3,7 +3,6 @@ import gql from 'graphql-tag';
 export const typeDefs = gql`
   type Query {
     getLoanDetailsById(loanId: String!): LoanDetails
-    getDocContentsById(documentId: String!): DocContents
   }
 
   type Mutation {
@@ -19,7 +18,7 @@ export const typeDefs = gql`
       requestedAmt: Float!,
       approvedAmt: Float,
       comment: String
-    ): LocalResponse
+    ): LoanDetailsResp
     updateLoanDetails(
       userId: String!,
       loanId: String!,
@@ -32,9 +31,7 @@ export const typeDefs = gql`
       requestedAmt: Float,
       approvedAmt: Float,
       comment: String
-    ): [LocalResponse]!
-    createDataDocContents(userId: String!, documentId: String!, body: String!): LocalResponse
-    createFileDocContents(userId: String!, documentId: String!, format: String!, link: String!): LocalResponse
+    ): [LoanDetailsResp]!
   }
 
   ###
@@ -82,34 +79,11 @@ export const typeDefs = gql`
   }
 
   ###
-  # Local Type: Doc Contents
-  ###
-  type DocContents @key(fields: "documentId") {
-    documentId: String!
-    content: Docs!
-    timestamp: String!
-    document: Document
-  }
-
-  union Docs = Data | File
-
-  # Free style document content as structural data
-  type Data {
-    body: String!
-  }
-
-  # Note: this File entity is Private Data, but the uploaded files themselves are entirly off-chain
-  type File {
-    format: String!
-    link: String!
-  }
-
-  ###
   # Mutation responses
   ###
-  union LocalResponse = LocalCommit | LocalError
+  union LoanDetailsResp = LoanDetailsCommit | LoanDetailsError
 
-  type LocalCommit {
+  type LoanDetailsCommit {
     id: String
     entityName: String
     version: Int
@@ -118,7 +92,7 @@ export const typeDefs = gql`
     entityId: String
   }
 
-  type LocalError {
+  type LoanDetailsError {
     message: String!
     stack: String
   }
@@ -129,10 +103,5 @@ export const typeDefs = gql`
   extend type Loan @key(fields: "loanId") {
     loanId: String! @external
     details: LoanDetails
-  }
-
-  extend type Document @key(fields: "documentId") {
-    documentId: String! @external
-    contents: DocContents
   }
 `;

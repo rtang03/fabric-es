@@ -54,10 +54,9 @@ export const createService = async ({
       }> = [];
 
       async function create(): Promise<ApolloServer> {
+        const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
         if (!isPrivate) {
-          logger.info(
-            `♨️♨️  Starting micro-service for on-chain entity '${defaultEntityName}'...`
-          );
+          logger.info(`♨️♨️  Starting micro-service for on-chain entity '${defaultEntityName}'...`);
           await subscribeHub();
 
           logger.info('subscribe event hub complete');
@@ -68,14 +67,12 @@ export const createService = async ({
           });
 
           logger.info(`reconcile complete: ${defaultEntityName}`);
-
-        } else
-          logger.info(
-            `♨️♨️  Starting micro-service for off-chain private data...`
-          );
+        } else {
+          logger.info(`♨️♨️  Starting micro-service for off-chain private data...`);
+        }
 
         return new ApolloServer({
-          schema: buildFederatedSchema([{ typeDefs, resolvers }]),
+          schema,
           playground: true,
           dataSources: () =>
             repositories.reduce(
