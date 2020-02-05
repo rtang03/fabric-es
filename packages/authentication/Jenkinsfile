@@ -1,8 +1,6 @@
 pipeline {
 
     environment {
-        baseName = 'auth-server'
-
         registryCredential = 'docker-registry-login'
         registryUrl = 'https://build:5000'
         nodeImage = 'build:5000/node8-build'
@@ -10,11 +8,11 @@ pipeline {
         yarnInstall = 'yarn install --ignore-engines'
         yarnBuild = 'yarn build:authentication'
 
-        imgName = 'build:5000/${baseName}:latest'
-        dockerBuild = 'docker build -t ${imgName} -f ${baseName}.dockerfile .'
+        imgName = 'build:5000/auth-server:latest'
+        dockerBuild = 'docker build -t ${imgName} -f auth-server.dockerfile .'
 
         dockerhubCredential = 'dockerhub-login'
-        imgNameHub = 'hktfp5/${baseName}:latest'
+        imgNameHub = 'hktfp5/auth-server:latest'
     }
 
     agent none
