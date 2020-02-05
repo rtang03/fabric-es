@@ -15,11 +15,11 @@ port="$5"
 adm_crt_path="$6"
 peer_crt_path="$7"
 
-export CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/${adm_crt_path}/msp
+export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${adm_crt_path}/msp
 export CORE_PEER_ADDRESS=${peer}.${org}:${port}
 
 # Install Chaincode
 peer chaincode install -n ${name} -v ${version} -p /opt/gopath/src/github.com/hyperledger/fabric/chaincode -l node \
-    --tls --cafile /tmp/hyperledger/${peer_crt_path}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+    --tls --cafile /var/artifacts/crypto-config/${peer_crt_path}/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 
 peer chaincode list --installed
