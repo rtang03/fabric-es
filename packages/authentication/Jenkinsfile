@@ -9,7 +9,7 @@ pipeline {
         yarnBuild = 'yarn build:authentication'
 
         imgName = 'build:5000/authentication-server:latest'
-        dockerBuild = 'docker build -t ' + imgName + ' -f authentication.dockerfile .'
+        dockerBuild = 'docker build -t ${imgName} -f authentication.dockerfile .'
     }
 
     agent none
