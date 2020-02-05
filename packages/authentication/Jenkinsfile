@@ -50,6 +50,7 @@ pipeline {
         stage('Dockerhub Push') {
             agent { label 'master' }
             steps {
+                sh 'docker tag ${imgName} ${imgNameHub}'
                 withCredentials([usernamePassword(credentialsId: dockerhubCredential, passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
                     sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
                     sh "docker push ${imgNameHub}"
