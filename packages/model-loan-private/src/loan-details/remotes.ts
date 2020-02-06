@@ -1,7 +1,13 @@
 import { RemoteData } from '@espresso/gw-node';
 import gql from 'graphql-tag';
 import { GET_DETAILS_BY_ID } from '.';
+import { UriResolver } from '../uriResolver';
 
+/*
+NOTE!!! This is the type definition publish by an ORG, who has certain private-data to share to other ORGs.
+An ORG wants to access this private-data need to run a federated Apollo server behind its gateway using this
+type definition.
+*/
 export const typeDefs = gql`
   ###
   # Local Type: Loan Details
@@ -43,9 +49,10 @@ export const typeDefs = gql`
 
 export const resolvers = {
   Loan: {
-    _details: async ({ loanId }, { uri, token }, { remoteData }: RemoteData) => {
+    _details: async ({ loanId }, { token }, { remoteData }: RemoteData) => {
+      console.log('HHHHHiii', loanId, UriResolver[loanId]);
       return remoteData({
-        uri,
+        uri: UriResolver[loanId],
         query: GET_DETAILS_BY_ID,
         operationName: 'GetLoanDetailsById',
         variables: { loanId },
