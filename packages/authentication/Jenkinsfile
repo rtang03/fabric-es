@@ -7,6 +7,7 @@ pipeline {
 
         yarnInstall = 'yarn install --ignore-engines'
         yarnBuild = 'yarn build:authentication'
+        yarnPackage = 'yarn package-auth-only'
 
         imgName = 'build:5000/auth-server:latest'
         dockerBuild = 'docker build -t ${imgName} -f auth-server.dockerfile .'
@@ -30,6 +31,7 @@ pipeline {
             steps {
                 sh yarnInstall
                 sh yarnBuild
+                sh yarnPackage
             }
         }
         stage('Docker Build') {
