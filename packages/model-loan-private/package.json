@@ -25,6 +25,14 @@
     "apollo-server-errors": "^2.3.4"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^1.9.0",
+    "@graphql-codegen/introspection": "^1.9.0",
+    "@graphql-codegen/typescript": "^1.9.0",
+    "@graphql-codegen/typescript-operations": "^1.9.1",
+    "@graphql-codegen/typescript-document-nodes": "^1.9.1",
+    "@graphql-codegen/typescript-type-graphql": "^1.9.1",
+    "@graphql-codegen/typescript-resolvers": "^1.9.0",
+    "@graphql-codegen/typescript-react-apollo": "^1.9.1",
     "@types/jest": "^24.0.18",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
