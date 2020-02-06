@@ -1,4 +1,4 @@
-### Instruction
+## Instruction for AUTH-SERVER
 ```shell script
 # build it locally
 DOCKER_BUILD=1 docker build --no-cache -f ./auth-server.dockerfile -t hktfp5/auth-server:1.0 .
@@ -36,5 +36,15 @@ Note: currently, I have create only one database `auth_db` instance
 ### Run Auth Server  
 open http://localhost:3900/graphql
 
-
+## Instruction for GW-ORG1
+```shell script
+# build it locally
 DOCKER_BUILD=1 docker build --no-cache -f ./gw-org1.dockerfile -t espresso/gw-org1:1.0 .
+
+docker run \
+-v `pwd`/packages/gw-org1/assets/:/home/app/packages/gw-org1/assets \
+-v `pwd`/packages/gw-org1/connection/:/home/app/packages/gw-org1/connection \
+-v `pwd`/packages/gw-org1/logs/:/home/app/packages/gw-org1/logs \
+-p 4000:4001 espresso/gw-org1:1.0
+```
+

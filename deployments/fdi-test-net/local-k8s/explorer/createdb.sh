@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# SPDX-License-Identifier: Apache-2.0
-
 echo "Copying ENV variables into temp file..."
 node processenv.js
 if [ $( jq .DATABASE_USERNAME /tmp/process.env.json) == null ]; then
