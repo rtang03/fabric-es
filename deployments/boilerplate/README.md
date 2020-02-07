@@ -64,4 +64,4 @@ If everything is good, we can clean up the environment. :tada::tada:
 
 ## Note
 
-If you make use of the connection profiles, ENSURE the paths in connection profiles are set correctly.
+If you use the connection profiles, ENSURE the paths in connection profiles are set correctly. Precisely, replace the string **"boilerplate"** with your network folder.
