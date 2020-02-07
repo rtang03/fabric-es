@@ -49,9 +49,9 @@ organizations:
     certificateAuthorities:
       - rca.etradeconnect.net
     adminPrivateKey:
-      path: ../../network2/config/../artifacts/crypto-config/EtcMSP/admin/msp/keystore/key.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../network2/config/../artifacts/crypto-config/EtcMSP/admin/msp/signcerts/cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/admin/msp/signcerts/cert.pem
   PbctfpMSP:
     mspid: PbctfpMSP
     peers:
@@ -60,9 +60,9 @@ organizations:
     certificateAuthorities:
       - rca.pbctfp.net
     adminPrivateKey:
-      path: ../../network2/config/../artifacts/crypto-config/PbctfpMSP/admin/msp/keystore/key.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../network2/config/../artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem
   HsbcMSP:
     mspid: HsbcMSP
     peers:
@@ -71,9 +71,9 @@ organizations:
     certificateAuthorities:
       - rca.hsbc.com.hk
     adminPrivateKey:
-      path: ../../network2/config/../artifacts/crypto-config/HsbcMSP/admin/msp/keystore/key.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HsbcMSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../network2/config/../artifacts/crypto-config/HsbcMSP/admin/msp/signcerts/cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HsbcMSP/admin/msp/signcerts/cert.pem
 
 orderers:
   orderer0.hktfp.com:
@@ -82,49 +82,49 @@ orderers:
       ssl-target-name-override: orderer0.hktfp.com
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 
 peers:
   peer0.etradeconnect.net:
     url: grpcs://localhost:7051
     eventUrl: grpcs://localhost:7053
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
       ssl-target-name-override: peer0.etradeconnect.net
   peer1.etradeconnect.net:
     url: grpcs://localhost:7151
     eventUrl: grpcs://localhost:7153
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
       ssl-target-name-override: peer1.etradeconnect.net
   peer0.pbctfp.net:
     url: grpcs://localhost:7251
     eventUrl: grpcs://localhost:7253
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
       ssl-target-name-override: peer0.pbctfp.net
   peer1.pbctfp.net:
     url: grpcs://localhost:7351
     eventUrl: grpcs://localhost:7353
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
       ssl-target-name-override: peer1.pbctfp.net
   peer0.hsbc.com.hk:
     url: grpcs://localhost:7451
     eventUrl: grpcs://localhost:7453
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
       ssl-target-name-override: peer0.hsbc.com.hk
   peer1.hsbc.com.hk:
     url: grpcs://localhost:7551
     eventUrl: grpcs://localhost:7553
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
       ssl-target-name-override: peer1.hsbc.com.hk
 
@@ -133,30 +133,29 @@ certificateAuthorities:
     url: https://localhost:6054
     caName: rca.etradeconnect.net
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/EtcMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
       - enrollId: rca-etradeconnect-admin
         enrollSecret: rca-etradeconnect-adminPW
     httpOptions:
       verify: false
-    rca.pbctfp.net:
+  rca.pbctfp.net:
     url: https://localhost:6055
     caName: rca.pbctfp.net
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/PbctfpMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
       - enrollId: rca-pboc-admin
         enrollSecret: rca-pboc-adminPW
     httpOptions:
       verify: false
-    rca.hsbc.com.hk:
+  rca.hsbc.com.hk:
     url: https://localhost:5054
     caName: rca.hsbc.com.hk
     tlsCACerts:
-      path: ../../network2/config/../artifacts/crypto-config/HsbcMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HsbcMSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
       - enrollId: rca-hsbc-admin
         enrollSecret: rca-hsbc-adminPW
     httpOptions:
       verify: false
-  
