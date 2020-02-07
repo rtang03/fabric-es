@@ -1,7 +1,3 @@
-/**
- * This is old file, depending on packages/admin-tools, no longer works
- */
-
 // const { resolve } = require('path');
 // require('dotenv').config({
 //   path: resolve(__dirname, './__utils__/.env.test')
@@ -68,18 +64,17 @@
 // } from '../admin/query';
 // import { createGateway } from '../utils/createGateway'; // do not use shorten path
 // import { createService } from '../utils/createService';
-//
+
 // // let accessToken: string;
 // // let user_id: string;
 // // const headers = { 'content-type': 'application/json' };
-//
+
 // const authPort = process.env.OAUTH_SERVER_PORT || 3300;
 // const authUri = `http://localhost:${authPort}/graphql`;
 // const username = `tester${Math.floor(Math.random() * 10000)}`;
 // const email = `${username}@fake.it`;
 // const password = 'password';
 // const admin_password = 'admin_test';
-//
 // let gateway: Express;
 // let authServer: http.Server;
 // let uSrvUser: ApolloServer;
@@ -87,7 +82,6 @@
 // let uSrvDocu: ApolloServer;
 // let uSrvPriv: ApolloServer;
 // let adminSrv: ApolloServer;
-//
 // beforeAll(async () => {
 //   uSrvUser = await createService({
 //     enrollmentId: 'admin', defaultEntityName: 'user', defaultReducer: userReducer, collection: process.env.COLLECTION
@@ -96,7 +90,6 @@
 //       .addRepository(getRepository<User, UserEvents>({ entityName: 'user', reducer: userReducer }))
 //       .create());
 //   await uSrvUser.listen({ port: 14051 });
-//
 //   uSrvLoan = await createService({
 //     enrollmentId: 'admin', defaultEntityName: 'loan', defaultReducer: loanReducer, collection: process.env.COLLECTION
 //   }).then(async ({ config, getRepository }) =>
@@ -104,7 +97,6 @@
 //       .addRepository(getRepository<Loan, LoanEvents>({ entityName: 'loan', reducer: loanReducer }))
 //       .create());
 //   await uSrvLoan.listen({ port: 14052 });
-//
 //   uSrvDocu = await createService({
 //     enrollmentId: 'admin', defaultEntityName: 'document', defaultReducer: documentReducer, collection: process.env.COLLECTION
 //   }).then(async ({ config, getRepository }) =>
@@ -112,7 +104,6 @@
 //       .addRepository(getRepository<Document, DocumentEvents>({ entityName: 'document', reducer: documentReducer }))
 //       .create());
 //   await uSrvDocu.listen({ port: 14053 });
-//
 //   uSrvPriv = await createService({
 //     enrollmentId: 'admin', defaultEntityName: 'private', defaultReducer: docContentsReducer, collection: process.env.COLLECTION, isPrivate: true
 //   }).then(async ({ config, getPrivateDataRepo }) =>
@@ -121,7 +112,6 @@
 //       .addRepository(getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({ entityName: 'loanDetails', reducer: loanDetailsReducer }))
 //       .create());
 //   await uSrvPriv.listen({ port: 14054 });
-//
 //   // step 1: start admin service (federated service)
 //   adminSrv = await createAdminService({
 //     channelName: process.env.CHANNEL_NAME,
@@ -131,7 +121,6 @@
 //     walletPath: process.env.WALLET
 //   });
 //   await adminSrv.listen({ port: 15051 });
-//
 //   // step 2: prepare federated gateway
 //   gateway = await createGateway({
 //     serviceList: [
@@ -142,7 +131,6 @@
 // //    { name: 'remote-loan-details', url: 'http://localhost:14015/graphql' },
 //       { name: 'admin',    url: 'http://localhost:15051/graphql' }
 //     ]});
-//
 //   // step 3: start authentication server (expressjs)
 //   const auth = await createAuthServer({
 //     rootAdmin: process.env.ADMIN,
@@ -163,7 +151,6 @@
 //   authServer = http.createServer(auth);
 //   authServer.listen(authPort);
 // });
-//
 // afterAll(async () => {
 //   authServer.close();
 //   await adminSrv.stop();
@@ -173,7 +160,6 @@
 //   await uSrvUser.stop();
 //   return new Promise(done => setTimeout(() => done(), 500));
 // });
-//
 // // require a running Fabric network
 // // run service.integration.test in fabric-cqrs, if no pre-existing onchain data
 // describe('Integration Tests', () => {
