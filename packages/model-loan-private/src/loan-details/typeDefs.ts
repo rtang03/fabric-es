@@ -1,15 +1,119 @@
 import { Commit } from '@espresso/fabric-cqrs';
 import { AuthenticationError } from 'apollo-server-errors';
+import gql from 'graphql-tag';
 import {
-  DocContents,
-  docContentsCommandHandler,
-  DocContentsDS,
   LoanDetails,
   loanDetailsCommandHandler,
   LoanDetailsDS
 } from '.';
 
 const NOT_AUTHENICATED = 'no enrollment id';
+
+export const typeDefs = gql`
+  type Query {
+    getLoanDetailsById(loanId: String!): LoanDetails
+  }
+
+  type Mutation {
+    createLoanDetails(
+      userId: String!,
+      loanId: String!,
+      requester: LoanRequesterInput!,
+      contact: ContactInfoInput!,
+      loanType: String,
+      startDate: String!,
+      tenor: Int!,
+      currency: String!,
+      requestedAmt: Float!,
+      approvedAmt: Float,
+      comment: String
+    ): LoanDetailsResp
+    updateLoanDetails(
+      userId: String!,
+      loanId: String!,
+      requester: LoanRequesterInput,
+      contact: ContactInfoInput,
+      loanType: String,
+      startDate: String,
+      tenor: Int,
+      currency: String,
+      requestedAmt: Float,
+      approvedAmt: Float,
+      comment: String
+    ): [LoanDetailsResp]!
+  }
+
+  ###
+  # Local Type: Loan Details
+  ###
+  type LoanDetails @key(fields: "loanId") {
+    loanId: String!
+    requester: LoanRequester!
+    contact: ContactInfo!
+    loanType: String
+    startDate: String!
+    tenor: Int!
+    currency: String!
+    requestedAmt: Float!
+    approvedAmt: Float
+    comment: String
+    timestamp: String!
+    loan: Loan
+  }
+
+  input LoanRequesterInput {
+    registration: String
+    name: String
+    type: String
+  }
+  type LoanRequester {
+    registration: String!
+    name: String!
+    type: String
+  }
+
+  input ContactInfoInput {
+    salutation: String
+    name: String
+    title: String
+    phone: String
+    email: String
+  }
+  type ContactInfo {
+    salutation: String
+    name: String!
+    title: String
+    phone: String!
+    email: String!
+  }
+
+  ###
+  # Mutation responses
+  ###
+  union LoanDetailsResp = LoanDetailsCommit | LoanDetailsError
+
+  type LoanDetailsCommit {
+    id: String
+    entityName: String
+    version: Int
+    commitId: String
+    committedAt: String
+    entityId: String
+  }
+
+  type LoanDetailsError {
+    message: String!
+    stack: String
+  }
+
+  ###
+  # Federated types
+  ###
+  extend type Loan @key(fields: "loanId") {
+    loanId: String! @external
+    details: LoanDetails
+  }
+`;
 
 export const resolvers = {
   Query: {
@@ -23,18 +127,6 @@ export const resolvers = {
     ): Promise<LoanDetails> =>
       loanDetails.repo
         .getById({ id: loanId, enrollmentId })
-        .then(({ currentState }) => currentState)
-        .catch(({ error }) => error),
-    getDocContentsById: async (
-      _,
-      { documentId },
-      {
-        dataSources: { docContents },
-        enrollmentId
-      }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
-    ): Promise<DocContents> =>
-      docContents.repo
-        .getById({ id: documentId, enrollmentId })
         .then(({ currentState }) => currentState)
         .catch(({ error }) => error)
   },
@@ -223,49 +315,7 @@ export const resolvers = {
         result.push(c);
       }
       return result;
-    },
-    createDataDocContents: async (
-      _,
-      { userId, documentId, body },
-      {
-        dataSources: { docContents },
-        enrollmentId
-      }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : docContentsCommandHandler({
-            enrollmentId,
-            docContentsRepo: docContents.repo
-          })
-            .CreateDocContents({
-              userId,
-              payload: { documentId, content: { body }, timestamp: Date.now() }
-            })
-            .catch(({ error }) => error),
-    createFileDocContents: async (
-      _,
-      { userId, documentId, format, link },
-      {
-        dataSources: { docContents },
-        enrollmentId
-      }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : docContentsCommandHandler({
-            enrollmentId,
-            docContentsRepo: docContents.repo
-          })
-            .CreateDocContents({
-              userId,
-              payload: {
-                documentId,
-                content: { format, link },
-                timestamp: Date.now()
-              }
-            })
-            .catch(({ error }) => error)
+    }
   },
   Loan: {
     details: (
@@ -284,28 +334,8 @@ export const resolvers = {
   LoanDetails: {
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId })
   },
-  Document: {
-    contents: (
-      { documentId },
-      _,
-      {
-        dataSources: { docContents },
-        enrollmentId
-      }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
-    ) =>
-      docContents.repo
-        .getById({ id: documentId, enrollmentId })
-        .then(({ currentState }) => currentState)
-        .catch(({ error }) => error)
-  },
-  DocContents: {
-    document: ({ documentId }) => ({ __typename: 'Document', documentId })
-  },
-  Docs: {
-    __resolveType: obj => (obj.body ? 'Data' : obj.format ? 'File' : {})
-  },
-  LocalResponse: {
+  LoanDetailsResp: {
     __resolveType: obj =>
-      obj.commitId ? 'LocalCommit' : obj.message ? 'LocalError' : {}
+      obj.commitId ? 'LoanDetailsCommit' : obj.message ? 'LoanDetailsError' : {}
   }
 };
