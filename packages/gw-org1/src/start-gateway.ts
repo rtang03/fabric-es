@@ -12,9 +12,9 @@ export const startGateway = async () => {
       { name: 'user',     url: `http://localhost:${process.env.SERVICE_USER_PORT}/graphql` },
       { name: 'loan',     url: `http://localhost:${process.env.SERVICE_LOAN_PORT}/graphql` },
       { name: 'document', url: `http://localhost:${process.env.SERVICE_DOCUMENT_PORT}/graphql` },
-      { name: 'docContents',  url: `http://localhost:14014/graphql` },
-      { name: 'rDocContents', url: `http://localhost:14015/graphql` },
-      { name: 'rLoanDetails', url: `http://localhost:14016/graphql` },
+      { name: 'docContents',  url: `http://localhost:${process.env.PRIVATE_DOC_CONTENTS_PORT}/graphql` },
+      { name: 'rDocContents', url: `http://localhost:${process.env.REMOTE_DOC_CONTENTS_PORT}/graphql` },
+      { name: 'rLoanDetails', url: `http://localhost:${process.env.REMOTE_LOAN_DETAILS_PORT}/graphql` },
       { name: 'admin', url: `http://localhost:${process.env.ADMINISTRATOR_PORT}/graphql` }
     ],
     authenticationCheck,

@@ -23,7 +23,7 @@ createService({
   .create();
 
   app
-    .listen({ port: 14035 })
+    .listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT })
     .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'docContents' available at ${url}`));
 }).catch(error => {
   console.log(error);

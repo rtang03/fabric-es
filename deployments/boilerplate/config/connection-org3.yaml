@@ -40,9 +40,9 @@ organizations:
     certificateAuthorities:
       - rca.org3.neworg.com
     adminPrivateKey:
-      path: ../../network2/config/../artifacts/Org3MSP/admin/msp/keystore/key.pem
+      path: ../../deployments/boilerplate/config/../artifacts/Org3MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../network2/config/../artifacts/Org3MSP/admin/msp/signcerts/cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/Org3MSP/admin/msp/signcerts/cert.pem
 
 orderers:
   orderer1.example.com:
@@ -51,21 +51,21 @@ orderers:
       ssl-target-name-override: orderer1.example.com
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../network2/config/../artifacts/OrdererMSP/orderer1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/OrdererMSP/orderer1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 peers:
   peer0.org3.neworg.com:
     url: grpcs://localhost:11051
     eventUrl: grpcs://localhost:11053
     tlsCACerts:
-      path: ../../network2/config/../artifacts/Org3MSP/peer0.org3.neworg.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/Org3MSP/peer0.org3.neworg.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
       ssl-target-name-override: peer0.org3.neworg.com
   peer1.org3.neworg.com:
     url: grpcs://localhost:12051
     eventUrl: grpcs://localhost:12053
     tlsCACerts:
-      path: ../../network2/config/../artifacts/Org3MSP/peer1.org3.neworg.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/Org3MSP/peer1.org3.neworg.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
       ssl-target-name-override: peer1.org3.neworg.com
 
@@ -74,7 +74,7 @@ certificateAuthorities:
     url: https://localhost:5056
     caName: rca.org3.neworg.com
     tlsCACerts:
-      path: ../../network2/config/../artifacts/Org3MSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/Org3MSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
       - enrollId: rca-org3-admin
         enrollSecret: rca-org3-adminPW
