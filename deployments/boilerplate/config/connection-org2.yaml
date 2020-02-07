@@ -1,13 +1,13 @@
 ---
-name: fdi_openplatform-pbctfp
+name: openplatform_fabric-Org2MSP
 version: 1.0.0
 
 client:
-  organization: pbctfp
+  organization: Org2MSP
   credentialStore:
-    path: ./assets/client-certs/hfc-kvs/pbctfp.net
+    path: ./assets/client-certs/hfc-kvs/org2.example.com
     cryptoStore:
-      path: ./assets/client-certs/hfc-kvs/pbctfp.net
+      path: ./assets/client-certs/hfc-kvs/org2.example.com
   connection:
     timeout:
       peer:
@@ -16,14 +16,14 @@ client:
 channels:
   eventstore:
     orderers:
-      - orderer0.hktfp.com
+      - orderer1.example.com
     peers:
-      peer0.pbctfp.net:
+      peer0.org2.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.pbctfp.net:
+      peer1.org2.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -32,51 +32,51 @@ channels:
       - eventstore:1.0
 
 organizations:
-  PbctfpMSP:
-    mspid: PbctfpMSP
+  Org2MSP:
+    mspid: Org2MSP
     peers:
-      - peer0.pbctfp.net
-      - peer1.pbctfp.net
+      - peer0.org2.example.com
+      - peer1.org2.example.com
     certificateAuthorities:
-      - rca.pbctfp.net
+      - rca.org2.example.com
     adminPrivateKey:
-      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/admin/msp/keystore/key.pem
+      path: ../../deployments/boilerplate/config/../artifacts/Org2MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/Org2MSP/admin/msp/signcerts/cert.pem
 
 orderers:
-  orderer0.hktfp.com:
+  orderer1.example.com:
     url: grpcs://localhost:7050
     grpcOptions:
-      ssl-target-name-override: orderer0.hktfp.com
+      ssl-target-name-override: orderer1.example.com
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/OrdererMSP/orderer1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 peers:
-  peer0.pbctfp.net:
-    url: grpcs://localhost:7251
-    eventUrl: grpcs://localhost:7253
+  peer0.org2.example.com:
+    url: grpcs://localhost:9051
+    eventUrl: grpcs://localhost:9053
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/Org2MSP/peer0.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.pbctfp.net
-  peer1.pbctfp.net:
-    url: grpcs://localhost:7351
-    eventUrl: grpcs://localhost:7353
+      ssl-target-name-override: peer0.org2.example.com
+  peer1.org2.example.com:
+    url: grpcs://localhost:10051
+    eventUrl: grpcs://localhost:10053
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/Org2MSP/peer1.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.pbctfp.net
+      ssl-target-name-override: peer1.org2.example.com
 
 certificateAuthorities:
-  rca.pbctfp.net:
-    url: https://localhost:6055
-    caName: rca.pbctfp.net
+  rca.org2.example.com:
+    url: https://localhost:5055
+    caName: rca.org2.example.com
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/Org2MSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
-      - enrollId: rca-pboc-admin
-        enrollSecret: rca-pboc-adminPW
+      - enrollId: rca-org2-admin
+        enrollSecret: rca-org2-adminPW
     httpOptions:
       verify: false

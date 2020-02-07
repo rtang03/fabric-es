@@ -1,6 +1,3 @@
-import { PrivatedataRepository, Repository } from '@espresso/fabric-cqrs';
-import { DataSource } from 'apollo-datasource';
-
 /**
  * **model-loan** is the domain model of a generic bank loan workflow processing.
  * On-Chain data:
@@ -19,22 +16,6 @@ export const Errors = {
   invalidOperation: () => new Error('INVALID_OPERATION'),
   requiredDataMissing: () => new Error('REQUIRED_DATA_MISSING')
 };
-
-export class DataSrc<TEntity = any, TEvent = any> extends DataSource {
-  context;
-  repo;
-
-  constructor({ repo }: {
-    repo?: Repository<TEntity, TEvent> | PrivatedataRepository<TEntity, TEvent>;
-  }) {
-    super();
-    this.repo = repo;
-  }
-
-  initialize(config) {
-    this.context = config.context;
-  }
-}
 
 export type Paginated<TEntity> = {
   entities: TEntity[];
