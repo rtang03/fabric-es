@@ -1,4 +1,5 @@
 import Client from 'fabric-client';
+import { Wallet } from 'fabric-network';
 import { Store } from 'redux';
 import util from 'util';
 import { action } from '../../cqrs/reconcile';
@@ -7,12 +8,22 @@ import { Reducer } from '../../types';
 
 const { RECONCILE_SUCCESS, RECONCILE_ERROR } = action;
 
-export const reconcile: (
-  store: Store
-) => (option: {
+export const reconcile: (option: {
+  store: Store;
+  channelEventHub: string;
+  channelName: string;
+  connectionProfile: string;
+  wallet: Wallet;
+}) => (option: {
   entityName: string;
   reducer: Reducer;
-}) => Promise<{ result: any }> = store => ({ entityName, reducer }) => {
+}) => Promise<{ result: any }> = ({
+  store,
+  channelEventHub,
+  channelName,
+  connectionProfile,
+  wallet
+}) => ({ entityName, reducer }) => {
   const logger = Client.getLogger('reconcile.js');
 
   return new Promise<{ result: any }>((resolve, reject) => {
@@ -46,7 +57,11 @@ export const reconcile: (
       action.reconcile({
         tx_id: tid,
         args: { entityName, reducer },
-        store
+        store,
+        channelEventHub,
+        channelName,
+        connectionProfile,
+        wallet,
       })
     );
 

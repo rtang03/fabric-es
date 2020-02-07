@@ -4,9 +4,9 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "build": "yarn run clean && tsc",
-    "build:prod": "yarn run clean && tsc -p ./tsconfig.prod.json",
-    "package": "yarn run build:cleanup && yarn run cp:package.json && yarn run cp:dist",
+    "build": "yarn clean && tsc",
+    "build:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
+    "package": "yarn build:cleanup && yarn cp:package.json && yarn cp:dist",
     "build:cleanup": "rimraf ../../.build/packages/gw-node && mkdir -p ../../.build/packages/gw-node",
     "cp:package.json": "cp ./package.json ../../.build/packages/gw-node/",
     "cp:dist": "cp -R ./dist ../../.build/packages/gw-node/",

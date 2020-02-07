@@ -9,6 +9,7 @@ import {
 } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import Client from 'fabric-client';
+import { Wallet } from 'fabric-network';
 import { DataSrc } from '..';
 
 export const createService = async ({
@@ -16,17 +17,29 @@ export const createService = async ({
   defaultEntityName,
   defaultReducer,
   collection,
-  isPrivate = false
+  isPrivate = false,
+  channelEventHub,
+  channelName,
+  connectionProfile,
+  wallet
 }: {
   enrollmentId: string;
   defaultEntityName: string;
   defaultReducer: Reducer;
   collection: string;
   isPrivate?: boolean;
+  channelEventHub: string;
+  channelName: string;
+  connectionProfile: string;
+  wallet: Wallet;
 }) => {
   const logger = Client.getLogger('createService.js');
 
   const networkConfig = await getNetwork({
+    channelEventHub,
+    channelName,
+    connectionProfile,
+    wallet,
     enrollmentId,
     channelEventHubExisted: true
   });
@@ -40,7 +53,11 @@ export const createService = async ({
     ...(networkConfig as Partial<PeerOptions>),
     defaultEntityName,
     defaultReducer,
-    collection
+    collection,
+    channelEventHubUri: channelEventHub,
+    channelName,
+    connectionProfile,
+    wallet
   });
 
   const result = isPrivate ? { getPrivateDataRepo } : { getRepository };
@@ -67,9 +84,16 @@ export const createService = async ({
           });
 
           logger.info(`reconcile complete: ${defaultEntityName}`);
+<<<<<<< HEAD
         } else {
           logger.info(`♨️♨️  Starting micro-service for off-chain private data...`);
         }
+=======
+        } else
+          logger.info(
+            `♨️♨️  Starting micro-service for off-chain private data...`
+          );
+>>>>>>> c72cf9ecc59b0d359f3ea99d54f09d369f2e1adb
 
         return new ApolloServer({
           schema,

@@ -1,9 +1,9 @@
+import Client from 'fabric-client';
 import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
+import util from 'util';
 import { Commit } from '../types';
 import { getContract } from './contract';
-import Client from 'fabric-client';
-import util from "util";
 
 export const evaluate: (
   fcn: string,

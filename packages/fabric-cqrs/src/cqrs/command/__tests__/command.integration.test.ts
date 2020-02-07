@@ -1,4 +1,5 @@
 require('../../../env');
+import { FileSystemWallet } from 'fabric-network';
 import { pick, values } from 'lodash';
 import { Store } from 'redux';
 import { bootstrapNetwork } from '../../../account';
@@ -7,11 +8,16 @@ import { generateToken } from '../../utils';
 import { action } from '../action';
 import { getStore } from './__utils__/store';
 
+
 let context: Partial<PeerOptions>;
 let commitId: string;
 let store: Store;
 const entityName = 'command_test';
 const enrollmentId = `command_test${Math.floor(Math.random() * 1000)}`;
+const channelEventHub = process.env.CHANNEL_HUB;
+const connectionProfile = process.env.CONNECTION_PROFILE;
+const channelName = 'eventstore';
+const wallet = new FileSystemWallet(process.env.WALLET);
 
 beforeAll(async () => {
   context = await bootstrapNetwork({
@@ -43,7 +49,11 @@ describe('CQRS - command Tests', () => {
     store.dispatch(
       action.deleteByEntityId({
         tx_id: tid,
-        args: { entityName, id: enrollmentId }
+        args: { entityName, id: enrollmentId },
+        channelEventHub,
+        connectionProfile,
+        channelName,
+        wallet
       })
     );
   });
@@ -73,7 +83,11 @@ describe('CQRS - command Tests', () => {
         // Special attention: createAction will be based on newly created account (given below
         // enrollmentId; to using a new Fabric contract, to submit transaction, and based on its x509
         // cert. Other actions does not require to supply enrollmentId, and will keep using admin ecert
-        enrollmentId
+        enrollmentId,
+        channelEventHub,
+        connectionProfile,
+        channelName,
+        wallet
       })
     );
   });
@@ -93,7 +107,11 @@ describe('CQRS - command Tests', () => {
     store.dispatch(
       action.queryByEntIdCommitId({
         tx_id: tid,
-        args: { entityName, commitId, id: enrollmentId }
+        args: { entityName, commitId, id: enrollmentId },
+        channelEventHub,
+        connectionProfile,
+        channelName,
+        wallet
       })
     );
   });
@@ -111,7 +129,14 @@ describe('CQRS - command Tests', () => {
       }
     });
     store.dispatch(
-      action.queryByEntityName({ tx_id: tid, args: { entityName } })
+      action.queryByEntityName({
+        tx_id: tid,
+        args: { entityName },
+        channelEventHub,
+        connectionProfile,
+        channelName,
+        wallet
+      })
     );
   });
 
@@ -130,7 +155,11 @@ describe('CQRS - command Tests', () => {
     store.dispatch(
       action.queryByEntityId({
         tx_id: tid,
-        args: { entityName, id: enrollmentId }
+        args: { entityName, id: enrollmentId },
+        channelEventHub,
+        connectionProfile,
+        channelName,
+        wallet
       })
     );
   });
@@ -148,7 +177,11 @@ describe('CQRS - command Tests', () => {
     store.dispatch(
       action.deleteByEntityIdCommitId({
         tx_id: tid,
-        args: { entityName, id: enrollmentId, commitId }
+        args: { entityName, id: enrollmentId, commitId },
+        channelEventHub,
+        connectionProfile,
+        channelName,
+        wallet
       })
     );
   });

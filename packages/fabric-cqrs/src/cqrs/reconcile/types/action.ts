@@ -1,5 +1,6 @@
 import { Store } from 'redux';
 import { Commit, Reducer } from '../../../types';
+import { Wallet } from 'fabric-network';
 
 export interface ReconcileAction {
   type: string;
@@ -10,6 +11,10 @@ export interface ReconcileAction {
       reducer: Reducer;
     };
     store: Store;
+    channelEventHub?: string;
+    channelName?: string;
+    connectionProfile?: string;
+    wallet?: Wallet;
   };
 }
 
@@ -23,5 +28,9 @@ export interface MergeAction {
       reducer: Reducer;
     };
     store: Store;
+    channelEventHub?: string;
+    channelName?: string;
+    connectionProfile?: string;
+    wallet?: Wallet;
   };
 }

@@ -1,4 +1,5 @@
 require('../../../env');
+import { FileSystemWallet } from 'fabric-network';
 import { pick, values } from 'lodash';
 import { Store } from 'redux';
 import { bootstrapNetwork } from '../../../account';
@@ -13,6 +14,10 @@ let store: Store;
 const collection = 'Org1PrivateDetails';
 const entityName = 'store_privatedata';
 const enrollmentId = `store_privatedata${Math.floor(Math.random() * 1000)}`;
+const channelEventHub = process.env.CHANNEL_HUB;
+const connectionProfile = process.env.CONNECTION_PROFILE;
+const channelName = 'eventstore';
+const wallet = new FileSystemWallet(process.env.WALLET);
 
 beforeAll(async () => {
   try {
@@ -58,7 +63,11 @@ describe('Store:privatedata Tests', () => {
         // Special attention: createAction will be based on newly created account (given below
         // enrollmentId; to using a new Fabric contract, to submit transaction, and based on its x509
         // cert. Other actions does not require to supply enrollmentId, and will keep using admin ecert
-        enrollmentId
+        enrollmentId,
+        channelEventHub,
+        connectionProfile,
+        channelName,
+        wallet
       })
     );
   });
@@ -78,7 +87,11 @@ describe('Store:privatedata Tests', () => {
     store.dispatch(
       action.queryByEntIdCommitId({
         tx_id: tid,
-        args: { entityName, commitId, id: enrollmentId, collection }
+        args: { entityName, commitId, id: enrollmentId, collection },
+        channelEventHub,
+        connectionProfile,
+        channelName,
+        wallet
       })
     );
   });
@@ -96,7 +109,14 @@ describe('Store:privatedata Tests', () => {
       }
     });
     store.dispatch(
-      action.queryByEntityName({ tx_id: tid, args: { entityName, collection } })
+      action.queryByEntityName({
+        tx_id: tid,
+        args: { entityName, collection },
+        channelEventHub,
+        connectionProfile,
+        channelName,
+        wallet
+      })
     );
   });
 
@@ -115,7 +135,11 @@ describe('Store:privatedata Tests', () => {
     store.dispatch(
       action.queryByEntityId({
         tx_id: tid,
-        args: { entityName, id: enrollmentId, collection }
+        args: { entityName, id: enrollmentId, collection },
+        channelEventHub,
+        connectionProfile,
+        channelName,
+        wallet
       })
     );
   });
@@ -133,7 +157,11 @@ describe('Store:privatedata Tests', () => {
     store.dispatch(
       action.deleteByEntityIdCommitId({
         tx_id: tid,
-        args: { entityName, id: enrollmentId, commitId, collection }
+        args: { entityName, id: enrollmentId, commitId, collection },
+        channelEventHub,
+        connectionProfile,
+        channelName,
+        wallet
       })
     );
   });

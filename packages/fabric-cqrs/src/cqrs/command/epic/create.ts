@@ -18,6 +18,10 @@ export default (action$: Observable<CreateAction>, _, context) => {
     mergeMap(payload =>
       from(
         getNetwork({
+          channelEventHub: payload.channelEventHub,
+          channelName: payload.channelName,
+          connectionProfile: payload.connectionProfile,
+          wallet: payload.wallet,
           enrollmentId: payload.enrollmentId
         })
           .then(({ network, gateway }) => {

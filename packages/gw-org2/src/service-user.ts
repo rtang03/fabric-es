@@ -1,3 +1,5 @@
+import { FileSystemWallet } from 'fabric-network';
+
 require('./env');
 import { createService } from '@espresso/gw-node';
 import {
@@ -12,7 +14,11 @@ createService({
   enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'user',
   defaultReducer: userReducer,
-  collection: process.env.COLLECTION
+  collection: process.env.COLLECTION,
+  channelEventHub: process.env.CHANNEL_HUB,
+  channelName: process.env.CHANNEL_NAME,
+  connectionProfile: process.env.CONNECTION_PROFILE,
+  wallet: new FileSystemWallet(process.env.WALLET),
 }).then(async ({ config, getRepository }) => {
   const app = await config({
     typeDefs: userTypeDefs,

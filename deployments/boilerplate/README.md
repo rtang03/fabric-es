@@ -15,7 +15,7 @@ Prerequsites: docker and docker-compose
 
 ## Setup Fabric Network
 
-1. Before starting the network, ensure the binary directory is set correctly. Update the "_BIN_DIR" variable in [scripts/common.sh](scripts/common.sh). 
+1. Before starting the network, ensure the binary directory is set correctly. Update the "_BIN_DIR" variable in [scripts/common.sh](scripts/common.sh).
 **Note:** Make sure the binary version is same as the fabric image version.
 
 ```console
@@ -62,6 +62,6 @@ If everything is good, we can clean up the environment. :tada::tada:
 
 ***
 
-## Note
+## Connection Profile
 
-If you use the connection profiles, ENSURE the paths in connection profiles are set correctly. Precisely, replace the string **"boilerplate"** with your network folder.
+If you use the connection profiles, ENSURE the paths in connection profiles are set correctly. Precisely, replace the string **"boilerplate"** with your network folder name.

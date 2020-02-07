@@ -3,7 +3,6 @@ import Client from 'fabric-client';
 import {
   DefaultEventHandlerStrategies,
   DefaultQueryHandlerStrategies,
-  FileSystemWallet,
   Gateway,
   Network,
   Wallet
@@ -14,10 +13,10 @@ import util from 'util';
 
 export const getNetwork: (option: {
   enrollmentId: string;
-  channelName?: string;
-  connectionProfile?: string;
-  wallet?: Wallet;
-  channelEventHub?: string;
+  channelName: string;
+  connectionProfile: string;
+  wallet: Wallet;
+  channelEventHub: string;
   channelEventHubExisted?: boolean;
   eventHandlerStrategy?: any;
   queryHandlerStrategy?: any;
@@ -29,10 +28,10 @@ export const getNetwork: (option: {
   channelHub?: ChannelEventHub;
 }> = async ({
   enrollmentId,
-  channelName = 'eventstore',
-  connectionProfile = process.env.CONNECTION_PROFILE,
-  wallet = new FileSystemWallet(process.env.WALLET),
-  channelEventHub = process.env.CHANNEL_HUB,
+  channelName,
+  connectionProfile,
+  wallet ,
+  channelEventHub,
   channelEventHubExisted,
   eventHandlerStrategy = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
   queryHandlerStrategy = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,

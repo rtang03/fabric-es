@@ -1,5 +1,5 @@
 require('dotenv').config({
-  path: './.env.test.n3'
+  path: './.env.lib-dev-net'
 });
 
 import { createAuthServer, createDbConnection } from '@espresso/authentication';
