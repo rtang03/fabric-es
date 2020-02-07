@@ -1,4 +1,5 @@
 import Client from 'fabric-client';
+import { Wallet } from 'fabric-network';
 import { values } from 'lodash';
 import { Store } from 'redux';
 import util from 'util';
@@ -14,6 +15,10 @@ export const getPromiseToSave: (option: {
   store: Store;
   collection?: string;
   enrollmentId?: string;
+  channelEventHub: string;
+  channelName: string;
+  connectionProfile: string;
+  wallet: Wallet;
 }) => Promise<Commit> = ({
   entityName,
   id,
@@ -21,7 +26,11 @@ export const getPromiseToSave: (option: {
   version,
   store,
   collection,
-  enrollmentId
+  enrollmentId,
+  channelEventHub,
+  channelName,
+  connectionProfile,
+  wallet
 }) => {
   const logger = Client.getLogger('getPromiseToSave.js');
 
@@ -48,6 +57,10 @@ export const getPromiseToSave: (option: {
     });
     store.dispatch(
       writeAction.create({
+        channelEventHub,
+        channelName,
+        connectionProfile,
+        wallet,
         tx_id: tid,
         args: { entityName, id, version, events, collection },
         enrollmentId

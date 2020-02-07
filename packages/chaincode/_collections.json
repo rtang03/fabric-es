@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Org1MSPPrivateDetails",
+    "policy": "OR('Org1MSP.member')",
+    "requiredPeerCount": 0,
+    "maxPeerCount": 4,
+    "blockToLive": 0,
+    "memberOnlyRead": true
+  },
+  {
+    "name": "Org2MSPPrivateDetails",
+    "policy": "OR('Org2MSP.member')",
+    "requiredPeerCount": 0,
+    "maxPeerCount": 4,
+    "blockToLive": 0,
+    "memberOnlyRead": true
+  },
+  {
+    "name": "Org3MSPPrivateDetails",
+    "policy": "OR('Org3MSP.member')",
+    "requiredPeerCount": 0,
+    "maxPeerCount": 4,
+    "blockToLive": 0,
+    "memberOnlyRead": true
+  }
+]

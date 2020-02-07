@@ -10,23 +10,36 @@ import {
 import { DataSrc } from '@espresso/model-common';
 import { ApolloServer } from 'apollo-server';
 import Client from 'fabric-client';
+import { Wallet } from 'fabric-network';
 
 export const createService = async ({
   enrollmentId,
   defaultEntityName,
   defaultReducer,
   collection,
-  isPrivate = false
+  isPrivate = false,
+  channelEventHub,
+  channelName,
+  connectionProfile,
+  wallet
 }: {
   enrollmentId: string;
   defaultEntityName: string;
   defaultReducer: Reducer;
   collection: string;
   isPrivate?: boolean;
+  channelEventHub: string;
+  channelName: string;
+  connectionProfile: string;
+  wallet: Wallet;
 }) => {
   const logger = Client.getLogger('createService.js');
 
   const networkConfig = await getNetwork({
+    channelEventHub,
+    channelName,
+    connectionProfile,
+    wallet,
     enrollmentId,
     channelEventHubExisted: true
   });
@@ -40,7 +53,11 @@ export const createService = async ({
     ...(networkConfig as Partial<PeerOptions>),
     defaultEntityName,
     defaultReducer,
-    collection
+    collection,
+    channelEventHubUri: channelEventHub,
+    channelName,
+    connectionProfile,
+    wallet
   });
 
   const result = isPrivate ? { getPrivateDataRepo } : { getRepository };
@@ -68,7 +85,6 @@ export const createService = async ({
           });
 
           logger.info(`reconcile complete: ${defaultEntityName}`);
-
         } else
           logger.info(
             `♨️♨️  Starting micro-service for off-chain private data...`

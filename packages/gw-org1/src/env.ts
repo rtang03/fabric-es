@@ -1,6 +1,7 @@
-import { config } from 'dotenv';
-import { resolve } from 'path';
+// import { config } from 'dotenv';
+// import { resolve } from 'path';
+// if (process.env.NODE_ENV !== ' production')
+//   config({ path: resolve(__dirname, '../.env.test') });
+// else config({ path: './.env' });
 
-if (process.env.NODE_ENV !== ' production')
-  config({ path: resolve(__dirname, '../.env.test') });
-else config({ path: resolve(__dirname, '../.env') });
+require('dotenv').config({ path: './.env' });

@@ -46,12 +46,14 @@ beforeAll(async () => {
       caAdmin: 'rca-org2-admin'
     });
     contextOrg1 = await getNetwork({
+      channelName: 'eventstore',
       enrollmentId: identityOrg1,
       connectionProfile: 'connection/peer0org1.yaml',
       wallet: walletOrg1,
       channelEventHub: 'peer0.org1.example.com'
     });
     contextOrg2 = await getNetwork({
+      channelName: 'eventstore',
       enrollmentId: identityOrg2,
       connectionProfile: 'connection/peer0org2.yaml',
       wallet: walletOrg2,

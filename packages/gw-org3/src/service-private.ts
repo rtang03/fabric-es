@@ -1,4 +1,5 @@
 require('./env');
+
 import { createService } from '@espresso/gw-node';
 import {
   DocContents,
@@ -10,13 +11,18 @@ import {
   resolvers,
   typeDefs
 } from '@espresso/model-loan-private';
+import { FileSystemWallet } from 'fabric-network';
 
 createService({
   enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'private',
   defaultReducer: loanDetailsReducer,
   collection: process.env.COLLECTION,
-  isPrivate: true
+  isPrivate: true,
+  channelEventHub: process.env.CHANNEL_HUB,
+  channelName: process.env.CHANNEL_NAME,
+  connectionProfile: process.env.CONNECTION_PROFILE,
+  wallet: new FileSystemWallet(process.env.WALLET),
 }).then(async ({ config, getPrivateDataRepo }) => {
   const app = await config({
     typeDefs,

@@ -1,0 +1,259 @@
+################################################################################
+#
+#   Section: Organizations
+#
+#   - This section defines the different organizational identities which will
+#   be referenced later in the configuration.
+#
+################################################################################
+Organizations:
+
+   - &hktfp
+      Name: hktfp
+      ID: HktfpMSP
+      MSPDir: ../artifacts/crypto-config/HktfpMSP/msp
+
+      Policies:
+         Readers:
+            Type: Signature
+            Rule: "OR('HktfpMSP.member')"
+         Writers:
+            Type: Signature
+            Rule: "OR('HktfpMSP.member')"
+         Admins:
+            Type: Signature
+            Rule: "OR('HktfpMSP.admin')"
+
+   - &etc
+      Name: etc
+      ID: EtcMSP
+      MSPDir: ../artifacts/crypto-config/EtcMSP/msp
+
+      Policies:
+         Readers:
+            Type: Signature
+            Rule: "OR('EtcMSP.member')"
+         Writers:
+            Type: Signature
+            Rule: "OR('EtcMSP.member')"
+         Admins:
+            Type: Signature
+            Rule: "OR('EtcMSP.admin')"
+
+      OrdererEndpoints:
+         - orderer0.hktfp.com:7050
+         - orderer1.hktfp.com:7150
+         - orderer2.hktfp.com:7250
+         - orderer3.hktfp.com:7350
+         - orderer4.hktfp.com:7450
+
+      AnchorPeers:
+         - Host: peer0.etradeconnect.net
+           Port: 7051
+
+   - &pbctfp
+      Name: pbctfp
+      ID: PbctfpMSP
+      MSPDir: ../artifacts/crypto-config/PbctfpMSP/msp
+
+      Policies:
+         Readers:
+            Type: Signature
+            Rule: "OR('PbctfpMSP.member')"
+         Writers:
+            Type: Signature
+            Rule: "OR('PbctfpMSP.member')"
+         Admins:
+            Type: Signature
+            Rule: "OR('PbctfpMSP.admin')"
+
+      OrdererEndpoints:
+         - orderer0.hktfp.com:7050
+         - orderer1.hktfp.com:7150
+         - orderer2.hktfp.com:7250
+         - orderer3.hktfp.com:7350
+         - orderer4.hktfp.com:7450
+
+      AnchorPeers:
+         - Host: peer0.pbctfp.net
+           Port: 7251
+
+   - &hsbc
+      Name: hsbc
+      ID: HsbcMSP
+      MSPDir: ../artifacts/crypto-config/HsbcMSP/msp
+
+      Policies:
+         Readers:
+            Type: Signature
+            Rule: "OR('HsbcMSP.member')"
+         Writers:
+            Type: Signature
+            Rule: "OR('HsbcMSP.member')"
+         Admins:
+            Type: Signature
+            Rule: "OR('HsbcMSP.admin')"
+
+      OrdererEndpoints:
+         - orderer0.hktfp.com:7050
+         - orderer1.hktfp.com:7150
+         - orderer2.hktfp.com:7250
+         - orderer3.hktfp.com:7350
+         - orderer4.hktfp.com:7450
+
+      AnchorPeers:
+         - Host: peer0.hsbc.com.hk
+           Port: 7451
+
+Capabilities:
+   Channel: &ChannelCapabilities
+      V1_4_3: true
+      V1_3: false
+      V1_1: false
+   Orderer: &OrdererCapabilities
+      V1_4_2: true
+      V1_1: false
+   Application: &ApplicationCapabilities
+      V1_4_2: true
+      V1_3: false
+      V1_2: false
+      V1_1: false
+
+################################################################################
+#
+#   SECTION: Application
+#
+#   This section defines the values to encode into a config transaction or
+#   genesis block for application related parameters
+#
+################################################################################
+Application: &ApplicationDefaults
+
+   # Organizations is the list of orgs which are defined as participants on
+   # the application side of the network
+   Organizations:
+   Policies:
+      Readers:
+         Type: ImplicitMeta
+         Rule: "ANY Readers"
+      Writers:
+         Type: ImplicitMeta
+         Rule: "ANY Writers"
+      Admins:
+         Type: ImplicitMeta
+         Rule: "MAJORITY Admins"
+
+   Capabilities:
+      <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+
+   OrdererType: etcdraft
+   Addresses:
+      - orderer0.hktfp.com:7050
+      - orderer1.hktfp.com:7150
+      - orderer2.hktfp.com:7250
+      - orderer3.hktfp.com:7350
+      - orderer4.hktfp.com:7450
+   BatchTimeout: 2s
+   BatchSize:
+      MaxMessageCount: 500
+      AbsoluteMaxBytes: 99 MB
+      PreferredMaxBytes: 2 MB
+   MaxChannels: 10
+   EtcdRaft:
+      Consenters:
+         - Host: orderer0.hktfp.com
+           Port: 7050
+           ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/signcerts/cert.pem
+         - Host: orderer1.hktfp.com
+           Port: 7150
+           ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/tls-msp/signcerts/cert.pem
+         - Host: orderer2.hktfp.com
+           Port: 7250
+           ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/tls-msp/signcerts/cert.pem
+         - Host: orderer3.hktfp.com
+           Port: 7350
+           ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/signcerts/cert.pem
+         - Host: orderer4.hktfp.com
+           Port: 7450
+           ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/signcerts/cert.pem
+
+      Options:
+         TickInterval: 500ms
+         ElectionTick: 10
+         HeartbeatTick: 1
+         MaxInflightBlocks: 5
+         SnapshotIntervalSize: 20 MB
+
+   Organizations:
+   Policies:
+      Readers:
+         Type: ImplicitMeta
+         Rule: "ANY Readers"
+      Writers:
+         Type: ImplicitMeta
+         Rule: "ANY Writers"
+      Admins:
+         Type: ImplicitMeta
+         Rule: "MAJORITY Admins"
+      BlockValidation:
+         Type: ImplicitMeta
+         Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+   Policies:
+      Readers:
+         Type: ImplicitMeta
+         Rule: "ANY Readers"
+      Writers:
+         Type: ImplicitMeta
+         Rule: "ANY Writers"
+      Admins:
+         Type: ImplicitMeta
+         Rule: "MAJORITY Admins"
+
+   Capabilities:
+      <<: *ChannelCapabilities
+
+################################################################################
+#
+#   Profile
+#
+#   Different configuration profiles may be encoded here to be specified as
+#   parameters to the configtxgen tool.
+#
+################################################################################
+Profiles:
+
+   OrgsOrdererGenesis:
+      <<: *ChannelDefaults
+      Orderer:
+         <<: *OrdererDefaults
+         Organizations:
+            - *hktfp
+         Capabilities:
+            <<: *OrdererCapabilities
+      Consortiums:
+         BankingHK:
+            Organizations:
+               - *etc
+               - *pbctfp
+               - *hsbc
+
+   OrgsChannel:
+      Consortium: BankingHK
+      <<: *ChannelDefaults
+      Application:
+         <<: *ApplicationDefaults
+         Organizations:
+            - *etc
+            - *pbctfp
+            - *hsbc
+         Capabilities:
+            <<: *ApplicationCapabilities

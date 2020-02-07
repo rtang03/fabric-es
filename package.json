@@ -7,9 +7,9 @@
     "build:lib": "lerna run build --scope={@espresso/fabric-cqrs,@espresso/operator,@espresso/gw-node}",
     "build:gw-org1": "lerna run build:prod --scope={@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/gw-org1}",
     "build:gw-org2": "lerna run build:prod --scope={@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/gw-org2}",
-    "package-auth-only": "yarn run cp:root && lerna run package --scope=@espresso/authentication",
-    "package-org1": "yarn run cp:root && lerna run package --scope={@espresso/authentication,@espresso/fabric-cqrs,@espresso/operator,@espresso/gw-node,@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/gw-org1}",
-    "package-org2": "yarn run cp:root && lerna run package --scope={@espresso/authentication,@espresso/fabric-cqrs,@espresso/operator,@espresso/gw-node,@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/gw-org2}"
+    "package-auth-only": "yarn cp:root && lerna run package --scope=@espresso/authentication",
+    "package-org1": "yarn cp:root && lerna run package --scope={@espresso/authentication,@espresso/fabric-cqrs,@espresso/operator,@espresso/gw-node,@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/gw-org1}",
+    "package-org2": "yarn cp:root && lerna run package --scope={@espresso/authentication,@espresso/fabric-cqrs,@espresso/operator,@espresso/gw-node,@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/gw-org2}"
   },
   "workspaces": [
     "packages/*"

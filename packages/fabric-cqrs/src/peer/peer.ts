@@ -18,7 +18,11 @@ export const createPeer: (options: PeerOptions) => Peer = options => {
     gateway,
     projectionDb,
     queryDatabase,
-    collection
+    collection,
+    channelName,
+    wallet,
+    connectionProfile,
+    channelEventHubUri
   } = options;
 
   if (!collection) {
@@ -32,9 +36,28 @@ export const createPeer: (options: PeerOptions) => Peer = options => {
 
   return {
     getNgacRepo: ngacRepo(options.network),
-    getPrivateDataRepo: privateDataRepo(store, collection),
-    getRepository: repository(store),
-    reconcile: reconcile(store),
+    getPrivateDataRepo: privateDataRepo({
+      store,
+      collection,
+      channelName,
+      wallet,
+      connectionProfile,
+      channelEventHub: channelEventHubUri
+    }),
+    getRepository: repository({
+      store,
+      channelName,
+      wallet,
+      connectionProfile,
+      channelEventHub: channelEventHubUri
+    }),
+    reconcile: reconcile({
+      store,
+      channelName,
+      wallet,
+      connectionProfile,
+      channelEventHub: channelEventHubUri
+    }),
     subscribeHub: async () => {
       logger.info('subcribe channel event hub');
 
