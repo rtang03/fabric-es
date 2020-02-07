@@ -84,16 +84,9 @@ export const createService = async ({
           });
 
           logger.info(`reconcile complete: ${defaultEntityName}`);
-<<<<<<< HEAD
         } else {
           logger.info(`♨️♨️  Starting micro-service for off-chain private data...`);
         }
-=======
-        } else
-          logger.info(
-            `♨️♨️  Starting micro-service for off-chain private data...`
-          );
->>>>>>> c72cf9ecc59b0d359f3ea99d54f09d369f2e1adb
 
         return new ApolloServer({
           schema,
