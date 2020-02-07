@@ -1,5 +1,4 @@
 require('./env');
-
 import { createService } from '@espresso/gw-node';
 import {
   Document,

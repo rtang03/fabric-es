@@ -1,3 +1,4 @@
+require('./env');
 import { enrollAdmin } from '@espresso/operator';
 import { FileSystemWallet } from 'fabric-network';
 
