@@ -59,4 +59,10 @@ If everything is good, we can clean up the environment. :tada::tada:
 ./cleanup.sh
 ```
 
+### Useful Command
+```shell script
+# if postgres has running process, that blocks the creation of network
+# you may find the pid with below statement, and kill it
+sudo lsof -i :5432
+```
 ***

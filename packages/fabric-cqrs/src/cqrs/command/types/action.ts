@@ -1,3 +1,4 @@
+import { Wallet } from 'fabric-network';
 import { BaseEvent } from '../../../types';
 
 export interface CreateAction {
@@ -12,6 +13,10 @@ export interface CreateAction {
       collection?: string;
     };
     enrollmentId?: string;
+    channelEventHub?: string;
+    channelName?: string;
+    connectionProfile?: string;
+    wallet?: Wallet;
   };
 }
 

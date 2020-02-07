@@ -63,5 +63,10 @@ export const bootstrapNetwork: (option: {
     wallet
   });
 
-  return getNetwork({ enrollmentId, channelEventHubExisted: true });
+  return getNetwork({
+    channelEventHub: process.env.CHANNEL_HUB,
+    channelName: process.env.CHANNEL_NAME,
+    connectionProfile,
+    wallet,
+    enrollmentId, channelEventHubExisted: true });
 };

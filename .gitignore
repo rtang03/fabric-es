@@ -76,5 +76,5 @@ docs
 
 authentication-server/.env
 artifacts
-.output
+deployments/gw-org-dev-net/.volume/logs
 .build

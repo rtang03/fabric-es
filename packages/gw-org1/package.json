@@ -4,9 +4,9 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "build": "yarn run clean && tsc",
-    "build:prod": "yarn run clean && tsc -p ./tsconfig.prod.json",
-    "package": "yarn run build:cleanup && yarn run cp:package.json && yarn run cp:env && yarn run cp:dist",
+    "build": "yarn clean && tsc",
+    "build:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
+    "package": "yarn build:cleanup && yarn cp:*",
     "build:cleanup": "rimraf ../../.build/packages/gw-org1 && mkdir -p ../../.build/packages/gw-org1",
     "cp:package.json": "cp ./package.json ../../.build/packages/gw-org1/",
     "cp:dist": "cp -R ./dist ../../.build/packages/gw-org1/",
@@ -23,8 +23,8 @@
     "server-gw": "node ./dist/start-gateway.js",
     "server-auth": "node ./dist/start-auth-server",
     "start-server": "yarn build && concurrently \"npm:server-*\"",
-    "enrollAdmin": "rimraf assets/wallet/admin-org1.example.com && node ./dist/enrollAdmin.js",
-    "enrollCaAdmin": "rimraf assets/wallet/rca-org1-admin && node ./dist/enrollCaAdmin.js",
+    "enrollAdmin": "rimraf assets/wallet/admin-etradeconnect.net && node ./dist/enrollAdmin.js",
+    "enrollCaAdmin": "rimraf assets/wallet/rca-etradeconnect-admin && node ./dist/enrollCaAdmin.js",
     "gen-resolvers-type": "graphql-codegen --config codegen.yml",
     "testapp": "./node_modules/.bin/ts-node ./src/app.ts"
   },
@@ -55,6 +55,7 @@
     "js-yaml": "^3.13.1",
     "jsonwebtoken": "^8.5.1",
     "node-fetch": "^2.6.0",
+    "npm-run-all": "^4.1.5",
     "prettyjson": "^1.2.1",
     "winston": "^3.2.1"
   },

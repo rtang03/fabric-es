@@ -1,4 +1,5 @@
 import Client from 'fabric-client';
+import { Wallet } from 'fabric-network';
 import { keys, values } from 'lodash';
 import { Store } from 'redux';
 import util from 'util';
@@ -11,21 +12,32 @@ import { fromCommitsToGroupByEntityId } from './fromCommitsToGroupByEntityId';
 import { getHistory } from './getHistory';
 import { getPromiseToSave } from './getPromiseToSave';
 
-export const repository: (
-  store: Store
-) => <TEntity = any, TEvent = any>(option: {
+export const repository: (option: {
+  store: Store;
+  channelEventHub: string;
+  channelName: string;
+  connectionProfile: string;
+  wallet: Wallet;
+}) => <TEntity = any, TEvent = any>(option: {
   entityName: string;
   reducer: Reducer;
-}) => Repository<TEntity, TEvent> = store => <TEntity, TEvent>({
-  entityName,
-  reducer
-}) => {
+}) => Repository<TEntity, TEvent> = ({
+  store,
+  channelEventHub,
+  channelName,
+  connectionProfile,
+  wallet
+}) => <TEntity, TEvent>({ entityName, reducer }) => {
   const logger = Client.getLogger('repository.js');
 
   return {
     create: ({ enrollmentId, id }) => ({
       save: events =>
         getPromiseToSave({
+          channelEventHub,
+          channelName,
+          connectionProfile,
+          wallet,
           id,
           entityName,
           version: 0,
@@ -53,6 +65,10 @@ export const repository: (
               currentState: reducer(getHistory(result)),
               save: events =>
                 getPromiseToSave({
+                  channelEventHub,
+                  channelName,
+                  connectionProfile,
+                  wallet,
                   id,
                   entityName,
                   events,
@@ -198,6 +214,10 @@ export const repository: (
 
         store.dispatch(
           deleteByEntityId({
+            channelEventHub,
+            channelName,
+            connectionProfile,
+            wallet,
             tx_id: tid,
             args: { entityName, id }
           })

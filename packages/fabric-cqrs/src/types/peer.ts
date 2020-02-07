@@ -1,5 +1,5 @@
 import { ChannelEventHub } from 'fabric-client';
-import { Gateway, Network } from 'fabric-network';
+import { Gateway, Network, Wallet } from 'fabric-network';
 import { Commit } from './commit';
 import { NgacRepo } from './ngac';
 import { PrivatedataRepository } from './privatedataRepository';
@@ -18,6 +18,10 @@ export interface PeerOptions {
   channelHub?: ChannelEventHub;
   collection: string;
   onChannelEventArrived?: ({ commit }: { commit: Commit }) => void;
+  channelName: string;
+  wallet: Wallet;
+  connectionProfile: string;
+  channelEventHubUri: string;
   // pubSub?: any;
 }
 

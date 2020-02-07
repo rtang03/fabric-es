@@ -8,45 +8,61 @@ import { action as command } from '../../command/action';
 import { action } from '../action';
 import { ReconcileAction } from '../types';
 
-export default (action$: Observable<ReconcileAction>) => {
+export default (action$: Observable<ReconcileAction>, _) => {
   const logger = Client.getLogger('reconcile.js');
 
   return action$.pipe(
     ofType(action.RECONCILE),
     map(({ payload }) => payload),
-    mergeMap(({ tx_id, args: { entityName, reducer }, store }) =>
-      from(
-        new Promise<any>(resolve => {
-          const unsubscribe = store.subscribe(() => {
-            const state = store.getState().write;
-            const tid = state.tx_id;
-            const { type, result } = state;
+    mergeMap(
+      ({
+        tx_id,
+        args: { entityName, reducer },
+        store,
+        channelEventHub,
+        channelName,
+        connectionProfile,
+        wallet
+      }) =>
+        from(
+          new Promise<any>(resolve => {
+            const unsubscribe = store.subscribe(() => {
+              const state = store.getState().write;
+              const tid = state.tx_id;
+              const { type, result } = state;
 
-            if (tx_id === tid && type === command.QUERY_SUCCESS) {
-              logger.info(command.QUERY_SUCCESS);
-              logger.debug(
-                util.format('tx_id: %s, type: %s', tid, command.QUERY_SUCCESS)
-              );
+              if (tx_id === tid && type === command.QUERY_SUCCESS) {
+                logger.info(command.QUERY_SUCCESS);
+                logger.debug(
+                  util.format('tx_id: %s, type: %s', tid, command.QUERY_SUCCESS)
+                );
 
-              unsubscribe();
+                unsubscribe();
 
-              resolve(
-                action.merge({
-                  tx_id,
-                  args: { entityName, commits: result, reducer },
-                  store
-                })
-              );
-            }
-          });
+                resolve(
+                  action.merge({
+                    tx_id,
+                    args: { entityName, commits: result, reducer },
+                    store
+                  })
+                );
+              }
+            });
 
-          (store as Store).dispatch(
-            command.queryByEntityName({ tx_id, args: { entityName } })
-          );
+            (store as Store).dispatch(
+              command.queryByEntityName({
+                tx_id,
+                args: { entityName },
+                channelName,
+                channelEventHub,
+                connectionProfile,
+                wallet
+              })
+            );
 
-          logger.info(`dispatch ${command.QUERY_BY_ENTITY_NAME}: ${tx_id}`);
-        })
-      )
+            logger.info(`dispatch ${command.QUERY_BY_ENTITY_NAME}: ${tx_id}`);
+          })
+        )
     )
   );
 };

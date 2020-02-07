@@ -1,4 +1,5 @@
 import Client from 'fabric-client';
+import { Wallet } from 'fabric-network';
 import { keys } from 'lodash';
 import { Store } from 'redux';
 import util from 'util';
@@ -19,25 +20,34 @@ const {
   queryByEntityName
 } = action;
 
-export const privateDataRepo: (
-  store: Store,
-  collection: string
-) => <TEntity = any, TEvent = any>(option: {
+export const privateDataRepo: (option: {
+  store: Store;
+  collection: string;
+  channelEventHub: string;
+  channelName: string;
+  connectionProfile: string;
+  wallet: Wallet;
+}) => <TEntity = any, TEvent = any>(option: {
   entityName: string;
   reducer: Reducer;
-}) => PrivatedataRepository<TEntity, TEvent> = (store, collection) => <
-  TEntity,
-  TEvent
->({
-  entityName,
-  reducer
-}) => {
+}) => PrivatedataRepository<TEntity, TEvent> = ({
+  store,
+  collection,
+  channelEventHub,
+  channelName,
+  connectionProfile,
+  wallet
+}) => <TEntity, TEvent>({ entityName, reducer }) => {
   const logger = Client.getLogger('privateDataRepo.js');
 
   return {
     create: ({ enrollmentId, id }) => ({
       save: events =>
         getPromiseToSave({
+          channelEventHub,
+          channelName,
+          connectionProfile,
+          wallet,
           id,
           entityName,
           version: 0,
@@ -65,6 +75,10 @@ export const privateDataRepo: (
               currentState: reducer(getHistory(result)),
               save: events =>
                 getPromiseToSave({
+                  channelEventHub,
+                  channelName,
+                  connectionProfile,
+                  wallet,
                   id,
                   entityName,
                   events,
@@ -93,6 +107,10 @@ export const privateDataRepo: (
 
         store.dispatch(
           queryByEntityId({
+            channelEventHub,
+            channelName,
+            connectionProfile,
+            wallet,
             tx_id: tid,
             args: { id, entityName, collection }
           })
@@ -139,6 +157,10 @@ export const privateDataRepo: (
 
         store.dispatch(
           queryByEntityName({
+            channelEventHub,
+            channelName,
+            connectionProfile,
+            wallet,
             tx_id: tid,
             args: { entityName, collection }
           })
@@ -183,6 +205,10 @@ export const privateDataRepo: (
 
         store.dispatch(
           deleteByEntityIdCommitId({
+            channelEventHub,
+            channelName,
+            connectionProfile,
+            wallet,
             tx_id: tid,
             args: { entityName, id, commitId, collection }
           })
