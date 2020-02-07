@@ -1,3 +1,5 @@
+import { FileSystemWallet } from 'fabric-network';
+
 require('../../env');
 import { pick } from 'lodash';
 import { bootstrapNetwork } from '../../account';
@@ -24,7 +26,11 @@ beforeAll(async () => {
     defaultEntityName: entityName,
     queryDatabase: createQueryDatabase(),
     projectionDb: createProjectionDb(entityName),
-    collection: 'Org1PrivateDetails'
+    collection: 'Org1PrivateDetails',
+    channelEventHubUri: process.env.CHANNEL_HUB,
+    channelName: 'eventstore',
+    connectionProfile: process.env.CONNECTION_PROFILE,
+    wallet: new FileSystemWallet(process.env.WALLET)
   });
   repo = peer.getPrivateDataRepo<Counter, CounterEvent>({
     entityName,
@@ -41,9 +47,7 @@ describe('Start peer privatedata Tests', () => {
       .save([{ type: 'ADD' }])
       .then((commit: Commit) => {
         commitId = commit.commitId;
-        expect(
-          pick(commit, 'version', 'entityName')
-        ).toMatchSnapshot();
+        expect(pick(commit, 'version', 'entityName')).toMatchSnapshot();
       }));
 
   it('should getByEntityName', async () =>
