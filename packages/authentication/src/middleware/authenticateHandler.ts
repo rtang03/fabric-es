@@ -19,7 +19,7 @@ export const authenticateHandler = (
     .then(token => {
       res.locals.oauth = { token };
       if (token) {
-        logger.info(
+        logger.debug(
           util.format('%s: %s', AUTHENTICATION_SUCCESS, token?.user?.id)
         );
 

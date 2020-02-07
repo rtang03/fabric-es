@@ -9,41 +9,20 @@ const authenticationCheck =
 export const startGateway = async () => {
   const app = await createGateway({
     serviceList: [
-      {
-        name: 'user',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_USER_PORT}/graphql`
-      },
-      {
-        name: 'loan',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_LOAN_PORT}/graphql`
-      },
-      {
-        name: 'document',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_DOCUMENT_PORT}/graphql`
-      },
-      {
-        name: 'private',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_PRIVATE_PORT}/graphql`
-      },
-      {
-        name: 'remote-org2',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.REMOTE_ORG2_PORT}/graphql`
-      },
-      {
-        name: 'remote-org3',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.REMOTE_ORG3_PORT}/graphql`
-      },
-      {
-        name: 'admin',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.ADMINISTRATOR_PORT}/graphql`
-      }
+      { name: 'user',         url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_USER_PORT}/graphql` },
+      { name: 'loan',         url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_LOAN_PORT}/graphql` },
+      { name: 'document',     url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_DOCUMENT_PORT}/graphql` },
+      { name: 'docContents',  url: `http://${process.env.GATEWAY_HOST}:${process.env.PRIVATE_DOC_CONTENTS_PORT}/graphql` },
+      { name: 'rDocContents', url: `http://${process.env.GATEWAY_HOST}:${process.env.REMOTE_DOC_CONTENTS_PORT}/graphql` },
+      { name: 'rLoanDetails', url: `http://${process.env.GATEWAY_HOST}:${process.env.REMOTE_LOAN_DETAILS_PORT}/graphql` },
+      { name: 'admin',        url: `http://${process.env.GATEWAY_HOST}:${process.env.ADMINISTRATOR_PORT}/graphql` }
     ],
     authenticationCheck,
     useCors: true,
     debug: false
   });
   app.listen(PORT, () => {
-    console.log(`🚀 Server at http://localhost:${PORT}/graphql`);
+    console.log(`🚀 Server at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
   });
 };
 
