@@ -1,0 +1,42 @@
+version: '2'
+
+networks:
+    middletier1:
+
+services:
+
+    postgres01:
+        container_name: postgres01
+        image: postgres
+        environment:
+            - POSTGRES_PASSWORD=docker
+            - POSTGRES_USER=postgres
+            - POSTGRES_DB=postgres
+        volumes:
+            - ../data/postgres01:/var/lib/postgresql/data
+            - ../sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+        ports:
+            - 5432:5432
+        networks:
+            - middletier1
+
+    auth-server01:
+        container_name: auth-server01
+        image: hktfp5/auth-server
+        environment:
+            - TYPEORM_HOST=postgres01
+            - TYPEORM_PORT=5432
+            - TYPEORM_USERNAME=postgres
+            - TYPEORM_PASSWORD=docker
+            - TYPEORM_LOGGING=true
+            - TYPEORM_DATABASE=gw-org1
+            - ADMIN=root_admin
+            - ADMIN_PASSWORD=root_admin_password
+            - ACCESS_TOKEN_SECRET=ajlkqowieuqowueoi
+            - REFRESH_TOKEN_SECRET=qopwieioque1
+        ports:
+            - 3900:8080
+        depends_on:
+            - postgres01
+        networks:
+            - middletier1
