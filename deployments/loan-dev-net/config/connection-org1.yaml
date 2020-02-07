@@ -40,9 +40,9 @@ organizations:
     certificateAuthorities:
       - rca.org1.example.com
     adminPrivateKey:
-      path: ../../network2/config/../artifacts/Org1MSP/admin/msp/keystore/key.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/Org1MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../network2/config/../artifacts/Org1MSP/admin/msp/signcerts/cert.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/Org1MSP/admin/msp/signcerts/cert.pem
 
 orderers:
   orderer1.example.com:
@@ -51,21 +51,21 @@ orderers:
       ssl-target-name-override: orderer1.example.com
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../network2/config/../artifacts/OrdererMSP/orderer1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/OrdererMSP/orderer1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 peers:
   peer0.org1.example.com:
     url: grpcs://localhost:7051
     eventUrl: grpcs://localhost:7053
     tlsCACerts:
-      path: ../../network2/config/../artifacts/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
       ssl-target-name-override: peer0.org1.example.com
   peer1.org1.example.com:
     url: grpcs://localhost:8051
     eventUrl: grpcs://localhost:8053
     tlsCACerts:
-      path: ../../network2/config/../artifacts/Org1MSP/peer1.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/Org1MSP/peer1.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
       ssl-target-name-override: peer1.org1.example.com
 
@@ -74,7 +74,7 @@ certificateAuthorities:
     url: https://localhost:5054
     caName: rca.org1.example.com
     tlsCACerts:
-      path: ../../network2/config/../artifacts/Org1MSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/Org1MSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
       - enrollId: rca-org1-admin
         enrollSecret: rca-org1-adminPW
