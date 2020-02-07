@@ -23,7 +23,7 @@ createService({
   .create();
 
   app
-    .listen({ port: 14034 })
+    .listen({ port: process.env.PRIVATE_LOAN_DETAILS_PORT })
     .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'loanDetails' available at ${url}`));
 }).catch(error => {
   console.log(error);

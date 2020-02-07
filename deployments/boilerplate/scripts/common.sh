@@ -12,4 +12,4 @@ _LOG_DIR="${_PRGDIR}/../logs"
 _CURRENTDATE=`date +"%Y%m%d"`
 _LOGFILE="${_LOG_DIR}/${_PRGNAME}-${_CURRENTDATE}.log"
 _YAML_FILE="${_FABRIC_DIR}/docker-compose.yaml"
-_BIN_DIR="/Users/paul/proj/fabric-bin"
+_BIN_DIR="/Users/howin/Desktop/workspace/fabric-samples/bin"
