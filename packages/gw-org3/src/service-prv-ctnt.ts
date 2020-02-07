@@ -7,13 +7,18 @@ import {
   docContentsResolvers,
   docContentsTypeDefs
 } from '@espresso/model-loan-private';
+import { FileSystemWallet } from 'fabric-network';
 
 createService({
   enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'docContents',
   defaultReducer: docContentsReducer,
   collection: process.env.COLLECTION,
-  isPrivate: true
+  isPrivate: true,
+  channelEventHub: process.env.CHANNEL_HUB,
+  channelName: process.env.CHANNEL_NAME,
+  connectionProfile: process.env.CONNECTION_PROFILE,
+  wallet: new FileSystemWallet(process.env.WALLET)
 }).then(async ({ config, getPrivateDataRepo }) => {
   const app = await config({
     typeDefs: docContentsTypeDefs,

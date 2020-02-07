@@ -1,5 +1,4 @@
 require('./env');
-
 import { createService } from '@espresso/gw-node';
 import {
   LoanDetails,
@@ -19,7 +18,7 @@ createService({
   channelEventHub: process.env.CHANNEL_HUB,
   channelName: process.env.CHANNEL_NAME,
   connectionProfile: process.env.CONNECTION_PROFILE,
-  wallet: new FileSystemWallet(process.env.WALLET),
+  wallet: new FileSystemWallet(process.env.WALLET)
 }).then(async ({ config, getPrivateDataRepo }) => {
   const app = await config({
     typeDefs: loanDetailsTypeDefs,
