@@ -19,10 +19,10 @@ sudo npm install -gy mustache
 
 ## Execution
 
-Usage: ./parse.sh [view name]
+Usage: ./parse.sh [folder of the view] [view name]
 
 ```shell script
-./parse.sh prod-like
+./parse.sh fabric prod-like
 
 # should return:
 #Processing ./deployments/boilerplate/config/connection-org.yaml.mustaches...
@@ -49,7 +49,5 @@ Usage: ./parse.sh [view name]
 #Done!
 
 ```
-
-Note: If no argument is provided, the v1 view will be used by default.
 
 ***
