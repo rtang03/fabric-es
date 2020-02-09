@@ -1,0 +1,1 @@
+docker-compose -f config/docker-compose.yaml down --volumes
