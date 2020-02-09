@@ -1,13 +1,43 @@
 {
     "orgs": [
         {
-            "name": "org1"
+            "name": "1",
+            "script-name": "org1",
+            "postgres": {
+                "dbname": "gw-org1",
+                "user": "postgres",
+                "password": "docker",
+                "port": "5432"
+            },
+            "auth-server": {
+                "port": "4100"
+            }
         },
         {
-            "name": "org2"
+            "name": "2",
+            "script-name": "org2",
+            "postgres": {
+                "dbname": "gw-org2",
+                "user": "postgres",
+                "password": "docker",
+                "port": "6432"
+            },
+            "auth-server": {
+                "port": "4200"
+            }
         },
         {
-            "name": "org3"
+            "name": "3",
+            "script-name": "org3",
+            "postgres": {
+                "dbname": "gw-org3",
+                "user": "postgres",
+                "password": "docker",
+                "port": "7432"
+            },
+            "auth-server": {
+                "port": "4300"
+            }
         }
     ]
 }

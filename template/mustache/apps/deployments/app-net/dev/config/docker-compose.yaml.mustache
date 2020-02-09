@@ -1,42 +1,45 @@
 version: '2'
 
 networks:
-    middletier1:
+    middle-tier:
 
 services:
 
-    postgres01:
-        container_name: postgres01
+{{#orgs}}
+    postgres-{{name}}:
+        container_name: postgres-{{name}}
         image: postgres
         environment:
-            - POSTGRES_PASSWORD=docker
-            - POSTGRES_USER=postgres
             - POSTGRES_DB=postgres
+            - POSTGRES_USER={{postgres.user}}
+            - POSTGRES_PASSWORD={{postgres.password}}
         volumes:
-            - ../data/postgres01:/var/lib/postgresql/data
-            - ../sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+            - ../data/postgres-{{name}}:/var/lib/postgresql/data
+            - ../sql/createdb_{{script-name}}.sql:/docker-entrypoint-initdb.d/1-createdb.sql
         ports:
-            - 5432:5432
+            - {{postgres.port}}:5432
         networks:
-            - middletier1
+            - middle-tier
 
-    auth-server01:
-        container_name: auth-server01
+    auth-server-{{name}}:
+        container_name: auth-server-{{name}}
         image: hktfp5/auth-server
         environment:
-            - TYPEORM_HOST=postgres01
-            - TYPEORM_PORT=5432
-            - TYPEORM_USERNAME=postgres
-            - TYPEORM_PASSWORD=docker
+            - TYPEORM_HOST=postgres-{{name}}
+            - TYPEORM_PORT={{postgres.port}}
+            - TYPEORM_USERNAME={{postgres.user}}
+            - TYPEORM_PASSWORD={{postgres.password}}
             - TYPEORM_LOGGING=true
-            - TYPEORM_DATABASE=gw-org1
+            - TYPEORM_DATABASE={{postgres.dbname}}
             - ADMIN=root_admin
             - ADMIN_PASSWORD=root_admin_password
             - ACCESS_TOKEN_SECRET=ajlkqowieuqowueoi
             - REFRESH_TOKEN_SECRET=qopwieioque1
         ports:
-            - 3900:8080
+            - {{auth-server.port}}:8080
         depends_on:
-            - postgres01
+            - postgres-{{name}}
         networks:
-            - middletier1
+            - middle-tier
+
+{{/orgs}}
