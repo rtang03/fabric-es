@@ -1,4 +1,0 @@
-{{#orgs}}
--- SPLIT WITH AWK --
-create database "{{postgres.dbname}}";
-{{/orgs}}

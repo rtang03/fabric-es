@@ -15,9 +15,7 @@ services:
             - POSTGRES_PASSWORD={{postgres.password}}
         volumes:
             - ../data/postgres-{{name}}:/var/lib/postgresql/data
-            - ../sql/createdb_{{script-name}}.sql:/docker-entrypoint-initdb.d/1-createdb.sql
-        ports:
-            - {{postgres.port}}:5432
+            - ../sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
         networks:
             - middle-tier
 
@@ -26,11 +24,11 @@ services:
         image: hktfp5/auth-server
         environment:
             - TYPEORM_HOST=postgres-{{name}}
-            - TYPEORM_PORT={{postgres.port}}
+            - TYPEORM_PORT=5432
             - TYPEORM_USERNAME={{postgres.user}}
             - TYPEORM_PASSWORD={{postgres.password}}
             - TYPEORM_LOGGING=true
-            - TYPEORM_DATABASE={{postgres.dbname}}
+            - TYPEORM_DATABASE={{auth-db}}
             - ADMIN=root_admin
             - ADMIN_PASSWORD=root_admin_password
             - ACCESS_TOKEN_SECRET=ajlkqowieuqowueoi

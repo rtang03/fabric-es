@@ -1,30 +1,28 @@
 version: '2'
 
 networks:
-    middletier1:
+    middle-tier:
 
 services:
 
-    postgres01:
-        container_name: postgres01
+    postgres-1:
+        container_name: postgres-1
         image: postgres
         environment:
-            - POSTGRES_PASSWORD=docker
-            - POSTGRES_USER=postgres
             - POSTGRES_DB=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=docker
         volumes:
-            - ../data/postgres01:/var/lib/postgresql/data
+            - ../data/postgres-1:/var/lib/postgresql/data
             - ../sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
-#        ports:
-#            - 5432:5432
         networks:
-            - middletier1
+            - middle-tier
 
-    auth-server01:
-        container_name: auth-server01
+    auth-server-1:
+        container_name: auth-server-1
         image: hktfp5/auth-server
         environment:
-            - TYPEORM_HOST=postgres01
+            - TYPEORM_HOST=postgres-1
             - TYPEORM_PORT=5432
             - TYPEORM_USERNAME=postgres
             - TYPEORM_PASSWORD=docker
@@ -35,32 +33,30 @@ services:
             - ACCESS_TOKEN_SECRET=ajlkqowieuqowueoi
             - REFRESH_TOKEN_SECRET=qopwieioque1
         ports:
-            - 3900:8080
+            - 4100:8080
         depends_on:
-            - postgres01
+            - postgres-1
         networks:
-            - middletier1
+            - middle-tier
 
-    postgres02:
-        container_name: postgres02
+    postgres-2:
+        container_name: postgres-2
         image: postgres
         environment:
-            - POSTGRES_PASSWORD=docker
-            - POSTGRES_USER=postgres
             - POSTGRES_DB=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=docker
         volumes:
-            - ../data/postgres02:/var/lib/postgresql/data
+            - ../data/postgres-2:/var/lib/postgresql/data
             - ../sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
-#        ports:
-#            - 6432:5432
         networks:
-            - middletier1
+            - middle-tier
 
-    auth-server02:
-        container_name: auth-server02
+    auth-server-2:
+        container_name: auth-server-2
         image: hktfp5/auth-server
         environment:
-            - TYPEORM_HOST=postgres02
+            - TYPEORM_HOST=postgres-2
             - TYPEORM_PORT=5432
             - TYPEORM_USERNAME=postgres
             - TYPEORM_PASSWORD=docker
@@ -71,32 +67,30 @@ services:
             - ACCESS_TOKEN_SECRET=ajlkqowieuqowueoi
             - REFRESH_TOKEN_SECRET=qopwieioque1
         ports:
-            - 3910:8080
+            - 4200:8080
         depends_on:
-            - postgres02
+            - postgres-2
         networks:
-            - middletier1
+            - middle-tier
 
-    postgres03:
-        container_name: postgres03
+    postgres-3:
+        container_name: postgres-3
         image: postgres
         environment:
-            - POSTGRES_PASSWORD=docker
-            - POSTGRES_USER=postgres
             - POSTGRES_DB=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=docker
         volumes:
-            - ../data/postgres03:/var/lib/postgresql/data
+            - ../data/postgres-3:/var/lib/postgresql/data
             - ../sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
-#        ports:
-#            - 7432:5432
         networks:
-            - middletier1
+            - middle-tier
 
-    auth-server03:
-        container_name: auth-server03
+    auth-server-3:
+        container_name: auth-server-3
         image: hktfp5/auth-server
         environment:
-            - TYPEORM_HOST=postgres03
+            - TYPEORM_HOST=postgres-3
             - TYPEORM_PORT=5432
             - TYPEORM_USERNAME=postgres
             - TYPEORM_PASSWORD=docker
@@ -107,8 +101,9 @@ services:
             - ACCESS_TOKEN_SECRET=ajlkqowieuqowueoi
             - REFRESH_TOKEN_SECRET=qopwieioque1
         ports:
-            - 3920:8080
+            - 4300:8080
         depends_on:
-            - postgres03
+            - postgres-3
         networks:
-            - middletier1
+            - middle-tier
+
