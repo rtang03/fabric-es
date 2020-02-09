@@ -15,8 +15,8 @@ services:
         volumes:
             - ../data/postgres01:/var/lib/postgresql/data
             - ../sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
-        ports:
-            - 5432:5432
+#        ports:
+#            - 5432:5432
         networks:
             - middletier1
 
@@ -29,7 +29,7 @@ services:
             - TYPEORM_USERNAME=postgres
             - TYPEORM_PASSWORD=docker
             - TYPEORM_LOGGING=true
-            - TYPEORM_DATABASE=gw-org1
+            - TYPEORM_DATABASE=auth-server
             - ADMIN=root_admin
             - ADMIN_PASSWORD=root_admin_password
             - ACCESS_TOKEN_SECRET=ajlkqowieuqowueoi
@@ -38,5 +38,77 @@ services:
             - 3900:8080
         depends_on:
             - postgres01
+        networks:
+            - middletier1
+
+    postgres02:
+        container_name: postgres02
+        image: postgres
+        environment:
+            - POSTGRES_PASSWORD=docker
+            - POSTGRES_USER=postgres
+            - POSTGRES_DB=postgres
+        volumes:
+            - ../data/postgres02:/var/lib/postgresql/data
+            - ../sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+#        ports:
+#            - 6432:5432
+        networks:
+            - middletier1
+
+    auth-server02:
+        container_name: auth-server02
+        image: hktfp5/auth-server
+        environment:
+            - TYPEORM_HOST=postgres02
+            - TYPEORM_PORT=5432
+            - TYPEORM_USERNAME=postgres
+            - TYPEORM_PASSWORD=docker
+            - TYPEORM_LOGGING=true
+            - TYPEORM_DATABASE=auth-server
+            - ADMIN=root_admin
+            - ADMIN_PASSWORD=root_admin_password
+            - ACCESS_TOKEN_SECRET=ajlkqowieuqowueoi
+            - REFRESH_TOKEN_SECRET=qopwieioque1
+        ports:
+            - 3910:8080
+        depends_on:
+            - postgres02
+        networks:
+            - middletier1
+
+    postgres03:
+        container_name: postgres03
+        image: postgres
+        environment:
+            - POSTGRES_PASSWORD=docker
+            - POSTGRES_USER=postgres
+            - POSTGRES_DB=postgres
+        volumes:
+            - ../data/postgres03:/var/lib/postgresql/data
+            - ../sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+#        ports:
+#            - 7432:5432
+        networks:
+            - middletier1
+
+    auth-server03:
+        container_name: auth-server03
+        image: hktfp5/auth-server
+        environment:
+            - TYPEORM_HOST=postgres03
+            - TYPEORM_PORT=5432
+            - TYPEORM_USERNAME=postgres
+            - TYPEORM_PASSWORD=docker
+            - TYPEORM_LOGGING=true
+            - TYPEORM_DATABASE=auth-server
+            - ADMIN=root_admin
+            - ADMIN_PASSWORD=root_admin_password
+            - ACCESS_TOKEN_SECRET=ajlkqowieuqowueoi
+            - REFRESH_TOKEN_SECRET=qopwieioque1
+        ports:
+            - 3920:8080
+        depends_on:
+            - postgres03
         networks:
             - middletier1
