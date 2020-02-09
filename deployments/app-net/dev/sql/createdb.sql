@@ -1,1 +1,1 @@
-create database "gw-org1";
+create database "auth-server";
