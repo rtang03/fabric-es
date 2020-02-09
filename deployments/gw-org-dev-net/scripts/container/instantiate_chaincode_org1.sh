@@ -14,3 +14,4 @@ peer chaincode instantiate -o orderer0.hktfp.com:7050 -C loanapp -n privatedata 
     -c '{"Args":["privatedata:instantiate"]}' -P "OR (${members_trimmed})" \
     --collections-config /opt/gopath/src/github.com/hyperledger/fabric/chaincode/collections.json \
     --tls --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+

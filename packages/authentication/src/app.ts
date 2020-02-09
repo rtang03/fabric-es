@@ -1,4 +1,4 @@
-require('./env');
+require('dotenv').config({ path: './.env' });
 
 import http from 'http';
 import omit from 'lodash/omit';
@@ -15,13 +15,12 @@ const postgres: any = createDbConnection({
   name: 'default',
   type: 'postgres' as any,
   host,
-  // port: process.env.TYPEORM_HOST === 'localhost' ? 5432 : undefined,
   port: process.env.TYPEORM_PORT,
   username: process.env.TYPEORM_USERNAME || 'postgres',
   password: process.env.TYPEORM_PASSWORD || 'docker',
   database: process.env.TYPEORM_DATABASE,
-  logging: process.env.TYPEORM_LOGGING,
-  dropSchema: process.env.TYPEORM_DROPSCHEMA,
+  logging: process.env.TYPEORM_LOGGING === 'true',
+  dropSchema: process.env.TYPEORM_DROPSCHEMA === 'true' ,
   synchronize: true
 });
 
@@ -29,38 +28,6 @@ if (process.env.CLOUD_POSTGRES_CONNECTION) {
   postgres.port = undefined;
   postgres.host = '/cloudsql/' + process.env.CLOUD_POSTGRES_CONNECTION;
 }
-
-// the column type of entities requires refactoring
-// const mysql: any = createDbConnection({
-//   name: 'default',
-//   type: 'mysql' as any,
-//   host,
-//   port: process.env.TYPEORM_HOST === 'localhost' ? 3306 : undefined,
-//   username: process.env.TYPEORM_USERNAME || 'root',
-//   password: process.env.TYPEORM_PASSWORD || 'docker',
-//   database: process.env.TYPEORM_DATABASE,
-//   logging: process.env.TYPEORM_LOGGING,
-//   dropSchema: process.env.TYPEORM_DROPSCHEMA,
-//   synchronize: true
-// });
-
-// if (process.env.CLOUD_MYSQL_CONNECTION_NAME) {
-//   mysql.extra = {
-//     socketPath: '/cloudsql/' + process.env.CLOUD_MYSQL_CONNECTION
-//   };
-//   mysql.port = undefined;
-//   mysql.host = undefined;
-// }
-
-// the column type of entities requires refactoring
-// const sqlite3: any = createDbConnection({
-//   name: 'default',
-//   type: 'sqlite' as any,
-//   database: process.env.TYPEORM_DATABASE,
-//   logging: true,
-//   synchronize: true,
-//   dropSchema: true
-// });
 
 const dbConnection = postgres;
 const app: any = {};
@@ -88,13 +55,23 @@ const uri = `http://localhost:${port}/graphql`;
     util.format('db connection: %j', omit(dbConnection, 'password', 'entities'))
   );
 
-  const server = await createAuthServer({
-    dbConnection,
-    rootAdminPassword: process.env.ROOT_PASSWORD || 'admin_test',
-    rootAdmin: process.env.ROOT || 'admin',
-    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
-    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET
-  });
+  let server;
+
+  try {
+    server = await createAuthServer({
+      dbConnection,
+      rootAdminPassword: process.env.ROOT_PASSWORD || 'admin_test',
+      rootAdmin: process.env.ROOT || 'admin',
+      accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
+      refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET
+    });
+  } catch (err) {
+    logger.error(
+      util.format('An error occurred while createAuthServer: %j', err)
+    );
+    process.exit(1);
+  }
+
 
   const stoppableServer = stoppable(http.createServer(server));
 
@@ -122,11 +99,19 @@ const uri = `http://localhost:${port}/graphql`;
     console.info(`🚀  Auth server started at port: http://localhost:${port}`);
     logger.info(`🚀  Auth server started at port: http://localhost:${port}`);
 
-    await createRootClient({
-      uri,
-      admin_password: process.env.ROOT_PASSWORD || 'admin_test',
-      admin: process.env.ROOT || 'admin'
-    });
+    try {
+      await createRootClient({
+        uri,
+        admin_password: process.env.ROOT_PASSWORD || 'admin_test',
+        admin: process.env.ROOT || 'admin'
+      });
+    } catch (err) {
+      logger.error(
+        util.format('An error occurred while createRootClient: %j', err)
+      );
+      process.exit(1);
+    }
+    process.send('ready');
   });
 })().catch(error => {
   console.error(error);

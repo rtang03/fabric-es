@@ -8,7 +8,8 @@ import {
   MISSING_CONNECTION_PROFILE,
   MISSING_ENROLLMENTID,
   MISSING_ENROLLMENTSECRET,
-  MISSING_FABRIC_NETWORK, MISSING_MSPID,
+  MISSING_FABRIC_NETWORK,
+  MISSING_MSPID,
   MISSING_URL,
   MISSING_WALLET,
   SUCCESS,
@@ -43,7 +44,7 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
 
   const caService = new FabricCAServices(
     caUrl,
-    { trustedRoots: Buffer.from(readFileSync(orgCaCertPath)), verify: true },
+    { trustedRoots: Buffer.from(readFileSync(orgCaCertPath)), verify: false },
     null,
     client.getCryptoSuite()
   );

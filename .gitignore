@@ -55,7 +55,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-packages/authentication/.env.test
+.env
 
 # next.js build output
 .next
@@ -76,5 +76,5 @@ docs
 
 authentication-server/.env
 artifacts
-deployments/gw-org-dev-net/.volume/logs
 .build
+.volume

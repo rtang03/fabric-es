@@ -1,14 +1,14 @@
 ```shell script
-export ORG_CA_URL=https://0.0.0.0:6054
-export ORG_ADMIN_ID=admin-etradeconnect.net
-export ORG_ADMIN_SECRET=Heym2rQK
 export CA_ENROLLMENT_ID_ADMIN=rca-etradeconnect-admin
 export CA_ENROLLMENT_SECRET_ADMIN=rca-etradeconnect-adminPW
+export CONNECTION_PROFILE=connection/gw-org-test-net.dev.yaml
+export ORG_ADMIN_ID=admin-etradeconnect.net
+export ORG_ADMIN_SECRET=Heym2rQK
+export ORG_CA_URL=https://0.0.0.0:6054
 export MSPID=EtcMSP
 export NETWORK_LOCATION=../../deployments/gw-org-dev-net/artifacts/crypto-config
 export ORDERER_TLSCA_CERT=$NETWORK_LOCATION/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 export WALLET=assets/wallet
-export CONNECTION_PROFILE=connection/gw-org-test-net.dev.yaml
 node ./dist/enrollAdmin.js
 node ./dist/enrollCaAdmin.js
 
@@ -22,15 +22,13 @@ export WALLET=assets/wallet
 export ORG_ADMIN_ID=admin-etradeconnect.net
 export ORGNAME=etradeconnect.net
 export SERVICE_DOCUMENT_PORT=14013
-node ./dist/service-doc.js
-
 export SERVICE_USER_PORT=14011
-node ./dist/service-user.js
-
 export SERVICE_LOAN_PORT=14012
-node ./dist/service-loan.js
-
 export SERVICE_PRIVATE_PORT=14014
+
+node ./dist/service-doc.js
+node ./dist/service-user.js
+node ./dist/service-loan.js
 node ./dist/service-private.js
 
 export REMOTE_ORG2_PORT=

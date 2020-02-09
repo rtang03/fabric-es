@@ -21,12 +21,12 @@ export const createRootClient = async (option: {
     })
   })
     .then(res => res.json())
-    .then(({ data }) => {
-      if (data?.getRootClientId)
-        logger.info(`Root client app: ${data.getRootClientId}`);
+    .then(result => {
+      if (result?.data?.getRootClientId)
+        logger.info(`Root client app: ${result.data.getRootClientId}`);
       else logger.warn('Root client does not exist');
 
-      return !!data?.getRootClientId;
+      return !!result?.data?.getRootClientId;
     });
 
   if (!isRootClientExist) {

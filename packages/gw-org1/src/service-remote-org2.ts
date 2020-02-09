@@ -15,9 +15,9 @@ const uri = process.env.REMOTE_ORG2_URI;
   });
   server.listen({ port }).then(({ url }) => {
     console.log(`🚀 Remote data: "${name}" at ${uri} ready at ${url}graphql`);
+    process.send('ready');
   });
 })().catch(error => {
-  console.log(error);
-  console.error(error.stack);
-  process.exit(0);
+  console.error(error);
+  process.exit(1);
 });

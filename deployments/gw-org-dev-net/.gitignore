@@ -2,3 +2,4 @@
 artifacts
 genesis.block
 .volume
+.env

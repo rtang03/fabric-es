@@ -50,6 +50,8 @@ export const createGateway: (option: {
 
   const server = new ApolloServer({
     gateway,
+    introspection: true,
+    playground: true,
     subscriptions: false,
     context: async ({ req: { headers } }) => {
       const cookies = Cookie.parse((headers.cookie as string) || '');

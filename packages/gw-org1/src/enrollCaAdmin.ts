@@ -1,4 +1,4 @@
-require('./env');
+require('dotenv').config({ path: './.env' });
 import { enrollAdmin } from '@espresso/operator';
 import { FileSystemWallet } from 'fabric-network';
 
@@ -15,8 +15,11 @@ enrollAdmin({
     wallet: new FileSystemWallet(process.env.WALLET)
   }
 })
-  .then(result => console.log(result))
+  .then(result => {
+    console.log(result);
+    process.exit(0);
+  })
   .catch(error => {
     console.error(error);
-    process.exit(-1);
+    process.exit(1);
   });

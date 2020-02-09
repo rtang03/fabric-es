@@ -2,6 +2,7 @@ import { ApolloServer } from 'apollo-server-express';
 import cookieParser from 'cookie-parser';
 import express, { Express, Request, Response } from 'express';
 import { verify } from 'jsonwebtoken';
+import omit from 'lodash/omit';
 import { OAuth2Server } from 'oauth2-server-typescript';
 import { buildSchema } from 'type-graphql';
 import { ConnectionOptions, createConnection } from 'typeorm';
@@ -49,9 +50,13 @@ export const createHttpServer: (option: {
     else await createConnection();
   } catch (error) {
     logger.error(
-      util.format('typeorm createConnection error: %j, %j', dbConnection, error)
+      util.format(
+        'typeorm createConnection error: %j, %j',
+        omit(dbConnection, 'password', 'entities'),
+        error
+      )
     );
-    process.exit();
+    process.exit(1);
   }
 
   logger.info(`connect db: ${dbConnection.name}`);
