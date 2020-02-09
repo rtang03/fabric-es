@@ -16,9 +16,9 @@ const port = process.env.ADMINISTRATOR_PORT || 15001;
   });
   server.listen({ port }).then(({ url }) => {
     console.log(`🚀 Admin Service ready at ${url}graphql`);
+    process.send('ready');
   });
 })().catch(error => {
-  console.log(error);
-  console.error(error.stack);
-  process.exit(0);
+  console.error(error);
+  process.exit(1);
 });

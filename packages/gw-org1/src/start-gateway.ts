@@ -44,11 +44,12 @@ export const startGateway = async () => {
   });
   app.listen(PORT, () => {
     console.log(`🚀 Server at http://localhost:${PORT}/graphql`);
+    process.send('ready');
   });
 };
 
 startGateway().catch(error => {
   console.log(error);
   console.error(error.stack);
-  process.exit(0);
+  process.exit(1);
 });

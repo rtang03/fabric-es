@@ -1,5 +1,5 @@
 import { Commit } from '@espresso/fabric-cqrs';
-import { AuthenticationError } from 'apollo-server-errors';
+import { AuthenticationError } from 'apollo-server';
 import {
   DocContents,
   docContentsCommandHandler,

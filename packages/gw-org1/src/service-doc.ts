@@ -32,16 +32,14 @@ createService({
       )
       .create();
 
-    app
-      .listen({ port: process.env.SERVICE_DOCUMENT_PORT })
-      .then(({ url }) =>
-        console.log(
-          `🚀  '${process.env.ORGNAME}' - 'document' available at ${url}`
-        )
+    app.listen({ port: process.env.SERVICE_DOCUMENT_PORT }).then(({ url }) => {
+      console.log(
+        `🚀  '${process.env.ORGNAME}' - 'document' available at ${url}`
       );
+      process.send('ready');
+    });
   })
   .catch(error => {
-    console.log(error);
-    console.error(error.stack);
-    process.exit(0);
+    console.error(error);
+    process.exit(1);
   });
