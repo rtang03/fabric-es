@@ -63,3 +63,5 @@ typings/
 .idea
 
 dist
+
+collections.json

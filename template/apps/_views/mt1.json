@@ -1,0 +1,35 @@
+{
+    "auth-db": "auth-server",
+    "orgs": [
+        {
+            "name": "1",
+            "postgres": {
+                "user": "postgres",
+                "password": "docker"
+            },
+            "auth-server": {
+                "port": "4100"
+            }
+        },
+        {
+            "name": "2",
+            "postgres": {
+                "user": "postgres",
+                "password": "docker"
+            },
+            "auth-server": {
+                "port": "4200"
+            }
+        },
+        {
+            "name": "3",
+            "postgres": {
+                "user": "postgres",
+                "password": "docker"
+            },
+            "auth-server": {
+                "port": "4300"
+            }
+        }
+    ]
+}

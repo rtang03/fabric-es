@@ -10,14 +10,14 @@ import {
 import { FileSystemWallet } from 'fabric-network';
 
 createService({
+  enrollmentId: process.env.ORG_ADMIN_ID,
+  defaultEntityName: 'document',
+  defaultReducer: documentReducer,
+  collection: process.env.COLLECTION,
   channelEventHub: process.env.CHANNEL_HUB,
   channelName: process.env.CHANNEL_NAME,
   connectionProfile: process.env.CONNECTION_PROFILE,
   wallet: new FileSystemWallet(process.env.WALLET),
-  enrollmentId: process.env.ORG_ADMIN_ID,
-  defaultEntityName: 'document',
-  defaultReducer: documentReducer,
-  collection: process.env.COLLECTION
 })
   .then(async ({ config, getRepository }) => {
     const app = await config({
