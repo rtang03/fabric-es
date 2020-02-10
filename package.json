@@ -4,7 +4,7 @@
   "scripts": {
     "cp:root": "rimraf .build && mkdir -p ./.build && cp ./package.json .build && cp yarn.lock .build ",
     "tsc:authentication": "lerna run tsc:prod --scope=@espresso/authentication",
-    "tsc:lib": "lerna run build --scope={@espresso/fabric-cqrs,@espresso/operator,@espresso/gw-node}",
+    "tsc:lib": "lerna run tsc:prod --scope={@espresso/fabric-cqrs,@espresso/operator,@espresso/gw-node}",
     "tsc:gw-org1": "lerna run tsc:prod --scope={@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/gw-org1}",
     "tsc:gw-org2": "lerna run tsc:prod --scope={@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/gw-org2}",
     "pack:auth": "yarn cp:root && lerna run pack:lib --scope=@espresso/authentication",
@@ -12,7 +12,8 @@
     "pack:gw-org-dev-net:org1": "lerna run pack:gw-org-dev-net --scope={@espresso/authentication,@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/gw-org1}",
     "pack:gw-org-dev-net:org2": "lerna run pack:gw-org-dev-net --scope={@espresso/authentication,@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/gw-org2}",
     "build:auth": "yarn tsc:authentication && yarn pack:auth",
-    "build:gw-org-dev-net:org1": "yarn tsc:lib && yarn tsc:gw-org1 && yarn pack:lib && yarn pack:gw-org-dev-net:org1"
+    "build:gw-org-dev-net:org1": "yarn tsc:lib && yarn tsc:gw-org1 && yarn pack:lib && yarn pack:gw-org-dev-net:org1",
+    "build:gw-org-dev-net:org2": "yarn tsc:lib && yarn tsc:gw-org2 && yarn pack:lib && yarn pack:gw-org-dev-net:org2"
   },
   "workspaces": [
     "packages/*"
