@@ -8,6 +8,8 @@ pipeline {
                 stage('Web 1') {
                     agent { label 'web1' }
                     steps {
+                        sh "ls -l"
+                        sh "echo hostname"
                         sh "./deployments/app-net/cloud/web1/start.sh"
                         sh "touch web1fp.txt"
                     }
@@ -15,6 +17,8 @@ pipeline {
                 stage('Web 2') {
                     agent { label 'web2' }
                     steps {
+                        sh "ls -l"
+                        sh "echo hostname"
                         sh "./deployments/app-net/cloud/web2/start.sh"
                         sh "touch web2fp.txt"
                     }
@@ -22,6 +26,8 @@ pipeline {
                 stage('Web 3') {
                     agent { label 'web3' }
                     steps {
+                        sh "ls -l"
+                        sh "echo hostname"
                         sh "./deployments/app-net/cloud/web3/start.sh"
                         sh "touch web3fp.txt"
                     }
