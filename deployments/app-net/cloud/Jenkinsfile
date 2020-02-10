@@ -8,21 +8,24 @@ pipeline {
                 stage('Web 1') {
                     agent { label 'web1' }
                     steps {
-                        sh "docker-compose -f ./deployments/app-net/cloud/docker-compose-org1.yaml down --rmi all"
+                        sh "docker-compose -f ./deployments/app-net/cloud/docker-compose-org1.yaml down"
+                        sh "docker rmi -f build:5000/auth-server"
                         sh "docker-compose -f ./deployments/app-net/cloud/docker-compose-org1.yaml up -d"
                     }
                 }
                 stage('Web 2') {
                     agent { label 'web2' }
                     steps {
-                        sh "docker-compose -f ./deployments/app-net/cloud/docker-compose-org2.yaml down --rmi all"
+                        sh "docker-compose -f ./deployments/app-net/cloud/docker-compose-org2.yaml down"
+                        sh "docker rmi -f build:5000/auth-server"
                         sh "docker-compose -f ./deployments/app-net/cloud/docker-compose-org2.yaml up -d"
                     }
                 }
                 stage('Web 3') {
                     agent { label 'web3' }
                     steps {
-                        sh "docker-compose -f ./deployments/app-net/cloud/docker-compose-org3.yaml down --rmi all"
+                        sh "docker-compose -f ./deployments/app-net/cloud/docker-compose-org3.yaml down"
+                        sh "docker rmi -f build:5000/auth-server"
                         sh "docker-compose -f ./deployments/app-net/cloud/docker-compose-org3.yaml up -d"
                     }
                 }
