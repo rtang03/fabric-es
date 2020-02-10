@@ -216,10 +216,19 @@ Optionally, if need to cleanup, (a) pre-existing persisted network, and/or organ
 ### _Step 1: Start network_
 
 ```shell script
-# In first terminal
+# In first terminal: bootstrap Fabric-CA servers
 # cd ~/deployments/gw-dev-net/config
 docker-compose -f docker-compose.fabric_only.yaml up
 
+# Note: Wait the postgres init process done as below, before continue
+# postgres01                 | 2020-02-10 14:25:54.022 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+# postgres01                 | 2020-02-10 14:25:54.142 UTC [65] LOG:  database system was shut down at 2020-02-10 14:25:53 UTC
+# postgres01                 | 2020-02-10 14:25:54.199 UTC [1] LOG:  database system is ready to accept connections
+```
+
+### _Step 2: Generate crypto material_
+
+```shell script
 # generate crypto-material
 # create genesis.block
 # open second terminal
@@ -229,39 +238,85 @@ docker-compose -f docker-compose.fabric_only.yaml up
 # open third termainl
 # cd ~/deployments/gw-dev-net/config
 docker-compose -f docker-compose.fabric_only.yaml up -d
+```
 
+### _Step 3: Create genesis block_
+
+```shell script
 # back to second terminal: create genesis block file
+# below command requires root password to proceed
 # cd ~/deployments/gw-dev-net/scripts
 ./create_genesis.sh
 
+# should return
+# 2020-02-10 22:28:35.155 HKT [common.tools.configtxgen.localconfig] completeInitialization -> INFO 003 orderer type: etcdraft
+# 2020-02-10 22:28:35.155 HKT [common.tools.configtxgen.localconfig] LoadTopLevel -> INFO 004 Loaded configuration: /Users/tangross/dev/2020/open-platform-dlt/deployments/gw-org-dev-net/config/configtx.yaml
+# 2020-02-10 22:28:35.155 HKT [common.tools.configtxgen] doOutputAnchorPeersUpdate -> INFO 005 Generating anchor peer update
+# 2020-02-10 22:28:35.156 HKT [common.tools.configtxgen] doOutputAnchorPeersUpdate -> INFO 006 Writing anchor peer update
+
 # back to third terminal
 docker-compose -f docker-compose.fabric_only.yaml up -d
+```
 
+### _Step 4: Join channel and update anchor peers_
+
+```shell script
 # back to second terminal: join channel
 # cd ~/deployments/gw-dev-net/scripts
 ./join_channel.sh
 
-# cp ~/deployments/gw-org-dev-net/build.gw-org1 ~/packages/chaincode/collections.json
+# should return
+# Blockchain info: {"height":1,"currentBlockHash":"dfPFqoTXTdWQcklu2WNUHfnpECemGbc7wydFDo5lIrY="}
+# 2020-02-10 14:30:35.108 UTC [channelCmd] InitCmdFactory -> INFO 001 Endorser and orderer connections initialized
+# 2020-02-10 14:30:35.139 UTC [channelCmd] update -> INFO 002 Successfully submitted channel update
+```
 
+### _Step 5: Update collections.json_
+
+Validate `~/packages/chaincode/collections.json` existence, and correctness. Or alternatively, copy from build material
+to chaincode directory.
+
+```shell script
+# cp ~/deployments/gw-org-dev-net/build.gw-org1 ~/packages/chaincode/collections.json
+```
+
+### _Step 6: Install chaincode_
+
+```shell script
 # back to second terminal: install chaincode
-# cd ~/deployments/gw-dev-net/
+# goto ~/deployments/gw-dev-net/
 cd ..
 ./installcc.sh
+```
 
+### _Step 7: Swtich network_
+
+In step 1 to 6, it acts on `docker-compose.fabric_only.yaml`, it is used to bootstrap the base network, without
+`gw-org1`, `gw-org2` images. Shut it down, and switch to regular network.
+
+```shell script
 # back to third terminal
 # cd ~/deployments/gw-dev-net/config
 docker-compose -f docker-compose.fabric_only.yaml down
 
-# Above steps install chaincode, and network, and can restart with full network
+# Above steps install chaincode, and network, and can restart with regular network
+# cd ~/deployments/gw-dev-net/config
 docker-compose up
-
-exit
 ```
+
+Note that, do not try combine both networks, because the postgres01 database require init step, and will take time. 
+
+### _Step 8: Network ready_
+
+- Goto gw-org `http://localhost:4000/graphql`
+- Got auth-server, with either `http://localhost:3900` or `http://localhost:3900/graphql`
 
 ### Useful Commands
 
 ```shell script
 docker rm -f \$(docker ps -aq -f status=exited)
+
+sudo lsof -P -sTCP:LISTEN -i TCP -a -p 5432
 ```
 
 ### References
