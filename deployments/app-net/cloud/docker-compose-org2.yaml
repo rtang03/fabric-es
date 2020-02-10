@@ -1,0 +1,41 @@
+version: '2'
+
+networks:
+    middle-tier-2:
+
+services:
+
+    postgres-2:
+        container_name: postgres-2
+        image: postgres
+        environment:
+            - POSTGRES_DB=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=docker
+        volumes:
+            - /home/web/postgresql/data:/var/lib/postgresql/data
+            - ./sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+        networks:
+            - middle-tier-2
+
+    auth-server-2:
+        container_name: auth-server-2
+        image: build:5000/auth-server
+        pull: true
+        environment:
+            - TYPEORM_HOST=postgres-2
+            - TYPEORM_PORT=5432
+            - TYPEORM_USERNAME=postgres
+            - TYPEORM_PASSWORD=docker
+            - TYPEORM_LOGGING=true
+            - TYPEORM_DATABASE=auth-server
+            - ADMIN=root_admin
+            - ADMIN_PASSWORD=root_admin_password
+            - ACCESS_TOKEN_SECRET=ajlkqowieuqowueoi
+            - REFRESH_TOKEN_SECRET=qopwieioque1
+        ports:
+            - 4200:8080
+        depends_on:
+            - postgres-2
+        networks:
+            - middle-tier-2

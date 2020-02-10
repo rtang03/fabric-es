@@ -1,1 +1,0 @@
-echo "Hello from web 1!"
