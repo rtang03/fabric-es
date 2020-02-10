@@ -29,7 +29,7 @@ DOCKER_BUILD=1 docker build --no-cache -f ./auth-server.dockerfile -t espresso/a
 _Option 1: local machine Setup: standalone postgres_
 
 ```shell script
-# Using localhost, can be used for local development. 
+# Using localhost, can be used for local development.
 # However, the port 5432 will conflict with postgres defined boilerplated docker-compose.yaml
 # If using boilerplated docker-compose up, you should not run this command.
 docker run -d \
@@ -110,7 +110,7 @@ exit
 ```shell script
 # (a) Standalone execution
 # This command does not work when postgres01 is embedded in docker-compose,
-# because of espresso/auth-server and postgres run on ifferent docker networks. 
+# because of espresso/auth-server and postgres run on ifferent docker networks.
 # It will work only if postgres run on assessible network, e.g. standalone installation.
 #docker run \
 #  -e TYPEORM_HOST=localhost \
@@ -164,72 +164,107 @@ DOCKER_BUILD=1 docker build --no-cache -f ./gw-org1.dockerfile -t espresso/gw-or
 ```
 
 If running docker image, may launch `~/deployments/gw-org-dev-net/config/docker-compose up`
+
 ```yaml
-  gw-org1:
-    image: espresso/gw-org1:1.0
-    container_name: gw-org1
-    environment:
-      - AUTHORIZATION_SERVER_URI=http://auth-server/oauth/authenticate
-      - CA_ENROLLMENT_ID_ADMIN=rca-etradeconnect-admin
-      - CA_ENROLLMENT_SECRET_ADMIN=rca-etradeconnect-adminPW
-      - CONNECTION_PROFILE=/home/app/packages/gw-org1/connection.yaml
-      - COLLECTION=etcPrivateDetails
-      - ORG_ADMIN_ID=admin-etradeconnect.net
-      - ORG_ADMIN_SECRET=Heym2rQK
-      - ORG_CA_URL=https://rca.etradeconnect.net:6054
-      - NETWORK_LOCATION=/var/artifacts/crypto-config
-      - ORDERER_NAME=orderer0.hktfp.com
-      - ORDERER_TLSCA_CERT=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
-      - PEER_NAME=peer0.etradeconnect.net
-      - WALLET=assets/wallet
-      - MSPID=EtcMSP
-      - GATEWAY_HOST=localhost
-    working_dir: /home/app/packages/gw-org1
-    ports:
-      - 4000:4001
-    networks:
-      - openplatform
-    depends_on:
-      - auth-server
-      - orderer0.hktfp.com
-      - peer0.etradeconnect.net
-    volumes:
-      - ../.volume/gw-org1/assets/:/home/app/packages/gw-org1/assets/
-      - ../.volume/gw-org1/logs/:/home/app/packages/gw-org1/logs/
-      - ../artifacts/crypto-config/:/var/artifacts/crypto-config/
+gw-org1:
+  image: espresso/gw-org1:1.0
+  container_name: gw-org1
+  environment:
+    - AUTHORIZATION_SERVER_URI=http://auth-server/oauth/authenticate
+    - CA_ENROLLMENT_ID_ADMIN=rca-etradeconnect-admin
+    - CA_ENROLLMENT_SECRET_ADMIN=rca-etradeconnect-adminPW
+    - CONNECTION_PROFILE=/home/app/packages/gw-org1/connection.yaml
+    - COLLECTION=etcPrivateDetails
+    - ORG_ADMIN_ID=admin-etradeconnect.net
+    - ORG_ADMIN_SECRET=Heym2rQK
+    - ORG_CA_URL=https://rca.etradeconnect.net:6054
+    - NETWORK_LOCATION=/var/artifacts/crypto-config
+    - ORDERER_NAME=orderer0.hktfp.com
+    - ORDERER_TLSCA_CERT=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+    - PEER_NAME=peer0.etradeconnect.net
+    - WALLET=assets/wallet
+    - MSPID=EtcMSP
+    - GATEWAY_HOST=localhost
+  working_dir: /home/app/packages/gw-org1
+  ports:
+    - 4000:4001
+  networks:
+    - openplatform
+  depends_on:
+    - auth-server
+    - orderer0.hktfp.com
+    - peer0.etradeconnect.net
+  volumes:
+    - ../.volume/gw-org1/assets/:/home/app/packages/gw-org1/assets/
+    - ../.volume/gw-org1/logs/:/home/app/packages/gw-org1/logs/
+    - ../artifacts/crypto-config/:/var/artifacts/crypto-config/
 ```
 
+## PART C: Instructions for Launch Network
 
-## PART C: Instructions for GW-ORG1
-To be clean up
+### _Step 0: Cleanup_
 
+Optionally, if need to cleanup, (a) pre-existing persisted network, and/or organizational assets, you need to remove below directory.
+
+- `.volume/gw-org1`: localized certificates and wallets, logs in gw-org1
+- `.volume/gw-org2`: localized certificates and wallets, logs in gw-org2
+- `.volume/production`: persisted Fabric network's correspondsing `/var/hyperledger/production`
+- `.volume/artifacts/crypto-config`: entire network,,'s crypto material
+- `.volume/artifacts/postgres01`: postgres data for org1
+- `.volume/artifacts/postgres02`: postgres data for org2
+
+### _Step 1: Start network_
+
+```shell script
+# In first terminal
+# cd ~/deployments/gw-dev-net/config
 docker-compose -f docker-compose.fabric_only.yaml up
 
-sleep 5
-docker rm -f $(docker ps -aq -f status=exited)
+# generate crypto-material
+# create genesis.block
+# open second terminal
+# cd ~/deployments/gw-dev-net/scripts
+./gen_certs.sh
 
+# open third termainl
+# cd ~/deployments/gw-dev-net/config
+docker-compose -f docker-compose.fabric_only.yaml up -d
 
-export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp
-peer channel create -c loanapp -f /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/channel.tx -o orderer0.hktfp.com:7050 \
-    --outputBlock /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/loanapp.block \
-    --tls --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
- 
+# back to second terminal: create genesis block file
+# cd ~/deployments/gw-dev-net/scripts
+./create_genesis.sh
 
-export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp
-export CORE_PEER_ADDRESS=peer0.etradeconnect.net:7051
-peer channel join -b /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/loanapp.block
-export CORE_PEER_ADDRESS=peer1.etradeconnect.net:7151
-peer channel join -b /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/loanapp.block
-   
-export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/PbctfpMSP/admin/msp
-export CORE_PEER_ADDRESS=peer0.pbctfp.net:7251
-peer channel join -b /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/loanapp.block
-export CORE_PEER_ADDRESS=peer1.pbctfp.net:7351
-peer channel join -b /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/loanapp.block
+# back to third terminal
+docker-compose -f docker-compose.fabric_only.yaml up -d
 
+# back to second terminal: join channel
+# cd ~/deployments/gw-dev-net/scripts
+./join_channel.sh
+
+# cp ~/deployments/gw-org-dev-net/build.gw-org1 ~/packages/chaincode/collections.json
+
+# back to second terminal: install chaincode
+# cd ~/deployments/gw-dev-net/
+cd ..
 ./installcc.sh
 
+# back to third terminal
+# cd ~/deployments/gw-dev-net/config
+docker-compose -f docker-compose.fabric_only.yaml down
 
-### References  
+# Above steps install chaincode, and network, and can restart with full network
+docker-compose up
+
+exit
+```
+
+### Useful Commands
+
+```shell script
+docker rm -f \$(docker ps -aq -f status=exited)
+```
+
+### References
+
 [Node, pm2 dockers devops](https://medium.com/@adriendesbiaux/node-js-pm2-docker-docker-compose-devops-907dedd2b69a)
 [pm2 documentation](https://pm2.keymetrics.io/docs/usage/application-declaration/)
