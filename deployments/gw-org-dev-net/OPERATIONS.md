@@ -199,12 +199,15 @@ If running docker image, may launch `~/deployments/gw-org-dev-net/config/docker-
       - ../artifacts/crypto-config/:/var/artifacts/crypto-config/
 ```
 
-### References  
-[Node, pm2 dockers devops](https://medium.com/@adriendesbiaux/node-js-pm2-docker-docker-compose-devops-907dedd2b69a)
-[pm2 documentation](https://pm2.keymetrics.io/docs/usage/application-declaration/)
 
+## PART C: Instructions for GW-ORG1
 To be clean up
+
 docker-compose -f docker-compose.fabric_only.yaml up
+
+sleep 5
+docker rm -f $(docker ps -aq -f status=exited)
+
 
 export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp
 peer channel create -c loanapp -f /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/channel.tx -o orderer0.hktfp.com:7050 \
@@ -225,3 +228,8 @@ export CORE_PEER_ADDRESS=peer1.pbctfp.net:7351
 peer channel join -b /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/loanapp.block
 
 ./installcc.sh
+
+
+### References  
+[Node, pm2 dockers devops](https://medium.com/@adriendesbiaux/node-js-pm2-docker-docker-compose-devops-907dedd2b69a)
+[pm2 documentation](https://pm2.keymetrics.io/docs/usage/application-declaration/)
