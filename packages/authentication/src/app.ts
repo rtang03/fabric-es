@@ -115,5 +115,5 @@ const uri = `http://localhost:${port}/graphql`;
   });
 })().catch(error => {
   console.error(error);
-  process.exit();
+  process.exit(1);
 });
