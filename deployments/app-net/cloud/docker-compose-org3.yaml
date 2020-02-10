@@ -21,7 +21,6 @@ services:
     auth-server-3:
         container_name: auth-server-3
         image: build:5000/auth-server
-        pull: true
         environment:
             - TYPEORM_HOST=postgres-3
             - TYPEORM_PORT=5432
