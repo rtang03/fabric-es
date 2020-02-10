@@ -78,32 +78,32 @@ Organizations:
          - Host: peer0.pbctfp.net
            Port: 7251
 
-   - &hsbc
-      Name: hsbc
-      ID: HsbcMSP
-      MSPDir: ../artifacts/crypto-config/HsbcMSP/msp
-
-      Policies:
-         Readers:
-            Type: Signature
-            Rule: "OR('HsbcMSP.member')"
-         Writers:
-            Type: Signature
-            Rule: "OR('HsbcMSP.member')"
-         Admins:
-            Type: Signature
-            Rule: "OR('HsbcMSP.admin')"
-
-      OrdererEndpoints:
-         - orderer0.hktfp.com:7050
-         - orderer1.hktfp.com:7150
-         - orderer2.hktfp.com:7250
-         - orderer3.hktfp.com:7350
-         - orderer4.hktfp.com:7450
-
-      AnchorPeers:
-         - Host: peer0.hsbc.com.hk
-           Port: 7451
+#   - &hsbc
+#      Name: hsbc
+#      ID: HsbcMSP
+#      MSPDir: ../artifacts/crypto-config/HsbcMSP/msp
+#
+#      Policies:
+#         Readers:
+#            Type: Signature
+#            Rule: "OR('HsbcMSP.member')"
+#         Writers:
+#            Type: Signature
+#            Rule: "OR('HsbcMSP.member')"
+#         Admins:
+#            Type: Signature
+#            Rule: "OR('HsbcMSP.admin')"
+#
+#      OrdererEndpoints:
+#         - orderer0.hktfp.com:7050
+#         - orderer1.hktfp.com:7150
+#         - orderer2.hktfp.com:7250
+#         - orderer3.hktfp.com:7350
+#         - orderer4.hktfp.com:7450
+#
+#      AnchorPeers:
+#         - Host: peer0.hsbc.com.hk
+#           Port: 7451
 
 Capabilities:
    Channel: &ChannelCapabilities
@@ -244,7 +244,7 @@ Profiles:
             Organizations:
                - *etc
                - *pbctfp
-               - *hsbc
+#               - *hsbc
 
    OrgsChannel:
       Consortium: BankingHK
@@ -254,6 +254,6 @@ Profiles:
          Organizations:
             - *etc
             - *pbctfp
-            - *hsbc
+#            - *hsbc
          Capabilities:
             <<: *ApplicationCapabilities

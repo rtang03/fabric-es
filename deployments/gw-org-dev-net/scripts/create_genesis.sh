@@ -31,15 +31,15 @@ sudo cp  ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/peer0.pbctfp.net/msp/admincerts/pbctfp.
 sudo cp  ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/peer0.pbctfp.net/assets/ca/pbctfp.net-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/msp/cacerts
 sudo cp  ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/peer0.pbctfp.net/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/msp/tlscacerts
 
-# hsbc
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/admincerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/cacerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/tlscacerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/users
-
-sudo cp  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/msp/admincerts/hsbc.com.hk-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/admincerts
-sudo cp  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets/ca/hsbc.com.hk-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/cacerts
-sudo cp  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/tlscacerts
+ hsbc
+#sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/admincerts
+#sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/cacerts
+#sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/tlscacerts
+#sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/users
+#
+#sudo cp  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/msp/admincerts/hsbc.com.hk-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/admincerts
+#sudo cp  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets/ca/hsbc.com.hk-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/cacerts
+#sudo cp  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/HsbcMSP/msp/tlscacerts
 
 # Ubuntu requires ownership of orderer certs
 sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer0.hktfp.com
@@ -48,7 +48,7 @@ sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer2.hktfp.com
 sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer3.hktfp.com
 sudo chown -R $(whoami) ${_CRYPTO_CONFIG_DIR}/HktfpMSP/orderer4.hktfp.com
 
-cd ${_FABRIC_DIR}; 
+cd ${_FABRIC_DIR};
 export FABRIC_CFG_PATH=${PWD}
 ${_BIN_DIR}/configtxgen -profile OrgsOrdererGenesis -outputBlock genesis.block -channelID ordererchannel
 ${_BIN_DIR}/configtxgen -profile OrgsChannel -outputCreateChannelTx channel.tx -channelID loanapp
@@ -67,6 +67,6 @@ sudo mv etcAnchors.tx ${_CRYPTO_CONFIG_DIR}/EtcMSP/peer0.etradeconnect.net/asset
 ${_BIN_DIR}/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate pbctfpAnchors.tx -channelID loanapp -asOrg pbctfp
 mkdir -p ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/peer0.pbctfp.net/assets
 sudo mv pbctfpAnchors.tx ${_CRYPTO_CONFIG_DIR}/PbctfpMSP/peer0.pbctfp.net/assets
-${_BIN_DIR}/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate hsbcAnchors.tx -channelID loanapp -asOrg hsbc
-mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets
-sudo mv hsbcAnchors.tx ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets
+#${_BIN_DIR}/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate hsbcAnchors.tx -channelID loanapp -asOrg hsbc
+#mkdir -p ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets
+#sudo mv hsbcAnchors.tx ${_CRYPTO_CONFIG_DIR}/HsbcMSP/peer0.hsbc.com.hk/assets
