@@ -1,0 +1,21 @@
+version: '2'
+
+networks:
+    apps_1:
+
+services:
+
+    auth-server-1:
+        container_name: auth-server-1
+        image: build:5000/auth-server
+        environment:
+            - TYPEORM_HOST=postgres-1
+            - TYPEORM_PORT=5432
+            - TYPEORM_USERNAME=postgres
+            - TYPEORM_PASSWORD=docker
+            - TYPEORM_LOGGING=true
+            - TYPEORM_DATABASE=auth_db
+        ports:
+            - 4100:8080
+        networks:
+            - apps_1

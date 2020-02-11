@@ -1,0 +1,25 @@
+{
+    "network": {
+        "prefix": "apps"
+    },
+    "orgs": [
+        {
+            "name": "1",
+            "auth-server": {
+                "port": "4100"
+            }
+        },
+        {
+            "name": "2",
+            "auth-server": {
+                "port": "4100"
+            }
+        },
+        {
+            "name": "3",
+            "auth-server": {
+                "port": "4100"
+            }
+        }
+    ]
+}

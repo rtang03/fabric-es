@@ -1,0 +1,21 @@
+version: '2'
+
+networks:
+    apps_3:
+
+services:
+
+    auth-server-3:
+        container_name: auth-server-3
+        image: build:5000/auth-server
+        environment:
+            - TYPEORM_HOST=postgres-3
+            - TYPEORM_PORT=5432
+            - TYPEORM_USERNAME=postgres
+            - TYPEORM_PASSWORD=docker
+            - TYPEORM_LOGGING=true
+            - TYPEORM_DATABASE=auth_db
+        ports:
+            - 4100:8080
+        networks:
+            - apps_3
