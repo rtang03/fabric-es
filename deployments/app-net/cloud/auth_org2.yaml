@@ -8,6 +8,7 @@ services:
     auth-server-2:
         container_name: auth-server-2
         image: build:5000/auth-server
+        restart: always
         environment:
             - TYPEORM_HOST=postgres-2
             - TYPEORM_PORT=5432

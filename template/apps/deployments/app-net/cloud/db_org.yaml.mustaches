@@ -10,6 +10,7 @@ services:
     postgres-{{name}}:
         container_name: postgres-{{name}}
         image: postgres
+        restart: always
         environment:
             - POSTGRES_DB=postgres
             - POSTGRES_USER=postgres

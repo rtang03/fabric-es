@@ -8,6 +8,7 @@ services:
     postgres-3:
         container_name: postgres-3
         image: postgres
+        restart: always
         environment:
             - POSTGRES_DB=postgres
             - POSTGRES_USER=postgres
