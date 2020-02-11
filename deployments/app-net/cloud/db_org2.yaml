@@ -8,6 +8,7 @@ services:
     postgres-2:
         container_name: postgres-2
         image: postgres
+        restart: always
         environment:
             - POSTGRES_DB=postgres
             - POSTGRES_USER=postgres
