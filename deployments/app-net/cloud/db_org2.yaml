@@ -1,0 +1,19 @@
+version: '2'
+
+networks:
+    apps_2:
+
+services:
+
+    postgres-2:
+        container_name: postgres-2
+        image: postgres
+        environment:
+            - POSTGRES_DB=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=docker
+        volumes:
+            - /home/web/postgresql/data:/var/lib/postgresql/data
+            - ../sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+        networks:
+            - apps_2

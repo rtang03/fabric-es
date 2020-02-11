@@ -1,7 +1,7 @@
 
 # Development Authentication Servers
 
-This applications runs 3 authentication servers alongside with their own postgresSQL DB.
+This application runs 3 authentication servers alongside with their own postgresSQL DB.
 
 ***
 
