@@ -206,10 +206,11 @@ gw-org1:
 
 Optionally, if need to cleanup, (a) pre-existing persisted network, and/or organizational assets, you need to remove below directory.
 
+- `.volume/auth-server/logs`: auth-server log files
 - `.volume/gw-org1`: localized certificates and wallets, logs in gw-org1
 - `.volume/gw-org2`: localized certificates and wallets, logs in gw-org2
 - `.volume/production`: persisted Fabric network's correspondsing `/var/hyperledger/production`
-- `.volume/artifacts/crypto-config`: entire network,,'s crypto material
+- `.volume/artifacts/crypto-config`: entire network crypto material
 - `.volume/artifacts/postgres01`: postgres data for org1
 - `.volume/artifacts/postgres02`: postgres data for org2
 
@@ -236,6 +237,8 @@ docker-compose -f docker-compose.fabric_only.yaml up
 ./gen_certs.sh
 
 # open third termainl
+# the below step re-live orderers, with newly created certifcates
+# `docker ps` should return a list of running orderers
 # cd ~/deployments/gw-dev-net/config
 docker-compose -f docker-compose.fabric_only.yaml up -d
 ```
@@ -256,9 +259,15 @@ docker-compose -f docker-compose.fabric_only.yaml up -d
 
 # back to third terminal
 docker-compose -f docker-compose.fabric_only.yaml up -d
+
+# should return, something like
+# orderer3.hktfp.com         | 2020-02-11 02:50:17.282 UTC [orderer.consensus.etcdraft] serveRequest -> INFO 029 Raft leader changed: 0 -> 5 channel=ordererchannel node=4
+# orderer4.hktfp.com         | 2020-02-11 02:50:17.283 UTC [orderer.consensus.etcdraft] serveRequest -> INFO 03e Start accepting requests as Raft leader at block [0] channel=ordererchannel node=5
 ```
 
-### _Step 4: Join channel and update anchor peers_
+### _Step 4: Join channel_
+
+Note: there is error in updating anchor peers, and is commented out.
 
 ```shell script
 # back to second terminal: join channel
@@ -304,7 +313,7 @@ docker-compose -f docker-compose.fabric_only.yaml down
 docker-compose up
 ```
 
-Note that, do not try combine both networks, because the postgres01 database require init step, and will take time. 
+Note that, do not try combine both networks, because the postgres01 database require init step, and will take time.
 
 ### _Step 8: Network ready_
 
