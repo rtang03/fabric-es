@@ -5,10 +5,25 @@ networks:
 
 services:
 
+    postgres-1:
+        container_name: postgres-1
+        image: postgres
+        restart: always
+        environment:
+            - POSTGRES_DB=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=docker
+        volumes:
+            - /home/web/postgresql/data:/var/lib/postgresql/data
+        networks:
+            - apps_1
+
     auth-server-1:
         container_name: auth-server-1
         image: build:5000/auth-server
         restart: always
+        depends_on:
+            - postgres-1
         environment:
             - TYPEORM_HOST=postgres-1
             - TYPEORM_PORT=5432
