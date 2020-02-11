@@ -1,5 +1,4 @@
 {
-    "auth-db": "auth-server",
     "orgs": [
         {
             "name": "1",
@@ -8,7 +7,8 @@
                 "password": "docker"
             },
             "auth-server": {
-                "port": "4100"
+                "port": "4100",
+                "cloud-port": "3900"
             }
         },
         {
@@ -18,7 +18,8 @@
                 "password": "docker"
             },
             "auth-server": {
-                "port": "4200"
+                "port": "4200",
+                "cloud-port": "3900"
             }
         },
         {
@@ -28,7 +29,8 @@
                 "password": "docker"
             },
             "auth-server": {
-                "port": "4300"
+                "port": "4300",
+                "cloud-port": "3900"
             }
         }
     ]
