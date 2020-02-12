@@ -62,7 +62,7 @@ createService({
 
     app.listen({ port: process.env.SERVICE_LOAN_PORT }).then(({ url }) => {
       logger.info(`🚀  '${process.env.ORGNAME}' - 'loan' available at ${url}`);
-      process.send('ready');
+      // process.send('ready');
     });
   })
   .catch(error => {
