@@ -1,13 +1,13 @@
 
 # Application on Cloud
 
-This is the reference for the application on GCP cloud.
+This contains notes for the application on GCP cloud.
 
 ***
 
 ## Jenkins
 
-URL: [http://35.213.97.7](http://35.213.97.7)
+Build: [http://35.213.97.7](http://35.213.97.7)
 
 ***
 
