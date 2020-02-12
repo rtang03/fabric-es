@@ -1,0 +1,81 @@
+---
+name: fdi_openplatform-credrate
+version: 1.0.0
+
+client:
+  organization: credrate
+  credentialStore:
+    path: /home/app/packages/gw-org1/assets/client-certs/hfc-kvs/credrate.com.hk
+    cryptoStore:
+      path: /home/app/packages/gw-org1/assets/client-certs/hfc-kvs/credrate.com.hk
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+
+channels:
+  eventstore:
+    orderers:
+      - orderer0.hktfp.com
+    peers:
+      peer0.credrate.com.hk:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer1.credrate.com.hk:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+    chaincodes:
+      - eventstore:1.0
+
+organizations:
+  CredRateMSP:
+    mspid: CredRateMSP
+    peers:
+      - peer0.credrate.com.hk
+      - peer1.credrate.com.hk
+    certificateAuthorities:
+      - rca.credrate.com.hk
+    adminPrivateKey:
+      path: /var/artifacts/crypto-config/CredRateMSP/admin/msp/keystore/key.pem
+    signedCert:
+      path: /var/artifacts/crypto-config/CredRateMSP/admin/msp/signcerts/cert.pem
+
+orderers:
+  orderer0.hktfp.com:
+    url: grpcs://orderer0.hktfp.com:7050
+    grpcOptions:
+      ssl-target-name-override: orderer0.hktfp.com
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+
+peers:
+  peer0.credrate.com.hk:
+    url: grpcs://peer0.credrate.com.hk:7051
+    eventUrl: grpcs://peer0.credrate.com.hk:7053
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/CredRateMSP/peer0.credrate.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+    grpcOptions:
+      ssl-target-name-override: peer0.credrate.com.hk
+  peer1.credrate.com.hk:
+    url: grpcs://peer1.credrate.com.hk:7051
+    eventUrl: grpcs://peer1.credrate.com.hk:7053
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/CredRateMSP/peer1.credrate.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+    grpcOptions:
+      ssl-target-name-override: peer1.credrate.com.hk
+
+certificateAuthorities:
+  rca.credrate.com.hk:
+    url: https://rca.credrate.com.hk:6056
+    caName: rca.credrate.com.hk
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/CredRateMSP/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: rca-credrate-admin
+        enrollSecret: Fc7VFDx7
+    httpOptions:
+      verify: false

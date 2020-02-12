@@ -1,0 +1,26 @@
+[
+  {
+    "name": "etcPrivateDetails",
+    "policy": "OR('EtcMSP.member')",
+    "requiredPeerCount": 0,
+    "maxPeerCount": 4,
+    "blockToLive": 0,
+    "memberOnlyRead": true
+  },
+  {
+    "name": "pbctfpPrivateDetails",
+    "policy": "OR('PbctfpMSP.member')",
+    "requiredPeerCount": 0,
+    "maxPeerCount": 4,
+    "blockToLive": 0,
+    "memberOnlyRead": true
+  },
+  {
+    "name": "credratePrivateDetails",
+    "policy": "OR('CredRateMSP.member')",
+    "requiredPeerCount": 0,
+    "maxPeerCount": 4,
+    "blockToLive": 0,
+    "memberOnlyRead": true
+  }
+]
