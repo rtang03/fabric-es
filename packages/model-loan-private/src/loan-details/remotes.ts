@@ -1,7 +1,6 @@
 import { RemoteData } from '@espresso/gw-node';
 import gql from 'graphql-tag';
 import { GET_DETAILS_BY_ID } from '.';
-import { UriResolver } from '../uriResolver';
 
 /*
 NOTE!!! This is the type definition publish by an ORG, who has certain private-data to share to other ORGs.
@@ -49,10 +48,9 @@ export const typeDefs = gql`
 
 export const resolvers = {
   Loan: {
-    _details: async ({ loanId }, { token }, { remoteData }: RemoteData) => {
-      console.log('HHHHHiii', loanId, UriResolver[loanId]);
+    _details: async ({ loanId }, { token }, { uriResolver, remoteData }: RemoteData) => {
       return remoteData({
-        uri: UriResolver[loanId],
+        uri: await uriResolver.resolve(loanId),
         query: GET_DETAILS_BY_ID,
         operationName: 'GetLoanDetailsById',
         variables: { loanId },

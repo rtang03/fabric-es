@@ -1,0 +1,160 @@
+---
+name: fdi_openplatform-all
+version: 1.0.0
+
+channels:
+  eventstore:
+    orderers:
+      - orderer0.hktfp.com
+    peers:
+      peer0.etradeconnect.net:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer1.etradeconnect.net:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0.pbctfp.net:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer1.pbctfp.net:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0.credrate.com.hk:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer1.credrate.com.hk:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+    chaincodes:
+      - eventstore:1.0
+
+organizations:
+  EtcMSP:
+    mspid: EtcMSP
+    peers:
+      - peer0.etradeconnect.net
+      - peer1.etradeconnect.net
+    certificateAuthorities:
+      - rca.etradeconnect.net
+    adminPrivateKey:
+      path: /var/artifacts/crypto-config/EtcMSP/admin/msp/keystore/key.pem
+    signedCert:
+      path: /var/artifacts/crypto-config/EtcMSP/admin/msp/signcerts/cert.pem
+  PbctfpMSP:
+    mspid: PbctfpMSP
+    peers:
+      - peer0.pbctfp.net
+      - peer1.pbctfp.net
+    certificateAuthorities:
+      - rca.pbctfp.net
+    adminPrivateKey:
+      path: /var/artifacts/crypto-config/PbctfpMSP/admin/msp/keystore/key.pem
+    signedCert:
+      path: /var/artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem
+  CredRateMSP:
+    mspid: CredRateMSP
+    peers:
+      - peer0.credrate.com.hk
+      - peer1.credrate.com.hk
+    certificateAuthorities:
+      - rca.credrate.com.hk
+    adminPrivateKey:
+      path: /var/artifacts/crypto-config/CredRateMSP/admin/msp/keystore/key.pem
+    signedCert:
+      path: /var/artifacts/crypto-config/CredRateMSP/admin/msp/signcerts/cert.pem
+
+orderers:
+  orderer0.hktfp.com:
+    url: grpcs://orderer0.hktfp.com:7050
+    grpcOptions:
+      ssl-target-name-override: orderer0.hktfp.com
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+
+peers:
+  peer0.etradeconnect.net:
+    url: grpcs://peer0.etradeconnect.net:7051
+    eventUrl: grpcs://peer0.etradeconnect.net:7053
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+    grpcOptions:
+      ssl-target-name-override: peer0.etradeconnect.net
+  peer1.etradeconnect.net:
+    url: grpcs://peer1.etradeconnect.net:7051
+    eventUrl: grpcs://peer1.etradeconnect.net:7053
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+    grpcOptions:
+      ssl-target-name-override: peer1.etradeconnect.net
+  peer0.pbctfp.net:
+    url: grpcs://peer0.pbctfp.net:7051
+    eventUrl: grpcs://peer0.pbctfp.net:7053
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+    grpcOptions:
+      ssl-target-name-override: peer0.pbctfp.net
+  peer1.pbctfp.net:
+    url: grpcs://peer1.pbctfp.net:7051
+    eventUrl: grpcs://peer1.pbctfp.net:7053
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+    grpcOptions:
+      ssl-target-name-override: peer1.pbctfp.net
+  peer0.credrate.com.hk:
+    url: grpcs://peer0.credrate.com.hk:7051
+    eventUrl: grpcs://peer0.credrate.com.hk:7053
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/CredRateMSP/peer0.credrate.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+    grpcOptions:
+      ssl-target-name-override: peer0.credrate.com.hk
+  peer1.credrate.com.hk:
+    url: grpcs://peer1.credrate.com.hk:7051
+    eventUrl: grpcs://peer1.credrate.com.hk:7053
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/CredRateMSP/peer1.credrate.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+    grpcOptions:
+      ssl-target-name-override: peer1.credrate.com.hk
+
+certificateAuthorities:
+  rca.etradeconnect.net:
+    url: https://rca.etradeconnect.net:6054
+    caName: rca.etradeconnect.net
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/EtcMSP/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: rca-etradeconnect-admin
+        enrollSecret: cMyG7C9U
+    httpOptions:
+      verify: false
+  rca.pbctfp.net:
+    url: https://rca.pbctfp.net:6055
+    caName: rca.pbctfp.net
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/PbctfpMSP/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: rca-pboc-admin
+        enrollSecret: 8aZBkFyj
+    httpOptions:
+      verify: false
+  rca.credrate.com.hk:
+    url: https://rca.credrate.com.hk:6056
+    caName: rca.credrate.com.hk
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/CredRateMSP/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: rca-credrate-admin
+        enrollSecret: Fc7VFDx7
+    httpOptions:
+      verify: false

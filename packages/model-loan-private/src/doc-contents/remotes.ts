@@ -1,7 +1,6 @@
 import { RemoteData } from '@espresso/gw-node';
 import gql from 'graphql-tag';
 import { GET_CONTENTS_BY_ID } from '.';
-import { UriResolver } from '../uriResolver';
 
 /*
 NOTE!!! This is the type definition publish by an ORG, who has certain private-data to share to other ORGs.
@@ -40,10 +39,9 @@ export const typeDefs = gql`
 
 export const resolvers = {
   Document: {
-    _contents: async ({ documentId }, { token }, { remoteData }: RemoteData) => {
-      console.log('YYYYYooo', documentId, UriResolver[documentId]);
+    _contents: async ({ documentId }, { token }, { uriResolver, remoteData }: RemoteData) => {
       return remoteData({
-        uri: UriResolver[documentId],
+        uri: await uriResolver.resolve(documentId),
         query: GET_CONTENTS_BY_ID,
         operationName: 'GetDocContentsById',
         variables: { documentId },

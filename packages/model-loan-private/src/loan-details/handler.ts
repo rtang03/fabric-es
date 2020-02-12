@@ -1,7 +1,7 @@
 import { Errors } from '@espresso/model-common';
 import { LoanDetailsCommandHandler, LoanDetailsRepo } from '.';
 
-const LoanDetailsErrors = {
+export const LoanDetailsErrors = {
   loanDetailsNotFound: loanId =>
     new Error(`LOAN_DETAILS_NOT_FOUND: id: ${loanId}`)
 };
