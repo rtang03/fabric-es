@@ -247,6 +247,14 @@ peer channel list
 ### org2 join channel
 
 ```shell script
+// NOTE: below fetch requires testing
+export CORE_PEER_LOCALMSPID=EtcMSP
+export CORE_PEER_ADDRESS="peer0-etradeconnect:7051"
+export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+peer channel fetch newest -o orderer0-hktfp:7050 -c loanapp --tls \
+ --cafile /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+
 export CORE_PEER_LOCALMSPID=PbctfpMSP
 export CORE_PEER_ADDRESS=peer0-pbctfp:7251
 export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/PbctfpMSP/admin/msp
