@@ -37,9 +37,7 @@ createService({
     app
       .listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT })
       .then(({ url }) => {
-        console.log(
-          `🚀  '${process.env.ORGNAME}' - 'docContents' available at ${url}`
-        );
+        console.log(`🚀  '${process.env.ORGNAME}' - 'docContents' available at ${url}`);
         process.send('ready');
       });
   })

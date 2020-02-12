@@ -37,7 +37,6 @@ const uri = `http://localhost:${port}/graphql`;
     });
   });
 })().catch(error => {
-  console.log(error);
-  console.error(error.stack);
-  process.exit(0);
+  console.error(error);
+  process.exit(1);
 });
