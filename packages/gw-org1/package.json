@@ -13,7 +13,6 @@
     "cp:env": "cp ../../deployments/gw-org-dev-net/build.gw-org1/.env.prod ../../.build/packages/gw-org1/.env",
     "cp:conn": "cp ../../deployments/gw-org-dev-net/build.gw-org1/connection-org1.prod.yaml ../../.build/packages/gw-org1/connection.yaml",
     "cp:pm2": "cp ./processes.yaml ../../.build/packages/gw-org1/",
-    "pack:app-net": "",
     "clean": "rimraf dist",
     "service-docu": "node ./dist/service-doc.js",
     "service-loan": "node ./dist/service-loan.js",
@@ -32,7 +31,7 @@
     "pm2": "yarn pm2:enroll &&  yarn pm2:enrollCa && yarn pm2:services && yarn pm2:gateway",
     "pm2:enroll": "node ./dist/enrollAdmin.js && sleep 1",
     "pm2:enrollCa": "node ./dist/enrollCaAdmin.js && sleep 1",
-    "pm2:services": "pm2 start processes.yaml --only \"admin,doc,loan,private,user\"",
+    "pm2:services": "pm2 start processes.yaml --only \"admin,doc,loan,prv-ctnt,rmt-dtls,user\"",
     "pm2:gateway": "pm2-runtime --delay 3 --only \"gw\" processes.yaml"
   },
   "engines": {

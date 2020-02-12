@@ -10,6 +10,8 @@ import { createAuthServer, createDbConnection } from '.';
 import { createRootClient, getLogger } from './utils';
 
 const host = process.env.TYPEORM_HOST || 'localhost';
+const logger = getLogger('app.js');
+
 
 const postgres: any = createDbConnection({
   name: 'default',
@@ -35,7 +37,6 @@ const port = (process.env.PORT || 8080) as number;
 const uri = `http://localhost:${port}/graphql`;
 
 (async () => {
-  const logger = getLogger('app.js');
   if (!process.env.TYPEORM_USERNAME) {
     logger.error('missing username');
     throw new Error('missing username');
@@ -95,6 +96,11 @@ const uri = `http://localhost:${port}/graphql`;
     app.shutdown();
   });
 
+  process.on('uncaughtException', err => {
+    logger.error('An uncaught error occurred!');
+    logger.error(err.stack);
+  });
+
   stoppableServer.listen(port, '0.0.0.0', async () => {
     console.info(`🚀  Auth server started at port: http://localhost:${port}`);
     logger.info(`🚀  Auth server started at port: http://localhost:${port}`);
@@ -115,5 +121,6 @@ const uri = `http://localhost:${port}/graphql`;
   });
 })().catch(error => {
   console.error(error);
+  logger.info(util.format('fail to start app.js, %j', error));
   process.exit(1);
 });

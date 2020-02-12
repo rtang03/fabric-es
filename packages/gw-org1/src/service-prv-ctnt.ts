@@ -8,7 +8,10 @@ import {
   docContentsTypeDefs
 } from '@espresso/model-loan-private';
 import { FileSystemWallet } from 'fabric-network';
-// import { resolvers, typeDefs } from './model/private';
+import util from 'util';
+import { getLogger } from './logger';
+
+const logger = getLogger('service-prv-ctnt.js');
 
 createService({
   enrollmentId: process.env.ORG_ADMIN_ID,
@@ -34,6 +37,30 @@ createService({
       )
       .create();
 
+    const shutdown = () =>
+      app.stop().then(
+        () => {
+          logger.info('app closes');
+          process.exit(0);
+        },
+        err => {
+          logger.error(
+            util.format(
+              'An error occurred while shutting down service: %j',
+              err
+            )
+          );
+          process.exit(1);
+        }
+      );
+
+    process.on('SIGINT', async () => await shutdown());
+    process.on('SIGTERM', async () => await shutdown());
+    process.on('uncaughtException', err => {
+      logger.error('An uncaught error occurred!');
+      logger.error(err.stack);
+    });
+
     app
       .listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT })
       .then(({ url }) => {
@@ -43,5 +70,6 @@ createService({
   })
   .catch(error => {
     console.error(error);
+    logger.error(util.format('fail to start service, %j', error));
     process.exit(1);
   });

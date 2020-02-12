@@ -11,6 +11,7 @@ import { ApolloServer } from 'apollo-server';
 import Client from 'fabric-client';
 import { Wallet } from 'fabric-network';
 import { DataSrc } from '..';
+import util from 'util';
 
 export const createService = async ({
   enrollmentId,
@@ -73,19 +74,36 @@ export const createService = async ({
       async function create(): Promise<ApolloServer> {
         const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
         if (!isPrivate) {
-          logger.info(`♨️♨️  Starting micro-service for on-chain entity '${defaultEntityName}'...`);
-          await subscribeHub();
+          logger.info(
+            `♨️♨️  Starting micro-service for on-chain entity '${defaultEntityName}'...`
+          );
+
+          try {
+            await subscribeHub();
+          } catch (error) {
+            logger.error(
+              util.format('fail to subscribeHub and exiting:, %j', error)
+            );
+            process.exit(1);
+          }
 
           logger.info('subscribe event hub complete');
 
-          await reconcile({
-            entityName: defaultEntityName,
-            reducer: defaultReducer
-          });
+          try {
+            await reconcile({
+              entityName: defaultEntityName,
+              reducer: defaultReducer
+            });
+          } catch (error) {
+            logger.error(util.format('fail to reconcile, exiting:, %j', error));
+            process.exit(1);
+          }
 
           logger.info(`reconcile complete: ${defaultEntityName}`);
         } else {
-          logger.info(`♨️♨️  Starting micro-service for off-chain private data...`);
+          logger.info(
+            `♨️♨️  Starting micro-service for off-chain private data...`
+          );
         }
 
         return new ApolloServer({
