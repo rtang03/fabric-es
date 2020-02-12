@@ -37,4 +37,27 @@ services:
             - {{auth-server.port}}:8080
         networks:
             - {{network.prefix}}_{{name}}
+
+{{#app}}
+    {{app.name}}:
+        container_name: {{app.name}}
+        image: build:5000/{{app.name}}
+        restart: always
+        depends_on:
+            - auth-server-{{name}}
+        environment:
+            - TYPEORM_HOST=postgres-1
+            - TYPEORM_PORT=5432
+            - TYPEORM_USERNAME=postgres
+            - TYPEORM_PASSWORD=docker
+            - TYPEORM_LOGGING=true
+            - TYPEORM_DATABASE=auth_db
+        working_dir: /home/app/packages/{{app.name}}
+        ports:
+            - {{app.port}}:{{app.int-port}}
+        volumes:
+            - /home/web/postgresql/data:/var/lib/postgresql/data
+        networks:
+            - {{network.prefix}}_{{name}}
+{{/app}}
 {{/orgs}}

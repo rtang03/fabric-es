@@ -35,3 +35,24 @@ services:
             - 4100:8080
         networks:
             - apps_1
+
+    gw-org1:
+        container_name: gw-org1
+        image: build:5000/gw-org1
+        restart: always
+        depends_on:
+            - auth-server-gw-org1
+        environment:
+            - TYPEORM_HOST=postgres-1
+            - TYPEORM_PORT=5432
+            - TYPEORM_USERNAME=postgres
+            - TYPEORM_PASSWORD=docker
+            - TYPEORM_LOGGING=true
+            - TYPEORM_DATABASE=auth_db
+        working_dir: /home/app/packages/gw-org1
+        ports:
+            - 4000:4001
+        volumes:
+            - /home/web/postgresql/data:/var/lib/postgresql/data
+        networks:
+            - apps_gw-org1

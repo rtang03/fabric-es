@@ -7,6 +7,11 @@
             "name": "1",
             "auth-server": {
                 "port": "4100"
+            },
+            "app": {
+                "name": "gw-org1",
+                "int-port": "4001",
+                "port": "4000"
             }
         },
         {
