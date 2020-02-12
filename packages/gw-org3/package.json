@@ -6,6 +6,13 @@
   "scripts": {
     "build": "yarn run clean && tsc",
     "tsc:prod": "yarn run clean && tsc -p ./tsconfig.prod.json",
+    "pack:gw-org-dev-net": "yarn build:cleanup && concurrently \"npm:cp:*\"",
+    "build:cleanup": "rimraf ../../.build/packages/gw-org3 && mkdir -p ../../.build/packages/gw-org3",
+    "cp:package.json": "cp ./package.json ../../.build/packages/gw-org3/",
+    "cp:dist": "cp -R ./dist ../../.build/packages/gw-org3/",
+    "cp:env": "cp ../../deployments/gw-org-dev-net/build.gw-org3/.env.prod ../../.build/packages/gw-org3/.env",
+    "cp:conn": "cp ../../deployments/gw-org-dev-net/build.gw-org3/connection-org3.prod.yaml ../../.build/packages/gw-org3/connection.yaml",
+    "cp:pm2": "cp ./processes.yaml ../../.build/packages/gw-org3/",
     "clean": "rimraf dist",
     "service-docu": "node ./dist/service-doc.js",
     "service-loan": "node ./dist/service-loan.js",
@@ -19,7 +26,12 @@
     "start-server": "yarn build && concurrently \"npm:server-*\"",
     "enrollAdmin": "rimraf assets/wallet/admin-org3.example.com && node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "rimraf assets/wallet/rca-org3-admin && node ./dist/enrollCaAdmin.js",
-    "gen-resolvers-type": "graphql-codegen --config codegen.yml"
+    "gen-resolvers-type": "graphql-codegen --config codegen.yml",
+    "pm2": "yarn pm2:enroll &&  yarn pm2:enrollCa && yarn pm2:services && yarn pm2:gateway",
+    "pm2:enroll": "node ./dist/enrollAdmin.js && sleep 1",
+    "pm2:enrollCa": "node ./dist/enrollCaAdmin.js && sleep 1",
+    "pm2:services": "pm2 start processes.yaml --only \"admin,doc,loan,prv-ctnt,prv-dtls,user\"",
+    "pm2:gateway": "pm2-runtime --delay 3 --only \"gw\" processes.yaml"
   },
   "engines": {
     "node": ">=8",

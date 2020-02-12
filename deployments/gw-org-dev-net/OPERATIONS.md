@@ -145,7 +145,7 @@ docker exec auth-server pm2 list
 docker exec auth-server pm2 logs
 ```
 
-## PART B: Instructions for GW-ORG1
+## PART B: Instructions for GW-ORG1 and ORG2
 
 ### _Step 1: Validate .env.prod_
 
@@ -156,11 +156,17 @@ Validate `.env.prod` content, for default environment variables.
 ```shell script
 # send build context to .build directory
 yarn build:gw-org-dev-net:org1
+
+# send build context to .build directory
+yarn build:gw-org-dev-net:org2
 ```
 
 ```shell script
-# build it locally
+# build org1 image
 DOCKER_BUILD=1 docker build --no-cache -f ./gw-org1.dockerfile -t espresso/gw-org1:1.0 .
+
+# build org2 image
+DOCKER_BUILD=1 docker build --no-cache -f ./gw-org2.dockerfile -t espresso/gw-org2:1.0 .
 ```
 
 If running docker image, may launch `~/deployments/gw-org-dev-net/config/docker-compose up`

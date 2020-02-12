@@ -14,7 +14,7 @@ WORKDIR /home/node/app
 COPY --chown=node:node ./*.json ./
 COPY --chown=node:node ./packages/authentication/*.json ./packages/authentication/
 COPY --chown=node:node ../../../../packages/authentication/dist ./packages/authentication/dist
-COPY --chown=node:node ../../../gw-org-dev-net/build.gw-org2/_collection-all.prod.yaml ./packages/authentication/.env
+COPY --chown=node:node ../../../gw-org-dev-net/build.gw-org3/connection-org3.prod.yaml ./packages/authentication/.env
 COPY --chown=node:node ../../../../packages/authentication/public ./packages/authentication/public
 COPY --chown=node:node ../../../../packages/authentication/views ./packages/authentication/views
 

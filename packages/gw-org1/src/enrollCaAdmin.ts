@@ -1,6 +1,10 @@
 require('./env');
 import { enrollAdmin } from '@espresso/operator';
 import { FileSystemWallet } from 'fabric-network';
+import util from 'util';
+import { getLogger } from './logger';
+
+const logger = getLogger('enrollCaAdmin.js');
 
 enrollAdmin({
   caUrl: process.env.ORG_CA_URL,
@@ -17,9 +21,11 @@ enrollAdmin({
 })
   .then(result => {
     console.log(result);
+    logger.info(util.format('enrollCaAdmin successfully, %j', result));
     process.exit(0);
   })
   .catch(error => {
     console.error(error);
+    logger.error(util.format('fail to enrollCaAdmin, %j', error));
     process.exit(1);
   });
