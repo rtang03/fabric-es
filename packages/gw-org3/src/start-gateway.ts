@@ -22,7 +22,6 @@ const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI || 'http://loca
     console.log(`🚀 Server at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
   });
 })().catch(error => {
-  console.log(error);
-  console.error(error.stack);
-  process.exit(0);
+  console.error(error);
+  process.exit(1);
 });

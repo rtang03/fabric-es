@@ -1,5 +1,3 @@
-import { FileSystemWallet } from 'fabric-network';
-
 require('./env');
 import { createService } from '@espresso/gw-node';
 import {
@@ -9,6 +7,7 @@ import {
   userResolvers,
   userTypeDefs
 } from '@espresso/model-common';
+import { FileSystemWallet } from 'fabric-network';
 
 createService({
   enrollmentId: process.env.ORG_ADMIN_ID,
@@ -29,10 +28,11 @@ createService({
   })).create();
 
   app
-    .listen({ port: process.env.SERVICE_USER_PORT })
-    .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'user' available at ${url}`));
+    .listen({ port: process.env.SERVICE_USER_PORT }).then(({ url }) => {
+      console.log(`🚀  '${process.env.ORGNAME}' - 'user' available at ${url}`);
+      process.send('ready');
+    });
 }).catch(error => {
-  console.log(error);
-  console.error(error.stack);
-  process.exit(0);
+  console.error(error);
+  process.exit(1);
 });

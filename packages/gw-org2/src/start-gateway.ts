@@ -7,22 +7,21 @@ const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI || 'http://loca
 (async () => {
   const app = await createGateway({
     serviceList: [
-      { name: 'user',     url: `http://localhost:${process.env.SERVICE_USER_PORT}/graphql` },
-      { name: 'loan',     url: `http://localhost:${process.env.SERVICE_LOAN_PORT}/graphql` },
-      { name: 'document', url: `http://localhost:${process.env.SERVICE_DOCUMENT_PORT}/graphql` },
-      { name: 'private',  url: `http://localhost:${process.env.SERVICE_PRIVATE_PORT}/graphql` },
-      { name: 'remote', url: `http://localhost:${process.env.REMOTE_ORG1_PORT}/graphql` },
-      { name: 'admin', url: `http://localhost:${process.env.ADMINISTRATOR_PORT}/graphql` }
+      { name: 'user',         url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_USER_PORT}/graphql` },
+      { name: 'loan',         url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_LOAN_PORT}/graphql` },
+      { name: 'document',     url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_DOCUMENT_PORT}/graphql` },
+      { name: 'loanDetails',  url: `http://${process.env.GATEWAY_HOST}:${process.env.PRIVATE_LOAN_DETAILS_PORT}/graphql` },
+      { name: 'rDocContents', url: `http://${process.env.GATEWAY_HOST}:${process.env.REMOTE_DOC_CONTENTS_PORT}/graphql` },
+      { name: 'admin',        url: `http://${process.env.GATEWAY_HOST}:${process.env.ADMINISTRATOR_PORT}/graphql` }
     ],
     authenticationCheck,
     useCors: true,
     debug: false
   });
   app.listen(PORT, () => {
-    console.log(`🚀 Server at http://localhost:${PORT}/graphql`);
+    console.log(`🚀 Server at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
   });
 })().catch(error => {
-  console.log(error);
-  console.error(error.stack);
-  process.exit(0);
+  console.error(error);
+  process.exit(1);
 });

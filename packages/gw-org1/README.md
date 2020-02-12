@@ -28,7 +28,7 @@ mutation {
     email: "user01@org1.com"
     username: "user01org1"
     password: "password"
-    admin_password: "root_admin_password"
+    admin_password: "password"
   )
 }
 ```
