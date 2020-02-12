@@ -15,8 +15,11 @@ enrollAdmin({
     wallet: new FileSystemWallet(process.env.WALLET)
   }
 })
-  .then(result => console.log(result))
-  .catch(error => {
-    console.error(error);
-    process.exit(-1);
-  });
+.then(result => {
+  console.log(result);
+  process.exit(0);
+})
+.catch(error => {
+  console.error(error);
+  process.exit(1);
+});

@@ -30,9 +30,11 @@ createService({
 
   app
     .listen({ port: process.env.SERVICE_USER_PORT })
-    .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'user' available at ${url}`));
+    .then(({ url }) => {
+      console.log(`🚀  '${process.env.ORGNAME}' - 'user' available at ${url}`);
+      process.send('ready');
+    });
 }).catch(error => {
-  console.log(error);
-  console.error(error.stack);
-  process.exit(0);
+  console.error(error);
+  process.exit(1);
 });

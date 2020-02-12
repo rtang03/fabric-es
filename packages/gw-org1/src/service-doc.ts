@@ -33,9 +33,7 @@ createService({
       .create();
 
     app.listen({ port: process.env.SERVICE_DOCUMENT_PORT }).then(({ url }) => {
-      console.log(
-        `🚀  '${process.env.ORGNAME}' - 'document' available at ${url}`
-      );
+      console.log(`🚀  '${process.env.ORGNAME}' - 'document' available at ${url}`);
       process.send('ready');
     });
   })

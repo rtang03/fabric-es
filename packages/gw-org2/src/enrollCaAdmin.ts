@@ -15,25 +15,11 @@ enrollAdmin({
     wallet: new FileSystemWallet(process.env.WALLET)
   }
 })
-  .then(result => console.log(result))
-  .catch(error => {
-    console.error(error);
-    process.exit(-1);
-  });
-
-// enrollCaAdmin(
-//   process.env.CA_ENROLLMENT_ID_ADMIN,
-//   process.env.CA_ENROLLMENT_SECRET_ADMIN,
-//   process.env.CA_URL,
-//   process.env.ORGNAME,
-//   {
-//     connectionProfile: process.env.CONNECTION_PROFILE,
-//     fabricNetwork: process.env.NETWORK_LOCATION,
-//     wallet: new FileSystemWallet(process.env.WALLET)
-//   }
-// )
-//   .then(result => console.log(result))
-//   .catch(error => {
-//     console.error(error);
-//     process.exit(-1);
-//   });
+.then(result => {
+  console.log(result);
+  process.exit(0);
+})
+.catch(error => {
+  console.error(error);
+  process.exit(1);
+});

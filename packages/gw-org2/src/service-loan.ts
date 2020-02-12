@@ -1,5 +1,4 @@
 require('./env');
-
 import { createService } from '@espresso/gw-node';
 import {
   Loan,
@@ -29,10 +28,11 @@ createService({
   })).create();
 
   app
-    .listen({ port: process.env.SERVICE_LOAN_PORT })
-    .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'loan' available at ${url}`));
+    .listen({ port: process.env.SERVICE_LOAN_PORT }).then(({ url }) => {
+      console.log(`🚀  '${process.env.ORGNAME}' - 'loan' available at ${url}`);
+      process.send('ready');
+    });
 }).catch(error => {
-  console.log(error);
-  console.error(error.stack);
-  process.exit(0);
+  console.error(error);
+  process.exit(1);
 });

@@ -29,9 +29,11 @@ createService({
 
   app
     .listen({ port: process.env.PRIVATE_LOAN_DETAILS_PORT })
-    .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'loanDetails' available at ${url}`));
+    .then(({ url }) => {
+      console.log(`🚀  '${process.env.ORGNAME}' - 'loanDetails' available at ${url}`);
+      process.send('ready');
+    });
 }).catch(error => {
-  console.log(error);
-  console.error(error.stack);
-  process.exit(0);
+  console.error(error);
+  process.exit(1);
 });

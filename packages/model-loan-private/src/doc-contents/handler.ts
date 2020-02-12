@@ -6,7 +6,7 @@ import {
   FileContent
 } from '.';
 
-const DocContentsErrors = {
+export const DocContentsErrors = {
   docContentsNotFound: id => new Error(`DOC_CONTENTS_NOT_FOUND: id: ${id}`)
 };
 

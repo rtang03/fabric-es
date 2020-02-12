@@ -6,6 +6,7 @@ import Client from 'fabric-client';
 import nodeFetch from 'node-fetch';
 import util from 'util';
 import { RemoteData } from './remoteData';
+import { UriResolver } from './uriResolver';
 
 const fetch = nodeFetch as any;
 
@@ -13,7 +14,8 @@ export const createRemoteService: (option: {
   name: string;
   typeDefs: any;
   resolvers: any;
-}) => any = async ({ name, typeDefs, resolvers }) => {
+  uriResolver: UriResolver;
+}) => any = async ({ name, typeDefs, resolvers, uriResolver }) => {
   const logger = Client.getLogger('createRemoteService');
 
   logger.info(`♨️♨️ Bootstraping Remote Data API - ${name} ♨️♨️`);
@@ -29,6 +31,7 @@ export const createRemoteService: (option: {
       is_admin: headers.is_admin as string,
       client_id: headers.client_id as string,
       enrollmentId: headers.user_id as string,
+      uriResolver,
       remoteData: ({ uri, query, variables, context, operationName, token }) =>
         makePromise(
           execute(

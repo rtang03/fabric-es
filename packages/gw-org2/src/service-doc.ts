@@ -1,14 +1,20 @@
 require('./env');
-
 import { createService } from '@espresso/gw-node';
-import { FileSystemWallet } from 'fabric-network';
 import {
   Document,
   DocumentEvents,
   documentReducer,
   documentResolvers,
   documentTypeDefs
-} from './model/public/document';
+} from '@espresso/model-loan';
+import { FileSystemWallet } from 'fabric-network';
+// import {
+//   Document,
+//   DocumentEvents,
+//   documentReducer,
+//   documentResolvers,
+//   documentTypeDefs
+// } from './model/public/document';
 
 createService({
   enrollmentId: process.env.ORG_ADMIN_ID,
@@ -19,20 +25,23 @@ createService({
   channelName: process.env.CHANNEL_NAME,
   connectionProfile: process.env.CONNECTION_PROFILE,
   wallet: new FileSystemWallet(process.env.WALLET),
-}).then(async ({ config, getRepository }) => {
+})
+.then(async ({ config, getRepository }) => {
   const app = await config({
     typeDefs: documentTypeDefs,
     resolvers: documentResolvers
-  }).addRepository(getRepository<Document, DocumentEvents>({
+  })
+  .addRepository(getRepository<Document, DocumentEvents>({
     entityName: 'document',
     reducer: documentReducer
   })).create();
 
   app
-    .listen({ port: process.env.SERVICE_DOCUMENT_PORT })
-    .then(({ url }) => console.log(`🚀  '${process.env.ORGNAME}' - 'document' available at ${url}`));
+    .listen({ port: process.env.SERVICE_DOCUMENT_PORT }).then(({ url }) => {
+      console.log(`🚀  '${process.env.ORGNAME}' - 'document' available at ${url}`);
+      process.send('ready');
+    });
 }).catch(error => {
-  console.log(error);
-  console.error(error.stack);
-  process.exit(0);
+  console.error(error);
+  process.exit(1);
 });
