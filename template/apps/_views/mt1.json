@@ -1,34 +1,24 @@
 {
-    "auth-db": "auth-server",
+    "network": {
+        "prefix": "apps"
+    },
     "orgs": [
         {
             "name": "1",
-            "postgres": {
-                "user": "postgres",
-                "password": "docker"
-            },
             "auth-server": {
                 "port": "4100"
             }
         },
         {
             "name": "2",
-            "postgres": {
-                "user": "postgres",
-                "password": "docker"
-            },
             "auth-server": {
-                "port": "4200"
+                "port": "4100"
             }
         },
         {
             "name": "3",
-            "postgres": {
-                "user": "postgres",
-                "password": "docker"
-            },
             "auth-server": {
-                "port": "4300"
+                "port": "4100"
             }
         }
     ]

@@ -397,6 +397,8 @@ services:
       - 3900:8080
     depends_on:
       - postgres01
+    volumes:
+      - ../.volume/auth-server/logs/:/home/app/packages/authentication/logs/
     networks:
       - openplatform
 

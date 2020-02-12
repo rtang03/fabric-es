@@ -1,0 +1,37 @@
+version: '2'
+
+networks:
+    apps_2:
+
+services:
+
+    postgres-2:
+        container_name: postgres-2
+        image: postgres
+        restart: always
+        environment:
+            - POSTGRES_DB=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=docker
+        volumes:
+            - /home/web/postgresql/data:/var/lib/postgresql/data
+        networks:
+            - apps_2
+
+    auth-server-2:
+        container_name: auth-server-2
+        image: build:5000/auth-server
+        restart: always
+        depends_on:
+            - postgres-2
+        environment:
+            - TYPEORM_HOST=postgres-2
+            - TYPEORM_PORT=5432
+            - TYPEORM_USERNAME=postgres
+            - TYPEORM_PASSWORD=docker
+            - TYPEORM_LOGGING=true
+            - TYPEORM_DATABASE=auth_db
+        ports:
+            - 4100:8080
+        networks:
+            - apps_2
