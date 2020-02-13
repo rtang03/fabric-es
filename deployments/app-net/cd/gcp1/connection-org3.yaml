@@ -3,7 +3,7 @@ name: fdi_openplatform-credrate
 version: 1.0.0
 
 client:
-  organization: credrate
+  organization: CredRateMSP
   credentialStore:
     path: /home/app/packages/gw-org1/assets/client-certs/hfc-kvs/credrate.com.hk
     cryptoStore:
