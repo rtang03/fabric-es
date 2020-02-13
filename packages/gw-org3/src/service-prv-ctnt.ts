@@ -67,7 +67,7 @@ createService({
         logger.info(
           `🚀  '${process.env.ORGNAME}' - 'docContents' available at ${url}`
         );
-        process.send('ready');
+        // process.send('ready');
       });
   })
   .catch(error => {

@@ -3,7 +3,7 @@ name: fdi_openplatform-etc
 version: 1.0.0
 
 client:
-  organization: etc
+  organization: EtcMSP
   credentialStore:
     path: /home/app/packages/gw-org1/assets/client-certs/hfc-kvs/etradeconnect.net
     cryptoStore:

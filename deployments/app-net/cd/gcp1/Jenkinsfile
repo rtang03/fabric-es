@@ -10,6 +10,7 @@ pipeline {
                     steps {
                         sh "docker-compose -f ./deployments/app-net/cd/gcp1/docker-compose-org1.yaml down"
                         sh "docker rmi -f build:5000/auth-server"
+                        sh "docker rmi -f build:5000/gw-org1"
                         sh "docker-compose -f ./deployments/app-net/cd/gcp1/docker-compose-org1.yaml up -d"
                     }
                 }
@@ -18,6 +19,10 @@ pipeline {
                     steps {
                         sh "docker-compose -f ./deployments/app-net/cd/gcp1/docker-compose-org2.yaml down"
                         sh "docker rmi -f build:5000/auth-server"
+                        sh "docker rmi -f build:5000/gw-org2"
+                        sh "mkdir -p /home/web/artifacts/gw-org2/assets"
+                        sh "cp ./deployments/app-net/cd/gcp1/connection-all.yaml /home/web/artifacts/gw-org2/assets"
+                        sh "cp ./deployments/app-net/cd/gcp1/connection-org2.yaml /home/web/artifacts/gw-org2/assets/connection.yaml"
                         sh "docker-compose -f ./deployments/app-net/cd/gcp1/docker-compose-org2.yaml up -d"
                     }
                 }
@@ -26,6 +31,10 @@ pipeline {
                     steps {
                         sh "docker-compose -f ./deployments/app-net/cd/gcp1/docker-compose-org3.yaml down"
                         sh "docker rmi -f build:5000/auth-server"
+                        sh "docker rmi -f build:5000/gw-org3"
+                        sh "mkdir -p /home/web/artifacts/gw-org3/assets"
+                        sh "cp ./deployments/app-net/cd/gcp1/connection-all.yaml /home/web/artifacts/gw-org3/assets"
+                        sh "cp ./deployments/app-net/cd/gcp1/connection-org3.yaml /home/web/artifacts/gw-org3/assets/connection.yaml"
                         sh "docker-compose -f ./deployments/app-net/cd/gcp1/docker-compose-org3.yaml up -d"
                     }
                 }

@@ -3,7 +3,7 @@ name: fdi_openplatform-pbctfp
 version: 1.0.0
 
 client:
-  organization: pbctfp
+  organization: PbctfpMSP
   credentialStore:
     path: /home/app/packages/gw-org1/assets/client-certs/hfc-kvs/pbctfp.net
     cryptoStore:

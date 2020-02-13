@@ -17,6 +17,8 @@ services:
             - /home/web/postgresql/data:/var/lib/postgresql/data
         networks:
             - apps_2
+        logging:
+            driver: gcplogs
 
     auth-server-2:
         container_name: auth-server-2
@@ -35,4 +37,5 @@ services:
             - 4100:8080
         networks:
             - apps_2
-
+        logging:
+            driver: gcplogs

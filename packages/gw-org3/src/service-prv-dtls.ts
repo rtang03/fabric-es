@@ -67,7 +67,7 @@ createService({
         logger.info(
           `🚀  '${process.env.ORGNAME}' - 'loanDetails' available at ${url}`
         );
-        process.send('ready');
+        // process.send('ready');
       });
   })
   .catch(error => {
