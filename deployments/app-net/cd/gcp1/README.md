@@ -24,9 +24,9 @@ Build: [http://35.213.97.7](http://35.213.97.7)
 
 ### 1. GW-ORG1
 
-URL: [http://35.213.96.157:4000](http://35.213.96.157:4000)
-docker-compose: [docker-compose-org1.yaml](docker-compose-org1.yaml)
-connection profile for 0rg1: [connection-org1.yaml](connection-org1.yaml)
+- URL: [http://35.213.96.157:4000](http://35.213.96.157:4000)
+- docker-compose: [docker-compose-org1.yaml](docker-compose-org1.yaml)
+- connection profile for 0rg1: [connection-org1.yaml](connection-org1.yaml)
 
 ### 2. GW-ORG2
 
