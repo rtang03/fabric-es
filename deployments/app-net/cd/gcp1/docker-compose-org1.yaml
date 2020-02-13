@@ -55,7 +55,7 @@ services:
             - CHANNEL_NAME=loanapp
             - CHANNEL_HUB=peer0.etradeconnect.net
             - COLLECTION=etcPrivateDetails
-            - CONNECTION_PROFILE=/home/app/packages/gw-org1/connection.yaml
+            - CONNECTION_PROFILE=/home/app/packages/gw-org1/assets/connection.yaml
             - GATEWAY_HOST=localhost
             - GATEWAY_PORT=4001
             - MSPID=EtcMSP
@@ -75,7 +75,6 @@ services:
         working_dir: /home/app/packages/gw-org1
         volumes:
             - /home/web/artifacts/crypto-config:/var/artifacts/crypto-config
-            - /home/web/artifacts/gw-org1:/home/app/packages/gw-org1
             - /home/web/artifacts/gw-org1/assets:/home/app/packages/gw-org1/assets
             - /home/web/artifacts/gw-org1/logs:/home/app/packages/gw-org1/logs
         ports:
