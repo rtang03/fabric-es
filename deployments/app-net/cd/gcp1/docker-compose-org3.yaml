@@ -35,4 +35,3 @@ services:
             - 4100:8080
         networks:
             - apps_3
-
