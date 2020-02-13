@@ -55,7 +55,7 @@ services:
             - CHANNEL_NAME=loanapp
             - CHANNEL_HUB=peer0.etradeconnect.net
             - COLLECTION=etcPrivateDetails
-            - CONNECTION_PROFILE=/var/artifacts/gw-org1/connection-org1.yaml
+            - CONNECTION_PROFILE=/var/artifacts/gw-org1/connection.yaml
             - GATEWAY_HOST=localhost
             - GATEWAY_PORT=4001
             - MSPID=EtcMSP
