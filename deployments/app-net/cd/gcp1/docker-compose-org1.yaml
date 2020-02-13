@@ -17,6 +17,8 @@ services:
             - /home/web/postgresql/data:/var/lib/postgresql/data
         networks:
             - apps_1
+        logging:
+            driver: gcplogs
 
     auth-server-1:
         container_name: auth-server-1
@@ -35,3 +37,48 @@ services:
             - 4100:8080
         networks:
             - apps_1
+        logging:
+            driver: gcplogs
+
+    gw-org1:
+        container_name: gw-org1
+        image: build:5000/gw-org1
+        restart: "no"
+        depends_on:
+            - auth-server-1
+        environment:
+            - ADMINISTRATOR_PORT=15001
+            - AUTHORIZATION_SERVER_URI=auth-server-1/oauth/authenticate
+            - CA_ENROLLMENT_ID_ADMIN=rca-etradeconnect-admin
+            - CA_ENROLLMENT_SECRET_ADMIN=rcMyG7C9U
+            - CHAINCODE_ID=eventstore
+            - CHANNEL_NAME=loanapp
+            - CHANNEL_HUB=peer0.etradeconnect.net
+            - COLLECTION=etcPrivateDetails
+            - CONNECTION_PROFILE=/home/app/packages/gw-org1/assets/connection.yaml
+            - GATEWAY_HOST=localhost
+            - GATEWAY_PORT=4001
+            - MSPID=EtcMSP
+            - NETWORK_LOCATION=/var/artifacts/crypto-config
+            - ORG_ADMIN_ID=admin-etradeconnect.net
+            - ORG_ADMIN_SECRET=Heym2rQK
+            - ORG_CA_URL=https://peer0.etradeconnect.net:6054
+            - ORGNAME=etradeconnect.net
+            - ORDERER_NAME=orderer0.hktfp.com
+            - ORDERER_TLSCA_CERT=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+            - PEER_NAME=peer0.etradeconnect.net
+            - SERVICE_DOCUMENT_PORT=14013
+            - SERVICE_LOAN_PORT=14012
+            - SERVICE_PRIVATE_PORT=14014
+            - SERVICE_USER_PORT=14011
+            - WALLET=assets/wallet
+        working_dir: /home/app/packages/gw-org1
+        volumes:
+            - /home/web/artifacts/crypto-config:/var/artifacts/crypto-config
+            - /home/web/artifacts/gw-org1/assets:/home/app/packages/gw-org1/assets
+            - /home/web/artifacts/gw-org1/logs:/home/app/packages/gw-org1/logs
+        ports:
+            - 4000:4001
+        networks:
+            - apps_1
+

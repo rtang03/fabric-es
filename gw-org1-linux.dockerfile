@@ -23,7 +23,8 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
   && yarn install --production --ignore-engines --network-timeout 1000000 \
   && yarn global add pm2 pm2-logrotate \
   && pm2 install pm2-logrotate \
-  && apk del .build-deps-yarn
+  && apk del .build-deps-yarn \
+  && mkdir -p /home/app/packages/gw-org1/assets/client-certs
 
 USER node
 
