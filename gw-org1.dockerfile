@@ -33,4 +33,4 @@ WORKDIR /home/app/packages/gw-org1
 
 EXPOSE 4001
 
-CMD ["yarn", "run", "pm2"]
+CMD ["sh", "-c", "top"]
