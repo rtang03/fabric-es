@@ -179,7 +179,7 @@ gw-org1:
     - AUTHORIZATION_SERVER_URI=http://auth-server/oauth/authenticate
     - CA_ENROLLMENT_ID_ADMIN=rca-etradeconnect-admin
     - CA_ENROLLMENT_SECRET_ADMIN=rca-etradeconnect-adminPW
-    - CONNECTION_PROFILE=/home/app/packages/gw-org1/connection.yaml
+    - CONNECTION_PROFILE=/home/app/packages/gw-org1/assets/connection.yaml
     - COLLECTION=etcPrivateDetails
     - ORG_ADMIN_ID=admin-etradeconnect.net
     - ORG_ADMIN_SECRET=Heym2rQK
@@ -212,9 +212,10 @@ gw-org1:
 
 Optionally, if need to cleanup, (a) pre-existing persisted network, and/or organizational assets, you need to remove below directory.
 
-- `.volume/auth-server/logs`: auth-server log files
-- `.volume/gw-org1`: localized certificates and wallets, logs in gw-org1
-- `.volume/gw-org2`: localized certificates and wallets, logs in gw-org2
+- `.volume/auth-server1/logs`: auth-server log files
+- `.volume/auth-server2/logs`: auth-server log files
+- `.volume/gw-org1`: localized certificates and wallets, logs, connection profile in gw-org1
+- `.volume/gw-org2`: localized certificates and wallets, logs, connection profile in gw-org2
 - `.volume/production`: persisted Fabric network's correspondsing `/var/hyperledger/production`
 - `.volume/artifacts/crypto-config`: entire network crypto material
 - `.volume/artifacts/postgres01`: postgres data for org1
@@ -292,6 +293,9 @@ Validate `~/packages/chaincode/collections.json` existence, and correctness. Or 
 to chaincode directory.
 
 ```shell script
+# optionally step: build chaincode, if not yet build. It requires 'dist' directory, and package.json, proper collections.json
+# run `yarn build` in ~/packages/chaincode directory
+
 # cp ~/deployments/gw-org-dev-net/build.gw-org1 ~/packages/chaincode/collections.json
 ```
 
@@ -314,17 +318,53 @@ In step 1 to 6, it acts on `docker-compose.fabric_only.yaml`, it is used to boot
 # cd ~/deployments/gw-dev-net/config
 docker-compose -f docker-compose.fabric_only.yaml down
 
+# in the second terminal
+# copy org's connection profiles to the mounted volume
+# cd ~/deployments/gw-org-dev-net
+mkdir -p .volume/gw-org1/assets
+mkdir -p .volume/gw-org2/assets
+cp ./build.gw-org1/connection-org1.prod.yaml .volume/gw-org1/assets/connection.yaml
+cp ./build.gw-org2/connection-org2.prod.yaml .volume/gw-org2/assets/connection.yaml
+
 # Above steps install chaincode, and network, and can restart with regular network
+# back to first terminal
 # cd ~/deployments/gw-dev-net/config
 docker-compose up
+
+# at the end, should return
+#gw-org2                    | [PM2] App [user] launched (1 instances)
+#gw-org2                    | ┌─────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+#gw-org2                    | │ id  │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+#gw-org2                    | ├─────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+#gw-org2                    | │ 0   │ admin       │ default     │ 1.0.0   │ cluster │ 109      │ 22s    │ 0    │ online    │ 0%       │ 109.4mb  │ node     │ disabled │
+#gw-org2                    | │ 1   │ doc         │ default     │ 1.0.0   │ cluster │ 115      │ 22s    │ 0    │ online    │ 0%       │ 110.9mb  │ node     │ disabled │
+#gw-org2                    | │ 2   │ loan        │ default     │ 1.0.0   │ cluster │ 139      │ 17s    │ 0    │ online    │ 0%       │ 112.3mb  │ node     │ disabled │
+#gw-org2                    | │ 3   │ prv-dtls    │ default     │ 1.0.0   │ cluster │ 154      │ 13s    │ 0    │ online    │ 0%       │ 111.6mb  │ node     │ disabled │
+#gw-org2                    | │ 4   │ rmt-ctnt    │ default     │ 1.0.0   │ cluster │ 164      │ 10s    │ 0    │ online    │ 0%       │ 104.0mb  │ node     │ disabled │
+#gw-org2                    | │ 5   │ user        │ default     │ 1.0.0   │ cluster │ 184      │ 5s     │ 0    │ online    │ 0%       │ 114.0mb  │ node     │ disabled │
+#gw-org2                    | └─────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+#gw-org1                    | [WARN] PM2 Daemon is already running
+#gw-org2                    | $ pm2-runtime --delay 10 --only "gw" processes.yaml
+#gw-org2                    | [WARN] PM2 Daemon is already running
+#gw-org1                    | 🚀 Server at http://0.0.0.0:4001/graphql
+#gw-org1                    | {"message":"🚀 Server at http://0.0.0.0:4001/graphql","level":"info","label":"app.js","timestamp":"2020-02-13T15:02:35.029Z"}
+#gw-org1                    | [INFO] Thu Feb 13 2020 23:02:34 GMT+0800 (HKT) apollo-gateway: Gateway successfully loaded schema.
+#gw-org1                    | 	* Mode: unmanaged
+#gw-org2                    | 🚀 Server at http://0.0.0.0:4002/graphql
+#gw-org2                    | {"message":"🚀 Server at http://0.0.0.0:4002/graphql","level":"info","label":"app.js","timestamp":"2020-02-13T15:02:35.993Z"}
+#gw-org2                    | [INFO] Thu Feb 13 2020 23:02:35 GMT+0800 (HKT) apollo-gateway: Gateway successfully loaded schema.
+#gw-org2                    | 	* Mode: unmanaged
+
 ```
 
 Note that, do not try combine both networks, because the postgres01 database require init step, and will take time.
 
 ### _Step 8: Network ready_
 
-- Goto gw-org `http://localhost:4000/graphql`
-- Got auth-server, with either `http://localhost:3900` or `http://localhost:3900/graphql`
+- Goto gw-org1 `http://localhost:4011/graphql`
+- Goto auth-server1, with either `http://localhost:3901` or `http://localhost:3901/graphql`
+- Goto gw-org2 `http://localhost:4012/graphql`
+- Goto auth-server2, with either `http://localhost:3902` or `http://localhost:3902/graphql`
 
 ### Useful Commands
 
@@ -332,9 +372,16 @@ Note that, do not try combine both networks, because the postgres01 database req
 docker rm -f \$(docker ps -aq -f status=exited)
 
 sudo lsof -P -sTCP:LISTEN -i TCP -a -p 5432
+sudo lsof -i :5432
 ```
 
 ### References
 
 [Node, pm2 dockers devops](https://medium.com/@adriendesbiaux/node-js-pm2-docker-docker-compose-devops-907dedd2b69a)
 [pm2 documentation](https://pm2.keymetrics.io/docs/usage/application-declaration/)
+
+### Todo: implement trigger, so that cli can run reconcile, cleanup action
+
+TBD  
+https://pm2.keymetrics.io/docs/usage/process-actions/  
+pm2 trigger <application-name> <action-name> [parameter]

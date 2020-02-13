@@ -55,15 +55,15 @@ orderers:
 
 peers:
   peer0.pbctfp.net:
-    url: grpcs://peer0.pbctfp.net:7051
-    eventUrl: grpcs://peer0.pbctfp.net:7053
+    url: grpcs://peer0.pbctfp.net:7251
+    eventUrl: grpcs://peer0.pbctfp.net:7253
     tlsCACerts:
       path: /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
       ssl-target-name-override: peer0.pbctfp.net
   peer1.pbctfp.net:
-    url: grpcs://peer1.pbctfp.net:7151
-    eventUrl: grpcs://peer1.pbctfp.net:7153
+    url: grpcs://peer1.pbctfp.net:7351
+    eventUrl: grpcs://peer1.pbctfp.net:7353
     tlsCACerts:
       path: /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
