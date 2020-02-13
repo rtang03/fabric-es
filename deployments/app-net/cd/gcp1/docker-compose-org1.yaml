@@ -17,6 +17,8 @@ services:
             - /home/web/postgresql/data:/var/lib/postgresql/data
         networks:
             - apps_1
+        logging:
+            driver: gcplogs
 
     auth-server-1:
         container_name: auth-server-1
@@ -35,6 +37,8 @@ services:
             - 4100:8080
         networks:
             - apps_1
+        logging:
+            driver: gcplogs
 
     gw-org1:
         container_name: gw-org1
@@ -70,8 +74,13 @@ services:
             - WALLET=assets/wallet
         working_dir: /home/app/packages/gw-org1
         volumes:
-            - /home/web/artifacts:/var/artifacts
+            - /home/web/artifacts/crypto-config:/var/artifacts/crypto-config
+            - /home/web/artifacts/gw-org1:/var/artifacts/gw-org1
+            - /home/web/artifacts/gw-org1/assets:/var/artifacts/gw-org1/assets
+            - /home/web/artifacts/gw-org1/logs:/var/artifacts/gw-org1/logs
         ports:
             - 4000:4001
         networks:
             - apps_1
+        logging:
+            driver: gcplogs
