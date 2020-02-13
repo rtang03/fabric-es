@@ -11,6 +11,7 @@ pipeline {
                         sh "docker rm -f \$(docker ps -aq)"
                         sh "docker rmi -f build:5000/auth-server"
                         sh "docker rmi -f build:5000/gw-org1"
+                        sh "mkdir -p /home/web/artifacts/gw-org1/assets"
                         sh "cp ./deployments/app-net/cd/gcp1/connection-all.yaml /home/web/artifacts/gw-org1/assets"
                         sh "cp ./deployments/app-net/cd/gcp1/connection-org1.yaml /home/web/artifacts/gw-org1/assets/connection.yaml"
                         sh "docker-compose -f ./deployments/app-net/cd/gcp1/docker-compose-org1.yaml up -d"
