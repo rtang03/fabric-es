@@ -9,7 +9,7 @@ pipeline {
         yarnBuild = 'yarn build:gw-org-dev-net:org1'
 
         imgName = 'build:5000/gw-org1:latest'
-        dockerBuild = 'docker build -t ${imgName} -f gw-org1-linux.dockerfile .'
+        dockerBuild = 'docker build -t ${imgName} -f gw-org1.dockerfile .'
 
         dockerhubCredential = 'dockerhub-login'
         imgNameHub = 'hktfp5/gw-org1:latest'
