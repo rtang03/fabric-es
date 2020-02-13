@@ -17,6 +17,8 @@ services:
       - FABRIC_CA_SERVER_CA_NAME=tls-ca.hktfp.com
     ports:
       - 6052:6052
+    networks:
+      - openplatform
     command: sh -c 'fabric-ca-server start -d -b tls-ca-admin:tls-ca-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 6052'
     volumes:
       - ../scripts/container:/setup
@@ -35,6 +37,8 @@ services:
       - FABRIC_CA_SERVER_CA_NAME=rca.hktfp.com
     ports:
       - 6053:6053
+    networks:
+      - openplatform
     command: sh -c 'fabric-ca-server start -d -b rca-hktfp-admin:rca-hktfp-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 6053'
     volumes:
       - ../scripts/container:/setup
@@ -53,6 +57,8 @@ services:
       - FABRIC_CA_SERVER_CA_NAME=rca.etradeconnect.net
     ports:
       - 6054:6054
+    networks:
+      - openplatform
     command: sh -c 'fabric-ca-server start -d -b rca-etradeconnect-admin:rca-etradeconnect-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 6054'
     volumes:
       - ../scripts/container:/setup
@@ -71,6 +77,8 @@ services:
       - FABRIC_CA_SERVER_CA_NAME=rca.pbctfp.net
     ports:
       - 6055:6055
+    networks:
+      - openplatform
     command: sh -c 'fabric-ca-server start -d -b rca-pboc-admin:rca-pboc-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 6055'
     volumes:
       - ../scripts/container:/setup
@@ -93,6 +101,7 @@ services:
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.etradeconnect.net:7151
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.etradeconnect.net:7051
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_VM_DOCKER_ATTACHSTDOUT=true
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/EtcMSP/peer0.etradeconnect.net
     volumes:
       - /var/run:/host/var/run
@@ -101,6 +110,8 @@ services:
     ports:
       - 7051:7051
       - 7053:7053
+    networks:
+      - openplatform
 
   peer1.etradeconnect.net:
     extends:
@@ -127,6 +138,8 @@ services:
     ports:
       - 7151:7151
       - 7153:7153
+    networks:
+      - openplatform
 
   peer0.pbctfp.net:
     extends:
@@ -153,6 +166,8 @@ services:
     ports:
       - 7251:7251
       - 7253:7253
+    networks:
+      - openplatform
 
   peer1.pbctfp.net:
     extends:
@@ -179,6 +194,8 @@ services:
     ports:
       - 7351:7351
       - 7353:7353
+    networks:
+      - openplatform
 
   orderer0.hktfp.com:
     extends:
@@ -203,6 +220,8 @@ services:
       - ../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com:/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com
     ports:
       - 7050:7050
+    networks:
+      - openplatform
 
   orderer1.hktfp.com:
     extends:
@@ -227,6 +246,8 @@ services:
       - ../artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com:/var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com
     ports:
       - 7150:7150
+    networks:
+      - openplatform
 
   orderer2.hktfp.com:
     extends:
@@ -251,6 +272,8 @@ services:
       - ../artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com:/var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com
     ports:
       - 7250:7250
+    networks:
+      - openplatform
 
   orderer3.hktfp.com:
     extends:
@@ -275,6 +298,8 @@ services:
       - ../artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com:/var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com
     ports:
       - 7350:7350
+    networks:
+      - openplatform
 
   orderer4.hktfp.com:
     extends:
@@ -299,6 +324,8 @@ services:
       - ../artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com:/var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com
     ports:
       - 7450:7450
+    networks:
+      - openplatform
 
   cli.etradeconnect.net:
     extends:
@@ -338,6 +365,42 @@ services:
       - ../scripts/container:/setup
       - ../../../packages/chaincode:/opt/gopath/src/github.com/hyperledger/fabric/chaincode
 
+  auth-server1:
+    image: espresso/auth-server:1.0
+    container_name: auth-server1
+    environment:
+      - TYPEORM_HOST=postgres01
+      - TYPEORM_PORT=5432
+      - TYPEORM_USERNAME=postgres
+      - TYPEORM_PASSWORD=docker
+      - TYPEORM_DATABASE=auth_db
+    ports:
+      - 3901:8080
+    depends_on:
+      - postgres01
+    volumes:
+      - ../.volume/auth-server1/logs/:/home/app/packages/authentication/logs/
+    networks:
+      - openplatform
+
+  auth-server2:
+    image: espresso/auth-server:1.0
+    container_name: auth-server2
+    environment:
+      - TYPEORM_HOST=postgres02
+      - TYPEORM_PORT=5442
+      - TYPEORM_USERNAME=postgres
+      - TYPEORM_PASSWORD=docker
+      - TYPEORM_DATABASE=auth_db
+    ports:
+      - 3902:8080
+    depends_on:
+      - postgres01
+    volumes:
+      - ../.volume/auth-server2/logs/:/home/app/packages/authentication/logs/
+    networks:
+      - openplatform
+
   postgres01:
     container_name: postgres01
     image: postgres
@@ -347,7 +410,6 @@ services:
       - POSTGRES_DB=postgres
     volumes:
       - ../artifacts/postgres01:/var/lib/postgresql/data
-      - ./createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
     command: postgres
     ports:
       - 5432:5432

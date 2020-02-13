@@ -6,6 +6,7 @@ apps:
     autorestart: false
     restart_delay: 500
     kill_timeout: 3000
+    listen_timeout: 10000
     wait_ready: true
   - script : ./dist/service-admin.js
     name   : 'admin'
@@ -14,6 +15,7 @@ apps:
     autorestart: false
     restart_delay: 500
     kill_timeout : 3000
+    listen_timeout: 10000
     wait_ready: true
   - script: ./dist/service-doc.js
     name: 'doc'
@@ -22,6 +24,7 @@ apps:
     autorestart: false
     restart_delay: 500
     kill_timeout: 3000
+    listen_timeout: 10000
     wait_ready: true
   - script: ./dist/service-loan.js
     name: 'loan'
@@ -30,6 +33,7 @@ apps:
     autorestart: false
     restart_delay: 500
     kill_timeout: 3000
+    listen_timeout: 10000
     wait_ready: true
   - script: ./dist/service-prv-ctnt.js
     name: 'prv-ctnt'
@@ -38,6 +42,7 @@ apps:
     autorestart: false
     restart_delay: 500
     kill_timeout: 3000
+    listen_timeout: 10000
     wait_ready: true
   - script: ./dist/service-rmt-dtls.js
     name: 'rmt-dtls'
@@ -46,6 +51,7 @@ apps:
     autorestart: false
     restart_delay: 500
     kill_timeout: 3000
+    listen_timeout: 10000
     wait_ready: true
   - script: ./dist/service-user.js
     name: 'user'
@@ -54,4 +60,5 @@ apps:
     autorestart: false
     restart_delay: 500
     kill_timeout: 3000
+    listen_timeout: 10000
     wait_ready: true

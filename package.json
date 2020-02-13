@@ -13,9 +13,7 @@
     "pack:gw-org-dev-net:org2": "lerna run pack:gw-org-dev-net --scope={@espresso/authentication,@espresso/model-common,@espresso/model-loan-private,@espresso/model-loan,@espresso/gw-org2}",
     "build:auth": "yarn tsc:auth && yarn pack:auth",
     "build:gw-org-dev-net:org1": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org1 && yarn pack:lib && yarn pack:gw-org-dev-net:org1",
-    "build:gw-org-dev-net:org2": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org2 && yarn pack:lib && yarn pack:gw-org-dev-net:org2",
-    "pack:app-net:org1": "lerna run pack:app-net --scope={}",
-    "build:app-net:org1": ""
+    "build:gw-org-dev-net:org2": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org2 && yarn pack:lib && yarn pack:gw-org-dev-net:org2"
   },
   "workspaces": [
     "packages/*"
