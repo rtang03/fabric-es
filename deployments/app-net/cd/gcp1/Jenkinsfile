@@ -8,7 +8,7 @@ pipeline {
                 stage('Web 1') {
                     agent { label 'web1' }
                     steps {
-                        sh "docker rm -f \$(docker ps -aq) 2>&1 /dev/null"
+                        sh "docker rm -f \$(docker ps -aq) 2> /dev/null"
                         sh "docker rmi -f build:5000/auth-server"
                         sh "docker rmi -f build:5000/gw-org1"
                         sh "mkdir -p /home/web/artifacts/gw-org1/assets"
@@ -20,7 +20,7 @@ pipeline {
                 stage('Web 2') {
                     agent { label 'web2' }
                     steps {
-                        sh "docker rm -f \$(docker ps -aq) 2>&1 /dev/null"
+                        sh "docker rm -f \$(docker ps -aq) 2> /dev/null"
                         sh "docker rmi -f build:5000/auth-server"
                         sh "docker rmi -f build:5000/gw-org2"
                         sh "mkdir -p /home/web/artifacts/gw-org2/assets"
@@ -32,7 +32,7 @@ pipeline {
                 stage('Web 3') {
                     agent { label 'web3' }
                     steps {
-                        sh "docker rm -f \$(docker ps -aq) 2>&1 /dev/null"
+                        sh "docker rm -f \$(docker ps -aq) 2> /dev/null"
                         sh "docker rmi -f build:5000/auth-server"
                         sh "docker rmi -f build:5000/gw-org3"
                         sh "mkdir -p /home/web/artifacts/gw-org3/assets"
