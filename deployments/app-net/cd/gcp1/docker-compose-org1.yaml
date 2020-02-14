@@ -49,6 +49,41 @@ services:
         env_file:
             - env.gw-org1
         working_dir: /home/app/packages/gw-org1
+        environment:
+            # Network
+            - NODE1=35.213.127.193
+            - NODE2=35.213.45.247
+            - NODE3=34.84.24.163
+            - NODE4=34.84.173.113
+            - NODE5=34.85.7.30
+            - NODE6=34.84.208.188
+            - NODE7=34.84.62.135
+            # GW-ORG1
+            - ADMINISTRATOR_PORT=15001
+            - AUTHORIZATION_SERVER_URI=auth-server-1/oauth/authenticate
+            - CA_ENROLLMENT_ID_ADMIN=rca-etradeconnect-admin
+            - CA_ENROLLMENT_SECRET_ADMIN=rcMyG7C9U
+            - CHAINCODE_ID=eventstore
+            - CHANNEL_NAME=loanapp
+            - CHANNEL_HUB=peer0.etradeconnect.net
+            - COLLECTION=etcPrivateDetails
+            - CONNECTION_PROFILE=/home/app/packages/gw-org1/assets/connection.yaml
+            - GATEWAY_HOST=localhost
+            - GATEWAY_PORT=4001
+            - MSPID=EtcMSP
+            - NETWORK_LOCATION=/var/artifacts/crypto-config
+            - ORG_ADMIN_ID=admin-etradeconnect.net
+            - ORG_ADMIN_SECRET=Heym2rQK
+            - ORG_CA_URL=https://peer0.etradeconnect.net:6054
+            - ORGNAME=etradeconnect.net
+            - ORDERER_NAME=orderer0.hktfp.com
+            - ORDERER_TLSCA_CERT=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+            - PEER_NAME=peer0.etradeconnect.net
+            - SERVICE_DOCUMENT_PORT=14013
+            - SERVICE_LOAN_PORT=14012
+            - SERVICE_PRIVATE_PORT=14014
+            - SERVICE_USER_PORT=14011
+            - WALLET=assets/wallet
         volumes:
             - /home/web/artifacts/crypto-config:/var/artifacts/crypto-config
             - /home/web/artifacts/gw-org1/assets:/home/app/packages/gw-org1/assets
