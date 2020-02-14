@@ -47,6 +47,15 @@ services:
         depends_on:
             - auth-server-1
         environment:
+            # Network
+            - NODE1=10.146.0.10
+            - NODE2=10.146.0.11
+            - NODE3=10.146.0.12
+            - NODE4=10.146.0.13
+            - NODE5=10.146.0.14
+            - NODE6=10.146.0.15
+            - NODE7=10.146.0.16
+            # GW-ORG1
             - ADMINISTRATOR_PORT=15001
             - AUTHORIZATION_SERVER_URI=auth-server-1/oauth/authenticate
             - CA_ENROLLMENT_ID_ADMIN=rca-etradeconnect-admin
@@ -77,6 +86,21 @@ services:
             - /home/web/artifacts/crypto-config:/var/artifacts/crypto-config
             - /home/web/artifacts/gw-org1/assets:/home/app/packages/gw-org1/assets
             - /home/web/artifacts/gw-org1/logs:/home/app/packages/gw-org1/logs
+        extra_hosts:
+            - "orderer0.hktfp.com:${NODE1}"
+            - "orderer1.hktfp.com:${NODE2}"
+            - "orderer2.hktfp.com:${NODE3}"
+            - "orderer3.hktfp.com:${NODE4}"
+            - "orderer4.hktfp.com:${NODE5}"
+            - "rca.etradeconnect.net:${NODE2}"
+            - "peer0.etradeconnect.net:${NODE2}"
+            - "peer1.etradeconnect.net:${NODE3}"
+            - "rca.pbctfp.net:${NODE4}"
+            - "peer0.pbctfp.net:${NODE4}"
+            - "peer1.pbctfp.net:${NODE5}"
+            - "rca.credrate.com.hk:${NODE6}"
+            - "peer0.credrate.com.hk:${NODE6}"
+            - "peer1.credrate.com.hk:${NODE7}"
         ports:
             - 4000:4001
         networks:
