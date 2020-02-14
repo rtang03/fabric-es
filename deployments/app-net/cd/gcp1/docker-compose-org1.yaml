@@ -105,4 +105,3 @@ services:
             - 4000:4001
         networks:
             - apps_1
-
