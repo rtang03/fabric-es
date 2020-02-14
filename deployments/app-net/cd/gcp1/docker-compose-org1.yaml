@@ -46,8 +46,6 @@ services:
         restart: "no"
         depends_on:
             - auth-server-1
-        env_file:
-            - env.gw-org1
         working_dir: /home/app/packages/gw-org1
         environment:
             # Network
