@@ -48,13 +48,13 @@ services:
             - auth-server-1
         environment:
             # Network
-            - NODE1=35.213.127.193
-            - NODE2=35.213.45.247
-            - NODE3=34.84.24.163
-            - NODE4=34.84.173.113
-            - NODE5=34.85.7.30
-            - NODE6=34.84.208.188
-            - NODE7=34.84.62.135
+            - NODE1="35.213.127.193"
+            - NODE2="35.213.45.247"
+            - NODE3="34.84.24.163"
+            - NODE4="34.84.173.113"
+            - NODE5="34.85.7.30"
+            - NODE6="34.84.208.188"
+            - NODE7="34.84.62.135"
             # GW-ORG1
             - ADMINISTRATOR_PORT=15001
             - AUTHORIZATION_SERVER_URI=auth-server-1/oauth/authenticate
