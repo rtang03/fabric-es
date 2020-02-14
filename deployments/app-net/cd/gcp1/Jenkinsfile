@@ -9,7 +9,7 @@ pipeline {
                     agent { label 'web1' }
                     steps {
                         sh "cd ./deployments/app-net/cd/gcp1"
-                        sh "start-gw-org1.sh"
+                        sh "./start-gw-org1.sh"
                     }
                 }
                 stage('Web 2') {
