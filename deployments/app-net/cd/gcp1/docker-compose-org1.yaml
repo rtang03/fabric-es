@@ -48,14 +48,6 @@ services:
             - auth-server-1
         working_dir: /home/app/packages/gw-org1
         environment:
-            # Network
-            - NODE1=35.213.127.193
-            - NODE2=35.213.45.247
-            - NODE3=34.84.24.163
-            - NODE4=34.84.173.113
-            - NODE5=34.85.7.30
-            - NODE6=34.84.208.188
-            - NODE7=34.84.62.135
             # GW-ORG1
             - ADMINISTRATOR_PORT=15001
             - AUTHORIZATION_SERVER_URI=auth-server-1/oauth/authenticate
@@ -87,20 +79,20 @@ services:
             - /home/web/artifacts/gw-org1/assets:/home/app/packages/gw-org1/assets
             - /home/web/artifacts/gw-org1/logs:/home/app/packages/gw-org1/logs
         extra_hosts:
-            - "orderer0.hktfp.com:${NODE1}"
-            - "orderer1.hktfp.com:${NODE2}"
-            - "orderer2.hktfp.com:${NODE3}"
-            - "orderer3.hktfp.com:${NODE4}"
-            - "orderer4.hktfp.com:${NODE5}"
-            - "rca.etradeconnect.net:${NODE2}"
-            - "peer0.etradeconnect.net:${NODE2}"
-            - "peer1.etradeconnect.net:${NODE3}"
-            - "rca.pbctfp.net:${NODE4}"
-            - "peer0.pbctfp.net:${NODE4}"
-            - "peer1.pbctfp.net:${NODE5}"
-            - "rca.credrate.com.hk:${NODE6}"
-            - "peer0.credrate.com.hk:${NODE6}"
-            - "peer1.credrate.com.hk:${NODE7}"
+            - "orderer0.hktfp.com:35.213.127.193"
+            - "orderer1.hktfp.com:35.213.45.247"
+            - "orderer2.hktfp.com:34.84.24.163"
+            - "orderer3.hktfp.com:34.84.173.113"
+            - "orderer4.hktfp.com:34.85.7.30"
+            - "rca.etradeconnect.net:35.213.45.247"
+            - "peer0.etradeconnect.net:35.213.45.247"
+            - "peer1.etradeconnect.net:34.84.24.163"
+            - "rca.pbctfp.net:34.84.173.113"
+            - "peer0.pbctfp.net:34.84.173.113"
+            - "peer1.pbctfp.net:34.85.7.30"
+            - "rca.credrate.com.hk:34.84.208.188"
+            - "peer0.credrate.com.hk:34.84.208.188"
+            - "peer1.credrate.com.hk:34.84.62.135"
         ports:
             - 4000:4001
         networks:
