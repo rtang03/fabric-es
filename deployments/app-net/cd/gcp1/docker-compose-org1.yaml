@@ -97,3 +97,5 @@ services:
             - 4000:4001
         networks:
             - apps_1
+        logging:
+            driver: gcplogs
