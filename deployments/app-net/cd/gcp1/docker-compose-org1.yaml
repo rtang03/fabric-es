@@ -52,7 +52,7 @@ services:
             - ADMINISTRATOR_PORT=15001
             - AUTHORIZATION_SERVER_URI=auth-server-1/oauth/authenticate
             - CA_ENROLLMENT_ID_ADMIN=rca-etradeconnect-admin
-            - CA_ENROLLMENT_SECRET_ADMIN=rcMyG7C9U
+            - CA_ENROLLMENT_SECRET_ADMIN=cMyG7C9U
             - CHAINCODE_ID=eventstore
             - CHANNEL_NAME=loanapp
             - CHANNEL_HUB=peer0.etradeconnect.net
