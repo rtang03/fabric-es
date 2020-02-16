@@ -1,38 +1,38 @@
 ---
-name: openplatform_fabric-all
+name: fdi_openplatform-all
 version: 1.0.0
 
 channels:
   eventstore:
     orderers:
-      - orderer1.example.com
+      - orderer0-hktfp
     peers:
-      peer0.org1.example.com:
+      peer0-etradeconnect:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.org1.example.com:
+      peer1-etradeconnect:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer0.org2.example.com:
+      peer0-pbctfp:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.org2.example.com:
+      peer1-pbctfp:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer0.org3.neworg.com:
+      peer0-hsbc:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.org3.neworg.com:
+      peer1-hsbc:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -41,121 +41,122 @@ channels:
       - eventstore:1.0
 
 organizations:
-  Org1MSP:
-    mspid: Org1MSP
+  EtcMSP:
+    mspid: EtcMSP
     peers:
-      - peer0.org1.example.com
-      - peer1.org1.example.com
+      - peer0-etradeconnect
+      - peer1-etradeconnect
     certificateAuthorities:
-      - rca.org1.example.com
+      - rca-etradeconnect
     adminPrivateKey:
-      path: ../../deployments/boilerplate/config/../artifacts/Org1MSP/admin/msp/keystore/key.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../deployments/boilerplate/config/../artifacts/Org1MSP/admin/msp/signcerts/cert.pem
-  Org2MSP:
-    mspid: Org2MSP
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/admin/msp/signcerts/cert.pem
+  PbctfpMSP:
+    mspid: PbctfpMSP
     peers:
-      - peer0.org2.example.com
-      - peer1.org2.example.com
+      - peer0-pbctfp
+      - peer1-pbctfp
     certificateAuthorities:
-      - rca.org2.example.com
+      - rca-pbctfp
     adminPrivateKey:
-      path: ../../deployments/boilerplate/config/../artifacts/Org2MSP/admin/msp/keystore/key.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../deployments/boilerplate/config/../artifacts/Org2MSP/admin/msp/signcerts/cert.pem
-  Org3MSP:
-    mspid: Org3MSP
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem
+  HsbcMSP:
+    mspid: HsbcMSP
     peers:
-      - peer0.org3.neworg.com
-      - peer1.org3.neworg.com
+      - peer0-hsbc
+      - peer1-hsbc
     certificateAuthorities:
-      - rca.org3.neworg.com
+      - rca-hsbc
     adminPrivateKey:
-      path: ../../deployments/boilerplate/config/../artifacts/Org3MSP/admin/msp/keystore/key.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HsbcMSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../deployments/boilerplate/config/../artifacts/Org3MSP/admin/msp/signcerts/cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HsbcMSP/admin/msp/signcerts/cert.pem
 
 orderers:
-  orderer1.example.com:
+  orderer0-hktfp:
     url: grpcs://localhost:7050
     grpcOptions:
-      ssl-target-name-override: orderer1.example.com
+      ssl-target-name-override: orderer0-hktfp
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/OrdererMSP/orderer1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 
 peers:
-  peer0.org1.example.com:
+  peer0-etradeconnect:
     url: grpcs://localhost:7051
     eventUrl: grpcs://localhost:7053
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.org1.example.com
-  peer1.org1.example.com:
-    url: grpcs://localhost:8051
-    eventUrl: grpcs://localhost:8053
+      ssl-target-name-override: peer0-etradeconnect
+  peer1-etradeconnect:
+    url: grpcs://localhost:7151
+    eventUrl: grpcs://localhost:7153
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/Org1MSP/peer1.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.org1.example.com
-  peer0.org2.example.com:
-    url: grpcs://localhost:9051
-    eventUrl: grpcs://localhost:9053
+      ssl-target-name-override: peer1-etradeconnect
+  peer0-pbctfp:
+    url: grpcs://localhost:7251
+    eventUrl: grpcs://localhost:7253
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/Org2MSP/peer0.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.org2.example.com
-  peer1.org2.example.com:
-    url: grpcs://localhost:10051
-    eventUrl: grpcs://localhost:10053
+      ssl-target-name-override: peer0-pbctfp
+  peer1-pbctfp:
+    url: grpcs://localhost:7251
+    eventUrl: grpcs://localhost:7253
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/Org2MSP/peer1.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.org2.example.com
-  peer0.org3.neworg.com:
-    url: grpcs://localhost:11051
-    eventUrl: grpcs://localhost:11053
+      ssl-target-name-override: peer1-pbctfp
+  peer0-hsbc:
+    url: grpcs://localhost:7451
+    eventUrl: grpcs://localhost:7453
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/Org3MSP/peer0.org3.neworg.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.org3.neworg.com
-  peer1.org3.neworg.com:
-    url: grpcs://localhost:12051
-    eventUrl: grpcs://localhost:12053
+      ssl-target-name-override: peer0-hsbc
+  peer1-hsbc:
+    url: grpcs://localhost:7551
+    eventUrl: grpcs://localhost:7553
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/Org3MSP/peer1.org3.neworg.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HsbcMSP/peer1.hsbc.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.org3.neworg.com
+      ssl-target-name-override: peer1-hsbc
 
 certificateAuthorities:
-  rca.org1.example.com:
+  rca-etradeconnect:
+    url: https://localhost:6054
+    caName: rca-etradeconnect
+    tlsCACerts:
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: rca-etradeconnect-admin
+        enrollSecret: rca-etradeconnect-adminPW
+    httpOptions:
+      verify: false
+    rca-pbctfp:
+    url: https://localhost:6055
+    caName: rca-pbctfp
+    tlsCACerts:
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: rca-pboc-admin
+        enrollSecret: rca-pboc-adminPW
+    httpOptions:
+      verify: false
+    rca-hsbc:
     url: https://localhost:5054
-    caName: rca.org1.example.com
+    caName: rca-hsbc
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/Org1MSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HsbcMSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
-      - enrollId: rca-org1-admin
-        enrollSecret: rca-org1-adminPW
+      - enrollId: rca-hsbc-admin
+        enrollSecret: rca-hsbc-adminPW
     httpOptions:
       verify: false
-  rca.org2.example.com:
-    url: https://localhost:5055
-    caName: rca.org2.example.com
-    tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/Org2MSP/msp/tlscacerts/tls-ca-cert.pem
-    registrar:
-      - enrollId: rca-org2-admin
-        enrollSecret: rca-org2-adminPW
-    httpOptions:
-      verify: false
-  rca.org3.neworg.com:
-    url: https://localhost:5056
-    caName: rca.org3.neworg.com
-    tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/Org3MSP/msp/tlscacerts/tls-ca-cert.pem
-    registrar:
-      - enrollId: rca-org3-admin
-        enrollSecret: rca-org3-adminPW
-    httpOptions:
-      verify: false
+  

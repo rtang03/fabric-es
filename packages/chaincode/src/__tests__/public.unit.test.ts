@@ -23,7 +23,7 @@ ctx.stub.putState.mockResolvedValue(Buffer.from(''));
 ctx.stub.setEvent.mockImplementation((name, args) =>
   console.log(`Event sent: ${name}: ${args}`)
 );
-ctx.clientIdentity.getID.mockResolvedValue('Org1MSP');
+ctx.clientIdentity.getID.mockImplementation(() => 'Org1MSP');
 
 const cc = new EventStore(context);
 const entityName = 'cc_test';

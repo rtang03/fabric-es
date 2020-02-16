@@ -1,8 +1,17 @@
+## Overview
+
+`gw-dev-net` is the development network, used for docker image building and testing of below packages:
+
+- auth-server
+- gw-org1
+- gw-org2
+- gw-org3 (To be completed)
+
 ## PART A: Instructions for building auth-server image
 
 ### _Step 1: Validate build material for your organization of a given deployment_
 
-Below example is based on _gw-org-dev-net_ . All build material is located at `~/deployments/gw-org-dev-net/build.gw-org[X]`.
+Below example is based on _gw-dev-net_ . All build material is located at `~/deployments/gw-dev-net/build.gw-org[X]`.
 
 - Validate `.env.prod` content, for default environment variables, for gw-org.
 - Validate `.env.auth-server.prod` content, for default environment variables, for auth-server.
@@ -45,7 +54,7 @@ docker run -d \
 
 _Option 2: local machine Setup: embeded in docker-compose_
 
-See sample `~/deployments/gw-org-dev-net/config/docker-compose.yaml`. Intentionally, the boilerplated
+See sample `~/deployments/gw-dev-net/config/docker-compose.yaml`. Intentionally, the boilerplated
 `docker-compose.yaml` includes auth-server images. Other boilerplated network may not includes `auth-server`,
 and therefore, need to add it manually.
 
@@ -122,7 +131,7 @@ exit
 #  -p 3900:8080 espresso/auth-server:1.0
 
 # (b) embedded approach
-# see example ~/deployments/gw-org-dev-net/config/docker-compose.yaml
+# see example ~/deployments/gw-dev-net/config/docker-compose.yaml
 ```
 
 open `http://localhost:3900/graphql`
@@ -155,10 +164,10 @@ Validate `.env.prod` content, for default environment variables.
 
 ```shell script
 # send build context to .build directory
-yarn build:gw-org-dev-net:org1
+yarn build:gw-dev-net:org1
 
 # send build context to .build directory
-yarn build:gw-org-dev-net:org2
+yarn build:gw-dev-net:org2
 ```
 
 ```shell script
@@ -169,7 +178,7 @@ DOCKER_BUILD=1 docker build --no-cache -f ./gw-org1.dockerfile -t espresso/gw-or
 DOCKER_BUILD=1 docker build --no-cache -f ./gw-org2.dockerfile -t espresso/gw-org2:1.0 .
 ```
 
-If running docker image, may launch `~/deployments/gw-org-dev-net/config/docker-compose up`
+If running docker image, may launch `~/deployments/gw-dev-net/config/docker-compose up`
 
 ```yaml
 gw-org1:
@@ -260,7 +269,7 @@ docker-compose -f docker-compose.fabric_only.yaml up -d
 
 # should return
 # 2020-02-10 22:28:35.155 HKT [common.tools.configtxgen.localconfig] completeInitialization -> INFO 003 orderer type: etcdraft
-# 2020-02-10 22:28:35.155 HKT [common.tools.configtxgen.localconfig] LoadTopLevel -> INFO 004 Loaded configuration: /Users/tangross/dev/2020/open-platform-dlt/deployments/gw-org-dev-net/config/configtx.yaml
+# 2020-02-10 22:28:35.155 HKT [common.tools.configtxgen.localconfig] LoadTopLevel -> INFO 004 Loaded configuration: /Users/tangross/dev/2020/open-platform-dlt/deployments/gw-dev-net/config/configtx.yaml
 # 2020-02-10 22:28:35.155 HKT [common.tools.configtxgen] doOutputAnchorPeersUpdate -> INFO 005 Generating anchor peer update
 # 2020-02-10 22:28:35.156 HKT [common.tools.configtxgen] doOutputAnchorPeersUpdate -> INFO 006 Writing anchor peer update
 
@@ -296,15 +305,14 @@ to chaincode directory.
 # optionally step: build chaincode, if not yet build. It requires 'dist' directory, and package.json, proper collections.json
 # run `yarn build` in ~/packages/chaincode directory
 
-# cp ~/deployments/gw-org-dev-net/build.gw-org1 ~/packages/chaincode/collections.json
+# cp ~/deployments/gw-dev-net/build.gw-org1 ~/packages/chaincode/collections.json
 ```
 
 ### _Step 6: Install chaincode_
 
 ```shell script
 # back to second terminal: install chaincode
-# goto ~/deployments/gw-dev-net/
-cd ..
+# goto ~/deployments/gw-dev-net/scripts
 ./installcc.sh
 ```
 
@@ -320,7 +328,7 @@ docker-compose -f docker-compose.fabric_only.yaml down
 
 # in the second terminal
 # copy org's connection profiles to the mounted volume
-# cd ~/deployments/gw-org-dev-net
+# cd ~/deployments/gw-dev-net
 mkdir -p .volume/gw-org1/assets
 mkdir -p .volume/gw-org2/assets
 cp ./build.gw-org1/connection-org1.prod.yaml .volume/gw-org1/assets/connection.yaml

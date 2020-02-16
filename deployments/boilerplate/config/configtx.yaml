@@ -8,102 +8,102 @@
 ################################################################################
 Organizations:
 
-   - &OrdererOrg
-      Name: OrdererOrg
-      ID: OrdererMSP
-      MSPDir: ../artifacts/OrdererMSP/msp
+   - &hktfp
+      Name: hktfp
+      ID: HktfpMSP
+      MSPDir: ../artifacts/crypto-config/HktfpMSP/msp
 
       Policies:
          Readers:
             Type: Signature
-            Rule: "OR('OrdererMSP.member')"
+            Rule: "OR('HktfpMSP.member')"
          Writers:
             Type: Signature
-            Rule: "OR('OrdererMSP.member')"
+            Rule: "OR('HktfpMSP.member')"
          Admins:
             Type: Signature
-            Rule: "OR('OrdererMSP.admin')"
+            Rule: "OR('HktfpMSP.admin')"
 
-   - &Org1MSP
-      Name: Org1MSP
-      ID: Org1MSP
-      MSPDir: ../artifacts/Org1MSP/msp
+   - &etc
+      Name: etc
+      ID: EtcMSP
+      MSPDir: ../artifacts/crypto-config/EtcMSP/msp
 
       Policies:
          Readers:
             Type: Signature
-            Rule: "OR('Org1MSP.member')"
+            Rule: "OR('EtcMSP.member')"
          Writers:
             Type: Signature
-            Rule: "OR('Org1MSP.member')"
+            Rule: "OR('EtcMSP.member')"
          Admins:
             Type: Signature
-            Rule: "OR('Org1MSP.admin')"
+            Rule: "OR('EtcMSP.admin')"
 
       OrdererEndpoints:
-         - orderer1.example.com:7050
-         - orderer2.example.com:7150
-         - orderer3.example.com:7250
-         - orderer4.example.com:7350
-         - orderer5.example.com:7450
+         - orderer0-hktfp:7050
+         - orderer1-hktfp:7150
+         - orderer2-hktfp:7250
+         - orderer3-hktfp:7350
+         - orderer4-hktfp:7450
 
       AnchorPeers:
-         - Host: peer0.org1.example.com
+         - Host: peer0-etradeconnect
            Port: 7051
 
-   - &Org2MSP
-      Name: Org2MSP
-      ID: Org2MSP
-      MSPDir: ../artifacts/Org2MSP/msp
+   - &pbctfp
+      Name: pbctfp
+      ID: PbctfpMSP
+      MSPDir: ../artifacts/crypto-config/PbctfpMSP/msp
 
       Policies:
          Readers:
             Type: Signature
-            Rule: "OR('Org2MSP.member')"
+            Rule: "OR('PbctfpMSP.member')"
          Writers:
             Type: Signature
-            Rule: "OR('Org2MSP.member')"
+            Rule: "OR('PbctfpMSP.member')"
          Admins:
             Type: Signature
-            Rule: "OR('Org2MSP.admin')"
+            Rule: "OR('PbctfpMSP.admin')"
 
       OrdererEndpoints:
-         - orderer1.example.com:7050
-         - orderer2.example.com:7150
-         - orderer3.example.com:7250
-         - orderer4.example.com:7350
-         - orderer5.example.com:7450
+         - orderer0-hktfp:7050
+         - orderer1-hktfp:7150
+         - orderer2-hktfp:7250
+         - orderer3-hktfp:7350
+         - orderer4-hktfp:7450
 
       AnchorPeers:
-         - Host: peer0.org2.example.com
+         - Host: peer0-pbctfp
            Port: 9051
 
-   - &Org3MSP
-      Name: Org3MSP
-      ID: Org3MSP
-      MSPDir: ../artifacts/Org3MSP/msp
+   - &hsbc
+      Name: hsbc
+      ID: HsbcMSP
+      MSPDir: ../artifacts/crypto-config/HsbcMSP/msp
 
       Policies:
          Readers:
             Type: Signature
-            Rule: "OR('Org3MSP.member')"
+            Rule: "OR('HsbcMSP.member')"
          Writers:
             Type: Signature
-            Rule: "OR('Org3MSP.member')"
+            Rule: "OR('HsbcMSP.member')"
          Admins:
             Type: Signature
-            Rule: "OR('Org3MSP.admin')"
+            Rule: "OR('HsbcMSP.admin')"
 
       OrdererEndpoints:
-         - orderer1.example.com:7050
-         - orderer2.example.com:7150
-         - orderer3.example.com:7250
-         - orderer4.example.com:7350
-         - orderer5.example.com:7450
+         - orderer0-hktfp:7050
+         - orderer1-hktfp:7150
+         - orderer2-hktfp:7250
+         - orderer3-hktfp:7350
+         - orderer4-hktfp:7450
 
       AnchorPeers:
-         - Host: peer0.org3.neworg.com
-           Port: 11051
+         - Host: peer0-hsbc
+           Port: 7451
 
 Capabilities:
    Channel: &ChannelCapabilities
@@ -150,11 +150,11 @@ Orderer: &OrdererDefaults
 
    OrdererType: etcdraft
    Addresses:
-      - orderer1.example.com:7050
-      - orderer2.example.com:7150
-      - orderer3.example.com:7250
-      - orderer4.example.com:7350
-      - orderer5.example.com:7450
+      - orderer0-hktfp:7050
+      - orderer1-hktfp:7150
+      - orderer2-hktfp:7250
+      - orderer3-hktfp:7350
+      - orderer4-hktfp:7450
    BatchTimeout: 2s
    BatchSize:
       MaxMessageCount: 500
@@ -163,26 +163,26 @@ Orderer: &OrdererDefaults
    MaxChannels: 10
    EtcdRaft:
       Consenters:
-         - Host: orderer1.example.com
+         - Host: orderer0-hktfp
            Port: 7050
-           ClientTLSCert: ../artifacts/OrdererMSP/orderer1.example.com/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/OrdererMSP/orderer1.example.com/tls-msp/signcerts/cert.pem
-         - Host: orderer2.example.com
+           ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/signcerts/cert.pem
+         - Host: orderer1-hktfp
            Port: 7150
-           ClientTLSCert: ../artifacts/OrdererMSP/orderer2.example.com/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/OrdererMSP/orderer2.example.com/tls-msp/signcerts/cert.pem
-         - Host: orderer3.example.com
+           ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/tls-msp/signcerts/cert.pem
+         - Host: orderer2-hktfp
            Port: 7250
-           ClientTLSCert: ../artifacts/OrdererMSP/orderer3.example.com/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/OrdererMSP/orderer3.example.com/tls-msp/signcerts/cert.pem
-         - Host: orderer4.example.com
+           ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/tls-msp/signcerts/cert.pem
+         - Host: orderer3-hktfp
            Port: 7350
-           ClientTLSCert: ../artifacts/OrdererMSP/orderer4.example.com/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/OrdererMSP/orderer4.example.com/tls-msp/signcerts/cert.pem
-         - Host: orderer5.example.com
+           ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/signcerts/cert.pem
+         - Host: orderer4-hktfp
            Port: 7450
-           ClientTLSCert: ../artifacts/OrdererMSP/orderer5.example.com/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/OrdererMSP/orderer5.example.com/tls-msp/signcerts/cert.pem
+           ClientTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/signcerts/cert.pem
 
       Options:
          TickInterval: 500ms
@@ -236,24 +236,24 @@ Profiles:
       Orderer:
          <<: *OrdererDefaults
          Organizations:
-            - *OrdererOrg
+            - *hktfp
          Capabilities:
             <<: *OrdererCapabilities
       Consortiums:
-         SampleConsortium:
+         BankingHK:
             Organizations:
-               - *Org1MSP
-               - *Org2MSP
-               - *Org3MSP
+               - *etc
+               - *pbctfp
+               - *hsbc
 
    OrgsChannel:
-      Consortium: SampleConsortium
+      Consortium: BankingHK
       <<: *ChannelDefaults
       Application:
          <<: *ApplicationDefaults
          Organizations:
-            - *Org1MSP
-            - *Org2MSP
-            - *Org3MSP
+            - *etc
+            - *pbctfp
+            - *hsbc
          Capabilities:
             <<: *ApplicationCapabilities

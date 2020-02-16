@@ -10,42 +10,42 @@ const eventStr = toString([{ type: 'mon', payload: { name: 'jun' } }]);
 const base_args = [
   'exec',
   '-e',
-  'CORE_PEER_LOCALMSPID=Org1MSP',
+  'CORE_PEER_LOCALMSPID=EtcMSP',
   '-e',
-  'CORE_PEER_ADDRESS=peer0.org1.example.com:7051',
+  'CORE_PEER_ADDRESS=peer0-etradeconnect:7051',
   '-e',
-  'CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem',
+  'CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem',
   '-e',
-  'CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/Org1MSP/admin/msp'
+  'CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp'
 ];
 
 const query_args = [
-  'cli.org1.example.com',
+  'cli-etradeconnect',
   'peer',
   'chaincode',
   'query',
   '-C',
-  'eventstore',
+  'loanapp',
   '-n',
   'eventstore',
   '-c'
 ];
 
 const invoke_args = [
-  'cli.org1.example.com',
+  'cli-etradeconnect',
   'peer',
   'chaincode',
   'invoke',
   '-o',
-  'orderer1.example.com:7050',
+  'orderer0-hktfp:7050',
   '--waitForEvent',
   '--tls=true',
   '-C',
-  'eventstore',
+  'loanapp',
   '-n',
   'eventstore',
   '--cafile',
-  '/tmp/hyperledger/Org1MSP/peer0.org1.example.com/assets/tls-ca/tls-ca-cert.pem',
+  '/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem',
   '-c'
 ];
 
