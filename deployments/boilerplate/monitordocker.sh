@@ -6,7 +6,7 @@
 # More information at https://github.com/gliderlabs/logspout/tree/master/httpstream
 
 if [ -z "$1" ]; then
-   DOCKER_NETWORK=openplatform_fabric
+   DOCKER_NETWORK=fdi_openplatform
 else
    DOCKER_NETWORK="$1"
 fi

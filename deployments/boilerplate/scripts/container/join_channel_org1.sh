@@ -1,25 +1,25 @@
-mkdir -p /tmp/hyperledger/Org1MSP/admin/msp/admincerts
-cp /tmp/hyperledger/Org1MSP/peer0.org1.example.com/msp/admincerts/org1.example.com-admin-cert.pem /tmp/hyperledger/Org1MSP/admin/msp/admincerts
+mkdir -p /var/artifacts/crypto-config/EtcMSP/admin/msp/admincerts
+cp /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/msp/admincerts/etradeconnect-admin-cert.pem /var/artifacts/crypto-config/EtcMSP/admin/msp/admincerts
 
-export CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/Org1MSP/admin/msp
-peer channel create -c eventstore -f /tmp/hyperledger/Org1MSP/peer0.org1.example.com/assets/channel.tx -o orderer1.example.com:7050 \
-    --outputBlock /tmp/hyperledger/Org1MSP/peer0.org1.example.com/assets/eventstore.block \
-    --tls --cafile /tmp/hyperledger/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp
+peer channel create -c loanapp -f /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/channel.tx -o orderer0-hktfp:7050 \
+    --outputBlock /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/loanapp.block \
+    --tls --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 
-export CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/Org1MSP/admin/msp
+export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp
 
 # peer0 joining the channel
-export CORE_PEER_ADDRESS=peer0.org1.example.com:7051
-peer channel join -b /tmp/hyperledger/Org1MSP/peer0.org1.example.com/assets/eventstore.block
-peer channel getinfo -c eventstore
+export CORE_PEER_ADDRESS=peer0-etradeconnect:7051
+peer channel join -b /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/loanapp.block
+peer channel getinfo -c loanapp
 
 # peer1 joining the channel
-export CORE_PEER_ADDRESS=peer1.org1.example.com:8051
-peer channel join -b /tmp/hyperledger/Org1MSP/peer0.org1.example.com/assets/eventstore.block
-peer channel getinfo -c eventstore
+export CORE_PEER_ADDRESS=peer1-etradeconnect:7151
+peer channel join -b /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/loanapp.block
+peer channel getinfo -c loanapp
 
 # Update anchor peer
-peer channel update -c eventstore -f /tmp/hyperledger/Org1MSP/peer0.org1.example.com/assets/Org1MSPAnchors.tx \
-    -o orderer1.example.com:7050 \
-    --tls --cafile /tmp/hyperledger/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+peer channel update -c loanapp -f /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/etcAnchors.tx \
+    -o orderer0-hktfp:7050 \
+    --tls --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 

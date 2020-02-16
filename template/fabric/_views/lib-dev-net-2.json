@@ -280,9 +280,9 @@
             },
             {
               "-": "peer1",
-              "port": "7351",
-              "chaincode-port": "7352",
-              "eventhub-port": "7353",
+              "port": "7251",
+              "chaincode-port": "7252",
+              "eventhub-port": "7253",
               "cert-path": "PbctfpMSP/peer1.pbctfp.net",
               "tls": {
                 "user": "peer1.pbctfp.net",

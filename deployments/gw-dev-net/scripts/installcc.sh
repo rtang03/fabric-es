@@ -1,4 +1,4 @@
-cd ../../packages/chaincode
+cd ../../../packages/chaincode
 # yarn install
 yarn build
 

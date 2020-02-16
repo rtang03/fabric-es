@@ -1,4 +1,4 @@
 .DS_Store
 artifacts
 genesis.block
-../gw-org-dev-net/.volume/.volume
+.volume
