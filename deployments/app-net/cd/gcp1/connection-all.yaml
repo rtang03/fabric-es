@@ -3,7 +3,7 @@ name: fdi_openplatform-all
 version: 1.0.0
 
 channels:
-  eventstore:
+  loanapp:
     orderers:
       - orderer0.hktfp.com
     peers:

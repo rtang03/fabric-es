@@ -39,3 +39,63 @@ services:
             - apps_2
         logging:
             driver: gcplogs
+
+    gw-org2:
+        container_name: gw-org2
+        image: build:5000/gw-org2
+        restart: "no"
+        depends_on:
+            - auth-server-2
+        working_dir: /home/app/packages/gw-org2
+        environment:
+            # GW-ORG2
+            - ADMINISTRATOR_PORT=15021
+            - AUTHORIZATION_SERVER_URI=auth-server-2/oauth/authenticate
+            - CA_ENROLLMENT_ID_ADMIN=rca-pboc-admin
+            - CA_ENROLLMENT_SECRET_ADMIN=8aZBkFyj
+            - CHAINCODE_ID=eventstore
+            - CHANNEL_NAME=loanapp
+            - CHANNEL_HUB=peer0.pbctfp.net
+            - COLLECTION=pbctfpPrivateDetails
+            - CONNECTION_PROFILE=/home/app/packages/gw-org2/assets/connection.yaml
+            - GATEWAY_HOST=localhost
+            - GATEWAY_PORT=4002
+            - MSPID=PbctfpMSP
+            - NETWORK_LOCATION=/var/artifacts/crypto-config
+            - ORG_ADMIN_ID=admin-pbctfp.net
+            - ORG_ADMIN_SECRET=mEN6bpQW
+            - ORG_CA_URL=https://peer0.pbctfp.net:6055
+            - ORGNAME=pbctfp.net
+            - ORDERER_NAME=orderer0.hktfp.com
+            - ORDERER_TLSCA_CERT=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+            - PEER_NAME=peer0.pbctfp.net
+            - PRIVATE_LOAN_DETAILS_PORT=14024
+            - REMOTE_DOC_CONTENTS_PORT=14026
+            - REMOTE_LOAN_DETAILS_PORT=14025
+            - SERVICE_DOCUMENT_PORT=14023
+            - SERVICE_LOAN_PORT=14022
+            - SERVICE_USER_PORT=14021
+            - WALLET=assets/wallet
+        volumes:
+            - /home/web/artifacts/crypto-config:/var/artifacts/crypto-config
+            - /home/web/artifacts/gw-org2/assets:/home/app/packages/gw-org2/assets
+            - /home/web/artifacts/gw-org2/logs:/home/app/packages/gw-org2/logs
+        extra_hosts:
+            - "orderer0.hktfp.com:35.213.127.193"
+            - "orderer1.hktfp.com:35.213.45.247"
+            - "orderer2.hktfp.com:34.84.24.163"
+            - "orderer3.hktfp.com:34.84.173.113"
+            - "orderer4.hktfp.com:34.85.7.30"
+            - "rca.etradeconnect.net:35.213.45.247"
+            - "peer0.etradeconnect.net:35.213.45.247"
+            - "peer1.etradeconnect.net:34.84.24.163"
+            - "rca.pbctfp.net:34.84.173.113"
+            - "peer0.pbctfp.net:34.84.173.113"
+            - "peer1.pbctfp.net:34.85.7.30"
+            - "rca.credrate.com.hk:34.84.208.188"
+            - "peer0.credrate.com.hk:34.84.208.188"
+            - "peer1.credrate.com.hk:34.84.62.135"
+        ports:
+            - 4000:4002
+        networks:
+            - apps_2
