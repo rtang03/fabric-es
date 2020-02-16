@@ -26,6 +26,6 @@ sudo rm -rf ${_CHAINCODE_DIR}/dist
 # sudo rm -rf ${_CHAINCODE_DIR}/node_modules
 
 # Cleanup .env
-rm ${_FABRIC_DIR}/.env
+# rm ${_FABRIC_DIR}/.env
 
 sleep 5
