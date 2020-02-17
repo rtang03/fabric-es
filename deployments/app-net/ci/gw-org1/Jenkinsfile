@@ -6,7 +6,7 @@ pipeline {
         nodeImage = 'build:5000/node8-build'
 
         yarnInstall = 'yarn install --ignore-engines'
-        yarnBuild = 'yarn build:gw-org-dev-net:org1'
+        yarnBuild = 'yarn build:gw-dev-net:org1'
 
         imgName = 'build:5000/gw-org1:latest'
         dockerBuild = 'docker build -t ${imgName} -f gw-org1.dockerfile .'
