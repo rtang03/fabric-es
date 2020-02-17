@@ -33,4 +33,4 @@ WORKDIR /home/app/packages/gw-org2
 
 EXPOSE 4002
 
-CMD ["sh", "-c", "top"]
+CMD ["yarn" , "pm2"]

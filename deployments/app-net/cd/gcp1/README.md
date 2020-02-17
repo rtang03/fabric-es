@@ -30,7 +30,9 @@ Build: [http://35.213.97.7](http://35.213.97.7)
 
 ### 2. GW-ORG2
 
-TBD...
+- URL: [http://35.213.60.174:4000](http://35.213.60.174:4000)
+- docker-compose: [docker-compose-org2.yaml](docker-compose-org2.yaml)
+- connection profile for 0rg1: [connection-org2.yaml](connection-org2.yaml)
 
 ### 3. GW-ORG3
 
