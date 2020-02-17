@@ -6,7 +6,7 @@
   "scripts": {
     "build": "yarn run clean && tsc",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
-    "pack:gw-org-dev-net": "yarn build:cleanup && concurrently \"npm:cp:*\"",
+    "pack:gw-dev-net": "yarn build:cleanup && concurrently \"npm:cp:*\"",
     "build:cleanup": "rimraf ../../.build/packages/model-loan-private && mkdir -p ../../.build/packages/model-loan-private",
     "cp:package.json": "cp ./package.json ../../.build/packages/model-loan-private/",
     "cp:dist": "cp -R ./dist ../../.build/packages/model-loan-private/",
