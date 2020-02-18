@@ -3,7 +3,7 @@ name: fdi_openplatform-etc
 version: 1.0.0
 
 client:
-  organization: etc
+  organization: EtcMSP
   credentialStore:
     path: ./assets/client-certs/hfc-kvs/etradeconnect
     cryptoStore:
@@ -14,7 +14,7 @@ client:
         endorser: '300'
 
 channels:
-  eventstore:
+  loanapp:
     orderers:
       - orderer0-hktfp
     peers:
@@ -74,7 +74,7 @@ certificateAuthorities:
     url: https://localhost:6054
     caName: rca-etradeconnect
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem
     registrar:
       - enrollId: rca-etradeconnect-admin
         enrollSecret: rca-etradeconnect-adminPW
