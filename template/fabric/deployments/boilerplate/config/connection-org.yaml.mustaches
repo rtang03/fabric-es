@@ -5,7 +5,7 @@ name: {{network.compose-project-name}}_{{network.name}}-{{name}}
 version: 1.0.0
 
 client:
-  organization: {{name}}
+  organization: {{id}}
   credentialStore:
     path: ./assets/client-certs/hfc-kvs/{{domain}}
     cryptoStore:
@@ -16,7 +16,7 @@ client:
         endorser: '300'
 
 channels:
-  eventstore:
+  {{network.peer-channels.0}}:
     orderers:
       - {{orgs.orderer.orderers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.orderer.domain}}
     peers:
@@ -69,7 +69,7 @@ certificateAuthorities:
     url: https://localhost:{{ca.port}}
     caName: {{ca.host}}{{network.host-delimiter}}{{domain}}
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{msp-path}}}/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/boilerplate/config/{{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{peers.endpoints.0.cert-path}}}/assets/tls-ca/tls-ca-cert.pem
     registrar:
       - enrollId: {{ca.admin}}
         enrollSecret: {{ca.adminpw}}

@@ -3,7 +3,7 @@ name: fdi_openplatform-all
 version: 1.0.0
 
 channels:
-  eventstore:
+  loanapp:
     orderers:
       - orderer0-hktfp
     peers:
@@ -133,30 +133,29 @@ certificateAuthorities:
     url: https://localhost:6054
     caName: rca-etradeconnect
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem
     registrar:
       - enrollId: rca-etradeconnect-admin
         enrollSecret: rca-etradeconnect-adminPW
     httpOptions:
       verify: false
-    rca-pbctfp:
+  rca-pbctfp:
     url: https://localhost:6055
     caName: rca-pbctfp
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/tls-ca/tls-ca-cert.pem
     registrar:
       - enrollId: rca-pboc-admin
         enrollSecret: rca-pboc-adminPW
     httpOptions:
       verify: false
-    rca-hsbc:
+  rca-hsbc:
     url: https://localhost:5054
     caName: rca-hsbc
     tlsCACerts:
-      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HsbcMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/boilerplate/config/../artifacts/crypto-config/HsbcMSP/peer0.hsbc.com.hk/assets/tls-ca/tls-ca-cert.pem
     registrar:
       - enrollId: rca-hsbc-admin
         enrollSecret: rca-hsbc-adminPW
     httpOptions:
       verify: false
-  
