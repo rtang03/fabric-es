@@ -73,7 +73,7 @@ certificateAuthorities:
     url: https://rca.etradeconnect.net:6054
     caName: rca.etradeconnect.net
     tlsCACerts:
-      path: /var/artifacts/crypto-config/EtcMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem
     registrar:
       - enrollId: rca-etradeconnect-admin
         enrollSecret: cMyG7C9U
