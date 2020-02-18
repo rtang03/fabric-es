@@ -4,7 +4,8 @@ import { Gateway, Network } from 'fabric-network';
 import { keys, omit, pick, values } from 'lodash';
 import { channelEventHub, evaluate, submit } from '..';
 import { bootstrapNetwork } from '../../account';
-import { toCommit } from '../../types/commit'; // do not shorten it
+// import { toCommit } from '../../types/commit'; // do not shorten it
+import { Commit } from '../../types/commit'; // do not shorten it
 
 let network: Network;
 let gateway: Gateway;
@@ -46,7 +47,8 @@ describe('Eventstore Tests', () => {
       network
     }).then(commits =>
       values(commits)
-        .map(commit => toCommit(JSON.stringify(commit)))
+        .map(commit => JSON.parse(commit))
+        // .map(commit => toCommit(JSON.stringify(commit)))
         .forEach(commit =>
           expect(pick(commit, 'entityName')).toEqual({
             entityName: 'dev_entity'
@@ -65,8 +67,9 @@ describe('Eventstore Tests', () => {
       ],
       { network }
     )
-      .then(result => values(result)[0])
-      .then(commit => toCommit(JSON.stringify(commit)))
+      .then<any>(result => values(result)[0])
+      .then(commit => JSON.parse(commit))
+      // .then(commit => toCommit(JSON.stringify(commit)))
       .then(commit => {
         createdCommit_1 = commit;
         return expect(commit.entityId).toEqual(enrollmentId);
@@ -79,7 +82,8 @@ describe('Eventstore Tests', () => {
       { network }
     )
       .then(result => values(result)[0])
-      .then(commit => toCommit(JSON.stringify(commit)))
+      .then(commit => JSON.parse(commit))
+      // .then(commit => toCommit(JSON.stringify(commit)))
       .then(commit => expect(omit(commit, 'events')).toEqual(createdCommit_1)));
 
   it('should create #2', async () =>
@@ -94,8 +98,9 @@ describe('Eventstore Tests', () => {
       ],
       { network }
     )
-      .then(result => values(result)[0])
-      .then(commit => toCommit(JSON.stringify(commit)))
+      .then<any>(result => values(result)[0])
+      .then(commit => JSON.parse(commit))
+      // .then(commit => toCommit(JSON.stringify(commit)))
       .then(({ entityName }) => expect(entityName).toEqual('dev_test')));
 
   it('should queryByEntityName', async () =>
@@ -103,7 +108,8 @@ describe('Eventstore Tests', () => {
       network
     }).then(commits =>
       values(commits)
-        .map(commit => toCommit(JSON.stringify(commit)))
+        .map(commit => JSON.parse(commit))
+        // .map(commit => toCommit(JSON.stringify(commit)))
         .map(({ entityName }) => expect(entityName).toBe('dev_test'))
     ));
 

@@ -18,5 +18,5 @@ enrollAdmin({
   .then(result => console.log(result))
   .catch(error => {
     console.error(error);
-    process.exit(-1);
+    process.exit(1);
   });
