@@ -11,7 +11,7 @@ const port = 15000;
 (async () => {
   Client.setLogger(logger);
 
-  const server = await createAdminServiceV2({
+  const { server } = await createAdminServiceV2({
     ordererName: process.env.ORDERER_NAME,
     ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
     channelName: process.env.CHANNEL_NAME,
