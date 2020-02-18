@@ -73,7 +73,7 @@ certificateAuthorities:
     url: https://rca.pbctfp.net:6055
     caName: rca.pbctfp.net
     tlsCACerts:
-      path: /var/artifacts/crypto-config/PbctfpMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/tls-ca/tls-ca-cert.pem
     registrar:
       - enrollId: rca-pboc-admin
         enrollSecret: 8aZBkFyj
