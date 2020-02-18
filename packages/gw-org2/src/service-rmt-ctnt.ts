@@ -1,5 +1,3 @@
-import stoppable from 'stoppable';
-
 require('./env');
 import { createRemoteService } from '@espresso/gw-node';
 import {
@@ -13,7 +11,7 @@ import { getLogger } from './logger';
 const logger = getLogger('service-rmt-ctnt.js');
 
 (async () => {
-  const server = await createRemoteService({
+  const { server, shutdown } = await createRemoteService({
     name: process.env.ORGNAME,
     typeDefs: docContentsRemoteTypeDefs,
     resolvers: docContentsRemoteResolvers,
@@ -26,28 +24,8 @@ const logger = getLogger('service-rmt-ctnt.js');
     }
   });
 
-  const stoppableServer = stoppable(http.createServer(server));
-
-  const shutdown = () => {
-    stoppableServer.close(err => {
-      if (err) {
-        logger.error(
-          util.format('An error occurred while closing the server: %j', err)
-        );
-        process.exitCode = 1;
-      } else logger.info('server closes');
-    });
-    process.exit();
-  };
-
-  process.on('SIGINT', () => {
-    shutdown();
-  });
-
-  process.on('SIGTERM', () => {
-    shutdown();
-  });
-
+  process.on('SIGINT', () => shutdown(server));
+  process.on('SIGTERM', () => shutdown(server));
   process.on('uncaughtException', err => {
     logger.error('An uncaught error occurred!');
     logger.error(err.stack);
