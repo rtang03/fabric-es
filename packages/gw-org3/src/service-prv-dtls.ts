@@ -47,10 +47,8 @@ createService({
     app
       .listen({ port: process.env.PRIVATE_LOAN_DETAILS_PORT })
       .then(({ url }) => {
-        logger.info(
-          `🚀  '${process.env.ORGNAME}' - 'loanDetails' available at ${url}`
-        );
-        // process.send('ready');
+        logger.info(`🚀  '${process.env.ORGNAME}' - 'loanDetails' available at ${url}`);
+        process.send('ready');
       });
   })
   .catch(error => {
