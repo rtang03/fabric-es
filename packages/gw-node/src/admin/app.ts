@@ -1,16 +1,14 @@
-import process from 'process';
-import util from 'util';
-import { createAdminServiceV2 } from '.';
+import { createAdminService } from '.';
 import { getLogger } from '../utils/getLogger';
+import { shutdown } from '../utils/shutdownApollo';
 
-const app: any = {};
 const port = (process.env.PORT || 8080) as number;
 
 (async () => {
   const logger = getLogger('app.js');
   logger.info('starting admin-service...');
 
-  const { server } = await createAdminServiceV2({
+  const { server } = await createAdminService({
     ordererName: process.env.ORDERER_NAME,
     ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
     caAdminEnrollmentId: process.env.CA_ADMIN_ENROLLMENT_ID,
@@ -21,26 +19,17 @@ const port = (process.env.PORT || 8080) as number;
     walletPath: process.env.WALLET_PATH
   });
 
-  app.shutdown = () => {
-    server.stop()
-    .catch(err => {
-      logger.error(
-        util.format('An error occurred while closing the server: %j', err)
-      );
-      process.exit(1);
-    })
-    .then(() => {
-      logger.info('server stop');
-      process.exit(0);
-    });
-  };
-
   process.on('SIGINT', () => {
-    app.shutdown();
+    shutdown({logger, name: 'admin-service'});
   });
 
   process.on('SIGTERM', () => {
-    app.shutdown();
+    shutdown({logger, name: 'admin-service'});
+  });
+
+  process.on('uncaughtException', err => {
+    logger.error('An uncaught error occurred!');
+    logger.error(err.stack);
   });
 
   server.listen({ port }).then(({ url }) => {

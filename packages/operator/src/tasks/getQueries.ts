@@ -1,5 +1,7 @@
+import Client from 'fabric-client';
 import { readFileSync } from 'fs';
 import { findLast } from 'lodash';
+import util from 'util';
 import { CreateNetworkOperatorOption, Queries } from '../types';
 import { getClientForOrg } from '../utils';
 
@@ -8,6 +10,8 @@ export const getQueries = (option: CreateNetworkOperatorOption) => async ({
 }: {
   peerName: string;
 }): Promise<Queries> => {
+  const logger = Client.getLogger('getQueries.js');
+
   const {
     connectionProfile,
     fabricNetwork,
@@ -17,11 +21,23 @@ export const getQueries = (option: CreateNetworkOperatorOption) => async ({
   } = option;
 
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
+
   const channel = client.getChannel(channelName);
+
+  let pem;
+
+  try {
+    pem = Buffer.from(readFileSync(ordererTlsCaCert)).toString();
+  } catch (e) {
+    logger.error(util.format('fail to read ordererTlsCaCert, %j', e));
+    throw new Error(e);
+  }
+
   const orderer = client.newOrderer(client.getOrderer(ordererName).getUrl(), {
-    pem: Buffer.from(readFileSync(ordererTlsCaCert)).toString(),
+    pem,
     'ssl-target-name-override': client.getOrderer(ordererName).getName()
   });
+
   channel.addOrderer(orderer);
 
   return {

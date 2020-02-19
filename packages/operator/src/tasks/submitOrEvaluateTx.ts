@@ -38,23 +38,36 @@ export const submitOrEvaluateTx = (
   evaluate: () => Promise<Record<string, Commit> | { error: any }>;
   submit: () => Promise<Record<string, Commit> | { error: any }>;
 }> => {
+  const logger = Client.getLogger('submitOrEvaluateTx.js');
+
   if (!identity) throw new Error(MISSING_WALLET_LABEL);
   if (!chaincodeId) throw new Error(MISSING_CHAINCODE_ID);
   if (!fcn) throw new Error(MISSING_FCN);
 
-  const logger = Client.getLogger('submitOrEvaluateTx.js');
   const { channelName, fabricNetwork, connectionProfile, wallet } = option;
   const gateway = new Gateway();
 
-  await gateway.connect(connectionProfile, {
-    identity,
-    wallet,
-    eventHandlerOptions: { strategy: eventHandlerStrategies },
-    queryHandlerOptions: { strategy: queryHandlerStrategies },
-    discovery: { asLocalhost, enabled: true }
-  });
+  try {
+    await gateway.connect(connectionProfile, {
+      identity,
+      wallet,
+      eventHandlerOptions: { strategy: eventHandlerStrategies },
+      queryHandlerOptions: { strategy: queryHandlerStrategies },
+      discovery: { asLocalhost, enabled: true }
+    });
+  } catch (e) {
+    logger.error(util.format('fail to connect gateway, %j', e));
+    throw new Error(e);
+  }
 
-  const network: Network = await gateway.getNetwork(channelName);
+  let network: Network;
+
+  try {
+    network = await gateway.getNetwork(channelName);
+  } catch (e) {
+    logger.error(util.format('fail to getNetwork, %j', e));
+    throw new Error(e);
+  }
 
   logger.info('gateway connected');
 

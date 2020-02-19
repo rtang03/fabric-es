@@ -3,54 +3,22 @@ import gql from 'graphql-tag';
 export const typeDefs = gql`
   type Mutation {
     registerAndEnrollUser(
+      administrator: String!
       enrollmentId: String!
       enrollmentSecret: String!
     ): Boolean!
   }
   type Query {
     getBlockByNumber(blockNumber: Int!): Block
-    getCaIdentities: [CaIdentity!]
-    getCaIdentityByEnrollmentId(enrollmentId: String!): CaIdentity
     getChainHeight: Int!
-    getChannelPeers: [ChannelPeer!]!
-    getCollectionConfigs: [CollectionConfig!]!
+    getCaIdentityByEnrollmentId(enrollmentId: String!): CaIdentity
     getInstalledChaincodes: [Chaincode!]!
     getInstantiatedChaincodes: [Chaincode!]!
     getInstalledCCVersion(chaincode_id: String!): String!
     getMspid: String!
-    getPeerInfo: PeerInfo!
     getPeerName: String!
-    isWalletEntryExist(label: String!): Boolean!
+    isWalletExist(label: String!): Boolean!
     listWallet: [WalletEntry!]!
-  }
-  type PeerInfo {
-    """
-    MSP Id
-    """
-    mspid: String!
-    """
-    Peer Name
-    """
-    peerName: String!
-  }
-  type ChannelPeer {
-    mspid: String!
-    name: String!
-    url: String!
-  }
-  type CollectionConfig {
-    name: String!
-    typ: String!
-    required_peer_count: Int!
-    maximum_peer_count: Int!
-    block_to_live: Int!
-    member_read_only: Boolean!
-    policy: String!
-  }
-  type WalletEntry {
-    label: String!
-    mspId: String
-    identifier: String
   }
   type X509Attribute {
     name: String!
@@ -68,8 +36,10 @@ export const typeDefs = gql`
     version: Int!
     path: String!
   }
-  type ChannelInfo {
-    channel_id: String!
+  type WalletEntry {
+    label: String!
+    mspId: String
+    identifier: String
   }
   type TransactionResponse {
     status: String!
@@ -97,4 +67,4 @@ export const typeDefs = gql`
     no_of_tx: Int!
     transaction: [TransactionData!]!
   }
-`;
+ `;
