@@ -9,7 +9,19 @@ Prerequsites: docker and docker-compose
 
 ## Topology
 
-![Logical Topology](config/logical_topology_raft.png)
+![Logical Topology](static/logical_topology_raft.png)
+
+***
+
+## Generate Network
+
+1. Go to the template directory to generate the network. See [README](../../template/README.md) for the details.
+
+2. After generated, ensure the files are executable.
+
+```shell script
+chmod -R 755 *
+```
 
 ***
 
