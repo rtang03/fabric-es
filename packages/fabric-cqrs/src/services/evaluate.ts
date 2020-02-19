@@ -25,8 +25,8 @@ export const evaluate: (
         .evaluate(...args)
         .then<Record<string, Commit>>((res: any) => {
           const result = JSON.parse(Buffer.from(JSON.parse(res)).toString());
-          logger.info(util.format('successful response'));
-          logger.debug(util.format('tx response: %j', result));
+          logger.info(util.format('%s successful response', fcn));
+          // logger.debug(util.format('tx response: %j', result));
           return result;
         })
         .catch(error => {
