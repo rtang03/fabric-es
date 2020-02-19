@@ -43,7 +43,7 @@ services:
     gw-org1:
         container_name: gw-org1
         image: build:5000/gw-org1
-        restart: always
+        restart: "no"
         depends_on:
             - auth-server-1
         working_dir: /home/app/packages/gw-org1

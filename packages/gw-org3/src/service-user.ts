@@ -23,7 +23,7 @@ createService({
   connectionProfile: process.env.CONNECTION_PROFILE,
   wallet: new FileSystemWallet(process.env.WALLET)
 })
-  .then(async ({ config, getRepository }) => {
+  .then(async ({ config, shutdown, getRepository }) => {
     const app = await config({
       typeDefs: userTypeDefs,
       resolvers: userResolvers
@@ -36,25 +36,8 @@ createService({
       )
       .create();
 
-    const shutdown = () =>
-      app.stop().then(
-        () => {
-          logger.info('app closes');
-          process.exit(0);
-        },
-        err => {
-          logger.error(
-            util.format(
-              'An error occurred while shutting down service: %j',
-              err
-            )
-          );
-          process.exit(1);
-        }
-      );
-
-    process.on('SIGINT', async () => await shutdown());
-    process.on('SIGTERM', async () => await shutdown());
+    process.on('SIGINT', async () => await shutdown(app));
+    process.on('SIGTERM', async () => await shutdown(app));
     process.on('uncaughtException', err => {
       logger.error('An uncaught error occurred!');
       logger.error(err.stack);
@@ -62,7 +45,7 @@ createService({
 
     app.listen({ port: process.env.SERVICE_USER_PORT }).then(({ url }) => {
       logger.info(`🚀  '${process.env.ORGNAME}' - 'user' available at ${url}`);
-      // process.send('ready');
+      process.send('ready');
     });
   })
   .catch(error => {

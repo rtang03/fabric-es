@@ -2,6 +2,7 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { ApolloServer } from 'apollo-server';
 import Client from 'fabric-client';
 import { FileSystemWallet } from 'fabric-network';
+import { shutdown } from '../utils/shutdownApollo';
 import {
   MISSING_CHANNELNAME,
   MISSING_CONNECTION_PROFILE,
@@ -74,15 +75,18 @@ export const createAdminServiceV2 = async ({
 
   logger.info('createResolvers complete');
 
-  return new ApolloServer({
-    schema: buildFederatedSchema([{ typeDefs, resolvers }]),
-    playground,
-    introspection,
-    context: ({ req: { headers } }) => ({
-      user_id: headers.user_id,
-      is_admin: headers.is_admin,
-      client_id: headers.client_id,
-      enrollmentId: headers.user_id
-    })
-  });
+  return {
+    server: new ApolloServer({
+      schema: buildFederatedSchema([{ typeDefs, resolvers }]),
+      playground,
+      introspection,
+      context: ({ req: { headers } }) => ({
+        user_id: headers.user_id,
+        is_admin: headers.is_admin,
+        client_id: headers.client_id,
+        enrollmentId: headers.user_id
+      })
+    }),
+    shutdown: shutdown({ logger, name: 'Admin' })
+  };
 };
