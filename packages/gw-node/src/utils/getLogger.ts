@@ -16,6 +16,7 @@ export const getLogger = (name: string) =>
       new transports.File({
         filename: `./logs/debug.log`,
         level: 'debug'
-      })
+      }),
+      new transports.File({ filename: `./logs/warn.log`, level: 'warn' })
     ]
   });

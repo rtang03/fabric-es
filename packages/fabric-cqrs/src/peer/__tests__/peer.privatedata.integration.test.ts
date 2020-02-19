@@ -1,6 +1,5 @@
-import { FileSystemWallet } from 'fabric-network';
-
 require('../../env');
+import { FileSystemWallet } from 'fabric-network';
 import { pick } from 'lodash';
 import { bootstrapNetwork } from '../../account';
 import { Counter, CounterEvent, reducer } from '../../example';
@@ -16,22 +15,38 @@ const enrollmentId = `peer_privatedata${Math.floor(Math.random() * 1000)}`;
 let commitId: string;
 
 beforeAll(async () => {
-  const context = await bootstrapNetwork({
-    enrollmentId,
-    enrollmentSecret: 'password'
-  });
+  let context;
+
+  try {
+    context = await bootstrapNetwork({
+      caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
+      channelEventHub: process.env.CHANNEL_HUB,
+      channelName: process.env.CHANNEL_NAME,
+      connectionProfile: process.env.CONNECTION_PROFILE,
+      fabricNetwork: process.env.NETWORK_LOCATION,
+      wallet: new FileSystemWallet(process.env.WALLET),
+      enrollmentId,
+      enrollmentSecret: 'password'
+    });
+  } catch (err) {
+    console.error('Bootstrap network error');
+    console.error(err);
+    process.exit(1);
+  }
+
   peer = createPeer({
     ...context,
     defaultReducer: reducer,
     defaultEntityName: entityName,
     queryDatabase: createQueryDatabase(),
     projectionDb: createProjectionDb(entityName),
-    collection: 'Org1PrivateDetails',
+    collection: process.env.COLLECTION,
     channelEventHubUri: process.env.CHANNEL_HUB,
-    channelName: 'eventstore',
+    channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: new FileSystemWallet(process.env.WALLET)
   });
+
   repo = peer.getPrivateDataRepo<Counter, CounterEvent>({
     entityName,
     reducer
