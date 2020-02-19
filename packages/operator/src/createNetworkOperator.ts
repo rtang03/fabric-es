@@ -31,17 +31,14 @@ export const createNetworkOperator = async (
 
   if (!channelName) {
     logger.error(MISSING_CHANNELNAME);
-
     throw new Error(MISSING_CHANNELNAME);
   }
   if (!connectionProfile) {
     logger.error(MISSING_CONNECTION_PROFILE);
-
     throw new Error(MISSING_CONNECTION_PROFILE);
   }
   if (!fabricNetwork) {
     logger.error(MISSING_FABRIC_NETWORK);
-
     throw new Error(MISSING_FABRIC_NETWORK);
   }
   if (!wallet) {

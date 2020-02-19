@@ -15,29 +15,41 @@ export const identityService = (option: CreateNetworkOperatorOption) => async ({
   asLocalhost: boolean;
 }) => {
   const logger = Client.getLogger('identityService.js');
+
   const { connectionProfile, wallet } = option;
   const gateway = new Gateway();
-  await gateway.connect(connectionProfile, {
-    identity: caAdmin,
-    wallet,
-    eventHandlerOptions: {
-      strategy: DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX
-    },
-    queryHandlerOptions: {
-      strategy: DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE
-    },
-    discovery: { asLocalhost, enabled: true }
-  });
+
+  try {
+    await gateway.connect(connectionProfile, {
+      identity: caAdmin,
+      wallet,
+      eventHandlerOptions: {
+        strategy: DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX
+      },
+      queryHandlerOptions: {
+        strategy: DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE
+      },
+      discovery: { asLocalhost, enabled: true }
+    });
+  } catch (e) {
+    logger.error(util.format('fail to connect gateway, %j', e));
+    throw new Error(e);
+  }
 
   logger.info(
     util.format('gateway connected: %s', gateway.getClient().getMspid())
   );
 
-  const ca = await gateway.getClient().getCertificateAuthority();
+  const ca = gateway.getClient().getCertificateAuthority();
+
   const registrar = await gateway.getClient().getUserContext(caAdmin, true);
+
   const caService = ca.newIdentityService();
 
-  if (!caService) throw new Error('unknown error in ca admin service');
+  if (!caService) {
+    logger.error('unknown error in ca admin service');
+    throw new Error('unknown error in ca admin service');
+  }
 
   return {
     create: request => caService.create(request, registrar),

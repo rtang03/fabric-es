@@ -10,9 +10,13 @@ export const logger = createLogger({
       filename: `./logs/error.log`,
       level: 'error'
     }),
-    // new transports.File({
-    //   filename: `./logs/debug.log`,
-    //   level: 'debug'
-    // })
+    new transports.File({
+      filename: `./logs/debug.log`,
+      level: 'debug'
+    }),
+    new transports.File({
+      filename: `./logs/warn.log`,
+      level: 'warn'
+    })
   ]
 });

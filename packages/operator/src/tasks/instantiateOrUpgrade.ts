@@ -31,10 +31,11 @@ export const instantiateOrUpdate = option => async ({
   collectionsConfig?: string;
   timeout?: number;
 }) => {
+  const logger = Client.getLogger('instantiateOrUpdate.js');
+
   if (!chaincodeId) throw new Error(MISSING_CHAINCODE_ID);
   if (!chaincodeVersion) throw new Error(MISSING_CC_VERSION);
 
-  const logger = Client.getLogger('instantiateOrUpdate.js');
   const {
     channelName,
     fabricNetwork,
@@ -42,17 +43,32 @@ export const instantiateOrUpdate = option => async ({
     ordererTlsCaCert,
     connectionProfile
   } = option;
+
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
+
   const channel = client.getChannel(channelName);
+
+  let pem;
+
+  try {
+    pem = Buffer.from(readFileSync(ordererTlsCaCert)).toString();
+  } catch (e) {
+    logger.error(util.format('fail to read pem, %j', e));
+    throw new Error(e);
+  }
+
   const orderer = client.newOrderer(client.getOrderer(ordererName).getUrl(), {
-    pem: Buffer.from(readFileSync(ordererTlsCaCert)).toString(),
+    pem,
     'ssl-target-name-override': client.getOrderer(ordererName).getName()
   });
   channel.addOrderer(orderer);
 
   const targets = client.getPeersForOrg().map(p => p.getName());
+
   const txId = client.newTransactionID(true);
+
   const deployId = txId.getTransactionID();
+
   const request: ChaincodeInstantiateUpgradeRequest = {
     targets,
     chaincodeId,
@@ -64,6 +80,7 @@ export const instantiateOrUpdate = option => async ({
   };
 
   if (endorsementPolicy) request['endorsement-policy'] = endorsementPolicy;
+
   if (collectionsConfig) request['collections-config'] = collectionsConfig;
 
   const [proposalResponses, proposal] = upgrade
@@ -101,7 +118,7 @@ export const instantiateOrUpdate = option => async ({
             },
             error => {
               clearTimeout(handler);
-              logger.error(util.format('registerTxEvent: %j', error));
+              logger.error(util.format('registerTxEvent error, %j', error));
               reject(error);
             },
             { unregister: true, disconnect: true }
@@ -133,6 +150,7 @@ export const instantiateOrUpdate = option => async ({
         targets
       )
     );
+
     throw new Error(
       util.format(
         'instantiate or upgrade chaincode proposal fail: %j',

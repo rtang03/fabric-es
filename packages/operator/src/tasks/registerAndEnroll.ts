@@ -37,23 +37,37 @@ export const registerAndEnroll = (
   disconnect: () => void;
   registerAndEnroll: () => Promise<BroadcastResponse | Error>;
 }> => {
+  const logger = Client.getLogger('registerAndEnroll.js');
+
   if (!identity) throw new Error(MISSING_WALLET_LABEL);
   if (!enrollmentId) throw new Error(MISSING_ENROLLMENTID);
   if (!enrollmentSecret) throw new Error(MISSING_ENROLLMENTSECRET);
 
-  const logger = Client.getLogger('registerAndEnroll.js');
-
   const { fabricNetwork, connectionProfile, wallet } = option;
+
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
+
   const mspId = client.getMspid();
+
+  if (!mspId) {
+    logger.error('mspId not found');
+    throw new Error('mspId not found');
+  }
+
   const gateway = new Gateway();
-  await gateway.connect(client, {
-    identity,
-    wallet,
-    eventHandlerOptions: { strategy: eventHandlerStrategies },
-    queryHandlerOptions: { strategy: queryHandlerStrategies },
-    discovery: { asLocalhost, enabled: true }
-  });
+
+  try {
+    await gateway.connect(client, {
+      identity,
+      wallet,
+      eventHandlerOptions: { strategy: eventHandlerStrategies },
+      queryHandlerOptions: { strategy: queryHandlerStrategies },
+      discovery: { asLocalhost, enabled: true }
+    });
+  } catch (e) {
+    logger.error(util.format('fail to connect gateway, %j', e));
+    throw new Error(e);
+  }
 
   logger.info(
     util.format('gateway connected: %s', gateway.getClient().getMspid())
@@ -126,7 +140,7 @@ export const registerAndEnroll = (
       }
 
       logger.info(util.format('Enroll user: %s at %s', enrollmentId, mspId));
-      logger.debug(
+      logger.info(
         util.format('enroll ca user at %s: %j ', mspId, walletImport)
       );
 
