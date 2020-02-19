@@ -73,7 +73,7 @@ certificateAuthorities:
     url: https://rca.credrate.com.hk:6056
     caName: rca.credrate.com.hk
     tlsCACerts:
-      path: /var/artifacts/crypto-config/CredRateMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: /var/artifacts/crypto-config/CredRateMSP/peer0.credrate.com.hk/assets/tls-ca/tls-ca-cert.pem
     registrar:
       - enrollId: rca-credrate-admin
         enrollSecret: Fc7VFDx7
