@@ -11,23 +11,30 @@ import { getStore } from './__utils__/store';
 let context: any;
 let commitId: string;
 let store: Store;
-const collection = 'Org1PrivateDetails';
+const collection = 'etcPrivateDetails';
 const entityName = 'store_privatedata';
 const enrollmentId = `store_privatedata${Math.floor(Math.random() * 1000)}`;
 const channelEventHub = process.env.CHANNEL_HUB;
 const connectionProfile = process.env.CONNECTION_PROFILE;
-const channelName = 'eventstore';
+const channelName = process.env.CHANNEL_NAME;
 const wallet = new FileSystemWallet(process.env.WALLET);
 
 beforeAll(async () => {
   try {
     context = await bootstrapNetwork({
+      caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
+      channelEventHub,
+      channelName,
+      connectionProfile,
+      fabricNetwork: process.env.NETWORK_LOCATION,
+      wallet,
       enrollmentId,
       enrollmentSecret: 'password'
     });
     store = getStore(context);
-  } catch {
-    process.exit(-1);
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
   }
 });
 

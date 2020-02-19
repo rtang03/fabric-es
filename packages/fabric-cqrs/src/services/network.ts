@@ -30,7 +30,7 @@ export const getNetwork: (option: {
   enrollmentId,
   channelName,
   connectionProfile,
-  wallet ,
+  wallet,
   channelEventHub,
   channelEventHubExisted,
   eventHandlerStrategy = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
@@ -53,7 +53,14 @@ export const getNetwork: (option: {
     throw new Error('No channel event hub provided');
   }
 
-  const gateway = await new Gateway();
+  let gateway: Gateway;
+
+  try {
+    gateway = await new Gateway();
+  } catch (err) {
+    logger.error(util.format('new gateway error: %j', err));
+    throw new Error(err);
+  }
 
   const connect = (identity: string) =>
     gateway
@@ -73,9 +80,23 @@ export const getNetwork: (option: {
         throw error;
       });
 
-  await connect(enrollmentId);
+  try {
+    await connect(enrollmentId);
+  } catch (err) {
+    logger.error(
+      util.format('%s connect gateway error: %j', enrollmentId, err)
+    );
+    throw new Error(err);
+  }
 
-  const network = await gateway.getNetwork(channelName);
+  let network;
+
+  try {
+    network = await gateway.getNetwork(channelName);
+  } catch (err) {
+    logger.error(util.format('%s getNetwork error: %j', channelName, err));
+    throw new Error(err);
+  }
 
   return channelEventHubExisted
     ? {
