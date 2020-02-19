@@ -1,11 +1,10 @@
 require('../../env');
 import { ChannelEventHub } from 'fabric-client';
-import { Gateway, Network } from 'fabric-network';
+import { FileSystemWallet, Gateway, Network } from 'fabric-network';
 import { keys, omit, pick, values } from 'lodash';
 import { channelEventHub, evaluate, submit } from '..';
 import { bootstrapNetwork } from '../../account';
-// import { toCommit } from '../../types/commit'; // do not shorten it
-import { Commit } from '../../types/commit'; // do not shorten it
+import { Commit } from '../../types';
 
 let network: Network;
 let gateway: Gateway;
@@ -20,13 +19,25 @@ const entityName = 'dev_test';
 const enrollmentId = `service_test${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  const config = await bootstrapNetwork({
-    enrollmentId,
-    enrollmentSecret: 'password'
-  });
-  network = config.network;
-  gateway = config.gateway;
-  channelHub = config.channelHub;
+  try {
+    await bootstrapNetwork({
+      caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
+      channelEventHub: process.env.CHANNEL_HUB,
+      channelName: process.env.CHANNEL_NAME,
+      connectionProfile: process.env.CONNECTION_PROFILE,
+      fabricNetwork: process.env.NETWORK_LOCATION,
+      wallet: new FileSystemWallet(process.env.WALLET),
+      enrollmentId,
+      enrollmentSecret: 'password'
+    }).then(config => {
+      network = config.network;
+      gateway = config.gateway;
+      channelHub = config.channelHub;
+    });
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  }
 });
 
 afterAll(async () => {
@@ -46,14 +57,11 @@ describe('Eventstore Tests', () => {
     evaluate('queryByEntityName', ['dev_entity'], {
       network
     }).then(commits =>
-      values(commits)
-        .map(commit => JSON.parse(commit))
-        // .map(commit => toCommit(JSON.stringify(commit)))
-        .forEach(commit =>
-          expect(pick(commit, 'entityName')).toEqual({
-            entityName: 'dev_entity'
-          })
-        )
+      values(commits).forEach((commit: Commit) =>
+        expect(pick(commit, 'entityName')).toEqual({
+          entityName: 'dev_entity'
+        })
+      )
     ));
 
   it('should create #1', async () =>
@@ -67,9 +75,7 @@ describe('Eventstore Tests', () => {
       ],
       { network }
     )
-      .then<any>(result => values(result)[0])
-      .then(commit => JSON.parse(commit))
-      // .then(commit => toCommit(JSON.stringify(commit)))
+      .then<Commit>(result => values(result)[0])
       .then(commit => {
         createdCommit_1 = commit;
         return expect(commit.entityId).toEqual(enrollmentId);
@@ -81,9 +87,7 @@ describe('Eventstore Tests', () => {
       [entityName, enrollmentId, createdCommit_1.commitId],
       { network }
     )
-      .then(result => values(result)[0])
-      .then(commit => JSON.parse(commit))
-      // .then(commit => toCommit(JSON.stringify(commit)))
+      .then<Commit>(commits => values(commits)[0])
       .then(commit => expect(omit(commit, 'events')).toEqual(createdCommit_1)));
 
   it('should create #2', async () =>
@@ -98,19 +102,16 @@ describe('Eventstore Tests', () => {
       ],
       { network }
     )
-      .then<any>(result => values(result)[0])
-      .then(commit => JSON.parse(commit))
-      // .then(commit => toCommit(JSON.stringify(commit)))
+      .then<Commit>(commits => values(commits)[0])
       .then(({ entityName }) => expect(entityName).toEqual('dev_test')));
 
   it('should queryByEntityName', async () =>
     evaluate('queryByEntityName', [entityName], {
       network
     }).then(commits =>
-      values(commits)
-        .map(commit => JSON.parse(commit))
-        // .map(commit => toCommit(JSON.stringify(commit)))
-        .map(({ entityName }) => expect(entityName).toBe('dev_test'))
+      values(commits).map(({ entityName }) =>
+        expect(entityName).toBe('dev_test')
+      )
     ));
 
   it('should queryByEntityId #1', async () =>

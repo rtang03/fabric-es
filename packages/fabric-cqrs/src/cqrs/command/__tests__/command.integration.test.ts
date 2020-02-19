@@ -8,7 +8,6 @@ import { generateToken } from '../../utils';
 import { action } from '../action';
 import { getStore } from './__utils__/store';
 
-
 let context: Partial<PeerOptions>;
 let commitId: string;
 let store: Store;
@@ -16,15 +15,27 @@ const entityName = 'command_test';
 const enrollmentId = `command_test${Math.floor(Math.random() * 1000)}`;
 const channelEventHub = process.env.CHANNEL_HUB;
 const connectionProfile = process.env.CONNECTION_PROFILE;
-const channelName = 'eventstore';
+const channelName = process.env.CHANNEL_NAME;
 const wallet = new FileSystemWallet(process.env.WALLET);
 
 beforeAll(async () => {
-  context = await bootstrapNetwork({
-    enrollmentId,
-    enrollmentSecret: 'password'
-  });
-  store = getStore(context);
+  try {
+    context = await bootstrapNetwork({
+      caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
+      channelEventHub,
+      channelName,
+      connectionProfile,
+      fabricNetwork: process.env.NETWORK_LOCATION,
+      wallet,
+      enrollmentId,
+      enrollmentSecret: 'password'
+    });
+
+    store = getStore(context);
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  }
 });
 
 afterAll(async () => {
