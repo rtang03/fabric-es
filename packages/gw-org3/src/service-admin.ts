@@ -27,7 +27,7 @@ const logger = getLogger('service-admin.js');
 
   server.listen({ port }).then(({ url }) => {
     logger.info(`🚀 Admin Service ready at ${url}graphql`);
-    // process.send('ready');
+    process.send('ready');
   });
 })().catch(error => {
   console.error(error);

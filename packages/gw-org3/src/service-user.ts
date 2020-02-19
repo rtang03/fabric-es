@@ -45,7 +45,7 @@ createService({
 
     app.listen({ port: process.env.SERVICE_USER_PORT }).then(({ url }) => {
       logger.info(`🚀  '${process.env.ORGNAME}' - 'user' available at ${url}`);
-      // process.send('ready');
+      process.send('ready');
     });
   })
   .catch(error => {

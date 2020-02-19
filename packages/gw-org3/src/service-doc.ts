@@ -42,7 +42,7 @@ createService({
     .listen({ port: process.env.SERVICE_DOCUMENT_PORT })
     .then(({ url }) => {
       logger.info(`🚀  '${process.env.ORGNAME}' - 'document' available at ${url}`);
-      // process.send('ready');
+      process.send('ready');
     });
 }).catch(error => {
   console.error(error);

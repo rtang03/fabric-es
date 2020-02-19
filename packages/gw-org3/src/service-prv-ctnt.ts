@@ -47,10 +47,8 @@ createService({
     app
       .listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT })
       .then(({ url }) => {
-        logger.info(
-          `🚀  '${process.env.ORGNAME}' - 'docContents' available at ${url}`
-        );
-        // process.send('ready');
+        logger.info(`🚀  '${process.env.ORGNAME}' - 'docContents' available at ${url}`);
+        process.send('ready');
       });
   })
   .catch(error => {
