@@ -10,7 +10,7 @@ const port = (process.env.PORT || 8080) as number;
   const logger = getLogger('app.js');
   logger.info('starting admin-service...');
 
-  const server = await createAdminServiceV2({
+  const { server } = await createAdminServiceV2({
     ordererName: process.env.ORDERER_NAME,
     ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
     caAdminEnrollmentId: process.env.CA_ADMIN_ENROLLMENT_ID,
@@ -22,14 +22,17 @@ const port = (process.env.PORT || 8080) as number;
   });
 
   app.shutdown = () => {
-    server.stop().catch(err => {
+    server.stop()
+    .catch(err => {
       logger.error(
         util.format('An error occurred while closing the server: %j', err)
       );
-      process.exitCode = 1;
+      process.exit(1);
+    })
+    .then(() => {
+      logger.info('server stop');
+      process.exit(0);
     });
-    logger.info('server stop');
-    process.exit();
   };
 
   process.on('SIGINT', () => {

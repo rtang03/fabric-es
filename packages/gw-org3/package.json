@@ -22,7 +22,6 @@
     "service-admin": "node ./dist/service-admin.js",
     "start-services": "yarn build && concurrently \"npm:service-*\"",
     "server-gw": "node ./dist/start-gateway.js",
-    "server-auth": "node ./dist/start-auth-server",
     "start-server": "yarn build && concurrently \"npm:server-*\"",
     "enrollAdmin": "rimraf assets/wallet/admin-org3.example.com && node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "rimraf assets/wallet/rca-org3-admin && node ./dist/enrollCaAdmin.js",

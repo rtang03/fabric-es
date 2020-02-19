@@ -10,8 +10,9 @@ import {
 import { ApolloServer } from 'apollo-server';
 import Client from 'fabric-client';
 import { Wallet } from 'fabric-network';
-import { DataSrc } from '..';
 import util from 'util';
+import { DataSrc } from '..';
+import { shutdown } from './shutdownApollo';
 
 export const createService = async ({
   enrollmentId,
@@ -135,6 +136,7 @@ export const createService = async ({
       }
 
       return { addRepository };
-    }
+    },
+    shutdown: shutdown({ logger, name: defaultEntityName })
   };
 };

@@ -7,7 +7,7 @@ const port = process.env.ADMINISTRATOR_PORT || 15002;
 const logger = getLogger('service-admin.js');
 
 (async () => {
-  const app = await createAdminServiceV2({
+  const { server, shutdown } = await createAdminServiceV2({
     ordererName: process.env.ORDERER_NAME,
     ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
     caAdminEnrollmentId: process.env.CA_ENROLLMENT_ID_ADMIN,
@@ -18,30 +18,16 @@ const logger = getLogger('service-admin.js');
     walletPath: process.env.WALLET
   });
 
-  const shutdown = () =>
-    app.stop().then(
-      () => {
-        logger.info('app closes');
-        process.exit(0);
-      },
-      err => {
-        logger.error(
-          util.format('An error occurred while shutting down service: %j', err)
-        );
-        process.exit(1);
-      }
-    );
-
-  process.on('SIGINT', async () => await shutdown());
-  process.on('SIGTERM', async () => await shutdown());
+  process.on('SIGINT', async () => await shutdown(server));
+  process.on('SIGTERM', async () => await shutdown(server));
   process.on('uncaughtException', err => {
     logger.error('An uncaught error occurred!');
     logger.error(err.stack);
   });
 
-  app.listen({ port }).then(({ url }) => {
+  server.listen({ port }).then(({ url }) => {
     logger.info(`🚀 Admin Service ready at ${url}graphql`);
-    // process.send('ready');
+    process.send('ready');
   });
 })().catch(error => {
   console.error(error);

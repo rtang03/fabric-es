@@ -61,7 +61,7 @@ beforeAll(async () => {
   Client.setLogger(logger);
 
   // step 1: start admin service (federated service)
-  federatedAdminServer = await createAdminServiceV2({
+  ({ server: federatedAdminServer } = await createAdminServiceV2({
     ordererName: process.env.ORDERER_NAME,
     ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
     peerName: process.env.PEER_NAME,
@@ -70,7 +70,7 @@ beforeAll(async () => {
     connectionProfile: process.env.CONNECTION_PROFILE,
     fabricNetwork: process.env.NETWORK_LOCATION,
     walletPath: process.env.WALLET
-  });
+  }));
 
   await federatedAdminServer.listen({ port });
 
