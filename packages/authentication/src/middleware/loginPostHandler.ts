@@ -6,7 +6,7 @@ import { OUser } from '../entity/OUser';
 import { getLogger } from '../utils';
 
 export const loginPostHandler = async (req: Request, res: Response) => {
-  const logger = getLogger('loginPostHandler.js');
+  const logger = getLogger({ name: 'loginPostHandler.js' });
 
   const {
     email,

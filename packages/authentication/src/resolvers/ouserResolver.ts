@@ -47,7 +47,7 @@ export class OUserResolver {
   logger: Logger;
 
   constructor() {
-    this.logger = getLogger('OUserResolver.js');
+    this.logger = getLogger({ name: 'OUserResolver.js' });
   }
 
   @Query(() => String)

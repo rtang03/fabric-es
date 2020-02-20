@@ -30,7 +30,7 @@ export const createHttpServer: (option: {
     refreshTokenLifetime: 604800 // second or = 7d
   }
 }) => {
-  const logger = getLogger('createHttpServer.js');
+  const logger = getLogger({ name: 'createHttpServer.js' });
 
   modelOptions.accessTokenOptions = {
     expiresIn: `${oauthOptions.accessTokenLifetime}s`
@@ -38,7 +38,9 @@ export const createHttpServer: (option: {
   modelOptions.refreshTokenOptions = {
     expiresIn: `${oauthOptions.refreshTokenLifetime}s`
   };
+
   const model = createModel(modelOptions);
+
   const oauth2Server = new OAuth2Server({
     model,
     debug: true,
@@ -74,7 +76,7 @@ export const createHttpServer: (option: {
     schema = await buildSchema({ resolvers });
   } catch (error) {
     logger.error(util.format('graphql build schema error: %j', error));
-    process.exit();
+    process.exit(1);
   }
 
   const server = new ApolloServer({

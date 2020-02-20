@@ -54,7 +54,7 @@ export class ClientResolver {
   logger: Logger;
 
   constructor() {
-    this.logger = getLogger('ClientResolver.js');
+    this.logger = getLogger({ name: 'ClientResolver.js' });
   }
 
   /**

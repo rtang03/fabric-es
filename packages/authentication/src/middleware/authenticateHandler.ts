@@ -13,7 +13,8 @@ export const authenticateHandler = (
   res: Express.Response,
   next: Express.NextFunction
 ) => {
-  const logger = getLogger('authenticateHandler.js');
+  const logger = getLogger({ name: 'authenticateHandler.js' });
+
   await oauth
     .authenticate(new Request(req), new Response(res), options)
     .then(token => {

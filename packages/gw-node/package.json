@@ -34,6 +34,7 @@
     "@espresso/model-loan": "1.0.0",
     "@espresso/model-loan-private": "1.0.0",
     "@espresso/operator": "1.0.0",
+    "@google-cloud/logging-winston": "^3.0.5",
     "apollo-link-http": "^1.5.16",
     "apollo-server": "^2.9.7",
     "arraybuffer-to-string": "^1.0.2",

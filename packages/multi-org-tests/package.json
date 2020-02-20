@@ -15,7 +15,6 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@espresso/admin-tool": "1.0.0",
     "@espresso/authentication": "1.0.0",
     "@espresso/fabric-cqrs": "1.0.0",
     "@espresso/model-common": "1.0.0",

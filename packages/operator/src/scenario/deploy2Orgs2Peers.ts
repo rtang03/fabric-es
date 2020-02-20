@@ -8,16 +8,16 @@ import { createNetworkOperator } from '../createNetworkOperator';
 import { enrollAdmin } from '../enrollAdmin';
 import { CHANNEL_ALREADY_EXIST, DeploymentOption } from '../types';
 import {
+  getLogger,
   installChaincodeSubTask,
   isCommitRecord,
-  joinChannelSubTask,
-  logger
+  joinChannelSubTask
 } from '../utils';
 
 const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
   option = { verbose: true, collapse: false }
 ) => {
-  Client.setLogger(logger);
+  Client.setLogger(getLogger({ name: 'packages/operator' }));
   Client.setConfigSetting('initialize-with-discovery', true);
   const { verbose, collapse } = option;
   // TODO: In v2, below API is deprecated

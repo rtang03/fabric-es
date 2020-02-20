@@ -14,7 +14,7 @@ export const authorizePostHandler = (
   res: Express.Response,
   next: Express.NextFunction
 ) => {
-  const logger = getLogger('authorizePostHandler.js');
+  const logger = getLogger({ name: 'authorizePostHandler.js' });
 
   const {
     client_id,

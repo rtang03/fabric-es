@@ -10,7 +10,7 @@ export const createRootClient = async (option: {
   admin: string;
   admin_password: string;
 }) => {
-  const logger = getLogger('createRootClient.js');
+  const logger = getLogger({ name: 'createRootClient.js' });
 
   const isRootClientExist = await fetch(option.uri, {
     method: 'POST',

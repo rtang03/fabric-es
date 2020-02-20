@@ -1,5 +1,3 @@
-import { logger } from '../utils';
-
 require('../env');
 import execa from 'execa';
 import Client, { ProposalErrorResponse, ProposalResponse } from 'fabric-client';
@@ -8,9 +6,10 @@ import Listr from 'listr';
 import UpdaterRenderer from 'listr-update-renderer';
 import { createNetworkOperator } from '../createNetworkOperator';
 import { DeploymentOption } from '../types';
+import { getLogger } from '../utils';
 
 (async ({ verbose, collapse }) => {
-  Client.setLogger(logger);
+  Client.setLogger(getLogger({ name: 'packages/operator' }));
   Client.setConfigSetting('initialize-with-discovery', true);
   const walletOrg1 = new FileSystemWallet('./assets/walletOrg1');
   const walletOrg2 = new FileSystemWallet('./assets/walletOrg2');
