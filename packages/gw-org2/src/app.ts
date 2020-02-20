@@ -1,9 +1,8 @@
 require('./env');
-import { createGateway } from '@espresso/gw-node';
+import { createGateway, getLogger } from '@espresso/gw-node';
 import http from 'http';
 import stoppable from 'stoppable';
 import util from 'util';
-import { getLogger } from './logger';
 
 const PORT = (process.env.GATEWAY_PORT || 4001) as number;
 const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI;

@@ -6,6 +6,7 @@ import { DataSource } from 'apollo-datasource';
 export { createGateway } from './utils/createGateway';
 export { createService } from './utils/createService';
 export { logger } from './utils/logger';
+export { getLogger } from './utils/getLogger';
 // export { createAdminService } from './admin/createAdminService';
 export { createAdminServiceV2 } from './admin/createAdminServiceV2';
 export { createRemoteService } from './remote/createRemoteService';

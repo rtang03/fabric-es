@@ -1,6 +1,6 @@
 require('./env');
 
-import { createService } from '@espresso/gw-node';
+import { createService, getLogger } from '@espresso/gw-node';
 import {
   LoanDetails,
   LoanDetailsEvents,
@@ -9,11 +9,7 @@ import {
   loanDetailsTypeDefs
 } from '@espresso/model-loan-private';
 import { FileSystemWallet } from 'fabric-network';
-import http from 'http';
-import stoppable from 'stoppable';
 import util from 'util';
-import { getLogger } from './logger';
-// import { resolvers, typeDefs } from './model/private';
 
 const logger = getLogger('service-prv-dtls.js');
 

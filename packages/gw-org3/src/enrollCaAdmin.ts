@@ -1,8 +1,8 @@
 require('./env');
+import { getLogger } from '@espresso/gw-node';
 import { enrollAdmin } from '@espresso/operator';
 import { FileSystemWallet } from 'fabric-network';
 import util from 'util';
-import { getLogger } from './logger';
 
 const logger = getLogger('enrollAdmin.js');
 enrollAdmin({
