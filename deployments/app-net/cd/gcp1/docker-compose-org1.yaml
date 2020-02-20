@@ -23,7 +23,7 @@ services:
     auth-server-1:
         container_name: auth-server-1
         image: build:5000/auth-server
-        restart: always
+        restart: unless-stopped
         depends_on:
             - postgres-1
         environment:
@@ -43,7 +43,7 @@ services:
     gw-org1:
         container_name: gw-org1
         image: build:5000/gw-org1
-        restart: "no"
+        restart: unless-stopped
         depends_on:
             - auth-server-1
         working_dir: /home/app/packages/gw-org1
