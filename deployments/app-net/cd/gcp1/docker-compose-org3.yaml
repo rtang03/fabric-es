@@ -23,7 +23,7 @@ services:
     auth-server-3:
         container_name: auth-server-3
         image: build:5000/auth-server
-        restart: always
+        restart: unless-stopped
         depends_on:
             - postgres-3
         environment:
