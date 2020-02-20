@@ -5,7 +5,7 @@ import { MyContext } from '../types';
 import { getLogger } from './getLogger';
 
 export const isAdmin: MiddlewareFn<MyContext> = async ({ context }, next) => {
-  const logger = getLogger('isAdmin.js');
+  const logger = getLogger({ name: 'isAdmin.js' });
 
   const id = context.payload?.userId;
 

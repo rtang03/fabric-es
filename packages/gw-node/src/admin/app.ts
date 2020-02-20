@@ -5,7 +5,7 @@ import { shutdown } from '../utils/shutdownApollo';
 const port = (process.env.PORT || 8080) as number;
 
 (async () => {
-  const logger = getLogger('app.js');
+  const logger = getLogger({ name: 'app.js' });
   logger.info('starting admin-service...');
 
   const { server } = await createAdminService({
@@ -20,11 +20,11 @@ const port = (process.env.PORT || 8080) as number;
   });
 
   process.on('SIGINT', () => {
-    shutdown({logger, name: 'admin-service'});
+    shutdown({ logger, name: 'admin-service' });
   });
 
   process.on('SIGTERM', () => {
-    shutdown({logger, name: 'admin-service'});
+    shutdown({ logger, name: 'admin-service' });
   });
 
   process.on('uncaughtException', err => {
