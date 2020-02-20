@@ -1,5 +1,5 @@
 require('./env');
-import { createService } from '@espresso/gw-node';
+import { createService, getLogger } from '@espresso/gw-node';
 import {
   LoanDetails,
   LoanDetailsEvents,
@@ -9,7 +9,6 @@ import {
 } from '@espresso/model-loan-private';
 import { FileSystemWallet } from 'fabric-network';
 import util from 'util';
-import { getLogger } from './logger';
 
 const logger = getLogger('service-prv-ctnt.js');
 

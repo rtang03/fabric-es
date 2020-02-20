@@ -1,5 +1,5 @@
 require('./env');
-import { createService } from '@espresso/gw-node';
+import { createService, getLogger } from '@espresso/gw-node';
 import {
   Document,
   DocumentEvents,
@@ -9,14 +9,6 @@ import {
 } from '@espresso/model-loan';
 import { FileSystemWallet } from 'fabric-network';
 import util from 'util';
-import { getLogger } from './logger';
-// import {
-//   Document,
-//   DocumentEvents,
-//   documentReducer,
-//   documentResolvers,
-//   documentTypeDefs
-// } from './model/public/document';
 
 const logger = getLogger('service-doc.js');
 

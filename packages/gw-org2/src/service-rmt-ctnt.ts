@@ -1,12 +1,10 @@
 require('./env');
-import { createRemoteService } from '@espresso/gw-node';
+import { createRemoteService, getLogger } from '@espresso/gw-node';
 import {
   docContentsRemoteResolvers,
   docContentsRemoteTypeDefs
 } from '@espresso/model-loan-private';
-import http from 'http';
 import util from 'util';
-import { getLogger } from './logger';
 
 const logger = getLogger('service-rmt-ctnt.js');
 

@@ -1,11 +1,10 @@
 require('./env');
-import { createRemoteService } from '@espresso/gw-node';
+import { createRemoteService, getLogger } from '@espresso/gw-node';
 import {
   loanDetailsRemoteResolvers,
   loanDetailsRemoteTypeDefs
 } from '@espresso/model-loan-private';
 import util from 'util';
-import { getLogger } from './logger';
 
 const logger = getLogger('service-rmt-dtls.js');
 
