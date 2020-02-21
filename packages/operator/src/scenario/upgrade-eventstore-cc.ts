@@ -6,7 +6,7 @@ import Listr from 'listr';
 import UpdaterRenderer from 'listr-update-renderer';
 import { createNetworkOperator } from '../createNetworkOperator';
 import { DeploymentOption } from '../types';
-import { installChaincodeSubTask, isCommitRecord, logger } from '../utils';
+import { getLogger, installChaincodeSubTask, isCommitRecord } from '../utils';
 
 let current_version: string;
 let upgrade_version: string;
@@ -14,7 +14,7 @@ let upgrade_version: string;
 const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
   option = { verbose: true, collapse: false }
 ) => {
-  Client.setLogger(logger);
+  Client.setLogger(getLogger({ name: 'packages/operator' }));
   Client.setConfigSetting('initialize-with-discovery', true);
   const { verbose, collapse } = option;
   const walletOrg1 = new FileSystemWallet('./assets/walletOrg1');

@@ -3,7 +3,7 @@ import { filter, remove, values } from 'lodash';
 import { Commit, QueryDatabase } from '../types';
 
 export const createQueryDatabase: () => QueryDatabase = () => {
-  const logger = Client.getLogger('createQueryDatabase');
+  const logger = Client.getLogger('createQueryDatabase.js');
 
   let db: Record<string, Commit> = {};
   let newDB;

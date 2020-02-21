@@ -1,5 +1,5 @@
 require('../../env');
-import { Gateway, Network } from 'fabric-network';
+import { FileSystemWallet, Gateway, Network } from 'fabric-network';
 import { values } from 'lodash';
 import { evaluate, submitPrivateData } from '..';
 import { bootstrapNetwork } from '../../account';
@@ -9,7 +9,8 @@ let network: Network;
 let gateway: Gateway;
 let createdCommit_1: Commit;
 let createdCommit_2: Commit;
-const org1 = 'Org1PrivateDetails';
+
+const org1 = 'etcPrivateDetails';
 const entityName = 'dev_test_privatedata';
 const transient = {
   eventstr: Buffer.from(
@@ -19,12 +20,25 @@ const transient = {
 const enrollmentId = `service_privatedata${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
-  const config = await bootstrapNetwork({
-    enrollmentId,
-    enrollmentSecret: 'password'
-  });
-  network = config.network;
-  gateway = config.gateway;
+
+  try {
+    await bootstrapNetwork({
+      caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
+      channelEventHub: process.env.CHANNEL_HUB,
+      channelName: process.env.CHANNEL_NAME,
+      connectionProfile: process.env.CONNECTION_PROFILE,
+      fabricNetwork: process.env.NETWORK_LOCATION,
+      wallet: new FileSystemWallet(process.env.WALLET),
+      enrollmentId,
+      enrollmentSecret: 'password'
+    }).then(config => {
+      network = config.network;
+      gateway = config.gateway;
+    });
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  }
 });
 
 afterAll(async () => await gateway.disconnect());

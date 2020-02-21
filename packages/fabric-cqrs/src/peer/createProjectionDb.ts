@@ -11,7 +11,7 @@ const getHistory = (commits: Commit[]): any[] => {
 export const createProjectionDb: (
   defaultEntityName: string
 ) => ProjectionDb = defaultEntityName => {
-  const logger = Client.getLogger('createProjectionDb');
+  const logger = Client.getLogger('createProjectionDb.js');
 
   const db: Record<string, any> = {};
   return {
