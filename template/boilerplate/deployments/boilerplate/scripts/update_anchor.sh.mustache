@@ -1,0 +1,18 @@
+# Import common.sh
+. `pwd`/common.sh
+
+cd ${_FABRIC_DIR}; 
+export FABRIC_CFG_PATH=${PWD}
+
+# Update Anchor peer
+{{#orgs.peer}}
+${_BIN_DIR}/configtxgen -profile OrgsChannel -outputAnchorPeersUpdate {{name}}Anchors.tx -channelID {{network.peer-channels.0}} -asOrg {{name}}
+mkdir -p ${_CRYPTO_CONFIG_DIR}/{{{peers.endpoints.0.cert-path}}}/assets
+sudo mv {{name}}Anchors.tx ${_CRYPTO_CONFIG_DIR}/{{{peers.endpoints.0.cert-path}}}/assets
+{{/orgs.peer}}
+
+sleep 2
+
+{{#orgs.peer}}
+docker exec cli{{network.host-delimiter}}{{domain}} sh -c "/setup/update_anchor_{{script-naming}}.sh"
+{{/orgs.peer}}
