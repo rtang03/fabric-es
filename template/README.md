@@ -22,7 +22,7 @@ sudo npm install -gy mustache
 Usage: ./parse.sh [folder of the view] [view name]
 
 ```shell script
-./parse.sh boilerplate prod-like
+E.g: ./parse.sh boilerplate prod-like
 
 # should return:
 # Processing boilerplate/deployments/boilerplate/config/connection-org.yaml.mustaches...
