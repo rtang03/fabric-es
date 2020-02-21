@@ -94,7 +94,9 @@ beforeAll(async () => {
       dropSchema: true
     }),
     rootAdminPassword,
-    rootAdmin
+    rootAdmin,
+    accessTokenSecret: '',
+    refreshTokenSecret: ''
   });
   authServer = http.createServer(auth);
   authServer.listen(authPort);

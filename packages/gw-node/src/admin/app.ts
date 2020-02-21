@@ -5,7 +5,7 @@ import { shutdown } from '../utils/shutdownApollo';
 const port = (process.env.PORT || 8080) as number;
 
 (async () => {
-  const logger = getLogger({ name: 'app.js' });
+  const logger = getLogger('app.js');
   logger.info('starting admin-service...');
 
   const { server } = await createAdminService({
