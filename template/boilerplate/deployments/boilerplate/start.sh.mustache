@@ -9,5 +9,6 @@ cd scripts
 ./create_genesis.sh
 ./up.sh
 ./join_channel.sh
+./update_anchor.sh
 
 echo "The network is started."
