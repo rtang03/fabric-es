@@ -1,4 +1,5 @@
 import Client from 'fabric-client';
+import util from 'util';
 import { createAdmin } from './createAdmin';
 
 export const getClientForOrg: (
@@ -7,19 +8,35 @@ export const getClientForOrg: (
 ) => Promise<Client> = async (connectionProfile, fabricNetwork) => {
   const logger = Client.getLogger('getClientForOrg.js');
   const client = new Client();
-  await client.loadFromConfig(connectionProfile);
+
+  try {
+    await client.loadFromConfig(connectionProfile);
+  } catch (e) {
+    logger.error(util.format('fail to loadFromConfig, %j', e));
+    throw new Error(e);
+  }
 
   logger.info('loadFromConfig complete');
 
-  await client.initCredentialStores();
+  try {
+    await client.initCredentialStores();
+  } catch (e) {
+    logger.error(util.format('fail to initCredentialStores, %j', e));
+    throw new Error(e);
+  }
 
   logger.info('initCredentialStores');
 
   if (fabricNetwork) {
-    await createAdmin({
-      client,
-      orgAdminMspPath: `${fabricNetwork}/${client.getMspid()}/admin/msp`
-    });
+    try {
+      await createAdmin({
+        client,
+        orgAdminMspPath: `${fabricNetwork}/${client.getMspid()}/admin/msp`
+      });
+    } catch (e) {
+      logger.error(util.format('fail to createAdmin user context, %j', e));
+      throw new Error(e);
+    }
 
     logger.info('create "admin" user context');
   }

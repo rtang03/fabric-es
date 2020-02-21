@@ -1,17 +1,11 @@
-require('dotenv').config({
-  path: './.env.test.n3'
-});
+require('../../../env');
+import { createAdminService } from '../../createAdminService';
 
-import Client from 'fabric-client';
-import { logger } from '../../..';
-import { createAdminServiceV2 } from '../../createAdminServiceV2';
-
-const port = 15000;
+const port = process.env.ADMINISTRATOR_PORT;
 
 (async () => {
-  Client.setLogger(logger);
 
-  const { server } = await createAdminServiceV2({
+  const { server } = await createAdminService({
     ordererName: process.env.ORDERER_NAME,
     ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
     channelName: process.env.CHANNEL_NAME,

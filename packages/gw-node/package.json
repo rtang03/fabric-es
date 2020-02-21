@@ -13,13 +13,11 @@
     "clean": "rimraf dist",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
     "generate-types-for-admin": "graphql-codegen --config src/generated/codegen.yml",
-    "enrollAdmin": "rimraf assets/wallet/admin-org1.example.com && npm run build && node ./dist/__tests__/__utils__/enrollAdmin.js",
-    "enrollCaAdmin": "rimraf assets/wallet/rca-org1-admin && npm run build &&  node ./dist/__tests__/__utils__/enrollCaAdmin.js",
-    "test:unit": "jest unit.test",
-    "test:integration": "jest integration.test",
+    "enrollAdmin": "ts-node src/enrollAdmin.ts",
+    "enrollCaAdmin": "ts-node src/enrollCaAdmin.ts",
     "start-admin-service": "npm run build && node ./dist/admin/__tests__/__utils__/startServiceForManualTest.js",
-    "test-service-admin:auth:v2": "jest --forceExit --detectOpenHandles service-admin-auth-int-v2.test",
-    "test-service-all:integration": "jest --forceExit --detectOpenHandles all-int.test"
+    "test:integration": "(not tested yet) yarn start-admin-service && yarn test-service-admin",
+    "test-service-admin": "jest --forceExit --detectOpenHandles admin.integration.test"
   },
   "engines": {
     "node": ">=8",
@@ -36,6 +34,7 @@
     "@espresso/model-loan": "1.0.0",
     "@espresso/model-loan-private": "1.0.0",
     "@espresso/operator": "1.0.0",
+    "@google-cloud/logging-winston": "^3.0.5",
     "apollo-link-http": "^1.5.16",
     "apollo-server": "^2.9.7",
     "arraybuffer-to-string": "^1.0.2",

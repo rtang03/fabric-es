@@ -23,7 +23,7 @@ services:
     auth-server-2:
         container_name: auth-server-2
         image: build:5000/auth-server
-        restart: always
+        restart: unless-stopped
         depends_on:
             - postgres-2
         environment:
@@ -43,7 +43,7 @@ services:
     gw-org2:
         container_name: gw-org2
         image: build:5000/gw-org2
-        restart: always
+        restart: unless-stopped
         depends_on:
             - auth-server-2
         working_dir: /home/app/packages/gw-org2
@@ -83,18 +83,18 @@ services:
         extra_hosts:
             - "orderer0.hktfp.com:35.213.127.193"
             - "orderer1.hktfp.com:35.213.45.247"
-            - "orderer2.hktfp.com:34.84.24.163"
-            - "orderer3.hktfp.com:34.84.173.113"
-            - "orderer4.hktfp.com:34.85.7.30"
+            - "orderer2.hktfp.com:35.213.41.26"
+            - "orderer3.hktfp.com:35.213.73.53"
+            - "orderer4.hktfp.com:35.213.59.127"
             - "rca.etradeconnect.net:35.213.45.247"
             - "peer0.etradeconnect.net:35.213.45.247"
-            - "peer1.etradeconnect.net:34.84.24.163"
-            - "rca.pbctfp.net:34.84.173.113"
-            - "peer0.pbctfp.net:34.84.173.113"
-            - "peer1.pbctfp.net:34.85.7.30"
-            - "rca.credrate.com.hk:34.84.208.188"
-            - "peer0.credrate.com.hk:34.84.208.188"
-            - "peer1.credrate.com.hk:34.84.62.135"
+            - "peer1.etradeconnect.net:35.213.41.26"
+            - "rca.pbctfp.net:35.213.73.53"
+            - "peer0.pbctfp.net:35.213.73.53"
+            - "peer1.pbctfp.net:35.213.59.127"
+            - "rca.credrate.com.hk:35.213.66.149"
+            - "peer0.credrate.com.hk:35.213.66.149"
+            - "peer1.credrate.com.hk:34.84.251.190"
         ports:
             - 4000:4002
         networks:

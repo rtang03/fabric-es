@@ -1,5 +1,4 @@
 require('dotenv').config({ path: './.env' });
-
 import http from 'http';
 import omit from 'lodash/omit';
 import process from 'process';
@@ -10,19 +9,18 @@ import { createAuthServer, createDbConnection } from '.';
 import { createRootClient, getLogger } from './utils';
 
 const host = process.env.TYPEORM_HOST || 'localhost';
-const logger = getLogger('app.js');
-
+const logger = getLogger({ name: 'app.js' });
 
 const postgres: any = createDbConnection({
   name: 'default',
   type: 'postgres' as any,
   host,
   port: process.env.TYPEORM_PORT,
-  username: process.env.TYPEORM_USERNAME || 'postgres',
-  password: process.env.TYPEORM_PASSWORD || 'docker',
+  username: process.env.TYPEORM_USERNAME, // 'postgres',
+  password: process.env.TYPEORM_PASSWORD, // 'docker',
   database: process.env.TYPEORM_DATABASE,
   logging: process.env.TYPEORM_LOGGING === 'true',
-  dropSchema: process.env.TYPEORM_DROPSCHEMA === 'true' ,
+  dropSchema: process.env.TYPEORM_DROPSCHEMA === 'true',
   synchronize: true
 });
 
@@ -32,7 +30,6 @@ if (process.env.CLOUD_POSTGRES_CONNECTION) {
 }
 
 const dbConnection = postgres;
-const app: any = {};
 const port = (process.env.PORT || 8080) as number;
 const uri = `http://localhost:${port}/graphql`;
 
@@ -73,10 +70,9 @@ const uri = `http://localhost:${port}/graphql`;
     process.exit(1);
   }
 
-
   const stoppableServer = stoppable(http.createServer(server));
 
-  app.shutdown = () => {
+  const shutdown = () => {
     stoppableServer.close(err => {
       if (err) {
         logger.error(
@@ -85,15 +81,15 @@ const uri = `http://localhost:${port}/graphql`;
         process.exitCode = 1;
       } else logger.info('server closes');
     });
-    process.exit();
+    process.exit(0);
   };
 
   process.on('SIGINT', () => {
-    app.shutdown();
+    shutdown();
   });
 
   process.on('SIGTERM', () => {
-    app.shutdown();
+    shutdown();
   });
 
   process.on('uncaughtException', err => {
@@ -108,8 +104,8 @@ const uri = `http://localhost:${port}/graphql`;
     try {
       await createRootClient({
         uri,
-        admin_password: process.env.ROOT_PASSWORD || 'admin_test',
-        admin: process.env.ROOT || 'admin'
+        admin_password: process.env.ROOT_ADMIN_PASSWORD || 'admin_test',
+        admin: process.env.ROOT_ADMIN || 'admin'
       });
     } catch (err) {
       logger.error(

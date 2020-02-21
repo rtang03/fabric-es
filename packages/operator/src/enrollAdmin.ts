@@ -2,6 +2,7 @@ import FabricCAServices from 'fabric-ca-client';
 import Client from 'fabric-client';
 import { X509WalletMixin } from 'fabric-network';
 import { readFileSync } from 'fs';
+import util from 'util';
 import {
   EnrollAdminOption,
   IDENTITY_ALREADY_EXIST,
@@ -42,9 +43,18 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
 
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
 
+  let cert;
+
+  try {
+    cert = readFileSync(orgCaCertPath);
+  } catch (e) {
+    logger.error(util.format('fail to read organinzation CA cert, %j', e));
+    throw new Error(e);
+  }
+
   const caService = new FabricCAServices(
     caUrl,
-    { trustedRoots: Buffer.from(readFileSync(orgCaCertPath)), verify: false },
+    { trustedRoots: Buffer.from(cert), verify: false },
     null,
     client.getCryptoSuite()
   );
@@ -60,10 +70,23 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
       message: `${IDENTITY_ALREADY_EXIST}: "${label}"`
     };
 
-  const { key, certificate } = await caService.enroll({
-    enrollmentID,
-    enrollmentSecret
-  });
+  let key = null;
+  let certificate = null;
+
+  try {
+    await caService
+      .enroll({
+        enrollmentID,
+        enrollmentSecret
+      })
+      .then(result => {
+        key = result.key;
+        certificate = result.certificate;
+      });
+  } catch (e) {
+    logger.error(util.format('fail to enroll %s, %j', enrollmentID, e));
+    throw new Error(e);
+  }
 
   logger.info(`${mspId} enrolls ${enrollmentID} at ${caUrl}`);
 
@@ -78,14 +101,19 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
   // };
   // await wallet.put(label, identity);
 
-  await wallet.import(
-    label,
-    X509WalletMixin.createIdentity(
-      client.getMspid(),
-      certificate,
-      key.toBytes()
-    )
-  );
+  try {
+    await wallet.import(
+      label,
+      X509WalletMixin.createIdentity(
+        client.getMspid(),
+        certificate,
+        key.toBytes()
+      )
+    );
+  } catch (e) {
+    logger.error(util.format('fail to import into wallet %s, %j', label, e));
+    throw new Error(e);
+  }
 
   logger.info(`Import identity into wallet: ${label} of ${client.getMspid()}`);
 

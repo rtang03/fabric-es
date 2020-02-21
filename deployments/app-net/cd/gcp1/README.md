@@ -1,7 +1,7 @@
 
 # Application on Cloud
 
-This contains notes for the application on GCP cloud.
+This contains notes for the application on GCP cloud. It consists of 3 VMs. Each VM contains the application of an organization. It also connects to a fabric network. See [here](https://github.com/HKTFP/fdi-network/blob/master/README.md) for the architecture.
 
 **NOTE:** Ensure your router accepts port **4000** and **4100** (as some routers blocks ports)
 ***

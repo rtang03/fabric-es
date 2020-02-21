@@ -1,11 +1,7 @@
-require('dotenv').config({
-  path: './.env.lib-dev-net'
-});
-
+require('../../env');
 import { createAuthServer, createDbConnection } from '@espresso/authentication';
 import { ApolloError, ApolloServer } from 'apollo-server';
 import { Express } from 'express';
-import Client from 'fabric-client';
 import http from 'http';
 import fetch from 'node-fetch';
 import request from 'supertest';
@@ -21,7 +17,6 @@ import {
   GET_INSTANTIATED_CHAINCODES,
   IS_WALLET_EXIST,
   LIST_WALLET,
-  logger,
   LOGIN,
   REGISTER_ADMIN,
   REGISTER_AND_ENROLL_USER
@@ -31,22 +26,22 @@ import {
   UNAUTHORIZED_ACCESS,
   USER_NOT_FOUND
 } from '../constants';
-import { createAdminServiceV2 } from '../createAdminServiceV2';
+import { createAdminService } from '../createAdminService';
 
 let app: Express;
 let authServer: http.Server;
 let federatedAdminServer: ApolloServer;
 let accessToken: string;
 let user_id: string;
-const port = 15000;
-const authPort = process.env.OAUTH_SERVER_PORT;
+const port = process.env.ADMINISTRATOR_PORT;
+const authPort = process.env.AUTH_SERVER_PORT;
 const authUri = `http://localhost:${authPort}/graphql`;
 const headers = { 'content-type': 'application/json' };
 const username = `tester${Math.floor(Math.random() * 10000)}`;
 const email = `${username}@example.com`;
 const password = 'mypassword';
-const root_admin = process.env.ADMIN || 'root_admin';
-const admin_password = process.env.ADMIN_PASSWORD || 'root_admin_password';
+const rootAdmin = process.env.ROOT_ADMIN;
+const rootAdminPassword = process.env.ROOT_ADMIN_PASSWORD;
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 
 type QueryResponse = {
@@ -57,11 +52,8 @@ type QueryResponse = {
 };
 
 beforeAll(async () => {
-  // if uncomment, send to file logger
-  Client.setLogger(logger);
-
   // step 1: start admin service (federated service)
-  ({ server: federatedAdminServer } = await createAdminServiceV2({
+  ({ server: federatedAdminServer } = await createAdminService({
     ordererName: process.env.ORDERER_NAME,
     ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
     peerName: process.env.PEER_NAME,
@@ -82,25 +74,27 @@ beforeAll(async () => {
         url: `http://localhost:${port}/graphql`
       }
     ],
-    authenticationCheck: 'http://localhost:3311/oauth/authenticate'
+    authenticationCheck: `http://localhost:${authPort}/oauth/authenticate`
   });
 
   // step 3: start authentication server (expressjs)
+  // NOTE: need to create database 'gw-node-admin-test' manually,
+  // before running this test
   const auth = await createAuthServer({
     dbConnection: createDbConnection({
-      name: 'default',
+      name: process.env.TYPEORM_CONNECTION,
       type: 'postgres' as any,
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'docker',
-      database: 'gw-node-admin-test',
+      host: process.env.TYPEORM_HOST,
+      port: process.env.TYPEORM_PORT,
+      username: process.env.TYPEORM_USERNAME,
+      password: process.env.TYPEORM_PASSWORD,
+      database: process.env.TYPEORM_DATABASE,
       logging: false,
       synchronize: true,
       dropSchema: true
     }),
-    rootAdminPassword: process.env.ADMIN_PASSWORD,
-    rootAdmin: process.env.ADMIN
+    rootAdminPassword,
+    rootAdmin
   });
   authServer = http.createServer(auth);
   authServer.listen(authPort);
@@ -109,6 +103,8 @@ beforeAll(async () => {
 afterAll(async () => {
   authServer.close();
   await federatedAdminServer.stop();
+
+  // workaround for quiting this test properly
   return new Promise(done => setTimeout(() => done(), 500));
 });
 
@@ -122,7 +118,7 @@ describe('Service-admin Integration Tests', () => {
       body: JSON.stringify({
         operationName: 'CreateRootClient',
         query: CREATE_ROOT_CLIENT,
-        variables: { admin: root_admin, password: 'wrong password' }
+        variables: { admin: rootAdmin, password: 'wrong password' }
       })
     })
       .then(res => res.json())
@@ -138,7 +134,7 @@ describe('Service-admin Integration Tests', () => {
       body: JSON.stringify({
         operationName: 'CreateRootClient',
         query: CREATE_ROOT_CLIENT,
-        variables: { admin: root_admin, password: admin_password }
+        variables: { admin: rootAdmin, password: rootAdminPassword }
       })
     })
       .then(res => res.json())
@@ -154,7 +150,7 @@ describe('Service-admin Integration Tests', () => {
       body: JSON.stringify({
         operationName: 'CreateRootClient',
         query: CREATE_ROOT_CLIENT,
-        variables: { admin: root_admin, password: admin_password }
+        variables: { admin: rootAdmin, password: rootAdminPassword }
       })
     })
       .then(res => res.json())
@@ -170,7 +166,12 @@ describe('Service-admin Integration Tests', () => {
       body: JSON.stringify({
         operationName: 'Register',
         query: REGISTER_ADMIN,
-        variables: { email, password, username, admin_password }
+        variables: {
+          email,
+          password,
+          username,
+          admin_password: rootAdminPassword
+        }
       })
     })
       .then(res => res.json())
@@ -186,7 +187,12 @@ describe('Service-admin Integration Tests', () => {
       body: JSON.stringify({
         operationName: 'Register',
         query: REGISTER_ADMIN,
-        variables: { email, password, username, admin_password }
+        variables: {
+          email,
+          password,
+          username,
+          admin_password: rootAdminPassword
+        }
       })
     })
       .then(res => res.json())

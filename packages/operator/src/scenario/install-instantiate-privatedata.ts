@@ -6,12 +6,12 @@ import Listr from 'listr';
 import UpdaterRenderer from 'listr-update-renderer';
 import { createNetworkOperator } from '../createNetworkOperator';
 import { DeploymentOption } from '../types';
-import { installChaincodeSubTask, logger } from '../utils';
+import { getLogger, installChaincodeSubTask } from '../utils';
 
 const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
   option = { verbose: true, collapse: false }
 ) => {
-  Client.setLogger(logger);
+  Client.setLogger(getLogger({ name: 'packages/operator' }));
   Client.setConfigSetting('initialize-with-discovery', true);
   const { verbose, collapse } = option;
   const walletOrg1 = new FileSystemWallet('./assets/walletOrg1');
@@ -72,7 +72,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
               chaincodeVersion: '1.0',
               chaincodePath: '../chaincode',
               timeout: 60000,
-              targets: ['peer0.org1.example.com','peer1.org1.example.com'],
+              targets: ['peer0.org1.example.com', 'peer1.org1.example.com']
             })
             .then<Array<ProposalResponse | ProposalErrorResponse>>(
               result => result[0]
@@ -88,7 +88,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
               chaincodeVersion: '1.0',
               chaincodePath: '../chaincode',
               timeout: 60000,
-              targets: ['peer0.org2.example.com','peer1.org2.example.com'],
+              targets: ['peer0.org2.example.com', 'peer1.org2.example.com']
             })
             .then<Array<ProposalResponse | ProposalErrorResponse>>(
               result => result[0]

@@ -14,9 +14,10 @@ export const createChannel = (option: CreateNetworkOperatorOption) => async ({
 }: {
   channelTxPath: string;
 }): Promise<BroadcastResponse> => {
+  const logger = Client.getLogger('createChannel.js');
+
   if (!channelTxPath) throw new Error(MISSING_CONFIG_TX);
 
-  const logger = Client.getLogger('createChannel.js');
   const {
     channelName,
     connectionProfile,
@@ -24,8 +25,11 @@ export const createChannel = (option: CreateNetworkOperatorOption) => async ({
     fabricNetwork,
     ordererName
   } = option;
+
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
+
   const channel = client.newChannel(channelName);
+
   const hostname = client.getOrderer(ordererName).getName();
 
   channel.addOrderer(
@@ -36,18 +40,33 @@ export const createChannel = (option: CreateNetworkOperatorOption) => async ({
   );
 
   const signatures = [];
-  const config = client.extractChannelConfig(
-    readFileSync(join(channelTxPath, `${channelName}.tx`))
-  );
+
+  let channelNameTx = null;
+
+  try {
+    channelNameTx = readFileSync(join(channelTxPath, `${channelName}.tx`));
+  } catch (e) {
+    logger.error(util.format('fail to read %s.tx, %j'), channelName, e);
+    throw new Error(e);
+  }
 
   logger.info(`read file ${channelTxPath}/${channelName}.tx`);
+
+  let config = null;
+
+  try {
+    config = client.extractChannelConfig(channelNameTx);
+  } catch (e) {
+    logger.error(util.format('fail to extract %s.tx, %j'), channelName, e);
+    throw new Error(e);
+  }
 
   signatures.push(client.signChannelConfig(config));
 
   return channel
     .getGenesisBlock()
     .then(() => {
-      logger.info(`${CHANNEL_ALREADY_EXIST}: ${channelName}`);
+      logger.warn(`${CHANNEL_ALREADY_EXIST}: ${channelName}`);
       return new Error(CHANNEL_ALREADY_EXIST);
     })
     .catch(async () => {
@@ -65,7 +84,7 @@ export const createChannel = (option: CreateNetworkOperatorOption) => async ({
       );
 
       return Promise.all(promises).then(result => {
-        logger.debug(util.format('createChannel result: %j', result));
+        logger.info(util.format('createChannel result: %j', result));
         return result.pop();
       });
     });

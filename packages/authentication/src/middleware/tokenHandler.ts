@@ -15,7 +15,7 @@ export const tokenHandler = (
   res: Express.Response,
   next: Express.NextFunction
 ) => {
-  const logger = getLogger('tokenHandler.js');
+  const logger = getLogger({ name: 'tokenHandler.js' });
 
   if (!req?.body?.client_id) {
     logger.warn('MISSING_CLIENT_ID');

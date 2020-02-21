@@ -1,26 +1,26 @@
-import { registerAndEnroll as prepare } from '@espresso/operator';
+import { registerAndEnroll } from '@espresso/operator';
 import Client, { ChannelEventHub } from 'fabric-client';
-import { FileSystemWallet, Gateway, Network, Wallet } from 'fabric-network';
+import { Gateway, Network, Wallet } from 'fabric-network';
 import { getNetwork } from '../services';
 
 export const registerUser: (option: {
   enrollmentId: string;
   enrollmentSecret: string;
-  connectionProfile?: string;
-  fabricNetwork?: string;
-  wallet?: Wallet;
-  caAdmin?: string;
+  connectionProfile: string;
+  fabricNetwork: string;
+  wallet: Wallet;
+  caAdmin: string;
 }) => any = async ({
   enrollmentId,
   enrollmentSecret,
-  connectionProfile = process.env.CONNECTION_PROFILE,
-  fabricNetwork = process.env.NETWORK_LOCATION,
-  wallet = new FileSystemWallet(process.env.WALLET),
-  caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN
+  connectionProfile,
+  fabricNetwork,
+  wallet,
+  caAdmin
 }) => {
   const logger = Client.getLogger('registerUser.js');
 
-  const operator = await prepare({
+  const operator = await registerAndEnroll({
     fabricNetwork,
     connectionProfile,
     wallet
@@ -40,9 +40,12 @@ export const registerUser: (option: {
 export const bootstrapNetwork: (option: {
   enrollmentId: string;
   enrollmentSecret: string;
-  connectionProfile?: string;
-  fabricNetwork?: string;
-  wallet?: Wallet;
+  connectionProfile: string;
+  fabricNetwork: string;
+  wallet: Wallet;
+  caAdmin: string;
+  channelName: string;
+  channelEventHub: string;
 }) => Promise<{
   enrollmentId: string;
   network: Network;
@@ -53,9 +56,13 @@ export const bootstrapNetwork: (option: {
   enrollmentSecret,
   connectionProfile,
   fabricNetwork,
-  wallet
+  wallet,
+  caAdmin,
+  channelName,
+  channelEventHub
 }) => {
   await registerUser({
+    caAdmin,
     enrollmentId,
     enrollmentSecret,
     connectionProfile,
@@ -64,9 +71,11 @@ export const bootstrapNetwork: (option: {
   });
 
   return getNetwork({
-    channelEventHub: process.env.CHANNEL_HUB,
-    channelName: process.env.CHANNEL_NAME,
+    channelEventHub,
+    channelName,
     connectionProfile,
     wallet,
-    enrollmentId, channelEventHubExisted: true });
+    enrollmentId,
+    channelEventHubExisted: true
+  });
 };

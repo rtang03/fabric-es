@@ -14,7 +14,7 @@ client:
         endorser: '300'
 
 channels:
-  eventstore:
+  loanapp:
     orderers:
       - orderer0-hktfp
     peers:

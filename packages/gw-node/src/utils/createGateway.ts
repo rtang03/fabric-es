@@ -4,7 +4,6 @@ import bodyParser from 'body-parser';
 import Cookie from 'cookie';
 import express, { Express } from 'express';
 import Client from 'fabric-client';
-// import morgan from 'morgan';
 import fetch from 'node-fetch';
 import util from 'util';
 

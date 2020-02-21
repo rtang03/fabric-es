@@ -1,16 +1,13 @@
-const { resolve } = require('path');
-const path = resolve(__dirname, '../../../.env.test.n3');
-require('dotenv').config({ path });
-
+require('./env');
 import { enrollAdmin } from '@espresso/operator';
 import { FileSystemWallet } from 'fabric-network';
 
 enrollAdmin({
   caUrl: process.env.ORG_CA_URL,
-  enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
-  enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
+  enrollmentID: process.env.ORG_ADMIN_ID,
+  enrollmentSecret: process.env.ORG_ADMIN_SECRET,
   mspId: process.env.MSPID,
-  label: process.env.CA_ENROLLMENT_ID_ADMIN,
+  label: process.env.ORG_ADMIN_ID,
   context: {
     fabricNetwork: process.env.NETWORK_LOCATION,
     connectionProfile: process.env.CONNECTION_PROFILE,

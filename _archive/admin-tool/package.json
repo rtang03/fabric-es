@@ -14,7 +14,7 @@
     "prepare-asset": "node_modules/.bin/rimraf assets && mkdir -p ./assets/client-certs/hfc-kvs/org1",
     "clean": "node_modules/.bin/rimraf dist"
   },
-  "private": true,
+  "private": false,
   "engineStrict": true,
   "dependencies": {
     "dotenv": "^8.1.0",

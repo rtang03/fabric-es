@@ -8,16 +8,16 @@ import { createNetworkOperator } from '../createNetworkOperator';
 import { enrollAdmin } from '../enrollAdmin';
 import { CHANNEL_ALREADY_EXIST, DeploymentOption } from '../types';
 import {
+  getLogger,
   installChaincodeSubTask,
   isCommitRecord,
-  joinChannelSubTask,
+  joinChannelSubTask
 } from '../utils';
 
 const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
   option = { verbose: true, collapse: false }
 ) => {
-  // if uncomment, logs goes into file logger
-  // Client.setLogger(logger);
+  Client.setLogger(getLogger({ name: 'packages/operator' }));
   Client.setConfigSetting('initialize-with-discovery', true);
   const { verbose, collapse } = option;
   // TODO: In v2, below API is deprecated
@@ -27,7 +27,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
   const ordererTlsCaCert = process.env.ORDERER_TLSCA_CERT;
   const ordererName = process.env.ORDERER_NAME;
   const org1Operator = await createNetworkOperator({
-    channelName: 'eventstore',
+    channelName: process.env.CHANNEL_NAME,
     ordererTlsCaCert,
     ordererName,
     context: {
@@ -38,7 +38,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
   });
 
   const org2Operator = await createNetworkOperator({
-    channelName: 'eventstore',
+    channelName: process.env.CHANNEL_NAME,
     ordererTlsCaCert,
     ordererName,
     context: {
@@ -256,7 +256,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
               chaincodeId: 'eventstore',
               chaincodeVersion: '1.0',
               chaincodePath: '../chaincode',
-              targets: ['peer0.org1.example.com','peer1.org1.example.com'],
+              targets: ['peer0.org1.example.com', 'peer1.org1.example.com'],
               timeout: 60000
             })
             .then<Array<ProposalResponse | ProposalErrorResponse>>(
@@ -273,7 +273,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
               chaincodeVersion: '1.0',
               chaincodePath: '../chaincode',
               timeout: 60000,
-              targets: ['peer0.org2.example.com','peer1.org2.example.com'],
+              targets: ['peer0.org2.example.com', 'peer1.org2.example.com']
             })
             .then<Array<ProposalResponse | ProposalErrorResponse>>(
               result => result[0]
