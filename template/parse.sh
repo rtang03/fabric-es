@@ -2,7 +2,7 @@
 
 if [ $# -ne 2 ]; then
     echo [`date +"%Y-%m-%d %H:%M:%S"`] "Usage: parse.sh [folder] [view]" \
-         "(e.g. : ./parse.sh fabric prod-like)"
+         "(e.g. : ./parse.sh boilerplate prod-like)"
     exit 1
 fi
 
