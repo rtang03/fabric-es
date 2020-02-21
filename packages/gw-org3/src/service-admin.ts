@@ -1,12 +1,12 @@
 require('./env');
-import { createAdminServiceV2, getLogger } from '@espresso/gw-node';
+import { createAdminService, getLogger } from '@espresso/gw-node';
 import util from 'util';
 
 const port = process.env.ADMINISTRATOR_PORT || 15002;
 const logger = getLogger('service-admin.js');
 
 (async () => {
-  const { server, shutdown } = await createAdminServiceV2({
+  const { server, shutdown } = await createAdminService({
     ordererName: process.env.ORDERER_NAME,
     ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
     caAdminEnrollmentId: process.env.CA_ENROLLMENT_ID_ADMIN,
