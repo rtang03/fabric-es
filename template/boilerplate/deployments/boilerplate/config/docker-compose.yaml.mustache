@@ -140,20 +140,21 @@ services:
             - ../../../packages/chaincode:{{{artifacts.peers-working-dir}}}/chaincode
 
     {{/orgs.peer}}
-    {{orgs.peer.0.gw.auth.dbserver}}:
-        container_name: {{orgs.peer.0.gw.auth.dbserver}}
-        image: postgres
-        environment:
-            - POSTGRES_PASSWORD={{orgs.peer.0.gw.auth.password}}
-            - POSTGRES_USER={{orgs.peer.0.gw.auth.dbuser}}
-            - POSTGRES_DB={{orgs.peer.0.gw.auth.dbuser}}
-        volumes:
-            - {{{artifacts.local}}}/{{orgs.peer.0.gw.auth.dbserver}}:/var/lib/postgresql/data
-        command: postgres
-        ports:
-            - {{orgs.peer.0.gw.auth.dbport}}:{{orgs.peer.0.gw.auth.dbport}}
-        networks:
-            - {{network.name}}
+# Deprecate this postgres DB. This is replaced by deployments/app-net/dev. 
+#    {{orgs.peer.0.gw.auth.dbserver}}:
+#        container_name: {{orgs.peer.0.gw.auth.dbserver}}
+#        image: postgres
+#        environment:
+#            - POSTGRES_PASSWORD={{orgs.peer.0.gw.auth.password}}
+#            - POSTGRES_USER={{orgs.peer.0.gw.auth.dbuser}}
+#            - POSTGRES_DB={{orgs.peer.0.gw.auth.dbuser}}
+#        volumes:
+#            - {{{artifacts.local}}}/{{orgs.peer.0.gw.auth.dbserver}}:/var/lib/postgresql/data
+#        command: postgres
+#        ports:
+#            - {{orgs.peer.0.gw.auth.dbport}}:{{orgs.peer.0.gw.auth.dbport}}
+#        networks:
+#            - {{network.name}}
 
     cadvisor:
         container_name: cadvisor
