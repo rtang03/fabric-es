@@ -33,6 +33,8 @@ services:
             - TYPEORM_PASSWORD=docker
             - TYPEORM_LOGGING=true
             - TYPEORM_DATABASE=auth_db
+            - ROOT_ADMIN=admin
+            - ROOT_ADMIN_PASSWORD=password
         ports:
             - 4100:8080
         networks:
