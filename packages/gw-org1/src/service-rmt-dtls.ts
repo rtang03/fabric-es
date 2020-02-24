@@ -33,7 +33,7 @@ const logger = getLogger('service-rmt-dtls.js');
     .listen({ port: process.env.REMOTE_LOAN_DETAILS_PORT })
     .then(({ url }) => {
       logger.info(`🚀  '${process.env.ORGNAME}' - Remote 'loan details' data ready at ${url}graphql`);
-      process.send('ready');
+      if (process.env.NODE_ENV === 'production') process.send('ready');
     });
 })().catch(error => {
   console.error(error);

@@ -1,6 +1,7 @@
 import {
   Commit,
   getPrivatedataMockRepository,
+  getReducer,
   PrivatedataRepository
 } from '@espresso/fabric-cqrs';
 import {
@@ -62,11 +63,11 @@ const db: Record<string, Commit> = {
 export const loanDetailsRepo: PrivatedataRepository = getPrivatedataMockRepository<LoanDetails, LoanDetailsEvents>(
   db,
   'loanDetails',
-  loanDetailsReducer
+  getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer)
 );
 
 export const docContentsRepo: PrivatedataRepository = getPrivatedataMockRepository<DocContents, DocContentsEvents>(
   db,
   'docContents',
-  docContentsReducer
+  getReducer<DocContents, DocContentsEvents>(docContentsReducer)
 );

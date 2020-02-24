@@ -35,7 +35,7 @@ const logger = getLogger('service-rmt-ctnt.js');
       logger.info(
         `🚀  '${process.env.ORGNAME}' - Remote 'doc contents' data ready at ${url}graphql`
       );
-      process.send('ready');
+      if (process.env.NODE_ENV === 'production') process.send('ready');
     });
 })().catch(error => {
   console.error(error);
