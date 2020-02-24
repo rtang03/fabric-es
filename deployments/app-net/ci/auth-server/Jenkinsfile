@@ -7,13 +7,11 @@ pipeline {
 
         yarnInstall = 'yarn install --ignore-engines'
         yarnBuild = 'yarn build:auth'
-        yarnPackage = 'yarn package-auth-only'
 
-        imgName = 'build:5000/auth-server:${BUILD_TAG}'
-        dockerBuild = 'docker build -t ${imgName} -f auth-server.dockerfile .'
+        imgName = 'build:5000/auth-server:${env.BUILD_TAG}'
 
         dockerhubCredential = 'dockerhub-login'
-        imgNameHub = 'hktfp5/auth-server:${BUILD_TAG}'
+        imgNameHub = 'hktfp5/auth-server:${env.BUILD_TAG}'
     }
 
     agent none
@@ -30,8 +28,7 @@ pipeline {
             }
             steps {
                 sh yarnInstall
-                sh yarnBuild
-                //sh yarnPackage
+                sh 'docker build -t ${imgName} -f auth-server.dockerfile .'
             }
         }
         stage('Docker Build') {
