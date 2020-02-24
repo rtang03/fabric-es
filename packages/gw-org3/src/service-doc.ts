@@ -1,15 +1,15 @@
 require('./env');
 import { getReducer } from '@espresso/fabric-cqrs';
 import { createService, getLogger } from '@espresso/gw-node';
+import { FileSystemWallet } from 'fabric-network';
+import util from 'util';
 import {
   Document,
   DocumentEvents,
   documentReducer,
   documentResolvers,
   documentTypeDefs
-} from '@espresso/model-loan';
-import { FileSystemWallet } from 'fabric-network';
-import util from 'util';
+} from './model/public/document';
 
 const logger = getLogger('service-doc.js');
 const reducer = getReducer<Document, DocumentEvents>(documentReducer);

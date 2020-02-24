@@ -10,8 +10,10 @@ export * from './events';
 export * from './commands';
 export * from './reducer';
 export * from './handler';
-export { typeDefs as loanTypeDefs } from './schema';
-export { resolvers as loanResolvers } from './resolvers';
+export {
+  typeDefs as loanTypeDefs,
+  resolvers as loanResolvers
+} from './typeDefs';
 export * from './queries';
 export type LoanRepo = Repository<Loan, LoanEvents>;
 export type LoanCommandHandler = CommandHandler<LoanCommands>;
