@@ -10,8 +10,10 @@ export * from './events';
 export * from './commands';
 export * from './reducer';
 export * from './handler';
-export { typeDefs as userTypeDefs } from './schema';
-export { resolvers as userResolvers } from './resolvers';
+export {
+  typeDefs as userTypeDefs,
+  resolvers as userResolvers
+} from './typeDefs';
 export * from './queries';
 export type UserRepo = Repository<User, UserEvents>;
 export type UserCommandHandler = CommandHandler<UserCommands>;

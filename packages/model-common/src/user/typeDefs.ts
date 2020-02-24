@@ -1,9 +1,57 @@
 import { Commit } from '@espresso/fabric-cqrs';
 import { ApolloError, AuthenticationError } from 'apollo-server-errors';
 import Client from 'fabric-client';
+import gql from 'graphql-tag';
 import util from 'util';
 import { User, userCommandHandler, UserDS } from '.';
 import { Paginated } from '..';
+
+export const typeDefs = gql`
+type Query {
+  getCommitsByUserId(userId: String!): [UserCommit]!
+  getPaginatedUser(cursor: Int = 10): PaginatedUsers!
+  getUserById(userId: String!): User
+  me: User
+}
+
+type Mutation {
+  createUser(name: String!, userId: String!): UserResponse
+}
+
+type User @key(fields: "userId") {
+  userId: String!
+  name: String!
+  mergedUserIds: [String!]
+}
+
+type PaginatedUsers {
+  entities: [User!]!
+  total: Int!
+  hasMore: Boolean!
+  otherInfo: [String!]!
+}
+
+union UserResponse = UserCommit | UserError
+
+type UserEvent {
+  type: String
+}
+
+type UserCommit {
+  id: String
+  entityName: String
+  version: Int
+  commitId: String
+  committedAt: String
+  entityId: String
+  events: [UserEvent!]
+}
+
+type UserError {
+  message: String!
+  stack: String
+}
+`;
 
 const NOT_AUTHENICATED = 'no enrollment id';
 
