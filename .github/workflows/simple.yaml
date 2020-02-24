@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node.js for use with actions
         uses: actions/setup-node@v1.1.0
         with:
-          node-version: "8.17"
+          node-version: "8.x"
       - run: yarn install --frozen-lockfile
       - run: yarn build:auth
       - run: |
