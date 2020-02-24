@@ -50,7 +50,7 @@ services:
         environment:
             # GW-ORG1
             - ADMINISTRATOR_PORT=15001
-            - AUTHORIZATION_SERVER_URI=auth-server-1/oauth/authenticate
+            - AUTHORIZATION_SERVER_URI=http://auth-server-1:8080/oauth/authenticate
             - CA_ENROLLMENT_ID_ADMIN=rca-etradeconnect-admin
             - CA_ENROLLMENT_SECRET_ADMIN=cMyG7C9U
             - CHAINCODE_ID=eventstore
