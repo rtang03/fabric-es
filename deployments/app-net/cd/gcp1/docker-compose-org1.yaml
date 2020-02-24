@@ -33,6 +33,8 @@ services:
             - TYPEORM_PASSWORD=docker
             - TYPEORM_LOGGING=true
             - TYPEORM_DATABASE=auth_db
+            - ROOT_ADMIN=admin
+            - ROOT_ADMIN_PASSWORD=password
         ports:
             - 4100:8080
         networks:
@@ -73,6 +75,7 @@ services:
             - SERVICE_LOAN_PORT=14012
             - SERVICE_PRIVATE_PORT=14014
             - SERVICE_USER_PORT=14011
+            - TEMP_REMOTE_URI=http://35.213.60.174:4000/graphql
             - WALLET=assets/wallet
         volumes:
             - /home/web/artifacts/crypto-config:/var/artifacts/crypto-config
