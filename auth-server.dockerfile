@@ -29,6 +29,7 @@ USER node
 
 WORKDIR /home/app/packages/authentication
 
-CMD [ "pm2-runtime", "processes.yaml"]
+#CMD [ "pm2-runtime", "processes.yaml"]
+CMD ["sh", "-c", "top"]
 
 EXPOSE 8080
