@@ -50,7 +50,7 @@ services:
         environment:
             # GW-ORG2
             - ADMINISTRATOR_PORT=15021
-            - AUTHORIZATION_SERVER_URI=auth-server-2/oauth/authenticate
+            - AUTHORIZATION_SERVER_URI=http://auth-server-2:8080/oauth/authenticate
             - CA_ENROLLMENT_ID_ADMIN=rca-pboc-admin
             - CA_ENROLLMENT_SECRET_ADMIN=8aZBkFyj
             - CHAINCODE_ID=eventstore
