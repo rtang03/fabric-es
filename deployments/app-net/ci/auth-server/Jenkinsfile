@@ -9,11 +9,11 @@ pipeline {
         yarnBuild = 'yarn build:auth'
         yarnPackage = 'yarn package-auth-only'
 
-        imgName = 'build:5000/auth-server:latest'
+        imgName = 'build:5000/auth-server:${BUILD_TAG}'
         dockerBuild = 'docker build -t ${imgName} -f auth-server.dockerfile .'
 
         dockerhubCredential = 'dockerhub-login'
-        imgNameHub = 'hktfp5/auth-server:latest'
+        imgNameHub = 'hktfp5/auth-server:${BUILD_TAG}'
     }
 
     agent none
