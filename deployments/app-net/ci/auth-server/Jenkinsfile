@@ -7,12 +7,13 @@ pipeline {
 
         yarnInstall = 'yarn install --ignore-engines'
         yarnBuild = 'yarn build:auth'
+        yarnPackage = 'yarn package-auth-only'
 
-        imgName = 'build:5000/auth-server'
-        tag = '${env.BUILD_TAG}'
+        imgName = 'build:5000/auth-server:latest'
+        dockerBuild = 'docker build -t ${imgName} -f auth-server.dockerfile .'
 
         dockerhubCredential = 'dockerhub-login'
-        imgNameHub = 'hktfp5/auth-server'
+        imgNameHub = 'hktfp5/auth-server:latest'
     }
 
     agent none
@@ -30,12 +31,13 @@ pipeline {
             steps {
                 sh yarnInstall
                 sh yarnBuild
+                //sh yarnPackage
             }
         }
         stage('Docker Build') {
             agent { label 'master' }
             steps {
-                sh "docker build -t ${imgName}:${tag} -f auth-server.dockerfile ."
+                sh dockerBuild
             }
         }
         stage('Docker Push') {
@@ -43,17 +45,17 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: registryCredential, passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
                     sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword} build:5000"
-                    sh "docker push ${imgName}:${tag}"
+                    sh "docker push ${imgName}"
                 }
             }
         }
         stage('Dockerhub Push') {
             agent { label 'master' }
             steps {
-                sh "docker tag ${imgName}:${tag} ${imgNameHub}:${tag}"
+                sh 'docker tag ${imgName} ${imgNameHub}'
                 withCredentials([usernamePassword(credentialsId: dockerhubCredential, passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
                     sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                    sh "docker push ${imgNameHub}:${tag}"
+                    sh "docker push ${imgNameHub}"
                 }
             }
         }
