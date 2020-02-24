@@ -16,7 +16,7 @@ const logger = getLogger('service-rmt-dtls.js');
     uriResolver: {
       resolve: entityId => {
         return new Promise(resolve => {
-          resolve('http://localhost:4002/graphql'); // TODO : Temp measure!!! need a REAL uriResolver
+          resolve(process.env.TEMP_REMOTE_URI); // TODO : Temp measure!!! need a REAL uriResolver
         });
       }
     }
