@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-node@v1.1.0
         with:
           node-version: "8.x"
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --frozen-lockfile --ignore-engines
       - run: yarn build:auth
       - run: |
           ls -la
