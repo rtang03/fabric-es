@@ -18,6 +18,4 @@ jobs:
           node-version: "8.x"
       - run: yarn install --frozen-lockfile --ignore-engines
       - run: yarn build:auth
-      - run: |
-          ls -la
-          pwd
+      - run: DOCKER_BUILD=1 docker build --no-cache -f ./auth-server.dockerfile -t espresso/auth-server:1.0 .
