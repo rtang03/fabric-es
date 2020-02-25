@@ -40,7 +40,7 @@ jobs:
       - run: yarn install --frozen-lockfile --ignore-engines
       - run: yarn lint
       - run: yarn build:auth
-      - run: yarn build:gw-org1
+      - run: yarn build:gw-dev-net:org1
       # Setup CLI
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
