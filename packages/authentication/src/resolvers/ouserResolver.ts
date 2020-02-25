@@ -1,23 +1,9 @@
-import {
-  ApolloError,
-  AuthenticationError,
-  UserInputError,
-  ValidationError
-} from 'apollo-server-express';
+import util from 'util';
+import { ApolloError, AuthenticationError, UserInputError, ValidationError } from 'apollo-server-express';
 import { compare, hash } from 'bcrypt';
 import { omit } from 'lodash';
 import { Request, Response, Token } from 'oauth2-server-typescript';
-import {
-  Arg,
-  Ctx,
-  Field,
-  Mutation,
-  ObjectType,
-  Query,
-  Resolver,
-  UseMiddleware
-} from 'type-graphql';
-import util from 'util';
+import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver, UseMiddleware } from 'type-graphql';
 import { Logger } from 'winston';
 import { Client } from '../entity/Client';
 import { OUser } from '../entity/OUser';
@@ -68,9 +54,7 @@ export class OUserResolver {
     nullable: true,
     description: 'User profile; authentication required'
   })
-  async me(
-    @Ctx() { payload }: MyContext
-  ): Promise<Partial<OUser> | ApolloError> {
+  async me(@Ctx() { payload }: MyContext): Promise<Partial<OUser> | ApolloError> {
     const id = payload?.userId;
     if (!id) {
       this.logger.warn(`me: ${AUTH_HEADER_ERROR}`);
@@ -141,10 +125,7 @@ export class OUserResolver {
   @Query(() => Boolean, {
     description: 'Verify user and password; no authentication required'
   })
-  async verifyPassword(
-    @Arg('user_id') user_id: string,
-    @Arg('password') password: string
-  ): Promise<boolean> {
+  async verifyPassword(@Arg('user_id') user_id: string, @Arg('password') password: string): Promise<boolean> {
     this.logger.info('verifyPassword');
     const user = await OUser.findOne({ id: user_id });
     if (!user) throw new AuthenticationError(USER_NOT_FOUND);
@@ -197,15 +178,13 @@ export class OUserResolver {
         return true;
       })
       .catch(error => {
-        this.logger.warn(
-          util.format('create [%s] user profile fail: %j', username, error)
-        );
+        this.logger.warn(util.format('create [%s] user profile fail: %j', username, error));
         return new ApolloError(error);
       });
   }
 
   @Mutation(() => Boolean)
-  async logout(@Ctx() { res }: MyContext) {
+  logout(@Ctx() { res }: MyContext) {
     this.logger.info('logout');
     sendToken(res, '');
     return true;

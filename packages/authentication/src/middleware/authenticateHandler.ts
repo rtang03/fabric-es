@@ -1,14 +1,11 @@
+import util from 'util';
 import Express from 'express';
 import http from 'http-status';
 import { OAuth2Server, Request, Response } from 'oauth2-server-typescript';
-import util from 'util';
 import { AUTHENTICATION_FAIL, AUTHENTICATION_SUCCESS } from '../types';
 import { getLogger } from '../utils';
 
-export const authenticateHandler = (
-  oauth: OAuth2Server,
-  options?: any
-) => async (
+export const authenticateHandler = (oauth: OAuth2Server, options?: any) => async (
   req: Express.Request,
   res: Express.Response,
   next: Express.NextFunction
@@ -20,9 +17,7 @@ export const authenticateHandler = (
     .then(token => {
       res.locals.oauth = { token };
       if (token) {
-        logger.debug(
-          util.format('%s: %s', AUTHENTICATION_SUCCESS, token?.user?.id)
-        );
+        logger.debug(util.format('%s: %s', AUTHENTICATION_SUCCESS, token?.user?.id));
 
         res.status(http.OK).send({
           ok: true,

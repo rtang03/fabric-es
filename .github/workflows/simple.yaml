@@ -22,11 +22,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - uses: actions/cache@v1
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
       - name: Setup Node.js for use with actions
         uses: actions/setup-node@v1.1.0
         with:
           node-version: "8.x"
       - run: yarn install --frozen-lockfile --ignore-engines
+      - run: yarn lint
       - run: yarn build:auth
       # Setup CLI
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
@@ -34,10 +45,7 @@ jobs:
           version: '270.0.0'
           service_account_email: ${{ secrets.GKE_EMAIL }}
           service_account_key: ${{ secrets.GKE_KEY }}
-      - run: |
-          # Set up docker to authenticate
-          # via gcloud command-line tool.
-          gcloud auth configure-docker
+      - run: gcloud auth configure-docker
       - name: Build
         run: |
           docker build --no-cache -f ./auth-server.dockerfile \

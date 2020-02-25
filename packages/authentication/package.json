@@ -22,7 +22,8 @@
     "test:password": "jest --forceExit --detectOpenHandles password.test",
     "test:authenticate": "jest --forceExit --detectOpenHandles authenticate.test",
     "test:client_app": "jest --forceExit --detectOpenHandles client_app.test",
-    "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts"
+    "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts,tsx}'"
   },
   "engines": {
     "node": ">=8",
@@ -85,5 +86,16 @@
   },
   "nohoist": [
     "class-validator"
-  ]
+  ],
+  "prettier": {
+    "eslintIntegration": true,
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "bracketSpacing": true,
+    "jsxBracketSameLine": true,
+    "requirePragma": false,
+    "insertPragma": false,
+    "printWidth": 120
+  }
 }

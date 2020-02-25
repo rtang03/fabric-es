@@ -3,11 +3,7 @@ import { createLogger, format, Logger, transports } from 'winston';
 
 const { combine, timestamp, label, json } = format;
 
-export const getLogger: (option: {
-  name: string;
-  sendToConsole?: boolean;
-  enableGCPLogger?: boolean;
-}) => Logger = ({
+export const getLogger: (option: { name: string; sendToConsole?: boolean; enableGCPLogger?: boolean }) => Logger = ({
   name,
   sendToConsole = true,
   enableGCPLogger = process.env.NODE_ENV === 'production'

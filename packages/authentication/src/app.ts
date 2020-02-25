@@ -1,12 +1,12 @@
 require('dotenv').config({ path: './.env' });
 import http from 'http';
-import omit from 'lodash/omit';
 import process from 'process';
+import util from 'util';
+import omit from 'lodash/omit';
 import 'reflect-metadata';
 import stoppable from 'stoppable';
-import util from 'util';
-import { createAuthServer, createDbConnection } from '.';
 import { createRootClient, getLogger } from './utils';
+import { createAuthServer, createDbConnection } from '.';
 
 const host = process.env.TYPEORM_HOST || 'localhost';
 const logger = getLogger({ name: 'app.js' });
@@ -49,24 +49,20 @@ const uri = `http://localhost:${port}/graphql`;
     throw new Error('missing database name');
   }
 
-  logger.info(
-    util.format('db connection: %j', omit(dbConnection, 'password', 'entities'))
-  );
+  logger.info(util.format('db connection: %j', omit(dbConnection, 'password', 'entities')));
 
   let server;
 
   try {
     server = await createAuthServer({
       dbConnection,
-      rootAdminPassword: process.env.ROOT_PASSWORD || 'admin_test',
-      rootAdmin: process.env.ROOT || 'admin',
+      rootAdminPassword: process.env.ROOT_ADMIN_PASSWORD,
+      rootAdmin: process.env.ROOT_ADMIN,
       accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
       refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET
     });
   } catch (err) {
-    logger.error(
-      util.format('An error occurred while createAuthServer: %j', err)
-    );
+    logger.error(util.format('An error occurred while createAuthServer: %j', err));
     process.exit(1);
   }
 
@@ -75,9 +71,7 @@ const uri = `http://localhost:${port}/graphql`;
   const shutdown = () => {
     stoppableServer.close(err => {
       if (err) {
-        logger.error(
-          util.format('An error occurred while closing the server: %j', err)
-        );
+        logger.error(util.format('An error occurred while closing the server: %j', err));
         process.exitCode = 1;
       } else logger.info('server closes');
     });
@@ -108,9 +102,7 @@ const uri = `http://localhost:${port}/graphql`;
         admin: process.env.ROOT_ADMIN || 'admin'
       });
     } catch (err) {
-      logger.error(
-        util.format('An error occurred while createRootClient: %j', err)
-      );
+      logger.error(util.format('An error occurred while createRootClient: %j', err));
       process.exit(1);
     }
     process.send('ready');
