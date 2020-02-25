@@ -1,5 +1,5 @@
 import { Errors } from '@espresso/model-common';
-import { LoanCommandHandler, LoanRepo } from '.';
+import { LoanCommandHandler, LoanRepo } from '..';
 
 export const LoanErrors = {
   loanNotFound: loanId => new Error(`LOAN_NOT_FOUND: id: ${loanId}`),

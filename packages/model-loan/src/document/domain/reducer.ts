@@ -1,4 +1,4 @@
-import { Document, DocumentEvents, DocumentStatus } from '.';
+import { Document, DocumentEvents, DocumentStatus } from '..';
 
 export const documentReducer = (document: Document, event: DocumentEvents): Document => {
   switch (event.type) {
