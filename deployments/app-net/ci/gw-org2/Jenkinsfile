@@ -45,7 +45,7 @@ pipeline {
                 sh "docker tag ${imgName}:${tag} ${imgName}:latest"
                 withCredentials([usernamePassword(credentialsId: registryCredential, passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
                     sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword} build:5000"
-                    sh "docker push ${imgName}:${tag}"                   
+//                    sh "docker push ${imgName}:${tag}"                   
                     sh "docker push ${imgName}:latest"
                 }
             }
