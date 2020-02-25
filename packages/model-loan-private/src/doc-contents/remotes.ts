@@ -46,9 +46,6 @@ export const resolvers = {
         operationName: 'GetDocContentsById',
         variables: { documentId },
         token
-      }).then(result => {
-        console.log(JSON.stringify(result));
-        return result;
       }).then(results => results.map(({ data }) => data?.getDocContentsById));
     }
   },
