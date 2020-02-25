@@ -33,7 +33,7 @@ export const typeDefs = gql`
 
   extend type Document @key(fields: "documentId") {
     documentId: String! @external
-    _contents: _DocContents
+    _contents: [_DocContents]
   }
 `;
 
@@ -46,7 +46,7 @@ export const resolvers = {
         operationName: 'GetDocContentsById',
         variables: { documentId },
         token
-      }).then(({ data }) => data?.getDocContentsById);
+      }).then(results => results.map(({ data }) => data?.getDocContentsById));
     }
   },
   DocContents: {

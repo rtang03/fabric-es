@@ -1,3 +1,3 @@
 export interface UriResolver {
-  resolve: (entityId: string) => Promise<string>;
+  resolve: (entityId: string) => Promise<string[]>;
 }
