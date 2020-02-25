@@ -1,7 +1,7 @@
+import util from 'util';
 import Express from 'express';
 import http from 'http-status';
 import { OAuth2Server, Request, Response } from 'oauth2-server-typescript';
-import util from 'util';
 import { INVALID_GRANT_TYPE, MISSING_CLIENT_ID } from '../types';
 import { getLogger, sendToken } from '../utils';
 
@@ -10,19 +10,13 @@ export const tokenHandler = (
   options = {
     requireClientAuthentication: { password: false, refresh_token: false }
   }
-) => async (
-  req: Express.Request,
-  res: Express.Response,
-  next: Express.NextFunction
-) => {
+) => async (req: Express.Request, res: Express.Response, next: Express.NextFunction) => {
   const logger = getLogger({ name: 'tokenHandler.js' });
 
   if (!req?.body?.client_id) {
     logger.warn('MISSING_CLIENT_ID');
 
-    return res
-      .status(http.BAD_REQUEST)
-      .send({ ok: false, message: MISSING_CLIENT_ID });
+    return res.status(http.BAD_REQUEST).send({ ok: false, message: MISSING_CLIENT_ID });
   }
 
   if (
@@ -43,16 +37,12 @@ export const tokenHandler = (
     if (!req?.body?.username) {
       logger.warn('missing username');
 
-      return res
-        .status(http.BAD_REQUEST)
-        .send({ ok: false, message: 'missing username' });
+      return res.status(http.BAD_REQUEST).send({ ok: false, message: 'missing username' });
     }
     if (!req?.body?.password) {
       logger.warn('missing password');
 
-      return res
-        .status(http.BAD_REQUEST)
-        .send({ ok: false, message: 'missing password' });
+      return res.status(http.BAD_REQUEST).send({ ok: false, message: 'missing password' });
     }
   }
 

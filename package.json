@@ -14,13 +14,23 @@
     "build:auth": "yarn tsc:auth && yarn pack:auth",
     "build:gw-dev-net:org1": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org1 && yarn pack:lib && yarn pack:gw-dev-net:org1",
     "build:gw-dev-net:org2": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org2 && yarn pack:lib && yarn pack:gw-dev-net:org2",
-    "unit-test:lib": "lerna run unit-test:lib --scope=@espresso/chaincode"
+    "unit-test:lib": "lerna run unit-test:lib --scope=@espresso/chaincode",
+    "lint": "lerna run lint --scope=@espresso/authentication"
   },
   "workspaces": [
     "packages/*"
   ],
   "private": true,
   "devDependencies": {
+    "@typescript-eslint/parser": "^2.21.0",
+    "@typescript-eslint/eslint-plugin": "^2.21.0",
+    "@typescript-eslint/eslint-plugin-tslint": "^2.21.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-prefer-arrow": "^1.1.7",
     "lerna": "^3.20.2",
     "json-to-pretty-yaml": "^1.2.2",
     "prettier": "^1.19.1",
@@ -31,13 +41,14 @@
     "typescript": "^3.7.2"
   },
   "prettier": {
-    "eslintIntegration": false,
+    "eslintIntegration": true,
     "semi": true,
     "singleQuote": true,
     "tabWidth": 2,
     "bracketSpacing": true,
     "jsxBracketSameLine": true,
     "requirePragma": false,
-    "insertPragma": false
+    "insertPragma": false,
+    "printWidth": 120
   }
 }

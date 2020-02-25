@@ -1,5 +1,3 @@
-import { createDb } from './__utils__/createDb';
-
 require('../env');
 import { Express } from 'express';
 import request from 'supertest';
@@ -8,14 +6,10 @@ import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
 import { OUser } from '../entity/OUser';
 import { RefreshToken } from '../entity/RefreshToken';
-import {
-  CREATE_ROOT_CLIENT,
-  CREATE_SYSTEM_APPLICATION,
-  LOGIN,
-  REGISTER_ADMIN
-} from '../query';
+import { CREATE_ROOT_CLIENT, CREATE_SYSTEM_APPLICATION, LOGIN, REGISTER_ADMIN } from '../query';
 import { ClientResolver, OUserResolver } from '../resolvers';
 import { createHttpServer } from '../utils';
+import { createDb } from './__utils__/createDb';
 
 const dbConnection = {
   name: 'default',
@@ -152,9 +146,7 @@ describe('Client Credentials Grant Type Tests', () => {
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(
-        `client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials&scope=default`
-      )
+      .send(`client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials&scope=default`)
       .expect(({ status, body }) => {
         expect(status).toBe(200);
         expect(body?.ok).toBeTruthy();

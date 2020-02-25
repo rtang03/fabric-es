@@ -1,5 +1,3 @@
-import { createDb } from './__utils__/createDb';
-
 require('../env');
 import { Express } from 'express';
 import request from 'supertest';
@@ -12,6 +10,7 @@ import { CREATE_ROOT_CLIENT, LOGIN, REGISTER_ADMIN } from '../query';
 import { ClientResolver, OUserResolver } from '../resolvers';
 import { UNAUTHORIZED_REQUEST } from '../types';
 import { createHttpServer } from '../utils';
+import { createDb } from './__utils__/createDb';
 
 const dbConnection = {
   name: 'default',

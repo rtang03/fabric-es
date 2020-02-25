@@ -9,13 +9,7 @@ import {
 } from '../types';
 
 export const authorizeGetHandler = (req: Request, res: Response) => {
-  const {
-    client_id,
-    redirect_uri,
-    state,
-    response_type,
-    grant_type
-  } = req.query;
+  const { client_id, redirect_uri, state, response_type, grant_type } = req.query;
   const redirect = req.path;
   res.locals.user_id = req?.app?.locals?.user_id;
   return !client_id
