@@ -1,4 +1,4 @@
-import { User, UserEvents } from '.';
+import { User, UserEvents } from '..';
 
 /**
  * User Reducer

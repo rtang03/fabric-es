@@ -1,4 +1,4 @@
-import { Loan, LoanEvents, LoanStatus } from '.';
+import { Loan, LoanEvents, LoanStatus } from '..';
 
 export const loanReducer = (loan: Loan, event: LoanEvents): Loan => {
   switch (event.type) {

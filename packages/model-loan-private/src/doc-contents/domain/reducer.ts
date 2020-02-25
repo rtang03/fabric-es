@@ -1,4 +1,4 @@
-import { DocContents, DocContentsEvents } from '.';
+import { DocContents, DocContentsEvents } from '..';
 
 export const docContentsReducer = (content: DocContents, event: DocContentsEvents): DocContents => {
   switch (event.type) {
