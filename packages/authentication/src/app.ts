@@ -58,8 +58,8 @@ const uri = `http://localhost:${port}/graphql`;
   try {
     server = await createAuthServer({
       dbConnection,
-      rootAdminPassword: process.env.ROOT_PASSWORD || 'admin_test',
-      rootAdmin: process.env.ROOT || 'admin',
+      rootAdminPassword: process.env.ROOT_ADMIN_PASSWORD || 'admin_test',
+      rootAdmin: process.env.ROOT_ADMIN || 'admin',
       accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
       refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET
     });
