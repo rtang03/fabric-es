@@ -16,7 +16,7 @@ const logger = getLogger('service-rmt-ctnt.js');
     uriResolver: {
       resolve: entityId => {
         return new Promise(resolve => {
-          resolve(process.env.TEMP_REMOTE_URI); // TODO : Temp measure!!! need a REAL uriResolver
+          resolve(process.env.TEMP_REMOTE_URI.split(' ')); // TODO : Temp measure!!! need a REAL uriResolver
         });
       }
     }
@@ -32,9 +32,7 @@ const logger = getLogger('service-rmt-ctnt.js');
   server
     .listen({ port: process.env.REMOTE_DOC_CONTENTS_PORT })
     .then(({ url }) => {
-      logger.info(
-        `🚀  '${process.env.ORGNAME}' - Remote 'doc contents' data ready at ${url}graphql`
-      );
+      logger.info(`🚀  '${process.env.ORGNAME}' - Remote 'doc contents' data ready at ${url}graphql`);
       if (process.env.NODE_ENV === 'production') process.send('ready');
     });
 })().catch(error => {
