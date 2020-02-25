@@ -8,7 +8,7 @@ pipeline {
         yarnInstall = "yarn install --ignore-engines"
         yarnBuild = "yarn build:auth"
 
-        tag = "${BUILD_ID}"
+        tag = "${BUILD_TIMESTAMP}-${BUILD_NUMBER}"
         imgName = "build:5000/auth-server"
         dockerfile = "auth-server.dockerfile"
 
