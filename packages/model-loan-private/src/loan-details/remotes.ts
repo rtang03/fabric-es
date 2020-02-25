@@ -55,9 +55,6 @@ export const resolvers = {
         operationName: 'GetLoanDetailsById',
         variables: { loanId },
         token
-      }).then(result => {
-        console.log(JSON.stringify(result));
-        return result;
       }).then(results => results.map(({ data }) => data?.getLoanDetailsById));
     }
   },
