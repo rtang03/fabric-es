@@ -11,7 +11,8 @@ env:
   GITHUB_SHA: ${{ github.sha }}
   GKE_ZONE: us-central1-a
   GKE_CLUSTER: test-net-cluster-1
-  IMAGE: auth-server
+  AUTH_IMAGE: auth-server
+  GW_ORG1_IMAGE: gw-org1
   REGISTRY_HOSTNAME: gcr.io
   DEPLOYMENT_NAME: gke-test
 
@@ -39,6 +40,7 @@ jobs:
       - run: yarn install --frozen-lockfile --ignore-engines
       - run: yarn lint
       - run: yarn build:auth
+      - run: yarn build:gw-org1
       # Setup CLI
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
@@ -46,12 +48,21 @@ jobs:
           service_account_email: ${{ secrets.GKE_EMAIL }}
           service_account_key: ${{ secrets.GKE_KEY }}
       - run: gcloud auth configure-docker
-      - name: Build
+      - name: Build auth-server image
         run: |
           docker build --no-cache -f ./auth-server.dockerfile \
-            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$IMAGE":"$GITHUB_SHA" \
+            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$AUTH_IMAGE":"$GITHUB_SHA" \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
             --build-arg GITHUB_REF="$GITHUB_REF" .
-      - name: Publish
+      - name: Publish auth-server image
         run: |
-          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:$GITHUB_SHA
+          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$AUTH_IMAGE:$GITHUB_SHA
+      - name: Build gw-org1 image
+        run: |
+          docker build --no-cache -f ./gw-org1.dockerfile \
+            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$GW_ORG1_IMAGE":"$GITHUB_SHA" \
+            --build-arg GITHUB_SHA="$GITHUB_SHA" \
+            --build-arg GITHUB_REF="$GITHUB_REF" .
+      - name: Publish gw-org1 image
+        run: |
+          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$GW_ORG1_IMAGE:$GITHUB_SHA

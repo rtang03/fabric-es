@@ -160,7 +160,7 @@ module.exports = {
     '@typescript-eslint/no-non-null-assertion': ['warn'],
     '@typescript-eslint/no-this-alias': ['error'],
     'no-unused-vars': ['off'],
-    '@typescript-eslint/no-unused-vars': ['warn'],
+    '@typescript-eslint/no-unused-vars': ['off'],
     'no-use-before-define': ['off'],
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/no-var-requires': 'off',
