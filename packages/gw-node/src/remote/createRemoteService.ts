@@ -37,19 +37,16 @@ export const createRemoteService = async ({
         enrollmentId: headers.user_id as string,
         uriResolver,
         remoteData: ({ uri, query, variables, context, operationName, token }) =>
-          makePromise(
-            execute(
-              new HttpLink({
-                uri,
-                fetch,
-                headers: { authorization: `Bearer ${token}` }
-              }),
-              { query, variables, operationName, context }
-            )
-          ).catch(error => {
-            logger.error(util.format('executeHttpLink, %j', error));
-            return new ApolloError(error);
-          })
+          Promise.all(uri.map(link =>
+            makePromise(
+              execute(new HttpLink({
+                uri: link, fetch, headers: { authorization: `Bearer ${token}` }
+              }), { query, variables, operationName, context })
+            ).catch(error => {
+              logger.error(util.format('executeHttpLink, %j', error));
+              return new ApolloError(error);
+            })
+          ))
       })
     }),
     shutdown: shutdown({ logger, name })
