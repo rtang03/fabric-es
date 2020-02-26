@@ -41,6 +41,8 @@ services:
             - apps_1
         logging:
             driver: gcplogs
+            options:
+                gcp-log-cmd: "true"
 
     gw-org1:
         container_name: gw-org1
@@ -100,3 +102,7 @@ services:
             - 4000:4001
         networks:
             - apps_1
+        logging:
+            driver: gcplogs
+            options:
+                gcp-log-cmd: "true"
