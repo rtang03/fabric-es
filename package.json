@@ -14,7 +14,7 @@
     "build:auth": "yarn tsc:auth && yarn pack:auth",
     "build:gw-dev-net:org1": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org1 && yarn pack:lib && yarn pack:gw-dev-net:org1",
     "build:gw-dev-net:org2": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org2 && yarn pack:lib && yarn pack:gw-dev-net:org2",
-    "unit-test:lib": "lerna run unit-test:lib --scope=@espresso/chaincode",
+    "unit-test": "lerna run unit-test:lib --scope=@espresso/chaincode",
     "lint": "lerna run lint --scope=@espresso/authentication"
   },
   "workspaces": [
