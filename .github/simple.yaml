@@ -4,11 +4,12 @@ on:
     branches:
       - master
     paths-ignore:
-      - "**.md"
+      - '**.md'
 env:
   GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
   GKE_EMAIL: ${{ secrets.GKE_EMAIL }}
-  GITHUB_SHA: ${{ github.sha }}
+  GITHUB_SHA: v1.0.0
+  #  GITHUB_SHA: ${{ github.sha }}
   GKE_ZONE: us-central1-a
   GKE_CLUSTER: test-net-cluster-1
   AUTH_IMAGE: auth-server
@@ -36,11 +37,15 @@ jobs:
       - name: Setup Node.js for use with actions
         uses: actions/setup-node@v1.1.0
         with:
-          node-version: "8.x"
+          node-version: '8.x'
       - run: yarn install --frozen-lockfile --ignore-engines
       - run: yarn lint
-      - run: yarn build:auth
-      - run: yarn build:gw-dev-net:org1
+      - name: Run unit tests for lib - chaincode, fabric-cqrs, gw-node, operator
+        run: yarn unit-test
+      - name: Build auth-server image
+        run: yarn build:auth
+      - name: Build gw-org1 image
+        run: yarn build:gw-dev-net:org1
       # Setup CLI
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
