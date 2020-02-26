@@ -41,3 +41,5 @@ services:
             - apps_3
         logging:
             driver: gcplogs
+            options:
+                gcp-log-cmd: "true"
