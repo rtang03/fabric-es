@@ -23,13 +23,11 @@ createService({
   channelName: process.env.CHANNEL_NAME,
   connectionProfile: process.env.CONNECTION_PROFILE,
   wallet: new FileSystemWallet(process.env.WALLET),
-})
-.then(async ({ config, shutdown, getRepository }) => {
+}).then(async ({ config, shutdown, getRepository }) => {
   const app = await config({
     typeDefs: documentTypeDefs,
     resolvers: documentResolvers
-  })
-  .addRepository(getRepository<Document, DocumentEvents>({
+  }).addRepository(getRepository<Document, DocumentEvents>({
     entityName: 'document',
     reducer
   })).create();

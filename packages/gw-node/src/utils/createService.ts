@@ -50,7 +50,9 @@ export const createService = async ({
     reconcile,
     getRepository,
     getPrivateDataRepo,
-    subscribeHub
+    subscribeHub,
+    unsubscribeHub,
+    disconnect
   } = createPeer({
     ...(networkConfig as Partial<PeerOptions>),
     defaultEntityName,
@@ -137,6 +139,8 @@ export const createService = async ({
 
       return { addRepository };
     },
-    shutdown: shutdown({ logger, name: defaultEntityName })
+    shutdown: shutdown({ logger, name: defaultEntityName }),
+    unsubscribeHub: (!isPrivate) ? unsubscribeHub : null,
+    disconnect
   };
 };

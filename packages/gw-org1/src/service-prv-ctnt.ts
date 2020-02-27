@@ -24,8 +24,7 @@ createService({
   channelName: process.env.CHANNEL_NAME,
   connectionProfile: process.env.CONNECTION_PROFILE,
   wallet: new FileSystemWallet(process.env.WALLET)
-})
-  .then(async ({ config, shutdown, getPrivateDataRepo }) => {
+}).then(async ({ config, shutdown, getPrivateDataRepo }) => {
     const app = await config({
       typeDefs: docContentsTypeDefs,
       resolvers: docContentsResolvers

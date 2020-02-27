@@ -31,7 +31,7 @@ export const createResolvers: (option: {
   wallet,
   asLocalhost
 }) => {
-  const logger = Client.getLogger('createResolversV2.js');
+  const logger = Client.getLogger('createResolvers.js');
 
   let operator;
   try {
