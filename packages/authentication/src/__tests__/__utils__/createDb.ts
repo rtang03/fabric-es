@@ -6,7 +6,7 @@ export const createDb: (option: {
   host: string;
   port: string;
   database: string;
-}) => void = async ({ user, password, host, port, database }) => {
+}) => any = async ({ user, password, host, port, database }) => {
   await pgtools.dropdb({ user, password, port, host }, database).then(
     () => console.log('database dropped'),
     err => console.warn(err.name)

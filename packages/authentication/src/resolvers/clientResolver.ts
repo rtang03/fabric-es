@@ -1,31 +1,11 @@
-import {
-  ApolloError,
-  AuthenticationError,
-  UserInputError,
-  ValidationError
-} from 'apollo-server-express';
 import { randomBytes } from 'crypto';
-import omit from 'lodash/omit';
-import {
-  Arg,
-  Ctx,
-  Field,
-  Mutation,
-  ObjectType,
-  Query,
-  Resolver,
-  UseMiddleware
-} from 'type-graphql';
 import util from 'util';
+import { ApolloError, AuthenticationError, UserInputError, ValidationError } from 'apollo-server-express';
+import omit from 'lodash/omit';
+import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver, UseMiddleware } from 'type-graphql';
 import { Logger } from 'winston';
 import { Client } from '../entity/Client';
-import {
-  ADMIN_PASSWORD_MISMATCH,
-  ALREADY_EXIST,
-  AUTH_HEADER_ERROR,
-  CLIENT_NOT_FOUND,
-  MyContext
-} from '../types';
+import { ADMIN_PASSWORD_MISMATCH, ALREADY_EXIST, AUTH_HEADER_ERROR, CLIENT_NOT_FOUND, MyContext } from '../types';
 import { getLogger, isAdmin } from '../utils';
 
 const generateSecret = len =>
@@ -115,8 +95,7 @@ export class ClientResolver {
 
   @Mutation(() => CreateAppResponse, {
     nullable: true,
-    description:
-      'Create regular client app with all grant types; authentication required'
+    description: 'Create regular client app with all grant types; authentication required'
   })
   async createRegularApp(
     @Ctx() { payload }: MyContext,
@@ -142,13 +121,7 @@ export class ClientResolver {
       is_system_app: false
     })
       .then<CreateAppResponse>(({ identifiers }) => {
-        this.logger.info(
-          util.format(
-            'createRegularApp: %s, %s',
-            identifiers[0].id,
-            applicationName
-          )
-        );
+        this.logger.info(util.format('createRegularApp: %s, %s', identifiers[0].id, applicationName));
 
         return {
           ok: true,
@@ -193,9 +166,7 @@ export class ClientResolver {
       ? Client.save(client)
           .then(() => true)
           .catch(error => {
-            this.logger.warn(
-              util.format('updateRegularApp: %s', error.message)
-            );
+            this.logger.warn(util.format('updateRegularApp: %s', error.message));
             return new ApolloError(error);
           })
       : false;
@@ -223,9 +194,7 @@ export class ClientResolver {
       ? Client.delete(client_id)
           .then(() => true)
           .catch(error => {
-            this.logger.warn(
-              util.format('deleteRegularApp: %s', error.message)
-            );
+            this.logger.warn(util.format('deleteRegularApp: %s', error.message));
             return new ApolloError(error);
           })
       : false;
@@ -279,13 +248,7 @@ export class ClientResolver {
       is_system_app: true
     })
       .then<CreateAppResponse>(({ identifiers }) => {
-        this.logger.info(
-          util.format(
-            'createApplication: %s, %s',
-            identifiers[0].id,
-            applicationName
-          )
-        );
+        this.logger.info(util.format('createApplication: %s, %s', identifiers[0].id, applicationName));
 
         return {
           ok: true,
@@ -326,13 +289,7 @@ export class ClientResolver {
       return Client.insert({
         applicationName: 'root',
         client_secret: rootAdminPassword,
-        grants: [
-          'password',
-          'authorization_code',
-          'refresh_token',
-          'client_credentials',
-          'implicit'
-        ],
+        grants: ['password', 'authorization_code', 'refresh_token', 'client_credentials', 'implicit'],
         // redirect_uris is not required
         redirect_uris: ['http://localhost:4000'],
         user_id: rootAdmin,

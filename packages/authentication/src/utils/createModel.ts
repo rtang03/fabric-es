@@ -1,3 +1,4 @@
+import util from 'util';
 import { sign } from 'jsonwebtoken';
 import {
   AuthorizationCode as IAuthorizationCode,
@@ -6,7 +7,6 @@ import {
   RefreshToken as IRefreshToken,
   Token as IToken
 } from 'oauth2-server-typescript';
-import util from 'util';
 import { AccessToken } from '../entity/AccessToken';
 import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
@@ -30,11 +30,7 @@ export const createModel: (option?: {
       if (client?.id) payload.client_id = client.id;
       if (user?.is_admin) payload.is_admin = user.is_admin;
       option.accessTokenOptions.subject = user.id;
-      const tok = sign(
-        payload,
-        option.accessTokenSecret,
-        option.accessTokenOptions
-      );
+      const tok = sign(payload, option.accessTokenSecret, option.accessTokenOptions);
       logger.info(`generateAccessToken for ${user.id}`);
 
       return tok;
@@ -44,11 +40,7 @@ export const createModel: (option?: {
       if (user?.id) payload.userId = user.id;
       if (client?.id) payload.client_id = client.id;
       option.refreshTokenOptions.subject = client.id;
-      const tok = sign(
-        payload,
-        option.refreshTokenSecret,
-        option.refreshTokenOptions
-      );
+      const tok = sign(payload, option.refreshTokenSecret, option.refreshTokenOptions);
       logger.info(`generateRefreshToken for ${user.id}`);
 
       return tok;
@@ -106,14 +98,10 @@ export const createModel: (option?: {
     },
     getClient: async (client_id: string, client_secret?: string) => {
       const client = client_secret
-        ? await Client.findOne({ id: client_id, client_secret }).catch(
-            error => {
-              logger.warn(
-                util.format('getClient for %s, %j', client_id, error)
-              );
-              return null;
-            }
-          )
+        ? await Client.findOne({ id: client_id, client_secret }).catch(error => {
+            logger.warn(util.format('getClient for %s, %j', client_id, error));
+            return null;
+          })
         : await Client.findOne({ id: client_id }).catch(error => {
             logger.warn(util.format('getClient for %s, %j', client_id, error));
             return null;
@@ -133,13 +121,7 @@ export const createModel: (option?: {
       return await OUser.findOne({ username });
     },
     getUserFromClient: async (client: IClient) => {
-      logger.info(
-        util.format(
-          'getUserFromClient for client %s, user %s',
-          client.id,
-          client.user_id
-        )
-      );
+      logger.info(util.format('getUserFromClient for client %s, user %s', client.id, client.user_id));
 
       return OUser.findOne({ id: client.user_id });
     },
@@ -147,13 +129,7 @@ export const createModel: (option?: {
       await AuthorizationCode.delete({
         authorization_code: code.authorizationCode
       }).catch(error => {
-        logger.warn(
-          util.format(
-            'revokeAuthorizationCode for client %s, %s',
-            code?.client?.id,
-            error.message
-          )
-        );
+        logger.warn(util.format('revokeAuthorizationCode for client %s, %s', code?.client?.id, error.message));
         return false;
       });
       return true;
@@ -181,13 +157,7 @@ export const createModel: (option?: {
         user_id: user.id
       };
       await AuthorizationCode.insert(authCode);
-      logger.info(
-        util.format(
-          'saveAuthorizationCode for client %s, user %s',
-          client.id,
-          user.id
-        )
-      );
+      logger.info(util.format('saveAuthorizationCode for client %s, user %s', client.id, user.id));
 
       return {
         authorizationCode: authCode.authorization_code,

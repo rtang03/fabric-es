@@ -1,3 +1,4 @@
+import util from 'util';
 import { ApolloServer } from 'apollo-server-express';
 import cookieParser from 'cookie-parser';
 import express, { Express, Request, Response } from 'express';
@@ -6,10 +7,9 @@ import omit from 'lodash/omit';
 import { OAuth2Server } from 'oauth2-server-typescript';
 import { buildSchema } from 'type-graphql';
 import { ConnectionOptions, createConnection } from 'typeorm';
-import util from 'util';
-import { createModel, getLogger } from '.';
 import { indexRouter } from '../routes';
 import { MyContext } from '../types';
+import { createModel, getLogger } from '.';
 
 export const createHttpServer: (option: {
   dbConnection?: ConnectionOptions;
@@ -52,11 +52,7 @@ export const createHttpServer: (option: {
     else await createConnection();
   } catch (error) {
     logger.error(
-      util.format(
-        'typeorm createConnection error: %j, %j',
-        omit(dbConnection, 'password', 'entities'),
-        error
-      )
+      util.format('typeorm createConnection error: %j, %j', omit(dbConnection, 'password', 'entities'), error)
     );
     process.exit(1);
   }

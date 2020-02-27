@@ -6,15 +6,7 @@ import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
 import { OUser } from '../entity/OUser';
 import { RefreshToken } from '../entity/RefreshToken';
-import {
-  CREATE_ROOT_CLIENT,
-  LOGIN,
-  ME,
-  REGISTER_ADMIN,
-  REGISTER_USER,
-  UPDATE_USER,
-  USERS
-} from '../query';
+import { CREATE_ROOT_CLIENT, LOGIN, ME, REGISTER_ADMIN, REGISTER_USER, UPDATE_USER, USERS } from '../query';
 import { ClientResolver, OUserResolver } from '../resolvers';
 import { USER_NOT_FOUND } from '../types';
 import { createHttpServer } from '../utils';
@@ -135,9 +127,7 @@ describe('Password Grant Type Tests', () => {
     request(app)
       .post('/graphql')
       .send({ operationName: 'Users', query: USERS })
-      .expect(({ body: { errors } }) =>
-        expect(errors[0].message).toEqual(USER_NOT_FOUND)
-      ));
+      .expect(({ body: { errors } }) => expect(errors[0].message).toEqual(USER_NOT_FOUND)));
 
   it('should query users, (authenticated admin)', async () =>
     request(app)
@@ -235,7 +225,5 @@ describe('Password Grant Type Tests', () => {
         query: LOGIN,
         variables: { email: 'faker@example.com', password }
       })
-      .expect(({ body: { errors } }) =>
-        expect(errors[0].message).toEqual('could not find user')
-      ));
+      .expect(({ body: { errors } }) => expect(errors[0].message).toEqual('could not find user')));
 });

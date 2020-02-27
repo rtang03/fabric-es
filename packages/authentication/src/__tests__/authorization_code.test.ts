@@ -1,5 +1,3 @@
-import { createDb } from './__utils__/createDb';
-
 require('../env');
 import { Express } from 'express';
 import request from 'supertest';
@@ -8,12 +6,7 @@ import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
 import { OUser } from '../entity/OUser';
 import { RefreshToken } from '../entity/RefreshToken';
-import {
-  CREATE_APP_FOR_AUTHCODE,
-  CREATE_ROOT_CLIENT,
-  LOGIN,
-  REGISTER_ADMIN
-} from '../query';
+import { CREATE_APP_FOR_AUTHCODE, CREATE_ROOT_CLIENT, LOGIN, REGISTER_ADMIN } from '../query';
 import { ClientResolver, OUserResolver } from '../resolvers';
 import {
   INVALID_CLIENT,
@@ -27,6 +20,7 @@ import {
   MISSING_STATE
 } from '../types';
 import { createHttpServer } from '../utils';
+import { createDb } from './__utils__/createDb';
 
 const dbConnection = {
   name: 'default',
@@ -264,9 +258,7 @@ describe('Authorization Code Grant Type Tests', () => {
         response_type: 'code'
       })
       .expect(({ header: { location } }) =>
-        expect(
-          location.startsWith('/login?redirect=/oauth/authorize&client_id=')
-        ).toBeTruthy()
+        expect(location.startsWith('/login?redirect=/oauth/authorize&client_id=')).toBeTruthy()
       ));
 
   it('should post /login & get /oauth/authorize', async () =>
@@ -400,9 +392,7 @@ describe('Authorization Code Grant Type Tests', () => {
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(
-        `client_id=${client_id}&grant_type=${grant_type}&client_secret=&code=${code}&redirect_uri=${redirect_uri}`
-      )
+      .send(`client_id=${client_id}&grant_type=${grant_type}&client_secret=&code=${code}&redirect_uri=${redirect_uri}`)
       .expect(({ status, body }) => {
         expect(status).toBe(400);
         expect(body?.ok).toBeFalsy();
@@ -426,9 +416,7 @@ describe('Authorization Code Grant Type Tests', () => {
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(
-        `client_id=${client_id}&grant_type=${grant_type}&client_secret=${client_secret}&code=${code}&redirect_uri=`
-      )
+      .send(`client_id=${client_id}&grant_type=${grant_type}&client_secret=${client_secret}&code=${code}&redirect_uri=`)
       .expect(({ status, body }) => {
         expect(status).toBe(400);
         expect(body?.ok).toBeFalsy();

@@ -1,23 +1,14 @@
+import util from 'util';
 import { compare } from 'bcrypt';
 import { Request, Response } from 'express';
 import http from 'http-status';
-import util from 'util';
 import { OUser } from '../entity/OUser';
 import { getLogger } from '../utils';
 
 export const loginPostHandler = async (req: Request, res: Response) => {
   const logger = getLogger({ name: 'loginPostHandler.js' });
 
-  const {
-    email,
-    password,
-    redirect,
-    client_id,
-    redirect_uri,
-    state,
-    grant_type,
-    response_type
-  } = req.body;
+  const { email, password, redirect, client_id, redirect_uri, state, grant_type, response_type } = req.body;
 
   const user = await OUser.findOne({ where: { email } });
 
@@ -52,7 +43,7 @@ export const loginPostHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const path = req.body!.redirect || '/home';
+  const path = req.body.redirect || '/home';
 
   return !client_id
     ? res.status(http.BAD_REQUEST).send({ error: 'client_id is missing' })

@@ -1,3 +1,5 @@
+![CI](https://github.com/tang-ross/open-platform-dlt/workflows/simple/badge.svg)
+
 ## Project Overview
 
 This package aims to implement basic commands for bootstrap Trade platform. This middleware fucntiona shall later enable
