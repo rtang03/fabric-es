@@ -1,30 +1,11 @@
-## [1.0.9] - 2020--2-27 
+## [0.5.0] - 2020--2-27 
 ### Added
-- Feature A
-- Feature B
-- GitHub Actions as a CI system
-- GitHub Release as an Artifactory system
+- First changelog
+- Use of Github Action and Github Release API
 
 ### Changed
-- User API
+- None
 
 ### Removed
-- Previous CI build
-- Previous Artifactory
+- None
 
-## [1.0.5] - 2020--2-27 
-### Added
-- Feature A
-- Feature B
-- GitHub Actions as a CI system
-- GitHub Release as an Artifactory system
-
-### Changed
-- User API
-
-### Removed
-- Previous CI build
-- Previous Artifactory
-
-## External reference    
-[How to write changelog](https://keepachangelog.com/en/1.0.0/)
