@@ -1,4 +1,4 @@
-name: Build-image
+name: Build Images
 on:
   push:
     tags:
@@ -34,7 +34,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - name: Setup Node.js for use with actions
+      - name: Setup Node.js for use with action
         uses: actions/setup-node@v1.1.0
         with:
           node-version: '8.x'
