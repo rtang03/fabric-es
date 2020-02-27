@@ -1,21 +1,25 @@
 require('./env');
+import { getReducer } from '@espresso/fabric-cqrs';
 import { createService, getLogger } from '@espresso/gw-node';
+import {
+  loanDetailsResolvers,
+} from '@espresso/model-loan-private';
+import { FileSystemWallet } from 'fabric-network';
+import util from 'util';
 import {
   LoanDetails,
   LoanDetailsEvents,
   loanDetailsReducer,
-  loanDetailsResolvers,
   loanDetailsTypeDefs
-} from '@espresso/model-loan-private';
-import { FileSystemWallet } from 'fabric-network';
-import util from 'util';
+} from './model/private/loan-details';
 
 const logger = getLogger('service-prv-ctnt.js');
+const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
 
 createService({
   enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'loanDetails',
-  defaultReducer: loanDetailsReducer,
+  defaultReducer: reducer,
   collection: process.env.COLLECTION,
   isPrivate: true,
   channelEventHub: process.env.CHANNEL_HUB,
@@ -31,7 +35,7 @@ createService({
       .addRepository(
         getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
           entityName: 'loanDetails',
-          reducer: loanDetailsReducer
+          reducer
         })
       )
       .create();
@@ -47,7 +51,7 @@ createService({
       .listen({ port: process.env.PRIVATE_LOAN_DETAILS_PORT })
       .then(({ url }) => {
         logger.info(`🚀  '${process.env.ORGNAME}' - 'loanDetails' available at ${url}`);
-        process.send('ready');
+        if (process.env.NODE_ENV === 'production') process.send('ready');
       });
   })
   .catch(error => {

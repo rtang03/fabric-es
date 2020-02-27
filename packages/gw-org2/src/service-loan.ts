@@ -1,4 +1,5 @@
 require('./env');
+import { getReducer } from '@espresso/fabric-cqrs';
 import { createService, getLogger } from '@espresso/gw-node';
 import {
   Loan,
@@ -11,29 +12,27 @@ import { FileSystemWallet } from 'fabric-network';
 import util from 'util';
 
 const logger = getLogger('service-loan.js');
+const reducer = getReducer<Loan, LoanEvents>(loanReducer);
 
 createService({
   enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'loan',
-  defaultReducer: loanReducer,
+  defaultReducer: reducer,
   collection: process.env.COLLECTION,
   channelEventHub: process.env.CHANNEL_HUB,
   channelName: process.env.CHANNEL_NAME,
   connectionProfile: process.env.CONNECTION_PROFILE,
   wallet: new FileSystemWallet(process.env.WALLET)
-})
-  .then(async ({ config, shutdown, getRepository }) => {
+}).then(async ({ config, shutdown, getRepository }) => {
     const app = await config({
       typeDefs: loanTypeDefs,
       resolvers: loanResolvers
-    })
-      .addRepository(
-        getRepository<Loan, LoanEvents>({
-          entityName: 'loan',
-          reducer: loanReducer
-        })
-      )
-      .create();
+    }).addRepository(
+      getRepository<Loan, LoanEvents>({
+        entityName: 'loan',
+        reducer
+      })
+    ).create();
 
     process.on('SIGINT', async () => await shutdown(app));
     process.on('SIGTERM', async () => await shutdown(app));
@@ -44,7 +43,7 @@ createService({
 
     app.listen({ port: process.env.SERVICE_LOAN_PORT }).then(({ url }) => {
       logger.info(`🚀  '${process.env.ORGNAME}' - 'loan' available at ${url}`);
-      process.send('ready');
+      if (process.env.NODE_ENV === 'production') process.send('ready');
     });
   })
   .catch(error => {

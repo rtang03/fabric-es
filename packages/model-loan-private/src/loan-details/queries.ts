@@ -43,14 +43,14 @@ mutation CreateLoanDetails(
     approvedAmt: $approvedAmt,
     comment: $comment
   ) {
-    ... on LocalCommit {
+    ... on LoanDetailsCommit {
       id
       entityName
       version
       commitId
       committedAt
     }
-    ... on LocalError {
+    ... on LoanDetailsError {
       message
     }
   }
@@ -160,14 +160,14 @@ mutation UpdateLoanDetails(
     approvedAmt: $approvedAmt,
     comment: $comment
   ) {
-    ... on LocalCommit {
+    ... on LoanDetailsCommit {
       id
       entityName
       version
       commitId
       committedAt
     }
-    ... on LocalError {
+    ... on LoanDetailsError {
       message
     }
   }

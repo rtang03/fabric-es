@@ -1,17 +1,19 @@
 import { Repository } from '@espresso/fabric-cqrs';
 import { DataSrc } from '@espresso/gw-node';
 import { CommandHandler } from '..';
-import { UserCommands } from './commands';
-import { UserEvents } from './events';
-import { User } from './model';
+import { UserCommands } from './domain/commands';
+import { UserEvents } from './domain/events';
+import { User } from './domain/model';
 
-export * from './model';
-export * from './events';
-export * from './commands';
-export * from './reducer';
-export * from './handler';
-export { typeDefs as userTypeDefs } from './schema';
-export { resolvers as userResolvers } from './resolvers';
+export * from './domain/model';
+export * from './domain/events';
+export * from './domain/commands';
+export * from './domain/reducer';
+export * from './domain/handler';
+export {
+  typeDefs as userTypeDefs,
+  resolvers as userResolvers
+} from './typeDefs';
 export * from './queries';
 export type UserRepo = Repository<User, UserEvents>;
 export type UserCommandHandler = CommandHandler<UserCommands>;

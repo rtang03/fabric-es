@@ -42,7 +42,7 @@ export const typeDefs = gql`
 
   extend type Loan @key(fields: "loanId") {
     loanId: String! @external
-    _details: _LoanDetails
+    _details: [_LoanDetails]
   }
 `;
 
@@ -55,7 +55,7 @@ export const resolvers = {
         operationName: 'GetLoanDetailsById',
         variables: { loanId },
         token
-      }).then(({ data }) => data?.getLoanDetailsById);
+      }).then(results => results.map(({ data }) => data?.getLoanDetailsById));
     }
   },
   LoanDetails: {

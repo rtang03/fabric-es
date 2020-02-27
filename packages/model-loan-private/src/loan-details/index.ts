@@ -1,15 +1,15 @@
 import { PrivatedataRepository } from '@espresso/fabric-cqrs';
 import { DataSrc } from '@espresso/gw-node';
 import { CommandHandler } from '@espresso/model-common';
-import { LoanDetailsCommands } from './commands';
-import { LoanDetailsEvents } from './events';
-import { LoanDetails } from './model';
+import { LoanDetailsCommands } from './domain/commands';
+import { LoanDetailsEvents } from './domain/events';
+import { LoanDetails } from './domain/model';
 
-export * from './model';
-export * from './events';
-export * from './commands';
-export * from './reducer';
-export * from './handler';
+export * from './domain/model';
+export * from './domain/events';
+export * from './domain/commands';
+export * from './domain/reducer';
+export * from './domain/handler';
 export {
   typeDefs as loanDetailsTypeDefs,
   resolvers as loanDetailsResolvers

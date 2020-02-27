@@ -1,24 +1,25 @@
 pipeline {
 
     environment {
-        registryCredential = 'docker-registry-login'
-        registryUrl = 'https://build:5000'
-        nodeImage = 'build:5000/node8-build'
+        registryCredential = "docker-registry-login"
+        registryUrl = "https://build:5000"
+        nodeImage = "build:5000/node8-build"
 
-        yarnInstall = 'yarn install --ignore-engines'
-        yarnBuild = 'yarn build:gw-org3'
+        yarnInstall = "yarn install --ignore-engines"
+        yarnBuild = "yarn build:gw-dev-net:org3"
 
-        imgName = 'build:5000/gw-org3:latest'
-        dockerBuild = 'docker build -t ${imgName} -f gw-org3.dockerfile .'
+        tag = "${BUILD_TIMESTAMP}-${BUILD_NUMBER}"
+        imgName = "build:5000/gw-org3"
+        dockerfile = "gw-org3.dockerfile"
 
-        dockerhubCredential = 'dockerhub-login'
-        imgNameHub = 'hktfp5/gw-org3:latest'
+        dockerhubCredential = "dockerhub-login"
+        imgNameHub = "hktfp5/gw-org3"
     }
 
     agent none
 
     stages {
-        stage('Yarn Build') {
+        stage("Yarn Build") {
             agent {
                 docker {
                     image nodeImage
@@ -32,28 +33,32 @@ pipeline {
                 sh yarnBuild
             }
         }
-        stage('Docker Build') {
-            agent { label 'master' }
+        stage("Docker Build") {
+            agent { label "master" }
             steps {
-                sh dockerBuild
+                sh "docker build -t ${imgName}:${tag} -f ${dockerfile} ."
             }
         }
-        stage('Docker Push') {
-            agent { label 'master' }
+        stage("Docker Push") {
+            agent { label "master" }
             steps {
+                sh "docker tag ${imgName}:${tag} ${imgName}:latest"
                 withCredentials([usernamePassword(credentialsId: registryCredential, passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
                     sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword} build:5000"
-                    sh "docker push ${imgName}"
+//                    sh "docker push ${imgName}:${tag}"                   
+                    sh "docker push ${imgName}:latest"
                 }
             }
         }
-        stage('Dockerhub Push') {
-            agent { label 'master' }
+        stage("Dockerhub Push") {
+            agent { label "master" }
             steps {
-                sh 'docker tag ${imgName} ${imgNameHub}'
+                sh "docker tag ${imgName}:${tag} ${imgNameHub}:${tag}"
+                sh "docker tag ${imgName}:${tag} ${imgNameHub}:latest"
                 withCredentials([usernamePassword(credentialsId: dockerhubCredential, passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
                     sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                    sh "docker push ${imgNameHub}"
+                    sh "docker push ${imgNameHub}:${tag}"
+                    sh "docker push ${imgNameHub}:latest"
                 }
             }
         }
