@@ -1,8 +1,8 @@
-import Client, { ProposalErrorResponse, ProposalResponse } from 'fabric-client';
 import { readFileSync } from 'fs';
+import util from 'util';
+import Client, { ProposalErrorResponse, ProposalResponse } from 'fabric-client';
 import { CreateNetworkOperatorOption, MISSING_TARGETS } from '../types';
 import { getClientForOrg } from '../utils';
-import util from 'util';
 
 export const joinChannel = (option: CreateNetworkOperatorOption) => async ({
   targets,
@@ -15,13 +15,7 @@ export const joinChannel = (option: CreateNetworkOperatorOption) => async ({
 
   if (!targets) throw new Error(MISSING_TARGETS);
 
-  const {
-    channelName,
-    ordererName,
-    ordererTlsCaCert,
-    connectionProfile,
-    fabricNetwork
-  } = option;
+  const { channelName, ordererName, ordererTlsCaCert, connectionProfile, fabricNetwork } = option;
 
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
 

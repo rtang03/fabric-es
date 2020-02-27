@@ -7,21 +7,21 @@ export interface DocumentCommands {
       title?: string;
       reference: string;
       timestamp: number;
-    }
+    };
   };
   DeleteDocument: {
     userId: string;
     payload: {
       documentId: string;
       timestamp: number;
-    }
+    };
   };
   RestrictDocumentAccess: {
     userId: string;
     payload: {
       documentId: string;
       timestamp: number;
-    }
+    };
   };
   DefineDocumentReference: {
     userId: string;
@@ -29,7 +29,7 @@ export interface DocumentCommands {
       documentId: string;
       reference: string;
       timestamp: number;
-    }
+    };
   };
   DefineDocumentLoanId: {
     userId: string;
@@ -37,7 +37,7 @@ export interface DocumentCommands {
       documentId: string;
       loanId: string;
       timestamp: number;
-    }
+    };
   };
   DefineDocumentTitle: {
     userId: string;
@@ -45,6 +45,6 @@ export interface DocumentCommands {
       documentId: string;
       title: string;
       timestamp: number;
-    }
+    };
   };
 }

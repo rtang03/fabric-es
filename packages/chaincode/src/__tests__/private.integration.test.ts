@@ -21,8 +21,7 @@ const cli2 = `docker exec \
 -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/PbctfpMSP/admin/msp `;
 const query2 = `${cli2} cli-pbctfp peer chaincode query -C loanapp -n privatedata -c `;
 
-const parseResult = input =>
-  JSON.parse(Buffer.from(JSON.parse(input)).toString());
+const parseResult = input => JSON.parse(Buffer.from(JSON.parse(input)).toString());
 
 describe('Chaincode private data: Integration Test', () => {
   /*
@@ -55,9 +54,7 @@ describe('Chaincode private data: Integration Test', () => {
   -c '{"Args":["privatedata:queryByEntityId","Org1PrivateDetails","private_entityName","id_00001"]}'
  */
   it('should queryByEntityId #1', async () =>
-    exec(
-      `${query} '{"Args":["privatedata:queryByEntityId","${org1}","${entityName}","${id}"]}'`
-    )
+    exec(`${query} '{"Args":["privatedata:queryByEntityId","${org1}","${entityName}","${id}"]}'`)
       .then(({ stdout }) => values(parseResult(stdout))[0] as Commit)
       .then(commit => {
         commitId = commit.commitId;
@@ -74,29 +71,21 @@ describe('Chaincode private data: Integration Test', () => {
   -c '{"Args":["privatedata:queryByEntityName","Org1PrivateDetails","private_entityName","private_1001"]}'
  */
   it('should queryByEntityName #1', async () =>
-    exec(
-      `${query} '{"Args":["privatedata:queryByEntityName","${org1}","${entityName}"]}'`
-    )
+    exec(`${query} '{"Args":["privatedata:queryByEntityName","${org1}","${entityName}"]}'`)
       .then(({ stdout }) => values(parseResult(stdout)))
       .then(commits =>
-        commits
-          .map(commit => pick(commit, 'entityName'))
-          .map(result => expect(result).toEqual({ entityName }))
+        commits.map(commit => pick(commit, 'entityName')).map(result => expect(result).toEqual({ entityName }))
       ));
 
   it('should queryByEntityIdCommitId', async () =>
-    exec(
-      `${query} '{"Args":["privatedata:queryByEntityIdCommitId","${org1}","${entityName}","${id}","${commitId}"]}'`
-    )
+    exec(`${query} '{"Args":["privatedata:queryByEntityIdCommitId","${org1}","${entityName}","${id}","${commitId}"]}'`)
       .then(({ stdout }) => values(parseResult(stdout))[0] as Commit)
       .then(commit => expect(commit.commitId).toEqual(commitId)));
 
   it('should fail to queryByEntityIdCommitId by unauthorized peer', async () =>
     exec(
       `${query2} '{"Args":["privatedata:queryByEntityIdCommitId","${org2}","${entityName}","${id}","${commitId}"]}'`
-    ).catch(({ stderr }) =>
-      expect(stderr).toContain('does not have read access permission')
-    ));
+    ).catch(({ stderr }) => expect(stderr).toContain('does not have read access permission')));
 
   it('should deleteByEntityIdCommitId', async () =>
     exec(
@@ -106,23 +95,17 @@ describe('Chaincode private data: Integration Test', () => {
   it('should fail to deleteByEntityIdCommitId', async () =>
     exec(
       `${invoke} '{"Args":["privatedata:deleteByEntityIdCommitId","${org1}","${entityName}","no such id","${commitId}"]}'`
-    ).catch(({ stderr }) =>
-      expect(stderr).toContain('commitId does not exist')
-    ));
+    ).catch(({ stderr }) => expect(stderr).toContain('commitId does not exist')));
 
   it('should deleteAll', async () =>
-    exec(
-      `${query} '{"Args":["privatedata:queryByEntityId","${org1}","${entityName}","${id}"]}'`
-    )
+    exec(`${query} '{"Args":["privatedata:queryByEntityId","${org1}","${entityName}","${id}"]}'`)
       .then(({ stdout }) => parseResult(stdout))
       .then(commits => keys(commits))
       .then(async commitIds => {
         for (const cid of commitIds) {
           await exec(
             `${invoke} '{"Args":["privatedata:deleteByEntityIdCommitId","${org1}","${entityName}","${id}","${cid}"]}'`
-          ).then(({ stderr }) =>
-            expect(stderr).toContain('result: status:200')
-          );
+          ).then(({ stderr }) => expect(stderr).toContain('result: status:200'));
         }
       }));
 
@@ -137,9 +120,7 @@ describe('Chaincode private data: Integration Test', () => {
   //     .then(commits => expect(commits).toEqual({})));
 
   it('should fail to queryByEntityIdCommitId', async () =>
-    exec(
-      `${query} '{"Args":["privatedata:queryByEntityIdCommitId","${org1}","${entityName}","${id}","${commitId}"]}'`
-    )
+    exec(`${query} '{"Args":["privatedata:queryByEntityIdCommitId","${org1}","${entityName}","${id}","${commitId}"]}'`)
       .then(({ stdout }) => parseResult(stdout))
       .then(result => expect(result).toEqual({})));
 });

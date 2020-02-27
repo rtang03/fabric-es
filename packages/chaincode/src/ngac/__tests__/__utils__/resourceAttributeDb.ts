@@ -6,20 +6,14 @@ export const resourceAttributeDb = {
     {
       type: 'N',
       key: 'createDocument',
-      value: [
-        `${createId(['Org1MSP', 'Admin@example.com'])}`,
-        `${createId(['Org1MSP', 'User1@example.com'])}`
-      ]
+      value: [`${createId(['Org1MSP', 'Admin@example.com'])}`, `${createId(['Org1MSP', 'User1@example.com'])}`]
     }
   ]),
   '"model""Org1MSP""dev_ngac_example2""ngac_unit_02"': Promise.resolve([
     {
       type: 'N',
       key: 'updateUsername',
-      value: [
-        `${createId(['Org1MSP', 'Admin@example.com'])}`,
-        `${createId(['Org1MSP', 'User1@example.com'])}`
-      ]
+      value: [`${createId(['Org1MSP', 'Admin@example.com'])}`, `${createId(['Org1MSP', 'User1@example.com'])}`]
     },
     {
       type: '1',
@@ -46,10 +40,7 @@ export const resourceAttributeDb = {
     {
       type: 'N',
       key: 'updateTitle',
-      value: [
-        `${createId(['Org1MSP', 'Admin@example.com'])}`,
-        `${createId(['Org1MSP', 'User1@example.com'])}`
-      ]
+      value: [`${createId(['Org1MSP', 'Admin@example.com'])}`, `${createId(['Org1MSP', 'User1@example.com'])}`]
     },
     {
       type: '1',
@@ -76,10 +67,7 @@ export const resourceAttributeDb = {
     {
       type: 'N',
       key: 'updateTitle',
-      value: [
-        `${createId(['Org1MSP', 'Admin@example.com'])}`,
-        `${createId(['Org1MSP', 'User1@example.com'])}`
-      ]
+      value: [`${createId(['Org1MSP', 'Admin@example.com'])}`, `${createId(['Org1MSP', 'User1@example.com'])}`]
     },
     {
       type: '1',

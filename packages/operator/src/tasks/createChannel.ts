@@ -1,12 +1,8 @@
-import Client, { BroadcastResponse } from 'fabric-client';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import util from 'util';
-import {
-  CHANNEL_ALREADY_EXIST,
-  CreateNetworkOperatorOption,
-  MISSING_CONFIG_TX
-} from '../types';
+import Client, { BroadcastResponse } from 'fabric-client';
+import { CHANNEL_ALREADY_EXIST, CreateNetworkOperatorOption, MISSING_CONFIG_TX } from '../types';
 import { getClientForOrg } from '../utils';
 
 export const createChannel = (option: CreateNetworkOperatorOption) => async ({
@@ -18,13 +14,7 @@ export const createChannel = (option: CreateNetworkOperatorOption) => async ({
 
   if (!channelTxPath) throw new Error(MISSING_CONFIG_TX);
 
-  const {
-    channelName,
-    connectionProfile,
-    ordererTlsCaCert,
-    fabricNetwork,
-    ordererName
-  } = option;
+  const { channelName, connectionProfile, ordererTlsCaCert, fabricNetwork, ordererName } = option;
 
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
 

@@ -15,7 +15,8 @@
     "build:gw-dev-net:org1": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org1 && yarn pack:lib && yarn pack:gw-dev-net:org1",
     "build:gw-dev-net:org2": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org2 && yarn pack:lib && yarn pack:gw-dev-net:org2",
     "unit-test": "lerna run unit-test:lib --scope=@espresso/chaincode",
-    "lint": "lerna run lint --scope=@espresso/authentication"
+    "lint:lib": "lerna run lint --scope={@espresso/authentication,@espresso/chaincode,@espresso/fabric-cqrs,@espresso/gw-node,@espresso/operator}",
+    "lint:app": "lerna run lint --scope={@espresso/gw-org1,@espresso/gw-org2,@espresso/gw-org3,@espresso/model-common,@espresso/model-loan,@espresso/model-loan-private}"
   },
   "workspaces": [
     "packages/*"
@@ -35,9 +36,6 @@
     "json-to-pretty-yaml": "^1.2.2",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",
-    "tslint": "^5.20.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.0.1",
     "typescript": "^3.7.2"
   },
   "prettier": {
@@ -52,6 +50,6 @@
     "printWidth": 120
   },
   "publishConfig": {
-    "registry":"https://npm.pkg.github.com/"
+    "registry": "https://npm.pkg.github.com/"
   }
 }

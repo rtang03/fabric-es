@@ -3,8 +3,7 @@ import { NAMESPACE as NS } from '../../types';
 import { splitKey } from '../../utils';
 
 const noResult = Promise.resolve([]);
-const createKey = (keyparts: string[]) =>
-  keyparts.reduce((pre, cur) => pre + cur, '');
+const createKey = (keyparts: string[]) => keyparts.reduce((pre, cur) => pre + cur, '');
 const deleteRecord = (db: any, key: string) => {
   const length = keys(db).length;
   delete db[key];
@@ -18,10 +17,7 @@ const deleteRecords = (db: any, keyparts: string[]) =>
       return key;
     });
 
-const stateList = (
-  namespace: string,
-  { mspAttributeDb: mspDb, resourceAttributeDb: resDb, policyDb }
-) => ({
+const stateList = (namespace: string, { mspAttributeDb: mspDb, resourceAttributeDb: resDb, policyDb }) => ({
   getQueryResult: async (keyparts: string[]) =>
     ({
       [NS.RESOURCE_ATTRIBUTE]: () => resDb[createKey(keyparts)] || noResult,

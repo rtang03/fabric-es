@@ -10,14 +10,11 @@ export const LoanErrors = {
   loanExpired: () => new Error('LOAN_EXPIRED')
 };
 
-export const loanCommandHandler: (option: {
-  enrollmentId: string;
-  loanRepo: LoanRepo;
-}) => LoanCommandHandler = ({ enrollmentId, loanRepo }) => ({
-  ApplyLoan: async ({
-    userId,
-    payload: { loanId, description, reference, timestamp }
-  }) => {
+export const loanCommandHandler: (option: { enrollmentId: string; loanRepo: LoanRepo }) => LoanCommandHandler = ({
+  enrollmentId,
+  loanRepo
+}) => ({
+  ApplyLoan: async ({ userId, payload: { loanId, description, reference, timestamp } }) => {
     if (!reference) throw Errors.requiredDataMissing();
     const events: any = [
       { type: 'LoanApplied', payload: { loanId, userId, timestamp } },
@@ -34,81 +31,66 @@ export const loanCommandHandler: (option: {
     return loanRepo.create({ enrollmentId, id: loanId }).save(events);
   },
   CancelLoan: async ({ userId, payload: { loanId, timestamp } }) =>
-    loanRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanErrors.loanNotFound(loanId);
-        return save([
-          {
-            type: 'LoanCancelled',
-            payload: { loanId, userId, timestamp }
-          }
-        ]);
-      }),
+    loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanErrors.loanNotFound(loanId);
+      return save([
+        {
+          type: 'LoanCancelled',
+          payload: { loanId, userId, timestamp }
+        }
+      ]);
+    }),
   ApproveLoan: async ({ userId, payload: { loanId, timestamp } }) =>
-    loanRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanErrors.loanNotFound(loanId);
-        return save([
-          {
-            type: 'LoanApproved',
-            payload: { loanId, userId, timestamp }
-          }
-        ]);
-      }),
+    loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanErrors.loanNotFound(loanId);
+      return save([
+        {
+          type: 'LoanApproved',
+          payload: { loanId, userId, timestamp }
+        }
+      ]);
+    }),
   ReturnLoan: async ({ userId, payload: { loanId, timestamp } }) =>
-    loanRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanErrors.loanNotFound(loanId);
-        return save([
-          {
-            type: 'LoanReturned',
-            payload: { loanId, userId, timestamp }
-          }
-        ]);
-      }),
+    loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanErrors.loanNotFound(loanId);
+      return save([
+        {
+          type: 'LoanReturned',
+          payload: { loanId, userId, timestamp }
+        }
+      ]);
+    }),
   RejectLoan: async ({ userId, payload: { loanId, timestamp } }) =>
-    loanRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanErrors.loanNotFound(loanId);
-        return save([
-          {
-            type: 'LoanRejected',
-            payload: { loanId, userId, timestamp }
-          }
-        ]);
-      }),
+    loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanErrors.loanNotFound(loanId);
+      return save([
+        {
+          type: 'LoanRejected',
+          payload: { loanId, userId, timestamp }
+        }
+      ]);
+    }),
   ExpireLoan: async ({ userId, payload: { loanId, timestamp } }) =>
-    loanRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanErrors.loanNotFound(loanId);
-        return save([
-          {
-            type: 'LoanExpired',
-            payload: { loanId, userId, timestamp }
-          }
-        ]);
-      }),
+    loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanErrors.loanNotFound(loanId);
+      return save([
+        {
+          type: 'LoanExpired',
+          payload: { loanId, userId, timestamp }
+        }
+      ]);
+    }),
   DefineLoanReference: async _ => {
     throw Errors.invalidOperation(); // Readonly field
   },
-  DefineLoanDescription: async ({
-    userId,
-    payload: { loanId, description, timestamp }
-  }) =>
-    loanRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanErrors.loanNotFound(loanId);
-        return save([
-          {
-            type: 'LoanDescriptionDefined',
-            payload: { loanId, userId, description, timestamp }
-          }
-        ]);
-      })
+  DefineLoanDescription: async ({ userId, payload: { loanId, description, timestamp } }) =>
+    loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanErrors.loanNotFound(loanId);
+      return save([
+        {
+          type: 'LoanDescriptionDefined',
+          payload: { loanId, userId, description, timestamp }
+        }
+      ]);
+    })
 });

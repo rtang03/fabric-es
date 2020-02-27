@@ -38,8 +38,8 @@ beforeAll(async () => {
   }
 });
 
-afterAll(async () => {
-  await context.gateway.disconnect();
+afterAll(() => {
+  context.gateway.disconnect();
 });
 
 describe('CQRS - command Tests', () => {
@@ -75,9 +75,7 @@ describe('CQRS - command Tests', () => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.CREATE_SUCCESS) {
         commitId = values(result)[0].commitId;
-        expect(
-          pick(values(result)[0], ['entityName', 'version', 'events'])
-        ).toMatchSnapshot();
+        expect(pick(values(result)[0], ['entityName', 'version', 'events'])).toMatchSnapshot();
         unsubscribe();
         done();
       }
@@ -108,9 +106,7 @@ describe('CQRS - command Tests', () => {
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
-        expect(
-          pick(values(result)[0], ['entityName', 'version', 'events'])
-        ).toMatchSnapshot();
+        expect(pick(values(result)[0], ['entityName', 'version', 'events'])).toMatchSnapshot();
         unsubscribe();
         done();
       }
@@ -132,9 +128,7 @@ describe('CQRS - command Tests', () => {
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
-        expect(
-          pick(values(result)[0], ['entityName', 'version', 'events'])
-        ).toMatchSnapshot();
+        expect(pick(values(result)[0], ['entityName', 'version', 'events'])).toMatchSnapshot();
         unsubscribe();
         done();
       }
@@ -156,9 +150,7 @@ describe('CQRS - command Tests', () => {
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
-        expect(
-          pick(values(result)[0], ['entityName', 'version', 'events'])
-        ).toMatchSnapshot();
+        expect(pick(values(result)[0], ['entityName', 'version', 'events'])).toMatchSnapshot();
         unsubscribe();
         done();
       }

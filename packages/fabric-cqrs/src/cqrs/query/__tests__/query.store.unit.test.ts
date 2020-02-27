@@ -1,10 +1,10 @@
 import { pick, values } from 'lodash';
 import { Store } from 'redux';
-import { action } from '..';
 import { createQueryDatabase } from '../../../peer';
 import { Commit } from '../../../types';
 import { createCommit, generateToken } from '../../utils';
 import { getStore } from './__utils__/store';
+import { action } from '..';
 
 let context: any;
 let store: Store;
@@ -24,16 +24,12 @@ describe('CQRS - query Tests', () => {
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().query;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
-        expect(
-          pick(values(result)[0], ['id', 'entityName', 'version', 'events'])
-        ).toMatchSnapshot();
+        expect(pick(values(result)[0], ['id', 'entityName', 'version', 'events'])).toMatchSnapshot();
         unsubscribe();
         done();
       }
     });
-    store.dispatch(
-      action.queryByEntityName({ tx_id: tid, args: { entityName } })
-    );
+    store.dispatch(action.queryByEntityName({ tx_id: tid, args: { entityName } }));
   });
 
   it('should queryByEntityId', done => {
@@ -42,9 +38,7 @@ describe('CQRS - query Tests', () => {
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().query;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
-        expect(
-          pick(values(result)[0], ['id', 'entityName', 'version', 'events'])
-        ).toMatchSnapshot();
+        expect(pick(values(result)[0], ['id', 'entityName', 'version', 'events'])).toMatchSnapshot();
         unsubscribe();
         done();
       }
@@ -68,9 +62,7 @@ describe('CQRS - query Tests', () => {
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().query;
       if (tx_id === tid && type === action.MERGE_SUCCESS) {
-        expect(
-          pick(values(result)[0], ['id', 'entityName', 'version', 'events'])
-        ).toMatchSnapshot();
+        expect(pick(values(result)[0], ['id', 'entityName', 'version', 'events'])).toMatchSnapshot();
         unsubscribe();
         done();
       }
@@ -95,9 +87,7 @@ describe('CQRS - query Tests', () => {
         done();
       }
     });
-    store.dispatch(
-      action.mergeBatch({ tx_id: tid, args: { entityName, commits } })
-    );
+    store.dispatch(action.mergeBatch({ tx_id: tid, args: { entityName, commits } }));
   });
 
   // validate merge and mergeBatch
@@ -107,17 +97,13 @@ describe('CQRS - query Tests', () => {
       const { tx_id, result, type } = store.getState().query;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
         values<Commit>(result)
-          .map(commit =>
-            pick(commit, ['id', 'entityName', 'version', 'events'])
-          )
+          .map(commit => pick(commit, ['id', 'entityName', 'version', 'events']))
           .forEach(commit => expect(commit).toMatchSnapshot());
         unsubscribe();
         done();
       }
     });
-    store.dispatch(
-      action.queryByEntityName({ tx_id: tid, args: { entityName } })
-    );
+    store.dispatch(action.queryByEntityName({ tx_id: tid, args: { entityName } }));
   });
 
   it('should deleteByEntityId', done => {
@@ -148,9 +134,7 @@ describe('CQRS - query Tests', () => {
         done();
       }
     });
-    store.dispatch(
-      action.deleteByEntityName({ tx_id: tid, args: { entityName } })
-    );
+    store.dispatch(action.deleteByEntityName({ tx_id: tid, args: { entityName } }));
   });
 
   // validate deleteByEntityId and deleteByEntityName
@@ -164,8 +148,6 @@ describe('CQRS - query Tests', () => {
         done();
       }
     });
-    store.dispatch(
-      action.queryByEntityName({ tx_id: tid, args: { entityName } })
-    );
+    store.dispatch(action.queryByEntityName({ tx_id: tid, args: { entityName } }));
   });
 });

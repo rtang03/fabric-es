@@ -21,12 +21,9 @@ export default (
     queryDatabase: QueryDatabase;
     reducer: Reducer;
   }
-) => {
-  return action$.pipe(
+) =>
+  action$.pipe(
     ofType(queryAction.MERGE_BATCH_SUCCESS),
     map(({ payload }) => payload),
-    map(({ tx_id, args: { commits } }) => {
-      return action.upsertMany({ tx_id, args: { commits } });
-    })
+    map(({ tx_id, args: { commits } }) => action.upsertMany({ tx_id, args: { commits } }))
   );
-};

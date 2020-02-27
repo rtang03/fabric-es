@@ -3,7 +3,7 @@ import Listr, { ListrTaskWrapper } from 'listr';
 import { isProposalErrorResponse, isProposalResponse } from './typeGuard';
 
 export const installChaincodeSubTask = (
-  responses: Array<ProposalResponse | ProposalErrorResponse>,
+  responses: (ProposalResponse | ProposalErrorResponse)[],
   task: ListrTaskWrapper
 ) =>
   new Listr(

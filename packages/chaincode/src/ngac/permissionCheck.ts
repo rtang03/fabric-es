@@ -26,22 +26,17 @@ enum FCN {
   GET_RESOURCE_ATTR_BY_URI = 'getResourceAttrByURI'
 }
 
-const noPolicyRequired = Promise.resolve([
-  { sid: 'system', message: 'No policy required', assertion: true }
-]);
+const noPolicyRequired = Promise.resolve([{ sid: 'system', message: 'No policy required', assertion: true }]);
 
-export const permissionCheck: (option: {
-  policyClass?: string;
-  context: Context;
-}) => Promise<Assertion[]> = async ({ context, policyClass }) => {
+export const permissionCheck: (option: { policyClass?: string; context: Context }) => Promise<Assertion[]> = async ({
+  context,
+  policyClass
+}) => {
   const { stub, clientIdentity } = context;
   const { fcn, params } = stub.getFunctionAndParameters();
   const type: any = '1';
-  const attr = (key, value, immutable = true) =>
-    value ? { type, key, value, immutable } : null;
-  const mspAttrs = await ngacRepo(context).getMSPAttrByMSPID(
-    clientIdentity.getMSPID()
-  );
+  const attr = (key, value, immutable = true) => (value ? { type, key, value, immutable } : null);
+  const mspAttrs = await ngacRepo(context).getMSPAttrByMSPID(clientIdentity.getMSPID());
   let resourceAttrs: Attribute[] = [];
   const cn = clientIdentity.getX509Certificate().subject.commonName;
   const mspid = clientIdentity.getMSPID();
@@ -71,9 +66,7 @@ export const permissionCheck: (option: {
         const attrs = await ngacRepo(context).getResourceAttrByURI(uri);
 
         if (isEqual(attrs, [])) {
-          return [
-            { sid: 'system', assertion: false, message: 'No resource found' }
-          ];
+          return [{ sid: 'system', assertion: false, message: 'No resource found' }];
         } else attrs.forEach(item => resourceAttrs.push(item));
       }
 

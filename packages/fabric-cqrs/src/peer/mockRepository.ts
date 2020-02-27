@@ -10,14 +10,11 @@ const getHistory = (commits: Commit[]): any[] => {
 
 const getEntities = ({ mockdb, entityName, reducer }) =>
   values(
-    values(filter(values(mockdb), { entityName })).reduce(
-      (commit: Commit, { entityId, events }: Commit) => {
-        commit[entityId] = commit[entityId] || [];
-        events.forEach(item => commit[entityId].push(item));
-        return commit;
-      },
-      {}
-    )
+    values(filter(values(mockdb), { entityName })).reduce((commit: Commit, { entityId, events }: Commit) => {
+      commit[entityId] = commit[entityId] || [];
+      events.forEach(item => commit[entityId].push(item));
+      return commit;
+    }, {})
   ).map(events => reducer(events));
 
 export const getMockRepository = <TEntity, TEvent>(
@@ -34,17 +31,12 @@ export const getMockRepository = <TEntity, TEvent>(
         events
       });
       mockdb[entity.commitId] = entity;
-      return new Promise(resolve =>
-        setTimeout(() => resolve(omit(entity, ['events'])), 50)
-      );
+      return new Promise(resolve => setTimeout(() => resolve(omit(entity, ['events'])), 50));
     }
   }),
   getById: ({ id }) =>
     new Promise<any>(resolve => {
-      const matched = filter(
-        values<Commit>(mockdb),
-        ({ entityId }) => entityId === id
-      );
+      const matched = filter(values<Commit>(mockdb), ({ entityId }) => entityId === id);
       const matchEvents = getHistory(matched);
       setTimeout(
         () =>
@@ -79,10 +71,7 @@ export const getMockRepository = <TEntity, TEvent>(
       setTimeout(
         () =>
           resolve({
-            data: filter(
-              values<Commit>(mockdb),
-              ({ entityId }) => entityId === id
-            )
+            data: filter(values<Commit>(mockdb), ({ entityId }) => entityId === id)
           }),
         50
       );

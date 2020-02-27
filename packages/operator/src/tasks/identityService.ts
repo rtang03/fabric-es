@@ -1,10 +1,6 @@
-import Client from 'fabric-client';
-import {
-  DefaultEventHandlerStrategies,
-  DefaultQueryHandlerStrategies,
-  Gateway
-} from 'fabric-network';
 import util from 'util';
+import Client from 'fabric-client';
+import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway } from 'fabric-network';
 import { CreateNetworkOperatorOption } from '../types';
 
 export const identityService = (option: CreateNetworkOperatorOption) => async ({
@@ -36,9 +32,7 @@ export const identityService = (option: CreateNetworkOperatorOption) => async ({
     throw new Error(e);
   }
 
-  logger.info(
-    util.format('gateway connected: %s', gateway.getClient().getMspid())
-  );
+  logger.info(util.format('gateway connected: %s', gateway.getClient().getMspid()));
 
   const ca = gateway.getClient().getCertificateAuthority();
 
@@ -54,7 +48,6 @@ export const identityService = (option: CreateNetworkOperatorOption) => async ({
   return {
     create: request => caService.create(request, registrar),
     getAll: () => caService.getAll(registrar),
-    getByEnrollmentId: (enrollmentId: string) =>
-      caService.getOne(enrollmentId, registrar)
+    getByEnrollmentId: (enrollmentId: string) => caService.getOne(enrollmentId, registrar)
   };
 };

@@ -74,9 +74,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
               timeout: 60000,
               targets: ['peer0.org1.example.com', 'peer1.org1.example.com']
             })
-            .then<Array<ProposalResponse | ProposalErrorResponse>>(
-              result => result[0]
-            )
+            .then<(ProposalResponse | ProposalErrorResponse)[]>(result => result[0])
             .then(responses => installChaincodeSubTask(responses, task))
       },
       {
@@ -90,9 +88,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
               timeout: 60000,
               targets: ['peer0.org2.example.com', 'peer1.org2.example.com']
             })
-            .then<Array<ProposalResponse | ProposalErrorResponse>>(
-              result => result[0]
-            )
+            .then<(ProposalResponse | ProposalErrorResponse)[]>(result => result[0])
             .then(responses => installChaincodeSubTask(responses, task))
       },
       {

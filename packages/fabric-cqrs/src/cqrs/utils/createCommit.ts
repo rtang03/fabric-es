@@ -1,16 +1,11 @@
 import { BaseEvent, Commit } from '../../types';
 
-export function createCommit<TEvent extends BaseEvent = any>({
-  id,
-  entityName,
-  version,
-  events
-}: {
+export const createCommit: <TEvent extends BaseEvent = any>(option: {
   id: string;
   entityName: string;
   version: number;
   events: TEvent[];
-}): Commit {
+}) => Commit = ({ id, entityName, version, events }) => {
   const now = Date.now();
   const date = new Date(now).toISOString().replace(/[^0-9]/g, '');
   const commitId = `${date}`;
@@ -27,4 +22,4 @@ export function createCommit<TEvent extends BaseEvent = any>({
       entityId: id
     }
   );
-}
+};

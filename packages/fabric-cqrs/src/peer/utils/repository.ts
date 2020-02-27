@@ -1,8 +1,8 @@
+import util from 'util';
 import Client from 'fabric-client';
 import { Wallet } from 'fabric-network';
 import { keys, values } from 'lodash';
 import { Store } from 'redux';
-import util from 'util';
 import { action as writeAction } from '../../cqrs/command';
 import { action as projectionAction } from '../../cqrs/projection';
 import { action as queryAction } from '../../cqrs/query';
@@ -21,13 +21,13 @@ export const repository: (option: {
 }) => <TEntity = any, TEvent = any>(option: {
   entityName: string;
   reducer: Reducer;
-}) => Repository<TEntity, TEvent> = ({
-  store,
-  channelEventHub,
-  channelName,
-  connectionProfile,
-  wallet
-}) => <TEntity, TEvent>({ entityName, reducer }) => {
+}) => Repository<TEntity, TEvent> = ({ store, channelEventHub, channelName, connectionProfile, wallet }) => <
+  TEntity,
+  TEvent
+>({
+  entityName,
+  reducer
+}) => {
   const logger = Client.getLogger('repository.js');
 
   return {
@@ -56,9 +56,7 @@ export const repository: (option: {
         const unsubscribe = store.subscribe(() => {
           const { tx_id, result, type } = store.getState().query;
           if (tx_id === tid && type === QUERY_SUCCESS) {
-            logger.info(
-              util.format('queryByEntityId, tx_id: %s, %s', tid, QUERY_SUCCESS)
-            );
+            logger.info(util.format('queryByEntityId, tx_id: %s, %s', tid, QUERY_SUCCESS));
 
             unsubscribe();
             resolve({
@@ -87,9 +85,7 @@ export const repository: (option: {
           })
         );
 
-        logger.info(
-          util.format('queryByEntityId, tx_id: %s, %s, %s', tid, id, entityName)
-        );
+        logger.info(util.format('queryByEntityId, tx_id: %s, %s, %s', tid, id, entityName));
       }),
     getByEntityName: () =>
       new Promise<{ data: TEntity[] }>(resolve => {
@@ -99,13 +95,7 @@ export const repository: (option: {
           const { query } = store.getState();
           const { tx_id, result, type } = query;
           if (tx_id === tid && type === QUERY_SUCCESS) {
-            logger.info(
-              util.format(
-                'queryByEntityName, tx_id: %s, %s',
-                tid,
-                QUERY_SUCCESS
-              )
-            );
+            logger.info(util.format('queryByEntityName, tx_id: %s, %s', tid, QUERY_SUCCESS));
 
             unsubscribe();
             resolve({
@@ -121,9 +111,7 @@ export const repository: (option: {
           })
         );
 
-        logger.info(
-          util.format('queryByEntityName, tx_id: %s, %s', tid, entityName)
-        );
+        logger.info(util.format('queryByEntityName, tx_id: %s, %s', tid, entityName));
       }),
     getCommitById: id =>
       new Promise<{ data: Commit[] }>(resolve => {
@@ -132,9 +120,7 @@ export const repository: (option: {
         const unsubscribe = store.subscribe(() => {
           const { tx_id, result, type } = store.getState().query;
           if (tx_id === tid && type === QUERY_SUCCESS) {
-            logger.info(
-              util.format('getCommitById, tx_id: %s, %s', tid, QUERY_SUCCESS)
-            );
+            logger.info(util.format('getCommitById, tx_id: %s, %s', tid, QUERY_SUCCESS));
 
             unsubscribe();
             resolve({ data: values(result).reverse() });
@@ -148,9 +134,7 @@ export const repository: (option: {
           })
         );
 
-        logger.info(
-          util.format('getCommitById, tx_id: %s, %s, %s', tid, id, entityName)
-        );
+        logger.info(util.format('getCommitById, tx_id: %s, %s, %s', tid, id, entityName));
       }),
     getProjection: criteria =>
       new Promise<{ data: TEntity[] }>(resolve => {
@@ -160,9 +144,7 @@ export const repository: (option: {
           const { projection } = store.getState();
           const { tx_id, result, type } = projection;
           if (tx_id === tid && type === FIND_SUCCESS) {
-            logger.info(
-              util.format('getProjection, tx_id %s, %s', tid, FIND_SUCCESS)
-            );
+            logger.info(util.format('getProjection, tx_id %s, %s', tid, FIND_SUCCESS));
 
             unsubscribe();
             resolve({ data: result });
@@ -186,26 +168,13 @@ export const repository: (option: {
         const unsubscribe = store.subscribe(() => {
           const { tx_id, result, error, type } = store.getState().write;
           if (tx_id === tid && type === DELETE_SUCCESS) {
-            logger.info(
-              util.format(
-                'deleteByEntityId, tx_id: %s, %s',
-                tid,
-                DELETE_SUCCESS
-              )
-            );
+            logger.info(util.format('deleteByEntityId, tx_id: %s, %s', tid, DELETE_SUCCESS));
             unsubscribe();
             resolve(result);
           }
 
           if (tx_id === tid && type === DELETE_ERROR) {
-            logger.warn(
-              util.format(
-                'deleteByEntityId, tx_id: %s, %s, %j',
-                tid,
-                DELETE_ERROR,
-                error
-              )
-            );
+            logger.warn(util.format('deleteByEntityId, tx_id: %s, %s, %j', tid, DELETE_ERROR, error));
 
             unsubscribe();
             reject({ error });
@@ -223,9 +192,7 @@ export const repository: (option: {
           })
         );
 
-        logger.info(
-          util.format('deleteByEntityId, tx_id: %s, %s', tid, entityName)
-        );
+        logger.info(util.format('deleteByEntityId, tx_id: %s, %s', tid, entityName));
       }),
     deleteByEntityName_query: () =>
       new Promise<any>(resolve => {
@@ -234,30 +201,16 @@ export const repository: (option: {
         const unsubscribe = store.subscribe(() => {
           const { tx_id, result, type } = store.getState().query;
           if (tx_id === tid && type === DELETE_SUCCESS) {
-            logger.info(
-              util.format(
-                'deleteByEntityName_query, tx_id: %s, %s',
-                tid,
-                DELETE_SUCCESS
-              )
-            );
+            logger.info(util.format('deleteByEntityName_query, tx_id: %s, %s', tid, DELETE_SUCCESS));
 
             unsubscribe();
             resolve(result);
           }
         });
 
-        store.dispatch(
-          deleteByEntityName({ tx_id: tid, args: { entityName } })
-        );
+        store.dispatch(deleteByEntityName({ tx_id: tid, args: { entityName } }));
 
-        logger.info(
-          util.format(
-            'deleteByEntityName_query, tx_id: %s, %s',
-            tid,
-            entityName
-          )
-        );
+        logger.info(util.format('deleteByEntityName_query, tx_id: %s, %s', tid, entityName));
       }),
     getEntityName: () => entityName
   };

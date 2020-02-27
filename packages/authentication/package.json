@@ -23,7 +23,7 @@
     "test:authenticate": "jest --forceExit --detectOpenHandles authenticate.test",
     "test:client_app": "jest --forceExit --detectOpenHandles client_app.test",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts,tsx}'"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
   },
   "engines": {
     "node": ">=8",
@@ -32,7 +32,6 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@google-cloud/logging-winston": "^3.0.5",
     "apollo-server-express": "^2.9.7",
     "bcrypt": "^3.0.6",
     "cookie-parser": "^1.4.4",
@@ -83,16 +82,5 @@
   },
   "nohoist": [
     "class-validator"
-  ],
-  "prettier": {
-    "eslintIntegration": true,
-    "semi": true,
-    "singleQuote": true,
-    "tabWidth": 2,
-    "bracketSpacing": true,
-    "jsxBracketSameLine": true,
-    "requirePragma": false,
-    "insertPragma": false,
-    "printWidth": 120
-  }
+  ]
 }

@@ -1,9 +1,9 @@
+import util from 'util';
 import Client from 'fabric-client';
 import { Store } from 'redux';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-import util from 'util';
 import { action as command } from '../../command/action';
 import { action } from '../action';
 import { ReconcileAction } from '../types';
@@ -15,15 +15,7 @@ export default (action$: Observable<ReconcileAction>, _) => {
     ofType(action.RECONCILE),
     map(({ payload }) => payload),
     mergeMap(
-      ({
-        tx_id,
-        args: { entityName, reducer },
-        store,
-        channelEventHub,
-        channelName,
-        connectionProfile,
-        wallet
-      }) =>
+      ({ tx_id, args: { entityName, reducer }, store, channelEventHub, channelName, connectionProfile, wallet }) =>
         from(
           new Promise<any>(resolve => {
             const unsubscribe = store.subscribe(() => {
@@ -33,9 +25,7 @@ export default (action$: Observable<ReconcileAction>, _) => {
 
               if (tx_id === tid && type === command.QUERY_SUCCESS) {
                 logger.info(command.QUERY_SUCCESS);
-                logger.debug(
-                  util.format('tx_id: %s, type: %s', tid, command.QUERY_SUCCESS)
-                );
+                logger.debug(util.format('tx_id: %s, type: %s', tid, command.QUERY_SUCCESS));
 
                 unsubscribe();
 
@@ -49,7 +39,7 @@ export default (action$: Observable<ReconcileAction>, _) => {
               }
             });
 
-            (store as Store).dispatch(
+            store.dispatch(
               command.queryByEntityName({
                 tx_id,
                 args: { entityName },

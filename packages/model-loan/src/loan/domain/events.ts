@@ -75,11 +75,11 @@ export interface LoanDescriptionDefined extends BaseEvent {
 }
 
 export type LoanEvents =
-  LoanApplied |
-  LoanCancelled |
-  LoanApproved |
-  LoanReturned |
-  LoanRejected |
-  LoanExpired |
-  LoanReferenceDefined |
-  LoanDescriptionDefined;
+  | LoanApplied
+  | LoanCancelled
+  | LoanApproved
+  | LoanReturned
+  | LoanRejected
+  | LoanExpired
+  | LoanReferenceDefined
+  | LoanDescriptionDefined;

@@ -87,10 +87,7 @@ import { getLogger } from '../utils';
       {
         title: '[Org1MSP] queryByEntityName',
         task: async () => {
-          const {
-            disconnect,
-            evaluate
-          } = await org1Operator.submitOrEvaluateTx({
+          const { disconnect, evaluate } = await org1Operator.submitOrEvaluateTx({
             fcn: 'queryByEntityName',
             args: ['dev_test'],
             identity: 'admin-org1.example.com',
@@ -107,10 +104,7 @@ import { getLogger } from '../utils';
       {
         title: '[Org2MSP] queryByEntityName',
         task: async () => {
-          const {
-            disconnect,
-            evaluate
-          } = await org2Operator.submitOrEvaluateTx({
+          const { disconnect, evaluate } = await org2Operator.submitOrEvaluateTx({
             fcn: 'queryByEntityName',
             args: ['dev_test'],
             identity: 'admin-org2.example.com',

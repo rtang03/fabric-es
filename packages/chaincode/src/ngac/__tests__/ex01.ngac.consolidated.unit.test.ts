@@ -98,9 +98,7 @@ describe('Example 1: PolicyEngine/CRUD Tests', () => {
     }));
 
     return permissionCheck({ context }).then(assertions =>
-      expect(assertions).toEqual([
-        { sid: 'allowCreateSubject', assertion: true }
-      ])
+      expect(assertions).toEqual([{ sid: 'allowCreateSubject', assertion: true }])
     );
   });
 
@@ -115,9 +113,7 @@ describe('Example 1: PolicyEngine/CRUD Tests', () => {
       params: [entityName, entityId, version, eventStr]
     }));
     return permissionCheck({ context }).then(assertions =>
-      expect(assertions).toEqual([
-        { sid: 'system', assertion: false, message: 'No policy found' }
-      ])
+      expect(assertions).toEqual([{ sid: 'system', assertion: false, message: 'No policy found' }])
     );
   });
 
@@ -157,9 +153,7 @@ describe('Example 1: PolicyEngine/CRUD Tests', () => {
           resourceAttrs
         })
       )
-      .then(attributes =>
-        attributes.filter(({ key }) => key === 'updateSubject')
-      )
+      .then(attributes => attributes.filter(({ key }) => key === 'updateSubject'))
       .then(attribute =>
         expect(attribute).toEqual([
           {
@@ -180,9 +174,7 @@ describe('Example 1: PolicyEngine/CRUD Tests', () => {
     }));
 
     return permissionCheck({ context }).then(assertions =>
-      expect(assertions).toEqual([
-        { sid: 'allowUpdateSubject', assertion: true }
-      ])
+      expect(assertions).toEqual([{ sid: 'allowUpdateSubject', assertion: true }])
     );
   });
 });

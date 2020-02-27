@@ -6,11 +6,7 @@ import { QueryDatabase } from '../../../types';
 import { action } from '../action';
 import { DeleteByEntityIdAction } from '../types';
 
-export default (
-  action$: Observable<DeleteByEntityIdAction>,
-  _,
-  context: { queryDatabase: QueryDatabase }
-) => {
+export default (action$: Observable<DeleteByEntityIdAction>, _, context: { queryDatabase: QueryDatabase }) => {
   const logger = Client.getLogger('queryByEntityName.js');
 
   return action$.pipe(
@@ -18,13 +14,11 @@ export default (
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName, id } }) =>
       from(
-        context.queryDatabase
-          .deleteByEntityId({ entityName, id })
-          .then(result => {
-            logger.info(action.DELETE_SUCCESS);
+        context.queryDatabase.deleteByEntityId({ entityName, id }).then(result => {
+          logger.info(action.DELETE_SUCCESS);
 
-            return action.deleteSuccess({ tx_id, result });
-          })
+          return action.deleteSuccess({ tx_id, result });
+        })
       )
     )
   );

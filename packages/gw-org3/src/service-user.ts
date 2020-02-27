@@ -1,15 +1,9 @@
 require('./env');
+import util from 'util';
 import { getReducer } from '@espresso/fabric-cqrs';
 import { createService, getLogger } from '@espresso/gw-node';
-import {
-  User,
-  UserEvents,
-  userReducer,
-  userResolvers,
-  userTypeDefs
-} from '@espresso/model-common';
+import { User, UserEvents, userReducer, userResolvers, userTypeDefs } from '@espresso/model-common';
 import { FileSystemWallet } from 'fabric-network';
-import util from 'util';
 
 const logger = getLogger('service-user.js');
 const reducer = getReducer<User, UserEvents>(userReducer);

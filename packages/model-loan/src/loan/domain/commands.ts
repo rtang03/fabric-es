@@ -6,42 +6,42 @@ export interface LoanCommands {
       description?: string;
       reference: string;
       timestamp: number;
-    }
+    };
   };
   CancelLoan: {
     userId: string;
     payload: {
       loanId: string;
       timestamp: number;
-    }
+    };
   };
   ApproveLoan: {
     userId: string;
     payload: {
       loanId: string;
       timestamp: number;
-    }
+    };
   };
   ReturnLoan: {
     userId: string;
     payload: {
       loanId: string;
       timestamp: number;
-    }
+    };
   };
   RejectLoan: {
     userId: string;
     payload: {
       loanId: string;
       timestamp: number;
-    }
+    };
   };
   ExpireLoan: {
     userId: string;
     payload: {
       loanId: string;
       timestamp: number;
-    }
+    };
   };
   DefineLoanReference: {
     userId: string;
@@ -49,7 +49,7 @@ export interface LoanCommands {
       loanId: string;
       reference: string;
       timestamp: number;
-    }
+    };
   };
   DefineLoanDescription: {
     userId: string;
@@ -57,6 +57,6 @@ export interface LoanCommands {
       loanId: string;
       description: string;
       timestamp: number;
-    }
+    };
   };
 }

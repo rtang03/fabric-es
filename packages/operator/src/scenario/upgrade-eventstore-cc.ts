@@ -72,11 +72,9 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
               chaincodeVersion: upgrade_version,
               chaincodePath: '../chaincode',
               timeout: 60000,
-              targets: ['peer0.org1.example.com','peer1.org1.example.com'],
+              targets: ['peer0.org1.example.com', 'peer1.org1.example.com']
             })
-            .then<Array<ProposalResponse | ProposalErrorResponse>>(
-              result => result[0]
-            )
+            .then<(ProposalResponse | ProposalErrorResponse)[]>(result => result[0])
             .then(responses => installChaincodeSubTask(responses, task))
       },
       {
@@ -88,11 +86,9 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
               chaincodeVersion: upgrade_version,
               chaincodePath: '../chaincode',
               timeout: 60000,
-              targets: ['peer0.org2.example.com','peer1.org2.example.com'],
+              targets: ['peer0.org2.example.com', 'peer1.org2.example.com']
             })
-            .then<Array<ProposalResponse | ProposalErrorResponse>>(
-              result => result[0]
-            )
+            .then<(ProposalResponse | ProposalErrorResponse)[]>(result => result[0])
             .then(responses => installChaincodeSubTask(responses, task))
       },
       {
@@ -140,8 +136,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
             })
             .then(async ({ disconnect, evaluate }) => {
               const result = await evaluate();
-              if (isCommitRecord(result))
-                task.title = '[Org1MSP] Query result is validated';
+              if (isCommitRecord(result)) task.title = '[Org1MSP] Query result is validated';
               else task.title = '[Org1MSP] Query result validation fails';
               disconnect();
             })
@@ -159,8 +154,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
             })
             .then(async ({ disconnect, evaluate }) => {
               const result = await evaluate();
-              if (isCommitRecord(result))
-                task.title = '[Org2MSP] Query result is validated';
+              if (isCommitRecord(result)) task.title = '[Org2MSP] Query result is validated';
               else task.title = '[Org2MSP] Query result validation fails';
               disconnect();
             })
@@ -175,9 +169,7 @@ bootstrap().then(tasks =>
   tasks
     .run()
     .then(() => {
-      console.log(
-        `💯  "eventstore" is upgraded ${current_version} -> ${upgrade_version}`
-      );
+      console.log(`💯  "eventstore" is upgraded ${current_version} -> ${upgrade_version}`);
     })
     .catch(error => {
       console.error(error);

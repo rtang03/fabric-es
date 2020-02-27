@@ -14,29 +14,14 @@ export const createPolicy: (option: {
     stringEquals?: any;
   };
   effect?: string;
-}) => Policy = ({
-  context,
-  policyClass = 'default',
-  sid,
-  allowedEvents,
-  uri,
-  condition,
-  effect = 'Allow'
-}) => {
+}) => Policy = ({ context, policyClass = 'default', sid, allowedEvents, uri, condition, effect = 'Allow' }) => {
   const x509id = createId([
     context.clientIdentity.getMSPID(),
     context.clientIdentity.getX509Certificate().subject.commonName
   ]);
   const key = makeKey([x509id, sid]);
 
-  if (
-    !x509id ||
-    !sid ||
-    !uri ||
-    !context ||
-    !allowedEvents ||
-    !allowedEvents.length
-  ) {
+  if (!x509id || !sid || !uri || !context || !allowedEvents || !allowedEvents.length) {
     return null;
   }
 
@@ -51,7 +36,7 @@ export const createPolicy: (option: {
     effect
   };
 
-  if (condition) basePolicy['condition'] = condition;
+  if (condition) (basePolicy as any).condition = condition;
 
   return basePolicy;
 };

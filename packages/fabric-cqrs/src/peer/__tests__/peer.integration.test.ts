@@ -47,7 +47,7 @@ beforeAll(async () => {
   });
 
   try {
-    await peer.subscribeHub();
+    peer.subscribeHub();
   } catch (err) {
     console.error('Subscribe hub error');
     console.error(err);
@@ -126,11 +126,7 @@ describe('Query', () => {
       await repo
         .getProjection({ contain: 'peer_test' })
         .then(({ data }) => data)
-        .then(results =>
-          results.forEach(({ id }) =>
-            expect(id.startsWith('peer_test')).toBe(true)
-          )
-        );
+        .then(results => results.forEach(({ id }) => expect(id.startsWith('peer_test')).toBe(true)));
       done();
     }, 6000);
   });

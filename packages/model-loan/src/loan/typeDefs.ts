@@ -4,60 +4,50 @@ import gql from 'graphql-tag';
 import { Loan, loanCommandHandler, LoanDS } from '.';
 
 export const typeDefs = gql`
-type Query {
-  getCommitsByLoanId(loanId: String!): [LoanCommit]!
-  getLoanById(loanId: String!): Loan
-}
+  type Query {
+    getCommitsByLoanId(loanId: String!): [LoanCommit]!
+    getLoanById(loanId: String!): Loan
+  }
 
-type Mutation {
-  applyLoan(
-    userId: String!,
-    loanId: String!,
-    description: String,
-    reference: String!
-  ): LoanResponse
-  cancelLoan(userId: String!, loanId: String!): LoanResponse
-  approveLoan(userId: String!, loanId: String!): LoanResponse
-  returnLoan(userId: String!, loanId: String!): LoanResponse
-  rejectLoan(userId: String!, loanId: String!): LoanResponse
-  expireLoan(userId: String!, loanId: String!): LoanResponse
-  updateLoan(
-    userId: String!
+  type Mutation {
+    applyLoan(userId: String!, loanId: String!, description: String, reference: String!): LoanResponse
+    cancelLoan(userId: String!, loanId: String!): LoanResponse
+    approveLoan(userId: String!, loanId: String!): LoanResponse
+    returnLoan(userId: String!, loanId: String!): LoanResponse
+    rejectLoan(userId: String!, loanId: String!): LoanResponse
+    expireLoan(userId: String!, loanId: String!): LoanResponse
+    updateLoan(userId: String!, loanId: String!, description: String, reference: String): [LoanResponse]!
+  }
+
+  type Loan @key(fields: "loanId") {
     loanId: String!
+    ownerId: String!
     description: String
-    reference: String
-  ): [LoanResponse]!
-}
+    reference: String!
+    status: Int!
+    timestamp: String!
+  }
 
-type Loan @key(fields: "loanId") {
-  loanId: String!
-  ownerId: String!
-  description: String
-  reference: String!
-  status: Int!
-  timestamp: String!
-}
+  union LoanResponse = LoanCommit | LoanError
 
-union LoanResponse = LoanCommit | LoanError
+  type LoanEvent {
+    type: String
+  }
 
-type LoanEvent {
-  type: String
-}
+  type LoanCommit {
+    id: String
+    entityName: String
+    version: Int
+    commitId: String
+    committedAt: String
+    entityId: String
+    events: [LoanEvent!]
+  }
 
-type LoanCommit {
-  id: String
-  entityName: String
-  version: Int
-  commitId: String
-  committedAt: String
-  entityId: String
-  events: [LoanEvent!]
-}
-
-type LoanError {
-  message: String!
-  stack: String
-}
+  type LoanError {
+    message: String!
+    stack: String
+  }
 `;
 
 const NOT_AUTHENICATED = 'no enrollment id';
@@ -76,10 +66,7 @@ export const resolvers = {
     getLoanById: async (
       _,
       { loanId },
-      {
-        dataSources: { loan },
-        enrollmentId
-      }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Loan> =>
       loan.repo
         .getById({ id: loanId, enrollmentId })
@@ -90,10 +77,7 @@ export const resolvers = {
     applyLoan: async (
       _,
       { userId, loanId, description, reference },
-      {
-        dataSources: { loan },
-        enrollmentId
-      }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit> =>
       !enrollmentId
         ? new AuthenticationError(NOT_AUTHENICATED)
@@ -109,10 +93,7 @@ export const resolvers = {
     cancelLoan: async (
       _,
       { userId, loanId },
-      {
-        dataSources: { loan },
-        enrollmentId
-      }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit> =>
       !enrollmentId
         ? new AuthenticationError(NOT_AUTHENICATED)
@@ -125,10 +106,7 @@ export const resolvers = {
     approveLoan: async (
       _,
       { userId, loanId },
-      {
-        dataSources: { loan },
-        enrollmentId
-      }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit> =>
       !enrollmentId
         ? new AuthenticationError(NOT_AUTHENICATED)
@@ -141,10 +119,7 @@ export const resolvers = {
     returnLoan: async (
       _,
       { userId, loanId },
-      {
-        dataSources: { loan },
-        enrollmentId
-      }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit> =>
       !enrollmentId
         ? new AuthenticationError(NOT_AUTHENICATED)
@@ -157,10 +132,7 @@ export const resolvers = {
     rejectLoan: async (
       _,
       { userId, loanId },
-      {
-        dataSources: { loan },
-        enrollmentId
-      }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit> =>
       !enrollmentId
         ? new AuthenticationError(NOT_AUTHENICATED)
@@ -173,10 +145,7 @@ export const resolvers = {
     expireLoan: async (
       _,
       { userId, loanId },
-      {
-        dataSources: { loan },
-        enrollmentId
-      }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit> =>
       !enrollmentId
         ? new AuthenticationError(NOT_AUTHENICATED)
@@ -189,10 +158,7 @@ export const resolvers = {
     updateLoan: async (
       _,
       { userId, loanId, description, reference },
-      {
-        dataSources: { loan },
-        enrollmentId
-      }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit[] | { error: any }> => {
       if (!enrollmentId) throw new AuthenticationError(NOT_AUTHENICATED);
 
@@ -229,10 +195,7 @@ export const resolvers = {
   Loan: {
     __resolveReference: (
       { loanId },
-      {
-        dataSources: { loan },
-        enrollmentId
-      }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Loan> =>
       loan.repo
         .getById({ id: loanId, enrollmentId })
@@ -240,7 +203,6 @@ export const resolvers = {
         .catch(({ error }) => error)
   },
   LoanResponse: {
-    __resolveType: obj =>
-      obj.commitId ? 'LoanCommit' : obj.message ? 'LoanError' : {}
+    __resolveType: obj => (obj.commitId ? 'LoanCommit' : obj.message ? 'LoanError' : {})
   }
 };

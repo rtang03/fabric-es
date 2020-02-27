@@ -8,9 +8,7 @@ const getHistory = (commits: Commit[]): any[] => {
   return history;
 };
 
-export const createProjectionDb: (
-  defaultEntityName: string
-) => ProjectionDb = defaultEntityName => {
+export const createProjectionDb: (defaultEntityName: string) => ProjectionDb = defaultEntityName => {
   const logger = Client.getLogger('createProjectionDb.js');
 
   const db: Record<string, any> = {};
@@ -30,9 +28,7 @@ export const createProjectionDb: (
 
           resolve({
             data: filter(values(db), item =>
-              JSON.stringify(item).includes(
-                isNumber(contain) ? contain.toString() : contain
-              )
+              JSON.stringify(item).includes(isNumber(contain) ? contain.toString() : contain)
             )
           });
         } else resolve({ data: null });
@@ -49,15 +45,10 @@ export const createProjectionDb: (
       }),
     upsertMany: ({ commits, reducer }) =>
       new Promise(resolve => {
-        const filterCommits = filter(
-          commits,
-          ({ entityName }) => entityName === defaultEntityName
-        );
+        const filterCommits = filter(commits, ({ entityName }) => entityName === defaultEntityName);
         const group = groupBy(filterCommits, ({ id }) => id);
         const entities = [];
-        keys(group).forEach(id =>
-          entities.push(assign({ id }, reducer(getHistory(values(group[id])))))
-        );
+        keys(group).forEach(id => entities.push(assign({ id }, reducer(getHistory(values(group[id]))))));
         const data = {};
         entities.forEach(entity => {
           db[entity.id] = entity;

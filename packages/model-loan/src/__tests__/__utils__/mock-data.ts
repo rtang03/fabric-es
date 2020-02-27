@@ -1,19 +1,7 @@
 import { Commit, getMockRepository, getReducer } from '@espresso/fabric-cqrs';
-import {
-  User,
-  UserEvents,
-  userReducer
-} from '@espresso/model-common';
-import {
-  Document,
-  DocumentEvents,
-  documentReducer
-} from '../../document';
-import {
-  Loan,
-  LoanEvents,
-  loanReducer,
-} from '../../loan';
+import { User, UserEvents, userReducer } from '@espresso/model-common';
+import { Document, DocumentEvents, documentReducer } from '../../document';
+import { Loan, LoanEvents, loanReducer } from '../../loan';
 
 export const mockdb: Record<string, Commit> = {
   '20181114163145704:example@gmail.com': {
@@ -132,8 +120,7 @@ export const mockdb: Record<string, Commit> = {
       },
       {
         payload: {
-          description:
-            'After having a mild stroke each time my boyfriend brought home the wrong type of fruit',
+          description: 'After having a mild stroke each time my boyfriend brought home the wrong type of fruit',
           loanId: '123456',
           timestamp: 1542336654365
         },
@@ -146,7 +133,7 @@ export const mockdb: Record<string, Commit> = {
           loaner: 'Dai Yee Lung'
         },
         type: 'LoanerDefined'
-      },
+      }
     ]
   },
   '20181124064622771:1542385173331': {
@@ -201,17 +188,9 @@ export const mockdb: Record<string, Commit> = {
   }
 };
 
-export const userRepo = getMockRepository<User, UserEvents>(
-  mockdb,
-  'user',
-  getReducer<User, UserEvents>(userReducer)
-);
+export const userRepo = getMockRepository<User, UserEvents>(mockdb, 'user', getReducer<User, UserEvents>(userReducer));
 
-export const loanRepo = getMockRepository<Loan, LoanEvents>(
-  mockdb,
-  'loan',
-  getReducer<Loan, LoanEvents>(loanReducer)
-);
+export const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan, LoanEvents>(loanReducer));
 
 export const documentRepo = getMockRepository<Document, DocumentEvents>(
   mockdb,

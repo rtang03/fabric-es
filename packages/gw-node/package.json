@@ -17,7 +17,8 @@
     "enrollCaAdmin": "ts-node src/enrollCaAdmin.ts",
     "start-admin-service": "npm run build && node ./dist/admin/__tests__/__utils__/startServiceForManualTest.js",
     "test:integration": "(not tested yet) yarn start-admin-service && yarn test-service-admin",
-    "test-service-admin": "jest --forceExit --detectOpenHandles admin.integration.test"
+    "test-service-admin": "jest --forceExit --detectOpenHandles admin.integration.test",
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
   },
   "engines": {
     "node": ">=8",
@@ -85,9 +86,6 @@
     "rimraf": "^3.0.0",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
-    "tslint": "^5.20.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.0.1",
     "typedoc": "^0.15.6",
     "typedoc-plugin-markdown": "^2.2.16",
     "typescript": "^3.7.2"

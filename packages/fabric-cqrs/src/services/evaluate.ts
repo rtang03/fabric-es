@@ -1,7 +1,7 @@
+import util from 'util';
 import Client from 'fabric-client';
 import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
-import util from 'util';
 import { Commit } from '../types';
 import { getContract } from './contract';
 
@@ -10,12 +10,7 @@ export const evaluate: (
   args: string[],
   { network }: { network: Network },
   privatedata?: boolean
-) => Promise<Record<string, Commit> | { error: any }> = async (
-  fcn,
-  args,
-  { network },
-  privatedata = false
-) => {
+) => Promise<Record<string, Commit> | { error: any }> = async (fcn, args, { network }, privatedata = false) => {
   const logger = Client.getLogger('evaluate.js');
 
   return getContract(network, privatedata).then(

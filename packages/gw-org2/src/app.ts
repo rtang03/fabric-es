@@ -1,8 +1,8 @@
 require('./env');
-import { createGateway, getLogger } from '@espresso/gw-node';
 import http from 'http';
-import stoppable from 'stoppable';
 import util from 'util';
+import { createGateway, getLogger } from '@espresso/gw-node';
+import stoppable from 'stoppable';
 
 const PORT = (process.env.GATEWAY_PORT || 4001) as number;
 const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI;
@@ -46,9 +46,7 @@ const logger = getLogger('app.js');
   const shutdown = () => {
     stoppableServer.close(err => {
       if (err) {
-        logger.error(
-          util.format('An error occurred while closing the server: %j', err)
-        );
+        logger.error(util.format('An error occurred while closing the server: %j', err));
         process.exitCode = 1;
       } else logger.info('server closes');
     });
@@ -69,12 +67,8 @@ const logger = getLogger('app.js');
   });
 
   stoppableServer.listen(PORT, '0.0.0.0', () => {
-    console.log(
-      `🚀 Server at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`
-    );
-    logger.info(
-      `🚀 Server at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`
-    );
+    console.log(`🚀 Server at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
+    logger.info(`🚀 Server at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
     process.send('ready');
   });
 })().catch(error => {

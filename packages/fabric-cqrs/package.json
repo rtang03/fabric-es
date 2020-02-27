@@ -23,7 +23,8 @@
     "enrollAdmin": "ts-node src/account/enrollAdmin.ts",
     "enrollCaAdmin": "ts-node src/account/enrollCaAdmin.ts",
     "enrollAdminOrg2": "(broke) ts-node src/ngac_test/enrollAdmin.ts",
-    "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts"
+    "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
   },
   "engines": {
     "node": ">=8",
@@ -59,9 +60,6 @@
     "rimraf": "^3.0.0",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
-    "tslint": "^5.20.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.0.1",
     "typedoc": "^0.15.7",
     "typedoc-plugin-markdown": "^2.2.16",
     "typescript": "^3.7.2"

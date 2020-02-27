@@ -1,13 +1,11 @@
-import Client, { ChannelEventHub } from 'fabric-client';
 import util from 'util';
+import Client, { ChannelEventHub } from 'fabric-client';
 import { Commit, PeerOptions } from '../types';
 
 export const channelEventHub: (
   hub: ChannelEventHub
 ) => {
-  registerCCEvent: (
-    options: Pick<PeerOptions, 'onChannelEventArrived'>
-  ) => Promise<any>;
+  registerCCEvent: (options: Pick<PeerOptions, 'onChannelEventArrived'>) => Promise<any>;
   close: (registerId: string) => void;
 } = hub => ({
   registerCCEvent: ({ onChannelEventArrived }) =>

@@ -1,10 +1,7 @@
 require('./env');
-import { createRemoteService, getLogger } from '@espresso/gw-node';
-import {
-  docContentsRemoteResolvers,
-  docContentsRemoteTypeDefs
-} from '@espresso/model-loan-private';
 import util from 'util';
+import { createRemoteService, getLogger } from '@espresso/gw-node';
+import { docContentsRemoteResolvers, docContentsRemoteTypeDefs } from '@espresso/model-loan-private';
 
 const logger = getLogger('service-rmt-ctnt.js');
 
@@ -14,11 +11,10 @@ const logger = getLogger('service-rmt-ctnt.js');
     typeDefs: docContentsRemoteTypeDefs,
     resolvers: docContentsRemoteResolvers,
     uriResolver: {
-      resolve: entityId => {
-        return new Promise(resolve => {
+      resolve: entityId =>
+        new Promise(resolve => {
           resolve(process.env.TEMP_REMOTE_URI.split(' ')); // TODO : Temp measure!!! need a REAL uriResolver
-        });
-      }
+        })
     }
   });
 
@@ -29,12 +25,10 @@ const logger = getLogger('service-rmt-ctnt.js');
     logger.error(err.stack);
   });
 
-  server
-    .listen({ port: process.env.REMOTE_DOC_CONTENTS_PORT })
-    .then(({ url }) => {
-      logger.info(`🚀  '${process.env.ORGNAME}' - Remote 'doc contents' data ready at ${url}graphql`);
-      if (process.env.NODE_ENV === 'production') process.send('ready');
-    });
+  server.listen({ port: process.env.REMOTE_DOC_CONTENTS_PORT }).then(({ url }) => {
+    logger.info(`🚀  '${process.env.ORGNAME}' - Remote 'doc contents' data ready at ${url}graphql`);
+    if (process.env.NODE_ENV === 'production') process.send('ready');
+  });
 })().catch(error => {
   console.error(error);
   logger.error(util.format('fail to start service, %j', error));

@@ -1,7 +1,4 @@
-import {
-  ContactInfo as SuperContactInfo,
-  LoanDetails as SuperDetails
-} from '@espresso/model-loan-private';
+import { ContactInfo as SuperContactInfo, LoanDetails as SuperDetails } from '@espresso/model-loan-private';
 
 export type ContactInfo = SuperContactInfo & {
   company: string;

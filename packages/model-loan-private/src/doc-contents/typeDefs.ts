@@ -1,11 +1,7 @@
 import { Commit } from '@espresso/fabric-cqrs';
 import { AuthenticationError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
-import {
-  DocContents,
-  docContentsCommandHandler,
-  DocContentsDS,
-} from '.';
+import { DocContents, docContentsCommandHandler, DocContentsDS } from '.';
 
 const NOT_AUTHENICATED = 'no enrollment id';
 
@@ -150,7 +146,6 @@ export const resolvers = {
     __resolveType: obj => (obj.body ? 'Data' : obj.format ? 'File' : {})
   },
   DocContentsResp: {
-    __resolveType: obj =>
-      obj.commitId ? 'DocContentsCommit' : obj.message ? 'DocContentsError' : {}
+    __resolveType: obj => (obj.commitId ? 'DocContentsCommit' : obj.message ? 'DocContentsError' : {})
   }
 };

@@ -36,11 +36,7 @@ describe('NgacRepo CRUD Tests', () => {
   it('should getPolicyById by x509id', async () =>
     ngacRepo(context)
       .getPolicyById(x509id)
-      .then(policies =>
-        policies.forEach(({ policyClass }) =>
-          expect(policyClass).toBe('event-creation')
-        )
-      ));
+      .then(policies => policies.forEach(({ policyClass }) => expect(policyClass).toBe('event-creation'))));
 
   it('should fail getPolicyById: wrong x509id', async () =>
     ngacRepo(context)
@@ -65,11 +61,7 @@ describe('NgacRepo CRUD Tests', () => {
   it('should getMSPAttrByMSPID, by mspid', async () =>
     ngacRepo(context)
       .getMSPAttrByMSPID(mspid)
-      .then(attributes =>
-        expect(attributes).toEqual([
-          { type: '1', key: 'mspid', value: 'Org1MSP' }
-        ])
-      ));
+      .then(attributes => expect(attributes).toEqual([{ type: '1', key: 'mspid', value: 'Org1MSP' }])));
 
   it('should fail getMSPAttrByMSPID: wrong mspid', async () =>
     ngacRepo(context)
@@ -109,9 +101,7 @@ describe('NgacRepo CRUD Tests', () => {
   it('should deletePolicyByIdSid', async () => {
     await ngacRepo(context)
       .deletePolicyByIdSid(x509id, 'allowCreateTrade')
-      .then(keyDeleted =>
-        expect(keyDeleted).toBe(`"${x509id}""allowCreateTrade"`)
-      );
+      .then(keyDeleted => expect(keyDeleted).toBe(`"${x509id}""allowCreateTrade"`));
     await ngacRepo(context)
       .getPolicyByIdSid(x509id, 'allowCreateTrade')
       .then(policy => expect(policy).toEqual([]));
@@ -148,9 +138,7 @@ describe('NgacRepo CRUD Tests', () => {
     const id = createId(['Org0MSP', 'Admin@example.com']);
     await ngacRepo(context)
       .deletePolicyById(id)
-      .then(keysDeleted =>
-        keysDeleted.forEach(key => expect(key.startsWith(`"${id}"`)).toBe(true))
-      );
+      .then(keysDeleted => keysDeleted.forEach(key => expect(key.startsWith(`"${id}"`)).toBe(true)));
   });
 
   it('should addMSPAttr', async () => {
@@ -202,9 +190,7 @@ describe('NgacRepo CRUD Tests', () => {
     const uri = `model/Org1MSP/Trade/unit_test_1010`;
     await ngacRepo(context)
       .deleteReourceAttrByURI(uri)
-      .then(key =>
-        expect(key).toEqual('"model""Org1MSP""Trade""unit_test_1010"')
-      );
+      .then(key => expect(key).toEqual('"model""Org1MSP""Trade""unit_test_1010"'));
     await ngacRepo(context)
       .getResourceAttrGroupByURI(uri)
       .then(attrs => expect(attrs).toEqual([]));

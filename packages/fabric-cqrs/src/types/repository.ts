@@ -13,10 +13,7 @@ export interface Repository<TEntity = any, TEvent = any> {
     id: string;
   }) => Promise<{
     currentState: TEntity;
-    save: (
-      events: TEvent[],
-      version?: number
-    ) => Promise<Commit | { error: any }>;
+    save: (events: TEvent[], version?: number) => Promise<Commit | { error: any }>;
   }>;
   getCommitById: (id: string) => Promise<{ data: Commit[] }>;
   getProjection: ({

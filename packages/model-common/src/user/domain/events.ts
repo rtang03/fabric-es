@@ -30,7 +30,4 @@ export interface ReviewInvitationExpired extends BaseEvent {
   };
 }
 
-export type UserEvents =
-  | UserCreated
-  | ReviewInvitationDeclined
-  | ReviewInvitationExpired;
+export type UserEvents = UserCreated | ReviewInvitationDeclined | ReviewInvitationExpired;

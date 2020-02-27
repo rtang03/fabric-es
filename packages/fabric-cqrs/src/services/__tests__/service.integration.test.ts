@@ -2,9 +2,9 @@ require('../../env');
 import { ChannelEventHub } from 'fabric-client';
 import { FileSystemWallet, Gateway, Network } from 'fabric-network';
 import { keys, omit, pick, values } from 'lodash';
-import { channelEventHub, evaluate, submit } from '..';
 import { bootstrapNetwork } from '../../account';
 import { Commit } from '../../types';
+import { channelEventHub, evaluate, submit } from '..';
 
 let network: Network;
 let gateway: Gateway;
@@ -41,8 +41,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await channelHub.unregisterChaincodeEvent(registerId, true);
-  await gateway.disconnect();
+  channelHub.unregisterChaincodeEvent(registerId, true);
+  gateway.disconnect();
 });
 
 describe('Eventstore Tests', () => {
@@ -67,12 +67,7 @@ describe('Eventstore Tests', () => {
   it('should create #1', async () =>
     submit(
       'createCommit',
-      [
-        entityName,
-        enrollmentId,
-        '0',
-        JSON.stringify([{ type: 'User Created', payload: { name: 'me' } }])
-      ],
+      [entityName, enrollmentId, '0', JSON.stringify([{ type: 'User Created', payload: { name: 'me' } }])],
       { network }
     )
       .then<Commit>(result => values(result)[0])
@@ -82,11 +77,7 @@ describe('Eventstore Tests', () => {
       }));
 
   it('should queryByEntityIdCommitId', async () =>
-    evaluate(
-      'queryByEntityIdCommitId',
-      [entityName, enrollmentId, createdCommit_1.commitId],
-      { network }
-    )
+    evaluate('queryByEntityIdCommitId', [entityName, enrollmentId, createdCommit_1.commitId], { network })
       .then<Commit>(commits => values(commits)[0])
       .then(commit => expect(omit(commit, 'events')).toEqual(createdCommit_1)));
 
@@ -94,12 +85,7 @@ describe('Eventstore Tests', () => {
     // cannot be version: '0' again, this is give error object, instead of Commit object
     submit(
       'createCommit',
-      [
-        entityName,
-        enrollmentId,
-        '1',
-        JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])
-      ],
+      [entityName, enrollmentId, '1', JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])],
       { network }
     )
       .then<Commit>(commits => values(commits)[0])
@@ -108,11 +94,7 @@ describe('Eventstore Tests', () => {
   it('should queryByEntityName', async () =>
     evaluate('queryByEntityName', [entityName], {
       network
-    }).then(commits =>
-      values(commits).map(({ entityName }) =>
-        expect(entityName).toBe('dev_test')
-      )
-    ));
+    }).then(commits => values(commits).map(({ entityName }) => expect(entityName).toBe('dev_test'))));
 
   it('should queryByEntityId #1', async () =>
     evaluate('queryByEntityId', [entityName, enrollmentId], {
@@ -120,18 +102,14 @@ describe('Eventstore Tests', () => {
     }).then(result => expect(keys(result).length).toEqual(2)));
 
   it('should deleteByEntityIdCommitId', async () =>
-    submit(
-      'deleteByEntityIdCommitId',
-      [entityName, enrollmentId, createdCommit_1.commitId],
-      { network }
-    ).then(({ status }) => expect(status).toBe('SUCCESS')));
+    submit('deleteByEntityIdCommitId', [entityName, enrollmentId, createdCommit_1.commitId], {
+      network
+    }).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should fail to delete non-exist entity by EntityId/CommitId', async () =>
-    submit(
-      'deleteByEntityIdCommitId',
-      [entityName, enrollmentId, createdCommit_1.commitId],
-      { network }
-    ).then(({ status }) => expect(status).toBe('SUCCESS')));
+    submit('deleteByEntityIdCommitId', [entityName, enrollmentId, createdCommit_1.commitId], {
+      network
+    }).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should queryByEntityId #2', async () =>
     evaluate('queryByEntityId', [entityName, enrollmentId], {
@@ -151,12 +129,7 @@ describe('Eventstore Tests', () => {
   it('should create #3 at version 0', async () =>
     submit(
       'createCommit',
-      [
-        entityName,
-        enrollmentId,
-        '0',
-        JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])
-      ],
+      [entityName, enrollmentId, '0', JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])],
       { network }
     ));
 });

@@ -6,11 +6,7 @@ import { QueryDatabase } from '../../../types';
 import { action } from '../action';
 import { MergeAction } from '../types';
 
-export default (
-  action$: Observable<MergeAction>,
-  _,
-  context: { queryDatabase: QueryDatabase }
-) => {
+export default (action$: Observable<MergeAction>, _, context: { queryDatabase: QueryDatabase }) => {
   const logger = Client.getLogger('queryByEntityName.js');
 
   return action$.pipe(

@@ -1,16 +1,16 @@
-import Client from 'fabric-client';
 import util from 'util';
+import Client from 'fabric-client';
 import { createAdmin } from './createAdmin';
 
-export const getClientForOrg: (
-  connectionProfile: string,
-  fabricNewtork?: string
-) => Promise<Client> = async (connectionProfile, fabricNetwork) => {
+export const getClientForOrg: (connectionProfile: string, fabricNewtork?: string) => Promise<Client> = async (
+  connectionProfile,
+  fabricNetwork
+) => {
   const logger = Client.getLogger('getClientForOrg.js');
   const client = new Client();
 
   try {
-    await client.loadFromConfig(connectionProfile);
+    client.loadFromConfig(connectionProfile);
   } catch (e) {
     logger.error(util.format('fail to loadFromConfig, %j', e));
     throw new Error(e);

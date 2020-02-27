@@ -1,8 +1,8 @@
+import util from 'util';
 import Client from 'fabric-client';
 import { Wallet } from 'fabric-network';
 import { keys } from 'lodash';
 import { Store } from 'redux';
-import util from 'util';
 import { action } from '../../cqrs/command';
 import { generateToken } from '../../cqrs/utils';
 import { Commit, PrivatedataRepository, Reducer } from '../../types';
@@ -66,9 +66,7 @@ export const privateDataRepo: (option: {
         const unsubscribe = store.subscribe(() => {
           const { tx_id, result, error, type } = store.getState().write;
           if (tx_id === tid && type === QUERY_SUCCESS) {
-            logger.info(
-              util.format('queryByEntityId, tx_id: %s, %s', tid, QUERY_SUCCESS)
-            );
+            logger.info(util.format('queryByEntityId, tx_id: %s, %s', tid, QUERY_SUCCESS));
 
             unsubscribe();
             resolve({
@@ -91,14 +89,7 @@ export const privateDataRepo: (option: {
           }
 
           if (tx_id === tid && type === QUERY_ERROR) {
-            logger.warn(
-              util.format(
-                'queryByEntityId, tx_id: %s, %s, %j',
-                tid,
-                QUERY_ERROR,
-                error
-              )
-            );
+            logger.warn(util.format('queryByEntityId, tx_id: %s, %s, %j', tid, QUERY_ERROR, error));
 
             unsubscribe();
             reject({ error });
@@ -116,9 +107,7 @@ export const privateDataRepo: (option: {
           })
         );
 
-        logger.info(
-          util.format('queryByEntityId, tx_id: %s, %s, %s', tid, id, entityName)
-        );
+        logger.info(util.format('queryByEntityId, tx_id: %s, %s, %s', tid, id, entityName));
       }),
     getByEntityName: () =>
       new Promise<{ data: TEntity[] }>((resolve, reject) => {
@@ -126,13 +115,7 @@ export const privateDataRepo: (option: {
         const unsubscribe = store.subscribe(() => {
           const { tx_id, result, error, type } = store.getState().write;
           if (tx_id === tid && type === QUERY_SUCCESS) {
-            logger.info(
-              util.format(
-                'queryByEntityName, tx_id: %s, %s',
-                tid,
-                QUERY_SUCCESS
-              )
-            );
+            logger.info(util.format('queryByEntityName, tx_id: %s, %s', tid, QUERY_SUCCESS));
 
             unsubscribe();
             resolve({
@@ -141,14 +124,7 @@ export const privateDataRepo: (option: {
           }
 
           if (tx_id === tid && type === QUERY_ERROR) {
-            logger.warn(
-              util.format(
-                'queryByEntityName, tx_id: %s, %s, %j',
-                tid,
-                QUERY_ERROR,
-                error
-              )
-            );
+            logger.warn(util.format('queryByEntityName, tx_id: %s, %s, %j', tid, QUERY_ERROR, error));
 
             unsubscribe();
             reject({ error });
@@ -166,9 +142,7 @@ export const privateDataRepo: (option: {
           })
         );
 
-        logger.info(
-          util.format('queryByEntityName, tx_id: %s, %s', tid, entityName)
-        );
+        logger.info(util.format('queryByEntityName, tx_id: %s, %s', tid, entityName));
       }),
     deleteByEntityIdCommitId: (id, commitId) =>
       new Promise<any>((resolve, reject) => {
@@ -176,27 +150,14 @@ export const privateDataRepo: (option: {
         const unsubscribe = store.subscribe(() => {
           const { tx_id, result, error, type } = store.getState().write;
           if (tx_id === tid && type === DELETE_SUCCESS) {
-            logger.info(
-              util.format(
-                'deleteByEntityIdCommitId, tx_id: %s, %s',
-                tid,
-                DELETE_SUCCESS
-              )
-            );
+            logger.info(util.format('deleteByEntityIdCommitId, tx_id: %s, %s', tid, DELETE_SUCCESS));
 
             unsubscribe();
             resolve(result);
           }
 
           if (tx_id === tid && type === DELETE_ERROR) {
-            logger.warn(
-              util.format(
-                'deleteByEntityIdCommitId, tx_id: %s, %s, %j',
-                tid,
-                DELETE_ERROR,
-                error
-              )
-            );
+            logger.warn(util.format('deleteByEntityIdCommitId, tx_id: %s, %s, %j', tid, DELETE_ERROR, error));
 
             unsubscribe();
             reject({ error });
@@ -214,14 +175,7 @@ export const privateDataRepo: (option: {
           })
         );
 
-        logger.info(
-          util.format(
-            'deleteByEntityIdCommitId, tx_id: %s, %s, %s',
-            tid,
-            id,
-            entityName
-          )
-        );
+        logger.info(util.format('deleteByEntityIdCommitId, tx_id: %s, %s, %s', tid, id, entityName));
       }),
     getEntityName: () => entityName
   };

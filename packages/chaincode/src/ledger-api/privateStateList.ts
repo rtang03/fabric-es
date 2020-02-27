@@ -16,7 +16,7 @@ export class PrivateStateList {
     while (true) {
       const { value, done } = await iterator.next();
       if (value && value.value.toString()) {
-        const commit = JSON.parse((value.value as Buffer).toString('utf8'));
+        const commit = JSON.parse(value.value.toString('utf8'));
         result[commit.commitId] = omit(commit, 'key');
       }
       if (done) {
@@ -45,9 +45,6 @@ export class PrivateStateList {
   }
 
   async deleteState(collection: string, { key }: Commit) {
-    await this.ctx.stub.deletePrivateData(
-      collection,
-      this.ctx.stub.createCompositeKey(this.name, splitKey(key))
-    );
+    await this.ctx.stub.deletePrivateData(collection, this.ctx.stub.createCompositeKey(this.name, splitKey(key)));
   }
 }

@@ -19,9 +19,7 @@ import {
   NetworkOperator
 } from './types';
 
-export const createNetworkOperator = async (
-  option: CreateNetworkOperatorOption
-): Promise<NetworkOperator> => {
+export const createNetworkOperator = async (option: CreateNetworkOperatorOption): Promise<NetworkOperator> => {
   const logger = Client.getLogger('createNetworkOperator.js');
 
   const { channelName, ordererTlsCaCert, ordererName, context } = option;

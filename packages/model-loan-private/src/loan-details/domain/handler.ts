@@ -2,8 +2,7 @@ import { Errors } from '@espresso/model-common';
 import { LoanDetailsCommandHandler, LoanDetailsRepo } from '..';
 
 export const LoanDetailsErrors = {
-  loanDetailsNotFound: loanId =>
-    new Error(`LOAN_DETAILS_NOT_FOUND: id: ${loanId}`)
+  loanDetailsNotFound: loanId => new Error(`LOAN_DETAILS_NOT_FOUND: id: ${loanId}`)
 };
 
 export const loanDetailsCommandHandler: (option: {
@@ -26,10 +25,8 @@ export const loanDetailsCommandHandler: (option: {
       timestamp
     }
   }) => {
-    if (!requester || !requester.registration || !requester.name)
-      throw Errors.requiredDataMissing();
-    if (!contact || !contact.name || !contact.phone || !contact.email)
-      throw Errors.requiredDataMissing();
+    if (!requester || !requester.registration || !requester.name) throw Errors.requiredDataMissing();
+    if (!contact || !contact.name || !contact.phone || !contact.email) throw Errors.requiredDataMissing();
     if (!startDate) throw Errors.requiredDataMissing();
     if (!tenor) throw Errors.requiredDataMissing();
     if (!currency) throw Errors.requiredDataMissing();
@@ -81,127 +78,90 @@ export const loanDetailsCommandHandler: (option: {
   DefineLoanRequester: async _ => {
     throw Errors.invalidOperation(); // Readonly field
   },
-  DefineLoanContact: async ({
-    userId,
-    payload: { loanId, contact, timestamp }
-  }) =>
-    loanDetailsRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
-        const payload = {
-          loanId,
-          userId,
-          timestamp,
-          ...currentState.contact
-        };
-        return save([
-          {
-            type: 'LoanContactDefined',
-            payload: Object.assign(payload, contact)
-          }
-        ]);
-      }),
-  DefineLoanType: async ({
-    userId,
-    payload: { loanId, loanType, timestamp }
-  }) =>
-    loanDetailsRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
-        return save([
-          {
-            type: 'LoanTypeDefined',
-            payload: { loanId, userId, loanType, timestamp }
-          }
-        ]);
-      }),
-  DefineLoanStartDate: async ({
-    userId,
-    payload: { loanId, startDate, timestamp }
-  }) =>
-    loanDetailsRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
-        return save([
-          {
-            type: 'LoanStartDateDefined',
-            payload: { loanId, userId, startDate, timestamp }
-          }
-        ]);
-      }),
+  DefineLoanContact: async ({ userId, payload: { loanId, contact, timestamp } }) =>
+    loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
+      const payload = {
+        loanId,
+        userId,
+        timestamp,
+        ...currentState.contact
+      };
+      return save([
+        {
+          type: 'LoanContactDefined',
+          payload: Object.assign(payload, contact)
+        }
+      ]);
+    }),
+  DefineLoanType: async ({ userId, payload: { loanId, loanType, timestamp } }) =>
+    loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
+      return save([
+        {
+          type: 'LoanTypeDefined',
+          payload: { loanId, userId, loanType, timestamp }
+        }
+      ]);
+    }),
+  DefineLoanStartDate: async ({ userId, payload: { loanId, startDate, timestamp } }) =>
+    loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
+      return save([
+        {
+          type: 'LoanStartDateDefined',
+          payload: { loanId, userId, startDate, timestamp }
+        }
+      ]);
+    }),
   DefineLoanTenor: async ({ userId, payload: { loanId, tenor, timestamp } }) =>
-    loanDetailsRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
-        return save([
-          {
-            type: 'LoanTenorDefined',
-            payload: { loanId, userId, tenor, timestamp }
-          }
-        ]);
-      }),
-  DefineLoanCurrency: async ({
-    userId,
-    payload: { loanId, currency, timestamp }
-  }) =>
-    loanDetailsRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
-        return save([
-          {
-            type: 'LoanCurrencyDefined',
-            payload: { loanId, userId, currency, timestamp }
-          }
-        ]);
-      }),
-  DefineLoanRequestedAmt: async ({
-    userId,
-    payload: { loanId, requestedAmt, timestamp }
-  }) =>
-    loanDetailsRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
-        return save([
-          {
-            type: 'LoanRequestedAmtDefined',
-            payload: { loanId, userId, requestedAmt, timestamp }
-          }
-        ]);
-      }),
-  DefineLoanApprovedAmt: async ({
-    userId,
-    payload: { loanId, approvedAmt, timestamp }
-  }) =>
-    loanDetailsRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
-        return save([
-          {
-            type: 'LoanApprovedAmtDefined',
-            payload: { loanId, userId, approvedAmt, timestamp }
-          }
-        ]);
-      }),
-  DefineLoanComment: async ({
-    userId,
-    payload: { loanId, comment, timestamp }
-  }) =>
-    loanDetailsRepo
-      .getById({ enrollmentId, id: loanId })
-      .then(({ currentState, save }) => {
-        if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
-        return save([
-          {
-            type: 'LoanCommentDefined',
-            payload: { loanId, userId, comment, timestamp }
-          }
-        ]);
-      })
+    loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
+      return save([
+        {
+          type: 'LoanTenorDefined',
+          payload: { loanId, userId, tenor, timestamp }
+        }
+      ]);
+    }),
+  DefineLoanCurrency: async ({ userId, payload: { loanId, currency, timestamp } }) =>
+    loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
+      return save([
+        {
+          type: 'LoanCurrencyDefined',
+          payload: { loanId, userId, currency, timestamp }
+        }
+      ]);
+    }),
+  DefineLoanRequestedAmt: async ({ userId, payload: { loanId, requestedAmt, timestamp } }) =>
+    loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
+      return save([
+        {
+          type: 'LoanRequestedAmtDefined',
+          payload: { loanId, userId, requestedAmt, timestamp }
+        }
+      ]);
+    }),
+  DefineLoanApprovedAmt: async ({ userId, payload: { loanId, approvedAmt, timestamp } }) =>
+    loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
+      return save([
+        {
+          type: 'LoanApprovedAmtDefined',
+          payload: { loanId, userId, approvedAmt, timestamp }
+        }
+      ]);
+    }),
+  DefineLoanComment: async ({ userId, payload: { loanId, comment, timestamp } }) =>
+    loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
+      return save([
+        {
+          type: 'LoanCommentDefined',
+          payload: { loanId, userId, comment, timestamp }
+        }
+      ]);
+    })
 });

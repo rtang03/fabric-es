@@ -1,15 +1,13 @@
-import Client from 'fabric-client';
 import { readFileSync } from 'fs';
 import util from 'util';
+import Client from 'fabric-client';
 
 export interface CreateAdminOption {
   client: Client;
   orgAdminMspPath: string;
 }
 
-export const createAdmin = async (
-  option: CreateAdminOption
-): Promise<Client.User> => {
+export const createAdmin = async (option: CreateAdminOption): Promise<Client.User> => {
   const logger = Client.getLogger('createAdmin.js');
 
   const { client, orgAdminMspPath } = option;

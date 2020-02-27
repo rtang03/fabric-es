@@ -1,12 +1,12 @@
-import Client from 'fabric-client';
 import util from 'util';
-import { createProjectionDb, createQueryDatabase } from '.';
+import Client from 'fabric-client';
 import { action } from '../cqrs/query';
 import { generateToken } from '../cqrs/utils';
 import { channelEventHub } from '../services';
 import { getStore } from '../store';
 import { Peer, PeerOptions } from '../types';
 import { ngacRepo, privateDataRepo, reconcile, repository } from './utils';
+import { createProjectionDb, createQueryDatabase } from '.';
 
 export const createPeer: (options: PeerOptions) => Peer = options => {
   const logger = Client.getLogger('createPeer.js');

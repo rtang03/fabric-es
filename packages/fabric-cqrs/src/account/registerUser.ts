@@ -10,14 +10,7 @@ export const registerUser: (option: {
   fabricNetwork: string;
   wallet: Wallet;
   caAdmin: string;
-}) => any = async ({
-  enrollmentId,
-  enrollmentSecret,
-  connectionProfile,
-  fabricNetwork,
-  wallet,
-  caAdmin
-}) => {
+}) => any = async ({ enrollmentId, enrollmentSecret, connectionProfile, fabricNetwork, wallet, caAdmin }) => {
   const logger = Client.getLogger('registerUser.js');
 
   const operator = await registerAndEnroll({

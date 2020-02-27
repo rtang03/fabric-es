@@ -6,12 +6,7 @@ import { queryEpic, reducer as query } from '../cqrs/query';
 import { reconcileEpic, reducer as reconcile } from '../cqrs/reconcile';
 import { PeerOptions } from '../types';
 
-const rootEpic = combineEpics(
-  ...commandEpic,
-  ...projectionEpic,
-  ...queryEpic,
-  ...reconcileEpic
-);
+const rootEpic = combineEpics(...commandEpic, ...projectionEpic, ...queryEpic, ...reconcileEpic);
 
 const rootReducer = combineReducers({ write, projection, query, reconcile });
 

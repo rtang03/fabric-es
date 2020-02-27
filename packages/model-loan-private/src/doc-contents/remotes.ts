@@ -39,15 +39,14 @@ export const typeDefs = gql`
 
 export const resolvers = {
   Document: {
-    _contents: async ({ documentId }, { token }, { uriResolver, remoteData }: RemoteData) => {
-      return remoteData({
+    _contents: async ({ documentId }, { token }, { uriResolver, remoteData }: RemoteData) =>
+      remoteData({
         uri: await uriResolver.resolve(documentId),
         query: GET_CONTENTS_BY_ID,
         operationName: 'GetDocContentsById',
         variables: { documentId },
         token
-      }).then(results => results.map(({ data }) => data?.getDocContentsById));
-    }
+      }).then(results => results.map(({ data }) => data?.getDocContentsById))
   },
   DocContents: {
     document: ({ documentId }) => ({ __typename: 'Document', documentId })

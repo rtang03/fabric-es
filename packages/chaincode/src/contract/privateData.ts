@@ -2,12 +2,7 @@ import { hash } from 'bcrypt';
 import { Context, Contract } from 'fabric-contract-api';
 import { ChaincodeStub } from 'fabric-shim';
 import { omit } from 'lodash';
-import {
-  createInstance,
-  makeKey,
-  PrivateStateList,
-  toRecord
-} from '../ledger-api';
+import { createInstance, makeKey, PrivateStateList, toRecord } from '../ledger-api';
 
 class MyContext extends Context {
   stateList?: PrivateStateList;
@@ -41,9 +36,7 @@ export class PrivateData extends Contract {
     commitId: string
   ) {
     if (!id || !version || !entityName || !commitId || !collection)
-      throw new Error(
-        'createCommit: null argument: id, version, entityName, collection'
-      );
+      throw new Error('createCommit: null argument: id, version, entityName, collection');
 
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
 
@@ -71,36 +64,20 @@ export class PrivateData extends Contract {
     return Buffer.from(JSON.stringify(toRecord(omit(commit, 'key', 'events'))));
   }
 
-  async queryByEntityName(
-    context: MyContext,
-    collection: string,
-    entityName: string
-  ) {
-    if (!entityName)
-      throw new Error('queryPrivateDataByEntityName problem: null argument');
+  async queryByEntityName(context: MyContext, collection: string, entityName: string) {
+    if (!entityName) throw new Error('queryPrivateDataByEntityName problem: null argument');
 
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
 
-    return await context.stateList.getQueryResult(collection, [
-      JSON.stringify(entityName)
-    ]);
+    return await context.stateList.getQueryResult(collection, [JSON.stringify(entityName)]);
   }
 
-  async queryByEntityId(
-    context: MyContext,
-    collection: string,
-    entityName: string,
-    id: string
-  ) {
-    if (!id || !entityName || !collection)
-      throw new Error('queryPrivateDataByEntityId problem: null argument');
+  async queryByEntityId(context: MyContext, collection: string, entityName: string, id: string) {
+    if (!id || !entityName || !collection) throw new Error('queryPrivateDataByEntityId problem: null argument');
 
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
 
-    return await context.stateList.getQueryResult(collection, [
-      JSON.stringify(entityName),
-      JSON.stringify(id)
-    ]);
+    return await context.stateList.getQueryResult(collection, [JSON.stringify(entityName), JSON.stringify(id)]);
   }
 
   async queryByEntityIdCommitId(
@@ -110,8 +87,7 @@ export class PrivateData extends Contract {
     id: string,
     commitId: string
   ) {
-    if (!id || !entityName || !commitId)
-      throw new Error('getPrivateData problem: null argument');
+    if (!id || !entityName || !commitId) throw new Error('getPrivateData problem: null argument');
 
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
 
@@ -119,8 +95,7 @@ export class PrivateData extends Contract {
     const commit = await context.stateList.getState(collection, key);
     const result = {};
 
-    if (commit && commit.commitId)
-      result[commit.commitId] = omit(commit, 'key');
+    if (commit && commit.commitId) result[commit.commitId] = omit(commit, 'key');
 
     return Buffer.from(JSON.stringify(result));
   }
@@ -133,9 +108,7 @@ export class PrivateData extends Contract {
     commitId: string
   ) {
     if (!id || !entityName || !commitId || !collection)
-      throw new Error(
-        'deletePrivateDataByEntityIdCommitId problem: null argument'
-      );
+      throw new Error('deletePrivateDataByEntityIdCommitId problem: null argument');
 
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
 

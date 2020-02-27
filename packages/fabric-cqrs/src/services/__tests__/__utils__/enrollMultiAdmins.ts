@@ -2,7 +2,7 @@ require('../../../env');
 
 import { enrollAdmin } from '@espresso/operator';
 
-export const enrollOrg1Admin = (wallet) =>
+export const enrollOrg1Admin = wallet =>
   enrollAdmin({
     enrollmentID: 'admin-etradeconnect.net',
     enrollmentSecret: 'password',
@@ -16,7 +16,7 @@ export const enrollOrg1Admin = (wallet) =>
     }
   });
 
-export const enrollOrg2Admin = (wallet) =>
+export const enrollOrg2Admin = wallet =>
   enrollAdmin({
     enrollmentID: 'admin-pbctfp.net',
     enrollmentSecret: 'password',
@@ -30,7 +30,7 @@ export const enrollOrg2Admin = (wallet) =>
     }
   });
 
-export const enrollOrg1CaAdmin = (wallet) =>
+export const enrollOrg1CaAdmin = wallet =>
   enrollAdmin({
     enrollmentID: 'rca-etradeconnect-admin',
     enrollmentSecret: 'rca-etradeconnect-adminPW',
@@ -44,7 +44,7 @@ export const enrollOrg1CaAdmin = (wallet) =>
     }
   });
 
-export const enrollOrg2CaAdmin = (wallet) =>
+export const enrollOrg2CaAdmin = wallet =>
   enrollAdmin({
     enrollmentID: 'rca-pboc-admin',
     enrollmentSecret: 'rca-pboc-adminPW',

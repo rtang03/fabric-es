@@ -3,11 +3,11 @@ import { Attribute, CONTEXT, Resource } from '../types';
 import { createId } from './createId';
 import { makeKey } from './makeKey';
 
-export const createMSPResource: (option: {
-  context: Context;
-  mspId: string;
-  mspAttrs: Attribute[];
-}) => Resource = ({ context, mspId, mspAttrs }) => {
+export const createMSPResource: (option: { context: Context; mspId: string; mspAttrs: Attribute[] }) => Resource = ({
+  context,
+  mspId,
+  mspAttrs
+}) => {
   if (!mspId || !context || !mspAttrs) {
     return null;
   }
@@ -17,19 +17,14 @@ export const createMSPResource: (option: {
 
   // todo: replace with optional chaining to avoid TypeError: cannot read property of undefined
   // const invoker_id = cid.getID();
-  const invoker_id = createId([
-    cid.getMSPID(),
-    cid.getX509Certificate().subject.commonName
-  ]);
+  const invoker_id = createId([cid.getMSPID(), cid.getX509Certificate().subject.commonName]);
   const invoker_mspid = cid.getMSPID();
   const subject_cn = cid.getX509Certificate().subject.commonName;
   const subject_orgname = cid.getX509Certificate().subject.organizationName;
-  const subject_ouname = cid.getX509Certificate().subject
-    .organizationalUnitName;
+  const subject_ouname = cid.getX509Certificate().subject.organizationalUnitName;
   const issuer_cn = cid.getX509Certificate().issuer.commonName;
   const issuer_orgname = cid.getX509Certificate().issuer.organizationName;
-  const attr = (key, value) =>
-    value ? { type: '1' as any, key, value } : null;
+  const attr = (key, value) => (value ? { type: '1' as any, key, value } : null);
 
   contextAttrs.push(
     ...[

@@ -16,7 +16,7 @@ export const loanDetailsReducer = (details: LoanDetails, event: LoanDetailsEvent
     case 'LoanRequesterDefined':
       const rqstr: any = {
         registration: event.payload.registration,
-        name: event.payload.name,
+        name: event.payload.name
       };
       if (event.payload.type) rqstr.type = event.payload.type;
       return {

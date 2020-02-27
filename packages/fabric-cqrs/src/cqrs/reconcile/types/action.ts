@@ -1,6 +1,6 @@
+import { Wallet } from 'fabric-network';
 import { Store } from 'redux';
 import { Commit, Reducer } from '../../../types';
-import { Wallet } from 'fabric-network';
 
 export interface ReconcileAction {
   type: string;

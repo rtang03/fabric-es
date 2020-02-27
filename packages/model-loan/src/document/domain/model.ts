@@ -1,5 +1,7 @@
 export enum DocumentStatus {
-  DocumentCreated, DocumentDeleted, DocumentRestricted
+  DocumentCreated,
+  DocumentDeleted,
+  DocumentRestricted
 }
 
 /**

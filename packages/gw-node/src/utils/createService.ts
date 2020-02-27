@@ -1,18 +1,11 @@
+import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
-import {
-  createPeer,
-  getNetwork,
-  PeerOptions,
-  PrivatedataRepository,
-  Reducer,
-  Repository
-} from '@espresso/fabric-cqrs';
+import { createPeer, getNetwork, PeerOptions, PrivatedataRepository, Reducer, Repository } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import Client from 'fabric-client';
 import { Wallet } from 'fabric-network';
-import util from 'util';
-import { DataSrc } from '..';
 import { shutdown } from './shutdownApollo';
+import { DataSrc } from '..';
 
 export const createService = async ({
   enrollmentId,
@@ -46,14 +39,7 @@ export const createService = async ({
     channelEventHubExisted: true
   });
 
-  const {
-    reconcile,
-    getRepository,
-    getPrivateDataRepo,
-    subscribeHub,
-    unsubscribeHub,
-    disconnect
-  } = createPeer({
+  const { reconcile, getRepository, getPrivateDataRepo, subscribeHub, unsubscribeHub, disconnect } = createPeer({
     ...(networkConfig as Partial<PeerOptions>),
     defaultEntityName,
     defaultReducer,
@@ -69,24 +55,20 @@ export const createService = async ({
   return {
     ...result,
     config: ({ typeDefs, resolvers }) => {
-      const repositories: Array<{
+      const repositories: {
         entityName: string;
         repository: Repository | PrivatedataRepository;
-      }> = [];
+      }[] = [];
 
-      async function create(): Promise<ApolloServer> {
+      const create: () => Promise<ApolloServer> = async () => {
         const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
         if (!isPrivate) {
-          logger.info(
-            `♨️♨️  Starting micro-service for on-chain entity '${defaultEntityName}'...`
-          );
+          logger.info(`♨️♨️  Starting micro-service for on-chain entity '${defaultEntityName}'...`);
 
           try {
-            await subscribeHub();
+            subscribeHub();
           } catch (error) {
-            logger.error(
-              util.format('fail to subscribeHub and exiting:, %j', error)
-            );
+            logger.error(util.format('fail to subscribeHub and exiting:, %j', error));
             process.exit(1);
           }
 
@@ -104,9 +86,7 @@ export const createService = async ({
 
           logger.info(`reconcile complete: ${defaultEntityName}`);
         } else {
-          logger.info(
-            `♨️♨️  Starting micro-service for off-chain private data...`
-          );
+          logger.info(`♨️♨️  Starting micro-service for off-chain private data...`);
         }
 
         return new ApolloServer({
@@ -127,20 +107,20 @@ export const createService = async ({
             enrollmentId: headers.user_id
           })
         });
-      }
+      };
 
-      function addRepository(repository: Repository | PrivatedataRepository) {
+      const addRepository = (repository: Repository | PrivatedataRepository) => {
         repositories.push({
           entityName: repository.getEntityName(),
           repository
         });
         return { create, addRepository };
-      }
+      };
 
       return { addRepository };
     },
     shutdown: shutdown({ logger, name: defaultEntityName }),
-    unsubscribeHub: (!isPrivate) ? unsubscribeHub : null,
+    unsubscribeHub: !isPrivate ? unsubscribeHub : null,
     disconnect
   };
 };

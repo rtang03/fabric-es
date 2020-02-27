@@ -1,56 +1,56 @@
+import util from 'util';
 import { Commit } from '@espresso/fabric-cqrs';
 import { ApolloError, AuthenticationError } from 'apollo-server-errors';
 import Client from 'fabric-client';
 import gql from 'graphql-tag';
-import util from 'util';
 import { User, userCommandHandler, UserDS } from '.';
 import { Paginated } from '..';
 
 export const typeDefs = gql`
-type Query {
-  getCommitsByUserId(userId: String!): [UserCommit]!
-  getPaginatedUser(cursor: Int = 10): PaginatedUsers!
-  getUserById(userId: String!): User
-  me: User
-}
+  type Query {
+    getCommitsByUserId(userId: String!): [UserCommit]!
+    getPaginatedUser(cursor: Int = 10): PaginatedUsers!
+    getUserById(userId: String!): User
+    me: User
+  }
 
-type Mutation {
-  createUser(name: String!, userId: String!): UserResponse
-}
+  type Mutation {
+    createUser(name: String!, userId: String!): UserResponse
+  }
 
-type User @key(fields: "userId") {
-  userId: String!
-  name: String!
-  mergedUserIds: [String!]
-}
+  type User @key(fields: "userId") {
+    userId: String!
+    name: String!
+    mergedUserIds: [String!]
+  }
 
-type PaginatedUsers {
-  entities: [User!]!
-  total: Int!
-  hasMore: Boolean!
-  otherInfo: [String!]!
-}
+  type PaginatedUsers {
+    entities: [User!]!
+    total: Int!
+    hasMore: Boolean!
+    otherInfo: [String!]!
+  }
 
-union UserResponse = UserCommit | UserError
+  union UserResponse = UserCommit | UserError
 
-type UserEvent {
-  type: String
-}
+  type UserEvent {
+    type: String
+  }
 
-type UserCommit {
-  id: String
-  entityName: String
-  version: Int
-  commitId: String
-  committedAt: String
-  entityId: String
-  events: [UserEvent!]
-}
+  type UserCommit {
+    id: String
+    entityName: String
+    version: Int
+    commitId: String
+    committedAt: String
+    entityId: String
+    events: [UserEvent!]
+  }
 
-type UserError {
-  message: String!
-  stack: String
-}
+  type UserError {
+    message: String!
+    stack: String
+  }
 `;
 
 const NOT_AUTHENICATED = 'no enrollment id';
@@ -103,10 +103,7 @@ export const resolvers = {
     getUserById: async (
       _,
       { userId },
-      {
-        dataSources: { user },
-        enrollmentId
-      }: { dataSources: { user: UserDS }; enrollmentId: string }
+      { dataSources: { user }, enrollmentId }: { dataSources: { user: UserDS }; enrollmentId: string }
     ): Promise<User> => {
       const logger = Client.getLogger('user-resolvers.js');
 
@@ -123,10 +120,7 @@ export const resolvers = {
     createUser: async (
       _,
       { name, userId },
-      {
-        dataSources: { user },
-        enrollmentId
-      }: { dataSources: { user: UserDS }; enrollmentId: string }
+      { dataSources: { user }, enrollmentId }: { dataSources: { user: UserDS }; enrollmentId: string }
     ): Promise<Commit | ApolloError> => {
       const logger = Client.getLogger('user-resolvers.js');
 
@@ -150,7 +144,6 @@ export const resolvers = {
     }
   },
   UserResponse: {
-    __resolveType: (obj: any) =>
-      obj.commitId ? 'UserCommit' : obj.message ? 'UserError' : null
+    __resolveType: (obj: any) => (obj.commitId ? 'UserCommit' : obj.message ? 'UserError' : null)
   }
 };

@@ -6,11 +6,7 @@ import { ProjectionDb } from '../../../types';
 import { action } from '../action';
 import { FindAction } from '../types';
 
-export default (
-  action$: Observable<FindAction>,
-  _,
-  context: { projectionDb: ProjectionDb }
-) => {
+export default (action$: Observable<FindAction>, _, context: { projectionDb: ProjectionDb }) => {
   const logger = Client.getLogger('find.js');
 
   return action$.pipe(
