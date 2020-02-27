@@ -8,8 +8,7 @@ export const ROOT_CLIENT_NOT_FOUND = 'could not find root client';
 export const ALREADY_EXIST = 'already exist';
 
 // OAuth2's Error Message
-export const UNAUTHORIZED_REQUEST =
-  'Unauthorized request: no authentication given';
+export const UNAUTHORIZED_REQUEST = 'Unauthorized request: no authentication given';
 export const MISSING_CLIENT_ID = 'Missing parameter: `client_id`';
 export const MISSING_REDIRECT_URI = 'Missing parameter: `redirect_uri`';
 export const MISSING_STATE = 'Missing parameter: `state`';

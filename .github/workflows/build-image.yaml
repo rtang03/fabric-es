@@ -1,0 +1,74 @@
+name: Build Images
+on:
+  push:
+    tags:
+      - 'v*'
+    paths-ignore:
+      - '**.md'
+env:
+  GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
+  GKE_EMAIL: ${{ secrets.GKE_EMAIL }}
+  GITHUB_SHA: v1.0.0
+  #  GITHUB_SHA: ${{ github.sha }}
+  GKE_ZONE: us-central1-a
+  GKE_CLUSTER: test-net-cluster-1
+  AUTH_IMAGE: auth-server
+  GW_ORG1_IMAGE: gw-org1
+  REGISTRY_HOSTNAME: gcr.io
+  DEPLOYMENT_NAME: gke-test
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - uses: actions/cache@v1
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Setup Node.js for use with action
+        uses: actions/setup-node@v1.1.0
+        with:
+          node-version: '8.x'
+          version: '8.x'
+      - run: yarn install --frozen-lockfile --ignore-engines
+      - run: yarn lint
+      - name: Run unit tests for lib - chaincode, fabric-cqrs, gw-node, operator
+        run: yarn unit-test
+      - name: Build auth-server image
+        run: yarn build:auth
+      - name: Build gw-org1 image
+        run: yarn build:gw-dev-net:org1
+      # Setup CLI
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '270.0.0'
+          service_account_email: ${{ secrets.GKE_EMAIL }}
+          service_account_key: ${{ secrets.GKE_KEY }}
+      - run: gcloud auth configure-docker
+      - name: Build auth-server image
+        run: |
+          docker build --no-cache -f ./auth-server.dockerfile \
+            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$AUTH_IMAGE":"$GITHUB_SHA" \
+            --build-arg GITHUB_SHA="$GITHUB_SHA" \
+            --build-arg GITHUB_REF="$GITHUB_REF" .
+      - name: Publish auth-server image
+        run: |
+          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$AUTH_IMAGE:$GITHUB_SHA
+      - name: Build gw-org1 image
+        run: |
+          docker build --no-cache -f ./gw-org1.dockerfile \
+            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$GW_ORG1_IMAGE":"$GITHUB_SHA" \
+            --build-arg GITHUB_SHA="$GITHUB_SHA" \
+            --build-arg GITHUB_REF="$GITHUB_REF" .
+      - name: Publish gw-org1 image
+        run: |
+          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$GW_ORG1_IMAGE:$GITHUB_SHA

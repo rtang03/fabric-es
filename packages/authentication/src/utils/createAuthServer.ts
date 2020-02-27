@@ -8,9 +8,7 @@ import { RefreshToken } from '../entity/RefreshToken';
 import { ClientResolver, OUserResolver } from '../resolvers';
 import { createHttpServer } from './index';
 
-export const createDbConnection = (
-  connectionOptions: any
-): ConnectionOptions => ({
+export const createDbConnection = (connectionOptions: any): ConnectionOptions => ({
   ...connectionOptions,
   entities: [OUser, Client, AccessToken, AuthorizationCode, RefreshToken]
 });

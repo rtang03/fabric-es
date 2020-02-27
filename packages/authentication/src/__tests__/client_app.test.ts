@@ -1,5 +1,3 @@
-import { createDb } from './__utils__/createDb';
-
 require('../env');
 import { Express } from 'express';
 import request from 'supertest';
@@ -31,6 +29,7 @@ import {
   USER_NOT_FOUND
 } from '../types';
 import { createHttpServer } from '../utils';
+import { createDb } from './__utils__/createDb';
 
 let app: Express;
 let client_id: string;
