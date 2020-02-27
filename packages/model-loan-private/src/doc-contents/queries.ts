@@ -11,14 +11,14 @@ mutation CreateDataDocContents(
       documentId: $documentId,
       body: $body
   ) {
-    ... on LocalCommit {
+    ... on DocContentsCommit {
       id
       entityName
       version
       commitId
       committedAt
     }
-    ... on LocalError {
+    ... on DocContentsError {
       message
     }
   }
@@ -37,14 +37,14 @@ mutation CreateFileDocContents(
     format: $format,
     link: $link
   ) {
-    ... on LocalCommit {
+    ... on DocContentsCommit {
       id
       entityName
       version
       commitId
       committedAt
     }
-    ... on LocalError {
+    ... on DocContentsError {
       message
     }
   }
