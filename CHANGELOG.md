@@ -1,4 +1,4 @@
-## [v1.0.8] - 2020--2-27 
+## [1.0.9] - 2020--2-27 
 ### Added
 - Feature A
 - Feature B
@@ -12,7 +12,7 @@
 - Previous CI build
 - Previous Artifactory
 
-## [v1.0.5] - 2020--2-27 
+## [1.0.5] - 2020--2-27 
 ### Added
 - Feature A
 - Feature B
