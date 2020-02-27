@@ -37,7 +37,7 @@ export const createAdminService = async ({
   playground?: boolean;
   introspection?: boolean;
 }) => {
-  const logger = Client.getLogger('createAdminServiceV2.js');
+  const logger = Client.getLogger('createAdminService.js');
 
   if (!channelName) {
     logger.error(MISSING_CHANNELNAME);
