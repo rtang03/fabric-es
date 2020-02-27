@@ -1,4 +1,5 @@
 require('./env');
+import { getReducer } from '@espresso/fabric-cqrs';
 import { createService, getLogger } from '@espresso/gw-node';
 import {
   User,
@@ -11,29 +12,27 @@ import { FileSystemWallet } from 'fabric-network';
 import util from 'util';
 
 const logger = getLogger('service-user.js');
+const reducer = getReducer<User, UserEvents>(userReducer);
 
 createService({
   enrollmentId: process.env.ORG_ADMIN_ID,
   defaultEntityName: 'user',
-  defaultReducer: userReducer,
+  defaultReducer: reducer,
   collection: process.env.COLLECTION,
   channelEventHub: process.env.CHANNEL_HUB,
   channelName: process.env.CHANNEL_NAME,
   connectionProfile: process.env.CONNECTION_PROFILE,
   wallet: new FileSystemWallet(process.env.WALLET)
-})
-  .then(async ({ config, shutdown, getRepository }) => {
+}).then(async ({ config, shutdown, getRepository }) => {
     const app = await config({
       typeDefs: userTypeDefs,
       resolvers: userResolvers
-    })
-      .addRepository(
-        getRepository<User, UserEvents>({
-          entityName: 'user',
-          reducer: userReducer
-        })
-      )
-      .create();
+    }).addRepository(
+      getRepository<User, UserEvents>({
+        entityName: 'user',
+        reducer
+      })
+    ).create();
 
     process.on('SIGINT', async () => await shutdown(app));
     process.on('SIGTERM', async () => await shutdown(app));
@@ -44,7 +43,7 @@ createService({
 
     app.listen({ port: process.env.SERVICE_USER_PORT }).then(({ url }) => {
       logger.info(`🚀  '${process.env.ORGNAME}' - 'user' available at ${url}`);
-      process.send('ready');
+      if (process.env.NODE_ENV === 'production') process.send('ready');
     });
   })
   .catch(error => {

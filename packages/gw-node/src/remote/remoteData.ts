@@ -7,11 +7,11 @@ export interface RemoteData {
   enrollmentId?: string;
   uriResolver?: UriResolver;
   remoteData: (operation: {
-    uri: string;
+    uri: string[];
     query: any;
     context?: any;
     operationName?: string;
     variables?: any;
     token?: string;
-  }) => Promise<any>;
+  }) => Promise<any[]>;
 }

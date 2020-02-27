@@ -4,7 +4,7 @@ import {
   DocContentsCommandHandler,
   DocContentsRepo,
   FileContent
-} from '.';
+} from '..';
 
 export const DocContentsErrors = {
   docContentsNotFound: id => new Error(`DOC_CONTENTS_NOT_FOUND: id: ${id}`)

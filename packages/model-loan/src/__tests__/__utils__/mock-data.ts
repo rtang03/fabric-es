@@ -1,4 +1,4 @@
-import { Commit, getMockRepository } from '@espresso/fabric-cqrs';
+import { Commit, getMockRepository, getReducer } from '@espresso/fabric-cqrs';
 import {
   User,
   UserEvents,
@@ -204,17 +204,17 @@ export const mockdb: Record<string, Commit> = {
 export const userRepo = getMockRepository<User, UserEvents>(
   mockdb,
   'user',
-  userReducer
+  getReducer<User, UserEvents>(userReducer)
 );
 
 export const loanRepo = getMockRepository<Loan, LoanEvents>(
   mockdb,
   'loan',
-  loanReducer
+  getReducer<Loan, LoanEvents>(loanReducer)
 );
 
 export const documentRepo = getMockRepository<Document, DocumentEvents>(
   mockdb,
   'document',
-  documentReducer
+  getReducer<Document, DocumentEvents>(documentReducer)
 );

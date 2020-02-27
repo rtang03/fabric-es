@@ -14,4 +14,7 @@ docker exec cli{{network.host-delimiter}}{{domain}} sh -c "/setup/install_chainc
 docker exec cli{{network.host-delimiter}}{{orgs.peer.0.domain}} sh -c "/setup/instantiate_chaincode_org1.sh"
 
 # Invoke chaincode
-docker exec cli{{network.host-delimiter}}{{orgs.peer.0.domain}} sh -c "/setup/invoke_chaincode_org1.sh"
+{{#orgs.peer}}
+sleep 5
+docker exec cli{{network.host-delimiter}}{{domain}} sh -c "/setup/invoke_chaincode_{{script-naming}}.sh"
+{{/orgs.peer}}

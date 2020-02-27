@@ -1,4 +1,4 @@
-import { DataContent, FileContent } from '.';
+import { DataContent, FileContent } from '..';
 
 export interface DocContentsCommands {
   CreateDocContents: {

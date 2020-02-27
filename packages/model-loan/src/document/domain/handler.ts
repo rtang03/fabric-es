@@ -1,5 +1,5 @@
 import { Errors } from '@espresso/model-common';
-import { DocumentCommandHandler, DocumentRepo } from '.';
+import { DocumentCommandHandler, DocumentRepo } from '..';
 
 export const DocumentErrors = {
   documentNotFound: documentId =>

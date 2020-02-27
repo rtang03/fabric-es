@@ -33,12 +33,16 @@ services:
             - TYPEORM_PASSWORD=docker
             - TYPEORM_LOGGING=true
             - TYPEORM_DATABASE=auth_db
+            - ROOT_ADMIN=admin
+            - ROOT_ADMIN_PASSWORD=password
         ports:
             - 4100:8080
         networks:
             - apps_2
         logging:
             driver: gcplogs
+            options:
+                gcp-log-cmd: "true"
 
     gw-org2:
         container_name: gw-org2
@@ -50,7 +54,7 @@ services:
         environment:
             # GW-ORG2
             - ADMINISTRATOR_PORT=15021
-            - AUTHORIZATION_SERVER_URI=auth-server-2/oauth/authenticate
+            - AUTHORIZATION_SERVER_URI=http://auth-server-2:8080/oauth/authenticate
             - CA_ENROLLMENT_ID_ADMIN=rca-pboc-admin
             - CA_ENROLLMENT_SECRET_ADMIN=8aZBkFyj
             - CHAINCODE_ID=eventstore
@@ -75,6 +79,7 @@ services:
             - SERVICE_DOCUMENT_PORT=14023
             - SERVICE_LOAN_PORT=14022
             - SERVICE_USER_PORT=14021
+            - TEMP_REMOTE_URI=http://35.213.96.157:4000/graphql
             - WALLET=assets/wallet
         volumes:
             - /home/web/artifacts/crypto-config:/var/artifacts/crypto-config
@@ -99,3 +104,7 @@ services:
             - 4000:4002
         networks:
             - apps_2
+        logging:
+            driver: gcplogs
+            options:
+                gcp-log-cmd: "true"
