@@ -1,0 +1,261 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Unit Test: Org1 Queries query commits of document 1`] = `
+Array [
+  Object {
+    "entityName": "document",
+    "events": Array [
+      Object {
+        "type": "DocumentRestricted",
+      },
+    ],
+    "version": 2,
+  },
+  Object {
+    "entityName": "document",
+    "events": Array [
+      Object {
+        "type": "DocumentTitleDefined",
+      },
+    ],
+    "version": 1,
+  },
+  Object {
+    "entityName": "document",
+    "events": Array [
+      Object {
+        "type": "DocumentCreated",
+      },
+      Object {
+        "type": "DocumentReferenceDefined",
+      },
+      Object {
+        "type": "DocumentLoanIdDefined",
+      },
+      Object {
+        "type": "DocumentTitleDefined",
+      },
+    ],
+    "version": 0,
+  },
+]
+`;
+
+exports[`Unit Test: Org1 Queries query commits of loan 1`] = `
+Array [
+  Object {
+    "entityName": "loan",
+    "events": Array [
+      Object {
+        "type": "LoanReturned",
+      },
+    ],
+    "version": 1,
+  },
+  Object {
+    "entityName": "loan",
+    "events": Array [
+      Object {
+        "type": "LoanApplied",
+      },
+      Object {
+        "type": "LoanReferenceDefined",
+      },
+      Object {
+        "type": "LoanDescriptionDefined",
+      },
+    ],
+    "version": 0,
+  },
+]
+`;
+
+exports[`Unit Test: Org1 Queries query document by id 1`] = `
+Object {
+  "contents": Object {
+    "content": Object {
+      "body": "{ \\"message\\": \\"Org1 unit test doc-contents 0\\" }",
+    },
+  },
+  "loan": Object {
+    "description": "Org1 unit test loan 0",
+    "details": Object {
+      "approvedAmt": null,
+      "comment": "Org1 unit test loan-details",
+      "contact": Object {
+        "email": "jerk@fake.it",
+        "name": "Jerk",
+        "phone": "555-1234-5678",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "HKD",
+      "loanType": null,
+      "requestedAmt": 43.9,
+      "requester": Object {
+        "name": "Unit Test and Co. Ltd.",
+        "registration": "BR-UNIT-TEST",
+        "type": null,
+      },
+      "startDate": "1574846420902",
+      "tenor": 59,
+    },
+    "ownerId": "unitTestUser",
+    "reference": "REF-UNIT-TEST-LOAN-0",
+    "status": 0,
+  },
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-DOC-0",
+  "status": 0,
+  "title": "Org1 unit test document 0",
+}
+`;
+
+exports[`Unit Test: Org1 Queries query loan by id 1`] = `
+Object {
+  "description": "Org1 unit test loan 0",
+  "details": Object {
+    "approvedAmt": null,
+    "comment": "Org1 unit test loan-details",
+    "contact": Object {
+      "email": "jerk@fake.it",
+      "name": "Jerk",
+      "phone": "555-1234-5678",
+      "salutation": null,
+      "title": null,
+    },
+    "currency": "HKD",
+    "loanType": null,
+    "requestedAmt": 43.9,
+    "requester": Object {
+      "name": "Unit Test and Co. Ltd.",
+      "registration": "BR-UNIT-TEST",
+      "type": null,
+    },
+    "startDate": "1574846420902",
+    "tenor": 59,
+  },
+  "documents": Array [
+    Object {
+      "contents": Object {
+        "content": Object {
+          "body": "{ \\"message\\": \\"Org1 unit test doc-contents 0\\" }",
+        },
+      },
+      "reference": "REF-UNIT-TEST-DOC-0",
+      "status": 0,
+      "title": "Org1 unit test document 0",
+    },
+    Object {
+      "contents": Object {
+        "content": Object {
+          "format": "PDF",
+          "link": "http://fake.it/docs/org1UnitTestDocContents-1.pdf",
+        },
+      },
+      "reference": "REF-UNIT-TEST-DOC-1",
+      "status": 2,
+      "title": "Org1 unit test document 1",
+    },
+    Object {
+      "contents": null,
+      "reference": "REF-UNIT-TEST-DOC-2",
+      "status": 1,
+      "title": "Org1 unit test document 2",
+    },
+  ],
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-LOAN-0",
+  "status": 0,
+}
+`;
+
+exports[`Unit Test: Org1 Queries query loan by id 1 1`] = `
+Object {
+  "description": "Org1 unit test loan 1",
+  "details": null,
+  "documents": Array [
+    Object {
+      "contents": null,
+      "reference": "REF-UNIT-TEST-DOC-3",
+      "status": 0,
+      "title": "Org1 unit test document 3",
+    },
+  ],
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-LOAN-1",
+  "status": 1,
+}
+`;
+
+exports[`Unit Test: Org1 Queries query loan by id 2 1`] = `
+Object {
+  "description": "Org1 unit test loan 2 EDITED",
+  "details": null,
+  "documents": Array [
+    Object {
+      "contents": null,
+      "reference": "REF-UNIT-TEST-DOC-4",
+      "status": 0,
+      "title": "Org1 unit test document 4",
+    },
+  ],
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-LOAN-2",
+  "status": 2,
+}
+`;
+
+exports[`Unit Test: Org1 Queries query loan by id 3 1`] = `
+Object {
+  "description": "Org1 unit test loan 3",
+  "details": null,
+  "documents": Array [
+    Object {
+      "contents": null,
+      "reference": "REF-UNIT-TEST-DOC-5",
+      "status": 0,
+      "title": "Org1 unit test document 5",
+    },
+  ],
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-LOAN-3",
+  "status": 3,
+}
+`;
+
+exports[`Unit Test: Org1 Queries query loan by id 4 1`] = `
+Object {
+  "description": "Org1 unit test loan 4",
+  "details": null,
+  "documents": Array [
+    Object {
+      "contents": null,
+      "reference": "REF-UNIT-TEST-DOC-6",
+      "status": 0,
+      "title": "Org1 unit test document 6",
+    },
+  ],
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-LOAN-4",
+  "status": 4,
+}
+`;
+
+exports[`Unit Test: Org1 Queries query loan by id 5 1`] = `
+Object {
+  "description": "Org1 unit test loan 5",
+  "details": null,
+  "documents": Array [
+    Object {
+      "contents": null,
+      "reference": "REF-UNIT-TEST-DOC-7",
+      "status": 0,
+      "title": "Org1 unit test document 7",
+    },
+  ],
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-LOAN-5",
+  "status": 5,
+}
+`;

@@ -13,7 +13,7 @@
     "cp:env": "cp ../../deployments/gw-dev-net/build.gw-org1/.env.prod ../../.build/packages/gw-org1/.env",
     "cp:pm2": "cp ./processes.yaml ../../.build/packages/gw-org1/",
     "clean": "rimraf dist",
-    "test:unit": "yarn build && ./node_modules/.bin/jest unit.test",
+    "test:intg": "yarn build && ./node_modules/.bin/jest intg.test",
     "service-docu": "node ./dist/service-doc.js",
     "service-loan": "node ./dist/service-loan.js",
     "service-user": "node ./dist/service-user.js",
