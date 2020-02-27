@@ -98,8 +98,8 @@ const uri = `http://localhost:${port}/graphql`;
     try {
       await createRootClient({
         uri,
-        admin_password: process.env.ROOT_ADMIN_PASSWORD || 'admin_test',
-        admin: process.env.ROOT_ADMIN || 'admin'
+        admin_password: process.env.ROOT_ADMIN_PASSWORD,
+        admin: process.env.ROOT_ADMIN
       });
     } catch (err) {
       logger.error(util.format('An error occurred while createRootClient: %j', err));
