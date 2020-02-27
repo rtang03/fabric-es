@@ -58,9 +58,9 @@ export interface DocumentTitleDefined extends BaseEvent {
 }
 
 export type DocumentEvents =
-  DocumentCreated |
-  DocumentDeleted |
-  DocumentAccessRestricted |
-  DocumentReferenceDefined |
-  DocumentLoanIdDefined |
-  DocumentTitleDefined;
+  | DocumentCreated
+  | DocumentDeleted
+  | DocumentAccessRestricted
+  | DocumentReferenceDefined
+  | DocumentLoanIdDefined
+  | DocumentTitleDefined;

@@ -1,13 +1,7 @@
 import { Context, Contract, Transaction } from 'fabric-contract-api';
 import { isEqual, omit } from 'lodash';
 import { Commit, createInstance, makeKey, toRecord } from '../ledger-api';
-import {
-  createPolicy,
-  createResource,
-  NAMESPACE,
-  ngacRepo,
-  permissionCheck
-} from '../ngac';
+import { createPolicy, createResource, NAMESPACE, ngacRepo, permissionCheck } from '../ngac';
 import { createMSPResource } from '../ngac/utils/createMSPResource';
 import { MyContext } from './myContext';
 
@@ -165,8 +159,7 @@ export class EventStore extends Contract {
 
   @Transaction(false)
   async queryByEntityName(context: MyContext, entityName: string) {
-    if (!entityName)
-      throw new Error('queryByEntityName problem: null argument');
+    if (!entityName) throw new Error('queryByEntityName problem: null argument');
 
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
 
@@ -175,26 +168,16 @@ export class EventStore extends Contract {
 
   @Transaction(false)
   async queryByEntityId(context: MyContext, entityName: string, id: string) {
-    if (!id || !entityName)
-      throw new Error('queryByEntityId problem: null argument');
+    if (!id || !entityName) throw new Error('queryByEntityId problem: null argument');
 
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
 
-    return context.stateList.getQueryResult([
-      JSON.stringify(entityName),
-      JSON.stringify(id)
-    ]);
+    return context.stateList.getQueryResult([JSON.stringify(entityName), JSON.stringify(id)]);
   }
 
   @Transaction(false)
-  async queryByEntityIdCommitId(
-    context: MyContext,
-    entityName: string,
-    id: string,
-    commitId: string
-  ) {
-    if (!id || !entityName || !commitId)
-      throw new Error('queryByEntityIdCommitId problem: null argument');
+  async queryByEntityIdCommitId(context: MyContext, entityName: string, id: string, commitId: string) {
+    if (!id || !entityName || !commitId) throw new Error('queryByEntityIdCommitId problem: null argument');
 
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
 
@@ -202,21 +185,14 @@ export class EventStore extends Contract {
     const commit = await context.stateList.getState(key);
     const result = {};
 
-    if (commit && commit.commitId)
-      result[commit.commitId] = omit(commit, 'key');
+    if (commit && commit.commitId) result[commit.commitId] = omit(commit, 'key');
 
     return Buffer.from(JSON.stringify(result));
   }
 
   @Transaction()
-  async deleteByEntityIdCommitId(
-    context: MyContext,
-    entityName: string,
-    id: string,
-    commitId: string
-  ) {
-    if (!id || !entityName || !commitId)
-      throw new Error('deleteEntityByCommitId problem: null argument');
+  async deleteByEntityIdCommitId(context: MyContext, entityName: string, id: string, commitId: string) {
+    if (!id || !entityName || !commitId) throw new Error('deleteEntityByCommitId problem: null argument');
 
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
 
@@ -233,15 +209,11 @@ export class EventStore extends Contract {
 
   @Transaction()
   async deleteByEntityId(context: MyContext, entityName: string, id: string) {
-    if (!id || !entityName)
-      throw new Error('deleteByEntityId problem: null argument');
+    if (!id || !entityName) throw new Error('deleteByEntityId problem: null argument');
 
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
 
-    return context.stateList.deleteStateByEnityId([
-      JSON.stringify(entityName),
-      JSON.stringify(id)
-    ]);
+    return context.stateList.deleteStateByEnityId([JSON.stringify(entityName), JSON.stringify(id)]);
   }
 
   // NGAC calls
@@ -254,8 +226,7 @@ export class EventStore extends Contract {
     eventsStr: string,
     conditionStr?: string
   ) {
-    if (!policyClass || !sid || !uri || !eventsStr)
-      throw new Error('addPolicy problem: null argument');
+    if (!policyClass || !sid || !uri || !eventsStr) throw new Error('addPolicy problem: null argument');
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
     const allowedEvents = JSON.parse(eventsStr);
     const condition = conditionStr ? JSON.parse(conditionStr) : null;
@@ -269,42 +240,27 @@ export class EventStore extends Contract {
         condition
       })
     );
-    return policy
-      ? Buffer.from(JSON.stringify(policy))
-      : getErrorMessage('addPolicy');
+    return policy ? Buffer.from(JSON.stringify(policy)) : getErrorMessage('addPolicy');
   }
 
   @Transaction()
   async addMSPAttr(context: MyContext, mspId: string, mspAttrsStr: string) {
-    if (!mspId || !mspAttrsStr)
-      throw new Error('addMSPAttr problem: null argument');
+    if (!mspId || !mspAttrsStr) throw new Error('addMSPAttr problem: null argument');
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
     const mspAttrs = JSON.parse(mspAttrsStr);
-    const attributes = await ngacRepo(context).addMSPAttr(
-      createMSPResource({ context, mspId, mspAttrs })
-    );
-    return attributes
-      ? Buffer.from(JSON.stringify(attributes))
-      : getErrorMessage('addMSPAttr');
+    const attributes = await ngacRepo(context).addMSPAttr(createMSPResource({ context, mspId, mspAttrs }));
+    return attributes ? Buffer.from(JSON.stringify(attributes)) : getErrorMessage('addMSPAttr');
   }
 
   @Transaction()
-  async addResourceAttr(
-    context: MyContext,
-    entityName: string,
-    entityId: string,
-    resourceAttrsStr: string
-  ) {
-    if (!entityName || !resourceAttrsStr)
-      throw new Error('addResourceAttr problem: null argument');
+  async addResourceAttr(context: MyContext, entityName: string, entityId: string, resourceAttrsStr: string) {
+    if (!entityName || !resourceAttrsStr) throw new Error('addResourceAttr problem: null argument');
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
     const resourceAttrs = JSON.parse(resourceAttrsStr);
     const attributes = await ngacRepo(context).addResourceAttr(
       createResource({ context, entityName, entityId, resourceAttrs })
     );
-    return attributes
-      ? Buffer.from(JSON.stringify(attributes))
-      : getErrorMessage('addResourceAttr');
+    return attributes ? Buffer.from(JSON.stringify(attributes)) : getErrorMessage('addResourceAttr');
   }
 
   @Transaction()
@@ -312,9 +268,7 @@ export class EventStore extends Contract {
     if (!mspId) throw new Error('deleteMSPAttrByMSPID problem: null argument');
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
     const msp = await ngacRepo(context).deleteMSPAttrByMSPID(mspId);
-    return msp
-      ? getSuccessMessage(`${mspId} is successfully deleted`)
-      : getErrorMessage('deleteMSPAttrByMSPID');
+    return msp ? getSuccessMessage(`${mspId} is successfully deleted`) : getErrorMessage('deleteMSPAttrByMSPID');
   }
 
   @Transaction()
@@ -329,13 +283,10 @@ export class EventStore extends Contract {
 
   @Transaction()
   async deletePolicyByIdSid(context: MyContext, id: string, sid: string) {
-    if (!id || !sid)
-      throw new Error('deletePolicyByIdSid problem: null argument');
+    if (!id || !sid) throw new Error('deletePolicyByIdSid problem: null argument');
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
     const keyDeleted = await ngacRepo(context).deletePolicyByIdSid(id, sid);
-    return keyDeleted
-      ? getSuccessMessage(`${keyDeleted} is deleted`)
-      : getErrorMessage('deletePolicyByIdSid');
+    return keyDeleted ? getSuccessMessage(`${keyDeleted} is deleted`) : getErrorMessage('deletePolicyByIdSid');
   }
 
   @Transaction()
@@ -343,28 +294,18 @@ export class EventStore extends Contract {
     if (!uri) throw new Error('deleteReourceAttrByURI problem: null argument');
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
     const keyDeleted = await ngacRepo(context).deleteReourceAttrByURI(uri);
-    return keyDeleted
-      ? getSuccessMessage(`${keyDeleted} is deleted`)
-      : getErrorMessage('deleteReourceAttrByURI');
+    return keyDeleted ? getSuccessMessage(`${keyDeleted} is deleted`) : getErrorMessage('deleteReourceAttrByURI');
   }
 
   @Transaction()
-  async upsertResourceAttr(
-    context: MyContext,
-    entityName: string,
-    entityId: string,
-    resourceAttrsStr: string
-  ) {
-    if (!entityId || !entityName || !resourceAttrsStr)
-      throw new Error('addResourceAttr problem: null argument');
+  async upsertResourceAttr(context: MyContext, entityName: string, entityId: string, resourceAttrsStr: string) {
+    if (!entityId || !entityName || !resourceAttrsStr) throw new Error('addResourceAttr problem: null argument');
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
     const resourceAttrs = JSON.parse(resourceAttrsStr);
     const attributes = await ngacRepo(context).upsertResourceAttr(
       createResource({ context, entityId, entityName, resourceAttrs })
     );
-    return attributes
-      ? Buffer.from(JSON.stringify(attributes))
-      : getErrorMessage('upsertResourceAttr');
+    return attributes ? Buffer.from(JSON.stringify(attributes)) : getErrorMessage('upsertResourceAttr');
   }
 
   @Transaction(false)
@@ -372,9 +313,7 @@ export class EventStore extends Contract {
     if (!mspid) throw new Error('getMSPAttrByMSPID problem: null argument');
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
     const attributes = await ngacRepo(context).getMSPAttrByMSPID(mspid);
-    return attributes
-      ? Buffer.from(JSON.stringify(attributes))
-      : getErrorMessage('getMSPAttrByMSPID');
+    return attributes ? Buffer.from(JSON.stringify(attributes)) : getErrorMessage('getMSPAttrByMSPID');
   }
 
   @Transaction(false)
@@ -382,9 +321,7 @@ export class EventStore extends Contract {
     if (!id) throw new Error('getPolicyById problem: null argument');
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
     const policies = await ngacRepo(context).getPolicyById(id);
-    return policies
-      ? Buffer.from(JSON.stringify(policies))
-      : getErrorMessage('getPolicyById');
+    return policies ? Buffer.from(JSON.stringify(policies)) : getErrorMessage('getPolicyById');
   }
 
   @Transaction(false)
@@ -392,9 +329,7 @@ export class EventStore extends Contract {
     if (!id || !sid) throw new Error('getPolicyByIdSid problem: null argument');
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
     const policies = await ngacRepo(context).getPolicyByIdSid(id, sid);
-    return policies
-      ? Buffer.from(JSON.stringify(policies))
-      : getErrorMessage('getPolicyByIdSid');
+    return policies ? Buffer.from(JSON.stringify(policies)) : getErrorMessage('getPolicyByIdSid');
   }
 
   @Transaction(false)
@@ -402,9 +337,7 @@ export class EventStore extends Contract {
     if (!uri) throw new Error('getResourceAttrByURI problem: null argument');
     console.info(`Submitter: ${context.clientIdentity.getID()}`);
     const attributes = await ngacRepo(context).getResourceAttrByURI(uri);
-    return attributes
-      ? Buffer.from(JSON.stringify(attributes))
-      : getErrorMessage('getResourceAttrByURI');
+    return attributes ? Buffer.from(JSON.stringify(attributes)) : getErrorMessage('getResourceAttrByURI');
   }
 }
 

@@ -1,23 +1,10 @@
-import Client from 'fabric-client';
-import {
-  DefaultEventHandlerStrategies,
-  DefaultQueryHandlerStrategies,
-  Gateway,
-  Network
-} from 'fabric-network';
 import util from 'util';
-import {
-  Commit,
-  CreateNetworkOperatorOption,
-  MISSING_CHAINCODE_ID,
-  MISSING_FCN,
-  MISSING_WALLET_LABEL
-} from '../types';
+import Client from 'fabric-client';
+import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway, Network } from 'fabric-network';
+import { Commit, CreateNetworkOperatorOption, MISSING_CHAINCODE_ID, MISSING_FCN, MISSING_WALLET_LABEL } from '../types';
 import { createCommitId } from '../utils';
 
-export const submitOrEvaluateTx = (
-  option: CreateNetworkOperatorOption
-) => async ({
+export const submitOrEvaluateTx = (option: CreateNetworkOperatorOption) => async ({
   identity,
   chaincodeId,
   fcn,
@@ -87,8 +74,7 @@ export const submitOrEvaluateTx = (
           return { error };
         }),
     submit: () => {
-      const input_args =
-        fcn === 'createCommit' ? [...args, createCommitId()] : args;
+      const input_args = fcn === 'createCommit' ? [...args, createCommitId()] : args;
 
       return network
         .getContract(chaincodeId)

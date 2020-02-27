@@ -1,7 +1,4 @@
-import { config } from 'dotenv';
-import { resolve } from 'path';
-config({ path: resolve(__dirname, '../../.env.ngac.org2.test') });
-
+require('dotenv').config({ path: './.env.ngac.org2.test' });
 import { enrollAdmin } from '@espresso/operator';
 import { FileSystemWallet } from 'fabric-network';
 

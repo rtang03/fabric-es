@@ -7,13 +7,7 @@ export const stringEquals: (option: {
   contextAttrs: Attribute[];
   condition: any;
   debug?: boolean;
-}) => Assertion[] = ({
-  sid,
-  contextAttrs,
-  requirement,
-  condition,
-  debug = false
-}) =>
+}) => Assertion[] = ({ sid, contextAttrs, requirement, condition, debug = false }) =>
   !condition.stringEquals
     ? [{ sid, assertion: true, message: 'No stringEquals condition defined' }]
     : Object.entries<string>(condition.stringEquals)

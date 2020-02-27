@@ -46,9 +46,7 @@ describe('Example 2: PolicyEngine Tests', () => {
   // policy found, createCommit for pre-existing entity.
   it('2a: should updateUsername', async () =>
     permissionCheck({ context }).then(assertions =>
-      expect(assertions).toEqual([
-        { sid: 'allowUpdateUsername', assertion: true }
-      ])
+      expect(assertions).toEqual([{ sid: 'allowUpdateUsername', assertion: true }])
     ));
 
   it('2b: should fail updateUsername with wrong ID, , when his policy exists', async () => {
@@ -57,9 +55,7 @@ describe('Example 2: PolicyEngine Tests', () => {
       issuer: { commonName: 'rca-org1' }
     }));
     return permissionCheck({ context }).then(assertions =>
-      expect(assertions).toEqual([
-        { sid: 'system', assertion: false, message: 'No policy found' }
-      ])
+      expect(assertions).toEqual([{ sid: 'system', assertion: false, message: 'No policy found' }])
     );
   });
 

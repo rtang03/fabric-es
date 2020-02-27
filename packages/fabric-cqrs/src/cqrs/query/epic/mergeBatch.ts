@@ -6,11 +6,7 @@ import { QueryDatabase } from '../../../types';
 import { action } from '../action';
 import { MergeBatchAction } from '../types';
 
-export default (
-  action$: Observable<MergeBatchAction>,
-  _,
-  context: { queryDatabase: QueryDatabase }
-) => {
+export default (action$: Observable<MergeBatchAction>, _, context: { queryDatabase: QueryDatabase }) => {
   const logger = Client.getLogger('queryByEntityName.js');
 
   return action$.pipe(
@@ -18,17 +14,15 @@ export default (
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName, commits } }) =>
       from(
-        context.queryDatabase
-          .mergeBatch({ entityName, commits })
-          .then(({ data }) => {
-            logger.info(action.MERGE_BATCH_SUCCESS);
+        context.queryDatabase.mergeBatch({ entityName, commits }).then(({ data }) => {
+          logger.info(action.MERGE_BATCH_SUCCESS);
 
-            return action.mergeBatchSuccess({
-              tx_id,
-              result: data,
-              args: { entityName, commits }
-            });
-          })
+          return action.mergeBatchSuccess({
+            tx_id,
+            result: data,
+            args: { entityName, commits }
+          });
+        })
       )
     )
   );

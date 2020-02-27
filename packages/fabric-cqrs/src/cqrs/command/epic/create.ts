@@ -1,9 +1,9 @@
+import util from 'util';
 import Client from 'fabric-client';
 import { assign } from 'lodash';
 import { ofType } from 'redux-observable';
 import { from, Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
-import util from 'util';
 import { getNetwork, submit$, submitPrivateData$ } from '../../../services';
 import { dispatchResult } from '../../utils';
 import { action } from '../action';
@@ -56,25 +56,16 @@ export default (action$: Observable<CreateAction>, _, context) => {
               { network: network || context.network }
             ).pipe(
               tap(commits => {
-                logger.debug(
-                  util.format(
-                    'dispatch submitPrivateData response: %j',
-                    commits
-                  )
-                );
+                logger.debug(util.format('dispatch submitPrivateData response: %j', commits));
                 gateway.disconnect();
               }),
               dispatchResult(tx_id, action.createSuccess, action.createError)
             )
-          : submit$(
-              'createCommit',
-              [entityName, id, version.toString(), JSON.stringify(events)],
-              { network: network || context.network }
-            ).pipe(
+          : submit$('createCommit', [entityName, id, version.toString(), JSON.stringify(events)], {
+              network: network || context.network
+            }).pipe(
               tap(commits => {
-                logger.debug(
-                  util.format('dispatch submit response: %j', commits)
-                );
+                logger.debug(util.format('dispatch submit response: %j', commits));
                 gateway.disconnect();
               }),
               dispatchResult(tx_id, action.createSuccess, action.createError)

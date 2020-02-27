@@ -15,10 +15,6 @@ describe('Account service', () => {
       wallet: new FileSystemWallet(process.env.WALLET),
       enrollmentId,
       enrollmentSecret
-    }).then(result =>
-      expect(result?.info.startsWith('Successfully register & enroll')).toBe(
-        true
-      )
-    );
+    }).then(result => expect(result?.info.startsWith('Successfully register & enroll')).toBe(true));
   });
 });

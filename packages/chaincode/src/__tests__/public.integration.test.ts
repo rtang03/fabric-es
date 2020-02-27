@@ -1,8 +1,8 @@
 import execa from 'execa';
 import { pick, values } from 'lodash';
-import { Commit } from '..';
 import { createCommitId } from '../ledger-api';
 import { parseResult, toString } from './__utils__';
+import { Commit } from '..';
 
 const entityName = 'dev_entity';
 const id = 'ent_dev_1001';
@@ -19,17 +19,7 @@ const base_args = [
   'CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp'
 ];
 
-const query_args = [
-  'cli-etradeconnect',
-  'peer',
-  'chaincode',
-  'query',
-  '-C',
-  'loanapp',
-  '-n',
-  'eventstore',
-  '-c'
-];
+const query_args = ['cli-etradeconnect', 'peer', 'chaincode', 'query', '-C', 'loanapp', '-n', 'eventstore', '-c'];
 
 const invoke_args = [
   'cli-etradeconnect',
@@ -53,24 +43,14 @@ let commitId: string;
 
 describe('Chaincode Integration Tests', () => {
   it('should queryByEntityName #1', async () =>
-    execa('docker', [
-      ...base_args,
-      ...query_args,
-      `{"Args":["eventstore:queryByEntityName", "${entityName}"]}`
-    ])
+    execa('docker', [...base_args, ...query_args, `{"Args":["eventstore:queryByEntityName", "${entityName}"]}`])
       .then<any[]>(({ stdout }) => values(parseResult(stdout)))
       .then(commits =>
-        commits
-          .map(commit => pick(commit, 'entityName'))
-          .map(result => expect(result).toEqual({ entityName }))
+        commits.map(commit => pick(commit, 'entityName')).map(result => expect(result).toEqual({ entityName }))
       ));
 
   it('should queryByEntityId', async () =>
-    execa('docker', [
-      ...base_args,
-      ...query_args,
-      `{"Args":["queryByEntityId","${entityName}","${id}"]}`
-    ])
+    execa('docker', [...base_args, ...query_args, `{"Args":["queryByEntityId","${entityName}","${id}"]}`])
       .then<any[]>(({ stderr, stdout }) => values(parseResult(stdout)))
       .then(commits =>
         commits
@@ -98,11 +78,7 @@ describe('Chaincode Integration Tests', () => {
     ]).then(({ stderr }) => expect(stderr).toContain('result: status:200')));
 
   it('should queryByEntityId #2', async () =>
-    execa('docker', [
-      ...base_args,
-      ...query_args,
-      `{"Args":["queryByEntityId","${entityName}","id_00001"]}`
-    ])
+    execa('docker', [...base_args, ...query_args, `{"Args":["queryByEntityId","${entityName}","id_00001"]}`])
       .then(({ stdout }) => values(parseResult(stdout))[0] as Commit)
       .then(commit => {
         commitId = commit.commitId;
@@ -135,11 +111,7 @@ describe('Chaincode Integration Tests', () => {
     ]).then(({ stderr }) => expect(stderr).toContain('result: status:200')));
 
   it('should fail to queryByEntityId', async () =>
-    execa('docker', [
-      ...base_args,
-      ...query_args,
-      `{"Args":["queryByEntityId","${entityName}","id_00001"]}`
-    ])
+    execa('docker', [...base_args, ...query_args, `{"Args":["queryByEntityId","${entityName}","id_00001"]}`])
       .then(({ stdout }) => parseResult(stdout))
       .then(commits => expect(commits).toEqual({})));
 
@@ -148,9 +120,7 @@ describe('Chaincode Integration Tests', () => {
       ...base_args,
       ...invoke_args,
       `{"Args":["deleteByEntityIdCommitId","${entityName}","id_00001","${commitId}"]}`
-    ]).then(({ stderr }) =>
-      expect(stderr).toContain('Chaincode invoke successful')
-    ));
+    ]).then(({ stderr }) => expect(stderr).toContain('Chaincode invoke successful')));
 
   it('should fail to createCommit', async () =>
     execa('docker', [
@@ -158,6 +128,4 @@ describe('Chaincode Integration Tests', () => {
       ...invoke_args,
       `{"Args":["createCommit","${entityName}","","0","${eventStr}","${createCommitId()}"]}`
     ]).catch(({ stderr }) => expect(stderr).toContain('null argument')));
-
-
 });

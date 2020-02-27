@@ -7,7 +7,7 @@ export interface DocContentsCommands {
       documentId: string;
       content: DataContent | FileContent;
       timestamp: number;
-    }
+    };
   };
   DefineDocContentsData: {
     userId: string;
@@ -15,7 +15,7 @@ export interface DocContentsCommands {
       documentId: string;
       content: DataContent;
       timestamp: number;
-    }
+    };
   };
   DefineDocContentsFile: {
     userId: string;
@@ -23,6 +23,6 @@ export interface DocContentsCommands {
       documentId: string;
       content: FileContent;
       timestamp: number;
-    }
+    };
   };
 }

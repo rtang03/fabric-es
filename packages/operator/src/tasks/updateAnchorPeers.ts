@@ -1,12 +1,10 @@
-import Client, { BroadcastResponse } from 'fabric-client';
 import { readFileSync } from 'fs';
 import util from 'util';
+import Client, { BroadcastResponse } from 'fabric-client';
 import { CreateNetworkOperatorOption, MISSING_CONFIG_TX } from '../types';
 import { getClientForOrg } from '../utils';
 
-export const updateAnchorPeers = (
-  option: CreateNetworkOperatorOption
-) => async ({
+export const updateAnchorPeers = (option: CreateNetworkOperatorOption) => async ({
   configUpdatePath
 }: {
   configUpdatePath: string;
@@ -15,13 +13,7 @@ export const updateAnchorPeers = (
 
   if (!configUpdatePath) throw new Error(MISSING_CONFIG_TX);
 
-  const {
-    connectionProfile,
-    channelName,
-    ordererName,
-    ordererTlsCaCert,
-    fabricNetwork
-  } = option;
+  const { connectionProfile, channelName, ordererName, ordererTlsCaCert, fabricNetwork } = option;
 
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
 

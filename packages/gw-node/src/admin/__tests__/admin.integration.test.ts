@@ -1,8 +1,8 @@
 require('../../env');
+import http from 'http';
 import { createAuthServer, createDbConnection } from '@espresso/authentication';
 import { ApolloError, ApolloServer } from 'apollo-server';
 import { Express } from 'express';
-import http from 'http';
 import fetch from 'node-fetch';
 import request from 'supertest';
 import {
@@ -21,11 +21,7 @@ import {
   REGISTER_ADMIN,
   REGISTER_AND_ENROLL_USER
 } from '../..';
-import {
-  MISSING_VARIABLE,
-  UNAUTHORIZED_ACCESS,
-  USER_NOT_FOUND
-} from '../constants';
+import { MISSING_VARIABLE, UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from '../constants';
 import { createAdminService } from '../createAdminService';
 
 let app: Express;
@@ -411,9 +407,7 @@ describe('Service-admin Integration Tests', () => {
         variables: { enrollmentId: user_id }
       })
       .expect(({ body: { data, errors } }) => {
-        expect(
-          errors[0].message.startsWith('Error: fabric-ca request identities')
-        ).toBeTruthy();
+        expect(errors[0].message.startsWith('Error: fabric-ca request identities')).toBeTruthy();
         expect(data?.getCaIdentityByEnrollmentId).toBeNull();
       }));
 

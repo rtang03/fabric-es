@@ -1,15 +1,8 @@
-import Client, {
-  ChaincodeInstantiateUpgradeRequest,
-  ProposalResponse
-} from 'fabric-client';
 import { readFileSync } from 'fs';
 import util from 'util';
+import Client, { ChaincodeInstantiateUpgradeRequest, ProposalResponse } from 'fabric-client';
 import { MISSING_CC_VERSION, MISSING_CHAINCODE_ID } from '../types';
-import {
-  getClientForOrg,
-  isProposalErrorResponse,
-  isProposalResponse
-} from '../utils';
+import { getClientForOrg, isProposalErrorResponse, isProposalResponse } from '../utils';
 
 // todo: In v2, the instantiate or update are replaced by lifecyle chaincode
 export const instantiateOrUpdate = option => async ({
@@ -36,13 +29,7 @@ export const instantiateOrUpdate = option => async ({
   if (!chaincodeId) throw new Error(MISSING_CHAINCODE_ID);
   if (!chaincodeVersion) throw new Error(MISSING_CC_VERSION);
 
-  const {
-    channelName,
-    fabricNetwork,
-    ordererName,
-    ordererTlsCaCert,
-    connectionProfile
-  } = option;
+  const { channelName, fabricNetwork, ordererName, ordererTlsCaCert, connectionProfile } = option;
 
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
 
@@ -88,8 +75,7 @@ export const instantiateOrUpdate = option => async ({
     : await channel.sendInstantiateProposal(request, timeout);
 
   const allGood = proposalResponses.reduce(
-    (prev, curr) =>
-      isProposalErrorResponse(curr) ? false : prev && isProposalResponse(curr),
+    (prev, curr) => (isProposalErrorResponse(curr) ? false : prev && isProposalResponse(curr)),
     true
   );
 
@@ -151,11 +137,6 @@ export const instantiateOrUpdate = option => async ({
       )
     );
 
-    throw new Error(
-      util.format(
-        'instantiate or upgrade chaincode proposal fail: %j',
-        proposalResponses
-      )
-    );
+    throw new Error(util.format('instantiate or upgrade chaincode proposal fail: %j', proposalResponses));
   }
 };

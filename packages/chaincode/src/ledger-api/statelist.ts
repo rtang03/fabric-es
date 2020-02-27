@@ -7,15 +7,12 @@ export class StateList {
   constructor(public ctx: Context, public name: string) {}
 
   async getQueryResult(attributes: string[], plainObject?: boolean) {
-    const iterator = await this.ctx.stub.getStateByPartialCompositeKey(
-      'entities',
-      attributes
-    );
+    const iterator = await this.ctx.stub.getStateByPartialCompositeKey('entities', attributes);
     const result: any = {};
     while (true) {
       const { value, done } = await iterator.next();
       if (value && value.value.toString()) {
-        const commit = JSON.parse((value.value as Buffer).toString('utf8'));
+        const commit = JSON.parse(value.value.toString('utf8'));
         result[commit.commitId] = omit(commit, 'key');
       }
       if (done) {
@@ -26,42 +23,28 @@ export class StateList {
   }
 
   async addState(commit: Commit) {
-    await this.ctx.stub.putState(
-      this.ctx.stub.createCompositeKey(this.name, splitKey(commit.key)),
-      serialize(commit)
-    );
+    await this.ctx.stub.putState(this.ctx.stub.createCompositeKey(this.name, splitKey(commit.key)), serialize(commit));
   }
 
   async getState(key): Promise<Commit> {
-    const data = await this.ctx.stub.getState(
-      this.ctx.stub.createCompositeKey(this.name, splitKey(key))
-    );
+    const data = await this.ctx.stub.getState(this.ctx.stub.createCompositeKey(this.name, splitKey(key)));
     if (data.toString()) {
       return JSON.parse(data.toString());
     } else return Object.assign({});
   }
 
   async deleteState(commit: Commit) {
-    await this.ctx.stub.deleteState(
-      this.ctx.stub.createCompositeKey(this.name, splitKey(commit.key))
-    );
+    await this.ctx.stub.deleteState(this.ctx.stub.createCompositeKey(this.name, splitKey(commit.key)));
   }
 
   async deleteStateByEnityId(attributes: string[]) {
-    const iterator = await this.ctx.stub.getStateByPartialCompositeKey(
-      'entities',
-      attributes
-    );
+    const iterator = await this.ctx.stub.getStateByPartialCompositeKey('entities', attributes);
     const result = {};
     while (true) {
       const { value, done } = await iterator.next();
       if (value && value.value.toString()) {
-        const { key, commitId } = JSON.parse(
-          (value.value as Buffer).toString('utf8')
-        );
-        await this.ctx.stub.deleteState(
-          this.ctx.stub.createCompositeKey('entities', splitKey(key))
-        );
+        const { key, commitId } = JSON.parse(value.value.toString('utf8'));
+        await this.ctx.stub.deleteState(this.ctx.stub.createCompositeKey('entities', splitKey(key)));
         result[commitId] = {};
       } else {
         return Buffer.from(

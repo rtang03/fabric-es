@@ -48,15 +48,14 @@ export const typeDefs = gql`
 
 export const resolvers = {
   Loan: {
-    _details: async ({ loanId }, { token }, { uriResolver, remoteData }: RemoteData) => {
-      return remoteData({
+    _details: async ({ loanId }, { token }, { uriResolver, remoteData }: RemoteData) =>
+      remoteData({
         uri: await uriResolver.resolve(loanId),
         query: GET_DETAILS_BY_ID,
         operationName: 'GetLoanDetailsById',
         variables: { loanId },
         token
-      }).then(results => results.map(({ data }) => data?.getLoanDetailsById));
-    }
+      }).then(results => results.map(({ data }) => data?.getLoanDetailsById))
   },
   LoanDetails: {
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId })

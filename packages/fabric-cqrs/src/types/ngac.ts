@@ -11,16 +11,12 @@ export interface NgacRepo {
   addMSPAttr: (option: {
     mspId: string;
     attributes: Attribute[];
-  }) => Promise<
-    Attribute[] | { error?: any; status?: string; message?: string }
-  >;
+  }) => Promise<Attribute[] | { error?: any; status?: string; message?: string }>;
   addResourceAttr: (option: {
     entityName: string;
     entityId: string;
     attributes: Attribute[];
-  }) => Promise<
-    Attribute[] | { error?: any; status?: string; message?: string }
-  >;
+  }) => Promise<Attribute[] | { error?: any; status?: string; message?: string }>;
   deleteMSPAttrByMSPID: (option: {
     mspId: string;
   }) => Promise<string | { error?: any; status?: string; message?: string }>;
@@ -36,26 +32,18 @@ export interface NgacRepo {
   }) => Promise<string[] | { error?: any; status?: string; message?: string }>;
   getMSPAttrByMSPID: (option: {
     mspId: string;
-  }) => Promise<
-    Attribute[] | { error?: any; status?: string; message?: string }
-  >;
-  getPolicyById: (option: {
-    x509Id: string;
-  }) => Promise<Policy | { error?: any; status?: string; message?: string }>;
+  }) => Promise<Attribute[] | { error?: any; status?: string; message?: string }>;
+  getPolicyById: (option: { x509Id: string }) => Promise<Policy | { error?: any; status?: string; message?: string }>;
   getPolicyByIdSid: (option: {
     x509Id: string;
     sid: string;
   }) => Promise<Policy | { error?: any; status?: string; message?: string }>;
   getResourceAttrByURI: (option: {
     uri: string;
-  }) => Promise<
-    Attribute[] | { error?: any; status?: string; message?: string }
-  >;
+  }) => Promise<Attribute[] | { error?: any; status?: string; message?: string }>;
   upsertResourceAttr: (option: {
     entityName: string;
     entityId: string;
     attributes: Attribute[];
-  }) => Promise<
-    Attribute[] | { error?: any; status?: string; message?: string }
-  >;
+  }) => Promise<Attribute[] | { error?: any; status?: string; message?: string }>;
 }

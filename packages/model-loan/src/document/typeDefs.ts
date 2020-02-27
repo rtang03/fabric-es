@@ -10,13 +10,7 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createDocument(
-      userId: String!,
-      documentId: String!,
-      loanId: String,
-      title: String,
-      reference: String!
-    ): DocResponse
+    createDocument(userId: String!, documentId: String!, loanId: String, title: String, reference: String!): DocResponse
     deleteDocument(userId: String!, documentId: String!): DocResponse
     restrictAccess(userId: String!, documentId: String!): DocResponse
     updateDocument(
@@ -82,10 +76,7 @@ export const resolvers = {
     getDocumentById: async (
       _,
       { documentId },
-      {
-        dataSources: { document },
-        enrollmentId
-      }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Document> =>
       document.repo
         .getById({ id: documentId, enrollmentId })
@@ -96,10 +87,7 @@ export const resolvers = {
     createDocument: async (
       _,
       { userId, documentId, loanId, title, reference },
-      {
-        dataSources: { document },
-        enrollmentId
-      }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit> =>
       !enrollmentId
         ? new AuthenticationError(NOT_AUTHENICATED)
@@ -121,10 +109,7 @@ export const resolvers = {
     deleteDocument: async (
       _,
       { userId, documentId },
-      {
-        dataSources: { document },
-        enrollmentId
-      }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit> =>
       !enrollmentId
         ? new AuthenticationError(NOT_AUTHENICATED)
@@ -140,10 +125,7 @@ export const resolvers = {
     restrictAccess: async (
       _,
       { userId, documentId },
-      {
-        dataSources: { document },
-        enrollmentId
-      }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit> =>
       !enrollmentId
         ? new AuthenticationError(NOT_AUTHENICATED)
@@ -159,10 +141,7 @@ export const resolvers = {
     updateDocument: async (
       _,
       { userId, documentId, loanId, title, reference },
-      {
-        dataSources: { document },
-        enrollmentId
-      }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit[] | { error: any }> => {
       if (!enrollmentId) throw new AuthenticationError(NOT_AUTHENICATED);
 
@@ -210,11 +189,7 @@ export const resolvers = {
     }
   },
   Loan: {
-    documents: (
-      { loanId },
-      _,
-      { dataSources: { document } }: { dataSources: { document: DocumentDS } }
-    ) =>
+    documents: ({ loanId }, _, { dataSources: { document } }: { dataSources: { document: DocumentDS } }) =>
       document.repo
         .getProjection({ where: { loanId } })
         .then(({ data }) => data)
@@ -223,10 +198,7 @@ export const resolvers = {
   Document: {
     __resolveReference: (
       { documentId },
-      {
-        dataSources: { document },
-        enrollmentId
-      }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Document> =>
       document.repo
         .getById({ id: documentId, enrollmentId })
@@ -235,7 +207,6 @@ export const resolvers = {
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId })
   },
   DocResponse: {
-    __resolveType: obj =>
-      obj.commitId ? 'DocCommit' : obj.message ? 'DocError' : {}
+    __resolveType: obj => (obj.commitId ? 'DocCommit' : obj.message ? 'DocError' : {})
   }
 };

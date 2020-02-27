@@ -30,7 +30,4 @@ export interface DocContentsFileDefined extends BaseEvent {
   };
 }
 
-export type DocContentsEvents =
-  DocContentsCreated |
-  DocContentsDataDefined |
-  DocContentsFileDefined;
+export type DocContentsEvents = DocContentsCreated | DocContentsDataDefined | DocContentsFileDefined;

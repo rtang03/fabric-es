@@ -30,17 +30,8 @@ export interface Peer {
     entityName: string,
     reducer: Reducer
   }) => PrivatedataRepository<TEntity, TEvent>;
-  getRepository: <TEntity = any, TEvent = any>({
-    entityName: string,
-    reducer: Reducer
-  }) => Repository<TEntity, TEvent>;
-  reconcile: ({
-    entityName,
-    reducer
-  }: {
-    entityName: string;
-    reducer: Reducer;
-  }) => Promise<{ result: any }>;
+  getRepository: <TEntity = any, TEvent = any>({ entityName: string, reducer: Reducer }) => Repository<TEntity, TEvent>;
+  reconcile: ({ entityName, reducer }: { entityName: string; reducer: Reducer }) => Promise<{ result: any }>;
   subscribeHub: () => void;
   unsubscribeHub: () => void;
   disconnect: () => void;

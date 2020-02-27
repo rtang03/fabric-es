@@ -10,10 +10,7 @@ export * from './domain/events';
 export * from './domain/commands';
 export * from './domain/reducer';
 export * from './domain/handler';
-export {
-  typeDefs as documentTypeDefs,
-  resolvers as documentResolvers
-} from './typeDefs';
+export { typeDefs as documentTypeDefs, resolvers as documentResolvers } from './typeDefs';
 export * from './queries';
 export type DocumentRepo = Repository<Document, DocumentEvents>;
 export type DocumentCommandHandler = CommandHandler<DocumentCommands>;

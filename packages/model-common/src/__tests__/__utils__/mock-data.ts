@@ -1,9 +1,5 @@
 import { Commit, getMockRepository, getReducer } from '@espresso/fabric-cqrs';
-import {
-  User,
-  UserEvents,
-  userReducer
-} from '../../user';
+import { User, UserEvents, userReducer } from '../../user';
 
 export const mockdb: Record<string, Commit> = {
   '20181114163145704:example@gmail.com': {
@@ -98,8 +94,4 @@ export const mockdb: Record<string, Commit> = {
   }
 };
 
-export const userRepo = getMockRepository<User, UserEvents>(
-  mockdb,
-  'user',
-  getReducer<User, UserEvents>(userReducer)
-);
+export const userRepo = getMockRepository<User, UserEvents>(mockdb, 'user', getReducer<User, UserEvents>(userReducer));

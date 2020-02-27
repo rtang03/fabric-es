@@ -12,10 +12,10 @@ export const typeDefs = gql`
 
   type Mutation {
     createDocument(
-      userId: String!,
-      documentId: String!,
-      loanId: String,
-      title: String,
+      userId: String!
+      documentId: String!
+      loanId: String
+      title: String
       reference: String!
       link: String!
     ): DocResponse
@@ -78,10 +78,7 @@ export const resolvers = {
     createDocument: async (
       _,
       { userId, documentId, loanId, title, reference, link },
-      {
-        dataSources: { document },
-        enrollmentId
-      }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit> =>
       !enrollmentId
         ? new AuthenticationError(NOT_AUTHENICATED)
@@ -104,10 +101,7 @@ export const resolvers = {
     updateDocument: async (
       _,
       { userId, documentId, loanId, title, reference, link },
-      {
-        dataSources: { document },
-        enrollmentId
-      }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit[] | { error: any }> => {
       if (!enrollmentId) throw new AuthenticationError(NOT_AUTHENICATED);
 

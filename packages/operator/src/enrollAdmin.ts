@@ -1,8 +1,8 @@
+import { readFileSync } from 'fs';
+import util from 'util';
 import FabricCAServices from 'fabric-ca-client';
 import Client from 'fabric-client';
 import { X509WalletMixin } from 'fabric-network';
-import { readFileSync } from 'fs';
-import util from 'util';
 import {
   EnrollAdminOption,
   IDENTITY_ALREADY_EXIST,
@@ -20,14 +20,7 @@ import { getClientForOrg } from './utils';
 
 export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
   const logger = Client.getLogger('enrollAdmin.js');
-  const {
-    enrollmentID,
-    enrollmentSecret,
-    caUrl,
-    label,
-    mspId,
-    context
-  } = option;
+  const { enrollmentID, enrollmentSecret, caUrl, label, mspId, context } = option;
   const { fabricNetwork, connectionProfile, wallet } = context;
 
   if (!label) throw new Error(WRONG_LABEL);
@@ -102,14 +95,7 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
   // await wallet.put(label, identity);
 
   try {
-    await wallet.import(
-      label,
-      X509WalletMixin.createIdentity(
-        client.getMspid(),
-        certificate,
-        key.toBytes()
-      )
-    );
+    await wallet.import(label, X509WalletMixin.createIdentity(client.getMspid(), certificate, key.toBytes()));
   } catch (e) {
     logger.error(util.format('fail to import into wallet %s, %j', label, e));
     throw new Error(e);

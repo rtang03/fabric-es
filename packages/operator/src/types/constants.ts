@@ -1,11 +1,8 @@
-export const NO_ADMIN_IN_WALLET =
-  'No admin in the wallet; enroll admin before retrying';
+export const NO_ADMIN_IN_WALLET = 'No admin in the wallet; enroll admin before retrying';
 export const IDENTITY_ALREADY_EXIST = 'Identity already exists in the wallet';
-export const ORG_ADMIN_NOT_EXIST =
-  'No admin in the wallet; enroll admin before retrying';
+export const ORG_ADMIN_NOT_EXIST = 'No admin in the wallet; enroll admin before retrying';
 export const SUCCESS = 'SUCCESS';
-export const REG_ENROL_IMPORT_OK =
-  'Successfully register & enroll & import into the wallet';
+export const REG_ENROL_IMPORT_OK = 'Successfully register & enroll & import into the wallet';
 export const ENROL_IMPORT_OK = 'Successfully enroll & import into the wallet';
 export const MISSING_CONNECTION_PROFILE = 'missing path to connection profile';
 export const MISSING_FABRIC_NETWORK = 'missing path to fabric network';
@@ -25,8 +22,7 @@ export const MISSING_TARGETS = 'missing targets';
 export const WRONG_LABEL = 'wrong label';
 export const FAIL_TO_CREATE_CHANNEL = 'Failed to create the channel';
 export const CHANNEL_NOT_FOUND = 'channel not found';
-export const CHANNEL_UNDEFINED =
-  'channel was not defined in the connection profile';
+export const CHANNEL_UNDEFINED = 'channel was not defined in the connection profile';
 export const FAIL_TO_INSTALL_CC = 'Install chaincode fails';
 export const CHANNEL_ALREADY_EXIST = 'channel already exist';
 export const CHANNEL_NOT_EXIST = 'channel not exist';

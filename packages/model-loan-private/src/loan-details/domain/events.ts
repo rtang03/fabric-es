@@ -106,13 +106,13 @@ export interface LoanCommentDefined extends BaseEvent {
 }
 
 export type LoanDetailsEvents =
-  LoanDetailsCreated |
-  LoanRequesterDefined |
-  LoanContactDefined |
-  LoanTypeDefined |
-  LoanStartDateDefined |
-  LoanTenorDefined |
-  LoanCurrencyDefined |
-  LoanRequestedAmtDefined |
-  LoanApprovedAmtDefined |
-  LoanCommentDefined;
+  | LoanDetailsCreated
+  | LoanRequesterDefined
+  | LoanContactDefined
+  | LoanTypeDefined
+  | LoanStartDateDefined
+  | LoanTenorDefined
+  | LoanCurrencyDefined
+  | LoanRequestedAmtDefined
+  | LoanApprovedAmtDefined
+  | LoanCommentDefined;

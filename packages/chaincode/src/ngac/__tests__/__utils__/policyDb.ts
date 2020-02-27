@@ -1,9 +1,4 @@
-import {
-  CONTEXT as CTX,
-  NAMESPACE as NS,
-  Policy,
-  RESOURCE as RES
-} from '../../types';
+import { CONTEXT as CTX, NAMESPACE as NS, Policy, RESOURCE as RES } from '../../types';
 import { createId } from '../../utils';
 
 const policies: Policy[] = [
@@ -72,22 +67,12 @@ const policies: Policy[] = [
 ];
 
 const TEST_ID = `"${createId(['Org1MSP', 'Admin@example.com'])}"`;
-const TEST_POLICY = `"${createId([
-  'Org1MSP',
-  'Admin@example.com'
-])}""allowCreateDocument"`;
-const TEST_POLICY2 = `"${createId([
-  'Org1MSP',
-  'Admin@example.com'
-])}""allowCreateTrade"`;
+const TEST_POLICY = `"${createId(['Org1MSP', 'Admin@example.com'])}""allowCreateDocument"`;
+const TEST_POLICY2 = `"${createId(['Org1MSP', 'Admin@example.com'])}""allowCreateTrade"`;
 
 export const policyDb = {
   [TEST_ID]: Promise.resolve(policies),
-  [TEST_POLICY]: Promise.resolve(
-    policies.filter(({ sid }) => sid === 'allowCreateDocument').pop()
-  ),
-  [TEST_POLICY2]: Promise.resolve(
-    policies.filter(({ sid }) => sid === 'allowCreateTrade').pop()
-  ),
+  [TEST_POLICY]: Promise.resolve(policies.filter(({ sid }) => sid === 'allowCreateDocument').pop()),
+  [TEST_POLICY2]: Promise.resolve(policies.filter(({ sid }) => sid === 'allowCreateTrade').pop()),
   '"wrong id + valid policy"': Promise.resolve(policies)
 };

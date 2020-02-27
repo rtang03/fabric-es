@@ -1,6 +1,6 @@
 import { values } from 'lodash';
-import { Commit, EventStore } from '..';
 import { StateList } from '../ledger-api';
+import { Commit, EventStore } from '..';
 
 const ctx: any = {
   stub: {
@@ -20,9 +20,7 @@ const context = {
 
 ctx.stub.createCompositeKey.mockResolvedValue('entities"en""entId""2019"');
 ctx.stub.putState.mockResolvedValue(Buffer.from(''));
-ctx.stub.setEvent.mockImplementation((name, args) =>
-  console.log(`Event sent: ${name}: ${args}`)
-);
+ctx.stub.setEvent.mockImplementation((name, args) => console.log(`Event sent: ${name}: ${args}`));
 ctx.clientIdentity.getID.mockImplementation(() => 'Org1MSP');
 
 const cc = new EventStore(context);

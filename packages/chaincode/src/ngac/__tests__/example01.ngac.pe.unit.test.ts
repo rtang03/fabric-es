@@ -46,9 +46,7 @@ describe('Example 1: PolicyEngine Tests', () => {
   // policy found and asserted
   it('1a: should createDocument', async () => {
     await permissionCheck({ context }).then(assertions =>
-      expect(assertions).toEqual([
-        { sid: 'allowCreateDocument', assertion: true }
-      ])
+      expect(assertions).toEqual([{ sid: 'allowCreateDocument', assertion: true }])
     );
     await ngacRepo(context)
       .getResourceAttrGroupByURI('model/Org1MSP/dev_ngac_example1/ngac_unit_01')
@@ -59,17 +57,10 @@ describe('Example 1: PolicyEngine Tests', () => {
   it('1b: should fail updateDocument, which is not allowedEvents', async () => {
     context.stub.getFunctionAndParameters.mockImplementationOnce(() => ({
       fcn: 'createCommit',
-      params: [
-        entityName,
-        entityId,
-        version,
-        JSON.stringify([{ type: 'DocumentUpdated' }])
-      ]
+      params: [entityName, entityId, version, JSON.stringify([{ type: 'DocumentUpdated' }])]
     }));
     return permissionCheck({ context }).then(assertions =>
-      expect(assertions).toEqual([
-        { sid: 'system', assertion: false, message: 'No policy found' }
-      ])
+      expect(assertions).toEqual([{ sid: 'system', assertion: false, message: 'No policy found' }])
     );
   });
 
@@ -80,9 +71,7 @@ describe('Example 1: PolicyEngine Tests', () => {
       issuer: { commonName: 'rca-org1' }
     }));
     return permissionCheck({ context }).then(assertions =>
-      expect(assertions).toEqual([
-        { sid: 'system', message: 'No policy found', assertion: false }
-      ])
+      expect(assertions).toEqual([{ sid: 'system', message: 'No policy found', assertion: false }])
     );
   });
 

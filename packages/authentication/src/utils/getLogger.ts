@@ -1,4 +1,3 @@
-// import { LoggingWinston } from '@google-cloud/logging-winston';
 import { createLogger, format, Logger, transports } from 'winston';
 
 const { combine, timestamp, label, json } = format;
@@ -24,15 +23,9 @@ export const getLogger: (option: { name: string; sendToConsole?: boolean; enable
     })
   ];
 
-  //  const loggingWinston = new LoggingWinston({
-  //    projectId: 'fdi'
-  //  });
-
   const consoleTransport = new transports.Console();
 
   if (sendToConsole) transportArray = [consoleTransport, ...transportArray];
-
-  //  if (enableGCPLogger) transportArray = [loggingWinston, ...transportArray];
 
   return createLogger({
     level: 'info',

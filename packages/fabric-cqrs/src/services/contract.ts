@@ -1,15 +1,10 @@
 import { Contract, Network } from 'fabric-network';
 
-export const getContract: (
-  network: Network,
-  privatedata?: boolean
-) => Promise<{ contract: Contract }> = async (
+export const getContract: (network: Network, privatedata?: boolean) => Promise<{ contract: Contract }> = async (
   network,
   privatedata = false
 ) => ({
-  contract: await network.getContract(
-    privatedata
-      ? process.env.CHAINCODE_ID_PRIVATEDATA || 'privatedata'
-      : process.env.CHAINCODE_ID || 'eventstore'
+  contract: network.getContract(
+    privatedata ? process.env.CHAINCODE_ID_PRIVATEDATA || 'privatedata' : process.env.CHAINCODE_ID || 'eventstore'
   )
 });

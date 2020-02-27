@@ -1,5 +1,10 @@
 export enum LoanStatus {
-  LoanApplied, LoanCancelled, LoanApproved, LoanReturned, LoanRejected, LoanExpired
+  LoanApplied,
+  LoanCancelled,
+  LoanApproved,
+  LoanReturned,
+  LoanRejected,
+  LoanExpired
 }
 
 /**

@@ -7,7 +7,7 @@ export const loanDetailsCommandHandler: (option: {
   loanDetailsRepo: LoanDetailsRepo;
 }) => LoanDetailsCommandHandler = ({ enrollmentId, loanDetailsRepo }) => {
   const handler = superHandler({ enrollmentId, loanDetailsRepo });
-  return ({
+  return {
     ...handler,
     CreateLoanDetails: async ({
       userId,
@@ -43,5 +43,5 @@ export const loanDetailsCommandHandler: (option: {
         }
       });
     }
-  });
+  };
 };

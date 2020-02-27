@@ -29,17 +29,12 @@ export interface Queries {
   getInstalledCCVersion: (chaincodeId: string) => Promise<string>;
   getMspid: () => Promise<string>;
   getTransactionByID: (txId: string) => Promise<any>;
-  getCollectionsConfig: (request: {
-    chaincodeId: string;
-    target: string;
-  }) => Promise<CollectionQueryResponse[]>;
+  getCollectionsConfig: (request: { chaincodeId: string; target: string }) => Promise<CollectionQueryResponse[]>;
   getChannelPeers: () => Promise<ChannelPeer[]>;
 }
 
 export interface NetworkOperator {
-  createChannel: (option: {
-    channelTxPath: string;
-  }) => Promise<BroadcastResponse>;
+  createChannel: (option: { channelTxPath: string }) => Promise<BroadcastResponse>;
   getQueries: (option: { peerName: string }) => Promise<Queries>;
   identityService: (option: {
     caAdmin: string;
@@ -66,9 +61,7 @@ export interface NetworkOperator {
     collectionsConfig?: string;
     timeout?: number;
   }) => Promise<BroadcastResponse & { results: any }>;
-  joinChannel: (option: {
-    targets: string[];
-  }) => Promise<ProposalResponse[] | ProposalErrorResponse[]>;
+  joinChannel: (option: { targets: string[] }) => Promise<ProposalResponse[] | ProposalErrorResponse[]>;
   registerAndEnroll: (option: {
     identity: string;
     enrollmentId: string;
@@ -93,7 +86,5 @@ export interface NetworkOperator {
     evaluate: () => Promise<Record<string, Commit> | { error: any }>;
     submit: () => Promise<Record<string, Commit> | { error: any }>;
   }>;
-  updateAnchorPeers: (option: {
-    configUpdatePath: string;
-  }) => Promise<BroadcastResponse>;
+  updateAnchorPeers: (option: { configUpdatePath: string }) => Promise<BroadcastResponse>;
 }

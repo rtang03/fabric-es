@@ -1,4 +1,5 @@
 require('./env');
+import util from 'util';
 import { getReducer } from '@espresso/fabric-cqrs';
 import { createService, getLogger } from '@espresso/gw-node';
 import {
@@ -9,7 +10,6 @@ import {
   docContentsTypeDefs
 } from '@espresso/model-loan-private';
 import { FileSystemWallet } from 'fabric-network';
-import util from 'util';
 
 const logger = getLogger('service-prv-ctnt.js');
 const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
@@ -45,12 +45,10 @@ createService({
       logger.error(err.stack);
     });
 
-    app
-      .listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT })
-      .then(({ url }) => {
-        logger.info(`🚀  '${process.env.ORGNAME}' - 'docContents' available at ${url}`);
-        if (process.env.NODE_ENV === 'production') process.send('ready');
-      });
+    app.listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT }).then(({ url }) => {
+      logger.info(`🚀  '${process.env.ORGNAME}' - 'docContents' available at ${url}`);
+      if (process.env.NODE_ENV === 'production') process.send('ready');
+    });
   })
   .catch(error => {
     console.error(error);

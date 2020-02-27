@@ -15,7 +15,7 @@ export interface LoanDetailsCommands {
       approvedAmt?: number;
       comment?: string;
       timestamp: number;
-    }
+    };
   };
   DefineLoanRequester: {
     userId: string;
@@ -23,7 +23,7 @@ export interface LoanDetailsCommands {
       loanId: string;
       requester: LoanRequester;
       timestamp: number;
-    }
+    };
   };
   DefineLoanContact: {
     userId: string;
@@ -31,7 +31,7 @@ export interface LoanDetailsCommands {
       loanId: string;
       contact: ContactInfo;
       timestamp: number;
-    }
+    };
   };
   DefineLoanType: {
     userId: string;
@@ -39,7 +39,7 @@ export interface LoanDetailsCommands {
       loanId: string;
       loanType: string;
       timestamp: number;
-    }
+    };
   };
   DefineLoanStartDate: {
     userId: string;
@@ -47,7 +47,7 @@ export interface LoanDetailsCommands {
       loanId: string;
       startDate: number;
       timestamp: number;
-    }
+    };
   };
   DefineLoanTenor: {
     userId: string;
@@ -55,7 +55,7 @@ export interface LoanDetailsCommands {
       loanId: string;
       tenor: number;
       timestamp: number;
-    }
+    };
   };
   DefineLoanCurrency: {
     userId: string;
@@ -63,7 +63,7 @@ export interface LoanDetailsCommands {
       loanId: string;
       currency: string;
       timestamp: number;
-    }
+    };
   };
   DefineLoanRequestedAmt: {
     userId: string;
@@ -71,7 +71,7 @@ export interface LoanDetailsCommands {
       loanId: string;
       requestedAmt: number;
       timestamp: number;
-    }
+    };
   };
   DefineLoanApprovedAmt: {
     userId: string;
@@ -79,7 +79,7 @@ export interface LoanDetailsCommands {
       loanId: string;
       approvedAmt: number;
       timestamp: number;
-    }
+    };
   };
   DefineLoanComment: {
     userId: string;
@@ -87,6 +87,6 @@ export interface LoanDetailsCommands {
       loanId: string;
       comment: string;
       timestamp: number;
-    }
+    };
   };
 }

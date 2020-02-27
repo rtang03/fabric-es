@@ -33,9 +33,7 @@ export const createQueryDatabase: () => QueryDatabase = () => {
       new Promise(resolve => {
         const data: Record<string, Commit> = {};
         // filter(db, obj => obj.id === id && obj.entityName === entityName).forEach(
-        filter(db, { id, entityName }).forEach(
-          obj => (data[obj.commitId] = obj)
-        );
+        filter(db, { id, entityName }).forEach(obj => (data[obj.commitId] = obj));
 
         logger.info('queryByEntityId complete');
         resolve({ data });

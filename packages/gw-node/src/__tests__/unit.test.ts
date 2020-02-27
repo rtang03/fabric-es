@@ -683,7 +683,7 @@
 // //     { type: 'LoanCurrencyDefined'    , payload: { loanId, userId, timestamp, currency: 'HKD' }},
 // //     { type: 'LoanRequestedAmtDefined', payload: { loanId, userId, timestamp, requestedAmt: 30000.5 }}
 // //   ];
-  
+
 // //   it('test merged reducer - genericDoc', () => {
 // //     const p = privateReducer(gevents, null);
 // //     expect(p).toStrictEqual(genericDocReducer(gevents, null));

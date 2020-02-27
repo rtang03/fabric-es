@@ -1,6 +1,6 @@
-import Client from 'fabric-client';
 import { readFileSync } from 'fs';
 import util from 'util';
+import Client from 'fabric-client';
 import {
   CreateNetworkOperatorOption,
   MISSING_CC_VERSION,
@@ -28,18 +28,9 @@ export const install = (option: CreateNetworkOperatorOption) => async ({
   if (!chaincodeVersion) throw new Error(MISSING_CC_VERSION);
   if (!chaincodePath) throw new Error(MISSING_CHAINCODE_PATH);
 
-  const {
-    channelName,
-    fabricNetwork,
-    ordererName,
-    ordererTlsCaCert,
-    connectionProfile
-  } = option;
+  const { channelName, fabricNetwork, ordererName, ordererTlsCaCert, connectionProfile } = option;
 
-  const client: Client = await getClientForOrg(
-    connectionProfile,
-    fabricNetwork
-  );
+  const client: Client = await getClientForOrg(connectionProfile, fabricNetwork);
 
   const channel = client.getChannel(channelName);
 
@@ -63,14 +54,7 @@ export const install = (option: CreateNetworkOperatorOption) => async ({
   // const targets = client.getPeersForOrg().map(p => p.getName());
   const txId = client.newTransactionID(true);
 
-  logger.info(
-    util.format(
-      'install chaincode "%s", v=%s onto %j',
-      chaincodeId,
-      chaincodeVersion,
-      targets
-    )
-  );
+  logger.info(util.format('install chaincode "%s", v=%s onto %j', chaincodeId, chaincodeVersion, targets));
 
   return client.installChaincode(
     {

@@ -11,6 +11,4 @@ export interface DocumentLinkDefined extends BaseEvent {
   };
 }
 
-export type DocumentEvents =
-  SuperEvents |
-  DocumentLinkDefined;
+export type DocumentEvents = SuperEvents | DocumentLinkDefined;

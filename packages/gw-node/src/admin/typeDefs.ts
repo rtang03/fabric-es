@@ -2,11 +2,7 @@ import gql from 'graphql-tag';
 
 export const typeDefs = gql`
   type Mutation {
-    registerAndEnrollUser(
-      administrator: String!
-      enrollmentId: String!
-      enrollmentSecret: String!
-    ): Boolean!
+    registerAndEnrollUser(administrator: String!, enrollmentId: String!, enrollmentSecret: String!): Boolean!
   }
   type Query {
     getBlockByNumber(blockNumber: Int!): Block
@@ -67,4 +63,4 @@ export const typeDefs = gql`
     no_of_tx: Int!
     transaction: [TransactionData!]!
   }
- `;
+`;

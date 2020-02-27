@@ -7,29 +7,29 @@ export const typeDefs = gql`
 
   type Mutation {
     createLoanDetails(
-      userId: String!,
-      loanId: String!,
-      requester: LoanRequesterInput!,
-      contact: ContactInfoInput!,
-      loanType: String,
-      startDate: String!,
-      tenor: Int!,
-      currency: String!,
-      requestedAmt: Float!,
-      approvedAmt: Float,
+      userId: String!
+      loanId: String!
+      requester: LoanRequesterInput!
+      contact: ContactInfoInput!
+      loanType: String
+      startDate: String!
+      tenor: Int!
+      currency: String!
+      requestedAmt: Float!
+      approvedAmt: Float
       comment: String
     ): LoanDetailsResp
     updateLoanDetails(
-      userId: String!,
-      loanId: String!,
-      requester: LoanRequesterInput,
-      contact: ContactInfoInput,
-      loanType: String,
-      startDate: String,
-      tenor: Int,
-      currency: String,
-      requestedAmt: Float,
-      approvedAmt: Float,
+      userId: String!
+      loanId: String!
+      requester: LoanRequesterInput
+      contact: ContactInfoInput
+      loanType: String
+      startDate: String
+      tenor: Int
+      currency: String
+      requestedAmt: Float
+      approvedAmt: Float
       comment: String
     ): [LoanDetailsResp]!
   }

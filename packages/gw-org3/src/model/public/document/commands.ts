@@ -10,7 +10,7 @@ export interface DocumentCommands extends SuperCommands {
       reference: string;
       link: string;
       timestamp: number;
-    }
+    };
   };
   DefineDocumentLink: {
     userId: string;
@@ -18,6 +18,6 @@ export interface DocumentCommands extends SuperCommands {
       documentId: string;
       link: string;
       timestamp: number;
-    }
+    };
   };
 }

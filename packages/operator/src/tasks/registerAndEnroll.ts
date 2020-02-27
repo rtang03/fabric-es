@@ -1,11 +1,6 @@
-import Client, { BroadcastResponse } from 'fabric-client';
-import {
-  DefaultEventHandlerStrategies,
-  DefaultQueryHandlerStrategies,
-  Gateway,
-  X509WalletMixin
-} from 'fabric-network';
 import util from 'util';
+import Client, { BroadcastResponse } from 'fabric-client';
+import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway, X509WalletMixin } from 'fabric-network';
 import {
   CreateNetworkOperatorOption,
   IDENTITY_ALREADY_EXIST,
@@ -17,9 +12,7 @@ import {
 } from '../types';
 import { getClientForOrg } from '../utils';
 
-export const registerAndEnroll = (
-  option: CreateNetworkOperatorOption
-) => async ({
+export const registerAndEnroll = (option: CreateNetworkOperatorOption) => async ({
   identity,
   enrollmentId,
   enrollmentSecret,
@@ -69,9 +62,7 @@ export const registerAndEnroll = (
     throw new Error(e);
   }
 
-  logger.info(
-    util.format('gateway connected: %s', gateway.getClient().getMspid())
-  );
+  logger.info(util.format('gateway connected: %s', gateway.getClient().getMspid()));
 
   const caService = gateway.getClient().getCertificateAuthority();
 
@@ -128,11 +119,7 @@ export const registerAndEnroll = (
       try {
         walletImport = await wallet.import(
           enrollmentId,
-          X509WalletMixin.createIdentity(
-            client.getMspid(),
-            certificate,
-            key.toBytes()
-          )
+          X509WalletMixin.createIdentity(client.getMspid(), certificate, key.toBytes())
         );
       } catch (e) {
         logger.error(util.format('operator fail to import: %j', e));
@@ -140,9 +127,7 @@ export const registerAndEnroll = (
       }
 
       logger.info(util.format('Enroll user: %s at %s', enrollmentId, mspId));
-      logger.info(
-        util.format('enroll ca user at %s: %j ', mspId, walletImport)
-      );
+      logger.info(util.format('enroll ca user at %s: %j ', mspId, walletImport));
 
       return {
         status: SUCCESS,

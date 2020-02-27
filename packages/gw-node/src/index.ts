@@ -13,9 +13,7 @@ export class DataSrc<TEntity = any, TEvent = any> extends DataSource {
   context;
   repo;
 
-  constructor({ repo }: {
-    repo?: Repository<TEntity, TEvent> | PrivatedataRepository<TEntity, TEvent>;
-  }) {
+  constructor({ repo }: { repo?: Repository<TEntity, TEvent> | PrivatedataRepository<TEntity, TEvent> }) {
     super();
     this.repo = repo;
   }

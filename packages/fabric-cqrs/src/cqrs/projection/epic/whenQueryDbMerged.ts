@@ -25,12 +25,10 @@ export default (
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName, id } }) =>
       from(
-        context.queryDatabase
-          .queryByEntityId({ entityName, id })
-          .then(({ data }) => {
-            logger.info('whenQueryDbMerged done');
-            return action.upsert({ tx_id, args: { commit: data } });
-          })
+        context.queryDatabase.queryByEntityId({ entityName, id }).then(({ data }) => {
+          logger.info('whenQueryDbMerged done');
+          return action.upsert({ tx_id, args: { commit: data } });
+        })
       )
     )
   );

@@ -1,15 +1,9 @@
+import { readFileSync } from 'fs';
+import util from 'util';
 import { ChannelEventHub } from 'fabric-client';
 import Client from 'fabric-client';
-import {
-  DefaultEventHandlerStrategies,
-  DefaultQueryHandlerStrategies,
-  Gateway,
-  Network,
-  Wallet
-} from 'fabric-network';
-import { readFileSync } from 'fs';
+import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway, Network, Wallet } from 'fabric-network';
 import { safeLoad } from 'js-yaml';
-import util from 'util';
 
 export const getNetwork: (option: {
   enrollmentId: string;
@@ -56,7 +50,7 @@ export const getNetwork: (option: {
   let gateway: Gateway;
 
   try {
-    gateway = await new Gateway();
+    gateway = new Gateway();
   } catch (err) {
     logger.error(util.format('new gateway error: %j', err));
     throw new Error(err);
@@ -83,9 +77,7 @@ export const getNetwork: (option: {
   try {
     await connect(enrollmentId);
   } catch (err) {
-    logger.error(
-      util.format('%s connect gateway error: %j', enrollmentId, err)
-    );
+    logger.error(util.format('%s connect gateway error: %j', enrollmentId, err));
     throw new Error(err);
   }
 

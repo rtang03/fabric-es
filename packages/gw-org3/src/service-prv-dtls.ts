@@ -1,17 +1,10 @@
 require('./env');
+import util from 'util';
 import { getReducer } from '@espresso/fabric-cqrs';
 import { createService, getLogger } from '@espresso/gw-node';
-import {
-  loanDetailsResolvers,
-} from '@espresso/model-loan-private';
+import { loanDetailsResolvers } from '@espresso/model-loan-private';
 import { FileSystemWallet } from 'fabric-network';
-import util from 'util';
-import {
-  LoanDetails,
-  LoanDetailsEvents,
-  loanDetailsReducer,
-  loanDetailsTypeDefs
-} from './model/private/loan-details';
+import { LoanDetails, LoanDetailsEvents, loanDetailsReducer, loanDetailsTypeDefs } from './model/private/loan-details';
 
 const logger = getLogger('service-prv-ctnt.js');
 const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
@@ -47,12 +40,10 @@ createService({
       logger.error(err.stack);
     });
 
-    app
-      .listen({ port: process.env.PRIVATE_LOAN_DETAILS_PORT })
-      .then(({ url }) => {
-        logger.info(`🚀  '${process.env.ORGNAME}' - 'loanDetails' available at ${url}`);
-        if (process.env.NODE_ENV === 'production') process.send('ready');
-      });
+    app.listen({ port: process.env.PRIVATE_LOAN_DETAILS_PORT }).then(({ url }) => {
+      logger.info(`🚀  '${process.env.ORGNAME}' - 'loanDetails' available at ${url}`);
+      if (process.env.NODE_ENV === 'production') process.send('ready');
+    });
   })
   .catch(error => {
     console.error(error);

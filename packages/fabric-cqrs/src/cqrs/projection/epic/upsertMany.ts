@@ -21,13 +21,11 @@ export default (
       from(
         isEqual(commits, {})
           ? Promise.resolve(action.upsertManySuccess({ tx_id, result: null }))
-          : context.projectionDb
-              .upsertMany({ commits, reducer: context.reducer })
-              .then(({ data }) => {
-                logger.info('projectionDb upsertMany successful');
+          : context.projectionDb.upsertMany({ commits, reducer: context.reducer }).then(({ data }) => {
+              logger.info('projectionDb upsertMany successful');
 
-                return action.upsertManySuccess({ tx_id, result: data });
-              })
+              return action.upsertManySuccess({ tx_id, result: data });
+            })
       )
     )
   );

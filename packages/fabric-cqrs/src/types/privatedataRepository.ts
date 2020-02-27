@@ -13,14 +13,8 @@ export type PrivatedataRepository<TEntity = any, TEvent = any> = {
     id: string;
   }) => Promise<{
     currentState: TEntity;
-    save: (
-      events: TEvent[],
-      version?: number
-    ) => Promise<Commit | { error: any }>;
+    save: (events: TEvent[], version?: number) => Promise<Commit | { error: any }>;
   }>;
-  deleteByEntityIdCommitId?: (
-    id: string,
-    commitId: string
-  ) => Promise<Record<string, any>>;
+  deleteByEntityIdCommitId?: (id: string, commitId: string) => Promise<Record<string, any>>;
   getEntityName: () => string;
 };

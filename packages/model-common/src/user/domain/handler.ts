@@ -1,9 +1,9 @@
 import { UserCommandHandler, UserRepo } from '..';
 
-export const userCommandHandler: (option: {
-  enrollmentId: string;
-  userRepo: UserRepo;
-}) => UserCommandHandler = ({ enrollmentId, userRepo }) => ({
+export const userCommandHandler: (option: { enrollmentId: string; userRepo: UserRepo }) => UserCommandHandler = ({
+  enrollmentId,
+  userRepo
+}) => ({
   CreateUser: async ({ userId, payload: { name, timestamp } }) =>
     userRepo.create({ enrollmentId, id: userId }).save([
       {
@@ -16,10 +16,7 @@ export const userCommandHandler: (option: {
         }
       }
     ]),
-  DeclineReviewInvitation: async ({
-    userId,
-    payload: { documentId, tradeId, timestamp }
-  }) =>
+  DeclineReviewInvitation: async ({ userId, payload: { documentId, tradeId, timestamp } }) =>
     userRepo.getById({ enrollmentId, id: userId }).then(({ save }) =>
       save([
         {
@@ -33,10 +30,7 @@ export const userCommandHandler: (option: {
         }
       ])
     ),
-  ExpireReviewInvitation: async ({
-    userId,
-    payload: { documentId, tradeId, timestamp }
-  }) =>
+  ExpireReviewInvitation: async ({ userId, payload: { documentId, tradeId, timestamp } }) =>
     userRepo.getById({ enrollmentId, id: userId }).then(({ save }) =>
       save([
         {

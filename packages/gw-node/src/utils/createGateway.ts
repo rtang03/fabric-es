@@ -1,3 +1,4 @@
+import util from 'util';
 import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
@@ -5,15 +6,12 @@ import Cookie from 'cookie';
 import express, { Express } from 'express';
 import Client from 'fabric-client';
 import fetch from 'node-fetch';
-import util from 'util';
 
 export class AuthenticatedDataSource extends RemoteGraphQLDataSource {
   willSendRequest({ request, context }: { request: any; context: any }) {
-    if (context?.client_id)
-      request.http.headers.set('client_id', context.client_id);
+    if (context?.client_id) request.http.headers.set('client_id', context.client_id);
     if (context?.user_id) request.http.headers.set('user_id', context.user_id);
-    if (context?.is_admin)
-      request.http.headers.set('is_admin', context.is_admin);
+    if (context?.is_admin) request.http.headers.set('is_admin', context.is_admin);
   }
 }
 
@@ -54,11 +52,7 @@ export const createGateway: (option: {
     subscriptions: false,
     context: async ({ req: { headers } }) => {
       const cookies = Cookie.parse((headers.cookie as string) || '');
-      const token = cookies?.jid
-        ? cookies.jid
-        : headers?.authorization
-        ? headers.authorization.split(' ')[1]
-        : null;
+      const token = cookies?.jid ? cookies.jid : headers?.authorization ? headers.authorization.split(' ')[1] : null;
       // todo: There are two options, for authenticationCheck.
       // Option 1: Below is a chatty authentication, which requires check, for every incoming request.
       // Option 2: Alternatively, we can stick to local JWT check, and decode.

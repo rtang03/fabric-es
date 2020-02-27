@@ -4,7 +4,6 @@ import { createAdminService } from '../../createAdminService';
 const port = process.env.ADMINISTRATOR_PORT;
 
 (async () => {
-
   const { server } = await createAdminService({
     ordererName: process.env.ORDERER_NAME,
     ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,

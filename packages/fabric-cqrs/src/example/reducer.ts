@@ -9,10 +9,8 @@ export interface Counter {
   value: number;
 }
 
-export const reducer: Reducer<Counter> = (
-  history: CounterEvent[],
-  initial = { value: 0 }
-): Counter => history.reduce(reducerFcn, initial);
+export const reducer: Reducer<Counter> = (history: CounterEvent[], initial = { value: 0 }): Counter =>
+  history.reduce(reducerFcn, initial);
 
 const reducerFcn = ({ value }, { type }: CounterEvent) => {
   switch (type) {

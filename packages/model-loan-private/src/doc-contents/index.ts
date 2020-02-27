@@ -10,14 +10,8 @@ export * from './domain/events';
 export * from './domain/commands';
 export * from './domain/reducer';
 export * from './domain/handler';
-export {
-  typeDefs as docContentsTypeDefs,
-  resolvers as docContentsResolvers
-} from './typeDefs';
-export {
-  typeDefs as docContentsRemoteTypeDefs,
-  resolvers as docContentsRemoteResolvers
-} from './remotes';
+export { typeDefs as docContentsTypeDefs, resolvers as docContentsResolvers } from './typeDefs';
+export { typeDefs as docContentsRemoteTypeDefs, resolvers as docContentsRemoteResolvers } from './remotes';
 export * from './queries';
 export type DocContentsRepo = PrivatedataRepository<DocContents, DocContentsEvents>;
 export type DocContentsCommandHandler = CommandHandler<DocContentsCommands>;

@@ -1,7 +1,7 @@
+import util from 'util';
 import Client from 'fabric-client';
 import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
-import util from 'util';
 import { createCommitId } from '../peer/utils';
 import { Commit } from '../types';
 import { getContract } from './contract';
@@ -11,12 +11,14 @@ export const submitPrivateData: (
   args: string[],
   transientData: Record<string, Buffer>,
   { network }: { network: Network }
-) => Promise<
-  Record<string, Commit> & { error?: any; status?: string; message?: string }
-> = async (fcn, args, transientData, { network }) => {
+) => Promise<Record<string, Commit> & { error?: any; status?: string; message?: string }> = async (
+  fcn,
+  args,
+  transientData,
+  { network }
+) => {
   const logger = Client.getLogger('submitPrivateData.js');
-  const input_args =
-    fcn === 'privatedata:createCommit' ? [...args, createCommitId()] : args;
+  const input_args = fcn === 'privatedata:createCommit' ? [...args, createCommitId()] : args;
 
   return getContract(network, true).then(
     async ({ contract }) =>
@@ -41,7 +43,9 @@ export const submitPrivateData$: (
   args: string[],
   transientData: Record<string, Buffer>,
   { network }: { network: Network }
-) => Observable<
-  Record<string, Commit> | { error?: any; status?: string; message?: string }
-> = (fcn, args, transientData, options) =>
-  from(submitPrivateData(fcn, args, transientData, options));
+) => Observable<Record<string, Commit> | { error?: any; status?: string; message?: string }> = (
+  fcn,
+  args,
+  transientData,
+  options
+) => from(submitPrivateData(fcn, args, transientData, options));

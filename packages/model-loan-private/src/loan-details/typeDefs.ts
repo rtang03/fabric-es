@@ -1,11 +1,7 @@
 import { Commit } from '@espresso/fabric-cqrs';
 import { AuthenticationError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
-import {
-  LoanDetails,
-  loanDetailsCommandHandler,
-  LoanDetailsDS
-} from '.';
+import { LoanDetails, loanDetailsCommandHandler, LoanDetailsDS } from '.';
 
 const NOT_AUTHENICATED = 'no enrollment id';
 
@@ -16,29 +12,29 @@ export const typeDefs = gql`
 
   type Mutation {
     createLoanDetails(
-      userId: String!,
-      loanId: String!,
-      requester: LoanRequesterInput!,
-      contact: ContactInfoInput!,
-      loanType: String,
-      startDate: String!,
-      tenor: Int!,
-      currency: String!,
-      requestedAmt: Float!,
-      approvedAmt: Float,
+      userId: String!
+      loanId: String!
+      requester: LoanRequesterInput!
+      contact: ContactInfoInput!
+      loanType: String
+      startDate: String!
+      tenor: Int!
+      currency: String!
+      requestedAmt: Float!
+      approvedAmt: Float
       comment: String
     ): LoanDetailsResp
     updateLoanDetails(
-      userId: String!,
-      loanId: String!,
-      requester: LoanRequesterInput,
-      contact: ContactInfoInput,
-      loanType: String,
-      startDate: String,
-      tenor: Int,
-      currency: String,
-      requestedAmt: Float,
-      approvedAmt: Float,
+      userId: String!
+      loanId: String!
+      requester: LoanRequesterInput
+      contact: ContactInfoInput
+      loanType: String
+      startDate: String
+      tenor: Int
+      currency: String
+      requestedAmt: Float
+      approvedAmt: Float
       comment: String
     ): [LoanDetailsResp]!
   }
@@ -133,19 +129,7 @@ export const resolvers = {
   Mutation: {
     createLoanDetails: async (
       _,
-      {
-        userId,
-        loanId,
-        requester,
-        contact,
-        loanType,
-        startDate,
-        tenor,
-        currency,
-        requestedAmt,
-        approvedAmt,
-        comment
-      },
+      { userId, loanId, requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment },
       {
         dataSources: { loanDetails },
         enrollmentId
@@ -176,19 +160,7 @@ export const resolvers = {
             .catch(({ error }) => error),
     updateLoanDetails: async (
       _,
-      {
-        userId,
-        loanId,
-        requester,
-        contact,
-        loanType,
-        startDate,
-        tenor,
-        currency,
-        requestedAmt,
-        approvedAmt,
-        comment
-      },
+      { userId, loanId, requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment },
       {
         dataSources: { loanDetails },
         enrollmentId
@@ -335,7 +307,6 @@ export const resolvers = {
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId })
   },
   LoanDetailsResp: {
-    __resolveType: obj =>
-      obj.commitId ? 'LoanDetailsCommit' : obj.message ? 'LoanDetailsError' : {}
+    __resolveType: obj => (obj.commitId ? 'LoanDetailsCommit' : obj.message ? 'LoanDetailsError' : {})
   }
 };

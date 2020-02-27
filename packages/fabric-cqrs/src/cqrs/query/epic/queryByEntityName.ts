@@ -6,11 +6,7 @@ import { QueryDatabase } from '../../../types';
 import { action } from '../action';
 import { QueryByEntityNameAction } from '../types';
 
-export default (
-  action$: Observable<QueryByEntityNameAction>,
-  _,
-  context: { queryDatabase: QueryDatabase }
-) => {
+export default (action$: Observable<QueryByEntityNameAction>, _, context: { queryDatabase: QueryDatabase }) => {
   const logger = Client.getLogger('queryByEntityName.js');
 
   return action$.pipe(
@@ -18,13 +14,11 @@ export default (
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName } }) =>
       from(
-        context.queryDatabase
-          .queryByEntityName({ entityName })
-          .then(({ data }) => {
-            logger.info(action.QUERY_SUCCESS);
+        context.queryDatabase.queryByEntityName({ entityName }).then(({ data }) => {
+          logger.info(action.QUERY_SUCCESS);
 
-            return action.querySuccess({ tx_id, result: data });
-          })
+          return action.querySuccess({ tx_id, result: data });
+        })
       )
     )
   );

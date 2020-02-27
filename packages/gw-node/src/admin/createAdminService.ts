@@ -3,12 +3,7 @@ import { ApolloServer } from 'apollo-server';
 import Client from 'fabric-client';
 import { FileSystemWallet } from 'fabric-network';
 import { shutdown } from '../utils/shutdownApollo';
-import {
-  MISSING_CHANNELNAME,
-  MISSING_CONNECTION_PROFILE,
-  MISSING_FABRIC_NETWORK,
-  MISSING_WALLET
-} from './constants';
+import { MISSING_CHANNELNAME, MISSING_CONNECTION_PROFILE, MISSING_FABRIC_NETWORK, MISSING_WALLET } from './constants';
 import { createResolvers } from './createResolvers';
 import { typeDefs } from './typeDefs';
 

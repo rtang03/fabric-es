@@ -50,9 +50,7 @@ describe('Store:privatedata Tests', () => {
       if (tx_id === tid && type === action.CREATE_SUCCESS) {
         const commit = values(result)[0];
         commitId = commit.commitId;
-        expect(
-          pick(commit, 'entityName', 'version', 'events')
-        ).toMatchSnapshot();
+        expect(pick(commit, 'entityName', 'version', 'events')).toMatchSnapshot();
         unsubscribe();
         done();
       }
@@ -84,9 +82,7 @@ describe('Store:privatedata Tests', () => {
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
-        expect(
-          pick(values(result)[0], ['entityName', 'version', 'events'])
-        ).toMatchSnapshot();
+        expect(pick(values(result)[0], ['entityName', 'version', 'events'])).toMatchSnapshot();
         unsubscribe();
         done();
       }

@@ -1,8 +1,4 @@
-import {
-  GraphQLResolveInfo,
-  GraphQLScalarType,
-  GraphQLScalarTypeConfig
-} from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null;
 export type RequireFields<T, K extends keyof T> = {
   [X in Exclude<keyof T, K>]?: T[X];
@@ -45,21 +41,21 @@ export type PaginatedUsers = {
   entities: User[];
   total: Scalars['Int'];
   hasMore: Scalars['Boolean'];
-  otherInfo: Array<Scalars['String']>;
+  otherInfo: Scalars['String'][];
 };
 
 export type Query = {
   __typename?: 'Query';
-  _entities: Array<Maybe<Entity>>;
+  _entities: Maybe<Entity>[];
   _service: Service;
-  getCommitsByUserId: Array<Maybe<UserCommit>>;
+  getCommitsByUserId: Maybe<UserCommit>[];
   getPaginatedUser: PaginatedUsers;
   getUserById?: Maybe<User>;
   me?: Maybe<User>;
 };
 
 export type QueryEntitiesArgs = {
-  representations: Array<Scalars['_Any']>;
+  representations: Scalars['_Any'][];
 };
 
 export type QueryGetCommitsByUserIdArgs = {
@@ -78,7 +74,7 @@ export type User = {
   __typename?: 'User';
   userId: Scalars['String'];
   name: Scalars['String'];
-  mergedUserIds?: Maybe<Array<Scalars['String']>>;
+  mergedUserIds?: Maybe<Scalars['String'][]>;
 };
 
 export type UserCommit = {
@@ -137,25 +133,9 @@ export type SubscriptionResolveFn<TResult, TParent, TContext, TArgs> = (
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
-export interface SubscriptionSubscriberObject<
-  TResult,
-  TKey extends string,
-  TParent,
-  TContext,
-  TArgs
-> {
-  subscribe: SubscriptionSubscribeFn<
-    { [key in TKey]: TResult },
-    TParent,
-    TContext,
-    TArgs
-  >;
-  resolve?: SubscriptionResolveFn<
-    TResult,
-    { [key in TKey]: TResult },
-    TContext,
-    TArgs
-  >;
+export interface SubscriptionSubscriberObject<TResult, TKey extends string, TParent, TContext, TArgs> {
+  subscribe: SubscriptionSubscribeFn<{ [key in TKey]: TResult }, TParent, TContext, TArgs>;
+  resolve?: SubscriptionResolveFn<TResult, { [key in TKey]: TResult }, TContext, TArgs>;
 }
 
 export interface SubscriptionResolverObject<TResult, TParent, TContext, TArgs> {
@@ -163,26 +143,12 @@ export interface SubscriptionResolverObject<TResult, TParent, TContext, TArgs> {
   resolve: SubscriptionResolveFn<TResult, any, TContext, TArgs>;
 }
 
-export type SubscriptionObject<
-  TResult,
-  TKey extends string,
-  TParent,
-  TContext,
-  TArgs
-> =
+export type SubscriptionObject<TResult, TKey extends string, TParent, TContext, TArgs> =
   | SubscriptionSubscriberObject<TResult, TKey, TParent, TContext, TArgs>
   | SubscriptionResolverObject<TResult, TParent, TContext, TArgs>;
 
-export type SubscriptionResolver<
-  TResult,
-  TKey extends string,
-  TParent = {},
-  TContext = {},
-  TArgs = {}
-> =
-  | ((
-      ...args: any[]
-    ) => SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>)
+export type SubscriptionResolver<TResult, TKey extends string, TParent = {}, TContext = {}, TArgs = {}> =
+  | ((...args: any[]) => SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>)
   | SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>;
 
 export type TypeResolveFn<TTypes, TParent = {}, TContext = {}> = (
@@ -193,12 +159,7 @@ export type TypeResolveFn<TTypes, TParent = {}, TContext = {}> = (
 
 export type NextResolverFn<T> = () => Promise<T>;
 
-export type DirectiveResolverFn<
-  TResult = {},
-  TParent = {},
-  TContext = {},
-  TArgs = {}
-> = (
+export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs = {}> = (
   next: NextResolverFn<TResult>,
   parent: TParent,
   args: TArgs,
@@ -238,9 +199,7 @@ export type ResolversParentTypes = {
   PaginatedUsers: PaginatedUsers;
   Boolean: Scalars['Boolean'];
   Mutation: {};
-  UserResponse:
-    | ResolversParentTypes['UserCommit']
-    | ResolversParentTypes['UserError'];
+  UserResponse: ResolversParentTypes['UserCommit'] | ResolversParentTypes['UserError'];
   UserError: UserError;
 };
 
@@ -251,19 +210,19 @@ export type KeyDirectiveResolver<
   Args = { fields?: Maybe<Scalars['String']> }
 > = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type ExtendsDirectiveResolver<
+export type ExtendsDirectiveResolver<Result, Parent, ContextType = any, Args = {}> = DirectiveResolverFn<
   Result,
   Parent,
-  ContextType = any,
-  Args = {}
-> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+  ContextType,
+  Args
+>;
 
-export type ExternalDirectiveResolver<
+export type ExternalDirectiveResolver<Result, Parent, ContextType = any, Args = {}> = DirectiveResolverFn<
   Result,
   Parent,
-  ContextType = any,
-  Args = {}
-> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+  ContextType,
+  Args
+>;
 
 export type RequiresDirectiveResolver<
   Result,
@@ -279,8 +238,7 @@ export type ProvidesDirectiveResolver<
   Args = { fields?: Maybe<Scalars['String']> }
 > = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export interface AnyScalarConfig
-  extends GraphQLScalarTypeConfig<ResolversTypes['_Any'], any> {
+export interface AnyScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['_Any'], any> {
   name: '_Any';
 }
 
@@ -314,14 +272,10 @@ export type PaginatedUsersResolvers<
   ContextType = any,
   ParentType extends ResolversParentTypes['PaginatedUsers'] = ResolversParentTypes['PaginatedUsers']
 > = {
-  entities?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  entities?: Resolver<ResolversTypes['User'][], ParentType, ContextType>;
   total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   hasMore?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  otherInfo?: Resolver<
-    Array<ResolversTypes['String']>,
-    ParentType,
-    ContextType
-  >;
+  otherInfo?: Resolver<ResolversTypes['String'][], ParentType, ContextType>;
 };
 
 export type QueryResolvers<
@@ -329,14 +283,14 @@ export type QueryResolvers<
   ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']
 > = {
   _entities?: Resolver<
-    Array<Maybe<ResolversTypes['_Entity']>>,
+    Maybe<ResolversTypes['_Entity']>[],
     ParentType,
     ContextType,
     RequireFields<QueryEntitiesArgs, 'representations'>
   >;
   _service?: Resolver<ResolversTypes['_Service'], ParentType, ContextType>;
   getCommitsByUserId?: Resolver<
-    Array<Maybe<ResolversTypes['UserCommit']>>,
+    Maybe<ResolversTypes['UserCommit']>[],
     ParentType,
     ContextType,
     RequireFields<QueryGetCommitsByUserIdArgs, 'userId'>
@@ -362,11 +316,7 @@ export type UserResolvers<
 > = {
   userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  mergedUserIds?: Resolver<
-    Maybe<Array<ResolversTypes['String']>>,
-    ParentType,
-    ContextType
-  >;
+  mergedUserIds?: Resolver<Maybe<ResolversTypes['String'][]>, ParentType, ContextType>;
 };
 
 export type UserCommitResolvers<
@@ -374,24 +324,12 @@ export type UserCommitResolvers<
   ParentType extends ResolversParentTypes['UserCommit'] = ResolversParentTypes['UserCommit']
 > = {
   id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  entityName?: Resolver<
-    Maybe<ResolversTypes['String']>,
-    ParentType,
-    ContextType
-  >;
+  entityName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   version?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   commitId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  committedAt?: Resolver<
-    Maybe<ResolversTypes['String']>,
-    ParentType,
-    ContextType
-  >;
+  committedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   entityId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  events?: Resolver<
-    Maybe<Array<ResolversTypes['UserEvent']>>,
-    ParentType,
-    ContextType
-  >;
+  events?: Resolver<Maybe<ResolversTypes['UserEvent'][]>, ParentType, ContextType>;
 };
 
 export type UserErrorResolvers<
@@ -413,11 +351,7 @@ export type UserResponseResolvers<
   ContextType = any,
   ParentType extends ResolversParentTypes['UserResponse'] = ResolversParentTypes['UserResponse']
 > = {
-  __resolveType: TypeResolveFn<
-    'UserCommit' | 'UserError',
-    ParentType,
-    ContextType
-  >;
+  __resolveType: TypeResolveFn<'UserCommit' | 'UserError', ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = any> = {
@@ -451,6 +385,4 @@ export type DirectiveResolvers<ContextType = any> = {
  * @deprecated
  * Use "DirectiveResolvers" root object instead. If you wish to get "IDirectiveResolvers", add "typesPrefix: I" to your config.
  */
-export type IDirectiveResolvers<ContextType = any> = DirectiveResolvers<
-  ContextType
->;
+export type IDirectiveResolvers<ContextType = any> = DirectiveResolvers<ContextType>;

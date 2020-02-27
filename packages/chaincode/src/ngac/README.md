@@ -20,7 +20,8 @@ _InputTag_ may include:
 - user defined attribute
 
 ### Naming Convention
-*Every params and field are case sensitive*  
+
+_Every params and field are case sensitive_
 
 _Entity Resource_
 
@@ -62,7 +63,7 @@ effect: Allow
 allowedEvents:
   - UsernameUpdated
   - UserTypeUpdated
-attributes: 
+attributes:
   uri: `${NAMESPACE.MODEL}/${NAMESPACE.ORG}?id=resourceAttrs:${RESOURCE.CREATOR_MSPID}/${NAMESPACE.ENTITY}?id=resourceAttrs:${RESOURCE.ENTITYNAME}/${NAMESPACE.ENTITYID}?id=resourceAttrs:${RESOURCE.ENTITYID}`
 condition:
   can:

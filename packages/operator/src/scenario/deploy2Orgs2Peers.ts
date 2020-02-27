@@ -7,12 +7,7 @@ import UpdaterRenderer from 'listr-update-renderer';
 import { createNetworkOperator } from '../createNetworkOperator';
 import { enrollAdmin } from '../enrollAdmin';
 import { CHANNEL_ALREADY_EXIST, DeploymentOption } from '../types';
-import {
-  getLogger,
-  installChaincodeSubTask,
-  isCommitRecord,
-  joinChannelSubTask
-} from '../utils';
+import { getLogger, installChaincodeSubTask, isCommitRecord, joinChannelSubTask } from '../utils';
 
 const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
   option = { verbose: true, collapse: false }
@@ -117,11 +112,9 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
       {
         title: `mkdir ${process.env.CHANNEL_CONFIG_PATH}`,
         task: () =>
-          execa('mkdir', ['-p', process.env.CHANNEL_CONFIG_PATH]).then(
-            ({ stdout }) => {
-              if (stdout !== '') throw new Error('Fail to make directory');
-            }
-          )
+          execa('mkdir', ['-p', process.env.CHANNEL_CONFIG_PATH]).then(({ stdout }) => {
+            if (stdout !== '') throw new Error('Fail to make directory');
+          })
       },
       {
         title: 'configtxgen channel.tx',
@@ -136,8 +129,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
             '-outputCreateChannelTx',
             `${process.env.CHANNEL_CONFIG_PATH}/${process.env.CHANNEL_NAME}.tx`
           ]).then(({ stdout }) => {
-            if (stdout !== '')
-              throw new Error('Fail to configtxgen channel.tx');
+            if (stdout !== '') throw new Error('Fail to configtxgen channel.tx');
           })
       },
       {
@@ -178,8 +170,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
                   '-asOrg',
                   'Org1MSP'
                 ]).then(({ stdout }) => {
-                  if (stdout !== '')
-                    throw new Error('Fail to configtxgen Org1MSPanchors.tx');
+                  if (stdout !== '') throw new Error('Fail to configtxgen Org1MSPanchors.tx');
                 })
             },
             {
@@ -190,8 +181,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
                     configUpdatePath: `${process.env.CHANNEL_CONFIG_PATH}/Org1MSPanchors.tx`
                   })
                   .then(result => {
-                    if (result?.info !== '' && result?.status === 'BAD_REQUEST')
-                      task.skip(result.info);
+                    if (result?.info !== '' && result?.status === 'BAD_REQUEST') task.skip(result.info);
                     return result.status;
                   })
             }
@@ -225,8 +215,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
                   '-asOrg',
                   'Org2MSP'
                 ]).then(({ stdout }) => {
-                  if (stdout !== '')
-                    throw new Error('Fail to configtxgen Org2MSPanchors.tx');
+                  if (stdout !== '') throw new Error('Fail to configtxgen Org2MSPanchors.tx');
                 })
             },
             {
@@ -237,8 +226,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
                     configUpdatePath: `${process.env.CHANNEL_CONFIG_PATH}/Org2MSPanchors.tx`
                   })
                   .then(result => {
-                    if (result?.info !== '' && result?.status === 'BAD_REQUEST')
-                      task.skip(result.info);
+                    if (result?.info !== '' && result?.status === 'BAD_REQUEST') task.skip(result.info);
                     return result.status;
                   })
             }
@@ -259,9 +247,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
               targets: ['peer0.org1.example.com', 'peer1.org1.example.com'],
               timeout: 60000
             })
-            .then<Array<ProposalResponse | ProposalErrorResponse>>(
-              result => result[0]
-            )
+            .then<(ProposalResponse | ProposalErrorResponse)[]>(result => result[0])
             .then(responses => installChaincodeSubTask(responses, task))
       },
       {
@@ -275,9 +261,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
               timeout: 60000,
               targets: ['peer0.org2.example.com', 'peer1.org2.example.com']
             })
-            .then<Array<ProposalResponse | ProposalErrorResponse>>(
-              result => result[0]
-            )
+            .then<(ProposalResponse | ProposalErrorResponse)[]>(result => result[0])
             .then(responses => installChaincodeSubTask(responses, task))
       },
       {
@@ -314,8 +298,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
             })
             .then(async ({ disconnect, evaluate }) => {
               const result = await evaluate();
-              if (isCommitRecord(result))
-                task.title = '[Org1MSP] Query result is validated';
+              if (isCommitRecord(result)) task.title = '[Org1MSP] Query result is validated';
               else task.title = '[Org1MSP] Query result validation fails';
               disconnect();
             })
@@ -333,8 +316,7 @@ const bootstrap: (option?: DeploymentOption) => Promise<Listr> = async (
             })
             .then(async ({ disconnect, evaluate }) => {
               const result = await evaluate();
-              if (isCommitRecord(result))
-                task.title = '[Org2MSP] Query result is validated';
+              if (isCommitRecord(result)) task.title = '[Org2MSP] Query result is validated';
               else task.title = '[Org2MSP] Query result validation fails';
               disconnect();
             })

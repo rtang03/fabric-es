@@ -142,7 +142,7 @@ module.exports = {
     '@typescript-eslint/space-before-function-paren': ['off'],
     '@typescript-eslint/type-annotation-spacing': 'off',
     '@typescript-eslint/adjacent-overload-signatures': 'error',
-    '@typescript-eslint/ban-ts-ignore': ['error'],
+    '@typescript-eslint/ban-ts-ignore': ['off'],
     '@typescript-eslint/ban-types': 'error',
     '@typescript-eslint/class-name-casing': 'error',
     '@typescript-eslint/consistent-type-assertions': 'error',
@@ -226,7 +226,7 @@ module.exports = {
       'error',
       {
         rules: {
-          'jsdoc-format': true,
+          'jsdoc-format': false,
           'no-reference-import': true
         }
       }

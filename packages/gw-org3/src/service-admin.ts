@@ -1,6 +1,6 @@
 require('./env');
-import { createAdminService, getLogger } from '@espresso/gw-node';
 import util from 'util';
+import { createAdminService, getLogger } from '@espresso/gw-node';
 
 const port = process.env.ADMINISTRATOR_PORT || 15002;
 const logger = getLogger('service-admin.js');

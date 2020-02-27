@@ -1,6 +1,6 @@
-import { createAdminService } from '.';
 import { getLogger } from '../utils/getLogger';
 import { shutdown } from '../utils/shutdownApollo';
+import { createAdminService } from '.';
 
 const port = (process.env.PORT || 8080) as number;
 

@@ -1,8 +1,5 @@
 import { BaseEvent } from '@espresso/fabric-cqrs';
-import {
-  LoanContactDefined as SuperEvent,
-  LoanDetailsEvents as SuperEvents,
-} from '@espresso/model-loan-private';
+import { LoanContactDefined as SuperEvent, LoanDetailsEvents as SuperEvents } from '@espresso/model-loan-private';
 
 export interface LoanContactDefined extends BaseEvent {
   readonly type: 'LoanContactDefined';
