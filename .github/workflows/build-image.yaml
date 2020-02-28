@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - '**.md'
 env:
-  GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
+  GKE_PROJECT: fdi-test-net
   GKE_EMAIL: ${{ secrets.GKE_EMAIL }}
   GITHUB_SHA: ${{ github.sha }}
   GKE_ZONE: us-central1-a
@@ -56,25 +56,25 @@ jobs:
       - run: gcloud auth configure-docker
       - name: Build auth-server image
         run: |
-          TAG=$(echo "refs/tags/$GITHUB_REF" | sed 's/refs\/tags\/\(.*\)/\1/') && \
+          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker build --no-cache -f ./auth-server.dockerfile \
             -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$AUTH_IMAGE":"$TAG" \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
             --build-arg GITHUB_REF="$GITHUB_REF" .
       - name: Publish auth-server image
         run: |
-          TAG=$(echo "refs/tags/$GITHUB_REF" | sed 's/refs\/tags\/\(.*\)/\1/') && \
+          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$AUTH_IMAGE:$TAG
       - name: Build gw-org1 image
         run: |
-          TAG=$(echo "refs/tags/$GITHUB_REF" | sed 's/refs\/tags\/\(.*\)/\1/') && \
+          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker build --no-cache -f ./gw-org1.dockerfile \
             -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$GW_ORG1_IMAGE":"$TAG" \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
             --build-arg GITHUB_REF="$GITHUB_REF" .
       - name: Publish gw-org1 image
         run: |
-          TAG=$(echo "refs/tags/$GITHUB_REF" | sed 's/refs\/tags\/\(.*\)/\1/') && \
+          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$GW_ORG1_IMAGE:$TAG
       - name: Create Release
         uses: docker://antonyurchenko/git-release:latest
