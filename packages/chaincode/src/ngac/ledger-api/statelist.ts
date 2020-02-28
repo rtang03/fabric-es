@@ -8,7 +8,7 @@ const stateList: <T extends Attribute | Attribute[] | Resource | Policy = any>(
   namespace: string,
   context: Context
 ) => {
-  getQueryResult: (keyparts: string[]) => Promise<T[]>;
+  getQueryResult: (keyparts: string[]) => Promise<any[]>;
   addState: (key: string, item: T) => Promise<T>;
   getState: (key: string) => Promise<T>;
   deleteStateByKey: (key: string) => Promise<string>;
@@ -20,7 +20,7 @@ const stateList: <T extends Attribute | Attribute[] | Resource | Policy = any>(
     while (true) {
       const { value, done } = await iterator.next();
       if (value && value.value.toString()) {
-        const json: T = JSON.parse((value.value as Buffer).toString('utf8'));
+        const json: T = JSON.parse(value.value.toString('utf8'));
         result.push(json);
       }
       if (done) {
@@ -48,7 +48,7 @@ const stateList: <T extends Attribute | Attribute[] | Resource | Policy = any>(
     while (true) {
       const { value, done } = await iterator.next();
       if (value && value.value.toString()) {
-        const item = JSON.parse((value.value as Buffer).toString('utf8'));
+        const item = JSON.parse(value.value.toString('utf8'));
         await stub.deleteState(stub.createCompositeKey(namespace, splitKey(item.key)));
         result.push(item.key);
       } else return [];
