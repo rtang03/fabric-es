@@ -8,8 +8,7 @@ on:
 env:
   GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
   GKE_EMAIL: ${{ secrets.GKE_EMAIL }}
-  GITHUB_SHA: v1.0.0
-  #  GITHUB_SHA: ${{ github.sha }}
+  GITHUB_SHA: ${{ github.sha }}
   GKE_ZONE: us-central1-a
   GKE_CLUSTER: test-net-cluster-1
   AUTH_IMAGE: auth-server
@@ -57,22 +56,26 @@ jobs:
       - run: gcloud auth configure-docker
       - name: Build auth-server image
         run: |
+          TAG=$(echo "refs/tags/$GITHUB_REF" | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker build --no-cache -f ./auth-server.dockerfile \
-            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$AUTH_IMAGE":"$GITHUB_REF" \
+            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$AUTH_IMAGE":"$TAG" \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
             --build-arg GITHUB_REF="$GITHUB_REF" .
       - name: Publish auth-server image
         run: |
-          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$AUTH_IMAGE:$GITHUB_REF
+          TAG=$(echo "refs/tags/$GITHUB_REF" | sed 's/refs\/tags\/\(.*\)/\1/') && \
+          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$AUTH_IMAGE:$TAG
       - name: Build gw-org1 image
         run: |
+          TAG=$(echo "refs/tags/$GITHUB_REF" | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker build --no-cache -f ./gw-org1.dockerfile \
-            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$GW_ORG1_IMAGE":"$GITHUB_REF" \
+            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$GW_ORG1_IMAGE":"$TAG" \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
             --build-arg GITHUB_REF="$GITHUB_REF" .
       - name: Publish gw-org1 image
         run: |
-          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$GW_ORG1_IMAGE:$GITHUB_REF
+          TAG=$(echo "refs/tags/$GITHUB_REF" | sed 's/refs\/tags\/\(.*\)/\1/') && \
+          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$GW_ORG1_IMAGE:$TAG
       - name: Create Release
         uses: docker://antonyurchenko/git-release:latest
         env:
