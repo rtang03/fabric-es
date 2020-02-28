@@ -1,5 +1,5 @@
 import { assign } from 'lodash';
-import { Commit } from '..';
+import { Commit } from './commit';
 
 export const splitKey = (key: string) => key.split('~');
 

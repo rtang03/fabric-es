@@ -6,7 +6,7 @@
     "module": "esnext",
     "declaration": false,
     "sourceMap": false,
-    "types": ["node", "mocha"],
+    "types": ["node", "jest"],
     "lib": ["es2018", "dom", "esnext.asynciterable"],
     "rootDir": "src",
     "emitDecoratorMetadata": true,

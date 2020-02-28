@@ -73,3 +73,12 @@ jobs:
       - name: Publish gw-org1 image
         run: |
           docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$GW_ORG1_IMAGE:$GITHUB_SHA
+      - name: Create Release
+        uses: docker://antonyurchenko/git-release:latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRAFT_RELEASE: "true"
+          PRE_RELEASE: "true"
+          CHANGELOG_FILE: "CHANGELOG.md"
+          ALLOW_EMPTY_CHANGELOG: "false"
+          ALLOW_TAG_PREFIX: "true"
