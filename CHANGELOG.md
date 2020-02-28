@@ -1,3 +1,7 @@
+## [0.5.8] - 2020-2-28
+### Added
+- This is the first clean release, deployable to GCP Cloud Registry
+
 ## [0.5.7] - 2020-2-28
 ### Changed
 - Debug
