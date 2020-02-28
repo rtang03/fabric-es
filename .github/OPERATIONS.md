@@ -1,5 +1,3 @@
-![Create Release](https://github.com/rtang03/open-platform-dlt/workflows/Create%20Release/badge.svg)
-
 ### How to create a release
 _step 0: Commit and push all changes_
 

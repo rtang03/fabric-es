@@ -22,7 +22,8 @@ module.exports = {
     'eslint-plugin-prettier',
     'eslint-plugin-import',
     'eslint-plugin-standard',
-    'eslint-plugin-prefer-arrow'
+    'eslint-plugin-prefer-arrow',
+    'jest'
   ],
   rules: {
     camelcase: 'off',
