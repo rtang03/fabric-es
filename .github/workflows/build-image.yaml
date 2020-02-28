@@ -40,7 +40,8 @@ jobs:
           node-version: '8.x'
           version: '8.x'
       - run: yarn install --frozen-lockfile --ignore-engines
-      - run: yarn lint
+      - run: yarn lint:lib
+      - run: yarn lint:app
       - name: Run unit tests for lib - chaincode, fabric-cqrs, gw-node, operator
         run: yarn unit-test
       - name: Build auth-server image
