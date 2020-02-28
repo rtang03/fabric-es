@@ -11,6 +11,16 @@ mutation Register(
   )
 }`;
 
+/*
+mutation {
+  register(
+    email: "u3@org1.com"
+    username: "u3org1"
+    password: "passw0rd"
+    )
+  }
+*/
+
 export const OAUTH_LOGIN = `
 mutation Login(
   $email: String!
