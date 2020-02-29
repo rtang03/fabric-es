@@ -3,8 +3,9 @@ export interface LoanCommands {
     userId: string;
     payload: {
       loanId: string;
-      description?: string;
+      description: string;
       reference: string;
+      comment?: string;
       timestamp: number;
     };
   };
@@ -56,6 +57,14 @@ export interface LoanCommands {
     payload: {
       loanId: string;
       description: string;
+      timestamp: number;
+    };
+  };
+  DefineLoanComment: {
+    userId: string;
+    payload: {
+      loanId: string;
+      comment: string;
       timestamp: number;
     };
   };

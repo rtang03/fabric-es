@@ -266,9 +266,9 @@ beforeAll(async () => {
         // Start federated gateway
         gateway = await createGateway({
           serviceList: [
-            { name: 'admin', url: ADMIN_SERVICE },
-            { name: 'loan', url: `http://localhost:${lPort}/graphql` },
-            { name: 'document', url: `http://localhost:${dPort}/graphql` },
+            { name: 'admin',       url: ADMIN_SERVICE },
+            { name: 'loan',        url: `http://localhost:${lPort}/graphql` },
+            { name: 'document',    url: `http://localhost:${dPort}/graphql` },
             { name: 'loanDetails', url: `http://localhost:${tPort}/graphql` },
             { name: 'docContents', url: `http://localhost:${cPort}/graphql` }
           ],
@@ -301,7 +301,7 @@ afterAll(async () => {
 
   return new Promise(done =>
     setTimeout(() => {
-      console.log('🚀  Test stopped');
+      console.log('🚀  Test finished');
       done();
     }, 500)
   );

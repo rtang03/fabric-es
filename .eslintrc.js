@@ -27,7 +27,7 @@ module.exports = {
   rules: {
     camelcase: 'off',
     '@typescript-eslint/camelcase': ['off'],
-    'prettier/prettier': ['error'],
+    'prettier/prettier': ['off'],
     'arrow-body-style': 'error',
     curly: 'off',
     'lines-around-comment': [0],
