@@ -49,4 +49,5 @@ git push origin v0.5.1
 
 [create gcp service account key](https://github.com/GoogleCloudPlatform/github-actions/tree/docs/service-account-key/setup-gcloud#inputs)  
 [create git tag](https://dev.to/neshaz/a-tutorial-for-tagging-releases-in-git-147e)
+[delete git tag](https://devconnected.com/how-to-delete-local-and-remote-tags-on-git/)
 [changelog](https://keepachangelog.com/en/0.3.0/)
