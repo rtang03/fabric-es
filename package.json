@@ -51,6 +51,7 @@
     "printWidth": 120
   },
   "publishConfig": {
+    "access": "public",
     "registry": "https://npm.pkg.github.com/"
   }
 }
