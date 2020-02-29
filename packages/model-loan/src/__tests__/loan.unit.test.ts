@@ -13,42 +13,42 @@ beforeAll(async () => {
 
   await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId,
-    payload: { loanId: 'LOANID000', reference: 'LOANREF000', timestamp: Date.now() }
+    payload: { loanId: 'LOANID000', reference: 'LOANREF000', description: 'Loan 0', timestamp: Date.now() }
   });
 
   await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId,
-    payload: { loanId: 'LOANID001', reference: 'LOANREF001', timestamp: Date.now() }
+    payload: { loanId: 'LOANID001', reference: 'LOANREF001', description: 'Loan 1', timestamp: Date.now() }
   });
 
   await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId,
-    payload: { loanId: 'LOANID002', reference: 'LOANREF002', description: 'YOHOWAREYOU', timestamp: Date.now() }
+    payload: { loanId: 'LOANID002', reference: 'LOANREF002', description: 'YOHOWAREYOU', comment: 'Hello', timestamp: Date.now() }
   });
 
   await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId,
-    payload: { loanId: 'LOANID003', reference: 'LOANREF003', description: 'YOIMFINETHX', timestamp: Date.now() }
+    payload: { loanId: 'LOANID003', reference: 'LOANREF003', description: 'YOIMFINETHX', comment: 'How are you?', timestamp: Date.now() }
   });
 
   await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId,
-    payload: { loanId: 'LOANID004', reference: 'LOANREF004', timestamp: Date.now() }
+    payload: { loanId: 'LOANID004', reference: 'LOANREF004', description: 'Loan 0', timestamp: Date.now() }
   });
 
   await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId,
-    payload: { loanId: 'LOANID005', reference: 'LOANREF005', description: 'GOODTOHEAR!', timestamp: Date.now() }
+    payload: { loanId: 'LOANID005', reference: 'LOANREF005', description: 'GOODTOHEAR!', comment: 'Gutten Tag', timestamp: Date.now() }
   });
 
   await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId,
-    payload: { loanId: 'LOANID006', reference: 'LOANREF006', timestamp: Date.now() }
+    payload: { loanId: 'LOANID006', reference: 'LOANREF006', description: 'Loan 6', timestamp: Date.now() }
   });
 
   await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId,
-    payload: { loanId: 'LOANID008', reference: 'LOANREF008', timestamp: Date.now() }
+    payload: { loanId: 'LOANID008', reference: 'LOANREF008', description: 'Loan 7', timestamp: Date.now() }
   });
 });
 
@@ -59,6 +59,7 @@ describe('Loan CommandHandler test', () => {
       payload: {
         loanId: 'LOANID007',
         reference: 'LOANREF007',
+        description: 'Loan 7',
         timestamp: 1566984733093
       }
     });
@@ -199,6 +200,7 @@ describe('Loan CommandHandler test', () => {
         payload: {
           loanId: 'LOAN099',
           reference: null,
+          description: 'Ha',
           timestamp: Date.now()
         }
       })

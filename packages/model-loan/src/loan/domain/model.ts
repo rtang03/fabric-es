@@ -17,8 +17,9 @@ export class Loan {
 
   loanId: string;
   ownerId: string;
-  description?: string;
+  description: string;
   reference: string;
   status: LoanStatus;
+  comment?: string;
   timestamp: number;
 }

@@ -10,20 +10,21 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    applyLoan(userId: String!, loanId: String!, description: String, reference: String!): LoanResponse
+    applyLoan(userId: String!, loanId: String!, description: String!, reference: String!, comment: String): LoanResponse
     cancelLoan(userId: String!, loanId: String!): LoanResponse
     approveLoan(userId: String!, loanId: String!): LoanResponse
     returnLoan(userId: String!, loanId: String!): LoanResponse
     rejectLoan(userId: String!, loanId: String!): LoanResponse
     expireLoan(userId: String!, loanId: String!): LoanResponse
-    updateLoan(userId: String!, loanId: String!, description: String, reference: String): [LoanResponse]!
+    updateLoan(userId: String!, loanId: String!, description: String, reference: String, comment: String): [LoanResponse]!
   }
 
   type Loan @key(fields: "loanId") {
     loanId: String!
     ownerId: String!
-    description: String
+    description: String!
     reference: String!
+    comment: String
     status: Int!
     timestamp: String!
   }
@@ -76,7 +77,7 @@ export const resolvers = {
   Mutation: {
     applyLoan: async (
       _,
-      { userId, loanId, description, reference },
+      { userId, loanId, description, reference, comment },
       { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit> =>
       !enrollmentId
@@ -87,7 +88,7 @@ export const resolvers = {
           })
             .ApplyLoan({
               userId,
-              payload: { loanId, description, reference, timestamp: Date.now() }
+              payload: { loanId, description, reference, comment, timestamp: Date.now() }
             })
             .catch(({ error }) => error),
     cancelLoan: async (
@@ -157,7 +158,7 @@ export const resolvers = {
             .catch(({ error }) => error),
     updateLoan: async (
       _,
-      { userId, loanId, description, reference },
+      { userId, loanId, description, reference, comment },
       { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit[] | { error: any }> => {
       if (!enrollmentId) throw new AuthenticationError(NOT_AUTHENICATED);
@@ -187,6 +188,17 @@ export const resolvers = {
           })
           .then(data => data)
           .catch(({ message, stack }) => ({ message, stack }));
+        result.push(c);
+      }
+      if (comment) {
+        const c = await loanCommandHandler({
+          enrollmentId,
+          loanRepo: loan.repo
+        }).DefineLoanComment({
+          userId, payload: { loanId, comment, timestamp: Date.now() }
+        })
+        .then(data => data)
+        .catch(({ message, stack }) => ({ message, stack }));
         result.push(c);
       }
       return result;
