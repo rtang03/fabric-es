@@ -3,6 +3,21 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "description": "Hyperledger Fabric middleware for cqrs pattern",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rtang03/open-platform-dlt.git"
+  },
+  "keywords": [
+    "hyperledger"
+  ],
+  "author": "Ross Tang",
+  "homepage": "https://github.com/rtang03/open-platform-dlt",
+  "bugs": {
+    "email": "info@dashslab.com",
+    "url": "https://github.com/rtang03/open-platform-dlt/issues"
+  },
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
   "scripts": {
     "build": "yarn clean && tsc",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
@@ -30,7 +45,6 @@
     "node": ">=8",
     "npm": ">=5"
   },
-  "private": true,
   "engineStrict": true,
   "dependencies": {
     "@espresso/operator": "1.0.0",
