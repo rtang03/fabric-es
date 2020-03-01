@@ -3,6 +3,20 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "description": "Gateway node",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rtang03/open-platform-dlt.git"
+  },
+  "keywords": [
+    "hyperledger"
+  ],
+  "author": "Ross Tang",
+  "homepage": "https://github.com/rtang03/open-platform-dlt",
+  "bugs": {
+    "url": "https://github.com/rtang03/open-platform-dlt/issues"
+  },
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
   "scripts": {
     "build": "yarn clean && tsc",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
@@ -18,13 +32,13 @@
     "start-admin-service": "npm run build && node ./dist/admin/__tests__/__utils__/startServiceForManualTest.js",
     "test:integration": "(not tested yet) yarn start-admin-service && yarn test-service-admin",
     "test-service-admin": "jest --forceExit --detectOpenHandles admin.integration.test",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
+    "publish": "npm publish"
   },
   "engines": {
     "node": ">=8",
     "npm": ">=5"
   },
-  "private": true,
   "engineStrict": true,
   "dependencies": {
     "@apollo/federation": "^0.10.2",

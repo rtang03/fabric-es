@@ -3,6 +3,20 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "description": "Authentication server",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rtang03/open-platform-dlt.git"
+  },
+  "keywords": [
+    "hyperledger"
+  ],
+  "author": "Ross Tang",
+  "homepage": "https://github.com/rtang03/open-platform-dlt",
+  "bugs": {
+    "url": "https://github.com/rtang03/open-platform-dlt/issues"
+  },
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
   "scripts": {
     "start": "npm run build && node ./dist/app.js",
     "dev-auth": "nodemon --exec ts-node src/app.ts",
@@ -23,13 +37,13 @@
     "test:authenticate": "jest --forceExit --detectOpenHandles authenticate.test",
     "test:client_app": "jest --forceExit --detectOpenHandles client_app.test",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
+    "publish": "npm publish"
   },
   "engines": {
     "node": ">=8",
     "npm": ">=5"
   },
-  "private": true,
   "engineStrict": true,
   "dependencies": {
     "apollo-server-express": "^2.9.7",

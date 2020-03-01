@@ -3,6 +3,20 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "description": "Network operator",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rtang03/open-platform-dlt.git"
+  },
+  "keywords": [
+    "hyperledger"
+  ],
+  "author": "Ross Tang",
+  "homepage": "https://github.com/rtang03/open-platform-dlt",
+  "bugs": {
+    "url": "https://github.com/rtang03/open-platform-dlt/issues"
+  },
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
   "scripts": {
     "build": "yarn clean && tsc",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
@@ -19,12 +33,11 @@
     "scenario:privatedata-upgrade": "ts-node src/scenario/upgrade-privatedata-cc.ts",
     "scenario:post-install-test": "ts-node src/scenario/post-install-test.ts",
     "clean": "rimraf dist",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}' --fix"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}' --fix",
+    "publish": "npm publish"
   },
-  "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@google-cloud/logging-winston": "^3.0.5",
     "dotenv": "^8.1.0",
     "fabric-client": "^1.4.4",
     "fabric-contract-api": "^1.4.4",
