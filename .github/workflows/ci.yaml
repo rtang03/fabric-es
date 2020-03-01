@@ -1,24 +1,37 @@
 on:
   push:
-    # Sequence of patterns matched against refs/tags
-    tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
-name: Create Release
+name: CI
 
 jobs:
-  release:
-    name: Create Release
+  build:
+    name: CI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@master
-      - name: Create Release
-        uses: docker://antonyurchenko/git-release:latest
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - uses: actions/cache@v1
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Setup Node.js for use with action
+        uses: actions/setup-node@v1.1.0
+        with:
+          node-version: '8.x'
+          version: '8.x'
+      - run: yarn install --frozen-lockfile --ignore-engines
+      - run: yarn lint:lib
+      - run: yarn lint:app
+      - name: Run unit tests for lib - chaincode, fabric-cqrs, gw-node, operator
+        run: yarn unit-test
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DRAFT_RELEASE: "true"
-          PRE_RELEASE: "true"
-          CHANGELOG_FILE: "CHANGELOG.md"
-          ALLOW_EMPTY_CHANGELOG: "false"
-          ALLOW_TAG_PREFIX: "true"
+          CI: true
