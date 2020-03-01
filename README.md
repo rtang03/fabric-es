@@ -1,3 +1,4 @@
+![CI](https://github.com/rtang03/open-platform-dlt/workflows/CI/badge.svg)
 ![Build Images](https://github.com/rtang03/open-platform-dlt/workflows/Build%20Images/badge.svg)
 
 ## Project Overview
