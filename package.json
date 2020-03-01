@@ -1,6 +1,7 @@
 {
   "name": "open-platform-dlt",
   "version": "1.0.0",
+  "license": "proprietary",
   "scripts": {
     "cp:root": "rimraf .build && mkdir -p ./.build && cp ./package.json .build && cp yarn.lock .build ",
     "tsc:auth": "lerna run tsc:prod --scope=@espresso/authentication",

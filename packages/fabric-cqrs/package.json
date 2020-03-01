@@ -14,7 +14,6 @@
   "author": "Ross Tang",
   "homepage": "https://github.com/rtang03/open-platform-dlt",
   "bugs": {
-    "email": "info@dashslab.com",
     "url": "https://github.com/rtang03/open-platform-dlt/issues"
   },
   "publishConfig": { "registry": "https://npm.pkg.github.com/" },
@@ -39,7 +38,8 @@
     "enrollCaAdmin": "ts-node src/account/enrollCaAdmin.ts",
     "enrollAdminOrg2": "(broke) ts-node src/ngac_test/enrollAdmin.ts",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
+    "publish": "npm publish"
   },
   "engines": {
     "node": ">=8",
