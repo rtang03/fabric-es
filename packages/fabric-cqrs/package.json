@@ -33,7 +33,7 @@
     "test:store.unit": "jest store.unit.test",
     "test:peer.integration": "jest peer.integration.test",
     "test:peer.privatedata.integration": "jest peer.privatedata.integration.test",
-    "unit-test:lib": "jest unit.test",
+    "unit-test": "jest unit.test",
     "enrollAdmin": "ts-node src/account/enrollAdmin.ts",
     "enrollCaAdmin": "ts-node src/account/enrollCaAdmin.ts",
     "enrollAdminOrg2": "(broke) ts-node src/ngac_test/enrollAdmin.ts",
