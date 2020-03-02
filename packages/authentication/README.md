@@ -29,7 +29,7 @@ yarn run enrollCaAdmin
 
 Step: 2  
 The docker-compose of development network, of this repo shall start the Postgresql. You simply create database `auth_db`.  
-Or, alternatively, you may use a separately installed Postgresql and with proper setting, and create 
+Or, alternatively, you may use a separately installed Postgresql and with proper setting, and create
 database `auth_db`. Need not create tables/schema.
 
 ```text
@@ -72,7 +72,7 @@ http://localhost:4000/oauth/authorize?redirect=/oauth/authorize&client_id=c0096e
 ```
 
 TODO:
-When register new user, need to check duplicated email and username. 
+When register new user, need to check duplicated email and username.
 
 ### Reference Material
 
@@ -81,11 +81,9 @@ When register new user, need to check duplicated email and username.
 [Implement Client App Authorize](https://github.com/auth0-samples/auth0-regular-webapp-login-with-sso-and-api/blob/master/utils/authorize.js)
 [type-graphq + federation](https://github.com/MichalLytek/type-graphql/blob/master/examples/apollo-federation/helpers/buildFederatedSchema.ts)
 
-35.239.77.51
-fdi-test-net:us-central1:fdi-test-net
+### Useful commands
 
-sudo lsof -iTCP -sTCP:LISTEN -n -P
-
-221.124.121.144
-
-https://cloud.google.com/sql/docs/postgres/connect-admin-ip#install-mysql-client
+```shell script
+# if postrgres port is blocking the docker-compose up, here shows the pid by port.
+sudo lsof -iTCP -sTCP:LISTEN -n -P | 5432
+```

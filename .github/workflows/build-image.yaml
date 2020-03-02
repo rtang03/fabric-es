@@ -41,7 +41,7 @@ jobs:
       - run: yarn install --frozen-lockfile --ignore-engines
       - run: yarn lint:lib
       - run: yarn lint:app
-      - name: Run unit tests for lib - chaincode, fabric-cqrs, gw-node, operator
+      - name: Run unit tests for lib - chaincode, fabric-cqrs, authentication
         run: yarn unit-test
       - name: Prepare build context for auth-server
         run: yarn build:auth

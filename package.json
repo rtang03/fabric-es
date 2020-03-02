@@ -1,7 +1,7 @@
 {
   "name": "open-platform-dlt",
   "version": "1.0.0",
-  "license": "proprietary",
+  "license": "UNLICENSED",
   "scripts": {
     "cp:root": "rimraf .build && mkdir -p ./.build && cp ./package.json .build && cp yarn.lock .build ",
     "tsc:auth": "lerna run tsc:prod --scope=@espresso/authentication",
@@ -15,7 +15,7 @@
     "build:auth": "yarn tsc:auth && yarn pack:auth",
     "build:gw-dev-net:org1": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org1 && yarn pack:lib && yarn pack:gw-dev-net:org1",
     "build:gw-dev-net:org2": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org2 && yarn pack:lib && yarn pack:gw-dev-net:org2",
-    "unit-test": "lerna run unit-test:lib --scope=@espresso/chaincode",
+    "unit-test": "lerna run unit-test:lib --scope={@espresso/authentication,@espresso/chaincode,@espresso/fabric-cqrs}",
     "lint:lib": "lerna run lint --scope={@espresso/authentication,@espresso/chaincode,@espresso/fabric-cqrs,@espresso/gw-node,@espresso/operator}",
     "lint:app": "lerna run lint --scope={@espresso/gw-org*,@espresso/model-*}",
     "publish": "lerna publish from-git",
