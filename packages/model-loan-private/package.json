@@ -12,7 +12,8 @@
     "cp:dist": "cp -R ./dist ../../.build/packages/model-loan-private/",
     "boilerplate": "yarn build:cleanup && concurrently \"npm:copy:*\"",
     "copy:src": "cp -R ./src ../../.build/packages/model-loan-private/",
-    "copy:others": "cp ./{.gitignore,jest.config.js,jest.setup.js,package.json,README.md,tsconfig.json} ../../.build/packages/model-loan-private/",
+    "copy:others": "ls -la",
+    "cop_y:others": "cp ./{.gitignore,jest.config.js,jest.setup.js,package.json,README.md,tsconfig.json} ../../.build/packages/model-loan-private/",
     "test": "yarn build && ./node_modules/.bin/jest unit.test",
     "clean": "rimraf dist",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
