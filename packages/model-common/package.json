@@ -12,7 +12,7 @@
     "cp:dist": "cp -R ./dist ../../.build/packages/model-common/",
     "boilerplate": "yarn build:cleanup && concurrently \"npm:copy:*\"",
     "copy:src": "cp -R ./src ../../.build/packages/model-common/",
-    "copy:others": "cp ./* ../../.build/packages/model-common/",
+    "copy:others": "cp .gitignore jest.config.js jest.setup.js package.json tsconfig.json README.md ../../.build/packages/model-common/",
     "test": "yarn build && ./node_modules/.bin/jest unit.test",
     "clean": "rimraf dist",
     "gen-resolvers-type": "graphql-codegen --config codegen.yml",
