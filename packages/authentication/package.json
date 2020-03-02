@@ -37,8 +37,7 @@
     "test:authenticate": "jest --forceExit --detectOpenHandles authenticate.test",
     "test:client_app": "jest --forceExit --detectOpenHandles client_app.test",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "publish": "npm publish"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
   },
   "engines": {
     "node": ">=8",

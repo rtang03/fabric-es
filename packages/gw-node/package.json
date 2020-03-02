@@ -32,8 +32,7 @@
     "start-admin-service": "npm run build && node ./dist/admin/__tests__/__utils__/startServiceForManualTest.js",
     "test:integration": "(not tested yet) yarn start-admin-service && yarn test-service-admin",
     "test-service-admin": "jest --forceExit --detectOpenHandles admin.integration.test",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "publish": "npm publish"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
   },
   "engines": {
     "node": ">=8",

@@ -76,6 +76,8 @@ jobs:
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$GW_ORG1_IMAGE:$TAG
+      - run: yarn boilerplate
+      - run: tar -czvf boilerplate.tar.gz ./.build
       - name: Create Release
         uses: docker://antonyurchenko/git-release:latest
         env:
@@ -85,3 +87,5 @@ jobs:
           CHANGELOG_FILE: "CHANGELOG.md"
           ALLOW_EMPTY_CHANGELOG: "false"
           ALLOW_TAG_PREFIX: "true"
+        with:
+          args: ./boilerplate.tar.gz
