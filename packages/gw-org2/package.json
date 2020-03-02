@@ -15,7 +15,7 @@
     "boilerplate": "yarn build:cleanup && concurrently \"npm:copy:*\"",
     "copy:src": "cp -R ./src ../../.build/packages/gw-org2/",
     "copy:conn": "cp -R ./connection ../../.build/packages/gw-org2/",
-    "copy:others": "cp ./{.env.test,.gitignore,codegen.yml,jest.config.js,jest.setup.js,package.json,processes.yaml,README.md,tsconfig.json} ../../.build/packages/gw-org2/",
+    "copy:others": "cp ./* ../../.build/packages/gw-org2/",
     "clean": "rimraf dist",
     "service-docu": "node ./dist/service-doc.js",
     "service-loan": "node ./dist/service-loan.js",

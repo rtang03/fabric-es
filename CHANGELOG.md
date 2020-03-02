@@ -1,3 +1,7 @@
+## [0.5.11] - 2020-3-2
+### Added
+- Debug only
+
 ## [0.5.10] - 2020-3-2
 ### Added
 - Debug only
