@@ -1,3 +1,8 @@
+## [0.5.13] - 2020-3-2
+### Added
+- include boilerplate.tar.gz to release artefact
+- new CI workflow
+
 ## [0.5.12] - 2020-3-2
 ### Added
 - Debug only
