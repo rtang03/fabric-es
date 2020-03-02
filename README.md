@@ -1,5 +1,5 @@
 ![CI](https://github.com/rtang03/open-platform-dlt/workflows/CI/badge.svg?branch=master)
-![Build Images](https://github.com/rtang03/open-platform-dlt/workflows/Build%20Images/badge.svg)
+![Build Images](https://github.com/rtang03/open-platform-dlt/workflows/Build%20Images/badge.svg?branch=master)
 
 ## Project Overview
 
