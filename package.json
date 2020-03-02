@@ -17,7 +17,10 @@
     "build:gw-dev-net:org2": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org2 && yarn pack:lib && yarn pack:gw-dev-net:org2",
     "unit-test": "lerna run unit-test:lib --scope=@espresso/chaincode",
     "lint:lib": "lerna run lint --scope={@espresso/authentication,@espresso/chaincode,@espresso/fabric-cqrs,@espresso/gw-node,@espresso/operator}",
-    "lint:app": "lerna run lint --scope={@espresso/gw-org1,@espresso/gw-org2,@espresso/gw-org3,@espresso/model-common,@espresso/model-loan,@espresso/model-loan-private}"
+    "lint:app": "lerna run lint --scope={@espresso/gw-org1,@espresso/gw-org2,@espresso/gw-org3,@espresso/model-common,@espresso/model-loan,@espresso/model-loan-private}",
+    "publish": "lerna publish from-git",
+    "boilerplate": "yarn cp:root && lerna run boilerplate --scope={@espresso/gw-org1,@espresso/gw-org2,@espresso/gw-org3,@espresso/model-common,@espresso/model-loan,@espresso/model-loan-private}",
+    "typedoc": "lerna run typedoc --scope={@espresso/authentication,@espresso/chaincode,@espresso/fabric-cqrs,@espresso/gw-node,@espresso/operator}"
   },
   "workspaces": [
     "packages/*"

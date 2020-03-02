@@ -1,3 +1,8 @@
+## [0.5.9] - 2020-3-2
+### Added
+- include boilerplate.tar.gz to release artefact
+- new CI workflow
+
 ## [0.5.8] - 2020-2-28
 ### Added
 - This is the first clean release, deployable to GCP Cloud Registry
