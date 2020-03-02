@@ -29,7 +29,7 @@
     "build:watch": "tsc -w",
     "prepublishOnly": "npm run build",
     "int-test:lib": "jest public.integration.test",
-    "unit-test:lib": "jest public.unit.test",
+    "unit-test": "jest public.unit.test",
     "test:private": "jest private.integration.test",
     "test:ngac-policy-engine-unit-test": "(broke) jest ngac.pe.unit.test",
     "test:ngac-crud-unit-test": "(broke) jest ngac.crud.unit.test",
