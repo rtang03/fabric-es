@@ -1,3 +1,7 @@
+## [0.5.10] - 2020-3-2
+### Added
+- Debug only
+
 ## [0.5.9] - 2020-3-2
 ### Added
 - include boilerplate.tar.gz to release artefact
