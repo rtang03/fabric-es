@@ -33,13 +33,12 @@
     "test:store.unit": "jest store.unit.test",
     "test:peer.integration": "jest peer.integration.test",
     "test:peer.privatedata.integration": "jest peer.privatedata.integration.test",
-    "test:unit-test": "jest unit.test",
+    "unit-test:lib": "jest unit.test",
     "enrollAdmin": "ts-node src/account/enrollAdmin.ts",
     "enrollCaAdmin": "ts-node src/account/enrollCaAdmin.ts",
     "enrollAdminOrg2": "(broke) ts-node src/ngac_test/enrollAdmin.ts",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "publish": "npm publish"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
   },
   "engines": {
     "node": ">=8",
