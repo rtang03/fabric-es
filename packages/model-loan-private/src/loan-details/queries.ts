@@ -4,14 +4,8 @@ export const CREATE_LOAN_DETAILS = gql`
   mutation CreateLoanDetails(
     $userId: String!
     $loanId: String!
-    $registration: String!
-    $companyName: String!
-    $requesterType: String
-    $salutation: String
-    $contactName: String!
-    $contactTitle: String
-    $contactPhone: String!
-    $contactEmail: String!
+    $requester: LoanRequesterInput!
+    $contact: ContactInfoInput!
     $loanType: String
     $startDate: String!
     $tenor: Int!
@@ -23,14 +17,8 @@ export const CREATE_LOAN_DETAILS = gql`
     createLoanDetails(
       userId: $userId
       loanId: $loanId
-      requester: { registration: $registration, name: $companyName, type: $requesterType }
-      contact: {
-        salutation: $salutation
-        name: $contactName
-        title: $contactTitle
-        phone: $contactPhone
-        email: $contactEmail
-      }
+      requester: $requester
+      contact: $contact
       loanType: $loanType
       startDate: $startDate
       tenor: $tenor
@@ -119,14 +107,8 @@ export const UPDATE_LOAN_DETAILS = gql`
   mutation UpdateLoanDetails(
     $userId: String!
     $loanId: String!
-    $registration: String
-    $companyName: String
-    $requesterType: String
-    $salutation: String
-    $contactName: String
-    $contactTitle: String
-    $contactPhone: String
-    $contactEmail: String
+    $requester: LoanRequesterInput
+    $contact: ContactInfoInput
     $loanType: String
     $startDate: String
     $tenor: Int
@@ -138,14 +120,8 @@ export const UPDATE_LOAN_DETAILS = gql`
     updateLoanDetails(
       userId: $userId
       loanId: $loanId
-      requester: { registration: $registration, name: $companyName, type: $requesterType }
-      contact: {
-        salutation: $salutation
-        name: $contactName
-        title: $contactTitle
-        phone: $contactPhone
-        email: $contactEmail
-      }
+      requester: $requester
+      contact: $contact
       loanType: $loanType
       startDate: $startDate
       tenor: $tenor
