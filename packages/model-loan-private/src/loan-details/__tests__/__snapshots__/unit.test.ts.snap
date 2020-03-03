@@ -74,3 +74,128 @@ Object {
   "tenor": 76,
 }
 `;
+
+exports[`LoanDetails Unit Test - Resolver query loanDetails 4 by id 1`] = `
+Object {
+  "approvedAmt": null,
+  "comment": "Hello 0004",
+  "contact": Object {
+    "email": "c0004@fake.it",
+    "name": "Contact 4",
+    "phone": "555-0004",
+    "salutation": null,
+    "title": null,
+  },
+  "currency": "HKD",
+  "loanId": "L0004",
+  "loanType": "Post-Shipment",
+  "requestedAmt": 50000,
+  "requester": Object {
+    "name": "Loan Requester 4",
+    "registration": "REG-0004",
+    "type": null,
+  },
+  "startDate": "1542385275434",
+  "tenor": 76,
+}
+`;
+
+exports[`LoanDetails Unit Test - Resolver query loanDetails 5 by id 1`] = `
+Object {
+  "approvedAmt": null,
+  "comment": "Hello 0005",
+  "contact": Object {
+    "email": "c0005@fake.it",
+    "name": "Contact 5",
+    "phone": "555-0005",
+    "salutation": null,
+    "title": "Manager",
+  },
+  "currency": "HKD",
+  "loanId": "L0005",
+  "loanType": "Post-Shipment",
+  "requestedAmt": 50000,
+  "requester": Object {
+    "name": "Loan Requester 5",
+    "registration": "REG-0005",
+    "type": null,
+  },
+  "startDate": "1542385275435",
+  "tenor": 76,
+}
+`;
+
+exports[`LoanDetails Unit Test - Resolver query loanDetails 6 by id 1`] = `
+Object {
+  "approvedAmt": null,
+  "comment": "Hello 0006",
+  "contact": Object {
+    "email": "c0006@fake.it",
+    "name": "Contact 6",
+    "phone": "555-0006",
+    "salutation": null,
+    "title": null,
+  },
+  "currency": "HKD",
+  "loanId": "L0006",
+  "loanType": "Post-Shipment",
+  "requestedAmt": 50000,
+  "requester": Object {
+    "name": "Loan Requester 6",
+    "registration": "REG-0006",
+    "type": null,
+  },
+  "startDate": "1542385275436",
+  "tenor": 76,
+}
+`;
+
+exports[`LoanDetails Unit Test - Resolver query loanDetails 7 by id 1`] = `
+Object {
+  "approvedAmt": null,
+  "comment": "Hello 0007",
+  "contact": Object {
+    "email": "c0007@fake.it",
+    "name": "Contact 7",
+    "phone": "555-0007",
+    "salutation": null,
+    "title": null,
+  },
+  "currency": "HKD",
+  "loanId": "L0007",
+  "loanType": "Post-Shipment",
+  "requestedAmt": 50000,
+  "requester": Object {
+    "name": "Loan Requester 7",
+    "registration": "REG-0007",
+    "type": "Da Yee Lung",
+  },
+  "startDate": "1542385275437",
+  "tenor": 76,
+}
+`;
+
+exports[`LoanDetails Unit Test - Resolver query loanDetails 8 by id 1`] = `
+Object {
+  "approvedAmt": 49998,
+  "comment": "Hello 0008",
+  "contact": Object {
+    "email": "c0008@fake.it",
+    "name": "Contact 8",
+    "phone": "555-0008",
+    "salutation": "Dr",
+    "title": "Clerk",
+  },
+  "currency": "HKD",
+  "loanId": "L0008",
+  "loanType": "Pre-Shipment",
+  "requestedAmt": 50001,
+  "requester": Object {
+    "name": "Loan Requester 8",
+    "registration": "REG-0008",
+    "type": "Da Yee Lung",
+  },
+  "startDate": "1542385275438",
+  "tenor": 76,
+}
+`;
