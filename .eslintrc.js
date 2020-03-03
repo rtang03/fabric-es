@@ -28,7 +28,7 @@ module.exports = {
     camelcase: 'off',
     '@typescript-eslint/camelcase': ['off'],
     'prettier/prettier': ['off'],
-    'arrow-body-style': 'error',
+    'arrow-body-style': 'off',
     curly: 'off',
     'lines-around-comment': [0],
     'max-len': 'off',

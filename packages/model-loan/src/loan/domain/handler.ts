@@ -16,6 +16,7 @@ export const loanCommandHandler: (option: { enrollmentId: string; loanRepo: Loan
 }) => ({
   ApplyLoan: async ({ userId, payload: { loanId, description, reference, comment, timestamp } }) => {
     if (!reference) throw Errors.requiredDataMissing();
+    if (!description) throw Errors.requiredDataMissing();
     const events: any = [
       { type: 'LoanApplied', payload: { loanId, userId, timestamp } },
       {
@@ -90,6 +91,7 @@ export const loanCommandHandler: (option: { enrollmentId: string; loanRepo: Loan
   DefineLoanDescription: async ({ userId, payload: { loanId, description, timestamp } }) =>
     loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
       if (!currentState) throw LoanErrors.loanNotFound(loanId);
+      if (!description) throw Errors.requiredDataMissing();
       return save([
         {
           type: 'LoanDescriptionDefined',

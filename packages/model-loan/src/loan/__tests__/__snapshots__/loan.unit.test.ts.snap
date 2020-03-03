@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Loan Unit Test - Resolver query loan 0 by id 1`] = `
+Object {
+  "comment": "Yello 0000",
+  "description": "Unit test loan 999",
+  "loanId": "L0000",
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-LOAN-0",
+  "status": 4,
+}
+`;
+
+exports[`Loan Unit Test - Resolver query loan 1 by id 1`] = `
+Object {
+  "comment": "Hello 0001",
+  "description": "Unit test loan 1",
+  "loanId": "L0001",
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-LOAN-1",
+  "status": 0,
+}
+`;
+
+exports[`Loan Unit Test - Resolver query loan 2 by id 1`] = `
+Object {
+  "comment": "Hello 0002",
+  "description": "Unit test loan 2",
+  "loanId": "L0002",
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-LOAN-2",
+  "status": 0,
+}
+`;
+
+exports[`Loan Unit Test - Resolver query loan 3 by id 1`] = `
+Object {
+  "comment": "Hello 0003",
+  "description": "Unit test loan 3",
+  "loanId": "L0003",
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-LOAN-3",
+  "status": 0,
+}
+`;
+
+exports[`Loan Unit Test - Resolver query loan 4 by id 1`] = `
+Object {
+  "comment": "Hello 0004",
+  "description": "Unit test loan 4",
+  "loanId": "L0004",
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-LOAN-4",
+  "status": 0,
+}
+`;
