@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-docker-compose -p ci -f src/__tests__/__utils__/docker-compose.yaml up -d
+docker-compose -p ci -f ./docker-compose.ci.yaml up -d
 
 if [ $? -ne 0 ] ; then
   printf "${RED}Docker Compose Failed${NC}\n"

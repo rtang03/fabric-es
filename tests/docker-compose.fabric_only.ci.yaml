@@ -6,7 +6,7 @@ networks:
 services:
   tls-ca:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: ca
     container_name: tls-ca.hktfp.com
     restart: always
@@ -24,7 +24,7 @@ services:
 
   rca-hktfp:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: ca
     container_name: rca0
     restart: always
@@ -43,7 +43,7 @@ services:
 
   rca.etradeconnect.net:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: ca
     container_name: rca.etradeconnect.net
     restart: always
@@ -61,7 +61,7 @@ services:
 
   rca.pbctfp.net:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: ca
     container_name: rca.pbctfp.net
     restart: always
@@ -79,7 +79,7 @@ services:
 
   peer0.etradeconnect.net:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: peer
     container_name: peer0.etradeconnect.net
     environment:
@@ -105,7 +105,7 @@ services:
 
   peer1.etradeconnect.net:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: peer
     container_name: peer1.etradeconnect.net
     environment:
@@ -131,7 +131,7 @@ services:
 
   peer0.pbctfp.net:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: peer
     container_name: peer0.pbctfp.net
     environment:
@@ -157,7 +157,7 @@ services:
 
   peer1.pbctfp.net:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: peer
     container_name: peer1.pbctfp.net
     environment:
@@ -183,7 +183,7 @@ services:
 
   orderer0.hktfp.com:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: orderer
     container_name: orderer0.hktfp.com
     environment:
@@ -207,7 +207,7 @@ services:
 
   orderer1.hktfp.com:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: orderer
     container_name: orderer1.hktfp.com
     environment:
@@ -231,7 +231,7 @@ services:
 
   orderer2.hktfp.com:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: orderer
     container_name: orderer2.hktfp.com
     environment:
@@ -255,7 +255,7 @@ services:
 
   orderer3.hktfp.com:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: orderer
     container_name: orderer3.hktfp.com
     environment:
@@ -279,7 +279,7 @@ services:
 
   orderer4.hktfp.com:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: orderer
     container_name: orderer4.hktfp.com
     environment:
@@ -303,7 +303,7 @@ services:
 
   cli.etradeconnect.net:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: cli
     container_name: cli.etradeconnect.net
     environment:
@@ -322,7 +322,7 @@ services:
 
   cli.pbctfp.net:
     extends:
-      file: nodebase.yaml
+      file: ../deployments/gw-dev-net/config/nodebase.yaml
       service: cli
     container_name: cli.pbctfp.net
     environment:

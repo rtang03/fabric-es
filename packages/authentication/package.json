@@ -37,8 +37,8 @@
     "test:pw": "jest --forceExit --detectOpenHandles password.test",
     "test:auth": "jest --forceExit --detectOpenHandles authenticate.test",
     "test:client_app": "jest --forceExit --detectOpenHandles client_app.test",
-    "test:all": "yarn test:auth_code && yarn test:client_cred && yarn test:pw && yarn test:auth && yarn test:client_app && ./stop_postgres.sh",
-    "unit-test": "./start_postgres.sh && sleep 10 && ./wait-it.sh localhost:5432 -t 30 -- yarn test:all",
+    "test:all": "yarn test:auth_code && yarn test:client_cred && yarn test:pw && yarn test:auth && yarn test:client_app",
+    "unit-test": "./unit-test.sh",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
   },
