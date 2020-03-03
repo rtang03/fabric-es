@@ -18,71 +18,48 @@ export const loanCommandHandler: (option: { enrollmentId: string; loanRepo: Loan
     if (!reference) throw Errors.requiredDataMissing();
     if (!description) throw Errors.requiredDataMissing();
     const events: any = [
-      { type: 'LoanApplied', payload: { loanId, userId, timestamp } },
-      {
-        type: 'LoanReferenceDefined',
-        payload: { loanId, userId, reference, timestamp }
-      },
-      {
-        type: 'LoanDescriptionDefined',
-        payload: { loanId, userId, description, timestamp }
-      }
+      { type: 'LoanApplied', payload: { loanId, userId, timestamp }},
+      { type: 'LoanReferenceDefined', payload: { loanId, userId, reference, timestamp }},
+      { type: 'LoanDescriptionDefined', payload: { loanId, userId, description, timestamp }}
     ];
-    if (comment)
-      events.push({
-        type: 'LoanCommentDefined',
-        payload: { loanId, userId, comment, timestamp }
-      });
+    if (comment) {
+      events.push({ type: 'LoanCommentDefined', payload: { loanId, userId, comment, timestamp }});
+    }
     return loanRepo.create({ enrollmentId, id: loanId }).save(events);
   },
   CancelLoan: async ({ userId, payload: { loanId, timestamp } }) =>
     loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
       if (!currentState) throw LoanErrors.loanNotFound(loanId);
       return save([
-        {
-          type: 'LoanCancelled',
-          payload: { loanId, userId, timestamp }
-        }
+        { type: 'LoanCancelled', payload: { loanId, userId, timestamp }}
       ]);
     }),
   ApproveLoan: async ({ userId, payload: { loanId, timestamp } }) =>
     loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
       if (!currentState) throw LoanErrors.loanNotFound(loanId);
       return save([
-        {
-          type: 'LoanApproved',
-          payload: { loanId, userId, timestamp }
-        }
+        { type: 'LoanApproved', payload: { loanId, userId, timestamp }}
       ]);
     }),
   ReturnLoan: async ({ userId, payload: { loanId, timestamp } }) =>
     loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
       if (!currentState) throw LoanErrors.loanNotFound(loanId);
       return save([
-        {
-          type: 'LoanReturned',
-          payload: { loanId, userId, timestamp }
-        }
+        { type: 'LoanReturned', payload: { loanId, userId, timestamp }}
       ]);
     }),
   RejectLoan: async ({ userId, payload: { loanId, timestamp } }) =>
     loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
       if (!currentState) throw LoanErrors.loanNotFound(loanId);
       return save([
-        {
-          type: 'LoanRejected',
-          payload: { loanId, userId, timestamp }
-        }
+        { type: 'LoanRejected', payload: { loanId, userId, timestamp }}
       ]);
     }),
   ExpireLoan: async ({ userId, payload: { loanId, timestamp } }) =>
     loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
       if (!currentState) throw LoanErrors.loanNotFound(loanId);
       return save([
-        {
-          type: 'LoanExpired',
-          payload: { loanId, userId, timestamp }
-        }
+        { type: 'LoanExpired', payload: { loanId, userId, timestamp }}
       ]);
     }),
   DefineLoanReference: async _ => {
@@ -93,20 +70,14 @@ export const loanCommandHandler: (option: { enrollmentId: string; loanRepo: Loan
       if (!currentState) throw LoanErrors.loanNotFound(loanId);
       if (!description) throw Errors.requiredDataMissing();
       return save([
-        {
-          type: 'LoanDescriptionDefined',
-          payload: { loanId, userId, description, timestamp }
-        }
+        { type: 'LoanDescriptionDefined', payload: { loanId, userId, description, timestamp }}
       ]);
     }),
   DefineLoanComment: async ({ userId, payload: { loanId, comment, timestamp }}) =>
     loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
       if (!currentState) throw LoanErrors.loanNotFound(loanId);
       return save([
-        {
-          type: 'LoanCommentDefined',
-          payload: { loanId, userId, comment, timestamp }
-        }
+        { type: 'LoanCommentDefined', payload: { loanId, userId, comment, timestamp }}
       ]);
     })
 });

@@ -111,7 +111,6 @@ export const GET_DETAILS_BY_ID = gql`
       requestedAmt
       approvedAmt
       comment
-      timestamp
     }
   }
 `;

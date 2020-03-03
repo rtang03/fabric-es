@@ -1,6 +1,6 @@
 import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
-import { createPeer, getNetwork, PeerOptions, PrivatedataRepository, Reducer, Repository } from '@espresso/fabric-cqrs';
+import { createPeer, getNetwork, PrivatedataRepository, Reducer, Repository } from '@espresso/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import Client from 'fabric-client';
 import { Wallet } from 'fabric-network';

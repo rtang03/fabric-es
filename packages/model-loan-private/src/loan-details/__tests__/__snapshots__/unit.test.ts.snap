@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoanDetails Unit Test - Resolver query loanDetails 1 by id 1`] = `
+Object {
+  "approvedAmt": null,
+  "comment": null,
+  "contact": Object {
+    "email": "c0001@fake.it",
+    "name": "Contact 1",
+    "phone": "555-0001",
+    "salutation": null,
+    "title": null,
+  },
+  "currency": "HKD",
+  "loanId": "L0001",
+  "loanType": "Post-Shipment",
+  "requestedAmt": 50000,
+  "requester": Object {
+    "name": "Loan Requester 1",
+    "registration": "REG-0001",
+    "type": null,
+  },
+  "startDate": "1542385275431",
+  "tenor": 76,
+}
+`;
+
+exports[`LoanDetails Unit Test - Resolver query loanDetails 2 by id 1`] = `
+Object {
+  "approvedAmt": null,
+  "comment": "Hello 0002",
+  "contact": Object {
+    "email": "c0002@fake.it",
+    "name": "Contact 2",
+    "phone": "555-0002",
+    "salutation": null,
+    "title": null,
+  },
+  "currency": "HKD",
+  "loanId": "L0002",
+  "loanType": "Post-Shipment",
+  "requestedAmt": 50000,
+  "requester": Object {
+    "name": "Loan Requester 2",
+    "registration": "REG-0002",
+    "type": null,
+  },
+  "startDate": "1542385275432",
+  "tenor": 76,
+}
+`;
+
+exports[`LoanDetails Unit Test - Resolver query loanDetails 3 by id 1`] = `
+Object {
+  "approvedAmt": null,
+  "comment": "Hello 0003",
+  "contact": Object {
+    "email": "c0003@fake.it",
+    "name": "Contact 3",
+    "phone": "555-0003",
+    "salutation": null,
+    "title": null,
+  },
+  "currency": "HKD",
+  "loanId": "L0003",
+  "loanType": "Post-Shipment",
+  "requestedAmt": 50000,
+  "requester": Object {
+    "name": "Loan Requester 3",
+    "registration": "REG-0003",
+    "type": null,
+  },
+  "startDate": "1542385275433",
+  "tenor": 76,
+}
+`;
