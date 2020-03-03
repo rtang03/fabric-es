@@ -1,5 +1,5 @@
 import { Commit } from '@espresso/fabric-cqrs';
-import { AuthenticationError } from 'apollo-server-errors';
+import { ApolloError, AuthenticationError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { Loan, loanCommandHandler, LoanDS } from '.';
 
@@ -11,12 +11,12 @@ export const typeDefs = gql`
 
   type Mutation {
     applyLoan(userId: String!, loanId: String!, description: String!, reference: String!, comment: String): LoanResponse
+    updateLoan(userId: String!, loanId: String!, description: String, reference: String, comment: String): [LoanResponse]!
     cancelLoan(userId: String!, loanId: String!): LoanResponse
     approveLoan(userId: String!, loanId: String!): LoanResponse
     returnLoan(userId: String!, loanId: String!): LoanResponse
     rejectLoan(userId: String!, loanId: String!): LoanResponse
     expireLoan(userId: String!, loanId: String!): LoanResponse
-    updateLoan(userId: String!, loanId: String!, description: String, reference: String, comment: String): [LoanResponse]!
   }
 
   type Loan @key(fields: "loanId") {
@@ -51,8 +51,6 @@ export const typeDefs = gql`
   }
 `;
 
-const NOT_AUTHENICATED = 'no enrollment id';
-
 export const resolvers = {
   Query: {
     getCommitsByLoanId: async (
@@ -63,7 +61,7 @@ export const resolvers = {
       loan.repo
         .getCommitById(loanId)
         .then(({ data }) => data || [])
-        .catch(({ error }) => error),
+        .catch(error => new ApolloError(error)),
     getLoanById: async (
       _,
       { loanId },
@@ -72,133 +70,97 @@ export const resolvers = {
       loan.repo
         .getById({ id: loanId, enrollmentId })
         .then(({ currentState }) => currentState)
-        .catch(({ error }) => error)
+        .catch(error => new ApolloError(error))
   },
   Mutation: {
     applyLoan: async (
       _,
       { userId, loanId, description, reference, comment },
       { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : loanCommandHandler({
-            enrollmentId,
-            loanRepo: loan.repo
-          })
-            .ApplyLoan({
-              userId,
-              payload: { loanId, description, reference, comment, timestamp: Date.now() }
-            })
-            .catch(({ error }) => error),
+    ): Promise<Commit | Error> =>
+      loanCommandHandler({
+        enrollmentId,
+        loanRepo: loan.repo
+      }).ApplyLoan({
+          userId,
+          payload: { loanId, description, reference, comment, timestamp: Date.now() }
+      }).catch(error => new ApolloError(error)),
     cancelLoan: async (
-      _,
-      { userId, loanId },
+      _, { userId, loanId },
       { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : loanCommandHandler({ enrollmentId, loanRepo: loan.repo })
-            .CancelLoan({
-              userId,
-              payload: { loanId, timestamp: Date.now() }
-            })
-            .catch(({ error }) => error),
+      loanCommandHandler({ enrollmentId, loanRepo: loan.repo }).CancelLoan({
+        userId,
+        payload: { loanId, timestamp: Date.now() }
+      }).catch(error => new ApolloError(error)),
     approveLoan: async (
-      _,
-      { userId, loanId },
+      _, { userId, loanId },
       { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : loanCommandHandler({ enrollmentId, loanRepo: loan.repo })
-            .ApproveLoan({
-              userId,
-              payload: { loanId, timestamp: Date.now() }
-            })
-            .catch(({ error }) => error),
+      loanCommandHandler({ enrollmentId, loanRepo: loan.repo }).ApproveLoan({
+        userId,
+        payload: { loanId, timestamp: Date.now() }
+      }).catch(error => new ApolloError(error)),
     returnLoan: async (
-      _,
-      { userId, loanId },
+      _, { userId, loanId },
       { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : loanCommandHandler({ enrollmentId, loanRepo: loan.repo })
-            .ReturnLoan({
-              userId,
-              payload: { loanId, timestamp: Date.now() }
-            })
-            .catch(({ error }) => error),
+      loanCommandHandler({ enrollmentId, loanRepo: loan.repo }).ReturnLoan({
+        userId,
+        payload: { loanId, timestamp: Date.now() }
+      }).catch(error => new ApolloError(error)),
     rejectLoan: async (
-      _,
-      { userId, loanId },
+      _, { userId, loanId },
       { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : loanCommandHandler({ enrollmentId, loanRepo: loan.repo })
-            .RejectLoan({
-              userId,
-              payload: { loanId, timestamp: Date.now() }
-            })
-            .catch(({ error }) => error),
+      loanCommandHandler({ enrollmentId, loanRepo: loan.repo }).RejectLoan({
+        userId,
+        payload: { loanId, timestamp: Date.now() }
+      }).catch(error => new ApolloError(error)),
     expireLoan: async (
-      _,
-      { userId, loanId },
+      _, { userId, loanId },
       { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : loanCommandHandler({ enrollmentId, loanRepo: loan.repo })
-            .ExpireLoan({
-              userId,
-              payload: { loanId, timestamp: Date.now() }
-            })
-            .catch(({ error }) => error),
+      loanCommandHandler({ enrollmentId, loanRepo: loan.repo }).ExpireLoan({
+        userId,
+        payload: { loanId, timestamp: Date.now() }
+      }).catch(error => new ApolloError(error)),
     updateLoan: async (
       _,
       { userId, loanId, description, reference, comment },
       { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
-    ): Promise<Commit[] | { error: any }> => {
-      if (!enrollmentId) throw new AuthenticationError(NOT_AUTHENICATED);
-
+    ): Promise<Commit[]> => {
       const result: Commit[] = [];
-      if (reference) {
+      if (typeof reference !== 'undefined') {
         const c = await loanCommandHandler({
           enrollmentId,
           loanRepo: loan.repo
-        })
-          .DefineLoanReference({
-            userId,
-            payload: { loanId, reference, timestamp: Date.now() }
-          })
-          .then(data => data)
-          .catch(({ message, stack }) => ({ message, stack }));
+        }).DefineLoanReference({
+          userId,
+          payload: { loanId, reference, timestamp: Date.now() }
+        }).then(data => data)
+          .catch(error => new ApolloError(error));
         result.push(c);
       }
-      if (description) {
+      if (typeof description !== 'undefined') {
         const c = await loanCommandHandler({
           enrollmentId,
           loanRepo: loan.repo
-        })
-          .DefineLoanDescription({
-            userId,
-            payload: { loanId, description, timestamp: Date.now() }
-          })
-          .then(data => data)
-          .catch(({ message, stack }) => ({ message, stack }));
+        }).DefineLoanDescription({
+          userId,
+          payload: { loanId, description, timestamp: Date.now() }
+        }).then(data => data)
+          .catch(error => new ApolloError(error));
         result.push(c);
       }
-      if (comment) {
+      if (typeof comment !== 'undefined') {
         const c = await loanCommandHandler({
           enrollmentId,
           loanRepo: loan.repo
         }).DefineLoanComment({
           userId, payload: { loanId, comment, timestamp: Date.now() }
-        })
-        .then(data => data)
-        .catch(({ message, stack }) => ({ message, stack }));
+        }).then(data => data)
+          .catch(error => new ApolloError(error));
         result.push(c);
       }
       return result;
@@ -212,7 +174,7 @@ export const resolvers = {
       loan.repo
         .getById({ id: loanId, enrollmentId })
         .then(({ currentState }) => currentState)
-        .catch(({ error }) => error)
+        .catch(error => new ApolloError(error))
   },
   LoanResponse: {
     __resolveType: obj => (obj.commitId ? 'LoanCommit' : obj.message ? 'LoanError' : {})

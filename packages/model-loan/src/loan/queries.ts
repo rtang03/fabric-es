@@ -103,8 +103,8 @@ export const EXPIRE_LOAN = gql`
 `;
 
 export const UPDATE_LOAN = gql`
-  mutation UpdateLoan($userId: String!, $loanId: String!, $reference: String, $description: String) {
-    updateLoan(userId: $userId, loanId: $loanId, reference: $reference, description: $description) {
+  mutation UpdateLoan($userId: String!, $loanId: String!, $reference: String, $description: String, $comment: String) {
+    updateLoan(userId: $userId, loanId: $loanId, reference: $reference, description: $description, comment: $comment) {
       ... on LoanCommit {
         id
         entityName
