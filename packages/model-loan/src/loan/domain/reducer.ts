@@ -8,7 +8,8 @@ export const loanReducer = (loan: Loan, event: LoanEvents): Loan => {
         ownerId: event.payload.userId,
         status: LoanStatus[event.type],
         timestamp: event.payload.timestamp,
-        reference: null
+        reference: null,
+        description: null
       };
     case 'LoanCancelled':
     case 'LoanApproved':
@@ -28,6 +29,11 @@ export const loanReducer = (loan: Loan, event: LoanEvents): Loan => {
       return {
         ...loan,
         description: event.payload.description
+      };
+    case 'LoanCommentDefined':
+      return {
+        ...loan,
+        comment: event.payload.comment
       };
     default:
       return loan; // NOTE!!! VERY IMPORTANT! do not omit this case, otherwise will return null if contain unrecognized events
