@@ -1,4 +1,4 @@
-import { Errors } from '@espresso/model-common';
+import { Errors } from '@espresso/gw-node';
 import { LoanDetailsCommandHandler, LoanDetailsRepo } from '..';
 
 export const LoanDetailsErrors = {
