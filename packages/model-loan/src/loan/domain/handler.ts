@@ -14,19 +14,24 @@ export const loanCommandHandler: (option: { enrollmentId: string; loanRepo: Loan
   enrollmentId,
   loanRepo
 }) => ({
-  ApplyLoan: async ({ userId, payload: { loanId, description, reference, timestamp } }) => {
+  ApplyLoan: async ({ userId, payload: { loanId, description, reference, comment, timestamp } }) => {
     if (!reference) throw Errors.requiredDataMissing();
+    if (!description) throw Errors.requiredDataMissing();
     const events: any = [
       { type: 'LoanApplied', payload: { loanId, userId, timestamp } },
       {
         type: 'LoanReferenceDefined',
         payload: { loanId, userId, reference, timestamp }
-      }
-    ];
-    if (description)
-      events.push({
+      },
+      {
         type: 'LoanDescriptionDefined',
         payload: { loanId, userId, description, timestamp }
+      }
+    ];
+    if (comment)
+      events.push({
+        type: 'LoanCommentDefined',
+        payload: { loanId, userId, comment, timestamp }
       });
     return loanRepo.create({ enrollmentId, id: loanId }).save(events);
   },
@@ -86,10 +91,21 @@ export const loanCommandHandler: (option: { enrollmentId: string; loanRepo: Loan
   DefineLoanDescription: async ({ userId, payload: { loanId, description, timestamp } }) =>
     loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
       if (!currentState) throw LoanErrors.loanNotFound(loanId);
+      if (!description) throw Errors.requiredDataMissing();
       return save([
         {
           type: 'LoanDescriptionDefined',
           payload: { loanId, userId, description, timestamp }
+        }
+      ]);
+    }),
+  DefineLoanComment: async ({ userId, payload: { loanId, comment, timestamp }}) =>
+    loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+      if (!currentState) throw LoanErrors.loanNotFound(loanId);
+      return save([
+        {
+          type: 'LoanCommentDefined',
+          payload: { loanId, userId, comment, timestamp }
         }
       ]);
     })
