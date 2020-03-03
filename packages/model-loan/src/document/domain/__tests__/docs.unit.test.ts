@@ -1,20 +1,24 @@
-import { userCommandHandler } from '@espresso/model-common';
-import { documentCommandHandler, DocumentStatus } from '../document';
-import { loanCommandHandler } from '../loan';
-import { documentRepo, loanRepo, userRepo } from './__utils__';
+import { Commit, getMockRepository, getReducer } from '@espresso/fabric-cqrs';
+import { Document, documentCommandHandler, DocumentEvents, documentReducer, DocumentStatus } from '../..';
+import { Loan, loanCommandHandler, LoanEvents, loanReducer } from '../../../loan';
 
 const enrollmentId = '';
 const userId = 'USER002';
+const mockdb: Record<string, Commit> = {};
+export const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan, LoanEvents>(loanReducer));
+export const documentRepo = getMockRepository<Document, DocumentEvents>(
+  mockdb, 'document', getReducer<Document, DocumentEvents>(documentReducer)
+);
 
 beforeAll(async () => {
-  await userCommandHandler({ enrollmentId, userRepo }).CreateUser({
+  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId,
-    payload: { name: 'Zero Zero Two', timestamp: Date.now() }
+    payload: { loanId: 'LOANID001', reference: 'LOANREF001', description: 'HOWAREYOUTODAY', timestamp: Date.now() }
   });
 
   await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
     userId,
-    payload: { loanId: 'LOANID001', reference: 'LOANREF001', description: 'HOWAREYOUTODAY', timestamp: Date.now() }
+    payload: { loanId: 'LOANID002', reference: 'LOANREF002', description: 'HOWAREYOUTODAY', timestamp: Date.now() }
   });
 
   await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
