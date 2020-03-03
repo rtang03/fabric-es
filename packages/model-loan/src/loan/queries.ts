@@ -146,6 +146,23 @@ query GetLoanById($loanId: String!) {
   }
 }`;
 
+export const GET_LOANS_BY_PAGE = gql`
+  query GetLoansByPage($pageSize: Int) {
+    getPaginatedLoans(pageSize: $pageSize) {
+      total
+      hasMore
+      entities {
+        loanId
+        ownerId
+        description
+        reference
+        comment
+        status
+      }
+    }
+  }
+`;
+
 export const GET_LOAN_BY_ID = gql`
   query GetLoanById($loanId: String!) {
     getLoanById(loanId: $loanId) {

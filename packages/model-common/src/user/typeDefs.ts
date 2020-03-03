@@ -1,10 +1,10 @@
 import util from 'util';
 import { Commit } from '@espresso/fabric-cqrs';
-import { ApolloError, AuthenticationError } from 'apollo-server-errors';
+import { Paginated } from '@espresso/gw-node';
+import { ApolloError } from 'apollo-server-errors';
 import Client from 'fabric-client';
 import gql from 'graphql-tag';
 import { User, userCommandHandler, UserDS } from '.';
-import { Paginated } from '..';
 
 export const typeDefs = gql`
   type Query {
@@ -52,8 +52,6 @@ export const typeDefs = gql`
     stack: String
   }
 `;
-
-const NOT_AUTHENICATED = 'no enrollment id';
 
 export const resolvers = {
   Query: {
@@ -123,11 +121,6 @@ export const resolvers = {
       { dataSources: { user }, enrollmentId }: { dataSources: { user: UserDS }; enrollmentId: string }
     ): Promise<Commit | ApolloError> => {
       const logger = Client.getLogger('user-resolvers.js');
-
-      if (!enrollmentId) {
-        logger.warn(`createUser error: ${NOT_AUTHENICATED}`);
-        return new AuthenticationError(NOT_AUTHENICATED);
-      }
 
       return userCommandHandler({
         enrollmentId,

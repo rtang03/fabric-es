@@ -1,5 +1,6 @@
 import { Commit } from '@espresso/fabric-cqrs';
-import { AuthenticationError } from 'apollo-server-errors';
+import { Paginated } from '@espresso/gw-node';
+import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { Document, documentCommandHandler, DocumentDS } from '.';
 
@@ -7,6 +8,7 @@ export const typeDefs = gql`
   type Query {
     getCommitsByDocumentId(documentId: String!): [DocCommit]!
     getDocumentById(documentId: String!): Document
+    getPaginatedDocuments(pageSize: Int = 10): PaginatedDocuments!
   }
 
   type Mutation {
@@ -31,6 +33,12 @@ export const typeDefs = gql`
     status: Int!
     timestamp: String!
     loan: Loan
+  }
+
+  type PaginatedDocuments {
+    entities: [Document!]!
+    total: Int!
+    hasMore: Boolean!
   }
 
   extend type Loan @key(fields: "loanId") {
@@ -60,91 +68,76 @@ export const typeDefs = gql`
   }
 `;
 
-const NOT_AUTHENICATED = 'no enrollment id';
-
 export const resolvers = {
   Query: {
     getCommitsByDocumentId: async (
-      _,
-      { documentId },
-      { dataSources: { document } }: { dataSources: { document: DocumentDS } }
+      _, { documentId }, { dataSources: { document } }: { dataSources: { document: DocumentDS }}
     ): Promise<Commit[]> =>
-      document.repo
-        .getCommitById(documentId)
+      document.repo.getCommitById(documentId)
         .then(({ data }) => data || [])
         .catch(({ error }) => error),
     getDocumentById: async (
-      _,
-      { documentId },
-      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+      _, { documentId }, { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Document> =>
-      document.repo
-        .getById({ id: documentId, enrollmentId })
+      document.repo.getById({ id: documentId, enrollmentId })
         .then(({ currentState }) => currentState)
-        .catch(({ error }) => error)
+        .catch(({ error }) => error),
+    getPaginatedDocuments: async (
+      { pageSize }, { dataSources: { document } }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+    ): Promise<Paginated<Document>> =>
+      document.repo.getByEntityName()
+        .then(({ data }: { data: any[] }) => ({
+          entities: data || [],
+          total: data.length,
+          hasMore: data.length > pageSize
+        } as Paginated<Document>))
+        .catch(error => new ApolloError(error))
   },
   Mutation: {
     createDocument: async (
-      _,
-      { userId, documentId, loanId, title, reference },
+      _, { userId, documentId, loanId, title, reference },
       { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : documentCommandHandler({
-            enrollmentId,
-            documentRepo: document.repo
-          })
-            .CreateDocument({
-              userId,
-              payload: {
-                documentId,
-                loanId,
-                title,
-                reference,
-                timestamp: Date.now()
-              }
-            })
-            .catch(({ error }) => error),
+      documentCommandHandler({
+        enrollmentId,
+        documentRepo: document.repo
+      }).CreateDocument({
+        userId,
+        payload: {
+          documentId,
+          loanId,
+          title,
+          reference,
+          timestamp: Date.now()
+        }
+      }).catch(({ error }) => error),
     deleteDocument: async (
-      _,
-      { userId, documentId },
+      _, { userId, documentId },
       { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : documentCommandHandler({
-            enrollmentId,
-            documentRepo: document.repo
-          })
-            .DeleteDocument({
-              userId,
-              payload: { documentId, timestamp: Date.now() }
-            })
-            .catch(({ error }) => error),
+      documentCommandHandler({
+        enrollmentId,
+        documentRepo: document.repo
+      }).DeleteDocument({
+          userId,
+          payload: { documentId, timestamp: Date.now() }
+      }).catch(({ error }) => error),
     restrictAccess: async (
-      _,
-      { userId, documentId },
+      _, { userId, documentId },
       { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : documentCommandHandler({
-            enrollmentId,
-            documentRepo: document.repo
-          })
-            .RestrictDocumentAccess({
-              userId,
-              payload: { documentId, timestamp: Date.now() }
-            })
-            .catch(({ error }) => error),
+      documentCommandHandler({
+        enrollmentId,
+        documentRepo: document.repo
+      }).RestrictDocumentAccess({
+        userId,
+        payload: { documentId, timestamp: Date.now() }
+      }).catch(({ error }) => error),
     updateDocument: async (
       _,
       { userId, documentId, loanId, title, reference },
       { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit[] | { error: any }> => {
-      if (!enrollmentId) throw new AuthenticationError(NOT_AUTHENICATED);
-
       const result: Commit[] = [];
       if (loanId) {
         const c = await documentCommandHandler({
