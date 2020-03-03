@@ -1,6 +1,5 @@
 import { PrivatedataRepository } from '@espresso/fabric-cqrs';
-import { DataSrc } from '@espresso/gw-node';
-import { CommandHandler } from '@espresso/model-common';
+import { CommandHandler, DataSrc } from '@espresso/gw-node';
 import { DocContentsCommands } from './domain/commands';
 import { DocContentsEvents } from './domain/events';
 import { DocContents } from './domain/model';

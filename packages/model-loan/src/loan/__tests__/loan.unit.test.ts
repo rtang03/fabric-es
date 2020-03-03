@@ -191,7 +191,7 @@ describe('Loan Unit Test - Resolver', () => {
   );
 
   // TODO: Implement lifecycle event attribute to prevent creating same entity more than once
-  // NOTE: The 'apply loan' call should return normal, but querying 'L0001' should return the original result
+  // NOTE: This 'apply loan' call should return normal, but querying 'L0001' should return the original result
   //       instead of the changed fields below.
   it('apply loan 0 again', async () =>
     createTestClient(service).mutate({

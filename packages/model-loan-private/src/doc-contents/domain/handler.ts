@@ -1,4 +1,4 @@
-import { Errors } from '@espresso/model-common';
+import { Errors } from '@espresso/gw-node';
 import { DataContent, DocContentsCommandHandler, DocContentsRepo, FileContent } from '..';
 
 export const DocContentsErrors = {
