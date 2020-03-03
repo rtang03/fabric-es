@@ -22,3 +22,17 @@ export class DataSrc<TEntity = any, TEvent = any> extends DataSource {
     this.context = config.context;
   }
 }
+
+export type CommandHandler<T> = { [C in keyof T]: (command: T[C]) => Promise<any> };
+
+export const Errors = {
+  insufficientPrivilege: () => new Error('INSUFFICIENT_PRIVILEGE'),
+  invalidOperation: () => new Error('INVALID_OPERATION'),
+  requiredDataMissing: () => new Error('REQUIRED_DATA_MISSING')
+};
+
+export type Paginated<TEntity> = {
+  entities: TEntity[];
+  hasMore: boolean;
+  total: number;
+};

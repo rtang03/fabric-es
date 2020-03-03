@@ -1,5 +1,6 @@
 import { Commit } from '@espresso/fabric-cqrs';
-import { ApolloError, AuthenticationError } from 'apollo-server-errors';
+import { Paginated } from '@espresso/gw-node';
+import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { Loan, loanCommandHandler, LoanDS } from '.';
 
@@ -7,6 +8,7 @@ export const typeDefs = gql`
   type Query {
     getCommitsByLoanId(loanId: String!): [LoanCommit]!
     getLoanById(loanId: String!): Loan
+    getPaginatedLoans(pageSize: Int = 10): PaginatedLoans!
   }
 
   type Mutation {
@@ -27,6 +29,12 @@ export const typeDefs = gql`
     comment: String
     status: Int!
     timestamp: String!
+  }
+
+  type PaginatedLoans {
+    entities: [Loan!]!
+    total: Int!
+    hasMore: Boolean!
   }
 
   union LoanResponse = LoanCommit | LoanError
@@ -54,22 +62,26 @@ export const typeDefs = gql`
 export const resolvers = {
   Query: {
     getCommitsByLoanId: async (
-      _,
-      { loanId },
-      { dataSources: { loan } }: { dataSources: { loan: LoanDS } }
+      _, { loanId }, { dataSources: { loan } }: { dataSources: { loan: LoanDS }}
     ): Promise<Commit[]> =>
-      loan.repo
-        .getCommitById(loanId)
+      loan.repo.getCommitById(loanId)
         .then(({ data }) => data || [])
         .catch(error => new ApolloError(error)),
     getLoanById: async (
-      _,
-      { loanId },
-      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+      _, { loanId }, { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
     ): Promise<Loan> =>
-      loan.repo
-        .getById({ id: loanId, enrollmentId })
+      loan.repo.getById({ id: loanId, enrollmentId })
         .then(({ currentState }) => currentState)
+        .catch(error => new ApolloError(error)),
+    getPaginatedLoans: async (
+      _, { pageSize }, { dataSources: { loan } }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+    ): Promise<Paginated<Loan>> =>
+      loan.repo.getByEntityName()
+        .then(({ data }: { data: any[] }) => ({
+          entities: data || [],
+          total: data.length,
+          hasMore: data.length > pageSize
+        } as Paginated<Loan>))
         .catch(error => new ApolloError(error))
   },
   Mutation: {

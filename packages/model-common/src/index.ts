@@ -9,18 +9,4 @@
  *  > LoanDetails - Details information assoicate with an on-chain loan application entity.
  *  > DocContents - Content of a document associate with an on-chain document entity.
  */
-export type CommandHandler<T> = { [C in keyof T]: (command: T[C]) => Promise<any> };
-
-export const Errors = {
-  insufficientPrivilege: () => new Error('INSUFFICIENT_PRIVILEGE'),
-  invalidOperation: () => new Error('INVALID_OPERATION'),
-  requiredDataMissing: () => new Error('REQUIRED_DATA_MISSING')
-};
-
-export type Paginated<TEntity> = {
-  entities: TEntity[];
-  hasMore: boolean;
-  total: number;
-};
-
 export * from './user';

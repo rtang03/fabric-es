@@ -679,7 +679,7 @@
     unique-filename "^1.1.1"
     which "^1.3.1"
 
-"@graphql-codegen/cli@^1.12.2", "@graphql-codegen/cli@^1.9.0":
+"@graphql-codegen/cli@^1.9.0":
   version "1.12.2"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/cli/-/cli-1.12.2.tgz#c97e2fc976e1da2f18647efb211a33de0c74b473"
   integrity sha512-xCQUxIA/l3gZkfSj8xyBjbqnypghcjfjj4KgPZci/6xBHvPvu9Et0I8ZtmsVTWYwfaoNl4rhM0WkxcV2DdoL6g==
@@ -743,7 +743,7 @@
     "@graphql-toolkit/schema-merging" "0.9.7"
     tslib "1.10.0"
 
-"@graphql-codegen/introspection@^1.12.2", "@graphql-codegen/introspection@^1.9.0":
+"@graphql-codegen/introspection@^1.9.0":
   version "1.12.2"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/introspection/-/introspection-1.12.2.tgz#4a9adac083e1554a257bbd6359631c53bfc92581"
   integrity sha512-YMQIn1R2CxYZLkxkW6fUxqfTBr2WC3Cimp6/0oEcSyLA/W1scVuDw/IUeU5Iu4CEmz8IaqPSjSMEN+8l95wKlA==
@@ -767,7 +767,7 @@
     tslib "1.10.0"
     upper-case "2.0.1"
 
-"@graphql-codegen/typescript-document-nodes@^1.12.2", "@graphql-codegen/typescript-document-nodes@^1.9.1":
+"@graphql-codegen/typescript-document-nodes@^1.9.1":
   version "1.12.2"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript-document-nodes/-/typescript-document-nodes-1.12.2.tgz#b5167ff51784fc2c216ec6324c28014840650d2b"
   integrity sha512-0EZT0lzZRgqtvv14FlPHzFLpZYGtlGn/A4uCVA/ZXgdHaXX07bdrVWpHU+CeI8fJCC2IAOdS+uevNrRRk9VyqA==
@@ -777,7 +777,7 @@
     auto-bind "4.0.0"
     tslib "1.10.0"
 
-"@graphql-codegen/typescript-operations@^1.12.2", "@graphql-codegen/typescript-operations@^1.9.1":
+"@graphql-codegen/typescript-operations@^1.9.1":
   version "1.12.2"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript-operations/-/typescript-operations-1.12.2.tgz#d5d495f237b1bb93839e28da0ddecc5f4ce9f877"
   integrity sha512-U4wp9H5sbCP3kWEXI5SbGYeXUyDKidHi2kBRoQochEdsTXugF+6dr5WuUY3IvLIYS9qNKHKq6dm/9nl3DpBD+Q==
@@ -788,7 +788,7 @@
     auto-bind "4.0.0"
     tslib "1.10.0"
 
-"@graphql-codegen/typescript-react-apollo@^1.12.2", "@graphql-codegen/typescript-react-apollo@^1.9.1":
+"@graphql-codegen/typescript-react-apollo@^1.9.1":
   version "1.12.2"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript-react-apollo/-/typescript-react-apollo-1.12.2.tgz#6a25bd07550ea795c023c98bffcf8a57b1240a33"
   integrity sha512-oMRRmHTtd8LdAG8FN7msp7O9T960Oxm04L2JNYDoWc1GuxcMXo3ZVR7bRGgcvgDSmV391k5PSCtA3B8T/QgXjA==
@@ -800,7 +800,7 @@
     pascal-case "3.1.1"
     tslib "1.10.0"
 
-"@graphql-codegen/typescript-resolvers@^1.12.2", "@graphql-codegen/typescript-resolvers@^1.9.0":
+"@graphql-codegen/typescript-resolvers@^1.9.0":
   version "1.12.2"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript-resolvers/-/typescript-resolvers-1.12.2.tgz#17ed56be4d249ce961f5e6135d1c1ba5461ccfe9"
   integrity sha512-+YJIAMck3X4DPC4Bwt8Ht4mlHxdYzMemHtRZjur0V6+WnxMxjE1NDylZ0bynhbbHd6bM1yoA3JpU5jCBcxF1Gw==
@@ -812,7 +812,7 @@
     auto-bind "4.0.0"
     tslib "1.10.0"
 
-"@graphql-codegen/typescript-type-graphql@^1.12.2", "@graphql-codegen/typescript-type-graphql@^1.9.1":
+"@graphql-codegen/typescript-type-graphql@^1.9.1":
   version "1.12.2"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript-type-graphql/-/typescript-type-graphql-1.12.2.tgz#875f550d432cfe57e2c82629a7fb6bface2c25af"
   integrity sha512-gQyeFLWg2mx8F/wxTqMdjmKKY8V4l/93kevny0edFccoHKZJHH4dYhaz7hg8TSg/Q9HHn8K4wXnrJFfDAlqb4A==
@@ -823,7 +823,7 @@
     auto-bind "4.0.0"
     tslib "1.10.0"
 
-"@graphql-codegen/typescript@1.12.2", "@graphql-codegen/typescript@^1.12.2", "@graphql-codegen/typescript@^1.9.0":
+"@graphql-codegen/typescript@1.12.2", "@graphql-codegen/typescript@^1.9.0":
   version "1.12.2"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript/-/typescript-1.12.2.tgz#4b63ab80dcac7624711459e776201c6a5d0f7373"
   integrity sha512-G2H91ocAEcZ86TFNQWV2HZUdXSR7v/Ntjq0ChqDvz/a7PTJxa5Pe5j4sQ9q13vGR5CedAMbBZkZ8zTKLAqY5sg==

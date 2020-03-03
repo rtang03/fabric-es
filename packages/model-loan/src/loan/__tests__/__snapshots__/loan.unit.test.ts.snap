@@ -3,11 +3,11 @@
 exports[`Loan Unit Test - Resolver query loan 0 by id 1`] = `
 Object {
   "comment": "Yello 0000",
-  "description": "Unit test loan 999",
+  "description": "Unit test loan X",
   "loanId": "L0000",
   "ownerId": "unitTestUser",
   "reference": "REF-UNIT-TEST-LOAN-0",
-  "status": 4,
+  "status": 0,
 }
 `;
 
@@ -52,5 +52,110 @@ Object {
   "ownerId": "unitTestUser",
   "reference": "REF-UNIT-TEST-LOAN-4",
   "status": 0,
+}
+`;
+
+exports[`Loan Unit Test - Resolver query loans by page 1`] = `
+Object {
+  "entities": Array [
+    Object {
+      "comment": "Yello 0000",
+      "description": "Unit test loan X",
+      "loanId": "L0000",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-LOAN-0",
+      "status": 0,
+    },
+    Object {
+      "comment": "Hello 0001",
+      "description": "Unit test loan 1",
+      "loanId": "L0001",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-LOAN-1",
+      "status": 0,
+    },
+    Object {
+      "comment": "Hello 0002",
+      "description": "Unit test loan 2",
+      "loanId": "L0002",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-LOAN-2",
+      "status": 0,
+    },
+    Object {
+      "comment": "Hello 0003",
+      "description": "Unit test loan 3",
+      "loanId": "L0003",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-LOAN-3",
+      "status": 0,
+    },
+    Object {
+      "comment": "Hello 0004",
+      "description": "Unit test loan 4",
+      "loanId": "L0004",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-LOAN-4",
+      "status": 0,
+    },
+    Object {
+      "comment": "Hello 0005",
+      "description": "Unit test loan 5",
+      "loanId": "L0005",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-LOAN-5",
+      "status": 0,
+    },
+    Object {
+      "comment": "Hello 0006",
+      "description": "Unit test loan 6",
+      "loanId": "L0006",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-LOAN-6",
+      "status": 0,
+    },
+    Object {
+      "comment": "Hello 0007",
+      "description": "Unit test loan 7",
+      "loanId": "L0007",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-LOAN-7",
+      "status": 1,
+    },
+    Object {
+      "comment": "Hello 0008",
+      "description": "Unit test loan 8",
+      "loanId": "L0008",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-LOAN-8",
+      "status": 2,
+    },
+    Object {
+      "comment": "Hello 0009",
+      "description": "Unit test loan 9",
+      "loanId": "L0009",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-LOAN-9",
+      "status": 3,
+    },
+    Object {
+      "comment": "Hello 0010",
+      "description": "Unit test loan 10",
+      "loanId": "L0010",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-LOAN-A",
+      "status": 4,
+    },
+    Object {
+      "comment": "Hello 0011",
+      "description": "Unit test loan 11",
+      "loanId": "L0011",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-LOAN-B",
+      "status": 5,
+    },
+  ],
+  "hasMore": true,
+  "total": 12,
 }
 `;
