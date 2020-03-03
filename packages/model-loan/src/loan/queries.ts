@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 export const APPLY_LOAN = gql`
-  mutation ApplyLoan($userId: String!, $loanId: String!, $description: String, $reference: String!) {
-    applyLoan(userId: $userId, loanId: $loanId, description: $description, reference: $reference) {
+  mutation ApplyLoan($userId: String!, $loanId: String!, $description: String!, $reference: String!, $comment: String) {
+    applyLoan(userId: $userId, loanId: $loanId, description: $description, reference: $reference, comment: $comment) {
       ... on LoanCommit {
         id
         entityName
@@ -103,8 +103,8 @@ export const EXPIRE_LOAN = gql`
 `;
 
 export const UPDATE_LOAN = gql`
-  mutation UpdateLoan($userId: String!, $loanId: String!, $reference: String, $description: String) {
-    updateLoan(userId: $userId, loanId: $loanId, reference: $reference, description: $description) {
+  mutation UpdateLoan($userId: String!, $loanId: String!, $reference: String, $description: String, $comment: String) {
+    updateLoan(userId: $userId, loanId: $loanId, reference: $reference, description: $description, comment: $comment) {
       ... on LoanCommit {
         id
         entityName
@@ -134,6 +134,18 @@ export const GET_COMMITS_BY_LOAN = gql`
   }
 `;
 
+export const GET_BY_ID = gql`
+query GetLoanById($loanId: String!) {
+  getLoanById(loanId: $loanId) {
+    loanId
+    ownerId
+    description
+    reference
+    comment
+    status
+  }
+}`;
+
 export const GET_LOAN_BY_ID = gql`
   query GetLoanById($loanId: String!) {
     getLoanById(loanId: $loanId) {
@@ -141,6 +153,7 @@ export const GET_LOAN_BY_ID = gql`
       ownerId
       description
       reference
+      comment
       status
       timestamp
       documents {

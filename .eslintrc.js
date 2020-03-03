@@ -28,8 +28,8 @@ module.exports = {
   rules: {
     camelcase: 'off',
     '@typescript-eslint/camelcase': ['off'],
-    'prettier/prettier': ['error'],
-    'arrow-body-style': 'error',
+    'prettier/prettier': ['off'],
+    'arrow-body-style': 'off',
     curly: 'off',
     'lines-around-comment': [0],
     'max-len': 'off',
