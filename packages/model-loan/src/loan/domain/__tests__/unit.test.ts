@@ -4,7 +4,7 @@ import { Loan, loanCommandHandler, LoanEvents, loanReducer, LoanStatus } from '.
 const enrollmentId = '';
 const userId = 'USER001';
 const mockdb: Record<string, Commit> = {};
-export const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan, LoanEvents>(loanReducer));
+const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan, LoanEvents>(loanReducer));
 
 beforeAll(async () => {
   await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({

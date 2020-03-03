@@ -1,8 +1,12 @@
-import { docContentsRepo, loanDetailsRepo } from './__utils__';
-import { docContentsCommandHandler, loanDetailsCommandHandler } from '..';
+import { Commit, getPrivatedataMockRepository, getReducer, PrivatedataRepository } from '@espresso/fabric-cqrs';
+import { DocContents, DocContentsEvents, docContentsReducer, docContentsCommandHandler } from '../../../doc-contents';
 
 const enrollmentId = '';
-const userId = 'USER002';
+const userId = 'USER001';
+const mockdb: Record<string, Commit> = {};
+export const docContentsRepo: PrivatedataRepository = getPrivatedataMockRepository<DocContents, DocContentsEvents>(
+  mockdb, 'docContents', getReducer<DocContents, DocContentsEvents>(docContentsReducer)
+);
 
 describe('DocContents tests', () => {
   it('create and query doc-contents: data', async () => {
@@ -31,27 +35,5 @@ describe('DocContents tests', () => {
       .then(({ currentState }) =>
         expect(currentState.documentId === 'DOCID012' && currentState.content.format === 'PDF').toBeTruthy()
       );
-  });
-});
-
-describe('LoanDetails tests', () => {
-  it('create and query loan-details', async () => {
-    await loanDetailsCommandHandler({ enrollmentId, loanDetailsRepo }).CreateLoanDetails({
-      userId,
-      payload: {
-        loanId: 'LOANID011',
-        requester: { registration: 'LEI0001', name: 'Johnson International' },
-        contact: { name: 'John JOhnson', phone: '555-12333', email: 'johnson@fake.it' },
-        loanType: 'Post-shipment',
-        startDate: 1542385275431,
-        tenor: 76,
-        currency: 'HKD',
-        requestedAmt: 50000,
-        timestamp: 1542385175431
-      }
-    });
-    return loanDetailsRepo
-      .getById({ enrollmentId, id: 'LOANID011' })
-      .then(({ currentState }) => expect(currentState === 'LOANID011' && currentState.requestedAmt === 50000));
   });
 });

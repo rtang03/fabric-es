@@ -3,16 +3,15 @@ import { Commit, getMockRepository, getReducer } from '@espresso/fabric-cqrs';
 import { DataSrc } from '@espresso/gw-node';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
-import { Loan, LoanEvents, loanReducer, LoanStatus } from '../..';
 import {
   APPROVE_LOAN, APPLY_LOAN, CANCEL_LOAN, EXPIRE_LOAN, GET_BY_ID, GET_LOANS_BY_PAGE,
-  loanResolvers, loanTypeDefs,
+  Loan, LoanEvents, loanReducer, loanResolvers, loanTypeDefs,
   REJECT_LOAN, RETURN_LOAN, UPDATE_LOAN
 } from '..';
 
 const userId = 'unitTestUser';
 const mockdb: Record<string, Commit> = {};
-export const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan, LoanEvents>(loanReducer));
+const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan, LoanEvents>(loanReducer));
 
 let service;
 
@@ -32,7 +31,7 @@ afterAll(async () =>
       console.log('Loan Unit Test - Resolver Finished');
       done();
     }, 500)
-  ));
+));
 
 describe('Loan Unit Test - Resolver', () => {
   it('apply loan 0', async () =>

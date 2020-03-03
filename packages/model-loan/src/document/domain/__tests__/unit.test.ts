@@ -5,8 +5,8 @@ import { Loan, loanCommandHandler, LoanEvents, loanReducer } from '../../../loan
 const enrollmentId = '';
 const userId = 'USER002';
 const mockdb: Record<string, Commit> = {};
-export const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan, LoanEvents>(loanReducer));
-export const documentRepo = getMockRepository<Document, DocumentEvents>(
+const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan, LoanEvents>(loanReducer));
+const documentRepo = getMockRepository<Document, DocumentEvents>(
   mockdb, 'document', getReducer<Document, DocumentEvents>(documentReducer)
 );
 
