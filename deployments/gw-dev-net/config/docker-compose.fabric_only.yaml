@@ -4,7 +4,7 @@ networks:
   openplatform:
 
 services:
-  tls-ca:
+  tls-ca.hktfp.com:
     extends:
       file: nodebase.yaml
       service: ca
@@ -13,8 +13,8 @@ services:
     environment:
       - HYPERLEDGER_VOL=/var/artifacts
       - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/HktfpMSP/tls/server
-      - FABRIC_CA_SERVER_CSR_CN=tls-ca
-      - FABRIC_CA_SERVER_CA_NAME=tls-ca
+      - FABRIC_CA_SERVER_CSR_CN=tls-ca.hktfp.com
+      - FABRIC_CA_SERVER_CA_NAME=tls-ca.hktfp.com
     ports:
       - 6052:6052
     command: sh -c 'fabric-ca-server start -d -b tls-ca-admin:tls-ca-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 6052'
@@ -22,7 +22,7 @@ services:
       - ../scripts/container:/setup
       - ../artifacts:/var/artifacts
 
-  rca-hktfp:
+  rca.hktfp.com:
     extends:
       file: nodebase.yaml
       service: ca
@@ -31,7 +31,7 @@ services:
     environment:
       - HYPERLEDGER_VOL=/var/artifacts
       - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/HktfpMSP/ca/server
-      - FABRIC_CA_SERVER_CSR_CN=rca-hktfp
+      - FABRIC_CA_SERVER_CSR_CN=rca.hktfp.com
       - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
       - FABRIC_CA_SERVER_CA_NAME=rca.hktfp.com
     ports:

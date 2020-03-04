@@ -1,0 +1,183 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+  tls-ca.hktfp.com:
+    extends:
+      file: ./nodebase.yaml
+      service: ca
+    container_name: tls-ca.hktfp.com
+    environment:
+      - HYPERLEDGER_VOL=/var/artifacts
+      - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/HktfpMSP/tls/server
+      - FABRIC_CA_SERVER_CSR_CN=tls-ca.hktfp.com
+      - FABRIC_CA_SERVER_CA_NAME=tls-ca.hktfp.com
+    ports:
+      - 6052:6052
+    command: sh -c 'fabric-ca-server start -d -b tls-ca-admin:tls-ca-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 6052'
+    volumes:
+      - ../../deployments/gw-dev-net/scripts/container:/setup
+      - ./artifacts:/var/artifacts
+
+  rca.hktfp.com:
+    extends:
+      file: ./nodebase.yaml
+      service: ca
+    container_name: rca.hktfp.com
+    environment:
+      - HYPERLEDGER_VOL=/var/artifacts
+      - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/HktfpMSP/ca/server
+      - FABRIC_CA_SERVER_CSR_CN=rca.hktfp.com
+      - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
+      - FABRIC_CA_SERVER_CA_NAME=rca.hktfp.com
+    ports:
+      - 6053:6053
+    command: sh -c 'fabric-ca-server start -d -b rca-hktfp-admin:rca-hktfp-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 6053'
+    volumes:
+      - ../../deployments/gw-dev-net/scripts/container:/setup
+      - ./artifacts:/var/artifacts
+
+  rca.etradeconnect.net:
+    extends:
+      file: ./nodebase.yaml
+      service: ca
+    container_name: rca.etradeconnect.net
+    environment:
+      - HYPERLEDGER_VOL=/var/artifacts
+      - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/EtcMSP/ca/server
+      - FABRIC_CA_SERVER_CSR_CN=rca.etradeconnect.net
+      - FABRIC_CA_SERVER_CA_NAME=rca.etradeconnect.net
+    ports:
+      - 6054:6054
+    command: sh -c 'fabric-ca-server start -d -b rca-etradeconnect-admin:rca-etradeconnect-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 6054'
+    volumes:
+      - ../../deployments/gw-dev-net/scripts/container:/setup
+      - ./artifacts:/var/artifacts
+
+  rca.pbctfp.net:
+    extends:
+      file: ./nodebase.yaml
+      service: ca
+    container_name: rca.pbctfp.net
+    environment:
+      - HYPERLEDGER_VOL=/var/artifacts
+      - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/PbctfpMSP/ca/server
+      - FABRIC_CA_SERVER_CSR_CN=rca.pbctfp.net
+      - FABRIC_CA_SERVER_CA_NAME=rca.pbctfp.net
+    ports:
+      - 6055:6055
+    command: sh -c 'fabric-ca-server start -d -b rca-pboc-admin:rca-pboc-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 6055'
+    volumes:
+      - ../../deployments/gw-dev-net/scripts/container:/setup
+      - ./artifacts:/var/artifacts
+
+  peer0.etradeconnect.net:
+    extends:
+      file: ./nodebase.yaml
+      service: peer
+    container_name: peer0.etradeconnect.net
+    environment:
+      - CORE_PEER_ID=peer0.etradeconnect.net
+      - CORE_PEER_ADDRESS=peer0.etradeconnect.net:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_LOCALMSPID=EtcMSP
+      - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/msp
+      - CORE_PEER_TLS_CERT_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/signcerts/cert.pem
+      - CORE_PEER_TLS_KEY_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/keystore/key.pem
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.etradeconnect.net:7151
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.etradeconnect.net:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/EtcMSP/peer0.etradeconnect.net
+    volumes:
+      - /var/run:/host/var/run
+      - ./artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net:/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net
+    ports:
+      - 7051:7051
+      - 7053:7053
+
+  peer0.pbctfp.net:
+    extends:
+      file: ./nodebase.yaml
+      service: peer
+    container_name: peer0.pbctfp.net
+    environment:
+      - CORE_PEER_ID=peer0.pbctfp.net
+      - CORE_PEER_ADDRESS=peer0.pbctfp.net:7251
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7251
+      - CORE_PEER_LOCALMSPID=PbctfpMSP
+      - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/msp
+      - CORE_PEER_TLS_CERT_FILE=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/signcerts/cert.pem
+      - CORE_PEER_TLS_KEY_FILE=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/keystore/key.pem
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.pbctfp.net:7351
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pbctfp.net:7251
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7252
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/PbctfpMSP/peer0.pbctfp.net
+    volumes:
+      - /var/run:/host/var/run
+      - ./artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net:/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net
+    ports:
+      - 7251:7251
+      - 7253:7253
+
+  orderer0.hktfp.com:
+    extends:
+      file: ./nodebase.yaml
+      service: orderer
+    container_name: orderer0.hktfp.com
+    environment:
+      - ORDERER_HOST=orderer0.hktfp.com
+      - ORDERER_HOME=/var/artifacts/orderer
+      - ORDERER_GENERAL_LOCALMSPID=HktfpMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/msp
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]
+      - ORDERER_GENERAL_GENESISFILE=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/genesis.block
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]
+      - ORDERER_GENERAL_LISTENPORT=7050
+    volumes:
+      - ./artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com:/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com
+    ports:
+      - 7050:7050
+
+  cli:
+    extends:
+      file: ./nodebase.yaml
+      service: cli
+    container_name: cli
+    environment:
+      - HYPERLEDGER_VOL=/var/artifacts
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.etradeconnect.net:7051
+      - CORE_PEER_LOCALMSPID=EtcMSP
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/etradeconnect.net
+    command: sh
+    volumes:
+      - ./artifacts:/var/artifacts
+      - ../../deployments/gw-dev-net/scripts/container:/setup
+      - ./config:/config
+      - ../chaincode:/opt/gopath/src/github.com/hyperledger/fabric/chaincode
+
+  postgres-dev:
+    container_name: postgres-dev
+    image: postgres:9.6.17-alpine
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./config/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+    command: postgres
+    ports:
+      - 5432:5432
+    networks:
+      - openplatform
+

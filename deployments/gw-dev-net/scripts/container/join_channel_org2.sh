@@ -3,8 +3,6 @@ cp /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/loanapp.bl
 mkdir -p /var/artifacts/crypto-config/PbctfpMSP/admin/msp/admincerts
 cp /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/msp/admincerts/pbctfp.net-admin-cert.pem /var/artifacts/crypto-config/PbctfpMSP/admin/msp/admincerts
 
-export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/PbctfpMSP/admin/msp
-
 export CORE_PEER_LOCALMSPID=PbctfpMSP
 export CORE_PEER_ADDRESS="peer0.pbctfp.net:7251"
 export CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/PbctfpMSP/admin/msp

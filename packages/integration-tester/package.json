@@ -1,19 +1,12 @@
 {
-  "name": "@espresso/multi-org-tests",
+  "name": "@espresso/integration-tester",
   "version": "1.0.0",
   "scripts": {
-    "build": "yarn run clean && tsc",
     "clean": "rimraf dist",
-    "test:unit": "jest unit.test",
-    "test:integration": "jest integration.test",
-    "gulp": "ts-node src/gulpfile.ts"
-  },
-  "engines": {
-    "node": ">=8",
-    "npm": ">=5"
+    "test": "jest integration.test",
+    "integration-test": "./integration-test.sh"
   },
   "private": true,
-  "engineStrict": true,
   "dependencies": {
     "@espresso/authentication": "1.0.0",
     "@espresso/fabric-cqrs": "1.0.0",
@@ -33,9 +26,6 @@
     "@types/node": "^8.10.54",
     "@types/node-fetch": "^2.5.4",
     "@types/listr": "^0.14.2",
-    "@types/child-process-promise": "^2.2.1",
-    "apollo-server-testing": "^2.9.7",
-    "child-process-promise": "^2.2.1",
     "listr": "^0.14.3",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
