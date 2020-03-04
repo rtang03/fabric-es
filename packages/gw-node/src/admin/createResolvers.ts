@@ -75,7 +75,7 @@ export const createResolvers: (option: {
         { is_admin }
       ) => {
         if (!is_admin) {
-          logger.warn('registerAndEnrollUser: %s', UNAUTHORIZED_ACCESS);
+          logger.warn(`registerAndEnrollUser, ${UNAUTHORIZED_ACCESS}`);
           return new ForbiddenError(UNAUTHORIZED_ACCESS);
         }
         let registerResult;

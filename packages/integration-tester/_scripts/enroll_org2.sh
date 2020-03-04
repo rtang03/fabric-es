@@ -1,8 +1,6 @@
-import '../env';
+import '../../../_archive/admin-tool/src/env';
 import { getPeerInfo, installChaincode, instantiateChaincode } from '../middleware';
 
-const channelName = 'eventstore';
-const chaincodeId = 'privatedata';
 const endorsementPolicy = {
   identities: [
     { role: { name: 'member', mspId: 'Org1MSP' } },
@@ -13,36 +11,34 @@ const endorsementPolicy = {
   }
 };
 
-describe('Private data: Administrator commands', () => {
-  it('should upgrade', async () => {
+describe('Administrator commands', () => {
+  it('should install/upgrade', async () => {
+    const chaincodeId = 'eventstore';
     const {
+      getInstalledCCVersion,
       getInstantiatedChaincodes,
-      getInstalledChaincodes,
-      getInstalledCCVersion
-    } = await getPeerInfo(channelName);
-
-    const chaincodeVersion = await getInstalledCCVersion('privatedata')
+      getInstalledChaincodes
+    } = await getPeerInfo('eventstore');
+    const chaincodeVersion = await getInstalledCCVersion('eventstore')
       .then(version => parseInt(version, 10))
       .then(version => `${++version}`);
 
-    await installChaincode('privatedata', chaincodeVersion).then(results =>
+    await installChaincode(chaincodeId, chaincodeVersion).then(results =>
       results.forEach(({ response: { status } }) => expect(status).toBe(200))
     );
 
     await instantiateChaincode({
-      channelName,
+      channelName: 'eventstore',
       chaincodeId,
       endorsementPolicy,
       chaincodeVersion,
-      fcn: 'privatedata:instantiate',
-      collectionsConfig: './collections.json',
       upgrade: true
     }).then(result => expect(result).toEqual({ status: 'SUCCESS', info: '' }));
 
     await getInstantiatedChaincodes().then(result => console.log(result));
 
     await getInstalledChaincodes()
-      .then(({ chaincodes }) => chaincodes[1])
+      .then(({ chaincodes }) => chaincodes[0])
       .then(chaincode => console.log(chaincode));
   });
 });
