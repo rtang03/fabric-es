@@ -85,6 +85,7 @@ query GetLoanById($loanId: String!) {
     ownerId
     description
     reference
+    comment
     status
     documents {
       title

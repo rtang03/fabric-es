@@ -73,20 +73,20 @@ const timestamp = Date.now();
 const email = `u${timestamp}@${process.env.ORGNAME}`;
 const password = 'p@ssw0rd';
 const username = `u${timestamp}`;
-const loanId0 = `l${timestamp}`;
-const loanId1 = `l${timestamp + 10}`;
-const loanId2 = `l${timestamp + 20}`;
-const loanId3 = `l${timestamp + 30}`;
-const loanId4 = `l${timestamp + 40}`;
-const loanId5 = `l${timestamp + 50}`;
-const documentId0 = `d${timestamp}`;
-const documentId1 = `d${timestamp + 10}`;
-const documentId2 = `d${timestamp + 20}`;
-const documentId3 = `d${timestamp + 30}`;
-const documentId4 = `d${timestamp + 40}`;
-const documentId5 = `d${timestamp + 50}`;
-const documentId6 = `d${timestamp + 60}`;
-const documentId7 = `d${timestamp + 70}`;
+const loanId0 = `la${timestamp}`;
+const loanId1 = `lb${timestamp + 10}`;
+const loanId2 = `lc${timestamp + 20}`;
+const loanId3 = `ld${timestamp + 30}`;
+const loanId4 = `le${timestamp + 40}`;
+const loanId5 = `lf${timestamp + 50}`;
+const documentId0 = `da${timestamp}`;
+const documentId1 = `db${timestamp + 10}`;
+const documentId2 = `dc${timestamp + 20}`;
+const documentId3 = `dd${timestamp + 30}`;
+const documentId4 = `de${timestamp + 40}`;
+const documentId5 = `df${timestamp + 50}`;
+const documentId6 = `dg${timestamp + 60}`;
+const documentId7 = `dh${timestamp + 70}`;
 
 let adminService: ApolloServer;
 let loanService: ApolloServer;
@@ -366,6 +366,132 @@ describe('Unit Test: Org1 Apply Loans', () => {
     expect(false).toBeTruthy();
   });
 
+  it('apply loan 1', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'ApplyLoan',
+          query: APPLY_LOAN.loc.source.body,
+          variables: {
+            userId, loanId: loanId1, description: 'Unit test org1 loan 1',
+            reference: 'REF-UNIT-TEST-ORG1-LOAN-1'
+          }}).expect(({ body: { data } }) => expect(data.applyLoan.id).toEqual(loanId1))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('apply loan 2', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'ApplyLoan',
+          query: APPLY_LOAN.loc.source.body,
+          variables: {
+            userId, loanId: loanId2, description: 'Unit test org1 loan 2',
+            reference: 'REF-UNIT-TEST-ORG1-LOAN-2', comment: 'Hello 0002'
+          }}).expect(({ body: { data } }) => expect(data.applyLoan.id).toEqual(loanId2))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('apply loan 3', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'ApplyLoan',
+          query: APPLY_LOAN.loc.source.body,
+          variables: {
+            userId, loanId: loanId3, description: 'Unit test org1 loan 3',
+            reference: 'REF-UNIT-TEST-ORG1-LOAN-3', comment: 'Hello 0003'
+          }}).expect(({ body: { data } }) => expect(data.applyLoan.id).toEqual(loanId3))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('apply loan 4', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'ApplyLoan',
+          query: APPLY_LOAN.loc.source.body,
+          variables: {
+            userId, loanId: loanId4, description: 'Unit test org1 loan 4',
+            reference: 'REF-UNIT-TEST-ORG1-LOAN-4', comment: 'Hello 0004'
+          }}).expect(({ body: { data } }) => expect(data.applyLoan.id).toEqual(loanId4))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('apply loan 5', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'ApplyLoan',
+          query: APPLY_LOAN.loc.source.body,
+          variables: {
+            userId, loanId: loanId5, description: 'Unit test org1 loan 5',
+            reference: 'REF-UNIT-TEST-ORG1-LOAN-5', comment: 'Hello 0005'
+          }}).expect(({ body: { data } }) => expect(data.applyLoan.id).toEqual(loanId5))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('apply loan without description', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'ApplyLoan',
+        query: APPLY_LOAN.loc.source.body,
+        variables: {
+          userId, loanId: 'L9999', reference: 'REF-UNIT-TEST-ORG1-LOAN-9999'
+        }})
+      .expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
+        cur.message.includes('was not provided') ? cur.message : acc, '')).toContain('was not provided'))
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+  });
+
+  it('apply loan with empty description', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'ApplyLoan',
+        query: APPLY_LOAN.loc.source.body,
+        variables: {
+          userId, loanId: 'L9999', reference: 'REF-UNIT-TEST-ORG1-LOAN-9999', description: ''
+        }})
+      .expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
+        cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+  });
+
+  // TODO: Implement lifecycle event attribute to prevent creating same entity more than once
+  // NOTE: This 'apply loan' call should return normal, but querying 'L0000' should return the original result instead of the changed values
+  it('apply loan 0 again', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'ApplyLoan',
+          query: APPLY_LOAN.loc.source.body,
+          variables: {
+            userId, loanId: loanId0,
+            reference: 'REF-UNIT-TEST-ORG1-LOAN-0VERWRITTEN',
+            description: 'Unit test org1 loan 0VERWRITTEN',
+            comment: 'Hello 000VERWRITTEN'
+          }}).expect(({ body: { data } }) => expect(data.applyLoan.id).toEqual(loanId0))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+});
+
+describe('Unit Test: Org1 Create LoanDetails', () => {
   it('add loan details 0', async () => {
     if (isReady) {
       await request(gateway)
@@ -398,137 +524,116 @@ describe('Unit Test: Org1 Apply Loans', () => {
     expect(false).toBeTruthy();
   });
 
-  it('apply loan 1', async () => {
-    if (isReady) {
-      await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
-          operationName: 'ApplyLoan',
-          query: APPLY_LOAN.loc.source.body,
-          variables: {
-            userId, loanId: loanId1,
-            description: 'Unit test org1 loan 1',
-            reference: 'REF-UNIT-TEST-ORG1-LOAN-1',
-            comment: 'Hello 0001'
-          }
-        }).expect(({ body: { data } }) => expect(data.applyLoan.id).toEqual(loanId1))
-          .catch(_ => expect(false).toBeTruthy());
-      return;
-    }
-    expect(false).toBeTruthy();
-  });
-
   it('add loan details 1', async () => {
     if (isReady) {
       await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
+        .post('/graphql') .set('authorization', `bearer ${accessToken}`).send({
           operationName: 'CreateLoanDetails',
           query: CREATE_LOAN_DETAILS.loc.source.body,
           variables: {
             userId, loanId: loanId1,
-            requester: {
-              registration: 'BR1234567XXX1',
-              name: 'Loan Requester 1'
-            },
-            contact: {
-              name: 'Contact 1',
-              phone: '555-0001',
-              email: 'c0001@fake.it'
-            },
-            startDate: '1574846420901',
-            tenor: 51,
-            currency: 'HKD',
-            requestedAmt: 41.9,
+            requester: { registration: 'BR1234567XXX1', name: 'Loan Requester 1' },
+            contact: { name: 'Contact 1', phone: '555-0001', email: 'c0001@fake.it' },
+            startDate: '1574846420901', tenor: 51, currency: 'HKD', requestedAmt: 41.9,
             comment: 'Unit test org1 loanDetails 1'
-          }
-        }).expect(({ body: { data } }) => expect(data.createLoanDetails.id).toEqual(loanId1))
-          .catch(_ => expect(false).toBeTruthy());
+          }}).expect(({ body: { data } }) => expect(data.createLoanDetails.id).toEqual(loanId1))
+             .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('apply loan 2', async () => {
+  it('add loan details 2', async () => {
     if (isReady) {
       await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
-          operationName: 'ApplyLoan',
-          query: APPLY_LOAN.loc.source.body,
+        .post('/graphql') .set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateLoanDetails',
+          query: CREATE_LOAN_DETAILS.loc.source.body,
           variables: {
             userId, loanId: loanId2,
-            description: 'Unit test org1 loan 2',
-            reference: 'REF-UNIT-TEST-ORG1-LOAN-2',
-            comment: 'Hello 0002'
-          }
-        }).expect(({ body: { data } }) => expect(data.applyLoan.id).toEqual(loanId2))
-          .catch(_ => expect(false).toBeTruthy());
+            requester: { registration: 'BR1234567XXX2', name: 'Loan Requester 2' },
+            contact: { name: 'Contact 2', phone: '555-0002', email: 'c0002@fake.it' },
+            startDate: '1574846420902', tenor: 52, currency: 'HKD', requestedAmt: 42.9,
+            comment: 'Unit test org1 loanDetails 2'
+          }}).expect(({ body: { data } }) => expect(data.createLoanDetails.id).toEqual(loanId2))
+             .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('apply loan 3', async () => {
+  it('add loan details 3', async () => {
     if (isReady) {
       await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
-          operationName: 'ApplyLoan',
-          query: APPLY_LOAN.loc.source.body,
+        .post('/graphql') .set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateLoanDetails',
+          query: CREATE_LOAN_DETAILS.loc.source.body,
           variables: {
             userId, loanId: loanId3,
-            description: 'Unit test org1 loan 3',
-            reference: 'REF-UNIT-TEST-ORG1-LOAN-3',
-            comment: 'Hello 0003'
-          }
-        }).expect(({ body: { data } }) => expect(data.applyLoan.id).toEqual(loanId3))
-          .catch(_ => expect(false).toBeTruthy());
+            requester: { registration: 'BR1234567XXX3', name: 'Loan Requester 3' },
+            contact: { name: 'Contact 3', phone: '555-0003', email: 'c0003@fake.it' },
+            startDate: '1574846420903', tenor: 53, currency: 'HKD', requestedAmt: 43.9,
+            comment: 'Unit test org1 loanDetails 3'
+          }}).expect(({ body: { data } }) => expect(data.createLoanDetails.id).toEqual(loanId3))
+             .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('apply loan 4', async () => {
+  it('add loan details 4', async () => {
     if (isReady) {
       await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
-          operationName: 'ApplyLoan',
-          query: APPLY_LOAN.loc.source.body,
+        .post('/graphql') .set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateLoanDetails',
+          query: CREATE_LOAN_DETAILS.loc.source.body,
           variables: {
             userId, loanId: loanId4,
-            description: 'Unit test org1 loan 4',
-            reference: 'REF-UNIT-TEST-ORG1-LOAN-4',
-            comment: 'Hello 0004'
-          }
-        }).expect(({ body: { data } }) => expect(data.applyLoan.id).toEqual(loanId4))
-          .catch(_ => expect(false).toBeTruthy());
+            requester: { registration: 'BR1234567XXX4', name: 'Loan Requester 4' },
+            contact: { name: 'Contact 4', phone: '555-0004', email: 'c0004@fake.it' },
+            startDate: '1574846420904', tenor: 54, currency: 'HKD', requestedAmt: 44.9,
+            comment: 'Unit test org1 loanDetails 4'
+          }}).expect(({ body: { data } }) => expect(data.createLoanDetails.id).toEqual(loanId4))
+             .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('apply loan 5', async () => {
+  it('add loan details 5', async () => {
     if (isReady) {
       await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
-          operationName: 'ApplyLoan',
-          query: APPLY_LOAN.loc.source.body,
+        .post('/graphql') .set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateLoanDetails',
+          query: CREATE_LOAN_DETAILS.loc.source.body,
           variables: {
             userId, loanId: loanId5,
-            description: 'Unit test org1 loan 5',
-            reference: 'REF-UNIT-TEST-ORG1-LOAN-5',
-            comment: 'Hello 0005'
+            requester: { registration: 'BR1234567XXX5', name: 'Loan Requester 5' },
+            contact: { name: 'Contact 5', phone: '555-0005', email: 'c0005@fake.it' },
+            startDate: '1574846420905', tenor: 55, currency: 'HKD', requestedAmt: 45.9,
+            comment: 'Unit test org1 loanDetails 5'
+          }}).expect(({ body: { data } }) => expect(data.createLoanDetails.id).toEqual(loanId5))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  // TODO: Implement lifecycle event attribute to prevent creating same entity more than once
+  // NOTE: This 'create loanDetails' call should return normal, but querying 'L0000' should return the original result instead of the changed values
+  it('create loan details 0 again', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateLoanDetails',
+          query: CREATE_LOAN_DETAILS.loc.source.body,
+          variables: {
+            userId, loanId: loanId0,
+            requester: { registration: 'BR1234567XXX0VERWRITTEN', name: 'Loan Requester 0VERWRITTEN' },
+            contact: { name: 'Contact 0VERWRITTEN', phone: '555-0000', email: 'c0000@fake.it' },
+            startDate: '1574846420900', tenor: 50, currency: 'HKD', requestedAmt: 40.9,
+            comment: 'Unit test org1 loanDetails 0VERWRITTEN'
           }
-        }).expect(({ body: { data } }) => expect(data.applyLoan.id).toEqual(loanId5))
+        }).expect(({ body: { data } }) => expect(data.createLoanDetails.id).toEqual(loanId0))
           .catch(_ => expect(false).toBeTruthy());
       return;
     }
@@ -557,7 +662,133 @@ describe('Unit Test: Org1 Create Documents', () => {
     expect(false).toBeTruthy();
   });
 
-  it('create doc contents 0 - data', async () => {
+  it('create document 1', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateDocument',
+          query: CREATE_DOCUMENT.loc.source.body,
+          variables: {
+            userId, documentId: documentId1, loanId: loanId0,
+            title: 'Unit test org1 document 1', reference: 'REF-UNIT-TEST-ORG1-DOC-1'
+          }}).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId1))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('create document 2', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateDocument',
+          query: CREATE_DOCUMENT.loc.source.body,
+          variables: {
+            userId, documentId: documentId2,
+            title: 'Unit test org1 document 2', reference: 'REF-UNIT-TEST-ORG1-DOC-2'
+          }}).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId2))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('create document 3', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateDocument',
+          query: CREATE_DOCUMENT.loc.source.body,
+          variables: {
+            userId, documentId: documentId3, loanId: loanId0,
+            title: 'Unit test org1 document 3', reference: 'REF-UNIT-TEST-ORG1-DOC-3'
+          }}).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId3))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('create document 4', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateDocument',
+          query: CREATE_DOCUMENT.loc.source.body,
+          variables: {
+            userId, documentId: documentId4, loanId: loanId2,
+            title: 'Unit test org1 document 4', reference: 'REF-UNIT-TEST-ORG1-DOC-4'
+          }}).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId4))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('create document 5', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateDocument',
+          query: CREATE_DOCUMENT.loc.source.body,
+          variables: {
+            userId, documentId: documentId5, loanId: loanId3,
+            title: 'Unit test org1 document 5', reference: 'REF-UNIT-TEST-ORG1-DOC-5'
+          }}).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId5))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('create document 6', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateDocument',
+          query: CREATE_DOCUMENT.loc.source.body,
+          variables: {
+            userId, documentId: documentId6, loanId: loanId4,
+            title: 'Unit test org1 document 6', reference: 'REF-UNIT-TEST-ORG1-DOC-6'
+          }}).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId6))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('create document 7', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateDocument',
+          query: CREATE_DOCUMENT.loc.source.body,
+          variables: {
+            userId, documentId: documentId7, loanId: loanId5,
+            title: 'Unit test org1 document 7', reference: 'REF-UNIT-TEST-ORG1-DOC-7'
+          }}).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId7))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  // TODO: Implement lifecycle event attribute to prevent creating same entity more than once
+  // NOTE: This 'create document' call should return normal, but querying 'D0000' should return the original result instead of the changed values
+  it('create document 0 again', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateDocument',
+          query: CREATE_DOCUMENT.loc.source.body,
+          variables: {
+            userId, documentId: documentId0, loanId: loanId0,
+            title: 'Unit test org1 document 0VERWRITTEN',
+            reference: 'REF-UNIT-TEST-ORG1-DOC-0VERWRITTEN'
+          }
+        }).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId0))
+          .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+});
+
+describe('Unit Test: Org1 Create DocContents', () => {
+  it('create docContents 0 - data', async () => {
     if (isReady) {
       await request(gateway)
         .post('/graphql')
@@ -567,7 +798,7 @@ describe('Unit Test: Org1 Create Documents', () => {
           query: CREATE_DATA_DOC_CONTENTS.loc.source.body,
           variables: {
             userId, documentId: documentId0,
-            body: `{ "message": "Unit test org1 doc-contents 0" }`
+            body: `{ "message": "Unit test org1 docContents 0" }`
           }
         }).expect(({ body: { data } }) => expect(data.createDataDocContents.id).toEqual(documentId0))
           .catch(_ => expect(false).toBeTruthy());
@@ -576,160 +807,120 @@ describe('Unit Test: Org1 Create Documents', () => {
     expect(false).toBeTruthy();
   });
 
-  it('create document 1', async () => {
+  it('create docContents 1 - file', async () => {
     if (isReady) {
-      await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
-          operationName: 'CreateDocument',
-          query: CREATE_DOCUMENT.loc.source.body,
-          variables: {
-            userId, documentId: documentId1, loanId: loanId0,
-            title: 'Unit test org1 document 1',
-            reference: 'REF-UNIT-TEST-ORG1-DOC-1'
-          }
-        }).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId1))
-          .catch(_ => expect(false).toBeTruthy());
-      return;
-    }
-    expect(false).toBeTruthy();
-  });
-
-  it('create doc contents 1 - file', async () => {
-    if (isReady) {
-      await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
           operationName: 'CreateFileDocContents',
           query: CREATE_FILE_DOC_CONTENTS.loc.source.body,
           variables: {
             userId, documentId: documentId1,
-            format: 'PDF',
-            link: `http://fake.it/docs/org1UnitTestDocContents-1.pdf`
-          }
-        }).expect(({ body: { data } }) => expect(data.createFileDocContents.id).toEqual(documentId1))
-          .catch(_ => expect(false).toBeTruthy());
+            format: 'PDF', link: `http://fake.it/docs/org1UnitTestDocContents-1.pdf`
+          }}).expect(({ body: { data } }) => expect(data.createFileDocContents.id).toEqual(documentId1))
+             .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('create document 2', async () => {
+  it('create docContents 2 - file', async () => {
     if (isReady) {
-      await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
-          operationName: 'CreateDocument',
-          query: CREATE_DOCUMENT.loc.source.body,
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateFileDocContents',
+          query: CREATE_FILE_DOC_CONTENTS.loc.source.body,
           variables: {
-            userId, documentId: documentId2, loanId: loanId0,
-            title: 'Unit test org1 document 2',
-            reference: 'REF-UNIT-TEST-ORG1-DOC-2'
-          }
-        }).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId2))
-          .catch(_ => expect(false).toBeTruthy());
+            userId, documentId: documentId2,
+            format: 'PDF', link: `http://fake.it/docs/org1UnitTestDocContents-2.pdf`
+          }}).expect(({ body: { data } }) => expect(data.createFileDocContents.id).toEqual(documentId2))
+             .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('create document 3', async () => {
+  it('create docContents 3 - data', async () => {
     if (isReady) {
-      await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
-          operationName: 'CreateDocument',
-          query: CREATE_DOCUMENT.loc.source.body,
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateDataDocContents',
+          query: CREATE_DATA_DOC_CONTENTS.loc.source.body,
           variables: {
-            userId, documentId: documentId3, loanId: loanId1,
-            title: 'Unit test org1 document 3',
-            reference: 'REF-UNIT-TEST-ORG1-DOC-3'
-          }
-        }).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId3))
-          .catch(_ => expect(false).toBeTruthy());
+            userId, documentId: documentId3, body: `{ "message": "Unit test org1 docContents 3" }`
+          }}).expect(({ body: { data } }) => expect(data.createDataDocContents.id).toEqual(documentId3))
+             .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('create document 4', async () => {
+  it('create docContents 4 - data', async () => {
     if (isReady) {
-      await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
-          operationName: 'CreateDocument',
-          query: CREATE_DOCUMENT.loc.source.body,
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateDataDocContents',
+          query: CREATE_DATA_DOC_CONTENTS.loc.source.body,
           variables: {
-            userId, documentId: documentId4, loanId: loanId2,
-            title: 'Unit test org1 document 4',
-            reference: 'REF-UNIT-TEST-ORG1-DOC-4'
-          }
-        }).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId4))
-          .catch(_ => expect(false).toBeTruthy());
+            userId, documentId: documentId4, body: `{ "message": "Unit test org1 docContents 4" }`
+          }}).expect(({ body: { data } }) => expect(data.createDataDocContents.id).toEqual(documentId4))
+             .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('create document 5', async () => {
+  it('create docContents 5 - file', async () => {
     if (isReady) {
-      await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
-          operationName: 'CreateDocument',
-          query: CREATE_DOCUMENT.loc.source.body,
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateFileDocContents',
+          query: CREATE_FILE_DOC_CONTENTS.loc.source.body,
           variables: {
-            userId, documentId: documentId5, loanId: loanId3,
-            title: 'Unit test org1 document 5',
-            reference: 'REF-UNIT-TEST-ORG1-DOC-5'
-          }
-        }).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId5))
-          .catch(_ => expect(false).toBeTruthy());
+            userId, documentId: documentId5,
+            format: 'PDF', link: `http://fake.it/docs/org1UnitTestDocContents-5.pdf`
+          }}).expect(({ body: { data } }) => expect(data.createFileDocContents.id).toEqual(documentId5))
+             .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('create document 6', async () => {
+  it('create docContents 6 - data', async () => {
     if (isReady) {
-      await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
-          operationName: 'CreateDocument',
-          query: CREATE_DOCUMENT.loc.source.body,
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateDataDocContents',
+          query: CREATE_DATA_DOC_CONTENTS.loc.source.body,
           variables: {
-            userId, documentId: documentId6, loanId: loanId4,
-            title: 'Unit test org1 document 6',
-            reference: 'REF-UNIT-TEST-ORG1-DOC-6'
-          }
-        }).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId6))
-          .catch(_ => expect(false).toBeTruthy());
+            userId, documentId: documentId6, body: `{ "message": "Unit test org1 docContents 6" }`
+          }}).expect(({ body: { data } }) => expect(data.createDataDocContents.id).toEqual(documentId6))
+             .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('create document 7', async () => {
+  it('create docContents 7 - file', async () => {
     if (isReady) {
-      await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
-          operationName: 'CreateDocument',
-          query: CREATE_DOCUMENT.loc.source.body,
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateFileDocContents',
+          query: CREATE_FILE_DOC_CONTENTS.loc.source.body,
           variables: {
-            userId, documentId: documentId7, loanId: loanId5,
-            title: 'Unit test org1 document 7',
-            reference: 'REF-UNIT-TEST-ORG1-DOC-7'
+            userId, documentId: documentId7,
+            format: 'PDF', link: `http://fake.it/docs/org1UnitTestDocContents-7.pdf`
+          }}).expect(({ body: { data } }) => expect(data.createFileDocContents.id).toEqual(documentId7))
+             .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  // TODO: Implement lifecycle event attribute to prevent creating same entity more than once
+  // NOTE: This 'create docContents' call should return normal, but querying 'D0000' should return the original result instead of the changed values
+  it('create docContents 0 - data again', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateDataDocContents',
+          query: CREATE_DATA_DOC_CONTENTS.loc.source.body,
+          variables: {
+            userId, documentId: documentId0,
+            body: `{ "message": "Unit test org1 docContents 0VERWRITTEN" }`
           }
-        }).expect(({ body: { data } }) => expect(data.createDocument.id).toEqual(documentId7))
+        }).expect(({ body: { data } }) => expect(data.createDataDocContents.id).toEqual(documentId0))
           .catch(_ => expect(false).toBeTruthy());
       return;
     }
@@ -737,8 +928,7 @@ describe('Unit Test: Org1 Create Documents', () => {
   });
 });
 
-describe('Unit Test: Org1 Loans', () => {
-  // TODO HERE add update test cases
+describe('Unit Test: Org1 Loans operations', () => {
   it('update loan 2', async () => {
     if (isReady) {
       await request(gateway)
@@ -753,6 +943,36 @@ describe('Unit Test: Org1 Loans', () => {
           }
         }).expect(({ body: { data } }) => expect(data.updateLoan.map(d => (d && d.id) ? d.id : '')).toContain(loanId2))
           .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('add comment to existing loan 1', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'UpdateLoan',
+        query: UPDATE_LOAN.loc.source.body,
+        variables: {
+          userId, loanId: loanId1, comment: 'Hello 0001 ADDED'
+        }}).expect(({ body: { data } }) => expect(data.updateLoan.map(d => (d && d.id) ? d.id : '')).toContain(loanId1))
+           .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update loan 3', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'UpdateLoan',
+        query: UPDATE_LOAN.loc.source.body,
+        variables: {
+          userId, loanId: loanId3,
+          description: 'Unit test org1 loan 3 EDITED',
+          comment: 'Hello 0003 EDITED'
+        }}).expect(({ body: { data } }) => expect(data.updateLoan.map(d => (d && d.id) ? d.id : '')).toContain(loanId3))
+           .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
@@ -773,6 +993,56 @@ describe('Unit Test: Org1 Loans', () => {
         }).expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
             cur.message.includes('INVALID_OPERATION') ? cur.message : acc, '')).toContain('INVALID_OPERATION'))
           .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update an non-existing loan', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'UpdateLoan',
+        query: UPDATE_LOAN.loc.source.body,
+        variables: {
+          userId, loanId: 'L9999',
+          description: 'Unit test org1 loan 9 EDITED',
+          comment: 'Hello 9999 EDITED'
+        }}).expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
+            cur.message.includes('LOAN_NOT_FOUND') ? cur.message : acc, '')).toContain('LOAN_NOT_FOUND'))
+           .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update loan 4 with empty description', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'UpdateLoan',
+        query: UPDATE_LOAN.loc.source.body,
+        variables: {
+          userId, loanId: loanId4, description: '',
+        }}).expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
+            cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
+           .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update loan 5 with both successful and fail cases', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'UpdateLoan',
+        query: UPDATE_LOAN.loc.source.body,
+        variables: {
+          userId, loanId: loanId5, reference: 'HITHERE', description: '', comment: 'Hello 0005 EDITED'
+        }}).expect(({ body: { data, errors } }) => {
+          const errs = errors.map(e => e.message);
+          expect(errs).toContain('Error: INVALID_OPERATION');
+          expect(errs).toContain('Error: REQUIRED_DATA_MISSING');
+          expect(data.updateLoan.map(d => (d && d.id) ? d.id : '')).toContain(loanId5);
+        }).catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
@@ -842,7 +1112,7 @@ describe('Unit Test: Org1 Loans', () => {
     expect(false).toBeTruthy();
   });
 
-  it('reject loan 5', async () => {
+  it('flag loan 5 as expired', async () => {
     if (isReady) {
       await request(gateway)
         .post('/graphql')
@@ -859,7 +1129,7 @@ describe('Unit Test: Org1 Loans', () => {
   });
 });
 
-describe('Unit Test: Org1 Documents', () => {
+describe('Unit Test: Org1 Documents operations', () => {
   it('update document 1', async () => {
     if (isReady) {
       await request(gateway)
@@ -879,36 +1149,81 @@ describe('Unit Test: Org1 Documents', () => {
     expect(false).toBeTruthy();
   });
 
-  // it('update readonly field of document 1', async () => {
-  //   if (isReady) {
-  //     await request(gateway)
-  //       .post('/graphql')
-  //       .set('authorization', `bearer ${accessToken}`)
-  //       .send({
-  //         operationName: 'UpdateDocument',
-  //         query: UPDATE_DOCUMENT.loc.source.body,
-  //         variables: {
-  //           userId, documentId: documentId1,
-  //           reference: 'REF-UNIT-TEST-ORG1-DOC-1-EDITED'
-  //         }
-  //       }).expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
-  //           cur.message.includes('INVALID_OPERATION') ? cur.message : acc, '')).toContain('INVALID_OPERATION'))
-  //         .catch(_ => expect(false).toBeTruthy());
-  //     return;
-  //   }
-  //   expect(false).toBeTruthy();
-  // });
+  it('associate document 2 to loan 0', async () => {
+    // , loanId: loanId0
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'UpdateDocument',
+          query: UPDATE_DOCUMENT.loc.source.body,
+          variables: {
+            userId, documentId: documentId2, loanId: loanId0
+          }
+        }).expect(({ body: { data } }) => expect(data.updateDocument.map(d => (d && d.id) ? d.id : '')).toContain(documentId2))
+          .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update document 3', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'UpdateDocument',
+          query: UPDATE_DOCUMENT.loc.source.body,
+          variables: {
+            userId, documentId: documentId3, loanId: loanId1,
+            title: 'Unit test org1 document 1 EDITED'
+          }
+        }).expect(({ body: { data } }) => expect(data.updateDocument.map(d => (d && d.id) ? d.id : '')).toContain(documentId3))
+          .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update readonly field of document 4', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'UpdateDocument',
+          query: UPDATE_DOCUMENT.loc.source.body,
+          variables: {
+            userId, documentId: documentId4,
+            reference: 'REF-UNIT-TEST-ORG1-DOC-1-EDITED'
+          }
+        }).expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
+            cur.message.includes('INVALID_OPERATION') ? cur.message : acc, '')).toContain('INVALID_OPERATION'))
+          .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update document 5', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'UpdateDocument',
+          query: UPDATE_DOCUMENT.loc.source.body,
+          variables: {
+            userId, documentId: documentId5,
+            reference: 'REF-UNIT-TEST-ORG1-DOC-1-EDITED',
+            title: 'Unit test org1 document 5 EDITED'
+          }
+        }).expect(({ body: { data, errors } }) => {
+          expect(errors.map(e => e.message)).toContain('Error: INVALID_OPERATION');
+          expect(data.updateDocument.map(d => (d && d.id) ? d.id : '')).toContain(documentId5);
+        }).catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
 
   it('update document status', async () => {
     if (isReady) {
-      await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
           operationName: 'RestrictAccess',
           query: RESTRICT_DOCUMENT_ACCESS.loc.source.body,
-          variables: { userId, documentId: documentId1 }
-        }).expect(({ body: { data } }) => expect(data.restrictAccess.id).toEqual(documentId1))
+          variables: { userId, documentId: documentId6 }
+        }).expect(({ body: { data } }) => expect(data.restrictAccess.id).toEqual(documentId6))
           .catch(_ => expect(false).toBeTruthy());
       return;
     }
@@ -932,8 +1247,8 @@ describe('Unit Test: Org1 Documents', () => {
   });
 });
 
-describe('Unit Test: Org1 LoanDetails', () => {
-  it('update loanDetails 0', async () => {
+describe('Unit Test: Org1 LoanDetails operations', () => {
+  it('update loanDetails 2', async () => {
     if (isReady) {
       await request(gateway)
         .post('/graphql')
@@ -942,14 +1257,15 @@ describe('Unit Test: Org1 LoanDetails', () => {
           operationName: 'UpdateLoanDetails',
           query: UPDATE_LOAN_DETAILS.loc.source.body,
           variables: {
-            userId, loanId: loanId0,
+            userId, loanId: loanId2,
             contact: {
-              phone: '555-9999',
+              name: 'Contact 2 EDITED',
+              phone: '555-99992',
             },
             currency: 'USD',
-            comment: 'Unit test org1 loanDetails 0 EDITED'
+            comment: 'Unit test org1 loanDetails 2 EDITED'
           }
-        }).expect(({ body: { data } }) => expect(data.updateLoanDetails.map(d => (d && d.id) ? d.id : '')).toContain(loanId0))
+        }).expect(({ body: { data } }) => expect(data.updateLoanDetails.map(d => (d && d.id) ? d.id : '')).toContain(loanId2))
           .catch(_ => expect(false).toBeTruthy());
       return;
     }
@@ -958,22 +1274,14 @@ describe('Unit Test: Org1 LoanDetails', () => {
 
   it('update loanDetails 1 with both successful and fail cases', async () => {
     if (isReady) {
-      await request(gateway)
-        .post('/graphql')
-        .set('authorization', `bearer ${accessToken}`)
-        .send({
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
           operationName: 'UpdateLoanDetails',
           query: UPDATE_LOAN_DETAILS.loc.source.body,
           variables: {
             userId, loanId: loanId1,
-            requester: {
-              name: 'Loan Requester 999'
-            },
-            contact: {
-              phone: '555-9998',
-            },
-            currency: '',
-            comment: 'Unit test org1 loanDetails 1 EDITED'
+            requester: { name: 'Loan Requester 999' },
+            contact: { phone: '555-99991', },
+            currency: '', comment: 'Unit test org1 loanDetails 1 EDITED'
           }
         }).expect(({ body: { data, errors } }) => {
           const errs = errors.map(e => e.message);
@@ -981,6 +1289,25 @@ describe('Unit Test: Org1 LoanDetails', () => {
           expect(errs).toContain('Error: REQUIRED_DATA_MISSING');
           expect(data.updateLoanDetails.map(d => (d && d.id) ? d.id : '')).toContain(loanId1);
         }).catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update an non-existing loanDetails', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'UpdateLoanDetails',
+        query: UPDATE_LOAN_DETAILS.loc.source.body,
+        variables: {
+          userId, loanId: 'L9999',
+          requester: { name: 'Loan Requester 999' },
+          contact: { phone: '555-99991', },
+          currency: '', comment: 'Unit test org1 loanDetails 9 EDITED'
+        }
+      }).expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
+          cur.message.includes('LOAN_DETAILS_NOT_FOUND') ? cur.message : acc, '')).toContain('LOAN_DETAILS_NOT_FOUND'))
+        .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();

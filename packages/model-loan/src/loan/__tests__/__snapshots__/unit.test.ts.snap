@@ -2,11 +2,11 @@
 
 exports[`Loan Unit Test - Resolver query loan 0 by id 1`] = `
 Object {
-  "comment": "Yello 0000",
-  "description": "Unit test loan X",
+  "comment": "Hello 0000VERWRITTEN",
+  "description": "Unit test loan 0VERWRITTEN",
   "loanId": "L0000",
   "ownerId": "unitTestUser",
-  "reference": "REF-UNIT-TEST-LOAN-0",
+  "reference": "REF-UNIT-TEST-LOAN-0VERWRITTEN",
   "status": 0,
 }
 `;
@@ -24,8 +24,8 @@ Object {
 
 exports[`Loan Unit Test - Resolver query loan 2 by id 1`] = `
 Object {
-  "comment": "Hello 0002",
-  "description": "Unit test loan 2",
+  "comment": "Hello 0002 ADDED",
+  "description": "Unit test loan 2 EDITED",
   "loanId": "L0002",
   "ownerId": "unitTestUser",
   "reference": "REF-UNIT-TEST-LOAN-2",
@@ -35,7 +35,7 @@ Object {
 
 exports[`Loan Unit Test - Resolver query loan 3 by id 1`] = `
 Object {
-  "comment": "Hello 0003",
+  "comment": "Hello 0003 EDITED",
   "description": "Unit test loan 3",
   "loanId": "L0003",
   "ownerId": "unitTestUser",
@@ -46,8 +46,8 @@ Object {
 
 exports[`Loan Unit Test - Resolver query loan 4 by id 1`] = `
 Object {
-  "comment": "Hello 0004",
-  "description": "Unit test loan 4",
+  "comment": "Hello 0004 EDITED",
+  "description": "Unit test loan 4 EDITED",
   "loanId": "L0004",
   "ownerId": "unitTestUser",
   "reference": "REF-UNIT-TEST-LOAN-4",
@@ -59,11 +59,11 @@ exports[`Loan Unit Test - Resolver query loans by page 1`] = `
 Object {
   "entities": Array [
     Object {
-      "comment": "Yello 0000",
-      "description": "Unit test loan X",
+      "comment": "Hello 0000VERWRITTEN",
+      "description": "Unit test loan 0VERWRITTEN",
       "loanId": "L0000",
       "ownerId": "unitTestUser",
-      "reference": "REF-UNIT-TEST-LOAN-0",
+      "reference": "REF-UNIT-TEST-LOAN-0VERWRITTEN",
       "status": 0,
     },
     Object {
@@ -75,15 +75,15 @@ Object {
       "status": 0,
     },
     Object {
-      "comment": "Hello 0002",
-      "description": "Unit test loan 2",
+      "comment": "Hello 0002 ADDED",
+      "description": "Unit test loan 2 EDITED",
       "loanId": "L0002",
       "ownerId": "unitTestUser",
       "reference": "REF-UNIT-TEST-LOAN-2",
       "status": 0,
     },
     Object {
-      "comment": "Hello 0003",
+      "comment": "Hello 0003 EDITED",
       "description": "Unit test loan 3",
       "loanId": "L0003",
       "ownerId": "unitTestUser",
@@ -91,8 +91,8 @@ Object {
       "status": 0,
     },
     Object {
-      "comment": "Hello 0004",
-      "description": "Unit test loan 4",
+      "comment": "Hello 0004 EDITED",
+      "description": "Unit test loan 4 EDITED",
       "loanId": "L0004",
       "ownerId": "unitTestUser",
       "reference": "REF-UNIT-TEST-LOAN-4",
@@ -107,7 +107,7 @@ Object {
       "status": 0,
     },
     Object {
-      "comment": "Hello 0006",
+      "comment": "Hello 0006 EDITED",
       "description": "Unit test loan 6",
       "loanId": "L0006",
       "ownerId": "unitTestUser",
