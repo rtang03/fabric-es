@@ -1,5 +1,5 @@
 import * as Client from 'fabric-client';
-import { Context } from '../types';
+import { Context } from '../../../../../deployments/dev-net/config';
 import { parseConnectionProfile } from './connectionProfile';
 import { readFile } from './readAllFiles';
 

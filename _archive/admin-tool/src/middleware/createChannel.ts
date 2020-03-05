@@ -2,7 +2,7 @@ import * as Client from 'fabric-client';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import '../env';
-import { Context } from './types';
+import { Context } from '../../../../deployments/dev-net/config';
 import { createUser, getClientForOrg, parseConnectionProfile } from './utils';
 
 export const createChannel: (

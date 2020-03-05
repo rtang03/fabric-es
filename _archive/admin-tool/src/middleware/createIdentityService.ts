@@ -1,6 +1,6 @@
 import { IIdentityRequest } from 'fabric-ca-client';
 import { FileSystemWallet, Gateway } from 'fabric-network';
-import { CaIdentity, Context } from './types';
+import { CaIdentity, Context } from '../../../../deployments/dev-net/config';
 import { getClientForOrg } from './utils';
 
 export interface ServiceResponse<T = any> {

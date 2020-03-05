@@ -1,47 +1,45 @@
 # Copy TLS Cert
-mkdir -p /tmp/hyperledger/org1.example.com/ca/crypto
-cp /tmp/hyperledger/rca.org1.example.com/crypto/ca-cert.pem /tmp/hyperledger/org1.example.com/ca/crypto
+mkdir -p /var/artifacts/crypto-config/EtcMSP/ca/crypto
+cp /var/artifacts/crypto-config/EtcMSP/ca/server/ca-cert.pem /var/artifacts/crypto-config/EtcMSP/ca/crypto
 
 # Register and Enroll
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/org1.example.com/ca/crypto/ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/org1.example.com/ca/admin
-fabric-ca-client enroll -d -u https://rca-org1-admin:rca-org1-adminPW@0.0.0.0:5054
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/EtcMSP/ca/crypto/ca-cert.pem
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/EtcMSP/ca/admin
+fabric-ca-client enroll -d -u https://rca-etradeconnect-admin:rca-etradeconnect-adminPW@0.0.0.0:6054
+fabric-ca-client register -d --id.name peer0.etradeconnect.net --id.secret password --id.type peer -u https://0.0.0.0:6054
+fabric-ca-client register -d --id.name peer1.etradeconnect.net --id.secret password --id.type peer -u https://0.0.0.0:6054
+fabric-ca-client register -d --id.name admin-etradeconnect.net --id.secret password --id.type admin --id.attrs "hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -u https://0.0.0.0:6054
 
-fabric-ca-client register -d --id.name peer0.org1.example.com --id.secret peer0PW --id.type peer -u https://0.0.0.0:5054
-fabric-ca-client register -d --id.name peer1.org1.example.com --id.secret peer1PW --id.type peer -u https://0.0.0.0:5054
-fabric-ca-client register -d --id.name admin-org1.example.com --id.secret Org1MSPAdminPW --id.type user -u https://0.0.0.0:5054
-fabric-ca-client register -d --id.name user-org1.example.com --id.secret Org1MSPUserPW --id.type user -u https://0.0.0.0:5054
-
-# Copy Trusted Root Cert of Org1MSP to peer0
-mkdir -p /tmp/hyperledger/org1.example.com/peer0/assets/ca
-cp /tmp/hyperledger/org1.example.com/ca/admin/msp/cacerts/0-0-0-0-5054.pem /tmp/hyperledger/org1.example.com/peer0/assets/ca/org1.example.com-ca-cert.pem
+# Copy Trusted Root Cert of etc to peer0
+mkdir -p /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/ca
+cp /var/artifacts/crypto-config/EtcMSP/ca/admin/msp/cacerts/0-0-0-0-6054.pem /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/ca/etradeconnect-ca-cert.pem
 
 # Enroll peer0
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/org1.example.com/peer0/assets/ca/org1.example.com-ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/org1.example.com/peer0
-fabric-ca-client enroll -d -u https://peer0.org1.example.com:peer0PW@0.0.0.0:5054
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/ca/etradeconnect-ca-cert.pem
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net
+fabric-ca-client enroll -d -u https://peer0.etradeconnect.net:password@0.0.0.0:6054
 
-# Copy Trusted Root Cert of Org1MSP to peer1
-mkdir -p /tmp/hyperledger/org1.example.com/peer1/assets/ca
-cp /tmp/hyperledger/org1.example.com/ca/admin/msp/cacerts/0-0-0-0-5054.pem /tmp/hyperledger/org1.example.com/peer1/assets/ca/org1.example.com-ca-cert.pem
+# Copy Trusted Root Cert of etc to peer1
+mkdir -p /var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/assets/ca
+cp /var/artifacts/crypto-config/EtcMSP/ca/admin/msp/cacerts/0-0-0-0-6054.pem /var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/assets/ca/etradeconnect-ca-cert.pem
 
 # Enroll peer1
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/org1.example.com/peer1/assets/ca/org1.example.com-ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/org1.example.com/peer1
-fabric-ca-client enroll -d -u https://peer1.org1.example.com:peer1PW@0.0.0.0:5054
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/assets/ca/etradeconnect-ca-cert.pem
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net
+fabric-ca-client enroll -d -u https://peer1.etradeconnect.net:password@0.0.0.0:6054
 
-# Enroll Org1MSP's Admin
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/org1.example.com/admin
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/org1.example.com/peer0/assets/ca/org1.example.com-ca-cert.pem
+# Enroll etc's Admin
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/EtcMSP/admin
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/ca/etradeconnect-ca-cert.pem
 export FABRIC_CA_CLIENT_MSPDIR=msp
-fabric-ca-client enroll -d -u https://admin-org1.example.com:Org1MSPAdminPW@0.0.0.0:5054
+fabric-ca-client enroll -d -u https://admin-etradeconnect.net:password@0.0.0.0:6054
 
 # Copy admin cert to peer0
-mkdir -p /tmp/hyperledger/org1.example.com/peer0/msp/admincerts
-cp /tmp/hyperledger/org1.example.com/admin/msp/signcerts/cert.pem /tmp/hyperledger/org1.example.com/peer0/msp/admincerts/org1.example.com-admin-cert.pem
+mkdir -p /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/msp/admincerts
+cp /var/artifacts/crypto-config/EtcMSP/admin/msp/signcerts/cert.pem /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/msp/admincerts/etradeconnect-admin-cert.pem
 # Copy admin cert to peer1
-mkdir -p /tmp/hyperledger/org1.example.com/peer1/msp/admincerts
-cp /tmp/hyperledger/org1.example.com/admin/msp/signcerts/cert.pem /tmp/hyperledger/org1.example.com/peer1/msp/admincerts/org1.example.com-admin-cert.pem
+mkdir -p /var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/msp/admincerts
+cp /var/artifacts/crypto-config/EtcMSP/admin/msp/signcerts/cert.pem /var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/msp/admincerts/etradeconnect-admin-cert.pem
 
 # Rename admin key
-mv /tmp/hyperledger/org1.example.com/admin/msp/keystore/* /tmp/hyperledger/org1.example.com/admin/msp/keystore/key.pem
+mv /var/artifacts/crypto-config/EtcMSP/admin/msp/keystore/* /var/artifacts/crypto-config/EtcMSP/admin/msp/keystore/key.pem

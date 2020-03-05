@@ -10,7 +10,7 @@ export const getQueries = (option: CreateNetworkOperatorOption) => async ({
 }: {
   peerName: string;
 }): Promise<Queries> => {
-  const logger = Client.getLogger('getQueries.js');
+  const logger = Client.getLogger('[operator] getQueries.js');
 
   const { connectionProfile, fabricNetwork, channelName, ordererTlsCaCert, ordererName } = option;
 
@@ -27,7 +27,15 @@ export const getQueries = (option: CreateNetworkOperatorOption) => async ({
     throw new Error(e);
   }
 
-  const orderer = client.newOrderer(client.getOrderer(ordererName).getUrl(), {
+  let ordererUrl;
+
+  try {
+    ordererUrl = client.getOrderer(ordererName).getUrl();
+  } catch (e) {
+    logger.error(util.format('fail to find orderer in connection profile, %j', e));
+  }
+
+  const orderer = client.newOrderer(ordererUrl, {
     pem,
     'ssl-target-name-override': client.getOrderer(ordererName).getName()
   });

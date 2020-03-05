@@ -1,5 +1,5 @@
 import '../env';
-import { Context } from './types';
+import { Context } from '../../../../deployments/dev-net/config';
 import { getClientForOrg } from './utils';
 
 const Client = require('fabric-client');

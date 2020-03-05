@@ -12,6 +12,7 @@
     "hyperledger"
   ],
   "author": "Ross Tang",
+  "license": "UNLICENSED",
   "homepage": "https://github.com/rtang03/open-platform-dlt",
   "bugs": {
     "url": "https://github.com/rtang03/open-platform-dlt/issues"
