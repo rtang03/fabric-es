@@ -6,15 +6,6 @@ Array [
     "entityName": "document",
     "events": Array [
       Object {
-        "type": "DocumentRestricted",
-      },
-    ],
-    "version": 2,
-  },
-  Object {
-    "entityName": "document",
-    "events": Array [
-      Object {
         "type": "DocumentTitleDefined",
       },
     ],
@@ -50,6 +41,24 @@ Array [
         "type": "LoanReturned",
       },
     ],
+    "version": 3,
+  },
+  Object {
+    "entityName": "loan",
+    "events": Array [
+      Object {
+        "type": "LoanCommentDefined",
+      },
+    ],
+    "version": 2,
+  },
+  Object {
+    "entityName": "loan",
+    "events": Array [
+      Object {
+        "type": "LoanDescriptionDefined",
+      },
+    ],
     "version": 1,
   },
   Object {
@@ -77,62 +86,63 @@ exports[`Unit Test: Org1 Queries query document by id 1`] = `
 Object {
   "contents": Object {
     "content": Object {
-      "body": "{ \\"message\\": \\"Unit test org1 doc-contents 0\\" }",
+      "body": "{ \\"message\\": \\"Unit test org1 doc-contents 0VERWRITTEN\\" }",
     },
   },
   "loan": Object {
-    "description": "Unit test org1 loan 0",
+    "description": "Unit test org1 loan 0VERWRITTEN",
     "details": Object {
       "approvedAmt": null,
-      "comment": "Unit test org1 loanDetails 0 EDITED",
+      "comment": "Unit test org1 loanDetails 0VERWRITTEN",
       "contact": Object {
         "email": "c0000@fake.it",
-        "name": "Contact 0",
-        "phone": "555-9999",
+        "name": "Contact 0VERWRITTEN",
+        "phone": "555-0000",
         "salutation": null,
         "title": null,
       },
-      "currency": "USD",
+      "currency": "HKD",
       "loanType": null,
       "requestedAmt": 40.9,
       "requester": Object {
-        "name": "Loan Requester 0",
-        "registration": "BR1234567XXX0",
+        "name": "Loan Requester 0VERWRITTEN",
+        "registration": "BR1234567XXX0VERWRITTEN",
         "type": null,
       },
       "startDate": "1574846420900",
       "tenor": 50,
     },
     "ownerId": "unitTestUser",
-    "reference": "REF-UNIT-TEST-ORG1-LOAN-0",
+    "reference": "REF-UNIT-TEST-ORG1-LOAN-0VERWRITTEN",
     "status": 0,
   },
   "ownerId": "unitTestUser",
-  "reference": "REF-UNIT-TEST-ORG1-DOC-0",
+  "reference": "REF-UNIT-TEST-ORG1-DOC-0VERWRITTEN",
   "status": 0,
-  "title": "Unit test org1 document 0",
+  "title": "Unit test org1 document 0VERWRITTEN",
 }
 `;
 
 exports[`Unit Test: Org1 Queries query loan 0 by id 1`] = `
 Object {
-  "description": "Unit test org1 loan 0",
+  "comment": "Hello 000VERWRITTEN",
+  "description": "Unit test org1 loan 0VERWRITTEN",
   "details": Object {
     "approvedAmt": null,
-    "comment": "Unit test org1 loanDetails 0 EDITED",
+    "comment": "Unit test org1 loanDetails 0VERWRITTEN",
     "contact": Object {
       "email": "c0000@fake.it",
-      "name": "Contact 0",
-      "phone": "555-9999",
+      "name": "Contact 0VERWRITTEN",
+      "phone": "555-0000",
       "salutation": null,
       "title": null,
     },
-    "currency": "USD",
+    "currency": "HKD",
     "loanType": null,
     "requestedAmt": 40.9,
     "requester": Object {
-      "name": "Loan Requester 0",
-      "registration": "BR1234567XXX0",
+      "name": "Loan Requester 0VERWRITTEN",
+      "registration": "BR1234567XXX0VERWRITTEN",
       "type": null,
     },
     "startDate": "1574846420900",
@@ -142,12 +152,12 @@ Object {
     Object {
       "contents": Object {
         "content": Object {
-          "body": "{ \\"message\\": \\"Unit test org1 doc-contents 0\\" }",
+          "body": "{ \\"message\\": \\"Unit test org1 doc-contents 0VERWRITTEN\\" }",
         },
       },
-      "reference": "REF-UNIT-TEST-ORG1-DOC-0",
+      "reference": "REF-UNIT-TEST-ORG1-DOC-0VERWRITTEN",
       "status": 0,
-      "title": "Unit test org1 document 0",
+      "title": "Unit test org1 document 0VERWRITTEN",
     },
     Object {
       "contents": Object {
@@ -157,24 +167,30 @@ Object {
         },
       },
       "reference": "REF-UNIT-TEST-ORG1-DOC-1",
-      "status": 2,
+      "status": 0,
       "title": "Unit test org1 document 1 EDITED",
     },
     Object {
-      "contents": null,
+      "contents": Object {
+        "content": Object {
+          "format": "PDF",
+          "link": "http://fake.it/docs/org1UnitTestDocContents-2.pdf",
+        },
+      },
       "reference": "REF-UNIT-TEST-ORG1-DOC-2",
       "status": 1,
       "title": "Unit test org1 document 2",
     },
   ],
   "ownerId": "unitTestUser",
-  "reference": "REF-UNIT-TEST-ORG1-LOAN-0",
+  "reference": "REF-UNIT-TEST-ORG1-LOAN-0VERWRITTEN",
   "status": 0,
 }
 `;
 
 exports[`Unit Test: Org1 Queries query loan 1 by id 1`] = `
 Object {
+  "comment": "Hello 0001 ADDED",
   "description": "Unit test org1 loan 1",
   "details": Object {
     "approvedAmt": null,
@@ -182,7 +198,7 @@ Object {
     "contact": Object {
       "email": "c0001@fake.it",
       "name": "Contact 1",
-      "phone": "555-9998",
+      "phone": "555-99991",
       "salutation": null,
       "title": null,
     },
@@ -199,10 +215,14 @@ Object {
   },
   "documents": Array [
     Object {
-      "contents": null,
+      "contents": Object {
+        "content": Object {
+          "body": "{ \\"message\\": \\"Unit test org1 doc-contents 3\\" }",
+        },
+      },
       "reference": "REF-UNIT-TEST-ORG1-DOC-3",
       "status": 0,
-      "title": "Unit test org1 document 3",
+      "title": "Unit test org1 document 1 EDITED",
     },
   ],
   "ownerId": "unitTestUser",
@@ -213,11 +233,36 @@ Object {
 
 exports[`Unit Test: Org1 Queries query loan 2 by id 1`] = `
 Object {
+  "comment": "Hello 0002",
   "description": "Unit test org1 loan 2 EDITED",
-  "details": null,
+  "details": Object {
+    "approvedAmt": null,
+    "comment": "Unit test org1 loanDetails 2 EDITED",
+    "contact": Object {
+      "email": "c0002@fake.it",
+      "name": "Contact 2 EDITED",
+      "phone": "555-99992",
+      "salutation": null,
+      "title": null,
+    },
+    "currency": "USD",
+    "loanType": null,
+    "requestedAmt": 42.9,
+    "requester": Object {
+      "name": "Loan Requester 2",
+      "registration": "BR1234567XXX2",
+      "type": null,
+    },
+    "startDate": "1574846420902",
+    "tenor": 52,
+  },
   "documents": Array [
     Object {
-      "contents": null,
+      "contents": Object {
+        "content": Object {
+          "body": "{ \\"message\\": \\"Unit test org1 doc-contents 4\\" }",
+        },
+      },
       "reference": "REF-UNIT-TEST-ORG1-DOC-4",
       "status": 0,
       "title": "Unit test org1 document 4",
@@ -231,14 +276,40 @@ Object {
 
 exports[`Unit Test: Org1 Queries query loan 3 by id 1`] = `
 Object {
-  "description": "Unit test org1 loan 3",
-  "details": null,
+  "comment": "Hello 0003 EDITED",
+  "description": "Unit test org1 loan 3 EDITED",
+  "details": Object {
+    "approvedAmt": null,
+    "comment": "Unit test org1 loanDetails 3",
+    "contact": Object {
+      "email": "c0003@fake.it",
+      "name": "Contact 3",
+      "phone": "555-0003",
+      "salutation": null,
+      "title": null,
+    },
+    "currency": "HKD",
+    "loanType": null,
+    "requestedAmt": 43.9,
+    "requester": Object {
+      "name": "Loan Requester 3",
+      "registration": "BR1234567XXX3",
+      "type": null,
+    },
+    "startDate": "1574846420903",
+    "tenor": 53,
+  },
   "documents": Array [
     Object {
-      "contents": null,
+      "contents": Object {
+        "content": Object {
+          "format": "PDF",
+          "link": "http://fake.it/docs/org1UnitTestDocContents-5.pdf",
+        },
+      },
       "reference": "REF-UNIT-TEST-ORG1-DOC-5",
       "status": 0,
-      "title": "Unit test org1 document 5",
+      "title": "Unit test org1 document 5 EDITED",
     },
   ],
   "ownerId": "unitTestUser",
@@ -249,13 +320,38 @@ Object {
 
 exports[`Unit Test: Org1 Queries query loan 4 by id 1`] = `
 Object {
+  "comment": "Hello 0004",
   "description": "Unit test org1 loan 4",
-  "details": null,
+  "details": Object {
+    "approvedAmt": null,
+    "comment": "Unit test org1 loanDetails 4",
+    "contact": Object {
+      "email": "c0004@fake.it",
+      "name": "Contact 4",
+      "phone": "555-0004",
+      "salutation": null,
+      "title": null,
+    },
+    "currency": "HKD",
+    "loanType": null,
+    "requestedAmt": 44.9,
+    "requester": Object {
+      "name": "Loan Requester 4",
+      "registration": "BR1234567XXX4",
+      "type": null,
+    },
+    "startDate": "1574846420904",
+    "tenor": 54,
+  },
   "documents": Array [
     Object {
-      "contents": null,
+      "contents": Object {
+        "content": Object {
+          "body": "{ \\"message\\": \\"Unit test org1 doc-contents 6\\" }",
+        },
+      },
       "reference": "REF-UNIT-TEST-ORG1-DOC-6",
-      "status": 0,
+      "status": 2,
       "title": "Unit test org1 document 6",
     },
   ],
@@ -267,11 +363,37 @@ Object {
 
 exports[`Unit Test: Org1 Queries query loan 5 by id 1`] = `
 Object {
+  "comment": "Hello 0005 EDITED",
   "description": "Unit test org1 loan 5",
-  "details": null,
+  "details": Object {
+    "approvedAmt": null,
+    "comment": "Unit test org1 loanDetails 5",
+    "contact": Object {
+      "email": "c0005@fake.it",
+      "name": "Contact 5",
+      "phone": "555-0005",
+      "salutation": null,
+      "title": null,
+    },
+    "currency": "HKD",
+    "loanType": null,
+    "requestedAmt": 45.9,
+    "requester": Object {
+      "name": "Loan Requester 5",
+      "registration": "BR1234567XXX5",
+      "type": null,
+    },
+    "startDate": "1574846420905",
+    "tenor": 55,
+  },
   "documents": Array [
     Object {
-      "contents": null,
+      "contents": Object {
+        "content": Object {
+          "format": "PDF",
+          "link": "http://fake.it/docs/org1UnitTestDocContents-7.pdf",
+        },
+      },
       "reference": "REF-UNIT-TEST-ORG1-DOC-7",
       "status": 0,
       "title": "Unit test org1 document 7",

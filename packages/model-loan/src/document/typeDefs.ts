@@ -75,15 +75,15 @@ export const resolvers = {
     ): Promise<Commit[]> =>
       document.repo.getCommitById(documentId)
         .then(({ data }) => data || [])
-        .catch(({ error }) => error),
+        .catch(error => new ApolloError(error)),
     getDocumentById: async (
       _, { documentId }, { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Document> =>
       document.repo.getById({ id: documentId, enrollmentId })
         .then(({ currentState }) => currentState)
-        .catch(({ error }) => error),
+        .catch(error => new ApolloError(error)),
     getPaginatedDocuments: async (
-      { pageSize }, { dataSources: { document } }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+      _, { pageSize }, { dataSources: { document } }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Paginated<Document>> =>
       document.repo.getByEntityName()
         .then(({ data }: { data: any[] }) => ({
@@ -110,7 +110,7 @@ export const resolvers = {
           reference,
           timestamp: Date.now()
         }
-      }).catch(({ error }) => error),
+      }).catch(error => new ApolloError(error)),
     deleteDocument: async (
       _, { userId, documentId },
       { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
@@ -121,7 +121,7 @@ export const resolvers = {
       }).DeleteDocument({
           userId,
           payload: { documentId, timestamp: Date.now() }
-      }).catch(({ error }) => error),
+      }).catch(error => new ApolloError(error)),
     restrictAccess: async (
       _, { userId, documentId },
       { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
@@ -132,50 +132,47 @@ export const resolvers = {
       }).RestrictDocumentAccess({
         userId,
         payload: { documentId, timestamp: Date.now() }
-      }).catch(({ error }) => error),
+      }).catch(error => new ApolloError(error)),
     updateDocument: async (
       _,
       { userId, documentId, loanId, title, reference },
       { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit[] | { error: any }> => {
       const result: Commit[] = [];
-      if (loanId) {
+      if (typeof loanId !== 'undefined') {
         const c = await documentCommandHandler({
           enrollmentId,
           documentRepo: document.repo
-        })
-          .DefineDocumentLoanId({
+        }).DefineDocumentLoanId({
             userId,
             payload: { documentId, loanId, timestamp: Date.now() }
           })
           .then(data => data)
-          .catch(({ message, stack }) => ({ message, stack }));
+          .catch(error => new ApolloError(error));
         result.push(c);
       }
-      if (title) {
+      if (typeof title !== 'undefined') {
         const c = await documentCommandHandler({
           enrollmentId,
           documentRepo: document.repo
-        })
-          .DefineDocumentTitle({
+        }).DefineDocumentTitle({
             userId,
             payload: { documentId, title, timestamp: Date.now() }
           })
           .then(data => data)
-          .catch(({ message, stack }) => ({ message, stack }));
+          .catch(error => new ApolloError(error));
         result.push(c);
       }
-      if (reference) {
+      if (typeof reference !== 'undefined') {
         const c = await documentCommandHandler({
           enrollmentId,
           documentRepo: document.repo
-        })
-          .DefineDocumentReference({
+        }).DefineDocumentReference({
             userId,
             payload: { documentId, reference, timestamp: Date.now() }
           })
           .then(data => data)
-          .catch(({ message, stack }) => ({ message, stack }));
+          .catch(error => new ApolloError(error));
         result.push(c);
       }
       return result;
@@ -186,7 +183,7 @@ export const resolvers = {
       document.repo
         .getProjection({ where: { loanId } })
         .then(({ data }) => data)
-        .catch(({ error }) => error)
+        .catch(error => new ApolloError(error))
   },
   Document: {
     __resolveReference: (
@@ -196,7 +193,7 @@ export const resolvers = {
       document.repo
         .getById({ id: documentId, enrollmentId })
         .then(({ currentState }) => currentState)
-        .catch(({ error }) => error),
+        .catch(error => new ApolloError(error)),
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId })
   },
   DocResponse: {

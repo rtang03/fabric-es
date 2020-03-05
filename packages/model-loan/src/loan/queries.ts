@@ -134,18 +134,6 @@ export const GET_COMMITS_BY_LOAN = gql`
   }
 `;
 
-export const GET_BY_ID = gql`
-query GetLoanById($loanId: String!) {
-  getLoanById(loanId: $loanId) {
-    loanId
-    ownerId
-    description
-    reference
-    comment
-    status
-  }
-}`;
-
 export const GET_LOANS_BY_PAGE = gql`
   query GetLoansByPage($pageSize: Int) {
     getPaginatedLoans(pageSize: $pageSize) {
@@ -158,6 +146,7 @@ export const GET_LOANS_BY_PAGE = gql`
         reference
         comment
         status
+        timestamp
       }
     }
   }
