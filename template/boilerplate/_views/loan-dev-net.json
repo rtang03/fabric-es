@@ -347,9 +347,9 @@
                 "domain": "org3.neworg.com",
                 "msp-path": "Org3MSP/msp",
                 "admin-cert-path": "Org3MSP/admin",
-                "ca-server-cert-path": "Org3MSP/ca/crypto",
                 "admin-cert-user": "admin-org3.neworg.com",
                 "admin-cert-pw": "mEN6bpQW",
+                "ca-server-cert-path": "Org3MSP/ca/crypto",
                 "peers": {
                     "anchor": "peer0",
                     "anchor-port": "11051",
