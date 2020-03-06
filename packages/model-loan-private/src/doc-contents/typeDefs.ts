@@ -1,9 +1,7 @@
 import { Commit } from '@espresso/fabric-cqrs';
-import { AuthenticationError } from 'apollo-server-errors';
+import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { DocContents, docContentsCommandHandler, DocContentsDS } from '.';
-
-const NOT_AUTHENICATED = 'no enrollment id';
 
 export const typeDefs = gql`
   type Query {
@@ -11,8 +9,8 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createDataDocContents(userId: String!, documentId: String!, body: String!): DocContentsResp
-    createFileDocContents(userId: String!, documentId: String!, format: String!, link: String!): DocContentsResp
+    createDocContents(userId: String!, documentId: String!, content: DocsInput!): DocContentsResp
+    updateDocContents(userId: String!, documentId: String!, content: DocsInput!): DocContentsResp
   }
 
   ###
@@ -23,6 +21,12 @@ export const typeDefs = gql`
     content: Docs!
     timestamp: String!
     document: Document
+  }
+
+  input DocsInput {
+    body: String
+    format: String
+    link: String
   }
 
   union Docs = Data | File
@@ -69,75 +73,64 @@ export const typeDefs = gql`
 export const resolvers = {
   Query: {
     getDocContentsById: async (
-      _,
-      { documentId },
-      {
-        dataSources: { docContents },
-        enrollmentId
-      }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
+      _, { documentId },
+      { dataSources: { docContents }, enrollmentId }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
     ): Promise<DocContents> =>
-      docContents.repo
-        .getById({ id: documentId, enrollmentId })
+      docContents.repo.getById({ id: documentId, enrollmentId })
         .then(({ currentState }) => currentState)
-        .catch(({ error }) => error)
+        .catch(error => new ApolloError(error))
   },
   Mutation: {
-    createDataDocContents: async (
-      _,
-      { userId, documentId, body },
-      {
-        dataSources: { docContents },
-        enrollmentId
-      }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : docContentsCommandHandler({
-            enrollmentId,
-            docContentsRepo: docContents.repo
-          })
-            .CreateDocContents({
-              userId,
-              payload: { documentId, content: { body }, timestamp: Date.now() }
-            })
-            .catch(({ error }) => error),
-    createFileDocContents: async (
-      _,
-      { userId, documentId, format, link },
-      {
-        dataSources: { docContents },
-        enrollmentId
-      }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : docContentsCommandHandler({
-            enrollmentId,
-            docContentsRepo: docContents.repo
-          })
-            .CreateDocContents({
-              userId,
-              payload: {
-                documentId,
-                content: { format, link },
-                timestamp: Date.now()
-              }
-            })
-            .catch(({ error }) => error)
+    createDocContents: async (
+      _, { userId, documentId, content },
+      { dataSources: { docContents }, enrollmentId }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
+    ): Promise<Commit> => {
+      let val;
+      if (content.body && !content.format && !content.link) {
+        val = { body: content.body };
+      } else if (!content.body && content.format && content.link) {
+        val = { format: content.format, link: content.link };
+      } else {
+        val = {};
+      }
+      return docContentsCommandHandler({
+        enrollmentId,
+        docContentsRepo: docContents.repo
+      }).CreateDocContents({
+        userId,
+        payload: { documentId, content: val, timestamp: Date.now() }
+      }).catch(error => new ApolloError(error));
+    },
+    updateDocContents: async (
+      _, { userId, documentId, content },
+      { dataSources: { docContents }, enrollmentId }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
+    ): Promise<Commit> => {
+      let val;
+      if (content.body && !content.format && !content.link) {
+        val = { body: content.body };
+      } else if (!content.body && content.format && content.link) {
+        val = { format: content.format, link: content.link };
+      } else {
+        val = {};
+      }
+      return docContentsCommandHandler({
+        enrollmentId,
+        docContentsRepo: docContents.repo
+      }).DefineDocContentsContent({
+        userId,
+        payload: { documentId, content: val, timestamp: Date.now() }
+      }).catch(error => new ApolloError(error));
+    }
   },
   Document: {
     contents: (
       { documentId },
       _,
-      {
-        dataSources: { docContents },
-        enrollmentId
-      }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
+      { dataSources: { docContents }, enrollmentId }: { dataSources: { docContents: DocContentsDS }; enrollmentId: string }
     ) =>
-      docContents.repo
-        .getById({ id: documentId, enrollmentId })
+      docContents.repo.getById({ id: documentId, enrollmentId })
         .then(({ currentState }) => currentState)
-        .catch(({ error }) => error)
+        .catch(error => new ApolloError(error))
   },
   DocContents: {
     document: ({ documentId }) => ({ __typename: 'Document', documentId })

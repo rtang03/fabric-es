@@ -9,7 +9,7 @@ export const docContentsRepo: PrivatedataRepository = getPrivatedataMockReposito
 );
 
 describe('DocContents tests', () => {
-  it('create and query doc-contents: data', async () => {
+  it('create and query docContents: data', async () => {
     await docContentsCommandHandler({ enrollmentId, docContentsRepo }).CreateDocContents({
       userId,
       payload: { documentId: 'DOCID011', content: { body: 'This is JSON data' }, timestamp: 1542385175331 }
@@ -21,7 +21,7 @@ describe('DocContents tests', () => {
       );
   });
 
-  it('create and query doc-contents: file', async () => {
+  it('create and query docContents: file', async () => {
     await docContentsCommandHandler({ enrollmentId, docContentsRepo }).CreateDocContents({
       userId,
       payload: {

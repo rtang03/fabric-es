@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
-export const CREATE_DATA_DOC_CONTENTS = gql`
-  mutation CreateDataDocContents($userId: String!, $documentId: String!, $body: String!) {
-    createDataDocContents(userId: $userId, documentId: $documentId, body: $body) {
+export const CREATE_DOC_CONTENTS = gql`
+  mutation CreateDocContents($userId: String!, $documentId: String!, $content: DocsInput!) {
+    createDocContents(userId: $userId, documentId: $documentId, content: $content) {
       ... on DocContentsCommit {
         id
         entityName
@@ -17,9 +17,9 @@ export const CREATE_DATA_DOC_CONTENTS = gql`
   }
 `;
 
-export const CREATE_FILE_DOC_CONTENTS = gql`
-  mutation CreateFileDocContents($userId: String!, $documentId: String!, $format: String!, $link: String!) {
-    createFileDocContents(userId: $userId, documentId: $documentId, format: $format, link: $link) {
+export const UPDATE_DOC_CONTENTS = gql`
+  mutation UpdateDocContents($userId: String!, $documentId: String!, $content: DocsInput!) {
+    updateDocContents(userId: $userId, documentId: $documentId, content: $content) {
       ... on DocContentsCommit {
         id
         entityName
