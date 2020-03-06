@@ -86,7 +86,7 @@ exports[`Unit Test: Org1 Queries query document by id 1`] = `
 Object {
   "contents": Object {
     "content": Object {
-      "body": "{ \\"message\\": \\"Unit test org1 doc-contents 0VERWRITTEN\\" }",
+      "body": "{ \\"message\\": \\"Unit test org1 docContents 0VERWRITTEN\\" }",
     },
   },
   "loan": Object {
@@ -152,7 +152,7 @@ Object {
     Object {
       "contents": Object {
         "content": Object {
-          "body": "{ \\"message\\": \\"Unit test org1 doc-contents 0VERWRITTEN\\" }",
+          "body": "{ \\"message\\": \\"Unit test org1 docContents 0VERWRITTEN\\" }",
         },
       },
       "reference": "REF-UNIT-TEST-ORG1-DOC-0VERWRITTEN",
@@ -162,8 +162,8 @@ Object {
     Object {
       "contents": Object {
         "content": Object {
-          "format": "PDF",
-          "link": "http://fake.it/docs/org1UnitTestDocContents-1.pdf",
+          "format": "JPEG",
+          "link": "http://fake.it/docs/org1UnitTestDocContents-1.jpg",
         },
       },
       "reference": "REF-UNIT-TEST-ORG1-DOC-1",
@@ -217,7 +217,7 @@ Object {
     Object {
       "contents": Object {
         "content": Object {
-          "body": "{ \\"message\\": \\"Unit test org1 doc-contents 3\\" }",
+          "body": "{ \\"message\\": \\"Unit test org1 docContents 3 EDITED\\" }",
         },
       },
       "reference": "REF-UNIT-TEST-ORG1-DOC-3",
@@ -260,7 +260,7 @@ Object {
     Object {
       "contents": Object {
         "content": Object {
-          "body": "{ \\"message\\": \\"Unit test org1 doc-contents 4\\" }",
+          "body": "{ \\"message\\": \\"Unit test org1 docContents 4\\" }",
         },
       },
       "reference": "REF-UNIT-TEST-ORG1-DOC-4",
@@ -347,7 +347,7 @@ Object {
     Object {
       "contents": Object {
         "content": Object {
-          "body": "{ \\"message\\": \\"Unit test org1 doc-contents 6\\" }",
+          "body": "{ \\"message\\": \\"Unit test org1 docContents 6\\" }",
         },
       },
       "reference": "REF-UNIT-TEST-ORG1-DOC-6",
