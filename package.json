@@ -17,7 +17,7 @@
     "build:gw-dev-net:org2": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org2 && yarn pack:lib && yarn pack:gw-dev-net:org2",
     "unit-test:simple": "lerna run unit-test --stream --scope={@espresso/authentication,@espresso/chaincode,@espresso/fabric-cqrs}",
     "bootstrap:fab": "cd ./deployments/dev-net && ./cleanup.sh && ./bootstrap.2org.sh ",
-    "shutdown:fab": "cd ./deployments/dev-net && ./shutdown-no-cleanup.sh",
+    "shutdown:fab": "cd ./deployments/dev-net && ./shutdown-cleanup.sh",
     "unit-test": "yarn bootstrap:fab && yarn lerna run unit-test:fab --stream --scope={@espresso/authentication,@espresso/chaincode,@espresso/fabric-cqrs} && yarn shutdown:fab",
     "lint:lib": "lerna run lint --scope={@espresso/authentication,@espresso/chaincode,@espresso/fabric-cqrs,@espresso/gw-node,@espresso/operator}",
     "lint:app": "lerna run lint --scope={@espresso/gw-org*,@espresso/model-*}",

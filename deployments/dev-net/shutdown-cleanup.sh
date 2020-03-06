@@ -8,7 +8,7 @@ docker-compose -f compose.2org.yaml down
 
 docker rm -f $(docker ps -aq -f status=exited)
 
-rm -rf ./artifacts
+sudo rm -rf ./artifacts
 
 # docker rm -f $(docker ps -aq -f name=dev-*)
 #docker-compose -p ci -f ./docker-compose.ci.yaml kill
