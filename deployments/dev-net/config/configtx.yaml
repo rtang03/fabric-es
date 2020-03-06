@@ -41,7 +41,7 @@ Organizations:
     #      - orderer4-hktfp:7450
 
     AnchorPeers:
-      - Host: peer0.etradeconnect.net
+      - Host: peer0-etradeconnect
         Port: 7051
 
   - &pbctfp
@@ -68,7 +68,7 @@ Organizations:
     #      - orderer4-hktfp.com:7450
 
     AnchorPeers:
-      - Host: peer0.pbctfp.net
+      - Host: peer0-pbctfp
         Port: 7251
 
 Capabilities:

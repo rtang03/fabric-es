@@ -12,18 +12,18 @@ const cli = `export EVENT_STR=$(echo "[{\\\"type\\\":\\\"testtype\\\"}]" | base6
 -e CORE_PEER_ADDRESS=peer0-etradeconnect:7051 \
 -e CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem \
 -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp `;
-const query = `${cli} cli-etradeconnect peer chaincode query -C loanapp -n privatedata -c `;
-const invoke = `${cli} cli-etradeconnect peer chaincode invoke -o orderer0-hktfp:7050 --waitForEvent --tls -C loanapp -n privatedata --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem -c `;
+const query = `${cli} cli peer chaincode query -C loanapp -n privatedata -c `;
+const invoke = `${cli} cli peer chaincode invoke -o orderer0-hktfp:7050 --waitForEvent --tls -C loanapp -n privatedata --cafile /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem -c `;
 const cli2 = `docker exec \
 -e CORE_PEER_LOCALMSPID=PbctfpMSP \
 -e CORE_PEER_ADDRESS=peer0-pbctfp:7251 \
 -e CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem \
 -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/PbctfpMSP/admin/msp `;
-const query2 = `${cli2} cli-pbctfp peer chaincode query -C loanapp -n privatedata -c `;
+const query2 = `${cli2} cli peer chaincode query -C loanapp -n privatedata -c `;
 
 const parseResult = input => JSON.parse(Buffer.from(JSON.parse(input)).toString());
 
-describe('Chaincode private data: Integration Test', () => {
+describe('Chaincode private data: Network Test', () => {
   /*
     export EVENT_STR=$(echo "[{\"type\":\"testtype\"}[" | base64 | tr -d \\n) &&
     docker exec \

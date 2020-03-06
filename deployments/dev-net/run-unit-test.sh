@@ -10,7 +10,7 @@ NC='\033[0m'
 
 ./bootstrap.2org.sh
 
-cd ../../packages/fabric-cqrs && yarn unit-test
+cd ../.. && yarn unit-test:fab
 
 cd $CURRENT_DIR
 

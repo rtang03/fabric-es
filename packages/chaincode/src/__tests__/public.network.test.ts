@@ -19,10 +19,10 @@ const base_args = [
   'CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/EtcMSP/admin/msp'
 ];
 
-const query_args = ['cli-etradeconnect', 'peer', 'chaincode', 'query', '-C', 'loanapp', '-n', 'eventstore', '-c'];
+const query_args = ['cli', 'peer', 'chaincode', 'query', '-C', 'loanapp', '-n', 'eventstore', '-c'];
 
 const invoke_args = [
-  'cli-etradeconnect',
+  'cli',
   'peer',
   'chaincode',
   'invoke',
@@ -41,7 +41,7 @@ const invoke_args = [
 
 let commitId: string;
 
-describe('Chaincode Integration Tests', () => {
+describe('Chaincode Network Tests', () => {
   it('should queryByEntityName #1', async () =>
     execa('docker', [...base_args, ...query_args, `{"Args":["eventstore:queryByEntityName", "${entityName}"]}`])
       .then<any[]>(({ stdout }) => values(parseResult(stdout)))

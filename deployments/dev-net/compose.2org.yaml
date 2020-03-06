@@ -89,6 +89,7 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/keystore/key.pem
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 #      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-etradeconnect:7151
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-etradeconnect:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-etradeconnect:7051
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/EtcMSP/peer0.etradeconnect.net
@@ -114,6 +115,7 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/keystore/key.pem
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 #      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-pbctfp:7351
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-pbctfp:7251
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-pbctfp:7251
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7252
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/PbctfpMSP/peer0.pbctfp.net
