@@ -134,7 +134,7 @@ Object {
     "name": "Contact 5",
     "phone": "555-0005",
     "salutation": null,
-    "title": "Manager",
+    "title": null,
   },
   "currency": "HKD",
   "loanId": "L0005",

@@ -54,6 +54,9 @@ export const loanDetailsCommandHandler: (option: {
   DefineLoanContact: async ({ userId, payload: { loanId, contact, timestamp } }) =>
     loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
       if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
+      if (!contact.name && (typeof contact.name !== 'undefined')) throw Errors.requiredDataMissing();
+      if (!contact.phone && (typeof contact.phone !== 'undefined')) throw Errors.requiredDataMissing();
+      if (!contact.email && (typeof contact.email !== 'undefined')) throw Errors.requiredDataMissing();
       const payload = {
         loanId,
         userId,
