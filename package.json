@@ -19,8 +19,8 @@
     "bootstrap:fab": "cd ./deployments/dev-net && ./cleanup.sh && ./bootstrap.2org.sh ",
     "shutdown:fab": "cd ./deployments/dev-net && ./shutdown-cleanup.sh",
     "unit-test": "yarn bootstrap:fab && yarn lerna run unit-test:fab --stream --scope={@espresso/authentication,@espresso/chaincode,@espresso/fabric-cqrs} && yarn shutdown:fab",
-    "lint:lib": "lerna run lint --scope={@espresso/authentication,@espresso/chaincode,@espresso/fabric-cqrs,@espresso/gw-node,@espresso/operator}",
-    "lint:app": "lerna run lint --scope={@espresso/gw-org*,@espresso/model-*}",
+    "lint:lib": "lerna run lint --stream --scope={@espresso/authentication,@espresso/chaincode,@espresso/fabric-cqrs,@espresso/gw-node,@espresso/operator}",
+    "lint:app": "lerna run lint --stream --scope={@espresso/gw-org*,@espresso/model-*}",
     "publish": "lerna publish from-git",
     "boilerplate": "yarn cp:root && lerna run boilerplate --scope={@espresso/gw-org*,@espresso/model-*}",
     "typedoc": "lerna run typedoc --scope={@espresso/authentication,@espresso/chaincode,@espresso/fabric-cqrs,@espresso/gw-node,@espresso/operator}"
