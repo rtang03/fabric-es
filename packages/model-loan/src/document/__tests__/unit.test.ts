@@ -4,7 +4,6 @@ import { DataSrc } from '@espresso/gw-node';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import gql from 'graphql-tag';
-// import { APPLY_LOAN, Loan, LoanEvents, loanReducer, loanResolvers, loanTypeDefs } from '../../loan';
 import {
   CREATE_DOCUMENT, DELETE_DOCUMENT,
   Document, DocumentEvents, documentReducer, documentResolvers, documentTypeDefs,

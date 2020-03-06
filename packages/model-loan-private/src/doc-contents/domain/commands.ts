@@ -9,19 +9,11 @@ export interface DocContentsCommands {
       timestamp: number;
     };
   };
-  DefineDocContentsData: {
+  DefineDocContentsContent: {
     userId: string;
     payload: {
       documentId: string;
-      content: DataContent;
-      timestamp: number;
-    };
-  };
-  DefineDocContentsFile: {
-    userId: string;
-    payload: {
-      documentId: string;
-      content: FileContent;
+      content: DataContent | FileContent;
       timestamp: number;
     };
   };
