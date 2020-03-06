@@ -206,6 +206,70 @@ describe('LoanDetails Unit Test - Resolver', () => {
     .catch(_ => expect(false).toBeTruthy())
   );
 
+  it('create loanDetails with empty currency', async () =>
+    createTestClient(service).mutate({
+      mutation: CREATE_LOAN_DETAILS,
+      variables: {
+        userId, loanId: 'L9999',
+        requester: {
+          registration: 'REG-9999', name: 'Loan Requester 9'
+        }, contact: {
+          name: 'Contact 9', phone: '555-9999', email: 'c9999@fake.it'
+        }, loanType: 'Post-Shipment', startDate: '1542385275439',
+        tenor: 79, currency: '', requestedAmt: 50000, comment: 'Hello 9999'
+      }})
+    .then(({ errors }) => expect(errors.reduce((acc, cur) =>
+      cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
+    .catch(_ => expect(false).toBeTruthy())
+  );
+
+  it('create loanDetails with empty contact phone', async () =>
+    createTestClient(service).mutate({
+      mutation: CREATE_LOAN_DETAILS,
+      variables: {
+        userId, loanId: 'L9999',
+        requester: {
+          registration: 'REG-9999', name: 'Loan Requester 9'
+        }, contact: {
+          name: 'Contact 9', phone: '', email: 'c9999@fake.it'
+        }, loanType: 'Post-Shipment', startDate: '1542385275439',
+        tenor: 79, currency: 'HKD', requestedAmt: 50000, comment: 'Hello 9999'
+      }})
+    .then(({ errors }) => expect(errors.reduce((acc, cur) =>
+      cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
+    .catch(_ => expect(false).toBeTruthy())
+  );
+
+  it('create loanDetails with missing contact', async () =>
+    createTestClient(service).mutate({
+      mutation: CREATE_LOAN_DETAILS,
+      variables: {
+        userId, loanId: 'L9999',
+        requester: {
+          registration: 'REG-9999', name: 'Loan Requester 9'
+        }, loanType: 'Post-Shipment', startDate: '1542385275439',
+        tenor: 79, currency: '', requestedAmt: 50000, comment: 'Hello 9999'
+      }})
+    .then(({ errors }) => expect(errors.reduce((acc, cur) =>
+      cur.message.includes('was not provided') ? cur.message : acc, '')).toContain('was not provided'))
+    .catch(_ => expect(false).toBeTruthy())
+  );
+
+  it('create loanDetails with empty contact', async () =>
+    createTestClient(service).mutate({
+      mutation: CREATE_LOAN_DETAILS,
+      variables: {
+        userId, loanId: 'L9999',
+        requester: {
+          registration: 'REG-9999', name: 'Loan Requester 9'
+        }, contact: {}, loanType: 'Post-Shipment', startDate: '1542385275439',
+        tenor: 79, currency: '', requestedAmt: 50000, comment: 'Hello 9999'
+      }})
+    .then(({ errors }) => expect(errors.reduce((acc, cur) =>
+      cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
+    .catch(_ => expect(false).toBeTruthy())
+  );
+
   it('update loanDetails 2', async () =>
     createTestClient(service).mutate({
       mutation: UPDATE_LOAN_DETAILS,
@@ -265,13 +329,14 @@ describe('LoanDetails Unit Test - Resolver', () => {
     .catch(_ => expect(false).toBeTruthy())
   );
 
-  it ('update loanDetails 5', async () =>
+  it ('remove mandatory field from loanDetails 5', async () =>
     createTestClient(service).mutate({
       mutation: UPDATE_LOAN_DETAILS,
       variables: {
-        userId, loanId: 'L0005', contact: { title: 'Manager' }
+        userId, loanId: 'L0005', contact: { phone: '' }
       }})
-    .then(({ data }) => expect(data.updateLoanDetails.map(d => (d && d.id) ? d.id : '')).toContain('L0005'))
+    .then(({ errors }) => expect(errors.reduce((acc, cur) =>
+      cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
     .catch(_ => expect(false).toBeTruthy())
   );
 

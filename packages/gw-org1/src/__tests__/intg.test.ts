@@ -25,8 +25,7 @@ import {
   UPDATE_LOAN
 } from '@espresso/model-loan';
 import {
-  CREATE_DATA_DOC_CONTENTS,
-  CREATE_FILE_DOC_CONTENTS,
+  CREATE_DOC_CONTENTS,
   CREATE_LOAN_DETAILS,
   DocContents,
   DocContentsEvents,
@@ -38,6 +37,7 @@ import {
   loanDetailsReducer,
   loanDetailsResolvers,
   loanDetailsTypeDefs,
+  UPDATE_DOC_CONTENTS,
   UPDATE_LOAN_DETAILS
 } from '@espresso/model-loan-private';
 import { enrollAdmin } from '@espresso/operator';
@@ -639,6 +639,27 @@ describe('Unit Test: Org1 Create LoanDetails', () => {
     }
     expect(false).toBeTruthy();
   });
+
+  it('add loan details with empty contact phone', async () => {
+    if (isReady) {
+      await request(gateway)
+        .post('/graphql') .set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateLoanDetails',
+          query: CREATE_LOAN_DETAILS.loc.source.body,
+          variables: {
+            userId, loanId: 'L9999',
+            requester: { registration: 'BR1234567XXX5', name: 'Loan Requester 9' },
+            contact: { name: 'Contact 9', phone: '', email: 'c0009@fake.it' },
+            startDate: '1574846420909', tenor: 59, currency: 'HKD', requestedAmt: 49.9,
+            comment: 'Unit test org1 loanDetails 9'
+          }})
+        .expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
+          cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
+        .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
 });
 
 describe('Unit Test: Org1 Create Documents', () => {
@@ -788,121 +809,124 @@ describe('Unit Test: Org1 Create Documents', () => {
 });
 
 describe('Unit Test: Org1 Create DocContents', () => {
-  it('create docContents 0 - data', async () => {
+  it('create docContents 0', async () => {
     if (isReady) {
       await request(gateway)
         .post('/graphql')
         .set('authorization', `bearer ${accessToken}`)
         .send({
-          operationName: 'CreateDataDocContents',
-          query: CREATE_DATA_DOC_CONTENTS.loc.source.body,
+          operationName: 'CreateDocContents',
+          query: CREATE_DOC_CONTENTS.loc.source.body,
           variables: {
             userId, documentId: documentId0,
-            body: `{ "message": "Unit test org1 docContents 0" }`
+            content: { body: `{ "message": "Unit test org1 docContents 0" }` }
           }
-        }).expect(({ body: { data } }) => expect(data.createDataDocContents.id).toEqual(documentId0))
+        }).expect(({ body: { data } }) => expect(data.createDocContents.id).toEqual(documentId0))
           .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('create docContents 1 - file', async () => {
+  it('create docContents 1', async () => {
     if (isReady) {
       await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
-          operationName: 'CreateFileDocContents',
-          query: CREATE_FILE_DOC_CONTENTS.loc.source.body,
+          operationName: 'CreateDocContents',
+          query: CREATE_DOC_CONTENTS.loc.source.body,
           variables: {
             userId, documentId: documentId1,
-            format: 'PDF', link: `http://fake.it/docs/org1UnitTestDocContents-1.pdf`
-          }}).expect(({ body: { data } }) => expect(data.createFileDocContents.id).toEqual(documentId1))
+            content: { format: 'PDF', link: `http://fake.it/docs/org1UnitTestDocContents-1.pdf` }
+          }}).expect(({ body: { data } }) => expect(data.createDocContents.id).toEqual(documentId1))
              .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('create docContents 2 - file', async () => {
+  it('create docContents 2', async () => {
     if (isReady) {
       await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
-          operationName: 'CreateFileDocContents',
-          query: CREATE_FILE_DOC_CONTENTS.loc.source.body,
+          operationName: 'CreateDocContents',
+          query: CREATE_DOC_CONTENTS.loc.source.body,
           variables: {
             userId, documentId: documentId2,
-            format: 'PDF', link: `http://fake.it/docs/org1UnitTestDocContents-2.pdf`
-          }}).expect(({ body: { data } }) => expect(data.createFileDocContents.id).toEqual(documentId2))
+            content: { format: 'PDF', link: `http://fake.it/docs/org1UnitTestDocContents-2.pdf` }
+          }}).expect(({ body: { data } }) => expect(data.createDocContents.id).toEqual(documentId2))
              .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('create docContents 3 - data', async () => {
+  it('create docContents 3', async () => {
     if (isReady) {
       await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
-          operationName: 'CreateDataDocContents',
-          query: CREATE_DATA_DOC_CONTENTS.loc.source.body,
+          operationName: 'CreateDocContents',
+          query: CREATE_DOC_CONTENTS.loc.source.body,
           variables: {
-            userId, documentId: documentId3, body: `{ "message": "Unit test org1 docContents 3" }`
-          }}).expect(({ body: { data } }) => expect(data.createDataDocContents.id).toEqual(documentId3))
+            userId, documentId: documentId3,
+            content: { body: `{ "message": "Unit test org1 docContents 3" }` }
+          }}).expect(({ body: { data } }) => expect(data.createDocContents.id).toEqual(documentId3))
              .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('create docContents 4 - data', async () => {
+  it('create docContents 4', async () => {
     if (isReady) {
       await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
-          operationName: 'CreateDataDocContents',
-          query: CREATE_DATA_DOC_CONTENTS.loc.source.body,
+          operationName: 'CreateDocContents',
+          query: CREATE_DOC_CONTENTS.loc.source.body,
           variables: {
-            userId, documentId: documentId4, body: `{ "message": "Unit test org1 docContents 4" }`
-          }}).expect(({ body: { data } }) => expect(data.createDataDocContents.id).toEqual(documentId4))
+            userId, documentId: documentId4,
+            content: { body: `{ "message": "Unit test org1 docContents 4" }` }
+          }}).expect(({ body: { data } }) => expect(data.createDocContents.id).toEqual(documentId4))
              .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('create docContents 5 - file', async () => {
+  it('create docContents 5', async () => {
     if (isReady) {
       await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
-          operationName: 'CreateFileDocContents',
-          query: CREATE_FILE_DOC_CONTENTS.loc.source.body,
+          operationName: 'CreateDocContents',
+          query: CREATE_DOC_CONTENTS.loc.source.body,
           variables: {
             userId, documentId: documentId5,
-            format: 'PDF', link: `http://fake.it/docs/org1UnitTestDocContents-5.pdf`
-          }}).expect(({ body: { data } }) => expect(data.createFileDocContents.id).toEqual(documentId5))
+            content: { format: 'PDF', link: `http://fake.it/docs/org1UnitTestDocContents-5.pdf` }
+          }}).expect(({ body: { data } }) => expect(data.createDocContents.id).toEqual(documentId5))
              .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('create docContents 6 - data', async () => {
+  it('create docContents 6', async () => {
     if (isReady) {
       await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
-          operationName: 'CreateDataDocContents',
-          query: CREATE_DATA_DOC_CONTENTS.loc.source.body,
+          operationName: 'CreateDocContents',
+          query: CREATE_DOC_CONTENTS.loc.source.body,
           variables: {
-            userId, documentId: documentId6, body: `{ "message": "Unit test org1 docContents 6" }`
-          }}).expect(({ body: { data } }) => expect(data.createDataDocContents.id).toEqual(documentId6))
+            userId, documentId: documentId6,
+            content: { body: `{ "message": "Unit test org1 docContents 6" }` }
+          }}).expect(({ body: { data } }) => expect(data.createDocContents.id).toEqual(documentId6))
              .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
 
-  it('create docContents 7 - file', async () => {
+  it('create docContents 7', async () => {
     if (isReady) {
       await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
-          operationName: 'CreateFileDocContents',
-          query: CREATE_FILE_DOC_CONTENTS.loc.source.body,
+          operationName: 'CreateDocContents',
+          query: CREATE_DOC_CONTENTS.loc.source.body,
           variables: {
             userId, documentId: documentId7,
-            format: 'PDF', link: `http://fake.it/docs/org1UnitTestDocContents-7.pdf`
-          }}).expect(({ body: { data } }) => expect(data.createFileDocContents.id).toEqual(documentId7))
+            content: { format: 'PDF', link: `http://fake.it/docs/org1UnitTestDocContents-7.pdf` }
+          }}).expect(({ body: { data } }) => expect(data.createDocContents.id).toEqual(documentId7))
              .catch(_ => expect(false).toBeTruthy());
       return;
     }
@@ -911,17 +935,34 @@ describe('Unit Test: Org1 Create DocContents', () => {
 
   // TODO: Implement lifecycle event attribute to prevent creating same entity more than once
   // NOTE: This 'create docContents' call should return normal, but querying 'D0000' should return the original result instead of the changed values
-  it('create docContents 0 - data again', async () => {
+  it('create docContents 0 again', async () => {
     if (isReady) {
       await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
-          operationName: 'CreateDataDocContents',
-          query: CREATE_DATA_DOC_CONTENTS.loc.source.body,
+          operationName: 'CreateDocContents',
+          query: CREATE_DOC_CONTENTS.loc.source.body,
           variables: {
             userId, documentId: documentId0,
-            body: `{ "message": "Unit test org1 docContents 0VERWRITTEN" }`
+            content: { body: `{ "message": "Unit test org1 docContents 0VERWRITTEN" }` }
           }
-        }).expect(({ body: { data } }) => expect(data.createDataDocContents.id).toEqual(documentId0))
+        }).expect(({ body: { data } }) => expect(data.createDocContents.id).toEqual(documentId0))
           .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('create docContents with empty content', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+          operationName: 'CreateDocContents',
+          query: CREATE_DOC_CONTENTS.loc.source.body,
+          variables: {
+            userId, documentId: 'D9999',
+            content: {}
+          }})
+        .expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
+          cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
+        .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
@@ -1308,6 +1349,125 @@ describe('Unit Test: Org1 LoanDetails operations', () => {
       }).expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
           cur.message.includes('LOAN_DETAILS_NOT_FOUND') ? cur.message : acc, '')).toContain('LOAN_DETAILS_NOT_FOUND'))
         .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('remove a mandatory field from loanDetails 3', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'UpdateLoanDetails',
+        query: UPDATE_LOAN_DETAILS.loc.source.body,
+        variables: {
+          userId, loanId: loanId3,
+          contact: { phone: '', }
+        }
+      }).expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
+          cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
+        .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+});
+
+describe('Unit Test: Org1 DocContents operations', () => {
+  it('update docContents 1', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'UpdateDocContents',
+        query: UPDATE_DOC_CONTENTS.loc.source.body,
+        variables: {
+          userId, documentId: documentId1,
+          content: { format: 'JPEG', link: `http://fake.it/docs/org1UnitTestDocContents-1.jpg` }
+        }})
+      .expect(({ body: { data } }) => expect(data.updateDocContents.id).toEqual(documentId1))
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update docContents 3', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'UpdateDocContents',
+        query: UPDATE_DOC_CONTENTS.loc.source.body,
+        variables: {
+          userId, documentId: documentId3,
+          content: { body: `{ "message": "Unit test org1 docContents 3 EDITED" }` }
+        }})
+      .expect(({ body: { data } }) => expect(data.updateDocContents.id).toEqual(documentId3))
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('change content type of docContents 2', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'UpdateDocContents',
+        query: UPDATE_DOC_CONTENTS.loc.source.body,
+        variables: {
+          userId, documentId: documentId2,
+          content: { body: `{ "message": "Unit test org1 docContents 2 CHANGED" }` }
+        }})
+      .expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
+        cur.message.includes('DOC_CONTENTS_MISMATCHED') ? cur.message : acc, '')).toContain('DOC_CONTENTS_MISMATCHED'))
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('change content type of docContents 4', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'UpdateDocContents',
+        query: UPDATE_DOC_CONTENTS.loc.source.body,
+        variables: {
+          userId, documentId: documentId4,
+          content: { format: 'JPEG', link: `http://fake.it/docs/org1UnitTestDocContents-4.jpg` }
+        }})
+      .expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
+        cur.message.includes('DOC_CONTENTS_MISMATCHED') ? cur.message : acc, '')).toContain('DOC_CONTENTS_MISMATCHED'))
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update docContents 4 with empty content', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'UpdateDocContents',
+        query: UPDATE_DOC_CONTENTS.loc.source.body,
+        variables: {
+          userId, documentId: documentId4,
+          content: {}
+        }})
+      .expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
+        cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update an non-existing docContents', async () => {
+    if (isReady) {
+      await request(gateway).post('/graphql').set('authorization', `bearer ${accessToken}`).send({
+        operationName: 'UpdateDocContents',
+        query: UPDATE_DOC_CONTENTS.loc.source.body,
+        variables: {
+          userId, documentId: 'D9999',
+          content: { body: 'Hello' }
+        }})
+      .expect(({ body: { errors } }) => expect(errors.reduce((acc, cur) =>
+        cur.message.includes('DOC_CONTENTS_NOT_FOUND') ? cur.message : acc, '')).toContain('DOC_CONTENTS_NOT_FOUND'))
+      .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
