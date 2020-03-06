@@ -1,7 +1,7 @@
 import { ProposalResponse } from 'fabric-client';
 import { flatten } from 'lodash';
 import '../env';
-import { Context } from './types';
+import { Context } from '../../../../deployments/dev-net/config';
 import { getClientForOrg, parseConnectionProfile } from './utils';
 
 export const installChaincode: (
