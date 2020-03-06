@@ -9,13 +9,26 @@ Prerequsites: docker and docker-compose
 
 ## Topology
 
-![Logical Topology](config/logical_topology_raft.png)
+![Logical Topology](static/logical_topology_raft.png)
+
+***
+
+## Generate Network
+
+1. Go to the template directory to generate the network. See [README](../../template/README.md) for the details.
+
+2. After generated, ensure the files are executable.
+
+```shell script
+chmod -R 755 *
+```
 
 ***
 
 ## Setup Fabric Network
 
-1. Before starting the network, ensure the binary directory is set correctly. Update the "_BIN_DIR" variable in [scripts/common.sh](scripts/common.sh)
+1. Before starting the network, ensure the binary directory is set correctly. Update the "_BIN_DIR" variable in [scripts/common.sh](scripts/common.sh).
+**Note:** Make sure the binary version is same as the fabric image version.
 
 ```console
 _BIN_DIR="/Users/xxx/Desktop/workspace/fabric-samples/bin"
@@ -60,3 +73,7 @@ If everything is good, we can clean up the environment. :tada::tada:
 ```
 
 ***
+
+## Connection Profile
+
+If you use the connection profiles, ENSURE the paths in connection profiles are set correctly. Precisely, replace the string **"boilerplate"** with your network folder name.

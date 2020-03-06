@@ -1,79 +1,31 @@
 # Copy TLS Cert
-mkdir -p /tmp/hyperledger/OrdererMSP/ca/crypto
-cp /tmp/hyperledger/OrdererMSP/ca/server/ca-cert.pem /tmp/hyperledger/OrdererMSP/ca/crypto
+mkdir -p /var/artifacts/crypto-config/OrdererMSP/ca/crypto
+cp /var/artifacts/crypto-config/OrdererMSP/ca/server/ca-cert.pem /var/artifacts/crypto-config/OrdererMSP/ca/crypto
 
 # Enroll Orderer Org's CA Admin
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/OrdererMSP/ca/crypto/ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/OrdererMSP/ca/admin
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/OrdererMSP/ca/crypto/ca-cert.pem
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/OrdererMSP/ca/admin
 
 fabric-ca-client enroll -d -u https://rca-org0-admin:rca-org0-adminPW@0.0.0.0:5053
-fabric-ca-client register -d --id.name orderer1.example.com --id.secret DPCxKv8m --id.type orderer -u https://0.0.0.0:5053
-fabric-ca-client register -d --id.name orderer2.example.com --id.secret PCzEE5x2 --id.type orderer -u https://0.0.0.0:5053
-fabric-ca-client register -d --id.name orderer3.example.com --id.secret T2ZNRe8x --id.type orderer -u https://0.0.0.0:5053
-fabric-ca-client register -d --id.name orderer4.example.com --id.secret 7B5qMkhg --id.type orderer -u https://0.0.0.0:5053
-fabric-ca-client register -d --id.name orderer5.example.com --id.secret p8Maufjr --id.type orderer -u https://0.0.0.0:5053
+fabric-ca-client register -d --id.name orderer0.example.com --id.secret DPCxKv8m --id.type orderer -u https://0.0.0.0:5053
 fabric-ca-client register -d --id.name admin-example.com --id.secret sR7w9xWY --id.type admin --id.attrs "hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -u https://0.0.0.0:5053
 
-# Copy Trusted Root Cert of OrdererOrg orderer1
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer1.example.com/assets/ca
-cp /tmp/hyperledger/OrdererMSP/ca/admin/msp/cacerts/0-0-0-0-5053.pem /tmp/hyperledger/OrdererMSP/orderer1.example.com/assets/ca/example.com-ca-cert.pem
-# Copy Trusted Root Cert of OrdererOrg orderer2
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer2.example.com/assets/ca
-cp /tmp/hyperledger/OrdererMSP/ca/admin/msp/cacerts/0-0-0-0-5053.pem /tmp/hyperledger/OrdererMSP/orderer2.example.com/assets/ca/example.com-ca-cert.pem
-# Copy Trusted Root Cert of OrdererOrg orderer3
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer3.example.com/assets/ca
-cp /tmp/hyperledger/OrdererMSP/ca/admin/msp/cacerts/0-0-0-0-5053.pem /tmp/hyperledger/OrdererMSP/orderer3.example.com/assets/ca/example.com-ca-cert.pem
-# Copy Trusted Root Cert of OrdererOrg orderer4
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer4.example.com/assets/ca
-cp /tmp/hyperledger/OrdererMSP/ca/admin/msp/cacerts/0-0-0-0-5053.pem /tmp/hyperledger/OrdererMSP/orderer4.example.com/assets/ca/example.com-ca-cert.pem
-# Copy Trusted Root Cert of OrdererOrg orderer5
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer5.example.com/assets/ca
-cp /tmp/hyperledger/OrdererMSP/ca/admin/msp/cacerts/0-0-0-0-5053.pem /tmp/hyperledger/OrdererMSP/orderer5.example.com/assets/ca/example.com-ca-cert.pem
+# Copy Trusted Root Cert of OrdererOrg orderer0
+mkdir -p /var/artifacts/crypto-config/OrdererMSP/orderer0.example.com/assets/ca
+cp /var/artifacts/crypto-config/OrdererMSP/ca/admin/msp/cacerts/0-0-0-0-5053.pem /var/artifacts/crypto-config/OrdererMSP/orderer0.example.com/assets/ca/example.com-ca-cert.pem
 
-# Enroll orderer1
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/OrdererMSP/orderer1.example.com/assets/ca/example.com-ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/OrdererMSP/orderer1.example.com
-fabric-ca-client enroll -d -u https://orderer1.example.com:DPCxKv8m@0.0.0.0:5053
-# Enroll orderer2
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/OrdererMSP/orderer2.example.com/assets/ca/example.com-ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/OrdererMSP/orderer2.example.com
-fabric-ca-client enroll -d -u https://orderer2.example.com:PCzEE5x2@0.0.0.0:5053
-# Enroll orderer3
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/OrdererMSP/orderer3.example.com/assets/ca/example.com-ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/OrdererMSP/orderer3.example.com
-fabric-ca-client enroll -d -u https://orderer3.example.com:T2ZNRe8x@0.0.0.0:5053
-# Enroll orderer4
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/OrdererMSP/orderer4.example.com/assets/ca/example.com-ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/OrdererMSP/orderer4.example.com
-fabric-ca-client enroll -d -u https://orderer4.example.com:7B5qMkhg@0.0.0.0:5053
-# Enroll orderer5
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/OrdererMSP/orderer5.example.com/assets/ca/example.com-ca-cert.pem
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/OrdererMSP/orderer5.example.com
-fabric-ca-client enroll -d -u https://orderer5.example.com:p8Maufjr@0.0.0.0:5053
+# Enroll orderer0
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/OrdererMSP/orderer0.example.com/assets/ca/example.com-ca-cert.pem
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/OrdererMSP/orderer0.example.com
+fabric-ca-client enroll -d -u https://orderer0.example.com:DPCxKv8m@0.0.0.0:5053
 
 # Enroll Org0's Admin
-export FABRIC_CA_CLIENT_HOME=/tmp/hyperledger/OrdererMSP/admin
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/tmp/hyperledger/OrdererMSP/orderer1.example.com/assets/ca/example.com-ca-cert.pem
+export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/OrdererMSP/admin
+export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/OrdererMSP/orderer0.example.com/assets/ca/example.com-ca-cert.pem
 export FABRIC_CA_CLIENT_MSPDIR=msp
 fabric-ca-client enroll -d -u https://admin-example.com:sR7w9xWY@0.0.0.0:5053
 
-# Copy admin cert to the OrdererOrg orderer1
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer1.example.com/msp/admincerts
-cp /tmp/hyperledger/OrdererMSP/admin/msp/signcerts/cert.pem /tmp/hyperledger/OrdererMSP/orderer1.example.com/msp/admincerts/example.com-admin-cert.pem
-
-# Copy admin cert to the OrdererOrg orderer2
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer2.example.com/msp/admincerts
-cp /tmp/hyperledger/OrdererMSP/admin/msp/signcerts/cert.pem /tmp/hyperledger/OrdererMSP/orderer2.example.com/msp/admincerts/example.com-admin-cert.pem
-
-# Copy admin cert to the OrdererOrg orderer3
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer3.example.com/msp/admincerts
-cp /tmp/hyperledger/OrdererMSP/admin/msp/signcerts/cert.pem /tmp/hyperledger/OrdererMSP/orderer3.example.com/msp/admincerts/example.com-admin-cert.pem
-
-# Copy admin cert to the OrdererOrg orderer4
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer4.example.com/msp/admincerts
-cp /tmp/hyperledger/OrdererMSP/admin/msp/signcerts/cert.pem /tmp/hyperledger/OrdererMSP/orderer4.example.com/msp/admincerts/example.com-admin-cert.pem
-
-# Copy admin cert to the OrdererOrg orderer5
-mkdir -p /tmp/hyperledger/OrdererMSP/orderer5.example.com/msp/admincerts
-cp /tmp/hyperledger/OrdererMSP/admin/msp/signcerts/cert.pem /tmp/hyperledger/OrdererMSP/orderer5.example.com/msp/admincerts/example.com-admin-cert.pem
+# Copy admin cert to the OrdererOrg orderer0
+mkdir -p /var/artifacts/crypto-config/OrdererMSP/orderer0.example.com/msp/admincerts
+cp /var/artifacts/crypto-config/OrdererMSP/admin/msp/signcerts/cert.pem /var/artifacts/crypto-config/OrdererMSP/orderer0.example.com/msp/admincerts/example.com-admin-cert.pem
 

@@ -3,16 +3,11 @@ name: openplatform_fabric-all
 version: 1.0.0
 
 channels:
-  eventstore:
+  loanapp:
     orderers:
-      - orderer1.example.com
+      - orderer0.example.com
     peers:
       peer0.org1.example.com:
-        endorsingPeer: true
-        chaincodeQuery: true
-        ledgerQuery: true
-        eventSource: true
-      peer1.org1.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -22,17 +17,7 @@ channels:
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.org2.example.com:
-        endorsingPeer: true
-        chaincodeQuery: true
-        ledgerQuery: true
-        eventSource: true
-      peer0.org3.neworg.com:
-        endorsingPeer: true
-        chaincodeQuery: true
-        ledgerQuery: true
-        eventSource: true
-      peer1.org3.neworg.com:
+      peer0.org3.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -45,95 +30,71 @@ organizations:
     mspid: Org1MSP
     peers:
       - peer0.org1.example.com
-      - peer1.org1.example.com
     certificateAuthorities:
       - rca.org1.example.com
     adminPrivateKey:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org1MSP/admin/msp/keystore/key.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/crypto-config/Org1MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org1MSP/admin/msp/signcerts/cert.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/crypto-config/Org1MSP/admin/msp/signcerts/cert.pem
   Org2MSP:
     mspid: Org2MSP
     peers:
       - peer0.org2.example.com
-      - peer1.org2.example.com
     certificateAuthorities:
       - rca.org2.example.com
     adminPrivateKey:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org2MSP/admin/msp/keystore/key.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/crypto-config/Org2MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org2MSP/admin/msp/signcerts/cert.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/crypto-config/Org2MSP/admin/msp/signcerts/cert.pem
   Org3MSP:
     mspid: Org3MSP
     peers:
-      - peer0.org3.neworg.com
-      - peer1.org3.neworg.com
+      - peer0.org3.example.com
     certificateAuthorities:
-      - rca.org3.neworg.com
+      - rca.org3.example.com
     adminPrivateKey:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org3MSP/admin/msp/keystore/key.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/crypto-config/Org3MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org3MSP/admin/msp/signcerts/cert.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/crypto-config/Org3MSP/admin/msp/signcerts/cert.pem
 
 orderers:
-  orderer1.example.com:
+  orderer0.example.com:
     url: grpcs://localhost:7050
     grpcOptions:
-      ssl-target-name-override: orderer1.example.com
+      ssl-target-name-override: orderer0.example.com
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../deployments/loan-dev-net/config/../artifacts/OrdererMSP/orderer1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/crypto-config/OrdererMSP/orderer0.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 peers:
   peer0.org1.example.com:
     url: grpcs://localhost:7051
     eventUrl: grpcs://localhost:7053
     tlsCACerts:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/crypto-config/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
       ssl-target-name-override: peer0.org1.example.com
-  peer1.org1.example.com:
+  peer0.org2.example.com:
     url: grpcs://localhost:8051
     eventUrl: grpcs://localhost:8053
     tlsCACerts:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org1MSP/peer1.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/crypto-config/Org2MSP/peer0.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.org1.example.com
-  peer0.org2.example.com:
+      ssl-target-name-override: peer0.org2.example.com
+  peer0.org3.example.com:
     url: grpcs://localhost:9051
     eventUrl: grpcs://localhost:9053
     tlsCACerts:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org2MSP/peer0.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/crypto-config/Org3MSP/peer0.org3.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.org2.example.com
-  peer1.org2.example.com:
-    url: grpcs://localhost:10051
-    eventUrl: grpcs://localhost:10053
-    tlsCACerts:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org2MSP/peer1.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
-    grpcOptions:
-      ssl-target-name-override: peer1.org2.example.com
-  peer0.org3.neworg.com:
-    url: grpcs://localhost:11051
-    eventUrl: grpcs://localhost:11053
-    tlsCACerts:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org3MSP/peer0.org3.neworg.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
-    grpcOptions:
-      ssl-target-name-override: peer0.org3.neworg.com
-  peer1.org3.neworg.com:
-    url: grpcs://localhost:12051
-    eventUrl: grpcs://localhost:12053
-    tlsCACerts:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org3MSP/peer1.org3.neworg.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
-    grpcOptions:
-      ssl-target-name-override: peer1.org3.neworg.com
+      ssl-target-name-override: peer0.org3.example.com
 
 certificateAuthorities:
   rca.org1.example.com:
     url: https://localhost:5054
     caName: rca.org1.example.com
     tlsCACerts:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org1MSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/crypto-config/Org1MSP/peer0.org1.example.com/assets/tls-ca/tls-ca-cert.pem
     registrar:
       - enrollId: rca-org1-admin
         enrollSecret: rca-org1-adminPW
@@ -143,17 +104,17 @@ certificateAuthorities:
     url: https://localhost:5055
     caName: rca.org2.example.com
     tlsCACerts:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org2MSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/crypto-config/Org2MSP/peer0.org2.example.com/assets/tls-ca/tls-ca-cert.pem
     registrar:
       - enrollId: rca-org2-admin
         enrollSecret: rca-org2-adminPW
     httpOptions:
       verify: false
-  rca.org3.neworg.com:
+  rca.org3.example.com:
     url: https://localhost:5056
-    caName: rca.org3.neworg.com
+    caName: rca.org3.example.com
     tlsCACerts:
-      path: ../../deployments/loan-dev-net/config/../artifacts/Org3MSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/loan-dev-net/config/../artifacts/crypto-config/Org3MSP/peer0.org3.example.com/assets/tls-ca/tls-ca-cert.pem
     registrar:
       - enrollId: rca-org3-admin
         enrollSecret: rca-org3-adminPW
