@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "UNLICENSED",
   "scripts": {
-    "cp:root": "rimraf .build && mkdir -p ./.build && cp ./package.json .build && cp yarn.lock .build ",
+    "cp:root": "rimraf .build && mkdir -p ./.build && cp ./package.json .build",
     "tsc:auth": "lerna run tsc:prod --scope=@espresso/authentication",
     "tsc:lib": "lerna run tsc:prod --scope={@espresso/fabric-cqrs,@espresso/operator,@espresso/gw-node}",
     "tsc:gw-org1": "lerna run tsc:prod --scope={@espresso/model-*,@espresso/gw-org1}",

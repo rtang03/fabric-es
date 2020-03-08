@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+################################
+# Run unit-test in local machine
+################################
+
 SECONDS=0
 CURRENT_DIR=$PWD
 RED='\033[0;31m'

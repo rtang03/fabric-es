@@ -21,7 +21,7 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
   && echo "Asia/Hong_Kong" > /etc/timezone \
   && cd /home/app \
   && yarn install --production --ignore-engines --network-timeout 1000000 \
-  && yarn global add pm2 pm2-logrotate \
+  && yarn global add pm2 \
   && pm2 install pm2-logrotate \
   && apk del .build-deps-yarn
 
@@ -29,6 +29,6 @@ USER node
 
 WORKDIR /home/app/packages/authentication
 
-CMD [ "pm2-runtime", "--json", "processes.yaml"]
+CMD [ "pm2-runtime", "--delay", "15" ,"processes.yaml"]
 
 EXPOSE 8080

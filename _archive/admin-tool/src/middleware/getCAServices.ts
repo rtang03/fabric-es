@@ -1,6 +1,6 @@
 import * as FabricCAServices from 'fabric-ca-client';
 import * as Client from 'fabric-client';
-import { Context } from '../../../../../deployments/dev-net/config';
+import { Context } from '../../../../deployments/dev-net/config';
 import { readAllFiles } from './readAllFiles';
 
 export const getCAServices: (

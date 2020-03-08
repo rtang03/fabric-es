@@ -26,7 +26,6 @@ printMessage() {
   sleep 1
 }
 
-#docker-compose -f compose.base.yaml up -d
 docker-compose -f $COMPOSE up -d
 
 printMessage "Docker-compose up" $?
