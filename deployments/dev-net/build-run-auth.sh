@@ -10,7 +10,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-export VOLUME=./volume
+export VOLUME=./volume.auth
 export ARTIFACTS=./artifacts.auth
 export SCRIPTS=./scripts
 export COMPOSE=compose.auth-server.yaml
@@ -72,9 +72,3 @@ while [ "$canConnect"=false ]; do
 done
 
 sleep 1
-
-
-
-
-
-

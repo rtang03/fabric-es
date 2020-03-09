@@ -10,7 +10,7 @@
     "build:cleanup": "rimraf ../../.build/packages/gw-org2 && mkdir -p ../../.build/packages/gw-org2",
     "cp:package.json": "cp ./package.json ../../.build/packages/gw-org2/",
     "cp:dist": "cp -R ./dist ../../.build/packages/gw-org2/",
-    "cp:env": "cp ../../deployments/gw-dev-net/build.gw-org2/.env.prod ../../.build/packages/gw-org2/.env",
+    "cp:env": "cp ../../_archive/gw-dev-net/build.gw-org2/.env.prod ../../.build/packages/gw-org2/.env",
     "cp:pm2": "cp ./processes.yaml ../../.build/packages/gw-org2/",
     "boilerplate": "yarn build:cleanup && concurrently \"npm:copy:*\"",
     "copy:src": "cp -R ./src ../../.build/packages/gw-org2/",

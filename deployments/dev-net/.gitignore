@@ -1,6 +1,7 @@
 .DS_Store
-artifacts
+artifacts/
 genesis.block
 volume/
+volume.auth/
 .env
-artifacts.auth
+artifacts.auth/

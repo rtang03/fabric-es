@@ -21,4 +21,4 @@ cd $CURRENT_DIR
 ./shutdown-cleanup.sh
 
 duration=$SECONDS
-echo "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.${NC}"
+printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.${NC}"

@@ -1,6 +1,6 @@
 # Overview
 
-There are a few usages of auth-server.
+There are a few case of developing auth-server.
 
 ## Usage A: Build auth-image image, and launch local environment
 
