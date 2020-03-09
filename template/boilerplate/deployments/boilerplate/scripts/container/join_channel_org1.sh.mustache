@@ -12,6 +12,7 @@ export CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#a
 # {{-}} joining the channel
 export CORE_PEER_ADDRESS={{-}}{{network.host-delimiter}}{{orgs.peer.0.domain}}:{{port}}
 peer channel join -b {{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.0.peers.endpoints.0.cert-path}}}/assets/{{network.peer-channels.0}}.block
+peer channel list
 peer channel getinfo -c {{network.peer-channels.0}}
 
 {{/orgs.peer.0.peers.endpoints}}

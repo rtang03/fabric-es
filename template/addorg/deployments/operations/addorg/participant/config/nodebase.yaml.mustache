@@ -1,0 +1,48 @@
+version: '2'
+
+services:
+
+    ca:
+        image: hyperledger/fabric-ca:$IMAGE_TAG
+        environment:
+            - FABRIC_CA_SERVER_TLS_ENABLED=true
+            - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
+            - FABRIC_CA_SERVER_DEBUG=true
+        networks:
+            - {{network.name}}
+
+    orderer:
+        image: hyperledger/fabric-orderer:$IMAGE_TAG
+        environment:
+            - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+            - ORDERER_GENERAL_GENESISMETHOD=file
+            - ORDERER_GENERAL_TLS_ENABLED=true
+            - ORDERER_GENERAL_LOGLEVEL=INFO
+            - ORDERER_DEBUG_BROADCASTTRACEDIR={{{artifacts.docker}}}/{{{artifacts.orderer-home}}}/data/logs
+        networks:
+            - {{network.name}}
+
+    peer:
+        image: hyperledger/fabric-peer:$IMAGE_TAG
+        environment:
+            - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+            - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE={{network.compose-project-name}}_{{network.name}}
+            - FABRIC_LOGGING_SPEC=INFO
+            - CORE_PEER_TLS_ENABLED=true
+            - CORE_PEER_GOSSIP_USELEADERELECTION=true
+            - CORE_PEER_GOSSIP_ORGLEADER=false
+            - CORE_PEER_PROFILE_ENABLED=true
+        networks:
+            - {{network.name}}
+
+    cli:
+        image: hyperledger/fabric-tools:$IMAGE_TAG
+        tty: true
+        stdin_open: true
+        environment:
+            - GOPATH=/opt/gopath
+            - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+            - FABRIC_LOGGING_SPEC=INFO
+            - CORE_PEER_TLS_ENABLED=true
+        networks:
+            - {{network.name}}

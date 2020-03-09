@@ -80,3 +80,4 @@ artifacts
 .volume
 
 deployments/boilerplate
+deployments/operations
