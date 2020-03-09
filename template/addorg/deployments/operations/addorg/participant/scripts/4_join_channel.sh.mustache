@@ -1,0 +1,5 @@
+# Copy container script
+cp container/join_channel_addorg.sh {{{artifacts.local}}}/addorg
+
+# Join channel
+docker exec cli{{network.host-delimiter}}{{orgs.addorg.domain}} sh -c "{{{artifacts.docker}}}/addorg/join_channel_addorg.sh"

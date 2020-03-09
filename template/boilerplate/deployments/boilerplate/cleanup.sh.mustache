@@ -8,6 +8,7 @@ export $(grep -v '^#' ${_FABRIC_DIR}/.env | xargs)
 # Cleaup the environment
 docker rm -f logspout
 docker-compose -f ${_YAML_FILE} down --volumes
+docker rm -f $(docker ps -aq)
 docker volume prune -f
 docker network prune -f
 docker system prune -f

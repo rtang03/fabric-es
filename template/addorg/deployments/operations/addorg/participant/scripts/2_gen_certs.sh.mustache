@@ -1,0 +1,11 @@
+# Copy files to the container
+cp container/enroll_addorg.sh {{{artifacts.local}}}/addorg
+
+cd ../config;
+docker-compose -f ca.yaml up -d
+sleep 5
+{{#orgs.addorg}}
+docker exec {{ca.host}}{{network.host-delimiter}}{{domain}} sh -c "{{{artifacts.docker}}}/addorg/enroll_addorg.sh"
+{{/orgs.addorg}}
+sleep 2
+docker-compose -f peernode1.yaml -f peernode2.yaml -f cli.yaml up -d

@@ -1,0 +1,46 @@
+################################################################################
+#
+#   Section: Organizations
+#
+#   - This section defines the different organizational identities which will
+#   be referenced later in the configuration.
+#
+################################################################################
+Organizations:
+
+   {{#orgs.addorg}}
+   - &{{name}}
+
+      Name: {{name}}
+
+      # ID to load the MSP definition as
+      ID: {{id}}
+
+      # MSPDir is the filesystem path which contains the MSP configuration
+      MSPDir: {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{msp-path}}}
+
+      Policies:
+         Readers:
+            Type: Signature
+            Rule: "OR('{{id}}.member')"
+         Writers:
+            Type: Signature
+            Rule: "OR('{{id}}.member')"
+         Admins:
+            Type: Signature
+            Rule: "OR('{{id}}.admin')"
+
+      # OrdererEndpoints is a list of all orderers this org runs which clients
+      # and peers may to connect to to push transactions and receive blocks respectively.
+      OrdererEndpoints:
+         {{#orgs.orderer.orderers.endpoints}}
+         - {{-}}{{network.host-delimiter}}{{orgs.orderer.domain}}:{{ext-port}}
+         {{/orgs.orderer.orderers.endpoints}}
+
+      AnchorPeers:
+         # AnchorPeers defines the location of peers which can be used
+         # for cross org gossip communication.  Note, this value is only
+         # encoded in the genesis block in the Application section context
+         - Host: {{peers.anchor}}{{network.host-delimiter}}{{domain}}
+           Port: {{peers.anchor-port}}
+   {{/orgs.addorg}}
