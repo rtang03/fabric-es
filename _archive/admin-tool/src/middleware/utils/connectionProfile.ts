@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import * as yaml from 'js-yaml';
 import { keys, values } from 'lodash';
-import { Context } from '../types';
+import { Context } from '../../../../../deployments/dev-net/config';
 
 interface OrgDetails {
   orgName: string;

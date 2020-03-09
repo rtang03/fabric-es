@@ -308,7 +308,7 @@ to chaincode directory.
 # optionally step: build chaincode, if not yet build. It requires 'dist' directory, and package.json, proper collections.json
 # run `yarn build` in ~/packages/chaincode directory
 
-# cp ~/deployments/gw-dev-net/build.gw-org1 ~/packages/chaincode/collections.json
+# cp ~/deployments/gw-dev-net/build.gw-org1/collections.json ~/packages/chaincode/collections.json
 ```
 
 ### _Step 6: Install chaincode_

@@ -9,7 +9,7 @@ import { RefreshToken } from '../entity/RefreshToken';
 import { CREATE_ROOT_CLIENT, CREATE_SYSTEM_APPLICATION, LOGIN, REGISTER_ADMIN } from '../query';
 import { ClientResolver, OUserResolver } from '../resolvers';
 import { createHttpServer } from '../utils';
-import { createDb } from './__utils__/createDb';
+import { createDbForUnitTest } from './__utils__/createDbForUnitTest';
 
 const dbConnection = {
   name: 'default',
@@ -42,7 +42,7 @@ const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
 
 beforeAll(async () => {
   try {
-    await createDb({
+    await createDbForUnitTest({
       database: process.env.TYPEORM_DATABASE,
       host: process.env.TYPEORM_HOST,
       port: process.env.TYPEORM_PORT,

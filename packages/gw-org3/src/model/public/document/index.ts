@@ -1,6 +1,6 @@
 import { Repository } from '@espresso/fabric-cqrs';
 import { DataSrc } from '@espresso/gw-node';
-import { CommandHandler } from '@espresso/model-common';
+import { CommandHandler } from '@espresso/gw-node';
 import { DocumentCommands } from './commands';
 import { DocumentEvents } from './events';
 import { Document } from './model';

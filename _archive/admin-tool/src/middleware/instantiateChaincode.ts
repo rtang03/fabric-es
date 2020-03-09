@@ -4,7 +4,7 @@ import {
   ProposalResponse
 } from 'fabric-client';
 import '../env';
-import { Context } from './types';
+import { Context } from '../../../../deployments/dev-net/config';
 import { getClientForOrg, parseConnectionProfile } from './utils';
 
 export const instantiateChaincode: (

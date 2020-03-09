@@ -20,7 +20,7 @@ import {
   MISSING_STATE
 } from '../types';
 import { createHttpServer } from '../utils';
-import { createDb } from './__utils__/createDb';
+import { createDbForUnitTest } from './__utils__/createDbForUnitTest';
 
 const dbConnection = {
   name: 'default',
@@ -59,7 +59,7 @@ const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
 
 beforeAll(async () => {
   try {
-    await createDb({
+    await createDbForUnitTest({
       database: process.env.TYPEORM_DATABASE,
       host: process.env.TYPEORM_HOST,
       port: process.env.TYPEORM_PORT,

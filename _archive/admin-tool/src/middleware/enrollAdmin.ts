@@ -1,5 +1,5 @@
 import { FileSystemWallet, X509WalletMixin } from 'fabric-network';
-import { Context } from './types';
+import { Context } from '../../../../deployments/dev-net/config';
 import { getCAServices, getClientForOrg } from './utils';
 
 export const enrollAdmin: (

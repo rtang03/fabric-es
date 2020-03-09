@@ -18,7 +18,7 @@ services:
             - ORDERER_GENERAL_GENESISMETHOD=file
             - ORDERER_GENERAL_TLS_ENABLED=true
             - ORDERER_GENERAL_LOGLEVEL=INFO
-            - ORDERER_DEBUG_BROADCASTTRACEDIR=/tmp/hyperledger/orderer/data/logs
+            - ORDERER_DEBUG_BROADCASTTRACEDIR=/var/artifacts/orderer/data/logs
         networks:
             - fabric
 

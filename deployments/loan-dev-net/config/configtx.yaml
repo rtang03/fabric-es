@@ -11,7 +11,7 @@ Organizations:
    - &OrdererOrg
       Name: OrdererOrg
       ID: OrdererMSP
-      MSPDir: ../artifacts/OrdererMSP/msp
+      MSPDir: ../artifacts/crypto-config/OrdererMSP/msp
 
       Policies:
          Readers:
@@ -27,7 +27,7 @@ Organizations:
    - &Org1MSP
       Name: Org1MSP
       ID: Org1MSP
-      MSPDir: ../artifacts/Org1MSP/msp
+      MSPDir: ../artifacts/crypto-config/Org1MSP/msp
 
       Policies:
          Readers:
@@ -41,11 +41,7 @@ Organizations:
             Rule: "OR('Org1MSP.admin')"
 
       OrdererEndpoints:
-         - orderer1.example.com:7050
-         - orderer2.example.com:7150
-         - orderer3.example.com:7250
-         - orderer4.example.com:7350
-         - orderer5.example.com:7450
+         - orderer0.example.com:7050
 
       AnchorPeers:
          - Host: peer0.org1.example.com
@@ -54,7 +50,7 @@ Organizations:
    - &Org2MSP
       Name: Org2MSP
       ID: Org2MSP
-      MSPDir: ../artifacts/Org2MSP/msp
+      MSPDir: ../artifacts/crypto-config/Org2MSP/msp
 
       Policies:
          Readers:
@@ -68,20 +64,16 @@ Organizations:
             Rule: "OR('Org2MSP.admin')"
 
       OrdererEndpoints:
-         - orderer1.example.com:7050
-         - orderer2.example.com:7150
-         - orderer3.example.com:7250
-         - orderer4.example.com:7350
-         - orderer5.example.com:7450
+         - orderer0.example.com:7050
 
       AnchorPeers:
          - Host: peer0.org2.example.com
-           Port: 9051
+           Port: 8051
 
    - &Org3MSP
       Name: Org3MSP
       ID: Org3MSP
-      MSPDir: ../artifacts/Org3MSP/msp
+      MSPDir: ../artifacts/crypto-config/Org3MSP/msp
 
       Policies:
          Readers:
@@ -95,15 +87,11 @@ Organizations:
             Rule: "OR('Org3MSP.admin')"
 
       OrdererEndpoints:
-         - orderer1.example.com:7050
-         - orderer2.example.com:7150
-         - orderer3.example.com:7250
-         - orderer4.example.com:7350
-         - orderer5.example.com:7450
+         - orderer0.example.com:7050
 
       AnchorPeers:
-         - Host: peer0.org3.neworg.com
-           Port: 11051
+         - Host: peer0.org3.example.com
+           Port: 9051
 
 Capabilities:
    Channel: &ChannelCapabilities
@@ -150,11 +138,7 @@ Orderer: &OrdererDefaults
 
    OrdererType: etcdraft
    Addresses:
-      - orderer1.example.com:7050
-      - orderer2.example.com:7150
-      - orderer3.example.com:7250
-      - orderer4.example.com:7350
-      - orderer5.example.com:7450
+      - orderer0.example.com:7050
    BatchTimeout: 2s
    BatchSize:
       MaxMessageCount: 500
@@ -163,26 +147,10 @@ Orderer: &OrdererDefaults
    MaxChannels: 10
    EtcdRaft:
       Consenters:
-         - Host: orderer1.example.com
+         - Host: orderer0.example.com
            Port: 7050
-           ClientTLSCert: ../artifacts/OrdererMSP/orderer1.example.com/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/OrdererMSP/orderer1.example.com/tls-msp/signcerts/cert.pem
-         - Host: orderer2.example.com
-           Port: 7150
-           ClientTLSCert: ../artifacts/OrdererMSP/orderer2.example.com/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/OrdererMSP/orderer2.example.com/tls-msp/signcerts/cert.pem
-         - Host: orderer3.example.com
-           Port: 7250
-           ClientTLSCert: ../artifacts/OrdererMSP/orderer3.example.com/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/OrdererMSP/orderer3.example.com/tls-msp/signcerts/cert.pem
-         - Host: orderer4.example.com
-           Port: 7350
-           ClientTLSCert: ../artifacts/OrdererMSP/orderer4.example.com/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/OrdererMSP/orderer4.example.com/tls-msp/signcerts/cert.pem
-         - Host: orderer5.example.com
-           Port: 7450
-           ClientTLSCert: ../artifacts/OrdererMSP/orderer5.example.com/tls-msp/signcerts/cert.pem
-           ServerTLSCert: ../artifacts/OrdererMSP/orderer5.example.com/tls-msp/signcerts/cert.pem
+           ClientTLSCert: ../artifacts/crypto-config/OrdererMSP/orderer0.example.com/tls-msp/signcerts/cert.pem
+           ServerTLSCert: ../artifacts/crypto-config/OrdererMSP/orderer0.example.com/tls-msp/signcerts/cert.pem
 
       Options:
          TickInterval: 500ms
