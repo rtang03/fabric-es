@@ -18,6 +18,7 @@
     "copy:conn": "cp -R ./connection ../../.build/packages/gw-org3/",
     "copy:others": "cp .env.test .gitignore codegen.yml jest.config.js jest.setup.js tsconfig.json README.md package.json processes.yaml ../../.build/packages/gw-org3/",
     "clean": "rimraf dist",
+    "test:multi": "yarn build && ./node_modules/.bin/jest multi.test",
     "service-docu": "node ./dist/service-doc.js",
     "service-loan": "node ./dist/service-loan.js",
     "service-user": "node ./dist/service-user.js",

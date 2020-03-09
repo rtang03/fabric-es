@@ -1,0 +1,105 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Multi-Org Test - Query Loans query loan 1 1`] = `
+Object {
+  "_details": Array [
+    null,
+    null,
+  ],
+  "comment": "Hello 0001",
+  "description": "Org1 Loan 1",
+  "documents": Array [
+    Object {
+      "contents": Object {
+        "content": Object {
+          "body": "{ \\"message\\": \\"Org1 docContents 1\\" }",
+        },
+      },
+      "reference": "REF-ORG1-DOC-1",
+      "status": 0,
+      "title": "Org1 Document 1",
+    },
+    Object {
+      "contents": Object {
+        "content": Object {
+          "format": "PDF",
+          "link": "http://fake.it/docs/org1DocContents-2.pdf",
+        },
+      },
+      "reference": "REF-ORG1-DOC-2",
+      "status": 0,
+      "title": "Org1 Document 2",
+    },
+  ],
+  "ownerId": "USER_ORG1",
+  "reference": "REF-ORG1-LOAN-1",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Query Loans query loan 2 1`] = `
+Object {
+  "comment": "Hello 0002",
+  "description": "Org2 Loan 2",
+  "details": null,
+  "documents": Array [
+    Object {
+      "_contents": Array [
+        null,
+        null,
+      ],
+      "reference": "REF-ORG2-DOC-1",
+      "status": 0,
+      "title": "Org2 Document 1",
+    },
+    Object {
+      "_contents": Array [
+        null,
+        null,
+      ],
+      "reference": "REF-ORG2-DOC-2",
+      "status": 0,
+      "title": "Org2 Document 2",
+    },
+  ],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-2",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Query Loans query loan 3 1`] = `
+Object {
+  "comment": "Hello 0003",
+  "description": "Org3 Loan 3",
+  "details": null,
+  "documents": Array [
+    Object {
+      "contents": Object {
+        "content": Object {
+          "body": "{ \\"message\\": \\"Org3 docContents 1\\" }",
+        },
+      },
+      "link": "Org3-Customized-Link-a",
+      "reference": "REF-ORG3-DOC-1",
+      "status": 0,
+      "title": "Org3 Document 1",
+    },
+    Object {
+      "contents": Object {
+        "content": Object {
+          "format": "PDF",
+          "link": "http://fake.it/docs/org3DocContents-2.pdf",
+        },
+      },
+      "link": "Org3-Customized-Link-a",
+      "reference": "REF-ORG3-DOC-2",
+      "status": 0,
+      "title": "Org3 Document 2",
+    },
+  ],
+  "ownerId": "USER_ORG3",
+  "reference": "REF-ORG3-LOAN-3",
+  "status": 0,
+}
+`;
