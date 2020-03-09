@@ -1,4 +1,4 @@
-import { Errors } from '@espresso/model-common';
+import { Errors } from '@espresso/gw-node';
 import { loanDetailsCommandHandler as superHandler } from '@espresso/model-loan-private';
 import { LoanDetailsCommandHandler, LoanDetailsRepo } from '.';
 

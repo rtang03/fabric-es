@@ -12,6 +12,7 @@
     "hyperledger"
   ],
   "author": "Ross Tang",
+  "license": "UNLICENSED",
   "homepage": "https://github.com/rtang03/open-platform-dlt",
   "bugs": {
     "url": "https://github.com/rtang03/open-platform-dlt/issues"
@@ -30,8 +31,8 @@
     "enrollAdmin": "ts-node src/enrollAdmin.ts",
     "enrollCaAdmin": "ts-node src/enrollCaAdmin.ts",
     "start-admin-service": "npm run build && node ./dist/admin/__tests__/__utils__/startServiceForManualTest.js",
-    "test:integration": "(not tested yet) yarn start-admin-service && yarn test-service-admin",
-    "test-service-admin": "jest --forceExit --detectOpenHandles admin.integration.test",
+    "unit-test": "./unit-test.sh",
+    "test:admin-service": "jest --forceExit --detectOpenHandles admin.unit.test",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
   },
   "engines": {
@@ -91,6 +92,7 @@
     "@types/morgan": "^1.7.37",
     "@types/node": "^8.10.54",
     "@types/node-fetch": "^2.5.4",
+    "@types/rimraf": "^2.0.3",
     "apollo-server-testing": "^2.9.7",
     "concurrently": "^5.0.0",
     "jest": "^24.9.0",

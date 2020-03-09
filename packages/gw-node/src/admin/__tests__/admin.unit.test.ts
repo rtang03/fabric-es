@@ -1,8 +1,10 @@
 require('../../env');
 import http from 'http';
 import { createAuthServer, createDbConnection } from '@espresso/authentication';
+import { createDbForUnitTest } from '@espresso/authentication';
 import { ApolloError, ApolloServer } from 'apollo-server';
 import { Express } from 'express';
+import Client from 'fabric-client';
 import fetch from 'node-fetch';
 import request from 'supertest';
 import {
@@ -14,7 +16,7 @@ import {
   GET_CHAIN_HEIGHT,
   GET_INSTALLED_CC_VERSION,
   GET_INSTALLED_CHAINCODES,
-  GET_INSTANTIATED_CHAINCODES,
+  GET_INSTANTIATED_CHAINCODES, getLogger,
   IS_WALLET_EXIST,
   LIST_WALLET,
   LOGIN,
@@ -40,6 +42,8 @@ const rootAdmin = process.env.ROOT_ADMIN;
 const rootAdminPassword = process.env.ROOT_ADMIN_PASSWORD;
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 
+const logger = Client.getLogger('unit-test');
+
 type QueryResponse = {
   body: {
     data: any;
@@ -48,19 +52,36 @@ type QueryResponse = {
 };
 
 beforeAll(async () => {
-  // step 1: start admin service (federated service)
-  ({ server: federatedAdminServer } = await createAdminService({
-    ordererName: process.env.ORDERER_NAME,
-    ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
-    peerName: process.env.PEER_NAME,
-    caAdminEnrollmentId: process.env.CA_ENROLLMENT_ID_ADMIN,
-    channelName: process.env.CHANNEL_NAME,
-    connectionProfile: process.env.CONNECTION_PROFILE,
-    fabricNetwork: process.env.NETWORK_LOCATION,
-    walletPath: process.env.WALLET
-  }));
+  await createDbForUnitTest({
+    database: process.env.TYPEORM_DATABASE,
+    host: process.env.TYPEORM_HOST,
+    port: process.env.TYPEORM_PORT,
+    user: process.env.TYPEORM_USERNAME,
+    password: process.env.TYPEORM_PASSWORD
+  });
 
-  await federatedAdminServer.listen({ port });
+  // step 1: start admin service (federated service)
+  let federatedAdminService: ApolloServer;
+
+  try {
+    federatedAdminService = await createAdminService({
+      ordererName: process.env.ORDERER_NAME,
+      ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
+      peerName: process.env.PEER_NAME,
+      caAdminEnrollmentId: process.env.CA_ENROLLMENT_ID_ADMIN,
+      channelName: process.env.CHANNEL_NAME,
+      connectionProfile: process.env.CONNECTION_PROFILE,
+      fabricNetwork: process.env.NETWORK_LOCATION,
+      walletPath: process.env.WALLET
+    }).then(({ server }) => server);
+  } catch (e) {
+    logger.error('fail to createAdminService: ', e);
+    process.exit(1);
+  }
+
+  await federatedAdminService.listen({ port }, () => {
+    logger.info(`federatedAdminService started at port: ${port}`);
+  });
 
   // step 2: prepare federated gateway
   app = await createGateway({
@@ -125,6 +146,7 @@ describe('Service-admin Integration Tests', () => {
         expect(errors[0].message).toEqual('admin password mis-match');
       }));
 
+  /*
   it('should createRootClient', async () =>
     fetch(authUri, {
       method: 'POST',
@@ -442,4 +464,6 @@ describe('Service-admin Integration Tests', () => {
         expect(errors).toBeUndefined();
         expect(data.getCaIdentityByEnrollmentId.id).toEqual(user_id);
       }));
+
+   */
 });

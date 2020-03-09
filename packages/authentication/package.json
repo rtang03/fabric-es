@@ -38,7 +38,8 @@
     "test:auth": "jest --forceExit --detectOpenHandles authenticate.test",
     "test:client_app": "jest --forceExit --detectOpenHandles client_app.test",
     "test:all": "yarn test:auth_code && yarn test:client_cred && yarn test:pw && yarn test:auth && yarn test:client_app",
-    "unit-test": "./unit-test.sh",
+    "unit-test": "./unit-test.sh && yarn test:all && ./cleanup.sh",
+    "unit-test:with-fab": "./unit-test.sh && yarn test:all && ./cleanup.sh",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
   },

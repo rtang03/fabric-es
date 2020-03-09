@@ -1,4 +1,4 @@
-import { Errors } from '@espresso/model-common';
+import { Errors } from '@espresso/gw-node';
 import { documentCommandHandler as superCommandHandler, DocumentErrors } from '@espresso/model-loan';
 import { DocumentCommandHandler, DocumentRepo } from '.';
 

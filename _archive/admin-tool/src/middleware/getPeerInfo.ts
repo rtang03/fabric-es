@@ -5,7 +5,7 @@ import {
   CollectionQueryResponse
 } from 'fabric-client';
 import { findLast } from 'lodash';
-import { Context } from './types';
+import { Context } from '../../../../deployments/dev-net/config';
 import { createUser, getClientForOrg, parseConnectionProfile } from './utils';
 
 interface SdkClientQuery {

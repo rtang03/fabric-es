@@ -3,11 +3,13 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
+docker rm -f $(docker ps -aq -f name=postgres-dev)
+
 docker run -d \
   -e POSTGRES_PASSWORD=docker \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_DB=postgres \
-  --name postgres-dev -p 5432:5432 postgres:9.6.17-alpine
+  --name postgres-dev -p 15432:5432 postgres:9.6.17-alpine
 
 if [ $? -ne 0 ] ; then
   printf "${RED}Docker Compose Failed${NC}\n"
@@ -26,10 +28,11 @@ while [ "$canConnect"=false ]; do
     fi
 done
 
-yarn test:all
+printf "${GREEN}Postgres-dev container started${NC}\n\n"
 
-printf "${GREEN}authentication:unit-test done${NC}\n"
-
-docker rm postgres-dev -f
-
-printf "${GREEN}remove docker container: postgres-dev${NC}\n"
+#yarn test:all
+#
+#printf "${GREEN}authentication:unit-test done${NC}\n\n"
+#
+#printf "${GREEN}remove docker container: postgres-dev${NC}: "
+#docker rm postgres-dev -f

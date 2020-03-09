@@ -12,6 +12,7 @@
     "hyperledger"
   ],
   "author": "Ross Tang",
+  "license": "UNLICENSED",
   "homepage": "https://github.com/rtang03/open-platform-dlt",
   "bugs": {
     "url": "https://github.com/rtang03/open-platform-dlt/issues"
@@ -22,14 +23,14 @@
     "npm": ">=5"
   },
   "scripts": {
-    "pretest": "npm run lint",
     "start": "fabric-chaincode-node start",
     "build": "rimraf dist && tsc",
     "build:prod": "rimraf dist && tsc -p ./tsconfig.prod.json",
     "build:watch": "tsc -w",
     "prepublishOnly": "npm run build",
-    "int-test:lib": "jest public.integration.test",
+    "network-test": "jest network.test",
     "unit-test": "jest public.unit.test",
+    "unit-test:fab": "yarn unit-test && yarn network-test",
     "test:private": "jest private.integration.test",
     "test:ngac-policy-engine-unit-test": "(broke) jest ngac.pe.unit.test",
     "test:ngac-crud-unit-test": "(broke) jest ngac.crud.unit.test",
