@@ -21,6 +21,6 @@ services:
             - {{ca.port}}:{{ca.port}}
         command: sh -c 'fabric-ca-server start -d -b {{ca.admin}}:{{ca.adminpw}} --cfg.affiliations.allowremove  --cfg.identities.allowremove --port {{ca.port}}'
         volumes:
-            - ../scripts/container:/setup
+            - {{{artifacts.local}}}/../scripts/container:/setup
             - {{{artifacts.local}}}:{{{artifacts.docker}}}
     {{/orgs.addorg}}

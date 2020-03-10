@@ -26,6 +26,7 @@ cp {{orgs.addorg.name}}.json {{{artifacts.local}}}/addorg
 cp ../scripts/container/config_addorg*.sh {{{artifacts.local}}}/addorg
 
 # Add new org config block and sign block
+# NOTE: ONLY SIGNATURES FROM MAJORITY OF ORGANIZATIONS ARE NEEDED
 {{#orgs.peer}}
 docker exec cli{{network.host-delimiter}}{{domain}} sh -c "{{{artifacts.docker}}}/addorg/config_addorg_{{script-naming}}.sh"
 sleep 2
