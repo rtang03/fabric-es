@@ -15,7 +15,7 @@ printMessage() {
 }
 
 # Cleaup the environment
-docker rm -f logspout auth-server1 auth-server2
+docker rm -f logspout auth-server1 auth-server2 gw-org1 gw-org2
 docker-compose -f $COMPOSE down
 docker rm -f $(docker ps -aq -f status=exited)
 #docker volume prune -f
