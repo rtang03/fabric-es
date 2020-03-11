@@ -3,11 +3,40 @@ import { Commit, getMockRepository, getReducer } from '@espresso/fabric-cqrs';
 import { DataSrc } from '@espresso/gw-node';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
+import gql from 'graphql-tag';
 import {
-  APPROVE_LOAN, APPLY_LOAN, CANCEL_LOAN, EXPIRE_LOAN, GET_BY_ID, GET_LOANS_BY_PAGE,
+  APPROVE_LOAN, APPLY_LOAN, CANCEL_LOAN, EXPIRE_LOAN,
   Loan, LoanEvents, loanReducer, loanResolvers, loanTypeDefs,
   REJECT_LOAN, RETURN_LOAN, UPDATE_LOAN
 } from '..';
+
+const GET_BY_ID = gql`
+query GetLoanById($loanId: String!) {
+  getLoanById(loanId: $loanId) {
+    loanId
+    ownerId
+    description
+    reference
+    comment
+    status
+  }
+}`;
+const GET_LOANS_BY_PAGE = gql`
+  query GetLoansByPage($pageSize: Int) {
+    getPaginatedLoans(pageSize: $pageSize) {
+      total
+      hasMore
+      entities {
+        loanId
+        ownerId
+        description
+        reference
+        comment
+        status
+      }
+    }
+  }
+`;
 
 const userId = 'unitTestUser';
 const mockdb: Record<string, Commit> = {};
@@ -65,7 +94,7 @@ describe('Loan Unit Test - Resolver', () => {
       mutation: APPLY_LOAN,
       variables: {
         userId, loanId: 'L0002',
-        description: 'Unit test loan X',
+        description: 'Unit test loan 2',
         reference: 'REF-UNIT-TEST-LOAN-2'
       }})
     .then(({ data }) => expect(data.applyLoan.id).toEqual('L0002'))
@@ -79,7 +108,7 @@ describe('Loan Unit Test - Resolver', () => {
         userId, loanId: 'L0003',
         description: 'Unit test loan 3',
         reference: 'REF-UNIT-TEST-LOAN-3',
-        comment: 'Yello 0003'
+        comment: 'Hello 0003'
       }})
     .then(({ data }) => expect(data.applyLoan.id).toEqual('L0003'))
     .catch(_ => expect(false).toBeTruthy())
@@ -90,9 +119,9 @@ describe('Loan Unit Test - Resolver', () => {
       mutation: APPLY_LOAN,
       variables: {
         userId, loanId: 'L0004',
-        description: 'Unit test loan X',
+        description: 'Unit test loan 4',
         reference: 'REF-UNIT-TEST-LOAN-4',
-        comment: 'Yello 0004'
+        comment: 'Hello 0004'
       }})
     .then(({ data }) => expect(data.applyLoan.id).toEqual('L0004'))
     .catch(_ => expect(false).toBeTruthy())
@@ -118,7 +147,7 @@ describe('Loan Unit Test - Resolver', () => {
         userId, loanId: 'L0006',
         description: 'Unit test loan 6',
         reference: 'REF-UNIT-TEST-LOAN-6',
-        comment: 'Yello 0006'
+        comment: 'Hello 0006'
       }})
     .then(({ data }) => expect(data.applyLoan.id).toEqual('L0006'))
     .catch(_ => expect(false).toBeTruthy())
@@ -190,16 +219,15 @@ describe('Loan Unit Test - Resolver', () => {
   );
 
   // TODO: Implement lifecycle event attribute to prevent creating same entity more than once
-  // NOTE: This 'apply loan' call should return normal, but querying 'L0001' should return the original result
-  //       instead of the changed fields below.
+  // NOTE: This 'apply loan' call should return normal, but querying 'L0000' should return the original result instead of the changed values
   it('apply loan 0 again', async () =>
     createTestClient(service).mutate({
       mutation: APPLY_LOAN,
       variables: {
         userId, loanId: 'L0000',
-        description: 'Unit test loan X',
-        reference: 'REF-UNIT-TEST-LOAN-0',
-        comment: 'Yello 0000'
+        description: 'Unit test loan 0VERWRITTEN',
+        reference: 'REF-UNIT-TEST-LOAN-0VERWRITTEN',
+        comment: 'Hello 0000VERWRITTEN'
       }})
     .then(({ data }) => expect(data.applyLoan.id).toEqual('L0000'))
     .catch(_ => expect(false).toBeTruthy())
@@ -210,7 +238,7 @@ describe('Loan Unit Test - Resolver', () => {
       mutation: UPDATE_LOAN,
       variables: {
         userId, loanId: 'L0002',
-        description: 'Unit test loan 2'
+        description: 'Unit test loan 2 EDITED'
       }})
     .then(({ data }) => expect(data.updateLoan.map(d => (d && d.id) ? d.id : '')).toContain('L0002'))
     .catch(_ => expect(false).toBeTruthy())
@@ -221,7 +249,7 @@ describe('Loan Unit Test - Resolver', () => {
       mutation: UPDATE_LOAN,
       variables: {
         userId, loanId: 'L0003',
-        comment: 'Hello 0003'
+        comment: 'Hello 0003 EDITED'
       }})
     .then(({ data }) => expect(data.updateLoan.map(d => (d && d.id) ? d.id : '')).toContain('L0003'))
     .catch(_ => expect(false).toBeTruthy())
@@ -232,8 +260,8 @@ describe('Loan Unit Test - Resolver', () => {
       mutation: UPDATE_LOAN,
       variables: {
         userId, loanId: 'L0004',
-        description: 'Unit test loan 4',
-        comment: 'Hello 0004'
+        description: 'Unit test loan 4 EDITED',
+        comment: 'Hello 0004 EDITED'
       }})
     .then(({ data }) => expect(data.updateLoan.map(d => (d && d.id) ? d.id : '')).toContain('L0004'))
     .catch(_ => expect(false).toBeTruthy())
@@ -244,7 +272,7 @@ describe('Loan Unit Test - Resolver', () => {
       mutation: UPDATE_LOAN,
       variables: {
         userId, loanId: 'L0002',
-        comment: 'Hello 0002'
+        comment: 'Hello 0002 ADDED'
       }})
     .then(({ data }) => expect(data.updateLoan.map(d => (d && d.id) ? d.id : '')).toContain('L0002'))
     .catch(_ => expect(false).toBeTruthy())
@@ -306,7 +334,7 @@ describe('Loan Unit Test - Resolver', () => {
         userId, loanId: 'L0006',
         reference: 'HI',
         description: '',
-        comment: 'Hello 0006'
+        comment: 'Hello 0006 EDITED'
       }})
     .then(({ data, errors }) => {
       const errs = errors.map(e => e.message);

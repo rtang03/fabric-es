@@ -1,5 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`LoanDetails Unit Test - Resolver query loanDetails 0 by id 1`] = `
+Object {
+  "approvedAmt": null,
+  "comment": "Hello 0000VERWRITTEN",
+  "contact": Object {
+    "email": "c0000@fake.it",
+    "name": "Contact 0VERWRITTEN",
+    "phone": "555-0000",
+    "salutation": null,
+    "title": null,
+  },
+  "currency": "HKD",
+  "loanId": "L0000",
+  "loanType": "Post-Shipment",
+  "requestedAmt": 50000,
+  "requester": Object {
+    "name": "Loan Requester 0VERWRITTEN",
+    "registration": "REG-0000VERWRITTEN",
+    "type": null,
+  },
+  "startDate": "1542385275430",
+  "tenor": 76,
+}
+`;
+
 exports[`LoanDetails Unit Test - Resolver query loanDetails 1 by id 1`] = `
 Object {
   "approvedAmt": null,
@@ -21,14 +46,14 @@ Object {
     "type": null,
   },
   "startDate": "1542385275431",
-  "tenor": 76,
+  "tenor": 71,
 }
 `;
 
 exports[`LoanDetails Unit Test - Resolver query loanDetails 2 by id 1`] = `
 Object {
   "approvedAmt": null,
-  "comment": "Hello 0002",
+  "comment": "Hello 0002 EDITED",
   "contact": Object {
     "email": "c0002@fake.it",
     "name": "Contact 2",
@@ -36,7 +61,7 @@ Object {
     "salutation": null,
     "title": null,
   },
-  "currency": "HKD",
+  "currency": "USD",
   "loanId": "L0002",
   "loanType": "Post-Shipment",
   "requestedAmt": 50000,
@@ -46,14 +71,14 @@ Object {
     "type": null,
   },
   "startDate": "1542385275432",
-  "tenor": 76,
+  "tenor": 72,
 }
 `;
 
 exports[`LoanDetails Unit Test - Resolver query loanDetails 3 by id 1`] = `
 Object {
   "approvedAmt": null,
-  "comment": "Hello 0003",
+  "comment": "Hello 0003 EDITED",
   "contact": Object {
     "email": "c0003@fake.it",
     "name": "Contact 3",
@@ -71,7 +96,7 @@ Object {
     "type": null,
   },
   "startDate": "1542385275433",
-  "tenor": 76,
+  "tenor": 73,
 }
 `;
 
@@ -96,7 +121,7 @@ Object {
     "type": null,
   },
   "startDate": "1542385275434",
-  "tenor": 76,
+  "tenor": 74,
 }
 `;
 
@@ -109,7 +134,7 @@ Object {
     "name": "Contact 5",
     "phone": "555-0005",
     "salutation": null,
-    "title": "Manager",
+    "title": null,
   },
   "currency": "HKD",
   "loanId": "L0005",
@@ -121,17 +146,17 @@ Object {
     "type": null,
   },
   "startDate": "1542385275435",
-  "tenor": 76,
+  "tenor": 75,
 }
 `;
 
 exports[`LoanDetails Unit Test - Resolver query loanDetails 6 by id 1`] = `
 Object {
   "approvedAmt": null,
-  "comment": "Hello 0006",
+  "comment": "Hello 0006 EDITED",
   "contact": Object {
     "email": "c0006@fake.it",
-    "name": "Contact 6",
+    "name": "Contact 6 EDITED",
     "phone": "555-0006",
     "salutation": null,
     "title": null,
@@ -153,11 +178,11 @@ Object {
 exports[`LoanDetails Unit Test - Resolver query loanDetails 7 by id 1`] = `
 Object {
   "approvedAmt": null,
-  "comment": "Hello 0007",
+  "comment": "Hello 0007 EDITED",
   "contact": Object {
     "email": "c0007@fake.it",
-    "name": "Contact 7",
-    "phone": "555-0007",
+    "name": "Contact 7 EDITED",
+    "phone": "555-9997",
     "salutation": null,
     "title": null,
   },
@@ -171,18 +196,18 @@ Object {
     "type": "Da Yee Lung",
   },
   "startDate": "1542385275437",
-  "tenor": 76,
+  "tenor": 77,
 }
 `;
 
 exports[`LoanDetails Unit Test - Resolver query loanDetails 8 by id 1`] = `
 Object {
   "approvedAmt": 49998,
-  "comment": "Hello 0008",
+  "comment": "Hello 0008 EDITED",
   "contact": Object {
     "email": "c0008@fake.it",
-    "name": "Contact 8",
-    "phone": "555-0008",
+    "name": "Contact 8 EDITED",
+    "phone": "555-9998",
     "salutation": "Dr",
     "title": "Clerk",
   },
@@ -196,6 +221,6 @@ Object {
     "type": "Da Yee Lung",
   },
   "startDate": "1542385275438",
-  "tenor": 76,
+  "tenor": 78,
 }
 `;

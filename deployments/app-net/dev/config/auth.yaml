@@ -15,8 +15,8 @@ services:
             - TYPEORM_PASSWORD=docker
             - TYPEORM_LOGGING=true
             - TYPEORM_DATABASE=auth_db
-            - ROOT_ADMIN=admin
-            - ROOT_ADMIN_PASSWORD=password
+            - ROOT_ADMIN=radmin
+            - ROOT_ADMIN_PASSWORD=radmin-password
         ports:
             - 4100:8080
         networks:
@@ -32,8 +32,8 @@ services:
             - TYPEORM_PASSWORD=docker
             - TYPEORM_LOGGING=true
             - TYPEORM_DATABASE=auth_db
-            - ROOT_ADMIN=admin
-            - ROOT_ADMIN_PASSWORD=password
+            - ROOT_ADMIN=radmin
+            - ROOT_ADMIN_PASSWORD=radmin-password
         ports:
             - 4200:8080
         networks:
@@ -49,8 +49,8 @@ services:
             - TYPEORM_PASSWORD=docker
             - TYPEORM_LOGGING=true
             - TYPEORM_DATABASE=auth_db
-            - ROOT_ADMIN=admin
-            - ROOT_ADMIN_PASSWORD=password
+            - ROOT_ADMIN=radmin
+            - ROOT_ADMIN_PASSWORD=radmin-password
         ports:
             - 4300:8080
         networks:

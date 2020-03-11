@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DocContents Unit Test - Resolver query docContents 0 by id 1`] = `
+Object {
+  "content": Object {
+    "body": "{ \\"message\\": \\"Document Contents 0VERWRITTEN\\" }",
+  },
+  "documentId": "D0000",
+}
+`;
+
+exports[`DocContents Unit Test - Resolver query docContents 1 by id 1`] = `
+Object {
+  "content": Object {
+    "format": "JPEG",
+    "link": "http://fake.it/docs/unitTestDocContents-1.jpg",
+  },
+  "documentId": "D0001",
+}
+`;
+
+exports[`DocContents Unit Test - Resolver query docContents 2 by id 1`] = `
+Object {
+  "content": Object {
+    "body": "{ \\"message\\": \\"Document Contents 2 EDITED\\" }",
+  },
+  "documentId": "D0002",
+}
+`;
