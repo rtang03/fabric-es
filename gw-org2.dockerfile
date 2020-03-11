@@ -21,16 +21,15 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
   && echo "Asia/Hong_Kong" > /etc/timezone \
   && cd /home/app \
   && yarn install --production --ignore-engines --network-timeout 1000000 \
-  && yarn global add pm2 pm2-logrotate \
-  && pm2 install pm2-logrotate \
+  && yarn global add pm2 \
   && apk del .build-deps-yarn
 
 USER node
 
-VOLUME /home/app/packages/gw-org2/assets /home/app/packages/gw-org2/logs /var/artifacts/crypto-config
+VOLUME /home/app/packages/gw-org2/assets /home/app/packages/gw-org2/connection /home/app/packages/gw-org2/logs /var/artifacts/crypto-config
 
 WORKDIR /home/app/packages/gw-org2
 
 EXPOSE 4002
 
-CMD ["yarn" , "pm2"]
+CMD ["yarn", "run", "pm2"]

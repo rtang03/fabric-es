@@ -105,7 +105,8 @@ const uri = `http://localhost:${port}/graphql`;
       logger.error(util.format('An error occurred while createRootClient: %j', err));
       process.exit(1);
     }
-    process.send('ready');
+
+    if (process.send) process.send('ready');
   });
 })().catch(error => {
   console.error(error);

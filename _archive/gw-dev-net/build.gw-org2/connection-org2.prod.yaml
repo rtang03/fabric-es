@@ -1,0 +1,82 @@
+---
+name: fdi_openplatform-etc
+version: 1.0.0
+
+client:
+  organization: PbctfpMSP
+  credentialStore:
+    path: /home/app/packages/gw-org2/assets/client-certs/hfc-kvs/pbctfp.net
+    cryptoStore:
+      path: /home/app/packages/gw-org2/assets/client-certs/hfc-kvs/pbctfp.net
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+
+channels:
+  loanapp:
+    orderers:
+      - orderer0.hktfp.com
+    peers:
+      peer0.pbctfp.net:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer1.pbctfp.net:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+    chaincodes:
+      - eventstore:1.0
+
+organizations:
+  PbctfpMSP:
+    mspid: PbctfpMSP
+    peers:
+      - peer0.pbctfp.net
+      - peer1.pbctfp.net
+    certificateAuthorities:
+      - rca.pbctfp.net
+    adminPrivateKey:
+      path: /var/artifacts/crypto-config/PbctfpMSP/admin/msp/keystore/key.pem
+    signedCert:
+      path: /var/artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem
+
+orderers:
+  orderer0.hktfp.com:
+    url: grpcs://orderer0.hktfp.com:7050
+    grpcOptions:
+      ssl-target-name-override: orderer0.hktfp.com
+    #      grpc-max-send-message-length: 4000
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+
+peers:
+  peer0.pbctfp.net:
+    url: grpcs://peer0.pbctfp.net:7251
+    eventUrl: grpcs://peer0.pbctfp.net:7253
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+    grpcOptions:
+      ssl-target-name-override: peer0.pbctfp.net
+  peer1.pbctfp.net:
+    url: grpcs://peer1.pbctfp.net:7351
+    eventUrl: grpcs://peer1.pbctfp.net:7353
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+    grpcOptions:
+      ssl-target-name-override: peer1.pbctfp.net
+
+certificateAuthorities:
+  rca.pbctfp.net:
+    url: https://rca.pbctfp.net:6055
+    caName: rca.pbctfp.net
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/PbctfpMSP/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: rca-pboc-admin
+        enrollSecret: rca-pboc-adminPW
+    httpOptions:
+      verify: false

@@ -1,0 +1,34 @@
+{
+  "name": "@espresso/tester",
+  "version": "1.0.0",
+  "scripts": {
+    "clean": "rimraf dist",
+    "tsc:prod": "yarn clean && tsc",
+    "pack": "yarn build:cleanup && concurrently \"npm:cp:*\"",
+    "build:cleanup": "rimraf ../../.build/packages/tester && mkdir -p ../../.build/packages/tester",
+    "cp:json": "cp ./*.json ../../.build/packages/tester/",
+    "cp:js": "cp ./*.js ../../.build/packages/tester/",
+    "cp:env": "cp ./.env.test ../../.build/packages/tester/",
+    "cp:src": "cp -R ./src ../../.build/packages/tester/",
+    "test": "jest integration.test"
+  },
+  "private": true,
+  "devDependencies": {
+    "@types/concurrently": "^4.1.0",
+    "@types/dotenv": "^6.1.1",
+    "@types/jest": "^24.0.18",
+    "@types/lodash": "^4.14.138",
+    "@types/node": "^8.10.54",
+    "@types/node-fetch": "^2.5.4",
+    "concurrently": "^5.0.0",
+    "dotenv": "^8.1.0",
+    "lodash": "^4.17.15",
+    "node-fetch": "^2.6.0",
+    "jest": "^24.9.0",
+    "prettier": "^1.19.1",
+    "rimraf": "^3.0.0",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.7.2"
+  }
+}

@@ -2,7 +2,7 @@ import { ProposalResponse } from 'fabric-client';
 import { flatten } from 'lodash';
 import '../env';
 import { Context } from '../../../../deployments/dev-net/config';
-import { createUser, getClientForOrg, parseConnectionProfile } from './utils';
+import { createUser, getClientForOrg, parseConnectionProfile } from './index';
 
 export const joinChannel: (
   channelName: string,
