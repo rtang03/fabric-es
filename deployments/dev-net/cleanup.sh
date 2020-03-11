@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export COMPOSE=compose.2org.yaml
+export COMPOSE=compose.1.2org.yaml
 export ARTIFACTS=./artifacts
 export VOLUME=./volume
 

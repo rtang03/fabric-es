@@ -26,10 +26,10 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
 
 USER node
 
-VOLUME /home/app/packages/gw-org1/assets /home/app/packages/gw-org1/logs /var/artifacts/crypto-config
+VOLUME /home/app/packages/gw-org1/assets /home/app/packages/gw-org2/connection /home/app/packages/gw-org1/logs /var/artifacts/crypto-config
 
 WORKDIR /home/app/packages/gw-org1
 
 EXPOSE 4001
 
-CMD ["yarn" , "pm2"]
+CMD ["yarn", "run", "pm2"]

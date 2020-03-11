@@ -2,9 +2,9 @@
 
 There are a few case of developing auth-server.
 
-## Usage A: Build auth-image image, and launch local environment
+## Build auth-image image, and launch local environment with script
 
-Running below script will perform below tasks.
+Running below script `build-run-auth-server.sh` will perform below tasks.
 
 - clean up directory
 - tsc compile
@@ -21,7 +21,7 @@ steps in below script file.
 ./build-run-auth.sh
 ```
 
-## Usage B: Manual instructions for building auth-server image
+## Manual Steps
 
 If you are develop the _auth-server_ docker image, you may consider perform manual steps, for sake of troubleshooting.
 

@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 
+# todo: may accept input argument later
+# export .env variables
+# export $(grep -v '^#' ${_FABRIC_DIR}/.env | xargs)
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
 export ARTIFACTS=./artifacts
-export COMPOSE=compose.2org.yaml
+export COMPOSE=compose.1.2org.yaml
 export CONFIG=./config
 export SCRIPTS=./scripts
 export VERSION=1.0

@@ -12,13 +12,15 @@ Validate `.env.prod` content, for default environment variables.
 # send build context to .build directory
 yarn build:gw-dev-net:org1
 
-# send build context to .build directory
-yarn build:gw-dev-net:org2
-```
+
 
 ```shell script
 # build org1 image
 DOCKER_BUILD=1 docker build --no-cache -f ./gw-org1.dockerfile -t espresso/gw-org1:1.0 .
+
+# send build context to .build directory
+yarn build:gw-dev-net:org2
+```
 
 # build org2 image
 DOCKER_BUILD=1 docker build --no-cache -f ./gw-org2.dockerfile -t espresso/gw-org2:1.0 .

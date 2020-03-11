@@ -1,13 +1,12 @@
 ## Overview
 
-(I) `gw-dev-net` is the development network, used for docker image building and testing of below packages:
+(I) `dev-net` is the development network, used for docker image building and testing of below packages:
 
 - auth-server
 - gw-org1
 - gw-org2
-- gw-org3 (To be completed)
 
-(II) `~/packages/integration-tester` will reply on `gw-dev-net/scripts` to prepare the crypto-materials. Therefore,
+(II) `~/packages/tester` will reply on `gw-dev-net/scripts` to prepare the crypto-materials. Therefore,
 in case scripts are modify, it may negatively impact the integration test runs.
 
 ## PART C: Instructions for Launch Network

@@ -6,45 +6,45 @@ networks:
 services:
   tls-ca-hktfp:
     extends:
-      file: compose.2org.yaml
+      file: compose.1.2org.yaml
       service: tls-ca-hktfp
   rca-hktfp:
     extends:
-      file: compose.2org.yaml
+      file: compose.1.2org.yaml
       service: rca-hktfp
   rca-etradeconnect:
     extends:
-      file: compose.2org.yaml
+      file: compose.1.2org.yaml
       service: rca-etradeconnect
   rca-pbctfp:
     extends:
-      file: compose.2org.yaml
+      file: compose.1.2org.yaml
       service: rca-pbctfp
   peer0-etradeconnect:
     extends:
-      file: compose.2org.yaml
+      file: compose.1.2org.yaml
       service: peer0-etradeconnect
   peer0-pbctfp:
     extends:
-      file: compose.2org.yaml
+      file: compose.1.2org.yaml
       service: peer0-pbctfp
   orderer0-hktfp:
     extends:
-      file: compose.2org.yaml
+      file: compose.1.2org.yaml
       service: orderer0-hktfp
   cli:
     extends:
-      file: compose.2org.yaml
+      file: compose.1.2org.yaml
       service: cli
 
   postgres01:
     extends:
-      file: compose.2org.yaml
+      file: compose.1.2org.yaml
       service: postgres01
 
   postgres02:
     extends:
-      file: compose.2org.yaml
+      file: compose.1.2org.yaml
       service: postgres02
 
   auth-server1:

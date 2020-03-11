@@ -15,6 +15,7 @@
     "build:auth": "yarn tsc:auth && yarn pack:auth",
     "build:gw-dev-net:org1": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org1 && yarn pack:lib && yarn pack:gw-dev-net:org1",
     "build:gw-dev-net:org2": "yarn tsc:auth && yarn tsc:lib && yarn tsc:gw-org2 && yarn pack:lib && yarn pack:gw-dev-net:org2",
+    "build:tester": "yarn cp:root && lerna run pack --scope=@espresso/tester",
     "unit-test:simple": "lerna run unit-test --stream --scope={@espresso/authentication,@espresso/chaincode,@espresso/fabric-cqrs}",
     "bootstrap:fab": "cd ./deployments/dev-net && ./cleanup.sh && ./bootstrap.2org.sh ",
     "shutdown:fab": "cd ./deployments/dev-net && ./shutdown-cleanup.sh",

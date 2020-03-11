@@ -17,10 +17,12 @@ export CRYPTO=/var/artifacts/crypto-config
 export VOLUME=./volume
 export ARTIFACTS=./artifacts
 export SCRIPTS=./scripts
-export COMPOSE_1=compose.2org.yaml
-export COMPOSE_2=compose.2org.auth.yaml
+export COMPOSE_1=compose.1.2org.yaml
+export COMPOSE_2=compose.2.2org.auth.yaml
 export CURRENT_DIR=$PWD
 export AUTH_IMAGE=espresso/auth-server:1.0
+export ORG1_IMAGE=espresso/gw-org1:1.0
+export ORG2_IMAGE=espresso/gw-org2:1.0
 
 printMessage() {
   MESSAGE=$1
@@ -47,13 +49,12 @@ printMessage() {
 # create build context at ~/.build
 
 cd ../.. && yarn build:auth
-printMessage "Create build context"  $?
+printMessage "Create build context for auth-server"  $?
 
 # STEP 3
 # build auth-server image
 docker rmi $AUTH_IMAGE
 DOCKER_BUILD=1 docker build --no-cache -f ./auth-server.dockerfile -t $AUTH_IMAGE .
-
 printMessage "Create auth-server image" $?
 sleep 1
 
@@ -96,5 +97,5 @@ sleep 1
 docker-compose -f $COMPOSE_2 up -d
 printMessage "Docker-compose up $COMPOSE_2" $?
 
-duration=$SECONDS
-printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.${NC}"
+#duration=$SECONDS
+#printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.${NC}"
