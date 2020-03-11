@@ -1,4 +1,8 @@
+import { Commit } from '@espresso/fabric-cqrs';
+import { loanDetailsResolvers } from '@espresso/model-loan-private';
+import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
+import { loanDetailsCommandHandler, LoanDetailsDS } from '.';
 
 export const typeDefs = gql`
   type Query {
@@ -107,3 +111,139 @@ export const typeDefs = gql`
     details: LoanDetails
   }
 `;
+
+export const resolvers = {
+  ...loanDetailsResolvers,
+  Mutation: {
+    ...loanDetailsResolvers.Mutation,
+    createLoanDetails: async (
+      _, { userId, loanId, requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment },
+      { dataSources: { loanDetails }, enrollmentId }: { dataSources: { loanDetails: LoanDetailsDS }; enrollmentId: string }
+    ): Promise<Commit> =>
+      loanDetailsCommandHandler({
+        enrollmentId,
+        loanDetailsRepo: loanDetails.repo
+      }).CreateLoanDetails({
+        userId,
+        payload: {
+          loanId,
+          requester,
+          contact,
+          loanType,
+          startDate,
+          tenor,
+          currency,
+          requestedAmt,
+          approvedAmt,
+          comment,
+          timestamp: Date.now()
+        }
+      }).catch(error => new ApolloError(error)),
+    updateLoanDetails: async (
+        _, { userId, loanId, requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment },
+        { dataSources: { loanDetails }, enrollmentId }: { dataSources: { loanDetails: LoanDetailsDS }; enrollmentId: string }
+      ): Promise<Commit[] | { error: any }> => {
+        const result: Commit[] = [];
+        if ((typeof requester !== 'undefined') && Object.keys(requester).length > 0) {
+          const c = await loanDetailsCommandHandler({
+            enrollmentId,
+            loanDetailsRepo: loanDetails.repo
+          }).DefineLoanRequester({
+            userId,
+            payload: { loanId, requester, timestamp: Date.now() }
+          }).then(data => data)
+            .catch(error => new ApolloError(error));
+          result.push(c);
+        }
+        if ((typeof contact !== 'undefined') && Object.keys(contact).length > 0) {
+          const c = await loanDetailsCommandHandler({
+            enrollmentId,
+            loanDetailsRepo: loanDetails.repo
+          }).DefineLoanContact({
+            userId,
+            payload: { loanId, contact, timestamp: Date.now() }
+          }).then(data => data)
+            .catch(error => new ApolloError(error));
+          result.push(c);
+        }
+        if (typeof loanType !== 'undefined') {
+          const c = await loanDetailsCommandHandler({
+            enrollmentId,
+            loanDetailsRepo: loanDetails.repo
+          }).DefineLoanType({
+            userId,
+            payload: { loanId, loanType, timestamp: Date.now() }
+          }).then(data => data)
+            .catch(error => new ApolloError(error));
+          result.push(c);
+        }
+        if (typeof startDate !== 'undefined') {
+          const c = await loanDetailsCommandHandler({
+            enrollmentId,
+            loanDetailsRepo: loanDetails.repo
+          }).DefineLoanStartDate({
+            userId,
+            payload: { loanId, startDate, timestamp: Date.now() }
+          }).then(data => data)
+            .catch(error => new ApolloError(error));
+          result.push(c);
+        }
+        if (typeof tenor !== 'undefined') {
+          const c = await loanDetailsCommandHandler({
+            enrollmentId,
+            loanDetailsRepo: loanDetails.repo
+          }).DefineLoanTenor({
+            userId,
+            payload: { loanId, tenor, timestamp: Date.now() }
+          }).then(data => data)
+            .catch(error => new ApolloError(error));
+          result.push(c);
+        }
+        if (typeof currency !== 'undefined') {
+          const c = await loanDetailsCommandHandler({
+            enrollmentId,
+            loanDetailsRepo: loanDetails.repo
+          }).DefineLoanCurrency({
+            userId,
+            payload: { loanId, currency, timestamp: Date.now() }
+          }).then(data => data)
+            .catch(error => new ApolloError(error));
+          result.push(c);
+        }
+        if (typeof requestedAmt !== 'undefined') {
+          const c = await loanDetailsCommandHandler({
+            enrollmentId,
+            loanDetailsRepo: loanDetails.repo
+          }).DefineLoanRequestedAmt({
+            userId,
+            payload: { loanId, requestedAmt, timestamp: Date.now() }
+          }).then(data => data)
+            .catch(error => new ApolloError(error));
+          result.push(c);
+        }
+        if (typeof approvedAmt !== 'undefined') {
+          const c = await loanDetailsCommandHandler({
+            enrollmentId,
+            loanDetailsRepo: loanDetails.repo
+          }).DefineLoanApprovedAmt({
+            userId,
+            payload: { loanId, approvedAmt, timestamp: Date.now() }
+          }).then(data => data)
+            .catch(error => new ApolloError(error));
+          result.push(c);
+        }
+        if (typeof comment !== 'undefined') {
+          const c = await loanDetailsCommandHandler({
+            enrollmentId,
+            loanDetailsRepo: loanDetails.repo
+          }).DefineLoanComment({
+            userId,
+            payload: { loanId, comment, timestamp: Date.now() }
+          }).then(data => data)
+            .catch(error => new ApolloError(error));
+          result.push(c);
+        }
+        return result;
+      }
+  }
+};

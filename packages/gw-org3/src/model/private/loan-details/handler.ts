@@ -1,5 +1,5 @@
 import { Errors } from '@espresso/gw-node';
-import { loanDetailsCommandHandler as superHandler } from '@espresso/model-loan-private';
+import { loanDetailsCommandHandler as superHandler, LoanDetailsErrors } from '@espresso/model-loan-private';
 import { LoanDetailsCommandHandler, LoanDetailsRepo } from '.';
 
 export const loanDetailsCommandHandler: (option: {
@@ -42,6 +42,12 @@ export const loanDetailsCommandHandler: (option: {
           timestamp
         }
       });
-    }
+    },
+    DefineLoanContact: async ({ userId, payload: { loanId, contact, timestamp }}) =>
+      loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
+        if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
+        if (!contact.company && (typeof contact.company !== 'undefined')) throw Errors.requiredDataMissing();
+        return handler.DefineLoanContact({ userId, payload: { loanId, contact, timestamp }});
+      })
   };
 };

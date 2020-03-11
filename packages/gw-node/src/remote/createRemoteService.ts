@@ -45,12 +45,10 @@ export const createRemoteService = async ({
               makePromise(
                 execute(
                   new HttpLink({
-                    uri: link,
-                    fetch,
-                    headers: { authorization: `Bearer ${token}` }
-                  }),
-                  { query, variables, operationName, context }
-                )
+                    uri: link, fetch, headers: { authorization: `Bearer ${token}` }
+                  }), {
+                    query, variables, operationName, context
+                  })
               ).catch(error => {
                 logger.error(util.format('executeHttpLink, %j', error));
                 return new ApolloError(error);

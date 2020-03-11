@@ -9,6 +9,7 @@ export const documentCommandHandler: (option: {
   ...superCommandHandler({ enrollmentId, documentRepo }),
   CreateDocument: async ({ userId, payload: { documentId, loanId, title, reference, link, timestamp } }) => {
     if (!reference) throw Errors.requiredDataMissing();
+    if (!link) throw Errors.requiredDataMissing();
     const events: any = [
       { type: 'DocumentCreated', payload: { documentId, userId, timestamp } },
       { type: 'DocumentReferenceDefined', payload: { documentId, userId, reference, timestamp } },
@@ -21,6 +22,7 @@ export const documentCommandHandler: (option: {
   DefineDocumentLink: async ({ userId, payload: { documentId, link, timestamp } }) =>
     documentRepo.getById({ enrollmentId, id: documentId }).then(({ currentState, save }) => {
       if (!currentState) throw DocumentErrors.documentNotFound(documentId);
+      if (!link) throw Errors.requiredDataMissing();
       return save([
         {
           type: 'DocumentLinkDefined',

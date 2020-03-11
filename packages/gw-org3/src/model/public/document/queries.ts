@@ -7,8 +7,9 @@ export const CREATE_DOCUMENT = gql`
     $loanId: String
     $title: String
     $reference: String!
+    $link: String!
   ) {
-    createDocument(userId: $userId, documentId: $documentId, loanId: $loanId, title: $title, reference: $reference) {
+    createDocument(userId: $userId, documentId: $documentId, loanId: $loanId, title: $title, reference: $reference, link: $link) {
       ... on DocCommit {
         id
         entityName
@@ -58,8 +59,8 @@ export const RESTRICT_DOCUMENT_ACCESS = gql`
 `;
 
 export const UPDATE_DOCUMENT = gql`
-  mutation UpdateDocument($userId: String!, $documentId: String!, $loanId: String, $title: String, $reference: String) {
-    updateDocument(userId: $userId, documentId: $documentId, loanId: $loanId, title: $title, reference: $reference) {
+  mutation UpdateDocument($userId: String!, $documentId: String!, $loanId: String, $title: String, $reference: String, $link: String) {
+    updateDocument(userId: $userId, documentId: $documentId, loanId: $loanId, title: $title, reference: $reference, link: $link) {
       ... on DocCommit {
         id
         entityName
