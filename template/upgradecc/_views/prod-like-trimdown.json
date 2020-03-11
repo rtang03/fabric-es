@@ -223,7 +223,7 @@
             },
             {
                 "name": "Rebel",
-                "script-naming": "org3",
+                "script-naming": "org4",
                 "id": "RebelMSP",
                 "domain": "rebel.inc",
                 "msp-path": "RebelMSP/msp",
