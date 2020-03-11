@@ -1,0 +1,33 @@
+cd {{{artifacts.local}}}/../../../packages/chaincode
+# yarn install
+yarn build
+
+# Install chaincode 2.0
+{{#orgs.peer}}
+{{#peers.endpoints}}
+docker exec cli{{network.host-delimiter}}{{domain}} sh -c "/setup/install_chaincode.sh {{domain}} {{-}} eventstore 2.0 {{port}} {{{admin-cert-path}}} {{{cert-path}}}"
+docker exec cli{{network.host-delimiter}}{{domain}} sh -c "/setup/install_chaincode.sh {{domain}} {{-}} privatedata 2.0 {{port}} {{{admin-cert-path}}} {{{cert-path}}}"
+{{/peers.endpoints}}
+{{/orgs.peer}}
+
+# Copy files to the container
+cd ../../deployments/operations/upgradecc/scripts
+mkdir -p {{{artifacts.local}}}/upgradecc
+cp container/* {{{artifacts.local}}}/upgradecc
+
+# Upgrade chaincode
+docker exec cli{{network.host-delimiter}}{{orgs.peer.0.domain}} sh -c "{{{artifacts.docker}}}/upgradecc/upgrade_chaincode_org1.sh"
+
+# Invoke chaincode
+{{#orgs.peer}}
+sleep 5
+docker exec cli{{network.host-delimiter}}{{domain}} sh -c "{{{artifacts.docker}}}/upgradecc/invoke_chaincode_{{script-naming}}.sh"
+{{/orgs.peer}}
+
+# Clean up old chaincode container
+docker rm -f $(docker ps -a | grep eventstore-1.0 | cut -d ' ' -f1)
+docker rm -f $(docker ps -a | grep privatedata-1.0 | cut -d ' ' -f1)
+
+# Clean up old chaincode images
+docker rmi -f $(docker images | grep eventstore-1.0 | awk '{print $3}')
+docker rmi -f $(docker images | grep privatedata-1.0 | awk '{print $3}')

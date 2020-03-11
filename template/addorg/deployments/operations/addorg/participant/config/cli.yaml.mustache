@@ -23,5 +23,5 @@ services:
         volumes:
             - {{{artifacts.local}}}:{{{artifacts.docker}}}
             - {{{artifacts.local}}}/../scripts/container:/setup
-            - {{{artifacts.local}}}/../chaincode:{{{artifacts.peers-working-dir}}}/chaincode
+            - {{{artifacts.local}}}/../../../packages/chaincode:{{{artifacts.peers-working-dir}}}/chaincode
     {{/orgs.addorg}}
