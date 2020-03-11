@@ -195,7 +195,7 @@ printf "\n################################"
 printf "\n# INSTALL CHAINCODE"
 printf "\n################################\n"
 
-cp collections.json $CHAINCODE/collections.json
+cp ./build.gw-org1/collections.json $CHAINCODE/collections.json
 cd $CHAINCODE && yarn build
 
 printMessage "Build chaincode" $?
