@@ -10,8 +10,7 @@ export * from './events';
 export * from './commands';
 export * from './reducer';
 export * from './handler';
-export { typeDefs as loanDetailsTypeDefs } from './typeDefs';
-export { loanDetailsResolvers } from '@espresso/model-loan-private'; // No change needed
+export { typeDefs as loanDetailsTypeDefs, resolvers as loanDetailsResolvers } from './typeDefs';
 export * from './queries';
 export type LoanDetailsRepo = PrivatedataRepository<LoanDetails, LoanDetailsEvents>;
 export type LoanDetailsCommandHandler = CommandHandler<LoanDetailsCommands>;

@@ -82,3 +82,5 @@ artifacts
 deployments/boilerplate
 deployments/operations
 NOTE.md
+
+genesis.block

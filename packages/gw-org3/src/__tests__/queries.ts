@@ -190,30 +190,6 @@ query GetLoanById($loanId: String!) {
   }
 }`;
 
-export const CREATE_DOCUMENT_CUST = `
-  mutation CreateDocument(
-    $userId: String!
-    $documentId: String!
-    $loanId: String
-    $title: String
-    $reference: String!
-    $link: String!
-  ) {
-    createDocument(userId: $userId, documentId: $documentId, loanId: $loanId, title: $title, reference: $reference, link: $link) {
-      ... on DocCommit {
-        id
-        entityName
-        version
-        commitId
-        committedAt
-      }
-      ... on DocError {
-        message
-      }
-    }
-  }
-`;
-
 export const GET_DOCUMENT_BY_ID = `
 query GetDocumentById($documentId: String!) {
   getDocumentById(documentId: $documentId) {

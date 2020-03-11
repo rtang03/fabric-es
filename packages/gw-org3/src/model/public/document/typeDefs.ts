@@ -1,6 +1,6 @@
 import { Commit } from '@espresso/fabric-cqrs';
 import { documentResolvers } from '@espresso/model-loan';
-import { AuthenticationError } from 'apollo-server-errors';
+import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { documentCommandHandler, DocumentDS } from '.';
 
@@ -70,92 +70,75 @@ export const typeDefs = gql`
   }
 `;
 
-const NOT_AUTHENICATED = 'no enrollment id';
-
 export const resolvers = {
   ...documentResolvers,
   Mutation: {
+    ...documentResolvers.Mutation,
     createDocument: async (
-      _,
-      { userId, documentId, loanId, title, reference, link },
+      _, { userId, documentId, loanId, title, reference, link },
       { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit> =>
-      !enrollmentId
-        ? new AuthenticationError(NOT_AUTHENICATED)
-        : documentCommandHandler({
-            enrollmentId,
-            documentRepo: document.repo
-          })
-            .CreateDocument({
-              userId,
-              payload: {
-                documentId,
-                loanId,
-                title,
-                reference,
-                link,
-                timestamp: Date.now()
-              }
-            })
-            .catch(({ error }) => error),
+      documentCommandHandler({
+        enrollmentId,
+        documentRepo: document.repo
+      }).CreateDocument({
+          userId,
+          payload: {
+            documentId,
+            loanId,
+            title,
+            reference,
+            link,
+            timestamp: Date.now()
+          }})
+        .catch(error => new ApolloError(error)),
     updateDocument: async (
-      _,
-      { userId, documentId, loanId, title, reference, link },
+      _, { userId, documentId, loanId, title, reference, link },
       { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
     ): Promise<Commit[] | { error: any }> => {
-      if (!enrollmentId) throw new AuthenticationError(NOT_AUTHENICATED);
-
       const result: Commit[] = [];
-      if (loanId) {
+      if (typeof loanId !== 'undefined') {
         const c = await documentCommandHandler({
           enrollmentId,
           documentRepo: document.repo
-        })
-          .DefineDocumentLoanId({
+        }).DefineDocumentLoanId({
             userId,
             payload: { documentId, loanId, timestamp: Date.now() }
-          })
-          .then(data => data)
-          .catch(({ message, stack }) => ({ message, stack }));
+        }).then(data => data)
+          .catch(error => new ApolloError(error));
         result.push(c);
       }
-      if (title) {
+      if (typeof title !== 'undefined') {
         const c = await documentCommandHandler({
           enrollmentId,
           documentRepo: document.repo
-        })
-          .DefineDocumentTitle({
+        }).DefineDocumentTitle({
             userId,
             payload: { documentId, title, timestamp: Date.now() }
-          })
-          .then(data => data)
-          .catch(({ message, stack }) => ({ message, stack }));
+        }).then(data => data)
+          .catch(error => new ApolloError(error));
         result.push(c);
       }
-      if (reference) {
+      if (typeof reference !== 'undefined') {
         const c = await documentCommandHandler({
           enrollmentId,
           documentRepo: document.repo
-        })
-          .DefineDocumentReference({
+        }).DefineDocumentReference({
             userId,
             payload: { documentId, reference, timestamp: Date.now() }
-          })
-          .then(data => data)
-          .catch(({ message, stack }) => ({ message, stack }));
+        }).then(data => data)
+          .catch(error => new ApolloError(error));
         result.push(c);
       }
-      if (link) {
+      if (typeof link !== 'undefined') {
         const c = await documentCommandHandler({
           enrollmentId,
           documentRepo: document.repo
-        })
-          .DefineDocumentLink({
+        }).DefineDocumentLink({
             userId,
             payload: { documentId, link, timestamp: Date.now() }
-          })
-          .then(data => data)
-          .catch(({ message, stack }) => ({ message, stack }));
+        }).then(data => data)
+          .catch(error => new ApolloError(error));
         result.push(c);
       }
       return result;

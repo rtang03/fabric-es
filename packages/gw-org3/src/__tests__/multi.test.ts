@@ -1,13 +1,19 @@
 import {
   APPLY_LOAN,
-  CREATE_DOCUMENT
+  CREATE_DOCUMENT,
+  UPDATE_DOCUMENT
 } from '@espresso/model-loan';
 import {
-  CREATE_DOC_CONTENTS
+  CREATE_DOC_CONTENTS,
+  CREATE_LOAN_DETAILS,
+  UPDATE_LOAN_DETAILS
 } from '@espresso/model-loan-private';
 import fetch from 'node-fetch';
 import {
-  CREATE_DOCUMENT_CUST,
+  CREATE_DOCUMENT as CREATE_DOCUMENT_CUST,
+  UPDATE_DOCUMENT as UPDATE_DOCUMENT_CUST
+} from '../model/public/document';
+import {
   GET_COMMITS_BY_DOCUMENT,
   GET_COMMITS_BY_LOAN,
   GET_DOCUMENT_BY_ID,
@@ -334,40 +340,21 @@ describe('Multi-Org Test - Initialize Org2', () => {
     expect(false).toBeTruthy();
   });
 
-  it('add docContents to document 2a', async () => {
+  it('add loanDetails to loan 2', async () => {
     if (isReady) {
       await fetch(GATEWAY2, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
-          operationName: 'CreateDocContents',
-          query: CREATE_DOC_CONTENTS.loc.source.body,
+          operationName: 'CreateLoanDetails',
+          query: CREATE_LOAN_DETAILS.loc.source.body,
           variables: {
-            userId: userId2, documentId: docId2a,
-            content: { body: `{ "message": "Org2 docContents 1" }` }
+            userId: userId2, loanId: loanId2,
+            requester: { registration: 'BR1234567XXX2', name: 'Loan Requester 2' },
+            contact: { name: 'Contact 2', phone: '555-0002', email: 'c0002@fake.it' },
+            startDate: '1574846420902', tenor: 52, currency: 'HKD', requestedAmt: 42.9,
+            comment: 'Org2 LoanDetails 2'
           }})})
         .then(res => res.json())
-        .then(data => {
-          console.log('YA org1', JSON.stringify(data));
-          return data;
-        })
-        .then(({ data }) => expect(data.createDocContents.id).toEqual(docId2a))
-        .catch(_ => expect(false).toBeTruthy());
-      return;
-    }
-    expect(false).toBeTruthy();
-  });
-
-  it('add docContents to document 2b', async () => {
-    if (isReady) {
-      await fetch(GATEWAY2, {
-        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
-          operationName: 'CreateDocContents',
-          query: CREATE_DOC_CONTENTS.loc.source.body,
-          variables: {
-            userId: userId2, documentId: docId2b,
-            content: { format: 'PDF', link: `http://fake.it/docs/org2DocContents-2.pdf` }
-          }})})
-        .then(res => res.json())
-        .then(({ data }) => expect(data.createDocContents.id).toEqual(docId2b))
+        .then(({ data }) => expect(data.createLoanDetails.id).toEqual(loanId2))
         .catch(_ => expect(false).toBeTruthy());
       return;
     }
@@ -395,12 +382,33 @@ describe('Multi-Org Test - Initialize Org3', () => {
     expect(false).toBeTruthy();
   });
 
+  it('submit document without customized field', async () => {
+    if (isReady) {
+      await fetch(GATEWAY3, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
+          operationName: 'CreateDocument',
+          query: CREATE_DOCUMENT_CUST.loc.source.body,
+          variables: {
+            userId: userId3, documentId: docId3a, loanId: loanId3,
+            title: 'Org3 Document 1',
+            reference: 'REF-ORG3-DOC-1',
+            link: ''
+          }})})
+        .then(res => res.json())
+        .then(({ errors }) => expect(errors.reduce((acc, cur) =>
+          cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
+        .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
   it('submit document 3a', async () => {
     if (isReady) {
       await fetch(GATEWAY3, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
           operationName: 'CreateDocument',
-          query: CREATE_DOCUMENT_CUST,
+          query: CREATE_DOCUMENT_CUST.loc.source.body,
           variables: {
             userId: userId3, documentId: docId3a, loanId: loanId3,
             title: 'Org3 Document 1',
@@ -420,7 +428,7 @@ describe('Multi-Org Test - Initialize Org3', () => {
       await fetch(GATEWAY3, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
           operationName: 'CreateDocument',
-          query: CREATE_DOCUMENT_CUST,
+          query: CREATE_DOCUMENT_CUST.loc.source.body,
           variables: {
             userId: userId3, documentId: docId3b, loanId: loanId3,
             title: 'Org3 Document 2',
@@ -429,6 +437,49 @@ describe('Multi-Org Test - Initialize Org3', () => {
           }})})
         .then(res => res.json())
         .then(({ data }) => expect(data.createDocument.id).toEqual(docId3b))
+        .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('add loanDetails without customized field', async () => {
+    if (isReady) {
+      await fetch(GATEWAY3, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
+          operationName: 'CreateLoanDetails',
+          query: CREATE_LOAN_DETAILS.loc.source.body,
+          variables: {
+            userId: userId3, loanId: loanId3,
+            requester: { registration: 'BR1234567XXX3', name: 'Loan Requester 3' },
+            contact: { name: 'Contact 3', phone: '555-9999', email: 'c0003@fake.it' },
+            startDate: '1574846420903', tenor: 50, currency: 'HKD', requestedAmt: 43.9,
+            comment: 'Org3 LoanDetails 3'
+          }})})
+        .then(res => res.json())
+        .then(({ errors }) => expect(errors.reduce((acc, cur) =>
+          cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
+        .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('add loanDetails to loan 3', async () => {
+    if (isReady) {
+      await fetch(GATEWAY3, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
+          operationName: 'CreateLoanDetails',
+          query: CREATE_LOAN_DETAILS.loc.source.body,
+          variables: {
+            userId: userId3, loanId: loanId3,
+            requester: { registration: 'BR1234567XXX3', name: 'Loan Requester 3' },
+            contact: { name: 'Contact 3', phone: '555-9999', email: 'c0003@fake.it', company: 'Shell' },
+            startDate: '1574846420903', tenor: 50, currency: 'HKD', requestedAmt: 43.9,
+            comment: 'Org3 LoanDetails 3'
+          }})})
+        .then(res => res.json())
+        .then(({ data }) => expect(data.createLoanDetails.id).toEqual(loanId3))
         .catch(_ => expect(false).toBeTruthy());
       return;
     }
@@ -465,6 +516,165 @@ describe('Multi-Org Test - Initialize Org3', () => {
           }})})
         .then(res => res.json())
         .then(({ data }) => expect(data.createDocContents.id).toEqual(docId3b))
+        .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update doucment 3b with empty link', async () => {
+    if (isReady) {
+      await fetch(GATEWAY3, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
+          operationName: 'UpdateDocument',
+          query: UPDATE_DOCUMENT_CUST.loc.source.body,
+          variables: {
+            userId: userId3, documentId: docId3b, link: ''
+          }})})
+        .then(res => res.json())
+        .then(({ errors }) => expect(errors.reduce((acc, cur) =>
+          cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
+        .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update doucment 3b', async () => {
+    if (isReady) {
+      await fetch(GATEWAY3, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
+          operationName: 'UpdateDocument',
+          query: UPDATE_DOCUMENT_CUST.loc.source.body,
+          variables: {
+            userId: userId3, documentId: docId3b, link: 'Org3-Customized-Link-b'
+          }})})
+        .then(res => res.json())
+        .then(({ data }) => expect(data.updateDocument.map(d => (d && d.id) ? d.id : '')).toContain(docId3b))
+        .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update loanDetails 3 with empty company', async () => {
+    if (isReady) {
+      await fetch(GATEWAY3, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
+          operationName: 'UpdateLoanDetails',
+          query: UPDATE_LOAN_DETAILS.loc.source.body,
+          variables: {
+            userId: userId3, loanId: loanId3,
+            contact: { company: '' }
+          }})})
+        .then(res => res.json())
+        .then(({ errors }) => expect(errors.reduce((acc, cur) =>
+          cur.message.includes('REQUIRED_DATA_MISSING') ? cur.message : acc, '')).toContain('REQUIRED_DATA_MISSING'))
+        .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('update loanDetails 3', async () => {
+    if (isReady) {
+      await fetch(GATEWAY3, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
+          operationName: 'UpdateLoanDetails',
+          query: UPDATE_LOAN_DETAILS.loc.source.body,
+          variables: {
+            userId: userId3, loanId: loanId3,
+            requester: { name: 'Loan Requester 999' },
+            contact: { company: 'Shell Company', phone: '555-0003' },
+            currency: '', tenor: 53
+          }})})
+        .then(res => res.json())
+        .then(({ data, errors }) => {
+          const errs = errors.map(e => e.message);
+          expect(errs).toContain('Error: INVALID_OPERATION');
+          expect(errs).toContain('Error: REQUIRED_DATA_MISSING');
+          expect(data.updateLoanDetails.map(d => (d && d.id) ? d.id : '')).toContain(loanId3);
+        })
+        .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+});
+
+describe('Multi-Org Test - Add remote data', () => {
+  it('org1 add docContents 2a for org2', async () => {
+    if (isReady) {
+      await fetch(GATEWAY1, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken1}` }, body: JSON.stringify({
+          operationName: 'CreateDocContents',
+          query: CREATE_DOC_CONTENTS.loc.source.body,
+          variables: {
+            userId: userId1, documentId: docId2a,
+            content: { body: `{ "message": "Org1 docContents 1 for Org2" }` }
+          }})})
+        .then(res => res.json())
+        .then(({ data }) => expect(data.createDocContents.id).toEqual(docId2a))
+        .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('org2 add loanDetails 1 for org1', async () => {
+    if (isReady) {
+      await fetch(GATEWAY2, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
+          operationName: 'CreateLoanDetails',
+          query: CREATE_LOAN_DETAILS.loc.source.body,
+          variables: {
+            userId: userId2, loanId: loanId1,
+            requester: { registration: 'BR1234567XXX1', name: 'Loan Requester 1' },
+            contact: { name: 'Contact 1', phone: '555-0001', email: 'c0001@fake.it' },
+            startDate: '1574846420901', tenor: 51, currency: 'HKD', requestedAmt: 41.9,
+            comment: 'Org2 LoanDetails 1 for Org1'
+          }})})
+        .then(res => res.json())
+        .then(({ data }) => expect(data.createLoanDetails.id).toEqual(loanId1))
+        .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('org3 add loanDetails 1 for org1', async () => {
+    if (isReady) {
+      await fetch(GATEWAY3, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
+          operationName: 'CreateLoanDetails',
+          query: CREATE_LOAN_DETAILS.loc.source.body,
+          variables: {
+            userId: userId3, loanId: loanId1,
+            requester: { registration: 'BR1234567XXX1', name: 'Loan Requester 1' },
+            contact: { name: 'Contact 1', phone: '555-0001', email: 'c0001@fake.it', company: 'Shell Company' },
+            startDate: '1574846420901', tenor: 51, currency: 'USD', requestedAmt: 41.9,
+            comment: 'Org3 LoanDetails 1 for Org1'
+          }})})
+        .then(res => res.json())
+        .then(({ data }) => expect(data.createLoanDetails.id).toEqual(loanId1))
+        .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('org3 add docContents 2a for org2', async () => {
+    if (isReady) {
+      await fetch(GATEWAY3, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
+          operationName: 'CreateDocContents',
+          query: CREATE_DOC_CONTENTS.loc.source.body,
+          variables: {
+            userId: userId3, documentId: docId2a,
+            content: { format: 'PDF', link: `http://fake.it/docs/org1DocContents-1-4org2.pdf` }
+          }})})
+        .then(res => res.json())
+        .then(({ data }) => expect(data.createDocContents.id).toEqual(docId2a))
         .catch(_ => expect(false).toBeTruthy());
       return;
     }

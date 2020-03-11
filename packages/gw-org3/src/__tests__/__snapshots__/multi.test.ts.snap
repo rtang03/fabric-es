@@ -3,8 +3,48 @@
 exports[`Multi-Org Test - Query Loans query loan 1 1`] = `
 Object {
   "_details": Array [
-    null,
-    null,
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 1 for Org1",
+      "contact": Object {
+        "email": "c0001@fake.it",
+        "name": "Contact 1",
+        "phone": "555-0001",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "HKD",
+      "loanType": null,
+      "requestedAmt": 41.9,
+      "requester": Object {
+        "name": "Loan Requester 1",
+        "registration": "BR1234567XXX1",
+        "type": null,
+      },
+      "startDate": "1574846420901",
+      "tenor": 51,
+    },
+    Object {
+      "approvedAmt": null,
+      "comment": "Org3 LoanDetails 1 for Org1",
+      "contact": Object {
+        "email": "c0001@fake.it",
+        "name": "Contact 1",
+        "phone": "555-0001",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "USD",
+      "loanType": null,
+      "requestedAmt": 41.9,
+      "requester": Object {
+        "name": "Loan Requester 1",
+        "registration": "BR1234567XXX1",
+        "type": null,
+      },
+      "startDate": "1574846420901",
+      "tenor": 51,
+    },
   ],
   "comment": "Hello 0001",
   "description": "Org1 Loan 1",
@@ -41,12 +81,41 @@ exports[`Multi-Org Test - Query Loans query loan 2 1`] = `
 Object {
   "comment": "Hello 0002",
   "description": "Org2 Loan 2",
-  "details": null,
+  "details": Object {
+    "approvedAmt": null,
+    "comment": "Org2 LoanDetails 2",
+    "contact": Object {
+      "email": "c0002@fake.it",
+      "name": "Contact 2",
+      "phone": "555-0002",
+      "salutation": null,
+      "title": null,
+    },
+    "currency": "HKD",
+    "loanType": null,
+    "requestedAmt": 42.9,
+    "requester": Object {
+      "name": "Loan Requester 2",
+      "registration": "BR1234567XXX2",
+      "type": null,
+    },
+    "startDate": "1574846420902",
+    "tenor": 52,
+  },
   "documents": Array [
     Object {
       "_contents": Array [
-        null,
-        null,
+        Object {
+          "content": Object {
+            "body": "{ \\"message\\": \\"Org1 docContents 1 for Org2\\" }",
+          },
+        },
+        Object {
+          "content": Object {
+            "format": "PDF",
+            "link": "http://fake.it/docs/org1DocContents-1-4org2.pdf",
+          },
+        },
       ],
       "reference": "REF-ORG2-DOC-1",
       "status": 0,
@@ -72,7 +141,28 @@ exports[`Multi-Org Test - Query Loans query loan 3 1`] = `
 Object {
   "comment": "Hello 0003",
   "description": "Org3 Loan 3",
-  "details": null,
+  "details": Object {
+    "approvedAmt": null,
+    "comment": "Org3 LoanDetails 3",
+    "contact": Object {
+      "company": "Shell Company",
+      "email": "c0003@fake.it",
+      "name": "Contact 3",
+      "phone": "555-0003",
+      "salutation": null,
+      "title": null,
+    },
+    "currency": "HKD",
+    "loanType": null,
+    "requestedAmt": 43.9,
+    "requester": Object {
+      "name": "Loan Requester 3",
+      "registration": "BR1234567XXX3",
+      "type": null,
+    },
+    "startDate": "1574846420903",
+    "tenor": 53,
+  },
   "documents": Array [
     Object {
       "contents": Object {
@@ -92,7 +182,7 @@ Object {
           "link": "http://fake.it/docs/org3DocContents-2.pdf",
         },
       },
-      "link": "Org3-Customized-Link-a",
+      "link": "Org3-Customized-Link-b",
       "reference": "REF-ORG3-DOC-2",
       "status": 0,
       "title": "Org3 Document 2",
