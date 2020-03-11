@@ -78,6 +78,7 @@ authentication-server/.env
 artifacts
 .build
 .volume
+volume
 
 deployments/boilerplate
 deployments/operations

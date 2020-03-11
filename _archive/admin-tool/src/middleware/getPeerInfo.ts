@@ -6,7 +6,7 @@ import {
 } from 'fabric-client';
 import { findLast } from 'lodash';
 import { Context } from '../../../../deployments/dev-net/config';
-import { createUser, getClientForOrg, parseConnectionProfile } from './utils';
+import { createUser, getClientForOrg, parseConnectionProfile } from './index';
 
 interface SdkClientQuery {
   getBlockByNumber: (blockNumber: number) => Promise<Block>;

@@ -1,0 +1,84 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+  tls-ca-hktfp:
+    extends:
+      file: compose.1.2org.yaml
+      service: tls-ca-hktfp
+  rca-hktfp:
+    extends:
+      file: compose.1.2org.yaml
+      service: rca-hktfp
+  rca-etradeconnect:
+    extends:
+      file: compose.1.2org.yaml
+      service: rca-etradeconnect
+  rca-pbctfp:
+    extends:
+      file: compose.1.2org.yaml
+      service: rca-pbctfp
+  peer0-etradeconnect:
+    extends:
+      file: compose.1.2org.yaml
+      service: peer0-etradeconnect
+  peer0-pbctfp:
+    extends:
+      file: compose.1.2org.yaml
+      service: peer0-pbctfp
+  orderer0-hktfp:
+    extends:
+      file: compose.1.2org.yaml
+      service: orderer0-hktfp
+  cli:
+    extends:
+      file: compose.1.2org.yaml
+      service: cli
+
+  postgres01:
+    extends:
+      file: compose.1.2org.yaml
+      service: postgres01
+
+  postgres02:
+    extends:
+      file: compose.1.2org.yaml
+      service: postgres02
+
+  auth-server1:
+    image: espresso/auth-server:1.0
+    container_name: auth-server1
+    environment:
+      - TYPEORM_HOST=postgres01
+      - TYPEORM_PORT=5432
+      - TYPEORM_USERNAME=postgres
+      - TYPEORM_PASSWORD=docker
+      - TYPEORM_DATABASE=auth_db
+    ports:
+      - 3901:8080
+    depends_on:
+      - postgres01
+    volumes:
+      - $VOLUME/auth-server1/logs/:/home/app/packages/authentication/logs/
+    networks:
+      - openplatform
+
+  auth-server2:
+    image: espresso/auth-server:1.0
+    container_name: auth-server2
+    environment:
+      - TYPEORM_HOST=postgres02
+      - TYPEORM_PORT=5432
+      - TYPEORM_USERNAME=postgres
+      - TYPEORM_PASSWORD=docker
+      - TYPEORM_DATABASE=auth_db
+    ports:
+      - 3902:8080
+    depends_on:
+      - postgres02
+    volumes:
+      - $VOLUME/auth-server2/logs/:/home/app/packages/authentication/logs/
+    networks:
+      - openplatform

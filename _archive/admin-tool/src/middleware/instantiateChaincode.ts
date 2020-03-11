@@ -5,7 +5,7 @@ import {
 } from 'fabric-client';
 import '../env';
 import { Context } from '../../../../deployments/dev-net/config';
-import { getClientForOrg, parseConnectionProfile } from './utils';
+import { getClientForOrg, parseConnectionProfile } from './index';
 
 export const instantiateChaincode: (
   option: {
