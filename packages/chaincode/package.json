@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/chaincode",
-  "version": "0.2.0",
+  "version": "0.5.14",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "description": "Event Store Chaincode for Hyperledger Fabric",
@@ -17,7 +17,9 @@
   "bugs": {
     "url": "https://github.com/rtang03/fabric-es/issues"
   },
-  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "engines": {
     "node": "^8.10.0",
     "npm": ">=5"

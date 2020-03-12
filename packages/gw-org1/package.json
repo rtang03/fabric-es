@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/gw-org1",
-  "version": "1.0.0",
+  "version": "0.5.14",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
@@ -47,11 +47,11 @@
   "dependencies": {
     "@apollo/federation": "^0.10.2",
     "@apollo/gateway": "^0.10.8",
-    "@fabric-es/fabric-cqrs": "1.0.0",
-    "@fabric-es/gateway-lib": "1.0.0",
-    "@fabric-es/model-common": "1.0.0",
-    "@fabric-es/model-loan": "1.0.0",
-    "@fabric-es/operator": "1.0.0",
+    "@fabric-es/fabric-cqrs": "^0.5.14",
+    "@fabric-es/gateway-lib": "^0.5.14",
+    "@fabric-es/model-common": "^0.5.14",
+    "@fabric-es/model-loan": "^0.5.14",
+    "@fabric-es/operator": "^0.5.14",
     "apollo-server": "^2.9.7",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",

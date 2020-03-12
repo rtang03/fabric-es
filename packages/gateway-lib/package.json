@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/gateway-lib",
-  "version": "1.0.0",
+  "version": "0.5.14",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "description": "Gateway node",
@@ -17,7 +17,9 @@
   "bugs": {
     "url": "https://github.com/rtang03/fabric-es/issues"
   },
-  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "scripts": {
     "build": "yarn clean && tsc",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
@@ -43,12 +45,12 @@
   "dependencies": {
     "@apollo/federation": "^0.10.2",
     "@apollo/gateway": "^0.10.8",
-    "@fabric-es/authentication": "1.0.0",
-    "@fabric-es/fabric-cqrs": "1.0.0",
-    "@fabric-es/model-common": "1.0.0",
-    "@fabric-es/model-loan": "1.0.0",
-    "@fabric-es/model-loan-private": "1.0.0",
-    "@fabric-es/operator": "1.0.0",
+    "@fabric-es/authentication": "^0.5.14",
+    "@fabric-es/fabric-cqrs": "^0.5.14",
+    "@fabric-es/model-common": "^0.5.14",
+    "@fabric-es/model-loan": "^0.5.14",
+    "@fabric-es/model-loan-private": "^0.5.14",
+    "@fabric-es/operator": "^0.5.14",
     "apollo-link-http": "^1.5.16",
     "apollo-server": "^2.9.7",
     "arraybuffer-to-string": "^1.0.2",
@@ -73,16 +75,16 @@
     "@graphql-codegen/cli": "^1.9.0",
     "@graphql-codegen/introspection": "^1.9.0",
     "@graphql-codegen/typescript": "^1.9.0",
-    "@graphql-codegen/typescript-operations": "^1.9.1",
     "@graphql-codegen/typescript-document-nodes": "^1.9.1",
-    "@graphql-codegen/typescript-type-graphql": "^1.9.1",
-    "@graphql-codegen/typescript-resolvers": "^1.9.0",
+    "@graphql-codegen/typescript-operations": "^1.9.1",
     "@graphql-codegen/typescript-react-apollo": "^1.9.1",
+    "@graphql-codegen/typescript-resolvers": "^1.9.0",
+    "@graphql-codegen/typescript-type-graphql": "^1.9.1",
     "@types/bcrypt": "^3.0.0",
     "@types/body-parser": "^1.17.1",
     "@types/bytebuffer": "^5.0.40",
+    "@types/concurrently": "^4.1.0",
     "@types/cookie": "^0.3.3",
-    "@types/concurrently":  "^4.1.0",
     "@types/dotenv": "^6.1.1",
     "@types/express": "^4.17.1",
     "@types/jest": "^24.0.18",
