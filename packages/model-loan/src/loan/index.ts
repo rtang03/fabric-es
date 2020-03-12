@@ -1,5 +1,5 @@
-import { Repository } from '@espresso/fabric-cqrs';
-import { CommandHandler, DataSrc } from '@espresso/gw-node';
+import { Repository } from '@fabric-es/fabric-cqrs';
+import { CommandHandler, DataSrc } from '@fabric-es/gateway-lib';
 import { LoanCommands } from './domain/commands';
 import { LoanEvents } from './domain/events';
 import { Loan } from './domain/model';

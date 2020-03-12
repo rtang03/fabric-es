@@ -1,8 +1,8 @@
 require('./env');
 import util from 'util';
-import { getReducer } from '@espresso/fabric-cqrs';
-import { createService, getLogger } from '@espresso/gw-node';
-import { Loan, LoanEvents, loanReducer, loanResolvers, loanTypeDefs } from '@espresso/model-loan';
+import { getReducer } from '@fabric-es/fabric-cqrs';
+import { createService, getLogger } from '@fabric-es/gateway-lib';
+import { Loan, LoanEvents, loanReducer, loanResolvers, loanTypeDefs } from '@fabric-es/model-loan';
 import { FileSystemWallet } from 'fabric-network';
 
 const logger = getLogger('service-loan.js');

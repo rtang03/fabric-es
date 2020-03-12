@@ -1,5 +1,5 @@
 {
-  "name": "@espresso/model-common",
+  "name": "@fabric-es/model-common",
   "version": "1.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -25,7 +25,8 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@espresso/fabric-cqrs": "1.0.0"
+    "@fabric-es/fabric-cqrs": "1.0.0",
+    "@fabric-es/gateway-lib": "1.0.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.9.0",

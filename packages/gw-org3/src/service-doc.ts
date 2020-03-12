@@ -1,7 +1,7 @@
 require('./env');
 import util from 'util';
-import { getReducer } from '@espresso/fabric-cqrs';
-import { createService, getLogger } from '@espresso/gw-node';
+import { getReducer } from '@fabric-es/fabric-cqrs';
+import { createService, getLogger } from '@fabric-es/gateway-lib';
 import { FileSystemWallet } from 'fabric-network';
 import {
   Document,

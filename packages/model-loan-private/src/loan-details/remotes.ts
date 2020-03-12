@@ -1,4 +1,4 @@
-import { RemoteData } from '@espresso/gw-node';
+import { RemoteData } from '@fabric-es/gateway-lib';
 import gql from 'graphql-tag';
 import { GET_DETAILS_BY_ID } from '.';
 

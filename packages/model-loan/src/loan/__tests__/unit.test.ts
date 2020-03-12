@@ -1,6 +1,6 @@
 import { buildFederatedSchema } from '@apollo/federation';
-import { Commit, getMockRepository, getReducer } from '@espresso/fabric-cqrs';
-import { DataSrc } from '@espresso/gw-node';
+import { Commit, getMockRepository, getReducer } from '@fabric-es/fabric-cqrs';
+import { DataSrc } from '@fabric-es/gateway-lib';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import gql from 'graphql-tag';

@@ -1,5 +1,5 @@
 require('./env');
-import { createGateway } from '@espresso/gw-node';
+import { createGateway } from '@fabric-es/gateway-lib';
 
 const PORT = process.env.GATEWAY_PORT || 4001;
 const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI || 'http://localhost:3301/oauth/authenticate';

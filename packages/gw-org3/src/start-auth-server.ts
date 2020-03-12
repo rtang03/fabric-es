@@ -1,5 +1,5 @@
 require('./env');
-import { createAuthServer, createDbConnection, createRootClient } from '@espresso/authentication';
+import { createAuthServer, createDbConnection, createRootClient } from '@fabric-es/authentication';
 
 const dbConnection = createDbConnection({
   name: 'default',

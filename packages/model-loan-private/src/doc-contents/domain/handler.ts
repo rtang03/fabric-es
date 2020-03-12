@@ -1,4 +1,4 @@
-import { Errors } from '@espresso/gw-node';
+import { Errors } from '@fabric-es/gateway-lib';
 import { DataContent, DocContentsCommandHandler, DocContentsRepo, FileContent } from '..';
 
 export const DocContentsErrors = {

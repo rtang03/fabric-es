@@ -1,4 +1,4 @@
-import { Commit, getPrivatedataMockRepository, getReducer, PrivatedataRepository } from '@espresso/fabric-cqrs';
+import { Commit, getPrivatedataMockRepository, getReducer, PrivatedataRepository } from '@fabric-es/fabric-cqrs';
 import { LoanDetails, LoanDetailsEvents, loanDetailsReducer, loanDetailsCommandHandler } from '../../../loan-details';
 
 const enrollmentId = '';

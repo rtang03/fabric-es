@@ -2,12 +2,12 @@ import {
   APPLY_LOAN,
   CREATE_DOCUMENT,
   UPDATE_DOCUMENT
-} from '@espresso/model-loan';
+} from '@fabric-es/model-loan';
 import {
   CREATE_DOC_CONTENTS,
   CREATE_LOAN_DETAILS,
   UPDATE_LOAN_DETAILS
-} from '@espresso/model-loan-private';
+} from '@fabric-es/model-loan-private';
 import fetch from 'node-fetch';
 import {
   CREATE_DOCUMENT as CREATE_DOCUMENT_CUST,

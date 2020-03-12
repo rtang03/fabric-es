@@ -1,4 +1,4 @@
-import { LoanDetailsCommands as SuperCommands, LoanRequester } from '@espresso/model-loan-private';
+import { LoanDetailsCommands as SuperCommands, LoanRequester } from '@fabric-es/model-loan-private';
 import { ContactInfo } from '.';
 
 export interface LoanDetailsCommands extends SuperCommands {

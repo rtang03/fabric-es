@@ -1,4 +1,4 @@
-import { Commit, getPrivatedataMockRepository, getReducer, PrivatedataRepository } from '@espresso/fabric-cqrs';
+import { Commit, getPrivatedataMockRepository, getReducer, PrivatedataRepository } from '@fabric-es/fabric-cqrs';
 import { DocContents, DocContentsEvents, docContentsReducer, docContentsCommandHandler } from '../../../doc-contents';
 
 const enrollmentId = '';

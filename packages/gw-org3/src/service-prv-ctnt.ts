@@ -1,14 +1,14 @@
 require('./env');
 import util from 'util';
-import { getReducer } from '@espresso/fabric-cqrs';
-import { createService, getLogger } from '@espresso/gw-node';
+import { getReducer } from '@fabric-es/fabric-cqrs';
+import { createService, getLogger } from '@fabric-es/gateway-lib';
 import {
   DocContents,
   DocContentsEvents,
   docContentsReducer,
   docContentsResolvers,
   docContentsTypeDefs
-} from '@espresso/model-loan-private';
+} from '@fabric-es/model-loan-private';
 import { FileSystemWallet } from 'fabric-network';
 
 const logger = getLogger('service-prv-ctnt.js');

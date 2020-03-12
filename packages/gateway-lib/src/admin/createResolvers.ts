@@ -1,5 +1,5 @@
 import util from 'util';
-import { createNetworkOperator } from '@espresso/operator';
+import { createNetworkOperator } from '@fabric-es/operator';
 import { ApolloError, AuthenticationError, ForbiddenError } from 'apollo-server';
 import ab2str from 'arraybuffer-to-string';
 import Client from 'fabric-client';

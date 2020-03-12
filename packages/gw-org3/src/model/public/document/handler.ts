@@ -1,5 +1,5 @@
-import { Errors } from '@espresso/gw-node';
-import { documentCommandHandler as superCommandHandler, DocumentErrors } from '@espresso/model-loan';
+import { Errors } from '@fabric-es/gateway-lib';
+import { documentCommandHandler as superCommandHandler, DocumentErrors } from '@fabric-es/model-loan';
 import { DocumentCommandHandler, DocumentRepo } from '.';
 
 export const documentCommandHandler: (option: {

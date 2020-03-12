@@ -6,7 +6,7 @@ networks:
 services:
   tls-ca.hktfp.com:
     extends:
-      file: ./nodebase.yaml
+      file: nodebase.yaml
       service: ca
     container_name: tls-ca.hktfp.com
     environment:
@@ -23,7 +23,7 @@ services:
 
   rca.hktfp.com:
     extends:
-      file: ./nodebase.yaml
+      file: nodebase.yaml
       service: ca
     container_name: rca.hktfp.com
     environment:
@@ -41,7 +41,7 @@ services:
 
   rca.etradeconnect.net:
     extends:
-      file: ./nodebase.yaml
+      file: nodebase.yaml
       service: ca
     container_name: rca.etradeconnect.net
     environment:
@@ -58,7 +58,7 @@ services:
 
   rca.pbctfp.net:
     extends:
-      file: ./nodebase.yaml
+      file: nodebase.yaml
       service: ca
     container_name: rca.pbctfp.net
     environment:
@@ -75,7 +75,7 @@ services:
 
   peer0.etradeconnect.net:
     extends:
-      file: ./nodebase.yaml
+      file: nodebase.yaml
       service: peer
     container_name: peer0.etradeconnect.net
     environment:
@@ -100,7 +100,7 @@ services:
 
   peer0.pbctfp.net:
     extends:
-      file: ./nodebase.yaml
+      file: nodebase.yaml
       service: peer
     container_name: peer0.pbctfp.net
     environment:
@@ -125,7 +125,7 @@ services:
 
   orderer0.hktfp.com:
     extends:
-      file: ./nodebase.yaml
+      file: nodebase.yaml
       service: orderer
     container_name: orderer0.hktfp.com
     environment:
@@ -148,7 +148,7 @@ services:
 
   cli:
     extends:
-      file: ./nodebase.yaml
+      file: nodebase.yaml
       service: cli
     container_name: cli
     environment:

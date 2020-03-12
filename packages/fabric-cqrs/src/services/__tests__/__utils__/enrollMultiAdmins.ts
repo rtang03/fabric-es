@@ -1,6 +1,6 @@
 require('../../../env');
 
-import { enrollAdmin } from '@espresso/operator';
+import { enrollAdmin } from '@fabric-es/operator';
 
 export const enrollOrg1Admin = wallet =>
   enrollAdmin({
