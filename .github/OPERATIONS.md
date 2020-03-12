@@ -29,13 +29,24 @@ _service_account_key_ need to covert to base64 format.
 - `GKE_EMAIL` => _service_account_email_
 - `GKE_KEY` => _service_account_key_
 
-Step 0 is already complete; above information is for documentation purpose only.   
+Step 0 is already complete; above information is for documentation purpose only.
 
-_step 1: Commit and push all changes_
+_step 1: Manually update Changelog_
+Update the changelog.md with right version tag. The version tag in step 3 must be the exist in changelog.
 
-_step 2: Manually update Changelog_
+_step 2: Commit and push all changes_
 
 _step 3: create release tag_
+Method 1:
+This will bump version, create version tag, and push to origin in go.
+
+```shell script
+# increment version
+yarn version:patch
+```
+
+Method 2:  
+Or equivalently, manually create version tag, and push.
 
 ```shell script
 # create local tag
