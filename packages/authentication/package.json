@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/authentication",
-  "version": "1.0.0",
+  "version": "0.5.14",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "UNLICENSED",
@@ -17,7 +17,9 @@
   "bugs": {
     "url": "https://github.com/rtang03/fabric-es/issues"
   },
-  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "scripts": {
     "start": "npm run build && node ./dist/app.js",
     "dev-auth": "nodemon --exec ts-node src/app.ts",
@@ -61,8 +63,8 @@
     "morgan": "^1.9.1",
     "oauth2-server-typescript": "^5.0.0-dev.3",
     "pg": "^7.12.1",
-    "pug": "^2.0.4",
     "pgtools": "^0.3.0",
+    "pug": "^2.0.4",
     "reflect-metadata": "^0.1.13",
     "stoppable": "^1.1.0",
     "type-graphql": "^0.17.5",

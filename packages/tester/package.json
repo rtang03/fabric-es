@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/tester",
-  "version": "1.0.0",
+  "version": "0.5.14",
   "scripts": {
     "clean": "rimraf dist",
     "tsc:prod": "yarn clean && tsc",
@@ -22,9 +22,9 @@
     "@types/node-fetch": "^2.5.4",
     "concurrently": "^5.0.0",
     "dotenv": "^8.1.0",
+    "jest": "^24.9.0",
     "lodash": "^4.17.15",
     "node-fetch": "^2.6.0",
-    "jest": "^24.9.0",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",
     "ts-jest": "^24.0.2",
