@@ -8,6 +8,7 @@ export const typeDefs = gql`
   type Query {
     getCommitsByDocumentId(documentId: String!): [DocCommit]!
     getDocumentById(documentId: String!): Document
+    getPaginatedDocuments(pageSize: Int = 10): PaginatedDocuments!
   }
 
   type Mutation {
@@ -41,6 +42,12 @@ export const typeDefs = gql`
     status: Int!
     timestamp: String!
     loan: Loan
+  }
+
+  type PaginatedDocuments {
+    entities: [Document!]!
+    total: Int!
+    hasMore: Boolean!
   }
 
   extend type Loan @key(fields: "loanId") {
