@@ -1,0 +1,91 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Document Unit Test - Resolver query documents by page 1`] = `
+Object {
+  "entities": Array [
+    Object {
+      "documentId": "D0000",
+      "loanId": "L0001",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-DOC-0VERWRITTEN",
+      "status": 0,
+      "title": "Unit test document 0VERWRITTEN",
+    },
+    Object {
+      "documentId": "D0001",
+      "loanId": "L0001",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-DOC-1",
+      "status": 0,
+      "title": "Unit test document 1 EDITED",
+    },
+    Object {
+      "documentId": "D0002",
+      "loanId": "L0001",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-DOC-2",
+      "status": 0,
+      "title": "Unit test document 2",
+    },
+    Object {
+      "documentId": "D0003",
+      "loanId": "L0000",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-DOC-3",
+      "status": 0,
+      "title": "Unit test document 3 EDITED",
+    },
+    Object {
+      "documentId": "D0004",
+      "loanId": "L0001",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-DOC-4",
+      "status": 1,
+      "title": "Unit test document 4",
+    },
+    Object {
+      "documentId": "D0005",
+      "loanId": "L0001",
+      "ownerId": "unitTestUser",
+      "reference": "REF-UNIT-TEST-DOC-5",
+      "status": 2,
+      "title": "Unit test document 5 EDITED",
+    },
+  ],
+  "hasMore": false,
+  "total": 6,
+}
+`;
+
+exports[`Document Unit Test - Resolver query loan 0 by id 1`] = `
+Object {
+  "documentId": "D0000",
+  "loanId": "L0001",
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-DOC-0VERWRITTEN",
+  "status": 0,
+  "title": "Unit test document 0VERWRITTEN",
+}
+`;
+
+exports[`Document Unit Test - Resolver query loan 1 by id 1`] = `
+Object {
+  "documentId": "D0001",
+  "loanId": "L0001",
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-DOC-1",
+  "status": 0,
+  "title": "Unit test document 1 EDITED",
+}
+`;
+
+exports[`Document Unit Test - Resolver query loan 2 by id 1`] = `
+Object {
+  "documentId": "D0002",
+  "loanId": "L0001",
+  "ownerId": "unitTestUser",
+  "reference": "REF-UNIT-TEST-DOC-2",
+  "status": 0,
+  "title": "Unit test document 2",
+}
+`;

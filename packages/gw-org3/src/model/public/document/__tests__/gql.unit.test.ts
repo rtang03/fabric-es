@@ -70,7 +70,8 @@ describe('Document Unit Test - Resolver', () => {
       variables: {
         userId, documentId: 'D0000', loanId,
         title: 'Unit test document 0',
-        reference: 'REF-UNIT-TEST-DOC-0'
+        reference: 'REF-UNIT-TEST-DOC-0',
+        link:' YO-LINK-0'
       }})
     .then(({ data }) => expect(data.createDocument.id).toEqual('D0000'))
     .catch(_ => expect(false).toBeTruthy())
@@ -82,7 +83,8 @@ describe('Document Unit Test - Resolver', () => {
       variables: {
         userId, documentId: 'D0001', loanId,
         title: 'Unit test document 1',
-        reference: 'REF-UNIT-TEST-DOC-1'
+        reference: 'REF-UNIT-TEST-DOC-1',
+        link:' YO-LINK-1'
       }})
     .then(({ data }) => expect(data.createDocument.id).toEqual('D0001'))
     .catch(_ => expect(false).toBeTruthy())
@@ -94,7 +96,8 @@ describe('Document Unit Test - Resolver', () => {
       variables: {
         userId, documentId: 'D0002',
         title: 'Unit test document 2',
-        reference: 'REF-UNIT-TEST-DOC-2'
+        reference: 'REF-UNIT-TEST-DOC-2',
+        link:' YO-LINK-2'
       }})
     .then(({ data }) => expect(data.createDocument.id).toEqual('D0002'))
     .catch(_ => expect(false).toBeTruthy())
@@ -106,7 +109,8 @@ describe('Document Unit Test - Resolver', () => {
       variables: {
         userId, documentId: 'D0003', loanId,
         title: 'Unit test document 3',
-        reference: 'REF-UNIT-TEST-DOC-3'
+        reference: 'REF-UNIT-TEST-DOC-3',
+        link:' YO-LINK-3'
       }})
     .then(({ data }) => expect(data.createDocument.id).toEqual('D0003'))
     .catch(_ => expect(false).toBeTruthy())
@@ -118,7 +122,8 @@ describe('Document Unit Test - Resolver', () => {
       variables: {
         userId, documentId: 'D0004', loanId,
         title: 'Unit test document 4',
-        reference: 'REF-UNIT-TEST-DOC-4'
+        reference: 'REF-UNIT-TEST-DOC-4',
+        link:' YO-LINK-4'
       }})
     .then(({ data }) => expect(data.createDocument.id).toEqual('D0004'))
     .catch(_ => expect(false).toBeTruthy())
@@ -130,7 +135,8 @@ describe('Document Unit Test - Resolver', () => {
       variables: {
         userId, documentId: 'D0005', loanId,
         title: 'Unit test document 5',
-        reference: 'REF-UNIT-TEST-DOC-5'
+        reference: 'REF-UNIT-TEST-DOC-5',
+        link:' YO-LINK-5'
       }})
     .then(({ data }) => expect(data.createDocument.id).toEqual('D0005'))
     .catch(_ => expect(false).toBeTruthy())
@@ -144,7 +150,8 @@ describe('Document Unit Test - Resolver', () => {
       variables: {
         userId, documentId: 'D0000', loanId,
         title: 'Unit test document 0VERWRITTEN',
-        reference: 'REF-UNIT-TEST-DOC-0VERWRITTEN'
+        reference: 'REF-UNIT-TEST-DOC-0VERWRITTEN',
+        link:' YO-LINK-0a'
       }})
     .then(({ data }) => expect(data.createDocument.id).toEqual('D0000'))
     .catch(_ => expect(false).toBeTruthy())
