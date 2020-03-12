@@ -1,30 +1,30 @@
 {
-  "name": "@espresso/gw-node",
+  "name": "@fabric-es/gateway-lib",
   "version": "1.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "description": "Gateway node",
   "repository": {
     "type": "git",
-    "url": "git://github.com/rtang03/open-platform-dlt.git"
+    "url": "git://github.com/rtang03/fabric-es.git"
   },
   "keywords": [
     "hyperledger"
   ],
   "author": "Ross Tang",
   "license": "UNLICENSED",
-  "homepage": "https://github.com/rtang03/open-platform-dlt",
+  "homepage": "https://github.com/rtang03/fabric-es",
   "bugs": {
-    "url": "https://github.com/rtang03/open-platform-dlt/issues"
+    "url": "https://github.com/rtang03/fabric-es/issues"
   },
   "publishConfig": { "registry": "https://npm.pkg.github.com/" },
   "scripts": {
     "build": "yarn clean && tsc",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
     "pack:lib": "yarn build:cleanup && concurrently \"npm:cp:*\"",
-    "build:cleanup": "rimraf ../../.build/packages/gw-node && mkdir -p ../../.build/packages/gw-node",
-    "cp:package.json": "cp ./package.json ../../.build/packages/gw-node/",
-    "cp:dist": "cp -R ./dist ../../.build/packages/gw-node/",
+    "build:cleanup": "rimraf ../../.build/packages/gateway-lib && mkdir -p ../../.build/packages/gateway-lib",
+    "cp:package.json": "cp ./package.json ../../.build/packages/gateway-lib/",
+    "cp:dist": "cp -R ./dist ../../.build/packages/gateway-lib/",
     "clean": "rimraf dist",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
     "generate-types-for-admin": "graphql-codegen --config src/generated/codegen.yml",
@@ -43,12 +43,12 @@
   "dependencies": {
     "@apollo/federation": "^0.10.2",
     "@apollo/gateway": "^0.10.8",
-    "@espresso/authentication": "1.0.0",
-    "@espresso/fabric-cqrs": "1.0.0",
-    "@espresso/model-common": "1.0.0",
-    "@espresso/model-loan": "1.0.0",
-    "@espresso/model-loan-private": "1.0.0",
-    "@espresso/operator": "1.0.0",
+    "@fabric-es/authentication": "1.0.0",
+    "@fabric-es/fabric-cqrs": "1.0.0",
+    "@fabric-es/model-common": "1.0.0",
+    "@fabric-es/model-loan": "1.0.0",
+    "@fabric-es/model-loan-private": "1.0.0",
+    "@fabric-es/operator": "1.0.0",
     "apollo-link-http": "^1.5.16",
     "apollo-server": "^2.9.7",
     "arraybuffer-to-string": "^1.0.2",

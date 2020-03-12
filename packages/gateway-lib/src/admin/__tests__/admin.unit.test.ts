@@ -1,7 +1,7 @@
 require('../../env');
 import http from 'http';
-import { createAuthServer, createDbConnection } from '@espresso/authentication';
-import { createDbForUnitTest } from '@espresso/authentication';
+import { createAuthServer, createDbConnection } from '@fabric-es/authentication';
+import { createDbForUnitTest } from '@fabric-es/authentication';
 import { ApolloError, ApolloServer } from 'apollo-server';
 import { Express } from 'express';
 import Client from 'fabric-client';

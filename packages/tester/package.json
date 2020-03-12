@@ -1,5 +1,5 @@
 {
-  "name": "@espresso/tester",
+  "name": "@fabric-es/tester",
   "version": "1.0.0",
   "scripts": {
     "clean": "rimraf dist",

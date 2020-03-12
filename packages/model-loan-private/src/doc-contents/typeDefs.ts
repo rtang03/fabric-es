@@ -1,4 +1,4 @@
-import { Commit } from '@espresso/fabric-cqrs';
+import { Commit } from '@fabric-es/fabric-cqrs';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { DocContents, docContentsCommandHandler, DocContentsDS } from '.';

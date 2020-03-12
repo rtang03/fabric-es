@@ -1,5 +1,5 @@
 {
-  "name": "@espresso/model-loan",
+  "name": "@fabric-es/model-loan",
   "version": "1.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -25,8 +25,9 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@espresso/fabric-cqrs": "1.0.0",
-    "@espresso/model-common": "1.0.0",
+    "@fabric-es/fabric-cqrs": "1.0.0",
+    "@fabric-es/gateway-lib": "1.0.0",
+    "@fabric-es/model-common": "1.0.0",
     "apollo-server-errors": "^2.3.4"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import { documentReducer as superReducer, DocumentStatus } from '@espresso/model-loan';
+import { documentReducer as superReducer, DocumentStatus } from '@fabric-es/model-loan';
 import { Document, DocumentEvents } from '.';
 
 export const documentReducer = (document: Document, event: DocumentEvents): Document => {

@@ -1,4 +1,4 @@
-import { Commit, getMockRepository, getReducer } from '@espresso/fabric-cqrs';
+import { Commit, getMockRepository, getReducer } from '@fabric-es/fabric-cqrs';
 import { Document, documentCommandHandler, DocumentEvents, documentReducer, DocumentStatus } from '../..';
 import { Loan, loanCommandHandler, LoanEvents, loanReducer } from '../../../loan';
 

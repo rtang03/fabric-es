@@ -1,4 +1,4 @@
-import { PrivatedataRepository, Repository } from '@espresso/fabric-cqrs';
+import { PrivatedataRepository, Repository } from '@fabric-es/fabric-cqrs';
 import { DataSource } from 'apollo-datasource';
 
 export { createGateway } from './utils/createGateway';

@@ -1,4 +1,4 @@
-import { loanDetailsReducer as superReducer } from '@espresso/model-loan-private';
+import { loanDetailsReducer as superReducer } from '@fabric-es/model-loan-private';
 import { LoanDetails, LoanDetailsEvents } from '.';
 
 export const loanDetailsReducer = (details: LoanDetails, event: LoanDetailsEvents): LoanDetails => {
@@ -16,6 +16,7 @@ export const loanDetailsReducer = (details: LoanDetails, event: LoanDetailsEvent
         ...details,
         contact: cntct
       };
+    // dummy code
     default:
       return superReducer(details, event) as LoanDetails;
   }

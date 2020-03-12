@@ -1,4 +1,4 @@
-import { BaseEvent } from '@espresso/fabric-cqrs';
+import { BaseEvent } from '@fabric-es/fabric-cqrs';
 
 export interface DocContentsCreated extends BaseEvent {
   readonly type: 'DocContentsCreated';

@@ -1,5 +1,5 @@
-import { Errors } from '@espresso/gw-node';
-import { loanDetailsCommandHandler as superHandler, LoanDetailsErrors } from '@espresso/model-loan-private';
+import { Errors } from '@fabric-es/gateway-lib';
+import { loanDetailsCommandHandler as superHandler, LoanDetailsErrors } from '@fabric-es/model-loan-private';
 import { LoanDetailsCommandHandler, LoanDetailsRepo } from '.';
 
 export const loanDetailsCommandHandler: (option: {

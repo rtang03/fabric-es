@@ -1,6 +1,6 @@
-import { PrivatedataRepository } from '@espresso/fabric-cqrs';
-import { DataSrc } from '@espresso/gw-node';
-import { CommandHandler } from '@espresso/gw-node';
+import { PrivatedataRepository } from '@fabric-es/fabric-cqrs';
+import { DataSrc } from '@fabric-es/gateway-lib';
+import { CommandHandler } from '@fabric-es/gateway-lib';
 import { LoanDetailsCommands } from './commands';
 import { LoanDetailsEvents } from './events';
 import { LoanDetails } from './model';

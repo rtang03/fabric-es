@@ -1,5 +1,5 @@
 require('./env');
-import { enrollAdmin } from '@espresso/operator';
+import { enrollAdmin } from '@fabric-es/operator';
 import { FileSystemWallet } from 'fabric-network';
 import rimraf from 'rimraf';
 

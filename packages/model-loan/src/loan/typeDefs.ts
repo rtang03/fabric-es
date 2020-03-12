@@ -1,5 +1,5 @@
-import { Commit } from '@espresso/fabric-cqrs';
-import { Paginated } from '@espresso/gw-node';
+import { Commit } from '@fabric-es/fabric-cqrs';
+import { Paginated } from '@fabric-es/gateway-lib';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { Loan, loanCommandHandler, LoanDS } from '.';

@@ -1,5 +1,5 @@
-import { BaseEvent } from '@espresso/fabric-cqrs';
-import { DocumentEvents as SuperEvents } from '@espresso/model-loan';
+import { BaseEvent } from '@fabric-es/fabric-cqrs';
+import { DocumentEvents as SuperEvents } from '@fabric-es/model-loan';
 
 export interface DocumentLinkDefined extends BaseEvent {
   readonly type: 'DocumentLinkDefined';

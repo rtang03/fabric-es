@@ -1,4 +1,4 @@
-import { Reducer } from '@espresso/fabric-cqrs';
+import { Reducer } from '@fabric-es/fabric-cqrs';
 
 export interface CounterEvent {
   type: string;

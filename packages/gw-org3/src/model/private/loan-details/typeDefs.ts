@@ -1,5 +1,5 @@
-import { Commit } from '@espresso/fabric-cqrs';
-import { loanDetailsResolvers } from '@espresso/model-loan-private';
+import { Commit } from '@fabric-es/fabric-cqrs';
+import { loanDetailsResolvers } from '@fabric-es/model-loan-private';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { loanDetailsCommandHandler, LoanDetailsDS } from '.';

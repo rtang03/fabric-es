@@ -1,6 +1,6 @@
 import { buildFederatedSchema } from '@apollo/federation';
-import { Commit, getPrivatedataMockRepository, getReducer, PrivatedataRepository } from '@espresso/fabric-cqrs';
-import { DataSrc } from '@espresso/gw-node';
+import { Commit, getPrivatedataMockRepository, getReducer, PrivatedataRepository } from '@fabric-es/fabric-cqrs';
+import { DataSrc } from '@fabric-es/gateway-lib';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import {

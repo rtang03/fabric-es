@@ -1,7 +1,7 @@
 require('./env');
 import http from 'http';
 import util from 'util';
-import { createGateway, getLogger } from '@espresso/gw-node';
+import { createGateway, getLogger } from '@fabric-es/gateway-lib';
 import stoppable from 'stoppable';
 
 const PORT = (process.env.GATEWAY_PORT || 4001) as number;

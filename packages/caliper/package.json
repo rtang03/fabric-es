@@ -1,5 +1,5 @@
 {
-  "name": "@espresso/caliper",
+  "name": "@fabric-es/caliper",
   "version": "1.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -17,8 +17,8 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@espresso/fabric-cqrs": "1.0.0",
-    "@espresso/operator":  "1.0.0",
+    "@fabric-es/fabric-cqrs": "1.0.0",
+    "@fabric-es/operator":  "1.0.0",
     "@hyperledger/caliper-cli": "^0.2.0",
     "dotenv": "^8.1.0",
     "fabric-ca-client": "^1.4.4",

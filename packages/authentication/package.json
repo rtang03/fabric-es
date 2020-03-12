@@ -1,5 +1,5 @@
 {
-  "name": "@espresso/authentication",
+  "name": "@fabric-es/authentication",
   "version": "1.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -7,15 +7,15 @@
   "description": "Authentication server",
   "repository": {
     "type": "git",
-    "url": "git://github.com/rtang03/open-platform-dlt.git"
+    "url": "git://github.com/rtang03/fabric-es.git"
   },
   "keywords": [
     "hyperledger"
   ],
   "author": "Ross Tang",
-  "homepage": "https://github.com/rtang03/open-platform-dlt",
+  "homepage": "https://github.com/rtang03/fabric-es",
   "bugs": {
-    "url": "https://github.com/rtang03/open-platform-dlt/issues"
+    "url": "https://github.com/rtang03/fabric-es/issues"
   },
   "publishConfig": { "registry": "https://npm.pkg.github.com/" },
   "scripts": {

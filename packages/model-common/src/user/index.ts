@@ -1,5 +1,5 @@
-import { Repository } from '@espresso/fabric-cqrs';
-import { CommandHandler, DataSrc } from '@espresso/gw-node';
+import { Repository } from '@fabric-es/fabric-cqrs';
+import { CommandHandler, DataSrc } from '@fabric-es/gateway-lib';
 import { UserCommands } from './domain/commands';
 import { UserEvents } from './domain/events';
 import { User } from './domain/model';
