@@ -33,7 +33,7 @@ Step 0 is already complete; above information is for documentation purpose only.
 
 _step 1: Commit and push all changes_
 
-_step 2: Manually upddate Changelog_
+_step 2: Manually update Changelog_
 
 _step 3: create release tag_
 
