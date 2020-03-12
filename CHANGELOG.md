@@ -1,3 +1,9 @@
+## [0.5.14] - 2020-3-13
+### Added
+- repo rename
+- add unit and integration tests to _create image_ workflow
+- publish npm packages
+
 ## [0.5.13] - 2020-3-2
 ### Added
 - include boilerplate.tar.gz to release artefact
