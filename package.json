@@ -1,6 +1,6 @@
 {
   "name": "fabric-es",
-  "version": "1.0.0",
+  "version": "0.5.14",
   "license": "UNLICENSED",
   "scripts": {
     "cp:root": "rimraf .build && mkdir -p ./.build && cp ./package.json .build",
