@@ -86,7 +86,7 @@ jobs:
       - name: Publish gw-org1 image
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-          docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/gw-org:"$TAG"
+          docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/gw-org1:"$TAG"
       - name: Create boilerplate.tar.gz
         run: yarn boilerplate
       - run: tar -czvf boilerplate.tar.gz ./.build
