@@ -101,8 +101,8 @@ jobs:
           CHANGELOG_FILE: "CHANGELOG.md"
           ALLOW_EMPTY_CHANGELOG: "false"
           ALLOW_TAG_PREFIX: "true"
-        with:
-          args: ./boilerplate.tar.gz
+#        with:
+#          args: ./boilerplate.tar.gz
 #  This step will only publish to the same repo. However, our use case may need to publish other registry.
 #  So disable it for now.
 #      - name: Publish Github Packages
