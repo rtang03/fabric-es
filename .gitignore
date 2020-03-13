@@ -83,5 +83,5 @@ volume
 deployments/boilerplate
 deployments/operations
 NOTE.md
-
+configtxgen
 genesis.block
