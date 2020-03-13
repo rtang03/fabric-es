@@ -12,7 +12,7 @@
     "hyperledger"
   ],
   "author": "Ross Tang",
-  "license": "UNLICENSED",
+  "license": "BSD-3-Clause-Clear",
   "homepage": "https://github.com/rtang03/fabric-es",
   "bugs": {
     "url": "https://github.com/rtang03/fabric-es/issues"
