@@ -3,6 +3,7 @@
   "version": "0.5.14",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "license": "BSD-3-Clause-Clear",
   "scripts": {
     "build": "yarn run clean && tsc",
     "test": "jest",

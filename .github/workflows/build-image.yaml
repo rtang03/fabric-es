@@ -11,8 +11,8 @@ env:
   GITHUB_SHA: ${{ github.sha }}
   GKE_ZONE: us-central1-a
   GKE_CLUSTER: test-net-cluster-1
-  AUTH_IMAGE: auth-server
-  GW_ORG1_IMAGE: gw-org1
+  AUTH_IMAGE: fabric-es/auth-server
+  GW_ORG1_IMAGE: fabric-es/gw-org1
   REGISTRY_HOSTNAME: gcr.io
   DEPLOYMENT_NAME: gke-test
 

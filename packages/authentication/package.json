@@ -3,7 +3,7 @@
   "version": "0.5.14",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
-  "license": "UNLICENSED",
+  "license": "BSD-3-Clause-Clear",
   "description": "Authentication server",
   "repository": {
     "type": "git",

@@ -1,7 +1,7 @@
 {
   "name": "fabric-es",
   "version": "0.5.14",
-  "license": "UNLICENSED",
+  "license": "BSD-3-Clause-Clear",
   "scripts": {
     "cp:root": "rimraf .build && mkdir -p ./.build && cp ./package.json .build",
     "tsc:auth": "lerna run tsc:prod --scope=@fabric-es/authentication",
