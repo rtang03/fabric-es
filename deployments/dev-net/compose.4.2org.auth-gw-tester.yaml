@@ -46,7 +46,7 @@ services:
       service: postgres02
 
   auth-server1:
-    image: espresso/auth-server:1.0
+    image: fabric-es/auth-server:1.0
     container_name: auth-server1
     environment:
       - TYPEORM_HOST=postgres01
@@ -64,7 +64,7 @@ services:
       - openplatform
 
   auth-server2:
-    image: espresso/auth-server:1.0
+    image: fabric-es/auth-server:1.0
     container_name: auth-server2
     environment:
       - TYPEORM_HOST=postgres02
@@ -82,7 +82,7 @@ services:
       - openplatform
 
   gw-org1:
-    image: espresso/gw-org1:1.0
+    image: fabric-es/gw-org1:1.0
     container_name: gw-org1
     environment:
       - AUTHORIZATION_SERVER_URI=http://auth-server1/oauth/authenticate
@@ -111,7 +111,7 @@ services:
       - $ARTIFACTS/crypto-config/:/var/artifacts/crypto-config/
 
   gw-org2:
-    image: espresso/gw-org2:1.0
+    image: fabric-es/gw-org2:1.0
     container_name: gw-org2
     environment:
       - AUTHORIZATION_SERVER_URI=http://auth-server2/oauth/authenticate
@@ -140,7 +140,7 @@ services:
       - $ARTIFACTS/crypto-config/:/var/artifacts/crypto-config/
 
   tester:
-    image: espresso/tester:1.0
+    image: fabric-es/tester:1.0
     container_name: tester
     working_dir: /home/app/packages/tester
     networks:

@@ -5,7 +5,7 @@ networks:
 
 services:
   auth-server1:
-    image: espresso/auth-server:1.0
+    image: fabric-es/auth-server:1.0
     container_name: auth-server1
     environment:
       - TYPEORM_HOST=postgres01

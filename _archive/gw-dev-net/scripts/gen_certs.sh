@@ -1,5 +1,0 @@
-docker exec tls-ca.hktfp.com sh -c "/setup/enroll_tls.sh"
-docker exec rca.hktfp.com sh -c "/setup/enroll_org0.sh"
-docker exec rca.etradeconnect.net sh -c "/setup/enroll_org1.sh"
-docker exec rca.pbctfp.net sh -c "/setup/enroll_org2.sh"
-#docker exec rca.hsbc.com.hk sh -c "/setup/enroll_org3.sh"
