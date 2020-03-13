@@ -7,15 +7,15 @@
   "description": "Authentication server",
   "repository": {
     "type": "git",
-    "url": "git://github.com/rtang03/fabric-es.git"
+    "url": "ssh://git@github.com/fabric-es/fabric-es.git"
   },
   "keywords": [
     "hyperledger"
   ],
   "author": "Ross Tang",
-  "homepage": "https://github.com/rtang03/fabric-es",
+  "homepage": "https://github.com/fabric-es/fabric-es",
   "bugs": {
-    "url": "https://github.com/rtang03/fabric-es/issues"
+    "url": "https://github.com/fabric-es/fabric-es/issues"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
@@ -44,7 +44,7 @@
     "unit-test:with-fab": "./unit-test.sh && yarn test:all && ./cleanup.sh",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "publish": "npm publish"
+    "publish:gh:fabric-es": "npm publish"
   },
   "engines": {
     "node": ">=8",

@@ -1,6 +1,9 @@
 *
+!views/
+!public/
 !dist/
-!dist/*
+!dist/**/*
 !package.json
 !*.md
 !*.png
+!LICENSE

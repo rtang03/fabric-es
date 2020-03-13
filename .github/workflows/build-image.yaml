@@ -57,6 +57,7 @@ jobs:
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker tag fabric-es/auth-server:1.0 "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/auth-server:"$TAG"
+# because the integration test had already create docker images, we can skip below step to create it again
 #      - name: Prepare build context for auth-server
 #        run: yarn build:auth
 #      - name: Build auth-server image
@@ -70,6 +71,7 @@ jobs:
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/auth-server:"$TAG"
+# because the integration test had already create docker images, we can skip below step to create it again
 #      - name: Prepare build context for gw-org1
 #        run: yarn build:gw-dev-net:org1
 #      - name: Build gw-org1 image
@@ -101,8 +103,10 @@ jobs:
           ALLOW_TAG_PREFIX: "true"
         with:
           args: ./boilerplate.tar.gz
-      - name: Publish Github Packages
-        run: yarn run publish:lib
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#  This step will only publish to the same repo. However, our use case may need to publish other registry.
+#  So disable it for now.
+#      - name: Publish Github Packages
+#        run: yarn run publish:lib
+#        env:
+#          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: echo "Build image done"
