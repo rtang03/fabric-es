@@ -38,44 +38,56 @@ jobs:
         with:
           node-version: '8.x'
           version: '8.x'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@fabric-es'
       - run: yarn install --frozen-lockfile --ignore-engines
       - run: yarn lint:lib
       - run: yarn lint:app
-      - name: Run unit tests for lib - chaincode, fabric-cqrs, authentication
+      - name: Run unit and integration tests
         run: yarn unit-int-test
-      - name: Prepare build context for auth-server
-        run: yarn build:auth
-      - name: Prepare build context for gw-org1
-        run: yarn build:gw-dev-net:org1
-      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      - name: Setup Google account
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
           version: '270.0.0'
           service_account_email: ${{ secrets.GKE_EMAIL }}
           service_account_key: ${{ secrets.GKE_KEY }}
       - run: gcloud auth configure-docker
-      - name: Build auth-server image
+      - name: Rename image tag for auth-server
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-          docker build --no-cache -f ./auth-server.dockerfile \
-            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$AUTH_IMAGE":"$TAG" \
-            --build-arg GITHUB_SHA="$GITHUB_SHA" \
-            --build-arg GITHUB_REF="$GITHUB_REF" .
+          docker tag auth-server:1.0 auth-server:$TAG
+#      - name: Prepare build context for auth-server
+#        run: yarn build:auth
+#      - name: Build auth-server image
+#        run: |
+#          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
+#          docker build --no-cache -f ./auth-server.dockerfile \
+#            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$AUTH_IMAGE":"$TAG" \
+#            --build-arg GITHUB_SHA="$GITHUB_SHA" \
+#            --build-arg GITHUB_REF="$GITHUB_REF" .
       - name: Publish auth-server image
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$AUTH_IMAGE:$TAG
-      - name: Build gw-org1 image
+#      - name: Prepare build context for gw-org1
+#        run: yarn build:gw-dev-net:org1
+#      - name: Build gw-org1 image
+#        run: |
+#          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
+#          docker build --no-cache -f ./gw-org1.dockerfile \
+#            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$GW_ORG1_IMAGE":"$TAG" \
+#            --build-arg GITHUB_SHA="$GITHUB_SHA" \
+#            --build-arg GITHUB_REF="$GITHUB_REF" .
+      - name: Rename image tag for gw-org1
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-          docker build --no-cache -f ./gw-org1.dockerfile \
-            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$GW_ORG1_IMAGE":"$TAG" \
-            --build-arg GITHUB_SHA="$GITHUB_SHA" \
-            --build-arg GITHUB_REF="$GITHUB_REF" .
+          docker tag gw-org1:1.0 gw-org1:$TAG
       - name: Publish gw-org1 image
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$GW_ORG1_IMAGE:$TAG
-      - run: yarn boilerplate
+      - name: Create boilerplate.tar.gz
+        run: yarn boilerplate
       - run: tar -czvf boilerplate.tar.gz ./.build
       - name: Create Release
         uses: docker://antonyurchenko/git-release:latest
@@ -88,3 +100,8 @@ jobs:
           ALLOW_TAG_PREFIX: "true"
         with:
           args: ./boilerplate.tar.gz
+      - name: Publish Github Packages
+        run: yarn publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: echo "Build image done"
