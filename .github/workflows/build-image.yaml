@@ -56,7 +56,7 @@ jobs:
       - name: Rename image tag for auth-server
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-          docker tag fabric-es/auth-server:1.0 fabric-es/auth-server:"$TAG"
+          docker tag fabric-es/auth-server:1.0 "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/auth-server:"$TAG"
 #      - name: Prepare build context for auth-server
 #        run: yarn build:auth
 #      - name: Build auth-server image
@@ -66,11 +66,10 @@ jobs:
 #            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$AUTH_IMAGE":"$TAG" \
 #            --build-arg GITHUB_SHA="$GITHUB_SHA" \
 #            --build-arg GITHUB_REF="$GITHUB_REF" .
-      - run: docker images
       - name: Publish auth-server image
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$AUTH_IMAGE:$TAG
+          docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/auth-server:"$TAG"
 #      - name: Prepare build context for gw-org1
 #        run: yarn build:gw-dev-net:org1
 #      - name: Build gw-org1 image
@@ -83,11 +82,11 @@ jobs:
       - name: Rename image tag for gw-org1
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-          docker tag fabric-es/gw-org1:1.0 fabric-es/gw-org1:"$TAG"
+          docker tag fabric-es/gw-org1:1.0  "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/gw-org1:"$TAG"
       - name: Publish gw-org1 image
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-          docker push $REGISTRY_HOSTNAME/$GKE_PROJECT/$GW_ORG1_IMAGE:$TAG
+          docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/gw-org:"$TAG"
       - name: Create boilerplate.tar.gz
         run: yarn boilerplate
       - run: tar -czvf boilerplate.tar.gz ./.build
