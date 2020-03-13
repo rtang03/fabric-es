@@ -19,10 +19,10 @@ export COMPOSE_2=compose.2.2org.auth.yaml
 export COMPOSE_3=compose.3.2org.auth-gw.yaml
 export COMPOSE_4=compose.4.2org.auth-gw-tester.yaml
 export CURRENT_DIR=$PWD
-export AUTH_IMAGE=espresso/auth-server:1.0
-export ORG1_IMAGE=espresso/gw-org1:1.0
-export ORG2_IMAGE=espresso/gw-org2:1.0
-export TESTER_IMAGE=espresso/tester:1.0
+export AUTH_IMAGE=fabric-es/auth-server:1.0
+export ORG1_IMAGE=fabric-es/gw-org1:1.0
+export ORG2_IMAGE=fabric-es/gw-org2:1.0
+export TESTER_IMAGE=fabric-es/tester:1.0
 
 printMessage() {
   MESSAGE=$1

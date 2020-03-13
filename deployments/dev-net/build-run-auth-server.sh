@@ -34,9 +34,9 @@ cd ../.. && yarn build:auth
 printMessage "Create build context"  $?
 
 # build auth-server image
-docker rmi espresso/auth-server:1.0
+docker rmi fabric-es/auth-server:1.0
 
-DOCKER_BUILD=1 docker build --no-cache -f ./auth-server.dockerfile -t espresso/auth-server:1.0 .
+DOCKER_BUILD=1 docker build --no-cache -f ./auth-server.dockerfile -t fabric-es/auth-server:1.0 .
 
 printMessage "Create auth-server image" $?
 

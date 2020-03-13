@@ -51,11 +51,13 @@ jobs:
           version: '270.0.0'
           service_account_email: ${{ secrets.GKE_EMAIL }}
           service_account_key: ${{ secrets.GKE_KEY }}
-      - run: gcloud auth configure-docker
+      - name: Authenticate Google account
+        run: gcloud auth configure-docker
+      - run: docker images
       - name: Rename image tag for auth-server
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-          docker tag auth-server:1.0 auth-server:$TAG
+          docker tag fabric-es/auth-server:1.0 fabric-es/auth-server:$TAG
 #      - name: Prepare build context for auth-server
 #        run: yarn build:auth
 #      - name: Build auth-server image
@@ -81,7 +83,7 @@ jobs:
       - name: Rename image tag for gw-org1
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-          docker tag gw-org1:1.0 gw-org1:$TAG
+          docker tag fabric-es/gw-org1:1.0 fabric-es/gw-org1:$TAG
       - name: Publish gw-org1 image
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \

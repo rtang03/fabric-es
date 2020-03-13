@@ -20,9 +20,9 @@ export SCRIPTS=./scripts
 export COMPOSE_1=compose.1.2org.yaml
 export COMPOSE_2=compose.2.2org.auth.yaml
 export CURRENT_DIR=$PWD
-export AUTH_IMAGE=espresso/auth-server:1.0
-export ORG1_IMAGE=espresso/gw-org1:1.0
-export ORG2_IMAGE=espresso/gw-org2:1.0
+export AUTH_IMAGE=fabric-es/auth-server:1.0
+export ORG1_IMAGE=fabric-es/gw-org1:1.0
+export ORG2_IMAGE=fabric-es/gw-org2:1.0
 
 printMessage() {
   MESSAGE=$1
