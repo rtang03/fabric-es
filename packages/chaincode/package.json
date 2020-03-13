@@ -39,7 +39,8 @@
     "test:ngac-consolidated-unit-test": "(broke) jest ngac.consolidated.unit.test",
     "test:ngac-crud-integration-test": "(broke) jest ngac.crud.integration.test",
     "test:policy.unit.test": "(broke) jest hasList.policy.unit.test",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
+    "publish": "npm publish"
   },
   "engineStrict": true,
   "dependencies": {

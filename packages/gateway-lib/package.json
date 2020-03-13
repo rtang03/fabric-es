@@ -35,7 +35,8 @@
     "start-admin-service": "npm run build && node ./dist/admin/__tests__/__utils__/startServiceForManualTest.js",
     "unit-test": "./unit-test.sh",
     "test:admin-service": "jest --forceExit --detectOpenHandles admin.unit.test",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
+    "publish": "npm publish"
   },
   "engines": {
     "node": ">=8",
