@@ -102,7 +102,7 @@ jobs:
         with:
           args: ./boilerplate.tar.gz
       - name: Publish Github Packages
-        run: yarn publish
+        run: yarn run publish:lib
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: echo "Build image done"
