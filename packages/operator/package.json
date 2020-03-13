@@ -36,7 +36,8 @@
     "scenario:privatedata-upgrade": "ts-node src/scenario/upgrade-privatedata-cc.ts",
     "scenario:post-install-test": "ts-node src/scenario/post-install-test.ts",
     "clean": "rimraf dist",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}' --fix"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}' --fix",
+    "publish": "npm publish"
   },
   "engineStrict": true,
   "dependencies": {
