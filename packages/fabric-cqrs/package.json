@@ -7,15 +7,15 @@
   "description": "Hyperledger Fabric middleware for cqrs pattern",
   "repository": {
     "type": "git",
-    "url": "git://github.com/rtang03/fabric-es.git"
+    "url": "git://github.com/fabric-es/fabric-es.git"
   },
   "keywords": [
     "hyperledger"
   ],
   "author": "Ross Tang",
-  "homepage": "https://github.com/rtang03/fabric-es",
+  "homepage": "https://github.com/fabric-es/fabric-es",
   "bugs": {
-    "url": "https://github.com/rtang03/fabric-es/issues"
+    "url": "https://github.com/fabric-s/fabric-es/issues"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
@@ -43,7 +43,7 @@
     "enrollAdminOrg2": "(broke) ts-node src/ngac_test/enrollAdmin.ts",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "publish": "npm publish"
+    "publish:gh:fabric-es": "npm publish"
   },
   "engines": {
     "node": ">=8",

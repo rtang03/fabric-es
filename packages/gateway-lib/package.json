@@ -6,16 +6,16 @@
   "description": "Gateway node",
   "repository": {
     "type": "git",
-    "url": "git://github.com/rtang03/fabric-es.git"
+    "url": "git://github.com/fabric-es/fabric-es.git"
   },
   "keywords": [
     "hyperledger"
   ],
   "author": "Ross Tang",
   "license": "BSD-3-Clause-Clear",
-  "homepage": "https://github.com/rtang03/fabric-es",
+  "homepage": "https://github.com/fabric-es/fabric-es",
   "bugs": {
-    "url": "https://github.com/rtang03/fabric-es/issues"
+    "url": "https://github.com/fabric-es/fabric-es/issues"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
@@ -36,7 +36,7 @@
     "unit-test": "./unit-test.sh",
     "test:admin-service": "jest --forceExit --detectOpenHandles admin.unit.test",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "publish": "npm publish"
+    "publish:gh:fabric-es": "npm publish"
   },
   "engines": {
     "node": ">=8",

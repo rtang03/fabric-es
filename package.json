@@ -24,7 +24,7 @@
     "unit-test": "yarn bootstrap:fab && yarn lerna run unit-test:fab --stream --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs} && yarn shutdown:fab",
     "lint:lib": "lerna run lint --stream --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
     "lint:app": "lerna run lint --stream --scope={@fabric-es/gw-org*,@fabric-es/model-*}",
-    "publish:lib": "lerna run publish --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
+    "publish:lib": "lerna run publish:gh:fabric-es --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
     "version:patch": "lerna version patch",
     "boilerplate": "yarn cp:root && lerna run boilerplate --scope={@fabric-es/gw-org*,@fabric-es/model-*}",
     "typedoc": "lerna run typedoc --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}"
@@ -60,9 +60,5 @@
     "requirePragma": false,
     "insertPragma": false,
     "printWidth": 120
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://npm.pkg.github.com/"
   }
 }
