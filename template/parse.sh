@@ -15,7 +15,8 @@ for infile in `eval ${files}`; do
 
     # Mustache the file
     echo "Processing ${infile}..."
-    outfile=$(echo ${infile} | sed 's/'${folder}'/../' | sed 's/\(.*\)\.mustaches/\1/')
+    outfile=$(echo ${infile} | sed 's/'${folder}'/../' | sed 's/\(.*\)\.mustaches/\1/')   
+    mkdir -p `echo ${outfile}|sed 's!\(.*\)/.*!\1!'`
     mustache ${view} ${infile} > ${outfile}
 
     # Split the file name with '.'
@@ -36,6 +37,7 @@ files="find ${folder} -name '*.mustache' -print"
 for infile in `eval ${files}`; do
     echo "Processing ${infile}..."
     outfile=$(echo ${infile} | sed 's/'${folder}'/../' | sed 's/\(.*\)\.mustache/\1/')
+    mkdir -p `echo ${outfile}|sed 's!\(.*\)/.*!\1!'`
     mustache ${view} ${infile} > ${outfile}
 done
 

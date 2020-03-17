@@ -27,25 +27,16 @@ chmod -R 755 *
 
 ## Setup Fabric Network
 
-1. Before starting the network, ensure the binary directory is set correctly. Update the "_BIN_DIR" variable in [scripts/common.sh](scripts/common.sh).
-**Note:** Make sure the binary version is same as the fabric image version.
-
-```console
-_BIN_DIR="/Users/xxx/Desktop/workspace/fabric-samples/bin"
-```
-
-2. To start the network, run the start command.
-(Note: It may asks you for the sudo password to perform the copy and cleanup jobs)
+To start the network, run the start command.
 
 ```shell script
 ./start.sh
 ```
 
 ```console
-2019-12-04 09:15:43.664 UTC [msp.identity] Sign -> DEBU 03c Sign: plaintext: 0ACE080A5C08031A0C08BFF29DEF0510...6E496E666F0A096D796368616E6E656C
-2019-12-04 09:15:43.664 UTC [msp.identity] Sign -> DEBU 03d Sign: digest: FF6F1ED2B403296BADD42899EC8248CF229BFDAD41AD9A899BF22C28BE095A4A
-Blockchain info: {"height":1,"currentBlockHash":"/6tan/EbdYXfSSDV2DYcEUf8IdfEBWbB4vpNkmQP4lc="}
-The network is started.
+####
+####  Fabric network started!
+####
 ```
 
 ***
