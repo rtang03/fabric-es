@@ -22,6 +22,7 @@
     "shutdown:fab": "cd ./deployments/dev-net && ./shutdown-cleanup.sh",
     "unit-int-test": "yarn build-run-test:fab && yarn lerna run unit-test:fab --stream --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/model-*} && yarn shutdown:fab",
     "unit-test": "yarn bootstrap:fab && yarn lerna run unit-test:fab --stream --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/model-*} && yarn shutdown:fab",
+    "unit-test:no_grpc": "yarn bootstrap:fab && yarn lerna run unit-test:fab --stream --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/model-*} && yarn shutdown:fab",
     "lint:lib": "lerna run lint --stream --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
     "lint:app": "lerna run lint --stream --scope={@fabric-es/gw-org*,@fabric-es/model-*}",
     "publish:lib": "lerna run publish:gh:fabric-es --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
