@@ -32,11 +32,12 @@ jobs:
         run: sudo apt-get install curl python make g++
       - name: yarn install
         run: yarn install --frozen-lockfile --ignore-engines
+      - run: npm rebuild
       - run: yarn lint:lib
       - run: yarn lint:app
       - name: Run tsc for all packages
         run: yarn tsc:all
-      - name: Run unit tests for auth-server, chaincode, fabric-cqrs, gateway-lib
+      - name: Run unit tests for auth-server, chaincode, fabric-cqrs, gateway-lib, model-*
         run: yarn unit-test
         env:
           CI: true
