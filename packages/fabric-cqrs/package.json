@@ -36,7 +36,7 @@
     "test:store.unit": "jest store.unit.test",
     "test:peer.integration": "jest peer.integration.test",
     "test:peer.privatedata.integration": "jest peer.privatedata.integration.test",
-    "unit-test:fab": "yarn enrollAdmin && yarn enrollCaAdmin && jest unit.test && jest integration.test && yarn test:service.multiusers",
+    "unit-test:fab": "sudo yarn enrollAdmin && sudo yarn enrollCaAdmin && jest unit.test && jest integration.test && yarn test:service.multiusers",
     "enrollAdmin": "node ./dist/account/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/account/enrollCaAdmin.js",
     "enrollAdminOrg2": "(broke) ts-node src/ngac_test/enrollAdmin.ts",
