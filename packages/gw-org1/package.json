@@ -3,6 +3,9 @@
   "version": "0.5.14",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "license": "BSD-3-Clause-Clear",
+  "author": "Paul Lai",
+  "description": "gw-org1",
   "scripts": {
     "build": "yarn clean && tsc",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
@@ -36,7 +39,8 @@
     "pm2:enrollCa": "node ./dist/enrollCaAdmin.js && sleep 1",
     "pm2:services": "pm2 start processes.yaml --only \"admin,doc,loan,prv-ctnt,rmt-dtls,user\"",
     "pm2:gateway": "pm2-runtime --delay 10 --only \"gw\" processes.yaml",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
+    "unit-test": "jest unit.test"
   },
   "engines": {
     "node": ">=8",

@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { User, userCommandHandler } from '../user';
 import { userRepo } from './__utils__';
 

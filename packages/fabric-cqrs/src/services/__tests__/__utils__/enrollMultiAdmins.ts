@@ -4,13 +4,13 @@ import { enrollAdmin } from '@fabric-es/operator';
 
 export const enrollOrg1Admin = wallet =>
   enrollAdmin({
-    enrollmentID: 'admin-etradeconnect.net',
-    enrollmentSecret: 'password',
-    caUrl: 'https://0.0.0.0:6054',
-    mspId: 'EtcMSP',
-    label: 'admin-etradeconnect.net',
+    enrollmentID: process.env.ORG_ADMIN_ID,
+    enrollmentSecret: process.env.ORG_ADMIN_SECRET,
+    caUrl: process.env.ORG_CA_URL,
+    mspId: process.env.MSPID,
+    label: process.env.ORG_ADMIN_ID,
     context: {
-      connectionProfile: 'connection/connection-org1.yaml',
+      connectionProfile: process.env.CONNECTION_PROFILE,
       fabricNetwork: process.env.NETWORK_LOCATION,
       wallet
     }
@@ -18,13 +18,13 @@ export const enrollOrg1Admin = wallet =>
 
 export const enrollOrg2Admin = wallet =>
   enrollAdmin({
-    enrollmentID: 'admin-pbctfp.net',
-    enrollmentSecret: 'password',
-    caUrl: 'https://0.0.0.0:6055',
-    mspId: 'PbctfpMSP',
-    label: 'admin-pbctfp.net',
+    enrollmentID: process.env.ORG2_ORG_ADMIN_ID,
+    enrollmentSecret: process.env.ORG2_ORG_ADMIN_SECRET,
+    caUrl: process.env.ORG2_ORG_CA_URL,
+    mspId: process.env.ORG2_MSPID,
+    label: process.env.ORG2_ORG_ADMIN_ID,
     context: {
-      connectionProfile: 'connection/connection-org2.yaml',
+      connectionProfile: process.env.ORG2_CONNECTION_PROFILE,
       fabricNetwork: process.env.NETWORK_LOCATION,
       wallet
     }
@@ -32,13 +32,13 @@ export const enrollOrg2Admin = wallet =>
 
 export const enrollOrg1CaAdmin = wallet =>
   enrollAdmin({
-    enrollmentID: 'rca-etradeconnect-admin',
-    enrollmentSecret: 'rca-etradeconnect-adminPW',
-    caUrl: 'https://0.0.0.0:6054',
-    mspId: 'EtcMSP',
-    label: 'rca-etradeconnect-admin',
+    enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
+    enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
+    caUrl: process.env.ORG_CA_URL,
+    mspId: process.env.MSPID,
+    label: process.env.CA_ENROLLMENT_ID_ADMIN,
     context: {
-      connectionProfile: 'connection/connection-org1.yaml',
+      connectionProfile: process.env.CONNECTION_PROFILE,
       fabricNetwork: process.env.NETWORK_LOCATION,
       wallet
     }
@@ -46,13 +46,13 @@ export const enrollOrg1CaAdmin = wallet =>
 
 export const enrollOrg2CaAdmin = wallet =>
   enrollAdmin({
-    enrollmentID: 'rca-pboc-admin',
-    enrollmentSecret: 'rca-pboc-adminPW',
-    caUrl: 'https://0.0.0.0:6055',
-    mspId: 'PbctfpMSP',
-    label: 'rca-pboc-admin',
+    enrollmentID: process.env.ORG2_CA_ENROLLMENT_ID_ADMIN,
+    enrollmentSecret: process.env.ORG2_CA_ENROLLMENT_SECRET_ADMIN,
+    caUrl: process.env.ORG2_ORG_CA_URL,
+    mspId: process.env.ORG2_MSPID,
+    label:  process.env.ORG2_CA_ENROLLMENT_ID_ADMIN,
     context: {
-      connectionProfile: 'connection/connection-org2.yaml',
+      connectionProfile: process.env.ORG2_CONNECTION_PROFILE,
       fabricNetwork: process.env.NETWORK_LOCATION,
       wallet
     }
