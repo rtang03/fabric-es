@@ -28,10 +28,13 @@ jobs:
         with:
           node-version: '8.x'
           version: '8.x'
-      - run: yarn install --frozen-lockfile --ignore-engines
+      - name: yarn install
+        run: yarn install --frozen-lockfile --ignore-engines
       - run: yarn lint:lib
       - run: yarn lint:app
-      - name: Run unit tests for auth-server, chaincode, fabric-cqrs
+      - name: Run tsc for all packages
+        run: yarn tsc:all
+      - name: Run unit tests for auth-server, chaincode, fabric-cqrs, gateway-lib
         run: yarn unit-test
         env:
           CI: true
