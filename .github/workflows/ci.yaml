@@ -9,7 +9,7 @@ name: CI
 jobs:
   build:
     name: CI
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@master
@@ -32,13 +32,12 @@ jobs:
         run: sudo apt-get install curl python make g++
       - name: yarn install
         run: yarn install --frozen-lockfile --ignore-engines
-#      - run: npm rebuild
-#      - run: yarn lint:lib
-#      - run: yarn lint:app
-#      - name: Run tsc for all packages
-#        run: yarn tsc:all
+      - run: npm rebuild
+      - run: yarn lint:lib
+      - run: yarn lint:app
+      - name: Run tsc for all packages
+        run: yarn tsc:all
       - name: Run unit tests for auth-server, chaincode, fabric-cqrs, gateway-lib, model-*
-        run: env
-#        run: yarn unit-test
+        run: yarn unit-test
         env:
           CI: true
