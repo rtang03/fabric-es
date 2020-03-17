@@ -38,6 +38,7 @@ jobs:
       - name: Run tsc for all packages
         run: yarn tsc:all
       - name: Run unit tests for auth-server, chaincode, fabric-cqrs, gateway-lib, model-*
-        run: yarn unit-test
+        run: node -v
+#        run: yarn unit-test
         env:
           CI: true
