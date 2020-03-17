@@ -37,7 +37,7 @@
     "test:peer.integration": "jest peer.integration.test",
     "test:peer.privatedata.integration": "jest peer.privatedata.integration.test",
     "unit-test:fab": "yarn enrollAdmin && yarn enrollCaAdmin && jest unit.test && jest integration.test && yarn test:service.multiusers",
-    "enrollAdmin": "node ./dist/account/enrollAdmin.js",
+    "enrollAdmin": "yarn build && node ./dist/account/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/account/enrollCaAdmin.js",
     "enrollAdminOrg2": "(broke) ts-node src/ngac_test/enrollAdmin.ts",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",

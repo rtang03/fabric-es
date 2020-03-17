@@ -30,7 +30,7 @@
     "clean": "rimraf dist",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
     "generate-types-for-admin": "graphql-codegen --config src/generated/codegen.yml",
-    "enrollAdmin": "node ./dist/enrollAdmin.js",
+    "enrollAdmin": "yarn build && node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
     "start-admin-service": "npm run build && node ./dist/admin/__tests__/__utils__/startServiceForManualTest.js",
     "unit-test": "./unit-test.sh",
