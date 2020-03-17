@@ -28,6 +28,8 @@ jobs:
         with:
           node-version: '8.x'
           version: '8.x'
+      - name: Install dependencies
+        run: apk add curl python make g++
       - name: yarn install
         run: yarn install --frozen-lockfile --ignore-engines
       - run: yarn lint:lib
