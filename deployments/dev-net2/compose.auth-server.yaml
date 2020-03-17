@@ -1,0 +1,38 @@
+version: '2'
+
+networks:
+  auth-network:
+
+services:
+  auth-server1:
+    image: fabric-es/auth-server:1.0
+    container_name: auth-server1
+    environment:
+      - TYPEORM_HOST=postgres01
+      - TYPEORM_PORT=5432
+      - TYPEORM_USERNAME=postgres
+      - TYPEORM_PASSWORD=docker
+      - TYPEORM_DATABASE=auth_db
+    ports:
+      - 3901:8080
+    depends_on:
+      - postgres01
+    volumes:
+      - $VOLUME/auth-server1/logs/:/home/app/packages/authentication/logs/
+    networks:
+      - auth-network
+  postgres01:
+    container_name: postgres01
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - $ARTIFACTS/postgres01:/var/lib/postgresql/data
+      - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+    command: postgres
+    ports:
+      - 5432:5432
+    networks:
+      - auth-network

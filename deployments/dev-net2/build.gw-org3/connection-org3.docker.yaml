@@ -5,9 +5,9 @@ version: 1.0.0
 client:
   organization: Org3MSP
   credentialStore:
-    path: ./assets/client-certs/hfc-kvs/org3
+    path: /home/app/packages/gw-org3/assets/client-certs/hfc-kvs/org3
     cryptoStore:
-      path: ./assets/client-certs/hfc-kvs/org3
+      path: /home/app/packages/gw-org3/assets/client-certs/hfc-kvs/org3
   connection:
     timeout:
       peer:
@@ -35,34 +35,34 @@ organizations:
     certificateAuthorities:
       - rca-org3
     adminPrivateKey:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org3MSP/admin/msp/keystore/key.pem
+      path: /var/artifacts/crypto-config/Org3MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org3MSP/admin/msp/signcerts/cert.pem
+      path: /var/artifacts/crypto-config/Org3MSP/admin/msp/signcerts/cert.pem
 
 orderers:
   orderer0-org0:
-    url: grpcs://localhost:7050
+    url: grpcs://orderer0-org0:7050
     grpcOptions:
       ssl-target-name-override: orderer0-org0
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 peers:
   peer0-org3:
-    url: grpcs://localhost:7451
-    eventUrl: grpcs://localhost:7453
+    url: grpcs://peer0-org3:7451
+    eventUrl: grpcs://peer0-org3:7453
     tlsCACerts:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org3MSP/peer0.org3.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: /var/artifacts/crypto-config/Org3MSP/peer0.org3.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
       ssl-target-name-override: peer0-org3
 
 certificateAuthorities:
   rca-org3:
-    url: https://localhost:5056
+    url: https://rca-org3:5056
     caName: rca-org3
     tlsCACerts:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org3MSP/msp/tlscacerts/tls-ca-cert.pem
+      path: /var/artifacts/crypto-config/Org3MSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
       - enrollId: rca-org3-admin
         enrollSecret: rca-org3-adminPW

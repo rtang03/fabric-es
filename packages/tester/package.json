@@ -4,6 +4,7 @@
   "license": "BSD-3-Clause-Clear",
   "description": "Integration tester",
   "scripts": {
+    "build": "yarn run clean && tsc",
     "clean": "rimraf dist",
     "tsc:prod": "yarn clean && tsc",
     "pack": "yarn build:cleanup && concurrently \"npm:cp:*\"",

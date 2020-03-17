@@ -5,9 +5,9 @@ version: 1.0.0
 client:
   organization: Org2MSP
   credentialStore:
-    path: ./assets/client-certs/hfc-kvs/org2
+    path: /home/app/packages/gw-org2/assets/client-certs/hfc-kvs/org2
     cryptoStore:
-      path: ./assets/client-certs/hfc-kvs/org2
+      path: /home/app/packages/gw-org2/assets/client-certs/hfc-kvs/org2
   connection:
     timeout:
       peer:
@@ -35,34 +35,34 @@ organizations:
     certificateAuthorities:
       - rca-org2
     adminPrivateKey:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org2MSP/admin/msp/keystore/key.pem
+      path: /var/artifacts/crypto-config/Org2MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org2MSP/admin/msp/signcerts/cert.pem
+      path: /var/artifacts/crypto-config/Org2MSP/admin/msp/signcerts/cert.pem
 
 orderers:
   orderer0-org0:
-    url: grpcs://localhost:7050
+    url: grpcs://orderer0-org0:7050
     grpcOptions:
       ssl-target-name-override: orderer0-org0
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 peers:
   peer0-org2:
-    url: grpcs://localhost:7251
-    eventUrl: grpcs://localhost:7253
+    url: grpcs://peer0-org2:7251
+    eventUrl: grpcs://peer0-org2:7253
     tlsCACerts:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
       ssl-target-name-override: peer0-org2
 
 certificateAuthorities:
   rca-org2:
-    url: https://localhost:5055
+    url: https://rca-org2:5055
     caName: rca-org2
     tlsCACerts:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org2MSP/msp/tlscacerts/tls-ca-cert.pem
+      path: /var/artifacts/crypto-config/Org2MSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
       - enrollId: rca-org2-admin
         enrollSecret: rca-org2-adminPW
