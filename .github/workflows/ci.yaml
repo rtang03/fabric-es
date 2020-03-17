@@ -6,6 +6,9 @@ on:
 
 name: CI
 
+env:
+  NODE_MODULE_VERSION: 57
+
 jobs:
   build:
     name: CI
@@ -30,6 +33,7 @@ jobs:
           version: '8.x'
       - name: yarn install
         run: yarn install --frozen-lockfile --ignore-engines
+      - run: env
       - run: npm rebuild grpc --target=8.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
       - run: yarn lint:lib
       - run: yarn lint:app
