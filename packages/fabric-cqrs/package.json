@@ -55,6 +55,7 @@
     "fabric-client": "^1.4.4",
     "fabric-contract-api": "^1.4.2",
     "fabric-network": "^1.4.4",
+    "grpc": "1.23.3",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
     "prettyjson": "^1.2.1",
