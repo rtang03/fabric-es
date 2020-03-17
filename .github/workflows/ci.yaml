@@ -28,8 +28,8 @@ jobs:
         with:
           node-version: '8.x'
           version: '8.x'
-      - name: Install dependencies
-        run: sudo apt-get install curl python make g++
+#      - name: Install dependencies
+#        run: sudo apt-get install curl python make g++
       - name: yarn install
         run: yarn install --frozen-lockfile --ignore-engines
       - run: npm rebuild
