@@ -14,8 +14,8 @@ let createdCommit_1: Commit;
 const entityName = 'dev_multiusers_test';
 const identityOrg1 = `org1user_test${Math.floor(Math.random() * 1000)}`;
 const identityOrg2 = `org2user_test${Math.floor(Math.random() * 1000)}`;
-const walletOrg1 = new FileSystemWallet('assets/walletOrg1');
-const walletOrg2 = new FileSystemWallet('assets/walletOrg2');
+const walletOrg1 = new FileSystemWallet(process.env.ORG1_WALLET);
+const walletOrg2 = new FileSystemWallet(process.env.ORG2_WALLET);
 
 beforeAll(async () => {
   try {
@@ -26,30 +26,30 @@ beforeAll(async () => {
     await registerUser({
       enrollmentId: identityOrg1,
       enrollmentSecret: 'password',
-      connectionProfile: 'connection/connection-org1.yaml',
+      connectionProfile: process.env.CONNECTION_PROFILE,
       fabricNetwork: process.env.NETWORK_LOCATION,
       wallet: walletOrg1,
-      caAdmin: 'rca-etradeconnect-admin'
+      caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN
     });
     await registerUser({
       enrollmentId: identityOrg2,
       enrollmentSecret: 'password',
-      connectionProfile: 'connection/connection-org2.yaml',
+      connectionProfile: process.env.ORG2_CONNECTION_PROFILE,
       fabricNetwork: process.env.NETWORK_LOCATION,
       wallet: walletOrg2,
-      caAdmin: 'rca-pboc-admin'
+      caAdmin: process.env.ORG2_CA_ENROLLMENT_ID_ADMIN
     });
     contextOrg1 = await getNetwork({
       channelName: process.env.CHANNEL_NAME,
       enrollmentId: identityOrg1,
-      connectionProfile: 'connection/connection-org1.yaml',
+      connectionProfile: process.env.CONNECTION_PROFILE,
       wallet: walletOrg1,
-      channelEventHub: 'peer0-etradeconnect'
+      channelEventHub: process.env.CHANNEL_HUB
     });
     contextOrg2 = await getNetwork({
       channelName: process.env.CHANNEL_NAME,
       enrollmentId: identityOrg2,
-      connectionProfile: 'connection/connection-org2.yaml',
+      connectionProfile: process.env.ORG2_CONNECTION_PROFILE,
       wallet: walletOrg2,
       channelEventHub: 'peer0-pbctfp'
     });

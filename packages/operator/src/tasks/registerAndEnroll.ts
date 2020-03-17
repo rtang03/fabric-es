@@ -72,7 +72,10 @@ export const registerAndEnroll = (option: CreateNetworkOperatorOption) => async 
     registerAndEnroll: async () => {
       // TODO: in v2, wallet.exists is deprecated, and replaced by wallet.get()
       const adminExist = await wallet.exists(identity);
-      if (!adminExist) throw new Error(ORG_ADMIN_NOT_EXIST);
+      if (!adminExist) {
+        logger.error(ORG_ADMIN_NOT_EXIST);
+        throw new Error(ORG_ADMIN_NOT_EXIST);
+      }
 
       const enrollmentIdExist = await wallet.exists(enrollmentId);
 
@@ -93,7 +96,7 @@ export const registerAndEnroll = (option: CreateNetworkOperatorOption) => async 
           gateway.getCurrentIdentity()
         );
       } catch (e) {
-        logger.error(util.format('operator fail to register: %j', e));
+        logger.error(util.format('operator fail to register %s: %j', enrollmentId, e));
         return new Error(e);
       }
 

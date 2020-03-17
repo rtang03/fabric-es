@@ -3,6 +3,9 @@
   "version": "0.5.14",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "license": "BSD-3-Clause-Clear",
+  "author": "Paul Lai",
+  "description": "Model - loan private",
   "scripts": {
     "build": "yarn run clean && tsc",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
@@ -15,7 +18,8 @@
     "copy:others": "cp .gitignore jest.setup.js jest.config.js package.json README.md tsconfig.json ../../.build/packages/model-loan-private/",
     "test": "yarn build && ./node_modules/.bin/jest unit.test",
     "clean": "rimraf dist",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
+    "unit-test:fab": "jest unit.test"
   },
   "engines": {
     "node": ">=8",

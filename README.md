@@ -232,6 +232,7 @@ Some source is refactored from below repo.
 [IBM Sample Code - 2](https://github.com/PacktPublishing/Handson-Blockchain-Development-with-Hyperledger)  
 [ampretia sample](https://github.com/ampretia/fabric-application-examples)
 [sample monorepo build](https://github.com/benawad/fullstack-graphql-airbnb-clone)
+[remove large file](https://www.deployhq.com/git/faqs/removing-large-files-from-git-history)  
 
 Note that Kelvin's sample is using high level API, but incomplete operational tasks. IBM samples is low level API, but more complete
 operational task.

@@ -81,6 +81,12 @@ describe('Start peer Tests', () => {
       .then(result => pick(result, 'version', 'entityName', 'events'))
       .then(result => expect(result).toMatchSnapshot());
 
+    const timer = new Promise(done => {
+      setTimeout(() => done(), 3000);
+    });
+
+    await timer;
+
     await repo
       .getById({ enrollmentId, id: enrollmentId })
       .then(({ save }) => save([{ type: 'ADD' }]))

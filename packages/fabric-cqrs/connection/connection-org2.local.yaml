@@ -1,5 +1,5 @@
 ---
-name: lib-dev-net
+name: dev-net_openplatform
 version: 1.0.0
 
 client:
@@ -23,13 +23,9 @@ channels:
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1-pbctfp:
-        endorsingPeer: true
-        chaincodeQuery: true
-        ledgerQuery: true
-        eventSource: true
     chaincodes:
       - eventstore:1.0
+      - privatedata:1.0
 
 organizations:
   PbctfpMSP:
@@ -40,9 +36,9 @@ organizations:
     certificateAuthorities:
       - rca-pbctfp
     adminPrivateKey:
-      path: ../../deployments/lib-dev-net/artifacts/crypto-config/PbctfpMSP/admin/msp/keystore/key.pem
+      path: ../../deployments/dev-net/artifacts/crypto-config/PbctfpMSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../deployments/lib-dev-net/artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem
+      path: ../../deployments/dev-net/artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem
 
 orderers:
   orderer0-hktfp:
@@ -51,30 +47,23 @@ orderers:
       ssl-target-name-override: orderer0-hktfp
     #      grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../deployments/lib-dev-net/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../deployments/dev-net/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 
 peers:
   peer0-pbctfp:
     url: grpcs://localhost:7251
     eventUrl: grpcs://localhost:7253
     tlsCACerts:
-      path: ../../deployments/lib-dev-net/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: ../../deployments/dev-net/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
       ssl-target-name-override: peer0-pbctfp
-  peer1-pbctfp:
-    url: grpcs://localhost:7251
-    eventUrl: grpcs://localhost:7253
-    tlsCACerts:
-      path: ../../deployments/lib-dev-net/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
-    grpcOptions:
-      ssl-target-name-override: peer1-pbctfp
 
 certificateAuthorities:
   rca-pbctfp:
     url: https://localhost:6055
     caName: rca-pbctfp
     tlsCACerts:
-      path: ../../deployments/lib-dev-net/artifacts/crypto-config/PbctfpMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/dev-net/artifacts/crypto-config/PbctfpMSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
       - enrollId: rca-pboc-admin
         enrollSecret: rca-pboc-adminPW
