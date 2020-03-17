@@ -8,11 +8,13 @@ export SCRIPTS=./scripts
 export CHAINCODE=../../packages/chaincode
 export CONFIG=./config
 
+docker exec cli sh -c "rm -rf /var/artifacts/crypto-config"
+
 docker-compose -f compose.1.2org.yaml down
 
 docker rm -f $(docker ps -aq -f status=exited)
 
-sudo rm -rf ./artifacts
+#sudo rm -rf ./artifacts
 
 # docker rm -f $(docker ps -aq -f name=dev-*)
 #docker-compose -p ci -f ./docker-compose.ci.yaml kill
