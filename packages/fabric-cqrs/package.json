@@ -45,7 +45,7 @@
     "publish:gh:fabric-es": "npm publish"
   },
   "engines": {
-    "node": ">=8",
+    "node": "8.x",
     "npm": ">=5"
   },
   "engineStrict": true,
