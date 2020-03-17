@@ -138,6 +138,7 @@ services:
             - {{{artifacts.local}}}:{{{artifacts.docker}}}
             - ../scripts/container:/setup
             - ../../../packages/chaincode:{{{artifacts.peers-working-dir}}}/chaincode
+            - .:/config
 
     {{/orgs.peer}}
 # Deprecate this postgres DB. This is replaced by deployments/app-net/dev. 

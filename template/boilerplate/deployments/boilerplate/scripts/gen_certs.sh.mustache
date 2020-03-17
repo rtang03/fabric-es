@@ -1,5 +1,0 @@
-docker exec {{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}} sh -c "/setup/enroll_tls.sh"
-docker exec {{orgs.orderer.ca.host}}{{network.host-delimiter}}{{orgs.orderer.domain}} sh -c "/setup/enroll_org0.sh"
-{{#orgs.peer}}
-docker exec {{ca.host}}{{network.host-delimiter}}{{domain}} sh -c "/setup/enroll_{{script-naming}}.sh"
-{{/orgs.peer}}

@@ -19,6 +19,23 @@
     "orderer-home": "orderer",
     "peers-working-dir": "/opt/gopath/src/github.com/hyperledger/fabric"
   },
+  "chaincodes": [
+    {
+        "ccname": "eventstore",
+        "ccpath": "",
+        "ccver": "1.0",
+        "policy": "OR ('Org1MSP.member' ,'Org2MSP.member', 'Org3MSP.member')",
+        "instantiate": "{\"Args\":[\"eventstore:instantiate\"]}"
+    },
+    {
+        "ccname": "privatedata",
+        "ccpath": "",
+        "ccver": "1.0",
+        "policy": "OR ('Org1MSP.member' ,'Org2MSP.member', 'Org3MSP.member')",
+        "instantiate": "{\"Args\":[\"privatedata:instantiate\"]}",
+        "collection": "--collections-config \/opt\/gopath\/src\/github.com\/hyperledger\/fabric\/chaincode\/collections.json"
+    }
+],
   "orgs": {
     "tls": {
       "domain": "tls",

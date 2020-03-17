@@ -1,0 +1,58 @@
+version: '2'
+
+networks:
+    {{network.name}}:
+
+services:
+
+    {{#orgs.peer}}
+    {{#peers.endpoints}}
+    {{-}}{{network.host-delimiter}}{{domain}}:
+        extends:
+            file: nodebase.yaml
+            service: peer
+        container_name: {{-}}{{network.host-delimiter}}{{domain}}
+        restart: unless-stopped
+        environment:
+            - CORE_PEER_ID={{-}}{{network.host-delimiter}}{{domain}}
+            - CORE_PEER_ADDRESS={{-}}{{network.host-delimiter}}{{domain}}:{{port}}
+            - CORE_PEER_LISTENADDRESS=0.0.0.0:{{port}}
+            - CORE_PEER_LOCALMSPID={{id}}
+            - CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/msp
+            - CORE_PEER_TLS_CERT_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/signcerts/cert.pem
+            - CORE_PEER_TLS_KEY_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/keystore/key.pem
+            - CORE_PEER_TLS_ROOTCERT_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+            - CORE_PEER_GOSSIP_BOOTSTRAP={{^islast}}{{peers.endpoints.1.-}}{{network.host-delimiter}}{{domain}}:{{peers.endpoints.1.port}}{{/islast}}{{#islast}}{{peers.endpoints.0.-}}{{network.host-delimiter}}{{domain}}:{{peers.endpoints.0.port}}{{/islast}}
+            - CORE_PEER_GOSSIP_EXTERNALENDPOINT={{-}}{{network.host-delimiter}}{{domain}}:{{port}}
+            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:{{chaincode-port}}
+        working_dir: {{{artifacts.peers-working-dir}}}/{{{cert-path}}}
+        volumes:
+            - /var/run:/host/var/run
+            - {{{artifacts.local}}}/{{{artifacts.production}}}{{#artifacts.production}}/{{/artifacts.production}}{{{cert-path}}}:{{{artifacts.docker}}}/production
+            - {{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}:{{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{cert-path}}}
+        ports:
+            - {{port}}:{{port}}
+            - {{eventhub-port}}:{{eventhub-port}}
+
+    {{/peers.endpoints}}
+    {{/orgs.peer}}
+    cli:
+        extends:
+            file: nodebase.yaml
+            service: cli-base
+        container_name: cli
+        restart: unless-stopped
+        environment:
+            - HYPERLEDGER_VOL={{{artifacts.docker}}}
+            - CORE_PEER_ID=cli
+            - CORE_PEER_ADDRESS={{orgs.peer.0.peers.endpoints.0.-}}{{network.host-delimiter}}{{orgs.peer.0.domain}}:{{orgs.peer.0.peers.endpoints.0.port}}
+            - CORE_PEER_LOCALMSPID={{orgs.peer.0.id}}
+            - CORE_PEER_TLS_ROOTCERT_FILE={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.0.peers.endpoints.0.cert-path}}}/tls-msp/tlscacerts/tls-0-0-0-0-{{orgs.tls.ca.port}}.pem
+            - CORE_PEER_MSPCONFIGPATH={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}{{{orgs.peer.0.peers.endpoints.0.cert-path}}}/msp
+        working_dir: {{{artifacts.peers-working-dir}}}/{{domain}}
+        command: sh
+        volumes:
+            - {{{artifacts.local}}}:{{{artifacts.docker}}}
+            - ../scripts/container:/setup
+            - ../../../packages/chaincode:{{{artifacts.peers-working-dir}}}/chaincode
+            - .:/config

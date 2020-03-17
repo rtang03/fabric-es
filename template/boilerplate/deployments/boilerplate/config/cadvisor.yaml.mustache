@@ -1,0 +1,19 @@
+version: '2'
+
+networks:
+    {{network.name}}:
+
+services:
+
+    cadvisor:
+        container_name: cadvisor
+        image: google/cadvisor
+        restart: unless-stopped
+        volumes:
+            - /:/rootfs:ro
+            - /var/run:/var/run:ro
+            - /sys:/sys:ro
+            - /var/lib/docker/:/var/lib/docker:ro
+            - /dev/disk/:/dev/disk:ro
+        ports:
+            - 8080:8080
