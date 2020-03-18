@@ -1,3 +1,14 @@
+## [0.5.15] - 2020-3-18
+### Added
+- fabric-running network to unit and integration tests 
+- unit/int test to _create image_ & _ci_ workflow
+- new package tester
+- add dev-net replacing lib-dev-net
+- PR #8
+
+### Removed
+- boilerplate.tar.gz from new release creation
+
 ## [0.5.14] - 2020-3-13
 ### Added
 - repo rename
