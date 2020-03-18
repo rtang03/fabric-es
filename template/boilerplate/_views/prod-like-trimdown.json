@@ -26,14 +26,14 @@
             "ccname": "eventstore",
             "ccpath": "",
             "ccver": "1.0",
-            "policy": "AND ('EtcMSP.member' ,'PbctfpMSP.member', 'HsbcMSP.member')",
+            "policy": "OR ('EtcMSP.member' ,'PbctfpMSP.member', 'HsbcMSP.member')",
             "instantiate": "{\"Args\":[\"eventstore:instantiate\"]}"
         },
         {
             "ccname": "privatedata",
             "ccpath": "",
             "ccver": "1.0",
-            "policy": "AND ('EtcMSP.member' ,'PbctfpMSP.member', 'HsbcMSP.member')",
+            "policy": "OR ('EtcMSP.member' ,'PbctfpMSP.member', 'HsbcMSP.member')",
             "instantiate": "{\"Args\":[\"privatedata:instantiate\"]}",
             "collection": "--collections-config \/opt\/gopath\/src\/github.com\/hyperledger\/fabric\/chaincode\/collections.json"
         }
