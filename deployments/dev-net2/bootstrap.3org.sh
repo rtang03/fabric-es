@@ -6,7 +6,7 @@
 
 . ./setup.sh
 
-docker-compose -f $COMPOSE_1 up -d
+docker-compose $1 up -d
 
 printMessage "Docker-compose up" $?
 
@@ -46,7 +46,7 @@ printMessage "enroll_org2.sh" $?
 docker exec rca-org3 sh -c "/setup/enroll_org3.sh"
 printMessage "enroll_org3.sh" $?
 
-docker-compose -f $COMPOSE_1 up -d
+docker-compose $1 up -d
 
 sleep 5
 
@@ -97,7 +97,7 @@ docker exec -w /config cli sh -c "mv genesis.block ${CRYPTO}/Org0MSP/orderer0.or
 
 docker exec -w /config cli sh -c "mv channel.tx ${CRYPTO}/Org1MSP/peer0.org1.net/assets"
 
-docker-compose -f $COMPOSE_1 up -d
+docker-compose $1 up -d
 
 sleep 5
 

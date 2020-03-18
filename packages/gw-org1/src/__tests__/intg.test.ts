@@ -56,6 +56,7 @@ import {
   OAUTH_REGISTER
 } from './queries';
 
+const oPort = 3901;
 const aPort = 15050;
 const lPort = 14052;
 const dPort = 14053;
@@ -66,7 +67,7 @@ const dReducer = getReducer<Document, DocumentEvents>(documentReducer);
 const tReducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
 const cReducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
 
-const AUTH_SERVER = `http://localhost:${process.env.OAUTH_SERVER_PORT}/graphql`;
+const AUTH_SERVER = `http://localhost:${oPort}/graphql`;
 const ADMIN_SERVICE = `http://localhost:${aPort}/graphql`;
 const userId = 'unitTestUser';
 const timestamp = Date.now();

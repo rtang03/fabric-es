@@ -1,0 +1,65 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+# ORG1
+  gw-org1:
+    image: fabric-es/gw-org1:1.0
+    container_name: gw-org1
+    environment:
+      - AUTHORIZATION_SERVER_URI=http://auth-server1/oauth/authenticate
+      - CA_ENROLLMENT_ID_ADMIN=rca-org1-admin
+      - CA_ENROLLMENT_SECRET_ADMIN=rca-org1-adminPW
+      - CHANNEL_HUB=peer0-org1
+      - CONNECTION_PROFILE=/home/app/packages/gw-org1/connection/connection-org1.docker.yaml
+      - COLLECTION=org1PrivateDetails
+      - ORG_ADMIN_ID=admin-org1.net
+      - ORG_ADMIN_SECRET=Heym2rQK
+      - ORG_CA_URL=https://rca-org1:5054
+      - PEER_NAME=peer0-org1
+      - GATEWAY_HOST=0.0.0.0
+    working_dir: /home/app/packages/gw-org1
+    ports:
+      - 4011:4001
+    networks:
+      - openplatform
+    depends_on:
+      - auth-server1
+      - orderer0-org0
+      - peer0-org1
+    volumes:
+      - $VOLUME/gw-org1/assets/:/home/app/packages/gw-org1/assets/
+      - $VOLUME/gw-org1/logs/:/home/app/packages/gw-org1/logs/
+      - $ARTIFACTS/crypto-config/:/var/artifacts/crypto-config/
+
+# ORG2
+  gw-org2:
+    image: fabric-es/gw-org2:1.0
+    container_name: gw-org2
+    environment:
+      - AUTHORIZATION_SERVER_URI=http://auth-server2/oauth/authenticate
+      - CA_ENROLLMENT_ID_ADMIN=rca-org2-admin
+      - CA_ENROLLMENT_SECRET_ADMIN=rca-org2-adminPW
+      - CHANNEL_HUB=peer0-org2
+      - CONNECTION_PROFILE=/home/app/packages/gw-org2/connection/connection-org2.docker.yaml
+      - COLLECTION=org2PrivateDetails
+      - ORG_ADMIN_ID=admin-org2.net
+      - ORG_ADMIN_SECRET=mEN6bpQW
+      - ORG_CA_URL=https://rca-org2:5055
+      - PEER_NAME=peer0-org2
+      - GATEWAY_HOST=0.0.0.0
+    working_dir: /home/app/packages/gw-org2
+    ports:
+      - 4012:4002
+    networks:
+      - openplatform
+    depends_on:
+      - auth-server2
+      - orderer0-org0
+      - peer0-org2
+    volumes:
+      - $VOLUME/gw-org2/assets/:/home/app/packages/gw-org2/assets/
+      - $VOLUME/gw-org2/logs/:/home/app/packages/gw-org2/logs/
+      - $ARTIFACTS/crypto-config/:/var/artifacts/crypto-config/

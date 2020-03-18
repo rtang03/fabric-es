@@ -1,0 +1,24 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+# ORG3
+  auth-server3:
+    image: fabric-es/auth-server:1.0
+    container_name: auth-server3
+    environment:
+      - TYPEORM_HOST=postgres03
+      - TYPEORM_PORT=5432
+      - TYPEORM_USERNAME=postgres
+      - TYPEORM_PASSWORD=docker
+      - TYPEORM_DATABASE=auth_db
+    ports:
+      - 3903:8080
+    depends_on:
+      - postgres03
+    volumes:
+      - $VOLUME/auth-server3/logs/:/home/app/packages/authentication/logs/
+    networks:
+      - openplatform

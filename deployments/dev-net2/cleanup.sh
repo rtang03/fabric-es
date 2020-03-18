@@ -3,8 +3,8 @@
 . ./setup.sh
 
 # Cleaup the environment
-docker rm -f logspout auth-server1 auth-server2 auth-server3 gw-org1 gw-org2 gw-org3
-docker-compose -f $COMPOSE_1 down
+docker rm -f logspout
+docker-compose $1 down
 docker rm -f $(docker ps -aq -f status=exited)
 docker volume prune -f
 docker network prune -f

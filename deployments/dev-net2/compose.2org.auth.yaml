@@ -1,0 +1,43 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+# ORG1
+  auth-server1:
+    image: fabric-es/auth-server:1.0
+    container_name: auth-server1
+    environment:
+      - TYPEORM_HOST=postgres01
+      - TYPEORM_PORT=5432
+      - TYPEORM_USERNAME=postgres
+      - TYPEORM_PASSWORD=docker
+      - TYPEORM_DATABASE=auth_db
+    ports:
+      - 3901:8080
+    depends_on:
+      - postgres01
+    volumes:
+      - $VOLUME/auth-server1/logs/:/home/app/packages/authentication/logs/
+    networks:
+      - openplatform
+
+# ORG2
+  auth-server2:
+    image: fabric-es/auth-server:1.0
+    container_name: auth-server2
+    environment:
+      - TYPEORM_HOST=postgres02
+      - TYPEORM_PORT=5432
+      - TYPEORM_USERNAME=postgres
+      - TYPEORM_PASSWORD=docker
+      - TYPEORM_DATABASE=auth_db
+    ports:
+      - 3902:8080
+    depends_on:
+      - postgres02
+    volumes:
+      - $VOLUME/auth-server2/logs/:/home/app/packages/authentication/logs/
+    networks:
+      - openplatform

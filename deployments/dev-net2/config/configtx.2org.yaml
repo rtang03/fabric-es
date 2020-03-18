@@ -1,0 +1,187 @@
+
+Organizations:
+
+  - &org0
+    Name: org0
+    ID: Org0MSP
+    MSPDir: /var/artifacts/crypto-config/Org0MSP/msp
+
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org0MSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org0MSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org0MSP.admin')"
+
+  - &org1
+    Name: org1
+    ID: Org1MSP
+    MSPDir: /var/artifacts/crypto-config/Org1MSP/msp
+
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org1MSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org1MSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org1MSP.admin')"
+
+    OrdererEndpoints:
+      - orderer0-org0:7050
+
+    AnchorPeers:
+      - Host: peer0-etradeconnect
+        Port: 7051
+
+  - &org2
+    Name: org2
+    ID: Org2MSP
+    MSPDir: /var/artifacts/crypto-config/Org2MSP/msp
+
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org2MSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org2MSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org2MSP.admin')"
+
+    OrdererEndpoints:
+      - orderer0-org0:7050
+
+    AnchorPeers:
+      - Host: peer0-org2
+        Port: 7251
+
+Capabilities:
+  Channel: &ChannelCapabilities
+    V1_4_3: true
+    V1_3: false
+    V1_1: false
+  Orderer: &OrdererCapabilities
+    V1_4_2: true
+    V1_1: false
+  Application: &ApplicationCapabilities
+    V1_4_2: true
+    V1_3: false
+    V1_2: false
+    V1_1: false
+
+################################################################################
+#
+#   SECTION: Application
+#
+#   This section defines the values to encode into a config transaction or
+#   genesis block for application related parameters
+#
+################################################################################
+Application: &ApplicationDefaults
+
+  # Organizations is the list of orgs which are defined as participants on
+  # the application side of the network
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+
+  Capabilities:
+    <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+
+  OrdererType: etcdraft
+  Addresses:
+    - orderer0-org0:7050
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 500
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 2 MB
+  MaxChannels: 10
+  EtcdRaft:
+    Consenters:
+      - Host: orderer0-org0
+        Port: 7050
+        ClientTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
+        ServerTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
+
+    Options:
+      TickInterval: 500ms
+      ElectionTick: 10
+      HeartbeatTick: 1
+      MaxInflightBlocks: 5
+      SnapshotIntervalSize: 20 MB
+
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+
+  Capabilities:
+    <<: *ChannelCapabilities
+
+Profiles:
+
+  OrgsOrdererGenesis:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *org0
+      Capabilities:
+        <<: *OrdererCapabilities
+    Consortiums:
+      SampleConsortium:
+        Organizations:
+          - *org1
+          - *org2
+
+  OrgsChannel:
+    Consortium: SampleConsortium
+    <<: *ChannelDefaults
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *org1
+        - *org2
+      Capabilities:
+        <<: *ApplicationCapabilities
