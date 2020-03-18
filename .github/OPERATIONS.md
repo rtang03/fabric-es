@@ -56,6 +56,23 @@ git tag -a v0.5.1 -m "Releasing version v0.5.1"
 git push origin v0.5.1
 ```
 
+For development and troubleshoot, you may fail the _create-image_ workflow, for a specific release tag. You
+need delete the local and remote tag, in order to re-push the same tag.
+
+```shell script
+# delete local tag
+git tag -d v0.5.1
+
+# delete remote tag
+git push --delete origin v0.5.1
+```
+
+After both local and remote tags are removed,
+
+- make sure CHANGELOG.md is correct
+- commit all changes
+- repeat above method 2: (a) create local tag, (b) push remote
+
 _step 4: Optionally, publish from local machine cli_
 In current developer workflow, we intentionally not to automate the publishing packages; before we confirm the software library sharing
 strategy. As an interim solution, the library code can be published to an independent organization and repo, _fabric-es/fabric-es_. It
