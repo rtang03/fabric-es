@@ -1,0 +1,134 @@
+---
+name: dev-net2_openplatform
+version: 1.0.0
+
+client:
+  organization: Org1MSP
+  credentialStore:
+    path: ./assets/client-certs/hfc-kvs/org1
+    cryptoStore:
+      path: ./assets/client-certs/hfc-kvs/org1
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+
+channels:
+  loanapp:
+    orderers:
+      - orderer0-org0
+    peers:
+      peer0-org1:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0-org2:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0-org3:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+    chaincodes:
+      - eventstore:1.0
+      - privatedata:1.0
+
+organizations:
+  Org1MSP:
+    mspid: Org1MSP
+    peers:
+      - peer0-org1
+    certificateAuthorities:
+      - rca-org1
+    adminPrivateKey:
+      path: /var/artifacts/crypto-config/Org1MSP/admin/msp/keystore/key.pem
+    signedCert:
+      path: /var/artifacts/crypto-config/Org1MSP/admin/msp/signcerts/cert.pem
+  Org2MSP:
+    mspid: Org2MSP
+    peers:
+      - peer0-org2
+    certificateAuthorities:
+      - rca-org2
+    adminPrivateKey:
+      path: /var/artifacts/crypto-config/Org2MSP/admin/msp/keystore/key.pem
+    signedCert:
+      path: /var/artifacts/crypto-config/Org2MSP/admin/msp/signcerts/cert.pem
+  Org3MSP:
+    mspid: Org3MSP
+    peers:
+      - peer0-org3
+    certificateAuthorities:
+      - rca-org3
+    adminPrivateKey:
+      path: /var/artifacts/crypto-config/Org3MSP/admin/msp/keystore/key.pem
+    signedCert:
+      path: /var/artifacts/crypto-config/Org3MSP/admin/msp/signcerts/cert.pem
+
+orderers:
+  orderer0-org0:
+    url: grpcs://orderer0-org0:7050
+    grpcOptions:
+      ssl-target-name-override: orderer0-org0
+    #      grpc-max-send-message-length: 4000
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+
+peers:
+  peer0-org1:
+    url: grpcs://peer0-org1:7051
+    eventUrl: grpcs://peer0-org1:7053
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+    grpcOptions:
+      ssl-target-name-override: peer0-org1
+  peer0-org2:
+    url: grpcs://peer0-org2:7251
+    eventUrl: grpcs://peer0-org2:7253
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+    grpcOptions:
+      ssl-target-name-override: peer0-org2
+  peer0-org3:
+    url: grpcs://peer0-org3:7451
+    eventUrl: grpcs://peer0-org3:7453
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org3MSP/peer0.org3.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+    grpcOptions:
+      ssl-target-name-override: peer0-org3
+
+certificateAuthorities:
+  rca-org1:
+    url: https://rca-org1:5054
+    caName: rca-org1
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org1MSP/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: rca-org1-admin
+        enrollSecret: rca-org1-adminPW
+    httpOptions:
+      verify: false
+  rca-org2:
+    url: https://rca-org2:5055
+    caName: rca-org2
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org2MSP/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: rca-org2-admin
+        enrollSecret: rca-org2-adminPW
+    httpOptions:
+      verify: false
+  rca-org3:
+    url: https://rca-org3:5056
+    caName: rca-org3
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org3MSP/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: rca-org3-admin
+        enrollSecret: rca-org3-adminPW
+    httpOptions:
+      verify: false
