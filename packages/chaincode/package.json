@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/chaincode",
-  "version": "0.5.14",
+  "version": "0.5.15",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "description": "Event Store Chaincode for Hyperledger Fabric",

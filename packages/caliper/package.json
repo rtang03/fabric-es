@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/caliper",
-  "version": "0.5.14",
+  "version": "0.5.15",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -18,8 +18,8 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.5.14",
-    "@fabric-es/operator": "^0.5.14",
+    "@fabric-es/fabric-cqrs": "^0.5.15",
+    "@fabric-es/operator": "^0.5.15",
     "@hyperledger/caliper-cli": "^0.2.0",
     "dotenv": "^8.1.0",
     "fabric-ca-client": "^1.4.4",

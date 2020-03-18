@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/model-loan",
-  "version": "0.5.14",
+  "version": "0.5.15",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -26,9 +26,9 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.5.14",
-    "@fabric-es/gateway-lib": "^0.5.14",
-    "@fabric-es/model-common": "^0.5.14",
+    "@fabric-es/fabric-cqrs": "^0.5.15",
+    "@fabric-es/gateway-lib": "^0.5.15",
+    "@fabric-es/model-common": "^0.5.15",
     "apollo-server-errors": "^2.3.4"
   },
   "devDependencies": {
