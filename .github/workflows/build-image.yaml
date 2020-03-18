@@ -44,7 +44,8 @@ jobs:
       - run: yarn lint:lib
       - run: yarn lint:app
       - name: Run unit and integration tests
-        run: yarn unit-int-test
+        run: yarn unit-int-test:no_grpc
+#        run: yarn unit-int-test
       - name: Setup Google account
         uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
@@ -57,30 +58,10 @@ jobs:
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker tag fabric-es/auth-server:1.0 "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/auth-server:"$TAG"
-# because the integration test had already create docker images, we can skip below step to create it again
-#      - name: Prepare build context for auth-server
-#        run: yarn build:auth
-#      - name: Build auth-server image
-#        run: |
-#          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-#          docker build --no-cache -f ./auth-server.dockerfile \
-#            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$AUTH_IMAGE":"$TAG" \
-#            --build-arg GITHUB_SHA="$GITHUB_SHA" \
-#            --build-arg GITHUB_REF="$GITHUB_REF" .
       - name: Publish auth-server image
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/auth-server:"$TAG"
-# because the integration test had already create docker images, we can skip below step to create it again
-#      - name: Prepare build context for gw-org1
-#        run: yarn build:gw-dev-net:org1
-#      - name: Build gw-org1 image
-#        run: |
-#          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-#          docker build --no-cache -f ./gw-org1.dockerfile \
-#            -t "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/"$GW_ORG1_IMAGE":"$TAG" \
-#            --build-arg GITHUB_SHA="$GITHUB_SHA" \
-#            --build-arg GITHUB_REF="$GITHUB_REF" .
       - name: Rename image tag for gw-org1
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
@@ -89,9 +70,6 @@ jobs:
         run: |
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
           docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/gw-org1:"$TAG"
-      - name: Create boilerplate.tar.gz
-        run: yarn boilerplate
-      - run: tar -czvf boilerplate.tar.gz ./.build
       - name: Create Release
         uses: docker://antonyurchenko/git-release:latest
         env:
@@ -101,8 +79,7 @@ jobs:
           CHANGELOG_FILE: "CHANGELOG.md"
           ALLOW_EMPTY_CHANGELOG: "false"
           ALLOW_TAG_PREFIX: "true"
-#        with:
-#          args: ./boilerplate.tar.gz
+      - run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
 #  This step will only publish to the same repo. However, our use case may need to publish other registry.
 #  So disable it for now.
 #      - name: Publish Github Packages

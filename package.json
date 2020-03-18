@@ -1,6 +1,6 @@
 {
   "name": "fabric-es",
-  "version": "0.5.14",
+  "version": "0.5.15",
   "license": "BSD-3-Clause-Clear",
   "scripts": {
     "cp:root": "rimraf .build && mkdir -p ./.build && cp ./package.json .build",
@@ -24,13 +24,13 @@
     "build-run-test:fab": "cd ./deployments/dev-net && ./build-run.3.2org.auth-gw-tester.sh ",
     "shutdown:fab": "cd ./deployments/dev-net && ./shutdown-cleanup.sh",
     "unit-int-test": "yarn build-run-test:fab && yarn lerna run unit-test:fab --stream --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/model-*} && yarn shutdown:fab",
+    "unit-int-test:no_grpc": "yarn build-run-test:fab && yarn lerna run unit-test:fab --stream --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/model-*} && yarn shutdown:fab",
     "unit-test": "yarn bootstrap:fab && yarn lerna run unit-test:fab --stream --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/model-*} && yarn shutdown:fab",
     "unit-test:no_grpc": "yarn bootstrap:fab && yarn lerna run unit-test:fab --stream --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/model-*} && yarn shutdown:fab",
     "lint:lib": "lerna run lint --stream --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
     "lint:app": "lerna run lint --stream --scope={@fabric-es/gw-org*,@fabric-es/model-*}",
     "publish:lib": "lerna run publish:gh:fabric-es --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
     "version:patch": "lerna version patch",
-    "boilerplate": "yarn cp:root && lerna run boilerplate --scope={@fabric-es/gw-org*,@fabric-es/model-*}",
     "typedoc": "lerna run typedoc --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}"
   },
   "workspaces": [

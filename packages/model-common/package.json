@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/model-common",
-  "version": "0.5.14",
+  "version": "0.5.15",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -13,9 +13,6 @@
     "build:cleanup": "rimraf ../../.build/packages/model-common && mkdir -p ../../.build/packages/model-common",
     "cp:package.json": "cp ./package.json ../../.build/packages/model-common/",
     "cp:dist": "cp -R ./dist ../../.build/packages/model-common/",
-    "boilerplate": "yarn build:cleanup && concurrently \"npm:copy:*\"",
-    "copy:src": "cp -R ./src ../../.build/packages/model-common/",
-    "copy:others": "cp .gitignore jest.config.js jest.setup.js package.json tsconfig.json README.md ../../.build/packages/model-common/",
     "test": "yarn build && ./node_modules/.bin/jest unit.test",
     "clean": "rimraf dist",
     "gen-resolvers-type": "graphql-codegen --config codegen.yml",
@@ -29,8 +26,8 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.5.14",
-    "@fabric-es/gateway-lib": "^0.5.14"
+    "@fabric-es/fabric-cqrs": "^0.5.15",
+    "@fabric-es/gateway-lib": "^0.5.15"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.9.0",

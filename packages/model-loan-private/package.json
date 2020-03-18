@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/model-loan-private",
-  "version": "0.5.14",
+  "version": "0.5.15",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -13,9 +13,6 @@
     "build:cleanup": "rimraf ../../.build/packages/model-loan-private && mkdir -p ../../.build/packages/model-loan-private",
     "cp:package.json": "cp ./package.json ../../.build/packages/model-loan-private/",
     "cp:dist": "cp -R ./dist ../../.build/packages/model-loan-private/",
-    "boilerplate": "yarn build:cleanup && concurrently \"npm:copy:*\"",
-    "copy:src": "cp -R ./src ../../.build/packages/model-loan-private/",
-    "copy:others": "cp .gitignore jest.setup.js jest.config.js package.json README.md tsconfig.json ../../.build/packages/model-loan-private/",
     "test": "yarn build && ./node_modules/.bin/jest unit.test",
     "clean": "rimraf dist",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
@@ -28,9 +25,9 @@
   "private": true,
   "engineStrict": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.5.14",
-    "@fabric-es/gateway-lib": "^0.5.14",
-    "@fabric-es/model-common": "^0.5.14",
+    "@fabric-es/fabric-cqrs": "^0.5.15",
+    "@fabric-es/gateway-lib": "^0.5.15",
+    "@fabric-es/model-common": "^0.5.15",
     "apollo-server-errors": "^2.3.4"
   },
   "devDependencies": {

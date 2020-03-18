@@ -19,13 +19,13 @@ jobs:
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
-#      - uses: actions/cache@v1
-#        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-#        with:
-#          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-#          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-#          restore-keys: |
-#            ${{ runner.os }}-yarn-
+      - uses: actions/cache@v1
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 # actions/cache has below error, and is disabled
 ##[error]The template is not valid. Access to the path '/home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts/postgres02' is denied.,Permission denied
 ##[error]The template is not valid. Access to the path '/home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts/postgres02' is denied.,Permission denied
@@ -45,6 +45,7 @@ jobs:
         run: yarn unit-test:no_grpc
         env:
           CI: true
+      - run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
 # in CI environment, grpc has problem. Bypassing the unit test for fabric-cqrs, with yarn unit-test:no_grpc
 #  @fabric-es/fabric-cqrs: $ node ./dist/account/enrollAdmin.js
 #  @fabric-es/fabric-cqrs: /home/runner/work/fabric-es/fabric-es/node_modules/grpc/src/grpc_extension.js:55
