@@ -44,7 +44,8 @@ jobs:
       - run: yarn lint:lib
       - run: yarn lint:app
       - name: Run unit and integration tests
-        run: yarn unit-int-test
+        run: yarn unit-int-test:no_grpc
+#        run: yarn unit-int-test
       - name: Setup Google account
         uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
