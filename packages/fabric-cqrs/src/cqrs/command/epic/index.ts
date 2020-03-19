@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import createEpic from './create';
 import deleteByEntityIdEpic from './deleteByEntityId';
 import deleteByEntityIdCommitId from './deleteByEntityIdCommitId';

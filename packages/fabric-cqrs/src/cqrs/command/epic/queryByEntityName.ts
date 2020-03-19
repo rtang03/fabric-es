@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import util from 'util';
 import Client from 'fabric-client';
 import { ofType } from 'redux-observable';

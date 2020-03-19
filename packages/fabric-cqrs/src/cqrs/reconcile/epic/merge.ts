@@ -1,6 +1,9 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import util from 'util';
 import Client from 'fabric-client';
-import { Store } from 'redux';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
@@ -32,7 +35,7 @@ export default (action$: Observable<MergeAction>) => {
             }
           });
 
-          store.dispatch(query.mergeBatch({ tx_id, args: { entityName, commits } }));
+          store.dispatch(query.mergeBatch({ tx_id, args: { entityName, commits } }) as any);
 
           logger.info(`dispatch ${query.MERGE_BATCH}: ${tx_id}`);
         })

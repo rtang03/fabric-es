@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 // prettier-ignore
 export const REGISTER_ADMIN = `
   mutation Register (

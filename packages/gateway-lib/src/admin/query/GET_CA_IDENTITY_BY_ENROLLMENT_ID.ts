@@ -1,3 +1,9 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+// prettier-ignore
 export const GET_CA_IDENTITY_BY_ENROLLMENT_ID = `query GetCaIdentityByEnrollmentId (
   $enrollmentId: String!
  ) {

@@ -6,6 +6,13 @@ import { createCommitId } from '../peer/utils';
 import { Commit } from '../types';
 import { getContract } from './contract';
 
+/**
+ * **submit** submit transaction to eventstore chaincode
+ * @param fcn function
+ * @param args args
+ * @param network `{ network: Network }`
+ * @returns `Record<string, Commit> & { error?: any; status?: string; message?: string }`
+ */
 export const submit: (
   fcn: string,
   args: string[],

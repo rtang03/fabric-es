@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { epic as projectionEpic } from './epic';
 
 export { action } from './action';

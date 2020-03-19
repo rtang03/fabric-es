@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { Reducer } from 'redux';
 import { ActionHandler, initialState, State } from '../../types';
 import { getErrorActionHandler, getReducer, getSuccessActionHandler } from '../utils';

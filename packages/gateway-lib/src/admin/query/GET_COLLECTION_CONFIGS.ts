@@ -1,3 +1,9 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+// prettier-ignore
 export const GET_COLLECTION_CONFIGS = `query GetCollectionConfigs {
   getCollectionConfigs {
     name

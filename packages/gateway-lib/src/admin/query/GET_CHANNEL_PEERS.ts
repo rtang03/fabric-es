@@ -1,3 +1,9 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+// prettier-ignore
 export const GET_CHANNEL_PEERS = `query GetChannelPeers {
   getChannelPeers {
     name

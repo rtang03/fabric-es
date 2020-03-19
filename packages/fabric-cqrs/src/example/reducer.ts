@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { Reducer } from '../types';
 
 export interface CounterEvent {

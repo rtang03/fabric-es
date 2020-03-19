@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { values } from 'lodash';
 import { Commit, Reducer } from '../../types';
 

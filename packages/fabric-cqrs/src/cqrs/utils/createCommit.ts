@@ -1,5 +1,9 @@
 import { BaseEvent, Commit } from '../../types';
 
+/**
+ * **createCommit** create Commit object
+ * @returns [[Commit]]
+ */
 export const createCommit: <TEvent extends BaseEvent = any>(option: {
   id: string;
   entityName: string;

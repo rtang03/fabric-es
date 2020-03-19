@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { flatMap, values } from 'lodash';
 import { Commit } from '../../types';
 

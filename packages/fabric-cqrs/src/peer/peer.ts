@@ -8,6 +8,11 @@ import { Peer, PeerOptions } from '../types';
 import { ngacRepo, privateDataRepo, reconcile, repository } from './utils';
 import { createProjectionDb, createQueryDatabase } from '.';
 
+/**
+ * **createPeer** creates Peer object for a specific Hyperledger peer node
+ * @param options [[PeerOptions]]
+ * @returns [[Peer]]
+ */
 export const createPeer: (options: PeerOptions) => Peer = options => {
   const logger = Client.getLogger('createPeer.js');
 

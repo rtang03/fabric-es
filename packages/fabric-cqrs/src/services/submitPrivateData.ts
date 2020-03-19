@@ -6,6 +6,13 @@ import { createCommitId } from '../peer/utils';
 import { Commit } from '../types';
 import { getContract } from './contract';
 
+/**
+ * **submitPrivateData** submit transaction to privatedata chaincode
+ * @param fcn function
+ * @param args args
+ * @param transientData transient data
+ * @param network network
+ */
 export const submitPrivateData: (
   fcn: string,
   args: string[],

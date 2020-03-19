@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { getAction, getErrorAction, getSuccessAction } from '../utils';
 import { MergeAction, ReconcileAction } from './types';
 

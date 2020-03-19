@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 export enum CONTEXT {
   ISSUER_ORGNAME = 'issuer_orgname',
   ISSUER_CN = 'issuer_cn',

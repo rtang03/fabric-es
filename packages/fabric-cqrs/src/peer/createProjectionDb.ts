@@ -8,6 +8,11 @@ const getHistory = (commits: Commit[]): any[] => {
   return history;
 };
 
+/**
+ * **createProjectionDb** create in-memory projection database
+ * @param defaultEntityName defaultEntityName
+ * @returns [[ProjectionDb]]
+ */
 export const createProjectionDb: (defaultEntityName: string) => ProjectionDb = defaultEntityName => {
   const logger = Client.getLogger('createProjectionDb.js');
 

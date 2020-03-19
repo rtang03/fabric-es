@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import deleteByEntityIdEpic from './deleteByEntityId';
 import deleteByEntityNameEpic from './deleteByEntityName';
 import mergeEpic from './merge';
