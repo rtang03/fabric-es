@@ -1,33 +1,30 @@
-. ../../../../boilerplate/scripts/common.sh
-
-export _CRYPTO_CONFIG_DIR={{{artifacts.local}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}
+export DOCKER_CRYPTO={{{artifacts.docker}}}/{{{artifacts.crypto}}}{{#artifacts.crypto}}/{{/artifacts.crypto}}
 
 {{#orgs.addorg}}
 # {{name}}
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{{msp-path}}}/admincerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{{msp-path}}}/cacerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{{msp-path}}}/tlscacerts
-sudo mkdir -p ${_CRYPTO_CONFIG_DIR}/{{{msp-path}}}/users
+docker exec cli sh -c "mkdir -p ${DOCKER_CRYPTO}{{{msp-path}}}/admincerts"
+docker exec cli sh -c "mkdir -p ${DOCKER_CRYPTO}{{{msp-path}}}/cacerts"
+docker exec cli sh -c "mkdir -p ${DOCKER_CRYPTO}{{{msp-path}}}/tlscacerts"
+docker exec cli sh -c "mkdir -p ${DOCKER_CRYPTO}{{{msp-path}}}/users"
 
-sudo cp  ${_CRYPTO_CONFIG_DIR}/{{{peers.endpoints.0.cert-path}}}/msp/admincerts/{{domain}}-admin-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{{msp-path}}}/admincerts
-sudo cp  ${_CRYPTO_CONFIG_DIR}/{{{peers.endpoints.0.cert-path}}}/assets/ca/{{domain}}-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{{msp-path}}}/cacerts
-sudo cp  ${_CRYPTO_CONFIG_DIR}/{{{peers.endpoints.0.cert-path}}}/assets/tls-ca/tls-ca-cert.pem  ${_CRYPTO_CONFIG_DIR}/{{{msp-path}}}/tlscacerts
+docker exec cli sh -c "cp ${DOCKER_CRYPTO}{{{peers.endpoints.0.cert-path}}}/msp/admincerts/{{domain}}-admin-cert.pem ${DOCKER_CRYPTO}{{{msp-path}}}/admincerts"
+docker exec cli sh -c "cp ${DOCKER_CRYPTO}{{{peers.endpoints.0.cert-path}}}/assets/ca/{{domain}}-ca-cert.pem ${DOCKER_CRYPTO}{{{msp-path}}}/cacerts"
+docker exec cli sh -c "cp ${DOCKER_CRYPTO}{{{peers.endpoints.0.cert-path}}}/assets/tls-ca/tls-ca-cert.pem ${DOCKER_CRYPTO}{{{msp-path}}}/tlscacerts"
 {{/orgs.addorg}}
 
-# Generate Json
-cd ../config; 
-export FABRIC_CFG_PATH=${PWD}
-${_BIN_DIR}/configtxgen -printOrg {{orgs.addorg.name}} > {{orgs.addorg.name}}.json
-
 # Copy files to the container
-cp {{orgs.addorg.name}}.json {{{artifacts.local}}}/addorg
+cp ../config/configtx.yaml {{{artifacts.local}}}/addorg
+
+# Generate Json
+docker exec -w "{{{artifacts.docker}}}/addorg" -e "FABRIC_CFG_PATH={{{artifacts.docker}}}/addorg" cli sh -c \
+  "configtxgen -printOrg {{orgs.addorg.name}} > {{orgs.addorg.name}}.json"
 
 # Copy container script
-cp ../scripts/container/config_addorg*.sh {{{artifacts.local}}}/addorg
+cp container/config_addorg*.sh {{{artifacts.local}}}/addorg
 
 # Add new org config block and sign block
 # NOTE: ONLY SIGNATURES FROM MAJORITY OF ORGANIZATIONS ARE NEEDED
 {{#orgs.peer}}
-docker exec cli{{network.host-delimiter}}{{domain}} sh -c "{{{artifacts.docker}}}/addorg/config_addorg_{{script-naming}}.sh"
+docker exec cli sh -c "{{{artifacts.docker}}}/addorg/config_addorg_{{script-naming}}.sh"
 sleep 2
 {{/orgs.peer}}

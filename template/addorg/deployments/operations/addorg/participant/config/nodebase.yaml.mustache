@@ -35,7 +35,7 @@ services:
         networks:
             - {{network.name}}
 
-    cli:
+    cli-base:
         image: hyperledger/fabric-tools:$IMAGE_TAG
         tty: true
         stdin_open: true

@@ -1,3 +1,6 @@
+export COMPOSE_PROJECT_NAME={{network.compose-project-name}}
+export IMAGE_TAG=1.4.3
+
 # Copy files to the container
 cp container/enroll_addorg.sh {{{artifacts.local}}}/addorg
 
@@ -8,4 +11,6 @@ sleep 5
 docker exec {{ca.host}}{{network.host-delimiter}}{{domain}} sh -c "{{{artifacts.docker}}}/addorg/enroll_addorg.sh"
 {{/orgs.addorg}}
 sleep 2
-docker-compose -f peernode1.yaml -f peernode2.yaml -f cli.yaml up -d
+
+# docker-compose -f peernode1.yaml -f peernode2.yaml up -d
+docker-compose -f peernode1.yaml up -d
