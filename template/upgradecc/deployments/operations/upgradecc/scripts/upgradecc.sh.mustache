@@ -109,6 +109,19 @@ sleep 2
 {{/orgs.peer.0}}
 
 #############################
+#
+subject "Cleanup old Chaincode..."
+#
+
+# Clean up old chaincode container
+docker rm -f $(docker ps -a | grep eventstore-1.0 | cut -d ' ' -f1)
+docker rm -f $(docker ps -a | grep privatedata-1.0 | cut -d ' ' -f1)
+
+# Clean up old chaincode images
+docker rmi -f $(docker images | grep eventstore-1.0 | awk '{print $3}')
+docker rmi -f $(docker images | grep privatedata-1.0 | awk '{print $3}')
+
+#############################
 #          Invoke           #
 #############################
 #
@@ -180,18 +193,6 @@ sleep 3
 {{/peers.endpoints}}
 {{/orgs.peer}}
 
-#############################
-#
-subject "Cleanup old Chaincode..."
-#
-
-# Clean up old chaincode container
-docker rm -f $(docker ps -a | grep eventstore-1.0 | cut -d ' ' -f1)
-docker rm -f $(docker ps -a | grep privatedata-1.0 | cut -d ' ' -f1)
-
-# Clean up old chaincode images
-docker rmi -f $(docker images | grep eventstore-1.0 | awk '{print $3}')
-docker rmi -f $(docker images | grep privatedata-1.0 | awk '{print $3}')
 
 #############################
 
