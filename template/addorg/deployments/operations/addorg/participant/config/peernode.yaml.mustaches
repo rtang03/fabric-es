@@ -13,6 +13,7 @@ services:
             file: nodebase.yaml
             service: peer
         container_name: {{-}}{{network.host-delimiter}}{{domain}}
+        restart: unless-stopped
         environment:
             - CORE_PEER_ID={{-}}{{network.host-delimiter}}{{domain}}
             - CORE_PEER_ADDRESS={{-}}{{network.host-delimiter}}{{domain}}:{{port}}
