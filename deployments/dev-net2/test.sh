@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-ONE=org0
-TWO=org1
-LIST="org2 org3"
+. ./scripts/setup.sh
 
-./test1.sh $ONE $TWO "$LIST"
+containerWait "postgres01" "psql -h localhost -U postgres -d auth_db -lqt" "auth_dc"
+
+echo "DONE!"

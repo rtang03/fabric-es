@@ -16,7 +16,7 @@ services:
       - CONNECTION_PROFILE=/home/app/packages/gw-org1/connection/connection-org1.docker.yaml
       - COLLECTION=org1PrivateDetails
       - ORG_ADMIN_ID=admin-org1.net
-      - ORG_ADMIN_SECRET=Heym2rQK
+      - ORG_ADMIN_SECRET=admin-org1.netPW
       - ORG_CA_URL=https://rca-org1:5054
       - PEER_NAME=peer0-org1
       - GATEWAY_HOST=0.0.0.0
@@ -46,7 +46,7 @@ services:
       - CONNECTION_PROFILE=/home/app/packages/gw-org2/connection/connection-org2.docker.yaml
       - COLLECTION=org2PrivateDetails
       - ORG_ADMIN_ID=admin-org2.net
-      - ORG_ADMIN_SECRET=mEN6bpQW
+      - ORG_ADMIN_SECRET=admin-org2.netPW
       - ORG_CA_URL=https://rca-org2:5055
       - PEER_NAME=peer0-org2
       - GATEWAY_HOST=0.0.0.0
