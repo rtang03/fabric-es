@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import Client from 'fabric-client';
 import { isEqual } from 'lodash';
 import { ofType } from 'redux-observable';

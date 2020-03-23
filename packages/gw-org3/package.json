@@ -66,6 +66,7 @@
     "jsonwebtoken": "^8.5.1",
     "node-fetch": "^2.6.0",
     "prettyjson": "^1.2.1",
+    "rimraf": "^3.0.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {
@@ -82,7 +83,6 @@
     "apollo-server-testing": "^2.9.7",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
-    "rimraf": "^3.0.0",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
     "typescript": "^3.7.2"

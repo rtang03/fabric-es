@@ -1,33 +1,65 @@
 ![CI](https://github.com/rtang03/open-platform-dlt/workflows/CI/badge.svg?branch=master)
 ![Build Images](https://github.com/rtang03/open-platform-dlt/workflows/Build%20Images/badge.svg?branch=master)
 
-## Project Overview
+# Project Overview
 
-This package aims to implement basic commands for bootstrap Trade platform. This middleware fucntiona shall later enable
-to develop more robust Trade Industry Blockchain-as-a-service platform.
+This project aims to provide event-driven architecture for Hyperledger Fabric projects. It shall offer technical capabilities
+to transit from data-driven architecture to event-driven architecture, via a collection of library packages.
 
-### Part 1 - Bootstrap Fabric network, with Fabric CA
+## Technical Components
 
-Under directory `network`, it bootstrap the Fabric network and Fabric CA.
+This project is built with monorepo, primarily written in Typescript.
 
-It deploys _Development Network_ with docker-compose. Based on `configtx.yaml`, it produces `config.tx`.
+### Part 1 - Deployments
 
-After successful deployment, the development network will be created at `network/hosts`. And, all programs under `packages`
-will use it. The deployment is performed with shell script.
+Under directory `deployments`, it contains different ways of bootstraping the Fabric network.
+
+1. _dev-net_ is a multiple purpose, for local development of library code & reference implementation.
+2. _app-net_ is made for _prod-like_ deployment, at public cloud, Google Cloud Platform.
+3. _gw-test-net_ is an experimental deployment, based on k8s. It will later be refacotored to consolidate with _dev-net_.
+
+After successful deployment, the starting development network is basically 3-org x 1 peer; 5 CA; Raft or solo orderer; 1 x cli.
 
 _Bootstrap base network_  
-Bootstrap the base network, according to [`./network/READMD.md`](_archive/network/README.md)  
-This will build the 2-orgs/4-peers/4-CA topology. And, register/enrol:
+Bootstrap the base network, according to [`./deployments/README.md`](deployments/README.md)
 
-- TLS CA admin
-- Org1 & Org 2 Root CA admins
-- Org1 & Org2 admins
+### Part 2 - Library packages
 
-### Part 2a - Admin Tool
+Below are library codes which will be packaged as npm packages. As an interim arrangement, each package will be (manually)
+published to GitHub Packages. Future plan will be published to both GitHub Packages, and npm registry.
 
-Under directory `packages/admin-tool`, it uses `fabric-client` sdk, to conduct administrative tasks.
+#### packages/authentication
 
-It can perform:
+This package is dual-purposes; (a) offer library function, for gateway implementation; or (b) acts a authentication server.
+(a) is mostly used for local development, along with other packages. (b) A typical use case will build this package as a
+docker image, as _auth-server_. It offers user management, user on-boarding, and OAuth2 server functionality.
+
+#### packages/chaincode
+
+Chaincodes are written based v1.4.x new programming model, containing _eventstore_ and _privatedata_ chaincodes.
+_eventstore_ reads and writes events, in form of event commits, as on-chain (public) data. The on-chain data is stored in a
+channel; therefore, it is visible amongst organizations. _privatedata_ reads and writes data to Hypereledger private data ledger. It
+is also a ledger data, but non-shareable between organization.
+
+#### packages/example
+
+This is using simple counter example, to submit transaction, via Peer object, given by fabric-cqrs software library.
+It serves smoke test, to validate running network. The CI/CD may use this example to validate successful deployment.
+
+#### packages/fabric-cqrs
+
+This package implements **Repository Pattern** for Hyperleder Fabric; is a data service layer. It provides repository API, for
+reading and writing commits. It also realizes CQRS pattern, via Redux library.
+
+#### packages/gateway-lib
+
+This package offers strongly typed API gateway capability by Apollo Gateway server. Leverage _fabric-cqrs_, it invoke transaction
+onto Fabric. The gateway-lib creates different types of micro-service in form of Apollo federated services; and those
+federated service will be meshed up via Apollo Gateway.
+
+#### packages/operator
+
+This package performs administrative tasks of Fabric network operator. It can perform:
 
 - Create channel
 - Join peers of all the organizations to this channel
@@ -38,123 +70,29 @@ It can perform:
 There are two ways to conduct administrative tasks
 
 1. use npm script, to create channel/install chaincode/instantiate chaincode
-2. serve other private packages, as if npm packages.
+2. serve other private packages, as if npm packages; being imported by _gateway-lib_
 
-### Part 2b - chaincode
+### Part 3 - Reference implementation packages
 
-This chaincode is written based v1.4.x new programming model, containing _eventstore_ and _privatedata_ chaincodes.
+Reference implementation is used for (a) library package development, and (2) acts a code sample for project boilerplate.
 
-### Part 2c - common
+#### packages/mode-\*
 
-This is a software library, containing solely Domain Driven Models. Following Onion architecture, this is inner core of the
-onion. It has zero knowledge of technical implementation. Models will be publicly shared amongst banks.
+This package is a collection Domain-Driven Models.
 
-### Part 2d - fabric-cqrs
+#### packages/gw-org\*
 
-This is a software library, for invokeing event sourced commits, into Hyperledger.
+This package is a collection organizational gateways.
 
-### Part 2e - peer-node
+## Getting Started
 
-This is a NodeJS application for Hyperledger peer. It provisions data services, via Apollo Gateway server. It
-replies on fabric-cqrs, to submit and evaluate transaction. The data services is the realization of DDD models, which
-imports from package `common`. It will additionally realize _privatedata_ model. The _privatedata_ will be different for
-different organization. And, therefore, peer-node here provides reference implmentation.
+### Bootstrap development network
 
-For simple topology, we implment one peer-node for different banks. In this case, different _privatedata_ models of
-different banks coexist.
+Goto [~/deployments/dev-net](./deployments/dev-net/README.md), pick the development scenario to start with.
 
-For complex topology, it can be different peer-node for different banks.
+## Notes on dependencies
 
-### Part 2f - example
-
-This is using simple counter example, to submit transaction, via Peer object, given by fabric-cqrs software library.
-It serves smoke test, to validate running network. The CI/CD may use this example to validate successful deployment.
-
-### Part 2g - application
-
-This is middle-tier application. Bank's unique requirement, e.g. authentication, should be implemented here. Each organization
-should have only a single application. `application` and `peer-node` is customer-supplier relationship. One application may
-obtain data service from (a) peer-node of the same organization, or (b) from different organizations, or (c) or a combined
-use of both.
-
-For PwC POC, there will be 2 applications,_app-etc_ and _app-erp_.
-
-## Development Workflow
-
-### Step 0: Clean up Fabric Network
-
-If there is pre-existing newtwor,, can use below commands, to clean up.
-
-_Clean up command_
-
-```shell script
-docker volume prune
-docker rm $(docker ps -qf "name=cli-org") -f
-docker rm $(docker ps -aqf "name=eventstore") -f
-docker rm $(docker ps -aqf "name=privatedata") -f
-docker rmi $(docker images -q "dev-*")
-```
-
-If this is repeated installation, clean up will remove the Hyperledger network, but it does NOT remove the previously
-installed CAs.
-
-If you want to cleanup/reinstall CA, simply remove `network/hosts` directory.
-
-### Step 1: Setup the network
-
-Perform the _Mandatory Step_ in below.
-[Preparing Nework and CAs](https://github.com/rtang03/open-platform-dlt/tree/master/network/README.md)
-
-Note that: you need NOT perform the optional step: Manually create channel/install CC/instantiate CC/join channel
-
-### Step 2: Yarn Installation
-
-At project root, run `yarn`, to install dependencies.
-
-Then, build the software library in packages of `common`, `fabric-cqrs`, `admin-tool` and `peer-node`, by
-running `yarn build` in their corresponding directories.
-
-### Step 3: Build chaincode
-
-Like above, build the chaincode, by running `yarn build` in chaincode directory.
-
-### Step 4a: Create Channel/Install/instantiate chaincode
-
-At `packages/admin-tool`, run
-
-- `yarn run test:install-instantiate-eventstore`. After it is done, and continue.
-- `yarn run test:install-instantiate-privatedata`
-
-Note:
-
-- Cannot run in parallel.
-- Above will install/instantiate version 0 chaincodes.
-- If there is pre-existing docker images of chaincode of version 0, it will re-use it, instead of deploying the new one.
-  Therefore, for chaincode development, make sure to clean up. For non chaincode development, clean up is optional.
-
-### Step 4b: Upgrade chaincode
-
-For chaincode development, it is more convenient, you need NOT do fresh installation (begining with step 0/1).
-You may repeat Step 3, and then directly go Step 4b.
-
-At `packages/admin-tool`, run
-
-- `yarn run test:install-upgrade-eventstore`. AND/OR
-- `yarn run test:install-upgrade-privatedata`
-
-Note:
-
-- Two chaincodes need not upgrade together. They can be upgraded independently, and installed different version.
-- upgrade will increment the version number
-- upgrade will create additional docker container, and docker images
-
-Optionally, if you want to validate the chaincode installation, at `packages/chaincode`, run `yarn run test:public-integration`
-
-_INSTALLATION DONE HERE_
-
-## Special Attention
-
-### Development Scenario: Admin Tool
+### Development Scenario: operator
 
 - Require a running Fabric/CA
 - No dependency with other packages
@@ -168,7 +106,7 @@ _INSTALLATION DONE HERE_
 - May involve frequent chaincode upgrade
 - Do not require to re-install CAs
 
-### Development Scenario: common
+### Development Scenario: model-*
 
 - Do not require running Fabric/CA
 - No dependency with other packages
@@ -180,50 +118,30 @@ _INSTALLATION DONE HERE_
 ### Development Scenario: fabric-cqrs
 
 - Require a running Fabric/CA
-- Dependent on admin-tool
+- Dependent on _operator_
 - May involve frequent chaincode upgrade
 - Occasionally network restart
 - Do not require to re-install CAs
-- Require enrollAdmin
+- Require enrollAdmin and enrollCaAdmin
 
-### Development Scenario: peer-node
+### Development Scenario: gateway-lib
 
 - Require a running Fabric/CA
-- Dependent on admin-tool, fabric-cqrs
+- Dependent on _operator_, _fabric-cqrs_
 - Do not require chaincode upgrade
 - Rare network restart
 - Do not require to re-install CAs
-- Require enrollAdmin
+- Require enrollAdmin and enrollCaAdmin
 
-### Development Scenario: application
+### Development Scenario: gw-org*
 
 - Require a running Fabric/CA
-- Require a running peer-node
-- Dependent on admin-tool, peer-node
+- Dependent on _operator_, _fabric-cqrs_, _gateway-lib_
 - Do not require chaincode upgrade
 - Rare network restart
 - Do not require to re-install CAs
-- Require enrollAdmin
-- (Future) may require a running Postgresql
-
-### Tear down
-
-To tear a running network, following below steps:
-
-Quit the `./monitordocker.sh`, by CTRL-C
-
-```shell script
-docker rm logspout -f
-
-// cd project-root/network
-docker-compose down
-
-// if chaincode re-install/upgrade required, run both commands below
-docker rm $(docker ps -aqf "name=dev") -f
-docker rmi $(docker images -q "dev-*")
-```
-
-Above step does not tear down CAs.
+- Require enrollAdmin and enrollCaAdmin
+- Require a running Postgresql
 
 ### References
 
@@ -232,7 +150,3 @@ Some source is refactored from below repo.
 [IBM Sample Code - 2](https://github.com/PacktPublishing/Handson-Blockchain-Development-with-Hyperledger)  
 [ampretia sample](https://github.com/ampretia/fabric-application-examples)
 [sample monorepo build](https://github.com/benawad/fullstack-graphql-airbnb-clone)
-[remove large file](https://www.deployhq.com/git/faqs/removing-large-files-from-git-history)  
-
-Note that Kelvin's sample is using high level API, but incomplete operational tasks. IBM samples is low level API, but more complete
-operational task.

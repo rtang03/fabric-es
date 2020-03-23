@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { State } from '../../types';
 
 export const getSuccessActionHandler: <TResult = any>(

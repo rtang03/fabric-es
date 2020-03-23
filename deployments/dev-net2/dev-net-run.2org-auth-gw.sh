@@ -6,22 +6,17 @@
 
 . ./scripts/setup.sh
 
-COMPOSE="-f $COMPOSE_2ORG -f $COMPOSE_3ORG -f $COMPOSE_2ORG_AUTH -f $COMPOSE_3ORG_AUTH -f $COMPOSE_2ORG_GW -f $COMPOSE_3ORG_GW"
+COMPOSE="-f $COMPOSE_2ORG -f $COMPOSE_2ORG_AUTH -f $COMPOSE_2ORG_GW"
 SECONDS=0
 
 ./cleanup.sh
 
-if [[ ( $# -ge 0 ) && ( $1 = "-d" || $1 = "--down" ) ]]; then
-  exit $?
-fi
-
 # STEP 1
-./bootstrap.sh "$COMPOSE" "org0" "org1" "org2 org3" "3org"
+./bootstrap.sh "$COMPOSE" "org0" "org1" "org2" "2org"
 
 # STEP 2
 containerWait "postgres01" "psql -h localhost -U postgres -d auth_db -lqt" "auth_db"
 containerWait "postgres02" "psql -h localhost -U postgres -d auth_db -lqt" "auth_db"
-containerWait "postgres03" "psql -h localhost -U postgres -d auth_db -lqt" "auth_db"
 
 # STEP 3
 docker-compose $COMPOSE up -d

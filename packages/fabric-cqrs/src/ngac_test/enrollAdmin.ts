@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 require('dotenv').config({ path: './.env.ngac.org2.test' });
 import { enrollAdmin } from '@fabric-es/operator';
 import { FileSystemWallet } from 'fabric-network';

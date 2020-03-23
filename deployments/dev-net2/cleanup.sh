@@ -1,11 +1,27 @@
 #!/usr/bin/env bash
 
-. ./setup.sh
-
 # Cleaup the environment
-docker rm -f logspout
-docker-compose $1 down
-docker rm -f $(docker ps -aq -f status=exited)
+
+. ./scripts/setup.sh
+
+COMPOSE="-f $COMPOSE_2ORG -f $COMPOSE_2ORG_AUTH -f $COMPOSE_2ORG_GW -f $COMPOSE_3ORG -f $COMPOSE_3ORG_AUTH -f $COMPOSE_3ORG_GW"
+if [ $# -eq 1 ]; then
+  COMPOSE=$1
+fi
+
+LOGSPOUT=`docker ps -a | grep logspout`
+if [ ! -z "$LOGSPOUT" ]; then
+  echo -n "Removing "
+  docker rm -f logspout
+fi
+
+docker-compose $COMPOSE down
+
+EXITED=`docker ps -aq -f status=exited`
+if [ ! -z "$EXITED" ]; then
+  docker rm -f $(docker ps -aq -f status=exited)
+fi
+
 docker volume prune -f
 docker network prune -f
 

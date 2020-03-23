@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { AnyAction } from 'redux';
 
 export const getErrorAction: <TError = any>(

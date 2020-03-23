@@ -2,6 +2,14 @@ import util from 'util';
 import Client, { ChannelEventHub } from 'fabric-client';
 import { Commit, PeerOptions } from '../types';
 
+/**
+ * **channelEventHub**
+ * @param hub ChannelEventHub
+ * @returns `{
+ *   registerCCEvent: (options: Pick<PeerOptions, 'onChannelEventArrived'>) => Promise<any>;
+ *   close: (registerId: string) => void;
+ * }`
+ */
 export const channelEventHub: (
   hub: ChannelEventHub
 ) => {

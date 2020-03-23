@@ -5,6 +5,15 @@ import Client from 'fabric-client';
 import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway, Network, Wallet } from 'fabric-network';
 import { safeLoad } from 'js-yaml';
 
+/**
+ * **getNetwork** return network services
+ * @returns `{
+ *   enrollmentId: string;
+ *   network: Network;
+ *   gateway: Gateway;
+ *   channelHub?: ChannelEventHub;
+ * }`
+ */
 export const getNetwork: (option: {
   enrollmentId: string;
   channelName: string;

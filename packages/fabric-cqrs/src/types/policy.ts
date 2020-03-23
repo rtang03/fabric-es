@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 export type Effect = 'Allow' | 'Deny';
 
 export interface Policy {

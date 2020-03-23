@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 export * from './getErrorAction';
 export * from './getSuccessAction';
 export * from './getActionHandlers';

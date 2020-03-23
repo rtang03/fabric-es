@@ -16,7 +16,7 @@ services:
       - CONNECTION_PROFILE=/home/app/packages/gw-org3/connection/connection-org3.docker.yaml
       - COLLECTION=org3PrivateDetails
       - ORG_ADMIN_ID=admin-org3.net
-      - ORG_ADMIN_SECRET=mEN6bpQW
+      - ORG_ADMIN_SECRET=admin-org3.netPW
       - ORG_CA_URL=https://rca-org3:5056
       - PEER_NAME=peer0-org3
       - GATEWAY_HOST=0.0.0.0

@@ -5,6 +5,14 @@ import { from, Observable } from 'rxjs';
 import { Commit } from '../types';
 import { getContract } from './contract';
 
+/**
+ * **evaluate** evaluate transaction
+ * @param fcn function
+ * @param args args
+ * @param network network `{ network: Network }`
+ * @param privatedata boolean - is private data
+ * @returns `Record<string, Commit> | { error: any }`
+ */
 export const evaluate: (
   fcn: string,
   args: string[],

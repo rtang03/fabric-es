@@ -2,6 +2,10 @@ import Client from 'fabric-client';
 import { filter, remove, values } from 'lodash';
 import { Commit, QueryDatabase } from '../types';
 
+/**
+ * **createQueryDatabase** create in-memory query database
+ * @returns [[QueryDatabase]]
+ */
 export const createQueryDatabase: () => QueryDatabase = () => {
   const logger = Client.getLogger('createQueryDatabase.js');
 

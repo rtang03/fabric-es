@@ -1,6 +1,9 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import util from 'util';
 import Client from 'fabric-client';
-import { Store } from 'redux';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
@@ -47,7 +50,7 @@ export default (action$: Observable<ReconcileAction>, _) => {
                 channelEventHub,
                 connectionProfile,
                 wallet
-              })
+              }) as any
             );
 
             logger.info(`dispatch ${command.QUERY_BY_ENTITY_NAME}: ${tx_id}`);

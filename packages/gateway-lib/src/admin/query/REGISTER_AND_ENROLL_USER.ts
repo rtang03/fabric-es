@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 // prettier-ignore
 export const REGISTER_AND_ENROLL_USER = `
   mutation RegisterAndEnrollUser (

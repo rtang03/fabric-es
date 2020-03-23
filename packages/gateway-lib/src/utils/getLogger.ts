@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { createLogger, format, Logger, transports } from 'winston';
 const { combine, timestamp, label, json } = format;
 

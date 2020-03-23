@@ -6,19 +6,14 @@
 # $4 - list of remaining orgs ("org2 org3")
 # $5 - number of orgs (2org / 3org)
 
-NAME=XXXX
-DOMAIN=YYYY
-PEER=ZZZZ
-PORT=9999
-GATEWAY=WWWW
-. ./setup.sh
+. ./scripts/setup.sh
 
 docker-compose $1 up -d
-printMessage "Docker-compose up" $?
+printMessage "docker-compose up" $?
 sleep 5
 
 docker exec cli sh -c "cp -f /config/configtx.${5}.yaml /config/configtx.yaml"
-sleep 5
+sleep 1
 
 printf "\n###########################"
 printf "\n# CREATE CRYPTO MATERIALS #"
@@ -41,7 +36,7 @@ docker-compose $1 up -d
 sleep 5
 
 # Params of the orderer
-getName ${2}
+getConfig ${2}
 ORDERER_NAME=$NAME
 ORDERER_PEER=$PEER
 ORDERER_DOMAIN=$DOMAIN
@@ -50,7 +45,7 @@ docker exec cli sh -c "/setup/copy-certs.sh ${CRYPTO} ${NAME} ${DOMAIN} ${PEER}"
 
 for ORG in $ORGLIST
 do
-  getName $ORG
+  getConfig $ORG
   docker exec cli sh -c "/setup/copy-certs.sh ${CRYPTO} ${NAME} ${DOMAIN} ${PEER}"
 done
 
@@ -69,7 +64,7 @@ printMessage "Create channel.tx" $?
 docker exec -w /config cli sh -c "mv genesis.block ${CRYPTO}/${ORDERER_NAME}MSP/${ORDERER_PEER}.${ORDERER_DOMAIN}"
 
 # Params of the first org
-getName $3
+getConfig $3
 FIRST_NAME=$NAME
 FIRST_PEER=$PEER
 FIRST_DOMAIN=$DOMAIN
@@ -112,7 +107,7 @@ docker exec cli sh -c "peer channel getinfo -c loanapp"
 
 for ORG in $4
 do
-  getName $ORG
+  getConfig $ORG
   printf "\n###########################"
   printf "\n# JOIN CHANNEL - $NAME"
   printf "\n###########################\n"
@@ -159,7 +154,7 @@ printMessage "Build chaincode" $?
 
 for ORG in $ORGLIST
 do
-  getName $ORG
+  getConfig $ORG
 
   # Install chaincode "eventstore"
   docker exec \
@@ -214,7 +209,7 @@ printMessage "Instantiate chaincode: privatedata" $?
 
 for ORG in $ORGLIST
 do
-  getName $ORG
+  getConfig $ORG
 
   # Invoke eventstore
   docker exec \

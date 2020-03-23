@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { ofType } from 'redux-observable';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';

@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 // prettier-ignore
 export const CREATE_ROOT_CLIENT = `
   mutation CreateRootClient (

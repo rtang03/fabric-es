@@ -4,18 +4,14 @@
 # Run local development network
 ################################
 
-# note: this is similar to ./run-unit-test.sh, but the cleanup step is not necessary here.
-
-. ./setup.sh
+. ./scripts/setup.sh
 
 COMPOSE="-f $COMPOSE_2ORG"
 SECONDS=0
 
-./cleanup.sh "$COMPOSE"
+./cleanup.sh
 
-if [[ ( $# -lt 1 ) || ( $1 != "-d" && $1 != "--down" ) ]]; then
-  ./bootstrap.sh "$COMPOSE" org0 org1 org2 2org
-fi
+./bootstrap.sh "$COMPOSE" "org0" "org1" "org2" "2org"
 
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"

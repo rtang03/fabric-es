@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { Wallet } from 'fabric-network';
 import { AnyAction, Store } from 'redux';
 

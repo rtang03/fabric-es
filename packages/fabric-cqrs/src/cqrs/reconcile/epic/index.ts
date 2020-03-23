@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import mergeEpic from './merge';
 import reconcileEpic from './reconcile';
 
