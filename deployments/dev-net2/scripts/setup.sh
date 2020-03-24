@@ -79,6 +79,7 @@ containerWait() {
   done
   if [ $COUNT -le 0 ]; then
     printf "${RED}waiting for container $1 timed out${NC}\n"
+    exit -1
   fi
 }
 
