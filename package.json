@@ -31,7 +31,7 @@
     "lint:app": "lerna run lint --stream --scope={@fabric-es/gw-org*,@fabric-es/model-*}",
     "publish:lib": "lerna run publish:gh:fabric-es --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
     "version:patch": "lerna version patch",
-    "typedoc": "lerna run typedoc --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}"
+    "typedoc": "lerna run typedoc --scope={@fabric-es/authentication,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}"
   },
   "workspaces": [
     "packages/*"

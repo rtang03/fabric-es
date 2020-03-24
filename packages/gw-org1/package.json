@@ -65,6 +65,7 @@
     "jsonwebtoken": "^8.5.1",
     "node-fetch": "^2.6.0",
     "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.0",
     "prettyjson": "^1.2.1",
     "stoppable": "^1.1.0",
     "winston": "^3.2.1"
@@ -86,7 +87,6 @@
     "concurrently": "^5.0.0",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
-    "rimraf": "^3.0.0",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
     "typescript": "^3.7.2"

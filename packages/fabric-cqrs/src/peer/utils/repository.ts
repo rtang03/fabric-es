@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import util from 'util';
 import Client from 'fabric-client';
 import { Wallet } from 'fabric-network';

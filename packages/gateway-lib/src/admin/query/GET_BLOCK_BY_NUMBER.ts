@@ -1,3 +1,9 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+// prettier-ignore
 export const GET_BLOCK_BY_NUMBER = `
 query GetBlockByNumber (
   $blockNumber: Int!

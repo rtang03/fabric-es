@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import util from 'util';
 import { ApolloServer } from 'apollo-server';
 

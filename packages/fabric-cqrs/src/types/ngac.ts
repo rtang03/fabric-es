@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { Attribute } from './attribute';
 import { Policy } from './policy';
 

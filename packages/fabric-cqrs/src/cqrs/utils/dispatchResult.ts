@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { map } from 'rxjs/operators';
 
 export const dispatchResult = (tx_id, successAction, errorAction) =>

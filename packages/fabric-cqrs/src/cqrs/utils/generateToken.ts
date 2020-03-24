@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { randomBytes } from 'crypto';
 
 export const generateToken = (len = 4) =>

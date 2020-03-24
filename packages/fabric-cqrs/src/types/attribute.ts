@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 export interface Attribute {
   type: string; // '1' | 'N';
   key: string;

@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import Client from 'fabric-client';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';

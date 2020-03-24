@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 export * from './CREATE_ROOT_CLIENT';
 export * from './GET_BLOCK_BY_NUMBER';
 export * from './GET_CA_IDENTITIES';

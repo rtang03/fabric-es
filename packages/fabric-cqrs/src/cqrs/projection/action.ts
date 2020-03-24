@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { getAction, getSuccessAction } from '../utils';
 import { FindAction, UpsertAction, UpsertManyAction } from './types';
 

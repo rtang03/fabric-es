@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import findEpic from './find';
 import upsertEpic from './upsert';
 import upsertManyEpic from './upsertMany';

@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { registerAndEnroll } from '@fabric-es/operator';
 import Client, { ChannelEventHub } from 'fabric-client';
 import { Gateway, Network, Wallet } from 'fabric-network';

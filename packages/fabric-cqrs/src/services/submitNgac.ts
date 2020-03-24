@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { Network } from 'fabric-network';
 import { getContract } from './contract';
 

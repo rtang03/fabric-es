@@ -1,13 +1,35 @@
-### Prerequisite
-Require a running Fabric network
+# fabric-cqrs
 
-### Enrol Admin  
-If admin is not previously enrolled, or the network is redeployed, need to run
+**disclaimer**: Incomplete readme
+
+## Installation
+
+Configure the registry location
+
 ```shell script
-yarn run enrollAdmin
+# ./npmrc
+# (To be confirmed)
 ```
 
-Notes:
-- If running test `yarn run test:service.ngac.pe.int.1u`, you need to prepare another admin from 
-org2, i.e. need to run `yarn run enrollAdminOrg2` beforehand.
+```shell script
+yarn install @fabric-es/fabric-cqrs
+```
 
+## Usage
+
+(To be inserted)
+
+## Contributor Only Section
+
+### Prerequisite
+
+Require a running Fabric network
+
+### Enrol Admin
+
+If admin is not previously enrolled, or the network is redeployed, need to run
+
+```shell script
+yarn run enrollAdmin
+yarn run enrollCaAdmin
+```

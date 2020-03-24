@@ -37,6 +37,7 @@
     "scenario:post-install-test": "ts-node src/scenario/post-install-test.ts",
     "clean": "rimraf dist",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}' --fix",
+    "prepublish": "yarn typedoc",
     "publish:gh:fabric-es": "npm publish"
   },
   "engineStrict": true,
@@ -53,6 +54,7 @@
     "listr-verbose-renderer": "^0.6.0",
     "lodash": "^4.17.15",
     "prettyjson": "^1.2.1",
+    "rimraf": "^3.0.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {
@@ -67,7 +69,6 @@
     "execa": "3.4.0",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
-    "rimraf": "^3.0.0",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
     "typedoc": "^0.15.6",

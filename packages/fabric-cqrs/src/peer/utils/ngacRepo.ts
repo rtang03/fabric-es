@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { Network } from 'fabric-network';
 import { evaluateNgac, submitNgac } from '../../services';
 import { NgacRepo } from '../../types';

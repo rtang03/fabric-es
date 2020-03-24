@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 export interface State {
   tx_id: string;
   type: string;

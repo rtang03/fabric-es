@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 require('../env');
 import { enrollAdmin } from '@fabric-es/operator';
 import { FileSystemWallet } from 'fabric-network';
