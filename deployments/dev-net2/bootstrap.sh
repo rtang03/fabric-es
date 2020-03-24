@@ -93,7 +93,7 @@ docker exec \
 printMessage "Create channel" $?
 
 printf "\n###########################"
-printf "\n# JOIN CHANNEL - $3"
+printf "\n# JOIN CHANNEL - $FIRST_NAME"
 printf "\n###########################\n"
 
 docker exec \
@@ -258,7 +258,7 @@ do
   printMessage "Query privatedata for $ORG" $?
 done
 
-docker exec cli sh -c "rm -f /config/configtx.yaml"
-sleep 5
+#docker exec cli sh -c "rm -f /config/configtx.yaml"
+#sleep 5
 
 printf "${GREEN}### BOOTSTRAP DONE ###${NC}\n\n"

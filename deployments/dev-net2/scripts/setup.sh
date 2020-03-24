@@ -96,9 +96,11 @@ export MEMBERS="'Org1MSP.member','Org2MSP.member','Org3MSP.member'"
 
 export AUTH_IMAGE=fabric-es/auth-server:1.0
 
-export COMPOSE_2ORG=compose.2org.yaml
-export COMPOSE_2ORG_AUTH=compose.2org.auth.yaml
-export COMPOSE_2ORG_GW=compose.2org.gw.yaml
-export COMPOSE_3ORG=compose.3org.yaml
-export COMPOSE_3ORG_AUTH=compose.3org.auth.yaml
-export COMPOSE_3ORG_GW=compose.3org.gw.yaml
+export COMPOSE_0_2ORG="-f compose.2org.yaml"
+export COMPOSE_1_2ORG="$COMPOSE_0_2ORG -f compose.2org.db.yaml"
+export COMPOSE_2_2ORG="$COMPOSE_1_2ORG -f compose.2org.auth.yaml"
+export COMPOSE_3_2ORG="$COMPOSE_2_2ORG -f compose.2org.gw.yaml"
+export COMPOSE_0_3ORG="$COMPOSE_0_2ORG -f compose.3org.yaml"
+export COMPOSE_1_3ORG="$COMPOSE_0_3ORG -f compose.2org.db.yaml -f compose.3org.db.yaml"
+export COMPOSE_2_3ORG="$COMPOSE_1_3ORG -f compose.2org.auth.yaml -f compose.3org.auth.yaml"
+export COMPOSE_3_3ORG="$COMPOSE_2_3ORG -f compose.2org.gw.yaml -f compose.3org.gw.yaml"

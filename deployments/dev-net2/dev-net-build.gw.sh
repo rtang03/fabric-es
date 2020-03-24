@@ -9,6 +9,8 @@
 
 SECONDS=0
 
+./cleanup.sh
+
 for ORG in "$@"
 do
   getConfig $ORG

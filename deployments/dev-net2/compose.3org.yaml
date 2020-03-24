@@ -48,19 +48,3 @@ services:
     ports:
       - 7451:7451
       - 7453:7453
-
-  postgres03:
-    container_name: postgres03
-    image: postgres
-    environment:
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
-    volumes:
-      - $ARTIFACTS/postgres03:/var/lib/postgresql/data
-      - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
-    command: postgres
-    ports:
-      - 5452:5432
-    networks:
-      - openplatform

@@ -7,10 +7,10 @@ import rimraf from 'rimraf';
 
 const logger = getLogger('enrollAdmin.js');
 
-rimraf(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}`, async () => {
-  console.log(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID} is removed`);
+// rimraf(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}`, async () => {
+//   console.log(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID} is removed`);
 
-  await enrollAdmin({
+  enrollAdmin({
     caUrl: process.env.ORG_CA_URL,
     enrollmentID: process.env.ORG_ADMIN_ID,
     enrollmentSecret: process.env.ORG_ADMIN_SECRET,
@@ -33,4 +33,4 @@ rimraf(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}`, async () => {
       logger.error(util.format('fail to enrollAdmin, %j', error));
       process.exit(1);
     });
-});
+// });

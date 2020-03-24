@@ -28,9 +28,9 @@ import {
 const PORT_GW1 = 4001;
 const PORT_GW2 = 4002;
 const PORT_GW3 = 4003;
-const PORT_AUTH1 = 4100;
-const PORT_AUTH2 = 4200;
-const PORT_AUTH3 = 4300;
+const PORT_AUTH1 = 3901;
+const PORT_AUTH2 = 3902;
+const PORT_AUTH3 = 3903;
 
 const AUTH_SERVER1 = `http://localhost:${PORT_AUTH1}/graphql`;
 const AUTH_SERVER2 = `http://localhost:${PORT_AUTH2}/graphql`;

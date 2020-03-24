@@ -126,22 +126,6 @@ services:
       - 7051:7051
       - 7053:7053
 
-  postgres01:
-    container_name: postgres01
-    image: postgres
-    environment:
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
-    volumes:
-      - $ARTIFACTS/postgres01:/var/lib/postgresql/data
-      - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
-    command: postgres
-    ports:
-      - 5432:5432
-    networks:
-      - openplatform
-
 # ORG2
   rca-org2:
     extends:
@@ -186,19 +170,3 @@ services:
     ports:
       - 7251:7251
       - 7253:7253
-
-  postgres02:
-    container_name: postgres02
-    image: postgres
-    environment:
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
-    volumes:
-      - $ARTIFACTS/postgres02:/var/lib/postgresql/data
-      - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
-    command: postgres
-    ports:
-      - 5442:5432
-    networks:
-      - openplatform

@@ -8,6 +8,8 @@
 
 SECONDS=0
 
+./cleanup.sh
+
 # STEP 1
 docker rmi $AUTH_IMAGE
 
