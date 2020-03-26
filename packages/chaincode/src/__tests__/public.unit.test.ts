@@ -51,7 +51,7 @@ ctx.stub.getState.mockResolvedValue(value);
 describe('Chaincode Tests', () => {
   it('should instantiate', async () =>
     cc
-      .instantiate(context)
+      .Init(context)
       .then<any[]>((response: any) => JSON.parse(response))
       .then(json =>
         json

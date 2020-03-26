@@ -37,12 +37,7 @@
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "unit-test": "jest unit.test"
   },
-  "engines": {
-    "node": ">=8",
-    "npm": ">=5"
-  },
   "private": true,
-  "engineStrict": true,
   "dependencies": {
     "@apollo/federation": "^0.10.2",
     "@apollo/gateway": "^0.10.8",
@@ -57,7 +52,7 @@
     "concurrently": "^5.0.0",
     "dotenv": "^8.1.0",
     "express": "^4.17.1",
-    "fabric-network": "^1.4.4",
+    "fabric-network": "2.0.0-beta.4",
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
     "graphql-tools": "^4.0.6",

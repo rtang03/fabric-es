@@ -1,21 +1,26 @@
 {
-  "name": "@fabric-es/example",
+  "name": "@fabric-es/caliper",
   "version": "0.5.15",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
   "scripts": {
     "build": "yarn run clean && tsc",
-    "test": "jest",
     "clean": "rimraf dist",
-    "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/enrollAdmin.ts"
+    "enrollAdmin": "rimraf assets/wallet/admin.Org1 && ./node_modules/.bin/ts-node src/enrollAdmin.ts",
+    "bind": "npx caliper bind --caliper-bind-sut fabric --caliper-bind-sdk 1.4.4",
+    "test": "npm run build && npx caliper benchmark run --caliper-benchconfig benchmarks/api/base.yaml --caliper-networkconfig caliper.yaml --caliper-workspace . --caliper-flow-only-test --caliper-fabric-usegateway --caliper-fabric-discovery "
   },
   "private": true,
   "dependencies": {
     "@fabric-es/fabric-cqrs": "^0.5.15",
     "@fabric-es/operator": "^0.5.15",
+    "@hyperledger/caliper-cli": "^0.2.0",
     "dotenv": "^8.1.0",
+    "fabric-ca-client": "2.0.0-beta.4",
+    "fabric-client": "2.0.0-beta.2",
     "fabric-network": "2.0.0-beta.4",
+    "grpc": "^1.24.2",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
     "prettyjson": "^1.2.1"
@@ -26,10 +31,10 @@
     "@types/jest": "^24.0.18",
     "@types/js-yaml": "^3.12.1",
     "@types/lodash": "^4.14.138",
-    "@types/node": "^8.10.54",
+    "@types/node": "^12.12.3",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
-    "rimraf": "^3.0.0",
+    "rimraf": "^2.7.1",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
     "tslint": "^5.20.0",

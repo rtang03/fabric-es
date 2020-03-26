@@ -40,12 +40,11 @@
     "prepublish": "yarn typedoc",
     "publish:gh:fabric-es": "npm publish"
   },
-  "engineStrict": true,
   "dependencies": {
     "dotenv": "^8.1.0",
-    "fabric-client": "^1.4.4",
-    "fabric-contract-api": "^1.4.4",
-    "fabric-network": "^1.4.4",
+    "fabric-client": "2.0.0-beta.2",
+    "fabric-contract-api": "^2.0.0",
+    "fabric-network": "2.0.0-beta.4",
     "fs-extra": "^8.1.0",
     "js-yaml": "^3.13.1",
     "listr": "^0.14.3",

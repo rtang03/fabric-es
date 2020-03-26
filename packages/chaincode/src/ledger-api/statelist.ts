@@ -12,7 +12,7 @@ export class StateList {
     while (true) {
       const { value, done } = await iterator.next();
       if (value && value.value.toString()) {
-        const commit = JSON.parse(value.value.toString('utf8'));
+        const commit = JSON.parse(value.value.toString());
         result[commit.commitId] = omit(commit, 'key');
       }
       if (done) {
@@ -43,7 +43,7 @@ export class StateList {
     while (true) {
       const { value, done } = await iterator.next();
       if (value && value.value.toString()) {
-        const { key, commitId } = JSON.parse(value.value.toString('utf8'));
+        const { key, commitId } = JSON.parse(value.value.toString());
         await this.ctx.stub.deleteState(this.ctx.stub.createCompositeKey('entities', splitKey(key)));
         result[commitId] = {};
       } else {

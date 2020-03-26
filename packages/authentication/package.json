@@ -46,11 +46,6 @@
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "publish:gh:fabric-es": "npm publish"
   },
-  "engines": {
-    "node": ">=8",
-    "npm": ">=5"
-  },
-  "engineStrict": true,
   "dependencies": {
     "apollo-server-express": "^2.9.7",
     "bcrypt": "^3.0.6",

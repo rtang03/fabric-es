@@ -19,12 +19,7 @@
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "unit-test:fab": "jest unit.test"
   },
-  "engines": {
-    "node": ">=8",
-    "npm": ">=5"
-  },
   "private": true,
-  "engineStrict": true,
   "dependencies": {
     "@fabric-es/fabric-cqrs": "^0.5.15",
     "@fabric-es/gateway-lib": "^0.5.15",

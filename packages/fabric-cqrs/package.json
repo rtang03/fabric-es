@@ -45,17 +45,12 @@
     "prepublish": "yarn typedoc",
     "publish:gh:fabric-es": "npm publish"
   },
-  "engines": {
-    "node": ">=8",
-    "npm": ">=5"
-  },
-  "engineStrict": true,
   "dependencies": {
     "@fabric-es/operator": "^0.5.15",
     "dotenv": "^8.1.0",
-    "fabric-client": "^1.4.4",
-    "fabric-contract-api": "^1.4.2",
-    "fabric-network": "^1.4.4",
+    "fabric-client": "2.0.0-beta.2",
+    "fabric-contract-api": "^2.0.0",
+    "fabric-network": "2.0.0-beta.4",
     "grpc": "1.23.3",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",

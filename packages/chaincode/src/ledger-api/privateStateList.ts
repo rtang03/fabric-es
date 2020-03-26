@@ -16,7 +16,7 @@ export class PrivateStateList {
     while (true) {
       const { value, done } = await iterator.next();
       if (value && value.value.toString()) {
-        const commit = JSON.parse(value.value.toString('utf8'));
+        const commit = JSON.parse(value.value.toString());
         result[commit.commitId] = omit(commit, 'key');
       }
       if (done) {

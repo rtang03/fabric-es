@@ -1,0 +1,206 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+  tls-ca-org0:
+    extends:
+      file: nodebase.yaml
+      service: ca
+    container_name: tls-ca-org0
+    environment:
+      - HYPERLEDGER_VOL=/var/artifacts
+      - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/Org0MSP/tls/server
+      - FABRIC_CA_SERVER_CSR_CN=tls-ca-org0
+      - FABRIC_CA_SERVER_CA_NAME=tls-ca-org0
+    ports:
+      - 5052:5052
+    command: sh -c 'fabric-ca-server start -d -b tls-ca-admin:tls-ca-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 5052'
+    volumes:
+      - $SCRIPTS:/setup
+      - $ARTIFACTS:/var/artifacts
+
+  rca-org0:
+    extends:
+      file: nodebase.yaml
+      service: ca
+    container_name: rca-org0
+    environment:
+      - HYPERLEDGER_VOL=/var/artifacts
+      - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/Org0MSP/ca/server
+      - FABRIC_CA_SERVER_CSR_CN=rca-org0
+      - FABRIC_CA_SERVER_CA_NAME=rca-org0
+    ports:
+      - 5053:5053
+    command: sh -c 'fabric-ca-server start -d -b rca-org0-admin:rca-org0-adminPW --cfg.affiliations.allowremove --cfg.identities.allowremove --port 5053'
+    volumes:
+      - $SCRIPTS:/setup
+      - $ARTIFACTS:/var/artifacts
+
+  orderer0-org0:
+    extends:
+      file: nodebase.yaml
+      service: orderer
+    container_name: orderer0-org0
+    environment:
+      - ORDERER_HOST=orderer0-org0
+      - ORDERER_HOME=/var/artifacts/orderer
+      - ORDERER_GENERAL_LOCALMSPID=Org0MSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/msp
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+      - ORDERER_GENERAL_GENESISFILE=/var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/genesis.block
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+      - ORDERER_GENERAL_LISTENPORT=7050
+    volumes:
+      - $ARTIFACTS:/var/artifacts
+    ports:
+      - 7050:7050
+
+  cli:
+    extends:
+      file: nodebase.yaml
+      service: cli
+    container_name: cli
+    environment:
+      - HYPERLEDGER_VOL=/var/artifacts
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0-org1:7051
+      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1
+    command: sh
+    volumes:
+      - $ARTIFACTS:/var/artifacts
+      - $SCRIPTS:/setup
+      - $CONFIG:/config
+      - $CHAINCODE:/opt/gopath/src/github.com/hyperledger/fabric/chaincode
+
+  # ORG1
+  rca-org1:
+    extends:
+      file: nodebase.yaml
+      service: ca
+    container_name: rca-org1
+    restart: always
+    environment:
+      - HYPERLEDGER_VOL=/var/artifacts
+      - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/Org1MSP/ca/server
+      - FABRIC_CA_SERVER_CSR_CN=rca-org1
+      - FABRIC_CA_SERVER_CA_NAME=rca-org1
+    ports:
+      - 5054:5054
+    command: sh -c 'fabric-ca-server start -d -b rca-org1-admin:rca-org1-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 5054'
+    volumes:
+      - $SCRIPTS:/setup
+      - $ARTIFACTS:/var/artifacts
+
+  peer0-org1:
+    extends:
+      file: nodebase.yaml
+      service: peer
+    container_name: peer0-org1
+    environment:
+      - CORE_PEER_ID=peer0-org1
+      - CORE_PEER_ADDRESS=peer0-org1:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/msp
+      - CORE_PEER_TLS_CERT_FILE=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem
+      - CORE_PEER_TLS_KEY_FILE=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/keystore/key.pem
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      #     - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-org1:7151
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-org1:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-org1:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0-org1:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org1MSP/peer0.org1.net
+    volumes:
+      - /var/run:/host/var/run
+      - $ARTIFACTS:/var/artifacts
+    ports:
+      - 7051:7051
+      - 7053:7053
+
+  postgres01:
+    container_name: postgres01
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - $ARTIFACTS/postgres01:/var/lib/postgresql/data
+      - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+    command: postgres
+    ports:
+      - 5432:5432
+    networks:
+      - openplatform
+
+  # ORG2
+  rca-org2:
+    extends:
+      file: nodebase.yaml
+      service: ca
+    container_name: rca-org2
+    restart: always
+    environment:
+      - HYPERLEDGER_VOL=/var/artifacts
+      - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/Org2MSP/ca/server
+      - FABRIC_CA_SERVER_CSR_CN=rca-org2
+      - FABRIC_CA_SERVER_CA_NAME=rca-org2
+    ports:
+      - 5055:5055
+    command: sh -c 'fabric-ca-server start -d -b rca-org2-admin:rca-org2-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port 5055'
+    volumes:
+      - $SCRIPTS:/setup
+      - $ARTIFACTS:/var/artifacts
+
+  peer0-org2:
+    extends:
+      file: nodebase.yaml
+      service: peer
+    container_name: peer0-org2
+    environment:
+      - CORE_PEER_ID=peer0-org2
+      - CORE_PEER_ADDRESS=peer0-org2:7251
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7251
+      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org2MSP/peer0.org2.net/msp
+      - CORE_PEER_TLS_CERT_FILE=/var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/signcerts/cert.pem
+      - CORE_PEER_TLS_KEY_FILE=/var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/keystore/key.pem
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      #     - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-org2:7351
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-org2:7251
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-org2:7251
+      - CORE_PEER_CHAINCODEADDRESS=peer0-org2:7252
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7252
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org2MSP/peer0.org2.net
+    volumes:
+      - /var/run:/host/var/run
+      - $ARTIFACTS:/var/artifacts
+    ports:
+      - 7251:7251
+      - 7253:7253
+
+  postgres02:
+    container_name: postgres02
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - $ARTIFACTS/postgres02:/var/lib/postgresql/data
+      - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+    command: postgres
+    ports:
+      - 5442:5432
+    networks:
+      - openplatform

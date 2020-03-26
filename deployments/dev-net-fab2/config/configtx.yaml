@@ -1,0 +1,188 @@
+
+Organizations:
+
+  - &org0
+    Name: org0
+    ID: Org0MSP
+    MSPDir: /var/artifacts/crypto-config/Org0MSP/msp
+
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org0MSP.member','Org1MSP.member','Org2MSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org0MSP.member','Org1MSP.member','Org2MSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org0MSP.admin')"
+    OrdererEndpoints:
+      - orderer0-org0:7050
+
+  - &org1
+    Name: org1
+    ID: Org1MSP
+    MSPDir: /var/artifacts/crypto-config/Org1MSP/msp
+
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org0MSP.member','Org1MSP.member','Org1MSP.admin','Org1MSP.peer','Org1MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org0MSP.member','Org1MSP.member','Org1MSP.admin','Org1MSP.peer','Org1MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org1MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org1MSP.member','Org1MSP.admin','Org1MSP.peer','Org1MSP.client')"
+
+    AnchorPeers:
+      - Host: peer0-org1
+        Port: 7051
+
+  - &org2
+    Name: org2
+    ID: Org2MSP
+    MSPDir: /var/artifacts/crypto-config/Org2MSP/msp
+
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('Org0MSP.member','Org2MSP.member','Org2MSP.admin','Org2MSP.peer','Org2MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('Org0MSP.member','Org2MSP.member','Org2MSP.admin','Org2MSP.peer','Org2MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('Org2MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('Org2MSP.admin','Org2MSP.member','Org2MSP.peer','Org2MSP.client')"
+
+    AnchorPeers:
+      - Host: peer0-org2
+        Port: 7251
+
+Capabilities:
+  Channel: &ChannelCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Application: &ApplicationCapabilities
+    V2_0: true
+
+################################################################################
+#
+#   SECTION: Application
+#
+#   This section defines the values to encode into a config transaction or
+#   genesis block for application related parameters
+#
+################################################################################
+Application: &ApplicationDefaults
+
+  # Organizations is the list of orgs which are defined as participants on
+  # the application side of the network
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    LifecycleEndorsement:
+      Type: ImplicitMeta
+      Rule: 'MAJORITY Endorsement'
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: 'MAJORITY Endorsement'
+  Capabilities:
+    <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+
+  OrdererType: etcdraft
+  Addresses:
+    - orderer0-org0:7050
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 500
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 2 MB
+  MaxChannels: 10
+  EtcdRaft:
+    Consenters:
+      - Host: orderer0-org0
+        Port: 7050
+        ClientTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
+        ServerTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
+
+    Options:
+      TickInterval: 500ms
+      ElectionTick: 10
+      HeartbeatTick: 1
+      MaxInflightBlocks: 5
+      SnapshotIntervalSize: 20 MB
+
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+
+  Capabilities:
+    <<: *ChannelCapabilities
+
+Profiles:
+
+  OrgsOrdererGenesis:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *org0
+      Capabilities:
+        <<: *OrdererCapabilities
+    Consortiums:
+      SampleConsortium:
+        Organizations:
+          - *org1
+          - *org2
+
+  OrgsChannel:
+    Consortium: SampleConsortium
+    <<: *ChannelDefaults
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *org1
+        - *org2
+      Capabilities:
+        <<: *ApplicationCapabilities
