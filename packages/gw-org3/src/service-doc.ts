@@ -45,7 +45,7 @@ createService({
     });
 
     app.listen({ port: process.env.SERVICE_DOCUMENT_PORT }).then(({ url }) => {
-      logger.info(`🚀  '${process.env.ORGNAME}' - 'document' available at ${url}`);
+      logger.info(`🚀  '${process.env.ORGNAME}' - 'document' ready at ${url}`);
       if (process.env.NODE_ENV === 'production') process.send('ready');
     });
   })

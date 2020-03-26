@@ -46,7 +46,7 @@ createService({
     });
 
     app.listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT }).then(({ url }) => {
-      console.log(`🚀  '${process.env.ORGNAME}' - 'docContents' available at ${url}`);
+      logger.info(`🚀  '${process.env.ORGNAME}' - Private 'pDocContents' ready at ${url}`);
       if (process.env.NODE_ENV === 'production') process.send('ready');
     });
   })

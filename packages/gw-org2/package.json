@@ -29,11 +29,6 @@
     "enrollAdmin": "node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
     "gen-resolvers-type": "graphql-codegen --config codegen.yml",
-    "pm2": "yarn pm2:enroll &&  yarn pm2:enrollCa && yarn pm2:services && yarn pm2:gateway",
-    "pm2:enroll": "node ./dist/enrollAdmin.js && sleep 1",
-    "pm2:enrollCa": "node ./dist/enrollCaAdmin.js && sleep 1",
-    "pm2:services": "pm2 start processes.yaml --only \"admin,doc,loan,prv-dtls,rmt-ctnt,user\"",
-    "pm2:gateway": "pm2-runtime --delay 30 --only \"gw\" processes.yaml",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "unit-test": "jest unit.test"
   },

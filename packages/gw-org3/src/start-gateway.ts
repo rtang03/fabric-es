@@ -25,7 +25,7 @@ const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI || 'http://loca
     debug: false
   });
   app.listen(PORT, () => {
-    console.log(`🚀 Server at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
+    console.log(`🚀 gateway ready at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
   });
 })().catch(error => {
   console.error(error);
