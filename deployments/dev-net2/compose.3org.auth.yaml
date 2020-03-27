@@ -15,7 +15,7 @@ services:
       - TYPEORM_PASSWORD=docker
       - TYPEORM_DATABASE=auth_db
     ports:
-      - 3903:8080
+      - 3003:8080
     depends_on:
       - postgres03
     volumes:

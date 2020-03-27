@@ -15,7 +15,7 @@ services:
       - TYPEORM_PASSWORD=docker
       - TYPEORM_DATABASE=auth_db
     ports:
-      - 3901:8080
+      - 3001:8080
     depends_on:
       - postgres01
     volumes:
@@ -34,7 +34,7 @@ services:
       - TYPEORM_PASSWORD=docker
       - TYPEORM_DATABASE=auth_db
     ports:
-      - 3902:8080
+      - 3002:8080
     depends_on:
       - postgres02
     volumes:

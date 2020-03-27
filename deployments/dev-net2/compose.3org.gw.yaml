@@ -31,7 +31,6 @@ services:
       - auth-server3
       - orderer0-org0
       - peer0-org3
-      - gw-org2
     volumes:
       - $VOLUME/gw-org3/assets/:/home/app/packages/gw-org3/assets/
       - $VOLUME/gw-org3/logs/:/home/app/packages/gw-org3/logs/

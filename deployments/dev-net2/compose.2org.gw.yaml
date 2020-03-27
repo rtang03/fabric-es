@@ -63,7 +63,6 @@ services:
       - auth-server2
       - orderer0-org0
       - peer0-org2
-      - gw-org1
     volumes:
       - $VOLUME/gw-org2/assets/:/home/app/packages/gw-org2/assets/
       - $VOLUME/gw-org2/logs/:/home/app/packages/gw-org2/logs/
