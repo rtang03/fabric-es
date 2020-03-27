@@ -25,7 +25,9 @@ export const createInstance = ({
   commitId: string;
 }) => {
   const now = Date.now();
-  const committedAt = now.toString();
+  // const committedAt = now.toString();
+  // todo: committedAt should be removed. fix later
+  const committedAt = '';
 
   return new Commit({
     id,

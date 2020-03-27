@@ -1,5 +1,5 @@
 import { Context, Contract, Transaction } from 'fabric-contract-api';
-import { omit } from 'lodash';
+import { omit, pick } from 'lodash';
 import { Commit, createInstance, makeKey, toRecord } from '../ledger-api';
 import { MyContext } from './myContext';
 
@@ -43,7 +43,7 @@ export class EventStore extends Contract {
 
     console.info('=== END : Initialize eventstore ===');
 
-    return Buffer.from(JSON.stringify(commits));
+    return 'Init Done';
   }
 
   @Transaction()

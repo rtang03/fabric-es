@@ -61,6 +61,10 @@ docker exec -w /config -e FABRIC_CFG_PATH=/config cli \
  sh -c "configtxgen -profile OrgsChannel -outputCreateChannelTx channel.tx -channelID loanapp"
 printMessage "Create channel.tx" $?
 
+docker exec -w /config cli sh -c "cp genesis.block ${CRYPTO}/${ORDERER_NAME}MSP/orderer1.${ORDERER_DOMAIN}"
+docker exec -w /config cli sh -c "cp genesis.block ${CRYPTO}/${ORDERER_NAME}MSP/orderer2.${ORDERER_DOMAIN}"
+docker exec -w /config cli sh -c "cp genesis.block ${CRYPTO}/${ORDERER_NAME}MSP/orderer3.${ORDERER_DOMAIN}"
+docker exec -w /config cli sh -c "cp genesis.block ${CRYPTO}/${ORDERER_NAME}MSP/orderer4.${ORDERER_DOMAIN}"
 docker exec -w /config cli sh -c "mv genesis.block ${CRYPTO}/${ORDERER_NAME}MSP/${ORDERER_PEER}.${ORDERER_DOMAIN}"
 
 # Params of the first org
@@ -89,7 +93,7 @@ docker exec \
   -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${NAME}MSP/admin/msp \
   cli peer channel create -c loanapp -f /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/assets/channel.tx -o ${ORDERER_PEER}-${2}:${ORDERER_PORT} \
     --outputBlock /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/assets/loanapp.block \
-    --tls --cafile /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+    --tls --cafile /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 printMessage "Create channel" $?
 
 printf "\n###########################"
@@ -144,6 +148,38 @@ do
     cli sh -c "peer channel getinfo -c loanapp"
 done
 
+printf "\n######################"
+printf "\n# Update Anchor Peer #"
+printf "\n######################\n"
+docker exec -w /config -e FABRIC_CFG_PATH=/config cli \
+ sh -c "configtxgen -profile OrgsChannel -outputAnchorPeersUpdate /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/Org1Anchors.tx -channelID loanapp -asOrg Org1MSP"
+printMessage "create Org1Anchors.tx" $?
+
+docker exec \
+  -e "CORE_PEER_ADDRESS=peer0-org1:7051" \
+  -e "CORE_PEER_LOCALMSPID=Org1MSP" \
+  -e "CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org1MSP/admin/msp" \
+  cli peer channel update -c loanapp -f /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/Org1Anchors.tx \
+    -o orderer0-org0:7050 \
+    --tls --cafile /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+printMessage "update Org1Anchors.tx" $?
+
+docker exec -w /config -e FABRIC_CFG_PATH=/config cli \
+ sh -c "configtxgen -profile OrgsChannel -outputAnchorPeersUpdate /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/Org2Anchors.tx -channelID loanapp -asOrg Org2MSP"
+printMessage "create Org2Anchors.tx" $?
+
+docker exec \
+  -e "CORE_PEER_ADDRESS=peer0-org2:7251" \
+  -e "CORE_PEER_LOCALMSPID=Org2MSP" \
+  -e "CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org2MSP/admin/msp" \
+  cli peer channel update -c loanapp -f /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/Org2Anchors.tx \
+    -o orderer0-org0:7050 \
+    --tls --cafile /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+printMessage "update Org2Anchors.tx" $?
+
+printf "\n######################"
+printf "\n# Build Chaincode #"
+printf "\n######################\n"
 cd $CHAINCODE && yarn build
 printMessage "Build chaincode" $?
 
@@ -153,9 +189,6 @@ PEER0_ORG1="docker exec
   -e CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/${FIRST_NAME}MSP/${PEER}.${FIRST_DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
   -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${FIRST_NAME}MSP/admin/msp
   cli peer "
-#  --tls=true
-#  -o ${ORDERER_PEER}-${2}:${ORDERER_PORT}
-#  --cafile /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem "
 
 printf "\n######################"
 printf "\n# PACKAGE CC ON ORG1 #"
@@ -163,17 +196,13 @@ printf "\n######################\n"
 
 echo "executing => $PEER0_ORG1 lifecycle chaincode package eventstore.tar.gz"
 
-${PEER0_ORG1} lifecycle chaincode package eventstore.tar.gz \
-  --tls \
-  -o ${ORDERER_PEER}-${2}:${ORDERER_PORT} \
-  --cafile /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
+docker exec \
+  cli peer lifecycle chaincode package eventstore.tar.gz \
   --path /opt/gopath/src/github.com/hyperledger/fabric/chaincode \
   --lang node \
   --label eventstorev1
 printMessage "Package chaincode eventstorev1.tar.gz" $?
 
-#peer --tls --cafile=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem --orderer=orderer0-org0:7050 lifecycle chaincode package
-# eventstore.tar.gz --path /opt/gopath/src/github.com/hyperledger/fabric/chaincode --lang node --label eventstorev1
 
 for ORG in $ORGLIST
 do
@@ -184,20 +213,13 @@ do
 
   echo "Installing smart contract on ${PEER}-${ORG}"
 
-  PEER_ORG="docker exec
-    -e CORE_PEER_ADDRESS=${PEER}-${ORG}:${PORT}
-    -e CORE_PEER_LOCALMSPID=${NAME}MSP
-    -e CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
-    -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${NAME}MSP/admin/msp
-    cli peer --tls=true
-    --cafile /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
-    -o ${ORDERER_PEER}-${2}:${ORDERER_PORT} "
-
-  echo "executing => $PEER_ORG lifecycle chaincode install eventstore.tar.gz"
-
-  ${PEER_ORG} lifecycle chaincode install eventstore.tar.gz
+  docker exec \
+    -e "CORE_PEER_ADDRESS=${PEER}-${ORG}:${PORT}" \
+    -e "CORE_PEER_LOCALMSPID=${NAME}MSP" \
+    -e "CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem" \
+    -e "CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${NAME}MSP/admin/msp" \
+    cli peer lifecycle chaincode install eventstore.tar.gz
   printMessage "Install chaincode: eventstore for $ORG" $?
-
 done
 
 for ORG in $ORGLIST
@@ -209,9 +231,7 @@ do
     -e CORE_PEER_LOCALMSPID=${NAME}MSP
     -e CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${NAME}MSP/admin/msp
-    cli peer --tls=true
-    --cafile /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
-    -o ${ORDERER_PEER}-${2}:${ORDERER_PORT} "
+    cli peer"
 
   echo "Determining package ID for smart contract on peer0.org1.example.com"
   REGEX='Package ID: (.*), Label: eventstorev1'
@@ -229,19 +249,21 @@ do
 
   echo "executing => $PEER_ORG lifecycle approveformyorg ..."
 
-# additional config may require for approveformyorg
-#    --signature-policy "OR('Org1MSP.member','Org2MSP.member')" \
-#    --channel-config-policy "OR('Org1MSP.member','Org2MSP.member')" \
-
-  ${PEER_ORG} lifecycle chaincode approveformyorg \
+  docker exec \
+    -e "CORE_PEER_ADDRESS=${PEER}-${ORG}:${PORT}" \
+    -e "CORE_PEER_LOCALMSPID=${NAME}MSP" \
+    -e "CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem" \
+    -e "CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${NAME}MSP/admin/msp" \
+    cli peer lifecycle chaincode approveformyorg \
     --tls \
-    -o ${ORDERER_PEER}-${2}:${ORDERER_PORT} \
     --cafile /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
-    --package-id ${PACKAGE_ID} \
+    -o orderer0-org0:7050 \
     --channelID loanapp \
-    --init-required \
-    --name evenstore \
+    --name eventstore \
     --version 1.0 \
+    --package-id ${PACKAGE_ID} \
+    --init-required \
+    --signature-policy "AND('Org1MSP.member','Org2MSP.member')" \
     --sequence 1 \
     --waitForEvent
 
@@ -260,7 +282,7 @@ docker exec \
   --cafile /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
   -o orderer0-org0:7050  \
   --channelID loanapp \
-  --name evenstore \
+  --name eventstore \
   --init-required \
   --signature-policy "AND('Org1MSP.member','Org2MSP.member')" \
   --version 1.0 \
@@ -281,11 +303,12 @@ docker exec \
   -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org1MSP/admin/msp \
   cli peer lifecycle chaincode commit \
   --tls \
-  -o "${ORDERER_PEER}-${2}:${ORDERER_PORT}" \
   --cafile /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
+  -o "${ORDERER_PEER}-${2}:${ORDERER_PORT}" \
   --channelID loanapp \
-  --name evenstore \
+  --name eventstore \
   --init-required \
+  --signature-policy "AND('Org1MSP.member','Org2MSP.member')" \
   --version 1.0 \
   --sequence 1 \
   --waitForEvent \
@@ -296,7 +319,14 @@ docker exec \
 
 printMessage "commit chaincode" $?
 
-sleep 5
+docker exec \
+  -e CORE_PEER_ADDRESS=peer0-org1:7051 \
+  -e CORE_PEER_LOCALMSPID=Org1MSP \
+  -e CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
+  -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org1MSP/admin/msp \
+  cli peer lifecycle chaincode querycommitted --channelID loanapp
+
+sleep 2
 
 printf "\n####################"
 printf "\n# Init CHAINCODE #"
@@ -308,14 +338,13 @@ docker exec \
   -e CORE_PEER_LOCALMSPID=Org1MSP \
   -e CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
   -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org1MSP/admin/msp \
-  cli peer chaincode invoke \
-  --tls true \
+  cli peer chaincode invoke --isInit \
   -o orderer0-org0:7050 \
-  --cafile /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
-  --isInit \
   -C loanapp \
   -n eventstore \
   -c '{"Args":["Init"]}' \
+  --tls \
+  --cafile /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
   --waitForEvent \
   --waitForEventTimeout 300s \
   --peerAddresses peer0-org1:7051 \

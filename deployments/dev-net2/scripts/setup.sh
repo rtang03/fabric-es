@@ -36,6 +36,7 @@ getConfig() {
       DOMAIN="org1.net"
       CAPORT=5054
       PORT=7051
+      CCPORT=7052
       GATEWAY="gw-org1"
       IMAGE=fabric-es/gw-org1:1.0
       ;;
@@ -45,6 +46,7 @@ getConfig() {
       DOMAIN="org2.net"
       CAPORT=5055
       PORT=7251
+      CCPORT=7252
       GATEWAY="gw-org2"
       IMAGE=fabric-es/gw-org2:1.0
       ;;
@@ -54,6 +56,7 @@ getConfig() {
       DOMAIN="org3.net"
       CAPORT=5056
       PORT=7451
+      CCPORT=7452
       GATEWAY="gw-org3"
       IMAGE=fabric-es/gw-org3:1.0
       ;;
