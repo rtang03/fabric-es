@@ -1,8 +1,13 @@
-import { Context, Contract, Transaction } from 'fabric-contract-api';
-import { omit, pick } from 'lodash';
-import { Commit, createInstance, makeKey, toRecord } from '../ledger-api';
+import { Context, Contract, Info, Returns, Transaction } from 'fabric-contract-api';
+import { omit } from 'lodash';
+import { Commit, createInstance, isEventArray, makeKey, toRecord } from '../ledger-api';
 import { MyContext } from './myContext';
+import util from 'util';
 
+@Info({
+  title: 'smart contract for eventstore',
+  description: 'smart contract for eventstore'
+})
 export class EventStore extends Contract {
   constructor(public context: MyContext = new Context()) {
     super('eventstore');
@@ -13,6 +18,7 @@ export class EventStore extends Contract {
   }
 
   @Transaction()
+  @Returns('string')
   async Init(context: MyContext) {
     console.info('=== START : Initialize eventstore ===');
 
@@ -47,6 +53,7 @@ export class EventStore extends Contract {
   }
 
   @Transaction()
+  @Returns('bytebuffer')
   async createCommit(
     context: MyContext,
     entityName: string,
@@ -58,14 +65,25 @@ export class EventStore extends Contract {
     if (!id || !entityName || !eventStr || !commitId || version === undefined)
       throw new Error('createCommit problem: null argument');
 
-    const events = JSON.parse(eventStr);
-    const commit = createInstance({
-      id,
-      version,
-      entityName,
-      events,
-      commitId
-    });
+    let events: unknown;
+    let commit: Commit;
+
+    try {
+      events = JSON.parse(eventStr);
+    } catch (e) {
+      console.error(e);
+      throw new Error(util.format('fail to parse eventStr: %j', e));
+    }
+
+    if (isEventArray(events)) {
+      commit = createInstance({
+        id,
+        version,
+        entityName,
+        events,
+        commitId
+      });
+    } else throw new Error('eventStr is not correct format');
 
     await context.stateList.addState(commit);
 
@@ -107,7 +125,7 @@ export class EventStore extends Contract {
     const commit = await context.stateList.getState(key);
     const result = {};
 
-    if (commit && commit.commitId) result[commit.commitId] = omit(commit, 'key');
+    if (commit?.commitId) result[commit.commitId] = omit(commit, 'key');
 
     return Buffer.from(JSON.stringify(result));
   }
@@ -121,10 +139,8 @@ export class EventStore extends Contract {
     const key = makeKey([entityName, id, commitId]);
     const commit = await context.stateList.getState(key);
 
-    if (commit && commit.key) {
-      await context.stateList.deleteState(commit).catch(err => {
-        throw new Error(err);
-      });
+    if (commit?.key) {
+      await context.stateList.deleteState(commit);
       return getSuccessMessage(`Commit ${commit.commitId} is deleted`);
     } else return getSuccessMessage('commitId does not exist');
   }

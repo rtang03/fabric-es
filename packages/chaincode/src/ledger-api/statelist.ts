@@ -1,3 +1,4 @@
+import util from 'util';
 import { Context } from 'fabric-contract-api';
 import { keys, omit } from 'lodash';
 import { serialize, splitKey } from '.';
@@ -7,19 +8,20 @@ export class StateList {
   constructor(public ctx: Context, public name: string) {}
 
   async getQueryResult(attributes: string[], plainObject?: boolean) {
-    const iterator = await this.ctx.stub.getStateByPartialCompositeKey('entities', attributes);
+    const promises = this.ctx.stub.getStateByPartialCompositeKey('entities', attributes);
     const result: any = {};
-    while (true) {
-      const { value, done } = await iterator.next();
-      if (value && value.value.toString()) {
-        const commit = JSON.parse(value.value.toString());
+
+    try {
+      for await (const res of promises) {
+        const commit = JSON.parse(res.value.toString());
         result[commit.commitId] = omit(commit, 'key');
       }
-      if (done) {
-        await iterator.close();
-        return plainObject ? result : Buffer.from(JSON.stringify(result));
-      }
+    } catch (e) {
+      console.error(e);
+      throw new Error(util.format('fail to getQueryResult, %j', e));
     }
+
+    return plainObject ? result : Buffer.from(JSON.stringify(result));
   }
 
   async addState(commit: Commit) {
@@ -27,10 +29,18 @@ export class StateList {
   }
 
   async getState(key): Promise<Commit> {
+    let result;
+
     const data = await this.ctx.stub.getState(this.ctx.stub.createCompositeKey(this.name, splitKey(key)));
-    if (data.toString()) {
-      return JSON.parse(data.toString());
-    } else return Object.assign({});
+
+    try {
+      result = data.toString() ? JSON.parse(data.toString()) : Object.assign({});
+    } catch (e) {
+      console.error(e);
+      throw new Error(util.format('fail to parse data, %j', e));
+    }
+
+    return result;
   }
 
   async deleteState(commit: Commit) {
@@ -38,33 +48,57 @@ export class StateList {
   }
 
   async deleteStateByEnityId(attributes: string[]) {
-    const iterator = await this.ctx.stub.getStateByPartialCompositeKey('entities', attributes);
+    const promises = this.ctx.stub.getStateByPartialCompositeKey('entities', attributes);
     const result = {};
-    while (true) {
-      const { value, done } = await iterator.next();
-      if (value && value.value.toString()) {
-        const { key, commitId } = JSON.parse(value.value.toString());
+
+    try {
+      for await (const res of promises) {
+        const { key, commitId } = JSON.parse(res.value.toString());
         await this.ctx.stub.deleteState(this.ctx.stub.createCompositeKey('entities', splitKey(key)));
         result[commitId] = {};
-      } else {
-        return Buffer.from(
-          JSON.stringify({
-            status: 'SUCCESS',
-            message: 'No state returned for deletion'
-          })
-        );
       }
-      // else throw new Error('no state returned');
-      if (done) {
-        await iterator.close();
-        return Buffer.from(
-          JSON.stringify({
-            status: 'SUCCESS',
-            message: `${keys(result).length} records deleted`,
-            result
-          })
-        );
-      }
+    } catch (e) {
+      console.error(e);
+      throw new Error(util.format('fail to deleteStateByEnityId, %j', e));
     }
+
+    return Buffer.from(
+      JSON.stringify({
+        status: 'SUCCESS',
+        message: `${keys(result).length} record(s) deleted`,
+        result
+      })
+    );
   }
+
+  // async _deleteStateByEnityId(attributes: string[]) {
+  //   const iterator = await this.ctx.stub.getStateByPartialCompositeKey('entities', attributes);
+  //   const result = {};
+  //   while (true) {
+  //     const { value, done } = await iterator.next();
+  //     if (value && value.value.toString()) {
+  //       const { key, commitId } = JSON.parse(value.value.toString());
+  //       await this.ctx.stub.deleteState(this.ctx.stub.createCompositeKey('entities', splitKey(key)));
+  //       result[commitId] = {};
+  //     } else {
+  //       return Buffer.from(
+  //         JSON.stringify({
+  //           status: 'SUCCESS',
+  //           message: 'No state returned for deletion'
+  //         })
+  //       );
+  //     }
+  //     // else throw new Error('no state returned');
+  //     if (done) {
+  //       await iterator.close();
+  //       return Buffer.from(
+  //         JSON.stringify({
+  //           status: 'SUCCESS',
+  //           message: `${keys(result).length} records deleted`,
+  //           result
+  //         })
+  //       );
+  //     }
+  //   }
+  // }
 }

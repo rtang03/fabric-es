@@ -267,11 +267,11 @@ do
     --sequence 1 \
     --waitForEvent
 
-  printMessage "approveformyorg for ${ORG}" $?
+  printMessage "approveformyorg for eventstore for ${ORG}" $?
 
 done
 
-echo "Checkcommitreadiness"
+echo "Checkcommitreadiness for eventstore"
 
 docker exec \
   -e CORE_PEER_ADDRESS=peer0-org1:7051 \
@@ -288,13 +288,13 @@ docker exec \
   --version 1.0 \
   --sequence 1
 
-printMessage "checkcommitreadiness" $?
+printMessage "checkcommitreadiness for eventstore" $?
 
 printf "\n####################"
 printf "\n# COMMIT CHAINCODE #"
 printf "\n####################\n"
 
-echo "executing => $PEER0_ORG1 lifecycle chaincode commit ..."
+echo "executing => $PEER0_ORG1 lifecycle chaincode commit eventstore ..."
 
 docker exec \
   -e CORE_PEER_ADDRESS=peer0-org1:7051 \
@@ -317,7 +317,7 @@ docker exec \
   --tlsRootCertFiles /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
   --tlsRootCertFiles /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
-printMessage "commit chaincode" $?
+printMessage "commit chaincode for eventstore" $?
 
 docker exec \
   -e CORE_PEER_ADDRESS=peer0-org1:7051 \
@@ -353,8 +353,145 @@ docker exec \
   --tlsRootCertFiles /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 printMessage "init chaincode" $?
 
-docker exec cli sh -c "rm -f /config/configtx.yaml"
+# Invoke event store
+docker exec \
+  -e "CORE_PEER_ADDRESS=peer0-org1:7051" \
+  -e "CORE_PEER_LOCALMSPID=Org1MSP" \
+  -e "CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem" \
+  -e "CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org1MSP/admin/msp" \
+  cli peer chaincode invoke \
+    -o orderer0-org0:7050 \
+    -C loanapp -n eventstore \
+    -c '{"Args":["createCommit", "dev_entity", "ent_dev_org1", "0","[{\"type\":\"mon\"}]", "ent_dev_org1"]}' \
+    --tls --cafile /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
+    --waitForEvent \
+    --waitForEventTimeout 300s \
+    --peerAddresses peer0-org1:7051 \
+    --tlsRootCertFiles /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
+    --peerAddresses peer0-org2:7251 \
+    --tlsRootCertFiles /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+
+printMessage "invoke event store on org1 peer0" $?
+
+# Query event store
+docker exec \
+  -e "CORE_PEER_ADDRESS=peer0-org1:7051" \
+  -e "CORE_PEER_LOCALMSPID=Org1MSP" \
+  -e "CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem" \
+  -e "CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org1MSP/admin/msp" \
+  cli peer chaincode query \
+    -C loanapp -n eventstore \
+    -c '{"Args":["eventstore:queryByEntityName","dev_entity"]}' \
+    --tls --cafile /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+
+printMessage "query event store on org1 peer0" $?
+
+# Invoke private data
+export EVENT_STR=$(echo -n "[{\"type\":\"testtype\"}]" | base64 | tr -d \\n);
+
+docker exec \
+  -e "CORE_PEER_ADDRESS=peer0-org1:7051" \
+  -e "CORE_PEER_LOCALMSPID=Org1MSP" \
+  -e "CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem" \
+  -e "CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org1MSP/admin/msp" \
+  cli peer chaincode invoke \
+    -o orderer0-org0:7050 \
+    -C loanapp -n eventstore \
+    -c '{"Args":["privatedata:createCommit","private_entityName","private_org1","0","private_org1"]}' \
+    --transient "{\"eventstr\":\"$EVENT_STR\"}" \
+    --tls --cafile /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
+    --waitForEvent
+
+ printMessage "invoke private data on org1 peer0" $?
 
 sleep 1
+
+# Query private data
+docker exec \
+  -e "CORE_PEER_ADDRESS=peer0-org1:7051" \
+  -e "CORE_PEER_LOCALMSPID=Org1MSP" \
+  -e "CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem" \
+  -e "CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org1MSP/admin/msp" \
+  cli peer chaincode query \
+    -C loanapp -n eventstore \
+    -c '{"Args":["privatedata:queryByEntityName","private_entityName"]}' \
+    --tls --cafile /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+printMessage "query private data on org1 peer0" $?
+
+sleep 1
+
+# Invoke event store
+docker exec \
+  -e "CORE_PEER_ADDRESS=peer0-org2:7251" \
+  -e "CORE_PEER_LOCALMSPID=Org2MSP" \
+  -e "CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem" \
+  -e "CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org2MSP/admin/msp" \
+  cli peer chaincode invoke \
+    -o orderer0-org0:7050 \
+    -C loanapp -n eventstore \
+    -c '{"Args":["eventstore:createCommit", "dev_entity", "ent_dev_org2", "0","[{\"type\":\"mon\"}]", "ent_dev_org2"]}' \
+    --tls --cafile /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
+    --waitForEvent \
+    --waitForEventTimeout 300s \
+    --peerAddresses peer0-org1:7051 \
+    --tlsRootCertFiles /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
+    --peerAddresses peer0-org2:7251 \
+    --tlsRootCertFiles /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+
+printMessage "invoke event store on org2 peer0" $?
+
+sleep 1
+
+# Query event store
+docker exec \
+  -e "CORE_PEER_ADDRESS=peer0-org2:7251" \
+  -e "CORE_PEER_LOCALMSPID=Org2MSP" \
+  -e "CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem" \
+  -e "CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org2MSP/admin/msp" \
+  cli peer chaincode query \
+    -C loanapp -n eventstore \
+    -c '{"Args":["eventstore:queryByEntityName","dev_entity"]}' \
+    --tls --cafile /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+
+printMessage "query event store on org2 peer0" $?
+
+sleep 1
+
+# Invoke private data
+export EVENT_STR=$(echo -n "[{\"type\":\"testtype\"}]" | base64 | tr -d \\n);
+
+docker exec \
+ -e "CORE_PEER_ADDRESS=peer0-org2:7251" \
+ -e "CORE_PEER_LOCALMSPID=Org2MSP" \
+ -e "CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem" \
+ -e "CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org2MSP/admin/msp" \
+ cli peer chaincode invoke \
+   -o orderer0-org0:7050 \
+   -C loanapp -n eventstore \
+   -c '{"Args":["privatedata:createCommit","private_entityName","private_org2","0","private_org2"]}' \
+   --transient "{\"eventstr\":\"$EVENT_STR\"}" \
+   --tls --cafile /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
+   --waitForEvent
+
+printMessage "invoke private data on org2 peer0" $?
+
+sleep 1
+
+# Query private data
+docker exec \
+ -e "CORE_PEER_ADDRESS=peer0-org2:7251" \
+ -e "CORE_PEER_LOCALMSPID=Org2MSP" \
+ -e "CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem" \
+ -e "CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org2MSP/admin/msp" \
+ cli peer chaincode query \
+   -C loanapp -n eventstore \
+   -c '{"Args":["privatedata:queryByEntityName","private_entityName"]}' \
+   --tls --cafile /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+
+printMessage "query private data on org2 peer0" $?
+
+sleep 1
+
+docker exec cli sh -c "rm -f /config/configtx.yaml"
 
 printf "${GREEN}### BOOTSTRAP DONE ###${NC}\n\n"
