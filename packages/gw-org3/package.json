@@ -25,7 +25,7 @@
     "service-admin": "node ./dist/service-admin.js",
     "start-services": "yarn build && concurrently \"npm:service-*\"",
     "server-gw": "node ./dist/start-gateway.js",
-    "start-server": "yarn build && concurrently \"npm:server-*\"",
+    "start-server": "concurrently \"npm:server-*\"",
     "enrollAdmin": "node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
     "gen-resolvers-type": "graphql-codegen --config codegen.yml",
