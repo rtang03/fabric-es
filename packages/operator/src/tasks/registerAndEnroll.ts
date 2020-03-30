@@ -1,6 +1,7 @@
 import util from 'util';
-import Client, { BroadcastResponse } from 'fabric-client';
-import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway, X509WalletMixin } from 'fabric-network';
+import { BroadcastResponse } from 'fabric-client';
+import Common, { User } from 'fabric-common';
+import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway, X509Identity } from 'fabric-network';
 import {
   CreateNetworkOperatorOption,
   IDENTITY_ALREADY_EXIST,
@@ -30,24 +31,21 @@ export const registerAndEnroll = (option: CreateNetworkOperatorOption) => async 
   disconnect: () => void;
   registerAndEnroll: () => Promise<BroadcastResponse | Error>;
 }> => {
-  const logger = Client.getLogger('registerAndEnroll.js');
-
   if (!identity) throw new Error(MISSING_WALLET_LABEL);
   if (!enrollmentId) throw new Error(MISSING_ENROLLMENTID);
   if (!enrollmentSecret) throw new Error(MISSING_ENROLLMENTSECRET);
 
+  const logger = Common.Utils.getLogger('registerAndEnroll.js');
   const { fabricNetwork, connectionProfile, wallet } = option;
-
+  const gateway = new Gateway();
   const client = await getClientForOrg(connectionProfile, fabricNetwork);
-
   const mspId = client.getMspid();
+  const caService = client.getCertificateAuthority();
 
   if (!mspId) {
     logger.error('mspId not found');
     throw new Error('mspId not found');
   }
-
-  const gateway = new Gateway();
 
   try {
     await gateway.connect(client, {
@@ -62,27 +60,26 @@ export const registerAndEnroll = (option: CreateNetworkOperatorOption) => async 
     throw new Error(e);
   }
 
-  logger.info(util.format('gateway connected: %s', gateway.getClient().getMspid()));
-
-  const caService = gateway.getClient().getCertificateAuthority();
+  logger.info(util.format('gateway connected: %s', gateway.getIdentity().mspId));
 
   // todo: future usage, it may (a) enroll user, w/o register, (b) or register only
   return {
     disconnect: () => gateway.disconnect(),
     registerAndEnroll: async () => {
-      // TODO: in v2, wallet.exists is deprecated, and replaced by wallet.get()
-      const adminExist = await wallet.exists(identity);
+      const adminExist = await wallet.get(identity);
       if (!adminExist) {
         logger.error(ORG_ADMIN_NOT_EXIST);
         throw new Error(ORG_ADMIN_NOT_EXIST);
       }
 
-      const enrollmentIdExist = await wallet.exists(enrollmentId);
+      const enrollmentIdExist = await wallet.get(enrollmentId);
 
       if (enrollmentIdExist) {
         logger.warn(`registerAndEnroll: ${IDENTITY_ALREADY_EXIST}`);
         return new Error(IDENTITY_ALREADY_EXIST);
       }
+
+      const user = new User({ affiliation: '', enrollmentID: '', name: '', roles: [] });
 
       try {
         await caService.register(
@@ -93,7 +90,7 @@ export const registerAndEnroll = (option: CreateNetworkOperatorOption) => async 
             maxEnrollments: -1,
             role: 'user'
           },
-          gateway.getCurrentIdentity()
+          user
         );
       } catch (e) {
         logger.error(util.format('operator fail to register %s: %j', enrollmentId, e));
@@ -117,13 +114,16 @@ export const registerAndEnroll = (option: CreateNetworkOperatorOption) => async 
         return new Error(e);
       }
 
-      // TODO: In v2, wallet.import() is deprecated, and replaced by wallet.put()
       let walletImport: any;
+
+      const x509identity: X509Identity = {
+        credentials: { certificate, privateKey: key.toBytes() },
+        mspId: client.getMspid(),
+        type: 'X.509'
+      };
+
       try {
-        walletImport = await wallet.import(
-          enrollmentId,
-          X509WalletMixin.createIdentity(client.getMspid(), certificate, key.toBytes())
-        );
+        walletImport = await wallet.put(enrollmentId, x509identity);
       } catch (e) {
         logger.error(util.format('operator fail to import: %j', e));
         return new Error(e);

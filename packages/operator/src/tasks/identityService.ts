@@ -1,19 +1,24 @@
 import util from 'util';
-import Client from 'fabric-client';
+import FabricCAServices from 'fabric-ca-client';
+import Common, { Client, User } from 'fabric-common';
 import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway } from 'fabric-network';
 import { CreateNetworkOperatorOption } from '../types';
+import { getClientForOrg } from '../utils';
 
 export const identityService = (option: CreateNetworkOperatorOption) => async ({
   caAdmin,
-  asLocalhost
+  asLocalhost,
+  fabricNetwork
 }: {
   caAdmin: string;
   asLocalhost: boolean;
+  fabricNetwork: string;
 }) => {
-  const logger = Client.getLogger('identityService.js');
-
+  const logger = Common.Utils.getLogger('identityService.js');
   const { connectionProfile, wallet } = option;
   const gateway = new Gateway();
+
+  const client = await getClientForOrg(connectionProfile, fabricNetwork);
 
   try {
     await gateway.connect(connectionProfile, {
@@ -32,13 +37,11 @@ export const identityService = (option: CreateNetworkOperatorOption) => async ({
     throw new Error(e);
   }
 
-  logger.info(util.format('gateway connected: %s', gateway.getClient().getMspid()));
+  logger.info(util.format('gateway connected: %s', gateway.getIdentity().mspId));
 
-  const ca = gateway.getClient().getCertificateAuthority();
+  const caService = client.getCertificateAuthority().newIdentityService();
 
-  const registrar = await gateway.getClient().getUserContext(caAdmin, true);
-
-  const caService = ca.newIdentityService();
+  const registrar = new User({ affiliation: '', enrollmentID: '', name: '', roles: [] });
 
   if (!caService) {
     logger.error('unknown error in ca admin service');

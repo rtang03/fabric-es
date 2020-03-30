@@ -1,5 +1,5 @@
 require('../../env');
-import { FileSystemWallet } from 'fabric-network';
+import { Wallets } from 'fabric-network';
 import { find, pick } from 'lodash';
 import { bootstrapNetwork } from '../../account';
 import { Counter, CounterEvent, reducer } from '../../example';
@@ -23,7 +23,7 @@ beforeAll(async () => {
       channelName: process.env.CHANNEL_NAME,
       connectionProfile: process.env.CONNECTION_PROFILE,
       fabricNetwork: process.env.NETWORK_LOCATION,
-      wallet: new FileSystemWallet(process.env.WALLET),
+      wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
       enrollmentId,
       enrollmentSecret: 'password'
     });
@@ -43,7 +43,7 @@ beforeAll(async () => {
     channelEventHubUri: process.env.CHANNEL_HUB,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: new FileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
   });
 
   try {

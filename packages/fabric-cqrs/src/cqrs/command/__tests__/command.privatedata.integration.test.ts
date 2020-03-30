@@ -1,5 +1,5 @@
 require('../../../env');
-import { FileSystemWallet } from 'fabric-network';
+import { Wallet, Wallets } from 'fabric-network';
 import { pick, values } from 'lodash';
 import { Store } from 'redux';
 import { bootstrapNetwork } from '../../../account';
@@ -17,10 +17,12 @@ const enrollmentId = `store_privatedata${Math.floor(Math.random() * 1000)}`;
 const channelEventHub = process.env.CHANNEL_HUB;
 const connectionProfile = process.env.CONNECTION_PROFILE;
 const channelName = process.env.CHANNEL_NAME;
-const wallet = new FileSystemWallet(process.env.WALLET);
+let wallet: Wallet;
 
 beforeAll(async () => {
   try {
+    const wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
+
     context = await bootstrapNetwork({
       caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
       channelEventHub,

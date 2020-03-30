@@ -1,5 +1,5 @@
 require('../../env');
-import { FileSystemWallet, Gateway, Network } from 'fabric-network';
+import { Wallets, Gateway, Network } from 'fabric-network';
 import { values } from 'lodash';
 import { bootstrapNetwork } from '../../account';
 import { Commit } from '../../types';
@@ -25,7 +25,7 @@ beforeAll(async () => {
       channelName: process.env.CHANNEL_NAME,
       connectionProfile: process.env.CONNECTION_PROFILE,
       fabricNetwork: process.env.NETWORK_LOCATION,
-      wallet: new FileSystemWallet(process.env.WALLET),
+      wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
       enrollmentId,
       enrollmentSecret: 'password'
     }).then(config => {

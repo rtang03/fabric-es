@@ -234,10 +234,9 @@ export const createResolvers: (option: {
       isWalletExist: async (_, { label }: { label: string }) => {
         logger.info(`isWalletExist: ${label}`);
 
-        return wallet.exists(label).catch(error => {
-          logger.error(util.format('isWalletexist: %j', error));
-          return new ApolloError(error);
-        });
+        const walletEntry = await wallet.get(label);
+
+        return !!walletEntry;
       },
       listWallet: async (_, __, { is_admin }) =>
         is_admin

@@ -1,5 +1,5 @@
 require('../../env');
-import { FileSystemWallet } from 'fabric-network';
+import { Wallet, Wallets } from 'fabric-network';
 import { values } from 'lodash';
 import { registerUser } from '../../account';
 import { Commit, PeerOptions } from '../../types';
@@ -14,11 +14,13 @@ let createdCommit_1: Commit;
 const entityName = 'dev_multiusers_test';
 const identityOrg1 = `org1user_test${Math.floor(Math.random() * 1000)}`;
 const identityOrg2 = `org2user_test${Math.floor(Math.random() * 1000)}`;
-const walletOrg1 = new FileSystemWallet(process.env.ORG1_WALLET);
-const walletOrg2 = new FileSystemWallet(process.env.ORG2_WALLET);
+let walletOrg1: Wallet;
+let walletOrg2: Wallet;
 
 beforeAll(async () => {
   try {
+    walletOrg1 = await Wallets.newFileSystemWallet(process.env.ORG1_WALLET);
+    walletOrg2 = await Wallets.newFileSystemWallet(process.env.ORG2_WALLET);
     await enrollOrg1Admin(walletOrg1);
     await enrollOrg2Admin(walletOrg2);
     await enrollOrg1CaAdmin(walletOrg1);

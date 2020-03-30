@@ -1,18 +1,16 @@
 require('../env');
-import execa from 'execa';
 import Client, { ProposalErrorResponse, ProposalResponse } from 'fabric-client';
-import { FileSystemWallet } from 'fabric-network';
+import { Wallets } from 'fabric-network';
 import Listr from 'listr';
 import UpdaterRenderer from 'listr-update-renderer';
 import { createNetworkOperator } from '../createNetworkOperator';
-import { DeploymentOption } from '../types';
 import { getLogger } from '../utils';
 
 (async ({ verbose, collapse }) => {
   Client.setLogger(getLogger({ name: 'packages/operator' }));
   Client.setConfigSetting('initialize-with-discovery', true);
-  const walletOrg1 = new FileSystemWallet('./assets/walletOrg1');
-  const walletOrg2 = new FileSystemWallet('./assets/walletOrg2');
+  const walletOrg1 = await Wallets.newFileSystemWallet('./assets/walletOrg1');
+  const walletOrg2 = await Wallets.newFileSystemWallet('./assets/walletOrg2');
   const fabricNetwork = process.env.FABRIC_NETWORK_PATH;
   const ordererTlsCaCert = process.env.ORDERER_TLSCA_CERT;
   const ordererName = process.env.ORDERER_NAME;

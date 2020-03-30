@@ -1,7 +1,7 @@
 import { buildFederatedSchema } from '@apollo/federation';
 import { ApolloServer } from 'apollo-server';
 import Client from 'fabric-client';
-import { FileSystemWallet } from 'fabric-network';
+import { Wallets } from 'fabric-network';
 import { shutdown } from '../utils/shutdownApollo';
 import { MISSING_CHANNELNAME, MISSING_CONNECTION_PROFILE, MISSING_FABRIC_NETWORK, MISSING_WALLET } from './constants';
 import { createResolvers } from './createResolvers';
@@ -60,7 +60,7 @@ export const createAdminService = async ({
     fabricNetwork,
     peerName,
     caAdminEnrollmentId,
-    wallet: new FileSystemWallet(walletPath),
+    wallet: await Wallets.newFileSystemWallet(walletPath),
     asLocalhost
   });
 

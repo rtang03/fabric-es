@@ -2,7 +2,6 @@ import { readFileSync } from 'fs';
 import util from 'util';
 import FabricCAServices from 'fabric-ca-client';
 import Client from 'fabric-client';
-import { X509WalletMixin } from 'fabric-network';
 import {
   EnrollAdminOption,
   IDENTITY_ALREADY_EXIST,
@@ -45,17 +44,16 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
     throw new Error(e);
   }
 
-  const caService = new FabricCAServices(
+  const caService: FabricCAServices = new FabricCAServices(
     caUrl,
     { trustedRoots: Buffer.from(cert), verify: false },
     null,
-    client.getCryptoSuite()
+    // note: 2.0.0.beta seems wrong typing in ICryptoSuite
+    client.getCryptoSuite() as any
   );
 
   // todo: in V2, wallet.exist() is deprecated, and replaced by wallet.get()
-  // const walletEntry = await wallet.get(label);
-
-  const walletEntry = await wallet.exists(label);
+  const walletEntry = await wallet.get(label);
 
   if (!!walletEntry)
     return {
@@ -83,23 +81,29 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
 
   logger.info(`${mspId} enrolls ${enrollmentID} at ${caUrl}`);
 
-  // todo: in V2,  X509WalletMixin is deprecated, and replaced by below
-  // const identity: X509Identity = {
-  //   type: 'X.509',
-  //   mspId: client.getMspid(),
-  //   credentials: {
-  //     certificate,
-  //     privateKey: key.toBytes()
-  //   }
-  // };
-  // await wallet.put(label, identity);
+  const identity = {
+    type: 'X.509',
+    mspId,
+    credentials: {
+      certificate,
+      privateKey: key.toBytes()
+    }
+  };
 
   try {
-    await wallet.import(label, X509WalletMixin.createIdentity(client.getMspid(), certificate, key.toBytes()));
+    await wallet.put(label, identity);
   } catch (e) {
     logger.error(util.format('fail to import into wallet %s, %j', label, e));
     throw new Error(e);
   }
+
+  // TO REMOVE
+  // try {
+  //   await wallet.import(label, X509WalletMixin.createIdentity(client.getMspid(), certificate, key.toBytes()));
+  // } catch (e) {
+  //   logger.error(util.format('fail to import into wallet %s, %j', label, e));
+  //   throw new Error(e);
+  // }
 
   logger.info(`Import identity into wallet: ${label} of ${client.getMspid()}`);
 

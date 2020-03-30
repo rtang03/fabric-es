@@ -42,7 +42,8 @@ export const getNetwork: (option: {
 }) => {
   const logger = Client.getLogger('getNetwork.js');
 
-  const identityExist: boolean = await wallet.exists(enrollmentId);
+  const identityExist = await wallet.get(enrollmentId);
+
   if (!identityExist) {
     logger.warn('no enrollmentId in the wallet');
     throw new Error('Please register user, before retrying');
