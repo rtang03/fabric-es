@@ -12,3 +12,4 @@ services:
     working_dir: /home/app/packages/tester
     networks:
       - openplatform
+  # command: ["jest", "integration.test"]

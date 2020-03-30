@@ -4,7 +4,7 @@
 
 . ./scripts/setup.sh
 
-COMPOSE=$COMPOSE_3_3ORG
+COMPOSE=$COMPOSE_4_3ORG
 if [ $# -eq 1 ]; then
   COMPOSE=$1
 fi

@@ -11,6 +11,7 @@ SECONDS=0
 ./cleanup.sh
 
 # STEP 1
+printf "Cleaning up old image $AUTH_IMAGE\n"
 docker rmi $AUTH_IMAGE
 
 # STEP 2 - create build context at ~/.build

@@ -3,7 +3,7 @@
   "version": "0.5.15",
   "license": "BSD-3-Clause-Clear",
   "scripts": {
-    "cp:root": "rimraf .build && mkdir -p ./.build && cp ./package.json ./entrypoint.sh .build",
+    "cp:root": "rimraf .build && mkdir -p ./.build && cp ./package.json .build",
     "tsc:auth": "lerna run tsc:prod --scope=@fabric-es/authentication",
     "tsc:lib": "lerna run tsc:prod --scope={@fabric-es/fabric-cqrs,@fabric-es/operator,@fabric-es/gateway-lib}",
     "tsc:gw-org1": "lerna run tsc:prod --scope={@fabric-es/model-*,@fabric-es/gw-org1}",

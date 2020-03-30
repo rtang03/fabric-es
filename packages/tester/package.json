@@ -11,8 +11,9 @@
     "build:cleanup": "rimraf ../../.build/packages/tester && mkdir -p ../../.build/packages/tester",
     "cp:json": "cp ./*.json ../../.build/packages/tester/",
     "cp:js": "cp ./*.js ../../.build/packages/tester/",
-    "cp:env": "cp ./.env.test ../../.build/packages/tester/",
+    "cp:env": "cp ../../deployments/dev-net2/build.tester/.env.test ../../.build/packages/tester/.env",
     "cp:src": "cp -R ./src ../../.build/packages/tester/",
+    "cp:start":"cp ./entrypoint.sh ../../.build/",
     "test": "jest integration.test"
   },
   "private": true,
