@@ -6,7 +6,7 @@ export const getClientForOrg: (connectionProfile: string, fabricNewtork?: string
   connectionProfile,
   fabricNetwork
 ) => {
-  const logger = Client.getLogger('getClientForOrg.js');
+  const logger = Client.getLogger('[operator] getClientForOrg.js');
   const client = new Client();
 
   try {
@@ -16,16 +16,12 @@ export const getClientForOrg: (connectionProfile: string, fabricNewtork?: string
     throw new Error(e);
   }
 
-  logger.info('loadFromConfig complete');
-
   try {
     await client.initCredentialStores();
   } catch (e) {
     logger.error(util.format('fail to initCredentialStores, %j', e));
     throw new Error(e);
   }
-
-  logger.info('initCredentialStores');
 
   if (fabricNetwork) {
     try {
@@ -37,9 +33,8 @@ export const getClientForOrg: (connectionProfile: string, fabricNewtork?: string
       logger.error(util.format('fail to createAdmin user context, %j', e));
       throw new Error(e);
     }
-
-    logger.info('create "admin" user context');
   }
+  logger.info('loadFromConfig complete');
 
   return client;
 };

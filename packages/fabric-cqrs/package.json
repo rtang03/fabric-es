@@ -48,9 +48,9 @@
   "dependencies": {
     "@fabric-es/operator": "^0.5.15",
     "dotenv": "^8.1.0",
-    "fabric-client": "2.0.0-beta.2",
+    "fabric-client": "2.0.0-snapshot.326",
     "fabric-contract-api": "^2.0.0",
-    "fabric-network": "2.0.0-beta.4",
+    "fabric-network": "2.0.0-snapshot.348",
     "grpc": "1.23.3",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",

@@ -5472,27 +5472,27 @@ eyes@0.1.x:
   resolved "https://registry.yarnpkg.com/eyes/-/eyes-0.1.8.tgz#62cf120234c683785d902348a800ef3e0cc20bc0"
   integrity sha1-Ys8SAjTGg3hdkCNIqADvPgzCC8A=
 
-fabric-ca-client@2.0.0-beta.4, fabric-ca-client@beta:
-  version "2.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/fabric-ca-client/-/fabric-ca-client-2.0.0-beta.4.tgz#d5dd979ecdccd37ae44d8c67d0013f5bc7d40c45"
-  integrity sha512-pEaMjd/iFhvwrs7gdbbBrfRIOogfGSCad0p2YYYqclwQmugqOti/6HuIOipHlgdWnTBHcVPE71DlZKjpHVNFeg==
+fabric-ca-client@2.0.0-snapshot.391, fabric-ca-client@unstable:
+  version "2.0.0-snapshot.391"
+  resolved "https://registry.yarnpkg.com/fabric-ca-client/-/fabric-ca-client-2.0.0-snapshot.391.tgz#ec46739d787053a1aa82d9db7cea8dffb6098a04"
+  integrity sha512-gzApDqCC5bGD3UYaCXnnVJJYE9Prh4Qy6Up4fRInK5Wzqmh4t1c3CrJ473iyZS/jyTgGaXXdTE4X7C2dlT8zjg==
   dependencies:
-    fabric-common beta
+    fabric-common unstable
     jsrsasign "^7.2.2"
     url "^0.11.0"
     util "^0.10.3"
     winston "^2.4.0"
 
-fabric-client@2.0.0-beta.2:
-  version "2.0.0-beta.2"
-  resolved "https://registry.yarnpkg.com/fabric-client/-/fabric-client-2.0.0-beta.2.tgz#dd17c8e71a7b6a36adf2b4b2ee92d6fc424984eb"
-  integrity sha512-sif1iAMfzBk4cg3yrcxoZso6vXYh0NR3pPHU9rYTIlFtozyu4IMZrF54b6gqpEQk34IkBHja1a8dLxxkcmWSDQ==
+fabric-client@2.0.0-snapshot.326:
+  version "2.0.0-snapshot.326"
+  resolved "https://registry.yarnpkg.com/fabric-client/-/fabric-client-2.0.0-snapshot.326.tgz#8db4a949370145bdb7222bc261568f9a57c9f29e"
+  integrity sha512-Sz5cz7BP9lx1M524/qOVkcxZIRAGf0U7FsLE2j8o/8nmvQ45XizhxyJHwEFqBbOEQHfERINqB4vkFp7QyF9Sbw==
   dependencies:
     "@types/bytebuffer" "^5.0.34"
     callsite "^1.0.0"
-    fabric-ca-client beta
-    fabric-common beta
-    fabric-protos beta
+    fabric-ca-client unstable
+    fabric-common unstable
+    fabric-protos unstable
     fs-extra "^6.0.1"
     ignore-walk "^3.0.0"
     js-yaml "^3.13.0"
@@ -5504,13 +5504,13 @@ fabric-client@2.0.0-beta.2:
     url "^0.11.0"
     yn "^3.1.0"
 
-fabric-common@beta:
-  version "2.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/fabric-common/-/fabric-common-2.0.0-beta.4.tgz#0bce5b5a6c63de49707aa708be4db26eea2e0921"
-  integrity sha512-o0NcUjkGt1Y5P1j5AOQIMPPCQIFrOnxRWNlT86elzE3AaJYdRVe4ZdIB+Oevndm2L8WdGDqrsF1L+MvnCTAHQg==
+fabric-common@unstable:
+  version "2.0.0-snapshot.384"
+  resolved "https://registry.yarnpkg.com/fabric-common/-/fabric-common-2.0.0-snapshot.384.tgz#79459a20d3207730e8faf0b78c6290e794aae1bd"
+  integrity sha512-Oh/PHGH6g3N4k3g/z7LN0OTcShaAYRZn6SpyVpSvys/RBKexJ+8VUPknHz9bLW3/yG7TlKojd0IcpJKCjQJScA==
   dependencies:
     elliptic "^6.2.3"
-    fabric-protos beta
+    fabric-protos unstable
     js-sha3 "^0.7.0"
     nano "^6.4.4"
     nconf "^0.10.0"
@@ -5533,22 +5533,22 @@ fabric-contract-api@2.0.0, fabric-contract-api@^2.0.0:
     reflect-metadata "^0.1.12"
     winston "^3.2.1"
 
-fabric-network@2.0.0-beta.4:
-  version "2.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/fabric-network/-/fabric-network-2.0.0-beta.4.tgz#e848ab5ddc64362ddbbbcd98a7ca56f1311962f7"
-  integrity sha512-BGfk/mgFNxeTv4vibdvqFD46qMLLQKC5jzeNDWJ5BQkSYz8HJfp5Oo230DSfz0avSDQTC9CR2xF5ARELah0TfQ==
+fabric-network@2.0.0-snapshot.348:
+  version "2.0.0-snapshot.348"
+  resolved "https://registry.yarnpkg.com/fabric-network/-/fabric-network-2.0.0-snapshot.348.tgz#b90f35794e76f60a7e9fa85ea1d4b7aba0d806c0"
+  integrity sha512-MAcYgiU+y+i5NHQQvn1G2T5hzoA8NRLswQCsk6vd5oefaDb670tkfQzPDHEAESo7/aeX2YSxwJtZSHjZoUUIuQ==
   dependencies:
-    fabric-ca-client beta
-    fabric-common beta
+    fabric-ca-client unstable
+    fabric-common unstable
     fs-extra "^8.1.0"
     long "^4.0.0"
     nano "^8.1.0"
     winston "^2.4.0"
 
-fabric-protos@beta:
-  version "2.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/fabric-protos/-/fabric-protos-2.0.0-beta.4.tgz#5064e404575fa658c4cb3935d1cf565ff05cb2b0"
-  integrity sha512-CIRB0lxQl38v3E3JcJUFKv4LggOp0We/uVIVLIaDDOxGNEve0Qog1DgAAKCI8VzrjqFn227p1rqTf+Xyoky0hg==
+fabric-protos@unstable:
+  version "2.0.0-snapshot.242"
+  resolved "https://registry.yarnpkg.com/fabric-protos/-/fabric-protos-2.0.0-snapshot.242.tgz#73ef9357df57598b78ec19ea3a99a07fc0d72ff8"
+  integrity sha512-e8WKvd+e7mVa9TyF/ga8Ghx1NXTYdHCf5NlaPSqh/TFFhd+A1KgmsUDc8CG0q8QRI+gxsvV4oupGux1nJQZBcg==
   dependencies:
     grpc "1.24.2"
     lodash.clone "4.5.0"
@@ -7890,17 +7890,7 @@ listr-verbose-renderer@^0.5.0:
     date-fns "^1.27.2"
     figures "^2.0.0"
 
-listr-verbose-renderer@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/listr-verbose-renderer/-/listr-verbose-renderer-0.6.0.tgz#10d5a960c7763878b0812c884a11dde29ac16c33"
-  integrity sha512-P3bA/giMu432bs3gHiKXKOIHlWanCIlRhbhCfgKNgCoyvTvZsdbfkgX1BvThYXhm36cS8pOX3Z5vxXBFZC+NQw==
-  dependencies:
-    chalk "^2.4.1"
-    cli-cursor "^2.1.0"
-    date-fns "^2.0.1"
-    figures "^2.0.0"
-
-listr@0.14.3, listr@^0.14.3:
+listr@0.14.3:
   version "0.14.3"
   resolved "https://registry.yarnpkg.com/listr/-/listr-0.14.3.tgz#2fea909604e434be464c50bddba0d496928fa586"
   integrity sha512-RmAl7su35BFd/xoMamRjpIE4j3v+L28o8CT5YhAXQJm1fD+1l9ngXY8JAQRJ+tFK2i5njvi0iRUKV09vPwA0iA==

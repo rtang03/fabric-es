@@ -1,18 +1,14 @@
+import fs from 'fs';
 import util from 'util';
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway, Network } from 'fabric-network';
+import yaml from 'js-yaml';
 import { Commit, CreateNetworkOperatorOption, MISSING_CHAINCODE_ID, MISSING_FCN, MISSING_WALLET_LABEL } from '../types';
 import { createCommitId } from '../utils';
 
-export const submitOrEvaluateTx = (option: CreateNetworkOperatorOption) => async ({
-  identity,
-  chaincodeId,
-  fcn,
-  args = [],
-  eventHandlerStrategies = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
-  queryHandlerStrategies = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
-  asLocalhost = true
-}: {
+export const submitOrEvaluateTx: (
+  option: CreateNetworkOperatorOption
+) => (option: {
   identity: string;
   chaincodeId: string;
   fcn: string;
@@ -20,22 +16,32 @@ export const submitOrEvaluateTx = (option: CreateNetworkOperatorOption) => async
   eventHandlerStrategies?: any;
   queryHandlerStrategies?: any;
   asLocalhost: boolean;
-}): Promise<{
+}) => Promise<{
   disconnect: () => void;
   evaluate: () => Promise<Record<string, Commit> | { error: any }>;
   submit: () => Promise<Record<string, Commit> | { error: any }>;
-}> => {
-  const logger = Client.getLogger('submitOrEvaluateTx.js');
+}> = option => async ({
+  identity,
+  chaincodeId,
+  fcn,
+  args = [],
+  eventHandlerStrategies = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
+  queryHandlerStrategies = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
+  asLocalhost = true
+}) => {
+  const logger = Utils.getLogger('[operator] submitOrEvaluateTx.js');
+  const { channelName, connectionProfile, wallet } = option;
+  const gateway = new Gateway();
+  let network: Network;
 
   if (!identity) throw new Error(MISSING_WALLET_LABEL);
   if (!chaincodeId) throw new Error(MISSING_CHAINCODE_ID);
   if (!fcn) throw new Error(MISSING_FCN);
 
-  const { channelName, fabricNetwork, connectionProfile, wallet } = option;
-  const gateway = new Gateway();
-
   try {
-    await gateway.connect(connectionProfile, {
+    const cp = yaml.safeLoad(fs.readFileSync(connectionProfile, 'utf8'));
+
+    await gateway.connect(cp, {
       identity,
       wallet,
       eventHandlerOptions: { strategy: eventHandlerStrategies },
@@ -46,8 +52,6 @@ export const submitOrEvaluateTx = (option: CreateNetworkOperatorOption) => async
     logger.error(util.format('fail to connect gateway, %j', e));
     throw new Error(e);
   }
-
-  let network: Network;
 
   try {
     network = await gateway.getNetwork(channelName);
@@ -74,7 +78,8 @@ export const submitOrEvaluateTx = (option: CreateNetworkOperatorOption) => async
           return { error };
         }),
     submit: () => {
-      const input_args = fcn === 'createCommit' ? [...args, createCommitId()] : args;
+      // this insert commitId for each createCommit
+      const input_args = fcn === 'eventstore:createCommit' ? [...args, createCommitId()] : args;
 
       return network
         .getContract(chaincodeId)

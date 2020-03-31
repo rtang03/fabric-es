@@ -1,6 +1,7 @@
 require('../../env');
 import { Wallet, Wallets } from 'fabric-network';
 import { values } from 'lodash';
+import rimraf from 'rimraf';
 import { registerUser } from '../../account';
 import { Commit, PeerOptions } from '../../types';
 import { evaluate } from '../evaluate';
@@ -19,6 +20,8 @@ let walletOrg2: Wallet;
 
 beforeAll(async () => {
   try {
+    rimraf.sync(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}`);
+    rimraf.sync(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}`);
     walletOrg1 = await Wallets.newFileSystemWallet(process.env.ORG1_WALLET);
     walletOrg2 = await Wallets.newFileSystemWallet(process.env.ORG2_WALLET);
     await enrollOrg1Admin(walletOrg1);
@@ -31,7 +34,8 @@ beforeAll(async () => {
       connectionProfile: process.env.CONNECTION_PROFILE,
       fabricNetwork: process.env.NETWORK_LOCATION,
       wallet: walletOrg1,
-      caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN
+      caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
+      caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN
     });
     await registerUser({
       enrollmentId: identityOrg2,
@@ -39,7 +43,8 @@ beforeAll(async () => {
       connectionProfile: process.env.ORG2_CONNECTION_PROFILE,
       fabricNetwork: process.env.NETWORK_LOCATION,
       wallet: walletOrg2,
-      caAdmin: process.env.ORG2_CA_ENROLLMENT_ID_ADMIN
+      caAdmin: process.env.ORG2_CA_ENROLLMENT_ID_ADMIN,
+      caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN
     });
     contextOrg1 = await getNetwork({
       channelName: process.env.CHANNEL_NAME,

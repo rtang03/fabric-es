@@ -67,5 +67,5 @@ dist
 channel-config/
 client-certs/
 wallet
-assets
+assets/
 docs

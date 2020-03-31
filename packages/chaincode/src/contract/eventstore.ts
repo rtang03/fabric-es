@@ -53,7 +53,7 @@ export class EventStore extends Contract {
   }
 
   @Transaction()
-  @Returns('bytebuffer')
+  @Returns('buffer')
   async createCommit(
     context: MyContext,
     entityName: string,

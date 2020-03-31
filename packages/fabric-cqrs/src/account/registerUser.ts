@@ -14,15 +14,27 @@ export const registerUser: (option: {
   fabricNetwork: string;
   wallet: Wallet;
   caAdmin: string;
-}) => any = async ({ enrollmentId, enrollmentSecret, connectionProfile, fabricNetwork, wallet, caAdmin }) => {
-  const logger = Client.getLogger('registerUser.js');
-
+  caAdminPW: string;
+}) => any = async ({
+  enrollmentId,
+  enrollmentSecret,
+  connectionProfile,
+  fabricNetwork,
+  wallet,
+  caAdmin,
+  caAdminPW
+}) => {
+  const logger = Client.getLogger('[fabric-cqrs] registerUser.js');
   const operator = await registerAndEnroll({
+    caAdmin,
+    caAdminPW,
+    channelName: null,
+    ordererName: null,
+    ordererTlsCaCert: null,
     fabricNetwork,
     connectionProfile,
     wallet
   })({
-    identity: caAdmin,
     enrollmentId,
     enrollmentSecret
   });
@@ -41,6 +53,7 @@ export const bootstrapNetwork: (option: {
   fabricNetwork: string;
   wallet: Wallet;
   caAdmin: string;
+  caAdminPW: string;
   channelName: string;
   channelEventHub: string;
 }) => Promise<{
@@ -55,11 +68,13 @@ export const bootstrapNetwork: (option: {
   fabricNetwork,
   wallet,
   caAdmin,
+  caAdminPW,
   channelName,
   channelEventHub
 }) => {
   await registerUser({
     caAdmin,
+    caAdminPW,
     enrollmentId,
     enrollmentSecret,
     connectionProfile,
