@@ -14,6 +14,8 @@ services:
       - TYPEORM_USERNAME=postgres
       - TYPEORM_PASSWORD=docker
       - TYPEORM_DATABASE=auth_db
+      - ROOT_ADMIN=root_admin1
+      - ROOT_ADMIN_PASSWORD=root_admin1_password
     ports:
       - 3001:8080
     depends_on:
@@ -33,6 +35,8 @@ services:
       - TYPEORM_USERNAME=postgres
       - TYPEORM_PASSWORD=docker
       - TYPEORM_DATABASE=auth_db
+      - ROOT_ADMIN=root_admin2
+      - ROOT_ADMIN_PASSWORD=root_admin2_password
     ports:
       - 3002:8080
     depends_on:
