@@ -29,6 +29,6 @@ USER node
 
 WORKDIR /home/app/packages/authentication
 
-CMD [ "pm2-runtime", "--delay", "15" ,"processes.yaml"]
+CMD [ "pm2-runtime", "start" ,"processes.yaml"]
 
 EXPOSE 8080

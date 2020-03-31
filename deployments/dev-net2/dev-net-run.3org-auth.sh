@@ -22,5 +22,9 @@ containerWait "postgres03" "psql -h localhost -U postgres -d auth_db -lqt" "auth
 docker-compose $COMPOSE_2_3ORG up -d
 printMessage "docker-compose up $COMPOSE_2_3ORG" $?
 
+containerWait "auth-server1" "Auth server started"
+containerWait "auth-server2" "Auth server started"
+containerWait "auth-server3" "Auth server started"
+
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"

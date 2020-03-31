@@ -12,7 +12,7 @@ printMessage() {
 
   if [ $2 -ne 0 ] ; then
     printf "${RED}${MESSAGE} failed${NC}\n"
-    exit -1
+    exit 1
   fi
   printf "${GREEN}Complete ${MESSAGE}${NC}\n\n"
   sleep 1
@@ -61,17 +61,21 @@ getConfig() {
 }
 
 # $1 - container name
-# $2 - command
-# $3 - expected
+# $2 - expected | command if 3 arguments
+# $3 - optional: expected
 containerWait() {
   FOUND=false
   COUNT=30
   while [[ ("$FOUND"=false) && (COUNT -gt 0) ]]; do
-    RESULT=$(docker container exec -i $1 "$2" | grep -e "$3")
+    if [ $# -eq 3 ]; then
+      RESULT=`docker container exec -i $1 "$2" | grep -e "$3"`
+    else
+      RESULT=`docker logs $1 | grep -e "$2"`
+    fi
     echo -n "."
     if [ ! -z "$RESULT" ]; then
       FOUND=true
-      printf "${GREEN}psql: connected to server ${1}${NC}\n"
+      printf "${GREEN}container ${1} ready${NC}\n"
       break
     fi
     COUNT=$(( COUNT - 1 ))
@@ -79,7 +83,7 @@ containerWait() {
   done
   if [ $COUNT -le 0 ]; then
     printf "${RED}waiting for container $1 timed out${NC}\n"
-    exit -1
+    exit 1
   fi
 }
 

@@ -6,7 +6,7 @@ networks:
 services:
   tester:
     environment:
-      - TEST_TARGETS=gw-org1 4001 gw-org2 4001 gw-org3 4001
+      - TEST_TARGETS=gw-org1 4001 gw-org2 4001
     image: fabric-es/tester:1.0
     container_name: tester
     working_dir: /home/app/packages/tester

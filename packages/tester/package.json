@@ -14,7 +14,8 @@
     "cp:env": "cp ../../deployments/dev-net2/build.tester/.env.test ../../.build/packages/tester/.env",
     "cp:src": "cp -R ./src ../../.build/packages/tester/",
     "cp:start":"cp ./entrypoint.sh ../../.build/",
-    "test": "jest integration.test"
+    "test:3org": "jest intg.3org.test",
+    "test:2org": "jest intg.2org.test"
   },
   "private": true,
   "devDependencies": {

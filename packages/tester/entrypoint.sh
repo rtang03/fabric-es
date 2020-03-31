@@ -52,5 +52,10 @@ if [ $TIMEOUT -le 0 ]; then
   exit 1
 fi
 
-echo "Starting integration test..."
-exec jest integration.test
+if [ $FOUND -eq 3 ]; then
+  echo "Starting 3 orgs integration test..."
+  exec jest intg.3org.test
+else
+  echo "Starting 2 orgs integration test..."
+  exec jest intg.2org.test
+fi
