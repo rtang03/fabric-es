@@ -11,7 +11,7 @@ SECONDS=0
 ./cleanup.sh
 
 # STEP 1
-./bootstrap.sh "$COMPOSE_1_2ORG" "org0" "org1" "org2" "2org"
+./bootstrap.sh "$COMPOSE_1_2ORG" "org0" "org1" "org2"
 
 # STEP 2
 containerWait "postgres01" "psql -h localhost -U postgres -d auth_db -lqt" "auth_db"

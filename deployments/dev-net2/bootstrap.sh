@@ -4,15 +4,20 @@
 # $2 - orderer code ("org0")
 # $3 - first org ("org1")
 # $4 - list of remaining orgs ("org2 org3")
-# $5 - number of orgs (2org / 3org)
 
 . ./scripts/setup.sh
+
+CNT=1
+for ORG in $4; do
+  CNT=$(( CNT + 1 ))
+done
+echo "Bootstraping $CNT orgs..."
 
 docker-compose $1 up -d
 printMessage "docker-compose up" $?
 sleep 5
 
-docker exec cli sh -c "cp -f /config/configtx.${5}.yaml /config/configtx.yaml"
+docker exec cli sh -c "cp -f /config/configtx.${CNT}org.yaml /config/configtx.yaml"
 sleep 1
 
 printf "\n###########################"
