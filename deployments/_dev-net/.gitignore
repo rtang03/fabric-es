@@ -1,8 +1,7 @@
 .DS_Store
 artifacts/
-*.block
+genesis.block
 volume/
 volume.auth/
 .env
 artifacts.auth/
-config/configtx.yaml

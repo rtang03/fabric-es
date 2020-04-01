@@ -1,13 +1,13 @@
 ---
-name: dev-net2_openplatform
+name: dev-net_openplatform
 version: 1.0.0
 
 client:
-  organization: Org1MSP
+  organization: Org3MSP
   credentialStore:
-    path: /home/app/packages/gw-org1/assets/client-certs/hfc-kvs/org1
+    path: /home/app/packages/gw-org3/assets/client-certs/hfc-kvs/org3
     cryptoStore:
-      path: /home/app/packages/gw-org1/assets/client-certs/hfc-kvs/org1
+      path: /home/app/packages/gw-org3/assets/client-certs/hfc-kvs/org3
   connection:
     timeout:
       peer:
@@ -18,7 +18,7 @@ channels:
     orderers:
       - orderer0-org0
     peers:
-      peer0-org1:
+      peer0-org3:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -28,16 +28,16 @@ channels:
       - privatedata:1.0
 
 organizations:
-  Org1MSP:
-    mspid: Org1MSP
+  Org3MSP:
+    mspid: Org3MSP
     peers:
-      - peer0-org1
+      - peer0-org3
     certificateAuthorities:
-      - rca-org1
+      - rca-org3
     adminPrivateKey:
-      path: /var/artifacts/crypto-config/Org1MSP/admin/msp/keystore/key.pem
+      path: /var/artifacts/crypto-config/Org3MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: /var/artifacts/crypto-config/Org1MSP/admin/msp/signcerts/cert.pem
+      path: /var/artifacts/crypto-config/Org3MSP/admin/msp/signcerts/cert.pem
 
 orderers:
   orderer0-org0:
@@ -49,22 +49,22 @@ orderers:
       path: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 peers:
-  peer0-org1:
-    url: grpcs://peer0-org1:7051
-    eventUrl: grpcs://peer0-org1:7053
+  peer0-org3:
+    url: grpcs://peer0-org3:7451
+    eventUrl: grpcs://peer0-org3:7453
     tlsCACerts:
-      path: /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: /var/artifacts/crypto-config/Org3MSP/peer0.org3.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
-      ssl-target-name-override: peer0-org1
+      ssl-target-name-override: peer0-org3
 
 certificateAuthorities:
-  rca-org1:
-    url: https://rca-org1:5054
-    caName: rca-org1
+  rca-org3:
+    url: https://rca-org3:5056
+    caName: rca-org3
     tlsCACerts:
-      path: /var/artifacts/crypto-config/Org1MSP/msp/tlscacerts/tls-ca-cert.pem
+      path: /var/artifacts/crypto-config/Org3MSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
-      - enrollId: rca-org1-admin
-        enrollSecret: rca-org1-adminPW
+      - enrollId: rca-org3-admin
+        enrollSecret: rca-org3-adminPW
     httpOptions:
       verify: false

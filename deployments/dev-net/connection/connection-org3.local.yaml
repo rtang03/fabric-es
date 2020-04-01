@@ -1,5 +1,5 @@
 ---
-name: dev-net2_openplatform
+name: dev-net_openplatform
 version: 1.0.0
 
 client:
@@ -35,9 +35,9 @@ organizations:
     certificateAuthorities:
       - rca-org3
     adminPrivateKey:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org3MSP/admin/msp/keystore/key.pem
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org3MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org3MSP/admin/msp/signcerts/cert.pem
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org3MSP/admin/msp/signcerts/cert.pem
 
 orderers:
   orderer0-org0:
@@ -46,14 +46,14 @@ orderers:
       ssl-target-name-override: orderer0-org0
 #     grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 peers:
   peer0-org3:
     url: grpcs://localhost:7451
     eventUrl: grpcs://localhost:7453
     tlsCACerts:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org3MSP/peer0.org3.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org3MSP/peer0.org3.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
       ssl-target-name-override: peer0-org3
 
@@ -62,7 +62,7 @@ certificateAuthorities:
     url: https://localhost:5056
     caName: rca-org3
     tlsCACerts:
-      path: ../../deployments/dev-net2/artifacts/crypto-config/Org3MSP/msp/tlscacerts/tls-ca-cert.pem
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org3MSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
       - enrollId: rca-org3-admin
         enrollSecret: rca-org3-adminPW

@@ -1,23 +1,23 @@
 [
   {
-    "name": "etcPrivateDetails",
-    "policy": "OR('EtcMSP.member')",
+    "name": "org1PrivateDetails",
+    "policy": "OR('Org1MSP.member')",
     "requiredPeerCount": 0,
     "maxPeerCount": 4,
     "blockToLive": 0,
     "memberOnlyRead": true
   },
   {
-    "name": "pbctfpPrivateDetails",
-    "policy": "OR('PbctfpMSP.member')",
+    "name": "org2PrivateDetails",
+    "policy": "OR('Org2MSP.member')",
     "requiredPeerCount": 0,
     "maxPeerCount": 4,
     "blockToLive": 0,
     "memberOnlyRead": true
   },
   {
-    "name": "hsbcPrivateDetails",
-    "policy": "OR('HsbcMSP.member')",
+    "name": "org3PrivateDetails",
+    "policy": "OR('Org3MSP.member')",
     "requiredPeerCount": 0,
     "maxPeerCount": 4,
     "blockToLive": 0,

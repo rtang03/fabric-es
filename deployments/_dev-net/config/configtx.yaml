@@ -1,66 +1,74 @@
 
 Organizations:
 
-  - &org0
-    Name: org0
-    ID: Org0MSP
-    MSPDir: /var/artifacts/crypto-config/Org0MSP/msp
+  - &hktfp
+    Name: hktfp
+    ID: HktfpMSP
+    MSPDir: /var/artifacts/crypto-config/HktfpMSP/msp
 
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('Org0MSP.member')"
+        Rule: "OR('HktfpMSP.member')"
       Writers:
         Type: Signature
-        Rule: "OR('Org0MSP.member')"
+        Rule: "OR('HktfpMSP.member')"
       Admins:
         Type: Signature
-        Rule: "OR('Org0MSP.admin')"
+        Rule: "OR('HktfpMSP.admin')"
 
-  - &org1
-    Name: org1
-    ID: Org1MSP
-    MSPDir: /var/artifacts/crypto-config/Org1MSP/msp
+  - &etc
+    Name: etc
+    ID: EtcMSP
+    MSPDir: /var/artifacts/crypto-config/EtcMSP/msp
 
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('Org1MSP.member')"
+        Rule: "OR('EtcMSP.member')"
       Writers:
         Type: Signature
-        Rule: "OR('Org1MSP.member')"
+        Rule: "OR('EtcMSP.member')"
       Admins:
         Type: Signature
-        Rule: "OR('Org1MSP.admin')"
+        Rule: "OR('EtcMSP.admin')"
 
     OrdererEndpoints:
-      - orderer0-org0:7050
+      - orderer0-hktfp:7050
+    #      - orderer1-hktfp:7150
+    #      - orderer2-hktfp:7250
+    #      - orderer3-hktfp:7350
+    #      - orderer4-hktfp:7450
 
     AnchorPeers:
       - Host: peer0-etradeconnect
         Port: 7051
 
-  - &org2
-    Name: org2
-    ID: Org2MSP
-    MSPDir: /var/artifacts/crypto-config/Org2MSP/msp
+  - &pbctfp
+    Name: pbctfp
+    ID: PbctfpMSP
+    MSPDir: /var/artifacts/crypto-config/PbctfpMSP/msp
 
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('Org2MSP.member')"
+        Rule: "OR('PbctfpMSP.member')"
       Writers:
         Type: Signature
-        Rule: "OR('Org2MSP.member')"
+        Rule: "OR('PbctfpMSP.member')"
       Admins:
         Type: Signature
-        Rule: "OR('Org2MSP.admin')"
+        Rule: "OR('PbctfpMSP.admin')"
 
     OrdererEndpoints:
-      - orderer0-org0:7050
+      - orderer0-hktfp:7050
+    #      - orderer1-hktfp:7150
+    #      - orderer2-hktfp:7250
+    #      - orderer3-hktfp.com:7350
+    #      - orderer4-hktfp.com:7450
 
     AnchorPeers:
-      - Host: peer0-org2
+      - Host: peer0-pbctfp
         Port: 7251
 
 Capabilities:
@@ -108,7 +116,11 @@ Orderer: &OrdererDefaults
 
   OrdererType: etcdraft
   Addresses:
-    - orderer0-org0:7050
+    - orderer0-hktfp:7050
+  #    - orderer1-hktfp:7150
+  #    - orderer2-hktfp:7250
+  #    - orderer3-hktfp:7350
+  #    - orderer4-hktfp:7450
   BatchTimeout: 2s
   BatchSize:
     MaxMessageCount: 500
@@ -117,10 +129,26 @@ Orderer: &OrdererDefaults
   MaxChannels: 10
   EtcdRaft:
     Consenters:
-      - Host: orderer0-org0
+      - Host: orderer0-hktfp
         Port: 7050
-        ClientTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
-        ServerTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
+        ClientTLSCert: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/signcerts/cert.pem
+        ServerTLSCert: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/signcerts/cert.pem
+    #      - Host: orderer1-hktfp
+    #        Port: 7150
+    #        ClientTLSCert: /var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/tls-msp/signcerts/cert.pem
+    #        ServerTLSCert: /var/artifacts/crypto-config/HktfpMSP/orderer1.hktfp.com/tls-msp/signcerts/cert.pem
+    #      - Host: orderer2-hktfp
+    #        Port: 7250
+    #        ClientTLSCert: /var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/tls-msp/signcerts/cert.pem
+    #        ServerTLSCert: /var/artifacts/crypto-config/HktfpMSP/orderer2.hktfp.com/tls-msp/signcerts/cert.pem
+    #      - Host: orderer3-hktfp
+    #        Port: 7350
+    #        ClientTLSCert: /var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/signcerts/cert.pem
+    #        ServerTLSCert: /var/artifacts/crypto-config/HktfpMSP/orderer3.hktfp.com/tls-msp/signcerts/cert.pem
+    #      - Host: orderer4-hktfp
+    #        Port: 7450
+    #        ClientTLSCert: /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/signcerts/cert.pem
+    #        ServerTLSCert: /var/artifacts/crypto-config/HktfpMSP/orderer4.hktfp.com/tls-msp/signcerts/cert.pem
 
     Options:
       TickInterval: 500ms
@@ -166,22 +194,24 @@ Profiles:
     Orderer:
       <<: *OrdererDefaults
       Organizations:
-        - *org0
+        - *hktfp
       Capabilities:
         <<: *OrdererCapabilities
     Consortiums:
-      SampleConsortium:
+      BankingHK:
         Organizations:
-          - *org1
-          - *org2
+          - *etc
+          - *pbctfp
+  #               - *hsbc
 
   OrgsChannel:
-    Consortium: SampleConsortium
+    Consortium: BankingHK
     <<: *ChannelDefaults
     Application:
       <<: *ApplicationDefaults
       Organizations:
-        - *org1
-        - *org2
+        - *etc
+        - *pbctfp
+      #            - *hsbc
       Capabilities:
         <<: *ApplicationCapabilities
