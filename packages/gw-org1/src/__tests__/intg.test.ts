@@ -114,12 +114,9 @@ beforeAll(async () => {
       enrollmentID: process.env.ORG_ADMIN_ID,
       enrollmentSecret: process.env.ORG_ADMIN_SECRET,
       mspId: process.env.MSPID,
-      label: process.env.ORG_ADMIN_ID,
-      context: {
-        fabricNetwork: process.env.NETWORK_LOCATION,
-        connectionProfile: process.env.CONNECTION_PROFILE,
-        wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
-      }
+      fabricNetwork: process.env.NETWORK_LOCATION,
+      connectionProfile: process.env.CONNECTION_PROFILE,
+      wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
     })
       .then(result => result.status === 'SUCCESS')
       .catch(_ => false))
@@ -135,12 +132,9 @@ beforeAll(async () => {
       enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
       enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
       mspId: process.env.MSPID,
-      label: process.env.CA_ENROLLMENT_ID_ADMIN,
-      context: {
-        fabricNetwork: process.env.NETWORK_LOCATION,
-        connectionProfile: process.env.CONNECTION_PROFILE,
-        wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
-      }
+      fabricNetwork: process.env.NETWORK_LOCATION,
+      connectionProfile: process.env.CONNECTION_PROFILE,
+      wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
     })
       .then(result => result.status === 'SUCCESS')
       .catch(_ => false))

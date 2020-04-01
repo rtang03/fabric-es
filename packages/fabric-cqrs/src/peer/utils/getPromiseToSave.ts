@@ -3,7 +3,7 @@
  * @hidden
  */
 import util from 'util';
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { Wallet } from 'fabric-network';
 import { values } from 'lodash';
 import { Store } from 'redux';
@@ -17,28 +17,27 @@ export const getPromiseToSave: (option: {
   events: any[];
   version: number;
   store: Store;
-  collection?: string;
   enrollmentId?: string;
   channelEventHub: string;
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
+  isPrivateData: boolean;
 }) => Promise<Commit> = ({
   entityName,
   id,
   events,
   version,
   store,
-  collection,
   enrollmentId,
   channelEventHub,
   channelName,
   connectionProfile,
-  wallet
-}) => {
-  const logger = Client.getLogger('getPromiseToSave.js');
-
-  return new Promise((resolve, reject) => {
+  wallet,
+  isPrivateData
+}) =>
+  new Promise((resolve, reject) => {
+    const logger = Utils.getLogger('[fabric-cqrs] getPromiseToSave.js');
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
       const { tx_id, type, result, error } = store.getState().write;
@@ -62,10 +61,9 @@ export const getPromiseToSave: (option: {
         connectionProfile,
         wallet,
         tx_id: tid,
-        args: { entityName, id, version, events, collection },
+        args: { entityName, id, version, events, isPrivateData },
         enrollmentId
       }) as any
     );
     logger.info(`dispatch ${writeAction.CREATE}, tx_id: ${tid}`);
   });
-};

@@ -3,7 +3,7 @@
  * @hidden
  */
 import util from 'util';
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { assign } from 'lodash';
 import { ofType } from 'redux-observable';
 import { from, Observable, of } from 'rxjs';
@@ -14,7 +14,7 @@ import { action } from '../action';
 import { CreateAction } from '../types';
 
 export default (action$: Observable<CreateAction>, _, context) => {
-  const logger = Client.getLogger('create.js');
+  const logger = Utils.getLogger('[fabric-cqrs] create.js');
 
   return action$.pipe(
     ofType(action.CREATE),
@@ -22,7 +22,6 @@ export default (action$: Observable<CreateAction>, _, context) => {
     mergeMap(payload =>
       from(
         getNetwork({
-          channelEventHub: payload.channelEventHub,
           channelName: payload.channelName,
           connectionProfile: payload.connectionProfile,
           wallet: payload.wallet,
@@ -48,14 +47,12 @@ export default (action$: Observable<CreateAction>, _, context) => {
         );
       else {
         const { tx_id, args, network, gateway } = getNetwork;
-        const { id, entityName, events, version, collection } = args;
+        const { id, entityName, events, version, isPrivateData } = args;
 
-        logger.debug(util.format('input_args: %j', args));
-
-        return collection
+        return isPrivateData
           ? submitPrivateData$(
               'privatedata:createCommit',
-              [collection, entityName, id, version.toString()],
+              [entityName, id, version.toString()],
               { eventstr: Buffer.from(JSON.stringify(events)) },
               { network: network || context.network }
             ).pipe(
@@ -65,7 +62,7 @@ export default (action$: Observable<CreateAction>, _, context) => {
               }),
               dispatchResult(tx_id, action.createSuccess, action.createError)
             )
-          : submit$('createCommit', [entityName, id, version.toString(), JSON.stringify(events)], {
+          : submit$('eventstore:createCommit', [entityName, id, version.toString(), JSON.stringify(events)], {
               network: network || context.network
             }).pipe(
               tap(commits => {

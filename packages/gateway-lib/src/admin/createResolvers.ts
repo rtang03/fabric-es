@@ -35,18 +35,16 @@ export const createResolvers: (option: {
       channelName,
       ordererTlsCaCert,
       ordererName,
-      context: {
-        fabricNetwork,
-        connectionProfile,
-        wallet
-      }
+      fabricNetwork,
+      connectionProfile,
+      wallet
     });
   } catch (e) {
     logger.error(util.format('createNetworkOperator error: %j', e));
     throw new Error(e);
   }
 
-  const queries = await operator.getQueries({ peerName });
+  const queries = await operator.getQueries();
 
   let ca;
   try {

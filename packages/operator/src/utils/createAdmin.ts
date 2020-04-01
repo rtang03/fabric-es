@@ -1,6 +1,6 @@
-import { readFileSync } from 'fs';
 import util from 'util';
 import Client from 'fabric-client';
+import { promiseToReadFile } from './promiseToReadFile';
 
 export interface CreateAdminOption {
   client: Client;
@@ -25,14 +25,14 @@ export const createAdmin = async (option: CreateAdminOption): Promise<Client.Use
   let signCert;
 
   try {
-    privateKey = readFileSync(privateKeyPath);
+    privateKey = await promiseToReadFile(privateKeyPath);
   } catch (e) {
     logger.error(util.format('fail to read private key, %j', e));
     throw new Error(e);
   }
 
   try {
-    signCert = readFileSync(signCertPath);
+    signCert = await promiseToReadFile(signCertPath);
   } catch (e) {
     logger.error(util.format('fail to read signCert, %j', e));
     throw new Error(e);

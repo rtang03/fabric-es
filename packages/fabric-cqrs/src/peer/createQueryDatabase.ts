@@ -1,4 +1,4 @@
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { filter, remove, values } from 'lodash';
 import { Commit, QueryDatabase } from '../types';
 
@@ -7,7 +7,7 @@ import { Commit, QueryDatabase } from '../types';
  * @returns [[QueryDatabase]]
  */
 export const createQueryDatabase: () => QueryDatabase = () => {
-  const logger = Client.getLogger('createQueryDatabase.js');
+  const logger = Utils.getLogger('createQueryDatabase.js');
 
   let db: Record<string, Commit> = {};
   let newDB;

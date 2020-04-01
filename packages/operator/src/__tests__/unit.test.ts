@@ -22,8 +22,8 @@ const newId = `newId_${Math.floor(Math.random() * 10000)}`;
 let operator: NetworkOperator;
 
 beforeAll(async () => {
-  rimraf.sync(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}`);
-  rimraf.sync(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}`);
+  rimraf.sync(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}.id`);
+  rimraf.sync(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}.id`);
   const wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
 
   await enrollAdmin({

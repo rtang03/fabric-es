@@ -3,9 +3,8 @@
  * @hidden
  */
 import { registerAndEnroll } from '@fabric-es/operator';
-import Client, { ChannelEventHub } from 'fabric-client';
-import { Gateway, Network, Wallet } from 'fabric-network';
-import { getNetwork } from '../services';
+import { Utils } from 'fabric-common';
+import { Wallet } from 'fabric-network';
 
 export const registerUser: (option: {
   enrollmentId: string;
@@ -24,7 +23,7 @@ export const registerUser: (option: {
   caAdmin,
   caAdminPW
 }) => {
-  const logger = Client.getLogger('[fabric-cqrs] registerUser.js');
+  const logger = Utils.getLogger('[fabric-cqrs] registerUser.js');
   const operator = await registerAndEnroll({
     caAdmin,
     caAdminPW,
@@ -44,50 +43,4 @@ export const registerUser: (option: {
 
   operator.disconnect();
   return result;
-};
-
-export const bootstrapNetwork: (option: {
-  enrollmentId: string;
-  enrollmentSecret: string;
-  connectionProfile: string;
-  fabricNetwork: string;
-  wallet: Wallet;
-  caAdmin: string;
-  caAdminPW: string;
-  channelName: string;
-  channelEventHub: string;
-}) => Promise<{
-  enrollmentId: string;
-  network: Network;
-  gateway: Gateway;
-  channelHub?: ChannelEventHub;
-}> = async ({
-  enrollmentId,
-  enrollmentSecret,
-  connectionProfile,
-  fabricNetwork,
-  wallet,
-  caAdmin,
-  caAdminPW,
-  channelName,
-  channelEventHub
-}) => {
-  await registerUser({
-    caAdmin,
-    caAdminPW,
-    enrollmentId,
-    enrollmentSecret,
-    connectionProfile,
-    fabricNetwork,
-    wallet
-  });
-
-  return getNetwork({
-    channelEventHub,
-    channelName,
-    connectionProfile,
-    wallet,
-    enrollmentId,
-    channelEventHubExisted: true
-  });
 };

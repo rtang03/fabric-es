@@ -11,7 +11,6 @@ import { getStore } from './__utils__/store';
 let context: any;
 let commitId: string;
 let store: Store;
-const collection = 'etcPrivateDetails';
 const entityName = 'store_privatedata';
 const enrollmentId = `store_privatedata${Math.floor(Math.random() * 1000)}`;
 const channelEventHub = process.env.CHANNEL_HUB;
@@ -25,6 +24,7 @@ beforeAll(async () => {
 
     context = await bootstrapNetwork({
       caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
+      caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN,
       channelEventHub,
       channelName,
       connectionProfile,
@@ -65,7 +65,7 @@ describe('Store:privatedata Tests', () => {
           id: enrollmentId,
           version: 0,
           events: [{ type: 'User Created', payload: { name: 'me' } }],
-          collection
+          isPrivateData: true
         },
         // Special attention: createAction will be based on newly created account (given below
         // enrollmentId; to using a new Fabric contract, to submit transaction, and based on its x509
@@ -92,7 +92,7 @@ describe('Store:privatedata Tests', () => {
     store.dispatch(
       action.queryByEntIdCommitId({
         tx_id: tid,
-        args: { entityName, commitId, id: enrollmentId, collection },
+        args: { entityName, commitId, id: enrollmentId, isPrivateData: true },
         channelEventHub,
         connectionProfile,
         channelName,
@@ -116,7 +116,7 @@ describe('Store:privatedata Tests', () => {
     store.dispatch(
       action.queryByEntityName({
         tx_id: tid,
-        args: { entityName, collection },
+        args: { entityName, isPrivateData: true },
         channelEventHub,
         connectionProfile,
         channelName,
@@ -140,7 +140,7 @@ describe('Store:privatedata Tests', () => {
     store.dispatch(
       action.queryByEntityId({
         tx_id: tid,
-        args: { entityName, id: enrollmentId, collection },
+        args: { entityName, id: enrollmentId, isPrivateData: true },
         channelEventHub,
         connectionProfile,
         channelName,
@@ -162,7 +162,7 @@ describe('Store:privatedata Tests', () => {
     store.dispatch(
       action.deleteByEntityIdCommitId({
         tx_id: tid,
-        args: { entityName, id: enrollmentId, commitId, collection },
+        args: { entityName, id: enrollmentId, commitId, isPrivateData: true },
         channelEventHub,
         connectionProfile,
         channelName,

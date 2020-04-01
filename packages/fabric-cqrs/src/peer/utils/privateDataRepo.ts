@@ -3,7 +3,7 @@
  * @hidden
  */
 import util from 'util';
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { Wallet } from 'fabric-network';
 import { keys } from 'lodash';
 import { Store } from 'redux';
@@ -26,7 +26,6 @@ const {
 
 export const privateDataRepo: (option: {
   store: Store;
-  collection: string;
   channelEventHub: string;
   channelName: string;
   connectionProfile: string;
@@ -34,15 +33,14 @@ export const privateDataRepo: (option: {
 }) => <TEntity = any, TEvent = any>(option: {
   entityName: string;
   reducer: Reducer;
-}) => PrivatedataRepository<TEntity, TEvent> = ({
-  store,
-  collection,
-  channelEventHub,
-  channelName,
-  connectionProfile,
-  wallet
-}) => <TEntity, TEvent>({ entityName, reducer }) => {
-  const logger = Client.getLogger('privateDataRepo.js');
+}) => PrivatedataRepository<TEntity, TEvent> = ({ store, channelEventHub, channelName, connectionProfile, wallet }) => <
+  TEntity,
+  TEvent
+>({
+  entityName,
+  reducer
+}) => {
+  const logger = Utils.getLogger('[fabric-cqrs] privateDataRepo.js');
 
   return {
     create: ({ enrollmentId, id }) => ({
@@ -57,8 +55,8 @@ export const privateDataRepo: (option: {
           version: 0,
           events,
           store,
-          collection,
-          enrollmentId
+          enrollmentId,
+          isPrivateData: true
         })
     }),
     getById: ({ enrollmentId, id }) =>
@@ -86,8 +84,8 @@ export const privateDataRepo: (option: {
                   events,
                   version: keys(result).length,
                   store,
-                  collection,
-                  enrollmentId
+                  enrollmentId,
+                  isPrivateData: true
                 })
             });
           }
@@ -107,7 +105,7 @@ export const privateDataRepo: (option: {
             connectionProfile,
             wallet,
             tx_id: tid,
-            args: { id, entityName, collection }
+            args: { id, entityName, isPrivateData: true }
           })
         );
 
@@ -142,7 +140,7 @@ export const privateDataRepo: (option: {
             connectionProfile,
             wallet,
             tx_id: tid,
-            args: { entityName, collection }
+            args: { entityName, isPrivateData: true }
           })
         );
 
@@ -175,7 +173,7 @@ export const privateDataRepo: (option: {
             connectionProfile,
             wallet,
             tx_id: tid,
-            args: { entityName, id, commitId, collection }
+            args: { entityName, id, commitId, isPrivateData: true }
           })
         );
 

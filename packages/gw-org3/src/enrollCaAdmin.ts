@@ -15,12 +15,9 @@ rimraf(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}`, async () =
     enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
     enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
     mspId: process.env.MSPID,
-    label: process.env.CA_ENROLLMENT_ID_ADMIN,
-    context: {
-      fabricNetwork: process.env.NETWORK_LOCATION,
-      connectionProfile: process.env.CONNECTION_PROFILE,
-      wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
-    }
+    fabricNetwork: process.env.NETWORK_LOCATION,
+    connectionProfile: process.env.CONNECTION_PROFILE,
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
   })
     .then(result => {
       console.log(result);

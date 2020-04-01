@@ -1,10 +1,9 @@
-import fs from 'fs';
 import util from 'util';
 import { Utils } from 'fabric-common';
 import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway, Network } from 'fabric-network';
 import yaml from 'js-yaml';
 import { Commit, CreateNetworkOperatorOption, MISSING_CHAINCODE_ID, MISSING_FCN, MISSING_WALLET_LABEL } from '../types';
-import { createCommitId } from '../utils';
+import { createCommitId, promiseToReadFile } from '../utils';
 
 export const submitOrEvaluateTx: (
   option: CreateNetworkOperatorOption
@@ -39,9 +38,9 @@ export const submitOrEvaluateTx: (
   if (!fcn) throw new Error(MISSING_FCN);
 
   try {
-    const cp = yaml.safeLoad(fs.readFileSync(connectionProfile, 'utf8'));
+    const cp = await promiseToReadFile(connectionProfile);
 
-    await gateway.connect(cp, {
+    await gateway.connect(yaml.safeLoad(cp), {
       identity,
       wallet,
       eventHandlerOptions: { strategy: eventHandlerStrategies },

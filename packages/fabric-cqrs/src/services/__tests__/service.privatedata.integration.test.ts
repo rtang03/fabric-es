@@ -21,6 +21,7 @@ beforeAll(async () => {
   try {
     await bootstrapNetwork({
       caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
+      caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN,
       channelEventHub: process.env.CHANNEL_HUB,
       channelName: process.env.CHANNEL_NAME,
       connectionProfile: process.env.CONNECTION_PROFILE,

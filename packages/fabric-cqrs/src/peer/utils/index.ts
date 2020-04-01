@@ -8,6 +8,6 @@ export * from './fromCommitsToGroupByEntityId';
 export * from './reconcile';
 export * from './privateDataRepo';
 export * from './repository';
-export * from './ngacRepo';
 export * from './createCommitId';
 export * from './logger';
+export * from './promiseToReadFile';

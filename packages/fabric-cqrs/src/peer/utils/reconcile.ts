@@ -3,7 +3,7 @@
  * @hidden
  */
 import util from 'util';
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { Wallet } from 'fabric-network';
 import { Store } from 'redux';
 import { action } from '../../cqrs/reconcile';
@@ -24,10 +24,9 @@ export const reconcile: (option: {
   channelName,
   connectionProfile,
   wallet
-}) => ({ entityName, reducer }) => {
-  const logger = Client.getLogger('reconcile.js');
-
-  return new Promise<{ result: any }>((resolve, reject) => {
+}) => ({ entityName, reducer }) =>
+  new Promise<{ result: any }>((resolve, reject) => {
+    const logger = Utils.getLogger('[fabric-cqrs] reconcile.js');
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, error, type } = store.getState().reconcile;
@@ -59,4 +58,3 @@ export const reconcile: (option: {
 
     logger.info(util.format('reconcile, tx_id: %s, %s, %j', tid, entityName, reducer));
   });
-};

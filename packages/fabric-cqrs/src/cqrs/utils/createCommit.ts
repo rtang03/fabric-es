@@ -13,14 +13,12 @@ export const createCommit: <TEvent extends BaseEvent = any>(option: {
   const now = Date.now();
   const date = new Date(now).toISOString().replace(/[^0-9]/g, '');
   const commitId = `${date}`;
-  const committedAt = now.toString();
   return Object.assign(
     {},
     {
       id,
       entityName,
       commitId,
-      committedAt,
       version,
       events,
       entityId: id

@@ -4,7 +4,7 @@
  */
 import { filter, omit, values } from 'lodash';
 import { createCommit } from '../cqrs/utils';
-import { Commit, PrivatedataRepository, Repository } from '../types';
+import { Commit, PrivatedataRepository } from '../types';
 
 const getHistory = (commits: Commit[]): any[] => {
   const result = [];

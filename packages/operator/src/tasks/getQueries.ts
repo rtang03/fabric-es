@@ -1,8 +1,7 @@
-import { readFileSync } from 'fs';
 import util from 'util';
 import Client from 'fabric-client';
 import { CreateNetworkOperatorOption, Queries } from '../types';
-import { getClientForOrg } from '../utils';
+import { getClientForOrg, promiseToReadFile } from '../utils';
 
 export const getQueries = (option: CreateNetworkOperatorOption) => async (): Promise<Queries> => {
   const logger = Client.getLogger('[operator] getQueries.js');
@@ -14,7 +13,7 @@ export const getQueries = (option: CreateNetworkOperatorOption) => async (): Pro
   let ordererUrl: string;
 
   try {
-    pem = Buffer.from(readFileSync(ordererTlsCaCert)).toString();
+    pem = await promiseToReadFile(ordererTlsCaCert);
   } catch (e) {
     logger.error(util.format('fail to read ordererTlsCaCert, %j', e));
     throw new Error(e);

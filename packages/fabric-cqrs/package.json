@@ -43,7 +43,8 @@
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "prepublish": "yarn typedoc",
-    "publish:gh:fabric-es": "npm publish"
+    "publish:gh:fabric-es": "npm publish",
+    "unit-test": "jest command.integration.test"
   },
   "dependencies": {
     "@fabric-es/operator": "^0.5.15",

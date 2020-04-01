@@ -1,5 +1,5 @@
 import util from 'util';
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
 import { createCommitId } from '../peer/utils';
@@ -16,15 +16,15 @@ import { getContract } from './contract';
 export const submit: (
   fcn: string,
   args: string[],
-  { network }: { network: Network }
+  options: { network: Network }
 ) => Promise<Record<string, Commit> & { error?: any; status?: string; message?: string }> = async (
   fcn,
   args,
   { network }
 ) => {
-  const logger = Client.getLogger('submit.js');
+  const logger = Utils.getLogger('[fabric-cqrs] submit.js');
 
-  const input_args = fcn === 'createCommit' ? [...args, createCommitId()] : args;
+  const input_args = fcn === 'eventstore:createCommit' ? [...args, createCommitId()] : args;
 
   return getContract(network).then(({ contract }) =>
     contract
@@ -45,6 +45,6 @@ export const submit: (
 export const submit$: (
   fcn: string,
   args: string[],
-  { network }: { network: Network }
+  options: { network: Network }
 ) => Observable<Record<string, Commit> | { error?: any; status?: string; message?: string }> = (fcn, args, options) =>
   from(submit(fcn, args, options));

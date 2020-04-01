@@ -1,11 +1,11 @@
 import util from 'util';
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { action } from '../cqrs/query';
 import { generateToken } from '../cqrs/utils';
 import { channelEventHub } from '../services';
 import { getStore } from '../store';
 import { Peer, PeerOptions } from '../types';
-import { ngacRepo, privateDataRepo, reconcile, repository } from './utils';
+import { privateDataRepo, reconcile, repository } from './utils';
 import { createProjectionDb, createQueryDatabase } from '.';
 
 /**
@@ -14,7 +14,7 @@ import { createProjectionDb, createQueryDatabase } from '.';
  * @returns [[Peer]]
  */
 export const createPeer: (options: PeerOptions) => Peer = options => {
-  const logger = Client.getLogger('createPeer.js');
+  const logger = Utils.getLogger('[fabric-cqrs] createPeer.js');
 
   let registerId: any;
   const {
@@ -23,27 +23,20 @@ export const createPeer: (options: PeerOptions) => Peer = options => {
     gateway,
     projectionDb,
     queryDatabase,
-    collection,
     channelName,
     wallet,
     connectionProfile,
     channelEventHubUri
   } = options;
 
-  if (!collection) {
-    logger.error('null privatedata collection');
-    throw new Error('Null privatedata collection');
-  }
   options.projectionDb = projectionDb || createProjectionDb(defaultEntityName);
   options.queryDatabase = queryDatabase || createQueryDatabase();
 
   const store = getStore(options);
 
   return {
-    getNgacRepo: ngacRepo(options.network),
     getPrivateDataRepo: privateDataRepo({
       store,
-      collection,
       channelName,
       wallet,
       connectionProfile,
