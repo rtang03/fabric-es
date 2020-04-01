@@ -1,6 +1,6 @@
 .DS_Store
 artifacts/
-genesis.block
+*.block
 volume/
 volume.auth/
 .env
