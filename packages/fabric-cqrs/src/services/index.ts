@@ -8,4 +8,3 @@ export * from './evaluate';
 export * from './contract';
 export * from './network';
 export * from './channelEventHub';
-export * from './eventService';

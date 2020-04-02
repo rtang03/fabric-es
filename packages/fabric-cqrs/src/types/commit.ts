@@ -30,4 +30,7 @@ export interface Commit {
 
   /** events array */
   events?: BaseEvent[];
+
+  /** hash of privatedata's events string */
+  hash?: string;
 }

@@ -87,7 +87,7 @@ export class EventStore extends Contract {
 
     await context.stateList.addState(commit);
 
-    console.info(`Submitter: ${context.clientIdentity.getID()}`);
+    console.info(`Submitter: ${context.clientIdentity.getID()} - createCommit`);
 
     const evt: any = omit(commit, 'key');
     evt.entityId = evt.id;
@@ -101,7 +101,7 @@ export class EventStore extends Contract {
   async queryByEntityName(context: MyContext, entityName: string) {
     if (!entityName) throw new Error('queryByEntityName problem: null argument');
 
-    console.info(`Submitter: ${context.clientIdentity.getID()}`);
+    console.info(`Submitter: ${context.clientIdentity.getID()} - queryByEntityName`);
 
     return context.stateList.getQueryResult([JSON.stringify(entityName)]);
   }
@@ -110,7 +110,7 @@ export class EventStore extends Contract {
   async queryByEntityId(context: MyContext, entityName: string, id: string) {
     if (!id || !entityName) throw new Error('queryByEntityId problem: null argument');
 
-    console.info(`Submitter: ${context.clientIdentity.getID()}`);
+    console.info(`Submitter: ${context.clientIdentity.getID()} - queryByEntityId`);
 
     return context.stateList.getQueryResult([JSON.stringify(entityName), JSON.stringify(id)]);
   }
@@ -119,7 +119,7 @@ export class EventStore extends Contract {
   async queryByEntityIdCommitId(context: MyContext, entityName: string, id: string, commitId: string) {
     if (!id || !entityName || !commitId) throw new Error('queryByEntityIdCommitId problem: null argument');
 
-    console.info(`Submitter: ${context.clientIdentity.getID()}`);
+    console.info(`Submitter: ${context.clientIdentity.getID()} - queryByEntityIdCommitId`);
 
     const key = makeKey([entityName, id, commitId]);
     const commit = await context.stateList.getState(key);
@@ -134,7 +134,7 @@ export class EventStore extends Contract {
   async deleteByEntityIdCommitId(context: MyContext, entityName: string, id: string, commitId: string) {
     if (!id || !entityName || !commitId) throw new Error('deleteEntityByCommitId problem: null argument');
 
-    console.info(`Submitter: ${context.clientIdentity.getID()}`);
+    console.info(`Submitter: ${context.clientIdentity.getID()} - deleteByEntityIdCommitId`);
 
     const key = makeKey([entityName, id, commitId]);
     const commit = await context.stateList.getState(key);
@@ -149,7 +149,7 @@ export class EventStore extends Contract {
   async deleteByEntityId(context: MyContext, entityName: string, id: string) {
     if (!id || !entityName) throw new Error('deleteByEntityId problem: null argument');
 
-    console.info(`Submitter: ${context.clientIdentity.getID()}`);
+    console.info(`Submitter: ${context.clientIdentity.getID()} - deleteByEntityId`);
 
     return context.stateList.deleteStateByEnityId([JSON.stringify(entityName), JSON.stringify(id)]);
   }

@@ -21,7 +21,7 @@ export const evaluate: (
 ) => Promise<Record<string, Commit> | { error: any }> = async (fcn, args, { network }, isPrivateData) => {
   const logger = Utils.getLogger('[fabric-cqrs] evaluate.js');
 
-  return getContract(network, isPrivateData).then(({ contract }) =>
+  return getContract(network).then(({ contract }) =>
     contract
       .createTransaction(fcn)
       .evaluate(...args)

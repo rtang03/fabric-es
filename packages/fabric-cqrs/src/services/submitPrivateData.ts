@@ -27,7 +27,7 @@ export const submitPrivateData: (
   const logger = Utils.getLogger('[fabric-cqrs] submitPrivateData.js');
   const input_args = fcn === 'privatedata:createCommit' ? [...args, createCommitId()] : args;
 
-  return getContract(network, true).then(({ contract }) =>
+  return getContract(network).then(({ contract }) =>
     contract
       .createTransaction(fcn)
       .setTransient(transientData)

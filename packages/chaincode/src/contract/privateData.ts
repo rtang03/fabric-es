@@ -48,18 +48,12 @@ export class PrivateData extends Contract {
    */
   @Transaction()
   @Returns('bytebuffer')
-  async createCommit(
-    context: MyContext,
-    entityName: string,
-    id: string,
-    version: string,
-    commitId: string
-  ) {
+  async createCommit(context: MyContext, entityName: string, id: string, version: string, commitId: string) {
     if (!id || !version || !entityName || !commitId)
       throw new Error('createCommit: null argument: id, version, entityName, collection');
 
     const collection = `_implicit_org_${context.clientIdentity.getMSPID()}`;
-    console.info(`Submitter: ${context.clientIdentity.getID()}`);
+    console.info(`Submitter: ${context.clientIdentity.getID()} - createCommit`);
 
     let transientMap: Map<string, Uint8Array>;
 
@@ -123,7 +117,7 @@ export class PrivateData extends Contract {
 
     const collection = `_implicit_org_${context.clientIdentity.getMSPID()}`;
 
-    console.info(`Submitter: ${context.clientIdentity.getID()}`);
+    console.info(`Submitter: ${context.clientIdentity.getID()} - queryByEntityName`);
 
     return await context.stateList.getQueryResult(collection, [JSON.stringify(entityName)]);
   }
@@ -140,7 +134,7 @@ export class PrivateData extends Contract {
 
     const collection = `_implicit_org_${context.clientIdentity.getMSPID()}`;
 
-    console.info(`Submitter: ${context.clientIdentity.getID()}`);
+    console.info(`Submitter: ${context.clientIdentity.getID()} - queryByEntityId`);
 
     return await context.stateList.getQueryResult(collection, [JSON.stringify(entityName), JSON.stringify(id)]);
   }
@@ -156,7 +150,7 @@ export class PrivateData extends Contract {
   async queryByEntityIdCommitId(context: MyContext, entityName: string, id: string, commitId: string) {
     if (!id || !entityName || !commitId) throw new Error('getPrivateData problem: null argument');
 
-    console.info(`Submitter: ${context.clientIdentity.getID()}`);
+    console.info(`Submitter: ${context.clientIdentity.getID()} - queryByEntityIdCommitId`);
 
     const collection = `_implicit_org_${context.clientIdentity.getMSPID()}`;
     const key = makeKey([entityName, id, commitId]);
@@ -179,27 +173,29 @@ export class PrivateData extends Contract {
   async deleteByEntityIdCommitId(context: MyContext, entityName: string, id: string, commitId: string) {
     if (!id || !entityName || !commitId) throw new Error('deletePrivateDataByEntityIdCommitId problem: null argument');
 
-    console.info(`Submitter: ${context.clientIdentity.getID()}`);
+    console.info(`Submitter: ${context.clientIdentity.getID()} - deleteByEntityIdCommitId`);
 
     const collection = `_implicit_org_${context.clientIdentity.getMSPID()}`;
     const key = makeKey([entityName, id, commitId]);
-    const commit = await context.stateList.getState(collection, key);
+
+    let commit;
+
+    try {
+      commit = await context.stateList.getState(collection, key);
+    } catch (e) {
+      console.error(e);
+    }
 
     if (commit?.key) {
       await context.stateList.deleteState(collection, commit);
-
       return Buffer.from(
         JSON.stringify({
           status: 'SUCCESS',
           message: `Commit ${commit.commitId} is deleted`
         })
       );
-    } else
-      return Buffer.from(
-        JSON.stringify({
-          status: 'SUCCESS',
-          message: 'commitId does not exist'
-        })
-      );
+    } else {
+      throw new Error('commitId does not exist');
+    }
   }
 }

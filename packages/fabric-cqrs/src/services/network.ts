@@ -66,7 +66,7 @@ export const getNetwork: (option: {
     gateway.connect(safeLoad(cp), {
       identity,
       wallet,
-      discovery: { enabled: true, asLocalhost },
+      discovery: { enabled: false, asLocalhost },
       eventHandlerOptions: {
         strategy: eventHandlerStrategy
       },

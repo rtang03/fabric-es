@@ -112,7 +112,6 @@ export const registerAndEnroll: (
       logger.info(util.format('register user: %s at %s', enrollmentId, mspId));
 
       // Step 2: enroll new enrollmentId
-      let walletImport: any;
       let enroll;
 
       try {
@@ -132,14 +131,13 @@ export const registerAndEnroll: (
       };
 
       try {
-        walletImport = await wallet.put(enrollmentId, x509identity);
+        await wallet.put(enrollmentId, x509identity);
       } catch (e) {
         logger.error(util.format('operator fail to import: %j', e));
         return new Error(e);
       }
 
-      logger.info(util.format('Enroll user: %s at %s', enrollmentId, mspId));
-      logger.info(util.format('enroll ca user at %s: %j ', mspId, walletImport));
+      logger.info(util.format('Enroll user and import wallet: %s at %s', enrollmentId, mspId));
 
       return {
         status: SUCCESS,
