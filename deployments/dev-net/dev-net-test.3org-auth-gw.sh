@@ -38,6 +38,7 @@ containerWait "auth-server3" "Auth server started"
 docker-compose $COMPOSE_4_3ORG up -d
 printMessage "docker-compose up $COMPOSE_4_3ORG" $?
 
+echo "Starting automated tests..."
 TEST_EXIT_CODE=`docker wait tester`;
 docker logs tester
 
