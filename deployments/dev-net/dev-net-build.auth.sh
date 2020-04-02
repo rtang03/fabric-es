@@ -25,4 +25,4 @@ printMessage "Create auth-server image" $?
 sleep 1
 
 duration=$SECONDS
-printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.${NC}"
+printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"
