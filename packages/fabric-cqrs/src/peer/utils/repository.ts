@@ -18,17 +18,13 @@ import { getPromiseToSave } from './getPromiseToSave';
 
 export const repository: (option: {
   store: Store;
-  channelEventHub: string;
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
 }) => <TEntity = any, TEvent = any>(option: {
   entityName: string;
   reducer: Reducer;
-}) => Repository<TEntity, TEvent> = ({ store, channelEventHub, channelName, connectionProfile, wallet }) => <
-  TEntity,
-  TEvent
->({
+}) => Repository<TEntity, TEvent> = ({ store, channelName, connectionProfile, wallet }) => <TEntity, TEvent>({
   entityName,
   reducer
 }) => {
@@ -38,7 +34,6 @@ export const repository: (option: {
     create: ({ enrollmentId, id }) => ({
       save: events =>
         getPromiseToSave({
-          channelEventHub,
           channelName,
           connectionProfile,
           wallet,
@@ -68,7 +63,6 @@ export const repository: (option: {
               currentState: reducer(getHistory(result)),
               save: events =>
                 getPromiseToSave({
-                  channelEventHub,
                   channelName,
                   connectionProfile,
                   wallet,
@@ -189,7 +183,6 @@ export const repository: (option: {
 
         store.dispatch(
           deleteByEntityId({
-            channelEventHub,
             channelName,
             connectionProfile,
             wallet,

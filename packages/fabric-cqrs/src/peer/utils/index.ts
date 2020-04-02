@@ -11,3 +11,4 @@ export * from './repository';
 export * from './createCommitId';
 export * from './logger';
 export * from './promiseToReadFile';
+export * from './isCommitRecord';

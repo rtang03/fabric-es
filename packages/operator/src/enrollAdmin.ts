@@ -4,11 +4,11 @@ import { EnrollAdminOption, IDENTITY_ALREADY_EXIST, SUCCESS } from './types';
 import { getClientForOrg } from './utils';
 
 export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
-  const logger = Client.getLogger('enrollAdmin.js');
+  const logger = Client.getLogger('[operator] enrollAdmin.js');
   const { enrollmentID, enrollmentSecret, caUrl, mspId, fabricNetwork, connectionProfile, wallet } = option;
 
   Object.entries(option).forEach(([key, value]) => {
-    if (!value) {
+    if (value === undefined) {
       logger.error(`${key} is missing`);
       throw new Error(`${key} is missing`);
     }

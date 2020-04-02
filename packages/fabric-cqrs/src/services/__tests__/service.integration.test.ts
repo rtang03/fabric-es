@@ -22,7 +22,7 @@ const enrollmentId = `service_test${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
   try {
-    rimraf.sync(`${process.env.WALLET}/${enrollmentId}.id`);
+    rimraf.sync(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}.id`);
     rimraf.sync(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}.id`);
 
     wallet = await Wallets.newFileSystemWallet(process.env.WALLET);

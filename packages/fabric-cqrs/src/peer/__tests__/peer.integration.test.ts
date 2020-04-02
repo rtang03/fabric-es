@@ -1,32 +1,70 @@
 require('../../env');
-import { Wallets } from 'fabric-network';
+import util from 'util';
+import { enrollAdmin } from '@fabric-es/operator';
+import { Wallet, Wallets } from 'fabric-network';
 import { find, pick } from 'lodash';
-import { bootstrapNetwork } from '../../account';
+import rimraf from 'rimraf';
+import { registerUser } from '../../account';
 import { Counter, CounterEvent, reducer } from '../../example';
+import { getNetwork } from '../../services';
 import { Peer, Repository } from '../../types';
 import { createProjectionDb } from '../createProjectionDb';
 import { createQueryDatabase } from '../createQueryDatabase';
 import { createPeer } from '../peer';
 
+let wallet: Wallet;
 let peer: Peer;
+let context;
 let repo: Repository<Counter, CounterEvent>;
 const entityName = 'counter';
 const enrollmentId = `peer_test${Math.floor(Math.random() * 10000)}`;
+const connectionProfile = process.env.CONNECTION_PROFILE;
+const channelName = process.env.CHANNEL_NAME;
+const fabricNetwork = process.env.NETWORK_LOCATION;
+const mspId = process.env.MSPID;
 
 beforeAll(async () => {
-  let context;
-
   try {
-    context = await bootstrapNetwork({
+    rimraf.sync(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}.id`);
+    rimraf.sync(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}.id`);
+
+    wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
+
+    await enrollAdmin({
+      caUrl: process.env.ORG_CA_URL,
+      connectionProfile,
+      enrollmentID: process.env.ORG_ADMIN_ID,
+      enrollmentSecret: process.env.ORG_ADMIN_SECRET,
+      fabricNetwork,
+      mspId,
+      wallet
+    });
+
+    await enrollAdmin({
+      caUrl: process.env.ORG_CA_URL,
+      connectionProfile,
+      enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
+      enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
+      fabricNetwork,
+      mspId,
+      wallet
+    });
+
+    await registerUser({
       caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
       caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN,
-      channelEventHub: process.env.CHANNEL_HUB,
-      channelName: process.env.CHANNEL_NAME,
-      connectionProfile: process.env.CONNECTION_PROFILE,
-      fabricNetwork: process.env.NETWORK_LOCATION,
-      wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+      fabricNetwork,
       enrollmentId,
-      enrollmentSecret: 'password'
+      enrollmentSecret: 'password',
+      connectionProfile,
+      wallet
+    });
+
+    context = await getNetwork({
+      channelName,
+      connectionProfile,
+      wallet,
+      enrollmentId
     });
   } catch (err) {
     console.error('Bootstrap network error');
@@ -49,9 +87,8 @@ beforeAll(async () => {
 
   try {
     peer.subscribeHub();
-  } catch (err) {
-    console.error('Subscribe hub error');
-    console.error(err);
+  } catch (e) {
+    console.error(util.format('Subscribe hub error, %j', e));
     process.exit(1);
   }
 
@@ -59,6 +96,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  rimraf.sync(`${process.env.WALLET}/${enrollmentId}.id`);
   peer.unsubscribeHub();
   peer.disconnect();
 });

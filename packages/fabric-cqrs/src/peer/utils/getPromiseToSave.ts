@@ -18,7 +18,6 @@ export const getPromiseToSave: (option: {
   version: number;
   store: Store;
   enrollmentId?: string;
-  channelEventHub: string;
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
@@ -30,7 +29,6 @@ export const getPromiseToSave: (option: {
   version,
   store,
   enrollmentId,
-  channelEventHub,
   channelName,
   connectionProfile,
   wallet,
@@ -56,7 +54,6 @@ export const getPromiseToSave: (option: {
     });
     store.dispatch(
       writeAction.create({
-        channelEventHub,
         channelName,
         connectionProfile,
         wallet,

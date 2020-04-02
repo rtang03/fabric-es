@@ -14,26 +14,15 @@ import { fromCommitsToGroupByEntityId } from './fromCommitsToGroupByEntityId';
 import { getHistory } from './getHistory';
 import { getPromiseToSave } from './getPromiseToSave';
 
-const {
-  deleteByEntityIdCommitId,
-  DELETE_ERROR,
-  DELETE_SUCCESS,
-  QUERY_SUCCESS,
-  QUERY_ERROR,
-  queryByEntityId,
-  queryByEntityName
-} = action;
-
 export const privateDataRepo: (option: {
   store: Store;
-  channelEventHub: string;
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
 }) => <TEntity = any, TEvent = any>(option: {
   entityName: string;
   reducer: Reducer;
-}) => PrivatedataRepository<TEntity, TEvent> = ({ store, channelEventHub, channelName, connectionProfile, wallet }) => <
+}) => PrivatedataRepository<TEntity, TEvent> = ({ store, channelName, connectionProfile, wallet }) => <
   TEntity,
   TEvent
 >({
@@ -41,12 +30,20 @@ export const privateDataRepo: (option: {
   reducer
 }) => {
   const logger = Utils.getLogger('[fabric-cqrs] privateDataRepo.js');
+  const {
+    deleteByEntityIdCommitId,
+    DELETE_ERROR,
+    DELETE_SUCCESS,
+    QUERY_SUCCESS,
+    QUERY_ERROR,
+    queryByEntityId,
+    queryByEntityName
+  } = action;
 
   return {
     create: ({ enrollmentId, id }) => ({
       save: events =>
         getPromiseToSave({
-          channelEventHub,
           channelName,
           connectionProfile,
           wallet,
@@ -75,7 +72,6 @@ export const privateDataRepo: (option: {
               currentState: reducer(getHistory(result)),
               save: events =>
                 getPromiseToSave({
-                  channelEventHub,
                   channelName,
                   connectionProfile,
                   wallet,
@@ -100,7 +96,6 @@ export const privateDataRepo: (option: {
 
         store.dispatch(
           queryByEntityId({
-            channelEventHub,
             channelName,
             connectionProfile,
             wallet,
@@ -135,7 +130,6 @@ export const privateDataRepo: (option: {
 
         store.dispatch(
           queryByEntityName({
-            channelEventHub,
             channelName,
             connectionProfile,
             wallet,
@@ -168,7 +162,6 @@ export const privateDataRepo: (option: {
 
         store.dispatch(
           deleteByEntityIdCommitId({
-            channelEventHub,
             channelName,
             connectionProfile,
             wallet,

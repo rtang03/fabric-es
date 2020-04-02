@@ -1,8 +1,8 @@
 import { Store } from 'redux';
 import { createQueryDatabase } from '../../../peer';
 import { generateToken } from '../../utils';
+import { action } from '../action';
 import { getStore } from './__utils__/store';
-import { action } from '..';
 
 jest.mock('../../../services/evaluate');
 

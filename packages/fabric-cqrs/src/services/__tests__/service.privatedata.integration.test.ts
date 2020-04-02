@@ -25,7 +25,7 @@ const enrollmentId = `service_privatedata${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
   try {
-    rimraf.sync(`${process.env.WALLET}/${enrollmentId}.id`);
+    rimraf.sync(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}.id`);
     rimraf.sync(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}.id`);
 
     wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
@@ -74,7 +74,10 @@ beforeAll(async () => {
   }
 });
 
-afterAll(async () => gateway.disconnect());
+afterAll(async () => {
+  rimraf.sync(`${process.env.WALLET}/${enrollmentId}.id`);
+  gateway.disconnect();
+});
 
 describe('Event store Tests: Privatedata', () => {
   it('should createCommit #1', async () =>

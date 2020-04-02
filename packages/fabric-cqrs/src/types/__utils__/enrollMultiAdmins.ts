@@ -1,4 +1,4 @@
-require('../../../env');
+require('../../env');
 
 import { enrollAdmin } from '@fabric-es/operator';
 

@@ -1,8 +1,11 @@
 require('../../../env');
+import { enrollAdmin } from '@fabric-es/operator';
 import { Wallet, Wallets } from 'fabric-network';
 import { pick, values } from 'lodash';
 import { Store } from 'redux';
-import { bootstrapNetwork } from '../../../account';
+import rimraf from 'rimraf';
+import { registerUser } from '../../../account';
+import { getNetwork } from '../../../services';
 import { Commit } from '../../../types';
 import { generateToken } from '../../utils';
 import { action } from '../action';
@@ -11,28 +14,58 @@ import { getStore } from './__utils__/store';
 let context: any;
 let commitId: string;
 let store: Store;
-const entityName = 'store_privatedata';
-const enrollmentId = `store_privatedata${Math.floor(Math.random() * 1000)}`;
-const channelEventHub = process.env.CHANNEL_HUB;
 const connectionProfile = process.env.CONNECTION_PROFILE;
 const channelName = process.env.CHANNEL_NAME;
+const fabricNetwork = process.env.NETWORK_LOCATION;
+const mspId = process.env.MSPID;
+const entityName = 'store_privatedata';
+const enrollmentId = `store_privatedata${Math.floor(Math.random() * 1000)}`;
 let wallet: Wallet;
 
 beforeAll(async () => {
   try {
-    const wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
+    rimraf.sync(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}.id`);
+    rimraf.sync(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}.id`);
 
-    context = await bootstrapNetwork({
+    wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
+
+    await enrollAdmin({
+      caUrl: process.env.ORG_CA_URL,
+      connectionProfile,
+      enrollmentID: process.env.ORG_ADMIN_ID,
+      enrollmentSecret: process.env.ORG_ADMIN_SECRET,
+      fabricNetwork,
+      mspId,
+      wallet
+    });
+
+    await enrollAdmin({
+      caUrl: process.env.ORG_CA_URL,
+      connectionProfile,
+      enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
+      enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
+      fabricNetwork,
+      mspId,
+      wallet
+    });
+
+    await registerUser({
       caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
       caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN,
-      channelEventHub,
+      fabricNetwork,
+      enrollmentId,
+      enrollmentSecret: 'password',
+      connectionProfile,
+      wallet
+    });
+
+    context = await getNetwork({
       channelName,
       connectionProfile,
-      fabricNetwork: process.env.NETWORK_LOCATION,
       wallet,
-      enrollmentId,
-      enrollmentSecret: 'password'
+      enrollmentId
     });
+
     store = getStore(context);
   } catch (err) {
     console.error(err);
@@ -41,7 +74,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await context.gateway.disconnect();
+  rimraf.sync(`${process.env.WALLET}/${enrollmentId}.id`);
+  context.gateway.disconnect();
 });
 
 describe('Store:privatedata Tests', () => {
@@ -71,7 +105,6 @@ describe('Store:privatedata Tests', () => {
         // enrollmentId; to using a new Fabric contract, to submit transaction, and based on its x509
         // cert. Other actions does not require to supply enrollmentId, and will keep using admin ecert
         enrollmentId,
-        channelEventHub,
         connectionProfile,
         channelName,
         wallet
@@ -93,7 +126,6 @@ describe('Store:privatedata Tests', () => {
       action.queryByEntIdCommitId({
         tx_id: tid,
         args: { entityName, commitId, id: enrollmentId, isPrivateData: true },
-        channelEventHub,
         connectionProfile,
         channelName,
         wallet
@@ -117,7 +149,6 @@ describe('Store:privatedata Tests', () => {
       action.queryByEntityName({
         tx_id: tid,
         args: { entityName, isPrivateData: true },
-        channelEventHub,
         connectionProfile,
         channelName,
         wallet
@@ -141,7 +172,6 @@ describe('Store:privatedata Tests', () => {
       action.queryByEntityId({
         tx_id: tid,
         args: { entityName, id: enrollmentId, isPrivateData: true },
-        channelEventHub,
         connectionProfile,
         channelName,
         wallet
@@ -163,7 +193,6 @@ describe('Store:privatedata Tests', () => {
       action.deleteByEntityIdCommitId({
         tx_id: tid,
         args: { entityName, id: enrollmentId, commitId, isPrivateData: true },
-        channelEventHub,
         connectionProfile,
         channelName,
         wallet

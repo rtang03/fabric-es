@@ -14,13 +14,11 @@ const { RECONCILE_SUCCESS, RECONCILE_ERROR } = action;
 
 export const reconcile: (option: {
   store: Store;
-  channelEventHub: string;
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
 }) => (option: { entityName: string; reducer: Reducer }) => Promise<{ result: any }> = ({
   store,
-  channelEventHub,
   channelName,
   connectionProfile,
   wallet
@@ -49,7 +47,6 @@ export const reconcile: (option: {
         tx_id: tid,
         args: { entityName, reducer },
         store,
-        channelEventHub,
         channelName,
         connectionProfile,
         wallet

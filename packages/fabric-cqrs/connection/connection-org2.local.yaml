@@ -20,7 +20,7 @@ channels:
     orderers:
       - orderer0-org0
     peers:
-      peer0-org1:
+      peer0-org2:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -29,7 +29,7 @@ channels:
       - eventstore
 
 organizations:
-  Org1MSP:
+  Org2MSP:
     mspid: Org2MSP
     peers:
       - peer0-org2
@@ -61,7 +61,7 @@ peers:
 certificateAuthorities:
   rca-org2:
     url: https://localhost:5055
-    caName: rca-org1
+    caName: rca-org2
     tlsCACerts:
       path: ../../deployments/dev-net2-fab2/artifacts/crypto-config/Org2MSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:

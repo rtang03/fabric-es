@@ -46,7 +46,6 @@ export default (action$: Observable<ReconcileAction>, _) =>
                 tx_id,
                 args: { entityName, isPrivateData: false },
                 channelName,
-                channelEventHub,
                 connectionProfile,
                 wallet
               }) as any

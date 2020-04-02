@@ -7,7 +7,7 @@ import { Commit, QueryDatabase } from '../types';
  * @returns [[QueryDatabase]]
  */
 export const createQueryDatabase: () => QueryDatabase = () => {
-  const logger = Utils.getLogger('createQueryDatabase.js');
+  const logger = Utils.getLogger('[fabric-cqrs] createQueryDatabase.js');
 
   let db: Record<string, Commit> = {};
   let newDB;

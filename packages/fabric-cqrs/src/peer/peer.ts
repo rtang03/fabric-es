@@ -3,10 +3,9 @@ import { Utils } from 'fabric-common';
 import { Contract, ContractListener, Network } from 'fabric-network';
 import { action } from '../cqrs/query';
 import { generateToken } from '../cqrs/utils';
-// import { channelEventHub } from '../services';
 import { getStore } from '../store';
 import { Peer, PeerOptions } from '../types';
-import { privateDataRepo, reconcile, repository } from './utils';
+import { isCommit, privateDataRepo, reconcile, repository } from './utils';
 import { createProjectionDb, createQueryDatabase } from '.';
 
 /**
@@ -21,17 +20,7 @@ export const createPeer: (options: PeerOptions) => Peer = options => {
   let contract: Contract;
   let network: Network;
 
-  const {
-    defaultEntityName,
-    channelHub,
-    gateway,
-    projectionDb,
-    queryDatabase,
-    channelName,
-    wallet,
-    connectionProfile,
-    channelEventHubUri
-  } = options;
+  const { defaultEntityName, gateway, projectionDb, queryDatabase, channelName, wallet, connectionProfile } = options;
 
   options.projectionDb = projectionDb || createProjectionDb(defaultEntityName);
   options.queryDatabase = queryDatabase || createQueryDatabase();
@@ -43,22 +32,19 @@ export const createPeer: (options: PeerOptions) => Peer = options => {
       store,
       channelName,
       wallet,
-      connectionProfile,
-      channelEventHub: channelEventHubUri
+      connectionProfile
     }),
     getRepository: repository({
       store,
       channelName,
       wallet,
       connectionProfile,
-      channelEventHub: channelEventHubUri
     }),
     reconcile: reconcile({
       store,
       channelName,
       wallet,
       connectionProfile,
-      channelEventHub: channelEventHubUri
     }),
     subscribeHub: async () => {
       logger.info('subscribe channel event hub');
@@ -66,29 +52,29 @@ export const createPeer: (options: PeerOptions) => Peer = options => {
       contract = network.getContract('eventstore');
       contractListener = network.getContract('eventstore').addContractListener(
         ({ chaincodeId, payload, eventName }) => {
-          const tid = generateToken();
-          logger.info('subscribed event arrives');
+          logger.info(`subscribed event arrives from ${chaincodeId}`);
+          let commit: unknown;
 
-          const commit = JSON.parse(payload.toString('utf8'));
+          if (eventName !== 'createCommit') {
+            logger.warn(`receive unexpected contract event: ${eventName}`);
+            return;
+          }
 
-          store.dispatch(action.merge({ tx_id: tid, args: { commit } }));
+          try {
+            commit = JSON.parse(payload.toString('utf8'));
+          } catch (e) {
+            logger.error(util.format('fail to parse contract event, %j', e));
+            return;
+          }
+
+          if (isCommit(commit)) {
+            store.dispatch(action.merge({ tx_id: generateToken(), args: { commit } }));
+          } else logger.warn(util.format('receive contract events of unknown type, %j', commit));
         },
         { type: 'full' }
       );
-      // registerId = await channelEventHub(channelHub).registerCCEvent({
-      //   onChannelEventArrived: ({ commit }) => {
-      //     const tid = generateToken();
-      //     logger.info('subscribed event arrives');
-      //     logger.debug(util.format('subscribed event arrives, %j', commit));
-      //
-      //     store.dispatch(action.merge({ tx_id: tid, args: { commit } }));
-      //   }
-      // });
     },
-    unsubscribeHub: () => {
-      contract.removeContractListener(contractListener);
-      // channelHub.unregisterChaincodeEvent(registerId, true);
-    },
+    unsubscribeHub: () => contract.removeContractListener(contractListener),
     disconnect: () => gateway.disconnect()
   };
 };

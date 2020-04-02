@@ -14,7 +14,6 @@ export const getAction: <TAction extends Action>(
   args: TAction['payload']['args'];
   store?: Store;
   enrollmentId?: string;
-  channelEventHub?: string;
   channelName?: string;
   connectionProfile?: string;
   wallet?: Wallet;
@@ -23,7 +22,6 @@ export const getAction: <TAction extends Action>(
   args,
   store,
   enrollmentId,
-  channelEventHub,
   channelName,
   connectionProfile,
   wallet
@@ -35,7 +33,6 @@ export const getAction: <TAction extends Action>(
     store,
     enrollmentId,
     channelName,
-    channelEventHub,
     connectionProfile,
     wallet
   }

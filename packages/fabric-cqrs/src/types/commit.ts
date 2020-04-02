@@ -20,13 +20,13 @@ export interface Commit {
   entityName: string;
 
   /** version number */
-  version: number;
+  version?: number;
 
   /** commit Id */
-  commitId: string;
+  commitId?: string;
 
   /** entity Id */
-  entityId: string;
+  entityId?: string;
 
   /** events array */
   events?: BaseEvent[];

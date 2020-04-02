@@ -1,6 +1,6 @@
 import util from 'util';
 import Client, { ChannelEventHub } from 'fabric-client';
-import { Commit, PeerOptions } from '../types';
+import { Commit, PeerOptions } from '../index';
 
 /**
  * **channelEventHub**
