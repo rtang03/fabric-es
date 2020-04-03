@@ -25,7 +25,8 @@ export default (action$: Observable<CreateAction>, _, context) => {
           channelName: payload.channelName,
           connectionProfile: payload.connectionProfile,
           wallet: payload.wallet,
-          enrollmentId: payload.enrollmentId
+          enrollmentId: payload.enrollmentId,
+          discovery: !payload.args.isPrivateData
         })
           .then(({ network, gateway }) => {
             logger.info('getNetwork succeed');

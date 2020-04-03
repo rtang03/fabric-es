@@ -63,7 +63,8 @@ beforeAll(async () => {
       channelName,
       connectionProfile,
       wallet,
-      enrollmentId
+      enrollmentId,
+      discovery: false
     });
 
     store = getStore(context);

@@ -1,7 +1,4 @@
-import { ChannelEventHub } from 'fabric-client';
-import { EventService } from 'fabric-common';
 import { Gateway, Network, Wallet } from 'fabric-network';
-import { Commit } from './commit';
 import { PrivatedataRepository } from './privatedataRepository';
 import { ProjectionDb } from './projectionDb';
 import { QueryDatabase } from './queryDatabase';
@@ -30,17 +27,6 @@ export interface PeerOptions {
   /** gateway instance of fabric-sdk */
   gateway?: Gateway;
 
-  /** channel event hub of fabric-sdk */
-  channelHub?: ChannelEventHub;
-
-  eventService?: EventService;
-
-  /**
-   * callback function invoked when channel event arrives
-   * @example `({ commit }: { commit: Commit }) => console.log(commit)`
-   */
-  onChannelEventArrived?: (CommitObj: { commit: Commit }) => void;
-
   /** channel name */
   channelName: string;
 
@@ -49,10 +35,6 @@ export interface PeerOptions {
 
   /** local path to connection profile yaml */
   connectionProfile: string;
-
-  /** uri to connecting channel event hub */
-  channelEventHubUri: string;
-  // pubSub?: any;
 }
 
 /**

@@ -19,9 +19,7 @@ const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
     enrollmentId: process.env.ORG_ADMIN_ID,
     defaultEntityName: 'docContents',
     defaultReducer: reducer,
-    collection: process.env.COLLECTION,
     isPrivate: true,
-    channelEventHub: process.env.CHANNEL_HUB,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET)

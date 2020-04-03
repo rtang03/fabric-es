@@ -192,10 +192,11 @@ beforeAll(async () => {
 
   // Start admin service
   ({ server: adminService } = await createAdminService({
+    caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
+    caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN,
     ordererName: process.env.ORDERER_NAME,
     ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
     peerName: process.env.PEER_NAME,
-    caAdminEnrollmentId: process.env.CA_ENROLLMENT_ID_ADMIN,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     fabricNetwork: process.env.NETWORK_LOCATION,
@@ -230,8 +231,6 @@ beforeAll(async () => {
     enrollmentId: process.env.ORG_ADMIN_ID,
     defaultEntityName: 'loan',
     defaultReducer: lReducer,
-    collection: process.env.COLLECTION,
-    channelEventHub: process.env.CHANNEL_HUB,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
@@ -253,8 +252,6 @@ beforeAll(async () => {
     enrollmentId: process.env.ORG_ADMIN_ID,
     defaultEntityName: 'document',
     defaultReducer: dReducer,
-    collection: process.env.COLLECTION,
-    channelEventHub: process.env.CHANNEL_HUB,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
@@ -276,9 +273,7 @@ beforeAll(async () => {
     enrollmentId: process.env.ORG_ADMIN_ID,
     defaultEntityName: 'loanDetails',
     defaultReducer: tReducer,
-    collection: process.env.COLLECTION,
     isPrivate: true,
-    channelEventHub: process.env.CHANNEL_HUB,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
@@ -299,9 +294,7 @@ beforeAll(async () => {
     enrollmentId: process.env.ORG_ADMIN_ID,
     defaultEntityName: 'docContents',
     defaultReducer: cReducer,
-    collection: process.env.COLLECTION,
     isPrivate: true,
-    channelEventHub: process.env.CHANNEL_HUB,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET)

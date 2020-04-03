@@ -32,9 +32,9 @@
     "generate-types-for-admin": "graphql-codegen --config src/generated/codegen.yml",
     "enrollAdmin": "node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
-    "start-admin-service": "npm run build && node ./dist/admin/__tests__/__utils__/startServiceForManualTest.js",
-    "unit-test": "./unit-test.sh",
-    "test:admin-service": "jest --forceExit --detectOpenHandles admin.unit.test",
+    "start-admin-service": "(broke) npm run build && node ./dist/admin/__tests__/__utils__/startServiceForManualTest.js",
+    "unit-test": "(broke) ./unit-test.sh",
+    "test:admin-service": "(broke) jest --forceExit --detectOpenHandles admin.unit.test",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "prepublish": "yarn typedoc",
     "publish:gh:fabric-es": "npm publish"

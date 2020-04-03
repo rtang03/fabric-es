@@ -3,7 +3,6 @@ import { User, UserEvents, userReducer } from '../../user';
 
 export const mockdb: Record<string, Commit> = {
   '20181114163145704:example@gmail.com': {
-    committedAt: '1542213105704',
     entityName: 'typeDefs.onchain.ts.ts',
     entityId: 'example@gmail.com',
     id: 'example@gmail.com',
@@ -21,7 +20,6 @@ export const mockdb: Record<string, Commit> = {
     ]
   },
   '20181114163145708:editor@gmail.com': {
-    committedAt: '1542213105708',
     entityName: 'typeDefs.onchain.ts.ts',
     entityId: 'editor@gmail.com',
     id: 'editor@gmail.com',
@@ -39,7 +37,6 @@ export const mockdb: Record<string, Commit> = {
     ]
   },
   '20181114163145705:reviewer@gmail.com': {
-    committedAt: '1542213105705',
     entityName: 'typeDefs.onchain.ts.ts',
     entityId: 'reviewer@gmail.com',
     id: 'reviewer@gmail.com',
@@ -57,7 +54,6 @@ export const mockdb: Record<string, Commit> = {
     ]
   },
   '20181114163145706:voter@gmail.com': {
-    committedAt: '1542213105706',
     entityName: 'typeDefs.onchain.ts.ts',
     entityId: 'voter@gmail.com',
     id: 'voter@gmail.com',
@@ -75,7 +71,6 @@ export const mockdb: Record<string, Commit> = {
     ]
   },
   '20181114163145707:canUpdateTrade@gmail.com': {
-    committedAt: '1542213105707',
     entityName: 'typeDefs.onchain.ts.ts',
     entityId: 'canUpdateTrade@gmail.com',
     id: 'canUpdateTrade@gmail.com',

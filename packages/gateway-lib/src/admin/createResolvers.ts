@@ -7,21 +7,23 @@ import { Wallet } from 'fabric-network';
 import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from './constants';
 
 export const createResolvers: (option: {
+  caAdmin: string;
+  caAdminPW: string;
   channelName?: string;
   ordererTlsCaCert: string;
   ordererName: string;
   peerName: string;
-  caAdminEnrollmentId: string;
   fabricNetwork: string;
   connectionProfile: string;
   wallet: Wallet;
   asLocalhost: boolean;
 }) => Promise<any> = async ({
+  caAdmin,
+  caAdminPW,
   channelName = 'eventstore',
   ordererName,
   ordererTlsCaCert,
   peerName,
-  caAdminEnrollmentId,
   fabricNetwork,
   connectionProfile,
   wallet,
@@ -32,6 +34,8 @@ export const createResolvers: (option: {
   let operator;
   try {
     operator = await createNetworkOperator({
+      caAdmin,
+      caAdminPW,
       channelName,
       ordererTlsCaCert,
       ordererName,
@@ -49,7 +53,7 @@ export const createResolvers: (option: {
   let ca;
   try {
     ca = await operator.identityService({
-      caAdmin: caAdminEnrollmentId,
+      caAdmin,
       asLocalhost
     });
   } catch (e) {
@@ -82,7 +86,7 @@ export const createResolvers: (option: {
           const res = await operator.registerAndEnroll({
             enrollmentId,
             enrollmentSecret,
-            identity: administrator,
+            // identity: administrator,
             asLocalhost
           });
           registerResult = await res.registerAndEnroll();

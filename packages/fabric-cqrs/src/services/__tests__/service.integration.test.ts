@@ -61,7 +61,8 @@ beforeAll(async () => {
       channelName,
       connectionProfile,
       wallet,
-      enrollmentId
+      enrollmentId,
+      discovery: true
     });
     network = context.network;
     gateway = context.gateway;

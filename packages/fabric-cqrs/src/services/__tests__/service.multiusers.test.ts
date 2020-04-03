@@ -65,7 +65,8 @@ beforeAll(async () => {
       channelName,
       enrollmentId: identityOrg1,
       connectionProfile,
-      wallet: walletOrg1
+      wallet: walletOrg1,
+      discovery: true
     });
 
     // Org2
@@ -103,7 +104,8 @@ beforeAll(async () => {
       channelName,
       enrollmentId: identityOrg2,
       connectionProfile: process.env.ORG2_CONNECTION_PROFILE,
-      wallet: walletOrg2
+      wallet: walletOrg2,
+      discovery: true
     });
 
   } catch (error) {

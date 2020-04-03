@@ -20,6 +20,7 @@ export const getNetwork: (option: {
   eventHandlerStrategy?: any;
   queryHandlerStrategy?: any;
   asLocalhost?: boolean;
+  discovery: boolean;
 }) => Promise<{
   enrollmentId: string;
   network: Network;
@@ -31,6 +32,7 @@ export const getNetwork: (option: {
   wallet,
   eventHandlerStrategy = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
   queryHandlerStrategy = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
+  discovery,
   asLocalhost = true
 }) => {
   const logger = Utils.getLogger('[fabric-cqrs] getNetwork.js');
@@ -66,7 +68,7 @@ export const getNetwork: (option: {
     gateway.connect(safeLoad(cp), {
       identity,
       wallet,
-      discovery: { enabled: false, asLocalhost },
+      discovery: { enabled: discovery, asLocalhost },
       eventHandlerOptions: {
         strategy: eventHandlerStrategy
       },

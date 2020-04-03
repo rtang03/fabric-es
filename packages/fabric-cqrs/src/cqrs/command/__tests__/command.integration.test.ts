@@ -20,17 +20,18 @@ const connectionProfile = process.env.CONNECTION_PROFILE;
 const channelName = process.env.CHANNEL_NAME;
 const fabricNetwork = process.env.NETWORK_LOCATION;
 const mspId = process.env.MSPID;
+const caUrl = process.env.ORG_CA_URL;
 let wallet: Wallet;
 
 beforeAll(async () => {
   try {
-    rimraf.sync(`${process.env.WALLET}/${enrollmentId}.id`);
+    rimraf.sync(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}.id`);
     rimraf.sync(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}.id`);
 
     wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
 
     await enrollAdmin({
-      caUrl: process.env.ORG_CA_URL,
+      caUrl,
       connectionProfile,
       enrollmentID: process.env.ORG_ADMIN_ID,
       enrollmentSecret: process.env.ORG_ADMIN_SECRET,
@@ -40,7 +41,7 @@ beforeAll(async () => {
     });
 
     await enrollAdmin({
-      caUrl: process.env.ORG_CA_URL,
+      caUrl,
       connectionProfile,
       enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
       enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
@@ -63,7 +64,8 @@ beforeAll(async () => {
       channelName,
       connectionProfile,
       wallet,
-      enrollmentId
+      enrollmentId,
+      discovery: true
     });
 
     store = getStore(context);

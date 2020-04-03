@@ -11,6 +11,7 @@ import { Peer, Repository } from '../../types';
 import { createProjectionDb } from '../createProjectionDb';
 import { createQueryDatabase } from '../createQueryDatabase';
 import { createPeer } from '../peer';
+import { waitFor } from '../utils';
 
 let wallet: Wallet;
 let peer: Peer;
@@ -22,6 +23,7 @@ const connectionProfile = process.env.CONNECTION_PROFILE;
 const channelName = process.env.CHANNEL_NAME;
 const fabricNetwork = process.env.NETWORK_LOCATION;
 const mspId = process.env.MSPID;
+const caUrl = process.env.ORG_CA_URL;
 
 beforeAll(async () => {
   try {
@@ -31,7 +33,7 @@ beforeAll(async () => {
     wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
 
     await enrollAdmin({
-      caUrl: process.env.ORG_CA_URL,
+      caUrl,
       connectionProfile,
       enrollmentID: process.env.ORG_ADMIN_ID,
       enrollmentSecret: process.env.ORG_ADMIN_SECRET,
@@ -41,7 +43,7 @@ beforeAll(async () => {
     });
 
     await enrollAdmin({
-      caUrl: process.env.ORG_CA_URL,
+      caUrl,
       connectionProfile,
       enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
       enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
@@ -64,7 +66,8 @@ beforeAll(async () => {
       channelName,
       connectionProfile,
       wallet,
-      enrollmentId
+      enrollmentId,
+      discovery: true
     });
   } catch (err) {
     console.error('Bootstrap network error');
@@ -107,10 +110,15 @@ describe('Start peer Tests', () => {
       .deleteByEntityId(enrollmentId)
       .then(() => true)
       .catch(() => true);
+
+    await waitFor(1);
+
     await repo
       .deleteByEntityName_query()
       .then(({ status }) => status)
       .then(res => expect(res).toEqual('all records deleted successfully'));
+
+    await waitFor(1);
   });
 
   it('should ADD #1', async () => {
@@ -120,11 +128,7 @@ describe('Start peer Tests', () => {
       .then(result => pick(result, 'version', 'entityName', 'events'))
       .then(result => expect(result).toMatchSnapshot());
 
-    const timer = new Promise(done => {
-      setTimeout(() => done(), 3000);
-    });
-
-    await timer;
+    await waitFor(3);
 
     await repo
       .getById({ enrollmentId, id: enrollmentId })
@@ -137,42 +141,46 @@ describe('Start peer Tests', () => {
         })
       );
   });
-});
 
-describe('Query', () => {
-  it('should Query', done => {
-    setTimeout(async () => {
-      // await repo
-      //   .getByEntityName()
-      //   .then(result => expect(result).toEqual({ data: [{ value: 1 }] }));
+  it('should Query = getById', async () => {
+    await waitFor(1);
+    await repo
+      .getById({ enrollmentId, id: enrollmentId })
+      .then(({ currentState }) => currentState)
+      .then(result => expect(result).toEqual({ value: 2 }));
+  });
 
-      await repo
-        .getById({ enrollmentId, id: enrollmentId })
-        .then(({ currentState }) => currentState)
-        .then(result => expect(result).toEqual({ value: 2 }));
+  it('should Query = getCommitById', async () => {
+    await waitFor(1);
+    await repo
+      .getCommitById(enrollmentId)
+      .then(({ data }) => data)
+      .then(result => expect(result.length).toEqual(2));
+  });
 
-      await repo
-        .getCommitById(enrollmentId)
-        .then(({ data }) => data)
-        .then(result => expect(result.length).toEqual(2));
+  it('should Query = getProjection/all', async () => {
+    await waitFor(1);
+    await repo
+      .getProjection({ all: true })
+      .then(({ data }) => data)
+      .then(result => find(result, { id: enrollmentId }))
+      .then(result => expect(result).toEqual({ id: enrollmentId, value: 2 }));
+  });
 
-      await repo
-        .getProjection({ all: true })
-        .then(({ data }) => data)
-        .then(result => find(result, { id: enrollmentId }))
-        .then(result => expect(result).toEqual({ id: enrollmentId, value: 2 }));
+  it('should Query = getProjection/where', async () => {
+    await waitFor(1);
+    await repo
+      .getProjection({ where: { id: enrollmentId } })
+      .then(({ data }) => data)
+      .then(result => find(result, { id: enrollmentId }))
+      .then(result => expect(result).toEqual({ id: enrollmentId, value: 2 }));
+  });
 
-      await repo
-        .getProjection({ where: { id: enrollmentId } })
-        .then(({ data }) => data)
-        .then(result => find(result, { id: enrollmentId }))
-        .then(result => expect(result).toEqual({ id: enrollmentId, value: 2 }));
-
-      await repo
-        .getProjection({ contain: 'peer_test' })
-        .then(({ data }) => data)
-        .then(results => results.forEach(({ id }) => expect(id.startsWith('peer_test')).toBe(true)));
-      done();
-    }, 6000);
+  it('should Query = getProjection/contain', async () => {
+    await waitFor(1);
+    await repo
+      .getProjection({ contain: 'peer_test' })
+      .then(({ data }) => data)
+      .then(results => results.forEach(({ id }) => expect(id.startsWith('peer_test')).toBe(true)));
   });
 });

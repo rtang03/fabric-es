@@ -64,7 +64,8 @@ beforeAll(async () => {
       channelName,
       connectionProfile,
       wallet,
-      enrollmentId
+      enrollmentId,
+      discovery: false
     });
   } catch (err) {
     console.error('Bootstrap network error');
@@ -107,7 +108,8 @@ describe('Start peer privatedata Tests', () => {
       }));
 
   it('should getByEntityName', async () =>
-    repo.getByEntityName().then(({ data }) => expect(data).toEqual([{ value: 1 }])));
+    // repo.getByEntityName().then(({ data }) => expect(data).toEqual([{ value: 1 }])));
+    repo.getByEntityName().then(({ data }) => data.forEach(item => expect(item).toEqual({ value: 1 }))));
 
   it('should getById', async () =>
     repo
@@ -117,7 +119,5 @@ describe('Start peer privatedata Tests', () => {
   it('should deleteByEntityIdCommitId', async () =>
     repo
       .deleteByEntityIdCommitId(enrollmentId, commitId)
-      .then(result => console.log(result))
-      .catch(error => console.error(error)));
-  // repo.deleteByEntityIdCommitId(enrollmentId, commitId).then(({ status }) => expect(status).toBe('SUCCESS')));
+      .catch(response => expect(response?.error !== undefined).toBeTruthy()));
 });

@@ -25,11 +25,11 @@ channels:
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer0-org2:
-        endorsingPeer: true
-        chaincodeQuery: true
-        ledgerQuery: true
-        eventSource: true
+#      peer0-org2:
+#        endorsingPeer: true
+#        chaincodeQuery: true
+#        ledgerQuery: true
+#        eventSource: true
     chaincodes:
       - eventstore
 
@@ -44,16 +44,16 @@ organizations:
       path: ../../deployments/dev-net2-fab2/artifacts/crypto-config/Org1MSP/admin/msp/keystore/key.pem
     signedCert:
       path: ../../deployments/dev-net2-fab2/artifacts/crypto-config/Org1MSP/admin/msp/signcerts/cert.pem
-  Org2MSP:
-    mspid: Org2MSP
-    peers:
-      - peer0-org2
-    certificateAuthorities:
-      - rca-org2
-    adminPrivateKey:
-      path: ../../deployments/dev-net2-fab2/artifacts/crypto-config/Org2MSP/admin/msp/keystore/key.pem
-    signedCert:
-      path: ../../deployments/dev-net2-fab2/artifacts/crypto-config/Org2MSP/admin/msp/signcerts/cert.pem
+#  Org2MSP:
+#    mspid: Org2MSP
+#    peers:
+#      - peer0-org2
+#    certificateAuthorities:
+#      - rca-org2
+#    adminPrivateKey:
+#      path: ../../deployments/dev-net2-fab2/artifacts/crypto-config/Org2MSP/admin/msp/keystore/key.pem
+#    signedCert:
+#      path: ../../deployments/dev-net2-fab2/artifacts/crypto-config/Org2MSP/admin/msp/signcerts/cert.pem
 
 orderers:
   orderer0-org0:
@@ -72,13 +72,13 @@ peers:
       path: ../../deployments/dev-net2-fab2/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
       ssl-target-name-override: peer0-org1
-  peer0-org2:
-    url: grpcs://localhost:7251
-    eventUrl: grpcs://localhost:7253
-    tlsCACerts:
-      path: ../../deployments/dev-net2-fab2/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
-    grpcOptions:
-      ssl-target-name-override: peer0-org2
+#  peer0-org2:
+#    url: grpcs://localhost:7251
+#    eventUrl: grpcs://localhost:7253
+#    tlsCACerts:
+#      path: ../../deployments/dev-net2-fab2/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+#    grpcOptions:
+#      ssl-target-name-override: peer0-org2
 
 certificateAuthorities:
   rca-org1:
@@ -91,13 +91,13 @@ certificateAuthorities:
         enrollSecret: rca-org1-adminPW
     httpOptions:
       verify: false
-  rca-org2:
-    url: https://localhost:5055
-    caName: rca-org2
-    tlsCACerts:
-      path: ../../deployments/dev-net2-fab2/artifacts/crypto-config/Org2MSP/msp/tlscacerts/tls-ca-cert.pem
-    registrar:
-      - enrollId: rca-org2-admin
-        enrollSecret: rca-org2-adminPW
-    httpOptions:
-      verify: false
+#  rca-org2:
+#    url: https://localhost:5055
+#    caName: rca-org2
+#    tlsCACerts:
+#      path: ../../deployments/dev-net2-fab2/artifacts/crypto-config/Org2MSP/msp/tlscacerts/tls-ca-cert.pem
+#    registrar:
+#      - enrollId: rca-org2-admin
+#        enrollSecret: rca-org2-adminPW
+#    httpOptions:
+#      verify: false

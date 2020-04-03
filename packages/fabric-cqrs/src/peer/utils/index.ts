@@ -12,3 +12,4 @@ export * from './createCommitId';
 export * from './logger';
 export * from './promiseToReadFile';
 export * from './isCommitRecord';
+export * from './waitFor';

@@ -7,30 +7,32 @@ import { MISSING_CHANNELNAME, MISSING_CONNECTION_PROFILE, MISSING_FABRIC_NETWORK
 import { createResolvers } from './createResolvers';
 import { typeDefs } from './typeDefs';
 
-export const createAdminService = async ({
-  channelName,
-  ordererTlsCaCert,
-  ordererName,
-  peerName,
-  caAdminEnrollmentId,
-  connectionProfile,
-  fabricNetwork,
-  walletPath,
-  asLocalhost = true,
-  playground = true,
-  introspection = true
-}: {
+export const createAdminService: (option: {
+  caAdmin: string;
+  caAdminPW: string;
   channelName: string;
   ordererTlsCaCert: string;
   ordererName: string;
   peerName: string;
-  caAdminEnrollmentId: string;
   connectionProfile: string;
   fabricNetwork: string;
   walletPath: string;
   asLocalhost?: boolean;
   playground?: boolean;
   introspection?: boolean;
+}) => Promise<{ server: ApolloServer; shutdown: any }> = async ({
+  caAdmin,
+  caAdminPW,
+  channelName,
+  ordererTlsCaCert,
+  ordererName,
+  peerName,
+  connectionProfile,
+  fabricNetwork,
+  walletPath,
+  asLocalhost = true,
+  playground = true,
+  introspection = true
 }) => {
   const logger = Client.getLogger('createAdminService.js');
 
@@ -53,13 +55,14 @@ export const createAdminService = async ({
   }
 
   const resolvers = await createResolvers({
+    caAdmin,
+    caAdminPW,
     channelName,
     ordererTlsCaCert,
     ordererName,
     connectionProfile,
     fabricNetwork,
     peerName,
-    caAdminEnrollmentId,
     wallet: await Wallets.newFileSystemWallet(walletPath),
     asLocalhost
   });
