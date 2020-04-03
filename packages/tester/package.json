@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/tester",
-  "version": "0.5.15",
+  "version": "0.5.16",
   "license": "BSD-3-Clause-Clear",
   "description": "Integration tester",
   "scripts": {
@@ -13,7 +13,7 @@
     "cp:js": "cp ./*.js ../../.build/packages/tester/",
     "cp:env": "cp ../../deployments/dev-net/build.tester/.env.test ../../.build/packages/tester/.env",
     "cp:src": "cp -R ./src ../../.build/packages/tester/",
-    "cp:start":"cp ./entrypoint.sh ../../.build/",
+    "cp:start": "cp ./entrypoint.sh ../../.build/",
     "test:3org": "jest intg.3org.test",
     "test:2org": "jest intg.2org.test"
   },

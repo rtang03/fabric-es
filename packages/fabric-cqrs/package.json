@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/fabric-cqrs",
-  "version": "0.5.15",
+  "version": "0.5.16",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -51,7 +51,7 @@
   },
   "engineStrict": true,
   "dependencies": {
-    "@fabric-es/operator": "^0.5.15",
+    "@fabric-es/operator": "^0.5.16",
     "dotenv": "^8.1.0",
     "fabric-client": "^1.4.4",
     "fabric-contract-api": "^1.4.2",
