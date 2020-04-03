@@ -43,8 +43,8 @@ jobs:
       - run: yarn install --frozen-lockfile --ignore-engines
       - run: yarn lint:lib
       - run: yarn lint:app
-      - name: Run unit and integration tests
-        run: yarn unit-int-test:no_grpc
+#      - name: Run unit and integration tests
+#        run: yarn unit-int-test:no_grpc
 #        run: yarn unit-int-test
       - name: Setup Google account
         uses: GoogleCloudPlatform/github-actions/setup-gcloud@master

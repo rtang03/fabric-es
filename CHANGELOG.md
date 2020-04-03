@@ -1,3 +1,7 @@
+## [0.5.16] - 2020-4-3
+### Added
+- update for pwc reference implementation 
+
 ## [0.5.15] - 2020-3-18
 ### Added
 - fabric-running network to unit and integration tests 
