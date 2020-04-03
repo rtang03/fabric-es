@@ -3,11 +3,11 @@ name: dev-net_openplatform
 version: 1.0.0
 
 client:
-  organization: PbctfpMSP
+  organization: Org2MSP
   credentialStore:
-    path: /home/app/packages/gw-org2/assets/client-certs/hfc-kvs/pbctfp
+    path: /home/app/packages/gw-org2/assets/client-certs/hfc-kvs/org2
     cryptoStore:
-      path: /home/app/packages/gw-org2/assets/client-certs/hfc-kvs/pbctfp
+      path: /home/app/packages/gw-org2/assets/client-certs/hfc-kvs/org2
   connection:
     timeout:
       peer:
@@ -16,9 +16,9 @@ client:
 channels:
   loanapp:
     orderers:
-      - orderer0-hktfp
+      - orderer0-org0
     peers:
-      peer0-pbctfp:
+      peer0-org2:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -28,43 +28,43 @@ channels:
       - privatedata:1.0
 
 organizations:
-  PbctfpMSP:
-    mspid: PbctfpMSP
+  Org2MSP:
+    mspid: Org2MSP
     peers:
-      - peer0-pbctfp
+      - peer0-org2
     certificateAuthorities:
-      - rca-pbctfp
+      - rca-org2
     adminPrivateKey:
-      path: /var/artifacts/crypto-config/PbctfpMSP/admin/msp/keystore/key.pem
+      path: /var/artifacts/crypto-config/Org2MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: /var/artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem
+      path: /var/artifacts/crypto-config/Org2MSP/admin/msp/signcerts/cert.pem
 
 orderers:
-  orderer0-hktfp:
-    url: grpcs://orderer0-hktfp:7050
+  orderer0-org0:
+    url: grpcs://orderer0-org0:7050
     grpcOptions:
-      ssl-target-name-override: orderer0-hktfp
-    #      grpc-max-send-message-length: 4000
+      ssl-target-name-override: orderer0-org0
+#     grpc-max-send-message-length: 4000
     tlsCACerts:
-      path: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 peers:
-  peer0-pbctfp:
-    url: grpcs://peer0-pbctfp:7251
-    eventUrl: grpcs://peer0-pbctfp:7253
+  peer0-org2:
+    url: grpcs://peer0-org2:7251
+    eventUrl: grpcs://peer0-org2:7253
     tlsCACerts:
-      path: /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
-      ssl-target-name-override: peer0-pbctfp
+      ssl-target-name-override: peer0-org2
 
 certificateAuthorities:
-  rca-pbctfp:
-    url: https://rca-pbctfp:6055
-    caName: rca-pbctfp
+  rca-org2:
+    url: https://rca-org2:5055
+    caName: rca-org2
     tlsCACerts:
-      path: /var/artifacts/crypto-config/PbctfpMSP/msp/tlscacerts/tls-ca-cert.pem
+      path: /var/artifacts/crypto-config/Org2MSP/msp/tlscacerts/tls-ca-cert.pem
     registrar:
-      - enrollId: rca-pboc-admin
-        enrollSecret: rca-pboc-adminPW
+      - enrollId: rca-org2-admin
+        enrollSecret: rca-org2-adminPW
     httpOptions:
       verify: false

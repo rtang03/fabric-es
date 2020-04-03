@@ -26,7 +26,7 @@ const logger = getLogger('service-admin.js');
   });
 
   server.listen({ port }).then(({ url }) => {
-    logger.info(`🚀 Admin Service ready at ${url}graphql`);
+    logger.info(`🚀 admin service ready at ${url}graphql`);
     if (process.env.NODE_ENV === 'production') process.send('ready');
   });
 })().catch(error => {

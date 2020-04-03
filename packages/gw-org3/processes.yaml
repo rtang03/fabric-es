@@ -1,6 +1,6 @@
 apps:
   - script: ./dist/app.js
-    name: 'gw'
+    name: 'gateway'
     instances: 1
     max_restarts: 3
     autorestart: false
@@ -16,7 +16,7 @@ apps:
     kill_timeout : 3000
     wait_ready: true
   - script: ./dist/service-doc.js
-    name: 'doc'
+    name: 'document'
     instances: 1
     max_restarts: 3
     autorestart: false
@@ -32,7 +32,7 @@ apps:
     kill_timeout: 3000
     wait_ready: true
   - script: ./dist/service-prv-ctnt.js
-    name: 'prv-ctnt'
+    name: 'pDocContents'
     instances: 1
     max_restarts: 3
     autorestart: false
@@ -40,7 +40,7 @@ apps:
     kill_timeout: 3000
     wait_ready: true
   - script: ./dist/service-prv-dtls.js
-    name: 'prv-dtls'
+    name: 'pLoanDetails'
     instances: 1
     max_restarts: 3
     autorestart: false

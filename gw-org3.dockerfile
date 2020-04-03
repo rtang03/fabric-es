@@ -11,6 +11,8 @@ RUN mkdir /home/app/ \
 
 COPY --chown=node:node ./.build /home/app/
 
+COPY ./.build/entrypoint.sh /usr/local/bin/
+
 RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
   && curl -fSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz" \
   && tar -xzf yarn-v$YARN_VERSION.tar.gz -C /opt/ \
@@ -32,4 +34,6 @@ WORKDIR /home/app/packages/gw-org3
 
 EXPOSE 4003
 
-CMD ["yarn", "run", "pm2"]
+ENTRYPOINT ["entrypoint.sh"]
+
+CMD ["gateway", "admin user loan document pDocContents pLoanDetails"]

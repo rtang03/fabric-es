@@ -79,20 +79,8 @@ docker-compose -f compose.4.2org.auth-gw-tester.yaml down
 ### Useful Commands
 
 ```shell script
-# remove exited container
 docker rm -f \$(docker ps -aq -f status=exited)
 
-# remove chaincode container and/or images
-docker volume prune
-docker rm $(docker ps -aqf "name=eventstore") -f
-docker rm $(docker ps -aqf "name=privatedata") -f
-
-# or equally
-docker rm $(docker ps -aqf "name=dev") -f
-docker rmi $(docker images -q "dev-*")
-
-# if postgres has pre-existing pid and block your installation
-# below command identify pid, and you can kill it.
 sudo lsof -P -sTCP:LISTEN -i TCP -a -p 5432
 sudo lsof -i :5432
 ```

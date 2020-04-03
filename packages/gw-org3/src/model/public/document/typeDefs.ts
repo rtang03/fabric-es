@@ -2,7 +2,8 @@ import { Commit } from '@fabric-es/fabric-cqrs';
 import { documentResolvers } from '@fabric-es/model-loan';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
-import { documentCommandHandler, DocumentDS } from '.';
+import { documentCommandHandler } from './handler';
+import { DocumentDS } from '.';
 
 export const typeDefs = gql`
   type Query {

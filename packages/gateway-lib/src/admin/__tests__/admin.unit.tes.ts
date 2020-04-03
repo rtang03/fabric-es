@@ -1,7 +1,7 @@
 require('../../env');
 import http from 'http';
-import { createAuthServer, createDbConnection } from '@fabric-es/authentication';
-import { createDbForUnitTest } from '@fabric-es/authentication';
+// import { createAuthServer, createDbConnection } from '@fabric-es/authentication';
+// import { createDbForUnitTest } from '@fabric-es/authentication';
 import { ApolloError, ApolloServer } from 'apollo-server';
 import { Express } from 'express';
 import Client from 'fabric-client';
@@ -53,13 +53,13 @@ type QueryResponse = {
 };
 
 beforeAll(async () => {
-  await createDbForUnitTest({
-    database: process.env.TYPEORM_DATABASE,
-    host: process.env.TYPEORM_HOST,
-    port: process.env.TYPEORM_PORT,
-    user: process.env.TYPEORM_USERNAME,
-    password: process.env.TYPEORM_PASSWORD
-  });
+  // await createDbForUnitTest({
+  //   database: process.env.TYPEORM_DATABASE,
+  //   host: process.env.TYPEORM_HOST,
+  //   port: process.env.TYPEORM_PORT,
+  //   user: process.env.TYPEORM_USERNAME,
+  //   password: process.env.TYPEORM_PASSWORD
+  // });
 
   // step 1: start admin service (federated service)
   let federatedAdminService: ApolloServer;
@@ -99,30 +99,30 @@ beforeAll(async () => {
   // step 3: start authentication server (expressjs)
   // NOTE: need to create database 'gw-node-admin-test' manually,
   // before running this test
-  const auth = await createAuthServer({
-    dbConnection: createDbConnection({
-      name: process.env.TYPEORM_CONNECTION,
-      type: 'postgres' as any,
-      host: process.env.TYPEORM_HOST,
-      port: process.env.TYPEORM_PORT,
-      username: process.env.TYPEORM_USERNAME,
-      password: process.env.TYPEORM_PASSWORD,
-      database: process.env.TYPEORM_DATABASE,
-      logging: false,
-      synchronize: true,
-      dropSchema: true
-    }),
-    rootAdminPassword,
-    rootAdmin,
-    accessTokenSecret: '',
-    refreshTokenSecret: ''
-  });
-  authServer = http.createServer(auth);
-  authServer.listen(authPort);
+  // const auth = await createAuthServer({
+  //   dbConnection: createDbConnection({
+  //     name: process.env.TYPEORM_CONNECTION,
+  //     type: 'postgres' as any,
+  //     host: process.env.TYPEORM_HOST,
+  //     port: process.env.TYPEORM_PORT,
+  //     username: process.env.TYPEORM_USERNAME,
+  //     password: process.env.TYPEORM_PASSWORD,
+  //     database: process.env.TYPEORM_DATABASE,
+  //     logging: false,
+  //     synchronize: true,
+  //     dropSchema: true
+  //   }),
+  //   rootAdminPassword,
+  //   rootAdmin,
+  //   accessTokenSecret: '',
+  //   refreshTokenSecret: ''
+  // });
+  // authServer = http.createServer(auth);
+  // authServer.listen(authPort);
 });
 
 afterAll(async () => {
-  authServer.close();
+  // authServer.close();
   await federatedAdminServer.stop();
 
   // workaround for quiting this test properly
