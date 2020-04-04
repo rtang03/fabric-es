@@ -20,9 +20,9 @@
   },
   "private": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.5.16",
-    "@fabric-es/gateway-lib": "^0.5.16",
-    "@fabric-es/model-common": "^0.5.16",
+    "@fabric-es/fabric-cqrs": "^0.6.0",
+    "@fabric-es/gateway-lib": "^0.6.0",
+    "@fabric-es/model-common": "^0.6.0",
     "apollo-server-errors": "^2.3.4"
   },
   "devDependencies": {

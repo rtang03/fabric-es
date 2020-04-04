@@ -46,7 +46,7 @@
     "publish:gh:fabric-es": "npm publish"
   },
   "dependencies": {
-    "@fabric-es/operator": "^0.5.16",
+    "@fabric-es/operator": "^0.6.0",
     "dotenv": "^8.1.0",
     "fabric-client": "2.0.0-snapshot.326",
     "fabric-contract-api": "^2.0.0",

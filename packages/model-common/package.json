@@ -21,8 +21,8 @@
   },
   "private": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.5.16",
-    "@fabric-es/gateway-lib": "^0.5.16"
+    "@fabric-es/fabric-cqrs": "^0.6.0",
+    "@fabric-es/gateway-lib": "^0.6.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.9.0",
