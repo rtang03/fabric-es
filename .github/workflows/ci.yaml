@@ -41,11 +41,13 @@ jobs:
       - run: yarn lint:app
       - name: Run tsc for all packages
         run: yarn tsc:all
+      - name: deploy base fabric v2 network only
+        run: /home/runner/work/fabric-es/fabric-ec/deployments/dev-net/dev-net-run.2org.sh
 #      - name: Run unit tests for auth-server, chaincode, gateway-lib, model-*
 #        run: yarn unit-test:no_grpc
 #        env:
 #          CI: true
-#      - run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
+      - run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
 # in CI environment, grpc has problem. Bypassing the unit test for fabric-cqrs, with yarn unit-test:no_grpc
 #  @fabric-es/fabric-cqrs: $ node ./dist/account/enrollAdmin.js
 #  @fabric-es/fabric-cqrs: /home/runner/work/fabric-es/fabric-es/node_modules/grpc/src/grpc_extension.js:55

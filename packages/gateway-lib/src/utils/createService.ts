@@ -42,7 +42,7 @@ export const createService = async ({
   });
 
   const { reconcile, getRepository, getPrivateDataRepo, subscribeHub, unsubscribeHub, disconnect } = createPeer({
-    ...(networkConfig as Partial<PeerOptions>),
+    ...networkConfig,
     defaultEntityName,
     defaultReducer,
     channelName,
