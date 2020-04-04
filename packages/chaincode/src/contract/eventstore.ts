@@ -1,8 +1,8 @@
+import util from 'util';
 import { Context, Contract, Info, Returns, Transaction } from 'fabric-contract-api';
 import { omit } from 'lodash';
 import { Commit, createInstance, isEventArray, makeKey, toRecord } from '../ledger-api';
 import { MyContext } from './myContext';
-import util from 'util';
 
 @Info({
   title: 'smart contract for eventstore',

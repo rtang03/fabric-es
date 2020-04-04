@@ -87,13 +87,10 @@ Organizations:
 Capabilities:
   Channel: &ChannelCapabilities
     V2_0: true
-    V1_4_3: false
   Orderer: &OrdererCapabilities
     V2_0: true
-    V1_4_2: false
   Application: &ApplicationCapabilities
     V2_0: true
-    V1_4_2: false
 
 ################################################################################
 #

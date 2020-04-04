@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/tester",
-  "version": "0.5.16",
+  "version": "0.6.0",
   "license": "BSD-3-Clause-Clear",
   "description": "Integration tester",
   "scripts": {

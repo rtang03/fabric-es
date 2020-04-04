@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/gw-org3",
-  "version": "0.5.16",
+  "version": "0.6.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",

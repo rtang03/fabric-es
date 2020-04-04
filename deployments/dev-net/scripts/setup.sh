@@ -91,7 +91,7 @@ containerWait() {
 }
 
 export VERSION=1.0
-export IMAGE_TAG=1.4.3
+export IMAGE_TAG=2.0.1
 export CONFIG=./config
 export VOLUME=./volume
 export ARTIFACTS=./artifacts
@@ -100,7 +100,8 @@ export CHAINCODE=../../packages/chaincode
 export CRYPTO=/var/artifacts/crypto-config
 export CURRENT_DIR=$PWD
 export ROOT_DIR=$PWD/../..
-export MEMBERS="'Org1MSP.member','Org2MSP.member','Org3MSP.member'"
+#export MEMBERS="'Org1MSP.member','Org2MSP.member','Org3MSP.member'"
+export MEMBERS="'Org1MSP.member','Org2MSP.member'"
 
 export AUTH_IMAGE=fabric-es/auth-server:1.0
 export TEST_IMAGE=fabric-es/tester:1.0
