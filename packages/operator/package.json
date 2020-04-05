@@ -30,10 +30,10 @@
     "cp:dist": "cp -R ./dist ../../.build/packages/operator/",
     "prepare-asset": "rimraf assets && mkdir -p ./assets/client-certs/hfc-kvs/org1",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
-    "unit-test": "jest unit.test",
+    "unit-test:fab": "jest unit.test",
     "clean": "rimraf dist",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}' --fix",
-    "prepublish": "yarn typedoc",
+    "prepublish": "yarn typedoc && yarn tsc:prod",
     "publish:gh:fabric-es": "npm publish"
   },
   "dependencies": {
@@ -56,7 +56,7 @@
     "@types/jest": "^24.0.18",
     "@types/js-yaml": "^3.12.1",
     "@types/lodash": "^4.14.138",
-    "@types/node": "^8.10.59",
+    "@types/node": "^10.17.18",
     "concurrently": "^5.0.0",
     "execa": "3.4.0",
     "jest": "^24.9.0",

@@ -20,7 +20,6 @@ export class StateList {
       console.error(e);
       throw new Error(util.format('fail to getQueryResult, %j', e));
     }
-
     return plainObject ? result : Buffer.from(JSON.stringify(result));
   }
 
@@ -50,7 +49,6 @@ export class StateList {
   async deleteStateByEnityId(attributes: string[]) {
     const promises = this.ctx.stub.getStateByPartialCompositeKey('entities', attributes);
     const result = {};
-
     try {
       for await (const res of promises) {
         const { key, commitId } = JSON.parse(res.value.toString());

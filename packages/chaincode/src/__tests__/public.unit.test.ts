@@ -42,27 +42,24 @@ const value = JSON.stringify({
   entityId,
   events
 });
-ctx.stub.getStateByPartialCompositeKey.mockResolvedValue({
-  next: () => ({ value: { value }, done: true }),
-  close: () => null
+
+ctx.stub.getStateByPartialCompositeKey.mockImplementation(() => {
+  let counter = 1;
+  return {
+    [Symbol.asyncIterator]: () => ({
+      next: () => {
+        if (counter > 0) {
+          counter--;
+          return Promise.resolve({ value: { value }, done: false });
+        } else return Promise.resolve({ done: true });
+      }
+    })
+  };
 });
 ctx.stub.getState.mockResolvedValue(value);
 
 describe('Chaincode Tests', () => {
-  it('should instantiate', async () =>
-    cc
-      .Init(context)
-      .then<any[]>((response: any) => JSON.parse(response))
-      .then(json =>
-        json
-          .map(({ id, entityName, version, events }) => ({
-            id,
-            entityName,
-            version,
-            events
-          }))
-          .map(commit => expect(commit).toMatchSnapshot())
-      ));
+  it('should instantiate', async () => cc.Init(context).then(response => expect(response).toEqual('Init Done')));
 
   it('should createCommit', async () =>
     cc
@@ -80,8 +77,9 @@ describe('Chaincode Tests', () => {
   it('should queryByEntityName', async () =>
     cc
       .queryByEntityName(context, entityName)
-      .then<Record<string, Commit>>((response: any) => JSON.parse(response))
+      .then(response => JSON.parse(response))
       .then(response => expect(response).toMatchSnapshot()));
+
 
   it('should queryByEntityId', async () =>
     cc
@@ -106,4 +104,5 @@ describe('Chaincode Tests', () => {
       .deleteByEntityId(context, entityName, id)
       .then<Record<string, Commit>>((response: any) => JSON.parse(response))
       .then(({ status }) => expect(status).toBe('SUCCESS')));
+
 });

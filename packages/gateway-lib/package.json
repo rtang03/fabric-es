@@ -36,7 +36,7 @@
     "unit-test": "(broke) ./unit-test.sh",
     "test:admin-service": "(broke) jest --forceExit --detectOpenHandles admin.unit.test",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "prepublish": "yarn typedoc",
+    "prepublish": "yarn typedoc && yarn tsc:prod",
     "publish:gh:fabric-es": "npm publish"
   },
   "dependencies": {
@@ -86,7 +86,7 @@
     "@types/jsonwebtoken": "^8.3.5",
     "@types/lodash": "^4.14.138",
     "@types/morgan": "^1.7.37",
-    "@types/node": "^8.10.54",
+    "@types/node": "^10.17.18",
     "@types/node-fetch": "^2.5.4",
     "@types/rimraf": "^2.0.3",
     "apollo-server-testing": "^2.9.7",

@@ -8,7 +8,7 @@ export interface CreateAdminOption {
 }
 
 export const createAdmin = async (option: CreateAdminOption): Promise<Client.User> => {
-  const logger = Client.getLogger('createAdmin.js');
+  const logger = Client.getLogger('[operator] createAdmin.js');
 
   const { client, orgAdminMspPath } = option;
   const privateKeyPath = `${orgAdminMspPath}/keystore/key.pem`;
