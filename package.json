@@ -23,7 +23,7 @@
     "bootstrap:fab": "cd ./deployments/dev-net && ./dev-net-run.2org.sh ",
     "build-run-test:fab": "(broke, need fix) cd ./deployments/dev-net && ./build-run.3.2org.auth-gw-tester.sh ",
     "shutdown": "cd ./deployments/dev-net && ./cleanup.sh",
-    "unit-test": "yarn lerna run unit-test:fab --stream --scope={@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/operator,@fabric-es/model-*}",
+    "unit-test": "sudo yarn lerna run unit-test:fab --stream --scope={@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/operator,@fabric-es/model-*}",
     "lint:lib": "lerna run lint --stream --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
     "lint:app": "lerna run lint --stream --scope={@fabric-es/gw-org*,@fabric-es/model-*}",
     "publish:lib": "lerna run publish:gh:fabric-es --scope={@fabric-es/authentication,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
