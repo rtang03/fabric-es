@@ -31,6 +31,12 @@ jobs:
         with:
           node-version: '10.x'
           version: '10.x'
+      - name: install nvm
+        run:  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
+      - run: export NVM_DIR=”$HOME/.nvm” && [ -s “$NVM_DIR/nvm.sh” ] && \. “$NVM_DIR/nvm.sh” && [ -s "$NVM_DIR/bash_completion" ] && \.
+      - run: nvm -version
+      - run: nvm install v10.19.0
+      - run: nvm use v10.19.0
       - name: yarn install
         run: yarn install --frozen-lockfile --ignore-engines
 #      - run: npm rebuild grpc --target=8.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
