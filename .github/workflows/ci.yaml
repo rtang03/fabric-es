@@ -31,19 +31,11 @@ jobs:
         with:
           node-version: '10.x'
           version: '10.x'
-      - name: install nvm
-        run:  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
-      - run: export NVM_DIR=~/.nvm
-      - run: [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-      - run: [ -s "$NVM_DIR/bash_completion" ] && \.
-      - run: "$NVM_DIR/bash_completion"
-      - run: nvm --version
-      - run: nvm install v10.19.0
-      - run: nvm use v10.19.0
       - name: yarn install
         run: yarn install --frozen-lockfile --ignore-engines
 #      - run: npm rebuild grpc --target=8.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
-      - run: npm rebuild --target=12.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
+      - run: npm rebuild grpc --target=12.0.0 --target_platform=linux --target_arch=x64
+      - run: npm rebuild bcrypt --target=12.0.0 --target_version=72
       - run: yarn lint:lib
       - run: yarn lint:app
       - name: Run tsc for all packages
