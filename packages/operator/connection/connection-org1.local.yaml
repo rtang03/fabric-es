@@ -6,7 +6,7 @@ description: connection profile for org1 for local machine
 
 client:
   organization: Org1MSP
-  mspid: Org1MSP
+  mspId: Org1MSP
   credentialStore:
     path: ./assets/client-certs/hfc-kvs/org1
     cryptoStore:
