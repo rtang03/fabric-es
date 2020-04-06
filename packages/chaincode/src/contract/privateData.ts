@@ -1,5 +1,4 @@
 import util from 'util';
-import { hash } from 'bcrypt';
 import { Context, Contract, Info, Returns, Transaction } from 'fabric-contract-api';
 import { ChaincodeStub } from 'fabric-shim';
 import { omit } from 'lodash';
@@ -99,7 +98,9 @@ export class PrivateData extends Contract {
 
     // protect private data content with salt
     // @see https://www.npmjs.com/package/bcrypt
-    commit.hash = await hash(JSON.stringify(events), 8);
+    // commit.hash = await hash(JSON.stringify(events), 8);
+    // todo: because bcrypt.js is binary compilation fail, in Github Action, now disable it.
+    commit.hash = '';
 
     await context.stateList.addState(collection, commit);
 

@@ -35,7 +35,6 @@
   },
   "dependencies": {
     "@types/bytebuffer": "^5.0.40",
-    "bcrypt": "^3.0.7",
     "fabric-contract-api": "^2.0.0",
     "fabric-shim": "~2.0.0",
     "lodash": "^4.17.15",
