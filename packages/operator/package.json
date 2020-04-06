@@ -45,7 +45,6 @@
     "fs-extra": "^8.1.0",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
-    "prettyjson": "^1.2.1",
     "rimraf": "^3.0.0",
     "winston": "^3.2.1"
   },

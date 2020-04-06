@@ -54,7 +54,6 @@
     "grpc": "1.23.3",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
-    "prettyjson": "^1.2.1",
     "redux": "^4.0.4",
     "redux-observable": "^1.2.0",
     "rimraf": "^3.0.0",

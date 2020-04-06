@@ -195,28 +195,6 @@ export const createResolvers: (option: {
             return new ApolloError(error);
           });
       },
-      getInstalledChaincodes: async () =>
-        queries.getInstalledChaincodes().then(({ chaincodes }) =>
-          chaincodes.map(cc => {
-            logger.info(`getInstalledChaincodes: ${cc.name}:${cc.version}`);
-            return {
-              name: cc.name,
-              version: cc.version,
-              path: cc.path
-            };
-          })
-        ),
-      getInstantiatedChaincodes: async () =>
-        queries.getInstantiatedChaincodes().then(({ chaincodes }) =>
-          chaincodes.map(cc => {
-            logger.info(`getInstantiatedChaincodes: ${cc.name}:${cc.version}`);
-            return {
-              name: cc.name,
-              version: cc.version,
-              path: cc.path
-            };
-          })
-        ),
       getInstalledCCVersion: async (_, { chaincode_id }: { chaincode_id: string }) => {
         const ver = await queries.getInstalledCCVersion(chaincode_id);
         logger.info('getInstalledCCVersion: ' + ver);
