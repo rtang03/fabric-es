@@ -2,10 +2,11 @@ import util from 'util';
 import Client from 'fabric-client';
 import { createAdmin } from './createAdmin';
 
-export const getClientForOrg: (connectionProfile: string, fabricNewtork: string) => Promise<Client> = async (
-  connectionProfile,
-  fabricNetwork,
-) => {
+export const getClientForOrg: (
+  connectionProfile: string,
+  fabricNewtork: string,
+  mspid: string
+) => Promise<Client> = async (connectionProfile, fabricNetwork, mspid: string) => {
   const logger = Client.getLogger('[operator] getClientForOrg.js');
   const client = new Client();
 
@@ -27,7 +28,9 @@ export const getClientForOrg: (connectionProfile: string, fabricNewtork: string)
     try {
       await createAdmin({
         client,
-        orgAdminMspPath: `${fabricNetwork}/${client.getMspid()}/admin/msp`
+        mspid,
+        orgAdminMspPath: `${fabricNetwork}/${mspid}/admin/msp`
+        // orgAdminMspPath: `${fabricNetwork}/${client.getMspid()}/admin/msp`
       });
     } catch (e) {
       logger.error(util.format('fail to createAdmin user context, %j', e));

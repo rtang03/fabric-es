@@ -16,13 +16,13 @@ export const identityService: (
   deleteOne: (enrollmentId: string) => Promise<any>;
 }> = option => async ({ asLocalhost } = { asLocalhost: true }) => {
   const logger = Common.Utils.getLogger('[operator] identityService.js');
-  const { connectionProfile, wallet, fabricNetwork, caAdmin, caAdminPW } = option;
+  const { connectionProfile, wallet, fabricNetwork, caAdmin, caAdminPW, mspId } = option;
   const gateway = new Gateway();
 
   // note: load client from connection profile. This is legacy implementation
-  const client = await getClientForOrg(connectionProfile, fabricNetwork);
+  const client = await getClientForOrg(connectionProfile, fabricNetwork, mspId);
   const caService = client.getCertificateAuthority().newIdentityService();
-  const mspid = client.getMspid();
+  // const mspid = client.getMspid();
 
   if (!caService) {
     logger.error('unknown error in finding ca admin service');
@@ -50,9 +50,9 @@ export const identityService: (
   // And then create registrar, i.e. CA Admin. User is the new api from fabric-common. The legacy implementation
   // of User from fabric-client is no longer usable.
   const { certificate, privateKey } = (gateway.getIdentity() as X509Identity).credentials;
-  const registrar = User.createUser(caAdmin, caAdminPW, mspid, certificate, privateKey);
+  const registrar = User.createUser(caAdmin, caAdminPW, mspId, certificate, privateKey);
 
-  logger.info(util.format('gateway connected: %s', mspid));
+  logger.info(util.format('gateway connected: %s', mspId));
 
   return {
     create: request => caService.create(request, registrar),

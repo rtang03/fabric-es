@@ -5,17 +5,17 @@ import { promiseToReadFile } from './promiseToReadFile';
 export interface CreateAdminOption {
   client: Client;
   orgAdminMspPath: string;
+  mspid: string;
 }
 
 export const createAdmin = async (option: CreateAdminOption): Promise<Client.User> => {
   const logger = Client.getLogger('[operator] createAdmin.js');
 
-  const { client, orgAdminMspPath } = option;
+  const { client, orgAdminMspPath, mspid } = option;
   const privateKeyPath = `${orgAdminMspPath}/keystore/key.pem`;
   const signCertPath = `${orgAdminMspPath}/signcerts/cert.pem`;
 
   // const mspid = client.getMspid();
-  const mspid = 'Org1MSP';
 
   if (!mspid) {
     logger.error('no mspid found');

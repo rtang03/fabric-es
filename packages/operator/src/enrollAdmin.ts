@@ -14,7 +14,7 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
     }
   });
 
-  const client = await getClientForOrg(connectionProfile, fabricNetwork);
+  const client = await getClientForOrg(connectionProfile, fabricNetwork, mspId);
   const caService = client.getCertificateAuthority();
   const walletEntry = await wallet.get(enrollmentID);
 

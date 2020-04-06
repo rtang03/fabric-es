@@ -60,7 +60,8 @@ beforeAll(async () => {
     connectionProfile,
     wallet,
     caAdmin,
-    caAdminPW
+    caAdminPW,
+    mspId: process.env.MSPID
   });
 });
 

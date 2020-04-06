@@ -33,10 +33,10 @@ export const registerAndEnroll: (
   if (!enrollmentSecret) throw new Error(MISSING_ENROLLMENTSECRET);
 
   const logger = Utils.getLogger('[operator] registerAndEnroll.js');
-  const { caAdmin, caAdminPW, fabricNetwork, connectionProfile, wallet } = option;
-  const client = await getClientForOrg(connectionProfile, fabricNetwork);
+  const { caAdmin, caAdminPW, fabricNetwork, connectionProfile, wallet, mspId } = option;
+  const client = await getClientForOrg(connectionProfile, fabricNetwork, mspId);
   const gateway = new Gateway();
-  const mspId = client.getMspid();
+  // const mspId = client.getMspid();
   const certificateAuthority = client.getCertificateAuthority();
 
   if (!mspId) {

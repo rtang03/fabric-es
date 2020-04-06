@@ -9,4 +9,5 @@ export interface CreateNetworkOperatorOption {
   caAdmin: string;
   caAdminPW: string;
   wallet: Wallet;
+  mspId: string;
 }

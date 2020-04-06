@@ -5,8 +5,8 @@ import { getClientForOrg, promiseToReadFile } from '../utils';
 
 export const getQueries = (option: CreateNetworkOperatorOption) => async (): Promise<Queries> => {
   const logger = Client.getLogger('[operator] getQueries.js');
-  const { connectionProfile, fabricNetwork, channelName, ordererTlsCaCert, ordererName } = option;
-  const client = await getClientForOrg(connectionProfile, fabricNetwork);
+  const { connectionProfile, fabricNetwork, channelName, ordererTlsCaCert, ordererName, mspId } = option;
+  const client = await getClientForOrg(connectionProfile, fabricNetwork, mspId);
   const channel = client.getChannel(channelName);
 
   let pem: string;
