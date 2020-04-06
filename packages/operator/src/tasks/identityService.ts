@@ -22,7 +22,6 @@ export const identityService: (
   // note: load client from connection profile. This is legacy implementation
   const client = await getClientForOrg(connectionProfile, fabricNetwork, mspId);
   const caService = client.getCertificateAuthority().newIdentityService();
-  // const mspid = client.getMspid();
 
   if (!caService) {
     logger.error('unknown error in finding ca admin service');

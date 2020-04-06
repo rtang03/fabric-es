@@ -36,7 +36,6 @@ export const registerAndEnroll: (
   const { caAdmin, caAdminPW, fabricNetwork, connectionProfile, wallet, mspId } = option;
   const client = await getClientForOrg(connectionProfile, fabricNetwork, mspId);
   const gateway = new Gateway();
-  // const mspId = client.getMspid();
   const certificateAuthority = client.getCertificateAuthority();
 
   if (!mspId) {

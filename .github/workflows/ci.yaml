@@ -44,6 +44,4 @@ jobs:
         run: sudo yarn unit-test
         env:
           CI: true
-      - name: Cleanup fabric network
-        run: yarn shutdown
       - run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
