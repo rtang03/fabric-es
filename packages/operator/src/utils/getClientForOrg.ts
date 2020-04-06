@@ -2,9 +2,9 @@ import util from 'util';
 import Client from 'fabric-client';
 import { createAdmin } from './createAdmin';
 
-export const getClientForOrg: (connectionProfile: string, fabricNewtork?: string) => Promise<Client> = async (
+export const getClientForOrg: (connectionProfile: string, fabricNewtork: string) => Promise<Client> = async (
   connectionProfile,
-  fabricNetwork
+  fabricNetwork,
 ) => {
   const logger = Client.getLogger('[operator] getClientForOrg.js');
   const client = new Client();
