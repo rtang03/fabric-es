@@ -58,7 +58,8 @@ beforeAll(async () => {
       fabricNetwork,
       wallet: walletOrg1,
       caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
-      caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN
+      caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN,
+      mspId: process.env.MSPID
     });
 
     contextOrg1 = await getNetwork({
@@ -97,7 +98,8 @@ beforeAll(async () => {
       fabricNetwork,
       wallet: walletOrg2,
       caAdmin: process.env.ORG2_CA_ENROLLMENT_ID_ADMIN,
-      caAdminPW: process.env.ORG2_CA_ENROLLMENT_SECRET_ADMIN
+      caAdminPW: process.env.ORG2_CA_ENROLLMENT_SECRET_ADMIN,
+      mspId: process.env.ORG2_MSPID
     });
 
     contextOrg2 = await getNetwork({

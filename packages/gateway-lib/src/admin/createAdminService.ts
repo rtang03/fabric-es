@@ -20,6 +20,7 @@ export const createAdminService: (option: {
   asLocalhost?: boolean;
   playground?: boolean;
   introspection?: boolean;
+  mspId: string;
 }) => Promise<{ server: ApolloServer; shutdown: any }> = async ({
   caAdmin,
   caAdminPW,
@@ -30,6 +31,7 @@ export const createAdminService: (option: {
   connectionProfile,
   fabricNetwork,
   walletPath,
+  mspId,
   asLocalhost = true,
   playground = true,
   introspection = true
@@ -64,7 +66,8 @@ export const createAdminService: (option: {
     fabricNetwork,
     peerName,
     wallet: await Wallets.newFileSystemWallet(walletPath),
-    asLocalhost
+    asLocalhost,
+    mspId
   });
 
   logger.info('createResolvers complete');

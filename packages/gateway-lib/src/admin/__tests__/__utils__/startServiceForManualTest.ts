@@ -13,7 +13,8 @@ const port = process.env.ADMINISTRATOR_PORT;
     peerName: process.env.PEER_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     fabricNetwork: process.env.NETWORK_LOCATION,
-    walletPath: process.env.WALLET
+    walletPath: process.env.WALLET,
+    mspId: process.env.MSPID
   });
 
   server.listen({ port }).then(({ url }) => {

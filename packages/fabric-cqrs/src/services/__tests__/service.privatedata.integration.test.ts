@@ -57,7 +57,8 @@ beforeAll(async () => {
       enrollmentId,
       enrollmentSecret: 'password',
       connectionProfile,
-      wallet
+      wallet,
+      mspId
     });
 
     const context = await getNetwork({

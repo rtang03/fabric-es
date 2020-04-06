@@ -17,6 +17,7 @@ export const createResolvers: (option: {
   connectionProfile: string;
   wallet: Wallet;
   asLocalhost: boolean;
+  mspId: string;
 }) => Promise<any> = async ({
   caAdmin,
   caAdminPW,
@@ -27,7 +28,8 @@ export const createResolvers: (option: {
   fabricNetwork,
   connectionProfile,
   wallet,
-  asLocalhost
+  asLocalhost,
+  mspId
 }) => {
   const logger = Client.getLogger('createResolvers.js');
 
@@ -41,7 +43,8 @@ export const createResolvers: (option: {
       ordererName,
       fabricNetwork,
       connectionProfile,
-      wallet
+      wallet,
+      mspId
     });
   } catch (e) {
     logger.error(util.format('createNetworkOperator error: %j', e));

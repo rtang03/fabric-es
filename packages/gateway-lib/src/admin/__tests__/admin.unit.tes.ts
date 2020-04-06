@@ -74,7 +74,8 @@ beforeAll(async () => {
       channelName: process.env.CHANNEL_NAME,
       connectionProfile: process.env.CONNECTION_PROFILE,
       fabricNetwork: process.env.NETWORK_LOCATION,
-      walletPath: process.env.WALLET
+      walletPath: process.env.WALLET,
+      mspId: process.env.MSPID
     }).then(({ server }) => server);
   } catch (e) {
     logger.error('fail to createAdminService: ', e);
