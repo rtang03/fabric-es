@@ -14,9 +14,8 @@ export const createAdmin = async (option: CreateAdminOption): Promise<Client.Use
   const privateKeyPath = `${orgAdminMspPath}/keystore/key.pem`;
   const signCertPath = `${orgAdminMspPath}/signcerts/cert.pem`;
 
-  const mspid = client.getMspid();
-
-  logger.error('mspid ==> ', mspid);
+  // const mspid = client.getMspid();
+  const mspid = 'Org1MSP';
 
   if (!mspid) {
     logger.error('no mspid found');
