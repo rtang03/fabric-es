@@ -16,7 +16,7 @@ export const createAdmin = async (option: CreateAdminOption): Promise<Client.Use
 
   const mspid = client.getMspid();
 
-  console.error('mspid ==> ', mspid);
+  logger.error('mspid ==> ', mspid);
 
   if (!mspid) {
     logger.error('no mspid found');
