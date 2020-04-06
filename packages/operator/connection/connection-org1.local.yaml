@@ -6,6 +6,7 @@ description: connection profile for org1 for local machine
 
 client:
   organization: Org1MSP
+  mspid: Org1MSP
   credentialStore:
     path: ./assets/client-certs/hfc-kvs/org1
     cryptoStore:
@@ -25,11 +26,6 @@ channels:
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-    #      peer0-org2:
-    #        endorsingPeer: true
-    #        chaincodeQuery: true
-    #        ledgerQuery: true
-    #        eventSource: true
     chaincodes:
       - eventstore
 
