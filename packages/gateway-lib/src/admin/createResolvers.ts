@@ -7,51 +7,56 @@ import { Wallet } from 'fabric-network';
 import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from './constants';
 
 export const createResolvers: (option: {
+  caAdmin: string;
+  caAdminPW: string;
   channelName?: string;
   ordererTlsCaCert: string;
   ordererName: string;
   peerName: string;
-  caAdminEnrollmentId: string;
   fabricNetwork: string;
   connectionProfile: string;
   wallet: Wallet;
   asLocalhost: boolean;
+  mspId: string;
 }) => Promise<any> = async ({
+  caAdmin,
+  caAdminPW,
   channelName = 'eventstore',
   ordererName,
   ordererTlsCaCert,
   peerName,
-  caAdminEnrollmentId,
   fabricNetwork,
   connectionProfile,
   wallet,
-  asLocalhost
+  asLocalhost,
+  mspId
 }) => {
   const logger = Client.getLogger('createResolvers.js');
 
   let operator;
   try {
     operator = await createNetworkOperator({
+      caAdmin,
+      caAdminPW,
       channelName,
       ordererTlsCaCert,
       ordererName,
-      context: {
-        fabricNetwork,
-        connectionProfile,
-        wallet
-      }
+      fabricNetwork,
+      connectionProfile,
+      wallet,
+      mspId
     });
   } catch (e) {
     logger.error(util.format('createNetworkOperator error: %j', e));
     throw new Error(e);
   }
 
-  const queries = await operator.getQueries({ peerName });
+  const queries = await operator.getQueries();
 
   let ca;
   try {
     ca = await operator.identityService({
-      caAdmin: caAdminEnrollmentId,
+      caAdmin,
       asLocalhost
     });
   } catch (e) {
@@ -84,7 +89,7 @@ export const createResolvers: (option: {
           const res = await operator.registerAndEnroll({
             enrollmentId,
             enrollmentSecret,
-            identity: administrator,
+            // identity: administrator,
             asLocalhost
           });
           registerResult = await res.registerAndEnroll();
@@ -190,28 +195,6 @@ export const createResolvers: (option: {
             return new ApolloError(error);
           });
       },
-      getInstalledChaincodes: async () =>
-        queries.getInstalledChaincodes().then(({ chaincodes }) =>
-          chaincodes.map(cc => {
-            logger.info(`getInstalledChaincodes: ${cc.name}:${cc.version}`);
-            return {
-              name: cc.name,
-              version: cc.version,
-              path: cc.path
-            };
-          })
-        ),
-      getInstantiatedChaincodes: async () =>
-        queries.getInstantiatedChaincodes().then(({ chaincodes }) =>
-          chaincodes.map(cc => {
-            logger.info(`getInstantiatedChaincodes: ${cc.name}:${cc.version}`);
-            return {
-              name: cc.name,
-              version: cc.version,
-              path: cc.path
-            };
-          })
-        ),
       getInstalledCCVersion: async (_, { chaincode_id }: { chaincode_id: string }) => {
         const ver = await queries.getInstalledCCVersion(chaincode_id);
         logger.info('getInstalledCCVersion: ' + ver);
@@ -234,10 +217,9 @@ export const createResolvers: (option: {
       isWalletExist: async (_, { label }: { label: string }) => {
         logger.info(`isWalletExist: ${label}`);
 
-        return wallet.exists(label).catch(error => {
-          logger.error(util.format('isWalletexist: %j', error));
-          return new ApolloError(error);
-        });
+        const walletEntry = await wallet.get(label);
+
+        return !!walletEntry;
       },
       listWallet: async (_, __, { is_admin }) =>
         is_admin

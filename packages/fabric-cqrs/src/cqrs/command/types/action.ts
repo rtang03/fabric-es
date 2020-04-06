@@ -10,10 +10,9 @@ export interface CreateAction {
       id: string;
       version: number;
       events: BaseEvent[];
-      collection?: string;
+      isPrivateData: boolean;
     };
     enrollmentId?: string;
-    channelEventHub?: string;
     channelName?: string;
     connectionProfile?: string;
     wallet?: Wallet;
@@ -27,7 +26,7 @@ export interface DeleteByEntityIdAction {
     args: {
       entityName: string;
       id: string;
-      collection?: string;
+      isPrivateData: boolean;
     };
   };
 }
@@ -40,7 +39,7 @@ export interface DeleteByEntityIdCommitIdAction {
       entityName: string;
       id: string;
       commitId: string;
-      collection?: string;
+      isPrivateData: boolean;
     };
   };
 }
@@ -52,7 +51,7 @@ export interface QueryByEntityIdAction {
     args: {
       entityName: string;
       id: string;
-      collection?: string;
+      isPrivateData: boolean;
     };
   };
 }
@@ -63,7 +62,7 @@ export interface QueryByEntityNameAction {
     tx_id: string;
     args: {
       entityName: string;
-      collection?: string;
+      isPrivateData: boolean;
     };
   };
 }
@@ -76,15 +75,7 @@ export interface QueryByEntIdCommitIdAction {
       entityName: string;
       id: string;
       commitId: string;
-      collection?: string;
+      isPrivateData: boolean;
     };
   };
 }
-
-export type CommandActions =
-  | CreateAction
-  | DeleteByEntityIdAction
-  | DeleteByEntityIdCommitIdAction
-  | QueryByEntityIdAction
-  | QueryByEntityNameAction
-  | QueryByEntIdCommitIdAction;

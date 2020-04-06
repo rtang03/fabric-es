@@ -3,7 +3,7 @@
  * @hidden
  */
 import util from 'util';
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { Wallet } from 'fabric-network';
 import { keys } from 'lodash';
 import { Store } from 'redux';
@@ -14,41 +14,36 @@ import { fromCommitsToGroupByEntityId } from './fromCommitsToGroupByEntityId';
 import { getHistory } from './getHistory';
 import { getPromiseToSave } from './getPromiseToSave';
 
-const {
-  deleteByEntityIdCommitId,
-  DELETE_ERROR,
-  DELETE_SUCCESS,
-  QUERY_SUCCESS,
-  QUERY_ERROR,
-  queryByEntityId,
-  queryByEntityName
-} = action;
-
 export const privateDataRepo: (option: {
   store: Store;
-  collection: string;
-  channelEventHub: string;
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
 }) => <TEntity = any, TEvent = any>(option: {
   entityName: string;
   reducer: Reducer;
-}) => PrivatedataRepository<TEntity, TEvent> = ({
-  store,
-  collection,
-  channelEventHub,
-  channelName,
-  connectionProfile,
-  wallet
-}) => <TEntity, TEvent>({ entityName, reducer }) => {
-  const logger = Client.getLogger('privateDataRepo.js');
+}) => PrivatedataRepository<TEntity, TEvent> = ({ store, channelName, connectionProfile, wallet }) => <
+  TEntity,
+  TEvent
+>({
+  entityName,
+  reducer
+}) => {
+  const logger = Utils.getLogger('[fabric-cqrs] privateDataRepo.js');
+  const {
+    deleteByEntityIdCommitId,
+    DELETE_ERROR,
+    DELETE_SUCCESS,
+    QUERY_SUCCESS,
+    QUERY_ERROR,
+    queryByEntityId,
+    queryByEntityName
+  } = action;
 
   return {
     create: ({ enrollmentId, id }) => ({
       save: events =>
         getPromiseToSave({
-          channelEventHub,
           channelName,
           connectionProfile,
           wallet,
@@ -57,8 +52,8 @@ export const privateDataRepo: (option: {
           version: 0,
           events,
           store,
-          collection,
-          enrollmentId
+          enrollmentId,
+          isPrivateData: true
         })
     }),
     getById: ({ enrollmentId, id }) =>
@@ -77,7 +72,6 @@ export const privateDataRepo: (option: {
               currentState: reducer(getHistory(result)),
               save: events =>
                 getPromiseToSave({
-                  channelEventHub,
                   channelName,
                   connectionProfile,
                   wallet,
@@ -86,8 +80,8 @@ export const privateDataRepo: (option: {
                   events,
                   version: keys(result).length,
                   store,
-                  collection,
-                  enrollmentId
+                  enrollmentId,
+                  isPrivateData: true
                 })
             });
           }
@@ -102,12 +96,11 @@ export const privateDataRepo: (option: {
 
         store.dispatch(
           queryByEntityId({
-            channelEventHub,
             channelName,
             connectionProfile,
             wallet,
             tx_id: tid,
-            args: { id, entityName, collection }
+            args: { id, entityName, isPrivateData: true }
           })
         );
 
@@ -137,12 +130,11 @@ export const privateDataRepo: (option: {
 
         store.dispatch(
           queryByEntityName({
-            channelEventHub,
             channelName,
             connectionProfile,
             wallet,
             tx_id: tid,
-            args: { entityName, collection }
+            args: { entityName, isPrivateData: true }
           })
         );
 
@@ -170,12 +162,11 @@ export const privateDataRepo: (option: {
 
         store.dispatch(
           deleteByEntityIdCommitId({
-            channelEventHub,
             channelName,
             connectionProfile,
             wallet,
             tx_id: tid,
-            args: { entityName, id, commitId, collection }
+            args: { entityName, id, commitId, isPrivateData: true }
           })
         );
 

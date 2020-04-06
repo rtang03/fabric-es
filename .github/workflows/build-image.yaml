@@ -36,8 +36,8 @@ jobs:
       - name: Setup Node.js for use with action
         uses: actions/setup-node@v1.1.0
         with:
-          node-version: '8.x'
-          version: '8.x'
+          node-version: '10.x'
+          version: '10.x'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@fabric-es'
       - run: yarn install --frozen-lockfile --ignore-engines

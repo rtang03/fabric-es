@@ -3,7 +3,7 @@ version: '2'
 services:
 
   ca:
-    image: hyperledger/fabric-ca:$IMAGE_TAG
+    image: hyperledger/fabric-ca:1.4.6
     environment:
       - FABRIC_CA_SERVER_TLS_ENABLED=true
       - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0
@@ -32,6 +32,7 @@ services:
       - CORE_PEER_GOSSIP_USELEADERELECTION=true
       - CORE_PEER_GOSSIP_ORGLEADER=false
       - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_GOSSIP_PVTDATA_RECONCILIATIONENABLED=false
     networks:
       - openplatform
 

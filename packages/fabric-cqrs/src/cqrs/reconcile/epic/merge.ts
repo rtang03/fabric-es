@@ -3,7 +3,7 @@
  * @hidden
  */
 import util from 'util';
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
@@ -11,15 +11,14 @@ import { action as query } from '../../query/action';
 import { action } from '../action';
 import { MergeAction } from '../types';
 
-export default (action$: Observable<MergeAction>) => {
-  const logger = Client.getLogger('merge.js');
-
-  return action$.pipe(
+export default (action$: Observable<MergeAction>) =>
+  action$.pipe(
     ofType(action.MERGE),
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName, commits, reducer }, store }) =>
       from(
         new Promise(resolve => {
+          const logger = Utils.getLogger('[fabric-cqrs] merge.js');
           const unsubscribe = store.subscribe(() => {
             const state = store.getState().query;
             const tid = state.tx_id;
@@ -42,4 +41,3 @@ export default (action$: Observable<MergeAction>) => {
       )
     )
   );
-};

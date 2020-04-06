@@ -1,12 +1,13 @@
 import { Wallet } from 'fabric-network';
-import { Context } from './context';
 
 export interface CreateNetworkOperatorOption {
-  channelName?: string;
-  ordererTlsCaCert?: string;
-  ordererName?: string;
-  context?: Context;
-  connectionProfile?: string;
-  fabricNetwork?: string;
-  wallet?: Wallet;
+  channelName: string;
+  ordererTlsCaCert: string;
+  ordererName: string;
+  connectionProfile: string;
+  fabricNetwork: string;
+  caAdmin: string;
+  caAdminPW: string;
+  wallet: Wallet;
+  mspId: string;
 }

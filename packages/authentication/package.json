@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/authentication",
-  "version": "0.5.16",
+  "version": "0.6.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -44,13 +44,9 @@
     "unit-test:with-fab": "./unit-test.sh && yarn test:all && ./cleanup.sh",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "publish:gh:fabric-es": "npm publish"
+    "publish:gh:fabric-es": "npm publish",
+    "prepublishOnly": "yarn tsc:prod"
   },
-  "engines": {
-    "node": ">=8",
-    "npm": ">=5"
-  },
-  "engineStrict": true,
   "dependencies": {
     "apollo-server-express": "^2.9.7",
     "bcrypt": "^3.0.6",
@@ -84,7 +80,7 @@
     "@types/js-yaml": "^3.12.1",
     "@types/jsonwebtoken": "^8.3.5",
     "@types/lodash": "^4.14.138",
-    "@types/node": "^12.7.5",
+    "@types/node": "^10.17.18",
     "@types/stoppable": "^1.1.0",
     "@types/supertest": "^2.0.8",
     "concurrently": "^5.0.0",

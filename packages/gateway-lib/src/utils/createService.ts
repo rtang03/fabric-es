@@ -1,6 +1,13 @@
 import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
-import { createPeer, getNetwork, PrivatedataRepository, Reducer, Repository } from '@fabric-es/fabric-cqrs';
+import {
+  createPeer,
+  getNetwork,
+  PeerOptions,
+  PrivatedataRepository,
+  Reducer,
+  Repository
+} from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import Client from 'fabric-client';
 import { Wallet } from 'fabric-network';
@@ -11,9 +18,7 @@ export const createService = async ({
   enrollmentId,
   defaultEntityName,
   defaultReducer,
-  collection,
   isPrivate = false,
-  channelEventHub,
   channelName,
   connectionProfile,
   wallet
@@ -21,9 +26,7 @@ export const createService = async ({
   enrollmentId: string;
   defaultEntityName: string;
   defaultReducer: Reducer;
-  collection: string;
   isPrivate?: boolean;
-  channelEventHub: string;
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
@@ -31,21 +34,17 @@ export const createService = async ({
   const logger = Client.getLogger('createService.js');
 
   const networkConfig = await getNetwork({
-    channelEventHub,
+    discovery: true,
     channelName,
     connectionProfile,
     wallet,
-    enrollmentId,
-    channelEventHubExisted: true
+    enrollmentId
   });
 
   const { reconcile, getRepository, getPrivateDataRepo, subscribeHub, unsubscribeHub, disconnect } = createPeer({
     ...networkConfig,
-    // ...(networkConfig as Partial<PeerOptions>),
     defaultEntityName,
     defaultReducer,
-    collection,
-    channelEventHubUri: channelEventHub,
     channelName,
     connectionProfile,
     wallet

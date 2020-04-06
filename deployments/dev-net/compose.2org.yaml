@@ -61,6 +61,106 @@ services:
     ports:
       - 7050:7050
 
+  orderer1-org0:
+    extends:
+      file: nodebase.yaml
+      service: orderer
+    container_name: orderer1-org0
+    environment:
+      - ORDERER_HOST=orderer1-org0
+      - ORDERER_HOME=/var/artifacts/orderer
+      - ORDERER_GENERAL_LOCALMSPID=Org0MSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/msp
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+      - ORDERER_GENERAL_GENESISFILE=/var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/genesis.block
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+      - ORDERER_GENERAL_LISTENPORT=7150
+    volumes:
+      - $ARTIFACTS:/var/artifacts
+    #      - $ARTIFACTS/production/Org0MSP/orderer1.org0.com:/var/hyperledger/production
+    #      - $ARTIFACTS/crypto-config/Org0MSP/orderer1.org0.com:/var/artifacts/crypto-config/Org0MSP/orderer1.org0.com
+    ports:
+      - 7150:7150
+
+  orderer2-org0:
+    extends:
+      file: nodebase.yaml
+      service: orderer
+    container_name: orderer2-org0
+    environment:
+      - ORDERER_HOST=orderer2-org0
+      - ORDERER_HOME=/var/artifacts/orderer
+      - ORDERER_GENERAL_LOCALMSPID=Org0MSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/msp
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+      - ORDERER_GENERAL_GENESISFILE=/var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/genesis.block
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+      - ORDERER_GENERAL_LISTENPORT=7250
+    volumes:
+      - $ARTIFACTS:/var/artifacts
+    #      - $ARTIFACTS/production/Org0MSP/orderer2.org0.com:/var/hyperledger/production
+    #      - $ARTIFACTS/crypto-config/Org0MSP/orderer2.org0.com:/var/artifacts/crypto-config/Org0MSP/orderer2.org0.com
+    ports:
+      - 7250:7250
+
+  orderer3-org0:
+    extends:
+      file: nodebase.yaml
+      service: orderer
+    container_name: orderer3-org0
+    environment:
+      - ORDERER_HOST=orderer3-org0
+      - ORDERER_HOME=/var/artifacts/orderer
+      - ORDERER_GENERAL_LOCALMSPID=Org0MSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/msp
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+      - ORDERER_GENERAL_GENESISFILE=/var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/genesis.block
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+      - ORDERER_GENERAL_LISTENPORT=7350
+    volumes:
+      - $ARTIFACTS:/var/artifacts
+    #      - $ARTIFACTS/production/Org0MSP/orderer3.org0.com:/var/hyperledger/production
+    #      - $ARTIFACTS/crypto-config/Org0MSP/orderer3.org0.com:/var/artifacts/crypto-config/Org0MSP/orderer3.org0.com
+    ports:
+      - 7350:7350
+
+  orderer4-org0:
+    extends:
+      file: nodebase.yaml
+      service: orderer
+    container_name: orderer4-org0
+    environment:
+      - ORDERER_HOST=orderer4-org0
+      - ORDERER_HOME=/var/artifacts/orderer
+      - ORDERER_GENERAL_LOCALMSPID=Org0MSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/msp
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+      - ORDERER_GENERAL_GENESISFILE=/var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/genesis.block
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem]
+      - ORDERER_GENERAL_LISTENPORT=7450
+    volumes:
+      - $ARTIFACTS:/var/artifacts
+    #      - $ARTIFACTS/production/Org0MSP/orderer4.org0.com:/var/hyperledger/production
+    #      - $ARTIFACTS/crypto-config/Org0MSP/orderer4.org0.com:/var/artifacts/crypto-config/Org0MSP/orderer4.org0.com
+    ports:
+      - 7450:7450
+
   cli:
     extends:
       file: nodebase.yaml

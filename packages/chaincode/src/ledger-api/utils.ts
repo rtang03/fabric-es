@@ -11,29 +11,22 @@ export const toRecord = (commit: Partial<Commit>) => assign({}, { [commit.commit
 
 export const createCommitId = () => `${new Date(Date.now()).toISOString().replace(/[^0-9]/g, '')}`;
 
-export const createInstance = ({
-  id,
-  entityName,
-  version,
-  events,
-  commitId
-}: {
+export const createInstance = (option: {
   id: string;
   entityName: string;
   version: string;
   events: any[];
   commitId: string;
-}) => {
-  const now = Date.now();
-  const committedAt = now.toString();
-
-  return new Commit({
-    id,
-    entityName,
-    commitId,
-    committedAt,
-    version: parseInt(version, 10),
-    events,
-    entityId: id
+}) =>
+  new Commit({
+    id: option.id,
+    entityName: option.entityName,
+    commitId: option.commitId,
+    version: parseInt(option.version, 10),
+    events: option.events,
+    entityId: option.id
   });
-};
+
+// type guard for transient data
+export const isEventArray = (value: unknown): value is { type: string; payload?: any }[] =>
+  Array.isArray(value) && value.every(item => typeof item.type === 'string');

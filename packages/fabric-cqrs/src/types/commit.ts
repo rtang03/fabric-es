@@ -14,10 +14,10 @@ export interface BaseEvent {
  */
 export interface Commit {
   /** commit Id */
-  id?: string;
+  id: string;
 
   /** entity name */
-  entityName?: string;
+  entityName: string;
 
   /** version number */
   version?: number;
@@ -25,12 +25,12 @@ export interface Commit {
   /** commit Id */
   commitId?: string;
 
-  /** commit time */
-  committedAt?: string;
-
   /** entity Id */
   entityId?: string;
 
   /** events array */
   events?: BaseEvent[];
+
+  /** hash of privatedata's events string */
+  hash?: string;
 }

@@ -3,7 +3,7 @@
  * @hidden
  */
 import util from 'util';
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { Wallet } from 'fabric-network';
 import { keys, values } from 'lodash';
 import { Store } from 'redux';
@@ -18,27 +18,22 @@ import { getPromiseToSave } from './getPromiseToSave';
 
 export const repository: (option: {
   store: Store;
-  channelEventHub: string;
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
 }) => <TEntity = any, TEvent = any>(option: {
   entityName: string;
   reducer: Reducer;
-}) => Repository<TEntity, TEvent> = ({ store, channelEventHub, channelName, connectionProfile, wallet }) => <
-  TEntity,
-  TEvent
->({
+}) => Repository<TEntity, TEvent> = ({ store, channelName, connectionProfile, wallet }) => <TEntity, TEvent>({
   entityName,
   reducer
 }) => {
-  const logger = Client.getLogger('repository.js');
+  const logger = Utils.getLogger('[fabric-cqrs] repository.js');
 
   return {
     create: ({ enrollmentId, id }) => ({
       save: events =>
         getPromiseToSave({
-          channelEventHub,
           channelName,
           connectionProfile,
           wallet,
@@ -47,7 +42,8 @@ export const repository: (option: {
           version: 0,
           events,
           store,
-          enrollmentId
+          enrollmentId,
+          isPrivateData: false
         })
     }),
     getById: ({ enrollmentId, id }) =>
@@ -67,7 +63,6 @@ export const repository: (option: {
               currentState: reducer(getHistory(result)),
               save: events =>
                 getPromiseToSave({
-                  channelEventHub,
                   channelName,
                   connectionProfile,
                   wallet,
@@ -76,7 +71,8 @@ export const repository: (option: {
                   events,
                   version: keys(result).length,
                   store,
-                  enrollmentId
+                  enrollmentId,
+                  isPrivateData: false
                 })
             });
           }
@@ -187,12 +183,11 @@ export const repository: (option: {
 
         store.dispatch(
           deleteByEntityId({
-            channelEventHub,
             channelName,
             connectionProfile,
             wallet,
             tx_id: tid,
-            args: { entityName, id }
+            args: { entityName, id, isPrivateData: false }
           })
         );
 

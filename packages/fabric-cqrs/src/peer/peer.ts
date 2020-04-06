@@ -1,11 +1,11 @@
 import util from 'util';
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
+import { Contract, ContractListener, Network } from 'fabric-network';
 import { action } from '../cqrs/query';
 import { generateToken } from '../cqrs/utils';
-import { channelEventHub } from '../services';
 import { getStore } from '../store';
 import { Peer, PeerOptions } from '../types';
-import { ngacRepo, privateDataRepo, reconcile, repository } from './utils';
+import { isCommit, privateDataRepo, reconcile, repository } from './utils';
 import { createProjectionDb, createQueryDatabase } from '.';
 
 /**
@@ -14,69 +14,67 @@ import { createProjectionDb, createQueryDatabase } from '.';
  * @returns [[Peer]]
  */
 export const createPeer: (options: PeerOptions) => Peer = options => {
-  const logger = Client.getLogger('createPeer.js');
+  const logger = Utils.getLogger('[fabric-cqrs] createPeer.js');
 
-  let registerId: any;
-  const {
-    defaultEntityName,
-    channelHub,
-    gateway,
-    projectionDb,
-    queryDatabase,
-    collection,
-    channelName,
-    wallet,
-    connectionProfile,
-    channelEventHubUri
-  } = options;
+  let contractListener: ContractListener;
+  let contract: Contract;
+  let network: Network;
 
-  if (!collection) {
-    logger.error('null privatedata collection');
-    throw new Error('Null privatedata collection');
-  }
+  const { defaultEntityName, gateway, projectionDb, queryDatabase, channelName, wallet, connectionProfile } = options;
+
   options.projectionDb = projectionDb || createProjectionDb(defaultEntityName);
   options.queryDatabase = queryDatabase || createQueryDatabase();
 
   const store = getStore(options);
 
   return {
-    getNgacRepo: ngacRepo(options.network),
     getPrivateDataRepo: privateDataRepo({
       store,
-      collection,
       channelName,
       wallet,
-      connectionProfile,
-      channelEventHub: channelEventHubUri
+      connectionProfile
     }),
     getRepository: repository({
       store,
       channelName,
       wallet,
       connectionProfile,
-      channelEventHub: channelEventHubUri
     }),
     reconcile: reconcile({
       store,
       channelName,
       wallet,
       connectionProfile,
-      channelEventHub: channelEventHubUri
     }),
     subscribeHub: async () => {
-      logger.info('subcribe channel event hub');
+      logger.info('subscribe channel event hub');
+      network = await gateway.getNetwork(channelName);
+      contract = network.getContract('eventstore');
+      contractListener = network.getContract('eventstore').addContractListener(
+        ({ chaincodeId, payload, eventName }) => {
+          logger.info(`subscribed event arrives from ${chaincodeId}`);
+          let commit: unknown;
 
-      registerId = await channelEventHub(channelHub).registerCCEvent({
-        onChannelEventArrived: ({ commit }) => {
-          const tid = generateToken();
-          logger.info('subscribed event arrives');
-          logger.debug(util.format('subscribed event arrives, %j', commit));
+          if (eventName !== 'createCommit') {
+            logger.warn(`receive unexpected contract event: ${eventName}`);
+            return;
+          }
 
-          store.dispatch(action.merge({ tx_id: tid, args: { commit } }));
-        }
-      });
+          try {
+            commit = JSON.parse(payload.toString('utf8'));
+          } catch (e) {
+            logger.error(util.format('fail to parse contract event, %j', e));
+            return;
+          }
+
+          if (isCommit(commit)) {
+            store.dispatch(action.merge({ tx_id: generateToken(), args: { commit } }));
+          } else logger.warn(util.format('receive contract events of unknown type, %j', commit));
+        },
+        { type: 'full' }
+      );
     },
-    unsubscribeHub: () => channelHub.unregisterChaincodeEvent(registerId, true),
+    unsubscribeHub: () => contract.removeContractListener(contractListener),
     disconnect: () => gateway.disconnect()
   };
 };

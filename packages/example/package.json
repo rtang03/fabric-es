@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/example",
-  "version": "0.5.16",
+  "version": "0.6.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -10,20 +10,14 @@
     "clean": "rimraf dist",
     "enrollAdmin": "rimraf assets/wallet/admin && ./node_modules/.bin/ts-node src/enrollAdmin.ts"
   },
-  "engines": {
-    "node": ">=8",
-    "npm": ">=5"
-  },
   "private": true,
-  "engineStrict": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.5.16",
-    "@fabric-es/operator": "^0.5.16",
+    "@fabric-es/fabric-cqrs": "^0.6.0",
+    "@fabric-es/operator": "^0.6.0",
     "dotenv": "^8.1.0",
-    "fabric-network": "^1.4.4",
+    "fabric-network": "2.0.0-snapshot.348",
     "js-yaml": "^3.13.1",
-    "lodash": "^4.17.15",
-    "prettyjson": "^1.2.1"
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
     "@types/bytebuffer": "^5.0.40",
@@ -31,7 +25,7 @@
     "@types/jest": "^24.0.18",
     "@types/js-yaml": "^3.12.1",
     "@types/lodash": "^4.14.138",
-    "@types/node": "^8.10.54",
+    "@types/node": "^10.17.18",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",

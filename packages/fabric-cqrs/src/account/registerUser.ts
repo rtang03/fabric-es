@@ -3,9 +3,8 @@
  * @hidden
  */
 import { registerAndEnroll } from '@fabric-es/operator';
-import Client, { ChannelEventHub } from 'fabric-client';
-import { Gateway, Network, Wallet } from 'fabric-network';
-import { getNetwork } from '../services';
+import { Utils } from 'fabric-common';
+import { Wallet } from 'fabric-network';
 
 export const registerUser: (option: {
   enrollmentId: string;
@@ -14,15 +13,30 @@ export const registerUser: (option: {
   fabricNetwork: string;
   wallet: Wallet;
   caAdmin: string;
-}) => any = async ({ enrollmentId, enrollmentSecret, connectionProfile, fabricNetwork, wallet, caAdmin }) => {
-  const logger = Client.getLogger('registerUser.js');
-
+  caAdminPW: string;
+  mspId: string;
+}) => any = async ({
+  enrollmentId,
+  enrollmentSecret,
+  connectionProfile,
+  fabricNetwork,
+  wallet,
+  caAdmin,
+  caAdminPW,
+  mspId
+}) => {
+  const logger = Utils.getLogger('[fabric-cqrs] registerUser.js');
   const operator = await registerAndEnroll({
+    caAdmin,
+    caAdminPW,
+    channelName: null,
+    ordererName: null,
+    ordererTlsCaCert: null,
     fabricNetwork,
     connectionProfile,
-    wallet
+    wallet,
+    mspId
   })({
-    identity: caAdmin,
     enrollmentId,
     enrollmentSecret
   });
@@ -32,47 +46,4 @@ export const registerUser: (option: {
 
   operator.disconnect();
   return result;
-};
-
-export const bootstrapNetwork: (option: {
-  enrollmentId: string;
-  enrollmentSecret: string;
-  connectionProfile: string;
-  fabricNetwork: string;
-  wallet: Wallet;
-  caAdmin: string;
-  channelName: string;
-  channelEventHub: string;
-}) => Promise<{
-  enrollmentId: string;
-  network: Network;
-  gateway: Gateway;
-  channelHub?: ChannelEventHub;
-}> = async ({
-  enrollmentId,
-  enrollmentSecret,
-  connectionProfile,
-  fabricNetwork,
-  wallet,
-  caAdmin,
-  channelName,
-  channelEventHub
-}) => {
-  await registerUser({
-    caAdmin,
-    enrollmentId,
-    enrollmentSecret,
-    connectionProfile,
-    fabricNetwork,
-    wallet
-  });
-
-  return getNetwork({
-    channelEventHub,
-    channelName,
-    connectionProfile,
-    wallet,
-    enrollmentId,
-    channelEventHubExisted: true
-  });
 };

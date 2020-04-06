@@ -1,0 +1,72 @@
+---
+name: peer0.org1.net
+x-type: hlfv1
+version: 1.0.0
+description: connection profile for org1 for local machine
+
+client:
+  organization: Org1MSP
+  mspId: Org1MSP
+  credentialStore:
+    path: ./assets/client-certs/hfc-kvs/org1
+    cryptoStore:
+      path: ./assets/client-certs/hfc-kvs/org1
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+
+channels:
+  loanapp:
+    orderers:
+      - orderer0-org0
+    peers:
+      peer0-org1:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+    chaincodes:
+      - eventstore
+
+organizations:
+  Org1MSP:
+    mspid: Org1MSP
+    peers:
+      - peer0-org1
+    certificateAuthorities:
+      - rca-org1
+    adminPrivateKey:
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org1MSP/admin/msp/keystore/key.pem
+    signedCert:
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org1MSP/admin/msp/signcerts/cert.pem
+
+orderers:
+  orderer0-org0:
+    url: grpcs://localhost:7050
+    grpcOptions:
+      ssl-target-name-override: orderer0-org0
+    #     grpc-max-send-message-length: 4000
+    tlsCACerts:
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+
+peers:
+  peer0-org1:
+    url: grpcs://localhost:7051
+    eventUrl: grpcs://localhost:7053
+    tlsCACerts:
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+    grpcOptions:
+      ssl-target-name-override: peer0-org1
+
+certificateAuthorities:
+  rca-org1:
+    url: https://localhost:5054
+    caName: rca-org1
+    tlsCACerts:
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org1MSP/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: rca-org1-admin
+        enrollSecret: rca-org1-adminPW
+    httpOptions:
+      verify: false

@@ -1,7 +1,4 @@
-import { ChannelEventHub } from 'fabric-client';
 import { Gateway, Network, Wallet } from 'fabric-network';
-import { Commit } from './commit';
-import { NgacRepo } from './ngac';
 import { PrivatedataRepository } from './privatedataRepository';
 import { ProjectionDb } from './projectionDb';
 import { QueryDatabase } from './queryDatabase';
@@ -30,18 +27,6 @@ export interface PeerOptions {
   /** gateway instance of fabric-sdk */
   gateway?: Gateway;
 
-  /** channel event hub of fabric-sdk */
-  channelHub?: ChannelEventHub;
-
-  /** collection name of Fabric private data. Note: this field may change, if later upgrade to Fabric V2 */
-  collection: string;
-
-  /**
-   * callback function invoked when channel event arrives
-   * @example `({ commit }: { commit: Commit }) => console.log(commit)`
-   */
-  onChannelEventArrived?: (CommitObj: { commit: Commit }) => void;
-
   /** channel name */
   channelName: string;
 
@@ -50,10 +35,6 @@ export interface PeerOptions {
 
   /** local path to connection profile yaml */
   connectionProfile: string;
-
-  /** uri to connecting channel event hub */
-  channelEventHubUri: string;
-  // pubSub?: any;
 }
 
 /**
@@ -107,7 +88,4 @@ export interface Peer {
 
   /** gateway.disconnect() of fabric-sdk, use for tear-down of jest tests */
   disconnect: () => void;
-
-  /** @ignore */
-  getNgacRepo: NgacRepo;
 }

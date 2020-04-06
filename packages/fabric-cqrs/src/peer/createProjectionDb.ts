@@ -1,4 +1,4 @@
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { assign, filter, groupBy, isNumber, keys, values } from 'lodash';
 import { Commit, ProjectionDb } from '../types';
 
@@ -14,9 +14,10 @@ const getHistory = (commits: Commit[]): any[] => {
  * @returns [[ProjectionDb]]
  */
 export const createProjectionDb: (defaultEntityName: string) => ProjectionDb = defaultEntityName => {
-  const logger = Client.getLogger('createProjectionDb.js');
+  const logger = Utils.getLogger('[fabric-cqrs] createProjectionDb.js');
 
   const db: Record<string, any> = {};
+
   return {
     find: ({ all, contain, where }) =>
       new Promise(resolve => {

@@ -43,7 +43,7 @@ import {
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import { Express } from 'express';
-import { FileSystemWallet } from 'fabric-network';
+import { Wallets } from 'fabric-network';
 import fetch from 'node-fetch';
 import request from 'supertest';
 import {
@@ -114,12 +114,9 @@ beforeAll(async () => {
       enrollmentID: process.env.ORG_ADMIN_ID,
       enrollmentSecret: process.env.ORG_ADMIN_SECRET,
       mspId: process.env.MSPID,
-      label: process.env.ORG_ADMIN_ID,
-      context: {
-        fabricNetwork: process.env.NETWORK_LOCATION,
-        connectionProfile: process.env.CONNECTION_PROFILE,
-        wallet: new FileSystemWallet(process.env.WALLET)
-      }
+      fabricNetwork: process.env.NETWORK_LOCATION,
+      connectionProfile: process.env.CONNECTION_PROFILE,
+      wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
     })
       .then(result => result.status === 'SUCCESS')
       .catch(_ => false))
@@ -135,12 +132,9 @@ beforeAll(async () => {
       enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
       enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
       mspId: process.env.MSPID,
-      label: process.env.CA_ENROLLMENT_ID_ADMIN,
-      context: {
-        fabricNetwork: process.env.NETWORK_LOCATION,
-        connectionProfile: process.env.CONNECTION_PROFILE,
-        wallet: new FileSystemWallet(process.env.WALLET)
-      }
+      fabricNetwork: process.env.NETWORK_LOCATION,
+      connectionProfile: process.env.CONNECTION_PROFILE,
+      wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
     })
       .then(result => result.status === 'SUCCESS')
       .catch(_ => false))
@@ -198,15 +192,18 @@ beforeAll(async () => {
 
   // Start admin service
   ({ server: adminService } = await createAdminService({
+    caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
+    caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN,
     ordererName: process.env.ORDERER_NAME,
     ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
     peerName: process.env.PEER_NAME,
-    caAdminEnrollmentId: process.env.CA_ENROLLMENT_ID_ADMIN,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     fabricNetwork: process.env.NETWORK_LOCATION,
-    walletPath: process.env.WALLET
+    walletPath: process.env.WALLET,
+    mspId: process.env.MSPID
   }));
+
   adminService.listen({ port: aPort });
 
   isReady = await fetch(ADMIN_SERVICE, {
@@ -235,11 +232,9 @@ beforeAll(async () => {
     enrollmentId: process.env.ORG_ADMIN_ID,
     defaultEntityName: 'loan',
     defaultReducer: lReducer,
-    collection: process.env.COLLECTION,
-    channelEventHub: process.env.CHANNEL_HUB,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: new FileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
   }).then(async ({ config, getRepository, unsubscribeHub, disconnect }) => {
     loanUnsubscribe = unsubscribeHub;
     loanDisconnect = disconnect;
@@ -258,11 +253,9 @@ beforeAll(async () => {
     enrollmentId: process.env.ORG_ADMIN_ID,
     defaultEntityName: 'document',
     defaultReducer: dReducer,
-    collection: process.env.COLLECTION,
-    channelEventHub: process.env.CHANNEL_HUB,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: new FileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
   }).then(async ({ config, getRepository, unsubscribeHub, disconnect }) => {
     docuUnsubscribe = unsubscribeHub;
     docuDisconnect = disconnect;
@@ -281,12 +274,10 @@ beforeAll(async () => {
     enrollmentId: process.env.ORG_ADMIN_ID,
     defaultEntityName: 'loanDetails',
     defaultReducer: tReducer,
-    collection: process.env.COLLECTION,
     isPrivate: true,
-    channelEventHub: process.env.CHANNEL_HUB,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: new FileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
   }).then(async ({ config, getPrivateDataRepo, disconnect }) => {
     dtlsDisconnect = disconnect;
     dtlsService = await config({ typeDefs: loanDetailsTypeDefs, resolvers: loanDetailsResolvers })
@@ -304,12 +295,10 @@ beforeAll(async () => {
     enrollmentId: process.env.ORG_ADMIN_ID,
     defaultEntityName: 'docContents',
     defaultReducer: cReducer,
-    collection: process.env.COLLECTION,
     isPrivate: true,
-    channelEventHub: process.env.CHANNEL_HUB,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: new FileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
   }).then(async ({ config, getPrivateDataRepo, disconnect }) => {
     ctntDisconnect = disconnect;
     ctntService = await config({ typeDefs: docContentsTypeDefs, resolvers: docContentsResolvers })

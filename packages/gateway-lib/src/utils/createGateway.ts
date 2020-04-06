@@ -51,7 +51,7 @@ export const createGateway: (option: {
     playground: true,
     subscriptions: false,
     context: async ({ req: { headers } }) => {
-      const cookies = Cookie.parse((headers.cookie as string) || '');
+      const cookies = Cookie.parse(headers.cookie || '');
       const token = cookies?.jid ? cookies.jid : headers?.authorization ? headers.authorization.split(' ')[1] : null;
       // todo: There are two options, for authenticationCheck.
       // Option 1: Below is a chatty authentication, which requires check, for every incoming request.

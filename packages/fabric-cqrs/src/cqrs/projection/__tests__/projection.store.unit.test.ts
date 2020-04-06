@@ -4,8 +4,8 @@ import { createProjectionDb, createQueryDatabase } from '../../../peer';
 import { Commit } from '../../../types';
 import { action as queryAction } from '../../query';
 import { generateToken } from '../../utils';
+import { action } from '../action';
 import { getStore } from './__utils__/store';
-import { action } from '..';
 
 let store: Store;
 const context: any = {
@@ -137,7 +137,6 @@ describe('CQRS - projection Tests', () => {
       id: '101000',
       commitId: '20181208155814607',
       entityName: 'test-entity',
-      committedAt: '1544284694607',
       entityId: 'ent_test_1001',
       version: 0,
       events: [{ type: 'ADD' }]

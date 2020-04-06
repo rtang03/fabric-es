@@ -20,7 +20,6 @@ export const getStore: (options: Partial<PeerOptions>) => Store = ({
   defaultReducer,
   gateway,
   network,
-  onChannelEventArrived
 }) => {
   const epicMiddleware = createEpicMiddleware({
     dependencies: {
@@ -29,7 +28,6 @@ export const getStore: (options: Partial<PeerOptions>) => Store = ({
       reducer: defaultReducer,
       gateway,
       network,
-      onChannelEventArrived
     }
   });
   const store = createStore(rootReducer, applyMiddleware(epicMiddleware));

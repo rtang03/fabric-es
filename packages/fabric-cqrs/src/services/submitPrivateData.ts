@@ -1,5 +1,5 @@
 import util from 'util';
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
 import { createCommitId } from '../peer/utils';
@@ -17,31 +17,30 @@ export const submitPrivateData: (
   fcn: string,
   args: string[],
   transientData: Record<string, Buffer>,
-  { network }: { network: Network }
+  options: { network: Network }
 ) => Promise<Record<string, Commit> & { error?: any; status?: string; message?: string }> = async (
   fcn,
   args,
   transientData,
   { network }
 ) => {
-  const logger = Client.getLogger('submitPrivateData.js');
+  const logger = Utils.getLogger('[fabric-cqrs] submitPrivateData.js');
   const input_args = fcn === 'privatedata:createCommit' ? [...args, createCommitId()] : args;
 
-  return getContract(network, true).then(
-    async ({ contract }) =>
-      await contract
-        .createTransaction(fcn)
-        .setTransient(transientData)
-        .submit(...input_args)
-        .then<Record<string, Commit>>((res: any) => {
-          const result = JSON.parse(Buffer.from(JSON.parse(res)).toString());
-          logger.info(util.format('%s successful response', fcn));
-          return result;
-        })
-        .catch(error => {
-          logger.error(util.format('error in %s: %j', fcn, error));
-          return { error };
-        })
+  return getContract(network).then(({ contract }) =>
+    contract
+      .createTransaction(fcn)
+      .setTransient(transientData)
+      .submit(...input_args)
+      .then<Record<string, Commit>>((res: any) => {
+        const result = JSON.parse(Buffer.from(JSON.parse(res)).toString());
+        logger.info(util.format('%s successful response', fcn));
+        return result;
+      })
+      .catch(error => {
+        logger.error(util.format('error in %s: %j', fcn, error));
+        return { error };
+      })
   );
 };
 
@@ -49,7 +48,7 @@ export const submitPrivateData$: (
   fcn: string,
   args: string[],
   transientData: Record<string, Buffer>,
-  { network }: { network: Network }
+  options: { network: Network }
 ) => Observable<Record<string, Commit> | { error?: any; status?: string; message?: string }> = (
   fcn,
   args,

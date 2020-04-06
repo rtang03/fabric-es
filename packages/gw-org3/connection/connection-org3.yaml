@@ -24,8 +24,7 @@ channels:
         ledgerQuery: true
         eventSource: true
     chaincodes:
-      - eventstore:1.0
-      - privatedata:1.0
+      - eventstore
 
 organizations:
   Org3MSP:
