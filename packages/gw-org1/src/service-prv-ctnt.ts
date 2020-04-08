@@ -45,7 +45,7 @@ const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
       });
 
       app.listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT }).then(({ url }) => {
-        console.log(`🚀  '${process.env.ORGNAME}' - 'docContents' available at ${url}`);
+        console.log(`🚀  '${process.env.MSPID}' - 'docContents' available at ${url}`);
         if (process.env.NODE_ENV === 'production') process.send('ready');
       });
     })

@@ -38,7 +38,7 @@ const reducer = getReducer<User, UserEvents>(userReducer);
       });
 
       app.listen({ port: process.env.SERVICE_USER_PORT }).then(({ url }) => {
-        logger.info(`🚀  '${process.env.ORGNAME}' - 'user' available at ${url}`);
+        logger.info(`🚀  '${process.env.MSPID}' - 'user' available at ${url}`);
         if (process.env.NODE_ENV === 'production') process.send('ready');
       });
     })
