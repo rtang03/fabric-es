@@ -2,9 +2,9 @@ import util from 'util';
 import { createNetworkOperator } from '@fabric-es/operator';
 import { ApolloError, AuthenticationError, ForbiddenError } from 'apollo-server';
 import ab2str from 'arraybuffer-to-string';
-import Client from 'fabric-client';
 import { Wallet } from 'fabric-network';
 import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from './constants';
+import { getLogger } from '..';
 
 export const createResolvers: (option: {
   caAdmin: string;
@@ -31,7 +31,7 @@ export const createResolvers: (option: {
   asLocalhost,
   mspId
 }) => {
-  const logger = Client.getLogger('createResolvers.js');
+  const logger = getLogger('[gw-lib] createResolvers.js');
 
   let operator;
   try {

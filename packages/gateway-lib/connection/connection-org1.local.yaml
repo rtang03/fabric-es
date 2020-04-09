@@ -25,11 +25,6 @@ channels:
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-    #      peer0-org2:
-    #        endorsingPeer: true
-    #        chaincodeQuery: true
-    #        ledgerQuery: true
-    #        eventSource: true
     chaincodes:
       - eventstore
 
