@@ -24,7 +24,7 @@ pm2Wait() {
   while [ $STARTED -eq 0 -a $TIMEOUT -gt 0 ]; do
     COUNT=0
     for SERVICE in $2; do
-      RESULT=`pm2 logs --nostream | grep $SERVICE | grep "ready at"`
+      RESULT=`pm2 logs --nostream | grep $SERVICE | grep "ready at\|available at"`
       if [ ! -z "$RESULT" ]; then
         COUNT=$(( COUNT + 1 ))
       fi

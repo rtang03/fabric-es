@@ -36,4 +36,4 @@ EXPOSE 4003
 
 ENTRYPOINT ["entrypoint.sh"]
 
-CMD ["gateway", "admin user loan document pDocContents pLoanDetails"]
+CMD ["gateway", "admin user loan document docContents loanDetails"]

@@ -36,7 +36,7 @@ apps:
     listen_timeout: 10000
     wait_ready: true
   - script: ./dist/service-prv-ctnt.js
-    name: 'pDocContents'
+    name: 'docContents'
     instances: 1
     max_restarts: 3
     autorestart: false
