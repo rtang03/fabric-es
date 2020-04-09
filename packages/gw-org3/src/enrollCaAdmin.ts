@@ -7,8 +7,8 @@ import rimraf from 'rimraf';
 
 const logger = getLogger('enrollAdmin.js');
 
-rimraf(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}`, async () => {
-  console.log(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN} is removed`);
+rimraf(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}.id`, async () => {
+  console.log(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}.id is removed`);
 
   await enrollAdmin({
     caUrl: process.env.ORG_CA_URL,
