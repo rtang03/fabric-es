@@ -68,7 +68,7 @@ const logger = getLogger('app.js');
 
   stoppableServer.listen(PORT, '0.0.0.0', () => {
     logger.info(`🚀 gateway ready at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
-    process.send('ready');
+    if (process.env.NODE_ENV === 'production') process.send('ready');
   });
 })().catch(error => {
   console.error(error);
