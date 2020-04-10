@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/model-common",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -21,8 +21,8 @@
   },
   "private": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.6.0",
-    "@fabric-es/gateway-lib": "^0.6.0"
+    "@fabric-es/fabric-cqrs": "^0.6.1",
+    "@fabric-es/gateway-lib": "^0.6.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.9.0",

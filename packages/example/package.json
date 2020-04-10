@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/example",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -12,8 +12,8 @@
   },
   "private": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.6.0",
-    "@fabric-es/operator": "^0.6.0",
+    "@fabric-es/fabric-cqrs": "^0.6.1",
+    "@fabric-es/operator": "^0.6.1",
     "dotenv": "^8.1.0",
     "fabric-network": "2.0.0-snapshot.348",
     "js-yaml": "^3.13.1",

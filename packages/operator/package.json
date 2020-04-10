@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/operator",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "description": "Network operator",
@@ -38,10 +38,10 @@
   },
   "dependencies": {
     "dotenv": "^8.1.0",
+    "fabric-ca-client": "2.0.0-snapshot.391",
     "fabric-client": "2.0.0-snapshot.326",
     "fabric-contract-api": "^2.0.0",
     "fabric-network": "2.0.0-snapshot.348",
-    "fabric-ca-client": "2.0.0-snapshot.391",
     "fs-extra": "^8.1.0",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
