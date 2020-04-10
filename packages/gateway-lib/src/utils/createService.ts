@@ -20,7 +20,8 @@ export const createService = async ({
   isPrivate = false,
   channelName,
   connectionProfile,
-  wallet
+  wallet,
+  asLocalhost
 }: {
   enrollmentId: string;
   defaultEntityName: string;
@@ -29,11 +30,13 @@ export const createService = async ({
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
+  asLocalhost: boolean;
 }) => {
   const logger = getLogger('[gw-lib] createService.js');
 
   const networkConfig = await getNetwork({
     discovery: !isPrivate,
+    asLocalhost,
     channelName,
     connectionProfile,
     wallet,

@@ -36,7 +36,7 @@ echo "Starting automated tests..."
 TEST_EXIT_CODE=`docker wait tester`;
 docker logs tester
 
-#./cleanup.sh
+./cleanup.sh
 
 if [ -z ${TEST_EXIT_CODE+x} ] || [ "$TEST_EXIT_CODE" -ne 0 ] ; then
   printf "${RED}Tests Failed${NC} - Exit Code: $TEST_EXIT_CODE\n"

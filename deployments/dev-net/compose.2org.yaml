@@ -208,7 +208,8 @@ services:
     environment:
       - CORE_PEER_ID=peer0-org1
       - CORE_PEER_ADDRESS=peer0-org1:7051
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_LISTENADDRESS=peer0-org1:7051
+#      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/msp
       - CORE_PEER_TLS_CERT_FILE=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem
@@ -216,6 +217,7 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 #     - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-org1:7151
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-org1:7051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0-org1:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-org1:7051
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org1MSP/peer0.org1.net
@@ -253,7 +255,8 @@ services:
     environment:
       - CORE_PEER_ID=peer0-org2
       - CORE_PEER_ADDRESS=peer0-org2:7251
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:7251
+      - CORE_PEER_LISTENADDRESS=peer0-org2:7251
+#      - CORE_PEER_LISTENADDRESS=0.0.0.0:7251
       - CORE_PEER_LOCALMSPID=Org2MSP
       - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org2MSP/peer0.org2.net/msp
       - CORE_PEER_TLS_CERT_FILE=/var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/signcerts/cert.pem
@@ -261,6 +264,7 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 #     - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-org2:7351
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-org2:7251
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0-org2:7251
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-org2:7251
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7252
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org2MSP/peer0.org2.net

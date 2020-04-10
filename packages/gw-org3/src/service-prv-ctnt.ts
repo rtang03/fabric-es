@@ -22,7 +22,8 @@ const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
     isPrivate: true,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+    asLocalhost: !(process.env.NODE_ENV === 'production')
   })
     .then(async ({ config, shutdown, getPrivateDataRepo }) => {
       const app = await config({

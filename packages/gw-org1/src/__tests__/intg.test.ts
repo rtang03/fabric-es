@@ -234,7 +234,8 @@ beforeAll(async () => {
     defaultReducer: lReducer,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+    asLocalhost: !(process.env.NODE_ENV === 'production')
   }).then(async ({ config, getRepository, unsubscribeHub, disconnect }) => {
     loanUnsubscribe = unsubscribeHub;
     loanDisconnect = disconnect;
@@ -255,7 +256,8 @@ beforeAll(async () => {
     defaultReducer: dReducer,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+    asLocalhost: !(process.env.NODE_ENV === 'production')
   }).then(async ({ config, getRepository, unsubscribeHub, disconnect }) => {
     docuUnsubscribe = unsubscribeHub;
     docuDisconnect = disconnect;
@@ -277,7 +279,8 @@ beforeAll(async () => {
     isPrivate: true,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+    asLocalhost: !(process.env.NODE_ENV === 'production')
   }).then(async ({ config, getPrivateDataRepo, disconnect }) => {
     dtlsDisconnect = disconnect;
     dtlsService = await config({ typeDefs: loanDetailsTypeDefs, resolvers: loanDetailsResolvers })
@@ -298,7 +301,8 @@ beforeAll(async () => {
     isPrivate: true,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+    asLocalhost: !(process.env.NODE_ENV === 'production')
   }).then(async ({ config, getPrivateDataRepo, disconnect }) => {
     ctntDisconnect = disconnect;
     ctntService = await config({ typeDefs: docContentsTypeDefs, resolvers: docContentsResolvers })

@@ -41,17 +41,24 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
           scope: '@fabric-es'
       - run: yarn install --frozen-lockfile --ignore-engines
-      - run: yarn lint:lib
-      - run: yarn lint:app
-#      - name: Run unit and integration tests
-#        run: yarn unit-int-test:no_grpc
-#        run: yarn unit-int-test
-      - name: Setup Google account
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-        with:
-          version: '270.0.0'
-          service_account_email: ${{ secrets.GKE_EMAIL }}
-          service_account_key: ${{ secrets.GKE_KEY }}
+      - run: npm rebuild grpc --target=12.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
+      - run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dev-net-test.2org-auth-gw.sh
+#      - run: yarn lint:lib
+#      - run: yarn lint:app
+#      - name: Run tsc for all packages
+#        run: yarn tsc:all
+#      - name: deploy base fabric v2 network only
+#        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dev-net-run.2org.sh
+#      - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*. (auth and gateway-lib is excluded.)
+#        run: sudo yarn unit-test
+#        env:
+#          CI: true
+#      - name: Setup Google account
+#        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+#        with:
+#          version: '270.0.0'
+#          service_account_email: ${{ secrets.GKE_EMAIL }}
+#          service_account_key: ${{ secrets.GKE_KEY }}
 #      - name: Authenticate Google account
 #        run: gcloud auth configure-docker
 #      - name: Rename image tag for auth-server
@@ -70,16 +77,17 @@ jobs:
 #        run: |
 #          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
 #          docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/gw-org1:"$TAG"
-      - name: Create Release
-        uses: docker://antonyurchenko/git-release:latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DRAFT_RELEASE: "true"
-          PRE_RELEASE: "true"
-          CHANGELOG_FILE: "CHANGELOG.md"
-          ALLOW_EMPTY_CHANGELOG: "false"
-          ALLOW_TAG_PREFIX: "true"
+#      - name: Create Release
+#        uses: docker://antonyurchenko/git-release:latest
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          DRAFT_RELEASE: "true"
+#          PRE_RELEASE: "true"
+#          CHANGELOG_FILE: "CHANGELOG.md"
+#          ALLOW_EMPTY_CHANGELOG: "false"
+#          ALLOW_TAG_PREFIX: "true"
       - run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
+      - run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/volume
 #  This step will only publish to the same repo. However, our use case may need to publish other registry.
 #  So disable it for now.
 #      - name: Publish Github Packages

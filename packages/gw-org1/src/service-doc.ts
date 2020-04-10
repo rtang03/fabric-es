@@ -15,7 +15,8 @@ const reducer = getReducer<Document, DocumentEvents>(documentReducer);
     defaultReducer: reducer,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+    asLocalhost: !(process.env.NODE_ENV === 'production')
   })
     .then(async ({ config, shutdown, getRepository }) => {
       const app = await config({

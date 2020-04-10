@@ -19,7 +19,7 @@ export const getNetwork: (option: {
   wallet: Wallet;
   eventHandlerStrategy?: any;
   queryHandlerStrategy?: any;
-  asLocalhost?: boolean;
+  asLocalhost: boolean;
   discovery: boolean;
 }) => Promise<{
   enrollmentId: string;
@@ -33,7 +33,7 @@ export const getNetwork: (option: {
   eventHandlerStrategy = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
   queryHandlerStrategy = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
   discovery,
-  asLocalhost = true
+  asLocalhost
 }) => {
   const logger = Utils.getLogger('[fabric-cqrs] getNetwork.js');
   let identityExist;

@@ -66,7 +66,8 @@ beforeAll(async () => {
       connectionProfile,
       wallet,
       enrollmentId,
-      discovery: true
+      discovery: true,
+      asLocalhost: true
     });
 
     store = getStore(context);

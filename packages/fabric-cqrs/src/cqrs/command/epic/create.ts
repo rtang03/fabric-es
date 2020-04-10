@@ -26,7 +26,8 @@ export default (action$: Observable<CreateAction>, _, context) => {
           connectionProfile: payload.connectionProfile,
           wallet: payload.wallet,
           enrollmentId: payload.enrollmentId,
-          discovery: !payload.args.isPrivateData
+          discovery: !payload.args.isPrivateData,
+          asLocalhost: !(process.env.NODE_ENV === 'production')
         })
           .then(({ network, gateway }) => {
             logger.info('getNetwork succeed');
