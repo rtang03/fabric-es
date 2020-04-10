@@ -1,3 +1,16 @@
+## [0.6.1] - 2020-4-10
+### Added
+- dev-net runs both 2x and 3x orgs
+- multi-org integration tests
+
+### Modified
+- upgrade to Fabric v2
+- change from OR to AND endorsement policy
+
+### Remove
+- remove Ngac
+- disable image publishing to Google registry
+
 ## [0.5.16] - 2020-4-3
 ### Added
 - update for pwc reference implementation 
