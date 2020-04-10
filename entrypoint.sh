@@ -45,10 +45,10 @@ pm2Wait() {
   fi
 }
 
-node ./dist/enrollAdmin.js
+sudo node ./dist/enrollAdmin.js
 sleep 1
 
-node ./dist/enrollCaAdmin.js
+sudo node ./dist/enrollCaAdmin.js
 sleep 1
 
 pm2 flush
