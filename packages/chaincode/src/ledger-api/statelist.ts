@@ -69,34 +69,4 @@ export class StateList {
     );
   }
 
-  // async _deleteStateByEnityId(attributes: string[]) {
-  //   const iterator = await this.ctx.stub.getStateByPartialCompositeKey('entities', attributes);
-  //   const result = {};
-  //   while (true) {
-  //     const { value, done } = await iterator.next();
-  //     if (value && value.value.toString()) {
-  //       const { key, commitId } = JSON.parse(value.value.toString());
-  //       await this.ctx.stub.deleteState(this.ctx.stub.createCompositeKey('entities', splitKey(key)));
-  //       result[commitId] = {};
-  //     } else {
-  //       return Buffer.from(
-  //         JSON.stringify({
-  //           status: 'SUCCESS',
-  //           message: 'No state returned for deletion'
-  //         })
-  //       );
-  //     }
-  //     // else throw new Error('no state returned');
-  //     if (done) {
-  //       await iterator.close();
-  //       return Buffer.from(
-  //         JSON.stringify({
-  //           status: 'SUCCESS',
-  //           message: `${keys(result).length} records deleted`,
-  //           result
-  //         })
-  //       );
-  //     }
-  //   }
-  // }
 }
