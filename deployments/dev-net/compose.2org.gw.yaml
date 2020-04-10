@@ -16,7 +16,6 @@ services:
       - ORG_ADMIN_ID=admin-org1.net
       - ORG_ADMIN_SECRET=admin-org1.netPW
       - ORG_CA_URL=https://rca-org1:5054
-      - PEER_NAME=peer0-org1
       - GATEWAY_HOST=0.0.0.0
       - GATEWAY_PORT=4001
       - TEMP_REMOTE_URI=http://gw-org2:4001/graphql\ http://gw-org3:4001/graphql
@@ -46,7 +45,6 @@ services:
       - ORG_ADMIN_ID=admin-org2.net
       - ORG_ADMIN_SECRET=admin-org2.netPW
       - ORG_CA_URL=https://rca-org2:5055
-      - PEER_NAME=peer0-org2
       - GATEWAY_HOST=0.0.0.0
       - GATEWAY_PORT=4001
       - TEMP_REMOTE_URI=http://gw-org1:4001/graphql\ http://gw-org3:4001/graphql

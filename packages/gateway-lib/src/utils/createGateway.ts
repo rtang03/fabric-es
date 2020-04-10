@@ -4,8 +4,8 @@ import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
 import Cookie from 'cookie';
 import express, { Express } from 'express';
-import Client from 'fabric-client';
 import fetch from 'node-fetch';
+import { getLogger } from './getLogger';
 
 export class AuthenticatedDataSource extends RemoteGraphQLDataSource {
   willSendRequest({ request, context }: { request: any; context: any }) {
@@ -37,7 +37,7 @@ export const createGateway: (option: {
   corsOrigin = 'http://localhost:3000',
   debug = false
 }) => {
-  const logger = Client.getLogger('createGateway.js');
+  const logger = getLogger('[gw-lib] createGateway.js');
 
   const gateway = new ApolloGateway({
     serviceList,
@@ -101,7 +101,6 @@ export const createGateway: (option: {
 
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
-  // app.use(morgan('tiny'));
 
   if (useCors)
     server.applyMiddleware({

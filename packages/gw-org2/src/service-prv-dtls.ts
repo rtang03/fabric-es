@@ -22,7 +22,8 @@ const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
     isPrivate: true,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+    asLocalhost: !(process.env.NODE_ENV === 'production')
   })
     .then(async ({ config, shutdown, getPrivateDataRepo }) => {
       const app = await config({
@@ -45,7 +46,7 @@ const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
       });
 
       app.listen({ port: process.env.PRIVATE_LOAN_DETAILS_PORT }).then(({ url }) => {
-        logger.info(`🚀  '${process.env.ORGNAME}' - 'loanDetails' available at ${url}`);
+        logger.info(`🚀  '${process.env.MSPID}' - 'loanDetails' available at ${url}`);
         if (process.env.NODE_ENV === 'production') process.send('ready');
       });
     })

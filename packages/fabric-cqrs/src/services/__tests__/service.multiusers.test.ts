@@ -67,7 +67,8 @@ beforeAll(async () => {
       enrollmentId: identityOrg1,
       connectionProfile,
       wallet: walletOrg1,
-      discovery: true
+      discovery: true,
+      asLocalhost: true
     });
 
     // Org2
@@ -107,7 +108,8 @@ beforeAll(async () => {
       enrollmentId: identityOrg2,
       connectionProfile: process.env.ORG2_CONNECTION_PROFILE,
       wallet: walletOrg2,
-      discovery: true
+      discovery: true,
+      asLocalhost: true
     });
 
   } catch (error) {

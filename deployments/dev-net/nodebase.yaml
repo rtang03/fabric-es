@@ -33,6 +33,7 @@ services:
       - CORE_PEER_GOSSIP_ORGLEADER=false
       - CORE_PEER_PROFILE_ENABLED=true
       - CORE_PEER_GOSSIP_PVTDATA_RECONCILIATIONENABLED=false
+      - CORE_VM_DOCKER_ATTACHSTDOUT=true
     networks:
       - openplatform
 

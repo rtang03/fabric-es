@@ -1,11 +1,11 @@
-import { getLogger } from '../utils/getLogger';
 import { shutdown } from '../utils/shutdownApollo';
 import { createAdminService } from '.';
+import { getLogger } from '..';
 
 const port = (process.env.PORT || 8080) as number;
 
 (async () => {
-  const logger = getLogger('app.js');
+  const logger = getLogger('[gw-lib] app.js');
   logger.info('starting admin-service...');
 
   const { server } = await createAdminService({

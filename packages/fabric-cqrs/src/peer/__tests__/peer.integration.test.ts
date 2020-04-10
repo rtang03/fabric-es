@@ -68,7 +68,8 @@ beforeAll(async () => {
       connectionProfile,
       wallet,
       enrollmentId,
-      discovery: true
+      discovery: true,
+      asLocalhost: true
     });
   } catch (err) {
     console.error('Bootstrap network error');

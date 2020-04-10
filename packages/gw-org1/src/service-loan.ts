@@ -15,7 +15,8 @@ const reducer = getReducer<Loan, LoanEvents>(loanReducer);
     defaultReducer: reducer,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+    asLocalhost: !(process.env.NODE_ENV === 'production')
   })
     .then(async ({ config, shutdown, getRepository }) => {
       const app = await config({
@@ -38,7 +39,7 @@ const reducer = getReducer<Loan, LoanEvents>(loanReducer);
       });
 
       app.listen({ port: process.env.SERVICE_LOAN_PORT }).then(({ url }) => {
-        logger.info(`🚀  '${process.env.ORGNAME}' - 'loan' available at ${url}`);
+        logger.info(`🚀  '${process.env.MSPID}' - 'loan' available at ${url}`);
         if (process.env.NODE_ENV === 'production') process.send('ready');
       });
     })

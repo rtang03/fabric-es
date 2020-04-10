@@ -17,6 +17,10 @@ channels:
   loanapp:
     orderers:
       - orderer0-org0
+      - orderer1-org0
+      - orderer2-org0
+      - orderer3-org0
+      - orderer4-org0
     peers:
       peer0-org2:
         endorsingPeer: true
@@ -24,8 +28,7 @@ channels:
         ledgerQuery: true
         eventSource: true
     chaincodes:
-      - eventstore:1.0
-      - privatedata:1.0
+      - eventstore
 
 organizations:
   Org2MSP:
@@ -47,6 +50,30 @@ orderers:
 #     grpc-max-send-message-length: 4000
     tlsCACerts:
       path: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+  orderer1-org0:
+    url: grpcs://orderer1-org0:7150
+    grpcOptions:
+      ssl-target-name-override: orderer1-org0
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+  orderer2-org0:
+    url: grpcs://orderer2-org0:7250
+    grpcOptions:
+      ssl-target-name-override: orderer2-org0
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+  orderer3-org0:
+    url: grpcs://orderer3-org0:7350
+    grpcOptions:
+      ssl-target-name-override: orderer3-org0
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+  orderer4-org0:
+    url: grpcs://orderer4-org0:7450
+    grpcOptions:
+      ssl-target-name-override: orderer4-org0
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 
 peers:
   peer0-org2:
