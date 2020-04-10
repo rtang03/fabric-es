@@ -30,7 +30,8 @@
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
     "gen-resolvers-type": "graphql-codegen --config codegen.yml",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "test:intg": "yarn build && ./node_modules/.bin/jest intg.test"
+    "test:intg": "yarn build && ./node_modules/.bin/jest intg.test",
+    "app": "node ./dist/app.js"
   },
   "private": true,
   "dependencies": {
