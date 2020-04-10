@@ -26,7 +26,7 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
   && yarn global add pm2 \
   && apk del .build-deps-yarn
 
-USER node
+USER root
 
 VOLUME /home/app/packages/gw-org1/assets /home/app/packages/gw-org2/connection /home/app/packages/gw-org1/logs /var/artifacts/crypto-config
 
