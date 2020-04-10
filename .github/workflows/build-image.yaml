@@ -51,7 +51,7 @@ jobs:
       - name: Build org1 org2 images
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dev-net-build.gw.sh org1 org2
       - name: Run multi-org integration test
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dev-net-test.2org-auth-gw.sh
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && sudo ./dev-net-test.2org-auth-gw.sh
 # Comment out the step to send docker images to Google Registry.
 # Below step needs re-test, if uncomment
 #      - name: Setup Google account
