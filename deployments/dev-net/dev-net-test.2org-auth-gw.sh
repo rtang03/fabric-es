@@ -34,15 +34,21 @@ printMessage "docker-compose up $COMPOSE_4_2ORG" $?
 
 echo "Starting automated tests..."
 TEST_EXIT_CODE=`docker wait tester`;
-docker logs tester
 
-./cleanup.sh
+docker logs tester
 
 if [ -z ${TEST_EXIT_CODE+x} ] || [ "$TEST_EXIT_CODE" -ne 0 ] ; then
   printf "${RED}Tests Failed${NC} - Exit Code: $TEST_EXIT_CODE\n"
+  printf "$\n{RED} [DEBUG] docker logs gw-or1${NC}\n"
+  docker logs gw-org1
+#  printf "$\n{RED} docker logs gw-or2${NC}\n"
+#  docker logs gw-org2
+  exit 1
 else
   printf "${GREEN}Tests Passed${NC}\n"
 fi
+
+./cleanup.sh
 
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"

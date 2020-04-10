@@ -25,10 +25,10 @@ fi
 docker volume prune -f
 docker network prune -f
 
-rm -rf $VOLUME
+sudo rm -rf $VOLUME
 printMessage "Remove ${VOLUME}" $?
 
-rm -rf $ARTIFACTS
+sudo rm -rf $ARTIFACTS
 printMessage "Remove ${ARTIFACTS}" $?
 
 docker rmi $(docker images -qf "dangling=true")
