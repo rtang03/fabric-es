@@ -1,4 +1,4 @@
-name: Build Images
+name: Create Release
 on:
   push:
     tags:
@@ -87,8 +87,10 @@ jobs:
           CHANGELOG_FILE: "CHANGELOG.md"
           ALLOW_EMPTY_CHANGELOG: "false"
           ALLOW_TAG_PREFIX: "true"
-      - run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
-      - run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/volume
+      - name: Cleanup artifacts
+        run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
+      - name: Cleanup data volume
+        run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/volume
 #  This step will only publish to the same repo. However, our use case may need to publish other registry.
 #  So disable it for now.
 #      - name: Publish Github Packages
