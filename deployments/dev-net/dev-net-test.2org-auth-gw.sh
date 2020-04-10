@@ -39,7 +39,7 @@ docker logs tester
 
 if [ -z ${TEST_EXIT_CODE+x} ] || [ "$TEST_EXIT_CODE" -ne 0 ] ; then
   printf "${RED}Tests Failed${NC} - Exit Code: $TEST_EXIT_CODE\n"
-  printf "$\n{RED} [DEBUG] docker logs gw-or1${NC}\n"
+  printf "\n${RED} [DEBUG] docker logs gw-or1${NC}\n"
   docker logs gw-org1
 #  printf "$\n{RED} docker logs gw-or2${NC}\n"
 #  docker logs gw-org2
