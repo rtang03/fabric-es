@@ -9,7 +9,11 @@
 
 SECONDS=0
 
-./cleanup.sh
+OPTION=-d
+if [ $# -eq 1 ]; then
+  OPTION=$1
+fi
+./cleanup.sh $OPTION
 
 for ORG in "$@"
 do
@@ -24,7 +28,7 @@ do
   printMessage "Create build context for gw-${ORG}" $?
   sleep 1
 
-  # STEP 5
+  # STEP 3
   DOCKER_BUILD=1 docker build --no-cache -f ./gw-${ORG}.dockerfile -t $IMAGE .
   printMessage "Create image ${IMAGE}" $?
   sleep 1

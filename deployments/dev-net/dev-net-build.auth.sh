@@ -8,7 +8,11 @@
 
 SECONDS=0
 
-./cleanup.sh
+OPTION=-d
+if [ $# -eq 1 ]; then
+  OPTION=$1
+fi
+./cleanup.sh $OPTION
 
 # STEP 1
 printf "Cleaning up old image $AUTH_IMAGE\n"

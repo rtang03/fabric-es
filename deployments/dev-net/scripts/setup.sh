@@ -7,14 +7,11 @@ NC='\033[0m'
 # $1 - message to be printed
 # $2 - exit code of the previous operation
 printMessage() {
-  MESSAGE=$1
-  CODE=$2
-
   if [ $2 -ne 0 ] ; then
-    printf "${RED}${MESSAGE} failed${NC}\n"
-    exit 1
+    printf "${RED}${1} failed${NC}\n"
+    exit $2
   fi
-  printf "${GREEN}Complete ${MESSAGE}${NC}\n\n"
+  printf "${GREEN}Complete ${1}${NC}\n\n"
   sleep 1
 }
 
@@ -23,7 +20,7 @@ getConfig() {
   case $1 in
     org0)
       NAME="Org0"
-      PEER="orderer0"
+      PEER="orderer0 orderer1 orderer2 orderer3 orderer4"
       DOMAIN="org0.com"
       CAPORT=5052
       PORT=7050
@@ -68,7 +65,7 @@ getConfig() {
 # $3 - optional: expected
 containerWait() {
   FOUND=false
-  COUNT=30
+  COUNT=60
   while [[ ("$FOUND"=false) && (COUNT -gt 0) ]]; do
     if [ $# -eq 3 ]; then
       RESULT=`docker container exec -i $1 "$2" | grep -e "$3"`
@@ -100,8 +97,8 @@ export CHAINCODE=../../packages/chaincode
 export CRYPTO=/var/artifacts/crypto-config
 export CURRENT_DIR=$PWD
 export ROOT_DIR=$PWD/../..
-#export MEMBERS="'Org1MSP.member','Org2MSP.member','Org3MSP.member'"
-export MEMBERS="'Org1MSP.member','Org2MSP.member'"
+export MEMBERS_3ORG="'Org1MSP.member','Org2MSP.member','Org3MSP.member'"
+export MEMBERS_2ORG="'Org1MSP.member','Org2MSP.member'"
 
 export AUTH_IMAGE=fabric-es/auth-server:1.0
 export TEST_IMAGE=fabric-es/tester:1.0

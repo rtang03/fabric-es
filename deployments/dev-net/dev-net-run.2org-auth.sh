@@ -8,11 +8,16 @@
 
 SECONDS=0
 
-./cleanup.sh
+OPTION=-d
+if [ $# -eq 1 ]; then
+  OPTION=$1
+fi
+./cleanup.sh $OPTION
 
 # STEP 1
-./bootstrap.sh "$COMPOSE_1_2ORG" "org0" "org1" "org2"
+./bootstrap.sh "$COMPOSE_1_2ORG" "org0" "org1 org2"
 
+# STEP 2
 containerWait "postgres01" "psql -h localhost -U postgres -d auth_db -lqt" "auth_db"
 containerWait "postgres02" "psql -h localhost -U postgres -d auth_db -lqt" "auth_db"
 
