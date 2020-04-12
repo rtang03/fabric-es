@@ -1,3 +1,7 @@
+## vNEXT
+### MOdified
+- Fix v2 related changes in dev-net to work with 3x orgs
+
 ## [0.6.1] - 2020-4-10
 ### Added
 - dev-net runs both 2x and 3x orgs
