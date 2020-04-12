@@ -196,9 +196,9 @@ do
   printMessage "update ${NAME}Anchors.tx" $?
 done
 
-printf "\n####################"
+printf "\n###################"
 printf "\n# BUILD CHAINCODE #"
-printf "\n####################\n"
+printf "\n###################\n"
 cd $CHAINCODE && yarn build
 printMessage "Build chaincode" $?
 
@@ -293,31 +293,34 @@ docker exec \
     --sequence 1
 printMessage "checkcommitreadiness for eventstore" $?
 
+CMD_SFX=
+for ORG in $ORGLIST; do
+  getConfig $ORG
+  CMD_SFX="$CMD_SFX \
+    --peerAddresses ${PEER}-${ORG}:${PORT} \
+    --tlsRootCertFiles /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem"
+done
+
 printf "\n####################"
 printf "\n# COMMIT CHAINCODE #"
 printf "\n####################\n"
-
-docker exec \
-  -e CORE_PEER_ADDRESS=${FIRST_PEER}-${FIRST_CODE}:${FIRST_PORT} \
-  -e CORE_PEER_LOCALMSPID=${FIRST_NAME}MSP \
-  -e CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
-  -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${FIRST_NAME}MSP/admin/msp \
-  cli peer lifecycle chaincode commit \
+CMD="peer lifecycle chaincode commit \
     --tls \
     --cafile /var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ORDERER_PEER}.${ORDERER_DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
     -o ${ORDERER_PEER}-${ORDERER_CODE}:${ORDERER_PORT} \
     --channelID loanapp \
     --name eventstore \
     --init-required \
-    --signature-policy "AND(${MEMBERS})" \
+    --signature-policy \"AND(${MEMBERS})\" \
     --version 1.0 \
     --sequence 1 \
-    --waitForEvent \
-    --peerAddresses peer0-org1:7051 \
-    --peerAddresses peer0-org2:7251 \
-    --tlsRootCertFiles /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
-    --tlsRootCertFiles /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
-
+    --waitForEvent $CMD_SFX"
+docker exec \
+  -e CORE_PEER_ADDRESS=${FIRST_PEER}-${FIRST_CODE}:${FIRST_PORT} \
+  -e CORE_PEER_LOCALMSPID=${FIRST_NAME}MSP \
+  -e CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
+  -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${FIRST_NAME}MSP/admin/msp \
+  cli sh -c "$CMD"
 printMessage "commit chaincode for eventstore" $?
 
 docker exec \
@@ -329,27 +332,24 @@ docker exec \
 printMessage "querycommitted" $?
 sleep 1
 
-printf "\n####################"
+printf "\n##################"
 printf "\n# Init CHAINCODE #"
-printf "\n####################\n"
+printf "\n##################\n"
+CMD="peer chaincode invoke --isInit \
+    -o ${ORDERER_PEER}-${ORDERER_CODE}:${ORDERER_PORT} \
+    -C loanapp \
+    -n eventstore \
+    -c '{\"Args\":[\"Init\"]}' \
+    --tls \
+    --cafile /var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
+    --waitForEvent \
+    --waitForEventTimeout 300s $CMD_SFX"
 docker exec \
   -e CORE_PEER_ADDRESS=${FIRST_PEER}-${FIRST_CODE}:${FIRST_PORT} \
   -e CORE_PEER_LOCALMSPID=${FIRST_NAME}MSP \
   -e CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
   -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${FIRST_NAME}MSP/admin/msp \
-  cli peer chaincode invoke --isInit \
-    -o ${ORDERER_PEER}-${ORDERER_CODE}:${ORDERER_PORT} \
-    -C loanapp \
-    -n eventstore \
-    -c '{"Args":["Init"]}' \
-    --tls \
-    --cafile /var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
-    --waitForEvent \
-    --waitForEventTimeout 300s \
-    --peerAddresses peer0-org1:7051 \
-    --tlsRootCertFiles /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
-    --peerAddresses peer0-org2:7251 \
-    --tlsRootCertFiles /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+  cli sh -c "$CMD"
 printMessage "init chaincode" $?
 
 sleep 1
@@ -357,23 +357,21 @@ sleep 1
 for ORG in $ORGLIST
 do
   getConfig $ORG
+
   # Invoke eventstore
+  CMD="peer chaincode invoke \
+      -o ${ORDERER_PEER}-${ORDERER_CODE}:${ORDERER_PORT} \
+      -C loanapp -n eventstore \
+      -c '{\"Args\":[\"createCommit\", \"dev_entity\", \"ent_dev_\", \"0\",\"[{\\\"type\\\":\\\"mon\\\"}]\", \"ent_dev_\"]}' \
+      --tls --cafile /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
+      --waitForEvent \
+      --waitForEventTimeout 300s $CMD_SFX"
   docker exec \
     -e CORE_PEER_ADDRESS=${PEER}-${ORG}:${PORT} \
     -e CORE_PEER_LOCALMSPID=${NAME}MSP \
     -e CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
     -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${NAME}MSP/admin/msp \
-    cli peer chaincode invoke \
-      -o ${ORDERER_PEER}-${ORDERER_CODE}:${ORDERER_PORT} \
-      -C loanapp -n eventstore \
-      -c '{"Args":["createCommit", "dev_entity", "ent_dev_", "0","[{\"type\":\"mon\"}]", "ent_dev_"]}' \
-      --tls --cafile /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
-      --waitForEvent \
-      --waitForEventTimeout 300s \
-      --peerAddresses peer0-org1:7051 \
-      --tlsRootCertFiles /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
-      --peerAddresses peer0-org2:7251 \
-      --tlsRootCertFiles /var/artifacts/crypto-config/Org2MSP/peer0.org2.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+    cli sh -c "$CMD"
   printMessage "invoke eventstore on $ORG" $?
 
   # Query eventstore
