@@ -8,10 +8,7 @@
 
 SECONDS=0
 
-OPTION=-d
-if [ $# -eq 1 ]; then
-  OPTION=$1
-fi
+parseArgs $0 "$@"
 ./cleanup.sh $OPTION
 
 # STEP 1

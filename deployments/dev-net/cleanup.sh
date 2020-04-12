@@ -19,7 +19,7 @@ case $# in
     case $1 in
       -d)
         if [ $# -gt 1 ]; then
-          printMessage "Usage: cleanup.sh [-d | -R | --remove-cc-images] [docker-compose file]; cleanup" 2
+          printMessage "Usage: cleanup.sh {-R | --remove-cc-images} {[docker-compose file]}; cleanup" 2
         fi
         ;;
       -R|--remove-cc-images)
@@ -30,7 +30,7 @@ case $# in
               COMPOSE=$2
               ;;
             *)
-              printMessage "Usage: cleanup.sh [-d | -R | --remove-cc-images] [docker-compose file]; cleanup" 5
+              printMessage "Usage: cleanup.sh {-R | --remove-cc-images} {[docker-compose file]}; cleanup" 5
               ;;
           esac
         fi
@@ -39,16 +39,16 @@ case $# in
         if [ $# -eq 1 ]; then
           COMPOSE=$1
         else
-          printMessage "Usage: cleanup.sh [-d | -R | --remove-cc-images] [docker-compose file]; cleanup" 1
+          printMessage "Usage: cleanup.sh {-R | --remove-cc-images} {[docker-compose file]}; cleanup" 1
         fi
         ;;
       *)
-        printMessage "Usage: cleanup.sh [-d | -R | --remove-cc-images] [docker-compose file]; cleanup" 3
+        printMessage "Usage: cleanup.sh {-R | --remove-cc-images} {[docker-compose file]}; cleanup" 3
         ;;
     esac
     ;;
   *)
-    printMessage "Usage: cleanup.sh [-d | -R | --remove-cc-images] [docker-compose file]; cleanup" 4
+    printMessage "Usage: cleanup.sh {-R | --remove-cc-images} {[docker-compose file]}; cleanup" 4
     ;;
 esac
 

@@ -5,15 +5,16 @@
 # $@ - list of orgs (e.g. "org1 org2")
 #######################################
 
+if [[ ( $# -eq 1 ) && ( $1 = "-h" || $1 = "--help" ) ]]; then
+  echo "Usage: ./dev-net-build.gw.sh [org code 1] {[org code 2] {[org code 3]}}"
+  exit 0
+fi
+
 . ./scripts/setup.sh
 
 SECONDS=0
 
-OPTION=-d
-if [ $# -eq 1 ]; then
-  OPTION=$1
-fi
-./cleanup.sh $OPTION
+./cleanup.sh
 
 for ORG in "$@"
 do

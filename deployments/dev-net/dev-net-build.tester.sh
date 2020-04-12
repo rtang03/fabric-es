@@ -4,15 +4,16 @@
 # Build tester docker images
 #######################################
 
+if [[ ( $# -eq 1 ) && ( $1 = "-h" || $1 = "--help" ) ]]; then
+  echo "Usage: ./dev-net-build.tester.sh"
+  exit 0
+fi
+
 . ./scripts/setup.sh
 
 SECONDS=0
 
-OPTION=-d
-if [ $# -eq 1 ]; then
-  OPTION=$1
-fi
-./cleanup.sh $OPTION
+./cleanup.sh
 
 # STEP 1
 printf "Cleaning up old image $TEST_IMAGE\n"

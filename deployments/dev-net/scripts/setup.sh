@@ -87,6 +87,23 @@ containerWait() {
   fi
 }
 
+# $1 - script name
+# $2 - options
+parseArgs() {
+  OPTION=-d
+  if [ $# -eq 2 ]; then
+    case $2 in
+      -h|--help)
+        echo "Usage: $1 {-R | --remove-cc-images | -h | --help}"
+        exit 0
+        ;;
+      -R|--remove-cc-images)
+        OPTION=$2
+        ;;
+    esac
+  fi
+}
+
 export VERSION=1.0
 export IMAGE_TAG=2.0.1
 export CONFIG=./config
