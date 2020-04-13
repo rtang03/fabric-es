@@ -3,9 +3,9 @@ import { enrollAdmin } from '@fabric-es/operator';
 import { Wallet, Wallets, Gateway, Network } from 'fabric-network';
 import { values } from 'lodash';
 import rimraf from 'rimraf';
+import { evaluate, getNetwork, submitPrivateData } from '..';
 import { registerUser } from '../../account';
 import { Commit } from '../../types';
-import { evaluate, getNetwork, submitPrivateData } from '..';
 
 let network: Network;
 let gateway: Gateway;

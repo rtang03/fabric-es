@@ -1,8 +1,8 @@
 import util from 'util';
 import { Context } from 'fabric-contract-api';
 import { keys, omit } from 'lodash';
-import { serialize, splitKey } from '.';
 import { Commit } from '..';
+import { serialize, splitKey } from '.';
 
 export class StateList {
   constructor(public ctx: Context, public name: string) {}

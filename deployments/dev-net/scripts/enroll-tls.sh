@@ -21,12 +21,10 @@ do
   getConfig $ORG
   fabric-ca-client register -d --id.name ${PEER}.${DOMAIN} --id.secret ${PEER}.${DOMAIN}PW --id.type peer -u https://0.0.0.0:${ORDERER_CAPORT}
 done
-fabric-ca-client register -d --id.name ${ORDERER_PEER}.${ORDERER_DOMAIN} --id.secret ${ORDERER_PEER}.${ORDERER_DOMAIN}PW --id.type orderer -u https://0.0.0.0:${ORDERER_CAPORT}
 
-fabric-ca-client register -d --id.name orderer1.${ORDERER_DOMAIN} --id.secret orderer1.${ORDERER_DOMAIN}PW --id.type orderer -u https://0.0.0.0:${ORDERER_CAPORT}
-fabric-ca-client register -d --id.name orderer2.${ORDERER_DOMAIN} --id.secret orderer2.${ORDERER_DOMAIN}PW --id.type orderer -u https://0.0.0.0:${ORDERER_CAPORT}
-fabric-ca-client register -d --id.name orderer3.${ORDERER_DOMAIN} --id.secret orderer3.${ORDERER_DOMAIN}PW --id.type orderer -u https://0.0.0.0:${ORDERER_CAPORT}
-fabric-ca-client register -d --id.name orderer4.${ORDERER_DOMAIN} --id.secret orderer4.${ORDERER_DOMAIN}PW --id.type orderer -u https://0.0.0.0:${ORDERER_CAPORT}
+for ODR in ${ORDERER_PEER}; do
+  fabric-ca-client register -d --id.name ${ODR}.${ORDERER_DOMAIN} --id.secret ${ODR}.${ORDERER_DOMAIN}PW --id.type orderer -u https://0.0.0.0:${ORDERER_CAPORT}
+done
 
 # Peers
 export FABRIC_CA_CLIENT_MSPDIR=tls-msp
@@ -46,62 +44,16 @@ do
   mv /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/keystore/* /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/keystore/key.pem
 done
 
-# Copy certificate of tls-ca for orderer0
-mkdir -p /var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ORDERER_PEER}.${ORDERER_DOMAIN}/assets/tls-ca
-cp /var/artifacts/crypto-config/${ORDERER_NAME}MSP/tls/admin/msp/cacerts/0-0-0-0-${ORDERER_CAPORT}.pem /var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ORDERER_PEER}.${ORDERER_DOMAIN}/assets/tls-ca/tls-ca-cert.pem
+for ODR in ${ORDERER_PEER}; do
+  # Copy certificate of tls-ca for orderer
+  mkdir -p /var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ODR}.${ORDERER_DOMAIN}/assets/tls-ca
+  cp /var/artifacts/crypto-config/${ORDERER_NAME}MSP/tls/admin/msp/cacerts/0-0-0-0-${ORDERER_CAPORT}.pem /var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ODR}.${ORDERER_DOMAIN}/assets/tls-ca/tls-ca-cert.pem
 
-# Enroll for orderer
-export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ORDERER_PEER}.${ORDERER_DOMAIN}
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ORDERER_PEER}.${ORDERER_DOMAIN}/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://${ORDERER_PEER}.${ORDERER_DOMAIN}:${ORDERER_PEER}.${ORDERER_DOMAIN}PW@0.0.0.0:${ORDERER_CAPORT} --enrollment.profile tls --csr.hosts ${ORDERER_PEER}-${1},127.0.0.1
+  # Enroll for orderer
+  export FABRIC_CA_CLIENT_MSPDIR=tls-msp
+  export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ODR}.${ORDERER_DOMAIN}
+  export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ODR}.${ORDERER_DOMAIN}/assets/tls-ca/tls-ca-cert.pem
+  fabric-ca-client enroll -d -u https://${ODR}.${ORDERER_DOMAIN}:${ODR}.${ORDERER_DOMAIN}PW@0.0.0.0:${ORDERER_CAPORT} --enrollment.profile tls --csr.hosts ${ODR}-${1},127.0.0.1
 
-mv /var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ORDERER_PEER}.${ORDERER_DOMAIN}/tls-msp/keystore/* /var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ORDERER_PEER}.${ORDERER_DOMAIN}/tls-msp/keystore/key.pem
-
-# Copy certificate of tls-ca.${ORDERER_DOMAIN} for hktfp orderer1
-mkdir -p /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer1.${ORDERER_DOMAIN}/assets/tls-ca
-cp /var/artifacts/crypto-config/${ORDERER_NAME}MSP/tls/admin/msp/cacerts/0-0-0-0-${ORDERER_CAPORT}.pem /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer1.${ORDERER_DOMAIN}/assets/tls-ca/tls-ca-cert.pem
-
-# Enroll for hktfp orderer1
-export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer1.${ORDERER_DOMAIN}
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer1.${ORDERER_DOMAIN}/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer1.${ORDERER_DOMAIN}:orderer1.${ORDERER_DOMAIN}PW@0.0.0.0:${ORDERER_CAPORT} --enrollment.profile tls --csr.hosts orderer1-${1},127.0.0.1
-
-mv /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer1.${ORDERER_DOMAIN}/tls-msp/keystore/* /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer1.${ORDERER_DOMAIN}/tls-msp/keystore/key.pem
-
-# Copy certificate of tls-ca.${ORDERER_DOMAIN} for hktfp orderer2
-mkdir -p /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer2.${ORDERER_DOMAIN}/assets/tls-ca
-cp /var/artifacts/crypto-config/${ORDERER_NAME}MSP/tls/admin/msp/cacerts/0-0-0-0-${ORDERER_CAPORT}.pem /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer2.${ORDERER_DOMAIN}/assets/tls-ca/tls-ca-cert.pem
-
-# Enroll for hktfp orderer2
-export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer2.${ORDERER_DOMAIN}
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer2.${ORDERER_DOMAIN}/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer2.${ORDERER_DOMAIN}:orderer2.${ORDERER_DOMAIN}PW@0.0.0.0:${ORDERER_CAPORT} --enrollment.profile tls --csr.hosts orderer2-${1},127.0.0.1
-
-mv /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer2.${ORDERER_DOMAIN}/tls-msp/keystore/* /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer2.${ORDERER_DOMAIN}/tls-msp/keystore/key.pem
-
-# Copy certificate of tls-ca.${ORDERER_DOMAIN} for hktfp orderer3
-mkdir -p /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer3.${ORDERER_DOMAIN}/assets/tls-ca
-cp /var/artifacts/crypto-config/${ORDERER_NAME}MSP/tls/admin/msp/cacerts/0-0-0-0-${ORDERER_CAPORT}.pem /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer3.${ORDERER_DOMAIN}/assets/tls-ca/tls-ca-cert.pem
-
-# Enroll for hktfp orderer3
-export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer3.${ORDERER_DOMAIN}
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer3.${ORDERER_DOMAIN}/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer3.${ORDERER_DOMAIN}:orderer3.${ORDERER_DOMAIN}PW@0.0.0.0:${ORDERER_CAPORT} --enrollment.profile tls --csr.hosts orderer3-${1},127.0.0.1
-
-mv /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer3.${ORDERER_DOMAIN}/tls-msp/keystore/* /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer3.${ORDERER_DOMAIN}/tls-msp/keystore/key.pem
-
-# Copy certificate of tls-ca.${ORDERER_DOMAIN} for hktfp orderer4
-mkdir -p /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer4.${ORDERER_DOMAIN}/assets/tls-ca
-cp /var/artifacts/crypto-config/${ORDERER_NAME}MSP/tls/admin/msp/cacerts/0-0-0-0-${ORDERER_CAPORT}.pem /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer4.${ORDERER_DOMAIN}/assets/tls-ca/tls-ca-cert.pem
-
-# Enroll for hktfp orderer4
-export FABRIC_CA_CLIENT_MSPDIR=tls-msp
-export FABRIC_CA_CLIENT_HOME=/var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer4.${ORDERER_DOMAIN}
-export FABRIC_CA_CLIENT_TLS_CERTFILES=/var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer4.${ORDERER_DOMAIN}/assets/tls-ca/tls-ca-cert.pem
-fabric-ca-client enroll -d -u https://orderer4.${ORDERER_DOMAIN}:orderer4.${ORDERER_DOMAIN}PW@0.0.0.0:${ORDERER_CAPORT} --enrollment.profile tls --csr.hosts orderer4-${1},127.0.0.1
-
-mv /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer4.${ORDERER_DOMAIN}/tls-msp/keystore/* /var/artifacts/crypto-config/${ORDERER_NAME}MSP/orderer4.${ORDERER_DOMAIN}/tls-msp/keystore/key.pem
+  mv /var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ODR}.${ORDERER_DOMAIN}/tls-msp/keystore/* /var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ODR}.${ORDERER_DOMAIN}/tls-msp/keystore/key.pem
+done

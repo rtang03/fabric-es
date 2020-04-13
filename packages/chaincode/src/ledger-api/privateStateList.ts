@@ -1,8 +1,8 @@
 import util from 'util';
 import { Context } from 'fabric-contract-api';
 import { omit } from 'lodash';
-import { serialize, splitKey } from '.';
 import { Commit } from '..';
+import { serialize, splitKey } from '.';
 
 export class PrivateStateList {
   constructor(public ctx: Context, public name: string) {}

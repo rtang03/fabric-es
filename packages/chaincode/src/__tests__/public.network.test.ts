@@ -1,8 +1,8 @@
 import execa from 'execa';
 import { pick, values } from 'lodash';
+import { Commit } from '..';
 import { createCommitId } from '../ledger-api';
 import { parseResult, toString } from './__utils__';
-import { Commit } from '..';
 
 const entityName = 'dev_entity';
 const id = 'ent_dev_1001';
