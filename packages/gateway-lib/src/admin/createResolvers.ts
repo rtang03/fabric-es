@@ -3,8 +3,8 @@ import { createNetworkOperator } from '@fabric-es/operator';
 import { ApolloError, AuthenticationError, ForbiddenError } from 'apollo-server';
 import ab2str from 'arraybuffer-to-string';
 import { Wallet } from 'fabric-network';
-import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from './constants';
 import { getLogger } from '..';
+import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from './constants';
 
 export const createResolvers: (option: {
   caAdmin: string;

@@ -4,10 +4,10 @@ import { execute, makePromise } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import { ApolloError, ApolloServer } from 'apollo-server';
 import nodeFetch from 'node-fetch';
+import { getLogger } from '..';
 import { shutdown } from '../utils/shutdownApollo';
 import { RemoteData } from './remoteData';
 import { UriResolver } from './uriResolver';
-import { getLogger } from '..';
 
 const fetch = nodeFetch as any;
 

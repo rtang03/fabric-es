@@ -1,11 +1,11 @@
 import { buildFederatedSchema } from '@apollo/federation';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
+import { getLogger } from '..';
 import { shutdown } from '../utils/shutdownApollo';
 import { MISSING_CHANNELNAME, MISSING_CONNECTION_PROFILE, MISSING_FABRIC_NETWORK, MISSING_WALLET } from './constants';
 import { createResolvers } from './createResolvers';
 import { typeDefs } from './typeDefs';
-import { getLogger } from '..';
 
 export const createAdminService: (option: {
   caAdmin: string;

@@ -9,9 +9,9 @@ import {
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Wallet } from 'fabric-network';
+import { DataSrc } from '..';
 import { getLogger } from './getLogger';
 import { shutdown } from './shutdownApollo';
-import { DataSrc } from '..';
 
 export const createService = async ({
   enrollmentId,

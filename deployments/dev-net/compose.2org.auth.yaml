@@ -6,7 +6,7 @@ networks:
 services:
 # ORG1
   auth-server1:
-    image: hktfp5/auth-server
+    image: fabric-es/auth-server:1.0
     container_name: auth-server1
     environment:
       - TYPEORM_HOST=postgres01
@@ -27,7 +27,7 @@ services:
 
 # ORG2
   auth-server2:
-    image: hktfp5/auth-server
+    image: fabric-es/auth-server:1.0
     container_name: auth-server2
     environment:
       - TYPEORM_HOST=postgres02

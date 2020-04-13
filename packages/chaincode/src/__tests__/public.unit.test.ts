@@ -1,6 +1,6 @@
 import { values } from 'lodash';
-import { StateList } from '../ledger-api';
 import { Commit, EventStore } from '..';
+import { StateList } from '../ledger-api';
 
 const ctx: any = {
   stub: {
