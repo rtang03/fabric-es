@@ -53,26 +53,34 @@ services:
         working_dir: /home/app/packages/gw-org1
         environment:
             # GW-ORG1
-            - ADMINISTRATOR_PORT=15001
+            - ACCESS_TOKEN_SECRET=ajlkqowieuqowueoi
+            - ADMIN=root_admin
+            - ADMIN_PASSWORD=root_admin_password
+            - ADMINISTRATOR_PORT=15011
+            - AUTHORIZATION_CODE=kljkiojkl
             - AUTHORIZATION_SERVER_URI=http://auth-server-1:8080/oauth/authenticate
-            - CA_ENROLLMENT_ID_ADMIN=rca-etradeconnect-admin
+            - CA_ENROLLMENT_ID_ADMIN=rca-org1-admin
             - CA_ENROLLMENT_SECRET_ADMIN=cMyG7C9U
             - CHAINCODE_ID=eventstore
+            - CHAINCODE_ID_PRIVATEDATA=privatedata
             - CHANNEL_NAME=loanapp
-            - CHANNEL_HUB=peer0.etradeconnect.net
-            - COLLECTION=etcPrivateDetails
+            - CHANNEL_HUB=peer0.org1.example.com
+            - COLLECTION=org1PrivateDetails
             - CONNECTION_PROFILE=/home/app/packages/gw-org1/assets/connection.yaml
             - GATEWAY_HOST=localhost
             - GATEWAY_PORT=4001
-            - MSPID=EtcMSP
+            - MSPID=Org1MSP
             - NETWORK_LOCATION=/var/artifacts/crypto-config
-            - ORG_ADMIN_ID=admin-etradeconnect.net
+            - ORG_ADMIN_ID=admin-org1.net
             - ORG_ADMIN_SECRET=Heym2rQK
-            - ORG_CA_URL=https://peer0.etradeconnect.net:6054
-            - ORGNAME=etradeconnect.net
-            - ORDERER_NAME=orderer0.hktfp.com
-            - ORDERER_TLSCA_CERT=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
-            - PEER_NAME=peer0.etradeconnect.net
+            - ORG_CA_URL=https://peer0.org1.example.com:6054
+            - ORGNAME=org1.example.com
+            - ORDERER_NAME=orderer0.org0.com
+            - ORDERER_TLSCA_CERT=/var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+            - PEER_NAME=peer0.org1.example.com
+            - PRIVATE_DOC_CONTENTS_PORT=14014
+            - REFRESH_TOKEN_SECRET=qopwieioque1
+            - REMOTE_LOAN_DETAILS_PORT=14015
             - SERVICE_DOCUMENT_PORT=14013
             - SERVICE_LOAN_PORT=14012
             - SERVICE_PRIVATE_PORT=14014
@@ -84,20 +92,20 @@ services:
             - /home/web/artifacts/gw-org1/assets:/home/app/packages/gw-org1/assets
             - /home/web/artifacts/gw-org1/logs:/home/app/packages/gw-org1/logs
         extra_hosts:
-            - "orderer0.hktfp.com:35.213.127.193"
-            - "orderer1.hktfp.com:35.213.45.247"
-            - "orderer2.hktfp.com:35.213.41.26"
-            - "orderer3.hktfp.com:35.213.73.53"
-            - "orderer4.hktfp.com:35.213.59.127"
-            - "rca.etradeconnect.net:35.213.45.247"
-            - "peer0.etradeconnect.net:35.213.45.247"
-            - "peer1.etradeconnect.net:35.213.41.26"
-            - "rca.pbctfp.net:35.213.73.53"
-            - "peer0.pbctfp.net:35.213.73.53"
-            - "peer1.pbctfp.net:35.213.59.127"
-            - "rca.credrate.com.hk:35.213.66.149"
-            - "peer0.credrate.com.hk:35.213.66.149"
-            - "peer1.credrate.com.hk:34.84.251.190"
+            - "orderer0.org0.com:35.213.2.193"
+            - "orderer1.org0.com:35.213.22.48"
+            - "orderer2.org0.com:35.213.98.220"
+            - "orderer3.org0.com:35.213.121.197"
+            - "orderer4.org0.com:35.213.21.32"
+            - "rca.org1.example.com:35.213.22.48"
+            - "peer0.org1.example.com:35.213.22.48"
+            - "peer1.org1.example.com:35.213.98.220"
+            - "rca.org2.example.com:35.213.121.197"
+            - "peer0.org2.example.com:35.213.121.197"
+            - "peer1.org2.example.com:35.213.21.32"
+            - "rca.org3.example.com:35.213.61.157"
+            - "peer0.org3.example.com:35.213.61.157"
+            - "peer1.org3.example.com:35.213.41.15"
         ports:
             - 4000:4001
         networks:
