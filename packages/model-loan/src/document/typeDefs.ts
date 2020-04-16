@@ -9,6 +9,8 @@ export const typeDefs = gql`
     getCommitsByDocumentId(documentId: String!): [DocCommit]!
     getDocumentById(documentId: String!): Document
     getPaginatedDocuments(pageSize: Int = 10): PaginatedDocuments!
+    searchDocumentByFields(where: String!): [Document]
+    searchDocumentContains(contains: String!): [Document]
   }
 
   type Mutation {
@@ -91,6 +93,23 @@ export const resolvers = {
           total: data.length,
           hasMore: data.length > pageSize
         } as Paginated<Document>))
+        .catch(error => new ApolloError(error)),
+    searchDocumentByFields: async (
+      _, { where }, { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+    ): Promise<Document[]> => {
+      try {
+        return document.repo.getProjection({ where: JSON.parse(where) })
+          .then(({ data }) => data)
+          .catch(error => new ApolloError(error));
+      } catch (error) {
+        throw new ApolloError(error);
+      }
+    },
+    searchDocumentContains: async (
+      _, { contains }, { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+    ): Promise<Document[]> =>
+      document.repo.getProjection({ contain: contains })
+        .then(({ data }) => data)
         .catch(error => new ApolloError(error))
   },
   Mutation: {

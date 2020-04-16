@@ -9,6 +9,8 @@ export const typeDefs = gql`
     getCommitsByLoanId(loanId: String!): [LoanCommit]!
     getLoanById(loanId: String!): Loan
     getPaginatedLoans(pageSize: Int = 10): PaginatedLoans!
+    searchLoanByFields(where: String!): [Loan]
+    searchLoanContains(contains: String!): [Loan]
   }
 
   type Mutation {
@@ -82,6 +84,23 @@ export const resolvers = {
           total: data.length,
           hasMore: data.length > pageSize
         } as Paginated<Loan>))
+        .catch(error => new ApolloError(error)),
+    searchLoanByFields: async (
+      _, { where }, { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+    ): Promise<Loan[]> => {
+      try {
+        return loan.repo.getProjection({ where: JSON.parse(where) })
+          .then(({ data }) => data)
+          .catch(error => new ApolloError(error));
+      } catch (error) {
+        throw new ApolloError(error);
+      }
+    },
+    searchLoanContains: async (
+      _, { contains }, { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+    ): Promise<Loan[]> =>
+      loan.repo.getProjection({ contain: contains })
+        .then(({ data }) => data)
         .catch(error => new ApolloError(error))
   },
   Mutation: {
