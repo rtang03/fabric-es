@@ -956,10 +956,6 @@ describe('Multi-Org Test - Query Loans', () => {
           operationName: 'SearchLoanByFields', query: SEARCH_LOAN_BY_FIELDS, variables: { where: `{ "comment": "Comment 3 ${timestamp}" }` }
         })})
       .then(res => res.json())
-      .then(data => {
-        console.log('HMM', JSON.stringify(data));
-        return data;
-      })
       .then(({ data }) => expect(data.searchLoanByFields).toMatchSnapshot())
       .catch(_ => expect(false).toBeTruthy());
       return;
