@@ -1,3 +1,7 @@
+## VNext
+### Added
+- GraphQL resolver APIs for searching the projectionDb
+
 ## [0.5.16] - 2020-4-3
 ### Added
 - update for pwc reference implementation 
