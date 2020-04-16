@@ -1,6 +1,7 @@
 require('dotenv').config({ path: './.env' });
 import fetch from 'node-fetch';
 import {
+  APPLY_LOAN,
   CREATE_DOC_CONTENTS,
   CREATE_DOCUMENT,
   CREATE_DOCUMENT_CUST,
@@ -14,11 +15,14 @@ import {
   GW_REGISTER_ENROLL,
   OAUTH_LOGIN,
   OAUTH_REGISTER,
-  APPLY_LOAN,
-  UPDATE_LOAN,
-  UPDATE_LOAN_DETAILS,
+  SEARCH_DOCUMENT_BY_FIELDS,
+  SEARCH_DOCUMENT_CONTAINS,
+  SEARCH_LOAN_BY_FIELDS,
+  SEARCH_LOAN_CONTAINS,
   UPDATE_DOCUMENT,
-  UPDATE_DOCUMENT_CUST
+  UPDATE_DOCUMENT_CUST,
+  UPDATE_LOAN,
+  UPDATE_LOAN_DETAILS_CUST
 } from './queries';
 
 const AUTH_SERVER1 = `http://${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}/graphql`;
@@ -405,7 +409,7 @@ describe('Multi-Org Test - Initialize Org1', () => {
             userId: userId1, loanId: loanId1,
             description: '',
             reference: 'REF-ORG1-LOAN-1-EDITED',
-            comment: 'Hello 0001 ADDED'
+            comment: `Comment 1 ${timestamp}`
           }})})
         .then(res => res.json())
         .then(({ data, errors }) => {
@@ -450,7 +454,7 @@ describe('Multi-Org Test - Initialize Org2', () => {
             userId: userId2, loanId: loanId2,
             description: 'Org2 Loan 2',
             reference: 'REF-ORG2-LOAN-2',
-            comment: 'Hello 0002'
+            comment: `Comment 2 ${timestamp}`
           }})})
         .then(res => res.json())
         .then(({ data }) => expect(data.applyLoan.id).toEqual(loanId2))
@@ -530,7 +534,7 @@ describe('Multi-Org Test - Initialize Org3', () => {
             userId: userId3, loanId: loanId3,
             description: 'Org3 Loan 3',
             reference: 'REF-ORG3-LOAN-3',
-            comment: 'Hello 0003'
+            comment: `Comment 3 ${timestamp}`
           }})})
         .then(res => res.json())
         .then(({ data }) => expect(data.applyLoan.id).toEqual(loanId3))
@@ -720,7 +724,7 @@ describe('Multi-Org Test - Initialize Org3', () => {
       await fetch(GATEWAY3, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
           operationName: 'UpdateLoanDetails',
-          query: UPDATE_LOAN_DETAILS,
+          query: UPDATE_LOAN_DETAILS_CUST,
           variables: {
             userId: userId3, loanId: loanId3,
             contact: { company: '' }
@@ -739,7 +743,7 @@ describe('Multi-Org Test - Initialize Org3', () => {
       await fetch(GATEWAY3, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
           operationName: 'UpdateLoanDetails',
-          query: UPDATE_LOAN_DETAILS,
+          query: UPDATE_LOAN_DETAILS_CUST,
           variables: {
             userId: userId3, loanId: loanId3,
             requester: { name: 'Loan Requester 999' },
@@ -848,7 +852,37 @@ describe('Multi-Org Test - Query Loans', () => {
           operationName: 'GetLoanById', query: GET_LOAN_BY_ID_ORG1, variables: { loanId: loanId1 }
         })})
       .then(res => res.json())
-      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot())
+      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot({
+        comment: expect.any(String)
+      }))
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('query loan 1 by field', async () => {
+    if (isReady) {
+      await fetch(GATEWAY1, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken1}` }, body: JSON.stringify({
+          operationName: 'SearchLoanByFields', query: SEARCH_LOAN_BY_FIELDS, variables: { where: `{ "comment": "Comment 1 ${timestamp}" }` }
+        })})
+      .then(res => res.json())
+      .then(({ data }) => expect(data.searchLoanByFields).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('query loan 1 contains', async () => {
+    if (isReady) {
+      await fetch(GATEWAY1, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken1}` }, body: JSON.stringify({
+          operationName: 'SearchLoanContains', query: SEARCH_LOAN_CONTAINS, variables: { contains: ''+timestamp }
+        })})
+      .then(res => res.json())
+      .then(({ data }) => expect(data.searchLoanContains).toMatchSnapshot())
       .catch(_ => expect(false).toBeTruthy());
       return;
     }
@@ -862,7 +896,37 @@ describe('Multi-Org Test - Query Loans', () => {
           operationName: 'GetLoanById', query: GET_LOAN_BY_ID_ORG2, variables: { loanId: loanId2 }
         })})
       .then(res => res.json())
-      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot())
+      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot({
+        comment: expect.any(String)
+      }))
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('query loan 2 by field', async () => {
+    if (isReady) {
+      await fetch(GATEWAY2, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
+          operationName: 'SearchLoanByFields', query: SEARCH_LOAN_BY_FIELDS, variables: { where: `{ "comment": "Comment 2 ${timestamp}" }` }
+        })})
+      .then(res => res.json())
+      .then(({ data }) => expect(data.searchLoanByFields).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('query loan 2 contains', async () => {
+    if (isReady) {
+      await fetch(GATEWAY2, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
+          operationName: 'SearchLoanContains', query: SEARCH_LOAN_CONTAINS, variables: { contains: ''+timestamp }
+        })})
+      .then(res => res.json())
+      .then(({ data }) => expect(data.searchLoanContains).toMatchSnapshot())
       .catch(_ => expect(false).toBeTruthy());
       return;
     }
@@ -876,10 +940,129 @@ describe('Multi-Org Test - Query Loans', () => {
           operationName: 'GetLoanById', query: GET_LOAN_BY_ID_ORG3, variables: { loanId: loanId3 }
         })})
       .then(res => res.json())
-      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot())
+      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot({
+        comment: expect.any(String)
+      }))
       .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
   });
+
+  it('query loan 3 by field', async () => {
+    if (isReady) {
+      await fetch(GATEWAY3, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
+          operationName: 'SearchLoanByFields', query: SEARCH_LOAN_BY_FIELDS, variables: { where: `{ "comment": "Comment 3 ${timestamp}" }` }
+        })})
+      .then(res => res.json())
+      .then(data => {
+        console.log('HMM', JSON.stringify(data));
+        return data;
+      })
+      .then(({ data }) => expect(data.searchLoanByFields).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('query loan 3 contains', async () => {
+    if (isReady) {
+      await fetch(GATEWAY3, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
+          operationName: 'SearchLoanContains', query: SEARCH_LOAN_CONTAINS, variables: { contains: ''+timestamp }
+        })})
+      .then(res => res.json())
+      .then(({ data }) => expect(data.searchLoanContains).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('query document 1 by field', async () => {
+    if (isReady) {
+      await fetch(GATEWAY1, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken1}` }, body: JSON.stringify({
+          operationName: 'SearchDocumentByFields', query: SEARCH_DOCUMENT_BY_FIELDS, variables: { where: `{ "loanId": "${loanId1}" }` }
+        })})
+      .then(res => res.json())
+      .then(({ data }) => expect(data.searchDocumentByFields).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('query document 1 contains', async () => {
+    if (isReady) {
+      await fetch(GATEWAY1, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken1}` }, body: JSON.stringify({
+          operationName: 'SearchDocumentContains', query: SEARCH_DOCUMENT_CONTAINS, variables: { contains: loanId1 }
+        })})
+      .then(res => res.json())
+      .then(({ data }) => expect(data.searchDocumentContains).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('query document 2 by field', async () => {
+    if (isReady) {
+      await fetch(GATEWAY2, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
+          operationName: 'SearchDocumentByFields', query: SEARCH_DOCUMENT_BY_FIELDS, variables: { where: `{ "loanId": "${loanId2}" }` }
+        })})
+      .then(res => res.json())
+      .then(({ data }) => expect(data.searchDocumentByFields).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('query document 2 contains', async () => {
+    if (isReady) {
+      await fetch(GATEWAY2, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
+          operationName: 'SearchDocumentContains', query: SEARCH_DOCUMENT_CONTAINS, variables: { contains: loanId2 }
+        })})
+      .then(res => res.json())
+      .then(({ data }) => expect(data.searchDocumentContains).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('query document 3 by field', async () => {
+    if (isReady) {
+      await fetch(GATEWAY3, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
+          operationName: 'SearchDocumentByFields', query: SEARCH_DOCUMENT_BY_FIELDS, variables: { where: `{ "loanId": "${loanId3}" }` }
+        })})
+      .then(res => res.json())
+      .then(({ data }) => expect(data.searchDocumentByFields).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
+  it('query document 3 contains', async () => {
+    if (isReady) {
+      await fetch(GATEWAY3, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
+          operationName: 'SearchDocumentContains', query: SEARCH_DOCUMENT_CONTAINS, variables: { contains: loanId3 }
+        })})
+      .then(res => res.json())
+      .then(({ data }) => expect(data.searchDocumentContains).toMatchSnapshot())
+      .catch(_ => expect(false).toBeTruthy());
+      return;
+    }
+    expect(false).toBeTruthy();
+  });
+
 });

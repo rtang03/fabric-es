@@ -11,6 +11,8 @@ export const typeDefs = gql`
     getCommitsByUserId(userId: String!): [UserCommit]!
     getPaginatedUser(cursor: Int = 10): PaginatedUsers!
     getUserById(userId: String!): User
+    searchUserByFields(where: String!): [User]
+    searchUserContains(contains: String!): [User]
     me: User
   }
 
@@ -112,7 +114,24 @@ export const resolvers = {
           logger.warn(util.format('getUserById error: %j', error));
           return error;
         });
-    }
+    },
+    searchUserByFields: async (
+      _, { where }, { dataSources: { user }, enrollmentId }: { dataSources: { user: UserDS }; enrollmentId: string }
+    ): Promise<User[]> => {
+      try {
+        return user.repo.getProjection({ where: JSON.parse(where) })
+          .then(({ data }) => data)
+          .catch(error => new ApolloError(error));
+      } catch (error) {
+        throw new ApolloError(error);
+      }
+    },
+    searchUserContains: async (
+      _, { contains }, { dataSources: { user }, enrollmentId }: { dataSources: { user: UserDS }; enrollmentId: string }
+      ): Promise<User[]> =>
+        user.repo.getProjection({ contain: contains })
+          .then(({ data }) => data)
+          .catch(error => new ApolloError(error))
   },
   Mutation: {
     createUser: async (
