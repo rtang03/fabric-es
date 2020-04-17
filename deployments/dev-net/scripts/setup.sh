@@ -37,7 +37,7 @@ getConfig() {
       CAPORT=5054
       PORT=7051
       GATEWAY="gw-org1"
-      IMAGE=fabric-es/gw-org1:1.0
+      IMAGE=fabric-es/gw-org1:0.5.17
       ;;
     org2)
       NAME="Org2"
@@ -46,7 +46,7 @@ getConfig() {
       CAPORT=5055
       PORT=7251
       GATEWAY="gw-org2"
-      IMAGE=fabric-es/gw-org2:1.0
+      IMAGE=fabric-es/gw-org2:0.5.17
       ;;
     org3)
       NAME="Org3"
@@ -55,7 +55,7 @@ getConfig() {
       CAPORT=5056
       PORT=7451
       GATEWAY="gw-org3"
-      IMAGE=fabric-es/gw-org3:1.0
+      IMAGE=fabric-es/gw-org3:0.5.17
       ;;
   esac
 }
@@ -99,8 +99,8 @@ export CURRENT_DIR=$PWD
 export ROOT_DIR=$PWD/../..
 export MEMBERS="'Org1MSP.member','Org2MSP.member','Org3MSP.member'"
 
-export AUTH_IMAGE=fabric-es/auth-server:1.0
-export TEST_IMAGE=fabric-es/tester:1.0
+export AUTH_IMAGE=fabric-es/auth-server:0.5.17
+export TEST_IMAGE=fabric-es/tester:0.5.17
 
 export COMPOSE_0_2ORG="-f compose.2org.yaml"
 export COMPOSE_1_2ORG="$COMPOSE_0_2ORG -f compose.2org.db.yaml"
