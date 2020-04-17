@@ -1,5 +1,179 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Multi-Org Test - Query Loans query document 1 by field 1`] = `
+Array [
+  Object {
+    "loan": Object {
+      "description": "Org1 Loan 1 OVERWRITTEN",
+      "ownerId": "USER_ORG1",
+      "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+      "status": 0,
+    },
+    "ownerId": "USER_ORG1",
+    "reference": "REF-ORG1-DOC-1",
+    "status": 0,
+    "title": "Org1 Document 1",
+  },
+  Object {
+    "loan": Object {
+      "description": "Org1 Loan 1 OVERWRITTEN",
+      "ownerId": "USER_ORG1",
+      "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+      "status": 0,
+    },
+    "ownerId": "USER_ORG1",
+    "reference": "REF-ORG1-DOC-2",
+    "status": 0,
+    "title": "Org1 Document 2",
+  },
+]
+`;
+
+exports[`Multi-Org Test - Query Loans query document 1 contains 1`] = `
+Array [
+  Object {
+    "loan": Object {
+      "description": "Org1 Loan 1 OVERWRITTEN",
+      "ownerId": "USER_ORG1",
+      "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+      "status": 0,
+    },
+    "ownerId": "USER_ORG1",
+    "reference": "REF-ORG1-DOC-1",
+    "status": 0,
+    "title": "Org1 Document 1",
+  },
+  Object {
+    "loan": Object {
+      "description": "Org1 Loan 1 OVERWRITTEN",
+      "ownerId": "USER_ORG1",
+      "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+      "status": 0,
+    },
+    "ownerId": "USER_ORG1",
+    "reference": "REF-ORG1-DOC-2",
+    "status": 0,
+    "title": "Org1 Document 2",
+  },
+]
+`;
+
+exports[`Multi-Org Test - Query Loans query document 2 by field 1`] = `
+Array [
+  Object {
+    "loan": Object {
+      "description": "Org2 Loan 2",
+      "ownerId": "USER_ORG2",
+      "reference": "REF-ORG2-LOAN-2",
+      "status": 0,
+    },
+    "ownerId": "USER_ORG2",
+    "reference": "REF-ORG2-DOC-1",
+    "status": 0,
+    "title": "Org2 Document 1",
+  },
+  Object {
+    "loan": Object {
+      "description": "Org2 Loan 2",
+      "ownerId": "USER_ORG2",
+      "reference": "REF-ORG2-LOAN-2",
+      "status": 0,
+    },
+    "ownerId": "USER_ORG2",
+    "reference": "REF-ORG2-DOC-2",
+    "status": 0,
+    "title": "Org2 Document 2",
+  },
+]
+`;
+
+exports[`Multi-Org Test - Query Loans query document 2 contains 1`] = `
+Array [
+  Object {
+    "loan": Object {
+      "description": "Org2 Loan 2",
+      "ownerId": "USER_ORG2",
+      "reference": "REF-ORG2-LOAN-2",
+      "status": 0,
+    },
+    "ownerId": "USER_ORG2",
+    "reference": "REF-ORG2-DOC-1",
+    "status": 0,
+    "title": "Org2 Document 1",
+  },
+  Object {
+    "loan": Object {
+      "description": "Org2 Loan 2",
+      "ownerId": "USER_ORG2",
+      "reference": "REF-ORG2-LOAN-2",
+      "status": 0,
+    },
+    "ownerId": "USER_ORG2",
+    "reference": "REF-ORG2-DOC-2",
+    "status": 0,
+    "title": "Org2 Document 2",
+  },
+]
+`;
+
+exports[`Multi-Org Test - Query Loans query document 3 by field 1`] = `
+Array [
+  Object {
+    "loan": Object {
+      "description": "Org3 Loan 3",
+      "ownerId": "USER_ORG3",
+      "reference": "REF-ORG3-LOAN-3",
+      "status": 0,
+    },
+    "ownerId": "USER_ORG3",
+    "reference": "REF-ORG3-DOC-1",
+    "status": 0,
+    "title": "Org3 Document 1",
+  },
+  Object {
+    "loan": Object {
+      "description": "Org3 Loan 3",
+      "ownerId": "USER_ORG3",
+      "reference": "REF-ORG3-LOAN-3",
+      "status": 0,
+    },
+    "ownerId": "USER_ORG3",
+    "reference": "REF-ORG3-DOC-2",
+    "status": 0,
+    "title": "Org3 Document 2",
+  },
+]
+`;
+
+exports[`Multi-Org Test - Query Loans query document 3 contains 1`] = `
+Array [
+  Object {
+    "loan": Object {
+      "description": "Org3 Loan 3",
+      "ownerId": "USER_ORG3",
+      "reference": "REF-ORG3-LOAN-3",
+      "status": 0,
+    },
+    "ownerId": "USER_ORG3",
+    "reference": "REF-ORG3-DOC-1",
+    "status": 0,
+    "title": "Org3 Document 1",
+  },
+  Object {
+    "loan": Object {
+      "description": "Org3 Loan 3",
+      "ownerId": "USER_ORG3",
+      "reference": "REF-ORG3-LOAN-3",
+      "status": 0,
+    },
+    "ownerId": "USER_ORG3",
+    "reference": "REF-ORG3-DOC-2",
+    "status": 0,
+    "title": "Org3 Document 2",
+  },
+]
+`;
+
 exports[`Multi-Org Test - Query Loans query loan 1 1`] = `
 Object {
   "_details": Array [
@@ -46,7 +220,7 @@ Object {
       "tenor": 51,
     },
   ],
-  "comment": "Hello 0001 ADDED",
+  "comment": Any<String>,
   "description": "Org1 Loan 1 OVERWRITTEN",
   "documents": Array [
     Object {
@@ -77,9 +251,91 @@ Object {
 }
 `;
 
+exports[`Multi-Org Test - Query Loans query loan 1 by field 1`] = `
+Array [
+  Object {
+    "description": "Org1 Loan 1 OVERWRITTEN",
+    "documents": Array [
+      Object {
+        "reference": "REF-ORG1-DOC-1",
+        "status": 0,
+        "title": "Org1 Document 1",
+      },
+      Object {
+        "reference": "REF-ORG1-DOC-2",
+        "status": 0,
+        "title": "Org1 Document 2",
+      },
+    ],
+    "ownerId": "USER_ORG1",
+    "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+    "status": 0,
+  },
+]
+`;
+
+exports[`Multi-Org Test - Query Loans query loan 1 contains 1`] = `
+Array [
+  Object {
+    "description": "Org1 Loan 1 OVERWRITTEN",
+    "documents": Array [
+      Object {
+        "reference": "REF-ORG1-DOC-1",
+        "status": 0,
+        "title": "Org1 Document 1",
+      },
+      Object {
+        "reference": "REF-ORG1-DOC-2",
+        "status": 0,
+        "title": "Org1 Document 2",
+      },
+    ],
+    "ownerId": "USER_ORG1",
+    "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+    "status": 0,
+  },
+  Object {
+    "description": "Org2 Loan 2",
+    "documents": Array [
+      Object {
+        "reference": "REF-ORG2-DOC-1",
+        "status": 0,
+        "title": "Org2 Document 1",
+      },
+      Object {
+        "reference": "REF-ORG2-DOC-2",
+        "status": 0,
+        "title": "Org2 Document 2",
+      },
+    ],
+    "ownerId": "USER_ORG2",
+    "reference": "REF-ORG2-LOAN-2",
+    "status": 0,
+  },
+  Object {
+    "description": "Org3 Loan 3",
+    "documents": Array [
+      Object {
+        "reference": "REF-ORG3-DOC-1",
+        "status": 0,
+        "title": "Org3 Document 1",
+      },
+      Object {
+        "reference": "REF-ORG3-DOC-2",
+        "status": 0,
+        "title": "Org3 Document 2",
+      },
+    ],
+    "ownerId": "USER_ORG3",
+    "reference": "REF-ORG3-LOAN-3",
+    "status": 0,
+  },
+]
+`;
+
 exports[`Multi-Org Test - Query Loans query loan 2 1`] = `
 Object {
-  "comment": "Hello 0002",
+  "comment": Any<String>,
   "description": "Org2 Loan 2",
   "details": Object {
     "approvedAmt": null,
@@ -137,9 +393,91 @@ Object {
 }
 `;
 
+exports[`Multi-Org Test - Query Loans query loan 2 by field 1`] = `
+Array [
+  Object {
+    "description": "Org2 Loan 2",
+    "documents": Array [
+      Object {
+        "reference": "REF-ORG2-DOC-1",
+        "status": 0,
+        "title": "Org2 Document 1",
+      },
+      Object {
+        "reference": "REF-ORG2-DOC-2",
+        "status": 0,
+        "title": "Org2 Document 2",
+      },
+    ],
+    "ownerId": "USER_ORG2",
+    "reference": "REF-ORG2-LOAN-2",
+    "status": 0,
+  },
+]
+`;
+
+exports[`Multi-Org Test - Query Loans query loan 2 contains 1`] = `
+Array [
+  Object {
+    "description": "Org1 Loan 1 OVERWRITTEN",
+    "documents": Array [
+      Object {
+        "reference": "REF-ORG1-DOC-1",
+        "status": 0,
+        "title": "Org1 Document 1",
+      },
+      Object {
+        "reference": "REF-ORG1-DOC-2",
+        "status": 0,
+        "title": "Org1 Document 2",
+      },
+    ],
+    "ownerId": "USER_ORG1",
+    "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+    "status": 0,
+  },
+  Object {
+    "description": "Org2 Loan 2",
+    "documents": Array [
+      Object {
+        "reference": "REF-ORG2-DOC-1",
+        "status": 0,
+        "title": "Org2 Document 1",
+      },
+      Object {
+        "reference": "REF-ORG2-DOC-2",
+        "status": 0,
+        "title": "Org2 Document 2",
+      },
+    ],
+    "ownerId": "USER_ORG2",
+    "reference": "REF-ORG2-LOAN-2",
+    "status": 0,
+  },
+  Object {
+    "description": "Org3 Loan 3",
+    "documents": Array [
+      Object {
+        "reference": "REF-ORG3-DOC-1",
+        "status": 0,
+        "title": "Org3 Document 1",
+      },
+      Object {
+        "reference": "REF-ORG3-DOC-2",
+        "status": 0,
+        "title": "Org3 Document 2",
+      },
+    ],
+    "ownerId": "USER_ORG3",
+    "reference": "REF-ORG3-LOAN-3",
+    "status": 0,
+  },
+]
+`;
+
 exports[`Multi-Org Test - Query Loans query loan 3 1`] = `
 Object {
-  "comment": "Hello 0003",
+  "comment": Any<String>,
   "description": "Org3 Loan 3",
   "details": Object {
     "approvedAmt": null,
@@ -192,4 +530,86 @@ Object {
   "reference": "REF-ORG3-LOAN-3",
   "status": 0,
 }
+`;
+
+exports[`Multi-Org Test - Query Loans query loan 3 by field 1`] = `
+Array [
+  Object {
+    "description": "Org3 Loan 3",
+    "documents": Array [
+      Object {
+        "reference": "REF-ORG3-DOC-1",
+        "status": 0,
+        "title": "Org3 Document 1",
+      },
+      Object {
+        "reference": "REF-ORG3-DOC-2",
+        "status": 0,
+        "title": "Org3 Document 2",
+      },
+    ],
+    "ownerId": "USER_ORG3",
+    "reference": "REF-ORG3-LOAN-3",
+    "status": 0,
+  },
+]
+`;
+
+exports[`Multi-Org Test - Query Loans query loan 3 contains 1`] = `
+Array [
+  Object {
+    "description": "Org1 Loan 1 OVERWRITTEN",
+    "documents": Array [
+      Object {
+        "reference": "REF-ORG1-DOC-1",
+        "status": 0,
+        "title": "Org1 Document 1",
+      },
+      Object {
+        "reference": "REF-ORG1-DOC-2",
+        "status": 0,
+        "title": "Org1 Document 2",
+      },
+    ],
+    "ownerId": "USER_ORG1",
+    "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+    "status": 0,
+  },
+  Object {
+    "description": "Org2 Loan 2",
+    "documents": Array [
+      Object {
+        "reference": "REF-ORG2-DOC-1",
+        "status": 0,
+        "title": "Org2 Document 1",
+      },
+      Object {
+        "reference": "REF-ORG2-DOC-2",
+        "status": 0,
+        "title": "Org2 Document 2",
+      },
+    ],
+    "ownerId": "USER_ORG2",
+    "reference": "REF-ORG2-LOAN-2",
+    "status": 0,
+  },
+  Object {
+    "description": "Org3 Loan 3",
+    "documents": Array [
+      Object {
+        "reference": "REF-ORG3-DOC-1",
+        "status": 0,
+        "title": "Org3 Document 1",
+      },
+      Object {
+        "reference": "REF-ORG3-DOC-2",
+        "status": 0,
+        "title": "Org3 Document 2",
+      },
+    ],
+    "ownerId": "USER_ORG3",
+    "reference": "REF-ORG3-LOAN-3",
+    "status": 0,
+  },
+]
 `;

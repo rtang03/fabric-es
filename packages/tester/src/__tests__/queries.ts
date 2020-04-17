@@ -192,9 +192,61 @@ query GetLoanById($loanId: String!) {
   }
 }`;
 
+export const SEARCH_LOAN_BY_FIELDS = `
+query SearchLoanByFields($where: String!) {
+  searchLoanByFields(where: $where) {
+    ownerId
+    description
+    reference
+    status
+    documents {
+      title
+      reference
+      status
+    }
+  }
+}`;
+
+export const SEARCH_LOAN_CONTAINS = `
+query SearchLoanContains($contains: String!) {
+  searchLoanContains(contains: $contains) {
+    ownerId
+    description
+    reference
+    status
+    documents {
+      title
+      reference
+      status
+    }
+  }
+}`;
+
 export const GET_DOCUMENT_BY_ID = `
-query GetDocumentById($documentId: String!) {
-  getDocumentById(documentId: $documentId) {
+  query GetDocumentById($documentId: String!) {
+    getDocumentById(documentId: $documentId) {
+      documentId
+      ownerId
+      loanId
+      title
+      reference
+      status
+      timestamp
+      loan {
+        loanId
+        ownerId
+        description
+        reference
+        status
+        timestamp
+      }
+    }
+  }
+`;
+
+export const SEARCH_DOCUMENT_BY_FIELDS = `
+query SearchDocumentByFields($where: String!) {
+  searchDocumentByFields(where: $where) {
     ownerId
     title
     reference
@@ -204,63 +256,55 @@ query GetDocumentById($documentId: String!) {
       description
       reference
       status
-      details {
-        requester {
-          registration
-          name
-          type
-        }
-        contact {
-          salutation
-          name
-          title
-          phone
-          email
-        }
-        loanType
-        startDate
-        tenor
-        currency
-        requestedAmt
-        approvedAmt
-        comment
-      }
     }
-    contents {
-      content {
-        ... on Data {
-          body
-        }
-        ... on File {
-          format
-          link
-        }
-      }
+  }
+}`;
+
+export const SEARCH_DOCUMENT_CONTAINS = `
+query SearchDocumentContains($contains: String!) {
+  searchDocumentContains(contains: $contains) {
+    ownerId
+    title
+    reference
+    status
+    loan {
+      ownerId
+      description
+      reference
+      status
     }
   }
 }`;
 
 export const GET_COMMITS_BY_DOCUMENT = `
-query GetCommitsByDocument($documentId: String!) {
-  getCommitsByDocumentId(documentId: $documentId) {
-    entityName
-    version
-    events {
-      type
+  query GetCommitsByDocument($documentId: String!) {
+    getCommitsByDocumentId(documentId: $documentId) {
+      id
+      entityName
+      version
+      commitId
+      committedAt
+      events {
+        type
+      }
     }
   }
-}`;
+`;
 
 export const GET_COMMITS_BY_LOAN = `
-query GetCommitsByLoanId($loanId: String!) {
-  getCommitsByLoanId(loanId: $loanId) {
-    entityName
-    version
-    events {
-      type
+  query GetCommitsByLoanId($loanId: String!) {
+    getCommitsByLoanId(loanId: $loanId) {
+      id
+      entityName
+      version
+      commitId
+      committedAt
+      events {
+        type
+      }
     }
   }
-}`;
+`;
 
 export const APPLY_LOAN = `
   mutation ApplyLoan($userId: String!, $loanId: String!, $description: String!, $reference: String!, $comment: String) {
@@ -435,7 +479,7 @@ export const CREATE_LOAN_DETAILS = `
   }
 `;
 
-export const UPDATE_LOAN_DETAILS = `
+export const UPDATE_LOAN_DETAILS_CUST = `
   mutation UpdateLoanDetails(
     $userId: String!
     $loanId: String!

@@ -125,17 +125,6 @@ export const GET_DOCUMENT_BY_ID = gql`
         status
         timestamp
       }
-      contents {
-        content {
-          ... on Data {
-            body
-          }
-          ... on File {
-            format
-            link
-          }
-        }
-      }
     }
   }
 `;
