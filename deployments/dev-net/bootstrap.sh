@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # $1 - docker compose files
 # $2 - orderer code ("org0")

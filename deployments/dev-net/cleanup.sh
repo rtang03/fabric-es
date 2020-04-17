@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Cleaup the environment
 # Usage: cleanup.sh [-d | -R | --remove-cc-images] [docker-compose file]

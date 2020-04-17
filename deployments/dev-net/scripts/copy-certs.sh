@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # $1 - crypto material root path
 # $2 - Org0; Org1; Org2; Org3
