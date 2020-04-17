@@ -1,8 +1,35 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
+
+export RELEASE=0.6.2
+export IMAGE_TAG=2.0.1
+export CONFIG=./config
+export VOLUME=./volume
+export ARTIFACTS=./artifacts
+export SCRIPTS=./scripts
+export CHAINCODE=../../packages/chaincode
+export CRYPTO=/var/artifacts/crypto-config
+export CURRENT_DIR=$PWD
+export ROOT_DIR=$PWD/../..
+export MEMBERS_3ORG="'Org1MSP.member','Org2MSP.member','Org3MSP.member'"
+export MEMBERS_2ORG="'Org1MSP.member','Org2MSP.member'"
+
+export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
+export TEST_IMAGE=fabric-es/tester:${RELEASE}
+
+export COMPOSE_0_2ORG="-f compose.2org.yaml"
+export COMPOSE_1_2ORG="$COMPOSE_0_2ORG -f compose.2org.db.yaml"
+export COMPOSE_2_2ORG="$COMPOSE_1_2ORG -f compose.2org.auth.yaml"
+export COMPOSE_3_2ORG="$COMPOSE_2_2ORG -f compose.2org.gw.yaml"
+export COMPOSE_4_2ORG="$COMPOSE_3_2ORG -f compose.2org.tester.yaml"
+export COMPOSE_0_3ORG="$COMPOSE_0_2ORG -f compose.3org.yaml"
+export COMPOSE_1_3ORG="$COMPOSE_0_3ORG -f compose.2org.db.yaml -f compose.3org.db.yaml"
+export COMPOSE_2_3ORG="$COMPOSE_1_3ORG -f compose.2org.auth.yaml -f compose.3org.auth.yaml"
+export COMPOSE_3_3ORG="$COMPOSE_2_3ORG -f compose.2org.gw.yaml -f compose.3org.gw.yaml"
+export COMPOSE_4_3ORG="$COMPOSE_3_3ORG -f compose.3org.tester.yaml"
 
 # $1 - message to be printed
 # $2 - exit code of the previous operation
@@ -24,8 +51,6 @@ getConfig() {
       DOMAIN="org0.com"
       CAPORT=5052
       PORT=7050
-      GATEWAY="-"
-      IMAGE="-"
       ;;
     org1)
       NAME="Org1"
@@ -33,9 +58,6 @@ getConfig() {
       DOMAIN="org1.net"
       CAPORT=5054
       PORT=7051
-      CCPORT=7052
-      GATEWAY="gw-org1"
-      IMAGE=fabric-es/gw-org1:1.0
       ;;
     org2)
       NAME="Org2"
@@ -43,9 +65,6 @@ getConfig() {
       DOMAIN="org2.net"
       CAPORT=5055
       PORT=7251
-      CCPORT=7252
-      GATEWAY="gw-org2"
-      IMAGE=fabric-es/gw-org2:1.0
       ;;
     org3)
       NAME="Org3"
@@ -53,9 +72,6 @@ getConfig() {
       DOMAIN="org3.net"
       CAPORT=5056
       PORT=7451
-      CCPORT=7452
-      GATEWAY="gw-org3"
-      IMAGE=fabric-es/gw-org3:1.0
       ;;
   esac
 }
@@ -103,30 +119,3 @@ parseArgs() {
     esac
   fi
 }
-
-export VERSION=1.0
-export IMAGE_TAG=2.0.1
-export CONFIG=./config
-export VOLUME=./volume
-export ARTIFACTS=./artifacts
-export SCRIPTS=./scripts
-export CHAINCODE=../../packages/chaincode
-export CRYPTO=/var/artifacts/crypto-config
-export CURRENT_DIR=$PWD
-export ROOT_DIR=$PWD/../..
-export MEMBERS_3ORG="'Org1MSP.member','Org2MSP.member','Org3MSP.member'"
-export MEMBERS_2ORG="'Org1MSP.member','Org2MSP.member'"
-
-export AUTH_IMAGE=fabric-es/auth-server:1.0
-export TEST_IMAGE=fabric-es/tester:1.0
-
-export COMPOSE_0_2ORG="-f compose.2org.yaml"
-export COMPOSE_1_2ORG="$COMPOSE_0_2ORG -f compose.2org.db.yaml"
-export COMPOSE_2_2ORG="$COMPOSE_1_2ORG -f compose.2org.auth.yaml"
-export COMPOSE_3_2ORG="$COMPOSE_2_2ORG -f compose.2org.gw.yaml"
-export COMPOSE_4_2ORG="$COMPOSE_3_2ORG -f compose.2org.tester.yaml"
-export COMPOSE_0_3ORG="$COMPOSE_0_2ORG -f compose.3org.yaml"
-export COMPOSE_1_3ORG="$COMPOSE_0_3ORG -f compose.2org.db.yaml -f compose.3org.db.yaml"
-export COMPOSE_2_3ORG="$COMPOSE_1_3ORG -f compose.2org.auth.yaml -f compose.3org.auth.yaml"
-export COMPOSE_3_3ORG="$COMPOSE_2_3ORG -f compose.2org.gw.yaml -f compose.3org.gw.yaml"
-export COMPOSE_4_3ORG="$COMPOSE_3_3ORG -f compose.3org.tester.yaml"

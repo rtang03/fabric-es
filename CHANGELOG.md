@@ -1,8 +1,9 @@
-## vNEXT
+## vNext
 ### Added
 - GraphQL resolver APIs for searching the projectionDb
+- Docker image versions follows release versions
 
-### MOdified
+### Modified
 - Fix v2 related changes in dev-net to work with 3x orgs
 
 ## [0.6.1] - 2020-4-10

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # $1 - docker compose files
 # $2 - orderer code ("org0")
@@ -47,7 +47,6 @@ getConfig $FIRST_CODE
 FIRST_NAME=$NAME
 FIRST_PEER=$PEER
 FIRST_DOMAIN=$DOMAIN
-FIRST_GATEWAY=$GATEWAY
 FIRST_PORT=$PORT
 
 sleep 1
