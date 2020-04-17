@@ -6,7 +6,7 @@ networks:
 services:
 # ORG3
   auth-server3:
-    image: fabric-es/auth-server:1.0
+    image: fabric-es/auth-server:$RELEASE
     container_name: auth-server3
     environment:
       - TYPEORM_HOST=postgres03
