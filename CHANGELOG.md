@@ -1,4 +1,7 @@
 ## vNEXT
+### Added
+- GraphQL resolver APIs for searching the projectionDb
+
 ### MOdified
 - Fix v2 related changes in dev-net to work with 3x orgs
 

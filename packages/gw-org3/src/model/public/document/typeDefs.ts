@@ -10,6 +10,8 @@ export const typeDefs = gql`
     getCommitsByDocumentId(documentId: String!): [DocCommit]!
     getDocumentById(documentId: String!): Document
     getPaginatedDocuments(pageSize: Int = 10): PaginatedDocuments!
+    searchDocumentByFields(where: String!): [Document]
+    searchDocumentContains(contains: String!): [Document]
   }
 
   type Mutation {
