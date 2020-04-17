@@ -1,6 +1,8 @@
 ---
-name: dev-net_openplatform
+name: peer0.org2.net
+x-type: hlfv1
 version: 1.0.0
+description: connection profile for org2 for local machine
 
 client:
   organization: Org2MSP
@@ -24,8 +26,7 @@ channels:
         ledgerQuery: true
         eventSource: true
     chaincodes:
-      - eventstore:1.0
-      - privatedata:1.0
+      - eventstore
 
 organizations:
   Org2MSP:
@@ -44,7 +45,7 @@ orderers:
     url: grpcs://localhost:7050
     grpcOptions:
       ssl-target-name-override: orderer0-org0
-    #      grpc-max-send-message-length: 4000
+    #     grpc-max-send-message-length: 4000
     tlsCACerts:
       path: ../../deployments/dev-net/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 

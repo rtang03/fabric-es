@@ -1,51 +1,52 @@
 import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
-import { createPeer, getNetwork, PrivatedataRepository, Reducer, Repository } from '@fabric-es/fabric-cqrs';
+import {
+  createPeer,
+  getNetwork,
+  PrivatedataRepository,
+  Reducer,
+  Repository
+} from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
-import Client from 'fabric-client';
 import { Wallet } from 'fabric-network';
-import { shutdown } from './shutdownApollo';
 import { DataSrc } from '..';
+import { getLogger } from './getLogger';
+import { shutdown } from './shutdownApollo';
 
 export const createService = async ({
   enrollmentId,
   defaultEntityName,
   defaultReducer,
-  collection,
   isPrivate = false,
-  channelEventHub,
   channelName,
   connectionProfile,
-  wallet
+  wallet,
+  asLocalhost
 }: {
   enrollmentId: string;
   defaultEntityName: string;
   defaultReducer: Reducer;
-  collection: string;
   isPrivate?: boolean;
-  channelEventHub: string;
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
+  asLocalhost: boolean;
 }) => {
-  const logger = Client.getLogger('createService.js');
+  const logger = getLogger('[gw-lib] createService.js');
 
   const networkConfig = await getNetwork({
-    channelEventHub,
+    discovery: !isPrivate,
+    asLocalhost,
     channelName,
     connectionProfile,
     wallet,
-    enrollmentId,
-    channelEventHubExisted: true
+    enrollmentId
   });
 
   const { reconcile, getRepository, getPrivateDataRepo, subscribeHub, unsubscribeHub, disconnect } = createPeer({
     ...networkConfig,
-    // ...(networkConfig as Partial<PeerOptions>),
     defaultEntityName,
     defaultReducer,
-    collection,
-    channelEventHubUri: channelEventHub,
     channelName,
     connectionProfile,
     wallet

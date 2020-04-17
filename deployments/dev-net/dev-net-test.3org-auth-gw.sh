@@ -8,14 +8,11 @@
 
 SECONDS=0
 
-./cleanup.sh
-
-if [[ ( $# -ge 0 ) && ( $1 = "-d" || $1 = "--down" ) ]]; then
-  exit $?
-fi
+parseArgs $0 "$@"
+./cleanup.sh $OPTION
 
 # STEP 1
-./bootstrap.sh "$COMPOSE_1_3ORG" "org0" "org1" "org2 org3"
+./bootstrap.sh "$COMPOSE_1_3ORG" "org0" "org1 org2 org3"
 
 # STEP 2
 containerWait "postgres01" "psql -h localhost -U postgres -d auth_db -lqt" "auth_db"
@@ -46,6 +43,9 @@ docker logs tester
 
 if [ -z ${TEST_EXIT_CODE+x} ] || [ "$TEST_EXIT_CODE" -ne 0 ] ; then
   printf "${RED}Tests Failed${NC} - Exit Code: $TEST_EXIT_CODE\n"
+  printf "\n${RED} [DEBUG] docker logs gw-org1${NC}\n"
+  docker logs gw-org1
+  exit 1
 else
   printf "${GREEN}Tests Passed${NC}\n"
 fi

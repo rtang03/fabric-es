@@ -17,38 +17,6 @@ Object {
 }
 `;
 
-exports[`Chaincode Tests should instantiate 1`] = `
-Object {
-  "entityName": "dev_entity",
-  "events": Array [
-    Object {
-      "payload": Object {
-        "name": "April",
-      },
-      "type": "User Created",
-    },
-  ],
-  "id": "ent_dev_1001",
-  "version": 0,
-}
-`;
-
-exports[`Chaincode Tests should instantiate 2`] = `
-Object {
-  "entityName": "dev_entity",
-  "events": Array [
-    Object {
-      "payload": Object {
-        "name": "May",
-      },
-      "type": "User Created",
-    },
-  ],
-  "id": "ent_dev_1001",
-  "version": 0,
-}
-`;
-
 exports[`Chaincode Tests should queryByEntityId 1`] = `
 Object {
   "123": Object {

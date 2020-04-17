@@ -6,9 +6,11 @@ import stoppable from 'stoppable';
 
 const PORT = (process.env.GATEWAY_PORT || 4001) as number;
 const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI;
-const logger = getLogger('app.js');
+const logger = getLogger('[gw-org1] app.js');
 
 (async () => {
+  logger.info('♨️♨️  Starting [gw-org1] gateway');
+
   const server = await createGateway({
     serviceList: [
       {
@@ -68,7 +70,7 @@ const logger = getLogger('app.js');
 
   stoppableServer.listen(PORT, '0.0.0.0', () => {
     logger.info(`🚀 gateway ready at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
-    process.send('ready');
+    if (process.env.NODE_ENV === 'production') process.send('ready');
   });
 })().catch(error => {
   console.error(error);

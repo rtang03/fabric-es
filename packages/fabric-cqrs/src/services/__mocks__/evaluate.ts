@@ -4,7 +4,6 @@ import { Commit } from '../../types';
 const db: Record<string, Commit> = {
   '20181208155814606': {
     commitId: '20181208155814606',
-    committedAt: '1544284694606',
     entityName: 'reconcile_test',
     entityId: 'ent_test_1001',
     id: 'ent_test_1001',

@@ -28,7 +28,7 @@ fi
 echo "Waiting for $COUNT gateways before runing tests: $HOSTS"
 
 FOUND=0
-TIMEOUT=60
+TIMEOUT=80
 while [ $FOUND -lt $COUNT -a $TIMEOUT -gt 0 ]; do
   FOUND=0
   for HOST in $HOSTS; do

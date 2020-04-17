@@ -5,6 +5,11 @@
 # $@ - list of orgs (e.g. "org1 org2")
 #######################################
 
+if [[ ( $# -eq 1 ) && ( $1 = "-h" || $1 = "--help" ) ]]; then
+  echo "Usage: ./dev-net-build.gw.sh [org code 1] {[org code 2] {[org code 3]}}"
+  exit 0
+fi
+
 . ./scripts/setup.sh
 
 SECONDS=0
@@ -22,7 +27,7 @@ do
   printMessage "Create build context for gw-${ORG}" $?
   sleep 1
 
-  # STEP 5
+  # STEP 3
   DOCKER_BUILD=1 docker build --no-cache -f ./gw-${ORG}.dockerfile -t fabric-es/gw-${ORG}:${RELEASE} .
   printMessage "Create image fabric-es/gw-${ORG}:${RELEASE}" $?
   sleep 1

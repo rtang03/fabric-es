@@ -1,13 +1,13 @@
 ---
-name: fdi_openplatform-etc
+name: fdi_openplatform-org1
 version: 1.0.0
 
 client:
-  organization: EtcMSP
+  organization: Org1MSP
   credentialStore:
-    path: /home/app/packages/gw-org1/assets/client-certs/hfc-kvs/etradeconnect.net
+    path: /home/app/packages/gw-org1/assets/client-certs/hfc-kvs/org1.example.com
     cryptoStore:
-      path: /home/app/packages/gw-org1/assets/client-certs/hfc-kvs/etradeconnect.net
+      path: /home/app/packages/gw-org1/assets/client-certs/hfc-kvs/org1.example.com
   connection:
     timeout:
       peer:
@@ -16,14 +16,14 @@ client:
 channels:
   loanapp:
     orderers:
-      - orderer0.hktfp.com
+      - orderer0.org0.com
     peers:
-      peer0.etradeconnect.net:
+      peer0.org1.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.etradeconnect.net:
+      peer1.org1.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -32,50 +32,50 @@ channels:
       - eventstore:1.0
 
 organizations:
-  EtcMSP:
-    mspid: EtcMSP
+  Org1MSP:
+    mspid: Org1MSP
     peers:
-      - peer0.etradeconnect.net
-      - peer1.etradeconnect.net
+      - peer0.org1.example.com
+      - peer1.org1.example.com
     certificateAuthorities:
-      - rca.etradeconnect.net
+      - rca.org1.example.com
     adminPrivateKey:
-      path: /var/artifacts/crypto-config/EtcMSP/admin/msp/keystore/key.pem
+      path: /var/artifacts/crypto-config/Org1MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: /var/artifacts/crypto-config/EtcMSP/admin/msp/signcerts/cert.pem
+      path: /var/artifacts/crypto-config/Org1MSP/admin/msp/signcerts/cert.pem
 
 orderers:
-  orderer0.hktfp.com:
-    url: grpcs://orderer0.hktfp.com:7050
+  orderer0.org0.com:
+    url: grpcs://orderer0.org0.com:7050
     grpcOptions:
-      ssl-target-name-override: orderer0.hktfp.com
+      ssl-target-name-override: orderer0.org0.com
     tlsCACerts:
-      path: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 
 peers:
-  peer0.etradeconnect.net:
-    url: grpcs://peer0.etradeconnect.net:7051
-    eventUrl: grpcs://peer0.etradeconnect.net:7053
+  peer0.org1.example.com:
+    url: grpcs://peer0.org1.example.com:7051
+    eventUrl: grpcs://peer0.org1.example.com:7053
     tlsCACerts:
-      path: /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.etradeconnect.net
-  peer1.etradeconnect.net:
-    url: grpcs://peer1.etradeconnect.net:7051
-    eventUrl: grpcs://peer1.etradeconnect.net:7053
+      ssl-target-name-override: peer0.org1.example.com
+  peer1.org1.example.com:
+    url: grpcs://peer1.org1.example.com:7051
+    eventUrl: grpcs://peer1.org1.example.com:7053
     tlsCACerts:
-      path: /var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org1MSP/peer1.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.etradeconnect.net
+      ssl-target-name-override: peer1.org1.example.com
 
 certificateAuthorities:
-  rca.etradeconnect.net:
-    url: https://rca.etradeconnect.net:6054
-    caName: rca.etradeconnect.net
+  rca.org1.example.com:
+    url: https://rca.org1.example.com:6054
+    caName: rca.org1.example.com
     tlsCACerts:
-      path: /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem
+      path: /var/artifacts/crypto-config/Org1MSP/peer0.org1.example.com/assets/tls-ca/tls-ca-cert.pem
     registrar:
-      - enrollId: rca-etradeconnect-admin
+      - enrollId: rca-org1-admin
         enrollSecret: cMyG7C9U
     httpOptions:
       verify: false

@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/model-loan",
-  "version": "0.5.16",
+  "version": "0.6.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -19,16 +19,11 @@
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "unit-test:fab": "jest unit.test"
   },
-  "engines": {
-    "node": ">=8",
-    "npm": ">=5"
-  },
   "private": true,
-  "engineStrict": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.5.16",
-    "@fabric-es/gateway-lib": "^0.5.16",
-    "@fabric-es/model-common": "^0.5.16",
+    "@fabric-es/fabric-cqrs": "^0.6.1",
+    "@fabric-es/gateway-lib": "^0.6.1",
+    "@fabric-es/model-common": "^0.6.1",
     "apollo-server-errors": "^2.3.4"
   },
   "devDependencies": {

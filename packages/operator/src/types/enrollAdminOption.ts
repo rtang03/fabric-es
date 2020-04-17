@@ -1,10 +1,14 @@
-import { Context } from './context';
+import { Wallet } from 'fabric-network';
 
+/**
+ * EnrollAdminOption
+ */
 export interface EnrollAdminOption {
-  label: string;
   enrollmentID: string;
   enrollmentSecret: string;
   caUrl: string;
   mspId: string;
-  context?: Pick<Context, 'connectionProfile' | 'fabricNetwork' | 'wallet'>;
+  connectionProfile: string;
+  fabricNetwork: string;
+  wallet: Wallet;
 }

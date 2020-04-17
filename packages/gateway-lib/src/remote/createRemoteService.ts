@@ -3,8 +3,8 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { execute, makePromise } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import { ApolloError, ApolloServer } from 'apollo-server';
-import Client from 'fabric-client';
 import nodeFetch from 'node-fetch';
+import { getLogger } from '..';
 import { shutdown } from '../utils/shutdownApollo';
 import { RemoteData } from './remoteData';
 import { UriResolver } from './uriResolver';
@@ -22,7 +22,7 @@ export const createRemoteService = async ({
   resolvers: any;
   uriResolver: UriResolver;
 }) => {
-  const logger = Client.getLogger('createRemoteService');
+  const logger = getLogger('createRemoteService');
 
   logger.info(`♨️♨️ Bootstraping Remote Data API - ${name} ♨️♨️`);
 
@@ -45,10 +45,17 @@ export const createRemoteService = async ({
               makePromise(
                 execute(
                   new HttpLink({
-                    uri: link, fetch, headers: { authorization: `Bearer ${token}` }
-                  }), {
-                    query, variables, operationName, context
-                  })
+                    uri: link,
+                    fetch,
+                    headers: { authorization: `Bearer ${token}` }
+                  }),
+                  {
+                    query,
+                    variables,
+                    operationName,
+                    context
+                  }
+                )
               ).catch(error => {
                 logger.error(util.format('executeHttpLink, %j', error));
                 return new ApolloError(error);

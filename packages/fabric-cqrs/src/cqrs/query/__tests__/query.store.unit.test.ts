@@ -3,8 +3,8 @@ import { Store } from 'redux';
 import { createQueryDatabase } from '../../../peer';
 import { Commit } from '../../../types';
 import { createCommit, generateToken } from '../../utils';
+import { action } from '../action';
 import { getStore } from './__utils__/store';
-import { action } from '..';
 
 let context: any;
 let store: Store;

@@ -11,34 +11,32 @@ export class Commit<T extends BaseEvent = any> {
   entityName: string;
   version: number;
   commitId: string;
-  committedAt: string;
   entityId: string;
   events: BaseEvent[];
+  hash?: string;
+  isFirst?: boolean;
+  isLast?: boolean;
 
-  constructor({
-    id,
-    entityName,
-    commitId,
-    version,
-    committedAt,
-    entityId,
-    events
-  }: {
+  constructor(option: {
     id: string;
     entityName: string;
     commitId: string;
     version: number;
-    committedAt: string;
     entityId: string;
     events: any;
+    hash?: string;
+    isFirst?: boolean;
+    isLast?: boolean;
   }) {
-    this.key = makeKey([entityName, id, commitId]);
-    this.id = id;
-    this.entityName = entityName;
-    this.version = version;
-    this.commitId = commitId;
-    this.committedAt = committedAt;
-    this.entityId = entityId;
-    this.events = events;
+    this.key = makeKey([option.entityName, option.id, option.commitId]);
+    this.id = option.id;
+    this.entityName = option.entityName;
+    this.version = option.version;
+    this.commitId = option.commitId;
+    this.entityId = option.entityId;
+    this.events = option.events;
+    if (option.hash) this.hash = option.hash;
+    if (option.isFirst === true || option.isFirst === false) this.isFirst = option.isFirst;
+    if (option.isLast === true || option.isLast === false) this.isLast = option.isLast;
   }
 }

@@ -1,4 +1,4 @@
-FROM node:8.17.0-alpine
+FROM node:10.19.0-alpine
 
 ENV TIME_ZONE=Asia/Hong_Kong \
     ENV_NAME=production \
@@ -26,7 +26,7 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
   && yarn global add pm2 \
   && apk del .build-deps-yarn
 
-USER node
+USER root
 
 VOLUME /home/app/packages/gw-org1/assets /home/app/packages/gw-org2/connection /home/app/packages/gw-org1/logs /var/artifacts/crypto-config
 
@@ -36,4 +36,4 @@ EXPOSE 4001
 
 ENTRYPOINT ["entrypoint.sh"]
 
-CMD ["gateway", "admin user loan document pDocContents rLoanDetails"]
+CMD ["gateway", "admin user loan document docContents rLoanDetails"]

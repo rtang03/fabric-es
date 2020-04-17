@@ -1,29 +1,27 @@
+import util from 'util';
 import { Context } from 'fabric-contract-api';
-import { Iterators } from 'fabric-shim';
 import { omit } from 'lodash';
-import { serialize, splitKey } from '.';
 import { Commit } from '..';
+import { serialize, splitKey } from '.';
 
 export class PrivateStateList {
   constructor(public ctx: Context, public name: string) {}
 
   async getQueryResult(collection: string, attributes: string[]) {
-    // todo: this is workaround to known bug FAB-14216. This will not work after the bug is fixexd in V2.
-    const iterator: Iterators.StateQueryIterator = await this.ctx.stub
-      .getPrivateDataByPartialCompositeKey(collection, 'entities', attributes)
-      .then((data: any) => data.iterator);
+    const promises = this.ctx.stub.getPrivateDataByPartialCompositeKey(collection, 'entities', attributes);
     const result: any = {};
-    while (true) {
-      const { value, done } = await iterator.next();
-      if (value && value.value.toString()) {
-        const commit = JSON.parse(value.value.toString('utf8'));
+
+    try {
+      for await (const res of promises) {
+        const commit = JSON.parse(res.value.toString());
         result[commit.commitId] = omit(commit, 'key');
       }
-      if (done) {
-        await iterator.close();
-        return Buffer.from(JSON.stringify(result));
-      }
+    } catch (e) {
+      console.error(e);
+      throw new Error(util.format('fail to getQueryResult, %j', e));
     }
+
+    return Buffer.from(JSON.stringify(result));
   }
 
   async addState(collection: string, commit: Commit) {
@@ -35,13 +33,21 @@ export class PrivateStateList {
   }
 
   async getState(collection: string, key: string): Promise<Commit> {
+    let result;
+
     const data = await this.ctx.stub.getPrivateData(
       collection,
       this.ctx.stub.createCompositeKey(this.name, splitKey(key))
     );
-    if (data.toString()) {
-      return JSON.parse(data.toString());
-    } else return Object.assign({});
+
+    try {
+      result = data.toString() ? JSON.parse(data.toString()) : Object.assign({});
+    } catch (e) {
+      console.error(e);
+      throw new Error(util.format('fail to parse data, %j', e));
+    }
+
+    return result;
   }
 
   async deleteState(collection: string, { key }: Commit) {

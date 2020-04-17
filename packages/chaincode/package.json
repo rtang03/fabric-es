@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/chaincode",
-  "version": "0.5.16",
+  "version": "0.6.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "description": "Event Store Chaincode for Hyperledger Fabric",
@@ -20,10 +20,6 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
-  "engines": {
-    "node": "^8.10.0",
-    "npm": ">=5"
-  },
   "scripts": {
     "start": "fabric-chaincode-node start",
     "build": "rimraf dist && tsc",
@@ -34,28 +30,20 @@
     "unit-test": "jest public.unit.test",
     "unit-test:fab": "yarn unit-test && yarn network-test",
     "test:private": "jest private.integration.test",
-    "test:ngac-policy-engine-unit-test": "(broke) jest ngac.pe.unit.test",
-    "test:ngac-crud-unit-test": "(broke) jest ngac.crud.unit.test",
-    "test:ngac-consolidated-unit-test": "(broke) jest ngac.consolidated.unit.test",
-    "test:ngac-crud-integration-test": "(broke) jest ngac.crud.integration.test",
-    "test:policy.unit.test": "(broke) jest hasList.policy.unit.test",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "publish:gh:fabric-es": "npm publish"
   },
-  "engineStrict": true,
   "dependencies": {
     "@types/bytebuffer": "^5.0.40",
-    "bcrypt": "^3.0.7",
-    "fabric-contract-api": "~1.4.2",
-    "fabric-shim": "~1.4.2",
-    "lodash": "^4.17.15",
-    "prettyjson": "^1.2.1"
+    "fabric-contract-api": "^2.0.0",
+    "fabric-shim": "~2.0.0",
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
     "@types/jest": "^24.0.18",
     "@types/lodash": "^4.14.136",
-    "@types/node": "^8.10.54",
+    "@types/node": "^10.17.18",
     "child-process-promise": "^2.2.1",
     "execa": "3.4.0",
     "jest": "^24.9.0",

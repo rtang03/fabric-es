@@ -3,7 +3,7 @@
  * @hidden
  */
 import util from 'util';
-import Client from 'fabric-client';
+import { Utils } from 'fabric-common';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
@@ -11,16 +11,15 @@ import { action as command } from '../../command/action';
 import { action } from '../action';
 import { ReconcileAction } from '../types';
 
-export default (action$: Observable<ReconcileAction>, _) => {
-  const logger = Client.getLogger('reconcile.js');
-
-  return action$.pipe(
+export default (action$: Observable<ReconcileAction>, _) =>
+  action$.pipe(
     ofType(action.RECONCILE),
     map(({ payload }) => payload),
     mergeMap(
       ({ tx_id, args: { entityName, reducer }, store, channelEventHub, channelName, connectionProfile, wallet }) =>
         from(
           new Promise<any>(resolve => {
+            const logger = Utils.getLogger('[fabric-cqrs] reconcile.js');
             const unsubscribe = store.subscribe(() => {
               const state = store.getState().write;
               const tid = state.tx_id;
@@ -45,9 +44,8 @@ export default (action$: Observable<ReconcileAction>, _) => {
             store.dispatch(
               command.queryByEntityName({
                 tx_id,
-                args: { entityName },
+                args: { entityName, isPrivateData: false },
                 channelName,
-                channelEventHub,
                 connectionProfile,
                 wallet
               }) as any
@@ -58,4 +56,3 @@ export default (action$: Observable<ReconcileAction>, _) => {
         )
     )
   );
-};

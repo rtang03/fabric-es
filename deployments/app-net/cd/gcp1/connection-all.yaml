@@ -5,34 +5,34 @@ version: 1.0.0
 channels:
   loanapp:
     orderers:
-      - orderer0.hktfp.com
+      - orderer0.org0.com
     peers:
-      peer0.etradeconnect.net:
+      peer0.org1.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.etradeconnect.net:
+      peer1.org1.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer0.pbctfp.net:
+      peer0.org2.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.pbctfp.net:
+      peer1.org2.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer0.credrate.com.hk:
+      peer0.org3.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.credrate.com.hk:
+      peer1.org3.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -41,120 +41,120 @@ channels:
       - eventstore:1.0
 
 organizations:
-  EtcMSP:
-    mspid: EtcMSP
+  Org1MSP:
+    mspid: Org1MSP
     peers:
-      - peer0.etradeconnect.net
-      - peer1.etradeconnect.net
+      - peer0.org1.example.com
+      - peer1.org1.example.com
     certificateAuthorities:
-      - rca.etradeconnect.net
+      - rca.org1.example.com
     adminPrivateKey:
-      path: /var/artifacts/crypto-config/EtcMSP/admin/msp/keystore/key.pem
+      path: /var/artifacts/crypto-config/Org1MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: /var/artifacts/crypto-config/EtcMSP/admin/msp/signcerts/cert.pem
-  PbctfpMSP:
-    mspid: PbctfpMSP
+      path: /var/artifacts/crypto-config/Org1MSP/admin/msp/signcerts/cert.pem
+  Org2MSP:
+    mspid: Org2MSP
     peers:
-      - peer0.pbctfp.net
-      - peer1.pbctfp.net
+      - peer0.org2.example.com
+      - peer1.org2.example.com
     certificateAuthorities:
-      - rca.pbctfp.net
+      - rca.org2.example.com
     adminPrivateKey:
-      path: /var/artifacts/crypto-config/PbctfpMSP/admin/msp/keystore/key.pem
+      path: /var/artifacts/crypto-config/Org2MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: /var/artifacts/crypto-config/PbctfpMSP/admin/msp/signcerts/cert.pem
-  CredRateMSP:
-    mspid: CredRateMSP
+      path: /var/artifacts/crypto-config/Org2MSP/admin/msp/signcerts/cert.pem
+  Org3MSP:
+    mspid: Org3MSP
     peers:
-      - peer0.credrate.com.hk
-      - peer1.credrate.com.hk
+      - peer0.org3.example.com
+      - peer1.org3.example.com
     certificateAuthorities:
-      - rca.credrate.com.hk
+      - rca.org3.example.com
     adminPrivateKey:
-      path: /var/artifacts/crypto-config/CredRateMSP/admin/msp/keystore/key.pem
+      path: /var/artifacts/crypto-config/Org3MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: /var/artifacts/crypto-config/CredRateMSP/admin/msp/signcerts/cert.pem
+      path: /var/artifacts/crypto-config/Org3MSP/admin/msp/signcerts/cert.pem
 
 orderers:
-  orderer0.hktfp.com:
-    url: grpcs://orderer0.hktfp.com:7050
+  orderer0.org0.com:
+    url: grpcs://orderer0.org0.com:7050
     grpcOptions:
-      ssl-target-name-override: orderer0.hktfp.com
+      ssl-target-name-override: orderer0.org0.com
     tlsCACerts:
-      path: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 
 peers:
-  peer0.etradeconnect.net:
-    url: grpcs://peer0.etradeconnect.net:7051
-    eventUrl: grpcs://peer0.etradeconnect.net:7053
+  peer0.org1.example.com:
+    url: grpcs://peer0.org1.example.com:7051
+    eventUrl: grpcs://peer0.org1.example.com:7053
     tlsCACerts:
-      path: /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org1MSP/peer0.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.etradeconnect.net
-  peer1.etradeconnect.net:
-    url: grpcs://peer1.etradeconnect.net:7051
-    eventUrl: grpcs://peer1.etradeconnect.net:7053
+      ssl-target-name-override: peer0.org1.example.com
+  peer1.org1.example.com:
+    url: grpcs://peer1.org1.example.com:7051
+    eventUrl: grpcs://peer1.org1.example.com:7053
     tlsCACerts:
-      path: /var/artifacts/crypto-config/EtcMSP/peer1.etradeconnect.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org1MSP/peer1.org1.example.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.etradeconnect.net
-  peer0.pbctfp.net:
-    url: grpcs://peer0.pbctfp.net:7051
-    eventUrl: grpcs://peer0.pbctfp.net:7053
+      ssl-target-name-override: peer1.org1.example.com
+  peer0.org2.example.com:
+    url: grpcs://peer0.org2.example.com:7051
+    eventUrl: grpcs://peer0.org2.example.com:7053
     tlsCACerts:
-      path: /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org2MSP/peer0.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.pbctfp.net
-  peer1.pbctfp.net:
-    url: grpcs://peer1.pbctfp.net:7051
-    eventUrl: grpcs://peer1.pbctfp.net:7053
+      ssl-target-name-override: peer0.org2.example.com
+  peer1.org2.example.com:
+    url: grpcs://peer1.org2.example.com:7051
+    eventUrl: grpcs://peer1.org2.example.com:7053
     tlsCACerts:
-      path: /var/artifacts/crypto-config/PbctfpMSP/peer1.pbctfp.net/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org2MSP/peer1.org2.example.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.pbctfp.net
-  peer0.credrate.com.hk:
-    url: grpcs://peer0.credrate.com.hk:7051
-    eventUrl: grpcs://peer0.credrate.com.hk:7053
+      ssl-target-name-override: peer1.org2.example.com
+  peer0.org3.example.com:
+    url: grpcs://peer0.org3.example.com:7051
+    eventUrl: grpcs://peer0.org3.example.com:7053
     tlsCACerts:
-      path: /var/artifacts/crypto-config/CredRateMSP/peer0.credrate.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org3MSP/peer0.org3.example.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.credrate.com.hk
-  peer1.credrate.com.hk:
-    url: grpcs://peer1.credrate.com.hk:7051
-    eventUrl: grpcs://peer1.credrate.com.hk:7053
+      ssl-target-name-override: peer0.org3.example.com
+  peer1.org3.example.com:
+    url: grpcs://peer1.org3.example.com:7051
+    eventUrl: grpcs://peer1.org3.example.com:7053
     tlsCACerts:
-      path: /var/artifacts/crypto-config/CredRateMSP/peer1.credrate.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org3MSP/peer1.org3.example.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.credrate.com.hk
+      ssl-target-name-override: peer1.org3.example.com
 
 certificateAuthorities:
-  rca.etradeconnect.net:
-    url: https://rca.etradeconnect.net:6054
-    caName: rca.etradeconnect.net
+  rca.org1.example.com:
+    url: https://rca.org1.example.com:6054
+    caName: rca.org1.example.com
     tlsCACerts:
-      path: /var/artifacts/crypto-config/EtcMSP/peer0.etradeconnect.net/assets/tls-ca/tls-ca-cert.pem
+      path: /var/artifacts/crypto-config/Org1MSP/peer0.org1.example.com/assets/tls-ca/tls-ca-cert.pem
     registrar:
-      - enrollId: rca-etradeconnect-admin
+      - enrollId: rca-org1-admin
         enrollSecret: cMyG7C9U
     httpOptions:
       verify: false
-  rca.pbctfp.net:
-    url: https://rca.pbctfp.net:6055
-    caName: rca.pbctfp.net
+  rca.org2.example.com:
+    url: https://rca.org2.example.com:6055
+    caName: rca.org2.example.com
     tlsCACerts:
-      path: /var/artifacts/crypto-config/PbctfpMSP/peer0.pbctfp.net/assets/tls-ca/tls-ca-cert.pem
+      path: /var/artifacts/crypto-config/Org2MSP/peer0.org2.example.com/assets/tls-ca/tls-ca-cert.pem
     registrar:
-      - enrollId: rca-pboc-admin
+      - enrollId: rca-org2-admin
         enrollSecret: 8aZBkFyj
     httpOptions:
       verify: false
-  rca.credrate.com.hk:
-    url: https://rca.credrate.com.hk:6056
-    caName: rca.credrate.com.hk
+  rca.org3.example.com:
+    url: https://rca.org3.example.com:6056
+    caName: rca.org3.example.com
     tlsCACerts:
-      path: /var/artifacts/crypto-config/CredRateMSP/peer0.credrate.com.hk/assets/tls-ca/tls-ca-cert.pem
+      path: /var/artifacts/crypto-config/Org3MSP/peer0.org3.example.com/assets/tls-ca/tls-ca-cert.pem
     registrar:
-      - enrollId: rca-credrate-admin
+      - enrollId: rca-org3-admin
         enrollSecret: Fc7VFDx7
     httpOptions:
       verify: false
