@@ -6,7 +6,7 @@ networks:
 services:
 # ORG1
   gw-org1:
-    image: fabric-es/gw-org1:1.0
+    image: fabric-es/gw-org1:$RELEASE
     container_name: gw-org1
     environment:
       - AUTHORIZATION_SERVER_URI=http://auth-server1:8080/oauth/authenticate
@@ -38,7 +38,7 @@ services:
 
 # ORG2
   gw-org2:
-    image: fabric-es/gw-org2:1.0
+    image: fabric-es/gw-org2:$RELEASE
     container_name: gw-org2
     environment:
       - AUTHORIZATION_SERVER_URI=http://auth-server2:8080/oauth/authenticate
