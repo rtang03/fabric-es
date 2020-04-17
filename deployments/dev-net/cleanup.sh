@@ -93,6 +93,6 @@ if [ $CLEAN_CC_IMG -eq 1 ]; then
   CHAIN=`docker images -qf "reference=*eventstore*"`
   if [ ! -z "$CHAIN" ]; then
     echo "Cleaning up chaincode docker images..."
-    docker rmi $(docker images -qf "reference=*eventstore*")
+    docker rmi $(docker images -qf "reference=dev-peer*")
   fi
 fi
