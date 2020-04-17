@@ -53,26 +53,32 @@ services:
         working_dir: /home/app/packages/gw-org2
         environment:
             # GW-ORG2
+            - ACCESS_TOKEN_SECRET=ajlkqowieuqowueoi
+            - ADMIN=root_admin
+            - ADMIN_PASSWORD=root_admin_password
             - ADMINISTRATOR_PORT=15021
+            - AUTHORIZATION_CODE=kljkiojkl
             - AUTHORIZATION_SERVER_URI=http://auth-server-2:8080/oauth/authenticate
-            - CA_ENROLLMENT_ID_ADMIN=rca-pboc-admin
+            - CA_ENROLLMENT_ID_ADMIN=rca-org2-admin
             - CA_ENROLLMENT_SECRET_ADMIN=8aZBkFyj
             - CHAINCODE_ID=eventstore
+            - CHAINCODE_ID_PRIVATEDATA=privatedata
             - CHANNEL_NAME=loanapp
-            - CHANNEL_HUB=peer0.pbctfp.net
-            - COLLECTION=pbctfpPrivateDetails
+            - CHANNEL_HUB=peer0.org2.example.com
+            - COLLECTION=org2PrivateDetails
             - CONNECTION_PROFILE=/home/app/packages/gw-org2/assets/connection.yaml
             - GATEWAY_HOST=localhost
             - GATEWAY_PORT=4002
-            - MSPID=PbctfpMSP
+            - MSPID=Org2MSP
             - NETWORK_LOCATION=/var/artifacts/crypto-config
-            - ORG_ADMIN_ID=admin-pbctfp.net
+            - ORG_ADMIN_ID=admin-org2
             - ORG_ADMIN_SECRET=mEN6bpQW
-            - ORG_CA_URL=https://peer0.pbctfp.net:6055
-            - ORGNAME=pbctfp.net
-            - ORDERER_NAME=orderer0.hktfp.com
-            - ORDERER_TLSCA_CERT=/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
-            - PEER_NAME=peer0.pbctfp.net
+            - ORG_CA_URL=https://peer0.org2.example.com:6055
+            - ORGNAME=org2.example.com
+            - ORDERER_NAME=orderer0.org0.com
+            - ORDERER_TLSCA_CERT=/var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+            - PEER_NAME=peer0.org2.example.com
+            - REFRESH_TOKEN_SECRET=qopwieioque1
             - PRIVATE_LOAN_DETAILS_PORT=14024
             - REMOTE_DOC_CONTENTS_PORT=14026
             - REMOTE_LOAN_DETAILS_PORT=14025
@@ -86,20 +92,20 @@ services:
             - /home/web/artifacts/gw-org2/assets:/home/app/packages/gw-org2/assets
             - /home/web/artifacts/gw-org2/logs:/home/app/packages/gw-org2/logs
         extra_hosts:
-            - "orderer0.hktfp.com:35.213.127.193"
-            - "orderer1.hktfp.com:35.213.45.247"
-            - "orderer2.hktfp.com:35.213.41.26"
-            - "orderer3.hktfp.com:35.213.73.53"
-            - "orderer4.hktfp.com:35.213.59.127"
-            - "rca.etradeconnect.net:35.213.45.247"
-            - "peer0.etradeconnect.net:35.213.45.247"
-            - "peer1.etradeconnect.net:35.213.41.26"
-            - "rca.pbctfp.net:35.213.73.53"
-            - "peer0.pbctfp.net:35.213.73.53"
-            - "peer1.pbctfp.net:35.213.59.127"
-            - "rca.credrate.com.hk:35.213.66.149"
-            - "peer0.credrate.com.hk:35.213.66.149"
-            - "peer1.credrate.com.hk:34.84.251.190"
+            - "orderer0.org0.com:35.213.2.193"
+            - "orderer1.org0.com:35.213.22.48"
+            - "orderer2.org0.com:35.213.98.220"
+            - "orderer3.org0.com:35.213.121.197"
+            - "orderer4.org0.com:35.213.21.32"
+            - "rca.org1.example.com:35.213.22.48"
+            - "peer0.org1.example.com:35.213.22.48"
+            - "peer1.org1.example.com:35.213.98.220"
+            - "rca.org2.example.com:35.213.121.197"
+            - "peer0.org2.example.com:35.213.121.197"
+            - "peer1.org2.example.com:35.213.21.32"
+            - "rca.org3.example.com:35.213.61.157"
+            - "peer0.org3.example.com:35.213.61.157"
+            - "peer1.org3.example.com:35.213.41.15"
         ports:
             - 4000:4002
         networks:
