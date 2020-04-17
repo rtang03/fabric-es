@@ -73,7 +73,6 @@ getConfig $3
 FIRST_NAME=$NAME
 FIRST_PEER=$PEER
 FIRST_DOMAIN=$DOMAIN
-FIRST_GATEWAY=$GATEWAY
 FIRST_PORT=$PORT
 
 docker exec -w /config cli sh -c "mv channel.tx ${CRYPTO}/${NAME}MSP/${PEER}.${DOMAIN}/assets"
@@ -153,7 +152,7 @@ printf "\n#####################"
 printf "\n# INSTALL CHAINCODE #"
 printf "\n#####################\n"
 
-cp ./build.${FIRST_GATEWAY}/collections.json $CHAINCODE/collections.json
+cp ./build.gw-${3}/collections.json $CHAINCODE/collections.json
 cd $CHAINCODE && yarn build
 printMessage "Build chaincode" $?
 
