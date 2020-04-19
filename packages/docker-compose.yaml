@@ -1,0 +1,38 @@
+version: '3'
+services:
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - ../deployments/dev-net/scripts/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+    command: postgres
+    ports:
+      - 5432:5432
+#  proxy:
+#    build: ./proxy
+#    environment:
+#      - HOST=0.0.0.0
+#      - PORT=8080
+#      - APP_HOST=http://ui-account:3000
+#      - AUTH_HOST=http://auth:3001
+#      - API_HOST=api:3002
+#    ports:
+#      - 8080:8080
+#  auth:
+#    build: ./auth
+#    environment:
+#      - HOST=0.0.0.0
+#      - PORT=3001
+#      - AUTH_HOST=http://auth:3001
+#  ui-account:
+#    build: ./ui-account
+#    environment:
+#      - NODE_ENV=development
+#      - URL=http://localhost:8080
+#      - SERVER_SIDE_URL=http://proxy:8080
+#      - HOST=ui-account
+#      - PORT=3000
