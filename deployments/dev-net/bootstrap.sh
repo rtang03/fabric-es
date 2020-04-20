@@ -6,29 +6,28 @@
 
 . ./scripts/setup.sh
 
+# Params of the first org
 CNT=0
 FIRST_CODE=
+FIRST_NAME=
+FIRST_PEER=
+FIRST_DOMAIN=
+FIRST_PORT=
+MEMBERS=
 for ORG in $3; do
+  getConfig $ORG
   if [ $CNT -eq 0 ]; then
     FIRST_CODE=$ORG
+    FIRST_NAME=$NAME
+    FIRST_PEER=$PEER
+    FIRST_DOMAIN=$DOMAIN
+    FIRST_PORT=$PORT
+    MEMBERS="'${NAME}MSP.member'"
+  else
+    MEMBERS="${MEMBERS},'${NAME}MSP.member'"
   fi
   CNT=$(( CNT + 1 ))
 done
-echo "Bootstraping $CNT orgs..."
-
-docker-compose $1 up -d
-printMessage "docker-compose up" $?
-sleep 5
-
-docker exec cli sh -c "cp -f /config/configtx.${CNT}org.yaml /config/configtx.yaml"
-
-MEMBERS=$MEMBERS_3ORG
-if [ $CNT -eq 2 ]; then
-  MEMBERS=$MEMBERS_2ORG
-fi
-
-ORDERER_CODE=$2
-ORGLIST="$3"
 
 # Params of the orderer
 getConfig $2
@@ -42,12 +41,17 @@ for ODR in ${PEER}; do
   break
 done
 
-# Params of the first org
-getConfig $FIRST_CODE
-FIRST_NAME=$NAME
-FIRST_PEER=$PEER
-FIRST_DOMAIN=$DOMAIN
-FIRST_PORT=$PORT
+ORDERER_CODE=$2
+ORGLIST="$3"
+
+printf "\n##########################"
+printf "\n# Bootstraping $CNT orgs... #"
+printf "\n##########################\n"
+docker-compose $1 up -d
+printMessage "docker-compose up" $?
+sleep 5
+
+docker exec cli sh -c "cp -f /config/configtx.${CNT}org.yaml /config/configtx.yaml"
 
 sleep 1
 

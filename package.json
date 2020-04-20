@@ -19,7 +19,6 @@
     "build:gw-dev-net:org1": "yarn tsc:lib && yarn tsc:gw-org1 && yarn pack:lib && yarn pack:gw-dev-net:org1",
     "build:gw-dev-net:org2": "yarn tsc:lib && yarn tsc:gw-org2 && yarn pack:lib && yarn pack:gw-dev-net:org2",
     "build:gw-dev-net:org3": "yarn tsc:lib && yarn tsc:gw-org3 && yarn pack:lib && yarn pack:gw-dev-net:org3",
-    "build:tester": "yarn cp:root && lerna run pack --scope=@fabric-es/tester",
     "bootstrap:fab": "cd ./deployments/dev-net && ./dev-net-run.2org.sh ",
     "build-run-test:fab": "(broke, need fix) cd ./deployments/dev-net && ./build-run.3.2org.auth-gw-tester.sh ",
     "shutdown": "cd ./deployments/dev-net && ./cleanup.sh",
