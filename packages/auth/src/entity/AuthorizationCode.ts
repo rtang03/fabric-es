@@ -5,8 +5,8 @@ export class AuthorizationCode extends BaseEntity {
   @PrimaryColumn('text')
   authorization_code: string;
 
-  @Column({ type: 'timestamp without time zone', nullable: true })
-  expires_at: Date;
+  @Column({ type: 'bigint', nullable: true })
+  expires_at: number;
 
   @Column('text')
   redirect_uri: string;

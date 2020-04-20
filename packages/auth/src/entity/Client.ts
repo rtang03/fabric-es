@@ -8,7 +8,7 @@ export class Client extends BaseEntity {
   @Column('text')
   application_name: string;
 
-  @Column('text')
+  @Column({ type: 'text' })
   client_secret: string;
 
   @Column('simple-array')

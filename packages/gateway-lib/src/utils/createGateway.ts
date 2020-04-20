@@ -70,7 +70,8 @@ export const createGateway: (option: {
               authenticated: boolean;
               user_id: string;
               is_admin: boolean;
-              client_id: string;
+              // TODO: debug to remove it
+              // client_id: string;
             }>(res => res.json())
             .then(res => {
               if (res?.authenticated) {
@@ -79,7 +80,8 @@ export const createGateway: (option: {
                 return {
                   user_id: res.user_id,
                   is_admin: res.is_admin,
-                  client_id: res.client_id
+                  // TODO: debug to remote it
+                  // client_id: res.client_id
                 };
               } else {
                 // e.g. res returns

@@ -3,12 +3,16 @@ import errorHandler from 'errorhandler';
 import express from 'express';
 import passport from 'passport';
 import { ConnectionOptions, createConnection } from 'typeorm';
-import { apiRoute, clientRoute, indexRoute, oauthRoute } from './route';
+import { createApiRoute, createClientRoute, createAccountRoute, createIndexRoute, createOauthRoute } from './route';
+import { setupPassport } from './utils';
 
 export const createHttpServer: (option: {
   connection: ConnectionOptions;
+  jwtSecret: string;
+  expiryInSeconds: number;
+  orgAdminSecret: string;
 }) => Promise<express.Express> = async option => {
-  const { connection } = option;
+  const { connection, jwtSecret, expiryInSeconds, orgAdminSecret } = option;
 
   try {
     await createConnection(connection);
@@ -23,14 +27,13 @@ export const createHttpServer: (option: {
   app.use(express.urlencoded({ extended: false }));
   app.use(errorHandler({ dumpExceptions: true, showStack: true }));
   app.use(passport.initialize());
+  setupPassport();
 
-  // Passport configuration
-  require('./passport');
-
-  app.use('/', indexRoute);
-  app.use('/client', clientRoute);
-  app.use('/oauth', oauthRoute);
-  app.use('/api', apiRoute);
+  app.use('/', createIndexRoute({ jwtSecret, expiryInSeconds }));
+  app.use('/client', createClientRoute());
+  app.use('/oauth', createOauthRoute({ jwtSecret, expiryInSeconds }));
+  app.use('/api', createApiRoute());
+  app.use('/account', createAccountRoute({ orgAdminSecret }));
 
   return app;
 };

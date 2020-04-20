@@ -5,8 +5,8 @@ export class AccessToken extends BaseEntity {
   @PrimaryColumn('text')
   access_token: string;
 
-  @Column({ type: 'timestamp without time zone', nullable: true })
-  expires_at: Date;
+  @Column({ type: 'bigint', nullable: true })
+  expires_at: number;
 
   @Column({ type: 'text', nullable: true })
   client_id: string;
