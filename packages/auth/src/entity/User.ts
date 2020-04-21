@@ -16,4 +16,7 @@ export class User extends BaseEntity {
 
   @Column()
   is_admin: boolean;
+
+  @Column({ type: 'boolean', nullable: true })
+  is_deleted: boolean;
 }

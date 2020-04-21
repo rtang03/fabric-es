@@ -129,6 +129,11 @@ export const createOauthRoute: (option: { jwtSecret: string; expiryInSeconds: nu
     })
   );
 
+  // "password grant type" is similar to "/login"
+  // this is invoked via /oauth/token and following oauth2 protocol
+  // performing "login" function.
+  // "/login" return {username: string, id: string, access_token: string, token_type: 'Bearer'} and "/login" set-cookie
+  // "/oauth/token" return { access_token: string, token_type: 'Bearer'} and does not set-cookie
   server.exchange(
     exchange.password(async (client: Client, username, password, scope, done) => {
       logger.info('exchange username/password for token');
@@ -206,6 +211,7 @@ export const createOauthRoute: (option: { jwtSecret: string; expiryInSeconds: nu
 
   router.post('/authenticate', passport.authenticate('bearer', { session: false }), (req, res) => {
     const { id, is_admin } = req.user as User;
+    logger.info(`account ${id} is authenticated`);
     return res.status(httpStatus.OK).send({ ok: true, authenticated: true, user_id: id, is_admin });
   });
 

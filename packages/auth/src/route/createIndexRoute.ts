@@ -19,6 +19,7 @@ export const createIndexRoute: (option: {
     res.status(httpStatus.OK).send({ data: 'Hello' });
   });
 
+  // "/login" is similar to password grant type invoked via "/oauth/token"
   router.post('/login', (req, res) => {
     passport.authenticate('local', { session: false, failureRedirect: '/login' }, async (error, user: User) => {
       if (error || !user) return res.status(httpStatus.BAD_REQUEST).json({ error });
@@ -34,8 +35,9 @@ export const createIndexRoute: (option: {
         AccessToken.create({ access_token, user_id: user.id, expires_at: Date.now() + expiryInSeconds * 1000 })
       )
         .then(() => {
+          logger.info(`logging in ${user.id}`);
           res.cookie('token', access_token, { httpOnly: true, secure: true });
-          res.status(httpStatus.OK).send({ username: user.username, id: user.id, access_token, token_type: 'Bearer' });
+          return res.status(httpStatus.OK).send({ username: user.username, id: user.id, access_token, token_type: 'Bearer' });
         })
         .catch(e => {
           logger.error(util.format('fail insert access token, %j', e));
@@ -45,6 +47,7 @@ export const createIndexRoute: (option: {
   });
 
   router.get('/logout', (req, res) => {
+    // todo: remove access token
     req.logout();
     res.redirect('/');
   });

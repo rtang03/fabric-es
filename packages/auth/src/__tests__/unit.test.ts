@@ -28,7 +28,9 @@ let app: express.Express;
 let user_id: string;
 let client_id: string;
 let non_root_client_id: string;
+let non_root_user_id: string;
 let access_token: string;
+let non_root_access_token: string;
 
 beforeAll(async () => {
   try {
@@ -73,7 +75,7 @@ describe('Auth Tests - / and /account', () => {
       .post('/account')
       .send({ username: 'tester02', email: 'tester01@example.com' })
       .expect(({ body }) =>
-        expect(body?.error).toEqual('req body should take the form { username, password, email }')
+        expect(body?.error).toEqual('missing params - username, password, email')
       ));
 
   it('should register (org admin) user', async () =>
@@ -85,13 +87,22 @@ describe('Auth Tests - / and /account', () => {
         expect(!!body?.id).toBeTruthy();
       }));
 
+  it('should register (non-root) user', async () =>
+    request(app)
+      .post('/account')
+      .send({ username: 'non-root', password: 'password02', email: 'non-root@example.com' })
+      .expect(({ body }) => {
+        expect(body?.username).toEqual('non-root');
+        expect(!!body?.id).toBeTruthy();
+      }));
+
   it('should fail to login user with bad password', async () =>
     request(app)
       .post('/login')
       .send({ username: 'tester01', password: 'bad password' })
       .expect(({ body }) => expect(body?.error).toEqual('Incorrect Username / Password')));
 
-  it('should login user', async () =>
+  it('should login (org admin) user', async () =>
     request(app)
       .post('/login')
       .send({ username: 'tester01', password: 'password01' })
@@ -101,6 +112,74 @@ describe('Auth Tests - / and /account', () => {
         expect(!!body?.id).toBeTruthy();
         expect(!!header['set-cookie']).toBeTruthy();
       }));
+
+  it('should login (non-root) user', async () =>
+    request(app)
+      .post('/login')
+      .send({ username: 'non-root', password: 'password02' })
+      .expect(({ body, header }) => {
+        non_root_user_id = body.id;
+        non_root_access_token = body.access_token;
+        expect(!!body?.id).toBeTruthy();
+        expect(!!header['set-cookie']).toBeTruthy();
+      }));
+
+  it('should fail get (org admin) user by (non-root) user', async () =>
+    request(app)
+      .get(`/account/${user_id}`)
+      .set('authorization', `Bearer ${non_root_access_token}`)
+      .expect(({ body }) => expect(body.error).toEqual('not authorized to retrieve user')));
+
+  it('should get non-root user by (org admin) user', async () =>
+    request(app)
+      .get(`/account/${non_root_user_id}`)
+      .set('authorization', `Bearer ${access_token}`)
+      .expect(({ body }) => {
+        expect(body.email).toEqual('non-root@example.com');
+        expect(body.username).toEqual('non-root');
+        expect(body.is_admin).toBeFalsy();
+        expect(body.is_deleted).toBeFalsy();
+      }));
+
+  it('should fail to update user with invalid access_token', async () =>
+    request(app)
+      .put(`/account/${non_root_user_id}`)
+      .set('authorization', `Bearer ${access_token}`)
+      .send({ email: 'updated@example.com', username: 'updated-non-root' })
+      .expect(({ status, body }) => {
+        expect(body.error).toEqual('not authorized to update user');
+        expect(status).toEqual(httpStatus.UNAUTHORIZED);
+      }));
+
+  it('should fail to update user without valid params', async () =>
+    request(app)
+      .put(`/account/${non_root_user_id}`)
+      .set('authorization', `Bearer ${access_token}`)
+      .expect(({ body }) => expect(body.error).toEqual('missing params: username or email')));
+
+  it('should update user', async () =>
+    request(app)
+      .put(`/account/${non_root_user_id}`)
+      .set('authorization', `Bearer ${non_root_access_token}`)
+      .send({ email: 'updated@example.com', username: 'updated-non-root' })
+      .expect(({ body }) => {
+        expect(body).toEqual({ ok: true, email: 'updated@example.com', username: 'updated-non-root' });
+      }));
+
+  it('should fail to delete user with invalid access_token', async () =>
+    request(app)
+      .delete(`/account/${non_root_user_id}`)
+      .set('authorization', `Bearer ${access_token}`)
+      .expect(({ status, body }) => {
+        expect(status).toEqual(httpStatus.UNAUTHORIZED);
+        expect(body.error).toEqual('not authorized to delete user');
+      }));
+
+  it('should delete user', async () =>
+    request(app)
+      .delete(`/account/${non_root_user_id}`)
+      .set('authorization', `Bearer ${non_root_access_token}`)
+      .expect(({ body }) => expect(body.ok).toBeTruthy()));
 });
 
 describe('Auth Tests - /client', () => {
@@ -111,7 +190,7 @@ describe('Auth Tests - /client', () => {
       .send({ client_secret: 'password' })
       .expect(({ status, body }) => {
         expect(status).toEqual(httpStatus.BAD_REQUEST);
-        expect(body.error).toEqual('application_name, client_secret is required');
+        expect(body.error).toEqual('missing params - application_name, client_secret');
       }));
 
   it('should fail to create client without client_secret', async () =>
@@ -121,7 +200,7 @@ describe('Auth Tests - /client', () => {
       .send({ application_name: 'root' })
       .expect(({ status, body }) => {
         expect(status).toEqual(httpStatus.BAD_REQUEST);
-        expect(body.error).toEqual('application_name, client_secret is required');
+        expect(body.error).toEqual('missing params - application_name, client_secret');
       }));
 
   it('should fail to create client without access token', async () =>
@@ -130,7 +209,7 @@ describe('Auth Tests - /client', () => {
       .send({ application_name: 'root', client_secret: 'password', is_system_app: true })
       .expect(({ status }) => expect(status).toEqual(httpStatus.UNAUTHORIZED)));
 
-  it('should create client', async () =>
+  it('should create my client by (org admin) user', async () =>
     request(app)
       .post('/client')
       .set('authorization', `Bearer ${access_token}`)
@@ -159,11 +238,11 @@ describe('Auth Tests - /client', () => {
         expect(client.user_id).toEqual(user_id);
       }));
 
-  it('should fail to search root client', async () =>
+  it('should fail to search non-exist client', async () =>
     request(app)
       .get('/client?application_name=nope')
       .set('authorization', `Bearer ${access_token}`)
-      .expect(({ body }) => expect(body).toEqual({})));
+      .expect(({ body }) => expect(body.error).toEqual('fail to retrieve client')));
 
   it('should search root client by application_name', async () =>
     request(app)
@@ -195,27 +274,41 @@ describe('Auth Tests - /client', () => {
         expect(client.user_id).toEqual(user_id);
       }));
 
-  it('should create non-root client', async () =>
+  it('should create client by non-root user', async () =>
     request(app)
       .post('/client')
-      .set('authorization', `Bearer ${access_token}`)
+      .set('authorization', `Bearer ${non_root_access_token}`)
       .send({
-        application_name: 'firstapp',
+        application_name: 'app_created_by_non_root',
         client_secret: 'password',
         redirect_uris: ['http://example.com'],
         grants: ['password']
       })
       .expect(({ body }) => {
         non_root_client_id = body.id;
-        expect(body.application_name).toEqual('firstapp');
+        expect(body.application_name).toEqual('app_created_by_non_root');
         expect(!!body?.id).toBeTruthy();
         expect(body.ok).toBeTruthy();
       }));
 
-  it('should update client', async () =>
+  it('should fail to update client of non-root user by (org admin) user', async () =>
     request(app)
       .put(`/client/${non_root_client_id}`)
       .set('authorization', `Bearer ${access_token}`)
+      .send({
+        application_name: 'updatedapp',
+        redirect_uris: ['http://example.com/callback'],
+        grants: ['password', 'implicit']
+      })
+      .expect(({ body, status }) => {
+        expect(status).toEqual(httpStatus.BAD_REQUEST);
+        expect(body.error).toEqual('fail to find client');
+      }));
+
+  it('should update my client by (org admin) user', async () =>
+    request(app)
+      .put(`/client/${non_root_client_id}`)
+      .set('authorization', `Bearer ${non_root_access_token}`)
       .send({
         application_name: 'updatedapp',
         redirect_uris: ['http://example.com/callback'],
@@ -228,10 +321,19 @@ describe('Auth Tests - /client', () => {
         expect(body.grants).toEqual(['password', 'implicit']);
       }));
 
-  it('should delete client', async () =>
+  it('should fail to update client of non-root user by (org admin) user', async () =>
     request(app)
       .delete(`/client/${non_root_client_id}`)
       .set('authorization', `Bearer ${access_token}`)
+      .expect(({ body, status }) => {
+        expect(status).toEqual(httpStatus.BAD_REQUEST);
+        expect(body.error).toEqual('fail to find client');
+      }));
+
+  it('should delete client', async () =>
+    request(app)
+      .delete(`/client/${non_root_client_id}`)
+      .set('authorization', `Bearer ${non_root_access_token}`)
       .expect(({ body }) => expect(body.ok).toBeTruthy()));
 });
 
@@ -252,16 +354,39 @@ describe('Auth Tests - /api', () => {
         expect(omit(body, 'id')).toEqual({
           email: 'tester01@example.com',
           username: 'tester01',
-          is_admin: false
+          is_admin: true,
+          is_deleted: false
         });
       }));
 });
 
 describe('Auth Tests - /oauth', () => {
-  // it('should fail to authenticate', async () => request(app));
-  // it('should authenticate', async () => request(app));
+  it('should fail to authenticate', async () =>
+    request(app)
+      .post('/oauth/authenticate')
+      .expect(({ status }) => {
+        expect(status).toEqual(httpStatus.UNAUTHORIZED);
+      }));
 
-  it('should exchange token with client_credential', async () =>
+  it('should authenticate', async () =>
+    request(app)
+      .post('/oauth/authenticate')
+      .set('authorization', `Bearer ${access_token}`)
+      .expect(({ body }) => {
+        expect(body.ok).toBeTruthy();
+        expect(body.authenticated).toBeTruthy();
+        expect(body.is_admin).toBeTruthy();
+        expect(typeof body.user_id).toEqual('string');
+      }));
+
+  it('should fail to exchange access_token with client_credential', async () =>
+    request(app)
+      .post('/oauth/token')
+      .set('Context-Type', 'application/x-www-form-urlencoded')
+      .send(`client_id=${client_id}&client_secret=badpassword&grant_type=client_credentials&scope=default`)
+      .expect(({ body }) => expect(body).toEqual({})));
+
+  it('should exchange access_token with client_credential', async () =>
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
@@ -271,14 +396,7 @@ describe('Auth Tests - /oauth', () => {
         expect(body?.token_type).toEqual('Bearer');
       }));
 
-  it('should fail to exchange token with client_credential', async () =>
-    request(app)
-      .post('/oauth/token')
-      .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(`client_id=${client_id}&client_secret=badpassword&grant_type=client_credentials&scope=default`)
-      .expect(({ body }) => expect(body).toEqual({})));
-
-  it('should exchange access_token with uid/pw', async () =>
+  it('should exchange access_token with uid/pw: password grant type', async () =>
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
