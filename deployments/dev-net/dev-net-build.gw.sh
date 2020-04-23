@@ -21,33 +21,9 @@ do
   printf "Cleaning up old image fabric-es/gw-${ORG}:${RELEASE}\n"
   docker rmi fabric-es/gw-${ORG}:${RELEASE}
 
-  ### create build context ###
-  rm -fr $ROOT_DIR/.build
-  mkdir -p $ROOT_DIR/.build
-  cp $ROOT_DIR/package.json $ROOT_DIR/.build/
-
-  for PKG in operator fabric-cqrs gateway-lib model-common model-loan model-loan-private gw-${ORG}
-  do
-    echo "Building package $PKG..."
-    rm -fr $ROOT_DIR/packages/$PKG/dist
-    $LIBS_DIR/.bin/tsc -p $ROOT_DIR/packages/$PKG/tsconfig.prod.json
-  done
-
-  echo "Packing library files..."
-  for PKG in operator fabric-cqrs gateway-lib model-common model-loan model-loan-private
-  do
-    mkdir -p $ROOT_DIR/.build/packages/$PKG
-    cp $ROOT_DIR/packages/$PKG/package.json $ROOT_DIR/.build/packages/$PKG/
-    cp -R $ROOT_DIR/packages/$PKG/dist $ROOT_DIR/.build/packages/$PKG/
-  done
-
-  echo "Packing app files..."
-  mkdir -p $ROOT_DIR/.build/packages/gw-${ORG}/connection
-  cp $ROOT_DIR/entrypoint.sh $ROOT_DIR/.build/
-  cp $ROOT_DIR/packages/gw-${ORG}/package.json $ROOT_DIR/packages/gw-${ORG}/processes.yaml $ROOT_DIR/.build/packages/gw-${ORG}/
-  cp -R $ROOT_DIR/packages/gw-${ORG}/dist $ROOT_DIR/.build/packages/gw-${ORG}/
-  cp ${CONF_DIR}gw-${ORG}/.env.prod $ROOT_DIR/.build/packages/gw-${ORG}/.env
-  cp ${CONF_DIR}gw-${ORG}/connection-${ORG}.docker.yaml $ROOT_DIR/.build/packages/gw-${ORG}/connection
+  printf "Creating build context of gw-${ORG} ...\n"
+  cd $CURRENT_DIR
+  ./build-gw.sh $ORG
 
   printMessage "Create build context for gw-${ORG}" $?
   sleep 1

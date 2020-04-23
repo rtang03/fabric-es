@@ -4,7 +4,6 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-#export RELEASE=0.6.2
 export RELEASE=0.6.2
 export IMAGE_TAG=2.0.1
 export CONFIG=./config
@@ -13,8 +12,6 @@ export ARTIFACTS=./artifacts
 export SCRIPTS=./scripts
 export CRYPTO=/var/artifacts/crypto-config
 export CURRENT_DIR=`pwd`
-#export MEMBERS_3ORG="'Org1MSP.member','Org2MSP.member','Org3MSP.member'"
-#export MEMBERS_2ORG="'Org1MSP.member','Org2MSP.member'"
 
 export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
 export TEST_IMAGE=fabric-es/tester:${RELEASE}

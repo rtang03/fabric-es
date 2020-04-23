@@ -23,10 +23,6 @@
   "scripts": {
     "build": "yarn clean && tsc",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
-    "pack:lib": "yarn build:cleanup && concurrently \"npm:cp:*\"",
-    "build:cleanup": "rimraf ../../.build/packages/fabric-cqrs && mkdir -p ../../.build/packages/fabric-cqrs",
-    "cp:package.json": "cp ./package.json ../../.build/packages/fabric-cqrs/",
-    "cp:dist": "cp -R ./dist ../../.build/packages/fabric-cqrs/",
     "clean": "rimraf dist",
     "test:service.integration": "jest service.integration.test",
     "test:service.multiusers": "rimraf assets/walletOrg1 && rimraf assets/walletOrg2 && jest service.multiusers.test",
