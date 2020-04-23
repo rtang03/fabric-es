@@ -1,12 +1,12 @@
 require('dotenv').config();
 import express from 'express';
 import httpStatus from 'http-status';
+import Redis from 'ioredis';
 import omit from 'lodash/omit';
 import request from 'supertest';
-import { createHttpServer } from '../createHttpServer';
-import { AccessToken } from '../entity/AccessToken';
 import { Client } from '../entity/Client';
 import { User } from '../entity/User';
+import { createHttpServer } from '../utils';
 import { createDbForUnitTest } from './__utils__/createDbForUnitTest';
 
 const connection = {
@@ -20,10 +20,11 @@ const connection = {
   logging: false,
   synchronize: true,
   dropSchema: true,
-  entities: [AccessToken, Client, User]
+  entities: [Client, User]
 };
 const org_admin_secret = process.env.ORG_ADMIN_SECRET;
 
+let redis: Redis.Redis;
 let app: express.Express;
 let user_id: string;
 let client_id: string;
@@ -42,11 +43,15 @@ beforeAll(async () => {
       password: process.env.TYPEORM_PASSWORD
     });
 
+    // Connect to 127.0.0.1:6379
+    redis = new Redis(6379);
+
     app = await createHttpServer({
       connection,
       jwtSecret: process.env.JWT_SECRET,
       expiryInSeconds: parseInt(process.env.JWT_EXP_IN_SECOND, 10),
-      orgAdminSecret: process.env.ORG_ADMIN_SECRET
+      orgAdminSecret: process.env.ORG_ADMIN_SECRET,
+      redis
     });
 
     const user = User.create({
@@ -62,7 +67,10 @@ beforeAll(async () => {
   }
 });
 
-afterAll(async () => new Promise(done => setTimeout(() => done(), 10)));
+afterAll(async () => {
+  redis.disconnect();
+  return new Promise(done => setTimeout(() => done(), 10));
+});
 
 describe('Auth Tests - / and /account', () => {
   it('should say Hi', async () =>
@@ -74,9 +82,7 @@ describe('Auth Tests - / and /account', () => {
     request(app)
       .post('/account')
       .send({ username: 'tester02', email: 'tester01@example.com' })
-      .expect(({ body }) =>
-        expect(body?.error).toEqual('missing params - username, password, email')
-      ));
+      .expect(({ body }) => expect(body?.error).toEqual('missing params - username, password, email')));
 
   it('should register (org admin) user', async () =>
     request(app)
@@ -405,4 +411,17 @@ describe('Auth Tests - /oauth', () => {
         expect(typeof body?.access_token).toEqual('string');
         expect(body?.token_type).toEqual('Bearer');
       }));
+
+  it('should fail to authenicate after waiting 10s, token expires', async () => {
+    const timer = new Promise(resolve => setTimeout(() => resolve(true), 10000));
+    await timer;
+
+    return request(app)
+      .post('/oauth/authenticate')
+      .set('authorization', `Bearer ${access_token}`)
+      .expect(({ body, status, error }) => {
+        expect(status).toEqual(httpStatus.UNAUTHORIZED);
+        expect(body).toEqual({});
+      });
+  });
 });

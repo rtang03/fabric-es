@@ -2,7 +2,7 @@ import util from 'util';
 import express from 'express';
 import httpStatus from 'http-status';
 import passport from 'passport';
-import { AccessToken } from '../entity/AccessToken';
+import { AccessToken, TokenRepo } from '../entity/AccessToken';
 import { User } from '../entity/User';
 import { generateToken, getLogger } from '../utils';
 
@@ -12,12 +12,15 @@ export const createIndexRoute: (option: {
   jwtSecret: string;
   expiryInSeconds: number;
   orgAdminSecret?: string;
-}) => express.Router = ({ jwtSecret, expiryInSeconds, orgAdminSecret }) => {
+  tokenRepo: TokenRepo;
+}) => express.Router = ({ jwtSecret, expiryInSeconds, orgAdminSecret, tokenRepo }) => {
   const router = express.Router();
 
   router.get('/', (_, res) => {
     res.status(httpStatus.OK).send({ data: 'Hello' });
   });
+
+  router.get('/isalive', (req, res) => res.sendStatus(204));
 
   // "/login" is similar to password grant type invoked via "/oauth/token"
   router.post('/login', (req, res) => {
@@ -31,13 +34,21 @@ export const createIndexRoute: (option: {
         expiryInSeconds
       });
 
-      return AccessToken.insert(
-        AccessToken.create({ access_token, user_id: user.id, expires_at: Date.now() + expiryInSeconds * 1000 })
-      )
+      return tokenRepo
+        .save({
+          key: access_token,
+          value: {
+            access_token,
+            user_id: user.id,
+            expires_at: Date.now() + expiryInSeconds * 1000
+          }
+        })
         .then(() => {
           logger.info(`logging in ${user.id}`);
           res.cookie('token', access_token, { httpOnly: true, secure: true });
-          return res.status(httpStatus.OK).send({ username: user.username, id: user.id, access_token, token_type: 'Bearer' });
+          return res
+            .status(httpStatus.OK)
+            .send({ username: user.username, id: user.id, access_token, token_type: 'Bearer' });
         })
         .catch(e => {
           logger.error(util.format('fail insert access token, %j', e));

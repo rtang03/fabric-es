@@ -4,7 +4,7 @@ import express from 'express';
 import httpStatus from 'http-status';
 import { createServer, exchange, grant } from 'oauth2orize';
 import passport from 'passport';
-import { AccessToken } from '../entity/AccessToken';
+import { AccessToken, TokenRepo } from '../entity/AccessToken';
 import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
 import { User } from '../entity/User';
@@ -16,10 +16,11 @@ import { getLogger, generateToken } from '../utils';
  */
 const logger = getLogger({ name: '[auth] createOauthServer.js' });
 
-export const createOauthRoute: (option: { jwtSecret: string; expiryInSeconds: number }) => express.Router = ({
-  expiryInSeconds,
-  jwtSecret
-}) => {
+export const createOauthRoute: (option: {
+  jwtSecret: string;
+  expiryInSeconds: number;
+  tokenRepo: TokenRepo;
+}) => express.Router = ({ expiryInSeconds, jwtSecret, tokenRepo }) => {
   const server = createServer();
   const router = express.Router();
 
@@ -75,14 +76,16 @@ export const createOauthRoute: (option: { jwtSecret: string; expiryInSeconds: nu
         expiryInSeconds
       });
 
-      return AccessToken.insert(
-        AccessToken.create({
-          access_token,
-          client_id: client?.id,
-          user_id: user?.id,
-          expires_at: Date.now() + expiryInSeconds * 1000
+      return tokenRepo
+        .save({
+          key: access_token,
+          value: {
+            access_token,
+            client_id: client?.id,
+            user_id: user?.id,
+            expires_at: Date.now() + expiryInSeconds * 1000
+          }
         })
-      )
         .then(() => done(null, access_token))
         .catch(e => {
           logger.error(util.format('fail to insert access token, %j', e));
@@ -113,14 +116,16 @@ export const createOauthRoute: (option: { jwtSecret: string; expiryInSeconds: nu
         expiryInSeconds
       });
 
-      return AccessToken.insert(
-        AccessToken.create({
-          access_token,
-          client_id: client.id,
-          user_id: authCode.user_id,
-          expires_at: Date.now() + expiryInSeconds * 1000
+      return tokenRepo
+        .save({
+          key: access_token,
+          value: {
+            access_token,
+            client_id: client.id,
+            user_id: authCode.user_id,
+            expires_at: Date.now() + expiryInSeconds * 1000
+          }
         })
-      )
         .then(() => done(null, access_token, null, { username: authCode.username }))
         .catch(e => {
           logger.error(util.format('fail to insert access token, %j', e));
@@ -162,14 +167,16 @@ export const createOauthRoute: (option: { jwtSecret: string; expiryInSeconds: nu
         expiryInSeconds
       });
 
-      return AccessToken.insert(
-        AccessToken.create({
-          access_token,
-          client_id: client.id,
-          user_id: user.id,
-          expires_at: Date.now() + expiryInSeconds * 1000
+      return tokenRepo
+        .save({
+          key: access_token,
+          value: {
+            access_token,
+            client_id: client.id,
+            user_id: user.id,
+            expires_at: Date.now() + expiryInSeconds * 1000
+          }
         })
-      )
         .then(() => done(null, access_token))
         .catch(e => {
           logger.error(util.format('fail to insert access token, %j', e));
@@ -188,13 +195,11 @@ export const createOauthRoute: (option: { jwtSecret: string; expiryInSeconds: nu
         expiryInSeconds
       });
 
-      return AccessToken.insert(
-        AccessToken.create({
-          access_token,
-          client_id: client.id,
-          expires_at: Date.now() + expiryInSeconds * 1000
+      return tokenRepo
+        .save({
+          key: access_token,
+          value: { access_token, client_id: client.id, expires_at: Date.now() + expiryInSeconds * 1000 }
         })
-      )
         .then(() => done(null, access_token))
         .catch(e => {
           logger.error(util.format('fail to insert access token, %j', e));

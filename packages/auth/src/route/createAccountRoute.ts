@@ -11,6 +11,9 @@ const logger = getLogger({ name: '[auth] createAccountRoute.js' });
 
 export const createAccountRoute: (option: { orgAdminSecret: string }) => express.Router = ({ orgAdminSecret }) => {
   const router = express.Router();
+
+  router.get('/isalive', (req, res) => res.sendStatus(204));
+
   router.post('/', async (req, res) => {
     const username: string = req.body?.username;
     const email: string = req.body?.email;

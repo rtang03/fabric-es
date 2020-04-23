@@ -9,7 +9,7 @@ ENV TIME_ZONE=Asia/Hong_Kong \
 RUN mkdir /home/app/ \
    && chown -R node:node /home/app
 
-COPY --chown=node:node ./.build /home/app/
+COPY --chown=node:node ./.build/ /home/app/
 
 RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
   && curl -fSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz" \

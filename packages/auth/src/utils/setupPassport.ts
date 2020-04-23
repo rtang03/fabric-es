@@ -5,14 +5,14 @@ import { BasicStrategy } from 'passport-http';
 import { Strategy as BearerStrategy } from 'passport-http-bearer';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as ClientPasswordStrategy } from 'passport-oauth2-client-password';
-import { AccessToken } from '../entity/AccessToken';
+import { AccessToken, TokenRepo } from '../entity/AccessToken';
 import { Client } from '../entity/Client';
 import { User } from '../entity/User';
 import { getLogger } from './index';
 
 const logger = getLogger({ name: '[auth] setupPassport.js' });
 
-export const setupPassport = () => {
+export const setupPassport: (option: { tokenRepo: TokenRepo }) => void = ({ tokenRepo }) => {
   /**
    * LocalStrategy
    *
@@ -82,7 +82,7 @@ export const setupPassport = () => {
       let token: AccessToken;
 
       try {
-        token = await AccessToken.findOne({ where: { access_token } });
+        token = await tokenRepo.find({ key: access_token });
       } catch (e) {
         logger.error(util.format('fail to retrive access token, %j', e));
         return done(e);

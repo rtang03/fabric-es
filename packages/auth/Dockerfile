@@ -1,13 +1,34 @@
 FROM node:10.19.0-alpine
 
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+ENV TIME_ZONE=Asia/Hong_Kong \
+    ENV_NAME=production \
+    NODE_ENV=production \
+    NODE_CONFIG_ENV=production \
+    YARN_VERSION=1.21.1
 
-COPY package.json ./
-RUN npm install
+RUN mkdir /home/app/ \
+   && chown -R node:node /home/app
 
-COPY . .
-RUN npm run build
+COPY --chown=node:node ./build/ /home/app/
 
-ENTRYPOINT [ "npm", "run"]
-CMD [ "start" ]
+RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
+  && curl -fSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz" \
+  && tar -xzf yarn-v$YARN_VERSION.tar.gz -C /opt/ \
+  && ln -snf /opt/yarn-v$YARN_VERSION/bin/yarn /usr/local/bin/yarn \
+  && ln -snf /opt/yarn-v$YARN_VERSION/bin/yarnpkg /usr/local/bin/yarnpkg \
+  && rm yarn-v$YARN_VERSION.tar.gz \
+  && cp /usr/share/zoneinfo/Asia/Hong_Kong /etc/localtime \
+  && echo "Asia/Hong_Kong" > /etc/timezone \
+  && cd /home/app/packages/auth \
+  && yarn install --production --ignore-engines --network-timeout 1000000 \
+  && yarn global add pm2 \
+  && pm2 install pm2-logrotate \
+  && apk del .build-deps-yarn
+
+USER node
+
+WORKDIR /home/app/packages/auth
+
+CMD [ "pm2-runtime", "start" ,"processes.yaml"]
+
+EXPOSE 8080

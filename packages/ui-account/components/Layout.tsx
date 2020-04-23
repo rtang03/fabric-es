@@ -15,15 +15,15 @@ const Layout: React.FC<{
           <a>Home</a>
         </Link>{' '}
         |{' '}
-        <Link href="/account/register">
+        <Link href="/web/register">
           <a>Register</a>
         </Link>{' '}
         |{' '}
-        <Link href="/account/logon">
+        <Link href="/web/logon">
           <a>Log on</a>
         </Link>{' '}
         |{' '}
-        <Link href="/account/logout">
+        <Link href="/web/logout">
           <a>Log out</a>
         </Link>
       </nav>
