@@ -8,11 +8,6 @@
   "description": "Model - loan",
   "scripts": {
     "build": "yarn clean && tsc",
-    "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
-    "pack:gw-dev-net": "yarn build:cleanup && concurrently \"npm:cp:*\"",
-    "build:cleanup": "rimraf ../../.build/packages/model-loan && mkdir -p ../../.build/packages/model-loan",
-    "cp:package.json": "cp ./package.json ../../.build/packages/model-loan/",
-    "cp:dist": "cp -R ./dist ../../.build/packages/model-loan/",
     "test": "yarn build && ./node_modules/.bin/jest unit.test",
     "clean": "rimraf dist",
     "gen-resolvers-type": "graphql-codegen --config codegen.yml",

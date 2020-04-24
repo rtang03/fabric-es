@@ -23,10 +23,6 @@
   "scripts": {
     "build": "yarn clean && tsc",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
-    "pack:lib": "yarn build:cleanup && concurrently \"npm:cp:*\"",
-    "build:cleanup": "rimraf ../../.build/packages/gateway-lib && mkdir -p ../../.build/packages/gateway-lib",
-    "cp:package.json": "cp ./package.json ../../.build/packages/gateway-lib/",
-    "cp:dist": "cp -R ./dist ../../.build/packages/gateway-lib/",
     "clean": "rimraf dist",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
     "generate-types-for-admin": "graphql-codegen --config src/generated/codegen.yml",

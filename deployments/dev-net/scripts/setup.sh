@@ -10,15 +10,18 @@ export CONFIG=./config
 export VOLUME=./volume
 export ARTIFACTS=./artifacts
 export SCRIPTS=./scripts
-export CHAINCODE=../../packages/chaincode
 export CRYPTO=/var/artifacts/crypto-config
-export CURRENT_DIR=$PWD
-export ROOT_DIR=$PWD/../..
-export MEMBERS_3ORG="'Org1MSP.member','Org2MSP.member','Org3MSP.member'"
-export MEMBERS_2ORG="'Org1MSP.member','Org2MSP.member'"
+export CURRENT_DIR=`pwd`
 
 export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
 export TEST_IMAGE=fabric-es/tester:${RELEASE}
+
+export ROOT_DIR=$CURRENT_DIR/../..
+
+export CHAINCODE=../../packages/chaincode
+
+export LIBS_DIR=$ROOT_DIR/node_modules
+export CONF_DIR=$CURRENT_DIR/build.
 
 export COMPOSE_0_2ORG="-f compose.2org.yaml"
 export COMPOSE_1_2ORG="$COMPOSE_0_2ORG -f compose.2org.db.yaml"
