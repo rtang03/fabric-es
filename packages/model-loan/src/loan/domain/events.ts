@@ -1,7 +1,8 @@
-import { BaseEvent } from '@fabric-es/fabric-cqrs';
+import { BaseEvent, Lifecycle } from '@fabric-es/fabric-cqrs';
 
 export interface LoanApplied extends BaseEvent {
   readonly type: 'LoanApplied';
+  readonly lifeCycle: Lifecycle.BEGIN;
   payload: {
     loanId: string;
     userId: string;

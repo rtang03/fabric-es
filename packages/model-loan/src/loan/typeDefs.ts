@@ -115,7 +115,13 @@ export const resolvers = {
       }).ApplyLoan({
           userId,
           payload: { loanId, description, reference, comment, timestamp: Date.now() }
-      }).catch(error => new ApolloError(error)),
+      }).catch(error => {
+        if (error.error.message) {
+          return new ApolloError(error.error.message);
+        } else {
+          return new ApolloError(error);
+        }
+      }),
     cancelLoan: async (
       _, { userId, loanId },
       { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
