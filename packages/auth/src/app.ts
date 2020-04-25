@@ -12,27 +12,40 @@ import { bootstrapAuthServer, createHttpServer, getLogger } from './utils';
 
 const logger = getLogger({ name: '[auth] app.js' });
 
+
+
+const port = (process.env.PORT || 8080) as number;
+const ENV = {
+  TYPEORM_HOST: process.env.TYPEORM_HOST,
+  TYPEORM_USERNAME: process.env.TYPEORM_USERNAME,
+  TYPEORM_PASSWORD: process.env.TYPEORM_PASSWORD,
+  TYPEORM_DATABASE: process.env.TYPEORM_DATABASE,
+  TYPEORM_PORT: process.env.TYPEORM_PORT,
+  TYPEORM_LOGGING: process.env.TYPEORM_LOGGING,
+  TYPEORM_DROPSCHEMA: process.env.TYPEORM_DROPSCHEMA,
+  REDIS_HOST: process.env.REDIS_HOST,
+  REDIS_PORT: process.env.REDIS_PORT,
+  JWT_SECRET: process.env.JWT_SECRET,
+  JWT_EXP_IN_SECOND: process.env.JWT_EXP_IN_SECOND,
+  ORG_ADMIN_ID: process.env.ORG_ADMIN_ID,
+  ORG_ADMIN_SECRET: process.env.ORG_ADMIN_SECRET,
+  ORG_ADMIN_EMAIL: process.env.ORG_ADMIN_EMAIL,
+  CLIENT_APPLICATION_NAME: process.env.CLIENT_APPLICATION_NAME,
+  CLIENT_SECRET: process.env.CLIENT_SECRET
+};
 const connection = {
   name: 'default',
   type: 'postgres' as any,
-  host: process.env.TYPEORM_HOST || 'localhost',
-  port: process.env.TYPEORM_PORT,
-  username: process.env.TYPEORM_USERNAME,
-  password: process.env.TYPEORM_PASSWORD,
-  database: process.env.TYPEORM_DATABASE,
-  logging: process.env.TYPEORM_LOGGING === 'true',
+  host: ENV.TYPEORM_HOST || 'localhost',
+  port: ENV.TYPEORM_PORT,
+  username: ENV.TYPEORM_USERNAME,
+  password: ENV.TYPEORM_PASSWORD,
+  database: ENV.TYPEORM_DATABASE,
+  logging: ENV.TYPEORM_LOGGING === 'true',
   synchronize: true,
-  dropSchema: process.env.TYPEORM_DROPSCHEMA === 'true',
+  dropSchema: ENV.TYPEORM_DROPSCHEMA === 'true',
   entities: [Client, User]
 };
-
-// use GCP SQL
-// if (process.env.CLOUD_POSTGRES_CONNECTION) {
-//   connection.port = undefined;
-//   connection.host = '/cloudsql/' + process.env.CLOUD_POSTGRES_CONNECTION;
-// }
-
-const port = (process.env.PORT || 8080) as number;
 
 (async () => {
   const timer = new Promise(resolve => {
@@ -40,32 +53,24 @@ const port = (process.env.PORT || 8080) as number;
   });
   await timer;
 
-  if (!process.env.TYPEORM_USERNAME) {
-    logger.error('missing username');
-    throw new Error('missing username');
-  }
-
-  if (!process.env.TYPEORM_PASSWORD) {
-    logger.error('missing password');
-    throw new Error('missing password');
-  }
-
-  if (!process.env.TYPEORM_DATABASE) {
-    logger.error('missing database name');
-    throw new Error('missing database name');
-  }
+  Object.entries<string>(ENV).forEach(([key, value]) => {
+    if (value === undefined) {
+      logger.error(`environment variable is missing ${key}`);
+      throw new Error(`environment variable is missing ${key}`);
+    }
+  });
 
   logger.info(util.format('db connection: %j', omit(connection, 'password', 'entities')));
 
   let server;
-  const redis = new Redis({ port: parseInt(process.env.REDIS_PORT, 10), host: process.env.REDIS_HOST });
+  const redis = new Redis({ port: parseInt(ENV.REDIS_PORT, 10), host: ENV.REDIS_HOST });
 
   try {
     server = await createHttpServer({
       connection,
-      jwtSecret: process.env.JWT_SECRET,
-      expiryInSeconds: parseInt(process.env.JWT_EXP_IN_SECOND, 10),
-      orgAdminSecret: process.env.ORG_ADMIN_SECRET,
+      jwtSecret: ENV.JWT_SECRET,
+      expiryInSeconds: parseInt(ENV.JWT_EXP_IN_SECOND, 10),
+      orgAdminSecret: ENV.ORG_ADMIN_SECRET,
       redis
     });
   } catch (err) {
@@ -104,11 +109,11 @@ const port = (process.env.PORT || 8080) as number;
 
     try {
       await bootstrapAuthServer({
-        orgAdminId: process.env.ORG_ADMIN_ID,
-        orgAdminSecret: process.env.ORG_ADMIN_SECRET,
-        orgAdminEmail: process.env.ORG_ADMIN_EMAIL,
-        applicationName: process.env.CLIENT_APPLICATION_NAME,
-        clientSecret: process.env.CLIENT_SECRET
+        orgAdminId: ENV.ORG_ADMIN_ID,
+        orgAdminSecret: ENV.ORG_ADMIN_SECRET,
+        orgAdminEmail: ENV.ORG_ADMIN_EMAIL,
+        applicationName: ENV.CLIENT_APPLICATION_NAME,
+        clientSecret: ENV.CLIENT_SECRET
       });
     } catch (e) {
       logger.error(util.format('An error occurred while bootstraping auth server: %j', e));

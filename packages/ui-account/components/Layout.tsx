@@ -9,9 +9,28 @@ const Layout: React.FC<{
     <Head>
       <title>{title}</title>
     </Head>
+    <style jsx global>{`
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        color: #333;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, Noto Sans,
+          sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+      }
+      .container {
+        max-width: 65rem;
+        margin: 1.5rem auto;
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+    `}</style>
     <header>
       <nav>
-        <Link href="/web">
+        <Link href="/">
           <a>Home</a>
         </Link>{' '}
         |{' '}
@@ -23,9 +42,6 @@ const Layout: React.FC<{
           <a>Log in</a>
         </Link>{' '}
         |{' '}
-        {/*<Link href="/web/logout">*/}
-        {/*  <a>Log out</a>*/}
-        {/*</Link>*/}
       </nav>
     </header>
     <hr />

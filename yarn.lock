@@ -2771,6 +2771,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/errorhandler@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@types/errorhandler/-/errorhandler-1.5.0.tgz#2e6be2e419e505130c6342d11b3981867db6de2b"
+  integrity sha512-g5jrn2aofEn7O2OW/T+PlmGUUD/AtrX7DI87zrxz6rK5XIyvQf3FbPJrwgYaVjVOaCyvEkx9yxLd/XlEA43OcA==
+  dependencies:
+    "@types/express" "*"
+
 "@types/eslint-visitor-keys@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@types/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#1ee30d79544ca84d68d4b3cdb0af4f205663dd2d"

@@ -1,74 +1,37 @@
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles, Theme } from '@material-ui/core/styles';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
 import fetch from 'isomorphic-unfetch';
 import { NextPage } from 'next';
 import React from 'react';
 import * as yup from 'yup';
+import { getApiUrl, getValidationSchema, setPostRequest, useStyles } from '../../components';
 import Layout from '../../components/Layout';
 
-const validationSchema = yup.object({
-  email: yup
-    .string()
-    .required()
-    .email(),
-  password: yup
-    .string()
-    .required()
-    .trim()
-    .min(8)
-});
-
-const useStyles = makeStyles((theme: Theme) => ({
-  '@global': {
-    body: {
-      backgroundColor: theme.palette.common.white
-    }
-  },
-  paper: {
-    marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center'
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main
-  },
-  form: {
-    width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1)
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2)
-  }
-}));
+const validationSchema = yup.object(getValidationSchema(['username', 'password']));
 
 const Login: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
   const classes = useStyles();
 
   return (
     <Layout title="Account | Log in">
-      <Typography variant="h6">log in</Typography>
+      <Typography variant="h6">Log in</Typography>
       <Formik
-        initialValues={{ email: '', password: '' }}
+        initialValues={{ username: '', password: '' }}
         validateOnChange={true}
         validationSchema={validationSchema}
-        onSubmit={async ({ email, password }, { setSubmitting }) => {
+        onSubmit={async ({ username, password }, { setSubmitting }) => {
           setSubmitting(true);
-          const res = await fetch(`${apiUrl}`, {
-            method: 'GET',
-            mode: 'cors',
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*'
-            }
-          }).then(response => response.json());
-          console.log(res);
+          let res: any;
+          try {
+            res = await fetch(`${apiUrl}/login`, setPostRequest({ username, password }, true)).then(r => r.json());
+          } catch (e) {
+            console.error(e);
+            setSubmitting(false);
+          }
           setTimeout(() => {
-            alert(JSON.stringify(res, null, 2));
+            // alert(JSON.stringify(res, null, 2));
             setSubmitting(false);
           }, 400);
         }}>
@@ -76,13 +39,12 @@ const Login: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
           <Form>
             <Field
               component={TextField}
-              name="email"
-              placeholder="email"
+              name="username"
+              placeholder="username"
               variant="outlined"
               margin="normal"
               fullwidth="true"
               autoFocus
-              autoComplete="email"
             />{' '}
             <Field
               component={TextField}
@@ -99,7 +61,7 @@ const Login: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
               variant="contained"
               color="primary"
               disabled={
-                isSubmitting || (!!errors?.email && !values?.email) || (!!errors?.password && !values?.password)
+                isSubmitting || (!!errors?.username && !values?.username) || (!!errors?.password && !values?.password)
               }
               type="submit">
               Log In
@@ -111,14 +73,6 @@ const Login: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
   );
 };
 
-Login.getInitialProps = async ({ req }) => {
-  // const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const protocol = process.env.NODE_ENV === 'production' ? 'http' : 'http';
-  const apiUrl = process.browser
-    ? `${protocol}://${window.location.host}/web/api`
-    : `${protocol}://${req?.headers.host}/web/api`;
-
-  return { apiUrl };
-};
+Login.getInitialProps = getApiUrl();
 
 export default Login;
