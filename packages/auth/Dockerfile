@@ -7,7 +7,7 @@ ENV TIME_ZONE=Asia/Hong_Kong \
     YARN_VERSION=1.21.1
 
 RUN mkdir /home/app/ \
-   && chown -R node:node /home/app
+   && chown -R node:node /home/app/
 
 COPY --chown=node:node ./build/ /home/app/
 
@@ -19,7 +19,7 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
   && rm yarn-v$YARN_VERSION.tar.gz \
   && cp /usr/share/zoneinfo/Asia/Hong_Kong /etc/localtime \
   && echo "Asia/Hong_Kong" > /etc/timezone \
-  && cd /home/app/packages/auth \
+  && cd /home/app/ \
   && yarn install --production --ignore-engines --network-timeout 1000000 \
   && yarn global add pm2 \
   && pm2 install pm2-logrotate \
@@ -27,7 +27,7 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
 
 USER node
 
-WORKDIR /home/app/packages/auth
+WORKDIR /home/app/
 
 CMD [ "pm2-runtime", "start" ,"processes.yaml"]
 

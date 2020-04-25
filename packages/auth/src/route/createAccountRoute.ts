@@ -4,15 +4,63 @@ import express from 'express';
 import httpStatus from 'http-status';
 import omit from 'lodash/omit';
 import passport from 'passport';
+import { TokenRepo } from '../entity/AccessToken';
 import { User } from '../entity/User';
-import { getLogger } from '../utils';
+import { generateToken, getLogger } from '../utils';
 
 const logger = getLogger({ name: '[auth] createAccountRoute.js' });
 
-export const createAccountRoute: (option: { orgAdminSecret: string }) => express.Router = ({ orgAdminSecret }) => {
+export const createAccountRoute: (option: {
+  orgAdminSecret: string;
+  jwtSecret: string;
+  tokenRepo: TokenRepo;
+  expiryInSeconds: number;
+}) => express.Router = ({ orgAdminSecret, jwtSecret, tokenRepo, expiryInSeconds }) => {
   const router = express.Router();
 
-  router.get('/isalive', (req, res) => res.sendStatus(204));
+  router.get('/isalive', (_, res) => res.sendStatus(httpStatus.NO_CONTENT));
+
+  // "/login" is similar to password grant type invoked via "/oauth/token"
+  router.post('/login', (req, res) => {
+    passport.authenticate('local', { session: false, failureRedirect: '/login' }, async (error, user: User) => {
+      if (error || !user) return res.status(httpStatus.BAD_REQUEST).json({ error });
+
+      const access_token = generateToken({
+        user_id: user.id,
+        is_admin: user.is_admin,
+        secret: jwtSecret,
+        expiryInSeconds
+      });
+
+      return tokenRepo
+        .save({
+          key: access_token,
+          value: {
+            access_token,
+            user_id: user.id,
+            expires_at: Date.now() + expiryInSeconds * 1000
+          },
+          useDefaultExpiry: true
+        })
+        .then(() => {
+          logger.info(`logging in ${user.id}`);
+          res.cookie('token', access_token, { httpOnly: true, secure: true });
+          return res
+            .status(httpStatus.OK)
+            .send({ username: user.username, id: user.id, access_token, token_type: 'Bearer' });
+        })
+        .catch(e => {
+          logger.error(util.format('fail insert access token, %j', e));
+          res.status(httpStatus.BAD_REQUEST).send({ error: 'failed to create access token' });
+        });
+    })(req, res);
+  });
+
+  router.get('/logout', (req, res) => {
+    // todo: remove access token
+    req.logout();
+    res.redirect('/');
+  });
 
   router.post('/', async (req, res) => {
     const username: string = req.body?.username;

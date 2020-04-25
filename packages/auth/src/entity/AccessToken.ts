@@ -7,7 +7,7 @@ export interface AccessToken {
 }
 
 export interface TokenRepo {
-  save: (option: { key: string; value: AccessToken }) => Promise<string>;
-  find: (option: {key: string}) => Promise<AccessToken>;
+  save: (option: { key: string; value: AccessToken; useDefaultExpiry: boolean }) => Promise<string>;
+  find: (option: { key: string }) => Promise<AccessToken>;
+  deleteToken: (option: { key: string }) => Promise<any>;
 }
-

@@ -118,7 +118,9 @@ export MEMBERS_3ORG="'Org1MSP.member','Org2MSP.member','Org3MSP.member'"
 export MEMBERS_2ORG="'Org1MSP.member','Org2MSP.member'"
 
 export AUTH_IMAGE=fabric-es/auth-server:1.0
+export PROXY_IMAGE=fabric-es/proxy:1.0
 export TEST_IMAGE=fabric-es/tester:1.0
+export UI_ACCOUNT_IMAGE=fabric-es/ui-account:1.0
 
 export COMPOSE_0_2ORG="-f compose.2org.yaml"
 export COMPOSE_1_2ORG="$COMPOSE_0_2ORG -f compose.2org.db.yaml"

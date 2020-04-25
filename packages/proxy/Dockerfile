@@ -1,13 +1,22 @@
 FROM node:10.19.0-alpine
 
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+ENV TIME_ZONE=Asia/Hong_Kong \
+    ENV_NAME=production \
+    NODE_ENV=production \
+    NODE_CONFIG_ENV=production
 
-COPY package.json ./
-RUN npm install
+RUN mkdir /home/app/ \
+   && chown -R node:node /home/app/
 
-COPY . .
+COPY --chown=node:node ./build/ /home/app/
+
+RUN cd /home/app/ \
+ && npm install --production --ignore-engines
+
+USER node
+
+WORKDIR /home/app/
 
 EXPOSE 8080
-ENTRYPOINT [ "npm", "run"]
-CMD [ "start" ]
+
+CMD [ "npm", "start"]

@@ -104,13 +104,13 @@ describe('Auth Tests - / and /account', () => {
 
   it('should fail to login user with bad password', async () =>
     request(app)
-      .post('/login')
+      .post('/account/login')
       .send({ username: 'tester01', password: 'bad password' })
       .expect(({ body }) => expect(body?.error).toEqual('Incorrect Username / Password')));
 
   it('should login (org admin) user', async () =>
     request(app)
-      .post('/login')
+      .post('/account/login')
       .send({ username: 'tester01', password: 'password01' })
       .expect(({ body, header }) => {
         user_id = body.id;
@@ -121,7 +121,7 @@ describe('Auth Tests - / and /account', () => {
 
   it('should login (non-root) user', async () =>
     request(app)
-      .post('/login')
+      .post('/account/login')
       .send({ username: 'non-root', password: 'password02' })
       .expect(({ body, header }) => {
         non_root_user_id = body.id;

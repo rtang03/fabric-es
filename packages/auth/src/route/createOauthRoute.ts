@@ -84,7 +84,8 @@ export const createOauthRoute: (option: {
             client_id: client?.id,
             user_id: user?.id,
             expires_at: Date.now() + expiryInSeconds * 1000
-          }
+          },
+          useDefaultExpiry: true
         })
         .then(() => done(null, access_token))
         .catch(e => {
@@ -124,7 +125,8 @@ export const createOauthRoute: (option: {
             client_id: client.id,
             user_id: authCode.user_id,
             expires_at: Date.now() + expiryInSeconds * 1000
-          }
+          },
+          useDefaultExpiry: true
         })
         .then(() => done(null, access_token, null, { username: authCode.username }))
         .catch(e => {
@@ -175,7 +177,8 @@ export const createOauthRoute: (option: {
             client_id: client.id,
             user_id: user.id,
             expires_at: Date.now() + expiryInSeconds * 1000
-          }
+          },
+          useDefaultExpiry: true
         })
         .then(() => done(null, access_token))
         .catch(e => {
@@ -198,7 +201,8 @@ export const createOauthRoute: (option: {
       return tokenRepo
         .save({
           key: access_token,
-          value: { access_token, client_id: client.id, expires_at: Date.now() + expiryInSeconds * 1000 }
+          value: { access_token, client_id: client.id, expires_at: Date.now() + expiryInSeconds * 1000 },
+          useDefaultExpiry: true
         })
         .then(() => done(null, access_token))
         .catch(e => {

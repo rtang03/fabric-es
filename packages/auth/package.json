@@ -22,15 +22,16 @@
   },
   "scripts": {
     "build": "yarn clean && tsc",
-    "clean": "rimraf dist",
+    "clean": "rimraf dist && rimraf build",
     "start": "ts-node src/utils/index.ts",
+    "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
     "test": "jest --detectOpenHandles unit.test",
     "pack:lib": "yarn build:cleanup && concurrently \"npm:cp:*\"",
-    "build:cleanup": "rimraf ./build && mkdir -p ./build/packages/auth",
-    "cp:package.json": "cp ./package.json ./build/packages/auth/",
-    "cp:env": "cp ./.env.prod ./build/packages/auth/.env",
-    "cp:dist": "cp -R ./dist ./build/packages/auth/",
-    "cp:processes": "cp ./processes.yaml ./build/packages/auth/"
+    "build:cleanup": "rimraf ./build && mkdir build",
+    "cp:package.json": "cp ./package.json ./build/",
+    "cp:env": "cp ./.env.prod ./build/.env",
+    "cp:dist": "cp -R ./dist ./build/",
+    "cp:processes": "cp ./processes.yaml ./build/"
   },
   "private": true,
   "dependencies": {
@@ -74,6 +75,7 @@
     "@types/passport-oauth2-client-password": "^0.1.2",
     "@types/pg": "^7.14.3",
     "@types/supertest": "^2.0.8",
+    "concurrently": "^5.0.0",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",
     "supertest": "^4.0.2",

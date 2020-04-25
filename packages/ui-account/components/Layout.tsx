@@ -11,7 +11,7 @@ const Layout: React.FC<{
     </Head>
     <header>
       <nav>
-        <Link href="/account">
+        <Link href="/web">
           <a>Home</a>
         </Link>{' '}
         |{' '}
@@ -19,13 +19,13 @@ const Layout: React.FC<{
           <a>Register</a>
         </Link>{' '}
         |{' '}
-        <Link href="/web/logon">
-          <a>Log on</a>
+        <Link href="/web/login">
+          <a>Log in</a>
         </Link>{' '}
         |{' '}
-        <Link href="/web/logout">
-          <a>Log out</a>
-        </Link>
+        {/*<Link href="/web/logout">*/}
+        {/*  <a>Log out</a>*/}
+        {/*</Link>*/}
       </nav>
     </header>
     <hr />

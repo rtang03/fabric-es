@@ -8,7 +8,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
     volumes:
-      - ../deployments/dev-net/scripts/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+      - ./scripts/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
     command: postgres
     ports:
       - 5432:5432
@@ -16,12 +16,12 @@ services:
     container_name: redis
     image: redis:5.0.9-alpine
     volumes:
-      - ../deployments/dev-net/volume/redis-data:/data
-    #      - ../deployments/dev-net/volume/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./volume/redis-data:/data
+    #      - ./volume/redis.conf:/usr/local/etc/redis/redis.conf
     ports:
       - 6379:6379
   proxy:
-    build: ./proxy
+    image: fabric-es/proxy:1.0
     container_name: proxy
     environment:
       - HOST=0.0.0.0
@@ -31,8 +31,7 @@ services:
     ports:
       - 8080:8080
   auth:
-    #    build: ./auth
-    image: auth:1.0
+    image: fabric-es/auth-server:1.0
     container_name: auth
     environment:
       - TYPEORM_HOST=postgres
@@ -44,8 +43,8 @@ services:
       - redis
       - postgres
   ui-account:
-    build: ./ui-account
+#    build: ./ui-account
+    image: fabric-es/ui-account:1.0
     container_name: ui-account
     environment:
-      - NODE_ENV=development
       - PORT=3000
