@@ -4,10 +4,11 @@ import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
 import fetch from 'isomorphic-unfetch';
 import { NextPage } from 'next';
+import Router from 'next/router';
 import React from 'react';
 import * as yup from 'yup';
-import { getApiUrl, getValidationSchema, setPostRequest, useStyles } from '../../components';
 import Layout from '../../components/Layout';
+import { getApiUrl, getValidationSchema, setPostRequest, useStyles } from '../../utils';
 
 const validationSchema = yup.object(getValidationSchema(['username', 'email', 'password']));
 
@@ -24,19 +25,20 @@ const Register: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
         validationSchema={validationSchema}
         onSubmit={async ({ username, email, password }, { setSubmitting }) => {
           setSubmitting(true);
-          let res: any;
           try {
-            res = await fetch(`${apiUrl}/register`, setPostRequest({ username, password, email }, true)).then(r =>
-              r.json()
-            );
+            const res = await fetch(`${apiUrl}/register`, setPostRequest({ username, password, email }, true));
+            const { result } = await res.json();
+            if (res.status === 200 && !!result?.id) {
+              setSubmitting(false);
+              await Router.push('/web/login');
+            } else console.error('fail to register');
           } catch (e) {
             console.error(e);
             setSubmitting(false);
           }
-          setTimeout(() => {
-            // alert(JSON.stringify(res, null, 2));
-            setSubmitting(false);
-          }, 400);
+          // setTimeout(() => {
+          //   setSubmitting(false);
+          // }, 400);
         }}>
         {({ values, errors, isSubmitting }) => (
           <Form>

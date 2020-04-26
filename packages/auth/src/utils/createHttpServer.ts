@@ -5,7 +5,7 @@ import { Redis } from 'ioredis';
 import morgan from 'morgan';
 import passport from 'passport';
 import { ConnectionOptions, createConnection } from 'typeorm';
-import { createApiRoute, createClientRoute, createAccountRoute, createOauthRoute } from '../route';
+import { createClientRoute, createAccountRoute, createOauthRoute } from '../route';
 import { createTokenRepo, setupPassport } from './index';
 
 export const createHttpServer: (option: {
@@ -30,14 +30,12 @@ export const createHttpServer: (option: {
   app.use(express.json());
   app.use(cookieParser());
   app.use(express.urlencoded({ extended: false }));
-  app.use(errorHandler({ dumpExceptions: true, showStack: true }));
+  app.use(errorHandler());
   app.use(passport.initialize());
   setupPassport({ tokenRepo });
 
-  // app.use('/', createIndexRoute({ jwtSecret, expiryInSeconds, tokenRepo }));
   app.use('/client', createClientRoute());
   app.use('/oauth', createOauthRoute({ jwtSecret, expiryInSeconds, tokenRepo }));
-  app.use('/api', createApiRoute());
   app.use('/account', createAccountRoute({ orgAdminSecret, jwtSecret, expiryInSeconds, tokenRepo }));
 
   return app;

@@ -22,6 +22,7 @@ export const setupPassport: (option: { tokenRepo: TokenRepo }) => void = ({ toke
    */
   passport.use(
     new LocalStrategy({ session: false, passReqToCallback: true }, async (request, username, password, done) => {
+      logger.info('LocalStrategy is used');
       let user: User;
       try {
         user = await User.findOne({ where: { username } });
@@ -41,11 +42,12 @@ export const setupPassport: (option: { tokenRepo: TokenRepo }) => void = ({ toke
   );
 
   passport.serializeUser(({ id }: User, done) => done(null, id));
-  passport.deserializeUser((id, done) =>
-    User.findOne(id)
+  passport.deserializeUser((id, done) => {
+    logger.info('deserializeUser is called: ', id);
+    return User.findOne(id)
       .then(user => done(null, user))
-      .catch(error => done(error))
-  );
+      .catch(error => done(error));
+  });
 
   /**
    * BasicStrategy & ClientPasswordStrategy
@@ -79,6 +81,7 @@ export const setupPassport: (option: { tokenRepo: TokenRepo }) => void = ({ toke
    */
   passport.use(
     new BearerStrategy(async (access_token, done) => {
+      logger.info('BearerStrategy is used');
       let token: AccessToken;
 
       try {
@@ -99,6 +102,7 @@ export const setupPassport: (option: { tokenRepo: TokenRepo }) => void = ({ toke
           logger.error(util.format('fail to retrieve user, %j', e));
           return done(e);
         }
+
         return !user ? done(null, false) : done(null, user, { scope: '*' });
       } else if (token?.client_id) {
         let client: Client;
@@ -109,6 +113,8 @@ export const setupPassport: (option: { tokenRepo: TokenRepo }) => void = ({ toke
           logger.error(util.format('fail to retrieve client, %j', e));
           return done(e);
         }
+
+        logger.info('5 - BearerStrategy');
 
         return !client ? done(null, false) : done(null, client, { scope: '*' });
       } else return done(null, false);

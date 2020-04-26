@@ -346,7 +346,7 @@ describe('Auth Tests - /client', () => {
 describe('Auth Tests - /api', () => {
   it('should fail to retrieve user profile with invalid token', async () =>
     request(app)
-      .get('/api/userinfo')
+      .get('/account/userinfo')
       .set('authorization', `Bearer NO-TOKEN`)
       .expect(({ error }) => {
         expect((error as any).status).toEqual(401);
@@ -354,7 +354,7 @@ describe('Auth Tests - /api', () => {
 
   it('should retrieve user profile via access_token', async () =>
     request(app)
-      .get('/api/userinfo')
+      .get('/account/userinfo')
       .set('authorization', `Bearer ${access_token}`)
       .expect(({ body }) => {
         expect(omit(body, 'id')).toEqual({

@@ -4,18 +4,21 @@ import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
 import fetch from 'isomorphic-unfetch';
 import { NextPage } from 'next';
+import Router from 'next/router';
 import React from 'react';
 import * as yup from 'yup';
-import { getApiUrl, getValidationSchema, setPostRequest, useStyles } from '../../components';
 import Layout from '../../components/Layout';
+import { User } from '../../types';
+import { getApiUrl, getValidationSchema, setPostRequest, useStyles } from '../../utils';
+import { withAuthSync } from '../../utils/withAuthSync';
 
 const validationSchema = yup.object(getValidationSchema(['username', 'password']));
 
-const Login: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
+const Login: NextPage<{ apiUrl?: string; user?: User }> = ({ apiUrl, user }) => {
   const classes = useStyles();
 
   return (
-    <Layout title="Account | Log in">
+    <Layout title="Account | Log in" user={user}>
       <Typography variant="h6">Log in</Typography>
       <Formik
         initialValues={{ username: '', password: '' }}
@@ -23,17 +26,20 @@ const Login: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
         validationSchema={validationSchema}
         onSubmit={async ({ username, password }, { setSubmitting }) => {
           setSubmitting(true);
-          let res: any;
           try {
-            res = await fetch(`${apiUrl}/login`, setPostRequest({ username, password }, true)).then(r => r.json());
+            const res = await fetch(`${apiUrl}/login`, setPostRequest({ username, password }, true));
+            const { result } = await res.json();
+            if (res.status === 200 && !!result?.id) {
+              setSubmitting(false);
+              await Router.push('/web/profile');
+            } else console.error('fail to login');
           } catch (e) {
             console.error(e);
             setSubmitting(false);
           }
-          setTimeout(() => {
-            // alert(JSON.stringify(res, null, 2));
-            setSubmitting(false);
-          }, 400);
+          // setTimeout(() => {
+          //   setSubmitting(false);
+          // }, 400);
         }}>
         {({ values, errors, isSubmitting }) => (
           <Form>

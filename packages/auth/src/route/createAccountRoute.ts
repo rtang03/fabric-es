@@ -6,6 +6,7 @@ import omit from 'lodash/omit';
 import passport from 'passport';
 import { TokenRepo } from '../entity/AccessToken';
 import { User } from '../entity/User';
+import { LoginResponse, ProfileResponse, RegisterResponse } from '../types';
 import { generateToken, getLogger } from '../utils';
 
 const logger = getLogger({ name: '[auth] createAccountRoute.js' });
@@ -19,6 +20,12 @@ export const createAccountRoute: (option: {
   const router = express.Router();
 
   router.get('/isalive', (_, res) => res.sendStatus(httpStatus.NO_CONTENT));
+
+  router.get('/userinfo', passport.authenticate('bearer', { session: false }), (req, res) => {
+    const response: ProfileResponse = omit(req.user, 'password') as any;
+    logger.info(`userinfo ${response.id} is retrieved`);
+    return res.status(httpStatus.OK).send(response);
+  });
 
   // "/login" is similar to password grant type invoked via "/oauth/token"
   router.post('/login', (req, res) => {
@@ -45,9 +52,8 @@ export const createAccountRoute: (option: {
         .then(() => {
           logger.info(`logging in ${user.id}`);
           res.cookie('token', access_token, { httpOnly: true, secure: true });
-          return res
-            .status(httpStatus.OK)
-            .send({ username: user.username, id: user.id, access_token, token_type: 'Bearer' });
+          const response: LoginResponse = { username: user.username, id: user.id, access_token, token_type: 'Bearer' };
+          return res.status(httpStatus.OK).send(response);
         })
         .catch(e => {
           logger.error(util.format('fail insert access token, %j', e));
@@ -56,61 +62,10 @@ export const createAccountRoute: (option: {
     })(req, res);
   });
 
-  router.get('/logout', (req, res) => {
-    // todo: remove access token
-    req.logout();
-    res.redirect('/');
-  });
-
-  router.post('/', async (req, res) => {
-    const username: string = req.body?.username;
-    const email: string = req.body?.email;
-    const password: string = req.body?.password;
-    const submittedSecret: string = req.body?.org_admin_secret;
-
-    if (!username || !email || !password) {
-      logger.warn('cannot register account: missing params - username, password, email');
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params - username, password, email' });
-    }
-
-    const usernameExist = await User.findOne({ username });
-    if (usernameExist) {
-      logger.warn(`cannot register account: ${username} already exist`);
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'username already exist' });
-    }
-
-    const emailExist = await User.findOne({ email });
-    if (emailExist) {
-      logger.warn(`cannot register account: ${email} already exist`);
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'email already exist' });
-    }
-
-    if (submittedSecret && orgAdminSecret !== submittedSecret) {
-      logger.warn(`cannot register account ${username} : organization admin secret mis-matched`);
-      return res.status(httpStatus.BAD_REQUEST).send('organization admin secret mis-match');
-    }
-
-    try {
-      const hashPassword = await bcrypt.hash(password, 10);
-      const user = User.create({
-        username,
-        password: hashPassword,
-        email,
-        is_admin: orgAdminSecret === submittedSecret,
-        is_deleted: false
-      });
-      await User.insert(user);
-      logger.info(`new account ${user.id} is created`);
-      return res.status(httpStatus.OK).send({ username, id: user.id });
-    } catch (e) {
-      logger.error(util.format('fail insert insert user, %j', e));
-      res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to register user' });
-    }
-  });
-
-  router.get('/', passport.authenticate('bearer', { session: false }), async (req, res) =>
-    res.status(httpStatus.OK).send(omit(req.user, 'password'))
-  );
+  // router.get('/logout', (req, res) => {
+  // req.logout();
+  // res.redirect('/');
+  // });
 
   router.get('/:user_id', passport.authenticate('bearer', { session: false }), async (req, res) => {
     const user = req.user as User;
@@ -184,6 +139,72 @@ export const createAccountRoute: (option: {
       return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to delete user' });
     }
   });
+
+  router.post('/', async (req, res) => {
+    const username: string = req.body?.username;
+    const email: string = req.body?.email;
+    const password: string = req.body?.password;
+    const submittedSecret: string = req.body?.org_admin_secret;
+
+    if (!username || !email || !password) {
+      logger.warn('cannot register account: missing params - username, password, email');
+      return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params - username, password, email' });
+    }
+
+    let usernameExist;
+
+    try {
+      usernameExist = await User.findOne({ username });
+    } catch (e) {
+      logger.error(`fail to find user by username: ${username}`);
+      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to find user by username' });
+    }
+
+    if (usernameExist) {
+      logger.warn(`cannot register account: ${username} already exist`);
+      return res.status(httpStatus.BAD_REQUEST).send({ error: 'username already exist' });
+    }
+
+    let emailExist;
+    try {
+      emailExist = await User.findOne({ email });
+    } catch (e) {
+      logger.error(`fail to find user by email: ${email}`);
+      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to find user by email' });
+    }
+
+    if (emailExist) {
+      logger.warn(`cannot register account: ${email} already exist`);
+      return res.status(httpStatus.BAD_REQUEST).send({ error: 'email already exist' });
+    }
+
+    if (submittedSecret && orgAdminSecret !== submittedSecret) {
+      logger.warn(`cannot register account ${username} : organization admin secret mis-matched`);
+      return res.status(httpStatus.BAD_REQUEST).send('organization admin secret mis-match');
+    }
+
+    try {
+      const hashPassword = await bcrypt.hash(password, 10);
+      const user = User.create({
+        username,
+        password: hashPassword,
+        email,
+        is_admin: orgAdminSecret === submittedSecret,
+        is_deleted: false
+      });
+      await User.insert(user);
+      logger.info(`new account ${user.id} is created`);
+      const response: RegisterResponse = { username, id: user.id };
+      return res.status(httpStatus.OK).send(response);
+    } catch (e) {
+      logger.error(util.format('fail insert insert user, %j', e));
+      res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to register user' });
+    }
+  });
+
+  router.get('/', passport.authenticate('bearer', { session: false }), async (req, res) =>
+    res.status(httpStatus.OK).send(omit(req.user, 'password'))
+  );
 
   return router;
 };
