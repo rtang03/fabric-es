@@ -1,8 +1,39 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
+
+export RELEASE=0.6.2
+export IMAGE_TAG=2.0.1
+export CONFIG=./config
+export VOLUME=./volume
+export ARTIFACTS=./artifacts
+export SCRIPTS=./scripts
+export CRYPTO=/var/artifacts/crypto-config
+export CURRENT_DIR=`pwd`
+
+export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
+export TEST_IMAGE=fabric-es/tester:${RELEASE}
+export PROXY_IMAGE=fabric-es/proxy:{RELEASE}
+export UI_ACCOUNT_IMAGE=fabric-es/ui-account:{RELEASE}
+export ROOT_DIR=$CURRENT_DIR/../..
+
+export CHAINCODE=../../packages/chaincode
+
+export LIBS_DIR=$ROOT_DIR/node_modules
+export CONF_DIR=$CURRENT_DIR/build.
+
+export COMPOSE_0_2ORG="-f compose.2org.yaml"
+export COMPOSE_1_2ORG="$COMPOSE_0_2ORG -f compose.2org.db.yaml"
+export COMPOSE_2_2ORG="$COMPOSE_1_2ORG -f compose.2org.auth.yaml"
+export COMPOSE_3_2ORG="$COMPOSE_2_2ORG -f compose.2org.gw.yaml"
+export COMPOSE_4_2ORG="$COMPOSE_3_2ORG -f compose.2org.tester.yaml"
+export COMPOSE_0_3ORG="$COMPOSE_0_2ORG -f compose.3org.yaml"
+export COMPOSE_1_3ORG="$COMPOSE_0_3ORG -f compose.2org.db.yaml -f compose.3org.db.yaml"
+export COMPOSE_2_3ORG="$COMPOSE_1_3ORG -f compose.2org.auth.yaml -f compose.3org.auth.yaml"
+export COMPOSE_3_3ORG="$COMPOSE_2_3ORG -f compose.2org.gw.yaml -f compose.3org.gw.yaml"
+export COMPOSE_4_3ORG="$COMPOSE_3_3ORG -f compose.3org.tester.yaml"
 
 # $1 - message to be printed
 # $2 - exit code of the previous operation
@@ -104,31 +135,3 @@ parseArgs() {
   fi
 }
 
-export VERSION=1.0
-export IMAGE_TAG=2.0.1
-export CONFIG=./config
-export VOLUME=./volume
-export ARTIFACTS=./artifacts
-export SCRIPTS=./scripts
-export CHAINCODE=../../packages/chaincode
-export CRYPTO=/var/artifacts/crypto-config
-export CURRENT_DIR=$PWD
-export ROOT_DIR=$PWD/../..
-export MEMBERS_3ORG="'Org1MSP.member','Org2MSP.member','Org3MSP.member'"
-export MEMBERS_2ORG="'Org1MSP.member','Org2MSP.member'"
-
-export AUTH_IMAGE=fabric-es/auth-server:1.0
-export PROXY_IMAGE=fabric-es/proxy:1.0
-export TEST_IMAGE=fabric-es/tester:1.0
-export UI_ACCOUNT_IMAGE=fabric-es/ui-account:1.0
-
-export COMPOSE_0_2ORG="-f compose.2org.yaml"
-export COMPOSE_1_2ORG="$COMPOSE_0_2ORG -f compose.2org.db.yaml"
-export COMPOSE_2_2ORG="$COMPOSE_1_2ORG -f compose.2org.auth.yaml"
-export COMPOSE_3_2ORG="$COMPOSE_2_2ORG -f compose.2org.gw.yaml"
-export COMPOSE_4_2ORG="$COMPOSE_3_2ORG -f compose.2org.tester.yaml"
-export COMPOSE_0_3ORG="$COMPOSE_0_2ORG -f compose.3org.yaml"
-export COMPOSE_1_3ORG="$COMPOSE_0_3ORG -f compose.2org.db.yaml -f compose.3org.db.yaml"
-export COMPOSE_2_3ORG="$COMPOSE_1_3ORG -f compose.2org.auth.yaml -f compose.3org.auth.yaml"
-export COMPOSE_3_3ORG="$COMPOSE_2_3ORG -f compose.2org.gw.yaml -f compose.3org.gw.yaml"
-export COMPOSE_4_3ORG="$COMPOSE_3_3ORG -f compose.3org.tester.yaml"

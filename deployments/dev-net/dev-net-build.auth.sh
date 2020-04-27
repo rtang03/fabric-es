@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #################################
 # Build Auth-Server docker image
@@ -15,16 +15,17 @@ SECONDS=0
 
 ./cleanup.sh
 
-# STEP 1
 printf "Cleaning up old image $AUTH_IMAGE\n"
 docker rmi $AUTH_IMAGE
 
-# STEP 2 - create build context at ~/.build
-cd $ROOT_DIR && yarn build:auth
+printf "Creating build context of auth-server ...\n"
+./build-auth.sh
+
 printMessage "Create build context for auth-server"  $?
 sleep 1
 
-# STEP 3 - build auth-server image
+### build image ###
+cd $ROOT_DIR
 DOCKER_BUILD=1 docker build --no-cache -f ./auth-server.dockerfile -t $AUTH_IMAGE .
 printMessage "Create auth-server image" $?
 sleep 1

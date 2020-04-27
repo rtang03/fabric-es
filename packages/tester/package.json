@@ -6,14 +6,6 @@
   "scripts": {
     "build": "yarn run clean && tsc",
     "clean": "rimraf dist",
-    "tsc:prod": "yarn clean && tsc",
-    "pack": "yarn build:cleanup && concurrently \"npm:cp:*\"",
-    "build:cleanup": "rimraf ../../.build/packages/tester && mkdir -p ../../.build/packages/tester",
-    "cp:json": "cp ./*.json ../../.build/packages/tester/",
-    "cp:js": "cp ./*.js ../../.build/packages/tester/",
-    "cp:env": "cp ../../deployments/dev-net/build.tester/.env.test ../../.build/packages/tester/.env",
-    "cp:src": "cp -R ./src ../../.build/packages/tester/",
-    "cp:start": "cp ./entrypoint.sh ../../.build/",
     "test:3org": "jest intg.3org.test",
     "test:2org": "jest intg.2org.test"
   },

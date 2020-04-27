@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #######################################
 # Build gw-orgX docker images
@@ -18,20 +18,20 @@ SECONDS=0
 
 for ORG in "$@"
 do
-  getConfig $ORG
+  printf "Cleaning up old image fabric-es/gw-${ORG}:${RELEASE}\n"
+  docker rmi fabric-es/gw-${ORG}:${RELEASE}
 
-  # STEP 1
-  printf "Cleaning up old image $IMAGE\n"
-  docker rmi $IMAGE
+  printf "Creating build context of gw-${ORG} ...\n"
+  cd $CURRENT_DIR
+  ./build-gw.sh $ORG
 
-  # STEP 2 - create build context
-  cd $ROOT_DIR && yarn build:gw-dev-net:${ORG}
   printMessage "Create build context for gw-${ORG}" $?
   sleep 1
 
-  # STEP 3
-  DOCKER_BUILD=1 docker build --no-cache -f ./gw-${ORG}.dockerfile -t $IMAGE .
-  printMessage "Create image ${IMAGE}" $?
+  ### build image ###
+  cd $ROOT_DIR
+  DOCKER_BUILD=1 docker build --no-cache -f ./gw-${ORG}.dockerfile -t fabric-es/gw-${ORG}:${RELEASE} .
+  printMessage "Create image fabric-es/gw-${ORG}:${RELEASE}" $?
   sleep 1
 done
 

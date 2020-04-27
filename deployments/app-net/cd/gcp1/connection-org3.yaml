@@ -1,13 +1,13 @@
 ---
-name: fdi_openplatform-credrate
+name: fdi_openplatform-org3
 version: 1.0.0
 
 client:
-  organization: CredRateMSP
+  organization: Org3MSP
   credentialStore:
-    path: /home/app/packages/gw-org1/assets/client-certs/hfc-kvs/credrate.com.hk
+    path: /home/app/packages/gw-org3/assets/client-certs/hfc-kvs/org3.example.com
     cryptoStore:
-      path: /home/app/packages/gw-org1/assets/client-certs/hfc-kvs/credrate.com.hk
+      path: /home/app/packages/gw-org3/assets/client-certs/hfc-kvs/org3.example.com
   connection:
     timeout:
       peer:
@@ -16,14 +16,14 @@ client:
 channels:
   loanapp:
     orderers:
-      - orderer0.hktfp.com
+      - orderer0.org0.com
     peers:
-      peer0.credrate.com.hk:
+      peer0.org3.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-      peer1.credrate.com.hk:
+      peer1.org3.example.com:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -32,50 +32,50 @@ channels:
       - eventstore:1.0
 
 organizations:
-  CredRateMSP:
-    mspid: CredRateMSP
+  Org3MSP:
+    mspid: Org3MSP
     peers:
-      - peer0.credrate.com.hk
-      - peer1.credrate.com.hk
+      - peer0.org3.example.com
+      - peer1.org3.example.com
     certificateAuthorities:
-      - rca.credrate.com.hk
+      - rca.org3.example.com
     adminPrivateKey:
-      path: /var/artifacts/crypto-config/CredRateMSP/admin/msp/keystore/key.pem
+      path: /var/artifacts/crypto-config/Org3MSP/admin/msp/keystore/key.pem
     signedCert:
-      path: /var/artifacts/crypto-config/CredRateMSP/admin/msp/signcerts/cert.pem
+      path: /var/artifacts/crypto-config/Org3MSP/admin/msp/signcerts/cert.pem
 
 orderers:
-  orderer0.hktfp.com:
-    url: grpcs://orderer0.hktfp.com:7050
+  orderer0.org0.com:
+    url: grpcs://orderer0.org0.com:7050
     grpcOptions:
-      ssl-target-name-override: orderer0.hktfp.com
+      ssl-target-name-override: orderer0.org0.com
     tlsCACerts:
-      path: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
 
 peers:
-  peer0.credrate.com.hk:
-    url: grpcs://peer0.credrate.com.hk:7051
-    eventUrl: grpcs://peer0.credrate.com.hk:7053
+  peer0.org3.example.com:
+    url: grpcs://peer0.org3.example.com:7051
+    eventUrl: grpcs://peer0.org3.example.com:7053
     tlsCACerts:
-      path: /var/artifacts/crypto-config/CredRateMSP/peer0.credrate.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org3MSP/peer0.org3.example.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer0.credrate.com.hk
-  peer1.credrate.com.hk:
-    url: grpcs://peer1.credrate.com.hk:7051
-    eventUrl: grpcs://peer1.credrate.com.hk:7053
+      ssl-target-name-override: peer0.org3.example.com
+  peer1.org3.example.com:
+    url: grpcs://peer1.org3.example.com:7051
+    eventUrl: grpcs://peer1.org3.example.com:7053
     tlsCACerts:
-      path: /var/artifacts/crypto-config/CredRateMSP/peer1.credrate.com.hk/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
+      path: /var/artifacts/crypto-config/Org3MSP/peer1.org3.example.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem
     grpcOptions:
-      ssl-target-name-override: peer1.credrate.com.hk
+      ssl-target-name-override: peer1.org3.example.com
 
 certificateAuthorities:
-  rca.credrate.com.hk:
-    url: https://rca.credrate.com.hk:6056
-    caName: rca.credrate.com.hk
+  rca.org3.example.com:
+    url: https://rca.org3.example.com:6056
+    caName: rca.org3.example.com
     tlsCACerts:
-      path: /var/artifacts/crypto-config/CredRateMSP/peer0.credrate.com.hk/assets/tls-ca/tls-ca-cert.pem
+      path: /var/artifacts/crypto-config/Org3MSP/peer0.org3.example.com/assets/tls-ca/tls-ca-cert.pem
     registrar:
-      - enrollId: rca-credrate-admin
+      - enrollId: rca-org3-admin
         enrollSecret: Fc7VFDx7
     httpOptions:
       verify: false
