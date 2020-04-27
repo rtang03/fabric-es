@@ -12,6 +12,7 @@ export interface LoanApplied extends BaseEvent {
 
 export interface LoanCancelled extends BaseEvent {
   readonly type: 'LoanCancelled';
+  readonly lifeCycle: Lifecycle.END;
   payload: {
     loanId: string;
     userId: string;

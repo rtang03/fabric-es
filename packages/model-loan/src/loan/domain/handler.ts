@@ -32,7 +32,7 @@ export const loanCommandHandler: (option: { enrollmentId: string; loanRepo: Loan
     loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
       if (!currentState) throw LoanErrors.loanNotFound(loanId);
       return save([
-        { type: 'LoanCancelled', payload: { loanId, userId, timestamp }}
+        { type: 'LoanCancelled', lifeCycle: Lifecycle.END, payload: { loanId, userId, timestamp }}
       ]);
     }),
   ApproveLoan: async ({ userId, payload: { loanId, timestamp } }) =>

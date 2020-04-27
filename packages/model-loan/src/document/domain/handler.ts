@@ -1,5 +1,6 @@
+import { Lifecycle } from '@fabric-es/fabric-cqrs';
 import { Errors } from '@fabric-es/gateway-lib';
-import { DocumentCommandHandler, DocumentRepo } from '..';
+import { DocumentCommandHandler, DocumentEvents, DocumentRepo } from '..';
 
 export const DocumentErrors = {
   documentNotFound: documentId => new Error(`DOCUMENT_NOT_FOUND: id: ${documentId}`),
@@ -13,12 +14,9 @@ export const documentCommandHandler: (option: {
 }) => DocumentCommandHandler = ({ enrollmentId, documentRepo }) => ({
   CreateDocument: async ({ userId, payload: { documentId, loanId, title, reference, timestamp } }) => {
     if (!reference) throw Errors.requiredDataMissing();
-    const events: any = [
-      { type: 'DocumentCreated', payload: { documentId, userId, timestamp } },
-      {
-        type: 'DocumentReferenceDefined',
-        payload: { documentId, userId, reference, timestamp }
-      }
+    const events: DocumentEvents[] = [
+      { type: 'DocumentCreated', lifeCycle: Lifecycle.BEGIN, payload: { documentId, userId, timestamp }},
+      { type: 'DocumentReferenceDefined', payload: { documentId, userId, reference, timestamp }}
     ];
     if (loanId)
       events.push({
@@ -36,10 +34,7 @@ export const documentCommandHandler: (option: {
     documentRepo.getById({ enrollmentId, id: documentId }).then(({ currentState, save }) => {
       if (!currentState) throw DocumentErrors.documentNotFound(documentId);
       return save([
-        {
-          type: 'DocumentDeleted',
-          payload: { documentId, userId, timestamp }
-        }
+        { type: 'DocumentDeleted', lifeCycle: Lifecycle.END, payload: { documentId, userId, timestamp }}
       ]);
     }),
   RestrictDocumentAccess: async ({ userId, payload: { documentId, timestamp } }) =>
