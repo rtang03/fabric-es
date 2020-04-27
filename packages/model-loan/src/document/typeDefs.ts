@@ -129,7 +129,13 @@ export const resolvers = {
           reference,
           timestamp: Date.now()
         }
-      }).catch(error => new ApolloError(error)),
+      }).catch(error => {
+        if (error.error.message) {
+          return new ApolloError(error.error.message);
+        } else {
+          return new ApolloError(error);
+        }
+      }),
     deleteDocument: async (
       _, { userId, documentId },
       { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
@@ -140,7 +146,13 @@ export const resolvers = {
       }).DeleteDocument({
           userId,
           payload: { documentId, timestamp: Date.now() }
-      }).catch(error => new ApolloError(error)),
+      }).catch(error => {
+        if (error.error.message) {
+          return new ApolloError(error.error.message);
+        } else {
+          return new ApolloError(error);
+        }
+      }),
     restrictAccess: async (
       _, { userId, documentId },
       { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }

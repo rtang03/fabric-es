@@ -129,7 +129,13 @@ export const resolvers = {
       loanCommandHandler({ enrollmentId, loanRepo: loan.repo }).CancelLoan({
         userId,
         payload: { loanId, timestamp: Date.now() }
-      }).catch(error => new ApolloError(error)),
+      }).catch(error => {
+        if (error.error.message) {
+          return new ApolloError(error.error.message);
+        } else {
+          return new ApolloError(error);
+        }
+      }),
     approveLoan: async (
       _, { userId, loanId },
       { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
