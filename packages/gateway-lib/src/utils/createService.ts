@@ -105,7 +105,8 @@ export const createService = async ({
           context: ({ req: { headers } }) => ({
             user_id: headers.user_id,
             is_admin: headers.is_admin,
-            client_id: headers.client_id,
+            // TODO: DEBUG to remove it
+            // client_id: headers.client_id,
             enrollmentId: headers.user_id
           })
         });

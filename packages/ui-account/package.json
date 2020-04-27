@@ -1,0 +1,66 @@
+{
+  "name": "@fabric-es/ui-account",
+  "version": "0.6.1",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "license": "BSD-3-Clause-Clear",
+  "description": "reverse proxy",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/fabric-es/fabric-es.git"
+  },
+  "keywords": [
+    "hyperledger"
+  ],
+  "author": "Ross Tang",
+  "homepage": "https://github.com/fabric-es/fabric-es",
+  "bugs": {
+    "url": "https://github.com/fabric-es/fabric-es/issues"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "scripts": {
+    "dev": "nodemon",
+    "build": "next build && tsc --project ./tsconfig.server.json",
+    "start": "NODE_ENV=production node dist/index.js"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.9.11",
+    "cookie": "^0.4.1",
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.1.0",
+    "errorhandler": "^1.5.1",
+    "express": "^4.17.1",
+    "formik": "^2.1.4",
+    "formik-material-ui": "^2.0.0-beta.1",
+    "http-status": "^1.4.1",
+    "isomorphic-unfetch": "^3.0.0",
+    "js-cookie": "^2.2.1",
+    "lodash": "^4.17.15",
+    "morgan": "^1.10.0",
+    "next": "^9.3.4",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "winston": "^3.2.1",
+    "yup": "^0.28.4",
+    "@types/cookie": "^0.3.3",
+    "@types/cookie-parser": "^1.4.2",
+    "@types/errorhandler": "^1.5.0",
+    "@types/js-cookie": "^2.2.6",
+    "@types/node": "^10.17.18",
+    "typescript": "^3.7.2",
+    "@types/express": "^4.17.1",
+    "@types/lodash": "^4.14.138",
+    "@types/morgan": "^1.9.0",
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.6",
+    "@types/yup": "^0.26.37"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.9.0",
+    "nodemon": "^1.19.4",
+    "prettier": "^1.19.1",
+    "ts-node": "^8.3.0"
+  }
+}

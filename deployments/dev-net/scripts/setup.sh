@@ -15,7 +15,8 @@ export CURRENT_DIR=`pwd`
 
 export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
 export TEST_IMAGE=fabric-es/tester:${RELEASE}
-
+export PROXY_IMAGE=fabric-es/proxy:{RELEASE}
+export UI_ACCOUNT_IMAGE=fabric-es/ui-account:{RELEASE}
 export ROOT_DIR=$CURRENT_DIR/../..
 
 export CHAINCODE=../../packages/chaincode
@@ -54,6 +55,8 @@ getConfig() {
       DOMAIN="org0.com"
       CAPORT=5052
       PORT=7050
+      GATEWAY="-"
+      IMAGE="-"
       ;;
     org1)
       NAME="Org1"
@@ -61,6 +64,9 @@ getConfig() {
       DOMAIN="org1.net"
       CAPORT=5054
       PORT=7051
+      CCPORT=7052
+      GATEWAY="gw-org1"
+      IMAGE=fabric-es/gw-org1:1.0
       ;;
     org2)
       NAME="Org2"
@@ -68,6 +74,9 @@ getConfig() {
       DOMAIN="org2.net"
       CAPORT=5055
       PORT=7251
+      CCPORT=7252
+      GATEWAY="gw-org2"
+      IMAGE=fabric-es/gw-org2:1.0
       ;;
     org3)
       NAME="Org3"
@@ -75,6 +84,9 @@ getConfig() {
       DOMAIN="org3.net"
       CAPORT=5056
       PORT=7451
+      CCPORT=7452
+      GATEWAY="gw-org3"
+      IMAGE=fabric-es/gw-org3:1.0
       ;;
   esac
 }
@@ -122,3 +134,4 @@ parseArgs() {
     esac
   fi
 }
+

@@ -231,7 +231,8 @@ module.exports = {
           'no-reference-import': true
         }
       }
-    ]
+    ],
+    '@typescript-eslint/unbound-method': ['off', { ignoreStatic: false }]
   },
   settings: {}
 };
