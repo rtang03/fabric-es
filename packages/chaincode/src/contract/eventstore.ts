@@ -98,10 +98,6 @@ export class EventStore extends Contract {
       } else if (rslt.toString('utf8').includes('"lifeCycle":2')) {
         throw new Error(`Lifecycle of ${id} already ended`);
       }
-    } else {
-      if (!rslt || (!rslt.toString('utf8').includes(`"id":"${id}"`))) {
-        throw new Error(`Lifecycle of ${id} not started yet`);
-      }
     }
 
     await context.stateList.addState(commit);
