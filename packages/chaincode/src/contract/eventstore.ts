@@ -85,18 +85,27 @@ export class EventStore extends Contract {
       });
     } else throw new Error('eventStr is not correct format');
 
-    const lcBgn = events.filter(item => item.lifeCycle && (item.lifeCycle === 1));
-    const lcEnd = events.filter(item => item.lifeCycle && (item.lifeCycle === 2));
-    const rslt: Buffer = await context.stateList.getQueryResult([JSON.stringify(entityName), JSON.stringify(id)]);
-    if (lcBgn.length > 0) {
-      if (rslt && (rslt.toString('utf8').includes(`"id":"${id}"`))) {
-        throw new Error(`Lifecycle of ${id} already started`);
+    const lcBgn = events.findIndex(item => item.lifeCycle && (item.lifeCycle === 1));
+    const lcEnd = events.findIndex(item => item.lifeCycle && (item.lifeCycle === 2));
+    if ((lcBgn >= 0) || (lcEnd >= 0)) {
+      if ((lcBgn >= 0) && (lcEnd >= 0) && (lcBgn >= lcEnd)) {
+        // Here when the entity identified by the ID not yet exists (can begin) but immedate ended in the same commit
+        throw new Error(`Cannot end ${id} before starting`);
       }
-    } else if (lcEnd.length > 0) {
-      if (!rslt || (!rslt.toString('utf8').includes(`"id":"${id}"`))) {
-        throw new Error(`Lifecycle of ${id} not started yet`);
-      } else if (rslt.toString('utf8').includes('"lifeCycle":2')) {
-        throw new Error(`Lifecycle of ${id} already ended`);
+
+      const rslt: Buffer = await context.stateList.getQueryResult([JSON.stringify(entityName), JSON.stringify(id)]);
+      if (lcBgn >= 0) {
+        if (rslt && (rslt.toString('utf8').includes(`"id":"${id}"`))) {
+          throw new Error(`Lifecycle of ${id} already started`);
+        }
+      }
+
+      if (lcEnd >= 0) {
+        if (!rslt || (!rslt.toString('utf8').includes(`"id":"${id}"`))) {
+          throw new Error(`Lifecycle of ${id} not started yet`);
+        } else if (rslt.toString('utf8').includes('"lifeCycle":2')) {
+          throw new Error(`Lifecycle of ${id} already ended`);
+        }
       }
     }
 

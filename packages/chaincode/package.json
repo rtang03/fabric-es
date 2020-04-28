@@ -30,6 +30,7 @@
     "unit-test": "jest public.unit.test",
     "unit-test:fab": "yarn unit-test && yarn network-test",
     "test:private": "jest private.integration.test",
+    "test:lc": "jest lifecycle.unit.test",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "publish:gh:fabric-es": "npm publish"
   },
