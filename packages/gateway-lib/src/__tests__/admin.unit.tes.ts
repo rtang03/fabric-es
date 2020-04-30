@@ -1,4 +1,4 @@
-require('../../env');
+require('../env');
 import http from 'http';
 // import { createAuthServer, createDbConnection } from '@fabric-es/authentication';
 // import { createDbForUnitTest } from '@fabric-es/authentication';
@@ -23,9 +23,9 @@ import {
   LOGIN,
   REGISTER_ADMIN,
   REGISTER_AND_ENROLL_USER
-} from '../..';
-import { MISSING_VARIABLE, UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from '../constants';
-import { createAdminService } from '../createAdminService';
+} from '../index';
+import { MISSING_VARIABLE, UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from '../admin/constants';
+import { createAdminService } from '../admin/createAdminService';
 
 let app: Express;
 let authServer: http.Server;

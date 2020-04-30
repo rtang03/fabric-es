@@ -4,7 +4,7 @@ import { NextPage } from 'next';
 import Router from 'next/router';
 import React from 'react';
 import Layout from '../../components/Layout';
-import { User } from '../../types';
+import { User } from '../../server/types';
 
 const Profile: NextPage<User> = user => {
   return (

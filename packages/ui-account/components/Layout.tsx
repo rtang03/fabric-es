@@ -2,7 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Router from 'next/router';
 import React from 'react';
-import { User } from '../types';
+import { User } from '../server/types';
 
 const logout = async () => {
   const protocol = process.env.NODE_ENV === 'production' ? 'http' : 'http';

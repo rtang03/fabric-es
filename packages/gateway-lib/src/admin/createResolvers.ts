@@ -1,5 +1,5 @@
 import util from 'util';
-import { createNetworkOperator } from '@fabric-es/operator';
+import { createNetworkOperator, NetworkOperator } from '@fabric-es/operator';
 import { ApolloError, AuthenticationError, ForbiddenError } from 'apollo-server';
 import ab2str from 'arraybuffer-to-string';
 import { Wallet } from 'fabric-network';
@@ -33,7 +33,8 @@ export const createResolvers: (option: {
 }) => {
   const logger = getLogger('[gw-lib] createResolvers.js');
 
-  let operator;
+  let operator: NetworkOperator;
+
   try {
     operator = await createNetworkOperator({
       caAdmin,
@@ -56,7 +57,7 @@ export const createResolvers: (option: {
   let ca;
   try {
     ca = await operator.identityService({
-      caAdmin,
+      // caAdmin,
       asLocalhost
     });
   } catch (e) {
@@ -89,7 +90,6 @@ export const createResolvers: (option: {
           const res = await operator.registerAndEnroll({
             enrollmentId,
             enrollmentSecret,
-            // identity: administrator,
             asLocalhost
           });
           registerResult = await res.registerAndEnroll();
@@ -108,7 +108,7 @@ export const createResolvers: (option: {
     },
     Query: {
       getBlockByNumber: async (_, { blockNumber }: { blockNumber: number }) => {
-        const chain = await queries.getChainInfo();
+        const chain = await queries.getChainInfo(peerName);
 
         if (chain.height.low <= blockNumber) {
           logger.warn('blockNumber is higher than chain height');
@@ -195,13 +195,8 @@ export const createResolvers: (option: {
             return new ApolloError(error);
           });
       },
-      getInstalledCCVersion: async (_, { chaincode_id }: { chaincode_id: string }) => {
-        const ver = await queries.getInstalledCCVersion(chaincode_id);
-        logger.info('getInstalledCCVersion: ' + ver);
-        return ver;
-      },
       getChainHeight: async () => {
-        const height = await queries.getChainInfo().then(({ height: { low } }) => low);
+        const height = await queries.getChainInfo(peerName).then(({ height: { low } }) => low);
         logger.info('getChainHeight: ' + height);
         return height;
       },

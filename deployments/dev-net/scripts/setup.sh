@@ -13,10 +13,10 @@ export SCRIPTS=./scripts
 export CRYPTO=/var/artifacts/crypto-config
 export CURRENT_DIR=`pwd`
 
-export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
+export AUTH_IMAGE=fabric-es/auth-server:1.0
 export TEST_IMAGE=fabric-es/tester:${RELEASE}
-export PROXY_IMAGE=fabric-es/proxy:{RELEASE}
-export UI_ACCOUNT_IMAGE=fabric-es/ui-account:{RELEASE}
+export PROXY_IMAGE=fabric-es/proxy:1.0
+export UI_ACCOUNT_IMAGE=fabric-es/ui-account:${RELEASE}
 export ROOT_DIR=$CURRENT_DIR/../..
 
 export CHAINCODE=../../packages/chaincode

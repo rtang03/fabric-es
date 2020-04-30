@@ -12,7 +12,6 @@ export const typeDefs = gql`
     getBlockByNumber(blockNumber: Int!): Block
     getChainHeight: Int!
     getCaIdentityByEnrollmentId(enrollmentId: String!): CaIdentity
-    getInstalledCCVersion(chaincode_id: String!): String!
     getMspid: String!
     getPeerName: String!
     isWalletExist(label: String!): Boolean!

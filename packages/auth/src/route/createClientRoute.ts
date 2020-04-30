@@ -6,6 +6,8 @@ import passport from 'passport';
 import { Client } from '../entity/Client';
 import { User } from '../entity/User';
 import { getLogger } from '../utils';
+import { isCreateClientRequest } from '../utils/typeGuard';
+import { CreateClientResponse } from '../types';
 
 const logger = getLogger({ name: '[auth] createClientRoute.js' });
 
@@ -16,12 +18,12 @@ export const createClientRoute: () => express.Router = () => {
     const application_name = req.body?.application_name;
     const client_secret = req.body?.client_secret;
     const redirect_uris = req.body?.redirect_uris || [];
-    const grants = req.body?.grants || [];
+    const grants = req.body?.grants || ['password', 'client_credentials'];
     const is_system_app = req.body?.is_system_app ?? false;
     const user = req.user as User;
     const user_id = user.id;
 
-    if (!application_name || !client_secret) {
+    if (!isCreateClientRequest(req.body)) {
       logger.warn(`cannot create client: missing params - application_name, client_secret`);
       return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params - application_name, client_secret' });
     }
@@ -31,9 +33,10 @@ export const createClientRoute: () => express.Router = () => {
     try {
       await Client.insert(client);
       logger.info(`account ${user_id} register new client ${client.id}`);
-      return res.status(httpStatus.OK).send({ ok: true, application_name, id: client.id });
+      const response: CreateClientResponse = { ok: true, application_name, id: client.id };
+      return res.status(httpStatus.OK).send(response);
     } catch (e) {
-      logger.error(util.format('fail to insert client %s, %j', client.id, e));
+      logger.error(util.format('fail to register client %s, %j', client.id, e));
       return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to register client' });
     }
   });
@@ -107,15 +110,15 @@ export const createClientRoute: () => express.Router = () => {
 
     if (!client) {
       logger.warn(`cannot update ${client_id}: fail to find client`);
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to find client' });
+      return res.status(httpStatus.NOT_FOUND).send({ error: 'fail to find client' });
     }
 
     try {
       const payload = {
-        application_name: req.body?.application_name || client.application_name,
-        client_secret: req.body?.client_secret || client.client_secret,
-        redirect_uris: req.body?.redirect_uris || client.redirect_uris,
-        grants: req.body?.grants || client.grants
+        application_name: req.body?.application_name ?? client.application_name,
+        client_secret: req.body?.client_secret ?? client.client_secret,
+        redirect_uris: req.body?.redirect_uris ?? client.redirect_uris,
+        grants: req.body?.grants ?? client.grants
       };
       await Client.update(client_id, payload);
       logger.info(`account ${user.id} updates client ${client_id}`);
@@ -141,7 +144,7 @@ export const createClientRoute: () => express.Router = () => {
 
     if (!client) {
       logger.warn(`cannot delete ${client_id}: fail to find client`);
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to find client' });
+      return res.status(httpStatus.NOT_FOUND).send({ error: 'fail to find client' });
     }
 
     try {

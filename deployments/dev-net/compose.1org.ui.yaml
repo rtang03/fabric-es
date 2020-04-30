@@ -1,0 +1,12 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+  ui-account:
+    image: fabric-es/ui-account:0.6.2
+    container_name: ui-account
+    environment:
+      - PORT=3000
+      - AUTH_HOST=http://auth:8080

@@ -8,7 +8,7 @@ import Router from 'next/router';
 import React from 'react';
 import * as yup from 'yup';
 import Layout from '../../components/Layout';
-import { User } from '../../types';
+import { User } from '../../server/types';
 import { getApiUrl, getValidationSchema, setPostRequest, useStyles } from '../../utils';
 import { withAuthSync } from '../../utils/withAuthSync';
 

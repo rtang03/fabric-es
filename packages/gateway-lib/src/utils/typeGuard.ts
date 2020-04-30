@@ -1,4 +1,10 @@
-import { LoginResponse, RegisterResponse, User } from '../server/types';
+import { LoginResponse, OauthAuthResponse, RegisterResponse } from '../types';
+
+export const isOauthResponse = (input: any): input is OauthAuthResponse =>
+  input?.ok !== undefined &&
+  input?.authenticated !== undefined &&
+  input?.user_id !== undefined &&
+  input?.is_admin !== undefined;
 
 export const isLoginResponse = (input: any): input is LoginResponse =>
   input?.id !== undefined &&
@@ -8,6 +14,3 @@ export const isLoginResponse = (input: any): input is LoginResponse =>
 
 export const isRegisterResponse = (input: any): input is RegisterResponse =>
   input?.id !== undefined && input?.username !== undefined;
-
-export const isUser = (input: any): input is User =>
-  input?.id !== undefined && input?.username !== undefined && input?.email !== undefined;

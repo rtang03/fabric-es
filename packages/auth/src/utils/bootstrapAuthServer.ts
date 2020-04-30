@@ -35,7 +35,7 @@ export const bootstrapAuthServer: (option: {
       client_secret: clientSecret,
       user_id: orgAdminExist?.id || newOrgAdmin.id,
       is_system_app: true,
-      redirect_uris: [],
+      redirect_uris: '',
       grants: ['password', 'authorization_code', 'refresh_token', 'client_credentials', 'implicit']
     });
     await Client.insert(client);

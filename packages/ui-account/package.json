@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
-  "description": "reverse proxy",
+  "description": "User interface",
   "repository": {
     "type": "git",
     "url": "ssh://git@github.com/fabric-es/fabric-es.git"
@@ -22,8 +22,9 @@
   },
   "scripts": {
     "dev": "nodemon",
-    "build": "next build && tsc --project ./tsconfig.server.json",
-    "start": "NODE_ENV=production node dist/index.js"
+    "clean": "rimraf dist && rimraf build",
+    "build": "npm run clean && next build && tsc --project ./tsconfig.server.json",
+    "start": "NODE_ENV=production node dist/server/index.js"
   },
   "dependencies": {
     "@material-ui/core": "^4.9.11",
@@ -42,6 +43,7 @@
     "next": "^9.3.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "rimraf": "^3.0.2",
     "winston": "^3.2.1",
     "yup": "^0.28.4",
     "@types/cookie": "^0.3.3",

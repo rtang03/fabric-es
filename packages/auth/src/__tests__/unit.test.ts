@@ -4,9 +4,17 @@ import httpStatus from 'http-status';
 import Redis from 'ioredis';
 import omit from 'lodash/omit';
 import request from 'supertest';
+import { ApiKey } from '../entity/ApiKey';
 import { Client } from '../entity/Client';
 import { User } from '../entity/User';
-import { createHttpServer } from '../utils';
+import {
+  createHttpServer,
+  isAllowAccessResponse,
+  isAuthenticateResponse,
+  isCreateClientResponse,
+  isLoginResponse,
+  isRegisterResponse
+} from '../utils';
 import { createDbForUnitTest } from './__utils__/createDbForUnitTest';
 
 const connection = {
@@ -20,7 +28,7 @@ const connection = {
   logging: false,
   synchronize: true,
   dropSchema: true,
-  entities: [Client, User]
+  entities: [ApiKey, Client, User]
 };
 const org_admin_secret = process.env.ORG_ADMIN_SECRET;
 
@@ -32,6 +40,7 @@ let non_root_client_id: string;
 let non_root_user_id: string;
 let access_token: string;
 let non_root_access_token: string;
+let api_key: string;
 
 beforeAll(async () => {
   try {
@@ -73,11 +82,6 @@ afterAll(async () => {
 });
 
 describe('Auth Tests - / and /account', () => {
-  it('should say Hi', async () =>
-    request(app)
-      .get('/')
-      .expect(({ body }) => expect(body).toEqual({ data: 'Hello' })));
-
   it('should fail to register user', async () =>
     request(app)
       .post('/account')
@@ -90,7 +94,7 @@ describe('Auth Tests - / and /account', () => {
       .send({ username: 'tester01', password: 'password01', email: 'tester01@example.com', org_admin_secret })
       .expect(({ body }) => {
         expect(body?.username).toEqual('tester01');
-        expect(!!body?.id).toBeTruthy();
+        expect(isRegisterResponse(body)).toBeTruthy();
       }));
 
   it('should register (non-root) user', async () =>
@@ -99,7 +103,7 @@ describe('Auth Tests - / and /account', () => {
       .send({ username: 'non-root', password: 'password02', email: 'non-root@example.com' })
       .expect(({ body }) => {
         expect(body?.username).toEqual('non-root');
-        expect(!!body?.id).toBeTruthy();
+        expect(isRegisterResponse(body)).toBeTruthy();
       }));
 
   it('should fail to login user with bad password', async () =>
@@ -115,8 +119,8 @@ describe('Auth Tests - / and /account', () => {
       .expect(({ body, header }) => {
         user_id = body.id;
         access_token = body.access_token;
-        expect(!!body?.id).toBeTruthy();
         expect(!!header['set-cookie']).toBeTruthy();
+        expect(isLoginResponse(body)).toBeTruthy();
       }));
 
   it('should login (non-root) user', async () =>
@@ -223,8 +227,7 @@ describe('Auth Tests - /client', () => {
       .expect(({ body }) => {
         client_id = body.id;
         expect(body.application_name).toEqual('root');
-        expect(!!body?.id).toBeTruthy();
-        expect(body.ok).toBeTruthy();
+        expect(isCreateClientResponse(body)).toBeTruthy();
       }));
 
   it('should fail to list client, without access token', async () =>
@@ -307,7 +310,7 @@ describe('Auth Tests - /client', () => {
         grants: ['password', 'implicit']
       })
       .expect(({ body, status }) => {
-        expect(status).toEqual(httpStatus.BAD_REQUEST);
+        expect(status).toEqual(httpStatus.NOT_FOUND);
         expect(body.error).toEqual('fail to find client');
       }));
 
@@ -332,7 +335,7 @@ describe('Auth Tests - /client', () => {
       .delete(`/client/${non_root_client_id}`)
       .set('authorization', `Bearer ${access_token}`)
       .expect(({ body, status }) => {
-        expect(status).toEqual(httpStatus.BAD_REQUEST);
+        expect(status).toEqual(httpStatus.NOT_FOUND);
         expect(body.error).toEqual('fail to find client');
       }));
 
@@ -378,12 +381,7 @@ describe('Auth Tests - /oauth', () => {
     request(app)
       .post('/oauth/authenticate')
       .set('authorization', `Bearer ${access_token}`)
-      .expect(({ body }) => {
-        expect(body.ok).toBeTruthy();
-        expect(body.authenticated).toBeTruthy();
-        expect(body.is_admin).toBeTruthy();
-        expect(typeof body.user_id).toEqual('string');
-      }));
+      .expect(({ body }) => expect(isAuthenticateResponse(body)).toBeTruthy()));
 
   it('should fail to exchange access_token with client_credential', async () =>
     request(app)
@@ -398,6 +396,7 @@ describe('Auth Tests - /oauth', () => {
       .set('Context-Type', 'application/x-www-form-urlencoded')
       .send(`client_id=${client_id}&client_secret=password&grant_type=client_credentials&scope=default`)
       .expect(({ body }) => {
+        api_key = body.access_token;
         expect(typeof body?.access_token).toEqual('string');
         expect(body?.token_type).toEqual('Bearer');
       }));
@@ -411,6 +410,12 @@ describe('Auth Tests - /oauth', () => {
         expect(typeof body?.access_token).toEqual('string');
         expect(body?.token_type).toEqual('Bearer');
       }));
+
+  it('should grant access, via client_credentials (or api key)', async () =>
+    request(app)
+      .post('/oauth/allow_access')
+      .set('authorization', `Bearer ${api_key}`)
+      .expect(({ body }) => expect(isAllowAccessResponse(body)).toBeTruthy()));
 
   it('should fail to authenicate after waiting 10s, token expires', async () => {
     const timer = new Promise(resolve => setTimeout(() => resolve(true), 10000));

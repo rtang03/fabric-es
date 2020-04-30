@@ -202,4 +202,3 @@ describe('Network operator - identityService', () => {
         expect(success).toBeTruthy();
       }));
 });
-

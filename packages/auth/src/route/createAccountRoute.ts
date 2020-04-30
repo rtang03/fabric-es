@@ -8,6 +8,7 @@ import { TokenRepo } from '../entity/AccessToken';
 import { User } from '../entity/User';
 import { LoginResponse, ProfileResponse, RegisterResponse } from '../types';
 import { generateToken, getLogger } from '../utils';
+import { isRegisterRequest } from '../utils/typeGuard';
 
 const logger = getLogger({ name: '[auth] createAccountRoute.js' });
 
@@ -62,11 +63,6 @@ export const createAccountRoute: (option: {
     })(req, res);
   });
 
-  // router.get('/logout', (req, res) => {
-  // req.logout();
-  // res.redirect('/');
-  // });
-
   router.get('/:user_id', passport.authenticate('bearer', { session: false }), async (req, res) => {
     const user = req.user as User;
     const user_id = req.params.user_id;
@@ -77,7 +73,7 @@ export const createAccountRoute: (option: {
       localUser = await User.findOne({ where: { id: user_id } });
     } catch (e) {
       logger.error(util.format('fail find user %s, %j', user_id, e));
-      res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to find user' });
+      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to find user' });
     }
 
     return user.is_admin
@@ -87,6 +83,7 @@ export const createAccountRoute: (option: {
       : res.status(httpStatus.UNAUTHORIZED).send({ error: 'not authorized to retrieve user' });
   });
 
+  // update user
   router.put('/:user_id', passport.authenticate('bearer', { session: false }), async (req, res) => {
     const user = req.user as User;
     const user_id = req.params.user_id;
@@ -140,13 +137,14 @@ export const createAccountRoute: (option: {
     }
   });
 
+  // register new user
   router.post('/', async (req, res) => {
     const username: string = req.body?.username;
     const email: string = req.body?.email;
     const password: string = req.body?.password;
     const submittedSecret: string = req.body?.org_admin_secret;
 
-    if (!username || !email || !password) {
+    if (!isRegisterRequest(req.body)) {
       logger.warn('cannot register account: missing params - username, password, email');
       return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params - username, password, email' });
     }
@@ -202,6 +200,7 @@ export const createAccountRoute: (option: {
     }
   });
 
+  // get authenticated user
   router.get('/', passport.authenticate('bearer', { session: false }), async (req, res) =>
     res.status(httpStatus.OK).send(omit(req.user, 'password'))
   );

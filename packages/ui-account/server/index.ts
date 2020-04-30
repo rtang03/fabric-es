@@ -49,8 +49,10 @@ app
       try {
         const response = await fetch(`${ENV.AUTH_HOST}/account/login`, setPostRequest({ username, password }));
         const result: unknown = await response.json();
+
         if (isLoginResponse(result)) {
-          res.cookie('jid', result.access_token, { httpOnly: true, secure: ENV.NODE_ENV === 'production' });
+          // TODO: for real production should set { secure : true }
+          res.cookie('jid', result.access_token, { httpOnly: true, secure: false });
           return res.status(httpStatus.OK).send({ result });
         } else {
           logger.warn(util.format('fail to parse login response, %j', result));

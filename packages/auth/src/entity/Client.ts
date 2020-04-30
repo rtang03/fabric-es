@@ -11,10 +11,10 @@ export class Client extends BaseEntity {
   @Column({ type: 'text' })
   client_secret: string;
 
-  @Column('simple-array')
-  redirect_uris: string[];
+  @Column({ type: 'text', nullable: true })
+  redirect_uris: string;
 
-  @Column('simple-array')
+  @Column({ type: 'simple-array', nullable: true })
   grants: string[];
 
   @Column({ type: 'text', nullable: true })

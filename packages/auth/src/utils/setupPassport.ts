@@ -114,8 +114,6 @@ export const setupPassport: (option: { tokenRepo: TokenRepo }) => void = ({ toke
           return done(e);
         }
 
-        logger.info('5 - BearerStrategy');
-
         return !client ? done(null, false) : done(null, client, { scope: '*' });
       } else return done(null, false);
     })

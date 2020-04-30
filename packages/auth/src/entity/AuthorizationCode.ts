@@ -11,8 +11,8 @@ export class AuthorizationCode extends BaseEntity {
   @Column('text')
   redirect_uri: string;
 
-  @Column({ type: 'text', nullable: true })
-  scope: string;
+  @Column({ type: 'simple-array', nullable: true })
+  scope: string[];
 
   @Column('text')
   client_id: string;
