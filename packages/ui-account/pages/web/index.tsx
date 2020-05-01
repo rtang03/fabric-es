@@ -1,11 +1,17 @@
 import { NextPage } from 'next';
 import React from 'react';
 import Layout from '../../components/Layout';
+import { fetchResult } from '../../utils';
+import { User } from '../../server/types';
 
-const Index: NextPage = () => (
-  <Layout title="Home">
+const Index: NextPage<User> = user => (
+  <Layout title="Home" user={user}>
     <div>Registration Client</div>
   </Layout>
 );
+
+Index.getInitialProps = async ctx => {
+  return fetchResult<User>(ctx, 'profile');
+};
 
 export default Index;

@@ -1,8 +1,11 @@
-import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('api_key')
 export class ApiKey extends BaseEntity {
-  @PrimaryColumn('text')
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column('text')
   api_key: string;
 
   @Column('text')

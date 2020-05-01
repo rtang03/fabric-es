@@ -50,6 +50,10 @@ const Layout: React.FC<{
             <Link href="/web/profile">
               <a>Profile</a>
             </Link>{' '}
+            |{' '}
+            <Link href={'/web/client'}>
+              <a>Client</a>
+            </Link>{' '}
             | <button onClick={logout}>Logout</button>
           </React.Fragment>
         ) : (
@@ -64,6 +68,7 @@ const Layout: React.FC<{
           </React.Fragment>
         )}
       </nav>
+      {user ? <p>You are now logged on: {user.username}</p> : <React.Fragment />}
     </header>
     <hr />
     {children}

@@ -414,7 +414,7 @@ describe('Auth Tests - /oauth', () => {
   it('should grant access, via client_credentials (or api key)', async () =>
     request(app)
       .post('/oauth/allow_access')
-      .set('authorization', `Bearer ${api_key}`)
+      .send({ api_key })
       .expect(({ body }) => expect(isAllowAccessResponse(body)).toBeTruthy()));
 
   it('should fail to authenicate after waiting 10s, token expires', async () => {

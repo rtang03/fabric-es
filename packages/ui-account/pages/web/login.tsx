@@ -9,12 +9,11 @@ import React from 'react';
 import * as yup from 'yup';
 import Layout from '../../components/Layout';
 import { User } from '../../server/types';
-import { getApiUrl, getValidationSchema, setPostRequest, useStyles } from '../../utils';
-import { withAuthSync } from '../../utils/withAuthSync';
+import { getBackendApi, getValidationSchema, setPostRequest, useStyles } from '../../utils';
 
 const validationSchema = yup.object(getValidationSchema(['username', 'password']));
 
-const Login: NextPage<{ apiUrl?: string; user?: User }> = ({ apiUrl, user }) => {
+const Login: NextPage<{ apiUrl: string; user?: User }> = ({ apiUrl, user }) => {
   const classes = useStyles();
 
   return (
@@ -27,7 +26,7 @@ const Login: NextPage<{ apiUrl?: string; user?: User }> = ({ apiUrl, user }) => 
         onSubmit={async ({ username, password }, { setSubmitting }) => {
           setSubmitting(true);
           try {
-            const res = await fetch(`${apiUrl}/login`, setPostRequest({ username, password }, true));
+            const res = await fetch(apiUrl, setPostRequest({ username, password }, true));
             const { result } = await res.json();
             if (res.status === 200 && !!result?.id) {
               setSubmitting(false);
@@ -37,9 +36,6 @@ const Login: NextPage<{ apiUrl?: string; user?: User }> = ({ apiUrl, user }) => 
             console.error(e);
             setSubmitting(false);
           }
-          // setTimeout(() => {
-          //   setSubmitting(false);
-          // }, 400);
         }}>
         {({ values, errors, isSubmitting }) => (
           <Form>
@@ -79,6 +75,8 @@ const Login: NextPage<{ apiUrl?: string; user?: User }> = ({ apiUrl, user }) => 
   );
 };
 
-Login.getInitialProps = getApiUrl();
+Login.getInitialProps = ctx => ({
+  apiUrl: getBackendApi(ctx, 'login')
+});
 
 export default Login;

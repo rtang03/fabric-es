@@ -4,13 +4,13 @@ import express from 'express';
 import httpStatus from 'http-status';
 import { createServer, exchange, grant } from 'oauth2orize';
 import passport from 'passport';
-import { AccessToken, TokenRepo } from '../entity/AccessToken';
-import { AuthorizationCode } from '../entity/AuthorizationCode';
+import { TokenRepo } from '../entity/AccessToken';
 import { ApiKey } from '../entity/ApiKey';
+import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
 import { User } from '../entity/User';
-import { getLogger, generateToken } from '../utils';
 import { AllowAccessResponse, AuthenticateResponse } from '../types';
+import { getLogger, generateToken, isApikey } from '../utils';
 
 /**
  * For original comments
@@ -202,7 +202,7 @@ export const createOauthRoute: (option: {
       try {
         const key = ApiKey.create({ api_key, client_id: client.id, scope });
         await ApiKey.insert(key);
-        done(null, api_key);
+        done(null, key.id);
       } catch (e) {
         logger.error(util.format('fail to insert api key, %j', e));
         return done(e);
@@ -224,26 +224,53 @@ export const createOauthRoute: (option: {
   });
 
   router.post('/allow_access', async (req, res) => {
-    const token = req?.headers?.authorization.split(' ')[1] ?? null;
+    const { api_key } = req.body;
 
-    if (token) {
+    if (api_key) {
       try {
-        const key = await ApiKey.findOne({ where: { api_key: token } });
-        const response: AllowAccessResponse = {
-          ok: true,
-          allow: true,
-          client_id: key.client_id,
-          scope: key.scope
-        };
-        return res.status(httpStatus.OK).send(response);
+        const key = await ApiKey.findOne({ where: { id: api_key } });
+
+        let response: AllowAccessResponse;
+
+        if (isApikey(key)) {
+          response = {
+            id: key.id,
+            allow: true,
+            client_id: key.client_id,
+            scope: key?.scope
+          };
+          return res.status(httpStatus.OK).send(response);
+        } else {
+          return res.status(httpStatus.UNAUTHORIZED);
+        }
       } catch (e) {
         logger.error(util.format('fail to find api_key, %j', e));
-        return res.status(httpStatus.BAD_REQUEST);
+        return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to find api_key' });
       }
     } else {
-      logger.warn('fail to allow access: missing token');
-      return res.status(httpStatus.UNAUTHORIZED).send({ error: 'fail to allow access: missing token' });
+      logger.warn('fail to allow access: missing api_key');
+      return res.status(httpStatus.UNAUTHORIZED).send({ error: 'fail to allow access: missing api_key' });
     }
+
+    // const token = req?.headers?.authorization.split(' ')[1] ?? null;
+    // if (token) {
+    //   try {
+    //     const key = await ApiKey.findOne({ where: { api_key: token } });
+    //     const response: AllowAccessResponse = {
+    //       ok: true,
+    //       allow: true,
+    //       client_id: key.client_id,
+    //       scope: key.scope
+    //     };
+    //     return res.status(httpStatus.OK).send(response);
+    //   } catch (e) {
+    //     logger.error(util.format('fail to find api_key, %j', e));
+    //     return res.status(httpStatus.BAD_REQUEST);
+    //   }
+    // } else {
+    //   logger.warn('fail to allow access: missing token');
+    //   return res.status(httpStatus.UNAUTHORIZED).send({ error: 'fail to allow access: missing token' });
+    // }
   });
 
   return router;

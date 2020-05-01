@@ -7,8 +7,7 @@ import passport from 'passport';
 import { TokenRepo } from '../entity/AccessToken';
 import { User } from '../entity/User';
 import { LoginResponse, ProfileResponse, RegisterResponse } from '../types';
-import { generateToken, getLogger } from '../utils';
-import { isRegisterRequest } from '../utils/typeGuard';
+import { generateToken, getLogger, isRegisterRequest } from '../utils';
 
 const logger = getLogger({ name: '[auth] createAccountRoute.js' });
 
@@ -24,7 +23,9 @@ export const createAccountRoute: (option: {
 
   router.get('/userinfo', passport.authenticate('bearer', { session: false }), (req, res) => {
     const response: ProfileResponse = omit(req.user, 'password') as any;
+
     logger.info(`userinfo ${response.id} is retrieved`);
+
     return res.status(httpStatus.OK).send(response);
   });
 
@@ -52,8 +53,11 @@ export const createAccountRoute: (option: {
         })
         .then(() => {
           logger.info(`logging in ${user.id}`);
+
           res.cookie('token', access_token, { httpOnly: true, secure: true });
+
           const response: LoginResponse = { username: user.username, id: user.id, access_token, token_type: 'Bearer' };
+
           return res.status(httpStatus.OK).send(response);
         })
         .catch(e => {
@@ -107,7 +111,9 @@ export const createAccountRoute: (option: {
 
     try {
       await User.update(user_id, payload);
+
       logger.info(`account ${user.id} is updated`);
+
       return res.status(httpStatus.OK).send({ ok: true, ...payload });
     } catch (e) {
       logger.error(util.format('fail to update user %s, %j', user.id, e));
@@ -129,7 +135,9 @@ export const createAccountRoute: (option: {
       await User.update(user.id, {
         is_deleted: req.body?.is_delete ?? user.is_deleted
       });
+
       logger.info(`account ${user.id} is changed to 'deleted'`);
+
       return res.status(httpStatus.OK).send({ ok: true });
     } catch (e) {
       logger.error(util.format('fail to delete client, %j', e));
@@ -139,15 +147,12 @@ export const createAccountRoute: (option: {
 
   // register new user
   router.post('/', async (req, res) => {
-    const username: string = req.body?.username;
-    const email: string = req.body?.email;
-    const password: string = req.body?.password;
-    const submittedSecret: string = req.body?.org_admin_secret;
-
     if (!isRegisterRequest(req.body)) {
       logger.warn('cannot register account: missing params - username, password, email');
       return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params - username, password, email' });
     }
+
+    const { username, email, password, org_admin_secret } = req.body;
 
     let usernameExist;
 
@@ -176,7 +181,7 @@ export const createAccountRoute: (option: {
       return res.status(httpStatus.BAD_REQUEST).send({ error: 'email already exist' });
     }
 
-    if (submittedSecret && orgAdminSecret !== submittedSecret) {
+    if (org_admin_secret && orgAdminSecret !== org_admin_secret) {
       logger.warn(`cannot register account ${username} : organization admin secret mis-matched`);
       return res.status(httpStatus.BAD_REQUEST).send('organization admin secret mis-match');
     }
@@ -187,7 +192,7 @@ export const createAccountRoute: (option: {
         username,
         password: hashPassword,
         email,
-        is_admin: orgAdminSecret === submittedSecret,
+        is_admin: orgAdminSecret === org_admin_secret,
         is_deleted: false
       });
       await User.insert(user);

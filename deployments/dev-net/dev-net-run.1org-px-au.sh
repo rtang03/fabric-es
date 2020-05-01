@@ -8,7 +8,8 @@
 
 SECONDS=0
 
-docker-compose compose.1org.auth.yaml up -d
+# When developing "packages/auth"
+docker-compose compose.1org.db.yaml up -d
 printMessage "docker-compose up" $?
 
 duration=$SECONDS

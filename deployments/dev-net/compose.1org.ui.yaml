@@ -5,7 +5,7 @@ networks:
 
 services:
   ui-account:
-    image: fabric-es/ui-account:0.6.2
+    image: fabric-es/ui-account:1.0
     container_name: ui-account
     environment:
       - PORT=3000

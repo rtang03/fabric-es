@@ -1,8 +1,9 @@
 import { NextPage } from 'next';
 import React from 'react';
 import Layout from '../components/Layout';
+import { User } from '../server/types';
 
-const Index: NextPage<any> = () => (
+const Index: NextPage<User> = user => (
   <Layout title="Home">
     <h1>authentication example</h1>
 

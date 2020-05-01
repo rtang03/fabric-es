@@ -8,7 +8,7 @@ import Router from 'next/router';
 import React from 'react';
 import * as yup from 'yup';
 import Layout from '../../components/Layout';
-import { getApiUrl, getValidationSchema, setPostRequest, useStyles } from '../../utils';
+import { getBackendApi, getValidationSchema, setPostRequest, useStyles } from '../../utils';
 
 const validationSchema = yup.object(getValidationSchema(['username', 'email', 'password']));
 
@@ -26,7 +26,7 @@ const Register: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
         onSubmit={async ({ username, email, password }, { setSubmitting }) => {
           setSubmitting(true);
           try {
-            const res = await fetch(`${apiUrl}/register`, setPostRequest({ username, password, email }, true));
+            const res = await fetch(`${apiUrl}`, setPostRequest({ username, password, email }, true));
             const { result } = await res.json();
             if (res.status === 200 && !!result?.id) {
               setSubmitting(false);
@@ -36,9 +36,6 @@ const Register: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
             console.error(e);
             setSubmitting(false);
           }
-          // setTimeout(() => {
-          //   setSubmitting(false);
-          // }, 400);
         }}>
         {({ values, errors, isSubmitting }) => (
           <Form>
@@ -87,6 +84,8 @@ const Register: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
   );
 };
 
-Register.getInitialProps = getApiUrl();
+Register.getInitialProps = ctx => ({
+  apiUrl: getBackendApi(ctx, 'register')
+});
 
 export default Register;

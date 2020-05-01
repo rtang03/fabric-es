@@ -1,13 +1,11 @@
 import util from 'util';
 import express from 'express';
 import httpStatus from 'http-status';
-import omit from 'lodash/omit';
 import passport from 'passport';
 import { Client } from '../entity/Client';
 import { User } from '../entity/User';
-import { getLogger } from '../utils';
-import { isCreateClientRequest } from '../utils/typeGuard';
 import { CreateClientResponse } from '../types';
+import { getLogger, isCreateClientRequest } from '../utils';
 
 const logger = getLogger({ name: '[auth] createClientRoute.js' });
 
@@ -32,8 +30,11 @@ export const createClientRoute: () => express.Router = () => {
 
     try {
       await Client.insert(client);
+
       logger.info(`account ${user_id} register new client ${client.id}`);
+
       const response: CreateClientResponse = { ok: true, application_name, id: client.id };
+
       return res.status(httpStatus.OK).send(response);
     } catch (e) {
       logger.error(util.format('fail to register client %s, %j', client.id, e));
@@ -49,8 +50,11 @@ export const createClientRoute: () => express.Router = () => {
     if (application_name) {
       try {
         const client = await Client.findOne({ application_name, user_id: user.id });
+
         logger.info(`account ${user.id} retrieves client record ${client.id}`);
-        return res.status(httpStatus.OK).send(omit(client, 'client_secret'));
+
+        return res.status(httpStatus.OK).send(client);
+        // return res.status(httpStatus.OK).send(omit(client, 'client_secret'));
       } catch (e) {
         logger.error(util.format('fail to retrieve client, %j', e));
         return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to retrieve client' });
@@ -63,7 +67,9 @@ export const createClientRoute: () => express.Router = () => {
           skip: 0,
           take: 10
         });
+
         logger.info(`account ${user.id} retrieves ${clients.length} client records`);
+
         return res.status(httpStatus.OK).send(clients);
       } catch (e) {
         logger.error(util.format('fail to retrieve list of clients, %j', e));
@@ -78,7 +84,9 @@ export const createClientRoute: () => express.Router = () => {
 
     try {
       const client = await Client.findOne({ where: { id: client_id, user_id: user.id } });
+
       logger.info(`account ${user.id} retrieves client ${client_id}`);
+
       return res.status(httpStatus.OK).send(client);
     } catch (e) {
       logger.error(util.format('fail to retrieve client %s, %j', client_id, e));
@@ -120,8 +128,11 @@ export const createClientRoute: () => express.Router = () => {
         redirect_uris: req.body?.redirect_uris ?? client.redirect_uris,
         grants: req.body?.grants ?? client.grants
       };
+
       await Client.update(client_id, payload);
+
       logger.info(`account ${user.id} updates client ${client_id}`);
+
       return res.status(httpStatus.OK).send({ ok: true, ...payload });
     } catch (e) {
       logger.error(util.format('fail to update client %s, %j', client_id, e));
@@ -149,7 +160,9 @@ export const createClientRoute: () => express.Router = () => {
 
     try {
       await Client.delete(client_id);
+
       logger.info(`account ${user.id} deletes client ${client_id}`);
+
       return res.status(httpStatus.OK).send({ ok: true });
     } catch (e) {
       logger.error(util.format('fail to delete client %s, %j', client_id, e));

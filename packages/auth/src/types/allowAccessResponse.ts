@@ -1,5 +1,5 @@
 export interface AllowAccessResponse {
-  ok: boolean;
+  id: string;
   allow: boolean;
   client_id: string;
   scope: string[];

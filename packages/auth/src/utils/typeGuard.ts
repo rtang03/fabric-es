@@ -1,3 +1,4 @@
+import { ApiKey } from '../entity/ApiKey';
 import {
   AllowAccessResponse,
   AuthenticateResponse,
@@ -15,7 +16,7 @@ export const isRegisterRequest = (input: any): input is RegisterRequest =>
   input?.username !== undefined && input?.password !== undefined && input?.email !== undefined;
 
 export const isAllowAccessResponse = (input: any): input is AllowAccessResponse =>
-  input?.ok !== undefined && input?.allow !== undefined && input?.client_id !== undefined && input?.scope !== undefined;
+  input?.allow !== undefined && input?.client_id !== undefined && input?.scope !== undefined;
 
 export const isAuthenticateResponse = (input: any): input is AuthenticateResponse =>
   input?.ok !== undefined &&
@@ -34,3 +35,6 @@ export const isRegisterResponse = (input: any): input is RegisterResponse =>
 
 export const isCreateClientResponse = (input: any): input is CreateClientResponse =>
   input?.id !== undefined && input?.application_name !== undefined && input?.ok !== undefined;
+
+export const isApikey = (input: any): input is ApiKey =>
+  input?.id !== undefined && input?.api_key !== undefined && input?.client_id !== undefined;
