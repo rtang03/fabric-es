@@ -251,26 +251,23 @@ export const createOauthRoute: (option: {
       logger.warn('fail to allow access: missing api_key');
       return res.status(httpStatus.UNAUTHORIZED).send({ error: 'fail to allow access: missing api_key' });
     }
+  });
 
-    // const token = req?.headers?.authorization.split(' ')[1] ?? null;
-    // if (token) {
-    //   try {
-    //     const key = await ApiKey.findOne({ where: { api_key: token } });
-    //     const response: AllowAccessResponse = {
-    //       ok: true,
-    //       allow: true,
-    //       client_id: key.client_id,
-    //       scope: key.scope
-    //     };
-    //     return res.status(httpStatus.OK).send(response);
-    //   } catch (e) {
-    //     logger.error(util.format('fail to find api_key, %j', e));
-    //     return res.status(httpStatus.BAD_REQUEST);
-    //   }
-    // } else {
-    //   logger.warn('fail to allow access: missing token');
-    //   return res.status(httpStatus.UNAUTHORIZED).send({ error: 'fail to allow access: missing token' });
-    // }
+  router.delete('/remove_access/:api_key', async (req, res) => {
+    const id = req.params.api_key;
+
+    if (id) {
+      try {
+        await ApiKey.delete(id);
+        return res.status(httpStatus.OK).send({ ok: true });
+      } catch (e) {
+        logger.error(util.format('fail to remove access, %j', e));
+        return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to remove access' });
+      }
+    } else {
+      logger.warn('fail to remove access: missing api_key');
+      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to remove access: missing api_key' });
+    }
   });
 
   return router;

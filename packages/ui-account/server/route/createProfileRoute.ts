@@ -40,7 +40,8 @@ export const createProfileRoute: (option: { authHost: string }) => express.Route
     const { user_id, username, email } = req.body;
     const token = deserializeToken(req);
 
-    if (token === null) return res.status(httpStatus.UNAUTHORIZED).send({ error: 'no token' });
+    if (!token) return res.status(httpStatus.UNAUTHORIZED).send({ error: 'no token' });
+
     if (!isUpdateProfileRequest(req.body)) {
       logger.warn('cannot update profile: missing params - email, username');
       return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params - email, username' });

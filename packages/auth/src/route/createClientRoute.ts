@@ -2,6 +2,7 @@ import util from 'util';
 import express from 'express';
 import httpStatus from 'http-status';
 import passport from 'passport';
+import { ApiKey } from '../entity/ApiKey';
 import { Client } from '../entity/Client';
 import { User } from '../entity/User';
 import { CreateClientResponse } from '../types';
@@ -13,8 +14,7 @@ export const createClientRoute: () => express.Router = () => {
   const router = express.Router();
 
   router.post('/', passport.authenticate('bearer', { session: false }), async (req, res) => {
-    const application_name = req.body?.application_name;
-    const client_secret = req.body?.client_secret;
+    const { application_name, client_secret } = req.body;
     const redirect_uris = req.body?.redirect_uris || [];
     const grants = req.body?.grants || ['password', 'client_credentials'];
     const is_system_app = req.body?.is_system_app ?? false;
@@ -42,44 +42,8 @@ export const createClientRoute: () => express.Router = () => {
     }
   });
 
-  // todo: pagination requires extra coding
-  router.get('/', passport.authenticate('bearer', { session: false }), async (req, res) => {
-    const application_name = req.query.application_name;
-    const user = req.user as User;
-
-    if (application_name) {
-      try {
-        const client = await Client.findOne({ application_name, user_id: user.id });
-
-        logger.info(`account ${user.id} retrieves client record ${client.id}`);
-
-        return res.status(httpStatus.OK).send(client);
-        // return res.status(httpStatus.OK).send(omit(client, 'client_secret'));
-      } catch (e) {
-        logger.error(util.format('fail to retrieve client, %j', e));
-        return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to retrieve client' });
-      }
-    } else {
-      try {
-        const clients: Client[] = await Client.find({
-          where: { user_id: user.id },
-          order: { application_name: 'ASC' },
-          skip: 0,
-          take: 10
-        });
-
-        logger.info(`account ${user.id} retrieves ${clients.length} client records`);
-
-        return res.status(httpStatus.OK).send(clients);
-      } catch (e) {
-        logger.error(util.format('fail to retrieve list of clients, %j', e));
-        return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to retrieve list of clients' });
-      }
-    }
-  });
-
   router.get('/:client_id', passport.authenticate('bearer', { session: false }), async (req, res) => {
-    const client_id = req.params.client_id;
+    const { client_id } = req.params;
     const user = req.user as User;
 
     try {
@@ -95,7 +59,7 @@ export const createClientRoute: () => express.Router = () => {
   });
 
   router.put('/:client_id', passport.authenticate('bearer', { session: false }), async (req, res) => {
-    const client_id = req.params.client_id;
+    const { client_id } = req.params;
     const user = req.user as User;
 
     if (!req.body?.application_name && !req.body?.redirect_uris && !req.body?.grants && !req.body?.client_secret) {
@@ -167,6 +131,41 @@ export const createClientRoute: () => express.Router = () => {
     } catch (e) {
       logger.error(util.format('fail to delete client %s, %j', client_id, e));
       return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to delete client' });
+    }
+  });
+
+  // todo: pagination requires extra coding
+  router.get('/', passport.authenticate('bearer', { session: false }), async (req, res) => {
+    const application_name = req.query.application_name;
+    const user = req.user as User;
+
+    if (application_name) {
+      try {
+        const client = await Client.findOne({ application_name, user_id: user.id });
+
+        logger.info(`account ${user.id} retrieves client record ${client.id}`);
+
+        return res.status(httpStatus.OK).send(client);
+      } catch (e) {
+        logger.error(util.format('fail to retrieve client, %j', e));
+        return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to retrieve client' });
+      }
+    } else {
+      try {
+        const clients: Client[] = await Client.find({
+          where: { user_id: user.id },
+          order: { application_name: 'ASC' },
+          skip: 0,
+          take: 10
+        });
+
+        logger.info(`account ${user.id} retrieves ${clients.length} client records`);
+
+        return res.status(httpStatus.OK).send(clients);
+      } catch (e) {
+        logger.error(util.format('fail to retrieve list of clients, %j', e));
+        return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to retrieve list of clients' });
+      }
     }
   });
 

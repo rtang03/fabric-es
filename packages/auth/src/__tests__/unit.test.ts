@@ -10,6 +10,7 @@ import { User } from '../entity/User';
 import {
   createHttpServer,
   isAllowAccessResponse,
+  isApikey,
   isAuthenticateResponse,
   isCreateClientResponse,
   isLoginResponse,
@@ -401,6 +402,15 @@ describe('Auth Tests - /oauth', () => {
         expect(body?.token_type).toEqual('Bearer');
       }));
 
+  it('should get api_keys by client_id', async () =>
+    request(app)
+      .get(`/api_key?client_id=${client_id}`)
+      .set('authorization', `Bearer ${access_token}`)
+      .expect(({ body }) => {
+        expect(body.ok).toBeTruthy();
+        body.apiKeys.forEach(key => expect(isApikey(key)).toBeTruthy());
+      }));
+
   it('should exchange access_token with uid/pw: password grant type', async () =>
     request(app)
       .post('/oauth/token')
@@ -416,6 +426,11 @@ describe('Auth Tests - /oauth', () => {
       .post('/oauth/allow_access')
       .send({ api_key })
       .expect(({ body }) => expect(isAllowAccessResponse(body)).toBeTruthy()));
+
+  it('should remove access - api key', async () =>
+    request(app)
+      .delete(`/oauth/remove_access/${api_key}`)
+      .expect(({ body }) => expect(body?.ok).toBeTruthy()));
 
   it('should fail to authenicate after waiting 10s, token expires', async () => {
     const timer = new Promise(resolve => setTimeout(() => resolve(true), 10000));

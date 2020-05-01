@@ -5,6 +5,7 @@ import {
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
+  UpdateClientRequest,
   UpdateProfileRequest,
   UpdateProfileResponse,
   User
@@ -36,6 +37,9 @@ export const isUpdateProfileRequest = (input: any): input is UpdateProfileReques
 
 export const isUpdateProfileResponse = (input: any): input is UpdateProfileResponse =>
   input?.ok !== undefined && input?.username !== undefined && input?.email !== undefined;
+
+export const isUpdateClientRequest = (input: any): input is UpdateClientRequest =>
+  input?.application_name !== undefined && input?.client_secret !== undefined;
 
 // export const isClients = (input: any): input is Client[] =>{
 //   input?.id !== undefined && input?.application_name !== undefined;

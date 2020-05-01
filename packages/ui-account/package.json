@@ -49,6 +49,7 @@
     "yup": "^0.28.4",
     "@types/cookie": "^0.3.3",
     "@types/cookie-parser": "^1.4.2",
+    "@types/cors": "^2.8.6",
     "@types/errorhandler": "^1.5.0",
     "@types/node": "^10.17.18",
     "typescript": "^3.7.2",

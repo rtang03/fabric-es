@@ -1,17 +1,85 @@
+import util from 'util';
 import express from 'express';
-import { getLogger } from '../../utils';
+import httpStatus from 'http-status';
+import fetch from 'isomorphic-unfetch';
+import { deserializeToken, getLogger } from '../../utils';
 
 const logger = getLogger({ name: '[ui-account] createApiKeyRoute.js' });
 
 export const createApiKeyRoute: (option: { authHost: string }) => express.Router = ({ authHost }) => {
   const router = express.Router();
-  router.get('/', async (req, res) => {});
 
-  router.post('/api_key', async (req, res) => {});
+  router.get('/', async (req, res) => {
+    const { client_id } = req.query;
 
-  router.delete('/api_key/:key', async (req, res) => {});
+    const token = deserializeToken(req);
+    if (!token) return res.status(httpStatus.UNAUTHORIZED).send({ error: 'no token' });
 
-  router.post('/allow_access', async (req, res) => {});
+    try {
+      const response = await fetch(`${authHost}/oauth`, {
+        headers: { authorization: `Bearer ${token}` }
+      });
+
+      const result = await response.json();
+
+      if (response.status === httpStatus.OK) {
+        return res.status(httpStatus.OK).send(result);
+      } else {
+        logger.warn(util.format('fail to get api_key: status, %s', response.status));
+        return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to get api_key' });
+      }
+    } catch (e) {
+      logger.error(util.format('fail to get api_key, %j', e));
+      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to get api_key' });
+    }
+  });
+
+  router.post('/request_access', async (req, res) => {
+    const { client_id, client_secret } = req.body;
+    const body = `client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials&scope=default`;
+
+    try {
+      const response = await fetch(`${authHost}/oauth/token`, {
+        method: 'POST',
+        body,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+
+      const result = await response.json();
+
+      if (response.status === httpStatus.OK) {
+        return res.status(httpStatus.OK).send({ ok: true, api_key: result.access_token });
+      } else {
+        logger.warn(util.format('fail to request access: status, %s', response.status));
+        return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to request access' });
+      }
+    } catch (e) {
+      logger.error(util.format('fail to request access, %j', e));
+      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to request access' });
+    }
+  });
+
+  router.delete('/remove_access/:api_key', async (req, res) => {
+    const { api_key } = req.params;
+
+    try {
+      const response = await fetch(`${authHost}/oauth/remove_access/${api_key}`, {
+        method: 'DELETE'
+      });
+
+      const result = await response.json();
+
+      if (response.status === httpStatus.OK) {
+        return res.status(httpStatus.OK).send(result);
+      } else {
+        logger.warn(util.format('fail to remove access: status, %s', response.status));
+        return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to remove access' });
+      }
+    } catch (e) {
+      logger.error(util.format('fail to remove access, %j', e));
+      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to remove access' });
+    }
+  });
 
   return router;
 };

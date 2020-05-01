@@ -8,3 +8,4 @@ export * from './createClientRequest';
 export * from './createClientResponse';
 export * from './updateProfileRequest';
 export * from './updateProfileResponse';
+export * from './updateClientRequest';
