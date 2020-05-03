@@ -9,6 +9,7 @@ import {
   RegisterRequest,
   RegisterResponse,
   UpdateClientRequest,
+  UpdateClientResponse,
   UpdateProfileRequest,
   UpdateProfileResponse,
   User
@@ -43,6 +44,9 @@ export const isUpdateProfileResponse = (input: any): input is UpdateProfileRespo
 
 export const isUpdateClientRequest = (input: any): input is UpdateClientRequest =>
   input?.application_name !== undefined && input?.client_secret !== undefined;
+
+export const isUpdateClientResponse = (input: any): input is UpdateClientResponse =>
+  input?.ok !== undefined && input?.application_name !== undefined;
 
 export const isClients = (input: any): input is Client[] =>
   isEqual(input, [])

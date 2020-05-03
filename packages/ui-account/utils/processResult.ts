@@ -1,26 +1,41 @@
+import util from 'util';
 import { Response } from 'express';
 import httpStatus from 'http-status';
+import fetch from 'isomorphic-unfetch';
 import { Logger } from 'winston';
 
 export const processResult: (option: {
-  status: number;
-  result: any;
+  response: fetch.IsomorphicResponse;
   res: Response;
   fcnName: string;
   logger: Logger;
   typeGuard?: any;
-}) => Response = ({ status, res, result, fcnName, logger, typeGuard }) => {
+}) => Promise<Response> = async ({ res, response, fcnName, logger, typeGuard }) => {
+  const status = response.status;
+
+  if (status === httpStatus.UNAUTHORIZED) {
+    logger.warn(`fail to authorize, fcn: ${fcnName}`);
+    res.clearCookie('token');
+    return res.status(httpStatus.UNAUTHORIZED).send({ error: 'fail to authorize' });
+  }
+
+  let result;
+
+  try {
+    result = await response.json();
+  } catch (e) {
+    logger.error(util.format('fail to parse response, %j', e));
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to prase response' });
+  }
+
   if (!typeGuard?.(result)) {
     logger.warn(`fail to ${fcnName}: unexpected format`);
     return res.status(httpStatus.BAD_REQUEST).send({ error: 'unexpected format' });
   }
 
   if (status === httpStatus.OK) {
-    logger.info(`$perform {fcnName} successfully`);
+    logger.info(`perform ${fcnName} successfully`);
     return res.status(httpStatus.OK).send(result);
-  } else if (status === httpStatus.UNAUTHORIZED) {
-    res.clearCookie('token');
-    return res.status(httpStatus.UNAUTHORIZED);
   } else {
     logger.warn(`fail to ${fcnName}, status: ${status}`);
     return res.status(httpStatus.BAD_REQUEST).send({ error: `fail to ${fcnName}` });

@@ -118,13 +118,8 @@ export const createClientRoute: () => express.Router = () => {
         if (application_name) {
           const client = await Client.findOne({ application_name, user_id: user.id });
 
-          if (client) {
-            logger.info(`account ${user.id} retrieves client record ${client.id}`);
-            return res.status(httpStatus.OK).send(client);
-          } else {
-            logger.warn(`${application_name} not found`);
-            return res.status(httpStatus.NOT_FOUND).end();
-          }
+          logger.info(`account ${user.id} retrieves client record ${client.id}`);
+          return res.status(httpStatus.OK).send(client);
         } else {
           const clients: Client[] = await Client.find({
             where: { user_id: user.id },
@@ -138,7 +133,7 @@ export const createClientRoute: () => express.Router = () => {
             return res.status(httpStatus.OK).send(clients);
           } else {
             logger.warn(`no clients`);
-            return res.status(httpStatus.NOT_FOUND).end();
+            return res.status(httpStatus.OK).send(clients);
           }
         }
       },

@@ -1,11 +1,11 @@
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import React from 'react';
 import Layout from '../../../../components/Layout';
 import { User } from '../../../../server/types';
 import { fetchResult } from '../../../../utils';
-import { useRouter } from 'next/router';
 
 const ApiKeyPage: NextPage<{ user: User }> = ({ user }) => {
   const router = useRouter();
