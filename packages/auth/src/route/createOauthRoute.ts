@@ -253,22 +253,5 @@ export const createOauthRoute: (option: {
     }
   });
 
-  router.delete('/remove_access/:api_key', async (req, res) => {
-    const id = req.params.api_key;
-
-    if (id) {
-      try {
-        await ApiKey.delete(id);
-        return res.status(httpStatus.OK).send({ ok: true });
-      } catch (e) {
-        logger.error(util.format('fail to remove access, %j', e));
-        return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to remove access' });
-      }
-    } else {
-      logger.warn('fail to remove access: missing api_key');
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to remove access: missing api_key' });
-    }
-  });
-
   return router;
 };

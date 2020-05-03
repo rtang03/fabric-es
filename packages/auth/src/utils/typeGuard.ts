@@ -37,4 +37,6 @@ export const isCreateClientResponse = (input: any): input is CreateClientRespons
   input?.id !== undefined && input?.application_name !== undefined && input?.ok !== undefined;
 
 export const isApikey = (input: any): input is ApiKey =>
-  input?.id !== undefined && input?.api_key !== undefined && input?.client_id !== undefined;
+  input?.id !== undefined &&
+  input?.api_key !== undefined &&
+  input?.client_id !== undefined;

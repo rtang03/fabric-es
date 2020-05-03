@@ -105,8 +105,8 @@ export const createAccountRoute: (option: {
     // password cannot be updated; can only be resetted
     // is_admin cannot be updated; can only be set during account creation
     const payload = {
-      email: req.body?.email || user.email,
-      username: req.body?.username || user.username
+      email: req.body?.email,
+      username: req.body?.username
     };
 
     try {

@@ -1,6 +1,8 @@
+import isEqual from 'lodash/isEqual';
 import {
   Client,
   CreateClientRequest,
+  CreateClientResponse,
   LoginRequest,
   LoginResponse,
   RegisterRequest,
@@ -41,6 +43,26 @@ export const isUpdateProfileResponse = (input: any): input is UpdateProfileRespo
 export const isUpdateClientRequest = (input: any): input is UpdateClientRequest =>
   input?.application_name !== undefined && input?.client_secret !== undefined;
 
-// export const isClients = (input: any): input is Client[] =>{
-//   input?.id !== undefined && input?.application_name !== undefined;
-// }
+export const isClients = (input: any): input is Client[] =>
+  isEqual(input, [])
+    ? true
+    : input?.length
+    ? input.reduce(
+        (prev: any, curr: any) =>
+          curr?.id !== undefined &&
+          curr?.application_name !== undefined &&
+          curr?.client_secret !== undefined &&
+          curr?.user_id !== undefined &&
+          prev,
+        true
+      )
+    : false;
+
+export const isClient = (input: any): input is Client =>
+  input?.id !== undefined &&
+  input?.application_name !== undefined &&
+  input?.client_secret !== undefined &&
+  input?.user_id !== undefined;
+
+export const isCreateClientResponse = (input: any): input is CreateClientResponse =>
+  input?.id !== undefined && input?.application_name !== undefined && input?.ok !== undefined;

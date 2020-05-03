@@ -2,7 +2,15 @@ import util from 'util';
 import express from 'express';
 import httpStatus from 'http-status';
 import fetch from 'isomorphic-unfetch';
-import { deserializeToken, getLogger, isUpdateProfileRequest, isUpdateProfileResponse, isUser } from '../../utils';
+import {
+  deserializeToken,
+  getLogger,
+  isUpdateProfileRequest,
+  isUpdateProfileResponse,
+  isUser,
+  processResult
+} from '../../utils';
+import { UpdateProfileRequest } from '../types';
 
 const logger = getLogger({ name: '[ui-account] createProfileRoute.js' });
 
@@ -10,65 +18,64 @@ export const createProfileRoute: (option: { authHost: string }) => express.Route
   const router = express.Router();
 
   router.get('/', async (req, res) => {
+    const error = 'fail to get user';
     const token = deserializeToken(req);
 
-    if (token === null) return res.status(httpStatus.UNAUTHORIZED).send({ error: 'no token' });
+    if (!token) return res.status(httpStatus.UNAUTHORIZED).send({ error: 'no token' });
 
     try {
       const response = await fetch(`${authHost}/account/userinfo`, {
         headers: { authorization: `Bearer ${token}` }
       });
+      const status = response.status;
+      const result: unknown = await response.json();
 
-      const user: unknown = await response.json();
-
-      if (response.status === httpStatus.OK && isUser(user)) return res.status(httpStatus.OK).send(user);
-
-      if (response.status === httpStatus.UNAUTHORIZED) {
-        res.clearCookie('token');
-        return res.status(httpStatus.UNAUTHORIZED).end();
+      if (!isUser(result)) {
+        logger.warn(util.format('%s: unexpected format, %j', error, result));
+        return res.status(httpStatus.BAD_REQUEST).send({ error });
       }
 
-      logger.warn(util.format('fail to get userinfo: status, %s', response.status));
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to get userinfo' });
+      return processResult({ status, result, res, logger, error }).end();
     } catch (e) {
-      logger.error(util.format('fail to get userinfo, %j', e));
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to get userinfo' });
+      logger.error(util.format('%s, %j', error, e));
+      return res.status(httpStatus.BAD_REQUEST).send({ error });
     }
   });
 
   router.put('/', async (req, res) => {
-    const { user_id, username, email } = req.body;
+    const error = 'fail to update profile';
+    const request: UpdateProfileRequest = {
+      user_id: req?.body?.user_id,
+      username: req?.body?.username,
+      email: req?.body?.email
+    };
     const token = deserializeToken(req);
 
     if (!token) return res.status(httpStatus.UNAUTHORIZED).send({ error: 'no token' });
 
-    if (!isUpdateProfileRequest(req.body)) {
+    if (!isUpdateProfileRequest(request)) {
       logger.warn('cannot update profile: missing params - email, username');
       return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params - email, username' });
     }
 
     try {
-      const response = await fetch(`${authHost}/account/${user_id}`, {
+      const response = await fetch(`${authHost}/account/${request.user_id}`, {
         method: 'PUT',
-        body: JSON.stringify({ email, username }),
+        body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` }
       });
-
+      const status = response.status;
       const result: unknown = await response.json();
 
-      if (response.status === httpStatus.OK && isUpdateProfileResponse(result))
-        return res.status(httpStatus.OK).send(result);
-
-      if (response.status === httpStatus.UNAUTHORIZED) {
-        res.clearCookie('token');
-        return res.status(httpStatus.UNAUTHORIZED).end();
+      if (!isUpdateProfileResponse(result)) {
+        logger.warn(util.format('%s: unexpected format, %j', error, result));
+        return res.status(httpStatus.BAD_REQUEST).send({ error });
       }
 
-      logger.warn(util.format('fail to update profile: status, %s', response.status));
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to update profile' });
+      return processResult({ status, result, res, logger, error }).end();
     } catch (e) {
-      logger.error(util.format('fail to update profile, %j', e));
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to update profile' });
+      logger.error(util.format('%s, %j', error, e));
+      return res.status(httpStatus.BAD_REQUEST).send({ error });
     }
   });
 

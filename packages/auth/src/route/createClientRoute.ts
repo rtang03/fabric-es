@@ -2,7 +2,6 @@ import util from 'util';
 import express from 'express';
 import httpStatus from 'http-status';
 import passport from 'passport';
-import { ApiKey } from '../entity/ApiKey';
 import { Client } from '../entity/Client';
 import { User } from '../entity/User';
 import { CreateClientResponse } from '../types';
@@ -12,35 +11,6 @@ const logger = getLogger({ name: '[auth] createClientRoute.js' });
 
 export const createClientRoute: () => express.Router = () => {
   const router = express.Router();
-
-  router.post('/', passport.authenticate('bearer', { session: false }), async (req, res) => {
-    const { application_name, client_secret } = req.body;
-    const redirect_uris = req.body?.redirect_uris || [];
-    const grants = req.body?.grants || ['password', 'client_credentials'];
-    const is_system_app = req.body?.is_system_app ?? false;
-    const user = req.user as User;
-    const user_id = user.id;
-
-    if (!isCreateClientRequest(req.body)) {
-      logger.warn(`cannot create client: missing params - application_name, client_secret`);
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params - application_name, client_secret' });
-    }
-
-    const client = Client.create({ application_name, client_secret, redirect_uris, grants, user_id, is_system_app });
-
-    try {
-      await Client.insert(client);
-
-      logger.info(`account ${user_id} register new client ${client.id}`);
-
-      const response: CreateClientResponse = { ok: true, application_name, id: client.id };
-
-      return res.status(httpStatus.OK).send(response);
-    } catch (e) {
-      logger.error(util.format('fail to register client %s, %j', client.id, e));
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to register client' });
-    }
-  });
 
   router.get('/:client_id', passport.authenticate('bearer', { session: false }), async (req, res) => {
     const { client_id } = req.params;
@@ -166,6 +136,35 @@ export const createClientRoute: () => express.Router = () => {
         logger.error(util.format('fail to retrieve list of clients, %j', e));
         return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to retrieve list of clients' });
       }
+    }
+  });
+
+  router.post('/', passport.authenticate('bearer', { session: false }), async (req, res) => {
+    const { application_name, client_secret } = req.body;
+    const redirect_uris = req.body?.redirect_uris;
+    const grants = req.body?.grants || ['password', 'client_credentials'];
+    const is_system_app = req.body?.is_system_app ?? false;
+    const user = req.user as User;
+    const user_id = user.id;
+
+    if (!isCreateClientRequest(req.body)) {
+      logger.warn(`cannot create client: missing params - application_name, client_secret`);
+      return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params - application_name, client_secret' });
+    }
+
+    const client = Client.create({ application_name, client_secret, redirect_uris, grants, user_id, is_system_app });
+
+    try {
+      await Client.insert(client);
+
+      logger.info(`account ${user_id} register new client ${client.id}`);
+
+      const response: CreateClientResponse = { ok: true, application_name, id: client.id };
+
+      return res.status(httpStatus.OK).send(response);
+    } catch (e) {
+      logger.error(util.format('fail to register client %s, %j', client.id, e));
+      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to register client' });
     }
   });
 

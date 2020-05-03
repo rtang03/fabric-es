@@ -27,8 +27,8 @@ const Register: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
           setSubmitting(true);
           try {
             const res = await fetch(`${apiUrl}`, setPostRequest({ username, password, email }, true));
-            const { result } = await res.json();
-            if (res.status === 200 && !!result?.id) {
+            const result = await res.json();
+            if (res.status === 200) {
               setSubmitting(false);
               await Router.push('/web/login');
             } else console.error('fail to register');
@@ -41,6 +41,7 @@ const Register: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
           <Form>
             {' '}
             <Field
+              label="Username"
               component={TextField}
               name="username"
               placeholder="username"
@@ -50,6 +51,7 @@ const Register: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
               autoFocus
             />{' '}
             <Field
+              label="Email"
               component={TextField}
               name="email"
               placeholder="email"
@@ -58,6 +60,7 @@ const Register: NextPage<{ apiUrl: string }> = ({ apiUrl }) => {
               fullwidth="true"
             />{' '}
             <Field
+              label="Password"
               component={TextField}
               name="password"
               placeholder="password"

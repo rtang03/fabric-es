@@ -12,7 +12,6 @@ export const fetchResult: <T>(ctx: NextPageContext, path: string) => Promise<T> 
 ) => {
   const { token } = nextCookie(ctx);
   const apiUrl = getBackendApi(ctx, path);
-
   try {
     const response = await fetch(apiUrl, {
       credentials: 'include',

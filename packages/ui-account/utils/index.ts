@@ -6,3 +6,4 @@ export * from './typeGurad';
 export * from './getBackendApi';
 export * from './fetchResult';
 export * from './deserializeToken';
+export * from './processResult';

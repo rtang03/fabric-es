@@ -40,6 +40,7 @@ const Login: NextPage<{ apiUrl: string; user?: User }> = ({ apiUrl, user }) => {
         {({ values, errors, isSubmitting }) => (
           <Form>
             <Field
+              label="Username"
               component={TextField}
               name="username"
               placeholder="username"
@@ -49,6 +50,7 @@ const Login: NextPage<{ apiUrl: string; user?: User }> = ({ apiUrl, user }) => {
               autoFocus
             />{' '}
             <Field
+              label="Password"
               component={TextField}
               name="password"
               placeholder="password"

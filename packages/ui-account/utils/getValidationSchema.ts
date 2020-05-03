@@ -21,12 +21,13 @@ export const getValidationSchema = (fields: string[]) =>
         .string()
         .required()
         .trim()
-        .min(5),
+        .min(3),
       client_secret: yup
         .string()
         .required()
         .trim()
-        .min(5)
+        .min(3),
+      redirect_uris: yup.string().url()
     },
     fields
   );

@@ -224,7 +224,7 @@ describe('Auth Tests - /client', () => {
     request(app)
       .post('/client')
       .set('authorization', `Bearer ${access_token}`)
-      .send({ application_name: 'root', client_secret: 'password', is_system_app: true })
+      .send({ application_name: 'root', client_secret: 'password', redirect_uris: '', is_system_app: true })
       .expect(({ body }) => {
         client_id = body.id;
         expect(body.application_name).toEqual('root');
@@ -291,7 +291,7 @@ describe('Auth Tests - /client', () => {
       .send({
         application_name: 'app_created_by_non_root',
         client_secret: 'password',
-        redirect_uris: ['http://example.com'],
+        redirect_uris: 'http://example.com',
         grants: ['password']
       })
       .expect(({ body }) => {
@@ -307,7 +307,7 @@ describe('Auth Tests - /client', () => {
       .set('authorization', `Bearer ${access_token}`)
       .send({
         application_name: 'updatedapp',
-        redirect_uris: ['http://example.com/callback'],
+        redirect_uris: 'http://example.com/callback',
         grants: ['password', 'implicit']
       })
       .expect(({ body, status }) => {
@@ -321,13 +321,13 @@ describe('Auth Tests - /client', () => {
       .set('authorization', `Bearer ${non_root_access_token}`)
       .send({
         application_name: 'updatedapp',
-        redirect_uris: ['http://example.com/callback'],
+        redirect_uris: 'http://example.com/callback',
         grants: ['password', 'implicit']
       })
       .expect(({ body }) => {
         expect(body.ok).toBeTruthy();
         expect(body.application_name).toEqual('updatedapp');
-        expect(body.redirect_uris).toEqual(['http://example.com/callback']);
+        expect(body.redirect_uris).toEqual('http://example.com/callback');
         expect(body.grants).toEqual(['password', 'implicit']);
       }));
 
@@ -429,7 +429,7 @@ describe('Auth Tests - /oauth', () => {
 
   it('should remove access - api key', async () =>
     request(app)
-      .delete(`/oauth/remove_access/${api_key}`)
+      .delete(`/api_key/${api_key}`)
       .expect(({ body }) => expect(body?.ok).toBeTruthy()));
 
   it('should fail to authenicate after waiting 10s, token expires', async () => {
