@@ -7,3 +7,4 @@ export * from './getBackendApi';
 export * from './fetchResult';
 export * from './deserializeToken';
 export * from './processResult';
+export * from './catchErrors';

@@ -6,8 +6,10 @@ import {
   CreateClientResponse,
   LoginResponse,
   RegisterRequest,
-  RegisterResponse
+  RegisterResponse,
+  UpdateClientRequest
 } from '../types';
+import { UpdateUserRequest } from '../types/updateUserRequest';
 
 export const isCreateClientRequest = (input: any): input is CreateClientRequest =>
   input?.application_name !== undefined && input?.client_secret !== undefined;
@@ -37,6 +39,11 @@ export const isCreateClientResponse = (input: any): input is CreateClientRespons
   input?.id !== undefined && input?.application_name !== undefined && input?.ok !== undefined;
 
 export const isApikey = (input: any): input is ApiKey =>
-  input?.id !== undefined &&
-  input?.api_key !== undefined &&
-  input?.client_id !== undefined;
+  input?.id !== undefined && input?.api_key !== undefined && input?.client_id !== undefined;
+
+// note: || is used, instead of &&
+export const isUpdateUserRequest = (input: any): input is UpdateUserRequest =>
+  input?.username !== undefined || input?.email !== undefined;
+
+export const isUpdateClientRequest = (input: any): input is UpdateClientRequest =>
+  input?.application_name !== undefined || input?.client_secret !== undefined;

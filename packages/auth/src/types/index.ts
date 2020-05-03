@@ -6,3 +6,5 @@ export * from './registerRequest';
 export * from './authenticateResponse';
 export * from './allowAccessResponse';
 export * from './createClientResponse';
+export * from './updateUserRequest';
+export * from './updateClientRequest';

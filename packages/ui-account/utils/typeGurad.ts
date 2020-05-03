@@ -3,6 +3,7 @@ import {
   Client,
   CreateClientRequest,
   CreateClientResponse,
+  GenericResponse,
   LoginRequest,
   LoginResponse,
   RegisterRequest,
@@ -66,3 +67,5 @@ export const isClient = (input: any): input is Client =>
 
 export const isCreateClientResponse = (input: any): input is CreateClientResponse =>
   input?.id !== undefined && input?.application_name !== undefined && input?.ok !== undefined;
+
+export const isGenericResponse = (input: any): input is GenericResponse => input?.ok !== undefined;

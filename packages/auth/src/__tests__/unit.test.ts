@@ -158,7 +158,7 @@ describe('Auth Tests - / and /account', () => {
       .set('authorization', `Bearer ${access_token}`)
       .send({ email: 'updated@example.com', username: 'updated-non-root' })
       .expect(({ status, body }) => {
-        expect(body.error).toEqual('not authorized to update user');
+        expect(body.error).toContain('not authorized to update user');
         expect(status).toEqual(httpStatus.UNAUTHORIZED);
       }));
 
@@ -166,7 +166,7 @@ describe('Auth Tests - / and /account', () => {
     request(app)
       .put(`/account/${non_root_user_id}`)
       .set('authorization', `Bearer ${access_token}`)
-      .expect(({ body }) => expect(body.error).toEqual('missing params: username or email')));
+      .expect(({ body }) => expect(body.error).toEqual('missing params')));
 
   it('should update user', async () =>
     request(app)
@@ -183,7 +183,7 @@ describe('Auth Tests - / and /account', () => {
       .set('authorization', `Bearer ${access_token}`)
       .expect(({ status, body }) => {
         expect(status).toEqual(httpStatus.UNAUTHORIZED);
-        expect(body.error).toEqual('not authorized to delete user');
+        expect(body.error).toContain('not authorized to delete user');
       }));
 
   it('should delete user', async () =>
@@ -201,7 +201,7 @@ describe('Auth Tests - /client', () => {
       .send({ client_secret: 'password' })
       .expect(({ status, body }) => {
         expect(status).toEqual(httpStatus.BAD_REQUEST);
-        expect(body.error).toEqual('missing params - application_name, client_secret');
+        expect(body.error).toEqual('missing params');
       }));
 
   it('should fail to create client without client_secret', async () =>
@@ -211,7 +211,7 @@ describe('Auth Tests - /client', () => {
       .send({ application_name: 'root' })
       .expect(({ status, body }) => {
         expect(status).toEqual(httpStatus.BAD_REQUEST);
-        expect(body.error).toEqual('missing params - application_name, client_secret');
+        expect(body.error).toEqual('missing params');
       }));
 
   it('should fail to create client without access token', async () =>
@@ -252,7 +252,7 @@ describe('Auth Tests - /client', () => {
     request(app)
       .get('/client?application_name=nope')
       .set('authorization', `Bearer ${access_token}`)
-      .expect(({ body }) => expect(body.error).toEqual('fail to retrieve client')));
+      .expect(({ status }) => expect(status).toEqual(httpStatus.NOT_FOUND)));
 
   it('should search root client by application_name', async () =>
     request(app)
@@ -270,7 +270,8 @@ describe('Auth Tests - /client', () => {
     request(app)
       .get(`/client/abcdefg`)
       .set('authorization', `Bearer ${access_token}`)
-      .expect(({ body }) => expect(body.error).toEqual('fail to retrieve client')));
+      // it return TypeORM error
+      .expect(({ body }) => expect(body.message).toContain('invalid input syntax for uuid')));
 
   it('should get root client by RESTful path', async () =>
     request(app)
@@ -310,10 +311,7 @@ describe('Auth Tests - /client', () => {
         redirect_uris: 'http://example.com/callback',
         grants: ['password', 'implicit']
       })
-      .expect(({ body, status }) => {
-        expect(status).toEqual(httpStatus.NOT_FOUND);
-        expect(body.error).toEqual('fail to find client');
-      }));
+      .expect(({ body, status }) => expect(status).toEqual(httpStatus.NOT_FOUND)));
 
   it('should update my client by (org admin) user', async () =>
     request(app)
@@ -335,10 +333,7 @@ describe('Auth Tests - /client', () => {
     request(app)
       .delete(`/client/${non_root_client_id}`)
       .set('authorization', `Bearer ${access_token}`)
-      .expect(({ body, status }) => {
-        expect(status).toEqual(httpStatus.NOT_FOUND);
-        expect(body.error).toEqual('fail to find client');
-      }));
+      .expect(({ status }) => expect(status).toEqual(httpStatus.NOT_FOUND)));
 
   it('should delete client', async () =>
     request(app)

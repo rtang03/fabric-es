@@ -10,7 +10,7 @@ import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
 import { User } from '../entity/User';
 import { AllowAccessResponse, AuthenticateResponse } from '../types';
-import { getLogger, generateToken, isApikey } from '../utils';
+import { getLogger, generateToken, isApikey, catchErrors } from '../utils';
 
 /**
  * For original comments
@@ -219,39 +219,38 @@ export const createOauthRoute: (option: {
   router.post('/authenticate', passport.authenticate('bearer', { session: false }), (req, res) => {
     const { id, is_admin } = req.user as User;
     logger.info(`account ${id} is authenticated`);
-    const response: AuthenticateResponse = { ok: true, authenticated: true, user_id: id, is_admin };
-    return res.status(httpStatus.OK).send(response);
+    return res
+      .status(httpStatus.OK)
+      .send({ ok: true, authenticated: true, user_id: id, is_admin } as AuthenticateResponse);
   });
 
-  router.post('/allow_access', async (req, res) => {
-    const { api_key } = req.body;
+  router.post(
+    '/allow_access',
+    catchErrors(
+      async (req, res) => {
+        const { api_key } = req.body;
+        const error = 'fail to allow access';
 
-    if (api_key) {
-      try {
-        const key = await ApiKey.findOne({ where: { id: api_key } });
+        if (api_key) {
+          const key = await ApiKey.findOne({ where: { id: api_key } });
 
-        let response: AllowAccessResponse;
-
-        if (isApikey(key)) {
-          response = {
-            id: key.id,
-            allow: true,
-            client_id: key.client_id,
-            scope: key?.scope
-          };
-          return res.status(httpStatus.OK).send(response);
+          if (isApikey(key)) {
+            const response: AllowAccessResponse = {
+              id: key.id,
+              allow: true,
+              client_id: key.client_id,
+              scope: key?.scope
+            };
+            return res.status(httpStatus.OK).send(response);
+          } else return res.status(httpStatus.UNAUTHORIZED).send({ error });
         } else {
-          return res.status(httpStatus.UNAUTHORIZED);
+          logger.warn(`${error}: missing api_key`);
+          return res.status(httpStatus.UNAUTHORIZED).send({ error: `${error}: missing api_key` });
         }
-      } catch (e) {
-        logger.error(util.format('fail to find api_key, %j', e));
-        return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to find api_key' });
-      }
-    } else {
-      logger.warn('fail to allow access: missing api_key');
-      return res.status(httpStatus.UNAUTHORIZED).send({ error: 'fail to allow access: missing api_key' });
-    }
-  });
+      },
+      { logger, fcnName: 'allow access by api_key' }
+    )
+  );
 
   return router;
 };

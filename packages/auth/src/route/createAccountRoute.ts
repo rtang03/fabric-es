@@ -6,8 +6,8 @@ import omit from 'lodash/omit';
 import passport from 'passport';
 import { TokenRepo } from '../entity/AccessToken';
 import { User } from '../entity/User';
-import { LoginResponse, ProfileResponse, RegisterResponse } from '../types';
-import { generateToken, getLogger, isRegisterRequest } from '../utils';
+import { LoginResponse, ProfileResponse, RegisterResponse, UpdateUserRequest } from '../types';
+import { catchErrors, generateToken, getLogger, isRegisterRequest, isUpdateUserRequest } from '../utils';
 
 const logger = getLogger({ name: '[auth] createAccountRoute.js' });
 
@@ -67,83 +67,80 @@ export const createAccountRoute: (option: {
     })(req, res);
   });
 
-  router.get('/:user_id', passport.authenticate('bearer', { session: false }), async (req, res) => {
-    const user = req.user as User;
-    const user_id = req.params.user_id;
-
-    let localUser: User;
-
-    try {
-      localUser = await User.findOne({ where: { id: user_id } });
-    } catch (e) {
-      logger.error(util.format('fail find user %s, %j', user_id, e));
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to find user' });
-    }
-
-    return user.is_admin
-      ? res.status(httpStatus.OK).send(omit(localUser, 'password'))
-      : user_id === user.id
-      ? res.status(httpStatus.OK).send(omit(localUser, 'password'))
-      : res.status(httpStatus.UNAUTHORIZED).send({ error: 'not authorized to retrieve user' });
-  });
+  router.get(
+    '/:user_id',
+    passport.authenticate('bearer', { session: false }),
+    catchErrors(
+      async (req, res) => {
+        const user = req.user as User;
+        const user_id = req.params.user_id;
+        const localUser = await User.findOne({ where: { id: user_id } });
+        return user.is_admin
+          ? res.status(httpStatus.OK).send(omit(localUser, 'password'))
+          : user_id === user.id
+          ? res.status(httpStatus.OK).send(omit(localUser, 'password'))
+          : res.status(httpStatus.UNAUTHORIZED).send({ error: 'not authorized to retrieve user' });
+      },
+      { logger, fcnName: 'find user' }
+    )
+  );
 
   // update user
-  router.put('/:user_id', passport.authenticate('bearer', { session: false }), async (req, res) => {
-    const user = req.user as User;
-    const user_id = req.params.user_id;
+  router.put(
+    '/:user_id',
+    passport.authenticate('bearer', { session: false }),
+    catchErrors(
+      async (req, res) => {
+        const user = req.user as User;
+        const user_id = req.params.user_id;
+        const message = `update user ${user_id}`;
+        const request: UpdateUserRequest = {
+          email: req.body.email,
+          username: req.body.username
+        };
 
-    if (!req.body?.email && !req.body?.username) {
-      logger.warn(`cannot update account ${user_id}: missing params - username or email`);
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params: username or email' });
-    }
+        if (!isUpdateUserRequest(request)) {
+          logger.warn(`fail to ${message}: missing params`);
+          return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params' });
+        } else if (user.id !== user_id) {
+          logger.warn(`fail to ${message}: not authorized`);
+          return res.status(httpStatus.UNAUTHORIZED).send({ error: `not authorized to ${message}` });
+        } else {
+          await User.update(user_id, request);
 
-    if (user.id !== user_id) {
-      logger.warn(`cannot update account ${user_id}: not authorized to update user`);
-      return res.status(httpStatus.UNAUTHORIZED).send({ error: 'not authorized to update user' });
-    }
-
-    // password cannot be updated; can only be resetted
-    // is_admin cannot be updated; can only be set during account creation
-    const payload = {
-      email: req.body?.email,
-      username: req.body?.username
-    };
-
-    try {
-      await User.update(user_id, payload);
-
-      logger.info(`account ${user.id} is updated`);
-
-      return res.status(httpStatus.OK).send({ ok: true, ...payload });
-    } catch (e) {
-      logger.error(util.format('fail to update user %s, %j', user.id, e));
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to update user' });
-    }
-  });
+          logger.info(`${message} is done`);
+          return res.status(httpStatus.OK).send({ ok: true, ...(request as any) });
+        }
+      },
+      { logger, fcnName: 'update user' }
+    )
+  );
 
   // delete is not phsyically delete the user record, it is to toggle "is_delete"
-  router.delete('/:user_id', passport.authenticate('bearer', { session: false }), async (req, res) => {
-    const user = req.user as User;
-    const user_id = req.params.user_id;
+  router.delete(
+    '/:user_id',
+    passport.authenticate('bearer', { session: false }),
+    catchErrors(
+      async (req, res) => {
+        const user = req.user as User;
+        const user_id = req.params.user_id;
+        const message = `delete user ${user_id}`;
+        const is_deleted = req.body?.is_delete ?? user.is_deleted;
 
-    if (user.id !== user_id) {
-      logger.warn(`cannot delete account ${user_id}: not authorized to delete user`);
-      return res.status(httpStatus.UNAUTHORIZED).send({ error: 'not authorized to delete user' });
-    }
+        if (user.id !== user_id) {
+          logger.warn(`fail to ${message}: not authorized`);
+          return res.status(httpStatus.UNAUTHORIZED).send({ error: `not authorized to ${message}` });
+        }
 
-    try {
-      await User.update(user.id, {
-        is_deleted: req.body?.is_delete ?? user.is_deleted
-      });
+        await User.update(user.id, { is_deleted });
 
-      logger.info(`account ${user.id} is changed to 'deleted'`);
+        logger.info(`${message} is done`);
 
-      return res.status(httpStatus.OK).send({ ok: true });
-    } catch (e) {
-      logger.error(util.format('fail to delete client, %j', e));
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to delete user' });
-    }
-  });
+        return res.status(httpStatus.OK).send({ ok: true });
+      },
+      { logger, fcnName: 'delete user' }
+    )
+  );
 
   // register new user
   router.post('/', async (req, res) => {
