@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import Router from 'next/router';
-import React, { Fragment } from 'react';
+import React from 'react';
 import { User } from '../server/types';
 
 const logout = async () => {
@@ -46,7 +46,7 @@ const Layout: React.FC<{
         </Link>{' '}
         |{' '}
         {user ? (
-          <>
+          <React.Fragment>
             <Link href="/web/profile">
               <a>Profile</a>
             </Link>{' '}
@@ -55,9 +55,9 @@ const Layout: React.FC<{
               <a>Client</a>
             </Link>{' '}
             | <button onClick={logout}>Logout</button>
-          </>
+          </React.Fragment>
         ) : (
-          <>
+          <React.Fragment>
             <Link href="/web/register">
               <a>Register</a>
             </Link>{' '}
@@ -65,10 +65,10 @@ const Layout: React.FC<{
             <Link href="/web/login">
               <a>Log in</a>
             </Link>
-          </>
+          </React.Fragment>
         )}
       </nav>
-      {user ? <p>You are now logged on: {user.username}</p> : <Fragment />}
+      {user ? <p>You are now logged on: {user.username}</p> : <React.Fragment />}
     </header>
     <hr />
     {children}

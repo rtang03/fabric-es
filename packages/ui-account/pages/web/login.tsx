@@ -2,10 +2,10 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
+import httpStatus from 'http-status';
 import fetch from 'isomorphic-unfetch';
 import { NextPage } from 'next';
-import Router from 'next/router';
-import React from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import Layout from '../../components/Layout';
 import { User } from '../../server/types';
@@ -14,7 +14,9 @@ import { getBackendApi, getValidationSchema, postResultRouting, setPostRequest, 
 const validationSchema = yup.object(getValidationSchema(['username', 'password']));
 
 const Login: NextPage<{ apiUrl: string; user?: User }> = ({ apiUrl, user }) => {
+  const [message, setMessage] = useState<string>('');
   const classes = useStyles();
+  const handleChange = () => setMessage('');
 
   return (
     <Layout title="Account | Log in" user={user}>
@@ -29,7 +31,10 @@ const Login: NextPage<{ apiUrl: string; user?: User }> = ({ apiUrl, user }) => {
             const res = await fetch(apiUrl, setPostRequest({ username, password }, true));
             const result = await res.json();
             setSubmitting(false);
-            await postResultRouting(res.status, '/web/profile', 'fail to login');
+            const errMessage = await postResultRouting(res.status, '/web/profile', 'fail to login');
+            if (res.status === httpStatus.UNAUTHORIZED) {
+              setMessage(errMessage as string);
+            }
           } catch (e) {
             console.error(e);
             setSubmitting(false);
@@ -45,6 +50,7 @@ const Login: NextPage<{ apiUrl: string; user?: User }> = ({ apiUrl, user }) => {
               variant="outlined"
               margin="normal"
               fullwidth="true"
+              onFocus={handleChange}
               autoFocus
             />{' '}
             <Field
@@ -56,7 +62,7 @@ const Login: NextPage<{ apiUrl: string; user?: User }> = ({ apiUrl, user }) => {
               margin="normal"
               fullwidth="true"
               type="password"
-              autoComplete="current-password"
+              onFocus={handleChange}
             />{' '}
             <Button
               className={classes.submit}
@@ -68,6 +74,7 @@ const Login: NextPage<{ apiUrl: string; user?: User }> = ({ apiUrl, user }) => {
               type="submit">
               Log In
             </Button>
+            <p>{message}</p>
           </Form>
         )}
       </Formik>

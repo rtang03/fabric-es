@@ -5,11 +5,12 @@ export const postResultRouting = async (status: number, routeTo: string, errMess
   if (status === httpStatus.OK) {
     if (callback) await callback();
     await Router.push(routeTo);
+    return;
   } else if (status === httpStatus.UNAUTHORIZED) {
     console.warn('not authorized');
-    await Router.push('/web/login');
+    return 'Fail to authenticate';
   } else {
     console.error(errMessage);
-    // do something to handler error
+    return errMessage;
   }
 };
