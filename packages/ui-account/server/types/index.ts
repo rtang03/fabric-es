@@ -11,3 +11,5 @@ export * from './updateProfileResponse';
 export * from './updateClientRequest';
 export * from './updateClientResponse';
 export * from './genericResponse';
+export * from './getApiKeysResponse';
+export * from './ApiKey';

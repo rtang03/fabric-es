@@ -32,7 +32,7 @@ export const createAccountRoute: (option: {
   // "/login" is similar to password grant type invoked via "/oauth/token"
   router.post('/login', (req, res) => {
     passport.authenticate('local', { session: false, failureRedirect: '/login' }, async (error, user: User) => {
-      if (error || !user) return res.status(httpStatus.BAD_REQUEST).json({ error });
+      if (error || !user) return res.status(httpStatus.UNAUTHORIZED).send({ error });
 
       const access_token = generateToken({
         user_id: user.id,

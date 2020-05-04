@@ -24,12 +24,12 @@ export const processResult: (option: {
   try {
     result = await response.json();
   } catch (e) {
-    logger.error(util.format('fail to parse response, %j', e));
-    return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to prase response' });
+    logger.error(util.format('fail to parse response, %j'));
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to parse response' });
   }
 
-  if (!typeGuard?.(result)) {
-    logger.warn(`fail to ${fcnName}: unexpected format`);
+  if (typeGuard && !typeGuard(result)) {
+    logger.warn(util.format('fail to %s: unexpected format, %j', fcnName, result));
     return res.status(httpStatus.BAD_REQUEST).send({ error: 'unexpected format' });
   }
 

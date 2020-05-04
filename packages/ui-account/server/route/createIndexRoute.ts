@@ -34,18 +34,18 @@ export const createIndexRoute: (option: { authHost: string }) => express.Router 
 
         const response = await fetch(`${authHost}/account/login`, setPostRequest(request));
         const status = response.status;
-        const result: unknown = await response.json();
+        const result = await response.json();
 
         if (status !== httpStatus.OK) {
           logger.warn(util.format('fail to %s, status: %s', fcnName, status));
-          return res.status(httpStatus.UNAUTHORIZED);
+          return res.status(httpStatus.UNAUTHORIZED).send({ status });
         }
 
         if (isLoginResponse(result)) {
           // TODO: for real production should set { secure : true }
           res.cookie('token', result.access_token, { httpOnly: true, secure: false });
 
-          return res.status(httpStatus.OK).send({ result });
+          return res.status(httpStatus.OK).send(result);
         } else {
           logger.warn(util.format('fail to %s response, %j', fcnName, result));
           return res.status(httpStatus.BAD_REQUEST).send({ error: `fail to ${fcnName}` });

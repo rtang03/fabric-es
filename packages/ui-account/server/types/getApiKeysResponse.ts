@@ -1,6 +1,6 @@
-import { ApiKey } from '../entity/ApiKey';
+import { ApiKey } from './ApiKey';
 
 export interface GetApiKeysResponse {
-  ok: boolean;
+  ok: true;
   apiKeys: ApiKey[];
 }

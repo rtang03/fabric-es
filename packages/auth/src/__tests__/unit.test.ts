@@ -252,7 +252,7 @@ describe('Auth Tests - /client', () => {
     request(app)
       .get('/client?application_name=nope')
       .set('authorization', `Bearer ${access_token}`)
-      .expect(({ status }) => expect(status).toEqual(httpStatus.NOT_FOUND)));
+      .expect(({ status }) => expect(status).toEqual(httpStatus.BAD_REQUEST)));
 
   it('should search root client by application_name', async () =>
     request(app)
@@ -401,10 +401,7 @@ describe('Auth Tests - /oauth', () => {
     request(app)
       .get(`/api_key?client_id=${client_id}`)
       .set('authorization', `Bearer ${access_token}`)
-      .expect(({ body }) => {
-        expect(body.ok).toBeTruthy();
-        body.apiKeys.forEach(key => expect(isApikey(key)).toBeTruthy());
-      }));
+      .expect(({ body }) => body.forEach(key => expect(isApikey(key)).toBeTruthy())));
 
   it('should exchange access_token with uid/pw: password grant type', async () =>
     request(app)

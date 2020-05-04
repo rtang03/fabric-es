@@ -8,4 +8,4 @@ export * from './fetchResult';
 export * from './deserializeToken';
 export * from './processResult';
 export * from './catchErrors';
-export * from './validateRequest';
+export * from './postResultRouting';

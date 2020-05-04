@@ -11,6 +11,8 @@ const logger = getLogger({ name: '[auth] createApiKeyRoute.js' });
 export const createApiKeyRoute: () => express.Router = () => {
   const router = express.Router();
 
+  router.get('/isalive', (_, res) => res.sendStatus(httpStatus.NO_CONTENT));
+
   router.get(
     '/',
     passport.authenticate('bearer', { session: false }),
@@ -31,7 +33,7 @@ export const createApiKeyRoute: () => express.Router = () => {
         } else {
           const keys = await ApiKey.find({ where: { client_id } });
 
-          return res.status(httpStatus.OK).send({ ok: true, apiKeys: keys || [] });
+          return res.status(httpStatus.OK).send(keys);
         }
       },
       { logger, fcnName: 'get api_key' }

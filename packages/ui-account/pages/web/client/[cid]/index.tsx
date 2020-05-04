@@ -6,15 +6,14 @@ import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
-import httpStatus from 'http-status';
 import { NextPage } from 'next';
 import Link from 'next/link';
-import Router, { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import * as yup from 'yup';
 import Layout from '../../../../components/Layout';
 import { Client, UpdateClientResponse, User } from '../../../../server/types';
-import { fetchResult, getBackendApi, getValidationSchema, useStyles } from '../../../../utils';
+import { fetchResult, getBackendApi, getValidationSchema, postResultRouting, useStyles } from '../../../../utils';
 
 const validationSchema = yup.object(getValidationSchema(['application_name', 'client_secret', 'redirect_uris']));
 
@@ -62,11 +61,10 @@ const ClientPage: NextPage<{ user: User; apiUrl: string; client: Client }> = ({ 
               body: JSON.stringify({ application_name, client_secret, redirect_uris })
             });
             const result: UpdateClientResponse = await res.json();
-            if (res.status === httpStatus.OK) {
-              setSubmitting(false);
+            setSubmitting(false);
+            await postResultRouting(res.status, `/web/client/${cid}`, 'fail to update client', async () => {
               setEditMode(false);
-              await Router.push('/web/client');
-            } else console.error('fail to update client');
+            });
           } catch (e) {
             console.error(e);
             setSubmitting(false);
@@ -123,7 +121,7 @@ const ClientPage: NextPage<{ user: User; apiUrl: string; client: Client }> = ({ 
             <p />
             <Divider />
             <Link href="/web/client/[cid]/api_key" as={`/web/client/${cid}/api_key`}>
-              <a>Create api_key</a>
+              <a>Request API key</a>
             </Link>
           </>
         )}

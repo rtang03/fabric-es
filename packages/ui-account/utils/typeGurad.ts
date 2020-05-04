@@ -1,5 +1,6 @@
 import isEqual from 'lodash/isEqual';
 import {
+  ApiKey,
   Client,
   CreateClientRequest,
   CreateClientResponse,
@@ -73,3 +74,14 @@ export const isCreateClientResponse = (input: any): input is CreateClientRespons
   input?.id !== undefined && input?.application_name !== undefined && input?.ok !== undefined;
 
 export const isGenericResponse = (input: any): input is GenericResponse => input?.ok !== undefined;
+
+export const isApiKeys = (input: any): input is ApiKey[] =>
+  isEqual(input, [])
+    ? true
+    : input?.length
+    ? input.reduce(
+        (prev: any, curr: any) =>
+          curr?.id !== undefined && curr?.api_key !== undefined && curr?.client_id !== undefined,
+        true
+      )
+    : false;

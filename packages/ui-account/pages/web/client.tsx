@@ -8,15 +8,20 @@ import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
-import httpStatus from 'http-status';
 import { NextPage } from 'next';
 import Link from 'next/link';
-import Router from 'next/router';
 import React, { useState } from 'react';
 import * as yup from 'yup';
 import Layout from '../../components/Layout';
 import { Client, User } from '../../server/types';
-import { fetchResult, getBackendApi, getValidationSchema, useStyles } from '../../utils';
+import {
+  fetchResult,
+  getBackendApi,
+  getValidationSchema,
+  postResultRouting,
+  setPostRequest,
+  useStyles
+} from '../../utils';
 
 const validationSchema = yup.object(getValidationSchema(['application_name', 'client_secret']));
 
@@ -44,20 +49,18 @@ const ClientPage: NextPage<{ apiUrl: string; user: User; clients: Client[] }> = 
                     mode: 'cors'
                   });
                   const result = await res.json();
-                  if (res.status === httpStatus.OK) {
-                    setSubmitting(false);
-                    await Router.push('/web/client');
-                  } else console.error('fail to delete client');
+                  setSubmitting(false);
+                  await postResultRouting(res.status, '/web/client', 'fail to delete client');
                 } catch (e) {
                   console.error(e);
                   setSubmitting(false);
                 }
               }}>
               {({ isSubmitting }) => (
-                <Form>
-                  <ListItem>
+                <ListItem>
+                  <Form>
                     {' '}
-                    <Link key={client.id} href="/web/client/[cid]" as={`/web/client/${client.id}`}>
+                    <Link href="/web/client/[cid]" as={`/web/client/${client.id}`}>
                       <a>{client.application_name}</a>
                     </Link>{' '}
                     <Button
@@ -68,8 +71,8 @@ const ClientPage: NextPage<{ apiUrl: string; user: User; clients: Client[] }> = 
                       type="submit">
                       Delete
                     </Button>
-                  </ListItem>
-                </Form>
+                  </Form>
+                </ListItem>
               )}
             </Formik>
           </div>
@@ -98,25 +101,17 @@ const ClientPage: NextPage<{ apiUrl: string; user: User; clients: Client[] }> = 
         onSubmit={async ({ application_name, client_secret }, { setSubmitting, setFieldValue }) => {
           setSubmitting(true);
           try {
-            const res = await fetch(apiUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-              },
-              body: JSON.stringify({ application_name, client_secret, redirect_uris: '' }),
-              mode: 'cors'
-            });
-            const { ok } = await res.json();
-            if (ok) {
+            const res = await fetch(
+              apiUrl,
+              setPostRequest({ application_name, client_secret, redirect_uris: '' }, true)
+            );
+            const result = await res.json();
+            setSubmitting(false);
+            await postResultRouting(res.status, '/web/client', 'fail to create client', async () => {
               setFieldValue('application_name', '');
               setFieldValue('client_secret', '');
-            }
-            if (res.status === httpStatus.OK) {
-              setSubmitting(false);
               setEditMode(false);
-              await Router.push('/web/client');
-            } else console.error('fail to create client');
+            });
           } catch (e) {
             console.error(e);
             setSubmitting(false);
@@ -150,7 +145,7 @@ const ClientPage: NextPage<{ apiUrl: string; user: User; clients: Client[] }> = 
               variant="contained"
               color="primary"
               disabled={
-                isSubmitting ||
+                isSubmitting || !editMode ||
                 (!!errors?.application_name && !values?.application_name) ||
                 (!!errors?.client_secret && !values?.client_secret)
               }
