@@ -64,6 +64,8 @@ typings/
 
 hosts/
 
+dist/
+
 channel-config/
 client-certs/
 wallet/

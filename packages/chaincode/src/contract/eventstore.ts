@@ -85,29 +85,38 @@ export class EventStore extends Contract {
       });
     } else throw new Error('eventStr is not correct format');
 
+    // ///////////////////////////////////////////////////////////////////
+    // Add the concept 'lifeCycle' to BaseEvent (../ledger-api/commit.ts)
+    // lifeCycle == 0 - NORMAL event, no restriction
+    // lifeCycle == 1 - BEGIN event, can only appear once at the begining of the event stream of an entity
+    // lifeCycle == 2 - END event, can only appear once at the end of the event stream of an entity
     const lcBgn = events.findIndex(item => item.lifeCycle && (item.lifeCycle === 1));
     const lcEnd = events.findIndex(item => item.lifeCycle && (item.lifeCycle === 2));
     if ((lcBgn >= 0) || (lcEnd >= 0)) {
       if ((lcBgn >= 0) && (lcEnd >= 0) && (lcBgn >= lcEnd)) {
-        // Here when the entity identified by the ID not yet exists (can begin) but immedate ended in the same commit
+        // Both BEGIN and END events found in the stream, but in incorrect order (entity END before BEGIN)
         throw new Error(`Cannot end ${id} before starting`);
       }
 
       const rslt: Buffer = await context.stateList.getQueryResult([JSON.stringify(entityName), JSON.stringify(id)]);
       if (lcBgn >= 0) {
         if (rslt && (rslt.toString('utf8').includes(`"id":"${id}"`))) {
+          // Attempt to BEGIN an entity with the same {id}
           throw new Error(`Lifecycle of ${id} already started`);
         }
       }
 
       if (lcEnd >= 0) {
         if (!rslt || (!rslt.toString('utf8').includes(`"id":"${id}"`))) {
+          // Attempt to END an non-existing entity
           throw new Error(`Lifecycle of ${id} not started yet`);
         } else if (rslt.toString('utf8').includes('"lifeCycle":2')) {
+          // Attempt to END an already ended entity
           throw new Error(`Lifecycle of ${id} already ended`);
         }
       }
     }
+    // ///////////////////////////////////////////////////////////////////*/
 
     await context.stateList.addState(commit);
 
