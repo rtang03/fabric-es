@@ -8,7 +8,7 @@ import {
   docContentsReducer,
   docContentsResolvers,
   docContentsTypeDefs
-} from '@fabric-es/model-loan-private';
+} from '@fabric-es/model-document';
 import { Wallets } from 'fabric-network';
 
 const logger = getLogger('service-prv-ctnt.js');

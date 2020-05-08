@@ -1,4 +1,4 @@
-import { ContactInfo as SuperContactInfo, LoanDetails as SuperDetails } from '@fabric-es/model-loan-private';
+import { ContactInfo as SuperContactInfo, LoanDetails as SuperDetails } from '@fabric-es/model-loan';
 
 export type ContactInfo = SuperContactInfo & {
   company: string;

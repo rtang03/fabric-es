@@ -1,7 +1,8 @@
-import { BaseEvent } from '@fabric-es/fabric-cqrs';
+import { BaseEvent, Lifecycle } from '@fabric-es/fabric-cqrs';
 
 export interface DocumentCreated extends BaseEvent {
   readonly type: 'DocumentCreated';
+  readonly lifeCycle: Lifecycle.BEGIN;
   payload: {
     documentId: string;
     userId: string;
@@ -11,6 +12,7 @@ export interface DocumentCreated extends BaseEvent {
 
 export interface DocumentDeleted extends BaseEvent {
   readonly type: 'DocumentDeleted';
+  readonly lifeCycle: Lifecycle.END;
   payload: {
     documentId: string;
     userId: string;

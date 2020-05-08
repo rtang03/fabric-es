@@ -362,7 +362,7 @@ describe('Multi-Org Test - Initialize Org1', () => {
     expect(false).toBeTruthy();
   });
 
-  it('overwrite loan 1, should fail after adding entity lifecycle event attribute!', async () => {
+  it('overwrite loan 1', async () => {
     if (isReady) {
       await fetch(GATEWAY1, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken1}` }, body: JSON.stringify({
@@ -374,7 +374,8 @@ describe('Multi-Org Test - Initialize Org1', () => {
             comment: 'Hello 0001 OVERWRITTEN'
           }})})
         .then(res => res.json())
-        .then(({ data }) => expect(data.applyLoan.id).toEqual(loanId1))
+        .then(({ errors }) => expect(errors.reduce((acc, cur) =>
+          cur.message.includes('already started') ? cur.message : acc, '')).toContain('already started'))
         .catch(_ => expect(false).toBeTruthy());
       return;
     }

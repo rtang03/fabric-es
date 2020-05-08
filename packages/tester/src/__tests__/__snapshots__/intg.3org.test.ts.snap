@@ -4,9 +4,9 @@ exports[`Multi-Org Test - Query Loans query document 1 by field 1`] = `
 Array [
   Object {
     "loan": Object {
-      "description": "Org1 Loan 1 OVERWRITTEN",
+      "description": "Org1 Loan 1",
       "ownerId": "USER_ORG1",
-      "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+      "reference": "REF-ORG1-LOAN-1",
       "status": 0,
     },
     "ownerId": "USER_ORG1",
@@ -16,9 +16,9 @@ Array [
   },
   Object {
     "loan": Object {
-      "description": "Org1 Loan 1 OVERWRITTEN",
+      "description": "Org1 Loan 1",
       "ownerId": "USER_ORG1",
-      "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+      "reference": "REF-ORG1-LOAN-1",
       "status": 0,
     },
     "ownerId": "USER_ORG1",
@@ -33,9 +33,9 @@ exports[`Multi-Org Test - Query Loans query document 1 contains 1`] = `
 Array [
   Object {
     "loan": Object {
-      "description": "Org1 Loan 1 OVERWRITTEN",
+      "description": "Org1 Loan 1",
       "ownerId": "USER_ORG1",
-      "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+      "reference": "REF-ORG1-LOAN-1",
       "status": 0,
     },
     "ownerId": "USER_ORG1",
@@ -45,9 +45,9 @@ Array [
   },
   Object {
     "loan": Object {
-      "description": "Org1 Loan 1 OVERWRITTEN",
+      "description": "Org1 Loan 1",
       "ownerId": "USER_ORG1",
-      "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+      "reference": "REF-ORG1-LOAN-1",
       "status": 0,
     },
     "ownerId": "USER_ORG1",
@@ -221,7 +221,7 @@ Object {
     },
   ],
   "comment": Any<String>,
-  "description": "Org1 Loan 1 OVERWRITTEN",
+  "description": "Org1 Loan 1",
   "documents": Array [
     Object {
       "contents": Object {
@@ -246,7 +246,7 @@ Object {
     },
   ],
   "ownerId": "USER_ORG1",
-  "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+  "reference": "REF-ORG1-LOAN-1",
   "status": 0,
 }
 `;
@@ -254,7 +254,7 @@ Object {
 exports[`Multi-Org Test - Query Loans query loan 1 by field 1`] = `
 Array [
   Object {
-    "description": "Org1 Loan 1 OVERWRITTEN",
+    "description": "Org1 Loan 1",
     "documents": Array [
       Object {
         "reference": "REF-ORG1-DOC-1",
@@ -268,7 +268,7 @@ Array [
       },
     ],
     "ownerId": "USER_ORG1",
-    "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+    "reference": "REF-ORG1-LOAN-1",
     "status": 0,
   },
 ]
@@ -277,7 +277,7 @@ Array [
 exports[`Multi-Org Test - Query Loans query loan 1 contains 1`] = `
 Array [
   Object {
-    "description": "Org1 Loan 1 OVERWRITTEN",
+    "description": "Org1 Loan 1",
     "documents": Array [
       Object {
         "reference": "REF-ORG1-DOC-1",
@@ -291,7 +291,7 @@ Array [
       },
     ],
     "ownerId": "USER_ORG1",
-    "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+    "reference": "REF-ORG1-LOAN-1",
     "status": 0,
   },
   Object {
@@ -419,7 +419,7 @@ Array [
 exports[`Multi-Org Test - Query Loans query loan 2 contains 1`] = `
 Array [
   Object {
-    "description": "Org1 Loan 1 OVERWRITTEN",
+    "description": "Org1 Loan 1",
     "documents": Array [
       Object {
         "reference": "REF-ORG1-DOC-1",
@@ -433,7 +433,7 @@ Array [
       },
     ],
     "ownerId": "USER_ORG1",
-    "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+    "reference": "REF-ORG1-LOAN-1",
     "status": 0,
   },
   Object {
@@ -558,7 +558,7 @@ Array [
 exports[`Multi-Org Test - Query Loans query loan 3 contains 1`] = `
 Array [
   Object {
-    "description": "Org1 Loan 1 OVERWRITTEN",
+    "description": "Org1 Loan 1",
     "documents": Array [
       Object {
         "reference": "REF-ORG1-DOC-1",
@@ -572,7 +572,7 @@ Array [
       },
     ],
     "ownerId": "USER_ORG1",
-    "reference": "REF-ORG1-LOAN-1-OVERWRITTEN",
+    "reference": "REF-ORG1-LOAN-1",
     "status": 0,
   },
   Object {

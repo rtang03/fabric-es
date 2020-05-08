@@ -81,7 +81,7 @@ export interface LoanDetailsCommands {
       timestamp: number;
     };
   };
-  DefineLoanComment: {
+  DefineLoanDtlComment: {
     userId: string;
     payload: {
       loanId: string;

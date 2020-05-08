@@ -1,5 +1,5 @@
 import { Errors } from '@fabric-es/gateway-lib';
-import { loanDetailsCommandHandler as superHandler, LoanDetailsErrors } from '@fabric-es/model-loan-private';
+import { loanDetailsCommandHandler as superHandler, LoanDetailsErrors } from '@fabric-es/model-loan';
 import { LoanDetailsCommandHandler, LoanDetailsRepo } from '.';
 
 export const loanDetailsCommandHandler: (option: {

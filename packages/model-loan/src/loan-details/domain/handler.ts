@@ -45,7 +45,7 @@ export const loanDetailsCommandHandler: (option: {
     if (approvedAmt)
       events.push({ type: 'LoanApprovedAmtDefined', payload: { loanId, userId, approvedAmt, timestamp }});
     if (comment)
-      events.push({ type: 'LoanCommentDefined', payload: { loanId, userId, comment, timestamp }});
+      events.push({ type: 'LoanDtlCommentDefined', payload: { loanId, userId, comment, timestamp }});
     return loanDetailsRepo.create({ enrollmentId, id: loanId }).save(events);
   },
   DefineLoanRequester: async _ => {
@@ -114,11 +114,11 @@ export const loanDetailsCommandHandler: (option: {
         { type: 'LoanApprovedAmtDefined', payload: { loanId, userId, approvedAmt, timestamp }}
       ]);
     }),
-  DefineLoanComment: async ({ userId, payload: { loanId, comment, timestamp } }) =>
+  DefineLoanDtlComment: async ({ userId, payload: { loanId, comment, timestamp } }) =>
     loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
       if (!currentState) throw LoanDetailsErrors.loanDetailsNotFound(loanId);
       return save([
-        { type: 'LoanCommentDefined', payload: { loanId, userId, comment, timestamp }}
+        { type: 'LoanDtlCommentDefined', payload: { loanId, userId, comment, timestamp }}
       ]);
     })
 });

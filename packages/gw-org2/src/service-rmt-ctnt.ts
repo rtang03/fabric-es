@@ -1,7 +1,7 @@
 require('./env');
 import util from 'util';
 import { createRemoteService, getLogger } from '@fabric-es/gateway-lib';
-import { docContentsRemoteResolvers, docContentsRemoteTypeDefs } from '@fabric-es/model-loan-private';
+import { docContentsRemoteResolvers, docContentsRemoteTypeDefs } from '@fabric-es/model-document';
 
 const logger = getLogger('service-rmt-ctnt.js');
 

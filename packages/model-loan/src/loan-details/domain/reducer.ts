@@ -65,7 +65,7 @@ export const loanDetailsReducer = (details: LoanDetails, event: LoanDetailsEvent
         ...details,
         approvedAmt: event.payload.approvedAmt
       };
-    case 'LoanCommentDefined':
+    case 'LoanDtlCommentDefined':
       return {
         ...details,
         comment: event.payload.comment

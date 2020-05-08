@@ -95,8 +95,8 @@ export interface LoanApprovedAmtDefined extends BaseEvent {
   };
 }
 
-export interface LoanCommentDefined extends BaseEvent {
-  readonly type: 'LoanCommentDefined';
+export interface LoanDtlCommentDefined extends BaseEvent {
+  readonly type: 'LoanDtlCommentDefined';
   payload: {
     loanId: string;
     userId: string;
@@ -115,4 +115,4 @@ export type LoanDetailsEvents =
   | LoanCurrencyDefined
   | LoanRequestedAmtDefined
   | LoanApprovedAmtDefined
-  | LoanCommentDefined;
+  | LoanDtlCommentDefined;
