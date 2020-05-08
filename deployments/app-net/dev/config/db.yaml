@@ -5,41 +5,41 @@ networks:
 
 services:
 
-    postgres-1:
-        container_name: postgres-1
+    postgres01:
+        container_name: postgres01
         image: postgres
         environment:
             - POSTGRES_DB=postgres
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=docker
         volumes:
-            - ../data/postgres-1:/var/lib/postgresql/data
+            - ../data/postgres01:/var/lib/postgresql/data
             - ../sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
         networks:
             - middle-tier
 
-    postgres-2:
-        container_name: postgres-2
+    postgres02:
+        container_name: postgres02
         image: postgres
         environment:
             - POSTGRES_DB=postgres
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=docker
         volumes:
-            - ../data/postgres-2:/var/lib/postgresql/data
+            - ../data/postgres02:/var/lib/postgresql/data
             - ../sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
         networks:
             - middle-tier
 
-    postgres-3:
-        container_name: postgres-3
+    postgres03:
+        container_name: postgres03
         image: postgres
         environment:
             - POSTGRES_DB=postgres
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=docker
         volumes:
-            - ../data/postgres-3:/var/lib/postgresql/data
+            - ../data/postgres03:/var/lib/postgresql/data
             - ../sql/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
         networks:
             - middle-tier
