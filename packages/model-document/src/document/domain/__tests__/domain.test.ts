@@ -1,26 +1,14 @@
 import { Commit, getMockRepository, getReducer } from '@fabric-es/fabric-cqrs';
 import { Document, documentCommandHandler, DocumentEvents, documentReducer, DocumentStatus } from '../..';
-import { Loan, loanCommandHandler, LoanEvents, loanReducer } from '../../../loan';
 
 const enrollmentId = '';
 const userId = 'USER002';
 const mockdb: Record<string, Commit> = {};
-const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan, LoanEvents>(loanReducer));
 const documentRepo = getMockRepository<Document, DocumentEvents>(
   mockdb, 'document', getReducer<Document, DocumentEvents>(documentReducer)
 );
 
 beforeAll(async () => {
-  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
-    userId,
-    payload: { loanId: 'LOANID001', reference: 'LOANREF001', description: 'HOWAREYOUTODAY', timestamp: Date.now() }
-  });
-
-  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
-    userId,
-    payload: { loanId: 'LOANID002', reference: 'LOANREF002', description: 'HOWAREYOUTODAY', timestamp: Date.now() }
-  });
-
   await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
     userId,
     payload: {

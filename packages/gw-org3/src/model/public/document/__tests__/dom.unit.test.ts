@@ -1,5 +1,6 @@
 import { Commit, getMockRepository, getReducer } from '@fabric-es/fabric-cqrs';
-import { DocumentStatus, Loan, loanCommandHandler, LoanEvents, loanReducer } from '@fabric-es/model-loan';
+import { DocumentStatus } from '@fabric-es/model-document';
+import { Loan, loanCommandHandler, LoanEvents, loanReducer } from '@fabric-es/model-loan';
 import { Document, documentCommandHandler, DocumentEvents, documentReducer } from '..';
 
 const enrollmentId = '';

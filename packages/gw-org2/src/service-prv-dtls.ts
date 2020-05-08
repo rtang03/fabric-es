@@ -8,7 +8,7 @@ import {
   loanDetailsReducer,
   loanDetailsResolvers,
   loanDetailsTypeDefs
-} from '@fabric-es/model-loan-private';
+} from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
 
 const logger = getLogger('service-prv-dtls.js');

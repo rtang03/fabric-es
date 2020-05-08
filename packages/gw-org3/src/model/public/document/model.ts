@@ -1,4 +1,4 @@
-import { Document as SuperDocument } from '@fabric-es/model-loan';
+import { Document as SuperDocument } from '@fabric-es/model-document';
 
 /**
  * **Document** represents any supporting resources, such as trade documents, shipping documents, custom declarations, associating

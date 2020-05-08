@@ -240,7 +240,7 @@ export const resolvers = {
         const c = await loanDetailsCommandHandler({
           enrollmentId,
           loanDetailsRepo: loanDetails.repo
-        }).DefineLoanComment({
+        }).DefineLoanDtlComment({
           userId,
           payload: { loanId, comment, timestamp: Date.now() }
         }).then(data => data)

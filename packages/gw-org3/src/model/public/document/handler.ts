@@ -1,5 +1,5 @@
 import { Errors } from '@fabric-es/gateway-lib';
-import { documentCommandHandler as superCommandHandler, DocumentErrors } from '@fabric-es/model-loan';
+import { documentCommandHandler as superCommandHandler, DocumentErrors } from '@fabric-es/model-document';
 import { DocumentCommandHandler, DocumentRepo } from '.';
 
 export const documentCommandHandler: (option: {

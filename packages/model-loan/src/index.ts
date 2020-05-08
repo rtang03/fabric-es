@@ -10,5 +10,5 @@
  *  > DocContents - Content of a document associate with an on-chain document entity.
  */
 
-export * from './document';
 export * from './loan';
+export * from './loan-details';

@@ -2,44 +2,44 @@ require('../env');
 import { getReducer } from '@fabric-es/fabric-cqrs';
 import { createAdminService, createGateway, createService } from '@fabric-es/gateway-lib';
 import {
-  APPLY_LOAN,
-  APPROVE_LOAN,
-  CANCEL_LOAN,
+  CREATE_DOC_CONTENTS,
   CREATE_DOCUMENT,
   DELETE_DOCUMENT,
-  Document,
-  DocumentEvents,
-  documentReducer,
-  documentResolvers,
-  documentTypeDefs,
-  EXPIRE_LOAN,
-  Loan,
-  LoanEvents,
-  loanReducer,
-  loanResolvers,
-  loanTypeDefs,
-  REJECT_LOAN,
-  RESTRICT_DOCUMENT_ACCESS,
-  RETURN_LOAN,
-  UPDATE_DOCUMENT,
-  UPDATE_LOAN
-} from '@fabric-es/model-loan';
-import {
-  CREATE_DOC_CONTENTS,
-  CREATE_LOAN_DETAILS,
   DocContents,
   DocContentsEvents,
   docContentsReducer,
   docContentsResolvers,
   docContentsTypeDefs,
+  Document,
+  DocumentEvents,
+  documentReducer,
+  documentResolvers,
+  documentTypeDefs,
+  RESTRICT_DOCUMENT_ACCESS,
+  UPDATE_DOC_CONTENTS,
+  UPDATE_DOCUMENT
+} from '@fabric-es/model-document';
+import {
+  APPLY_LOAN,
+  APPROVE_LOAN,
+  CANCEL_LOAN,
+  CREATE_LOAN_DETAILS,
+  EXPIRE_LOAN,
+  Loan,
   LoanDetails,
   LoanDetailsEvents,
   loanDetailsReducer,
   loanDetailsResolvers,
   loanDetailsTypeDefs,
-  UPDATE_DOC_CONTENTS,
+  LoanEvents,
+  loanReducer,
+  loanResolvers,
+  loanTypeDefs,
+  REJECT_LOAN,
+  RETURN_LOAN,
+  UPDATE_LOAN,
   UPDATE_LOAN_DETAILS
-} from '@fabric-es/model-loan-private';
+} from '@fabric-es/model-loan';
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import { Express } from 'express';
