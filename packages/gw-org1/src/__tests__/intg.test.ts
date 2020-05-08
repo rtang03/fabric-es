@@ -56,7 +56,8 @@ import {
   OAUTH_REGISTER
 } from './queries';
 
-const oPort = 3901;
+const oPort = 3001;
+const gPort = 4001;
 const aPort = 15050;
 const lPort = 14052;
 const dPort = 14053;
@@ -68,11 +69,13 @@ const tReducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
 const cReducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
 
 const AUTH_SERVER = `http://localhost:${oPort}/graphql`;
-const ADMIN_SERVICE = `http://localhost:${aPort}/graphql`;
+const GATE_SERVICE = `http://localhost:${gPort}/graphql`;
 const userId = 'unitTestUser';
 const timestamp = Date.now();
+const amail = `a${timestamp}@${process.env.ORGNAME}`;
 const email = `u${timestamp}@${process.env.ORGNAME}`;
 const password = 'p@ssw0rd';
+const adminame = `a${timestamp}`;
 const username = `u${timestamp}`;
 const loanId0 = `la${timestamp}`;
 const loanId1 = `lb${timestamp + 10}`;
@@ -143,6 +146,49 @@ beforeAll(async () => {
     return;
   }
 
+  console.log(`♨️♨️  Registering admin to ${AUTH_SERVER} as ${amail} / ${adminame} / ${password}`);
+  if (
+    !(await fetch(AUTH_SERVER, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        operationName: 'Register',
+        query: OAUTH_REGISTER,
+        variables: { email: amail, username: adminame, password, admin_password: 'root_admin1_password' }
+      })
+    })
+      .then(res => res.json())
+      .then(({ data, errors }) => data || errors.map(d => (d && d.message ? d.message : '')) === 'already exist'))
+  ) {
+    console.log(`♨️♨️  Registering admin to OAUTH server ${AUTH_SERVER} failed`);
+    return;
+  }
+
+  console.log(`♨️♨️  Admin logging in to ${AUTH_SERVER} as ${amail} / ${password}`);
+  const { adminLoggedIn, adminId, adminToken } = await fetch(AUTH_SERVER, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      operationName: 'Login',
+      query: OAUTH_LOGIN,
+      variables: { email: amail, password }
+    })
+  })
+    .then(res => res.json())
+    .then(({ data }) => {
+      if (data.login.ok) {
+        return {
+          adminLoggedIn: true,
+          adminId: data.login.user.id,
+          adminToken: data.login.accessToken
+        };
+      }
+    });
+  if (!adminLoggedIn) {
+    console.log(`♨️♨️  Admin logging in to OAUTH server ${AUTH_SERVER} as ${amail} / ${password} failed`);
+    return;
+  }
+
   console.log(`♨️♨️  Registering to ${AUTH_SERVER} as ${email} / ${username} / ${password}`);
   if (
     !(await fetch(AUTH_SERVER, {
@@ -205,26 +251,6 @@ beforeAll(async () => {
   }));
 
   adminService.listen({ port: aPort });
-
-  isReady = await fetch(ADMIN_SERVICE, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken}` },
-    body: JSON.stringify({
-      operationName: 'RegisterAndEnrollUser',
-      query: GW_REGISTER_ENROLL,
-      variables: {
-        enrollmentId,
-        enrollmentSecret: 'password',
-        administrator: process.env.CA_ENROLLMENT_ID_ADMIN
-      }
-    })
-  })
-    .then(res => res.json())
-    .then(({ data }) => data);
-  if (!isReady) {
-    console.log(`♨️♨️  Enrolling user ${enrollmentId} to network via ${aPort} failed`);
-    return;
-  }
 
   console.log('🚀  Ready, starting services');
   // Start loan service
@@ -318,7 +344,7 @@ beforeAll(async () => {
   // Start federated gateway
   gateway = await createGateway({
     serviceList: [
-      { name: 'admin', url: ADMIN_SERVICE },
+      { name: 'admin', url: `http://localhost:${aPort}/graphql` },
       { name: 'loan', url: `http://localhost:${lPort}/graphql` },
       { name: 'document', url: `http://localhost:${dPort}/graphql` },
       { name: 'loanDetails', url: `http://localhost:${tPort}/graphql` },
@@ -328,6 +354,23 @@ beforeAll(async () => {
     useCors: true,
     debug: false
   });
+
+  isReady = await request(gateway)
+    .post('/graphql')
+    .set('authorization', `bearer ${accessToken}`)
+    .send({
+      operationName: 'RegisterAndEnrollUser',
+      query: GW_REGISTER_ENROLL,
+      variables: {
+        enrollmentId,
+        enrollmentSecret: 'password',
+        administrator: process.env.CA_ENROLLMENT_ID_ADMIN
+      }
+    }).then(({ body: { data } }) => data);
+  if (!isReady) {
+    console.log(`♨️♨️  Enrolling user ${enrollmentId} to network via ${aPort} failed`);
+    return;
+  }
 });
 
 afterAll(async () => {

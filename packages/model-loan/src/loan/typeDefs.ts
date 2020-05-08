@@ -116,7 +116,7 @@ export const resolvers = {
           userId,
           payload: { loanId, description, reference, comment, timestamp: Date.now() }
       }).catch(error => {
-        if (error.error.message) {
+        if (error.error && error.error.message) {
           return new ApolloError(error.error.message);
         } else {
           return new ApolloError(error);
@@ -130,7 +130,7 @@ export const resolvers = {
         userId,
         payload: { loanId, timestamp: Date.now() }
       }).catch(error => {
-        if (error.error.message) {
+        if (error.error && error.error.message) {
           return new ApolloError(error.error.message);
         } else {
           return new ApolloError(error);

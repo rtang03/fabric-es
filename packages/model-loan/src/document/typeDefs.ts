@@ -130,7 +130,7 @@ export const resolvers = {
           timestamp: Date.now()
         }
       }).catch(error => {
-        if (error.error.message) {
+        if (error.error && error.error.message) {
           return new ApolloError(error.error.message);
         } else {
           return new ApolloError(error);
@@ -147,7 +147,7 @@ export const resolvers = {
           userId,
           payload: { documentId, timestamp: Date.now() }
       }).catch(error => {
-        if (error.error.message) {
+        if (error.error && error.error.message) {
           return new ApolloError(error.error.message);
         } else {
           return new ApolloError(error);
