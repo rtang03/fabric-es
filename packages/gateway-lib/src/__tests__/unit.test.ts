@@ -19,7 +19,8 @@ import {
   LIST_WALLET
 } from '../admin/query';
 import { QueryResponse } from '../types';
-import { createGateway, isCaIdentity, isLoginResponse, isRegisterResponse } from '../utils';
+import { createGateway, createService, isCaIdentity, isLoginResponse, isRegisterResponse } from '../utils';
+import { Counter, CounterEvents, DECREMENT, GET_COUNTER, INCREMENT, reducer, resolvers, typeDefs } from './__utils__';
 
 const proxyServerUri = `${process.env.PROXY_SERVER}`;
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
@@ -39,13 +40,16 @@ const random = Math.floor(Math.random() * 10000);
 const username = `gw_test_username_${random}`;
 const password = `password`;
 const email = `gw_test_${random}@test.com`;
+const counterId = `counter_${random}`;
 
 let app: express.Express;
 let adminApolloService: ApolloServer;
+let modelApolloService: ApolloServer;
 let userId: string;
 let accessToken: string;
 let adminAccessToken: string;
 
+const MODEL_SERVICE_PORT = 15001;
 const ADMIN_SERVICE_PORT = 15000;
 const GATEWAY_PORT = 4000;
 
@@ -55,6 +59,7 @@ beforeAll(async () => {
 
   try {
     const wallet = await Wallets.newFileSystemWallet(walletPath);
+    // Step 1: EnrollAdmin
     await enrollAdmin({
       enrollmentID: orgAdminId,
       enrollmentSecret: orgAdminSecret,
@@ -65,6 +70,7 @@ beforeAll(async () => {
       wallet
     });
 
+    // Step 2: EnrollCaAdmin
     await enrollAdmin({
       enrollmentID: caAdmin,
       enrollmentSecret: caAdminPW,
@@ -75,6 +81,27 @@ beforeAll(async () => {
       wallet
     });
 
+    // Step 3: Prepare Counter Model microservice
+    const modelService = await createService({
+      asLocalhost: true,
+      channelName,
+      connectionProfile,
+      defaultEntityName: 'counter',
+      defaultReducer: reducer,
+      enrollmentId: orgAdminId,
+      wallet
+    });
+
+    modelApolloService = await modelService
+      .config({ typeDefs, resolvers })
+      .addRepository(
+        modelService.getRepository<Counter, CounterEvents>({ entityName: 'counter', reducer })
+      )
+      .create();
+
+    await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () => console.log('model service started'));
+
+    // step 4: Prepare Admin microservice
     const service = await createAdminService({
       asLocalhost: false,
       caAdmin,
@@ -92,12 +119,14 @@ beforeAll(async () => {
     });
     adminApolloService = service.server;
 
-    await adminApolloService.listen({ port: ADMIN_SERVICE_PORT }, () => {
-      console.log('admin service started');
-    });
+    await adminApolloService.listen({ port: ADMIN_SERVICE_PORT }, () => console.log('admin service started'));
 
+    // Step 5: Prepare Federated Gateway
     app = await createGateway({
-      serviceList: [{ name: 'admin', url: `http://localhost:${ADMIN_SERVICE_PORT}/graphql` }],
+      serviceList: [
+        { name: 'admin', url: `http://localhost:${ADMIN_SERVICE_PORT}/graphql` },
+        { name: 'counter', url: `http://localhost:${MODEL_SERVICE_PORT}/graphql` }
+      ],
       authenticationCheck: `${proxyServerUri}/oauth/authenticate`
     });
 
@@ -114,20 +143,12 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await modelApolloService.stop();
   await adminApolloService.stop();
-  return new Promise(done => setTimeout(() => done(), 2000));
+  return new Promise(done => setTimeout(() => done(), 5000));
 });
 
-/**
- * Pre-requisite: running auth-server/postgres/redis in docker-compose
- * use '~/deployments/dev-net/dev-net-run.1org.auth.sh'
- * 1. Register new user in auth-server, via REST
- * 2. Login auth-server, via REST, to obtain access_token
- * 3. Launch adminService micro-service
- * 4. Launch Counter service
- * 5. Launch federated gateway
- */
-describe('Gateway Test', () => {
+describe('Gateway Test - admin service', () => {
   it('should ping /isalive', async () =>
     fetch(`${proxyServerUri}/account/isalive`).then(r => {
       if (r.status === httpStatus.NO_CONTENT) return true;
@@ -165,7 +186,7 @@ describe('Gateway Test', () => {
         } else return false;
       }));
 
-  it('should say hello', async () =>
+  it('should say hello to admin-service', async () =>
     request(app)
       .post('/graphql')
       .send({
@@ -173,6 +194,17 @@ describe('Gateway Test', () => {
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.me).toEqual('Hello');
+        expect(errors).toBeUndefined();
+      }));
+
+  it('should say hello to counter-service', async () =>
+    request(app)
+      .post('/graphql')
+      .send({
+        query: `query pingCounter { pingCounter }`
+      })
+      .expect(({ body: { data, errors } }) => {
+        expect(data?.pingCounter).toEqual('I am a simple counter');
         expect(errors).toBeUndefined();
       }));
 
@@ -318,8 +350,7 @@ describe('Gateway Test', () => {
       .set('authorization', `bearer ${adminAccessToken}`)
       .send({
         operationName: 'CreateWallet',
-        query: CREATE_WALLET,
-        variables: { enrollmentSecret: password }
+        query: CREATE_WALLET
       })
       .expect(({ body: { data, errors } }) => {
         expect(data).toBeNull();
@@ -332,11 +363,100 @@ describe('Gateway Test', () => {
       .set('authorization', `bearer ${accessToken}`)
       .send({
         operationName: 'CreateWallet',
-        query: CREATE_WALLET,
-        variables: { enrollmentSecret: password }
+        query: CREATE_WALLET
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.createWallet).toBeTruthy();
+        expect(errors).toBeUndefined();
+      }));
+
+  it('should fail to increment counter without valid accessToken', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer invalid`)
+      .send({
+        operationName: 'Increment',
+        query: INCREMENT,
+        variables: { counterId }
+      })
+      .expect(({ body: { data, errors } }) => {
+        expect(data).toBeNull();
+        expect(errors[0].message).toEqual('could not find user');
+      }));
+
+  it('should increment counter', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer ${accessToken}`)
+      .send({
+        operationName: 'Increment',
+        query: INCREMENT,
+        variables: { counterId }
+      })
+      .expect(({ body: { data, errors } }) => {
+        expect(data?.increment.id).toEqual(counterId);
+        expect(data?.increment.entityName).toEqual('counter');
+        expect(data?.increment.version).toEqual(0);
+        expect(errors).toBeUndefined();
+      }));
+
+  it('should increment counter', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer ${accessToken}`)
+      .send({
+        operationName: 'Increment',
+        query: INCREMENT,
+        variables: { counterId }
+      })
+      .expect(({ body: { data, errors } }) => {
+        expect(data?.increment.id).toEqual(counterId);
+        expect(data?.increment.entityName).toEqual('counter');
+        expect(data?.increment.version).toEqual(0);
+        expect(errors).toBeUndefined();
+      }));
+
+  it('should getCounter, value = 2', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer ${accessToken}`)
+      .send({
+        operationName: 'GetCounter',
+        query: GET_COUNTER,
+        variables: { counterId }
+      })
+      .expect(({ body: { data, errors } }) => {
+        expect(data?.getCounter).toEqual({ value: 2 });
+        expect(errors).toBeUndefined();
+      }));
+
+  it('should decrement counter', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer ${accessToken}`)
+      .send({
+        operationName: 'Decrement',
+        query: DECREMENT,
+        variables: { counterId }
+      })
+      .expect(({ body: { data, errors } }) => {
+        expect(data?.decrement.id).toEqual(counterId);
+        expect(data?.decrement.entityName).toEqual('counter');
+        expect(data?.decrement.version).toEqual(0);
+        expect(errors).toBeUndefined();
+      }));
+
+  it('should getCounter, value = 1', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer ${accessToken}`)
+      .send({
+        operationName: 'GetCounter',
+        query: GET_COUNTER,
+        variables: { counterId }
+      })
+      .expect(({ body: { data, errors } }) => {
+        expect(data?.getCounter).toEqual({ value: 1 });
         expect(errors).toBeUndefined();
       }));
 });

@@ -18,6 +18,7 @@ export const createResolvers: (option: {
   wallet: Wallet;
   asLocalhost: boolean;
   mspId: string;
+  enrollmentSecret: string;
 }) => Promise<any> = async ({
   caAdmin,
   caAdminPW,
@@ -29,7 +30,8 @@ export const createResolvers: (option: {
   connectionProfile,
   wallet,
   asLocalhost,
-  mspId
+  mspId,
+  enrollmentSecret
 }) => {
   const logger = getLogger('[gw-lib] createResolvers.js');
 
@@ -65,7 +67,7 @@ export const createResolvers: (option: {
   return {
     Mutation: {
       createWallet: catchErrors(
-        async (_, { enrollmentSecret }: { enrollmentSecret: string }, { username }) => {
+        async (_, __, { username }) => {
           const res = await operator.registerAndEnroll({
             enrollmentId: username,
             enrollmentSecret,

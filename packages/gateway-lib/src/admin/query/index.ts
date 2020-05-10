@@ -4,7 +4,6 @@
  */
 
 export * from './GET_BLOCK_BY_NUMBER';
-export * from './GET_CA_IDENTITIES';
 export * from './GET_CA_IDENTITY_BY_USERNAME';
 export * from './GET_CHAIN_HEIGHT';
 export * from './GET_PEERINFO';

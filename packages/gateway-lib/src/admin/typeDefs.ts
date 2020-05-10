@@ -6,7 +6,7 @@ import gql from 'graphql-tag';
 
 export const typeDefs = gql`
   type Mutation {
-    createWallet(enrollmentSecret: String!): Boolean!
+    createWallet: Boolean!
   }
   type Query {
     me: String

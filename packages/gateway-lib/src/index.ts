@@ -1,6 +1,6 @@
 import { PrivatedataRepository, Repository } from '@fabric-es/fabric-cqrs';
 import { DataSource } from 'apollo-datasource';
-
+export { catchErrors } from './utils/catchErrors';
 export { createGateway } from './utils/createGateway';
 export { createService } from './utils/createService';
 export { getLogger } from './utils/getLogger';
@@ -9,11 +9,15 @@ export { createRemoteService } from './remote/createRemoteService';
 export { RemoteData } from './remote/remoteData';
 export * from './admin/query';
 
-export class DataSrc<TEntity = any, TEvent = any> extends DataSource {
+export class DataSrc<
+  TEntity = any,
+  TEvent = any,
+  TRepo = Repository<TEntity, TEvent> | PrivatedataRepository<TEntity, TEvent>
+> extends DataSource {
   context;
-  repo;
+  repo: TRepo;
 
-  constructor({ repo }: { repo?: Repository<TEntity, TEvent> | PrivatedataRepository<TEntity, TEvent> }) {
+  constructor({ repo }: { repo?: TRepo }) {
     super();
     this.repo = repo;
   }

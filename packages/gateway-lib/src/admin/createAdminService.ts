@@ -21,6 +21,7 @@ export const createAdminService: (option: {
   playground?: boolean;
   introspection?: boolean;
   mspId: string;
+  enrollmentSecret?: string;
 }) => Promise<{ server: ApolloServer; shutdown: any }> = async ({
   caAdmin,
   caAdminPW,
@@ -34,7 +35,8 @@ export const createAdminService: (option: {
   mspId,
   asLocalhost = true,
   playground = true,
-  introspection = true
+  introspection = true,
+  enrollmentSecret= 'password'
 }) => {
   const logger = getLogger('[gw-lib] createAdminService.js');
 
@@ -67,7 +69,8 @@ export const createAdminService: (option: {
     peerName,
     wallet: await Wallets.newFileSystemWallet(walletPath),
     asLocalhost,
-    mspId
+    mspId,
+    enrollmentSecret
   });
 
   logger.info('createResolvers complete');

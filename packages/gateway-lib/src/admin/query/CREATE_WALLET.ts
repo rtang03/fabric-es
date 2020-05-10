@@ -5,11 +5,7 @@
 
 // prettier-ignore
 export const CREATE_WALLET = `
-  mutation CreateWallet (
-    $enrollmentSecret: String!
-  ) {
-    createWallet (
-      enrollmentSecret: $enrollmentSecret
-    )
+  mutation CreateWallet {
+    createWallet
   }
 `;
