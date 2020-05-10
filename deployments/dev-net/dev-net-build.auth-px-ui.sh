@@ -30,9 +30,9 @@ printf "Cleaning up old image $UI_ACCOUNT_IMAGE\n"
 docker rmi $UI_ACCOUNT_IMAGE
 
 # STEP 2 - create build context at ~/.build
-cd $ROOT_DIR && yarn build:auth
-printMessage "Create build context for auth-server"  $?
-sleep 1
+#cd $ROOT_DIR && yarn build:auth
+#printMessage "Create build context for auth-server"  $?
+#sleep 1
 
 # STEP 3 - build ui-account image
 pushd $ROOT_DIR/packages/ui-account

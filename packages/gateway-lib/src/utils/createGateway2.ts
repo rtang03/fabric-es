@@ -7,11 +7,11 @@ import express, { Express } from 'express';
 import httpStatus from 'http-status';
 import fetch from 'node-fetch';
 import { getLogger } from './getLogger';
-import { isOauthResponse } from './typeGuard';
+import { isAuthResponse } from './typeGuard';
 
 export class AuthenticatedDataSource extends RemoteGraphQLDataSource {
   willSendRequest({ request, context }: { request: any; context: any }) {
-    if (context?.client_id) request.http.headers.set('client_id', context.client_id);
+    if (context?.username) request.http.headers.set('username', context.username);
     if (context?.user_id) request.http.headers.set('user_id', context.user_id);
     if (context?.is_admin) request.http.headers.set('is_admin', context.is_admin);
   }
@@ -19,7 +19,7 @@ export class AuthenticatedDataSource extends RemoteGraphQLDataSource {
 
 export const createGateway: (option: {
   serviceList?: any;
-  authenticationCheck?: string;
+  authenticationCheck: string;
   useCors?: boolean;
   corsOrigin?: string;
   debug?: boolean;
@@ -34,9 +34,9 @@ export const createGateway: (option: {
       url: 'http://localhost:16000/graphql'
     }
   ],
-  authenticationCheck = 'http://localhost:8080/oauth/authenticate',
+  authenticationCheck,
   useCors = false,
-  corsOrigin = 'http://localhost:3000',
+  corsOrigin = '',
   debug = false
 }) => {
   const logger = getLogger('[gw-lib] createGateway.js');
@@ -65,14 +65,16 @@ export const createGateway: (option: {
         });
 
         if (response.status !== httpStatus.OK) {
-          logger.warn(util.format('authenticate fails, %s', response.status));
+          logger.warn(util.format('authenticate fails, status: %s', response.status));
           return {};
         }
 
         const result: unknown = await response.json();
 
-        if (isOauthResponse(result)) return result;
-        else {
+        if (isAuthResponse(result)) {
+          logger.info(`authenticated: ${result.user_id}`);
+          return result;
+        } else {
           logger.warn(`fail to parse authenticationCheck result`);
           return {};
         }
@@ -88,6 +90,9 @@ export const createGateway: (option: {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
+  // Note: this cors implementation is redundant. Cors should be check at ui-account's express backend
+  // However, if there is alternative implementation, other than custom backend of SSR; there may require
+  // cors later on.
   if (useCors)
     server.applyMiddleware({
       app,

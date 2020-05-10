@@ -1,0 +1,28 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+  auth:
+    image: fabric-es/auth-server:1.0
+    container_name: auth
+    environment:
+      - PORT=8080
+      - TYPEORM_HOST=postgres
+      - TYPEORM_USERNAME=postgres
+      - TYPEORM_PASSWORD=docker
+      - TYPEORM_DATABASE=auth_db
+      - TYPEORM_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=secret
+      - JWT_EXP_IN_SECOND=3600
+      - ORG_ADMIN_ID=admin-org1.net
+      - ORG_ADMIN_SECRET=admin-org1.netPW
+      - ORG_ADMIN_EMAIL=admin@org.net
+      - CLIENT_APPLICATION_NAME=root_client
+      - CLIENT_SECRET=password
+    depends_on:
+      - redis
+      - postgres

@@ -1,10 +1,10 @@
 import util from 'util';
 import { createNetworkOperator, NetworkOperator } from '@fabric-es/operator';
-import { ApolloError, AuthenticationError, ForbiddenError } from 'apollo-server';
+import { ApolloError } from 'apollo-server';
 import ab2str from 'arraybuffer-to-string';
-import { Wallet } from 'fabric-network';
+import { Wallet, X509Identity } from 'fabric-network';
 import { getLogger } from '..';
-import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from './constants';
+import { catchErrors } from '../utils';
 
 export const createResolvers: (option: {
   caAdmin: string;
@@ -56,10 +56,7 @@ export const createResolvers: (option: {
 
   let ca;
   try {
-    ca = await operator.identityService({
-      // caAdmin,
-      asLocalhost
-    });
+    ca = await operator.identityService({ asLocalhost });
   } catch (e) {
     logger.error(util.format('createNetworkOperator error: %j', e));
     throw new Error(e);
@@ -67,117 +64,87 @@ export const createResolvers: (option: {
 
   return {
     Mutation: {
-      registerAndEnrollUser: async (
-        _,
-        {
-          administrator,
-          enrollmentId,
-          enrollmentSecret
-        }: {
-          administrator: string;
-          enrollmentId: string;
-          enrollmentSecret: string;
-        },
-        { is_admin }
-      ) => {
-        if (!is_admin) {
-          logger.warn(`registerAndEnrollUser, ${UNAUTHORIZED_ACCESS}`);
-          return new ForbiddenError(UNAUTHORIZED_ACCESS);
-        }
-        let registerResult;
-
-        try {
+      createWallet: catchErrors(
+        async (_, { enrollmentSecret }: { enrollmentSecret: string }, { username }) => {
           const res = await operator.registerAndEnroll({
-            enrollmentId,
+            enrollmentId: username,
             enrollmentSecret,
             asLocalhost
           });
-          registerResult = await res.registerAndEnroll();
-          res.disconnect();
-        } catch (error) {
-          logger.warn(util.format('prepare registerAndEnroll error: %j', error));
-          return new ApolloError(error);
-        }
 
-        if (registerResult instanceof Error) {
-          logger.error(util.format('registerAndEnroll error: %j', registerResult));
-          return new ApolloError(registerResult.message);
-        }
-        return registerResult?.status === 'SUCCESS';
-      }
+          const registerResult = await res.registerAndEnroll();
+
+          res.disconnect();
+
+          if (registerResult instanceof Error) {
+            logger.error(util.format('createWallet error: %j', registerResult));
+            return new ApolloError(registerResult.message);
+          }
+
+          return registerResult?.status === 'SUCCESS';
+        },
+        { fcnName: 'createWallet', logger, useAuth: true, useAdmin: false }
+      )
     },
     Query: {
-      getBlockByNumber: async (_, { blockNumber }: { blockNumber: number }) => {
-        const chain = await queries.getChainInfo(peerName);
+      me: () => 'Hello',
+      getBlockByNumber: catchErrors(
+        async (_, { blockNumber }: { blockNumber: number }) => {
+          const chain = await queries.getChainInfo(peerName);
+          if (chain.height.low <= blockNumber) {
+            logger.warn('blockNumber is higher than chain height');
+            return null;
+          }
+          const block = await queries.getBlockByNumber(blockNumber);
 
-        if (chain.height.low <= blockNumber) {
-          logger.warn('blockNumber is higher than chain height');
-          return null;
-        }
-
-        let block;
-        try {
-          block = await queries.getBlockByNumber(blockNumber);
-        } catch (e) {
-          logger.error(util.format('fail to get block %s, %j', blockNumber, e));
-          return null;
-        }
-
-        logger.info(`getBlockByNumber ${blockNumber}`);
-
-        return block
-          ? {
-              block_number: block.header.number,
-              previous_hash: block.header.previous_hash.toString(),
-              data_hash: block.header.data_hash.toString(),
-              no_of_tx: block.data.data.length,
-              transaction: block.data.data.map(({ payload: { header, data } }) => ({
-                tx_id: header.channel_header.tx_id,
-                creator_mspid: header.signature_header.creator.Mspid,
-                id_bytes: data.actions[0].header.creator.IdBytes,
-                input_args: data.actions[0].payload.chaincode_proposal_payload.input.chaincode_spec.input.args.map(
-                  arg => ab2str(arg, 'utf8')
-                ),
-                rwset: JSON.stringify(data.actions[0].payload?.action?.proposal_response_payload?.extension.results),
-                response: {
-                  status: data.actions[0]?.payload?.action?.proposal_response_payload?.extension?.response?.status,
-                  message:
-                    data.actions[0]?.payload?.action?.proposal_response_payload?.extension?.response.message || '',
-                  payload: ab2str(
-                    JSON.parse(
-                      ab2str(
-                        data.actions[0]?.payload?.action?.proposal_response_payload?.extension?.response?.payload,
-                        'utf8'
-                      )
-                    ),
-                    'utf8'
-                  )
-                },
-                endorsements: data.actions[0].payload.action.endorsements.map(item => ({
-                  endorser_mspid: item?.endorser?.Mspid,
-                  id_bytes: item?.endorser?.IdBytes,
-                  signature: JSON.stringify(item.signature)
+          return block
+            ? {
+                block_number: block.header.number,
+                previous_hash: block.header.previous_hash.toString(),
+                data_hash: block.header.data_hash.toString(),
+                no_of_tx: block.data.data.length,
+                transaction: block.data.data.map(({ payload: { header, data } }) => ({
+                  tx_id: header.channel_header.tx_id,
+                  creator_mspid: header.signature_header.creator.Mspid,
+                  id_bytes: data.actions[0].header.creator.IdBytes,
+                  input_args: data.actions[0].payload.chaincode_proposal_payload.input.chaincode_spec.input.args.map(
+                    arg => ab2str(arg, 'utf8')
+                  ),
+                  rwset: JSON.stringify(data.actions[0].payload?.action?.proposal_response_payload?.extension.results),
+                  response: {
+                    status: data.actions[0]?.payload?.action?.proposal_response_payload?.extension?.response?.status,
+                    message:
+                      data.actions[0]?.payload?.action?.proposal_response_payload?.extension?.response.message || '',
+                    payload: ab2str(
+                      JSON.parse(
+                        ab2str(
+                          data.actions[0]?.payload?.action?.proposal_response_payload?.extension?.response?.payload,
+                          'utf8'
+                        )
+                      ),
+                      'utf8'
+                    )
+                  },
+                  endorsements: data.actions[0].payload.action.endorsements.map(item => ({
+                    endorser_mspid: item?.endorser?.Mspid,
+                    id_bytes: item?.endorser?.IdBytes,
+                    signature: JSON.stringify(item.signature)
+                  }))
                 }))
-              }))
-            }
-          : null;
-      },
-      getCaIdentityByEnrollmentId: async (_, { enrollmentId }: { enrollmentId: string }, { user_id }) => {
-        if (!user_id) {
-          logger.warn(`getCaIdentityByEnrollmentId, ${USER_NOT_FOUND}`);
-          return new AuthenticationError(USER_NOT_FOUND);
+              }
+            : new ApolloError('Unknown error to getBlockByNumber');
+        },
+        {
+          fcnName: 'getBlockByNumber',
+          logger,
+          useAuth: false,
+          useAdmin: true
         }
-
-        if (user_id !== enrollmentId) {
-          logger.warn(`getCaIdentityByEnrollmentId, ${UNAUTHORIZED_ACCESS}`);
-          return new ForbiddenError(UNAUTHORIZED_ACCESS);
-        }
-
-        return ca
-          .getByEnrollmentId(enrollmentId || '')
-          .then(({ result }) => {
+      ),
+      getCaIdentityByUsername: catchErrors(
+        async (_, __, { username }) => {
+          return ca.getByEnrollmentId(username || '').then(({ result }) => {
             if (result) {
-              logger.info(`getCaIdentityByEnrollmentId: ${enrollmentId}`);
               return {
                 id: result.id,
                 typ: result.type,
@@ -186,43 +153,41 @@ export const createResolvers: (option: {
                 attrs: result.attrs
               };
             } else {
-              logger.warn(`getCaIdentityByEnrollmentId fail: ${enrollmentId}`);
               return null;
             }
-          })
-          .catch(error => {
-            logger.warn(util.format('getCaIdentityByEnrollmentId error: %j', error));
-            return new ApolloError(error);
           });
-      },
-      getChainHeight: async () => {
-        const height = await queries.getChainInfo(peerName).then(({ height: { low } }) => low);
-        logger.info('getChainHeight: ' + height);
-        return height;
-      },
-      getMspid: async () => {
-        const mspid = queries.getMspid();
-        logger.info('getMspid: ' + mspid);
-        return mspid;
-      },
-      getPeerName: async () => {
-        logger.info('getPeerName: ' + peerName);
-        return peerName;
-      },
-      isWalletExist: async (_, { label }: { label: string }) => {
-        logger.info(`isWalletExist: ${label}`);
-
-        const walletEntry = await wallet.get(label);
-
-        return !!walletEntry;
-      },
-      listWallet: async (_, __, { is_admin }) =>
-        is_admin
-          ? wallet.list().then(result => {
-              logger.info('listWallet size: ' + result.length);
-              return result ?? [];
-            })
-          : new ForbiddenError(UNAUTHORIZED_ACCESS)
+        },
+        { fcnName: 'getCaIdentityByEnrollmentId', logger, useAuth: false, useAdmin: true }
+      ),
+      getChainHeight: catchErrors(async () => queries.getChainInfo(peerName).then(({ height: { low } }) => low), {
+        fcnName: 'getChainHeight',
+        logger,
+        useAuth: false,
+        useAdmin: true
+      }),
+      getPeerInfo: catchErrors(async () => ({ mspId: queries.getMspid(), peerName }), {
+        fcnName: 'getPeerInfo',
+        logger,
+        useAuth: false,
+        useAdmin: true
+      }),
+      getWallet: catchErrors(
+        async (_, __, context) => {
+          const identity = (await wallet.get(context.username)) as X509Identity;
+          return {
+            type: identity.type,
+            mspId: identity.mspId,
+            certificate: identity.credentials.certificate
+          };
+        },
+        { fcnName: 'getWallet', logger, useAuth: true, useAdmin: false }
+      ),
+      listWallet: catchErrors(async () => wallet.list(), {
+        fcnName: 'listWallet',
+        logger,
+        useAuth: false,
+        useAdmin: true
+      })
     }
   };
 };

@@ -1,4 +1,3 @@
-import util from 'util';
 import express from 'express';
 import httpStatus from 'http-status';
 import fetch from 'isomorphic-unfetch';

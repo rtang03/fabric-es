@@ -7,15 +7,15 @@ import {
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
-  UpdateClientRequest
+  UpdateClientRequest,
+  UpdateUserRequest
 } from '../types';
-import { UpdateUserRequest } from '../types/updateUserRequest';
 
 export const isCreateClientRequest = (input: any): input is CreateClientRequest =>
   input?.application_name !== undefined && input?.client_secret !== undefined;
 
 export const isRegisterRequest = (input: any): input is RegisterRequest =>
-  input?.username !== undefined && input?.password !== undefined && input?.email !== undefined;
+  !!input?.username && !!input?.password && !!input?.email;
 
 export const isAllowAccessResponse = (input: any): input is AllowAccessResponse =>
   input?.allow !== undefined && input?.client_id !== undefined && input?.scope !== undefined;
@@ -24,6 +24,7 @@ export const isAuthenticateResponse = (input: any): input is AuthenticateRespons
   input?.ok !== undefined &&
   input?.authenticated !== undefined &&
   input?.user_id !== undefined &&
+  input?.username !== undefined &&
   input?.is_admin !== undefined;
 
 export const isLoginResponse = (input: any): input is LoginResponse =>

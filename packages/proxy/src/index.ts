@@ -14,6 +14,7 @@ app.use('/api_key', createProxyMiddleware({ target: process.env.AUTH_HOST, chang
 app.use('/account', createProxyMiddleware({ target: process.env.AUTH_HOST, changeOrigin: true, logLevel: 'debug' }));
 app.use('/oauth', createProxyMiddleware({ target: process.env.AUTH_HOST, changeOrigin: true, logLevel: 'debug' }));
 app.use('/client', createProxyMiddleware({ target: process.env.AUTH_HOST, changeOrigin: true, logLevel: 'debug' }));
+app.use('/graphql', createProxyMiddleware({ target: process.env.GW_ORG_HOST, changeOrigin: true, logLevel: 'debug' }));
 app.use('/', createProxyMiddleware({ target: process.env.APP_HOST, changeOrigin: true, logLevel: 'debug' }));
 
 app.listen(parseInt(process.env.PORT, 10), process.env.HOST, () => {

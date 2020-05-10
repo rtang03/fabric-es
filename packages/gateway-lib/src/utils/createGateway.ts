@@ -4,12 +4,14 @@ import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
 import Cookie from 'cookie';
 import express, { Express } from 'express';
+import httpStatus from 'http-status';
 import fetch from 'node-fetch';
 import { getLogger } from './getLogger';
+import { isAuthResponse } from './typeGuard';
 
 export class AuthenticatedDataSource extends RemoteGraphQLDataSource {
   willSendRequest({ request, context }: { request: any; context: any }) {
-    if (context?.client_id) request.http.headers.set('client_id', context.client_id);
+    if (context?.username) request.http.headers.set('username', context.username);
     if (context?.user_id) request.http.headers.set('user_id', context.user_id);
     if (context?.is_admin) request.http.headers.set('is_admin', context.is_admin);
   }
@@ -17,7 +19,7 @@ export class AuthenticatedDataSource extends RemoteGraphQLDataSource {
 
 export const createGateway: (option: {
   serviceList?: any;
-  authenticationCheck?: string;
+  authenticationCheck: string;
   useCors?: boolean;
   corsOrigin?: string;
   debug?: boolean;
@@ -32,9 +34,9 @@ export const createGateway: (option: {
       url: 'http://localhost:16000/graphql'
     }
   ],
-  authenticationCheck = 'http://localhost:3300/oauth/authenticate',
+  authenticationCheck,
   useCors = false,
-  corsOrigin = 'http://localhost:3000',
+  corsOrigin = '',
   debug = false
 }) => {
   const logger = getLogger('[gw-lib] createGateway.js');
@@ -53,49 +55,33 @@ export const createGateway: (option: {
     context: async ({ req: { headers } }) => {
       const cookies = Cookie.parse(headers.cookie || '');
       const token = cookies?.jid ? cookies.jid : headers?.authorization ? headers.authorization.split(' ')[1] : null;
-      // todo: There are two options, for authenticationCheck.
-      // Option 1: Below is a chatty authentication, which requires check, for every incoming request.
-      // Option 2: Alternatively, we can stick to local JWT check, and decode.
-      // We need to decide if we need option 2, at the same time.
-      // One suggests: for admin access, use 1; for non-admin access, use 2
-      // Option 2 has drawback, which peer-node demands ACCESS_TOKEN_SECRET
-      // const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-      return token
-        ? fetch(authenticationCheck, {
-            method: 'POST',
-            headers: { authorization: `Bearer ${token}` }
-          })
-            .then<{
-              ok: boolean;
-              authenticated: boolean;
-              user_id: string;
-              is_admin: boolean;
-              // TODO: debug to remove it
-              // client_id: string;
-            }>(res => res.json())
-            .then(res => {
-              if (res?.authenticated) {
-                logger.debug(`authenticationCheck succeed: ${res.user_id}`);
 
-                return {
-                  user_id: res.user_id,
-                  is_admin: res.is_admin,
-                  // TODO: debug to remote it
-                  // client_id: res.client_id
-                };
-              } else {
-                // e.g. res returns
-                // { ok: false, authenticated: false, message: 'Invalid token: access token has expired' }
-                logger.debug(`authenticationCheck fail: ${res.user_id}`);
+      if (!token) return {};
 
-                return {};
-              }
-            })
-            .catch(error => {
-              logger.error(util.format('authenticationCheck error: %j', error));
-              return {};
-            })
-        : {};
+      try {
+        const response = await fetch(authenticationCheck, {
+          method: 'POST',
+          headers: { authorization: `Bearer ${token}` }
+        });
+
+        if (response.status !== httpStatus.OK) {
+          logger.warn(util.format('authenticate fails, status: %s', response.status));
+          return {};
+        }
+
+        const result: unknown = await response.json();
+
+        if (isAuthResponse(result)) {
+          logger.info(`authenticated: ${result.user_id}`);
+          return result;
+        } else {
+          logger.warn(`fail to parse authenticationCheck result`);
+          return {};
+        }
+      } catch (e) {
+        logger.error(util.format('authenticationCheck error: %j', e));
+        return {};
+      }
     }
   });
 
@@ -104,6 +90,9 @@ export const createGateway: (option: {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
+  // Note: this cors implementation is redundant. Cors should be check at ui-account's express backend
+  // However, if there is alternative implementation, other than custom backend of SSR; there may require
+  // cors later on.
   if (useCors)
     server.applyMiddleware({
       app,

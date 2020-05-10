@@ -217,11 +217,16 @@ export const createOauthRoute: (option: {
   ]);
 
   router.post('/authenticate', passport.authenticate('bearer', { session: false }), (req, res) => {
-    const { id, is_admin } = req.user as User;
+    const { id, is_admin, username } = req.user as User;
     logger.info(`account ${id} is authenticated`);
-    return res
-      .status(httpStatus.OK)
-      .send({ ok: true, authenticated: true, user_id: id, is_admin } as AuthenticateResponse);
+    const response: AuthenticateResponse = {
+      ok: true,
+      authenticated: true,
+      user_id: id,
+      username,
+      is_admin
+    };
+    return res.status(httpStatus.OK).send(response);
   });
 
   router.post(

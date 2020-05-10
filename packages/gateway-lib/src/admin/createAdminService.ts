@@ -2,7 +2,7 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import { getLogger } from '..';
-import { shutdown } from '../utils/shutdownApollo';
+import { shutdown } from '../utils';
 import { MISSING_CHANNELNAME, MISSING_CONNECTION_PROFILE, MISSING_FABRIC_NETWORK, MISSING_WALLET } from './constants';
 import { createResolvers } from './createResolvers';
 import { typeDefs } from './typeDefs';
@@ -72,18 +72,18 @@ export const createAdminService: (option: {
 
   logger.info('createResolvers complete');
 
+  const server = new ApolloServer({
+    schema: buildFederatedSchema([{ typeDefs, resolvers }]),
+    playground,
+    introspection,
+    context: ({ req: { headers } }) => ({
+      user_id: headers.user_id,
+      is_admin: headers.is_admin,
+      username: headers.username,
+    })
+  });
   return {
-    server: new ApolloServer({
-      schema: buildFederatedSchema([{ typeDefs, resolvers }]),
-      playground,
-      introspection,
-      context: ({ req: { headers } }) => ({
-        user_id: headers.user_id,
-        is_admin: headers.is_admin,
-        client_id: headers.client_id,
-        enrollmentId: headers.user_id
-      })
-    }),
+    server,
     shutdown: shutdown({ logger, name: 'Admin' })
   };
 };

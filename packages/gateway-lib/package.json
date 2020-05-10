@@ -29,8 +29,8 @@
     "enrollAdmin": "node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
     "start-admin-service": "(broke) npm run build && node ./dist/admin/__tests__/__utils__/startServiceForManualTest.js",
-    "unit-test": "(broke) ./unit-test.sh",
-    "test:admin-service": "(broke) jest --forceExit --detectOpenHandles admin.unit.test",
+    "test:admin-service": "jest --forceExit --detectOpenHandles unit.test",
+    "unit-test": "jest --forceExit --detectOpenHandles unit.test",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "prepublish": "yarn typedoc && yarn tsc:prod",
     "publish:gh:fabric-es": "npm publish"

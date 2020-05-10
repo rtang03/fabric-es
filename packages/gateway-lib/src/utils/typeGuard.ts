@@ -1,8 +1,9 @@
-import { LoginResponse, OauthAuthResponse, RegisterResponse } from '../types';
+import { LoginResponse, AuthenticateResponse, RegisterResponse, CaIdentity } from '../types';
 
-export const isOauthResponse = (input: any): input is OauthAuthResponse =>
+export const isAuthResponse = (input: any): input is AuthenticateResponse =>
   input?.ok !== undefined &&
   input?.authenticated !== undefined &&
+  input?.username !== undefined &&
   input?.user_id !== undefined &&
   input?.is_admin !== undefined;
 
@@ -14,3 +15,6 @@ export const isLoginResponse = (input: any): input is LoginResponse =>
 
 export const isRegisterResponse = (input: any): input is RegisterResponse =>
   input?.id !== undefined && input?.username !== undefined;
+
+export const isCaIdentity = (input: any): input is CaIdentity =>
+  input?.id !== undefined && input?.typ !== undefined && input?.affiliation !== undefined;

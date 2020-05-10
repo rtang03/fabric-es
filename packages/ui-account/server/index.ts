@@ -9,12 +9,19 @@ import fetch from 'isomorphic-unfetch';
 import morgan from 'morgan';
 import next from 'next';
 import { getLogger } from '../utils';
-import { createApiKeyRoute, createClientRoute, createIndexRoute, createProfileRoute } from './route';
+import {
+  createApiKeyRoute,
+  createClientRoute,
+  createGatewayRoute,
+  createIndexRoute,
+  createProfileRoute
+} from './route';
 
 const port = parseInt(process.env.PORT || '3000', 10);
 const ENV = {
-  NODE_ENV: process.env.NODE_ENV,
-  AUTH_HOST: process.env.AUTH_HOST
+  NODE_ENV: process.env.NODE_ENV as string,
+  AUTH_HOST: process.env.AUTH_HOST as string,
+  GW_ORG_HOST: process.env.GW_ORG_HOST as string
 };
 
 const dev = ENV.NODE_ENV !== 'production';
@@ -39,15 +46,16 @@ app
     server.use(cookieParser());
     server.use(express.urlencoded({ extended: false }));
     server.use(errorHandler());
-    server.use('/web/api', createIndexRoute({ authHost: ENV.AUTH_HOST as string }));
-    server.use('/web/api/profile', createProfileRoute({ authHost: ENV.AUTH_HOST as string }));
-    server.use('/web/api/client', createClientRoute({ authHost: ENV.AUTH_HOST as string }));
-    server.use('/web/api/api_key', createApiKeyRoute({ authHost: ENV.AUTH_HOST as string }));
+    server.use('/web/api', createIndexRoute({ authHost: ENV.AUTH_HOST }));
+    server.use('/web/api/profile', createProfileRoute({ authHost: ENV.AUTH_HOST }));
+    server.use('/web/api/client', createClientRoute({ authHost: ENV.AUTH_HOST }));
+    server.use('/web/api/api_key', createApiKeyRoute({ authHost: ENV.AUTH_HOST }));
+    server.use('/web/api/wallet', createGatewayRoute({ gwOrgHost: ENV.GW_ORG_HOST }));
 
-    server.get('/ping/auth', async (req, res) => {
+    server.get('/web/api/all_alive', async (req, res) => {
       try {
         const status = await fetch(`${ENV.AUTH_HOST}/account/isalive`).then(r => r.status);
-        return res.status(httpStatus.OK).send({ status });
+        return res.status(httpStatus.OK).send({ [ENV.AUTH_HOST]: { status } });
       } catch (e) {
         logger.error(util.format('fail to ping %s/account/isalive, %j', ENV.AUTH_HOST, e));
         return res
