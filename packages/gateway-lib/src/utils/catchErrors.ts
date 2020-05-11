@@ -5,8 +5,8 @@ import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from '../admin/constants';
 
 export const catchErrors: (
   fcn: (root, variables, context) => Promise<any>,
-  option: { fcnName: string; logger: Logger; useAuth: boolean; useAdmin: boolean }
-) => (root, variables, context) => void = (fcn, { fcnName, logger, useAuth, useAdmin }) => async (
+  option: { fcnName: string; logger: Logger; useAuth: boolean; useAdmin?: boolean }
+) => (root, variables, context) => void = (fcn, { fcnName, logger, useAuth, useAdmin = false }) => async (
   root,
   variables,
   context

@@ -13,4 +13,4 @@ export { typeDefs as loanTypeDefs, resolvers as loanResolvers } from './typeDefs
 export * from './queries';
 export type LoanRepo = Repository<Loan, LoanEvents>;
 export type LoanCommandHandler = CommandHandler<LoanCommands>;
-export type LoanDS = DataSrc<Loan, LoanEvents>;
+export type LoanDS = DataSrc<LoanRepo>;

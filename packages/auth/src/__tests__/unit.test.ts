@@ -87,12 +87,19 @@ describe('Auth Tests - / and /account', () => {
     request(app)
       .post('/account')
       .send({ username: 'tester02', email: 'tester01@example.com' })
-      .expect(({ body }) => expect(body?.error).toEqual('missing params - username, password, email')));
+      .expect(({ body }) =>
+        expect(body?.error).toEqual('missing params - username, password, email')
+      ));
 
   it('should register (org admin) user', async () =>
     request(app)
       .post('/account')
-      .send({ username: 'tester01', password: 'password01', email: 'tester01@example.com', org_admin_secret })
+      .send({
+        username: 'tester01',
+        password: 'password01',
+        email: 'tester01@example.com',
+        org_admin_secret
+      })
       .expect(({ body }) => {
         expect(body?.username).toEqual('tester01');
         expect(isRegisterResponse(body)).toBeTruthy();
@@ -174,7 +181,11 @@ describe('Auth Tests - / and /account', () => {
       .set('authorization', `Bearer ${non_root_access_token}`)
       .send({ email: 'updated@example.com', username: 'updated-non-root' })
       .expect(({ body }) => {
-        expect(body).toEqual({ ok: true, email: 'updated@example.com', username: 'updated-non-root' });
+        expect(body).toEqual({
+          ok: true,
+          email: 'updated@example.com',
+          username: 'updated-non-root'
+        });
       }));
 
   it('should fail to delete user with invalid access_token', async () =>
@@ -224,7 +235,12 @@ describe('Auth Tests - /client', () => {
     request(app)
       .post('/client')
       .set('authorization', `Bearer ${access_token}`)
-      .send({ application_name: 'root', client_secret: 'password', redirect_uris: '', is_system_app: true })
+      .send({
+        application_name: 'root',
+        client_secret: 'password',
+        redirect_uris: '',
+        is_system_app: true
+      })
       .expect(({ body }) => {
         client_id = body.id;
         expect(body.application_name).toEqual('root');
@@ -383,14 +399,18 @@ describe('Auth Tests - /oauth', () => {
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(`client_id=${client_id}&client_secret=badpassword&grant_type=client_credentials&scope=default`)
+      .send(
+        `client_id=${client_id}&client_secret=badpassword&grant_type=client_credentials&scope=default`
+      )
       .expect(({ body }) => expect(body).toEqual({})));
 
   it('should exchange access_token with client_credential', async () =>
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(`client_id=${client_id}&client_secret=password&grant_type=client_credentials&scope=default`)
+      .send(
+        `client_id=${client_id}&client_secret=password&grant_type=client_credentials&scope=default`
+      )
       .expect(({ body }) => {
         api_key = body.access_token;
         expect(typeof body?.access_token).toEqual('string');
@@ -407,7 +427,9 @@ describe('Auth Tests - /oauth', () => {
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(`client_id=${client_id}&client_secret=password&username=tester01&password=password01&grant_type=password`)
+      .send(
+        `client_id=${client_id}&client_secret=password&username=tester01&password=password01&grant_type=password`
+      )
       .expect(({ body }) => {
         expect(typeof body?.access_token).toEqual('string');
         expect(body?.token_type).toEqual('Bearer');

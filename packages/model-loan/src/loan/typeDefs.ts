@@ -1,5 +1,5 @@
 import { Commit } from '@fabric-es/fabric-cqrs';
-import { Paginated } from '@fabric-es/gateway-lib';
+import { catchErrors, getLogger, Paginated } from '@fabric-es/gateway-lib';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { Loan, loanCommandHandler, LoanDS } from '.';
@@ -14,8 +14,20 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    applyLoan(userId: String!, loanId: String!, description: String!, reference: String!, comment: String): LoanResponse
-    updateLoan(userId: String!, loanId: String!, description: String, reference: String, comment: String): [LoanResponse]!
+    applyLoan(
+      userId: String!
+      loanId: String!
+      description: String!
+      reference: String!
+      comment: String
+    ): LoanResponse
+    updateLoan(
+      userId: String!
+      loanId: String!
+      description: String
+      reference: String
+      comment: String
+    ): [LoanResponse]!
     cancelLoan(userId: String!, loanId: String!): LoanResponse
     approveLoan(userId: String!, loanId: String!): LoanResponse
     returnLoan(userId: String!, loanId: String!): LoanResponse
@@ -61,148 +73,186 @@ export const typeDefs = gql`
   }
 `;
 
+type Context = { dataSources: { loan: LoanDS }; username: string };
+
+const logger = getLogger('loan/typeDefs.js');
+
 export const resolvers = {
   Query: {
-    getCommitsByLoanId: async (
-      _, { loanId }, { dataSources: { loan } }: { dataSources: { loan: LoanDS }}
-    ): Promise<Commit[]> =>
-      loan.repo.getCommitById(loanId)
-        .then(({ data }) => data || [])
-        .catch(error => new ApolloError(error)),
-    getLoanById: async (
-      _, { loanId }, { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
-    ): Promise<Loan> =>
-      loan.repo.getById({ id: loanId, enrollmentId })
-        .then(({ currentState }) => currentState)
-        .catch(error => new ApolloError(error)),
-    getPaginatedLoans: async (
-      _, { pageSize }, { dataSources: { loan } }: { dataSources: { loan: LoanDS }; enrollmentId: string }
-    ): Promise<Paginated<Loan>> =>
-      loan.repo.getByEntityName()
-        .then(({ data }: { data: any[] }) => ({
-          entities: data || [],
-          total: data.length,
-          hasMore: data.length > pageSize
-        } as Paginated<Loan>))
-        .catch(error => new ApolloError(error)),
-    searchLoanByFields: async (
-      _, { where }, { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
-    ): Promise<Loan[]> => {
-      try {
-        return loan.repo.getProjection({ where: JSON.parse(where) })
-          .then(({ data }) => data)
-          .catch(error => new ApolloError(error));
-      } catch (error) {
-        throw new ApolloError(error);
-      }
-    },
-    searchLoanContains: async (
-      _, { contains }, { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
-    ): Promise<Loan[]> =>
-      loan.repo.getProjection({ contain: contains })
-        .then(({ data }) => data)
-        .catch(error => new ApolloError(error))
+    getCommitsByLoanId: catchErrors(
+      async (_, { loanId }, { dataSources: { loan } }: Context): Promise<Commit[]> =>
+        loan.repo.getCommitById(loanId).then(({ data }) => data || []),
+      { fcnName: 'getCommitsByLoanId', logger, useAuth: false }
+    ),
+    getLoanById: catchErrors(
+      async (_, { loanId }, { dataSources: { loan }, username }: Context): Promise<Loan> =>
+        loan.repo
+          .getById({ id: loanId, enrollmentId: username })
+          .then(({ currentState }) => currentState),
+      { fcnName: 'getLoanById', logger, useAuth: false }
+    ),
+    getPaginatedLoans: catchErrors(
+      async (_, { pageSize }, { dataSources: { loan } }: Context): Promise<Paginated<Loan>> =>
+        loan.repo.getByEntityName().then(
+          ({ data }: { data: any[] }) =>
+            ({
+              entities: data || [],
+              total: data.length,
+              hasMore: data.length > pageSize
+            } as Paginated<Loan>)
+        ),
+      { fcnName: 'getPaginatedLoans', logger, useAuth: true }
+    ),
+    searchLoanByFields: catchErrors(
+      async (_, { where }, { dataSources: { loan } }: Context): Promise<Loan[]> =>
+        loan.repo.getProjection({ where: JSON.parse(where) }).then(({ data }) => data),
+      { fcnName: 'searchLoanByFields', logger, useAuth: false }
+    ),
+    searchLoanContains: catchErrors(
+      async (_, { contains }, { dataSources: { loan } }: Context): Promise<Loan[]> =>
+        loan.repo.getProjection({ contain: contains }).then(({ data }) => data),
+      { fcnName: 'searchLoanContains', logger, useAuth: false }
+    )
   },
   Mutation: {
-    applyLoan: async (
-      _,
-      { userId, loanId, description, reference, comment },
-      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
-    ): Promise<Commit | Error> =>
-      loanCommandHandler({
-        enrollmentId,
-        loanRepo: loan.repo
-      }).ApplyLoan({
+    applyLoan: catchErrors(
+      async (
+        _,
+        { userId, loanId, description, reference, comment },
+        { dataSources: { loan }, username }: Context
+      ): Promise<Commit> =>
+        loanCommandHandler({
+          enrollmentId: username,
+          loanRepo: loan.repo
+        }).ApplyLoan({
           userId,
-          payload: { loanId, description, reference, comment, timestamp: Date.now() }
-      }).catch(error => {
-        if (error.error && error.error.message) {
-          return new ApolloError(error.error.message);
-        } else {
-          return new ApolloError(error);
-        }
-      }),
-    cancelLoan: async (
-      _, { userId, loanId },
-      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      loanCommandHandler({ enrollmentId, loanRepo: loan.repo }).CancelLoan({
-        userId,
-        payload: { loanId, timestamp: Date.now() }
-      }).catch(error => {
-        if (error.error && error.error.message) {
-          return new ApolloError(error.error.message);
-        } else {
-          return new ApolloError(error);
-        }
-      }),
-    approveLoan: async (
-      _, { userId, loanId },
-      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      loanCommandHandler({ enrollmentId, loanRepo: loan.repo }).ApproveLoan({
-        userId,
-        payload: { loanId, timestamp: Date.now() }
-      }).catch(error => new ApolloError(error)),
-    returnLoan: async (
-      _, { userId, loanId },
-      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      loanCommandHandler({ enrollmentId, loanRepo: loan.repo }).ReturnLoan({
-        userId,
-        payload: { loanId, timestamp: Date.now() }
-      }).catch(error => new ApolloError(error)),
-    rejectLoan: async (
-      _, { userId, loanId },
-      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      loanCommandHandler({ enrollmentId, loanRepo: loan.repo }).RejectLoan({
-        userId,
-        payload: { loanId, timestamp: Date.now() }
-      }).catch(error => new ApolloError(error)),
-    expireLoan: async (
-      _, { userId, loanId },
-      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      loanCommandHandler({ enrollmentId, loanRepo: loan.repo }).ExpireLoan({
-        userId,
-        payload: { loanId, timestamp: Date.now() }
-      }).catch(error => new ApolloError(error)),
+          payload: {
+            loanId,
+            description,
+            reference,
+            comment,
+            timestamp: Date.now()
+          }
+        }),
+      { fcnName: 'applyLoan', logger, useAuth: true }
+    ),
+    cancelLoan: catchErrors(
+      async (
+        _,
+        { userId, loanId },
+        { dataSources: { loan }, username }: Context
+      ): Promise<Commit> =>
+        loanCommandHandler({
+          enrollmentId: username,
+          loanRepo: loan.repo
+        }).CancelLoan({
+          userId,
+          payload: { loanId, timestamp: Date.now() }
+        }),
+      { fcnName: 'cancelLoan', logger, useAuth: true }
+    ),
+    approveLoan: catchErrors(
+      async (
+        _,
+        { userId, loanId },
+        { dataSources: { loan }, username }: Context
+      ): Promise<Commit> =>
+        loanCommandHandler({
+          enrollmentId: username,
+          loanRepo: loan.repo
+        }).ApproveLoan({
+          userId,
+          payload: { loanId, timestamp: Date.now() }
+        }),
+      { fcnName: 'approveLoan', logger, useAuth: true }
+    ),
+    returnLoan: catchErrors(
+      async (
+        _,
+        { userId, loanId },
+        { dataSources: { loan }, username }: Context
+      ): Promise<Commit> =>
+        loanCommandHandler({
+          enrollmentId: username,
+          loanRepo: loan.repo
+        }).ReturnLoan({
+          userId,
+          payload: { loanId, timestamp: Date.now() }
+        }),
+      { fcnName: 'returnLoan', logger, useAuth: true }
+    ),
+    rejectLoan: catchErrors(
+      async (
+        _,
+        { userId, loanId },
+        { dataSources: { loan }, username }: Context
+      ): Promise<Commit> =>
+        loanCommandHandler({
+          enrollmentId: username,
+          loanRepo: loan.repo
+        }).RejectLoan({
+          userId,
+          payload: { loanId, timestamp: Date.now() }
+        }),
+      { fcnName: 'rejectLoan', logger, useAuth: true }
+    ),
+    expireLoan: catchErrors(
+      async (
+        _,
+        { userId, loanId },
+        { dataSources: { loan }, username }: Context
+      ): Promise<Commit> =>
+        loanCommandHandler({
+          enrollmentId: username,
+          loanRepo: loan.repo
+        }).ExpireLoan({
+          userId,
+          payload: { loanId, timestamp: Date.now() }
+        }),
+      { fcnName: 'expireLoan', logger, useAuth: true }
+    ),
     updateLoan: async (
       _,
       { userId, loanId, description, reference, comment },
-      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
+      { dataSources: { loan }, username }: Context
     ): Promise<Commit[]> => {
       const result: Commit[] = [];
       if (typeof reference !== 'undefined') {
         const c = await loanCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           loanRepo: loan.repo
-        }).DefineLoanReference({
-          userId,
-          payload: { loanId, reference, timestamp: Date.now() }
-        }).then(data => data)
+        })
+          .DefineLoanReference({
+            userId,
+            payload: { loanId, reference, timestamp: Date.now() }
+          })
+          .then(data => data)
           .catch(error => new ApolloError(error));
         result.push(c);
       }
       if (typeof description !== 'undefined') {
         const c = await loanCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           loanRepo: loan.repo
-        }).DefineLoanDescription({
-          userId,
-          payload: { loanId, description, timestamp: Date.now() }
-        }).then(data => data)
+        })
+          .DefineLoanDescription({
+            userId,
+            payload: { loanId, description, timestamp: Date.now() }
+          })
+          .then(data => data)
           .catch(error => new ApolloError(error));
         result.push(c);
       }
       if (typeof comment !== 'undefined') {
         const c = await loanCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           loanRepo: loan.repo
-        }).DefineLoanComment({
-          userId, payload: { loanId, comment, timestamp: Date.now() }
-        }).then(data => data)
+        })
+          .DefineLoanComment({
+            userId,
+            payload: { loanId, comment, timestamp: Date.now() }
+          })
+          .then(data => data)
           .catch(error => new ApolloError(error));
         result.push(c);
       }
@@ -210,14 +260,13 @@ export const resolvers = {
     }
   },
   Loan: {
-    __resolveReference: (
-      { loanId },
-      { dataSources: { loan }, enrollmentId }: { dataSources: { loan: LoanDS }; enrollmentId: string }
-    ): Promise<Loan> =>
-      loan.repo
-        .getById({ id: loanId, enrollmentId })
-        .then(({ currentState }) => currentState)
-        .catch(error => new ApolloError(error))
+    __resolveReference: catchErrors(
+      async ({ loanId }, { dataSources: { loan }, username }: Context): Promise<Loan> =>
+        loan.repo
+          .getById({ id: loanId, enrollmentId: username })
+          .then(({ currentState }) => currentState),
+      { fcnName: 'Loan/__resolveReference', logger, useAuth: true }
+    )
   },
   LoanResponse: {
     __resolveType: obj => (obj.commitId ? 'LoanCommit' : obj.message ? 'LoanError' : {})

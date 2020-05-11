@@ -13,4 +13,4 @@ export { typeDefs as documentTypeDefs, resolvers as documentResolvers } from './
 export * from './queries';
 export type DocumentRepo = Repository<Document, DocumentEvents>;
 export type DocumentCommandHandler = CommandHandler<DocumentCommands>;
-export type DocumentDS = DataSrc<Document, DocumentEvents>;
+export type DocumentDS = DataSrc<DocumentRepo>;

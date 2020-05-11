@@ -52,6 +52,6 @@
     "jsxBracketSameLine": true,
     "requirePragma": false,
     "insertPragma": false,
-    "printWidth": 120
+    "printWidth": 100
   }
 }

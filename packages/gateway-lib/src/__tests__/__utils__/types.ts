@@ -33,7 +33,7 @@ export type CounterCommandHandler = CommandHandler<CounterCommands>;
 
 export type Context = {
   dataSources: {
-    counter: DataSrc<Counter, CounterEvent, Repository<Counter, CounterEvent>>;
+    counter: DataSrc<Repository<Counter, CounterEvent>>;
   };
   user_id: string;
   username: string;
