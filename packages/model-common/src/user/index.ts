@@ -13,4 +13,4 @@ export { typeDefs as userTypeDefs, resolvers as userResolvers } from './typeDefs
 export * from './queries';
 export type UserRepo = Repository<User, UserEvents>;
 export type UserCommandHandler = CommandHandler<UserCommands>;
-export type UserDS = DataSrc<User, UserEvents>;
+export type UserDS = DataSrc<User, UserEvents, UserRepo>;

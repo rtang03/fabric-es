@@ -19,16 +19,19 @@ printf "Cleaning up old image $AUTH_IMAGE\n"
 docker rmi $AUTH_IMAGE
 
 printf "Creating build context of auth-server ...\n"
-./build-auth.sh
+cd $ROOT_DIR/packages/auth
+yarn tsc:prod
+printMessage "Create tsc for auth-server"  $?
 
+yarn pack:lib
 printMessage "Create build context for auth-server"  $?
 sleep 1
 
 ### build image ###
-cd $ROOT_DIR
-DOCKER_BUILD=1 docker build --no-cache -f ./auth-server.dockerfile -t $AUTH_IMAGE .
+DOCKER_BUILD=1 docker build --no-cache -t $AUTH_IMAGE .
 printMessage "Create auth-server image" $?
 sleep 1
 
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"
+
