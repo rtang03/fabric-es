@@ -2,6 +2,7 @@ import { makeKey } from './index';
 
 export interface BaseEvent {
   readonly type: string;
+  readonly lifeCycle?: number;
   payload: any;
 }
 

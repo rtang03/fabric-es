@@ -1,5 +1,0 @@
-# Copy files to the container
-mkdir -p {{{artifacts.local}}}/addorg
-cp container/enroll_tls_addorg.sh {{{artifacts.local}}}/addorg
-
-docker exec {{orgs.tls.ca.host}}{{network.host-delimiter}}{{orgs.tls.domain}} sh -c "{{{artifacts.docker}}}/addorg/enroll_tls_addorg.sh"

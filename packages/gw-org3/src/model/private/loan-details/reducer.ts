@@ -1,4 +1,4 @@
-import { loanDetailsReducer as superReducer } from '@fabric-es/model-loan-private';
+import { loanDetailsReducer as superReducer } from '@fabric-es/model-loan';
 import { LoanDetails, LoanDetailsEvents } from '.';
 
 export const loanDetailsReducer = (details: LoanDetails, event: LoanDetailsEvents): LoanDetails => {

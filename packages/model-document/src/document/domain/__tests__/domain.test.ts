@@ -1,27 +1,14 @@
 import { Commit, getMockRepository, getReducer } from '@fabric-es/fabric-cqrs';
-import { DocumentStatus } from '@fabric-es/model-document';
-import { Loan, loanCommandHandler, LoanEvents, loanReducer } from '@fabric-es/model-loan';
-import { Document, documentCommandHandler, DocumentEvents, documentReducer } from '..';
+import { Document, documentCommandHandler, DocumentEvents, documentReducer, DocumentStatus } from '../..';
 
 const enrollmentId = '';
 const userId = 'USER002';
 const mockdb: Record<string, Commit> = {};
-const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan, LoanEvents>(loanReducer));
 const documentRepo = getMockRepository<Document, DocumentEvents>(
   mockdb, 'document', getReducer<Document, DocumentEvents>(documentReducer)
 );
 
 beforeAll(async () => {
-  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
-    userId,
-    payload: { loanId: 'LOANID001', reference: 'LOANREF001', description: 'HOWAREYOUTODAY', timestamp: Date.now() }
-  });
-
-  await loanCommandHandler({ enrollmentId, loanRepo }).ApplyLoan({
-    userId,
-    payload: { loanId: 'LOANID002', reference: 'LOANREF002', description: 'HOWAREYOUTODAY', timestamp: Date.now() }
-  });
-
   await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
     userId,
     payload: {
@@ -29,7 +16,6 @@ beforeAll(async () => {
       loanId: 'LOANID001',
       title: 'The Mother of All Purchase Orders',
       reference: 'DOCREF001',
-      link: 'The customized property',
       timestamp: Date.now()
     }
   });
@@ -41,7 +27,6 @@ beforeAll(async () => {
       loanId: 'LOANID002',
       title: 'The Father of All Purchase Orders',
       reference: 'DOCREF002',
-      link: 'LINK2',
       timestamp: Date.now()
     }
   });
@@ -52,19 +37,18 @@ beforeAll(async () => {
       documentId: 'DOCID003',
       title: 'The Daughter of All Purchase Orders',
       reference: 'DOCREF003',
-      link: 'LINK3',
       timestamp: Date.now()
     }
   });
 
   await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
     userId,
-    payload: { documentId: 'DOCID004', reference: 'DOCREF004', link: 'LINK4',timestamp: Date.now() }
+    payload: { documentId: 'DOCID004', reference: 'DOCREF004', timestamp: Date.now() }
   });
 
   await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
     userId,
-    payload: { documentId: 'DOCID005', loanId: 'LOANID005', reference: 'DOCREF005', link: 'LINK5',timestamp: Date.now() }
+    payload: { documentId: 'DOCID005', loanId: 'LOANID005', reference: 'DOCREF005', timestamp: Date.now() }
   });
 
   await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
@@ -74,7 +58,6 @@ beforeAll(async () => {
       title: 'The Grandy of All Purchase Orders',
       loanId: 'LOANID006',
       reference: 'DOCREF006',
-      link: 'LINK6',
       timestamp: Date.now()
     }
   });
@@ -89,7 +72,6 @@ describe('Document CommandHandler test', () => {
         loanId: 'LOANID001',
         title: 'Very Important Document',
         reference: 'DOCREF010',
-        link: 'LINK7',
         timestamp: Date.now()
       }
     });
@@ -115,7 +97,6 @@ describe('Document CommandHandler test', () => {
           loanId: 'LOANID001',
           title: 'Very Important Document 2',
           reference: null,
-          link: 'LINK8',
           timestamp: Date.now()
         }
       })
@@ -187,19 +168,6 @@ describe('Document CommandHandler test', () => {
         }
       })
       .catch(({ message }) => expect(message).toEqual('DOCUMENT_NOT_FOUND: id: 999999999'));
-  });
-
-  it('updating a document with empty link', async () => {
-    await documentCommandHandler({ enrollmentId, documentRepo })
-      .DefineDocumentLink({
-        userId,
-        payload: {
-          documentId: 'DOCID003',
-          link: '',
-          timestamp: Date.now()
-        }
-      })
-      .catch(({ message }) => expect(message).toEqual('REQUIRED_DATA_MISSING'));
   });
 
   it('add loan ID to a document', async () => {

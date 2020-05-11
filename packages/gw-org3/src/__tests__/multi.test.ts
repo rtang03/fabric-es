@@ -1,13 +1,13 @@
 import {
-  APPLY_LOAN,
+  CREATE_DOC_CONTENTS,
   CREATE_DOCUMENT,
   UPDATE_DOCUMENT
-} from '@fabric-es/model-loan';
+} from '@fabric-es/model-document';
 import {
-  CREATE_DOC_CONTENTS,
+  APPLY_LOAN,
   CREATE_LOAN_DETAILS,
   UPDATE_LOAN_DETAILS
-} from '@fabric-es/model-loan-private';
+} from '@fabric-es/model-loan';
 import fetch from 'node-fetch';
 import {
   CREATE_DOCUMENT as CREATE_DOCUMENT_CUST,

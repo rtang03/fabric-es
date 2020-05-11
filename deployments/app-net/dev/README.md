@@ -34,18 +34,22 @@ However, if you already have the working postgresDBs, run [start.sh](start.sh)
 The authentication servers are run at following endpoints:
 
 ```shell script
-http://localhost:4100/graphql
+http://localhost:3001/graphql
 ```
 
 ```shell script
-http://localhost:4200/graphql
+http://localhost:3002/graphql
 ```
 
 ```shell script
-http://localhost:4300/graphql
+http://localhost:3003/graphql
 ```
 
 To verify, run following for each one of them:
+
+- Admin Password for `http://localhost:3001` : root_admin1_password
+- Admin Password for `http://localhost:3002` : root_admin2_password
+- Admin Password for `http://localhost:3003` : root_admin3_password
 
 ```shell script
 mutation {
@@ -53,7 +57,7 @@ mutation {
     email: "user01@org1.com"
     username: "user01org1"
     password: "password"
-    admin_password: "password"
+    admin_password: "[Use the Admin Password specified above]"
   )
 }
 ```

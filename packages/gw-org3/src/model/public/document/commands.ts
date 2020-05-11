@@ -1,4 +1,4 @@
-import { DocumentCommands as SuperCommands } from '@fabric-es/model-loan';
+import { DocumentCommands as SuperCommands } from '@fabric-es/model-document';
 
 export interface DocumentCommands extends SuperCommands {
   CreateDocument: {

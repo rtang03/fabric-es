@@ -28,5 +28,5 @@ export const createInstance = (option: {
   });
 
 // type guard for transient data
-export const isEventArray = (value: unknown): value is { type: string; payload?: any }[] =>
+export const isEventArray = (value: unknown): value is { type: string; lifeCycle?: number; payload?: any }[] =>
   Array.isArray(value) && value.every(item => typeof item.type === 'string');

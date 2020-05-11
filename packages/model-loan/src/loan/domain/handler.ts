@@ -1,5 +1,6 @@
+import { Lifecycle } from '@fabric-es/fabric-cqrs';
 import { Errors } from '@fabric-es/gateway-lib';
-import { LoanCommandHandler, LoanRepo } from '..';
+import { LoanCommandHandler, LoanEvents, LoanRepo } from '..';
 
 export const LoanErrors = {
   loanNotFound: loanId => new Error(`LOAN_NOT_FOUND: id: ${loanId}`),
@@ -17,8 +18,8 @@ export const loanCommandHandler: (option: { enrollmentId: string; loanRepo: Loan
   ApplyLoan: async ({ userId, payload: { loanId, description, reference, comment, timestamp } }) => {
     if (!reference) throw Errors.requiredDataMissing();
     if (!description) throw Errors.requiredDataMissing();
-    const events: any = [
-      { type: 'LoanApplied', payload: { loanId, userId, timestamp }},
+    const events: LoanEvents[] = [
+      { type: 'LoanApplied', lifeCycle: Lifecycle.BEGIN, payload: { loanId, userId, timestamp }},
       { type: 'LoanReferenceDefined', payload: { loanId, userId, reference, timestamp }},
       { type: 'LoanDescriptionDefined', payload: { loanId, userId, description, timestamp }}
     ];
@@ -31,7 +32,7 @@ export const loanCommandHandler: (option: { enrollmentId: string; loanRepo: Loan
     loanRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
       if (!currentState) throw LoanErrors.loanNotFound(loanId);
       return save([
-        { type: 'LoanCancelled', payload: { loanId, userId, timestamp }}
+        { type: 'LoanCancelled', lifeCycle: Lifecycle.END, payload: { loanId, userId, timestamp }}
       ]);
     }),
   ApproveLoan: async ({ userId, payload: { loanId, timestamp } }) =>

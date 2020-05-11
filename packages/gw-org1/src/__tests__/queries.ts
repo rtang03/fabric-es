@@ -3,11 +3,13 @@ mutation Register(
   $email: String!
   $username: String!
   $password: String!
+  $admin_password: String
 ) {
   register(
     email: $email
     username: $username
     password: $password
+    admin_password: $admin_password
   )
 }`;
 

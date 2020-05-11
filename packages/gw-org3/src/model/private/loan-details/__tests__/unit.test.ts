@@ -1,7 +1,7 @@
 import { buildFederatedSchema } from '@apollo/federation';
 import { Commit, getPrivatedataMockRepository, getReducer, PrivatedataRepository } from '@fabric-es/fabric-cqrs';
 import { DataSrc } from '@fabric-es/gateway-lib';
-import { CREATE_LOAN_DETAILS, UPDATE_LOAN_DETAILS } from '@fabric-es/model-loan-private';
+import { CREATE_LOAN_DETAILS, UPDATE_LOAN_DETAILS } from '@fabric-es/model-loan';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import gql from 'graphql-tag';

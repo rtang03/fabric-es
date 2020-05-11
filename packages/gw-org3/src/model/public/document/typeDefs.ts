@@ -1,5 +1,5 @@
 import { Commit } from '@fabric-es/fabric-cqrs';
-import { documentResolvers } from '@fabric-es/model-loan';
+import { documentResolvers } from '@fabric-es/model-document';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { documentCommandHandler } from './handler';

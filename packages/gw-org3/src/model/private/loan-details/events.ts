@@ -1,5 +1,5 @@
 import { BaseEvent } from '@fabric-es/fabric-cqrs';
-import { LoanContactDefined as SuperEvent, LoanDetailsEvents as SuperEvents } from '@fabric-es/model-loan-private';
+import { LoanContactDefined as SuperEvent, LoanDetailsEvents as SuperEvents } from '@fabric-es/model-loan';
 
 export interface LoanContactDefined extends BaseEvent {
   readonly type: 'LoanContactDefined';

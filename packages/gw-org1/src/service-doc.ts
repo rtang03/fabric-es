@@ -2,7 +2,7 @@ require('./env');
 import util from 'util';
 import { getReducer } from '@fabric-es/fabric-cqrs';
 import { createService, getLogger } from '@fabric-es/gateway-lib';
-import { Document, DocumentEvents, documentReducer, documentResolvers, documentTypeDefs } from '@fabric-es/model-loan';
+import { Document, DocumentEvents, documentReducer, documentResolvers, documentTypeDefs } from '@fabric-es/model-document';
 import { Wallets } from 'fabric-network';
 
 const logger = getLogger('service-doc.js');
