@@ -51,7 +51,7 @@ beforeAll(async () => {
     dataSources: () => ({
       document: new DataSrc({ repo: docuRepo })
     }),
-    context: () => ({ enrollmentId: 'admin' })
+    context: () => ({ user_id: 'admin' })
   });
 });
 
