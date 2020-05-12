@@ -6,17 +6,25 @@ import gql from 'graphql-tag';
 
 export const typeDefs = gql`
   type Mutation {
-    registerAndEnrollUser(administrator: String!, enrollmentId: String!, enrollmentSecret: String!): Boolean!
+    createWallet: Boolean!
   }
   type Query {
+    me: String
     getBlockByNumber(blockNumber: Int!): Block
     getChainHeight: Int!
-    getCaIdentityByEnrollmentId(enrollmentId: String!): CaIdentity
-    getInstalledCCVersion(chaincode_id: String!): String!
-    getMspid: String!
-    getPeerName: String!
-    isWalletExist(label: String!): Boolean!
-    listWallet: [WalletEntry!]!
+    getCaIdentityByUsername: CaIdentity
+    getPeerInfo: PeerInfo!
+    getWallet: WalletEntry!
+    listWallet: [String!]!
+  }
+  type PeerInfo {
+    peerName: String!
+    mspId: String!
+  }
+  type WalletEntry {
+    certificate: String!
+    type: String!
+    mspId: String!
   }
   type X509Attribute {
     name: String!
@@ -33,11 +41,6 @@ export const typeDefs = gql`
     name: String!
     version: Int!
     path: String!
-  }
-  type WalletEntry {
-    label: String!
-    mspId: String
-    identifier: String
   }
   type TransactionResponse {
     status: String!

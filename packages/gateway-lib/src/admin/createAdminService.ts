@@ -2,7 +2,7 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import { getLogger } from '..';
-import { shutdown } from '../utils/shutdownApollo';
+import { shutdown } from '../utils';
 import { MISSING_CHANNELNAME, MISSING_CONNECTION_PROFILE, MISSING_FABRIC_NETWORK, MISSING_WALLET } from './constants';
 import { createResolvers } from './createResolvers';
 import { typeDefs } from './typeDefs';
@@ -21,6 +21,7 @@ export const createAdminService: (option: {
   playground?: boolean;
   introspection?: boolean;
   mspId: string;
+  enrollmentSecret?: string;
 }) => Promise<{ server: ApolloServer; shutdown: any }> = async ({
   caAdmin,
   caAdminPW,
@@ -34,7 +35,8 @@ export const createAdminService: (option: {
   mspId,
   asLocalhost = true,
   playground = true,
-  introspection = true
+  introspection = true,
+  enrollmentSecret= 'password'
 }) => {
   const logger = getLogger('[gw-lib] createAdminService.js');
 
@@ -67,23 +69,24 @@ export const createAdminService: (option: {
     peerName,
     wallet: await Wallets.newFileSystemWallet(walletPath),
     asLocalhost,
-    mspId
+    mspId,
+    enrollmentSecret
   });
 
   logger.info('createResolvers complete');
 
+  const server = new ApolloServer({
+    schema: buildFederatedSchema([{ typeDefs, resolvers }]),
+    playground,
+    introspection,
+    context: ({ req: { headers } }) => ({
+      user_id: headers.user_id,
+      is_admin: headers.is_admin,
+      username: headers.username,
+    })
+  });
   return {
-    server: new ApolloServer({
-      schema: buildFederatedSchema([{ typeDefs, resolvers }]),
-      playground,
-      introspection,
-      context: ({ req: { headers } }) => ({
-        user_id: headers.user_id,
-        is_admin: headers.is_admin,
-        client_id: headers.client_id,
-        enrollmentId: headers.user_id
-      })
-    }),
+    server,
     shutdown: shutdown({ logger, name: 'Admin' })
   };
 };

@@ -6,8 +6,8 @@ import omit from 'lodash/omit';
 import passport from 'passport';
 import { TokenRepo } from '../entity/AccessToken';
 import { User } from '../entity/User';
-import { LoginResponse, ProfileResponse, RegisterResponse } from '../types';
-import { generateToken, getLogger } from '../utils';
+import { LoginResponse, ProfileResponse, RegisterResponse, UpdateUserRequest } from '../types';
+import { catchErrors, generateToken, getLogger, isRegisterRequest, isUpdateUserRequest } from '../utils';
 
 const logger = getLogger({ name: '[auth] createAccountRoute.js' });
 
@@ -23,14 +23,16 @@ export const createAccountRoute: (option: {
 
   router.get('/userinfo', passport.authenticate('bearer', { session: false }), (req, res) => {
     const response: ProfileResponse = omit(req.user, 'password') as any;
+
     logger.info(`userinfo ${response.id} is retrieved`);
+
     return res.status(httpStatus.OK).send(response);
   });
 
   // "/login" is similar to password grant type invoked via "/oauth/token"
   router.post('/login', (req, res) => {
     passport.authenticate('local', { session: false, failureRedirect: '/login' }, async (error, user: User) => {
-      if (error || !user) return res.status(httpStatus.BAD_REQUEST).json({ error });
+      if (error || !user) return res.status(httpStatus.UNAUTHORIZED).send({ error });
 
       const access_token = generateToken({
         user_id: user.id,
@@ -51,8 +53,11 @@ export const createAccountRoute: (option: {
         })
         .then(() => {
           logger.info(`logging in ${user.id}`);
+
           res.cookie('token', access_token, { httpOnly: true, secure: true });
+
           const response: LoginResponse = { username: user.username, id: user.id, access_token, token_type: 'Bearer' };
+
           return res.status(httpStatus.OK).send(response);
         })
         .catch(e => {
@@ -62,94 +67,89 @@ export const createAccountRoute: (option: {
     })(req, res);
   });
 
-  // router.get('/logout', (req, res) => {
-  // req.logout();
-  // res.redirect('/');
-  // });
+  router.get(
+    '/:user_id',
+    passport.authenticate('bearer', { session: false }),
+    catchErrors(
+      async (req, res) => {
+        const user = req.user as User;
+        const user_id = req.params.user_id;
+        const localUser = await User.findOne({ where: { id: user_id } });
+        return user.is_admin
+          ? res.status(httpStatus.OK).send(omit(localUser, 'password'))
+          : user_id === user.id
+          ? res.status(httpStatus.OK).send(omit(localUser, 'password'))
+          : res.status(httpStatus.UNAUTHORIZED).send({ error: 'not authorized to retrieve user' });
+      },
+      { logger, fcnName: 'find user' }
+    )
+  );
 
-  router.get('/:user_id', passport.authenticate('bearer', { session: false }), async (req, res) => {
-    const user = req.user as User;
-    const user_id = req.params.user_id;
+  // update user
+  router.put(
+    '/:user_id',
+    passport.authenticate('bearer', { session: false }),
+    catchErrors(
+      async (req, res) => {
+        const user = req.user as User;
+        const user_id = req.params.user_id;
+        const message = `update user ${user_id}`;
+        const request: UpdateUserRequest = {
+          email: req.body.email,
+          username: req.body.username
+        };
 
-    let localUser: User;
+        if (!isUpdateUserRequest(request)) {
+          logger.warn(`fail to ${message}: missing params`);
+          return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params' });
+        } else if (user.id !== user_id) {
+          logger.warn(`fail to ${message}: not authorized`);
+          return res.status(httpStatus.UNAUTHORIZED).send({ error: `not authorized to ${message}` });
+        } else {
+          await User.update(user_id, request);
 
-    try {
-      localUser = await User.findOne({ where: { id: user_id } });
-    } catch (e) {
-      logger.error(util.format('fail find user %s, %j', user_id, e));
-      res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to find user' });
-    }
-
-    return user.is_admin
-      ? res.status(httpStatus.OK).send(omit(localUser, 'password'))
-      : user_id === user.id
-      ? res.status(httpStatus.OK).send(omit(localUser, 'password'))
-      : res.status(httpStatus.UNAUTHORIZED).send({ error: 'not authorized to retrieve user' });
-  });
-
-  router.put('/:user_id', passport.authenticate('bearer', { session: false }), async (req, res) => {
-    const user = req.user as User;
-    const user_id = req.params.user_id;
-
-    if (!req.body?.email && !req.body?.username) {
-      logger.warn(`cannot update account ${user_id}: missing params - username or email`);
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params: username or email' });
-    }
-
-    if (user.id !== user_id) {
-      logger.warn(`cannot update account ${user_id}: not authorized to update user`);
-      return res.status(httpStatus.UNAUTHORIZED).send({ error: 'not authorized to update user' });
-    }
-
-    // password cannot be updated; can only be resetted
-    // is_admin cannot be updated; can only be set during account creation
-    const payload = {
-      email: req.body?.email || user.email,
-      username: req.body?.username || user.username
-    };
-
-    try {
-      await User.update(user_id, payload);
-      logger.info(`account ${user.id} is updated`);
-      return res.status(httpStatus.OK).send({ ok: true, ...payload });
-    } catch (e) {
-      logger.error(util.format('fail to update user %s, %j', user.id, e));
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to update user' });
-    }
-  });
+          logger.info(`${message} is done`);
+          return res.status(httpStatus.OK).send({ ok: true, ...(request as any) });
+        }
+      },
+      { logger, fcnName: 'update user' }
+    )
+  );
 
   // delete is not phsyically delete the user record, it is to toggle "is_delete"
-  router.delete('/:user_id', passport.authenticate('bearer', { session: false }), async (req, res) => {
-    const user = req.user as User;
-    const user_id = req.params.user_id;
+  router.delete(
+    '/:user_id',
+    passport.authenticate('bearer', { session: false }),
+    catchErrors(
+      async (req, res) => {
+        const user = req.user as User;
+        const user_id = req.params.user_id;
+        const message = `delete user ${user_id}`;
+        const is_deleted = req.body?.is_delete ?? user.is_deleted;
 
-    if (user.id !== user_id) {
-      logger.warn(`cannot delete account ${user_id}: not authorized to delete user`);
-      return res.status(httpStatus.UNAUTHORIZED).send({ error: 'not authorized to delete user' });
-    }
+        if (user.id !== user_id) {
+          logger.warn(`fail to ${message}: not authorized`);
+          return res.status(httpStatus.UNAUTHORIZED).send({ error: `not authorized to ${message}` });
+        }
 
-    try {
-      await User.update(user.id, {
-        is_deleted: req.body?.is_delete ?? user.is_deleted
-      });
-      logger.info(`account ${user.id} is changed to 'deleted'`);
-      return res.status(httpStatus.OK).send({ ok: true });
-    } catch (e) {
-      logger.error(util.format('fail to delete client, %j', e));
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to delete user' });
-    }
-  });
+        await User.update(user.id, { is_deleted });
 
+        logger.info(`${message} is done`);
+
+        return res.status(httpStatus.OK).send({ ok: true });
+      },
+      { logger, fcnName: 'delete user' }
+    )
+  );
+
+  // register new user
   router.post('/', async (req, res) => {
-    const username: string = req.body?.username;
-    const email: string = req.body?.email;
-    const password: string = req.body?.password;
-    const submittedSecret: string = req.body?.org_admin_secret;
-
-    if (!username || !email || !password) {
+    if (!isRegisterRequest(req.body)) {
       logger.warn('cannot register account: missing params - username, password, email');
       return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params - username, password, email' });
     }
+
+    const { username, email, password, org_admin_secret } = req.body;
 
     let usernameExist;
 
@@ -178,7 +178,7 @@ export const createAccountRoute: (option: {
       return res.status(httpStatus.BAD_REQUEST).send({ error: 'email already exist' });
     }
 
-    if (submittedSecret && orgAdminSecret !== submittedSecret) {
+    if (org_admin_secret && orgAdminSecret !== org_admin_secret) {
       logger.warn(`cannot register account ${username} : organization admin secret mis-matched`);
       return res.status(httpStatus.BAD_REQUEST).send('organization admin secret mis-match');
     }
@@ -189,7 +189,7 @@ export const createAccountRoute: (option: {
         username,
         password: hashPassword,
         email,
-        is_admin: orgAdminSecret === submittedSecret,
+        is_admin: orgAdminSecret === org_admin_secret,
         is_deleted: false
       });
       await User.insert(user);
@@ -202,6 +202,7 @@ export const createAccountRoute: (option: {
     }
   });
 
+  // get authenticated user
   router.get('/', passport.authenticate('bearer', { session: false }), async (req, res) =>
     res.status(httpStatus.OK).send(omit(req.user, 'password'))
   );

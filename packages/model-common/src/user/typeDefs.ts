@@ -1,8 +1,5 @@
-import util from 'util';
 import { Commit } from '@fabric-es/fabric-cqrs';
-import { Paginated } from '@fabric-es/gateway-lib';
-import { ApolloError } from 'apollo-server-errors';
-import Client from 'fabric-client';
+import { catchErrors, getLogger, Paginated } from '@fabric-es/gateway-lib';
 import gql from 'graphql-tag';
 import { User, userCommandHandler, UserDS } from '.';
 
@@ -55,6 +52,10 @@ export const typeDefs = gql`
   }
 `;
 
+const logger = getLogger('user/typeDefs.js');
+
+type Context = { dataSources: { user: UserDS }; username; string };
+
 export const resolvers = {
   Query: {
     me: () =>
@@ -63,97 +64,51 @@ export const resolvers = {
         name: 'Admin',
         mergedUserIds: []
       }),
-    getCommitsByUserId: async (
-      _,
-      { userId },
-      { dataSources: { user } }: { dataSources: { user: UserDS } }
-    ): Promise<Commit[]> => {
-      const logger = Client.getLogger('user-resolvers.js');
-
-      return user.repo
-        .getCommitById(userId)
-        .then(({ data }) => data || [])
-        .catch(({ error }) => {
-          logger.warn(util.format('getCommitsByUserId error: %j', error));
-          return error;
-        });
-    },
-    getPaginatedUser: async (
-      _,
-      { cursor = 10 },
-      { dataSources: { user } }: { dataSources: { user: UserDS } }
-    ): Promise<Paginated<User>> => {
-      const logger = Client.getLogger('user-resolvers.js');
-
-      return user.repo
-        .getByEntityName()
-        .then(
+    getCommitsByUserId: catchErrors(
+      async (_, { userId }, { dataSources: { user } }: Context): Promise<Commit[]> =>
+        user.repo.getCommitById(userId).then(({ data }) => data || []),
+      { fcnName: 'getCommitsByUserId', logger, useAuth: false }
+    ),
+    getPaginatedUser: catchErrors(
+      async (_, { cursor = 10 }, { dataSources: { user } }: Context): Promise<Paginated<User>> =>
+        user.repo.getByEntityName().then(
           ({ data }: { data: any[] }) =>
             ({
               entities: data || [],
               hasMore: data.length > cursor,
               total: data.length
             } as Paginated<User>)
-        )
-        .catch(({ error }) => {
-          logger.warn(util.format('getPaginatedUser error: %j', error));
-          return error;
-        });
-    },
-    getUserById: async (
-      _,
-      { userId },
-      { dataSources: { user }, enrollmentId }: { dataSources: { user: UserDS }; enrollmentId: string }
-    ): Promise<User> => {
-      const logger = Client.getLogger('user-resolvers.js');
-
-      return user.repo
-        .getById({ id: userId, enrollmentId })
-        .then(({ currentState }) => currentState)
-        .catch(({ error }) => {
-          logger.warn(util.format('getUserById error: %j', error));
-          return error;
-        });
-    },
-    searchUserByFields: async (
-      _, { where }, { dataSources: { user }, enrollmentId }: { dataSources: { user: UserDS }; enrollmentId: string }
-    ): Promise<User[]> => {
-      try {
-        return user.repo.getProjection({ where: JSON.parse(where) })
-          .then(({ data }) => data)
-          .catch(error => new ApolloError(error));
-      } catch (error) {
-        throw new ApolloError(error);
-      }
-    },
-    searchUserContains: async (
-      _, { contains }, { dataSources: { user }, enrollmentId }: { dataSources: { user: UserDS }; enrollmentId: string }
-      ): Promise<User[]> =>
-        user.repo.getProjection({ contain: contains })
-          .then(({ data }) => data)
-          .catch(error => new ApolloError(error))
+        ),
+      { fcnName: 'getPaginatedUser', logger, useAuth: false }
+    ),
+    getUserById: catchErrors(
+      async (_, { userId }, { dataSources: { user }, username }: Context): Promise<User> =>
+        user.repo.getById({ id: userId, enrollmentId: username }).then(({ currentState }) => currentState),
+      { fcnName: 'getUserById', logger, useAuth: true }
+    ),
+    searchUserByFields: catchErrors(
+      async (_, { where }, { dataSources: { user }, username }: Context): Promise<User[]> =>
+        user.repo.getProjection({ where: JSON.parse(where) }).then(({ data }) => data),
+      { fcnName: 'searchUserByFields', logger, useAuth: false }
+    ),
+    searchUserContains: catchErrors(
+      async (_, { contains }, { dataSources: { user }, username }: Context): Promise<User[]> =>
+        user.repo.getProjection({ contain: contains }).then(({ data }) => data),
+      { fcnName: 'searchUserContains', logger, useAuth: false }
+    )
   },
   Mutation: {
-    createUser: async (
-      _,
-      { name, userId },
-      { dataSources: { user }, enrollmentId }: { dataSources: { user: UserDS }; enrollmentId: string }
-    ): Promise<Commit | ApolloError> => {
-      const logger = Client.getLogger('user-resolvers.js');
-
-      return userCommandHandler({
-        enrollmentId,
-        userRepo: user.repo
-      })
-        .CreateUser({
+    createUser: catchErrors(
+      async (_, { name, userId }, { dataSources: { user }, username }: Context): Promise<Commit> =>
+        userCommandHandler({
+          enrollmentId: username,
+          userRepo: user.repo
+        }).CreateUser({
           userId,
           payload: { name, timestamp: Date.now() }
-        })
-        .catch(({ error }) => {
-          logger.warn(util.format('createUser error: %j', error));
-          return error;
-        });
-    }
+        }),
+      { fcnName: 'createUser', logger, useAuth: false }
+    )
   },
   UserResponse: {
     __resolveType: (obj: any) => (obj.commitId ? 'UserCommit' : obj.message ? 'UserError' : null)

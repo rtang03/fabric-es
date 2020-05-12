@@ -23,7 +23,7 @@ beforeAll(async () => {
     dataSources: () => ({
       loanDetails: new DataSrc({ repo: loanDetailsRepo })
     }),
-    context: () => ({ enrollmentId: 'admin' })
+    context: () => ({ user_id: 'admin' })
   });
 });
 

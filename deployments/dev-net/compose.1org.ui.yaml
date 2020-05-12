@@ -1,0 +1,15 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+  ui-account:
+    image: fabric-es/ui-account:1.0
+    container_name: ui-account
+    environment:
+      - PORT=3000
+      - AUTH_HOST=http://auth:8080
+      - GW_ORG_HOST=http://gw-org1:1.0
+    depends_on:
+      - auth

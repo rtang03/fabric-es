@@ -14,4 +14,4 @@ export { typeDefs as loanDetailsRemoteTypeDefs, resolvers as loanDetailsRemoteRe
 export * from './queries';
 export type LoanDetailsRepo = PrivatedataRepository<LoanDetails, LoanDetailsEvents>;
 export type LoanDetailsCommandHandler = CommandHandler<LoanDetailsCommands>;
-export type LoanDetailsDS = DataSrc<LoanDetails, LoanDetailsEvents>;
+export type LoanDetailsDS = DataSrc<LoanDetailsRepo>;

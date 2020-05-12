@@ -6,13 +6,12 @@ import Redis from 'ioredis';
 import omit from 'lodash/omit';
 import 'reflect-metadata';
 import stoppable from 'stoppable';
+import { ApiKey } from './entity/ApiKey';
 import { Client } from './entity/Client';
 import { User } from './entity/User';
 import { bootstrapAuthServer, createHttpServer, getLogger } from './utils';
 
 const logger = getLogger({ name: '[auth] app.js' });
-
-
 
 const port = (process.env.PORT || 8080) as number;
 const ENV = {
@@ -44,7 +43,7 @@ const connection = {
   logging: ENV.TYPEORM_LOGGING === 'true',
   synchronize: true,
   dropSchema: ENV.TYPEORM_DROPSCHEMA === 'true',
-  entities: [Client, User]
+  entities: [ApiKey, Client, User]
 };
 
 (async () => {

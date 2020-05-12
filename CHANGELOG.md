@@ -3,6 +3,9 @@
 - GraphQL resolver APIs for searching the projectionDb
 - Docker image versions follows release versions
 - reverse proxy
+- ui-account for user management
+- revamp auth server
+- add 1org dev-net
 
 ### Modified
 - Fix v2 related changes in dev-net to work with 3x orgs

@@ -1,4 +1,5 @@
 import { Commit } from '@fabric-es/fabric-cqrs';
+import { catchErrors, getLogger } from '@fabric-es/gateway-lib';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { LoanDetails, loanDetailsCommandHandler, LoanDetailsDS } from '.';
@@ -109,27 +110,33 @@ export const typeDefs = gql`
   }
 `;
 
+type Context = {
+  dataSources: { loanDetails: LoanDetailsDS };
+  username: string;
+};
+
+const logger = getLogger('loan-details/typeDefs.js');
+
 export const resolvers = {
   Query: {
-    getLoanDetailsById: async (
-      _, { loanId },
-      { dataSources: { loanDetails }, enrollmentId }: { dataSources: { loanDetails: LoanDetailsDS }; enrollmentId: string }
-    ): Promise<LoanDetails> =>
-      loanDetails.repo.getById({ id: loanId, enrollmentId })
-        .then(({ currentState }) => currentState)
-        .catch(error => new ApolloError(error))
+    getLoanDetailsById: catchErrors(
+      async (
+        _,
+        { loanId },
+        { dataSources: { loanDetails }, username }: Context
+      ): Promise<LoanDetails> =>
+        loanDetails.repo
+          .getById({ id: loanId, enrollmentId: username })
+          .then(({ currentState }) => currentState),
+      { fcnName: 'getLoanDetailsById', logger, useAuth: false }
+    )
   },
   Mutation: {
-    createLoanDetails: async (
-      _, { userId, loanId, requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment },
-      { dataSources: { loanDetails }, enrollmentId }: { dataSources: { loanDetails: LoanDetailsDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      loanDetailsCommandHandler({
-        enrollmentId,
-        loanDetailsRepo: loanDetails.repo
-      }).CreateLoanDetails({
-        userId,
-        payload: {
+    createLoanDetails: catchErrors(
+      async (
+        _,
+        {
+          userId,
           loanId,
           requester,
           contact,
@@ -139,111 +146,163 @@ export const resolvers = {
           currency,
           requestedAmt,
           approvedAmt,
-          comment,
-          timestamp: Date.now()
-        }
-      }).catch(error => new ApolloError(error)),
+          comment
+        },
+        { dataSources: { loanDetails }, username }: Context
+      ): Promise<Commit> =>
+        loanDetailsCommandHandler({
+          enrollmentId: username,
+          loanDetailsRepo: loanDetails.repo
+        }).CreateLoanDetails({
+          userId,
+          payload: {
+            loanId,
+            requester,
+            contact,
+            loanType,
+            startDate,
+            tenor,
+            currency,
+            requestedAmt,
+            approvedAmt,
+            comment,
+            timestamp: Date.now()
+          }
+        }),
+      { fcnName: 'createLoanDetails', logger, useAuth: true }
+    ),
     updateLoanDetails: async (
-      _, { userId, loanId, requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment },
-      { dataSources: { loanDetails }, enrollmentId }: { dataSources: { loanDetails: LoanDetailsDS }; enrollmentId: string }
+      _,
+      {
+        userId,
+        loanId,
+        requester,
+        contact,
+        loanType,
+        startDate,
+        tenor,
+        currency,
+        requestedAmt,
+        approvedAmt,
+        comment
+      },
+      { dataSources: { loanDetails }, username }: Context
     ): Promise<Commit[] | { error: any }> => {
       const result: Commit[] = [];
-      if ((typeof requester !== 'undefined') && Object.keys(requester).length > 0) {
+      if (typeof requester !== 'undefined' && Object.keys(requester).length > 0) {
         const c = await loanDetailsCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           loanDetailsRepo: loanDetails.repo
-        }).DefineLoanRequester({
-          userId,
-          payload: { loanId, requester, timestamp: Date.now() }
-        }).then(data => data)
+        })
+          .DefineLoanRequester({
+            userId,
+            payload: { loanId, requester, timestamp: Date.now() }
+          })
+          .then(data => data)
           .catch(error => new ApolloError(error));
         result.push(c);
       }
-      if ((typeof contact !== 'undefined') && Object.keys(contact).length > 0) {
+      if (typeof contact !== 'undefined' && Object.keys(contact).length > 0) {
         const c = await loanDetailsCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           loanDetailsRepo: loanDetails.repo
-        }).DefineLoanContact({
-          userId,
-          payload: { loanId, contact, timestamp: Date.now() }
-        }).then(data => data)
+        })
+          .DefineLoanContact({
+            userId,
+            payload: { loanId, contact, timestamp: Date.now() }
+          })
+          .then(data => data)
           .catch(error => new ApolloError(error));
         result.push(c);
       }
       if (typeof loanType !== 'undefined') {
         const c = await loanDetailsCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           loanDetailsRepo: loanDetails.repo
-        }).DefineLoanType({
-          userId,
-          payload: { loanId, loanType, timestamp: Date.now() }
-        }).then(data => data)
+        })
+          .DefineLoanType({
+            userId,
+            payload: { loanId, loanType, timestamp: Date.now() }
+          })
+          .then(data => data)
           .catch(error => new ApolloError(error));
         result.push(c);
       }
       if (typeof startDate !== 'undefined') {
         const c = await loanDetailsCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           loanDetailsRepo: loanDetails.repo
-        }).DefineLoanStartDate({
-          userId,
-          payload: { loanId, startDate, timestamp: Date.now() }
-        }).then(data => data)
+        })
+          .DefineLoanStartDate({
+            userId,
+            payload: { loanId, startDate, timestamp: Date.now() }
+          })
+          .then(data => data)
           .catch(error => new ApolloError(error));
         result.push(c);
       }
       if (typeof tenor !== 'undefined') {
         const c = await loanDetailsCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           loanDetailsRepo: loanDetails.repo
-        }).DefineLoanTenor({
-          userId,
-          payload: { loanId, tenor, timestamp: Date.now() }
-        }).then(data => data)
+        })
+          .DefineLoanTenor({
+            userId,
+            payload: { loanId, tenor, timestamp: Date.now() }
+          })
+          .then(data => data)
           .catch(error => new ApolloError(error));
         result.push(c);
       }
       if (typeof currency !== 'undefined') {
         const c = await loanDetailsCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           loanDetailsRepo: loanDetails.repo
-        }).DefineLoanCurrency({
-          userId,
-          payload: { loanId, currency, timestamp: Date.now() }
-        }).then(data => data)
+        })
+          .DefineLoanCurrency({
+            userId,
+            payload: { loanId, currency, timestamp: Date.now() }
+          })
+          .then(data => data)
           .catch(error => new ApolloError(error));
         result.push(c);
       }
       if (typeof requestedAmt !== 'undefined') {
         const c = await loanDetailsCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           loanDetailsRepo: loanDetails.repo
-        }).DefineLoanRequestedAmt({
-          userId,
-          payload: { loanId, requestedAmt, timestamp: Date.now() }
-        }).then(data => data)
+        })
+          .DefineLoanRequestedAmt({
+            userId,
+            payload: { loanId, requestedAmt, timestamp: Date.now() }
+          })
+          .then(data => data)
           .catch(error => new ApolloError(error));
         result.push(c);
       }
       if (typeof approvedAmt !== 'undefined') {
         const c = await loanDetailsCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           loanDetailsRepo: loanDetails.repo
-        }).DefineLoanApprovedAmt({
-          userId,
-          payload: { loanId, approvedAmt, timestamp: Date.now() }
-        }).then(data => data)
+        })
+          .DefineLoanApprovedAmt({
+            userId,
+            payload: { loanId, approvedAmt, timestamp: Date.now() }
+          })
+          .then(data => data)
           .catch(error => new ApolloError(error));
         result.push(c);
       }
       if (typeof comment !== 'undefined') {
         const c = await loanDetailsCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           loanDetailsRepo: loanDetails.repo
-        }).DefineLoanDtlComment({
-          userId,
-          payload: { loanId, comment, timestamp: Date.now() }
-        }).then(data => data)
+        })
+          .DefineLoanDtlComment({
+            userId,
+            payload: { loanId, comment, timestamp: Date.now() }
+          })
+          .then(data => data)
           .catch(error => new ApolloError(error));
         result.push(c);
       }
@@ -251,19 +310,19 @@ export const resolvers = {
     }
   },
   Loan: {
-    details: (
-      { loanId },
-      _,
-      { dataSources: { loanDetails }, enrollmentId }: { dataSources: { loanDetails: LoanDetailsDS }; enrollmentId: string }
-    ) =>
-      loanDetails.repo.getById({ id: loanId, enrollmentId })
-        .then(({ currentState }) => currentState)
-        .catch(error => new ApolloError(error))
+    details: catchErrors(
+      async ({ loanId }, _, { dataSources: { loanDetails }, username }: Context) =>
+        loanDetails.repo
+          .getById({ id: loanId, enrollmentId: username })
+          .then(({ currentState }) => currentState),
+      { fcnName: 'Loan/details', logger, useAuth: false }
+    )
   },
   LoanDetails: {
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId })
   },
   LoanDetailsResp: {
-    __resolveType: obj => (obj.commitId ? 'LoanDetailsCommit' : obj.message ? 'LoanDetailsError' : {})
+    __resolveType: obj =>
+      obj.commitId ? 'LoanDetailsCommit' : obj.message ? 'LoanDetailsError' : {}
   }
 };

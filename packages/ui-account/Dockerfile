@@ -10,7 +10,7 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN npm install \
+RUN npm install --production \
   && npx next telemetry disable \
   && npm run build
 

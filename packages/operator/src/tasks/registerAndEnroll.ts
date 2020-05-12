@@ -13,7 +13,7 @@ import { getClientForOrg } from '../utils';
 
 export const registerAndEnroll: (
   option: CreateNetworkOperatorOption
-) => (option: {
+) => (opt: {
   enrollmentId: string;
   enrollmentSecret: string;
   asLocalhost?: boolean;

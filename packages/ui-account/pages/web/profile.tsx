@@ -1,51 +1,117 @@
-import cookie from 'cookie';
+import Button from '@material-ui/core/Button';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormGroup from '@material-ui/core/FormGroup';
+import Switch from '@material-ui/core/Switch';
+import Typography from '@material-ui/core/Typography';
+import { Field, Form, Formik } from 'formik';
+import { TextField } from 'formik-material-ui';
 import httpStatus from 'http-status';
 import { NextPage } from 'next';
 import Router from 'next/router';
-import React from 'react';
+import React, { useState } from 'react';
+import * as yup from 'yup';
 import Layout from '../../components/Layout';
-import { User } from '../../types';
+import { UpdateProfileResponse, User } from '../../server/types';
+import { fetchResult, getBackendApi, getValidationSchema, useStyles } from '../../utils';
 
-const Profile: NextPage<User> = user => {
+const validationSchema = yup.object(getValidationSchema(['username', 'email']));
+
+const Profile: NextPage<{ user: User; apiUrl: string }> = ({ user, apiUrl }) => {
+  const [editMode, setEditMode] = useState(false);
+  const classes = useStyles();
+  const { email, username } = user;
+  const handleChange = () => ({ target }: React.ChangeEvent<HTMLInputElement>) => setEditMode(target.checked);
+
   return (
     <Layout title="Account | Profile" user={user}>
-      <div>id: {user?.id}</div>
-      <div>username: {user?.username}</div>
-      <div>email: {user?.email}</div>
+      <Typography variant="h6">User profile</Typography>
+      <FormGroup row>
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={editMode}
+              onChange={handleChange()}
+              value="editMode"
+              color={editMode ? 'primary' : 'secondary'}
+            />
+          }
+          label={editMode ? 'Lock' : 'Unlock'}
+        />
+      </FormGroup>
+      <Formik
+        initialValues={{ username, email }}
+        validateOnChange={true}
+        validationSchema={validationSchema}
+        onSubmit={async ({ username, email }, { setSubmitting }) => {
+          setSubmitting(true);
+          try {
+            const res = await fetch(apiUrl, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+              },
+              mode: 'cors',
+              body: JSON.stringify({ username, email, user_id: user.id })
+            });
+            const result: UpdateProfileResponse = await res.json();
+            if (res.status === httpStatus.OK) {
+              setSubmitting(false);
+              await Router.push('/web');
+            } else console.error('fail to update profile');
+          } catch (e) {
+            console.error(e);
+            setSubmitting(false);
+          }
+        }}>
+        {({ values, errors, isSubmitting }) => (
+          <Form>
+            <Field
+              label="Username"
+              disabled={!editMode}
+              component={TextField}
+              name="username"
+              placeholder="username"
+              variant="outlined"
+              margin="normal"
+              fullwidth="true"
+              autoFocus
+            />{' '}
+            <Field
+              label="Email"
+              disabled={!editMode}
+              component={TextField}
+              name="email"
+              placeholder="email"
+              variant="outlined"
+              margin="normal"
+              fullwidth="true"
+            />{' '}
+            <Button
+              className={classes.submit}
+              variant="contained"
+              color="primary"
+              disabled={
+                isSubmitting ||
+                (values?.username === username && values?.email === email) ||
+                !!errors?.username ||
+                !!errors?.email
+              }
+              type="submit">
+              Update
+            </Button>
+          </Form>
+        )}
+      </Formik>{' '}
     </Layout>
   );
 };
 
-Profile.getInitialProps = async ({ req, res }) => {
-  const protocol = process.env.NODE_ENV === 'production' ? 'http' : 'http';
-
-  if (typeof window === 'undefined') {
-    const cookies = cookie.parse(req?.headers.cookie ?? '');
-    const token = cookies.jid;
-    if (!token) {
-      res?.writeHead(httpStatus.NOT_FOUND, { Location: '/web/login' });
-      res?.end();
-      return null;
-    }
-    try {
-      return await fetch(`${protocol}://${req?.headers.host}/web/api/profile`, {
-        headers: { cookie: `jid=${token}` }
-      }).then(r => r.json());
-    } catch (e) {
-      console.error(e);
-      return null;
-    }
-  } else {
-    const response = await fetch(`${protocol}://${window.location.host}/web/api/profile`);
-
-    if (response.status === httpStatus.UNAUTHORIZED) {
-      await Router.push('/web/login');
-      return null;
-    }
-
-    if (response.status !== httpStatus.OK) throw new Error(await response.text());
-    return await response.json();
-  }
+Profile.getInitialProps = async ctx => {
+  const user = await fetchResult<User>(ctx, 'profile');
+  const apiUrl = getBackendApi(ctx, 'profile');
+  return { user, apiUrl };
 };
 
 export default Profile;

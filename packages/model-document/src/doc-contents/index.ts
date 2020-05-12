@@ -14,4 +14,4 @@ export { typeDefs as docContentsRemoteTypeDefs, resolvers as docContentsRemoteRe
 export * from './queries';
 export type DocContentsRepo = PrivatedataRepository<DocContents, DocContentsEvents>;
 export type DocContentsCommandHandler = CommandHandler<DocContentsCommands>;
-export type DocContentsDS = DataSrc<DocContents, DocContentsEvents>;
+export type DocContentsDS = DataSrc<DocContentsRepo>;

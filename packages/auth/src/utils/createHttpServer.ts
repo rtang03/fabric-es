@@ -5,7 +5,7 @@ import { Redis } from 'ioredis';
 import morgan from 'morgan';
 import passport from 'passport';
 import { ConnectionOptions, createConnection } from 'typeorm';
-import { createClientRoute, createAccountRoute, createOauthRoute } from '../route';
+import { createClientRoute, createAccountRoute, createOauthRoute, createApiKeyRoute } from '../route';
 import { createTokenRepo, setupPassport } from './index';
 
 export const createHttpServer: (option: {
@@ -26,7 +26,7 @@ export const createHttpServer: (option: {
   const tokenRepo = createTokenRepo({ redis, expiryInSeconds });
 
   const app = express();
-  app.use(morgan('tiny'));
+  app.use(morgan('dev'));
   app.use(express.json());
   app.use(cookieParser());
   app.use(express.urlencoded({ extended: false }));
@@ -34,6 +34,7 @@ export const createHttpServer: (option: {
   app.use(passport.initialize());
   setupPassport({ tokenRepo });
 
+  app.use('/api_key', createApiKeyRoute());
   app.use('/client', createClientRoute());
   app.use('/oauth', createOauthRoute({ jwtSecret, expiryInSeconds, tokenRepo }));
   app.use('/account', createAccountRoute({ orgAdminSecret, jwtSecret, expiryInSeconds, tokenRepo }));

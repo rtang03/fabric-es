@@ -16,7 +16,18 @@ export const getValidationSchema = (fields: string[]) =>
         .string()
         .required()
         .trim()
-        .min(8)
+        .min(8),
+      application_name: yup
+        .string()
+        .required()
+        .trim()
+        .min(3),
+      client_secret: yup
+        .string()
+        .required()
+        .trim()
+        .min(3),
+      redirect_uris: yup.string().url()
     },
     fields
   );

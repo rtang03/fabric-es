@@ -1,0 +1,9 @@
+apps:
+  - script : ./dist/index.js
+    name   : 'proxy-server'
+    instances: 1
+    max_restarts: 3
+    autorestart: false
+    restart_delay: 2000
+    kill_timeout : 3000
+    wait_ready: true

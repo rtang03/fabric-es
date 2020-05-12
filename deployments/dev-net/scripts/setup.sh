@@ -13,10 +13,10 @@ export SCRIPTS=./scripts
 export CRYPTO=/var/artifacts/crypto-config
 export CURRENT_DIR=`pwd`
 
-export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
+export AUTH_IMAGE=fabric-es/auth-server:1.0
 export TEST_IMAGE=fabric-es/tester:${RELEASE}
-export PROXY_IMAGE=fabric-es/proxy:${RELEASE}
-export UI_ACCOUNT_IMAGE=fabric-es/ui-account:${RELEASE}
+export PROXY_IMAGE=fabric-es/proxy:1.0
+export UI_ACCOUNT_IMAGE=fabric-es/ui-account:1.0
 export ROOT_DIR=$CURRENT_DIR/../..
 
 export CHAINCODE=../../packages/chaincode
@@ -24,6 +24,10 @@ export CHAINCODE=../../packages/chaincode
 export LIBS_DIR=$ROOT_DIR/node_modules
 export CONF_DIR=$CURRENT_DIR/build.
 
+export COMPOSE_0_1ORG="-f compose.2org.yaml"
+export COMPOSE_1_1ORG="$COMPOSE_0_1ORG -f compose.1org.px-db-red.yaml"
+export COMPOSE_2_1ORG="$COMPOSE_1_1ORG -f compose.1org.auth.yaml"
+export COMPOSE_3_1ORG="$COMPOSE_2_1ORG -f compose.1org.gw.yaml"
 export COMPOSE_0_2ORG="-f compose.2org.yaml"
 export COMPOSE_1_2ORG="$COMPOSE_0_2ORG -f compose.2org.db.yaml"
 export COMPOSE_2_2ORG="$COMPOSE_1_2ORG -f compose.2org.auth.yaml"

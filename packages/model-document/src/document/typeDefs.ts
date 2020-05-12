@@ -1,5 +1,5 @@
 import { Commit } from '@fabric-es/fabric-cqrs';
-import { Paginated } from '@fabric-es/gateway-lib';
+import { catchErrors, getLogger, Paginated } from '@fabric-es/gateway-lib';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { Document, documentCommandHandler, DocumentDS } from '.';
@@ -70,111 +70,101 @@ export const typeDefs = gql`
   }
 `;
 
+type Context = { dataSources: { document: DocumentDS }; username: string };
+
+const logger = getLogger('document/typeDefs.js');
+
 export const resolvers = {
   Query: {
-    getCommitsByDocumentId: async (
-      _, { documentId }, { dataSources: { document } }: { dataSources: { document: DocumentDS }}
-    ): Promise<Commit[]> =>
-      document.repo.getCommitById(documentId)
-        .then(({ data }) => data || [])
-        .catch(error => new ApolloError(error)),
-    getDocumentById: async (
-      _, { documentId }, { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
-    ): Promise<Document> =>
-      document.repo.getById({ id: documentId, enrollmentId })
-        .then(({ currentState }) => currentState)
-        .catch(error => new ApolloError(error)),
-    getPaginatedDocuments: async (
-      _, { pageSize }, { dataSources: { document } }: { dataSources: { document: DocumentDS }; enrollmentId: string }
-    ): Promise<Paginated<Document>> =>
-      document.repo.getByEntityName()
-        .then(({ data }: { data: any[] }) => ({
-          entities: data || [],
-          total: data.length,
-          hasMore: data.length > pageSize
-        } as Paginated<Document>))
-        .catch(error => new ApolloError(error)),
-    searchDocumentByFields: async (
-      _, { where }, { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
-    ): Promise<Document[]> => {
-      try {
-        return document.repo.getProjection({ where: JSON.parse(where) })
-          .then(({ data }) => data)
-          .catch(error => new ApolloError(error));
-      } catch (error) {
-        throw new ApolloError(error);
-      }
-    },
-    searchDocumentContains: async (
-      _, { contains }, { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
-    ): Promise<Document[]> =>
-      document.repo.getProjection({ contain: contains })
-        .then(({ data }) => data)
-        .catch(error => new ApolloError(error))
+    getCommitsByDocumentId: catchErrors(
+      async (_, { documentId }, { dataSources: { document } }: Context): Promise<Commit[]> =>
+        document.repo.getCommitById(documentId).then(({ data }) => data || []),
+      { fcnName: 'getCommitsByDocumentId', logger, useAuth: false }
+    ),
+    getDocumentById: catchErrors(
+      async (_, { documentId }, { dataSources: { document }, username }: Context): Promise<Document> =>
+        document.repo.getById({ id: documentId, enrollmentId: username }).then(({ currentState }) => currentState),
+      { fcnName: 'getDocumentById', logger, useAuth: false }
+    ),
+    getPaginatedDocuments: catchErrors(
+      async (_, { pageSize }, { dataSources: { document } }: Context): Promise<Paginated<Document>> =>
+        document.repo.getByEntityName().then(
+          ({ data }: { data: any[] }) =>
+            ({
+              entities: data || [],
+              total: data.length,
+              hasMore: data.length > pageSize
+            } as Paginated<Document>)
+        ),
+      { fcnName: 'getPaginatedDocuments', logger, useAuth: false }
+    ),
+    searchDocumentByFields: catchErrors(
+      async (_, { where }, { dataSources: { document } }: Context): Promise<Document[]> =>
+        document.repo.getProjection({ where: JSON.parse(where) }).then(({ data }) => data),
+      { fcnName: 'searchDocumentByFields', logger, useAuth: false }
+    ),
+    searchDocumentContains: catchErrors(
+      async (_, { contains }, { dataSources: { document } }: Context): Promise<Document[]> =>
+        document.repo.getProjection({ contain: contains }).then(({ data }) => data),
+      { fcnName: 'searchDocumentContains', logger, useAuth: false }
+    )
   },
   Mutation: {
-    createDocument: async (
-      _, { userId, documentId, loanId, title, reference },
-      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      documentCommandHandler({
-        enrollmentId,
-        documentRepo: document.repo
-      }).CreateDocument({
-        userId,
-        payload: {
-          documentId,
-          loanId,
-          title,
-          reference,
-          timestamp: Date.now()
-        }
-      }).catch(error => {
-        if (error.error && error.error.message) {
-          return new ApolloError(error.error.message);
-        } else {
-          return new ApolloError(error);
-        }
-      }),
-    deleteDocument: async (
-      _, { userId, documentId },
-      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      documentCommandHandler({
-        enrollmentId,
-        documentRepo: document.repo
-      }).DeleteDocument({
+    createDocument: catchErrors(
+      async (
+        _,
+        { userId, documentId, loanId, title, reference },
+        { dataSources: { document }, username }: Context
+      ): Promise<Commit> =>
+        documentCommandHandler({
+          enrollmentId: username,
+          documentRepo: document.repo
+        }).CreateDocument({
+          userId,
+          payload: {
+            documentId,
+            loanId,
+            title,
+            reference,
+            timestamp: Date.now()
+          }
+        }),
+      { fcnName: 'createDocument', logger, useAuth: true }
+    ),
+    deleteDocument: catchErrors(
+      async (_, { userId, documentId }, { dataSources: { document }, username }: Context): Promise<Commit> =>
+        documentCommandHandler({
+          enrollmentId: username,
+          documentRepo: document.repo
+        }).DeleteDocument({
           userId,
           payload: { documentId, timestamp: Date.now() }
-      }).catch(error => {
-        if (error.error && error.error.message) {
-          return new ApolloError(error.error.message);
-        } else {
-          return new ApolloError(error);
-        }
-      }),
-    restrictAccess: async (
-      _, { userId, documentId },
-      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
-    ): Promise<Commit> =>
-      documentCommandHandler({
-        enrollmentId,
-        documentRepo: document.repo
-      }).RestrictDocumentAccess({
-        userId,
-        payload: { documentId, timestamp: Date.now() }
-      }).catch(error => new ApolloError(error)),
+        }),
+      { fcnName: 'deleteDocument', logger, useAuth: true }
+    ),
+    restrictAccess: catchErrors(
+      async (_, { userId, documentId }, { dataSources: { document }, username }: Context): Promise<Commit> =>
+        documentCommandHandler({
+          enrollmentId: username,
+          documentRepo: document.repo
+        }).RestrictDocumentAccess({
+          userId,
+          payload: { documentId, timestamp: Date.now() }
+        }),
+      { fcnName: 'restrictAccess', logger, useAuth: true }
+    ),
     updateDocument: async (
       _,
       { userId, documentId, loanId, title, reference },
-      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
-    ): Promise<Commit[] | { error: any }> => {
+      { dataSources: { document }, username }: Context
+    ): Promise<Commit[]> => {
       const result: Commit[] = [];
       if (typeof loanId !== 'undefined') {
         const c = await documentCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           documentRepo: document.repo
-        }).DefineDocumentLoanId({
+        })
+          .DefineDocumentLoanId({
             userId,
             payload: { documentId, loanId, timestamp: Date.now() }
           })
@@ -184,9 +174,10 @@ export const resolvers = {
       }
       if (typeof title !== 'undefined') {
         const c = await documentCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           documentRepo: document.repo
-        }).DefineDocumentTitle({
+        })
+          .DefineDocumentTitle({
             userId,
             payload: { documentId, title, timestamp: Date.now() }
           })
@@ -196,9 +187,10 @@ export const resolvers = {
       }
       if (typeof reference !== 'undefined') {
         const c = await documentCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           documentRepo: document.repo
-        }).DefineDocumentReference({
+        })
+          .DefineDocumentReference({
             userId,
             payload: { documentId, reference, timestamp: Date.now() }
           })
@@ -210,21 +202,18 @@ export const resolvers = {
     }
   },
   Loan: {
-    documents: ({ loanId }, _, { dataSources: { document } }: { dataSources: { document: DocumentDS } }) =>
-      document.repo
-        .getProjection({ where: { loanId } })
-        .then(({ data }) => data)
-        .catch(error => new ApolloError(error))
+    documents: catchErrors(
+      async ({ loanId }, _, { dataSources: { document } }: Context) =>
+        document.repo.getProjection({ where: { loanId } }).then(({ data }) => data),
+      { fcnName: 'Loan/docuemnts', logger, useAuth: false }
+    )
   },
   Document: {
-    __resolveReference: (
-      { documentId },
-      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
-    ): Promise<Document> =>
-      document.repo
-        .getById({ id: documentId, enrollmentId })
-        .then(({ currentState }) => currentState)
-        .catch(error => new ApolloError(error)),
+    __resolveReference: catchErrors(
+      async ({ documentId }, { dataSources: { document }, username }: Context): Promise<Document> =>
+        document.repo.getById({ id: documentId, enrollmentId: username }).then(({ currentState }) => currentState),
+      { fcnName: 'Document/__resolveReference', logger, useAuth: false }
+    ),
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId })
   },
   DocResponse: {

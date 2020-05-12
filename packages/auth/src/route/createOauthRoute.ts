@@ -4,11 +4,13 @@ import express from 'express';
 import httpStatus from 'http-status';
 import { createServer, exchange, grant } from 'oauth2orize';
 import passport from 'passport';
-import { AccessToken, TokenRepo } from '../entity/AccessToken';
+import { TokenRepo } from '../entity/AccessToken';
+import { ApiKey } from '../entity/ApiKey';
 import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
 import { User } from '../entity/User';
-import { getLogger, generateToken } from '../utils';
+import { AllowAccessResponse, AuthenticateResponse } from '../types';
+import { getLogger, generateToken, isApikey, catchErrors } from '../utils';
 
 /**
  * For original comments
@@ -192,23 +194,19 @@ export const createOauthRoute: (option: {
     exchange.clientCredentials(async (client: Client, scope, done) => {
       logger.info('exchange clientCredentials for token');
 
-      const access_token = generateToken({
+      const api_key = generateToken({
         client,
-        secret: jwtSecret,
-        expiryInSeconds
+        secret: jwtSecret
       });
 
-      return tokenRepo
-        .save({
-          key: access_token,
-          value: { access_token, client_id: client.id, expires_at: Date.now() + expiryInSeconds * 1000 },
-          useDefaultExpiry: true
-        })
-        .then(() => done(null, access_token))
-        .catch(e => {
-          logger.error(util.format('fail to insert access token, %j', e));
-          return done(e);
-        });
+      try {
+        const key = ApiKey.create({ api_key, client_id: client.id, scope });
+        await ApiKey.insert(key);
+        done(null, key.id);
+      } catch (e) {
+        logger.error(util.format('fail to insert api key, %j', e));
+        return done(e);
+      }
     })
   );
 
@@ -219,10 +217,45 @@ export const createOauthRoute: (option: {
   ]);
 
   router.post('/authenticate', passport.authenticate('bearer', { session: false }), (req, res) => {
-    const { id, is_admin } = req.user as User;
+    const { id, is_admin, username } = req.user as User;
     logger.info(`account ${id} is authenticated`);
-    return res.status(httpStatus.OK).send({ ok: true, authenticated: true, user_id: id, is_admin });
+    const response: AuthenticateResponse = {
+      ok: true,
+      authenticated: true,
+      user_id: id,
+      username,
+      is_admin
+    };
+    return res.status(httpStatus.OK).send(response);
   });
+
+  router.post(
+    '/allow_access',
+    catchErrors(
+      async (req, res) => {
+        const { api_key } = req.body;
+        const error = 'fail to allow access';
+
+        if (api_key) {
+          const key = await ApiKey.findOne({ where: { id: api_key } });
+
+          if (isApikey(key)) {
+            const response: AllowAccessResponse = {
+              id: key.id,
+              allow: true,
+              client_id: key.client_id,
+              scope: key?.scope
+            };
+            return res.status(httpStatus.OK).send(response);
+          } else return res.status(httpStatus.UNAUTHORIZED).send({ error });
+        } else {
+          logger.warn(`${error}: missing api_key`);
+          return res.status(httpStatus.UNAUTHORIZED).send({ error: `${error}: missing api_key` });
+        }
+      },
+      { logger, fcnName: 'allow access by api_key' }
+    )
+  );
 
   return router;
 };

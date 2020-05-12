@@ -1,0 +1,37 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:9.6.17-alpine
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./scripts/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+    command: postgres
+    ports:
+      - 5432:5432
+  redis:
+    container_name: redis
+    image: redis:5.0.9-alpine
+    volumes:
+      - ./volume/redis-data:/data
+    # custom configuration. will require if AUTH is set
+    #          - ./volume/redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - 6379:6379
+  proxy:
+    image: fabric-es/proxy:1.0
+    container_name: proxy
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8080
+      - AUTH_HOST=http://auth:8080
+      - APP_HOST=http://ui-account:3000
+    ports:
+      - 8080:8080

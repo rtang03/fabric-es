@@ -1,0 +1,33 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+  gw-org1:
+    image: fabric-es/gw-org1:1.0
+    container_name: gw-org1
+    environment:
+      - AUTHORIZATION_SERVER_URI=http://auth-server1:8080/oauth/authenticate
+      - CA_ENROLLMENT_ID_ADMIN=rca-org1-admin
+      - CA_ENROLLMENT_SECRET_ADMIN=rca-org1-adminPW
+      - CONNECTION_PROFILE=/home/app/packages/gw-org1/connection/connection-org1.docker.yaml
+      - ORG_ADMIN_ID=admin-org1.net
+      - ORG_ADMIN_SECRET=admin-org1.netPW
+      - ORG_CA_URL=https://rca-org1:5054
+      - GATEWAY_HOST=0.0.0.0
+      - GATEWAY_PORT=4001
+      - TEMP_REMOTE_URI=http://gw-org2:4001/graphql\ http://gw-org3:4001/graphql
+    working_dir: /home/app/packages/gw-org1
+    ports:
+      - 4001:4001
+    networks:
+      - openplatform
+    depends_on:
+      - auth
+      - orderer0-org0
+      - peer0-org1
+    volumes:
+      - $VOLUME/gw-org1/assets/:/home/app/packages/gw-org1/assets/
+      - $VOLUME/gw-org1/logs/:/home/app/packages/gw-org1/logs/
+      - $ARTIFACTS/crypto-config/:/var/artifacts/crypto-config/

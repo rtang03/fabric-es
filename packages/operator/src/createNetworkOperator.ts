@@ -1,9 +1,6 @@
 import Client from 'fabric-client';
 import { getQueries, identityService, registerAndEnroll, submitOrEvaluateTx } from './tasks';
-import {
-  CreateNetworkOperatorOption,
-  NetworkOperator
-} from './types';
+import { CreateNetworkOperatorOption, NetworkOperator } from './types';
 
 export const createNetworkOperator = async (option: CreateNetworkOperatorOption): Promise<NetworkOperator> => {
   const logger = Client.getLogger('createNetworkOperator.js');

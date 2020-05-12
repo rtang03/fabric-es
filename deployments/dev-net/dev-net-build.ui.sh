@@ -12,6 +12,8 @@ printf "Cleaning up old image $UI_ACCOUNT_IMAGE\n"
 docker rmi $UI_ACCOUNT_IMAGE
 
 cd $ROOT_DIR/packages/ui-account
+
+### build image ###
 DOCKER_BUILD=1 docker build --no-cache -t $UI_ACCOUNT_IMAGE .
 printMessage "Create ui-account image" $?
 sleep 1
