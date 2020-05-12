@@ -29,6 +29,7 @@ export class EventStore extends Contract {
         id: 'ent_dev_1001',
         entityName: 'dev_entity',
         version: '0',
+        mspId: 'x',
         events: [{ type: 'User Created', payload: { name: 'April' } }],
         commitId: '12345a'
       })
@@ -38,6 +39,7 @@ export class EventStore extends Contract {
         id: 'ent_dev_1001',
         entityName: 'dev_entity',
         version: '0',
+        mspId: 'x',
         events: [{ type: 'User Created', payload: { name: 'May' } }],
         commitId: '12345b'
       })
@@ -80,6 +82,7 @@ export class EventStore extends Contract {
         id,
         version,
         entityName,
+        mspId: context.stub.getCreator().mspid,
         events,
         commitId
       });

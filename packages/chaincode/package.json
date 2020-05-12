@@ -27,7 +27,7 @@
     "build:watch": "tsc -w",
     "prepublishOnly": "npm run build",
     "network-test": "jest network.test",
-    "unit-test": "jest public.unit.test",
+    "unit-test": "jest unit.test",
     "unit-test:fab": "yarn unit-test && yarn network-test",
     "test:private": "jest private.integration.test",
     "test:lc": "jest lifecycle.unit.test",

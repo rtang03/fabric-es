@@ -8,7 +8,8 @@ const ctx: any = {
     getState: jest.fn(),
     putState: jest.fn(),
     setEvent: jest.fn(),
-    getStateByPartialCompositeKey: jest.fn()
+    getStateByPartialCompositeKey: jest.fn(),
+    getCreator: jest.fn()
   },
   clientIdentity: { getID: jest.fn() }
 };
@@ -30,6 +31,7 @@ describe('Create commit with normal events', () => {
     ctx.stub.createCompositeKey.mockResolvedValue('entities"en""entId""2019"');
     ctx.stub.putState.mockResolvedValue(Buffer.from(''));
     ctx.stub.setEvent.mockImplementation((name, args) => console.log(`Event sent: ${name}: ${args}`));
+    ctx.stub.getCreator.mockImplementation(() => { return { 'mspid': 'Org1MSP' }; });
     ctx.clientIdentity.getID.mockImplementation(() => 'Org1MSP');
 
     const value = JSON.stringify({

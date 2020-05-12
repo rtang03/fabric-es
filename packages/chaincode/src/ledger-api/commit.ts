@@ -13,6 +13,7 @@ export class Commit<T extends BaseEvent = any> {
   version: number;
   commitId: string;
   entityId: string;
+  mspId: string;
   events: BaseEvent[];
   hash?: string;
   isFirst?: boolean;
@@ -24,6 +25,7 @@ export class Commit<T extends BaseEvent = any> {
     commitId: string;
     version: number;
     entityId: string;
+    mspId: string;
     events: any;
     hash?: string;
     isFirst?: boolean;
@@ -35,6 +37,7 @@ export class Commit<T extends BaseEvent = any> {
     this.version = option.version;
     this.commitId = option.commitId;
     this.entityId = option.entityId;
+    this.mspId = option.mspId;
     this.events = option.events;
     if (option.hash) this.hash = option.hash;
     if (option.isFirst === true || option.isFirst === false) this.isFirst = option.isFirst;

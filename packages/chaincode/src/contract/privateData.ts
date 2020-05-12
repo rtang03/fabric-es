@@ -89,6 +89,7 @@ export class PrivateData extends Contract {
         id,
         version,
         entityName,
+        mspId: context.stub.getCreator().mspid,
         events,
         commitId
       });

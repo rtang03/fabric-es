@@ -43,6 +43,9 @@ export interface Commit {
   /** entity Id */
   entityId?: string;
 
+  /** organization Id */
+  mspId?: string;
+
   /** events array */
   events?: BaseEvent[];
 
