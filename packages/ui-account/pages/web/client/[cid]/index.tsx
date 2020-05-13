@@ -6,6 +6,7 @@ import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
+import fetch from 'isomorphic-unfetch';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -13,7 +14,14 @@ import React, { useState } from 'react';
 import * as yup from 'yup';
 import Layout from '../../../../components/Layout';
 import { Client, UpdateClientResponse, User } from '../../../../server/types';
-import { fetchResult, getBackendApi, getValidationSchema, postResultRouting, useStyles } from '../../../../utils';
+import {
+  fetchResult,
+  getBackendApi,
+  getValidationSchema,
+  postResultRouting,
+  setPostRequest,
+  useStyles
+} from '../../../../utils';
 
 const validationSchema = yup.object(getValidationSchema(['application_name', 'client_secret', 'redirect_uris']));
 
@@ -51,15 +59,10 @@ const ClientPage: NextPage<{ user: User; apiUrl: string; client: Client }> = ({ 
         onSubmit={async ({ application_name, client_secret, redirect_uris }, { setSubmitting }) => {
           setSubmitting(true);
           try {
-            const res = await fetch(`${apiUrl}/${cid}`, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-              },
-              mode: 'cors',
-              body: JSON.stringify({ application_name, client_secret, redirect_uris })
-            });
+            const res = await fetch(
+              `${apiUrl}/${cid}`,
+              setPostRequest({ application_name, client_secret, redirect_uris }, true)
+            );
             const result: UpdateClientResponse = await res.json();
             setSubmitting(false);
             await postResultRouting(res.status, `/web/client/${cid}`, 'fail to update client', async () => {

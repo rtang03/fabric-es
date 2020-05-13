@@ -23,7 +23,6 @@
   "scripts": {
     "build": "yarn clean && tsc",
     "clean": "rimraf dist && rimraf build",
-    "start": "ts-node src/utils/index.ts",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
     "test": "jest --detectOpenHandles unit.test",
     "pack:lib": "yarn build:cleanup && concurrently \"npm:cp:*\"",
@@ -81,5 +80,8 @@
     "supertest": "^4.0.2",
     "ts-node": "^8.3.0",
     "typescript": "^3.7.2"
+  },
+  "resolutions": {
+    "tslib": "1.11.2"
   }
 }

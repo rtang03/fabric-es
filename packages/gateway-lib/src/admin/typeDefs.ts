@@ -9,7 +9,7 @@ export const typeDefs = gql`
     createWallet: Boolean!
   }
   type Query {
-    me: String
+    isadmin: String
     getBlockByNumber(blockNumber: Int!): Block
     getChainHeight: Int!
     getCaIdentityByUsername: CaIdentity

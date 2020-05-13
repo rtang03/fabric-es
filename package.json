@@ -7,6 +7,7 @@
     "tsc:auth": "lerna run tsc:prod --scope={@fabric-es/auth,@fabric-es/proxy}",
     "tsc:lib": "lerna run tsc:prod --scope={@fabric-es/fabric-cqrs,@fabric-es/operator,@fabric-es/gateway-lib}",
     "tsc:all": "lerna run build",
+    "pack:lib": "lerna run pack:lib --scope={@fabric-es/auth,@fabric-es/proxy}",
     "build:auth": "cd ./deployments/dev-net && ./build-auth.sh",
     "build:gw-dev-net:org1": "cd ./deployments/dev-net && ./build-gw.sh org1",
     "build:gw-dev-net:org2": "cd ./deployments/dev-net && ./build-gw.sh org2",
