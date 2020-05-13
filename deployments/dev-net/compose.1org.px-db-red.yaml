@@ -13,6 +13,7 @@ services:
       - POSTGRES_DB=postgres
     volumes:
       - ./scripts/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+      - $VOLUME/auth/logs/:/home/app/logs/
     command: postgres
     ports:
       - 5432:5432
@@ -33,5 +34,6 @@ services:
       - PORT=8080
       - AUTH_HOST=http://auth:8080
       - APP_HOST=http://ui-account:3000
+      - GW_ORG_HOST=http://gw-org1:4001
     ports:
       - 8080:8080

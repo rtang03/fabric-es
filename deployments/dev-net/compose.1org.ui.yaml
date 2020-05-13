@@ -10,6 +10,6 @@ services:
     environment:
       - PORT=3000
       - AUTH_HOST=http://auth:8080
-      - GW_ORG_HOST=http://gw-org1:1.0
+      - GW_ORG_HOST=http://gw-org1:4001
     depends_on:
       - auth

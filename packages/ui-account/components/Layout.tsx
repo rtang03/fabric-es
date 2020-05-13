@@ -51,6 +51,10 @@ const Layout: React.FC<{
               <a>Profile</a>
             </Link>{' '}
             |{' '}
+            <Link href={'/web/wallet'}>
+              <a>Wallet</a>
+            </Link>{' '}
+            |{' '}
             <Link href={'/web/client'}>
               <a>Client</a>
             </Link>{' '}

@@ -89,7 +89,7 @@ export const createResolvers: (option: {
       )
     },
     Query: {
-      me: () => 'Hello',
+      isadmin: () => 'echo admin',
       getBlockByNumber: catchErrors(
         async (_, { blockNumber }: { blockNumber: number }) => {
           const chain = await queries.getChainInfo(peerName);
