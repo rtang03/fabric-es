@@ -14,7 +14,7 @@ export const typeDefs = gql`
     getChainHeight: Int!
     getCaIdentityByUsername: CaIdentity
     getPeerInfo: PeerInfo!
-    getWallet: WalletEntry!
+    getWallet: WalletEntry
     listWallet: [String!]!
   }
   type PeerInfo {
