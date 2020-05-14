@@ -176,11 +176,13 @@ export const createResolvers: (option: {
       getWallet: catchErrors(
         async (_, __, context) => {
           const identity = (await wallet.get(context.username)) as X509Identity;
-          return {
-            type: identity.type,
-            mspId: identity.mspId,
-            certificate: identity.credentials.certificate
-          };
+          return identity
+            ? {
+                type: identity.type,
+                mspId: identity.mspId,
+                certificate: identity.credentials.certificate
+              }
+            : null;
         },
         { fcnName: 'getWallet', logger, useAuth: true, useAdmin: false }
       ),

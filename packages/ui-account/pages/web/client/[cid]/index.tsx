@@ -15,7 +15,7 @@ import * as yup from 'yup';
 import Layout from '../../../../components/Layout';
 import { Client, UpdateClientResponse, User } from '../../../../server/types';
 import {
-  fetchResult,
+  fetchBFF,
   getBackendApi,
   getValidationSchema,
   postResultRouting,
@@ -135,8 +135,8 @@ const ClientPage: NextPage<{ user: User; apiUrl: string; client: Client }> = ({ 
 
 ClientPage.getInitialProps = async ctx => {
   const client_id = ctx?.query?.cid;
-  const client = await fetchResult<Client>(ctx, `client/${client_id}`);
-  const user = await fetchResult<User>(ctx, 'profile');
+  const client = await fetchBFF<Client>(ctx, `client/${client_id}`);
+  const user = await fetchBFF<User>(ctx, 'profile');
   const apiUrl = getBackendApi(ctx, 'client');
   return { user, client, apiUrl };
 };

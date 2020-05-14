@@ -13,10 +13,11 @@ services:
       - POSTGRES_DB=postgres
     volumes:
       - ./scripts/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
-      - $VOLUME/auth/logs/:/home/app/logs/
     command: postgres
     ports:
       - 5432:5432
+    networks:
+      - openplatform
   redis:
     container_name: redis
     image: redis:5.0.9-alpine
@@ -26,6 +27,8 @@ services:
     #          - ./volume/redis.conf:/usr/local/etc/redis/redis.conf
     ports:
       - 6379:6379
+    networks:
+      - openplatform
   proxy:
     image: fabric-es/proxy:1.0
     container_name: proxy
@@ -37,3 +40,5 @@ services:
       - GW_ORG_HOST=http://gw-org1:4001
     ports:
       - 8080:8080
+    networks:
+      - openplatform

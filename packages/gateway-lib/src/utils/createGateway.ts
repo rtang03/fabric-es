@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import Cookie from 'cookie';
 import express, { Express } from 'express';
 import httpStatus from 'http-status';
+import morgan from 'morgan';
 import fetch from 'node-fetch';
 import { getLogger } from './getLogger';
 import { isAuthResponse } from './typeGuard';
@@ -86,10 +87,7 @@ export const createGateway: (option: {
   });
 
   const app = express();
-
-  app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(bodyParser.json());
-
+  app.use(morgan('dev'));
   app.get('/gw_org/isalive', (_, res) => res.status(204).send({ data: 'hi' }));
 
   // Note: this cors implementation is redundant. Cors should be check at ui-account's express backend

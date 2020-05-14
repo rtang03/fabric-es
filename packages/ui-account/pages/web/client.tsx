@@ -16,7 +16,7 @@ import * as yup from 'yup';
 import Layout from '../../components/Layout';
 import { Client, User } from '../../server/types';
 import {
-  fetchResult,
+  fetchBFF,
   getBackendApi,
   getValidationSchema,
   postResultRouting,
@@ -26,7 +26,12 @@ import {
 
 const validationSchema = yup.object(getValidationSchema(['application_name', 'client_secret']));
 
-const ClientPage: NextPage<{ apiUrl: string; user: User; clients: Client[] }> = ({ apiUrl, user, clients }) => {
+const ClientPage: NextPage<{ apiUrl: string; user: User; clients: Client[]; playgroundUrl: string }> = ({
+  apiUrl,
+  user,
+  clients,
+  playgroundUrl
+}) => {
   const [editMode, setEditMode] = useState(false);
   const classes = useStyles();
   const handleChange = () => ({ target }: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,7 +39,7 @@ const ClientPage: NextPage<{ apiUrl: string; user: User; clients: Client[] }> = 
   };
 
   return (
-    <Layout title="Client" user={user}>
+    <Layout title="Client" user={user} playgroundUrl={playgroundUrl}>
       <Typography variant="h6">Client applications</Typography>
       <List>
         {clients.map(client => (
@@ -146,7 +151,8 @@ const ClientPage: NextPage<{ apiUrl: string; user: User; clients: Client[] }> = 
               variant="contained"
               color="primary"
               disabled={
-                isSubmitting || !editMode ||
+                isSubmitting ||
+                !editMode ||
                 (!!errors?.application_name && !values?.application_name) ||
                 (!!errors?.client_secret && !values?.client_secret)
               }
@@ -161,10 +167,11 @@ const ClientPage: NextPage<{ apiUrl: string; user: User; clients: Client[] }> = 
 };
 
 ClientPage.getInitialProps = async ctx => {
-  const user = await fetchResult<User>(ctx, 'profile');
-  const clients = await fetchResult<Client[]>(ctx, 'client');
+  const user = await fetchBFF<User>(ctx, 'profile');
+  const clients = await fetchBFF<Client[]>(ctx, 'client');
   const apiUrl = getBackendApi(ctx, 'client');
-  return { user, clients, apiUrl };
+  const { playgroundUrl } = await fetch(getBackendApi(ctx, 'playground')).then(r => r.json());
+  return { user, clients, apiUrl, playgroundUrl };
 };
 
 export default ClientPage;

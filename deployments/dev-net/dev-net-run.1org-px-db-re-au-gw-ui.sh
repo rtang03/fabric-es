@@ -21,13 +21,12 @@ containerWait "postgres" "psql -h localhost -U postgres -d auth_db -lqt" "auth_d
 
 # STEP 3
 docker-compose $COMPOSE_2_1ORG up -d
-#docker-compose -f compose.1org.px-db-red.yaml -f compose.1org.auth.yaml up -d
 printMessage "docker-compose up compose.1org.px-db-red.yaml compose.1org.auth.yaml" $?
 
 # STEP 4
-docker-compose $COMPOSE_3_1ORG up -d
-#docker-compose -f compose.1org.px-db-red.yaml -f compose.1org.auth.yaml -f compose.1org.gw.yaml up -d
-printMessage "docker-compose up compose.1org.px-db-red.yaml compose.1org.auth.yaml compose.1org.gw.yaml" $?
+docker-compose $COMPOSE_3_1ORG -f compose.1org.ui.yaml up -d
+#docker-compose -f compose.1org.px-db-red.yaml -f compose.1org.auth.yaml -f compose.1org.gw.yaml -f compose.1org.ui.yaml up -d
+printMessage "docker-compose up compose.1org.px-db-red.yaml compose.1org.auth.yaml compose.1org.gw.yaml compose.1org.ui.yaml" $?
 
 containerWait "auth" "Auth server started"
 containerWait "gw-org1" "gateway ready at"

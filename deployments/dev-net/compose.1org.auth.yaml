@@ -26,3 +26,5 @@ services:
     depends_on:
       - redis
       - postgres
+    networks:
+      - openplatform
