@@ -90,6 +90,8 @@ export const createGateway: (option: {
   app.use(morgan('dev'));
   app.get('/gw_org/isalive', (_, res) => res.status(204).send({ data: 'hi' }));
 
+  app.get('/gw_org/isalive', (_, res) => res.status(204).send({ data: 'hi' }));
+
   // Note: this cors implementation is redundant. Cors should be check at ui-account's express backend
   // However, if there is alternative implementation, other than custom backend of SSR; there may require
   // cors later on.

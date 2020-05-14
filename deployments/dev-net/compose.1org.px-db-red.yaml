@@ -13,6 +13,7 @@ services:
       - POSTGRES_DB=postgres
     volumes:
       - ./scripts/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+      - $VOLUME/auth/logs/:/home/app/logs/
     command: postgres
     ports:
       - 5432:5432
