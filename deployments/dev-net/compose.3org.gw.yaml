@@ -4,7 +4,6 @@ networks:
   openplatform:
 
 services:
-# ORG3
   gw-org3:
     image: fabric-es/gw-org3:$RELEASE
     container_name: gw-org3

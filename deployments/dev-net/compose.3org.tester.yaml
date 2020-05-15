@@ -7,7 +7,7 @@ services:
   tester:
     environment:
       - TEST_TARGETS=gw-org1 4001 gw-org2 4001 gw-org3 4001
-    image: fabric-es/tester:$RELEASE
+    image: $TEST_IMAGE
     container_name: tester
     working_dir: /home/app/packages/tester
     networks:

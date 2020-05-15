@@ -4,14 +4,14 @@ networks:
   openplatform:
 
 services:
-  ui-account1:
+  ui-account2:
     image: $UI_ACCOUNT_IMAGE
-    container_name: ui-account1
+    container_name: ui-account2
     environment:
       - PORT=3000
-      - AUTH_HOST=http://auth-server1:8080
-      - GW_ORG_HOST=http://gw-org1:4001
+      - AUTH_HOST=http://auth-server2:8080
+      - GW_ORG_HOST=http://gw-org2:4002
     networks:
       - openplatform
     depends_on:
-      - auth-server1
+      - auth-server2

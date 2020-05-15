@@ -4,23 +4,29 @@ networks:
   openplatform:
 
 services:
-# ORG3
   auth-server3:
-    image: fabric-es/auth-server:$RELEASE
+    image: $AUTH_IMAGE
     container_name: auth-server3
     environment:
+      - PORT=8080
       - TYPEORM_HOST=postgres03
-      - TYPEORM_PORT=5432
       - TYPEORM_USERNAME=postgres
       - TYPEORM_PASSWORD=docker
       - TYPEORM_DATABASE=auth_db
-      - ROOT_ADMIN=root_admin3
-      - ROOT_ADMIN_PASSWORD=root_admin3_password
-    ports:
-      - 3003:8080
+      - TYPEORM_PORT=5432
+      - REDIS_HOST=redis03
+      - REDIS_PORT=6379
+      - JWT_SECRET=secret
+      - JWT_EXP_IN_SECOND=3600
+      - ORG_ADMIN_ID=admin-org3.net
+      - ORG_ADMIN_SECRET=admin-org3.netPW
+      - ORG_ADMIN_EMAIL=admin@org3.net
+      - CLIENT_APPLICATION_NAME=root_client
+      - CLIENT_SECRET=password
+    networks:
+      - openplatform
     depends_on:
+      - redis03
       - postgres03
     volumes:
       - $VOLUME/auth-server3/logs/:/home/app/packages/authentication/logs/
-    networks:
-      - openplatform

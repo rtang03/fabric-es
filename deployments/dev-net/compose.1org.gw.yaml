@@ -5,10 +5,10 @@ networks:
 
 services:
   gw-org1:
-    image: fabric-es/gw-org1:0.6.2
+    image: fabric-es/gw-org1:$RELEASE
     container_name: gw-org1
     environment:
-      - AUTHORIZATION_SERVER_URI=http://auth:8080/oauth/authenticate
+      - AUTHORIZATION_SERVER_URI=http://auth-server1:8080/oauth/authenticate
       - CA_ENROLLMENT_ID_ADMIN=rca-org1-admin
       - CA_ENROLLMENT_SECRET_ADMIN=rca-org1-adminPW
       - CONNECTION_PROFILE=/home/app/packages/gw-org1/connection/connection-org1.docker.yaml
@@ -24,7 +24,7 @@ services:
     networks:
       - openplatform
     depends_on:
-      - auth
+      - auth-server1
       - orderer0-org0
       - peer0-org1
     volumes:

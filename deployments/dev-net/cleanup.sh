@@ -10,7 +10,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   NEEDSUDO=0
 fi
 
-COMPOSE=$COMPOSE_4_3ORG
+COMPOSE=$COMPOSE_5_3ORG
 CLEAN_CC_IMG=0
 case $# in
   0)
@@ -96,8 +96,3 @@ if [ $CLEAN_CC_IMG -eq 1 ]; then
     docker rmi $(docker images -qf "reference=dev-peer*")
   fi
 fi
-
-docker rm postgres -f
-docker rm redis -f
-docker rm proxy -f
-docker rm auth -f

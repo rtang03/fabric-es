@@ -4,44 +4,29 @@ networks:
   openplatform:
 
 services:
-# ORG1
-  auth-server1:
-    image: fabric-es/auth-server:$RELEASE
-    container_name: auth-server1
-    environment:
-      - TYPEORM_HOST=postgres01
-      - TYPEORM_PORT=5432
-      - TYPEORM_USERNAME=postgres
-      - TYPEORM_PASSWORD=docker
-      - TYPEORM_DATABASE=auth_db
-      - ROOT_ADMIN=root_admin1
-      - ROOT_ADMIN_PASSWORD=root_admin1_password
-    ports:
-      - 3001:8080
-    depends_on:
-      - postgres01
-    volumes:
-      - $VOLUME/auth-server1/logs/:/home/app/packages/authentication/logs/
-    networks:
-      - openplatform
-
-# ORG2
   auth-server2:
-    image: fabric-es/auth-server:$RELEASE
+    image: $AUTH_IMAGE
     container_name: auth-server2
     environment:
+      - PORT=8080
       - TYPEORM_HOST=postgres02
-      - TYPEORM_PORT=5432
       - TYPEORM_USERNAME=postgres
       - TYPEORM_PASSWORD=docker
       - TYPEORM_DATABASE=auth_db
-      - ROOT_ADMIN=root_admin2
-      - ROOT_ADMIN_PASSWORD=root_admin2_password
-    ports:
-      - 3002:8080
+      - TYPEORM_PORT=5432
+      - REDIS_HOST=redis02
+      - REDIS_PORT=6379
+      - JWT_SECRET=secret
+      - JWT_EXP_IN_SECOND=3600
+      - ORG_ADMIN_ID=admin-org2.net
+      - ORG_ADMIN_SECRET=admin-org2.netPW
+      - ORG_ADMIN_EMAIL=admin@org2.net
+      - CLIENT_APPLICATION_NAME=root_client
+      - CLIENT_SECRET=password
+    networks:
+      - openplatform
     depends_on:
+      - redis02
       - postgres02
     volumes:
       - $VOLUME/auth-server2/logs/:/home/app/packages/authentication/logs/
-    networks:
-      - openplatform
