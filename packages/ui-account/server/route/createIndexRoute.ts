@@ -15,7 +15,10 @@ import {
 
 const logger = getLogger({ name: '[ui-account] createIndexRoute.js' });
 
-export const createIndexRoute: (option: { authHost: string }) => express.Router = ({ authHost }) => {
+export const createIndexRoute: (option: { authHost: string; gwOrgHost: string }) => express.Router = ({
+  authHost,
+  gwOrgHost
+}) => {
   const router = express.Router();
 
   router.post(
@@ -87,6 +90,10 @@ export const createIndexRoute: (option: { authHost: string }) => express.Router 
     res.clearCookie('token');
     res.redirect('/web/login');
     res.status(httpStatus.OK).end();
+  });
+
+  router.get('/playground', (req, res) => {
+    res.status(200).send({ playgroundUrl: `${gwOrgHost}/graphql` });
   });
 
   return router;

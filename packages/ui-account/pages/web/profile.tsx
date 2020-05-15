@@ -13,18 +13,18 @@ import React, { useState } from 'react';
 import * as yup from 'yup';
 import Layout from '../../components/Layout';
 import { UpdateProfileResponse, User } from '../../server/types';
-import { fetchResult, getBackendApi, getValidationSchema, useStyles } from '../../utils';
+import { fetchBFF, getBackendApi, getValidationSchema, useStyles } from '../../utils';
 
 const validationSchema = yup.object(getValidationSchema(['username', 'email']));
 
-const Profile: NextPage<{ user: User; apiUrl: string }> = ({ user, apiUrl }) => {
+const Profile: NextPage<{ user: User; apiUrl: string; playgroundUrl: string }> = ({ user, apiUrl, playgroundUrl }) => {
   const [editMode, setEditMode] = useState(false);
   const classes = useStyles();
   const { email, username } = user;
   const handleChange = () => ({ target }: React.ChangeEvent<HTMLInputElement>) => setEditMode(target.checked);
 
   return (
-    <Layout title="Account | Profile" user={user}>
+    <Layout title="Account | Profile" user={user} playgroundUrl={playgroundUrl}>
       <Typography variant="h6">User profile</Typography>
       <FormGroup row>
         <FormControlLabel
@@ -110,9 +110,10 @@ const Profile: NextPage<{ user: User; apiUrl: string }> = ({ user, apiUrl }) => 
 };
 
 Profile.getInitialProps = async ctx => {
-  const user = await fetchResult<User>(ctx, 'profile');
+  const user = await fetchBFF<User>(ctx, 'profile');
   const apiUrl = getBackendApi(ctx, 'profile');
-  return { user, apiUrl };
+  const { playgroundUrl } = await fetch(getBackendApi(ctx, 'playground')).then(r => r.json());
+  return { user, apiUrl, playgroundUrl };
 };
 
 export default Profile;

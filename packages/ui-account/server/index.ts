@@ -21,7 +21,8 @@ const port = parseInt(process.env.PORT || '3000', 10);
 const ENV = {
   NODE_ENV: process.env.NODE_ENV as string,
   AUTH_HOST: process.env.AUTH_HOST as string,
-  GW_ORG_HOST: process.env.GW_ORG_HOST as string
+  GW_ORG_INTERNAL_HOST: process.env.GW_ORG_INTERNAL_HOST as string,
+  GW_ORG_EXTERNAL_HOST: process.env.GW_ORG_EXTERNAL_HOST as string
 };
 
 const dev = ENV.NODE_ENV !== 'production';
@@ -46,11 +47,11 @@ app
     server.use(cookieParser());
     server.use(express.urlencoded({ extended: false }));
     server.use(errorHandler());
-    server.use('/web/api', createIndexRoute({ authHost: ENV.AUTH_HOST }));
+    server.use('/web/api', createIndexRoute({ authHost: ENV.AUTH_HOST, gwOrgHost: ENV.GW_ORG_EXTERNAL_HOST }));
     server.use('/web/api/profile', createProfileRoute({ authHost: ENV.AUTH_HOST }));
     server.use('/web/api/client', createClientRoute({ authHost: ENV.AUTH_HOST }));
     server.use('/web/api/api_key', createApiKeyRoute({ authHost: ENV.AUTH_HOST }));
-    server.use('/web/api/wallet', createGatewayRoute({ gwOrgHost: ENV.GW_ORG_HOST }));
+    server.use('/web/api/wallet', createGatewayRoute({ gwOrgHost: ENV.GW_ORG_INTERNAL_HOST }));
 
     server.get('/web/api/all_alive', async (req, res) => {
       try {

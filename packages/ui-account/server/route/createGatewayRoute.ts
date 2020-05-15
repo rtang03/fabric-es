@@ -15,18 +15,12 @@ export const createGatewayRoute: (option: { gwOrgHost: string }) => express.Rout
           method: 'POST',
           body: JSON.stringify({
             operationName: 'GetWallet',
-            query: `query GetWallet {
-                getWallet {
-                  type
-                  mspId
-                  certificate
-                }
-               }`
+            query: 'query GetWallet { getWallet { type, mspId, certificate } }'
           }),
-          headers: { authorization: `Bearer ${token}` }
+          headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` }
         });
 
-        return processResult({ response, res, logger, fcnName }).then(r => r.end());
+        return processResult({ response, res, logger, fcnName, isGql: true }).then(r => r.end());
       },
       { logger, fcnName: 'get wallet', useToken: true }
     )
@@ -40,13 +34,11 @@ export const createGatewayRoute: (option: { gwOrgHost: string }) => express.Rout
           method: 'POST',
           body: JSON.stringify({
             operationName: 'CreateWallet',
-            query: `mutation CreateWallet {
-                createWallet
-               }`
+            query: 'mutation CreateWallet { createWallet }'
           }),
-          headers: { authorization: `Bearer ${token}` }
+          headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` }
         });
-        return processResult({ response, res, logger, fcnName }).then(r => r.end());
+        return processResult({ response, res, logger, fcnName, isGql: true }).then(r => r.end());
       },
       { logger, fcnName: 'create wallet', useToken: true }
     )

@@ -6,15 +6,33 @@ import { NextPage } from 'next';
 import React from 'react';
 import Layout from '../../components/Layout';
 import { User, Wallet } from '../../server/types';
-import { fetchResult, getBackendApi, postResultRouting, setPostRequest, useStyles } from '../../utils';
+import { fetchBFF, getBackendApi, postResultRouting, setPostRequest, useStyles } from '../../utils';
 
-const WalletPage: NextPage<{ user: User; wallet: Wallet; apiUrl: string }> = ({ user, wallet, apiUrl }) => {
+const WalletPage: NextPage<{ user: User; wallet: Wallet; apiUrl: string; playgroundUrl: string }> = ({
+  user,
+  wallet,
+  apiUrl,
+  playgroundUrl
+}) => {
   const classes = useStyles();
 
   return (
-    <Layout title="Wallet" user={user}>
-      <Typography variant="h6">Digital Wallet</Typography>
-      {JSON.stringify(wallet, null, 2)}
+    <Layout title="Wallet" user={user} playgroundUrl={playgroundUrl}>
+      <Typography variant="h6">Digital wallet</Typography>
+      {wallet ? (
+        <>
+          <div>Type: {wallet.type}</div>
+          <br />
+          <div>Msp ID: {wallet.mspId}</div>
+          <br />
+          <p>WARNING: For production deployment, signing certificate needs to remove. </p>
+          <div>Certificate: {wallet.certificate}</div>
+        </>
+      ) : (
+        <p>No wallet found</p>
+      )}
+      <br />
+      <br />
       <Formik
         initialValues={{}}
         onSubmit={async (_, { setSubmitting }) => {
@@ -47,10 +65,11 @@ const WalletPage: NextPage<{ user: User; wallet: Wallet; apiUrl: string }> = ({ 
 };
 
 WalletPage.getInitialProps = async ctx => {
-  const user = await fetchResult<User>(ctx, 'profile');
-  const wallet = await fetchResult<Wallet>(ctx, 'wallet');
+  const user = await fetchBFF<User>(ctx, 'profile');
+  const graphqlResponse = await fetchBFF<{ data: { getWallet: Wallet } }>(ctx, 'wallet');
   const apiUrl = getBackendApi(ctx, 'wallet');
-  return { apiUrl, user, wallet };
+  const { playgroundUrl } = await fetch(getBackendApi(ctx, 'playground')).then(r => r.json());
+  return { apiUrl, user, wallet: graphqlResponse?.data?.getWallet, playgroundUrl };
 };
 
 export default WalletPage;

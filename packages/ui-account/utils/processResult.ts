@@ -10,7 +10,8 @@ export const processResult: (option: {
   fcnName: string;
   logger: Logger;
   typeGuard?: any;
-}) => Promise<Response> = async ({ res, response, fcnName, logger, typeGuard }) => {
+  isGql?: boolean;
+}) => Promise<Response> = async ({ res, response, fcnName, logger, typeGuard, isGql = false }) => {
   const status = response.status;
 
   if (status === httpStatus.UNAUTHORIZED) {
@@ -24,8 +25,15 @@ export const processResult: (option: {
   try {
     result = await response.json();
   } catch (e) {
-    logger.error(util.format('fail to parse response, %j'));
+    logger.error(util.format('fail to parse response, %j', e));
     return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to parse response' });
+  }
+
+  if (isGql) {
+    if (result?.errors) {
+      logger.warn(util.format('fail to %s: graphql errors: %j', fcnName, result.errors));
+      return res.status(httpStatus.BAD_REQUEST).send({ errors: result.errors });
+    }
   }
 
   if (typeGuard && !typeGuard(result)) {
@@ -34,7 +42,7 @@ export const processResult: (option: {
   }
 
   if (status === httpStatus.OK) {
-    logger.info(`perform ${fcnName} successfully`);
+    logger.info(`${fcnName} successfully`);
     return res.status(httpStatus.OK).send(result);
   } else {
     logger.warn(`fail to ${fcnName}, status: ${status}`);

@@ -4,7 +4,7 @@ export * from './getValidationSchema';
 export * from './getLogger';
 export * from './typeGurad';
 export * from './getBackendApi';
-export * from './fetchResult';
+export * from './fetchBFF';
 export * from './deserializeToken';
 export * from './processResult';
 export * from './catchErrors';
