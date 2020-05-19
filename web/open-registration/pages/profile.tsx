@@ -13,7 +13,7 @@ import Layout from '../components/Layout';
 import {
   useMeQuery,
   useUpdateUserMutation
-} from '../generated/oauth-server-graphql';
+} from '@fabric-es/query-handler/dist/__tests__/oauth-server-graphql';
 
 /**
  * todo: has bugs. Don't bother now. After update of email, will automatically logout

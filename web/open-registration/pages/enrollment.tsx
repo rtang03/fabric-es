@@ -14,13 +14,13 @@ import Layout from '../components/Layout';
 import {
   useMeQuery,
   useVerifyPasswordLazyQuery
-} from '../generated/oauth-server-graphql';
+} from '@fabric-es/query-handler/dist/__tests__/oauth-server-graphql';
 import {
   useGetCaIdentityByEnrollmentIdLazyQuery,
   useGetPeerInfoLazyQuery,
   useIsWalletEntryExistLazyQuery,
   useRegisterAndEnrollUserMutation
-} from '../generated/peer-node-graphql';
+} from '@fabric-es/query-handler/dist/__tests__/peer-node-graphql';
 
 const validationSchema = yup.object({
   enrollmentSecret: yup
