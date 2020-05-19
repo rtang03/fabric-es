@@ -6,7 +6,7 @@
 #######################################
 
 if [[ ( $# -eq 1 ) && ( $1 = "-h" || $1 = "--help" ) ]]; then
-  echo "Usage: ./dev-net-build.auth-px-ui.sh"
+  echo "Usage: ./dn-build.auth-px-ui.sh"
   exit 0
 fi
 

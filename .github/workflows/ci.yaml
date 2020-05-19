@@ -39,7 +39,7 @@ jobs:
       - name: Run tsc for all packages
         run: yarn tsc:all
       - name: deploy base fabric v2 network only
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dev-net-run.2org.sh
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2.sh
       - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*. (auth and gateway-lib is excluded.)
         run: sudo yarn unit-test
         env:

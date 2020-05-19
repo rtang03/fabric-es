@@ -5,7 +5,7 @@
 #######################################
 
 if [[ ( $# -eq 1 ) && ( $1 = "-h" || $1 = "--help" ) ]]; then
-  echo "Usage: ./dev-net-build.proxy.sh"
+  echo "Usage: ./dn-build.proxy.sh"
   exit 0
 fi
 

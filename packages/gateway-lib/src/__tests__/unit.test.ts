@@ -54,7 +54,7 @@ const ADMIN_SERVICE_PORT = 15000;
 const GATEWAY_PORT = 4000;
 
 /**
- * Pre-requisite: Run ~/deployments/dev-net/dev-net-run.1org-px-db-red-auth.sh
+ * Pre-requisite: Run ~/deployments/dev-net/dn-run.1-px-db-red-auth.sh
  */
 beforeAll(async () => {
   rimraf.sync(`${walletPath}/${orgAdminId}.id`);
