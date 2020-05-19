@@ -1,8 +1,13 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-#################################
+#######################################
 # Build ui docker image
-#################################
+#######################################
+
+if [[ ( $# -eq 1 ) && ( $1 = "-h" || $1 = "--help" ) ]]; then
+  echo "Usage: ./dev-net-build.proxy.sh"
+  exit 0
+fi
 
 . ./scripts/setup.sh
 

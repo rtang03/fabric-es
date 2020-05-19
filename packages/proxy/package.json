@@ -24,12 +24,7 @@
     "start": "node ./dist/index.js",
     "tsc:prod": "yarn clean && tsc",
     "clean": "rimraf ./dist && rimraf ./build",
-    "dev": "ts-node src/index.ts",
-    "build:cleanup": "rimraf ./build && mkdir build",
-    "pack:lib": "yarn build:cleanup && concurrently \"npm:cp:*\"",
-    "cp:package.json": "cp ./package.json ./build/",
-    "cp:env": "cp ./.env.prod ./build/.env",
-    "cp:dist": "cp -R ./dist ./build/"
+    "dev": "ts-node src/index.ts"
   },
   "private": true,
   "dependencies": {

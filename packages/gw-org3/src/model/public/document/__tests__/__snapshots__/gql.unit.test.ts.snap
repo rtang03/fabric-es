@@ -40,7 +40,7 @@ Object {
       "loanId": "L0001",
       "ownerId": "unitTestUser",
       "reference": "REF-UNIT-TEST-DOC-4",
-      "status": 1,
+      "status": 0,
       "title": "Unit test document 4",
     },
     Object {
@@ -48,7 +48,7 @@ Object {
       "loanId": "L0001",
       "ownerId": "unitTestUser",
       "reference": "REF-UNIT-TEST-DOC-5",
-      "status": 2,
+      "status": 0,
       "title": "Unit test document 5 EDITED",
     },
   ],

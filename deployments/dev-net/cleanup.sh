@@ -10,7 +10,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   NEEDSUDO=0
 fi
 
-COMPOSE=$COMPOSE_5_3ORG
+COMPOSE=$COMPOSE_ALL
 CLEAN_CC_IMG=0
 case $# in
   0)

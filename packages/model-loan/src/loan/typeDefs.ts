@@ -265,7 +265,7 @@ export const resolvers = {
         loan.repo
           .getById({ id: loanId, enrollmentId: username })
           .then(({ currentState }) => currentState),
-      { fcnName: 'Loan/__resolveReference', logger, useAuth: true }
+      { fcnName: 'Loan/__resolveReference', logger, useAuth: false }
     )
   },
   LoanResponse: {

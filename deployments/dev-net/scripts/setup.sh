@@ -48,19 +48,21 @@ export COMPOSE_1_1ORG="$COMPOSE_0_1ORG $CMP_1_SRV"
 export COMPOSE_2_1ORG="$COMPOSE_1_1ORG $CMP_1_ATH"
 export COMPOSE_3_1ORG="$COMPOSE_2_1ORG $CMP_1_UIA"
 export COMPOSE_4_1ORG="$COMPOSE_3_1ORG $CMP_1_GWY"
-export COMPOSE_5_1ORG="$COMPOSE_4_1ORG -f compose.1org.tester.yaml"
+export COMPOSE_5_1ORG="$COMPOSE_2_1ORG $CMP_1_GWY -f compose.1org.tester.yaml"
 
 export COMPOSE_1_2ORG="$COMPOSE_0_2ORG $CMP_2_SRV"
 export COMPOSE_2_2ORG="$COMPOSE_1_2ORG $CMP_2_ATH"
 export COMPOSE_3_2ORG="$COMPOSE_2_2ORG $CMP_2_UIA"
 export COMPOSE_4_2ORG="$COMPOSE_3_2ORG $CMP_2_GWY"
-export COMPOSE_5_2ORG="$COMPOSE_4_2ORG -f compose.2org.tester.yaml"
+export COMPOSE_5_2ORG="$COMPOSE_2_2ORG $CMP_2_GWY -f compose.2org.tester.yaml"
 
 export COMPOSE_1_3ORG="$COMPOSE_0_3ORG $CMP_3_SRV"
 export COMPOSE_2_3ORG="$COMPOSE_1_3ORG $CMP_3_ATH"
 export COMPOSE_3_3ORG="$COMPOSE_2_3ORG $CMP_3_UIA"
 export COMPOSE_4_3ORG="$COMPOSE_3_3ORG $CMP_3_GWY"
-export COMPOSE_5_3ORG="$COMPOSE_4_3ORG -f compose.3org.tester.yaml"
+export COMPOSE_5_3ORG="$COMPOSE_2_3ORG $CMP_3_GWY -f compose.3org.tester.yaml"
+
+export COMPOSE_ALL="$COMPOSE_5_3ORG $CMP_1_UIA $CMP_2_UIA $CMP_3_UIA"
 
 # $1 - message to be printed
 # $2 - exit code of the previous operation

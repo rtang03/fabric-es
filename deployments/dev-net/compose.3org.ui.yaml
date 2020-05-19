@@ -11,7 +11,7 @@ services:
       - PORT=3000
       - AUTH_HOST=http://auth-server3:8080
       - GW_ORG_INTERNAL_HOST=http://gw-org3:4001
-      - GW_ORG_EXTERNAL_HOST=http://localhost:8080
+      - GW_ORG_EXTERNAL_HOST=http://localhost:4003
     networks:
       - openplatform
     depends_on:

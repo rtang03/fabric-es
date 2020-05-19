@@ -12,7 +12,7 @@ parseArgs $0 "$@"
 ./cleanup.sh $OPTION
 
 # STEP 1
-./bootstrap.sh "$COMPOSE_0_3ORG" "org0" "org1 org2 org3"
+./bootstrap.sh "$COMPOSE_1_3ORG" "org0" "org1 org2 org3"
 
 # STEP 2
 docker-compose $COMPOSE_1_3ORG up -d
@@ -27,13 +27,6 @@ printMessage "docker-compose up $COMPOSE_2_3ORG" $?
 containerWait "auth-server1" "Auth server started"
 containerWait "auth-server2" "Auth server started"
 containerWait "auth-server3" "Auth server started"
-
-# STEP 4
-docker-compose $COMPOSE_3_3ORG up -d --no-recreate
-printMessage "docker-compose up $COMPOSE_3_3ORG" $?
-containerWait "ui-account1" "Server listening at"
-containerWait "ui-account2" "Server listening at"
-containerWait "ui-account3" "Server listening at"
 
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"

@@ -12,7 +12,7 @@ parseArgs $0 "$@"
 ./cleanup.sh $OPTION
 
 # STEP 1
-./bootstrap.sh "$COMPOSE_0_2ORG" "org0" "org1 org2"
+./bootstrap.sh "$COMPOSE_1_2ORG" "org0" "org1 org2"
 
 # STEP 2
 docker-compose $COMPOSE_1_2ORG up -d

@@ -11,7 +11,7 @@ import {
   loanDetailsTypeDefs
 } from './model/private/loan-details';
 
-const logger = getLogger('service-prv-ctnt.js');
+const logger = getLogger('service-prv-dtls.js');
 const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
 
 (async () =>
