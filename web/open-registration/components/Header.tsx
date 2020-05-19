@@ -3,7 +3,7 @@ import React from 'react';
 import {
   useLogoutMutation,
   useMeQuery
-} from '../generated/oauth-server-graphql';
+} from '@fabric-es/query-handler/dist/__tests__/oauth-server-graphql';
 import { setAccessToken } from '../utils';
 import Link from './Link';
 

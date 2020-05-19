@@ -22,7 +22,7 @@ import {
   MeDocument,
   MeQuery,
   useLoginMutation
-} from '../generated/oauth-server-graphql';
+} from '@fabric-es/query-handler/dist/__tests__/oauth-server-graphql';
 
 const validationSchema = yup.object({
   email: yup

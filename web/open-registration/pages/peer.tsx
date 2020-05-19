@@ -5,8 +5,8 @@ import { omit } from 'lodash';
 import { NextPage } from 'next';
 import React from 'react';
 import Layout from '../components/Layout';
-import { useGetPublicClientsQuery } from '../generated/oauth-server-graphql';
-import { useGetChannelPeersQuery } from '../generated/peer-node-graphql';
+import { useGetPublicClientsQuery } from '@fabric-es/query-handler/dist/__tests__/oauth-server-graphql';
+import { useGetChannelPeersQuery } from '@fabric-es/query-handler/dist/__tests__/peer-node-graphql';
 
 const Peer: NextPage = () => {
   const {

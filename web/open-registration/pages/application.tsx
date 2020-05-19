@@ -12,7 +12,7 @@ import Layout from '../components/Layout';
 import {
   useCreateRegularAppMutation,
   useGetClientsLazyQuery
-} from '../generated/oauth-server-graphql';
+} from '@fabric-es/query-handler/dist/__tests__/oauth-server-graphql';
 
 const useStyles = makeStyles((theme: Theme) => ({
   '@global': {

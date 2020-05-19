@@ -17,7 +17,7 @@ import { MyCheckbox } from '../components/MyCheckbox';
 import {
   useRegisterAdminMutation,
   useRegisterUserMutation
-} from '../generated/oauth-server-graphql';
+} from '@fabric-es/query-handler/dist/__tests__/oauth-server-graphql';
 
 const validationSchema = yup.object({
   username: yup
