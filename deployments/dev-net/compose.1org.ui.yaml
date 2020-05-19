@@ -4,15 +4,15 @@ networks:
   openplatform:
 
 services:
-  ui-account:
-    image: fabric-es/ui-account:1.0
-    container_name: ui-account
+  ui-account1:
+    image: $UI_ACCOUNT_IMAGE
+    container_name: ui-account1
     environment:
       - PORT=3000
-      - AUTH_HOST=http://auth:8080
+      - AUTH_HOST=http://auth-server1:8080
       - GW_ORG_INTERNAL_HOST=http://gw-org1:4001
-      - GW_ORG_EXTERNAL_HOST=http://localhost:8080
-    depends_on:
-      - auth
+      - GW_ORG_EXTERNAL_HOST=http://localhost:4001
     networks:
       - openplatform
+    depends_on:
+      - auth-server1

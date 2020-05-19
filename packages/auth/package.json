@@ -24,13 +24,7 @@
     "build": "yarn clean && tsc",
     "clean": "rimraf dist && rimraf build",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
-    "test": "jest --detectOpenHandles unit.test",
-    "pack:lib": "yarn build:cleanup && concurrently \"npm:cp:*\"",
-    "build:cleanup": "rimraf ./build && mkdir build",
-    "cp:package.json": "cp ./package.json ./build/",
-    "cp:env": "cp ./.env.prod ./build/.env",
-    "cp:dist": "cp -R ./dist ./build/",
-    "cp:processes": "cp ./processes.yaml ./build/"
+    "test": "jest --detectOpenHandles unit.test"
   },
   "private": true,
   "dependencies": {

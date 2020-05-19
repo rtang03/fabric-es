@@ -5,7 +5,7 @@
 #######################################
 
 if [[ ( $# -eq 1 ) && ( $1 = "-h" || $1 = "--help" ) ]]; then
-  echo "Usage: ./dev-net-build.tester.sh"
+  echo "Usage: ./dn-build.tester.sh"
   exit 0
 fi
 

@@ -12,8 +12,6 @@ export const catchErrors: (
   context
 ) => {
   try {
-    logger.info(`getWallet invoked: ${context.username}`);
-
     if (useAuth) {
       if (!context?.user_id) {
         logger.warn(`${fcnName}, ${USER_NOT_FOUND}`);
@@ -28,9 +26,14 @@ export const catchErrors: (
       }
     }
 
-    return fcn(root, variables, context);
+    return await fcn(root, variables, context);
   } catch (e) {
     logger.error(util.format('fail to %s, %j', fcnName, e));
-    return new ApolloError(e);
+    if (e.error && e.error.message)
+      return new ApolloError(e.error.message);
+    else if (e.errors && Array.isArray(e.errors) && (e.errors.length > 0) && e.errors[0].message)
+      return new ApolloError(e.errors.map(err => err.message));
+    else
+      return new ApolloError(e);
   }
 };

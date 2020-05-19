@@ -1,0 +1,18 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+  ui-account2:
+    image: $UI_ACCOUNT_IMAGE
+    container_name: ui-account2
+    environment:
+      - PORT=3000
+      - AUTH_HOST=http://auth-server2:8080
+      - GW_ORG_INTERNAL_HOST=http://gw-org2:4001
+      - GW_ORG_EXTERNAL_HOST=http://localhost:4002
+    networks:
+      - openplatform
+    depends_on:
+      - auth-server2

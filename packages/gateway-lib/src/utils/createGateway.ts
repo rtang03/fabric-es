@@ -66,14 +66,14 @@ export const createGateway: (option: {
         });
 
         if (response.status !== httpStatus.OK) {
-          logger.warn(util.format('authenticate fails, status: %s', response.status));
+          // logger.warn(util.format('authenticate fails, status: %s', response.status));
           return {};
         }
 
         const result: unknown = await response.json();
 
         if (isAuthResponse(result)) {
-          logger.info(`authenticated: ${result.user_id}`);
+          // logger.info(`authenticated: ${result.user_id}`);
           return result;
         } else {
           logger.warn(`fail to parse authenticationCheck result`);
@@ -88,7 +88,6 @@ export const createGateway: (option: {
 
   const app = express();
   app.use(morgan('dev'));
-  app.get('/gw_org/isalive', (_, res) => res.status(204).send({ data: 'hi' }));
 
   app.get('/gw_org/isalive', (_, res) => res.status(204).send({ data: 'hi' }));
 

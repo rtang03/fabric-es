@@ -13,31 +13,56 @@ export SCRIPTS=./scripts
 export CRYPTO=/var/artifacts/crypto-config
 export CURRENT_DIR=`pwd`
 
-export AUTH_IMAGE=fabric-es/auth-server:1.0
+export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
 export TEST_IMAGE=fabric-es/tester:${RELEASE}
-export PROXY_IMAGE=fabric-es/proxy:1.0
-export UI_ACCOUNT_IMAGE=fabric-es/ui-account:1.0
+export PROXY_IMAGE=fabric-es/proxy:${RELEASE}
+export UI_ACCOUNT_IMAGE=fabric-es/ui-account:${RELEASE}
 export ROOT_DIR=$CURRENT_DIR/../..
 
-export CHAINCODE=../../packages/chaincode
+export CHAINCODE=$ROOT_DIR/packages/chaincode
 
 export LIBS_DIR=$ROOT_DIR/node_modules
 export CONF_DIR=$CURRENT_DIR/build.
 
-export COMPOSE_0_1ORG="-f compose.2org.yaml"
-export COMPOSE_1_1ORG="$COMPOSE_0_1ORG -f compose.1org.px-db-red.yaml"
-export COMPOSE_2_1ORG="$COMPOSE_1_1ORG -f compose.1org.auth.yaml"
-export COMPOSE_3_1ORG="$COMPOSE_2_1ORG -f compose.1org.gw.yaml"
-export COMPOSE_0_2ORG="-f compose.2org.yaml"
-export COMPOSE_1_2ORG="$COMPOSE_0_2ORG -f compose.2org.db.yaml"
-export COMPOSE_2_2ORG="$COMPOSE_1_2ORG -f compose.2org.auth.yaml"
-export COMPOSE_3_2ORG="$COMPOSE_2_2ORG -f compose.2org.gw.yaml"
-export COMPOSE_4_2ORG="$COMPOSE_3_2ORG -f compose.2org.tester.yaml"
+export COMPOSE_0_1ORG="-f compose.1org.yaml"
+export COMPOSE_0_2ORG="$COMPOSE_0_1ORG -f compose.2org.yaml"
 export COMPOSE_0_3ORG="$COMPOSE_0_2ORG -f compose.3org.yaml"
-export COMPOSE_1_3ORG="$COMPOSE_0_3ORG -f compose.2org.db.yaml -f compose.3org.db.yaml"
-export COMPOSE_2_3ORG="$COMPOSE_1_3ORG -f compose.2org.auth.yaml -f compose.3org.auth.yaml"
-export COMPOSE_3_3ORG="$COMPOSE_2_3ORG -f compose.2org.gw.yaml -f compose.3org.gw.yaml"
-export COMPOSE_4_3ORG="$COMPOSE_3_3ORG -f compose.3org.tester.yaml"
+export CMP_1_SRV="-f compose.1org.px-db-red.yaml"
+export CMP_2_SRV="$CMP_1_SRV -f compose.2org.px-db-red.yaml"
+export CMP_3_SRV="$CMP_2_SRV -f compose.3org.px-db-red.yaml"
+export CMP_1_ATH="-f compose.1org.auth.yaml"
+export CMP_2_ATH="$CMP_1_ATH -f compose.2org.auth.yaml"
+export CMP_3_ATH="$CMP_2_ATH -f compose.3org.auth.yaml"
+export CMP_1_UIA="-f compose.1org.ui.yaml"
+export CMP_2_UIA="$CMP_1_UIA -f compose.2org.ui.yaml"
+export CMP_3_UIA="$CMP_2_UIA -f compose.3org.ui.yaml"
+export CMP_1_GWY="-f compose.1org.gw.yaml"
+export CMP_2_GWY="$CMP_1_GWY -f compose.2org.gw.yaml"
+export CMP_3_GWY="$CMP_2_GWY -f compose.3org.gw.yaml"
+
+export COMPOSE_0_0ORG="$CMP_1_SRV"
+export COMPOSE_1_0ORG="$COMPOSE_0_0ORG $CMP_1_ATH"
+export COMPOSE_2_0ORG="$COMPOSE_1_0ORG $CMP_1_UIA"
+
+export COMPOSE_1_1ORG="$COMPOSE_0_1ORG $CMP_1_SRV"
+export COMPOSE_2_1ORG="$COMPOSE_1_1ORG $CMP_1_ATH"
+export COMPOSE_3_1ORG="$COMPOSE_2_1ORG $CMP_1_UIA"
+export COMPOSE_4_1ORG="$COMPOSE_3_1ORG $CMP_1_GWY"
+export COMPOSE_5_1ORG="$COMPOSE_2_1ORG $CMP_1_GWY -f compose.1org.tester.yaml"
+
+export COMPOSE_1_2ORG="$COMPOSE_0_2ORG $CMP_2_SRV"
+export COMPOSE_2_2ORG="$COMPOSE_1_2ORG $CMP_2_ATH"
+export COMPOSE_3_2ORG="$COMPOSE_2_2ORG $CMP_2_UIA"
+export COMPOSE_4_2ORG="$COMPOSE_3_2ORG $CMP_2_GWY"
+export COMPOSE_5_2ORG="$COMPOSE_2_2ORG $CMP_2_GWY -f compose.2org.tester.yaml"
+
+export COMPOSE_1_3ORG="$COMPOSE_0_3ORG $CMP_3_SRV"
+export COMPOSE_2_3ORG="$COMPOSE_1_3ORG $CMP_3_ATH"
+export COMPOSE_3_3ORG="$COMPOSE_2_3ORG $CMP_3_UIA"
+export COMPOSE_4_3ORG="$COMPOSE_3_3ORG $CMP_3_GWY"
+export COMPOSE_5_3ORG="$COMPOSE_2_3ORG $CMP_3_GWY -f compose.3org.tester.yaml"
+
+export COMPOSE_ALL="$COMPOSE_5_3ORG $CMP_1_UIA $CMP_2_UIA $CMP_3_UIA"
 
 # $1 - message to be printed
 # $2 - exit code of the previous operation
@@ -60,7 +85,6 @@ getConfig() {
       CAPORT=5052
       PORT=7050
       GATEWAY="-"
-      IMAGE="-"
       ;;
     org1)
       NAME="Org1"
@@ -70,7 +94,6 @@ getConfig() {
       PORT=7051
       CCPORT=7052
       GATEWAY="gw-org1"
-      IMAGE=fabric-es/gw-org1:1.0
       ;;
     org2)
       NAME="Org2"
@@ -80,7 +103,6 @@ getConfig() {
       PORT=7251
       CCPORT=7252
       GATEWAY="gw-org2"
-      IMAGE=fabric-es/gw-org2:1.0
       ;;
     org3)
       NAME="Org3"
@@ -90,7 +112,6 @@ getConfig() {
       PORT=7451
       CCPORT=7452
       GATEWAY="gw-org3"
-      IMAGE=fabric-es/gw-org3:1.0
       ;;
   esac
 }
@@ -105,7 +126,7 @@ containerWait() {
     if [ $# -eq 3 ]; then
       RESULT=`docker container exec -i $1 "$2" | grep -e "$3"`
     else
-      RESULT=`docker logs $1 | grep -e "$2"`
+      RESULT=`docker logs $1 2>&1 | grep -e "$2"`
     fi
     echo -n "."
     if [ ! -z "$RESULT" ]; then

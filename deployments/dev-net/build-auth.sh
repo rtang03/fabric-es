@@ -1,23 +1,19 @@
 #!/bin/bash
 
-#######################################
-# Create build context of auth-server
-#######################################
+###############################
+# Create build context of auth
+###############################
 
 . ./scripts/setup.sh
 
-rm -fr $ROOT_DIR/.build
-mkdir -p $ROOT_DIR/.build
-cp $ROOT_DIR/package.json $ROOT_DIR/.build/
+rm -fr $ROOT_DIR/packages/auth/build
+mkdir -p $ROOT_DIR/packages/auth/build
 
-# Building authentication package
-rm -fr $ROOT_DIR/packages/authentication/dist
-$LIBS_DIR/.bin/tsc -p $ROOT_DIR/packages/authentication/tsconfig.prod.json
+# Building the auth package
+rm -fr $ROOT_DIR/packages/auth/dist
+$LIBS_DIR/.bin/tsc -p $ROOT_DIR/packages/auth/tsconfig.prod.json
 
 # Packing app files
-mkdir -p $ROOT_DIR/.build/packages/authentication
-cp $ROOT_DIR/packages/authentication/package.json $ROOT_DIR/packages/authentication/processes.yaml $ROOT_DIR/.build/packages/authentication/
-cp ${CONF_DIR}auth/.env.prod $ROOT_DIR/.build/packages/authentication/.env
-cp -R $ROOT_DIR/packages/authentication/dist $ROOT_DIR/.build/packages/authentication/
-cp -R $ROOT_DIR/packages/authentication/views $ROOT_DIR/.build/packages/authentication/
-cp -R $ROOT_DIR/packages/authentication/public $ROOT_DIR/.build/packages/authentication/
+cp $ROOT_DIR/packages/auth/package.json $ROOT_DIR/packages/auth/processes.yaml $ROOT_DIR/packages/auth/build/
+cp $ROOT_DIR/packages/auth/.env.prod $ROOT_DIR/packages/auth/build/.env
+cp -R $ROOT_DIR/packages/auth/dist $ROOT_DIR/packages/auth/build/

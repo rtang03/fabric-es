@@ -50,11 +50,6 @@ const connection = {
   console.log('========Starting Auth Server ========');
   logger.info('========Starting Auth Server ========');
 
-  const timer = new Promise(resolve => {
-    setTimeout(() => resolve(true), 15000);
-  });
-  await timer;
-
   Object.entries<string>(ENV).forEach(([key, value]) => {
     if (value === undefined) {
       logger.error(`environment variable is missing ${key}`);
