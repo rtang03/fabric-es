@@ -15,7 +15,8 @@ const logout = async () => {
 const Layout: React.FC<{
   title?: string;
   user?: User;
-}> = ({ children, title = 'No title', user }) => (
+  playgroundUrl?: string;
+}> = ({ children, title = 'No title', user, playgroundUrl }) => (
   <div>
     <Head>
       <title>{title}</title>
@@ -51,10 +52,22 @@ const Layout: React.FC<{
               <a>Profile</a>
             </Link>{' '}
             |{' '}
+            <Link href={'/web/wallet'}>
+              <a>Wallet</a>
+            </Link>{' '}
+            |{' '}
             <Link href={'/web/client'}>
               <a>Client</a>
             </Link>{' '}
-            | <button onClick={logout}>Logout</button>
+            |{' '}
+            {playgroundUrl ? (
+              <>
+                <a href={`${playgroundUrl}`}>Playground</a> |
+              </>
+            ) : (
+              <React.Fragment />
+            )}{' '}
+            <button onClick={logout}>Logout</button>
           </>
         ) : (
           <>

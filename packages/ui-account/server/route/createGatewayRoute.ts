@@ -12,17 +12,37 @@ export const createGatewayRoute: (option: { gwOrgHost: string }) => express.Rout
     catchErrors(
       async (req, res, fcnName, token) => {
         const response = await fetch(`${gwOrgHost}/graphql`, {
-          body: '',
-          headers: { authorization: `Bearer ${token}` }
+          method: 'POST',
+          body: JSON.stringify({
+            operationName: 'GetWallet',
+            query: 'query GetWallet { getWallet { type, mspId, certificate } }'
+          }),
+          headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` }
         });
 
-        return processResult({ response, res, logger, fcnName }).then(r => r.end());
+        return processResult({ response, res, logger, fcnName, isGql: true }).then(r => r.end());
       },
       { logger, fcnName: 'get wallet', useToken: true }
     )
   );
 
-  router.post('/register_enroll');
+  router.post(
+    '/create_wallet',
+    catchErrors(
+      async (req, res, fcnName, token) => {
+        const response = await fetch(`${gwOrgHost}/graphql`, {
+          method: 'POST',
+          body: JSON.stringify({
+            operationName: 'CreateWallet',
+            query: 'mutation CreateWallet { createWallet }'
+          }),
+          headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` }
+        });
+        return processResult({ response, res, logger, fcnName, isGql: true }).then(r => r.end());
+      },
+      { logger, fcnName: 'create wallet', useToken: true }
+    )
+  );
 
   return router;
 };

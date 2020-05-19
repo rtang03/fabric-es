@@ -10,10 +10,8 @@ const redirectToHomeOnError = async (ctx: NextPageContext) =>
 const redirectToLoginOnError = async (ctx: NextPageContext) =>
   (process as any).browser ? Router.push('/web/login') : (ctx as any).res.writeHead(301, { Location: '/web/login' });
 
-export const fetchResult: <T>(ctx: NextPageContext, path: string) => Promise<T> = async <T = any>(
-  ctx: NextPageContext,
-  path: string
-) => {
+// fetch Backend for Frontend (BFF)
+export const fetchBFF: <TResult>(ctx: NextPageContext, path: string) => Promise<TResult> = async (ctx, path) => {
   const { token } = nextCookie(ctx);
   const apiUrl = getBackendApi(ctx, path);
   try {

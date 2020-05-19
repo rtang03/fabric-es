@@ -8,6 +8,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import { Form, Formik } from 'formik';
+import fetch from 'isomorphic-unfetch';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
 import { NextPage } from 'next';
@@ -15,7 +16,7 @@ import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import Layout from '../../../../components/Layout';
 import { ApiKey, Client, User } from '../../../../server/types';
-import { fetchResult, getBackendApi, postResultRouting, setPostRequest, useStyles } from '../../../../utils';
+import { fetchBFF, getBackendApi, postResultRouting, setPostRequest, useStyles } from '../../../../utils';
 
 const ApiKeyPage: NextPage<{ user: User; apiKeys: ApiKey[]; apiUrl: string; client: Client }> = ({
   user,
@@ -131,9 +132,9 @@ const ApiKeyPage: NextPage<{ user: User; apiKeys: ApiKey[]; apiUrl: string; clie
 };
 
 ApiKeyPage.getInitialProps = async ctx => {
-  const user = await fetchResult<User>(ctx, 'profile');
-  const apiKeys = await fetchResult<ApiKey[]>(ctx, `api_key?client_id=${ctx?.query?.cid}`);
-  const client = await fetchResult<Client>(ctx, `client/${ctx?.query?.cid}`);
+  const user = await fetchBFF<User>(ctx, 'profile');
+  const apiKeys = await fetchBFF<ApiKey[]>(ctx, `api_key?client_id=${ctx?.query?.cid}`);
+  const client = await fetchBFF<Client>(ctx, `client/${ctx?.query?.cid}`);
   const apiUrl = getBackendApi(ctx, 'api_key');
   return { user, apiKeys, apiUrl, client };
 };

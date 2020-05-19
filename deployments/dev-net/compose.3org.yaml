@@ -39,6 +39,7 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/Org3MSP/peer0.org3.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 #     - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-org3:7551
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-org3:7451
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0-org3:7451
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-org3:7451
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7452
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org3MSP/peer0.org3.net

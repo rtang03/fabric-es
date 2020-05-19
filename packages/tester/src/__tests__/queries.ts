@@ -1,50 +1,8 @@
-export const OAUTH_REGISTER = `
-mutation Register(
-  $email: String!
-  $username: String!
-  $password: String!
-  $admin_password: String
-) {
-  register(
-    email: $email
-    username: $username
-    password: $password
-    admin_password: $admin_password
-  )
-}`;
-
-export const OAUTH_LOGIN = `
-mutation Login(
-  $email: String!
-  $password: String!
-) {
-  login(
-    email: $email
-    password: $password
-  ) {
-    ok
-    user {
-      id
-      email
-      username
-      is_admin
-    }
-    accessToken
-  }
-}`;
-
-export const GW_REGISTER_ENROLL = `
-mutation RegisterAndEnrollUser(
-  $enrollmentId: String!
-  $enrollmentSecret: String!
-  $administrator: String!
-) {
-  registerAndEnrollUser(
-    enrollmentId: $enrollmentId
-    enrollmentSecret: $enrollmentSecret
-    administrator: $administrator
-  )
-}`;
+export const CREATE_WALLET = `
+mutation CreateWallet {
+  createWallet
+}
+`;
 
 export const GET_LOAN_BY_ID_ORG1 = `
 query GetLoanById($loanId: String!) {

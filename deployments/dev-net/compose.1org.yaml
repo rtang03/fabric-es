@@ -209,7 +209,6 @@ services:
       - CORE_PEER_ID=peer0-org1
       - CORE_PEER_ADDRESS=peer0-org1:7051
       - CORE_PEER_LISTENADDRESS=peer0-org1:7051
-      #      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/msp
       - CORE_PEER_TLS_CERT_FILE=/var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem

@@ -43,14 +43,12 @@ const connection = {
   logging: ENV.TYPEORM_LOGGING === 'true',
   synchronize: true,
   dropSchema: ENV.TYPEORM_DROPSCHEMA === 'true',
-  entities: [ApiKey, Client, User]
+  entities: [Client, User, ApiKey]
 };
 
 (async () => {
-  const timer = new Promise(resolve => {
-    setTimeout(() => resolve(true), 15000);
-  });
-  await timer;
+  console.log('========Starting Auth Server ========');
+  logger.info('========Starting Auth Server ========');
 
   Object.entries<string>(ENV).forEach(([key, value]) => {
     if (value === undefined) {

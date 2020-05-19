@@ -1,4 +1,5 @@
 import { Commit } from '@fabric-es/fabric-cqrs';
+import { catchErrors, getLogger } from '@fabric-es/gateway-lib';
 import { documentResolvers } from '@fabric-es/model-document';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
@@ -80,16 +81,18 @@ export const typeDefs = gql`
   }
 `;
 
+const logger = getLogger('document/typeDefs.js');
+
 export const resolvers = {
   ...documentResolvers,
   Mutation: {
     ...documentResolvers.Mutation,
-    createDocument: async (
+    createDocument: catchErrors(async (
       _, { userId, documentId, loanId, title, reference, link },
-      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+      { dataSources: { document }, username }: { dataSources: { document: DocumentDS }; username: string }
     ): Promise<Commit> =>
       documentCommandHandler({
-        enrollmentId,
+        enrollmentId: username,
         documentRepo: document.repo
       }).CreateDocument({
           userId,
@@ -100,16 +103,15 @@ export const resolvers = {
             reference,
             link,
             timestamp: Date.now()
-          }})
-        .catch(error => new ApolloError(error)),
+          }}), { fcnName: 'createDocument', logger, useAuth: true }),
     updateDocument: async (
       _, { userId, documentId, loanId, title, reference, link },
-      { dataSources: { document }, enrollmentId }: { dataSources: { document: DocumentDS }; enrollmentId: string }
+      { dataSources: { document }, username }: { dataSources: { document: DocumentDS }; username: string }
     ): Promise<Commit[] | { error: any }> => {
       const result: Commit[] = [];
       if (typeof loanId !== 'undefined') {
         const c = await documentCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           documentRepo: document.repo
         }).DefineDocumentLoanId({
             userId,
@@ -120,7 +122,7 @@ export const resolvers = {
       }
       if (typeof title !== 'undefined') {
         const c = await documentCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           documentRepo: document.repo
         }).DefineDocumentTitle({
             userId,
@@ -131,7 +133,7 @@ export const resolvers = {
       }
       if (typeof reference !== 'undefined') {
         const c = await documentCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           documentRepo: document.repo
         }).DefineDocumentReference({
             userId,
@@ -142,7 +144,7 @@ export const resolvers = {
       }
       if (typeof link !== 'undefined') {
         const c = await documentCommandHandler({
-          enrollmentId,
+          enrollmentId: username,
           documentRepo: document.repo
         }).DefineDocumentLink({
             userId,

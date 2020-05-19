@@ -13,3 +13,4 @@ export * from './updateClientResponse';
 export * from './genericResponse';
 export * from './getApiKeysResponse';
 export * from './ApiKey';
+export * from './Wallet';

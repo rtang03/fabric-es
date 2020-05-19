@@ -6,7 +6,7 @@
 #######################################
 
 if [[ ( $# -eq 1 ) && ( $1 = "-h" || $1 = "--help" ) ]]; then
-  echo "Usage: ./dev-net-build.gw.sh [org code 1] {[org code 2] {[org code 3]}}"
+  echo "Usage: ./dn-build.gw.sh [org code 1] {[org code 2] {[org code 3]}}"
   exit 0
 fi
 

@@ -5,7 +5,7 @@ networks:
 
 services:
   gw-org1:
-    image: fabric-es/gw-org1:1.0
+    image: fabric-es/gw-org1:$RELEASE
     container_name: gw-org1
     environment:
       - AUTHORIZATION_SERVER_URI=http://auth-server1:8080/oauth/authenticate
@@ -15,7 +15,7 @@ services:
       - ORG_ADMIN_ID=admin-org1.net
       - ORG_ADMIN_SECRET=admin-org1.netPW
       - ORG_CA_URL=https://rca-org1:5054
-      - GATEWAY_HOST=0.0.0.0
+      - GATEWAY_HOST=gw-org1
       - GATEWAY_PORT=4001
       - TEMP_REMOTE_URI=http://gw-org2:4001/graphql\ http://gw-org3:4001/graphql
     working_dir: /home/app/packages/gw-org1
@@ -24,7 +24,7 @@ services:
     networks:
       - openplatform
     depends_on:
-      - auth
+      - auth-server1
       - orderer0-org0
       - peer0-org1
     volumes:

@@ -19,13 +19,14 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
   && rm yarn-v$YARN_VERSION.tar.gz \
   && cp /usr/share/zoneinfo/Asia/Hong_Kong /etc/localtime \
   && echo "Asia/Hong_Kong" > /etc/timezone \
-  && cd /home/app/ \
+  && cd /home/app \
   && yarn install --production --ignore-engines --network-timeout 1000000 \
   && yarn global add pm2 \
-  && pm2 install pm2-logrotate \
   && apk del .build-deps-yarn
 
 USER node
+
+VOLUME /home/app/logs
 
 WORKDIR /home/app/
 

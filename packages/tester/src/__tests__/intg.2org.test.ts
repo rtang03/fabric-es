@@ -5,14 +5,12 @@ import {
   CREATE_DOC_CONTENTS,
   CREATE_DOCUMENT,
   CREATE_LOAN_DETAILS,
+  CREATE_WALLET,
   GET_COMMITS_BY_DOCUMENT,
   GET_COMMITS_BY_LOAN,
   GET_DOCUMENT_BY_ID,
   GET_LOAN_BY_ID_ORG1,
   GET_LOAN_BY_ID_ORG2,
-  GW_REGISTER_ENROLL,
-  OAUTH_LOGIN,
-  OAUTH_REGISTER,
   SEARCH_DOCUMENT_BY_FIELDS,
   SEARCH_DOCUMENT_CONTAINS,
   SEARCH_LOAN_BY_FIELDS,
@@ -21,8 +19,12 @@ import {
   UPDATE_LOAN
 } from './queries';
 
-const AUTH_SERVER1 = `http://${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}/graphql`;
-const AUTH_SERVER2 = `http://${process.env.AUTH_HOST2}:${process.env.AUTH_PORT2}/graphql`;
+const AUTH_REG_1 = `http://${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}/account`;
+const AUTH_LOG_1 = `http://${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}/account/login`;
+const AUTH_REG_2 = `http://${process.env.AUTH_HOST2}:${process.env.AUTH_PORT2}/account`;
+const AUTH_LOG_2 = `http://${process.env.AUTH_HOST2}:${process.env.AUTH_PORT2}/account/login`;
+const AUTH_REG_3 = `http://${process.env.AUTH_HOST3}:${process.env.AUTH_PORT3}/account`;
+const AUTH_LOG_3 = `http://${process.env.AUTH_HOST3}:${process.env.AUTH_PORT3}/account/login`;
 const GATEWAY1 = `http://${process.env.GATEWAY_HOST1}:${process.env.GATEWAY_PORT1}/graphql`;
 const GATEWAY2 = `http://${process.env.GATEWAY_HOST2}:${process.env.GATEWAY_PORT2}/graphql`;
 
@@ -50,131 +52,101 @@ let accessToken2;
 beforeAll(async () => {
   try {
     console.log(`♨️♨️  Prepare Org1`);
-    // Register Org1 admin
-    if (!await fetch(AUTH_SERVER1, {
-      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
-        operationName: 'Register', query: OAUTH_REGISTER,
-        variables: { email: admin1, username: admin1, password, admin_password: process.env.ROOT_ADMIN_PASSWORD1 }
-      })})
-    .then(res => res.json())
-    .then(({ data }) => data)) {
-      console.log(`♨️♨️  Registering administrator to OAUTH server ${AUTH_SERVER1} failed`);
-      return;
-    }
-    // Login Org1 admin
-    const { log1a, tok1a } = await fetch(AUTH_SERVER1, {
-      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
-        operationName: 'Login', query: OAUTH_LOGIN,
-        variables: { email: admin1, password }
-      })})
-    .then(res => res.json())
-    .then(({ data }) => {
-      if (data.login.ok) return { log1a: true, tok1a: data.login.accessToken };
-    });
-    if (!log1a) {
-      console.log(`♨️♨️  Logging in to OAUTH server ${AUTH_SERVER1} as ${admin1} / ${password} failed`);
-      return;
-    }
     // Register Org1 user
-    if (!await fetch(AUTH_SERVER1, {
+    const { reg1, rol1 } = await fetch(AUTH_REG_1, {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
-        operationName: 'Register', query: OAUTH_REGISTER,
-        variables: { email: user1, username: user1, password }
+        username: user1, email: user1, password
       })})
     .then(res => res.json())
-    .then(({ data }) => data)) {
-      console.log(`♨️♨️  Registering to OAUTH server ${AUTH_SERVER1} failed`);
+    .then(data => {
+      if (data.username && data.id) {
+        return { reg1: true, rol1: data.id };
+      } else {
+        console.log(`Register Org1 user: ${JSON.stringify(data)}`);
+        return { reg1: false, rol1: null };
+      }
+    });
+    if (!reg1) {
+      console.log(`♨️♨️  Registering to OAUTH server ${AUTH_REG_1} failed`);
       return;
     }
     // Login Org1 user
-    const { log1, rol1, tok1 } = await fetch(AUTH_SERVER1, {
+    const { log1, tok1 } = await fetch(AUTH_LOG_1, {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
-        operationName: 'Login', query: OAUTH_LOGIN,
-        variables: { email: user1, password }
+        username: user1, password
       })})
     .then(res => res.json())
-    .then(({ data }) => {
-      if (data.login.ok) return { log1: true, rol1: data.login.user.id, tok1: data.login.accessToken };
+    .then(data => {
+      if (data.id === rol1) {
+        return { log1: true, tok1: data.access_token };
+      } else {
+        console.log(`Login Org1 user: ${JSON.stringify(data)}`);
+        return { log1: false, tok1: null };
+      }
     });
     if (!log1) {
-      console.log(`♨️♨️  Logging in to OAUTH server ${AUTH_SERVER1} as ${user1} / ${password} failed`);
+      console.log(`♨️♨️  Logging in to OAUTH server ${AUTH_LOG_1} as ${user1} / ${password} failed`);
       return;
     }
-    // Enroll Org1 user
+    // Create wallet
     const org1Ready = await fetch(GATEWAY1, {
-      method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${tok1a}` }, body: JSON.stringify({
-        operationName: 'RegisterAndEnrollUser', query: GW_REGISTER_ENROLL,
-        variables: { enrollmentId: rol1, enrollmentSecret: 'password', administrator: process.env.CA_ENROLLMENT_ID_ADMIN1 }
+      method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${tok1}` }, body: JSON.stringify({
+        operationName: 'CreateWallet', query: CREATE_WALLET
       })})
     .then(res => res.json())
     .then(({ data }) => data);
     if (!org1Ready) {
-      console.log(`♨️♨️  Enrolling user ${rol1} to gateway ${GATEWAY1} failed`);
+      console.log(`♨️♨️  Create wallet for user ${rol1} in gateway ${GATEWAY1} failed`);
       return;
     }
     accessToken1 = tok1;
 
     console.log(`♨️♨️  Prepare Org2`);
-    // Register Org2 admin
-    if (!await fetch(AUTH_SERVER2, {
-      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
-        operationName: 'Register', query: OAUTH_REGISTER,
-        variables: { email: admin2, username: admin2, password, admin_password: process.env.ROOT_ADMIN_PASSWORD2 }
-      })})
-    .then(res => res.json())
-    .then(({ data }) => data)) {
-      console.log(`♨️♨️  Registering administrator to OAUTH server ${AUTH_SERVER2} failed`);
-      return;
-    }
-    // Login Org2 admin
-    const { log2a, tok2a } = await fetch(AUTH_SERVER2, {
-      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
-        operationName: 'Login', query: OAUTH_LOGIN,
-        variables: { email: admin2, password }
-      })})
-    .then(res => res.json())
-    .then(({ data }) => {
-      if (data.login.ok) return { log2a: true, tok2a: data.login.accessToken };
-    });
-    if (!log2a) {
-      console.log(`♨️♨️  Logging in to OAUTH server ${AUTH_SERVER2} as ${admin2} / ${password} failed`);
-      return;
-    }
     // Register Org2 user
-    if (!await fetch(AUTH_SERVER2, {
+    const { reg2, rol2 } = await fetch(AUTH_REG_2, {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
-        operationName: 'Register', query: OAUTH_REGISTER,
-        variables: { email: user2, username: user2, password }
+        username: user2, email: user2, password
       })})
     .then(res => res.json())
-    .then(({ data }) => data)) {
-      console.log(`♨️♨️  Registering to OAUTH server ${AUTH_SERVER2} failed`);
+    .then(data => {
+      if (data.username && data.id) {
+        return { reg2: true, rol2: data.id };
+      } else {
+        console.log(`Register Org2 user: ${JSON.stringify(data)}`);
+        return { reg2: false, rol2: null };
+      }
+    });
+    if (!reg2) {
+      console.log(`♨️♨️  Registering to OAUTH server ${AUTH_REG_2} failed`);
       return;
     }
     // Login Org2 user
-    const { log2, rol2, tok2 } = await fetch(AUTH_SERVER2, {
+    const { log2, tok2 } = await fetch(AUTH_LOG_2, {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
-        operationName: 'Login', query: OAUTH_LOGIN,
-        variables: { email: user2, password }
+        username: user2, password
       })})
     .then(res => res.json())
-    .then(({ data }) => {
-      if (data.login.ok) return { log2: true, rol2: data.login.user.id, tok2: data.login.accessToken };
+    .then(data => {
+      if (data.id === rol2) {
+        return { log2: true, tok2: data.access_token };
+      } else {
+        console.log(`Login Org2 user: ${JSON.stringify(data)}`);
+        return { log2: false, tok2: null };
+      }
     });
     if (!log2) {
-      console.log(`♨️♨️  Logging in to OAUTH server ${AUTH_SERVER2} as ${user2} / ${password} failed`);
+      console.log(`♨️♨️  Logging in to OAUTH server ${AUTH_LOG_2} as ${user2} / ${password} failed`);
       return;
     }
-    // Enroll Org2 user
+    // Create wallet
     const org2Ready = await fetch(GATEWAY2, {
-      method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${tok2a}` }, body: JSON.stringify({
-        operationName: 'RegisterAndEnrollUser', query: GW_REGISTER_ENROLL,
-        variables: { enrollmentId: rol2, enrollmentSecret: 'password', administrator: process.env.CA_ENROLLMENT_ID_ADMIN2 }
+      method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${tok2}` }, body: JSON.stringify({
+        operationName: 'CreateWallet', query: CREATE_WALLET
       })})
     .then(res => res.json())
     .then(({ data }) => data);
     if (!org2Ready) {
-      console.log(`♨️♨️  Enrolling user ${rol2} to gateway ${GATEWAY2} failed`);
+      console.log(`♨️♨️  Create wallet for user ${rol2} in gateway ${GATEWAY2} failed`);
       return;
     }
     accessToken2 = tok2;

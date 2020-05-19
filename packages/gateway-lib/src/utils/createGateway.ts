@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import Cookie from 'cookie';
 import express, { Express } from 'express';
 import httpStatus from 'http-status';
+import morgan from 'morgan';
 import fetch from 'node-fetch';
 import { getLogger } from './getLogger';
 import { isAuthResponse } from './typeGuard';
@@ -65,14 +66,14 @@ export const createGateway: (option: {
         });
 
         if (response.status !== httpStatus.OK) {
-          logger.warn(util.format('authenticate fails, status: %s', response.status));
+          // logger.warn(util.format('authenticate fails, status: %s', response.status));
           return {};
         }
 
         const result: unknown = await response.json();
 
         if (isAuthResponse(result)) {
-          logger.info(`authenticated: ${result.user_id}`);
+          // logger.info(`authenticated: ${result.user_id}`);
           return result;
         } else {
           logger.warn(`fail to parse authenticationCheck result`);
@@ -86,9 +87,9 @@ export const createGateway: (option: {
   });
 
   const app = express();
+  app.use(morgan('dev'));
 
-  app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(bodyParser.json());
+  app.get('/gw_org/isalive', (_, res) => res.status(204).send({ data: 'hi' }));
 
   // Note: this cors implementation is redundant. Cors should be check at ui-account's express backend
   // However, if there is alternative implementation, other than custom backend of SSR; there may require

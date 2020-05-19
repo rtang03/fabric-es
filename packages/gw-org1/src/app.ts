@@ -39,7 +39,8 @@ const logger = getLogger('[gw-org1] app.js');
       }
     ],
     authenticationCheck,
-    useCors: true,
+    useCors: false,
+    corsOrigin: 'http://localhost:3000',
     debug: false
   });
 
@@ -68,7 +69,7 @@ const logger = getLogger('[gw-org1] app.js');
     logger.error(err.stack);
   });
 
-  stoppableServer.listen(PORT, '0.0.0.0', () => {
+  stoppableServer.listen(PORT, () => {
     logger.info(`🚀 gateway ready at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
     if (process.env.NODE_ENV === 'production') process.send('ready');
   });

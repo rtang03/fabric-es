@@ -1,4 +1,5 @@
 import { Commit } from '@fabric-es/fabric-cqrs';
+import { catchErrors, getLogger } from '@fabric-es/gateway-lib';
 import { loanDetailsResolvers } from '@fabric-es/model-loan';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
@@ -113,16 +114,18 @@ export const typeDefs = gql`
   }
 `;
 
+const logger = getLogger('document/typeDefs.js');
+
 export const resolvers = {
   ...loanDetailsResolvers,
   Mutation: {
     ...loanDetailsResolvers.Mutation,
-    createLoanDetails: async (
+    createLoanDetails: catchErrors(async (
       _, { userId, loanId, requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment },
-      { dataSources: { loanDetails }, enrollmentId }: { dataSources: { loanDetails: LoanDetailsDS }; enrollmentId: string }
+      { dataSources: { loanDetails }, username }: { dataSources: { loanDetails: LoanDetailsDS }; username: string }
     ): Promise<Commit> =>
       loanDetailsCommandHandler({
-        enrollmentId,
+        enrollmentId: username,
         loanDetailsRepo: loanDetails.repo
       }).CreateLoanDetails({
         userId,
@@ -139,15 +142,15 @@ export const resolvers = {
           comment,
           timestamp: Date.now()
         }
-      }).catch(error => new ApolloError(error)),
+      }), { fcnName: 'createLoanDetails', logger, useAuth: true }),
     updateLoanDetails: async (
         _, { userId, loanId, requester, contact, loanType, startDate, tenor, currency, requestedAmt, approvedAmt, comment },
-        { dataSources: { loanDetails }, enrollmentId }: { dataSources: { loanDetails: LoanDetailsDS }; enrollmentId: string }
+        { dataSources: { loanDetails }, username }: { dataSources: { loanDetails: LoanDetailsDS }; username: string }
       ): Promise<Commit[] | { error: any }> => {
         const result: Commit[] = [];
         if ((typeof requester !== 'undefined') && Object.keys(requester).length > 0) {
           const c = await loanDetailsCommandHandler({
-            enrollmentId,
+            enrollmentId: username,
             loanDetailsRepo: loanDetails.repo
           }).DefineLoanRequester({
             userId,
@@ -158,7 +161,7 @@ export const resolvers = {
         }
         if ((typeof contact !== 'undefined') && Object.keys(contact).length > 0) {
           const c = await loanDetailsCommandHandler({
-            enrollmentId,
+            enrollmentId: username,
             loanDetailsRepo: loanDetails.repo
           }).DefineLoanContact({
             userId,
@@ -169,7 +172,7 @@ export const resolvers = {
         }
         if (typeof loanType !== 'undefined') {
           const c = await loanDetailsCommandHandler({
-            enrollmentId,
+            enrollmentId: username,
             loanDetailsRepo: loanDetails.repo
           }).DefineLoanType({
             userId,
@@ -180,7 +183,7 @@ export const resolvers = {
         }
         if (typeof startDate !== 'undefined') {
           const c = await loanDetailsCommandHandler({
-            enrollmentId,
+            enrollmentId: username,
             loanDetailsRepo: loanDetails.repo
           }).DefineLoanStartDate({
             userId,
@@ -191,7 +194,7 @@ export const resolvers = {
         }
         if (typeof tenor !== 'undefined') {
           const c = await loanDetailsCommandHandler({
-            enrollmentId,
+            enrollmentId: username,
             loanDetailsRepo: loanDetails.repo
           }).DefineLoanTenor({
             userId,
@@ -202,7 +205,7 @@ export const resolvers = {
         }
         if (typeof currency !== 'undefined') {
           const c = await loanDetailsCommandHandler({
-            enrollmentId,
+            enrollmentId: username,
             loanDetailsRepo: loanDetails.repo
           }).DefineLoanCurrency({
             userId,
@@ -213,7 +216,7 @@ export const resolvers = {
         }
         if (typeof requestedAmt !== 'undefined') {
           const c = await loanDetailsCommandHandler({
-            enrollmentId,
+            enrollmentId: username,
             loanDetailsRepo: loanDetails.repo
           }).DefineLoanRequestedAmt({
             userId,
@@ -224,7 +227,7 @@ export const resolvers = {
         }
         if (typeof approvedAmt !== 'undefined') {
           const c = await loanDetailsCommandHandler({
-            enrollmentId,
+            enrollmentId: username,
             loanDetailsRepo: loanDetails.repo
           }).DefineLoanApprovedAmt({
             userId,
@@ -235,7 +238,7 @@ export const resolvers = {
         }
         if (typeof comment !== 'undefined') {
           const c = await loanDetailsCommandHandler({
-            enrollmentId,
+            enrollmentId: username,
             loanDetailsRepo: loanDetails.repo
           }).DefineLoanDtlComment({
             userId,

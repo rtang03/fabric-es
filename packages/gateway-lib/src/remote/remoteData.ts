@@ -4,7 +4,7 @@ export interface RemoteData {
   user_id?: string;
   is_admin?: string;
   client_id?: string;
-  enrollmentId?: string;
+  username?: string;
   uriResolver?: UriResolver;
   remoteData: (operation: {
     uri: string[];

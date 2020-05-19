@@ -4,25 +4,29 @@ networks:
   openplatform:
 
 services:
-  auth:
-    image: fabric-es/auth-server:1.0
-    container_name: auth
+  auth-server1:
+    image: $AUTH_IMAGE
+    container_name: auth-server1
     environment:
       - PORT=8080
-      - TYPEORM_HOST=postgres
+      - TYPEORM_HOST=postgres01
       - TYPEORM_USERNAME=postgres
       - TYPEORM_PASSWORD=docker
       - TYPEORM_DATABASE=auth_db
       - TYPEORM_PORT=5432
-      - REDIS_HOST=redis
+      - REDIS_HOST=redis01
       - REDIS_PORT=6379
       - JWT_SECRET=secret
       - JWT_EXP_IN_SECOND=3600
       - ORG_ADMIN_ID=admin-org1.net
       - ORG_ADMIN_SECRET=admin-org1.netPW
-      - ORG_ADMIN_EMAIL=admin@org.net
+      - ORG_ADMIN_EMAIL=admin@org1.net
       - CLIENT_APPLICATION_NAME=root_client
       - CLIENT_SECRET=password
+    networks:
+      - openplatform
     depends_on:
-      - redis
-      - postgres
+      - redis01
+      - postgres01
+  # volumes:
+  #   - $VOLUME/auth-server1/logs/:/home/app/packages/authentication/logs/
