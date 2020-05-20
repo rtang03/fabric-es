@@ -35,9 +35,9 @@
     "publish:gh:fabric-es": "npm publish"
   },
   "dependencies": {
-    "@types/bytebuffer": "^5.0.40",
-    "fabric-contract-api": "^2.0.0",
-    "fabric-shim": "~2.0.0",
+    "@types/bytebuffer": "^5.0.41",
+    "fabric-contract-api": "^2.1.2",
+    "fabric-shim": "~2.1.2",
     "lodash": "^4.17.15"
   },
   "devDependencies": {
@@ -48,10 +48,9 @@
     "child-process-promise": "^2.2.1",
     "execa": "3.4.0",
     "jest": "^24.9.0",
-    "prettier": "^1.19.1",
+    "prettier": "^2.0.5",
     "rimraf": "^3.0.0",
     "ts-jest": "^24.0.2",
-    "ts-node": "^8.3.0",
-    "typescript": "^3.7.2"
+    "typescript": "^3.8.3"
   }
 }
