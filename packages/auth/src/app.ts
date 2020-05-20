@@ -30,7 +30,7 @@ const ENV = {
   ORG_ADMIN_SECRET: process.env.ORG_ADMIN_SECRET,
   ORG_ADMIN_EMAIL: process.env.ORG_ADMIN_EMAIL,
   CLIENT_APPLICATION_NAME: process.env.CLIENT_APPLICATION_NAME,
-  CLIENT_SECRET: process.env.CLIENT_SECRET
+  CLIENT_SECRET: process.env.CLIENT_SECRET,
 };
 const connection = {
   name: 'default',
@@ -43,7 +43,7 @@ const connection = {
   logging: ENV.TYPEORM_LOGGING === 'true',
   synchronize: true,
   dropSchema: ENV.TYPEORM_DROPSCHEMA === 'true',
-  entities: [Client, User, ApiKey]
+  entities: [Client, User, ApiKey],
 };
 
 (async () => {
@@ -68,7 +68,7 @@ const connection = {
       jwtSecret: ENV.JWT_SECRET,
       expiryInSeconds: parseInt(ENV.JWT_EXP_IN_SECOND, 10),
       orgAdminSecret: ENV.ORG_ADMIN_SECRET,
-      redis
+      redis,
     });
   } catch (err) {
     logger.error(util.format('An error occurred while createAuthServer: %j', err));
@@ -78,24 +78,20 @@ const connection = {
   const stoppableServer = stoppable(http.createServer(server));
 
   const shutdown = () => {
-    stoppableServer.close(err => {
+    stoppableServer.close((err) => {
       if (err) {
         logger.error(util.format('An error occurred while closing the server: %j', err));
         process.exitCode = 1;
       } else logger.info('server closes');
     });
-    process.exit(0);
+    process.exit();
   };
 
-  process.on('SIGINT', () => {
-    shutdown();
-  });
+  process.on('SIGINT', () => shutdown());
 
-  process.on('SIGTERM', () => {
-    shutdown();
-  });
+  process.on('SIGTERM', () => shutdown());
 
-  process.on('uncaughtException', err => {
+  process.on('uncaughtException', (err) => {
     logger.error('An uncaught error occurred!');
     logger.error(err.stack);
   });
@@ -110,7 +106,7 @@ const connection = {
         orgAdminSecret: ENV.ORG_ADMIN_SECRET,
         orgAdminEmail: ENV.ORG_ADMIN_EMAIL,
         applicationName: ENV.CLIENT_APPLICATION_NAME,
-        clientSecret: ENV.CLIENT_SECRET
+        clientSecret: ENV.CLIENT_SECRET,
       });
     } catch (e) {
       logger.error(util.format('An error occurred while bootstraping auth server: %j', e));
@@ -119,7 +115,7 @@ const connection = {
 
     if (process.send) process.send('ready');
   });
-})().catch(error => {
+})().catch((error) => {
   console.error(error);
   logger.info(util.format('fail to start app.js, %j', error));
   process.exit(1);

@@ -10,17 +10,17 @@
     "test:2org": "jest intg.2org.test"
   },
   "private": true,
+  "dependencies": {
+    "dotenv": "^8.1.0",
+    "jest": "^24.9.0",
+    "node-fetch": "^2.6.0"
+  },
   "devDependencies": {
     "@types/jest": "^24.0.18",
     "@types/lodash": "^4.14.138",
     "@types/node": "^12.12.41",
     "@types/node-fetch": "^2.5.7",
-    "dotenv": "^8.1.0",
-    "jest": "^24.9.0",
-    "lodash": "^4.17.15",
-    "node-fetch": "^2.6.0",
     "prettier": "^2.0.5",
-    "rimraf": "^3.0.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.8.3"
   }

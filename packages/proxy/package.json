@@ -29,9 +29,11 @@
   "private": true,
   "dependencies": {
     "dotenv": "^8.1.0",
+    "errorhandler": "^1.5.1",
     "express": "^4.17.1",
     "http-proxy-middleware": "^1.0.4",
     "morgan": "^1.10.0",
+    "stoppable": "^1.1.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {
