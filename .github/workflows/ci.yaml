@@ -33,13 +33,12 @@ jobs:
           version: '12.x'
       - name: yarn install
         run: yarn install --frozen-lockfile --ignore-engines
-#      - run: npm rebuild grpc --target=12.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
       - run: yarn lint:lib
       - run: yarn lint:app
       - name: Run tsc for all packages
         run: yarn tsc:all
       - name: deploy base fabric v2 network only
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2.sh
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2.px-db-red.sh
       - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*. (auth and gateway-lib is excluded.)
         run: sudo yarn unit-test
         env:
