@@ -28,7 +28,7 @@
     "generate-types-for-admin": "(broke) graphql-codegen --config src/generated/codegen.yml",
     "enrollAdmin": "node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
-    "unit-test": "jest --forceExit --detectOpenHandles unit.test",
+    "unit-test:fab": "jest --forceExit --detectOpenHandles unit.test",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "prepublish": "yarn typedoc && yarn tsc:prod",
     "publish:gh:fabric-es": "npm publish"
@@ -50,6 +50,7 @@
     "graphql": "^15.0.0",
     "graphql-tag": "^2.10.1",
     "graphql-tools": "^5.0.0",
+    "grpc": "^1.24.2",
     "http-status": "^1.4.1",
     "js-yaml": "^3.13.1",
     "jsonwebtoken": "^8.5.1",

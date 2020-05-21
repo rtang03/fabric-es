@@ -1,4 +1,4 @@
-require('../env');
+require('dotenv').config({ path: './.env.test' });
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import express from 'express';
@@ -16,11 +16,15 @@ import {
   GET_CHAIN_HEIGHT,
   GET_PEERINFO,
   GET_WALLET,
-  LIST_WALLET
+  LIST_WALLET,
 } from '../admin/query';
 import { QueryResponse } from '../types';
 import { createGateway, createService, isCaIdentity, isLoginResponse, isRegisterResponse } from '../utils';
 import { Counter, CounterEvents, DECREMENT, GET_COUNTER, INCREMENT, reducer, resolvers, typeDefs } from './__utils__';
+
+/**
+ * pre-requisite: requires a running postgres, and redis, auth, e.g. ./dn-run.2-px-db-red-auth.sh
+ */
 
 const proxyServerUri = `${process.env.PROXY_SERVER}`;
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
@@ -70,7 +74,7 @@ beforeAll(async () => {
       connectionProfile,
       fabricNetwork,
       mspId,
-      wallet
+      wallet,
     });
 
     // Step 2: EnrollCaAdmin
@@ -81,7 +85,7 @@ beforeAll(async () => {
       connectionProfile,
       fabricNetwork,
       mspId,
-      wallet
+      wallet,
     });
 
     // Step 3: Prepare Counter Model microservice
@@ -92,7 +96,7 @@ beforeAll(async () => {
       defaultEntityName: 'counter',
       defaultReducer: reducer,
       enrollmentId: orgAdminId,
-      wallet
+      wallet,
     });
 
     modelApolloService = await modelService
@@ -118,7 +122,7 @@ beforeAll(async () => {
       ordererTlsCaCert,
       peerName,
       playground: false,
-      walletPath
+      walletPath,
     });
     adminApolloService = service.server;
 
@@ -128,12 +132,12 @@ beforeAll(async () => {
     app = await createGateway({
       serviceList: [
         { name: 'admin', url: `http://localhost:${ADMIN_SERVICE_PORT}/graphql` },
-        { name: 'counter', url: `http://localhost:${MODEL_SERVICE_PORT}/graphql` }
+        { name: 'counter', url: `http://localhost:${MODEL_SERVICE_PORT}/graphql` },
       ],
-      authenticationCheck: `${proxyServerUri}/oauth/authenticate`
+      authenticationCheck: `${proxyServerUri}/oauth/authenticate`,
     });
 
-    return new Promise(done =>
+    return new Promise((done) =>
       app.listen(GATEWAY_PORT, () => {
         console.log('Gateway started');
         done();
@@ -148,12 +152,12 @@ beforeAll(async () => {
 afterAll(async () => {
   await modelApolloService.stop();
   await adminApolloService.stop();
-  return new Promise(done => setTimeout(() => done(), 5000));
+  return new Promise((done) => setTimeout(() => done(), 5000));
 });
 
 describe('Gateway Test - admin service', () => {
   it('should ping /isalive', async () =>
-    fetch(`${proxyServerUri}/account/isalive`).then(r => {
+    fetch(`${proxyServerUri}/account/isalive`).then((r) => {
       if (r.status === httpStatus.NO_CONTENT) return true;
       else {
         console.error('auth server is not alive');
@@ -165,10 +169,10 @@ describe('Gateway Test - admin service', () => {
     fetch(`${proxyServerUri}/account`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password })
+      body: JSON.stringify({ username, email, password }),
     })
-      .then<unknown>(r => r.json())
-      .then(res => {
+      .then<unknown>((r) => r.json())
+      .then((res) => {
         if (isRegisterResponse(res)) {
           userId = res?.id;
           return true;
@@ -179,32 +183,21 @@ describe('Gateway Test - admin service', () => {
     fetch(`${proxyServerUri}/account/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ username, password }),
     })
-      .then<unknown>(r => r.json())
-      .then(res => {
+      .then<unknown>((r) => r.json())
+      .then((res) => {
         if (isLoginResponse(res)) {
           accessToken = res.access_token;
           return true;
         } else return false;
       }));
 
-  it('should say hello to admin-service', async () =>
-    request(app)
-      .post('/graphql')
-      .send({
-        query: `query me { me }`
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(data?.me).toEqual('Hello');
-        expect(errors).toBeUndefined();
-      }));
-
   it('should say hello to counter-service', async () =>
     request(app)
       .post('/graphql')
       .send({
-        query: `query pingCounter { pingCounter }`
+        query: `query pingCounter { pingCounter }`,
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.pingCounter).toEqual('I am a simple counter');
@@ -215,10 +208,10 @@ describe('Gateway Test - admin service', () => {
     fetch(`${proxyServerUri}/account/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: orgAdminId, password: orgAdminSecret })
+      body: JSON.stringify({ username: orgAdminId, password: orgAdminSecret }),
     })
-      .then<unknown>(r => r.json())
-      .then(res => {
+      .then<unknown>((r) => r.json())
+      .then((res) => {
         if (isLoginResponse(res)) {
           adminAccessToken = res.access_token;
           return true;
@@ -230,7 +223,7 @@ describe('Gateway Test - admin service', () => {
       .post('/graphql')
       .send({
         operationName: 'ListWallet',
-        query: LIST_WALLET
+        query: LIST_WALLET,
       })
       .expect(({ body: { data, errors } }: QueryResponse) => {
         expect(data).toBeNull();
@@ -243,7 +236,7 @@ describe('Gateway Test - admin service', () => {
       .set('authorization', `bearer ${adminAccessToken}`)
       .send({
         operationName: 'ListWallet',
-        query: LIST_WALLET
+        query: LIST_WALLET,
       })
       .expect(({ body: { data, errors } }) => {
         expect(errors).toBeUndefined();
@@ -255,10 +248,10 @@ describe('Gateway Test - admin service', () => {
       .post('/graphql')
       .send({
         operationName: 'GetWallet',
-        query: GET_WALLET
+        query: GET_WALLET,
       })
       .expect(({ body: { data, errors } }) => {
-        expect(data).toBeNull();
+        expect(data?.getWallet).toBeNull();
         expect(errors[0]?.message).toEqual('could not find user');
       }));
 
@@ -268,7 +261,7 @@ describe('Gateway Test - admin service', () => {
       .set('authorization', `bearer ${adminAccessToken}`)
       .send({
         operationName: 'GetWallet',
-        query: GET_WALLET
+        query: GET_WALLET,
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.getWallet.type).toEqual('X.509');
@@ -283,7 +276,7 @@ describe('Gateway Test - admin service', () => {
       .send({
         operationName: 'GetBlockByNumber',
         query: GET_BLOCK_BY_NUMBER,
-        variables: { blockNumber: 10000 }
+        variables: { blockNumber: 10000 },
       })
       .expect(({ body: { data, errors } }) => {
         expect(errors).toBeUndefined();
@@ -296,7 +289,7 @@ describe('Gateway Test - admin service', () => {
       .send({
         operationName: 'GetBlockByNumber',
         query: GET_BLOCK_BY_NUMBER,
-        variables: { blockNumber: 10 }
+        variables: { blockNumber: 10 },
       })
       .expect(({ body: { data, errors } }) => {
         expect(data.getBlockByNumber).toBeNull();
@@ -310,7 +303,7 @@ describe('Gateway Test - admin service', () => {
       .send({
         operationName: 'GetBlockByNumber',
         query: GET_BLOCK_BY_NUMBER,
-        variables: { blockNumber: 10 }
+        variables: { blockNumber: 10 },
       })
       .expect(({ body: { data, errors } }) => {
         expect(errors).toBeUndefined();
@@ -353,11 +346,11 @@ describe('Gateway Test - admin service', () => {
       .set('authorization', `bearer ${adminAccessToken}`)
       .send({
         operationName: 'CreateWallet',
-        query: CREATE_WALLET
+        query: CREATE_WALLET,
       })
       .expect(({ body: { data, errors } }) => {
         expect(data).toBeNull();
-        expect(errors[0].message).toEqual(IDENTITY_ALREADY_EXIST);
+        expect(errors[0].message).toContain(IDENTITY_ALREADY_EXIST);
       }));
 
   it('should createWallet', async () =>
@@ -366,7 +359,7 @@ describe('Gateway Test - admin service', () => {
       .set('authorization', `bearer ${accessToken}`)
       .send({
         operationName: 'CreateWallet',
-        query: CREATE_WALLET
+        query: CREATE_WALLET,
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.createWallet).toBeTruthy();
@@ -380,7 +373,7 @@ describe('Gateway Test - admin service', () => {
       .send({
         operationName: 'Increment',
         query: INCREMENT,
-        variables: { counterId }
+        variables: { counterId },
       })
       .expect(({ body: { data, errors } }) => {
         expect(data).toBeNull();
@@ -394,7 +387,7 @@ describe('Gateway Test - admin service', () => {
       .send({
         operationName: 'Increment',
         query: INCREMENT,
-        variables: { counterId }
+        variables: { counterId },
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.increment.id).toEqual(counterId);
@@ -410,7 +403,7 @@ describe('Gateway Test - admin service', () => {
       .send({
         operationName: 'Increment',
         query: INCREMENT,
-        variables: { counterId }
+        variables: { counterId },
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.increment.id).toEqual(counterId);
@@ -426,7 +419,7 @@ describe('Gateway Test - admin service', () => {
       .send({
         operationName: 'GetCounter',
         query: GET_COUNTER,
-        variables: { counterId }
+        variables: { counterId },
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.getCounter).toEqual({ value: 2 });
@@ -440,7 +433,7 @@ describe('Gateway Test - admin service', () => {
       .send({
         operationName: 'Decrement',
         query: DECREMENT,
-        variables: { counterId }
+        variables: { counterId },
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.decrement.id).toEqual(counterId);
@@ -456,7 +449,7 @@ describe('Gateway Test - admin service', () => {
       .send({
         operationName: 'GetCounter',
         query: GET_COUNTER,
-        variables: { counterId }
+        variables: { counterId },
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.getCounter).toEqual({ value: 1 });

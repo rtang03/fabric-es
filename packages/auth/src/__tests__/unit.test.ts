@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './.env.example' });
+require('dotenv').config({ path: './.env.test' });
 import express from 'express';
 import httpStatus from 'http-status';
 import Redis from 'ioredis';
@@ -17,6 +17,10 @@ import {
   isRegisterResponse,
 } from '../utils';
 import { createDbForUnitTest } from './__utils__/createDbForUnitTest';
+
+/**
+ * pre-requisite: requires a running postgres, and redis, e.g. ./dn-run.2-px-db-red.sh
+ */
 
 const connection = {
   name: 'default',
