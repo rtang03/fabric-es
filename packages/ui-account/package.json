@@ -27,6 +27,7 @@
     "start": "NODE_ENV=production node dist/server/index.js",
     "lint": "eslint --max-warnings 10 '*/**/*.{ts,tsx}'"
   },
+  "private": true,
   "dependencies": {
     "@material-ui/core": "^4.9.14",
     "@types/node": "^12.12.41",
