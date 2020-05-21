@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/tester",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "license": "BSD-3-Clause-Clear",
   "description": "Integration tester",
   "scripts": {
@@ -12,14 +12,14 @@
   "private": true,
   "devDependencies": {
     "@types/jest": "^24.0.18",
-    "dotenv": "^8.1.0",
-    "jest": "^24.9.0",
-    "node-fetch": "^2.6.0",
-    "ts-jest": "^24.0.2",
-    "typescript": "^3.8.3",
     "@types/lodash": "^4.14.138",
     "@types/node": "^12.12.41",
     "@types/node-fetch": "^2.5.7",
-    "prettier": "^2.0.5"
+    "dotenv": "^8.1.0",
+    "jest": "^24.9.0",
+    "node-fetch": "^2.6.0",
+    "prettier": "^2.0.5",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.8.3"
   }
 }
