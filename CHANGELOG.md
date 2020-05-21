@@ -6,6 +6,7 @@
 - ui-account for user management
 - revamp auth server
 - update dev-net to include proxy, ui-account, redis
+- ci workflow can run "auth", "gateway-lib" unit test
 - update some dependency
 - upgrade to Fabric V2.1
 
