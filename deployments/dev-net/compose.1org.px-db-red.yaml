@@ -16,7 +16,7 @@ services:
       - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
     command: postgres
     ports:
-      - 5432
+      - 5432:5432
     networks:
       - openplatform
 
@@ -28,7 +28,7 @@ services:
     # custom configuration. will require if AUTH is set
     # - $VOLUME/redis.conf:/usr/local/etc/redis/redis.conf
     ports:
-      - 6379
+      - 6379:6379
     networks:
       - openplatform
 
