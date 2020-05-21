@@ -36,7 +36,7 @@ export const createAdminService: (option: {
   asLocalhost = true,
   playground = true,
   introspection = true,
-  enrollmentSecret= 'password'
+  enrollmentSecret = 'password'
 }) => {
   const logger = getLogger('[gw-lib] createAdminService.js');
 
@@ -82,7 +82,7 @@ export const createAdminService: (option: {
     context: ({ req: { headers } }) => ({
       user_id: headers.user_id,
       is_admin: headers.is_admin,
-      username: headers.username,
+      username: headers.username
     })
   });
   return {

@@ -1,4 +1,4 @@
-FROM node:10.19.0-alpine
+FROM node:12.16.0-alpine
 
 ENV TIME_ZONE=Asia/Hong_Kong \
     ENV_NAME=production \
@@ -11,7 +11,8 @@ RUN mkdir /home/app/ \
 COPY --chown=node:node ./build/ /home/app/
 
 RUN cd /home/app/ \
- && npm install --production --ignore-engines
+ && npm install --production \
+ && npm -g add pm2
 
 USER node
 
@@ -19,4 +20,4 @@ WORKDIR /home/app/
 
 EXPOSE 8080
 
-CMD [ "npm", "start"]
+CMD [ "pm2-runtime", "start" ,"processes.yaml"]

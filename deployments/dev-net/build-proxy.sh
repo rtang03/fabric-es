@@ -19,3 +19,4 @@ $LIBS_DIR/.bin/tsc
 cp ./package.json ./build/
 cp ./.env.prod ./build/.env
 cp -R ./dist ./build/
+cp ./processes.yaml ./build/

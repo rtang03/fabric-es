@@ -1,1 +1,1 @@
-export * from './queryByEntityName';
+export * from './QUERY_BY_ENTITYNAME';

@@ -32,7 +32,6 @@
     "test:store.unit": "jest store.unit.test",
     "test:peer.integration": "jest peer.integration.test",
     "test:peer.privatedata.integration": "jest peer.privatedata.integration.test",
-    "unit-test:fab-old": "sudo yarn enrollAdmin && sudo yarn enrollCaAdmin && jest unit.test && jest integration.test && yarn test:service.multiusers",
     "unit-test:fab": "jest unit.test && jest integration.test && yarn test:service.multiusers",
     "enrollAdmin": "node ./dist/account/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/account/enrollCaAdmin.js",
@@ -45,9 +44,8 @@
     "@fabric-es/operator": "^0.6.1",
     "dotenv": "^8.1.0",
     "fabric-client": "2.0.0-snapshot.326",
-    "fabric-contract-api": "^2.0.0",
+    "fabric-contract-api": "^2.1.2",
     "fabric-network": "2.0.0-snapshot.348",
-    "grpc": "1.23.3",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
     "redux": "^4.0.4",
@@ -57,20 +55,16 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "@types/bytebuffer": "^5.0.40",
-    "@types/concurrently": "^4.1.0",
-    "@types/dotenv": "^6.1.1",
+    "@types/bytebuffer": "^5.0.41",
     "@types/jest": "^24.0.18",
-    "@types/js-yaml": "^3.12.1",
-    "@types/lodash": "^4.14.138",
+    "@types/js-yaml": "^3.12.4",
+    "@types/lodash": "^4.14.152",
     "@types/node": "^10.17.18",
-    "concurrently": "^5.0.0",
     "jest": "^24.9.0",
-    "prettier": "^1.19.1",
+    "prettier": "^2.0.5",
     "ts-jest": "^24.0.2",
-    "ts-node": "^8.3.0",
-    "typedoc": "^0.15.7",
+    "typedoc": "^0.17.7",
     "typedoc-plugin-markdown": "^2.2.16",
-    "typescript": "^3.7.2"
+    "typescript": "^3.8.3"
   }
 }

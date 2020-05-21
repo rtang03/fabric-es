@@ -22,7 +22,7 @@ export const createApiKeyRoute: () => express.Router = () => {
         const user = req.user as User;
         const message = 'get api_key';
 
-        const client = await Client.findOne(client_id);
+        const client = await Client.findOne({ where: { id: client_id } });
 
         if (!client) {
           logger.warn(`fail to ${message} by ${client_id}: fail to find client`);

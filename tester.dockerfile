@@ -1,4 +1,4 @@
-FROM node:10.19.0-alpine
+FROM node:12.16.0-alpine
 
 ENV TIME_ZONE=Asia/Hong_Kong \
     ENV_NAME=test \
@@ -24,7 +24,7 @@ RUN apk add --no-cache curl \
   && cp /usr/share/zoneinfo/Asia/Hong_Kong /etc/localtime \
   && echo "Asia/Hong_Kong" > /etc/timezone \
   && cd /home/app \
-  && yarn install --ignore-engines --network-timeout 1000000 \
+  && yarn install --production --ignore-engines --network-timeout 1000000 \
   && yarn global add jest \
   && apk del .build-deps-yarn
 

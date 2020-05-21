@@ -5,7 +5,10 @@
 - reverse proxy
 - ui-account for user management
 - revamp auth server
-- add 1org dev-net
+- update dev-net to include proxy, ui-account, redis
+- ci workflow can run "auth", "gateway-lib" unit test
+- update some dependency
+- upgrade to Fabric V2.1
 
 ### Modified
 - Fix v2 related changes in dev-net to work with 3x orgs
