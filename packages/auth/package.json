@@ -24,7 +24,9 @@
     "build": "yarn clean && tsc",
     "clean": "rimraf dist && rimraf build",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
-    "test": "jest --detectOpenHandles unit.test"
+    "test": "jest --detectOpenHandles unit.test",
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
+    "publish:gh:fabric-es": "npm publish"
   },
   "private": true,
   "dependencies": {

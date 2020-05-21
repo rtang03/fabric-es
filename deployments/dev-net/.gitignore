@@ -2,7 +2,5 @@
 artifacts/
 *.block
 volume/
-volume.auth/
 .env
-artifacts.auth/
 config/configtx.yaml

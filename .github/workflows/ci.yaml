@@ -29,11 +29,11 @@ jobs:
       - name: Setup Node.js for use with action
         uses: actions/setup-node@v1.1.0
         with:
-          node-version: '10.x'
-          version: '10.x'
+          node-version: '12.x'
+          version: '12.x'
       - name: yarn install
         run: yarn install --frozen-lockfile --ignore-engines
-      - run: npm rebuild grpc --target=12.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
+#      - run: npm rebuild grpc --target=12.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
       - run: yarn lint:lib
       - run: yarn lint:app
       - name: Run tsc for all packages

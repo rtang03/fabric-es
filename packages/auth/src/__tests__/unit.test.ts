@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: './.env.example' });
 import express from 'express';
 import httpStatus from 'http-status';
 import Redis from 'ioredis';
@@ -14,7 +14,7 @@ import {
   isAuthenticateResponse,
   isCreateClientResponse,
   isLoginResponse,
-  isRegisterResponse
+  isRegisterResponse,
 } from '../utils';
 import { createDbForUnitTest } from './__utils__/createDbForUnitTest';
 
@@ -29,7 +29,7 @@ const connection = {
   logging: false,
   synchronize: true,
   dropSchema: true,
-  entities: [ApiKey, Client, User]
+  entities: [ApiKey, Client, User],
 };
 const org_admin_secret = process.env.ORG_ADMIN_SECRET;
 
@@ -50,7 +50,7 @@ beforeAll(async () => {
       host: process.env.TYPEORM_HOST,
       port: process.env.TYPEORM_PORT,
       user: process.env.TYPEORM_USERNAME,
-      password: process.env.TYPEORM_PASSWORD
+      password: process.env.TYPEORM_PASSWORD,
     });
 
     // Connect to 127.0.0.1:6379
@@ -61,14 +61,14 @@ beforeAll(async () => {
       jwtSecret: process.env.JWT_SECRET,
       expiryInSeconds: parseInt(process.env.JWT_EXP_IN_SECOND, 10),
       orgAdminSecret: process.env.ORG_ADMIN_SECRET,
-      redis
+      redis,
     });
 
     const user = User.create({
       email: 'tester@example.com',
       username: 'tester',
       password: 'password',
-      is_admin: false
+      is_admin: false,
     });
     await User.insert(user);
   } catch (e) {
@@ -79,7 +79,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   redis.disconnect();
-  return new Promise(done => setTimeout(() => done(), 10));
+  return new Promise((done) => setTimeout(() => done(), 10));
 });
 
 describe('Auth Tests - / and /account', () => {
@@ -87,9 +87,7 @@ describe('Auth Tests - / and /account', () => {
     request(app)
       .post('/account')
       .send({ username: 'tester02', email: 'tester01@example.com' })
-      .expect(({ body }) =>
-        expect(body?.error).toEqual('missing params - username, password, email')
-      ));
+      .expect(({ body }) => expect(body?.error).toEqual('missing params - username, password, email')));
 
   it('should register (org admin) user', async () =>
     request(app)
@@ -98,7 +96,7 @@ describe('Auth Tests - / and /account', () => {
         username: 'tester01',
         password: 'password01',
         email: 'tester01@example.com',
-        org_admin_secret
+        org_admin_secret,
       })
       .expect(({ body }) => {
         expect(body?.username).toEqual('tester01');
@@ -184,7 +182,7 @@ describe('Auth Tests - / and /account', () => {
         expect(body).toEqual({
           ok: true,
           email: 'updated@example.com',
-          username: 'updated-non-root'
+          username: 'updated-non-root',
         });
       }));
 
@@ -239,7 +237,7 @@ describe('Auth Tests - /client', () => {
         application_name: 'root',
         client_secret: 'password',
         redirect_uris: '',
-        is_system_app: true
+        is_system_app: true,
       })
       .expect(({ body }) => {
         client_id = body.id;
@@ -309,7 +307,7 @@ describe('Auth Tests - /client', () => {
         application_name: 'app_created_by_non_root',
         client_secret: 'password',
         redirect_uris: 'http://example.com',
-        grants: ['password']
+        grants: ['password'],
       })
       .expect(({ body }) => {
         non_root_client_id = body.id;
@@ -325,7 +323,7 @@ describe('Auth Tests - /client', () => {
       .send({
         application_name: 'updatedapp',
         redirect_uris: 'http://example.com/callback',
-        grants: ['password', 'implicit']
+        grants: ['password', 'implicit'],
       })
       .expect(({ body, status }) => expect(status).toEqual(httpStatus.NOT_FOUND)));
 
@@ -336,7 +334,7 @@ describe('Auth Tests - /client', () => {
       .send({
         application_name: 'updatedapp',
         redirect_uris: 'http://example.com/callback',
-        grants: ['password', 'implicit']
+        grants: ['password', 'implicit'],
       })
       .expect(({ body }) => {
         expect(body.ok).toBeTruthy();
@@ -376,7 +374,7 @@ describe('Auth Tests - /api', () => {
           email: 'tester01@example.com',
           username: 'tester01',
           is_admin: true,
-          is_deleted: false
+          is_deleted: false,
         });
       }));
 });
@@ -399,18 +397,14 @@ describe('Auth Tests - /oauth', () => {
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(
-        `client_id=${client_id}&client_secret=badpassword&grant_type=client_credentials&scope=default`
-      )
+      .send(`client_id=${client_id}&client_secret=badpassword&grant_type=client_credentials&scope=default`)
       .expect(({ body }) => expect(body).toEqual({})));
 
   it('should exchange access_token with client_credential', async () =>
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(
-        `client_id=${client_id}&client_secret=password&grant_type=client_credentials&scope=default`
-      )
+      .send(`client_id=${client_id}&client_secret=password&grant_type=client_credentials&scope=default`)
       .expect(({ body }) => {
         api_key = body.access_token;
         expect(typeof body?.access_token).toEqual('string');
@@ -421,15 +415,13 @@ describe('Auth Tests - /oauth', () => {
     request(app)
       .get(`/api_key?client_id=${client_id}`)
       .set('authorization', `Bearer ${access_token}`)
-      .expect(({ body }) => body.forEach(key => expect(isApikey(key)).toBeTruthy())));
+      .expect(({ body }) => body.forEach((key) => expect(isApikey(key)).toBeTruthy())));
 
   it('should exchange access_token with uid/pw: password grant type', async () =>
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(
-        `client_id=${client_id}&client_secret=password&username=tester01&password=password01&grant_type=password`
-      )
+      .send(`client_id=${client_id}&client_secret=password&username=tester01&password=password01&grant_type=password`)
       .expect(({ body }) => {
         expect(typeof body?.access_token).toEqual('string');
         expect(body?.token_type).toEqual('Bearer');
@@ -447,7 +439,7 @@ describe('Auth Tests - /oauth', () => {
       .expect(({ body }) => expect(body?.ok).toBeTruthy()));
 
   it('should fail to authenicate after waiting 10s, token expires', async () => {
-    const timer = new Promise(resolve => setTimeout(() => resolve(true), 10000));
+    const timer = new Promise((resolve) => setTimeout(() => resolve(true), 10000));
     await timer;
 
     return request(app)
