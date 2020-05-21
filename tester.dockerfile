@@ -24,7 +24,7 @@ RUN apk add --no-cache curl \
   && cp /usr/share/zoneinfo/Asia/Hong_Kong /etc/localtime \
   && echo "Asia/Hong_Kong" > /etc/timezone \
   && cd /home/app \
-  && yarn install --production --ignore-engines --network-timeout 1000000 \
+  && yarn install --ignore-engines --network-timeout 1000000 \
   && yarn global add jest \
   && apk del .build-deps-yarn
 

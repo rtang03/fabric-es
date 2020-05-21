@@ -36,18 +36,17 @@ jobs:
       - name: Setup Node.js for use with action
         uses: actions/setup-node@v1.1.0
         with:
-          node-version: '10.x'
-          version: '10.x'
+          node-version: '12.x'
+          version: '12.x'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@fabric-es'
-      - run: yarn install --frozen-lockfile --ignore-engines
-      - run: npm rebuild grpc --target=12.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
+      - run: yarn install --frozen-lockfile
       - name: Run tsc for all packages
         run: yarn tsc:all
       - name: Build tester image
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.tester.sh
-      - name: Build auth server image
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh
+      - name: Build images for proxy, auth-server, ui-account
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth-px-ui.sh
       - name: Build org1 org2 images
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.gw.sh org1 org2
       - name: Run multi-org integration test
