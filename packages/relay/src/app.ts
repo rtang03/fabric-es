@@ -11,46 +11,46 @@ const PORT = (process.env.PORT || 80) as number;
 const relayApp = express();
 
 const apiProxy = createProxyMiddleware(
-    {
-        target: TARGET_DOMAIN,
-        changeOrigin: true,
-        onProxyReq: (proxyReq, req, res) => {
+  {
+    target: TARGET_DOMAIN,
+    changeOrigin: true,
+    onProxyReq: (proxyReq, req, res) => {
 
-            var reqres : ReqRes = <ReqRes> {};
-            reqres.id = randomstring.generate(16);
-            reqres.startTime = Date.now();
-            reqres.method = req.method;
-            reqres.url = JSON.stringify(querystring.parseUrl(req.url));
-            res.locals.reqres = reqres;
-        },
-        onProxyRes: async (proxyRes, req, res) => {
+      var reqres: ReqRes = <ReqRes>{};
+      reqres.id = randomstring.generate(16);
+      reqres.startTime = Date.now();
+      reqres.method = req.method;
+      reqres.url = JSON.stringify(querystring.parseUrl(req.url));
+      res.locals.reqres = reqres;
+    },
+    onProxyRes: async (proxyRes, req, res) => {
 
-            let reqres: ReqRes = res.locals.reqres;
+      let reqres: ReqRes = res.locals.reqres;
 
-            proxyRes.on('data', data => {
-                data.toString('utf-8');
-            });
+      proxyRes.on('data', data => {
+        data.toString('utf-8');
+      });
 
-            reqres.statusCode = proxyRes.statusCode;
-            reqres.statusMessage = proxyRes.statusMessage;
-            reqres.duration = Date.now() - reqres.startTime;
+      reqres.statusCode = proxyRes.statusCode;
+      reqres.statusMessage = proxyRes.statusMessage;
+      reqres.duration = Date.now() - reqres.startTime;
 
-            console.log(reqres);
-        },
-        onError(err, req, res) {
-            res.writeHead(500, {
-              'Content-Type': 'text/plain',
-            });
-            res.end('Something went wrong. And we are reporting a custom error message.' + err);
-        }
+      console.log(reqres);
+    },
+    onError(err, req, res) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end('Something went wrong. And we are reporting a custom error message.' + err);
     }
+  }
 );
 
 //app.use(bodyParser.urlencoded({ extended: true }));
 relayApp.use('', apiProxy);
 
 const relayServer = relayApp.listen(PORT, () => {
-    console.info(`Relay server is now running on port ${PORT}.`);
+  console.info(`Relay server is now running on port ${PORT}.`);
 });
 
 module.exports = { relayApp, relayServer };
