@@ -1,0 +1,29 @@
+{
+  "name": "relay",
+  "version": "1.0.0",
+  "main": "app.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn clean && tsc",
+    "clean": "rimraf dist",
+    "start": "node dist/app.js",
+    "test": "jest --verbose --detectOpenHandles"
+  }, 
+  "private": true,
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "http-proxy-middleware": "^1.0.3",
+    "randomstring": "^1.1.5",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "jest": "^24.9.0",
+    "mockyeah": "^0.24.1",
+    "rimraf": "^3.0.2",
+    "supertest": "^4.0.2",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.7.2"
+  }
+}
