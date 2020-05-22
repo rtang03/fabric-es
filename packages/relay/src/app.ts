@@ -4,7 +4,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 import { getLogger } from './getLogger';
 import { ReqRes } from './reqres';
 import randomstring from 'randomstring';
-import bodyParser from 'body-parser';
+import querystring from 'query-string';
 
 const TARGET_DOMAIN = process.env.TARGET_DOMAIN;
 const PORT = (process.env.PORT || 80) as number;
@@ -20,7 +20,7 @@ const apiProxy = createProxyMiddleware(
             reqres.id = randomstring.generate(16);
             reqres.startTime = Date.now();
             reqres.method = req.method;
-            reqres.url = req.url;
+            reqres.url = JSON.stringify(querystring.parseUrl(req.url));
             res.locals.reqres = reqres;
         },
         onProxyRes: async (proxyRes, req, res) => {
