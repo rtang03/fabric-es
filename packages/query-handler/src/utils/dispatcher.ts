@@ -4,14 +4,24 @@ import { Dispatcher } from '../types';
 
 export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options, onSuccess) => (args) =>
   new Promise<{ data: TResult }>((resolve, reject) => {
-    const { name, store, slice, SuccessAction, ErrorAction, logger } = options;
+    const { name, store, slice, SuccessAction, typeGuard, ErrorAction, logger } = options;
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
-      const { tx_id, result, error, type } = store.getState()[slice];
+      const { tx_id, error, type } = store.getState()[slice];
+      const result: unknown = store.getState()[slice].result;
       if (tx_id === tid && type === SuccessAction) {
         logger.info(util.format('name: %s, tx_id: %s, %s', name, tid, SuccessAction));
         unsubscribe();
-        resolve({ data: onSuccess ? onSuccess(result) : result });
+
+        const data = onSuccess ? onSuccess(result) : result;
+
+        if (typeGuard)
+          if (typeGuard(result)) resolve({ data });
+          else {
+            logger.error(util.format('fail to pass TypeGuard, %s, %j', name, result));
+            reject({ error: new Error('fail to pass TypeGuard') });
+          }
+        else resolve({ data });
       }
 
       if (tx_id === tid && type === ErrorAction) {

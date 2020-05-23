@@ -1,11 +1,12 @@
-require('dotenv').config({ path: './env.test' });
+import { QueryHandler } from '../types';
+
+require('dotenv').config({ path: './.env.test' });
 import { getNetwork } from '@fabric-es/fabric-cqrs';
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallets } from 'fabric-network';
 import Redis from 'ioredis';
 import rimraf from 'rimraf';
-import { registerUser } from '../account';
-import { createQueryDatabase, createQueryHandler } from '../utils';
+import { createQueryDatabase, createQueryHandler, isCommitRecord } from '../utils';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -14,13 +15,18 @@ const channelName = process.env.CHANNEL_NAME;
 const connectionProfile = process.env.CONNECTION_PROFILE;
 const fabricNetwork = process.env.NETWORK_LOCATION;
 const mspId = process.env.MSPID;
-const ordererName = process.env.ORDERER_NAME;
-const ordererTlsCaCert = process.env.ORDERER_TLSCA_CERT;
 const orgAdminId = process.env.ORG_ADMIN_ID;
 const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
-const peerName = process.env.PEER_NAME;
 const walletPath = process.env.WALLET;
-const enrollmentId = `peer_test${Math.floor(Math.random() * 10000)}`;
+const id = `peer_test${Math.floor(Math.random() * 10000)}`;
+const events = [{ type: 'INCREMENT', payload: { data: 'some data' } }];
+const enrollmentId = orgAdminId;
+
+let queryHandler: QueryHandler;
+
+/**
+ * ./dn-run-1-px-db-red-auth.sh
+ */
 
 beforeAll(async () => {
   rimraf.sync(`${walletPath}/${orgAdminId}.id`);
@@ -51,17 +57,7 @@ beforeAll(async () => {
       wallet,
     });
 
-    await registerUser({
-      caAdmin,
-      caAdminPW,
-      fabricNetwork,
-      enrollmentId,
-      enrollmentSecret: 'password',
-      connectionProfile,
-      wallet,
-      mspId,
-    });
-
+    // localhost:6379
     const redis = new Redis();
 
     const queryDatabase = createQueryDatabase(redis);
@@ -75,18 +71,13 @@ beforeAll(async () => {
       enrollmentId,
     });
 
-    const queryHandler = await createQueryHandler({
+    queryHandler = await createQueryHandler({
       gateway: networkConfig.gateway,
       queryDatabase,
       connectionProfile,
       channelName,
       wallet,
     });
-
-    // create 5 on change records
-
-    await queryHandler.reconcile()({ entityName: '', reducer: null });
-
   } catch (e) {
     console.error(e);
     process.exit(1);
@@ -97,6 +88,10 @@ afterAll(async () => {
   return new Promise((done) => setTimeout(() => done(), 1000));
 });
 
-describe('Reconcile Tests', async () => {
-  it('should reconcile', async () => {});
+describe('Reconcile Tests', () => {
+  it('should create first record', async () =>
+    queryHandler
+      .create({ entityName: 'test_reconcile', enrollmentId, id })
+      .save({ events })
+      .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
 });

@@ -1,4 +1,4 @@
-// import createEpic from './create';
+import createEpic from './create';
 // import deleteByEntityIdEpic from './deleteByEntityId';
 // import deleteByEntityIdCommitId from './deleteByEntityIdCommitId';
 // import queryByEntityIdEpic from './queryByEntityId';
@@ -6,7 +6,7 @@
 import queryByEntityNameEpic from './queryByEntityName';
 
 export const epic = [
-  // createEpic,
+  createEpic,
   // deleteByEntityIdEpic,
   // queryByEntityIdCommitIdEpic,
   queryByEntityNameEpic,

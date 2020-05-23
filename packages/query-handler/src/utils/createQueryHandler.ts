@@ -1,5 +1,6 @@
 import util from 'util';
 import {
+  BaseEvent,
   generateToken,
   getHistory,
   fromCommitsToGroupByEntityId,
@@ -7,14 +8,14 @@ import {
   Commit,
   isCommit,
 } from '@fabric-es/fabric-cqrs';
-import { Utils } from 'fabric-common';
 import { Contract, ContractListener, Network } from 'fabric-network';
 import values from 'lodash/values';
 import { getStore } from '../store';
+import { action as commandAction } from '../store/command';
 import { action as queryAction } from '../store/query';
 import { action as reconcileAction } from '../store/reconcile';
 import { QueryHandler, QueryHandlerOptions } from '../types';
-import { dispatcher } from './dispatcher';
+import { dispatcher, getLogger, isCommitRecord } from '.';
 
 export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (options) => {
   const { gateway, projectionDatabase, queryDatabase, channelName, wallet, connectionProfile } = options;
@@ -22,7 +23,8 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
   options.projectionDatabase = projectionDatabase;
 
   const store = getStore(options);
-  const logger = Utils.getLogger('[fabric-cqrs] createQueryHandler.js');
+  const logger = getLogger({ name: '[fabric-cqrs] createQueryHandler.js' });
+
   const {
     deleteByEntityName,
     queryByEntityId,
@@ -38,13 +40,62 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
   let network: Network;
 
   return {
-    getById: <TEntity>(reducer) =>
-      dispatcher<TEntity, { entityName: string; id: string }>(
+    create: ({ enrollmentId, id, entityName }) => ({
+      save: dispatcher<Record<string, Commit>, { events: BaseEvent[] }>(
+        ({ tx_id, args: { events } }) =>
+          commandAction.create({
+            channelName,
+            connectionProfile,
+            wallet,
+            tx_id,
+            enrollmentId,
+            args: { entityName, id, version: 0, isPrivateData: false, events },
+          }),
+        {
+          name: 'create',
+          store,
+          slice: 'write',
+          SuccessAction: commandAction.CREATE_SUCCESS,
+          ErrorAction: commandAction.CREATE_ERROR,
+          logger,
+          typeGuard: isCommitRecord,
+        }
+      ),
+    }),
+    getById: async <TEntity>(enrollmentId: string, id: string, entityName: string, reducer) => {
+      const result = await dispatcher<Record<string, Commit>, { entityName: string; id: string }>(
         (payload) => queryByEntityId(payload),
         { name: 'getById', store, slice: 'query', SuccessAction: QUERY_SUCCESS, ErrorAction: QUERY_ERROR, logger },
         (result) => reducer(getHistory(result))
-      ),
+      )({ id, entityName }).then(({ data }) => data);
 
+      const currentState = reducer(getHistory(result));
+      const version = Object.keys(result).length;
+
+      return {
+        currentState,
+        save: dispatcher<Record<string, Commit>, { events: any[] }>(
+          ({ tx_id, args: { events } }) =>
+            commandAction.create({
+              channelName,
+              connectionProfile,
+              wallet,
+              tx_id,
+              enrollmentId,
+              args: { entityName, id, version, isPrivateData: false, events },
+            }),
+          {
+            name: 'create',
+            store,
+            slice: 'write',
+            SuccessAction: commandAction.CREATE_SUCCESS,
+            ErrorAction: commandAction.CREATE_ERROR,
+            logger,
+            typeGuard: isCommitRecord,
+          }
+        ),
+      };
+    },
     getByEntityName: <TEntity>(reducer) =>
       dispatcher<TEntity[], { entityName: string }>(
         (payload) => queryByEntityName(payload),
@@ -58,7 +109,6 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         },
         (result) => fromCommitsToGroupByEntityId<TEntity>(result, reducer)
       ),
-
     getCommitById: () =>
       dispatcher<Commit[], { id: string; entityName: string }>(
         (payload) => queryByEntityId(payload),

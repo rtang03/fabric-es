@@ -8,6 +8,7 @@ export interface DispatcherOptions {
   SuccessAction: string;
   ErrorAction?: string;
   logger: Logger;
+  typeGuard?: (input: any) => boolean;
 }
 
 export type Dispatcher = <TResult, TArg>(

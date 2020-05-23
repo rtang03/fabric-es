@@ -1,4 +1,4 @@
-require('./env');
+require('./__tests__/__utils__/types');
 import util from 'util';
 import Redis from 'ioredis';
 import { createQueryDatabase, getLogger } from './utils';

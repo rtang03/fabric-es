@@ -1,4 +1,4 @@
-require('../env');
+require('../__tests__/__utils__/types');
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallets } from 'fabric-network';
 import rimraf from 'rimraf';
