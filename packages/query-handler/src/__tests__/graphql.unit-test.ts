@@ -1,18 +1,13 @@
+require('dotenv').config({ path: './env.test' });
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
-import { configureRedis, createQueryDatabase } from '../utils';
+import { createQueryDatabase } from '../utils';
 import { createApolloServer } from '../utils/createApolloServer';
 
 let apollo: ApolloServer;
 
 beforeAll(async () => {
-  const redis = configureRedis({
-    port: parseInt(process.env.REDIS_PORT, 10),
-    host: process.env.REDIS_HOST,
-    enableReadyCheck: true
-  });
-
-  const queryDatabase = createQueryDatabase(redis);
+  const queryDatabase = createQueryDatabase(null);
 
   apollo = await createApolloServer(queryDatabase);
 });

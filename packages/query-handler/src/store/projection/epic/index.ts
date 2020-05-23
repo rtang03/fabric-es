@@ -4,4 +4,5 @@ import upsertManyEpic from './upsertMany';
 import whenQueryDbBatchMerged from './whenQueryDbBatchMerged';
 import whenQueryDbMerged from './whenQueryDbMerged';
 
-export const epic = [whenQueryDbMerged, whenQueryDbBatchMerged, upsertEpic, upsertManyEpic, findEpic];
+// export const epic = [whenQueryDbMerged, whenQueryDbBatchMerged, upsertEpic, upsertManyEpic, findEpic];
+export const epic = [findEpic];

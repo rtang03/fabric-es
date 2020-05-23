@@ -20,4 +20,4 @@ export {
   getSuccessAction,
   getSuccessActionHandler
 } from './cqrs/utils';
-export { isCommit } from './peer/utils';
+export { fromCommitsToGroupByEntityId, getHistory, isCommit } from './peer/utils';

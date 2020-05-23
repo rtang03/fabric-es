@@ -1,6 +1,7 @@
 require('./env');
 import util from 'util';
-import { configureRedis, createQueryDatabase, getLogger } from './utils';
+import Redis from 'ioredis';
+import { createQueryDatabase, getLogger } from './utils';
 import { createApolloServer } from './utils/createApolloServer';
 
 const port = parseInt(process.env.PORT, 10) || 5000;
@@ -9,19 +10,14 @@ const logger = getLogger({ name: '[query-handler] app.js' });
 (async () => {
   // Todo: checking the database type; and switch implementation
 
-  const redis = configureRedis({
-    port: parseInt(process.env.REDIS_PORT, 10),
-    host: process.env.REDIS_HOST,
-    enableReadyCheck: true
-  });
+  const redis = new Redis();
 
   const queryDatabase = createQueryDatabase(redis);
 
   const apolloServer = await createApolloServer(queryDatabase);
 
-
   const shutdown = async () => {
-    await apolloServer.stop().catch(err => {
+    await apolloServer.stop().catch((err) => {
       if (err) {
         logger.error(util.format('An error occurred while closing the server: %j', err));
         process.exitCode = 1;
@@ -34,7 +30,7 @@ const logger = getLogger({ name: '[query-handler] app.js' });
 
   process.on('SIGTERM', () => shutdown());
 
-  process.on('uncaughtException', err => {
+  process.on('uncaughtException', (err) => {
     logger.error('An uncaught error occurred!');
     logger.error(err.stack);
   });
@@ -45,7 +41,7 @@ const logger = getLogger({ name: '[query-handler] app.js' });
 
     const entityNames = process.env.RECONCILE.split(',');
   });
-})().catch(error => {
+})().catch((error) => {
   console.error(error);
   logger.info(util.format('fail to start app.js, %j', error));
   process.exit(1);

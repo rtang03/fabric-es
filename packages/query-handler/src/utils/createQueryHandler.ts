@@ -1,40 +1,98 @@
 import util from 'util';
-import { generateToken, isCommit } from '@fabric-es/fabric-cqrs';
+import {
+  generateToken,
+  getHistory,
+  fromCommitsToGroupByEntityId,
+  Reducer,
+  Commit,
+  isCommit,
+} from '@fabric-es/fabric-cqrs';
 import { Utils } from 'fabric-common';
-import { Contract, ContractListener, Network, Gateway, Wallet } from 'fabric-network';
+import { Contract, ContractListener, Network } from 'fabric-network';
+import values from 'lodash/values';
 import { getStore } from '../store';
-import { action } from '../store/query';
-import { ProjectionDatabase, QueryDatabase } from '../types';
+import { action as queryAction } from '../store/query';
+import { action as reconcileAction } from '../store/reconcile';
+import { QueryHandler, QueryHandlerOptions } from '../types';
+import { dispatcher } from './dispatcher';
 
-interface QueryHandlerOptions {
-  queryDatabase: QueryDatabase;
-  projectionDatabase: ProjectionDatabase;
-  gateway: Gateway;
-  channelName: string;
-  wallet: Wallet;
-  connectionProfile: string;
-}
+export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (options) => {
+  const { gateway, projectionDatabase, queryDatabase, channelName, wallet, connectionProfile } = options;
+  options.queryDatabase = queryDatabase;
+  options.projectionDatabase = projectionDatabase;
 
-interface QueryHandler {
-  getRepository: () => any;
-  reconcile: () => void;
-  subscribeHub: () => void;
-  unsubscribeHub: () => void;
-  disconnect: () => void;
-}
+  const store = getStore(options);
+  const logger = Utils.getLogger('[fabric-cqrs] createQueryHandler.js');
+  const {
+    deleteByEntityName,
+    queryByEntityId,
+    queryByEntityName,
+    QUERY_SUCCESS,
+    QUERY_ERROR,
+    DELETE_SUCCESS,
+    DELETE_ERROR,
+  } = queryAction;
 
-export const createQueryHandler: (option: QueryHandlerOptions) => QueryHandler = options => {
   let contractListener: ContractListener;
   let contract: Contract;
   let network: Network;
 
-  const { gateway, projectionDatabase, queryDatabase, channelName, wallet, connectionProfile } = options;
-  const logger = Utils.getLogger('[fabric-cqrs] createPeer.js');
-  const store = getStore(null);
-
   return {
-    getRepository: null,
-    reconcile: null,
+    getById: <TEntity>(reducer) =>
+      dispatcher<TEntity, { entityName: string; id: string }>(
+        (payload) => queryByEntityId(payload),
+        { name: 'getById', store, slice: 'query', SuccessAction: QUERY_SUCCESS, ErrorAction: QUERY_ERROR, logger },
+        (result) => reducer(getHistory(result))
+      ),
+
+    getByEntityName: <TEntity>(reducer) =>
+      dispatcher<TEntity[], { entityName: string }>(
+        (payload) => queryByEntityName(payload),
+        {
+          name: 'getByEntityName',
+          store,
+          slice: 'query',
+          SuccessAction: QUERY_SUCCESS,
+          ErrorAction: QUERY_ERROR,
+          logger,
+        },
+        (result) => fromCommitsToGroupByEntityId<TEntity>(result, reducer)
+      ),
+
+    getCommitById: () =>
+      dispatcher<Commit[], { id: string; entityName: string }>(
+        (payload) => queryByEntityId(payload),
+        {
+          name: 'getCommitByid',
+          store,
+          slice: 'query',
+          SuccessAction: QUERY_SUCCESS,
+          ErrorAction: QUERY_ERROR,
+          logger,
+        },
+        (result) => values<Commit>(result).reverse()
+      ),
+    deleteByEntityName: () =>
+      dispatcher<any, { entityName: string }>((payload) => deleteByEntityName(payload), {
+        name: 'deleteByEntityName',
+        store,
+        slice: 'query',
+        SuccessAction: DELETE_SUCCESS,
+        ErrorAction: DELETE_ERROR,
+        logger,
+      }),
+    reconcile: () =>
+      dispatcher<any, { entityName: string; reducer: Reducer }>(
+        ({ tx_id, args }) => reconcileAction.reconcile({ tx_id, args, store, channelName, connectionProfile, wallet }),
+        {
+          name: 'reconcile',
+          store,
+          slice: 'reconcile',
+          SuccessAction: reconcileAction.RECONCILE_SUCCESS,
+          ErrorAction: reconcileAction.RECONCILE_ERROR,
+          logger,
+        }
+      ),
     subscribeHub: async () => {
       logger.info('subscribe channel event hub');
       network = await gateway.getNetwork(channelName);
@@ -57,13 +115,13 @@ export const createQueryHandler: (option: QueryHandlerOptions) => QueryHandler =
           }
 
           if (isCommit(commit)) {
-            store.dispatch(action.merge({ tx_id: generateToken(), args: { commit } }));
+            store.dispatch(queryAction.merge({ tx_id: generateToken(), args: { commit } }));
           } else logger.warn(util.format('receive contract events of unknown type, %j', commit));
         },
         { type: 'full' }
       );
     },
     unsubscribeHub: () => contract.removeContractListener(contractListener),
-    disconnect: () => gateway.disconnect()
+    disconnect: () => gateway.disconnect(),
   };
 };

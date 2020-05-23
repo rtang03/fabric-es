@@ -81,7 +81,6 @@ beforeAll(async () => {
     defaultEntityName: entityName,
     queryDatabase: createQueryDatabase(),
     projectionDb: createProjectionDb(entityName),
-    collection: process.env.COLLECTION,
     channelEventHubUri: process.env.CHANNEL_HUB,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,

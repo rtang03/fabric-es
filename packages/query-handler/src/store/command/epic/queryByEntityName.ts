@@ -8,7 +8,7 @@ import { action } from '../action';
 import { QueryByEntityNameAction } from '../types';
 
 export default (action$: Observable<QueryByEntityNameAction>, _, context) => {
-  const logger = Utils.getLogger('[fabric-cqrs] queryByEntityName.js');
+  const logger = Utils.getLogger('[query-handler] queryByEntityName.js');
 
   return action$.pipe(
     ofType(action.QUERY_BY_ENTITY_NAME),
