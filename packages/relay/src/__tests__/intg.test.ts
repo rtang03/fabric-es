@@ -4,6 +4,14 @@ const { relayApp, relayServer } = require('../app');
 
 describe('Relay service', () => {
 
+  afterEach(() => {
+    relayServer.close();
+  });
+
+  afterAll(async () => {
+    await mockyeah.close();
+  });
+
   it('should return 200 for get', async () => {
     const path: string = '/hello-world';
     mockyeah.get(path, { json: { hello: 'world' } });
@@ -16,4 +24,10 @@ describe('Relay service', () => {
     await request(relayApp).put(path).expect(404);
   });
 
+  it('should return 500 for post', async () => {
+    const path: string = '/server-error';
+    mockyeah.put(path, { status: 500 });
+    await request(relayApp).put(path).expect(500);
+  });
+  
 });
