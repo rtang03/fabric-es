@@ -1,8 +1,8 @@
-import { Utils } from 'fabric-common';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { QueryDatabase } from '../../../types';
+import { getLogger } from '../../../utils';
 import { action } from '../action';
 import { MergeAction } from '../types';
 
@@ -13,13 +13,13 @@ export default (action$: Observable<MergeAction>, _, context: { queryDatabase: Q
     mergeMap(({ tx_id, args: { commit } }) =>
       from(
         context.queryDatabase.merge({ commit }).then(({ data }) => {
-          const logger = Utils.getLogger('[query-handler] merge.js');
+          const logger = getLogger({ name: '[query-handler] merge.js' });
           logger.info(action.MERGE_SUCCESS);
 
           return action.mergeSuccess({
             tx_id,
             result: data,
-            args: { entityName: commit.entityName, id: commit.id }
+            args: { entityName: commit.entityName, id: commit.id },
           });
         })
       )

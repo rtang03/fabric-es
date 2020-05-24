@@ -1,15 +1,15 @@
 import util from 'util';
 import { dispatchResult, getNetwork, submit$, submitPrivateData$ } from '@fabric-es/fabric-cqrs';
-import { Utils } from 'fabric-common';
 import { assign } from 'lodash';
 import { ofType } from 'redux-observable';
 import { from, Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
+import { getLogger } from '../../../utils';
 import { action } from '../action';
 import { CreateAction } from '../types';
 
 export default (action$: Observable<CreateAction>, _, context) => {
-  const logger = Utils.getLogger('[fabric-cqrs] create.js');
+  const logger = getLogger({ name: '[query-handler] create.js' });
 
   return action$.pipe(
     ofType(action.CREATE),

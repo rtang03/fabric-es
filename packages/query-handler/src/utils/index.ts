@@ -1,4 +1,3 @@
-export * from './createHttpServer';
 export * from './getLogger';
 export * from './createQueryDatabase';
 export * from './createProjectionDatabase';

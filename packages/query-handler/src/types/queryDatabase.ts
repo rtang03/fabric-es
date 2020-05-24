@@ -1,4 +1,5 @@
 import { Commit } from '@fabric-es/fabric-cqrs';
+import { QueryDatabaseResponse } from './queryDatabaseResponse';
 
 export interface QueryDatabase {
   deleteByEntityId: (deleteByEntityIdOption: { entityName: string; id: string }) => Promise<{ status: string }>;
@@ -12,5 +13,5 @@ export interface QueryDatabase {
   mergeBatch: (mergeBatchOption: {
     entityName: string;
     commits: Record<string, Commit>;
-  }) => Promise<{ data: Record<string, Commit> }>;
+  }) => Promise<QueryDatabaseResponse>;
 }

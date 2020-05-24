@@ -1,12 +1,12 @@
-import { QueryHandler } from '../types';
-
 require('dotenv').config({ path: './.env.test' });
 import { getNetwork } from '@fabric-es/fabric-cqrs';
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallets } from 'fabric-network';
 import Redis from 'ioredis';
 import rimraf from 'rimraf';
+import type { QueryHandler } from '../types';
 import { createQueryDatabase, createQueryHandler, isCommitRecord } from '../utils';
+import { reducer } from './__utils__';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -18,8 +18,9 @@ const mspId = process.env.MSPID;
 const orgAdminId = process.env.ORG_ADMIN_ID;
 const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
 const walletPath = process.env.WALLET;
-const id = `peer_test${Math.floor(Math.random() * 10000)}`;
-const events = [{ type: 'INCREMENT', payload: { data: 'some data' } }];
+const entityName = 'test_reconcile';
+// const id = `peer_test${Math.floor(floorMath.random() * 10000)}`;
+const id = `qh_test_001`;
 const enrollmentId = orgAdminId;
 
 let queryHandler: QueryHandler;
@@ -73,11 +74,17 @@ beforeAll(async () => {
 
     queryHandler = await createQueryHandler({
       gateway: networkConfig.gateway,
+      network: networkConfig.network,
       queryDatabase,
       connectionProfile,
       channelName,
       wallet,
     });
+
+    // tear down
+    await queryHandler
+      .command_deleteByEntityId()({ entityName, id })
+      .then(({ data }) => console.log(data));
   } catch (e) {
     console.error(e);
     process.exit(1);
@@ -91,7 +98,17 @@ afterAll(async () => {
 describe('Reconcile Tests', () => {
   it('should create first record', async () =>
     queryHandler
-      .create({ entityName: 'test_reconcile', enrollmentId, id })
-      .save({ events })
+      .command_create({ entityName, enrollmentId, id })
+      .save({ events: [{ type: 'Increment', payload: { timestamp: Date.now() } }] })
       .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
+
+  it('should queryByEntity', async () =>
+    queryHandler
+      .command_queryByEntityName()({ entityName })
+      .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
+
+  it('should reconcile', async () =>
+    queryHandler
+      .reconcile()({ entityName, reducer })
+      .then((result) => console.log(result)));
 });

@@ -1,4 +1,5 @@
 import { Commit } from '@fabric-es/fabric-cqrs';
+import { FabricResponse } from '../types';
 
 export const isCommitRecord = (input: any): input is Record<string, Commit> =>
   Object.entries<any>(input).reduce(
@@ -11,3 +12,6 @@ export const isCommitRecord = (input: any): input is Record<string, Commit> =>
       value?.entityId !== undefined,
     true
   );
+
+export const isFabricResponse = (input: any): input is FabricResponse =>
+  input?.status !== undefined && input?.message !== undefined;

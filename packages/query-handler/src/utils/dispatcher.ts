@@ -21,7 +21,9 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
             logger.error(util.format('fail to pass TypeGuard, %s, %j', name, result));
             reject({ error: new Error('fail to pass TypeGuard') });
           }
-        else resolve({ data });
+        else {
+          resolve({ data });
+        }
       }
 
       if (tx_id === tid && type === ErrorAction) {

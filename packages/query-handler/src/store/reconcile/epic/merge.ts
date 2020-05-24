@@ -1,9 +1,8 @@
 import { Commit } from '@fabric-es/fabric-cqrs';
-import { Utils } from 'fabric-common';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-import { dispatcher } from '../../../utils';
+import { dispatcher, getLogger } from '../../../utils';
 import { action as query } from '../../query/action';
 import { action } from '../action';
 import { MergeAction } from '../types';
@@ -19,7 +18,7 @@ export default (action$: Observable<MergeAction>) =>
           {
             SuccessAction: query.MERGE_BATCH_SUCCESS,
             ErrorAction: query.MERGE_BATCH_ERROR,
-            logger: Utils.getLogger('[query-handler] merge.js'),
+            logger: getLogger({ name: '[query-handler] merge.js' }),
             name: 'merge',
             slice: 'query',
             store,

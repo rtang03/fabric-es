@@ -14,8 +14,8 @@ import { getStore } from '../store';
 import { action as commandAction } from '../store/command';
 import { action as queryAction } from '../store/query';
 import { action as reconcileAction } from '../store/reconcile';
-import { QueryHandler, QueryHandlerOptions } from '../types';
-import { dispatcher, getLogger, isCommitRecord } from '.';
+import { FabricResponse, QueryHandler, QueryHandlerOptions } from '../types';
+import { dispatcher, getLogger, isCommitRecord, isFabricResponse } from '.';
 
 export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (options) => {
   const { gateway, projectionDatabase, queryDatabase, channelName, wallet, connectionProfile } = options;
@@ -23,7 +23,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
   options.projectionDatabase = projectionDatabase;
 
   const store = getStore(options);
-  const logger = getLogger({ name: '[fabric-cqrs] createQueryHandler.js' });
+  const logger = getLogger({ name: '[query-handler] createQueryHandler.js' });
 
   const {
     deleteByEntityName,
@@ -40,7 +40,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
   let network: Network;
 
   return {
-    create: ({ enrollmentId, id, entityName }) => ({
+    command_create: ({ enrollmentId, id, entityName }) => ({
       save: dispatcher<Record<string, Commit>, { events: BaseEvent[] }>(
         ({ tx_id, args: { events } }) =>
           commandAction.create({
@@ -52,7 +52,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
             args: { entityName, id, version: 0, isPrivateData: false, events },
           }),
         {
-          name: 'create',
+          name: 'command_create',
           store,
           slice: 'write',
           SuccessAction: commandAction.CREATE_SUCCESS,
@@ -62,7 +62,47 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         }
       ),
     }),
-    getById: async <TEntity>(enrollmentId: string, id: string, entityName: string, reducer) => {
+    command_deleteByEntityId: () =>
+      dispatcher<FabricResponse, { entityName: string; id: string }>(
+        ({ tx_id, args: { entityName, id } }) =>
+          commandAction.deleteByEntityId({
+            connectionProfile,
+            channelName,
+            wallet,
+            tx_id,
+            args: { entityName, id, isPrivateData: false },
+          }),
+        {
+          name: 'command_deleteByEntityId',
+          store,
+          slice: 'write',
+          SuccessAction: commandAction.DELETE_SUCCESS,
+          ErrorAction: commandAction.DELETE_ERROR,
+          logger,
+          typeGuard: isFabricResponse,
+        }
+      ),
+    command_queryByEntityName: () =>
+      dispatcher<Record<string, Commit>, { entityName: string }>(
+        ({ tx_id, args: { entityName } }) =>
+          commandAction.queryByEntityName({
+            connectionProfile,
+            channelName,
+            wallet,
+            tx_id,
+            args: { entityName, isPrivateData: false },
+          }),
+        {
+          name: 'command_getByEntityName',
+          store,
+          slice: 'write',
+          SuccessAction: commandAction.QUERY_SUCCESS,
+          ErrorAction: commandAction.QUERY_ERROR,
+          logger,
+          typeGuard: isCommitRecord,
+        }
+      ),
+    query_getById: async <TEntity>(enrollmentId: string, id: string, entityName: string, reducer) => {
       const result = await dispatcher<Record<string, Commit>, { entityName: string; id: string }>(
         (payload) => queryByEntityId(payload),
         { name: 'getById', store, slice: 'query', SuccessAction: QUERY_SUCCESS, ErrorAction: QUERY_ERROR, logger },
@@ -96,7 +136,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         ),
       };
     },
-    getByEntityName: <TEntity>(reducer) =>
+    query_getByEntityName: <TEntity>(reducer) =>
       dispatcher<TEntity[], { entityName: string }>(
         (payload) => queryByEntityName(payload),
         {
@@ -109,7 +149,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         },
         (result) => fromCommitsToGroupByEntityId<TEntity>(result, reducer)
       ),
-    getCommitById: () =>
+    query_getCommitById: () =>
       dispatcher<Commit[], { id: string; entityName: string }>(
         (payload) => queryByEntityId(payload),
         {
@@ -122,7 +162,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         },
         (result) => values<Commit>(result).reverse()
       ),
-    deleteByEntityName: () =>
+    query_deleteByEntityName: () =>
       dispatcher<any, { entityName: string }>((payload) => deleteByEntityName(payload), {
         name: 'deleteByEntityName',
         store,
