@@ -17,6 +17,7 @@
     "http-proxy-middleware": "^1.0.4",
     "query-string": "^6.12.1",
     "randomstring": "^1.1.5",
+    "redis": "^3.0.2",
     "util": "^0.12.3",
     "winston": "^3.2.1"
   },
