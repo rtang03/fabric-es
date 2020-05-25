@@ -21,6 +21,7 @@ export interface CounterEvent {
 }
 
 export interface Counter {
+  counterId?: string;
   value: number;
 }
 

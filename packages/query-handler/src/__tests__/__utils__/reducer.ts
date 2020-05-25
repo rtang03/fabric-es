@@ -9,11 +9,9 @@ const reducerFcn = ({ value }, event: CounterEvents) => {
   switch (event.type) {
     case 'Increment':
       value++;
-      return { value };
+      return { value, counterId: event.payload.counterId };
     case 'Decrement':
       value--;
-      return { value };
-    default:
-      return { value };
+      return { value, counterId: event.payload.counterId };
   }
 };

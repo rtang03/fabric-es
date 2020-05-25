@@ -12,11 +12,11 @@ export default (action$: Observable<QueryByEntityIdAction>, _, context: { queryD
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName, id } }) =>
       from(
-        context.queryDatabase.queryByEntityId({ entityName, id }).then(({ data }) => {
+        context.queryDatabase.queryByEntityId({ entityName, id }).then(({ result }) => {
           const logger = getLogger({ name: '[query-handler] queryByEntityName.js' });
           logger.info(action.QUERY_SUCCESS);
 
-          return action.querySuccess({ tx_id, result: data });
+          return action.querySuccess({ tx_id, result });
         })
       )
     )

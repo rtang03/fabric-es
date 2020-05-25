@@ -19,8 +19,8 @@ const orgAdminId = process.env.ORG_ADMIN_ID;
 const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
 const walletPath = process.env.WALLET;
 const entityName = 'test_reconcile';
-// const id = `peer_test${Math.floor(floorMath.random() * 10000)}`;
 const id = `qh_test_001`;
+const id2 = `qh_test_002`;
 const enrollmentId = orgAdminId;
 
 let queryHandler: QueryHandler;
@@ -84,7 +84,11 @@ beforeAll(async () => {
     // tear down
     await queryHandler
       .command_deleteByEntityId()({ entityName, id })
-      .then(({ data }) => console.log(data));
+      .then(({ data }) => console.log(data.message));
+
+    await queryHandler
+      .query_deleteByEntityName()({ entityName })
+      .then(({ data }) => console.log(data.message));
   } catch (e) {
     console.error(e);
     process.exit(1);
@@ -96,19 +100,60 @@ afterAll(async () => {
 });
 
 describe('Reconcile Tests', () => {
-  it('should create first record', async () =>
+  it('should create #1 record', async () =>
     queryHandler
       .command_create({ entityName, enrollmentId, id })
-      .save({ events: [{ type: 'Increment', payload: { timestamp: Date.now() } }] })
+      .save({ events: [{ type: 'Increment', payload: { counterId: id, timestamp: Date.now() } }] })
       .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
 
-  it('should queryByEntity', async () =>
+  it('should command_getByEntityName', async () =>
     queryHandler
-      .command_queryByEntityName()({ entityName })
+      .command_getByEntityName()({ entityName })
       .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
 
   it('should reconcile', async () =>
     queryHandler
       .reconcile()({ entityName, reducer })
-      .then((result) => console.log(result)));
+      .then(({ data }) => {
+        expect(data.status).toEqual('OK');
+        expect(data.result.length > 0).toBeTruthy();
+      }));
+
+  it('should query_getById, and add new event', async () => {
+    const { currentState, save } = await queryHandler.query_getById({ enrollmentId, id, entityName, reducer });
+    expect(currentState).toEqual({ value: 1, counterId: id });
+
+    const { data } = await save({ events: [{ type: 'Increment', payload: { counterId: id, timestamp: Date.now() } }] });
+    const commit = Object.values(data)[0];
+    expect(isCommitRecord(data)).toBeTruthy();
+    expect(commit.id).toEqual(id);
+    expect(commit.entityName).toEqual(entityName);
+    expect(commit.version).toEqual(1);
+  });
+
+  it('should reconcile', async () =>
+    queryHandler
+      .reconcile()({ entityName, reducer })
+      .then(({ data }) => {
+        expect(data.status).toEqual('OK');
+        expect(data.result.length > 0).toBeTruthy();
+      }));
+
+  it('should query_getById', async () =>
+    queryHandler
+      .query_getById({ enrollmentId, id, entityName, reducer })
+      .then(({ currentState }) => expect(currentState).toEqual({ value: 2, counterId: id })));
+
+  it('should query_getByEntityName', async () =>
+    queryHandler
+      .query_getByEntityName({ reducer })({ entityName })
+      .then(({ data }) => expect(data.currentStates).toEqual([{ value: 2, counterId: id }])));
+
+  // it('should create #2 record', async () =>
+  //   queryHandler
+  //     .command_create({ entityName, enrollmentId, id: id2 })
+  //     .save({ events: [{ type: 'Increment', payload: { counterId: id2, timestamp: Date.now() } }] })
+  //     .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
+  //
+  // it('should query_getById', async () => queryHandler);
 });

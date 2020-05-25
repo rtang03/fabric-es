@@ -1,5 +1,5 @@
-export interface QueryDatabaseResponse {
+export interface QueryDatabaseResponse<TResult = any> {
   status: string;
   message: string;
-  result?: any;
+  result?: TResult;
 }

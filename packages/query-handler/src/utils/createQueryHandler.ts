@@ -1,21 +1,13 @@
 import util from 'util';
-import {
-  BaseEvent,
-  generateToken,
-  getHistory,
-  fromCommitsToGroupByEntityId,
-  Reducer,
-  Commit,
-  isCommit,
-} from '@fabric-es/fabric-cqrs';
+import { BaseEvent, generateToken, getHistory, Reducer, Commit, isCommit } from '@fabric-es/fabric-cqrs';
 import { Contract, ContractListener, Network } from 'fabric-network';
 import values from 'lodash/values';
 import { getStore } from '../store';
 import { action as commandAction } from '../store/command';
 import { action as queryAction } from '../store/query';
 import { action as reconcileAction } from '../store/reconcile';
-import { FabricResponse, QueryHandler, QueryHandlerOptions } from '../types';
-import { dispatcher, getLogger, isCommitRecord, isFabricResponse } from '.';
+import { FabricResponse, GetByEntityNameResponse, QueryHandler, QueryHandlerOptions } from '../types';
+import { dispatcher, fromCommitsToGroupByEntityId, getLogger, isCommitRecord, isFabricResponse } from '.';
 
 export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (options) => {
   const { gateway, projectionDatabase, queryDatabase, channelName, wallet, connectionProfile } = options;
@@ -82,7 +74,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           typeGuard: isFabricResponse,
         }
       ),
-    command_queryByEntityName: () =>
+    command_getByEntityName: () =>
       dispatcher<Record<string, Commit>, { entityName: string }>(
         ({ tx_id, args: { entityName } }) =>
           commandAction.queryByEntityName({
@@ -102,15 +94,21 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           typeGuard: isCommitRecord,
         }
       ),
-    query_getById: async <TEntity>(enrollmentId: string, id: string, entityName: string, reducer) => {
-      const result = await dispatcher<Record<string, Commit>, { entityName: string; id: string }>(
+    query_getById: async <TEntity>({ enrollmentId, id, entityName, reducer }) => {
+      const { data } = await dispatcher<Record<string, Commit>, { entityName: string; id: string }>(
         (payload) => queryByEntityId(payload),
-        { name: 'getById', store, slice: 'query', SuccessAction: QUERY_SUCCESS, ErrorAction: QUERY_ERROR, logger },
-        (result) => reducer(getHistory(result))
-      )({ id, entityName }).then(({ data }) => data);
+        {
+          name: 'queryByEntityId',
+          store,
+          slice: 'query',
+          SuccessAction: QUERY_SUCCESS,
+          ErrorAction: QUERY_ERROR,
+          logger,
+        }
+      )({ id, entityName });
 
-      const currentState = reducer(getHistory(result));
-      const version = Object.keys(result).length;
+      const currentState = reducer(getHistory(data));
+      const version = Object.keys(data).length;
 
       return {
         currentState,
@@ -136,8 +134,8 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         ),
       };
     },
-    query_getByEntityName: <TEntity>(reducer) =>
-      dispatcher<TEntity[], { entityName: string }>(
+    query_getByEntityName: <TEntity>({ reducer }) =>
+      dispatcher<GetByEntityNameResponse<TEntity>, { entityName: string }>(
         (payload) => queryByEntityName(payload),
         {
           name: 'getByEntityName',
@@ -147,7 +145,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           ErrorAction: QUERY_ERROR,
           logger,
         },
-        (result) => fromCommitsToGroupByEntityId<TEntity>(result, reducer)
+        (commits) => fromCommitsToGroupByEntityId<TEntity>(commits, reducer)
       ),
     query_getCommitById: () =>
       dispatcher<Commit[], { id: string; entityName: string }>(

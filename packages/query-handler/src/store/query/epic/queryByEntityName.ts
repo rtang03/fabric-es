@@ -2,9 +2,9 @@ import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { QueryDatabase } from '../../../types';
+import { getLogger } from '../../../utils';
 import { action } from '../action';
 import { QueryByEntityNameAction } from '../types';
-import { getLogger } from '../../../utils';
 
 export default (action$: Observable<QueryByEntityNameAction>, _, context: { queryDatabase: QueryDatabase }) =>
   action$.pipe(
@@ -12,11 +12,11 @@ export default (action$: Observable<QueryByEntityNameAction>, _, context: { quer
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName } }) =>
       from(
-        context.queryDatabase.queryByEntityName({ entityName }).then(({ data }) => {
+        context.queryDatabase.queryByEntityName({ entityName }).then(({ result }) => {
           const logger = getLogger({ name: '[query-handler] queryByEntityName.js' });
           logger.info(action.QUERY_SUCCESS);
 
-          return action.querySuccess({ tx_id, result: data });
+          return action.querySuccess({ tx_id, result });
         })
       )
     )
