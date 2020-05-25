@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './.env.example' });
+require('dotenv').config({ path: './.env' });
 import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { getLogger } from './getLogger';
@@ -30,7 +30,7 @@ const apiProxy = createProxyMiddleware(
       // Fix http-proxy-middleware req.body forward issue
       if (req.body) {
         let bodyData = JSON.stringify(req.body);
-        // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
+        // in case if content-type is application/x-www-form-urlencoded -> we need to change to application/json
         proxyReq.setHeader('Content-Type', 'application/json');
         proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
         // stream the content
@@ -40,10 +40,6 @@ const apiProxy = createProxyMiddleware(
     onProxyRes: async (proxyRes, req, res) => {
 
       let reqres: ReqRes = res.locals.reqres;
-
-      proxyRes.on('data', data => {
-        data.toString('utf-8');
-      });
 
       reqres.statusCode = proxyRes.statusCode;
       reqres.statusMessage = proxyRes.statusMessage;

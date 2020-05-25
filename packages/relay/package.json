@@ -15,6 +15,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "http-proxy-middleware": "^1.0.4",
+    "node-redis-retry-strategy": "^1.0.10",
     "query-string": "^6.12.1",
     "randomstring": "^1.1.5",
     "redis": "^3.0.2",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/randomstring": "^1.1.6",
+    "@types/redis": "^2.8.21",
     "jest": "^24.9.0",
     "mockyeah": "^0.24.1",
     "rimraf": "^3.0.2",

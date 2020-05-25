@@ -5,7 +5,6 @@ export interface ReqRes {
   method: string;
   url: string;
   reqbody: string;
-  response: string;
   statusCode: number;
   statusMessage: string;
 };
