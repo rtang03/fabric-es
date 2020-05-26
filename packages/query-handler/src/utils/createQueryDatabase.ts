@@ -110,8 +110,8 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       }
       return { status: 'OK', message: 'queryByEntityName', result };
     },
-    merge: async ({ entityName, commit }) => {
-      const redisKey = `${entityName}::${commit.entityId}::${commit.commitId}`;
+    merge: async ({ commit }) => {
+      const redisKey = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
 
       let status;
 

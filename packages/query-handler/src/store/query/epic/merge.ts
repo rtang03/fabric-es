@@ -12,13 +12,13 @@ export default (action$: Observable<MergeAction>, _, context: { queryDatabase: Q
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { commit } }) =>
       from(
-        context.queryDatabase.merge({ commit }).then(({ data }) => {
+        context.queryDatabase.merge({ commit }).then((result) => {
           const logger = getLogger({ name: '[query-handler] merge.js' });
           logger.info(action.MERGE_SUCCESS);
 
           return action.mergeSuccess({
             tx_id,
-            result: data,
+            result,
             args: { entityName: commit.entityName, id: commit.id },
           });
         })

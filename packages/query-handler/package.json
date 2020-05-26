@@ -31,7 +31,8 @@
     "enrollAdmin": "node ./dist/account/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/account/enrollCaAdmin.js",
     "dev": "yarn build && node ./dist/app.js",
-    "unit-test": "jest --forceExit --detectOpenHandles reconcile.unit-test"
+    "unit-test:reconcile": "jest --forceExit --detectOpenHandles reconcile.unit-test",
+    "unit-test:subscribe": "jest --forceExit --detectOpenHandles subscribe.unit-test"
   },
   "dependencies": {
     "@fabric-es/fabric-cqrs": "^0.6.2",

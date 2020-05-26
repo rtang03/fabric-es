@@ -48,7 +48,7 @@ export interface QueryHandler {
   }) => Promise<{ data: QueryDatabaseResponse }>;
   query_deleteByEntityName: () => (payload: { entityName: string }) => Promise<{ data: QueryDatabaseResponse }>;
   reconcile: () => (payload: { entityName: string; reducer: Reducer }) => Promise<any>;
-  subscribeHub: () => void;
+  subscribeHub: () => Promise<any>;
   unsubscribeHub: () => void;
   disconnect: () => void;
 }

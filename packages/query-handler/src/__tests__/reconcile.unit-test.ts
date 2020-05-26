@@ -99,9 +99,7 @@ beforeAll(async () => {
   }
 });
 
-afterAll(async () => {
-  return new Promise((done) => setTimeout(() => done(), 1000));
-});
+afterAll(async () => new Promise((done) => setTimeout(() => done(), 1000)));
 
 describe('Reconcile Tests', () => {
   it('should create #1 record for id1', async () =>

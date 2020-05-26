@@ -202,10 +202,9 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
       network = await gateway.getNetwork(channelName);
       contract = network.getContract('eventstore');
       contractListener = network.getContract('eventstore').addContractListener(
-        ({ chaincodeId, payload, eventName }) => {
-          logger.info(`subscribed event arrives from ${chaincodeId}`);
+        ({ payload, eventName, getTransactionEvent }) => {
+          logger.info(`💢  event arrives - tx_id: ${getTransactionEvent().transactionId}`);
           let commit: unknown;
-
           if (eventName !== 'createCommit') {
             logger.warn(`receive unexpected contract event: ${eventName}`);
             return;
@@ -224,6 +223,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         },
         { type: 'full' }
       );
+      return true;
     },
     unsubscribeHub: () => contract.removeContractListener(contractListener),
     disconnect: () => gateway.disconnect(),
