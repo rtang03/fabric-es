@@ -1,12 +1,19 @@
 import util from 'util';
 import { BaseEvent, generateToken, getHistory, Reducer, Commit, isCommit } from '@fabric-es/fabric-cqrs';
 import { Contract, ContractListener, Network } from 'fabric-network';
+import isEqual from 'lodash/isEqual';
 import values from 'lodash/values';
 import { getStore } from '../store';
 import { action as commandAction } from '../store/command';
 import { action as queryAction } from '../store/query';
 import { action as reconcileAction } from '../store/reconcile';
-import { FabricResponse, GetByEntityNameResponse, QueryHandler, QueryHandlerOptions } from '../types';
+import {
+  FabricResponse,
+  GetByEntityNameResponse,
+  QueryDatabaseResponse,
+  QueryHandler,
+  QueryHandlerOptions,
+} from '../types';
 import { dispatcher, fromCommitsToGroupByEntityId, getLogger, isCommitRecord, isFabricResponse } from '.';
 
 export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (options) => {
@@ -18,6 +25,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
   const logger = getLogger({ name: '[query-handler] createQueryHandler.js' });
 
   const {
+    deleteByEntityId,
     deleteByEntityName,
     queryByEntityId,
     queryByEntityName,
@@ -107,32 +115,31 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         }
       )({ id, entityName });
 
-      const currentState = reducer(getHistory(data));
+      const currentState = isEqual(data, {}) ? null : reducer(getHistory(data));
       const version = Object.keys(data).length;
-
-      return {
-        currentState,
-        save: dispatcher<Record<string, Commit>, { events: any[] }>(
-          ({ tx_id, args: { events } }) =>
-            commandAction.create({
-              channelName,
-              connectionProfile,
-              wallet,
-              tx_id,
-              enrollmentId,
-              args: { entityName, id, version, isPrivateData: false, events },
-            }),
-          {
-            name: 'create',
-            store,
-            slice: 'write',
-            SuccessAction: commandAction.CREATE_SUCCESS,
-            ErrorAction: commandAction.CREATE_ERROR,
-            logger,
-            typeGuard: isCommitRecord,
-          }
-        ),
-      };
+      const save = isEqual(data, {})
+        ? null
+        : dispatcher<Record<string, Commit>, { events: any[] }>(
+            ({ tx_id, args: { events } }) =>
+              commandAction.create({
+                channelName,
+                connectionProfile,
+                wallet,
+                tx_id,
+                enrollmentId,
+                args: { entityName, id, version, isPrivateData: false, events },
+              }),
+            {
+              name: 'create',
+              store,
+              slice: 'write',
+              SuccessAction: commandAction.CREATE_SUCCESS,
+              ErrorAction: commandAction.CREATE_ERROR,
+              logger,
+              typeGuard: isCommitRecord,
+            }
+          );
+      return { currentState, save };
     },
     query_getByEntityName: <TEntity>({ reducer }) =>
       dispatcher<GetByEntityNameResponse<TEntity>, { entityName: string }>(
@@ -160,8 +167,17 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         },
         (result) => values<Commit>(result).reverse()
       ),
+    query_deleteByEntityId: () =>
+      dispatcher<QueryDatabaseResponse, { entityName: string; id: string }>((payload) => deleteByEntityId(payload), {
+        name: 'deleteByEntityId',
+        store,
+        slice: 'query',
+        SuccessAction: DELETE_SUCCESS,
+        ErrorAction: DELETE_ERROR,
+        logger,
+      }),
     query_deleteByEntityName: () =>
-      dispatcher<any, { entityName: string }>((payload) => deleteByEntityName(payload), {
+      dispatcher<QueryDatabaseResponse, { entityName: string }>((payload) => deleteByEntityName(payload), {
         name: 'deleteByEntityName',
         store,
         slice: 'query',

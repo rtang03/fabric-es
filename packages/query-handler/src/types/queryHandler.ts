@@ -3,6 +3,7 @@ import { Gateway, Network, Wallet } from 'fabric-network';
 import { FabricResponse } from './fabricResponse';
 import { ProjectionDatabase } from './projectionDatabase';
 import { QueryDatabase } from './queryDatabase';
+import { QueryDatabaseResponse } from './queryDatabaseResponse';
 
 export interface QueryHandlerOptions {
   queryDatabase: QueryDatabase;
@@ -35,13 +36,17 @@ export interface QueryHandler {
     reducer: Reducer;
   }) => Promise<{
     currentState: TEntity;
-    save: (args: { events: BaseEvent[] }) => Promise<{ data: Record<string, Commit> }>;
+    save: (payload: { events: BaseEvent[] }) => Promise<{ data: Record<string, Commit> }>;
   }>;
   query_getByEntityName: <TEntity = any>(option: {
     reducer: Reducer;
-  }) => (args: { entityName: string }) => Promise<{ data: GetByEntityNameResponse<TEntity> }>;
-  query_getCommitById: () => (args: { id: string; entityName: string }) => Promise<{ data: Commit[] }>;
-  query_deleteByEntityName: () => (args: { entityName: string }) => Promise<any>;
+  }) => (payload: { entityName: string }) => Promise<{ data: GetByEntityNameResponse<TEntity> }>;
+  query_getCommitById: () => (payload: { id: string; entityName: string }) => Promise<{ data: Commit[] }>;
+  query_deleteByEntityId: () => (payload: {
+    id: string;
+    entityName: string;
+  }) => Promise<{ data: QueryDatabaseResponse }>;
+  query_deleteByEntityName: () => (payload: { entityName: string }) => Promise<{ data: QueryDatabaseResponse }>;
   reconcile: () => (payload: { entityName: string; reducer: Reducer }) => Promise<any>;
   subscribeHub: () => void;
   unsubscribeHub: () => void;

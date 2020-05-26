@@ -2,7 +2,8 @@ import util from 'util';
 import { Commit } from '@fabric-es/fabric-cqrs';
 import type { Redis } from 'ioredis';
 import flatten from 'lodash/flatten';
-import type { QueryDatabase, QueryDatabaseResponse } from '../types';
+import isEqual from 'lodash/isEqual';
+import type { QueryDatabase } from '../types';
 import { getLogger } from './getLogger';
 
 export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
@@ -17,38 +18,53 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       });
     return result;
   };
-  const multiRedisGet = async (pattern) => {
+  const countNonNull = (deletedItems: number[][]) =>
+    flatten(deletedItems)
+      .filter((item) => !!item)
+      .reduce((prev, curr) => prev + curr, 0);
+  const pipelineExecute = async (action: 'GET' | 'DEL', pattern: string) => {
     const keys = await redis.keys(pattern);
+    const sortedKeys = keys.sort();
     const pipeline = redis.pipeline();
-    keys.forEach((key) => pipeline.get(key));
+    if (action === 'GET') sortedKeys.forEach((key) => pipeline.get(key));
+    if (action === 'DEL') keys.forEach((key) => pipeline.del(key));
     return await pipeline.exec();
   };
 
   return {
     deleteByEntityId: async ({ entityName, id }) => {
       const pattern = `${entityName}::${id}::*`;
-      let response: QueryDatabaseResponse;
-      let status;
+      let result: number;
 
-      const result = await redis.keys(pattern);
-      return { status: '', message: '' };
-    },
-    deleteByEntityName: async ({ entityName }) => {
-      let result;
       try {
-        // (1) delete entityName
-        const indexedKeys: string[] = await redis.smembers(`set::${entityName}`);
-        const pipeline = redis.pipeline();
-        indexedKeys.forEach((key) => pipeline.del(key));
-        result = await pipeline.exec();
-
-        // (2) remove index - entityName
-        await redis.del(`set::${entityName}`);
+        const redisResult = await pipelineExecute('DEL', pattern);
+        result = countNonNull(redisResult);
       } catch (e) {
         logger.error(util.format('unknown redis error, %j', e));
         throw new Error(e);
       }
-      return { status: 'OK', message: `query_deleteByEntityName: ${entityName} is removed`, result };
+      return {
+        status: 'OK',
+        message: `query_deleteByEntityId for ${entityName}::${id}: ${result} records are removed`,
+        result,
+      };
+    },
+    deleteByEntityName: async ({ entityName }) => {
+      const pattern = `${entityName}::*`;
+      let result: number;
+
+      try {
+        const redisResult = await pipelineExecute('DEL', pattern);
+        result = countNonNull(redisResult);
+      } catch (e) {
+        logger.error(util.format('unknown redis error, %j', e));
+        throw new Error(e);
+      }
+      return {
+        status: 'OK',
+        message: `query_deleteByEntityName for ${entityName}: ${result} is removed`,
+        result,
+      };
     },
     queryByEntityId: async ({ entityName, id }) => {
       const pattern = `${entityName}::${id}::*`;
@@ -56,11 +72,14 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       let result: Record<string, Commit>;
 
       try {
-        commitArrays = await multiRedisGet(pattern);
+        commitArrays = await pipelineExecute('GET', pattern);
       } catch (e) {
         logger.error(util.format('unknown redis error, %j', e));
         throw new Error(e);
       }
+
+      if (commitArrays.length === 0)
+        return { status: 'OK', message: `queryByEntityId: 0 record is returned`, result: {} };
 
       try {
         result = fromArraysToCommitRecords(commitArrays);
@@ -69,7 +88,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         throw new Error(e);
       }
 
-      return { status: 'OK', message: 'queryByEntityId', result };
+      return { status: 'OK', message: `queryByEntityId: ${Object.keys(result).length} records are returned`, result };
     },
     queryByEntityName: async ({ entityName }) => {
       const pattern = `${entityName}::*`;
@@ -77,7 +96,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       let result: Record<string, Commit>;
 
       try {
-        commitArrays = await multiRedisGet(pattern);
+        commitArrays = await pipelineExecute('GET', pattern);
       } catch (e) {
         logger.error(util.format('unknown redis error, %j', e));
         throw new Error(e);
@@ -89,33 +108,32 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         logger.error(util.format('fail to parse json, %j', e));
         throw new Error(e);
       }
-
       return { status: 'OK', message: 'queryByEntityName', result };
     },
     merge: async ({ entityName, commit }) => {
       const redisKey = `${entityName}::${commit.entityId}::${commit.commitId}`;
 
-      let response: QueryDatabaseResponse;
       let status;
 
       try {
-        // (1) add commit
         status = await redis.set(redisKey, JSON.stringify(commit));
-
-        // (2) add index - entityName
-        await redis.sadd(`set::${entityName}`, redisKey);
-
-        response = { status, message: `${redisKey} merged successfully`, result: [redisKey] };
       } catch (e) {
         logger.error(util.format('unknown redis error, %j', e));
         throw new Error(e);
       }
-      return response;
+      return { status, message: `${redisKey} merged successfully`, result: [redisKey] };
     },
     mergeBatch: async ({ entityName, commits }) => {
       const map: Record<string, string> = {};
       const entityNameKeys = [];
       let status;
+
+      if (isEqual(commits, {}))
+        return {
+          status: 'OK',
+          message: 'no commit record exists',
+          result: [],
+        };
 
       Object.entries(commits).forEach(([commitId, commit]) => {
         const redisKey = `${entityName}::${commit.entityId}::${commitId}`;
@@ -124,14 +142,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       });
 
       try {
-        // (1) add commits. mset always return "OK", mset cannot fail
         status = await redis.mset(map);
-
-        // (2) add index - entityName
-        const pipeline = redis.pipeline();
-        pipeline.del(`set::${entityName}`);
-        entityNameKeys.forEach((key) => pipeline.sadd(`set::${entityName}`, key));
-        await pipeline.exec();
       } catch (e) {
         logger.error(util.format('unknown redis error, %j', e));
         throw new Error(e);
