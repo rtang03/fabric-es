@@ -17,7 +17,8 @@ USER node
 
 WORKDIR /home/app/
 
-EXPOSE 3000
+# Port 4001 should be removed when mock server is no longer needed
+EXPOSE 3000 4001
 
 ENTRYPOINT ["node"]
 CMD ["dist/app.js"]

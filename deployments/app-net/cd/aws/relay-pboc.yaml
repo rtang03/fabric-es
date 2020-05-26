@@ -1,0 +1,31 @@
+version: "3"
+
+networks:
+  relay-net:
+
+services:
+
+  relay-pboc:
+    container_name: relay-pboc
+    image: fabric-es/relay:0.6.2
+    restart: unless-stopped
+    depends_on:
+      - mock-pboc
+    environment:
+      - TARGET_URL=http://mock-pboc:4001
+      - SERVICE_PORT=3000
+      - REDIS_HOST=http://localhost
+      - REDIS_PORT=6379
+      - REDIS_TOPIC=request-notify
+    ports:
+      - 80:3000
+    networks:
+      - relay-net
+
+  mock-pboc:
+    container_name: mock-pboc
+    image: fabric-es/relay:0.6.2
+    restart: unless-stopped
+    command: dist/mock.js
+    networks:
+      - relay-net

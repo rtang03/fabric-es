@@ -4,10 +4,9 @@ import retryStrategy from 'node-redis-retry-strategy';
 import { ReqRes } from './reqres';
 import { getLogger } from './getLogger';
 
-const TOPIC = "request-notify";
 const HOST = process.env.REDIS_HOST;
 const PORT = (process.env.REDIS_PORT || 6379) as number;
-const EXPIRY = (process.env.REDIS_EXIPRY || 1209600) as number; // default 2 weeks
+const TOPIC = process.env.REDIS_TOPIC;
 const logger = getLogger('[relay] processMsg.js');
 const client = redis.createClient({port: PORT, host: HOST, retry_strategy: retryStrategy});
 
@@ -17,5 +16,6 @@ export const processMsg = (message: ReqRes) => {
     console.log('Redis error:', err);
   });
 
-  client.publish(TOPIC, JSON.stringify(message));
+  const messageStr = JSON.stringify(message);
+  client.publish(TOPIC, messageStr, () => {logger.info(`Published message: ${messageStr}`)});
 };

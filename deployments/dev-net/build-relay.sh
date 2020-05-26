@@ -17,5 +17,6 @@ $LIBS_DIR/.bin/tsc
 
 # Packing app files
 cp ./package.json ./build/
+cp ./.mockyeah.json ./build/
 cp ./.env.prod ./build/.env
 cp -R ./dist ./build/

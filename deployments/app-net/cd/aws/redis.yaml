@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+
+  redis-pubsub:
+    container_name: redis-pubsub
+    image: redis
+    restart: unless-stopped
+    ports:
+      - 6379:6379

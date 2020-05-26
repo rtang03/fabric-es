@@ -7,6 +7,7 @@ import randomstring from 'randomstring';
 import querystring from 'query-string';
 import bodyParser from 'body-parser';
 import util from 'util';
+import { processMsg } from './processMsg';
 
 const TARGET_URL = process.env.TARGET_URL;
 const PORT = (process.env.SERVICE_PORT || 80) as number;
@@ -45,8 +46,7 @@ const apiProxy = createProxyMiddleware(
       reqres.statusMessage = proxyRes.statusMessage;
       reqres.duration = Date.now() - reqres.startTime;
 
-      logger.info(reqres);
-      console.log(reqres);
+      processMsg(reqres);
     },
     onError(err, req, res) {
       res.writeHead(500, {
