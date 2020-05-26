@@ -1,5 +1,6 @@
 require('dotenv').config({ path: './.env' });
 import express from 'express';
+import redis from 'redis';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { getLogger } from './getLogger';
 import { ReqRes } from './reqres';
@@ -8,11 +9,17 @@ import querystring from 'query-string';
 import bodyParser from 'body-parser';
 import util from 'util';
 import { processMsg } from './processMsg';
+import retryStrategy from 'node-redis-retry-strategy';
 
 const TARGET_URL = process.env.TARGET_URL;
-const PORT = (process.env.SERVICE_PORT || 80) as number;
+const SERVICE_PORT = (process.env.SERVICE_PORT || 80) as number;
+const REDIS_HOST = process.env.REDIS_HOST;
+const REDIS_PORT = (process.env.REDIS_PORT || 6379) as number;
+const TOPIC = process.env.REDIS_TOPIC;
+
 const logger = getLogger('[relay] app.js');
 const relayApp = express();
+const client = redis.createClient({host: REDIS_HOST, port: REDIS_PORT, retry_strategy: retryStrategy });
 
 const apiProxy = createProxyMiddleware(
   {
@@ -46,7 +53,7 @@ const apiProxy = createProxyMiddleware(
       reqres.statusMessage = proxyRes.statusMessage;
       reqres.duration = Date.now() - reqres.startTime;
 
-      processMsg(reqres);
+      processMsg(reqres, client, TOPIC);
     },
     onError(err, req, res) {
       res.writeHead(500, {
@@ -62,8 +69,8 @@ relayApp.use(bodyParser.urlencoded({ extended: true }));
 relayApp.use(bodyParser.json());
 relayApp.use('', apiProxy);
 
-const relayServer = relayApp.listen(PORT, () => {
-  logger.info(`Relay server is now running on port ${PORT}.`);
+const relayServer = relayApp.listen(SERVICE_PORT, () => {
+  logger.info(`Relay server is now running on port ${SERVICE_PORT}.`);
 });
 
 module.exports = { relayApp, relayServer };
