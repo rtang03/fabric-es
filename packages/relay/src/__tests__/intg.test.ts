@@ -2,14 +2,15 @@ import mockyeah from 'mockyeah';
 const request = require('supertest');
 const { relayApp, relayServer } = require('../app');
 
+afterAll(async () => {
+  await mockyeah.close();
+  return new Promise((resolve) => setTimeout(() => resolve(), 1000));
+});
+
 describe('Relay service', () => {
 
   afterEach(() => {
     relayServer.close();
-  });
-
-  afterAll(async () => {
-    await mockyeah.close();
   });
 
   it('should return 200 for get', async () => {

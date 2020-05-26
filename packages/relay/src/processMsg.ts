@@ -10,7 +10,7 @@ const TOPIC = process.env.REDIS_TOPIC;
 const logger = getLogger('[relay] processMsg.js');
 const client = redis.createClient({port: PORT, host: HOST, retry_strategy: retryStrategy});
 
-export const processMsg = (message: ReqRes) => {
+export const processMsg = (message: ReqRes, client: redis.RedisClient) => {
 
   client.on('error', (err) => {
     console.log('Redis error:', err);
