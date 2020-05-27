@@ -4,7 +4,7 @@ export interface ReqRes {
   duration: number;
   method: string;
   url: string;
-  reqbody: string;
+  reqBody: string;
   statusCode: number;
   statusMessage: string;
 };

@@ -27,12 +27,12 @@ const apiProxy = createProxyMiddleware(
     changeOrigin: true,
     onProxyReq: (proxyReq, req, res) => {
 
-      var reqres: ReqRes = <ReqRes>{};
+      var reqres = <ReqRes>{};
       reqres.id = randomstring.generate(16);
       reqres.startTime = Date.now();
       reqres.method = req.method;
       reqres.url = JSON.stringify(querystring.parseUrl(req.url));
-      reqres.reqbody = util.inspect(req.body, false, null);
+      reqres.reqBody = util.inspect(req.body, false, null);
       res.locals.reqres = reqres;
 
       // Fix http-proxy-middleware req.body forward issue
