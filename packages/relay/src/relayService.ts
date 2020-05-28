@@ -35,8 +35,8 @@ export const relayService = ({
         reqres.id = randomstring.generate(16);
         reqres.startTime = Date.now();
         reqres.method = req.method;
-        reqres.url = JSON.stringify(querystring.parseUrl(req.url));
-        reqres.reqBody = util.inspect(req.body, false, null);
+        reqres.url = querystring.parseUrl(req.url);
+        reqres.reqBody = JSON.parse(util.inspect(req.body, false, null));
         res.locals.reqres = reqres;
 
         // Fix http-proxy-middleware req.body forward issue

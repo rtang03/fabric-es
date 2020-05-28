@@ -3,8 +3,8 @@ export interface ReqRes {
   startTime: number;
   duration: number;
   method: string;
-  url: string;
-  reqBody: string;
+  url: Object;
+  reqBody: Object;
   statusCode: number;
   statusMessage: string;
 };
