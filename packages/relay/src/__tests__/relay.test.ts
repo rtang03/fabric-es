@@ -13,7 +13,7 @@ const msg: ReqRes = {
   startTime: 0, 
   duration: 2, 
   method: 'patch', 
-  url: 'myurl',
+  url: {url: '/test-url', query: {k1: 'v1', k2: 'v2'}},
   reqBody: {key1: 'abc', key2: '123'},
   statusCode: 3, 
   statusMessage: 'myMsg' };
@@ -144,11 +144,11 @@ describe('Relay Service', () => {
         });
       });
     }
-    const path: string = '/pub-sub?abc=123';
+    const path: string = '/pub-sub?abc=123&def=456';
     const body: Object = {id: '1234'};
-    mockyeah.post(path, { status: 200 });
+    mockyeah.post('*', { status: 200 });
     await request(relay).post(path).expect(200);
-    expect(await thePromise()).toMatchObject({method: "POST", reqBody: {}, statusCode: 200, url: {url: '/pub-sub', query: {abc: '123'}}});
+    expect(await thePromise()).toMatchObject({method: "POST", reqBody: {}, statusCode: 200, url: {url: '/pub-sub', query: {abc: '123', def: '456'}}});
   });
 
 });
