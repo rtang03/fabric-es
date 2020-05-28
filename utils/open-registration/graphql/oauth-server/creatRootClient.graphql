@@ -1,9 +1,0 @@
-mutation CreateRootClient (
-  $admin: String!
-  $password: String!
-) {
-  createRootClient (
-    admin: $admin
-    password: $password
-  )
-}

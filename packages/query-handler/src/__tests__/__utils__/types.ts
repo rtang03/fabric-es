@@ -3,14 +3,14 @@ export interface CounterCommands {
     userId: string;
     payload: {
       counterId: string;
-      timestamp: number;
+      timestamp?: number;
     };
   };
   Decrement: {
     userId: string;
     payload: {
       counterId: string;
-      timestamp: number;
+      timestamp?: number;
     };
   };
 }

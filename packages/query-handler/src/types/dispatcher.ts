@@ -1,5 +1,6 @@
 import { Action, Store } from 'redux';
 import { Logger } from 'winston';
+import { QueryHandlerResponse } from './queryHandler';
 
 export interface DispatcherOptions {
   name: string;
@@ -15,4 +16,4 @@ export type Dispatcher = <TResult, TArg>(
   actionDispatcher: (payload: any) => Action,
   options: DispatcherOptions,
   onSuccess?: (result: any) => TResult
-) => (args: TArg) => Promise<{ data: TResult }>;
+) => (args: TArg) => Promise<QueryHandlerResponse<TResult>>;

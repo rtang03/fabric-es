@@ -6,6 +6,6 @@ export interface ProjectionDatabase<TEntity = any> {
     all?: boolean;
     contain?: string | number;
   }) => Promise<{ data: { id: string } & TEntity }>;
-  upsert: (item: { commit: Record<string, Commit>; reducer: Reducer }) => Promise<{ data: Record<string, {}> }>;
-  upsertMany: (items: { commits: Record<string, Commit>; reducer: Reducer }) => Promise<{ data: Record<string, {}> }>;
+  merge: (item: { commit: Record<string, Commit>; reducer: Reducer }) => Promise<{ data: Record<string, {}> }>;
+  mergeBatch: (items: { commits: Record<string, Commit>; reducer: Reducer }) => Promise<{ data: Record<string, {}> }>;
 }

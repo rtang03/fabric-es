@@ -19,7 +19,7 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
           if (typeGuard(result)) resolve({ data });
           else {
             logger.error(util.format('fail to pass TypeGuard, %s, %j', name, result));
-            reject({ error: new Error('fail to pass TypeGuard') });
+            reject(new Error(`fail to pass TypeGuard: ${name}`));
           }
         else {
           resolve({ data });
@@ -29,11 +29,16 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
       if (tx_id === tid && type === ErrorAction) {
         logger.warn(util.format('name: %s, tx_id: %s, %s', name, tid, ErrorAction));
         unsubscribe();
-        reject({ error });
+        reject(new Error(util.format('%s, %j', type, error)));
       }
     });
 
     store.dispatch(actionDispatcher({ tx_id: tid, args }));
 
     logger.info(util.format('name: %s, tx_id: %s, %s', name, tid));
-  });
+  })
+    .then(({ data }) => ({
+      status: 'OK',
+      data,
+    }))
+    .catch((e) => ({ status: 'ERROR', data: null, error: e }));

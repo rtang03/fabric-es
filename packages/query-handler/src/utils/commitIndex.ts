@@ -1,0 +1,20 @@
+export const commitIndex = [
+  'cidx',
+  'SCHEMA',
+  'entityName',
+  'TEXT',
+  'WEIGHT',
+  5.0,
+  'SORTABLE',
+  'key',
+  'TEXT',
+  'SORTABLE',
+  'id',
+  'TEXT',
+  'SORTABLE',
+  'event',
+  'TAG',
+  'ts',
+  'NUMERIC',
+  'SORTABLE'
+];

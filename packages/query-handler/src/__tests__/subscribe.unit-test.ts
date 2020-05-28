@@ -1,11 +1,11 @@
 require('dotenv').config({ path: './.env.test' });
-import { getNetwork } from '@fabric-es/fabric-cqrs';
+import { Commit, getNetwork } from '@fabric-es/fabric-cqrs';
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallets } from 'fabric-network';
 import Redis from 'ioredis';
 import rimraf from 'rimraf';
 import type { QueryHandler } from '../types';
-import { createQueryDatabase, createQueryHandler, isCommit, isCommitRecord } from '../utils';
+import { commitIndex, createQueryDatabase, createQueryHandler, isCommit, isCommitRecord } from '../utils';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -75,13 +75,27 @@ beforeAll(async () => {
     // tear down
     await queryHandler
       .command_deleteByEntityId()({ entityName, id })
-      .then(({ data }) => console.log(data.message));
+      .then(({ data }) => console.log(data.message))
+      .catch((e) => {
+        console.error(e);
+        process.exit(1);
+      });
 
     await queryHandler
       .query_deleteByEntityName()({ entityName })
       .then(({ data }) => console.log(data.message));
 
     await queryHandler.subscribeHub();
+
+    await redis
+      .send_command('FT.DROP', ['cidx'])
+      .then((result) => console.log(`commitIndex is dropped: ${result}`))
+      .catch((result) => console.error(`commitIndex is dropped: ${result}`));
+
+    await redis
+      .send_command('FT.CREATE', commitIndex)
+      .then((result) => console.log(`commitIndex is created: ${result}`))
+      .catch((result) => console.error(`commitIndex is created: ${result}`));
   } catch (e) {
     console.error(e);
     process.exit(1);
@@ -97,7 +111,14 @@ describe('Query Handler Tests', () => {
   it('should create #1 record for id', async () =>
     queryHandler
       .command_create({ entityName, enrollmentId, id })
-      .save({ events: [{ type: 'Increment', payload: { counterId: id, timestamp: Date.now() } }] })
+      .save({
+        events: [
+          {
+            type: 'Increment',
+            payload: { counterId: id },
+          },
+        ],
+      })
       .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
 
   it('should query_getCommitById', async () =>
@@ -110,4 +131,45 @@ describe('Query Handler Tests', () => {
           expect(isCommit(commit)).toBeTruthy();
         });
       }));
+
+  it('should create #2 record for id', async () =>
+    queryHandler
+      .command_create({ entityName, enrollmentId, id })
+      .save({
+        events: [
+          {
+            type: 'Decrement',
+            payload: { counterId: id },
+          },
+        ],
+      })
+      .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
+
+  it('should FT.SEARCH by test*', async () => {
+    await new Promise((done) => setTimeout(() => done(), 3000));
+    return queryHandler.commitFTSearch({ query: 'test*' }).then(({ data }) => {
+      expect(Object.keys(data).length).toEqual(2);
+      expect(isCommitRecord(data)).toBeTruthy();
+    });
+  });
+
+  it('should FT.SEARCH by qh*', async () =>
+    queryHandler.commitFTSearch({ query: 'qh*' }).then(({ data }) => {
+      expect(Object.keys(data).length).toEqual(2);
+      expect(isCommitRecord(data)).toBeTruthy();
+    }));
+
+  it('should FT.SEARCH by @event:{increment}', async () =>
+    queryHandler.commitFTSearch({ query: '@event:{increment}' }).then(({ data }) => {
+      expect(Object.values<Commit>(data)[0].events[0].type).toEqual('Increment');
+      expect(Object.keys(data).length).toEqual(1);
+      expect(isCommitRecord(data)).toBeTruthy();
+    }));
+
+  it('should fail to FT.SEARCH: invalid ;', async () =>
+    queryHandler.commitFTSearch({ query: 'kljkljkljjkljklj;jkl;' }).then(({ data, status, error }) => {
+      expect(status).toEqual('ERROR');
+      expect(data).toBeNull();
+      expect(error.message).toContain('Syntax error at offset');
+    }));
 });

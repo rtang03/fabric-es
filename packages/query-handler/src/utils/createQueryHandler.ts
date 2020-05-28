@@ -14,7 +14,7 @@ import {
   QueryHandler,
   QueryHandlerOptions,
 } from '../types';
-import { dispatcher, fromCommitsToGroupByEntityId, getLogger, isCommitRecord, isFabricResponse } from '.';
+import { catchErrors, dispatcher, fromCommitsToGroupByEntityId, getLogger, isCommitRecord, isFabricResponse } from '.';
 
 export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (options) => {
   const { gateway, projectionDatabase, queryDatabase, channelName, wallet, connectionProfile } = options;
@@ -39,6 +39,12 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
   let contract: Contract;
   let network: Network;
 
+  const addTimestamp: (events: BaseEvent[]) => BaseEvent[] = (events) =>
+    events.map((event) => ({
+      ...event,
+      payload: Object.assign({}, event.payload, { timestamp: Math.round(new Date().getTime() / 1000) }),
+    }));
+
   return {
     command_create: ({ enrollmentId, id, entityName }) => ({
       save: dispatcher<Record<string, Commit>, { events: BaseEvent[] }>(
@@ -49,7 +55,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
             wallet,
             tx_id,
             enrollmentId,
-            args: { entityName, id, version: 0, isPrivateData: false, events },
+            args: { entityName, id, version: 0, isPrivateData: false, events: addTimestamp(events) },
           }),
         {
           name: 'command_create',
@@ -227,5 +233,10 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
     },
     unsubscribeHub: () => contract.removeContractListener(contractListener),
     disconnect: () => gateway.disconnect(),
+    commitFTSearch: async ({ query }) =>
+      catchErrors(
+        queryDatabase.fullTextSearch({ query }),
+        { fcnName: 'perform full text search', logger }
+      ),
   };
 };

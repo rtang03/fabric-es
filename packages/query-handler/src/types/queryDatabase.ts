@@ -14,4 +14,5 @@ export interface QueryDatabase {
     entityName: string;
     commits: Record<string, Commit>;
   }) => Promise<QueryDatabaseResponse<string[]>>;
+  fullTextSearch: (option: { query: string }) => Promise<QueryDatabaseResponse>;
 }

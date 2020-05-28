@@ -6,3 +6,7 @@ export * from './dispatcher';
 export * from './getLogger';
 export * from './typeGuard';
 export * from './fromCommitsToGroupByEntityId';
+export * from './commitIndex';
+export * from './projectionIndex';
+export * from './createRedisCommitIndex';
+export * from './catchErrors';
