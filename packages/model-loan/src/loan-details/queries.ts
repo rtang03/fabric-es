@@ -32,7 +32,8 @@ export const CREATE_LOAN_DETAILS = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanDetailsError {
         message
@@ -135,7 +136,8 @@ export const UPDATE_LOAN_DETAILS = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanDetailsError {
         message

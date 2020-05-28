@@ -241,7 +241,8 @@ export const GET_COMMITS_BY_DOCUMENT = `
       entityName
       version
       commitId
-      committedAt
+      entityId
+      mspId
       events {
         type
       }
@@ -256,7 +257,8 @@ export const GET_COMMITS_BY_LOAN = `
       entityName
       version
       commitId
-      committedAt
+      entityId
+      mspId
       events {
         type
       }
@@ -272,7 +274,8 @@ export const APPLY_LOAN = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanError {
         message
@@ -289,7 +292,8 @@ export const UPDATE_LOAN = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanError {
         message
@@ -312,7 +316,8 @@ export const CREATE_DOCUMENT = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocError {
         message
@@ -336,7 +341,8 @@ export const CREATE_DOCUMENT_CUST = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocError {
         message
@@ -353,7 +359,8 @@ export const UPDATE_DOCUMENT = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocError {
         message
@@ -370,7 +377,8 @@ export const UPDATE_DOCUMENT_CUST = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocError {
         message
@@ -387,7 +395,8 @@ export const CREATE_DOC_CONTENTS = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocContentsError {
         message
@@ -428,7 +437,8 @@ export const CREATE_LOAN_DETAILS = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanDetailsError {
         message
@@ -469,7 +479,8 @@ export const UPDATE_LOAN_DETAILS_CUST = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanDetailsError {
         message

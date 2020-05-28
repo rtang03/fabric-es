@@ -15,7 +15,8 @@ export const CREATE_DOCUMENT = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocError {
         message
@@ -32,7 +33,8 @@ export const DELETE_DOCUMENT = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocError {
         message
@@ -49,7 +51,8 @@ export const RESTRICT_DOCUMENT_ACCESS = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocError {
         message
@@ -66,7 +69,8 @@ export const UPDATE_DOCUMENT = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocError {
         message
@@ -82,7 +86,8 @@ export const GET_COMMITS_BY_DOCUMENT = gql`
       entityName
       version
       commitId
-      committedAt
+      entityId
+      mspId
       events {
         type
       }

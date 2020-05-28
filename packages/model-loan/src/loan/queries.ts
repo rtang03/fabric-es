@@ -8,7 +8,8 @@ export const APPLY_LOAN = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanError {
         message
@@ -25,7 +26,8 @@ export const CANCEL_LOAN = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanError {
         message
@@ -42,7 +44,8 @@ export const APPROVE_LOAN = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanError {
         message
@@ -59,7 +62,8 @@ export const RETURN_LOAN = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanError {
         message
@@ -76,7 +80,8 @@ export const REJECT_LOAN = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanError {
         message
@@ -93,7 +98,8 @@ export const EXPIRE_LOAN = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanError {
         message
@@ -110,7 +116,8 @@ export const UPDATE_LOAN = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanError {
         message
@@ -126,7 +133,8 @@ export const GET_COMMITS_BY_LOAN = gql`
       entityName
       version
       commitId
-      committedAt
+      entityId
+      mspId
       events {
         type
       }
