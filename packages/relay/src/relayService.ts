@@ -78,7 +78,7 @@ export const relayService = ({
           'Content-Type': 'text/plain',
         });
         logger.error(err.message);
-        res.end(err);
+        res.end(err.message);
       }
     }
   );
