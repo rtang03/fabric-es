@@ -6,6 +6,8 @@ import { processMsg } from '../processMsg';
 import { ReqRes } from '../reqres';
 import { relayService } from '../relayService';
 import { resolveSoa } from 'dns';
+import { parse } from 'path';
+import JSON5 from 'json5';
 const request = require('supertest');
 
 const msg: ReqRes = { 
@@ -24,6 +26,16 @@ let publisher: redis.RedisClient;
 let subscriber: redis.RedisClient;
 let redisContainer;
 let relay;
+
+const thePromise = () => {
+  return new Promise((resolve, reject) => {
+    subscriber.on('message', async (channel, message) => {
+      const subObj: ReqRes = JSON.parse(message);
+      console.log(`message received: ${JSON.stringify(subObj)}`);
+      resolve(subObj);
+    });
+  });
+}
 
 beforeAll(async () => {
   // Start Redis
@@ -53,35 +65,23 @@ afterAll( async () => {
   return new Promise((resolve) => setTimeout(() => resolve(), 1000));
 });
 
+
 describe('Process Message', () => {
 
   it('should reject undefined or null message', () => {
-    const f = () => { processMsg({message: undefined, client: publisher, topic: channel}) };
-    expect(f).toThrow();
+    expect( processMsg({message: undefined, client: publisher, topic: channel}) ).rejects.toThrow();
   });
 
   it('should reject undefined or null client', () => {
-    const f = () => { processMsg({message: msg, client: null, topic: channel}) };
-    expect(f).toThrow();
+    expect( processMsg({message: msg, client: null, topic: channel}) ).rejects.toThrow();
   });
 
   it('should reject empty string topic', () => {
-    const f = () => { processMsg({message: msg, client: publisher, topic: ''}) };
-    expect(f).toThrow();
+    expect( processMsg({message: msg, client: publisher, topic: ''}) ).rejects.toThrow();
   });
 
   it('should be the same message object for pub and sub', async () => {
-
-    const thePromise = () => {
-      return new Promise((resolve, reject) => {
-        subscriber.on('message', async (channel, message) => {
-          const subObj: ReqRes = JSON.parse(message);
-          console.log(`message received: ${JSON.stringify(subObj)}`);
-          resolve(subObj);
-        });
-      });
-    }
-    processMsg({ message: msg, client: publisher, topic: channel });
+    await processMsg({ message: msg, client: publisher, topic: channel });
     expect(await thePromise()).toEqual(msg);
   });
 
@@ -90,24 +90,24 @@ describe('Process Message', () => {
 describe('Relay Service', () => {
 
   it('should reject undefined or null url', () => {
-    const f = () => { relayService({targetUrl: undefined, client: publisher, topic: channel}) };
+    const f = () => { relayService({targetUrl: undefined, client: publisher, topic: channel}); }; 
     expect(f).toThrow();
   });
 
   it('should reject undefined or null client', () => {
-    const f = () => { relayService({targetUrl: 'http://localhost:4001', client: null, topic: channel}) };
+    const f = () => { relayService({targetUrl: 'http://localhost:4001', client: null, topic: channel}); };
     expect(f).toThrow();
   });
 
   it('should reject undefined, null or empty string topic', () => {
-    const f = () => { relayService({targetUrl: 'http://localhost:4001', client: publisher, topic: null}) };
+    const f = () => { relayService({targetUrl: 'http://localhost:4001', client: publisher, topic: null}); };
     expect(f).toThrow();
   });
 
   it('should return 404 when endpoint is missing', async () => {
     const path: string = '/no-endpoint';
     await request(relay).get(path).expect(404);
-  }); 
+  });
 
   it('should return 404 for put', async () => {
     const path: string = '/resource-not-found';
@@ -133,22 +133,34 @@ describe('Relay Service', () => {
     await request(relay).get(path).expect(200, { hello: 'world' });
   });
 
-  it('should match message object for pub and sub', async () => {
+  it('should match message object for pub and sub with json body', async () => {
 
-    const thePromise = () => {
-      return new Promise((resolve, reject) => {
-        subscriber.on('message', async (channel, message) => {
-          const subObj: ReqRes = JSON.parse(message);
-          console.log(`message received: ${JSON.stringify(subObj)}`);
-          resolve(subObj);
-        });
-      });
-    }
+    subscriber.on('message', async (channel, message) => {
+      const subObj: ReqRes = JSON.parse(message);
+      console.log(`message received: ${JSON.stringify(subObj)}`);
+      expect(subObj).toMatchObject({ method: "POST", reqBody: body, statusCode: 204, url: { url: '/pub-sub', query: { abc: '123', def: '456' } } });
+    });
+
     const path: string = '/pub-sub?abc=123&def=456';
-    const body: Object = {id: '1234'};
-    mockyeah.post('*', { status: 200 });
-    await request(relay).post(path).expect(200);
-    expect(await thePromise()).toMatchObject({method: "POST", reqBody: {}, statusCode: 200, url: {url: '/pub-sub', query: {abc: '123', def: '456'}}});
+    const body: Object = { id: '1234' };
+    mockyeah.post(path, { status: 204, json: req => req.body });
+    await request(relay).post(path)
+      .send(body)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .expect(204);
+ });
+
+  it('should receive 400 when post text when content-type json', async () => {
+
+    const path: string = '/pub-sub?abc=123&def=456';
+    const body: string = 'I am a text';
+    mockyeah.post(path, { status: 204, text: req => req.body });
+    await request(relay).post(path)
+      .send(body)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .expect(400);
   });
 
 });

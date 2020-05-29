@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import JSON5 from 'json5';
 import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { getLogger } from './getLogger';
@@ -36,7 +37,20 @@ export const relayService = ({
         reqres.startTime = Date.now();
         reqres.method = req.method;
         reqres.url = querystring.parseUrl(req.url);
-        reqres.reqBody = JSON.parse(util.inspect(req.body, false, null));
+
+        const raw = util.inspect(req.body, false, null);
+        if (req.is('json')) {
+          try {
+            // Use JSON5 to parse relaxed Json
+            reqres.reqBody = JSON5.parse(raw);
+          } catch (error) {
+            // Request body cannot be parsed, return as a string
+            reqres.reqBody = raw;
+          }
+        } else {
+          reqres.reqBody = raw;
+        }
+
         res.locals.reqres = reqres;
 
         // Fix http-proxy-middleware req.body forward issue
@@ -57,18 +71,14 @@ export const relayService = ({
         reqres.statusMessage = proxyRes.statusMessage;
         reqres.duration = Date.now() - reqres.startTime;
 
-        try {
-          processMsg({ message: reqres, client: client, topic: topic });
-        } catch (error) {
-          logger.error(error);
-        }
+        await processMsg({ message: reqres, client: client, topic: topic });
       },
       onError(err, req, res) {
         res.writeHead(500, {
           'Content-Type': 'text/plain',
         });
         logger.error(err.message);
-        res.end('Something went wrong. And we are reporting a custom error message.' + err);
+        res.end(err);
       }
     }
   );

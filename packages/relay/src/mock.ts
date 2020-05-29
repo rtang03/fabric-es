@@ -43,4 +43,25 @@ mockyeah.get('/api/v1/loan_applications/1234', { json: `{
     ]
 }` });
 
-mockyeah.get('/', { status: 404 });
+// Mirror Json Request Body
+mockyeah.get('/', {json: req => req.body});
+mockyeah.post('/', {json: req => req.body});
+mockyeah.put('/', {json: req => req.body});
+mockyeah.patch('/', {json: req => req.body});
+mockyeah.delete('/', {json: req => req.body});
+
+// Different response statuses
+mockyeah.get('/200', { status: 200, json: { status: 'Return 200' } });
+mockyeah.post('/200', { status: 200, json: { status: 'Return 200' } });
+mockyeah.put('/200', { status: 200, json: { status: 'Return 200' } });
+mockyeah.delete('/200', { status: 200, json: { status: 'Return 200' } });
+
+mockyeah.get('/404', { status: 404, json: { status: 'Return 404' } });
+mockyeah.post('/404', { status: 404, json: { status: 'Return 404' } });
+mockyeah.put('/404', { status: 404, json: { status: 'Return 404' } });
+mockyeah.delete('/404', { status: 404, json: { status: 'Return 404' } });
+
+mockyeah.get('/500', { status: 500, json: { status: 'Return 500' } });
+mockyeah.post('/500', { status: 500, json: { status: 'Return 500' } });
+mockyeah.put('/500', { status: 500, json: { status: 'Return 500' } });
+mockyeah.delete('/500', { status: 500, json: { status: 'Return 500' } });

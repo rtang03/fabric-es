@@ -4,7 +4,7 @@ import { getLogger } from './getLogger';
 
 const logger = getLogger('[relay] processMsg.js');
 
-export const processMsg = ({
+export const processMsg = async ({
   message, 
   client, 
   topic
@@ -23,5 +23,5 @@ export const processMsg = ({
   });
 
   const messageStr = JSON.stringify(message);
-  client.publish(topic, messageStr, () => { logger.info(`Published message: ${messageStr}`) });
+  await client.publish(topic, messageStr, () => { logger.info(`Published message: ${messageStr}`) });
 };
