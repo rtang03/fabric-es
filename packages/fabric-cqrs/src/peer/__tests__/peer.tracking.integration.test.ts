@@ -4,9 +4,9 @@ import { Wallet, Wallets } from 'fabric-network';
 import { pick } from 'lodash';
 import rimraf from 'rimraf';
 import { registerUser } from '../../account';
-import { CounterEvent, CounterPrivate, reducerPrivate } from '../../example';
+import { Counter, CounterEvent, CounterTrack, reducer, reducerTrack } from '../../example';
 import { getNetwork } from '../../services';
-import { Commit, Peer, PrivatedataRepository } from '../../types';
+import { Commit, Peer, PrivatedataRepository, Repository } from '../../types';
 import { createProjectionDb } from '../createProjectionDb';
 import { createQueryDatabase } from '../createQueryDatabase';
 import { createPeer } from '../peer';
@@ -14,14 +14,15 @@ import { createPeer } from '../peer';
 let peer: Peer;
 let context;
 let commitId: string;
+let rpub: Repository;
 let repo: PrivatedataRepository;
 let wallet: Wallet;
 const connectionProfile = process.env.CONNECTION_PROFILE;
 const channelName = process.env.CHANNEL_NAME;
 const fabricNetwork = process.env.NETWORK_LOCATION;
 const mspId = process.env.MSPID;
-const entityName = 'privatedata_counter';
-const enrollmentId = `peer_privatedata${Math.floor(Math.random() * 1000)}`;
+const entityName = 'tracking_counter';
+const enrollmentId = `peer_tracking${Math.floor(Math.random() * 1000)}`;
 
 beforeAll(async () => {
   try {
@@ -77,7 +78,7 @@ beforeAll(async () => {
 
   peer = createPeer({
     ...context,
-    defaultReducer: reducerPrivate,
+    defaultReducer: reducerTrack,
     defaultEntityName: entityName,
     // queryDatabase: createQueryDatabase(),
     // projectionDb: createProjectionDb(entityName),
@@ -88,7 +89,8 @@ beforeAll(async () => {
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
   });
 
-  repo = peer.getPrivateDataRepo<CounterPrivate, CounterEvent>(CounterPrivate, reducerPrivate);
+  rpub = peer.getRepository<Counter, CounterEvent>(Counter, reducer);
+  repo = peer.getPrivateDataRepo<CounterTrack, CounterEvent>(CounterTrack, reducerTrack);
 });
 
 afterAll(async () => {
@@ -114,6 +116,14 @@ describe('Start peer privatedata Tests', () => {
     repo
       .getById({ enrollmentId, id: enrollmentId })
       .then(({ currentState }) => expect(currentState).toEqual({ value: 1 })));
+
+  // it('should get commits', async () =>
+  //   rpub
+  //     .getCommitById(enrollmentId)
+  //     .then(result => {
+  //       console.log('HAHAHA', result);
+  //       return result;
+  //     }));
 
   it('should deleteByEntityIdCommitId', async () =>
     repo

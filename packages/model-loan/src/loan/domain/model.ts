@@ -1,3 +1,5 @@
+import { BaseEntity } from '@fabric-es/fabric-cqrs';
+
 export enum LoanStatus {
   LoanApplied,
   LoanCancelled,
@@ -12,7 +14,7 @@ export enum LoanStatus {
  * to a loan request scattered among the participating organizations. Each loan is uniquely identified by an auto-generated `loanId`. The
  * loan applicants may also utilize the `reference` property as their internal identifier unique within their individual organizations.
  */
-export class Loan {
+export class Loan extends BaseEntity {
   static type: 'Loan';
 
   loanId: string;

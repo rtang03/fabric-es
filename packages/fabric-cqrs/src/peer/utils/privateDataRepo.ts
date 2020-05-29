@@ -9,7 +9,7 @@ import { keys } from 'lodash';
 import { Store } from 'redux';
 import { action } from '../../cqrs/command';
 import { generateToken } from '../../cqrs/utils';
-import { Commit, PrivatedataRepository, Reducer } from '../../types';
+import { BaseEntity, BaseEvent, Commit, EntityClass, PrivatedataRepository, Reducer } from '../../types';
 import { fromCommitsToGroupByEntityId } from './fromCommitsToGroupByEntityId';
 import { getHistory } from './getHistory';
 import { getPromiseToSave } from './getPromiseToSave';
@@ -19,16 +19,18 @@ export const privateDataRepo: (option: {
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
-}) => <TEntity = any, TEvent = any>(option: {
-  entityName: string;
-  reducer: Reducer;
-}) => PrivatedataRepository<TEntity, TEvent> = ({ store, channelName, connectionProfile, wallet }) => <
+}) => <TEntity extends BaseEntity, TEvent extends BaseEvent>(
+  Entity: EntityClass<TEntity>,
+  reducer: Reducer
+) => PrivatedataRepository<TEntity, TEvent> = ({ store, channelName, connectionProfile, wallet }) => <
   TEntity,
   TEvent
->({
-  entityName,
+>(
+  Entity,
   reducer
-}) => {
+) => {
+  const entityName = Entity.getEntityName();
+  const parentName = Entity.getParentName();
   const logger = Utils.getLogger('[fabric-cqrs] privateDataRepo.js');
   const {
     deleteByEntityIdCommitId,
@@ -49,6 +51,7 @@ export const privateDataRepo: (option: {
           wallet,
           id,
           entityName,
+          parentName,
           version: 0,
           events,
           store,

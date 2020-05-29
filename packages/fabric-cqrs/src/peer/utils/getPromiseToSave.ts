@@ -13,6 +13,7 @@ import { Commit } from '../../types';
 
 export const getPromiseToSave: (option: {
   entityName: string;
+  parentName?: string;
   id: string;
   events: any[];
   version: number;
@@ -24,6 +25,7 @@ export const getPromiseToSave: (option: {
   isPrivateData: boolean;
 }) => Promise<Commit> = ({
   entityName,
+  parentName,
   id,
   events,
   version,
@@ -52,13 +54,15 @@ export const getPromiseToSave: (option: {
         reject({ error });
       }
     });
+    const args: any = { entityName, id, version, events, isPrivateData };
+    if (parentName) args.parentName =  parentName;
     store.dispatch(
       writeAction.create({
         channelName,
         connectionProfile,
         wallet,
         tx_id: tid,
-        args: { entityName, id, version, events, isPrivateData },
+        args,
         enrollmentId
       }) as any
     );

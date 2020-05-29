@@ -24,6 +24,24 @@ export interface BaseEvent {
   payload?: any;
 }
 
+/** */
+export interface EntityClass<TEntity extends BaseEntity> {
+  new (...args: any[]): TEntity;
+  parentName: string;
+  entityName: string;
+}
+export class BaseEntity {
+  static parentName: string;
+  static entityName: string;
+  public static getParentName(): string {
+    return this.parentName;
+  }
+  public static getEntityName(): string {
+    return this.entityName;
+  }
+  constructor () {}
+}
+
 /**
  * **Commit**
  */

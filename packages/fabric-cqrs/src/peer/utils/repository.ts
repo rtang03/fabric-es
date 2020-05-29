@@ -11,7 +11,7 @@ import { action as writeAction } from '../../cqrs/command';
 import { action as projectionAction } from '../../cqrs/projection';
 import { action as queryAction } from '../../cqrs/query';
 import { generateToken } from '../../cqrs/utils';
-import { Commit, Reducer, Repository } from '../../types';
+import { BaseEntity, BaseEvent, Commit, EntityClass, Reducer, Repository } from '../../types';
 import { fromCommitsToGroupByEntityId } from './fromCommitsToGroupByEntityId';
 import { getHistory } from './getHistory';
 import { getPromiseToSave } from './getPromiseToSave';
@@ -21,13 +21,14 @@ export const repository: (option: {
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
-}) => <TEntity = any, TEvent = any>(option: {
-  entityName: string;
-  reducer: Reducer;
-}) => Repository<TEntity, TEvent> = ({ store, channelName, connectionProfile, wallet }) => <TEntity, TEvent>({
-  entityName,
+}) => <TEntity extends BaseEntity, TEvent extends BaseEvent>(
+  Entity: EntityClass<TEntity>,
+  reducer: Reducer
+) => Repository<TEntity, TEvent> = ({ store, channelName, connectionProfile, wallet }) => <TEntity, TEvent>(
+  Entity,
   reducer
-}) => {
+) => {
+  const entityName = Entity.getEntityName();
   const logger = Utils.getLogger('[fabric-cqrs] repository.js');
 
   return {

@@ -4,6 +4,7 @@ import { ProjectionDb } from './projectionDb';
 import { QueryDatabase } from './queryDatabase';
 import { Reducer } from './reducer';
 import { Repository } from './repository';
+import { BaseEntity, BaseEvent, EntityClass } from '.';
 
 /**
  * **PeerOptions** defines characteristics of Peer node
@@ -52,10 +53,10 @@ export interface Peer {
    *  }`
    * @returns `PrivatedataRepository<TEntity, TEvent>`
    */
-  getPrivateDataRepo: <TEntity = any, TEvent = any>(getPrivateDataRepoOption: {
-    entityName: string;
-    reducer: Reducer;
-  }) => PrivatedataRepository<TEntity, TEvent>;
+  getPrivateDataRepo: <TEntity extends BaseEntity, TEvent extends BaseEvent>(
+    Entity: EntityClass<TEntity>,
+    reducer: Reducer
+  ) => PrivatedataRepository<TEntity, TEvent>;
 
   /**
    * return repository instance of public data
@@ -68,10 +69,10 @@ export interface Peer {
    *  }`
    * @returns `Repository<TEntity, TEvent>`
    */
-  getRepository: <TEntity = any, TEvent = any>(getRepositoryOption: {
-    entityName: string;
-    reducer: Reducer;
-  }) => Repository<TEntity, TEvent>;
+  getRepository: <TEntity extends BaseEntity, TEvent extends BaseEvent>(
+    Entity: EntityClass<TEntity>,
+    reducer: Reducer
+  ) => Repository<TEntity, TEvent>;
 
   /**
    * reconcile the on-chain commits to query database, use for Peer node bootstraping

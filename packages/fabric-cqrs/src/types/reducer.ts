@@ -7,5 +7,6 @@ export type Reducer<TEntity = any> = (history: { type: string; payload?: any }[]
  * **getReducer** return high order reducer function
  * @param reducer
  */
-export const getReducer = <T, E>(reducer: (entity: T, event: E) => T) => (history: E[], initialState?: T) =>
-  history.reduce(reducer, initialState);
+export const getReducer = <TEntity = any, TEvent = any>(reducer: (entity: TEntity, event: TEvent) => TEntity) =>
+  (history: TEvent[], initialState?: TEntity) =>
+    history.reduce(reducer, initialState);

@@ -81,8 +81,8 @@ beforeAll(async () => {
     ...context,
     defaultReducer: reducer,
     defaultEntityName: entityName,
-    queryDatabase: createQueryDatabase(),
-    projectionDb: createProjectionDb(entityName),
+    // queryDatabase: createQueryDatabase(),
+    // projectionDb: createProjectionDb(entityName),
     collection: process.env.COLLECTION,
     channelEventHubUri: process.env.CHANNEL_HUB,
     channelName: process.env.CHANNEL_NAME,
@@ -97,7 +97,7 @@ beforeAll(async () => {
     process.exit(1);
   }
 
-  repo = peer.getRepository<Counter, CounterEvent>({ entityName, reducer });
+  repo = peer.getRepository<Counter, CounterEvent>(Counter, reducer);
 });
 
 afterAll(async () => {

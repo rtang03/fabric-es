@@ -7,10 +7,12 @@ export interface CreateAction {
     tx_id: string;
     args: {
       entityName: string;
+      parentName?: string;
       id: string;
       version: number;
       events: BaseEvent[];
       isPrivateData: boolean;
+      shouldTrack?: boolean;
     };
     enrollmentId?: string;
     channelName?: string;

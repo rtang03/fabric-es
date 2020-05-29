@@ -4,9 +4,9 @@
  */
 import util from 'util';
 import { Utils } from 'fabric-common';
-import { assign } from 'lodash';
+import { assign, isEmpty } from 'lodash';
 import { ofType } from 'redux-observable';
-import { from, Observable, of } from 'rxjs';
+import { concat, EMPTY, from, iif, Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 import { getNetwork, submit$, submitPrivateData$ } from '../../../services';
 import { dispatchResult } from '../../utils';
@@ -20,10 +20,11 @@ export default (action$: Observable<CreateAction>, _, context) => {
     ofType(action.CREATE),
     map(({ payload }) => payload),
     mergeMap(payload => {
-      const shouldTrack = (payload.args.entityName === 'docContents'); // TODO TEMP!!!!!!!!!!!!!!!!!!!!!!!!!
       const networks = [];
+      payload.args.shouldTrack = (typeof payload.args.parentName !== 'undefined');
+      console.log('MAMAMA 1', payload);
 
-      if (!payload.args.isPrivateData || shouldTrack) {
+      if (!payload.args.isPrivateData || payload.args.shouldTrack) {
         networks.push(
           getNetwork({
             channelName: payload.channelName,
@@ -34,10 +35,10 @@ export default (action$: Observable<CreateAction>, _, context) => {
             asLocalhost: !(process.env.NODE_ENV === 'production')
           }).then(({ network, gateway }) => {
             logger.info('getNetwork succeed');
-            return assign({}, payload, { shouldTrack, parentEntity: 'document' }, { netPub: network, gateway });
+            return assign({}, payload, { private: false }, { network, gateway });
           }).catch(error => {
             logger.error(util.format('getNework error: %s', error.message));
-            return assign({}, payload, { errPub: error });
+            return assign({}, payload, { error });
           })
         );
       }
@@ -53,21 +54,44 @@ export default (action$: Observable<CreateAction>, _, context) => {
             asLocalhost: !(process.env.NODE_ENV === 'production')
           }).then(({ network, gateway }) => {
             logger.info('getNetwork succeed');
-            return assign({}, payload, { shouldTrack, parentEntity: 'document' }, { netPrv: network, gateway });
+            return assign({}, payload, { private: true }, { network, gateway });
           }).catch(error => {
             logger.error(util.format('getNework error: %s', error.message));
-            return assign({}, payload, { errPrv: error });
+            return assign({}, payload, { error });
           })
         );
       }
 
-      console.log('OHOHOHOHOHOHOHOHOHOHOHOH', networks.length);
+      console.log('MAMAMA 2', networks.length);
       return from(Promise.all(networks));
     }),
     mergeMap((networks: any) => {
-      const getNetwork = (networks.length > 0) ? networks[0] : undefined;
+      const getNetwork = networks.reduce((accu, curr) => {
+        if (curr.error) {
+          if (curr.private)
+            accu.errPrv = curr.error;
+          else
+            accu.errPub = curr.error;
+        }
+        if (curr.network) {
+          if (curr.private)
+            accu.netPrv = curr.network;
+          else
+            accu.netPub = curr.network;
+        }
+        if (curr.gateway) {
+          if (curr.private)
+            accu.gatePrv = curr.gateway;
+          else
+            accu.gatePub = curr.gateway;
+        }
+        if (curr.tx_id && !accu.tx_id) accu.tx_id = curr.tx_id;
+        if (curr.args && !accu.args) accu.args = curr.args;
+        return accu;
+      }, {});
+      console.log('MAMAMA 3', getNetwork);
 
-      if (!getNetwork) {
+      if (!getNetwork || isEmpty(getNetwork)) {
         return of(
           action.createError({
             tx_id: getNetwork.tx_id,
@@ -89,32 +113,31 @@ export default (action$: Observable<CreateAction>, _, context) => {
           })
         );
       } else {
-        // const { tx_id, args, network, gateway } = getNetwork;
-        // const { id, entityName, events, version, isPrivateData } = args;
-        console.log('LOLOLOLOLOLOLOLOLOLOLOLO', getNetwork);
-        console.log('MOMOMOMOMOMOMOMOMOMOMOMO', getNetwork.parentEntity, JSON.stringify(getNetwork.args));
-        console.log('HOHOHOHOHOHOHOHOHOHOHOHO', JSON.stringify(getNetwork.args.events));
-
         if (getNetwork.args.isPrivateData) {
-          if (getNetwork.shouldTrack) {
-            const track = [{ type: 'PrivateDataUpdated', payload: { id: getNetwork.args.id }}];
-            submit$('eventstore:createCommit',
-              [getNetwork.parentEntity, getNetwork.args.id, getNetwork.args.version.toString(), JSON.stringify(track)],
-              { network: getNetwork.netPub || context.network }
-            );
-          }
-
-          return submitPrivateData$('privatedata:createCommit',
+          return concat(
+            submitPrivateData$('privatedata:createCommit',
               [getNetwork.args.entityName, getNetwork.args.id, getNetwork.args.version.toString()],
               { eventstr: Buffer.from(JSON.stringify(getNetwork.args.events)) },
               { network: getNetwork.netPrv || context.network }
-            ).pipe(
-              tap(commits => {
-                logger.debug(util.format('dispatch submitPrivateData response: %j', commits));
-                getNetwork.gateway.disconnect();
-              }),
-              dispatchResult(getNetwork.tx_id, action.createSuccess, action.createError)
-            );
+            ),
+            iif(() => getNetwork.args.shouldTrack,
+              submit$('eventstore:createCommit', [
+                  getNetwork.args.parentName,
+                  getNetwork.args.id,
+                  getNetwork.args.version.toString(),
+                  JSON.stringify([{ type: 'PrivateDataUpdated', payload: { id: getNetwork.args.id }}])
+                ],
+                { network: getNetwork.netPub || context.network }
+              ),
+            )
+          ).pipe(
+            tap(commits => {
+              logger.info(util.format('dispatch submitPrivateData response: %j', commits));
+              if (getNetwork.gatePub) getNetwork.gatePub.disconnect();
+              if (getNetwork.gatePrv) getNetwork.gatePrv.disconnect();
+            }),
+            dispatchResult(getNetwork.tx_id, action.createSuccess, action.createError)
+          );
         } else {
           return submit$('eventstore:createCommit',
               [getNetwork.args.entityName, getNetwork.args.id, getNetwork.args.version.toString(), JSON.stringify(getNetwork.args.events)],
@@ -122,7 +145,7 @@ export default (action$: Observable<CreateAction>, _, context) => {
             ).pipe(
               tap(commits => {
                 logger.debug(util.format('dispatch submit response: %j', commits));
-                getNetwork.gateway.disconnect();
+                getNetwork.gatePub.disconnect();
               }),
               dispatchResult(getNetwork.tx_id, action.createSuccess, action.createError)
             );

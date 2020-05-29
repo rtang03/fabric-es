@@ -1,3 +1,5 @@
+import { BaseEntity } from '@fabric-es/fabric-cqrs';
+
 export type LoanRequester = {
   registration: string;
   name: string;
@@ -16,7 +18,7 @@ export type ContactInfo = {
  * **LoanDetails** is the private counterpart of the on-chain entity **Loan**, containing non-public details of a loan
  * for authorized parties' use only.
  */
-export class LoanDetails {
+export class LoanDetails extends BaseEntity {
   static type: 'LoanDetails';
 
   loanId: string;
