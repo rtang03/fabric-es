@@ -3,16 +3,20 @@ import { BaseEvent } from '@fabric-es/fabric-cqrs';
 export interface Increment extends BaseEvent {
   readonly type: 'Increment';
   payload: {
-    counterId: string;
-    timestamp: number;
+    id: string;
+    desc: string;
+    tag: string;
+    ts: number;
   };
 }
 
 export interface Decrement extends BaseEvent {
   readonly type: 'Decrement';
   payload: {
-    counterId: string;
-    timestamp: number;
+    id: string;
+    desc: string;
+    tag: string;
+    ts: number;
   };
 }
 

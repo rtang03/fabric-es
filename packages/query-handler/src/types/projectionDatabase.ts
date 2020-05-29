@@ -1,11 +1,21 @@
 import { Commit, Reducer } from '@fabric-es/fabric-cqrs';
 
-export interface ProjectionDatabase<TEntity = any> {
-  find: (criteria: {
-    where?: Record<string, any>;
-    all?: boolean;
-    contain?: string | number;
-  }) => Promise<{ data: { id: string } & TEntity }>;
-  merge: (item: { commit: Record<string, Commit>; reducer: Reducer }) => Promise<{ data: Record<string, {}> }>;
-  mergeBatch: (items: { commits: Record<string, Commit>; reducer: Reducer }) => Promise<{ data: Record<string, {}> }>;
+export interface ProjectionDatabaseResponse<TResult = any> {
+  status: string;
+  message: string;
+  result?: TResult;
+}
+
+export interface ProjectionDatabase {
+  merge: <TEntity = any>(item: {
+    commit: Commit;
+    reducer: Reducer<TEntity>;
+  }) => Promise<ProjectionDatabaseResponse>;
+  mergeBatch: <TEntity>(items: {
+    entityName: string;
+    commits: Record<string, Commit>;
+    reducer: Reducer<TEntity>;
+  }) => Promise<ProjectionDatabaseResponse>;
+  computeEntity?: any;
+  fullTextSearch?: any;
 }

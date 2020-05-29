@@ -18,3 +18,28 @@ export const commitIndex = [
   'NUMERIC',
   'SORTABLE'
 ];
+
+export const createCommitIndex: (option: {
+  documentId: string;
+  redisKey: string;
+  entityId: string;
+  entityName: string;
+  event: string;
+  ts: number;
+}) => any[] = ({ documentId, redisKey, entityName, entityId, event, ts }) => [
+  'cidx',
+  documentId,
+  1.0,
+  'REPLACE',
+  'FIELDS',
+  'key',
+  redisKey,
+  'entityName',
+  entityName,
+  'id',
+  entityId,
+  'event',
+  event,
+  'ts',
+  ts
+];

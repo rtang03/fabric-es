@@ -14,7 +14,7 @@ export const getStore: (options) => Store = ({ queryDatabase, projectionDb, defa
     dependencies: {
       queryDatabase,
       projectionDb,
-      reducer: defaultReducer,
+      reducer: defaultReducer, // todo: need to remove, change to input args
       gateway,
       network
     }

@@ -1,5 +1,12 @@
 import util from 'util';
-import { BaseEvent, generateToken, getHistory, Reducer, Commit, isCommit } from '@fabric-es/fabric-cqrs';
+import {
+  BaseEvent,
+  generateToken,
+  getHistory,
+  Reducer,
+  Commit,
+  isCommit,
+} from '@fabric-es/fabric-cqrs';
 import { Contract, ContractListener, Network } from 'fabric-network';
 import isEqual from 'lodash/isEqual';
 import values from 'lodash/values';
@@ -14,10 +21,26 @@ import {
   QueryHandler,
   QueryHandlerOptions,
 } from '../types';
-import { catchErrors, dispatcher, fromCommitsToGroupByEntityId, getLogger, isCommitRecord, isFabricResponse } from '.';
+import {
+  catchErrors,
+  dispatcher,
+  fromCommitsToGroupByEntityId,
+  getLogger,
+  isCommitRecord,
+  isFabricResponse,
+} from '.';
 
-export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (options) => {
-  const { gateway, projectionDatabase, queryDatabase, channelName, wallet, connectionProfile } = options;
+export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (
+  options
+) => {
+  const {
+    gateway,
+    projectionDatabase,
+    queryDatabase,
+    channelName,
+    wallet,
+    connectionProfile,
+  } = options;
   options.queryDatabase = queryDatabase;
   options.projectionDatabase = projectionDatabase;
 
@@ -42,7 +65,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
   const addTimestamp: (events: BaseEvent[]) => BaseEvent[] = (events) =>
     events.map((event) => ({
       ...event,
-      payload: Object.assign({}, event.payload, { timestamp: Math.round(new Date().getTime() / 1000) }),
+      payload: Object.assign({}, event.payload, { ts: Math.round(new Date().getTime() / 1000) }),
     }));
 
   return {
@@ -55,7 +78,13 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
             wallet,
             tx_id,
             enrollmentId,
-            args: { entityName, id, version: 0, isPrivateData: false, events: addTimestamp(events) },
+            args: {
+              entityName,
+              id,
+              version: 0,
+              isPrivateData: false,
+              events: addTimestamp(events),
+            },
           }),
         {
           name: 'command_create',
@@ -133,7 +162,13 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
                 wallet,
                 tx_id,
                 enrollmentId,
-                args: { entityName, id, version, isPrivateData: false, events },
+                args: {
+                  entityName,
+                  id,
+                  version,
+                  isPrivateData: false,
+                  events: addTimestamp(events),
+                },
               }),
             {
               name: 'create',
@@ -174,26 +209,33 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         (result) => values<Commit>(result).reverse()
       ),
     query_deleteByEntityId: () =>
-      dispatcher<QueryDatabaseResponse, { entityName: string; id: string }>((payload) => deleteByEntityId(payload), {
-        name: 'deleteByEntityId',
-        store,
-        slice: 'query',
-        SuccessAction: DELETE_SUCCESS,
-        ErrorAction: DELETE_ERROR,
-        logger,
-      }),
+      dispatcher<QueryDatabaseResponse, { entityName: string; id: string }>(
+        (payload) => deleteByEntityId(payload),
+        {
+          name: 'deleteByEntityId',
+          store,
+          slice: 'query',
+          SuccessAction: DELETE_SUCCESS,
+          ErrorAction: DELETE_ERROR,
+          logger,
+        }
+      ),
     query_deleteByEntityName: () =>
-      dispatcher<QueryDatabaseResponse, { entityName: string }>((payload) => deleteByEntityName(payload), {
-        name: 'deleteByEntityName',
-        store,
-        slice: 'query',
-        SuccessAction: DELETE_SUCCESS,
-        ErrorAction: DELETE_ERROR,
-        logger,
-      }),
+      dispatcher<QueryDatabaseResponse, { entityName: string }>(
+        (payload) => deleteByEntityName(payload),
+        {
+          name: 'deleteByEntityName',
+          store,
+          slice: 'query',
+          SuccessAction: DELETE_SUCCESS,
+          ErrorAction: DELETE_ERROR,
+          logger,
+        }
+      ),
     reconcile: () =>
       dispatcher<any, { entityName: string; reducer: Reducer }>(
-        ({ tx_id, args }) => reconcileAction.reconcile({ tx_id, args, store, channelName, connectionProfile, wallet }),
+        ({ tx_id, args }) =>
+          reconcileAction.reconcile({ tx_id, args, store, channelName, connectionProfile, wallet }),
         {
           name: 'reconcile',
           store,
@@ -234,9 +276,9 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
     unsubscribeHub: () => contract.removeContractListener(contractListener),
     disconnect: () => gateway.disconnect(),
     commitFTSearch: async ({ query }) =>
-      catchErrors(
-        queryDatabase.fullTextSearch({ query }),
-        { fcnName: 'perform full text search', logger }
-      ),
+      catchErrors(queryDatabase.fullTextSearch({ query }), {
+        fcnName: 'perform full text search',
+        logger,
+      }),
   };
 };

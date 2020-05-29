@@ -2,16 +2,18 @@ import { Reducer } from '@fabric-es/fabric-cqrs';
 import { CounterEvents } from './events';
 import { Counter, CounterEvent } from './types';
 
-export const reducer: Reducer<Counter> = (history: CounterEvent[], initial = { value: 0 }): Counter =>
-  history.reduce(reducerFcn, initial);
+export const reducer: Reducer<Counter> = (
+  history: CounterEvent[],
+  initial = { id: null, desc: null, tag: null, value: 0, ts: 0 }
+): Counter => history.reduce(reducerFcn, initial);
 
-const reducerFcn = ({ value }, event: CounterEvents) => {
-  switch (event.type) {
+const reducerFcn = (state, { type, payload: { id, desc, tag, ts } }: CounterEvents) => {
+  switch (type) {
     case 'Increment':
-      value++;
-      return { value, counterId: event.payload.counterId };
+      state.value++;
+      return { value: state.value, id, desc, tag, ts };
     case 'Decrement':
-      value--;
-      return { value, counterId: event.payload.counterId };
+      state.value--;
+      return { value: state.value, id, desc, tag, ts };
   }
 };

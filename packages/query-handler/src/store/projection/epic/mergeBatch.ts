@@ -11,7 +11,7 @@ import { UpsertManyAction } from '../types';
 export default (
   action$: Observable<UpsertManyAction>,
   _,
-  context: { projectionDb: ProjectionDatabase; reducer: Reducer }
+  { projectionDatabase, reducer }: { projectionDatabase: ProjectionDatabase; reducer: Reducer }
 ) =>
   action$.pipe(
     ofType(action.UPSERT_MANY),
@@ -20,7 +20,7 @@ export default (
       from(
         isEqual(commits, {})
           ? Promise.resolve(action.upsertManySuccess({ tx_id, result: null }))
-          : context.projectionDb.upsertMany({ commits, reducer: context.reducer }).then(({ data }) => {
+          : projectionDatabase.mergeBatch({ entityName, commits, reducer }).then(({ data }) => {
               const logger = Utils.getLogger('[fabric-cqrs] upsertMany.js');
               logger.info('projectionDb upsertMany successful');
 

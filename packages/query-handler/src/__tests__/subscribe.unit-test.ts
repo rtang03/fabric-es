@@ -5,7 +5,13 @@ import { Wallets } from 'fabric-network';
 import Redis from 'ioredis';
 import rimraf from 'rimraf';
 import type { QueryHandler } from '../types';
-import { commitIndex, createQueryDatabase, createQueryHandler, isCommit, isCommitRecord } from '../utils';
+import {
+  commitIndex,
+  createQueryDatabase,
+  createQueryHandler,
+  isCommit,
+  isCommitRecord,
+} from '../utils';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -90,12 +96,12 @@ beforeAll(async () => {
     await redis
       .send_command('FT.DROP', ['cidx'])
       .then((result) => console.log(`commitIndex is dropped: ${result}`))
-      .catch((result) => console.error(`commitIndex is dropped: ${result}`));
+      .catch((result) => console.error(`commitIndex is not dropped: ${result}`));
 
     await redis
       .send_command('FT.CREATE', commitIndex)
       .then((result) => console.log(`commitIndex is created: ${result}`))
-      .catch((result) => console.error(`commitIndex is created: ${result}`));
+      .catch((result) => console.error(`commitIndex is not created: ${result}`));
   } catch (e) {
     console.error(e);
     process.exit(1);
@@ -115,7 +121,7 @@ describe('Query Handler Tests', () => {
         events: [
           {
             type: 'Increment',
-            payload: { counterId: id },
+            payload: { id, desc: 'query handler #1 sub-test', tag: 'subcription' },
           },
         ],
       })
@@ -139,7 +145,7 @@ describe('Query Handler Tests', () => {
         events: [
           {
             type: 'Decrement',
-            payload: { counterId: id },
+            payload: { id, desc: 'query hander #2 sub-test', tag: 'subscription' },
           },
         ],
       })
@@ -167,9 +173,11 @@ describe('Query Handler Tests', () => {
     }));
 
   it('should fail to FT.SEARCH: invalid ;', async () =>
-    queryHandler.commitFTSearch({ query: 'kljkljkljjkljklj;jkl;' }).then(({ data, status, error }) => {
-      expect(status).toEqual('ERROR');
-      expect(data).toBeNull();
-      expect(error.message).toContain('Syntax error at offset');
-    }));
+    queryHandler
+      .commitFTSearch({ query: 'kljkljkljjkljklj;jkl;' })
+      .then(({ data, status, error }) => {
+        expect(status).toEqual('ERROR');
+        expect(data).toBeNull();
+        expect(error.message).toContain('Syntax error at offset');
+      }));
 });
