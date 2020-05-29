@@ -5,9 +5,6 @@ import retryStrategy from 'node-redis-retry-strategy';
 import { processMsg } from '../processMsg';
 import { ReqRes } from '../reqres';
 import { relayService } from '../relayService';
-import { resolveSoa } from 'dns';
-import { parse } from 'path';
-import JSON5 from 'json5';
 const request = require('supertest');
 
 const msg: ReqRes = { 
