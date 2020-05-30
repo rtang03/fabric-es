@@ -11,10 +11,9 @@ import {
   commitIndex,
   createQueryDatabase,
   createQueryHandler,
-  isCommit,
   isCommitRecord,
 } from '../utils';
-import { Counter, reducer } from './__utils__';
+import { reducer } from './__utils__';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -87,6 +86,7 @@ beforeAll(async () => {
       connectionProfile,
       channelName,
       wallet,
+      reducers: null // todo: fix it
     });
 
     // tear down

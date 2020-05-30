@@ -33,7 +33,7 @@
     "dev": "yarn build && node ./dist/app.js",
     "unit-test:reconcile": "jest --forceExit --detectOpenHandles reconcile.unit-test",
     "unit-test:subscribe": "jest --forceExit --detectOpenHandles subscribe.unit-test",
-    "unit-test:projdb": "jest --forceExit --detectOpenHandles projectionDb.unit-test"
+    "unit-test:projdb": "jest --forceExit --detectOpenHandles qdb.unit-test"
   },
   "dependencies": {
     "@fabric-es/fabric-cqrs": "^0.6.2",

@@ -1,17 +1,16 @@
 import { BaseEvent, Commit, Reducer } from '@fabric-es/fabric-cqrs';
 import { Gateway, Network, Wallet } from 'fabric-network';
 import { FabricResponse } from './fabricResponse';
-import { ProjectionDatabase } from './projectionDatabase';
 import { QueryDatabase } from './queryDatabase';
 
 export interface QueryHandlerOptions {
   queryDatabase: QueryDatabase;
-  projectionDatabase?: ProjectionDatabase;
   gateway: Gateway;
   network: Network;
   channelName: string;
   wallet: Wallet;
   connectionProfile: string;
+  reducers: Record<string, Reducer>;
 }
 export interface GetByEntityNameResponse<TEntity = any> {
   currentStates: TEntity[];

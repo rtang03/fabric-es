@@ -1,17 +1,11 @@
 import util from 'util';
-import {
-  BaseEvent,
-  generateToken,
-  getHistory,
-  Reducer,
-  Commit,
-  isCommit,
-} from '@fabric-es/fabric-cqrs';
+import { BaseEvent, getHistory, Reducer, Commit, isCommit } from '@fabric-es/fabric-cqrs';
 import { Contract, ContractListener, Network } from 'fabric-network';
 import isEqual from 'lodash/isEqual';
 import values from 'lodash/values';
 import { getStore } from '../store';
 import { action as commandAction } from '../store/command';
+import { action as projAction } from '../store/projection';
 import { action as queryAction } from '../store/query';
 import { action as reconcileAction } from '../store/reconcile';
 import {
@@ -33,16 +27,8 @@ import {
 export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (
   options
 ) => {
-  const {
-    gateway,
-    projectionDatabase,
-    queryDatabase,
-    channelName,
-    wallet,
-    connectionProfile,
-  } = options;
+  const { gateway, queryDatabase, channelName, wallet, connectionProfile } = options;
   options.queryDatabase = queryDatabase;
-  options.projectionDatabase = projectionDatabase;
 
   const store = getStore(options);
   const logger = getLogger({ name: '[query-handler] createQueryHandler.js' });
@@ -233,7 +219,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         }
       ),
     reconcile: () =>
-      dispatcher<any, { entityName: string; reducer: Reducer }>(
+      dispatcher<any, { entityName: string }>(
         ({ tx_id, args }) =>
           reconcileAction.reconcile({ tx_id, args, store, channelName, connectionProfile, wallet }),
         {
@@ -246,11 +232,11 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         }
       ),
     subscribeHub: async () => {
-      logger.info('subscribe channel event hub');
+      logger.info('♨️  subscribe channel event hub');
       network = await gateway.getNetwork(channelName);
       contract = network.getContract('eventstore');
       contractListener = network.getContract('eventstore').addContractListener(
-        ({ payload, eventName, getTransactionEvent }) => {
+        async ({ payload, eventName, getTransactionEvent }) => {
           logger.info(`💢  event arrives - tx_id: ${getTransactionEvent().transactionId}`);
           let commit: unknown;
           if (eventName !== 'createCommit') {
@@ -266,7 +252,38 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           }
 
           if (isCommit(commit)) {
-            store.dispatch(queryAction.merge({ tx_id: generateToken(), args: { commit } }));
+            // step 1. merge one commit to commit records in QueryDatabase
+            const doMergeCommit = await dispatcher<string[], { commit: Commit }>(
+              (payload) => queryAction.merge(payload),
+              {
+                name: 'merge_one_commit',
+                store,
+                slice: 'query',
+                SuccessAction: queryAction.MERGE_SUCCESS,
+                ErrorAction: queryAction.MERGE_ERROR,
+                logger,
+              }
+            )({ commit });
+
+            console.log(doMergeCommit.data);
+
+            // step 2. merge one commit to entity record in QueryDatabase
+            const doMergeEntity = await dispatcher<
+              { key: string; status: string },
+              { commit: Commit }
+            >((payload) => projAction.mergeEntity(payload), {
+              name: 'merge_one_entity',
+              store,
+              slice: 'projection',
+              SuccessAction: projAction.MERGE_ENTITY_SUCCESS,
+              ErrorAction: projAction.MERGE_ENTITY_ERROR,
+              logger,
+            })({ commit });
+
+            console.log(doMergeEntity.data);
+
+            // step 3.
+            // Send to pubsub
           } else logger.warn(util.format('receive contract events of unknown type, %j', commit));
         },
         { type: 'full' }
@@ -276,9 +293,10 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
     unsubscribeHub: () => contract.removeContractListener(contractListener),
     disconnect: () => gateway.disconnect(),
     commitFTSearch: async ({ query }) =>
-      catchErrors(queryDatabase.fullTextSearch({ query }), {
-        fcnName: 'perform full text search',
+      catchErrors(queryDatabase.fullTextSearchCommit({ query }), {
+        fcnName: 'full text search',
         logger,
       }),
+    // todo: entityFTSearch
   };
 };

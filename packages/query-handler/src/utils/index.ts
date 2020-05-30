@@ -1,6 +1,5 @@
 export * from './getLogger';
 export * from './createQueryDatabase';
-export * from './createProjectionDatabase';
 export * from './createQueryHandler';
 export * from './dispatcher';
 export * from './getLogger';
@@ -12,3 +11,5 @@ export * from './catchErrors';
 export * from './pipelineExecute';
 export * from './fromArraysToCommitRecords';
 export * from './fullTextSearchAdd';
+export * from './doFullTextSearch';
+export * from './dummyReducer';

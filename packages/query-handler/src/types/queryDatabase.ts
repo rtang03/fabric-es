@@ -1,4 +1,4 @@
-import { Commit } from '@fabric-es/fabric-cqrs';
+import { Commit, Reducer } from '@fabric-es/fabric-cqrs';
 
 export interface QueryDatabaseResponse<TResult = any> {
   status: string;
@@ -7,19 +7,38 @@ export interface QueryDatabaseResponse<TResult = any> {
 }
 
 export interface QueryDatabase {
-  deleteByEntityId: (option: { entityName: string; id: string }) => Promise<QueryDatabaseResponse>;
-  deleteByEntityName: (option: { entityName: string }) => Promise<QueryDatabaseResponse>;
-  queryByEntityId: (option: {
+  deleteCommitByEntityId: (option: {
+    entityName: string;
+    id: string;
+  }) => Promise<QueryDatabaseResponse<number>>;
+  deleteCommitByEntityName: (option: {
+    entityName: string;
+  }) => Promise<QueryDatabaseResponse<number>>;
+  queryCommitByEntityId: (option: {
     entityName: string;
     id: string;
   }) => Promise<QueryDatabaseResponse<Record<string, Commit>>>;
-  queryByEntityName: (option: {
+  queryCommitByEntityName: (option: {
     entityName: string;
   }) => Promise<QueryDatabaseResponse<Record<string, Commit>>>;
-  merge: (option: { commit: Commit }) => Promise<QueryDatabaseResponse<string[]>>;
-  mergeBatch: (option: {
+  mergeCommit: (option: { commit: Commit }) => Promise<QueryDatabaseResponse<string[]>>;
+  mergeCommitBatch: (option: {
     entityName: string;
     commits: Record<string, Commit>;
   }) => Promise<QueryDatabaseResponse<string[]>>;
-  fullTextSearch: (option: { query: string }) => Promise<QueryDatabaseResponse>;
+  mergeEntity: <TEntity = any>(entity: {
+    commit: Commit;
+    reducer: Reducer<TEntity>;
+  }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
+  mergeEntityBatch: <TEntity>(entities: {
+    entityName: string;
+    commits: Record<string, Commit>;
+    reducer: Reducer<TEntity>;
+  }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
+  fullTextSearchCommit: <TEntity = any>(option: {
+    query: string;
+  }) => Promise<QueryDatabaseResponse<Record<string, TEntity>>>;
+  fullTextSearchEntity: <TEntity = any>(option: {
+    query: string;
+  }) => Promise<QueryDatabaseResponse<Record<string, TEntity>>>;
 }

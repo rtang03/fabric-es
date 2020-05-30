@@ -1,5 +1,5 @@
 import { getAction, getErrorAction, getSuccessAction } from '@fabric-es/fabric-cqrs';
-import {
+import type {
   DeleteByEntityIdAction,
   DeleteByEntityNameAction,
   MergeAction,
@@ -32,7 +32,7 @@ export const action = {
   QUERY_BY_ENTITY_ID,
   QUERY_ERROR,
   QUERY_SUCCESS,
-  MERGE,
+  MERGE_COMMIT_BATCH: MERGE_ENTITY,
   MERGE_ERROR,
   MERGE_SUCCESS,
   MERGE_BATCH,

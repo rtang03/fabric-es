@@ -6,13 +6,17 @@ import { getLogger } from '../../../utils';
 import { action } from '../action';
 import { MergeAction } from '../types';
 
-export default (action$: Observable<MergeAction>, _, context: { queryDatabase: QueryDatabase }) =>
+export default (
+  action$: Observable<MergeAction>,
+  _,
+  { queryDatabase }: { queryDatabase: QueryDatabase }
+) =>
   action$.pipe(
     ofType(action.MERGE),
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { commit } }) =>
       from(
-        context.queryDatabase.merge({ commit }).then((result) => {
+        queryDatabase.mergeCommit({ commit }).then((result) => {
           const logger = getLogger({ name: '[query-handler] merge.js' });
           logger.info(action.MERGE_SUCCESS);
 

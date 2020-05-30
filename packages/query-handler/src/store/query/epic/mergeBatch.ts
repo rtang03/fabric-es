@@ -6,13 +6,17 @@ import { getLogger } from '../../../utils';
 import { action } from '../action';
 import { MergeBatchAction } from '../types';
 
-export default (action$: Observable<MergeBatchAction>, _, context: { queryDatabase: QueryDatabase }) =>
+export default (
+  action$: Observable<MergeBatchAction>,
+  _,
+  { queryDatabase }: { queryDatabase: QueryDatabase }
+) =>
   action$.pipe(
     ofType(action.MERGE_BATCH),
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName, commits } }) =>
       from(
-        context.queryDatabase.mergeBatch({ entityName, commits }).then((result) => {
+        queryDatabase.mergeCommitBatch({ entityName, commits }).then(({ result }) => {
           const logger = getLogger({ name: '[query-handler] mergeBatch.js' });
           logger.info(action.MERGE_BATCH_SUCCESS);
 

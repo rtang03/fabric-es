@@ -1,10 +1,10 @@
 require('dotenv').config({ path: './.env.test' });
 import Redis from 'ioredis';
-import { ProjectionDatabase } from '../types';
-import { entityIndex, createProjectionDatabase } from '../utils';
+import type { QueryDatabase } from '../types';
+import { entityIndex, createQueryDatabase } from '../utils';
 import { Counter, reducer } from './__utils__';
 
-let projectionDatabase: ProjectionDatabase;
+let queryDatabase: QueryDatabase;
 
 const commit = {
   id: 'qh_proj_test_001',
@@ -140,7 +140,7 @@ const key3 = `test_proj::qh_proj_test_003`;
 
 beforeAll(async () => {
   const redis = new Redis();
-  projectionDatabase = createProjectionDatabase(redis);
+  queryDatabase = createQueryDatabase(redis);
 
   // first commit for merge test
   await redis
@@ -173,7 +173,7 @@ beforeAll(async () => {
 
 describe('Projection db test', () => {
   it('should merge', async () =>
-    projectionDatabase.merge({ commit: newCommit, reducer }).then((result) =>
+    queryDatabase.mergeEntity({ commit: newCommit, reducer }).then((result) =>
       expect(result).toEqual({
         status: 'OK',
         message: 'test_proj::qh_proj_test_001 merged successfully',
@@ -182,16 +182,59 @@ describe('Projection db test', () => {
     ));
 
   it('should mergeBatch', async () =>
-    projectionDatabase.mergeBatch({ entityName: commit.entityName, reducer, commits }).then((result) => {
+    queryDatabase
+      .mergeEntityBatch({ entityName: commit.entityName, reducer, commits })
+      .then((result) => {
+        expect(result).toEqual({
+          status: 'OK',
+          message: '2 entitie(s) are merged',
+          result: [
+            { key: 'test_proj::qh_proj_test_002', status: 'OK' },
+            { key: 'test_proj::qh_proj_test_003', status: 'OK' },
+          ],
+        });
+      }));
+
+  it('should fail to FT.SEARCH by invalid FIELD desc', async () =>
+    queryDatabase
+      .fullTextSearchEntity({ query: 'xffd;;;;;df' })
+      .catch((error) => expect(error.message).toContain('Syntax error at offset')));
+
+  it('should fail to FT.SEARCH by valid/non-existing FIELD desc', async () =>
+    queryDatabase.fullTextSearchEntity({ query: 'xfdf' }).then((result) =>
       expect(result).toEqual({
         status: 'OK',
-        message: '2 entitie(s) are merged',
-        result: [
-          { key: 'test_proj::qh_proj_test_002', status: 'OK' },
-          { key: 'test_proj::qh_proj_test_003', status: 'OK' },
-        ],
+        message: 'full text search: 0 record returned',
+        result: null,
+      })
+    ));
+
+  it('should FT.SEARCH by FIELD desc', async () =>
+    queryDatabase.fullTextSearchEntity({ query: 'handler' }).then(({ status, message, result }) => {
+      expect(status).toEqual('OK');
+      expect(message).toEqual('full text search: 3 record(s) returned');
+      expect(result).toEqual({
+        'test_proj::qh_proj_test_001': {
+          value: 2,
+          id: 'qh_proj_test_001',
+          desc: 'query handler #2 proj',
+          tag: 'projection',
+          ts: 1590739000,
+        },
+        'test_proj::qh_proj_test_002': {
+          id: 'qh_proj_test_002',
+          value: 3,
+          desc: 'query handler #5 proj',
+          tag: 'projection',
+          ts: 1590740002,
+        },
+        'test_proj::qh_proj_test_003': {
+          id: 'qh_proj_test_003',
+          value: 2,
+          desc: 'query handler #7 proj',
+          tag: 'projection',
+          ts: 1590740004,
+        },
       });
     }));
-
-  it('should FT.SEARCH by ', async () => projectionDatabase);
 });

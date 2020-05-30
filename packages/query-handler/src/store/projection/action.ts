@@ -1,24 +1,24 @@
-import { getAction, getSuccessAction } from '@fabric-es/fabric-cqrs';
-import { FindAction, UpsertAction, UpsertManyAction } from './types';
+import { getAction, getErrorAction, getSuccessAction } from '@fabric-es/fabric-cqrs';
+import type { MergeEntityAction, MergeEntityBatchAction } from './types';
 
-const UPSERT = '[Project] Upsert Entity';
-const UPSERT_SUCCESS = '[Project] Upsert Entity Success';
-const UPSERT_MANY = '[Project] Upsert Many Entity';
-const UPSERT_MANY_SUCCESS = '[Project] Upsert Many Success';
-const FIND = '[Project] Find';
-const FIND_SUCCESS = '[Project] Find Success';
+const MERGE_ENTITY = '[Project] Merge Entity';
+const MERGE_ENTITY_ERROR = '[Project] Merge Entity Error';
+const MERGE_ENTITY_SUCCESS = '[Project] Merge Entity Success';
+const MERGE_ENTITY_BATCH = '[Project] Merge Entity Batch';
+const MERGE_ENTITY_BATCH_ERROR = '[Project] Merge Entity Batch Error';
+const MERGE_ENTITY_BATCH_SUCCESS = '[Project] Merge Entity Batch Success';
 
 export const action = {
-  UPSERT,
-  UPSERT_SUCCESS,
-  UPSERT_MANY,
-  UPSERT_MANY_SUCCESS,
-  FIND,
-  FIND_SUCCESS,
-  find: getAction<FindAction>(FIND),
-  upsert: getAction<UpsertAction>(UPSERT),
-  upsertMany: getAction<UpsertManyAction>(UPSERT_MANY),
-  findSuccess: getSuccessAction(FIND_SUCCESS),
-  upsertSuccess: getSuccessAction(UPSERT_SUCCESS),
-  upsertManySuccess: getSuccessAction(UPSERT_MANY_SUCCESS)
+  MERGE_ENTITY,
+  MERGE_ENTITY_SUCCESS,
+  MERGE_ENTITY_ERROR,
+  MERGE_ENTITY_BATCH,
+  MERGE_ENTITY_BATCH_SUCCESS,
+  MERGE_ENTITY_BATCH_ERROR,
+  mergeEntity: getAction<MergeEntityAction>(MERGE_ENTITY),
+  mergeEntitySuccess: getSuccessAction(MERGE_ENTITY_SUCCESS),
+  mergeEntityError: getErrorAction(MERGE_ENTITY_ERROR),
+  mergeEntityBatch: getAction<MergeEntityBatchAction>(MERGE_ENTITY_BATCH),
+  mergeEntityBatchError: getErrorAction(MERGE_ENTITY_BATCH_ERROR),
+  mergeEntityBatchSuccess: getSuccessAction(MERGE_ENTITY_BATCH_SUCCESS),
 };

@@ -76,6 +76,7 @@ beforeAll(async () => {
       connectionProfile,
       channelName,
       wallet,
+      reducers: null // todo: fix it
     });
 
     // tear down

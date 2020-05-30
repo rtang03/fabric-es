@@ -6,13 +6,17 @@ import { getLogger } from '../../../utils';
 import { action } from '../action';
 import { QueryByEntityIdAction } from '../types';
 
-export default (action$: Observable<QueryByEntityIdAction>, _, context: { queryDatabase: QueryDatabase }) =>
+export default (
+  action$: Observable<QueryByEntityIdAction>,
+  _,
+  { queryDatabase }: { queryDatabase: QueryDatabase }
+) =>
   action$.pipe(
     ofType(action.QUERY_BY_ENTITY_ID),
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName, id } }) =>
       from(
-        context.queryDatabase.queryByEntityId({ entityName, id }).then(({ result }) => {
+        queryDatabase.queryCommitByEntityId({ entityName, id }).then(({ result }) => {
           const logger = getLogger({ name: '[query-handler] queryByEntityName.js' });
           logger.info(action.QUERY_SUCCESS);
 

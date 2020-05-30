@@ -1,12 +1,22 @@
 import util from 'util';
 import { Commit } from '@fabric-es/fabric-cqrs';
 import type { Redis } from 'ioredis';
-import drop from 'lodash/drop';
+import assign from 'lodash/assign';
+import filter from 'lodash/filter';
 import flatten from 'lodash/flatten';
+import groupBy from 'lodash/groupBy';
 import isEqual from 'lodash/isEqual';
+import keys from 'lodash/keys';
+import values from 'lodash/values';
 import type { QueryDatabase } from '../types';
 import { getLogger } from './getLogger';
-import { fromArraysToCommitRecords, fullTextSearchAdd, pipelineExecute } from '.';
+import {
+  doFullTextSearch,
+  fromArraysToCommitRecords,
+  fullTextSearchAdd,
+  fullTextSearchAddEntity,
+  pipelineExecute,
+} from '.';
 
 export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js' });
@@ -14,9 +24,14 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
     flatten(deletedItems)
       .filter((item) => !!item)
       .reduce((prev, curr) => prev + curr, 0);
+  const getHistory = (commits: Commit[]): any[] => {
+    const history = [];
+    commits.forEach(({ events }) => events.forEach((item) => history.push(item)));
+    return history;
+  };
 
   return {
-    deleteByEntityId: async ({ entityName, id }) => {
+    deleteCommitByEntityId: async ({ entityName, id }) => {
       const pattern = `${entityName}::${id}::*`;
       let result: number;
 
@@ -33,7 +48,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         result,
       };
     },
-    deleteByEntityName: async ({ entityName }) => {
+    deleteCommitByEntityName: async ({ entityName }) => {
       const pattern = `${entityName}::*`;
       let result: number;
 
@@ -50,7 +65,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         result,
       };
     },
-    queryByEntityId: async ({ entityName, id }) => {
+    queryCommitByEntityId: async ({ entityName, id }) => {
       const pattern = `${entityName}::${id}::*`;
       let commitArrays: string[][];
       let result: Record<string, Commit>;
@@ -78,7 +93,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         result,
       };
     },
-    queryByEntityName: async ({ entityName }) => {
+    queryCommitByEntityName: async ({ entityName }) => {
       const pattern = `${entityName}::*`;
       let commitArrays: string[][];
       let result: Record<string, Commit>;
@@ -102,9 +117,8 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         result,
       };
     },
-    merge: async ({ commit }) => {
+    mergeCommit: async ({ commit }) => {
       const redisKey = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
-
       let status;
 
       try {
@@ -118,7 +132,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       }
       return { status, message: `${redisKey} merged successfully`, result: [redisKey] };
     },
-    mergeBatch: async ({ entityName, commits }) => {
+    mergeCommitBatch: async ({ entityName, commits }) => {
       const map: Record<string, string> = {};
       const entityNameKeys = [];
       let status;
@@ -154,46 +168,71 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         result: entityNameKeys,
       };
     },
-    fullTextSearch: async ({ query }) => {
-      const searchResultParser = (searchedResult: any[]) => {
-        const count = searchedResult[0];
-        const data = drop(searchedResult);
-        const result = {};
-        for (let i = 0; i < count; i++) {
-          const len = data[i * 2 + 1].length / 2;
-          const obj = {};
-          for (let j = 0; j < len; j++) {
-            obj[data[i * 2 + 1][j * 2]] = data[i * 2 + 1][j * 2 + 1];
-          }
-          result[data[i * 2]] = obj;
-        }
-        // return records of indexed document
-        return result;
-      };
+    mergeEntity: async <TEntity>({ commit, reducer }) => {
+      let status;
+      let redisKey: string;
 
-      let result = {};
-      let ftsResult;
       try {
-        ftsResult = await redis.send_command('FT.SEARCH', ['cidx', query, 'SORTBY', 'key', 'ASC']);
-        result = {};
-        if (ftsResult[0] === 0)
-          return {
-            status: 'OK',
-            message: 'full text search: 0 record returned',
-            result,
-          };
-        for await (const [_, { key }] of Object.entries<any>(searchResultParser(ftsResult))) {
-          result[key] = JSON.parse(await redis.get(key));
-        }
+        const commitsInRedis = await pipelineExecute(
+          redis,
+          'GET',
+          `${commit.entityName}::${commit.id}::*`
+        );
+        const commitToMerge = { [commit.commitId]: commit };
+        const mergedResult = isEqual(commitsInRedis, [])
+          ? commitToMerge
+          : assign({}, fromArraysToCommitRecords(commitsInRedis), commitToMerge);
+        const currentState: TEntity = reducer(getHistory(values(mergedResult)));
+        redisKey = `${commit.entityName}::${commit.entityId}`;
+        status = await redis.set(redisKey, JSON.stringify(currentState));
+
+        // secondary index
+        await fullTextSearchAddEntity<TEntity>(redisKey, currentState, redis);
       } catch (e) {
         logger.error(util.format('unknown redis error, %j', e));
         throw e;
       }
       return {
         status: 'OK',
-        message: `full text search: ${ftsResult[0]} record(s) returned`,
-        result,
+        message: `${redisKey} merged successfully`,
+        result: [{ key: redisKey, status }],
       };
     },
+    mergeEntityBatch: async <TEntity>({ entityName, commits, reducer }) => {
+      const result = [];
+      if (isEqual(commits, {}))
+        return {
+          status: 'OK',
+          message: 'no commit record exists',
+          result: [],
+        };
+
+      const filterCommits = filter(commits, (item) => entityName === item.entityName);
+      const group: Record<string, Commit[]> = groupBy(filterCommits, ({ id }) => id);
+      const entities = [];
+      keys(group).forEach((id) => {
+        entities.push(assign({ id }, reducer(getHistory(values(group[id])))));
+      });
+
+      try {
+        for await (const entity of entities) {
+          const redisKey = `${entityName}::${entity.id}`;
+          const status = await redis.set(redisKey, JSON.stringify(entity));
+          result.push({ key: redisKey, status });
+
+          // secondary index
+          await fullTextSearchAddEntity<TEntity>(redisKey, entity, redis);
+        }
+      } catch (e) {
+        logger.error(util.format('unknown redis error, %j', e));
+        throw e;
+      }
+
+      return { status: 'OK', message: `${result.length} entitie(s) are merged`, result };
+    },
+    fullTextSearchCommit: async <TEntity>({ query }) =>
+      doFullTextSearch<TEntity>(query, { redis, logger, index: 'cidx' }),
+    fullTextSearchEntity: async <TEntity>({ query }) =>
+      doFullTextSearch<TEntity>(query, { redis, logger, index: 'eidx' }),
   };
 };

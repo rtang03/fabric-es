@@ -14,7 +14,7 @@ export const action = {
   RECONCILE,
   RECONCILE_ERROR,
   RECONCILE_SUCCESS,
-  MERGE,
+  MERGE_COMMIT_BATCH: MERGE_ENTITY,
   reconcile: getAction<ReconcileAction>(RECONCILE),
   merge: getAction<MergeAction>(MERGE),
   reconcileError: getErrorAction(RECONCILE_ERROR),
