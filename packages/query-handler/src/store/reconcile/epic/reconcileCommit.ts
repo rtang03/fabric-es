@@ -1,3 +1,4 @@
+import util from 'util';
 import { Commit } from '@fabric-es/fabric-cqrs';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
@@ -43,10 +44,15 @@ export default (action$: Observable<ReconcileAction>, _) =>
               slice: 'write',
             }
           )({ entityName, isPrivateData: false })
-            .then(({ data: commits }) =>
-              mergeCommitBatch({ tx_id, args: { entityName, commits }, store })
-            )
-            .catch((error) => reconcileError({ tx_id, error }))
+            .then(({ data: commits }) => {
+              const keys = Object.keys(commits);
+              logger.info(util.format('%s commits are reconcile: %j', keys.length, keys));
+              return mergeCommitBatch({ tx_id, args: { entityName, commits }, store });
+            })
+            .catch((error) => {
+              logger.warn(util.format('fail to %s: %j', commandAction.QUERY_BY_ENTITY_NAME, error));
+              return reconcileError({ tx_id, error });
+            })
         );
       }
     )

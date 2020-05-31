@@ -1,7 +1,7 @@
 import deleteByEntityIdEpic from './deleteByEntityId';
 import deleteByEntityNameEpic from './deleteByEntityName';
-import mergeEpic from './merge';
-import mergeBatchEpic from './mergeBatch';
+import mergeEpic from './mergeCommit';
+import mergeBatchEpic from './mergeCommitBatch';
 import queryByEntityIdEpic from './queryByEntityId';
 import queryByEntityNameEpic from './queryByEntityName';
 

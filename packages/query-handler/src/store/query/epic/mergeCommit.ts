@@ -5,32 +5,33 @@ import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
 import type { QueryDatabase } from '../../../types';
 import { action } from '../action';
-import type { DeleteByEntityNameAction } from '../types';
+import type { MergeAction } from '../types';
 
-const { DELETE_BY_ENTITYNAME, deleteSuccess, deleteError } = action;
+const { MERGE_COMMIT, mergeCommitSuccess, mergeCommitError } = action;
 
 export default (
-  action$: Observable<DeleteByEntityNameAction>,
+  action$: Observable<MergeAction>,
   _,
   { queryDatabase, logger }: { queryDatabase: QueryDatabase; logger: Logger }
 ) =>
   action$.pipe(
-    ofType(DELETE_BY_ENTITYNAME),
+    ofType(MERGE_COMMIT),
     map(({ payload }) => payload),
-    mergeMap(({ tx_id, args: { entityName } }) =>
+    mergeMap(({ tx_id, args: { commit } }) =>
       from(
         queryDatabase
-          .deleteCommitByEntityName({ entityName })
-          .then(({ result }) => deleteSuccess({ tx_id, result }))
+          .mergeCommit({ commit })
+          .then(({ result }) => mergeCommitSuccess({ tx_id, result }))
           .catch((error) => {
             logger.error(
               util.format(
-                '[store/query/deleteByEntityName.js] fail to %s: %j',
-                DELETE_BY_ENTITYNAME,
+                '[store/query/mergeCommit.js] fail to %s: tx_id:%s, %j',
+                MERGE_COMMIT,
+                tx_id,
                 error
               )
             );
-            return deleteError({ tx_id, error: error.message });
+            return mergeCommitError({ tx_id, error: error.message });
           })
       )
     )

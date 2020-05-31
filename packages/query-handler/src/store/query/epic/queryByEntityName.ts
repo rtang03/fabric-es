@@ -1,27 +1,42 @@
+import util from 'util';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-import { QueryDatabase } from '../../../types';
-import { getLogger } from '../../../utils';
+import type { Logger } from 'winston';
+import type { QueryDatabase } from '../../../types';
 import { action } from '../action';
-import { QueryByEntityNameAction } from '../types';
+import type { QueryByEntityNameAction } from '../types';
+import isEqual from 'lodash/isEqual';
+
+const { QUERY_BY_ENTITYNAME, querySuccess, queryError } = action;
 
 export default (
   action$: Observable<QueryByEntityNameAction>,
   _,
-  { queryDatabase }: { queryDatabase: QueryDatabase }
+  { queryDatabase, logger }: { queryDatabase: QueryDatabase; logger: Logger }
 ) =>
   action$.pipe(
-    ofType(action.QUERY_BY_ENTITYNAME),
+    ofType(QUERY_BY_ENTITYNAME),
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName } }) =>
       from(
-        queryDatabase.queryCommitByEntityName({ entityName }).then(({ result }) => {
-          const logger = getLogger({ name: '[query-handler] queryByEntityName.js' });
-          logger.info(action.QUERY_SUCCESS);
-
-          return action.querySuccess({ tx_id, result });
-        })
+        queryDatabase
+          .queryCommitByEntityName({ entityName })
+          .then(({ result }) =>
+            isEqual(result, {})
+              ? querySuccess({ tx_id, result: null })
+              : querySuccess({ tx_id, result })
+          )
+          .catch((error) => {
+            logger.error(
+              util.format(
+                '[store/query/queryByEntityName.js] fail to %s: %j',
+                QUERY_BY_ENTITYNAME,
+                error
+              )
+            );
+            return queryError({ tx_id, error: error.message });
+          })
       )
     )
   );

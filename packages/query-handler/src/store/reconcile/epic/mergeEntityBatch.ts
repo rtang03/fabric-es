@@ -1,3 +1,4 @@
+import util from 'util';
 import { Commit } from '@fabric-es/fabric-cqrs';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
@@ -29,7 +30,10 @@ export default (action$: Observable<MergeEntityBatchAction>) =>
           store,
         })({ entityName, commits })
           .then(({ data }) => reconcileSuccess({ tx_id, result: data }))
-          .catch((error) => reconcileError({ tx_id, error }))
+          .catch((error) => {
+            logger.warn(util.format('fail to %s: %j', projAction.MERGE_ENTITY_BATCH, error));
+            return reconcileError({ tx_id, error });
+          })
       );
     })
   );

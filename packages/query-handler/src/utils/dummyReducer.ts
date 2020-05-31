@@ -1,6 +1,6 @@
 import { BaseEvent, Reducer } from '@fabric-es/fabric-cqrs';
 
-interface Increment extends BaseEvent {
+export interface Increment extends BaseEvent {
   readonly type: 'Increment';
   payload: {
     id: string;
@@ -8,7 +8,7 @@ interface Increment extends BaseEvent {
   };
 }
 
-interface Decrement extends BaseEvent {
+export interface Decrement extends BaseEvent {
   readonly type: 'Decrement';
   payload: {
     id: string;
@@ -16,14 +16,14 @@ interface Decrement extends BaseEvent {
   };
 }
 
-type CounterEvents = Increment | Decrement;
+export type CounterEvents = Increment | Decrement;
 
-interface CounterEvent {
+export interface CounterEvent {
   type: string;
   payload: any;
 }
 
-interface Counter {
+export interface Counter {
   id: string;
   value: number;
   ts: number;

@@ -13,12 +13,12 @@ const FIND = '[Project] Find';
 const FIND_SUCCESS = '[Project] Find Success';
 
 export const action = {
-  UPSERT: MERGE,
-  UPSERT_SUCCESS: MERGE_ENTITY_SUCCESS,
-  UPSERT_MANY: MERGE_ENTITY_BATCH,
-  UPSERT_MANY_SUCCESS: MERGE_ENTITY_BATCH_SUCCESS,
-  FIND: MERGE_ENTITY_ERROR,
-  FIND_SUCCESS: MERGE_ENTITY_BATCH_ERROR,
+  UPSERT,
+  UPSERT_SUCCESS,
+  UPSERT_MANY,
+  UPSERT_MANY_SUCCESS,
+  FIND,
+  FIND_SUCCESS,
   find: getAction<FindAction>(FIND),
   upsert: getAction<UpsertAction>(UPSERT),
   mergeEntityBatch: getAction<UpsertManyAction>(UPSERT_MANY),

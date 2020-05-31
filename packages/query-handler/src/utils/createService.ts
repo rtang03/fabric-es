@@ -28,6 +28,7 @@ export const createService: (option: {
     connectionProfile,
     queryDatabase: undefined,
     wallet,
+    reducers: null // todo
   });
 
   return {

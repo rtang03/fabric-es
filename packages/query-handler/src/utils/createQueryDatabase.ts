@@ -15,6 +15,8 @@ import {
   fromArraysToCommitRecords,
   fullTextSearchAdd,
   fullTextSearchAddEntity,
+  isCommit,
+  isCommitRecord,
   pipelineExecute,
 } from '.';
 
@@ -32,6 +34,8 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
   return {
     deleteCommitByEntityId: async ({ entityName, id }) => {
+      if (!entityName || !id) throw new Error('invalid input argument');
+
       const pattern = `${entityName}::${id}::*`;
       let result: number;
 
@@ -49,6 +53,8 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       };
     },
     deleteCommitByEntityName: async ({ entityName }) => {
+      if (!entityName) throw new Error('invalid input argument');
+
       const pattern = `${entityName}::*`;
       let result: number;
 
@@ -61,11 +67,13 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       }
       return {
         status: 'OK',
-        message: `${entityName}: ${result} is removed`,
+        message: `entityName ${entityName}: ${result} record(s) is removed`,
         result,
       };
     },
     queryCommitByEntityId: async ({ entityName, id }) => {
+      if (!entityName || !id) throw new Error('invalid input argument');
+
       const pattern = `${entityName}::${id}::*`;
       let commitArrays: string[][];
       let result: Record<string, Commit>;
@@ -94,6 +102,8 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       };
     },
     queryCommitByEntityName: async ({ entityName }) => {
+      if (!entityName) throw new Error('invalid input argument');
+
       const pattern = `${entityName}::*`;
       let commitArrays: string[][];
       let result: Record<string, Commit>;
@@ -118,6 +128,8 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       };
     },
     mergeCommit: async ({ commit }) => {
+      if (!isCommit(commit)) throw new Error('invalid input argument');
+
       const redisKey = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
       let status;
 
@@ -133,6 +145,8 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       return { status, message: `${redisKey} merged successfully`, result: [redisKey] };
     },
     mergeCommitBatch: async ({ entityName, commits }) => {
+      if (!entityName || !commits) throw new Error('invalid input argument');
+
       const map: Record<string, string> = {};
       const entityNameKeys = [];
       let status;
@@ -169,6 +183,8 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       };
     },
     mergeEntity: async <TEntity>({ commit, reducer }) => {
+      if (!isCommit(commit) || !reducer) throw new Error('invalid input argument');
+
       let status;
       let redisKey: string;
 
@@ -199,6 +215,9 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       };
     },
     mergeEntityBatch: async <TEntity>({ entityName, commits, reducer }) => {
+      if (!entityName || !commits || !reducer)
+        throw new Error('invalid input argument');
+
       const result = [];
       if (isEqual(commits, {}))
         return {
@@ -230,9 +249,15 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
       return { status: 'OK', message: `${result.length} entitie(s) are merged`, result };
     },
-    fullTextSearchCommit: async <TEntity>({ query }) =>
-      doFullTextSearch<TEntity>(query, { redis, logger, index: 'cidx' }),
-    fullTextSearchEntity: async <TEntity>({ query }) =>
-      doFullTextSearch<TEntity>(query, { redis, logger, index: 'eidx' }),
+    fullTextSearchCommit: async <TEntity>({ query }) => {
+      if (!query) throw new Error('invalid input argument');
+
+      return doFullTextSearch<TEntity>(query, { redis, logger, index: 'cidx' });
+    },
+    fullTextSearchEntity: async <TEntity>({ query }) => {
+      if (!query) throw new Error('invalid input argument');
+
+      return doFullTextSearch<TEntity>(query, { redis, logger, index: 'eidx' });
+    },
   };
 };

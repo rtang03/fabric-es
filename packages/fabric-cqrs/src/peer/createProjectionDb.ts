@@ -49,7 +49,7 @@ export const createProjectionDb: (defaultEntityName: string) => ProjectionDb = d
         logger.info('upsert complete');
         resolve({ data: { [id]: {} } });
       }),
-    mergeEntityBatch: ({ commits, reducer }) =>
+    upsertMany: ({ commits, reducer }) =>
       new Promise(resolve => {
         const filterCommits = filter(commits, ({ entityName }) => entityName === defaultEntityName);
         const group = groupBy(filterCommits, ({ id }) => id);

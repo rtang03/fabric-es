@@ -27,11 +27,12 @@ import {
 export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (
   options
 ) => {
-  const { gateway, queryDatabase, channelName, wallet, connectionProfile } = options;
+  const { gateway, queryDatabase, channelName, wallet, connectionProfile, reducers } = options;
+  const logger = getLogger({ name: '[query-handler] createQueryHandler.js' });
   options.queryDatabase = queryDatabase;
+  options.logger = logger;
 
   const store = getStore(options);
-  const logger = getLogger({ name: '[query-handler] createQueryHandler.js' });
 
   const {
     deleteByEntityId,
@@ -168,7 +169,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           );
       return { currentState, save };
     },
-    query_getByEntityName: <TEntity>({ reducer }) =>
+    query_getByEntityName: <TEntity>({ entityName }) =>
       dispatcher<GetByEntityNameResponse<TEntity>, { entityName: string }>(
         (payload) => queryByEntityName(payload),
         {
@@ -179,7 +180,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           ErrorAction: QUERY_ERROR,
           logger,
         },
-        (commits) => fromCommitsToGroupByEntityId<TEntity>(commits, reducer)
+        (commits) => fromCommitsToGroupByEntityId<TEntity>(commits, reducers[entityName])
       ),
     query_getCommitById: () =>
       dispatcher<Commit[], { id: string; entityName: string }>(
@@ -254,13 +255,13 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           if (isCommit(commit)) {
             // step 1. merge one commit to commit records in QueryDatabase
             const doMergeCommit = await dispatcher<string[], { commit: Commit }>(
-              (payload) => queryAction.merge(payload),
+              (payload) => queryAction.mergeCommit(payload),
               {
                 name: 'merge_one_commit',
                 store,
                 slice: 'query',
-                SuccessAction: queryAction.MERGE_SUCCESS,
-                ErrorAction: queryAction.MERGE_ERROR,
+                SuccessAction: queryAction.MERGE_COMMIT_SUCCESS,
+                ErrorAction: queryAction.MERGE_COMMIT_ERROR,
                 logger,
               }
             )({ commit });

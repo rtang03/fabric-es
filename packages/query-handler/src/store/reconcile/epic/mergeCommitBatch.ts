@@ -19,10 +19,10 @@ export default (action$: Observable<MergeCommitBatchAction>) =>
 
       return from(
         dispatcher<string[], { entityName: string; commits: Record<string, Commit> }>(
-          (payload) => queryAction.mergeBatch(payload),
+          (payload) => queryAction.mergeCommitBatch(payload),
           {
-            SuccessAction: queryAction.MERGE_BATCH_SUCCESS,
-            ErrorAction: queryAction.MERGE_BATCH_ERROR,
+            SuccessAction: queryAction.MERGE_COMMIT_BATCH_SUCCESS,
+            ErrorAction: queryAction.MERGE_COMMIT_BATCH_ERROR,
             logger,
             name: 'merge_commit_batch',
             slice: 'query',
@@ -33,7 +33,10 @@ export default (action$: Observable<MergeCommitBatchAction>) =>
             logger.info(util.format('%s commits are merged: %j', data.length, data));
             return mergeEntityBatch({ tx_id, args: { commits, entityName } });
           })
-          .catch((error) => reconcileError({ tx_id, error }))
+          .catch((error) => {
+            logger.warn(util.format('fail to %s: %j', queryAction.MERGE_COMMIT_BATCH, error));
+            return reconcileError({ tx_id, error });
+          })
       );
     })
   );

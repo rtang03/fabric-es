@@ -26,7 +26,7 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
       }
 
       if (tx_id === tid && type === ErrorAction) {
-        logger.warn(util.format('name: %s, tx_id: %s, %s', name, tid, ErrorAction));
+        logger.warn(util.format('[dispatcher] ErrorAction: %s, tx_id: %s, %s', name, tid, ErrorAction));
 
         unsubscribe();
 
@@ -36,7 +36,7 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
 
     store.dispatch(actionDispatcher({ tx_id: tid, args }));
 
-    logger.info(util.format('name: %s, tx_id: %s, %s dispatched', name, tid));
+    logger.info(util.format('[dispatcher] action name: %s, tx_id: %s dispatched', name, tid));
   })
     .then(({ data }) => ({
       status: 'OK',
