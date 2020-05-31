@@ -185,8 +185,11 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
     mergeEntity: async <TEntity>({ commit, reducer }) => {
       if (!isCommit(commit) || !reducer) throw new Error('invalid input argument');
 
-      let status;
-      let redisKey: string;
+      let statusCommit;
+      let statusEntity;
+      let statusEIdx;
+      let redisKeyCommit: string;
+      let redisKeyEntity: string;
 
       try {
         const commitsInRedis = await pipelineExecute(
@@ -195,28 +198,38 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
           `${commit.entityName}::${commit.id}::*`
         );
         const commitToMerge = { [commit.commitId]: commit };
+
         const mergedResult = isEqual(commitsInRedis, [])
           ? commitToMerge
           : assign({}, fromArraysToCommitRecords(commitsInRedis), commitToMerge);
         const currentState: TEntity = reducer(getHistory(values(mergedResult)));
-        redisKey = `${commit.entityName}::${commit.entityId}`;
-        status = await redis.set(redisKey, JSON.stringify(currentState));
+        redisKeyEntity = `${commit.entityName}::${commit.entityId}`;
 
-        // secondary index
-        await fullTextSearchAddEntity<TEntity>(redisKey, currentState, redis);
+        // (1) add newly computed entity
+        statusEntity = await redis.set(redisKeyEntity, JSON.stringify(currentState));
+
+        // (2) add new commit
+        redisKeyCommit = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
+        statusCommit = await redis.set(redisKeyCommit, JSON.stringify(commit));
+
+        // (3) add to secondary index
+        statusEIdx = await fullTextSearchAddEntity<TEntity>(redisKeyEntity, currentState, redis);
       } catch (e) {
         logger.error(util.format('unknown redis error, %j', e));
         throw e;
       }
       return {
         status: 'OK',
-        message: `${redisKey} merged successfully`,
-        result: [{ key: redisKey, status }],
+        message: `${redisKeyEntity} merged successfully`,
+        result: [
+          { key: redisKeyEntity, status: statusEntity },
+          { key: redisKeyCommit, status: statusCommit },
+          { key: `eidx::${redisKeyEntity}`, status: statusEIdx },
+        ],
       };
     },
     mergeEntityBatch: async <TEntity>({ entityName, commits, reducer }) => {
-      if (!entityName || !commits || !reducer)
-        throw new Error('invalid input argument');
+      if (!entityName || !commits || !reducer) throw new Error('invalid input argument');
 
       const result = [];
       if (isEqual(commits, {}))
@@ -235,11 +248,12 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
       try {
         for await (const entity of entities) {
+          // (1) add entity
           const redisKey = `${entityName}::${entity.id}`;
           const status = await redis.set(redisKey, JSON.stringify(entity));
           result.push({ key: redisKey, status });
 
-          // secondary index
+          // (2) secondary index
           await fullTextSearchAddEntity<TEntity>(redisKey, entity, redis);
         }
       } catch (e) {

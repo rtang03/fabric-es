@@ -20,12 +20,17 @@ export const createEntityIndex: (option: {
   desc?: string;
   tag?: string;
 }) => any[] = ({ documentId, redisKey, id, desc, tag }) => {
-  let result;
-  const base = ['eidx', documentId, 1.0, 'REPLACE', 'FIELDS', 'key', redisKey, 'id', id];
+  const result = ['eidx', documentId, 1.0, 'REPLACE', 'FIELDS', 'key', redisKey, 'id', id];
 
-  if (desc) result = [...base, 'desc', desc];
+  if (desc) {
+    result.push('desc');
+    result.push(desc);
+  }
 
-  if (tag) result = [...result, 'tag', tag];
+  if (tag) {
+    result.push('tag');
+    result.push(tag);
+  }
 
   return result;
 };

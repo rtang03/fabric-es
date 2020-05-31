@@ -17,7 +17,7 @@ import {
   commitIndex,
 } from '../../../utils';
 import { action } from '../action';
-import { commit, commits, newCommit } from './__utils__/data';
+import { commit, commits, newCommit, entityName } from './__utils__/data';
 import { getStore } from './__utils__/store';
 
 let store: Store;
@@ -40,7 +40,6 @@ const {
   QUERY_SUCCESS,
   QUERY_ERROR,
 } = action;
-const entityName = 'store_query';
 const reducers = { [entityName]: dummyReducer };
 const id = 'test_001';
 
@@ -62,17 +61,12 @@ beforeAll(async () => {
     }
   )({ entityName })
     .then(({ data }) => console.log(data.message))
-    .catch((error) => console.error(error.message));
+    .catch((error) => console.log(error.message));
 
   await redis
     .send_command('FT.DROP', ['cidx'])
     .then((result) => console.log(`cidx is dropped: ${result}`))
-    .catch((result) => console.error(`cidx is not dropped: ${result}`));
-
-  await redis
-    .send_command('FT.DROP', ['eidx'])
-    .then((result) => console.log(`eidx is dropped: ${result}`))
-    .catch((result) => console.error(`eidx is not dropped: ${result}`));
+    .catch((result) => console.log(`cidx is not dropped: ${result}`));
 });
 
 afterAll(async () => new Promise((done) => setTimeout(() => done(), 2000)));
@@ -228,12 +222,12 @@ describe('Store/query:  failure tests', () => {
 });
 
 describe('Store/query Test', () => {
-  beforeAll(async () => {
-    await redis
+  beforeAll(async () =>
+    redis
       .send_command('FT.CREATE', commitIndex)
       .then((result) => console.log(`cidx is created: ${result}`))
-      .catch((result) => console.error(`cidx is not created: ${result}`));
-  });
+      .catch((result) => console.error(`cidx is not created: ${result}`))
+  );
 
   it('should #1 mergeCommit', async () =>
     dispatcher<string[], { commit: Commit }>((payload) => mergeCommit(payload), {

@@ -253,22 +253,6 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           }
 
           if (isCommit(commit)) {
-            // step 1. merge one commit to commit records in QueryDatabase
-            const doMergeCommit = await dispatcher<string[], { commit: Commit }>(
-              (payload) => queryAction.mergeCommit(payload),
-              {
-                name: 'merge_one_commit',
-                store,
-                slice: 'query',
-                SuccessAction: queryAction.MERGE_COMMIT_SUCCESS,
-                ErrorAction: queryAction.MERGE_COMMIT_ERROR,
-                logger,
-              }
-            )({ commit });
-
-            console.log(doMergeCommit.data);
-
-            // step 2. merge one commit to entity record in QueryDatabase
             const doMergeEntity = await dispatcher<
               { key: string; status: string },
               { commit: Commit }

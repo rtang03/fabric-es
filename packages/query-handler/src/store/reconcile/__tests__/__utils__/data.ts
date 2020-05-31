@@ -1,7 +1,6 @@
 const id = 'test_001';
-const tag = 'store,proj';
-
-export const entityName = 'store_proj';
+export const entityName = 'store_reconile';
+const tag = 'store,reconcile';
 
 export const commit = {
   id,
@@ -26,7 +25,7 @@ export const newCommit = {
   id: 'test_001',
   entityName,
   version: 1,
-  commitId: '20200528133520841',
+  commitId: '20200528133520842',
   entityId: 'test_001',
   events: [
     {

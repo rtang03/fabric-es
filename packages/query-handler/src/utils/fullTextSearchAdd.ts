@@ -27,14 +27,12 @@ export const fullTextSearchAddEntity = async <
   entity: TEntity,
   redis: Redis
 ) => {
-  return redis.send_command(
-    'FT.ADD',
-    createEntityIndex({
-      documentId: `eidx::${redisKey}`,
-      redisKey,
-      id: entity.id,
-      desc: entity?.desc,
-      tag: entity?.tag,
-    })
-  );
+  const index = createEntityIndex({
+    documentId: `eidx::${redisKey}`,
+    redisKey,
+    id: entity.id,
+    desc: entity?.desc,
+    tag: entity?.tag,
+  });
+  return redis.send_command('FT.ADD', index);
 };
