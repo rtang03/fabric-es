@@ -20,17 +20,25 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
           if (typeGuard(result)) resolve({ data });
           else {
             logger.error(util.format('fail to pass TypeGuard, %s, %j', name, result));
-            reject(new Error(`fail to pass TypeGuard: ${name}`));
+            reject(`fail to pass TypeGuard: ${name}`);
           }
         else resolve({ data });
       }
 
       if (tx_id === tid && type === ErrorAction) {
-        logger.warn(util.format('[dispatcher] ErrorAction: [%s], tx_id: %s, %s, %j', name, tid, ErrorAction, error));
+        logger.warn(
+          util.format(
+            '[dispatcher] ErrorAction: [%s], tx_id: %s, %s, %j',
+            name,
+            tid,
+            ErrorAction,
+            error
+          )
+        );
 
         unsubscribe();
 
-        reject(new Error(util.format('%s, %j', type, error)));
+        reject(util.format('%s, %j', type, error));
       }
     });
 

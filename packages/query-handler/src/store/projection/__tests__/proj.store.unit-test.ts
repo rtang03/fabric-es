@@ -2,7 +2,7 @@ require('dotenv').config({ path: './.env.test' });
 import { Commit } from '@fabric-es/fabric-cqrs';
 import Redis from 'ioredis';
 import { Store } from 'redux';
-import type { QueryDatabaseResponse } from '../../../types';
+import type { QueryDatabase, QueryDatabaseResponse } from '../../../types';
 import {
   commitIndex,
   createQueryDatabase,
@@ -19,6 +19,7 @@ import { getStore } from './__utils__/store';
 
 let store: Store;
 let redis: Redis.Redis;
+let queryDatabase: QueryDatabase;
 const logger = getLogger({ name: 'proj.store.unit-test.ts' });
 const reducers = { [entityName]: dummyReducer };
 const id = 'test_001';
@@ -33,7 +34,7 @@ const {
 
 beforeAll(async () => {
   redis = new Redis();
-  const queryDatabase = createQueryDatabase(redis);
+  queryDatabase = createQueryDatabase(redis);
   store = getStore({ queryDatabase, reducers, logger });
 
   await dispatcher<QueryDatabaseResponse, { entityName: string }>(
@@ -61,7 +62,24 @@ beforeAll(async () => {
     .catch((result) => console.log(`eidx is not dropped: ${result}`));
 });
 
-afterAll(async () => new Promise((done) => setTimeout(() => done(), 2000)));
+afterAll(async () => {
+  await redis
+    .send_command('FT.DROP', ['cidx'])
+    .then((result) => console.log(`cidx is dropped: ${result}`))
+    .catch((result) => console.log(`cidx is not dropped: ${result}`));
+
+  await redis
+    .send_command('FT.DROP', ['eidx'])
+    .then((result) => console.log(`eidx is dropped: ${result}`))
+    .catch((result) => console.log(`eidx is not dropped: ${result}`));
+
+  await queryDatabase
+    .deleteCommitByEntityName({ entityName })
+    .then(({ message }) => console.log(message))
+    .catch((result) => console.log(result));
+
+  return new Promise((done) => setTimeout(() => done(), 2000));
+});
 
 describe('Store/projection: failure tests', () => {
   it('should fail to mergeEntity: invalid argument: missing commit', async () =>
@@ -78,7 +96,7 @@ describe('Store/projection: failure tests', () => {
     )({ commit: null }).then(({ data, status, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error.message).toContain('invalid input argument');
+      expect(error).toContain('invalid input argument');
     }));
 
   it('should fail to mergeEntityBatch: invalid argument: missing commits', async () =>
@@ -95,7 +113,7 @@ describe('Store/projection: failure tests', () => {
     )({ entityName, commits: null }).then(({ data, status, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error.message).toContain('invalid input argument');
+      expect(error).toContain('invalid input argument');
     }));
 
   it('should fail to mergeEntityBatch: invalid argument: missing entityName', async () =>
@@ -112,7 +130,7 @@ describe('Store/projection: failure tests', () => {
     )({ entityName: null, commits }).then(({ data, status, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error.message).toContain('invalid input argument');
+      expect(error).toContain('invalid input argument');
     }));
 
   it('should fail to mergeEntityBatch: invalid argument: empty commits', async () =>
@@ -192,6 +210,7 @@ describe('Store/query Test', () => {
           status: 'OK',
         },
         { key: 'eidx::store_projection::test_001', status: 'OK' },
+        { key: 'cidx::store_projection::test_001::20200528133520842', status: 'OK' },
       ]);
     }));
 

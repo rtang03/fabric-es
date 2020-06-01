@@ -4,6 +4,7 @@ import Redis from 'ioredis';
 import { Store } from 'redux';
 import type {
   GetByEntityNameResponse,
+  QueryDatabase,
   QueryDatabaseResponse,
   QueryHandlerResponse,
 } from '../../../types';
@@ -22,6 +23,7 @@ import { getStore } from './__utils__/store';
 
 let store: Store;
 let redis: Redis.Redis;
+let queryDatabase: QueryDatabase;
 
 const logger = getLogger({ name: 'query.store.unit-test.ts' });
 const {
@@ -45,7 +47,7 @@ const id = 'test_001';
 
 beforeAll(async () => {
   redis = new Redis();
-  const queryDatabase = createQueryDatabase(redis);
+  queryDatabase = createQueryDatabase(redis);
   store = getStore({ queryDatabase, reducers, logger });
 
   // tear up
@@ -69,7 +71,19 @@ beforeAll(async () => {
     .catch((result) => console.log(`cidx is not dropped: ${result}`));
 });
 
-afterAll(async () => new Promise((done) => setTimeout(() => done(), 2000)));
+afterAll(async () => {
+  await redis
+    .send_command('FT.DROP', ['cidx'])
+    .then((result) => console.log(`cidx is dropped: ${result}`))
+    .catch((result) => console.log(`cidx is not dropped: ${result}`));
+
+  await queryDatabase
+    .deleteCommitByEntityName({ entityName })
+    .then(({ message }) => console.log(message))
+    .catch((result) => console.log(result));
+
+  return new Promise((done) => setTimeout(() => done(), 2000));
+});
 
 describe('Store/query:  failure tests', () => {
   it('should queryByEntityName with no result returned', async () =>
@@ -103,7 +117,7 @@ describe('Store/query:  failure tests', () => {
     )({ entityName: null }).then(({ data, error, status }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error.message).toContain('invalid input argument');
+      expect(error).toContain('invalid input argument');
     }));
 
   it('should fail to queryByEntityId: invalid argument', async () =>
@@ -121,7 +135,7 @@ describe('Store/query:  failure tests', () => {
     )({ entityName, id: null }).then(({ data, status, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error.message).toContain('invalid input argument');
+      expect(error).toContain('invalid input argument');
     }));
 
   it('should fail to mergeCommit: invalid argument', async () =>
@@ -135,7 +149,7 @@ describe('Store/query:  failure tests', () => {
     })({ commit: null }).then(({ status, data, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error.message).toContain('invalid input argument');
+      expect(error).toContain('invalid input argument');
     }));
 
   it('should fail to mergeCommitBatch: invalid argument', async () =>
@@ -152,7 +166,7 @@ describe('Store/query:  failure tests', () => {
     )({ entityName, commits: null }).then(({ status, data, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error.message).toContain('invalid input argument');
+      expect(error).toContain('invalid input argument');
     }));
 
   it('should fail to deleteByEntityId: invalid argument', async () =>
@@ -169,7 +183,7 @@ describe('Store/query:  failure tests', () => {
     )({ entityName, id: null }).then(({ status, data, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error.message).toContain('invalid input argument');
+      expect(error).toContain('invalid input argument');
     }));
 
   it('should fail to deleteByEntityName: invalid argument', async () =>
@@ -186,7 +200,7 @@ describe('Store/query:  failure tests', () => {
     )({ entityName: null }).then(({ status, data, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error.message).toContain('invalid input argument');
+      expect(error).toContain('invalid input argument');
     }));
 
   it('should fail to mergeCommit, where cidx is not exist', async () =>
@@ -200,7 +214,7 @@ describe('Store/query:  failure tests', () => {
     })({ commit }).then(({ status, data, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error.message).toContain('Unknown index name');
+      expect(error).toContain('Unknown index name');
     }));
 
   it('should fail to mergeCommitBatch, where cidx is not exist', async () =>
@@ -217,7 +231,7 @@ describe('Store/query:  failure tests', () => {
     )({ entityName, commits }).then(({ status, data, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error.message).toContain('Unknown index name');
+      expect(error).toContain('Unknown index name');
     }));
 });
 

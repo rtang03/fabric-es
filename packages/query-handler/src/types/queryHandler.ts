@@ -74,7 +74,7 @@ export interface QueryHandler {
   reconcile: () => (payload: {
     entityName: string;
     reducer: Reducer;
-  }) => Promise<QueryHandlerResponse>;
+  }) => Promise<QueryHandlerResponse<{ key: string; status: string }[]>>;
   subscribeHub: () => Promise<any>;
   unsubscribeHub: () => void;
   disconnect: () => void;

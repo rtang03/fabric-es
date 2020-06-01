@@ -36,7 +36,7 @@ export default (action$: Observable<MergeCommitBatchAction>, _, { logger }: { lo
                 data
               )
             );
-            return mergeEntityBatch({ tx_id, args: { commits, entityName } });
+            return mergeEntityBatch({ tx_id, args: { commits, entityName }, store });
           })
           .catch((error) => {
             logger.error(

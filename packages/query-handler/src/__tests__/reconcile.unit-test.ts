@@ -11,7 +11,7 @@ import {
   commitIndex,
   createQueryDatabase,
   createQueryHandler,
-  dummyReducer,
+  entityIndex,
   isCommitRecord,
 } from '../utils';
 import { reducer } from './__utils__';
@@ -30,9 +30,10 @@ const entityName = 'test_reconcile';
 const id = `qh_test_001`;
 const id2 = `qh_test_002`;
 const enrollmentId = orgAdminId;
-const reducers = { [entityName]: dummyReducer };
+const reducers = { [entityName]: reducer };
 
 let queryHandler: QueryHandler;
+let redis: Redis.Redis;
 
 /**
  * ./dn-run-1-px-db-red-auth.sh
@@ -68,7 +69,7 @@ beforeAll(async () => {
     });
 
     // localhost:6379
-    const redis = new Redis();
+    redis = new Redis();
 
     const queryDatabase = createQueryDatabase(redis);
 
@@ -106,20 +107,47 @@ beforeAll(async () => {
 
     await redis
       .send_command('FT.DROP', ['cidx'])
-      .then((result) => console.log(`commitIndex is dropped: ${result}`))
-      .catch((result) => console.error(`commitIndex is not dropped: ${result}`));
+      .then((result) => console.log(`cidx is dropped: ${result}`))
+      .catch((result) => console.log(`cidx is not dropped: ${result}`));
 
     await redis
       .send_command('FT.CREATE', commitIndex)
-      .then((result) => console.log(`commitIndex is created: ${result}`))
-      .catch((result) => console.error(`commitIndex is not created: ${result}`));
+      .then((result) => console.log(`cidx is created: ${result}`))
+      .catch((result) => console.log(`cidx is not created: ${result}`));
+
+    await redis
+      .send_command('FT.DROP', ['eidx'])
+      .then((result) => console.log(`eidx is dropped: ${result}`))
+      .catch((result) => console.log(`eidx is not dropped: ${result}`));
+
+    await redis
+      .send_command('FT.CREATE', entityIndex)
+      .then((result) => console.log(`eidx is created: ${result}`))
+      .catch((result) => console.log(`eidx is not created: ${result}`));
   } catch (e) {
     console.error(e);
     process.exit(1);
   }
 });
 
-afterAll(async () => new Promise((done) => setTimeout(() => done(), 1000)));
+afterAll(async () => {
+  await redis
+    .send_command('FT.DROP', ['cidx'])
+    .then((result) => console.log(`cidx is dropped: ${result}`))
+    .catch((result) => console.log(`cidx is not dropped: ${result}`));
+
+  await redis
+    .send_command('FT.DROP', ['eidx'])
+    .then((result) => console.log(`eidx is dropped: ${result}`))
+    .catch((result) => console.log(`eidx is not dropped: ${result}`));
+
+  await queryHandler
+    .query_deleteByEntityName()({ entityName })
+    .then((data) => console.log(`${data} records deleted`))
+    .catch((error) => console.log(error));
+
+  return new Promise((done) => setTimeout(() => done(), 1000));
+});
 
 describe('Reconcile Tests', () => {
   it('should create #1 record for id1', async () =>
@@ -144,18 +172,18 @@ describe('Reconcile Tests', () => {
   it('should fail to reconcile non-existing entityName', async () =>
     queryHandler
       .reconcile()({ entityName: 'Noop', reducer })
-      .then(({ data }) => {
-        expect(data.status).toEqual('OK');
-        expect(data.message).toEqual('no commit record exists');
+      .then(({ data, status }) => {
+        expect(data).toBeNull();
+        expect(status).toEqual('OK');
       }));
 
   it('should reconcile', async () =>
     queryHandler
       .reconcile()({ entityName, reducer })
-      .then(({ data }) => {
-        expect(data.status).toEqual('OK');
-        expect(data.message).toEqual('1 records merged successfully');
-        expect(data.result.length).toEqual(1);
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual([{ key: 'test_reconcile::qh_test_001', status: 'OK' }]);
+        expect(data.length).toEqual(1);
       }));
 
   it('should fail to query_getById: non-existing entityName', async () =>
@@ -166,7 +194,7 @@ describe('Reconcile Tests', () => {
         expect(save).toBeNull();
       }));
 
-  it('should fail to query_getById: non-existing entityName', async () =>
+  it('should fail to query_getById: non-existing entityId', async () =>
     queryHandler
       .query_getById({ enrollmentId, entityName, id: 'noop', reducer })
       .then(({ currentState, save }) => {
@@ -204,10 +232,10 @@ describe('Reconcile Tests', () => {
   it('should reconcile', async () =>
     queryHandler
       .reconcile()({ entityName, reducer })
-      .then(({ data }) => {
-        expect(data.status).toEqual('OK');
-        expect(data.message).toEqual('2 records merged successfully');
-        expect(data.result.length).toEqual(2);
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual([{ key: 'test_reconcile::qh_test_001', status: 'OK' }]);
+        expect(data.length).toEqual(1);
       }));
 
   it('should query_getById for id1', async () =>
@@ -224,8 +252,7 @@ describe('Reconcile Tests', () => {
     queryHandler
       .query_getByEntityName({ entityName })({ entityName: 'noop' })
       .then(({ data }) => {
-        expect(data.currentStates).toEqual([]);
-        expect(data.errors).toEqual([]);
+        expect(data).toBeNull();
       }));
 
   it('should query_getByEntityName', async () =>
@@ -256,10 +283,13 @@ describe('Reconcile Tests', () => {
   it('should reconcile', async () =>
     queryHandler
       .reconcile()({ entityName, reducer })
-      .then(({ data }) => {
-        expect(data.status).toEqual('OK');
-        expect(data.message).toEqual('3 records merged successfully');
-        expect(data.result.length).toEqual(3);
+      .then(({ data, status }) => {
+        expect(data).toEqual([
+          { key: 'test_reconcile::qh_test_001', status: 'OK' },
+          { key: 'test_reconcile::qh_test_002', status: 'OK' },
+        ]);
+        expect(status).toEqual('OK');
+        expect(data.length).toEqual(2);
       }));
 
   it('should query_getById for id2', async () =>
@@ -308,24 +338,24 @@ describe('Reconcile Tests', () => {
   it('should fail to query_deleteByEntityId for id1: non-existing entityName', async () =>
     queryHandler
       .query_deleteByEntityId()({ id, entityName: 'noop' })
-      .then(({ data }) => {
-        expect(data.status).toEqual('OK');
-        expect(data.result).toEqual(0);
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual(0);
       }));
 
   it('should fail to query_deleteByEntityId for id1: non-existing entityId', async () =>
     queryHandler
       .query_deleteByEntityId()({ entityName, id: 'noop' })
-      .then(({ data }) => {
-        expect(data.status).toEqual('OK');
-        expect(data.result).toEqual(0);
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual(0);
       }));
 
   it('should query_deleteByEntityId for id1', async () =>
     queryHandler
       .query_deleteByEntityId()({ id, entityName })
-      .then(({ data }) => {
-        expect(data.status).toEqual('OK');
-        expect(data.result).toEqual(2);
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual(2);
       }));
 });

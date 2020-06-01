@@ -1,21 +1,16 @@
 require('dotenv').config({ path: './.env.test' });
-import { Commit } from '@fabric-es/fabric-cqrs';
 import Redis from 'ioredis';
 import { Store } from 'redux';
-import type { QueryDatabaseResponse, QueryHandlerResponse } from '../../../types';
+import type { QueryDatabaseResponse } from '../../../types';
 import {
-  commitIndex,
   createQueryDatabase,
   dispatcher,
   dummyReducer,
-  entityIndex,
   getLogger,
-  isCommitRecord,
 } from '../../../utils';
-import { action as projAction } from '../../projection';
 import { action as queryAction } from '../../query';
-import { action as reconcileAction, action } from '../action';
-import { commit, commits, newCommit, entityName } from './__utils__/data';
+import {  action } from '../action';
+import { entityName } from './__utils__/data';
 import { getStore } from './__utils__/store';
 
 let store: Store;
@@ -68,7 +63,7 @@ describe('Store/reconcile: failure tests', () => {
     })({ entityName: null }).then(({ data, status, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error.message).toContain('invalid input argument');
+      expect(error).toContain('invalid input argument');
     }));
 
   it('should fail to reconcile: no such entityName', async () =>
@@ -83,22 +78,3 @@ describe('Store/reconcile: failure tests', () => {
       expect(result).toEqual({ status: 'OK', data: [] });
     }));
 });
-
-// describe('Store/query Test', () => {
-//   beforeAll(async () =>
-//     redis
-//       .send_command('FT.CREATE', commitIndex)
-//       .then((result) => console.log(`cidx is created: ${result}`))
-//       .catch((result) => console.error(`cidx is not created: ${result}`))
-//   );
-//
-//   it('should ', async () =>
-//     dispatcher<any, { entityName: string }>((payload) => payload, {
-//       name: 'reconcile',
-//       slice: 'reconcile',
-//       store,
-//       logger,
-//       SuccessAction: RECONCILE_SUCCESS,
-//       ErrorAction: RECONCILE_ERROR,
-//     })({ entityName }).then((result) => console.log(result)));
-// });

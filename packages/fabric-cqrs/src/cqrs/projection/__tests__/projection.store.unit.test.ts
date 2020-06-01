@@ -56,7 +56,7 @@ describe('CQRS - projection Tests', () => {
         done();
       }
     });
-    store.dispatch(action.mergeEntityBatch({ tx_id: tid, args: { commits }, store }));
+    store.dispatch(action.upsertMany({ tx_id: tid, args: { commits }, store }));
   });
 
   it('should find #1 by All', done => {

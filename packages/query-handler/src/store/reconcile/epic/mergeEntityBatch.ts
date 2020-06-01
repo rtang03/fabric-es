@@ -28,7 +28,11 @@ export default (action$: Observable<MergeEntityBatchAction>, _, { logger }: { lo
           slice: 'projection',
           store,
         })({ entityName, commits })
-          .then(({ data }) => reconcileSuccess({ tx_id, result: data }))
+          .then(({ status, data, error }) =>
+            status === 'OK'
+              ? reconcileSuccess({ tx_id, result: data })
+              : reconcileError({ tx_id, error })
+          )
           .catch((error) => {
             logger.error(
               util.format(

@@ -137,9 +137,8 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         }
       )({ id, entityName });
 
-      const currentState = isEqual(data, {}) ? null : reducer(getHistory(data));
-      const version = Object.keys(data).length;
-      const save = isEqual(data, {})
+      const currentState = data ? reducer(getHistory(data)) : null;
+      const save = !data
         ? null
         : dispatcher<Record<string, Commit>, { events: any[] }>(
             ({ tx_id, args: { events } }) =>
@@ -152,7 +151,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
                 args: {
                   entityName,
                   id,
-                  version,
+                  version: Object.keys(data).length,
                   isPrivateData: false,
                   events: addTimestamp(events),
                 },
@@ -180,7 +179,10 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           ErrorAction: QUERY_ERROR,
           logger,
         },
-        (commits) => fromCommitsToGroupByEntityId<TEntity>(commits, reducers[entityName])
+        (commits) =>
+          commits
+            ? fromCommitsToGroupByEntityId<TEntity>(commits, reducers[entityName])
+            : null
       ),
     query_getCommitById: () =>
       dispatcher<Commit[], { id: string; entityName: string }>(
@@ -220,7 +222,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
         }
       ),
     reconcile: () =>
-      dispatcher<any, { entityName: string }>(
+      dispatcher<{ key: string; status: string }[], { entityName: string }>(
         ({ tx_id, args }) =>
           reconcileAction.reconcile({ tx_id, args, store, channelName, connectionProfile, wallet }),
         {

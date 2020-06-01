@@ -104,7 +104,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
     queryCommitByEntityName: async ({ entityName }) => {
       if (!entityName) throw new Error('invalid input argument');
 
-      const pattern = `${entityName}::*`;
+      const pattern = `${entityName}::*::*`;
       let commitArrays: string[][];
       let result: Record<string, Commit>;
 

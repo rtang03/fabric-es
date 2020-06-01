@@ -1,145 +1,19 @@
 require('dotenv').config({ path: './.env.test' });
 import Redis from 'ioredis';
 import type { QueryDatabase } from '../types';
-import { entityIndex, createQueryDatabase } from '../utils';
+import { entityIndex, createQueryDatabase, commitIndex } from '../utils';
 import { reducer } from './__utils__';
+import { commit, commits, newCommit } from './__utils__/qdb.data';
 
 let queryDatabase: QueryDatabase;
+let redis: Redis.Redis;
 
-const commit = {
-  id: 'qh_proj_test_001',
-  entityName: 'test_proj',
-  version: 0,
-  commitId: '20200528133519841',
-  entityId: 'qh_proj_test_001',
-  events: [
-    {
-      type: 'Increment',
-      payload: {
-        id: 'qh_proj_test_001',
-        desc: 'query handler #1 proj',
-        tag: 'projection',
-        ts: 1590738792,
-      },
-    },
-  ],
-};
-const newCommit = {
-  id: 'qh_proj_test_001',
-  entityName: 'test_proj',
-  version: 1,
-  commitId: '20200528133520841',
-  entityId: 'qh_proj_test_001',
-  events: [
-    {
-      type: 'Increment',
-      payload: {
-        id: 'qh_proj_test_001',
-        desc: 'query handler #2 proj',
-        tag: 'projection',
-        ts: 1590739000,
-      },
-    },
-  ],
-};
-const commits = {
-  '20200528133530001': {
-    id: 'qh_proj_test_002',
-    entityName: 'test_proj',
-    version: 0,
-    commitId: '20200528133530001',
-    entityId: 'qh_proj_test_001',
-    events: [
-      {
-        type: 'Increment',
-        payload: {
-          id: 'qh_proj_test_002',
-          desc: 'query handler #3 proj',
-          tag: 'projection',
-          ts: 1590740000,
-        },
-      },
-    ],
-  },
-  '20200528133530002': {
-    id: 'qh_proj_test_002',
-    entityName: 'test_proj',
-    version: 1,
-    commitId: '20200528133530002',
-    entityId: 'qh_proj_test_002',
-    events: [
-      {
-        type: 'Increment',
-        payload: {
-          id: 'qh_proj_test_002',
-          desc: 'query handler #4 proj',
-          tag: 'projection',
-          ts: 1590740001,
-        },
-      },
-    ],
-  },
-  '20200528133530003': {
-    id: 'qh_proj_test_002',
-    entityName: 'test_proj',
-    version: 2,
-    commitId: '20200528133530003',
-    entityId: 'qh_proj_test_002',
-    events: [
-      {
-        type: 'Increment',
-        payload: {
-          id: 'qh_proj_test_002',
-          desc: 'query handler #5 proj',
-          tag: 'projection',
-          ts: 1590740002,
-        },
-      },
-    ],
-  },
-  '20200528133530004': {
-    id: 'qh_proj_test_003',
-    entityName: 'test_proj',
-    version: 0,
-    commitId: '20200528133530004',
-    entityId: 'qh_proj_test_003',
-    events: [
-      {
-        type: 'Increment',
-        payload: {
-          id: 'qh_proj_test_003',
-          desc: 'query handler #6 proj',
-          tag: 'projection',
-          ts: 1590740003,
-        },
-      },
-    ],
-  },
-  '20200528133530005': {
-    id: 'qh_proj_test_003',
-    entityName: 'test_proj',
-    version: 1,
-    commitId: '20200528133530005',
-    entityId: 'qh_proj_test_003',
-    events: [
-      {
-        type: 'Increment',
-        payload: {
-          id: 'qh_proj_test_003',
-          desc: 'query handler #7 proj',
-          tag: 'projection',
-          ts: 1590740004,
-        },
-      },
-    ],
-  },
-};
 const key = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
 const key2 = `test_proj::qh_proj_test_002`;
 const key3 = `test_proj::qh_proj_test_003`;
 
 beforeAll(async () => {
-  const redis = new Redis();
+  redis = new Redis();
   queryDatabase = createQueryDatabase(redis);
 
   // first commit for merge test
@@ -169,6 +43,33 @@ beforeAll(async () => {
     .send_command('FT.CREATE', entityIndex)
     .then((result) => console.log(`entityIndex is created: ${result}`))
     .catch((result) => console.log(`entityIndex is not created: ${result}`));
+
+  await redis
+    .send_command('FT.DROP', ['cidx'])
+    .then((result) => console.log(`cidx is dropped: ${result}`))
+    .catch((result) => console.log(`cidx is not dropped: ${result}`));
+
+  await redis
+    .send_command('FT.CREATE', commitIndex)
+    .then((result) => console.log(`cidx is created: ${result}`))
+    .catch((result) => console.log(`cidx is not created: ${result}`));
+});
+
+afterAll(async () => {
+  await redis
+    .send_command('FT.DROP', ['eidx'])
+    .then((result) => console.log(`entityIndex is dropped: ${result}`))
+    .catch((result) => console.log(`entityIndex is not dropped: ${result}`));
+
+  await redis
+    .send_command('FT.DROP', ['cidx'])
+    .then((result) => console.log(`cidx is dropped: ${result}`))
+    .catch((result) => console.log(`cidx is not dropped: ${result}`));
+
+  await queryDatabase
+    .deleteCommitByEntityName({ entityName: commit.entityName })
+    .then(({ message }) => console.log(message))
+    .catch((result) => console.log(result));
 });
 
 describe('Projection db test', () => {
@@ -181,6 +82,7 @@ describe('Projection db test', () => {
           { key: 'test_proj::qh_proj_test_001', status: 'OK' },
           { key: 'test_proj::qh_proj_test_001::20200528133520841', status: 'OK' },
           { key: 'eidx::test_proj::qh_proj_test_001', status: 'OK' },
+          { key: 'cidx::test_proj::qh_proj_test_001::20200528133520841', status: 'OK' },
         ],
       })
     ));

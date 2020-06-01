@@ -21,8 +21,8 @@ export const action = {
   FIND_SUCCESS,
   find: getAction<FindAction>(FIND),
   upsert: getAction<UpsertAction>(UPSERT),
-  mergeEntityBatch: getAction<UpsertManyAction>(UPSERT_MANY),
-  mergeEntityBatchError: getSuccessAction(FIND_SUCCESS),
-  mergeEntitySuccess: getSuccessAction(UPSERT_SUCCESS),
-  mergeEntityBatchSuccess: getSuccessAction(UPSERT_MANY_SUCCESS)
+  upsertMany: getAction<UpsertManyAction>(UPSERT_MANY),
+  findSuccess: getSuccessAction(FIND_SUCCESS),
+  upsertSuccess: getSuccessAction(UPSERT_SUCCESS),
+  upsertManySuccess: getSuccessAction(UPSERT_MANY_SUCCESS)
 };
