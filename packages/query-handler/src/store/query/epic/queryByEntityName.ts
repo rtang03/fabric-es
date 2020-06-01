@@ -1,23 +1,42 @@
-import { Utils } from 'fabric-common';
+import util from 'util';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-import { QueryDatabase } from '../../../types';
+import type { Logger } from 'winston';
+import type { QueryDatabase } from '../../../types';
 import { action } from '../action';
-import { QueryByEntityNameAction } from '../types';
+import type { QueryByEntityNameAction } from '../types';
+import isEqual from 'lodash/isEqual';
 
-export default (action$: Observable<QueryByEntityNameAction>, _, context: { queryDatabase: QueryDatabase }) =>
+const { QUERY_BY_ENTITYNAME, querySuccess, queryError } = action;
+
+export default (
+  action$: Observable<QueryByEntityNameAction>,
+  _,
+  { queryDatabase, logger }: { queryDatabase: QueryDatabase; logger: Logger }
+) =>
   action$.pipe(
-    ofType(action.QUERY_BY_ENTITYNAME),
+    ofType(QUERY_BY_ENTITYNAME),
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName } }) =>
       from(
-        context.queryDatabase.queryByEntityName({ entityName }).then(({ data }) => {
-          const logger = Utils.getLogger('[query-handler] queryByEntityName.js');
-          logger.info(action.QUERY_SUCCESS);
-
-          return action.querySuccess({ tx_id, result: data });
-        })
+        queryDatabase
+          .queryCommitByEntityName({ entityName })
+          .then(({ result }) =>
+            isEqual(result, {})
+              ? querySuccess({ tx_id, result: null })
+              : querySuccess({ tx_id, result })
+          )
+          .catch((error) => {
+            logger.error(
+              util.format(
+                '[store/query/queryByEntityName.js] fail to %s: %j',
+                QUERY_BY_ENTITYNAME,
+                error
+              )
+            );
+            return queryError({ tx_id, error: error.message });
+          })
       )
     )
   );

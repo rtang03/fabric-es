@@ -26,13 +26,13 @@ export const repository: (option: {
   reducer: Reducer;
 }) => Repository<TEntity, TEvent> = ({ store, channelName, connectionProfile, wallet }) => <TEntity, TEvent>({
   entityName,
-  reducer
+  reducer,
 }) => {
   const logger = Utils.getLogger('[fabric-cqrs] repository.js');
 
   return {
     create: ({ enrollmentId, id }) => ({
-      save: events =>
+      save: (events) =>
         getPromiseToSave({
           channelName,
           connectionProfile,
@@ -43,14 +43,14 @@ export const repository: (option: {
           events,
           store,
           enrollmentId,
-          isPrivateData: false
-        })
+          isPrivateData: false,
+        }),
     }),
     getById: ({ enrollmentId, id }) =>
       new Promise<{
         currentState: TEntity;
         save: (events: TEvent[]) => Promise<Commit | { error: any }>;
-      }>(resolve => {
+      }>((resolve) => {
         const tid = generateToken();
         const { QUERY_SUCCESS, queryByEntityId } = queryAction;
         const unsubscribe = store.subscribe(() => {
@@ -61,7 +61,7 @@ export const repository: (option: {
             unsubscribe();
             resolve({
               currentState: reducer(getHistory(result)),
-              save: events =>
+              save: (events) =>
                 getPromiseToSave({
                   channelName,
                   connectionProfile,
@@ -72,8 +72,8 @@ export const repository: (option: {
                   version: keys(result).length,
                   store,
                   enrollmentId,
-                  isPrivateData: false
-                })
+                  isPrivateData: false,
+                }),
             });
           }
         });
@@ -81,14 +81,14 @@ export const repository: (option: {
         store.dispatch(
           queryByEntityId({
             tx_id: tid,
-            args: { id, entityName }
+            args: { id, entityName },
           })
         );
 
         logger.info(util.format('queryByEntityId, tx_id: %s, %s, %s', tid, id, entityName));
       }),
     getByEntityName: () =>
-      new Promise<{ data: TEntity[] }>(resolve => {
+      new Promise<{ data: TEntity[] }>((resolve) => {
         const tid = generateToken();
         const { QUERY_SUCCESS, queryByEntityName } = queryAction;
         const unsubscribe = store.subscribe(() => {
@@ -99,7 +99,7 @@ export const repository: (option: {
 
             unsubscribe();
             resolve({
-              data: fromCommitsToGroupByEntityId<TEntity>(result, reducer)
+              data: fromCommitsToGroupByEntityId<TEntity>(result, reducer),
             });
           }
         });
@@ -107,14 +107,14 @@ export const repository: (option: {
         store.dispatch(
           queryByEntityName({
             tx_id: tid,
-            args: { entityName }
+            args: { entityName },
           })
         );
 
         logger.info(util.format('queryByEntityName, tx_id: %s, %s', tid, entityName));
       }),
-    getCommitById: id =>
-      new Promise<{ data: Commit[] }>(resolve => {
+    getCommitById: (id) =>
+      new Promise<{ data: Commit[] }>((resolve) => {
         const tid = generateToken();
         const { QUERY_SUCCESS, queryByEntityId } = queryAction;
         const unsubscribe = store.subscribe(() => {
@@ -130,14 +130,14 @@ export const repository: (option: {
         store.dispatch(
           queryByEntityId({
             tx_id: tid,
-            args: { id, entityName }
+            args: { id, entityName },
           })
         );
 
         logger.info(util.format('getCommitById, tx_id: %s, %s, %s', tid, id, entityName));
       }),
-    getProjection: criteria =>
-      new Promise<{ data: TEntity[] }>(resolve => {
+    getProjection: (criteria) =>
+      new Promise<{ data: TEntity[] }>((resolve) => {
         const tid = generateToken();
         const { FIND_SUCCESS, find } = projectionAction;
         const unsubscribe = store.subscribe(() => {
@@ -155,13 +155,13 @@ export const repository: (option: {
           find({
             tx_id: tid,
             args: criteria,
-            store
+            store,
           })
         );
 
         logger.info(util.format('getProjection, tx_id: %s', tid));
       }),
-    deleteByEntityId: id =>
+    deleteByEntityId: (id) =>
       new Promise<any>((resolve, reject) => {
         const tid = generateToken();
         const { deleteByEntityId, DELETE_ERROR, DELETE_SUCCESS } = writeAction;
@@ -187,14 +187,14 @@ export const repository: (option: {
             connectionProfile,
             wallet,
             tx_id: tid,
-            args: { entityName, id, isPrivateData: false }
+            args: { entityName, id, isPrivateData: false },
           })
         );
 
         logger.info(util.format('deleteByEntityId, tx_id: %s, %s', tid, entityName));
       }),
     deleteByEntityName_query: () =>
-      new Promise<any>(resolve => {
+      new Promise<any>((resolve) => {
         const tid = generateToken();
         const { DELETE_SUCCESS, deleteByEntityName } = queryAction;
         const unsubscribe = store.subscribe(() => {
@@ -211,6 +211,6 @@ export const repository: (option: {
 
         logger.info(util.format('deleteByEntityName_query, tx_id: %s, %s', tid, entityName));
       }),
-    getEntityName: () => entityName
+    getEntityName: () => entityName,
   };
 };

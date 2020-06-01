@@ -3,21 +3,32 @@ import {
   getErrorActionHandler,
   getSuccessActionHandler,
   initialState,
-  State
+  State,
 } from '@fabric-es/fabric-cqrs';
 import { Reducer } from 'redux';
 import { getReducer } from '../../utils/getReducer';
 import { action } from './action';
 
+const {
+  MERGE_COMMIT_SUCCESS,
+  MERGE_COMMIT_ERROR,
+  MERGE_COMMIT_BATCH_ERROR,
+  MERGE_COMMIT_BATCH_SUCCESS,
+  DELETE_ERROR,
+  DELETE_SUCCESS,
+  QUERY_ERROR,
+  QUERY_SUCCESS,
+} = action;
+
 const actionHandler: ActionHandler = {
-  [action.MERGE_SUCCESS]: getSuccessActionHandler(action.MERGE_SUCCESS),
-  [action.MERGE_ERROR]: getErrorActionHandler(action.MERGE_ERROR),
-  [action.MERGE_BATCH_SUCCESS]: getSuccessActionHandler(action.MERGE_BATCH_SUCCESS),
-  [action.MERGE_BATCH_ERROR]: getErrorActionHandler(action.MERGE_BATCH_ERROR),
-  [action.DELETE_SUCCESS]: getSuccessActionHandler(action.DELETE_SUCCESS),
-  [action.DELETE_ERROR]: getErrorActionHandler(action.DELETE_ERROR),
-  [action.QUERY_SUCCESS]: getSuccessActionHandler(action.QUERY_SUCCESS),
-  [action.QUERY_ERROR]: getErrorActionHandler(action.QUERY_ERROR)
+  [MERGE_COMMIT_SUCCESS]: getSuccessActionHandler(MERGE_COMMIT_SUCCESS),
+  [MERGE_COMMIT_ERROR]: getErrorActionHandler(MERGE_COMMIT_ERROR),
+  [MERGE_COMMIT_BATCH_SUCCESS]: getSuccessActionHandler(MERGE_COMMIT_BATCH_SUCCESS),
+  [MERGE_COMMIT_BATCH_ERROR]: getErrorActionHandler(MERGE_COMMIT_BATCH_ERROR),
+  [DELETE_SUCCESS]: getSuccessActionHandler(DELETE_SUCCESS),
+  [DELETE_ERROR]: getErrorActionHandler(DELETE_ERROR),
+  [QUERY_SUCCESS]: getSuccessActionHandler(QUERY_SUCCESS),
+  [QUERY_ERROR]: getErrorActionHandler(QUERY_ERROR),
 };
 
 export const reducer: Reducer<State> = getReducer(initialState, actionHandler);

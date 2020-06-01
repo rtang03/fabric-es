@@ -32,7 +32,7 @@ jobs:
           node-version: '12.x'
           version: '12.x'
       - name: yarn install
-        run: yarn install --frozen-lockfile --ignore-engines
+        run: yarn install --frozen-lockfile
       - name: lint auth, chaincode, fabric-cqrs, operator, gateway-lib, proxy
         run: yarn lint:lib
       - name: lint gw-org*, model-*, ui-account

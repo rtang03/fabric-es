@@ -7,9 +7,18 @@ export {
   getMockRepository,
   getPrivatedataMockRepository,
   createProjectionDb,
-  createQueryDatabase
+  createQueryDatabase,
 } from './peer';
-export { getContract, getNetwork, submit, evaluate, evaluate$ } from './services';
+export {
+  getContract,
+  getNetwork,
+  submit,
+  submit$,
+  submitPrivateData,
+  submitPrivateData$,
+  evaluate,
+  evaluate$,
+} from './services';
 export * from './types';
 export {
   dispatchResult,
@@ -18,6 +27,6 @@ export {
   getErrorAction,
   getErrorActionHandler,
   getSuccessAction,
-  getSuccessActionHandler
+  getSuccessActionHandler,
 } from './cqrs/utils';
-export { isCommit } from './peer/utils';
+export { fromCommitsToGroupByEntityId, getHistory, isCommit } from './peer/utils';

@@ -10,9 +10,10 @@ import { getReducer } from '../../utils/getReducer';
 import { action } from './action';
 
 const actionHandler: ActionHandler = {
-  [action.UPSERT_MANY_SUCCESS]: getSuccessActionHandler(action.UPSERT_MANY_SUCCESS),
-  [action.UPSERT_SUCCESS]: getSuccessActionHandler(action.UPSERT_SUCCESS),
-  [action.FIND_SUCCESS]: getSuccessActionHandler(action.FIND_SUCCESS)
+  [action.MERGE_ENTITY_SUCCESS]: getSuccessActionHandler(action.MERGE_ENTITY_SUCCESS),
+  [action.MERGE_ENTITY_ERROR]: getErrorActionHandler(action.MERGE_ENTITY_ERROR),
+  [action.MERGE_ENTITY_BATCH_SUCCESS]: getSuccessActionHandler(action.MERGE_ENTITY_BATCH_SUCCESS),
+  [action.MERGE_ENTITY_BATCH_ERROR]: getErrorActionHandler(action.MERGE_ENTITY_BATCH_ERROR)
 };
 
 export const reducer: Reducer<State> = getReducer(initialState, actionHandler);

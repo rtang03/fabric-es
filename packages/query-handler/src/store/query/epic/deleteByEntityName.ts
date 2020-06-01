@@ -1,23 +1,37 @@
-import { Utils } from 'fabric-common';
+import util from 'util';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-import { QueryDatabase } from '../../../types';
+import type { Logger } from 'winston';
+import type { QueryDatabase } from '../../../types';
 import { action } from '../action';
-import { DeleteByEntityNameAction } from '../types';
+import type { DeleteByEntityNameAction } from '../types';
 
-export default (action$: Observable<DeleteByEntityNameAction>, _, context: { queryDatabase: QueryDatabase }) =>
+const { DELETE_BY_ENTITYNAME, deleteSuccess, deleteError } = action;
+
+export default (
+  action$: Observable<DeleteByEntityNameAction>,
+  _,
+  { queryDatabase, logger }: { queryDatabase: QueryDatabase; logger: Logger }
+) =>
   action$.pipe(
-    ofType(action.DELETE_BY_ENTITYNAME),
+    ofType(DELETE_BY_ENTITYNAME),
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName } }) =>
       from(
-        context.queryDatabase.deleteByEntityName({ entityName }).then(result => {
-          const logger = Utils.getLogger('[query-handler] deleteByEntityName.js');
-          logger.info(action.DELETE_SUCCESS);
-
-          return action.deleteSuccess({ tx_id, result });
-        })
+        queryDatabase
+          .deleteCommitByEntityName({ entityName })
+          .then(({ result }) => deleteSuccess({ tx_id, result }))
+          .catch((error) => {
+            logger.error(
+              util.format(
+                '[store/query/deleteByEntityName.js] fail to %s: %j',
+                DELETE_BY_ENTITYNAME,
+                error
+              )
+            );
+            return deleteError({ tx_id, error: error.message });
+          })
       )
     )
   );

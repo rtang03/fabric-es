@@ -5,7 +5,6 @@ const { combine, timestamp, label, json } = format;
 export const getLogger: (option: { name: string; sendToConsole?: boolean; enableGCPLogger?: boolean }) => Logger = ({
   name,
   sendToConsole = true,
-  enableGCPLogger = process.env.NODE_ENV === 'production'
 }) => {
   let transportArray: any[] = [
     new transports.File({ filename: `./logs/all.log` }),

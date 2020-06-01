@@ -1,7 +1,4 @@
-import findEpic from './find';
-import upsertEpic from './upsert';
-import upsertManyEpic from './upsertMany';
-import whenQueryDbBatchMerged from './whenQueryDbBatchMerged';
-import whenQueryDbMerged from './whenQueryDbMerged';
+import mergeEntity from './mergeEntity';
+import mergeEntityBatch from './mergeEntityBatch';
 
-export const epic = [whenQueryDbMerged, whenQueryDbBatchMerged, upsertEpic, upsertManyEpic, findEpic];
+export const epic = [mergeEntity, mergeEntityBatch];

@@ -1,32 +1,21 @@
 import { Commit } from '@fabric-es/fabric-cqrs';
 
-export interface FindAction {
+export interface MergeEntityAction {
   type: string;
   payload?: {
     tx_id: string;
     args: {
-      where?: Record<string, any>;
-      all?: boolean;
-      contain?: string | number;
+      commit: Commit;
     };
   };
 }
 
-export interface UpsertAction {
+export interface MergeEntityBatchAction {
   type: string;
   payload?: {
     tx_id: string;
     args: {
-      commit: Record<string, Commit>;
-    };
-  };
-}
-
-export interface UpsertManyAction {
-  type: string;
-  payload?: {
-    tx_id: string;
-    args: {
+      entityName: string;
       commits: Record<string, Commit>;
     };
   };

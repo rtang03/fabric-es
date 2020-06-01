@@ -106,7 +106,6 @@ export const createService = async ({
             user_id: headers.user_id,
             is_admin: headers.is_admin,
             username: headers.username,
-            // enrollmentId: headers.user_id
           })
         });
       };

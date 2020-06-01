@@ -1,5 +1,5 @@
 import { getAction, getErrorAction, getSuccessAction } from '@fabric-es/fabric-cqrs';
-import {
+import type {
   DeleteByEntityIdAction,
   DeleteByEntityNameAction,
   MergeAction,
@@ -16,12 +16,12 @@ const QUERY_BY_ENTITYNAME = '[Entity-Q] Query entities By EntityName';
 const QUERY_BY_ENTITY_ID = '[Entity-Q] Query entities By entityId';
 const QUERY_ERROR = '[Entity-Q] Query Error';
 const QUERY_SUCCESS = '[Entity-Q] Query Success';
-const MERGE = '[Entity-Q] Merge entity';
-const MERGE_ERROR = '[Entity-Q] Merge Error';
-const MERGE_SUCCESS = '[Entity-Q] Merge Success';
-const MERGE_BATCH = '[Entity-Q] Merge records of entities';
-const MERGE_BATCH_ERROR = '[Entity-Q] Merge Batch Error';
-const MERGE_BATCH_SUCCESS = '[Entity-Q] Merge Batch Success';
+const MERGE_COMMIT = '[Entity-Q] Merge commit';
+const MERGE_COMMIT_ERROR = '[Entity-Q] Merge Error';
+const MERGE_COMMIT_SUCCESS = '[Entity-Q] Merge Success';
+const MERGE_COMMIT_BATCH = '[Entity-Q] Merge records of entities';
+const MERGE_COMMIT_BATCH_ERROR = '[Entity-Q] Merge Batch Error';
+const MERGE_COMMIT_BATCH_SUCCESS = '[Entity-Q] Merge Batch Success';
 
 export const action = {
   DELETE_BY_ENTITYNAME,
@@ -32,24 +32,24 @@ export const action = {
   QUERY_BY_ENTITY_ID,
   QUERY_ERROR,
   QUERY_SUCCESS,
-  MERGE,
-  MERGE_ERROR,
-  MERGE_SUCCESS,
-  MERGE_BATCH,
-  MERGE_BATCH_ERROR,
-  MERGE_BATCH_SUCCESS,
+  MERGE_COMMIT,
+  MERGE_COMMIT_ERROR,
+  MERGE_COMMIT_SUCCESS,
+  MERGE_COMMIT_BATCH,
+  MERGE_COMMIT_BATCH_ERROR,
+  MERGE_COMMIT_BATCH_SUCCESS,
   deleteByEntityId: getAction<DeleteByEntityIdAction>(DELETE_BY_ENTITY_ID),
   deleteByEntityName: getAction<DeleteByEntityNameAction>(DELETE_BY_ENTITYNAME),
-  merge: getAction<MergeAction>(MERGE),
-  mergeBatch: getAction<MergeBatchAction>(MERGE_BATCH),
+  mergeCommit: getAction<MergeAction>(MERGE_COMMIT),
+  mergeCommitBatch: getAction<MergeBatchAction>(MERGE_COMMIT_BATCH),
   queryByEntityName: getAction<QueryByEntityNameAction>(QUERY_BY_ENTITYNAME),
   queryByEntityId: getAction<QueryByEntityIdAction>(QUERY_BY_ENTITY_ID),
   deleteError: getErrorAction(DELETE_ERROR),
   deleteSuccess: getSuccessAction(DELETE_SUCCESS),
   queryError: getErrorAction(QUERY_ERROR),
   querySuccess: getSuccessAction(QUERY_SUCCESS),
-  mergeError: getErrorAction(MERGE_ERROR),
-  mergeSuccess: getSuccessAction(MERGE_SUCCESS),
-  mergeBatchError: getErrorAction(MERGE_BATCH_ERROR),
-  mergeBatchSuccess: getSuccessAction(MERGE_BATCH_SUCCESS)
+  mergeCommitError: getErrorAction(MERGE_COMMIT_ERROR),
+  mergeCommitSuccess: getSuccessAction(MERGE_COMMIT_SUCCESS),
+  mergeCommitBatchError: getErrorAction(MERGE_COMMIT_BATCH_ERROR),
+  mergeCommitBatchSuccess: getSuccessAction(MERGE_COMMIT_BATCH_SUCCESS)
 };
