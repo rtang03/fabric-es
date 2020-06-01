@@ -10,7 +10,7 @@ export const fullTextSearchAdd = async (redisKey: string, commit: Commit, redis:
   return redis.send_command(
     'FT.ADD',
     createCommitIndex({
-      documentId: `idx::${redisKey}`,
+      documentId: `cidx::${redisKey}`,
       redisKey,
       entityName,
       entityId,

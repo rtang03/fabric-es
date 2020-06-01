@@ -9,6 +9,8 @@ import {
   commitIndex,
   createQueryDatabase,
   createQueryHandler,
+  dummyReducer,
+  entityIndex,
   isCommit,
   isCommitRecord,
 } from '../utils';
@@ -26,6 +28,8 @@ const walletPath = process.env.WALLET;
 const entityName = 'test_subscribe';
 const id = `qh_sub_test_001`;
 const enrollmentId = orgAdminId;
+const reducers = { [entityName]: dummyReducer };
+let redis: Redis.Redis;
 
 let queryHandler: QueryHandler;
 
@@ -58,7 +62,7 @@ beforeAll(async () => {
     });
 
     // localhost:6379
-    const redis = new Redis();
+    redis = new Redis();
     const queryDatabase = createQueryDatabase(redis);
     const networkConfig = await getNetwork({
       discovery: true,
@@ -76,7 +80,7 @@ beforeAll(async () => {
       connectionProfile,
       channelName,
       wallet,
-      reducers: null // todo: fix it
+      reducers,
     });
 
     // tear down
@@ -96,13 +100,23 @@ beforeAll(async () => {
 
     await redis
       .send_command('FT.DROP', ['cidx'])
-      .then((result) => console.log(`commitIndex is dropped: ${result}`))
-      .catch((result) => console.error(`commitIndex is not dropped: ${result}`));
+      .then((result) => console.log(`cidx is dropped: ${result}`))
+      .catch((result) => console.log(`cidx is not dropped: ${result}`));
 
     await redis
       .send_command('FT.CREATE', commitIndex)
-      .then((result) => console.log(`commitIndex is created: ${result}`))
-      .catch((result) => console.error(`commitIndex is not created: ${result}`));
+      .then((result) => console.log(`cidx is created: ${result}`))
+      .catch((result) => console.log(`cidx is not created: ${result}`));
+
+    await redis
+      .send_command('FT.DROP', ['eidx'])
+      .then((result) => console.log(`eidx is dropped: ${result}`))
+      .catch((result) => console.log(`eidx is not dropped: ${result}`));
+
+    await redis
+      .send_command('FT.CREATE', entityIndex)
+      .then((result) => console.log(`eidx is created: ${result}`))
+      .catch((result) => console.log(`eidx is not created: ${result}`));
   } catch (e) {
     console.error(e);
     process.exit(1);
@@ -111,6 +125,23 @@ beforeAll(async () => {
 
 afterAll(async () => {
   queryHandler.unsubscribeHub();
+
+  // clean up
+  await redis
+    .send_command('FT.DROP', ['cidx'])
+    .then((result) => console.log(`cidx is dropped: ${result}`))
+    .catch((result) => console.log(`cidx is not dropped: ${result}`));
+
+  await redis
+    .send_command('FT.DROP', ['eidx'])
+    .then((result) => console.log(`eidx is dropped: ${result}`))
+    .catch((result) => console.log(`eidx is not dropped: ${result}`));
+
+  await queryHandler
+    .query_deleteByEntityName()({ entityName })
+    .then((data) => console.log(`${data} records deleted`))
+    .catch((error) => console.log(error));
+
   return new Promise((done) => setTimeout(() => done(), 1000));
 });
 
@@ -154,20 +185,21 @@ describe('Query Handler Tests', () => {
 
   it('should FT.SEARCH by test*', async () => {
     await new Promise((done) => setTimeout(() => done(), 3000));
-    return queryHandler.commitFTSearch({ query: 'test*' }).then(({ data }) => {
+    return queryHandler.fullTextSearchCIdx({ query: 'test*' }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
       expect(Object.keys(data).length).toEqual(2);
       expect(isCommitRecord(data)).toBeTruthy();
     });
   });
 
   it('should FT.SEARCH by qh*', async () =>
-    queryHandler.commitFTSearch({ query: 'qh*' }).then(({ data }) => {
+    queryHandler.fullTextSearchCIdx({ query: 'qh*' }).then(({ data }) => {
       expect(Object.keys(data).length).toEqual(2);
       expect(isCommitRecord(data)).toBeTruthy();
     }));
 
   it('should FT.SEARCH by @event:{increment}', async () =>
-    queryHandler.commitFTSearch({ query: '@event:{increment}' }).then(({ data }) => {
+    queryHandler.fullTextSearchCIdx({ query: '@event:{increment}' }).then(({ data }) => {
       expect(Object.values<Commit>(data)[0].events[0].type).toEqual('Increment');
       expect(Object.keys(data).length).toEqual(1);
       expect(isCommitRecord(data)).toBeTruthy();
@@ -175,7 +207,7 @@ describe('Query Handler Tests', () => {
 
   it('should fail to FT.SEARCH: invalid ;', async () =>
     queryHandler
-      .commitFTSearch({ query: 'kljkljkljjkljklj;jkl;' })
+      .fullTextSearchCIdx({ query: 'kljkljkljjkljklj;jkl;' })
       .then(({ data, status, error }) => {
         expect(status).toEqual('ERROR');
         expect(data).toBeNull();

@@ -3,21 +3,20 @@ import { Commit } from '@fabric-es/fabric-cqrs';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-import { dispatcher, getLogger } from '../../../utils';
+import type { Logger } from 'winston';
+import { dispatcher } from '../../../utils';
 import { action as projAction } from '../../projection';
 import { action } from '../action';
 import type { MergeEntityBatchAction } from '../types';
 
 const { MERGE_ENTITY_BATCH, reconcileSuccess, reconcileError } = action;
 
-export default (action$: Observable<MergeEntityBatchAction>) =>
+export default (action$: Observable<MergeEntityBatchAction>, _, { logger }: { logger: Logger }) =>
   action$.pipe(
     ofType(MERGE_ENTITY_BATCH),
     map(({ payload }) => payload),
-    mergeMap(({ tx_id, args: { entityName, commits }, store }) => {
-      const logger = getLogger({ name: '[query-handler] store/reconcile/mergeEntityBatch.js' });
-
-      return from(
+    mergeMap(({ tx_id, args: { entityName, commits }, store }) =>
+      from(
         dispatcher<
           { key: string; status: string }[],
           { entityName: string; commits: Record<string, Commit> }
@@ -31,9 +30,15 @@ export default (action$: Observable<MergeEntityBatchAction>) =>
         })({ entityName, commits })
           .then(({ data }) => reconcileSuccess({ tx_id, result: data }))
           .catch((error) => {
-            logger.warn(util.format('fail to %s: %j', projAction.MERGE_ENTITY_BATCH, error));
-            return reconcileError({ tx_id, error });
+            logger.error(
+              util.format(
+                '[store/reconcile/mergeEntityBatch.js] fail to %s: %j',
+                projAction.MERGE_ENTITY_BATCH,
+                error
+              )
+            );
+            return reconcileError({ tx_id, error: error.message });
           })
-      );
-    })
+      )
+    )
   );

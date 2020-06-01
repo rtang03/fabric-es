@@ -11,6 +11,7 @@ import {
   commitIndex,
   createQueryDatabase,
   createQueryHandler,
+  dummyReducer,
   isCommitRecord,
 } from '../utils';
 import { reducer } from './__utils__';
@@ -29,6 +30,7 @@ const entityName = 'test_reconcile';
 const id = `qh_test_001`;
 const id2 = `qh_test_002`;
 const enrollmentId = orgAdminId;
+const reducers = { [entityName]: dummyReducer };
 
 let queryHandler: QueryHandler;
 
@@ -86,7 +88,7 @@ beforeAll(async () => {
       connectionProfile,
       channelName,
       wallet,
-      reducers: null // todo: fix it
+      reducers,
     });
 
     // tear down
@@ -220,7 +222,7 @@ describe('Reconcile Tests', () => {
 
   it('should fail to query_getByEntityName: non-existing entityName', async () =>
     queryHandler
-      .query_getByEntityName({ reducer })({ entityName: 'noop' })
+      .query_getByEntityName({ entityName })({ entityName: 'noop' })
       .then(({ data }) => {
         expect(data.currentStates).toEqual([]);
         expect(data.errors).toEqual([]);
@@ -228,7 +230,7 @@ describe('Reconcile Tests', () => {
 
   it('should query_getByEntityName', async () =>
     queryHandler
-      .query_getByEntityName({ reducer })({ entityName })
+      .query_getByEntityName({ entityName })({ entityName })
       .then(({ data }) => data.currentStates[0])
       .then((entity) => {
         expect(entity.id).toEqual(id);
@@ -273,7 +275,7 @@ describe('Reconcile Tests', () => {
 
   it('should query_getByEntityName', async () =>
     queryHandler
-      .query_getByEntityName({ reducer })({ entityName })
+      .query_getByEntityName({ entityName })({ entityName })
       .then<any[]>(({ data }) => data.currentStates.map((item) => omit(item, 'ts')))
       .then((currentStates) => {
         expect(currentStates).toEqual([

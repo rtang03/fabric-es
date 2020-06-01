@@ -187,6 +187,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
       let statusCommit;
       let statusEntity;
+      let statusCIdx;
       let statusEIdx;
       let redisKeyCommit: string;
       let redisKeyEntity: string;
@@ -212,8 +213,11 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         redisKeyCommit = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
         statusCommit = await redis.set(redisKeyCommit, JSON.stringify(commit));
 
-        // (3) add to secondary index
+        // (3) add to secondary index: eidx
         statusEIdx = await fullTextSearchAddEntity<TEntity>(redisKeyEntity, currentState, redis);
+
+        // (4) add to secondary index: cidx
+        statusCIdx = await fullTextSearchAdd(redisKeyCommit, commit, redis);
       } catch (e) {
         logger.error(util.format('unknown redis error, %j', e));
         throw e;
@@ -225,6 +229,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
           { key: redisKeyEntity, status: statusEntity },
           { key: redisKeyCommit, status: statusCommit },
           { key: `eidx::${redisKeyEntity}`, status: statusEIdx },
+          { key: `cidx::${redisKeyCommit}`, status: statusCIdx}
         ],
       };
     },

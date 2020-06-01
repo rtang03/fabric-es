@@ -26,7 +26,7 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
       }
 
       if (tx_id === tid && type === ErrorAction) {
-        logger.warn(util.format('[dispatcher] ErrorAction: %s, tx_id: %s, %s', name, tid, ErrorAction));
+        logger.warn(util.format('[dispatcher] ErrorAction: [%s], tx_id: %s, %s, %j', name, tid, ErrorAction, error));
 
         unsubscribe();
 

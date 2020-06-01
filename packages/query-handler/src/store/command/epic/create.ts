@@ -4,15 +4,14 @@ import { assign } from 'lodash';
 import { ofType } from 'redux-observable';
 import { from, Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
-import { getLogger } from '../../../utils';
 import { action } from '../action';
 import { CreateAction } from '../types';
 
-export default (action$: Observable<CreateAction>, _, context) => {
-  const logger = getLogger({ name: '[query-handler] create.js' });
+const { CREATE, createSuccess, createError } = action;
 
-  return action$.pipe(
-    ofType(action.CREATE),
+export default (action$: Observable<CreateAction>, _, context) =>
+  action$.pipe(
+    ofType(CREATE),
     map(({ payload }) => payload),
     mergeMap((payload) =>
       from(
@@ -24,12 +23,11 @@ export default (action$: Observable<CreateAction>, _, context) => {
           discovery: !payload.args.isPrivateData,
           asLocalhost: !(process.env.NODE_ENV === 'production'),
         })
-          .then(({ network, gateway }) => {
-            logger.info('getNetwork succeed');
-            return assign({}, payload, { network, gateway });
-          })
+          .then(({ network, gateway }) => assign({}, payload, { network, gateway }))
           .catch((error) => {
-            logger.error(util.format('getNework error: %s', error.message));
+            context.logger.error(
+              util.format('[store/command/create.js] getNework error: %s', error.message)
+            );
             return assign({}, payload, { error });
           })
       )
@@ -53,22 +51,19 @@ export default (action$: Observable<CreateAction>, _, context) => {
               { eventstr: Buffer.from(JSON.stringify(events)) },
               { network: network || context.network }
             ).pipe(
-              tap((commits) => {
-                // logger.info(util.format('dispatch submitPrivateData response: %j', commits));
-                gateway.disconnect();
-              }),
-              dispatchResult(tx_id, action.createSuccess, action.createError)
+              tap(() => gateway.disconnect()),
+              dispatchResult(tx_id, createSuccess, createError)
             )
-          : submit$('eventstore:createCommit', [entityName, id, version.toString(), JSON.stringify(events)], {
-              network: network || context.network,
-            }).pipe(
-              tap((commits) => {
-                // logger.info(util.format('dispatch submit response: %j', commits));
-                gateway.disconnect();
-              }),
-              dispatchResult(tx_id, action.createSuccess, action.createError)
+          : submit$(
+              'eventstore:createCommit',
+              [entityName, id, version.toString(), JSON.stringify(events)],
+              {
+                network: network || context.network,
+              }
+            ).pipe(
+              tap(() => gateway.disconnect()),
+              dispatchResult(tx_id, createSuccess, createError)
             );
       }
     })
   );
-};

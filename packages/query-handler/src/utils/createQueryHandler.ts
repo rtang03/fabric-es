@@ -32,7 +32,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
   options.queryDatabase = queryDatabase;
   options.logger = logger;
 
-  const store = getStore(options);
+  const store = getStore(options as any);
 
   const {
     deleteByEntityId,
@@ -253,7 +253,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           }
 
           if (isCommit(commit)) {
-            const doMergeEntity = await dispatcher<
+            const mergeEntityResult = await dispatcher<
               { key: string; status: string },
               { commit: Commit }
             >((payload) => projAction.mergeEntity(payload), {
@@ -265,7 +265,9 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
               logger,
             })({ commit });
 
-            console.log(doMergeEntity.data);
+            logger.info(
+              util.format('mergeComit: %j', mergeEntityResult?.data || 'no data written')
+            );
 
             // step 3.
             // Send to pubsub
@@ -277,7 +279,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
     },
     unsubscribeHub: () => contract.removeContractListener(contractListener),
     disconnect: () => gateway.disconnect(),
-    commitFTSearch: async ({ query }) =>
+    fullTextSearchCIdx: async ({ query }) =>
       catchErrors(queryDatabase.fullTextSearchCommit({ query }), {
         fcnName: 'full text search',
         logger,

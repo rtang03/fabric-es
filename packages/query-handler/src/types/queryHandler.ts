@@ -12,7 +12,7 @@ export interface QueryHandlerOptions {
   wallet: Wallet;
   connectionProfile: string;
   reducers: Record<string, Reducer>;
-  logger: Logger;
+  logger?: Logger;
 }
 
 export interface GetByEntityNameResponse<TEntity = any> {
@@ -78,5 +78,7 @@ export interface QueryHandler {
   subscribeHub: () => Promise<any>;
   unsubscribeHub: () => void;
   disconnect: () => void;
-  commitFTSearch: (option: { query: string }) => Promise<QueryHandlerResponse>;
+  fullTextSearchCIdx: (option: {
+    query: string;
+  }) => Promise<QueryHandlerResponse<Record<string, Commit>>>;
 }

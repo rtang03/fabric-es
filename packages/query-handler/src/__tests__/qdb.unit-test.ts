@@ -2,7 +2,7 @@ require('dotenv').config({ path: './.env.test' });
 import Redis from 'ioredis';
 import type { QueryDatabase } from '../types';
 import { entityIndex, createQueryDatabase } from '../utils';
-import { Counter, reducer } from './__utils__';
+import { reducer } from './__utils__';
 
 let queryDatabase: QueryDatabase;
 
@@ -146,29 +146,29 @@ beforeAll(async () => {
   await redis
     .set(key, JSON.stringify(commit))
     .then((result) => console.log(`${key} is set: ${result}`))
-    .catch((result) => console.error(`${key} is not set: ${result}`));
+    .catch((result) => console.log(`${key} is not set: ${result}`));
 
   // delete keys for mergeBatch test
   await redis
     .del(key2)
     .then((result) => console.log(`${key2} is deleted: ${result}`))
-    .catch((result) => console.error(`${key2} is not deleted: ${result}`));
+    .catch((result) => console.log(`${key2} is not deleted: ${result}`));
 
   await redis
     .del(key3)
     .then((result) => console.log(`${key3} is deleted: ${result}`))
-    .catch((result) => console.error(`${key3} is not deleted: ${result}`));
+    .catch((result) => console.log(`${key3} is not deleted: ${result}`));
 
   // prepare eidx
   await redis
     .send_command('FT.DROP', ['eidx'])
     .then((result) => console.log(`entityIndex is dropped: ${result}`))
-    .catch((result) => console.error(`entityIndex is not dropped: ${result}`));
+    .catch((result) => console.log(`entityIndex is not dropped: ${result}`));
 
   await redis
     .send_command('FT.CREATE', entityIndex)
     .then((result) => console.log(`entityIndex is created: ${result}`))
-    .catch((result) => console.error(`entityIndex is not created: ${result}`));
+    .catch((result) => console.log(`entityIndex is not created: ${result}`));
 });
 
 describe('Projection db test', () => {
@@ -177,7 +177,11 @@ describe('Projection db test', () => {
       expect(result).toEqual({
         status: 'OK',
         message: 'test_proj::qh_proj_test_001 merged successfully',
-        result: [{ key: 'test_proj::qh_proj_test_001', status: 'OK' }],
+        result: [
+          { key: 'test_proj::qh_proj_test_001', status: 'OK' },
+          { key: 'test_proj::qh_proj_test_001::20200528133520841', status: 'OK' },
+          { key: 'eidx::test_proj::qh_proj_test_001', status: 'OK' },
+        ],
       })
     ));
 
