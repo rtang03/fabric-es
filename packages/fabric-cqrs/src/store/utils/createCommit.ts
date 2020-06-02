@@ -1,4 +1,4 @@
-import { BaseEvent, Commit } from '../../types';
+import type { BaseEvent, Commit } from '../../types';
 
 /**
  * **createCommit** create Commit object
@@ -21,7 +21,7 @@ export const createCommit: <TEvent extends BaseEvent = any>(option: {
       commitId,
       version,
       events,
-      entityId: id
+      entityId: id,
     }
   );
 };

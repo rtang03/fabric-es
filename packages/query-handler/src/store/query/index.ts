@@ -1,4 +1,4 @@
-import { epic as queryEpic } from './epic';
+import { epic as queryEpic } from '@fabric-es/fabric-cqrs/dist/store/query/epic';
 
 export { action } from './action';
 export { reducer } from './reducer';

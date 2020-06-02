@@ -3,8 +3,8 @@
  * @hidden
  */
 import { Reducer } from 'redux';
-import { ActionHandler, initialState, State } from '../../types';
 import { getErrorActionHandler, getReducer, getSuccessActionHandler } from '../../store/utils';
+import { ActionHandler, initialState, State } from '../../types';
 import { action } from './action';
 
 const actionHandler: ActionHandler = {

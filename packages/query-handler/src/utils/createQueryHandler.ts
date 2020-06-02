@@ -1,13 +1,12 @@
 import util from 'util';
 import { BaseEvent, getHistory, Reducer, Commit, isCommit } from '@fabric-es/fabric-cqrs';
 import { Contract, ContractListener, Network } from 'fabric-network';
-import isEqual from 'lodash/isEqual';
 import values from 'lodash/values';
 import { getStore } from '../store';
 import { action as commandAction } from '../store/command';
-import { action as projAction } from '../store/projection';
+import { action as projAction } from '@fabric-es/fabric-cqrs/dist/store/projection';
 import { action as queryAction } from '../store/query';
-import { action as reconcileAction } from '../store/reconcile';
+import { action as reconcileAction } from '@fabric-es/fabric-cqrs/dist/store/reconcile';
 import {
   FabricResponse,
   GetByEntityNameResponse,

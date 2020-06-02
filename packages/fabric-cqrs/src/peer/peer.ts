@@ -13,7 +13,7 @@ import { createProjectionDb, createQueryDatabase } from '.';
  * @param options [[PeerOptions]]
  * @returns [[Peer]]
  */
-export const createPeer: (options: PeerOptions) => Peer = options => {
+export const createPeer: (options: any) => Peer = options => {
   const logger = Utils.getLogger('[fabric-cqrs] createPeer.js');
 
   let contractListener: ContractListener;

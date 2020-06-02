@@ -12,3 +12,6 @@ export * from './projectionDb';
 export * from './peer';
 export * from './privatedataRepository';
 export * from './constant';
+export * from './fabricResponse';
+export * from './queryHandler';
+export * from './dispatcher';

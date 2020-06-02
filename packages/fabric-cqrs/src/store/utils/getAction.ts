@@ -24,7 +24,7 @@ export const getAction: <TAction extends Action>(
   enrollmentId,
   channelName,
   connectionProfile,
-  wallet
+  wallet,
 }) => ({
   type: action,
   payload: {
@@ -34,6 +34,6 @@ export const getAction: <TAction extends Action>(
     enrollmentId,
     channelName,
     connectionProfile,
-    wallet
-  }
+    wallet,
+  },
 });

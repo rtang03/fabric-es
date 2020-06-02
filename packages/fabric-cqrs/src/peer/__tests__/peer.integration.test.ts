@@ -5,7 +5,7 @@ import { Wallet, Wallets } from 'fabric-network';
 import { find, pick } from 'lodash';
 import rimraf from 'rimraf';
 import { registerUser } from '../../account';
-import { Counter, CounterEvent, reducer } from '../../example';
+import { Counter, CounterEvent, reducer } from '../../store/example';
 import { getNetwork } from '../../services';
 import { Peer, Repository } from '../../types';
 import { createProjectionDb } from '../createProjectionDb';

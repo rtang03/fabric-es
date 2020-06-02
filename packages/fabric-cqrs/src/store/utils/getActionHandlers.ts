@@ -2,20 +2,20 @@
  * @packageDocumentation
  * @hidden
  */
-import { State } from '../../types';
+import type { State } from '../../types';
 
 export const getSuccessActionHandler: <TResult = any>(
   type: string
 ) => (
   state: State,
   {
-    payload: { tx_id: string, result: TResult }
+    payload: { tx_id: string, result: TResult },
   }
-) => State = type => (state, { payload: { tx_id, result } }) => ({
+) => State = (type) => (state, { payload: { tx_id, result } }) => ({
   tx_id,
   type,
   result,
-  error: null
+  error: null,
 });
 
 export const getErrorActionHandler: <TError = any>(
@@ -23,11 +23,11 @@ export const getErrorActionHandler: <TError = any>(
 ) => (
   state: State,
   {
-    payload: { tx_id: string, error: TError }
+    payload: { tx_id: string, error: TError },
   }
-) => State = type => (state, { payload: { tx_id, error } }) => ({
+) => State = (type) => (state, { payload: { tx_id, error } }) => ({
   tx_id,
   type,
   result: null,
-  error
+  error,
 });

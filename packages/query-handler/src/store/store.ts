@@ -5,9 +5,9 @@ import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import type { Logger } from 'winston';
 import type { QueryDatabase } from '../types';
 import { commandEpic, reducer as write } from './command';
-import { projectionEpic, reducer as projection } from './projection';
+import { projectionEpic, reducer as projection } from '@fabric-es/fabric-cqrs/dist/store/projection';
 import { queryEpic, reducer as query } from './query';
-import { reconcileEpic, reducer as reconcile } from './reconcile';
+import { reconcileEpic, reducer as reconcile } from '@fabric-es/fabric-cqrs/dist/store/reconcile';
 
 const rootEpic = combineEpics(...commandEpic, ...projectionEpic, ...queryEpic, ...reconcileEpic);
 
