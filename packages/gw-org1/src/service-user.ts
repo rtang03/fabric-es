@@ -9,9 +9,9 @@ const logger = getLogger('service-user.js');
 const reducer = getReducer<User, UserEvents>(userReducer);
 
 (async () =>
-  createService({
+  createService<User>({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    defaultEntityName: 'user',
+    DefaultEntity: User,
     defaultReducer: reducer,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
@@ -23,13 +23,8 @@ const reducer = getReducer<User, UserEvents>(userReducer);
         typeDefs: userTypeDefs,
         resolvers: userResolvers
       })
-        .addRepository(
-          getRepository<User, UserEvents>({
-            entityName: 'user',
-            reducer
-          })
-        )
-        .create();
+      .addRepository(getRepository<User, UserEvents>(User, reducer))
+      .create();
 
       process.on('SIGINT', async () => await shutdown(app));
       process.on('SIGTERM', async () => await shutdown(app));

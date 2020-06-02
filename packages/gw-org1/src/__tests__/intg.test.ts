@@ -254,9 +254,9 @@ beforeAll(async () => {
 
   console.log('🚀  Ready, starting services');
   // Start loan service
-  await createService({
+  await createService<Loan>({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    defaultEntityName: 'loan',
+    DefaultEntity: Loan,
     defaultReducer: lReducer,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
@@ -267,7 +267,7 @@ beforeAll(async () => {
     loanDisconnect = disconnect;
     loanService = await config({ typeDefs: loanTypeDefs, resolvers: loanResolvers })
       .addRepository(
-        getRepository<Loan, LoanEvents>({ entityName: 'loan', reducer: lReducer })
+        getRepository<Loan, LoanEvents>(Loan, lReducer)
       )
       .create();
     await loanService
@@ -276,9 +276,9 @@ beforeAll(async () => {
   });
 
   // Start document service
-  await createService({
+  await createService<Document>({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    defaultEntityName: 'document',
+    DefaultEntity: Document,
     defaultReducer: dReducer,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
@@ -289,7 +289,7 @@ beforeAll(async () => {
     docuDisconnect = disconnect;
     docuService = await config({ typeDefs: documentTypeDefs, resolvers: documentResolvers })
       .addRepository(
-        getRepository<Document, DocumentEvents>({ entityName: 'document', reducer: dReducer })
+        getRepository<Document, DocumentEvents>(Document, dReducer)
       )
       .create();
     await docuService
@@ -298,9 +298,9 @@ beforeAll(async () => {
   });
 
   // Start loan-details service
-  await createService({
+  await createService<LoanDetails>({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    defaultEntityName: 'loanDetails',
+    DefaultEntity: LoanDetails,
     defaultReducer: tReducer,
     isPrivate: true,
     channelName: process.env.CHANNEL_NAME,
@@ -311,7 +311,7 @@ beforeAll(async () => {
     dtlsDisconnect = disconnect;
     dtlsService = await config({ typeDefs: loanDetailsTypeDefs, resolvers: loanDetailsResolvers })
       .addRepository(
-        getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({ entityName: 'loanDetails', reducer: tReducer })
+        getPrivateDataRepo<LoanDetails, LoanDetailsEvents>(LoanDetails, tReducer)
       )
       .create();
     await dtlsService
@@ -322,7 +322,7 @@ beforeAll(async () => {
   // Start doc-contents service
   await createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    defaultEntityName: 'docContents',
+    DefaultEntity: DocContents,
     defaultReducer: cReducer,
     isPrivate: true,
     channelName: process.env.CHANNEL_NAME,
@@ -333,7 +333,7 @@ beforeAll(async () => {
     ctntDisconnect = disconnect;
     ctntService = await config({ typeDefs: docContentsTypeDefs, resolvers: docContentsResolvers })
       .addRepository(
-        getPrivateDataRepo<DocContents, DocContentsEvents>({ entityName: 'docContents', reducer: cReducer })
+        getPrivateDataRepo<DocContents, DocContentsEvents>(DocContents, cReducer)
       )
       .create();
     await ctntService

@@ -9,9 +9,9 @@ const logger = getLogger('service-loan.js');
 const reducer = getReducer<Loan, LoanEvents>(loanReducer);
 
 (async () =>
-  createService({
+  createService<Loan>({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    defaultEntityName: 'loan',
+    DefaultEntity: Loan,
     defaultReducer: reducer,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
@@ -23,13 +23,8 @@ const reducer = getReducer<Loan, LoanEvents>(loanReducer);
         typeDefs: loanTypeDefs,
         resolvers: loanResolvers
       })
-        .addRepository(
-          getRepository<Loan, LoanEvents>({
-            entityName: 'loan',
-            reducer
-          })
-        )
-        .create();
+      .addRepository(getRepository<Loan, LoanEvents>(Loan, reducer))
+      .create();
 
       process.on('SIGINT', async () => await shutdown(app));
       process.on('SIGTERM', async () => await shutdown(app));

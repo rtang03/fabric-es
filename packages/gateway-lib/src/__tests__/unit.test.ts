@@ -85,11 +85,11 @@ beforeAll(async () => {
     });
 
     // Step 3: Prepare Counter Model microservice
-    const modelService = await createService({
+    const modelService = await createService<Counter>({
       asLocalhost: true,
       channelName,
       connectionProfile,
-      defaultEntityName: 'counter',
+      DefaultEntity: Counter,
       defaultReducer: reducer,
       enrollmentId: orgAdminId,
       wallet
@@ -98,7 +98,7 @@ beforeAll(async () => {
     modelApolloService = await modelService
       .config({ typeDefs, resolvers })
       .addRepository(
-        modelService.getRepository<Counter, CounterEvents>({ entityName: 'counter', reducer })
+        modelService.getRepository<Counter, CounterEvents>(Counter, reducer)
       )
       .create();
 

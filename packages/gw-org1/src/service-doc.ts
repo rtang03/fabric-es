@@ -15,27 +15,21 @@ const logger = getLogger('service-doc.js');
 const reducer = getReducer<Document, DocumentEvents>(documentReducer);
 
 (async () =>
-  createService({
+  createService<Document>({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    defaultEntityName: 'document',
+    DefaultEntity: Document,
     defaultReducer: reducer,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     asLocalhost: !(process.env.NODE_ENV === 'production')
-  })
-    .then(async ({ config, shutdown, getRepository }) => {
+  }).then(async ({ config, shutdown, getRepository }) => {
       const app = await config({
         typeDefs: documentTypeDefs,
         resolvers: documentResolvers
       })
-        .addRepository(
-          getRepository<Document, DocumentEvents>({
-            entityName: 'document',
-            reducer
-          })
-        )
-        .create();
+      .addRepository(getRepository<Document, DocumentEvents>(Document, reducer))
+      .create();
 
       process.on('SIGINT', async () => await shutdown(app));
       process.on('SIGTERM', async () => await shutdown(app));
@@ -45,11 +39,10 @@ const reducer = getReducer<Document, DocumentEvents>(documentReducer);
       });
 
       app.listen({ port: process.env.SERVICE_DOCUMENT_PORT }).then(({ url }) => {
-        logger.info(`🚀  '${process.env.MSPID}' - 'document' available at ${url}`);
+        logger.info(`🚀  '${process.env.MSPID}' - '${Document.entityName}' available at ${url}`);
         if (process.env.NODE_ENV === 'production') process.send('ready');
       });
-    })
-    .catch(error => {
+    }).catch(error => {
       console.error(error);
       logger.error(util.format('fail to start service, %j', error));
       process.exit(1);

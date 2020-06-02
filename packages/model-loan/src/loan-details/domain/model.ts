@@ -19,7 +19,7 @@ export type ContactInfo = {
  * for authorized parties' use only.
  */
 export class LoanDetails extends BaseEntity {
-  static type: 'LoanDetails';
+  static entityName = 'loanDetails';
 
   loanId: string;
   requester: LoanRequester;

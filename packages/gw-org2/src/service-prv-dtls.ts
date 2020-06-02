@@ -15,9 +15,9 @@ const logger = getLogger('service-prv-dtls.js');
 const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
 
 (async () =>
-  createService({
+  createService<LoanDetails>({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    defaultEntityName: 'loanDetails',
+    DefaultEntity: LoanDetails,
     defaultReducer: reducer,
     isPrivate: true,
     channelName: process.env.CHANNEL_NAME,
@@ -30,13 +30,8 @@ const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
         typeDefs: loanDetailsTypeDefs,
         resolvers: loanDetailsResolvers
       })
-        .addRepository(
-          getPrivateDataRepo<LoanDetails, LoanDetailsEvents>({
-            entityName: 'loanDetails',
-            reducer
-          })
-        )
-        .create();
+      .addRepository(getPrivateDataRepo<LoanDetails, LoanDetailsEvents>(LoanDetails, reducer))
+      .create();
 
       process.on('SIGINT', async () => await shutdown(app));
       process.on('SIGTERM', async () => await shutdown(app));

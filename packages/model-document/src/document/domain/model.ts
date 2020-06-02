@@ -13,7 +13,7 @@ export enum DocumentStatus {
  * portion of a document is a placeholder, with a resource locator (the `link` property) pointing to the document's details
  */
 export class Document extends BaseEntity {
-  static type: 'document';
+  static entityName = 'document';
 
   documentId: string;
   ownerId: string;

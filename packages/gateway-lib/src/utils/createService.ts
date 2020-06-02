@@ -1,7 +1,9 @@
 import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
 import {
+  BaseEntity,
   createPeer,
+  EntityClass,
   getNetwork,
   PrivatedataRepository,
   Reducer,
@@ -13,9 +15,9 @@ import { DataSrc } from '..';
 import { getLogger } from './getLogger';
 import { shutdown } from './shutdownApollo';
 
-export const createService = async ({
+export const createService = async <TEntity extends BaseEntity>({
   enrollmentId,
-  defaultEntityName,
+  DefaultEntity,
   defaultReducer,
   isPrivate = false,
   channelName,
@@ -24,7 +26,7 @@ export const createService = async ({
   asLocalhost
 }: {
   enrollmentId: string;
-  defaultEntityName: string;
+  DefaultEntity: EntityClass<TEntity>;
   defaultReducer: Reducer;
   isPrivate?: boolean;
   channelName: string;
@@ -33,6 +35,8 @@ export const createService = async ({
   asLocalhost: boolean;
 }) => {
   const logger = getLogger('[gw-lib] createService.js');
+
+  const defaultEntityName = DefaultEntity.entityName;
 
   const networkConfig = await getNetwork({
     discovery: !isPrivate,
@@ -52,10 +56,9 @@ export const createService = async ({
     wallet
   });
 
-  const result = isPrivate ? { getPrivateDataRepo } : { getRepository };
-
   return {
-    ...result,
+    getRepository,
+    getPrivateDataRepo,
     config: ({ typeDefs, resolvers }) => {
       const repositories: {
         entityName: string;

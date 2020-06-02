@@ -14,8 +14,8 @@ export type FileContent = {
  * for authorized parties' use only.
  */
 export class DocContents extends BaseEntity {
-  static parent: 'document';
-  static type: 'DocContents';
+  static parentName = 'document';
+  static entityName = 'docContents';
 
   documentId: string;
   content: DataContent | FileContent;

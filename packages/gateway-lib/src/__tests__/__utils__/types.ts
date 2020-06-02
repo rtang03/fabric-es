@@ -1,4 +1,4 @@
-import { Repository } from '@fabric-es/fabric-cqrs';
+import { BaseEntity, Repository } from '@fabric-es/fabric-cqrs';
 import { CommandHandler, DataSrc } from '../../index';
 
 export interface CounterCommands {
@@ -23,7 +23,8 @@ export interface CounterEvent {
   payload: any;
 }
 
-export interface Counter {
+export class Counter extends BaseEntity {
+  static entityName = 'counter';
   value: number;
 }
 

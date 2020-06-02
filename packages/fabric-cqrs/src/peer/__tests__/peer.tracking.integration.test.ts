@@ -117,13 +117,13 @@ describe('Start peer privatedata Tests', () => {
       .getById({ enrollmentId, id: enrollmentId })
       .then(({ currentState }) => expect(currentState).toEqual({ value: 1 })));
 
-  // it('should get commits', async () =>
-  //   rpub
-  //     .getCommitById(enrollmentId)
-  //     .then(result => {
-  //       console.log('HAHAHA', result);
-  //       return result;
-  //     }));
+  it('should get commits', async () =>
+    rpub
+      .getCommitById(enrollmentId)
+      .then(result => {
+        console.log('HAHAHA', result);
+        return result;
+      }));
 
   it('should deleteByEntityIdCommitId', async () =>
     repo

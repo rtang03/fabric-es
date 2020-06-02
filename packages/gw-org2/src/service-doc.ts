@@ -9,9 +9,9 @@ const logger = getLogger('service-doc.js');
 const reducer = getReducer<Document, DocumentEvents>(documentReducer);
 
 (async () =>
-  createService({
+  createService<Document>({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    defaultEntityName: 'document',
+    DefaultEntity: Document,
     defaultReducer: reducer,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
@@ -23,13 +23,8 @@ const reducer = getReducer<Document, DocumentEvents>(documentReducer);
         typeDefs: documentTypeDefs,
         resolvers: documentResolvers
       })
-        .addRepository(
-          getRepository<Document, DocumentEvents>({
-            entityName: 'document',
-            reducer
-          })
-        )
-        .create();
+      .addRepository(getRepository<Document, DocumentEvents>(Document, reducer))
+      .create();
 
       process.on('SIGINT', async () => await shutdown(app));
       process.on('SIGTERM', async () => await shutdown(app));

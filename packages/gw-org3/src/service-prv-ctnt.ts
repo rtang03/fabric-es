@@ -15,9 +15,9 @@ const logger = getLogger('service-prv-ctnt.js');
 const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
 
 (async () =>
-  createService({
+  createService<DocContents>({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    defaultEntityName: 'docContents',
+    DefaultEntity: DocContents,
     defaultReducer: reducer,
     isPrivate: true,
     channelName: process.env.CHANNEL_NAME,
@@ -30,13 +30,8 @@ const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
         typeDefs: docContentsTypeDefs,
         resolvers: docContentsResolvers
       })
-        .addRepository(
-          getPrivateDataRepo<DocContents, DocContentsEvents>({
-            entityName: 'docContents',
-            reducer
-          })
-        )
-        .create();
+      .addRepository(getPrivateDataRepo<DocContents, DocContentsEvents>(DocContents, reducer))
+      .create();
 
       process.on('SIGINT', async () => await shutdown(app));
       process.on('SIGTERM', async () => await shutdown(app));

@@ -15,7 +15,7 @@ export enum LoanStatus {
  * loan applicants may also utilize the `reference` property as their internal identifier unique within their individual organizations.
  */
 export class Loan extends BaseEntity {
-  static type: 'Loan';
+  static entityName = 'loan';
 
   loanId: string;
   ownerId: string;
