@@ -1,27 +1,35 @@
-import _ from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 import { ReqRes } from './reqres';
 import { getLogger } from './getLogger';
+import { RedisClient } from 'redis';
 
 const logger = getLogger('[relay] processMsg.js');
 
-export const processMsg = async ({
+export const processMsg = ({
   message, 
   client, 
   topic
 }: {
   message: ReqRes; 
-  client: any; 
+  client: RedisClient; 
   topic: string
 }) => {
 
-  if (_.isEmpty(message)) throw new Error('Missing message.');
-  if (_.isEmpty(client)) throw new Error('Missing client');
-  if (_.isEmpty(topic)) throw new Error('Missing topic.');
+  if (isEmpty(message)) return Promise.reject(new Error('Missing message.'));
+  if (isEmpty(client)) return Promise.reject(new Error('Missing client'));
+  if (isEmpty(topic)) return Promise.reject(new Error('Missing topic.'));
 
-  client.on('error', (err) => {
-    throw new Error(`Publish client error: ${err}`);
+  return new Promise<number>((resolve, reject) => {  
+    const messageStr = JSON.stringify(message);
+    client.publish(topic, messageStr, (err, reply) => {
+
+      if (err)
+        reject(err);
+      else {
+        logger.info(`Published to '${topic}[${reply}]': ${messageStr}`);
+        resolve(reply);
+      }
+    });
   });
 
-  const messageStr = JSON.stringify(message);
-  await client.publish(topic, messageStr, () => { logger.info(`Published message: ${messageStr}`) });
 };

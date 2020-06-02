@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 import JSON5 from 'json5';
 import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -9,6 +9,7 @@ import querystring from 'query-string';
 import bodyParser from 'body-parser';
 import util from 'util';
 import { processMsg } from './processMsg';
+import { RedisClient } from 'redis';
 
 const logger = getLogger('[relay] app.js');
 
@@ -18,13 +19,13 @@ export const relayService = ({
   topic
 }: {
   targetUrl: string,
-  client: any,
+  client: RedisClient,
   topic: string
 }) => {
 
-  if (_.isEmpty(targetUrl)) throw new Error('Missing target URL.');
-  if (_.isEmpty(client)) throw new Error('Missing client');
-  if (_.isEmpty(topic)) throw new Error('Missing topic.');
+  if (isEmpty(targetUrl)) throw new Error('Missing target URL.');
+  if (isEmpty(client)) throw new Error('Missing client');
+  if (isEmpty(topic)) throw new Error('Missing topic.');
 
   const apiProxy = createProxyMiddleware(
     {
@@ -32,11 +33,16 @@ export const relayService = ({
       changeOrigin: true,
       onProxyReq: (proxyReq, req, res) => {
 
-        let reqres = <ReqRes>{};
-        reqres.id = randomstring.generate(16);
-        reqres.startTime = Date.now();
-        reqres.method = req.method;
-        reqres.url = querystring.parseUrl(req.url);
+        const reqres = {
+          id: randomstring.generate(16),
+          startTime: Date.now(),
+          duration: undefined,
+          method: req.method,
+          url: querystring.parseUrl(req.url),
+          reqBody: undefined,
+          statusCode: undefined,
+          statusMessage: undefined
+        };
 
         const raw = util.inspect(req.body, false, null);
         if (req.is('json')) {
@@ -55,7 +61,7 @@ export const relayService = ({
 
         // Fix http-proxy-middleware req.body forward issue
         if (req.body) {
-          let bodyData = JSON.stringify(req.body);
+          const bodyData = JSON.stringify(req.body);
           // in case if content-type is application/x-www-form-urlencoded -> we need to change to application/json
           proxyReq.setHeader('Content-Type', 'application/json');
           proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
@@ -65,13 +71,13 @@ export const relayService = ({
       },
       onProxyRes: async (proxyRes, req, res) => {
 
-        let reqres: ReqRes = res.locals.reqres;
+        const reqres: ReqRes = res.locals.reqres;
 
         reqres.statusCode = proxyRes.statusCode;
         reqres.statusMessage = proxyRes.statusMessage;
         reqres.duration = Date.now() - reqres.startTime;
 
-        await processMsg({ message: reqres, client: client, topic: topic });
+        await processMsg({ message: reqres as ReqRes, client: client, topic: topic });
       },
       onError(err, req, res) {
         res.writeHead(500, {

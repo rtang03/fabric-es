@@ -14,12 +14,12 @@ services:
       - redis-pubsub
     environment:
       - TARGET_URL=http://mock-server:4001
-      - SERVICE_PORT=3000
+      - SERVICE_PORT=2500
       - REDIS_HOST=redis-pubsub
       - REDIS_PORT=6379
       - REDIS_TOPIC=request-notify
     ports:
-      - 80:3000
+      - 8080:2500
     networks:
       - relay-net
 
