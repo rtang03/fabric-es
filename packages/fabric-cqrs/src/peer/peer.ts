@@ -2,7 +2,7 @@ import util from 'util';
 import { Utils } from 'fabric-common';
 import { Contract, ContractListener, Network } from 'fabric-network';
 import { action } from '../cqrs/query';
-import { generateToken } from '../cqrs/utils';
+import { generateToken } from '../store/utils';
 import { getStore } from '../store';
 import { Peer, PeerOptions } from '../types';
 import { isCommit, privateDataRepo, reconcile, repository } from './utils';

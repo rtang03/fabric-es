@@ -4,7 +4,7 @@
  */
 import { Reducer } from 'redux';
 import { ActionHandler, initialState, State } from '../../types';
-import { getErrorActionHandler, getReducer, getSuccessActionHandler } from '../utils';
+import { getErrorActionHandler, getReducer, getSuccessActionHandler } from '../../store/utils';
 import { action } from './action';
 
 const actionHandler: ActionHandler = {

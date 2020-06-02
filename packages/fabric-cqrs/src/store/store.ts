@@ -4,7 +4,7 @@
  */
 import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
-import { commandEpic, reducer as write } from '../cqrs/command';
+import { commandEpic, reducer as write } from './command';
 import { projectionEpic, reducer as projection } from '../cqrs/projection';
 import { queryEpic, reducer as query } from '../cqrs/query';
 import { reconcileEpic, reducer as reconcile } from '../cqrs/reconcile';

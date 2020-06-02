@@ -1,5 +1,5 @@
 import { Wallet } from 'fabric-network';
-import { BaseEvent } from '../../../types';
+import { BaseEvent } from '../../types';
 
 export interface CreateAction {
   type: string;

@@ -3,7 +3,7 @@ import { Utils } from 'fabric-common';
 import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
 import { createCommitId } from '../peer/utils';
-import { Commit } from '../types';
+import type { Commit } from '../types';
 import { getContract } from './contract';
 
 /**
@@ -35,7 +35,7 @@ export const submit: (
         logger.info(util.format('%s successful response', fcn));
         return result;
       })
-      .catch(error => {
+      .catch((error) => {
         logger.error(util.format('error in %s: %j', fcn, error));
         return { error };
       })
@@ -46,5 +46,8 @@ export const submit$: (
   fcn: string,
   args: string[],
   options: { network: Network }
-) => Observable<Record<string, Commit> | { error?: any; status?: string; message?: string }> = (fcn, args, options) =>
-  from(submit(fcn, args, options));
+) => Observable<Record<string, Commit> | { error?: any; status?: string; message?: string }> = (
+  fcn,
+  args,
+  options
+) => from(submit(fcn, args, options));

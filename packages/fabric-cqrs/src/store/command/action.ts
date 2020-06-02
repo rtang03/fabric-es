@@ -3,13 +3,13 @@
  * @hidden
  */
 import { getAction, getErrorAction, getSuccessAction } from '../utils';
-import {
+import type {
   CreateAction,
   DeleteByEntityIdAction,
   DeleteByEntityIdCommitIdAction,
   QueryByEntIdCommitIdAction,
   QueryByEntityIdAction,
-  QueryByEntityNameAction
+  QueryByEntityNameAction,
 } from './types';
 
 const CREATE = '[Entity-C] Create';
@@ -49,5 +49,5 @@ export const action = {
   deleteError: getErrorAction(DELETE_ERROR),
   deleteSuccess: getSuccessAction(DELETE_SUCCESS),
   queryError: getErrorAction(QUERY_ERROR),
-  querySuccess: getSuccessAction(QUERY_SUCCESS)
+  querySuccess: getSuccessAction(QUERY_SUCCESS),
 };

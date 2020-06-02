@@ -2,7 +2,7 @@ import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import { reconcileEpic, reducer as reconcile } from '../..';
 import { PeerOptions } from '../../../../types';
-import { commandEpic, reducer as write } from '../../../command';
+import { commandEpic, reducer as write } from '../../../../store/command';
 import { queryEpic, reducer as query } from '../../../query';
 
 const rootEpic = combineEpics(...queryEpic, ...commandEpic, ...reconcileEpic);

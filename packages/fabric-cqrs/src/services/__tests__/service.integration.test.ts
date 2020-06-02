@@ -7,6 +7,12 @@ import { evaluate, getNetwork, submit } from '..';
 import { registerUser } from '../../account';
 import { Commit } from '../../types';
 
+/**
+ * ./dn-run-1-px-db-red-auth.sh
+ *  OR
+ *  ./dn-run.2-px-db-red-auth.sh
+ */
+
 let network: Network;
 let gateway: Gateway;
 let createdCommit_1: any;
@@ -34,7 +40,7 @@ beforeAll(async () => {
       enrollmentSecret: process.env.ORG_ADMIN_SECRET,
       fabricNetwork,
       mspId,
-      wallet
+      wallet,
     });
 
     await enrollAdmin({
@@ -44,7 +50,7 @@ beforeAll(async () => {
       enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
       fabricNetwork,
       mspId,
-      wallet
+      wallet,
     });
 
     await registerUser({
@@ -55,7 +61,7 @@ beforeAll(async () => {
       enrollmentSecret: 'password',
       connectionProfile,
       wallet,
-      mspId
+      mspId,
     });
 
     const context = await getNetwork({
@@ -64,7 +70,7 @@ beforeAll(async () => {
       wallet,
       enrollmentId,
       discovery: true,
-      asLocalhost: true
+      asLocalhost: true,
     });
     network = context.network;
     gateway = context.gateway;
@@ -89,10 +95,10 @@ afterAll(async () => {
 
 describe('Eventstore Tests', () => {
   it('should query all commits', async () =>
-    evaluate('eventstore:queryByEntityName', ['dev_entity'], { network }, false).then(commits =>
+    evaluate('eventstore:queryByEntityName', ['dev_entity'], { network }, false).then((commits) =>
       values(commits).forEach((commit: Commit) =>
         expect(pick(commit, 'entityName')).toEqual({
-          entityName: 'dev_entity'
+          entityName: 'dev_entity',
         })
       )
     ));
@@ -100,28 +106,43 @@ describe('Eventstore Tests', () => {
   it('should create #1', async () =>
     submit(
       'eventstore:createCommit',
-      [entityName, enrollmentId, '0', JSON.stringify([{ type: 'User Created', payload: { name: 'me' } }])],
+      [
+        entityName,
+        enrollmentId,
+        '0',
+        JSON.stringify([{ type: 'User Created', payload: { name: 'me' } }]),
+      ],
       { network }
     )
-      .then<Commit>(result => values(result)[0])
-      .then(commit => {
+      .then<Commit>((result) => values(result)[0])
+      .then((commit) => {
         createdCommit_1 = commit;
         return expect(commit.entityId).toEqual(enrollmentId);
       }));
 
   it('should queryByEntityIdCommitId', async () =>
-    evaluate('eventstore:queryByEntityIdCommitId', [entityName, enrollmentId, createdCommit_1.commitId], { network }, false)
-      .then<Commit>(commits => values(commits)[0])
-      .then(commit => expect(omit(commit, 'events')).toEqual(createdCommit_1)));
+    evaluate(
+      'eventstore:queryByEntityIdCommitId',
+      [entityName, enrollmentId, createdCommit_1.commitId],
+      { network },
+      false
+    )
+      .then<Commit>((commits) => values(commits)[0])
+      .then((commit) => expect(omit(commit, 'events')).toEqual(createdCommit_1)));
 
   it('should create #2', async () =>
     // cannot be version: '0' again, this is give error object, instead of Commit object
     submit(
       'eventstore:createCommit',
-      [entityName, enrollmentId, '1', JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])],
+      [
+        entityName,
+        enrollmentId,
+        '1',
+        JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }]),
+      ],
       { network }
     )
-      .then<Commit>(commits => values(commits)[0])
+      .then<Commit>((commits) => values(commits)[0])
       .then(({ entityName }) => expect(entityName).toEqual('dev_test')));
 
   it('should queryByEntityName', async () =>
@@ -129,44 +150,54 @@ describe('Eventstore Tests', () => {
       'eventstore:queryByEntityName',
       [entityName],
       {
-        network
+        network,
       },
       false
-    ).then(commits => values(commits).map(({ entityName }) => expect(entityName).toBe('dev_test'))));
+    ).then((commits) =>
+      values(commits).map(({ entityName }) => expect(entityName).toBe('dev_test'))
+    ));
 
   it('should queryByEntityId #1', async () =>
     evaluate(
       'eventstore:queryByEntityId',
       [entityName, enrollmentId],
       {
-        network
+        network,
       },
       false
-    ).then(result => expect(keys(result).length).toEqual(2)));
+    ).then((result) => expect(keys(result).length).toEqual(2)));
 
   it('should deleteByEntityIdCommitId', async () =>
-    submit('eventstore:deleteByEntityIdCommitId', [entityName, enrollmentId, createdCommit_1.commitId], {
-      network
-    }).then(({ status }) => expect(status).toBe('SUCCESS')));
+    submit(
+      'eventstore:deleteByEntityIdCommitId',
+      [entityName, enrollmentId, createdCommit_1.commitId],
+      {
+        network,
+      }
+    ).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should fail to delete non-exist entity by EntityId/CommitId', async () =>
-    submit('eventstore:deleteByEntityIdCommitId', [entityName, enrollmentId, createdCommit_1.commitId], {
-      network
-    }).then(({ status }) => expect(status).toBe('SUCCESS')));
+    submit(
+      'eventstore:deleteByEntityIdCommitId',
+      [entityName, enrollmentId, createdCommit_1.commitId],
+      {
+        network,
+      }
+    ).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should queryByEntityId #2', async () =>
     evaluate(
       'eventstore:queryByEntityId',
       [entityName, enrollmentId],
       {
-        network
+        network,
       },
       false
-    ).then(result => expect(keys(result).length).toEqual(1)));
+    ).then((result) => expect(keys(result).length).toEqual(1)));
 
   it('should deleteByEntityId', async () =>
     submit('eventstore:deleteByEntityId', [entityName, enrollmentId], {
-      network
+      network,
     }).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should queryByEntityId #3', async () =>
@@ -174,15 +205,20 @@ describe('Eventstore Tests', () => {
       'eventstore:queryByEntityId',
       [entityName, enrollmentId],
       {
-        network
+        network,
       },
       false
-    ).then(result => expect(result).toEqual({})));
+    ).then((result) => expect(result).toEqual({})));
 
   it('should create #3 at version 0', async () =>
     submit(
       'eventstore:createCommit',
-      [entityName, enrollmentId, '0', JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }])],
+      [
+        entityName,
+        enrollmentId,
+        '0',
+        JSON.stringify([{ type: 'User Created', payload: { name: 'you' } }]),
+      ],
       { network }
     ));
 });

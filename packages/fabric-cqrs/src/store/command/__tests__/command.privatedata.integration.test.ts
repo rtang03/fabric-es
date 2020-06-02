@@ -1,3 +1,5 @@
+import { getLogger } from '../../../utils';
+
 require('../../../env');
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallet, Wallets } from 'fabric-network';
@@ -20,6 +22,8 @@ const fabricNetwork = process.env.NETWORK_LOCATION;
 const mspId = process.env.MSPID;
 const entityName = 'store_privatedata';
 const enrollmentId = `store_privatedata${Math.floor(Math.random() * 1000)}`;
+const logger = getLogger({ name: 'command.privatedata.integration.ts' });
+
 let wallet: Wallet;
 
 beforeAll(async () => {
@@ -36,7 +40,7 @@ beforeAll(async () => {
       enrollmentSecret: process.env.ORG_ADMIN_SECRET,
       fabricNetwork,
       mspId,
-      wallet
+      wallet,
     });
 
     await enrollAdmin({
@@ -46,7 +50,7 @@ beforeAll(async () => {
       enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
       fabricNetwork,
       mspId,
-      wallet
+      wallet,
     });
 
     await registerUser({
@@ -57,7 +61,7 @@ beforeAll(async () => {
       enrollmentSecret: 'password',
       connectionProfile,
       wallet,
-      mspId
+      mspId,
     });
 
     context = await getNetwork({
@@ -66,8 +70,10 @@ beforeAll(async () => {
       wallet,
       enrollmentId,
       discovery: false,
-      asLocalhost: true
+      asLocalhost: true,
     });
+
+    context.logger = logger;
 
     store = getStore(context);
   } catch (err) {
@@ -82,7 +88,7 @@ afterAll(async () => {
 });
 
 describe('Store:privatedata Tests', () => {
-  it('should createCommit', done => {
+  it('should createCommit', (done) => {
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
@@ -102,7 +108,7 @@ describe('Store:privatedata Tests', () => {
           id: enrollmentId,
           version: 0,
           events: [{ type: 'User Created', payload: { name: 'me' } }],
-          isPrivateData: true
+          isPrivateData: true,
         },
         // Special attention: createAction will be based on newly created account (given below
         // enrollmentId; to using a new Fabric contract, to submit transaction, and based on its x509
@@ -110,12 +116,12 @@ describe('Store:privatedata Tests', () => {
         enrollmentId,
         connectionProfile,
         channelName,
-        wallet
+        wallet,
       })
     );
   });
 
-  it('should queryByEntityIdCommitId', done => {
+  it('should queryByEntityIdCommitId', (done) => {
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
@@ -131,19 +137,19 @@ describe('Store:privatedata Tests', () => {
         args: { entityName, commitId, id: enrollmentId, isPrivateData: true },
         connectionProfile,
         channelName,
-        wallet
+        wallet,
       })
     );
   });
 
-  it('should queryByEntityName', done => {
+  it('should queryByEntityName', (done) => {
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
         values<Commit>(result)
-          .map(commit => pick(commit, 'entityName', 'version', 'events'))
-          .map(commit => expect(commit).toMatchSnapshot());
+          .map((commit) => pick(commit, 'entityName', 'version', 'events'))
+          .map((commit) => expect(commit).toMatchSnapshot());
         unsubscribe();
         done();
       }
@@ -154,19 +160,19 @@ describe('Store:privatedata Tests', () => {
         args: { entityName, isPrivateData: true },
         connectionProfile,
         channelName,
-        wallet
+        wallet,
       })
     );
   });
 
-  it('should queryByEntityId', done => {
+  it('should queryByEntityId', (done) => {
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
       if (tx_id === tid && type === action.QUERY_SUCCESS) {
         values<Commit>(result)
-          .map(commit => pick(commit, 'entityName', 'version', 'events'))
-          .map(commit => expect(commit).toMatchSnapshot());
+          .map((commit) => pick(commit, 'entityName', 'version', 'events'))
+          .map((commit) => expect(commit).toMatchSnapshot());
         unsubscribe();
         done();
       }
@@ -177,12 +183,12 @@ describe('Store:privatedata Tests', () => {
         args: { entityName, id: enrollmentId, isPrivateData: true },
         connectionProfile,
         channelName,
-        wallet
+        wallet,
       })
     );
   });
 
-  it('should deleteByEntityIdCommitId', done => {
+  it('should deleteByEntityIdCommitId', (done) => {
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
@@ -198,7 +204,7 @@ describe('Store:privatedata Tests', () => {
         args: { entityName, id: enrollmentId, commitId, isPrivateData: true },
         connectionProfile,
         channelName,
-        wallet
+        wallet,
       })
     );
   });

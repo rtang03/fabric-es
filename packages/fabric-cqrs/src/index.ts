@@ -28,5 +28,5 @@ export {
   getErrorActionHandler,
   getSuccessAction,
   getSuccessActionHandler,
-} from './cqrs/utils';
+} from './store/utils';
 export { fromCommitsToGroupByEntityId, getHistory, isCommit } from './peer/utils';

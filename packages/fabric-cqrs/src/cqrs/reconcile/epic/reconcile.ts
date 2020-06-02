@@ -7,7 +7,7 @@ import { Utils } from 'fabric-common';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-import { action as command } from '../../command/action';
+import { action as command } from '../../../store/command/action';
 import { action } from '../action';
 import { ReconcileAction } from '../types';
 

@@ -1,6 +1,12 @@
 import util from 'util';
 import { Utils } from 'fabric-common';
-import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway, Network, Wallet } from 'fabric-network';
+import {
+  DefaultEventHandlerStrategies,
+  DefaultQueryHandlerStrategies,
+  Gateway,
+  Network,
+  Wallet,
+} from 'fabric-network';
 import { safeLoad } from 'js-yaml';
 import { promiseToReadFile } from '../peer/utils';
 
@@ -33,7 +39,7 @@ export const getNetwork: (option: {
   eventHandlerStrategy = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
   queryHandlerStrategy = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
   discovery,
-  asLocalhost
+  asLocalhost,
 }) => {
   const logger = Utils.getLogger('[fabric-cqrs] getNetwork.js');
   let identityExist;
@@ -69,12 +75,8 @@ export const getNetwork: (option: {
       identity,
       wallet,
       discovery: { enabled: discovery, asLocalhost },
-      eventHandlerOptions: {
-        strategy: eventHandlerStrategy
-      },
-      queryHandlerOptions: {
-        strategy: queryHandlerStrategy
-      }
+      eventHandlerOptions: { strategy: eventHandlerStrategy },
+      queryHandlerOptions: { strategy: queryHandlerStrategy },
     });
 
   try {
@@ -92,9 +94,5 @@ export const getNetwork: (option: {
 
   logger.info(util.format('gateway connected: %s', enrollmentId));
 
-  return {
-    enrollmentId,
-    gateway,
-    network
-  };
+  return { enrollmentId, gateway, network };
 };

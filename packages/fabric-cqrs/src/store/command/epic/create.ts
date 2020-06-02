@@ -3,23 +3,22 @@
  * @hidden
  */
 import util from 'util';
-import { Utils } from 'fabric-common';
-import { assign } from 'lodash';
+import assign from 'lodash/assign';
 import { ofType } from 'redux-observable';
 import { from, Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 import { getNetwork, submit$, submitPrivateData$ } from '../../../services';
 import { dispatchResult } from '../../utils';
 import { action } from '../action';
-import { CreateAction } from '../types';
+import type { CreateAction } from '../types';
 
-export default (action$: Observable<CreateAction>, _, context) => {
-  const logger = Utils.getLogger('[fabric-cqrs] create.js');
+const { CREATE, createSuccess, createError } = action;
 
-  return action$.pipe(
-    ofType(action.CREATE),
+export default (action$: Observable<CreateAction>, _, context) =>
+  action$.pipe(
+    ofType(CREATE),
     map(({ payload }) => payload),
-    mergeMap(payload =>
+    mergeMap((payload) =>
       from(
         getNetwork({
           channelName: payload.channelName,
@@ -27,14 +26,13 @@ export default (action$: Observable<CreateAction>, _, context) => {
           wallet: payload.wallet,
           enrollmentId: payload.enrollmentId,
           discovery: !payload.args.isPrivateData,
-          asLocalhost: !(process.env.NODE_ENV === 'production')
+          asLocalhost: !(process.env.NODE_ENV === 'production'),
         })
-          .then(({ network, gateway }) => {
-            logger.info('getNetwork succeed');
-            return assign({}, payload, { network, gateway });
-          })
-          .catch(error => {
-            logger.error(util.format('getNework error: %s', error.message));
+          .then(({ network, gateway }) => assign({}, payload, { network, gateway }))
+          .catch((error) => {
+            context.logger.error(
+              util.format('[store/command/create.js] getNework error: %s', error.message)
+            );
             return assign({}, payload, { error });
           })
       )
@@ -44,7 +42,7 @@ export default (action$: Observable<CreateAction>, _, context) => {
         return of(
           action.createError({
             tx_id: getNetwork.tx_id,
-            error: getNetwork.error
+            error: getNetwork.error,
           })
         );
       else {
@@ -58,22 +56,19 @@ export default (action$: Observable<CreateAction>, _, context) => {
               { eventstr: Buffer.from(JSON.stringify(events)) },
               { network: network || context.network }
             ).pipe(
-              tap(commits => {
-                logger.debug(util.format('dispatch submitPrivateData response: %j', commits));
-                gateway.disconnect();
-              }),
-              dispatchResult(tx_id, action.createSuccess, action.createError)
+              tap(() => gateway.disconnect()),
+              dispatchResult(tx_id, createSuccess, createError)
             )
-          : submit$('eventstore:createCommit', [entityName, id, version.toString(), JSON.stringify(events)], {
-              network: network || context.network
-            }).pipe(
-              tap(commits => {
-                logger.debug(util.format('dispatch submit response: %j', commits));
-                gateway.disconnect();
-              }),
-              dispatchResult(tx_id, action.createSuccess, action.createError)
+          : submit$(
+              'eventstore:createCommit',
+              [entityName, id, version.toString(), JSON.stringify(events)],
+              {
+                network: network || context.network,
+              }
+            ).pipe(
+              tap(() => gateway.disconnect()),
+              dispatchResult(tx_id, createSuccess, createError)
             );
       }
     })
   );
-};

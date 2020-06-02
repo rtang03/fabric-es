@@ -1,3 +1,5 @@
+import { getLogger } from '../../../utils';
+
 require('../../../env');
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallet, Wallets } from 'fabric-network';
@@ -11,7 +13,7 @@ import { generateToken } from '../../utils';
 import { action } from '../action';
 import { getStore } from './__utils__/store';
 
-let context: Partial<PeerOptions>;
+let context;
 let commitId: string;
 let store: Store;
 const entityName = 'command_test';
@@ -21,6 +23,8 @@ const channelName = process.env.CHANNEL_NAME;
 const fabricNetwork = process.env.NETWORK_LOCATION;
 const mspId = process.env.MSPID;
 const caUrl = process.env.ORG_CA_URL;
+const logger = getLogger({ name: 'command.integration.ts' });
+
 let wallet: Wallet;
 
 beforeAll(async () => {
@@ -37,7 +41,7 @@ beforeAll(async () => {
       enrollmentSecret: process.env.ORG_ADMIN_SECRET,
       fabricNetwork,
       mspId,
-      wallet
+      wallet,
     });
 
     await enrollAdmin({
@@ -47,7 +51,7 @@ beforeAll(async () => {
       enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
       fabricNetwork,
       mspId,
-      wallet
+      wallet,
     });
 
     await registerUser({
@@ -58,7 +62,7 @@ beforeAll(async () => {
       enrollmentSecret: 'password',
       connectionProfile,
       wallet,
-      mspId
+      mspId,
     });
 
     context = await getNetwork({
@@ -67,8 +71,10 @@ beforeAll(async () => {
       wallet,
       enrollmentId,
       discovery: true,
-      asLocalhost: true
+      asLocalhost: true,
     });
+
+    context.logger = logger;
 
     store = getStore(context);
   } catch (e) {
@@ -84,7 +90,7 @@ afterAll(() => {
 
 describe('CQRS - command Tests', () => {
   // tear-up
-  it('should deleteByEntityId', done => {
+  it('should deleteByEntityId', (done) => {
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
       const { tx_id, type } = store.getState().write;
@@ -103,12 +109,12 @@ describe('CQRS - command Tests', () => {
         args: { entityName, id: enrollmentId, isPrivateData: false },
         connectionProfile,
         channelName,
-        wallet
+        wallet,
       })
     );
   });
 
-  it('should createEntity', done => {
+  it('should createEntity', (done) => {
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
@@ -127,7 +133,7 @@ describe('CQRS - command Tests', () => {
           id: enrollmentId,
           version: 0,
           events: [{ type: 'User Created', payload: { name: 'me' } }],
-          isPrivateData: false
+          isPrivateData: false,
         },
         // Special attention: createAction will be based on newly created account (given below
         // enrollmentId; to using a new Fabric contract, to submit transaction, and based on its x509
@@ -135,12 +141,12 @@ describe('CQRS - command Tests', () => {
         enrollmentId,
         connectionProfile,
         channelName,
-        wallet
+        wallet,
       })
     );
   });
 
-  it('should queryByEntityIdCommitId', done => {
+  it('should queryByEntityIdCommitId', (done) => {
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
@@ -156,12 +162,12 @@ describe('CQRS - command Tests', () => {
         args: { entityName, commitId, id: enrollmentId, isPrivateData: false },
         connectionProfile,
         channelName,
-        wallet
+        wallet,
       })
     );
   });
 
-  it('should queryByEntityName', done => {
+  it('should queryByEntityName', (done) => {
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
@@ -177,12 +183,12 @@ describe('CQRS - command Tests', () => {
         args: { entityName, isPrivateData: false },
         connectionProfile,
         channelName,
-        wallet
+        wallet,
       })
     );
   });
 
-  it('should queryByEntityId', done => {
+  it('should queryByEntityId', (done) => {
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
@@ -198,12 +204,12 @@ describe('CQRS - command Tests', () => {
         args: { entityName, id: enrollmentId, isPrivateData: false },
         connectionProfile,
         channelName,
-        wallet
+        wallet,
       })
     );
   });
 
-  it('should deleteByEntityIdCommitId', done => {
+  it('should deleteByEntityIdCommitId', (done) => {
     const tid = generateToken();
     const unsubscribe = store.subscribe(() => {
       const { tx_id, result, type } = store.getState().write;
@@ -219,9 +225,8 @@ describe('CQRS - command Tests', () => {
         args: { entityName, id: enrollmentId, commitId, isPrivateData: false },
         connectionProfile,
         channelName,
-        wallet
+        wallet,
       })
     );
   });
-
 });

@@ -2,7 +2,7 @@ import { pick, values } from 'lodash';
 import { Store } from 'redux';
 import { createQueryDatabase } from '../../../peer';
 import { Commit } from '../../../types';
-import { createCommit, generateToken } from '../../utils';
+import { createCommit, generateToken } from '../../../store/utils';
 import { action } from '../action';
 import { getStore } from './__utils__/store';
 

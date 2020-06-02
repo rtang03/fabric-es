@@ -1,4 +1,4 @@
-import { Commit } from '../../../types';
+import { Commit } from '../../types';
 
 export interface FindAction {
   type: string;

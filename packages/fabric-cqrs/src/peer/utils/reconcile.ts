@@ -7,7 +7,7 @@ import { Utils } from 'fabric-common';
 import { Wallet } from 'fabric-network';
 import { Store } from 'redux';
 import { action } from '../../cqrs/reconcile';
-import { generateToken } from '../../cqrs/utils';
+import { generateToken } from '../../store/utils';
 import { Reducer } from '../../types';
 
 const { RECONCILE_SUCCESS, RECONCILE_ERROR } = action;

@@ -3,7 +3,7 @@ import { Utils } from 'fabric-common';
 import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
 import { createCommitId } from '../peer/utils';
-import { Commit } from '../types';
+import type { Commit } from '../types';
 import { getContract } from './contract';
 
 /**
@@ -37,7 +37,7 @@ export const submitPrivateData: (
         logger.info(util.format('%s successful response', fcn));
         return result;
       })
-      .catch(error => {
+      .catch((error) => {
         logger.error(util.format('error in %s: %j', fcn, error));
         return { error };
       })

@@ -2,7 +2,7 @@ import util from 'util';
 import { Utils } from 'fabric-common';
 import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
-import { Commit } from '../types';
+import type { Commit } from '../types';
 import { getContract } from './contract';
 
 /**
@@ -18,7 +18,12 @@ export const evaluate: (
   args: string[],
   options: { network: Network },
   isPrivateData: boolean
-) => Promise<Record<string, Commit> | { error: any }> = async (fcn, args, { network }, isPrivateData) => {
+) => Promise<Record<string, Commit> | { error: any }> = async (
+  fcn,
+  args,
+  { network },
+  isPrivateData
+) => {
   const logger = Utils.getLogger('[fabric-cqrs] evaluate.js');
 
   return getContract(network).then(({ contract }) =>
@@ -30,7 +35,7 @@ export const evaluate: (
         logger.info(util.format('%s successful response', fcn));
         return result;
       })
-      .catch(error => {
+      .catch((error) => {
         logger.error(util.format('error in %s: %j', fcn, error));
         return { error };
       })

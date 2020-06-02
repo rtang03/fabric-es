@@ -3,7 +3,7 @@
  * @hidden
  */
 import { filter, omit, values } from 'lodash';
-import { createCommit } from '../cqrs/utils';
+import { createCommit } from '../store/utils';
 import { Commit, PrivatedataRepository } from '../types';
 
 const getHistory = (commits: Commit[]): any[] => {

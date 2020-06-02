@@ -7,8 +7,8 @@ import { Utils } from 'fabric-common';
 import { Wallet } from 'fabric-network';
 import { values } from 'lodash';
 import { Store } from 'redux';
-import { action as writeAction } from '../../cqrs/command';
-import { generateToken } from '../../cqrs/utils';
+import { action as writeAction } from '../../store/command';
+import { generateToken } from '../../store/utils';
 import { Commit } from '../../types';
 
 export const getPromiseToSave: (option: {

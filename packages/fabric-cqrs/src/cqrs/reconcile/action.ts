@@ -2,7 +2,7 @@
  * @packageDocumentation
  * @hidden
  */
-import { getAction, getErrorAction, getSuccessAction } from '../utils';
+import { getAction, getErrorAction, getSuccessAction } from '../../store/utils';
 import { MergeAction, ReconcileAction } from './types';
 
 const RECONCILE = '[Entity] Reconcile';

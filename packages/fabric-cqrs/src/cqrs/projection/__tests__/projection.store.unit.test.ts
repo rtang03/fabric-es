@@ -3,7 +3,7 @@ import { reducer } from '../../../example';
 import { createProjectionDb, createQueryDatabase } from '../../../peer';
 import { Commit } from '../../../types';
 import { action as queryAction } from '../../query';
-import { generateToken } from '../../utils';
+import { generateToken } from '../../../store/utils';
 import { action } from '../action';
 import { getStore } from './__utils__/store';
 

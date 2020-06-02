@@ -7,6 +7,12 @@ import { evaluate, getNetwork, submitPrivateData } from '..';
 import { registerUser } from '../../account';
 import { Commit } from '../../types';
 
+/**
+ * ./dn-run-1-px-db-red-auth.sh
+ *  OR
+ *  ./dn-run.2-px-db-red-auth.sh
+ */
+
 let network: Network;
 let gateway: Gateway;
 let wallet: Wallet;
@@ -19,7 +25,7 @@ const fabricNetwork = process.env.NETWORK_LOCATION;
 const mspId = process.env.MSPID;
 const entityName = 'dev_test_privatedata';
 const transient = {
-  eventstr: Buffer.from(JSON.stringify([{ type: 'Created', payload: { name: 'me' } }]))
+  eventstr: Buffer.from(JSON.stringify([{ type: 'Created', payload: { name: 'me' } }])),
 };
 const enrollmentId = `service_privatedata${Math.floor(Math.random() * 1000)}`;
 
@@ -37,7 +43,7 @@ beforeAll(async () => {
       enrollmentSecret: process.env.ORG_ADMIN_SECRET,
       fabricNetwork,
       mspId,
-      wallet
+      wallet,
     });
 
     await enrollAdmin({
@@ -47,7 +53,7 @@ beforeAll(async () => {
       enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
       fabricNetwork,
       mspId,
-      wallet
+      wallet,
     });
 
     await registerUser({
@@ -58,7 +64,7 @@ beforeAll(async () => {
       enrollmentSecret: 'password',
       connectionProfile,
       wallet,
-      mspId
+      mspId,
     });
 
     const context = await getNetwork({
@@ -67,7 +73,7 @@ beforeAll(async () => {
       wallet,
       enrollmentId,
       discovery: false,
-      asLocalhost: true
+      asLocalhost: true,
     });
     network = context.network;
     gateway = context.gateway;
@@ -84,26 +90,33 @@ afterAll(async () => {
 
 describe('Event store Tests: Privatedata', () => {
   it('should createCommit #1', async () =>
-    submitPrivateData('privatedata:createCommit', [entityName, enrollmentId, '0'], transient, { network })
-      .then<Commit>(result => values(result)[0])
-      .then(commit => {
+    submitPrivateData('privatedata:createCommit', [entityName, enrollmentId, '0'], transient, {
+      network,
+    })
+      .then<Commit>((result) => values(result)[0])
+      .then((commit) => {
         createdCommit_1 = commit;
         return expect(commit.entityId).toEqual(enrollmentId);
       }));
 
   it('should createCommit #2', async () =>
-    submitPrivateData('privatedata:createCommit', [entityName, enrollmentId, '0'], transient, { network })
-      .then<Commit>(result => values(result)[0])
-      .then(commit => (createdCommit_2 = commit)));
+    submitPrivateData('privatedata:createCommit', [entityName, enrollmentId, '0'], transient, {
+      network,
+    })
+      .then<Commit>((result) => values(result)[0])
+      .then((commit) => (createdCommit_2 = commit)));
 
   it('should queryByEntityId #1', async () =>
-    evaluate('privatedata:queryByEntityId', [entityName, enrollmentId], { network }, true).then(result =>
-      values(result).map(commit => expect(commit.id).toEqual(enrollmentId))
-    ));
+    evaluate(
+      'privatedata:queryByEntityId',
+      [entityName, enrollmentId],
+      { network },
+      true
+    ).then((result) => values(result).map((commit) => expect(commit.id).toEqual(enrollmentId))));
 
   it('should queryByEntityName', async () =>
-    evaluate('privatedata:queryByEntityName', [entityName], { network }, true).then(result =>
-      values(result).map(commit => expect(commit.entityName).toEqual(entityName))
+    evaluate('privatedata:queryByEntityName', [entityName], { network }, true).then((result) =>
+      values(result).map((commit) => expect(commit.entityName).toEqual(entityName))
     ));
 
   it('should deleteByEntityIdCommitId #1', async () =>
@@ -120,7 +133,9 @@ describe('Event store Tests: Privatedata', () => {
       [entityName, enrollmentId, createdCommit_1.commitId],
       null,
       { network }
-    ).then(({ error }) => expect(error.message.startsWith('No valid responses from any peers')).toBeTruthy()));
+    ).then(({ error }) =>
+      expect(error.message.startsWith('No valid responses from any peers')).toBeTruthy()
+    ));
 
   it('should deleteByEntityIdCommitId #2', async () =>
     submitPrivateData(

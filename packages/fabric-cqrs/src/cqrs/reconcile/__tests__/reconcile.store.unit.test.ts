@@ -1,6 +1,6 @@
 import { Store } from 'redux';
 import { createQueryDatabase } from '../../../peer';
-import { generateToken } from '../../utils';
+import { generateToken } from '../../../store/utils';
 import { action } from '../action';
 import { getStore } from './__utils__/store';
 

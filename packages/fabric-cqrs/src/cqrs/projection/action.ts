@@ -2,7 +2,7 @@
  * @packageDocumentation
  * @hidden
  */
-import { getAction, getSuccessAction } from '../utils';
+import { getAction, getSuccessAction } from '../../store/utils';
 import { FindAction, UpsertAction, UpsertManyAction } from './types';
 
 const UPSERT = '[Project] Upsert Entity';
