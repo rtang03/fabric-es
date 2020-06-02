@@ -1,4 +1,4 @@
-import { Reducer } from '@fabric-es/fabric-cqrs';
+import { Reducer } from '../../../../types';
 import { CounterEvents } from './events';
 import { Counter, CounterEvent } from './types';
 

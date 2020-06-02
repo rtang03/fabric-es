@@ -1,5 +1,5 @@
 import { of } from 'rxjs';
-import { Commit } from '../../types';
+import { Commit } from '../../../types';
 
 const db: Record<string, Commit> = {
   '20181208155814606': {

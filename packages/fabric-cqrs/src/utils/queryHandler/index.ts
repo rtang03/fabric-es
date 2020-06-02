@@ -9,3 +9,4 @@ export * from './dummyReducer';
 export * from './dispatcher';
 export * from './fromCommitsToGroupByEntityId';
 export * from './catchErrors';
+export * from './createQueryHandler';

@@ -1,4 +1,4 @@
-import { BaseEvent } from '@fabric-es/fabric-cqrs';
+import { BaseEvent } from '../../../../types';
 
 export interface Increment extends BaseEvent {
   readonly type: 'Increment';

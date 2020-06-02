@@ -7,7 +7,7 @@ import { pick, values } from 'lodash';
 import { Store } from 'redux';
 import rimraf from 'rimraf';
 import { registerUser } from '../../../account';
-import { getNetwork } from '../../../services';
+import { getNetwork } from '../../../utils/services';
 import { Commit } from '../../../types';
 import { generateToken } from '../../utils';
 import { action } from '../action';

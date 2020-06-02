@@ -1,7 +1,7 @@
-require('dotenv').config({ path: './.env.test' });
+require('dotenv').config({ path: './.env.dev' });
 import Redis from 'ioredis';
-import type { QueryDatabase } from '../types';
-import { entityIndex, createQueryDatabase, commitIndex } from '../utils';
+import { entityIndex, createQueryDatabase, commitIndex } from '..';
+import type { QueryDatabase } from '../../../types/queryDatabaseV2';
 import { reducer } from './__utils__';
 import { commit, commits, newCommit } from './__utils__/qdb.data';
 

@@ -1,19 +1,18 @@
-require('dotenv').config({ path: './.env.test' });
-import { Commit, getNetwork } from '@fabric-es/fabric-cqrs';
+require('dotenv').config({ path: './.env.dev' });
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallets } from 'fabric-network';
 import Redis from 'ioredis';
 import rimraf from 'rimraf';
-import type { QueryHandler } from '../types';
 import {
   commitIndex,
   createQueryDatabase,
   createQueryHandler,
   dummyReducer,
   entityIndex,
-  isCommit,
-  isCommitRecord,
-} from '../utils';
+} from '..';
+import { isCommit, isCommitRecord } from '../..';
+import type { Commit, QueryHandler } from '../../../types';
+import { getNetwork } from '../../services';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -50,6 +49,7 @@ beforeAll(async () => {
       mspId,
       wallet,
     });
+
     // Step 2: EnrollCaAdmin
     await enrollAdmin({
       enrollmentID: caAdmin,
@@ -64,6 +64,7 @@ beforeAll(async () => {
     // localhost:6379
     redis = new Redis();
     const queryDatabase = createQueryDatabase(redis);
+
     const networkConfig = await getNetwork({
       discovery: true,
       asLocalhost: true,

@@ -1,19 +1,14 @@
-require('dotenv').config({ path: './.env.test' });
-import { Commit, getNetwork } from '@fabric-es/fabric-cqrs';
+require('dotenv').config({ path: './.env.dev' });
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallets } from 'fabric-network';
 import Redis from 'ioredis';
 import omit from 'lodash/omit';
 import values from 'lodash/values';
 import rimraf from 'rimraf';
-import type { QueryHandler } from '../types';
-import {
-  commitIndex,
-  createQueryDatabase,
-  createQueryHandler,
-  entityIndex,
-  isCommitRecord,
-} from '../utils';
+import { commitIndex, createQueryDatabase, createQueryHandler, entityIndex } from '..';
+import { isCommitRecord } from '../..';
+import type { Commit, QueryHandler } from '../../../types';
+import { getNetwork } from '../../services';
 import { reducer } from './__utils__';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;

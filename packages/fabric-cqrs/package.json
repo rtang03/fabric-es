@@ -39,6 +39,9 @@
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "prepublish": "yarn typedoc && yarn tsc:prod",
     "publish:gh:fabric-es": "npm publish",
+    "unit-test:reconcile": "jest --forceExit --detectOpenHandles reconcile.unit-test",
+    "unit-test:subscribe": "jest --forceExit --detectOpenHandles subscribe.unit-test",
+    "unit-test:querydb": "jest --forceExit --detectOpenHandles qdb.unit-test",
     "unit-test:store-query": "jest --forceExit --detectOpenHandles query.store.unit-test",
     "unit-test:store-proj": "jest --forceExit --detectOpenHandles proj.store.unit-test",
     "unit-test:store-reconcile": "jest --forceExit --detectOpenHandles reconcile.store.unit-test"

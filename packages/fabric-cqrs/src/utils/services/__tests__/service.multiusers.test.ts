@@ -1,10 +1,10 @@
-require('../../env');
+require('../../../env');
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallet, Wallets } from 'fabric-network';
 import values from 'lodash/values';
 import rimraf from 'rimraf';
-import { registerUser } from '../../account';
-import type { Commit, PeerOptions } from '../../types';
+import { registerUser } from '../../../account';
+import type { Commit, PeerOptions } from '../../../types';
 import { evaluate } from '../evaluate';
 import { getNetwork } from '../network';
 import { submit } from '../submit';

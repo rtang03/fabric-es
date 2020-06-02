@@ -18,7 +18,7 @@ export {
   submitPrivateData$,
   evaluate,
   evaluate$,
-} from './services';
+} from './utils/services';
 export * from './types';
 export {
   dispatchResult,

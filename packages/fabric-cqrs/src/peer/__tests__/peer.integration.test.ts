@@ -6,7 +6,7 @@ import { find, pick } from 'lodash';
 import rimraf from 'rimraf';
 import { registerUser } from '../../account';
 import { Counter, CounterEvent, reducer } from '../../store/example';
-import { getNetwork } from '../../services';
+import { getNetwork } from '../../utils/services';
 import { Peer, Repository } from '../../types';
 import { createProjectionDb } from '../createProjectionDb';
 import { createQueryDatabase } from '../createQueryDatabase';

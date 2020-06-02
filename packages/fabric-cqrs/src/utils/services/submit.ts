@@ -2,8 +2,8 @@ import util from 'util';
 import { Utils } from 'fabric-common';
 import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
-import { createCommitId } from '../peer/utils';
-import type { Commit } from '../types';
+import { createCommitId } from '../../peer/utils';
+import type { Commit } from '../../types';
 import { getContract } from './contract';
 
 /**
