@@ -13,10 +13,10 @@ WORKDIR /home/node/app
 
 COPY --chown=node:node ./*.json ./
 COPY --chown=node:node ./packages/authentication/*.json ./packages/authentication/
-COPY --chown=node:node ../../../../packages/authentication/dist ./packages/authentication/dist
+COPY --chown=node:node ../../../../packages/query-handler ./packages/authentication/dist
 COPY --chown=node:node ../../../../_archive/gw-dev-net ./packages/authentication/.env
-COPY --chown=node:node ../../../../packages/authentication/public ./packages/authentication/public
-COPY --chown=node:node ../../../../packages/authentication/views ./packages/authentication/views
+COPY --chown=node:node ../../../../packages/query-handler ./packages/authentication/public
+COPY --chown=node:node ../../../../packages/query-handler ./packages/authentication/views
 
 RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
   && curl -fSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz" \

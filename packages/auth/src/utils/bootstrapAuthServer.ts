@@ -1,4 +1,3 @@
-import util from 'util';
 import bcrypt from 'bcrypt';
 import { Client } from '../entity/Client';
 import { User } from '../entity/User';

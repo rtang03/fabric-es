@@ -109,7 +109,6 @@ export const createService = async <TEntity extends BaseEntity>({
             user_id: headers.user_id,
             is_admin: headers.is_admin,
             username: headers.username,
-            // enrollmentId: headers.user_id
           })
         });
       };

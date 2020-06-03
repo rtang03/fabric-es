@@ -116,7 +116,7 @@ export const createClientRoute: () => express.Router = () => {
         const user = req.user as User;
 
         if (application_name) {
-          const client = await Client.findOne({ application_name, user_id: user.id });
+          const client = await Client.findOne({ where: { application_name, user_id: user.id } });
 
           logger.info(`account ${user.id} retrieves client record ${client.id}`);
           return res.status(httpStatus.OK).send(client);

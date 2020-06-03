@@ -22,7 +22,7 @@ services:
 
   redis03:
     container_name: redis03
-    image: redis:5.0.9-alpine
+    image: redis:6.0.3-alpine
     volumes:
       - $VOLUME/redis-data03:/data
     # custom configuration. will require if AUTH is set

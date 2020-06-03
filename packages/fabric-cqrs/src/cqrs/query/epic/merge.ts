@@ -17,7 +17,7 @@ export default (action$: Observable<MergeAction>, _, context: { queryDatabase: Q
     mergeMap(({ tx_id, args: { commit } }) =>
       from(
         context.queryDatabase.merge({ commit }).then(({ data }) => {
-          const logger = Utils.getLogger('[fabric-cqrs] queryByEntityName.js');
+          const logger = Utils.getLogger('[fabric-cqrs] merge.js');
           logger.info(action.MERGE_SUCCESS);
 
           return action.mergeSuccess({

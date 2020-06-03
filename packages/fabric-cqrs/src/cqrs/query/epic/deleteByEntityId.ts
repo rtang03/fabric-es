@@ -17,7 +17,7 @@ export default (action$: Observable<DeleteByEntityIdAction>, _, context: { query
     mergeMap(({ tx_id, args: { entityName, id } }) =>
       from(
         context.queryDatabase.deleteByEntityId({ entityName, id }).then(result => {
-          const logger = Utils.getLogger('[fabric-cqrs] queryByEntityName.js');
+          const logger = Utils.getLogger('[fabric-cqrs] deleteByEntityId.js');
           logger.info(action.DELETE_SUCCESS);
 
           return action.deleteSuccess({ tx_id, result });

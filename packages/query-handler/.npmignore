@@ -1,0 +1,10 @@
+*
+!src/store/query/
+!connection/
+!dist/
+!dist/**/*
+!package.json
+!*.md
+!*.png
+!LICENSE
+!docs

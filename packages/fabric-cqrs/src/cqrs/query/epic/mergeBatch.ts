@@ -17,7 +17,7 @@ export default (action$: Observable<MergeBatchAction>, _, context: { queryDataba
     mergeMap(({ tx_id, args: { entityName, commits } }) =>
       from(
         context.queryDatabase.mergeBatch({ entityName, commits }).then(({ data }) => {
-          const logger = Utils.getLogger('[fabric-cqrs] queryByEntityName.js');
+          const logger = Utils.getLogger('[fabric-cqrs] mergeBatch.js');
           logger.info(action.MERGE_BATCH_SUCCESS);
 
           return action.mergeBatchSuccess({

@@ -1,6 +1,0 @@
-query GetPeerInfo {
-  getPeerInfo {
-    peerName
-    mspid
-  }
-}

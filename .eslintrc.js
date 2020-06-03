@@ -186,7 +186,7 @@ module.exports = {
     '@typescript-eslint/unified-signatures': 'error',
     complexity: 'off',
     'constructor-super': 'error',
-    'dot-notation': 'error',
+    'dot-notation': 'off',
     eqeqeq: ['error', 'always'],
     'guard-for-in': 'error',
     'id-blacklist': 'off',

@@ -1,4 +1,4 @@
-FROM node:10.19.0-alpine
+FROM node:12.16.0-alpine
 
 ENV TIME_ZONE=Asia/Hong_Kong \
     ENV_NAME=production \

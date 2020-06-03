@@ -1,11 +1,14 @@
-## vNext
+## [0.6.2] - 2020-4-10
 ### Added
 - GraphQL resolver APIs for searching the projectionDb
 - Docker image versions follows release versions
 - reverse proxy
 - ui-account for user management
 - revamp auth server
-- add 1org dev-net
+- update dev-net to include proxy, ui-account, redis
+- ci workflow can run "auth", "gateway-lib" unit test
+- update some dependency
+- upgrade to Fabric V2.1
 
 ### Modified
 - Fix v2 related changes in dev-net to work with 3x orgs

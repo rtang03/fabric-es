@@ -1,0 +1,39 @@
+version: "3"
+
+networks:
+  relay-net:
+
+services:
+
+  relay-server:
+    container_name: relay-server
+    image: hktfp5/relay
+    restart: unless-stopped
+    depends_on:
+      - mock-server
+      - redis-pubsub
+    environment:
+      - TARGET_URL=http://mock-server:4001
+      - SERVICE_PORT=3000
+      - REDIS_HOST=redis-pubsub
+      - REDIS_PORT=6379
+      - REDIS_TOPIC=request-notify
+    ports:
+      - 80:3000
+    networks:
+      - relay-net
+
+  mock-server:
+    container_name: mock-server
+    image: hktfp5/relay
+    restart: unless-stopped
+    command: dist/mock.js
+    networks:
+      - relay-net
+
+  redis-pubsub:
+    container_name: redis-pubsub
+    image: redis
+    restart: unless-stopped
+    networks:
+      - relay-net

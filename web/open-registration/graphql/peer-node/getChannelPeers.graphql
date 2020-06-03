@@ -1,7 +1,0 @@
-query GetChannelPeers {
-	getChannelPeers {
-    mspid
-    name
-    url
-  }
-}

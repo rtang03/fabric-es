@@ -5,7 +5,7 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 export RELEASE=0.6.2
-export IMAGE_TAG=2.0.1
+export IMAGE_TAG=2.1.0
 export CONFIG=./config
 export VOLUME=./volume
 export ARTIFACTS=./artifacts
@@ -17,6 +17,7 @@ export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
 export TEST_IMAGE=fabric-es/tester:${RELEASE}
 export PROXY_IMAGE=fabric-es/proxy:${RELEASE}
 export UI_ACCOUNT_IMAGE=fabric-es/ui-account:${RELEASE}
+export RELAY_IMAGE=fabric-es/relay:${RELEASE}
 export ROOT_DIR=$CURRENT_DIR/../..
 
 export CHAINCODE=$ROOT_DIR/packages/chaincode

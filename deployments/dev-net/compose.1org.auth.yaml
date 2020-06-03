@@ -28,5 +28,3 @@ services:
     depends_on:
       - redis01
       - postgres01
-  # volumes:
-  #   - $VOLUME/auth-server1/logs/:/home/app/packages/authentication/logs/
