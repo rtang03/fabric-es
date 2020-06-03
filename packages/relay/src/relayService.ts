@@ -8,7 +8,7 @@ import randomstring from 'randomstring';
 import querystring from 'query-string';
 import bodyParser from 'body-parser';
 import util from 'util';
-import { processMsg } from './processMsg';
+import { processMsgHandler } from './processMsg';
 import { RedisClient } from 'redis';
 
 const logger = getLogger('[relay] app.js');
@@ -77,7 +77,7 @@ export const relayService = ({
         reqres.statusMessage = proxyRes.statusMessage;
         reqres.duration = Date.now() - reqres.startTime;
 
-        await processMsg({ message: reqres as ReqRes, client: client, topic: topic });
+        await processMsgHandler({message: reqres, client: client, topic: topic});
       },
       onError(err, req, res) {
         res.writeHead(500, {

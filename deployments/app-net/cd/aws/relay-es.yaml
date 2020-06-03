@@ -27,7 +27,7 @@ services:
     container_name: mock-server
     image: fabric-es/relay:0.6.2
     restart: unless-stopped
-    command: dist/mock.js
+    command: dist/__mocks__/mockEndpoint.js
     networks:
       - relay-net
 

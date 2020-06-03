@@ -2,7 +2,6 @@ require('dotenv').config({ path: './.env' });
 import redis from 'redis';
 import { getLogger } from './getLogger';
 import { relayService } from './relayService';
-import retryStrategy from 'node-redis-retry-strategy';
 
 const TARGET_URL = process.env.TARGET_URL;
 const SERVICE_PORT = (parseInt(process.env.SERVICE_PORT) || 80) as number;
@@ -11,10 +10,10 @@ const REDIS_PORT = (parseInt(process.env.REDIS_PORT) || 6379) as number;
 const TOPIC = process.env.REDIS_TOPIC;
 
 const logger = getLogger('[relay] app.js');
-const client = redis.createClient({host: REDIS_HOST, port: REDIS_PORT, retry_strategy: retryStrategy });
+const client = redis.createClient({host: REDIS_HOST, port: REDIS_PORT });
 
 client.on('error', (err) => {
-  logger.error(`error for ${REDIS_HOST}:${REDIS_PORT} - ${err}`);
+  logger.error(`Redis Error: ${err}`);
 }); 
 
 try {

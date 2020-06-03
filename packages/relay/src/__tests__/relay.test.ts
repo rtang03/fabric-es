@@ -1,12 +1,11 @@
 import { runSimple } from 'run-container'
 import redis, { RedisClient } from 'redis';
 import mockyeah from 'mockyeah';
-import retryStrategy from 'node-redis-retry-strategy';
-import { processMsg } from '../processMsg';
+import { processMsg, processMsgHandler } from '../processMsg';
 import { ReqRes } from '../reqres';
 import { relayService } from '../relayService';
 import request from 'supertest';
-import { AssertionError } from 'assert';
+import { constants } from 'buffer';
 
 const msg: ReqRes = {
   id: 'myId',
@@ -20,8 +19,8 @@ const msg: ReqRes = {
 };
 const rHost = '127.0.0.1';
 const rPort = 6379;
-const mockFn1 = jest.fn();
-const mockFn2 = jest.fn();
+const mockInSubscriber1 = jest.fn();
+const mockInSubscriber2 = jest.fn();
 let publisher: RedisClient;
 let subscriber1: RedisClient, subscriber2: RedisClient;
 let redisContainer;
@@ -38,19 +37,19 @@ beforeAll(async () => {
   // Sit for 3s
   await new Promise(resolve => setTimeout(resolve, 3000));
 
-  publisher = redis.createClient({ host: rHost, port: rPort, retry_strategy: retryStrategy });
-  subscriber1 = redis.createClient({ host: rHost, port: rPort, retry_strategy: retryStrategy });
-  subscriber2 = redis.createClient({ host: rHost, port: rPort, retry_strategy: retryStrategy });
+  publisher = redis.createClient({ host: rHost, port: rPort });
+  subscriber1 = redis.createClient({ host: rHost, port: rPort });
+  subscriber2 = redis.createClient({ host: rHost, port: rPort });
   relay = relayService({ targetUrl: 'http://localhost:4001', client: publisher, topic: 'relay-channel' });
 
   subscriber1.on('message', (channel, message) => {
     console.log(`subscriber1 listening ${channel}: ${message}`);
-    mockFn1(message);
+    mockInSubscriber1(message);
   });
 
   subscriber2.on('message', (channel, message) => {
     console.log(`subscriber2 listening ${channel}: ${message}`);
-    mockFn2(message);
+    mockInSubscriber2(message);
   });
 });
 
@@ -61,6 +60,11 @@ afterAll(async () => {
   subscriber2.quit();
   await redisContainer.remove({ force: true });
   return new Promise((resolve) => setTimeout(() => resolve(), 1000));
+});
+
+afterEach( () => {
+  jest.clearAllMocks();
+  jest.resetAllMocks();
 });
 
 describe('Process Message', () => {
@@ -96,13 +100,28 @@ describe('Process Message', () => {
 
   it('should receive same object on subscribed channel', async () => {
     const topic = 'same obj';
-    mockFn1.mockImplementation((message) => {
+    mockInSubscriber1.mockImplementation((message) => {
       const subObj: ReqRes = JSON.parse(message);
       console.log(`Mock 1: ${JSON.stringify(subObj)}`);
       expect(subObj).toEqual(msg);
     });
     subscriber1.subscribe(topic);
     await processMsg({ message: msg, client: publisher, topic: topic });
+  });
+
+});
+
+describe('Process Message Handler', () => {
+
+  it('should save to Redis when no subscriber', async (done) => {
+    await processMsgHandler({ message: msg, client: publisher, topic: 'handle no subscriber' });
+    await new Promise(resolve => setTimeout(resolve, 500));
+    subscriber1.get(msg.id, (err, reply) => {
+      const replyObject = JSON.parse(reply);
+      console.log("From Redis DB:" + reply);
+      expect(replyObject).toEqual(msg);
+      done();
+    })
   });
 
 });

@@ -7,6 +7,7 @@
     "build": "yarn clean && tsc",
     "clean": "rimraf dist",
     "start": "node dist/app.js",
+    "mock-endpoint": "node dist/__mocks__/mockEndpoint.js",
     "test": "jest --verbose --detectOpenHandles --forceExit"
   },
   "private": true,

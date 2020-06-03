@@ -27,7 +27,7 @@ services:
     container_name: mock-server
     image: hktfp5/relay
     restart: unless-stopped
-    command: dist/mock.js
+    command: dist/__mocks__/mockEndpoint.js
     networks:
       - relay-net
 
