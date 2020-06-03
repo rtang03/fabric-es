@@ -93,7 +93,7 @@ export class PrivateData extends Contract {
         events,
         commitId
       });
-    } else throw new Error('transient data is not correct format');
+    } else throw new Error('transient data is not correctly formatted');
 
     console.info(`CommitId created: ${commit.commitId}`);
 

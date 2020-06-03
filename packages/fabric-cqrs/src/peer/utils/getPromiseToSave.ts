@@ -63,7 +63,8 @@ export const getPromiseToSave: (option: {
         wallet,
         tx_id: tid,
         args,
-        enrollmentId
+        enrollmentId,
+        store
       }) as any
     );
     logger.info(`dispatch ${writeAction.CREATE}, tx_id: ${tid}`);

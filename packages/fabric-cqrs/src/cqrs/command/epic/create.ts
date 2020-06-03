@@ -31,11 +31,11 @@ export default (action$: Observable<CreateAction>, _, context) => {
         })
           .then(({ network, gateway }) => {
             logger.info('getNetwork succeed');
-            return assign({}, payload, { network, gateway });
+            return assign({}, { payload, network, gateway });
           })
           .catch(error => {
             logger.error(util.format('getNework error: %s', error.message));
-            return assign({}, payload, { error });
+            return assign({}, { payload, error });
           })
       )
     ),
@@ -48,7 +48,8 @@ export default (action$: Observable<CreateAction>, _, context) => {
           })
         );
       else {
-        const { tx_id, args, network, gateway } = getNetwork;
+        const { payload, network, gateway } = getNetwork;
+        const { tx_id, args, store, enrollmentId, channelName, connectionProfile, wallet } = payload;
         const { id, entityName, parentName, events, version, isPrivateData } = args;
         const params = [entityName, id, version.toString()];
         if (!isPrivateData) {
@@ -65,6 +66,13 @@ export default (action$: Observable<CreateAction>, _, context) => {
                 logger.debug(util.format('dispatch submitPrivateData response: %j', commits));
                 gateway.disconnect();
               }),
+              tap({
+                next: _ => {
+                  if (parentName)
+                    store.dispatch(
+                      action.track({ tx_id, args, enrollmentId, channelName, connectionProfile, wallet }) as any
+                    );
+                }}),
               dispatchResult(tx_id, action.createSuccess, action.createError)
             )
           : submit$('eventstore:createCommit', params,

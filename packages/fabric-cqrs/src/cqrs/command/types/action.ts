@@ -1,7 +1,29 @@
 import { Wallet } from 'fabric-network';
+import { Store } from 'redux';
 import { BaseEvent } from '../../../types';
 
 export interface CreateAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: {
+      entityName: string;
+      parentName?: string;
+      id: string;
+      version: number;
+      events: BaseEvent[];
+      isPrivateData: boolean;
+      shouldTrack?: boolean;
+    };
+    enrollmentId?: string;
+    channelName?: string;
+    connectionProfile?: string;
+    wallet?: Wallet;
+    store?: Store;
+  };
+}
+
+export interface TrackAction {
   type: string;
   payload?: {
     tx_id: string;

@@ -86,7 +86,7 @@ export class EventStore extends Contract {
         events,
         commitId
       });
-    } else throw new Error('eventStr is not correct format');
+    } else throw new Error('eventStr is not correctly formatted');
 
     // ///////////////////////////////////////////////////////////////////
     // Add the concept 'lifeCycle' to BaseEvent (../ledger-api/commit.ts)

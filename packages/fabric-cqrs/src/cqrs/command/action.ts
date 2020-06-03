@@ -9,7 +9,8 @@ import {
   DeleteByEntityIdCommitIdAction,
   QueryByEntIdCommitIdAction,
   QueryByEntityIdAction,
-  QueryByEntityNameAction
+  QueryByEntityNameAction,
+  TrackAction
 } from './types';
 
 const CREATE = '[Entity-C] Create';
@@ -25,6 +26,11 @@ const QUERY_BY_ENTITYID_COMMITID = '[Entity-C] Query by entity id and commitId';
 const QUERY_ERROR = '[Entity-C] Query Error';
 const QUERY_SUCCESS = '[Entity-C] Query Success';
 
+/** Private data tracking on public chain */
+const TRACK = '[Entity-C] Track';
+const TRACK_ERROR = '[Entity-C] Track Error';
+const TRACK_SUCCESS = '[Entity-C] Track Success';
+
 export const action = {
   CREATE,
   CREATE_ERROR,
@@ -38,16 +44,22 @@ export const action = {
   QUERY_BY_ENTITYID_COMMITID,
   QUERY_ERROR,
   QUERY_SUCCESS,
+  TRACK,
+  TRACK_ERROR,
+  TRACK_SUCCESS,
   create: getAction<CreateAction>(CREATE),
   deleteByEntityId: getAction<DeleteByEntityIdAction>(DELETE_BY_ENTITYID),
   deleteByEntityIdCommitId: getAction<DeleteByEntityIdCommitIdAction>(DELETE_BY_ENTITYID_COMMITID),
   queryByEntityId: getAction<QueryByEntityIdAction>(QUERY_BY_ENTITY_ID),
   queryByEntityName: getAction<QueryByEntityNameAction>(QUERY_BY_ENTITY_NAME),
   queryByEntIdCommitId: getAction<QueryByEntIdCommitIdAction>(QUERY_BY_ENTITYID_COMMITID),
+  track: getAction<TrackAction>(TRACK),
   createError: getErrorAction(CREATE_ERROR),
   createSuccess: getSuccessAction(CREATE_SUCCESS),
   deleteError: getErrorAction(DELETE_ERROR),
   deleteSuccess: getSuccessAction(DELETE_SUCCESS),
   queryError: getErrorAction(QUERY_ERROR),
-  querySuccess: getSuccessAction(QUERY_SUCCESS)
+  querySuccess: getSuccessAction(QUERY_SUCCESS),
+  trackError: getErrorAction(TRACK_ERROR),
+  trackSuccess: getSuccessAction(TRACK_SUCCESS)
 };
