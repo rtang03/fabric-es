@@ -1,11 +1,11 @@
 import util from 'util';
 import { Logger } from 'winston';
-import { QueryHandlerResponse } from '../../types';
+import { HandlerResponse } from '../../types';
 
 export const catchErrors: <TResult = any>(
   fcn: Promise<any>,
   option: { fcnName: string; logger: Logger }
-) => Promise<QueryHandlerResponse<TResult>> = async (fcn, { fcnName, logger }) => {
+) => Promise<HandlerResponse<TResult>> = async (fcn, { fcnName, logger }) => {
   try {
     const { result, message } = await fcn;
     return {

@@ -1,8 +1,8 @@
 require('dotenv').config({ path: './.env.dev' });
 import Redis from 'ioredis';
 import { entityIndex, createQueryDatabase, commitIndex } from '..';
-import type { QueryDatabase } from '../../../types/queryDatabaseV2';
-import { reducer } from './__utils__';
+import type { QueryDatabase } from '../../../types';
+import { reducer } from '../../unit-test-reducer';
 import { commit, commits, newCommit } from './__utils__/qdb.data';
 
 let queryDatabase: QueryDatabase;

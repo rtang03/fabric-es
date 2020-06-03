@@ -44,7 +44,9 @@
     "unit-test:querydb": "jest --forceExit --detectOpenHandles qdb.unit-test",
     "unit-test:store-query": "jest --forceExit --detectOpenHandles query.store.unit-test",
     "unit-test:store-proj": "jest --forceExit --detectOpenHandles proj.store.unit-test",
-    "unit-test:store-reconcile": "jest --forceExit --detectOpenHandles reconcile.store.unit-test"
+    "unit-test:store-reconcile": "jest --forceExit --detectOpenHandles reconcile.store.unit-test",
+    "unit-test:repo": "jest --forceExit --detectOpenHandles repo.unit-test",
+    "unit-test:private-repo": "jest --forceExit --detectOpenHandles repo.private.unit-test"
   },
   "dependencies": {
     "@fabric-es/operator": "^0.6.2",

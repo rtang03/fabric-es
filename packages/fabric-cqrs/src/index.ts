@@ -2,13 +2,13 @@
  * @packageDocumentation
  * @hidden
  */
-export {
-  createPeer,
-  getMockRepository,
-  getPrivatedataMockRepository,
-  createProjectionDb,
-  createQueryDatabase,
-} from './peer';
+// export {
+//   createPeer,
+//   getMockRepository,
+//   getPrivatedataMockRepository,
+//   createProjectionDb,
+//   createQueryDatabase,
+// } from './peer';
 export {
   getContract,
   getNetwork,
@@ -29,4 +29,4 @@ export {
   getSuccessAction,
   getSuccessActionHandler,
 } from './store/utils';
-export { fromCommitsToGroupByEntityId, getHistory, isCommit } from './peer/utils';
+// export { fromCommitsToGroupByEntityId, getHistory, isCommit } from './peer/utils';

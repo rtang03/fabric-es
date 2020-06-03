@@ -3,7 +3,7 @@ import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
-import type { QueryDatabase } from '../../../types/queryDatabaseV2';
+import type { QueryDatabase } from '../../../types';
 import { action } from '../action';
 import type { MergeBatchAction } from '../types';
 

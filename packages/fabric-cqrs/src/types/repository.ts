@@ -1,82 +1,42 @@
-import { Commit } from '.';
+import { Gateway, Network, Wallet } from 'fabric-network';
+import { Logger } from 'winston';
+import { QueryDatabase } from './queryDatabase';
+import type { Commit, FabricResponse, HandlerResponse, Reducer } from '.';
 
-/**
- * **PrivatedataRepository**
- * @typeparam TEntity entity type
- * @typeparam TEvent event type
- */
+export interface RepoOption {
+  connectionProfile: string;
+  queryDatabase: QueryDatabase;
+  channelName: string;
+  wallet: Wallet;
+  network: Network;
+  gateway: Gateway;
+  reducers: Record<string, Reducer>;
+  logger?: Logger;
+}
+
 export interface Repository<TEntity = any, TEvent = any> {
-  /**
-   * **create** return _save_ function for writing events to Fabric
-   * @param option `option: { enrollmentId: string; id: string; }`
-   * @returns `{
-   *    save: (events: TEvent[]) => Promise<Commit | { error: any }>;
-   * }`
-   */
-  create: (option: {
+  command_create: (option: {
     enrollmentId: string;
     id: string;
   }) => {
-    save: (events: TEvent[]) => Promise<Commit | { error: any }>;
+    save: (payload: { events: TEvent[] }) => Promise<HandlerResponse<Record<string, Commit>>>;
   };
-
-  /**
-   * **getByEntityName** return entity array
-   * @returns `{ data: TEntity[] }`
-   */
-  getByEntityName: () => Promise<{ data: TEntity[] }>;
-
-  /**
-   * **getById** return _currentState_ and _save_function by entityId, and enrollmentId
-   * @param option `option: { enrollmentId: string; id: string; }`
-   * @returns `{
-   *  currentState: TEntity;
-   *  save: (events: TEvent[], version?: number) => Promise<Commit | { error: any }>;
-   * }`
-   */
-  getById: (option: {
+  command_deleteByEntityId: (payload: { id: string }) => Promise<HandlerResponse<FabricResponse>>;
+  command_getByEntityName: () => Promise<HandlerResponse<Record<string, Commit>>>;
+  query_getById: (option: {
     enrollmentId: string;
     id: string;
+    reducer: Reducer;
   }) => Promise<{
     currentState: TEntity;
-    save: (events: TEvent[], version?: number) => Promise<Commit | { error: any }>;
+    save: (payload: { events: TEvent[] }) => Promise<HandlerResponse<Record<string, Commit>>>;
   }>;
-
-  /**
-   * **getCommitById** return [[Commit]] array by entity id
-   * @param id id
-   * @returns `{ data: Commit[] }`
-   */
-  getCommitById: (id: string) => Promise<{ data: Commit[] }>;
-
-  /**
-   * **getProjection** return Entity object from projection database, based on ONE of criteria, 'where',
-   * 'all' or 'contain'.
-   * @param where `search by where; e.g. { where: { id: 123 } }`
-   * @param all `get all, e.g. { all: true }`
-   * @param contain `search by one keyword; e.g. { contain: '123' }`
-   * @returns `{ data: TEntity[] }`
-   * @example `getProjection( { where: { id: '123' } } )`
-   */
-  getProjection: (projectionCriteria: {
-    where?: Record<string, string>;
-    all?: boolean;
-    contain?: string;
-  }) => Promise<{ data: TEntity[] }>;
-
-  /**
-   * **deleteByEntityId** delete commits by entityId. Mainly used in test scenarios
-   * @param id entityId
-   * @returns `any`
-   */
-  deleteByEntityId?: (id: string) => Promise<any>;
-
-  /**
-   * **deleteByEntityName_query** delete all commits by entityId from query database. Mainly used in test scenarios
-   * @returns `any`
-   */
-  deleteByEntityName_query?: () => Promise<any>;
-
-  /** **getEntityName** return entity name */
+  query_getByEntityName: () => Promise<HandlerResponse<TEntity[]>>;
+  query_getCommitById: (payload: {
+    id: string;
+  }) => Promise<HandlerResponse<Commit[]>>;
+  query_deleteByEntityId: (payload: { id: string }) => Promise<HandlerResponse>;
+  query_deleteByEntityName: () => Promise<HandlerResponse>;
   getEntityName: () => string;
+  disconnect: () => void;
 }

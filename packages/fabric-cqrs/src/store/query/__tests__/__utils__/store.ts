@@ -3,8 +3,7 @@ import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import type { Logger } from 'winston';
 import { queryEpic, reducer as query } from '../..';
-import type { Reducer } from '../../../../types';
-import type { QueryDatabase } from '../../../../types/queryDatabaseV2';
+import type { QueryDatabase, Reducer } from '../../../../types';
 
 const rootEpic = combineEpics(...queryEpic);
 

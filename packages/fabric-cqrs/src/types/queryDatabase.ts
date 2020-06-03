@@ -1,60 +1,45 @@
-import { Commit } from './commit';
+import type { Commit} from './commit';
+import type { Reducer} from './reducer';
 
-/**
- * **QueryDatabase** query database
- */
+export interface QueryDatabaseResponse<TResult = any> {
+  status: string;
+  message: string;
+  result?: TResult;
+}
+
 export interface QueryDatabase {
-  /**
-   * **deleteByEntityId** delete commit by entity id
-   * @param option `deleteByEntityIdOption: { entityName: string; id: string }`
-   * @returns `{ status: string }`
-   */
-  deleteByEntityId: (deleteByEntityIdOption: { entityName: string; id: string }) => Promise<{ status: string }>;
-
-  /**
-   * **deleteByEntityName** delete commits by entity name
-   * @param option `deleteByEntityNameOption: { entityName: string }`
-   * @returns `{ status: string }`
-   */
-  deleteByEntityName: (deleteByEntityNameOption: { entityName: string }) => Promise<{ status: string }>;
-
-  /**
-   * **queryByEntityId** query commits by entity id
-   * @param option `queryByEntityIdOption: {
-   *   entityName: string;
-   *   id: string;
-   * }`
-   * @returns `{ data: Record<string, Commit> }`
-   */
-  queryByEntityId: (queryByEntityIdOption: {
+  deleteCommitByEntityId: (option: {
     entityName: string;
     id: string;
-  }) => Promise<{ data: Record<string, Commit> }>;
-
-  /**
-   * **queryByEntityName** query commits by entity name
-   * @param option `queryByEntityNameOption: { entityName: string }`
-   * @returns `{ data: Record<string, Commit> }`
-   */
-  queryByEntityName: (queryByEntityNameOption: { entityName: string }) => Promise<{ data: Record<string, Commit> }>;
-
-  /**
-   * **merge** merge single commit onto query database
-   * @param option `mergeOption: { commit: Commit }`
-   * @returns `{ data: Record<string, Commit> }`
-   */
-  merge: (mergeOption: { commit: Commit }) => Promise<{ data: Record<string, Commit> }>;
-
-  /**
-   * **mergeBatch** merge multiple commits onto query database
-   * @param option `mergeBatchOption: {
-   *  entityName: string;
-   *  commits: Record<string, Commit>;
-   *  }`
-   * @returns `{ data: Record<string, Commit> }`
-   */
-  mergeBatch: (mergeBatchOption: {
+  }) => Promise<QueryDatabaseResponse<number>>;
+  deleteCommitByEntityName: (option: {
+    entityName: string;
+  }) => Promise<QueryDatabaseResponse<number>>;
+  queryCommitByEntityId: (option: {
+    entityName: string;
+    id: string;
+  }) => Promise<QueryDatabaseResponse<Record<string, Commit>>>;
+  queryCommitByEntityName: (option: {
+    entityName: string;
+  }) => Promise<QueryDatabaseResponse<Record<string, Commit>>>;
+  mergeCommit: (option: { commit: Commit }) => Promise<QueryDatabaseResponse<string[]>>;
+  mergeCommitBatch: (option: {
     entityName: string;
     commits: Record<string, Commit>;
-  }) => Promise<{ data: Record<string, Commit> }>;
+  }) => Promise<QueryDatabaseResponse<string[]>>;
+  mergeEntity: <TEntity = any>(entity: {
+    commit: Commit;
+    reducer: Reducer<TEntity>;
+  }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
+  mergeEntityBatch: <TEntity>(entities: {
+    entityName: string;
+    commits: Record<string, Commit>;
+    reducer: Reducer<TEntity>;
+  }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
+  fullTextSearchCommit: <TEntity = any>(option: {
+    query: string;
+  }) => Promise<QueryDatabaseResponse<Record<string, TEntity>>>;
+  fullTextSearchEntity: <TEntity = any>(option: {
+    query: string;
+  }) => Promise<QueryDatabaseResponse<Record<string, TEntity>>>;
 }

@@ -7,7 +7,7 @@ import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import type { Logger } from 'winston';
 import type { Reducer } from '../types';
-import type { QueryDatabase } from '../types/queryDatabaseV2';
+import type { QueryDatabase } from '../types';
 import { commandEpic, reducer as write } from './command';
 import { projectionEpic, reducer as projection } from './projection';
 import { queryEpic, reducer as query } from './query';

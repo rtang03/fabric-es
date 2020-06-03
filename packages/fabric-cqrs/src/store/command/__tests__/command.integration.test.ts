@@ -1,5 +1,3 @@
-import { getLogger } from '../../../utils';
-
 require('../../../env');
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallet, Wallets } from 'fabric-network';
@@ -7,8 +5,8 @@ import { pick, values } from 'lodash';
 import { Store } from 'redux';
 import rimraf from 'rimraf';
 import { registerUser } from '../../../account';
+import { getLogger } from '../../../utils';
 import { getNetwork } from '../../../utils/services';
-import { PeerOptions } from '../../../types';
 import { generateToken } from '../../utils';
 import { action } from '../action';
 import { getStore } from './__utils__/store';

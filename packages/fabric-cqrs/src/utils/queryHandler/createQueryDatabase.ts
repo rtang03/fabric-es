@@ -7,11 +7,10 @@ import groupBy from 'lodash/groupBy';
 import isEqual from 'lodash/isEqual';
 import keys from 'lodash/keys';
 import values from 'lodash/values';
-import { getLogger, isCommit } from '..';
-import type { Commit } from '../../types';
-import type { QueryDatabase } from '../../types/queryDatabaseV2';
+import { isCommit, getLogger } from '..';
+import type { Commit, QueryDatabase } from '../../types';
 import {
-  fromArraysToCommitRecords,
+  arraysToCommitRecords,
   fullTextSearchAddCommit,
   fullTextSearchAddEntity,
   doFullTextSearch,
@@ -87,7 +86,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         return { status: 'OK', message: `queryByEntityId: 0 record is returned`, result: {} };
 
       try {
-        result = fromArraysToCommitRecords(commitArrays);
+        result = arraysToCommitRecords(commitArrays);
       } catch (e) {
         logger.error(util.format('fail to parse json, %j', e));
         throw e;
@@ -114,7 +113,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       }
 
       try {
-        result = fromArraysToCommitRecords(commitArrays);
+        result = arraysToCommitRecords(commitArrays);
       } catch (e) {
         logger.error(util.format('fail to parse json, %j', e));
         throw e;
@@ -200,7 +199,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
         const mergedResult = isEqual(commitsInRedis, [])
           ? commitToMerge
-          : assign({}, fromArraysToCommitRecords(commitsInRedis), commitToMerge);
+          : assign({}, arraysToCommitRecords(commitsInRedis), commitToMerge);
         const currentState: TEntity = reducer(getHistory(values(mergedResult)));
         redisKeyEntity = `${commit.entityName}::${commit.entityId}`;
 

@@ -1,5 +1,4 @@
-import { Commit } from '../types';
-import { FabricResponse } from '../types';
+import type { FabricResponse, Commit } from '../types';
 
 export const isCommitRecord = (input: unknown): input is Record<string, Commit> =>
   Object.entries(input)

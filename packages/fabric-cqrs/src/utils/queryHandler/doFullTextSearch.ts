@@ -1,7 +1,7 @@
 import util from 'util';
 import { Redis } from 'ioredis';
 import drop from 'lodash/drop';
-import type { QueryDatabaseResponse } from '../../types/queryDatabaseV2';
+import type { QueryDatabaseResponse } from '../../types';
 
 export const doFullTextSearch: <T = any>(
   query: string,

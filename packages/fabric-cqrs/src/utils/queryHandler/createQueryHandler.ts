@@ -1,8 +1,15 @@
 import util from 'util';
 import { Contract, ContractListener, Network } from 'fabric-network';
 import values from 'lodash/values';
-import { getLogger, isCommit, isCommitRecord, isFabricResponse } from '..';
-import { getHistory } from '../../peer/utils';
+import {
+  addTimestamp,
+  dispatcher,
+  getLogger,
+  isCommit,
+  isCommitRecord,
+  isFabricResponse,
+} from '..';
+import { getHistory } from '..';
 import { getStore } from '../../store';
 import { action as commandAction } from '../../store/command';
 import { action as projAction } from '../../store/projection';
@@ -14,10 +21,10 @@ import {
   FabricResponse,
   GetByEntityNameResponse,
   QueryHandler,
+  QueryDatabaseResponse,
   QueryHandlerOptions,
 } from '../../types';
-import { QueryDatabaseResponse } from '../../types/queryDatabaseV2';
-import { catchErrors, dispatcher, fromCommitsToGroupByEntityId } from '.';
+import { catchErrors, commitsToGroupByEntityId } from '.';
 
 export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (
   options
@@ -43,12 +50,6 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
   let contractListener: ContractListener;
   let contract: Contract;
   let network: Network;
-
-  const addTimestamp: (events: BaseEvent[]) => BaseEvent[] = (events) =>
-    events.map((event) => ({
-      ...event,
-      payload: Object.assign({}, event.payload, { ts: Math.round(new Date().getTime() / 1000) }),
-    }));
 
   return {
     command_create: ({ enrollmentId, id, entityName }) => ({
@@ -175,7 +176,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           logger,
         },
         (commits) =>
-          commits ? fromCommitsToGroupByEntityId<TEntity>(commits, reducers[entityName]) : null
+          commits ? commitsToGroupByEntityId<TEntity>(commits, reducers[entityName]) : null
       ),
     query_getCommitById: () =>
       dispatcher<Commit[], { id: string; entityName: string }>(

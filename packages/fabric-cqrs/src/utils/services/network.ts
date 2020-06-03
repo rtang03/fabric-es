@@ -8,7 +8,7 @@ import {
   Wallet,
 } from 'fabric-network';
 import { safeLoad } from 'js-yaml';
-import { promiseToReadFile } from '../../peer/utils';
+import { promiseToReadFile } from '../promiseToReadFile';
 
 /**
  * **getNetwork** return network services

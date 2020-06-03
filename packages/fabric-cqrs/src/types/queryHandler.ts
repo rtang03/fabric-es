@@ -1,6 +1,6 @@
 import { Gateway, Network, Wallet } from 'fabric-network';
 import type { Logger } from 'winston';
-import type { QueryDatabase } from './queryDatabaseV2';
+import type { QueryDatabase } from './queryDatabase';
 import type { BaseEvent, Commit, FabricResponse, Reducer } from '.';
 
 export interface QueryHandlerOptions {
@@ -19,7 +19,7 @@ export interface GetByEntityNameResponse<TEntity = any> {
   errors: string[];
 }
 
-export interface QueryHandlerResponse<TData = any> {
+export interface HandlerResponse<TData = any> {
   data?: TData;
   message?: string;
   error?: any;
@@ -32,17 +32,15 @@ export interface QueryHandler {
     id: string;
     entityName: string;
   }) => {
-    save: (payload: {
-      events: BaseEvent[];
-    }) => Promise<QueryHandlerResponse<Record<string, Commit>>>;
+    save: (payload: { events: BaseEvent[] }) => Promise<HandlerResponse<Record<string, Commit>>>;
   };
   command_deleteByEntityId: () => (payload: {
     entityName: string;
     id: string;
-  }) => Promise<QueryHandlerResponse<FabricResponse>>;
+  }) => Promise<HandlerResponse<FabricResponse>>;
   command_getByEntityName: () => (payload: {
     entityName: string;
-  }) => Promise<QueryHandlerResponse<Record<string, Commit>>>;
+  }) => Promise<HandlerResponse<Record<string, Commit>>>;
   query_getById: <TEntity = any>(option: {
     enrollmentId: string;
     id: string;
@@ -50,34 +48,30 @@ export interface QueryHandler {
     reducer: Reducer;
   }) => Promise<{
     currentState: TEntity;
-    save: (payload: {
-      events: BaseEvent[];
-    }) => Promise<QueryHandlerResponse<Record<string, Commit>>>;
+    save: (payload: { events: BaseEvent[] }) => Promise<HandlerResponse<Record<string, Commit>>>;
   }>;
   query_getByEntityName: <TEntity = any>(option: {
     entityName: string;
   }) => (payload: {
     entityName: string;
-  }) => Promise<QueryHandlerResponse<GetByEntityNameResponse<TEntity>>>;
+  }) => Promise<HandlerResponse<GetByEntityNameResponse<TEntity>>>;
   query_getCommitById: () => (payload: {
     id: string;
     entityName: string;
-  }) => Promise<QueryHandlerResponse<Commit[]>>;
+  }) => Promise<HandlerResponse<Commit[]>>;
   query_deleteByEntityId: () => (payload: {
     id: string;
     entityName: string;
-  }) => Promise<QueryHandlerResponse>;
-  query_deleteByEntityName: () => (payload: {
-    entityName: string;
-  }) => Promise<QueryHandlerResponse>;
+  }) => Promise<HandlerResponse>;
+  query_deleteByEntityName: () => (payload: { entityName: string }) => Promise<HandlerResponse>;
   reconcile: () => (payload: {
     entityName: string;
     reducer: Reducer;
-  }) => Promise<QueryHandlerResponse<{ key: string; status: string }[]>>;
+  }) => Promise<HandlerResponse<{ key: string; status: string }[]>>;
   subscribeHub: () => Promise<any>;
   unsubscribeHub: () => void;
   disconnect: () => void;
   fullTextSearchCIdx: (option: {
     query: string;
-  }) => Promise<QueryHandlerResponse<Record<string, Commit>>>;
+  }) => Promise<HandlerResponse<Record<string, Commit>>>;
 }

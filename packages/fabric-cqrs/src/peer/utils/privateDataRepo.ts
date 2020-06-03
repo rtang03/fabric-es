@@ -11,7 +11,7 @@ import { action } from '../../store/command';
 import { generateToken } from '../../store/utils';
 import { Commit, PrivatedataRepository, Reducer } from '../../types';
 import { fromCommitsToGroupByEntityId } from './fromCommitsToGroupByEntityId';
-import { getHistory } from './getHistory';
+import { getHistory } from '../../utils/getHistory';
 import { getPromiseToSave } from './getPromiseToSave';
 
 export const privateDataRepo: (option: {

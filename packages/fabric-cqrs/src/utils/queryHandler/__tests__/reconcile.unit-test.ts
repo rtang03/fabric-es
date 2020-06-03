@@ -9,7 +9,7 @@ import { commitIndex, createQueryDatabase, createQueryHandler, entityIndex } fro
 import { isCommitRecord } from '../..';
 import type { Commit, QueryHandler } from '../../../types';
 import { getNetwork } from '../../services';
-import { reducer } from './__utils__';
+import { reducer } from '../../unit-test-reducer';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;

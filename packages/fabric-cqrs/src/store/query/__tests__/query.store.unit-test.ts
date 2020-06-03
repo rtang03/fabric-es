@@ -1,15 +1,20 @@
 require('dotenv').config({ path: './.env.test' });
 import Redis from 'ioredis';
 import { Store } from 'redux';
-import type { Commit, GetByEntityNameResponse, QueryHandlerResponse } from '../../../types';
-import { QueryDatabase, QueryDatabaseResponse } from '../../../types/queryDatabaseV2';
+import type {
+  Commit,
+  GetByEntityNameResponse,
+  QueryDatabase,
+  QueryDatabaseResponse,
+  HandlerResponse,
+} from '../../../types';
 import { getLogger } from '../../../utils';
 import {
   createQueryDatabase,
   dispatcher,
   dummyReducer,
   Counter,
-  fromCommitsToGroupByEntityId,
+  commitsToGroupByEntityId,
   commitIndex,
 } from '../../../utils/queryHandler';
 import { action } from '../action';
@@ -92,7 +97,7 @@ describe('Store/query:  failure tests', () => {
         ErrorAction: QUERY_ERROR,
         logger,
       },
-      (commits) => fromCommitsToGroupByEntityId<Counter>(commits, reducers[entityName])
+      (commits) => commitsToGroupByEntityId<Counter>(commits, reducers[entityName])
     )({ entityName }).then((result) =>
       expect(result).toEqual({ status: 'OK', data: { currentStates: [], errors: [] } })
     ));
@@ -108,7 +113,7 @@ describe('Store/query:  failure tests', () => {
         ErrorAction: QUERY_ERROR,
         logger,
       },
-      (commits) => fromCommitsToGroupByEntityId<Counter>(commits, reducers[entityName])
+      (commits) => commitsToGroupByEntityId<Counter>(commits, reducers[entityName])
     )({ entityName: null }).then(({ data, error, status }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
@@ -134,7 +139,7 @@ describe('Store/query:  failure tests', () => {
     }));
 
   it('should fail to mergeCommit: invalid argument', async () =>
-    dispatcher<QueryHandlerResponse, { commit: Commit }>((payload) => mergeCommit(payload), {
+    dispatcher<HandlerResponse, { commit: Commit }>((payload) => mergeCommit(payload), {
       name: 'mergeCommit',
       store,
       slice: 'query',
@@ -148,7 +153,7 @@ describe('Store/query:  failure tests', () => {
     }));
 
   it('should fail to mergeCommitBatch: invalid argument', async () =>
-    dispatcher<QueryHandlerResponse, { entityName: string; commits: Commit }>(
+    dispatcher<HandlerResponse, { entityName: string; commits: Commit }>(
       (payload) => mergeCommitBatch(payload),
       {
         name: 'mergeBatchCommit',
@@ -263,7 +268,7 @@ describe('Store/query Test', () => {
         logger,
       },
       (commits) =>
-        commits ? fromCommitsToGroupByEntityId<Counter>(commits, reducers[entityName]) : null
+        commits ? commitsToGroupByEntityId<Counter>(commits, reducers[entityName]) : null
     )({ entityName }).then(({ status, data: { currentStates, errors } }) => {
       expect(status).toEqual('OK');
       expect(errors).toEqual([]);
@@ -313,7 +318,7 @@ describe('Store/query Test', () => {
         logger,
       },
       (commits) =>
-        commits ? fromCommitsToGroupByEntityId<Counter>(commits, reducers[entityName]) : null
+        commits ? commitsToGroupByEntityId<Counter>(commits, reducers[entityName]) : null
     )({ entityName }).then(({ status, data: { currentStates, errors } }) => {
       expect(status).toEqual('OK');
       expect(errors).toEqual([]);
@@ -372,7 +377,7 @@ describe('Store/query Test', () => {
         logger,
       },
       (commits) =>
-        commits ? fromCommitsToGroupByEntityId<Counter>(commits, reducers[entityName]) : null
+        commits ? commitsToGroupByEntityId<Counter>(commits, reducers[entityName]) : null
     )({ entityName }).then(({ status, data: { currentStates, errors } }) => {
       expect(status).toEqual('OK');
       expect(errors).toEqual([]);
@@ -442,7 +447,7 @@ describe('Store/query Test', () => {
         logger,
       },
       (commits) =>
-        commits ? fromCommitsToGroupByEntityId<Counter>(commits, reducers[entityName]) : null
+        commits ? commitsToGroupByEntityId<Counter>(commits, reducers[entityName]) : null
     )({ entityName }).then(({ status, data: { currentStates, errors } }) => {
       expect(status).toEqual('OK');
       expect(errors).toEqual([]);
