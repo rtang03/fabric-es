@@ -12,7 +12,7 @@ Array [
     "ownerId": "USER_ORG1",
     "reference": "REF-ORG1-DOC-1",
     "status": 0,
-    "title": "Org1 Document 1",
+    "title": "Org1 Document 1CHANGED",
   },
   Object {
     "loan": Object {
@@ -41,7 +41,7 @@ Array [
     "ownerId": "USER_ORG1",
     "reference": "REF-ORG1-DOC-1",
     "status": 0,
-    "title": "Org1 Document 1",
+    "title": "Org1 Document 1CHANGED",
   },
   Object {
     "loan": Object {
@@ -56,6 +56,26 @@ Array [
     "title": "Org1 Document 2",
   },
 ]
+`;
+
+exports[`Multi-Org Test - Query Loans query document 1a 1`] = `
+Object {
+  "documentId": Any<String>,
+  "loan": Object {
+    "description": "Org1 Loan 1",
+    "loanId": Any<String>,
+    "ownerId": "USER_ORG1",
+    "reference": "REF-ORG1-LOAN-1",
+    "status": 0,
+    "timestamp": Any<String>,
+  },
+  "loanId": Any<String>,
+  "ownerId": "USER_ORG1",
+  "reference": "REF-ORG1-DOC-1",
+  "status": 0,
+  "timestamp": Any<String>,
+  "title": "Org1 Document 1CHANGED",
+}
 `;
 
 exports[`Multi-Org Test - Query Loans query document 2 by field 1`] = `
@@ -116,6 +136,60 @@ Array [
 ]
 `;
 
+exports[`Multi-Org Test - Query Loans query document 2b 1`] = `
+Object {
+  "documentId": Any<String>,
+  "loan": Object {
+    "description": "Org2 Loan 2",
+    "loanId": Any<String>,
+    "ownerId": "USER_ORG2",
+    "reference": "REF-ORG2-LOAN-2",
+    "status": 0,
+    "timestamp": Any<String>,
+  },
+  "loanId": Any<String>,
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-DOC-2",
+  "status": 0,
+  "timestamp": Any<String>,
+  "title": "Org2 Document 2",
+}
+`;
+
+exports[`Multi-Org Test - Query Loans query document 2b commits 1`] = `
+Array [
+  Object {
+    "entityName": "document",
+    "events": Array [
+      Object {
+        "type": "PrivateDataTracked",
+      },
+    ],
+    "mspId": "Org1MSP",
+    "version": 0,
+  },
+  Object {
+    "entityName": "document",
+    "events": Array [
+      Object {
+        "type": "DocumentCreated",
+      },
+      Object {
+        "type": "DocumentReferenceDefined",
+      },
+      Object {
+        "type": "DocumentLoanIdDefined",
+      },
+      Object {
+        "type": "DocumentTitleDefined",
+      },
+    ],
+    "mspId": "Org2MSP",
+    "version": 0,
+  },
+]
+`;
+
 exports[`Multi-Org Test - Query Loans query loan 1 1`] = `
 Object {
   "_details": Array [
@@ -148,12 +222,12 @@ Object {
     Object {
       "contents": Object {
         "content": Object {
-          "body": "{ \\"message\\": \\"Org1 docContents 1\\" }",
+          "body": "{ \\"message\\": \\"Org1 docContents 1CHANGED\\" }",
         },
       },
       "reference": "REF-ORG1-DOC-1",
       "status": 0,
-      "title": "Org1 Document 1",
+      "title": "Org1 Document 1CHANGED",
     },
     Object {
       "contents": Object {
@@ -181,7 +255,7 @@ Array [
       Object {
         "reference": "REF-ORG1-DOC-1",
         "status": 0,
-        "title": "Org1 Document 1",
+        "title": "Org1 Document 1CHANGED",
       },
       Object {
         "reference": "REF-ORG1-DOC-2",
@@ -196,6 +270,37 @@ Array [
 ]
 `;
 
+exports[`Multi-Org Test - Query Loans query loan 1 commits 1`] = `
+Array [
+  Object {
+    "entityName": "loan",
+    "events": Array [
+      Object {
+        "type": "LoanCommentDefined",
+      },
+    ],
+    "mspId": "Org1MSP",
+    "version": 1,
+  },
+  Object {
+    "entityName": "loan",
+    "events": Array [
+      Object {
+        "type": "LoanApplied",
+      },
+      Object {
+        "type": "LoanReferenceDefined",
+      },
+      Object {
+        "type": "LoanDescriptionDefined",
+      },
+    ],
+    "mspId": "Org1MSP",
+    "version": 0,
+  },
+]
+`;
+
 exports[`Multi-Org Test - Query Loans query loan 1 contains 1`] = `
 Array [
   Object {
@@ -204,7 +309,7 @@ Array [
       Object {
         "reference": "REF-ORG1-DOC-1",
         "status": 0,
-        "title": "Org1 Document 1",
+        "title": "Org1 Document 1CHANGED",
       },
       Object {
         "reference": "REF-ORG1-DOC-2",
@@ -323,7 +428,7 @@ Array [
       Object {
         "reference": "REF-ORG1-DOC-1",
         "status": 0,
-        "title": "Org1 Document 1",
+        "title": "Org1 Document 1CHANGED",
       },
       Object {
         "reference": "REF-ORG1-DOC-2",

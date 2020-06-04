@@ -237,11 +237,8 @@ query SearchDocumentContains($contains: String!) {
 export const GET_COMMITS_BY_DOCUMENT = `
   query GetCommitsByDocument($documentId: String!) {
     getCommitsByDocumentId(documentId: $documentId) {
-      id
       entityName
       version
-      commitId
-      entityId
       mspId
       events {
         type
@@ -253,11 +250,8 @@ export const GET_COMMITS_BY_DOCUMENT = `
 export const GET_COMMITS_BY_LOAN = `
   query GetCommitsByLoanId($loanId: String!) {
     getCommitsByLoanId(loanId: $loanId) {
-      id
       entityName
       version
-      commitId
-      entityId
       mspId
       events {
         type
@@ -390,6 +384,24 @@ export const UPDATE_DOCUMENT_CUST = `
 export const CREATE_DOC_CONTENTS = `
   mutation CreateDocContents($userId: String!, $documentId: String!, $content: DocsInput!) {
     createDocContents(userId: $userId, documentId: $documentId, content: $content) {
+      ... on DocContentsCommit {
+        id
+        entityName
+        version
+        commitId
+        entityId
+        mspId
+      }
+      ... on DocContentsError {
+        message
+      }
+    }
+  }
+`;
+
+export const UPDATE_DOC_CONTENTS = `
+  mutation UpdateDocContents($userId: String!, $documentId: String!, $content: DocsInput!) {
+    updateDocContents(userId: $userId, documentId: $documentId, content: $content) {
       ... on DocContentsCommit {
         id
         entityName

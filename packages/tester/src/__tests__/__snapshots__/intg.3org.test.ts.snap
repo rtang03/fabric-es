@@ -24,7 +24,7 @@ Array [
     "ownerId": "USER_ORG1",
     "reference": "REF-ORG1-DOC-2",
     "status": 0,
-    "title": "Org1 Document 2",
+    "title": "Org1 Document 2CHANGED",
   },
 ]
 `;
@@ -53,7 +53,71 @@ Array [
     "ownerId": "USER_ORG1",
     "reference": "REF-ORG1-DOC-2",
     "status": 0,
-    "title": "Org1 Document 2",
+    "title": "Org1 Document 2CHANGED",
+  },
+]
+`;
+
+exports[`Multi-Org Test - Query Loans query document 1a 1`] = `
+Object {
+  "documentId": Any<String>,
+  "loan": Object {
+    "description": "Org1 Loan 1",
+    "loanId": Any<String>,
+    "ownerId": "USER_ORG1",
+    "reference": "REF-ORG1-LOAN-1",
+    "status": 0,
+    "timestamp": Any<String>,
+  },
+  "loanId": Any<String>,
+  "ownerId": "USER_ORG1",
+  "reference": "REF-ORG1-DOC-1",
+  "status": 0,
+  "timestamp": Any<String>,
+  "title": "Org1 Document 1",
+}
+`;
+
+exports[`Multi-Org Test - Query Loans query document 1b commits 1`] = `
+Array [
+  Object {
+    "entityName": "document",
+    "events": Array [
+      Object {
+        "type": "DocumentTitleDefined",
+      },
+    ],
+    "mspId": "Org1MSP",
+    "version": 2,
+  },
+  Object {
+    "entityName": "document",
+    "events": Array [
+      Object {
+        "type": "PrivateDataTracked",
+      },
+    ],
+    "mspId": "Org1MSP",
+    "version": 0,
+  },
+  Object {
+    "entityName": "document",
+    "events": Array [
+      Object {
+        "type": "DocumentCreated",
+      },
+      Object {
+        "type": "DocumentReferenceDefined",
+      },
+      Object {
+        "type": "DocumentLoanIdDefined",
+      },
+      Object {
+        "type": "DocumentTitleDefined",
+      },
+    ],
+    "mspId": "Org1MSP",
+    "version": 0,
   },
 ]
 `;
@@ -114,6 +178,26 @@ Array [
     "title": "Org2 Document 2",
   },
 ]
+`;
+
+exports[`Multi-Org Test - Query Loans query document 2b 1`] = `
+Object {
+  "documentId": Any<String>,
+  "loan": Object {
+    "description": "Org2 Loan 2",
+    "loanId": Any<String>,
+    "ownerId": "USER_ORG2",
+    "reference": "REF-ORG2-LOAN-2",
+    "status": 0,
+    "timestamp": Any<String>,
+  },
+  "loanId": Any<String>,
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-DOC-2",
+  "status": 0,
+  "timestamp": Any<String>,
+  "title": "Org2 Document 2",
+}
 `;
 
 exports[`Multi-Org Test - Query Loans query document 3 by field 1`] = `
@@ -237,12 +321,12 @@ Object {
       "contents": Object {
         "content": Object {
           "format": "PDF",
-          "link": "http://fake.it/docs/org1DocContents-2.pdf",
+          "link": "http://fake.it/docs/org1DocContents-2fixed.pdf",
         },
       },
       "reference": "REF-ORG1-DOC-2",
       "status": 0,
-      "title": "Org1 Document 2",
+      "title": "Org1 Document 2CHANGED",
     },
   ],
   "ownerId": "USER_ORG1",
@@ -264,12 +348,43 @@ Array [
       Object {
         "reference": "REF-ORG1-DOC-2",
         "status": 0,
-        "title": "Org1 Document 2",
+        "title": "Org1 Document 2CHANGED",
       },
     ],
     "ownerId": "USER_ORG1",
     "reference": "REF-ORG1-LOAN-1",
     "status": 0,
+  },
+]
+`;
+
+exports[`Multi-Org Test - Query Loans query loan 1 commits 1`] = `
+Array [
+  Object {
+    "entityName": "loan",
+    "events": Array [
+      Object {
+        "type": "LoanCommentDefined",
+      },
+    ],
+    "mspId": "Org1MSP",
+    "version": 1,
+  },
+  Object {
+    "entityName": "loan",
+    "events": Array [
+      Object {
+        "type": "LoanApplied",
+      },
+      Object {
+        "type": "LoanReferenceDefined",
+      },
+      Object {
+        "type": "LoanDescriptionDefined",
+      },
+    ],
+    "mspId": "Org1MSP",
+    "version": 0,
   },
 ]
 `;
@@ -287,7 +402,7 @@ Array [
       Object {
         "reference": "REF-ORG1-DOC-2",
         "status": 0,
-        "title": "Org1 Document 2",
+        "title": "Org1 Document 2CHANGED",
       },
     ],
     "ownerId": "USER_ORG1",
@@ -369,7 +484,7 @@ Object {
         Object {
           "content": Object {
             "format": "PDF",
-            "link": "http://fake.it/docs/org1DocContents-1-4org2.pdf",
+            "link": "http://fake.it/docs/org3DocContents-2-4org2.pdf",
           },
         },
       ],
@@ -429,7 +544,7 @@ Array [
       Object {
         "reference": "REF-ORG1-DOC-2",
         "status": 0,
-        "title": "Org1 Document 2",
+        "title": "Org1 Document 2CHANGED",
       },
     ],
     "ownerId": "USER_ORG1",
@@ -568,7 +683,7 @@ Array [
       Object {
         "reference": "REF-ORG1-DOC-2",
         "status": 0,
-        "title": "Org1 Document 2",
+        "title": "Org1 Document 2CHANGED",
       },
     ],
     "ownerId": "USER_ORG1",
