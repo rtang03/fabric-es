@@ -59,3 +59,23 @@ export interface MergeBatchAction {
     };
   };
 }
+
+export interface CIdxSearchAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: {
+      query: string;
+    };
+  };
+}
+
+export interface EIdxSearchAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: {
+      query: string;
+    };
+  };
+}

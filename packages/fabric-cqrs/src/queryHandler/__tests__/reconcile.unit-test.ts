@@ -193,7 +193,7 @@ describe('Reconcile Tests', () => {
 
   it('should fail to query_getById: non-existing entityName', async () =>
     queryHandler
-      .query_getById('noop')({ enrollmentId, id, reducer })
+      .getById('noop')({ enrollmentId, id, reducer })
       .then(({ currentState, save }) => {
         expect(currentState).toBeNull();
         expect(save).toBeNull();
@@ -201,14 +201,14 @@ describe('Reconcile Tests', () => {
 
   it('should fail to query_getById: non-existing entityId', async () =>
     queryHandler
-      .query_getById(entityName)({ enrollmentId, id: 'noop', reducer })
+      .getById(entityName)({ enrollmentId, id: 'noop', reducer })
       .then(({ currentState, save }) => {
         expect(currentState).toBeNull();
         expect(save).toBeNull();
       }));
 
   it('should query_getById, and add new event for id1', async () => {
-    const { currentState, save } = await queryHandler.query_getById<Counter, CounterEvent>(
+    const { currentState, save } = await queryHandler.getById<Counter, CounterEvent>(
       entityName
     )({
       enrollmentId,
@@ -246,7 +246,7 @@ describe('Reconcile Tests', () => {
 
   it('should query_getById for id1', async () =>
     queryHandler
-      .query_getById<Counter, CounterEvent>(entityName)({ enrollmentId, id, reducer })
+      .getById<Counter, CounterEvent>(entityName)({ enrollmentId, id, reducer })
       .then(({ currentState }) => {
         expect(currentState.id).toEqual(id);
         expect(currentState.value).toEqual(2);
@@ -256,14 +256,14 @@ describe('Reconcile Tests', () => {
 
   it('should fail to query_getByEntityName: non-existing entityName', async () =>
     queryHandler
-      .query_getByEntityName<Counter>('noop')()
+      .getByEntityName<Counter>('noop')()
       .then(({ data }) => {
         expect(data).toBeNull();
       }));
 
   it('should query_getByEntityName', async () =>
     queryHandler
-      .query_getByEntityName<Counter>(entityName)()
+      .getByEntityName<Counter>(entityName)()
       .then(({ data }) => data[0])
       .then((counter) => {
         expect(counter.id).toEqual(id);
@@ -300,7 +300,7 @@ describe('Reconcile Tests', () => {
 
   it('should query_getById for id2', async () =>
     queryHandler
-      .query_getById<Counter, CounterEvent>(entityName)({ enrollmentId, id: id2, reducer })
+      .getById<Counter, CounterEvent>(entityName)({ enrollmentId, id: id2, reducer })
       .then(({ currentState }) => {
         expect(currentState.id).toEqual(id2);
         expect(currentState.tag).toEqual('reconcile');
@@ -311,7 +311,7 @@ describe('Reconcile Tests', () => {
 
   it('should query_getByEntityName', async () =>
     queryHandler
-      .query_getByEntityName<Counter>(entityName)()
+      .getByEntityName<Counter>(entityName)()
       .then(({ data }) => data.map<Partial<Counter>>((item) => omit(item, 'ts')))
       .then((counters) => {
         expect(counters).toEqual([
@@ -322,17 +322,17 @@ describe('Reconcile Tests', () => {
 
   it('should fail to query_getCommitById: non-existing entityName', async () =>
     queryHandler
-      .query_getCommitById('noop')({ id })
+      .getCommitById('noop')({ id })
       .then(({ data }) => expect(data).toEqual([])));
 
   it('should fail to query_getCommitById: non-existing entityid', async () =>
     queryHandler
-      .query_getCommitById(entityName)({ id: 'noop' })
+      .getCommitById(entityName)({ id: 'noop' })
       .then(({ data }) => expect(data).toEqual([])));
 
   it('should query_getCommitById for id1', async () =>
     queryHandler
-      .query_getCommitById(entityName)({ id })
+      .getCommitById(entityName)({ id })
       .then(({ data }) => data.map((item) => omit(item, 'commitId', 'events', 'entityId')))
       .then((commits) => {
         expect(commits).toEqual([

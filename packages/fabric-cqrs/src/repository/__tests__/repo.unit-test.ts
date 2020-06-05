@@ -206,7 +206,7 @@ describe('Repository Test', () => {
     }));
 
   it('should query_getByEntityName', async () =>
-    repo.query_getByEntityName().then(({ data, status }) => {
+    repo.getByEntityName().then(({ data, status }) => {
       const counter = omit(data[0], 'ts');
       expect(status).toEqual('OK');
       expect(counter).toEqual({
@@ -218,7 +218,7 @@ describe('Repository Test', () => {
     }));
 
   it('should query_getCommitById', async () =>
-    repo.query_getCommitById({ id }).then(({ data, status }) => {
+    repo.getCommitById({ id }).then(({ data, status }) => {
       expect(data.length).toEqual(1);
       expect(data[0].commitId).toEqual(commitId);
       const commit = data[0];
@@ -229,7 +229,7 @@ describe('Repository Test', () => {
     }));
 
   it('should getById, and then save new event', async () => {
-    const { save, currentState } = await repo.query_getById({
+    const { save, currentState } = await repo.getById({
       enrollmentId,
       id,
       reducer: reducers[entityName],
@@ -263,7 +263,7 @@ describe('Repository Test', () => {
 
   it('should verify result by getById, after #2 commit', async () =>
     repo
-      .query_getById({
+      .getById({
         enrollmentId,
         id,
         reducer: reducers[entityName],
@@ -274,7 +274,7 @@ describe('Repository Test', () => {
       }));
 
   it('should verify result by query_getCommitById, after #2 commit', async () =>
-    repo.query_getCommitById({ id }).then(({ data, status }) => {
+    repo.getCommitById({ id }).then(({ data, status }) => {
       values(data)
         .map((commit) => omit(commit, 'ts'))
         .forEach((commit) => {
@@ -286,7 +286,7 @@ describe('Repository Test', () => {
     }));
 
   it('should verify result by query_getByEntityName, after #2 commit', async () =>
-    repo.query_getByEntityName().then(({ data, status }) => {
+    repo.getByEntityName().then(({ data, status }) => {
       const counter = values(data)[0];
       expect(status).toEqual('OK');
       expect(omit(counter, 'ts')).toEqual({

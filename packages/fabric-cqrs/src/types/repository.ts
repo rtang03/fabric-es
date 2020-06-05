@@ -40,7 +40,7 @@ export interface Repository<TEntity = any, TEvent = any> {
   command_deleteByEntityId: RepoFcnId<FabricResponse>;
   command_getByEntityName: RepoFcn<Record<string, Commit>>;
   command_getByEntityIdCommitId: RepoFcnIdCommitId<Record<string, Commit>>;
-  query_getById: (option: {
+  getById: (option: {
     enrollmentId: string;
     id: string;
     reducer: Reducer;
@@ -48,8 +48,8 @@ export interface Repository<TEntity = any, TEvent = any> {
     currentState: TEntity;
     save: SaveFcn<TEvent>;
   }>;
-  query_getByEntityName: RepoFcn<TEntity[]>;
-  query_getCommitById: RepoFcnId<Commit[]>;
+  getByEntityName: RepoFcn<TEntity[]>;
+  getCommitById: RepoFcnId<Commit[]>;
   query_deleteByEntityId: RepoFcnId<number>;
   query_deleteByEntityName: RepoFcn<number>;
   getEntityName: () => string;

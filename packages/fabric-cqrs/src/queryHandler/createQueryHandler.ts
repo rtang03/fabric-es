@@ -1,6 +1,7 @@
 import util from 'util';
 import { Contract, ContractListener, Network } from 'fabric-network';
 import { getStore } from '../store';
+import { action as queryAction } from '../store/query';
 import { action as projAction } from '../store/projection';
 import { action as reconcileAction } from '../store/reconcile';
 import type { Commit, QueryHandler, QueryHandlerOptions } from '../types';
@@ -48,13 +49,37 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
       commandDeleteByEntityId(entityName, false, commandOption),
     command_getByEntityName: (entityName) =>
       commandGetByEntityName(entityName, false, commandOption),
-    query_getById: <TEntity = any, TEvent = any>(entityName) =>
+    getById: <TEntity = any, TEvent = any>(entityName) =>
       queryGetById<TEntity, TEvent>(entityName, false, commandOption),
-    query_getByEntityName: <TEntity = any>(entityName) =>
+    getByEntityName: <TEntity = any>(entityName) =>
       queryGetByEntityName<TEntity>(entityName, reducers[entityName], queryOption),
-    query_getCommitById: (entityName) => queryGetCommitById(entityName, queryOption),
+    getCommitById: (entityName) => queryGetCommitById(entityName, queryOption),
     query_deleteByEntityId: (entityName) => queryDeleteByEntityId(entityName, queryOption),
     query_deleteByEntityName: (entityName) => queryDeleteByEntityName(entityName, queryOption),
+    fullTextSearchCommit: () =>
+      dispatcher<Record<string, Commit>, { query: string }>(
+        (payload) => queryAction.cIdxSearch(payload),
+        {
+          name: 'cIdxSearch',
+          store,
+          slice: 'query',
+          SuccessAction: queryAction.SEARCH_SUCCESS,
+          ErrorAction: queryAction.SEARCH_ERROR,
+          logger,
+        }
+      ),
+    fullTextSearchEntity: <TEntity>() =>
+      dispatcher<Record<string, TEntity>, { query: string }>(
+        (payload) => queryAction.eIdxSearch(payload),
+        {
+          name: 'eIdxSearch',
+          store,
+          slice: 'query',
+          SuccessAction: queryAction.SEARCH_SUCCESS,
+          ErrorAction: queryAction.SEARCH_ERROR,
+          logger,
+        }
+      ),
     reconcile: () =>
       dispatcher<{ key: string; status: string }[], { entityName: string }>(
         ({ tx_id, args }) =>
@@ -115,11 +140,5 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
     },
     unsubscribeHub: () => contract.removeContractListener(contractListener),
     disconnect: () => gateway.disconnect(),
-    fullTextSearchCIdx: async ({ query }) =>
-      catchErrors(queryDatabase.fullTextSearchCommit({ query }), {
-        fcnName: 'full text search',
-        logger,
-      }),
-    // todo: entityFTSearch
   };
 };

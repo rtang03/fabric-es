@@ -39,7 +39,7 @@ export interface QueryHandler {
   ) => (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
   command_deleteByEntityId: (entityName: string) => RepoFcnId<FabricResponse>;
   command_getByEntityName: (entityName: string) => RepoFcn<Record<string, Commit>>;
-  query_getById: <TEntity, TEvent>(
+  getById: <TEntity, TEvent>(
     entityName: string
   ) => (option: {
     enrollmentId: string;
@@ -49,18 +49,23 @@ export interface QueryHandler {
     currentState: TEntity;
     save: SaveFcn<TEvent>;
   }>;
-  query_getByEntityName: <TEntity = any>(entityName: string) => RepoFcn<TEntity[]>;
-  query_getCommitById: (entityName: string) => RepoFcnId<Commit[]>;
+  getByEntityName: <TEntity = any>(entityName: string) => RepoFcn<TEntity[]>;
+  getCommitById: (entityName: string) => RepoFcnId<Commit[]>;
   query_deleteByEntityId: (entityName: string) => RepoFcnId<number>;
   query_deleteByEntityName: (entityName: string) => RepoFcn<number>;
+  fullTextSearchCommit: () => (payload: {
+    query: string;
+  }) => Promise<HandlerResponse<Record<string, Commit>>>;
+  fullTextSearchEntity: <TEntity = any>() => (payload: {
+    query: string;
+  }) => Promise<HandlerResponse<Record<string, TEntity>>>;
   reconcile: () => (payload: {
     entityName: string;
-    // reducer: Reducer;
   }) => Promise<HandlerResponse<{ key: string; status: string }[]>>;
   subscribeHub: () => Promise<any>;
   unsubscribeHub: () => void;
   disconnect: () => void;
-  fullTextSearchCIdx: (option: {
-    query: string;
-  }) => Promise<HandlerResponse<Record<string, Commit>>>;
+  // fullTextSearchCIdx: (option: {
+  //   query: string;
+  // }) => Promise<HandlerResponse<Record<string, Commit>>>;
 }

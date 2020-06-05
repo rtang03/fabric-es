@@ -1,5 +1,7 @@
 import deleteByEntityIdEpic from './deleteByEntityId';
 import deleteByEntityNameEpic from './deleteByEntityName';
+import fullTextSearchCIdxEpic from './fullTextSearchCIdx';
+import fullTextSearchEIdxEpic from './fullTextSearchEIdx';
 import mergeEpic from './mergeCommit';
 import mergeBatchEpic from './mergeCommitBatch';
 import queryByEntityIdEpic from './queryByEntityId';
@@ -11,5 +13,7 @@ export const epic = [
   queryByEntityNameEpic,
   queryByEntityIdEpic,
   mergeEpic,
-  mergeBatchEpic
+  mergeBatchEpic,
+  fullTextSearchCIdxEpic,
+  fullTextSearchEIdxEpic,
 ];

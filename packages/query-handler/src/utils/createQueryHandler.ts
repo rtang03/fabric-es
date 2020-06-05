@@ -123,7 +123,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           typeGuard: isCommitRecord,
         }
       ),
-    query_getById: async <TEntity>({ enrollmentId, id, entityName, reducer }) => {
+    getById: async <TEntity>({ enrollmentId, id, entityName, reducer }) => {
       const { data } = await dispatcher<Record<string, Commit>, { entityName: string; id: string }>(
         (payload) => queryByEntityId(payload),
         {
@@ -167,7 +167,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           );
       return { currentState, save };
     },
-    query_getByEntityName: <TEntity>({ entityName }) =>
+    getByEntityName: <TEntity>({ entityName }) =>
       dispatcher<GetByEntityNameResponse<TEntity>, { entityName: string }>(
         (payload) => queryByEntityName(payload),
         {
@@ -183,7 +183,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
             ? fromCommitsToGroupByEntityId<TEntity>(commits, reducers[entityName])
             : null
       ),
-    query_getCommitById: () =>
+    getCommitById: () =>
       dispatcher<Commit[], { id: string; entityName: string }>(
         (payload) => queryByEntityId(payload),
         {

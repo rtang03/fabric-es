@@ -2,10 +2,8 @@ require('dotenv').config({ path: './.env.dev' });
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallets } from 'fabric-network';
 import Redis from 'ioredis';
+import omit from 'lodash/omit';
 import rimraf from 'rimraf';
-import { getNetwork } from '../../services';
-import type { Commit, QueryHandler } from '../../types';
-import { isCommit, isCommitRecord } from '../../utils';
 import {
   commitIndex,
   CounterEvent,
@@ -13,7 +11,11 @@ import {
   createQueryHandler,
   dummyReducer,
   entityIndex,
-} from '../index';
+} from '..';
+import { getNetwork } from '../../services';
+import type { Commit, QueryHandler } from '../../types';
+import { Counter } from '../../unit-test-reducer';
+import { isCommit, isCommitRecord } from '../../utils';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -96,7 +98,7 @@ beforeAll(async () => {
 
     await queryHandler
       .query_deleteByEntityName(entityName)()
-      .then(({ data }) => console.log(data));
+      .then(({ data }) => console.log(`${data} record(s) deleted`));
 
     await queryHandler.subscribeHub();
 
@@ -143,7 +145,7 @@ afterAll(async () => {
 
   await queryHandler
     .query_deleteByEntityName(entityName)()
-    .then((data) => console.log(`${data} records deleted`))
+    .then(({ data }) => console.log(`${data} records deleted`))
     .catch((error) => console.log(error));
 
   return new Promise((done) => setTimeout(() => done(), 1000));
@@ -165,7 +167,7 @@ describe('Query Handler Tests', () => {
 
   it('should query_getCommitById', async () =>
     queryHandler
-      .query_getCommitById(entityName)({ id })
+      .getCommitById(entityName)({ id })
       .then(({ data }) => {
         data.forEach((commit) => {
           expect(commit.entityName).toEqual(entityName);
@@ -187,34 +189,53 @@ describe('Query Handler Tests', () => {
       })
       .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
 
-  it('should FT.SEARCH by test*', async () => {
+  it('should FT.SEARCH by test* : return 2 commit', async () => {
     await new Promise((done) => setTimeout(() => done(), 3000));
-    return queryHandler.fullTextSearchCIdx({ query: 'test*' }).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      expect(Object.keys(data).length).toEqual(2);
-      expect(isCommitRecord(data)).toBeTruthy();
-    });
+    return queryHandler
+      .fullTextSearchCommit()({ query: 'test*' })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(Object.keys(data).length).toEqual(2);
+        expect(isCommitRecord(data)).toBeTruthy();
+      });
   });
 
-  it('should FT.SEARCH by qh*', async () =>
-    queryHandler.fullTextSearchCIdx({ query: 'qh*' }).then(({ data }) => {
-      expect(Object.keys(data).length).toEqual(2);
-      expect(isCommitRecord(data)).toBeTruthy();
-    }));
-
-  it('should FT.SEARCH by @event:{increment}', async () =>
-    queryHandler.fullTextSearchCIdx({ query: '@event:{increment}' }).then(({ data }) => {
-      expect(Object.values<Commit>(data)[0].events[0].type).toEqual('Increment');
-      expect(Object.keys(data).length).toEqual(1);
-      expect(isCommitRecord(data)).toBeTruthy();
-    }));
-
-  it('should fail to FT.SEARCH: invalid ;', async () =>
+  it('should FT.SEARCH by qh* : return 2 commits', async () =>
     queryHandler
-      .fullTextSearchCIdx({ query: 'kljkljkljjkljklj;jkl;' })
+      .fullTextSearchCommit()({ query: 'qh*' })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(Object.keys(data).length).toEqual(2);
+        expect(isCommitRecord(data)).toBeTruthy();
+      }));
+
+  it('should FT.SEARCH by @event:{increment} : return 1 commit', async () =>
+    queryHandler
+      .fullTextSearchCommit()({ query: '@event:{increment}' })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(Object.values<Commit>(data)[0].events[0].type).toEqual('Increment');
+        expect(Object.keys(data).length).toEqual(1);
+        expect(isCommitRecord(data)).toBeTruthy();
+      }));
+
+  it('should fail to FT.SEARCH: invalid input;', async () =>
+    queryHandler
+      .fullTextSearchCommit()({ query: 'kljkljkljjkljklj;jkl;' })
       .then(({ data, status, error }) => {
         expect(status).toEqual('ERROR');
         expect(data).toBeNull();
-        expect(error.message).toContain('Syntax error at offset');
+        expect(error).toContain('Syntax error at offset');
+      }));
+
+  it('should FT.SEARCH by test* : return 1 entity', async () =>
+    queryHandler
+      .fullTextSearchEntity<Counter>()({ query: 'test*' })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        const counter = Object.values(data)[0];
+        const key = Object.keys(data)[0];
+        expect(key).toEqual(`${entityName}::${id}`);
+        expect(omit(counter, 'ts')).toEqual({ id, value: 0 });
       }));
 });

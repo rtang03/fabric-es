@@ -12,6 +12,8 @@ const {
   DELETE_SUCCESS,
   QUERY_ERROR,
   QUERY_SUCCESS,
+  SEARCH_ERROR,
+  SEARCH_SUCCESS,
 } = action;
 
 const actionHandler: ActionHandler = {
@@ -23,6 +25,8 @@ const actionHandler: ActionHandler = {
   [DELETE_ERROR]: getErrorActionHandler(DELETE_ERROR),
   [QUERY_SUCCESS]: getSuccessActionHandler(QUERY_SUCCESS),
   [QUERY_ERROR]: getErrorActionHandler(QUERY_ERROR),
+  [SEARCH_ERROR]: getErrorActionHandler(SEARCH_ERROR),
+  [SEARCH_SUCCESS]: getSuccessActionHandler(SEARCH_SUCCESS),
 };
 
 export const reducer: Reducer<State> = getReducer(initialState, actionHandler);
