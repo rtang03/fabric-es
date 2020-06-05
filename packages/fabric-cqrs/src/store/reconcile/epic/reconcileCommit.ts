@@ -1,13 +1,14 @@
 import util from 'util';
+import isEqual from 'lodash/isEqual';
 import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
-import { dispatcher } from '../../../utils/queryHandler';
+import type { Commit } from '../../../types';
+import { dispatcher } from '../../../utils';
 import { action as commandAction } from '../../command/action';
 import { action } from '../action';
 import type { ReconcileAction } from '../types';
-import { Commit } from '../../../types';
 
 const { RECONCILE, mergeCommitBatch, reconcileError, reconcileSuccess } = action;
 
@@ -45,7 +46,8 @@ export default (action$: Observable<ReconcileAction>, _, { logger }: { logger: L
               }
             )({ entityName, isPrivateData: false })
               .then(({ data: commits }) => {
-                if (commits === null) return reconcileSuccess({ tx_id, result: [] });
+                if (!commits || isEqual(commits, {}))
+                  return reconcileSuccess({ tx_id, result: [] });
 
                 const keys = Object.keys(commits);
                 logger.info(

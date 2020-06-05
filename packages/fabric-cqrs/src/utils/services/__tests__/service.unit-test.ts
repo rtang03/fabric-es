@@ -1,11 +1,11 @@
-require('../../../env');
+require('dotenv').config({ path: './.env.dev' });
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallets, Gateway, Network, Wallet, ContractListener } from 'fabric-network';
 import { keys, omit, pick, values } from 'lodash';
 import rimraf from 'rimraf';
-import { evaluate, getNetwork, submit } from '../index';
+import { evaluate, getNetwork, submit } from '..';
 import { registerUser } from '../../../account';
-import { Commit } from '../../../types';
+import type { Commit } from '../../../types';
 
 /**
  * ./dn-run-1-px-db-red-auth.sh
@@ -95,7 +95,7 @@ afterAll(async () => {
 
 describe('Eventstore Tests', () => {
   it('should query all commits', async () =>
-    evaluate('eventstore:queryByEntityName', ['dev_entity'], { network }, false).then((commits) =>
+    evaluate('eventstore:queryByEntityName', ['dev_entity'], { network }).then((commits) =>
       values(commits).forEach((commit: Commit) =>
         expect(pick(commit, 'entityName')).toEqual({
           entityName: 'dev_entity',
@@ -124,8 +124,7 @@ describe('Eventstore Tests', () => {
     evaluate(
       'eventstore:queryByEntityIdCommitId',
       [entityName, enrollmentId, createdCommit_1.commitId],
-      { network },
-      false
+      { network }
     )
       .then<Commit>((commits) => values(commits)[0])
       .then((commit) => expect(omit(commit, 'events')).toEqual(createdCommit_1)));
@@ -146,26 +145,16 @@ describe('Eventstore Tests', () => {
       .then(({ entityName }) => expect(entityName).toEqual('dev_test')));
 
   it('should queryByEntityName', async () =>
-    evaluate(
-      'eventstore:queryByEntityName',
-      [entityName],
-      {
-        network,
-      },
-      false
-    ).then((commits) =>
+    evaluate('eventstore:queryByEntityName', [entityName], {
+      network,
+    }).then((commits) =>
       values(commits).map(({ entityName }) => expect(entityName).toBe('dev_test'))
     ));
 
   it('should queryByEntityId #1', async () =>
-    evaluate(
-      'eventstore:queryByEntityId',
-      [entityName, enrollmentId],
-      {
-        network,
-      },
-      false
-    ).then((result) => expect(keys(result).length).toEqual(2)));
+    evaluate('eventstore:queryByEntityId', [entityName, enrollmentId], {
+      network,
+    }).then((result) => expect(keys(result).length).toEqual(2)));
 
   it('should deleteByEntityIdCommitId', async () =>
     submit(
@@ -186,14 +175,9 @@ describe('Eventstore Tests', () => {
     ).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should queryByEntityId #2', async () =>
-    evaluate(
-      'eventstore:queryByEntityId',
-      [entityName, enrollmentId],
-      {
-        network,
-      },
-      false
-    ).then((result) => expect(keys(result).length).toEqual(1)));
+    evaluate('eventstore:queryByEntityId', [entityName, enrollmentId], {
+      network,
+    }).then((result) => expect(keys(result).length).toEqual(1)));
 
   it('should deleteByEntityId', async () =>
     submit('eventstore:deleteByEntityId', [entityName, enrollmentId], {
@@ -201,14 +185,9 @@ describe('Eventstore Tests', () => {
     }).then(({ status }) => expect(status).toBe('SUCCESS')));
 
   it('should queryByEntityId #3', async () =>
-    evaluate(
-      'eventstore:queryByEntityId',
-      [entityName, enrollmentId],
-      {
-        network,
-      },
-      false
-    ).then((result) => expect(result).toEqual({})));
+    evaluate('eventstore:queryByEntityId', [entityName, enrollmentId], {
+      network,
+    }).then((result) => expect(result).toEqual({})));
 
   it('should create #3 at version 0', async () =>
     submit(

@@ -1,4 +1,4 @@
-import { BaseEvent, Reducer } from '../../types';
+import { BaseEvent, Reducer } from '../types';
 
 export interface Increment extends BaseEvent {
   readonly type: 'Increment';
@@ -26,6 +26,8 @@ export interface CounterEvent {
 export interface Counter {
   id: string;
   value: number;
+  desc?: string;
+  tag?: string;
   ts: number;
 }
 

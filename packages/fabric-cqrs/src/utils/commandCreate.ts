@@ -7,7 +7,7 @@ import { addTimestamp } from './addTimestamp';
 import { dispatcher } from './dispatcher';
 import { isCommitRecord } from './typeGuard';
 
-export const commandCreate: <TEvent>(
+export const commandCreate: <TEvent = any>(
   entityName: string,
   isPrivateData: boolean,
   option: {

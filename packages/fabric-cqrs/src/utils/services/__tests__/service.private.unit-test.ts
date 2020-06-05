@@ -1,11 +1,11 @@
-require('../../../env');
+require('dotenv').config({ path: './.env.dev' });
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallet, Wallets, Gateway, Network } from 'fabric-network';
-import { values } from 'lodash';
+import values from 'lodash/values';
 import rimraf from 'rimraf';
-import { evaluate, getNetwork, submitPrivateData } from '../index';
+import { evaluate, getNetwork, submitPrivateData } from '..';
 import { registerUser } from '../../../account';
-import { Commit } from '../../../types';
+import type { Commit } from '../../../types';
 
 /**
  * ./dn-run-1-px-db-red-auth.sh
@@ -107,15 +107,12 @@ describe('Event store Tests: Privatedata', () => {
       .then((commit) => (createdCommit_2 = commit)));
 
   it('should queryByEntityId #1', async () =>
-    evaluate(
-      'privatedata:queryByEntityId',
-      [entityName, enrollmentId],
-      { network },
-      true
-    ).then((result) => values(result).map((commit) => expect(commit.id).toEqual(enrollmentId))));
+    evaluate('privatedata:queryByEntityId', [entityName, enrollmentId], {
+      network,
+    }).then((result) => values(result).map((commit) => expect(commit.id).toEqual(enrollmentId))));
 
   it('should queryByEntityName', async () =>
-    evaluate('privatedata:queryByEntityName', [entityName], { network }, true).then((result) =>
+    evaluate('privatedata:queryByEntityName', [entityName], { network }).then((result) =>
       values(result).map((commit) => expect(commit.entityName).toEqual(entityName))
     ));
 

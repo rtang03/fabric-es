@@ -13,7 +13,6 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
       const result: unknown = store.getState()[slice].result;
       if (tx_id === tid && type === SuccessAction) {
         unsubscribe();
-
         const data = onSuccess ? onSuccess(result) : result;
 
         if (typeGuard)

@@ -1,30 +1,23 @@
 import util from 'util';
 import { Contract, ContractListener, Network } from 'fabric-network';
-import values from 'lodash/values';
 import {
-  addTimestamp,
+  commandCreate,
+  commandDeleteByEntityId,
+  commandGetByEntityName,
   dispatcher,
   getLogger,
   isCommit,
-  isCommitRecord,
-  isFabricResponse,
+  queryDeleteByEntityId,
+  queryDeleteByEntityName,
+  queryGetByEntityName,
+  queryGetById,
+  queryGetCommitById,
 } from '..';
-import { getHistory } from '..';
 import { getStore } from '../../store';
-import { action as commandAction } from '../../store/command';
 import { action as projAction } from '../../store/projection';
-import { action as queryAction } from '../../store/query';
 import { action as reconcileAction } from '../../store/reconcile';
-import {
-  BaseEvent,
-  Commit,
-  FabricResponse,
-  GetByEntityNameResponse,
-  QueryHandler,
-  QueryDatabaseResponse,
-  QueryHandlerOptions,
-} from '../../types';
-import { catchErrors, commitsToGroupByEntityId } from '.';
+import type { Commit, QueryHandler, QueryHandlerOptions } from '../../types';
+import { catchErrors } from '.';
 
 export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (
   options
@@ -36,185 +29,32 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
 
   const store = getStore(options as any);
 
-  const {
-    deleteByEntityId,
-    deleteByEntityName,
-    queryByEntityId,
-    queryByEntityName,
-    QUERY_SUCCESS,
-    QUERY_ERROR,
-    DELETE_SUCCESS,
-    DELETE_ERROR,
-  } = queryAction;
-
   let contractListener: ContractListener;
   let contract: Contract;
   let network: Network;
 
-  return {
-    command_create: ({ enrollmentId, id, entityName }) => ({
-      save: dispatcher<Record<string, Commit>, { events: BaseEvent[] }>(
-        ({ tx_id, args: { events } }) =>
-          commandAction.create({
-            channelName,
-            connectionProfile,
-            wallet,
-            tx_id,
-            enrollmentId,
-            args: {
-              entityName,
-              id,
-              version: 0,
-              isPrivateData: false,
-              events: addTimestamp(events),
-            },
-          }),
-        {
-          name: 'command_create',
-          store,
-          slice: 'write',
-          SuccessAction: commandAction.CREATE_SUCCESS,
-          ErrorAction: commandAction.CREATE_ERROR,
-          logger,
-          typeGuard: isCommitRecord,
-        }
-      ),
-    }),
-    command_deleteByEntityId: () =>
-      dispatcher<FabricResponse, { entityName: string; id: string }>(
-        ({ tx_id, args: { entityName, id } }) =>
-          commandAction.deleteByEntityId({
-            connectionProfile,
-            channelName,
-            wallet,
-            tx_id,
-            args: { entityName, id, isPrivateData: false },
-          }),
-        {
-          name: 'command_deleteByEntityId',
-          store,
-          slice: 'write',
-          SuccessAction: commandAction.DELETE_SUCCESS,
-          ErrorAction: commandAction.DELETE_ERROR,
-          logger,
-          typeGuard: isFabricResponse,
-        }
-      ),
-    command_getByEntityName: () =>
-      dispatcher<Record<string, Commit>, { entityName: string }>(
-        ({ tx_id, args: { entityName } }) =>
-          commandAction.queryByEntityName({
-            connectionProfile,
-            channelName,
-            wallet,
-            tx_id,
-            args: { entityName, isPrivateData: false },
-          }),
-        {
-          name: 'command_getByEntityName',
-          store,
-          slice: 'write',
-          SuccessAction: commandAction.QUERY_SUCCESS,
-          ErrorAction: commandAction.QUERY_ERROR,
-          logger,
-          typeGuard: isCommitRecord,
-        }
-      ),
-    query_getById: async <TEntity>({ enrollmentId, id, entityName, reducer }) => {
-      const { data } = await dispatcher<Record<string, Commit>, { entityName: string; id: string }>(
-        (payload) => queryByEntityId(payload),
-        {
-          name: 'queryByEntityId',
-          store,
-          slice: 'query',
-          SuccessAction: QUERY_SUCCESS,
-          ErrorAction: QUERY_ERROR,
-          logger,
-        }
-      )({ id, entityName });
+  const commandOption = {
+    logger,
+    wallet,
+    store,
+    connectionProfile,
+    channelName,
+  };
+  const queryOption = { logger, store };
 
-      const currentState = data ? reducer(getHistory(data)) : null;
-      const save = !data
-        ? null
-        : dispatcher<Record<string, Commit>, { events: any[] }>(
-            ({ tx_id, args: { events } }) =>
-              commandAction.create({
-                channelName,
-                connectionProfile,
-                wallet,
-                tx_id,
-                enrollmentId,
-                args: {
-                  entityName,
-                  id,
-                  version: Object.keys(data).length,
-                  isPrivateData: false,
-                  events: addTimestamp(events),
-                },
-              }),
-            {
-              name: 'create',
-              store,
-              slice: 'write',
-              SuccessAction: commandAction.CREATE_SUCCESS,
-              ErrorAction: commandAction.CREATE_ERROR,
-              logger,
-              typeGuard: isCommitRecord,
-            }
-          );
-      return { currentState, save };
-    },
-    query_getByEntityName: <TEntity>({ entityName }) =>
-      dispatcher<GetByEntityNameResponse<TEntity>, { entityName: string }>(
-        (payload) => queryByEntityName(payload),
-        {
-          name: 'getByEntityName',
-          store,
-          slice: 'query',
-          SuccessAction: QUERY_SUCCESS,
-          ErrorAction: QUERY_ERROR,
-          logger,
-        },
-        (commits) =>
-          commits ? commitsToGroupByEntityId<TEntity>(commits, reducers[entityName]) : null
-      ),
-    query_getCommitById: () =>
-      dispatcher<Commit[], { id: string; entityName: string }>(
-        (payload) => queryByEntityId(payload),
-        {
-          name: 'getCommitByid',
-          store,
-          slice: 'query',
-          SuccessAction: QUERY_SUCCESS,
-          ErrorAction: QUERY_ERROR,
-          logger,
-        },
-        (result) => values<Commit>(result).reverse()
-      ),
-    query_deleteByEntityId: () =>
-      dispatcher<QueryDatabaseResponse, { entityName: string; id: string }>(
-        (payload) => deleteByEntityId(payload),
-        {
-          name: 'deleteByEntityId',
-          store,
-          slice: 'query',
-          SuccessAction: DELETE_SUCCESS,
-          ErrorAction: DELETE_ERROR,
-          logger,
-        }
-      ),
-    query_deleteByEntityName: () =>
-      dispatcher<QueryDatabaseResponse, { entityName: string }>(
-        (payload) => deleteByEntityName(payload),
-        {
-          name: 'deleteByEntityName',
-          store,
-          slice: 'query',
-          SuccessAction: DELETE_SUCCESS,
-          ErrorAction: DELETE_ERROR,
-          logger,
-        }
-      ),
+  return {
+    create: <TEvent = any>(entityName) => commandCreate<TEvent>(entityName, false, commandOption),
+    command_deleteByEntityId: (entityName) =>
+      commandDeleteByEntityId(entityName, false, commandOption),
+    command_getByEntityName: (entityName) =>
+      commandGetByEntityName(entityName, false, commandOption),
+    query_getById: <TEntity = any, TEvent = any>(entityName) =>
+      queryGetById<TEntity, TEvent>(entityName, false, commandOption),
+    query_getByEntityName: <TEntity = any>(entityName) =>
+      queryGetByEntityName<TEntity>(entityName, reducers[entityName], queryOption),
+    query_getCommitById: (entityName) => queryGetCommitById(entityName, queryOption),
+    query_deleteByEntityId: (entityName) => queryDeleteByEntityId(entityName, queryOption),
+    query_deleteByEntityName: (entityName) => queryDeleteByEntityName(entityName, queryOption),
     reconcile: () =>
       dispatcher<{ key: string; status: string }[], { entityName: string }>(
         ({ tx_id, args }) =>

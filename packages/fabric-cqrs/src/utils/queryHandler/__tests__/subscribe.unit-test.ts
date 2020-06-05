@@ -5,6 +5,7 @@ import Redis from 'ioredis';
 import rimraf from 'rimraf';
 import {
   commitIndex,
+  CounterEvent,
   createQueryDatabase,
   createQueryHandler,
   dummyReducer,
@@ -86,7 +87,7 @@ beforeAll(async () => {
 
     // tear down
     await queryHandler
-      .command_deleteByEntityId()({ entityName, id })
+      .command_deleteByEntityId(entityName)({ id })
       .then(({ data }) => console.log(data.message))
       .catch((e) => {
         console.error(e);
@@ -94,7 +95,7 @@ beforeAll(async () => {
       });
 
     await queryHandler
-      .query_deleteByEntityName()({ entityName })
+      .query_deleteByEntityName(entityName)()
       .then(({ data }) => console.log(data.message));
 
     await queryHandler.subscribeHub();
@@ -139,7 +140,7 @@ afterAll(async () => {
     .catch((result) => console.log(`eidx is not dropped: ${result}`));
 
   await queryHandler
-    .query_deleteByEntityName()({ entityName })
+    .query_deleteByEntityName(entityName)()
     .then((data) => console.log(`${data} records deleted`))
     .catch((error) => console.log(error));
 
@@ -149,7 +150,7 @@ afterAll(async () => {
 describe('Query Handler Tests', () => {
   it('should create #1 record for id', async () =>
     queryHandler
-      .command_create({ entityName, enrollmentId, id })
+      .create<CounterEvent>(entityName)({ enrollmentId, id })
       .save({
         events: [
           {
@@ -162,7 +163,7 @@ describe('Query Handler Tests', () => {
 
   it('should query_getCommitById', async () =>
     queryHandler
-      .query_getCommitById()({ id, entityName })
+      .query_getCommitById(entityName)({ id })
       .then(({ data }) => {
         data.forEach((commit) => {
           expect(commit.entityName).toEqual(entityName);
@@ -173,7 +174,7 @@ describe('Query Handler Tests', () => {
 
   it('should create #2 record for id', async () =>
     queryHandler
-      .command_create({ entityName, enrollmentId, id })
+      .create<CounterEvent>(entityName)({ enrollmentId, id })
       .save({
         events: [
           {

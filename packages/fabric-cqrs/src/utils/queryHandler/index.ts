@@ -5,7 +5,7 @@ export * from './fullTextSearchAddEntity';
 export * from './pipelineExecute';
 export * from './arraysToCommitRecords';
 export * from './createQueryDatabase';
-export * from './dummyReducer';
+export * from '../dummyReducer';
 export * from './commitsToGroupByEntityId';
 export * from './catchErrors';
 export * from './createQueryHandler';
