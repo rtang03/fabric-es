@@ -1,5 +1,4 @@
 import util from 'util';
-import { Utils } from 'fabric-common';
 import {
   DefaultEventHandlerStrategies,
   DefaultQueryHandlerStrategies,
@@ -8,6 +7,7 @@ import {
   Wallet,
 } from 'fabric-network';
 import { safeLoad } from 'js-yaml';
+import { getLogger } from '../getLogger';
 import { promiseToReadFile } from '../promiseToReadFile';
 
 /**
@@ -41,7 +41,7 @@ export const getNetwork: (option: {
   discovery,
   asLocalhost,
 }) => {
-  const logger = Utils.getLogger('[fabric-cqrs] getNetwork.js');
+  const logger = getLogger({ name: '[fabric-cqrs] getNetwork.js' });
   let identityExist;
 
   try {

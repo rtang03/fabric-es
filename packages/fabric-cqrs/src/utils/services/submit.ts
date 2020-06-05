@@ -4,6 +4,7 @@ import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
 import type { Commit } from '../../types';
 import { createCommitId } from '../createCommitId';
+import { getLogger } from '../getLogger';
 import { getContract } from './contract';
 
 /**
@@ -22,7 +23,11 @@ export const submit: (
   args,
   { network }
 ) => {
-  const logger = Utils.getLogger('[fabric-cqrs] submit.js');
+  const logger = getLogger({ name: '[fabric-cqrs] submit.js' });
+
+  const isNullArg = args.reduce((prev, curr) => prev && !!curr, true);
+
+  if (!isNullArg) return { error: 'invalid input argument' };
 
   const input_args = fcn === 'eventstore:createCommit' ? [...args, createCommitId()] : args;
 

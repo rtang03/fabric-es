@@ -8,10 +8,9 @@ import type {
   QueryDatabaseResponse,
   HandlerResponse,
 } from '../../../types';
-import { getLogger } from '../../../utils';
+import { dispatcher, getLogger } from '../../../utils';
 import {
   createQueryDatabase,
-  dispatcher,
   dummyReducer,
   Counter,
   commitsToGroupByEntityId,
@@ -85,7 +84,7 @@ afterAll(async () => {
   return new Promise((done) => setTimeout(() => done(), 2000));
 });
 
-describe('Store/query:  failure tests', () => {
+describe('Store/query: failure tests', () => {
   it('should queryByEntityName with no result returned', async () =>
     dispatcher<GetByEntityNameResponse<Counter>, { entityName: string }>(
       (payload) => queryByEntityName(payload),

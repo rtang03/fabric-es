@@ -1,8 +1,8 @@
 import util from 'util';
-import { Utils } from 'fabric-common';
 import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
 import type { Commit } from '../../types';
+import { getLogger } from '../getLogger';
 import { getContract } from './contract';
 
 /**
@@ -10,21 +10,18 @@ import { getContract } from './contract';
  * @param fcn function
  * @param args args
  * @param network network `{ network: Network }`
- * @param isPrivateData boolean - is private data
  * @returns `Record<string, Commit> | { error: any }`
  */
 export const evaluate: (
   fcn: string,
   args: string[],
-  options: { network: Network },
-  isPrivateData: boolean
-) => Promise<Record<string, Commit> | { error: any }> = async (
-  fcn,
-  args,
-  { network },
-  isPrivateData
-) => {
-  const logger = Utils.getLogger('[fabric-cqrs] evaluate.js');
+  options: { network: Network }
+) => Promise<Record<string, Commit> | { error: any }> = async (fcn, args, { network }) => {
+  const logger = getLogger({ name: '[fabric-cqrs] evaluate.js' });
+
+  const isNullArg = args.reduce((prev, curr) => prev && !!curr, true);
+
+  if (!isNullArg) return { error: 'invalid input argument' };
 
   return getContract(network).then(({ contract }) =>
     contract
@@ -45,9 +42,8 @@ export const evaluate: (
 export const evaluate$: (
   fcn: string,
   args: string[],
-  options: { network: Network },
-  isPrivateData: boolean
-) => Observable<Record<string, Commit>> = (fcn, args, options, isPrivateData) =>
-  from(evaluate(fcn, args, options, isPrivateData));
+  options: { network: Network }
+) => Observable<Record<string, Commit>> = (fcn, args, options) =>
+  from(evaluate(fcn, args, options));
 
 export default evaluate$;

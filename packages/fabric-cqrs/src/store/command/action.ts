@@ -12,18 +12,18 @@ import type {
   QueryByEntityNameAction,
 } from './types';
 
-const CREATE = '[Entity-C] Create';
-const CREATE_ERROR = '[Entity-C] Create Error';
-const CREATE_SUCCESS = '[Entity-C] Create Success';
-const DELETE_BY_ENTITYID = '[Entity-C] Delete entities By entityName and id';
-const DELETE_ERROR = '[Entity-C] Delete Error';
-const DELETE_SUCCESS = '[Entity-C] Delete Success';
-const DELETE_BY_ENTITYID_COMMITID = '[Entity-C] Delete By entityId and commitId';
-const QUERY_BY_ENTITY_ID = '[Entity-C] Query entity by entity id';
-const QUERY_BY_ENTITY_NAME = '[Entity-C] Query entity by entityName';
-const QUERY_BY_ENTITYID_COMMITID = '[Entity-C] Query by entity id and commitId';
-const QUERY_ERROR = '[Entity-C] Query Error';
-const QUERY_SUCCESS = '[Entity-C] Query Success';
+const CREATE = '[Command] Create';
+const CREATE_ERROR = '[Command] Create Error';
+const CREATE_SUCCESS = '[Command] Create Success';
+const DELETE_BY_ENTITYID = '[Command] Delete entities By entityName and id';
+const DELETE_ERROR = '[Command] Delete Error';
+const DELETE_SUCCESS = '[Command] Delete Success';
+const DELETE_BY_ENTITYID_COMMITID = '[Command] Delete By entityId and commitId';
+const QUERY_BY_ENTITY_ID = '[Command] Query entity by entity id';
+const QUERY_BY_ENTITY_NAME = '[Command] Query entity by entityName';
+const QUERY_BY_ENTITYID_COMMITID = '[Command] Query by entity id and commitId';
+const QUERY_ERROR = '[Command] Query Error';
+const QUERY_SUCCESS = '[Command] Query Success';
 
 export const action = {
   CREATE,

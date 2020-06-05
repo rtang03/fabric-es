@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Start peer Tests should ADD #1 1`] = `
-Object {
-  "entityName": "counter",
-  "version": 0,
-}
-`;

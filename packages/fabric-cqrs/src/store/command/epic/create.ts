@@ -47,25 +47,22 @@ export default (action$: Observable<CreateAction>, _, context) =>
         );
       else {
         const { tx_id, args, network, gateway } = getNetwork;
-        const { id, entityName, events, version, isPrivateData } = args;
+        const { id, entityName, version, isPrivateData } = args;
+        const events = args?.events ? JSON.stringify(args?.events) : null;
 
         return isPrivateData
           ? submitPrivateData$(
               'privatedata:createCommit',
               [entityName, id, version.toString()],
-              { eventstr: Buffer.from(JSON.stringify(events)) },
+              { eventstr: Buffer.from(events) },
               { network: network || context.network }
             ).pipe(
               tap(() => gateway.disconnect()),
               dispatchResult(tx_id, createSuccess, createError)
             )
-          : submit$(
-              'eventstore:createCommit',
-              [entityName, id, version.toString(), JSON.stringify(events)],
-              {
-                network: network || context.network,
-              }
-            ).pipe(
+          : submit$('eventstore:createCommit', [entityName, id, version.toString(), events], {
+              network: network || context.network,
+            }).pipe(
               tap(() => gateway.disconnect()),
               dispatchResult(tx_id, createSuccess, createError)
             );

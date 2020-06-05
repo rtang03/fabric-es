@@ -37,3 +37,20 @@ export const getStore: (options: {
   epicMiddleware.run(rootEpic);
   return store;
 };
+
+export const getCommandStore: (options: {
+  gateway: Gateway;
+  network: Network;
+  logger: Logger;
+}) => Store = ({ gateway, network, logger }) => {
+  const epicMiddleware = createEpicMiddleware({
+    dependencies: {
+      gateway,
+      network,
+      logger,
+    },
+  });
+  const store = createStore(combineReducers({ write }), applyMiddleware(epicMiddleware));
+  epicMiddleware.run(combineEpics(...commandEpic));
+  return store;
+};

@@ -2,11 +2,10 @@ require('dotenv').config({ path: './.env.test' });
 import Redis from 'ioredis';
 import { Store } from 'redux';
 import type { Commit, QueryDatabase, QueryDatabaseResponse } from '../../../types';
-import { getLogger, isCommitRecord } from '../../../utils';
+import { dispatcher, getLogger, isCommitRecord } from '../../../utils';
 import {
   commitIndex,
   createQueryDatabase,
-  dispatcher,
   dummyReducer,
   entityIndex,
 } from '../../../utils/queryHandler';

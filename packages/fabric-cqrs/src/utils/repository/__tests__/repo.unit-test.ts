@@ -6,7 +6,7 @@ import omit from 'lodash/omit';
 import values from 'lodash/values';
 import rimraf from 'rimraf';
 import { createRepository } from '..';
-import { getLogger, isCommitRecord } from '../..';
+import { getLogger, isCommitRecord, waitForSecond } from '../..';
 import { registerUser } from '../../../account';
 import type { QueryHandler, Repository } from '../../../types';
 import {
@@ -17,7 +17,6 @@ import {
 } from '../../queryHandler';
 import { getNetwork } from '../../services';
 import { reducer, CounterEvent, Counter } from '../../unit-test-reducer';
-import { waitForSecond } from '../../waitForSecond';
 
 /**
  * ./dn-run-1-px-db-red-auth.sh
@@ -192,7 +191,7 @@ describe('Repository Test', () => {
 
   it('should command_create', async () => {
     await repo
-      .command_create({ enrollmentId, id })
+      .create({ enrollmentId, id })
       .save({ events })
       .then(({ data, status }) => {
         const commit = values(data)[0];
@@ -206,6 +205,15 @@ describe('Repository Test', () => {
 
     return waitForSecond(10);
   });
+
+  it('should verify result by command_getByEntityIdCommitId', async () =>
+    repo.command_getByEntityIdCommitId({ id, commitId }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(isCommitRecord(data)).toBeTruthy();
+      expect(values(data)[0].entityName).toEqual(entityName);
+      expect(values(data)[0].id).toEqual(id);
+      expect(values(data)[0].version).toEqual(0);
+    }));
 
   it('should query_getByEntityName', async () =>
     repo.query_getByEntityName().then(({ data, status }) => {

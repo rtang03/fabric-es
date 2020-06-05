@@ -2,10 +2,9 @@
  * @packageDocumentation
  * @hidden
  */
-import util from 'util';
 import { ofType } from 'redux-observable';
 import { Observable } from 'rxjs';
-import { mergeMap, tap } from 'rxjs/operators';
+import { mergeMap } from 'rxjs/operators';
 import evaluate$ from '../../../utils/services/evaluate';
 import { dispatchResult } from '../../utils';
 import { action } from '../action';
@@ -18,26 +17,10 @@ export default (action$: Observable<QueryByEntityNameAction>, _, context) =>
     ofType(QUERY_BY_ENTITY_NAME),
     mergeMap(({ payload: { tx_id, args: { entityName, isPrivateData } } }) =>
       isPrivateData
-        ? evaluate$('privatedata:queryByEntityName', [entityName], context, true).pipe(
-            tap((commits) =>
-              context.logger.debug(
-                util.format(
-                  '[store/command/queryByEntityName.js] dispatch evaluate response: %j',
-                  commits
-                )
-              )
-            ),
+        ? evaluate$('privatedata:queryByEntityName', [entityName], context).pipe(
             dispatchResult(tx_id, querySuccess, queryError)
           )
-        : evaluate$('eventstore:queryByEntityName', [entityName], context, false).pipe(
-            tap((commits) =>
-              context.logger.debug(
-                util.format(
-                  '[store/command/queryByEntityName.js] dispatch evaluate response: %j',
-                  commits
-                )
-              )
-            ),
+        : evaluate$('eventstore:queryByEntityName', [entityName], context).pipe(
             dispatchResult(tx_id, querySuccess, queryError)
           )
     )
