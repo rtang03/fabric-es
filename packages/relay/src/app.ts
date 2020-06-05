@@ -27,7 +27,11 @@ const client = redis.createClient({host: REDIS_HOST, port: REDIS_PORT,
 
 client.on('error', (err) => {
   logger.error(`Redis Error: ${err}`);
-}); 
+});
+
+client.on('connect', () => {
+  logger.info('Redis client connected.');
+});
 
 try {
   relayService({

@@ -83,8 +83,12 @@ export const relayService = ({
         res.writeHead(500, {
           'Content-Type': 'text/plain',
         });
-        logger.error(err.message);
-        res.end(err.message);
+        let errStr = 'Error! ';
+        if (err)
+          errStr += err.message;
+        errStr += ' Please check if endpoint is down.'
+        logger.error(errStr);
+        res.end(errStr);
       }
     }
   );
