@@ -5,7 +5,7 @@
 import util from 'util';
 import { Utils } from 'fabric-common';
 import { Wallet } from 'fabric-network';
-import { keys, values } from 'lodash';
+import { assign, keys, values } from 'lodash';
 import { Store } from 'redux';
 import { action as writeAction } from '../../cqrs/command';
 import { action as projectionAction } from '../../cqrs/projection';
@@ -59,9 +59,12 @@ export const repository: (option: {
           if (tx_id === tid && type === QUERY_SUCCESS) {
             logger.info(util.format('queryByEntityId, tx_id: %s, %s', tid, QUERY_SUCCESS));
 
+            const state = reducer(getHistory(result));
+            if (state) Object.assign(state, trackingReducer(Object.values(result)));
+
             unsubscribe();
             resolve({
-              currentState: Object.assign(reducer(getHistory(result)), trackingReducer(Object.values(result))),
+              currentState: state,
               save: (events) =>
                 getPromiseToSave({
                   channelName,
