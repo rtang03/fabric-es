@@ -18,6 +18,8 @@ services:
       - REDIS_HOST=redis-pubsub
       - REDIS_PORT=6379
       - REDIS_TOPIC=request-notify
+    volumes:
+      - ./relay-logs:/home/app/logs
     ports:
       - 8080:2500
     networks:
