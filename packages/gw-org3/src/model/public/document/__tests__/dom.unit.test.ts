@@ -6,9 +6,9 @@ import { Document, documentCommandHandler, DocumentEvents, documentReducer } fro
 const enrollmentId = '';
 const userId = 'USER002';
 const mockdb: Record<string, Commit> = {};
-const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan, LoanEvents>(loanReducer));
+const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan>(loanReducer));
 const documentRepo = getMockRepository<Document, DocumentEvents>(
-  mockdb, 'document', getReducer<Document, DocumentEvents>(documentReducer)
+  mockdb, 'document', getReducer<Document>(documentReducer)
 );
 
 beforeAll(async () => {

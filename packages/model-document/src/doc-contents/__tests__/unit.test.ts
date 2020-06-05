@@ -36,7 +36,7 @@ const mockdb: Record<string, Commit> = {};
 const docContentsRepo: PrivatedataRepository = getPrivatedataMockRepository<DocContents, DocContentsEvents>(
   mockdb,
   'docContents',
-  getReducer<DocContents, DocContentsEvents>(docContentsReducer)
+  getReducer<DocContents>(docContentsReducer)
 );
 
 let service;

@@ -1,6 +1,6 @@
 import { Utils } from 'fabric-common';
 import { assign, filter, groupBy, isNumber, keys, values } from 'lodash';
-import { Commit, ProjectionDb } from '../types';
+import { Commit, ProjectionDb, trackingReducer } from '../types';
 
 const getHistory = (commits: Commit[]): any[] => {
   const history = [];
@@ -41,11 +41,11 @@ export const createProjectionDb: (defaultEntityName: string) => ProjectionDb = d
       }),
     upsert: ({ commit, reducer }) =>
       new Promise(resolve => {
-        const { id, entityName } = values(commit)[0];
+        const commits = values(commit);
+        const { id, entityName } = commits[0];
         if (defaultEntityName === entityName) {
-          db[id] = assign({ id }, reducer(getHistory(values(commit))));
+          db[id] = assign({ id }, reducer(getHistory(commits)), trackingReducer(commits));
         }
-
         logger.info('upsert complete');
         resolve({ data: { [id]: {} } });
       }),
@@ -54,7 +54,7 @@ export const createProjectionDb: (defaultEntityName: string) => ProjectionDb = d
         const filterCommits = filter(commits, ({ entityName }) => entityName === defaultEntityName);
         const group = groupBy(filterCommits, ({ id }) => id);
         const entities = [];
-        keys(group).forEach(id => entities.push(assign({ id }, reducer(getHistory(values(group[id]))))));
+        keys(group).forEach(id => entities.push(assign({ id }, reducer(getHistory(values(group[id]))), trackingReducer(group[id]))));
         const data = {};
         entities.forEach(entity => {
           db[entity.id] = entity;

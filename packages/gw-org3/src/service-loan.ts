@@ -6,7 +6,7 @@ import { Loan, LoanEvents, loanReducer, loanResolvers, loanTypeDefs } from '@fab
 import { Wallets } from 'fabric-network';
 
 const logger = getLogger('service-loan.js');
-const reducer = getReducer<Loan, LoanEvents>(loanReducer);
+const reducer = getReducer<Loan>(loanReducer);
 
 (async () =>
   createService<Loan>({

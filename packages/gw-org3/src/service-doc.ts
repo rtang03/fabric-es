@@ -12,7 +12,7 @@ import {
 } from './model/public/document';
 
 const logger = getLogger('service-doc.js');
-const reducer = getReducer<Document, DocumentEvents>(documentReducer);
+const reducer = getReducer<Document>(documentReducer);
 
 (async () =>
   createService<Document>({

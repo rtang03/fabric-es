@@ -12,7 +12,7 @@ import {
 const userId = 'unitTestUser';
 const mockdb: Record<string, Commit> = {};
 const loanDetailsRepo: PrivatedataRepository = getPrivatedataMockRepository<LoanDetails, LoanDetailsEvents>(
-  mockdb, 'loanDetails', getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer)
+  mockdb, 'loanDetails', getReducer<LoanDetails>(loanDetailsReducer)
 );
 
 let service;

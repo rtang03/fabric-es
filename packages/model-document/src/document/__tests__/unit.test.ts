@@ -41,7 +41,7 @@ const GET_DOCUMENT_BY_PAGE = gql`
 const userId = 'unitTestUser';
 const loanId = 'L0001';
 const mockdb: Record<string, Commit> = {};
-const docuRepo = getMockRepository<Document, DocumentEvents>(mockdb, 'document', getReducer<Document, DocumentEvents>(documentReducer));
+const docuRepo = getMockRepository<Document, DocumentEvents>(mockdb, 'document', getReducer<Document>(documentReducer));
 
 let service;
 

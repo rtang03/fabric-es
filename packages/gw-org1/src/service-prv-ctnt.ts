@@ -12,7 +12,7 @@ import {
 import { Wallets } from 'fabric-network';
 
 const logger = getLogger('service-prv-ctnt.js');
-const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
+const reducer = getReducer<DocContents>(docContentsReducer);
 
 (async () =>
   createService<DocContents>({

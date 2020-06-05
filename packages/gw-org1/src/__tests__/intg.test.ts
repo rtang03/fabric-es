@@ -63,10 +63,10 @@ const lPort = 14052;
 const dPort = 14053;
 const tPort = 14054;
 const cPort = 14055;
-const lReducer = getReducer<Loan, LoanEvents>(loanReducer);
-const dReducer = getReducer<Document, DocumentEvents>(documentReducer);
-const tReducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
-const cReducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
+const lReducer = getReducer<Loan>(loanReducer);
+const dReducer = getReducer<Document>(documentReducer);
+const tReducer = getReducer<LoanDetails>(loanDetailsReducer);
+const cReducer = getReducer<DocContents>(docContentsReducer);
 
 const AUTH_SERVER = `http://localhost:${oPort}/graphql`;
 const GATE_SERVICE = `http://localhost:${gPort}/graphql`;

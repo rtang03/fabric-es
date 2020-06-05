@@ -12,7 +12,7 @@ import {
 import { Wallets } from 'fabric-network';
 
 const logger = getLogger('service-prv-dtls.js');
-const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
+const reducer = getReducer<LoanDetails>(loanDetailsReducer);
 
 (async () =>
   createService<LoanDetails>({

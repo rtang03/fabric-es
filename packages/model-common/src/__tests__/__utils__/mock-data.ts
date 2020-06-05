@@ -89,4 +89,4 @@ export const mockdb: Record<string, Commit> = {
   }
 };
 
-export const userRepo = getMockRepository<User, UserEvents>(mockdb, 'user', getReducer<User, UserEvents>(userReducer));
+export const userRepo = getMockRepository<User, UserEvents>(mockdb, 'user', getReducer<User>(userReducer));

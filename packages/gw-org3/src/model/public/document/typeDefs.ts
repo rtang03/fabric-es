@@ -45,6 +45,7 @@ export const typeDefs = gql`
     link: String
     status: Int!
     timestamp: String!
+    tracking: [String]!
     loan: Loan
   }
 

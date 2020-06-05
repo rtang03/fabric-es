@@ -20,6 +20,9 @@ export interface BaseEvent {
   /** lifecycle type */
   readonly lifeCycle?: Lifecycle;
 
+  /** organization id */
+  mspId?: string;
+
   /** event payload */
   payload?: any;
 }
@@ -40,6 +43,9 @@ export class BaseEntity {
     return this.entityName;
   }
   constructor () {}
+
+  /** array of mspId for private data tracking */
+  tracking?: string[];
 }
 
 /**

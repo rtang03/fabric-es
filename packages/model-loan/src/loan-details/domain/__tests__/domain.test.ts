@@ -5,7 +5,7 @@ const enrollmentId = '';
 const userId = 'USER001';
 const mockdb: Record<string, Commit> = {};
 const loanDetailsRepo: PrivatedataRepository = getPrivatedataMockRepository<LoanDetails, LoanDetailsEvents>(
-  mockdb, 'loanDetails', getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer)
+  mockdb, 'loanDetails', getReducer<LoanDetails>(loanDetailsReducer)
 );
 
 describe('LoanDetails tests', () => {

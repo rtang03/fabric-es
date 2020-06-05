@@ -30,3 +30,5 @@ export enum NAMESPACE {
   RESOURCE_ATTRIBUTE = 'resattr',
   POLICY = 'policy'
 }
+
+export const TRACK_EVENT = 'PrivateDataTracked';

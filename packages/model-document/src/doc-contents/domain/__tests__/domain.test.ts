@@ -5,7 +5,7 @@ const enrollmentId = '';
 const userId = 'USER001';
 const mockdb: Record<string, Commit> = {};
 export const docContentsRepo: PrivatedataRepository = getPrivatedataMockRepository<DocContents, DocContentsEvents>(
-  mockdb, 'docContents', getReducer<DocContents, DocContentsEvents>(docContentsReducer)
+  mockdb, 'docContents', getReducer<DocContents>(docContentsReducer)
 );
 
 describe('DocContents tests', () => {

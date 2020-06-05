@@ -40,7 +40,7 @@ const GET_LOANS_BY_PAGE = gql`
 
 const userId = 'unitTestUser';
 const mockdb: Record<string, Commit> = {};
-const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan, LoanEvents>(loanReducer));
+const loanRepo = getMockRepository<Loan, LoanEvents>(mockdb, 'loan', getReducer<Loan>(loanReducer));
 
 let service;
 

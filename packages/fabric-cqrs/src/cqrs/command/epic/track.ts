@@ -8,6 +8,7 @@ import { ofType } from 'redux-observable';
 import { from, Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 import { getNetwork, submit$ } from '../../../services';
+import { TRACK_EVENT } from '../../../types';
 import { dispatchResult } from '../../utils';
 import { action } from '../action';
 import { TrackAction } from '../types';
@@ -46,7 +47,7 @@ export default (action$: Observable<TrackAction>, _, context): Observable<any> =
       else {
         const { tx_id, args, network, gateway } = getNetwork;
         const params = [args.parentName, args.id, args.version.toString()];
-        params.push(JSON.stringify([{ type: 'PrivateDataTracked', payload: { id: args.id }}]));
+        params.push(JSON.stringify([{ type: TRACK_EVENT, payload: { id: args.id }}]));
 
         return submit$('eventstore:createCommit', params, { network: network || context.network }).pipe(
           tap(commits => {

@@ -11,7 +11,7 @@ import { action as writeAction } from '../../cqrs/command';
 import { action as projectionAction } from '../../cqrs/projection';
 import { action as queryAction } from '../../cqrs/query';
 import { generateToken } from '../../cqrs/utils';
-import { BaseEntity, BaseEvent, Commit, EntityClass, Reducer, Repository } from '../../types';
+import { BaseEntity, BaseEvent, Commit, EntityClass, Reducer, Repository, trackingReducer } from '../../types';
 import { fromCommitsToGroupByEntityId } from './fromCommitsToGroupByEntityId';
 import { getHistory } from './getHistory';
 import { getPromiseToSave } from './getPromiseToSave';
@@ -61,7 +61,7 @@ export const repository: (option: {
 
             unsubscribe();
             resolve({
-              currentState: reducer(getHistory(result)),
+              currentState: Object.assign(reducer(getHistory(result)), trackingReducer(Object.values(result))),
               save: (events) =>
                 getPromiseToSave({
                   channelName,

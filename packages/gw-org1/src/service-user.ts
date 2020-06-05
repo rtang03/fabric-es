@@ -6,7 +6,7 @@ import { User, UserEvents, userReducer, userResolvers, userTypeDefs } from '@fab
 import { Wallets } from 'fabric-network';
 
 const logger = getLogger('service-user.js');
-const reducer = getReducer<User, UserEvents>(userReducer);
+const reducer = getReducer<User>(userReducer);
 
 (async () =>
   createService<User>({

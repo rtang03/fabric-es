@@ -5,7 +5,7 @@ const enrollmentId = '';
 const userId = 'USER002';
 const mockdb: Record<string, Commit> = {};
 const documentRepo = getMockRepository<Document, DocumentEvents>(
-  mockdb, 'document', getReducer<Document, DocumentEvents>(documentReducer)
+  mockdb, 'document', getReducer<Document>(documentReducer)
 );
 
 beforeAll(async () => {
