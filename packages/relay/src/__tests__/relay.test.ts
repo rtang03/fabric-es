@@ -5,7 +5,6 @@ import { processMsg, processMsgHandler } from '../processMsg';
 import { ReqRes } from '../reqres';
 import { relayService } from '../relayService';
 import request from 'supertest';
-import { constants } from 'buffer';
 
 const msg: ReqRes = {
   id: 'myId',
@@ -21,6 +20,7 @@ const rHost = '127.0.0.1';
 const rPort = 6379;
 const mockInSubscriber1 = jest.fn();
 const mockInSubscriber2 = jest.fn();
+const relayChannel = 'relay-channel';
 let publisher: RedisClient;
 let subscriber1: RedisClient, subscriber2: RedisClient;
 let redisContainer;
@@ -40,7 +40,7 @@ beforeAll(async () => {
   publisher = redis.createClient({ host: rHost, port: rPort });
   subscriber1 = redis.createClient({ host: rHost, port: rPort });
   subscriber2 = redis.createClient({ host: rHost, port: rPort });
-  relay = relayService({ targetUrl: 'http://localhost:4001', client: publisher, topic: 'relay-channel' });
+  relay = relayService({ targetUrl: 'http://localhost:4001', client: publisher, topic: relayChannel });
 
   subscriber1.on('message', (channel, message) => {
     console.log(`subscriber1 listening ${channel}: ${message}`);
@@ -65,6 +65,21 @@ afterAll(async () => {
 afterEach( () => {
   jest.clearAllMocks();
   jest.resetAllMocks();
+});
+
+describe('Process Message Handler', () => {
+
+  it('should save to Redis when no subscriber', async (done) => {
+    await processMsgHandler({ message: msg, client: publisher, topic: 'handle no subscriber' });
+    await new Promise(resolve => setTimeout(resolve, 500));
+    subscriber1.get(msg.id, (err, reply) => {
+      const replyObject = JSON.parse(reply);
+      console.log("From Redis DB:" + reply);
+      expect(replyObject).toEqual(msg);
+      done();
+    })
+  });
+
 });
 
 describe('Process Message', () => {
@@ -92,6 +107,7 @@ describe('Process Message', () => {
     const topic = '2 subscribers';
     subscriber1.subscribe(topic);
     subscriber2.subscribe(topic);
+    await new Promise(resolve => setTimeout(resolve, 1000));
     await processMsg({ message: msg, client: publisher, topic: topic })
       .then((numOfSub) => {
         expect(numOfSub).toEqual(2);
@@ -107,21 +123,6 @@ describe('Process Message', () => {
     });
     subscriber1.subscribe(topic);
     await processMsg({ message: msg, client: publisher, topic: topic });
-  });
-
-});
-
-describe('Process Message Handler', () => {
-
-  it('should save to Redis when no subscriber', async (done) => {
-    await processMsgHandler({ message: msg, client: publisher, topic: 'handle no subscriber' });
-    await new Promise(resolve => setTimeout(resolve, 500));
-    subscriber1.get(msg.id, (err, reply) => {
-      const replyObject = JSON.parse(reply);
-      console.log("From Redis DB:" + reply);
-      expect(replyObject).toEqual(msg);
-      done();
-    })
   });
 
 });
@@ -172,34 +173,36 @@ describe('Relay Service', () => {
     await request(relay).get(path).expect(200, { hello: 'world' });
   });
 
-//   it('should match message object for pub and sub with json body', async () => {
+  it('should match message object for pub and sub with json body', async (done) => {
 
-//     subscriber.on('message', async (channel, message) => {
-//       const subObj: ReqRes = JSON.parse(message);
-//       console.log(`message received: ${JSON.stringify(subObj)}`);
-//       expect(subObj).toMatchObject({ method: "POST", reqBody: body, statusCode: 204, url: { url: '/pub-sub', query: { abc: '123', def: '456' } } });
-//     });
+    mockInSubscriber2.mockImplementation((message) => {
+      const subObj: ReqRes = JSON.parse(message);
+      console.log(`Mock 2: ${JSON.stringify(subObj)}`);
+      expect(subObj).toMatchObject({ method: "POST", reqBody: body, statusCode: 204, url: { url: '/pub-sub', query: { abc: '123', def: '456' } } });
+      done();
+    });
+    subscriber2.subscribe(relayChannel);
 
-//     const path = '/pub-sub?abc=123&def=456';
-//     const body = { id: '1234' };
-//     mockyeah.post(path, { status: 204, json: req => req.body });
-//     await request(relay).post(path)
-//       .send(body)
-//       .set('Content-Type', 'application/json')
-//       .set('Accept', 'application/json')
-//       .expect(204);
-//  });
+    const path = '/pub-sub?abc=123&def=456';
+    const body = { id: '1234' };
+    mockyeah.post(path, { status: 204, json: req => req.body });
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await request(relay).post(path)
+      .send(body)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+  });
 
-//   it('should receive 400 when post text when content-type json', async () => {
+  it('should receive 400 when post text when content-type json', async () => {
 
-//     const path = '/pub-sub?abc=123&def=456';
-//     const body = 'I am a text';
-//     mockyeah.post(path, { status: 204, text: req => req.body });
-//     await request(relay).post(path)
-//       .send(body)
-//       .set('Content-Type', 'application/json')
-//       .set('Accept', 'application/json')
-//       .expect(400);
-//   });
+    const path = '/pub-sub?abc=123&def=456';
+    const body = 'I am a text';
+    mockyeah.post(path, { status: 204, text: req => req.body });
+    await request(relay).post(path)
+      .send(body)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .expect(400);
+  });
 
 });

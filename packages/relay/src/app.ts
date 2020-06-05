@@ -10,7 +10,20 @@ const REDIS_PORT = (parseInt(process.env.REDIS_PORT) || 6379) as number;
 const TOPIC = process.env.REDIS_TOPIC;
 
 const logger = getLogger('[relay] app.js');
-const client = redis.createClient({host: REDIS_HOST, port: REDIS_PORT });
+const client = redis.createClient({host: REDIS_HOST, port: REDIS_PORT,
+  retry_strategy: (options) => {
+    if (options.error) {
+      const e = options.error;
+      logger.error(`${e.message}(${e.code}).`);
+    }
+		if (options.total_retry_time > 1000 * 10) { //in ms i.e. 10 sec
+      logger.error(`Redis: connection retry time exceeded 10 seconds.`);  
+      process.exit(-1);
+    }
+		// reconnect after
+		return Math.min(options.attempt * 100, 3000); //in ms
+	}
+});
 
 client.on('error', (err) => {
   logger.error(`Redis Error: ${err}`);

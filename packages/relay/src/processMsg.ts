@@ -47,7 +47,8 @@ export const processMsgHandler = async ({
     (numberOfSubscribers) => {
       // Opps.. no subscriber is listening. Save record to Redis at best effort.
       if (numberOfSubscribers == 0) {
-        logger.error(`No subscriber listening for [${message.id}].`);
+        logger.error('No subscriber is listening for message [' + message.id +
+          ']. Attempting to save message to Redis.');
         const messageStr = JSON.stringify(message);
         logger.info(messageStr);
         client.set(message.id, messageStr);
