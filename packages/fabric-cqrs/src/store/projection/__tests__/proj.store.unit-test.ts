@@ -8,7 +8,7 @@ import {
   createQueryDatabase,
   dummyReducer,
   entityIndex,
-} from '../../../utils/queryHandler';
+} from '../../../queryHandler';
 import { action as queryAction } from '../../query';
 import { action as projAction, action } from '../action';
 import { commit, commits, newCommit, entityName } from './__utils__/data';

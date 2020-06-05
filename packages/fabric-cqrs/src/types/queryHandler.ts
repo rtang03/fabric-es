@@ -1,8 +1,14 @@
 import { Gateway, Network, Wallet } from 'fabric-network';
 import type { Logger } from 'winston';
-import type { QueryDatabase } from './queryDatabase';
-import type { BaseEvent, Commit, FabricResponse, Reducer } from '.';
-import { RepoFcn, RepoFcnId, SaveFcn } from '.';
+import type {
+  RepoFcn,
+  RepoFcnId,
+  QueryDatabase,
+  SaveFcn,
+  Commit,
+  FabricResponse,
+  Reducer,
+} from '.';
 
 export interface QueryHandlerOptions {
   queryDatabase: QueryDatabase;

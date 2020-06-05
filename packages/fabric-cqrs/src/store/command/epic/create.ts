@@ -7,7 +7,7 @@ import assign from 'lodash/assign';
 import { ofType } from 'redux-observable';
 import { from, Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
-import { getNetwork, submit$, submitPrivateData$ } from '../../../utils/services';
+import { getNetwork, submit$, submitPrivateData$ } from '../../../services';
 import { dispatchResult } from '../../utils';
 import { action } from '../action';
 import type { CreateAction } from '../types';

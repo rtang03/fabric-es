@@ -4,8 +4,7 @@ import type { Logger } from 'winston';
 import { action as commandAction } from '../store/command';
 import { action } from '../store/query';
 import type { Commit, SaveFcn, Reducer } from '../types';
-import { dispatcher } from './dispatcher';
-import { addTimestamp, getHistory, isCommitRecord } from '.';
+import { addTimestamp, dispatcher, getHistory, isCommitRecord } from '.';
 
 export const queryGetById: <TEntity, TEvent>(
   entityName: string,

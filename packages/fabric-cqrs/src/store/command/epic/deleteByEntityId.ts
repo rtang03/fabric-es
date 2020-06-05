@@ -6,7 +6,7 @@ import util from 'util';
 import { ofType } from 'redux-observable';
 import { Observable } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
-import { submit$ } from '../../../utils/services';
+import { submit$ } from '../../../services';
 import { dispatchResult } from '../../utils';
 import { action } from '../action';
 import type { DeleteByEntityIdAction } from '../types';

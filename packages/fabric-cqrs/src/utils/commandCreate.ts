@@ -3,9 +3,7 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action } from '../store/command';
 import type { Commit, SaveFcn } from '../types';
-import { addTimestamp } from './addTimestamp';
-import { dispatcher } from './dispatcher';
-import { isCommitRecord } from './typeGuard';
+import { addTimestamp, dispatcher, isCommitRecord } from '.';
 
 export const commandCreate: <TEvent = any>(
   entityName: string,

@@ -15,7 +15,7 @@ import {
   Counter,
   commitsToGroupByEntityId,
   commitIndex,
-} from '../../../utils/queryHandler';
+} from '../../../queryHandler';
 import { action } from '../action';
 import { commit, commits, newCommit, entityName } from './__utils__/data';
 import { getStore } from './__utils__/store';

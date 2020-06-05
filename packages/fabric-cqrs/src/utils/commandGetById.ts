@@ -3,8 +3,7 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action } from '../store/command';
 import type { Commit, SaveFcn, Reducer } from '../types';
-import { dispatcher } from './dispatcher';
-import { addTimestamp, getHistory, isCommitRecord } from '.';
+import { addTimestamp, dispatcher, getHistory, isCommitRecord } from '.';
 
 export const commandGetById: <TEntity, TEvent>(
   entityName: string,

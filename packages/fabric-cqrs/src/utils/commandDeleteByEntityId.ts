@@ -3,8 +3,7 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action } from '../store/command';
 import type { FabricResponse, RepoFcnId } from '../types';
-import { dispatcher } from './dispatcher';
-import { isFabricResponse } from './typeGuard';
+import { dispatcher, isFabricResponse } from '.';
 
 export const commandDeleteByEntityId: (
   entityName: string,

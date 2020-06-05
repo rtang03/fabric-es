@@ -1,9 +1,9 @@
 import { Store } from 'redux';
 import type { Logger } from 'winston';
+import { commitsToGroupByEntityId } from '../queryHandler';
 import { action } from '../store/query';
 import type { RepoFcn, Reducer } from '../types';
 import { dispatcher } from './dispatcher';
-import { commitsToGroupByEntityId } from './queryHandler';
 
 export const queryGetByEntityName: <TEntity>(
   entityName: string,

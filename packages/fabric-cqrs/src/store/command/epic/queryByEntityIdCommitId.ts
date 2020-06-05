@@ -5,7 +5,7 @@
 import { ofType } from 'redux-observable';
 import { Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
-import evaluate$ from '../../../utils/services/evaluate';
+import evaluate$ from '../../../services/evaluate';
 import { dispatchResult } from '../../utils';
 import { action } from '../action';
 import type { QueryByEntIdCommitIdAction } from '../types';

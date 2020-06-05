@@ -5,9 +5,9 @@ import values from 'lodash/values';
 import { Store } from 'redux';
 import rimraf from 'rimraf';
 import { registerUser } from '../../../account';
+import { getNetwork } from '../../../services';
 import type { Commit, FabricResponse } from '../../../types';
 import { dispatcher, getLogger, isCommitRecord } from '../../../utils';
-import { getNetwork } from '../../../utils/services';
 import { action } from '../action';
 import { getStore } from './__utils__/store';
 
@@ -90,7 +90,7 @@ beforeAll(async () => {
 afterAll(async () => {
   rimraf.sync(`${process.env.WALLET}/${enrollmentId}.id`);
   context.gateway.disconnect();
-  return new Promise((done) => setTimeout(() => done(), 2000));
+  return new Promise((done) => setTimeout(() => done(), 5000));
 });
 
 // failure tests are not required.

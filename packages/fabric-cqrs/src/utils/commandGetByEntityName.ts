@@ -3,8 +3,7 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action } from '../store/command';
 import type { Commit, RepoFcn } from '../types';
-import { dispatcher } from './dispatcher';
-import { isCommitRecord } from './typeGuard';
+import { dispatcher, isCommitRecord } from '.';
 
 export const commandGetByEntityName: (
   entityName: string,

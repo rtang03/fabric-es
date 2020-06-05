@@ -1,5 +1,4 @@
-import type { Commit} from './commit';
-import type { Reducer} from './reducer';
+import type { Commit, Reducer } from '.';
 
 export interface QueryDatabaseResponse<TResult = any> {
   status: string;

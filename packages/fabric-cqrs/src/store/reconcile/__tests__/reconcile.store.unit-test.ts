@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import { Store } from 'redux';
 import type { QueryDatabaseResponse } from '../../../types';
 import { dispatcher, getLogger } from '../../../utils';
-import { createQueryDatabase, dummyReducer } from '../../../utils/queryHandler';
+import { createQueryDatabase, dummyReducer } from '../../../queryHandler';
 import { action as queryAction } from '../../query';
 import { action } from '../action';
 import { entityName } from './__utils__/data';
