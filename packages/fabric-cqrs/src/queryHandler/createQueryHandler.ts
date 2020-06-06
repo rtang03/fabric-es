@@ -1,8 +1,8 @@
 import util from 'util';
 import { Contract, ContractListener, Network } from 'fabric-network';
 import { getStore } from '../store';
-import { action as queryAction } from '../store/query';
 import { action as projAction } from '../store/projection';
+import { action as queryAction } from '../store/query';
 import { action as reconcileAction } from '../store/reconcile';
 import type { Commit, QueryHandler, QueryHandlerOptions } from '../types';
 import {
@@ -12,13 +12,13 @@ import {
   dispatcher,
   getLogger,
   isCommit,
+  isCommitRecord,
   queryDeleteByEntityId,
   queryDeleteByEntityName,
   queryGetByEntityName,
   queryGetById,
   queryGetCommitById,
 } from '../utils';
-import { catchErrors } from '.';
 
 export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (
   options
@@ -50,7 +50,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
     command_getByEntityName: (entityName) =>
       commandGetByEntityName(entityName, false, commandOption),
     getById: <TEntity = any, TEvent = any>(entityName) =>
-      queryGetById<TEntity, TEvent>(entityName, false, commandOption),
+      queryGetById<TEntity, TEvent>(entityName, reducers[entityName], false, commandOption),
     getByEntityName: <TEntity = any>(entityName) =>
       queryGetByEntityName<TEntity>(entityName, reducers[entityName], queryOption),
     getCommitById: (entityName) => queryGetCommitById(entityName, queryOption),
@@ -66,6 +66,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           SuccessAction: queryAction.SEARCH_SUCCESS,
           ErrorAction: queryAction.SEARCH_ERROR,
           logger,
+          typeGuard: isCommitRecord,
         }
       ),
     fullTextSearchEntity: <TEntity>() =>

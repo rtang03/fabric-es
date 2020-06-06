@@ -9,13 +9,14 @@ import {
   queryGetCommitById,
   queryDeleteByEntityId,
   queryDeleteByEntityName,
-  queryGetById, commandGetByEntityIdCommitId
+  queryGetById,
+  commandGetByEntityIdCommitId,
 } from '../utils';
 
 export const createRepository: <TEntity = any, TEvent = any>(
   entityName: string,
   option: RepoOption
-) => Promise<Repository<TEntity, TEvent>> = async <TEntity, TEvent>(entityName, option) => {
+) => Repository<TEntity, TEvent> = <TEntity, TEvent>(entityName, option) => {
   const logger = option?.logger || getLogger({ name: '[fabric-cqrs] createRepository.js' });
   const {
     queryDatabase,
@@ -42,7 +43,7 @@ export const createRepository: <TEntity = any, TEvent = any>(
     command_deleteByEntityId: commandDeleteByEntityId(entityName, false, commandOption),
     command_getByEntityName: commandGetByEntityName(entityName, false, commandOption),
     command_getByEntityIdCommitId: commandGetByEntityIdCommitId(entityName, false, commandOption),
-    getById: queryGetById<TEntity, TEvent>(entityName, false, commandOption),
+    getById: queryGetById<TEntity, TEvent>(entityName, reducers[entityName], false, commandOption),
     getByEntityName: queryGetByEntityName<TEntity>(entityName, reducers[entityName], queryOption),
     getCommitById: queryGetCommitById(entityName, queryOption),
     query_deleteByEntityId: queryDeleteByEntityId(entityName, queryOption),

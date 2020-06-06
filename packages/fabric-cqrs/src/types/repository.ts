@@ -19,6 +19,7 @@ export interface PrivateRepoOption {
   wallet: Wallet;
   network: Network;
   gateway: Gateway;
+  reducers: Record<string, Reducer>;
   logger?: Logger;
 }
 
@@ -43,7 +44,6 @@ export interface Repository<TEntity = any, TEvent = any> {
   getById: (option: {
     enrollmentId: string;
     id: string;
-    reducer: Reducer;
   }) => Promise<{
     currentState: TEntity;
     save: SaveFcn<TEvent>;
@@ -64,7 +64,6 @@ export interface PrivateRepository<TEntity = any, TEvent = any> {
   getById: (option: {
     enrollmentId: string;
     id: string;
-    reducer: Reducer;
   }) => Promise<{
     currentState: TEntity;
     save: SaveFcn<TEvent>;

@@ -4,10 +4,10 @@ import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
 import { Commit } from '../../../types';
+import { dispatcher } from '../../../utils';
 import { action as projAction } from '../../projection';
 import { action } from '../action';
 import type { MergeEntityBatchAction } from '../types';
-import { dispatcher } from '../../../utils';
 
 const { MERGE_ENTITY_BATCH, reconcileSuccess, reconcileError } = action;
 

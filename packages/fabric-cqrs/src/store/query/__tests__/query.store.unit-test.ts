@@ -1,6 +1,13 @@
 require('dotenv').config({ path: './.env.test' });
 import Redis from 'ioredis';
 import { Store } from 'redux';
+import {
+  createQueryDatabase,
+  dummyReducer,
+  Counter,
+  commitsToGroupByEntityId,
+  commitIndex,
+} from '../../../queryHandler';
 import type {
   Commit,
   GetByEntityNameResponse,
@@ -9,13 +16,6 @@ import type {
   HandlerResponse,
 } from '../../../types';
 import { dispatcher, getLogger } from '../../../utils';
-import {
-  createQueryDatabase,
-  dummyReducer,
-  Counter,
-  commitsToGroupByEntityId,
-  commitIndex,
-} from '../../../queryHandler';
 import { action } from '../action';
 import { commit, commits, newCommit, entityName } from './__utils__/data';
 import { getStore } from './__utils__/store';

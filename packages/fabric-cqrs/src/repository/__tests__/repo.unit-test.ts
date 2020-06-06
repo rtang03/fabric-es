@@ -106,8 +106,9 @@ beforeAll(async () => {
       reducers,
       logger,
     });
+    1;
 
-    repo = await createRepository(entityName, {
+    repo = createRepository(entityName, {
       queryDatabase,
       gateway: context.gateway,
       network: context.network,
@@ -229,11 +230,7 @@ describe('Repository Test', () => {
     }));
 
   it('should getById, and then save new event', async () => {
-    const { save, currentState } = await repo.getById({
-      enrollmentId,
-      id,
-      reducer: reducers[entityName],
-    });
+    const { save, currentState } = await repo.getById({ enrollmentId, id });
 
     expect(omit(currentState, 'ts')).toEqual({
       value: 1,
@@ -262,16 +259,10 @@ describe('Repository Test', () => {
   });
 
   it('should verify result by getById, after #2 commit', async () =>
-    repo
-      .getById({
-        enrollmentId,
-        id,
-        reducer: reducers[entityName],
-      })
-      .then(({ currentState: { value, desc } }) => {
-        expect(value).toEqual(2);
-        expect(desc).toEqual('repo #2 create-test');
-      }));
+    repo.getById({ enrollmentId, id }).then(({ currentState: { value, desc } }) => {
+      expect(value).toEqual(2);
+      expect(desc).toEqual('repo #2 create-test');
+    }));
 
   it('should verify result by query_getCommitById, after #2 commit', async () =>
     repo.getCommitById({ id }).then(({ data, status }) => {

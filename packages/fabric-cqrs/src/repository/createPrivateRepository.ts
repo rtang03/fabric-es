@@ -12,9 +12,9 @@ import {
 export const createPrivateRepository: <TEntity = any, TEvent = any>(
   entityName: string,
   option: PrivateRepoOption
-) => Promise<PrivateRepository<TEntity, TEvent>> = async <TEntity, TEvent>(entityName, option) => {
+) => PrivateRepository<TEntity, TEvent> = <TEntity, TEvent>(entityName, option) => {
   const logger = option?.logger || getLogger({ name: '[fabric-cqrs] createPrivateRepository.js' });
-  const { gateway, network, channelName, connectionProfile, wallet } = option;
+  const { gateway, network, channelName, connectionProfile, wallet, reducers } = option;
 
   const store = getCommandStore({ network, gateway, logger });
   const commandOption = {
@@ -30,7 +30,7 @@ export const createPrivateRepository: <TEntity = any, TEvent = any>(
     getByEntityName: commandGetByEntityName(entityName, true, commandOption),
     getByEntityIdCommitId: commandGetByEntityIdCommitId(entityName, true, commandOption),
     deleteByEntityIdCommitId: commandDeleteByEntityIdCommitId(entityName, true, commandOption),
-    getById: commandGetById<TEntity, TEvent>(entityName, true, commandOption),
+    getById: commandGetById<TEntity, TEvent>(entityName, reducers[entityName], true, commandOption),
     getEntityName: () => entityName,
     disconnect: () => gateway.disconnect(),
   };

@@ -1,9 +1,9 @@
 require('dotenv').config({ path: './.env.test' });
 import Redis from 'ioredis';
 import { Store } from 'redux';
+import { createQueryDatabase, dummyReducer } from '../../../queryHandler';
 import type { QueryDatabaseResponse } from '../../../types';
 import { dispatcher, getLogger } from '../../../utils';
-import { createQueryDatabase, dummyReducer } from '../../../queryHandler';
 import { action as queryAction } from '../../query';
 import { action } from '../action';
 import { entityName } from './__utils__/data';

@@ -3,7 +3,12 @@ import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import { getLogger } from '..';
 import { shutdown } from '../utils';
-import { MISSING_CHANNELNAME, MISSING_CONNECTION_PROFILE, MISSING_FABRIC_NETWORK, MISSING_WALLET } from './constants';
+import {
+  MISSING_CHANNELNAME,
+  MISSING_CONNECTION_PROFILE,
+  MISSING_FABRIC_NETWORK,
+  MISSING_WALLET,
+} from './constants';
 import { createResolvers } from './createResolvers';
 import { typeDefs } from './typeDefs';
 
@@ -36,7 +41,7 @@ export const createAdminService: (option: {
   asLocalhost = true,
   playground = true,
   introspection = true,
-  enrollmentSecret = 'password'
+  enrollmentSecret = 'password',
 }) => {
   const logger = getLogger('[gw-lib] createAdminService.js');
 
@@ -70,7 +75,7 @@ export const createAdminService: (option: {
     wallet: await Wallets.newFileSystemWallet(walletPath),
     asLocalhost,
     mspId,
-    enrollmentSecret
+    enrollmentSecret,
   });
 
   logger.info('createResolvers complete');
@@ -82,11 +87,11 @@ export const createAdminService: (option: {
     context: ({ req: { headers } }) => ({
       user_id: headers.user_id,
       is_admin: headers.is_admin,
-      username: headers.username
-    })
+      username: headers.username,
+    }),
   });
   return {
     server,
-    shutdown: shutdown({ logger, name: 'Admin' })
+    shutdown: shutdown({ logger, name: 'Admin' }),
   };
 };

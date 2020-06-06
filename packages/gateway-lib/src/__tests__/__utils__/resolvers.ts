@@ -14,14 +14,16 @@ export const resolvers = {
         { counterId },
         {
           dataSources: {
-            counter: { repo }
+            counter: { repo },
           },
-          username
+          username,
         }: Context
       ): Promise<Counter> =>
-        repo.getById({ id: counterId, enrollmentId: username }).then(({ currentState }) => currentState),
+        repo
+          .getById({ id: counterId, enrollmentId: username })
+          .then(({ currentState }) => currentState),
       { fcnName: 'getCounter', logger, useAuth: true, useAdmin: false }
-    )
+    ),
   },
   Mutation: {
     increment: catchErrors(
@@ -30,15 +32,15 @@ export const resolvers = {
         { counterId },
         {
           dataSources: {
-            counter: { repo }
+            counter: { repo },
           },
           user_id,
-          username
+          username,
         }: Context
       ): Promise<Commit> =>
         commandHanlder({ enrollmentId: username, counterRepo: repo }).Increment({
           userId: user_id,
-          payload: { counterId, timestamp: Date.now() }
+          payload: { counterId, timestamp: Date.now() },
         }),
       { fcnName: 'increment', logger, useAuth: true, useAdmin: false }
     ),
@@ -48,17 +50,17 @@ export const resolvers = {
         { counterId },
         {
           dataSources: {
-            counter: { repo }
+            counter: { repo },
           },
           user_id,
-          username
+          username,
         }: Context
       ): Promise<Commit> =>
         commandHanlder({
           enrollmentId: username,
-          counterRepo: repo
+          counterRepo: repo,
         }).Decrement({ userId: user_id, payload: { counterId, timestamp: Date.now() } }),
       { fcnName: 'decrement', logger, useAuth: true, useAdmin: false }
-    )
-  }
+    ),
+  },
 };

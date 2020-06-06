@@ -7,6 +7,7 @@ import { addTimestamp, dispatcher, getHistory, isCommitRecord } from '.';
 
 export const commandGetById: <TEntity, TEvent>(
   entityName: string,
+  reducer: Reducer,
   isPrivateData: boolean,
   option: {
     channelName: string;
@@ -18,15 +19,15 @@ export const commandGetById: <TEntity, TEvent>(
 ) => (option: {
   enrollmentId: string;
   id: string;
-  reducer: Reducer;
 }) => Promise<{
   currentState: TEntity;
   save: SaveFcn<TEvent>;
 }> = <TEntity, TEvent>(
   entityName,
+  reducer,
   isPrivateData,
   { store, logger, wallet, connectionProfile, channelName }
-) => async ({ enrollmentId, id, reducer }) => {
+) => async ({ enrollmentId, id }) => {
   const { data } = await dispatcher<Record<string, Commit>, { entityName: string; id: string }>(
     ({ tx_id, args: { id, entityName } }) =>
       action.queryByEntityId({ tx_id, args: { id, entityName, isPrivateData } }),

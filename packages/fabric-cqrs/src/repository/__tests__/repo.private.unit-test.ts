@@ -86,13 +86,14 @@ beforeAll(async () => {
       asLocalhost: true,
     });
 
-    repo = await createPrivateRepository(entityName, {
+    repo = createPrivateRepository(entityName, {
       gateway: context.gateway,
       network: context.network,
       channelName,
       connectionProfile,
       wallet,
       logger,
+      reducers,
     });
 
     // tear up
@@ -158,7 +159,6 @@ describe('Private Repository Test', () => {
   it('should getById', async () => {
     const { currentState, save } = await repo.getById({
       enrollmentId,
-      reducer: reducers[entityName],
       id,
     });
 
@@ -193,6 +193,6 @@ describe('Private Repository Test', () => {
 
   it('should getById with value = 2', async () =>
     repo
-      .getById({ enrollmentId, id, reducer: reducers[entityName] })
+      .getById({ enrollmentId, id })
       .then(({ currentState }) => expect(currentState.value).toEqual(2)));
 });

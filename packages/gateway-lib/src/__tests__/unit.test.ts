@@ -4,6 +4,7 @@ import { ApolloServer } from 'apollo-server';
 import express from 'express';
 import { Wallets } from 'fabric-network';
 import httpStatus from 'http-status';
+import Redis from 'ioredis';
 import fetch from 'node-fetch';
 import rimraf from 'rimraf';
 import request from 'supertest';
@@ -19,8 +20,23 @@ import {
   LIST_WALLET,
 } from '../admin/query';
 import { QueryResponse } from '../types';
-import { createGateway, createService, isCaIdentity, isLoginResponse, isRegisterResponse } from '../utils';
-import { Counter, CounterEvents, DECREMENT, GET_COUNTER, INCREMENT, reducer, resolvers, typeDefs } from './__utils__';
+import {
+  createGateway,
+  createService,
+  isCaIdentity,
+  isLoginResponse,
+  isRegisterResponse,
+} from '../utils';
+import {
+  Counter,
+  CounterEvents,
+  DECREMENT,
+  GET_COUNTER,
+  INCREMENT,
+  reducer,
+  resolvers,
+  typeDefs,
+} from './__utils__';
 
 /**
  * pre-requisite: requires a running postgres, and redis, auth, e.g. ./dn-run.2-px-db-red-auth.sh
@@ -52,19 +68,22 @@ let modelApolloService: ApolloServer;
 let userId: string;
 let accessToken: string;
 let adminAccessToken: string;
+let redis: Redis.Redis;
 
 const MODEL_SERVICE_PORT = 15001;
 const ADMIN_SERVICE_PORT = 15000;
 const GATEWAY_PORT = 4000;
 
 /**
- * Pre-requisite: Run ~/deployments/dev-net/dn-run.1-px-db-red-auth.sh
+ * ./dn-run-1-px-db-red-auth.sh
  */
+
 beforeAll(async () => {
   rimraf.sync(`${walletPath}/${orgAdminId}.id`);
   rimraf.sync(`${walletPath}/${caAdmin}.id`);
 
   try {
+    redis = new Redis();
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     // Step 1: EnrollAdmin
     await enrollAdmin({
@@ -89,24 +108,24 @@ beforeAll(async () => {
     });
 
     // Step 3: Prepare Counter Model microservice
-    const modelService = await createService({
+    const { config, getRepository } = await createService({
       asLocalhost: true,
       channelName,
       connectionProfile,
-      defaultEntityName: 'counter',
-      defaultReducer: reducer,
+      serviceName: 'counter',
+      reducers: { counter: reducer },
       enrollmentId: orgAdminId,
       wallet,
+      redis,
     });
 
-    modelApolloService = await modelService
-      .config({ typeDefs, resolvers })
-      .addRepository(
-        modelService.getRepository<Counter, CounterEvents>({ entityName: 'counter', reducer })
-      )
+    modelApolloService = await config({ typeDefs, resolvers })
+      .addRepository(getRepository<Counter, CounterEvents>('counter'))
       .create();
 
-    await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () => console.log('model service started'));
+    await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () =>
+      console.log('model service started')
+    );
 
     // step 4: Prepare Admin microservice
     const service = await createAdminService({
@@ -126,7 +145,9 @@ beforeAll(async () => {
     });
     adminApolloService = service.server;
 
-    await adminApolloService.listen({ port: ADMIN_SERVICE_PORT }, () => console.log('admin service started'));
+    await adminApolloService.listen({ port: ADMIN_SERVICE_PORT }, () =>
+      console.log('admin service started')
+    );
 
     // Step 5: Prepare Federated Gateway
     app = await createGateway({
