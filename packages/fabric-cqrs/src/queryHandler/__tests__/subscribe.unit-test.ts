@@ -77,7 +77,7 @@ beforeAll(async () => {
       enrollmentId,
     });
 
-    queryHandler = await createQueryHandler({
+    queryHandler = createQueryHandler({
       gateway: networkConfig.gateway,
       network: networkConfig.network,
       queryDatabase,
@@ -100,7 +100,7 @@ beforeAll(async () => {
       .query_deleteByEntityName(entityName)()
       .then(({ data }) => console.log(`${data} record(s) deleted`));
 
-    await queryHandler.subscribeHub();
+    await queryHandler.subscribeHub([entityName]);
 
     await redis
       .send_command('FT.DROP', ['cidx'])

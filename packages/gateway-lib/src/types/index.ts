@@ -4,3 +4,4 @@ export * from './registerResponse';
 export * from './caIdentity';
 export * from './queryResponse';
 export * from './modelService';
+export * from './queryHandlerGqlCtx';

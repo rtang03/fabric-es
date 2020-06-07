@@ -1,33 +1,101 @@
+import util from 'util';
+import {
+  createQueryDatabase,
+  createQueryHandler,
+  getNetwork,
+  Reducer,
+} from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
+import { Gateway, Network, Wallet } from 'fabric-network';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
-import type { Redis } from 'ioredis';
-import { resolvers, typeDefs } from '.';
+import Redis, { RedisOptions } from 'ioredis';
+import { QueryHandlerGqlCtx } from '../types';
+import { getLogger } from '../utils';
+import { reconcile, rebuildIndex, resolvers, typeDefs } from '.';
 
-export const createQueryHandlerService: (option: {
-  publisher: Redis;
-  subscriber: Redis;
-  playground?: boolean;
-  introspection?: boolean;
-}) => Promise<ApolloServer> = async ({
-  publisher,
-  subscriber,
-  playground = true,
-  introspection = true,
-}) => {
-  const pubsub = new RedisPubSub({
-    publisher,
-    subscriber,
+export const createQueryHandlerService: (
+  entityNames: string[],
+  option: {
+    redisOptions: RedisOptions;
+    enrollmentId: string;
+    channelName: string;
+    connectionProfile: string;
+    asLocalhost: boolean;
+    wallet: Wallet;
+    reducers: Record<string, Reducer>;
+    playground?: boolean;
+    introspection?: boolean;
+  }
+) => Promise<ApolloServer> = async (
+  entityNames,
+  {
+    redisOptions,
+    enrollmentId,
+    connectionProfile,
+    channelName,
+    wallet,
+    asLocalhost,
+    reducers,
+    playground = true,
+    introspection = true,
+  }
+) => {
+  const logger = getLogger('[gateway-lib] createQueryHandlerService.js');
+  const publisher = new Redis(redisOptions);
+  const subscriber = new Redis(redisOptions);
+
+  let gateway: Gateway;
+  let network: Network;
+
+  try {
+    const networkConfig = await getNetwork({
+      discovery: true,
+      asLocalhost,
+      channelName,
+      connectionProfile,
+      wallet,
+      enrollmentId,
+    });
+    gateway = networkConfig.gateway;
+    network = networkConfig.network;
+  } catch (e) {
+    logger.error(util.format('fail to obtain Fabric network config, %j', e));
+    throw new Error(e);
+  }
+
+  // Step 1: Rebuild Index
+  await rebuildIndex(publisher, logger);
+
+  const pubSub = new RedisPubSub({ publisher, subscriber });
+  const queryDatabase = createQueryDatabase(publisher);
+  const queryHandler = createQueryHandler({
+    channelName,
+    connectionProfile,
+    gateway,
+    network,
+    queryDatabase,
+    reducers,
+    wallet,
+    pubSub,
   });
-  const payload = {
-    commentAdded: {
-      id: '1',
-      content: 'Hello!',
-    },
-  };
 
-  await pubsub.publish('TEST', payload);
+  try {
+    // Step 2: Subscribe Hub.
+    // Note: This may sometimes subscribe a pre-existing contract event (commit)
+    // from a running Fabric Peer. This commit is invalid, and be remove by step 3 below
+    await queryHandler.subscribeHub(entityNames);
+  } catch (e) {
+    logger.error(util.format('fail to subscribeHub, %j', e));
+    throw new Error(e);
+  }
 
-  // setup qh for subscribeHub, and pass into pubSub
+  try {
+    // Step 3: Clean up query-database, and Reconcile
+    await reconcile(entityNames, queryHandler, logger);
+  } catch (e) {
+    logger.error(util.format('fail to reconcile, %j', e));
+    throw new Error(e);
+  }
 
   return new ApolloServer({
     typeDefs,
@@ -51,7 +119,7 @@ export const createQueryHandlerService: (option: {
       // },
     },
     context: () => {
-      return { pubsub };
+      return { pubSub, queryHandler, queryDatabase, publisher } as QueryHandlerGqlCtx;
     },
   });
 };

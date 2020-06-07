@@ -96,7 +96,7 @@ beforeAll(async () => {
       asLocalhost: true,
     });
 
-    queryHandler = await createQueryHandler({
+    queryHandler = createQueryHandler({
       queryDatabase,
       connectionProfile,
       channelName,
@@ -120,7 +120,7 @@ beforeAll(async () => {
     });
 
     // invoke contract listener
-    await queryHandler.subscribeHub();
+    await queryHandler.subscribeHub([entityName]);
 
     await redis
       .send_command('FT.DROP', ['cidx'])
@@ -141,6 +141,8 @@ beforeAll(async () => {
       .send_command('FT.CREATE', entityIndex)
       .then((result) => console.log(`eidx is created: ${result}`))
       .catch((result) => console.log(`eidx is not created: ${result}`));
+
+    await repo.command_deleteByEntityId({ id }).then(({ status }) => console.log(status));
   } catch (e) {
     console.error('Bootstrap network error');
     console.error(e);

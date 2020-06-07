@@ -16,12 +16,17 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
         const data = onSuccess ? onSuccess(result) : result;
 
         if (typeGuard)
-          if (typeGuard(result)) resolve({ data });
-          else {
+          if (typeGuard(result)) {
+            // logger.debug(util.format('actionName %s, tx_id: %s resolved', name, tx_id));
+            resolve({ data });
+          } else {
             logger.error(util.format('fail to pass TypeGuard, %s, %j', name, result));
             reject(`fail to pass TypeGuard: ${name}`);
           }
-        else resolve({ data });
+        else {
+          // logger.debug(util.format('actionName %s, tx_id: %s resolved', name, tx_id));
+          resolve({ data });
+        }
       }
 
       if (tx_id === tid && type === ErrorAction) {
@@ -43,7 +48,7 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
 
     store.dispatch(actionDispatcher({ tx_id: tid, args }));
 
-    logger.info(util.format('[dispatcher] action name: %s, tx_id: %s dispatched', name, tid));
+    logger.info(util.format('[dispatcher] actionName: %s, tx_id: %s dispatched', name, tid));
   })
     .then(({ data }) => ({
       status: 'OK',

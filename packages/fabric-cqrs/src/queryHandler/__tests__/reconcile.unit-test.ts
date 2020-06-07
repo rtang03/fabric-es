@@ -77,7 +77,7 @@ beforeAll(async () => {
       enrollmentId,
     });
 
-    queryHandler = await createQueryHandler({
+    queryHandler = createQueryHandler({
       gateway: networkConfig.gateway,
       network: networkConfig.network,
       queryDatabase,

@@ -4,7 +4,7 @@ import { getStore } from '../store';
 import { action as projAction } from '../store/projection';
 import { action as queryAction } from '../store/query';
 import { action as reconcileAction } from '../store/reconcile';
-import type { Commit, QueryHandler, QueryHandlerOptions } from '../types';
+import type { Commit, PubSubPayload, QueryHandler, QueryHandlerOptions } from '../types';
 import {
   commandCreate,
   commandDeleteByEntityId,
@@ -20,10 +20,16 @@ import {
   queryGetCommitById,
 } from '../utils';
 
-export const createQueryHandler: (options: QueryHandlerOptions) => Promise<QueryHandler> = async (
-  options
-) => {
-  const { gateway, queryDatabase, channelName, wallet, connectionProfile, reducers } = options;
+export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler = (options) => {
+  const {
+    gateway,
+    queryDatabase,
+    channelName,
+    wallet,
+    connectionProfile,
+    reducers,
+    pubSub,
+  } = options;
   const logger = getLogger({ name: '[query-handler] createQueryHandler.js' });
   options.queryDatabase = queryDatabase;
   options.logger = logger;
@@ -34,13 +40,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
   let contract: Contract;
   let network: Network;
 
-  const commandOption = {
-    logger,
-    wallet,
-    store,
-    connectionProfile,
-    channelName,
-  };
+  const commandOption = { logger, wallet, store, connectionProfile, channelName };
   const queryOption = { logger, store };
 
   return {
@@ -84,7 +84,14 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
     reconcile: () =>
       dispatcher<{ key: string; status: string }[], { entityName: string }>(
         ({ tx_id, args }) =>
-          reconcileAction.reconcile({ tx_id, args, store, channelName, connectionProfile, wallet }),
+          reconcileAction.reconcile({
+            tx_id,
+            args,
+            store,
+            channelName,
+            connectionProfile,
+            wallet,
+          }),
         {
           name: 'reconcile',
           store,
@@ -94,19 +101,21 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
           logger,
         }
       ),
-    subscribeHub: async () => {
+    subscribeHub: async (entityNames) => {
       logger.info('♨️  subscribe channel event hub');
       network = await gateway.getNetwork(channelName);
       contract = network.getContract('eventstore');
       contractListener = network.getContract('eventstore').addContractListener(
         async ({ payload, eventName, getTransactionEvent }) => {
           logger.info(`💢  event arrives - tx_id: ${getTransactionEvent().transactionId}`);
+          // check eventName
           let commit: unknown;
           if (eventName !== 'createCommit') {
             logger.warn(`receive unexpected contract event: ${eventName}`);
             return;
           }
 
+          // parse commit
           try {
             commit = JSON.parse(payload.toString('utf8'));
           } catch (e) {
@@ -114,7 +123,21 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
             return;
           }
 
+          // check commit type
           if (isCommit(commit)) {
+            // filter subscribed entityNames
+            if (!entityNames.includes(commit?.entityName)) {
+              logger.warn(
+                util.format(
+                  'receive commit of unsubscribed entityName, %s:%s',
+                  commit.entityName,
+                  commit.id
+                )
+              );
+              return;
+            }
+
+            // dispatch
             const mergeEntityResult = await dispatcher<
               { key: string; status: string },
               { commit: Commit }
@@ -127,13 +150,30 @@ export const createQueryHandler: (options: QueryHandlerOptions) => Promise<Query
               logger,
             })({ commit });
 
-            logger.info(
-              util.format('mergeComit: %j', mergeEntityResult?.data || 'no data written')
-            );
+            if (mergeEntityResult.status === 'OK')
+              logger.info(
+                util.format('mergeComit: %j', mergeEntityResult?.data || 'no data written')
+              );
+            else logger.error(util.format('fail to mergeEntity, %j', mergeEntityResult));
 
-            // step 3.
-            // Send to pubsub
-          } else logger.warn(util.format('receive contract events of unknown type, %j', commit));
+            // send merged entity to PubSub
+            if (pubSub && mergeEntityResult.status === 'OK') {
+              const events = [];
+              commit.events.forEach((event) => events.push(event?.type));
+
+              await pubSub
+                .publish<PubSubPayload>('COMMIT_ARRIVED', {
+                  entityAdded: {
+                    commit,
+                    events,
+                    key: mergeEntityResult?.data[0]?.key,
+                  },
+                })
+                .catch((e) => {
+                  logger.error(util.format('fail to publish commit, %j, %j ', commit, e));
+                });
+            }
+          } else logger.error(util.format('receive commit of unknown type, %j', commit));
         },
         { type: 'full' }
       );

@@ -88,10 +88,30 @@ beforeAll(async () => {
   }
 });
 
-afterAll(() => {
+afterAll(async () => {
+  await dispatcher<FabricResponse, { id: string }>(
+    ({ tx_id, args: { id } }) =>
+      action.deleteByEntityId({
+        tx_id,
+        channelName,
+        connectionProfile,
+        wallet,
+        args: { id, entityName, isPrivateData: false },
+      }),
+    {
+      ErrorAction: action.DELETE_ERROR,
+      SuccessAction: action.DELETE_SUCCESS,
+      logger,
+      name: 'deleteByEntityId',
+      slice: 'write',
+      store,
+    }
+  )({ id }).then(({ status }) => console.log(status));
+
   rimraf.sync(`${process.env.WALLET}/${enrollmentId}.id`);
+
   context.gateway.disconnect();
-  return new Promise((done) => setTimeout(() => done(), 5000));
+  return new Promise((done) => setTimeout(() => done(), 2000));
 });
 
 describe('Store/command: failure tests', () => {

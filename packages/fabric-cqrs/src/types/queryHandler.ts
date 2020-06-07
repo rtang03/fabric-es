@@ -1,4 +1,5 @@
 import { Gateway, Network, Wallet } from 'fabric-network';
+import { RedisPubSub } from 'graphql-redis-subscriptions';
 import type { Logger } from 'winston';
 import type {
   RepoFcn,
@@ -18,6 +19,7 @@ export interface QueryHandlerOptions {
   wallet: Wallet;
   connectionProfile: string;
   reducers: Record<string, Reducer>;
+  pubSub?: RedisPubSub;
   logger?: Logger;
 }
 
@@ -62,10 +64,7 @@ export interface QueryHandler {
   reconcile: () => (payload: {
     entityName: string;
   }) => Promise<HandlerResponse<{ key: string; status: string }[]>>;
-  subscribeHub: () => Promise<any>;
+  subscribeHub: (entityNames: string[]) => Promise<any>;
   unsubscribeHub: () => void;
   disconnect: () => void;
-  // fullTextSearchCIdx: (option: {
-  //   query: string;
-  // }) => Promise<HandlerResponse<Record<string, Commit>>>;
 }

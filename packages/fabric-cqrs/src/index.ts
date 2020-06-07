@@ -14,7 +14,7 @@ export {
 } from './services';
 export * from './types';
 export { isCommit, getHistory } from './utils';
-export { createQueryDatabase, createQueryHandler } from './queryHandler';
+export { commitIndex, entityIndex, createQueryDatabase, createQueryHandler } from './queryHandler';
 export { createRepository, createPrivateRepository } from './repository';
-
-// export { fromCommitsToGroupByEntityId, getHistory, isCommit } from './peer/utils';
+import { reducer as counterReducer } from './unit-test-reducer';
+export { counterReducer };

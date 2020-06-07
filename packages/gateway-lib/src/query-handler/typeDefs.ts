@@ -8,19 +8,23 @@ export const typeDefs = gql`
   }
 
   type Subscription {
-    somethingChanged: Result
+    pong: String
+    entityAdded(entityName: String): Notification
   }
 
-  type Result {
-    id: String
+  type Notification {
+    events: [String]
+    key: String
   }
 
   type Query {
-    queryByEntityId(entityName: String!, id: String!): [Commit]
+    me: String
   }
 
   type Mutation {
-    addMessage(message: String): Boolean
+    ping(message: String): Boolean
+    reloadEntities(entityNames: [String]): Boolean
+    createCommit(entityName: String, id: String, type: String, payloadString: String): Commit
   }
 
   type Commit {

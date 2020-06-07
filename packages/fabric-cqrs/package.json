@@ -45,7 +45,7 @@
     "t:sub": "jest --forceExit --detectOpenHandles subscribe.unit-test",
     "t:qdb": "jest --forceExit --detectOpenHandles qdb.unit-test",
     "t:store": "yarn test:store-cmd && yarn test:store-cmd-pri && yarn test:store-query && yarn test:store-proj && yarn test:store-rec",
-    "unit-test:fab": "jest store.unit-test && yarn t:srv && yarn t:repo && yarn t:p-repo && yarn t:rec && yarn t:sub yarn t:qdb"
+    "unit-test:fab": "yarn t:store && yarn t:srv && yarn t:repo && yarn t:p-repo && yarn t:rec && yarn t:sub yarn t:qdb"
   },
   "dependencies": {
     "@fabric-es/operator": "^0.6.2",
@@ -53,6 +53,7 @@
     "fabric-client": "2.0.0-snapshot.326",
     "fabric-contract-api": "^2.1.2",
     "fabric-network": "2.0.0-snapshot.348",
+    "graphql-redis-subscriptions": "^2.2.1",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
     "redux": "^4.0.4",

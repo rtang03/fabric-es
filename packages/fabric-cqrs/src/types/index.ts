@@ -11,3 +11,4 @@ export * from './queryDatabase';
 export * from './fabricResponse';
 export * from './queryHandler';
 export * from './dispatcher';
+export * from './pubSubPayload';
