@@ -55,7 +55,7 @@ beforeAll(async () => {
       retryStrategy: (times) => Math.min(times * 50, 2000),
     };
 
-    const qhService = await createQueryHandlerService(['counter'], {
+    const qhService = await createQueryHandlerService([entityName], {
       redisOptions,
       asLocalhost: !(process.env.NODE_ENV === 'production'),
       channelName,
@@ -104,7 +104,7 @@ beforeAll(async () => {
   }
 });
 
-// the tests in queryHandler shall perform cleanup, for both command & query; so that
+// Tear-down the tests in queryHandler shall perform cleanup, for both command & query; so that
 // unit-test can run repeatedly
 afterAll(async () => {
   await publisher

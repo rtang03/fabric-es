@@ -1,3 +1,4 @@
+import { Commit, HandlerResponse } from '@fabric-es/fabric-cqrs';
 import { DataSource } from 'apollo-datasource';
 export { catchErrors } from './utils/catchErrors';
 export { createGateway } from './utils/createGateway';
@@ -22,7 +23,9 @@ export class DataSrc<TRepo = any> extends DataSource {
   }
 }
 
-export type CommandHandler<T> = { [C in keyof T]: (command: T[C]) => Promise<any> };
+export type CommandHandler<TCommand> = {
+  [C in keyof TCommand]: (command: TCommand[C]) => Promise<Commit>;
+};
 
 export const Errors = {
   insufficientPrivilege: () => new Error('INSUFFICIENT_PRIVILEGE'),

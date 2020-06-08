@@ -1,10 +1,13 @@
 require('dotenv').config({ path: './.env.test' });
+import type { QueryHandler } from '@fabric-es/fabric-cqrs';
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import express from 'express';
 import { Wallets } from 'fabric-network';
 import httpStatus from 'http-status';
 import Redis from 'ioredis';
+import keys from 'lodash/keys';
+import values from 'lodash/values';
 import fetch from 'node-fetch';
 import rimraf from 'rimraf';
 import request from 'supertest';
@@ -19,10 +22,12 @@ import {
   GET_WALLET,
   LIST_WALLET,
 } from '../admin/query';
+import { createQueryHandlerService, rebuildIndex } from '../query-handler';
 import { QueryResponse } from '../types';
 import {
   createGateway,
   createService,
+  getLogger,
   isCaIdentity,
   isLoginResponse,
   isRegisterResponse,
@@ -39,7 +44,9 @@ import {
 } from './__utils__';
 
 /**
- * pre-requisite: requires a running postgres, and redis, auth, e.g. ./dn-run.2-px-db-red-auth.sh
+ * ./dn-run.1-px-db-red-auth.sh or ./dn-run.2-px-db-red-auth.sh
+ * note: this is using counter inside __utils__. The counter has no 'desc' 'tag'. And hence,
+ * no full text search is available. This is intentionally made to minimal implementation.
  */
 
 const proxyServerUri = `${process.env.PROXY_SERVER}`;
@@ -61,6 +68,9 @@ const username = `gw_test_username_${random}`;
 const password = `password`;
 const email = `gw_test_${random}@test.com`;
 const counterId = `counter_${random}`;
+const entityName = 'counter';
+const enrollmentId = orgAdminId;
+const logger = getLogger('[gateway-lib] counter.unit-test.js');
 
 let app: express.Express;
 let adminApolloService: ApolloServer;
@@ -69,10 +79,14 @@ let userId: string;
 let accessToken: string;
 let adminAccessToken: string;
 let redis: Redis.Redis;
+let queryHandlerServer: ApolloServer;
+let queryHandler: QueryHandler;
+let publisher: Redis.Redis;
 
 const MODEL_SERVICE_PORT = 15001;
 const ADMIN_SERVICE_PORT = 15000;
 const GATEWAY_PORT = 4000;
+const QH_PORT = 4400;
 
 /**
  * ./dn-run-1-px-db-red-auth.sh
@@ -84,6 +98,7 @@ beforeAll(async () => {
 
   try {
     redis = new Redis();
+
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     // Step 1: EnrollAdmin
     await enrollAdmin({
@@ -120,7 +135,7 @@ beforeAll(async () => {
     });
 
     modelApolloService = await config({ typeDefs, resolvers })
-      .addRepository(getRepository<Counter, CounterEvents>('counter'))
+      .addRepository(getRepository<Counter, CounterEvents>(entityName))
       .create();
 
     await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () =>
@@ -158,6 +173,49 @@ beforeAll(async () => {
       authenticationCheck: `${proxyServerUri}/oauth/authenticate`,
     });
 
+    // Step 6: Start Query-Handler
+    const qhService = await createQueryHandlerService([entityName], {
+      redisOptions: { host: 'localhost', port: 6379 },
+      asLocalhost: !(process.env.NODE_ENV === 'production'),
+      channelName,
+      connectionProfile,
+      enrollmentId,
+      reducers: { counter: reducer },
+      wallet,
+    });
+
+    queryHandlerServer = qhService.server;
+    queryHandler = qhService.queryHandler;
+    publisher = qhService.publisher;
+
+    // setup
+    await rebuildIndex(publisher, logger);
+
+    const { data } = await queryHandler.command_getByEntityName('counter')();
+
+    if (keys(data).length > 0) {
+      for await (const { id } of values(data)) {
+        await queryHandler
+          .command_deleteByEntityId(entityName)({ id })
+          .then(({ status }) =>
+            console.log(
+              `setup: command_deleteByEntityId, status: ${status}, ${entityName}:${id} deleted`
+            )
+          );
+      }
+    }
+
+    await queryHandler
+      .query_deleteByEntityName(entityName)()
+      .then(({ status }) =>
+        console.log(`set-up: query_deleteByEntityName, ${entityName}, status: ${status}`)
+      );
+
+    await queryHandlerServer.listen({ port: QH_PORT }, () =>
+      console.log('queryHandler server started')
+    );
+
+    // Step 7: Start Gateway
     return new Promise((done) =>
       app.listen(GATEWAY_PORT, () => {
         console.log('🚀  Federated Gateway started');
@@ -170,10 +228,35 @@ beforeAll(async () => {
   }
 });
 
+// Tear-down the tests in queryHandler shall perform cleanup, for both command & query; so that
+// unit-test can run repeatedly
 afterAll(async () => {
+  await publisher
+    .send_command('FT.DROP', ['cidx'])
+    .then((result) => console.log(`cidx is dropped: ${result}`))
+    .catch((result) => console.log(`cidx is not dropped: ${result}`));
+
+  await publisher
+    .send_command('FT.DROP', ['eidx'])
+    .then((result) => console.log(`eidx is dropped: ${result}`))
+    .catch((result) => console.log(`eidx is not dropped: ${result}`));
+
+  await queryHandler
+    .query_deleteByEntityName(entityName)()
+    .then(({ status }) =>
+      console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
+    );
+
+  await queryHandler
+    .command_deleteByEntityId(entityName)({ id: counterId })
+    .then(({ status }) =>
+      console.log(`tear-down: command_deleteByEntityId, ${entityName}:${counterId}, status: ${status}`)
+    );
+
   await modelApolloService.stop();
   await adminApolloService.stop();
-  return new Promise((done) => setTimeout(() => done(), 5000));
+  await queryHandlerServer.stop();
+  return new Promise((done) => setTimeout(() => done(), 3000));
 });
 
 describe('Gateway Test - admin service', () => {
