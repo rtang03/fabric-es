@@ -1,4 +1,4 @@
-export * from './queryDatabase';
-export * from './queryHandler';
+export * from '@fabric-es/gateway-lib/dist/query-handler/query/queryDatabase';
+export * from '@fabric-es/gateway-lib/dist/query-handler/query/queryHandler';
 export * from './dispatcher';
-export * from './fabricResponse';
+export * from '@fabric-es/gateway-lib/dist/query-handler/query/fabricResponse';

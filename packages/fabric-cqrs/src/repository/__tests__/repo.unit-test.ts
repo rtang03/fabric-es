@@ -106,9 +106,8 @@ beforeAll(async () => {
       reducers,
       logger,
     });
-    1;
 
-    repo = createRepository(entityName, {
+    repo = createRepository<Counter, CounterEvent>(entityName, {
       queryDatabase,
       gateway: context.gateway,
       network: context.network,

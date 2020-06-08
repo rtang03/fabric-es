@@ -1,6 +1,8 @@
-import util from 'util';
 import { Commit } from '@fabric-es/fabric-cqrs';
+import { ApolloError } from 'apollo-server';
 import { withFilter } from 'graphql-subscriptions';
+import assign from 'lodash/assign';
+import values from 'lodash/values';
 import { QueryHandlerGqlCtx } from '../types';
 import { catchErrors, getLogger } from '../utils';
 import { rebuildIndex } from './rebuildIndex';
@@ -27,46 +29,62 @@ export const resolvers = {
     ),
     createCommit: catchErrors(
       async (_, { entityName, id, type, payloadString }, { queryHandler }: QueryHandlerGqlCtx) => {
-        // const payload1 = { id, desc: 'query handler #1 sub-test', tag: 'subcription' };
         const payload = JSON.parse(payloadString);
 
         const { data } = await queryHandler
           .create(entityName)({ enrollmentId: 'admin-org1.net', id })
           .save({ events: [{ type, payload }] });
 
-        return Object.values(data)[0];
+        return values(data)[0];
       },
-      {
-        fcnName: 'createCommit',
-        useAuth: false,
-        useAdmin: false,
-        logger,
-      }
+      { fcnName: 'createCommit', useAuth: false, useAdmin: false, logger }
     ),
   },
   Query: {
     me: () => 'Hello',
-    // queryByEntityName: async (
-    //   _,
-    //   { entityName, entityId },
-    //   { pubsub }: { pubsub: RedisPubSub }
-    // ): Promise<Commit[]> => {
-    //   return [
-    //     {
-    //       id: '',
-    //       entityName: '',
-    //       commitId: '',
-    //       version: 0,
-    //       entityId: '',
-    //       events: [],
-    //     },
-    //   ];
-    // },
+    fullTextSearchCommit: catchErrors(
+      async (
+        _,
+        { query },
+        { queryHandler }: QueryHandlerGqlCtx
+      ): Promise<Commit[] | ApolloError> => {
+        const { data, error, status } = await queryHandler.fullTextSearchCommit()({ query });
+        if (status !== 'OK') return new ApolloError(JSON.stringify(error));
+
+        return data
+          ? values<Commit>(data).map((commit) =>
+              assign({}, commit, { eventsString: JSON.stringify(commit.events) })
+            )
+          : null;
+      },
+      { fcnName: 'fullTextSearchCommit', useAdmin: false, useAuth: false, logger }
+    ),
+    fullTextSearchEntity: catchErrors(
+      async (
+        _,
+        { query },
+        { queryHandler }: QueryHandlerGqlCtx
+      ): Promise<{ entityName: string; id: string; value: string }[] | ApolloError> => {
+        const { data, error, status } = await queryHandler.fullTextSearchEntity()({ query });
+
+        if (status !== 'OK') return new ApolloError(JSON.stringify(error));
+
+        return data
+          ? Object.entries(data).map(([key, value]) => ({
+              value: JSON.stringify(value),
+              entityName: key.split('::')[0],
+              id: key.split('::')[1],
+            }))
+          : null;
+      },
+      { fcnName: 'fullTextSearchEntity', useAdmin: false, useAuth: false, logger }
+    ),
   },
   Subscription: {
     pong: {
       subscribe: (_, __, { pubSub }: QueryHandlerGqlCtx) => {
         logger.info(`pubSub triggered: ${DEV} - ping`);
+
         return pubSub.asyncIterator([DEV]);
       },
     },

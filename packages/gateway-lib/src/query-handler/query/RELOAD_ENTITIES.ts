@@ -1,5 +1,5 @@
 // prettier-ignore
-export const QUERY_BY_ENTITYNAME = `
+export const RELOAD_ENTITIES = `
   mutation CreateWallet {
     createWallet
   }

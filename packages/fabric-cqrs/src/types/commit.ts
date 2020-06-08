@@ -48,4 +48,6 @@ export interface Commit {
 
   /** hash of privatedata's events string */
   hash?: string;
+
+  eventsString?: string;
 }

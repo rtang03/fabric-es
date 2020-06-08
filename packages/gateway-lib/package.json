@@ -32,7 +32,8 @@
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "prepublish": "yarn typedoc && yarn tsc:prod",
     "publish:gh:fabric-es": "npm publish",
-    "dev:qh": "yarn build && node ./dist/query-handler/app.js"
+    "dev:query-handler": "yarn build && node ./dist/query-handler/app.js",
+    "unit-test-qh": "jest --forceExit --detectOpenHandles queryHandler.unit-test"
   },
   "dependencies": {
     "@apollo/federation": "^0.16.0",

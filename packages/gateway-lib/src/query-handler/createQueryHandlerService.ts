@@ -3,6 +3,7 @@ import {
   createQueryDatabase,
   createQueryHandler,
   getNetwork,
+  QueryHandler,
   Reducer,
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
@@ -26,7 +27,7 @@ export const createQueryHandlerService: (
     playground?: boolean;
     introspection?: boolean;
   }
-) => Promise<ApolloServer> = async (
+) => Promise<{ server: ApolloServer; queryHandler: QueryHandler; publisher: Redis.Redis }> = async (
   entityNames,
   {
     redisOptions,
@@ -88,7 +89,6 @@ export const createQueryHandlerService: (
     logger.error(util.format('fail to subscribeHub, %j', e));
     throw new Error(e);
   }
-
   try {
     // Step 3: Clean up query-database, and Reconcile
     await reconcile(entityNames, queryHandler, logger);
@@ -97,7 +97,7 @@ export const createQueryHandlerService: (
     throw new Error(e);
   }
 
-  return new ApolloServer({
+  const server = new ApolloServer({
     typeDefs,
     resolvers,
     playground,
@@ -122,4 +122,6 @@ export const createQueryHandlerService: (
       return { pubSub, queryHandler, queryDatabase, publisher } as QueryHandlerGqlCtx;
     },
   });
+
+  return { server, queryHandler, publisher };
 };

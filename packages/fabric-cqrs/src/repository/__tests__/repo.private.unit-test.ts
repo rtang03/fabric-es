@@ -86,7 +86,7 @@ beforeAll(async () => {
       asLocalhost: true,
     });
 
-    repo = createPrivateRepository(entityName, {
+    repo = createPrivateRepository<Counter, CounterEvent>(entityName, {
       gateway: context.gateway,
       network: context.network,
       channelName,

@@ -160,7 +160,7 @@ beforeAll(async () => {
 
     return new Promise((done) =>
       app.listen(GATEWAY_PORT, () => {
-        console.log('Gateway started');
+        console.log('🚀  Federated Gateway started');
         done();
       })
     );

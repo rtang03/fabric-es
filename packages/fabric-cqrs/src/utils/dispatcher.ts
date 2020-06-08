@@ -16,15 +16,18 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
         const data = onSuccess ? onSuccess(result) : result;
 
         if (typeGuard)
-          if (typeGuard(result)) {
-            // logger.debug(util.format('actionName %s, tx_id: %s resolved', name, tx_id));
+          if (result === null) {
+            logger.info(util.format('actionName %s, tx_id: %s resolved', name, tx_id));
+            resolve({ data: null });
+          } else if (typeGuard(result)) {
+            logger.info(util.format('actionName %s, tx_id: %s resolved', name, tx_id));
             resolve({ data });
           } else {
             logger.error(util.format('fail to pass TypeGuard, %s, %j', name, result));
             reject(`fail to pass TypeGuard: ${name}`);
           }
         else {
-          // logger.debug(util.format('actionName %s, tx_id: %s resolved', name, tx_id));
+          logger.info(util.format('actionName %s, tx_id: %s resolved', name, tx_id));
           resolve({ data });
         }
       }

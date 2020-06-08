@@ -16,7 +16,7 @@ const logger = getLogger('[query-handler] app.js');
     retryStrategy: (times) => Math.min(times * 50, 2000),
   };
 
-  const server = await createQueryHandlerService(['counter'], {
+  const { server } = await createQueryHandlerService(['counter'], {
     redisOptions,
     asLocalhost: !(process.env.NODE_ENV === 'production'),
     channelName: process.env.CHANNEL_NAME,

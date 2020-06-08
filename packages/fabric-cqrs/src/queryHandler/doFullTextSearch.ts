@@ -11,16 +11,19 @@ export const doFullTextSearch: <T = any>(
   { index, redis, logger }
 ) => {
   const searchResultParser = (searchedResult: any[]) => {
-    const count = searchedResult[0];
     const data = drop(searchedResult);
+    const count = data.length / 2;
     const result = {};
     for (let i = 0; i < count; i++) {
-      const len = data[i * 2 + 1].length / 2;
-      const obj = {};
-      for (let j = 0; j < len; j++) {
-        obj[data[i * 2 + 1][j * 2]] = data[i * 2 + 1][j * 2 + 1];
+      // this avoids un-expected null record from redis search
+      if (data[i * 2 + 1]) {
+        const numberOfFields = data[i * 2 + 1].length / 2;
+        const obj = {};
+        for (let j = 0; j < numberOfFields; j++) {
+          obj[data[i * 2 + 1][j * 2]] = data[i * 2 + 1][j * 2 + 1];
+        }
+        result[data[i * 2]] = obj;
       }
-      result[data[i * 2]] = obj;
     }
     return result;
   };
