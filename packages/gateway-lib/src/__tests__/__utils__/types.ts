@@ -5,7 +5,6 @@ export interface CounterCommands {
   Increment: {
     userId: string;
     payload: {
-      id: string;
       counterId: string;
       timestamp: number;
     };
@@ -13,7 +12,6 @@ export interface CounterCommands {
   Decrement: {
     userId: string;
     payload: {
-      id: string;
       counterId: string;
       timestamp: number;
     };
@@ -23,7 +21,8 @@ export interface CounterCommands {
 export interface CounterEvent {
   type: string;
   payload: {
-    id: string;
+    id?: string;
+    counterId?: string;
     desc?: string;
     tag?: string;
     ts?: number;

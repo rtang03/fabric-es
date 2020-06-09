@@ -14,7 +14,6 @@ export const commandHanlder: (option: {
             type: 'Increment',
             payload: {
               counterId,
-              timestamp,
             },
           },
         ],
@@ -29,7 +28,6 @@ export const commandHanlder: (option: {
             type: 'Decrement',
             payload: {
               counterId,
-              timestamp,
             },
           },
         ],
