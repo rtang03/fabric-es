@@ -33,7 +33,11 @@ export default (
         promise = reducer
           ? queryDatabase
               .mergeEntity({ commit, reducer })
-              .then(({ result }) => mergeEntitySuccess({ tx_id, result }))
+              .then(({ result, status, error }) =>
+                status === 'OK'
+                  ? mergeEntitySuccess({ tx_id, result })
+                  : mergeEntityError({ tx_id, error })
+              )
               .catch((error) => {
                 logger.warn(
                   util.format(

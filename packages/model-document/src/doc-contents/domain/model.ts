@@ -14,6 +14,7 @@ export type FileContent = {
 export class DocContents {
   static type: 'DocContents';
 
+  id: string;
   documentId: string;
   content: DataContent | FileContent;
   timestamp: number;

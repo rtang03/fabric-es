@@ -6,6 +6,8 @@
 export class User {
   static type: 'user';
 
+  id: string;
+
   userId: string;
 
   name: string;

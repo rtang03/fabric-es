@@ -250,7 +250,9 @@ afterAll(async () => {
   await queryHandler
     .command_deleteByEntityId(entityName)({ id: counterId })
     .then(({ status }) =>
-      console.log(`tear-down: command_deleteByEntityId, ${entityName}:${counterId}, status: ${status}`)
+      console.log(
+        `tear-down: command_deleteByEntityId, ${entityName}:${counterId}, status: ${status}`
+      )
     );
 
   await modelApolloService.stop();
@@ -491,7 +493,7 @@ describe('Gateway Test - admin service', () => {
       .send({
         operationName: 'Increment',
         query: INCREMENT,
-        variables: { counterId },
+        variables: { counterId, id: counterId },
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.increment.id).toEqual(counterId);
@@ -507,7 +509,7 @@ describe('Gateway Test - admin service', () => {
       .send({
         operationName: 'Increment',
         query: INCREMENT,
-        variables: { counterId },
+        variables: { counterId, id: counterId},
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.increment.id).toEqual(counterId);
@@ -560,3 +562,4 @@ describe('Gateway Test - admin service', () => {
         expect(errors).toBeUndefined();
       }));
 });
+

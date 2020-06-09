@@ -97,5 +97,8 @@ export const resolvers = {
         ({ entityAdded }, variables) => entityAdded.commit.entityName === variables.entityName
       ),
     },
+    systemEvent: {
+      subscribe: (_, __, { pubSub }: QueryHandlerGqlCtx) => pubSub.asyncIterator('SYSTEM_EVENT'),
+    },
   },
 };

@@ -1,3 +1,18 @@
+## v.Next
+### Added
+- relay package
+- queryHandler package
+- full text search
+- apollo-subscription
+- redis-based queryDatabase
+
+### Modified
+- dev-net to using queryHandler
+- replace "getProjection" function with "find" function
+
+### Removed
+- projectionDatabase
+
 ## [0.6.2] - 2020-4-10
 ### Added
 - GraphQL resolver APIs for searching the projectionDb

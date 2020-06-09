@@ -4,6 +4,7 @@ export interface QueryDatabaseResponse<TResult = any> {
   status: string;
   message: string;
   result?: TResult;
+  error?: any;
 }
 
 export interface QueryDatabase {

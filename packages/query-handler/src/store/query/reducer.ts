@@ -6,7 +6,7 @@ import {
   State,
 } from '@fabric-es/fabric-cqrs';
 import { Reducer } from 'redux';
-import { getReducer } from '../../utils/getReducer';
+import { getReducer } from '@fabric-es/fabric-cqrs/dist/queryHandler/__tests__/__utils__/getReducer';
 import { action } from './action';
 
 const {

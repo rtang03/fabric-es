@@ -12,6 +12,7 @@ import type {
 } from '.';
 
 export interface QueryHandlerOptions {
+  entityNames: string[];
   queryDatabase: QueryDatabase;
   gateway: Gateway;
   network: Network;

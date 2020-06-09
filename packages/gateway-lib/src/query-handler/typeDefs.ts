@@ -9,10 +9,19 @@ export const typeDefs = gql`
 
   type Subscription {
     pong: String
-    entityAdded(entityName: String): Notification
+    entityAdded(entityName: String): EntityArrived
+    systemEvent: Notification
   }
 
   type Notification {
+    event: String
+    message: String
+    status: String
+    error: String
+    timestamp: Float
+  }
+
+  type EntityArrived {
     events: [String]
     key: String
   }

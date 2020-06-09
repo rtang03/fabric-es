@@ -38,7 +38,11 @@ export default (
         promise = reducer
           ? queryDatabase
               .mergeEntityBatch({ entityName, commits, reducer })
-              .then(({ result }) => mergeEntityBatchSuccess({ tx_id, result }))
+              .then(({ result, status, error }) =>
+                status === 'OK'
+                  ? mergeEntityBatchSuccess({ tx_id, result })
+                  : mergeEntityBatchError({ tx_id, error })
+              )
               .catch((error) => {
                 logger.warn(
                   util.format(

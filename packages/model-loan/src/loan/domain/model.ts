@@ -15,6 +15,7 @@ export enum LoanStatus {
 export class Loan {
   static type: 'Loan';
 
+  id: string;
   loanId: string;
   ownerId: string;
   description: string;

@@ -97,6 +97,7 @@ beforeAll(async () => {
     });
 
     queryHandler = createQueryHandler({
+      entityNames: [entityName],
       queryDatabase,
       connectionProfile,
       channelName,

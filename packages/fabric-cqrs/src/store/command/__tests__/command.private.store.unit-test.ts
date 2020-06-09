@@ -75,7 +75,7 @@ beforeAll(async () => {
       wallet,
       enrollmentId,
       discovery: false,
-      asLocalhost: true,
+      asLocalhost: !(process.env.NODE_ENV === 'production'),
     });
 
     context.logger = logger;
@@ -125,7 +125,6 @@ describe('Store:privatedata Tests', () => {
       expect(commit.version).toEqual(0);
       commitId = commit.commitId;
     }));
-
 
   it('should queryByEntityIdCommitId', async () =>
     dispatcher<Record<string, Commit>, { id: string; commitId: string }>(
@@ -222,7 +221,7 @@ describe('Store:privatedata Tests', () => {
           channelName,
           connectionProfile,
           enrollmentId,
-          args: { entityName, id, commitId, isPrivateData: false },
+          args: { entityName, id, commitId, isPrivateData: true },
         }),
       {
         SuccessAction: action.DELETE_SUCCESS,
@@ -247,7 +246,7 @@ describe('Store:privatedata Tests', () => {
           channelName,
           connectionProfile,
           enrollmentId,
-          args: { entityName, id, commitId, isPrivateData: false },
+          args: { entityName, id, commitId, isPrivateData: true },
         }),
       {
         SuccessAction: action.DELETE_SUCCESS,
@@ -258,9 +257,7 @@ describe('Store:privatedata Tests', () => {
         store,
       }
     )({ id, commitId }).then(({ data, status, error }) => {
-      expect(status).toEqual('OK');
-      expect(data?.message).toEqual('commitId does not exist');
-      expect(error).toBeUndefined();
+      expect(status).toEqual('ERROR');
+      expect(error).toContain('commitId does not exist');
     }));
-
 });

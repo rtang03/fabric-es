@@ -7,3 +7,14 @@ export interface PubSubPayload {
     key: string;
   };
 }
+
+export interface PubSubSysEvent {
+  systemEvent: {
+    event: string;
+    data?: any;
+    message?: string;
+    status?: string;
+    error?: string;
+    timestamp: number;
+  };
+}

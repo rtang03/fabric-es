@@ -52,9 +52,9 @@ const logger = getLogger('[query-handler] app.js');
     process.exit();
   };
 
-  process.on('SIGINT', () => shutdown());
+  process.on('SIGINT', async () => shutdown());
 
-  process.on('SIGTERM', () => shutdown());
+  process.on('SIGTERM', async () => shutdown());
 
   process.on('uncaughtException', (err) => {
     logger.error('An uncaught error occurred!');

@@ -3,6 +3,7 @@ import { User, userCommandHandler } from '../user';
 import { userRepo } from './__utils__';
 
 const user: User = {
+  id: 'id0001',
   userId: 'id0001',
   name: 'Mr Test',
   mergedUserIds: ['id0001']

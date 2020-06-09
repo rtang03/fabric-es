@@ -4,7 +4,13 @@ import { getStore } from '../store';
 import { action as projAction } from '../store/projection';
 import { action as queryAction } from '../store/query';
 import { action as reconcileAction } from '../store/reconcile';
-import type { Commit, PubSubPayload, QueryHandler, QueryHandlerOptions } from '../types';
+import type {
+  Commit,
+  PubSubPayload,
+  PubSubSysEvent,
+  QueryHandler,
+  QueryHandlerOptions,
+} from '../types';
 import {
   commandCreate,
   commandDeleteByEntityId,
@@ -22,6 +28,7 @@ import {
 
 export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler = (options) => {
   const {
+    entityNames,
     gateway,
     queryDatabase,
     channelName,
@@ -44,7 +51,11 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
   const queryOption = { logger, store };
 
   return {
-    create: <TEvent = any>(entityName) => commandCreate<TEvent>(entityName, false, commandOption),
+    create: <TEvent = any>(entityName) => {
+      if (!entityNames.includes(entityName)) throw new Error('invalid entityName');
+
+      return commandCreate<TEvent>(entityName, false, commandOption);
+    },
     command_deleteByEntityId: (entityName) =>
       commandDeleteByEntityId(entityName, false, commandOption),
     command_getByEntityName: (entityName) =>
@@ -172,6 +183,15 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
                 .catch((e) => {
                   logger.error(util.format('fail to publish commit, %j, %j ', commit, e));
                 });
+            } else if (pubSub && mergeEntityResult.status !== 'OK') {
+              await pubSub.publish<PubSubSysEvent>('SYSTEM_EVENT', {
+                systemEvent: {
+                  ...mergeEntityResult,
+                  error: JSON.stringify(mergeEntityResult?.error),
+                  event: 'FAIL_TO_MERGE_ENTITY_TO_QDB',
+                  timestamp: Date.now(),
+                },
+              });
             }
           } else logger.error(util.format('receive commit of unknown type, %j', commit));
         },

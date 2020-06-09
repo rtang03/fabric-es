@@ -78,6 +78,7 @@ beforeAll(async () => {
     });
 
     queryHandler = createQueryHandler({
+      entityNames: [entityName],
       gateway: networkConfig.gateway,
       network: networkConfig.network,
       queryDatabase,

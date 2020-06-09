@@ -200,7 +200,17 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         const mergedResult = isEqual(commitsInRedis, [])
           ? commitToMerge
           : assign({}, arraysToCommitRecords(commitsInRedis), commitToMerge);
-        const currentState: TEntity = reducer(getHistory(values(mergedResult)));
+        const currentState = reducer(getHistory(values(mergedResult)));
+
+        if (!currentState?.id)
+          return {
+            status: 'ERROR',
+            message: 'fail to reduce to currentState',
+            error: new Error(
+              `fail to reduce, entityName: ${commit.entityName} entityId: ${commit.id}, commitid: ${commit.commitId}`
+            ),
+          };
+
         redisKeyEntity = `${commit.entityName}::${commit.entityId}`;
 
         // (1) add newly computed entity
@@ -244,8 +254,14 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       const filterCommits = filter(commits, (item) => entityName === item.entityName);
       const group: Record<string, Commit[]> = groupBy(filterCommits, ({ id }) => id);
       const entities = [];
+      const error = [];
+
       keys(group).forEach((id) => {
-        entities.push(assign({ id }, reducer(getHistory(values(group[id])))));
+        const reduced = reducer(getHistory(values(group[id])));
+
+        if (reduced?.id) entities.push(assign({ id }, reduced));
+
+        else error.push({ id });
       });
 
       try {
@@ -263,7 +279,12 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         throw e;
       }
 
-      return { status: 'OK', message: `${result.length} entitie(s) are merged`, result };
+      return {
+        status: error.length === 0 ? 'OK' : 'ERROR',
+        message: `${result.length} entitie(s) are merged`,
+        result,
+        error: error.length === 0 ? null : error,
+      };
     },
     fullTextSearchCommit: async <TEntity>({ query }) => {
       if (!query) throw new Error('invalid input argument');

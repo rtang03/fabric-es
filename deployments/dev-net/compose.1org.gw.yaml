@@ -18,6 +18,8 @@ services:
       - GATEWAY_HOST=gw-org1
       - GATEWAY_PORT=4001
       - TEMP_REMOTE_URI=http://gw-org2:4001/graphql\ http://gw-org3:4001/graphql
+      - REDIS_HOST=redis01
+      - REDIS_PORT=6379
     working_dir: /home/app/packages/gw-org1
     ports:
       - 4001:4001

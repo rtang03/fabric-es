@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import { entityIndex, createQueryDatabase, commitIndex } from '..';
 import type { QueryDatabase } from '../../types';
 import { reducer } from '../../unit-test-reducer';
-import { commit, commits, newCommit } from './__utils__/qdb.data';
+import { commit, commits, newCommit, simpleCounterReducer } from './__utils__';
 
 let queryDatabase: QueryDatabase;
 let redis: Redis.Redis;
@@ -66,15 +66,24 @@ afterAll(async () => {
     .then((result) => console.log(`cidx is dropped: ${result}`))
     .catch((result) => console.log(`cidx is not dropped: ${result}`));
 
-  await queryDatabase
-    .deleteCommitByEntityName({ entityName: commit.entityName })
-    .then(({ message }) => console.log(message))
-    .catch((result) => console.log(result));
+  // await queryDatabase
+  //   .deleteCommitByEntityName({ entityName: commit.entityName })
+  //   .then(({ message }) => console.log(message))
+  //   .catch((result) => console.log(result));
 
   return new Promise((done) => setTimeout(() => done(), 2000));
 });
 
 describe('Projection db test', () => {
+  it('should fail to mergeEntity with BAD reducer', async () =>
+    queryDatabase
+      .mergeEntity({ commit: newCommit, reducer: simpleCounterReducer })
+      .then(({ status, message, error }) => {
+        expect(status).toEqual('ERROR');
+        expect(message).toEqual('fail to reduce to currentState');
+        expect(error.message).toContain('fail to reduce');
+      }));
+
   it('should merge', async () =>
     queryDatabase.mergeEntity({ commit: newCommit, reducer }).then((result) =>
       expect(result).toEqual({
@@ -89,6 +98,18 @@ describe('Projection db test', () => {
       })
     ));
 
+  it('should fail to mergeEntityBatch with BAD reducer', async () =>
+    queryDatabase
+      .mergeEntityBatch({
+        entityName: commit.entityName,
+        reducer: simpleCounterReducer,
+        commits,
+      })
+      .then(({ status, error, message }) => {
+        expect(status).toEqual('ERROR');
+        expect(error).toEqual([{ id: 'qh_proj_test_002' }, { id: 'qh_proj_test_003' }]);
+      }));
+
   it('should mergeBatch', async () =>
     queryDatabase
       .mergeEntityBatch({ entityName: commit.entityName, reducer, commits })
@@ -100,6 +121,7 @@ describe('Projection db test', () => {
             { key: 'test_proj::qh_proj_test_002', status: 'OK' },
             { key: 'test_proj::qh_proj_test_003', status: 'OK' },
           ],
+          error: null,
         });
       }));
 

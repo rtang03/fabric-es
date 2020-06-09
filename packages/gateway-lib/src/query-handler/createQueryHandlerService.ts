@@ -70,6 +70,7 @@ export const createQueryHandlerService: (
   const pubSub = new RedisPubSub({ publisher, subscriber });
   const queryDatabase = createQueryDatabase(publisher);
   const queryHandler = createQueryHandler({
+    entityNames,
     channelName,
     connectionProfile,
     gateway,

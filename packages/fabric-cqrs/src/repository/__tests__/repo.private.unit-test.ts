@@ -119,7 +119,7 @@ afterAll(async () => {
   return new Promise((done) => setTimeout(() => done(), 3000));
 });
 
-describe('Private Repository Test', () => {
+describe('Private Repository Test - Part 1', () => {
   it('should get entityName', async () => repo.getEntityName() === entityName);
 
   it('should Increment #1', async () =>
@@ -135,6 +135,10 @@ describe('Private Repository Test', () => {
         expect(commit.version).toEqual(0);
         commitId = commit.commitId;
       }));
+});
+
+describe('Private Repository Test - Part 2', () => {
+  beforeAll(() => new Promise((resolve) => setTimeout(() => resolve(), 5000)));
 
   it('should getByEntityName', async () =>
     repo.getCommitByEntityName().then(({ data, status }) => {
