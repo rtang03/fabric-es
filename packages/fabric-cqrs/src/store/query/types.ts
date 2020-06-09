@@ -79,3 +79,15 @@ export interface EIdxSearchAction {
     };
   };
 }
+
+export interface FindAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: {
+      entityName: string;
+      byId?: string;
+      byDesc?: string;
+    };
+  };
+}

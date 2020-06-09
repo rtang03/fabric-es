@@ -7,6 +7,8 @@ export { getLogger } from './utils/getLogger';
 export { createAdminService } from './admin/createAdminService';
 export { createRemoteService } from './remote/createRemoteService';
 export { RemoteData } from './remote/remoteData';
+export { createQueryHandlerService } from './query-handler';
+
 export * from './admin/query';
 
 export class DataSrc<TRepo = any> extends DataSource {

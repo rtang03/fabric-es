@@ -2,7 +2,7 @@ import { Wallet } from 'fabric-network';
 import { Store } from 'redux';
 import { Logger } from 'winston';
 import { action } from '../store/command';
-import type { Commit, RepoFcnIdCommitId } from '../types';
+import type { Commit, RepoFcn_IdCommitId } from '../types';
 import { dispatcher, isCommitRecord } from '.';
 
 export const commandGetByEntityIdCommitId: (
@@ -15,7 +15,7 @@ export const commandGetByEntityIdCommitId: (
     wallet: Wallet;
     store: Store;
   }
-) => RepoFcnIdCommitId<Record<string, Commit>> = (
+) => RepoFcn_IdCommitId<Record<string, Commit>> = (
   entityName,
   isPrivateData,
   { store, logger, connectionProfile, channelName, wallet }

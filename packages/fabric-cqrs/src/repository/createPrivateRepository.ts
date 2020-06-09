@@ -27,8 +27,8 @@ export const createPrivateRepository: <TEntity = any, TEvent = any>(
 
   return {
     create: commandCreate<TEvent>(entityName, true, commandOption),
-    getByEntityName: commandGetByEntityName(entityName, true, commandOption),
-    getByEntityIdCommitId: commandGetByEntityIdCommitId(entityName, true, commandOption),
+    getCommitByEntityName: commandGetByEntityName(entityName, true, commandOption),
+    getCommitByEntityIdCommitId: commandGetByEntityIdCommitId(entityName, true, commandOption),
     deleteByEntityIdCommitId: commandDeleteByEntityIdCommitId(entityName, true, commandOption),
     getById: commandGetById<TEntity, TEvent>(entityName, reducers[entityName], true, commandOption),
     getEntityName: () => entityName,

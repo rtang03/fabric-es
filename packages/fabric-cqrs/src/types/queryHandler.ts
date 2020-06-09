@@ -3,7 +3,7 @@ import { RedisPubSub } from 'graphql-redis-subscriptions';
 import type { Logger } from 'winston';
 import type {
   RepoFcn,
-  RepoFcnId,
+  RepoFcn_Id,
   QueryDatabase,
   SaveFcn,
   Commit,
@@ -39,7 +39,7 @@ export interface QueryHandler {
   create: <TEvent>(
     entityName: string
   ) => (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
-  command_deleteByEntityId: (entityName: string) => RepoFcnId<FabricResponse>;
+  command_deleteByEntityId: (entityName: string) => RepoFcn_Id<FabricResponse>;
   command_getByEntityName: (entityName: string) => RepoFcn<Record<string, Commit>>;
   getById: <TEntity, TEvent>(
     entityName: string
@@ -52,8 +52,8 @@ export interface QueryHandler {
     save: SaveFcn<TEvent>;
   }>;
   getByEntityName: <TEntity = any>(entityName: string) => RepoFcn<TEntity[]>;
-  getCommitById: (entityName: string) => RepoFcnId<Commit[]>;
-  query_deleteByEntityId: (entityName: string) => RepoFcnId<number>;
+  getCommitById: (entityName: string) => RepoFcn_Id<Commit[]>;
+  query_deleteByEntityId: (entityName: string) => RepoFcn_Id<number>;
   query_deleteByEntityName: (entityName: string) => RepoFcn<number>;
   fullTextSearchCommit: () => (payload: {
     query: string;

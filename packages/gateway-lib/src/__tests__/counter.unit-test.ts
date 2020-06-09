@@ -204,7 +204,7 @@ beforeAll(async () => {
           );
       }
     }
-
+    // clean up pre existing Redis
     await queryHandler
       .query_deleteByEntityName(entityName)()
       .then(({ status }) =>

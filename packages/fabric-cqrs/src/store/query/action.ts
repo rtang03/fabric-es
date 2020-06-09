@@ -8,6 +8,7 @@ import type {
   QueryByEntityNameAction,
   EIdxSearchAction,
   CIdxSearchAction,
+  FindAction,
 } from './types';
 
 const DELETE_BY_ENTITYNAME = '[Query-Db] Delete entities by EntityName';
@@ -28,6 +29,9 @@ const CIDX_SEARCH = '[Query-Db] cidx Search';
 const EIDX_SEARCH = '[Query-Db] eidx Search';
 const SEARCH_SUCCESS = '[Query-Db] Search Success';
 const SEARCH_ERROR = '[Query-Db] Search Error';
+const FIND = '[Query-Db] Find';
+const FIND_SUCCESS = '[Query-Db] Find Success';
+const FIND_ERROR = '[Query-Db] Find Error';
 
 export const action = {
   DELETE_BY_ENTITYNAME,
@@ -48,6 +52,9 @@ export const action = {
   EIDX_SEARCH,
   SEARCH_SUCCESS,
   SEARCH_ERROR,
+  FIND,
+  FIND_SUCCESS,
+  FIND_ERROR,
   deleteByEntityId: getAction<DeleteByEntityIdAction>(DELETE_BY_ENTITY_ID),
   deleteByEntityName: getAction<DeleteByEntityNameAction>(DELETE_BY_ENTITYNAME),
   mergeCommit: getAction<MergeAction>(MERGE_COMMIT),
@@ -66,4 +73,7 @@ export const action = {
   eIdxSearch: getAction<EIdxSearchAction>(EIDX_SEARCH),
   searchSuccess: getSuccessAction(SEARCH_SUCCESS),
   searchError: getErrorAction(SEARCH_ERROR),
+  find: getAction<FindAction>(FIND),
+  findSuccess: getSuccessAction(FIND_SUCCESS),
+  findError: getErrorAction(FIND_ERROR)
 };

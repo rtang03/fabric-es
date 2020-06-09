@@ -160,7 +160,12 @@ afterAll(async () => {
     .then((result) => console.log(`eidx is dropped: ${result}`))
     .catch((result) => console.log(`eidx is not dropped: ${result}`));
 
-  // disconnect gateway
+  await repo
+    .query_deleteByEntityName()
+    .then(({ data, status }) =>
+      console.log(`${entityName}: ${data} record(s) deleted, status: ${status}`)
+    );
+
   repo.disconnect();
 
   queryHandler.unsubscribeHub();
@@ -255,9 +260,11 @@ describe('Repository Test', () => {
       expect(commit.entityName).toEqual(entityName);
       expect(commit.version).toEqual(1);
     });
-
-    return waitForSecond(15);
   });
+});
+
+describe('Verify Result', () => {
+  beforeAll(() => new Promise((done) => setTimeout(() => done(), 10000)));
 
   it('should verify result by getById, after #2 commit', async () =>
     repo.getById({ enrollmentId, id }).then(({ currentState: { value, desc } }) => {
@@ -289,10 +296,39 @@ describe('Repository Test', () => {
       });
     }));
 
-  // todo: should add test for Full Text Search Here
-
-  it('should query_deleteByEntityName', async () =>
-    repo.query_deleteByEntityName().then(({ data, status }) => {
+  it('should find by entityId', async () =>
+    repo.find({ byId: id }).then(({ data, status }) => {
       expect(status).toEqual('OK');
+      const counter = values(data)[0];
+      expect(omit(counter, 'ts')).toEqual({
+        value: 2,
+        id: 'repo_test_counter_001',
+        desc: 'repo #2 create-test',
+        tag: 'repo-test',
+      });
+    }));
+
+  it('should find by desc with wildcard', async () =>
+    repo.find({ byDesc: 'repo*' }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      const counter = values(data)[0];
+      expect(omit(counter, 'ts')).toEqual({
+        value: 2,
+        id: 'repo_test_counter_001',
+        desc: 'repo #2 create-test',
+        tag: 'repo-test',
+      });
+    }));
+
+  it('should find by entityId, and desc with wildcard', async () =>
+    repo.find({ byId: id, byDesc: 'repo*' }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      const counter = values(data)[0];
+      expect(omit(counter, 'ts')).toEqual({
+        value: 2,
+        id: 'repo_test_counter_001',
+        desc: 'repo #2 create-test',
+        tag: 'repo-test',
+      });
     }));
 });

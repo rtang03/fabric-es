@@ -11,6 +11,7 @@ import {
   queryDeleteByEntityName,
   queryGetById,
   commandGetByEntityIdCommitId,
+  queryFind,
 } from '../utils';
 
 export const createRepository: <TEntity = any, TEvent = any>(
@@ -27,7 +28,6 @@ export const createRepository: <TEntity = any, TEvent = any>(
     connectionProfile,
     wallet,
   } = option;
-
   const store = getStore({ queryDatabase, network, gateway, reducers, logger });
   const commandOption = {
     logger,
@@ -48,6 +48,7 @@ export const createRepository: <TEntity = any, TEvent = any>(
     getCommitById: queryGetCommitById(entityName, queryOption),
     query_deleteByEntityId: queryDeleteByEntityId(entityName, queryOption),
     query_deleteByEntityName: queryDeleteByEntityName(entityName, queryOption),
+    find: queryFind<TEntity>(entityName, queryOption),
     getEntityName: () => entityName,
     disconnect: () => gateway.disconnect(),
   };

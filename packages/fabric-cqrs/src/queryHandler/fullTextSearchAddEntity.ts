@@ -6,6 +6,8 @@ export const entityIndex = [
   'key',
   'TEXT',
   'SORTABLE',
+  'entname',
+  'TEXT',
   'id',
   'TEXT',
   'SORTABLE',
@@ -17,12 +19,25 @@ export const entityIndex = [
 
 export const createEntityIndex: (option: {
   documentId: string;
+  entityName: string;
   redisKey: string;
   id: string;
   desc?: string;
   tag?: string;
-}) => any[] = ({ documentId, redisKey, id, desc, tag }) => {
-  const result = ['eidx', documentId, 1.0, 'REPLACE', 'FIELDS', 'key', redisKey, 'id', id];
+}) => any[] = ({ documentId, redisKey, entityName, id, desc, tag }) => {
+  const result = [
+    'eidx',
+    documentId,
+    1.0,
+    'REPLACE',
+    'FIELDS',
+    'key',
+    redisKey,
+    'entname',
+    entityName,
+    'id',
+    id,
+  ];
 
   if (desc) {
     result.push('desc');
@@ -46,6 +61,7 @@ export const fullTextSearchAddEntity = async <
 ) => {
   const index = createEntityIndex({
     documentId: `eidx::${redisKey}`,
+    entityName: redisKey.split('::')[0],
     redisKey,
     id: entity.id,
     desc: entity?.desc,

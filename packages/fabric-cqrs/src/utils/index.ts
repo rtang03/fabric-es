@@ -17,3 +17,4 @@ export * from './queryGetById';
 export * from './commandDeleteByEntityIdCommitId';
 export * from './commandGetById';
 export * from './commandGetByEntityIdCommitId';
+export * from './queryFind';

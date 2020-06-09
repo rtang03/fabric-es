@@ -29,18 +29,25 @@ export type SaveFcn<TEvent> = (payload: {
 
 export type RepoFcn<TResponse> = () => Promise<HandlerResponse<TResponse>>;
 
-export type RepoFcnId<TResponse> = (payload: { id: string }) => Promise<HandlerResponse<TResponse>>;
+export type RepoFcn_Id<TResponse> = (payload: {
+  id: string;
+}) => Promise<HandlerResponse<TResponse>>;
 
-export type RepoFcnIdCommitId<TResponse> = (payload: {
+export type RepoFcn_IdCommitId<TResponse> = (payload: {
   id: string;
   commitId: string;
 }) => Promise<HandlerResponse<TResponse>>;
 
+export type RepoFcn_find<TResponse> = (criteria: {
+  byId?: string;
+  byDesc?: string;
+}) => Promise<HandlerResponse<TResponse>>;
+
 export interface Repository<TEntity = any, TEvent = any> {
   create: (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
-  command_deleteByEntityId: RepoFcnId<FabricResponse>;
+  command_deleteByEntityId: RepoFcn_Id<FabricResponse>;
   command_getByEntityName: RepoFcn<Record<string, Commit>>;
-  command_getByEntityIdCommitId: RepoFcnIdCommitId<Record<string, Commit>>;
+  command_getByEntityIdCommitId?: RepoFcn_IdCommitId<Record<string, Commit>>;
   getById: (option: {
     enrollmentId: string;
     id: string;
@@ -49,18 +56,19 @@ export interface Repository<TEntity = any, TEvent = any> {
     save: SaveFcn<TEvent>;
   }>;
   getByEntityName: RepoFcn<TEntity[]>;
-  getCommitById: RepoFcnId<Commit[]>;
-  query_deleteByEntityId: RepoFcnId<number>;
+  getCommitById: RepoFcn_Id<Commit[]>;
+  query_deleteByEntityId: RepoFcn_Id<number>;
   query_deleteByEntityName: RepoFcn<number>;
+  find: RepoFcn_find<Record<string, TEntity>>;
   getEntityName: () => string;
   disconnect: () => void;
 }
 
 export interface PrivateRepository<TEntity = any, TEvent = any> {
   create: (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
-  getByEntityName: RepoFcn<Record<string, Commit>>;
-  getByEntityIdCommitId: RepoFcnIdCommitId<Record<string, Commit>>;
-  deleteByEntityIdCommitId: RepoFcnIdCommitId<FabricResponse>;
+  getCommitByEntityName: RepoFcn<Record<string, Commit>>;
+  getCommitByEntityIdCommitId: RepoFcn_IdCommitId<Record<string, Commit>>;
+  deleteByEntityIdCommitId: RepoFcn_IdCommitId<FabricResponse>;
   getById: (option: {
     enrollmentId: string;
     id: string;

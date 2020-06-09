@@ -2,13 +2,13 @@ import values from 'lodash/values';
 import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action } from '../store/query';
-import type { Commit, RepoFcnId } from '../types';
+import type { Commit, RepoFcn_Id } from '../types';
 import { dispatcher } from './dispatcher';
 
 export const queryGetCommitById: (
   entityName: string,
   option: { logger: Logger; store: Store }
-) => RepoFcnId<Commit[]> = (entityName, { store, logger }) =>
+) => RepoFcn_Id<Commit[]> = (entityName, { store, logger }) =>
   dispatcher<Commit[], { id: string }>(
     ({ tx_id, args: { id } }) => action.queryByEntityId({ tx_id, args: { id, entityName } }),
     {

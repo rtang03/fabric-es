@@ -188,7 +188,9 @@ export const resolvers = {
       },
       { dataSources: { loanDetails }, username }: Context
     ): Promise<Commit[] | { error: any }> => {
-      const result: Commit[] = [];
+      // TODO: any[] is wrong typing, need fixing
+      const result: any[] = [];
+
       if (typeof requester !== 'undefined' && Object.keys(requester).length > 0) {
         const c = await loanDetailsCommandHandler({
           enrollmentId: username,

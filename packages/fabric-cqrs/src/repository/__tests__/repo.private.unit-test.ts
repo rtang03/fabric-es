@@ -97,7 +97,7 @@ beforeAll(async () => {
     });
 
     // tear up
-    const { data } = await repo.getByEntityName();
+    const { data } = await repo.getCommitByEntityName();
 
     if (isCommitRecord(data)) {
       for await (const [_, { id, commitId }] of Object.entries(data)) {
@@ -137,7 +137,7 @@ describe('Private Repository Test', () => {
       }));
 
   it('should getByEntityName', async () =>
-    repo.getByEntityName().then(({ data, status }) => {
+    repo.getCommitByEntityName().then(({ data, status }) => {
       const commit = values(data)[0];
       expect(status).toEqual('OK');
       expect(isCommitRecord(data)).toBeTruthy();
@@ -147,7 +147,7 @@ describe('Private Repository Test', () => {
     }));
 
   it('should queryByEntityIdCommitId', async () =>
-    repo.getByEntityIdCommitId({ id, commitId }).then(({ data, status }) => {
+    repo.getCommitByEntityIdCommitId({ id, commitId }).then(({ data, status }) => {
       expect(status).toEqual('OK');
       expect(isCommitRecord(data)).toBeTruthy();
       const commit = values(data)[0];
@@ -179,7 +179,7 @@ describe('Private Repository Test', () => {
   });
 
   it('should getByEntityName with 2 commits returned', async () =>
-    repo.getByEntityName().then(({ data, status }) => {
+    repo.getCommitByEntityName().then(({ data, status }) => {
       expect(status).toEqual('OK');
       expect(isCommitRecord(data)).toBeTruthy();
       expect(keys(data).length).toEqual(2);

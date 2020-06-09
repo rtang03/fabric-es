@@ -35,10 +35,14 @@ export interface QueryDatabase {
     commits: Record<string, Commit>;
     reducer: Reducer<TEntity>;
   }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
-  fullTextSearchCommit: <TEntity = any>(option: {
+  fullTextSearchCommit: (option: {
     query: string;
-  }) => Promise<QueryDatabaseResponse<Record<string, TEntity>>>;
+  }) => Promise<QueryDatabaseResponse<Record<string, Commit>>>;
   fullTextSearchEntity: <TEntity = any>(option: {
     query: string;
   }) => Promise<QueryDatabaseResponse<Record<string, TEntity>>>;
+  // find: <TEntity = any>(option: {
+  //   contain?: string;
+  //   where?: { [K in keyof TEntity]: TEntity[K] };
+  // }) => Promise<QueryDatabaseResponse<Record<string, TEntity>>>;
 }

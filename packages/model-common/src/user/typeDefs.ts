@@ -62,7 +62,7 @@ export const resolvers = {
       Promise.resolve({
         userId: 'ADMIN001',
         name: 'Admin',
-        mergedUserIds: []
+        mergedUserIds: [],
       }),
     getCommitsByUserId: catchErrors(
       async (_, { userId }, { dataSources: { user } }: Context): Promise<Commit[]> =>
@@ -76,41 +76,44 @@ export const resolvers = {
             ({
               entities: data || [],
               hasMore: data.length > cursor,
-              total: data.length
+              total: data.length,
             } as Paginated<User>)
         ),
       { fcnName: 'getPaginatedUser', logger, useAuth: false }
     ),
     getUserById: catchErrors(
       async (_, { userId }, { dataSources: { user }, username }: Context): Promise<User> =>
-        user.repo.getById({ id: userId, enrollmentId: username }).then(({ currentState }) => currentState),
+        user.repo
+          .getById({ id: userId, enrollmentId: username })
+          .then(({ currentState }) => currentState),
       { fcnName: 'getUserById', logger, useAuth: true }
     ),
+    // TODO: where is limited to { id: "entityid" }. Cannot search other than entityId
     searchUserByFields: catchErrors(
-      async (_, { where }, { dataSources: { user }, username }: Context): Promise<User[]> =>
-        user.repo.getProjection({ where: JSON.parse(where) }).then(({ data }) => data),
+      async (_, { id }, { dataSources: { user }, username }: Context): Promise<User[]> =>
+        user.repo.find({ byId: id }).then(({ data }) => Object.values(data)),
       { fcnName: 'searchUserByFields', logger, useAuth: false }
     ),
     searchUserContains: catchErrors(
       async (_, { contains }, { dataSources: { user }, username }: Context): Promise<User[]> =>
-        user.repo.getProjection({ contain: contains }).then(({ data }) => data),
+        user.repo.find({ byDesc: contains }).then(({ data }) => Object.values(data)),
       { fcnName: 'searchUserContains', logger, useAuth: false }
-    )
+    ),
   },
   Mutation: {
     createUser: catchErrors(
       async (_, { name, userId }, { dataSources: { user }, username }: Context): Promise<Commit> =>
         userCommandHandler({
           enrollmentId: username,
-          userRepo: user.repo
+          userRepo: user.repo,
         }).CreateUser({
           userId,
-          payload: { name, timestamp: Date.now() }
+          payload: { name, timestamp: Date.now() },
         }),
       { fcnName: 'createUser', logger, useAuth: false }
-    )
+    ),
   },
   UserResponse: {
-    __resolveType: (obj: any) => (obj.commitId ? 'UserCommit' : obj.message ? 'UserError' : null)
-  }
+    __resolveType: (obj: any) => (obj.commitId ? 'UserCommit' : obj.message ? 'UserError' : null),
+  },
 };
