@@ -4,7 +4,7 @@ hooks:
     - tslint --fix
     - prettier --write
 generates:
-  src/generated/user-resolvers.ts:
+  src/_generated/user-resolvers.ts:
     schema: "http://localhost:14011/graphql"
     plugins:
       - typescript

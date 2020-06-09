@@ -25,7 +25,7 @@
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
     "clean": "rimraf dist",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
-    "generate-types-for-admin": "(broke) graphql-codegen --config src/generated/codegen.yml",
+    "generate-types-for-admin": "(broke) graphql-codegen --config src/_generated/codegen.yml",
     "enrollAdmin": "node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
     "unit-test:fab": "jest --forceExit --detectOpenHandles unit.test",

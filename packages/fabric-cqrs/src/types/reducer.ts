@@ -7,6 +7,7 @@ export type Reducer<TEntity = any> = (history: { type: string; payload?: any }[]
 
 /**
  * **getReducer** return high order reducer function
+ * TODO - move the calls to this function inside the libs (e.g. gateway-lib)
  * @param reducer
  */
 export const getReducer = <TEntity = any>(

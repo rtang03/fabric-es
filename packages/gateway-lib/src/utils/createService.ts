@@ -65,7 +65,11 @@ export const createService = async <TEntity extends BaseEntity>({
         repository: Repository | PrivatedataRepository;
       }[] = [];
 
-      const create: () => Promise<ApolloServer> = async () => {
+      const create: (option?: {
+        mspId?: string;
+        playground?: boolean;
+        introspection?: boolean;
+      }) => Promise<ApolloServer> = async (option) => {
         const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
         if (!isPrivate) {
           logger.info(`♨️♨️  Starting micro-service for on-chain entity '${defaultEntityName}'...`);
@@ -94,9 +98,14 @@ export const createService = async <TEntity extends BaseEntity>({
           logger.info(`♨️♨️  Starting micro-service for off-chain private data...`);
         }
 
-        return new ApolloServer({
+        const args = (option && option.mspId) ? { mspId: option.mspId } : undefined;
+        const flags = {
+          playground: (option && option.playground),
+          introspection: (option && option.introspection)
+        };
+
+        return new ApolloServer(Object.assign({
           schema,
-          playground: true,
           dataSources: () =>
             repositories.reduce(
               (obj, { entityName, repository }) => ({
@@ -105,12 +114,12 @@ export const createService = async <TEntity extends BaseEntity>({
               }),
               {}
             ),
-          context: ({ req: { headers } }) => ({
+          context: ({ req: { headers } }) => Object.assign({
             user_id: headers.user_id,
             is_admin: headers.is_admin,
             username: headers.username,
-          })
-        });
+          }, args)
+        }, flags));
       };
 
       const addRepository = (repository: Repository | PrivatedataRepository) => {

@@ -1,7 +1,7 @@
 overwrite: true
 generates:
   schema: "http://localhost:15000/graphql"
-  src/generated/admin-resolvers-types.ts:
+  src/_generated/admin-resolvers-types.ts:
     plugins:
       - typescript
       - typescript-resolvers

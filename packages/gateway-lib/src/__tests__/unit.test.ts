@@ -123,6 +123,8 @@ beforeAll(async () => {
       peerName,
       playground: false,
       walletPath,
+      orgName: 'ORG1',
+      orgUrl: `http://localhost:${MODEL_SERVICE_PORT}/graphql`
     });
     adminApolloService = service.server;
 

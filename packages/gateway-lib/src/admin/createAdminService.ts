@@ -1,10 +1,13 @@
-import { buildFederatedSchema } from '@apollo/federation';
+import util from 'util';
+import { getReducer, Repository } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import { getLogger } from '..';
-import { shutdown } from '../utils';
+import { createService } from '../utils';
 import { MISSING_CHANNELNAME, MISSING_CONNECTION_PROFILE, MISSING_FABRIC_NETWORK, MISSING_WALLET } from './constants';
 import { createResolvers } from './createResolvers';
+import { Organization, orgCommandHandler, OrgEvents, orgReducer } from './model/organization';
+import { resolvers as orgResolvers } from './model/organization/typeDefs';
 import { typeDefs } from './typeDefs';
 
 export const createAdminService: (option: {
@@ -17,10 +20,12 @@ export const createAdminService: (option: {
   connectionProfile: string;
   fabricNetwork: string;
   walletPath: string;
+  mspId: string;
+  orgName: string;
+  orgUrl: string;
   asLocalhost?: boolean;
   playground?: boolean;
   introspection?: boolean;
-  mspId: string;
   enrollmentSecret?: string;
 }) => Promise<{ server: ApolloServer; shutdown: any }> = async ({
   caAdmin,
@@ -33,6 +38,8 @@ export const createAdminService: (option: {
   fabricNetwork,
   walletPath,
   mspId,
+  orgName,
+  orgUrl,
   asLocalhost = true,
   playground = true,
   introspection = true,
@@ -58,6 +65,7 @@ export const createAdminService: (option: {
     throw new Error(MISSING_WALLET);
   }
 
+  const wallet = await Wallets.newFileSystemWallet(walletPath);
   const resolvers = await createResolvers({
     caAdmin,
     caAdminPW,
@@ -67,26 +75,75 @@ export const createAdminService: (option: {
     connectionProfile,
     fabricNetwork,
     peerName,
-    wallet: await Wallets.newFileSystemWallet(walletPath),
+    wallet,
     asLocalhost,
     mspId,
     enrollmentSecret
   });
-
   logger.info('createResolvers complete');
 
-  const server = new ApolloServer({
-    schema: buildFederatedSchema([{ typeDefs, resolvers }]),
-    playground,
-    introspection,
-    context: ({ req: { headers } }) => ({
-      user_id: headers.user_id,
-      is_admin: headers.is_admin,
-      username: headers.username
-    })
+  const reducer = getReducer<Organization>(orgReducer);
+  const { server, orgrepo } = await createService<Organization>({
+    enrollmentId: caAdmin,
+    DefaultEntity: Organization,
+    defaultReducer: reducer,
+    channelName, connectionProfile, wallet, asLocalhost
+  }).then(async ({ config, getRepository }) => {
+    const repo = getRepository<Organization, OrgEvents>(Organization, reducer);
+
+    await orgCommandHandler({
+      enrollmentId: caAdmin,
+      orgRepo: repo
+    }).StartOrg({
+      mspId,
+      payload: {
+        name: orgName,
+        url: orgUrl,
+        timestamp: Date.now()
+      }
+    });
+
+    return {
+      server: await config({
+          typeDefs, resolvers: { ...resolvers, ...orgResolvers }
+        })
+        .addRepository(repo)
+        .create({ mspId, playground, introspection }),
+      orgrepo: repo
+    };
   });
+
   return {
     server,
-    shutdown: shutdown({ logger, name: 'Admin' })
+    shutdown: (({
+      logger,
+      repo
+    }: {
+      logger: any;
+      repo: Repository;
+    }) => async (
+      server: ApolloServer
+    ) => {
+      await orgCommandHandler({
+        enrollmentId: caAdmin,
+        orgRepo: repo
+      }).ShutdownOrg({
+        mspId,
+        payload: {
+          timestamp: Date.now()
+        }
+      });
+
+      server
+        .stop()
+        .then(() => {
+          logger.info('Admin service stopped');
+          process.exit(0);
+        })
+        .catch(err => {
+          logger.error(util.format(`An error occurred while shutting down %s: %j`, name, err));
+          process.exit(1);
+        });
+    })({logger, repo: orgrepo})
   };
 };
