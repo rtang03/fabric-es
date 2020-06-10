@@ -19,7 +19,7 @@ export const orgCommandHandler: (option: { enrollmentId: string; orgRepo: OrgRep
   },
   DefineOrgName: async ({ mspId, payload: { name, timestamp }}) =>
     orgRepo.getById({ enrollmentId, id: mspId }).then(({ currentState, save }) => {
-      if (!currentState) throw Errors.requiredDataMissing();
+      if (!currentState) throw Errors.entityMissing();
       if (!name) throw Errors.requiredDataMissing();
       return save([
         { type: 'OrgNameDefined', payload: { mspId, name, timestamp }}
@@ -27,7 +27,7 @@ export const orgCommandHandler: (option: { enrollmentId: string; orgRepo: OrgRep
     }),
   DefineOrgUrl: async ({ mspId, payload: { url, timestamp }}) =>
     orgRepo.getById({ enrollmentId, id: mspId }).then(({ currentState, save }) => {
-      if (!currentState) throw Errors.requiredDataMissing();
+      if (!currentState) throw Errors.entityMissing();
       return save([
         { type: 'OrgUrlDefined', payload: { mspId, url, timestamp }}
       ]);
