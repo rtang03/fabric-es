@@ -20,10 +20,17 @@ export interface CounterCommands {
 
 export interface CounterEvent {
   type: string;
-  payload: any;
+  payload: {
+    id?: string;
+    counterId?: string;
+    desc?: string;
+    tag?: string;
+    ts?: number;
+  };
 }
 
 export interface Counter {
+  id?: string;
   value: number;
 }
 

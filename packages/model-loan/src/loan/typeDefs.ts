@@ -98,21 +98,21 @@ export const resolvers = {
             ({
               entities: data || [],
               total: data.length,
-              hasMore: data.length > pageSize
+              hasMore: data.length > pageSize,
             } as Paginated<Loan>)
         ),
       { fcnName: 'getPaginatedLoans', logger, useAuth: true }
     ),
     searchLoanByFields: catchErrors(
-      async (_, { where }, { dataSources: { loan } }: Context): Promise<Loan[]> =>
-        loan.repo.getProjection({ where: JSON.parse(where) }).then(({ data }) => data),
+      async (_, { id }, { dataSources: { loan } }: Context): Promise<Loan[]> =>
+        loan.repo.find({ byId: id }).then(({ data }) => Object.values(data)),
       { fcnName: 'searchLoanByFields', logger, useAuth: false }
     ),
     searchLoanContains: catchErrors(
       async (_, { contains }, { dataSources: { loan } }: Context): Promise<Loan[]> =>
-        loan.repo.getProjection({ contain: contains }).then(({ data }) => data),
+        loan.repo.find({ byDesc: contains }).then(({ data }) => Object.values(data)),
       { fcnName: 'searchLoanContains', logger, useAuth: false }
-    )
+    ),
   },
   Mutation: {
     applyLoan: catchErrors(
@@ -123,7 +123,7 @@ export const resolvers = {
       ): Promise<Commit> =>
         loanCommandHandler({
           enrollmentId: username,
-          loanRepo: loan.repo
+          loanRepo: loan.repo,
         }).ApplyLoan({
           userId,
           payload: {
@@ -131,8 +131,8 @@ export const resolvers = {
             description,
             reference,
             comment,
-            timestamp: Date.now()
-          }
+            timestamp: Date.now(),
+          },
         }),
       { fcnName: 'applyLoan', logger, useAuth: true }
     ),
@@ -144,10 +144,10 @@ export const resolvers = {
       ): Promise<Commit> =>
         loanCommandHandler({
           enrollmentId: username,
-          loanRepo: loan.repo
+          loanRepo: loan.repo,
         }).CancelLoan({
           userId,
-          payload: { loanId, timestamp: Date.now() }
+          payload: { loanId, timestamp: Date.now() },
         }),
       { fcnName: 'cancelLoan', logger, useAuth: true }
     ),
@@ -159,10 +159,10 @@ export const resolvers = {
       ): Promise<Commit> =>
         loanCommandHandler({
           enrollmentId: username,
-          loanRepo: loan.repo
+          loanRepo: loan.repo,
         }).ApproveLoan({
           userId,
-          payload: { loanId, timestamp: Date.now() }
+          payload: { loanId, timestamp: Date.now() },
         }),
       { fcnName: 'approveLoan', logger, useAuth: true }
     ),
@@ -174,10 +174,10 @@ export const resolvers = {
       ): Promise<Commit> =>
         loanCommandHandler({
           enrollmentId: username,
-          loanRepo: loan.repo
+          loanRepo: loan.repo,
         }).ReturnLoan({
           userId,
-          payload: { loanId, timestamp: Date.now() }
+          payload: { loanId, timestamp: Date.now() },
         }),
       { fcnName: 'returnLoan', logger, useAuth: true }
     ),
@@ -189,10 +189,10 @@ export const resolvers = {
       ): Promise<Commit> =>
         loanCommandHandler({
           enrollmentId: username,
-          loanRepo: loan.repo
+          loanRepo: loan.repo,
         }).RejectLoan({
           userId,
-          payload: { loanId, timestamp: Date.now() }
+          payload: { loanId, timestamp: Date.now() },
         }),
       { fcnName: 'rejectLoan', logger, useAuth: true }
     ),
@@ -204,10 +204,10 @@ export const resolvers = {
       ): Promise<Commit> =>
         loanCommandHandler({
           enrollmentId: username,
-          loanRepo: loan.repo
+          loanRepo: loan.repo,
         }).ExpireLoan({
           userId,
-          payload: { loanId, timestamp: Date.now() }
+          payload: { loanId, timestamp: Date.now() },
         }),
       { fcnName: 'expireLoan', logger, useAuth: true }
     ),
@@ -216,48 +216,50 @@ export const resolvers = {
       { userId, loanId, description, reference, comment },
       { dataSources: { loan }, username }: Context
     ): Promise<Commit[]> => {
-      const result: Commit[] = [];
+      // TODO: any[] is wrong typing, need fixing
+      const result: any[] = [];
+
       if (typeof reference !== 'undefined') {
         const c = await loanCommandHandler({
           enrollmentId: username,
-          loanRepo: loan.repo
+          loanRepo: loan.repo,
         })
           .DefineLoanReference({
             userId,
-            payload: { loanId, reference, timestamp: Date.now() }
+            payload: { loanId, reference, timestamp: Date.now() },
           })
-          .then(data => data)
-          .catch(error => new ApolloError(error));
+          .then((data) => data)
+          .catch((error) => new ApolloError(error));
         result.push(c);
       }
       if (typeof description !== 'undefined') {
         const c = await loanCommandHandler({
           enrollmentId: username,
-          loanRepo: loan.repo
+          loanRepo: loan.repo,
         })
           .DefineLoanDescription({
             userId,
-            payload: { loanId, description, timestamp: Date.now() }
+            payload: { loanId, description, timestamp: Date.now() },
           })
-          .then(data => data)
-          .catch(error => new ApolloError(error));
+          .then((data) => data)
+          .catch((error) => new ApolloError(error));
         result.push(c);
       }
       if (typeof comment !== 'undefined') {
         const c = await loanCommandHandler({
           enrollmentId: username,
-          loanRepo: loan.repo
+          loanRepo: loan.repo,
         })
           .DefineLoanComment({
             userId,
-            payload: { loanId, comment, timestamp: Date.now() }
+            payload: { loanId, comment, timestamp: Date.now() },
           })
-          .then(data => data)
-          .catch(error => new ApolloError(error));
+          .then((data) => data)
+          .catch((error) => new ApolloError(error));
         result.push(c);
       }
       return result;
-    }
+    },
   },
   Loan: {
     __resolveReference: catchErrors(
@@ -266,9 +268,9 @@ export const resolvers = {
           .getById({ id: loanId, enrollmentId: username })
           .then(({ currentState }) => currentState),
       { fcnName: 'Loan/__resolveReference', logger, useAuth: false }
-    )
+    ),
   },
   LoanResponse: {
-    __resolveType: obj => (obj.commitId ? 'LoanCommit' : obj.message ? 'LoanError' : {})
-  }
+    __resolveType: (obj) => (obj.commitId ? 'LoanCommit' : obj.message ? 'LoanError' : {}),
+  },
 };

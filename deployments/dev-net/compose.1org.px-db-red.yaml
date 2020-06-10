@@ -22,7 +22,6 @@ services:
 
   redis01:
     container_name: redis01
-#    image: redis:6.0.3-alpine
     image: redislabs/redisearch:latest
     volumes:
       - $VOLUME/redis-data01:/data

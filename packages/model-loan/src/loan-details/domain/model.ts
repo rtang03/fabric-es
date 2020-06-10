@@ -19,6 +19,7 @@ export type ContactInfo = {
 export class LoanDetails {
   static type: 'LoanDetails';
 
+  id: string;
   loanId: string;
   requester: LoanRequester;
   contact: ContactInfo;

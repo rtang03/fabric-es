@@ -13,6 +13,7 @@ export enum DocumentStatus {
 export class Document {
   static type: 'document';
 
+  id: string;
   documentId: string;
   ownerId: string;
   loanId?: string;

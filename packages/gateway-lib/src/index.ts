@@ -1,3 +1,4 @@
+import { Commit, HandlerResponse } from '@fabric-es/fabric-cqrs';
 import { DataSource } from 'apollo-datasource';
 export { catchErrors } from './utils/catchErrors';
 export { createGateway } from './utils/createGateway';
@@ -6,6 +7,8 @@ export { getLogger } from './utils/getLogger';
 export { createAdminService } from './admin/createAdminService';
 export { createRemoteService } from './remote/createRemoteService';
 export { RemoteData } from './remote/remoteData';
+export { createQueryHandlerService } from './query-handler';
+
 export * from './admin/query';
 
 export class DataSrc<TRepo = any> extends DataSource {
@@ -22,12 +25,14 @@ export class DataSrc<TRepo = any> extends DataSource {
   }
 }
 
-export type CommandHandler<T> = { [C in keyof T]: (command: T[C]) => Promise<any> };
+export type CommandHandler<TCommand> = {
+  [C in keyof TCommand]: (command: TCommand[C]) => Promise<Commit>;
+};
 
 export const Errors = {
   insufficientPrivilege: () => new Error('INSUFFICIENT_PRIVILEGE'),
   invalidOperation: () => new Error('INVALID_OPERATION'),
-  requiredDataMissing: () => new Error('REQUIRED_DATA_MISSING')
+  requiredDataMissing: () => new Error('REQUIRED_DATA_MISSING'),
 };
 
 export type Paginated<TEntity> = {

@@ -4,6 +4,7 @@ export const loanDetailsReducer = (details: LoanDetails, event: LoanDetailsEvent
   switch (event.type) {
     case 'LoanDetailsCreated':
       return {
+        id: event.payload.loanId,
         loanId: event.payload.loanId,
         timestamp: event.payload.timestamp,
         requester: null,

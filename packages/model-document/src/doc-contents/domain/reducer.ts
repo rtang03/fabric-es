@@ -4,6 +4,7 @@ export const docContentsReducer = (content: DocContents, event: DocContentsEvent
   switch (event.type) {
     case 'DocContentsCreated':
       return {
+        id: event.payload.documentId,
         documentId: event.payload.documentId,
         timestamp: event.payload.timestamp,
         content: null

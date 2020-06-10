@@ -1,12 +1,24 @@
-import { Commit, getPrivatedataMockRepository, getReducer, PrivatedataRepository } from '@fabric-es/fabric-cqrs';
-import { LoanDetails, LoanDetailsEvents, loanDetailsReducer, loanDetailsCommandHandler } from '../../../loan-details';
+import {
+  Commit,
+  getPrivateMockRepository,
+  getReducer,
+  PrivateRepository,
+} from '@fabric-es/fabric-cqrs';
+import {
+  LoanDetails,
+  LoanDetailsEvents,
+  loanDetailsReducer,
+  loanDetailsCommandHandler,
+} from '../../../loan-details';
 
 const enrollmentId = '';
 const userId = 'USER001';
 const mockdb: Record<string, Commit> = {};
-const loanDetailsRepo: PrivatedataRepository = getPrivatedataMockRepository<LoanDetails, LoanDetailsEvents>(
-  mockdb, 'loanDetails', getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer)
-);
+const loanDetailsRepo = getPrivateMockRepository<LoanDetails, LoanDetailsEvents>(
+  mockdb,
+  'loanDetails',
+  getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer)
+) as PrivateRepository;
 
 describe('LoanDetails tests', () => {
   it('create and query loan-details', async () => {
@@ -21,11 +33,13 @@ describe('LoanDetails tests', () => {
         tenor: 76,
         currency: 'HKD',
         requestedAmt: 50000,
-        timestamp: 1542385175431
-      }
+        timestamp: 1542385175431,
+      },
     });
     return loanDetailsRepo
       .getById({ enrollmentId, id: 'LOANID011' })
-      .then(({ currentState }) => expect(currentState === 'LOANID011' && currentState.requestedAmt === 50000));
+      .then(({ currentState }) =>
+        expect(currentState === 'LOANID011' && currentState.requestedAmt === 50000)
+      );
   });
 });

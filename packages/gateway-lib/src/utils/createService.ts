@@ -1,36 +1,41 @@
-import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
 import {
-  createPeer,
+  createRepository,
+  createPrivateRepository,
   getNetwork,
-  PrivatedataRepository,
+  PrivateRepository,
   Reducer,
-  Repository
+  Repository,
+  createQueryDatabase,
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Wallet } from 'fabric-network';
+import type { Redis } from 'ioredis';
 import { DataSrc } from '..';
+import type { ModelService } from '../types';
 import { getLogger } from './getLogger';
 import { shutdown } from './shutdownApollo';
 
-export const createService = async ({
-  enrollmentId,
-  defaultEntityName,
-  defaultReducer,
-  isPrivate = false,
-  channelName,
-  connectionProfile,
-  wallet,
-  asLocalhost
-}: {
+export const createService: (option: {
   enrollmentId: string;
-  defaultEntityName: string;
-  defaultReducer: Reducer;
+  serviceName: string;
+  reducers: Record<string, Reducer>;
   isPrivate?: boolean;
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
   asLocalhost: boolean;
+  redis: Redis;
+}) => Promise<ModelService> = async ({
+  enrollmentId,
+  serviceName,
+  reducers,
+  isPrivate = false,
+  channelName,
+  connectionProfile,
+  wallet,
+  asLocalhost,
+  redis,
 }) => {
   const logger = getLogger('[gw-lib] createService.js');
 
@@ -40,56 +45,39 @@ export const createService = async ({
     channelName,
     connectionProfile,
     wallet,
-    enrollmentId
+    enrollmentId,
   });
 
-  const { reconcile, getRepository, getPrivateDataRepo, subscribeHub, unsubscribeHub, disconnect } = createPeer({
-    ...networkConfig,
-    defaultEntityName,
-    defaultReducer,
-    channelName,
-    connectionProfile,
-    wallet
-  });
+  const getPrivateRepository = <TEntity, TEvent>(entityName: string) =>
+    createPrivateRepository<TEntity, TEvent>(entityName, {
+      ...networkConfig,
+      connectionProfile,
+      channelName,
+      wallet,
+      reducers,
+    });
 
-  const result = isPrivate ? { getPrivateDataRepo } : { getRepository };
+  const getRepository = <TEntity, TEvent>(entityName: string) =>
+    createRepository<TEntity, TEvent>(entityName, {
+      ...networkConfig,
+      queryDatabase: createQueryDatabase(redis),
+      connectionProfile,
+      channelName,
+      reducers,
+      wallet,
+    });
 
   return {
-    ...result,
+    getRepository,
+    getPrivateRepository,
     config: ({ typeDefs, resolvers }) => {
       const repositories: {
         entityName: string;
-        repository: Repository | PrivatedataRepository;
+        repository: Repository | PrivateRepository;
       }[] = [];
 
       const create: () => Promise<ApolloServer> = async () => {
         const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
-        if (!isPrivate) {
-          logger.info(`♨️♨️  Starting micro-service for on-chain entity '${defaultEntityName}'...`);
-
-          try {
-            subscribeHub();
-          } catch (error) {
-            logger.error(util.format('fail to subscribeHub and exiting:, %j', error));
-            process.exit(1);
-          }
-
-          logger.info('subscribe event hub complete');
-
-          try {
-            await reconcile({
-              entityName: defaultEntityName,
-              reducer: defaultReducer
-            });
-          } catch (error) {
-            logger.error(util.format('fail to reconcile, exiting:, %j', error));
-            process.exit(1);
-          }
-
-          logger.info(`reconcile complete: ${defaultEntityName}`);
-        } else {
-          logger.info(`♨️♨️  Starting micro-service for off-chain private data...`);
-        }
 
         return new ApolloServer({
           schema,
@@ -98,7 +86,7 @@ export const createService = async ({
             repositories.reduce(
               (obj, { entityName, repository }) => ({
                 ...obj,
-                [entityName]: new DataSrc({ repo: repository })
+                [entityName]: new DataSrc({ repo: repository }),
               }),
               {}
             ),
@@ -106,22 +94,22 @@ export const createService = async ({
             user_id: headers.user_id,
             is_admin: headers.is_admin,
             username: headers.username,
-          })
+          }),
         });
       };
 
-      const addRepository = (repository: Repository | PrivatedataRepository) => {
+      const addRepository = (repository: Repository | PrivateRepository) => {
         repositories.push({
           entityName: repository.getEntityName(),
-          repository
+          repository,
         });
         return { create, addRepository };
       };
 
       return { addRepository };
     },
-    shutdown: shutdown({ logger, name: defaultEntityName }),
-    unsubscribeHub: !isPrivate ? unsubscribeHub : null,
-    disconnect
+    getServiceName: () => serviceName,
+    shutdown: shutdown({ logger, name: serviceName }),
+    disconnect: () => networkConfig.gateway.disconnect(),
   };
 };

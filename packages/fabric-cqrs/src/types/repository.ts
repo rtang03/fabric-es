@@ -1,82 +1,81 @@
-import { Commit } from '.';
+import { Gateway, Network, Wallet } from 'fabric-network';
+import type { Logger } from 'winston';
+import type { Commit, FabricResponse, HandlerResponse, Reducer, QueryDatabase } from '.';
 
-/**
- * **PrivatedataRepository**
- * @typeparam TEntity entity type
- * @typeparam TEvent event type
- */
+export interface RepoOption {
+  connectionProfile: string;
+  queryDatabase: QueryDatabase;
+  channelName: string;
+  wallet: Wallet;
+  network: Network;
+  gateway: Gateway;
+  reducers: Record<string, Reducer>;
+  logger?: Logger;
+}
+
+export interface PrivateRepoOption {
+  connectionProfile: string;
+  channelName: string;
+  wallet: Wallet;
+  network: Network;
+  gateway: Gateway;
+  reducers: Record<string, Reducer>;
+  logger?: Logger;
+}
+
+export type SaveFcn<TEvent> = (payload: {
+  events: TEvent[];
+}) => Promise<HandlerResponse<Record<string, Commit>>>;
+
+export type RepoFcn<TResponse> = () => Promise<HandlerResponse<TResponse>>;
+
+export type RepoFcn_Id<TResponse> = (payload: {
+  id: string;
+}) => Promise<HandlerResponse<TResponse>>;
+
+export type RepoFcn_IdCommitId<TResponse> = (payload: {
+  id: string;
+  commitId: string;
+}) => Promise<HandlerResponse<TResponse>>;
+
+export type RepoFcn_find<TResponse> = (criteria: {
+  byId?: string;
+  byDesc?: string;
+}) => Promise<HandlerResponse<TResponse>>;
+
 export interface Repository<TEntity = any, TEvent = any> {
-  /**
-   * **create** return _save_ function for writing events to Fabric
-   * @param option `option: { enrollmentId: string; id: string; }`
-   * @returns `{
-   *    save: (events: TEvent[]) => Promise<Commit | { error: any }>;
-   * }`
-   */
-  create: (option: {
-    enrollmentId: string;
-    id: string;
-  }) => {
-    save: (events: TEvent[]) => Promise<Commit | { error: any }>;
-  };
-
-  /**
-   * **getByEntityName** return entity array
-   * @returns `{ data: TEntity[] }`
-   */
-  getByEntityName: () => Promise<{ data: TEntity[] }>;
-
-  /**
-   * **getById** return _currentState_ and _save_function by entityId, and enrollmentId
-   * @param option `option: { enrollmentId: string; id: string; }`
-   * @returns `{
-   *  currentState: TEntity;
-   *  save: (events: TEvent[], version?: number) => Promise<Commit | { error: any }>;
-   * }`
-   */
+  create: (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
+  command_deleteByEntityId: RepoFcn_Id<FabricResponse>;
+  command_getByEntityName: RepoFcn<Record<string, Commit>>;
+  command_getByEntityIdCommitId?: RepoFcn_IdCommitId<Record<string, Commit>>;
   getById: (option: {
     enrollmentId: string;
     id: string;
   }) => Promise<{
     currentState: TEntity;
-    save: (events: TEvent[], version?: number) => Promise<Commit | { error: any }>;
+    save: SaveFcn<TEvent>;
   }>;
-
-  /**
-   * **getCommitById** return [[Commit]] array by entity id
-   * @param id id
-   * @returns `{ data: Commit[] }`
-   */
-  getCommitById: (id: string) => Promise<{ data: Commit[] }>;
-
-  /**
-   * **getProjection** return Entity object from projection database, based on ONE of criteria, 'where',
-   * 'all' or 'contain'.
-   * @param where `search by where; e.g. { where: { id: 123 } }`
-   * @param all `get all, e.g. { all: true }`
-   * @param contain `search by one keyword; e.g. { contain: '123' }`
-   * @returns `{ data: TEntity[] }`
-   * @example `getProjection( { where: { id: '123' } } )`
-   */
-  getProjection: (projectionCriteria: {
-    where?: Record<string, string>;
-    all?: boolean;
-    contain?: string;
-  }) => Promise<{ data: TEntity[] }>;
-
-  /**
-   * **deleteByEntityId** delete commits by entityId. Mainly used in test scenarios
-   * @param id entityId
-   * @returns `any`
-   */
-  deleteByEntityId?: (id: string) => Promise<any>;
-
-  /**
-   * **deleteByEntityName_query** delete all commits by entityId from query database. Mainly used in test scenarios
-   * @returns `any`
-   */
-  deleteByEntityName_query?: () => Promise<any>;
-
-  /** **getEntityName** return entity name */
+  getByEntityName: RepoFcn<TEntity[]>;
+  getCommitById: RepoFcn_Id<Commit[]>;
+  query_deleteByEntityId: RepoFcn_Id<number>;
+  query_deleteByEntityName: RepoFcn<number>;
+  find: RepoFcn_find<Record<string, TEntity>>;
   getEntityName: () => string;
+  disconnect: () => void;
+}
+
+export interface PrivateRepository<TEntity = any, TEvent = any> {
+  create: (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
+  getCommitByEntityName: RepoFcn<Record<string, Commit>>;
+  getCommitByEntityIdCommitId: RepoFcn_IdCommitId<Record<string, Commit>>;
+  deleteByEntityIdCommitId: RepoFcn_IdCommitId<FabricResponse>;
+  getById: (option: {
+    enrollmentId: string;
+    id: string;
+  }) => Promise<{
+    currentState: TEntity;
+    save: SaveFcn<TEvent>;
+  }>;
+  getEntityName: () => string;
+  disconnect: () => void;
 }

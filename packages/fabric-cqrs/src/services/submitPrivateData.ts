@@ -1,9 +1,8 @@
 import util from 'util';
-import { Utils } from 'fabric-common';
 import { Network } from 'fabric-network';
 import { from, Observable } from 'rxjs';
-import { createCommitId } from '../peer/utils';
-import { Commit } from '../types';
+import type { Commit } from '../types';
+import { createCommitId, getLogger } from '../utils';
 import { getContract } from './contract';
 
 /**
@@ -24,7 +23,12 @@ export const submitPrivateData: (
   transientData,
   { network }
 ) => {
-  const logger = Utils.getLogger('[fabric-cqrs] submitPrivateData.js');
+  const logger = getLogger({ name: '[fabric-cqrs] submitPrivateData.js' });
+
+  const isNullArg = args.reduce((prev, curr) => prev && !!curr, true);
+
+  if (!isNullArg) return { error: 'invalid input argument' };
+
   const input_args = fcn === 'privatedata:createCommit' ? [...args, createCommitId()] : args;
 
   return getContract(network).then(({ contract }) =>
@@ -37,7 +41,7 @@ export const submitPrivateData: (
         logger.info(util.format('%s successful response', fcn));
         return result;
       })
-      .catch(error => {
+      .catch((error) => {
         logger.error(util.format('error in %s: %j', fcn, error));
         return { error };
       })

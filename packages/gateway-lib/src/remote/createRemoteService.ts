@@ -5,7 +5,7 @@ import { HttpLink } from 'apollo-link-http';
 import { ApolloError, ApolloServer } from 'apollo-server';
 import nodeFetch from 'node-fetch';
 import { getLogger } from '..';
-import { shutdown } from '../utils/shutdownApollo';
+import { shutdown } from '../utils';
 import { RemoteData } from './remoteData';
 import { UriResolver } from './uriResolver';
 
@@ -15,7 +15,7 @@ export const createRemoteService = async ({
   name,
   typeDefs,
   resolvers,
-  uriResolver
+  uriResolver,
 }: {
   name: string;
   typeDefs: any;
@@ -30,7 +30,7 @@ export const createRemoteService = async ({
     server: new ApolloServer({
       schema: buildFederatedSchema({
         typeDefs,
-        resolvers
+        resolvers,
       }),
       playground: true,
       context: ({ req: { headers } }): RemoteData => ({
@@ -42,29 +42,29 @@ export const createRemoteService = async ({
         uriResolver,
         remoteData: ({ uri, query, variables, context, operationName, token }) =>
           Promise.all(
-            uri.map(link =>
+            uri.map((link) =>
               makePromise(
                 execute(
                   new HttpLink({
                     uri: link,
                     fetch,
-                    headers: { authorization: `Bearer ${token}` }
+                    headers: { authorization: `Bearer ${token}` },
                   }),
                   {
                     query,
                     variables,
                     operationName,
-                    context
+                    context,
                   }
                 )
-              ).catch(error => {
+              ).catch((error) => {
                 logger.error(util.format('executeHttpLink, %j', error));
                 return new ApolloError(error);
               })
             )
-          )
-      })
+          ),
+      }),
     }),
-    shutdown: shutdown({ logger, name })
+    shutdown: shutdown({ logger, name }),
   };
 };

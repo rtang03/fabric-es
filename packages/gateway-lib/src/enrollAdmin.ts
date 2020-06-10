@@ -11,10 +11,10 @@ rimraf(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}`, async () => {
     mspId: process.env.MSPID,
     fabricNetwork: process.env.NETWORK_LOCATION,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    wallet: await Wallets.newFileSystemWallet(process.env.WALLET)
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
   })
-    .then(result => console.log(result))
-    .catch(error => {
+    .then((result) => console.log(result))
+    .catch((error) => {
       console.error(error);
       process.exit(1);
     });

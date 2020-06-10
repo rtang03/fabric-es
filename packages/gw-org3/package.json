@@ -15,6 +15,7 @@
     "service-ctnt": "node ./dist/service-prv-ctnt.js",
     "service-dtls": "node ./dist/service-prv-dtls.js",
     "service-admin": "node ./dist/service-admin.js",
+    "service-queryHandler": "node ./dist/service-queryHandler.js",
     "start-services": "yarn build && concurrently \"npm:service-*\"",
     "server-gw": "node ./dist/start-gateway.js",
     "start-server": "concurrently \"npm:server-*\"",
