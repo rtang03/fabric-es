@@ -8,9 +8,9 @@ export const queryFind: <TEntity>(
   entityName: string,
   option: { logger: Logger; store: Store }
 ) => RepoFcn_find<Record<string, TEntity>> = <TEntity>(entityName, { store, logger }) =>
-  dispatcher<Record<string, TEntity>, { byId: string; byDesc: string }>(
-    ({ tx_id, args: { byId, byDesc } }) =>
-      action.find({ tx_id, args: { byId, byDesc, entityName } }),
+  dispatcher<Record<string, TEntity>, { byId: string; byDesc: string; where: any }>(
+    ({ tx_id, args: { byId, byDesc, where } }) =>
+      action.find({ tx_id, args: { byId, byDesc, entityName, where } }),
     {
       name: 'find',
       store,

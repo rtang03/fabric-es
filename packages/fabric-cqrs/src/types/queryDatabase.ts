@@ -42,8 +42,8 @@ export interface QueryDatabase {
   fullTextSearchEntity: <TEntity = any>(option: {
     query: string;
   }) => Promise<QueryDatabaseResponse<Record<string, TEntity>>>;
-  // find: <TEntity = any>(option: {
-  //   contain?: string;
-  //   where?: { [K in keyof TEntity]: TEntity[K] };
-  // }) => Promise<QueryDatabaseResponse<Record<string, TEntity>>>;
+  queryEntity: <TEntity = any>(option: {
+    entityName: string;
+    where?: { [K in keyof TEntity]: TEntity[K] };
+  }) => Promise<QueryDatabaseResponse<Record<string, TEntity>>>;
 }

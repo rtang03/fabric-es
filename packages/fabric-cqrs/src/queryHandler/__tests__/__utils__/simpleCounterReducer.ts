@@ -3,14 +3,20 @@ import type { BaseEvent, Reducer } from '../../../types';
 interface Add extends BaseEvent {
   readonly type: 'Add';
   payload: {
-    timestamp: number;
+    id: string;
+    desc: string;
+    tag: string;
+    ts: number;
   };
 }
 
 interface Minus extends BaseEvent {
   readonly type: 'Minus';
   payload: {
-    timestamp: number;
+    id: string;
+    desc: string;
+    tag: string;
+    ts: number;
   };
 }
 
@@ -22,6 +28,8 @@ interface SimpleCounterEvent {
 }
 
 export interface SimpleCounter {
+  id?: string;
+  lastAction?: string;
   value: number;
 }
 
@@ -30,15 +38,31 @@ export const simpleCounterReducer: Reducer<SimpleCounter> = (
   initial = { value: 0 }
 ): SimpleCounter => history.reduce(reducerFcn, initial);
 
-const reducerFcn = ({ value }, event: SimpleCounterEvents) => {
-  switch (event.type) {
+const reducerFcn = (state, { type, payload: { id, desc, tag, ts } }: SimpleCounterEvents) => {
+  switch (type) {
     case 'Add':
-      value++;
-      return { value };
+      state.value++;
+      return {
+        lastAction: type,
+        value: state.value,
+        id,
+        desc,
+        tag,
+        ts,
+      };
+
     case 'Minus':
-      value--;
-      return { value };
+      state.value--;
+      return {
+        lastAction: type,
+        value: state.value,
+        id,
+        desc,
+        tag,
+        ts,
+      };
+
     default:
-      return { value };
+      return state;
   }
 };

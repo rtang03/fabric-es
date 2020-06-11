@@ -200,9 +200,10 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         const mergedResult = isEqual(commitsInRedis, [])
           ? commitToMerge
           : assign({}, arraysToCommitRecords(commitsInRedis), commitToMerge);
+
         const currentState = reducer(getHistory(values(mergedResult)));
 
-        if (!currentState?.id)
+        if (!currentState?.id) {
           return {
             status: 'ERROR',
             message: 'fail to reduce to currentState',
@@ -210,6 +211,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
               `fail to reduce, entityName: ${commit.entityName} entityId: ${commit.id}, commitid: ${commit.commitId}`
             ),
           };
+        }
 
         redisKeyEntity = `${commit.entityName}::${commit.entityId}`;
 
@@ -260,7 +262,6 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         const reduced = reducer(getHistory(values(group[id])));
 
         if (reduced?.id) entities.push(assign({ id }, reduced));
-
         else error.push({ id });
       });
 
@@ -295,6 +296,42 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       if (!query) throw new Error('invalid input argument');
 
       return doFullTextSearch<TEntity>(query, { redis, logger, index: 'eidx' });
+    },
+    queryEntity: async ({ entityName, where }) => {
+      let entityArrays: string[][];
+      let entities: any[];
+      const result: any = {};
+
+      try {
+        entityArrays = await pipelineExecute(redis, 'GET_ENTITY_ONLY', `${entityName}::*`);
+      } catch (e) {
+        logger.error(util.format('unknown redis error, %j', e));
+        throw e;
+      }
+
+      if (entityArrays.length === 0)
+        return {
+          status: 'OK',
+          message: 'no record exists',
+          result: null,
+        };
+
+      try {
+        entities = flatten(entityArrays)
+          .filter((item) => !!item)
+          .map((item) => JSON.parse(item));
+      } catch (e) {
+        logger.error(util.format('fail to parse entity, %e', e));
+        throw e;
+      }
+
+      filter(entities, where).forEach((entity) => (result[entity.id] = entity));
+
+      return {
+        status: 'OK',
+        message: `${keys(result).length} record(s) returned`,
+        result: isEqual(result, {}) ? null : result,
+      };
     },
   };
 };

@@ -88,6 +88,7 @@ export interface FindAction {
       entityName: string;
       byId?: string;
       byDesc?: string;
+      where?: any;
     };
   };
 }

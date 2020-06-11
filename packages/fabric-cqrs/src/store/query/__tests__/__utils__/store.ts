@@ -26,6 +26,6 @@ export const getStore: (options: {
     },
   });
   const store = createStore(rootReducer, applyMiddleware(epicMiddleware));
-  epicMiddleware.run(rootEpic);
+  epicMiddleware.run(rootEpic as any);
   return store;
 };

@@ -231,7 +231,7 @@ export const resolvers = {
   Loan: {
     documents: catchErrors(
       async ({ loanId }, _, { dataSources: { document } }: Context) =>
-        document.repo.find({ byId: loanId }).then(({ data }) => data),
+        document.repo.find({ where: loanId }).then(({ data }) => data),
       { fcnName: 'Loan/docuemnts', logger, useAuth: false }
     ),
   },

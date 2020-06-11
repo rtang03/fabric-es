@@ -1,9 +1,15 @@
 require('dotenv').config({ path: './.env.dev' });
 import Redis from 'ioredis';
+import omit from 'lodash/omit';
+import values from 'lodash/values';
 import { entityIndex, createQueryDatabase, commitIndex } from '..';
 import type { QueryDatabase } from '../../types';
 import { reducer } from '../../unit-test-reducer';
 import { commit, commits, newCommit, simpleCounterReducer } from './__utils__';
+
+/**
+ * ./dn-run.0-px-db-red.sh
+ */
 
 let queryDatabase: QueryDatabase;
 let redis: Redis.Redis;
@@ -66,16 +72,16 @@ afterAll(async () => {
     .then((result) => console.log(`cidx is dropped: ${result}`))
     .catch((result) => console.log(`cidx is not dropped: ${result}`));
 
-  // await queryDatabase
-  //   .deleteCommitByEntityName({ entityName: commit.entityName })
-  //   .then(({ message }) => console.log(message))
-  //   .catch((result) => console.log(result));
+  await queryDatabase
+    .deleteCommitByEntityName({ entityName: commit.entityName })
+    .then(({ message }) => console.log(message))
+    .catch((result) => console.log(result));
 
   return new Promise((done) => setTimeout(() => done(), 2000));
 });
 
 describe('Projection db test', () => {
-  it('should fail to mergeEntity with BAD reducer', async () =>
+  it('should fail to mergeEntity with IRRELEVANT reducer', async () =>
     queryDatabase
       .mergeEntity({ commit: newCommit, reducer: simpleCounterReducer })
       .then(({ status, message, error }) => {
@@ -167,4 +173,60 @@ describe('Projection db test', () => {
         },
       });
     }));
+
+  it('should fail to queryEntity: invalid where clause', async () =>
+    queryDatabase
+      .queryEntity({
+        entityName: commit.entityName,
+        where: { hello: 'world' },
+      })
+      .then(({ status, result, message }) => {
+        expect(status).toEqual('OK');
+        expect(result).toBeNull();
+        expect(message).toEqual('0 record(s) returned');
+      }));
+
+  it('should fail to queryEntity: non-existing entityName', async () =>
+    queryDatabase
+      .queryEntity({
+        entityName: 'invalid',
+        where: { tag: 'projection' },
+      })
+      .then(({ status, result, message }) => {
+        expect(status).toEqual('OK');
+        expect(result).toBeNull();
+        expect('no record exists');
+      }));
+
+  it('should queryEntity, with tag', async () =>
+    queryDatabase
+      .queryEntity({
+        entityName: commit.entityName,
+        where: { tag: 'projection' },
+      })
+      .then(({ status, result }) => {
+        expect(status).toEqual('OK');
+        expect(omit(values(result)[0], 'ts')).toEqual({
+          value: 2,
+          id: 'qh_proj_test_001',
+          desc: 'query handler #2 proj',
+          tag: 'projection',
+        });
+      }));
+
+  it('should queryEntity, with desc', async () =>
+    queryDatabase
+      .queryEntity({
+        entityName: commit.entityName,
+        where: { desc: 'query handler #2 proj' },
+      })
+      .then(({ status, result }) => {
+        expect(status).toEqual('OK');
+        expect(omit(values(result)[0], 'ts')).toEqual({
+          value: 2,
+          id: 'qh_proj_test_001',
+          desc: 'query handler #2 proj',
+          tag: 'projection',
+        });
+      }));
 });

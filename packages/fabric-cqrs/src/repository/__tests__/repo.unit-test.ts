@@ -19,7 +19,7 @@ import { reducer, CounterEvent, Counter } from '../../unit-test-reducer';
 import { getLogger, isCommitRecord, waitForSecond } from '../../utils';
 
 /**
- * ./dn-run-1-px-db-red-auth.sh
+ * ./dn-run.1-px-db-red-auth.sh
  */
 
 let wallet: Wallet;
@@ -323,6 +323,24 @@ describe('Verify Result', () => {
 
   it('should find by entityId, and desc with wildcard', async () =>
     repo.find({ byId: id, byDesc: 'repo*' }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      const counter = values(data)[0];
+      expect(omit(counter, 'ts')).toEqual({
+        value: 2,
+        id: 'repo_test_counter_001',
+        desc: 'repo #2 create-test',
+        tag: 'repo-test',
+      });
+    }));
+
+  it('should fail find by where: invalid id', async () =>
+    repo.find({ where: { id: 'abcdec' } }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data).toBeNull();
+    }));
+
+  it('should find by where', async () =>
+    repo.find({ where: { id } }).then(({ data, status }) => {
       expect(status).toEqual('OK');
       const counter = values(data)[0];
       expect(omit(counter, 'ts')).toEqual({
