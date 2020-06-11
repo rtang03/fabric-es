@@ -1,11 +1,18 @@
 import util from 'util';
-import Client from 'fabric-client';
 import { EnrollAdminOption, IDENTITY_ALREADY_EXIST, SUCCESS } from './types';
-import { getClientForOrg } from './utils';
+import { getClientForOrg, getLogger } from './utils';
 
 export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
-  const logger = Client.getLogger('[operator] enrollAdmin.js');
-  const { enrollmentID, enrollmentSecret, caUrl, mspId, fabricNetwork, connectionProfile, wallet } = option;
+  const logger = getLogger({ name: '[operator] enrollAdmin.js' });
+  const {
+    enrollmentID,
+    enrollmentSecret,
+    caUrl,
+    mspId,
+    fabricNetwork,
+    connectionProfile,
+    wallet,
+  } = option;
 
   Object.entries(option).forEach(([key, value]) => {
     if (value === undefined) {
@@ -21,7 +28,7 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
   if (!!walletEntry)
     return {
       status: SUCCESS,
-      message: `${IDENTITY_ALREADY_EXIST}: "${enrollmentID}"`
+      message: `${IDENTITY_ALREADY_EXIST}: "${enrollmentID}"`,
     };
 
   let [key, certificate] = [null, null];
@@ -30,7 +37,7 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
     [key, certificate] = await caService
       .enroll({
         enrollmentID,
-        enrollmentSecret
+        enrollmentSecret,
       })
       .then(({ key, certificate }) => [key, certificate]);
   } catch (e) {
@@ -45,8 +52,8 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
     mspId,
     credentials: {
       certificate,
-      privateKey: key.toBytes()
-    }
+      privateKey: key.toBytes(),
+    },
   };
 
   try {
@@ -60,6 +67,6 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
 
   return {
     status: SUCCESS,
-    message: 'Successfully enroll admin and import into the wallet'
+    message: 'Successfully enroll admin and import into the wallet',
   };
 };

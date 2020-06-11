@@ -1,9 +1,19 @@
 import util from 'util';
-import { Utils } from 'fabric-common';
-import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway, Network } from 'fabric-network';
+import {
+  DefaultEventHandlerStrategies,
+  DefaultQueryHandlerStrategies,
+  Gateway,
+  Network,
+} from 'fabric-network';
 import yaml from 'js-yaml';
-import { Commit, CreateNetworkOperatorOption, MISSING_CHAINCODE_ID, MISSING_FCN, MISSING_WALLET_LABEL } from '../types';
-import { createCommitId, promiseToReadFile } from '../utils';
+import {
+  Commit,
+  CreateNetworkOperatorOption,
+  MISSING_CHAINCODE_ID,
+  MISSING_FCN,
+  MISSING_WALLET_LABEL,
+} from '../types';
+import { createCommitId, getLogger, promiseToReadFile } from '../utils';
 
 export const submitOrEvaluateTx: (
   option: CreateNetworkOperatorOption
@@ -19,16 +29,16 @@ export const submitOrEvaluateTx: (
   disconnect: () => void;
   evaluate: () => Promise<Record<string, Commit> | { error: any }>;
   submit: () => Promise<Record<string, Commit> | { error: any }>;
-}> = option => async ({
+}> = (option) => async ({
   identity,
   chaincodeId,
   fcn,
   args = [],
   eventHandlerStrategies = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
   queryHandlerStrategies = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
-  asLocalhost = true
+  asLocalhost = true,
 }) => {
-  const logger = Utils.getLogger('[operator] submitOrEvaluateTx.js');
+  const logger = getLogger({ name: '[operator] submitOrEvaluateTx.js' });
   const { channelName, connectionProfile, wallet } = option;
   const gateway = new Gateway();
   let network: Network;
@@ -45,7 +55,7 @@ export const submitOrEvaluateTx: (
       wallet,
       eventHandlerOptions: { strategy: eventHandlerStrategies },
       queryHandlerOptions: { strategy: queryHandlerStrategies },
-      discovery: { asLocalhost, enabled: true }
+      discovery: { asLocalhost, enabled: true },
     });
   } catch (e) {
     logger.error(util.format('fail to connect gateway, %j', e));
@@ -72,7 +82,7 @@ export const submitOrEvaluateTx: (
           logger.info(util.format('successfully evaluate tx: %s', fcn));
           return JSON.parse(Buffer.from(JSON.parse(res)).toString());
         })
-        .catch(error => {
+        .catch((error) => {
           logger.error(util.format('evaluate tx error in %s: %j', fcn, error));
           return { error };
         }),
@@ -88,10 +98,10 @@ export const submitOrEvaluateTx: (
           logger.info(util.format('successfully submit tx: %s', fcn));
           return JSON.parse(Buffer.from(JSON.parse(res)).toString());
         })
-        .catch(error => {
+        .catch((error) => {
           logger.error(util.format('submit tx error in %s: %j', fcn, error));
           return { error };
         });
-    }
+    },
   };
 };

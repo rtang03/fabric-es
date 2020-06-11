@@ -35,5 +35,11 @@ containerWait "ui-account1" "Server listening at"
 containerWait "ui-account2" "Server listening at"
 containerWait "ui-account3" "Server listening at"
 
+export NGX_TEMPLATE=$NG_AU_UI_TEMPLATE
+
+docker-compose $COMPOSE_3_3ORG -f compose.3org.ngx.yaml -f compose.2org.ngx.yaml -f compose.1org.ngx.yaml up -d --no-recreate
+printMessage "docker-compose up proxy server" $?
+
+
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"

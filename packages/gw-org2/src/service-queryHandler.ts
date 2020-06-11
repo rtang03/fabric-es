@@ -62,13 +62,10 @@ const logger = getLogger('[query-handler] app.js');
   });
 
   await server.listen({ port }).then(({ url, subscriptionsUrl }) => {
-    console.info(`🚀 QueryHandler started at port: ${url}graphql`);
-    logger.info(`🚀 QueryHandler started at port: ${url}graphql`);
+    logger.info(`🚀 queryHandler available at ${url}`);
+    logger.info(`🚀 Subscription ${subscriptionsUrl}`);
 
-    console.info(`🚀 Subscription ready at port: ${subscriptionsUrl}`);
-    logger.info(`🚀 Subscription ready at port: ${subscriptionsUrl}`);
-
-    // const entityNames = process.env.RECONCILE.split(',');
+    if (process.env.NODE_ENV === 'production') process.send('ready');
   });
 })().catch((error) => {
   console.error(error);

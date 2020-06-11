@@ -4,7 +4,7 @@ import { ofType } from 'redux-observable';
 import { Observable } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
 import { action } from '../action';
-import { QueryByEntityNameAction } from '../types';
+import { QueryByEntityNameAction } from '../../../../../../deployments/dev-net/types';
 
 const { QUERY_BY_ENTITY_NAME } = action;
 

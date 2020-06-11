@@ -32,16 +32,16 @@ services:
     networks:
       - openplatform
 
-  proxy03:
-    image: $PROXY_IMAGE
-    container_name: proxy03
-    environment:
-      - HOST=0.0.0.0
-      - PORT=8080
-      - AUTH_HOST=http://auth-server3:8080
-      - APP_HOST=http://ui-account3:3000
-      - GW_ORG_HOST=http://gw-org3:4001
-    ports:
-      - 3003:8080
-    networks:
-      - openplatform
+#  proxy03:
+#    image: $PROXY_IMAGE
+#    container_name: proxy03
+#    environment:
+#      - HOST=0.0.0.0
+#      - PORT=8080
+#      - AUTH_HOST=http://auth-server3:8080
+#      - APP_HOST=http://ui-account3:3000
+#      - GW_ORG_HOST=http://gw-org3:4001
+#    ports:
+#      - 3003:8080
+#    networks:
+#      - openplatform
