@@ -34,5 +34,10 @@ docker-compose $COMPOSE_4_1ORG up -d --no-recreate
 printMessage "docker-compose up $COMPOSE_4_1ORG" $?
 containerWait "gw-org1" "gateway ready at"
 
+export NGX_TEMPLATE=$NG_AU_GW_UI_TEMPLATE
+
+docker-compose $COMPOSE_4_1ORG -f compose.1org.ngx.yaml up -d --no-recreate
+printMessage "docker-compose up proxy server" $?
+
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"

@@ -1,0 +1,37 @@
+server { # simple reverse-proxy
+    listen       ${NGINX_PORT};
+    listen       [::]:${NGINX_PORT};
+    server_name  locahost;
+    access_log   /var/log/nginx/host.access.log  main;
+
+    # serve static files
+    location ~ ^/(images|javascript|js|css|flash|media|static)/  {
+      root    /var/www/virtual/big.server.com/htdocs;
+      expires 30d;
+    }
+
+    # pass requests for dynamic content to rails/turbogears/zope, et al
+    location /web {
+      proxy_pass      ${APP_HOST};
+    }
+
+    location /api_key {
+      proxy_pass      ${AUTH_HOST};
+    }
+
+    location /account {
+      proxy_pass      ${AUTH_HOST};
+    }
+
+    location /oauth {
+      proxy_pass      ${AUTH_HOST};
+    }
+
+    location /client {
+      proxy_pass      ${AUTH_HOST};
+    }
+
+    location / {
+      proxy_pass      ${APP_HOST};
+    }
+  }

@@ -95,3 +95,4 @@ sudo lsof -i :5432
 TBD
 https://pm2.keymetrics.io/docs/usage/process-actions/
 pm2 trigger <application-name> <action-name> [parameter]
+https://linuxize.com/post/nginx-reverse-proxy/
