@@ -1,9 +1,11 @@
-import Client from 'fabric-client';
 import { getQueries, identityService, registerAndEnroll, submitOrEvaluateTx } from './tasks';
 import { CreateNetworkOperatorOption, NetworkOperator } from './types';
+import { getLogger } from './utils';
 
-export const createNetworkOperator = async (option: CreateNetworkOperatorOption): Promise<NetworkOperator> => {
-  const logger = Client.getLogger('createNetworkOperator.js');
+export const createNetworkOperator = async (
+  option: CreateNetworkOperatorOption
+): Promise<NetworkOperator> => {
+  const logger = getLogger({ name: '[operator] createNetworkOperator.js' });
 
   Object.entries(option).forEach(([key, value]) => {
     if (!value) {
@@ -16,6 +18,6 @@ export const createNetworkOperator = async (option: CreateNetworkOperatorOption)
     getQueries: getQueries(option),
     identityService: identityService(option),
     registerAndEnroll: registerAndEnroll(option),
-    submitOrEvaluateTx: submitOrEvaluateTx(option)
+    submitOrEvaluateTx: submitOrEvaluateTx(option),
   };
 };

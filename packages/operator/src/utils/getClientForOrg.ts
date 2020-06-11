@@ -1,13 +1,14 @@
 import util from 'util';
 import Client from 'fabric-client';
 import { createAdmin } from './createAdmin';
+import { getLogger } from './getLogger';
 
 export const getClientForOrg: (
   connectionProfile: string,
   fabricNewtork: string,
   mspid: string
 ) => Promise<Client> = async (connectionProfile, fabricNetwork, mspid: string) => {
-  const logger = Client.getLogger('[operator] getClientForOrg.js');
+  const logger = getLogger({ name: '[operator] getClientForOrg.js' });
   const client = new Client();
 
   try {
@@ -29,7 +30,7 @@ export const getClientForOrg: (
       await createAdmin({
         client,
         mspid,
-        orgAdminMspPath: `${fabricNetwork}/${mspid}/admin/msp`
+        orgAdminMspPath: `${fabricNetwork}/${mspid}/admin/msp`,
         // orgAdminMspPath: `${fabricNetwork}/${client.getMspid()}/admin/msp`
       });
     } catch (e) {

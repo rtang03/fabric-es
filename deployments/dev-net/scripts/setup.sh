@@ -12,7 +12,9 @@ export ARTIFACTS=./artifacts
 export SCRIPTS=./scripts
 export CRYPTO=/var/artifacts/crypto-config
 export CURRENT_DIR=`pwd`
-
+export NG_AU_GW_UI_TEMPLATE=./scripts/nginx/auth-gw-uia.template
+export NG_AU_UI_TEMPLATE=./scripts/nginx/auth-uia.template
+export NG_AU_TEMPLATE=./scripts/nginx/auth.template
 export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
 export TEST_IMAGE=fabric-es/tester:${RELEASE}
 export PROXY_IMAGE=fabric-es/proxy:${RELEASE}
@@ -40,6 +42,7 @@ export CMP_3_UIA="$CMP_2_UIA -f compose.3org.ui.yaml"
 export CMP_1_GWY="-f compose.1org.gw.yaml"
 export CMP_2_GWY="$CMP_1_GWY -f compose.2org.gw.yaml"
 export CMP_3_GWY="$CMP_2_GWY -f compose.3org.gw.yaml"
+export CMP_NGX="-f compose.1org.ngx.yaml"
 
 export COMPOSE_0_0ORG="$CMP_1_SRV"
 export COMPOSE_1_0ORG="$COMPOSE_0_0ORG $CMP_1_ATH"
@@ -63,7 +66,7 @@ export COMPOSE_3_3ORG="$COMPOSE_2_3ORG $CMP_3_UIA"
 export COMPOSE_4_3ORG="$COMPOSE_3_3ORG $CMP_3_GWY"
 export COMPOSE_5_3ORG="$COMPOSE_2_3ORG $CMP_3_GWY -f compose.3org.tester.yaml"
 
-export COMPOSE_ALL="$COMPOSE_5_3ORG $CMP_1_UIA $CMP_2_UIA $CMP_3_UIA"
+export COMPOSE_ALL="$COMPOSE_5_3ORG $CMP_1_UIA $CMP_2_UIA $CMP_3_UIA $CMP_NGX"
 
 # $1 - message to be printed
 # $2 - exit code of the previous operation
@@ -122,7 +125,7 @@ getConfig() {
 # $3 - optional: expected
 containerWait() {
   FOUND=false
-  COUNT=60
+  COUNT=90
   while [[ ("$FOUND"=false) && (COUNT -gt 0) ]]; do
     if [ $# -eq 3 ]; then
       RESULT=`docker container exec -i $1 "$2" | grep -e "$3"`

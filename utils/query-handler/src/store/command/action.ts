@@ -7,7 +7,7 @@ import {
   QueryByEntIdCommitIdAction,
   QueryByEntityIdAction,
   QueryByEntityNameAction
-} from './types';
+} from '../../../../../deployments/dev-net/types';
 
 const CREATE = '[Entity-C] Create';
 const CREATE_ERROR = '[Entity-C] Create Error';

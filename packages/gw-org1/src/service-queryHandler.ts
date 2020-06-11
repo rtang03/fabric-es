@@ -62,14 +62,13 @@ const logger = getLogger('[query-handler] app.js');
   });
 
   await server.listen({ port }).then(({ url, subscriptionsUrl }) => {
-    console.info(`🚀 QueryHandler started at port: ${url}graphql`);
-    logger.info(`🚀 QueryHandler started at port: ${url}graphql`);
+    logger.info(`🚀 queryHandler available at ${url}graphql`);
+    logger.info(`🚀 Subscription ${subscriptionsUrl}`);
 
-    console.info(`🚀 Subscription ready at port: ${subscriptionsUrl}`);
-    logger.info(`🚀 Subscription ready at port: ${subscriptionsUrl}`);
+    if (process.env.NODE_ENV === 'production') process.send('ready');
   });
 })().catch((error) => {
   console.error(error);
-  logger.info(util.format('fail to start app.js, %j', error));
+  logger.info(util.format('fail to start queryHandler.js, %j', error));
   process.exit(1);
 });

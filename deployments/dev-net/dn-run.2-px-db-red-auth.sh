@@ -26,5 +26,11 @@ printMessage "docker-compose up $COMPOSE_2_2ORG" $?
 containerWait "auth-server1" "Auth server started"
 containerWait "auth-server2" "Auth server started"
 
+
+export NGX_TEMPLATE=$NG_AU_TEMPLATE
+
+docker-compose $COMPOSE_2_2ORG -f compose.1org.ngx.yaml -f compose.2org.ngx.yaml up -d --no-recreate
+printMessage "docker-compose up proxy server" $?
+
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"

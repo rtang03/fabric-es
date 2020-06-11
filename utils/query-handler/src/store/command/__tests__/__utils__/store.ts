@@ -4,7 +4,7 @@ import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import type { Logger } from 'winston';
 import { commandEpic, reducer as write } from '../..';
-import type { QueryDatabase } from '../../../../types';
+import type { QueryDatabase } from '../../../../../../../deployments/dev-net/scripts/nginx/auth-uia.template';
 import { projectionEpic, reducer as projection } from '@fabric-es/fabric-cqrs/dist/store/projection';
 import { queryEpic, reducer as query } from '../../../query';
 

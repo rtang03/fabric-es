@@ -7247,12 +7247,24 @@ eyes@0.1.x:
   resolved "https://registry.yarnpkg.com/eyes/-/eyes-0.1.8.tgz#62cf120234c683785d902348a800ef3e0cc20bc0"
   integrity sha1-Ys8SAjTGg3hdkCNIqADvPgzCC8A=
 
-fabric-ca-client@2.0.0-snapshot.391:
-  version "2.0.0-snapshot.391"
-  resolved "https://registry.yarnpkg.com/fabric-ca-client/-/fabric-ca-client-2.0.0-snapshot.391.tgz#ec46739d787053a1aa82d9db7cea8dffb6098a04"
-  integrity sha512-gzApDqCC5bGD3UYaCXnnVJJYE9Prh4Qy6Up4fRInK5Wzqmh4t1c3CrJ473iyZS/jyTgGaXXdTE4X7C2dlT8zjg==
+fabric-ca-client@^1.4.8:
+  version "1.4.8"
+  resolved "https://registry.yarnpkg.com/fabric-ca-client/-/fabric-ca-client-1.4.8.tgz#29415408d77b449e010ac38251b5eeddefaecdf3"
+  integrity sha512-1puz5zPU3I9SPZ4qtuQGuZW7QMUOSPuh1ncQakzdkk1J9Cewj8MdW67fhOUBPefkx5S2VSfJOfJ1iWTCjgf1XA==
   dependencies:
-    fabric-common unstable
+    grpc "1.24.2"
+    jsrsasign "^7.2.2"
+    lodash.clone "4.5.0"
+    url "^0.11.0"
+    util "^0.10.3"
+    winston "^2.4.0"
+
+fabric-ca-client@latest-2.1:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/fabric-ca-client/-/fabric-ca-client-2.1.0.tgz#42c7f6fc45dfcc2cc43cfda6c925f6c65e714d67"
+  integrity sha512-f8s8e/tOwsWDHwMhvnPPdnL4bgwkpG8LED5frEaP+rWHUoqUNAUOpvs/kLdnBcezix84UNA3f+UbccF9KL6dAA==
+  dependencies:
+    fabric-common latest-2.1
     jsrsasign "^7.2.2"
     url "^0.11.0"
     util "^0.10.3"
@@ -7290,6 +7302,23 @@ fabric-client@2.0.0-snapshot.326:
     url "^0.11.0"
     yn "^3.1.0"
 
+fabric-common@latest-2.1:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/fabric-common/-/fabric-common-2.1.0.tgz#202402b1817d8885c2bc6a6484e7b2979eae5a42"
+  integrity sha512-t980mEGBlbVTq2y6Zi3ZtVN5RnUy5xNoRWhPTpifAsI1m0KYBSh8jPcxtybMrLds12J/PAE7qI4TrgbZMqapKg==
+  dependencies:
+    elliptic "^6.2.3"
+    fabric-protos latest-2.1
+    js-sha3 "^0.7.0"
+    nano "^6.4.4"
+    nconf "^0.10.0"
+    promise-settle "^0.3.0"
+    sjcl "1.0.7"
+    winston "^2.4.0"
+    yn "^3.1.0"
+  optionalDependencies:
+    pkcs11js "^1.0.6"
+
 fabric-common@unstable:
   version "2.0.0-snapshot.388"
   resolved "https://registry.yarnpkg.com/fabric-common/-/fabric-common-2.0.0-snapshot.388.tgz#d667fef860220c05d17d35d6124c56521135618c"
@@ -7319,17 +7348,26 @@ fabric-contract-api@2.1.2, fabric-contract-api@^2.1.2:
     reflect-metadata "^0.1.12"
     winston "^3.2.1"
 
-fabric-network@2.0.0-snapshot.348:
-  version "2.0.0-snapshot.348"
-  resolved "https://registry.yarnpkg.com/fabric-network/-/fabric-network-2.0.0-snapshot.348.tgz#b90f35794e76f60a7e9fa85ea1d4b7aba0d806c0"
-  integrity sha512-MAcYgiU+y+i5NHQQvn1G2T5hzoA8NRLswQCsk6vd5oefaDb670tkfQzPDHEAESo7/aeX2YSxwJtZSHjZoUUIuQ==
+fabric-network@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/fabric-network/-/fabric-network-2.1.0.tgz#1b659def44df76bedb00fad2024362edda596337"
+  integrity sha512-9VqUvYX2fROleTl1sKIx51EhLDfhDxDMHIgafRvicBFJKYAeQ6nyKWmk3gZIlGxmB2LjpIV+WzwR5Z2PiNI03w==
   dependencies:
-    fabric-ca-client unstable
-    fabric-common unstable
+    fabric-ca-client latest-2.1
+    fabric-common latest-2.1
     fs-extra "^8.1.0"
     long "^4.0.0"
     nano "^8.1.0"
     winston "^2.4.0"
+
+fabric-protos@latest-2.1:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/fabric-protos/-/fabric-protos-2.1.0.tgz#58fbe160bd8dd75cba93bab60074051be402be8d"
+  integrity sha512-99+5ouNLUGz6sA5wQJyhpCYUGlfk8JHWSPUtjutnTRyb40TnbfebmG6k7lBCI6Kjyd7l9AHlD5yZuF7oCqAgkA==
+  dependencies:
+    grpc "1.24.2"
+    lodash.clone "4.5.0"
+    protobufjs "^5.0.3"
 
 fabric-protos@unstable:
   version "2.0.0-snapshot.246"

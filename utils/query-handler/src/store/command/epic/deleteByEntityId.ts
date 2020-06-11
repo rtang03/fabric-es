@@ -4,7 +4,7 @@ import { ofType } from 'redux-observable';
 import { Observable } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
 import { action } from '../action';
-import { DeleteByEntityIdAction } from '../types';
+import { DeleteByEntityIdAction } from '../../../../../../deployments/dev-net/types';
 
 const { DELETE_BY_ENTITYID, deleteSuccess, deleteError } = action;
 
