@@ -26,6 +26,9 @@ let queryDatabase: QueryDatabase;
 
 const logger = getLogger({ name: 'query.store.unit-test.ts' });
 const {
+  find,
+  FIND_SUCCESS,
+  FIND_ERROR,
   deleteByEntityName,
   deleteByEntityId,
   DELETE_SUCCESS,

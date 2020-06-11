@@ -41,6 +41,7 @@ export type RepoFcn_IdCommitId<TResponse> = (payload: {
 export type RepoFcn_find<TResponse> = (criteria: {
   byId?: string;
   byDesc?: string;
+  where?: any;
 }) => Promise<HandlerResponse<TResponse>>;
 
 export interface Repository<TEntity = any, TEvent = any> {
