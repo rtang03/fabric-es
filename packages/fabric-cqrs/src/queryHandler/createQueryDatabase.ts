@@ -200,7 +200,9 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         const mergedResult = isEqual(commitsInRedis, [])
           ? commitToMerge
           : assign({}, arraysToCommitRecords(commitsInRedis), commitToMerge);
-        const currentState = Object.assign(reducer(getHistory(values(mergedResult))), trackingReducer(values(mergedResult)));
+
+        const currentState = reducer(getHistory(values(mergedResult)));
+        if (currentState) Object.assign(currentState, trackingReducer(values(mergedResult)));
 
         if (!currentState?.id) {
           return {
@@ -259,7 +261,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
       keys(group).forEach((id) => {
         const reduced = reducer(getHistory(values(group[id])));
-
+        if (reduced) Object.assign(reduced, trackingReducer(values(group[id])));
         if (reduced?.id) entities.push(assign({ id }, reduced, trackingReducer(values(group[id]))));
 
         else error.push({ id });
@@ -300,7 +302,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
     queryEntity: async ({ entityName, where }) => {
       let entityArrays: string[][];
       let entities: any[];
-      const result: any = {};
+      const result: Record<string, any> = {};
 
       try {
         entityArrays = await pipelineExecute(redis, 'GET_ENTITY_ONLY', `${entityName}::*`);

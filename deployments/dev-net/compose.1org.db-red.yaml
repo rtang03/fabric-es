@@ -4,15 +4,15 @@ networks:
   openplatform:
 
 services:
-  postgres02:
-    container_name: postgres02
+  postgres01:
+    container_name: postgres01
     image: postgres:9.6.17-alpine
     environment:
       - POSTGRES_PASSWORD=docker
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
     volumes:
-      - $ARTIFACTS/postgres02:/var/lib/postgresql/data
+      - $ARTIFACTS/postgres01:/var/lib/postgresql/data
       - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
     command: postgres
     ports:
@@ -20,28 +20,14 @@ services:
     networks:
       - openplatform
 
-  redis02:
-    container_name: redis02
+  redis01:
+    container_name: redis01
     image: redislabs/redisearch:latest
     volumes:
-      - $VOLUME/redis-data02:/data
+      - $VOLUME/redis-data01:/data
     # custom configuration. will require if AUTH is set
     # - $VOLUME/redis.conf:/usr/local/etc/redis/redis.conf
     ports:
-      - 6380:6379
+      - 6379:6379
     networks:
       - openplatform
-
-#  proxy02:
-#    image: $PROXY_IMAGE
-#    container_name: proxy02
-#    environment:
-#      - HOST=0.0.0.0
-#      - PORT=8080
-#      - AUTH_HOST=http://auth-server2:8080
-#      - APP_HOST=http://ui-account2:3000
-#      - GW_ORG_HOST=http://gw-org2:4001
-#    ports:
-#      - 3002:8080
-#    networks:
-#      - openplatform

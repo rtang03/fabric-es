@@ -21,6 +21,7 @@ export default (
       let promise;
 
       if (where) {
+        console.log('HOHOHOHOHOHOHO', where);
         promise = queryDatabase
           .queryEntity({ entityName, where })
           .then(({ result }) => findSuccess({ tx_id, result }))

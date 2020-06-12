@@ -101,7 +101,7 @@ export const getMockRepository = <TEntity, TEvent>(
       );
     }),
   find: ({ byId, byDesc }) =>
-    new Promise<HandlerResponse<Record<string, TEntity>>>((resolve) => {
+    new Promise<HandlerResponse<TEntity[]>>((resolve) => {
       setTimeout(() => {
         const entities: TEntity[] = getEntities({
           entityName,
@@ -109,11 +109,11 @@ export const getMockRepository = <TEntity, TEvent>(
           mockdb,
         });
         const entityArray: any[] = byDesc ? [] : byId ? filter(entities, { id: byId }) : [];
-        const data = {};
+        // const data = {};
 
-        entityArray.forEach((entity) => (data[`${entityName}::${entity.id}`] = entity));
+        // entityArray.forEach((entity) => (data[`${entityName}::${entity.id}`] = entity));
 
-        resolve({ data, status: 'OK' });
+        resolve({ data: entityArray, status: 'OK' });
       }, 50);
     }),
   getEntityName: () => entityName,
