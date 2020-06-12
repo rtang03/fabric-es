@@ -40,6 +40,7 @@ export const typeDefs = gql`
     reference: String!
     status: Int!
     timestamp: String!
+    tracking: [String]!
     loan: Loan
   }
 
@@ -65,7 +66,7 @@ export const typeDefs = gql`
     entityName: String
     version: Int
     commitId: String
-    committedAt: String
+    mspId: String
     entityId: String
     events: [DocEvent!]
   }
@@ -84,7 +85,7 @@ export const resolvers = {
   Query: {
     getCommitsByDocumentId: catchErrors(
       async (_, { documentId }, { dataSources: { document } }: Context): Promise<Commit[]> =>
-        document.repo.getCommitById(documentId).then(({ data }) => data || []),
+        document.repo.getCommitById({ id: documentId }).then(({ data }) => data || []),
       { fcnName: 'getCommitsByDocumentId', logger, useAuth: false }
     ),
     getDocumentById: catchErrors(
@@ -115,8 +116,8 @@ export const resolvers = {
       { fcnName: 'getPaginatedDocuments', logger, useAuth: false }
     ),
     searchDocumentByFields: catchErrors(
-      async (_, { id }, { dataSources: { document } }: Context): Promise<Document[]> =>
-        document.repo.find({ byId: id }).then(({ data }) => Object.values(data)),
+      async (_, { where }, { dataSources: { document } }: Context): Promise<Document[]> =>
+        document.repo.find({ byId: where }).then(({ data }) => Object.values(data)),
       { fcnName: 'searchDocumentByFields', logger, useAuth: false }
     ),
     searchDocumentContains: catchErrors(

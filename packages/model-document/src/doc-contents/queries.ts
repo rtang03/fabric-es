@@ -8,7 +8,8 @@ export const CREATE_DOC_CONTENTS = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocContentsError {
         message
@@ -25,7 +26,8 @@ export const UPDATE_DOC_CONTENTS = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocContentsError {
         message

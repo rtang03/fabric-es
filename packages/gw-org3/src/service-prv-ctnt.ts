@@ -19,7 +19,6 @@ const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'docContents',
-    reducers: { docContents: reducer },
     isPrivate: true,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
@@ -32,7 +31,7 @@ const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
         typeDefs: docContentsTypeDefs,
         resolvers: docContentsResolvers,
       })
-        .addRepository(getPrivateRepository<DocContents, DocContentsEvents>('docContents'))
+        .addRepository(getPrivateRepository<DocContents, DocContentsEvents>('docContents', reducer, 'document')) // TODO
         .create();
 
       process.on('SIGINT', async () => await shutdown(app));

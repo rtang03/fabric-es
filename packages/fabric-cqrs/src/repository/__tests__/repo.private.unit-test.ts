@@ -86,14 +86,13 @@ beforeAll(async () => {
       asLocalhost: true,
     });
 
-    repo = createPrivateRepository<Counter, CounterEvent>(entityName, {
+    repo = createPrivateRepository<Counter, CounterEvent>(entityName, reducer, {
       gateway: context.gateway,
       network: context.network,
       channelName,
       connectionProfile,
       wallet,
       logger,
-      reducers,
     });
 
     // tear up

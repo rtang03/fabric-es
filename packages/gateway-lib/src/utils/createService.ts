@@ -19,7 +19,6 @@ import { shutdown } from './shutdownApollo';
 export const createService: (option: {
   enrollmentId: string;
   serviceName: string;
-  reducers: Record<string, Reducer>;
   isPrivate?: boolean;
   channelName: string;
   connectionProfile: string;
@@ -29,7 +28,6 @@ export const createService: (option: {
 }) => Promise<ModelService> = async ({
   enrollmentId,
   serviceName,
-  reducers,
   isPrivate = false,
   channelName,
   connectionProfile,
@@ -48,22 +46,20 @@ export const createService: (option: {
     enrollmentId,
   });
 
-  const getPrivateRepository = <TEntity, TEvent>(entityName: string) =>
-    createPrivateRepository<TEntity, TEvent>(entityName, {
+  const getPrivateRepository = <TEntity, TEvent>(entityName: string, reducer: Reducer, parentName?: string) =>
+    createPrivateRepository<TEntity, TEvent>(entityName, reducer, {
       ...networkConfig,
       connectionProfile,
       channelName,
       wallet,
-      reducers,
-    });
+    }, parentName);
 
-  const getRepository = <TEntity, TEvent>(entityName: string) =>
-    createRepository<TEntity, TEvent>(entityName, {
+  const getRepository = <TEntity, TEvent>(entityName: string, reducer: Reducer) =>
+    createRepository<TEntity, TEvent>(entityName, reducer, {
       ...networkConfig,
       queryDatabase: createQueryDatabase(redis),
       connectionProfile,
       channelName,
-      reducers,
       wallet,
     });
 

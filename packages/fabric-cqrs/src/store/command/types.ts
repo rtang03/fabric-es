@@ -7,10 +7,27 @@ export interface CreateAction {
     tx_id: string;
     args: {
       entityName: string;
+      parentName?: string;
       id: string;
       version: number;
       events: BaseEvent[];
       isPrivateData: boolean;
+    };
+    enrollmentId?: string;
+    channelName?: string;
+    connectionProfile?: string;
+    wallet?: Wallet;
+  };
+}
+
+export interface TrackAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: {
+      parentName?: string;
+      id: string;
+      version: number;
     };
     enrollmentId?: string;
     channelName?: string;

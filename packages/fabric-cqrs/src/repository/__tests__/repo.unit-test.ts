@@ -108,11 +108,10 @@ beforeAll(async () => {
       logger,
     });
 
-    repo = createRepository<Counter, CounterEvent>(entityName, {
+    repo = createRepository<Counter, CounterEvent>(entityName, reducer, {
       queryDatabase,
       gateway: context.gateway,
       network: context.network,
-      reducers,
       channelName,
       connectionProfile,
       wallet,

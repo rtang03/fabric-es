@@ -9,7 +9,7 @@ export type ContactInfo = SuperContactInfo & {
  * for authorized parties' use only.
  */
 export class LoanDetails extends SuperDetails {
-  static type: 'LoanDetails';
+  static entityName: 'loanDetails';
 
   contact: ContactInfo;
 }

@@ -7,7 +7,7 @@ import groupBy from 'lodash/groupBy';
 import isEqual from 'lodash/isEqual';
 import keys from 'lodash/keys';
 import values from 'lodash/values';
-import type { Commit, QueryDatabase } from '../types';
+import { Commit, QueryDatabase, trackingReducer } from '../types';
 import { isCommit, getLogger } from '../utils';
 import {
   arraysToCommitRecords,
@@ -200,8 +200,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         const mergedResult = isEqual(commitsInRedis, [])
           ? commitToMerge
           : assign({}, arraysToCommitRecords(commitsInRedis), commitToMerge);
-
-        const currentState = reducer(getHistory(values(mergedResult)));
+        const currentState = Object.assign(reducer(getHistory(values(mergedResult))), trackingReducer(values(mergedResult)));
 
         if (!currentState?.id) {
           return {
@@ -261,7 +260,8 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       keys(group).forEach((id) => {
         const reduced = reducer(getHistory(values(group[id])));
 
-        if (reduced?.id) entities.push(assign({ id }, reduced));
+        if (reduced?.id) entities.push(assign({ id }, reduced, trackingReducer(values(group[id]))));
+
         else error.push({ id });
       });
 

@@ -8,7 +8,8 @@ export const CREATE_USER = gql`
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on UserError {
         message
@@ -24,7 +25,8 @@ export const GET_COMMITS_BY_USER = gql`
       entityName
       version
       commitId
-      committedAt
+      entityId
+      mspId
       events {
         type
       }

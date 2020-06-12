@@ -62,7 +62,7 @@ export const typeDefs = gql`
     entityName: String
     version: Int
     commitId: String
-    committedAt: String
+    mspId: String
     entityId: String
     events: [LoanEvent!]
   }
@@ -81,7 +81,7 @@ export const resolvers = {
   Query: {
     getCommitsByLoanId: catchErrors(
       async (_, { loanId }, { dataSources: { loan } }: Context): Promise<Commit[]> =>
-        loan.repo.getCommitById(loanId).then(({ data }) => data || []),
+        loan.repo.getCommitById({ id: loanId }).then(({ data }) => data || []),
       { fcnName: 'getCommitsByLoanId', logger, useAuth: false }
     ),
     getLoanById: catchErrors(

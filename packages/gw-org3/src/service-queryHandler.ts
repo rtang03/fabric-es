@@ -10,7 +10,7 @@ import { RedisOptions } from 'ioredis';
 import { LoanDetails, LoanDetailsEvents, loanDetailsReducer } from './model/private/loan-details';
 import { Document, DocumentEvents, documentReducer } from './model/public/document';
 
-const port = parseInt(process.env.PORT, 10) || 5000;
+const port = parseInt(process.env.QUERY_PORT, 10) || 5000;
 const logger = getLogger('[query-handler] app.js');
 
 (async () => {

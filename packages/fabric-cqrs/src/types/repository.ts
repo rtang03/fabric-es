@@ -9,7 +9,6 @@ export interface RepoOption {
   wallet: Wallet;
   network: Network;
   gateway: Gateway;
-  reducers: Record<string, Reducer>;
   logger?: Logger;
 }
 
@@ -19,7 +18,6 @@ export interface PrivateRepoOption {
   wallet: Wallet;
   network: Network;
   gateway: Gateway;
-  reducers: Record<string, Reducer>;
   logger?: Logger;
 }
 

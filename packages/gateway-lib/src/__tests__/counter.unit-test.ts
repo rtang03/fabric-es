@@ -128,14 +128,13 @@ beforeAll(async () => {
       channelName,
       connectionProfile,
       serviceName: 'counter',
-      reducers: { counter: reducer },
       enrollmentId: orgAdminId,
       wallet,
       redis,
     });
 
     modelApolloService = await config({ typeDefs, resolvers })
-      .addRepository(getRepository<Counter, CounterEvents>(entityName))
+      .addRepository(getRepository<Counter, CounterEvents>(entityName, reducer))
       .create();
 
     await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () =>

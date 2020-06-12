@@ -15,6 +15,7 @@ export const createInstance = (option: {
   id: string;
   entityName: string;
   version: string;
+  mspId: string;
   events: any[];
   commitId: string;
 }) =>
@@ -23,6 +24,7 @@ export const createInstance = (option: {
     entityName: option.entityName,
     commitId: option.commitId,
     version: parseInt(option.version, 10),
+    mspId: option.mspId,
     events: option.events,
     entityId: option.id
   });
