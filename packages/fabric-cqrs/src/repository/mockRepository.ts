@@ -109,11 +109,11 @@ export const getMockRepository = <TEntity, TEvent>(
           mockdb,
         });
         const entityArray: any[] = byDesc ? [] : byId ? filter(entities, { id: byId }) : [];
-        // const data = {};
+        const data = {};
 
-        // entityArray.forEach((entity) => (data[`${entityName}::${entity.id}`] = entity));
+        entityArray.forEach((entity) => (data[`${entityName}::${entity.id}`] = entity));
 
-        resolve({ data: entityArray, status: 'OK' });
+        resolve({ data: values(data), status: 'OK' });
       }, 50);
     }),
   getEntityName: () => entityName,
