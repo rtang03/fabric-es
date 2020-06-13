@@ -2,16 +2,19 @@
 set -e
 
 export PGPASSWORD=$TYPEORM_PASSWORD
+export HOST=$TYPEORM_HOST
+export USER=$TYPEORM_USERNAME
+export DB=$TYPEORM_DATABASE
 
 i=0;
-while ! psql -h postgres01 -U postgres -lqt | cut -d \| -f 1 | grep -qw auth_db; do
+while ! psql -h $HOST -U $USER -lqt | cut -d \| -f 1 | grep -qw $DB; do
 
-  echo "Checking Postgres DB readiness...";
+  echo "Checking DB readiness for host $HOST user $USER db $DB ...";
   i=`expr $i + 1`;
   sleep 1;
 
   if test $i -ge 30; then
-    echo "Postgres DB is not ready!";
+    echo "DB for host $HOST user $USER db $DB is not ready!!";
     exit 1;
   fi
 
