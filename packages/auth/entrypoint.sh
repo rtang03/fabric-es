@@ -20,5 +20,5 @@ while ! psql -h $HOST -U $USER -lqt | cut -d \| -f 1 | grep -qw $DB; do
 
 done
 
-echo "Starting Auth Server.";
+echo "Starting Auth Server for host $HOST user $USER db $DB.";
 exec pm2-runtime start ./processes.yaml
