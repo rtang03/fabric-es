@@ -23,7 +23,7 @@
   "scripts": {
     "start": "npm run build && node ./dist/app.js",
     "build": "yarn clean && tsc",
-    "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
+    "tsc:prod": "yarn clean && tsc -p ../../packages/ui-control/utils/tsconfig.prod.json",
     "clean": "rimraf dist",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "publish:gh:fabric-es": "npm publish",

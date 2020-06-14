@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "nodemon",
-    "build": "next build && tsc --project tsconfig.server.json",
+    "build": "next build && tsc --project ../../packages/ui-control/tsconfig.server.json",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "type-check": "tsc",
     "generate-hook:oauth-server": "graphql-codegen --config codegen.oauth-server.yml",
