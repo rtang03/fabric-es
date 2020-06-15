@@ -72,12 +72,21 @@ export const createService: (option: {
         repository: Repository | PrivateRepository;
       }[] = [];
 
-      const create: () => Promise<ApolloServer> = async () => {
+      const create: (option?: {
+        mspId?: string;
+        playground?: boolean;
+        introspection?: boolean;
+      }) => Promise<ApolloServer> = async (option) => {
         const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
 
-        return new ApolloServer({
+        const args = (option && option.mspId) ? { mspId: option.mspId } : undefined;
+        const flags = {
+          playground: (option && option.playground),
+          introspection: (option && option.introspection)
+        };
+
+        return new ApolloServer(Object.assign({
           schema,
-          playground: true,
           dataSources: () =>
             repositories.reduce(
               (obj, { entityName, repository }) => ({
@@ -86,12 +95,12 @@ export const createService: (option: {
               }),
               {}
             ),
-          context: ({ req: { headers } }) => ({
+          context: ({ req: { headers } }) => Object.assign({
             user_id: headers.user_id,
             is_admin: headers.is_admin,
             username: headers.username,
-          }),
-        });
+          }, args),
+        }, flags));
       };
 
       const addRepository = (repository: Repository | PrivateRepository) => {

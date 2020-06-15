@@ -3,6 +3,7 @@ import {
   createQueryDatabase,
   createQueryHandler,
   getNetwork,
+  getReducer,
   QueryHandler,
   Reducer,
 } from '@fabric-es/fabric-cqrs';
@@ -10,6 +11,7 @@ import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import Redis, { RedisOptions } from 'ioredis';
+import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
 import { QueryHandlerGqlCtx } from '../types';
 import { getLogger } from '../utils';
 import { reconcile, rebuildIndex, resolvers, typeDefs } from '.';
@@ -63,6 +65,10 @@ export const createQueryHandlerService: (
     logger.error(util.format('fail to obtain Fabric network config, %j', e));
     throw new Error(e);
   }
+
+  // Add common domain model reducer(s)
+  entityNames.push('organization');
+  reducers['organization'] = getReducer<Organization, OrgEvents>(orgReducer);
 
   // Step 1: Rebuild Index
   await rebuildIndex(publisher, logger);

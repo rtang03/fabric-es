@@ -19,6 +19,8 @@ const port = (process.env.PORT || 8080) as number;
     fabricNetwork: process.env.NETWORK_LOCATION,
     walletPath: process.env.WALLET_PATH,
     mspId: process.env.MSPID,
+    orgName: process.env.ORGNAME,
+    orgUrl: process.env.ORGURL,
   });
 
   process.on('SIGINT', () => {

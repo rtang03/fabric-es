@@ -260,6 +260,8 @@ beforeAll(async () => {
     fabricNetwork: process.env.NETWORK_LOCATION,
     walletPath: process.env.WALLET,
     mspId: process.env.MSPID,
+    orgName: process.env.ORGNAME,
+    orgUrl: process.env.ORGURL,
   }));
 
   await adminService.listen({ port: aPort });

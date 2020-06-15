@@ -36,8 +36,6 @@ export const createRemoteService = async ({
       context: ({ req: { headers } }): RemoteData => ({
         user_id: headers.user_id as string,
         is_admin: headers.is_admin as string,
-        // TODO: DEBUG to remove it
-        // client_id: headers.client_id as string,
         username: headers.username as string,
         uriResolver,
         remoteData: ({ uri, query, variables, context, operationName, token }) =>

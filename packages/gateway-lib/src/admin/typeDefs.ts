@@ -3,6 +3,7 @@
  * @hidden
  */
 import gql from 'graphql-tag';
+import { OrgTypeDefsQuery, OrgTypeDefsType } from './model/organization/typeDefs';
 
 export const typeDefs = gql`
   type Mutation {
@@ -16,6 +17,7 @@ export const typeDefs = gql`
     getPeerInfo: PeerInfo!
     getWallet: WalletEntry
     listWallet: [String!]!
+    ${OrgTypeDefsQuery}
   }
   type PeerInfo {
     peerName: String!
@@ -68,4 +70,5 @@ export const typeDefs = gql`
     no_of_tx: Int!
     transaction: [TransactionData!]!
   }
+  ${OrgTypeDefsType}
 `;
