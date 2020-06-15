@@ -27,6 +27,6 @@ VOLUME /home/app/logs
 
 WORKDIR /home/app/
 
-CMD [ "entrypoint.sh" ]
+ENTRYPOINT [ "entrypoint.sh" ]
 
 EXPOSE 8080
