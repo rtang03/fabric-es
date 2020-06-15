@@ -1,4 +1,6 @@
+require('dotenv').config();
 import { ApolloServer } from 'apollo-server-express';
+import cookieParser from 'cookie-parser';
 import errorHandler from 'errorhandler';
 import express from 'express';
 import next from 'next';
@@ -17,13 +19,15 @@ const port = parseInt(process.env.PORT || '3000', 10);
 
 const apolloServer = new ApolloServer({
   schema,
-  context: (ctx) => {
-    return ctx;
+  context: ({ req, res }) => {
+    const token = req.cookies?.token;
+    return { res, token, authUri: ENV.AUTH_HOST };
   },
 });
 
 app.prepare().then(() => {
   const app = express();
+  app.use(cookieParser());
   app.use(express.json());
   app.use(errorHandler());
 

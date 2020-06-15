@@ -13,7 +13,7 @@ import { settings } from './settings';
 import { tabs } from './tabs';
 
 const peerNodeUri =
-  require('../servers.json').peer_node_uri || 'http://localhost:4000/graphql';
+  require('../../../packages/ui-control/servers.json').peer_node_uri || 'http://localhost:4000/graphql';
 const port = parseInt(process.env.PORT || '3000', 10);
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });

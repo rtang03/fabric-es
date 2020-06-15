@@ -34,6 +34,7 @@ const createIsomorphLink = () => {
 const createClient = () =>
   new ApolloClient({
     ssrMode: typeof window === 'undefined',
+    credentials: 'include',
     link: createIsomorphLink(),
     cache: new InMemoryCache(),
   });

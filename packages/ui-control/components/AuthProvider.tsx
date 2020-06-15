@@ -1,6 +1,8 @@
 import React, { createContext, FC, Reducer, useReducer } from 'react';
 import { AnyAction, Authentication, User } from '../types';
 
+type Action = AnyAction<{ user?: User }>;
+
 type AuthReducer = Reducer<Authentication, AnyAction<{ user?: User }>>;
 
 const initialState = {
@@ -9,42 +11,17 @@ const initialState = {
   user: undefined,
 };
 
-const reducer: AuthReducer = (state, action) => {
-  switch (action.type) {
-    case 'LOGIN':
-      return {
-        loading: true,
-        loggedIn: false,
-        user: null,
-      };
-    case 'LOGIN_SUCCESS':
-      return {
-        loading: false,
-        loggedIn: true,
-        user: action?.payload?.user,
-      };
-    case 'LOGIN_FAILURE':
-      return {
-        loading: false,
-        loggedIn: true,
-        user: null,
-      };
-    case 'LOGOUT':
-      return {
-        loading: false,
-        loggedIn: false,
-        user: null,
-      };
-    default:
-      return state;
-  }
-};
+const reducer: AuthReducer = (state, { type, payload }) =>
+  ({
+    ['LOGIN' as string]: { loading: true, loggedIn: false, user: null },
+    ['LOGIN_SUCCESS']: { loading: false, loggedIn: true, user: payload?.user },
+    ['LOGIN_FAILURE']: { loading: false, loggedIn: false, user: null },
+    ['LOGOUT']: { loading: false, loggedIn: false, user: null },
+  }[type] || state);
 
 export const AuthContext = createContext<Authentication>(initialState);
 
-export const AuthDispatchContext = createContext<(action: AnyAction<{ user?: User }>) => void>(
-  () => null
-);
+export const AuthDispatchContext = createContext<(action: Action) => void>(() => null);
 
 export const AuthProvider: FC<any> = ({ children }) => {
   const [auth, dispatchAuth] = useReducer<AuthReducer>(reducer, initialState);

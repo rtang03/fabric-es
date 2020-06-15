@@ -1,11 +1,10 @@
 import { Snackbar } from '@material-ui/core';
+import Divider from '@material-ui/core/Divider';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import Head from 'next/head';
 import Link from 'next/link';
-import Router from 'next/router';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useAlert, useDispatchAlert } from './AlertProvider';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import Divider from '@material-ui/core/Divider';
 
 // const logout = async () => {
 //   const protocol = process.env.NODE_ENV === 'production' ? 'http' : 'http';
@@ -21,6 +20,7 @@ const Layout: React.FC<{
 }> = ({ children, title = 'No title', loading }) => {
   const alert = useAlert();
   const dispatch = useDispatchAlert();
+  const handleClose = useCallback(() => dispatch({ type: 'CLEAR' }), []);
 
   return (
     <div>
@@ -70,8 +70,8 @@ const Layout: React.FC<{
           horizontal: 'left',
         }}
         open={!!alert.message}
-        autoHideDuration={5000}
-        onClose={() => dispatch({ type: 'CLEAR' })}
+        autoHideDuration={3000}
+        onClose={handleClose}
         message={alert.message}
       />
     </div>

@@ -1,5 +1,5 @@
 const endpoint =
-  require('../servers.json').peer_node_uri || 'http://localhost:4000/graphql';
+  require('../../../packages/ui-control/servers.json').peer_node_uri || 'http://localhost:4000/graphql';
 
 export const tabs = [
   {

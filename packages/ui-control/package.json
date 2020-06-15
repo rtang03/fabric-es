@@ -25,7 +25,8 @@
     "clean": "rimraf dist && rimraf build",
     "build": "npm run clean && next build && tsc --project ./tsconfig.server.json",
     "start": "NODE_ENV=production node dist/server/index.js",
-    "lint": "eslint --max-warnings 10 '*/**/*.{ts,tsx}'"
+    "lint": "eslint --max-warnings 10 '*/**/*.{ts,tsx}'",
+    "generate-hook": "graphql-codegen --config codegen.yml"
   },
   "private": true,
   "dependencies": {
@@ -69,6 +70,12 @@
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
+    "@graphql-codegen/add": "^1.15.3",
+    "@graphql-codegen/cli": "^1.15.3",
+    "@graphql-codegen/introspection": "^1.15.3",
+    "@graphql-codegen/typescript": "^1.15.3",
+    "@graphql-codegen/typescript-react-apollo": "^1.15.3",
+    "@graphql-codegen/typescript-resolvers": "^1.15.3",
     "nodemon": "^2.0.4",
     "prettier": "^2.0.5"
   }

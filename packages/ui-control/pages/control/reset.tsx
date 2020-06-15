@@ -1,7 +1,6 @@
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
-import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
@@ -11,36 +10,38 @@ import React, { useEffect } from 'react';
 import * as yup from 'yup';
 import { useDispatchAlert } from '../../components';
 import Layout from '../../components/Layout';
-import { useLoginMutation } from '../../graphql/generated';
+import { useResetMutation } from '../../graphql/generated';
 import { getValidationSchema, useStyles } from '../../utils';
 
-const validation = yup.object(getValidationSchema(['username', 'password']));
-const ERROR = 'Fail to login';
-const SUCCESS = 'Login successfully';
+const validation = yup.object(getValidationSchema(['password', 'password2']));
+const ERROR = 'Fail to reset';
+const SUCCESS = 'Reset requested';
 
-const Login: NextPage<any> = () => {
+const Reset: NextPage<any> = () => {
   const dispatch = useDispatchAlert();
   const classes = useStyles();
-  const [login, { data, loading, error }] = useLoginMutation();
+  const [reset, { data, loading, error }] = useResetMutation();
 
   useEffect(() => {
-    data?.login && setTimeout(async () => Router.push('/control/dashboard'), 4000);
+    data?.reset && setTimeout(async () => Router.push('/control/login'), 4000);
   }, [data]);
 
   error && setTimeout(() => dispatch({ type: 'ERROR', message: ERROR }), 500);
 
   return (
-    <Layout title="Account | Login" loading={loading}>
+    <Layout title="Reset" loading={loading}>
       <Container component="main" maxWidth="sm">
-        <Typography variant="h6">Log in</Typography>
+        <Typography component="h1" variant="h5">
+          Reset
+        </Typography>
         <Formik
-          initialValues={{ username: '', password: '' }}
+          initialValues={{ password: '', password2: '' }}
           validateOnChange={true}
           validationSchema={validation}
-          onSubmit={async ({ username, password }, { setSubmitting }) => {
+          onSubmit={async ({ password, password2 }, { setSubmitting }) => {
             setSubmitting(true);
             try {
-              await login({ variables: { username, password } });
+              await reset({ variables: { password, password2 } });
               setSubmitting(false);
               setTimeout(() => dispatch({ type: 'SUCCESS', message: SUCCESS }), 500);
             } catch (e) {
@@ -55,22 +56,22 @@ const Login: NextPage<any> = () => {
                 <Grid item xs={12}>
                   <Field
                     size="small"
-                    label="Username"
+                    label="Password"
                     component={TextField}
-                    name="username"
-                    placeholder="username"
+                    name="password"
+                    placeholder="password"
                     variant="outlined"
                     margin="normal"
                     fullwidth="true"
-                    autoFocus
-                  />{' '}
+                    type="password"
+                  />
                 </Grid>
                 <Grid item xs={12}>
                   <Field
                     size="small"
-                    label="Password"
+                    label="Repeat password"
                     component={TextField}
-                    name="password"
+                    name="password2"
                     placeholder="password"
                     variant="outlined"
                     margin="normal"
@@ -85,17 +86,13 @@ const Login: NextPage<any> = () => {
                     color="primary"
                     disabled={
                       isSubmitting ||
-                      (!!errors?.username && !values?.username) ||
-                      (!!errors?.password && !values?.password)
+                      (!!errors?.password && !values?.password) ||
+                      (!!errors?.password2 && !values?.password2) ||
+                      values?.password !== values?.password2
                     }
                     type="submit">
-                    Log In
-                  </Button>{' '}
-                </Grid>
-                <Grid item>
-                  <Link href="/control/forget" variant="caption">
-                    Forgot username / password ?
-                  </Link>
+                    Reset password
+                  </Button>
                 </Grid>
               </Grid>
             </Form>
@@ -106,4 +103,4 @@ const Login: NextPage<any> = () => {
   );
 };
 
-export default Login;
+export default Reset;

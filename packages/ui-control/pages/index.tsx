@@ -11,7 +11,7 @@ const Index: NextPage<any> = () => {
 
   return (
     <Layout title="Home">
-      <Typography variant="h3">HOME</Typography>
+      <Typography variant="h6">HOME</Typography>
       <button onClick={handleAlert}>Alert</button>
     </Layout>
   );
