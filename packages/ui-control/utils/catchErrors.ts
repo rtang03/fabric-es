@@ -1,19 +1,27 @@
 import util from 'util';
-import { ApolloError } from '@apollo/client/core';
+import { ApolloError } from '@apollo/client';
 import { ApolloContext } from '../types';
-import { isRegisterResponse } from './typeGuard';
 
-export const catchErrors: <TResponse extends any>(
-  fetchFunction: (variables: any) => Promise<any>,
-  option: { fcnName: string; useAuth: boolean; typeGuard?: (input: any) => boolean }
-) => (root: any, variables: any, context: ApolloContext) => Promise<TResponse | ApolloError> = (
+export const catchErrors: <TResponse = any>(
+  fetchFunction: (variables: Record<string, string>, context: ApolloContext) => Promise<any>,
+  option: {
+    fcnName: string;
+    useAuth?: boolean;
+    typeGuard?: (input: any) => boolean;
+    onSuccess?: (result: TResponse, context: ApolloContext) => any;
+  }
+) => (
+  root: null,
+  variables: Record<string, string>,
+  context: ApolloContext
+) => Promise<TResponse | ApolloError> = (
   fetchFunction,
-  { fcnName, useAuth, typeGuard }
+  { fcnName, useAuth = false, typeGuard, onSuccess }
 ) => async (root, variables, context) => {
   let response;
 
   try {
-    response = await fetchFunction(variables);
+    response = await fetchFunction(variables, context);
   } catch (e) {
     console.error(util.format('%s: fail to fetch, %j', fcnName, e));
     return new ApolloError(e);
@@ -21,12 +29,15 @@ export const catchErrors: <TResponse extends any>(
 
   if (response.status !== 200) {
     const errorMessage = await response.text();
-    console.error(`fail to fetch: status-code: ${response.status}`);
+    console.error(`fail to fetch: code: ${response.status}`);
+
     return new ApolloError({ errorMessage });
   }
 
   try {
     const result = await response.json();
+
+    onSuccess?.(result, context);
 
     if (typeGuard)
       return typeGuard(result)

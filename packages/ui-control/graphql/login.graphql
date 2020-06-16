@@ -5,5 +5,10 @@ mutation Login(
   login(
     username: $username
     password: $password
-    )
+    ) {
+      id
+      access_token
+      username
+      token_type
+    }
 }

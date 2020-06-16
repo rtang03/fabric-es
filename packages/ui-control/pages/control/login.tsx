@@ -9,25 +9,30 @@ import { NextPage } from 'next';
 import Router from 'next/router';
 import React, { useEffect } from 'react';
 import * as yup from 'yup';
-import { useDispatchAlert } from '../../components';
+import { useDispatchAlert, useDispatchAuth } from '../../components';
 import Layout from '../../components/Layout';
 import { useLoginMutation } from '../../graphql/generated';
 import { getValidationSchema, useStyles } from '../../utils';
 
 const validation = yup.object(getValidationSchema(['username', 'password']));
 const ERROR = 'Fail to login';
-const SUCCESS = 'Login successfully';
+const SUCCESS = 'logged in';
 
 const Login: NextPage<any> = () => {
-  const dispatch = useDispatchAlert();
+  const dispatchAlert = useDispatchAlert();
+  const dispatchAuth = useDispatchAuth();
   const classes = useStyles();
   const [login, { data, loading, error }] = useLoginMutation();
 
   useEffect(() => {
-    data?.login && setTimeout(async () => Router.push('/control/dashboard'), 4000);
+    if (data?.login) {
+      setTimeout(async () => {
+        await Router.push('/control/dashboard');
+      }, 4200);
+    }
   }, [data]);
 
-  error && setTimeout(() => dispatch({ type: 'ERROR', message: ERROR }), 500);
+  error && setTimeout(() => dispatchAlert({ type: 'ERROR', message: ERROR }), 500);
 
   return (
     <Layout title="Account | Login" loading={loading}>
@@ -40,13 +45,18 @@ const Login: NextPage<any> = () => {
           onSubmit={async ({ username, password }, { setSubmitting }) => {
             setSubmitting(true);
             try {
+              dispatchAuth({ type: 'LOGIN' });
               await login({ variables: { username, password } });
               setSubmitting(false);
-              setTimeout(() => dispatch({ type: 'SUCCESS', message: SUCCESS }), 500);
+              setTimeout(
+                () => dispatchAlert({ type: 'SUCCESS', message: `${username} ${SUCCESS}` }),
+                500
+              );
             } catch (e) {
               console.error(e);
               setSubmitting(false);
-              setTimeout(() => dispatch({ type: 'ERROR', message: ERROR }), 500);
+              dispatchAuth({ type: 'LOGIN_FAILURE' });
+              setTimeout(() => dispatchAlert({ type: 'ERROR', message: ERROR }), 500);
             }
           }}>
           {({ values, errors, isSubmitting }) => (

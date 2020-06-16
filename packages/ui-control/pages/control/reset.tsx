@@ -32,7 +32,7 @@ const Reset: NextPage<any> = () => {
     <Layout title="Reset" loading={loading}>
       <Container component="main" maxWidth="sm">
         <Typography component="h1" variant="h5">
-          Reset
+          Reset (To be implemented)
         </Typography>
         <Formik
           initialValues={{ password: '', password2: '' }}

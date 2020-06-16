@@ -1,24 +1,27 @@
-import util from 'util';
-import { ApolloError, gql } from '@apollo/client/core';
+import { gql } from '@apollo/client/core';
 import { makeExecutableSchema } from 'graphql-tools';
 import fetch from 'isomorphic-unfetch';
-import { ApolloContext, RegisterResponse } from '../types';
-import { isRegisterResponse } from '../utils';
+import { ApolloContext, LoginResponse, RegisterResponse, User } from '../types';
+import { catchErrors, isLoginResponse, isRegisterResponse } from '../utils';
 
 export const resolvers = {
   Query: {
-    me: () => 'Hello',
+    me: catchErrors<User>(
+      (_: any, { authUri, token }) =>
+        fetch(`${authUri}/account/userinfo`, {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            authorization: `bearer ${token}`,
+          },
+          mode: 'cors',
+        }),
+      { fcnName: 'me' }
+    ),
   },
   Mutation: {
-    register: async (
-      _: any,
-      { username, password, email }: { username: string; password: string; email: string },
-      { authUri }: ApolloContext
-    ): Promise<RegisterResponse | ApolloError> => {
-      let response;
-
-      try {
-        response = await fetch(`${authUri}/account`, {
+    register: catchErrors<RegisterResponse>(
+      ({ username, password, email }, { authUri }) =>
+        fetch(`${authUri}/account`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -26,53 +29,37 @@ export const resolvers = {
           },
           body: JSON.stringify({ username, password, email }),
           mode: 'cors',
-        });
-      } catch (e) {
-        console.error(util.format('fail to fetch, %j', e));
-        return new ApolloError(e);
+        }),
+      {
+        fcnName: 'register',
+        typeGuard: isRegisterResponse,
       }
-
-      if (response.status !== 200) {
-        const errorMessage = await response.text();
-        console.error(`fail to fetch: status-code: ${response.status}`);
-        return new ApolloError({ errorMessage });
+    ),
+    login: catchErrors<LoginResponse>(
+      ({ username, password }, { authUri }) =>
+        fetch(`${authUri}/account/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: JSON.stringify({ username, password }),
+          mode: 'cors',
+        }),
+      {
+        fcnName: 'login',
+        typeGuard: isLoginResponse,
+        onSuccess: ({ access_token }, { res }) =>
+          res.cookie('token', access_token, {
+            httpOnly: true,
+            secure: false,
+            maxAge: 1000 * 60 * 60 * 24 * 31,
+          }),
       }
-
-      try {
-        const result: unknown = await response.json();
-        return isRegisterResponse(result)
-          ? result
-          : new ApolloError({ errorMessage: 'unexpected response format' });
-      } catch (e) {
-        console.error(util.format('fail to parse json, %j', e));
-        return new ApolloError(e);
-      }
-    },
-    login: async (
-      _: any,
-      { username, password }: { username: string; password: string },
-      { authUri, res }: ApolloContext
-    ) => {
-      const response = await fetch(`${authUri}/account/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify({ username, password }),
-        mode: 'cors',
-      });
-
-      const result = await response.json();
-
-      res.cookie('token', null, {
-        httpOnly: true,
-        secure: false,
-        maxAge: 1000 * 60 * 60 * 24 * 31,
-      });
-      res.status(200).send({ data: 'ok' });
-
-      return result;
+    ),
+    logout: (_: any, __: any, { res }: ApolloContext) => {
+      res.clearCookie('token');
+      return true;
     },
     forget: (_: any, { email }: { email: string }) => {
       console.log(email);
@@ -87,12 +74,21 @@ export const resolvers = {
 
 export const typeDefs = gql`
   type Query {
-    me: String
+    me: User!
+  }
+
+  type User {
+    id: String!
+    username: String!
+    is_deleted: Boolean!
+    is_admin: Boolean!
+    password: String!
   }
 
   type Mutation {
     register(email: String!, password: String!, username: String!): RegisteredUser
-    login(password: String!, username: String!): Boolean
+    login(password: String!, username: String!): LoggedInUser
+    logout: Boolean
     forget(email: String!): Boolean
     reset(password: String!, password2: String!): Boolean
   }
@@ -100,6 +96,13 @@ export const typeDefs = gql`
   type RegisteredUser {
     username: String!
     id: String!
+  }
+
+  type LoggedInUser {
+    username: String!
+    id: String!
+    access_token: String!
+    token_type: String!
   }
 `;
 

@@ -32,7 +32,7 @@ const Forget: NextPage<any> = () => {
     <Layout title="Reset" loading={loading}>
       <Container component="main" maxWidth="sm">
         <Typography component="h1" variant="h5">
-          Input email to reset password
+          Input email to reset password (To be implemented)
         </Typography>
         <Formik
           initialValues={{ email: '' }}

@@ -1,26 +1,34 @@
-import { Snackbar } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import Snackbar from '@material-ui/core/Snackbar';
 import Head from 'next/head';
 import Link from 'next/link';
-import React, { useCallback } from 'react';
+import Router from 'next/router';
+import React, { useCallback, useEffect } from 'react';
+import { useLogoutMutation } from '../graphql/generated';
+import { User } from '../types';
 import { useAlert, useDispatchAlert } from './AlertProvider';
-
-// const logout = async () => {
-//   const protocol = process.env.NODE_ENV === 'production' ? 'http' : 'http';
-//   if (typeof window !== 'undefined') {
-//     await fetch(`${protocol}://${window.location.host}/web/api/logout`);
-//     await Router.push('/web/login');
-//   }
-// };
+import { useAuth, useDispatchAuth } from './AuthProvider';
 
 const Layout: React.FC<{
   title?: string;
   loading?: boolean;
-}> = ({ children, title = 'No title', loading }) => {
+  user?: User;
+}> = ({ children, title = 'No title', loading, user }) => {
+  const auth = useAuth();
   const alert = useAlert();
-  const dispatch = useDispatchAlert();
-  const handleClose = useCallback(() => dispatch({ type: 'CLEAR' }), []);
+  const dispatchAlert = useDispatchAlert();
+  const dispatchAuth = useDispatchAuth();
+  const handleClose = useCallback(() => dispatchAlert({ type: 'CLEAR' }), []);
+  const [logout, { data: logoutResult }] = useLogoutMutation();
+
+  useEffect(() => {
+    if (logoutResult?.logout) {
+      setTimeout(() => dispatchAlert({ type: 'SUCCESS', message: 'Log out' }), 500);
+      setTimeout(() => dispatchAuth({ type: 'LOGOUT' }), 3500);
+      setTimeout(async () => Router.push(`/control`), 4000);
+    }
+  }, [logoutResult]);
 
   return (
     <div>
@@ -49,17 +57,28 @@ const Layout: React.FC<{
       `}</style>
       <header>
         <nav>
-          <Link href="/">
+          <Link href="/control">
             <a>Home</a>
           </Link>{' '}
-          |{' '}
-          <Link href="/control/register">
-            <a>Register</a>
-          </Link>{' '}
-          |{' '}
-          <Link href="/control/login">
-            <a>Log in</a>
-          </Link>
+          |
+          {auth.loggedIn ? (
+            <>
+              <Link href="/control/dashboard">
+                <a>Dashboard</a>
+              </Link>{' '}
+              | <a onClick={() => logout()}>Log out</a>
+            </>
+          ) : (
+            <>
+              <Link href="/control/register">
+                <a>Register</a>
+              </Link>{' '}
+              |{' '}
+              <Link href="/control/login">
+                <a>Log in</a>
+              </Link>{' '}
+            </>
+          )}
         </nav>
       </header>
       {loading ? <LinearProgress /> : <Divider />}
@@ -69,10 +88,10 @@ const Layout: React.FC<{
           vertical: 'bottom',
           horizontal: 'left',
         }}
-        open={!!alert.message}
+        open={!!alert?.message}
         autoHideDuration={3000}
         onClose={handleClose}
-        message={alert.message}
+        message={alert?.message}
       />
     </div>
   );

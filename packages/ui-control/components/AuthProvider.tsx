@@ -1,4 +1,4 @@
-import React, { createContext, FC, Reducer, useReducer } from 'react';
+import React, { createContext, FC, Reducer, useContext, useReducer } from 'react';
 import { AnyAction, Authentication, User } from '../types';
 
 type Action = AnyAction<{ user?: User }>;
@@ -32,3 +32,6 @@ export const AuthProvider: FC<any> = ({ children }) => {
     </AuthDispatchContext.Provider>
   );
 };
+
+export const useAuth = () => useContext(AuthContext);
+export const useDispatchAuth = () => useContext(AuthDispatchContext);

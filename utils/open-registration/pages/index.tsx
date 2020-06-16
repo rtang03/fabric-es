@@ -2,7 +2,7 @@ import Typography from '@material-ui/core/Typography';
 import { NextPage } from 'next';
 import React from 'react';
 import Layout from '../components/Layout';
-import ProTip from '../components/ProTip';
+import ProTip from '@fabric-es/ui-control/components/ProTip';
 
 const Index: NextPage = () => {
   return (

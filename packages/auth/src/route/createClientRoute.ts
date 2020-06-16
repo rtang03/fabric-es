@@ -48,7 +48,7 @@ export const createClientRoute: () => express.Router = () => {
           application_name: req.body?.application_name,
           client_secret: req.body?.client_secret,
           redirect_uris: req.body?.redirect_uris,
-          grants: req.body?.grants
+          grants: req.body?.grants,
         };
 
         if (!isUpdateClientRequest(request)) {
@@ -65,7 +65,7 @@ export const createClientRoute: () => express.Router = () => {
               application_name: request.application_name ?? client.application_name,
               client_secret: request.client_secret ?? client.client_secret,
               redirect_uris: request.redirect_uris ?? client.redirect_uris,
-              grants: request.grants ?? client.grants
+              grants: request.grants ?? client.grants,
             };
 
             await Client.update(client_id, payload);
@@ -125,7 +125,7 @@ export const createClientRoute: () => express.Router = () => {
             where: { user_id: user.id },
             order: { application_name: 'ASC' },
             skip: 0,
-            take: 10
+            take: 10,
           });
 
           if (clients?.length) {
@@ -155,7 +155,7 @@ export const createClientRoute: () => express.Router = () => {
           redirect_uris,
           user_id,
           grants: req.body?.grants || ['password', 'client_credentials'],
-          is_system_app: req.body?.is_system_app ?? false
+          is_system_app: req.body?.is_system_app ?? false,
         };
 
         if (!isCreateClientRequest(request)) {
@@ -169,7 +169,9 @@ export const createClientRoute: () => express.Router = () => {
 
         logger.info(`account ${user_id} register new client ${client.id}`);
 
-        return res.status(httpStatus.OK).send({ ok: true, application_name, id: client.id } as CreateClientResponse);
+        return res
+          .status(httpStatus.OK)
+          .send({ ok: true, application_name, id: client.id } as CreateClientResponse);
       },
       { logger, fcnName: 'register client' }
     )
