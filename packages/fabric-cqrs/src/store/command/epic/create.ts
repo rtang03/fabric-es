@@ -68,7 +68,7 @@ export default (action$: Observable<CreateAction>, _, context) =>
                   return track({
                     channelName, connectionProfile, wallet, tx_id, enrollmentId,
                     args: {
-                      parentName, id, version: 0
+                      entityName, parentName, id, version: 0
                     }
                   });
                 } else {

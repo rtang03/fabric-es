@@ -40,7 +40,7 @@ export const typeDefs = gql`
     reference: String!
     status: Int!
     timestamp: String!
-    tracking: [String]!
+    tracking: [Tracks]
     loan: Loan
   }
 
@@ -54,6 +54,19 @@ export const typeDefs = gql`
     loanId: String! @external
     documents: [Document]
   }
+
+
+
+  type Tracks @key(fields: "entityName") {
+    entityName: String!
+    organizations: [Organization]!
+  }
+
+  extend type Organization @key(fields: "mspId") {
+    mspId: String! @external
+  }
+
+
 
   union DocResponse = DocCommit | DocError
 
@@ -77,14 +90,12 @@ export const typeDefs = gql`
   }
 `;
 
-type Context = { dataSources: { document: DocumentDS }; username: string };
-
 const logger = getLogger('document/typeDefs.js');
 
 export const resolvers = {
   Query: {
     getCommitsByDocumentId: catchErrors(
-      async (_, { documentId }, { dataSources: { document } }: Context): Promise<Commit[]> =>
+      async (_, { documentId }, { dataSources: { document } }): Promise<Commit[]> =>
         document.repo.getCommitById({ id: documentId }).then(({ data }) => data || []),
       { fcnName: 'getCommitsByDocumentId', logger, useAuth: false }
     ),
@@ -92,7 +103,7 @@ export const resolvers = {
       async (
         _,
         { documentId },
-        { dataSources: { document }, username }: Context
+        { dataSources: { document }, username }
       ): Promise<Document> =>
         document.repo
           .getById({ id: documentId, enrollmentId: username })
@@ -103,7 +114,7 @@ export const resolvers = {
       async (
         _,
         { pageSize },
-        { dataSources: { document } }: Context
+        { dataSources: { document } }
       ): Promise<Paginated<Document>> =>
         document.repo.getByEntityName().then(
           ({ data }: { data: any[] }) =>
@@ -116,12 +127,12 @@ export const resolvers = {
       { fcnName: 'getPaginatedDocuments', logger, useAuth: false }
     ),
     searchDocumentByFields: catchErrors(
-      async (_, { where }, { dataSources: { document } }: Context): Promise<Document[]> =>
+      async (_, { where }, { dataSources: { document } }): Promise<Document[]> =>
         document.repo.find({ byId: where }).then(({ data }) => Object.values(data)),
       { fcnName: 'searchDocumentByFields', logger, useAuth: false }
     ),
     searchDocumentContains: catchErrors(
-      async (_, { contains }, { dataSources: { document } }: Context): Promise<Document[]> =>
+      async (_, { contains }, { dataSources: { document } }): Promise<Document[]> =>
         document.repo.find({ byDesc: contains }).then(({ data }) => Object.values(data)),
       { fcnName: 'searchDocumentContains', logger, useAuth: false }
     ),
@@ -131,7 +142,7 @@ export const resolvers = {
       async (
         _,
         { userId, documentId, loanId, title, reference },
-        { dataSources: { document }, username }: Context
+        { dataSources: { document }, username }
       ): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
@@ -152,7 +163,7 @@ export const resolvers = {
       async (
         _,
         { userId, documentId },
-        { dataSources: { document }, username }: Context
+        { dataSources: { document }, username }
       ): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
@@ -167,7 +178,7 @@ export const resolvers = {
       async (
         _,
         { userId, documentId },
-        { dataSources: { document }, username }: Context
+        { dataSources: { document }, username }
       ): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
@@ -181,7 +192,7 @@ export const resolvers = {
     updateDocument: async (
       _,
       { userId, documentId, loanId, title, reference },
-      { dataSources: { document }, username }: Context
+      { dataSources: { document }, username }
     ): Promise<Commit[]> => {
 
       // TODO: any[] is wrong typing, need fixing
@@ -231,20 +242,30 @@ export const resolvers = {
   },
   Loan: {
     documents: catchErrors(
-      async ({ loanId }, _, { dataSources: { document } }: Context) =>
+      async ({ loanId }, _, { dataSources: { document } }) =>
         document.repo.find({ where: { loanId }}).then(({ data }) => data),
       { fcnName: 'Loan/docuemnts', logger, useAuth: false }
     ),
   },
   Document: {
     __resolveReference: catchErrors(
-      async ({ documentId }, { dataSources: { document }, username }: Context): Promise<Document> =>
+      async ({ documentId }, { dataSources: { document }, username }): Promise<Document> =>
         document.repo
           .getById({ id: documentId, enrollmentId: username })
           .then(({ currentState }) => currentState),
       { fcnName: 'Document/__resolveReference', logger, useAuth: false }
     ),
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId }),
+    tracking: ({ tracking }) => {
+      return Object.keys(tracking).map(key => {
+        return {
+          entityName: key,
+          organizations: tracking[key].map(id => {
+            return { __typename: 'Organization', mspId: id };
+          }),
+        };
+      });
+    },
   },
   DocResponse: {
     __resolveType: (obj) => (obj.commitId ? 'DocCommit' : obj.message ? 'DocError' : {}),

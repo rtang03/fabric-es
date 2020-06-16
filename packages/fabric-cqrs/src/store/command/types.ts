@@ -25,6 +25,7 @@ export interface TrackAction {
   payload?: {
     tx_id: string;
     args: {
+      entityName?: string;
       parentName?: string;
       id: string;
       version: number;

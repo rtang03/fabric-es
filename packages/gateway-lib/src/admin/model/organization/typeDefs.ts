@@ -1,13 +1,13 @@
 import { catchErrors, getLogger } from '../../..';
 import { Organization } from '.';
 
-export const OrgTypeDefsQuery =`
+export const OrgTypeDefsQuery = `
 us: Organization
 getOrgById(mspId: String!): Organization
 `;
 
-export const OrgTypeDefsType =
-`type Organization @key(fields: "mspId") {
+export const OrgTypeDefsType = `
+type Organization @key(fields: "mspId") {
   mspId: String!
   name: String!
   url: String

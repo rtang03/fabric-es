@@ -47,7 +47,10 @@ export default (action$: Observable<TrackAction>, _, context): Observable<any> =
       else {
         const { tx_id, args, network, gateway } = getNetwork;
         const params = [args.parentName, args.id, args.version.toString()];
-        params.push(JSON.stringify([{ type: TRACK_EVENT, payload: { id: args.id }}]));
+        params.push(JSON.stringify([{
+          type: TRACK_EVENT,
+          payload: { id: args.id, entityName: args.entityName }
+        }]));
 
         return submit$('eventstore:createCommit', params, { network: network || context.network }).pipe(
           tap(commits => {

@@ -31,13 +31,15 @@ export const getReducer = <T, E>(reducer: (entity: T, event: E) => T) => (histor
  * @param commits 
  */
 export const trackingReducer = (commits: Commit[]) => {
-  const result: string[] = commits.reduce((tracks, commit) => {
-    if (commit.events && commit.events.every((event) => {
-      return (event.type === TRACK_EVENT);
-    })) {
-      tracks.push(commit.mspId);
-    }
-    return tracks;
-  }, []);
+  const result: Record<string, string[]> =
+    commits.reduce((tracks, commit) => {
+      commit.events?.forEach(event => {
+        if (event.type === TRACK_EVENT) {
+          if (!tracks[event.payload.entityName]) tracks[event.payload.entityName] = [];
+          tracks[event.payload.entityName].push(commit.mspId);
+        }
+      });
+      return tracks;
+    }, {});
   return { tracking: result };
 };
