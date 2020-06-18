@@ -11,7 +11,7 @@ import {
 import { ApolloServer } from 'apollo-server';
 import { Wallet } from 'fabric-network';
 import type { Redis } from 'ioredis';
-import { DataSrc } from '..';
+import { createRemoteData, DataSrc } from '..';
 import type { ModelService } from '../types';
 import { getLogger } from './getLogger';
 import { shutdown } from './shutdownApollo';
@@ -99,7 +99,9 @@ export const createService: (option: {
             user_id: headers.user_id,
             is_admin: headers.is_admin,
             username: headers.username,
-          }, args),
+          }, args, {
+            remoteData: createRemoteData
+          }),
         }, flags));
       };
 

@@ -2,7 +2,7 @@ import { Commit } from '@fabric-es/fabric-cqrs';
 import { catchErrors, getLogger, Paginated } from '@fabric-es/gateway-lib';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
-import { Document, documentCommandHandler, DocumentDS } from '.';
+import { Document, documentCommandHandler } from '.';
 
 export const typeDefs = gql`
   type Query {
@@ -40,8 +40,10 @@ export const typeDefs = gql`
     reference: String!
     status: Int!
     timestamp: String!
-    tracking: [Tracks]
     loan: Loan
+
+    # TODO Here
+    remoteDataTracking: [RemoteDataTracks]
   }
 
   type PaginatedDocuments {
@@ -54,19 +56,6 @@ export const typeDefs = gql`
     loanId: String! @external
     documents: [Document]
   }
-
-
-
-  type Tracks @key(fields: "entityName") {
-    entityName: String!
-    organizations: [Organization]!
-  }
-
-  extend type Organization @key(fields: "mspId") {
-    mspId: String! @external
-  }
-
-
 
   union DocResponse = DocCommit | DocError
 
@@ -87,6 +76,11 @@ export const typeDefs = gql`
   type DocError {
     message: String!
     stack: String
+  }
+
+  # TODO Here
+  extend type RemoteDataTracks @key(fields: "reference") {
+    reference: String! @external
   }
 `;
 
@@ -256,15 +250,14 @@ export const resolvers = {
       { fcnName: 'Document/__resolveReference', logger, useAuth: false }
     ),
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId }),
-    tracking: ({ tracking }) => {
-      return Object.keys(tracking).map(key => {
-        return {
-          entityName: key,
-          organizations: tracking[key].map(id => {
-            return { __typename: 'Organization', mspId: id };
-          }),
-        };
+    remoteDataTracking: ({ id, remoteDataTracking }) => {
+      const result = [];
+      Object.keys(remoteDataTracking).forEach(name => {
+        remoteDataTracking[name].forEach(mspId => {
+          result.push({ __typename: 'RemoteDataTracks', reference: `${id}\t${mspId}\t${name}` });
+        });
       });
+      return result;
     },
   },
   DocResponse: {

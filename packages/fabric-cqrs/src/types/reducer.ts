@@ -41,5 +41,5 @@ export const trackingReducer = (commits: Commit[]) => {
       });
       return tracks;
     }, {});
-  return { tracking: result };
+  return (Object.values(result).length > 0) ? { remoteDataTracking: result } : null;
 };

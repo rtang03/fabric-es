@@ -6,7 +6,7 @@ export { createService } from './utils/createService';
 export { getLogger } from './utils/getLogger';
 export { createAdminService } from './admin/createAdminService';
 export { createRemoteService } from './remote/createRemoteService';
-export { RemoteData } from './remote/remoteData';
+export { createRemoteData, RemoteData } from './remote/remoteData';
 export { createQueryHandlerService } from './query-handler';
 
 export * from './admin/query';
