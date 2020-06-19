@@ -150,7 +150,6 @@ beforeAll(async () => {
       connectionProfile,
       fabricNetwork,
       introspection: false,
-      mspId,
       ordererName,
       ordererTlsCaCert,
       peerName,

@@ -1,7 +1,8 @@
+import util from 'util';
 import { Commit } from '@fabric-es/fabric-cqrs';
 import { catchErrors, getLogger } from '@fabric-es/gateway-lib';
 import gql from 'graphql-tag';
-import { DocContents, docContentsCommandHandler, DocContentsDS } from '.';
+import { DocContents, docContentsCommandHandler, GET_CONTENTS_BY_ID } from '.';
 
 export const typeDefs = gql`
   type Query {
@@ -66,18 +67,16 @@ export const typeDefs = gql`
   ###
   extend type Document @key(fields: "documentId") {
     documentId: String! @external
-    contents: DocContents
+    contents: [DocContents]
   }
 `;
-
-type Context = { dataSources: { docContents: DocContentsDS }; username: string };
 
 const logger = getLogger('doc-contents/typeDefs.js');
 
 export const resolvers = {
   Query: {
     getDocContentsById: catchErrors(
-      async (_, { documentId }, { dataSources: { docContents }, username }: Context): Promise<DocContents> =>
+      async (_, { documentId }, { dataSources: { docContents }, username }): Promise<DocContents> =>
         docContents.repo.getById({ id: documentId, enrollmentId: username }).then(({ currentState }) => currentState),
       { fcnName: 'getDocContentsById', logger, useAuth: false }
     )
@@ -87,7 +86,7 @@ export const resolvers = {
       async (
         _,
         { userId, documentId, content },
-        { dataSources: { docContents }, username }: Context
+        { dataSources: { docContents }, username }
       ): Promise<Commit> => {
         let val;
         if (content.body && !content.format && !content.link) {
@@ -111,7 +110,7 @@ export const resolvers = {
       async (
         _,
         { userId, documentId, content },
-        { dataSources: { docContents }, username }: Context
+        { dataSources: { docContents }, username }
       ): Promise<Commit> => {
         let val;
         if (content.body && !content.format && !content.link) {
@@ -134,8 +133,29 @@ export const resolvers = {
   },
   Document: {
     contents: catchErrors(
-      async ({ documentId }, _, { dataSources: { docContents }, username }: Context) =>
-        docContents.repo.getById({ id: documentId, enrollmentId: username }).then(({ currentState }) => currentState),
+      async ({ documentId }, { token }, { dataSources: { organization, docContents, document }, username, mspId, remoteData }) => {
+        const doc = await document.repo.getById({ id: documentId, enrollmentId: username }).then(({ currentState }) => currentState);
+        const result = [];
+        for (const mspid of doc.remoteDataTracking[docContents.repo.getEntityName()]) {
+          if (mspid === mspId) {
+            result.push(await docContents.repo.getById({ id: documentId, enrollmentId: username }).then(({ currentState }) => currentState));
+          } else {
+            const org = await organization.repo.getById({ id: mspid, enrollmentId: username }).then(({ currentState }) => currentState);
+            await remoteData({
+              uri: org.url,
+              query: GET_CONTENTS_BY_ID,
+              operationName: 'GetDocContentsById',
+              variables: { documentId },
+              token
+            }).then(({ data }) => {
+              result.push(data?.getDocContentsById);
+            }).catch(error => {
+              logger.error(util.format('reemote data, %j', error));
+            });
+          }
+        };
+        return result;
+      },
       { fcnName: 'Document/contents', logger, useAuth: false }
     )
   },

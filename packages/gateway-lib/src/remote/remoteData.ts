@@ -1,8 +1,9 @@
-import util from 'util';
 import { execute, makePromise } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
-import { ApolloError } from 'apollo-server';
+import nodeFetch from 'node-fetch';
 import { UriResolver } from './uriResolver';
+
+const fetch = nodeFetch as any;
 
 export interface RemoteData {
   user_id?: string;
@@ -20,26 +21,19 @@ export interface RemoteData {
   }) => Promise<any[]>;
 };
 
-export const createRemoteData = ({ uri, query, variables, context, operationName, token, logger }) =>
-Promise.all(
-  uri.map((link) =>
-    makePromise(
-      execute(
-        new HttpLink({
-          uri: link,
-          fetch,
-          headers: { authorization: `Bearer ${token}` },
-        }),
-        {
-          query,
-          variables,
-          operationName,
-          context,
-        }
-      )
-    ).catch((error) => {
-      logger.error(util.format('executeHttpLink, %j', error));
-      return new ApolloError(error);
-    })
-  )
-);
+export const createRemoteData = ({ uri, query, variables, context, operationName, token }) =>
+  makePromise(
+    execute(
+      new HttpLink({
+        uri,
+        fetch,
+        headers: { authorization: `Bearer ${token}` },
+      }),
+      {
+        query,
+        variables,
+        operationName,
+        context,
+      }
+    )
+  );

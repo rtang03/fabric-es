@@ -3,15 +3,17 @@ import {
   createRepository,
   createPrivateRepository,
   getNetwork,
+  getReducer,
   PrivateRepository,
   Reducer,
   Repository,
   createQueryDatabase,
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
-import { Wallet } from 'fabric-network';
+import { Gateway, Network, Wallet } from 'fabric-network';
 import type { Redis } from 'ioredis';
 import { createRemoteData, DataSrc } from '..';
+import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
 import type { ModelService } from '../types';
 import { getLogger } from './getLogger';
 import { shutdown } from './shutdownApollo';
@@ -37,7 +39,11 @@ export const createService: (option: {
 }) => {
   const logger = getLogger('[gw-lib] createService.js');
 
-  const networkConfig = await getNetwork({
+  const networkConfig: {
+    enrollmentId: string;
+    network: Network;
+    gateway: Gateway;
+  } = await getNetwork({
     discovery: !isPrivate,
     asLocalhost,
     channelName,
@@ -45,6 +51,7 @@ export const createService: (option: {
     wallet,
     enrollmentId,
   });
+  const mspId = (networkConfig && networkConfig.gateway && networkConfig.gateway.getIdentity) ? networkConfig.gateway.getIdentity().mspId : undefined;
 
   const getPrivateRepository = <TEntity, TEvent>(entityName: string, reducer: Reducer, parentName?: string) =>
     createPrivateRepository<TEntity, TEvent>(entityName, reducer, {
@@ -64,6 +71,7 @@ export const createService: (option: {
     });
 
   return {
+    mspId,
     getRepository,
     getPrivateRepository,
     config: ({ typeDefs, resolvers }) => {
@@ -79,11 +87,18 @@ export const createService: (option: {
       }) => Promise<ApolloServer> = async (option) => {
         const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
 
-        const args = (option && option.mspId) ? { mspId: option.mspId } : undefined;
+        const args = (mspId) ? { mspId } : undefined;
         const flags = {
           playground: (option && option.playground),
           introspection: (option && option.introspection)
         };
+
+        if (repositories.filter(element => element.entityName === 'organization').length <= 0) { // TODO
+          repositories.push({
+            entityName: 'organization',
+            repository: getRepository<Organization, OrgEvents>('organization', getReducer<Organization, OrgEvents>(orgReducer))
+          });
+        }
 
         return new ApolloServer(Object.assign({
           schema,

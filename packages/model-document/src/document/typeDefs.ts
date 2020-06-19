@@ -41,9 +41,6 @@ export const typeDefs = gql`
     status: Int!
     timestamp: String!
     loan: Loan
-
-    # TODO Here
-    remoteDataTracking: [RemoteDataTracks]
   }
 
   type PaginatedDocuments {
@@ -76,11 +73,6 @@ export const typeDefs = gql`
   type DocError {
     message: String!
     stack: String
-  }
-
-  # TODO Here
-  extend type RemoteDataTracks @key(fields: "reference") {
-    reference: String! @external
   }
 `;
 
@@ -250,15 +242,6 @@ export const resolvers = {
       { fcnName: 'Document/__resolveReference', logger, useAuth: false }
     ),
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId }),
-    remoteDataTracking: ({ id, remoteDataTracking }) => {
-      const result = [];
-      Object.keys(remoteDataTracking).forEach(name => {
-        remoteDataTracking[name].forEach(mspId => {
-          result.push({ __typename: 'RemoteDataTracks', reference: `${id}\t${mspId}\t${name}` });
-        });
-      });
-      return result;
-    },
   },
   DocResponse: {
     __resolveType: (obj) => (obj.commitId ? 'DocCommit' : obj.message ? 'DocError' : {}),

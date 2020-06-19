@@ -16,7 +16,6 @@ const logger = getLogger('service-admin.js');
     connectionProfile: process.env.CONNECTION_PROFILE,
     fabricNetwork: process.env.NETWORK_LOCATION,
     walletPath: process.env.WALLET,
-    mspId: process.env.MSPID,
     orgName: process.env.ORGNAME,
     orgUrl: process.env.ORGURL,
   });

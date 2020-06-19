@@ -26,7 +26,6 @@ export const createAdminService: (option: {
   connectionProfile: string;
   fabricNetwork: string;
   walletPath: string;
-  mspId: string;
   orgName: string;
   orgUrl: string;
   asLocalhost?: boolean;
@@ -43,7 +42,6 @@ export const createAdminService: (option: {
   connectionProfile,
   fabricNetwork,
   walletPath,
-  mspId,
   orgName,
   orgUrl,
   asLocalhost = true,
@@ -72,30 +70,16 @@ export const createAdminService: (option: {
   }
 
   const wallet = await Wallets.newFileSystemWallet(walletPath);
-  const resolvers = await createResolvers({
-    caAdmin,
-    caAdminPW,
-    channelName,
-    ordererTlsCaCert,
-    ordererName,
-    connectionProfile,
-    fabricNetwork,
-    peerName,
-    wallet,
-    asLocalhost,
-    mspId,
-    enrollmentSecret,
-  });
 
   logger.info('createResolvers complete');
 
   const reducer = getReducer<Organization, OrgEvents>(orgReducer);
-  const { server, orgrepo } = await createService({
+  const { mspId, server, orgrepo } = await createService({
     enrollmentId: caAdmin,
     serviceName: 'admin',
     channelName, connectionProfile, wallet, asLocalhost,
     redis: new Redis({ host: process.env.REDIS_HOST, port: parseInt(process.env.REDIS_PORT, 10) }),
-  }).then(async ({ config, getRepository }) => {
+  }).then(async ({ mspId, config, getRepository }) => {
     const repo = getRepository<Organization, OrgEvents>('organization', reducer);
 
     const result = await orgCommandHandler({
@@ -110,12 +94,28 @@ export const createAdminService: (option: {
       }
     });
 
+    const resolvers = await createResolvers({
+      caAdmin,
+      caAdminPW,
+      channelName,
+      ordererTlsCaCert,
+      ordererName,
+      connectionProfile,
+      fabricNetwork,
+      peerName,
+      wallet,
+      asLocalhost,
+      mspId,
+      enrollmentSecret,
+    });
+  
     return {
+      mspId,
       server: await config({
           typeDefs, resolvers: { ...resolvers, ...orgResolvers }
         })
         .addRepository(repo)
-        .create({ mspId, playground, introspection }),
+        .create({ playground, introspection }),
       orgrepo: repo
     };
   });

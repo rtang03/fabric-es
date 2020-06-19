@@ -14,14 +14,6 @@ type Organization @key(fields: "mspId") {
   status: Int!
   timestamp: String!
 }
-
-type RemoteDataTracks @key(fields: "reference") {
-  reference: String!
-  entityId: String!
-  entityName: String
-  mspId: String!
-  url: String!
-}
 `;
 
 const logger = getLogger('organization/typeDefs.js');
@@ -41,20 +33,9 @@ export const resolvers = {
   },
   Organization: {
     __resolveReference: catchErrors(
-      async ({ mspId }, { dataSources: { organization }}): Promise<Organization> =>
-        organization.repo.getById({ id: mspId, enrollmentId: mspId }).then(({ currentState }) => currentState),
+      async ({ mspId }, { dataSources: { organization }}, username): Promise<Organization> =>
+        organization.repo.getById({ id: mspId, enrollmentId: username }).then(({ currentState }) => currentState),
       { fcnName: 'Organization/__resolveReference', logger, useAuth: false }
     ),
   },
-  RemoteDataTracks: {
-    __resolveReference: catchErrors(
-      async ({ reference }, { dataSources: { organization }}): Promise<any> => {
-        const keys = reference.split('\t'); // TODO apparently Apollo bug (maybe fixed?), work around with split
-        const org = await organization.repo.getById({ id: keys[1], enrollmentId: keys[1] }).then(({ currentState }) => currentState);
-        return {
-          entityId: keys[0], entityName: keys[2], mspId: keys[1], url: org.url
-        };
-      }, { fcnName: 'RemoteDataTracks/__resolveReference', logger, useAuth: false }
-    ),
-  }
 };
