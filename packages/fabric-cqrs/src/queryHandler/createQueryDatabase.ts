@@ -261,10 +261,10 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
       keys(group).forEach((id) => {
         const reduced = reducer(getHistory(values(group[id])));
-        if (reduced) Object.assign(reduced, trackingReducer(values(group[id])));
-        if (reduced?.id) entities.push(assign({ id }, reduced, trackingReducer(values(group[id]))));
-
-        else error.push({ id });
+        if (reduced?.id)
+          entities.push(assign({ id }, reduced, trackingReducer(values(group[id]))));
+        else
+          error.push({ id });
       });
 
       try {

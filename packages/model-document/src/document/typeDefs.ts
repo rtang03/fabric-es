@@ -40,6 +40,7 @@ export const typeDefs = gql`
     reference: String!
     status: Int!
     timestamp: String!
+    organization: [String]!
     loan: Loan
   }
 

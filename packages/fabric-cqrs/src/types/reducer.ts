@@ -1,6 +1,8 @@
 import { Commit } from '.';
 
 export const TRACK_EVENT = 'PrivateDataTracked';
+export const TRACK_FIELD = 'remoteDataTracking';
+export const ORGAN_FIELD = 'organization';
 
 /**
  * **Reducer**
@@ -31,15 +33,25 @@ export const getReducer = <T, E>(reducer: (entity: T, event: E) => T) => (histor
  * @param commits 
  */
 export const trackingReducer = (commits: Commit[]) => {
-  const result: Record<string, string[]> =
+  const result =
     commits.reduce((tracks, commit) => {
+      if (
+        (commit.events?.filter(event => event.type === TRACK_EVENT).length <= 0) &&
+        !tracks[ORGAN_FIELD].includes(commit.mspId)
+      ) {
+        tracks[ORGAN_FIELD].push(commit.mspId);
+      }
+
       commit.events?.forEach(event => {
         if (event.type === TRACK_EVENT) {
-          if (!tracks[event.payload.entityName]) tracks[event.payload.entityName] = [];
-          tracks[event.payload.entityName].push(commit.mspId);
+          if (!tracks[TRACK_FIELD][event.payload.entityName]) tracks[TRACK_FIELD][event.payload.entityName] = [];
+          tracks[TRACK_FIELD][event.payload.entityName].push(commit.mspId);
         }
       });
       return tracks;
-    }, {});
-  return (Object.values(result).length > 0) ? { remoteDataTracking: result } : null;
+    }, {
+      [ORGAN_FIELD]: [],
+      [TRACK_FIELD]: {}
+    });
+  return (Object.values(result[TRACK_FIELD]).length > 0) ? result : { [ORGAN_FIELD]: result[ORGAN_FIELD] };
 };

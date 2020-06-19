@@ -44,6 +44,7 @@ export const queryGetById: <TEntity, TEvent>(
 
   const currentState: TEntity = data ? reducer(getHistory(data)) : null;
   if (currentState) Object.assign(currentState, trackingReducer(values(data)));
+
   const save = !data
     ? null
     : dispatcher<Record<string, Commit>, { events: TEvent[] }>(
