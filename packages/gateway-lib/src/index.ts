@@ -1,15 +1,17 @@
 import { Commit, HandlerResponse } from '@fabric-es/fabric-cqrs';
 import { DataSource } from 'apollo-datasource';
+
 export { catchErrors } from './utils/catchErrors';
 export { createGateway } from './utils/createGateway';
 export { createService } from './utils/createService';
 export { getLogger } from './utils/getLogger';
 export { createAdminService } from './admin/createAdminService';
 export { createRemoteService } from './remote/createRemoteService';
-export { createRemoteData, RemoteData } from './remote/remoteData';
+export { createRemoteData, queryPrivateData, RemoteData } from './remote/remoteData';
 export { createQueryHandlerService } from './query-handler';
 
 export * from './admin/query';
+export * from './admin/model/organization';
 
 export class DataSrc<TRepo = any> extends DataSource {
   context;
