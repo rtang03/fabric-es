@@ -12,6 +12,10 @@ import { createQueryHandlerService, rebuildIndex } from '..';
 import { getLogger } from '../../utils';
 import { CREATE_COMMIT, FULL_TXT_SEARCH_COMMIT, FULL_TXT_SEARCH_ENTITY, ME } from '../query';
 
+/**
+ * ./dn-run.1-px-db-red-auth.sh or ./dn-run.2-px-db-red-auth.sh
+ */
+
 const caUrl = process.env.ORG_CA_URL;
 const channelName = process.env.CHANNEL_NAME;
 const connectionProfile = process.env.CONNECTION_PROFILE;

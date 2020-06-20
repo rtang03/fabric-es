@@ -5,7 +5,15 @@ import { action } from '../store/query';
 import type { RepoFcn, Reducer } from '../types';
 import { dispatcher } from './dispatcher';
 
-export const queryGetByEntityName: <TEntity>(
+/**
+ * retrieve commits and then reduce
+ * NOTE: there is no meta data, like __commit, nor __event
+ * @param entityName
+ * @param reducer
+ * @param logger
+ * @param store
+ */
+export const queryGetEntityByEntityName: <TEntity>(
   entityName: string,
   reducer: Reducer,
   option: { logger: Logger; store: Store }

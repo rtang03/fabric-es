@@ -3,8 +3,19 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action } from '../store/command';
 import type { Commit, SaveFcn } from '../types';
-import { addTimestamp, dispatcher, isCommitRecord } from '.';
+import { addCreatedAt, addCreator, addTimestamp, dispatcher, isCommitRecord } from '.';
 
+/**
+ * create Commit
+ * Basic Command-side Operation: mostly used by command handler
+ * @param entityName
+ * @param isPrivateData
+ * @param channelName
+ * @param logger
+ * @param connectionProfile
+ * @param wallet
+ * @param store
+ */
 export const commandCreate: <TEvent = any>(
   entityName: string,
   isPrivateData: boolean,
@@ -33,7 +44,7 @@ export const commandCreate: <TEvent = any>(
           id,
           version: 0,
           isPrivateData,
-          events: addTimestamp(events),
+          events: addCreator(addCreatedAt(events), enrollmentId),
         },
       }),
     {

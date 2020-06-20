@@ -35,7 +35,7 @@ beforeAll(async () => {
   store = getStore({ queryDatabase, reducers, logger });
 
   await dispatcher<QueryDatabaseResponse, { entityName: string }>(
-    (payload) => queryAction.deleteByEntityName(payload),
+    (payload) => queryAction.deleteCommitByEntityName(payload),
     {
       name: 'deleteByEntityName',
       store,
@@ -160,7 +160,7 @@ describe('Store/query Test', () => {
       .catch((result) => console.error(`eidx is not created: ${result}`));
 
     await dispatcher<number, { entityName: string }>(
-      (payload) => queryAction.deleteByEntityName(payload),
+      (payload) => queryAction.deleteCommitByEntityName(payload),
       {
         name: 'deleteByEntityName',
         store,

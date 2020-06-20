@@ -9,7 +9,7 @@ import { NextPage } from 'next';
 import Router from 'next/router';
 import React, { useEffect } from 'react';
 import * as yup from 'yup';
-import { useDispatchAlert, useDispatchAuth } from '../../components';
+import { useAuth, useDispatchAlert, useDispatchAuth } from '../../components';
 import Layout from '../../components/Layout';
 import { useLoginMutation } from '../../graphql/generated';
 import { getValidationSchema, useStyles } from '../../utils';
@@ -19,6 +19,7 @@ const ERROR = 'Fail to login';
 const SUCCESS = 'logged in';
 
 const Login: NextPage<any> = () => {
+  const auth = useAuth();
   const dispatchAlert = useDispatchAlert();
   const dispatchAuth = useDispatchAuth();
   const classes = useStyles();
@@ -26,9 +27,7 @@ const Login: NextPage<any> = () => {
 
   useEffect(() => {
     if (data?.login) {
-      setTimeout(async () => {
-        await Router.push('/control/dashboard');
-      }, 4200);
+      setTimeout(async () => Router.push('/control/dashboard'), 4200);
     }
   }, [data]);
 
@@ -72,6 +71,7 @@ const Login: NextPage<any> = () => {
                     variant="outlined"
                     margin="normal"
                     fullwidth="true"
+                    disabled={auth.loading}
                     autoFocus
                   />{' '}
                 </Grid>
@@ -86,6 +86,7 @@ const Login: NextPage<any> = () => {
                     margin="normal"
                     fullwidth="true"
                     type="password"
+                    disabled={auth.loading}
                   />{' '}
                 </Grid>
                 <Grid item xs={12}>

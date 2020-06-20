@@ -58,8 +58,8 @@ export interface Repository<TEntity = any, TEvent = any> {
   }>;
   getByEntityName: RepoFcn<TEntity[]>;
   getCommitById: RepoFcn_Id<Commit[]>;
-  query_deleteByEntityId: RepoFcn_Id<number>;
-  query_deleteByEntityName: RepoFcn<number>;
+  query_deleteCommitByEntityId: RepoFcn_Id<number>;
+  query_deleteCommitByEntityName: RepoFcn<number>;
   find: RepoFcn_find<Record<string, TEntity>>;
   getEntityName: () => string;
   disconnect: () => void;

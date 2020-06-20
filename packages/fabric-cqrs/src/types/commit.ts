@@ -24,6 +24,14 @@ export interface BaseEvent {
   payload?: any;
 }
 
+export interface BaseEntity {
+  _created: number;
+  _creator: string;
+  _ts: number;
+  __event?: string;
+  __commit?: string[];
+}
+
 /**
  * **Commit**
  */

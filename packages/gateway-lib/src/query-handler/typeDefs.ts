@@ -30,9 +30,15 @@ export const typeDefs = gql`
     me: String
     fullTextSearchCommit(query: String): [Commit]
     fullTextSearchEntity(query: String): [Entity]
+    getEntityByPeriod(duration: String!): [Entity]
+    # getEntityByCount(count: Int): [Entity]
+    # getEntityByPeriodBySubmitter(duration: String!, submitter: String!): [Entity]
   }
 
   type Entity {
+    # ts
+    # desc
+    # tag
     value: String
     entityName: String
     id: String

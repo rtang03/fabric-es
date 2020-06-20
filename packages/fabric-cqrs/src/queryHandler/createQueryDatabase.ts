@@ -19,10 +19,12 @@ import {
 
 export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js' });
+
   const countNonNull = (deletedItems: number[][]) =>
     flatten(deletedItems)
       .filter((item) => !!item)
       .reduce((prev, curr) => prev + curr, 0);
+
   const getHistory = (commits: Commit[]): any[] => {
     const history = [];
     commits.forEach(({ events }) => events.forEach((item) => history.push(item)));
@@ -106,6 +108,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       let result: Record<string, Commit>;
 
       try {
+        // retrieve commit by pattern
         commitArrays = await pipelineExecute(redis, 'GET', pattern);
       } catch (e) {
         logger.error(util.format('unknown redis error, %j', e));
@@ -113,6 +116,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       }
 
       try {
+        // convert from record to arrays
         result = arraysToCommitRecords(commitArrays);
       } catch (e) {
         logger.error(util.format('fail to parse json, %j', e));
@@ -125,6 +129,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       };
     },
     mergeCommit: async ({ commit }) => {
+      // merge one commit
       if (!isCommit(commit)) throw new Error('invalid input argument');
 
       const redisKey = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
@@ -142,6 +147,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       return { status, message: `${redisKey} merged successfully`, result: [redisKey] };
     },
     mergeCommitBatch: async ({ entityName, commits }) => {
+      // merge batch of commits
       if (!entityName || !commits) throw new Error('invalid input argument');
 
       const map: Record<string, string> = {};
@@ -180,7 +186,11 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       };
     },
     mergeEntity: async <TEntity>({ commit, reducer }) => {
+      // merge the commit, to upsert the entity
       if (!isCommit(commit) || !reducer) throw new Error('invalid input argument');
+
+      const entityName = commit.entityName;
+      const entityId = commit.entityId;
 
       let statusCommit;
       let statusEntity;
@@ -190,19 +200,28 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       let redisKeyEntity: string;
 
       try {
-        const commitsInRedis = await pipelineExecute(
-          redis,
-          'GET',
-          `${commit.entityName}::${commit.id}::*`
-        );
-        const commitToMerge = { [commit.commitId]: commit };
+        // retrieve existing commit
+        const commitsInRedis = await pipelineExecute(redis, 'GET', `${entityName}::${entityId}::*`);
+        const commitToMerge: Record<string, Commit> = { [commit.commitId]: commit };
 
-        const mergedResult = isEqual(commitsInRedis, [])
+        // merge existing record with newly arrived commit
+        const mergedResult: Record<string, Commit> = isEqual(commitsInRedis, [])
           ? commitToMerge
           : assign({}, arraysToCommitRecords(commitsInRedis), commitToMerge);
 
+        // compute events history, returning comma separator
+        const __event: string = flatten(values(mergedResult).map(({ events }) => events))
+          .map(({ type }) => type)
+          .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
+
         const currentState = reducer(getHistory(values(mergedResult)));
 
+        currentState.__event = __event;
+        currentState.__commit = keys(mergedResult).map(
+          (commitId) => `${entityName}::${entityId}::${commitId}`
+        );
+
+        // if no id existed in the computed entity, will be considered as error
         if (!currentState?.id) {
           return {
             status: 'ERROR',
@@ -261,7 +280,17 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       keys(group).forEach((id) => {
         const reduced = reducer(getHistory(values(group[id])));
 
-        if (reduced?.id) entities.push(assign({ id }, reduced));
+        // compute events history, returning commit separator
+        const __event = flatten(group[id].map(({ events }) => events))
+          .map(({ type }) => type)
+          .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
+
+        const __commit = flatten(group[id]).map(
+          ({ commitId }) => `${entityName}::${id}::${commitId}`
+        );
+
+        // if no id existed in the computed entity, will be considered as error
+        if (reduced?.id) entities.push(assign({ id }, { __event }, { __commit }, reduced));
         else error.push({ id });
       });
 
@@ -297,7 +326,19 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
       return doFullTextSearch<TEntity>(query, { redis, logger, index: 'eidx' });
     },
+    fullTextSearchGetDocument: async ({ index, documentId }) => {
+      // return the document of index
+      return null;
+    },
+    fullTextSearchTagVals: async ({ index, tag }) => {
+      // return unique tag value
+      return null;
+    },
     queryEntity: async ({ entityName, where }) => {
+      // queryEntity provides alternative implementation of getProjection
+      // NOTE: it supports ONLY where: { id }
+      // The query is based on entityId ONLY. That is current limitation.
+      // Todo: need to revisit later
       let entityArrays: string[][];
       let entities: any[];
       const result: any = {};

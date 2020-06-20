@@ -162,7 +162,7 @@ afterAll(async () => {
     .catch((result) => console.log(`eidx is not dropped: ${result}`));
 
   await repo
-    .query_deleteByEntityName()
+    .query_deleteCommitByEntityName()
     .then(({ data, status }) =>
       console.log(`${entityName}: ${data} record(s) deleted, status: ${status}`)
     );
@@ -183,7 +183,7 @@ describe('Repository Test', () => {
     }));
 
   it('should query_deleteByEntityId', async () =>
-    repo.query_deleteByEntityId({ id }).then(({ status }) => {
+    repo.query_deleteCommitByEntityId({ id }).then(({ status }) => {
       expect(status).toEqual('OK');
     }));
 

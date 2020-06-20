@@ -29,8 +29,8 @@ const {
   find,
   FIND_SUCCESS,
   FIND_ERROR,
-  deleteByEntityName,
-  deleteByEntityId,
+  deleteCommitByEntityName,
+  deleteCommitByEntityId,
   DELETE_SUCCESS,
   DELETE_ERROR,
   mergeCommit,
@@ -54,7 +54,7 @@ beforeAll(async () => {
 
   // tear up
   await dispatcher<QueryDatabaseResponse, { entityName: string }>(
-    (payload) => deleteByEntityName(payload),
+    (payload) => deleteCommitByEntityName(payload),
     {
       name: 'deleteByEntityName',
       store,
@@ -173,7 +173,7 @@ describe('Store/query: failure tests', () => {
 
   it('should fail to deleteByEntityId: invalid argument', async () =>
     dispatcher<QueryDatabaseResponse, { entityName: string; id: string }>(
-      (payload) => deleteByEntityId(payload),
+      (payload) => deleteCommitByEntityId(payload),
       {
         name: 'deleteByEntityId',
         store,
@@ -190,7 +190,7 @@ describe('Store/query: failure tests', () => {
 
   it('should fail to deleteByEntityName: invalid argument', async () =>
     dispatcher<QueryDatabaseResponse, { entityName: string }>(
-      (payload) => deleteByEntityName(payload),
+      (payload) => deleteCommitByEntityName(payload),
       {
         name: 'deleteByEntityName',
         store,
@@ -425,7 +425,7 @@ describe('Store/query Test', () => {
     }));
 
   it('should deleteByEntityId: return number of commits deleted', async () =>
-    dispatcher<number, { entityName: string; id: string }>((payload) => deleteByEntityId(payload), {
+    dispatcher<number, { entityName: string; id: string }>((payload) => deleteCommitByEntityId(payload), {
       name: 'deleteByEntityId',
       store,
       slice: 'query',
@@ -477,7 +477,7 @@ describe('Store/query Test', () => {
     }));
 
   it('should deleteByEntityName: return number of commits deleted', async () =>
-    dispatcher<number, { entityName: string }>((payload) => deleteByEntityName(payload), {
+    dispatcher<number, { entityName: string }>((payload) => deleteCommitByEntityName(payload), {
       name: 'deleteByEntityName',
       store,
       slice: 'query',

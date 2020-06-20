@@ -5,6 +5,17 @@ import { action } from '../store/command';
 import type { FabricResponse, RepoFcn_IdCommitId } from '../types';
 import { dispatcher, isFabricResponse } from '.';
 
+/**
+ * command-side: delete commit by EntityId and CommitIt
+ * Basic Command-side Operation: commonly used by unit test, specially privateRepo
+ * @param entityName
+ * @param isPrivateData
+ * @param store
+ * @param logger
+ * @param channelName
+ * @param connectionProfile
+ * @param wallet
+ */
 export const commandDeleteByEntityIdCommitId: (
   entityName: string,
   isPrivateData: boolean,

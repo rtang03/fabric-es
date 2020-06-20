@@ -5,6 +5,18 @@ import { action } from '../store/command';
 import type { Commit, RepoFcn_IdCommitId } from '../types';
 import { dispatcher, isCommitRecord } from '.';
 
+/**
+ * get commit by EntityId and CommitId
+ * Basic Command-side Operation: mostly used by command handler
+ * and also used by privateRepository
+ * @param entityName
+ * @param isPrivateData
+ * @param store
+ * @param logger
+ * @param connectionProfile
+ * @param channelName
+ * @param wallet
+ */
 export const commandGetByEntityIdCommitId: (
   entityName: string,
   isPrivateData: boolean,

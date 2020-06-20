@@ -30,7 +30,7 @@ export const doFullTextSearch: <T = any>(
   let result: Record<string, TEntity>;
   let ftsResult;
   try {
-    ftsResult = await redis.send_command('FT.SEARCH', [index, query, 'SORTBY', 'key', 'ASC']);
+    ftsResult = await redis.send_command('FT.SEARCH', [index, query]);
     result = {};
     if (ftsResult[0] === 0)
       return {

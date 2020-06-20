@@ -19,11 +19,12 @@ import {
   getLogger,
   isCommit,
   isCommitRecord,
-  queryDeleteByEntityId,
-  queryDeleteByEntityName,
-  queryGetByEntityName,
+  queryDeleteCommitByEntityId,
+  queryDeleteCommitByEntityName,
+  queryGetEntityByEntityName,
   queryGetById,
-  queryGetCommitById,
+  queryGetCommitByEntityId,
+  metaGetEntityByEntityName,
 } from '../utils';
 
 export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler = (options) => {
@@ -63,10 +64,14 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
     getById: <TEntity = any, TEvent = any>(entityName) =>
       queryGetById<TEntity, TEvent>(entityName, reducers[entityName], false, commandOption),
     getByEntityName: <TEntity = any>(entityName) =>
-      queryGetByEntityName<TEntity>(entityName, reducers[entityName], queryOption),
-    getCommitById: (entityName) => queryGetCommitById(entityName, queryOption),
-    query_deleteByEntityId: (entityName) => queryDeleteByEntityId(entityName, queryOption),
-    query_deleteByEntityName: (entityName) => queryDeleteByEntityName(entityName, queryOption),
+      queryGetEntityByEntityName<TEntity>(entityName, reducers[entityName], queryOption),
+    getCommitById: (entityName) => queryGetCommitByEntityId(entityName, queryOption),
+    query_deleteCommitByEntityId: (entityName) =>
+      queryDeleteCommitByEntityId(entityName, queryOption),
+    query_deleteCommitByEntityName: (entityName) =>
+      queryDeleteCommitByEntityName(entityName, queryOption),
+    meta_getByEntityName: <TEntity = any>(entiyName) =>
+      metaGetEntityByEntityName<TEntity>(entiyName, queryOption),
     fullTextSearchCommit: () =>
       dispatcher<Record<string, Commit>, { query: string }>(
         (payload) => queryAction.cIdxSearch(payload),

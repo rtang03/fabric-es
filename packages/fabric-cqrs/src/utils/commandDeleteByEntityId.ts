@@ -5,6 +5,17 @@ import { action } from '../store/command';
 import type { FabricResponse, RepoFcn_Id } from '../types';
 import { dispatcher, isFabricResponse } from '.';
 
+/**
+ * command-side: delete commit by EntityId
+ * Basic Command-side Operation: commonly used by unit test
+ * @param entityName
+ * @param isPrivateData
+ * @param connectionProfile
+ * @param channelName
+ * @param logger
+ * @param store
+ * @param wallet
+ */
 export const commandDeleteByEntityId: (
   entityName: string,
   isPrivateData: boolean,
@@ -22,7 +33,7 @@ export const commandDeleteByEntityId: (
 ) =>
   dispatcher<FabricResponse, { id: string }>(
     ({ tx_id, args: { id } }) =>
-      action.deleteByEntityId({
+      action.deleteCommitByEntityId({
         connectionProfile,
         channelName,
         wallet,

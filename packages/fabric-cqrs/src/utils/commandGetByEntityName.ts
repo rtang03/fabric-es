@@ -5,6 +5,17 @@ import { action } from '../store/command';
 import type { Commit, RepoFcn } from '../types';
 import { dispatcher, isCommitRecord } from '.';
 
+/**
+ * get commit by EntityName
+ * Basic Command-side Operation: mostly used by command handler
+ * @param entityName
+ * @param isPrivateData
+ * @param channelName
+ * @param connectionProfile
+ * @param wallet
+ * @param store
+ * @param logger
+ */
 export const commandGetByEntityName: (
   entityName: string,
   isPrivateData: boolean,

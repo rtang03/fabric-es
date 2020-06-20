@@ -42,6 +42,11 @@ export interface QueryDatabase {
   fullTextSearchEntity: <TEntity = any>(option: {
     query: string;
   }) => Promise<QueryDatabaseResponse<Record<string, TEntity>>>;
+  fullTextSearchGetDocument: (option: {
+    index: string;
+    documentId: string;
+  }) => Promise<QueryDatabaseResponse>;
+  fullTextSearchTagVals: (option: { index: string; tag: string }) => Promise<QueryDatabaseResponse>;
   queryEntity: <TEntity = any>(option: {
     entityName: string;
     where?: { [K in keyof TEntity]: TEntity[K] };

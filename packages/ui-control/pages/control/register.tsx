@@ -67,6 +67,7 @@ const Register: NextPage<any> = () => {
                     variant="outlined"
                     margin="normal"
                     fullwidth="true"
+                    disabled={isSubmitting}
                     autoFocus
                   />{' '}
                 </Grid>
@@ -80,6 +81,7 @@ const Register: NextPage<any> = () => {
                     variant="outlined"
                     margin="normal"
                     fullwidth="true"
+                    disabled={isSubmitting}
                   />{' '}
                 </Grid>
                 <Grid item xs={12}>
@@ -93,6 +95,7 @@ const Register: NextPage<any> = () => {
                     margin="normal"
                     fullwidth="true"
                     type="password"
+                    disabled={isSubmitting}
                     autoComplete="current-password"
                   />{' '}
                 </Grid>

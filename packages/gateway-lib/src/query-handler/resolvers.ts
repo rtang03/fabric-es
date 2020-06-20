@@ -8,6 +8,13 @@ import { catchErrors, getLogger } from '../utils';
 import { rebuildIndex } from './rebuildIndex';
 import { reconcile } from './reconcile';
 
+interface Entity {
+  lastModified: number;
+  entityName: string;
+  id: string;
+  value: string;
+}
+
 const COMMIT_ARRIVED = 'COMMIT_ARRIVED';
 const DEV = 'DEV';
 const logger = getLogger('[gateway-lib] queryHandler/resolvers.js');
@@ -59,18 +66,19 @@ export const resolvers = {
       },
       { fcnName: 'fullTextSearchCommit', useAdmin: false, useAuth: false, logger }
     ),
-    fullTextSearchEntity: catchErrors(
+    fullTextSearchEntity: catchErrors<Entity[] | ApolloError>(
       async (
         _,
         { query },
         { queryHandler }: QueryHandlerGqlCtx
-      ): Promise<{ entityName: string; id: string; value: string }[] | ApolloError> => {
+      ): Promise<Entity[] | ApolloError> => {
         const { data, error, status } = await queryHandler.fullTextSearchEntity()({ query });
 
         if (status !== 'OK') return new ApolloError(JSON.stringify(error));
 
         return data
           ? Object.entries(data).map(([key, value]) => ({
+              lastModified: value?.ts,
               value: JSON.stringify(value),
               entityName: key.split('::')[0],
               id: key.split('::')[1],
@@ -79,6 +87,7 @@ export const resolvers = {
       },
       { fcnName: 'fullTextSearchEntity', useAdmin: false, useAuth: false, logger }
     ),
+    getEntityByPeriod: (_, { duration }, { queryHandler }: QueryHandlerGqlCtx) => {},
   },
   Subscription: {
     pong: {

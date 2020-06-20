@@ -4,6 +4,13 @@ import { action } from '../store/query';
 import type { RepoFcn_find } from '../types';
 import { dispatcher } from './dispatcher';
 
+/**
+ * FindBy operation
+ * TODO: "where" clause is currently limited to "where: { id }". Need improvement
+ * @param entityName
+ * @param store
+ * @param logger
+ */
 export const queryFind: <TEntity>(
   entityName: string,
   option: { logger: Logger; store: Store }

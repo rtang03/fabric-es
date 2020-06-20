@@ -9,12 +9,11 @@ import {
   CounterEvent,
   createQueryDatabase,
   createQueryHandler,
-  dummyReducer,
   entityIndex,
 } from '..';
 import { getNetwork } from '../../services';
 import type { Commit, QueryHandler } from '../../types';
-import { Counter } from '../../unit-test-reducer';
+import { Counter, reducer } from '../../unit-test-reducer';
 import { isCommit, isCommitRecord } from '../../utils';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
@@ -30,7 +29,7 @@ const walletPath = process.env.WALLET;
 const entityName = 'test_subscribe';
 const id = `qh_sub_test_001`;
 const enrollmentId = orgAdminId;
-const reducers = { [entityName]: dummyReducer };
+const reducers = { [entityName]: reducer };
 let redis: Redis.Redis;
 
 let queryHandler: QueryHandler;
@@ -98,7 +97,7 @@ beforeAll(async () => {
       });
 
     await queryHandler
-      .query_deleteByEntityName(entityName)()
+      .query_deleteCommitByEntityName(entityName)()
       .then(({ data }) => console.log(`${data} record(s) deleted`));
 
     await queryHandler.subscribeHub([entityName]);
@@ -145,7 +144,7 @@ afterAll(async () => {
     .catch((result) => console.log(`eidx is not dropped: ${result}`));
 
   await queryHandler
-    .query_deleteByEntityName(entityName)()
+    .query_deleteCommitByEntityName(entityName)()
     .then(({ data }) => console.log(`${data} records deleted`))
     .catch((error) => console.log(error));
 
@@ -237,6 +236,13 @@ describe('Query Handler Tests', () => {
         const counter = Object.values(data)[0];
         const key = Object.keys(data)[0];
         expect(key).toEqual(`${entityName}::${id}`);
-        expect(omit(counter, 'ts')).toEqual({ id, value: 0 });
+        expect(omit(counter, '_ts', '_created', '__commit')).toEqual({
+          id,
+          value: 0,
+          tag: 'subscription',
+          desc: 'query hander #2 sub-test',
+          _creator: 'admin-org1.net',
+          __event: 'Increment,Decrement',
+        });
       }));
 });

@@ -15,12 +15,12 @@ import type {
 const CREATE = '[Command] Create';
 const CREATE_ERROR = '[Command] Create Error';
 const CREATE_SUCCESS = '[Command] Create Success';
-const DELETE_BY_ENTITYID = '[Command] Delete entities By entityName and id';
+const DELETE_BY_ENTITYID = '[Command] Delete commit By entityName and id';
 const DELETE_ERROR = '[Command] Delete Error';
 const DELETE_SUCCESS = '[Command] Delete Success';
 const DELETE_BY_ENTITYID_COMMITID = '[Command] Delete By entityId and commitId';
-const QUERY_BY_ENTITY_ID = '[Command] Query entity by entity id';
-const QUERY_BY_ENTITY_NAME = '[Command] Query entity by entityName';
+const QUERY_BY_ENTITY_ID = '[Command] Query commit by entity id';
+const QUERY_BY_ENTITY_NAME = '[Command] Query commit by entityName';
 const QUERY_BY_ENTITYID_COMMITID = '[Command] Query by entity id and commitId';
 const QUERY_ERROR = '[Command] Query Error';
 const QUERY_SUCCESS = '[Command] Query Success';
@@ -39,7 +39,7 @@ export const action = {
   QUERY_ERROR,
   QUERY_SUCCESS,
   create: getAction<CreateAction>(CREATE),
-  deleteByEntityId: getAction<DeleteByEntityIdAction>(DELETE_BY_ENTITYID),
+  deleteCommitByEntityId: getAction<DeleteByEntityIdAction>(DELETE_BY_ENTITYID),
   deleteByEntityIdCommitId: getAction<DeleteByEntityIdCommitIdAction>(DELETE_BY_ENTITYID_COMMITID),
   queryByEntityId: getAction<QueryByEntityIdAction>(QUERY_BY_ENTITY_ID),
   queryByEntityName: getAction<QueryByEntityNameAction>(QUERY_BY_ENTITY_NAME),

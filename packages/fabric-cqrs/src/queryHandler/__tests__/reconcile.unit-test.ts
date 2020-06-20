@@ -31,7 +31,7 @@ let queryHandler: QueryHandler;
 let redis: Redis.Redis;
 
 /**
- * ./dn-run-1-px-db-red-auth.sh
+ * ./dn-run.1-px-db-red-auth.sh
  */
 
 beforeAll(async () => {
@@ -98,7 +98,7 @@ beforeAll(async () => {
       .then(({ data }) => console.log(data.message));
 
     await queryHandler
-      .query_deleteByEntityName(entityName)()
+      .query_deleteCommitByEntityName(entityName)()
       .then(({ data }) => console.log(`${data} records deleted`));
 
     await redis
@@ -140,7 +140,7 @@ afterAll(async () => {
     .catch((result) => console.log(`eidx is not dropped: ${result}`));
 
   await queryHandler
-    .query_deleteByEntityName(entityName)()
+    .query_deleteCommitByEntityName(entityName)()
     .then(({ data }) => console.log(`${data} records deleted`))
     .catch((error) => console.log(error));
 
@@ -209,9 +209,7 @@ describe('Reconcile Tests', () => {
       }));
 
   it('should query_getById, and add new event for id1', async () => {
-    const { currentState, save } = await queryHandler.getById<Counter, CounterEvent>(
-      entityName
-    )({
+    const { currentState, save } = await queryHandler.getById<Counter, CounterEvent>(entityName)({
       enrollmentId,
       id,
       reducer,
@@ -271,7 +269,7 @@ describe('Reconcile Tests', () => {
         expect(counter.desc).toEqual('query handler #2 reconcile-test');
         expect(counter.tag).toEqual('reconcile');
         expect(counter.value).toEqual(2);
-        expect(typeof counter.ts).toEqual('number');
+        expect(typeof counter._ts).toEqual('number');
       }));
 
   it('should create #2 record for id2', async () =>
@@ -307,17 +305,29 @@ describe('Reconcile Tests', () => {
         expect(currentState.tag).toEqual('reconcile');
         expect(currentState.desc).toEqual('query handler #3 reconcile-test');
         expect(currentState.value).toEqual(1);
-        expect(typeof currentState.ts).toEqual('number');
+        expect(typeof currentState._ts).toEqual('number');
       }));
 
   it('should query_getByEntityName', async () =>
     queryHandler
       .getByEntityName<Counter>(entityName)()
-      .then(({ data }) => data.map<Partial<Counter>>((item) => omit(item, 'ts')))
+      .then(({ data }) => data.map<Partial<Counter>>((item) => omit(item, '_ts', '_created')))
       .then((counters) => {
         expect(counters).toEqual([
-          { value: 2, id, tag: 'reconcile', desc: 'query handler #2 reconcile-test' },
-          { value: 1, id: id2, tag: 'reconcile', desc: 'query handler #3 reconcile-test' },
+          {
+            value: 2,
+            id,
+            tag: 'reconcile',
+            desc: 'query handler #2 reconcile-test',
+            _creator: 'admin-org1.net',
+          },
+          {
+            value: 1,
+            id: id2,
+            tag: 'reconcile',
+            desc: 'query handler #3 reconcile-test',
+            _creator: 'admin-org1.net',
+          },
         ]);
       }));
 
@@ -344,7 +354,7 @@ describe('Reconcile Tests', () => {
 
   it('should fail to query_deleteByEntityId for id1: non-existing entityName', async () =>
     queryHandler
-      .query_deleteByEntityId('noop')({ id })
+      .query_deleteCommitByEntityId('noop')({ id })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data).toEqual(0);
@@ -352,7 +362,7 @@ describe('Reconcile Tests', () => {
 
   it('should fail to query_deleteByEntityId for id1: non-existing entityId', async () =>
     queryHandler
-      .query_deleteByEntityId(entityName)({ id: 'noop' })
+      .query_deleteCommitByEntityId(entityName)({ id: 'noop' })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data).toEqual(0);
@@ -360,7 +370,7 @@ describe('Reconcile Tests', () => {
 
   it('should query_deleteByEntityId for id1', async () =>
     queryHandler
-      .query_deleteByEntityId(entityName)({ id })
+      .query_deleteCommitByEntityId(entityName)({ id })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data).toEqual(2);

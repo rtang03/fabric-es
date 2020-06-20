@@ -155,21 +155,43 @@ describe('Projection db test', () => {
           id: 'qh_proj_test_001',
           desc: 'query handler #2 proj',
           tag: 'projection',
-          ts: 1590739000,
+          _ts: 1590739000,
+          _created: 1590738792,
+          _creator: 'org1-admin',
+          __event: 'Increment,Increment',
+          __commit: [
+            'test_proj::qh_proj_test_001::20200528133519841',
+            'test_proj::qh_proj_test_001::20200528133520841',
+          ],
         },
         'test_proj::qh_proj_test_002': {
           id: 'qh_proj_test_002',
           value: 3,
           desc: 'query handler #5 proj',
           tag: 'projection',
-          ts: 1590740002,
+          _ts: 1590740002,
+          _created: 1590740000,
+          _creator: 'org1-admin',
+          __event: 'Increment,Increment,Increment',
+          __commit: [
+            'test_proj::qh_proj_test_002::20200528133530001',
+            'test_proj::qh_proj_test_002::20200528133530002',
+            'test_proj::qh_proj_test_002::20200528133530003',
+          ],
         },
         'test_proj::qh_proj_test_003': {
           id: 'qh_proj_test_003',
           value: 2,
           desc: 'query handler #7 proj',
           tag: 'projection',
-          ts: 1590740004,
+          _ts: 1590740004,
+          _created: 1590740003,
+          _creator: 'org1-admin',
+          __event: 'Increment,Increment',
+          __commit: [
+            'test_proj::qh_proj_test_003::20200528133530004',
+            'test_proj::qh_proj_test_003::20200528133530005',
+          ],
         },
       });
     }));
@@ -211,6 +233,14 @@ describe('Projection db test', () => {
           id: 'qh_proj_test_001',
           desc: 'query handler #2 proj',
           tag: 'projection',
+          _ts: 1590739000,
+          _created: 1590738792,
+          _creator: 'org1-admin',
+          __event: 'Increment,Increment',
+          __commit: [
+            'test_proj::qh_proj_test_001::20200528133519841',
+            'test_proj::qh_proj_test_001::20200528133520841',
+          ],
         });
       }));
 
@@ -227,6 +257,14 @@ describe('Projection db test', () => {
           id: 'qh_proj_test_001',
           desc: 'query handler #2 proj',
           tag: 'projection',
+          _ts: 1590739000,
+          _created: 1590738792,
+          _creator: 'org1-admin',
+          __event: 'Increment,Increment',
+          __commit: [
+            'test_proj::qh_proj_test_001::20200528133519841',
+            'test_proj::qh_proj_test_001::20200528133520841',
+          ],
         });
       }));
 });

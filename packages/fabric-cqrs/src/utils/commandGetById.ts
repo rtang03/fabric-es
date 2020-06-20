@@ -5,6 +5,18 @@ import { action } from '../store/command';
 import type { Commit, SaveFcn, Reducer } from '../types';
 import { addTimestamp, dispatcher, getHistory, isCommitRecord } from '.';
 
+/**
+ * get CurrentState by entityId, and return save function
+ * Basic Command-side Operation: only used by privateRepository
+ * @param entityName
+ * @param reducer
+ * @param isPrivateData
+ * @param store
+ * @param logger
+ * @param wallet
+ * @param connectionProfile
+ * @param channelName
+ */
 export const commandGetById: <TEntity, TEvent>(
   entityName: string,
   reducer: Reducer,

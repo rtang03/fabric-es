@@ -1,3 +1,5 @@
+import Container from '@material-ui/core/Container';
+import Typography from '@material-ui/core/Typography';
 import { NextPage } from 'next';
 import Router from 'next/router';
 import React, { useEffect } from 'react';
@@ -25,7 +27,16 @@ const Dashboard: NextPage<any> = () => {
 
   return (
     <Layout title="Dashboard" loading={loading} user={data?.me}>
-      {error ? <>Error when authenticating user</> : <>Data Loading</>}
+      {error ? (
+        <>Error when authenticating user</>
+      ) : (
+        <>
+          <Typography component="h1" variant="h5">
+            Dashboard
+          </Typography>
+
+        </>
+      )}
     </Layout>
   );
 };
