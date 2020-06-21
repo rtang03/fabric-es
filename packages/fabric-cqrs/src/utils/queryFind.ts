@@ -14,8 +14,8 @@ import { dispatcher } from './dispatcher';
 export const queryFind: <TEntity>(
   entityName: string,
   option: { logger: Logger; store: Store }
-) => RepoFcn_find<Record<string, TEntity>> = <TEntity>(entityName, { store, logger }) =>
-  dispatcher<Record<string, TEntity>, { byId: string; byDesc: string; where: any }>(
+) => RepoFcn_find<TEntity[]> = <TEntity>(entityName, { store, logger }) =>
+  dispatcher<TEntity[], { byId: string; byDesc: string; where: any }>(
     ({ tx_id, args: { byId, byDesc, where } }) =>
       action.find({ tx_id, args: { byId, byDesc, entityName, where } }),
     {

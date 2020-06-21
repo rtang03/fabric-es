@@ -1,3 +1,4 @@
+import assign from 'lodash/assign';
 import { BaseEvent } from '../types';
 
 export const addCreator: (events: BaseEvent[], enrollmentId) => BaseEvent[] = (
@@ -6,5 +7,5 @@ export const addCreator: (events: BaseEvent[], enrollmentId) => BaseEvent[] = (
 ) =>
   events.map((event) => ({
     ...event,
-    payload: Object.assign({}, event.payload, { _creator: enrollmentId }),
+    payload: assign({}, event.payload, { _creator: enrollmentId }),
   }));

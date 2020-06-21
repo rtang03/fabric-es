@@ -65,7 +65,7 @@ export interface CIdxSearchAction {
   payload?: {
     tx_id: string;
     args: {
-      query: string;
+      query: string[];
     };
   };
 }
@@ -75,7 +75,7 @@ export interface EIdxSearchAction {
   payload?: {
     tx_id: string;
     args: {
-      query: string;
+      query: string[];
     };
   };
 }

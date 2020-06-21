@@ -48,7 +48,7 @@ export interface QueryHandler {
   ) => (option: {
     enrollmentId: string;
     id: string;
-    reducer: Reducer;
+    // reducer?: Reducer;
   }) => Promise<{
     currentState: TEntity;
     save: SaveFcn<TEvent>;
@@ -77,18 +77,18 @@ export interface QueryHandler {
   meta_getByEntityName: <TEntity = any>(
     entiyName: string
   ) => (payload: {
-    page: number;
+    cursor: number;
     countPerPage: number;
     sortByField: 'id' | 'key' | 'created' | 'creator' | 'ts';
     sort: 'ASC' | 'DESC';
   }) => Promise<HandlerResponse<TEntity[]>>;
 
   fullTextSearchCommit: () => (payload: {
-    query: string;
-  }) => Promise<HandlerResponse<Record<string, Commit>>>;
+    query: string[];
+  }) => Promise<HandlerResponse<Commit[]>>;
   fullTextSearchEntity: <TEntity = any>() => (payload: {
-    query: string;
-  }) => Promise<HandlerResponse<Record<string, TEntity>>>;
+    query: string[];
+  }) => Promise<HandlerResponse<TEntity[]>>;
 
   /**
    * Used by bootstraping programs

@@ -1,4 +1,3 @@
-import values from 'lodash/values';
 import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action } from '../store/query';
@@ -26,5 +25,4 @@ export const queryGetCommitByEntityId: (
       ErrorAction: action.QUERY_ERROR,
       logger,
     },
-    (result) => values<Commit>(result).reverse()
   );

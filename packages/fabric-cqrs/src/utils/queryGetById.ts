@@ -4,7 +4,7 @@ import type { Logger } from 'winston';
 import { action as commandAction } from '../store/command';
 import { action } from '../store/query';
 import type { Commit, SaveFcn, Reducer } from '../types';
-import { addTimestamp, dispatcher, getHistory, isCommitRecord } from '.';
+import { addTimestamp, dispatcher, getHistory, isCommitRecord, replaceTag } from '.';
 
 /**
  * get CurrentState by entityId, and return save function
@@ -53,7 +53,21 @@ export const queryGetById: <TEntity, TEvent>(
     }
   )({ id, entityName });
 
-  const currentState: TEntity = data ? reducer(getHistory(data)) : null;
+  if (!reducer)
+    return {
+      currentState: null,
+      save: null,
+    };
+
+  let currentState = data ? reducer(getHistory(data)) : null;
+  currentState = currentState?.id ? currentState : null;
+
+  if (!currentState)
+    return {
+      currentState: null,
+      save: null,
+    };
+
   const save = !data
     ? null
     : dispatcher<Record<string, Commit>, { events: TEvent[] }>(
@@ -69,7 +83,7 @@ export const queryGetById: <TEntity, TEvent>(
               id,
               version: Object.keys(data).length,
               isPrivateData,
-              events: addTimestamp(events),
+              events: replaceTag(addTimestamp(events)),
             },
           }),
         {

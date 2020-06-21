@@ -3,17 +3,10 @@ import type { Redis } from 'ioredis';
 import drop from 'lodash/drop';
 import type { QueryDatabaseResponse } from '../types';
 
-/**
- * OBSOLETE
- */
-
-export const doFullTextSearch: <T = any>(
-  query: string,
+export const doSearch: <T = any>(
+  query: string[],
   option: { index: string; redis: Redis; logger }
-) => Promise<QueryDatabaseResponse<Record<string, T>>> = async <TEntity>(
-  query,
-  { index, redis, logger }
-) => {
+) => Promise<QueryDatabaseResponse<T[]>> = async <TEntity>(query, { index, redis, logger }) => {
   const searchResultParser = (searchedResult: any[]) => {
     const data = drop(searchedResult);
     const count = data.length / 2;
@@ -31,20 +24,21 @@ export const doFullTextSearch: <T = any>(
     }
     return result;
   };
-  let result: Record<string, TEntity>;
+
+  let result: TEntity[];
   let ftsResult;
-  const queryParts = query.split(' ').filter((item) => !!item);
   try {
-    ftsResult = await redis.send_command('FT.SEARCH', [index, ...queryParts]);
-    result = {};
+    ftsResult = await redis.send_command('FT.SEARCH', [index, ...query]);
+    result = [];
     if (ftsResult[0] === 0)
       return {
         status: 'OK',
         message: 'full text search: 0 record returned',
         result: null,
       };
+
     for await (const [_, { key }] of Object.entries<any>(searchResultParser(ftsResult))) {
-      result[key] = JSON.parse(await redis.get(key));
+      result.push(JSON.parse(await redis.get(key)));
     }
   } catch (e) {
     logger.error(util.format('unknown redis error, %j', e));

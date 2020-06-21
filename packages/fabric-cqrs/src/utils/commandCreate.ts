@@ -3,7 +3,7 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action } from '../store/command';
 import type { Commit, SaveFcn } from '../types';
-import { addCreatedAt, addCreator, addTimestamp, dispatcher, isCommitRecord } from '.';
+import { addCreatedAt, addCreator, addTimestamp, dispatcher, isCommitRecord, replaceTag } from '.';
 
 /**
  * create Commit
@@ -44,7 +44,7 @@ export const commandCreate: <TEvent = any>(
           id,
           version: 0,
           isPrivateData,
-          events: addCreator(addCreatedAt(events), enrollmentId),
+          events: replaceTag(addCreator(addCreatedAt(events), enrollmentId)),
         },
       }),
     {

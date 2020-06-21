@@ -138,7 +138,7 @@ describe('Private Repository Test - Part 1', () => {
 });
 
 describe('Private Repository Test - Part 2', () => {
-  beforeAll(() => new Promise((resolve) => setTimeout(() => resolve(), 5000)));
+  beforeEach(() => new Promise((resolve) => setTimeout(() => resolve(), 2000)));
 
   it('should getByEntityName', async () =>
     repo.getCommitByEntityName().then(({ data, status }) => {
@@ -166,11 +166,11 @@ describe('Private Repository Test - Part 2', () => {
       id,
     });
 
-    expect(omit(currentState, 'ts')).toEqual({
+    expect(omit(currentState, '_ts', '_created', '_creator')).toEqual({
       value: 1,
       id: 'repo_test_counter_002',
       desc: 'repo #1 create-test',
-      tag: 'private-repo-test',
+      tag: 'private_repo_test',
     });
 
     return save({ events }).then(({ data, status }) => {

@@ -194,7 +194,7 @@ describe('Reconcile Tests', () => {
 
   it('should fail to query_getById: non-existing entityName', async () =>
     queryHandler
-      .getById('noop')({ enrollmentId, id, reducer })
+      .getById('noop')({ enrollmentId, id })
       .then(({ currentState, save }) => {
         expect(currentState).toBeNull();
         expect(save).toBeNull();
@@ -202,7 +202,7 @@ describe('Reconcile Tests', () => {
 
   it('should fail to query_getById: non-existing entityId', async () =>
     queryHandler
-      .getById(entityName)({ enrollmentId, id: 'noop', reducer })
+      .getById(entityName)({ enrollmentId, id: 'noop' })
       .then(({ currentState, save }) => {
         expect(currentState).toBeNull();
         expect(save).toBeNull();
@@ -212,7 +212,6 @@ describe('Reconcile Tests', () => {
     const { currentState, save } = await queryHandler.getById<Counter, CounterEvent>(entityName)({
       enrollmentId,
       id,
-      reducer,
     });
     expect(currentState.value).toEqual(1);
     expect(currentState.id).toEqual(id);
@@ -245,7 +244,7 @@ describe('Reconcile Tests', () => {
 
   it('should query_getById for id1', async () =>
     queryHandler
-      .getById<Counter, CounterEvent>(entityName)({ enrollmentId, id, reducer })
+      .getById<Counter, CounterEvent>(entityName)({ enrollmentId, id })
       .then(({ currentState }) => {
         expect(currentState.id).toEqual(id);
         expect(currentState.value).toEqual(2);
@@ -257,7 +256,7 @@ describe('Reconcile Tests', () => {
     queryHandler
       .getByEntityName<Counter>('noop')()
       .then(({ data }) => {
-        expect(data).toBeNull();
+        expect(data).toEqual([]);
       }));
 
   it('should query_getByEntityName', async () =>
@@ -299,7 +298,7 @@ describe('Reconcile Tests', () => {
 
   it('should query_getById for id2', async () =>
     queryHandler
-      .getById<Counter, CounterEvent>(entityName)({ enrollmentId, id: id2, reducer })
+      .getById<Counter, CounterEvent>(entityName)({ enrollmentId, id: id2 })
       .then(({ currentState }) => {
         expect(currentState.id).toEqual(id2);
         expect(currentState.tag).toEqual('reconcile');
@@ -347,8 +346,8 @@ describe('Reconcile Tests', () => {
       .then(({ data }) => data.map((item) => omit(item, 'commitId', 'events', 'entityId')))
       .then((commits) => {
         expect(commits).toEqual([
-          { id, entityName, version: 1 },
           { id, entityName, version: 0 },
+          { id, entityName, version: 1 },
         ]);
       }));
 

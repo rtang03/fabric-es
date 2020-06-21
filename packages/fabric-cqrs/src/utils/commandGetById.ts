@@ -3,7 +3,7 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action } from '../store/command';
 import type { Commit, SaveFcn, Reducer } from '../types';
-import { addTimestamp, dispatcher, getHistory, isCommitRecord } from '.';
+import { addTimestamp, dispatcher, getHistory, isCommitRecord, replaceTag } from '.';
 
 /**
  * get CurrentState by entityId, and return save function
@@ -69,7 +69,7 @@ export const commandGetById: <TEntity, TEvent>(
               id,
               version: Object.keys(data).length,
               isPrivateData,
-              events: addTimestamp(events),
+              events: replaceTag(addTimestamp(events)),
             },
           }),
         {

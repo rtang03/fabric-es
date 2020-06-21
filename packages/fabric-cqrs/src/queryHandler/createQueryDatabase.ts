@@ -13,8 +13,9 @@ import {
   arraysToCommitRecords,
   fullTextSearchAddCommit,
   fullTextSearchAddEntity,
-  doFullTextSearch,
+  doSearch,
   pipelineExecute,
+  sizeOfSearchResult,
 } from '.';
 
 export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
@@ -75,7 +76,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
       const pattern = `${entityName}::${id}::*`;
       let commitArrays: string[][];
-      let result: Record<string, Commit>;
+      let result: Commit[];
 
       try {
         commitArrays = await pipelineExecute(redis, 'GET', pattern);
@@ -85,10 +86,10 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       }
 
       if (commitArrays.length === 0)
-        return { status: 'OK', message: `queryByEntityId: 0 record is returned`, result: {} };
+        return { status: 'OK', message: `queryByEntityId: 0 record is returned`, result: [] };
 
       try {
-        result = arraysToCommitRecords(commitArrays);
+        result = values(arraysToCommitRecords(commitArrays));
       } catch (e) {
         logger.error(util.format('fail to parse json, %j', e));
         throw e;
@@ -105,7 +106,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
       const pattern = `${entityName}::*::*`;
       let commitArrays: string[][];
-      let result: Record<string, Commit>;
+      let result: Commit[];
 
       try {
         // retrieve commit by pattern
@@ -117,7 +118,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
       try {
         // convert from record to arrays
-        result = arraysToCommitRecords(commitArrays);
+        result = values(arraysToCommitRecords(commitArrays));
       } catch (e) {
         logger.error(util.format('fail to parse json, %j', e));
         throw e;
@@ -316,15 +317,20 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         error: error.length === 0 ? null : error,
       };
     },
-    fullTextSearchCommit: async <TEntity>({ query }) => {
+    fullTextSearchCommit: async ({ query }) => {
       if (!query) throw new Error('invalid input argument');
 
-      return doFullTextSearch<TEntity>(query, { redis, logger, index: 'cidx' });
+      return doSearch<Commit>(query, { redis, logger, index: 'cidx' });
     },
     fullTextSearchEntity: async <TEntity>({ query }) => {
       if (!query) throw new Error('invalid input argument');
 
-      return doFullTextSearch<TEntity>(query, { redis, logger, index: 'eidx' });
+      return doSearch<TEntity>(query, { redis, logger, index: 'eidx' });
+    },
+    fullTextSearchSizeOfResultSet: async ({ query, index }) => {
+      if (!query) throw new Error('invalid input argument');
+
+      return sizeOfSearchResult(query, { redis, logger, index });
     },
     fullTextSearchGetDocument: async ({ index, documentId }) => {
       // return the document of index
@@ -336,9 +342,6 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
     },
     queryEntity: async ({ entityName, where }) => {
       // queryEntity provides alternative implementation of getProjection
-      // NOTE: it supports ONLY where: { id }
-      // The query is based on entityId ONLY. That is current limitation.
-      // Todo: need to revisit later
       let entityArrays: string[][];
       let entities: any[];
       const result: any = {};
@@ -371,7 +374,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       return {
         status: 'OK',
         message: `${keys(result).length} record(s) returned`,
-        result: isEqual(result, {}) ? null : result,
+        result: isEqual(result, {}) ? null : Object.values(result),
       };
     },
   };

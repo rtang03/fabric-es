@@ -11,21 +11,29 @@ import { dispatcher } from './dispatcher';
  * @param logger
  * @param store
  */
-export const metaGetEntityByEntityName: <T>(
+export const metaGetEntityByEntityName: <TEntity>(
   entityName: string,
   option: { logger: Logger; store: Store }
 ) => (payload: {
-  page: number;
+  cursor: number;
   countPerPage: number;
   sortByField: 'id' | 'key' | 'created' | 'creator' | 'ts';
   sort: 'ASC' | 'DESC';
-}) => Promise<HandlerResponse<T[]>> = <TEntity>(entityName, { logger, store }) =>
-  dispatcher<TEntity[], { page: number; countPerPage: number; sortByField: string }>(
-    ({ tx_id, args: { page, countPerPage, sortByField, sort } }) =>
+}) => Promise<HandlerResponse<TEntity[]>> = <TEntity>(entityName, { logger, store }) =>
+  dispatcher<TEntity[], { cursor: number; countPerPage: number; sortByField: string }>(
+    ({ tx_id, args: { cursor, countPerPage, sortByField, sort } }) =>
       action.eIdxSearch({
         tx_id,
         args: {
-          query: `@entname:${entityName} SORTBY ${sortByField} ${sort} ${page} ${countPerPage}`,
+          query: [
+            `@entname:${entityName}`,
+            'SORTBY',
+            sortByField,
+            sort,
+            'LIMIT',
+            cursor,
+            countPerPage,
+          ],
         },
       }),
     {

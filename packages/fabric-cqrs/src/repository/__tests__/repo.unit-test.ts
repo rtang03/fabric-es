@@ -217,11 +217,11 @@ describe('Repository Test', () => {
     repo.getByEntityName().then(({ data, status }) => {
       const counter = omit(data[0], 'ts');
       expect(status).toEqual('OK');
-      expect(counter).toEqual({
+      expect(omit(counter, '_created', '_creator', '_ts')).toEqual({
         value: 1,
         id: 'repo_test_counter_001',
         desc: 'repo #1 create-test',
-        tag: 'repo-test',
+        tag: 'repo_test',
       });
     }));
 
@@ -239,11 +239,11 @@ describe('Repository Test', () => {
   it('should getById, and then save new event', async () => {
     const { save, currentState } = await repo.getById({ enrollmentId, id });
 
-    expect(omit(currentState, 'ts')).toEqual({
+    expect(omit(currentState, '_ts', '_creator', '_created')).toEqual({
       value: 1,
       id: 'repo_test_counter_001',
       desc: 'repo #1 create-test',
-      tag: 'repo-test',
+      tag: 'repo_test',
     });
 
     await save({
@@ -265,7 +265,8 @@ describe('Repository Test', () => {
 });
 
 describe('Verify Result', () => {
-  beforeAll(() => new Promise((done) => setTimeout(() => done(), 10000)));
+  beforeAll(() => new Promise((done) => setTimeout(() => done(), 7000)));
+  beforeEach(() => new Promise((done) => setTimeout(() => done(), 2000)));
 
   it('should verify result by getById, after #2 commit', async () =>
     repo.getById({ enrollmentId, id }).then(({ currentState: { value, desc } }) => {
@@ -275,8 +276,8 @@ describe('Verify Result', () => {
 
   it('should verify result by query_getCommitById, after #2 commit', async () =>
     repo.getCommitById({ id }).then(({ data, status }) => {
-      values(data)
-        .map((commit) => omit(commit, 'ts'))
+      data
+        .map((commit) => omit(commit, '_ts'))
         .forEach((commit) => {
           expect(commit.id).toEqual(id);
           expect(commit.entityName).toEqual(entityName);
@@ -287,49 +288,52 @@ describe('Verify Result', () => {
 
   it('should verify result by query_getByEntityName, after #2 commit', async () =>
     repo.getByEntityName().then(({ data, status }) => {
-      const counter = values(data)[0];
+      const counter = data[0];
       expect(status).toEqual('OK');
-      expect(omit(counter, 'ts')).toEqual({
+      expect(omit(counter, '_ts', '_created', '_creator')).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
-        tag: 'repo-test',
+        tag: 'repo_test',
       });
     }));
 
   it('should find by entityId', async () =>
     repo.find({ byId: id }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      const counter = values(data)[0];
-      expect(omit(counter, 'ts')).toEqual({
+      const counter = data[0];
+      expect(omit(counter, '_ts', '_created', '_creator', '__commit')).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
-        tag: 'repo-test',
+        tag: 'repo_test',
+        __event: 'Increment,Increment',
       });
     }));
 
   it('should find by desc with wildcard', async () =>
     repo.find({ byDesc: 'repo*' }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      const counter = values(data)[0];
-      expect(omit(counter, 'ts')).toEqual({
+      const counter = data[0];
+      expect(omit(counter, '_ts', '_created', '_creator', '__commit')).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
-        tag: 'repo-test',
+        tag: 'repo_test',
+        __event: 'Increment,Increment',
       });
     }));
 
   it('should find by entityId, and desc with wildcard', async () =>
     repo.find({ byId: id, byDesc: 'repo*' }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      const counter = values(data)[0];
-      expect(omit(counter, 'ts')).toEqual({
+      const counter = data[0];
+      expect(omit(counter, '_ts', '_created', '_creator', '__commit')).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
-        tag: 'repo-test',
+        tag: 'repo_test',
+        __event: 'Increment,Increment',
       });
     }));
 
@@ -342,12 +346,13 @@ describe('Verify Result', () => {
   it('should find by where', async () =>
     repo.find({ where: { id } }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      const counter = values(data)[0];
-      expect(omit(counter, 'ts')).toEqual({
+      const counter = data[0];
+      expect(omit(counter, '_ts', '_created', '_creator', '__commit')).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
-        tag: 'repo-test',
+        tag: 'repo_test',
+        __event: 'Increment,Increment',
       });
     }));
 });

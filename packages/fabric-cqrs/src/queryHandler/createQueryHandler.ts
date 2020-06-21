@@ -73,30 +73,24 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
     meta_getByEntityName: <TEntity = any>(entiyName) =>
       metaGetEntityByEntityName<TEntity>(entiyName, queryOption),
     fullTextSearchCommit: () =>
-      dispatcher<Record<string, Commit>, { query: string }>(
-        (payload) => queryAction.cIdxSearch(payload),
-        {
-          name: 'cIdxSearch',
-          store,
-          slice: 'query',
-          SuccessAction: queryAction.SEARCH_SUCCESS,
-          ErrorAction: queryAction.SEARCH_ERROR,
-          logger,
-          typeGuard: isCommitRecord,
-        }
-      ),
+      dispatcher<Commit[], { query: string[] }>((payload) => queryAction.cIdxSearch(payload), {
+        name: 'cIdxSearch',
+        store,
+        slice: 'query',
+        SuccessAction: queryAction.SEARCH_SUCCESS,
+        ErrorAction: queryAction.SEARCH_ERROR,
+        logger,
+        typeGuard: isCommitRecord,
+      }),
     fullTextSearchEntity: <TEntity>() =>
-      dispatcher<Record<string, TEntity>, { query: string }>(
-        (payload) => queryAction.eIdxSearch(payload),
-        {
-          name: 'eIdxSearch',
-          store,
-          slice: 'query',
-          SuccessAction: queryAction.SEARCH_SUCCESS,
-          ErrorAction: queryAction.SEARCH_ERROR,
-          logger,
-        }
-      ),
+      dispatcher<TEntity[], { query: string[] }>((payload) => queryAction.eIdxSearch(payload), {
+        name: 'eIdxSearch',
+        store,
+        slice: 'query',
+        SuccessAction: queryAction.SEARCH_SUCCESS,
+        ErrorAction: queryAction.SEARCH_ERROR,
+        logger,
+      }),
     reconcile: () =>
       dispatcher<{ key: string; status: string }[], { entityName: string }>(
         ({ tx_id, args }) =>

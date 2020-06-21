@@ -111,7 +111,7 @@ describe('Projection db test', () => {
         reducer: simpleCounterReducer,
         commits,
       })
-      .then(({ status, error, message }) => {
+      .then(({ status, error }) => {
         expect(status).toEqual('ERROR');
         expect(error).toEqual([{ id: 'qh_proj_test_002' }, { id: 'qh_proj_test_003' }]);
       }));
@@ -133,11 +133,11 @@ describe('Projection db test', () => {
 
   it('should fail to FT.SEARCH by invalid FIELD desc', async () =>
     queryDatabase
-      .fullTextSearchEntity({ query: 'xffd;;;;;df' })
+      .fullTextSearchEntity({ query: ['xffd;;;;;df'] })
       .catch((error) => expect(error.message).toContain('Syntax error at offset')));
 
   it('should fail to FT.SEARCH by valid/non-existing FIELD desc', async () =>
-    queryDatabase.fullTextSearchEntity({ query: 'xfdf' }).then((result) =>
+    queryDatabase.fullTextSearchEntity({ query: ['xfdf'] }).then((result) =>
       expect(result).toEqual({
         status: 'OK',
         message: 'full text search: 0 record returned',
@@ -146,55 +146,57 @@ describe('Projection db test', () => {
     ));
 
   it('should FT.SEARCH by FIELD desc', async () =>
-    queryDatabase.fullTextSearchEntity({ query: 'handler' }).then(({ status, message, result }) => {
-      expect(status).toEqual('OK');
-      expect(message).toEqual('full text search: 3 record(s) returned');
-      expect(result).toEqual({
-        'test_proj::qh_proj_test_001': {
-          value: 2,
-          id: 'qh_proj_test_001',
-          desc: 'query handler #2 proj',
-          tag: 'projection',
-          _ts: 1590739000,
-          _created: 1590738792,
-          _creator: 'org1-admin',
-          __event: 'Increment,Increment',
-          __commit: [
-            'test_proj::qh_proj_test_001::20200528133519841',
-            'test_proj::qh_proj_test_001::20200528133520841',
-          ],
-        },
-        'test_proj::qh_proj_test_002': {
-          id: 'qh_proj_test_002',
-          value: 3,
-          desc: 'query handler #5 proj',
-          tag: 'projection',
-          _ts: 1590740002,
-          _created: 1590740000,
-          _creator: 'org1-admin',
-          __event: 'Increment,Increment,Increment',
-          __commit: [
-            'test_proj::qh_proj_test_002::20200528133530001',
-            'test_proj::qh_proj_test_002::20200528133530002',
-            'test_proj::qh_proj_test_002::20200528133530003',
-          ],
-        },
-        'test_proj::qh_proj_test_003': {
-          id: 'qh_proj_test_003',
-          value: 2,
-          desc: 'query handler #7 proj',
-          tag: 'projection',
-          _ts: 1590740004,
-          _created: 1590740003,
-          _creator: 'org1-admin',
-          __event: 'Increment,Increment',
-          __commit: [
-            'test_proj::qh_proj_test_003::20200528133530004',
-            'test_proj::qh_proj_test_003::20200528133530005',
-          ],
-        },
-      });
-    }));
+    queryDatabase
+      .fullTextSearchEntity({ query: ['handler', 'SORTBY', 'id', 'ASC'] })
+      .then(({ status, message, result }) => {
+        expect(status).toEqual('OK');
+        expect(message).toEqual('full text search: 3 record(s) returned');
+        expect(result).toEqual([
+          {
+            value: 2,
+            id: 'qh_proj_test_001',
+            desc: 'query handler #2 proj',
+            tag: 'projection',
+            _ts: 1590739000,
+            _created: 1590738792,
+            _creator: 'org1-admin',
+            __event: 'Increment,Increment',
+            __commit: [
+              'test_proj::qh_proj_test_001::20200528133519841',
+              'test_proj::qh_proj_test_001::20200528133520841',
+            ],
+          },
+          {
+            id: 'qh_proj_test_002',
+            value: 3,
+            desc: 'query handler #5 proj',
+            tag: 'projection',
+            _ts: 1590740002,
+            _created: 1590740000,
+            _creator: 'org1-admin',
+            __event: 'Increment,Increment,Increment',
+            __commit: [
+              'test_proj::qh_proj_test_002::20200528133530001',
+              'test_proj::qh_proj_test_002::20200528133530002',
+              'test_proj::qh_proj_test_002::20200528133530003',
+            ],
+          },
+          {
+            id: 'qh_proj_test_003',
+            value: 2,
+            desc: 'query handler #7 proj',
+            tag: 'projection',
+            _ts: 1590740004,
+            _created: 1590740003,
+            _creator: 'org1-admin',
+            __event: 'Increment,Increment',
+            __commit: [
+              'test_proj::qh_proj_test_003::20200528133530004',
+              'test_proj::qh_proj_test_003::20200528133530005',
+            ],
+          },
+        ]);
+      }));
 
   it('should fail to queryEntity: invalid where clause', async () =>
     queryDatabase
@@ -214,7 +216,7 @@ describe('Projection db test', () => {
         entityName: 'invalid',
         where: { tag: 'projection' },
       })
-      .then(({ status, result, message }) => {
+      .then(({ status, result }) => {
         expect(status).toEqual('OK');
         expect(result).toBeNull();
         expect('no record exists');
@@ -228,7 +230,7 @@ describe('Projection db test', () => {
       })
       .then(({ status, result }) => {
         expect(status).toEqual('OK');
-        expect(omit(values(result)[0], 'ts')).toEqual({
+        expect(result[0]).toEqual({
           value: 2,
           id: 'qh_proj_test_001',
           desc: 'query handler #2 proj',
@@ -252,7 +254,7 @@ describe('Projection db test', () => {
       })
       .then(({ status, result }) => {
         expect(status).toEqual('OK');
-        expect(omit(values(result)[0], 'ts')).toEqual({
+        expect(result[0]).toEqual({
           value: 2,
           id: 'qh_proj_test_001',
           desc: 'query handler #2 proj',

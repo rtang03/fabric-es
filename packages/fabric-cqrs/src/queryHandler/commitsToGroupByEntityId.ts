@@ -2,10 +2,10 @@ import values from 'lodash/values';
 import type { Commit, Reducer } from '../types';
 
 export const commitsToGroupByEntityId: <TResult>(
-  commits: Record<string, Commit>,
+  commits: Commit[],
   reducer: Reducer
 ) => { currentStates: TResult[]; errors: string[] } = <TResult>(commits, reducer) => {
-  const groupedByEntityId: Record<string, any[]> = values<Commit>(commits).reduce(
+  const groupedByEntityId: Record<string, any[]> = commits.reduce(
     (commit, { entityId, events }) => {
       commit[entityId] = commit[entityId] || [];
       events.forEach((item) => commit[entityId].push(item));

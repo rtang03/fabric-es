@@ -28,6 +28,7 @@ const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
 const walletPath = process.env.WALLET;
 const entityName = 'test_subscribe';
 const id = `qh_sub_test_001`;
+const idx = `qh_sub_test_003`;
 const enrollmentId = orgAdminId;
 const reducers = { [entityName]: reducer };
 let redis: Redis.Redis;
@@ -192,7 +193,7 @@ describe('Query Handler Tests', () => {
   it('should FT.SEARCH by test* : return 2 commit', async () => {
     await new Promise((done) => setTimeout(() => done(), 3000));
     return queryHandler
-      .fullTextSearchCommit()({ query: 'test*' })
+      .fullTextSearchCommit()({ query: ['test*'] })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(Object.keys(data).length).toEqual(2);
@@ -202,7 +203,7 @@ describe('Query Handler Tests', () => {
 
   it('should FT.SEARCH by qh* : return 2 commits', async () =>
     queryHandler
-      .fullTextSearchCommit()({ query: 'qh*' })
+      .fullTextSearchCommit()({ query: ['qh*'] })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(Object.keys(data).length).toEqual(2);
@@ -211,7 +212,7 @@ describe('Query Handler Tests', () => {
 
   it('should FT.SEARCH by @event:{increment} : return 1 commit', async () =>
     queryHandler
-      .fullTextSearchCommit()({ query: '@event:{increment}' })
+      .fullTextSearchCommit()({ query: ['@event:{increment}'] })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(Object.values<Commit>(data)[0].events[0].type).toEqual('Increment');
@@ -221,7 +222,7 @@ describe('Query Handler Tests', () => {
 
   it('should fail to FT.SEARCH: invalid input;', async () =>
     queryHandler
-      .fullTextSearchCommit()({ query: 'kljkljkljjkljklj;jkl;' })
+      .fullTextSearchCommit()({ query: ['kljkljkljjkljklj;jkl;'] })
       .then(({ data, status, error }) => {
         expect(status).toEqual('ERROR');
         expect(data).toBeNull();
@@ -230,12 +231,10 @@ describe('Query Handler Tests', () => {
 
   it('should FT.SEARCH by test* : return 1 entity', async () =>
     queryHandler
-      .fullTextSearchEntity<Counter>()({ query: 'test*' })
+      .fullTextSearchEntity<Counter>()({ query: ['test*'] })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
-        const counter = Object.values(data)[0];
-        const key = Object.keys(data)[0];
-        expect(key).toEqual(`${entityName}::${id}`);
+        const counter = data[0];
         expect(omit(counter, '_ts', '_created', '__commit')).toEqual({
           id,
           value: 0,
@@ -244,5 +243,60 @@ describe('Query Handler Tests', () => {
           _creator: 'admin-org1.net',
           __event: 'Increment,Decrement',
         });
+      }));
+});
+
+describe('Pagination tests for getByEntityName', () => {
+  beforeAll(async () => {
+    for await (const i of [1, 2, 3, 4, 5])
+      await queryHandler
+        .create<CounterEvent>(entityName)({ enrollmentId, id: `qh_pag_test_00${i}` })
+        .save({
+          events: [
+            {
+              type: 'Increment',
+              payload: {
+                id: `qh_pag_test_00${i}`,
+                desc: `#${i} pag-test`,
+                tag: 'pagination,unit-test',
+              },
+            },
+          ],
+        });
+    await new Promise((done) => setTimeout(() => done(), 3000));
+  });
+
+  it('should meta_getByEntityName: cursor=0', async () =>
+    queryHandler
+      .meta_getByEntityName<Counter>(entityName)({
+        cursor: 0,
+        countPerPage: 2,
+        sortByField: 'id',
+        sort: 'ASC',
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.length).toEqual(2);
+        expect(data.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
+        ]);
+      }));
+
+  it('should meta_getByEntityName: cursor=1', async () =>
+    queryHandler
+      .meta_getByEntityName<Counter>(entityName)({
+        cursor: 1,
+        countPerPage: 2,
+        sortByField: 'id',
+        sort: 'ASC',
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.length).toEqual(2);
+        expect(data.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: 1 },
+        ]);
       }));
 });

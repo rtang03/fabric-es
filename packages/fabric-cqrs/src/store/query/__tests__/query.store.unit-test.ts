@@ -472,7 +472,7 @@ describe('Store/query Test', () => {
       },
       (result) => (result ? Object.values<Commit>(result).reverse() : null)
     )({ entityName, id: 'test_003' }).then(({ data, status }) => {
-      expect(data).toBeNull();
+      expect(data).toEqual([]);
       expect(status).toEqual('OK');
     }));
 
