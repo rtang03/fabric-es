@@ -7,7 +7,7 @@
 export enum Lifecycle {
   NORMAL,
   BEGIN,
-  END
+  END,
 }
 
 /**
@@ -25,11 +25,17 @@ export interface BaseEvent {
 }
 
 export interface BaseEntity {
+  id?: string;
+  tag?: string;
+  desc?: string;
   _created: number;
   _creator: string;
   _ts: number;
   __event?: string;
   __commit?: string[];
+  __entityName?: string;
+  __reducer?: string;
+  __timeline?: string;
 }
 
 /**

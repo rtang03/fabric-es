@@ -1,4 +1,4 @@
-import { Commit } from '@fabric-es/fabric-cqrs';
+import { BaseEntity, Commit } from '@fabric-es/fabric-cqrs';
 import { ApolloError } from 'apollo-server';
 import { withFilter } from 'graphql-subscriptions';
 import assign from 'lodash/assign';
@@ -9,10 +9,18 @@ import { rebuildIndex } from './rebuildIndex';
 import { reconcile } from './reconcile';
 
 interface Entity {
-  lastModified: number;
-  entityName: string;
   id: string;
+  entityName: string;
   value: string;
+  commits: string[];
+  events: string;
+  timeline: string;
+  reducer: string;
+  tag: string;
+  desc: string;
+  created: number;
+  creator: string;
+  lastModified: number;
 }
 
 const COMMIT_ARRIVED = 'COMMIT_ARRIVED';
@@ -52,10 +60,13 @@ export const resolvers = {
     fullTextSearchCommit: catchErrors(
       async (
         _,
-        { query },
+        { query }: { query: string },
         { queryHandler }: QueryHandlerGqlCtx
       ): Promise<Commit[] | ApolloError> => {
-        const { data, error, status } = await queryHandler.fullTextSearchCommit()({ query });
+        const { data, error, status } = await queryHandler.fullTextSearchCommit()({
+          query: query.split(' ').filter((item) => !!item),
+        });
+
         if (status !== 'OK') return new ApolloError(JSON.stringify(error));
 
         return data
@@ -69,19 +80,29 @@ export const resolvers = {
     fullTextSearchEntity: catchErrors<Entity[] | ApolloError>(
       async (
         _,
-        { query },
+        { query }: { query: string },
         { queryHandler }: QueryHandlerGqlCtx
       ): Promise<Entity[] | ApolloError> => {
-        const { data, error, status } = await queryHandler.fullTextSearchEntity()({ query });
+        const { data, error, status } = await queryHandler.fullTextSearchEntity<BaseEntity>()({
+          query: query.split(' ').filter((item) => !!item),
+        });
 
         if (status !== 'OK') return new ApolloError(JSON.stringify(error));
 
         return data
-          ? Object.entries(data).map(([key, value]) => ({
-              lastModified: value?.ts,
-              value: JSON.stringify(value),
-              entityName: key.split('::')[0],
-              id: key.split('::')[1],
+          ? data.map((entity) => ({
+              id: entity?.id || '',
+              entityName: entity?.__entityName,
+              value: JSON.stringify(entity),
+              desc: entity?.desc || '',
+              tag: entity?.tag || '',
+              commits: entity?.__commit,
+              events: entity?.__event,
+              creator: entity?._creator || '',
+              created: entity?._created || 0,
+              lastModified: entity?._ts || 0,
+              timeline: entity?.__timeline,
+              reducer: entity?.__reducer,
             }))
           : null;
       },

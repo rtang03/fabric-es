@@ -5,6 +5,7 @@ import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import type { Redis, RedisOptions } from 'ioredis';
 import keys from 'lodash/keys';
+import omit from 'lodash/omit';
 import values from 'lodash/values';
 import fetch from 'node-fetch';
 import rimraf from 'rimraf';
@@ -91,7 +92,7 @@ beforeAll(async () => {
     }
 
     await queryHandler
-      .query_deleteByEntityName(entityName)()
+      .query_deleteCommitByEntityName(entityName)()
       .then(({ status }) =>
         console.log(`set-up: query_deleteByEntityName, ${entityName}, status: ${status}`)
       );
@@ -122,7 +123,7 @@ afterAll(async () => {
     .catch((result) => console.log(`eidx is not dropped: ${result}`));
 
   await queryHandler
-    .query_deleteByEntityName(entityName)()
+    .query_deleteCommitByEntityName(entityName)()
     .then(({ status }) =>
       console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
     );
@@ -277,12 +278,16 @@ describe('Full Text Search Test', () => {
       .then((r) => r.json())
       .then(({ data }) => {
         const counterObject = data?.fullTextSearchEntity[0];
-        expect(counterObject?.id).toEqual(id);
-        expect(counterObject?.entityName).toEqual(entityName);
-        const counter = JSON.parse(counterObject.value);
-        expect(counter.value).toEqual(1);
-        expect(counter.desc).toEqual('my desc');
-        expect(counter.id).toEqual(id);
+        expect(
+          omit(counterObject, 'value', 'commits', 'created', 'lastModified', 'timeline', 'reducer')
+        ).toEqual({
+          id,
+          entityName,
+          desc: 'my desc',
+          events: 'Increment',
+          creator: 'admin-org1.net',
+          tag: 'unit_test,gw_lib,query_handler',
+        });
       }));
 
   it('should fullTextSearchEntity: search by tag, @tag:{query*}', async () =>
@@ -298,11 +303,15 @@ describe('Full Text Search Test', () => {
       .then((r) => r.json())
       .then(({ data }) => {
         const counterObject = data?.fullTextSearchEntity[0];
-        expect(counterObject?.id).toEqual(id);
-        expect(counterObject?.entityName).toEqual(entityName);
-        const counter = JSON.parse(counterObject.value);
-        expect(counter.value).toEqual(1);
-        expect(counter.desc).toEqual('my desc');
-        expect(counter.id).toEqual(id);
+        expect(
+          omit(counterObject, 'value', 'commits', 'created', 'lastModified', 'timeline', 'reducer')
+        ).toEqual({
+          id,
+          entityName,
+          desc: 'my desc',
+          events: 'Increment',
+          creator: 'admin-org1.net',
+          tag: 'unit_test,gw_lib,query_handler',
+        });
       }));
 });

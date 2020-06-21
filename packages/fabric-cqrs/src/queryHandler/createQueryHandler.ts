@@ -24,7 +24,7 @@ import {
   queryGetEntityByEntityName,
   queryGetById,
   queryGetCommitByEntityId,
-  metaGetEntityByEntityName,
+  metaGetEntityByEntNameEntId,
 } from '../utils';
 
 export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler = (options) => {
@@ -70,8 +70,8 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
       queryDeleteCommitByEntityId(entityName, queryOption),
     query_deleteCommitByEntityName: (entityName) =>
       queryDeleteCommitByEntityName(entityName, queryOption),
-    meta_getByEntityName: <TEntity = any>(entiyName) =>
-      metaGetEntityByEntityName<TEntity>(entiyName, queryOption),
+    meta_getByEntityName: <TEntity = any>(entiyName, id) =>
+      metaGetEntityByEntNameEntId<TEntity>(entiyName, id, queryOption),
     fullTextSearchCommit: () =>
       dispatcher<Commit[], { query: string[] }>((payload) => queryAction.cIdxSearch(payload), {
         name: 'cIdxSearch',

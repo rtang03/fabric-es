@@ -21,5 +21,22 @@ export {
   getMockRepository,
   getPrivateMockRepository,
 } from './repository';
-import { reducer as counterReducer } from './unit-test-reducer';
-export { counterReducer };
+
+import {
+  CounterCommands,
+  Increment,
+  Decrement,
+  Counter,
+  CounterEvent,
+  CounterEvents,
+  reducer as counterReducer,
+} from './unit-test-reducer';
+export {
+  CounterCommands,
+  Counter,
+  counterReducer,
+  CounterEvent,
+  Increment,
+  Decrement,
+  CounterEvents,
+};

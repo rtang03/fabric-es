@@ -215,12 +215,20 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
           .map(({ type }) => type)
           .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
 
+        // compute the timeline of event history
+        const __timeline: string = flatten(values(mergedResult).map(({ events }) => events))
+          .map(({ payload }) => payload._ts)
+          .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
+
         const currentState = reducer(getHistory(values(mergedResult)));
 
         currentState.__event = __event;
         currentState.__commit = keys(mergedResult).map(
           (commitId) => `${entityName}::${entityId}::${commitId}`
         );
+        currentState.__entityName = entityName;
+        currentState.__timeline = __timeline;
+        currentState.__reducer = reducer.toString();
 
         // if no id existed in the computed entity, will be considered as error
         if (!currentState?.id) {
@@ -286,12 +294,28 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
           .map(({ type }) => type)
           .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
 
+        // compute the timeline of event history
+        const __timeline = flatten(group[id].map(({ events }) => events))
+          .map(({ payload }) => payload._ts)
+          .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
+
         const __commit = flatten(group[id]).map(
           ({ commitId }) => `${entityName}::${id}::${commitId}`
         );
 
         // if no id existed in the computed entity, will be considered as error
-        if (reduced?.id) entities.push(assign({ id }, { __event }, { __commit }, reduced));
+        if (reduced?.id)
+          entities.push(
+            assign(
+              { id },
+              { __event },
+              { __commit },
+              { __timeline },
+              { __entityName: entityName },
+              { __reducer: reducer.toString() },
+              reduced
+            )
+          );
         else error.push({ id });
       });
 

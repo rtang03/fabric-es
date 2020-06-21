@@ -1,5 +1,5 @@
 require('dotenv').config({ path: './.env.test' });
-import type { QueryHandler } from '@fabric-es/fabric-cqrs';
+import { QueryHandler, Counter, CounterEvents, counterReducer } from '@fabric-es/fabric-cqrs';
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import express from 'express';
@@ -32,16 +32,7 @@ import {
   isLoginResponse,
   isRegisterResponse,
 } from '../utils';
-import {
-  Counter,
-  CounterEvents,
-  DECREMENT,
-  GET_COUNTER,
-  INCREMENT,
-  reducer,
-  resolvers,
-  typeDefs,
-} from './__utils__';
+import { DECREMENT, GET_COUNTER, INCREMENT, resolvers, typeDefs } from './__utils__';
 
 /**
  * ./dn-run.1-px-db-red-auth.sh or ./dn-run.2-px-db-red-auth.sh
@@ -128,7 +119,7 @@ beforeAll(async () => {
       channelName,
       connectionProfile,
       serviceName: 'counter',
-      reducers: { counter: reducer },
+      reducers: { counter: counterReducer },
       enrollmentId: orgAdminId,
       wallet,
       redis,
@@ -180,7 +171,7 @@ beforeAll(async () => {
       channelName,
       connectionProfile,
       enrollmentId,
-      reducers: { counter: reducer },
+      reducers: { counter: counterReducer },
       wallet,
     });
 
@@ -206,7 +197,7 @@ beforeAll(async () => {
     }
     // clean up pre existing Redis
     await queryHandler
-      .query_deleteByEntityName(entityName)()
+      .query_deleteCommitByEntityName(entityName)()
       .then(({ status }) =>
         console.log(`set-up: query_deleteByEntityName, ${entityName}, status: ${status}`)
       );
@@ -242,7 +233,7 @@ afterAll(async () => {
     .catch((result) => console.log(`eidx is not dropped: ${result}`));
 
   await queryHandler
-    .query_deleteByEntityName(entityName)()
+    .query_deleteCommitByEntityName(entityName)()
     .then(({ status }) =>
       console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
     );
@@ -509,7 +500,7 @@ describe('Gateway Test - admin service', () => {
       .send({
         operationName: 'Increment',
         query: INCREMENT,
-        variables: { counterId, id: counterId},
+        variables: { counterId, id: counterId },
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.increment.id).toEqual(counterId);
@@ -562,4 +553,3 @@ describe('Gateway Test - admin service', () => {
         expect(errors).toBeUndefined();
       }));
 });
-

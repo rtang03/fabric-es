@@ -235,13 +235,14 @@ describe('Query Handler Tests', () => {
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         const counter = data[0];
-        expect(omit(counter, '_ts', '_created', '__commit')).toEqual({
+        expect(omit(counter, '_ts', '_created', '__commit', '__reducer', '__timeline')).toEqual({
           id,
           value: 0,
           tag: 'subscription',
           desc: 'query hander #2 sub-test',
           _creator: 'admin-org1.net',
           __event: 'Increment,Decrement',
+          __entityName: entityName,
         });
       }));
 });
@@ -266,7 +267,7 @@ describe('Pagination tests for getByEntityName', () => {
     await new Promise((done) => setTimeout(() => done(), 3000));
   });
 
-  it('should meta_getByEntityName: cursor=0', async () =>
+  it('should meta_getByEntityName: cursor=0, pagesize=2', async () =>
     queryHandler
       .meta_getByEntityName<Counter>(entityName)({
         cursor: 0,
@@ -283,7 +284,7 @@ describe('Pagination tests for getByEntityName', () => {
         ]);
       }));
 
-  it('should meta_getByEntityName: cursor=1', async () =>
+  it('should meta_getByEntityName: cursor=1, pagesize=2', async () =>
     queryHandler
       .meta_getByEntityName<Counter>(entityName)({
         cursor: 1,
@@ -297,6 +298,48 @@ describe('Pagination tests for getByEntityName', () => {
         expect(data.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
           { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
           { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: 1 },
+        ]);
+      }));
+
+  it('should meta_getByEntityNameEntityId: id=001, cursor=0', async () =>
+    queryHandler
+      .meta_getByEntityName<Counter>(
+        entityName,
+        'qh_pag_test_001'
+      )({
+        cursor: 0,
+        countPerPage: 2,
+        sortByField: 'id',
+        sort: 'ASC',
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.length).toEqual(1);
+        expect(data.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: 1 },
+        ]);
+      }));
+
+  it('should meta_getByEntityName: cursor=0, pagesize=10', async () =>
+    queryHandler
+      .meta_getByEntityName<Counter>(
+        entityName,
+        'qh_pag_test_00*'
+      )({
+        cursor: 0,
+        countPerPage: 10,
+        sortByField: 'id',
+        sort: 'ASC',
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.length).toEqual(5);
+        expect(data.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_004', desc: '#4 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_005', desc: '#5 pag-test', tag: 'pagination,unit_test', value: 1 },
         ]);
       }));
 });

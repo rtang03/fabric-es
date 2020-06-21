@@ -20,5 +20,5 @@ export * from './commandGetByEntityIdCommitId';
 export * from './queryFind';
 export * from './addCreatedAt';
 export * from './addCreator';
-export * from './metaGetEntityByEntityName';
+export * from './metaGetEntityByEntNameEntId';
 export * from './replaceTag';

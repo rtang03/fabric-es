@@ -9,6 +9,15 @@ export const FULL_TXT_SEARCH_ENTITY= `
       id
       entityName
       value
+      commits
+      events
+      tag
+      desc
+      created
+      creator
+      lastModified
+      timeline
+      reducer
     }
   }
 `;

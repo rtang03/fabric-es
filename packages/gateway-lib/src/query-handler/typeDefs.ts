@@ -29,19 +29,25 @@ export const typeDefs = gql`
   type Query {
     me: String
     fullTextSearchCommit(query: String): [Commit]
-    fullTextSearchEntity(query: String): [Entity]
-    getEntityByPeriod(duration: String!): [Entity]
+    fullTextSearchEntity(query: String): [MetaEntity]
+    getEntityByPeriod(duration: String!): [MetaEntity]
     # getEntityByCount(count: Int): [Entity]
     # getEntityByPeriodBySubmitter(duration: String!, submitter: String!): [Entity]
   }
 
-  type Entity {
-    # ts
-    # desc
-    # tag
-    value: String
-    entityName: String
-    id: String
+  type MetaEntity {
+    id: String!
+    entityName: String!
+    value: String!
+    commits: [String!]!
+    events: String!
+    desc: String!
+    tag: String!
+    created: Float!
+    creator: String!
+    lastModified: Float!
+    timeline: String!
+    reducer: String!
   }
 
   type Mutation {
@@ -50,7 +56,7 @@ export const typeDefs = gql`
 
     ###
     # e.g. payloadString
-    # "{\"id\":\"test_12\",\"desc\":\"desc12\",\"tag\":\"gw-lib\"}"
+    # "{"id":"test_12","desc":"desc12","tag":"gw-lib"}"
     ###
     createCommit(entityName: String, id: String, type: String, payloadString: String): Commit
   }

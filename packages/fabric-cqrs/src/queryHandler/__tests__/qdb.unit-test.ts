@@ -151,7 +151,7 @@ describe('Projection db test', () => {
       .then(({ status, message, result }) => {
         expect(status).toEqual('OK');
         expect(message).toEqual('full text search: 3 record(s) returned');
-        expect(result).toEqual([
+        expect(result.map((item) => omit(item, '__reducer'))).toEqual([
           {
             value: 2,
             id: 'qh_proj_test_001',
@@ -160,6 +160,8 @@ describe('Projection db test', () => {
             _ts: 1590739000,
             _created: 1590738792,
             _creator: 'org1-admin',
+            __entityName: commit.entityName,
+            __timeline: '1590738792,1590739000',
             __event: 'Increment,Increment',
             __commit: [
               'test_proj::qh_proj_test_001::20200528133519841',
@@ -174,6 +176,8 @@ describe('Projection db test', () => {
             _ts: 1590740002,
             _created: 1590740000,
             _creator: 'org1-admin',
+            __entityName: commit.entityName,
+            __timeline: '1590740000,1590740001,1590740002',
             __event: 'Increment,Increment,Increment',
             __commit: [
               'test_proj::qh_proj_test_002::20200528133530001',
@@ -189,6 +193,8 @@ describe('Projection db test', () => {
             _ts: 1590740004,
             _created: 1590740003,
             _creator: 'org1-admin',
+            __entityName: commit.entityName,
+            __timeline: '1590740003,1590740004',
             __event: 'Increment,Increment',
             __commit: [
               'test_proj::qh_proj_test_003::20200528133530004',
@@ -230,7 +236,7 @@ describe('Projection db test', () => {
       })
       .then(({ status, result }) => {
         expect(status).toEqual('OK');
-        expect(result[0]).toEqual({
+        expect(omit(result[0], '__reducer')).toEqual({
           value: 2,
           id: 'qh_proj_test_001',
           desc: 'query handler #2 proj',
@@ -238,6 +244,8 @@ describe('Projection db test', () => {
           _ts: 1590739000,
           _created: 1590738792,
           _creator: 'org1-admin',
+          __entityName: commit.entityName,
+          __timeline: '1590738792,1590739000',
           __event: 'Increment,Increment',
           __commit: [
             'test_proj::qh_proj_test_001::20200528133519841',
@@ -254,7 +262,7 @@ describe('Projection db test', () => {
       })
       .then(({ status, result }) => {
         expect(status).toEqual('OK');
-        expect(result[0]).toEqual({
+        expect(omit(result[0], '__reducer')).toEqual({
           value: 2,
           id: 'qh_proj_test_001',
           desc: 'query handler #2 proj',
@@ -262,6 +270,8 @@ describe('Projection db test', () => {
           _ts: 1590739000,
           _created: 1590738792,
           _creator: 'org1-admin',
+          __entityName: commit.entityName,
+          __timeline: '1590738792,1590739000',
           __event: 'Increment,Increment',
           __commit: [
             'test_proj::qh_proj_test_001::20200528133519841',

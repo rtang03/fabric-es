@@ -75,7 +75,8 @@ export interface QueryHandler {
 
   // meta-data is embeded in query result
   meta_getByEntityName: <TEntity = any>(
-    entiyName: string
+    entiyName: string,
+    id?: string
   ) => (payload: {
     cursor: number;
     countPerPage: number;
