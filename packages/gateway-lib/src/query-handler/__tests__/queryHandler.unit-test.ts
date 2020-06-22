@@ -10,8 +10,15 @@ import values from 'lodash/values';
 import fetch from 'node-fetch';
 import rimraf from 'rimraf';
 import { createQueryHandlerService, rebuildIndex } from '..';
+import type { MetaEntity } from '../../types';
 import { getLogger } from '../../utils';
-import { CREATE_COMMIT, FULL_TXT_SEARCH_COMMIT, FULL_TXT_SEARCH_ENTITY, ME } from '../query';
+import {
+  CREATE_COMMIT,
+  FULL_TXT_SEARCH_COMMIT,
+  FULL_TXT_SEARCH_ENTITY,
+  ME,
+  META_GET_ENTITY_BY_ENTNAME_ID,
+} from '../query';
 
 /**
  * ./dn-run.1-px-db-red-auth.sh or ./dn-run.2-px-db-red-auth.sh
@@ -277,7 +284,7 @@ describe('Full Text Search Test', () => {
     })
       .then((r) => r.json())
       .then(({ data }) => {
-        const counterObject = data?.fullTextSearchEntity[0];
+        const counterObject: MetaEntity = data?.fullTextSearchEntity[0];
         expect(
           omit(counterObject, 'value', 'commits', 'created', 'lastModified', 'timeline', 'reducer')
         ).toEqual({
@@ -302,7 +309,7 @@ describe('Full Text Search Test', () => {
     })
       .then((r) => r.json())
       .then(({ data }) => {
-        const counterObject = data?.fullTextSearchEntity[0];
+        const counterObject: MetaEntity = data?.fullTextSearchEntity[0];
         expect(
           omit(counterObject, 'value', 'commits', 'created', 'lastModified', 'timeline', 'reducer')
         ).toEqual({
@@ -313,5 +320,143 @@ describe('Full Text Search Test', () => {
           creator: 'admin-org1.net',
           tag: 'unit_test,gw_lib,query_handler',
         });
+      }));
+});
+
+describe('Paginated search', () => {
+  beforeAll(async () => {
+    for await (const i of [1, 2, 3, 4, 5])
+      await fetch(`http://localhost:${QH_PORT}/graphql`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+        body: JSON.stringify({
+          operationName: 'CreateCommit',
+          query: CREATE_COMMIT,
+          variables: {
+            entityName,
+            id: `paginated-${i}`,
+            type: 'Increment',
+            payloadString: `{"id":"paginated-${i}","desc":"my desc paginated-${i}","tag":"paginated_${i}"}`,
+          },
+        }),
+      })
+        .then((r) => r.text())
+        .then((data) => console.log(data));
+
+    return new Promise((done) => setTimeout(() => done(), 2000));
+  });
+
+  it('should metaGetEntityByEntNameEntId, cursor=10, out-of-range', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetByEntNameEntId',
+        query: META_GET_ENTITY_BY_ENTNAME_ID,
+        variables: {
+          cursor: 10,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetByEntNameEntId).toEqual([]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should fail to metaGetEntityByEntNameEntId: invalid input argument', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetByEntNameEntId',
+        query: META_GET_ENTITY_BY_ENTNAME_ID,
+        variables: {
+          cursor: 0,
+          pagesize: 2,
+          entityName,
+          sortByField: 'non-exist field',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetByEntNameEntId).toBeNull();
+        expect(error).toBeUndefined();
+      }));
+
+  it('should fail to metaGetEntityByEntNameEntId: invalid input argument', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetByEntNameEntId',
+        query: META_GET_ENTITY_BY_ENTNAME_ID,
+        variables: {
+          cursor: 0,
+          pagesize: 2,
+          entityName: 'noop',
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetByEntNameEntId).toBeNull();
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetEntityByEntNameEntId, cursor=0', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetByEntNameEntId',
+        query: META_GET_ENTITY_BY_ENTNAME_ID,
+        variables: {
+          cursor: 0,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        const entities: MetaEntity[] = data?.metaGetByEntNameEntId;
+        expect(entities.length).toEqual(2);
+        expect(entities.map(({ id }) => id)).toEqual(['paginated-1', 'paginated-2']);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetEntityByEntNameEntId, cursor=3', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetByEntNameEntId',
+        query: META_GET_ENTITY_BY_ENTNAME_ID,
+        variables: {
+          cursor: 2,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        const entities: MetaEntity[] = data?.metaGetByEntNameEntId;
+        expect(entities.length).toEqual(2);
+        expect(entities.map(({ id }) => id)).toEqual(['paginated-3', 'paginated-4']);
+        expect(error).toBeUndefined();
       }));
 });

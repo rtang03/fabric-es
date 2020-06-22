@@ -5,7 +5,7 @@ import type { HandlerResponse } from '../types';
 import { dispatcher } from './dispatcher';
 
 /**
- * get Entity from indexed content
+ * Pagination: get Entity from indexed content
  * NOTE: the returning entity includes meta data
  * @param entityName
  * @param id
@@ -18,12 +18,12 @@ export const metaGetEntityByEntNameEntId: <TEntity>(
   option: { logger: Logger; store: Store }
 ) => (payload: {
   cursor: number;
-  countPerPage: number;
+  pagesize: number;
   sortByField: 'id' | 'key' | 'created' | 'creator' | 'ts';
   sort: 'ASC' | 'DESC';
 }) => Promise<HandlerResponse<TEntity[]>> = <TEntity>(entityName, id, { logger, store }) =>
-  dispatcher<TEntity[], { cursor: number; countPerPage: number; sortByField: string }>(
-    ({ tx_id, args: { cursor, countPerPage, sortByField, sort } }) =>
+  dispatcher<TEntity[], { cursor: number; pagesize: number; sortByField: string }>(
+    ({ tx_id, args: { cursor, pagesize, sortByField, sort } }) =>
       action.eIdxSearch({
         tx_id,
         args: {
@@ -34,7 +34,7 @@ export const metaGetEntityByEntNameEntId: <TEntity>(
             sort,
             'LIMIT',
             cursor,
-            countPerPage,
+            pagesize,
           ],
         },
       }),

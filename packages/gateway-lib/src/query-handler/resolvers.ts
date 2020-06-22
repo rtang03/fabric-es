@@ -3,29 +3,31 @@ import { ApolloError } from 'apollo-server';
 import { withFilter } from 'graphql-subscriptions';
 import assign from 'lodash/assign';
 import values from 'lodash/values';
-import { QueryHandlerGqlCtx } from '../types';
+import type { MetaEntity, QueryHandlerGqlCtx } from '../types';
 import { catchErrors, getLogger } from '../utils';
 import { rebuildIndex } from './rebuildIndex';
 import { reconcile } from './reconcile';
 
-interface Entity {
-  id: string;
-  entityName: string;
-  value: string;
-  commits: string[];
-  events: string;
-  timeline: string;
-  reducer: string;
-  tag: string;
-  desc: string;
-  created: number;
-  creator: string;
-  lastModified: number;
-}
-
 const COMMIT_ARRIVED = 'COMMIT_ARRIVED';
 const DEV = 'DEV';
 const logger = getLogger('[gateway-lib] queryHandler/resolvers.js');
+const metaEntityParser = (data: BaseEntity[]) =>
+  data
+    ? data.map((entity) => ({
+        id: entity?.id || '',
+        entityName: entity?.__entityName,
+        value: JSON.stringify(entity),
+        desc: entity?.desc || '',
+        tag: entity?.tag || '',
+        commits: entity?.__commit,
+        events: entity?.__event,
+        creator: entity?._creator || '',
+        created: entity?._created || 0,
+        lastModified: entity?._ts || 0,
+        timeline: entity?.__timeline,
+        reducer: entity?.__reducer,
+      }))
+    : null;
 
 export const resolvers = {
   Mutation: {
@@ -34,7 +36,11 @@ export const resolvers = {
       return true;
     },
     reloadEntities: catchErrors(
-      async (_, { entityNames }, { publisher, queryHandler }: QueryHandlerGqlCtx) => {
+      async (
+        _,
+        { entityNames }: { entityNames: string[] },
+        { publisher, queryHandler }: QueryHandlerGqlCtx
+      ) => {
         await rebuildIndex(publisher, logger);
 
         await reconcile(entityNames, queryHandler, logger);
@@ -43,7 +49,16 @@ export const resolvers = {
       { fcnName: 'reloadEntity', useAuth: false, useAdmin: true, logger }
     ),
     createCommit: catchErrors(
-      async (_, { entityName, id, type, payloadString }, { queryHandler }: QueryHandlerGqlCtx) => {
+      async (
+        _,
+        {
+          entityName,
+          id,
+          type,
+          payloadString,
+        }: { entityName: string; id: string; type: string; payloadString: string },
+        { queryHandler }: QueryHandlerGqlCtx
+      ) => {
         const payload = JSON.parse(payloadString);
 
         const { data } = await queryHandler
@@ -77,38 +92,53 @@ export const resolvers = {
       },
       { fcnName: 'fullTextSearchCommit', useAdmin: false, useAuth: false, logger }
     ),
-    fullTextSearchEntity: catchErrors<Entity[] | ApolloError>(
+    fullTextSearchEntity: catchErrors<MetaEntity[] | ApolloError>(
       async (
         _,
         { query }: { query: string },
         { queryHandler }: QueryHandlerGqlCtx
-      ): Promise<Entity[] | ApolloError> => {
+      ): Promise<MetaEntity[] | ApolloError> => {
         const { data, error, status } = await queryHandler.fullTextSearchEntity<BaseEntity>()({
           query: query.split(' ').filter((item) => !!item),
         });
 
         if (status !== 'OK') return new ApolloError(JSON.stringify(error));
 
-        return data
-          ? data.map((entity) => ({
-              id: entity?.id || '',
-              entityName: entity?.__entityName,
-              value: JSON.stringify(entity),
-              desc: entity?.desc || '',
-              tag: entity?.tag || '',
-              commits: entity?.__commit,
-              events: entity?.__event,
-              creator: entity?._creator || '',
-              created: entity?._created || 0,
-              lastModified: entity?._ts || 0,
-              timeline: entity?.__timeline,
-              reducer: entity?.__reducer,
-            }))
-          : null;
+        return metaEntityParser(data);
       },
       { fcnName: 'fullTextSearchEntity', useAdmin: false, useAuth: false, logger }
     ),
-    getEntityByPeriod: (_, { duration }, { queryHandler }: QueryHandlerGqlCtx) => {},
+    metaGetByEntNameEntId: catchErrors<any>(
+      async (
+        _,
+        {
+          cursor,
+          pagesize,
+          entityName,
+          id,
+          sortByField,
+          sort,
+        }: {
+          cursor: number;
+          pagesize: number;
+          entityName: string;
+          id: string;
+          sortByField: 'id' | 'key' | 'ts' | 'created' | 'creator';
+          sort: 'ASC' | 'DESC';
+        },
+        { queryHandler }: QueryHandlerGqlCtx
+      ) => {
+        const { data, error, status } = await queryHandler.meta_getByEntNameEntId(
+          entityName,
+          id
+        )({ cursor, pagesize, sort, sortByField });
+
+        if (status !== 'OK') return new ApolloError(JSON.stringify(error));
+
+        return metaEntityParser(data);
+      },
+      { fcnName: 'metaGetByEntNameEntId', useAdmin: false, useAuth: false, logger }
+    ),
   },
   Subscription: {
     pong: {

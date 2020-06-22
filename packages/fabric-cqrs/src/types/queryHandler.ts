@@ -74,12 +74,12 @@ export interface QueryHandler {
   query_deleteCommitByEntityName: (entityName: string) => RepoFcn<number>;
 
   // meta-data is embeded in query result
-  meta_getByEntityName: <TEntity = any>(
+  meta_getByEntNameEntId: <TEntity = any>(
     entiyName: string,
     id?: string
   ) => (payload: {
     cursor: number;
-    countPerPage: number;
+    pagesize: number;
     sortByField: 'id' | 'key' | 'created' | 'creator' | 'ts';
     sort: 'ASC' | 'DESC';
   }) => Promise<HandlerResponse<TEntity[]>>;

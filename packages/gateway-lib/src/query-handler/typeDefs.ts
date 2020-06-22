@@ -30,9 +30,14 @@ export const typeDefs = gql`
     me: String
     fullTextSearchCommit(query: String): [Commit]
     fullTextSearchEntity(query: String): [MetaEntity]
-    getEntityByPeriod(duration: String!): [MetaEntity]
-    # getEntityByCount(count: Int): [Entity]
-    # getEntityByPeriodBySubmitter(duration: String!, submitter: String!): [Entity]
+    metaGetByEntNameEntId(
+      entityName: String
+      id: String
+      cursor: Int
+      pagesize: Int
+      sortByField: String
+      sort: String
+    ): [MetaEntity]
   }
 
   type MetaEntity {

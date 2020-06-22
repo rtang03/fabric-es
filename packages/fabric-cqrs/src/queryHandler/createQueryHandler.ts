@@ -70,7 +70,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
       queryDeleteCommitByEntityId(entityName, queryOption),
     query_deleteCommitByEntityName: (entityName) =>
       queryDeleteCommitByEntityName(entityName, queryOption),
-    meta_getByEntityName: <TEntity = any>(entiyName, id) =>
+    meta_getByEntNameEntId: <TEntity = any>(entiyName, id) =>
       metaGetEntityByEntNameEntId<TEntity>(entiyName, id, queryOption),
     fullTextSearchCommit: () =>
       dispatcher<Commit[], { query: string[] }>((payload) => queryAction.cIdxSearch(payload), {

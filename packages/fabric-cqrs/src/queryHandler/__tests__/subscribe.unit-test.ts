@@ -269,9 +269,9 @@ describe('Pagination tests for getByEntityName', () => {
 
   it('should meta_getByEntityName: cursor=0, pagesize=2', async () =>
     queryHandler
-      .meta_getByEntityName<Counter>(entityName)({
+      .meta_getByEntNameEntId<Counter>(entityName)({
         cursor: 0,
-        countPerPage: 2,
+        pagesize: 2,
         sortByField: 'id',
         sort: 'ASC',
       })
@@ -286,9 +286,9 @@ describe('Pagination tests for getByEntityName', () => {
 
   it('should meta_getByEntityName: cursor=1, pagesize=2', async () =>
     queryHandler
-      .meta_getByEntityName<Counter>(entityName)({
+      .meta_getByEntNameEntId<Counter>(entityName)({
         cursor: 1,
-        countPerPage: 2,
+        pagesize: 2,
         sortByField: 'id',
         sort: 'ASC',
       })
@@ -303,12 +303,12 @@ describe('Pagination tests for getByEntityName', () => {
 
   it('should meta_getByEntityNameEntityId: id=001, cursor=0', async () =>
     queryHandler
-      .meta_getByEntityName<Counter>(
+      .meta_getByEntNameEntId<Counter>(
         entityName,
         'qh_pag_test_001'
       )({
         cursor: 0,
-        countPerPage: 2,
+        pagesize: 2,
         sortByField: 'id',
         sort: 'ASC',
       })
@@ -322,12 +322,12 @@ describe('Pagination tests for getByEntityName', () => {
 
   it('should meta_getByEntityName: cursor=0, pagesize=10', async () =>
     queryHandler
-      .meta_getByEntityName<Counter>(
+      .meta_getByEntNameEntId<Counter>(
         entityName,
         'qh_pag_test_00*'
       )({
         cursor: 0,
-        countPerPage: 10,
+        pagesize: 10,
         sortByField: 'id',
         sort: 'ASC',
       })
