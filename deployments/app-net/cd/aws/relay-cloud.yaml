@@ -24,6 +24,11 @@ services:
       - 80:2500
     networks:
       - relay-net
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: docker-logs
+        awslogs-stream: relay
 
   mock-server:
     container_name: mock-server
@@ -32,6 +37,11 @@ services:
     command: dist/__mocks__/mockEndpoint.js
     networks:
       - relay-net
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: docker-logs
+        awslogs-stream: mock
 
   redis-pubsub:
     container_name: redis-pubsub
