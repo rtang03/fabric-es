@@ -53,5 +53,16 @@ export const trackingReducer = (commits: Commit[]) => {
       [ORGAN_FIELD]: [],
       [TRACK_FIELD]: {}
     });
-  return (Object.values(result[TRACK_FIELD]).length > 0) ? result : { [ORGAN_FIELD]: result[ORGAN_FIELD] };
+
+  const olen = result[ORGAN_FIELD].length;
+  const tlen = Object.values(result[TRACK_FIELD]).length;
+  if ((olen > 0) && (tlen > 0)) {
+    return result;
+  } else if (olen > 0) {
+    return { [ORGAN_FIELD]: result[ORGAN_FIELD] };
+  } else if (tlen > 0) {
+    return { [TRACK_FIELD]: result[TRACK_FIELD] };
+  } else {
+    return null;
+  }
 };

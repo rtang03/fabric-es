@@ -155,7 +155,7 @@ beforeAll(async () => {
       peerName,
       playground: false,
       walletPath,
-      orgName: 'ORG1',
+      orgName: 'org1',
       orgUrl: `http://localhost:${MODEL_SERVICE_PORT}/graphql`,
     });
     adminApolloService = service.server;
@@ -324,56 +324,56 @@ describe('Gateway Test - admin service', () => {
         } else return false;
       }));
 
-  it('should fail to listWallet: with non-admin accessToken', async () =>
-    request(app)
-      .post('/graphql')
-      .send({
-        operationName: 'ListWallet',
-        query: LIST_WALLET,
-      })
-      .expect(({ body: { data, errors } }: QueryResponse) => {
-        expect(data).toBeNull();
-        expect(errors[0].message).toEqual(UNAUTHORIZED_ACCESS);
-      }));
+  // it('should fail to listWallet: with non-admin accessToken', async () =>
+  //   request(app)
+  //     .post('/graphql')
+  //     .send({
+  //       operationName: 'ListWallet',
+  //       query: LIST_WALLET,
+  //     })
+  //     .expect(({ body: { data, errors } }: QueryResponse) => {
+  //       expect(data).toBeNull();
+  //       expect(errors[0].message).toEqual(UNAUTHORIZED_ACCESS);
+  //     }));
 
-  it('should listWallet: with (admin) accessToken', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
-      .send({
-        operationName: 'ListWallet',
-        query: LIST_WALLET,
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(data?.listWallet.toString()).toContain(orgAdminId);
-      }));
+  // it('should listWallet: with (admin) accessToken', async () =>
+  //   request(app)
+  //     .post('/graphql')
+  //     .set('authorization', `bearer ${adminAccessToken}`)
+  //     .send({
+  //       operationName: 'ListWallet',
+  //       query: LIST_WALLET,
+  //     })
+  //     .expect(({ body: { data, errors } }) => {
+  //       expect(errors).toBeUndefined();
+  //       expect(data?.listWallet.toString()).toContain(orgAdminId);
+  //     }));
 
-  it('should fail to getWallet: without accessToken', async () =>
-    request(app)
-      .post('/graphql')
-      .send({
-        operationName: 'GetWallet',
-        query: GET_WALLET,
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(data?.getWallet).toBeNull();
-        expect(errors[0]?.message).toEqual('could not find user');
-      }));
+  // it('should fail to getWallet: without accessToken', async () =>
+  //   request(app)
+  //     .post('/graphql')
+  //     .send({
+  //       operationName: 'GetWallet',
+  //       query: GET_WALLET,
+  //     })
+  //     .expect(({ body: { data, errors } }) => {
+  //       expect(data?.getWallet).toBeNull();
+  //       expect(errors[0]?.message).toEqual('could not find user');
+  //     }));
 
-  it('should getWallet: with accessToken', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
-      .send({
-        operationName: 'GetWallet',
-        query: GET_WALLET,
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(data?.getWallet.type).toEqual('X.509');
-        expect(data?.getWallet.mspId).toEqual('Org1MSP');
-        expect(errors).toBeUndefined();
-      }));
+  // it('should getWallet: with accessToken', async () =>
+  //   request(app)
+  //     .post('/graphql')
+  //     .set('authorization', `bearer ${adminAccessToken}`)
+  //     .send({
+  //       operationName: 'GetWallet',
+  //       query: GET_WALLET,
+  //     })
+  //     .expect(({ body: { data, errors } }) => {
+  //       expect(data?.getWallet.type).toEqual('X.509');
+  //       expect(data?.getWallet.mspId).toEqual('Org1MSP');
+  //       expect(errors).toBeUndefined();
+  //     }));
 
   it('should fail to getBlockByNumber: non-exist block', async () =>
     request(app)
@@ -389,62 +389,62 @@ describe('Gateway Test - admin service', () => {
         expect(data?.getBlockByNumber).toBeNull();
       }));
 
-  it('should fail to getBlockByNumber without admin accessToken', async () =>
-    request(app)
-      .post('/graphql')
-      .send({
-        operationName: 'GetBlockByNumber',
-        query: GET_BLOCK_BY_NUMBER,
-        variables: { blockNumber: 10 },
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(data.getBlockByNumber).toBeNull();
-        expect(errors[0].message).toEqual(UNAUTHORIZED_ACCESS);
-      }));
+  // it('should fail to getBlockByNumber without admin accessToken', async () =>
+  //   request(app)
+  //     .post('/graphql')
+  //     .send({
+  //       operationName: 'GetBlockByNumber',
+  //       query: GET_BLOCK_BY_NUMBER,
+  //       variables: { blockNumber: 10 },
+  //     })
+  //     .expect(({ body: { data, errors } }) => {
+  //       expect(data.getBlockByNumber).toBeNull();
+  //       expect(errors[0].message).toEqual(UNAUTHORIZED_ACCESS);
+  //     }));
 
-  it('should getBlockByNumber', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
-      .send({
-        operationName: 'GetBlockByNumber',
-        query: GET_BLOCK_BY_NUMBER,
-        variables: { blockNumber: 10 },
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(data?.getBlockByNumber.block_number).toEqual('10');
-      }));
+  // it('should getBlockByNumber', async () =>
+  //   request(app)
+  //     .post('/graphql')
+  //     .set('authorization', `bearer ${adminAccessToken}`)
+  //     .send({
+  //       operationName: 'GetBlockByNumber',
+  //       query: GET_BLOCK_BY_NUMBER,
+  //       variables: { blockNumber: 10 },
+  //     })
+  //     .expect(({ body: { data, errors } }) => {
+  //       expect(errors).toBeUndefined();
+  //       expect(data?.getBlockByNumber.block_number).toEqual('10');
+  //     }));
 
-  it('should getChainHeight', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
-      .send({ operationName: 'GetChainHeight', query: GET_CHAIN_HEIGHT })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(typeof data?.getChainHeight).toEqual('number');
-      }));
+  // it('should getChainHeight', async () =>
+  //   request(app)
+  //     .post('/graphql')
+  //     .set('authorization', `bearer ${adminAccessToken}`)
+  //     .send({ operationName: 'GetChainHeight', query: GET_CHAIN_HEIGHT })
+  //     .expect(({ body: { data, errors } }) => {
+  //       expect(errors).toBeUndefined();
+  //       expect(typeof data?.getChainHeight).toEqual('number');
+  //     }));
 
-  it('should getPeerInfo', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
-      .send({ operationName: 'GetPeerInfo', query: GET_PEERINFO })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(data?.getPeerInfo).toEqual({ peerName: 'peer0-org1', mspId: 'Org1MSP' });
-      }));
+  // it('should getPeerInfo', async () =>
+  //   request(app)
+  //     .post('/graphql')
+  //     .set('authorization', `bearer ${adminAccessToken}`)
+  //     .send({ operationName: 'GetPeerInfo', query: GET_PEERINFO })
+  //     .expect(({ body: { data, errors } }) => {
+  //       expect(errors).toBeUndefined();
+  //       expect(data?.getPeerInfo).toEqual({ peerName: 'peer0-org1', mspId: 'Org1MSP' });
+  //     }));
 
-  it('should getCaIdentityByUsername', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
-      .send({ operationName: 'GetCaIdentityByUsername', query: GET_CA_IDENTITY_BY_USERNAME })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(isCaIdentity(data?.getCaIdentityByUsername)).toBeTruthy();
-      }));
+  // it('should getCaIdentityByUsername', async () =>
+  //   request(app)
+  //     .post('/graphql')
+  //     .set('authorization', `bearer ${adminAccessToken}`)
+  //     .send({ operationName: 'GetCaIdentityByUsername', query: GET_CA_IDENTITY_BY_USERNAME })
+  //     .expect(({ body: { data, errors } }) => {
+  //       expect(errors).toBeUndefined();
+  //       expect(isCaIdentity(data?.getCaIdentityByUsername)).toBeTruthy();
+  //     }));
 
   it('should fail createWallet: orgAdmin already exist in wallet', async () =>
     request(app)

@@ -151,6 +151,7 @@ describe('Projection db test', () => {
       expect(message).toEqual('full text search: 3 record(s) returned');
       expect(result).toEqual({
         'test_proj::qh_proj_test_001': {
+          __organization: ['Org1MSP'],
           value: 2,
           id: 'qh_proj_test_001',
           desc: 'query handler #2 proj',
@@ -158,6 +159,7 @@ describe('Projection db test', () => {
           ts: 1590739000,
         },
         'test_proj::qh_proj_test_002': {
+          __organization: ['Org1MSP'],
           id: 'qh_proj_test_002',
           value: 3,
           desc: 'query handler #5 proj',
@@ -165,6 +167,7 @@ describe('Projection db test', () => {
           ts: 1590740002,
         },
         'test_proj::qh_proj_test_003': {
+          __organization: ['Org1MSP'],
           id: 'qh_proj_test_003',
           value: 2,
           desc: 'query handler #7 proj',
@@ -206,7 +209,7 @@ describe('Projection db test', () => {
       })
       .then(({ status, result }) => {
         expect(status).toEqual('OK');
-        expect(omit(values(result)[0], 'ts')).toEqual({
+        expect(omit(values(result)[0], 'ts', '__organization')).toEqual({
           value: 2,
           id: 'qh_proj_test_001',
           desc: 'query handler #2 proj',
@@ -222,7 +225,7 @@ describe('Projection db test', () => {
       })
       .then(({ status, result }) => {
         expect(status).toEqual('OK');
-        expect(omit(values(result)[0], 'ts')).toEqual({
+        expect(omit(values(result)[0], 'ts', '__organization')).toEqual({
           value: 2,
           id: 'qh_proj_test_001',
           desc: 'query handler #2 proj',
