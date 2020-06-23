@@ -1,7 +1,6 @@
 import { Commit } from '@fabric-es/fabric-cqrs';
-import { catchErrors, getLogger, queryPrivateData } from '@fabric-es/gateway-lib';
+import { catchErrors, getLogger, queryTrackingData } from '@fabric-es/gateway-lib';
 import gql from 'graphql-tag';
-import { Document } from '../document';
 import { DocContents, docContentsCommandHandler, GET_CONTENTS_BY_ID } from '.';
 
 export const typeDefs = gql`
@@ -134,38 +133,15 @@ export const resolvers = {
   },
   Document: {
     contents: catchErrors(
-      async ({ documentId }, { token }, context) => { // { dataSources: { organization, docContents, document }, username, mspId, remoteData }
-        // const doc = await document.repo.getById({ id: documentId, enrollmentId: username }).then(({ currentState }) => currentState);
-        // const result = [];
-        // for (const mspid of doc[TRACK_FIELD][docContents.repo.getEntityName()]) {
-        //   if (mspid === mspId) {
-        //     result.push(await docContents.repo.getById({ id: documentId, enrollmentId: username }).then(({ currentState }) => currentState));
-        //   } else {
-        //     const org = await organization.repo.getById({ id: mspid, enrollmentId: username }).then(({ currentState }) => currentState);
-        //     await remoteData({
-        //       uri: org.url,
-        //       query: GET_CONTENTS_BY_ID,
-        //       operationName: 'GetDocContentsById',
-        //       variables: { documentId },
-        //       token
-        //     }).then(({ data }) => {
-        //       result.push(data?.getDocContentsById);
-        //     }).catch(error => {
-        //       logger.error(util.format('reemote data, %j', error));
-        //     });
-        //   }
-        // };
-        // return result;
-        console.log('AHAHAHAHAHAHAH', Document.getEntityName(), DocContents.getEntityName());
-        return queryPrivateData({
+      async ({ documentId }, { token }, context) => {
+        return queryTrackingData({
           id: documentId,
-          args: { documentId },
           token,
           context,
           query: GET_CONTENTS_BY_ID,
           publicDataSrc: 'document',
           privateDataSrc: 'docContents',
-        });
+        }); // TODO - Document.getEntityName(), DocContents.getEntityName()
       },
       { fcnName: 'Document/contents', logger, useAuth: false }
     )

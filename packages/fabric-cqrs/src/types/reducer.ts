@@ -1,8 +1,8 @@
 import { Commit } from '.';
 
 export const TRACK_EVENT = 'PrivateDataTracked';
-export const TRACK_FIELD = 'remoteDataTracking';
-export const ORGAN_FIELD = 'organization';
+export const TRACK_FIELD = '__remoteDataTracking';
+export const ORGAN_FIELD = '__organization';
 
 /**
  * **Reducer**

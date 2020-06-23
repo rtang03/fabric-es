@@ -75,7 +75,6 @@ export const GET_CONTENTS_BY_ID = gql`
           link
         }
       }
-      organization
       timestamp
     }
   }

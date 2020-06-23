@@ -12,7 +12,7 @@ import {
 import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
 import type { Redis } from 'ioredis';
-import { createRemoteData, DataSrc } from '..';
+import { createTrackingData, DataSrc } from '..';
 import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
 import type { ModelService } from '../types';
 import { getLogger } from './getLogger';
@@ -115,7 +115,7 @@ export const createService: (option: {
             is_admin: headers.is_admin,
             username: headers.username,
           }, args, {
-            remoteData: createRemoteData
+            trackingData: createTrackingData
           }),
         }, flags));
       };

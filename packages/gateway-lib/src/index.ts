@@ -6,8 +6,8 @@ export { createGateway } from './utils/createGateway';
 export { createService } from './utils/createService';
 export { getLogger } from './utils/getLogger';
 export { createAdminService } from './admin/createAdminService';
-export { createRemoteService } from './remote/createRemoteService';
-export { createRemoteData, queryPrivateData, RemoteData } from './remote/remoteData';
+export { createRemoteService, RemoteData } from './remote/createRemoteService';
+export { createTrackingData, queryTrackingData } from './remote/createTrackingData';
 export { createQueryHandlerService } from './query-handler';
 
 export * from './admin/query';
