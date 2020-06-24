@@ -16,7 +16,7 @@ services:
       - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
     command: postgres
     ports:
-      - 5432
+      - 5432:5432
     networks:
       - openplatform
 

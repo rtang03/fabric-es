@@ -15,7 +15,7 @@ parseArgs $0 "$@"
 # STEP 1
 docker-compose $COMPOSE_0_S up -d
 printMessage "docker-compose up $COMPOSE_0_S" $?
-containerWait "postgres01" "init process complete"
+#containerWait "postgres01" "init process complete"
 
 # STEP 2
 docker-compose $COMPOSE_0_S_A up -d --no-recreate
