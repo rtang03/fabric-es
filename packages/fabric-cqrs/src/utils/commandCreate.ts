@@ -14,12 +14,14 @@ export const commandCreate: <TEvent = any>(
     connectionProfile: string;
     wallet: Wallet;
     store: Store;
-  }
-) => (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> } = <TEvent>(
+  },
+  parentName?: string
+) => (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> } = (
   entityName,
   isPrivateData,
-  { channelName, logger, connectionProfile, wallet, store }
-) => ({ enrollmentId, id }) => ({
+  { channelName, logger, connectionProfile, wallet, store },
+  parentName
+) => <TEvent>({ enrollmentId, id }) => ({
   save: dispatcher<Record<string, Commit>, { events: TEvent[] }>(
     ({ tx_id, args: { events } }) =>
       action.create({
@@ -28,8 +30,10 @@ export const commandCreate: <TEvent = any>(
         wallet,
         tx_id,
         enrollmentId,
+        store,
         args: {
           entityName,
+          parentName,
           id,
           version: 0,
           isPrivateData,

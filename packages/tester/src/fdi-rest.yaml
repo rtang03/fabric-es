@@ -1,0 +1,314 @@
+openapi: "3.0.2"
+info:
+  title: "FDI API 接口"
+  description: "贸金区块链平台与贸易联动对接项目 FDI API 接口"
+  version: "0.5"
+
+servers:
+  - url: http://localhost:3000/api/v1/
+
+paths:
+  /events:
+    get:
+      tags:
+        - 搜寻事件
+      summary: "搜寻事件"
+      operationId: events
+      parameters:
+        - $ref: '#/components/parameters/events'
+        - $ref: '#/components/parameters/entities'
+        - $ref: '#/components/parameters/submitters'
+        - $ref: '#/components/parameters/submittedAfter'
+        - $ref: '#/components/parameters/submittedBefore'
+      responses:
+        200:
+          description: 成功响应
+          content:
+            application/json:
+              schema:
+                title: 事件序列
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        401:
+          description: 未获受权
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        404:
+          description: 未能找到
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+
+  /pos:
+    get:
+      tags: 
+        - 搜寻订单
+      summary: "搜寻订单"
+      operationId: pos
+      parameters: 
+        - $ref: '#/components/parameters/descriptions'
+        - $ref: '#/components/parameters/submitters'
+        - $ref: '#/components/parameters/createdAfter'
+        - $ref: '#/components/parameters/createdBefore'
+        - $ref: '#/components/parameters/updatedAfter'
+        - $ref: '#/components/parameters/updatedBefore'
+      responses:
+        200:
+          description: 成功响应
+          content:
+            application/json:
+              schema:
+                title: 订单序列
+                type: array
+                items:
+                  $ref: '#/components/schemas/PO'
+        401:
+          description: 未获受权
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        404:
+          description: 未能找到
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+
+  /invoices:
+    get:
+      tags:
+        - 搜寻发票
+      summary: "搜寻发票"
+      operationId: invoices
+      parameters: 
+        - $ref: '#/components/parameters/descriptions'
+        - $ref: '#/components/parameters/submitters'
+        - $ref: '#/components/parameters/createdAfter'
+        - $ref: '#/components/parameters/createdBefore'
+        - $ref: '#/components/parameters/updatedAfter'
+        - $ref: '#/components/parameters/updatedBefore'
+      responses:
+        200:
+          description: 成功响应
+          content:
+            application/json:
+              schema:
+                title: 发票序列
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invoice'
+        401:
+          description: 未获受权
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        404:
+          description: 未能找到
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+
+components:
+  parameters:
+    events:
+      name: events
+      in: query
+      description: "事件种类"
+      schema:
+        type: array
+        items:
+          type: string
+      required: false
+      explode: true
+
+    entities:
+      name: entities
+      in: query
+      description: "单元种类"
+      schema:
+        type: array
+        items:
+          type: string
+          enum: [PO, Invoice]
+      required: false
+      explode: true
+
+    submittedAfter:
+      name: submittedAfter
+      in: query
+      description: "提交时间 - 开始 (百份秒, Unix epoch 时间)"
+      schema:
+        type: integer
+        format: int64
+      required: false
+
+    submittedBefore:
+      name: submittedBefore
+      in: query
+      description: "提交时间 - 结束 (百份秒, Unix epoch 时间)"
+      schema:
+        type: integer
+        format: int64
+      required: false
+
+    descriptions:
+      name: descriptions
+      in: query
+      description: "单元描述"
+      schema:
+        type: string
+      required: false
+
+    submitters:
+      name: submitters
+      in: query
+      description: "提交者号码"
+      schema:
+        type: array
+        items:
+          type: string
+      required: false
+      explode: true
+
+    createdAfter:
+      name: createdAfter
+      in: query
+      description: "创建时间 - 开始 (百份秒, Unix epoch 时间)"
+      schema:
+        type: integer
+        format: int64
+      required: false
+
+    createdBefore:
+      name: createdBefore
+      in: query
+      description: "创建时间 - 结束 (百份秒, Unix epoch 时间)"
+      schema:
+        type: integer
+        format: int64
+      required: false
+
+    updatedAfter:
+      name: updatedAfter
+      in: query
+      description: "最后更新时间 - 开始 (百份秒, Unix epoch 时间)"
+      schema:
+        type: integer
+        format: int64
+      required: false
+
+    updatedBefore:
+      name: updatedBefore
+      in: query
+      description: "最后更新时间 - 结束 (百份秒, Unix epoch 时间)"
+      schema:
+        type: integer
+        format: int64
+      required: false
+
+  schemas:
+    Event:
+      title: 事件
+      type: object
+      required:
+        - commitId
+        - entityType
+        - eventSubmitter
+        - eventTypes
+        - submittedDate
+      properties:
+        commitId:
+          type: string
+          description: 事件内码
+        entityType:
+          type: string
+          description: 单元种类
+          enum: [PO, Invoice]
+        eventSubmitter:
+          type: string
+          description: 提交者号码
+          example: "eTradeConnect"
+        eventTypes:
+          type: array
+          description: 事件种类
+          items:
+            type: string
+        submittedDate:
+          type: integer
+          format: int64
+          description: 事件提交时间 (百份秒, Unix epoch 时间)
+
+    PO:
+      title: 订单
+      type: object
+      required:
+        - poNumber
+        - poDescription
+        - poSubmitter
+        - poCreateDate
+        - poUpdateDate
+      properties:
+        poNumber:
+          type: string
+          description: 订单号码
+        poDescription:
+          type: string
+          description: 订单描述
+        poSubmitter:
+          type: string
+          description: 订单提交者
+          example: "eTradeConnect"
+        poCreateDate:
+          type: integer
+          format: int64
+          description: 订单创建时间 (百份秒, Unix epoch 时间)
+        poUpdateDate:
+          type: integer
+          format: int64
+          description: 订单最后更新时间 (百份秒, Unix epoch 时间)
+
+    Invoice:
+      title: 发票
+      type: object
+      required:
+        - invoiceNumber
+        - invoiceDescription
+        - invoiceSubmitter
+        - invoiceCreateDate
+        - invoiceUpdateDate
+      properties:
+        invoiceNumber:
+          type: string
+          description: 发票号码
+        invoiceDescription:
+          type: string
+          description: 发票描述
+        invoiceSubmitter:
+          type: string
+          description: 发票提交者
+          example: "eTradeConnect"
+        invoiceCreateDate:
+          type: integer
+          format: int64
+          description: 发票创建时间 (百份秒, Unix epoch 时间)
+        invoiceUpdateDate:
+          type: integer
+          format: int64
+          description: 发票最后更新时间 (百份秒, Unix epoch 时间)
+
+    Unauthorized:
+      type: string
+      description: 未获受权 (401)
+      example: 访问未获受权
+
+    NotFound:
+      type: string
+      description: 未能找到 (404)
+      example: 未能找到资源

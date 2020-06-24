@@ -13,7 +13,6 @@ const reducer = getReducer<Loan, LoanEvents>(loanReducer);
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'loan',
-    reducers: { loan: reducer },
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
@@ -25,7 +24,7 @@ const reducer = getReducer<Loan, LoanEvents>(loanReducer);
         typeDefs: loanTypeDefs,
         resolvers: loanResolvers,
       })
-        .addRepository(getRepository<Loan, LoanEvents>('loan'))
+        .addRepository(getRepository<Loan, LoanEvents>('loan', reducer))
         .create();
 
       process.on('SIGINT', async () => await shutdown(app));

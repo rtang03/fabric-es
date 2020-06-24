@@ -8,18 +8,19 @@ import {
   docContentsReducer,
   docContentsResolvers,
   docContentsTypeDefs,
+  Document,
+  DocumentEvents,
+  documentReducer,
 } from '@fabric-es/model-document';
 import { Wallets } from 'fabric-network';
 import Redis from 'ioredis';
 
 const logger = getLogger('service-prv-ctnt.js');
-const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
 
 (async () =>
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'docContents',
-    reducers: { docContents: reducer },
     isPrivate: true,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
@@ -27,12 +28,12 @@ const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
     asLocalhost: !(process.env.NODE_ENV === 'production'),
     redis: new Redis({ host: process.env.REDIS_HOST, port: parseInt(process.env.REDIS_PORT, 10) }),
   })
-    .then(async ({ config, shutdown, getPrivateRepository }) => {
+    .then(async ({ config, shutdown, getRepository, getPrivateRepository }) => {
       const app = await config({
         typeDefs: docContentsTypeDefs,
         resolvers: docContentsResolvers,
-      })
-        .addRepository(getPrivateRepository<DocContents, DocContentsEvents>('docContents'))
+      }).addRepository(getPrivateRepository<DocContents, DocContentsEvents>('docContents', getReducer<DocContents, DocContentsEvents>(docContentsReducer), 'document')) // TODO
+        .addRepository(getRepository<Document, DocumentEvents>('document', getReducer<Document, DocumentEvents>(documentReducer)))
         .create();
 
       process.on('SIGINT', async () => await shutdown(app));

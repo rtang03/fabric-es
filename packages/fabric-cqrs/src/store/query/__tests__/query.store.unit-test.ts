@@ -409,6 +409,7 @@ describe('Store/query Test', () => {
         version: 2,
         commitId: '20200528133530003',
         entityId: 'test_002',
+        mspId: 'Org1MSP',
         events: [
           {
             type: 'Increment',

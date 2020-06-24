@@ -22,30 +22,32 @@ export class EventStore extends Contract {
   async Init(context: MyContext) {
     console.info('=== START : Initialize eventstore ===');
 
-    const commits: Commit[] = [];
+    // const commits: Commit[] = [];
 
-    commits.push(
-      createInstance({
-        id: 'ent_dev_1001',
-        entityName: 'dev_entity',
-        version: '0',
-        events: [{ type: 'User Created', payload: { name: 'April' } }],
-        commitId: '12345a'
-      })
-    );
-    commits.push(
-      createInstance({
-        id: 'ent_dev_1001',
-        entityName: 'dev_entity',
-        version: '0',
-        events: [{ type: 'User Created', payload: { name: 'May' } }],
-        commitId: '12345b'
-      })
-    );
+    // commits.push(
+    //   createInstance({
+    //     id: 'ent_dev_1001',
+    //     entityName: 'dev_entity',
+    //     version: '0',
+    //     mspId: 'x',
+    //     events: [{ type: 'User Created', payload: { name: 'April' } }],
+    //     commitId: '12345a'
+    //   })
+    // );
+    // commits.push(
+    //   createInstance({
+    //     id: 'ent_dev_1001',
+    //     entityName: 'dev_entity',
+    //     version: '0',
+    //     mspId: 'x',
+    //     events: [{ type: 'User Created', payload: { name: 'May' } }],
+    //     commitId: '12345b'
+    //   })
+    // );
 
-    for (const commit of commits) {
-      await context.stateList.addState(commit);
-    }
+    // for (const commit of commits) {
+    //   await context.stateList.addState(commit);
+    // }
 
     console.info('=== END : Initialize eventstore ===');
 
@@ -80,10 +82,11 @@ export class EventStore extends Contract {
         id,
         version,
         entityName,
+        mspId: context.stub.getCreator().mspid,
         events,
         commitId
       });
-    } else throw new Error('eventStr is not correct format');
+    } else throw new Error('eventStr is not correctly formatted');
 
     // ///////////////////////////////////////////////////////////////////
     // Add the concept 'lifeCycle' to BaseEvent (../ledger-api/commit.ts)

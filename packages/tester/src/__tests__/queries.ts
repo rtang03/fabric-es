@@ -237,11 +237,9 @@ query SearchDocumentContains($contains: String!) {
 export const GET_COMMITS_BY_DOCUMENT = `
   query GetCommitsByDocument($documentId: String!) {
     getCommitsByDocumentId(documentId: $documentId) {
-      id
       entityName
       version
-      commitId
-      committedAt
+      mspId
       events {
         type
       }
@@ -252,11 +250,9 @@ export const GET_COMMITS_BY_DOCUMENT = `
 export const GET_COMMITS_BY_LOAN = `
   query GetCommitsByLoanId($loanId: String!) {
     getCommitsByLoanId(loanId: $loanId) {
-      id
       entityName
       version
-      commitId
-      committedAt
+      mspId
       events {
         type
       }
@@ -272,7 +268,8 @@ export const APPLY_LOAN = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanError {
         message
@@ -289,7 +286,8 @@ export const UPDATE_LOAN = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanError {
         message
@@ -312,7 +310,8 @@ export const CREATE_DOCUMENT = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocError {
         message
@@ -336,7 +335,8 @@ export const CREATE_DOCUMENT_CUST = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocError {
         message
@@ -353,7 +353,8 @@ export const UPDATE_DOCUMENT = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocError {
         message
@@ -370,7 +371,8 @@ export const UPDATE_DOCUMENT_CUST = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on DocError {
         message
@@ -387,7 +389,26 @@ export const CREATE_DOC_CONTENTS = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
+      }
+      ... on DocContentsError {
+        message
+      }
+    }
+  }
+`;
+
+export const UPDATE_DOC_CONTENTS = `
+  mutation UpdateDocContents($userId: String!, $documentId: String!, $content: DocsInput!) {
+    updateDocContents(userId: $userId, documentId: $documentId, content: $content) {
+      ... on DocContentsCommit {
+        id
+        entityName
+        version
+        commitId
+        entityId
+        mspId
       }
       ... on DocContentsError {
         message
@@ -428,7 +449,8 @@ export const CREATE_LOAN_DETAILS = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanDetailsError {
         message
@@ -469,7 +491,8 @@ export const UPDATE_LOAN_DETAILS_CUST = `
         entityName
         version
         commitId
-        committedAt
+        entityId
+        mspId
       }
       ... on LoanDetailsError {
         message

@@ -159,7 +159,7 @@ describe('Reconcile Tests', () => {
           },
         ],
       })
-      .then(({ data }) => omit(values<Commit>(data)[0], 'commitId', 'entityId'))
+      .then(({ data }) => omit(values<Commit>(data)[0], 'commitId', 'entityId', 'mspId'))
       .then((commit) => expect(commit).toEqual({ id, entityName, version: 0 })));
 
   it('should command_getByEntityName', async () =>
@@ -334,7 +334,7 @@ describe('Reconcile Tests', () => {
   it('should query_getCommitById for id1', async () =>
     queryHandler
       .getCommitById(entityName)({ id })
-      .then(({ data }) => data.map((item) => omit(item, 'commitId', 'events', 'entityId')))
+      .then(({ data }) => data.map((item) => omit(item, 'commitId', 'events', 'entityId', 'mspId')))
       .then((commits) => {
         expect(commits).toEqual([
           { id, entityName, version: 1 },

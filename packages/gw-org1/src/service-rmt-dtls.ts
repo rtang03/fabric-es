@@ -10,12 +10,7 @@ const logger = getLogger('service-rmt-dtls.js');
     name: process.env.ORGNAME,
     typeDefs: loanDetailsRemoteTypeDefs,
     resolvers: loanDetailsRemoteResolvers,
-    uriResolver: {
-      resolve: entityId =>
-        new Promise(resolve => {
-          resolve(process.env.TEMP_REMOTE_URI.split(' ')); // TODO : Temp measure!!! need a REAL uriResolver
-        })
-    }
+    urls: process.env.REMOTE_URI.split(' ')
   });
 
   process.on('SIGINT', () => shutdown(server));

@@ -9,7 +9,6 @@ export interface RepoOption {
   wallet: Wallet;
   network: Network;
   gateway: Gateway;
-  reducers: Record<string, Reducer>;
   logger?: Logger;
 }
 
@@ -19,7 +18,6 @@ export interface PrivateRepoOption {
   wallet: Wallet;
   network: Network;
   gateway: Gateway;
-  reducers: Record<string, Reducer>;
   logger?: Logger;
 }
 
@@ -60,7 +58,7 @@ export interface Repository<TEntity = any, TEvent = any> {
   getCommitById: RepoFcn_Id<Commit[]>;
   query_deleteByEntityId: RepoFcn_Id<number>;
   query_deleteByEntityName: RepoFcn<number>;
-  find: RepoFcn_find<Record<string, TEntity>>;
+  find: RepoFcn_find<TEntity[]>;
   getEntityName: () => string;
   disconnect: () => void;
 }

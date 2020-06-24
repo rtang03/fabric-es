@@ -7,7 +7,7 @@ import groupBy from 'lodash/groupBy';
 import isEqual from 'lodash/isEqual';
 import keys from 'lodash/keys';
 import values from 'lodash/values';
-import type { Commit, QueryDatabase } from '../types';
+import { Commit, QueryDatabase, trackingReducer } from '../types';
 import { isCommit, getLogger } from '../utils';
 import {
   arraysToCommitRecords,
@@ -202,6 +202,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
           : assign({}, arraysToCommitRecords(commitsInRedis), commitToMerge);
 
         const currentState = reducer(getHistory(values(mergedResult)));
+        if (currentState) Object.assign(currentState, trackingReducer(values(mergedResult)));
 
         if (!currentState?.id) {
           return {
@@ -260,9 +261,10 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
       keys(group).forEach((id) => {
         const reduced = reducer(getHistory(values(group[id])));
-
-        if (reduced?.id) entities.push(assign({ id }, reduced));
-        else error.push({ id });
+        if (reduced?.id)
+          entities.push(assign({ id }, reduced, trackingReducer(values(group[id]))));
+        else
+          error.push({ id });
       });
 
       try {
@@ -300,7 +302,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
     queryEntity: async ({ entityName, where }) => {
       let entityArrays: string[][];
       let entities: any[];
-      const result: any = {};
+      const result: Record<string, any> = {};
 
       try {
         entityArrays = await pipelineExecute(redis, 'GET_ENTITY_ONLY', `${entityName}::*`);

@@ -108,11 +108,10 @@ beforeAll(async () => {
       logger,
     });
 
-    repo = createRepository<Counter, CounterEvent>(entityName, {
+    repo = createRepository<Counter, CounterEvent>(entityName, reducer, {
       queryDatabase,
       gateway: context.gateway,
       network: context.network,
-      reducers,
       channelName,
       connectionProfile,
       wallet,
@@ -240,6 +239,7 @@ describe('Repository Test', () => {
     const { save, currentState } = await repo.getById({ enrollmentId, id });
 
     expect(omit(currentState, 'ts')).toEqual({
+      _organization: ['Org1MSP'],
       value: 1,
       id: 'repo_test_counter_001',
       desc: 'repo #1 create-test',
@@ -302,6 +302,7 @@ describe('Verify Result', () => {
       expect(status).toEqual('OK');
       const counter = values(data)[0];
       expect(omit(counter, 'ts')).toEqual({
+        _organization: ['Org1MSP'],
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
@@ -314,6 +315,7 @@ describe('Verify Result', () => {
       expect(status).toEqual('OK');
       const counter = values(data)[0];
       expect(omit(counter, 'ts')).toEqual({
+        _organization: ['Org1MSP'],
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
@@ -326,6 +328,7 @@ describe('Verify Result', () => {
       expect(status).toEqual('OK');
       const counter = values(data)[0];
       expect(omit(counter, 'ts')).toEqual({
+        _organization: ['Org1MSP'],
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
@@ -336,7 +339,7 @@ describe('Verify Result', () => {
   it('should fail find by where: invalid id', async () =>
     repo.find({ where: { id: 'abcdec' } }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      expect(data).toBeNull();
+      expect(data.length).toEqual(0);
     }));
 
   it('should find by where', async () =>
@@ -344,6 +347,7 @@ describe('Verify Result', () => {
       expect(status).toEqual('OK');
       const counter = values(data)[0];
       expect(omit(counter, 'ts')).toEqual({
+        _organization: ['Org1MSP'],
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',

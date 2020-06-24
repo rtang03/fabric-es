@@ -31,20 +31,6 @@ printMessage "Create auth-server image" $?
 sleep 1
 
 # STEP 2
-printf "Building $PROXY_IMAGE\n"
-
-cd $CURRENT_DIR
-docker rmi $PROXY_IMAGE
-./build-proxy.sh
-printMessage "Create build context for proxy server"  $?
-sleep 1
-
-cd $ROOT_DIR/packages/proxy
-DOCKER_BUILD=1 docker build --no-cache -t $PROXY_IMAGE .
-printMessage "Create proxy image" $?
-sleep 1
-
-# STEP 3
 printf "Building $UI_ACCOUNT_IMAGE\n"
 
 cd $CURRENT_DIR
