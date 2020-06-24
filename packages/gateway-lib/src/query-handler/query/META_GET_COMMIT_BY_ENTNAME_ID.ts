@@ -1,6 +1,6 @@
 // prettier-ignore
-export const META_GET_ENTITY_BY_ENTNAME_ID = `
-  query MetaGetEntityByEntNameEntId (
+export const META_GET_COMMIT_BY_ENTNAME_ID = `
+  query MetaGetCommitByEntNameEntId (
     $creator: String
     $cursor: Int
     $pagesize: Int
@@ -8,11 +8,11 @@ export const META_GET_ENTITY_BY_ENTNAME_ID = `
     $id: String
     $sortByField: String
     $sort: String
-    $scope: SearchScope
+    $events: [String!]
     $startTime: Int
     $endTime: Int
   ) {
-    metaGetEntityByEntNameEntId (
+    metaGetCommitByEntNameEntId (
       creator: $creator
       cursor: $cursor
       pagesize: $pagesize
@@ -20,22 +20,16 @@ export const META_GET_ENTITY_BY_ENTNAME_ID = `
       id: $id
       sortByField: $sortByField
       sort: $sort
-      scope: $scope
+      events: $events
       startTime: $startTime
       endTime: $endTime
     ) {
       id
       entityName
-      value
-      commits
-      events
-      tag
-      desc
-      created
-      creator
-      lastModified
-      timeline
-      reducer
+      version
+      commitId
+      entityId
+      eventsString
     }
   }
 `;

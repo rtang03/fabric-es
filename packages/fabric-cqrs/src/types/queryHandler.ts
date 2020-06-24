@@ -35,7 +35,27 @@ export interface HandlerResponse<TData = any> {
   error?: any;
   status?: string;
 }
+export interface QHMetaGetCommitPayload {
+  events?: string[];
+  startTime?: number;
+  endTime?: number;
+  creator?: string;
+  cursor: number;
+  pagesize: number;
+  sortByField: 'id' | 'key' | 'entityName' | 'ts' | 'creator';
+  sort: 'ASC' | 'DESC';
+}
 
+export interface QHMetaGetEntityPayload {
+  scope?: 'LAST_MODIFIED' | 'CREATED';
+  startTime?: number;
+  endTime?: number;
+  creator?: string;
+  cursor: number;
+  pagesize: number;
+  sortByField: 'id' | 'key' | 'created' | 'creator' | 'ts';
+  sort: 'ASC' | 'DESC';
+}
 export interface QueryHandler {
   // command-side: create commit
   create: <TEvent>(
@@ -74,19 +94,17 @@ export interface QueryHandler {
   query_deleteCommitByEntityName: (entityName: string) => RepoFcn<number>;
 
   // meta-data is embeded in query result
-  meta_getByEntNameEntId: <TEntity = any>(
+  meta_getEntityByEntNameEntId: <TEntity = any>(
     entiyName: string,
     id?: string
-  ) => (payload: {
-    cursor: number;
-    pagesize: number;
-    sortByField: 'id' | 'key' | 'created' | 'creator' | 'ts';
-    sort: 'ASC' | 'DESC';
-  }) => Promise<HandlerResponse<TEntity[]>>;
+  ) => (payload: QHMetaGetEntityPayload) => Promise<HandlerResponse<TEntity[]>>;
 
-  fullTextSearchCommit: () => (payload: {
-    query: string[];
-  }) => Promise<HandlerResponse<Commit[]>>;
+  meta_getCommitByEntNameEntId: (
+    entiyName: string,
+    id?: string
+  ) => (payload: QHMetaGetCommitPayload) => Promise<HandlerResponse<Commit[]>>;
+
+  fullTextSearchCommit: () => (payload: { query: string[] }) => Promise<HandlerResponse<Commit[]>>;
   fullTextSearchEntity: <TEntity = any>() => (payload: {
     query: string[];
   }) => Promise<HandlerResponse<TEntity[]>>;

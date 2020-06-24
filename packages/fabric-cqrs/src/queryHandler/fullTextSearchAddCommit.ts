@@ -5,7 +5,7 @@ import type { Commit } from '../types';
 export const commitIndex = [
   'cidx',
   'SCHEMA',
-  'entityName',
+  'entname',
   'TEXT',
   'WEIGHT',
   5.0,
@@ -21,6 +21,9 @@ export const commitIndex = [
   'ts',
   'NUMERIC',
   'SORTABLE',
+  'creator',
+  'TEXT',
+  'SORTABLE',
 ];
 
 export const createCommitIndex: (option: {
@@ -30,7 +33,8 @@ export const createCommitIndex: (option: {
   entityName: string;
   event: string;
   ts: number;
-}) => any[] = ({ documentId, redisKey, entityName, entityId, event, ts }) => [
+  creator: string;
+}) => any[] = ({ documentId, redisKey, entityName, entityId, event, ts, creator }) => [
   'cidx',
   documentId,
   1.0,
@@ -38,7 +42,7 @@ export const createCommitIndex: (option: {
   'FIELDS',
   'key',
   redisKey,
-  'entityName',
+  'entname',
   entityName,
   'id',
   entityId,
@@ -46,6 +50,8 @@ export const createCommitIndex: (option: {
   event,
   'ts',
   ts,
+  'creator',
+  creator,
 ];
 
 export const fullTextSearchAddCommit = async (redisKey: string, commit: Commit, redis: Redis) => {
@@ -60,7 +66,8 @@ export const fullTextSearchAddCommit = async (redisKey: string, commit: Commit, 
       entityName,
       entityId,
       event: trimStart(evt, ','),
-      ts: commit.events[0]?.payload?.ts || 0,
+      ts: commit.events[0]?.payload?._ts || 0,
+      creator: commit.events[0]?.payload?._creator || 'unknown',
     })
   );
 };

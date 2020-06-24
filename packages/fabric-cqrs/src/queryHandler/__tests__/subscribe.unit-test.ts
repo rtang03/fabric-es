@@ -28,11 +28,10 @@ const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
 const walletPath = process.env.WALLET;
 const entityName = 'test_subscribe';
 const id = `qh_sub_test_001`;
-const idx = `qh_sub_test_003`;
+const timestampesOnCreate = [];
 const enrollmentId = orgAdminId;
 const reducers = { [entityName]: reducer };
 let redis: Redis.Redis;
-
 let queryHandler: QueryHandler;
 
 beforeAll(async () => {
@@ -235,27 +234,29 @@ describe('Query Handler Tests', () => {
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         const counter = data[0];
-        expect(omit(counter, '_ts', '_created', '__commit', '__reducer', '__timeline')).toEqual({
+        expect(omit(counter, '_ts', '_created', '_commit', '_reducer', '_timeline')).toEqual({
           id,
           value: 0,
           tag: 'subscription',
           desc: 'query hander #2 sub-test',
           _creator: 'admin-org1.net',
-          __event: 'Increment,Decrement',
-          __entityName: entityName,
+          _event: 'Increment,Decrement',
+          _entityName: entityName,
         });
       }));
 });
 
-describe('Pagination tests for getByEntityName', () => {
+describe('Pagination tests for meta_getByEntityName', () => {
   beforeAll(async () => {
-    for await (const i of [1, 2, 3, 4, 5])
+    for await (const i of [1, 2, 3, 4, 5]) {
+      timestampesOnCreate.push(Math.floor(Date.now() / 1000));
+
       await queryHandler
         .create<CounterEvent>(entityName)({ enrollmentId, id: `qh_pag_test_00${i}` })
         .save({
           events: [
             {
-              type: 'Increment',
+              type: i % 2 === 0 ? 'Increment' : 'Decrement',
               payload: {
                 id: `qh_pag_test_00${i}`,
                 desc: `#${i} pag-test`,
@@ -264,12 +265,14 @@ describe('Pagination tests for getByEntityName', () => {
             },
           ],
         });
-    await new Promise((done) => setTimeout(() => done(), 3000));
+
+      await new Promise((done) => setTimeout(() => done(), 3000));
+    }
   });
 
-  it('should meta_getByEntityName: cursor=0, pagesize=2', async () =>
+  it('should meta_getEntityByEntityName: cursor=0, pagesize=2', async () =>
     queryHandler
-      .meta_getByEntNameEntId<Counter>(entityName)({
+      .meta_getEntityByEntNameEntId<Counter>(entityName)({
         cursor: 0,
         pagesize: 2,
         sortByField: 'id',
@@ -277,16 +280,15 @@ describe('Pagination tests for getByEntityName', () => {
       })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
-        expect(data.length).toEqual(2);
         expect(data.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
-          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: -1 },
           { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
         ]);
       }));
 
-  it('should meta_getByEntityName: cursor=1, pagesize=2', async () =>
+  it('should meta_getEntityByEntityName: cursor=1, pagesize=2', async () =>
     queryHandler
-      .meta_getByEntNameEntId<Counter>(entityName)({
+      .meta_getEntityByEntNameEntId<Counter>(entityName)({
         cursor: 1,
         pagesize: 2,
         sortByField: 'id',
@@ -294,16 +296,15 @@ describe('Pagination tests for getByEntityName', () => {
       })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
-        expect(data.length).toEqual(2);
         expect(data.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
           { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
-          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
         ]);
       }));
 
-  it('should meta_getByEntityNameEntityId: id=001, cursor=0', async () =>
+  it('should meta_getEntityByEntityName: id=001, cursor=0', async () =>
     queryHandler
-      .meta_getByEntNameEntId<Counter>(
+      .meta_getEntityByEntNameEntId<Counter>(
         entityName,
         'qh_pag_test_001'
       )({
@@ -314,15 +315,14 @@ describe('Pagination tests for getByEntityName', () => {
       })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
-        expect(data.length).toEqual(1);
         expect(data.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
-          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: -1 },
         ]);
       }));
 
-  it('should meta_getByEntityName: cursor=0, pagesize=10', async () =>
+  it('should meta_getEntityByEntityName: cursor=0, pagesize=10', async () =>
     queryHandler
-      .meta_getByEntNameEntId<Counter>(
+      .meta_getEntityByEntNameEntId<Counter>(
         entityName,
         'qh_pag_test_00*'
       )({
@@ -333,13 +333,222 @@ describe('Pagination tests for getByEntityName', () => {
       })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
-        expect(data.length).toEqual(5);
         expect(data.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
-          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: -1 },
           { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
-          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
           { id: 'qh_pag_test_004', desc: '#4 pag-test', tag: 'pagination,unit_test', value: 1 },
-          { id: 'qh_pag_test_005', desc: '#5 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_005', desc: '#5 pag-test', tag: 'pagination,unit_test', value: -1 },
+        ]);
+      }));
+
+  it('should meta_getEntityByEntityName: cursor=0, scope=CREATED', async () =>
+    queryHandler
+      .meta_getEntityByEntNameEntId<Counter>(
+        entityName,
+        'qh_pag_test_00*'
+      )({
+        scope: 'CREATED',
+        startTime: timestampesOnCreate[1],
+        endTime: timestampesOnCreate[3] + 1,
+        cursor: 0,
+        pagesize: 10,
+        sortByField: 'id',
+        sort: 'ASC',
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
+          { id: 'qh_pag_test_004', desc: '#4 pag-test', tag: 'pagination,unit_test', value: 1 },
+        ]);
+      }));
+
+  it('should meta_getEntityByEntityName: cursor=0, scope=LAST_MODIFIED', async () =>
+    queryHandler
+      .meta_getEntityByEntNameEntId<Counter>(
+        entityName,
+        'qh_pag_test_00*'
+      )({
+        scope: 'LAST_MODIFIED',
+        startTime: timestampesOnCreate[1],
+        endTime: timestampesOnCreate[3] + 1,
+        cursor: 0,
+        pagesize: 10,
+        sortByField: 'id',
+        sort: 'ASC',
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
+          { id: 'qh_pag_test_004', desc: '#4 pag-test', tag: 'pagination,unit_test', value: 1 },
+        ]);
+      }));
+
+  it('should meta_getEntityByEntityName: creator=enrollmentId', async () =>
+    queryHandler
+      .meta_getEntityByEntNameEntId<Counter>(
+        entityName,
+        'qh_pag_test_00*'
+      )({
+        cursor: 0,
+        pagesize: 10,
+        sortByField: 'id',
+        sort: 'ASC',
+        creator: enrollmentId,
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: -1 },
+          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
+          { id: 'qh_pag_test_004', desc: '#4 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_005', desc: '#5 pag-test', tag: 'pagination,unit_test', value: -1 },
+        ]);
+      }));
+
+  it('should meta_getCommitByEntityName: cursor=0, pagesize=2', async () =>
+    queryHandler
+      .meta_getCommitByEntNameEntId(
+        entityName,
+        'qh_pag_test_00*'
+      )({ cursor: 0, pagesize: 2, sortByField: 'id', sort: 'ASC' })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.map(({ id }) => id)).toEqual(['qh_pag_test_001', 'qh_pag_test_002']);
+      }));
+
+  it('should meta_getCommitByEntityName: cursor=1, pagesize=2', async () =>
+    queryHandler
+      .meta_getCommitByEntNameEntId(
+        entityName,
+        'qh_pag_test_00*'
+      )({ cursor: 1, pagesize: 2, sortByField: 'id', sort: 'ASC' })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.map(({ id }) => id)).toEqual(['qh_pag_test_002', 'qh_pag_test_003']);
+      }));
+
+  it('should meta_getCommitByEntityName: cursor=0, pagesize=10', async () =>
+    queryHandler
+      .meta_getCommitByEntNameEntId(
+        entityName,
+        'qh_pag_test_00*'
+      )({ cursor: 0, pagesize: 10, sortByField: 'id', sort: 'ASC' })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.map(({ id }) => id)).toEqual([
+          'qh_pag_test_001',
+          'qh_pag_test_002',
+          'qh_pag_test_003',
+          'qh_pag_test_004',
+          'qh_pag_test_005',
+        ]);
+      }));
+
+  it('should meta_getCommitByEntityName: events=increment', async () =>
+    queryHandler
+      .meta_getCommitByEntNameEntId(
+        entityName,
+        'qh_pag_test_00*'
+      )({ cursor: 0, pagesize: 10, sortByField: 'id', sort: 'ASC', events: ['increment'] })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.map(({ id }) => id)).toEqual(['qh_pag_test_002', 'qh_pag_test_004']);
+      }));
+
+  it('should meta_getCommitByEntityName: startTime/endTime', async () =>
+    queryHandler
+      .meta_getCommitByEntNameEntId(
+        entityName,
+        'qh_pag_test_00*'
+      )({
+        cursor: 0,
+        pagesize: 10,
+        sortByField: 'id',
+        sort: 'ASC',
+        startTime: timestampesOnCreate[1],
+        endTime: timestampesOnCreate[3] + 1,
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.map(({ id }) => id)).toEqual([
+          'qh_pag_test_002',
+          'qh_pag_test_003',
+          'qh_pag_test_004',
+        ]);
+      }));
+
+  it('should meta_getCommitByEntityName: startTime/endTime', async () =>
+    queryHandler
+      .meta_getCommitByEntNameEntId(
+        entityName,
+        'qh_pag_test_00*'
+      )({
+        cursor: 0,
+        pagesize: 10,
+        sortByField: 'id',
+        sort: 'ASC',
+        startTime: 0,
+        endTime: timestampesOnCreate[1] + 1,
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.map(({ id }) => id)).toEqual(['qh_pag_test_001', 'qh_pag_test_002']);
+      }));
+
+  it('should meta_getCommitByEntityName: creator=enrollmentId', async () =>
+    queryHandler
+      .meta_getCommitByEntNameEntId(
+        entityName,
+        'qh_pag_test_00*'
+      )({ cursor: 0, pagesize: 10, sortByField: 'id', sort: 'ASC', creator: enrollmentId })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.map(({ id }) => id)).toEqual([
+          'qh_pag_test_001',
+          'qh_pag_test_002',
+          'qh_pag_test_003',
+          'qh_pag_test_004',
+          'qh_pag_test_005',
+        ]);
+      }));
+
+  it('should meta_getCommitByEntityName: by single event', async () =>
+    queryHandler
+      .meta_getCommitByEntNameEntId(
+        entityName,
+        'qh_pag_test_00*'
+      )({ cursor: 0, pagesize: 10, sortByField: 'id', sort: 'ASC', events: ['increment'] })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.map(({ id }) => id)).toEqual(['qh_pag_test_002', 'qh_pag_test_004']);
+      }));
+
+  it('should meta_getCommitByEntityName: by events array', async () =>
+    queryHandler
+      .meta_getCommitByEntNameEntId(
+        entityName,
+        'qh_pag_test_00*'
+      )({
+        cursor: 0,
+        pagesize: 10,
+        sortByField: 'id',
+        sort: 'ASC',
+        events: ['increment', 'decrement'],
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.map(({ id }) => id)).toEqual([
+          'qh_pag_test_001',
+          'qh_pag_test_002',
+          'qh_pag_test_003',
+          'qh_pag_test_004',
+          'qh_pag_test_005',
         ]);
       }));
 });

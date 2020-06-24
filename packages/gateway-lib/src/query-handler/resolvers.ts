@@ -15,17 +15,17 @@ const metaEntityParser = (data: BaseEntity[]) =>
   data
     ? data.map((entity) => ({
         id: entity?.id || '',
-        entityName: entity?.__entityName,
+        entityName: entity?._entityName,
         value: JSON.stringify(entity),
         desc: entity?.desc || '',
         tag: entity?.tag || '',
-        commits: entity?.__commit,
-        events: entity?.__event,
+        commits: entity?._commit,
+        events: entity?._event,
         creator: entity?._creator || '',
         created: entity?._created || 0,
         lastModified: entity?._ts || 0,
-        timeline: entity?.__timeline,
-        reducer: entity?.__reducer,
+        timeline: entity?._timeline,
+        reducer: entity?._reducer,
       }))
     : null;
 
@@ -102,42 +102,85 @@ export const resolvers = {
           query: query.split(' ').filter((item) => !!item),
         });
 
-        if (status !== 'OK') return new ApolloError(JSON.stringify(error));
-
-        return metaEntityParser(data);
+        return status === 'OK' ? metaEntityParser(data) : new ApolloError(JSON.stringify(error));
       },
       { fcnName: 'fullTextSearchEntity', useAdmin: false, useAuth: false, logger }
     ),
-    metaGetByEntNameEntId: catchErrors<any>(
+    metaGetEntityByEntNameEntId: catchErrors<MetaEntity[] | ApolloError>(
       async (
         _,
         {
-          cursor,
-          pagesize,
+          creator,
+          cursor = 0,
+          pagesize = 10,
           entityName,
           id,
-          sortByField,
-          sort,
+          scope,
+          startTime,
+          endTime,
+          sortByField = 'id',
+          sort = 'ASC',
         }: {
+          creator: string;
           cursor: number;
           pagesize: number;
           entityName: string;
           id: string;
+          scope: 'CREATED' | 'LAST_MODIFIED';
+          startTime: number;
+          endTime: number;
           sortByField: 'id' | 'key' | 'ts' | 'created' | 'creator';
           sort: 'ASC' | 'DESC';
         },
         { queryHandler }: QueryHandlerGqlCtx
       ) => {
-        const { data, error, status } = await queryHandler.meta_getByEntNameEntId(
+        const { data, error, status } = await queryHandler.meta_getEntityByEntNameEntId(
           entityName,
           id
-        )({ cursor, pagesize, sort, sortByField });
+        )({ creator, cursor, pagesize, scope, startTime, endTime, sort, sortByField });
+
+        return status === 'OK' ? metaEntityParser(data) : new ApolloError(JSON.stringify(error));
+      },
+      { fcnName: 'metaGetEntity', useAdmin: false, useAuth: false, logger }
+    ),
+    metaGetCommitByEntNameEntId: catchErrors<Commit[] | ApolloError>(
+      async (
+        _,
+        {
+          creator,
+          cursor = 0,
+          pagesize = 10,
+          entityName,
+          id,
+          events,
+          startTime,
+          endTime,
+          sortByField = 'id',
+          sort = 'ASC',
+        }: {
+          creator: string;
+          cursor: number;
+          pagesize: number;
+          entityName: string;
+          id: string;
+          events: string[];
+          startTime: number;
+          endTime: number;
+          sortByField: 'id' | 'key' | 'entityName' | 'ts' | 'creator';
+          sort: 'ASC' | 'DESC';
+        },
+        { queryHandler }: QueryHandlerGqlCtx
+      ) => {
+        const { data, error, status } = await queryHandler.meta_getCommitByEntNameEntId(
+          entityName,
+          id
+        )({ creator, cursor, pagesize, events, startTime, endTime, sort, sortByField });
 
         if (status !== 'OK') return new ApolloError(JSON.stringify(error));
 
-        return metaEntityParser(data);
+        return data;
       },
-      { fcnName: 'metaGetByEntNameEntId', useAdmin: false, useAuth: false, logger }
+      { fcnName: 'metaGetCommit', useAdmin: false, useAuth: false, logger }
     ),
   },
   Subscription: {

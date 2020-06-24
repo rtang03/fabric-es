@@ -2,7 +2,7 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { tokenizeTextField } from '../queryHandler';
 import { action } from '../store/query';
-import type { HandlerResponse, QHMetaGetEntityPayload } from '../types';
+import type { Commit, HandlerResponse, QHMetaGetCommitPayload } from '../types';
 import { dispatcher } from './dispatcher';
 
 /**
@@ -13,36 +13,42 @@ import { dispatcher } from './dispatcher';
  * @param logger
  * @param store
  */
-export const metaGetEntityByEntNameEntId: <TEntity>(
+export const metaGetCommitByEntNameEntId: (
   entityName: string,
   id: string,
   option: { logger: Logger; store: Store }
-) => (payload: QHMetaGetEntityPayload) => Promise<HandlerResponse<TEntity[]>> = <TEntity>(
+) => (payload: QHMetaGetCommitPayload) => Promise<HandlerResponse<Commit[]>> = (
   entityName,
   id,
   { logger, store }
 ) => {
   const query = id ? `@entname:${entityName} @id:${id}` : `@entname:${entityName}`;
-  const getRangedQuery = (startTime: number, endTime: number, scope, creator: string) => {
+  const getRangedQuery = (
+    startTime: number,
+    endTime: number,
+    events: string[],
+    creator: string
+  ) => {
+    const eventsString = events
+      ? events.reduce((prev, curr) => (prev ? `${prev}|${curr}` : curr), null)
+      : null;
     let q = query;
-    if (startTime >= 0 && scope === 'LAST_MODIFIED')
-      q = `${q} @ts:[${startTime} ${endTime || 'inf'}]`;
-    if (startTime >= 0 && scope === 'CREATED')
-      q = `${q} @created:[${startTime} ${endTime || 'inf'}]`;
+    if (startTime >= 0) q = `${q} @ts:[${startTime} ${endTime || 'inf'}]`;
+    if (eventsString) q = `${q} @event:{${eventsString}}`;
     if (creator) q = `${q} @creator:${tokenizeTextField(creator)}`;
     return q;
   };
 
-  return dispatcher<TEntity[], QHMetaGetEntityPayload>(
+  return dispatcher<Commit[], QHMetaGetCommitPayload>(
     ({
       tx_id,
-      args: { startTime, endTime, scope, creator, cursor, pagesize, sortByField, sort },
+      args: { startTime, endTime, events, creator, cursor, pagesize, sortByField, sort },
     }) =>
-      action.eIdxSearch({
+      action.cIdxSearch({
         tx_id,
         args: {
           query: [
-            getRangedQuery(startTime, endTime, scope, creator),
+            getRangedQuery(startTime, endTime, events, creator),
             'SORTBY',
             sortByField,
             sort,
@@ -53,7 +59,7 @@ export const metaGetEntityByEntNameEntId: <TEntity>(
         },
       }),
     {
-      name: 'metaGetEntityByEntityName',
+      name: 'metaGetCommitByEntityName',
       store,
       slice: 'query',
       SuccessAction: action.SEARCH_SUCCESS,

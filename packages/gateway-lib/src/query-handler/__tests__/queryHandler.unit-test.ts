@@ -17,6 +17,7 @@ import {
   FULL_TXT_SEARCH_COMMIT,
   FULL_TXT_SEARCH_ENTITY,
   ME,
+  META_GET_COMMIT_BY_ENTNAME_ID,
   META_GET_ENTITY_BY_ENTNAME_ID,
 } from '../query';
 
@@ -37,6 +38,7 @@ const enrollmentId = process.env.ORG_ADMIN_ID;
 const id = `qh_gql_test_counter_001`;
 const logger = getLogger('[gateway-lib] queryHandler.unit-test.js');
 const QH_PORT = 4400;
+const timestampesOnCreate = [];
 
 // p.s. tag in redis cannot use '-'. Later, need to check what else character are prohibited.
 const tag = 'unit_test,gw_lib,query_handler';
@@ -325,7 +327,9 @@ describe('Full Text Search Test', () => {
 
 describe('Paginated search', () => {
   beforeAll(async () => {
-    for await (const i of [1, 2, 3, 4, 5])
+    for await (const i of [1, 2, 3, 4, 5]) {
+      timestampesOnCreate.push(Math.floor(Date.now() / 1000));
+
       await fetch(`http://localhost:${QH_PORT}/graphql`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `bearer no token` },
@@ -335,7 +339,7 @@ describe('Paginated search', () => {
           variables: {
             entityName,
             id: `paginated-${i}`,
-            type: 'Increment',
+            type: i % 2 === 0 ? 'Decrement' : 'Increment',
             payloadString: `{"id":"paginated-${i}","desc":"my desc paginated-${i}","tag":"paginated_${i}"}`,
           },
         }),
@@ -343,7 +347,8 @@ describe('Paginated search', () => {
         .then((r) => r.text())
         .then((data) => console.log(data));
 
-    return new Promise((done) => setTimeout(() => done(), 2000));
+      await new Promise((done) => setTimeout(() => done(), 2000));
+    }
   });
 
   it('should metaGetEntityByEntNameEntId, cursor=10, out-of-range', async () =>
@@ -351,7 +356,7 @@ describe('Paginated search', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `bearer no token` },
       body: JSON.stringify({
-        operationName: 'MetaGetByEntNameEntId',
+        operationName: 'MetaGetEntityByEntNameEntId',
         query: META_GET_ENTITY_BY_ENTNAME_ID,
         variables: {
           cursor: 10,
@@ -364,7 +369,7 @@ describe('Paginated search', () => {
     })
       .then((r) => r.json())
       .then(({ data, error }) => {
-        expect(data?.metaGetByEntNameEntId).toEqual([]);
+        expect(data?.metaGetEntityByEntNameEntId).toEqual([]);
         expect(error).toBeUndefined();
       }));
 
@@ -373,7 +378,7 @@ describe('Paginated search', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `bearer no token` },
       body: JSON.stringify({
-        operationName: 'MetaGetByEntNameEntId',
+        operationName: 'MetaGetEntityByEntNameEntId',
         query: META_GET_ENTITY_BY_ENTNAME_ID,
         variables: {
           cursor: 0,
@@ -386,7 +391,7 @@ describe('Paginated search', () => {
     })
       .then((r) => r.json())
       .then(({ data, error }) => {
-        expect(data?.metaGetByEntNameEntId).toBeNull();
+        expect(data?.metaGetEntityByEntNameEntId).toBeNull();
         expect(error).toBeUndefined();
       }));
 
@@ -395,7 +400,7 @@ describe('Paginated search', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `bearer no token` },
       body: JSON.stringify({
-        operationName: 'MetaGetByEntNameEntId',
+        operationName: 'MetaGetEntityByEntNameEntId',
         query: META_GET_ENTITY_BY_ENTNAME_ID,
         variables: {
           cursor: 0,
@@ -408,7 +413,7 @@ describe('Paginated search', () => {
     })
       .then((r) => r.json())
       .then(({ data, error }) => {
-        expect(data?.metaGetByEntNameEntId).toBeNull();
+        expect(data?.metaGetEntityByEntNameEntId).toBeNull();
         expect(error).toBeUndefined();
       }));
 
@@ -417,7 +422,7 @@ describe('Paginated search', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `bearer no token` },
       body: JSON.stringify({
-        operationName: 'MetaGetByEntNameEntId',
+        operationName: 'MetaGetEntityByEntNameEntId',
         query: META_GET_ENTITY_BY_ENTNAME_ID,
         variables: {
           cursor: 0,
@@ -430,9 +435,10 @@ describe('Paginated search', () => {
     })
       .then((r) => r.json())
       .then(({ data, error }) => {
-        const entities: MetaEntity[] = data?.metaGetByEntNameEntId;
-        expect(entities.length).toEqual(2);
-        expect(entities.map(({ id }) => id)).toEqual(['paginated-1', 'paginated-2']);
+        expect(data?.metaGetEntityByEntNameEntId.map(({ id }) => id)).toEqual([
+          'paginated-1',
+          'paginated-2',
+        ]);
         expect(error).toBeUndefined();
       }));
 
@@ -441,7 +447,7 @@ describe('Paginated search', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `bearer no token` },
       body: JSON.stringify({
-        operationName: 'MetaGetByEntNameEntId',
+        operationName: 'MetaGetEntityByEntNameEntId',
         query: META_GET_ENTITY_BY_ENTNAME_ID,
         variables: {
           cursor: 2,
@@ -454,9 +460,397 @@ describe('Paginated search', () => {
     })
       .then((r) => r.json())
       .then(({ data, error }) => {
-        const entities: MetaEntity[] = data?.metaGetByEntNameEntId;
-        expect(entities.length).toEqual(2);
-        expect(entities.map(({ id }) => id)).toEqual(['paginated-3', 'paginated-4']);
+        expect(data?.metaGetEntityByEntNameEntId.map(({ id }) => id)).toEqual([
+          'paginated-3',
+          'paginated-4',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetEntityByEntNameEntId, creator=non_exist', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetEntityByEntNameEntId',
+        query: META_GET_ENTITY_BY_ENTNAME_ID,
+        variables: {
+          creator: 'non-exist enrollmentId',
+          cursor: 2,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetEntityByEntNameEntId).toBeNull();
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetEntityByEntNameEntId, by time range of CREATED', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetEntityByEntNameEntId',
+        query: META_GET_ENTITY_BY_ENTNAME_ID,
+        variables: {
+          cursor: 0,
+          pagesize: 10,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+          scope: 'CREATED',
+          startTime: timestampesOnCreate[1],
+          endTime: timestampesOnCreate[3] + 1,
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetEntityByEntNameEntId.map(({ id }) => id)).toEqual([
+          'paginated-2',
+          'paginated-3',
+          'paginated-4',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetEntityByEntNameEntId, for CREATED > specifc time', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetEntityByEntNameEntId',
+        query: META_GET_ENTITY_BY_ENTNAME_ID,
+        variables: {
+          cursor: 0,
+          pagesize: 10,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+          scope: 'CREATED',
+          startTime: timestampesOnCreate[1],
+          endTime: null,
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetEntityByEntNameEntId.map(({ id }) => id)).toEqual([
+          'paginated-2',
+          'paginated-3',
+          'paginated-4',
+          'paginated-5',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetEntityByEntNameEntId, for CREATED < specifc time', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetEntityByEntNameEntId',
+        query: META_GET_ENTITY_BY_ENTNAME_ID,
+        variables: {
+          cursor: 0,
+          pagesize: 10,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+          scope: 'CREATED',
+          startTime: 0,
+          endTime: timestampesOnCreate[1] + 1,
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetEntityByEntNameEntId.map(({ id }) => id)).toEqual([
+          'paginated-1',
+          'paginated-2',
+          'qh_gql_test_counter_001',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetCommitByEntNameEntId, cursor=10, out-of-range', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetCommitByEntNameEntId',
+        query: META_GET_COMMIT_BY_ENTNAME_ID,
+        variables: {
+          cursor: 10,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetCommitByEntNameEntId).toEqual([]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should fail to metaGetCommitByEntNameEntId: invalid input argument', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetCommitByEntNameEntId',
+        query: META_GET_COMMIT_BY_ENTNAME_ID,
+        variables: {
+          cursor: 0,
+          pagesize: 2,
+          entityName,
+          sortByField: 'non-exist field',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetCommitByEntNameEntId).toBeNull();
+        expect(error).toBeUndefined();
+      }));
+
+  it('should fail to metaGetCommitByEntNameEntId: invalid input argument', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetCommitByEntNameEntId',
+        query: META_GET_COMMIT_BY_ENTNAME_ID,
+        variables: {
+          cursor: 0,
+          pagesize: 2,
+          entityName: 'noop',
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetCommitByEntNameEntId).toBeNull();
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetCommitByEntNameEntId, cursor=0', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetCommitByEntNameEntId',
+        query: META_GET_COMMIT_BY_ENTNAME_ID,
+        variables: {
+          cursor: 0,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetCommitByEntNameEntId.map(({ id }) => id)).toEqual([
+          'paginated-1',
+          'paginated-2',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetCommitByEntNameEntId, cursor=3', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetCommitByEntNameEntId',
+        query: META_GET_COMMIT_BY_ENTNAME_ID,
+        variables: {
+          cursor: 2,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetCommitByEntNameEntId.map(({ id }) => id)).toEqual([
+          'paginated-3',
+          'paginated-4',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetCommitByEntNameEntId, creator=non_exist', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetCommitByEntNameEntId',
+        query: META_GET_COMMIT_BY_ENTNAME_ID,
+        variables: {
+          creator: 'non-exist enrollmentId',
+          cursor: 2,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetCommitByEntNameEntId).toBeNull();
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetCommitByEntNameEntId, by single event', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetCommitByEntNameEntId',
+        query: META_GET_COMMIT_BY_ENTNAME_ID,
+        variables: {
+          events: ['increment'],
+          cursor: 0,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetCommitByEntNameEntId.map(({ id }) => id)).toEqual([
+          'paginated-1',
+          'paginated-3',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetCommitByEntNameEntId, by events array', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetCommitByEntNameEntId',
+        query: META_GET_COMMIT_BY_ENTNAME_ID,
+        variables: {
+          events: ['increment', 'decrement'],
+          cursor: 0,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetCommitByEntNameEntId.map(({ id }) => id)).toEqual([
+          'paginated-1',
+          'paginated-2',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetCommitByEntNameEntId, by time range (ts)', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetCommitByEntNameEntId',
+        query: META_GET_COMMIT_BY_ENTNAME_ID,
+        variables: {
+          cursor: 0,
+          pagesize: 10,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+          startTime: timestampesOnCreate[1],
+          endTime: timestampesOnCreate[3] + 2,
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetCommitByEntNameEntId.map(({ id }) => id)).toEqual([
+          'paginated-2',
+          'paginated-3',
+          'paginated-4',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetCommitByEntNameEntId, ts > specific time', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetCommitByEntNameEntId',
+        query: META_GET_COMMIT_BY_ENTNAME_ID,
+        variables: {
+          cursor: 0,
+          pagesize: 10,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+          startTime: timestampesOnCreate[1],
+          endTime: 0,
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetCommitByEntNameEntId.map(({ id }) => id)).toEqual([
+          'paginated-2',
+          'paginated-3',
+          'paginated-4',
+          'paginated-5',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should metaGetCommitByEntNameEntId, ts < specific time', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'MetaGetCommitByEntNameEntId',
+        query: META_GET_COMMIT_BY_ENTNAME_ID,
+        variables: {
+          cursor: 0,
+          pagesize: 10,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+          startTime: 0,
+          endTime: timestampesOnCreate[1] + 1,
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.metaGetCommitByEntNameEntId.map(({ id }) => id)).toEqual([
+          'paginated-1',
+          'paginated-2',
+          'qh_gql_test_counter_001',
+        ]);
         expect(error).toBeUndefined();
       }));
 });

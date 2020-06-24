@@ -211,24 +211,24 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
           : assign({}, arraysToCommitRecords(commitsInRedis), commitToMerge);
 
         // compute events history, returning comma separator
-        const __event: string = flatten(values(mergedResult).map(({ events }) => events))
+        const _event: string = flatten(values(mergedResult).map(({ events }) => events))
           .map(({ type }) => type)
           .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
 
         // compute the timeline of event history
-        const __timeline: string = flatten(values(mergedResult).map(({ events }) => events))
+        const _timeline: string = flatten(values(mergedResult).map(({ events }) => events))
           .map(({ payload }) => payload._ts)
           .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
 
         const currentState = reducer(getHistory(values(mergedResult)));
 
-        currentState.__event = __event;
-        currentState.__commit = keys(mergedResult).map(
+        currentState._event = _event;
+        currentState._commit = keys(mergedResult).map(
           (commitId) => `${entityName}::${entityId}::${commitId}`
         );
-        currentState.__entityName = entityName;
-        currentState.__timeline = __timeline;
-        currentState.__reducer = reducer.toString();
+        currentState._entityName = entityName;
+        currentState._timeline = _timeline;
+        currentState._reducer = reducer.toString();
 
         // if no id existed in the computed entity, will be considered as error
         if (!currentState?.id) {
@@ -290,16 +290,16 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         const reduced = reducer(getHistory(values(group[id])));
 
         // compute events history, returning commit separator
-        const __event = flatten(group[id].map(({ events }) => events))
+        const _event = flatten(group[id].map(({ events }) => events))
           .map(({ type }) => type)
           .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
 
         // compute the timeline of event history
-        const __timeline = flatten(group[id].map(({ events }) => events))
+        const _timeline = flatten(group[id].map(({ events }) => events))
           .map(({ payload }) => payload._ts)
           .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
 
-        const __commit = flatten(group[id]).map(
+        const _commit = flatten(group[id]).map(
           ({ commitId }) => `${entityName}::${id}::${commitId}`
         );
 
@@ -308,11 +308,11 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
           entities.push(
             assign(
               { id },
-              { __event },
-              { __commit },
-              { __timeline },
-              { __entityName: entityName },
-              { __reducer: reducer.toString() },
+              { _event },
+              { _commit },
+              { _timeline },
+              { _entityName: entityName },
+              { _reducer: reducer.toString() },
               reduced
             )
           );

@@ -31,11 +31,11 @@ export interface BaseEntity {
   _created: number;
   _creator: string;
   _ts: number;
-  __event?: string;
-  __commit?: string[];
-  __entityName?: string;
-  __reducer?: string;
-  __timeline?: string;
+  _event?: string;
+  _commit?: string[];
+  _entityName?: string;
+  _reducer?: string;
+  _timeline?: string;
 }
 
 /**

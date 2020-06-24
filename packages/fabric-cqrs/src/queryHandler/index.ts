@@ -10,3 +10,4 @@ export * from './catchErrors';
 export * from './createQueryHandler';
 export * from './doSearch';
 export * from './sizeOfSearchResult';
+export * from './tokenizeTextField';

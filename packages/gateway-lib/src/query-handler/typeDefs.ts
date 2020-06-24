@@ -30,14 +30,35 @@ export const typeDefs = gql`
     me: String
     fullTextSearchCommit(query: String): [Commit]
     fullTextSearchEntity(query: String): [MetaEntity]
-    metaGetByEntNameEntId(
-      entityName: String
-      id: String
+    metaGetEntityByEntNameEntId(
+      creator: String
       cursor: Int
       pagesize: Int
+      entityName: String!
+      id: String
+      scope: SearchScope
+      startTime: Int
+      endTime: Int
       sortByField: String
       sort: String
     ): [MetaEntity]
+    metaGetCommitByEntNameEntId(
+      creator: String
+      cursor: Int
+      pagesize: Int
+      entityName: String!
+      id: String
+      events: [String!]
+      startTime: Int
+      endTime: Int
+      sortByField: String
+      sort: String
+    ): [Commit]
+  }
+
+  enum SearchScope {
+    CREATED
+    LAST_MODIFIED
   }
 
   type MetaEntity {

@@ -87,7 +87,7 @@ export const fullTextSearchAddEntity = async <
     _creator?: string;
     _created?: number;
     _ts?: number;
-    __event?: string;
+    _event?: string;
     desc?: string;
     tag?: string;
   }
@@ -96,7 +96,7 @@ export const fullTextSearchAddEntity = async <
   entity: TEntity,
   redis: Redis
 ) => {
-  const uniqueEvents = uniq(entity.__event.split(',')).reduce(
+  const uniqueEvents = uniq(entity._event.split(',')).reduce(
     (prev, curr) => (prev ? `${prev},${curr}` : curr),
     null
   );

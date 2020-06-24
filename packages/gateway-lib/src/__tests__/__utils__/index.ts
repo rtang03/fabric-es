@@ -1,6 +1,3 @@
-// export * from './reducer';
-// export * from './types';
-// export * from './events';
 export * from './typeDefs';
 export * from './handler';
 export * from './resolvers';

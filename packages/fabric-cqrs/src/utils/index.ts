@@ -22,3 +22,4 @@ export * from './addCreatedAt';
 export * from './addCreator';
 export * from './metaGetEntityByEntNameEntId';
 export * from './replaceTag';
+export * from './metaGetCommitByEntNameEntId';
