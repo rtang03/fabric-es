@@ -20,7 +20,7 @@ export const typeDefs = gql`
     documentId: String!
     content: Docs!
     timestamp: String!
-    organization: [String]!
+    _organization: [String]!
     document: Document
   }
 
