@@ -237,6 +237,6 @@ describe('Query Handler Tests', () => {
         const counter = Object.values(data)[0];
         const key = Object.keys(data)[0];
         expect(key).toEqual(`${entityName}::${id}`);
-        expect(omit(counter, 'ts', '__organization')).toEqual({ id, value: 0 });
+        expect(omit(counter, 'ts', '_organization')).toEqual({ id, value: 0 });
       }));
 });

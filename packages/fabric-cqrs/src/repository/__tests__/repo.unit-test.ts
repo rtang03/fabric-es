@@ -239,7 +239,7 @@ describe('Repository Test', () => {
     const { save, currentState } = await repo.getById({ enrollmentId, id });
 
     expect(omit(currentState, 'ts')).toEqual({
-      __organization: ['Org1MSP'],
+      _organization: ['Org1MSP'],
       value: 1,
       id: 'repo_test_counter_001',
       desc: 'repo #1 create-test',
@@ -302,7 +302,7 @@ describe('Verify Result', () => {
       expect(status).toEqual('OK');
       const counter = values(data)[0];
       expect(omit(counter, 'ts')).toEqual({
-        __organization: ['Org1MSP'],
+        _organization: ['Org1MSP'],
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
@@ -315,7 +315,7 @@ describe('Verify Result', () => {
       expect(status).toEqual('OK');
       const counter = values(data)[0];
       expect(omit(counter, 'ts')).toEqual({
-        __organization: ['Org1MSP'],
+        _organization: ['Org1MSP'],
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
@@ -328,7 +328,7 @@ describe('Verify Result', () => {
       expect(status).toEqual('OK');
       const counter = values(data)[0];
       expect(omit(counter, 'ts')).toEqual({
-        __organization: ['Org1MSP'],
+        _organization: ['Org1MSP'],
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
@@ -347,7 +347,7 @@ describe('Verify Result', () => {
       expect(status).toEqual('OK');
       const counter = values(data)[0];
       expect(omit(counter, 'ts')).toEqual({
-        __organization: ['Org1MSP'],
+        _organization: ['Org1MSP'],
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',

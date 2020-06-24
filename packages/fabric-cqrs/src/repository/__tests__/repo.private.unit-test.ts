@@ -166,7 +166,7 @@ describe('Private Repository Test - Part 2', () => {
     });
 
     expect(omit(currentState, 'ts')).toEqual({
-      __organization: ['Org1MSP'],
+      _organization: ['Org1MSP'],
       value: 1,
       id: 'repo_test_counter_002',
       desc: 'repo #1 create-test',
