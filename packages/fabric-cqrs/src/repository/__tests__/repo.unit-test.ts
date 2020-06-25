@@ -303,14 +303,14 @@ describe('Verify Result', () => {
       expect(status).toEqual('OK');
       const counter = data[0];
       expect(
-        omit(counter, '_ts', '_created', '_creator', '__commit', '__reducer', '__timeline')
+        omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
       ).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
         tag: 'repo_test',
-        __event: 'Increment,Increment',
-        __entityName: entityName,
+        _event: 'Increment,Increment',
+        _entityName: entityName,
       });
     }));
 
@@ -319,14 +319,14 @@ describe('Verify Result', () => {
       expect(status).toEqual('OK');
       const counter = data[0];
       expect(
-        omit(counter, '_ts', '_created', '_creator', '__commit', '__reducer', '__timeline')
+        omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
       ).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
         tag: 'repo_test',
-        __event: 'Increment,Increment',
-        __entityName: entityName,
+        _event: 'Increment,Increment',
+        _entityName: entityName,
       });
     }));
 
@@ -335,14 +335,14 @@ describe('Verify Result', () => {
       expect(status).toEqual('OK');
       const counter = data[0];
       expect(
-        omit(counter, '_ts', '_created', '_creator', '__commit', '__reducer', '__timeline')
+        omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
       ).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
         tag: 'repo_test',
-        __event: 'Increment,Increment',
-        __entityName: entityName,
+        _event: 'Increment,Increment',
+        _entityName: entityName,
       });
     }));
 
@@ -357,14 +357,14 @@ describe('Verify Result', () => {
       expect(status).toEqual('OK');
       const counter = data[0];
       expect(
-        omit(counter, '_ts', '_created', '_creator', '__commit', '__reducer', '__timeline')
+        omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
       ).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
         tag: 'repo_test',
-        __event: 'Increment,Increment',
-        __entityName: entityName,
+        _event: 'Increment,Increment',
+        _entityName: entityName,
       });
     }));
 });
