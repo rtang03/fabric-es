@@ -12,3 +12,10 @@ export interface MetaEntity {
   creator: string;
   lastModified: number;
 }
+
+export type Paginated<Item = any> = {
+  total: number;
+  items: Item[];
+  hasMore: boolean;
+  cursor: number;
+};

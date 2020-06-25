@@ -411,6 +411,17 @@ describe('Pagination tests for meta_getByEntityName', () => {
         ]);
       }));
 
+  it('should meta_getEntityByEntityName: countTotalOnly', async () =>
+    queryHandler
+      .meta_getEntityByEntNameEntId<Counter>(
+        entityName,
+        'qh_pag_test_00*'
+      )({ cursor: 0, pagesize: 0 })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual(5);
+      }));
+
   it('should meta_getCommitByEntityName: cursor=0, pagesize=2', async () =>
     queryHandler
       .meta_getCommitByEntNameEntId(
@@ -550,5 +561,16 @@ describe('Pagination tests for meta_getByEntityName', () => {
           'qh_pag_test_004',
           'qh_pag_test_005',
         ]);
+      }));
+
+  it('should meta_getCommitByEntityName: countTotalOnly', async () =>
+    queryHandler
+      .meta_getCommitByEntNameEntId(
+        entityName,
+        'qh_pag_test_00*'
+      )({ cursor: 0, pagesize: 0 })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual(5);
       }));
 });

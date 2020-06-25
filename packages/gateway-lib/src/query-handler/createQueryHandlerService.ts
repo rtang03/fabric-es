@@ -12,7 +12,7 @@ import { RedisPubSub } from 'graphql-redis-subscriptions';
 import Redis, { RedisOptions } from 'ioredis';
 import { QueryHandlerGqlCtx } from '../types';
 import { getLogger } from '../utils';
-import { reconcile, rebuildIndex, resolvers, typeDefs } from '.';
+import { reconcile, rebuildIndex, resolvers, typeDefs } from './index';
 
 export const createQueryHandlerService: (
   entityNames: string[],

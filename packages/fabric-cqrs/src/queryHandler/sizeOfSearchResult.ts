@@ -1,5 +1,6 @@
 import util from 'util';
 import { Redis } from 'ioredis';
+import isNumber from 'lodash/isNumber';
 import { QueryDatabaseResponse } from '../types';
 
 export const sizeOfSearchResult: (
@@ -9,14 +10,21 @@ export const sizeOfSearchResult: (
   let result: number;
 
   try {
-    result = await redis.send_command('FT.SEARCH', [index, ...query, 'LIMIT', '0', '0']);
+    result = await redis.send_command('FT.SEARCH', [index, ...query]);
   } catch (e) {
     logger.error(util.format('unknown redis error, %j', e));
     throw e;
   }
-  return {
-    status: 'OK',
-    message: `query: ${query} has ${result} record(s)`,
-    result,
-  };
+
+  return isNumber(result?.[0])
+    ? {
+        status: 'OK',
+        message: `query: ${query} has ${result[0]} record(s)`,
+        result: result[0],
+      }
+    : {
+        status: 'ERROR',
+        message: 'unexpected response',
+        result,
+      };
 };

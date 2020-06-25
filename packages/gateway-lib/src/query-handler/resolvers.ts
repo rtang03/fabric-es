@@ -3,8 +3,9 @@ import { ApolloError } from 'apollo-server';
 import { withFilter } from 'graphql-subscriptions';
 import assign from 'lodash/assign';
 import values from 'lodash/values';
-import type { MetaEntity, QueryHandlerGqlCtx } from '../types';
-import { catchErrors, getLogger } from '../utils';
+import type { MetaEntity, Paginated, QueryHandlerGqlCtx } from '../types';
+import { getLogger } from '../utils';
+import { catchApolloErrors } from '../utils/catchApolloErrors';
 import { rebuildIndex } from './rebuildIndex';
 import { reconcile } from './reconcile';
 
@@ -35,7 +36,7 @@ export const resolvers = {
       await pubSub.publish(DEV, { pong: message });
       return true;
     },
-    reloadEntities: catchErrors(
+    reloadEntities: catchApolloErrors(
       async (
         _,
         { entityNames }: { entityNames: string[] },
@@ -46,9 +47,9 @@ export const resolvers = {
         await reconcile(entityNames, queryHandler, logger);
         return true;
       },
-      { fcnName: 'reloadEntity', useAuth: false, useAdmin: true, logger }
+      { fcnName: 'reloadEntity', useAuth: false, useAdmin: false, logger }
     ),
-    createCommit: catchErrors(
+    createCommit: catchApolloErrors(
       async (
         _,
         {
@@ -72,7 +73,7 @@ export const resolvers = {
   },
   Query: {
     me: () => 'Hello',
-    fullTextSearchCommit: catchErrors(
+    fullTextSearchCommit: catchApolloErrors(
       async (
         _,
         { query }: { query: string },
@@ -92,7 +93,7 @@ export const resolvers = {
       },
       { fcnName: 'fullTextSearchCommit', useAdmin: false, useAuth: false, logger }
     ),
-    fullTextSearchEntity: catchErrors<MetaEntity[] | ApolloError>(
+    fullTextSearchEntity: catchApolloErrors<MetaEntity[] | ApolloError>(
       async (
         _,
         { query }: { query: string },
@@ -106,7 +107,7 @@ export const resolvers = {
       },
       { fcnName: 'fullTextSearchEntity', useAdmin: false, useAuth: false, logger }
     ),
-    metaGetEntityByEntNameEntId: catchErrors<MetaEntity[] | ApolloError>(
+    paginatedMetaEntity: catchApolloErrors<Paginated<MetaEntity> | ApolloError>(
       async (
         _,
         {
@@ -118,8 +119,8 @@ export const resolvers = {
           scope,
           startTime,
           endTime,
-          sortByField = 'id',
-          sort = 'ASC',
+          sortByField,
+          sort,
         }: {
           creator: string;
           cursor: number;
@@ -139,11 +140,31 @@ export const resolvers = {
           id
         )({ creator, cursor, pagesize, scope, startTime, endTime, sort, sortByField });
 
-        return status === 'OK' ? metaEntityParser(data) : new ApolloError(JSON.stringify(error));
+        if (status !== 'OK') return new ApolloError(JSON.stringify(error));
+
+        const {
+          data: total,
+          status: totalStatus,
+          error: totalError,
+        } = await queryHandler.meta_getEntityByEntNameEntId(
+          entityName,
+          id
+        )({ creator, scope, startTime, endTime, sort, sortByField, cursor: 0, pagesize: 0 });
+
+        if (totalStatus !== 'OK') return new ApolloError(JSON.stringify(totalError));
+
+        const items = metaEntityParser(data);
+
+        return {
+          total,
+          items,
+          hasMore: items.length ? cursor + items.length < total : false,
+          cursor: items.length ? cursor + items.length : null,
+        } as Paginated<MetaEntity>;
       },
-      { fcnName: 'metaGetEntity', useAdmin: false, useAuth: false, logger }
+      { fcnName: 'paginatedMetaEntity', useAdmin: false, useAuth: false, logger }
     ),
-    metaGetCommitByEntNameEntId: catchErrors<Commit[] | ApolloError>(
+    paginatedCommit: catchApolloErrors<Paginated<Commit> | ApolloError>(
       async (
         _,
         {
@@ -155,8 +176,8 @@ export const resolvers = {
           events,
           startTime,
           endTime,
-          sortByField = 'id',
-          sort = 'ASC',
+          sortByField,
+          sort,
         }: {
           creator: string;
           cursor: number;
@@ -178,9 +199,25 @@ export const resolvers = {
 
         if (status !== 'OK') return new ApolloError(JSON.stringify(error));
 
-        return data;
+        const {
+          data: total,
+          status: totalStatus,
+          error: totalError,
+        } = await queryHandler.meta_getCommitByEntNameEntId(
+          entityName,
+          id
+        )({ creator, events, startTime, endTime, sort, sortByField, cursor: 0, pagesize: 0 });
+
+        if (totalStatus !== 'OK') return new ApolloError(JSON.stringify(totalError));
+
+        return {
+          total,
+          hasMore: data.length ? cursor + data.length < total : false,
+          cursor: data.length ? cursor + data.length : null,
+          items: data,
+        } as Paginated<Commit>;
       },
-      { fcnName: 'metaGetCommit', useAdmin: false, useAuth: false, logger }
+      { fcnName: 'paginatedCommit', useAdmin: false, useAuth: false, logger }
     ),
   },
   Subscription: {

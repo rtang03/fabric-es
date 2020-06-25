@@ -50,12 +50,13 @@ export const metaGetCommitByEntNameEntId: (
           query: [
             getRangedQuery(startTime, endTime, events, creator),
             'SORTBY',
-            sortByField,
-            sort,
+            sortByField || 'id',
+            sort || 'ASC',
             'LIMIT',
             cursor,
             pagesize,
           ],
+          countTotalOnly: cursor === 0 && pagesize === 0,
         },
       }),
     {

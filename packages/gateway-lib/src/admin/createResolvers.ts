@@ -4,7 +4,7 @@ import { ApolloError } from 'apollo-server';
 import ab2str from 'arraybuffer-to-string';
 import { Wallet, X509Identity } from 'fabric-network';
 import { getLogger } from '..';
-import { catchErrors } from '../utils';
+import { catchApolloErrors } from '../utils';
 
 export const createResolvers: (option: {
   caAdmin: string;
@@ -66,7 +66,7 @@ export const createResolvers: (option: {
 
   return {
     Mutation: {
-      createWallet: catchErrors(
+      createWallet: catchApolloErrors(
         async (_, __, { username }) => {
           const res = await operator.registerAndEnroll({
             enrollmentId: username,
@@ -90,7 +90,7 @@ export const createResolvers: (option: {
     },
     Query: {
       isadmin: () => 'echo admin',
-      getBlockByNumber: catchErrors(
+      getBlockByNumber: catchApolloErrors(
         async (_, { blockNumber }: { blockNumber: number }) => {
           const chain = await queries.getChainInfo(peerName);
           if (chain.height.low <= blockNumber) {
@@ -149,7 +149,7 @@ export const createResolvers: (option: {
           useAdmin: true,
         }
       ),
-      getCaIdentityByUsername: catchErrors(
+      getCaIdentityByUsername: catchApolloErrors(
         async (_, __, { username }) => {
           return ca.getByEnrollmentId(username || '').then(({ result }) => {
             if (result) {
@@ -167,7 +167,7 @@ export const createResolvers: (option: {
         },
         { fcnName: 'getCaIdentityByEnrollmentId', logger, useAuth: false, useAdmin: true }
       ),
-      getChainHeight: catchErrors(
+      getChainHeight: catchApolloErrors(
         async () => queries.getChainInfo(peerName).then(({ height: { low } }) => low),
         {
           fcnName: 'getChainHeight',
@@ -176,13 +176,13 @@ export const createResolvers: (option: {
           useAdmin: true,
         }
       ),
-      getPeerInfo: catchErrors(async () => ({ mspId: queries.getMspid(), peerName }), {
+      getPeerInfo: catchApolloErrors(async () => ({ mspId: queries.getMspid(), peerName }), {
         fcnName: 'getPeerInfo',
         logger,
         useAuth: false,
         useAdmin: true,
       }),
-      getWallet: catchErrors(
+      getWallet: catchApolloErrors(
         async (_, __, context) => {
           const identity = (await wallet.get(context.username)) as X509Identity;
           return identity
@@ -195,7 +195,7 @@ export const createResolvers: (option: {
         },
         { fcnName: 'getWallet', logger, useAuth: true, useAdmin: false }
       ),
-      listWallet: catchErrors(async () => wallet.list(), {
+      listWallet: catchApolloErrors(async () => wallet.list(), {
         fcnName: 'listWallet',
         logger,
         useAuth: false,

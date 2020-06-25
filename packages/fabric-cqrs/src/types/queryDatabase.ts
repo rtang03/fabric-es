@@ -36,14 +36,14 @@ export interface QueryDatabase {
     commits: Record<string, Commit>;
     reducer: Reducer<TEntity>;
   }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
-  fullTextSearchCommit: (option: { query: string[] }) => Promise<QueryDatabaseResponse<Commit[]>>;
+  fullTextSearchCommit: (option: {
+    query: string[];
+    countTotalOnly?: boolean;
+  }) => Promise<QueryDatabaseResponse<Commit[] | number>>;
   fullTextSearchEntity: <TEntity = any>(option: {
     query: string[];
-  }) => Promise<QueryDatabaseResponse<TEntity[]>>;
-  fullTextSearchSizeOfResultSet: (option: {
-    query: string[];
-    index: string;
-  }) => Promise<QueryDatabaseResponse<number>>;
+    countTotalOnly?: boolean;
+  }) => Promise<QueryDatabaseResponse<TEntity[] | number>>;
   fullTextSearchGetDocument: (option: {
     index: string;
     documentId: string;

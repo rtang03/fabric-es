@@ -150,7 +150,7 @@ describe('Projection db test', () => {
       .then(({ status, message, result }) => {
         expect(status).toEqual('OK');
         expect(message).toEqual('full text search: 3 record(s) returned');
-        expect(result.map((item) => omit(item, '_reducer'))).toEqual([
+        expect((result as any[]).map((item) => omit(item, '_reducer'))).toEqual([
           {
             value: 2,
             id: 'qh_proj_test_001',
@@ -201,6 +201,17 @@ describe('Projection db test', () => {
             ],
           },
         ]);
+      }));
+
+  it('should FT.SEARCH by FIELD desc, countTotalOnly', async () =>
+    queryDatabase
+      .fullTextSearchEntity({
+        query: ['handler', 'SORTBY', 'id', 'ASC', 'LIMIT', '0', '0'],
+        countTotalOnly: true,
+      })
+      .then(({ status, message, result }) => {
+        expect(status).toEqual('OK');
+        expect(result).toEqual(3);
       }));
 
   it('should fail to queryEntity: invalid where clause', async () =>

@@ -30,7 +30,7 @@ export const typeDefs = gql`
     me: String
     fullTextSearchCommit(query: String): [Commit]
     fullTextSearchEntity(query: String): [MetaEntity]
-    metaGetEntityByEntNameEntId(
+    paginatedMetaEntity(
       creator: String
       cursor: Int
       pagesize: Int
@@ -41,8 +41,8 @@ export const typeDefs = gql`
       endTime: Int
       sortByField: String
       sort: String
-    ): [MetaEntity]
-    metaGetCommitByEntNameEntId(
+    ): PaginatedEntity
+    paginatedCommit(
       creator: String
       cursor: Int
       pagesize: Int
@@ -53,12 +53,26 @@ export const typeDefs = gql`
       endTime: Int
       sortByField: String
       sort: String
-    ): [Commit]
+    ): PaginatedCommit
   }
 
   enum SearchScope {
     CREATED
     LAST_MODIFIED
+  }
+
+  type PaginatedEntity {
+    total: Int
+    cursor: Int
+    hasMore: Boolean!
+    items: [MetaEntity]
+  }
+
+  type PaginatedCommit {
+    total: Int
+    cursor: Int
+    hasMore: Boolean!
+    items: [Commit]
   }
 
   type MetaEntity {

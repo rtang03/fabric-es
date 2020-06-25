@@ -1,6 +1,6 @@
 // prettier-ignore
-export const META_GET_COMMIT_BY_ENTNAME_ID = `
-  query MetaGetCommitByEntNameEntId (
+export const PAGINATED_COMMIT = `
+  query PaginatedCommit (
     $creator: String
     $cursor: Int
     $pagesize: Int
@@ -12,7 +12,7 @@ export const META_GET_COMMIT_BY_ENTNAME_ID = `
     $startTime: Int
     $endTime: Int
   ) {
-    metaGetCommitByEntNameEntId (
+    paginatedCommit (
       creator: $creator
       cursor: $cursor
       pagesize: $pagesize
@@ -24,12 +24,17 @@ export const META_GET_COMMIT_BY_ENTNAME_ID = `
       startTime: $startTime
       endTime: $endTime
     ) {
-      id
-      entityName
-      version
-      commitId
-      entityId
-      eventsString
+      total
+      hasMore
+      cursor
+      items {
+        id
+        entityName
+        version
+        commitId
+        entityId
+        eventsString
+      }
     }
   }
 `;

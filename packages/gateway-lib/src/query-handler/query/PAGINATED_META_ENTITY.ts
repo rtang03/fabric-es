@@ -1,6 +1,6 @@
 // prettier-ignore
-export const META_GET_ENTITY_BY_ENTNAME_ID = `
-  query MetaGetEntityByEntNameEntId (
+export const PAGINATED_META_ENTITY = `
+  query PaginatedMetaEntity (
     $creator: String
     $cursor: Int
     $pagesize: Int
@@ -12,7 +12,7 @@ export const META_GET_ENTITY_BY_ENTNAME_ID = `
     $startTime: Int
     $endTime: Int
   ) {
-    metaGetEntityByEntNameEntId (
+    paginatedMetaEntity (
       creator: $creator
       cursor: $cursor
       pagesize: $pagesize
@@ -24,18 +24,23 @@ export const META_GET_ENTITY_BY_ENTNAME_ID = `
       startTime: $startTime
       endTime: $endTime
     ) {
-      id
-      entityName
-      value
-      commits
-      events
-      tag
-      desc
-      created
-      creator
-      lastModified
-      timeline
-      reducer
+      total
+      hasMore
+      cursor
+      items {
+        id
+        entityName
+        value
+        commits
+        events
+        tag
+        desc
+        created
+        creator
+        lastModified
+        timeline
+        reducer
+      }
     }
   }
 `;

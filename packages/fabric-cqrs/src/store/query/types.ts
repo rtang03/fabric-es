@@ -66,6 +66,7 @@ export interface CIdxSearchAction {
     tx_id: string;
     args: {
       query: string[];
+      countTotalOnly?: boolean;
     };
   };
 }
@@ -76,6 +77,7 @@ export interface EIdxSearchAction {
     tx_id: string;
     args: {
       query: string[];
+      countTotalOnly?: boolean;
     };
   };
 }

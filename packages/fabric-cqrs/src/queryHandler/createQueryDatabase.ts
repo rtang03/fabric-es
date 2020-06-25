@@ -341,20 +341,19 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         error: error.length === 0 ? null : error,
       };
     },
-    fullTextSearchCommit: async ({ query }) => {
+    fullTextSearchCommit: async ({ query, countTotalOnly }) => {
       if (!query) throw new Error('invalid input argument');
 
-      return doSearch<Commit>(query, { redis, logger, index: 'cidx' });
+      return countTotalOnly
+        ? sizeOfSearchResult(query, { redis, logger, index: 'cidx' })
+        : doSearch<Commit>(query, { redis, logger, index: 'cidx' });
     },
-    fullTextSearchEntity: async <TEntity>({ query }) => {
+    fullTextSearchEntity: async <TEntity>({ query, countTotalOnly }) => {
       if (!query) throw new Error('invalid input argument');
 
-      return doSearch<TEntity>(query, { redis, logger, index: 'eidx' });
-    },
-    fullTextSearchSizeOfResultSet: async ({ query, index }) => {
-      if (!query) throw new Error('invalid input argument');
-
-      return sizeOfSearchResult(query, { redis, logger, index });
+      return countTotalOnly
+        ? sizeOfSearchResult(query, { redis, logger, index: 'eidx' })
+        : doSearch<TEntity>(query, { redis, logger, index: 'eidx' });
     },
     fullTextSearchGetDocument: async ({ index, documentId }) => {
       // return the document of index

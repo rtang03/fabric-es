@@ -44,12 +44,13 @@ export const metaGetEntityByEntNameEntId: <TEntity>(
           query: [
             getRangedQuery(startTime, endTime, scope, creator),
             'SORTBY',
-            sortByField,
-            sort,
+            sortByField || 'id',
+            sort || 'ASC',
             'LIMIT',
             cursor,
             pagesize,
           ],
+          countTotalOnly: cursor === 0 && pagesize === 0,
         },
       }),
     {

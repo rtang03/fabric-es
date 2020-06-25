@@ -42,8 +42,8 @@ export interface QHMetaGetCommitPayload {
   creator?: string;
   cursor: number;
   pagesize: number;
-  sortByField: 'id' | 'key' | 'entityName' | 'ts' | 'creator';
-  sort: 'ASC' | 'DESC';
+  sortByField?: 'id' | 'key' | 'entityName' | 'ts' | 'creator';
+  sort?: 'ASC' | 'DESC';
 }
 
 export interface QHMetaGetEntityPayload {
@@ -53,8 +53,8 @@ export interface QHMetaGetEntityPayload {
   creator?: string;
   cursor: number;
   pagesize: number;
-  sortByField: 'id' | 'key' | 'created' | 'creator' | 'ts';
-  sort: 'ASC' | 'DESC';
+  sortByField?: 'id' | 'key' | 'created' | 'creator' | 'ts';
+  sort?: 'ASC' | 'DESC';
 }
 export interface QueryHandler {
   // command-side: create commit
@@ -94,15 +94,14 @@ export interface QueryHandler {
   query_deleteCommitByEntityName: (entityName: string) => RepoFcn<number>;
 
   // meta-data is embeded in query result
-  meta_getEntityByEntNameEntId: <TEntity = any>(
+  meta_getEntityByEntNameEntId: <TResult>(
     entiyName: string,
     id?: string
-  ) => (payload: QHMetaGetEntityPayload) => Promise<HandlerResponse<TEntity[]>>;
-
+  ) => (payload: QHMetaGetEntityPayload) => Promise<HandlerResponse>;
   meta_getCommitByEntNameEntId: (
     entiyName: string,
     id?: string
-  ) => (payload: QHMetaGetCommitPayload) => Promise<HandlerResponse<Commit[]>>;
+  ) => (payload: QHMetaGetCommitPayload) => Promise<HandlerResponse>;
 
   fullTextSearchCommit: () => (payload: { query: string[] }) => Promise<HandlerResponse<Commit[]>>;
   fullTextSearchEntity: <TEntity = any>() => (payload: {
