@@ -103,10 +103,12 @@ export interface QueryHandler {
     id?: string
   ) => (payload: QHMetaGetCommitPayload) => Promise<HandlerResponse>;
 
-  fullTextSearchCommit: () => (payload: { query: string[] }) => Promise<HandlerResponse<Commit[]>>;
+  fullTextSearchCommit: () => (payload: {
+    query: (string | number)[];
+  }) => Promise<HandlerResponse<Commit[] | number>>;
   fullTextSearchEntity: <TEntity = any>() => (payload: {
-    query: string[];
-  }) => Promise<HandlerResponse<TEntity[]>>;
+    query: (string | number)[];
+  }) => Promise<HandlerResponse<TEntity[] | number>>;
 
   /**
    * Used by bootstraping programs

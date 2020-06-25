@@ -76,24 +76,40 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
     meta_getCommitByEntNameEntId: (entityName, id) =>
       metaGetCommitByEntNameEntId(entityName, id, queryOption),
     fullTextSearchCommit: () =>
-      dispatcher<Commit[], { query: string[] }>((payload) => queryAction.cIdxSearch(payload), {
-        name: 'cIdxSearch',
-        store,
-        slice: 'query',
-        SuccessAction: queryAction.SEARCH_SUCCESS,
-        ErrorAction: queryAction.SEARCH_ERROR,
-        logger,
-        typeGuard: isCommitRecord,
-      }),
+      dispatcher<Commit[] | number, { query: string[] }>(
+        ({ tx_id, args }) =>
+          queryAction.cIdxSearch({
+            tx_id,
+            // args.query[5] is cursor; args.query(6) is pagesize
+            args: { ...args, countTotalOnly: args?.query[5] === 0 && args?.query[6] === 0 },
+          }),
+        {
+          name: 'cIdxSearch',
+          store,
+          slice: 'query',
+          SuccessAction: queryAction.SEARCH_SUCCESS,
+          ErrorAction: queryAction.SEARCH_ERROR,
+          logger,
+          typeGuard: isCommitRecord,
+        }
+      ),
     fullTextSearchEntity: <TEntity>() =>
-      dispatcher<TEntity[], { query: string[] }>((payload) => queryAction.eIdxSearch(payload), {
-        name: 'eIdxSearch',
-        store,
-        slice: 'query',
-        SuccessAction: queryAction.SEARCH_SUCCESS,
-        ErrorAction: queryAction.SEARCH_ERROR,
-        logger,
-      }),
+      dispatcher<TEntity[] | number, { query: string[] }>(
+        ({ tx_id, args }) =>
+          queryAction.eIdxSearch({
+            tx_id,
+            // args.query[5] is cursor; args.query(6) is pagesize
+            args: { ...args, countTotalOnly: args?.query[5] === 0 && args?.query[6] === 0 },
+          }),
+        {
+          name: 'eIdxSearch',
+          store,
+          slice: 'query',
+          SuccessAction: queryAction.SEARCH_SUCCESS,
+          ErrorAction: queryAction.SEARCH_ERROR,
+          logger,
+        }
+      ),
     reconcile: () =>
       dispatcher<{ key: string; status: string }[], { entityName: string }>(
         ({ tx_id, args }) =>

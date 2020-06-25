@@ -28,8 +28,8 @@ export const typeDefs = gql`
 
   type Query {
     me: String
-    fullTextSearchCommit(query: String): [Commit]
-    fullTextSearchEntity(query: String): [MetaEntity]
+    fullTextSearchCommit(query: String, cursor: Int, pagesize: Int): PaginatedCommit
+    fullTextSearchEntity(query: String, cursor: Int, pagesize: Int): PaginatedEntity
     paginatedMetaEntity(
       creator: String
       cursor: Int

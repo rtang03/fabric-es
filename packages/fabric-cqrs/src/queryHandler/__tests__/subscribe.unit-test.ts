@@ -214,7 +214,7 @@ describe('Query Handler Tests', () => {
       .fullTextSearchCommit()({ query: ['@event:{increment}'] })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
-        expect(Object.values<Commit>(data)[0].events[0].type).toEqual('Increment');
+        expect(Object.values<Commit>(data as any)[0].events[0].type).toEqual('Increment');
         expect(Object.keys(data).length).toEqual(1);
         expect(isCommitRecord(data)).toBeTruthy();
       }));

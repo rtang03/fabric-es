@@ -15,20 +15,31 @@ const logger = getLogger('[gateway-lib] queryHandler/resolvers.js');
 const metaEntityParser = (data: BaseEntity[]) =>
   data
     ? data.map((entity) => ({
-        id: entity?.id || '',
-        entityName: entity?._entityName,
+        id: entity.id,
+        entityName: entity._entityName,
         value: JSON.stringify(entity),
-        desc: entity?.desc || '',
-        tag: entity?.tag || '',
+        desc: entity?.desc,
+        tag: entity?.tag,
         commits: entity?._commit,
         events: entity?._event,
-        creator: entity?._creator || '',
+        creator: entity?._creator,
         created: entity?._created || 0,
         lastModified: entity?._ts || 0,
         timeline: entity?._timeline,
         reducer: entity?._reducer,
       }))
     : null;
+const getPaginated: <T>(items: T[], total, cursor: number) => Paginated<T> = (
+  items,
+  total,
+  cursor
+) => ({
+  total,
+  items,
+  hasMore: items.length ? cursor + items.length < total : false,
+  cursor: items.length ? cursor + items.length : null,
+});
+const totalOption = ['SORTBY', 'ts', 'DESC', 'LIMIT', 0, 0];
 
 export const resolvers = {
   Mutation: {
@@ -62,11 +73,13 @@ export const resolvers = {
       ) => {
         const payload = JSON.parse(payloadString);
 
+        // TODO: add auth to here.
+
         const { data } = await queryHandler
           .create(entityName)({ enrollmentId: 'admin-org1.net', id })
           .save({ events: [{ type, payload }] });
 
-        return values(data)[0];
+        return values<Commit>(data)[0];
       },
       { fcnName: 'createCommit', useAuth: false, useAdmin: false, logger }
     ),
@@ -76,34 +89,62 @@ export const resolvers = {
     fullTextSearchCommit: catchApolloErrors(
       async (
         _,
-        { query }: { query: string },
+        { query, cursor = 0, pagesize = 10 }: { query: string; cursor?: number; pagesize?: number },
         { queryHandler }: QueryHandlerGqlCtx
-      ): Promise<Commit[] | ApolloError> => {
+      ): Promise<Paginated<Commit> | ApolloError> => {
+        const filtered = query.split(' ').filter((item) => !!item);
+        const dataOption = ['SORTBY', 'ts', 'DESC', 'LIMIT', cursor, pagesize];
+
         const { data, error, status } = await queryHandler.fullTextSearchCommit()({
-          query: query.split(' ').filter((item) => !!item),
+          query: [...filtered, ...dataOption],
         });
 
-        if (status !== 'OK') return new ApolloError(JSON.stringify(error));
+        const {
+          data: total,
+          status: totalStatus,
+          error: totalError,
+        } = await queryHandler.fullTextSearchCommit()({ query: [...filtered, ...totalOption] });
 
-        return data
-          ? values<Commit>(data).map((commit) =>
-              assign({}, commit, { eventsString: JSON.stringify(commit.events) })
-            )
-          : null;
+        return status !== 'OK'
+          ? new ApolloError(JSON.stringify(error))
+          : totalStatus !== 'OK'
+          ? new ApolloError(JSON.stringify(totalError))
+          : getPaginated<Commit>(
+              (data as Commit[]).map((commit) =>
+                assign(commit, { eventsString: JSON.stringify(commit.events) })
+              ),
+              total,
+              cursor
+            );
       },
       { fcnName: 'fullTextSearchCommit', useAdmin: false, useAuth: false, logger }
     ),
-    fullTextSearchEntity: catchApolloErrors<MetaEntity[] | ApolloError>(
+    fullTextSearchEntity: catchApolloErrors<Paginated<MetaEntity> | ApolloError>(
       async (
         _,
-        { query }: { query: string },
+        { query, cursor = 0, pagesize = 10 }: { query: string; cursor?: number; pagesize?: number },
         { queryHandler }: QueryHandlerGqlCtx
-      ): Promise<MetaEntity[] | ApolloError> => {
+      ): Promise<Paginated<MetaEntity> | ApolloError> => {
+        const filtered = query.split(' ').filter((item) => !!item);
+        const dataOption = ['SORTBY', 'ts', 'DESC', 'LIMIT', cursor, pagesize];
+
         const { data, error, status } = await queryHandler.fullTextSearchEntity<BaseEntity>()({
-          query: query.split(' ').filter((item) => !!item),
+          query: [...filtered, ...dataOption],
         });
 
-        return status === 'OK' ? metaEntityParser(data) : new ApolloError(JSON.stringify(error));
+        const {
+          data: total,
+          status: totalStatus,
+          error: totalError,
+        } = await queryHandler.fullTextSearchEntity<BaseEntity>()({
+          query: [...filtered, ...totalOption],
+        });
+
+        return status !== 'OK'
+          ? new ApolloError(JSON.stringify(error))
+          : totalStatus !== 'OK'
+          ? new ApolloError(JSON.stringify(totalError))
+          : getPaginated<MetaEntity>(metaEntityParser(data as any[]), total, cursor);
       },
       { fcnName: 'fullTextSearchEntity', useAdmin: false, useAuth: false, logger }
     ),
@@ -140,8 +181,6 @@ export const resolvers = {
           id
         )({ creator, cursor, pagesize, scope, startTime, endTime, sort, sortByField });
 
-        if (status !== 'OK') return new ApolloError(JSON.stringify(error));
-
         const {
           data: total,
           status: totalStatus,
@@ -151,16 +190,11 @@ export const resolvers = {
           id
         )({ creator, scope, startTime, endTime, sort, sortByField, cursor: 0, pagesize: 0 });
 
-        if (totalStatus !== 'OK') return new ApolloError(JSON.stringify(totalError));
-
-        const items = metaEntityParser(data);
-
-        return {
-          total,
-          items,
-          hasMore: items.length ? cursor + items.length < total : false,
-          cursor: items.length ? cursor + items.length : null,
-        } as Paginated<MetaEntity>;
+        return status !== 'OK'
+          ? new ApolloError(JSON.stringify(error))
+          : totalStatus !== 'OK'
+          ? new ApolloError(JSON.stringify(totalError))
+          : getPaginated<MetaEntity>(metaEntityParser(data), total, cursor);
       },
       { fcnName: 'paginatedMetaEntity', useAdmin: false, useAuth: false, logger }
     ),
@@ -197,8 +231,6 @@ export const resolvers = {
           id
         )({ creator, cursor, pagesize, events, startTime, endTime, sort, sortByField });
 
-        if (status !== 'OK') return new ApolloError(JSON.stringify(error));
-
         const {
           data: total,
           status: totalStatus,
@@ -208,14 +240,11 @@ export const resolvers = {
           id
         )({ creator, events, startTime, endTime, sort, sortByField, cursor: 0, pagesize: 0 });
 
-        if (totalStatus !== 'OK') return new ApolloError(JSON.stringify(totalError));
-
-        return {
-          total,
-          hasMore: data.length ? cursor + data.length < total : false,
-          cursor: data.length ? cursor + data.length : null,
-          items: data,
-        } as Paginated<Commit>;
+        return status !== 'OK'
+          ? new ApolloError(JSON.stringify(error))
+          : totalStatus !== 'OK'
+          ? new ApolloError(JSON.stringify(totalError))
+          : getPaginated<Commit>(data, total, cursor);
       },
       { fcnName: 'paginatedCommit', useAdmin: false, useAuth: false, logger }
     ),

@@ -121,21 +121,21 @@ beforeAll(async () => {
 // Tear-down the tests in queryHandler shall perform cleanup, for both command & query; so that
 // unit-test can run repeatedly
 afterAll(async () => {
-  await publisher
-    .send_command('FT.DROP', ['cidx'])
-    .then((result) => console.log(`cidx is dropped: ${result}`))
-    .catch((result) => console.log(`cidx is not dropped: ${result}`));
-
-  await publisher
-    .send_command('FT.DROP', ['eidx'])
-    .then((result) => console.log(`eidx is dropped: ${result}`))
-    .catch((result) => console.log(`eidx is not dropped: ${result}`));
-
-  await queryHandler
-    .query_deleteCommitByEntityName(entityName)()
-    .then(({ status }) =>
-      console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
-    );
+  // await publisher
+  //   .send_command('FT.DROP', ['cidx'])
+  //   .then((result) => console.log(`cidx is dropped: ${result}`))
+  //   .catch((result) => console.log(`cidx is not dropped: ${result}`));
+  //
+  // await publisher
+  //   .send_command('FT.DROP', ['eidx'])
+  //   .then((result) => console.log(`eidx is dropped: ${result}`))
+  //   .catch((result) => console.log(`eidx is not dropped: ${result}`));
+  //
+  // await queryHandler
+  //   .query_deleteCommitByEntityName(entityName)()
+  //   .then(({ status }) =>
+  //     console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
+  //   );
 
   await queryHandler
     .command_deleteByEntityId(entityName)({ id })
@@ -240,7 +240,10 @@ describe('Full Text Search Test', () => {
     })
       .then((r) => r.json())
       .then(({ data }) => {
-        const commit = data?.fullTextSearchCommit;
+        expect(data?.fullTextSearchCommit.total).toEqual(1);
+        expect(data?.fullTextSearchCommit.hasMore).toEqual(false);
+        expect(data?.fullTextSearchCommit.cursor).toEqual(1);
+        const commit = data?.fullTextSearchCommit.items[0];
         if (isCommit(commit)) {
           expect(commit.id).toEqual(id);
           expect(commit.entityName).toEqual(entityName);
@@ -260,7 +263,10 @@ describe('Full Text Search Test', () => {
     })
       .then((r) => r.json())
       .then(({ data }) => {
-        const commit = data?.fullTextSearchCommit;
+        expect(data?.fullTextSearchCommit.total).toEqual(1);
+        expect(data?.fullTextSearchCommit.hasMore).toEqual(false);
+        expect(data?.fullTextSearchCommit.cursor).toEqual(1);
+        const commit = data?.fullTextSearchCommit[0];
         if (isCommit(commit)) {
           expect(commit.id).toEqual(id);
           expect(commit.entityName).toEqual(entityName);
@@ -293,7 +299,10 @@ describe('Full Text Search Test', () => {
     })
       .then((r) => r.json())
       .then(({ data }) => {
-        const counterObject: MetaEntity = data?.fullTextSearchEntity[0];
+        expect(data?.fullTextSearchEntity.total).toEqual(1);
+        expect(data?.fullTextSearchEntity.hasMore).toEqual(false);
+        expect(data?.fullTextSearchEntity.cursor).toEqual(1);
+        const counterObject: MetaEntity = data?.fullTextSearchEntity.items[0];
         expect(
           omit(counterObject, 'value', 'commits', 'created', 'lastModified', 'timeline', 'reducer')
         ).toEqual({
@@ -318,7 +327,10 @@ describe('Full Text Search Test', () => {
     })
       .then((r) => r.json())
       .then(({ data }) => {
-        const counterObject: MetaEntity = data?.fullTextSearchEntity[0];
+        expect(data?.fullTextSearchEntity.total).toEqual(1);
+        expect(data?.fullTextSearchEntity.hasMore).toEqual(false);
+        expect(data?.fullTextSearchEntity.cursor).toEqual(1);
+        const counterObject: MetaEntity = data?.fullTextSearchEntity.items[0];
         expect(
           omit(counterObject, 'value', 'commits', 'created', 'lastModified', 'timeline', 'reducer')
         ).toEqual({

@@ -17,7 +17,7 @@ export const metaGetEntityByEntNameEntId: <TEntity>(
   entityName: string,
   id: string,
   option: { logger: Logger; store: Store }
-) => (payload: QHMetaGetEntityPayload) => Promise<HandlerResponse<TEntity[]>> = <TEntity>(
+) => (payload: QHMetaGetEntityPayload) => Promise<HandlerResponse<TEntity[] | number>> = <TEntity>(
   entityName,
   id,
   { logger, store }
@@ -33,7 +33,7 @@ export const metaGetEntityByEntNameEntId: <TEntity>(
     return q;
   };
 
-  return dispatcher<TEntity[], QHMetaGetEntityPayload>(
+  return dispatcher<TEntity[] | number, QHMetaGetEntityPayload>(
     ({
       tx_id,
       args: { startTime, endTime, scope, creator, cursor, pagesize, sortByField, sort },

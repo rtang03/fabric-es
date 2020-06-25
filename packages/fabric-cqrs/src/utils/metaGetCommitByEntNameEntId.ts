@@ -17,7 +17,7 @@ export const metaGetCommitByEntNameEntId: (
   entityName: string,
   id: string,
   option: { logger: Logger; store: Store }
-) => (payload: QHMetaGetCommitPayload) => Promise<HandlerResponse<Commit[]>> = (
+) => (payload: QHMetaGetCommitPayload) => Promise<HandlerResponse<Commit[] | number>> = (
   entityName,
   id,
   { logger, store }
@@ -39,7 +39,7 @@ export const metaGetCommitByEntNameEntId: (
     return q;
   };
 
-  return dispatcher<Commit[], QHMetaGetCommitPayload>(
+  return dispatcher<Commit[] | number, QHMetaGetCommitPayload>(
     ({
       tx_id,
       args: { startTime, endTime, events, creator, cursor, pagesize, sortByField, sort },

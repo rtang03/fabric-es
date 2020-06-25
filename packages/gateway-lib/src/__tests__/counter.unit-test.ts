@@ -310,6 +310,7 @@ describe('Gateway Test - admin service', () => {
       .then<unknown>((r) => r.json())
       .then((res) => {
         if (isLoginResponse(res)) {
+          console.log(res.access_token);
           adminAccessToken = res.access_token;
           return true;
         } else return false;
@@ -552,4 +553,5 @@ describe('Gateway Test - admin service', () => {
         expect(data?.getCounter).toEqual({ value: 1 });
         expect(errors).toBeUndefined();
       }));
+
 });
