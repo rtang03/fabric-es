@@ -1,10 +1,9 @@
-import { runSimple } from 'run-container'
-import redis, { RedisClient } from 'redis';
+import RedisClient, { Redis } from 'ioredis';
 import mockyeah from 'mockyeah';
-import { processMsg, processMsgHandler } from '../processMsg';
-import { ReqRes } from '../reqres';
-import { relayService } from '../relayService';
 import request from 'supertest';
+import { processMsg, processMsgHandler } from '../processMsg';
+import { relayService } from '../relayService';
+import { ReqRes } from '../reqres';
 
 const msg: ReqRes = {
   id: 'myId',
@@ -16,31 +15,26 @@ const msg: ReqRes = {
   statusCode: 3,
   statusMessage: 'myMsg'
 };
-const rHost = '127.0.0.1';
-const rPort = 6379;
+const host = '127.0.0.1';
+const port = 6379;
+const targetUrl = 'http://localhost:4001';
 const mockInSubscriber1 = jest.fn();
 const mockInSubscriber2 = jest.fn();
 const relayChannel = 'relay-channel';
-let publisher: RedisClient;
-let subscriber1: RedisClient, subscriber2: RedisClient;
-let redisContainer;
+let publisher: Redis;
+let subscriber1: Redis;
+let subscriber2: Redis;
 let relay;
 
-beforeAll(async () => {
-  // Start Redis
-  redisContainer = await runSimple({
-    image: 'redis',
-    name: 'redis-in-jest',
-    ports: { '6379': '6379' }
-  });
+/**
+ * Use ...dev-net/dn-run.0-db-red.sh to start a redis instance at port 6379.
+ */
 
-  // Sit for 3s
-  await new Promise(resolve => setTimeout(resolve, 3000));
-
-  publisher = redis.createClient({ host: rHost, port: rPort });
-  subscriber1 = redis.createClient({ host: rHost, port: rPort });
-  subscriber2 = redis.createClient({ host: rHost, port: rPort });
-  relay = relayService({ targetUrl: 'http://localhost:4001', client: publisher, topic: relayChannel });
+ beforeAll(async () => {
+  publisher = new RedisClient({ host, port });
+  subscriber1 = new RedisClient({ host, port });
+  subscriber2 = new RedisClient({ host, port });
+  relay = relayService({ targetUrl, client: publisher, topic: relayChannel });
 
   subscriber1.on('message', (channel, message) => {
     console.log(`subscriber1 listening ${channel}: ${message}`);
@@ -58,7 +52,6 @@ afterAll(async () => {
   publisher.quit();
   subscriber1.quit();
   subscriber2.quit();
-  await redisContainer.remove({ force: true });
   return new Promise((resolve) => setTimeout(() => resolve(), 1000));
 });
 
@@ -75,7 +68,7 @@ describe('Process Message Handler', () => {
     await new Promise(resolve =>
       subscriber1.get(msg.id, (err, reply) => {
         const replyObject = JSON.parse(reply);
-        console.log("From Redis DB:" + reply);
+        console.log('From Redis DB:' + reply);
         expect(replyObject).toEqual(msg);
         resolve();
       }));
@@ -109,7 +102,7 @@ describe('Process Message', () => {
     subscriber1.subscribe(topic);
     subscriber2.subscribe(topic);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    await processMsg({ message: msg, client: publisher, topic: topic })
+    await processMsg({ message: msg, client: publisher, topic })
       .then((numOfSub) => {
         expect(numOfSub).toEqual(2);
       });
@@ -123,7 +116,7 @@ describe('Process Message', () => {
       expect(subObj).toEqual(msg);
     });
     subscriber1.subscribe(topic);
-    await processMsg({ message: msg, client: publisher, topic: topic });
+    await processMsg({ message: msg, client: publisher, topic });
   });
 
 });
@@ -136,40 +129,40 @@ describe('Relay Service', () => {
   });
 
   it('should reject undefined or null client', () => {
-    const f = () => { relayService({targetUrl: 'http://localhost:4001', client: null, topic: 'rejection'}); };
+    const f = () => { relayService({targetUrl, client: null, topic: 'rejection'}); };
     expect(f).toThrow();
   });
 
   it('should reject undefined, null or empty string topic', () => {
-    const f = () => { relayService({targetUrl: 'http://localhost:4001', client: publisher, topic: null}); };
+    const f = () => { relayService({targetUrl, client: publisher, topic: null}); };
     expect(f).toThrow();
   });
 
   it('should return 404 when endpoint is missing', async () => {
-    const path: string = '/no-endpoint';
+    const path = '/no-endpoint';
     await request(relay).get(path).expect(404);
   });
 
   it('should return 404 for put', async () => {
-    const path: string = '/resource-not-found';
+    const path = '/resource-not-found';
     mockyeah.put(path, { status: 404 });
     await request(relay).put(path).expect(404);
   });
 
   it('should return 204 for delete', async () => {
-    const path: string = '/delete-me';
+    const path = '/delete-me';
     mockyeah.put(path, { status: 204 });
     await request(relay).put(path).expect(204);
   });
 
   it('should return 500 for post', async () => {
-    const path: string = '/server-error';
+    const path = '/server-error';
     mockyeah.put(path, { status: 500 });
     await request(relay).put(path).expect(500);
   });
 
   it('should return 200 for get', async () => {
-    const path: string = '/hello-world';
+    const path = '/hello-world';
     mockyeah.get(path, { status: 200, json: { hello: 'world' } });
     await request(relay).get(path).expect(200, { hello: 'world' });
   });
@@ -179,7 +172,7 @@ describe('Relay Service', () => {
     mockInSubscriber2.mockImplementation((message) => {
       const subObj: ReqRes = JSON.parse(message);
       console.log(`Mock 2: ${JSON.stringify(subObj)}`);
-      expect(subObj).toMatchObject({ method: "POST", reqBody: body, statusCode: 204, url: { url: '/pub-sub', query: { abc: '123', def: '456' } } });
+      expect(subObj).toMatchObject({ method: 'POST', reqBody: body, statusCode: 204, url: { url: '/pub-sub', query: { abc: '123', def: '456' } } });
       done();
     });
     subscriber2.subscribe(relayChannel);

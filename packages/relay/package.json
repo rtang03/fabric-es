@@ -21,7 +21,6 @@
     "mockyeah": "^0.24.1",
     "query-string": "^6.12.1",
     "randomstring": "^1.1.5",
-    "redis": "^3.0.2",
     "winston": "^3.2.1"
   },
   "dependenciesComments": {

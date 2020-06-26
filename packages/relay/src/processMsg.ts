@@ -1,7 +1,7 @@
+import { Redis } from 'ioredis';
 import isEmpty from 'lodash/isEmpty';
-import { ReqRes } from './reqres';
 import { getLogger } from './getLogger';
-import { RedisClient } from 'redis';
+import { ReqRes } from './reqres';
 
 const logger = getLogger('[relay] processMsg.js');
 
@@ -11,7 +11,7 @@ export const processMsg = ({
   topic
 }: {
   message: ReqRes; 
-  client: RedisClient; 
+  client: Redis; 
   topic: string;
 }) => {
 
@@ -22,7 +22,6 @@ export const processMsg = ({
   return new Promise<number>((resolve, reject) => {  
     const messageStr = JSON.stringify(message);
     client.publish(topic, messageStr, (err, reply) => {
-
       if (err)
         reject(err);
       else {
@@ -38,15 +37,14 @@ export const processMsgHandler = async ({
   client,
   topic
 }: {
-  message: ReqRes,
-  client: RedisClient,
-  topic: string
+  message: ReqRes;
+  client: Redis;
+  topic: string;
 }) => {
-
-  await processMsg({ message: message, client: client, topic: topic }).then(
+  await processMsg({ message, client, topic }).then(
     (numberOfSubscribers) => {
       // Opps.. no subscriber is listening. Save record to Redis at best effort.
-      if (numberOfSubscribers == 0) {
+      if (numberOfSubscribers === 0) {
         logger.error('No subscriber is listening for message [' + message.id +
           ']. Attempting to save message to Redis.');
         const messageStr = JSON.stringify(message);
