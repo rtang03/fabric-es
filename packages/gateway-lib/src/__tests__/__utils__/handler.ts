@@ -1,4 +1,3 @@
-import values from 'lodash/values';
 import { CounterCommandHandler, CounterRepo } from './types';
 
 export const commandHanlder: (option: {
@@ -18,7 +17,7 @@ export const commandHanlder: (option: {
           },
         ],
       })
-      .then(({ data, status }) => (status === 'OK' ? values(data)[0] : null)),
+      .then(({ data }) => data),
   Decrement: async ({ userId, payload: { id } }) =>
     counterRepo
       .create({ enrollmentId, id })
@@ -32,5 +31,5 @@ export const commandHanlder: (option: {
           },
         ],
       })
-      .then(({ data, status }) => (status === 'OK' ? values(data)[0] : null)),
+      .then(({ data }) => data),
 });

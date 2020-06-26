@@ -193,9 +193,9 @@ describe('Query Handler Tests', () => {
     await new Promise((done) => setTimeout(() => done(), 3000));
     return queryHandler
       .fullTextSearchCommit()({ query: ['test*'] })
-      .then(({ data, status }) => {
+      .then(({ data, status }: { data: Commit[]; status: string }) => {
         expect(status).toEqual('OK');
-        expect(Object.keys(data).length).toEqual(2);
+        expect(data.length).toEqual(2);
         expect(isCommitRecord(data)).toBeTruthy();
       });
   });
@@ -203,19 +203,30 @@ describe('Query Handler Tests', () => {
   it('should FT.SEARCH by qh* : return 2 commits', async () =>
     queryHandler
       .fullTextSearchCommit()({ query: ['qh*'] })
-      .then(({ data, status }) => {
+      .then(({ data, status }: { data: Commit[]; status: string }) => {
         expect(status).toEqual('OK');
-        expect(Object.keys(data).length).toEqual(2);
+        expect(data.length).toEqual(2);
         expect(isCommitRecord(data)).toBeTruthy();
       }));
 
   it('should FT.SEARCH by @event:{increment} : return 1 commit', async () =>
     queryHandler
       .fullTextSearchCommit()({ query: ['@event:{increment}'] })
-      .then(({ data, status }) => {
+      .then(({ data, status }: { data: Commit[]; status: string }) => {
         expect(status).toEqual('OK');
-        expect(Object.values<Commit>(data as any)[0].events[0].type).toEqual('Increment');
-        expect(Object.keys(data).length).toEqual(1);
+        expect(data[0].events[0].type).toEqual('Increment');
+        expect(data.length).toEqual(1);
+        expect(isCommitRecord(data)).toBeTruthy();
+      }));
+
+  it('should FT.SEARCH by @msp:{org1msp} : return 2 commit', async () =>
+    queryHandler
+      .fullTextSearchCommit()({ query: ['@msp:{org1msp}'] })
+      .then(({ data, status }: { data: Commit[]; status: string }) => {
+        console.log(data);
+        expect(status).toEqual('OK');
+        expect(data[0].events[0].type).toEqual('Decrement');
+        expect(data.length).toEqual(2);
         expect(isCommitRecord(data)).toBeTruthy();
       }));
 
@@ -231,6 +242,23 @@ describe('Query Handler Tests', () => {
   it('should FT.SEARCH by test* : return 1 entity', async () =>
     queryHandler
       .fullTextSearchEntity<Counter>()({ query: ['test*'] })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(omit(data[0], '_ts', '_created', '_commit', '_reducer', '_timeline')).toEqual({
+          id,
+          value: 0,
+          tag: 'subscription',
+          desc: 'query hander #2 sub-test',
+          _creator: 'admin-org1.net',
+          _event: 'Increment,Decrement',
+          _entityName: entityName,
+          _organization: ['Org1MSP'],
+        });
+      }));
+
+  it('should FT.SEARCH by tag:{org} : return 1 entity', async () =>
+    queryHandler
+      .fullTextSearchEntity<Counter>()({ query: ['@org:{org1msp}'] })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         const counter = data[0];

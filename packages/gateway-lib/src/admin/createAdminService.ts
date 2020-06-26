@@ -77,21 +77,24 @@ export const createAdminService: (option: {
   const { mspId, server, orgrepo } = await createService({
     enrollmentId: caAdmin,
     serviceName: 'admin',
-    channelName, connectionProfile, wallet, asLocalhost,
+    channelName,
+    connectionProfile,
+    wallet,
+    asLocalhost,
     redis: new Redis({ host: process.env.REDIS_HOST, port: parseInt(process.env.REDIS_PORT, 10) }),
   }).then(async ({ mspId, config, getRepository }) => {
     const repo = getRepository<Organization, OrgEvents>('organization', reducer);
 
     const result = await orgCommandHandler({
       enrollmentId: caAdmin,
-      orgRepo: repo
+      orgRepo: repo,
     }).StartOrg({
       mspId,
       payload: {
         name: orgName,
         url: orgUrl,
-        timestamp: Date.now()
-      }
+        timestamp: Date.now(),
+      },
     });
 
     const resolvers = await createResolvers({
@@ -108,37 +111,36 @@ export const createAdminService: (option: {
       mspId,
       enrollmentSecret,
     });
-  
+
     return {
       mspId,
       server: await config({
-          typeDefs, resolvers: { ...resolvers, ...orgResolvers }
-        })
+        typeDefs,
+        resolvers: {
+          Query: { ...resolvers.Query, ...orgResolvers.Query },
+          Mutation: resolvers.Mutation,
+          Organization: orgResolvers.Organization,
+        },
+      })
         .addRepository(repo)
         .create({ playground, introspection }),
-      orgrepo: repo
+      orgrepo: repo,
     };
   });
 
   return {
     server,
-    shutdown: (({
-      logger,
-      repo
-    }: {
-      logger: any;
-      repo: Repository;
-    }) => async (
+    shutdown: (({ logger, repo }: { logger: any; repo: Repository }) => async (
       server: ApolloServer
     ) => {
       await orgCommandHandler({
         enrollmentId: caAdmin,
-        orgRepo: repo
+        orgRepo: repo,
       }).ShutdownOrg({
         mspId,
         payload: {
-          timestamp: Date.now()
-        }
+          timestamp: Date.now(),
+        },
       });
 
       server
@@ -147,10 +149,10 @@ export const createAdminService: (option: {
           logger.info('Admin service stopped');
           process.exit(0);
         })
-        .catch(err => {
+        .catch((err) => {
           logger.error(util.format(`An error occurred while shutting down %s: %j`, name, err));
           process.exit(1);
         });
-    })({logger, repo: orgrepo})
+    })({ logger, repo: orgrepo }),
   };
 };

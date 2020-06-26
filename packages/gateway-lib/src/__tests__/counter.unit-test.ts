@@ -1,5 +1,13 @@
+import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
+
 require('dotenv').config({ path: './.env.test' });
-import { QueryHandler, Counter, CounterEvents, counterReducer } from '@fabric-es/fabric-cqrs';
+import {
+  QueryHandler,
+  Counter,
+  CounterEvents,
+  counterReducer,
+  getReducer,
+} from '@fabric-es/fabric-cqrs';
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import express from 'express';
@@ -113,29 +121,82 @@ beforeAll(async () => {
       wallet,
     });
 
-    // Step 3: Prepare Counter Model microservice
+    // Step 3: Start Query-Handler
+    const qhService = await createQueryHandlerService([entityName, 'organization'], {
+      redisOptions: { host: 'localhost', port: 6379 },
+      asLocalhost: !(process.env.NODE_ENV === 'production'),
+      channelName,
+      connectionProfile,
+      enrollmentId,
+      reducers: {
+        counter: counterReducer,
+        organization: getReducer<Organization, OrgEvents>(orgReducer),
+      },
+      wallet,
+    });
+
+    queryHandlerServer = qhService.server;
+    queryHandler = qhService.queryHandler;
+    publisher = qhService.publisher;
+
+    // Step 4: setup Redis cidx and eidx indexes
+    await rebuildIndex(publisher, logger);
+
+    const { data } = await queryHandler.command_getByEntityName('counter')();
+
+    if (keys(data).length > 0) {
+      for await (const { id } of values(data)) {
+        await queryHandler
+          .command_deleteByEntityId(entityName)({ id })
+          .then(({ status }) =>
+            console.log(
+              `setup: command_deleteByEntityId, status: ${status}, ${entityName}:${id} deleted`
+            )
+          );
+      }
+    }
+
+    // Step 5: clean up pre existing Redis
+    await queryHandler
+      .query_deleteCommitByEntityName(entityName)()
+      .then(({ status }) =>
+        console.log(`set-up: query_deleteByEntityName, ${entityName}, status: ${status}`)
+      );
+
+    await queryHandler
+      .query_deleteCommitByEntityName('organization')()
+      .then(({ status }) =>
+        console.log(`set-up: query_deleteByEntityName: organization, status: ${status}`)
+      );
+
+    // Step 6: start queryHandler
+    await queryHandlerServer.listen({ port: QH_PORT }, () =>
+      console.log('queryHandler server started')
+    );
+
+    // Step 7: Prepare Counter Model microservice
     const { config, getRepository } = await createService({
       asLocalhost: true,
       channelName,
       connectionProfile,
       serviceName: 'counter',
-      reducers: { counter: counterReducer },
       enrollmentId: orgAdminId,
       wallet,
       redis,
     });
 
     modelApolloService = await config({ typeDefs, resolvers })
-      .addRepository(getRepository<Counter, CounterEvents>(entityName, reducer))
+      .addRepository(getRepository<Counter, CounterEvents>(entityName, counterReducer))
       .create();
 
+    // Step 8: start model service
     await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () =>
       console.log('model service started')
     );
 
-    // step 4: Prepare Admin microservice
+    // step 9: Prepare Admin microservice
     const service = await createAdminService({
-      asLocalhost: false,
+      asLocalhost: !(process.env.NODE_ENV === 'production'),
       caAdmin,
       caAdminPW,
       channelName,
@@ -156,7 +217,7 @@ beforeAll(async () => {
       console.log('admin service started')
     );
 
-    // Step 5: Prepare Federated Gateway
+    // Step 10: Prepare Federated Gateway
     app = await createGateway({
       serviceList: [
         { name: 'admin', url: `http://localhost:${ADMIN_SERVICE_PORT}/graphql` },
@@ -165,49 +226,7 @@ beforeAll(async () => {
       authenticationCheck: `${proxyServerUri}/oauth/authenticate`,
     });
 
-    // Step 6: Start Query-Handler
-    const qhService = await createQueryHandlerService([entityName], {
-      redisOptions: { host: 'localhost', port: 6379 },
-      asLocalhost: !(process.env.NODE_ENV === 'production'),
-      channelName,
-      connectionProfile,
-      enrollmentId,
-      reducers: { counter: counterReducer },
-      wallet,
-    });
-
-    queryHandlerServer = qhService.server;
-    queryHandler = qhService.queryHandler;
-    publisher = qhService.publisher;
-
-    // setup
-    await rebuildIndex(publisher, logger);
-
-    const { data } = await queryHandler.command_getByEntityName('counter')();
-
-    if (keys(data).length > 0) {
-      for await (const { id } of values(data)) {
-        await queryHandler
-          .command_deleteByEntityId(entityName)({ id })
-          .then(({ status }) =>
-            console.log(
-              `setup: command_deleteByEntityId, status: ${status}, ${entityName}:${id} deleted`
-            )
-          );
-      }
-    }
-    // clean up pre existing Redis
-    await queryHandler
-      .query_deleteCommitByEntityName(entityName)()
-      .then(({ status }) =>
-        console.log(`set-up: query_deleteByEntityName, ${entityName}, status: ${status}`)
-      );
-
-    await queryHandlerServer.listen({ port: QH_PORT }, () =>
-      console.log('queryHandler server started')
-    );
-
-    // Step 7: Start Gateway
+    // Step 11: Start Gateway
     return new Promise((done) =>
       app.listen(GATEWAY_PORT, () => {
         console.log('🚀  Federated Gateway started');
@@ -240,11 +259,23 @@ afterAll(async () => {
     );
 
   await queryHandler
+    .query_deleteCommitByEntityName('organization')()
+    .then(({ status }) =>
+      console.log(`tear-down: query_deleteByEntityName: organization, status: ${status}`)
+    );
+
+  await queryHandler
     .command_deleteByEntityId(entityName)({ id: counterId })
     .then(({ status }) =>
       console.log(
         `tear-down: command_deleteByEntityId, ${entityName}:${counterId}, status: ${status}`
       )
+    );
+
+  await queryHandler
+    .command_deleteByEntityId('organization')({ id: 'Org1MSP' })
+    .then(({ status }) =>
+      console.log(`tear-down: command_deleteByEntityId, organization::Org1MSP, status: ${status}`)
     );
 
   await modelApolloService.stop();
@@ -554,4 +585,3 @@ describe('Gateway Test - admin service', () => {
         expect(errors).toBeUndefined();
       }));
 });
-
