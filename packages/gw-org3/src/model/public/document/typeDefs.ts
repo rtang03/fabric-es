@@ -70,7 +70,7 @@ export const typeDefs = gql`
     entityName: String
     version: Int
     commitId: String
-    committedAt: String
+    mspId: String
     entityId: String
     events: [DocEvent!]
   }
@@ -108,7 +108,10 @@ export const resolvers = {
       _, { userId, documentId, loanId, title, reference, link },
       { dataSources: { document }, username }: { dataSources: { document: DocumentDS }; username: string }
     ): Promise<Commit[] | { error: any }> => {
-      const result: Commit[] = [];
+
+      // TODO: any[] is wrong typing. Need Fixing
+
+      const result: any[] = [];
       if (typeof loanId !== 'undefined') {
         const c = await documentCommandHandler({
           enrollmentId: username,

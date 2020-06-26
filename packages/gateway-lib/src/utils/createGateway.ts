@@ -28,24 +28,24 @@ export const createGateway: (option: {
   serviceList = [
     {
       name: 'admin',
-      url: 'http://localhost:15000/graphql'
+      url: 'http://localhost:15000/graphql',
     },
     {
       name: 'remote-data',
-      url: 'http://localhost:16000/graphql'
-    }
+      url: 'http://localhost:16000/graphql',
+    },
   ],
   authenticationCheck,
   useCors = false,
   corsOrigin = '',
-  debug = false
+  debug = false,
 }) => {
   const logger = getLogger('[gw-lib] createGateway.js');
 
   const gateway = new ApolloGateway({
     serviceList,
     buildService: ({ url }) => new AuthenticatedDataSource({ url }),
-    debug
+    debug,
   });
 
   const server = new ApolloServer({
@@ -55,25 +55,28 @@ export const createGateway: (option: {
     subscriptions: false,
     context: async ({ req: { headers } }) => {
       const cookies = Cookie.parse(headers.cookie || '');
-      const token = cookies?.jid ? cookies.jid : headers?.authorization ? headers.authorization.split(' ')[1] : null;
+      const token = cookies?.jid
+        ? cookies.jid
+        : headers?.authorization
+        ? headers.authorization.split(' ')[1]
+        : null;
 
       if (!token) return {};
 
       try {
         const response = await fetch(authenticationCheck, {
           method: 'POST',
-          headers: { authorization: `Bearer ${token}` }
+          headers: { authorization: `Bearer ${token}` },
         });
 
         if (response.status !== httpStatus.OK) {
-          // logger.warn(util.format('authenticate fails, status: %s', response.status));
+          logger.warn(util.format('authenticate fails, status: %s', response.status));
           return {};
         }
 
         const result: unknown = await response.json();
 
         if (isAuthResponse(result)) {
-          // logger.info(`authenticated: ${result.user_id}`);
           return result;
         } else {
           logger.warn(`fail to parse authenticationCheck result`);
@@ -83,7 +86,7 @@ export const createGateway: (option: {
         logger.error(util.format('authenticationCheck error: %j', e));
         return {};
       }
-    }
+    },
   });
 
   const app = express();
@@ -97,7 +100,7 @@ export const createGateway: (option: {
   if (useCors)
     server.applyMiddleware({
       app,
-      cors: { origin: corsOrigin, credentials: true }
+      cors: { origin: corsOrigin, credentials: true },
     });
   else server.applyMiddleware({ app });
 

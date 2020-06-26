@@ -1,128 +1,137 @@
-import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
 import {
-  createPeer,
+  createRepository,
+  createPrivateRepository,
   getNetwork,
-  PrivatedataRepository,
+  getReducer,
+  PrivateRepository,
   Reducer,
-  Repository
+  Repository,
+  createQueryDatabase,
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
-import { Wallet } from 'fabric-network';
-import { DataSrc } from '..';
+import { Gateway, Network, Wallet } from 'fabric-network';
+import type { Redis } from 'ioredis';
+import { createTrackingData, DataSrc } from '..';
+import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
+import type { ModelService } from '../types';
 import { getLogger } from './getLogger';
 import { shutdown } from './shutdownApollo';
 
-export const createService = async ({
-  enrollmentId,
-  defaultEntityName,
-  defaultReducer,
-  isPrivate = false,
-  channelName,
-  connectionProfile,
-  wallet,
-  asLocalhost
-}: {
+export const createService: (option: {
   enrollmentId: string;
-  defaultEntityName: string;
-  defaultReducer: Reducer;
+  serviceName: string;
   isPrivate?: boolean;
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
   asLocalhost: boolean;
+  redis: Redis;
+}) => Promise<ModelService> = async ({
+  enrollmentId,
+  serviceName,
+  isPrivate = false,
+  channelName,
+  connectionProfile,
+  wallet,
+  asLocalhost,
+  redis,
 }) => {
   const logger = getLogger('[gw-lib] createService.js');
 
-  const networkConfig = await getNetwork({
+  const networkConfig: {
+    enrollmentId: string;
+    network: Network;
+    gateway: Gateway;
+  } = await getNetwork({
     discovery: !isPrivate,
     asLocalhost,
     channelName,
     connectionProfile,
     wallet,
-    enrollmentId
+    enrollmentId,
   });
+  const mspId = (networkConfig && networkConfig.gateway && networkConfig.gateway.getIdentity) ? networkConfig.gateway.getIdentity().mspId : undefined;
 
-  const { reconcile, getRepository, getPrivateDataRepo, subscribeHub, unsubscribeHub, disconnect } = createPeer({
-    ...networkConfig,
-    defaultEntityName,
-    defaultReducer,
-    channelName,
-    connectionProfile,
-    wallet
-  });
+  const getPrivateRepository = <TEntity, TEvent>(entityName: string, reducer: Reducer, parentName?: string) =>
+    createPrivateRepository<TEntity, TEvent>(entityName, reducer, {
+      ...networkConfig,
+      connectionProfile,
+      channelName,
+      wallet,
+    }, parentName);
 
-  const result = isPrivate ? { getPrivateDataRepo } : { getRepository };
+  const getRepository = <TEntity, TEvent>(entityName: string, reducer: Reducer) =>
+    createRepository<TEntity, TEvent>(entityName, reducer, {
+      ...networkConfig,
+      queryDatabase: createQueryDatabase(redis),
+      connectionProfile,
+      channelName,
+      wallet,
+    });
 
   return {
-    ...result,
+    mspId,
+    getRepository,
+    getPrivateRepository,
     config: ({ typeDefs, resolvers }) => {
       const repositories: {
         entityName: string;
-        repository: Repository | PrivatedataRepository;
+        repository: Repository | PrivateRepository;
       }[] = [];
 
-      const create: () => Promise<ApolloServer> = async () => {
+      const create: (option?: {
+        mspId?: string;
+        playground?: boolean;
+        introspection?: boolean;
+      }) => Promise<ApolloServer> = async (option) => {
         const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
-        if (!isPrivate) {
-          logger.info(`♨️♨️  Starting micro-service for on-chain entity '${defaultEntityName}'...`);
 
-          try {
-            subscribeHub();
-          } catch (error) {
-            logger.error(util.format('fail to subscribeHub and exiting:, %j', error));
-            process.exit(1);
-          }
+        const args = (mspId) ? { mspId } : undefined;
+        const flags = {
+          playground: (option && option.playground),
+          introspection: (option && option.introspection)
+        };
 
-          logger.info('subscribe event hub complete');
-
-          try {
-            await reconcile({
-              entityName: defaultEntityName,
-              reducer: defaultReducer
-            });
-          } catch (error) {
-            logger.error(util.format('fail to reconcile, exiting:, %j', error));
-            process.exit(1);
-          }
-
-          logger.info(`reconcile complete: ${defaultEntityName}`);
-        } else {
-          logger.info(`♨️♨️  Starting micro-service for off-chain private data...`);
+        if (repositories.filter(element => element.entityName === 'organization').length <= 0) { // TODO
+          repositories.push({
+            entityName: 'organization',
+            repository: getRepository<Organization, OrgEvents>('organization', getReducer<Organization, OrgEvents>(orgReducer))
+          });
         }
 
-        return new ApolloServer({
+        return new ApolloServer(Object.assign({
           schema,
-          playground: true,
           dataSources: () =>
             repositories.reduce(
               (obj, { entityName, repository }) => ({
                 ...obj,
-                [entityName]: new DataSrc({ repo: repository })
+                [entityName]: new DataSrc({ repo: repository }),
               }),
               {}
             ),
-          context: ({ req: { headers } }) => ({
+          context: ({ req: { headers } }) => Object.assign({
             user_id: headers.user_id,
             is_admin: headers.is_admin,
             username: headers.username,
-            // enrollmentId: headers.user_id
-          })
-        });
+          }, args, {
+            trackingData: createTrackingData
+          }),
+        }, flags));
       };
 
-      const addRepository = (repository: Repository | PrivatedataRepository) => {
+      const addRepository = (repository: Repository | PrivateRepository) => {
         repositories.push({
           entityName: repository.getEntityName(),
-          repository
+          repository,
         });
         return { create, addRepository };
       };
 
       return { addRepository };
     },
-    shutdown: shutdown({ logger, name: defaultEntityName }),
-    unsubscribeHub: !isPrivate ? unsubscribeHub : null,
-    disconnect
+    getServiceName: () => serviceName,
+    shutdown: shutdown({ logger, name: serviceName }),
+    disconnect: () => networkConfig.gateway.disconnect(),
   };
 };

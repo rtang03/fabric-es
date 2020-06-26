@@ -3,21 +3,23 @@
  * @hidden
  */
 export {
-  createPeer,
-  getMockRepository,
-  getPrivatedataMockRepository,
-  createProjectionDb,
-  createQueryDatabase
-} from './peer';
-export { getContract, getNetwork, submit, evaluate, evaluate$ } from './services';
+  getContract,
+  getNetwork,
+  submit,
+  submit$,
+  submitPrivateData,
+  submitPrivateData$,
+  evaluate,
+  evaluate$,
+} from './services';
 export * from './types';
+export { isCommit, getHistory } from './utils';
+export { commitIndex, entityIndex, createQueryDatabase, createQueryHandler } from './queryHandler';
 export {
-  dispatchResult,
-  generateToken,
-  getAction,
-  getErrorAction,
-  getErrorActionHandler,
-  getSuccessAction,
-  getSuccessActionHandler
-} from './cqrs/utils';
-export { isCommit } from './peer/utils';
+  createRepository,
+  createPrivateRepository,
+  getMockRepository,
+  getPrivateMockRepository,
+} from './repository';
+import { reducer as counterReducer } from './unit-test-reducer';
+export { counterReducer };

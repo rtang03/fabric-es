@@ -1,0 +1,33 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+  postgres03:
+    container_name: postgres03
+    image: postgres:9.6.17-alpine
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - $ARTIFACTS/postgres03:/var/lib/postgresql/data
+      - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+    command: postgres
+    ports:
+      - 5432
+    networks:
+      - openplatform
+
+  redis03:
+    container_name: redis03
+    image: redislabs/redisearch:latest
+    volumes:
+      - $VOLUME/redis-data03:/data
+    # custom configuration. will require if AUTH is set
+    # - $VOLUME/redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - 6381:6379
+    networks:
+      - openplatform

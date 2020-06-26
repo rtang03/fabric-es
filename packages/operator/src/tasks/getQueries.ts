@@ -1,11 +1,17 @@
 import util from 'util';
-import Client from 'fabric-client';
 import { CreateNetworkOperatorOption, Queries } from '../types';
-import { getClientForOrg, promiseToReadFile } from '../utils';
+import { getClientForOrg, getLogger, promiseToReadFile } from '../utils';
 
 export const getQueries = (option: CreateNetworkOperatorOption) => async (): Promise<Queries> => {
-  const logger = Client.getLogger('[operator] getQueries.js');
-  const { connectionProfile, fabricNetwork, channelName, ordererTlsCaCert, ordererName, mspId } = option;
+  const logger = getLogger({ name: '[operator] getQueries.js' });
+  const {
+    connectionProfile,
+    fabricNetwork,
+    channelName,
+    ordererTlsCaCert,
+    ordererName,
+    mspId,
+  } = option;
   const client = await getClientForOrg(connectionProfile, fabricNetwork, mspId);
   const channel = client.getChannel(channelName);
 
@@ -27,17 +33,17 @@ export const getQueries = (option: CreateNetworkOperatorOption) => async (): Pro
 
   const orderer = client.newOrderer(ordererUrl, {
     pem,
-    'ssl-target-name-override': client.getOrderer(ordererName).getName()
+    'ssl-target-name-override': client.getOrderer(ordererName).getName(),
   });
 
   channel.addOrderer(orderer);
 
   return {
-    getBlockByNumber: blockNumber => channel.queryBlock(blockNumber),
-    getChainInfo: peerName => channel.queryInfo(peerName),
-    getChannels: peerName => client.queryChannels(peerName),
+    getBlockByNumber: (blockNumber) => channel.queryBlock(blockNumber),
+    getChainInfo: (peerName) => channel.queryInfo(peerName),
+    getChannels: (peerName) => client.queryChannels(peerName),
     getMspid: () => client.getMspid(),
-    getTransactionByID: txId => channel.queryTransaction(txId),
-    getChannelPeers: async () => channel.getChannelPeers()
+    getTransactionByID: (txId) => channel.queryTransaction(txId),
+    getChannelPeers: async () => channel.getChannelPeers(),
   };
 };

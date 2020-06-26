@@ -4,6 +4,7 @@ export const documentReducer = (document: Document, event: DocumentEvents): Docu
   switch (event.type) {
     case 'DocumentCreated':
       return {
+        id: event.payload.documentId,
         documentId: event.payload.documentId,
         ownerId: event.payload.userId,
         status: DocumentStatus[event.type],

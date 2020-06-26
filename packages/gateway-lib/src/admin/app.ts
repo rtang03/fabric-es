@@ -18,7 +18,8 @@ const port = (process.env.PORT || 8080) as number;
     connectionProfile: process.env.CONNECTION_PROFILE,
     fabricNetwork: process.env.NETWORK_LOCATION,
     walletPath: process.env.WALLET_PATH,
-    mspId: process.env.MSPID
+    orgName: process.env.ORGNAME,
+    orgUrl: process.env.ORGURL,
   });
 
   process.on('SIGINT', () => {
@@ -29,7 +30,7 @@ const port = (process.env.PORT || 8080) as number;
     shutdown({ logger, name: 'admin-service' });
   });
 
-  process.on('uncaughtException', err => {
+  process.on('uncaughtException', (err) => {
     logger.error('An uncaught error occurred!');
     logger.error(err.stack);
   });
@@ -38,7 +39,7 @@ const port = (process.env.PORT || 8080) as number;
     console.log(`🚀 Admin service started at ${url}graphql`);
     logger.info(`🚀 Admin service started at ${url}graphql`);
   });
-})().catch(error => {
+})().catch((error) => {
   console.error(error);
   process.exit();
 });

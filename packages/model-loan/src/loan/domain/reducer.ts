@@ -4,6 +4,7 @@ export const loanReducer = (loan: Loan, event: LoanEvents): Loan => {
   switch (event.type) {
     case 'LoanApplied':
       return {
+        id: event.payload.loanId,
         loanId: event.payload.loanId,
         ownerId: event.payload.userId,
         status: LoanStatus[event.type],

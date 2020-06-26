@@ -23,7 +23,7 @@ export const registerUser: (option: {
   wallet,
   caAdmin,
   caAdminPW,
-  mspId
+  mspId,
 }) => {
   const logger = Utils.getLogger('[fabric-cqrs] registerUser.js');
   const operator = await registerAndEnroll({
@@ -35,10 +35,10 @@ export const registerUser: (option: {
     fabricNetwork,
     connectionProfile,
     wallet,
-    mspId
+    mspId,
   })({
     enrollmentId,
-    enrollmentSecret
+    enrollmentSecret,
   });
 
   const result = await operator.registerAndEnroll();

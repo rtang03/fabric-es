@@ -1,4 +1,4 @@
-import { PrivatedataRepository } from '@fabric-es/fabric-cqrs';
+import { PrivateRepository } from '@fabric-es/fabric-cqrs';
 import { CommandHandler, DataSrc } from '@fabric-es/gateway-lib';
 import { DocContentsCommands } from './domain/commands';
 import { DocContentsEvents } from './domain/events';
@@ -12,6 +12,6 @@ export * from './domain/handler';
 export { typeDefs as docContentsTypeDefs, resolvers as docContentsResolvers } from './typeDefs';
 export { typeDefs as docContentsRemoteTypeDefs, resolvers as docContentsRemoteResolvers } from './remotes';
 export * from './queries';
-export type DocContentsRepo = PrivatedataRepository<DocContents, DocContentsEvents>;
+export type DocContentsRepo = PrivateRepository<DocContents, DocContentsEvents>;
 export type DocContentsCommandHandler = CommandHandler<DocContentsCommands>;
 export type DocContentsDS = DataSrc<DocContentsRepo>;

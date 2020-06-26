@@ -1,3 +1,5 @@
+import { BaseEntity } from '@fabric-es/fabric-cqrs';
+
 export enum DocumentStatus {
   DocumentCreated,
   DocumentDeleted,
@@ -10,9 +12,10 @@ export enum DocumentStatus {
  * also utilize the `reference` property as their internal identifier unique within their individual organizations. The on-chain
  * portion of a document is a placeholder, with a resource locator (the `link` property) pointing to the document's details
  */
-export class Document {
-  static type: 'document';
+export class Document extends BaseEntity {
+  static entityName: 'document';
 
+  id: string;
   documentId: string;
   ownerId: string;
   loanId?: string;

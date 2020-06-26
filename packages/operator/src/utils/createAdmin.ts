@@ -1,5 +1,6 @@
 import util from 'util';
 import Client from 'fabric-client';
+import { getLogger } from './getLogger';
 import { promiseToReadFile } from './promiseToReadFile';
 
 export interface CreateAdminOption {
@@ -9,7 +10,7 @@ export interface CreateAdminOption {
 }
 
 export const createAdmin = async (option: CreateAdminOption): Promise<Client.User> => {
-  const logger = Client.getLogger('[operator] createAdmin.js');
+  const logger = getLogger({ name: '[operator] createAdmin.js' });
 
   const { client, orgAdminMspPath, mspid } = option;
   const privateKeyPath = `${orgAdminMspPath}/keystore/key.pem`;
@@ -42,8 +43,8 @@ export const createAdmin = async (option: CreateAdminOption): Promise<Client.Use
     mspid,
     cryptoContent: {
       privateKeyPEM: Buffer.from(privateKey).toString(),
-      signedCertPEM: Buffer.from(signCert).toString()
+      signedCertPEM: Buffer.from(signCert).toString(),
     },
-    skipPersistence: true
+    skipPersistence: true,
   });
 };

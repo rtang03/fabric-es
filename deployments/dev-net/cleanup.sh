@@ -59,6 +59,7 @@ if [ ! -z "$LOGSPOUT" ]; then
 fi
 
 docker-compose $COMPOSE down
+sleep 1
 
 EXITED=`docker ps -aq -f status=exited`
 if [ ! -z "$EXITED" ]; then

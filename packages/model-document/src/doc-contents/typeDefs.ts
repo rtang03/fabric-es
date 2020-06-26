@@ -1,7 +1,7 @@
 import { Commit } from '@fabric-es/fabric-cqrs';
-import { catchErrors, getLogger } from '@fabric-es/gateway-lib';
+import { catchErrors, getLogger, queryTrackingData } from '@fabric-es/gateway-lib';
 import gql from 'graphql-tag';
-import { DocContents, docContentsCommandHandler, DocContentsDS } from '.';
+import { DocContents, docContentsCommandHandler, GET_CONTENTS_BY_ID } from '.';
 
 export const typeDefs = gql`
   type Query {
@@ -20,6 +20,7 @@ export const typeDefs = gql`
     documentId: String!
     content: Docs!
     timestamp: String!
+    _organization: [String]!
     document: Document
   }
 
@@ -52,7 +53,7 @@ export const typeDefs = gql`
     entityName: String
     version: Int
     commitId: String
-    committedAt: String
+    mspId: String
     entityId: String
   }
 
@@ -66,18 +67,16 @@ export const typeDefs = gql`
   ###
   extend type Document @key(fields: "documentId") {
     documentId: String! @external
-    contents: DocContents
+    contents: [DocContents]
   }
 `;
-
-type Context = { dataSources: { docContents: DocContentsDS }; username: string };
 
 const logger = getLogger('doc-contents/typeDefs.js');
 
 export const resolvers = {
   Query: {
     getDocContentsById: catchErrors(
-      async (_, { documentId }, { dataSources: { docContents }, username }: Context): Promise<DocContents> =>
+      async (_, { documentId }, { dataSources: { docContents }, username }): Promise<DocContents> =>
         docContents.repo.getById({ id: documentId, enrollmentId: username }).then(({ currentState }) => currentState),
       { fcnName: 'getDocContentsById', logger, useAuth: false }
     )
@@ -87,7 +86,7 @@ export const resolvers = {
       async (
         _,
         { userId, documentId, content },
-        { dataSources: { docContents }, username }: Context
+        { dataSources: { docContents }, username }
       ): Promise<Commit> => {
         let val;
         if (content.body && !content.format && !content.link) {
@@ -111,7 +110,7 @@ export const resolvers = {
       async (
         _,
         { userId, documentId, content },
-        { dataSources: { docContents }, username }: Context
+        { dataSources: { docContents }, username }
       ): Promise<Commit> => {
         let val;
         if (content.body && !content.format && !content.link) {
@@ -134,8 +133,16 @@ export const resolvers = {
   },
   Document: {
     contents: catchErrors(
-      async ({ documentId }, _, { dataSources: { docContents }, username }: Context) =>
-        docContents.repo.getById({ id: documentId, enrollmentId: username }).then(({ currentState }) => currentState),
+      async ({ documentId }, { token }, context) => {
+        return queryTrackingData({
+          id: documentId,
+          token,
+          context,
+          query: GET_CONTENTS_BY_ID,
+          publicDataSrc: 'document',
+          privateDataSrc: 'docContents',
+        }); // TODO - Document.getEntityName(), DocContents.getEntityName()
+      },
       { fcnName: 'Document/contents', logger, useAuth: false }
     )
   },

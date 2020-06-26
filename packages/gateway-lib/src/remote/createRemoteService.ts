@@ -5,22 +5,34 @@ import { HttpLink } from 'apollo-link-http';
 import { ApolloError, ApolloServer } from 'apollo-server';
 import nodeFetch from 'node-fetch';
 import { getLogger } from '..';
-import { shutdown } from '../utils/shutdownApollo';
-import { RemoteData } from './remoteData';
-import { UriResolver } from './uriResolver';
+import { shutdown } from '../utils';
 
 const fetch = nodeFetch as any;
+
+export interface RemoteData {
+  user_id?: string;
+  is_admin?: string;
+  client_id?: string;
+  username?: string;
+  remoteData: (operation: {
+    query: any;
+    context?: any;
+    operationName?: string;
+    variables?: any;
+    token?: string;
+  }) => Promise<any[]>;
+};
 
 export const createRemoteService = async ({
   name,
   typeDefs,
   resolvers,
-  uriResolver
+  urls,
 }: {
   name: string;
   typeDefs: any;
   resolvers: any;
-  uriResolver: UriResolver;
+  urls: string[];
 }) => {
   const logger = getLogger('createRemoteService');
 
@@ -30,41 +42,38 @@ export const createRemoteService = async ({
     server: new ApolloServer({
       schema: buildFederatedSchema({
         typeDefs,
-        resolvers
+        resolvers,
       }),
       playground: true,
       context: ({ req: { headers } }): RemoteData => ({
         user_id: headers.user_id as string,
         is_admin: headers.is_admin as string,
-        // TODO: DEBUG to remove it
-        // client_id: headers.client_id as string,
         username: headers.username as string,
-        uriResolver,
-        remoteData: ({ uri, query, variables, context, operationName, token }) =>
+        remoteData: ({ query, variables, context, operationName, token }) =>
           Promise.all(
-            uri.map(link =>
+            urls.map((link) =>
               makePromise(
                 execute(
                   new HttpLink({
                     uri: link,
                     fetch,
-                    headers: { authorization: `Bearer ${token}` }
+                    headers: { authorization: `Bearer ${token}` },
                   }),
                   {
                     query,
                     variables,
                     operationName,
-                    context
+                    context,
                   }
                 )
-              ).catch(error => {
+              ).catch((error) => {
                 logger.error(util.format('executeHttpLink, %j', error));
                 return new ApolloError(error);
               })
             )
-          )
-      })
+          ),
+      }),
     }),
-    shutdown: shutdown({ logger, name })
+    shutdown: shutdown({ logger, name }),
   };
 };

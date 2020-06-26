@@ -1,15 +1,20 @@
 import util from 'util';
-import { User, Utils } from 'fabric-common';
-import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway, X509Identity } from 'fabric-network';
+import { User } from 'fabric-common';
+import {
+  DefaultEventHandlerStrategies,
+  DefaultQueryHandlerStrategies,
+  Gateway,
+  X509Identity,
+} from 'fabric-network';
 import {
   CreateNetworkOperatorOption,
   IDENTITY_ALREADY_EXIST,
   MISSING_ENROLLMENTID,
   MISSING_ENROLLMENTSECRET,
   ORG_ADMIN_NOT_EXIST,
-  SUCCESS
+  SUCCESS,
 } from '../types';
-import { getClientForOrg } from '../utils';
+import { getClientForOrg, getLogger } from '../utils';
 
 export const registerAndEnroll: (
   option: CreateNetworkOperatorOption
@@ -22,17 +27,17 @@ export const registerAndEnroll: (
 }) => Promise<{
   disconnect: () => void;
   registerAndEnroll: () => Promise<any>;
-}> = option => async ({
+}> = (option) => async ({
   enrollmentId,
   enrollmentSecret,
   asLocalhost = true,
   eventHandlerStrategies = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
-  queryHandlerStrategies = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE
+  queryHandlerStrategies = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
 }) => {
   if (!enrollmentId) throw new Error(MISSING_ENROLLMENTID);
   if (!enrollmentSecret) throw new Error(MISSING_ENROLLMENTSECRET);
 
-  const logger = Utils.getLogger('[operator] registerAndEnroll.js');
+  const logger = getLogger({ name: '[operator] registerAndEnroll.js' });
   const { caAdmin, caAdminPW, fabricNetwork, connectionProfile, wallet, mspId } = option;
   const client = await getClientForOrg(connectionProfile, fabricNetwork, mspId);
   const gateway = new Gateway();
@@ -49,7 +54,7 @@ export const registerAndEnroll: (
       wallet,
       eventHandlerOptions: { strategy: eventHandlerStrategies },
       queryHandlerOptions: { strategy: queryHandlerStrategies },
-      discovery: { asLocalhost, enabled: true }
+      discovery: { asLocalhost, enabled: true },
     });
   } catch (e) {
     logger.error(util.format('fail to connect gateway, %j', e));
@@ -89,7 +94,13 @@ export const registerAndEnroll: (
       }
 
       const credentials = (gateway.getIdentity() as X509Identity).credentials;
-      const registrar = User.createUser(caAdmin, caAdminPW, mspId, credentials.certificate, credentials.privateKey);
+      const registrar = User.createUser(
+        caAdmin,
+        caAdminPW,
+        mspId,
+        credentials.certificate,
+        credentials.privateKey
+      );
 
       // Step 1: register new enrollmentId
       try {
@@ -99,7 +110,7 @@ export const registerAndEnroll: (
             enrollmentSecret,
             affiliation: '',
             maxEnrollments: -1,
-            role: 'client'
+            role: 'client',
           },
           registrar
         );
@@ -116,7 +127,7 @@ export const registerAndEnroll: (
       try {
         enroll = await certificateAuthority.enroll({
           enrollmentID: enrollmentId,
-          enrollmentSecret
+          enrollmentSecret,
         });
       } catch (e) {
         logger.error(util.format('operator fail to enroll: %j', e));
@@ -126,7 +137,7 @@ export const registerAndEnroll: (
       const x509identity: X509Identity = {
         credentials: { certificate: enroll.certificate, privateKey: enroll.key.toBytes() },
         mspId,
-        type: 'X.509'
+        type: 'X.509',
       };
 
       try {
@@ -140,8 +151,8 @@ export const registerAndEnroll: (
 
       return {
         status: SUCCESS,
-        info: `Successfully register & enroll ${enrollmentId}; and import into the wallet`
+        info: `Successfully register & enroll ${enrollmentId}; and import into the wallet`,
       };
-    }
+    },
   };
 };

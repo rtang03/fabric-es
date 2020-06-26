@@ -1,12 +1,20 @@
-import { Commit, getMockRepository, getReducer } from '@fabric-es/fabric-cqrs';
-import { Document, documentCommandHandler, DocumentEvents, documentReducer, DocumentStatus } from '../..';
+import { Commit, getMockRepository, getReducer, Repository } from '@fabric-es/fabric-cqrs';
+import {
+  Document,
+  documentCommandHandler,
+  DocumentEvents,
+  documentReducer,
+  DocumentStatus,
+} from '../..';
 
 const enrollmentId = '';
 const userId = 'USER002';
 const mockdb: Record<string, Commit> = {};
 const documentRepo = getMockRepository<Document, DocumentEvents>(
-  mockdb, 'document', getReducer<Document, DocumentEvents>(documentReducer)
-);
+  mockdb,
+  'document',
+  getReducer<Document, DocumentEvents>(documentReducer)
+) as Repository;
 
 beforeAll(async () => {
   await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
@@ -16,8 +24,8 @@ beforeAll(async () => {
       loanId: 'LOANID001',
       title: 'The Mother of All Purchase Orders',
       reference: 'DOCREF001',
-      timestamp: Date.now()
-    }
+      timestamp: Date.now(),
+    },
   });
 
   await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
@@ -27,8 +35,8 @@ beforeAll(async () => {
       loanId: 'LOANID002',
       title: 'The Father of All Purchase Orders',
       reference: 'DOCREF002',
-      timestamp: Date.now()
-    }
+      timestamp: Date.now(),
+    },
   });
 
   await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
@@ -37,18 +45,23 @@ beforeAll(async () => {
       documentId: 'DOCID003',
       title: 'The Daughter of All Purchase Orders',
       reference: 'DOCREF003',
-      timestamp: Date.now()
-    }
+      timestamp: Date.now(),
+    },
   });
 
   await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
     userId,
-    payload: { documentId: 'DOCID004', reference: 'DOCREF004', timestamp: Date.now() }
+    payload: { documentId: 'DOCID004', reference: 'DOCREF004', timestamp: Date.now() },
   });
 
   await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
     userId,
-    payload: { documentId: 'DOCID005', loanId: 'LOANID005', reference: 'DOCREF005', timestamp: Date.now() }
+    payload: {
+      documentId: 'DOCID005',
+      loanId: 'LOANID005',
+      reference: 'DOCREF005',
+      timestamp: Date.now(),
+    },
   });
 
   await documentCommandHandler({ enrollmentId, documentRepo }).CreateDocument({
@@ -58,8 +71,8 @@ beforeAll(async () => {
       title: 'The Grandy of All Purchase Orders',
       loanId: 'LOANID006',
       reference: 'DOCREF006',
-      timestamp: Date.now()
-    }
+      timestamp: Date.now(),
+    },
   });
 });
 
@@ -72,8 +85,8 @@ describe('Document CommandHandler test', () => {
         loanId: 'LOANID001',
         title: 'Very Important Document',
         reference: 'DOCREF010',
-        timestamp: Date.now()
-      }
+        timestamp: Date.now(),
+      },
     });
     return documentRepo
       .getById({ enrollmentId, id: 'DOCID010' })
@@ -97,8 +110,8 @@ describe('Document CommandHandler test', () => {
           loanId: 'LOANID001',
           title: 'Very Important Document 2',
           reference: null,
-          timestamp: Date.now()
-        }
+          timestamp: Date.now(),
+        },
       })
       .catch(({ message }) => expect(message).toEqual('REQUIRED_DATA_MISSING'));
   });
@@ -108,8 +121,8 @@ describe('Document CommandHandler test', () => {
       userId,
       payload: {
         documentId: 'DOCID001',
-        timestamp: Date.now()
-      }
+        timestamp: Date.now(),
+      },
     });
     return documentRepo
       .getById({ enrollmentId, id: 'DOCID001' })
@@ -126,8 +139,8 @@ describe('Document CommandHandler test', () => {
       userId,
       payload: {
         documentId: 'DOCID002',
-        timestamp: Date.now()
-      }
+        timestamp: Date.now(),
+      },
     });
     return documentRepo
       .getById({ enrollmentId, id: 'DOCID002' })
@@ -145,14 +158,15 @@ describe('Document CommandHandler test', () => {
       payload: {
         documentId: 'DOCID003',
         title: 'Hello There Limited',
-        timestamp: Date.now()
-      }
+        timestamp: Date.now(),
+      },
     });
     return documentRepo
       .getById({ enrollmentId, id: 'DOCID003' })
       .then(({ currentState }) =>
         expect(
-          currentState.title === 'Hello There Limited' && currentState.status === DocumentStatus.DocumentCreated
+          currentState.title === 'Hello There Limited' &&
+            currentState.status === DocumentStatus.DocumentCreated
         ).toBeTruthy()
       );
   });
@@ -164,8 +178,8 @@ describe('Document CommandHandler test', () => {
         payload: {
           documentId: '999999999',
           title: 'Hello There Limited',
-          timestamp: Date.now()
-        }
+          timestamp: Date.now(),
+        },
       })
       .catch(({ message }) => expect(message).toEqual('DOCUMENT_NOT_FOUND: id: 999999999'));
   });
@@ -176,14 +190,15 @@ describe('Document CommandHandler test', () => {
       payload: {
         documentId: 'DOCID004',
         loanId: 'LOANID004',
-        timestamp: Date.now()
-      }
+        timestamp: Date.now(),
+      },
     });
     return documentRepo
       .getById({ enrollmentId, id: 'DOCID004' })
       .then(({ currentState }) =>
         expect(
-          currentState.loanId === 'LOANID004' && currentState.status === DocumentStatus.DocumentCreated
+          currentState.loanId === 'LOANID004' &&
+            currentState.status === DocumentStatus.DocumentCreated
         ).toBeTruthy()
       );
   });
@@ -196,8 +211,8 @@ describe('Document CommandHandler test', () => {
         payload: {
           documentId: 'DOCID005',
           reference: 'DOCREF099',
-          timestamp: Date.now()
-        }
+          timestamp: Date.now(),
+        },
       })
       .catch(({ message }) => expect(message).toEqual('INVALID_OPERATION'));
   });

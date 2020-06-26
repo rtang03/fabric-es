@@ -1,9 +1,14 @@
 import util from 'util';
 import { IIdentityRequest } from 'fabric-ca-client';
-import Common, { User } from 'fabric-common';
-import { DefaultEventHandlerStrategies, DefaultQueryHandlerStrategies, Gateway, X509Identity } from 'fabric-network';
+import { User } from 'fabric-common';
+import {
+  DefaultEventHandlerStrategies,
+  DefaultQueryHandlerStrategies,
+  Gateway,
+  X509Identity,
+} from 'fabric-network';
 import { CreateNetworkOperatorOption } from '../types';
-import { getClientForOrg } from '../utils';
+import { getClientForOrg, getLogger } from '../utils';
 
 export const identityService: (
   option: CreateNetworkOperatorOption
@@ -14,8 +19,8 @@ export const identityService: (
   getAll: () => Promise<any>;
   getByEnrollmentId: (enrollmentId: string) => Promise<any>;
   deleteOne: (enrollmentId: string) => Promise<any>;
-}> = option => async ({ asLocalhost } = { asLocalhost: true }) => {
-  const logger = Common.Utils.getLogger('[operator] identityService.js');
+}> = (option) => async ({ asLocalhost } = { asLocalhost: true }) => {
+  const logger = getLogger({ name: '[operator] identityService.js' });
   const { connectionProfile, wallet, fabricNetwork, caAdmin, caAdminPW, mspId } = option;
   const gateway = new Gateway();
 
@@ -33,12 +38,12 @@ export const identityService: (
       identity: caAdmin,
       wallet,
       eventHandlerOptions: {
-        strategy: DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX
+        strategy: DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
       },
       queryHandlerOptions: {
-        strategy: DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE
+        strategy: DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
       },
-      discovery: { asLocalhost, enabled: true }
+      discovery: { asLocalhost, enabled: true },
     });
   } catch (e) {
     logger.error(util.format('fail to connect gateway, %j', e));
@@ -54,9 +59,9 @@ export const identityService: (
   logger.info(util.format('gateway connected: %s', mspId));
 
   return {
-    create: request => caService.create(request, registrar),
+    create: (request) => caService.create(request, registrar),
     deleteOne: (enrollmentId: string) => caService.delete(enrollmentId, registrar),
     getAll: () => caService.getAll(registrar),
-    getByEnrollmentId: (enrollmentId: string) => caService.getOne(enrollmentId, registrar)
+    getByEnrollmentId: (enrollmentId: string) => caService.getOne(enrollmentId, registrar),
   };
 };

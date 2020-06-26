@@ -48,9 +48,8 @@ export const typeDefs = gql`
 
 export const resolvers = {
   Loan: {
-    _details: async ({ loanId }, { token }, { uriResolver, remoteData }: RemoteData) =>
+    _details: async ({ loanId }, { token }, { remoteData }: RemoteData) =>
       remoteData({
-        uri: await uriResolver.resolve(loanId),
         query: GET_DETAILS_BY_ID,
         operationName: 'GetLoanDetailsById',
         variables: { loanId },

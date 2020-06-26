@@ -32,7 +32,7 @@ jobs:
           node-version: '12.x'
           version: '12.x'
       - name: yarn install
-        run: yarn install --frozen-lockfile --ignore-engines
+        run: yarn install --frozen-lockfile
       - name: lint auth, chaincode, fabric-cqrs, operator, gateway-lib, proxy
         run: yarn lint:lib
       - name: lint gw-org*, model-*, ui-account
@@ -40,9 +40,9 @@ jobs:
       - name: Run tsc for all packages
         run: yarn tsc:all
       - name: build images for proxy, auth-server, ui-account
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth-px-ui.sh
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth-ui.sh
       - name: deploy base 2-org fabric v2.1 network with proxy, postgres, redis, auth
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2-px-db-red-auth.sh
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2-db-red-auth.sh
       - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*, auth, gateway-lib
         run: sudo yarn unit-test
         env:

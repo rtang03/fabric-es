@@ -31,7 +31,7 @@ export const createResolvers: (option: {
   wallet,
   asLocalhost,
   mspId,
-  enrollmentSecret
+  enrollmentSecret,
 }) => {
   const logger = getLogger('[gw-lib] createResolvers.js');
 
@@ -47,7 +47,7 @@ export const createResolvers: (option: {
       fabricNetwork,
       connectionProfile,
       wallet,
-      mspId
+      mspId,
     });
   } catch (e) {
     logger.error(util.format('createNetworkOperator error: %j', e));
@@ -71,7 +71,7 @@ export const createResolvers: (option: {
           const res = await operator.registerAndEnroll({
             enrollmentId: username,
             enrollmentSecret,
-            asLocalhost
+            asLocalhost,
           });
 
           const registerResult = await res.registerAndEnroll();
@@ -86,7 +86,7 @@ export const createResolvers: (option: {
           return registerResult?.status === 'SUCCESS';
         },
         { fcnName: 'createWallet', logger, useAuth: true, useAdmin: false }
-      )
+      ),
     },
     Query: {
       isadmin: () => 'echo admin',
@@ -110,29 +110,35 @@ export const createResolvers: (option: {
                   creator_mspid: header.signature_header.creator.Mspid,
                   id_bytes: data.actions[0].header.creator.IdBytes,
                   input_args: data.actions[0].payload.chaincode_proposal_payload.input.chaincode_spec.input.args.map(
-                    arg => ab2str(arg, 'utf8')
+                    (arg) => ab2str(arg, 'utf8')
                   ),
-                  rwset: JSON.stringify(data.actions[0].payload?.action?.proposal_response_payload?.extension.results),
+                  rwset: JSON.stringify(
+                    data.actions[0].payload?.action?.proposal_response_payload?.extension.results
+                  ),
                   response: {
-                    status: data.actions[0]?.payload?.action?.proposal_response_payload?.extension?.response?.status,
+                    status:
+                      data.actions[0]?.payload?.action?.proposal_response_payload?.extension
+                        ?.response?.status,
                     message:
-                      data.actions[0]?.payload?.action?.proposal_response_payload?.extension?.response.message || '',
+                      data.actions[0]?.payload?.action?.proposal_response_payload?.extension
+                        ?.response.message || '',
                     payload: ab2str(
                       JSON.parse(
                         ab2str(
-                          data.actions[0]?.payload?.action?.proposal_response_payload?.extension?.response?.payload,
+                          data.actions[0]?.payload?.action?.proposal_response_payload?.extension
+                            ?.response?.payload,
                           'utf8'
                         )
                       ),
                       'utf8'
-                    )
+                    ),
                   },
-                  endorsements: data.actions[0].payload.action.endorsements.map(item => ({
+                  endorsements: data.actions[0].payload.action.endorsements.map((item) => ({
                     endorser_mspid: item?.endorser?.Mspid,
                     id_bytes: item?.endorser?.IdBytes,
-                    signature: JSON.stringify(item.signature)
-                  }))
-                }))
+                    signature: JSON.stringify(item.signature),
+                  })),
+                })),
               }
             : new ApolloError('Unknown error to getBlockByNumber');
         },
@@ -140,7 +146,7 @@ export const createResolvers: (option: {
           fcnName: 'getBlockByNumber',
           logger,
           useAuth: false,
-          useAdmin: true
+          useAdmin: true,
         }
       ),
       getCaIdentityByUsername: catchErrors(
@@ -152,7 +158,7 @@ export const createResolvers: (option: {
                 typ: result.type,
                 affiliation: result.affiliation,
                 max_enrollments: result.max_enrollments,
-                attrs: result.attrs
+                attrs: result.attrs,
               };
             } else {
               return null;
@@ -161,17 +167,20 @@ export const createResolvers: (option: {
         },
         { fcnName: 'getCaIdentityByEnrollmentId', logger, useAuth: false, useAdmin: true }
       ),
-      getChainHeight: catchErrors(async () => queries.getChainInfo(peerName).then(({ height: { low } }) => low), {
-        fcnName: 'getChainHeight',
-        logger,
-        useAuth: false,
-        useAdmin: true
-      }),
+      getChainHeight: catchErrors(
+        async () => queries.getChainInfo(peerName).then(({ height: { low } }) => low),
+        {
+          fcnName: 'getChainHeight',
+          logger,
+          useAuth: false,
+          useAdmin: true,
+        }
+      ),
       getPeerInfo: catchErrors(async () => ({ mspId: queries.getMspid(), peerName }), {
         fcnName: 'getPeerInfo',
         logger,
         useAuth: false,
-        useAdmin: true
+        useAdmin: true,
       }),
       getWallet: catchErrors(
         async (_, __, context) => {
@@ -180,7 +189,7 @@ export const createResolvers: (option: {
             ? {
                 type: identity.type,
                 mspId: identity.mspId,
-                certificate: identity.credentials.certificate
+                certificate: identity.credentials.certificate,
               }
             : null;
         },
@@ -190,8 +199,8 @@ export const createResolvers: (option: {
         fcnName: 'listWallet',
         logger,
         useAuth: false,
-        useAdmin: true
-      })
-    }
+        useAdmin: true,
+      }),
+    },
   };
 };

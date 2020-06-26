@@ -53,6 +53,7 @@ export const typeDefs = gql`
     approvedAmt: Float
     comment: String
     timestamp: String!
+    _organizations: [String]!
     loan: Loan
   }
 
@@ -92,7 +93,7 @@ export const typeDefs = gql`
     entityName: String
     version: Int
     commitId: String
-    committedAt: String
+    mspId: String
     entityId: String
   }
 
@@ -188,7 +189,9 @@ export const resolvers = {
       },
       { dataSources: { loanDetails }, username }: Context
     ): Promise<Commit[] | { error: any }> => {
-      const result: Commit[] = [];
+      // TODO: any[] is wrong typing, need fixing
+      const result: any[] = [];
+
       if (typeof requester !== 'undefined' && Object.keys(requester).length > 0) {
         const c = await loanDetailsCommandHandler({
           enrollmentId: username,

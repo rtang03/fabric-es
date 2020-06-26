@@ -8,16 +8,16 @@ services:
     image: fabric-es/gw-org2:$RELEASE
     container_name: gw-org2
     environment:
+      - CONNECTION_PROFILE=/home/app/packages/gw-org2/connection/connection-org2.docker.yaml
       - AUTHORIZATION_SERVER_URI=http://auth-server2:8080/oauth/authenticate
       - CA_ENROLLMENT_ID_ADMIN=rca-org2-admin
       - CA_ENROLLMENT_SECRET_ADMIN=rca-org2-adminPW
-      - CONNECTION_PROFILE=/home/app/packages/gw-org2/connection/connection-org2.docker.yaml
+      - ORG_CA_URL=https://rca-org2:5055
       - ORG_ADMIN_ID=admin-org2.net
       - ORG_ADMIN_SECRET=admin-org2.netPW
-      - ORG_CA_URL=https://rca-org2:5055
       - GATEWAY_HOST=gw-org2
-      - GATEWAY_PORT=4001
-      - TEMP_REMOTE_URI=http://gw-org1:4001/graphql\ http://gw-org3:4001/graphql
+      - REDIS_HOST=redis02
+      - REMOTE_URI=http://gw-org1:4001/graphql\ http://gw-org3:4001/graphql
     working_dir: /home/app/packages/gw-org2
     ports:
       - 4002:4001
