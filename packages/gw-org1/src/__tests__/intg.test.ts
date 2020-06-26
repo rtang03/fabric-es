@@ -42,10 +42,10 @@ import {
 } from '@fabric-es/model-loan';
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
-import { Express } from 'express';
 import { Wallets } from 'fabric-network';
 import Redis from 'ioredis';
 import fetch from 'node-fetch';
+import { StoppableServer } from 'stoppable';
 import request from 'supertest';
 import {
   GET_COMMITS_BY_DOCUMENT,
@@ -102,7 +102,7 @@ let dtlsService: ApolloServer;
 let dtlsDisconnect: any;
 let ctntService: ApolloServer;
 let ctntDisconnect: any;
-let gateway: Express;
+let gateway: StoppableServer;
 
 let isAuthenticated = false;
 let isReady = false;
@@ -353,7 +353,7 @@ beforeAll(async () => {
   });
 
   // Start federated gateway
-  gateway = await createGateway({
+  const { gateway: gw } = await createGateway({
     serviceList: [
       { name: 'admin', url: `http://localhost:${aPort}/graphql` },
       { name: 'loan', url: `http://localhost:${lPort}/graphql` },
@@ -365,6 +365,7 @@ beforeAll(async () => {
     useCors: true,
     debug: false,
   });
+  gateway = gw;
 
   isReady = await request(gateway)
     .post('/graphql')

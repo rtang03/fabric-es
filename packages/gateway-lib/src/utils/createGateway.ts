@@ -1,12 +1,13 @@
+import http from 'http';
 import util from 'util';
 import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import { ApolloServer } from 'apollo-server-express';
-import bodyParser from 'body-parser';
 import Cookie from 'cookie';
-import express, { Express } from 'express';
+import express from 'express';
 import httpStatus from 'http-status';
 import morgan from 'morgan';
 import fetch from 'node-fetch';
+import stoppable, { StoppableServer } from 'stoppable';
 import { getLogger } from './getLogger';
 import { isAuthResponse } from './typeGuard';
 
@@ -24,15 +25,14 @@ export const createGateway: (option: {
   useCors?: boolean;
   corsOrigin?: string;
   debug?: boolean;
-}) => Promise<Express> = async ({
+}) => Promise<{
+  gateway: StoppableServer;
+  shutdown: any;
+}> = async ({
   serviceList = [
     {
       name: 'admin',
       url: 'http://localhost:15000/graphql',
-    },
-    {
-      name: 'remote-data',
-      url: 'http://localhost:16000/graphql',
     },
   ],
   authenticationCheck,
@@ -104,5 +104,18 @@ export const createGateway: (option: {
     });
   else server.applyMiddleware({ app });
 
-  return app;
+  const stoppableServer = stoppable(http.createServer(app));
+  return {
+    gateway: stoppableServer,
+    shutdown: () => {
+      stoppableServer.stop(err => {
+        if (err) {
+          logger.error(util.format('An error occurred while closing the gateway: %j', err));
+          process.exitCode = 1;
+        } else
+          logger.info('gateway stopped');
+        process.exit();
+      });
+    }
+  };
 };

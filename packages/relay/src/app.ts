@@ -18,11 +18,11 @@ const logger = getLogger('[relay] app.js');
     targetUrl, redisHost, redisPort, topic
   });
 
-  process.on('SIGINT', () => {
+  process.on('SIGINT', async () => {
     shutdown();
   });
 
-  process.on('SIGTERM', () => {
+  process.on('SIGTERM', async () => {
     shutdown();
   });
 

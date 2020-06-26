@@ -63,13 +63,14 @@ export const createRelayService: (option: {
   return {
     relay: stoppableServer,
     shutdown: () => {
-      stoppableServer.close(err => {
+      stoppableServer.stop(err => {
         if (err) {
           logger.error(util.format('An error occurred while closing the relay service: %j', err));
           process.exitCode = 1;
-        } else logger.info('relay service closes');
+        } else
+          logger.info('relay service stopped');
+        process.exit();
       });
-      process.exit();
     }
   };
 };
