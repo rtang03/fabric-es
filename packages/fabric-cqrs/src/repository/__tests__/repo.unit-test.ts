@@ -108,11 +108,10 @@ beforeAll(async () => {
       logger,
     });
 
-    repo = createRepository<Counter, CounterEvent>(entityName, {
+    repo = createRepository<Counter, CounterEvent>(entityName, reducer, {
       queryDatabase,
       gateway: context.gateway,
       network: context.network,
-      reducers,
       channelName,
       connectionProfile,
       wallet,
@@ -240,6 +239,7 @@ describe('Repository Test', () => {
     const { save, currentState } = await repo.getById({ enrollmentId, id });
 
     expect(omit(currentState, '_ts', '_creator', '_created')).toEqual({
+      _organization: ['Org1MSP'],
       value: 1,
       id: 'repo_test_counter_001',
       desc: 'repo #1 create-test',
@@ -305,6 +305,7 @@ describe('Verify Result', () => {
       expect(
         omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
       ).toEqual({
+        _organization: ['Org1MSP'],
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
@@ -321,6 +322,7 @@ describe('Verify Result', () => {
       expect(
         omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
       ).toEqual({
+        _organization: ['Org1MSP'],
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
@@ -337,6 +339,7 @@ describe('Verify Result', () => {
       expect(
         omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
       ).toEqual({
+        _organization: ['Org1MSP'],
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
@@ -359,6 +362,7 @@ describe('Verify Result', () => {
       expect(
         omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
       ).toEqual({
+        _organization: ['Org1MSP'],
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',

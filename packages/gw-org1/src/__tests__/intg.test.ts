@@ -259,7 +259,8 @@ beforeAll(async () => {
     connectionProfile: process.env.CONNECTION_PROFILE,
     fabricNetwork: process.env.NETWORK_LOCATION,
     walletPath: process.env.WALLET,
-    mspId: process.env.MSPID,
+    orgName: process.env.ORGNAME,
+    orgUrl: process.env.ORGURL,
   }));
 
   await adminService.listen({ port: aPort });
@@ -269,7 +270,6 @@ beforeAll(async () => {
   await createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'loan',
-    reducers: { loan: lReducer },
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
@@ -278,7 +278,7 @@ beforeAll(async () => {
   }).then(async ({ config, getRepository, disconnect }) => {
     loanDisconnect = disconnect;
     loanService = await config({ typeDefs: loanTypeDefs, resolvers: loanResolvers })
-      .addRepository(getRepository<Loan, LoanEvents>('loan'))
+      .addRepository(getRepository<Loan, LoanEvents>('loan', lReducer))
       .create();
     await loanService
       .listen({ port: lPort })
@@ -291,7 +291,6 @@ beforeAll(async () => {
   await createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'document',
-    reducers: { document: dReducer },
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
@@ -300,7 +299,7 @@ beforeAll(async () => {
   }).then(async ({ config, getRepository, disconnect }) => {
     docuDisconnect = disconnect;
     docuService = await config({ typeDefs: documentTypeDefs, resolvers: documentResolvers })
-      .addRepository(getRepository<Document, DocumentEvents>('document'))
+      .addRepository(getRepository<Document, DocumentEvents>('document', dReducer))
       .create();
     await docuService
       .listen({ port: dPort })
@@ -313,7 +312,6 @@ beforeAll(async () => {
   await createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'loanDetails',
-    reducers: { loanDetails: tReducer },
     isPrivate: true,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
@@ -323,7 +321,7 @@ beforeAll(async () => {
   }).then(async ({ config, getPrivateRepository, disconnect }) => {
     dtlsDisconnect = disconnect;
     dtlsService = await config({ typeDefs: loanDetailsTypeDefs, resolvers: loanDetailsResolvers })
-      .addRepository(getPrivateRepository<LoanDetails, LoanDetailsEvents>('loanDetails'))
+      .addRepository(getPrivateRepository<LoanDetails, LoanDetailsEvents>('loanDetails', tReducer))
       .create();
     await dtlsService
       .listen({ port: tPort })
@@ -336,7 +334,6 @@ beforeAll(async () => {
   await createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'docContents',
-    reducers: { docContents: cReducer },
     isPrivate: true,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
@@ -346,7 +343,7 @@ beforeAll(async () => {
   }).then(async ({ config, getPrivateRepository, disconnect }) => {
     ctntDisconnect = disconnect;
     ctntService = await config({ typeDefs: docContentsTypeDefs, resolvers: docContentsResolvers })
-      .addRepository(getPrivateRepository<DocContents, DocContentsEvents>('docContents'))
+      .addRepository(getPrivateRepository<DocContents, DocContentsEvents>('docContents', cReducer))
       .create();
     await ctntService
       .listen({ port: cPort })

@@ -19,7 +19,6 @@ const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'loanDetails',
-    reducers: { loanDetails: reducer },
     isPrivate: true,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
@@ -32,7 +31,7 @@ const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
         typeDefs: loanDetailsTypeDefs,
         resolvers: loanDetailsResolvers,
       })
-        .addRepository(getPrivateRepository<LoanDetails, LoanDetailsEvents>('loanDetails'))
+        .addRepository(getPrivateRepository<LoanDetails, LoanDetailsEvents>('loanDetails', reducer))
         .create();
 
       process.on('SIGINT', async () => await shutdown(app));

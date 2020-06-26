@@ -15,7 +15,7 @@ import { Loan, LoanEvents, loanReducer } from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
 import type { RedisOptions } from 'ioredis';
 
-const port = parseInt(process.env.QUERY_HANDLER_PORT, 10) || 5001;
+const port = parseInt(process.env.QUERY_PORT, 10) || 5000;
 const logger = getLogger('[query-handler] app.js');
 
 (async () => {

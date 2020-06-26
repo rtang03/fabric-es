@@ -1,5 +1,5 @@
 import { getStore } from '../store';
-import type { Repository, RepoOption } from '../types';
+import { Reducer, Repository, RepoOption } from '../types';
 import {
   getLogger,
   commandCreate,
@@ -16,19 +16,19 @@ import {
 
 export const createRepository: <TEntity = any, TEvent = any>(
   entityName: string,
+  reducer: Reducer,
   option: RepoOption
-) => Repository<TEntity, TEvent> = <TEntity, TEvent>(entityName, option) => {
+) => Repository<TEntity, TEvent> = <TEntity, TEvent>(entityName, reducer, option) => {
   const logger = option?.logger || getLogger({ name: '[fabric-cqrs] createRepository.js' });
   const {
     queryDatabase,
     gateway,
     network,
-    reducers,
     channelName,
     connectionProfile,
     wallet,
   } = option;
-  const store = getStore({ queryDatabase, network, gateway, reducers, logger });
+  const store = getStore({ queryDatabase, network, gateway, reducers: { [entityName]: reducer }, logger });
   const commandOption = {
     logger,
     wallet,
@@ -43,10 +43,10 @@ export const createRepository: <TEntity = any, TEvent = any>(
     command_deleteByEntityId: commandDeleteByEntityId(entityName, false, commandOption),
     command_getByEntityName: commandGetByEntityName(entityName, false, commandOption),
     command_getByEntityIdCommitId: commandGetByEntityIdCommitId(entityName, false, commandOption),
-    getById: queryGetById<TEntity, TEvent>(entityName, reducers[entityName], false, commandOption),
+    getById: queryGetById<TEntity, TEvent>(entityName, reducer, false, commandOption),
     getByEntityName: queryGetEntityByEntityName<TEntity>(
       entityName,
-      reducers[entityName],
+      reducer,
       queryOption
     ),
     getCommitById: queryGetCommitByEntityId(entityName, queryOption),

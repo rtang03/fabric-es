@@ -15,7 +15,7 @@ import {
 import { Wallets } from 'fabric-network';
 import { RedisOptions } from 'ioredis';
 
-const port = parseInt(process.env.PORT, 10) || 5000;
+const port = parseInt(process.env.QUERY_PORT, 10) || 5000;
 const logger = getLogger('[query-handler] app.js');
 
 (async () => {

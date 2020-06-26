@@ -1,3 +1,4 @@
+import values from 'lodash/values';
 import { Store } from 'redux';
 import { Logger } from 'winston';
 import { action } from '../store/query';
@@ -6,7 +7,6 @@ import { dispatcher } from './dispatcher';
 
 /**
  * FindBy operation
- * TODO: "where" clause is currently limited to "where: { id }". Need improvement
  * @param entityName
  * @param store
  * @param logger
@@ -25,5 +25,5 @@ export const queryFind: <TEntity>(
       SuccessAction: action.FIND_SUCCESS,
       ErrorAction: action.FIND_ERROR,
       logger,
-    }
+    },
   );

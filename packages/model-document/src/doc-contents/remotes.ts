@@ -39,9 +39,8 @@ export const typeDefs = gql`
 
 export const resolvers = {
   Document: {
-    _contents: async ({ documentId }, { token }, { uriResolver, remoteData }: RemoteData) =>
+    _contents: async ({ documentId }, { token }, { remoteData }: RemoteData) =>
       remoteData({
-        uri: await uriResolver.resolve(documentId),
         query: GET_CONTENTS_BY_ID,
         operationName: 'GetDocContentsById',
         variables: { documentId },

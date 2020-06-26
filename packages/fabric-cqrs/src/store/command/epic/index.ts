@@ -8,6 +8,7 @@ import deleteByEntityIdCommitId from './deleteByEntityIdCommitId';
 import queryByEntityIdEpic from './queryByEntityId';
 import queryByEntityIdCommitIdEpic from './queryByEntityIdCommitId';
 import queryByEntityNameEpic from './queryByEntityName';
+import trackEpic from './track';
 
 export const epic = [
   createEpic,
@@ -15,5 +16,6 @@ export const epic = [
   queryByEntityIdCommitIdEpic,
   queryByEntityNameEpic,
   queryByEntityIdEpic,
-  deleteByEntityIdCommitId
+  deleteByEntityIdCommitId,
+  trackEpic
 ];

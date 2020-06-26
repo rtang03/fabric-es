@@ -27,12 +27,12 @@ export const commandGetByEntityIdCommitId: (
     wallet: Wallet;
     store: Store;
   }
-) => RepoFcn_IdCommitId<Record<string, Commit>> = (
+) => RepoFcn_IdCommitId<Commit[]> = (
   entityName,
   isPrivateData,
   { store, logger, connectionProfile, channelName, wallet }
 ) =>
-  dispatcher<Record<string, Commit>, { id: string; commitId: string }>(
+  dispatcher<Commit[], { id: string; commitId: string }>(
     ({ tx_id, args: { id, commitId } }) =>
       action.queryByEntIdCommitId({
         tx_id,
@@ -49,5 +49,6 @@ export const commandGetByEntityIdCommitId: (
       ErrorAction: action.QUERY_ERROR,
       logger,
       typeGuard: isCommitRecord,
-    }
+    },
+    (result: Record<string, Commit>) => Object.values<Commit>(result)
   );

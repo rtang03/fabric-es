@@ -3,7 +3,7 @@ import { ApolloError, AuthenticationError, ForbiddenError } from 'apollo-server'
 import { Logger } from 'winston';
 import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from '../admin/constants';
 
-export const catchApolloErrors: <T = any>(
+export const catchErrors: <T = any>(
   fcn: (root, variables, context) => Promise<T>,
   option: { fcnName: string; logger: Logger; useAuth: boolean; useAdmin?: boolean }
 ) => (root, variables, context) => Promise<T | ApolloError> = <TResult>(

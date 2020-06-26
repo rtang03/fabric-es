@@ -10,7 +10,10 @@ RUN mkdir /home/app/ \
 
 COPY --chown=node:node ./build/ /home/app/
 
-RUN apk add --no-cache --virtual .build-deps python make g++ tzdata \
+COPY ./build/entrypoint.sh /usr/local/bin/
+
+RUN apk add --no-cache postgresql-client \
+  && apk add --no-cache --virtual .build-deps python make g++ tzdata \
   && cp /usr/share/zoneinfo/Asia/Hong_Kong /etc/localtime \
   && echo "Asia/Hong_Kong" > /etc/timezone \
   && cd /home/app \
@@ -24,6 +27,6 @@ VOLUME /home/app/logs
 
 WORKDIR /home/app/
 
-CMD [ "pm2-runtime", "start" ,"processes.yaml"]
+ENTRYPOINT [ "entrypoint.sh" ]
 
 EXPOSE 8080

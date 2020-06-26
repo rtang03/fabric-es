@@ -11814,9 +11814,9 @@ node-pre-gyp@0.14.0, node-pre-gyp@^0.14.0:
     tar "^4.4.2"
 
 node-redis-retry-strategy@^1.0.10:
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/node-redis-retry-strategy/-/node-redis-retry-strategy-1.0.10.tgz#04c13c73f0cbf3bc08e54355e56325382a137a35"
-  integrity sha512-BhnCcwRcTu8W9/sE5l4pW3DFQJy69lgNLF4YT/LeDxqJGUFG6PLIbdNQNcvM47Dhks+wGJf7WmfemMIdGoGebg==
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/node-redis-retry-strategy/-/node-redis-retry-strategy-1.0.11.tgz#78459da9ebd97ff3cbb83bb3fc212c97f9eb2654"
+  integrity sha512-XHigx97bwK1Y8IiszjiXDiX3pgShf8G3bAFmrA+lGhv9AxK8P+R/Iz6Vir5lvEaoebG1DPzMPXCRnMlVmDwM2A==
 
 node-releases@^1.1.53:
   version "1.1.53"
@@ -13570,9 +13570,9 @@ query-string@^4.1.0:
     strict-uri-encode "^1.0.0"
 
 query-string@^6.12.1:
-  version "6.12.1"
-  resolved "https://registry.yarnpkg.com/query-string/-/query-string-6.12.1.tgz#2ae4d272db4fba267141665374e49a1de09e8a7c"
-  integrity sha512-OHj+zzfRMyj3rmo/6G8a5Ifvw3AleL/EbcHMD27YA31Q+cO5lfmQxECkImuNVjcskLcvBRVHNAB3w6udMs1eAA==
+  version "6.13.0"
+  resolved "https://registry.yarnpkg.com/query-string/-/query-string-6.13.0.tgz#8d875f66581c854d7480ac79478abb847de742f6"
+  integrity sha512-KJe8p8EUcixhPCp4cJoTYVfmgKHjnAB/Pq3fiqlmyNHvpHnOL5U4YE7iI2PYivGHp4HFocWz300906BAQX0H7g==
   dependencies:
     decode-uri-component "^0.2.0"
     split-on-first "^1.0.0"
@@ -15923,6 +15923,11 @@ typeorm@^0.2.20:
     xml2js "^0.4.17"
     yargonaut "^1.1.2"
     yargs "^13.2.1"
+
+typescript@^3.7.2:
+  version "3.9.5"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.5.tgz#586f0dba300cde8be52dd1ac4f7e1009c1b13f36"
+  integrity sha512-hSAifV3k+i6lEoCJ2k6R2Z/rp/H3+8sdmcn5NrS3/3kE7+RyZXm9aqvxWqjEXHAd8b0pShatpcdMTvEdvAJltQ==
 
 typescript@^3.7.2:
   version "3.9.5"

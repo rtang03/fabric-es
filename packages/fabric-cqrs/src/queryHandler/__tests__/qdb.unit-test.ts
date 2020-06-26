@@ -156,6 +156,7 @@ describe('Projection db test', () => {
             id: 'qh_proj_test_001',
             desc: 'query handler #2 proj',
             tag: 'projection',
+            _organization: ['Org1MSP'],
             _ts: 1590739000,
             _created: 1590738792,
             _creator: 'org1-admin',
@@ -172,6 +173,7 @@ describe('Projection db test', () => {
             value: 3,
             desc: 'query handler #5 proj',
             tag: 'projection',
+            _organization: ['Org1MSP'],
             _ts: 1590740002,
             _created: 1590740000,
             _creator: 'org1-admin',
@@ -189,6 +191,7 @@ describe('Projection db test', () => {
             value: 2,
             desc: 'query handler #7 proj',
             tag: 'projection',
+            _organization: ['Org1MSP'],
             _ts: 1590740004,
             _created: 1590740003,
             _creator: 'org1-admin',
@@ -246,7 +249,7 @@ describe('Projection db test', () => {
       })
       .then(({ status, result }) => {
         expect(status).toEqual('OK');
-        expect(omit(result[0], '_reducer')).toEqual({
+        expect(omit(result[0], '_reducer', 'ts', '_organization')).toEqual({
           value: 2,
           id: 'qh_proj_test_001',
           desc: 'query handler #2 proj',
@@ -272,7 +275,7 @@ describe('Projection db test', () => {
       })
       .then(({ status, result }) => {
         expect(status).toEqual('OK');
-        expect(omit(result[0], '_reducer')).toEqual({
+        expect(omit(result[0], '_reducer', 'ts', '_organization')).toEqual({
           value: 2,
           id: 'qh_proj_test_001',
           desc: 'query handler #2 proj',

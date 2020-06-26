@@ -1,9 +1,10 @@
 import { Wallet } from 'fabric-network';
+import values from 'lodash/values';
 import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action as commandAction } from '../store/command';
 import { action } from '../store/query';
-import type { Commit, SaveFcn, Reducer } from '../types';
+import { Commit, SaveFcn, Reducer, trackingReducer } from '../types';
 import { addTimestamp, dispatcher, getHistory, isCommitRecord, replaceTag } from '.';
 
 /**
@@ -35,12 +36,12 @@ export const queryGetById: <TEntity, TEvent>(
 }) => Promise<{
   currentState: TEntity;
   save: SaveFcn<TEvent>;
-}> = <TEntity, TEvent>(
+}> = (
   entityName,
   reducer,
   isPrivateData,
   { store, logger, wallet, connectionProfile, channelName }
-) => async ({ enrollmentId, id }) => {
+) => async <TEntity, TEvent>({ enrollmentId, id }) => {
   const { data } = await dispatcher<Record<string, Commit>, { entityName: string; id: string }>(
     (payload) => action.queryByEntityId(payload),
     {
@@ -67,6 +68,8 @@ export const queryGetById: <TEntity, TEvent>(
       currentState: null,
       save: null,
     };
+
+  Object.assign(currentState, trackingReducer(values(data)));
 
   const save = !data
     ? null

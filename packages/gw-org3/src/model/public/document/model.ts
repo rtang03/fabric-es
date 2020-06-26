@@ -7,7 +7,7 @@ import { Document as SuperDocument } from '@fabric-es/model-document';
  * portion of a document is a placeholder, with a resource locator (the `link` property) pointing to the document's details
  */
 export class Document extends SuperDocument {
-  static type: 'document';
+  static entityName: 'document';
 
   link: string;
 }

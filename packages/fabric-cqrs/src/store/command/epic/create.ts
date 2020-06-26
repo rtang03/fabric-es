@@ -3,7 +3,6 @@
  * @hidden
  */
 import util from 'util';
-import assign from 'lodash/assign';
 import { ofType } from 'redux-observable';
 import { from, Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
@@ -12,7 +11,7 @@ import { dispatchResult } from '../../utils';
 import { action } from '../action';
 import type { CreateAction } from '../types';
 
-const { CREATE, createSuccess, createError } = action;
+const { CREATE, createSuccess, createError, track, trackSuccess, trackError } = action;
 
 export default (action$: Observable<CreateAction>, _, context) =>
   action$.pipe(
@@ -28,12 +27,12 @@ export default (action$: Observable<CreateAction>, _, context) =>
           discovery: !payload.args.isPrivateData,
           asLocalhost: !(process.env.NODE_ENV === 'production'),
         })
-          .then(({ network, gateway }) => assign({}, payload, { network, gateway }))
+          .then(({ network, gateway }) => Object.assign({}, { payload, network, gateway }))
           .catch((error) => {
             context.logger.error(
               util.format('[store/command/create.js] getNework error: %s', error.message)
             );
-            return assign({}, payload, { error });
+            return Object.assign({}, { payload, error });
           })
       )
     ),
@@ -46,8 +45,9 @@ export default (action$: Observable<CreateAction>, _, context) =>
           })
         );
       else {
-        const { tx_id, args, network, gateway } = getNetwork;
-        const { id, entityName, version, isPrivateData } = args;
+        const { payload, network, gateway } = getNetwork;
+        const { tx_id, args, enrollmentId, channelName, connectionProfile, wallet } = payload;
+        const { id, entityName, parentName, version, isPrivateData } = args;
         const events = args?.events ? JSON.stringify(args?.events) : null;
 
         return isPrivateData
@@ -58,7 +58,23 @@ export default (action$: Observable<CreateAction>, _, context) =>
               { network: network || context.network }
             ).pipe(
               tap(() => gateway.disconnect()),
-              dispatchResult(tx_id, createSuccess, createError)
+              map((result: any) => {
+                if (result.error) return createError({ tx_id, error: result.error });
+                else if (result.status) {
+                  if (result.status === 'ERROR') return createError({ tx_id, error: result });
+                }
+
+                return parentName
+                  ? track({
+                      channelName,
+                      connectionProfile,
+                      wallet,
+                      tx_id,
+                      enrollmentId,
+                      args: { entityName, parentName, id, version: 0 },
+                    })
+                  : createSuccess({ tx_id, result });
+              })
             )
           : submit$('eventstore:createCommit', [entityName, id, version.toString(), events], {
               network: network || context.network,

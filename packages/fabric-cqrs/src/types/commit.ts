@@ -1,4 +1,24 @@
 /**
+ * **BaseEntity**
+ */
+export class BaseEntity {
+  static parentName: string;
+  static entityName: string;
+  public static getParentName(): string {
+    return this.parentName;
+  }
+  public static getEntityName(): string {
+    return this.entityName;
+  }
+  constructor () {}
+}
+export interface EntityClass<TEntity extends BaseEntity> {
+  new (...args: any[]): TEntity;
+  parentName: string;
+  entityName: string;
+}
+
+/**
  * **Lifecycle**
  * BEGIN  - start of lifecycle, only appear once as the first event
  * END    - end of lifecycle, only appear once as the last event
@@ -36,6 +56,7 @@ export interface BaseEntity {
   _entityName?: string;
   _reducer?: string;
   _timeline?: string;
+  _organization?: string[];
 }
 
 /**
@@ -56,6 +77,9 @@ export interface Commit {
 
   /** entity Id */
   entityId?: string;
+
+  /** organization Id */
+  mspId?: string;
 
   /** events array */
   events?: BaseEvent[];

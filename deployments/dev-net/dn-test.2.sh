@@ -5,6 +5,7 @@
 ################################
 
 . ./scripts/setup.sh
+export NGX_TEMPLATE=$NGX_TEMPLATE_A_U_G
 
 SECONDS=0
 
@@ -12,23 +13,34 @@ parseArgs $0 "$@"
 ./cleanup.sh $OPTION
 
 # STEP 1
-./bootstrap.sh "$COMPOSE_1_2ORG" "org0" "org1 org2"
+./bootstrap.sh "$COMPOSE_2_S" "org0" "org1 org2"
 
 # STEP 2
-docker-compose $COMPOSE_1_2ORG up -d
-printMessage "docker-compose up $COMPOSE_1_2ORG" $?
+docker-compose $COMPOSE_2_S up -d
+printMessage "docker-compose up $COMPOSE_2_S" $?
 containerWait "postgres01" "init process complete"
 containerWait "postgres02" "init process complete"
 
 # STEP 3
-docker-compose $COMPOSE_2_2ORG up -d --no-recreate
-printMessage "docker-compose up $COMPOSE_2_2ORG" $?
+docker-compose $COMPOSE_2_S_A up -d --no-recreate
+printMessage "docker-compose up $COMPOSE_2_S_A" $?
 containerWait "auth-server1" "Auth server started"
 containerWait "auth-server2" "Auth server started"
 
 # STEP 4
-docker-compose $COMPOSE_5_2ORG up -d --no-recreate
-printMessage "docker-compose up $COMPOSE_5_2ORG" $?
+docker-compose $COMPOSE_2_S_A_G up -d --no-recreate
+printMessage "docker-compose up $COMPOSE_2_S_A_G" $?
+containerWait "gw-org1" "gateway ready at"
+containerWait "gw-org2" "gateway ready at"
+
+# STEP 5
+docker-compose $COMPOSE_2_S_A_G $COMPOSE_2_NGX up -d --no-recreate
+printMessage "docker-compose up proxy server" $?
+sleep 1
+
+# STEP 6
+docker-compose $COMPOSE_2_S_A_G_T $COMPOSE_2_NGX up -d --no-recreate
+printMessage "docker-compose up $COMPOSE_2_S_A_G_T" $?
 
 echo "Starting automated tests..."
 TEST_EXIT_CODE=`docker wait tester`;

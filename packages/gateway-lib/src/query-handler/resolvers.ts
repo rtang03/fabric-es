@@ -5,7 +5,7 @@ import assign from 'lodash/assign';
 import values from 'lodash/values';
 import type { MetaEntity, Paginated, QueryHandlerGqlCtx } from '../types';
 import { getLogger } from '../utils';
-import { catchApolloErrors } from '../utils/catchApolloErrors';
+import { catchErrors } from '../utils/catchErrors';
 import { rebuildIndex } from './rebuildIndex';
 import { reconcile } from './reconcile';
 
@@ -47,7 +47,7 @@ export const resolvers = {
       await pubSub.publish(DEV, { pong: message });
       return true;
     },
-    reloadEntities: catchApolloErrors(
+    reloadEntities: catchErrors(
       async (
         _,
         { entityNames }: { entityNames: string[] },
@@ -60,7 +60,7 @@ export const resolvers = {
       },
       { fcnName: 'reloadEntity', useAuth: false, useAdmin: false, logger }
     ),
-    createCommit: catchApolloErrors(
+    createCommit: catchErrors(
       async (
         _,
         {
@@ -86,7 +86,7 @@ export const resolvers = {
   },
   Query: {
     me: () => 'Hello',
-    fullTextSearchCommit: catchApolloErrors(
+    fullTextSearchCommit: catchErrors(
       async (
         _,
         { query, cursor = 0, pagesize = 10 }: { query: string; cursor?: number; pagesize?: number },
@@ -119,7 +119,7 @@ export const resolvers = {
       },
       { fcnName: 'fullTextSearchCommit', useAdmin: false, useAuth: false, logger }
     ),
-    fullTextSearchEntity: catchApolloErrors<Paginated<MetaEntity> | ApolloError>(
+    fullTextSearchEntity: catchErrors<Paginated<MetaEntity> | ApolloError>(
       async (
         _,
         { query, cursor = 0, pagesize = 10 }: { query: string; cursor?: number; pagesize?: number },
@@ -148,7 +148,7 @@ export const resolvers = {
       },
       { fcnName: 'fullTextSearchEntity', useAdmin: false, useAuth: false, logger }
     ),
-    paginatedMetaEntity: catchApolloErrors<Paginated<MetaEntity> | ApolloError>(
+    paginatedMetaEntity: catchErrors<Paginated<MetaEntity> | ApolloError>(
       async (
         _,
         {
@@ -198,7 +198,7 @@ export const resolvers = {
       },
       { fcnName: 'paginatedMetaEntity', useAdmin: false, useAuth: false, logger }
     ),
-    paginatedCommit: catchApolloErrors<Paginated<Commit> | ApolloError>(
+    paginatedCommit: catchErrors<Paginated<Commit> | ApolloError>(
       async (
         _,
         {

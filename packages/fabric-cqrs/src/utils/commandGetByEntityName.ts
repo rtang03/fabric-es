@@ -26,12 +26,12 @@ export const commandGetByEntityName: (
     wallet: Wallet;
     store: Store;
   }
-) => RepoFcn<Record<string, Commit>> = (
+) => RepoFcn<Commit[]> = (
   entityName,
   isPrivateData,
   { channelName, connectionProfile, wallet, store, logger }
 ) =>
-  dispatcher<Record<string, Commit>, null>(
+  dispatcher<Commit[], null>(
     ({ tx_id }) =>
       action.queryByEntityName({
         connectionProfile,
@@ -48,5 +48,6 @@ export const commandGetByEntityName: (
       ErrorAction: action.QUERY_ERROR,
       logger,
       typeGuard: isCommitRecord,
-    }
+    },
+    (result: Record<string, Commit>) => Object.values<Commit>(result)
   );

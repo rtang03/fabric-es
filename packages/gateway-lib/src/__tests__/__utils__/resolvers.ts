@@ -1,5 +1,5 @@
 import { Commit, Counter } from '@fabric-es/fabric-cqrs';
-import { catchApolloErrors, getLogger } from '../../utils';
+import { catchErrors, getLogger } from '../../utils';
 import { commandHanlder } from './handler';
 import { Context } from './types';
 
@@ -8,7 +8,7 @@ const logger = getLogger('[gw-lib-test] resolvers.js');
 export const resolvers = {
   Query: {
     pingCounter: () => 'I am a simple counter',
-    getCounter: catchApolloErrors(
+    getCounter: catchErrors(
       async (
         _,
         { counterId },
@@ -26,7 +26,7 @@ export const resolvers = {
     ),
   },
   Mutation: {
-    increment: catchApolloErrors(
+    increment: catchErrors(
       async (
         _,
         { counterId },
@@ -44,7 +44,7 @@ export const resolvers = {
         }),
       { fcnName: 'increment', logger, useAuth: true, useAdmin: false }
     ),
-    decrement: catchApolloErrors(
+    decrement: catchErrors(
       async (
         _,
         { counterId },

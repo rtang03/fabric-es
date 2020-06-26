@@ -53,6 +53,7 @@ export const typeDefs = gql`
     approvedAmt: Float
     comment: String
     timestamp: String!
+    _organizations: [String]!
     loan: Loan
   }
 
@@ -92,7 +93,7 @@ export const typeDefs = gql`
     entityName: String
     version: Int
     commitId: String
-    committedAt: String
+    mspId: String
     entityId: String
   }
 

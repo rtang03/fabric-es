@@ -7,7 +7,7 @@ import groupBy from 'lodash/groupBy';
 import isEqual from 'lodash/isEqual';
 import keys from 'lodash/keys';
 import values from 'lodash/values';
-import type { Commit, QueryDatabase } from '../types';
+import { Commit, QueryDatabase, trackingReducer } from '../types';
 import { isCommit, getLogger } from '../utils';
 import {
   arraysToCommitRecords,
@@ -20,12 +20,10 @@ import {
 
 export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js' });
-
   const countNonNull = (deletedItems: number[][]) =>
     flatten(deletedItems)
       .filter((item) => !!item)
       .reduce((prev, curr) => prev + curr, 0);
-
   const getHistory = (commits: Commit[]): any[] => {
     const history = [];
     commits.forEach(({ events }) => events.forEach((item) => history.push(item)));
@@ -221,6 +219,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
           .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
 
         const currentState = reducer(getHistory(values(mergedResult)));
+        if (currentState) Object.assign(currentState, trackingReducer(values(mergedResult)));
 
         currentState._event = _event;
         currentState._commit = keys(mergedResult).map(
@@ -313,7 +312,8 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
               { _timeline },
               { _entityName: entityName },
               { _reducer: reducer.toString() },
-              reduced
+              reduced,
+              trackingReducer(values(group[id]))
             )
           );
         else error.push({ id });

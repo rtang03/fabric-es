@@ -9,7 +9,6 @@ export interface RepoOption {
   wallet: Wallet;
   network: Network;
   gateway: Gateway;
-  reducers: Record<string, Reducer>;
   logger?: Logger;
 }
 
@@ -19,13 +18,10 @@ export interface PrivateRepoOption {
   wallet: Wallet;
   network: Network;
   gateway: Gateway;
-  reducers: Record<string, Reducer>;
   logger?: Logger;
 }
 
-export type SaveFcn<TEvent> = (payload: {
-  events: TEvent[];
-}) => Promise<HandlerResponse<Record<string, Commit>>>;
+export type SaveFcn<TEvent> = (payload: { events: TEvent[] }) => Promise<HandlerResponse<Commit>>;
 
 export type RepoFcn<TResponse> = () => Promise<HandlerResponse<TResponse>>;
 
@@ -47,8 +43,8 @@ export type RepoFcn_find<TResponse> = (criteria: {
 export interface Repository<TEntity = any, TEvent = any> {
   create: (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
   command_deleteByEntityId: RepoFcn_Id<FabricResponse>;
-  command_getByEntityName: RepoFcn<Record<string, Commit>>;
-  command_getByEntityIdCommitId?: RepoFcn_IdCommitId<Record<string, Commit>>;
+  command_getByEntityName: RepoFcn<Commit[]>;
+  command_getByEntityIdCommitId?: RepoFcn_IdCommitId<Commit[]>;
   getById: (option: {
     enrollmentId: string;
     id: string;
@@ -67,8 +63,8 @@ export interface Repository<TEntity = any, TEvent = any> {
 
 export interface PrivateRepository<TEntity = any, TEvent = any> {
   create: (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
-  getCommitByEntityName: RepoFcn<Record<string, Commit>>;
-  getCommitByEntityIdCommitId: RepoFcn_IdCommitId<Record<string, Commit>>;
+  getCommitByEntityName: RepoFcn<Commit[]>;
+  getCommitByEntityIdCommitId: RepoFcn_IdCommitId<Commit[]>;
   deleteByEntityIdCommitId: RepoFcn_IdCommitId<FabricResponse>;
   getById: (option: {
     enrollmentId: string;

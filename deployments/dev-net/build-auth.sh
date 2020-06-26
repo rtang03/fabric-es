@@ -17,3 +17,4 @@ $LIBS_DIR/.bin/tsc -p $ROOT_DIR/packages/auth/tsconfig.prod.json
 cp $ROOT_DIR/packages/auth/package.json $ROOT_DIR/packages/auth/processes.yaml $ROOT_DIR/packages/auth/build/
 cp $ROOT_DIR/packages/auth/.env.prod $ROOT_DIR/packages/auth/build/.env
 cp -R $ROOT_DIR/packages/auth/dist $ROOT_DIR/packages/auth/build/
+cp $ROOT_DIR/packages/auth/entrypoint.sh $ROOT_DIR/packages/auth/build/

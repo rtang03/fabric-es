@@ -3,7 +3,7 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action } from '../store/command';
 import type { Commit, SaveFcn } from '../types';
-import { addCreatedAt, addCreator, addTimestamp, dispatcher, isCommitRecord, replaceTag } from '.';
+import { addCreatedAt, addCreator, dispatcher, isCommitRecord, replaceTag } from '.';
 
 /**
  * create Commit
@@ -15,6 +15,7 @@ import { addCreatedAt, addCreator, addTimestamp, dispatcher, isCommitRecord, rep
  * @param connectionProfile
  * @param wallet
  * @param store
+ * @param parentName
  */
 export const commandCreate: <TEvent = any>(
   entityName: string,
@@ -25,13 +26,15 @@ export const commandCreate: <TEvent = any>(
     connectionProfile: string;
     wallet: Wallet;
     store: Store;
-  }
-) => (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> } = <TEvent>(
+  },
+  parentName?: string
+) => (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> } = (
   entityName,
   isPrivateData,
-  { channelName, logger, connectionProfile, wallet, store }
-) => ({ enrollmentId, id }) => ({
-  save: dispatcher<Record<string, Commit>, { events: TEvent[] }>(
+  { channelName, logger, connectionProfile, wallet, store },
+  parentName
+) => <TEvent>({ enrollmentId, id }) => ({
+  save: dispatcher<Commit, { events: TEvent[] }>(
     ({ tx_id, args: { events } }) =>
       action.create({
         channelName,
@@ -39,8 +42,10 @@ export const commandCreate: <TEvent = any>(
         wallet,
         tx_id,
         enrollmentId,
+        store,
         args: {
           entityName,
+          parentName,
           id,
           version: 0,
           isPrivateData,
@@ -55,6 +60,7 @@ export const commandCreate: <TEvent = any>(
       ErrorAction: action.CREATE_ERROR,
       logger,
       typeGuard: isCommitRecord,
-    }
+    },
+    (result: Record<string, Commit>) => Object.values<Commit>(result)[0]
   ),
 });

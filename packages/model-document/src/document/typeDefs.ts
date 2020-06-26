@@ -2,7 +2,7 @@ import { Commit } from '@fabric-es/fabric-cqrs';
 import { catchErrors, getLogger, Paginated } from '@fabric-es/gateway-lib';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
-import { Document, documentCommandHandler, DocumentDS } from '.';
+import { Document, documentCommandHandler } from '.';
 
 export const typeDefs = gql`
   type Query {
@@ -40,6 +40,7 @@ export const typeDefs = gql`
     reference: String!
     status: Int!
     timestamp: String!
+    _organization: [String]!
     loan: Loan
   }
 
@@ -65,7 +66,7 @@ export const typeDefs = gql`
     entityName: String
     version: Int
     commitId: String
-    committedAt: String
+    mspId: String
     entityId: String
     events: [DocEvent!]
   }
@@ -76,22 +77,20 @@ export const typeDefs = gql`
   }
 `;
 
-type Context = { dataSources: { document: DocumentDS }; username: string };
-
 const logger = getLogger('document/typeDefs.js');
 
 export const resolvers = {
   Query: {
     getCommitsByDocumentId: catchErrors(
-      async (_, { documentId }, { dataSources: { document } }: Context): Promise<Commit[]> =>
-        document.repo.getCommitById(documentId).then(({ data }) => data || []),
+      async (_, { documentId }, { dataSources: { document } }): Promise<Commit[]> =>
+        document.repo.getCommitById({ id: documentId }).then(({ data }) => data || []),
       { fcnName: 'getCommitsByDocumentId', logger, useAuth: false }
     ),
     getDocumentById: catchErrors(
       async (
         _,
         { documentId },
-        { dataSources: { document }, username }: Context
+        { dataSources: { document }, username }
       ): Promise<Document> =>
         document.repo
           .getById({ id: documentId, enrollmentId: username })
@@ -102,7 +101,7 @@ export const resolvers = {
       async (
         _,
         { pageSize },
-        { dataSources: { document } }: Context
+        { dataSources: { document } }
       ): Promise<Paginated<Document>> =>
         document.repo.getByEntityName().then(
           ({ data }: { data: any[] }) =>
@@ -115,12 +114,12 @@ export const resolvers = {
       { fcnName: 'getPaginatedDocuments', logger, useAuth: false }
     ),
     searchDocumentByFields: catchErrors(
-      async (_, { id }, { dataSources: { document } }: Context): Promise<Document[]> =>
-        document.repo.find({ byId: id }).then(({ data }) => Object.values(data)),
+      async (_, { where }, { dataSources: { document } }): Promise<Document[]> =>
+        document.repo.find({ byId: where }).then(({ data }) => Object.values(data)),
       { fcnName: 'searchDocumentByFields', logger, useAuth: false }
     ),
     searchDocumentContains: catchErrors(
-      async (_, { contains }, { dataSources: { document } }: Context): Promise<Document[]> =>
+      async (_, { contains }, { dataSources: { document } }): Promise<Document[]> =>
         document.repo.find({ byDesc: contains }).then(({ data }) => Object.values(data)),
       { fcnName: 'searchDocumentContains', logger, useAuth: false }
     ),
@@ -130,7 +129,7 @@ export const resolvers = {
       async (
         _,
         { userId, documentId, loanId, title, reference },
-        { dataSources: { document }, username }: Context
+        { dataSources: { document }, username }
       ): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
@@ -151,7 +150,7 @@ export const resolvers = {
       async (
         _,
         { userId, documentId },
-        { dataSources: { document }, username }: Context
+        { dataSources: { document }, username }
       ): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
@@ -166,7 +165,7 @@ export const resolvers = {
       async (
         _,
         { userId, documentId },
-        { dataSources: { document }, username }: Context
+        { dataSources: { document }, username }
       ): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
@@ -180,7 +179,7 @@ export const resolvers = {
     updateDocument: async (
       _,
       { userId, documentId, loanId, title, reference },
-      { dataSources: { document }, username }: Context
+      { dataSources: { document }, username }
     ): Promise<Commit[]> => {
 
       // TODO: any[] is wrong typing, need fixing
@@ -230,14 +229,14 @@ export const resolvers = {
   },
   Loan: {
     documents: catchErrors(
-      async ({ loanId }, _, { dataSources: { document } }: Context) =>
-        document.repo.find({ where: loanId }).then(({ data }) => data),
+      async ({ loanId }, _, { dataSources: { document } }) =>
+        document.repo.find({ where: { loanId }}).then(({ data }) => data),
       { fcnName: 'Loan/docuemnts', logger, useAuth: false }
     ),
   },
   Document: {
     __resolveReference: catchErrors(
-      async ({ documentId }, { dataSources: { document }, username }: Context): Promise<Document> =>
+      async ({ documentId }, { dataSources: { document }, username }): Promise<Document> =>
         document.repo
           .getById({ id: documentId, enrollmentId: username })
           .then(({ currentState }) => currentState),

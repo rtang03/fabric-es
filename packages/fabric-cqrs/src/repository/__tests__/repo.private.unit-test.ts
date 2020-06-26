@@ -86,14 +86,13 @@ beforeAll(async () => {
       asLocalhost: true,
     });
 
-    repo = createPrivateRepository<Counter, CounterEvent>(entityName, {
+    repo = createPrivateRepository<Counter, CounterEvent>(entityName, reducer, {
       gateway: context.gateway,
       network: context.network,
       channelName,
       connectionProfile,
       wallet,
       logger,
-      reducers,
     });
 
     // tear up
@@ -167,6 +166,7 @@ describe('Private Repository Test - Part 2', () => {
     });
 
     expect(omit(currentState, '_ts', '_created', '_creator')).toEqual({
+      _organization: ['Org1MSP'],
       value: 1,
       id: 'repo_test_counter_002',
       desc: 'repo #1 create-test',
@@ -188,7 +188,7 @@ describe('Private Repository Test - Part 2', () => {
       expect(isCommitRecord(data)).toBeTruthy();
       expect(keys(data).length).toEqual(2);
       expect(
-        values(data).map((commit) => omit(commit, 'ts', 'events', 'hash', 'commitId'))
+        values(data).map((commit) => omit(commit, 'ts', 'events', 'hash', 'commitId', 'mspId'))
       ).toEqual([
         { id, entityName, version: 0, entityId },
         { id, entityName, version: 1, entityId },

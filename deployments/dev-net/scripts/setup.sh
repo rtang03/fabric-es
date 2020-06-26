@@ -12,9 +12,6 @@ export ARTIFACTS=./artifacts
 export SCRIPTS=./scripts
 export CRYPTO=/var/artifacts/crypto-config
 export CURRENT_DIR=`pwd`
-export NG_AU_GW_UI_TEMPLATE=./scripts/nginx/auth-gw-uia.template
-export NG_AU_UI_TEMPLATE=./scripts/nginx/auth-uia.template
-export NG_AU_TEMPLATE=./scripts/nginx/auth.template
 export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
 export TEST_IMAGE=fabric-es/tester:${RELEASE}
 export PROXY_IMAGE=fabric-es/proxy:${RELEASE}
@@ -27,12 +24,16 @@ export CHAINCODE=$ROOT_DIR/packages/chaincode
 export LIBS_DIR=$ROOT_DIR/node_modules
 export CONF_DIR=$CURRENT_DIR/build.
 
-export COMPOSE_0_1ORG="-f compose.1org.yaml"
-export COMPOSE_0_2ORG="$COMPOSE_0_1ORG -f compose.2org.yaml"
-export COMPOSE_0_3ORG="$COMPOSE_0_2ORG -f compose.3org.yaml"
-export CMP_1_SRV="-f compose.1org.px-db-red.yaml"
-export CMP_2_SRV="$CMP_1_SRV -f compose.2org.px-db-red.yaml"
-export CMP_3_SRV="$CMP_2_SRV -f compose.3org.px-db-red.yaml"
+export NGX_TEMPLATE_A_U_G=./scripts/nginx/auth-ui-gw.template
+export NGX_TEMPLATE_A_U=./scripts/nginx/auth-ui.template
+export NGX_TEMPLATE_A=./scripts/nginx/auth.template
+export COMPOSE_1_NGX="-f compose.1org.ngx.yaml"
+export COMPOSE_2_NGX="$COMPOSE_1_NGX -f compose.2org.ngx.yaml"
+export COMPOSE_3_NGX="$COMPOSE_2_NGX -f compose.3org.ngx.yaml"
+
+export COMPOSE_0_S="-f compose.1org.db-red.yaml"
+export CMP_2_SRV="$COMPOSE_0_S -f compose.2org.db-red.yaml"
+export CMP_3_SRV="$CMP_2_SRV -f compose.3org.db-red.yaml"
 export CMP_1_ATH="-f compose.1org.auth.yaml"
 export CMP_2_ATH="$CMP_1_ATH -f compose.2org.auth.yaml"
 export CMP_3_ATH="$CMP_2_ATH -f compose.3org.auth.yaml"
@@ -42,31 +43,34 @@ export CMP_3_UIA="$CMP_2_UIA -f compose.3org.ui.yaml"
 export CMP_1_GWY="-f compose.1org.gw.yaml"
 export CMP_2_GWY="$CMP_1_GWY -f compose.2org.gw.yaml"
 export CMP_3_GWY="$CMP_2_GWY -f compose.3org.gw.yaml"
-export CMP_NGX="-f compose.1org.ngx.yaml"
 
-export COMPOSE_0_0ORG="$CMP_1_SRV"
-export COMPOSE_1_0ORG="$COMPOSE_0_0ORG $CMP_1_ATH"
-export COMPOSE_2_0ORG="$COMPOSE_1_0ORG $CMP_1_UIA"
+export COMPOSE_0_S_A="$COMPOSE_0_S $CMP_1_ATH"
+export COMPOSE_0_S_A_U="$COMPOSE_0_S_A $CMP_1_UIA"
 
-export COMPOSE_1_1ORG="$COMPOSE_0_1ORG $CMP_1_SRV"
-export COMPOSE_2_1ORG="$COMPOSE_1_1ORG $CMP_1_ATH"
-export COMPOSE_3_1ORG="$COMPOSE_2_1ORG $CMP_1_UIA"
-export COMPOSE_4_1ORG="$COMPOSE_3_1ORG $CMP_1_GWY"
-export COMPOSE_5_1ORG="$COMPOSE_2_1ORG $CMP_1_GWY -f compose.1org.tester.yaml"
+export COMPOSE_1="-f compose.1org.yaml"
+export COMPOSE_2="$COMPOSE_1 -f compose.2org.yaml"
+export COMPOSE_3="$COMPOSE_2 -f compose.3org.yaml"
 
-export COMPOSE_1_2ORG="$COMPOSE_0_2ORG $CMP_2_SRV"
-export COMPOSE_2_2ORG="$COMPOSE_1_2ORG $CMP_2_ATH"
-export COMPOSE_3_2ORG="$COMPOSE_2_2ORG $CMP_2_UIA"
-export COMPOSE_4_2ORG="$COMPOSE_3_2ORG $CMP_2_GWY"
-export COMPOSE_5_2ORG="$COMPOSE_2_2ORG $CMP_2_GWY -f compose.2org.tester.yaml"
+export COMPOSE_1_S="$COMPOSE_1 $COMPOSE_0_S"
+export COMPOSE_1_S_A="$COMPOSE_1_S $CMP_1_ATH"
+export COMPOSE_1_S_A_U="$COMPOSE_1_S_A $CMP_1_UIA"
+export COMPOSE_1_S_A_U_G="$COMPOSE_1_S_A_U $CMP_1_GWY"
 
-export COMPOSE_1_3ORG="$COMPOSE_0_3ORG $CMP_3_SRV"
-export COMPOSE_2_3ORG="$COMPOSE_1_3ORG $CMP_3_ATH"
-export COMPOSE_3_3ORG="$COMPOSE_2_3ORG $CMP_3_UIA"
-export COMPOSE_4_3ORG="$COMPOSE_3_3ORG $CMP_3_GWY"
-export COMPOSE_5_3ORG="$COMPOSE_2_3ORG $CMP_3_GWY -f compose.3org.tester.yaml"
+export COMPOSE_2_S="$COMPOSE_2 $CMP_2_SRV"
+export COMPOSE_2_S_A="$COMPOSE_2_S $CMP_2_ATH"
+export COMPOSE_2_S_A_U="$COMPOSE_2_S_A $CMP_2_UIA"
+export COMPOSE_2_S_A_U_G="$COMPOSE_2_S_A_U $CMP_2_GWY"
+export COMPOSE_2_S_A_G="$COMPOSE_2_S_A $CMP_2_GWY"
+export COMPOSE_2_S_A_G_T="$COMPOSE_2_S_A_G -f compose.2org.tester.yaml"
 
-export COMPOSE_ALL="$COMPOSE_5_3ORG $CMP_1_UIA $CMP_2_UIA $CMP_3_UIA $CMP_NGX"
+export COMPOSE_3_S="$COMPOSE_3 $CMP_3_SRV"
+export COMPOSE_3_S_A="$COMPOSE_3_S $CMP_3_ATH"
+export COMPOSE_3_S_A_U="$COMPOSE_3_S_A $CMP_3_UIA"
+export COMPOSE_3_S_A_U_G="$COMPOSE_3_S_A_U $CMP_3_GWY"
+export COMPOSE_3_S_A_G="$COMPOSE_3_S_A $CMP_3_GWY"
+export COMPOSE_3_S_A_G_T="$COMPOSE_3_S_A_G -f compose.3org.tester.yaml"
+
+export COMPOSE_ALL="$COMPOSE_3_S_A_G_T $CMP_3_UIA $COMPOSE_3_NGX"
 
 # $1 - message to be printed
 # $2 - exit code of the previous operation

@@ -242,6 +242,7 @@ describe('Query Handler Tests', () => {
           _creator: 'admin-org1.net',
           _event: 'Increment,Decrement',
           _entityName: entityName,
+          _organization: ['Org1MSP'],
         });
       }));
 });

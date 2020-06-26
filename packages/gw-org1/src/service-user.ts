@@ -19,7 +19,6 @@ const reducer = getReducer<User, UserEvents>(userReducer);
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'user',
-    reducers: { user: reducer },
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
@@ -31,7 +30,7 @@ const reducer = getReducer<User, UserEvents>(userReducer);
         typeDefs: userTypeDefs,
         resolvers: userResolvers,
       })
-        .addRepository(getRepository<User, UserEvents>('user'))
+        .addRepository(getRepository<User, UserEvents>('user', reducer))
         .create();
 
       process.on('SIGINT', async () => await shutdown(app));

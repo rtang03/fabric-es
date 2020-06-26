@@ -26,6 +26,8 @@ export const entityIndex = [
   'ts',
   'NUMERIC',
   'SORTABLE',
+  'org',
+  'TAG',
 ];
 
 export const createEntityIndex: (option: {
@@ -39,6 +41,7 @@ export const createEntityIndex: (option: {
   desc?: string;
   tag?: string;
   event: string;
+  org: string;
 }) => any[] = ({
   documentId,
   redisKey,
@@ -50,6 +53,7 @@ export const createEntityIndex: (option: {
   desc,
   tag,
   event,
+  org,
 }) => {
   const result = [
     'eidx',
@@ -69,14 +73,16 @@ export const createEntityIndex: (option: {
     event,
   ];
 
-  created && result.push('created');
-  created && result.push(created);
-  ts && result.push('ts');
-  ts && result.push(ts);
   desc && result.push('desc');
   desc && result.push(desc);
   tag && result.push('tag');
   tag && result.push(tag);
+  created && result.push('created');
+  created && result.push(created);
+  ts && result.push('ts');
+  ts && result.push(ts);
+  org && result.push('org');
+  org && result.push(org);
 
   return result;
 };
@@ -88,6 +94,7 @@ export const fullTextSearchAddEntity = async <
     _created?: number;
     _ts?: number;
     _event?: string;
+    _organization?: string[];
     desc?: string;
     tag?: string;
   }
@@ -100,8 +107,9 @@ export const fullTextSearchAddEntity = async <
     (prev, curr) => (prev ? `${prev},${curr}` : curr),
     null
   );
+  const org = entity._organization.reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
 
-  const index = createEntityIndex({
+  const indexed = createEntityIndex({
     documentId: `eidx::${redisKey}`,
     entityName: redisKey.split('::')[0],
     redisKey,
@@ -112,6 +120,8 @@ export const fullTextSearchAddEntity = async <
     desc: entity?.desc,
     tag: entity?.tag,
     event: uniqueEvents,
+    org,
   });
-  return redis.send_command('FT.ADD', index);
+
+  return redis.send_command('FT.ADD', indexed);
 };

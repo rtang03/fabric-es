@@ -126,7 +126,7 @@ beforeAll(async () => {
     });
 
     modelApolloService = await config({ typeDefs, resolvers })
-      .addRepository(getRepository<Counter, CounterEvents>(entityName))
+      .addRepository(getRepository<Counter, CounterEvents>(entityName, reducer))
       .create();
 
     await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () =>
@@ -142,12 +142,13 @@ beforeAll(async () => {
       connectionProfile,
       fabricNetwork,
       introspection: false,
-      mspId,
       ordererName,
       ordererTlsCaCert,
       peerName,
       playground: false,
       walletPath,
+      orgName: 'org1',
+      orgUrl: `http://localhost:${MODEL_SERVICE_PORT}/graphql`,
     });
     adminApolloService = service.server;
 
@@ -310,7 +311,6 @@ describe('Gateway Test - admin service', () => {
       .then<unknown>((r) => r.json())
       .then((res) => {
         if (isLoginResponse(res)) {
-          console.log(res.access_token);
           adminAccessToken = res.access_token;
           return true;
         } else return false;
@@ -553,5 +553,5 @@ describe('Gateway Test - admin service', () => {
         expect(data?.getCounter).toEqual({ value: 1 });
         expect(errors).toBeUndefined();
       }));
-
 });
+
