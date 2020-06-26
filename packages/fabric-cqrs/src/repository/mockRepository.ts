@@ -45,7 +45,7 @@ export const getMockRepository = <TEntity, TEvent>(
           () =>
             resolve({
               status: 'OK',
-              data: { [`${entity.entityName}::${entity.id}`]: omit(entity, ['events']) },
+              data: omit(entity, ['events']),
             }),
           50
         )

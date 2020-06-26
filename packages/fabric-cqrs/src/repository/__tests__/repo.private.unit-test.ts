@@ -126,13 +126,11 @@ describe('Private Repository Test - Part 1', () => {
       .create({ enrollmentId, id })
       .save({ events })
       .then(({ data, status }) => {
-        const commit = values(data)[0];
         expect(status).toEqual('OK');
-        expect(isCommitRecord(data)).toBeTruthy();
-        expect(commit.id).toEqual(id);
-        expect(commit.entityName).toEqual(entityName);
-        expect(commit.version).toEqual(0);
-        commitId = commit.commitId;
+        expect(data.id).toEqual(id);
+        expect(data.entityName).toEqual(entityName);
+        expect(data.version).toEqual(0);
+        commitId = data.commitId;
       }));
 });
 
@@ -141,9 +139,8 @@ describe('Private Repository Test - Part 2', () => {
 
   it('should getByEntityName', async () =>
     repo.getCommitByEntityName().then(({ data, status }) => {
-      const commit = values(data)[0];
+      const commit = data[0];
       expect(status).toEqual('OK');
-      expect(isCommitRecord(data)).toBeTruthy();
       expect(commit.id).toEqual(id);
       expect(commit.entityName).toEqual(entityName);
       expect(commit.version).toEqual(0);
@@ -152,11 +149,9 @@ describe('Private Repository Test - Part 2', () => {
   it('should queryByEntityIdCommitId', async () =>
     repo.getCommitByEntityIdCommitId({ id, commitId }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      expect(isCommitRecord(data)).toBeTruthy();
-      const commit = values(data)[0];
-      expect(commit.id).toEqual(id);
-      expect(commit.entityName).toEqual(entityName);
-      expect(commit.version).toEqual(0);
+      expect(data[0].id).toEqual(id);
+      expect(data[0].entityName).toEqual(entityName);
+      expect(data[0].version).toEqual(0);
     }));
 
   it('should getById', async () => {
@@ -175,20 +170,18 @@ describe('Private Repository Test - Part 2', () => {
 
     return save({ events }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      const commit = values(data)[0];
-      expect(commit.id).toEqual(id);
-      expect(commit.entityName).toEqual(entityName);
-      expect(commit.version).toEqual(1);
+      expect(data.id).toEqual(id);
+      expect(data.entityName).toEqual(entityName);
+      expect(data.version).toEqual(1);
     });
   });
 
   it('should getByEntityName with 2 commits returned', async () =>
     repo.getCommitByEntityName().then(({ data, status }) => {
       expect(status).toEqual('OK');
-      expect(isCommitRecord(data)).toBeTruthy();
-      expect(keys(data).length).toEqual(2);
+      expect(data.length).toEqual(2);
       expect(
-        values(data).map((commit) => omit(commit, 'ts', 'events', 'hash', 'commitId', 'mspId'))
+        (data as any).map((commit) => omit(commit, 'ts', 'events', 'hash', 'commitId', 'mspId'))
       ).toEqual([
         { id, entityName, version: 0, entityId },
         { id, entityName, version: 1, entityId },

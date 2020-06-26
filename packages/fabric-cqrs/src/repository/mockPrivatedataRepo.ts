@@ -45,7 +45,7 @@ export const getPrivateMockRepository = <TEntity, TEvent>(
           () =>
             resolve({
               status: 'OK',
-              data: { [`${entity.entityName}::${entity.id}`]: omit(entity, ['events']) },
+              data: omit(entity, ['events']),
             }),
           50
         )
@@ -71,7 +71,7 @@ export const getPrivateMockRepository = <TEntity, TEvent>(
 
               return Promise.resolve({
                 status: 'OK',
-                data: { [`${entity.entityName}::${entity.id}`]: omit(entity, ['events']) },
+                data: omit(entity, ['events']),
               });
             },
           }),
@@ -81,10 +81,11 @@ export const getPrivateMockRepository = <TEntity, TEvent>(
   getCommitByEntityName: () =>
     new Promise((resolve) => {
       setTimeout(() => {
-        const data = {};
-        filter(values<Commit>(mockdb), (commit) => commit.entityName === entityName).forEach(
-          (commit) => (data[`${entityName}::${commit.id}::${commit.commitId}`] = commit)
-        );
+        const data = [];
+        filter(
+          values<Commit>(mockdb),
+          (commit) => commit.entityName === entityName
+        ).forEach((commit) => data.push(commit));
         resolve({ status: 'OK', data });
       }, 50);
     }),

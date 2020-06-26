@@ -163,7 +163,7 @@ describe('Query Handler Tests', () => {
           },
         ],
       })
-      .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
+      .then(({ data }) => expect(isCommit(data)).toBeTruthy()));
 
   it('should query_getCommitById', async () =>
     queryHandler
@@ -187,7 +187,7 @@ describe('Query Handler Tests', () => {
           },
         ],
       })
-      .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
+      .then(({ data }) => expect(isCommit(data)).toBeTruthy()));
 
   it('should FT.SEARCH by test* : return 2 commit', async () => {
     await new Promise((done) => setTimeout(() => done(), 3000));

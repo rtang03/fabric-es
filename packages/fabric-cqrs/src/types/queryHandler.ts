@@ -85,7 +85,7 @@ export interface QueryHandler {
   command_deleteByEntityId: (entityName: string) => RepoFcn_Id<FabricResponse>;
 
   // command-side: get commits by EntityName
-  command_getByEntityName: (entityName: string) => RepoFcn<Record<string, Commit>>;
+  command_getByEntityName: (entityName: string) => RepoFcn<Commit[]>;
 
   // query-side: delete commit by EntityId
   query_deleteCommitByEntityId: (entityName: string) => RepoFcn_Id<number>;

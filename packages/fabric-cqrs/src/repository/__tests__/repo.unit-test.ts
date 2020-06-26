@@ -191,13 +191,11 @@ describe('Repository Test', () => {
       .create({ enrollmentId, id })
       .save({ events })
       .then(({ data, status }) => {
-        const commit = values(data)[0];
         expect(status).toEqual('OK');
-        expect(isCommitRecord(data)).toBeTruthy();
-        expect(commit.id).toEqual(id);
-        expect(commit.entityName).toEqual(entityName);
-        expect(commit.version).toEqual(0);
-        commitId = commit.commitId;
+        expect(data.id).toEqual(id);
+        expect(data.entityName).toEqual(entityName);
+        expect(data.version).toEqual(0);
+        commitId = data.commitId;
       });
 
     return waitForSecond(10);
@@ -206,10 +204,9 @@ describe('Repository Test', () => {
   it('should verify result by command_getByEntityIdCommitId', async () =>
     repo.command_getByEntityIdCommitId({ id, commitId }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      expect(isCommitRecord(data)).toBeTruthy();
-      expect(values(data)[0].entityName).toEqual(entityName);
-      expect(values(data)[0].id).toEqual(id);
-      expect(values(data)[0].version).toEqual(0);
+      expect(data[0].entityName).toEqual(entityName);
+      expect(data[0].id).toEqual(id);
+      expect(data[0].version).toEqual(0);
     }));
 
   it('should query_getByEntityName', async () =>
@@ -254,12 +251,10 @@ describe('Repository Test', () => {
         },
       ],
     }).then(({ status, data }) => {
-      const commit = values(data)[0];
       expect(status).toEqual('OK');
-      expect(isCommitRecord(data)).toBeTruthy();
-      expect(commit.id).toEqual(id);
-      expect(commit.entityName).toEqual(entityName);
-      expect(commit.version).toEqual(1);
+      expect(data.id).toEqual(id);
+      expect(data.entityName).toEqual(entityName);
+      expect(data.version).toEqual(1);
     });
   });
 });

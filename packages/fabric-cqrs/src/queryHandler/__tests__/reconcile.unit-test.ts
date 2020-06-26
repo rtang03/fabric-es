@@ -7,9 +7,9 @@ import values from 'lodash/values';
 import rimraf from 'rimraf';
 import { commitIndex, createQueryDatabase, createQueryHandler, entityIndex } from '..';
 import { getNetwork } from '../../services';
-import type { Commit, QueryHandler } from '../../types';
+import type { QueryHandler } from '../../types';
 import { reducer, CounterEvent, Counter } from '../../unit-test-reducer';
-import { isCommitRecord } from '../../utils';
+import { isCommit } from '../../utils';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -159,7 +159,7 @@ describe('Reconcile Tests', () => {
           },
         ],
       })
-      .then(({ data }) => omit(values<Commit>(data)[0], 'commitId', 'entityId', 'mspId'))
+      .then(({ data }) => omit(data, 'commitId', 'entityId', 'mspId'))
       .then((commit) => expect(commit).toEqual({ id, entityName, version: 0 })));
 
   it('should command_getByEntityName', async () =>
@@ -172,7 +172,6 @@ describe('Reconcile Tests', () => {
         expect(commit.version).toEqual(0);
         expect(status).toEqual('OK');
         expect(error).toBeUndefined();
-        expect(isCommitRecord(data)).toBeTruthy();
       }));
 
   it('should fail to reconcile non-existing entityName', async () =>
@@ -226,11 +225,9 @@ describe('Reconcile Tests', () => {
         },
       ],
     });
-    const commit = Object.values(data)[0];
-    expect(isCommitRecord(data)).toBeTruthy();
-    expect(commit.id).toEqual(id);
-    expect(commit.entityName).toEqual(entityName);
-    expect(commit.version).toEqual(1);
+    expect(data.id).toEqual(id);
+    expect(data.entityName).toEqual(entityName);
+    expect(data.version).toEqual(1);
   });
 
   it('should reconcile', async () =>
@@ -282,7 +279,7 @@ describe('Reconcile Tests', () => {
           },
         ],
       })
-      .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
+      .then(({ data }) => expect(isCommit(data)).toBeTruthy()));
 
   it('should reconcile', async () =>
     queryHandler

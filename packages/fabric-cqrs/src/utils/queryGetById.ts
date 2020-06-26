@@ -73,7 +73,7 @@ export const queryGetById: <TEntity, TEvent>(
 
   const save = !data
     ? null
-    : dispatcher<Record<string, Commit>, { events: TEvent[] }>(
+    : dispatcher<Commit, { events: TEvent[] }>(
         ({ tx_id, args: { events } }) =>
           commandAction.create({
             channelName,
@@ -97,7 +97,8 @@ export const queryGetById: <TEntity, TEvent>(
           ErrorAction: commandAction.CREATE_ERROR,
           logger,
           typeGuard: isCommitRecord,
-        }
+        },
+        (result: Record<string, Commit>) => Object.values<Commit>(result)[0]
       );
   return { currentState, save };
 };
