@@ -31,8 +31,8 @@ export const doPaginatedSearch: <
   const paginated = await fcn(entityName, id, option)(criteria);
 
   return total.status !== 'OK'
-    ? { error: total.error, message: total.message }
+    ? { status: 'ERROR', error: total.error, message: total.message }
     : paginated.status !== 'OK'
-    ? { error: paginated.error, message: paginated.message }
-    : { data: getPaginated<TResult>(paginated.data, total.data, criteria.cursor) };
+    ? { status: 'ERROR', error: paginated.error, message: paginated.message }
+    : { status: 'OK', data: getPaginated<TResult>(paginated.data, total.data, criteria.cursor) };
 };

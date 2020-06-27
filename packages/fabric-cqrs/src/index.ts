@@ -13,7 +13,7 @@ export {
   evaluate$,
 } from './services';
 export * from './types';
-export { isCommit, getHistory } from './utils';
+export { isCommit, getHistory, getPaginated } from './utils';
 export { commitIndex, entityIndex, createQueryDatabase, createQueryHandler } from './queryHandler';
 export {
   createRepository,

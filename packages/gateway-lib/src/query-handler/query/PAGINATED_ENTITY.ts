@@ -1,6 +1,6 @@
 // prettier-ignore
-export const PAGINATED_META_ENTITY = `
-  query PaginatedMetaEntity (
+export const PAGINATED_ENTITY = `
+  query PaginatedEntity (
     $creator: String
     $cursor: Int
     $pagesize: Int
@@ -12,7 +12,7 @@ export const PAGINATED_META_ENTITY = `
     $startTime: Int
     $endTime: Int
   ) {
-    paginatedMetaEntity (
+    paginatedEntity (
       creator: $creator
       cursor: $cursor
       pagesize: $pagesize

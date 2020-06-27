@@ -9,6 +9,7 @@ import type {
   Commit,
   FabricResponse,
   Reducer,
+  Paginated, QueryHandlerEntity
 } from '.';
 
 export interface QueryHandlerOptions {
@@ -94,22 +95,31 @@ export interface QueryHandler {
   // query-side: delete commt by EntityName
   query_deleteCommitByEntityName: (entityName: string) => RepoFcn<number>;
 
-  // meta-data is embeded in query result
-  meta_getEntityByEntNameEntId: <TResult>(
-    entiyName: string,
+  getPaginatedEntityById: <TResult>(
+    entiyName: string
+  ) => (
+    criteria: PaginatedEntityCriteria,
     id?: string
-  ) => (payload: PaginatedEntityCriteria) => Promise<HandlerResponse>;
-  meta_getCommitByEntNameEntId: (
-    entiyName: string,
-    id?: string
-  ) => (payload: PaginatedCommitCriteria) => Promise<HandlerResponse>;
+  ) => Promise<HandlerResponse<Paginated<TResult>>>;
 
-  fullTextSearchCommit: () => (payload: {
-    query: (string | number)[];
-  }) => Promise<HandlerResponse<Commit[] | number>>;
-  fullTextSearchEntity: <TEntity = any>() => (payload: {
-    query: (string | number)[];
-  }) => Promise<HandlerResponse<TEntity[] | number>>;
+  getPaginatedCommitById: (
+    entiyName: string
+  ) => (
+    criteria: PaginatedCommitCriteria,
+    id?: string
+  ) => Promise<HandlerResponse<Paginated<Commit>>>;
+
+  fullTextSearchCommit: (
+    query: string[],
+    cursor: number,
+    pagesize: number
+  ) => Promise<HandlerResponse<Paginated<Commit>>>;
+
+  fullTextSearchEntity: (
+    query: string[],
+    cursor: number,
+    pagesize: number
+  ) => Promise<HandlerResponse<Paginated<QueryHandlerEntity>>>;
 
   /**
    * Used by bootstraping programs

@@ -2,13 +2,15 @@ import util from 'util';
 import { Contract, ContractListener, Network } from 'fabric-network';
 import { getStore } from '../store';
 import { action as projAction } from '../store/projection';
-import { action as queryAction } from '../store/query';
 import { action as reconcileAction } from '../store/reconcile';
 import type {
   Commit,
+  PaginatedCommitCriteria,
+  PaginatedEntityCriteria,
   PubSubPayload,
   PubSubSysEvent,
   QueryHandler,
+  QueryHandlerEntity,
   QueryHandlerOptions,
 } from '../types';
 import {
@@ -18,14 +20,15 @@ import {
   dispatcher,
   getLogger,
   isCommit,
-  isCommitRecord,
   queryDeleteCommitByEntityId,
   queryDeleteCommitByEntityName,
   queryGetEntityByEntityName,
   queryGetById,
   queryGetCommitByEntityId,
-  metaGetEntityByEntNameEntId,
-  metaGetCommitByEntNameEntId,
+  doPaginatedSearch,
+  queryGetPaginatedEntityById,
+  queryGetPaginatedCommitById,
+  doPaginatedFullTextSearch,
 } from '../utils';
 
 export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler = (options) => {
@@ -71,45 +74,20 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
       queryDeleteCommitByEntityId(entityName, queryOption),
     query_deleteCommitByEntityName: (entityName) =>
       queryDeleteCommitByEntityName(entityName, queryOption),
-    meta_getEntityByEntNameEntId: (entityName, id) =>
-      metaGetEntityByEntNameEntId(entityName, id, queryOption),
-    meta_getCommitByEntNameEntId: (entityName, id) =>
-      metaGetCommitByEntNameEntId(entityName, id, queryOption),
-    fullTextSearchCommit: () =>
-      dispatcher<Commit[] | number, { query: string[] }>(
-        ({ tx_id, args }) =>
-          queryAction.cIdxSearch({
-            tx_id,
-            // args.query[5] is cursor; args.query(6) is pagesize
-            args: { ...args, countTotalOnly: args?.query[5] === 0 && args?.query[6] === 0 },
-          }),
-        {
-          name: 'cIdxSearch',
-          store,
-          slice: 'query',
-          SuccessAction: queryAction.SEARCH_SUCCESS,
-          ErrorAction: queryAction.SEARCH_ERROR,
-          logger,
-          typeGuard: isCommitRecord,
-        }
+    getPaginatedEntityById: <TResult>(entityName) =>
+      doPaginatedSearch<TResult, PaginatedEntityCriteria>(
+        entityName,
+        queryGetPaginatedEntityById,
+        queryOption
       ),
-    fullTextSearchEntity: <TEntity>() =>
-      dispatcher<TEntity[] | number, { query: string[] }>(
-        ({ tx_id, args }) =>
-          queryAction.eIdxSearch({
-            tx_id,
-            // args.query[5] is cursor; args.query(6) is pagesize
-            args: { ...args, countTotalOnly: args?.query[5] === 0 && args?.query[6] === 0 },
-          }),
-        {
-          name: 'eIdxSearch',
-          store,
-          slice: 'query',
-          SuccessAction: queryAction.SEARCH_SUCCESS,
-          ErrorAction: queryAction.SEARCH_ERROR,
-          logger,
-        }
+    getPaginatedCommitById: (entityName) =>
+      doPaginatedSearch<Commit, PaginatedCommitCriteria>(
+        entityName,
+        queryGetPaginatedCommitById,
+        queryOption
       ),
+    fullTextSearchCommit: doPaginatedFullTextSearch<Commit>('cidx', queryOption),
+    fullTextSearchEntity: doPaginatedFullTextSearch<QueryHandlerEntity>('eidx', queryOption),
     reconcile: () =>
       dispatcher<{ key: string; status: string }[], { entityName: string }>(
         ({ tx_id, args }) =>

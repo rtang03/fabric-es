@@ -30,7 +30,7 @@ export const typeDefs = gql`
     me: String
     fullTextSearchCommit(query: String, cursor: Int, pagesize: Int): PaginatedCommit
     fullTextSearchEntity(query: String, cursor: Int, pagesize: Int): PaginatedEntity
-    paginatedMetaEntity(
+    paginatedEntity(
       creator: String
       cursor: Int
       pagesize: Int
@@ -65,7 +65,7 @@ export const typeDefs = gql`
     total: Int
     cursor: Int
     hasMore: Boolean!
-    items: [MetaEntity]
+    items: [QueryHandlerEntity]
   }
 
   type PaginatedCommit {
@@ -75,7 +75,7 @@ export const typeDefs = gql`
     items: [Commit]
   }
 
-  type MetaEntity {
+  type QueryHandlerEntity {
     id: String!
     entityName: String!
     value: String!

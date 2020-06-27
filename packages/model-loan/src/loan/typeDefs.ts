@@ -1,5 +1,5 @@
-import { Commit } from '@fabric-es/fabric-cqrs';
-import { catchErrors, getLogger, Paginated } from '@fabric-es/gateway-lib';
+import { Commit, Paginated } from '@fabric-es/fabric-cqrs';
+import { catchErrors, getLogger } from '@fabric-es/gateway-lib';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { Loan, loanCommandHandler, LoanDS } from '.';
@@ -47,7 +47,7 @@ export const typeDefs = gql`
   }
 
   type PaginatedLoans {
-    entities: [Loan!]!
+    items: [Loan!]!
     total: Int!
     hasMore: Boolean!
   }
@@ -97,7 +97,7 @@ export const resolvers = {
         loan.repo.getByEntityName().then(
           ({ data }: { data: any[] }) =>
             ({
-              entities: data || [],
+              items: data || [],
               total: data.length,
               hasMore: data.length > pageSize,
             } as Paginated<Loan>)

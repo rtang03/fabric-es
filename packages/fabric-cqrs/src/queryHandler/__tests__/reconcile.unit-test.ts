@@ -9,7 +9,7 @@ import { commitIndex, createQueryDatabase, createQueryHandler, entityIndex } fro
 import { getNetwork } from '../../services';
 import type { QueryHandler } from '../../types';
 import { reducer, CounterEvent, Counter } from '../../unit-test-reducer';
-import { isCommit } from '../../utils';
+import { isCommit, waitForSecond } from '../../utils';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -121,7 +121,7 @@ beforeAll(async () => {
       .then((result) => console.log(`eidx is created: ${result}`))
       .catch((result) => console.log(`eidx is not created: ${result}`));
 
-    return new Promise((done) => setTimeout(() => done(), 4000));
+    return waitForSecond(4);
   } catch (e) {
     console.error(e);
     process.exit(1);
@@ -144,7 +144,7 @@ afterAll(async () => {
     .then(({ data }) => console.log(`${data} records deleted`))
     .catch((error) => console.log(error));
 
-  return new Promise((done) => setTimeout(() => done(), 5000));
+  return waitForSecond(5);
 });
 
 describe('Reconcile Tests', () => {

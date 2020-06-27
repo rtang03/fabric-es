@@ -63,7 +63,7 @@ export const loanDetailsCommandHandler: (option: {
     return loanDetailsRepo
       .create({ enrollmentId, id: loanId })
       .save({ events })
-      .then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      .then(({ data }) => data);
   },
   DefineLoanRequester: async (_) => {
     throw Errors.invalidOperation(); // Readonly field
@@ -86,7 +86,7 @@ export const loanDetailsCommandHandler: (option: {
 
       return save({
         events: [{ type: 'LoanContactDefined', payload: Object.assign(payload, contact) }],
-      }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      }).then(({ data }) => data);
     }),
   DefineLoanType: async ({ userId, payload: { loanId, loanType, timestamp } }) =>
     loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
@@ -94,7 +94,7 @@ export const loanDetailsCommandHandler: (option: {
 
       return save({
         events: [{ type: 'LoanTypeDefined', payload: { loanId, userId, loanType, timestamp } }],
-      }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      }).then(({ data }) => data);
     }),
   DefineLoanStartDate: async ({ userId, payload: { loanId, startDate, timestamp } }) => {
     // loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
@@ -112,7 +112,7 @@ export const loanDetailsCommandHandler: (option: {
 
       return save({
         events: [{ type: 'LoanTenorDefined', payload: { loanId, userId, tenor, timestamp } }],
-      }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      }).then(({ data }) => data);
     }),
   DefineLoanCurrency: async ({ userId, payload: { loanId, currency, timestamp } }) =>
     loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
@@ -121,7 +121,7 @@ export const loanDetailsCommandHandler: (option: {
 
       return save({
         events: [{ type: 'LoanCurrencyDefined', payload: { loanId, userId, currency, timestamp } }],
-      }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      }).then(({ data }) => data);
     }),
   DefineLoanRequestedAmt: async ({ userId, payload: { loanId, requestedAmt, timestamp } }) =>
     loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
@@ -132,7 +132,7 @@ export const loanDetailsCommandHandler: (option: {
         events: [
           { type: 'LoanRequestedAmtDefined', payload: { loanId, userId, requestedAmt, timestamp } },
         ],
-      }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      }).then(({ data }) => data);
     }),
   DefineLoanApprovedAmt: async ({ userId, payload: { loanId, approvedAmt, timestamp } }) =>
     loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
@@ -142,7 +142,7 @@ export const loanDetailsCommandHandler: (option: {
         events: [
           { type: 'LoanApprovedAmtDefined', payload: { loanId, userId, approvedAmt, timestamp } },
         ],
-      }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      }).then(({ data }) => data);
     }),
   DefineLoanDtlComment: async ({ userId, payload: { loanId, comment, timestamp } }) =>
     loanDetailsRepo.getById({ enrollmentId, id: loanId }).then(({ currentState, save }) => {
@@ -152,6 +152,6 @@ export const loanDetailsCommandHandler: (option: {
         events: [
           { type: 'LoanDtlCommentDefined', payload: { loanId, userId, comment, timestamp } },
         ],
-      }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      }).then(({ data }) => data);
     }),
 });

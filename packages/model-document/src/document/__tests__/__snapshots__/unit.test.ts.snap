@@ -2,7 +2,8 @@
 
 exports[`Document Unit Test - Resolver query documents by page 1`] = `
 Object {
-  "entities": Array [
+  "hasMore": false,
+  "items": Array [
     Object {
       "documentId": "D0000",
       "loanId": "L0001",
@@ -52,7 +53,6 @@ Object {
       "title": "Unit test document 5 EDITED",
     },
   ],
-  "hasMore": false,
   "total": 6,
 }
 `;
