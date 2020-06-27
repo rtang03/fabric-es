@@ -2,7 +2,7 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { tokenizeTextField } from '../queryHandler';
 import { action } from '../store/query';
-import type { HandlerResponse, QHMetaGetEntityPayload } from '../types';
+import type { HandlerResponse, PaginatedEntityCriteria } from '../types';
 import { dispatcher } from './dispatcher';
 
 /**
@@ -17,7 +17,7 @@ export const metaGetEntityByEntNameEntId: <TEntity>(
   entityName: string,
   id: string,
   option: { logger: Logger; store: Store }
-) => (payload: QHMetaGetEntityPayload) => Promise<HandlerResponse<TEntity[] | number>> = <TEntity>(
+) => (payload: PaginatedEntityCriteria) => Promise<HandlerResponse<TEntity[] | number>> = <TEntity>(
   entityName,
   id,
   { logger, store }
@@ -47,7 +47,7 @@ export const metaGetEntityByEntNameEntId: <TEntity>(
     return q;
   };
 
-  return dispatcher<TEntity[] | number, QHMetaGetEntityPayload>(
+  return dispatcher<TEntity[] | number, PaginatedEntityCriteria>(
     ({
       tx_id,
       args: {

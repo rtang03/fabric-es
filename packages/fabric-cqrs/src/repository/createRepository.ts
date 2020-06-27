@@ -1,5 +1,14 @@
 import { getStore } from '../store';
-import { Reducer, Repository, RepoOption, BaseEntity, BaseEvent } from '../types';
+import {
+  Reducer,
+  Repository,
+  RepoOption,
+  BaseEntity,
+  BaseEvent,
+  Commit,
+  PaginatedEntityCriteria,
+  PaginatedCommitCriteria,
+} from '../types';
 import {
   getLogger,
   commandCreate,
@@ -12,9 +21,9 @@ import {
   queryGetById,
   commandGetByEntityIdCommitId,
   queryFind,
-  metaGetEntityByEntNameEntId,
-  getPaginated,
   queryGetPaginatedEntityById,
+  queryGetPaginatedCommitById,
+  doPaginatedSearch,
 } from '../utils';
 
 export const createRepository: <TEntity extends BaseEntity, TEvent extends BaseEvent>(
@@ -51,28 +60,16 @@ export const createRepository: <TEntity extends BaseEntity, TEvent extends BaseE
     query_deleteCommitByEntityId: queryDeleteCommitByEntityId(entityName, queryOption),
     query_deleteCommitByEntityName: queryDeleteCommitByEntityName(entityName, queryOption),
     find: queryFind<TEntity>(entityName, queryOption),
-    getPaginatedEntityById: async (criteria, id) => {
-      !criteria.cursor && (criteria.cursor = 0);
-      !criteria.pagesize && (criteria.pagesize = 10);
-
-      const total = await queryGetPaginatedEntityById<number>(
-        entityName,
-        id,
-        queryOption
-      )({ ...criteria, cursor: 0, pagesize: 0 });
-
-      const paginated = await queryGetPaginatedEntityById<TEntity[]>(
-        entityName,
-        id,
-        queryOption
-      )(criteria);
-
-      return total.status !== 'OK'
-        ? { error: total.error, message: total.message }
-        : paginated.status !== 'OK'
-        ? { error: paginated.error, message: paginated.message }
-        : { data: getPaginated<TEntity>(paginated.data, total.data, criteria.cursor) };
-    },
+    getPaginatedEntityById: doPaginatedSearch<TEntity, PaginatedEntityCriteria>(
+      entityName,
+      queryGetPaginatedEntityById,
+      queryOption
+    ),
+    getPaginatedCommitById: doPaginatedSearch<Commit, PaginatedCommitCriteria>(
+      entityName,
+      queryGetPaginatedCommitById,
+      queryOption
+    ),
     getEntityName: () => entityName,
     disconnect: () => gateway.disconnect(),
   };

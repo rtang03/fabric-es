@@ -35,7 +35,7 @@ export interface HandlerResponse<TData = any> {
   error?: any;
   status?: string;
 }
-export interface QHMetaGetCommitPayload {
+export interface PaginatedCommitCriteria {
   events?: string[];
   startTime?: number;
   endTime?: number;
@@ -46,7 +46,7 @@ export interface QHMetaGetCommitPayload {
   sort?: 'ASC' | 'DESC';
 }
 
-export interface QHMetaGetEntityPayload {
+export interface PaginatedEntityCriteria {
   organization?: string;
   scope?: 'LAST_MODIFIED' | 'CREATED';
   startTime?: number;
@@ -98,11 +98,11 @@ export interface QueryHandler {
   meta_getEntityByEntNameEntId: <TResult>(
     entiyName: string,
     id?: string
-  ) => (payload: QHMetaGetEntityPayload) => Promise<HandlerResponse>;
+  ) => (payload: PaginatedEntityCriteria) => Promise<HandlerResponse>;
   meta_getCommitByEntNameEntId: (
     entiyName: string,
     id?: string
-  ) => (payload: QHMetaGetCommitPayload) => Promise<HandlerResponse>;
+  ) => (payload: PaginatedCommitCriteria) => Promise<HandlerResponse>;
 
   fullTextSearchCommit: () => (payload: {
     query: (string | number)[];

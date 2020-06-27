@@ -2,7 +2,7 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { tokenizeTextField } from '../queryHandler';
 import { action } from '../store/query';
-import type { Commit, HandlerResponse, QHMetaGetCommitPayload } from '../types';
+import type { Commit, HandlerResponse, PaginatedCommitCriteria } from '../types';
 import { dispatcher } from './dispatcher';
 
 /**
@@ -17,7 +17,7 @@ export const metaGetCommitByEntNameEntId: (
   entityName: string,
   id: string,
   option: { logger: Logger; store: Store }
-) => (payload: QHMetaGetCommitPayload) => Promise<HandlerResponse<Commit[] | number>> = (
+) => (payload: PaginatedCommitCriteria) => Promise<HandlerResponse<Commit[] | number>> = (
   entityName,
   id,
   { logger, store }
@@ -44,7 +44,7 @@ export const metaGetCommitByEntNameEntId: (
     return q;
   };
 
-  return dispatcher<Commit[] | number, QHMetaGetCommitPayload>(
+  return dispatcher<Commit[] | number, PaginatedCommitCriteria>(
     ({
       tx_id,
       args: { startTime, endTime, events, creator, cursor, pagesize, sortByField, sort },

@@ -2,7 +2,7 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { tokenizeTextField } from '../queryHandler';
 import { action } from '../store/query';
-import type { HandlerResponse, PaginatedEntityCriteria } from '../types';
+import type { HandlerResponse, PaginatedCommitCriteria } from '../types';
 import { dispatcher } from './dispatcher';
 
 /**
@@ -13,11 +13,11 @@ import { dispatcher } from './dispatcher';
  * @param logger
  * @param store
  */
-export const queryGetPaginatedEntityById: <TResult>(
+export const queryGetPaginatedCommitById: <TResult>(
   entityName: string,
   id: string,
   option: { logger: Logger; store: Store }
-) => (payload: PaginatedEntityCriteria) => Promise<HandlerResponse<TResult>> = <TResult>(
+) => (payload: PaginatedCommitCriteria) => Promise<HandlerResponse<TResult>> = <TResult>(
   entityName,
   id,
   { logger, store }
@@ -26,47 +26,34 @@ export const queryGetPaginatedEntityById: <TResult>(
   const getRangedQuery = (
     startTime: number,
     endTime: number,
-    scope,
-    creator: string,
-    org: string
+    events: string[],
+    creator: string
   ) => {
+    const eventsString = events
+      ? events.reduce((prev, curr) => (prev ? `${prev}|${curr}` : curr), null)
+      : null;
+
     let q = query;
 
-    startTime >= 0 &&
-      scope === 'LAST_MODIFIED' &&
-      (q = `${q} @ts:[${startTime} ${endTime || 'inf'}]`);
+    startTime >= 0 && (q = `${q} @ts:[${startTime} ${endTime || 'inf'}]`);
 
-    startTime >= 0 &&
-      scope === 'CREATED' &&
-      (q = `${q} @created:[${startTime} ${endTime || 'inf'}]`);
+    eventsString && (q = `${q} @event:{${eventsString}}`);
 
     creator && (q = `${q} @creator:${tokenizeTextField(creator)}`);
-
-    org && (q = `${q} @org:{${org}}`);
 
     return q;
   };
 
-  return dispatcher<TResult, PaginatedEntityCriteria>(
+  return dispatcher<TResult, PaginatedCommitCriteria>(
     ({
       tx_id,
-      args: {
-        startTime,
-        endTime,
-        scope,
-        creator,
-        cursor,
-        pagesize,
-        sortByField,
-        sort,
-        organization,
-      },
+      args: { startTime, endTime, events, creator, cursor, pagesize, sortByField, sort },
     }) =>
-      action.eIdxSearch({
+      action.cIdxSearch({
         tx_id,
         args: {
           query: [
-            getRangedQuery(startTime, endTime, scope, creator, organization),
+            getRangedQuery(startTime, endTime, events, creator),
             'SORTBY',
             sortByField || 'id',
             sort || 'ASC',
@@ -78,7 +65,7 @@ export const queryGetPaginatedEntityById: <TResult>(
         },
       }),
     {
-      name: 'queryGetPaginatedEntityById',
+      name: 'queryGetPaginatedCommitById',
       store,
       slice: 'query',
       SuccessAction: action.SEARCH_SUCCESS,

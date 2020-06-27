@@ -1,8 +1,8 @@
 import { BaseEntity } from './commit';
 
-export type Paginated<Entity extends BaseEntity> = {
+export type Paginated<TResult = any> = {
   total: number;
-  entities: Entity[];
+  items: TResult[];
   hasMore: boolean;
   cursor: number;
 };

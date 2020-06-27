@@ -176,7 +176,7 @@ afterAll(async () => {
   repo.disconnect();
 
   queryHandler.unsubscribeHub();
-  return waitForSecond(3);
+  return waitForSecond(2);
 });
 
 describe('Repository Test', () => {
@@ -264,8 +264,8 @@ describe('Repository Test', () => {
 });
 
 describe('Verify Result', () => {
-  beforeAll(async () => waitForSecond(7));
-  beforeEach(async () => waitForSecond(2));
+  beforeAll(async () => waitForSecond(8));
+  beforeEach(async () => waitForSecond(1));
 
   it('should verify result by getById, after #2 commit', async () =>
     repo.getById({ enrollmentId, id }).then(({ currentState: { value, desc } }) => {
@@ -370,8 +370,9 @@ describe('Verify Result', () => {
     }));
 });
 
-describe('Paginated entity Tests', () => {
+describe('Paginated entity and commit Tests', () => {
   beforeAll(async () => {
+    await waitForSecond(2);
     for await (const i of [1, 2, 3, 4, 5]) {
       timestampesOnCreate.push(Math.floor(Date.now() / 1000));
 
@@ -389,66 +390,125 @@ describe('Paginated entity Tests', () => {
       });
       await waitForSecond(3);
     }
-    await waitForSecond(4);
   });
+
+  it('should getPaginatedCommitById: cursor=0 pagesize=2', async () =>
+    repo
+      .getPaginatedCommitById({ cursor: 0, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(2);
+        expect(hasMore).toBeTruthy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_01', 'repo_pag_test_02']);
+      }));
+
+  it('should getPaginatedCommitById: cursor=1 pagesize=2', async () =>
+    repo
+      .getPaginatedCommitById({ cursor: 1, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(3);
+        expect(hasMore).toBeTruthy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_02', 'repo_pag_test_03']);
+      }));
+
+  it('should getPaginatedCommitById: cursor=2 pagesize=2', async () =>
+    repo
+      .getPaginatedCommitById({ cursor: 2, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(4);
+        expect(hasMore).toBeTruthy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_03', 'repo_pag_test_04']);
+      }));
+
+  it('should getPaginatedCommitById: cursor=3 pagesize=2', async () =>
+    repo
+      .getPaginatedCommitById({ cursor: 3, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(5);
+        expect(hasMore).toBeFalsy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_04', 'repo_pag_test_05']);
+      }));
+
+  it('should getPaginatedCommitById: cursor=4 pagesize=2', async () =>
+    repo
+      .getPaginatedCommitById({ cursor: 4, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(5);
+        expect(hasMore).toBeFalsy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_05']);
+      }));
+
+  it('should getPaginatedCommitById: cursor=5 pagesize=2', async () =>
+    repo
+      .getPaginatedCommitById({ cursor: 5, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toBeNull();
+        expect(hasMore).toBeFalsy();
+        expect(items.map(({ id }) => id)).toEqual([]);
+      }));
 
   it('should getPaginatedEntityById: cursor=0 pagesize=2', async () =>
     repo
       .getPaginatedEntityById({ cursor: 0, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, entities } }) => {
+      .then(({ data: { total, hasMore, cursor, items } }) => {
         expect(total).toEqual(5);
         expect(cursor).toEqual(2);
         expect(hasMore).toBeTruthy();
-        expect(entities.map(({ id }) => id)).toEqual(['repo_pag_test_01', 'repo_pag_test_02']);
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_01', 'repo_pag_test_02']);
       }));
 
   it('should getPaginatedEntityById: cursor=1 pagesize=2', async () =>
     repo
       .getPaginatedEntityById({ cursor: 1, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, entities } }) => {
+      .then(({ data: { total, hasMore, cursor, items } }) => {
         expect(total).toEqual(5);
         expect(cursor).toEqual(3);
         expect(hasMore).toBeTruthy();
-        expect(entities.map(({ id }) => id)).toEqual(['repo_pag_test_02', 'repo_pag_test_03']);
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_02', 'repo_pag_test_03']);
       }));
 
   it('should getPaginatedEntityById: cursor=2 pagesize=2', async () =>
     repo
       .getPaginatedEntityById({ cursor: 2, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, entities } }) => {
+      .then(({ data: { total, hasMore, cursor, items } }) => {
         expect(total).toEqual(5);
         expect(cursor).toEqual(4);
         expect(hasMore).toBeTruthy();
-        expect(entities.map(({ id }) => id)).toEqual(['repo_pag_test_03', 'repo_pag_test_04']);
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_03', 'repo_pag_test_04']);
       }));
 
   it('should getPaginatedEntityById: cursor=3 pagesize=2', async () =>
     repo
       .getPaginatedEntityById({ cursor: 3, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, entities } }) => {
+      .then(({ data: { total, hasMore, cursor, items } }) => {
         expect(total).toEqual(5);
         expect(cursor).toEqual(5);
         expect(hasMore).toBeFalsy();
-        expect(entities.map(({ id }) => id)).toEqual(['repo_pag_test_04', 'repo_pag_test_05']);
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_04', 'repo_pag_test_05']);
       }));
 
   it('should getPaginatedEntityById: cursor=4 pagesize=2', async () =>
     repo
       .getPaginatedEntityById({ cursor: 4, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, entities } }) => {
+      .then(({ data: { total, hasMore, cursor, items } }) => {
         expect(total).toEqual(5);
         expect(cursor).toEqual(5);
         expect(hasMore).toBeFalsy();
-        expect(entities.map(({ id }) => id)).toEqual(['repo_pag_test_05']);
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_05']);
       }));
 
   it('should getPaginatedEntityById: cursor=5 pagesize=2', async () =>
     repo
       .getPaginatedEntityById({ cursor: 5, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, entities } }) => {
+      .then(({ data: { total, hasMore, cursor, items } }) => {
         expect(total).toEqual(5);
         expect(cursor).toBeNull();
         expect(hasMore).toBeFalsy();
-        expect(entities.map(({ id }) => id)).toEqual([]);
+        expect(items.map(({ id }) => id)).toEqual([]);
       }));
 });

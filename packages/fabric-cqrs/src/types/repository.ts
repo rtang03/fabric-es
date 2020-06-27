@@ -1,6 +1,14 @@
 import { Gateway, Network, Wallet } from 'fabric-network';
 import type { Logger } from 'winston';
-import type { Commit, FabricResponse, HandlerResponse, Paginated, QueryDatabase } from '.';
+import type {
+  Commit,
+  FabricResponse,
+  HandlerResponse,
+  Paginated,
+  PaginatedCommitCriteria,
+  PaginatedEntityCriteria,
+  QueryDatabase,
+} from '.';
 
 export interface RepoOption {
   connectionProfile: string;
@@ -34,18 +42,6 @@ export type RepoFcn_IdCommitId<TResponse> = (payload: {
   commitId: string;
 }) => Promise<HandlerResponse<TResponse>>;
 
-export interface GetPagEntityCriteria {
-  organization?: string;
-  scope?: 'LAST_MODIFIED' | 'CREATED';
-  startTime?: number;
-  endTime?: number;
-  creator?: string;
-  cursor: number;
-  pagesize: number;
-  sortByField?: 'id' | 'key' | 'created' | 'creator' | 'ts';
-  sort?: 'ASC' | 'DESC';
-}
-
 export interface Repository<TEntity = any, TEvent = any> {
   create: (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
   command_deleteByEntityId: RepoFcn_Id<FabricResponse>;
@@ -70,9 +66,13 @@ export interface Repository<TEntity = any, TEvent = any> {
   getEntityName: () => string;
   disconnect: () => void;
   getPaginatedEntityById: (
-    criteria: GetPagEntityCriteria,
+    criteria: PaginatedEntityCriteria,
     id?: string
   ) => Promise<HandlerResponse<Paginated<TEntity>>>;
+  getPaginatedCommitById: (
+    criteria: PaginatedCommitCriteria,
+    id?: string
+  ) => Promise<HandlerResponse<Paginated<Commit>>>;
 }
 
 export interface PrivateRepository<TEntity = any, TEvent = any> {
