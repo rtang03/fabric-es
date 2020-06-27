@@ -1,5 +1,5 @@
-import { BaseEvent } from '../types';
 import assign from 'lodash/assign';
+import { BaseEvent } from '../types';
 
 export const replaceTag: (events: BaseEvent[]) => BaseEvent[] = (events) =>
   events.map((event) =>

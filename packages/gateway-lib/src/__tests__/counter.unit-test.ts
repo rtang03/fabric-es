@@ -1,5 +1,3 @@
-import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
-
 require('dotenv').config({ path: './.env.test' });
 import {
   QueryHandler,
@@ -21,6 +19,7 @@ import rimraf from 'rimraf';
 import request from 'supertest';
 import { createAdminService } from '../admin';
 import { IDENTITY_ALREADY_EXIST, UNAUTHORIZED_ACCESS } from '../admin/constants';
+import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
 import {
   CREATE_WALLET,
   GET_BLOCK_BY_NUMBER,
