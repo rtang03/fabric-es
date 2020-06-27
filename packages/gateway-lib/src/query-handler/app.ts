@@ -4,7 +4,7 @@ import { counterReducer } from '@fabric-es/fabric-cqrs';
 import { Wallets } from 'fabric-network';
 import type { RedisOptions } from 'ioredis';
 import { getLogger } from '../utils';
-import { createQueryHandlerService } from '.';
+import { createQueryHandlerService } from './createQueryHandlerService';
 
 const port = parseInt(process.env.PORT, 10) || 5000;
 const logger = getLogger('[query-handler] app.js');

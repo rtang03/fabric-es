@@ -1,3 +1,5 @@
+import { BaseEntity } from '../types';
+
 export interface CounterCommands {
   Increment: {
     userId: string;
@@ -22,11 +24,9 @@ export interface CounterEvent {
   payload: any;
 }
 
-export interface Counter {
+export interface Counter extends BaseEntity {
   id: string;
   desc: string;
   tag: string;
   value: number;
-  ts: number;
 }
-

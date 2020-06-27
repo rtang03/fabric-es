@@ -13,8 +13,9 @@ import {
   arraysToCommitRecords,
   fullTextSearchAddCommit,
   fullTextSearchAddEntity,
-  doFullTextSearch,
+  doSearch,
   pipelineExecute,
+  sizeOfSearchResult,
 } from '.';
 
 export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
@@ -73,7 +74,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
       const pattern = `${entityName}::${id}::*`;
       let commitArrays: string[][];
-      let result: Record<string, Commit>;
+      let result: Commit[];
 
       try {
         commitArrays = await pipelineExecute(redis, 'GET', pattern);
@@ -83,10 +84,10 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       }
 
       if (commitArrays.length === 0)
-        return { status: 'OK', message: `queryByEntityId: 0 record is returned`, result: {} };
+        return { status: 'OK', message: `queryByEntityId: 0 record is returned`, result: [] };
 
       try {
-        result = arraysToCommitRecords(commitArrays);
+        result = values(arraysToCommitRecords(commitArrays));
       } catch (e) {
         logger.error(util.format('fail to parse json, %j', e));
         throw e;
@@ -103,9 +104,10 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
       const pattern = `${entityName}::*::*`;
       let commitArrays: string[][];
-      let result: Record<string, Commit>;
+      let result: Commit[];
 
       try {
+        // retrieve commit by pattern
         commitArrays = await pipelineExecute(redis, 'GET', pattern);
       } catch (e) {
         logger.error(util.format('unknown redis error, %j', e));
@@ -113,7 +115,8 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       }
 
       try {
-        result = arraysToCommitRecords(commitArrays);
+        // convert from record to arrays
+        result = values(arraysToCommitRecords(commitArrays));
       } catch (e) {
         logger.error(util.format('fail to parse json, %j', e));
         throw e;
@@ -125,6 +128,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       };
     },
     mergeCommit: async ({ commit }) => {
+      // merge one commit
       if (!isCommit(commit)) throw new Error('invalid input argument');
 
       const redisKey = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
@@ -142,6 +146,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       return { status, message: `${redisKey} merged successfully`, result: [redisKey] };
     },
     mergeCommitBatch: async ({ entityName, commits }) => {
+      // merge batch of commits
       if (!entityName || !commits) throw new Error('invalid input argument');
 
       const map: Record<string, string> = {};
@@ -180,7 +185,11 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       };
     },
     mergeEntity: async <TEntity>({ commit, reducer }) => {
+      // merge the commit, to upsert the entity
       if (!isCommit(commit) || !reducer) throw new Error('invalid input argument');
+
+      const entityName = commit.entityName;
+      const entityId = commit.entityId;
 
       let statusCommit;
       let statusEntity;
@@ -190,20 +199,37 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       let redisKeyEntity: string;
 
       try {
-        const commitsInRedis = await pipelineExecute(
-          redis,
-          'GET',
-          `${commit.entityName}::${commit.id}::*`
-        );
-        const commitToMerge = { [commit.commitId]: commit };
+        // retrieve existing commit
+        const commitsInRedis = await pipelineExecute(redis, 'GET', `${entityName}::${entityId}::*`);
+        const commitToMerge: Record<string, Commit> = { [commit.commitId]: commit };
 
-        const mergedResult = isEqual(commitsInRedis, [])
+        // merge existing record with newly arrived commit
+        const mergedResult: Record<string, Commit> = isEqual(commitsInRedis, [])
           ? commitToMerge
           : assign({}, arraysToCommitRecords(commitsInRedis), commitToMerge);
+
+        // compute events history, returning comma separator
+        const _event: string = flatten(values(mergedResult).map(({ events }) => events))
+          .map(({ type }) => type)
+          .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
+
+        // compute the timeline of event history
+        const _timeline: string = flatten(values(mergedResult).map(({ events }) => events))
+          .map(({ payload }) => payload._ts)
+          .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
 
         const currentState = reducer(getHistory(values(mergedResult)));
         if (currentState) Object.assign(currentState, trackingReducer(values(mergedResult)));
 
+        currentState._event = _event;
+        currentState._commit = keys(mergedResult).map(
+          (commitId) => `${entityName}::${entityId}::${commitId}`
+        );
+        currentState._entityName = entityName;
+        currentState._timeline = _timeline;
+        currentState._reducer = reducer.toString();
+
+        // if no id existed in the computed entity, will be considered as error
         if (!currentState?.id) {
           return {
             status: 'ERROR',
@@ -261,10 +287,36 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
       keys(group).forEach((id) => {
         const reduced = reducer(getHistory(values(group[id])));
+
+        // compute events history, returning commit separator
+        const _event = flatten(group[id].map(({ events }) => events))
+          .map(({ type }) => type)
+          .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
+
+        // compute the timeline of event history
+        const _timeline = flatten(group[id].map(({ events }) => events))
+          .map(({ payload }) => payload._ts)
+          .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
+
+        const _commit = flatten(group[id]).map(
+          ({ commitId }) => `${entityName}::${id}::${commitId}`
+        );
+
+        // if no id existed in the computed entity, will be considered as error
         if (reduced?.id)
-          entities.push(assign({ id }, reduced, trackingReducer(values(group[id]))));
-        else
-          error.push({ id });
+          entities.push(
+            assign(
+              { id },
+              { _event },
+              { _commit },
+              { _timeline },
+              { _entityName: entityName },
+              { _reducer: reducer.toString() },
+              reduced,
+              trackingReducer(values(group[id]))
+            )
+          );
+        else error.push({ id });
       });
 
       try {
@@ -289,20 +341,33 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         error: error.length === 0 ? null : error,
       };
     },
-    fullTextSearchCommit: async <TEntity>({ query }) => {
+    fullTextSearchCommit: async ({ query, countTotalOnly }) => {
       if (!query) throw new Error('invalid input argument');
 
-      return doFullTextSearch<TEntity>(query, { redis, logger, index: 'cidx' });
+      return countTotalOnly
+        ? sizeOfSearchResult(query, { redis, logger, index: 'cidx' })
+        : doSearch<Commit>(query, { redis, logger, index: 'cidx' });
     },
-    fullTextSearchEntity: async <TEntity>({ query }) => {
+    fullTextSearchEntity: async <TEntity>({ query, countTotalOnly }) => {
       if (!query) throw new Error('invalid input argument');
 
-      return doFullTextSearch<TEntity>(query, { redis, logger, index: 'eidx' });
+      return countTotalOnly
+        ? sizeOfSearchResult(query, { redis, logger, index: 'eidx' })
+        : doSearch<TEntity>(query, { redis, logger, index: 'eidx' });
+    },
+    fullTextSearchGetDocument: async ({ index, documentId }) => {
+      // return the document of index
+      return null;
+    },
+    fullTextSearchTagVals: async ({ index, tag }) => {
+      // return unique tag value
+      return null;
     },
     queryEntity: async ({ entityName, where }) => {
+      // queryEntity provides alternative implementation of getProjection
       let entityArrays: string[][];
       let entities: any[];
-      const result: Record<string, any> = {};
+      const result: any = {};
 
       try {
         entityArrays = await pipelineExecute(redis, 'GET_ENTITY_ONLY', `${entityName}::*`);
@@ -332,7 +397,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
       return {
         status: 'OK',
         message: `${keys(result).length} record(s) returned`,
-        result: isEqual(result, {}) ? null : result,
+        result: isEqual(result, {}) ? null : Object.values(result),
       };
     },
   };

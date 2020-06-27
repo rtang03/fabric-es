@@ -1,4 +1,5 @@
-import { catchErrors, getLogger } from '../../..';
+import { getLogger } from '../../../utils';
+import { catchErrors } from '../../../utils/catchErrors';
 import { Organization } from '.';
 
 export const OrgTypeDefsQuery = `
@@ -22,19 +23,25 @@ export const resolvers = {
   Query: {
     us: catchErrors(
       async (__, _, { dataSources: { organization }, mspId }): Promise<Organization> =>
-        organization.repo.getById({ id: mspId, enrollmentId: mspId }).then(({ currentState }) => currentState),
+        organization.repo
+          .getById({ id: mspId, enrollmentId: mspId })
+          .then(({ currentState }) => currentState),
       { fcnName: 'us', logger, useAuth: false }
     ),
     getOrgById: catchErrors(
-      async (_, { mspId }, { dataSources: { organization }}): Promise<Organization> =>
-        organization.repo.getById({ id: mspId, enrollmentId: mspId }).then(({ currentState }) => currentState),
+      async (_, { mspId }, { dataSources: { organization } }): Promise<Organization> =>
+        organization.repo
+          .getById({ id: mspId, enrollmentId: mspId })
+          .then(({ currentState }) => currentState),
       { fcnName: 'getOrgById', logger, useAuth: false }
     ),
   },
   Organization: {
     __resolveReference: catchErrors(
-      async ({ mspId }, { dataSources: { organization }}, username): Promise<Organization> =>
-        organization.repo.getById({ id: mspId, enrollmentId: username }).then(({ currentState }) => currentState),
+      async ({ mspId }, { dataSources: { organization } }, username): Promise<Organization> =>
+        organization.repo
+          .getById({ id: mspId, enrollmentId: username })
+          .then(({ currentState }) => currentState),
       { fcnName: 'Organization/__resolveReference', logger, useAuth: false }
     ),
   },

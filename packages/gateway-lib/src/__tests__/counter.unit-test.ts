@@ -1,5 +1,11 @@
 require('dotenv').config({ path: './.env.test' });
-import type { QueryHandler } from '@fabric-es/fabric-cqrs';
+import {
+  QueryHandler,
+  Counter,
+  CounterEvents,
+  counterReducer,
+  getReducer,
+} from '@fabric-es/fabric-cqrs';
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import express from 'express';
@@ -13,6 +19,7 @@ import rimraf from 'rimraf';
 import request from 'supertest';
 import { createAdminService } from '../admin';
 import { IDENTITY_ALREADY_EXIST, UNAUTHORIZED_ACCESS } from '../admin/constants';
+import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
 import {
   CREATE_WALLET,
   GET_BLOCK_BY_NUMBER,
@@ -32,16 +39,7 @@ import {
   isLoginResponse,
   isRegisterResponse,
 } from '../utils';
-import {
-  Counter,
-  CounterEvents,
-  DECREMENT,
-  GET_COUNTER,
-  INCREMENT,
-  reducer,
-  resolvers,
-  typeDefs,
-} from './__utils__';
+import { DECREMENT, GET_COUNTER, INCREMENT, resolvers, typeDefs } from './__utils__';
 
 /**
  * ./dn-run.1-px-db-red-auth.sh or ./dn-run.2-px-db-red-auth.sh
@@ -122,7 +120,60 @@ beforeAll(async () => {
       wallet,
     });
 
-    // Step 3: Prepare Counter Model microservice
+    // Step 3: Start Query-Handler
+    const qhService = await createQueryHandlerService([entityName, 'organization'], {
+      redisOptions: { host: 'localhost', port: 6379 },
+      asLocalhost: !(process.env.NODE_ENV === 'production'),
+      channelName,
+      connectionProfile,
+      enrollmentId,
+      reducers: {
+        counter: counterReducer,
+        organization: getReducer<Organization, OrgEvents>(orgReducer),
+      },
+      wallet,
+    });
+
+    queryHandlerServer = qhService.server;
+    queryHandler = qhService.queryHandler;
+    publisher = qhService.publisher;
+
+    // Step 4: setup Redis cidx and eidx indexes
+    await rebuildIndex(publisher, logger);
+
+    const { data } = await queryHandler.command_getByEntityName('counter')();
+
+    if (keys(data).length > 0) {
+      for await (const { id } of values(data)) {
+        await queryHandler
+          .command_deleteByEntityId(entityName)({ id })
+          .then(({ status }) =>
+            console.log(
+              `setup: command_deleteByEntityId, status: ${status}, ${entityName}:${id} deleted`
+            )
+          );
+      }
+    }
+
+    // Step 5: clean up pre existing Redis
+    await queryHandler
+      .query_deleteCommitByEntityName(entityName)()
+      .then(({ status }) =>
+        console.log(`set-up: query_deleteByEntityName, ${entityName}, status: ${status}`)
+      );
+
+    await queryHandler
+      .query_deleteCommitByEntityName('organization')()
+      .then(({ status }) =>
+        console.log(`set-up: query_deleteByEntityName: organization, status: ${status}`)
+      );
+
+    // Step 6: start queryHandler
+    await queryHandlerServer.listen({ port: QH_PORT }, () =>
+      console.log('queryHandler server started')
+    );
+
+    // Step 7: Prepare Counter Model microservice
     const { config, getRepository } = await createService({
       asLocalhost: true,
       channelName,
@@ -134,16 +185,17 @@ beforeAll(async () => {
     });
 
     modelApolloService = await config({ typeDefs, resolvers })
-      .addRepository(getRepository<Counter, CounterEvents>(entityName, reducer))
+      .addRepository(getRepository<Counter, CounterEvents>(entityName, counterReducer))
       .create();
 
+    // Step 8: start model service
     await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () =>
       console.log('model service started')
     );
 
-    // step 4: Prepare Admin microservice
+    // step 9: Prepare Admin microservice
     const service = await createAdminService({
-      asLocalhost: false,
+      asLocalhost: !(process.env.NODE_ENV === 'production'),
       caAdmin,
       caAdminPW,
       channelName,
@@ -164,7 +216,7 @@ beforeAll(async () => {
       console.log('admin service started')
     );
 
-    // Step 5: Prepare Federated Gateway
+    // Step 10: Prepare Federated Gateway
     app = await createGateway({
       serviceList: [
         { name: 'admin', url: `http://localhost:${ADMIN_SERVICE_PORT}/graphql` },
@@ -173,49 +225,7 @@ beforeAll(async () => {
       authenticationCheck: `${proxyServerUri}/oauth/authenticate`,
     });
 
-    // Step 6: Start Query-Handler
-    const qhService = await createQueryHandlerService([entityName], {
-      redisOptions: { host: 'localhost', port: 6379 },
-      asLocalhost: !(process.env.NODE_ENV === 'production'),
-      channelName,
-      connectionProfile,
-      enrollmentId,
-      reducers: { counter: reducer },
-      wallet,
-    });
-
-    queryHandlerServer = qhService.server;
-    queryHandler = qhService.queryHandler;
-    publisher = qhService.publisher;
-
-    // setup
-    await rebuildIndex(publisher, logger);
-
-    const { data } = await queryHandler.command_getByEntityName('counter')();
-
-    if (keys(data).length > 0) {
-      for await (const { id } of values(data)) {
-        await queryHandler
-          .command_deleteByEntityId(entityName)({ id })
-          .then(({ status }) =>
-            console.log(
-              `setup: command_deleteByEntityId, status: ${status}, ${entityName}:${id} deleted`
-            )
-          );
-      }
-    }
-    // clean up pre existing Redis
-    await queryHandler
-      .query_deleteByEntityName(entityName)()
-      .then(({ status }) =>
-        console.log(`set-up: query_deleteByEntityName, ${entityName}, status: ${status}`)
-      );
-
-    await queryHandlerServer.listen({ port: QH_PORT }, () =>
-      console.log('queryHandler server started')
-    );
-
-    // Step 7: Start Gateway
+    // Step 11: Start Gateway
     return new Promise((done) =>
       app.listen(GATEWAY_PORT, () => {
         console.log('🚀  Federated Gateway started');
@@ -242,9 +252,15 @@ afterAll(async () => {
     .catch((result) => console.log(`eidx is not dropped: ${result}`));
 
   await queryHandler
-    .query_deleteByEntityName(entityName)()
+    .query_deleteCommitByEntityName(entityName)()
     .then(({ status }) =>
       console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
+    );
+
+  await queryHandler
+    .query_deleteCommitByEntityName('organization')()
+    .then(({ status }) =>
+      console.log(`tear-down: query_deleteByEntityName: organization, status: ${status}`)
     );
 
   await queryHandler
@@ -253,6 +269,12 @@ afterAll(async () => {
       console.log(
         `tear-down: command_deleteByEntityId, ${entityName}:${counterId}, status: ${status}`
       )
+    );
+
+  await queryHandler
+    .command_deleteByEntityId('organization')({ id: 'Org1MSP' })
+    .then(({ status }) =>
+      console.log(`tear-down: command_deleteByEntityId, organization::Org1MSP, status: ${status}`)
     );
 
   await modelApolloService.stop();
@@ -324,56 +346,56 @@ describe('Gateway Test - admin service', () => {
         } else return false;
       }));
 
-  // it('should fail to listWallet: with non-admin accessToken', async () =>
-  //   request(app)
-  //     .post('/graphql')
-  //     .send({
-  //       operationName: 'ListWallet',
-  //       query: LIST_WALLET,
-  //     })
-  //     .expect(({ body: { data, errors } }: QueryResponse) => {
-  //       expect(data).toBeNull();
-  //       expect(errors[0].message).toEqual(UNAUTHORIZED_ACCESS);
-  //     }));
+  it('should fail to listWallet: with non-admin accessToken', async () =>
+    request(app)
+      .post('/graphql')
+      .send({
+        operationName: 'ListWallet',
+        query: LIST_WALLET,
+      })
+      .expect(({ body: { data, errors } }: QueryResponse) => {
+        expect(data).toBeNull();
+        expect(errors[0].message).toEqual(UNAUTHORIZED_ACCESS);
+      }));
 
-  // it('should listWallet: with (admin) accessToken', async () =>
-  //   request(app)
-  //     .post('/graphql')
-  //     .set('authorization', `bearer ${adminAccessToken}`)
-  //     .send({
-  //       operationName: 'ListWallet',
-  //       query: LIST_WALLET,
-  //     })
-  //     .expect(({ body: { data, errors } }) => {
-  //       expect(errors).toBeUndefined();
-  //       expect(data?.listWallet.toString()).toContain(orgAdminId);
-  //     }));
+  it('should listWallet: with (admin) accessToken', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer ${adminAccessToken}`)
+      .send({
+        operationName: 'ListWallet',
+        query: LIST_WALLET,
+      })
+      .expect(({ body: { data, errors } }) => {
+        expect(errors).toBeUndefined();
+        expect(data?.listWallet.toString()).toContain(orgAdminId);
+      }));
 
-  // it('should fail to getWallet: without accessToken', async () =>
-  //   request(app)
-  //     .post('/graphql')
-  //     .send({
-  //       operationName: 'GetWallet',
-  //       query: GET_WALLET,
-  //     })
-  //     .expect(({ body: { data, errors } }) => {
-  //       expect(data?.getWallet).toBeNull();
-  //       expect(errors[0]?.message).toEqual('could not find user');
-  //     }));
+  it('should fail to getWallet: without accessToken', async () =>
+    request(app)
+      .post('/graphql')
+      .send({
+        operationName: 'GetWallet',
+        query: GET_WALLET,
+      })
+      .expect(({ body: { data, errors } }) => {
+        expect(data?.getWallet).toBeNull();
+        expect(errors[0]?.message).toEqual('could not find user');
+      }));
 
-  // it('should getWallet: with accessToken', async () =>
-  //   request(app)
-  //     .post('/graphql')
-  //     .set('authorization', `bearer ${adminAccessToken}`)
-  //     .send({
-  //       operationName: 'GetWallet',
-  //       query: GET_WALLET,
-  //     })
-  //     .expect(({ body: { data, errors } }) => {
-  //       expect(data?.getWallet.type).toEqual('X.509');
-  //       expect(data?.getWallet.mspId).toEqual('Org1MSP');
-  //       expect(errors).toBeUndefined();
-  //     }));
+  it('should getWallet: with accessToken', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer ${adminAccessToken}`)
+      .send({
+        operationName: 'GetWallet',
+        query: GET_WALLET,
+      })
+      .expect(({ body: { data, errors } }) => {
+        expect(data?.getWallet.type).toEqual('X.509');
+        expect(data?.getWallet.mspId).toEqual('Org1MSP');
+        expect(errors).toBeUndefined();
+      }));
 
   it('should fail to getBlockByNumber: non-exist block', async () =>
     request(app)
@@ -389,62 +411,62 @@ describe('Gateway Test - admin service', () => {
         expect(data?.getBlockByNumber).toBeNull();
       }));
 
-  // it('should fail to getBlockByNumber without admin accessToken', async () =>
-  //   request(app)
-  //     .post('/graphql')
-  //     .send({
-  //       operationName: 'GetBlockByNumber',
-  //       query: GET_BLOCK_BY_NUMBER,
-  //       variables: { blockNumber: 10 },
-  //     })
-  //     .expect(({ body: { data, errors } }) => {
-  //       expect(data.getBlockByNumber).toBeNull();
-  //       expect(errors[0].message).toEqual(UNAUTHORIZED_ACCESS);
-  //     }));
+  it('should fail to getBlockByNumber without admin accessToken', async () =>
+    request(app)
+      .post('/graphql')
+      .send({
+        operationName: 'GetBlockByNumber',
+        query: GET_BLOCK_BY_NUMBER,
+        variables: { blockNumber: 10 },
+      })
+      .expect(({ body: { data, errors } }) => {
+        expect(data.getBlockByNumber).toBeNull();
+        expect(errors[0].message).toEqual(UNAUTHORIZED_ACCESS);
+      }));
 
-  // it('should getBlockByNumber', async () =>
-  //   request(app)
-  //     .post('/graphql')
-  //     .set('authorization', `bearer ${adminAccessToken}`)
-  //     .send({
-  //       operationName: 'GetBlockByNumber',
-  //       query: GET_BLOCK_BY_NUMBER,
-  //       variables: { blockNumber: 10 },
-  //     })
-  //     .expect(({ body: { data, errors } }) => {
-  //       expect(errors).toBeUndefined();
-  //       expect(data?.getBlockByNumber.block_number).toEqual('10');
-  //     }));
+  it('should getBlockByNumber', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer ${adminAccessToken}`)
+      .send({
+        operationName: 'GetBlockByNumber',
+        query: GET_BLOCK_BY_NUMBER,
+        variables: { blockNumber: 10 },
+      })
+      .expect(({ body: { data, errors } }) => {
+        expect(errors).toBeUndefined();
+        expect(data?.getBlockByNumber.block_number).toEqual('10');
+      }));
 
-  // it('should getChainHeight', async () =>
-  //   request(app)
-  //     .post('/graphql')
-  //     .set('authorization', `bearer ${adminAccessToken}`)
-  //     .send({ operationName: 'GetChainHeight', query: GET_CHAIN_HEIGHT })
-  //     .expect(({ body: { data, errors } }) => {
-  //       expect(errors).toBeUndefined();
-  //       expect(typeof data?.getChainHeight).toEqual('number');
-  //     }));
+  it('should getChainHeight', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer ${adminAccessToken}`)
+      .send({ operationName: 'GetChainHeight', query: GET_CHAIN_HEIGHT })
+      .expect(({ body: { data, errors } }) => {
+        expect(errors).toBeUndefined();
+        expect(typeof data?.getChainHeight).toEqual('number');
+      }));
 
-  // it('should getPeerInfo', async () =>
-  //   request(app)
-  //     .post('/graphql')
-  //     .set('authorization', `bearer ${adminAccessToken}`)
-  //     .send({ operationName: 'GetPeerInfo', query: GET_PEERINFO })
-  //     .expect(({ body: { data, errors } }) => {
-  //       expect(errors).toBeUndefined();
-  //       expect(data?.getPeerInfo).toEqual({ peerName: 'peer0-org1', mspId: 'Org1MSP' });
-  //     }));
+  it('should getPeerInfo', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer ${adminAccessToken}`)
+      .send({ operationName: 'GetPeerInfo', query: GET_PEERINFO })
+      .expect(({ body: { data, errors } }) => {
+        expect(errors).toBeUndefined();
+        expect(data?.getPeerInfo).toEqual({ peerName: 'peer0-org1', mspId: 'Org1MSP' });
+      }));
 
-  // it('should getCaIdentityByUsername', async () =>
-  //   request(app)
-  //     .post('/graphql')
-  //     .set('authorization', `bearer ${adminAccessToken}`)
-  //     .send({ operationName: 'GetCaIdentityByUsername', query: GET_CA_IDENTITY_BY_USERNAME })
-  //     .expect(({ body: { data, errors } }) => {
-  //       expect(errors).toBeUndefined();
-  //       expect(isCaIdentity(data?.getCaIdentityByUsername)).toBeTruthy();
-  //     }));
+  it('should getCaIdentityByUsername', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer ${adminAccessToken}`)
+      .send({ operationName: 'GetCaIdentityByUsername', query: GET_CA_IDENTITY_BY_USERNAME })
+      .expect(({ body: { data, errors } }) => {
+        expect(errors).toBeUndefined();
+        expect(isCaIdentity(data?.getCaIdentityByUsername)).toBeTruthy();
+      }));
 
   it('should fail createWallet: orgAdmin already exist in wallet', async () =>
     request(app)
@@ -509,7 +531,7 @@ describe('Gateway Test - admin service', () => {
       .send({
         operationName: 'Increment',
         query: INCREMENT,
-        variables: { counterId, id: counterId},
+        variables: { counterId, id: counterId },
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.increment.id).toEqual(counterId);
@@ -562,4 +584,3 @@ describe('Gateway Test - admin service', () => {
         expect(errors).toBeUndefined();
       }));
 });
-

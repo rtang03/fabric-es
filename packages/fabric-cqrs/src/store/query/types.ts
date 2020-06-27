@@ -1,6 +1,6 @@
 import { Commit } from '../../types';
 
-export interface DeleteByEntityIdAction {
+export interface DeleteCommitByEntityIdAction {
   type: string;
   payload?: {
     tx_id: string;
@@ -11,7 +11,7 @@ export interface DeleteByEntityIdAction {
   };
 }
 
-export interface DeleteByEntityNameAction {
+export interface DeleteCommitByEntityNameAction {
   type: string;
   payload?: {
     tx_id: string;
@@ -65,7 +65,8 @@ export interface CIdxSearchAction {
   payload?: {
     tx_id: string;
     args: {
-      query: string;
+      query: string[];
+      countTotalOnly?: boolean;
     };
   };
 }
@@ -75,7 +76,8 @@ export interface EIdxSearchAction {
   payload?: {
     tx_id: string;
     args: {
-      query: string;
+      query: string[];
+      countTotalOnly?: boolean;
     };
   };
 }

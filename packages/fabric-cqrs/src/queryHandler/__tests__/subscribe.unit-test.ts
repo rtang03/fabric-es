@@ -9,13 +9,12 @@ import {
   CounterEvent,
   createQueryDatabase,
   createQueryHandler,
-  dummyReducer,
   entityIndex,
 } from '..';
 import { getNetwork } from '../../services';
 import type { Commit, QueryHandler } from '../../types';
-import { Counter } from '../../unit-test-reducer';
-import { isCommit, isCommitRecord } from '../../utils';
+import { Counter, reducer } from '../../unit-test-reducer';
+import { isCommit, isCommitRecord, waitForSecond } from '../../utils';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -29,10 +28,10 @@ const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
 const walletPath = process.env.WALLET;
 const entityName = 'test_subscribe';
 const id = `qh_sub_test_001`;
+const timestampesOnCreate = [];
 const enrollmentId = orgAdminId;
-const reducers = { [entityName]: dummyReducer };
+const reducers = { [entityName]: reducer };
 let redis: Redis.Redis;
-
 let queryHandler: QueryHandler;
 
 beforeAll(async () => {
@@ -98,7 +97,7 @@ beforeAll(async () => {
       });
 
     await queryHandler
-      .query_deleteByEntityName(entityName)()
+      .query_deleteCommitByEntityName(entityName)()
       .then(({ data }) => console.log(`${data} record(s) deleted`));
 
     await queryHandler.subscribeHub([entityName]);
@@ -123,7 +122,7 @@ beforeAll(async () => {
       .then((result) => console.log(`eidx is created: ${result}`))
       .catch((result) => console.log(`eidx is not created: ${result}`));
 
-    return new Promise((done) => setTimeout(() => done(), 3000));
+    return waitForSecond(3);
   } catch (e) {
     console.error(e);
     process.exit(1);
@@ -145,11 +144,11 @@ afterAll(async () => {
     .catch((result) => console.log(`eidx is not dropped: ${result}`));
 
   await queryHandler
-    .query_deleteByEntityName(entityName)()
+    .query_deleteCommitByEntityName(entityName)()
     .then(({ data }) => console.log(`${data} records deleted`))
     .catch((error) => console.log(error));
 
-  return new Promise((done) => setTimeout(() => done(), 1000));
+  return waitForSecond(1);
 });
 
 describe('Query Handler Tests', () => {
@@ -164,7 +163,7 @@ describe('Query Handler Tests', () => {
           },
         ],
       })
-      .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
+      .then(({ data }) => expect(isCommit(data)).toBeTruthy()));
 
   it('should query_getCommitById', async () =>
     queryHandler
@@ -188,55 +187,448 @@ describe('Query Handler Tests', () => {
           },
         ],
       })
-      .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
+      .then(({ data }) => expect(isCommit(data)).toBeTruthy()));
 
   it('should FT.SEARCH by test* : return 2 commit', async () => {
-    await new Promise((done) => setTimeout(() => done(), 3000));
-    return queryHandler
-      .fullTextSearchCommit()({ query: 'test*' })
-      .then(({ data, status }) => {
-        expect(status).toEqual('OK');
-        expect(Object.keys(data).length).toEqual(2);
-        expect(isCommitRecord(data)).toBeTruthy();
-      });
+    await waitForSecond(3);
+
+    return queryHandler.fullTextSearchCommit(['test*'], 0, 2).then(({ data, status }) => {
+      console.log(data.items);
+      expect(status).toEqual('OK');
+      expect(data.total).toEqual(2);
+      expect(data.hasMore).toBeFalsy();
+      expect(data.cursor).toEqual(2);
+      expect(isCommitRecord(data.items)).toBeTruthy();
+    });
   });
 
   it('should FT.SEARCH by qh* : return 2 commits', async () =>
-    queryHandler
-      .fullTextSearchCommit()({ query: 'qh*' })
-      .then(({ data, status }) => {
-        expect(status).toEqual('OK');
-        expect(Object.keys(data).length).toEqual(2);
-        expect(isCommitRecord(data)).toBeTruthy();
-      }));
+    queryHandler.fullTextSearchCommit(['qh*'], 0, 2).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data.total).toEqual(2);
+      expect(data.hasMore).toBeFalsy();
+      expect(data.cursor).toEqual(2);
+      expect(isCommitRecord(data.items)).toBeTruthy();
+    }));
 
   it('should FT.SEARCH by @event:{increment} : return 1 commit', async () =>
-    queryHandler
-      .fullTextSearchCommit()({ query: '@event:{increment}' })
-      .then(({ data, status }) => {
-        expect(status).toEqual('OK');
-        expect(Object.values<Commit>(data)[0].events[0].type).toEqual('Increment');
-        expect(Object.keys(data).length).toEqual(1);
-        expect(isCommitRecord(data)).toBeTruthy();
-      }));
+    queryHandler.fullTextSearchCommit(['@event:{increment}'], 0, 2).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data.total).toEqual(1);
+      expect(data.hasMore).toBeFalsy();
+      expect(data.cursor).toEqual(1);
+      expect(data.items[0].events[0].type).toEqual('Increment');
+      expect(isCommitRecord(data.items)).toBeTruthy();
+    }));
+
+  it('should FT.SEARCH by @msp:{org1msp} : return 2 commit', async () =>
+    queryHandler.fullTextSearchCommit(['@msp:{org1msp}'], 0, 2).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data.total).toEqual(2);
+      expect(data.hasMore).toBeFalsy();
+      expect(data.cursor).toEqual(2);
+      expect(data.items[0].events[0].type).toEqual('Decrement');
+      expect(data.items[0].mspId).toEqual('Org1MSP');
+      expect(isCommitRecord(data.items)).toBeTruthy();
+    }));
 
   it('should fail to FT.SEARCH: invalid input;', async () =>
     queryHandler
-      .fullTextSearchCommit()({ query: 'kljkljkljjkljklj;jkl;' })
-      .then(({ data, status, error }) => {
+      .fullTextSearchCommit(['kljkljkljjkljklj;jkl;'], 0, 2)
+      .then(({ data, status, error, message }) => {
         expect(status).toEqual('ERROR');
-        expect(data).toBeNull();
+        expect(data).toBeUndefined();
         expect(error).toContain('Syntax error at offset');
       }));
 
   it('should FT.SEARCH by test* : return 1 entity', async () =>
+    queryHandler.fullTextSearchEntity(['test*'], 0, 2).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data.total).toEqual(1);
+      expect(data.hasMore).toBeFalsy();
+      expect(data.cursor).toEqual(1);
+      expect(omit(data.items[0], '_ts', '_created', '_commit', '_reducer', '_timeline')).toEqual({
+        id,
+        value: 0,
+        tag: 'subscription',
+        desc: 'query hander #2 sub-test',
+        _creator: 'admin-org1.net',
+        _event: 'Increment,Decrement',
+        _entityName: entityName,
+        _organization: ['Org1MSP'],
+      });
+    }));
+
+  it('should FT.SEARCH by tag:{org} : return 1 entity', async () =>
+    queryHandler.fullTextSearchEntity(['@org:{org1msp}'], 0, 2).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data.total).toEqual(1);
+      expect(data.hasMore).toBeFalsy();
+      expect(data.cursor).toEqual(1);
+      expect(omit(data.items[0], '_ts', '_created', '_commit', '_reducer', '_timeline')).toEqual({
+        id,
+        value: 0,
+        tag: 'subscription',
+        desc: 'query hander #2 sub-test',
+        _creator: 'admin-org1.net',
+        _event: 'Increment,Decrement',
+        _entityName: entityName,
+        _organization: ['Org1MSP'],
+      });
+    }));
+});
+
+describe('Pagination tests for getPaginatedEntityById', () => {
+  beforeAll(async () => {
+    for await (const i of [1, 2, 3, 4, 5]) {
+      timestampesOnCreate.push(Math.floor(Date.now() / 1000));
+
+      await queryHandler
+        .create<CounterEvent>(entityName)({ enrollmentId, id: `qh_pag_test_00${i}` })
+        .save({
+          events: [
+            {
+              type: i % 2 === 0 ? 'Increment' : 'Decrement',
+              payload: {
+                id: `qh_pag_test_00${i}`,
+                desc: `#${i} pag-test`,
+                tag: 'pagination,unit-test',
+              },
+            },
+          ],
+        });
+
+      await waitForSecond(3);
+    }
+  });
+
+  it('should getPaginatedEntityById: cursor=0, pagesize=2', async () =>
     queryHandler
-      .fullTextSearchEntity<Counter>()({ query: 'test*' })
+      .getPaginatedEntityById<Counter>(entityName)({
+        cursor: 0,
+        pagesize: 2,
+        sortByField: 'id',
+        sort: 'ASC',
+      })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
-        const counter = Object.values(data)[0];
-        const key = Object.keys(data)[0];
-        expect(key).toEqual(`${entityName}::${id}`);
-        expect(omit(counter, 'ts', '_organization')).toEqual({ id, value: 0 });
+        expect(data.total).toEqual(6);
+        expect(data.hasMore).toBeTruthy();
+        expect(data.cursor).toEqual(2);
+        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: -1 },
+          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
+        ]);
+      }));
+
+  it('should getPaginatedEntityById: cursor=1, pagesize=2', async () =>
+    queryHandler
+      .getPaginatedEntityById<Counter>(entityName)({
+        cursor: 1,
+        pagesize: 2,
+        sortByField: 'id',
+        sort: 'ASC',
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(6);
+        expect(data.hasMore).toBeTruthy();
+        expect(data.cursor).toEqual(3);
+        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
+        ]);
+      }));
+
+  it('should getPaginatedEntityById: id=001, cursor=0, pagesize=2', async () =>
+    queryHandler
+      .getPaginatedEntityById<Counter>(entityName)(
+        {
+          cursor: 0,
+          pagesize: 2,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+        'qh_pag_test_001'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(1);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(1);
+        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: -1 },
+        ]);
+      }));
+
+  it('should getPaginatedEntityById: cursor=0, pagesize=10', async () =>
+    queryHandler
+      .getPaginatedEntityById<Counter>(entityName)(
+        {
+          cursor: 0,
+          pagesize: 10,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+        'qh_pag_test_00*'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(5);
+        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: -1 },
+          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
+          { id: 'qh_pag_test_004', desc: '#4 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_005', desc: '#5 pag-test', tag: 'pagination,unit_test', value: -1 },
+        ]);
+      }));
+
+  it('should getPaginatedEntityById: cursor=0, scope=CREATED', async () =>
+    queryHandler
+      .getPaginatedEntityById<Counter>(entityName)(
+        {
+          scope: 'CREATED',
+          startTime: timestampesOnCreate[1],
+          endTime: timestampesOnCreate[3] + 1,
+          cursor: 0,
+          pagesize: 10,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+        'qh_pag_test_00*'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(3);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(3);
+        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
+          { id: 'qh_pag_test_004', desc: '#4 pag-test', tag: 'pagination,unit_test', value: 1 },
+        ]);
+      }));
+
+  it('should getPaginatedEntityById: cursor=0, scope=LAST_MODIFIED', async () =>
+    queryHandler
+      .getPaginatedEntityById<Counter>(entityName)(
+        {
+          scope: 'LAST_MODIFIED',
+          startTime: timestampesOnCreate[1],
+          endTime: timestampesOnCreate[3] + 1,
+          cursor: 0,
+          pagesize: 10,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+        'qh_pag_test_00*'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(3);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(3);
+        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
+          { id: 'qh_pag_test_004', desc: '#4 pag-test', tag: 'pagination,unit_test', value: 1 },
+        ]);
+      }));
+
+  it('should getPaginatedEntityById: creator=enrollmentId', async () =>
+    queryHandler
+      .getPaginatedEntityById<Counter>(entityName)(
+        {
+          cursor: 0,
+          pagesize: 10,
+          sortByField: 'id',
+          sort: 'ASC',
+          creator: enrollmentId,
+        },
+        'qh_pag_test_00*'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(5);
+        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
+          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: -1 },
+          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
+          { id: 'qh_pag_test_004', desc: '#4 pag-test', tag: 'pagination,unit_test', value: 1 },
+          { id: 'qh_pag_test_005', desc: '#5 pag-test', tag: 'pagination,unit_test', value: -1 },
+        ]);
+      }));
+
+  it('should getPaginatedCommitById: cursor=0, pagesize=2', async () =>
+    queryHandler
+      .getPaginatedCommitById(entityName)(
+        { cursor: 0, pagesize: 2, sortByField: 'id', sort: 'ASC' },
+        'qh_pag_test_00*'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.hasMore).toBeTruthy();
+        expect(data.cursor).toEqual(2);
+        expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_001', 'qh_pag_test_002']);
+      }));
+
+  it('should getPaginatedCommitById: cursor=1, pagesize=2', async () =>
+    queryHandler
+      .getPaginatedCommitById(entityName)(
+        { cursor: 1, pagesize: 2, sortByField: 'id', sort: 'ASC' },
+        'qh_pag_test_00*'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.hasMore).toBeTruthy();
+        expect(data.cursor).toEqual(3);
+        expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_002', 'qh_pag_test_003']);
+      }));
+
+  it('should getPaginatedCommitById: cursor=0, pagesize=10', async () =>
+    queryHandler
+      .getPaginatedCommitById(entityName)(
+        { cursor: 0, pagesize: 10, sortByField: 'id', sort: 'ASC' },
+        'qh_pag_test_00*'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(5);
+        expect(data.items.map(({ id }) => id)).toEqual([
+          'qh_pag_test_001',
+          'qh_pag_test_002',
+          'qh_pag_test_003',
+          'qh_pag_test_004',
+          'qh_pag_test_005',
+        ]);
+      }));
+
+  it('should getPaginatedCommitById: events=increment', async () =>
+    queryHandler
+      .getPaginatedCommitById(entityName)(
+        { cursor: 0, pagesize: 10, sortByField: 'id', sort: 'ASC', events: ['increment'] },
+        'qh_pag_test_00*'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(2);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(2);
+        expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_002', 'qh_pag_test_004']);
+      }));
+
+  it('should getPaginatedCommitById: startTime/endTime', async () =>
+    queryHandler
+      .getPaginatedCommitById(entityName)(
+        {
+          cursor: 0,
+          pagesize: 10,
+          sortByField: 'id',
+          sort: 'ASC',
+          startTime: timestampesOnCreate[1],
+          endTime: timestampesOnCreate[3] + 1,
+        },
+        'qh_pag_test_00*'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(3);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(3);
+        expect(data.items.map(({ id }) => id)).toEqual([
+          'qh_pag_test_002',
+          'qh_pag_test_003',
+          'qh_pag_test_004',
+        ]);
+      }));
+
+  it('should getPaginatedCommitById: startTime/endTime', async () =>
+    queryHandler
+      .getPaginatedCommitById(entityName)(
+        {
+          cursor: 0,
+          pagesize: 10,
+          sortByField: 'id',
+          sort: 'ASC',
+          startTime: 0,
+          endTime: timestampesOnCreate[1] + 1,
+        },
+        'qh_pag_test_00*'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(2);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(2);
+        expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_001', 'qh_pag_test_002']);
+      }));
+
+  it('should getPaginatedCommitById: creator=enrollmentId', async () =>
+    queryHandler
+      .getPaginatedCommitById(entityName)(
+        { cursor: 0, pagesize: 10, sortByField: 'id', sort: 'ASC', creator: enrollmentId },
+        'qh_pag_test_00*'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(5);
+        expect(data.items.map(({ id }) => id)).toEqual([
+          'qh_pag_test_001',
+          'qh_pag_test_002',
+          'qh_pag_test_003',
+          'qh_pag_test_004',
+          'qh_pag_test_005',
+        ]);
+      }));
+
+  it('should getPaginatedCommitById: by single event', async () =>
+    queryHandler
+      .getPaginatedCommitById(entityName)(
+        { cursor: 0, pagesize: 10, sortByField: 'id', sort: 'ASC', events: ['increment'] },
+        'qh_pag_test_00*'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(2);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(2);
+        expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_002', 'qh_pag_test_004']);
+      }));
+
+  it('should getPaginatedCommitById: by events array', async () =>
+    queryHandler
+      .getPaginatedCommitById(entityName)(
+        {
+          cursor: 0,
+          pagesize: 10,
+          sortByField: 'id',
+          sort: 'ASC',
+          events: ['increment', 'decrement'],
+        },
+        'qh_pag_test_00*'
+      )
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(5);
+        expect(data.items.map(({ id }) => id)).toEqual([
+          'qh_pag_test_001',
+          'qh_pag_test_002',
+          'qh_pag_test_003',
+          'qh_pag_test_004',
+          'qh_pag_test_005',
+        ]);
       }));
 });

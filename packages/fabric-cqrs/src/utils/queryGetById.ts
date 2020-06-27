@@ -5,8 +5,20 @@ import type { Logger } from 'winston';
 import { action as commandAction } from '../store/command';
 import { action } from '../store/query';
 import { Commit, SaveFcn, Reducer, trackingReducer } from '../types';
-import { addTimestamp, dispatcher, getHistory, isCommitRecord } from '.';
+import { addTimestamp, dispatcher, getHistory, isCommitRecord, replaceTag } from '.';
 
+/**
+ * get CurrentState by entityId, and return save function
+ * Basic Query-side Operation
+ * @param entityName
+ * @param reducer
+ * @param isPrivateData
+ * @param store
+ * @param logger
+ * @param wallet
+ * @param connectionProfile
+ * @param channelName
+ */
 export const queryGetById: <TEntity, TEvent>(
   entityName: string,
   reducer: Reducer,
@@ -42,12 +54,26 @@ export const queryGetById: <TEntity, TEvent>(
     }
   )({ id, entityName });
 
-  const currentState: TEntity = data ? reducer(getHistory(data)) : null;
-  if (currentState) Object.assign(currentState, trackingReducer(values(data)));
+  if (!reducer)
+    return {
+      currentState: null,
+      save: null,
+    };
+
+  let currentState = data ? reducer(getHistory(data)) : null;
+  currentState = currentState?.id ? currentState : null;
+
+  if (!currentState)
+    return {
+      currentState: null,
+      save: null,
+    };
+
+  Object.assign(currentState, trackingReducer(values(data)));
 
   const save = !data
     ? null
-    : dispatcher<Record<string, Commit>, { events: TEvent[] }>(
+    : dispatcher<Commit, { events: TEvent[] }>(
         ({ tx_id, args: { events } }) =>
           commandAction.create({
             channelName,
@@ -60,7 +86,7 @@ export const queryGetById: <TEntity, TEvent>(
               id,
               version: Object.keys(data).length,
               isPrivateData,
-              events: addTimestamp(events),
+              events: replaceTag(addTimestamp(events)),
             },
           }),
         {
@@ -71,7 +97,8 @@ export const queryGetById: <TEntity, TEvent>(
           ErrorAction: commandAction.CREATE_ERROR,
           logger,
           typeGuard: isCommitRecord,
-        }
+        },
+        (result: Record<string, Commit>) => Object.values<Commit>(result)[0]
       );
   return { currentState, save };
 };

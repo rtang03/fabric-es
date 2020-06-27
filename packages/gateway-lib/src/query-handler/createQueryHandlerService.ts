@@ -14,7 +14,7 @@ import Redis, { RedisOptions } from 'ioredis';
 import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
 import { QueryHandlerGqlCtx } from '../types';
 import { getLogger } from '../utils';
-import { reconcile, rebuildIndex, resolvers, typeDefs } from '.';
+import { reconcile, rebuildIndex, resolvers, typeDefs } from './index';
 
 export const createQueryHandlerService: (
   entityNames: string[],

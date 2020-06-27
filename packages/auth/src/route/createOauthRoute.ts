@@ -29,8 +29,8 @@ export const createOauthRoute: (option: {
   server.serializeClient((client: Client, done) => done(null, client.id));
   server.deserializeClient((id, done) =>
     Client.findOne({ where: { id } })
-      .then(client => done(null, client))
-      .catch(e => {
+      .then((client) => done(null, client))
+      .catch((e) => {
         logger.error(util.format('fail to retrieve client, %j', e));
         return done(e);
       })
@@ -45,7 +45,7 @@ export const createOauthRoute: (option: {
         user_id: user.id,
         is_admin: user.is_admin,
         secret: jwtSecret,
-        expiryInSeconds
+        expiryInSeconds,
       });
 
       return AuthorizationCode.insert(
@@ -55,11 +55,11 @@ export const createOauthRoute: (option: {
           redirect_uri,
           user_id: user.id,
           username: user.username,
-          expires_at: Date.now() + expiryInSeconds * 1000
+          expires_at: Date.now() + expiryInSeconds * 1000,
         })
       )
         .then(() => done(null, authorization_code))
-        .catch(e => {
+        .catch((e) => {
           logger.error(util.format('fail to insert auth code, %j', e));
           return done(e);
         });
@@ -75,7 +75,7 @@ export const createOauthRoute: (option: {
         user_id: user.id,
         is_admin: user.is_admin,
         secret: jwtSecret,
-        expiryInSeconds
+        expiryInSeconds,
       });
 
       return tokenRepo
@@ -85,12 +85,12 @@ export const createOauthRoute: (option: {
             access_token,
             client_id: client?.id,
             user_id: user?.id,
-            expires_at: Date.now() + expiryInSeconds * 1000
+            expires_at: Date.now() + expiryInSeconds * 1000,
           },
-          useDefaultExpiry: true
+          useDefaultExpiry: true,
         })
         .then(() => done(null, access_token))
-        .catch(e => {
+        .catch((e) => {
           logger.error(util.format('fail to insert access token, %j', e));
           return done(e);
         });
@@ -116,7 +116,7 @@ export const createOauthRoute: (option: {
         client,
         user_id: authCode.user_id,
         secret: jwtSecret,
-        expiryInSeconds
+        expiryInSeconds,
       });
 
       return tokenRepo
@@ -126,12 +126,12 @@ export const createOauthRoute: (option: {
             access_token,
             client_id: client.id,
             user_id: authCode.user_id,
-            expires_at: Date.now() + expiryInSeconds * 1000
+            expires_at: Date.now() + expiryInSeconds * 1000,
           },
-          useDefaultExpiry: true
+          useDefaultExpiry: true,
         })
         .then(() => done(null, access_token, null, { username: authCode.username }))
-        .catch(e => {
+        .catch((e) => {
           logger.error(util.format('fail to insert access token, %j', e));
           return done(e);
         });
@@ -168,7 +168,7 @@ export const createOauthRoute: (option: {
         user_id: user.id,
         is_admin: user.is_admin,
         secret: jwtSecret,
-        expiryInSeconds
+        expiryInSeconds,
       });
 
       return tokenRepo
@@ -178,12 +178,12 @@ export const createOauthRoute: (option: {
             access_token,
             client_id: client.id,
             user_id: user.id,
-            expires_at: Date.now() + expiryInSeconds * 1000
+            expires_at: Date.now() + expiryInSeconds * 1000,
           },
-          useDefaultExpiry: true
+          useDefaultExpiry: true,
         })
         .then(() => done(null, access_token))
-        .catch(e => {
+        .catch((e) => {
           logger.error(util.format('fail to insert access token, %j', e));
           return done(e);
         });
@@ -196,7 +196,7 @@ export const createOauthRoute: (option: {
 
       const api_key = generateToken({
         client,
-        secret: jwtSecret
+        secret: jwtSecret,
       });
 
       try {
@@ -213,7 +213,7 @@ export const createOauthRoute: (option: {
   router.post('/token', [
     passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
     server.token(),
-    server.errorHandler()
+    server.errorHandler(),
   ]);
 
   router.post('/authenticate', passport.authenticate('bearer', { session: false }), (req, res) => {
@@ -224,7 +224,7 @@ export const createOauthRoute: (option: {
       authenticated: true,
       user_id: id,
       username,
-      is_admin
+      is_admin,
     };
     return res.status(httpStatus.OK).send(response);
   });
@@ -244,7 +244,7 @@ export const createOauthRoute: (option: {
               id: key.id,
               allow: true,
               client_id: key.client_id,
-              scope: key?.scope
+              scope: key?.scope,
             };
             return res.status(httpStatus.OK).send(response);
           } else return res.status(httpStatus.UNAUTHORIZED).send({ error });

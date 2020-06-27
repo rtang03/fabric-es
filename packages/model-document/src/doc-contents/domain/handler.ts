@@ -42,7 +42,7 @@ export const docContentsCommandHandler: (option: {
     return docContentsRepo
       .create({ enrollmentId, id: documentId })
       .save({ events })
-      .then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      .then(({ data }) => data);
   },
   DefineDocContentsContent: async ({ userId, payload: { documentId, content, timestamp } }) => {
     return docContentsRepo
@@ -63,7 +63,7 @@ export const docContentsCommandHandler: (option: {
                 payload: { documentId, userId, body: newData.body, timestamp },
               },
             ],
-          }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+          }).then(({ data }) => data);
         } else if (newFile.format && newFile.link) {
           if (oldData.body) throw DocContentsErrors.docContentsMismatched(documentId);
 
@@ -80,7 +80,7 @@ export const docContentsCommandHandler: (option: {
                 },
               },
             ],
-          }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+          }).then(({ data }) => data);
         } else {
           throw Errors.requiredDataMissing();
         }

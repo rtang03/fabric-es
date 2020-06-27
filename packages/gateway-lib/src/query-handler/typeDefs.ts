@@ -28,14 +28,66 @@ export const typeDefs = gql`
 
   type Query {
     me: String
-    fullTextSearchCommit(query: String): [Commit]
-    fullTextSearchEntity(query: String): [Entity]
+    fullTextSearchCommit(query: String, cursor: Int, pagesize: Int): PaginatedCommit
+    fullTextSearchEntity(query: String, cursor: Int, pagesize: Int): PaginatedEntity
+    paginatedEntity(
+      creator: String
+      cursor: Int
+      pagesize: Int
+      entityName: String!
+      id: String
+      scope: SearchScope
+      startTime: Int
+      endTime: Int
+      sortByField: String
+      sort: String
+    ): PaginatedEntity
+    paginatedCommit(
+      creator: String
+      cursor: Int
+      pagesize: Int
+      entityName: String!
+      id: String
+      events: [String!]
+      startTime: Int
+      endTime: Int
+      sortByField: String
+      sort: String
+    ): PaginatedCommit
   }
 
-  type Entity {
-    value: String
-    entityName: String
-    id: String
+  enum SearchScope {
+    CREATED
+    LAST_MODIFIED
+  }
+
+  type PaginatedEntity {
+    total: Int
+    cursor: Int
+    hasMore: Boolean!
+    items: [QueryHandlerEntity]
+  }
+
+  type PaginatedCommit {
+    total: Int
+    cursor: Int
+    hasMore: Boolean!
+    items: [Commit]
+  }
+
+  type QueryHandlerEntity {
+    id: String!
+    entityName: String!
+    value: String!
+    commits: [String!]!
+    events: String!
+    desc: String!
+    tag: String!
+    created: Float!
+    creator: String!
+    lastModified: Float!
+    timeline: String!
+    reducer: String!
   }
 
   type Mutation {
@@ -44,7 +96,7 @@ export const typeDefs = gql`
 
     ###
     # e.g. payloadString
-    # "{\"id\":\"test_12\",\"desc\":\"desc12\",\"tag\":\"gw-lib\"}"
+    # "{"id":"test_12","desc":"desc12","tag":"gw-lib"}"
     ###
     createCommit(entityName: String, id: String, type: String, payloadString: String): Commit
   }

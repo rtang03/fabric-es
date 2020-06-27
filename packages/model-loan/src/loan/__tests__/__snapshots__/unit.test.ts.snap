@@ -57,7 +57,8 @@ Object {
 
 exports[`Loan Unit Test - Resolver query loans by page 1`] = `
 Object {
-  "entities": Array [
+  "hasMore": true,
+  "items": Array [
     Object {
       "comment": "Hello 0000VERWRITTEN",
       "description": "Unit test loan 0VERWRITTEN",
@@ -155,7 +156,6 @@ Object {
       "status": 5,
     },
   ],
-  "hasMore": true,
   "total": 12,
 }
 `;

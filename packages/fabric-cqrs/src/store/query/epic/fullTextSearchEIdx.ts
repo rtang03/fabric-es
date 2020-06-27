@@ -17,10 +17,10 @@ export default (
   action$.pipe(
     ofType(EIDX_SEARCH),
     map(({ payload }) => payload),
-    mergeMap(({ tx_id, args: { query } }) =>
+    mergeMap(({ tx_id, args: { query, countTotalOnly } }) =>
       from(
         queryDatabase
-          .fullTextSearchEntity({ query })
+          .fullTextSearchEntity({ query, countTotalOnly })
           .then(({ result }) => searchSuccess({ tx_id, result }))
           .catch((error) => {
             logger.error(

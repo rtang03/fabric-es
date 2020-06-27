@@ -13,7 +13,7 @@ export {
   evaluate$,
 } from './services';
 export * from './types';
-export { isCommit, getHistory } from './utils';
+export { isCommit, getHistory, getPaginated } from './utils';
 export { commitIndex, entityIndex, createQueryDatabase, createQueryHandler } from './queryHandler';
 export {
   createRepository,
@@ -21,5 +21,22 @@ export {
   getMockRepository,
   getPrivateMockRepository,
 } from './repository';
-import { reducer as counterReducer } from './unit-test-reducer';
-export { counterReducer };
+
+import {
+  CounterCommands,
+  Increment,
+  Decrement,
+  Counter,
+  CounterEvent,
+  CounterEvents,
+  reducer as counterReducer,
+} from './unit-test-reducer';
+export {
+  CounterCommands,
+  Counter,
+  counterReducer,
+  CounterEvent,
+  Increment,
+  Decrement,
+  CounterEvents,
+};

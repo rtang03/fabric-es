@@ -27,7 +27,7 @@ export interface EntityClass<TEntity extends BaseEntity> {
 export enum Lifecycle {
   NORMAL,
   BEGIN,
-  END
+  END,
 }
 
 /**
@@ -42,6 +42,21 @@ export interface BaseEvent {
 
   /** event payload */
   payload?: any;
+}
+
+export interface BaseEntity {
+  id?: string;
+  tag?: string;
+  desc?: string;
+  _created?: number;
+  _creator?: string;
+  _ts?: number;
+  _event?: string;
+  _commit?: string[];
+  _entityName?: string;
+  _reducer?: string;
+  _timeline?: string;
+  _organization?: string[];
 }
 
 /**

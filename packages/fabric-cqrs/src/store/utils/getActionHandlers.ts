@@ -2,6 +2,7 @@
  * @packageDocumentation
  * @hidden
  */
+import assign from 'lodash/assign';
 import type { State } from '../../types';
 
 export const getSuccessActionHandler: <TResult = any>(
@@ -25,9 +26,13 @@ export const getErrorActionHandler: <TError = any>(
   {
     payload: { tx_id: string, error: TError },
   }
-) => State = (type) => (state, { payload: { tx_id, error } }) => ({
-  tx_id,
-  type,
-  result: null,
-  error,
-});
+) => State = (type) => (state, { payload: { tx_id, error } }) =>
+  assign(
+    {},
+    {
+      tx_id,
+      type,
+      result: null,
+      error,
+    }
+  );

@@ -22,7 +22,7 @@ beforeAll(async () => {
   store = getStore({ queryDatabase, reducers, logger });
 
   await dispatcher<QueryDatabaseResponse, { entityName: string }>(
-    (payload) => queryAction.deleteByEntityName(payload),
+    (payload) => queryAction.deleteCommitByEntityName(payload),
     {
       name: 'deleteByEntityName',
       store,

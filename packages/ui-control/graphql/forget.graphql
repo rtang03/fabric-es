@@ -1,0 +1,7 @@
+mutation Forget (
+  $email: String!
+ ) {
+  forget (
+    email: $email
+    )
+}

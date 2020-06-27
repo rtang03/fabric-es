@@ -1,5 +1,5 @@
-import deleteByEntityIdEpic from './deleteByEntityId';
 import deleteByEntityNameEpic from './deleteByEntityName';
+import deleteByEntityIdEpic from './deleteCommitByEntityId';
 import findEpic from './find';
 import fullTextSearchCIdxEpic from './fullTextSearchCIdx';
 import fullTextSearchEIdxEpic from './fullTextSearchEIdx';

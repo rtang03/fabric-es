@@ -1,8 +1,11 @@
 ## v.Next
 ### Added
+- tracking between private and public info
+- pagination
 - relay package
 - queryHandler package
 - full text search
+- parametric search
 - apollo-subscription
 - redis-based queryDatabase
 

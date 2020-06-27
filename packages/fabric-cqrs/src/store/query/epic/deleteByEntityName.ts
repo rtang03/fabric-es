@@ -5,17 +5,17 @@ import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
 import type { QueryDatabase } from '../../../types';
 import { action } from '../action';
-import type { DeleteByEntityNameAction } from '../types';
+import type { DeleteCommitByEntityNameAction } from '../types';
 
-const { DELETE_BY_ENTITYNAME, deleteSuccess, deleteError } = action;
+const { DELETE_COMMIT_BY_ENTITYNAME, deleteSuccess, deleteError } = action;
 
 export default (
-  action$: Observable<DeleteByEntityNameAction>,
+  action$: Observable<DeleteCommitByEntityNameAction>,
   _,
   { queryDatabase, logger }: { queryDatabase: QueryDatabase; logger: Logger }
 ) =>
   action$.pipe(
-    ofType(DELETE_BY_ENTITYNAME),
+    ofType(DELETE_COMMIT_BY_ENTITYNAME),
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName } }) =>
       from(
@@ -26,7 +26,7 @@ export default (
             logger.error(
               util.format(
                 '[store/query/deleteByEntityName.js] fail to %s: %j',
-                DELETE_BY_ENTITYNAME,
+                DELETE_COMMIT_BY_ENTITYNAME,
                 error
               )
             );

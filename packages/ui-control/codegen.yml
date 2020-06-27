@@ -1,0 +1,23 @@
+overwrite: true
+hooks:
+  afterAllFileWrite:
+    - tslint --fix
+    - prettier --write
+generates:
+  graphql/generated/ui-control.tsx:
+    documents: 'graphql/*.graphql'
+    schema: 'http://localhost:3000/control/api/graphql'
+    plugins:
+      - add: '/* eslint-disable */'
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-react-apollo'
+    config:
+      withHOC: false
+      withComponent: false
+      withHooks: true
+      reactApolloVersion: 3
+      skipTypename: true
+      apolloReactCommonImportFrom: '@apollo/client'
+      apolloReactHooksImportFrom: '@apollo/client'
+

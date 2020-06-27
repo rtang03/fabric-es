@@ -39,7 +39,7 @@ export const documentCommandHandler: (option: {
     return documentRepo
       .create({ enrollmentId, id: documentId })
       .save({ events })
-      .then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      .then(({ data }) => data);
   },
   DefineDocumentLink: async ({ userId, payload: { documentId, link, timestamp } }) =>
     documentRepo.getById({ enrollmentId, id: documentId }).then(({ currentState, save }) => {
@@ -53,6 +53,6 @@ export const documentCommandHandler: (option: {
             payload: { documentId, userId, link, timestamp },
           },
         ],
-      }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      }).then(({ data }) => data);
     }),
 });

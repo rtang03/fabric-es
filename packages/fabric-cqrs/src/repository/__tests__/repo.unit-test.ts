@@ -38,6 +38,7 @@ const channelName = process.env.CHANNEL_NAME;
 const fabricNetwork = process.env.NETWORK_LOCATION;
 const mspId = process.env.MSPID;
 const caUrl = process.env.ORG_CA_URL;
+const timestampesOnCreate = [];
 const logger = getLogger({ name: 'repo-unit.test.js' });
 const events = [
   {
@@ -118,8 +119,13 @@ beforeAll(async () => {
       logger,
     });
 
-    // invoke contract listener
-    await queryHandler.subscribeHub([entityName]);
+    // clear previously written entity
+    await repo.command_deleteByEntityId({ id }).then(({ status }) => console.log(status));
+
+    for await (const i of [1, 2, 3, 4, 5])
+      await repo
+        .command_deleteByEntityId({ id: `repo_pag_test_0${i}` })
+        .then(({ status }) => console.log(status));
 
     await redis
       .send_command('FT.DROP', ['cidx'])
@@ -141,7 +147,8 @@ beforeAll(async () => {
       .then((result) => console.log(`eidx is created: ${result}`))
       .catch((result) => console.log(`eidx is not created: ${result}`));
 
-    await repo.command_deleteByEntityId({ id }).then(({ status }) => console.log(status));
+    // invoke contract listener, AT LAST
+    await queryHandler.subscribeHub([entityName]);
   } catch (e) {
     console.error('Bootstrap network error');
     console.error(e);
@@ -161,7 +168,7 @@ afterAll(async () => {
     .catch((result) => console.log(`eidx is not dropped: ${result}`));
 
   await repo
-    .query_deleteByEntityName()
+    .query_deleteCommitByEntityName()
     .then(({ data, status }) =>
       console.log(`${entityName}: ${data} record(s) deleted, status: ${status}`)
     );
@@ -169,7 +176,7 @@ afterAll(async () => {
   repo.disconnect();
 
   queryHandler.unsubscribeHub();
-  return new Promise((done) => setTimeout(() => done(), 3000));
+  return waitForSecond(2);
 });
 
 describe('Repository Test', () => {
@@ -182,7 +189,7 @@ describe('Repository Test', () => {
     }));
 
   it('should query_deleteByEntityId', async () =>
-    repo.query_deleteByEntityId({ id }).then(({ status }) => {
+    repo.query_deleteCommitByEntityId({ id }).then(({ status }) => {
       expect(status).toEqual('OK');
     }));
 
@@ -191,13 +198,11 @@ describe('Repository Test', () => {
       .create({ enrollmentId, id })
       .save({ events })
       .then(({ data, status }) => {
-        const commit = values(data)[0];
         expect(status).toEqual('OK');
-        expect(isCommitRecord(data)).toBeTruthy();
-        expect(commit.id).toEqual(id);
-        expect(commit.entityName).toEqual(entityName);
-        expect(commit.version).toEqual(0);
-        commitId = commit.commitId;
+        expect(data.id).toEqual(id);
+        expect(data.entityName).toEqual(entityName);
+        expect(data.version).toEqual(0);
+        commitId = data.commitId;
       });
 
     return waitForSecond(10);
@@ -206,21 +211,19 @@ describe('Repository Test', () => {
   it('should verify result by command_getByEntityIdCommitId', async () =>
     repo.command_getByEntityIdCommitId({ id, commitId }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      expect(isCommitRecord(data)).toBeTruthy();
-      expect(values(data)[0].entityName).toEqual(entityName);
-      expect(values(data)[0].id).toEqual(id);
-      expect(values(data)[0].version).toEqual(0);
+      expect(data[0].entityName).toEqual(entityName);
+      expect(data[0].id).toEqual(id);
+      expect(data[0].version).toEqual(0);
     }));
 
   it('should query_getByEntityName', async () =>
     repo.getByEntityName().then(({ data, status }) => {
-      const counter = omit(data[0], 'ts');
       expect(status).toEqual('OK');
-      expect(counter).toEqual({
+      expect(omit(data[0], '_created', '_creator', '_ts')).toEqual({
         value: 1,
         id: 'repo_test_counter_001',
         desc: 'repo #1 create-test',
-        tag: 'repo-test',
+        tag: 'repo_test',
       });
     }));
 
@@ -228,22 +231,20 @@ describe('Repository Test', () => {
     repo.getCommitById({ id }).then(({ data, status }) => {
       expect(data.length).toEqual(1);
       expect(data[0].commitId).toEqual(commitId);
-      const commit = data[0];
       expect(status).toEqual('OK');
-      expect(commit.id).toEqual(id);
-      expect(commit.entityName).toEqual(entityName);
-      expect(commit.version).toEqual(0);
+      expect(data[0].id).toEqual(id);
+      expect(data[0].entityName).toEqual(entityName);
+      expect(data[0].version).toEqual(0);
     }));
 
   it('should getById, and then save new event', async () => {
     const { save, currentState } = await repo.getById({ enrollmentId, id });
-
-    expect(omit(currentState, 'ts')).toEqual({
-      _organization: ['Org1MSP'],
+    expect(omit(currentState, '_ts', '_creator', '_created')).toEqual({
       value: 1,
       id: 'repo_test_counter_001',
       desc: 'repo #1 create-test',
-      tag: 'repo-test',
+      tag: 'repo_test',
+      _organization: ['Org1MSP'],
     });
 
     await save({
@@ -254,18 +255,17 @@ describe('Repository Test', () => {
         },
       ],
     }).then(({ status, data }) => {
-      const commit = values(data)[0];
       expect(status).toEqual('OK');
-      expect(isCommitRecord(data)).toBeTruthy();
-      expect(commit.id).toEqual(id);
-      expect(commit.entityName).toEqual(entityName);
-      expect(commit.version).toEqual(1);
+      expect(data.id).toEqual(id);
+      expect(data.entityName).toEqual(entityName);
+      expect(data.version).toEqual(1);
     });
   });
 });
 
 describe('Verify Result', () => {
-  beforeAll(() => new Promise((done) => setTimeout(() => done(), 10000)));
+  beforeAll(async () => waitForSecond(8));
+  beforeEach(async () => waitForSecond(1));
 
   it('should verify result by getById, after #2 commit', async () =>
     repo.getById({ enrollmentId, id }).then(({ currentState: { value, desc } }) => {
@@ -275,8 +275,8 @@ describe('Verify Result', () => {
 
   it('should verify result by query_getCommitById, after #2 commit', async () =>
     repo.getCommitById({ id }).then(({ data, status }) => {
-      values(data)
-        .map((commit) => omit(commit, 'ts'))
+      data
+        .map((commit) => omit(commit, '_ts'))
         .forEach((commit) => {
           expect(commit.id).toEqual(id);
           expect(commit.entityName).toEqual(entityName);
@@ -287,71 +287,228 @@ describe('Verify Result', () => {
 
   it('should verify result by query_getByEntityName, after #2 commit', async () =>
     repo.getByEntityName().then(({ data, status }) => {
-      const counter = values(data)[0];
       expect(status).toEqual('OK');
-      expect(omit(counter, 'ts')).toEqual({
+      expect(omit(data[0], '_ts', '_created', '_creator')).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
-        tag: 'repo-test',
+        tag: 'repo_test',
       });
     }));
 
   it('should find by entityId', async () =>
     repo.find({ byId: id }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      const counter = values(data)[0];
-      expect(omit(counter, 'ts')).toEqual({
-        _organization: ['Org1MSP'],
+      const counter = data[0];
+      expect(
+        omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
+      ).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
-        tag: 'repo-test',
+        tag: 'repo_test',
+        _event: 'Increment,Increment',
+        _entityName: entityName,
+        _organization: ['Org1MSP'],
       });
     }));
 
   it('should find by desc with wildcard', async () =>
     repo.find({ byDesc: 'repo*' }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      const counter = values(data)[0];
-      expect(omit(counter, 'ts')).toEqual({
-        _organization: ['Org1MSP'],
+      expect(
+        omit(data[0], '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
+      ).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
-        tag: 'repo-test',
+        tag: 'repo_test',
+        _event: 'Increment,Increment',
+        _entityName: entityName,
+        _organization: ['Org1MSP'],
       });
     }));
 
   it('should find by entityId, and desc with wildcard', async () =>
     repo.find({ byId: id, byDesc: 'repo*' }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      const counter = values(data)[0];
-      expect(omit(counter, 'ts')).toEqual({
-        _organization: ['Org1MSP'],
+      const counter = data[0];
+      expect(
+        omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
+      ).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
-        tag: 'repo-test',
+        tag: 'repo_test',
+        _event: 'Increment,Increment',
+        _entityName: entityName,
+        _organization: ['Org1MSP'],
       });
     }));
 
   it('should fail find by where: invalid id', async () =>
     repo.find({ where: { id: 'abcdec' } }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      expect(data.length).toEqual(0);
+      expect(data).toBeNull();
     }));
 
   it('should find by where', async () =>
     repo.find({ where: { id } }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      const counter = values(data)[0];
-      expect(omit(counter, 'ts')).toEqual({
-        _organization: ['Org1MSP'],
+      const counter = data[0];
+      expect(
+        omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
+      ).toEqual({
         value: 2,
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
-        tag: 'repo-test',
+        tag: 'repo_test',
+        _event: 'Increment,Increment',
+        _entityName: entityName,
+        _organization: ['Org1MSP'],
       });
     }));
+});
+
+describe('Paginated entity and commit Tests', () => {
+  beforeAll(async () => {
+    await waitForSecond(2);
+    for await (const i of [1, 2, 3, 4, 5]) {
+      timestampesOnCreate.push(Math.floor(Date.now() / 1000));
+
+      await repo.create({ enrollmentId, id: `repo_pag_test_0${i}` }).save({
+        events: [
+          {
+            type: i % 2 === 0 ? 'Decrement' : 'Increment',
+            payload: {
+              id: `repo_pag_test_0${i}`,
+              desc: `#${i} pag-test`,
+              tag: 'paginated,repo',
+            },
+          },
+        ],
+      });
+      await waitForSecond(3);
+    }
+  });
+
+  it('should getPaginatedCommitById: cursor=0 pagesize=2', async () =>
+    repo
+      .getPaginatedCommitById({ cursor: 0, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(2);
+        expect(hasMore).toBeTruthy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_01', 'repo_pag_test_02']);
+      }));
+
+  it('should getPaginatedCommitById: cursor=1 pagesize=2', async () =>
+    repo
+      .getPaginatedCommitById({ cursor: 1, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(3);
+        expect(hasMore).toBeTruthy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_02', 'repo_pag_test_03']);
+      }));
+
+  it('should getPaginatedCommitById: cursor=2 pagesize=2', async () =>
+    repo
+      .getPaginatedCommitById({ cursor: 2, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(4);
+        expect(hasMore).toBeTruthy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_03', 'repo_pag_test_04']);
+      }));
+
+  it('should getPaginatedCommitById: cursor=3 pagesize=2', async () =>
+    repo
+      .getPaginatedCommitById({ cursor: 3, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(5);
+        expect(hasMore).toBeFalsy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_04', 'repo_pag_test_05']);
+      }));
+
+  it('should getPaginatedCommitById: cursor=4 pagesize=2', async () =>
+    repo
+      .getPaginatedCommitById({ cursor: 4, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(5);
+        expect(hasMore).toBeFalsy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_05']);
+      }));
+
+  it('should getPaginatedCommitById: cursor=5 pagesize=2', async () =>
+    repo
+      .getPaginatedCommitById({ cursor: 5, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toBeNull();
+        expect(hasMore).toBeFalsy();
+        expect(items.map(({ id }) => id)).toEqual([]);
+      }));
+
+  it('should getPaginatedEntityById: cursor=0 pagesize=2', async () =>
+    repo
+      .getPaginatedEntityById({ cursor: 0, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(2);
+        expect(hasMore).toBeTruthy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_01', 'repo_pag_test_02']);
+      }));
+
+  it('should getPaginatedEntityById: cursor=1 pagesize=2', async () =>
+    repo
+      .getPaginatedEntityById({ cursor: 1, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(3);
+        expect(hasMore).toBeTruthy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_02', 'repo_pag_test_03']);
+      }));
+
+  it('should getPaginatedEntityById: cursor=2 pagesize=2', async () =>
+    repo
+      .getPaginatedEntityById({ cursor: 2, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(4);
+        expect(hasMore).toBeTruthy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_03', 'repo_pag_test_04']);
+      }));
+
+  it('should getPaginatedEntityById: cursor=3 pagesize=2', async () =>
+    repo
+      .getPaginatedEntityById({ cursor: 3, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(5);
+        expect(hasMore).toBeFalsy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_04', 'repo_pag_test_05']);
+      }));
+
+  it('should getPaginatedEntityById: cursor=4 pagesize=2', async () =>
+    repo
+      .getPaginatedEntityById({ cursor: 4, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toEqual(5);
+        expect(hasMore).toBeFalsy();
+        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_05']);
+      }));
+
+  it('should getPaginatedEntityById: cursor=5 pagesize=2', async () =>
+    repo
+      .getPaginatedEntityById({ cursor: 5, pagesize: 2 }, 'repo_pag_test*')
+      .then(({ data: { total, hasMore, cursor, items } }) => {
+        expect(total).toEqual(5);
+        expect(cursor).toBeNull();
+        expect(hasMore).toBeFalsy();
+        expect(items.map(({ id }) => id)).toEqual([]);
+      }));
 });

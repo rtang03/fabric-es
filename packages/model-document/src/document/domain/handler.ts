@@ -39,7 +39,7 @@ export const documentCommandHandler: (option: {
     return documentRepo
       .create({ enrollmentId, id: documentId })
       .save({ events })
-      .then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      .then(({ data }) => data);
   },
   DeleteDocument: async ({ userId, payload: { documentId, timestamp } }) =>
     documentRepo.getById({ enrollmentId, id: documentId }).then(({ currentState, save }) => {
@@ -52,7 +52,7 @@ export const documentCommandHandler: (option: {
             payload: { documentId, userId, timestamp },
           },
         ],
-      }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      }).then(({ data }) => data);
     }),
   RestrictDocumentAccess: async ({ userId, payload: { documentId, timestamp } }) =>
     documentRepo.getById({ enrollmentId, id: documentId }).then(({ currentState, save }) => {
@@ -64,7 +64,7 @@ export const documentCommandHandler: (option: {
             payload: { documentId, userId, timestamp },
           },
         ],
-      }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      }).then(({ data }) => data);
     }),
   DefineDocumentReference: async (_) => {
     throw Errors.invalidOperation(); // Readonly field
@@ -79,7 +79,7 @@ export const documentCommandHandler: (option: {
             payload: { documentId, userId, loanId, timestamp },
           },
         ],
-      }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      }).then(({ data }) => data);
     }),
   DefineDocumentTitle: async ({ userId, payload: { documentId, title, timestamp } }) =>
     documentRepo.getById({ enrollmentId, id: documentId }).then(({ currentState, save }) => {
@@ -91,6 +91,6 @@ export const documentCommandHandler: (option: {
             payload: { documentId, userId, title, timestamp },
           },
         ],
-      }).then(({ data, status }) => (status === 'OK' ? values(data)[0] : null));
+      }).then(({ data }) => data);
     }),
 });

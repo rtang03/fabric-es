@@ -1,5 +1,5 @@
-import { Commit } from '@fabric-es/fabric-cqrs';
-import { catchErrors, getLogger, Paginated } from '@fabric-es/gateway-lib';
+import { Commit, Paginated } from '@fabric-es/fabric-cqrs';
+import { catchErrors, getLogger } from '@fabric-es/gateway-lib';
 import { ApolloError } from 'apollo-server-errors';
 import gql from 'graphql-tag';
 import { Document, documentCommandHandler } from '.';
@@ -45,7 +45,7 @@ export const typeDefs = gql`
   }
 
   type PaginatedDocuments {
-    entities: [Document!]!
+    items: [Document!]!
     total: Int!
     hasMore: Boolean!
   }
@@ -87,26 +87,18 @@ export const resolvers = {
       { fcnName: 'getCommitsByDocumentId', logger, useAuth: false }
     ),
     getDocumentById: catchErrors(
-      async (
-        _,
-        { documentId },
-        { dataSources: { document }, username }
-      ): Promise<Document> =>
+      async (_, { documentId }, { dataSources: { document }, username }): Promise<Document> =>
         document.repo
           .getById({ id: documentId, enrollmentId: username })
           .then(({ currentState }) => currentState),
       { fcnName: 'getDocumentById', logger, useAuth: false }
     ),
     getPaginatedDocuments: catchErrors(
-      async (
-        _,
-        { pageSize },
-        { dataSources: { document } }
-      ): Promise<Paginated<Document>> =>
+      async (_, { pageSize }, { dataSources: { document } }): Promise<Paginated<Document>> =>
         document.repo.getByEntityName().then(
           ({ data }: { data: any[] }) =>
             ({
-              entities: data || [],
+              items: data || [],
               total: data.length,
               hasMore: data.length > pageSize,
             } as Paginated<Document>)
@@ -147,11 +139,7 @@ export const resolvers = {
       { fcnName: 'createDocument', logger, useAuth: true }
     ),
     deleteDocument: catchErrors(
-      async (
-        _,
-        { userId, documentId },
-        { dataSources: { document }, username }
-      ): Promise<Commit> =>
+      async (_, { userId, documentId }, { dataSources: { document }, username }): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
           documentRepo: document.repo,
@@ -162,11 +150,7 @@ export const resolvers = {
       { fcnName: 'deleteDocument', logger, useAuth: true }
     ),
     restrictAccess: catchErrors(
-      async (
-        _,
-        { userId, documentId },
-        { dataSources: { document }, username }
-      ): Promise<Commit> =>
+      async (_, { userId, documentId }, { dataSources: { document }, username }): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
           documentRepo: document.repo,
@@ -181,9 +165,7 @@ export const resolvers = {
       { userId, documentId, loanId, title, reference },
       { dataSources: { document }, username }
     ): Promise<Commit[]> => {
-
-      // TODO: any[] is wrong typing, need fixing
-      const result: any[] = [];
+      const result = [];
 
       if (typeof loanId !== 'undefined') {
         const c = await documentCommandHandler({
@@ -230,7 +212,7 @@ export const resolvers = {
   Loan: {
     documents: catchErrors(
       async ({ loanId }, _, { dataSources: { document } }) =>
-        document.repo.find({ where: { loanId }}).then(({ data }) => data),
+        document.repo.find({ where: { loanId } }).then(({ data }) => data),
       { fcnName: 'Loan/docuemnts', logger, useAuth: false }
     ),
   },
