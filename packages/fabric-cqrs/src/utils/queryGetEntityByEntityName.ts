@@ -2,7 +2,8 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { commitsToGroupByEntityId } from '../queryHandler';
 import { action } from '../store/query';
-import type { RepoFcn, Reducer } from '../types';
+import type { Reducer } from '../types';
+import { HandlerResponse } from '../types';
 import { dispatcher } from './dispatcher';
 
 /**
@@ -17,7 +18,11 @@ export const queryGetEntityByEntityName: <TEntity>(
   entityName: string,
   reducer: Reducer,
   option: { logger: Logger; store: Store }
-) => RepoFcn<TEntity[]> = <TEntity>(entityName, reducer, { logger, store }) =>
+) => () => Promise<HandlerResponse<TEntity[]>> = <TEntity>(
+  entityName,
+  reducer,
+  { logger, store }
+) =>
   dispatcher<TEntity[], null>(
     ({ tx_id }) => action.queryByEntityName({ tx_id, args: { entityName } }),
     {

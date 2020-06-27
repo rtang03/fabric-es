@@ -12,3 +12,4 @@ export * from './fabricResponse';
 export * from './queryHandler';
 export * from './dispatcher';
 export * from './pubSubPayload';
+export * from './paginated';

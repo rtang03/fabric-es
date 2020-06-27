@@ -23,3 +23,5 @@ export * from './addCreator';
 export * from './metaGetEntityByEntNameEntId';
 export * from './replaceTag';
 export * from './metaGetCommitByEntNameEntId';
+export * from './getPaginated';
+export * from './queryGetPaginatedEntityById'

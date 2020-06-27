@@ -29,6 +29,8 @@ const metaEntityParser = (data: BaseEntity[]) =>
         reducer: entity?._reducer,
       }))
     : null;
+
+// todo: below can be obtained from cqrs
 const getPaginated: <T>(items: T[], total, cursor: number) => Paginated<T> = (
   items,
   total,
@@ -151,18 +153,7 @@ export const resolvers = {
     paginatedMetaEntity: catchErrors<Paginated<MetaEntity> | ApolloError>(
       async (
         _,
-        {
-          creator,
-          cursor = 0,
-          pagesize = 10,
-          entityName,
-          id,
-          scope,
-          startTime,
-          endTime,
-          sortByField,
-          sort,
-        }: {
+        criteria: {
           creator: string;
           cursor: number;
           pagesize: number;
@@ -176,10 +167,14 @@ export const resolvers = {
         },
         { queryHandler }: QueryHandlerGqlCtx
       ) => {
+        !criteria.cursor && (criteria.cursor = 0);
+        !criteria.pagesize && (criteria.pagesize = 10);
+
+        const { entityName, id, cursor } = criteria;
         const { data, error, status } = await queryHandler.meta_getEntityByEntNameEntId(
           entityName,
           id
-        )({ creator, cursor, pagesize, scope, startTime, endTime, sort, sortByField });
+        )(criteria);
 
         const {
           data: total,
@@ -188,7 +183,7 @@ export const resolvers = {
         } = await queryHandler.meta_getEntityByEntNameEntId(
           entityName,
           id
-        )({ creator, scope, startTime, endTime, sort, sortByField, cursor: 0, pagesize: 0 });
+        )({ ...criteria, cursor: 0, pagesize: 0 });
 
         return status !== 'OK'
           ? new ApolloError(JSON.stringify(error))

@@ -47,6 +47,7 @@ export interface QHMetaGetCommitPayload {
 }
 
 export interface QHMetaGetEntityPayload {
+  organization?: string;
   scope?: 'LAST_MODIFIED' | 'CREATED';
   startTime?: number;
   endTime?: number;

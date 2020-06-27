@@ -1,6 +1,6 @@
 import { Gateway, Network, Wallet } from 'fabric-network';
 import type { Logger } from 'winston';
-import type { Commit, FabricResponse, HandlerResponse, Reducer, QueryDatabase } from '.';
+import type { Commit, FabricResponse, HandlerResponse, Paginated, QueryDatabase } from '.';
 
 export interface RepoOption {
   connectionProfile: string;
@@ -34,11 +34,17 @@ export type RepoFcn_IdCommitId<TResponse> = (payload: {
   commitId: string;
 }) => Promise<HandlerResponse<TResponse>>;
 
-export type RepoFcn_find<TResponse> = (criteria: {
-  byId?: string;
-  byDesc?: string;
-  where?: any;
-}) => Promise<HandlerResponse<TResponse>>;
+export interface GetPagEntityCriteria {
+  organization?: string;
+  scope?: 'LAST_MODIFIED' | 'CREATED';
+  startTime?: number;
+  endTime?: number;
+  creator?: string;
+  cursor: number;
+  pagesize: number;
+  sortByField?: 'id' | 'key' | 'created' | 'creator' | 'ts';
+  sort?: 'ASC' | 'DESC';
+}
 
 export interface Repository<TEntity = any, TEvent = any> {
   create: (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
@@ -52,13 +58,21 @@ export interface Repository<TEntity = any, TEvent = any> {
     currentState: TEntity;
     save: SaveFcn<TEvent>;
   }>;
-  getByEntityName: RepoFcn<TEntity[]>;
+  getByEntityName: () => Promise<HandlerResponse<TEntity[]>>;
   getCommitById: RepoFcn_Id<Commit[]>;
   query_deleteCommitByEntityId: RepoFcn_Id<number>;
   query_deleteCommitByEntityName: RepoFcn<number>;
-  find: RepoFcn_find<TEntity[]>;
+  find: (criteria: {
+    byId?: string;
+    byDesc?: string;
+    where?: any;
+  }) => Promise<HandlerResponse<TEntity[]>>;
   getEntityName: () => string;
   disconnect: () => void;
+  getPaginatedEntityById: (
+    criteria: GetPagEntityCriteria,
+    id?: string
+  ) => Promise<HandlerResponse<Paginated<TEntity>>>;
 }
 
 export interface PrivateRepository<TEntity = any, TEvent = any> {

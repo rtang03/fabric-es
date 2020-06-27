@@ -23,26 +23,50 @@ export const metaGetEntityByEntNameEntId: <TEntity>(
   { logger, store }
 ) => {
   const query = id ? `@entname:${entityName} @id:${id}` : `@entname:${entityName}`;
-  const getRangedQuery = (startTime: number, endTime: number, scope, creator: string) => {
+  const getRangedQuery = (
+    startTime: number,
+    endTime: number,
+    scope,
+    creator: string,
+    org: string
+  ) => {
     let q = query;
-    if (startTime >= 0 && scope === 'LAST_MODIFIED')
-      q = `${q} @ts:[${startTime} ${endTime || 'inf'}]`;
-    if (startTime >= 0 && scope === 'CREATED')
-      q = `${q} @created:[${startTime} ${endTime || 'inf'}]`;
-    if (creator) q = `${q} @creator:${tokenizeTextField(creator)}`;
+
+    startTime >= 0 &&
+      scope === 'LAST_MODIFIED' &&
+      (q = `${q} @ts:[${startTime} ${endTime || 'inf'}]`);
+
+    startTime >= 0 &&
+      scope === 'CREATED' &&
+      (q = `${q} @created:[${startTime} ${endTime || 'inf'}]`);
+
+    creator && (q = `${q} @creator:${tokenizeTextField(creator)}`);
+
+    org && (q = `${q} @org:{${org}}`);
+
     return q;
   };
 
   return dispatcher<TEntity[] | number, QHMetaGetEntityPayload>(
     ({
       tx_id,
-      args: { startTime, endTime, scope, creator, cursor, pagesize, sortByField, sort },
+      args: {
+        startTime,
+        endTime,
+        scope,
+        creator,
+        cursor,
+        pagesize,
+        sortByField,
+        sort,
+        organization,
+      },
     }) =>
       action.eIdxSearch({
         tx_id,
         args: {
           query: [
-            getRangedQuery(startTime, endTime, scope, creator),
+            getRangedQuery(startTime, endTime, scope, creator, organization),
             'SORTBY',
             sortByField || 'id',
             sort || 'ASC',

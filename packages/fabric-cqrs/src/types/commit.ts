@@ -48,9 +48,9 @@ export interface BaseEntity {
   id?: string;
   tag?: string;
   desc?: string;
-  _created: number;
-  _creator: string;
-  _ts: number;
+  _created?: number;
+  _creator?: string;
+  _ts?: number;
   _event?: string;
   _commit?: string[];
   _entityName?: string;
