@@ -21,7 +21,7 @@ const logger = getLogger('[query-handler] app.js');
 (async () => {
   const redisOptions: RedisOptions = {
     host: process.env.REDIS_HOST,
-    port: parseInt(process.env.REDIS_PORT, 10),
+    port: parseInt(process.env.REDIS_PORT, 10) || 6379,
     retryStrategy: (times) => Math.min(times * 50, 2000),
   };
 

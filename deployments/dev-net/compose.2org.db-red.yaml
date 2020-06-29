@@ -28,6 +28,6 @@ services:
     # custom configuration. will require if AUTH is set
     # - $VOLUME/redis.conf:/usr/local/etc/redis/redis.conf
     ports:
-      - 6380:6379
+      - 6379
     networks:
       - openplatform

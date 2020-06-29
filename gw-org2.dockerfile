@@ -33,6 +33,7 @@ VOLUME /home/app/packages/gw-org2/assets /home/app/packages/gw-org2/connection /
 WORKDIR /home/app/packages/gw-org2
 
 EXPOSE 4002
+EXPOSE 5002
 
 ENTRYPOINT ["entrypoint.sh"]
 

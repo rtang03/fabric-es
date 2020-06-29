@@ -47,6 +47,8 @@ export const createQueryHandlerService: (
   const publisher = new Redis(redisOptions);
   const subscriber = new Redis(redisOptions);
 
+  logger.info(util.format('redis option: %j', redisOptions));
+
   let gateway: Gateway;
   let network: Network;
 

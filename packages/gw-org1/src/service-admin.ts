@@ -18,6 +18,7 @@ const logger = getLogger('service-admin.js');
     walletPath: process.env.WALLET,
     orgName: process.env.ORGNAME,
     orgUrl: process.env.ORGURL,
+    asLocalhost: !(process.env.NODE_ENV === 'production'),
   });
 
   process.on('SIGINT', async () => await shutdown(server));
