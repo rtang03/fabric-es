@@ -26,11 +26,20 @@ Array [
     "entityName": "document",
     "events": Array [
       Object {
+        "type": "DocumentCreated",
+      },
+      Object {
+        "type": "DocumentReferenceDefined",
+      },
+      Object {
+        "type": "DocumentLoanIdDefined",
+      },
+      Object {
         "type": "DocumentTitleDefined",
       },
     ],
     "mspId": "Org1MSP",
-    "version": 2,
+    "version": 0,
   },
   Object {
     "entityName": "document",
@@ -46,20 +55,11 @@ Array [
     "entityName": "document",
     "events": Array [
       Object {
-        "type": "DocumentCreated",
-      },
-      Object {
-        "type": "DocumentReferenceDefined",
-      },
-      Object {
-        "type": "DocumentLoanIdDefined",
-      },
-      Object {
         "type": "DocumentTitleDefined",
       },
     ],
     "mspId": "Org1MSP",
-    "version": 0,
+    "version": 2,
   },
 ]
 `;
@@ -177,16 +177,6 @@ Array [
     "entityName": "loan",
     "events": Array [
       Object {
-        "type": "LoanCommentDefined",
-      },
-    ],
-    "mspId": "Org1MSP",
-    "version": 1,
-  },
-  Object {
-    "entityName": "loan",
-    "events": Array [
-      Object {
         "type": "LoanApplied",
       },
       Object {
@@ -198,6 +188,16 @@ Array [
     ],
     "mspId": "Org1MSP",
     "version": 0,
+  },
+  Object {
+    "entityName": "loan",
+    "events": Array [
+      Object {
+        "type": "LoanCommentDefined",
+      },
+    ],
+    "mspId": "Org1MSP",
+    "version": 1,
   },
 ]
 `;

@@ -46,16 +46,6 @@ Array [
     "entityName": "document",
     "events": Array [
       Object {
-        "type": "PrivateDataTracked",
-      },
-    ],
-    "mspId": "Org1MSP",
-    "version": 0,
-  },
-  Object {
-    "entityName": "document",
-    "events": Array [
-      Object {
         "type": "DocumentCreated",
       },
       Object {
@@ -69,6 +59,16 @@ Array [
       },
     ],
     "mspId": "Org2MSP",
+    "version": 0,
+  },
+  Object {
+    "entityName": "document",
+    "events": Array [
+      Object {
+        "type": "PrivateDataTracked",
+      },
+    ],
+    "mspId": "Org1MSP",
     "version": 0,
   },
 ]
@@ -141,16 +141,6 @@ Array [
     "entityName": "loan",
     "events": Array [
       Object {
-        "type": "LoanCommentDefined",
-      },
-    ],
-    "mspId": "Org1MSP",
-    "version": 1,
-  },
-  Object {
-    "entityName": "loan",
-    "events": Array [
-      Object {
         "type": "LoanApplied",
       },
       Object {
@@ -162,6 +152,16 @@ Array [
     ],
     "mspId": "Org1MSP",
     "version": 0,
+  },
+  Object {
+    "entityName": "loan",
+    "events": Array [
+      Object {
+        "type": "LoanCommentDefined",
+      },
+    ],
+    "mspId": "Org1MSP",
+    "version": 1,
   },
 ]
 `;
