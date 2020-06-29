@@ -3,6 +3,7 @@
  * @hidden
  */
 import { Wallet } from 'fabric-network';
+import assign from 'lodash/assign';
 import { AnyAction, Store } from 'redux';
 
 type Action = { type: string; payload?: { tx_id: string; args: any } };
@@ -25,15 +26,19 @@ export const getAction: <TAction extends Action>(
   channelName,
   connectionProfile,
   wallet,
-}) => ({
-  type: action,
-  payload: {
-    tx_id,
-    args,
-    store,
-    enrollmentId,
-    channelName,
-    connectionProfile,
-    wallet,
-  },
-});
+}) =>
+  assign(
+    {},
+    {
+      type: action,
+      payload: {
+        tx_id,
+        args,
+        store,
+        enrollmentId,
+        channelName,
+        connectionProfile,
+        wallet,
+      },
+    }
+  );

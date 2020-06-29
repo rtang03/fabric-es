@@ -2,13 +2,15 @@ import util from 'util';
 import { Contract, ContractListener, Network } from 'fabric-network';
 import { getStore } from '../store';
 import { action as projAction } from '../store/projection';
-import { action as queryAction } from '../store/query';
 import { action as reconcileAction } from '../store/reconcile';
 import type {
   Commit,
+  PaginatedCommitCriteria,
+  PaginatedEntityCriteria,
   PubSubPayload,
   PubSubSysEvent,
   QueryHandler,
+  QueryHandlerEntity,
   QueryHandlerOptions,
 } from '../types';
 import {
@@ -18,12 +20,15 @@ import {
   dispatcher,
   getLogger,
   isCommit,
-  isCommitRecord,
-  queryDeleteByEntityId,
-  queryDeleteByEntityName,
-  queryGetByEntityName,
+  queryDeleteCommitByEntityId,
+  queryDeleteCommitByEntityName,
+  queryGetEntityByEntityName,
   queryGetById,
-  queryGetCommitById,
+  queryGetCommitByEntityId,
+  doPaginatedSearch,
+  queryGetPaginatedEntityById,
+  queryGetPaginatedCommitById,
+  doPaginatedFullTextSearch,
 } from '../utils';
 
 export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler = (options) => {
@@ -63,35 +68,26 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
     getById: <TEntity = any, TEvent = any>(entityName) =>
       queryGetById<TEntity, TEvent>(entityName, reducers[entityName], false, commandOption),
     getByEntityName: <TEntity = any>(entityName) =>
-      queryGetByEntityName<TEntity>(entityName, reducers[entityName], queryOption),
-    getCommitById: (entityName) => queryGetCommitById(entityName, queryOption),
-    query_deleteByEntityId: (entityName) => queryDeleteByEntityId(entityName, queryOption),
-    query_deleteByEntityName: (entityName) => queryDeleteByEntityName(entityName, queryOption),
-    fullTextSearchCommit: () =>
-      dispatcher<Record<string, Commit>, { query: string }>(
-        (payload) => queryAction.cIdxSearch(payload),
-        {
-          name: 'cIdxSearch',
-          store,
-          slice: 'query',
-          SuccessAction: queryAction.SEARCH_SUCCESS,
-          ErrorAction: queryAction.SEARCH_ERROR,
-          logger,
-          typeGuard: isCommitRecord,
-        }
+      queryGetEntityByEntityName<TEntity>(entityName, reducers[entityName], queryOption),
+    getCommitById: (entityName) => queryGetCommitByEntityId(entityName, queryOption),
+    query_deleteCommitByEntityId: (entityName) =>
+      queryDeleteCommitByEntityId(entityName, queryOption),
+    query_deleteCommitByEntityName: (entityName) =>
+      queryDeleteCommitByEntityName(entityName, queryOption),
+    getPaginatedEntityById: <TResult>(entityName) =>
+      doPaginatedSearch<TResult, PaginatedEntityCriteria>(
+        entityName,
+        queryGetPaginatedEntityById,
+        queryOption
       ),
-    fullTextSearchEntity: <TEntity>() =>
-      dispatcher<Record<string, TEntity>, { query: string }>(
-        (payload) => queryAction.eIdxSearch(payload),
-        {
-          name: 'eIdxSearch',
-          store,
-          slice: 'query',
-          SuccessAction: queryAction.SEARCH_SUCCESS,
-          ErrorAction: queryAction.SEARCH_ERROR,
-          logger,
-        }
+    getPaginatedCommitById: (entityName) =>
+      doPaginatedSearch<Commit, PaginatedCommitCriteria>(
+        entityName,
+        queryGetPaginatedCommitById,
+        queryOption
       ),
+    fullTextSearchCommit: doPaginatedFullTextSearch<Commit>('cidx', queryOption),
+    fullTextSearchEntity: doPaginatedFullTextSearch<QueryHandlerEntity>('eidx', queryOption),
     reconcile: () =>
       dispatcher<{ key: string; status: string }[], { entityName: string }>(
         ({ tx_id, args }) =>

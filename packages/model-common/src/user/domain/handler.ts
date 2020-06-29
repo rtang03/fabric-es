@@ -21,7 +21,7 @@ export const userCommandHandler: (option: {
           },
         ],
       })
-      .then(({ data, status }) => (status === 'OK' ? values(data)[0] : null)),
+      .then(({ data }) => data),
   DeclineReviewInvitation: async ({ userId, payload: { documentId, tradeId, timestamp } }) =>
     userRepo
       .getById({ enrollmentId, id: userId })
@@ -40,7 +40,7 @@ export const userCommandHandler: (option: {
           ],
         })
       )
-      .then(({ data, status }) => (status === 'OK' ? values(data)[0] : null)),
+      .then(({ data }) => data),
   ExpireReviewInvitation: async ({ userId, payload: { documentId, tradeId, timestamp } }) =>
     userRepo
       .getById({ enrollmentId, id: userId })
@@ -59,5 +59,5 @@ export const userCommandHandler: (option: {
           ],
         })
       )
-      .then(({ data, status }) => (status === 'OK' ? values(data)[0] : null)),
+      .then(({ data }) => data),
 });

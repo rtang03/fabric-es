@@ -1,4 +1,5 @@
 import type { Redis } from 'ioredis';
+import uniq from 'lodash/uniq';
 
 export const entityIndex = [
   'eidx',
@@ -11,9 +12,21 @@ export const entityIndex = [
   'id',
   'TEXT',
   'SORTABLE',
+  'creator',
+  'TEXT',
+  'event',
+  'TAG',
   'desc',
   'TEXT',
   'tag',
+  'TAG',
+  'created',
+  'NUMERIC',
+  'SORTABLE',
+  'ts',
+  'NUMERIC',
+  'SORTABLE',
+  'org',
   'TAG',
 ];
 
@@ -22,9 +35,26 @@ export const createEntityIndex: (option: {
   entityName: string;
   redisKey: string;
   id: string;
+  creator: string;
+  created?: number;
+  ts?: number;
   desc?: string;
   tag?: string;
-}) => any[] = ({ documentId, redisKey, entityName, id, desc, tag }) => {
+  event: string;
+  org: string;
+}) => any[] = ({
+  documentId,
+  redisKey,
+  entityName,
+  id,
+  creator,
+  created,
+  ts,
+  desc,
+  tag,
+  event,
+  org,
+}) => {
   const result = [
     'eidx',
     documentId,
@@ -37,35 +67,61 @@ export const createEntityIndex: (option: {
     entityName,
     'id',
     id,
+    'creator',
+    creator,
+    'event',
+    event,
   ];
 
-  if (desc) {
-    result.push('desc');
-    result.push(desc);
-  }
-
-  if (tag) {
-    result.push('tag');
-    result.push(tag);
-  }
+  desc && result.push('desc');
+  desc && result.push(desc);
+  tag && result.push('tag');
+  tag && result.push(tag);
+  created && result.push('created');
+  created && result.push(created);
+  ts && result.push('ts');
+  ts && result.push(ts);
+  org && result.push('org');
+  org && result.push(org);
 
   return result;
 };
 
 export const fullTextSearchAddEntity = async <
-  TEntity extends { id?: string; desc?: string; tag?: string }
+  TEntity extends {
+    id?: string;
+    _creator?: string;
+    _created?: number;
+    _ts?: number;
+    _event?: string;
+    _organization?: string[];
+    desc?: string;
+    tag?: string;
+  }
 >(
   redisKey: string,
   entity: TEntity,
   redis: Redis
 ) => {
-  const index = createEntityIndex({
+  const uniqueEvents = uniq(entity._event.split(',')).reduce(
+    (prev, curr) => (prev ? `${prev},${curr}` : curr),
+    null
+  );
+  const org = entity._organization.reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
+
+  const indexed = createEntityIndex({
     documentId: `eidx::${redisKey}`,
     entityName: redisKey.split('::')[0],
     redisKey,
     id: entity.id,
+    creator: entity?._creator,
+    created: entity?._created,
+    ts: entity?._ts,
     desc: entity?.desc,
     tag: entity?.tag,
+    event: uniqueEvents,
+    org,
   });
-  return redis.send_command('FT.ADD', index);
+
+  return redis.send_command('FT.ADD', indexed);
 };

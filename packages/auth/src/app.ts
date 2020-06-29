@@ -113,7 +113,7 @@ const connection = {
       process.exit(1);
     }
 
-    if (process.send) process.send('ready');
+    process?.send?.('ready');
   });
 })().catch((error) => {
   console.error(error);

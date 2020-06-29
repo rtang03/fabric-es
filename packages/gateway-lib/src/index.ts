@@ -1,6 +1,5 @@
-import { Commit, HandlerResponse } from '@fabric-es/fabric-cqrs';
+import { Commit } from '@fabric-es/fabric-cqrs';
 import { DataSource } from 'apollo-datasource';
-
 export { catchErrors } from './utils/catchErrors';
 export { createGateway } from './utils/createGateway';
 export { createService } from './utils/createService';
@@ -38,8 +37,3 @@ export const Errors = {
   entityMissing: () => new Error('ENTITY_MISSING'),
 };
 
-export type Paginated<TEntity> = {
-  entities: TEntity[];
-  hasMore: boolean;
-  total: number;
-};

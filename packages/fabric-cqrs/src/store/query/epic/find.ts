@@ -31,12 +31,12 @@ export default (
             return findError({ tx_id, error: error.message });
           });
       } else {
-        let query = `@entname:${entityName} `;
+        let query = `@entname:${entityName}`;
         if (byId) query = `${query} @id:${byId}`;
         if (byDesc) query = `${query} @desc:${byDesc}`;
 
         promise = queryDatabase
-          .fullTextSearchEntity({ query })
+          .fullTextSearchEntity({ query: [query] })
           .then(({ result }) => findSuccess({ tx_id, result }))
           .catch((error) => {
             logger.error(

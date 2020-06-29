@@ -4,8 +4,20 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action } from '../store/command';
 import { Commit, SaveFcn, Reducer, trackingReducer } from '../types';
-import { addTimestamp, dispatcher, getHistory, isCommitRecord } from '.';
+import { addTimestamp, dispatcher, getHistory, isCommitRecord, replaceTag } from '.';
 
+/**
+ * get CurrentState by entityId, and return save function
+ * Basic Command-side Operation: only used by privateRepository
+ * @param entityName
+ * @param reducer
+ * @param isPrivateData
+ * @param store
+ * @param logger
+ * @param wallet
+ * @param connectionProfile
+ * @param channelName
+ */
 export const commandGetById: <TEntity, TEvent>(
   entityName: string,
   reducer: Reducer,
@@ -47,7 +59,7 @@ export const commandGetById: <TEntity, TEvent>(
 
   const save = !data
     ? null
-    : dispatcher<Record<string, Commit>, { events: TEvent[] }>(
+    : dispatcher<Commit, { events: TEvent[] }>(
         ({ tx_id, args: { events } }) =>
           action.create({
             channelName,
@@ -60,7 +72,7 @@ export const commandGetById: <TEntity, TEvent>(
               id,
               version: Object.keys(data).length,
               isPrivateData,
-              events: addTimestamp(events),
+              events: replaceTag(addTimestamp(events)),
             },
           }),
         {
@@ -71,7 +83,8 @@ export const commandGetById: <TEntity, TEvent>(
           ErrorAction: action.CREATE_ERROR,
           logger,
           typeGuard: isCommitRecord,
-        }
+        },
+        (result: Record<string, Commit>) => Object.values<Commit>(result)[0]
       );
   return { currentState, save };
 };

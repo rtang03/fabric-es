@@ -1,5 +1,4 @@
 export * from './createQueryDatabase';
-export * from './doFullTextSearch';
 export * from './fullTextSearchAddCommit';
 export * from './fullTextSearchAddEntity';
 export * from './pipelineExecute';
@@ -9,3 +8,6 @@ export * from '../utils/dummyReducer';
 export * from './commitsToGroupByEntityId';
 export * from './catchErrors';
 export * from './createQueryHandler';
+export * from './doSearch';
+export * from './sizeOfSearchResult';
+export * from './tokenizeTextField';

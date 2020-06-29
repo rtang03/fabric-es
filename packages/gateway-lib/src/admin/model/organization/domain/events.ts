@@ -5,6 +5,9 @@ export interface OrgStarted extends BaseEvent {
   payload: {
     mspId: string;
     timestamp: number;
+    _ts?: number;
+    _created?: number;
+    _creator?: string;
   };
 }
 
@@ -14,6 +17,9 @@ export interface OrgNameDefined extends BaseEvent {
     mspId: string;
     name: string;
     timestamp: number;
+    _ts?: number;
+    _created?: number;
+    _creator?: string;
   };
 }
 
@@ -23,6 +29,9 @@ export interface OrgUrlDefined extends BaseEvent {
     mspId: string;
     url: string;
     timestamp: number;
+    _ts?: number;
+    _created?: number;
+    _creator?: string;
   };
 }
 
@@ -31,6 +40,9 @@ export interface OrgDowned extends BaseEvent {
   payload: {
     mspId: string;
     timestamp: number;
+    _ts?: number;
+    _created?: number;
+    _creator?: string;
   };
 }
 

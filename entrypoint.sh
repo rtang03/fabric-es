@@ -20,7 +20,7 @@ pm2Wait() {
   fi
 
   STARTED=0
-  TIMEOUT=60
+  TIMEOUT=120
   while [ $STARTED -eq 0 -a $TIMEOUT -gt 0 ]; do
     COUNT=0
     for SERVICE in $2; do

@@ -9,7 +9,7 @@ import Head from 'next/head';
 import React from 'react';
 
 const isServer = () => typeof window === 'undefined';
-const servers = require('../servers.json');
+const servers = require('../../../packages/ui-control/servers.json');
 
 let accessToken = '';
 

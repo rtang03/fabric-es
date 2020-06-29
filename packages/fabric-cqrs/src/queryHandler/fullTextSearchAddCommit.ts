@@ -5,7 +5,7 @@ import type { Commit } from '../types';
 export const commitIndex = [
   'cidx',
   'SCHEMA',
-  'entityName',
+  'entname',
   'TEXT',
   'WEIGHT',
   5.0,
@@ -21,6 +21,11 @@ export const commitIndex = [
   'ts',
   'NUMERIC',
   'SORTABLE',
+  'msp',
+  'TAG',
+  'creator',
+  'TEXT',
+  'SORTABLE',
 ];
 
 export const createCommitIndex: (option: {
@@ -30,37 +35,46 @@ export const createCommitIndex: (option: {
   entityName: string;
   event: string;
   ts: number;
-}) => any[] = ({ documentId, redisKey, entityName, entityId, event, ts }) => [
-  'cidx',
-  documentId,
-  1.0,
-  'REPLACE',
-  'FIELDS',
-  'key',
-  redisKey,
-  'entityName',
-  entityName,
-  'id',
-  entityId,
-  'event',
-  event,
-  'ts',
-  ts,
-];
+  creator: string;
+  msp: string;
+}) => any[] = ({ documentId, redisKey, entityName, entityId, event, ts, creator, msp }) => {
+  const baseIndex = [
+    'cidx',
+    documentId,
+    1.0,
+    'REPLACE',
+    'FIELDS',
+    'key',
+    redisKey,
+    'entname',
+    entityName,
+    'id',
+    entityId,
+    'event',
+    event,
+    'ts',
+    ts,
+    'msp',
+    msp,
+  ];
+
+  return creator ? [...baseIndex, 'creator', creator] : baseIndex;
+};
 
 export const fullTextSearchAddCommit = async (redisKey: string, commit: Commit, redis: Redis) => {
   const { entityId, entityName } = commit;
   const evt = commit.events.reduce<string>((prev, { type }) => `${prev},${type}`, '');
 
-  return redis.send_command(
-    'FT.ADD',
-    createCommitIndex({
-      documentId: `cidx::${redisKey}`,
-      redisKey,
-      entityName,
-      entityId,
-      event: trimStart(evt, ','),
-      ts: commit.events[0]?.payload?.ts || 0,
-    })
-  );
+  const indexed = createCommitIndex({
+    documentId: `cidx::${redisKey}`,
+    redisKey,
+    entityName,
+    entityId,
+    event: trimStart(evt, ','),
+    ts: commit.events[0]?.payload?._ts || 0,
+    creator: commit.events[0]?.payload?._creator,
+    msp: commit.mspId,
+  });
+
+  return redis.send_command('FT.ADD', indexed);
 };

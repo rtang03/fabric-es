@@ -1,7 +1,7 @@
 import { getAction, getErrorAction, getSuccessAction } from '../utils';
 import type {
-  DeleteByEntityIdAction,
-  DeleteByEntityNameAction,
+  DeleteCommitByEntityIdAction,
+  DeleteCommitByEntityNameAction,
   MergeAction,
   MergeBatchAction,
   QueryByEntityIdAction,
@@ -11,12 +11,12 @@ import type {
   FindAction,
 } from './types';
 
-const DELETE_BY_ENTITYNAME = '[Query-Db] Delete entities by EntityName';
-const DELETE_BY_ENTITY_ID = '[Query-Db] Delete entities by entityId';
+const DELETE_COMMIT_BY_ENTITYNAME = '[Query-Db] Delete commits by EntityName';
+const DELETE_COMMIT_BY_ENTITY_ID = '[Query-Db] Delete commits by entityId';
 const DELETE_ERROR = '[Query-Db] Delete Error';
 const DELETE_SUCCESS = '[Query-Db] Delete Success';
-const QUERY_BY_ENTITYNAME = '[Query-Db] Query entities By EntityName';
-const QUERY_BY_ENTITY_ID = '[Query-Db] Query entities By entityId';
+const QUERY_BY_ENTITYNAME = '[Query-Db] Query commits By EntityName';
+const QUERY_BY_ENTITY_ID = '[Query-Db] Query commit By entityId';
 const QUERY_ERROR = '[Query-Db] Query Error';
 const QUERY_SUCCESS = '[Query-Db] Query Success';
 const MERGE_COMMIT = '[Query-Db] Merge commit';
@@ -34,8 +34,8 @@ const FIND_SUCCESS = '[Query-Db] Find Success';
 const FIND_ERROR = '[Query-Db] Find Error';
 
 export const action = {
-  DELETE_BY_ENTITYNAME,
-  DELETE_BY_ENTITY_ID,
+  DELETE_COMMIT_BY_ENTITYNAME,
+  DELETE_COMMIT_BY_ENTITY_ID,
   DELETE_ERROR,
   DELETE_SUCCESS,
   QUERY_BY_ENTITYNAME,
@@ -55,8 +55,8 @@ export const action = {
   FIND,
   FIND_SUCCESS,
   FIND_ERROR,
-  deleteByEntityId: getAction<DeleteByEntityIdAction>(DELETE_BY_ENTITY_ID),
-  deleteByEntityName: getAction<DeleteByEntityNameAction>(DELETE_BY_ENTITYNAME),
+  deleteCommitByEntityId: getAction<DeleteCommitByEntityIdAction>(DELETE_COMMIT_BY_ENTITY_ID),
+  deleteCommitByEntityName: getAction<DeleteCommitByEntityNameAction>(DELETE_COMMIT_BY_ENTITYNAME),
   mergeCommit: getAction<MergeAction>(MERGE_COMMIT),
   mergeCommitBatch: getAction<MergeBatchAction>(MERGE_COMMIT_BATCH),
   queryByEntityName: getAction<QueryByEntityNameAction>(QUERY_BY_ENTITYNAME),
@@ -75,5 +75,5 @@ export const action = {
   searchError: getErrorAction(SEARCH_ERROR),
   find: getAction<FindAction>(FIND),
   findSuccess: getSuccessAction(FIND_SUCCESS),
-  findError: getErrorAction(FIND_ERROR)
+  findError: getErrorAction(FIND_ERROR),
 };

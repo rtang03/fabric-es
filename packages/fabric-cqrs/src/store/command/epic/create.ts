@@ -59,21 +59,21 @@ export default (action$: Observable<CreateAction>, _, context) =>
             ).pipe(
               tap(() => gateway.disconnect()),
               map((result: any) => {
-                if (result.error)
-                  return createError({ tx_id, error: result.error });
+                if (result.error) return createError({ tx_id, error: result.error });
                 else if (result.status) {
                   if (result.status === 'ERROR') return createError({ tx_id, error: result });
                 }
-                if (parentName) {
-                  return track({
-                    channelName, connectionProfile, wallet, tx_id, enrollmentId,
-                    args: {
-                      entityName, parentName, id, version: 0
-                    }
-                  });
-                } else {
-                  return createSuccess({ tx_id, result });
-                }
+
+                return parentName
+                  ? track({
+                      channelName,
+                      connectionProfile,
+                      wallet,
+                      tx_id,
+                      enrollmentId,
+                      args: { entityName, parentName, id, version: 0 },
+                    })
+                  : createSuccess({ tx_id, result });
               })
             )
           : submit$('eventstore:createCommit', [entityName, id, version.toString(), events], {

@@ -14,7 +14,7 @@ import Redis, { RedisOptions } from 'ioredis';
 import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
 import { QueryHandlerGqlCtx } from '../types';
 import { getLogger } from '../utils';
-import { reconcile, rebuildIndex, resolvers, typeDefs } from '.';
+import { reconcile, rebuildIndex, resolvers, typeDefs } from './index';
 
 export const createQueryHandlerService: (
   entityNames: string[],
@@ -46,6 +46,8 @@ export const createQueryHandlerService: (
   const logger = getLogger('[gateway-lib] createQueryHandlerService.js');
   const publisher = new Redis(redisOptions);
   const subscriber = new Redis(redisOptions);
+
+  logger.info(util.format('redis option: %j', redisOptions));
 
   let gateway: Gateway;
   let network: Network;

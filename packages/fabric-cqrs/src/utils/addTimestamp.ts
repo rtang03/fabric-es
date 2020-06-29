@@ -1,7 +1,10 @@
 import { BaseEvent } from '../types';
 
-export const addTimestamp: (events: BaseEvent[]) => BaseEvent[] = (events) =>
-  events.map((event) => ({
+export const addTimestamp: (events: BaseEvent[]) => BaseEvent[] = (events) => {
+  const currentTime = Math.round(new Date().getTime() / 1000);
+
+  return events.map((event) => ({
     ...event,
-    payload: Object.assign({}, event.payload, { ts: Math.round(new Date().getTime() / 1000) }),
+    payload: Object.assign({}, event.payload, { _ts: currentTime }),
   }));
+};

@@ -7,9 +7,9 @@ import values from 'lodash/values';
 import rimraf from 'rimraf';
 import { commitIndex, createQueryDatabase, createQueryHandler, entityIndex } from '..';
 import { getNetwork } from '../../services';
-import type { Commit, QueryHandler } from '../../types';
+import type { QueryHandler } from '../../types';
 import { reducer, CounterEvent, Counter } from '../../unit-test-reducer';
-import { isCommitRecord } from '../../utils';
+import { isCommit, waitForSecond } from '../../utils';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -31,7 +31,7 @@ let queryHandler: QueryHandler;
 let redis: Redis.Redis;
 
 /**
- * ./dn-run-1-px-db-red-auth.sh
+ * ./dn-run.1-px-db-red-auth.sh
  */
 
 beforeAll(async () => {
@@ -98,7 +98,7 @@ beforeAll(async () => {
       .then(({ data }) => console.log(data.message));
 
     await queryHandler
-      .query_deleteByEntityName(entityName)()
+      .query_deleteCommitByEntityName(entityName)()
       .then(({ data }) => console.log(`${data} records deleted`));
 
     await redis
@@ -121,7 +121,7 @@ beforeAll(async () => {
       .then((result) => console.log(`eidx is created: ${result}`))
       .catch((result) => console.log(`eidx is not created: ${result}`));
 
-    return new Promise((done) => setTimeout(() => done(), 4000));
+    return waitForSecond(4);
   } catch (e) {
     console.error(e);
     process.exit(1);
@@ -140,11 +140,11 @@ afterAll(async () => {
     .catch((result) => console.log(`eidx is not dropped: ${result}`));
 
   await queryHandler
-    .query_deleteByEntityName(entityName)()
+    .query_deleteCommitByEntityName(entityName)()
     .then(({ data }) => console.log(`${data} records deleted`))
     .catch((error) => console.log(error));
 
-  return new Promise((done) => setTimeout(() => done(), 5000));
+  return waitForSecond(5);
 });
 
 describe('Reconcile Tests', () => {
@@ -159,7 +159,7 @@ describe('Reconcile Tests', () => {
           },
         ],
       })
-      .then(({ data }) => omit(values<Commit>(data)[0], 'commitId', 'entityId', 'mspId'))
+      .then(({ data }) => omit(data, 'commitId', 'entityId', 'mspId'))
       .then((commit) => expect(commit).toEqual({ id, entityName, version: 0 })));
 
   it('should command_getByEntityName', async () =>
@@ -172,7 +172,6 @@ describe('Reconcile Tests', () => {
         expect(commit.version).toEqual(0);
         expect(status).toEqual('OK');
         expect(error).toBeUndefined();
-        expect(isCommitRecord(data)).toBeTruthy();
       }));
 
   it('should fail to reconcile non-existing entityName', async () =>
@@ -194,7 +193,7 @@ describe('Reconcile Tests', () => {
 
   it('should fail to query_getById: non-existing entityName', async () =>
     queryHandler
-      .getById('noop')({ enrollmentId, id, reducer })
+      .getById('noop')({ enrollmentId, id })
       .then(({ currentState, save }) => {
         expect(currentState).toBeNull();
         expect(save).toBeNull();
@@ -202,19 +201,16 @@ describe('Reconcile Tests', () => {
 
   it('should fail to query_getById: non-existing entityId', async () =>
     queryHandler
-      .getById(entityName)({ enrollmentId, id: 'noop', reducer })
+      .getById(entityName)({ enrollmentId, id: 'noop' })
       .then(({ currentState, save }) => {
         expect(currentState).toBeNull();
         expect(save).toBeNull();
       }));
 
   it('should query_getById, and add new event for id1', async () => {
-    const { currentState, save } = await queryHandler.getById<Counter, CounterEvent>(
-      entityName
-    )({
+    const { currentState, save } = await queryHandler.getById<Counter, CounterEvent>(entityName)({
       enrollmentId,
       id,
-      reducer,
     });
     expect(currentState.value).toEqual(1);
     expect(currentState.id).toEqual(id);
@@ -229,11 +225,9 @@ describe('Reconcile Tests', () => {
         },
       ],
     });
-    const commit = Object.values(data)[0];
-    expect(isCommitRecord(data)).toBeTruthy();
-    expect(commit.id).toEqual(id);
-    expect(commit.entityName).toEqual(entityName);
-    expect(commit.version).toEqual(1);
+    expect(data.id).toEqual(id);
+    expect(data.entityName).toEqual(entityName);
+    expect(data.version).toEqual(1);
   });
 
   it('should reconcile', async () =>
@@ -247,7 +241,7 @@ describe('Reconcile Tests', () => {
 
   it('should query_getById for id1', async () =>
     queryHandler
-      .getById<Counter, CounterEvent>(entityName)({ enrollmentId, id, reducer })
+      .getById<Counter, CounterEvent>(entityName)({ enrollmentId, id })
       .then(({ currentState }) => {
         expect(currentState.id).toEqual(id);
         expect(currentState.value).toEqual(2);
@@ -259,7 +253,7 @@ describe('Reconcile Tests', () => {
     queryHandler
       .getByEntityName<Counter>('noop')()
       .then(({ data }) => {
-        expect(data).toBeNull();
+        expect(data).toEqual([]);
       }));
 
   it('should query_getByEntityName', async () =>
@@ -271,7 +265,7 @@ describe('Reconcile Tests', () => {
         expect(counter.desc).toEqual('query handler #2 reconcile-test');
         expect(counter.tag).toEqual('reconcile');
         expect(counter.value).toEqual(2);
-        expect(typeof counter.ts).toEqual('number');
+        expect(typeof counter._ts).toEqual('number');
       }));
 
   it('should create #2 record for id2', async () =>
@@ -285,7 +279,7 @@ describe('Reconcile Tests', () => {
           },
         ],
       })
-      .then(({ data }) => expect(isCommitRecord(data)).toBeTruthy()));
+      .then(({ data }) => expect(isCommit(data)).toBeTruthy()));
 
   it('should reconcile', async () =>
     queryHandler
@@ -301,23 +295,35 @@ describe('Reconcile Tests', () => {
 
   it('should query_getById for id2', async () =>
     queryHandler
-      .getById<Counter, CounterEvent>(entityName)({ enrollmentId, id: id2, reducer })
+      .getById<Counter, CounterEvent>(entityName)({ enrollmentId, id: id2 })
       .then(({ currentState }) => {
         expect(currentState.id).toEqual(id2);
         expect(currentState.tag).toEqual('reconcile');
         expect(currentState.desc).toEqual('query handler #3 reconcile-test');
         expect(currentState.value).toEqual(1);
-        expect(typeof currentState.ts).toEqual('number');
+        expect(typeof currentState._ts).toEqual('number');
       }));
 
   it('should query_getByEntityName', async () =>
     queryHandler
       .getByEntityName<Counter>(entityName)()
-      .then(({ data }) => data.map<Partial<Counter>>((item) => omit(item, 'ts')))
+      .then(({ data }) => data.map<Partial<Counter>>((item) => omit(item, '_ts', '_created')))
       .then((counters) => {
         expect(counters).toEqual([
-          { value: 2, id, tag: 'reconcile', desc: 'query handler #2 reconcile-test' },
-          { value: 1, id: id2, tag: 'reconcile', desc: 'query handler #3 reconcile-test' },
+          {
+            value: 2,
+            id,
+            tag: 'reconcile',
+            desc: 'query handler #2 reconcile-test',
+            _creator: 'admin-org1.net',
+          },
+          {
+            value: 1,
+            id: id2,
+            tag: 'reconcile',
+            desc: 'query handler #3 reconcile-test',
+            _creator: 'admin-org1.net',
+          },
         ]);
       }));
 
@@ -337,14 +343,14 @@ describe('Reconcile Tests', () => {
       .then(({ data }) => data.map((item) => omit(item, 'commitId', 'events', 'entityId', 'mspId')))
       .then((commits) => {
         expect(commits).toEqual([
-          { id, entityName, version: 1 },
           { id, entityName, version: 0 },
+          { id, entityName, version: 1 },
         ]);
       }));
 
   it('should fail to query_deleteByEntityId for id1: non-existing entityName', async () =>
     queryHandler
-      .query_deleteByEntityId('noop')({ id })
+      .query_deleteCommitByEntityId('noop')({ id })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data).toEqual(0);
@@ -352,7 +358,7 @@ describe('Reconcile Tests', () => {
 
   it('should fail to query_deleteByEntityId for id1: non-existing entityId', async () =>
     queryHandler
-      .query_deleteByEntityId(entityName)({ id: 'noop' })
+      .query_deleteCommitByEntityId(entityName)({ id: 'noop' })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data).toEqual(0);
@@ -360,7 +366,7 @@ describe('Reconcile Tests', () => {
 
   it('should query_deleteByEntityId for id1', async () =>
     queryHandler
-      .query_deleteByEntityId(entityName)({ id })
+      .query_deleteCommitByEntityId(entityName)({ id })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data).toEqual(2);

@@ -18,10 +18,10 @@ export interface QueryDatabase {
   queryCommitByEntityId: (option: {
     entityName: string;
     id: string;
-  }) => Promise<QueryDatabaseResponse<Record<string, Commit>>>;
+  }) => Promise<QueryDatabaseResponse<Commit[]>>;
   queryCommitByEntityName: (option: {
     entityName: string;
-  }) => Promise<QueryDatabaseResponse<Record<string, Commit>>>;
+  }) => Promise<QueryDatabaseResponse<Commit[]>>;
   mergeCommit: (option: { commit: Commit }) => Promise<QueryDatabaseResponse<string[]>>;
   mergeCommitBatch: (option: {
     entityName: string;
@@ -37,13 +37,20 @@ export interface QueryDatabase {
     reducer: Reducer<TEntity>;
   }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
   fullTextSearchCommit: (option: {
-    query: string;
-  }) => Promise<QueryDatabaseResponse<Record<string, Commit>>>;
+    query: string[];
+    countTotalOnly?: boolean;
+  }) => Promise<QueryDatabaseResponse<Commit[] | number>>;
   fullTextSearchEntity: <TEntity = any>(option: {
-    query: string;
-  }) => Promise<QueryDatabaseResponse<Record<string, TEntity>>>;
+    query: string[];
+    countTotalOnly?: boolean;
+  }) => Promise<QueryDatabaseResponse<TEntity[] | number>>;
+  fullTextSearchGetDocument: (option: {
+    index: string;
+    documentId: string;
+  }) => Promise<QueryDatabaseResponse>;
+  fullTextSearchTagVals: (option: { index: string; tag: string }) => Promise<QueryDatabaseResponse>;
   queryEntity: <TEntity = any>(option: {
     entityName: string;
     where?: { [K in keyof TEntity]: TEntity[K] };
-  }) => Promise<QueryDatabaseResponse<Record<string, TEntity>>>;
+  }) => Promise<QueryDatabaseResponse<TEntity[]>>;
 }

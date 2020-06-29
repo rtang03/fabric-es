@@ -7,7 +7,13 @@ import passport from 'passport';
 import { TokenRepo } from '../entity/AccessToken';
 import { User } from '../entity/User';
 import { LoginResponse, ProfileResponse, RegisterResponse, UpdateUserRequest } from '../types';
-import { catchErrors, generateToken, getLogger, isRegisterRequest, isUpdateUserRequest } from '../utils';
+import {
+  catchErrors,
+  generateToken,
+  getLogger,
+  isRegisterRequest,
+  isUpdateUserRequest,
+} from '../utils';
 
 const logger = getLogger({ name: '[auth] createAccountRoute.js' });
 
@@ -31,40 +37,49 @@ export const createAccountRoute: (option: {
 
   // "/login" is similar to password grant type invoked via "/oauth/token"
   router.post('/login', (req, res) => {
-    passport.authenticate('local', { session: false, failureRedirect: '/login' }, async (error, user: User) => {
-      if (error || !user) return res.status(httpStatus.UNAUTHORIZED).send({ error });
+    passport.authenticate(
+      'local',
+      { session: false, failureRedirect: '/login' },
+      async (error, user: User) => {
+        if (error || !user) return res.status(httpStatus.UNAUTHORIZED).send({ error });
 
-      const access_token = generateToken({
-        user_id: user.id,
-        is_admin: user.is_admin,
-        secret: jwtSecret,
-        expiryInSeconds
-      });
-
-      return tokenRepo
-        .save({
-          key: access_token,
-          value: {
-            access_token,
-            user_id: user.id,
-            expires_at: Date.now() + expiryInSeconds * 1000
-          },
-          useDefaultExpiry: true
-        })
-        .then(() => {
-          logger.info(`logging in ${user.id}`);
-
-          res.cookie('token', access_token, { httpOnly: true, secure: true });
-
-          const response: LoginResponse = { username: user.username, id: user.id, access_token, token_type: 'Bearer' };
-
-          return res.status(httpStatus.OK).send(response);
-        })
-        .catch(e => {
-          logger.error(util.format('fail insert access token, %j', e));
-          res.status(httpStatus.BAD_REQUEST).send({ error: 'failed to create access token' });
+        const access_token = generateToken({
+          user_id: user.id,
+          is_admin: user.is_admin,
+          secret: jwtSecret,
+          expiryInSeconds,
         });
-    })(req, res);
+
+        return tokenRepo
+          .save({
+            key: access_token,
+            value: {
+              access_token,
+              user_id: user.id,
+              expires_at: Date.now() + expiryInSeconds * 1000,
+            },
+            useDefaultExpiry: true,
+          })
+          .then(() => {
+            logger.info(`logging in ${user.id}`);
+
+            res.cookie('token', access_token, { httpOnly: true, secure: true });
+
+            const response: LoginResponse = {
+              username: user.username,
+              id: user.id,
+              access_token,
+              token_type: 'Bearer',
+            };
+
+            return res.status(httpStatus.OK).send(response);
+          })
+          .catch((e) => {
+            logger.error(util.format('fail insert access token, %j', e));
+            res.status(httpStatus.BAD_REQUEST).send({ error: 'failed to create access token' });
+          });
+      }
+    )(req, res);
   });
 
   router.get(
@@ -75,6 +90,7 @@ export const createAccountRoute: (option: {
         const user = req.user as User;
         const user_id = req.params.user_id;
         const localUser = await User.findOne({ where: { id: user_id } });
+
         return user.is_admin
           ? res.status(httpStatus.OK).send(omit(localUser, 'password'))
           : user_id === user.id
@@ -96,7 +112,7 @@ export const createAccountRoute: (option: {
         const message = `update user ${user_id}`;
         const request: UpdateUserRequest = {
           email: req.body.email,
-          username: req.body.username
+          username: req.body.username,
         };
 
         if (!isUpdateUserRequest(request)) {
@@ -104,7 +120,10 @@ export const createAccountRoute: (option: {
           return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params' });
         } else if (user.id !== user_id) {
           logger.warn(`fail to ${message}: not authorized`);
-          return res.status(httpStatus.UNAUTHORIZED).send({ error: `not authorized to ${message}` });
+
+          return res
+            .status(httpStatus.UNAUTHORIZED)
+            .send({ error: `not authorized to ${message}` });
         } else {
           await User.update(user_id, request);
 
@@ -129,7 +148,9 @@ export const createAccountRoute: (option: {
 
         if (user.id !== user_id) {
           logger.warn(`fail to ${message}: not authorized`);
-          return res.status(httpStatus.UNAUTHORIZED).send({ error: `not authorized to ${message}` });
+          return res
+            .status(httpStatus.UNAUTHORIZED)
+            .send({ error: `not authorized to ${message}` });
         }
 
         await User.update(user.id, { is_deleted });
@@ -146,7 +167,9 @@ export const createAccountRoute: (option: {
   router.post('/', async (req, res) => {
     if (!isRegisterRequest(req.body)) {
       logger.warn('cannot register account: missing params - username, password, email');
-      return res.status(httpStatus.BAD_REQUEST).send({ error: 'missing params - username, password, email' });
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .send({ error: 'missing params - username, password, email' });
     }
 
     const { username, email, password, org_admin_secret } = req.body;
@@ -190,11 +213,15 @@ export const createAccountRoute: (option: {
         password: hashPassword,
         email,
         is_admin: orgAdminSecret === org_admin_secret,
-        is_deleted: false
+        is_deleted: false,
       });
+
       await User.insert(user);
+
       logger.info(`new account ${user.id} is created`);
+
       const response: RegisterResponse = { username, id: user.id };
+
       return res.status(httpStatus.OK).send(response);
     } catch (e) {
       logger.error(util.format('fail insert insert user, %j', e));

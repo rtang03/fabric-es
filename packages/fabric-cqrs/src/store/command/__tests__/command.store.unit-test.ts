@@ -91,7 +91,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await dispatcher<FabricResponse, { id: string }>(
     ({ tx_id, args: { id } }) =>
-      action.deleteByEntityId({
+      action.deleteCommitByEntityId({
         tx_id,
         channelName,
         connectionProfile,
@@ -118,7 +118,7 @@ describe('Store/command: failure tests', () => {
   it('should deleteByEntityId (tear up)', async () =>
     dispatcher<FabricResponse, { id: string }>(
       ({ tx_id, args: { id } }) =>
-        action.deleteByEntityId({
+        action.deleteCommitByEntityId({
           tx_id,
           channelName,
           connectionProfile,

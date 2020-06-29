@@ -1,16 +1,28 @@
 require('dotenv').config({ path: './.env.test' });
-import { counterReducer, isCommit, QueryHandler } from '@fabric-es/fabric-cqrs';
+import { counterReducer, isCommit, QueryHandler, QueryHandlerEntity } from '@fabric-es/fabric-cqrs';
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import type { Redis, RedisOptions } from 'ioredis';
 import keys from 'lodash/keys';
+import omit from 'lodash/omit';
 import values from 'lodash/values';
 import fetch from 'node-fetch';
 import rimraf from 'rimraf';
 import { createQueryHandlerService, rebuildIndex } from '..';
 import { getLogger } from '../../utils';
-import { CREATE_COMMIT, FULL_TXT_SEARCH_COMMIT, FULL_TXT_SEARCH_ENTITY, ME } from '../query';
+import {
+  CREATE_COMMIT,
+  FULL_TXT_SEARCH_COMMIT,
+  FULL_TXT_SEARCH_ENTITY,
+  ME,
+  PAGINATED_COMMIT,
+  PAGINATED_ENTITY,
+} from '../query';
+
+/**
+ * ./dn-run.1-px-db-red-auth.sh or ./dn-run.2-px-db-red-auth.sh
+ */
 
 const caUrl = process.env.ORG_CA_URL;
 const channelName = process.env.CHANNEL_NAME;
@@ -25,6 +37,7 @@ const enrollmentId = process.env.ORG_ADMIN_ID;
 const id = `qh_gql_test_counter_001`;
 const logger = getLogger('[gateway-lib] queryHandler.unit-test.js');
 const QH_PORT = 4400;
+const timestampesOnCreate = [];
 
 // p.s. tag in redis cannot use '-'. Later, need to check what else character are prohibited.
 const tag = 'unit_test,gw_lib,query_handler';
@@ -87,7 +100,7 @@ beforeAll(async () => {
     }
 
     await queryHandler
-      .query_deleteByEntityName(entityName)()
+      .query_deleteCommitByEntityName(entityName)()
       .then(({ status }) =>
         console.log(`set-up: query_deleteByEntityName, ${entityName}, status: ${status}`)
       );
@@ -107,27 +120,34 @@ beforeAll(async () => {
 // Tear-down the tests in queryHandler shall perform cleanup, for both command & query; so that
 // unit-test can run repeatedly
 afterAll(async () => {
-  await publisher
-    .send_command('FT.DROP', ['cidx'])
-    .then((result) => console.log(`cidx is dropped: ${result}`))
-    .catch((result) => console.log(`cidx is not dropped: ${result}`));
-
-  await publisher
-    .send_command('FT.DROP', ['eidx'])
-    .then((result) => console.log(`eidx is dropped: ${result}`))
-    .catch((result) => console.log(`eidx is not dropped: ${result}`));
-
-  await queryHandler
-    .query_deleteByEntityName(entityName)()
-    .then(({ status }) =>
-      console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
-    );
+  // await publisher
+  //   .send_command('FT.DROP', ['cidx'])
+  //   .then((result) => console.log(`cidx is dropped: ${result}`))
+  //   .catch((result) => console.log(`cidx is not dropped: ${result}`));
+  //
+  // await publisher
+  //   .send_command('FT.DROP', ['eidx'])
+  //   .then((result) => console.log(`eidx is dropped: ${result}`))
+  //   .catch((result) => console.log(`eidx is not dropped: ${result}`));
+  //
+  // await queryHandler
+  //   .query_deleteCommitByEntityName(entityName)()
+  //   .then(({ status }) =>
+  //     console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
+  //   );
 
   await queryHandler
     .command_deleteByEntityId(entityName)({ id })
     .then(({ status }) =>
-      console.log(`tear-down: command_deleteByEntityId, ${entityName}:${id}, status: ${status}`)
+      console.log(`tear-down: command_deleteByEntityId, ${entityName}:${id}, ${status}`)
     );
+
+  for await (const i of [1, 2, 3, 4, 5])
+    await queryHandler
+      .command_deleteByEntityId(entityName)({ id: `paginated-${i}` })
+      .then(({ status }) =>
+        console.log(`tear-down: command_deleteByEntityId, ${entityName}:paginated-${i}, ${status}`)
+      );
 
   await server.stop();
 
@@ -219,7 +239,10 @@ describe('Full Text Search Test', () => {
     })
       .then((r) => r.json())
       .then(({ data }) => {
-        const commit = data?.fullTextSearchCommit;
+        expect(data?.fullTextSearchCommit.total).toEqual(1);
+        expect(data?.fullTextSearchCommit.hasMore).toEqual(false);
+        expect(data?.fullTextSearchCommit.cursor).toEqual(1);
+        const commit = data?.fullTextSearchCommit.items[0];
         if (isCommit(commit)) {
           expect(commit.id).toEqual(id);
           expect(commit.entityName).toEqual(entityName);
@@ -239,7 +262,10 @@ describe('Full Text Search Test', () => {
     })
       .then((r) => r.json())
       .then(({ data }) => {
-        const commit = data?.fullTextSearchCommit;
+        expect(data?.fullTextSearchCommit.total).toEqual(1);
+        expect(data?.fullTextSearchCommit.hasMore).toEqual(false);
+        expect(data?.fullTextSearchCommit.cursor).toEqual(1);
+        const commit = data?.fullTextSearchCommit[0];
         if (isCommit(commit)) {
           expect(commit.id).toEqual(id);
           expect(commit.entityName).toEqual(entityName);
@@ -272,13 +298,20 @@ describe('Full Text Search Test', () => {
     })
       .then((r) => r.json())
       .then(({ data }) => {
-        const counterObject = data?.fullTextSearchEntity[0];
-        expect(counterObject?.id).toEqual(id);
-        expect(counterObject?.entityName).toEqual(entityName);
-        const counter = JSON.parse(counterObject.value);
-        expect(counter.value).toEqual(1);
-        expect(counter.desc).toEqual('my desc');
-        expect(counter.id).toEqual(id);
+        expect(data?.fullTextSearchEntity.total).toEqual(1);
+        expect(data?.fullTextSearchEntity.hasMore).toEqual(false);
+        expect(data?.fullTextSearchEntity.cursor).toEqual(1);
+        const counterObject: QueryHandlerEntity = data?.fullTextSearchEntity.items[0];
+        expect(
+          omit(counterObject, 'value', 'commits', 'created', 'lastModified', 'timeline', 'reducer')
+        ).toEqual({
+          id,
+          entityName,
+          desc: 'my desc',
+          events: 'Increment',
+          creator: 'admin-org1.net',
+          tag: 'unit_test,gw_lib,query_handler',
+        });
       }));
 
   it('should fullTextSearchEntity: search by tag, @tag:{query*}', async () =>
@@ -293,12 +326,693 @@ describe('Full Text Search Test', () => {
     })
       .then((r) => r.json())
       .then(({ data }) => {
-        const counterObject = data?.fullTextSearchEntity[0];
-        expect(counterObject?.id).toEqual(id);
-        expect(counterObject?.entityName).toEqual(entityName);
-        const counter = JSON.parse(counterObject.value);
-        expect(counter.value).toEqual(1);
-        expect(counter.desc).toEqual('my desc');
-        expect(counter.id).toEqual(id);
+        expect(data?.fullTextSearchEntity.total).toEqual(1);
+        expect(data?.fullTextSearchEntity.hasMore).toEqual(false);
+        expect(data?.fullTextSearchEntity.cursor).toEqual(1);
+        const counterObject: QueryHandlerEntity = data?.fullTextSearchEntity.items[0];
+        expect(
+          omit(counterObject, 'value', 'commits', 'created', 'lastModified', 'timeline', 'reducer')
+        ).toEqual({
+          id,
+          entityName,
+          desc: 'my desc',
+          events: 'Increment',
+          creator: 'admin-org1.net',
+          tag: 'unit_test,gw_lib,query_handler',
+        });
+      }));
+});
+
+describe('Paginated search', () => {
+  beforeAll(async () => {
+    for await (const i of [1, 2, 3, 4, 5]) {
+      timestampesOnCreate.push(Math.floor(Date.now() / 1000));
+
+      await fetch(`http://localhost:${QH_PORT}/graphql`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+        body: JSON.stringify({
+          operationName: 'CreateCommit',
+          query: CREATE_COMMIT,
+          variables: {
+            entityName,
+            id: `paginated-${i}`,
+            type: i % 2 === 0 ? 'Decrement' : 'Increment',
+            payloadString: `{"id":"paginated-${i}","desc":"my desc paginated-${i}","tag":"paginated_${i}"}`,
+          },
+        }),
+      })
+        .then((r) => r.text())
+        .then((data) => console.log(data));
+
+      await new Promise((done) => setTimeout(() => done(), 2000));
+    }
+  });
+
+  // when searching out-of-range, the other search criteria remains valid.
+  // therefore, it is not returning null, and total is also valid
+  it('should paginatedEntity, cursor=10, out-of-range', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedEntity',
+        query: PAGINATED_ENTITY,
+        variables: {
+          cursor: 10,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedEntity).toEqual({
+          total: 6,
+          hasMore: false,
+          cursor: null,
+          items: [],
+        });
+        expect(error).toBeUndefined();
+      }));
+
+  it('should fail to paginatedEntity: invalid input argument', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedEntity',
+        query: PAGINATED_ENTITY,
+        variables: {
+          cursor: 0,
+          pagesize: 2,
+          entityName,
+          sortByField: 'non-exist field',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedEntity).toBeNull();
+        expect(error).toBeUndefined();
+      }));
+
+  it('should fail to paginatedEntity: invalid input argument', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedEntity',
+        query: PAGINATED_ENTITY,
+        variables: {
+          cursor: 0,
+          pagesize: 2,
+          entityName: 'noop',
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedEntity).toBeNull();
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedEntity, cursor=0', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedEntity',
+        query: PAGINATED_ENTITY,
+        variables: {
+          cursor: 0,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedEntity.hasMore).toEqual(true);
+        expect(data?.paginatedEntity.cursor).toEqual(2);
+        expect(data?.paginatedEntity.items.map(({ id }) => id)).toEqual([
+          'paginated-1',
+          'paginated-2',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedEntity, last 3rd item: cursor=3 (total is 6)', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedEntity',
+        query: PAGINATED_ENTITY,
+        variables: {
+          cursor: 3,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedEntity.hasMore).toEqual(true);
+        expect(data?.paginatedEntity.cursor).toEqual(5);
+        expect(data?.paginatedEntity.items.map(({ id }) => id)).toEqual([
+          'paginated-4',
+          'paginated-5',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedEntity, last 2nd item: cursor=4 (total is 6)', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedEntity',
+        query: PAGINATED_ENTITY,
+        variables: {
+          cursor: 4,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedEntity.hasMore).toEqual(false);
+        expect(data?.paginatedEntity.cursor).toEqual(6);
+        expect(data?.paginatedEntity.items.map(({ id }) => id)).toEqual([
+          'paginated-5',
+          'qh_gql_test_counter_001',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedEntity, last item: cursor=5 (total is 6)', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedEntity',
+        query: PAGINATED_ENTITY,
+        variables: {
+          cursor: 5,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedEntity.hasMore).toEqual(false);
+        expect(data?.paginatedEntity.cursor).toEqual(6);
+        expect(data?.paginatedEntity.items.map(({ id }) => id)).toEqual([
+          'qh_gql_test_counter_001',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedEntity, creator=non_exist', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedEntity',
+        query: PAGINATED_ENTITY,
+        variables: {
+          creator: 'non-exist enrollmentId',
+          cursor: 2,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedEntity).toBeNull();
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedEntity, by time range of CREATED', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedEntity',
+        query: PAGINATED_ENTITY,
+        variables: {
+          cursor: 0,
+          pagesize: 10,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+          scope: 'CREATED',
+          startTime: timestampesOnCreate[1],
+          endTime: timestampesOnCreate[3] + 1,
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedEntity.hasMore).toEqual(false);
+        expect(data?.paginatedEntity.cursor).toEqual(3);
+        expect(data?.paginatedEntity.items.map(({ id }) => id)).toEqual([
+          'paginated-2',
+          'paginated-3',
+          'paginated-4',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedEntity, for CREATED > specifc time', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedEntity',
+        query: PAGINATED_ENTITY,
+        variables: {
+          cursor: 0,
+          pagesize: 10,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+          scope: 'CREATED',
+          startTime: timestampesOnCreate[1],
+          endTime: null,
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedEntity.hasMore).toEqual(false);
+        expect(data?.paginatedEntity.cursor).toEqual(4);
+        expect(data?.paginatedEntity.items.map(({ id }) => id)).toEqual([
+          'paginated-2',
+          'paginated-3',
+          'paginated-4',
+          'paginated-5',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedEntity, for CREATED < specifc time', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedEntity',
+        query: PAGINATED_ENTITY,
+        variables: {
+          cursor: 0,
+          pagesize: 10,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+          scope: 'CREATED',
+          startTime: 0,
+          endTime: timestampesOnCreate[1] + 1,
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedEntity.hasMore).toEqual(false);
+        expect(data?.paginatedEntity.cursor).toEqual(3);
+        expect(data?.paginatedEntity.items.map(({ id }) => id)).toEqual([
+          'paginated-1',
+          'paginated-2',
+          'qh_gql_test_counter_001',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  // when searching out-of-range, the other search criteria remains valid.
+  // therefore, it is not returning null, and total is also valid
+  it('should paginatedCommit, cursor=10, out-of-range', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedCommit',
+        query: PAGINATED_COMMIT,
+        variables: {
+          cursor: 10,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedCommit).toEqual({
+          total: 6,
+          hasMore: false,
+          cursor: null,
+          items: [],
+        });
+        expect(error).toBeUndefined();
+      }));
+
+  it('should fail to paginatedCommit: invalid input argument', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedCommit',
+        query: PAGINATED_COMMIT,
+        variables: {
+          cursor: 0,
+          pagesize: 2,
+          entityName,
+          sortByField: 'non-exist field',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedCommit).toBeNull();
+        expect(error).toBeUndefined();
+      }));
+
+  it('should fail to paginatedCommit: invalid input argument', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedCommit',
+        query: PAGINATED_COMMIT,
+        variables: {
+          cursor: 0,
+          pagesize: 2,
+          entityName: 'noop',
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedCommit).toBeNull();
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedCommit, cursor=0', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedCommit',
+        query: PAGINATED_COMMIT,
+        variables: {
+          cursor: 0,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedCommit.hasMore).toEqual(true);
+        expect(data?.paginatedCommit.cursor).toEqual(2);
+        expect(data?.paginatedCommit.items.map(({ id }) => id)).toEqual([
+          'paginated-1',
+          'paginated-2',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedCommit, last 3rd item: cursor=3 (total is 6)', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedCommit',
+        query: PAGINATED_COMMIT,
+        variables: {
+          cursor: 3,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedCommit.hasMore).toEqual(true);
+        expect(data?.paginatedCommit.cursor).toEqual(5);
+        expect(data?.paginatedCommit.items.map(({ id }) => id)).toEqual([
+          'paginated-4',
+          'paginated-5',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedCommit, last 2nd item: cursor=4 (total is 6)', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedCommit',
+        query: PAGINATED_COMMIT,
+        variables: {
+          cursor: 4,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedCommit.hasMore).toEqual(false);
+        expect(data?.paginatedCommit.cursor).toEqual(6);
+        expect(data?.paginatedCommit.items.map(({ id }) => id)).toEqual([
+          'paginated-5',
+          'qh_gql_test_counter_001',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedCommit, last item: cursor=5 (total is 6)', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedCommit',
+        query: PAGINATED_COMMIT,
+        variables: {
+          cursor: 5,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedCommit.hasMore).toEqual(false);
+        expect(data?.paginatedCommit.cursor).toEqual(6);
+        expect(data?.paginatedCommit.items.map(({ id }) => id)).toEqual([
+          'qh_gql_test_counter_001',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedCommit, creator=non_exist', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedCommit',
+        query: PAGINATED_COMMIT,
+        variables: {
+          creator: 'non-exist enrollmentId',
+          cursor: 2,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedCommit).toBeNull();
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedCommit, by single event', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedCommit',
+        query: PAGINATED_COMMIT,
+        variables: {
+          events: ['increment'],
+          cursor: 0,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedCommit.hasMore).toEqual(true);
+        expect(data?.paginatedCommit.cursor).toEqual(2);
+        expect(data?.paginatedCommit.items.map(({ id }) => id)).toEqual([
+          'paginated-1',
+          'paginated-3',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedCommit, by events array', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedCommit',
+        query: PAGINATED_COMMIT,
+        variables: {
+          events: ['increment', 'decrement'],
+          cursor: 0,
+          pagesize: 2,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedCommit.hasMore).toEqual(true);
+        expect(data?.paginatedCommit.cursor).toEqual(2);
+        expect(data?.paginatedCommit.items.map(({ id }) => id)).toEqual([
+          'paginated-1',
+          'paginated-2',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedCommit, by time range (ts)', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedCommit',
+        query: PAGINATED_COMMIT,
+        variables: {
+          cursor: 0,
+          pagesize: 10,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+          startTime: timestampesOnCreate[1],
+          endTime: timestampesOnCreate[3] + 2,
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedCommit.hasMore).toEqual(false);
+        expect(data?.paginatedCommit.cursor).toEqual(3);
+        expect(data?.paginatedCommit.items.map(({ id }) => id)).toEqual([
+          'paginated-2',
+          'paginated-3',
+          'paginated-4',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedCommit, ts > specific time', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedCommit',
+        query: PAGINATED_COMMIT,
+        variables: {
+          cursor: 0,
+          pagesize: 10,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+          startTime: timestampesOnCreate[1],
+          endTime: 0,
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedCommit.hasMore).toEqual(false);
+        expect(data?.paginatedCommit.cursor).toEqual(4);
+        expect(data?.paginatedCommit.items.map(({ id }) => id)).toEqual([
+          'paginated-2',
+          'paginated-3',
+          'paginated-4',
+          'paginated-5',
+        ]);
+        expect(error).toBeUndefined();
+      }));
+
+  it('should paginatedCommit, ts < specific time', async () =>
+    fetch(`http://localhost:${QH_PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `bearer no token` },
+      body: JSON.stringify({
+        operationName: 'PaginatedCommit',
+        query: PAGINATED_COMMIT,
+        variables: {
+          cursor: 0,
+          pagesize: 10,
+          entityName,
+          sortByField: 'id',
+          sort: 'ASC',
+          startTime: 0,
+          endTime: timestampesOnCreate[1] + 1,
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then(({ data, error }) => {
+        expect(data?.paginatedCommit.hasMore).toEqual(false);
+        expect(data?.paginatedCommit.cursor).toEqual(3);
+        expect(data?.paginatedCommit.items.map(({ id }) => id)).toEqual([
+          'paginated-1',
+          'paginated-2',
+          'qh_gql_test_counter_001',
+        ]);
+        expect(error).toBeUndefined();
       }));
 });

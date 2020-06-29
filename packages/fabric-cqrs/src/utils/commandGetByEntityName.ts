@@ -5,6 +5,17 @@ import { action } from '../store/command';
 import type { Commit, RepoFcn } from '../types';
 import { dispatcher, isCommitRecord } from '.';
 
+/**
+ * get commit by EntityName
+ * Basic Command-side Operation: mostly used by command handler
+ * @param entityName
+ * @param isPrivateData
+ * @param channelName
+ * @param connectionProfile
+ * @param wallet
+ * @param store
+ * @param logger
+ */
 export const commandGetByEntityName: (
   entityName: string,
   isPrivateData: boolean,
@@ -15,12 +26,12 @@ export const commandGetByEntityName: (
     wallet: Wallet;
     store: Store;
   }
-) => RepoFcn<Record<string, Commit>> = (
+) => RepoFcn<Commit[]> = (
   entityName,
   isPrivateData,
   { channelName, connectionProfile, wallet, store, logger }
 ) =>
-  dispatcher<Record<string, Commit>, null>(
+  dispatcher<Commit[], null>(
     ({ tx_id }) =>
       action.queryByEntityName({
         connectionProfile,
@@ -37,5 +48,6 @@ export const commandGetByEntityName: (
       ErrorAction: action.QUERY_ERROR,
       logger,
       typeGuard: isCommitRecord,
-    }
+    },
+    (result: Record<string, Commit>) => Object.values<Commit>(result)
   );

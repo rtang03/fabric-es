@@ -1,7 +1,7 @@
-import { Commit } from '@fabric-es/fabric-cqrs';
+import { Commit, Counter } from '@fabric-es/fabric-cqrs';
 import { catchErrors, getLogger } from '../../utils';
 import { commandHanlder } from './handler';
-import { Context, Counter } from './types';
+import { Context } from './types';
 
 const logger = getLogger('[gw-lib-test] resolvers.js');
 
@@ -40,7 +40,7 @@ export const resolvers = {
       ): Promise<Commit> =>
         commandHanlder({ enrollmentId: username, counterRepo: repo }).Increment({
           userId: user_id,
-          payload: { counterId, timestamp: Date.now() },
+          payload: { id: counterId, tag: '', desc: '' },
         }),
       { fcnName: 'increment', logger, useAuth: true, useAdmin: false }
     ),
@@ -59,7 +59,7 @@ export const resolvers = {
         commandHanlder({
           enrollmentId: username,
           counterRepo: repo,
-        }).Decrement({ userId: user_id, payload: { counterId, timestamp: Date.now() } }),
+        }).Decrement({ userId: user_id, payload: { id: counterId, tag: '', desc: '' } }),
       { fcnName: 'decrement', logger, useAuth: true, useAdmin: false }
     ),
   },
