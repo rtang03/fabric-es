@@ -90,71 +90,69 @@ export const relayService = ({
   if (isEmpty(client)) throw new Error('Missing client');
   if (isEmpty(topic)) throw new Error('Missing topic.');
 
-  const apiProxy = createProxyMiddleware(
-    {
-      target: targetUrl,
-      changeOrigin: true,
-      onProxyReq: (proxyReq, req, res) => {
+  const apiProxy = createProxyMiddleware({
+    target: targetUrl,
+    changeOrigin: true,
+    onProxyReq: (proxyReq, req, res) => {
 
-        const reqres = {
-          id: crypto.randomBytes(16).toString('hex'),
-          startTime: Date.now(),
-          duration: undefined,
-          method: req.method,
-          url: querystring.parseUrl(req.url),
-          reqBody: undefined,
-          statusCode: undefined,
-          statusMessage: undefined
-        };
+      const reqres = {
+        id: crypto.randomBytes(16).toString('hex'),
+        startTime: Date.now(),
+        duration: undefined,
+        method: req.method,
+        url: querystring.parseUrl(req.url),
+        reqBody: undefined,
+        statusCode: undefined,
+        statusMessage: undefined
+      };
 
-        const raw = util.inspect(req.body, false, null);
-        if (req.is('json')) {
-          try {
-            // Use JSON5 to parse relaxed Json
-            reqres.reqBody = JSON5.parse(raw);
-          } catch (error) {
-            // Request body cannot be parsed, return as a string
-            reqres.reqBody = raw;
-          }
-        } else {
+      const raw = util.inspect(req.body, false, null);
+      if (req.is('json')) {
+        try {
+          // Use JSON5 to parse relaxed Json
+          reqres.reqBody = JSON5.parse(raw);
+        } catch (error) {
+          // Request body cannot be parsed, return as a string
           reqres.reqBody = raw;
         }
-
-        res.locals.reqres = reqres;
-
-        // Fix http-proxy-middleware req.body forward issue
-        if (req.body) {
-          const bodyData = JSON.stringify(req.body);
-          // in case if content-type is application/x-www-form-urlencoded -> we need to change to application/json
-          proxyReq.setHeader('Content-Type', 'application/json');
-          proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
-          // stream the content
-          proxyReq.write(bodyData);
-        }
-      },
-      onProxyRes: async (proxyRes, req, res) => {
-
-        const reqres: ReqRes = res.locals.reqres;
-
-        reqres.statusCode = proxyRes.statusCode;
-        reqres.statusMessage = proxyRes.statusMessage;
-        reqres.duration = Date.now() - reqres.startTime;
-
-        await processMsgHandler({message: reqres, client, topic});
-      },
-      onError: (err, req, res) => {
-        res.writeHead(500, {
-          'Content-Type': 'text/plain',
-        });
-        let errStr = 'Error! ';
-        if (err)
-          errStr += err.message;
-        errStr += ' Please check if endpoint is down.';
-        logger.error(errStr);
-        res.end(errStr);
+      } else {
+        reqres.reqBody = raw;
       }
+
+      res.locals.reqres = reqres;
+
+      // Fix http-proxy-middleware req.body forward issue
+      if (req.body) {
+        const bodyData = JSON.stringify(req.body);
+        // in case if content-type is application/x-www-form-urlencoded -> we need to change to application/json
+        proxyReq.setHeader('Content-Type', 'application/json');
+        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+        // stream the content
+        proxyReq.write(bodyData);
+      }
+    },
+    onProxyRes: async (proxyRes, req, res) => {
+
+      const reqres: ReqRes = res.locals.reqres;
+
+      reqres.statusCode = proxyRes.statusCode;
+      reqres.statusMessage = proxyRes.statusMessage;
+      reqres.duration = Date.now() - reqres.startTime;
+
+      await processMsgHandler({message: reqres, client, topic});
+    },
+    onError: (err, req, res) => {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      let errStr = 'Error! ';
+      if (err)
+        errStr += err.message;
+      errStr += ' Please check if endpoint is down.';
+      logger.error(errStr);
+      res.end(errStr);
     }
-  );
+  });
 
   const relayApp = express();
   relayApp.use(bodyParser.urlencoded({ extended: true }));

@@ -1,11 +1,11 @@
 import http from 'http';
 import util from 'util';
-import express, { Express } from 'express';
+import express from 'express';
 import RedisClient, { Redis } from 'ioredis';
 import stoppable, { StoppableServer } from 'stoppable';
 import { getLogger } from './getLogger';
 
-const logger = getLogger('[relay] snifferService.js');
+const logger = getLogger('[sniffer] snifferService.js');
 
 export const createSnifferService: (option: {
   redisHost: string;
@@ -45,24 +45,32 @@ export const createSnifferService: (option: {
   });
 
   client.on('message', (channel, message) => {
-    console.log(`HAHAHAHAHAHAHA incoming message ${channel}: ${message}`);
+    logger.info(`Incoming message from ${channel}: ${message}`);
   });
 
-  const server = http.createServer((_, __) => {
-    client.subscribe(topic);
+  client.subscribe(topic, (error, count) => {
+    if (error)
+      logger.error(util.format('An error occurred subscribing to REDIS topic %s: %j', topic, error));
+    else
+      logger.info(`Subscribed to REDIS topic ${topic} successfully (${count})`);
   });
 
-  const stoppableServer = stoppable(server);
+  const stoppableServer = stoppable(http.createServer(express()));
   return {
     sniffer: stoppableServer,
-    shutdown: () => {
-      client.quit();
+    shutdown: async () => {
+      const res = await client.quit();
+      if (res === 'OK')
+        logger.info('Sniffer disconnected from REDIS successfully');
+      else
+        logger.error('An error occurred while the sniffer trying to disconnect from REDIS');
+
       stoppableServer.stop(err => {
         if (err) {
           logger.error(util.format('An error occurred while closing the sniffer service: %j', err));
           process.exitCode = 1;
         } else
-          logger.info('sniffer service stopped');
+          logger.info('Sniffer service stopped');
         process.exit();
       });
     }

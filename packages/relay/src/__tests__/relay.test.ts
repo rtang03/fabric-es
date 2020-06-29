@@ -17,7 +17,7 @@ const msg: ReqRes = {
 };
 const host = '127.0.0.1';
 const port = 6379;
-const targetUrl = 'http://localhost:4001';
+const targetUrl = 'http://localhost:4321';
 const mockInSubscriber1 = jest.fn();
 const mockInSubscriber2 = jest.fn();
 const relayChannel = 'relay-channel';
