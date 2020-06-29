@@ -6,7 +6,8 @@
   "scripts": {
     "build": "yarn clean && tsc",
     "clean": "rimraf dist",
-    "start": "node dist/app.js",
+    "start": "node dist/relay.js",
+    "sniff": "node dist/sniffer.js",
     "mock-endpoint": "node dist/__mocks__/mockEndpoint.js",
     "test": "jest --verbose --detectOpenHandles --runInBand --forceExit"
   },
@@ -20,7 +21,6 @@
     "lodash": "^4.17.15",
     "mockyeah": "^0.24.1",
     "query-string": "^6.12.1",
-    "randomstring": "^1.1.5",
     "winston": "^3.2.1"
   },
   "dependenciesComments": {

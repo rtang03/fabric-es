@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import http from 'http';
 import util from 'util';
 import bodyParser from 'body-parser';
@@ -7,7 +8,6 @@ import RedisClient, { Redis } from 'ioredis';
 import JSON5 from 'json5';
 import isEmpty from 'lodash/isEmpty';
 import querystring from 'query-string';
-import randomstring from 'randomstring';
 import stoppable, { StoppableServer } from 'stoppable';
 import { getLogger } from './getLogger';
 import { processMsgHandler } from './processMsg';
@@ -63,6 +63,7 @@ export const createRelayService: (option: {
   return {
     relay: stoppableServer,
     shutdown: () => {
+      client.quit();
       stoppableServer.stop(err => {
         if (err) {
           logger.error(util.format('An error occurred while closing the relay service: %j', err));
@@ -96,7 +97,7 @@ export const relayService = ({
       onProxyReq: (proxyReq, req, res) => {
 
         const reqres = {
-          id: randomstring.generate(16),
+          id: crypto.randomBytes(16).toString('hex'),
           startTime: Date.now(),
           duration: undefined,
           method: req.method,

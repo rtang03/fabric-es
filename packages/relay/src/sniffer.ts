@@ -1,21 +1,20 @@
 require('dotenv').config({ path: './.env' });
 import util from 'util';
 import { getLogger } from './getLogger';
-import { createRelayService } from './relayService';
+import { createSnifferService } from './snifferService';
 
-const SERVICE_PORT = process.env.SERVICE_PORT || 80;
-const targetUrl = process.env.TARGET_URL;
+const SERVICE_PORT = process.env.SNIFFER_PORT || 80;
 const redisHost = process.env.REDIS_HOST;
 const redisPort = (process.env.REDIS_PORT || 6379) as number;
 const topic = process.env.REDIS_TOPIC;
 
-const logger = getLogger('[relay] app.js');
+const logger = getLogger('[sniffer] sniffer.js');
 
 (async () => {
-  logger.info('♨️♨️  Starting [relay] service...');
+  logger.info('♨️♨️  Starting [sniffer] service...');
 
-  const { relay, shutdown } = await createRelayService({
-    targetUrl, redisHost, redisPort, topic
+  const { sniffer, shutdown } = await createSnifferService({
+    redisHost, redisPort, topic
   });
 
   process.on('SIGINT', async () => {
@@ -31,12 +30,12 @@ const logger = getLogger('[relay] app.js');
     logger.error(err.stack);
   });
 
-  relay.listen(SERVICE_PORT, () => {
-    logger.info(`🚀 relay ready`);
+  sniffer.listen(SERVICE_PORT, () => {
+    logger.info(`🚀 sniffer ready`);
     if (process.env.NODE_ENV === 'production') process.send('ready');
   });
 })().catch(error => {
   console.error(error);
-  logger.error(util.format('fail to start app.js, %j', error));
+  logger.error(util.format('fail to start sniffer.js, %j', error));
   process.exit(1);
 });
