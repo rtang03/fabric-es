@@ -5,7 +5,7 @@ hooks:
     - prettier --write
 generates:
   graphql/generated/ui-control.tsx:
-    documents: 'graphql/*.graphql'
+    documents: 'graphql/ui-control/*.graphql'
     schema: 'http://localhost:3000/control/api/graphql'
     plugins:
       - add: '/* eslint-disable */'

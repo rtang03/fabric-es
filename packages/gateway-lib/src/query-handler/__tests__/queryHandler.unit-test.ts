@@ -120,21 +120,21 @@ beforeAll(async () => {
 // Tear-down the tests in queryHandler shall perform cleanup, for both command & query; so that
 // unit-test can run repeatedly
 afterAll(async () => {
-  // await publisher
-  //   .send_command('FT.DROP', ['cidx'])
-  //   .then((result) => console.log(`cidx is dropped: ${result}`))
-  //   .catch((result) => console.log(`cidx is not dropped: ${result}`));
-  //
-  // await publisher
-  //   .send_command('FT.DROP', ['eidx'])
-  //   .then((result) => console.log(`eidx is dropped: ${result}`))
-  //   .catch((result) => console.log(`eidx is not dropped: ${result}`));
-  //
-  // await queryHandler
-  //   .query_deleteCommitByEntityName(entityName)()
-  //   .then(({ status }) =>
-  //     console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
-  //   );
+  await publisher
+    .send_command('FT.DROP', ['cidx'])
+    .then((result) => console.log(`cidx is dropped: ${result}`))
+    .catch((result) => console.log(`cidx is not dropped: ${result}`));
+
+  await publisher
+    .send_command('FT.DROP', ['eidx'])
+    .then((result) => console.log(`eidx is dropped: ${result}`))
+    .catch((result) => console.log(`eidx is not dropped: ${result}`));
+
+  await queryHandler
+    .query_deleteCommitByEntityName(entityName)()
+    .then(({ status }) =>
+      console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
+    );
 
   await queryHandler
     .command_deleteByEntityId(entityName)({ id })

@@ -7,6 +7,6 @@ export const getPaginated: <T>(items: T[], total, cursor: number) => Paginated<T
 ) => ({
   total,
   items,
-  hasMore: items.length ? cursor + items.length < total : false,
-  cursor: items.length ? cursor + items.length : null,
+  hasMore: items?.length ? cursor + items?.length < total : false,
+  cursor: items?.length ? cursor + items?.length : null,
 });

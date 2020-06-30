@@ -81,8 +81,8 @@ export const typeDefs = gql`
     value: String!
     commits: [String!]!
     events: String!
-    desc: String!
-    tag: String!
+    desc: String
+    tag: String
     created: Float!
     creator: String!
     lastModified: Float!
@@ -103,6 +103,7 @@ export const typeDefs = gql`
 
   type Commit {
     id: String
+    mspId: String
     entityName: String
     version: Int
     commitId: String

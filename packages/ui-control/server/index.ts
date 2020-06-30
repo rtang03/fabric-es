@@ -1,6 +1,7 @@
 require('dotenv').config();
 import { ApolloServer } from 'apollo-server-express';
 import cookieParser from 'cookie-parser';
+import csrf from 'csurf';
 import errorHandler from 'errorhandler';
 import express from 'express';
 import next from 'next';
@@ -16,7 +17,7 @@ const dev = ENV.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 const port = parseInt(process.env.PORT || '3000', 10);
-
+const csrfProtection = csrf({ cookie: true });
 const apolloServer = new ApolloServer({
   schema,
   context: ({ req, res }) => {
@@ -33,7 +34,8 @@ app.prepare().then(() => {
 
   apolloServer.applyMiddleware({ app, path: '/control/api/graphql' });
 
-  app.get('*', (req, res) => handle(req, res));
+  app.get('*', csrfProtection, (req, res) => handle(req, res));
+
   app.listen(port, (error) => {
     console.log(`🚀 Server listening at http://localhost:${port}`);
   });
