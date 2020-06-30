@@ -6,54 +6,32 @@ import { ReqRes } from './reqres';
 const logger = getLogger('[relay] processMsg.js');
 
 export const processMsg = ({
-  message, 
-  client, 
-  topic
+  message,
+  client,
+  topic,
+  ttl,
 }: {
   message: ReqRes; 
   client: Redis; 
   topic: string;
+  ttl?: number;
 }) => {
+  return new Promise<number>((resolve, reject) => {
+    if (isEmpty(message))
+      reject(new Error('Message missing'));
+    else if (isEmpty(client))
+      reject(new Error('Client missing'));
+    else if (isEmpty(topic))
+      reject(new Error('Topic missing'));
+    else {
+      const messageStr = JSON.stringify(message);
+      const timestamp = Date.now();
+      const offset = ttl ? ttl : 86400000; // 1 day == 24x60x60x1000 milliseconds
 
-  if (isEmpty(message)) return Promise.reject(new Error('Missing message.'));
-  if (isEmpty(client)) return Promise.reject(new Error('Missing client'));
-  if (isEmpty(topic)) return Promise.reject(new Error('Missing topic.'));
+      client.zremrangebyscore(topic, '-inf', (timestamp - offset));
+      client.zadd(topic, timestamp, messageStr);
 
-  return new Promise<number>((resolve, reject) => {  
-    const messageStr = JSON.stringify(message);
-    client.publish(topic, messageStr, (err, reply) => {
-      if (err)
-        reject(err);
-      else {
-        logger.info(`Published to '${topic}[${reply}]': ${messageStr}`);
-        resolve(reply);
-      }
-    });
-  });
-};
-
-export const processMsgHandler = async ({
-  message,
-  client,
-  topic
-}: {
-  message: ReqRes;
-  client: Redis;
-  topic: string;
-}) => {
-  await processMsg({ message, client, topic }).then(
-    (numberOfSubscribers) => {
-      // Opps.. no subscriber is listening. Save record to Redis at best effort.
-      if (numberOfSubscribers === 0) {
-        logger.error('No subscriber is listening for message [' + message.id +
-          ']. Attempting to save message to Redis.');
-        const messageStr = JSON.stringify(message);
-        logger.info(messageStr);
-        client.set(message.id, messageStr);
-      }
+      client.publish(topic, messageStr).then(value => resolve(value));
     }
-  ).catch((error) => {
-    logger.error(`Error while processing [${message.id}]: ${error}`);
-    logger.info(JSON.stringify(message));
   });
 };

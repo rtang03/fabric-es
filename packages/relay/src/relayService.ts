@@ -10,7 +10,7 @@ import isEmpty from 'lodash/isEmpty';
 import querystring from 'query-string';
 import stoppable, { StoppableServer } from 'stoppable';
 import { getLogger } from './getLogger';
-import { processMsgHandler } from './processMsg';
+import { processMsg } from './processMsg';
 import { ReqRes } from './reqres';
 
 const logger = getLogger('[relay] relayService.js');
@@ -133,13 +133,17 @@ export const relayService = ({
     },
     onProxyRes: async (proxyRes, req, res) => {
 
-      const reqres: ReqRes = res.locals.reqres;
+      const message: ReqRes = res.locals.reqres;
 
-      reqres.statusCode = proxyRes.statusCode;
-      reqres.statusMessage = proxyRes.statusMessage;
-      reqres.duration = Date.now() - reqres.startTime;
+      message.statusCode = proxyRes.statusCode;
+      message.statusMessage = proxyRes.statusMessage;
+      message.duration = Date.now() - message.startTime;
 
-      await processMsgHandler({message: reqres, client, topic});
+      await processMsg({ message, client, topic }).then((_) => {
+        logger.info(`Message processed: ${JSON.stringify(message)}`);
+      }).catch((error) => {
+        logger.error(`Error while processing [${message.id}]: ${error} - '${JSON.stringify(message)}'`);
+      });
     },
     onError: (err, req, res) => {
       res.writeHead(500, {

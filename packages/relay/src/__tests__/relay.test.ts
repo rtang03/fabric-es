@@ -1,7 +1,7 @@
 import RedisClient, { Redis } from 'ioredis';
 import mockyeah from 'mockyeah';
 import request from 'supertest';
-import { processMsg, processMsgHandler } from '../processMsg';
+import { processMsg } from '../processMsg';
 import { relayService } from '../relayService';
 import { ReqRes } from '../reqres';
 
@@ -30,7 +30,7 @@ let relay;
  * Use ...dev-net/dn-run.0-db-red.sh to start a redis instance at port 6379.
  */
 
- beforeAll(async () => {
+beforeAll(async () => {
   publisher = new RedisClient({ host, port });
   subscriber1 = new RedisClient({ host, port });
   subscriber2 = new RedisClient({ host, port });
@@ -60,24 +60,7 @@ afterEach( () => {
   jest.resetAllMocks();
 });
 
-describe('Process Message Handler', () => {
-
-  it('should save to Redis when no subscriber', async () => {
-    await processMsgHandler({ message: msg, client: publisher, topic: 'handle no subscriber' });
-    await new Promise(resolve => setTimeout(resolve, 500));
-    await new Promise(resolve =>
-      subscriber1.get(msg.id, (err, reply) => {
-        const replyObject = JSON.parse(reply);
-        console.log('From Redis DB:' + reply);
-        expect(replyObject).toEqual(msg);
-        resolve();
-      }));
-  });
-
-});
-
 describe('Process Message', () => {
-
   it('should reject undefined or null message', () => {
     expect(processMsg({ message: undefined, client: publisher, topic: 'rejection' })).rejects.toThrow();
   });
@@ -118,11 +101,9 @@ describe('Process Message', () => {
     subscriber1.subscribe(topic);
     await processMsg({ message: msg, client: publisher, topic });
   });
-
 });
 
 describe('Relay Service', () => {
-
   it('should reject undefined or null url', () => {
     const f = () => { relayService({targetUrl: undefined, client: publisher, topic: 'rejection'}); }; 
     expect(f).toThrow();
@@ -168,7 +149,6 @@ describe('Relay Service', () => {
   });
 
   it('should match message object for pub and sub with json body', (done) => {
-
     mockInSubscriber2.mockImplementation((message) => {
       const subObj: ReqRes = JSON.parse(message);
       console.log(`Mock 2: ${JSON.stringify(subObj)}`);
@@ -188,7 +168,6 @@ describe('Relay Service', () => {
   });
 
   it('should receive 400 when post text when content-type json', async () => {
-
     const path = '/pub-sub?abc=123&def=456';
     const body = 'I am a text';
     mockyeah.post(path, { status: 204, text: req => req.body });
@@ -198,5 +177,74 @@ describe('Relay Service', () => {
       .set('Accept', 'application/json')
       .expect(400);
   });
+});
 
+describe('Pub / Sub', () => {
+  it('stored records clean up properly', async () => {
+    const RUNS = 10;
+    const EXPT = 3;
+    const topic = 'cleanup';
+    const stamp = Date.now();
+    const sources: ReqRes[] = [...new Array(RUNS)].map((_, idx) => {
+      return {
+        id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
+        url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
+        reqBody: { txt: `abc${idx}`, num: `123${idx}` },
+        statusCode: 3, statusMessage: `myMsg ${idx}`
+      };
+    });
+
+    const sub1 = [];
+    mockInSubscriber1.mockImplementation((message) => {
+      sub1.push(JSON.parse(message));
+    });
+    subscriber1.subscribe(topic);
+
+    for (const mssg of sources) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await processMsg({ message: mssg, client: publisher, topic, ttl: 3000 });
+    }
+
+    const pubs = (await publisher.zrangebyscore(topic, '-inf', '+inf')).map(str => JSON.parse(str));
+    // expect(pubs.length).toEqual(3);
+    for (let idx = 0; idx < pubs.length; idx ++) {
+      expect(pubs[idx]).toEqual(sources[idx + RUNS - EXPT]);
+    }
+  });
+
+  it('subscription match records in REDIS', async () => {
+    const topic = 'pubsub';
+    const stamp = Date.now();
+    const sources: ReqRes[] = [...new Array(5)].map((_, idx) => {
+      return {
+        id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
+        url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
+        reqBody: { txt: `abc${idx}`, num: `123${idx}` },
+        statusCode: 3, statusMessage: `myMsg ${idx}`
+      };
+    });
+
+    const sub1 = [];
+    mockInSubscriber1.mockImplementation((message) => {
+      sub1.push(JSON.parse(message));
+    });
+    subscriber1.subscribe(topic);
+
+    const sub2 = [];
+    mockInSubscriber2.mockImplementation((message) => {
+      sub2.push(JSON.parse(message));
+    });
+    subscriber2.subscribe(topic);
+
+    for (const mssg of sources) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await processMsg({ message: mssg, client: publisher, topic });
+    }
+
+    const pubs = (await publisher.zrangebyscore(topic, stamp, '+inf')).map(str => JSON.parse(str));
+    for (let idx = 0; idx < pubs.length; idx ++) {
+      expect(pubs[idx]).toEqual(sub1[idx]);
+      expect(pubs[idx]).toEqual(sub2[idx]);
+    }
+  });
 });
