@@ -54,7 +54,6 @@ export interface BaseEntity {
   _event?: string;
   _commit?: string[];
   _entityName?: string;
-  _reducer?: string;
   _timeline?: string;
   _organization?: string[];
 }

@@ -25,7 +25,6 @@ export const FULL_TXT_SEARCH_ENTITY= `
         creator
         lastModified
         timeline
-        reducer
       }
     }
   }

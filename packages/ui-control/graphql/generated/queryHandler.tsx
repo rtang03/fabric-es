@@ -93,7 +93,7 @@ export type PaginatedEntity = {
   total?: Maybe<Scalars['Int']>;
   cursor?: Maybe<Scalars['Int']>;
   hasMore: Scalars['Boolean'];
-  items?: Maybe<Array<Maybe<QueryHandlerEntity>>>;
+  items: Array<Maybe<QueryHandlerEntity>>;
 };
 
 export type PaginatedCommit = {
@@ -115,7 +115,6 @@ export type QueryHandlerEntity = {
   creator: Scalars['String'];
   lastModified: Scalars['Float'];
   timeline: Scalars['String'];
-  reducer: Scalars['String'];
 };
 
 export type Mutation = {
@@ -183,24 +182,21 @@ export type FtsEntityQueryVariables = {
 export type FtsEntityQuery = {
   fullTextSearchEntity?: Maybe<
     Pick<PaginatedEntity, 'total' | 'hasMore' | 'cursor'> & {
-      items?: Maybe<
-        Array<
-          Maybe<
-            Pick<
-              QueryHandlerEntity,
-              | 'id'
-              | 'entityName'
-              | 'value'
-              | 'commits'
-              | 'events'
-              | 'tag'
-              | 'desc'
-              | 'created'
-              | 'creator'
-              | 'lastModified'
-              | 'timeline'
-              | 'reducer'
-            >
+      items: Array<
+        Maybe<
+          Pick<
+            QueryHandlerEntity,
+            | 'id'
+            | 'entityName'
+            | 'value'
+            | 'commits'
+            | 'events'
+            | 'tag'
+            | 'desc'
+            | 'created'
+            | 'creator'
+            | 'lastModified'
+            | 'timeline'
           >
         >
       >;
@@ -296,7 +292,6 @@ export const FtsEntityDocument = gql`
         creator
         lastModified
         timeline
-        reducer
       }
     }
   }

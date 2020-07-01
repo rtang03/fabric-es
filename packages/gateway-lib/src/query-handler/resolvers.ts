@@ -26,9 +26,8 @@ const parseEntity = (data: BaseEntity[]) =>
         created: entity?._created || 0,
         lastModified: entity?._ts || 0,
         timeline: entity?._timeline,
-        reducer: entity?._reducer,
       }))
-    : null;
+    : [];
 
 export const resolvers: Resolvers = {
   Mutation: {

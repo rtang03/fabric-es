@@ -6,6 +6,11 @@ export const useStyles = makeStyles((theme: Theme) => ({
       backgroundColor: theme.palette.common.white,
     },
   },
+  root: {
+    '& > *': {
+      marginTop: theme.spacing(2),
+    },
+  },
   grow: {
     flexGrow: 1,
   },

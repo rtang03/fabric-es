@@ -21,7 +21,7 @@ import {
 } from '../query';
 
 /**
- * ./dn-run.1-px-db-red-auth.sh or ./dn-run.2-px-db-red-auth.sh
+ * ./dn-run.1-db-red-auth.sh or ./dn-run.2-db-red-auth.sh
  */
 
 const caUrl = process.env.ORG_CA_URL;
@@ -225,7 +225,14 @@ describe('Full Text Search Test', () => {
       }),
     })
       .then((r) => r.json())
-      .then(({ data }) => expect(data?.fullTextSearchCommit).toBeNull()));
+      .then(({ data }) =>
+        expect(data?.fullTextSearchCommit).toEqual({
+          cursor: null,
+          hasMore: false,
+          items: [],
+          total: 0,
+        })
+      ));
 
   it('should fullTextSearchCommit: search by coun*, entityName wildcard', async () =>
     fetch(`http://localhost:${QH_PORT}/graphql`, {
@@ -284,7 +291,14 @@ describe('Full Text Search Test', () => {
       }),
     })
       .then((r) => r.json())
-      .then(({ data }) => expect(data?.fullTextSearchEntity).toBeNull()));
+      .then(({ data }) =>
+        expect(data?.fullTextSearchEntity).toEqual({
+          cursor: null,
+          hasMore: false,
+          items: [],
+          total: 0,
+        })
+      ));
 
   it('should fullTextSearchEntity: search by entityId wildcard', async () =>
     fetch(`http://localhost:${QH_PORT}/graphql`, {
@@ -438,7 +452,12 @@ describe('Paginated search', () => {
     })
       .then((r) => r.json())
       .then(({ data, error }) => {
-        expect(data?.paginatedEntity).toBeNull();
+        expect(data?.paginatedEntity).toEqual({
+          cursor: null,
+          hasMore: false,
+          items: [],
+          total: 0,
+        });
         expect(error).toBeUndefined();
       }));
 
@@ -568,7 +587,12 @@ describe('Paginated search', () => {
     })
       .then((r) => r.json())
       .then(({ data, error }) => {
-        expect(data?.paginatedEntity).toBeNull();
+        expect(data?.paginatedEntity).toEqual({
+          cursor: null,
+          hasMore: false,
+          items: [],
+          total: 0,
+        });
         expect(error).toBeUndefined();
       }));
 
@@ -735,7 +759,12 @@ describe('Paginated search', () => {
     })
       .then((r) => r.json())
       .then(({ data, error }) => {
-        expect(data?.paginatedCommit).toBeNull();
+        expect(data?.paginatedCommit).toEqual({
+          cursor: null,
+          hasMore: false,
+          items: [],
+          total: 0,
+        });
         expect(error).toBeUndefined();
       }));
 
@@ -865,7 +894,12 @@ describe('Paginated search', () => {
     })
       .then((r) => r.json())
       .then(({ data, error }) => {
-        expect(data?.paginatedCommit).toBeNull();
+        expect(data?.paginatedCommit).toEqual({
+          cursor: null,
+          hasMore: false,
+          items: [],
+          total: 0,
+        });
         expect(error).toBeUndefined();
       }));
 

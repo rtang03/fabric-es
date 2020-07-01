@@ -5,7 +5,6 @@ export interface QueryHandlerEntity {
   commits: string[];
   events: string;
   timeline: string;
-  reducer: string;
   tag: string;
   desc: string;
   created: number;

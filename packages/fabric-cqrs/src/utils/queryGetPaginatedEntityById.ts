@@ -22,7 +22,7 @@ export const queryGetPaginatedEntityById: <TResult>(
   id,
   { logger, store }
 ) => {
-  const query = id ? `@entname:${entityName} @id:${id}` : `@entname:${entityName}`;
+  const query = id ? `@type:${entityName} @id:${id}` : `@type:${entityName}`;
   const getRangedQuery = (
     startTime: number,
     endTime: number,

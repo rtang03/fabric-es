@@ -1,6 +1,9 @@
+import { IconButton } from '@material-ui/core';
 import Container from '@material-ui/core/Container';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from '@material-ui/core/Typography';
 import SearchIcon from '@material-ui/icons/Search';
+import Pagination from '@material-ui/lab/Pagination';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { NextPage } from 'next';
@@ -21,10 +24,12 @@ const Dashboard: NextPage<any> = () => {
   const { data, loading, error } = useMeQuery();
   const [
     search,
-    { data: searchResult, error: searchError, loading: searchLoading },
-  ] = useFtsEntityLazyQuery();
+    { data: result, error: searchError, loading: searchLoading },
+  ] = useFtsEntityLazyQuery({ context: { backend: 'queryHandler' } });
 
   if (!loading && data?.me) dispatchAuth({ type: 'LOGIN_SUCCESS', payload: { user: data.me } });
+
+  if (!searchLoading && result?.fullTextSearchEntity) console.log(result.fullTextSearchEntity);
 
   useEffect(() => {
     if (error) {
@@ -49,6 +54,7 @@ const Dashboard: NextPage<any> = () => {
             onSubmit={async ({ query }, { setSubmitting }) => {
               setSubmitting(true);
               try {
+                await search({ variables: { query } });
               } catch (e) {
                 console.error(e);
                 setSubmitting(false);
@@ -58,15 +64,26 @@ const Dashboard: NextPage<any> = () => {
               <Form className={classes.form}>
                 <Field
                   size="small"
-                  label="query"
+                  label="by Entity"
                   component={TextField}
                   name="query"
-                  placeholder="query by"
+                  placeholder="@type:org* @id:org*"
                   variant="outlined"
                   margin="normal"
                   fullwidth="true"
                   autoFocus
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton disabled={isSubmitting} type="submit">
+                          <SearchIcon />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
+                <pre>{JSON.stringify(result?.fullTextSearchEntity, null, 2)}</pre>
+                <Pagination count={10} showFirstButton showLastButton />
               </Form>
             )}
           </Formik>

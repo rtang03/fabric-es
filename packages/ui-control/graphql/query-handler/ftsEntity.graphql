@@ -23,7 +23,6 @@ query FTSEntity (
         creator
         lastModified
         timeline
-        reducer
       }
     }
   }
