@@ -1,4 +1,3 @@
-import { QueryHandlerEntity } from '@fabric-es/fabric-cqrs';
 import pick from 'lodash/pick';
 import React from 'react';
 

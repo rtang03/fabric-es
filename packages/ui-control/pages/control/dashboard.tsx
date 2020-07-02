@@ -3,6 +3,8 @@ import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from '@material-ui/core/Typography';
+import ChangeHistoryIcon from '@material-ui/icons/ChangeHistory';
+import FindInPageIcon from '@material-ui/icons/FindInPage';
 import SearchIcon from '@material-ui/icons/Search';
 import Pagination from '@material-ui/lab/Pagination';
 import ToggleButton from '@material-ui/lab/ToggleButton';
@@ -10,18 +12,18 @@ import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
-import React from 'react';
+import React, { useState } from 'react';
 import Entity from '../../components/Entity';
 import Layout from '../../components/Layout';
 import ProTip from '../../components/ProTip';
 import { useFtsEntityLazyQuery } from '../../graphql/generated/queryHandler';
 import { User } from '../../types';
 import { getServerSideUser, useStyles } from '../../utils';
-// import SearchIcon from '@material-ui/icons/Search';
 
 const PAGESIZE = 2;
 
 const Dashboard: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ user }) => {
+  const [findBy, setFindBy] = useState('entity');
   const classes = useStyles();
   const [search, { data, error, loading, fetchMore }] = useFtsEntityLazyQuery({
     context: { backend: 'queryHandler' },
@@ -36,8 +38,11 @@ const Dashboard: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>
     total = data?.fullTextSearchEntity.total as number;
   }
 
-  const handleChange = async (event: React.ChangeEvent<unknown>, pagenumber: number) => {
+  const handlePageNumChange = async (event: React.ChangeEvent<unknown>, pagenumber: number) => {
     await fetchMore?.({ variables: { cursor: (pagenumber - 1) * PAGESIZE } });
+  };
+  const handleFindBy = (event: React.MouseEvent<HTMLElement>, findWhat: string) => {
+    setFindBy(findWhat);
   };
 
   return (
@@ -46,18 +51,22 @@ const Dashboard: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>
         <>Error when authenticating user</>
       ) : (
         <Container>
-          <p />
-          <ToggleButtonGroup aria-label="text alignment" exclusive>
-            <ToggleButton value="left" aria-label="left aligned">
+          <br />
+          <ToggleButtonGroup
+            aria-label="text alignment"
+            exclusive
+            value={findBy}
+            onChange={handleFindBy}>
+            <ToggleButton value="entity" aria-label="find by entity">
+              <FindInPageIcon />
               Entity
             </ToggleButton>
-            <ToggleButton value="right" aria-label="right aligned">
+            <ToggleButton value="commit" aria-label="find by commit">
+              <ChangeHistoryIcon />
               Commit
             </ToggleButton>
           </ToggleButtonGroup>
-          <Typography component="h1" variant="h6">
-            find by entity
-          </Typography>
+          <br />
           <Formik
             initialValues={{ query: '', isCommit: false, cursor: 0, pagesize: 2 }}
             onSubmit={async ({ query, cursor, pagesize }, { setSubmitting }) => {
@@ -104,7 +113,12 @@ const Dashboard: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>
                   )}
                 </div>
                 <Entity entities={data?.fullTextSearchEntity?.items} />
-                <Pagination count={count} showFirstButton showLastButton onChange={handleChange} />
+                <Pagination
+                  count={count}
+                  showFirstButton
+                  showLastButton
+                  onChange={handlePageNumChange}
+                />
                 {error ? <pre>JSON.stringify(error, null, 2)</pre> : <React.Fragment />}
               </Form>
             )}
