@@ -8,27 +8,38 @@ import React, { useCallback, useEffect } from 'react';
 import { useLogoutMutation } from '../graphql/generated';
 import { User } from '../types';
 import { useAlert, useDispatchAlert } from './AlertProvider';
-import { useAuth, useDispatchAuth } from './AuthProvider';
+import { useDispatchAuth } from './AuthProvider';
 
 const Layout: React.FC<{
   title?: string;
   loading?: boolean;
-  user?: User;
-}> = ({ children, title = 'No title', loading, user }) => {
-  const auth = useAuth();
+  user?: User | null;
+  restrictedArea?: boolean;
+}> = ({ children, title = 'No title', loading, user, restrictedArea }) => {
   const alert = useAlert();
   const dispatchAlert = useDispatchAlert();
   const dispatchAuth = useDispatchAuth();
   const handleClose = useCallback(() => dispatchAlert({ type: 'CLEAR' }), []);
   const [logout, { data: logoutResult }] = useLogoutMutation();
 
+  user && setTimeout(() => dispatchAuth({ type: 'LOGIN_SUCCESS', payload: { user } }), 100);
+
   useEffect(() => {
     if (logoutResult?.logout) {
       setTimeout(() => dispatchAlert({ type: 'SUCCESS', message: 'Log out' }), 500);
-      setTimeout(() => dispatchAuth({ type: 'LOGOUT' }), 3500);
-      setTimeout(async () => Router.push(`/control`), 4000);
+      setTimeout(() => dispatchAuth({ type: 'LOGOUT' }), 2500);
+      setTimeout(async () => Router.push(`/control/login`), 3000);
     }
   }, [logoutResult]);
+
+  useEffect(() => {
+    if (!user && restrictedArea) {
+      setTimeout(async () => logout(), 2000);
+      setTimeout(() => {
+        dispatchAlert({ type: 'ERROR', message: 'log-in required' });
+      }, 100);
+    }
+  }, [user]);
 
   return (
     <div>
@@ -61,7 +72,7 @@ const Layout: React.FC<{
             <a>Home</a>
           </Link>{' '}
           |
-          {auth.loggedIn ? (
+          {user ? (
             <>
               <Link href="/control/dashboard">
                 <a>Dashboard</a>
@@ -89,7 +100,7 @@ const Layout: React.FC<{
           horizontal: 'left',
         }}
         open={!!alert?.message}
-        autoHideDuration={3000}
+        autoHideDuration={2000}
         onClose={handleClose}
         message={alert?.message}
       />

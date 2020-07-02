@@ -1,6 +1,4 @@
-// prettier-ignore
-export const FULL_TXT_SEARCH_ENTITY= `
-  query FullTextSearchEntity (
+query FTSEntity (
     $query: String
     $cursor: Int
     $pagesize: Int
@@ -28,4 +26,3 @@ export const FULL_TXT_SEARCH_ENTITY= `
       }
     }
   }
-`;

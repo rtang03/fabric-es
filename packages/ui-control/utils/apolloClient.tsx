@@ -11,7 +11,7 @@ const homeLink = new HttpLink({
 });
 
 const queryHandlerLink = new HttpLink({
-  uri: 'http://queryHandler/graphql',
+  uri: 'http://localhost:5001/graphql',
 });
 
 // https://www.loudnoises.us/next-js-two-apollo-clients-two-graphql-data-sources-the-easy-way/

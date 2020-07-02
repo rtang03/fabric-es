@@ -17,6 +17,9 @@ const reducer: AuthReducer = (state, { type, payload }) =>
     ['LOGIN_SUCCESS']: { loading: false, loggedIn: true, user: payload?.user },
     ['LOGIN_FAILURE']: { loading: false, loggedIn: false, user: null },
     ['LOGOUT']: { loading: false, loggedIn: false, user: null },
+    ['REGISTER']: { loading: true, loggedIn: false, user: null },
+    ['REGISTER_SUCCESS']: { loading: false, loggedIn: false, user: null },
+    ['REGISTER_FAILURE']: { loading: false, loggedIn: false, user: null },
   }[type] || state);
 
 export const AuthContext = createContext<Authentication>(initialState);

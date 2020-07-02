@@ -1,0 +1,17 @@
+overwrite: true
+hooks:
+  afterAllFileWrite:
+    - tslint --fix
+    - prettier --write
+generates:
+  src/generated/qh-resolvers-types.ts:
+    schema: "http://localhost:5001/graphql"
+    plugins:
+      - add: '/* eslint-disable */'
+      - typescript
+      - typescript-resolvers
+    config:
+      useIndexSignature: false
+      namingConvention:
+        typeNames: change-case#pascalCase
+        transformUnderscore: true

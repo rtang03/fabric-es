@@ -39,7 +39,6 @@ export const PAGINATED_ENTITY = `
         creator
         lastModified
         timeline
-        reducer
       }
     }
   }

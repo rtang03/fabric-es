@@ -31,7 +31,7 @@ let queryHandler: QueryHandler;
 let redis: Redis.Redis;
 
 /**
- * ./dn-run.1-px-db-red-auth.sh
+ * ./dn-run.1-db-red-auth.sh
  */
 
 beforeAll(async () => {

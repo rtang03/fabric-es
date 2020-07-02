@@ -247,7 +247,7 @@ describe('Query Handler Tests', () => {
       expect(data.total).toEqual(1);
       expect(data.hasMore).toBeFalsy();
       expect(data.cursor).toEqual(1);
-      expect(omit(data.items[0], '_ts', '_created', '_commit', '_reducer', '_timeline')).toEqual({
+      expect(omit(data.items[0], '_ts', '_created', '_commit', '_timeline')).toEqual({
         id,
         value: 0,
         tag: 'subscription',
@@ -265,7 +265,7 @@ describe('Query Handler Tests', () => {
       expect(data.total).toEqual(1);
       expect(data.hasMore).toBeFalsy();
       expect(data.cursor).toEqual(1);
-      expect(omit(data.items[0], '_ts', '_created', '_commit', '_reducer', '_timeline')).toEqual({
+      expect(omit(data.items[0], '_ts', '_created', '_commit', '_timeline')).toEqual({
         id,
         value: 0,
         tag: 'subscription',

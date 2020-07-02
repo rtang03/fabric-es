@@ -6,7 +6,7 @@ import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from '../admin/constants';
 export const catchErrors: <T = any>(
   fcn: (root, variables, context) => Promise<T>,
   option: { fcnName: string; logger: Logger; useAuth: boolean; useAdmin?: boolean }
-) => (root, variables, context) => Promise<T | ApolloError> = <TResult>(
+) => (root, variables, context) => Promise<T> = <TResult>(
   fcn,
   { fcnName, logger, useAuth, useAdmin = false }
 ) => async (root, variables, context) => {

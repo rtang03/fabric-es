@@ -31,7 +31,7 @@ export default (
             return findError({ tx_id, error: error.message });
           });
       } else {
-        let query = `@entname:${entityName}`;
+        let query = `@type:${entityName}`;
         if (byId) query = `${query} @id:${byId}`;
         if (byDesc) query = `${query} @desc:${byDesc}`;
 

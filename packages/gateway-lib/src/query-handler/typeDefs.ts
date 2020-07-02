@@ -65,7 +65,7 @@ export const typeDefs = gql`
     total: Int
     cursor: Int
     hasMore: Boolean!
-    items: [QueryHandlerEntity]
+    items: [QueryHandlerEntity!]!
   }
 
   type PaginatedCommit {
@@ -81,13 +81,12 @@ export const typeDefs = gql`
     value: String!
     commits: [String!]!
     events: String!
-    desc: String!
-    tag: String!
+    desc: String
+    tag: String
     created: Float!
     creator: String!
     lastModified: Float!
     timeline: String!
-    reducer: String!
   }
 
   type Mutation {
@@ -103,6 +102,7 @@ export const typeDefs = gql`
 
   type Commit {
     id: String
+    mspId: String
     entityName: String
     version: Int
     commitId: String
