@@ -3,6 +3,7 @@ generates:
   schema: "http://localhost:15000/graphql"
   src/generated/admin-resolvers-types.ts:
     plugins:
+      - add: '/* eslint-disable */'
       - typescript
       - typescript-resolvers
     config:

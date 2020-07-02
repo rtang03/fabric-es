@@ -1,5 +1,4 @@
-import { LoginResponse, RegisterResponse } from '../types';
-import { User } from '@fabric-es/ui-account/server/types';
+import { LoginResponse, RegisterResponse, User } from '../types';
 
 export const isRegisterResponse = (input: any): input is RegisterResponse =>
   input?.id !== undefined && input?.username !== undefined;
