@@ -6,6 +6,8 @@ import { isUser } from './typeGuard';
 const port = process.env.PORT;
 
 export const getServerSideUser = () => async (context: GetServerSidePropsContext) => {
+  const entityId = context.query.entityId;
+  const entityName = context.query.entityName;
   const noUser = { props: { user: null } };
   const { token } = nextCookie(context);
   const query = `query Me {
@@ -43,7 +45,11 @@ export const getServerSideUser = () => async (context: GetServerSidePropsContext
 
     if (result?.errors) return noUser;
 
-    return user && isUser(user) ? { props: { user } } : noUser;
+    const props: any = { props: { user } };
+    entityId && (props.props.entityId = entityId);
+    entityName && (props.props.entityName = entityName);
+
+    return user && isUser(user) ? props : noUser;
   } catch (e) {
     console.error('fail to parse response: ', e);
     return noUser;

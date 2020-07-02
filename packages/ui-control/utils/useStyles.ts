@@ -10,6 +10,9 @@ export const useStyles = makeStyles((theme: Theme) => ({
     '& > *': {
       marginTop: theme.spacing(2),
     },
+    flexGrow: 1,
+    display: 'flex',
+    flexWrap: 'wrap',
   },
   grow: {
     flexGrow: 1,
@@ -40,7 +43,7 @@ export const useStyles = makeStyles((theme: Theme) => ({
     },
     marginRight: theme.spacing(2),
     marginLeft: 0,
-    width: '100%',
+    width: '50ch',
     [theme.breakpoints.up('sm')]: {
       marginLeft: theme.spacing(3),
       width: 'auto',
@@ -79,5 +82,10 @@ export const useStyles = makeStyles((theme: Theme) => ({
     [theme.breakpoints.up('md')]: {
       display: 'none',
     },
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: '60ch',
   },
 }));
