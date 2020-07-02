@@ -46,8 +46,8 @@ export type Query = {
   me?: Maybe<Scalars['String']>;
   fullTextSearchCommit?: Maybe<PaginatedCommit>;
   fullTextSearchEntity?: Maybe<PaginatedEntity>;
-  paginatedEntity?: Maybe<PaginatedEntity>;
-  paginatedCommit?: Maybe<PaginatedCommit>;
+  paginatedEntity: PaginatedEntity;
+  paginatedCommit: PaginatedCommit;
 };
 
 export type QueryFullTextSearchCommitArgs = {
@@ -98,7 +98,7 @@ export type PaginatedEntity = {
   total?: Maybe<Scalars['Int']>;
   cursor?: Maybe<Scalars['Int']>;
   hasMore: Scalars['Boolean'];
-  items: Array<Maybe<QueryHandlerEntity>>;
+  items: Array<QueryHandlerEntity>;
 };
 
 export type PaginatedCommit = {
@@ -106,7 +106,7 @@ export type PaginatedCommit = {
   total?: Maybe<Scalars['Int']>;
   cursor?: Maybe<Scalars['Int']>;
   hasMore: Scalars['Boolean'];
-  items?: Maybe<Array<Maybe<Commit>>>;
+  items: Array<Commit>;
 };
 
 export type QueryHandlerEntity = {
@@ -349,13 +349,13 @@ export type QueryResolvers<
     RequireFields<QueryFullTextSearchEntityArgs, never>
   >;
   paginatedEntity?: Resolver<
-    Maybe<ResolversTypes['PaginatedEntity']>,
+    ResolversTypes['PaginatedEntity'],
     ParentType,
     ContextType,
     RequireFields<QueryPaginatedEntityArgs, 'entityName'>
   >;
   paginatedCommit?: Resolver<
-    Maybe<ResolversTypes['PaginatedCommit']>,
+    ResolversTypes['PaginatedCommit'],
     ParentType,
     ContextType,
     RequireFields<QueryPaginatedCommitArgs, 'entityName'>
@@ -369,7 +369,7 @@ export type PaginatedEntityResolvers<
   total?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   cursor?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   hasMore?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  items?: Resolver<Array<Maybe<ResolversTypes['QueryHandlerEntity']>>, ParentType, ContextType>;
+  items?: Resolver<Array<ResolversTypes['QueryHandlerEntity']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 };
 
@@ -380,7 +380,7 @@ export type PaginatedCommitResolvers<
   total?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   cursor?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   hasMore?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  items?: Resolver<Maybe<Array<Maybe<ResolversTypes['Commit']>>>, ParentType, ContextType>;
+  items?: Resolver<Array<ResolversTypes['Commit']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 };
 

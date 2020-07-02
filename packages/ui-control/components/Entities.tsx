@@ -1,16 +1,19 @@
+import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
 import React from 'react';
+import { QueryHandlerEntity } from '../graphql/generated/queryHandler';
 
-const Entity: React.FC<{ entities?: any[] }> = ({ entities }) => {
+const Entities: React.FC<{ entities?: QueryHandlerEntity[] }> = ({ entities }) => {
   return (
     <>
-      {entities ? (
+      {entities && !isEqual(entities, []) ? (
         entities
           .map((entity) =>
-            pick(entity, 'id', 'entityName', 'tag', 'desc', 'created', 'lastModified')
+            pick(entity, 'id', 'entityName', 'tag', 'desc', 'created', 'lastModified', 'value')
           )
           .map((entity) => ({
             ...entity,
+            value: JSON.parse(entity.value),
             created: new Date(entity?.created * 1000).toString(),
             lastModified: new Date(entity?.lastModified * 1000).toString(),
           }))
@@ -22,4 +25,4 @@ const Entity: React.FC<{ entities?: any[] }> = ({ entities }) => {
   );
 };
 
-export default Entity;
+export default Entities;
