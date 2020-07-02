@@ -206,7 +206,6 @@ describe('Pub / Sub', () => {
     }
 
     const pubs = (await publisher.zrangebyscore(topic, '-inf', '+inf')).map(str => JSON.parse(str));
-    // expect(pubs.length).toEqual(3);
     for (let idx = 0; idx < pubs.length; idx ++) {
       expect(pubs[idx]).toEqual(sources[idx + RUNS - EXPT]);
     }
@@ -245,6 +244,40 @@ describe('Pub / Sub', () => {
     for (let idx = 0; idx < pubs.length; idx ++) {
       expect(pubs[idx]).toEqual(sub1[idx]);
       expect(pubs[idx]).toEqual(sub2[idx]);
+    }
+  });
+
+  it('subscription match each other', async () => {
+    const topic = 'subs';
+    const stamp = Date.now();
+    const sources: ReqRes[] = [...new Array(5)].map((_, idx) => {
+      return {
+        id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
+        url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
+        reqBody: { txt: `abc${idx}`, num: `123${idx}` },
+        statusCode: 3, statusMessage: `myMsg ${idx}`
+      };
+    });
+
+    const sub1 = [];
+    mockInSubscriber1.mockImplementation((message) => {
+      sub1.push(JSON.parse(message));
+    });
+    subscriber1.subscribe(topic);
+
+    const sub2 = [];
+    mockInSubscriber2.mockImplementation((message) => {
+      sub2.push(JSON.parse(message));
+    });
+    subscriber2.subscribe(topic);
+
+    for (const mssg of sources) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await processMsg({ message: mssg, client: publisher, topic });
+    }
+
+    for (let idx = 0; idx < sources.length; idx ++) {
+      expect(sub1[idx]).toEqual(sub2[idx]);
     }
   });
 });

@@ -95,7 +95,7 @@ export const relayService = ({
     changeOrigin: true,
     onProxyReq: (proxyReq, req, res) => {
 
-      const reqres = {
+      const reqres: ReqRes = {
         id: crypto.randomBytes(16).toString('hex'),
         startTime: Date.now(),
         duration: undefined,
@@ -131,7 +131,7 @@ export const relayService = ({
         proxyReq.write(bodyData);
       }
     },
-    onProxyRes: async (proxyRes, req, res) => {
+    onProxyRes: async (proxyRes, _, res) => {
 
       const message: ReqRes = res.locals.reqres;
 
@@ -145,7 +145,7 @@ export const relayService = ({
         logger.error(`Error while processing [${message.id}]: ${error} - '${JSON.stringify(message)}'`);
       });
     },
-    onError: (err, req, res) => {
+    onError: (err, _, res) => {
       res.writeHead(500, {
         'Content-Type': 'text/plain',
       });

@@ -4,6 +4,8 @@ import express from 'express';
 import RedisClient, { Redis } from 'ioredis';
 import stoppable, { StoppableServer } from 'stoppable';
 import { getLogger } from './getLogger';
+import { ReqRes } from './reqres';
+import { startSniffing } from './startSniffing';
 
 const logger = getLogger('[sniffer] snifferService.js');
 
@@ -11,11 +13,12 @@ export const createSnifferService: (option: {
   redisHost: string;
   redisPort: number;
   topic: string;
+  callback?: (channel: string, message: ReqRes, messageStr?: string) => void;
 }) => Promise<{
   sniffer: StoppableServer;
   shutdown: any;
 }> = async ({
-  redisHost, redisPort, topic
+  redisHost, redisPort, topic, callback
 }) => {
   const client: Redis = new RedisClient({
     host: redisHost,
@@ -44,15 +47,10 @@ export const createSnifferService: (option: {
     logger.info('Redis client connected.');
   });
 
-  client.on('message', (channel, message) => {
-    logger.info(`Incoming message from ${channel}: ${message}`);
-  });
-
-  client.subscribe(topic, (error, count) => {
-    if (error)
-      logger.error(util.format('An error occurred subscribing to REDIS topic %s: %j', topic, error));
-    else
-      logger.info(`Subscribed to REDIS topic ${topic} successfully (${count})`);
+  await startSniffing({ client, topic, callback }).then((result: { read: number; count: number }) => {
+    logger.info(`Sniffing started on topic '${topic}': ${result}`);
+  }).catch((error) => {
+    logger.error(`Error starting sniffing on topic '${topic}': ${error}`);
   });
 
   const stoppableServer = stoppable(http.createServer(express()));
