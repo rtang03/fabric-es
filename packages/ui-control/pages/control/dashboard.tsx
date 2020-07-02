@@ -5,18 +5,19 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from '@material-ui/core/Typography';
 import SearchIcon from '@material-ui/icons/Search';
 import Pagination from '@material-ui/lab/Pagination';
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
-import pick from 'lodash/pick';
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
 import React from 'react';
+import Entity from '../../components/Entity';
 import Layout from '../../components/Layout';
 import ProTip from '../../components/ProTip';
 import { useFtsEntityLazyQuery } from '../../graphql/generated/queryHandler';
 import { User } from '../../types';
 import { getServerSideUser, useStyles } from '../../utils';
-import Entity from '../../components/Entity';
-import { QueryHandlerEntity } from '@fabric-es/fabric-cqrs';
+// import SearchIcon from '@material-ui/icons/Search';
 
 const PAGESIZE = 2;
 
@@ -45,6 +46,15 @@ const Dashboard: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>
         <>Error when authenticating user</>
       ) : (
         <Container>
+          <p />
+          <ToggleButtonGroup aria-label="text alignment" exclusive>
+            <ToggleButton value="left" aria-label="left aligned">
+              Entity
+            </ToggleButton>
+            <ToggleButton value="right" aria-label="right aligned">
+              Commit
+            </ToggleButton>
+          </ToggleButtonGroup>
           <Typography component="h1" variant="h6">
             find by entity
           </Typography>

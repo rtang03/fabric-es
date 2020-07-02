@@ -65,7 +65,7 @@ export const typeDefs = gql`
     total: Int
     cursor: Int
     hasMore: Boolean!
-    items: [QueryHandlerEntity]!
+    items: [QueryHandlerEntity!]!
   }
 
   type PaginatedCommit {

@@ -26,11 +26,13 @@ const Register: NextPage<any> = () => {
   const [register, { data, loading, error }] = useRegisterMutation();
 
   useEffect(() => {
-    data?.register &&
+    if (data?.register) {
+      setTimeout(() => dispatchAuth({ type: 'REGISTER_SUCCESS' }), 3000);
       setTimeout(
         async () => Router.push(`/control/login?username=${data?.register?.username}`),
         3200
       );
+    }
   }, [data]);
 
   error && setTimeout(() => dispatch({ type: 'ERROR', message: ERROR }), 500);
