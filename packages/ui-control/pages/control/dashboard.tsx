@@ -15,6 +15,8 @@ import ProTip from '../../components/ProTip';
 import { useFtsEntityLazyQuery } from '../../graphql/generated/queryHandler';
 import { User } from '../../types';
 import { getServerSideUser, useStyles } from '../../utils';
+import Entity from '../../components/Entity';
+import { QueryHandlerEntity } from '@fabric-es/fabric-cqrs';
 
 const PAGESIZE = 2;
 
@@ -91,18 +93,7 @@ const Dashboard: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>
                     <React.Fragment />
                   )}
                 </div>
-                {data?.fullTextSearchEntity?.items
-                  .map((item) =>
-                    pick(item, 'id', 'entityName', 'tag', 'desc', 'created', 'lastModified')
-                  )
-                  .map((item: any) => ({
-                    ...item,
-                    created: new Date(item?.created * 1000).toString(),
-                    lastModified: new Date(item?.lastModified * 1000).toString(),
-                  }))
-                  .map((item) => (
-                    <pre key={item?.id}>{JSON.stringify(item, null, 2)}</pre>
-                  ))}
+                <Entity entities={data?.fullTextSearchEntity?.items} />
                 <Pagination count={count} showFirstButton showLastButton onChange={handleChange} />
                 {error ? <pre>JSON.stringify(error, null, 2)</pre> : <React.Fragment />}
               </Form>
