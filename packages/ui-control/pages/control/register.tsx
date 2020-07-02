@@ -9,7 +9,7 @@ import { NextPage } from 'next';
 import Router from 'next/router';
 import React, { useEffect } from 'react';
 import * as yup from 'yup';
-import { useDispatchAlert } from '../../components';
+import { useAuth, useDispatchAlert, useDispatchAuth } from '../../components';
 import Layout from '../../components/Layout';
 import { useRegisterMutation } from '../../graphql/generated';
 import { getValidationSchema, useStyles } from '../../utils';
@@ -19,7 +19,9 @@ const ERROR = 'Fail to register';
 const SUCCESS = 'Register successfully';
 
 const Register: NextPage<any> = () => {
+  const auth = useAuth();
   const dispatch = useDispatchAlert();
+  const dispatchAuth = useDispatchAuth();
   const classes = useStyles();
   const [register, { data, loading, error }] = useRegisterMutation();
 
@@ -27,7 +29,7 @@ const Register: NextPage<any> = () => {
     data?.register &&
       setTimeout(
         async () => Router.push(`/control/login?username=${data?.register?.username}`),
-        4000
+        3200
       );
   }, [data]);
 
@@ -46,11 +48,14 @@ const Register: NextPage<any> = () => {
           onSubmit={async ({ username, email, password }, { setSubmitting }) => {
             setSubmitting(true);
             try {
+              dispatchAuth({ type: 'REGISTER' });
               await register({ variables: { username, email, password } });
+              setSubmitting(false);
               setTimeout(() => dispatch({ type: 'SUCCESS', message: SUCCESS }), 500);
             } catch (e) {
               console.error(e);
               setSubmitting(false);
+              dispatchAuth({ type: 'REGISTER_FAILURE' });
               setTimeout(() => dispatch({ type: 'ERROR', message: ERROR }), 500);
             }
           }}>
@@ -67,7 +72,7 @@ const Register: NextPage<any> = () => {
                     variant="outlined"
                     margin="normal"
                     fullwidth="true"
-                    disabled={isSubmitting}
+                    disabled={auth.loading}
                     autoFocus
                   />{' '}
                 </Grid>
@@ -81,7 +86,7 @@ const Register: NextPage<any> = () => {
                     variant="outlined"
                     margin="normal"
                     fullwidth="true"
-                    disabled={isSubmitting}
+                    disabled={auth.loading}
                   />{' '}
                 </Grid>
                 <Grid item xs={12}>
@@ -95,7 +100,7 @@ const Register: NextPage<any> = () => {
                     margin="normal"
                     fullwidth="true"
                     type="password"
-                    disabled={isSubmitting}
+                    disabled={auth.loading}
                     autoComplete="current-password"
                   />{' '}
                 </Grid>
@@ -107,7 +112,8 @@ const Register: NextPage<any> = () => {
                     disabled={
                       isSubmitting ||
                       (!!errors?.email && !values?.email) ||
-                      (!!errors?.password && !values?.password)
+                      (!!errors?.password && !values?.password) ||
+                      auth.loading
                     }
                     type="submit">
                     Register
@@ -126,19 +132,5 @@ const Register: NextPage<any> = () => {
     </Layout>
   );
 };
-
-// export const getStaticProps = async () => {
-//   const apolloClient = initializeApollo();
-//
-//   await apolloClient.query({
-//     query: meQuery,
-//   });
-//
-//   return {
-//     props: {
-//       initialApolloState: apolloClient.cache.extract(),
-//     },
-//   };
-// };
 
 export default Register;

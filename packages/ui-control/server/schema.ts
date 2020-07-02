@@ -6,6 +6,7 @@ import { catchErrors, isLoginResponse, isRegisterResponse } from '../utils';
 
 export const resolvers = {
   Query: {
+    ping: async () => 'pong',
     me: catchErrors<User>(
       (_: any, { authUri, token }) =>
         fetch(`${authUri}/account/userinfo`, {
@@ -74,6 +75,7 @@ export const resolvers = {
 
 export const typeDefs = gql`
   type Query {
+    ping: String
     me: User!
   }
 

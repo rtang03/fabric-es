@@ -9,6 +9,7 @@ export const catchErrors: <TResponse = any>(
     useAuth?: boolean;
     typeGuard?: (input: any) => boolean;
     onSuccess?: (result: TResponse, context: ApolloContext) => any;
+    onError?: (error: any, context: ApolloContext) => any;
   }
 ) => (
   root: null,
@@ -16,20 +17,22 @@ export const catchErrors: <TResponse = any>(
   context: ApolloContext
 ) => Promise<TResponse | ApolloError> = (
   fetchFunction,
-  { fcnName, useAuth = false, typeGuard, onSuccess }
+  { fcnName, useAuth = false, typeGuard, onSuccess, onError }
 ) => async (root, variables, context) => {
   let response;
 
   try {
     response = await fetchFunction(variables, context);
   } catch (e) {
-    console.error(util.format('%s: fail to fetch, %j', fcnName, e));
+    console.error(util.format('[catchErrors] %s: fail to fetch, %j', fcnName, e));
     return new ApolloError(e);
   }
 
   if (response.status !== 200) {
     const errorMessage = await response.text();
-    console.error(`fail to fetch: code: ${response.status}`);
+    console.error(`[catchErrors] fail to fetch: code: ${response.status}`);
+
+    onError?.(errorMessage, context);
 
     return new ApolloError({ errorMessage });
   }
@@ -46,7 +49,7 @@ export const catchErrors: <TResponse = any>(
 
     return result;
   } catch (e) {
-    console.error(util.format('%s: fail to parse json, %j', fcnName, e));
+    console.error(util.format('[catchErrors] %s: fail to parse json, %j', fcnName, e));
     return new ApolloError(e);
   }
 };

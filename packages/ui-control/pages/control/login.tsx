@@ -27,7 +27,7 @@ const Login: NextPage<any> = () => {
 
   useEffect(() => {
     if (data?.login) {
-      setTimeout(async () => Router.push('/control/dashboard'), 4200);
+      setTimeout(async () => Router.push('/control'), 3200);
     }
   }, [data]);
 
@@ -97,7 +97,8 @@ const Login: NextPage<any> = () => {
                     disabled={
                       isSubmitting ||
                       (!!errors?.username && !values?.username) ||
-                      (!!errors?.password && !values?.password)
+                      (!!errors?.password && !values?.password) ||
+                      auth.loading
                     }
                     type="submit">
                     Log In

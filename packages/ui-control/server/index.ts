@@ -7,7 +7,8 @@ import express from 'express';
 import next from 'next';
 import { schema } from './schema';
 
-const ENV = {
+export const ENV = {
+  PORT: process.env.PORT as string,
   NODE_ENV: process.env.NODE_ENV as string,
   AUTH_HOST: process.env.AUTH_HOST as string,
   GW_ORG_INTERNAL_HOST: process.env.GW_ORG_INTERNAL_HOST as string,
@@ -21,7 +22,8 @@ const csrfProtection = csrf({ cookie: true });
 const apolloServer = new ApolloServer({
   schema,
   context: ({ req, res }) => {
-    const token = req.cookies?.token;
+    const authorization = req.headers?.authorization;
+    const token = req.cookies?.token || authorization?.split(' ')[1];
     return { res, token, authUri: ENV.AUTH_HOST };
   },
 });
@@ -30,6 +32,7 @@ app.prepare().then(() => {
   const app = express();
   app.use(cookieParser());
   app.use(express.json());
+  app.use(express.urlencoded({ extended: false }));
   app.use(errorHandler());
 
   apolloServer.applyMiddleware({ app, path: '/control/api/graphql' });
