@@ -8,9 +8,10 @@ import { TokenRepo } from '../entity/AccessToken';
 import { ApiKey } from '../entity/ApiKey';
 import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
+import { RefreshTokenRepo } from '../entity/RefreshToken';
 import { User } from '../entity/User';
 import { AllowAccessResponse, AuthenticateResponse } from '../types';
-import { getLogger, generateToken, isApikey, catchErrors } from '../utils';
+import { getLogger, generateToken, isApikey, catchErrors, generateRefreshToken } from '../utils';
 
 /**
  * For original comments
@@ -20,9 +21,15 @@ const logger = getLogger({ name: '[auth] createOauthServer.js' });
 
 export const createOauthRoute: (option: {
   jwtSecret: string;
-  expiryInSeconds: number;
+  jwtExpiryInSec: number;
   tokenRepo: TokenRepo;
-}) => express.Router = ({ expiryInSeconds, jwtSecret, tokenRepo }) => {
+  refreshTokenRepo: RefreshTokenRepo;
+}) => express.Router = ({
+  jwtExpiryInSec,
+  jwtSecret,
+  tokenRepo,
+  refreshTokenRepo,
+}) => {
   const server = createServer();
   const router = express.Router();
 
@@ -45,7 +52,7 @@ export const createOauthRoute: (option: {
         user_id: user.id,
         is_admin: user.is_admin,
         secret: jwtSecret,
-        expiryInSeconds,
+        jwtExpiryInSec,
       });
 
       return AuthorizationCode.insert(
@@ -55,7 +62,7 @@ export const createOauthRoute: (option: {
           redirect_uri,
           user_id: user.id,
           username: user.username,
-          expires_at: Date.now() + expiryInSeconds * 1000,
+          expires_at: Date.now() + jwtExpiryInSec * 1000,
         })
       )
         .then(() => done(null, authorization_code))
@@ -75,20 +82,11 @@ export const createOauthRoute: (option: {
         user_id: user.id,
         is_admin: user.is_admin,
         secret: jwtSecret,
-        expiryInSeconds,
+        jwtExpiryInSec,
       });
 
       return tokenRepo
-        .save({
-          key: access_token,
-          value: {
-            access_token,
-            client_id: client?.id,
-            user_id: user?.id,
-            expires_at: Date.now() + expiryInSeconds * 1000,
-          },
-          useDefaultExpiry: true,
-        })
+        .save(user.id, access_token, true)
         .then(() => done(null, access_token))
         .catch((e) => {
           logger.error(util.format('fail to insert access token, %j', e));
@@ -116,20 +114,11 @@ export const createOauthRoute: (option: {
         client,
         user_id: authCode.user_id,
         secret: jwtSecret,
-        expiryInSeconds,
+        jwtExpiryInSec,
       });
 
       return tokenRepo
-        .save({
-          key: access_token,
-          value: {
-            access_token,
-            client_id: client.id,
-            user_id: authCode.user_id,
-            expires_at: Date.now() + expiryInSeconds * 1000,
-          },
-          useDefaultExpiry: true,
-        })
+        .save(authCode.user_id, access_token, true, client.id)
         .then(() => done(null, access_token, null, { username: authCode.username }))
         .catch((e) => {
           logger.error(util.format('fail to insert access token, %j', e));
@@ -168,21 +157,15 @@ export const createOauthRoute: (option: {
         user_id: user.id,
         is_admin: user.is_admin,
         secret: jwtSecret,
-        expiryInSeconds,
+        jwtExpiryInSec,
       });
 
+      const refresh_token = generateRefreshToken();
+      await refreshTokenRepo.save(user.id, refresh_token, true);
+
       return tokenRepo
-        .save({
-          key: access_token,
-          value: {
-            access_token,
-            client_id: client.id,
-            user_id: user.id,
-            expires_at: Date.now() + expiryInSeconds * 1000,
-          },
-          useDefaultExpiry: true,
-        })
-        .then(() => done(null, access_token))
+        .save(user.id, access_token, true, client.id)
+        .then(() => done(null, access_token, refresh_token))
         .catch((e) => {
           logger.error(util.format('fail to insert access token, %j', e));
           return done(e);
@@ -202,7 +185,7 @@ export const createOauthRoute: (option: {
       try {
         const key = ApiKey.create({ api_key, client_id: client.id, scope });
         await ApiKey.insert(key);
-        done(null, key.id);
+        done(null, key.id, null);
       } catch (e) {
         logger.error(util.format('fail to insert api key, %j', e));
         return done(e);
@@ -210,8 +193,47 @@ export const createOauthRoute: (option: {
     })
   );
 
+  server.exchange(
+    exchange.refreshToken(async (user: User, oldRefreshToken, scope, done) => {
+      const token = await refreshTokenRepo.find(oldRefreshToken);
+
+      if (!token) return done(new Error('refreshToken not exist'), null, null);
+
+      if (token?.user_id !== user.id)
+        return done(new Error('token does not belong to you'), null, null);
+
+      const refresh_token = generateRefreshToken();
+      const access_token = generateToken({
+        user_id: user.id,
+        is_admin: user.is_admin,
+        secret: jwtSecret,
+        jwtExpiryInSec,
+      });
+
+      try {
+        await refreshTokenRepo.deleteToken(user.id, oldRefreshToken);
+
+        await refreshTokenRepo.save(user.id, refresh_token, true);
+
+        await tokenRepo.save(user.id, access_token, true);
+      } catch (e) {
+        return done(e, null, null);
+      }
+
+      return done(null, access_token, refresh_token);
+    })
+  );
+
+  // authenticate via basic strategy and client-credential
   router.post('/token', [
     passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
+    server.token(),
+    server.errorHandler(),
+  ]);
+
+  // authenticated via bearer token
+  router.post('/refresh_token', [
+    passport.authenticate(['bearer'], { session: false }),
     server.token(),
     server.errorHandler(),
   ]);

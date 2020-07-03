@@ -5,10 +5,12 @@ import httpStatus from 'http-status';
 import omit from 'lodash/omit';
 import passport from 'passport';
 import { TokenRepo } from '../entity/AccessToken';
+import { RefreshTokenRepo } from '../entity/RefreshToken';
 import { User } from '../entity/User';
 import { LoginResponse, ProfileResponse, RegisterResponse, UpdateUserRequest } from '../types';
 import {
   catchErrors,
+  generateRefreshToken,
   generateToken,
   getLogger,
   isRegisterRequest,
@@ -21,8 +23,17 @@ export const createAccountRoute: (option: {
   orgAdminSecret: string;
   jwtSecret: string;
   tokenRepo: TokenRepo;
-  expiryInSeconds: number;
-}) => express.Router = ({ orgAdminSecret, jwtSecret, tokenRepo, expiryInSeconds }) => {
+  jwtExpiryInSec: number;
+  refreshTokenRepo: RefreshTokenRepo;
+  refTokenExpiryInSec: number;
+}) => express.Router = ({
+  orgAdminSecret,
+  jwtSecret,
+  tokenRepo,
+  jwtExpiryInSec,
+  refreshTokenRepo,
+  refTokenExpiryInSec,
+}) => {
   const router = express.Router();
 
   router.get('/isalive', (_, res) => res.sendStatus(httpStatus.NO_CONTENT));
@@ -47,23 +58,23 @@ export const createAccountRoute: (option: {
           user_id: user.id,
           is_admin: user.is_admin,
           secret: jwtSecret,
-          expiryInSeconds,
+          jwtExpiryInSec,
         });
 
+        const refresh_token = generateRefreshToken();
+
+        await refreshTokenRepo.save(user.id, refresh_token, true);
+
         return tokenRepo
-          .save({
-            key: access_token,
-            value: {
-              access_token,
-              user_id: user.id,
-              expires_at: Date.now() + expiryInSeconds * 1000,
-            },
-            useDefaultExpiry: true,
-          })
+          .save(user.id, access_token, true)
           .then(() => {
             logger.info(`logging in ${user.id}`);
 
-            res.cookie('token', access_token, { httpOnly: true, secure: true });
+            res.cookie('rt', refresh_token, {
+              httpOnly: true,
+              secure: true,
+              maxAge: refTokenExpiryInSec * 1000,
+            });
 
             const response: LoginResponse = {
               username: user.username,
