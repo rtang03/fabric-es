@@ -19,7 +19,7 @@ import {
 import { createDbForUnitTest } from './__utils__/createDbForUnitTest';
 
 /**
- * pre-requisite: requires a running postgres, and redis, e.g. ./dn-run.2-px-db-red.sh
+ * ./dn-run.0-db-red.sh
  */
 
 const connection = {
