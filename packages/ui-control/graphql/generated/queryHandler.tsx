@@ -42,8 +42,8 @@ export type Query = {
   me?: Maybe<Scalars['String']>;
   fullTextSearchCommit?: Maybe<PaginatedCommit>;
   fullTextSearchEntity?: Maybe<PaginatedEntity>;
-  paginatedEntity?: Maybe<PaginatedEntity>;
-  paginatedCommit?: Maybe<PaginatedCommit>;
+  paginatedEntity: PaginatedEntity;
+  paginatedCommit: PaginatedCommit;
 };
 
 export type QueryFullTextSearchCommitArgs = {
@@ -93,14 +93,14 @@ export type PaginatedEntity = {
   total?: Maybe<Scalars['Int']>;
   cursor?: Maybe<Scalars['Int']>;
   hasMore: Scalars['Boolean'];
-  items: Array<Maybe<QueryHandlerEntity>>;
+  items: Array<QueryHandlerEntity>;
 };
 
 export type PaginatedCommit = {
   total?: Maybe<Scalars['Int']>;
   cursor?: Maybe<Scalars['Int']>;
   hasMore: Scalars['Boolean'];
-  items?: Maybe<Array<Maybe<Commit>>>;
+  items: Array<Commit>;
 };
 
 export type QueryHandlerEntity = {
@@ -153,21 +153,17 @@ export enum CacheControlScope {
   Private = 'PRIVATE',
 }
 
-export type FullTextSearchCommitQueryVariables = {
+export type FtsCommitQueryVariables = {
   query: Scalars['String'];
   cursor?: Maybe<Scalars['Int']>;
   pagesize?: Maybe<Scalars['Int']>;
 };
 
-export type FullTextSearchCommitQuery = {
+export type FtsCommitQuery = {
   fullTextSearchCommit?: Maybe<
     Pick<PaginatedCommit, 'total' | 'hasMore' | 'cursor'> & {
-      items?: Maybe<
-        Array<
-          Maybe<
-            Pick<Commit, 'id' | 'entityName' | 'version' | 'commitId' | 'entityId' | 'eventsString'>
-          >
-        >
+      items: Array<
+        Pick<Commit, 'id' | 'entityName' | 'version' | 'commitId' | 'entityId' | 'eventsString'>
       >;
     }
   >;
@@ -183,21 +179,19 @@ export type FtsEntityQuery = {
   fullTextSearchEntity?: Maybe<
     Pick<PaginatedEntity, 'total' | 'hasMore' | 'cursor'> & {
       items: Array<
-        Maybe<
-          Pick<
-            QueryHandlerEntity,
-            | 'id'
-            | 'entityName'
-            | 'value'
-            | 'commits'
-            | 'events'
-            | 'tag'
-            | 'desc'
-            | 'created'
-            | 'creator'
-            | 'lastModified'
-            | 'timeline'
-          >
+        Pick<
+          QueryHandlerEntity,
+          | 'id'
+          | 'entityName'
+          | 'value'
+          | 'commits'
+          | 'events'
+          | 'tag'
+          | 'desc'
+          | 'created'
+          | 'creator'
+          | 'lastModified'
+          | 'timeline'
         >
       >;
     }
@@ -208,8 +202,8 @@ export type MeQueryVariables = {};
 
 export type MeQuery = Pick<Query, 'me'>;
 
-export const FullTextSearchCommitDocument = gql`
-  query FullTextSearchCommit($query: String!, $cursor: Int, $pagesize: Int) {
+export const FtsCommitDocument = gql`
+  query FTSCommit($query: String!, $cursor: Int, $pagesize: Int) {
     fullTextSearchCommit(query: $query, cursor: $cursor, pagesize: $pagesize) {
       total
       hasMore
@@ -227,16 +221,16 @@ export const FullTextSearchCommitDocument = gql`
 `;
 
 /**
- * __useFullTextSearchCommitQuery__
+ * __useFtsCommitQuery__
  *
- * To run a query within a React component, call `useFullTextSearchCommitQuery` and pass it any options that fit your needs.
- * When your component renders, `useFullTextSearchCommitQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useFtsCommitQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFtsCommitQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useFullTextSearchCommitQuery({
+ * const { data, loading, error } = useFtsCommitQuery({
  *   variables: {
  *      query: // value for 'query'
  *      cursor: // value for 'cursor'
@@ -244,35 +238,27 @@ export const FullTextSearchCommitDocument = gql`
  *   },
  * });
  */
-export function useFullTextSearchCommitQuery(
-  baseOptions?: ApolloReactHooks.QueryHookOptions<
-    FullTextSearchCommitQuery,
-    FullTextSearchCommitQueryVariables
-  >
+export function useFtsCommitQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<FtsCommitQuery, FtsCommitQueryVariables>
 ) {
-  return ApolloReactHooks.useQuery<FullTextSearchCommitQuery, FullTextSearchCommitQueryVariables>(
-    FullTextSearchCommitDocument,
+  return ApolloReactHooks.useQuery<FtsCommitQuery, FtsCommitQueryVariables>(
+    FtsCommitDocument,
     baseOptions
   );
 }
-export function useFullTextSearchCommitLazyQuery(
-  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
-    FullTextSearchCommitQuery,
-    FullTextSearchCommitQueryVariables
-  >
+export function useFtsCommitLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<FtsCommitQuery, FtsCommitQueryVariables>
 ) {
-  return ApolloReactHooks.useLazyQuery<
-    FullTextSearchCommitQuery,
-    FullTextSearchCommitQueryVariables
-  >(FullTextSearchCommitDocument, baseOptions);
+  return ApolloReactHooks.useLazyQuery<FtsCommitQuery, FtsCommitQueryVariables>(
+    FtsCommitDocument,
+    baseOptions
+  );
 }
-export type FullTextSearchCommitQueryHookResult = ReturnType<typeof useFullTextSearchCommitQuery>;
-export type FullTextSearchCommitLazyQueryHookResult = ReturnType<
-  typeof useFullTextSearchCommitLazyQuery
->;
-export type FullTextSearchCommitQueryResult = ApolloReactCommon.QueryResult<
-  FullTextSearchCommitQuery,
-  FullTextSearchCommitQueryVariables
+export type FtsCommitQueryHookResult = ReturnType<typeof useFtsCommitQuery>;
+export type FtsCommitLazyQueryHookResult = ReturnType<typeof useFtsCommitLazyQuery>;
+export type FtsCommitQueryResult = ApolloReactCommon.QueryResult<
+  FtsCommitQuery,
+  FtsCommitQueryVariables
 >;
 export const FtsEntityDocument = gql`
   query FTSEntity($query: String, $cursor: Int, $pagesize: Int) {

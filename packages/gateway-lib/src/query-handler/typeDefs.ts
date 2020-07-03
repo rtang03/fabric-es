@@ -41,7 +41,7 @@ export const typeDefs = gql`
       endTime: Int
       sortByField: String
       sort: String
-    ): PaginatedEntity
+    ): PaginatedEntity!
     paginatedCommit(
       creator: String
       cursor: Int
@@ -53,7 +53,7 @@ export const typeDefs = gql`
       endTime: Int
       sortByField: String
       sort: String
-    ): PaginatedCommit
+    ): PaginatedCommit!
   }
 
   enum SearchScope {
@@ -72,7 +72,7 @@ export const typeDefs = gql`
     total: Int
     cursor: Int
     hasMore: Boolean!
-    items: [Commit]
+    items: [Commit!]!
   }
 
   type QueryHandlerEntity {

@@ -55,11 +55,15 @@ export const resolvers = {
             httpOnly: true,
             secure: false,
             maxAge: 1000 * 60 * 60 * 24 * 31,
+            sameSite: true,
           }),
       }
     ),
     logout: (_: any, __: any, { res }: ApolloContext) => {
-      res.clearCookie('token');
+      res.cookie('token', '', {
+        httpOnly: true,
+        expires: new Date(0),
+      });
       return true;
     },
     forget: (_: any, { email }: { email: string }) => {

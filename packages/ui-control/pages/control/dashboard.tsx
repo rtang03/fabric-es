@@ -1,22 +1,21 @@
-import { IconButton } from '@material-ui/core';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
-import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import ChangeHistoryIcon from '@material-ui/icons/ChangeHistory';
 import FindInPageIcon from '@material-ui/icons/FindInPage';
-import SearchIcon from '@material-ui/icons/Search';
 import Pagination from '@material-ui/lab/Pagination';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-import { Field, Form, Formik } from 'formik';
-import { TextField } from 'formik-material-ui';
+import { Form, Formik } from 'formik';
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
 import React, { useState } from 'react';
-import Entity from '../../components/Entity';
+import Commits from '../../components/Commits';
+import Entities from '../../components/Entities';
 import Layout from '../../components/Layout';
 import ProTip from '../../components/ProTip';
-import { useFtsEntityLazyQuery } from '../../graphql/generated/queryHandler';
+import SearchInputField from '../../components/SearchInputField';
+import { useFtsEntityLazyQuery, useFtsCommitLazyQuery } from '../../graphql/generated/queryHandler';
 import { User } from '../../types';
 import { getServerSideUser, useStyles } from '../../utils';
 
@@ -25,28 +24,48 @@ const PAGESIZE = 2;
 const Dashboard: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ user }) => {
   const [findBy, setFindBy] = useState('entity');
   const classes = useStyles();
-  const [search, { data, error, loading, fetchMore }] = useFtsEntityLazyQuery({
+  const options = {
     context: { backend: 'queryHandler' },
-    fetchPolicy: 'cache-and-network',
-  });
+    fetchPolicy: 'cache-and-network' as any,
+  };
+  const [
+    searchEntity,
+    { data: entities, loading: entityLoading, fetchMore: fetchMoreEntity },
+  ] = useFtsEntityLazyQuery(options);
+  const [
+    searchCommit,
+    { data: commits, loading: commitLoading, fetchMore: fetchMoreCommit },
+  ] = useFtsCommitLazyQuery(options);
 
-  let count: number;
-  let total: number;
+  let entityCount: number;
+  let entityTotal: number;
+  let commitCount: number;
+  let commitTotal: number;
 
-  if (!loading && data?.fullTextSearchEntity) {
-    count = Math.ceil((data.fullTextSearchEntity.total as number) / PAGESIZE);
-    total = data?.fullTextSearchEntity.total as number;
+  if (!entityLoading && entities?.fullTextSearchEntity) {
+    entityCount = Math.ceil((entities.fullTextSearchEntity.total as number) / PAGESIZE);
+    entityTotal = entities?.fullTextSearchEntity.total as number;
   }
 
-  const handlePageNumChange = async (event: React.ChangeEvent<unknown>, pagenumber: number) => {
-    await fetchMore?.({ variables: { cursor: (pagenumber - 1) * PAGESIZE } });
-  };
-  const handleFindBy = (event: React.MouseEvent<HTMLElement>, findWhat: string) => {
-    setFindBy(findWhat);
-  };
+  if (!commitLoading && commits?.fullTextSearchCommit) {
+    commitCount = Math.ceil((commits.fullTextSearchCommit.total as number) / PAGESIZE);
+    commitTotal = commits?.fullTextSearchCommit.total as number;
+  }
+
+  const handlePageChangeEntity = async (event: React.ChangeEvent<unknown>, pagenumber: number) =>
+    fetchMoreEntity?.({ variables: { cursor: (pagenumber - 1) * PAGESIZE } });
+
+  const handlePageChangeCommit = async (event: React.ChangeEvent<unknown>, pagenumber: number) =>
+    fetchMoreCommit?.({ variables: { cursor: (pagenumber - 1) * PAGESIZE } });
+
+  const handleFindBy = (event: React.MouseEvent<HTMLElement>, item: string) => setFindBy(item);
 
   return (
-    <Layout title="Dashboard" loading={loading} user={user} restrictedArea={true}>
+    <Layout
+      title="Dashboard"
+      loading={entityLoading || commitLoading}
+      user={user}
+      restrictedArea={true}>
       {!user ? (
         <>Error when authenticating user</>
       ) : (
@@ -67,62 +86,81 @@ const Dashboard: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>
             </ToggleButton>
           </ToggleButtonGroup>
           <br />
-          <Formik
-            initialValues={{ query: '', isCommit: false, cursor: 0, pagesize: 2 }}
-            onSubmit={async ({ query, cursor, pagesize }, { setSubmitting }) => {
-              setSubmitting(true);
-              try {
-                search({ variables: { query, cursor, pagesize } });
-              } catch (e) {
-                console.error(e);
-                setSubmitting(false);
-              }
-            }}>
-            {({ isSubmitting }) => (
-              <Form className={classes.form}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12}>
-                    <Field
-                      className={classes.textField}
-                      size="small"
-                      label="by Entity"
-                      component={TextField}
-                      name="query"
-                      placeholder="@type:coun* @id:count* @event:{inc*} @creator:admin*"
-                      variant="outlined"
-                      margin="normal"
-                      fullwidth="true"
-                      autoFocus
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton disabled={isSubmitting} type="submit">
-                              <SearchIcon />
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                    />{' '}
+          {findBy === 'entity' ? (
+            <Formik
+              initialValues={{ query: '', cursor: 0, pagesize: PAGESIZE }}
+              onSubmit={async ({ query, cursor, pagesize }, { setSubmitting }) => {
+                setSubmitting(true);
+                try {
+                  searchEntity({ variables: { query, cursor, pagesize } });
+                } catch (e) {
+                  console.error(e);
+                  setSubmitting(false);
+                }
+              }}>
+              {({ isSubmitting }) => (
+                <Form className={classes.form}>
+                  <Grid container spacing={3}>
+                    <SearchInputField
+                      isSubmitting={isSubmitting}
+                      autoFocus={findBy === 'entity'}
+                      placeholder="@type:org* @id:org* @event:{inc*} @creator:admin*"
+                      label="entity"
+                      total={entityTotal}
+                    />
+                    <Grid item xs={12}>
+                      <Pagination
+                        count={entityCount}
+                        showFirstButton
+                        showLastButton
+                        onChange={handlePageChangeEntity}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Entities entities={entities?.fullTextSearchEntity?.items} />
+                    </Grid>
                   </Grid>
-                </Grid>
-                <div>
-                  {total ? (
-                    <Typography variant="caption">Total: {total}</Typography>
-                  ) : (
-                    <React.Fragment />
-                  )}
-                </div>
-                <Entity entities={data?.fullTextSearchEntity?.items} />
-                <Pagination
-                  count={count}
-                  showFirstButton
-                  showLastButton
-                  onChange={handlePageNumChange}
-                />
-                {error ? <pre>JSON.stringify(error, null, 2)</pre> : <React.Fragment />}
-              </Form>
-            )}
-          </Formik>
+                </Form>
+              )}
+            </Formik>
+          ) : (
+            <Formik
+              initialValues={{ query: '', cursor: 0, pagesize: PAGESIZE }}
+              onSubmit={async ({ query, cursor, pagesize }, { setSubmitting }) => {
+                setSubmitting(true);
+                try {
+                  searchCommit({ variables: { query, cursor, pagesize } });
+                } catch (e) {
+                  console.error(e);
+                  setSubmitting(false);
+                }
+              }}>
+              {({ isSubmitting }) => (
+                <Form>
+                  <Grid container spacing={3}>
+                    <SearchInputField
+                      isSubmitting={isSubmitting}
+                      autoFocus={findBy !== 'entity'}
+                      placeholder="@type:org* @id:org*  @creator:admin*"
+                      label="commit"
+                      total={commitTotal}
+                    />
+                    <Grid item xs={12}>
+                      <Pagination
+                        count={commitCount}
+                        showFirstButton
+                        showLastButton
+                        onChange={handlePageChangeCommit}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Commits commits={commits?.fullTextSearchCommit?.items} />
+                    </Grid>
+                  </Grid>
+                </Form>
+              )}
+            </Formik>
+          )}
           <ProTip />
         </Container>
       )}

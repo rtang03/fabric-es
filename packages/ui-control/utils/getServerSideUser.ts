@@ -28,7 +28,8 @@ export const getServerSideUser = () => async (context: GetServerSidePropsContext
       headers: {
         'Content-Type': 'application/json',
         authorization: `bearer ${token}`,
-        mode: 'cors',
+        mode: 'same-origin',
+        'Cache-Control': 'no-cache',
       },
       body: JSON.stringify({ operationName: 'Me', query }),
     });
