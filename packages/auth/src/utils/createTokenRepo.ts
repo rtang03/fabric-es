@@ -5,9 +5,14 @@ export const createTokenRepo: (option: { redis: Redis; jwtExpiryInSec: number })
   redis,
   jwtExpiryInSec,
 }) => ({
-  save: async (user_id, access_token, useDefaultExpiry, client_id) => {
+  save: async ({ user_id, access_token, useDefaultExpiry, client_id, is_admin }) => {
     const key = `at::${user_id}::${access_token}`;
-    const value = { access_token, user_id, expires_at: Date.now() + jwtExpiryInSec * 1000 };
+    const value = {
+      access_token,
+      user_id,
+      expires_at: Date.now() + jwtExpiryInSec * 1000,
+      is_admin,
+    };
     client_id && Object.assign(value, { client_id });
 
     return useDefaultExpiry

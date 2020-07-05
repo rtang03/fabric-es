@@ -12,7 +12,7 @@ import * as yup from 'yup';
 import { useAuth, useDispatchAlert, useDispatchAuth } from '../../components';
 import Layout from '../../components/Layout';
 import { useLoginMutation } from '../../graphql/generated';
-import { getValidationSchema, useStyles } from '../../utils';
+import { getValidationSchema, saveToken, useStyles } from '../../utils';
 
 const validation = yup.object(getValidationSchema(['username', 'password']));
 const ERROR = 'Fail to login';
@@ -45,7 +45,8 @@ const Login: NextPage<any> = () => {
             setSubmitting(true);
             try {
               dispatchAuth({ type: 'LOGIN' });
-              await login({ variables: { username, password } });
+              const response = await login({ variables: { username, password } });
+              saveToken(response?.data?.login?.access_token);
               setSubmitting(false);
               setTimeout(
                 () => dispatchAlert({ type: 'SUCCESS', message: `${username} ${SUCCESS}` }),

@@ -22,6 +22,7 @@ services:
     working_dir: /home/app/packages/gw-org1
     ports:
       - 4001:4001
+      # this open port for development, should be removed for production
       - 5001:5001
     networks:
       - openplatform

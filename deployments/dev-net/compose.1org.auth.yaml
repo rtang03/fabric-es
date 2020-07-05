@@ -24,6 +24,9 @@ services:
       - ORG_ADMIN_EMAIL=admin@org1.net
       - CLIENT_APPLICATION_NAME=root_client
       - CLIENT_SECRET=password
+    # this open port for development of ui, should be removed for production
+    ports:
+      - 8080:8080
     networks:
       - openplatform
     depends_on:

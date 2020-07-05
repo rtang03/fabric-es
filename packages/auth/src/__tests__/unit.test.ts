@@ -460,7 +460,7 @@ describe('Auth Tests - /oauth', () => {
   it('should refresh token', async () =>
     request(app)
       .post('/oauth/refresh_token')
-      .set('authorization', `Bearer ${access_token}`)
+      // .set('authorization', `Bearer ${access_token}`)
       .set('Context-Type', 'application/x-www-form-urlencoded')
       .send(`refresh_token=${refresh_token}&grant_type=refresh_token`)
       .expect(({ body, status }) => {

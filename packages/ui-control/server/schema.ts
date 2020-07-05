@@ -1,25 +1,57 @@
-import { gql } from '@apollo/client/core';
+import cookie from 'cookie';
 import { makeExecutableSchema } from 'graphql-tools';
-import fetch from 'isomorphic-unfetch';
-import { ApolloContext, LoginResponse, RegisterResponse, User } from '../types';
+import {
+  ApolloContext,
+  LoginResponse,
+  RefreshTokenResponse,
+  RegisterResponse,
+  User,
+} from '../types';
 import { catchErrors, isLoginResponse, isRegisterResponse } from '../utils';
+import { typeDefs } from './typeDefs';
 
 export const resolvers = {
   Query: {
     ping: async () => 'pong',
     me: catchErrors<User>(
-      (_: any, { authUri, token }) =>
-        fetch(`${authUri}/account/userinfo`, {
+      (_: any, ctx) => {
+        if (!ctx?.accessToken) return Promise.reject(new Error('No access token'));
+
+        return fetch(`${ctx.authUri}/account/userinfo`, {
           headers: {
             'Access-Control-Allow-Origin': '*',
-            authorization: `bearer ${token}`,
+            authorization: `bearer ${ctx.accessToken}`,
           },
           mode: 'cors',
-        }),
+        });
+      },
       { fcnName: 'me' }
     ),
   },
   Mutation: {
+    refreshToken: catchErrors<RefreshTokenResponse>(
+      (_, { authUri, refreshToken }) =>
+        fetch(`${authUri}/oauth/refresh_token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: `refresh_token=${refreshToken}&grant_type=refresh_token`,
+          mode: 'cors',
+        }),
+      {
+        fcnName: 'refreshToken',
+        onSuccess: ({ refresh_token }, headers, { res }) => {
+          res.cookie('rt', refresh_token, {
+            httpOnly: true,
+            maxAge: 1000 * 60 * 60 * 24 * 31,
+            secure: false,
+            sameSite: true,
+          });
+        },
+      }
+    ),
     register: catchErrors<RegisterResponse>(
       ({ username, password, email }, { authUri }) =>
         fetch(`${authUri}/account`, {
@@ -50,20 +82,26 @@ export const resolvers = {
       {
         fcnName: 'login',
         typeGuard: isLoginResponse,
-        onSuccess: ({ access_token }, { res }) =>
-          res.cookie('token', access_token, {
+        onSuccess: (_, headers, { res }) => {
+          const refreshToken = cookie.parse(headers.get('set-cookie') || '')?.rt;
+
+          res.cookie('rt', refreshToken, {
             httpOnly: true,
-            secure: false,
             maxAge: 1000 * 60 * 60 * 24 * 31,
+            secure: false,
             sameSite: true,
-          }),
+          });
+        },
       }
     ),
     logout: (_: any, __: any, { res }: ApolloContext) => {
-      res.cookie('token', '', {
+      res.cookie('rt', '', {
         httpOnly: true,
-        expires: new Date(0),
+        maxAge: 0,
+        sameSite: true,
       });
+      // window?.localStorage?.setItem('logout', Date.now().toString());
+
       return true;
     },
     forget: (_: any, { email }: { email: string }) => {
@@ -76,40 +114,5 @@ export const resolvers = {
     },
   },
 };
-
-export const typeDefs = gql`
-  type Query {
-    ping: String
-    me: User!
-  }
-
-  type User {
-    id: String!
-    username: String!
-    is_deleted: Boolean!
-    is_admin: Boolean!
-    password: String!
-  }
-
-  type Mutation {
-    register(email: String!, password: String!, username: String!): RegisteredUser
-    login(password: String!, username: String!): LoggedInUser
-    logout: Boolean
-    forget(email: String!): Boolean
-    reset(password: String!, password2: String!): Boolean
-  }
-
-  type RegisteredUser {
-    username: String!
-    id: String!
-  }
-
-  type LoggedInUser {
-    username: String!
-    id: String!
-    access_token: String!
-    token_type: String!
-  }
-`;
 
 export const schema = makeExecutableSchema({ typeDefs, resolvers });

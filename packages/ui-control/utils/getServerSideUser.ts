@@ -1,58 +1,51 @@
-import fetch from 'isomorphic-unfetch';
 import { GetServerSidePropsContext } from 'next';
 import nextCookie from 'next-cookies';
-import { isUser } from './typeGuard';
 
 const port = process.env.PORT;
 
 export const getServerSideUser = () => async (context: GetServerSidePropsContext) => {
-  const entityId = context.query.entityId;
-  const entityName = context.query.entityName;
-  const noUser = { props: { user: null } };
-  const { token } = nextCookie(context);
-  const query = `query Me {
-    me {
-      id
-      username
-      is_deleted
-      is_admin
+  const endpoint = `http://localhost:${port}/control/api/graphql`;
+  const noToken = { props: { accessToken: null } };
+  const existingToken = nextCookie(context)?.rt;
+  const query = `mutation RefreshToken ( $token: String! ) {
+    refreshToken( token: $token ) {
+      access_token
+      refresh_token
     }
   }`;
 
   let response;
 
   try {
-    response = await fetch(`http://localhost:${port}/control/api/graphql`, {
+    response = await fetch(endpoint, {
       method: 'POST',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        authorization: `bearer ${token}`,
         mode: 'same-origin',
         'Cache-Control': 'no-cache',
       },
-      body: JSON.stringify({ operationName: 'Me', query }),
+      body: JSON.stringify({
+        operationName: 'RefreshToken',
+        query,
+        variables: { token: existingToken },
+      }),
     });
-  } catch (e) {
-    console.error('fail to fetch data: ', e);
-    return noUser;
-  }
 
-  if (response.status !== 200) return noUser;
+    if (response.status !== 200) {
+      console.log('ExistingToken', existingToken);
+      console.log(response.status);
+      const error = await response.text();
+      console.log('Error', error);
+      return noToken;
+    }
 
-  try {
     const result = await response.json();
-    const user = result?.data?.me;
+    const newRefreshToken = result?.data?.refreshToken;
 
-    if (result?.errors) return noUser;
-
-    const props: any = { props: { user } };
-    entityId && (props.props.entityId = entityId);
-    entityName && (props.props.entityName = entityName);
-
-    return user && isUser(user) ? props : noUser;
+    return result?.errors ? noToken : { props: { accessToken: newRefreshToken.access_token } };
   } catch (e) {
     console.error('fail to parse response: ', e);
-    return noUser;
+    return noToken;
   }
 };

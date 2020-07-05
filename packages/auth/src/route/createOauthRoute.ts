@@ -24,12 +24,7 @@ export const createOauthRoute: (option: {
   jwtExpiryInSec: number;
   tokenRepo: TokenRepo;
   refreshTokenRepo: RefreshTokenRepo;
-}) => express.Router = ({
-  jwtExpiryInSec,
-  jwtSecret,
-  tokenRepo,
-  refreshTokenRepo,
-}) => {
+}) => express.Router = ({ jwtExpiryInSec, jwtSecret, tokenRepo, refreshTokenRepo }) => {
   const server = createServer();
   const router = express.Router();
 
@@ -86,7 +81,13 @@ export const createOauthRoute: (option: {
       });
 
       return tokenRepo
-        .save(user.id, access_token, true)
+        .save({
+          user_id: user.id,
+          access_token,
+          useDefaultExpiry: true,
+          client_id: client.id,
+          is_admin: user.is_admin,
+        })
         .then(() => done(null, access_token))
         .catch((e) => {
           logger.error(util.format('fail to insert access token, %j', e));
@@ -118,7 +119,12 @@ export const createOauthRoute: (option: {
       });
 
       return tokenRepo
-        .save(authCode.user_id, access_token, true, client.id)
+        .save({
+          user_id: authCode.user_id,
+          access_token,
+          useDefaultExpiry: true,
+          client_id: client.id,
+        })
         .then(() => done(null, access_token, null, { username: authCode.username }))
         .catch((e) => {
           logger.error(util.format('fail to insert access token, %j', e));
@@ -161,10 +167,22 @@ export const createOauthRoute: (option: {
       });
 
       const refresh_token = generateRefreshToken();
-      await refreshTokenRepo.save(user.id, refresh_token, true);
+      await refreshTokenRepo.save({
+        user_id: user.id,
+        refresh_token,
+        access_token,
+        useDefaultExpiry: true,
+        is_admin: user.is_admin,
+      });
 
       return tokenRepo
-        .save(user.id, access_token, true, client.id)
+        .save({
+          user_id: user.id,
+          access_token,
+          useDefaultExpiry: true,
+          client_id: client.id,
+          is_admin: user.is_admin,
+        })
         .then(() => done(null, access_token, refresh_token))
         .catch((e) => {
           logger.error(util.format('fail to insert access token, %j', e));
@@ -195,32 +213,47 @@ export const createOauthRoute: (option: {
 
   server.exchange(
     exchange.refreshToken(async (user: User, oldRefreshToken, scope, done) => {
-      const token = await refreshTokenRepo.find(oldRefreshToken);
+      const oldRTDetails = await refreshTokenRepo.find(oldRefreshToken);
 
-      if (!token) return done(new Error('refreshToken not exist'), null, null);
+      if (!oldRTDetails) return done(new Error('refreshToken not exist'), null, null);
 
-      if (token?.user_id !== user.id)
-        return done(new Error('token does not belong to you'), null, null);
+      // if (token?.user_id !== user.id)
+      //   return done(new Error('token does not belong to you'), null, null);
 
-      const refresh_token = generateRefreshToken();
-      const access_token = generateToken({
-        user_id: user.id,
-        is_admin: user.is_admin,
+      const newRefreshToken = generateRefreshToken();
+      const newAccessToken = generateToken({
+        user_id: oldRTDetails.user_id,
+        is_admin: oldRTDetails.is_admin,
         secret: jwtSecret,
         jwtExpiryInSec,
       });
 
       try {
-        await refreshTokenRepo.deleteToken(user.id, oldRefreshToken);
+        // Intentionally, the existing access token is not removed. Let it expires.
+        // Or otherwise, it disables concurrent login from different browsers.
+        await refreshTokenRepo.deleteToken(oldRTDetails.user_id, oldRefreshToken);
 
-        await refreshTokenRepo.save(user.id, refresh_token, true);
+        await refreshTokenRepo.save({
+          user_id: oldRTDetails.user_id,
+          refresh_token: newRefreshToken,
+          useDefaultExpiry: true,
+          access_token: newAccessToken,
+          is_admin: oldRTDetails.is_admin,
+        });
 
-        await tokenRepo.save(user.id, access_token, true);
+        await tokenRepo.save({
+          user_id: oldRTDetails.user_id,
+          access_token: newAccessToken,
+          useDefaultExpiry: true,
+          client_id: null,
+          is_admin: oldRTDetails.is_admin,
+        });
       } catch (e) {
+        logger.error(util.format('fail exchange refreshToken, %j', e));
         return done(e, null, null);
       }
 
-      return done(null, access_token, refresh_token);
+      return done(null, newAccessToken, newRefreshToken);
     })
   );
 
@@ -233,7 +266,8 @@ export const createOauthRoute: (option: {
 
   // authenticated via bearer token
   router.post('/refresh_token', [
-    passport.authenticate(['bearer'], { session: false }),
+    // authenticated is removed
+    // passport.authenticate(['bearer'], { session: false }),
     server.token(),
     server.errorHandler(),
   ]);
@@ -261,15 +295,14 @@ export const createOauthRoute: (option: {
         if (api_key) {
           const key = await ApiKey.findOne({ where: { id: api_key } });
 
-          if (isApikey(key)) {
-            const response: AllowAccessResponse = {
-              id: key.id,
-              allow: true,
-              client_id: key.client_id,
-              scope: key?.scope,
-            };
-            return res.status(httpStatus.OK).send(response);
-          } else return res.status(httpStatus.UNAUTHORIZED).send({ error });
+          return isApikey(key)
+            ? res.status(httpStatus.OK).send({
+                id: key.id,
+                allow: true,
+                client_id: key.client_id,
+                scope: key?.scope,
+              } as AllowAccessResponse)
+            : res.status(httpStatus.UNAUTHORIZED).send({ error });
         } else {
           logger.warn(`${error}: missing api_key`);
           return res.status(httpStatus.UNAUTHORIZED).send({ error: `${error}: missing api_key` });

@@ -1,11 +1,12 @@
 import express from 'express';
 import httpStatus from 'http-status';
-import fetch from 'isomorphic-unfetch';
 import { catchErrors, getLogger, isApiKeys, isGenericResponse, processResult } from '../../utils';
 
 const logger = getLogger({ name: '[ui-account] createApiKeyRoute.js' });
 
-export const createApiKeyRoute: (option: { authHost: string }) => express.Router = ({ authHost }) => {
+export const createApiKeyRoute: (option: { authHost: string }) => express.Router = ({
+  authHost,
+}) => {
   const router = express.Router();
 
   router.get(
@@ -20,10 +21,12 @@ export const createApiKeyRoute: (option: { authHost: string }) => express.Router
         }
 
         const response = await fetch(`${authHost}/api_key?client_id=${client_id}`, {
-          headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` }
+          headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
         });
 
-        return processResult({ response, res, logger, fcnName, typeGuard: isApiKeys }).then(r => r.end());
+        return processResult({ response, res, logger, fcnName, typeGuard: isApiKeys }).then((r) =>
+          r.end()
+        );
       },
       { logger, fcnName: 'get api_keys', useToken: true }
     )
@@ -37,7 +40,7 @@ export const createApiKeyRoute: (option: { authHost: string }) => express.Router
         const response = await fetch(`${authHost}/oauth/token`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials&scope=default`
+          body: `client_id=${client_id}&client_secret=${client_secret}&grant_type=client_credentials&scope=default`,
         });
 
         return processResult({ response, res, logger, fcnName });
@@ -53,7 +56,7 @@ export const createApiKeyRoute: (option: { authHost: string }) => express.Router
         const { api_key } = req.params;
 
         const response = await fetch(`${authHost}/oauth/remove_access/${api_key}`, {
-          method: 'DELETE'
+          method: 'DELETE',
         });
 
         return processResult({
@@ -61,8 +64,8 @@ export const createApiKeyRoute: (option: { authHost: string }) => express.Router
           res,
           logger,
           fcnName,
-          typeGuard: isGenericResponse
-        }).then(r => r.end());
+          typeGuard: isGenericResponse,
+        }).then((r) => r.end());
       },
       { logger, fcnName: 'remove access', useToken: false }
     )

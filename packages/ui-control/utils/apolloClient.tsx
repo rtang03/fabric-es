@@ -1,9 +1,16 @@
 import { ApolloClient, InMemoryCache, HttpLink, ApolloLink } from '@apollo/client';
+import { setContext } from '@apollo/link-context';
 import { SchemaLink } from '@apollo/link-schema';
 import { useMemo } from 'react';
 import { schema } from '../server/schema';
+import { getToken } from './tokenStorage';
 
 let apolloClient: ApolloClient<any>;
+
+const authLink = () =>
+  setContext((_, { headers }) => ({
+    headers: { ...headers, authorization: `Bearer ${getToken()}` },
+  }));
 
 const homeLink = new HttpLink({
   uri: '/control/api/graphql',
@@ -35,7 +42,7 @@ const createClient = () =>
   new ApolloClient({
     ssrMode: typeof window === 'undefined',
     credentials: 'include',
-    link: createIsomorphLink(),
+    link: authLink().concat(createIsomorphLink()),
     cache: new InMemoryCache(),
   });
 
@@ -47,6 +54,7 @@ export const initializeApollo = (initialState = null) => {
   if (initialState) {
     _apolloClient.cache.restore(initialState);
   }
+
   // For SSG and SSR always create a new Apollo Client
   if (typeof window === 'undefined') return _apolloClient;
   // Create the Apollo Client once in the client

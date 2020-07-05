@@ -5,6 +5,7 @@ import csrf from 'csurf';
 import errorHandler from 'errorhandler';
 import express from 'express';
 import next from 'next';
+import { ApolloContext } from 'types';
 import { schema } from './schema';
 
 export const ENV = {
@@ -23,8 +24,10 @@ const apolloServer = new ApolloServer({
   schema,
   context: ({ req, res }) => {
     const authorization = req.headers?.authorization;
-    const token = req.cookies?.token || authorization?.split(' ')[1];
-    return { res, token, authUri: ENV.AUTH_HOST };
+    const refreshToken = req.cookies?.rt;
+    const _accessToken = authorization?.split(' ')[1];
+    const accessToken = _accessToken === 'null' ? undefined : _accessToken;
+    return { res, accessToken, refreshToken, authUri: ENV.AUTH_HOST } as ApolloContext;
   },
 });
 

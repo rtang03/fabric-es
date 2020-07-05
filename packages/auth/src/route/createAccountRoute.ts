@@ -63,10 +63,27 @@ export const createAccountRoute: (option: {
 
         const refresh_token = generateRefreshToken();
 
-        await refreshTokenRepo.save(user.id, refresh_token, true);
+        try {
+          await refreshTokenRepo.save({
+            user_id: user.id,
+            refresh_token,
+            useDefaultExpiry: true,
+            access_token,
+            is_admin: user.is_admin,
+          });
+        } catch (e) {
+          logger.error(util.format('fail insert refresh token, %j', e));
+          return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to insert refresh token' });
+        }
 
         return tokenRepo
-          .save(user.id, access_token, true)
+          .save({
+            user_id: user.id,
+            access_token,
+            useDefaultExpiry: true,
+            client_id: null,
+            is_admin: user.is_admin,
+          })
           .then(() => {
             logger.info(`logging in ${user.id}`);
 
@@ -87,7 +104,7 @@ export const createAccountRoute: (option: {
           })
           .catch((e) => {
             logger.error(util.format('fail insert access token, %j', e));
-            res.status(httpStatus.BAD_REQUEST).send({ error: 'failed to create access token' });
+            res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to create access token' });
           });
       }
     )(req, res);
@@ -159,6 +176,7 @@ export const createAccountRoute: (option: {
 
         if (user.id !== user_id) {
           logger.warn(`fail to ${message}: not authorized`);
+
           return res
             .status(httpStatus.UNAUTHORIZED)
             .send({ error: `not authorized to ${message}` });
