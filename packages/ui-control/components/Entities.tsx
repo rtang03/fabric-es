@@ -1,7 +1,7 @@
+import { QueryHandlerEntity } from 'graphql/generated/queryHandler';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
 import React from 'react';
-import { QueryHandlerEntity } from '../graphql/generated/queryHandler';
 
 const Entities: React.FC<{ entities?: QueryHandlerEntity[] }> = ({ entities }) => {
   return (

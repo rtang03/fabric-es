@@ -1,10 +1,8 @@
 import { ApolloProvider } from '@apollo/client';
 import { NextPage, NextPageContext } from 'next';
-// import nextCookie from 'next-cookies';
 import Router from 'next/router';
 import React, { Component } from 'react';
-import { getToken, saveToken } from 'utils/tokenStorage';
-import { useApollo } from '../utils/apolloClient';
+import { getToken, saveToken, useApollo } from 'utils';
 
 const getDisplayName = (Component: NextPage) =>
   Component.displayName || Component.name || 'Component';

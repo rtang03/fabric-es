@@ -4,5 +4,5 @@ export * from './getValidationSchema';
 export * from './typeGuard';
 export * from './catchErrors';
 export * from './fetcher';
-export * from './getServerSideUser';
 export * from './tokenStorage';
+export * from './apolloClient';

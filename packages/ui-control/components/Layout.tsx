@@ -1,12 +1,12 @@
 import Divider from '@material-ui/core/Divider';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Snackbar from '@material-ui/core/Snackbar';
+import { useLogoutMutation } from 'graphql/generated';
 import Head from 'next/head';
 import Link from 'next/link';
 import Router from 'next/router';
 import React, { useCallback, useEffect } from 'react';
-import { useLogoutMutation } from '../graphql/generated';
-import { User } from '../types';
+import { User } from 'types';
 import { useAlert, useDispatchAlert } from './AlertProvider';
 import { useDispatchAuth } from './AuthProvider';
 

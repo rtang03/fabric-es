@@ -27,6 +27,7 @@ const apolloServer = new ApolloServer({
     const refreshToken = req.cookies?.rt;
     const _accessToken = authorization?.split(' ')[1];
     const accessToken = _accessToken === 'null' ? undefined : _accessToken;
+
     return { res, accessToken, refreshToken, authUri: ENV.AUTH_HOST } as ApolloContext;
   },
 });

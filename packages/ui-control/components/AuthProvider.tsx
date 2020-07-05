@@ -1,5 +1,5 @@
 import React, { createContext, FC, Reducer, useContext, useReducer } from 'react';
-import { AnyAction, Authentication, User } from '../types';
+import { AnyAction, Authentication, User } from 'types';
 
 type Action = AnyAction<{ user?: User }>;
 

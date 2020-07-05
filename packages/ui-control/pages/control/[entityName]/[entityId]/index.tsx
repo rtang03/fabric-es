@@ -1,9 +1,9 @@
-import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
+import Layout from 'components/Layout';
+import withAuthSync from 'components/withAuth';
+import { NextPage } from 'next';
 import React from 'react';
-import Layout from '../../../../components/Layout';
-import { getServerSideUser } from '../../../../utils';
 
-const EntityPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ accessToken }) => {
+const EntityPage: NextPage<any> = () => {
   return (
     <Layout title="Dashboard" user={null} restrictedArea={false}>
       d
@@ -11,6 +11,4 @@ const EntityPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps
   );
 };
 
-export const getServerSideProps: GetServerSideProps<{ accessToken: string }> = getServerSideUser();
-
-export default EntityPage;
+export default withAuthSync(EntityPage);

@@ -7,11 +7,11 @@ import { TextField } from 'formik-material-ui';
 import { NextPage } from 'next';
 import Router from 'next/router';
 import React, { useEffect } from 'react';
+import { getValidationSchema, useStyles } from 'utils';
 import * as yup from 'yup';
-import { useDispatchAlert } from '../../components';
-import Layout from '../../components/Layout';
-import { useResetMutation } from '../../graphql/generated';
-import { getValidationSchema, useStyles } from '../../utils';
+import { useDispatchAlert } from 'components';
+import Layout from 'components/Layout';
+import { useResetMutation } from 'graphql/generated';
 
 const validation = yup.object(getValidationSchema(['password', 'password2']));
 const ERROR = 'Fail to reset';

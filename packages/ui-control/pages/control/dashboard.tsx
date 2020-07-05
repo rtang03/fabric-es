@@ -5,18 +5,18 @@ import FindInPageIcon from '@material-ui/icons/FindInPage';
 import Pagination from '@material-ui/lab/Pagination';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import Commits from 'components/Commits';
+import Entities from 'components/Entities';
+import Layout from 'components/Layout';
+import ProTip from 'components/ProTip';
+import SearchInputField from 'components/SearchInputField';
+import withAuthAsync from 'components/withAuth';
 import { Form, Formik } from 'formik';
+import { useMeQuery } from 'graphql/generated';
+import { useFtsEntityLazyQuery, useFtsCommitLazyQuery } from 'graphql/generated/queryHandler';
 import { NextPage } from 'next';
 import React, { useState } from 'react';
-import Commits from '../../components/Commits';
-import Entities from '../../components/Entities';
-import Layout from '../../components/Layout';
-import ProTip from '../../components/ProTip';
-import SearchInputField from '../../components/SearchInputField';
-import withAuthAsync from '../../components/withAuth';
-import { useMeQuery } from '../../graphql/generated';
-import { useFtsEntityLazyQuery, useFtsCommitLazyQuery } from '../../graphql/generated/queryHandler';
-import { useStyles } from '../../utils';
+import { useStyles } from 'utils';
 
 const PAGESIZE = 2;
 
