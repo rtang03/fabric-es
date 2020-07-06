@@ -17,8 +17,8 @@ services:
       - REDIS_HOST=redis01
       - REDIS_PORT=6379
       - JWT_SECRET=secret
-      - JWT_EXP_IN_SECOND=900
-      - REFRESH_TOKEN_EXP_IN_SEC=86400
+      - JWT_EXP_IN_SECOND=300
+      - REFRESH_TOKEN_EXP_IN_SEC=3600
       - ORG_ADMIN_ID=admin-org1.net
       - ORG_ADMIN_SECRET=admin-org1.netPW
       - ORG_ADMIN_EMAIL=admin@org1.net

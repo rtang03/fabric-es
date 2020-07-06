@@ -22,9 +22,16 @@ const logger = getLogger({ name: '[auth] createOauthServer.js' });
 export const createOauthRoute: (option: {
   jwtSecret: string;
   jwtExpiryInSec: number;
+  refTokenExpiryInSec: number;
   tokenRepo: TokenRepo;
   refreshTokenRepo: RefreshTokenRepo;
-}) => express.Router = ({ jwtExpiryInSec, jwtSecret, tokenRepo, refreshTokenRepo }) => {
+}) => express.Router = ({
+  jwtExpiryInSec,
+  jwtSecret,
+  refTokenExpiryInSec,
+  tokenRepo,
+  refreshTokenRepo,
+}) => {
   const server = createServer();
   const router = express.Router();
 
@@ -266,6 +273,11 @@ export const createOauthRoute: (option: {
 
   // authenticated via bearer token
   router.post('/refresh_token', [
+    (req, res, next) => {
+      res.append('jwtExpiryInSec', jwtExpiryInSec);
+      res.append('refTokenExpiryInSec', refTokenExpiryInSec);
+      next();
+    },
     // authenticated is removed
     // passport.authenticate(['bearer'], { session: false }),
     server.token(),

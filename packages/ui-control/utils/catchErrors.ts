@@ -1,5 +1,4 @@
 import util from 'util';
-// import { ApolloError } from 'apollo-server-express';
 import { ApolloError } from '@apollo/client';
 import { ApolloContext } from '../types';
 
@@ -25,14 +24,16 @@ export const catchErrors: <TBody = any>(
   try {
     response = await fetchFunction(variables, context);
   } catch (e) {
-    console.error(util.format('[catchErrors] %s: fail to fetch, %s', fcnName, e.message));
+    console.error(util.format('[catchErrors-1] %s: fail to fetch, %s', fcnName, e.message));
     return new ApolloError({ errorMessage: e.message });
   }
 
   if (response.status !== 200) {
     const errorMessage = await response.text();
     const statusText = response.statusText;
-    console.error(`[catchErrors] fail to fetch: code: ${response.status}, ${errorMessage}`);
+    console.error(
+      util.format('[catchErrors-2] fail to fetch: %s, message: %s', response.status, errorMessage)
+    );
 
     onError?.({ errorMessage, statusText }, context);
 
@@ -51,7 +52,7 @@ export const catchErrors: <TBody = any>(
 
     return body;
   } catch (e) {
-    console.error(util.format('[catchErrors] %s: fail to parse json, %j', fcnName, e));
+    console.error(util.format('[catchErrors-3] %s: fail to parse json, %j', fcnName, e));
     return new ApolloError({ errorMessage: e.message });
   }
 };

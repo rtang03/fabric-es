@@ -55,6 +55,7 @@ export const createHttpServer: (option: {
     createOauthRoute({
       jwtSecret,
       jwtExpiryInSec,
+      refTokenExpiryInSec,
       tokenRepo,
       refreshTokenRepo,
     })

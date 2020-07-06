@@ -87,6 +87,9 @@ export const createAccountRoute: (option: {
           .then(() => {
             logger.info(`logging in ${user.id}`);
 
+            res.append('jwtExpiryInSec', jwtExpiryInSec.toString());
+            res.append('refTokenExpiryInSec', refTokenExpiryInSec.toString());
+
             res.cookie('rt', refresh_token, {
               httpOnly: true,
               secure: true,
@@ -97,6 +100,7 @@ export const createAccountRoute: (option: {
               username: user.username,
               id: user.id,
               access_token,
+              jwtExpiryInSec: jwtExpiryInSec.toString(),
               token_type: 'Bearer',
             };
 

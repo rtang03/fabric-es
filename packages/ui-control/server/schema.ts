@@ -15,6 +15,8 @@ export const resolvers = {
     ping: async () => 'pong',
     me: catchErrors<User>(
       (_: any, ctx) => {
+        console.log('[schema.tsx] =======me is called==========');
+
         if (!ctx?.accessToken) return Promise.reject(new Error('No access token'));
 
         return fetch(`${ctx.authUri}/account/userinfo`, {
@@ -30,8 +32,12 @@ export const resolvers = {
   },
   Mutation: {
     refreshToken: catchErrors<RefreshTokenResponse>(
-      (_, { authUri, refreshToken }) =>
-        fetch(`${authUri}/oauth/refresh_token`, {
+      (_, { authUri, refreshToken }) => {
+        console.log('[schema.tsx] =======refreshToken is called==========', refreshToken);
+
+        if (!refreshToken) return Promise.reject(new Error('No refresh token'));
+
+        return fetch(`${authUri}/oauth/refresh_token`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -39,13 +45,18 @@ export const resolvers = {
           },
           body: `refresh_token=${refreshToken}&grant_type=refresh_token`,
           mode: 'cors',
-        }),
+        });
+      },
       {
         fcnName: 'refreshToken',
-        onSuccess: ({ refresh_token }, headers, { res }) => {
+        onSuccess: ({ refresh_token }, headers, { res, refreshToken: oldrt }) => {
+          console.log(`[schema.tsx] ==refresh-ok === ${oldrt} is removed`);
+
+          res.append('jwtexpiryinsec', headers.get('jwtexpiryinsec') || '');
+          res.append('reftokenexpiryinsec', headers.get('reftokenexpiryinsec') || '');
           res.cookie('rt', refresh_token, {
             httpOnly: true,
-            maxAge: 1000 * 60 * 60 * 24 * 31,
+            maxAge: 1000 * parseInt(headers.get('reftokenexpiryinsec') || '', 10),
             secure: false,
             sameSite: true,
           });
@@ -84,10 +95,9 @@ export const resolvers = {
         typeGuard: isLoginResponse,
         onSuccess: (_, headers, { res }) => {
           const refreshToken = cookie.parse(headers.get('set-cookie') || '')?.rt;
-
           res.cookie('rt', refreshToken, {
             httpOnly: true,
-            maxAge: 1000 * 60 * 60 * 24 * 31,
+            maxAge: 1000 * parseInt(headers.get('reftokenexpiryinsec') || '', 10),
             secure: false,
             sameSite: true,
           });

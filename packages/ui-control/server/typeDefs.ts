@@ -37,6 +37,7 @@ export const typeDefs = gql`
     username: String!
     id: String!
     access_token: String!
+    jwtExpiryInSec: String!
     token_type: String!
   }
 `;
