@@ -2,7 +2,6 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
-import fetch from 'isomorphic-unfetch';
 import { NextPage } from 'next';
 import Router from 'next/router';
 import React from 'react';
