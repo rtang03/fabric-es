@@ -47,7 +47,7 @@ const Login: NextPage<any> = () => {
               dispatchAuth({ type: 'LOGIN' });
               const response = await login({ variables: { username, password } });
               const result = response?.data?.login;
-              saveToken(result?.access_token, result?.jwtExpiryInSec);
+              result?.access_token && saveToken(result?.access_token, result?.jwtExpiryInSec);
               setSubmitting(false);
               setTimeout(
                 () => dispatchAlert({ type: 'SUCCESS', message: `${username} ${SUCCESS}` }),
