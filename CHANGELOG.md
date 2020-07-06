@@ -8,6 +8,7 @@
 - parametric search
 - apollo-subscription
 - redis-based queryDatabase
+- add refreshToken in auth server and ui-control
 
 ### Modified
 - dev-net to using queryHandler

@@ -7,9 +7,9 @@ import Link from 'next/link';
 import Router from 'next/router';
 import React, { useCallback, useEffect } from 'react';
 import { User } from 'types';
+import { saveToken } from '../utils';
 import { useAlert, useDispatchAlert } from './AlertProvider';
 import { useDispatchAuth } from './AuthProvider';
-import { saveToken } from '../utils';
 
 const Layout: React.FC<{
   title?: string;
