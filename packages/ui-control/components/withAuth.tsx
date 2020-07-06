@@ -2,7 +2,7 @@ import { ApolloProvider } from '@apollo/client';
 import { NextPage, NextPageContext } from 'next';
 import nextCookie from 'next-cookies';
 import Router from 'next/router';
-import React, { Component } from 'react';
+import React, { Component, useEffect } from 'react';
 import { getToken, saveToken, useApollo } from 'utils';
 
 const getDisplayName = (Component: NextPage) =>
@@ -26,10 +26,9 @@ const auth = async (ctx: NextPageContext) => {
   const headers = ctx?.req ? { Cookie: ctx.req.headers.cookie } : {};
 
   let response;
-  let newRefreshTokenDetails;
+  let newRTDetails;
 
   if (!getToken()) {
-    console.log('[withAuth.ts] get from nextCookie RT', refreshTokenFromCtx);
     try {
       response = await fetch(url, {
         method: 'POST',
@@ -55,18 +54,18 @@ const auth = async (ctx: NextPageContext) => {
           return { accessToken: null };
         }
 
-        newRefreshTokenDetails = data?.refreshToken;
+        newRTDetails = data?.refreshToken;
 
         // at server-side, set cookie when at serverside
-        newRefreshTokenDetails &&
+        newRTDetails &&
           ctx?.res?.setHeader(
             'Set-Cookie',
-            `rt=${newRefreshTokenDetails.refresh_token};HttpOnly;SameSite;Max-Age:${
+            `rt=${newRTDetails.refresh_token};HttpOnly;SameSite;Max-Age:${
               1000 * reftokenexpiryinsec
             };Path="/"`
           );
 
-        newRefreshTokenDetails && saveToken(newRefreshTokenDetails.access_token, jwtexpiryinsec);
+        newRTDetails && saveToken(newRTDetails.access_token, jwtexpiryinsec);
       } else {
         return { accessToken: null };
       }
@@ -86,6 +85,17 @@ const withAuthSync = (WrappedComponent: NextPage<any>) => {
 
   const AuthComponent = (props: any) => {
     saveToken(props.accessToken);
+
+    useEffect(() => window.addEventListener('storage', syncLogout), []);
+
+    useEffect(
+      () => () => {
+        window.removeEventListener('storage', syncLogout);
+        window.localStorage.removeItem('logout');
+      },
+      []
+    );
+
     const apolloClient = useApollo(props?.initialApolloState);
 
     return (
@@ -93,6 +103,12 @@ const withAuthSync = (WrappedComponent: NextPage<any>) => {
         <WrappedComponent {...props} />
       </ApolloProvider>
     );
+  };
+  const syncLogout = (event: any) => {
+    if (event.key === 'logout') {
+      console.log('loggout out');
+      setTimeout(async () => Router.push('/control/login'), 100);
+    }
   };
 
   AuthComponent.displayName = `withAuthSync(${getDisplayName(WrappedComponent)})`;

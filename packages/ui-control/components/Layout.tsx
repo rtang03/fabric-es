@@ -9,6 +9,7 @@ import React, { useCallback, useEffect } from 'react';
 import { User } from 'types';
 import { useAlert, useDispatchAlert } from './AlertProvider';
 import { useDispatchAuth } from './AuthProvider';
+import { saveToken } from '../utils';
 
 const Layout: React.FC<{
   title?: string;
@@ -27,7 +28,11 @@ const Layout: React.FC<{
   useEffect(() => {
     if (logoutResult?.logout) {
       setTimeout(() => dispatchAlert({ type: 'SUCCESS', message: 'Log out' }), 500);
-      setTimeout(() => dispatchAuth({ type: 'LOGOUT' }), 2500);
+      setTimeout(() => {
+        dispatchAuth({ type: 'LOGOUT' });
+        window.localStorage.setItem('logout', Date.now().toString());
+        saveToken(null);
+      }, 2500);
       setTimeout(async () => Router.push(`/control/login`), 3000);
     }
   }, [logoutResult]);

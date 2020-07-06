@@ -105,13 +105,7 @@ export const resolvers = {
       }
     ),
     logout: (_: any, __: any, { res }: ApolloContext) => {
-      res.cookie('rt', '', {
-        httpOnly: true,
-        maxAge: 0,
-        sameSite: true,
-      });
-      // window?.localStorage?.setItem('logout', Date.now().toString());
-
+      res.cookie('rt', '', { httpOnly: true, maxAge: 0, sameSite: true });
       return true;
     },
     forget: (_: any, { email }: { email: string }) => {
