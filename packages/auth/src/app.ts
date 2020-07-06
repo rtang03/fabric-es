@@ -26,6 +26,7 @@ const ENV = {
   REDIS_PORT: process.env.REDIS_PORT,
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXP_IN_SECOND: process.env.JWT_EXP_IN_SECOND,
+  REFRESH_TOKEN_EXP_IN_SEC: process.env.REFRESH_TOKEN_EXP_IN_SEC,
   ORG_ADMIN_ID: process.env.ORG_ADMIN_ID,
   ORG_ADMIN_SECRET: process.env.ORG_ADMIN_SECRET,
   ORG_ADMIN_EMAIL: process.env.ORG_ADMIN_EMAIL,
@@ -66,7 +67,8 @@ const connection = {
     server = await createHttpServer({
       connection,
       jwtSecret: ENV.JWT_SECRET,
-      expiryInSeconds: parseInt(ENV.JWT_EXP_IN_SECOND, 10),
+      jwtExpiryInSec: parseInt(ENV.JWT_EXP_IN_SECOND, 10),
+      refTokenExpiryInSec: parseInt(ENV.REFRESH_TOKEN_EXP_IN_SEC, 10),
       orgAdminSecret: ENV.ORG_ADMIN_SECRET,
       redis,
     });

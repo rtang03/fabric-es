@@ -8,9 +8,10 @@ import { TokenRepo } from '../entity/AccessToken';
 import { ApiKey } from '../entity/ApiKey';
 import { AuthorizationCode } from '../entity/AuthorizationCode';
 import { Client } from '../entity/Client';
+import { RefreshTokenRepo } from '../entity/RefreshToken';
 import { User } from '../entity/User';
 import { AllowAccessResponse, AuthenticateResponse } from '../types';
-import { getLogger, generateToken, isApikey, catchErrors } from '../utils';
+import { getLogger, generateToken, isApikey, catchErrors, generateRefreshToken } from '../utils';
 
 /**
  * For original comments
@@ -20,9 +21,17 @@ const logger = getLogger({ name: '[auth] createOauthServer.js' });
 
 export const createOauthRoute: (option: {
   jwtSecret: string;
-  expiryInSeconds: number;
+  jwtExpiryInSec: number;
+  refTokenExpiryInSec: number;
   tokenRepo: TokenRepo;
-}) => express.Router = ({ expiryInSeconds, jwtSecret, tokenRepo }) => {
+  refreshTokenRepo: RefreshTokenRepo;
+}) => express.Router = ({
+  jwtExpiryInSec,
+  jwtSecret,
+  refTokenExpiryInSec,
+  tokenRepo,
+  refreshTokenRepo,
+}) => {
   const server = createServer();
   const router = express.Router();
 
@@ -45,7 +54,7 @@ export const createOauthRoute: (option: {
         user_id: user.id,
         is_admin: user.is_admin,
         secret: jwtSecret,
-        expiryInSeconds,
+        jwtExpiryInSec,
       });
 
       return AuthorizationCode.insert(
@@ -55,7 +64,7 @@ export const createOauthRoute: (option: {
           redirect_uri,
           user_id: user.id,
           username: user.username,
-          expires_at: Date.now() + expiryInSeconds * 1000,
+          expires_at: Date.now() + jwtExpiryInSec * 1000,
         })
       )
         .then(() => done(null, authorization_code))
@@ -75,19 +84,16 @@ export const createOauthRoute: (option: {
         user_id: user.id,
         is_admin: user.is_admin,
         secret: jwtSecret,
-        expiryInSeconds,
+        jwtExpiryInSec,
       });
 
       return tokenRepo
         .save({
-          key: access_token,
-          value: {
-            access_token,
-            client_id: client?.id,
-            user_id: user?.id,
-            expires_at: Date.now() + expiryInSeconds * 1000,
-          },
+          user_id: user.id,
+          access_token,
           useDefaultExpiry: true,
+          client_id: client.id,
+          is_admin: user.is_admin,
         })
         .then(() => done(null, access_token))
         .catch((e) => {
@@ -116,19 +122,15 @@ export const createOauthRoute: (option: {
         client,
         user_id: authCode.user_id,
         secret: jwtSecret,
-        expiryInSeconds,
+        jwtExpiryInSec,
       });
 
       return tokenRepo
         .save({
-          key: access_token,
-          value: {
-            access_token,
-            client_id: client.id,
-            user_id: authCode.user_id,
-            expires_at: Date.now() + expiryInSeconds * 1000,
-          },
+          user_id: authCode.user_id,
+          access_token,
           useDefaultExpiry: true,
+          client_id: client.id,
         })
         .then(() => done(null, access_token, null, { username: authCode.username }))
         .catch((e) => {
@@ -168,21 +170,27 @@ export const createOauthRoute: (option: {
         user_id: user.id,
         is_admin: user.is_admin,
         secret: jwtSecret,
-        expiryInSeconds,
+        jwtExpiryInSec,
+      });
+
+      const refresh_token = generateRefreshToken();
+      await refreshTokenRepo.save({
+        user_id: user.id,
+        refresh_token,
+        access_token,
+        useDefaultExpiry: true,
+        is_admin: user.is_admin,
       });
 
       return tokenRepo
         .save({
-          key: access_token,
-          value: {
-            access_token,
-            client_id: client.id,
-            user_id: user.id,
-            expires_at: Date.now() + expiryInSeconds * 1000,
-          },
+          user_id: user.id,
+          access_token,
           useDefaultExpiry: true,
+          client_id: client.id,
+          is_admin: user.is_admin,
         })
-        .then(() => done(null, access_token))
+        .then(() => done(null, access_token, refresh_token))
         .catch((e) => {
           logger.error(util.format('fail to insert access token, %j', e));
           return done(e);
@@ -202,7 +210,7 @@ export const createOauthRoute: (option: {
       try {
         const key = ApiKey.create({ api_key, client_id: client.id, scope });
         await ApiKey.insert(key);
-        done(null, key.id);
+        done(null, key.id, null);
       } catch (e) {
         logger.error(util.format('fail to insert api key, %j', e));
         return done(e);
@@ -210,8 +218,68 @@ export const createOauthRoute: (option: {
     })
   );
 
+  server.exchange(
+    exchange.refreshToken(async (user: User, oldRefreshToken, scope, done) => {
+      const oldRTDetails = await refreshTokenRepo.find(oldRefreshToken);
+
+      if (!oldRTDetails) return done(new Error('refreshToken not exist'), null, null);
+
+      // if (token?.user_id !== user.id)
+      //   return done(new Error('token does not belong to you'), null, null);
+
+      const newRefreshToken = generateRefreshToken();
+      const newAccessToken = generateToken({
+        user_id: oldRTDetails.user_id,
+        is_admin: oldRTDetails.is_admin,
+        secret: jwtSecret,
+        jwtExpiryInSec,
+      });
+
+      try {
+        // Intentionally, the existing access token is not removed. Let it expires.
+        // Or otherwise, it disables concurrent login from different browsers.
+        await refreshTokenRepo.deleteToken(oldRTDetails.user_id, oldRefreshToken);
+
+        await refreshTokenRepo.save({
+          user_id: oldRTDetails.user_id,
+          refresh_token: newRefreshToken,
+          useDefaultExpiry: true,
+          access_token: newAccessToken,
+          is_admin: oldRTDetails.is_admin,
+        });
+
+        await tokenRepo.save({
+          user_id: oldRTDetails.user_id,
+          access_token: newAccessToken,
+          useDefaultExpiry: true,
+          client_id: null,
+          is_admin: oldRTDetails.is_admin,
+        });
+      } catch (e) {
+        logger.error(util.format('fail exchange refreshToken, %j', e));
+        return done(e, null, null);
+      }
+
+      return done(null, newAccessToken, newRefreshToken);
+    })
+  );
+
+  // authenticate via basic strategy and client-credential
   router.post('/token', [
     passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
+    server.token(),
+    server.errorHandler(),
+  ]);
+
+  // authenticated via bearer token
+  router.post('/refresh_token', [
+    (req, res, next) => {
+      res.append('jwtExpiryInSec', jwtExpiryInSec);
+      res.append('refTokenExpiryInSec', refTokenExpiryInSec);
+      next();
+    },
+    // authenticated is removed
+    // passport.authenticate(['bearer'], { session: false }),
     server.token(),
     server.errorHandler(),
   ]);
@@ -239,15 +307,14 @@ export const createOauthRoute: (option: {
         if (api_key) {
           const key = await ApiKey.findOne({ where: { id: api_key } });
 
-          if (isApikey(key)) {
-            const response: AllowAccessResponse = {
-              id: key.id,
-              allow: true,
-              client_id: key.client_id,
-              scope: key?.scope,
-            };
-            return res.status(httpStatus.OK).send(response);
-          } else return res.status(httpStatus.UNAUTHORIZED).send({ error });
+          return isApikey(key)
+            ? res.status(httpStatus.OK).send({
+                id: key.id,
+                allow: true,
+                client_id: key.client_id,
+                scope: key?.scope,
+              } as AllowAccessResponse)
+            : res.status(httpStatus.UNAUTHORIZED).send({ error });
         } else {
           logger.warn(`${error}: missing api_key`);
           return res.status(httpStatus.UNAUTHORIZED).send({ error: `${error}: missing api_key` });

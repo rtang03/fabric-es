@@ -14,6 +14,7 @@ export type Scalars = {
 };
 
 export type Query = {
+  ping?: Maybe<Scalars['String']>;
   me: User;
 };
 
@@ -26,6 +27,7 @@ export type User = {
 };
 
 export type Mutation = {
+  refreshToken: RefreshToken;
   register?: Maybe<RegisteredUser>;
   login?: Maybe<LoggedInUser>;
   logout?: Maybe<Scalars['Boolean']>;
@@ -53,6 +55,11 @@ export type MutationResetArgs = {
   password2: Scalars['String'];
 };
 
+export type RefreshToken = {
+  access_token: Scalars['String'];
+  refresh_token: Scalars['String'];
+};
+
 export type RegisteredUser = {
   username: Scalars['String'];
   id: Scalars['String'];
@@ -62,6 +69,7 @@ export type LoggedInUser = {
   username: Scalars['String'];
   id: Scalars['String'];
   access_token: Scalars['String'];
+  jwtExpiryInSec: Scalars['String'];
   token_type: Scalars['String'];
 };
 
@@ -77,7 +85,9 @@ export type LoginMutationVariables = {
 };
 
 export type LoginMutation = {
-  login?: Maybe<Pick<LoggedInUser, 'id' | 'access_token' | 'username' | 'token_type'>>;
+  login?: Maybe<
+    Pick<LoggedInUser, 'id' | 'access_token' | 'username' | 'token_type' | 'jwtExpiryInSec'>
+  >;
 };
 
 export type LogoutMutationVariables = {};
@@ -151,6 +161,7 @@ export const LoginDocument = gql`
       access_token
       username
       token_type
+      jwtExpiryInSec
     }
   }
 `;

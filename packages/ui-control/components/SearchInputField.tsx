@@ -6,7 +6,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import { Field } from 'formik';
 import { TextField } from 'formik-material-ui';
 import React, { Fragment } from 'react';
-import { useStyles } from '../utils';
+import { useStyles } from 'utils';
 
 const SearchInputField: React.FC<{
   isSubmitting: boolean;

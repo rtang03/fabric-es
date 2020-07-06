@@ -3,16 +3,16 @@ import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
+import { useAuth, useDispatchAlert, useDispatchAuth } from 'components';
+import Layout from 'components/Layout';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
+import { useLoginMutation } from 'graphql/generated';
 import { NextPage } from 'next';
 import Router from 'next/router';
 import React, { useEffect } from 'react';
+import { getValidationSchema, saveToken, useStyles } from 'utils';
 import * as yup from 'yup';
-import { useAuth, useDispatchAlert, useDispatchAuth } from '../../components';
-import Layout from '../../components/Layout';
-import { useLoginMutation } from '../../graphql/generated';
-import { getValidationSchema, useStyles } from '../../utils';
 
 const validation = yup.object(getValidationSchema(['username', 'password']));
 const ERROR = 'Fail to login';
@@ -45,7 +45,9 @@ const Login: NextPage<any> = () => {
             setSubmitting(true);
             try {
               dispatchAuth({ type: 'LOGIN' });
-              await login({ variables: { username, password } });
+              const response = await login({ variables: { username, password } });
+              const result = response?.data?.login;
+              saveToken(result?.access_token, result?.jwtExpiryInSec as any);
               setSubmitting(false);
               setTimeout(
                 () => dispatchAlert({ type: 'SUCCESS', message: `${username} ${SUCCESS}` }),

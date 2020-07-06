@@ -1,7 +1,7 @@
+import { Commit } from 'graphql/generated/queryHandler';
 import isEqual from 'lodash/isEqual';
 import omit from 'lodash/omit';
 import React from 'react';
-import { Commit } from '../graphql/generated/queryHandler';
 
 const Commits: React.FC<{ commits?: Commit[] }> = ({ commits }) => {
   return (

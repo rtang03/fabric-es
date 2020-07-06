@@ -21,32 +21,35 @@ export const setupPassport: (option: { tokenRepo: TokenRepo }) => void = ({ toke
    * a user is logged in before asking them to approve the request.
    */
   passport.use(
-    new LocalStrategy({ session: false, passReqToCallback: true }, async (request, username, password, done) => {
-      logger.info('LocalStrategy is used');
-      let user: User;
-      try {
-        user = await User.findOne({ where: { username } });
-      } catch (e) {
-        logger.error(util.format('failed to retrieve user, %j', e));
-        return done(e);
-      }
+    new LocalStrategy(
+      { session: false, passReqToCallback: true },
+      async (request, username, password, done) => {
+        logger.info('LocalStrategy is used');
+        let user: User;
+        try {
+          user = await User.findOne({ where: { username } });
+        } catch (e) {
+          logger.error(util.format('failed to retrieve user, %j', e));
+          return done(e);
+        }
 
-      try {
-        const match = await bcrypt.compare(password, user.password);
-        return match ? done(null, user) : done('Incorrect Username / Password', false);
-      } catch (e) {
-        logger.error(util.format('failed to check password, %j', e));
-        return done(e);
+        try {
+          const match = await bcrypt.compare(password, user.password);
+          return match ? done(null, user) : done('Incorrect Username / Password', false);
+        } catch (e) {
+          logger.error(util.format('failed to check password, %j', e));
+          return done(e);
+        }
       }
-    })
+    )
   );
 
   passport.serializeUser(({ id }: User, done) => done(null, id));
   passport.deserializeUser((id, done) => {
     logger.info('deserializeUser is called: ', id);
     return User.findOne(id)
-      .then(user => done(null, user))
-      .catch(error => done(error));
+      .then((user) => done(null, user))
+      .catch((error) => done(error));
   });
 
   /**
@@ -62,10 +65,14 @@ export const setupPassport: (option: { tokenRepo: TokenRepo }) => void = ({ toke
    */
   const verifyClient = (id, client_secret, done) =>
     Client.findOne({ where: { id } })
-      .then(client =>
-        !client ? done(null, false) : client.client_secret !== client_secret ? done(null, false) : done(null, client)
+      .then((client) =>
+        !client
+          ? done(null, false)
+          : client.client_secret !== client_secret
+          ? done(null, false)
+          : done(null, client)
       )
-      .catch(error => done(error));
+      .catch((error) => done(error));
 
   passport.use(new BasicStrategy(verifyClient));
 
@@ -85,7 +92,7 @@ export const setupPassport: (option: { tokenRepo: TokenRepo }) => void = ({ toke
       let token: AccessToken;
 
       try {
-        token = await tokenRepo.find({ key: access_token });
+        token = await tokenRepo.find(access_token);
       } catch (e) {
         logger.error(util.format('fail to retrive access token, %j', e));
         return done(e);

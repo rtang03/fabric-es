@@ -10,5 +10,6 @@ mutation Login(
       access_token
       username
       token_type
+      jwtExpiryInSec
     }
 }

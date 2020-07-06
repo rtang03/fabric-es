@@ -3,7 +3,6 @@ import Typography from '@material-ui/core/Typography';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
 import httpStatus from 'http-status';
-import fetch from 'isomorphic-unfetch';
 import { NextPage } from 'next';
 import React, { useState } from 'react';
 import * as yup from 'yup';

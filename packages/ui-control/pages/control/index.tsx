@@ -1,17 +1,26 @@
-import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
-import React from 'react';
-import Layout from '../../components/Layout';
-import { User } from '../../types';
-import { getServerSideUser } from '../../utils';
+import Layout from 'components/Layout';
+import withAuthAsync from 'components/withAuth';
+import { useMeQuery } from 'graphql/generated';
+import { NextPage } from 'next';
+import Router from 'next/router';
+import React, { useEffect } from 'react';
 
-const Index: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ user }) => (
-  <Layout title="Home" user={user} restrictedArea={true}>
-    Welcome! {user?.username}
-  </Layout>
-);
+const Index: NextPage<{ accessToken: string }> = ({ accessToken }) => {
+  const { data, error, loading } = useMeQuery();
 
-export const getServerSideProps: GetServerSideProps<{
-  user: User | null | undefined;
-}> = getServerSideUser();
+  useEffect(() => {
+    if (!loading && error) setTimeout(async () => Router.push('/'), 3000);
+  });
 
-export default Index;
+  return data?.me ? (
+    <Layout title="Home" loading={false} user={data?.me} restrictedArea={true}>
+      Welcome! {data?.me?.username}
+    </Layout>
+  ) : (
+    <Layout title="Home" loading={loading} user={null} restrictedArea={false}>
+      {error?.message}
+    </Layout>
+  );
+};
+
+export default withAuthAsync(Index);

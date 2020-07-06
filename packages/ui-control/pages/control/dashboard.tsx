@@ -1,27 +1,27 @@
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
 import ChangeHistoryIcon from '@material-ui/icons/ChangeHistory';
 import FindInPageIcon from '@material-ui/icons/FindInPage';
 import Pagination from '@material-ui/lab/Pagination';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import Commits from 'components/Commits';
+import Entities from 'components/Entities';
+import Layout from 'components/Layout';
+import ProTip from 'components/ProTip';
+import SearchInputField from 'components/SearchInputField';
+import withAuthAsync from 'components/withAuth';
 import { Form, Formik } from 'formik';
-import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
+import { useMeQuery } from 'graphql/generated';
+import { useFtsEntityLazyQuery, useFtsCommitLazyQuery } from 'graphql/generated/queryHandler';
+import { NextPage } from 'next';
 import React, { useState } from 'react';
-import Commits from '../../components/Commits';
-import Entities from '../../components/Entities';
-import Layout from '../../components/Layout';
-import ProTip from '../../components/ProTip';
-import SearchInputField from '../../components/SearchInputField';
-import { useFtsEntityLazyQuery, useFtsCommitLazyQuery } from '../../graphql/generated/queryHandler';
-import { User } from '../../types';
-import { getServerSideUser, useStyles } from '../../utils';
+import { useStyles } from 'utils';
 
 const PAGESIZE = 2;
 
-const Dashboard: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ user }) => {
+const Dashboard: NextPage<any> = () => {
+  const { data, error, loading } = useMeQuery();
   const [findBy, setFindBy] = useState('entity');
   const classes = useStyles();
   const options = {
@@ -60,116 +60,115 @@ const Dashboard: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>
 
   const handleFindBy = (event: React.MouseEvent<HTMLElement>, item: string) => setFindBy(item);
 
+  if (!data?.me)
+    return (
+      <Layout title="Dashboard" loading={loading} user={null} restrictedArea={false}>
+        {error?.message}
+      </Layout>
+    );
+
   return (
     <Layout
       title="Dashboard"
       loading={entityLoading || commitLoading}
-      user={user}
+      user={data?.me}
       restrictedArea={true}>
-      {!user ? (
-        <>Error when authenticating user</>
-      ) : (
-        <Container>
-          <br />
-          <ToggleButtonGroup
-            aria-label="text alignment"
-            exclusive
-            value={findBy}
-            onChange={handleFindBy}>
-            <ToggleButton value="entity" aria-label="find by entity">
-              <FindInPageIcon />
-              Entity
-            </ToggleButton>
-            <ToggleButton value="commit" aria-label="find by commit">
-              <ChangeHistoryIcon />
-              Commit
-            </ToggleButton>
-          </ToggleButtonGroup>
-          <br />
-          {findBy === 'entity' ? (
-            <Formik
-              initialValues={{ query: '', cursor: 0, pagesize: PAGESIZE }}
-              onSubmit={async ({ query, cursor, pagesize }, { setSubmitting }) => {
-                setSubmitting(true);
-                try {
-                  searchEntity({ variables: { query, cursor, pagesize } });
-                } catch (e) {
-                  console.error(e);
-                  setSubmitting(false);
-                }
-              }}>
-              {({ isSubmitting }) => (
-                <Form className={classes.form}>
-                  <Grid container spacing={3}>
-                    <SearchInputField
-                      isSubmitting={isSubmitting}
-                      autoFocus={findBy === 'entity'}
-                      placeholder="@type:org* @id:org* @event:{inc*} @creator:admin*"
-                      label="entity"
-                      total={entityTotal}
+      <Container>
+        <br />
+        <ToggleButtonGroup
+          aria-label="text alignment"
+          exclusive
+          value={findBy}
+          onChange={handleFindBy}>
+          <ToggleButton value="entity" aria-label="find by entity">
+            <FindInPageIcon />
+            Entity
+          </ToggleButton>
+          <ToggleButton value="commit" aria-label="find by commit">
+            <ChangeHistoryIcon />
+            Commit
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <br />
+        {findBy === 'entity' ? (
+          <Formik
+            initialValues={{ query: '', cursor: 0, pagesize: PAGESIZE }}
+            onSubmit={async ({ query, cursor, pagesize }, { setSubmitting }) => {
+              setSubmitting(true);
+              try {
+                searchEntity({ variables: { query, cursor, pagesize } });
+              } catch (e) {
+                console.error(e);
+                setSubmitting(false);
+              }
+            }}>
+            {({ isSubmitting }) => (
+              <Form className={classes.form}>
+                <Grid container spacing={3}>
+                  <SearchInputField
+                    isSubmitting={isSubmitting}
+                    autoFocus={findBy === 'entity'}
+                    placeholder="@type:org* @id:org* @event:{inc*} @creator:admin*"
+                    label="entity"
+                    total={entityTotal}
+                  />
+                  <Grid item xs={12}>
+                    <Pagination
+                      count={entityCount}
+                      showFirstButton
+                      showLastButton
+                      onChange={handlePageChangeEntity}
                     />
-                    <Grid item xs={12}>
-                      <Pagination
-                        count={entityCount}
-                        showFirstButton
-                        showLastButton
-                        onChange={handlePageChangeEntity}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Entities entities={entities?.fullTextSearchEntity?.items} />
-                    </Grid>
                   </Grid>
-                </Form>
-              )}
-            </Formik>
-          ) : (
-            <Formik
-              initialValues={{ query: '', cursor: 0, pagesize: PAGESIZE }}
-              onSubmit={async ({ query, cursor, pagesize }, { setSubmitting }) => {
-                setSubmitting(true);
-                try {
-                  searchCommit({ variables: { query, cursor, pagesize } });
-                } catch (e) {
-                  console.error(e);
-                  setSubmitting(false);
-                }
-              }}>
-              {({ isSubmitting }) => (
-                <Form>
-                  <Grid container spacing={3}>
-                    <SearchInputField
-                      isSubmitting={isSubmitting}
-                      autoFocus={findBy !== 'entity'}
-                      placeholder="@type:org* @id:org*  @creator:admin*"
-                      label="commit"
-                      total={commitTotal}
+                  <Grid item xs={12}>
+                    <Entities entities={entities?.fullTextSearchEntity?.items} />
+                  </Grid>
+                </Grid>
+              </Form>
+            )}
+          </Formik>
+        ) : (
+          <Formik
+            initialValues={{ query: '', cursor: 0, pagesize: PAGESIZE }}
+            onSubmit={async ({ query, cursor, pagesize }, { setSubmitting }) => {
+              setSubmitting(true);
+              try {
+                searchCommit({ variables: { query, cursor, pagesize } });
+              } catch (e) {
+                console.error(e);
+                setSubmitting(false);
+              }
+            }}>
+            {({ isSubmitting }) => (
+              <Form>
+                <Grid container spacing={3}>
+                  <SearchInputField
+                    isSubmitting={isSubmitting}
+                    autoFocus={findBy !== 'entity'}
+                    placeholder="@type:org* @id:org*  @creator:admin*"
+                    label="commit"
+                    total={commitTotal}
+                  />
+                  <Grid item xs={12}>
+                    <Pagination
+                      count={commitCount}
+                      showFirstButton
+                      showLastButton
+                      onChange={handlePageChangeCommit}
                     />
-                    <Grid item xs={12}>
-                      <Pagination
-                        count={commitCount}
-                        showFirstButton
-                        showLastButton
-                        onChange={handlePageChangeCommit}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Commits commits={commits?.fullTextSearchCommit?.items} />
-                    </Grid>
                   </Grid>
-                </Form>
-              )}
-            </Formik>
-          )}
-          <ProTip />
-        </Container>
-      )}
+                  <Grid item xs={12}>
+                    <Commits commits={commits?.fullTextSearchCommit?.items} />
+                  </Grid>
+                </Grid>
+              </Form>
+            )}
+          </Formik>
+        )}
+        <ProTip />
+      </Container>
     </Layout>
   );
 };
 
-export const getServerSideProps: GetServerSideProps<{
-  user: User | null | undefined;
-}> = getServerSideUser();
-
-export default Dashboard;
+export default withAuthAsync(Dashboard);

@@ -1,7 +1,6 @@
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import { Form, Formik } from 'formik';
-import fetch from 'isomorphic-unfetch';
 import { NextPage } from 'next';
 import React from 'react';
 import Layout from '../../components/Layout';

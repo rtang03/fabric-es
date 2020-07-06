@@ -5,10 +5,12 @@ import httpStatus from 'http-status';
 import omit from 'lodash/omit';
 import passport from 'passport';
 import { TokenRepo } from '../entity/AccessToken';
+import { RefreshTokenRepo } from '../entity/RefreshToken';
 import { User } from '../entity/User';
 import { LoginResponse, ProfileResponse, RegisterResponse, UpdateUserRequest } from '../types';
 import {
   catchErrors,
+  generateRefreshToken,
   generateToken,
   getLogger,
   isRegisterRequest,
@@ -21,8 +23,17 @@ export const createAccountRoute: (option: {
   orgAdminSecret: string;
   jwtSecret: string;
   tokenRepo: TokenRepo;
-  expiryInSeconds: number;
-}) => express.Router = ({ orgAdminSecret, jwtSecret, tokenRepo, expiryInSeconds }) => {
+  jwtExpiryInSec: number;
+  refreshTokenRepo: RefreshTokenRepo;
+  refTokenExpiryInSec: number;
+}) => express.Router = ({
+  orgAdminSecret,
+  jwtSecret,
+  tokenRepo,
+  jwtExpiryInSec,
+  refreshTokenRepo,
+  refTokenExpiryInSec,
+}) => {
   const router = express.Router();
 
   router.get('/isalive', (_, res) => res.sendStatus(httpStatus.NO_CONTENT));
@@ -47,28 +58,49 @@ export const createAccountRoute: (option: {
           user_id: user.id,
           is_admin: user.is_admin,
           secret: jwtSecret,
-          expiryInSeconds,
+          jwtExpiryInSec,
         });
+
+        const refresh_token = generateRefreshToken();
+
+        try {
+          await refreshTokenRepo.save({
+            user_id: user.id,
+            refresh_token,
+            useDefaultExpiry: true,
+            access_token,
+            is_admin: user.is_admin,
+          });
+        } catch (e) {
+          logger.error(util.format('fail insert refresh token, %j', e));
+          return res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to insert refresh token' });
+        }
 
         return tokenRepo
           .save({
-            key: access_token,
-            value: {
-              access_token,
-              user_id: user.id,
-              expires_at: Date.now() + expiryInSeconds * 1000,
-            },
+            user_id: user.id,
+            access_token,
             useDefaultExpiry: true,
+            client_id: null,
+            is_admin: user.is_admin,
           })
           .then(() => {
             logger.info(`logging in ${user.id}`);
 
-            res.cookie('token', access_token, { httpOnly: true, secure: true });
+            res.append('jwtExpiryInSec', jwtExpiryInSec.toString());
+            res.append('refTokenExpiryInSec', refTokenExpiryInSec.toString());
+
+            res.cookie('rt', refresh_token, {
+              httpOnly: true,
+              secure: true,
+              maxAge: refTokenExpiryInSec * 1000,
+            });
 
             const response: LoginResponse = {
               username: user.username,
               id: user.id,
               access_token,
+              jwtExpiryInSec: jwtExpiryInSec.toString(),
               token_type: 'Bearer',
             };
 
@@ -76,7 +108,7 @@ export const createAccountRoute: (option: {
           })
           .catch((e) => {
             logger.error(util.format('fail insert access token, %j', e));
-            res.status(httpStatus.BAD_REQUEST).send({ error: 'failed to create access token' });
+            res.status(httpStatus.BAD_REQUEST).send({ error: 'fail to create access token' });
           });
       }
     )(req, res);
@@ -148,6 +180,7 @@ export const createAccountRoute: (option: {
 
         if (user.id !== user_id) {
           logger.warn(`fail to ${message}: not authorized`);
+
           return res
             .status(httpStatus.UNAUTHORIZED)
             .send({ error: `not authorized to ${message}` });

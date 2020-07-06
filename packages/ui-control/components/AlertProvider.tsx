@@ -1,5 +1,5 @@
 import React, { createContext, FC, Reducer, useContext, useReducer } from 'react';
-import { AnyAction, Alert } from '../types';
+import { AnyAction, Alert } from 'types';
 
 type Action = AnyAction<{ message: string }>;
 

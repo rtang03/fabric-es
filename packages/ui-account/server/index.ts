@@ -5,7 +5,6 @@ import cors from 'cors';
 import errorHandler from 'errorhandler';
 import express from 'express';
 import httpStatus from 'http-status';
-import fetch from 'isomorphic-unfetch';
 import morgan from 'morgan';
 import next from 'next';
 import { getLogger } from '../utils';
