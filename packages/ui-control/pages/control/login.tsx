@@ -23,12 +23,12 @@ const Login: NextPage<any> = () => {
   const dispatchAlert = useDispatchAlert();
   const dispatchAuth = useDispatchAuth();
   const classes = useStyles();
-  const [login, { data, loading, error }] = useLoginMutation();
+
+  // must use 'no-cache'
+  const [login, { data, loading, error }] = useLoginMutation({ fetchPolicy: 'no-cache' });
 
   useEffect(() => {
-    if (data?.login) {
-      setTimeout(async () => Router.push('/control'), 3200);
-    }
+    data?.login && setTimeout(async () => Router.push('/control'), 3200);
   }, [data]);
 
   error && setTimeout(() => dispatchAlert({ type: 'ERROR', message: ERROR }), 500);
@@ -47,7 +47,10 @@ const Login: NextPage<any> = () => {
               dispatchAuth({ type: 'LOGIN' });
               const response = await login({ variables: { username, password } });
               const result = response?.data?.login;
+
+              // save accessToken
               saveToken(result?.access_token, result?.jwtExpiryInSec as any);
+
               setSubmitting(false);
               setTimeout(
                 () => dispatchAlert({ type: 'SUCCESS', message: `${username} ${SUCCESS}` }),

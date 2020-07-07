@@ -1,5 +1,5 @@
 import Layout from 'components/Layout';
-import withAuthSync from 'components/withAuth';
+import withAuth from 'components/withAuth';
 import { NextPage } from 'next';
 import React from 'react';
 
@@ -11,4 +11,4 @@ const Profile: NextPage<any> = () => {
   );
 };
 
-export default withAuthSync(Profile);
+export default withAuth(Profile);

@@ -26,6 +26,11 @@ export const AuthContext = createContext<Authentication>(initialState);
 
 export const AuthDispatchContext = createContext<(action: Action) => void>(() => null);
 
+/**
+ * context/reducer for managing state of authenication
+ * @param children
+ * @constructor
+ */
 export const AuthProvider: FC<any> = ({ children }) => {
   const [auth, dispatchAuth] = useReducer<AuthReducer>(reducer, initialState);
 

@@ -18,6 +18,11 @@ const AlertContext = createContext<Alert>(initialState);
 
 const AlertDispatchContext = createContext<(action: Action) => void>(() => null);
 
+/**
+ * context/reducer for display alert message
+ * @param children
+ * @constructor
+ */
 export const AlertProvider: FC<any> = ({ children }) => {
   const [alert, dispatchAlert] = useReducer<AlertReducer>(reducer, initialState);
 
