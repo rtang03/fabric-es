@@ -13,13 +13,17 @@ const logger = getLogger('[relay] relay.js');
 
 (async () => {
   logger.info('♨️♨️  Starting [relay] service...');
+  const myArgs = process.argv.slice(2);
+  const httpsArg = myArgs[0];
+
 
   const { relay, shutdown } = await createRelayService({
-    targetUrl, redisHost, redisPort, topic
+    targetUrl, redisHost, redisPort, topic, httpsArg
   });
 
   process.on('SIGINT', async () => {
     shutdown();
+
   });
 
   process.on('SIGTERM', async () => {

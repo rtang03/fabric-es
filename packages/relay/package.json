@@ -7,6 +7,7 @@
     "build": "yarn clean && tsc",
     "clean": "rimraf dist",
     "start": "node dist/relay.js",
+    "starts": "node dist/relay.js https",
     "sniff": "node dist/sniffer.js",
     "mock-endpoint": "node dist/__mocks__/mockEndpoint.js",
     "test": "jest --verbose --detectOpenHandles --runInBand --forceExit"

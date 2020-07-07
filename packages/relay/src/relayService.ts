@@ -1,5 +1,7 @@
 import crypto from 'crypto';
 import http from 'http';
+import https from 'https';
+import fs from 'fs';
 import util from 'util';
 import bodyParser from 'body-parser';
 import express from 'express';
@@ -12,20 +14,27 @@ import stoppable, { StoppableServer } from 'stoppable';
 import { getLogger } from './getLogger';
 import { processMsg } from './processMsg';
 import { ReqRes } from './reqres';
+import { isString } from 'lodash';
 
 const logger = getLogger('[relay] relayService.js');
+
+let secureCfg;
+let agentCfg;
+
 
 export const createRelayService: (option: {
   targetUrl: string;
   redisHost: string;
   redisPort: number;
   topic: string;
+  httpsArg: string;
 }) => Promise<{
   relay: StoppableServer;
   shutdown: any;
 }> = async ({
-  targetUrl, redisHost, redisPort, topic
+  targetUrl, redisHost, redisPort, topic, httpsArg
 }) => {
+
   const client = new RedisClient({
     host: redisHost,
     port: redisPort,
@@ -59,22 +68,60 @@ export const createRelayService: (option: {
     topic,
   });
 
-  const stoppableServer = stoppable(http.createServer(server));
-  return {
-    relay: stoppableServer,
-    shutdown: () => {
-      client.quit();
-      stoppableServer.stop(err => {
-        if (err) {
-          logger.error(util.format('An error occurred while closing the relay service: %j', err));
-          process.exitCode = 1;
-        } else
-          logger.info('relay service stopped');
-        process.exit();
-      });
-    }
-  };
+  let stoppableServer;
+  //logger.info(util.format('b4: %j', httpsArg));
+  //logger.info("b4:" + httpsArg);
+  
+  if (isString(httpsArg) && httpsArg=='https') {
+    /* HTTPS */
+    const options = {
+      key: fs.readFileSync(process.env.SERVER_KEY),
+      cert: fs.readFileSync(process.env.SERVER_CERT),
+    };
+    logger.info('https');
+    stoppableServer = stoppable(https.createServer(options,server));
+    return {
+      relay: stoppableServer,
+      shutdown: () => {
+        client.quit();
+        stoppableServer.stop(err => {
+          if (err) {
+            logger.error(util.format('An error occurred while closing the relay service: %j', err));
+            process.exitCode = 1;
+          } else
+            logger.info('relay service stopped');
+          process.exit();
+        });
+      }
+    };
+     
+  } else {
+    /* HTTP */    
+    logger.info('http');
+
+    stoppableServer = stoppable(http.createServer(server));
+    return {
+      relay: stoppableServer,
+      shutdown: () => {
+        client.quit();
+        stoppableServer.stop(err => {
+          if (err) {
+            logger.error(util.format('An error occurred while closing the relay service: %j', err));
+            process.exitCode = 1;
+          } else
+            logger.info('relay service stopped');
+          process.exit();
+        });
+      }
+    };
+
+  }
+ 
+
 };
+
+
+
 
 export const relayService = ({
   targetUrl,
@@ -90,11 +137,21 @@ export const relayService = ({
   if (isEmpty(client)) throw new Error('Missing client');
   if (isEmpty(topic)) throw new Error('Missing topic.');
 
+  if (targetUrl.startsWith('https://')) {
+    secureCfg = false;
+    agentCfg  = https.globalAgent;
+  } else {
+    secureCfg = true;
+    agentCfg  = http.globalAgent;
+  }
+
   const apiProxy = createProxyMiddleware({
     target: targetUrl,
     changeOrigin: true,
+    agent  : agentCfg,
+    secure : secureCfg,
     onProxyReq: (proxyReq, req, res) => {
-
+      logger.info('Req:' + req);
       const reqres = {
         id: crypto.randomBytes(16).toString('hex'),
         startTime: Date.now(),
@@ -107,11 +164,14 @@ export const relayService = ({
       };
 
       const raw = util.inspect(req.body, false, null);
+      logger.info('Raw:' + req.body);
+    
       if (req.is('json')) {
         try {
           // Use JSON5 to parse relaxed Json
           reqres.reqBody = JSON5.parse(raw);
         } catch (error) {
+          logger.error('ERROR' + error);
           // Request body cannot be parsed, return as a string
           reqres.reqBody = raw;
         }
@@ -132,18 +192,14 @@ export const relayService = ({
       }
     },
     onProxyRes: async (proxyRes, req, res) => {
+      const reqres: ReqRes = res.locals.reqres;
+    
+      reqres.statusCode = proxyRes.statusCode;
+      reqres.statusMessage = proxyRes.statusMessage;
+      reqres.duration = Date.now() - reqres.startTime;
+    
+      await processMsg({message: reqres, client, topic});
 
-      const message: ReqRes = res.locals.reqres;
-
-      message.statusCode = proxyRes.statusCode;
-      message.statusMessage = proxyRes.statusMessage;
-      message.duration = Date.now() - message.startTime;
-
-      await processMsg({ message, client, topic }).then((_) => {
-        logger.info(`Message processed: ${JSON.stringify(message)}`);
-      }).catch((error) => {
-        logger.error(`Error while processing [${message.id}]: ${error} - '${JSON.stringify(message)}'`);
-      });
     },
     onError: (err, req, res) => {
       res.writeHead(500, {
