@@ -7,15 +7,35 @@ import {
   RegisterResponse,
   User,
 } from '../types';
-import { catchErrors, isLoginResponse, isRegisterResponse } from '../utils';
+import {
+  catchErrors,
+  isLoginResponse,
+  isRefreshTokenResponse,
+  isRegisterResponse,
+  isUser,
+} from '../utils';
 import { typeDefs } from './typeDefs';
+
+const initConfig = {
+  method: 'POST',
+  mode: 'cors' as any,
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+  },
+};
+
+// TODO: need fix secure
+const cookieOption = { httpOnly: true, secure: false, sameSite: true };
 
 export const resolvers = {
   Query: {
     ping: async () => 'pong',
+    // me returns the userinfo from an authtenticated request
     me: catchErrors<User>(
       (_: any, ctx) => {
-        console.log('[schema.tsx] =======me is called==========');
+        // Debug
+        // console.log('[schema.tsx] =======me is called==========');
 
         if (!ctx?.accessToken) return Promise.reject(new Error('No access token'));
 
@@ -27,16 +47,18 @@ export const resolvers = {
           mode: 'cors',
         });
       },
-      { fcnName: 'me' }
+      { fcnName: 'me', typeGuard: isUser }
     ),
   },
   Mutation: {
     refreshToken: catchErrors<RefreshTokenResponse>(
       (_, { authUri, refreshToken }) => {
-        console.log('[schema.tsx] =======refreshToken is called==========', refreshToken);
+        // Debug
+        // console.log('[schema.tsx] ===refreshToken is called===', refreshToken);
 
         if (!refreshToken) return Promise.reject(new Error('No refresh token'));
 
+        // follow Oauth specification
         return fetch(`${authUri}/oauth/refresh_token`, {
           method: 'POST',
           headers: {
@@ -49,16 +71,21 @@ export const resolvers = {
       },
       {
         fcnName: 'refreshToken',
+        typeGuard: isRefreshTokenResponse,
         onSuccess: ({ refresh_token }, headers, { res, refreshToken: oldrt }) => {
-          console.log(`[schema.tsx] ==refresh-ok === ${oldrt} is removed`);
+          // Debug
+          // console.log(`[schema.tsx] ==refresh-ok === ${oldrt} is removed`);
 
+          // accessToken expiry is currently not used. Still, add to res, and returning to client, for future use
+          // the alternative implementation may later add a countdown timer, to renew the accessToken automatically
           res.append('jwtexpiryinsec', headers.get('jwtexpiryinsec') || '');
+
+          // refreshToken will expire at Auth-Server and client cookie at the same time
           res.append('reftokenexpiryinsec', headers.get('reftokenexpiryinsec') || '');
+
           res.cookie('rt', refresh_token, {
-            httpOnly: true,
+            ...cookieOption,
             maxAge: 1000 * parseInt(headers.get('reftokenexpiryinsec') || '', 10),
-            secure: false,
-            sameSite: true,
           });
         },
       }
@@ -66,46 +93,33 @@ export const resolvers = {
     register: catchErrors<RegisterResponse>(
       ({ username, password, email }, { authUri }) =>
         fetch(`${authUri}/account`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          ...initConfig,
           body: JSON.stringify({ username, password, email }),
-          mode: 'cors',
         }),
-      {
-        fcnName: 'register',
-        typeGuard: isRegisterResponse,
-      }
+      { fcnName: 'register', typeGuard: isRegisterResponse }
     ),
     login: catchErrors<LoginResponse>(
       ({ username, password }, { authUri }) =>
         fetch(`${authUri}/account/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          ...initConfig,
           body: JSON.stringify({ username, password }),
-          mode: 'cors',
         }),
       {
         fcnName: 'login',
         typeGuard: isLoginResponse,
         onSuccess: (_, headers, { res }) => {
+          // set refreshToken
           const refreshToken = cookie.parse(headers.get('set-cookie') || '')?.rt;
+
           res.cookie('rt', refreshToken, {
-            httpOnly: true,
+            ...cookieOption,
             maxAge: 1000 * parseInt(headers.get('reftokenexpiryinsec') || '', 10),
-            secure: false,
-            sameSite: true,
           });
         },
       }
     ),
     logout: (_: any, __: any, { res }: ApolloContext) => {
-      res.cookie('rt', '', { httpOnly: true, maxAge: 0, sameSite: true });
+      res.cookie('rt', '', { ...cookieOption, maxAge: 0 });
       return true;
     },
     forget: (_: any, { email }: { email: string }) => {

@@ -29,9 +29,10 @@ export const catchErrors: <T = any>(
   } catch (e) {
     logger.error(util.format('fail to %s, %j', fcnName, e));
 
-    if (e.error && e.error.message) return new ApolloError(e.error.message);
-    else if (e.errors && Array.isArray(e.errors) && e.errors.length > 0 && e.errors[0].message)
-      return new ApolloError(e.errors.map((err) => err.message));
-    else return new ApolloError(e);
+    return e.error && e.error.message
+      ? new ApolloError(e.error.message)
+      : e.errors && Array.isArray(e.errors) && e.errors.length > 0 && e.errors[0].message
+      ? new ApolloError(e.errors.map((err) => err.message))
+      : new ApolloError(e);
   }
 };

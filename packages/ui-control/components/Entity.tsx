@@ -1,6 +1,8 @@
 import pick from 'lodash/pick';
 import React from 'react';
 
+// NOT CURRENTLY USED
+
 const Entity: React.FC<{ entities?: any[] }> = ({ entities }) => {
   return (
     <>

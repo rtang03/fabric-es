@@ -14,6 +14,7 @@ export const ENV = {
   AUTH_HOST: process.env.AUTH_HOST as string,
   GW_ORG_INTERNAL_HOST: process.env.GW_ORG_INTERNAL_HOST as string,
   GW_ORG_EXTERNAL_HOST: process.env.GW_ORG_EXTERNAL_HOST as string,
+  QH_EXTERNAL_HOST: process.env.QH_EXTERNAL_HOST as string
 };
 const dev = ENV.NODE_ENV !== 'production';
 const app = next({ dev });

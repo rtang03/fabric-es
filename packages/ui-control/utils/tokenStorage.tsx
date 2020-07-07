@@ -5,8 +5,10 @@ export const saveToken: (access_token?: string | null, expiryInSec?: number | nu
   access_token,
   expiryInSec
 ) => {
-  inMemoryToken = access_token || null;
-  inMemoryTokExpInSec = expiryInSec;
+  if (typeof window === 'object') {
+    inMemoryToken = access_token || null;
+    inMemoryTokExpInSec = expiryInSec;
+  }
 };
 
 export const getToken = () => inMemoryToken;
