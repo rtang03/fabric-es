@@ -10,10 +10,14 @@ RUN mkdir /home/app/ \
 
 COPY --chown=node:node ./build/ /home/app/
 
+COPY package.json /home/app/
+
 RUN cd /home/app/ \
- && npm install --production
+ && npm install --production --ignore-engines
 
 USER node
+
+VOLUME /key/
 
 WORKDIR /home/app/
 
@@ -21,4 +25,4 @@ WORKDIR /home/app/
 EXPOSE 3000 4001
 
 ENTRYPOINT ["node"]
-CMD ["dist/app.js"]
+CMD ["dist/relay.js", "https"]

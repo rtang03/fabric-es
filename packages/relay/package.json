@@ -22,6 +22,8 @@
     "lodash": "^4.17.15",
     "mockyeah": "^0.24.1",
     "query-string": "^6.12.1",
+    "ioredis": "^4.17.3",
+    "stoppable": "^1.1.0",
     "winston": "^3.2.1"
   },
   "dependenciesComments": {
@@ -32,6 +34,8 @@
     "@types/lodash": "^4.14.152",
     "@types/randomstring": "^1.1.6",
     "@types/redis": "^2.8.21",
+    "@types/ioredis": "^4.16.4",
+    "@types/stoppable": "^1.1.0",
     "jest": "^24.9.0",
     "mockyeah": "^0.24.1",
     "rimraf": "^3.0.2",
