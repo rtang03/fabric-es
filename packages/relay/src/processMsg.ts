@@ -11,8 +11,8 @@ export const processMsg = ({
   topic,
   ttl,
 }: {
-  message: ReqRes; 
-  client: Redis; 
+  message: ReqRes;
+  client: Redis;
   topic: string;
   ttl?: number;
 }) => {

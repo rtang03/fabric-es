@@ -151,8 +151,8 @@ export const relayService = ({
     agent  : agentCfg,
     secure : secureCfg,
     onProxyReq: (proxyReq, req, res) => {
-      logger.info('Req:' + req);
-      const reqres = {
+
+      const reqres: ReqRes = {
         id: crypto.randomBytes(16).toString('hex'),
         startTime: Date.now(),
         duration: undefined,
@@ -191,17 +191,10 @@ export const relayService = ({
         proxyReq.write(bodyData);
       }
     },
-    onProxyRes: async (proxyRes, req, res) => {
-      const reqres: ReqRes = res.locals.reqres;
-    
-      reqres.statusCode = proxyRes.statusCode;
-      reqres.statusMessage = proxyRes.statusMessage;
-      reqres.duration = Date.now() - reqres.startTime;
-    
-      await processMsg({message: reqres, client, topic});
+    onProxyRes: async (proxyRes, _, res) => {
 
     },
-    onError: (err, req, res) => {
+    onError: (err, _, res) => {
       res.writeHead(500, {
         'Content-Type': 'text/plain',
       });
