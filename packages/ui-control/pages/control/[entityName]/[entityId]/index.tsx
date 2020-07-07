@@ -5,7 +5,7 @@ import React from 'react';
 
 const EntityPage: NextPage<any> = () => {
   return (
-    <Layout title="Dashboard" user={null} restrictedArea={false}>
+    <Layout title="Dashboard" user={null} restricted={false}>
       d
     </Layout>
   );

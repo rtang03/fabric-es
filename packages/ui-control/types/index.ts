@@ -7,3 +7,4 @@ export * from './apolloContext';
 export * from './loginResponse';
 export * from './inMemoryToken';
 export * from './refreshTokenResponse';
+export * from './updateProfileResponse';

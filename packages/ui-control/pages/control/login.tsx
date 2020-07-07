@@ -24,7 +24,6 @@ const Login: NextPage<any> = () => {
   const dispatchAuth = useDispatchAuth();
   const classes = useStyles();
 
-  // must use 'no-cache'
   const [login, { data, loading, error }] = useLoginMutation({ fetchPolicy: 'no-cache' });
 
   useEffect(() => {

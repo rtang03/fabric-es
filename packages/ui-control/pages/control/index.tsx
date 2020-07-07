@@ -5,20 +5,19 @@ import { NextPage } from 'next';
 import Router from 'next/router';
 import React, { useEffect } from 'react';
 
-const Index: NextPage<{ accessToken: string }> = ({ accessToken }) => {
+const Index: NextPage<any> = () => {
   const { data, error, loading } = useMeQuery();
-  console.log('/control/index.tsx => accessToken', accessToken);
 
   useEffect(() => {
     if (!loading && error) setTimeout(async () => Router.push('/'), 3000);
   });
 
   return data?.me ? (
-    <Layout title="Home" loading={false} user={data?.me} restrictedArea={true}>
+    <Layout title="Home" loading={false} user={data?.me} restricted={true}>
       Welcome! {data?.me?.username}
     </Layout>
   ) : (
-    <Layout title="Home" loading={loading} user={null} restrictedArea={false}>
+    <Layout title="Home" loading={loading} user={null} restricted={false}>
       {error?.message}
     </Layout>
   );
