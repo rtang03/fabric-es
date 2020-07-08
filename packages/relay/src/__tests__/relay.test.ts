@@ -11,7 +11,7 @@ const msg: ReqRes = {
   duration: 2,
   method: 'patch',
   url: { url: '/test-url', query: { k1: 'v1', k2: 'v2' } },
-  reqBody: { key1: 'abc', key2: '123' },
+  reqBody: { key1: 'abc', key2: '123' }, resBody: '',
   statusCode: 3,
   statusMessage: 'myMsg'
 };
@@ -189,7 +189,7 @@ describe('Pub / Sub', () => {
       return {
         id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
-        reqBody: { txt: `abc${idx}`, num: `123${idx}` },
+        reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
         statusCode: 3, statusMessage: `myMsg ${idx}`
       };
     });
@@ -218,7 +218,7 @@ describe('Pub / Sub', () => {
       return {
         id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
-        reqBody: { txt: `abc${idx}`, num: `123${idx}` },
+        reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
         statusCode: 3, statusMessage: `myMsg ${idx}`
       };
     });
@@ -254,7 +254,7 @@ describe('Pub / Sub', () => {
       return {
         id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
-        reqBody: { txt: `abc${idx}`, num: `123${idx}` },
+        reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
         statusCode: 3, statusMessage: `myMsg ${idx}`
       };
     });

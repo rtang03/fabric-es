@@ -24,7 +24,7 @@ beforeAll(async () => {
     return {
       id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
       url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
-      reqBody: { txt: `abc${idx}`, num: `123${idx}` },
+      reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
       statusCode: 3, statusMessage: `myMsg ${idx}`
     };
   });
@@ -64,7 +64,7 @@ describe('Sniffer Service', () => {
     const mssg = {
       id: `id999`, startTime: Date.now(), duration: 5, method: 'patch',
       url: { url: `/test-url999`, query: { k: `k999`, v: `v999` } },
-      reqBody: { txt: `abc999`, num: `123999` },
+      reqBody: { txt: `abc999`, num: `123999` }, resBody: '',
       statusCode: 3, statusMessage: `myMsg 999`
     };
     await processMsg({ message: mssg, client: publisher, topic });

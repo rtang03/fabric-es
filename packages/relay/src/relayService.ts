@@ -150,7 +150,6 @@ export const relayService = ({
     agent  : agentCfg,
     secure : secureCfg,
     onProxyReq: (proxyReq, req, res) => {
-
       const reqres: ReqRes = {
         id: crypto.randomBytes(16).toString('hex'),
         startTime: Date.now(),
@@ -158,6 +157,7 @@ export const relayService = ({
         method: req.method,
         url: querystring.parseUrl(req.url),
         reqBody: undefined,
+        resBody: undefined,
         statusCode: undefined,
         statusMessage: undefined
       };
@@ -190,8 +190,26 @@ export const relayService = ({
         proxyReq.write(bodyData);
       }
     },
-    onProxyRes: async (proxyRes, _, res) => {
+    onProxyRes: (proxyRes, _, res) => {
+      const data = [];
+      proxyRes.on('data', (chunk) => {
+        data.push(chunk);
+      });
+      proxyRes.on('end', async () => {
+        const body = Buffer.concat(data).toString();
+        const message: ReqRes = res.locals.reqres;
 
+        message.statusCode = proxyRes.statusCode;
+        message.statusMessage = proxyRes.statusMessage;
+        message.duration = Date.now() - message.startTime;
+        message.resBody = body;
+
+        await processMsg({ message, client, topic }).then((_) => {
+          logger.info(`Message processed: ${JSON.stringify(message)}`);
+        }).catch((error) => {
+          logger.error(`Error while processing [${message.id}]: ${error} - '${JSON.stringify(message)}'`);
+        });
+      });
     },
     onError: (err, _, res) => {
       res.writeHead(500, {
