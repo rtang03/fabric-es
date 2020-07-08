@@ -51,15 +51,27 @@ export const createService: (option: {
     wallet,
     enrollmentId,
   });
-  const mspId = (networkConfig && networkConfig.gateway && networkConfig.gateway.getIdentity) ? networkConfig.gateway.getIdentity().mspId : undefined;
+  const mspId =
+    networkConfig && networkConfig.gateway && networkConfig.gateway.getIdentity
+      ? networkConfig.gateway.getIdentity().mspId
+      : undefined;
 
-  const getPrivateRepository = <TEntity, TEvent>(entityName: string, reducer: Reducer, parentName?: string) =>
-    createPrivateRepository<TEntity, TEvent>(entityName, reducer, {
-      ...networkConfig,
-      connectionProfile,
-      channelName,
-      wallet,
-    }, parentName);
+  const getPrivateRepository = <TEntity, TEvent>(
+    entityName: string,
+    reducer: Reducer,
+    parentName?: string
+  ) =>
+    createPrivateRepository<TEntity, TEvent>(
+      entityName,
+      reducer,
+      {
+        ...networkConfig,
+        connectionProfile,
+        channelName,
+        wallet,
+      },
+      parentName
+    );
 
   const getRepository = <TEntity, TEvent>(entityName: string, reducer: Reducer) =>
     createRepository<TEntity, TEvent>(entityName, reducer, {
@@ -87,37 +99,51 @@ export const createService: (option: {
       }) => Promise<ApolloServer> = async (option) => {
         const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
 
-        const args = (mspId) ? { mspId } : undefined;
+        const args = mspId ? { mspId } : undefined;
         const flags = {
-          playground: (option && option.playground),
-          introspection: (option && option.introspection)
+          playground: option && option.playground,
+          introspection: option && option.introspection,
         };
 
-        if (repositories.filter(element => element.entityName === 'organization').length <= 0) { // TODO
+        if (repositories.filter((element) => element.entityName === 'organization').length <= 0) {
+          // TODO
           repositories.push({
             entityName: 'organization',
-            repository: getRepository<Organization, OrgEvents>('organization', getReducer<Organization, OrgEvents>(orgReducer))
+            repository: getRepository<Organization, OrgEvents>(
+              'organization',
+              getReducer<Organization, OrgEvents>(orgReducer)
+            ),
           });
         }
 
-        return new ApolloServer(Object.assign({
-          schema,
-          dataSources: () =>
-            repositories.reduce(
-              (obj, { entityName, repository }) => ({
-                ...obj,
-                [entityName]: new DataSrc({ repo: repository }),
-              }),
-              {}
-            ),
-          context: ({ req: { headers } }) => Object.assign({
-            user_id: headers.user_id,
-            is_admin: headers.is_admin,
-            username: headers.username,
-          }, args, {
-            trackingData: createTrackingData
-          }),
-        }, flags));
+        return new ApolloServer(
+          Object.assign(
+            {
+              schema,
+              dataSources: () =>
+                repositories.reduce(
+                  (obj, { entityName, repository }) => ({
+                    ...obj,
+                    [entityName]: new DataSrc({ repo: repository }),
+                  }),
+                  {}
+                ),
+              context: ({ req: { headers } }) =>
+                Object.assign(
+                  {
+                    user_id: headers.user_id,
+                    is_admin: headers.is_admin,
+                    username: headers.username,
+                  },
+                  args,
+                  {
+                    trackingData: createTrackingData,
+                  }
+                ),
+            },
+            flags
+          )
+        );
       };
 
       const addRepository = (repository: Repository | PrivateRepository) => {

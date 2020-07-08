@@ -1,23 +1,30 @@
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
+import Divider from '@material-ui/core/Divider';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import Grid from '@material-ui/core/Grid';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
+import { useDispatchAlert } from 'components';
 import Layout from 'components/Layout';
+import Wallet from 'components/Wallet';
 import withAuth from 'components/withAuth';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { useMeQuery, useUpdateProfileMutation } from 'graphql/generated';
 import { NextPage } from 'next';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { getValidationSchema, useStyles } from 'utils';
 import * as yup from 'yup';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 const validationSchema = yup.object(getValidationSchema(['username', 'email']));
+const ERROR = 'Fail to update profile';
+const message = 'Profile updated';
 
 const Profile: NextPage<any> = () => {
+  const dispatchAlert = useDispatchAlert();
   const classes = useStyles();
   const { data, error, loading, refetch } = useMeQuery();
   const [edit, setEdit] = useState(false);
@@ -38,12 +45,18 @@ const Profile: NextPage<any> = () => {
 
   const { username, email, id } = data?.me;
 
+  updatedError &&
+    setTimeout(() => {
+      console.error(updatedError);
+      dispatchAlert({ type: 'ERROR', message: ERROR });
+    }, 500);
+
   return (
-    <Layout title="Profile" loading={updatedLoaing} user={data?.me} restricted={true}>
+    <Layout title="Profile" loading={loading} user={data?.me} restricted={true}>
       <Container component="main" maxWidth="sm">
         <Typography variant="h6">User profile</Typography>
         <Typography variant="caption">Welcome! {data?.me.username}</Typography>
-        <hr />
+        {updatedLoaing ? <LinearProgress /> : <Divider />}
         <FormGroup row>
           <FormControlLabel
             control={
@@ -66,8 +79,10 @@ const Profile: NextPage<any> = () => {
             setSubmitting(true);
             try {
               const response = await updateProfile({ variables: { id, email, username } });
-              const result = response?.data?.updateProfile;
-              result?.ok && (await refetch());
+              if (response?.data?.updateProfile?.ok) {
+                await refetch();
+                dispatchAlert({ type: 'SUCCESS', message });
+              }
               setEdit(false);
               setSubmitting(false);
             } catch (e) {
@@ -122,6 +137,9 @@ const Profile: NextPage<any> = () => {
             </Form>
           )}
         </Formik>
+        <br />
+        <br />
+        <Wallet />
       </Container>
     </Layout>
   );
