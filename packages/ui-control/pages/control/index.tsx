@@ -7,6 +7,7 @@ import React, { useEffect } from 'react';
 
 const Index: NextPage<any> = () => {
   const { data, error, loading } = useMeQuery();
+  console.log('/control/index.tsx => accessToken', accessToken);
 
   useEffect(() => {
     if (!loading && error) setTimeout(async () => Router.push('/'), 3000);
