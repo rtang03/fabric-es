@@ -4,6 +4,7 @@ import Divider from '@material-ui/core/Divider';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import Grid from '@material-ui/core/Grid';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import { useDispatchAlert } from 'components';
@@ -17,7 +18,6 @@ import { NextPage } from 'next';
 import React, { useState } from 'react';
 import { getValidationSchema, useStyles } from 'utils';
 import * as yup from 'yup';
-import LinearProgress from '@material-ui/core/LinearProgress';
 
 const validationSchema = yup.object(getValidationSchema(['username', 'email']));
 const ERROR = 'Fail to update profile';
