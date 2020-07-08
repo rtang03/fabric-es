@@ -1,20 +1,19 @@
 import crypto from 'crypto';
+import fs from 'fs';
 import http from 'http';
 import https from 'https';
-import fs from 'fs';
 import util from 'util';
 import bodyParser from 'body-parser';
 import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import RedisClient, { Redis } from 'ioredis';
 import JSON5 from 'json5';
-import isEmpty from 'lodash/isEmpty';
+import { isEmpty, isString } from 'lodash';
 import querystring from 'query-string';
 import stoppable, { StoppableServer } from 'stoppable';
 import { getLogger } from './getLogger';
 import { processMsg } from './processMsg';
 import { ReqRes } from './reqres';
-import { isString } from 'lodash';
 
 const logger = getLogger('[relay] relayService.js');
 
@@ -69,10 +68,10 @@ export const createRelayService: (option: {
   });
 
   let stoppableServer;
-  //logger.info(util.format('b4: %j', httpsArg));
-  //logger.info("b4:" + httpsArg);
+  // logger.info(util.format('b4: %j', httpsArg));
+  // logger.info("b4:" + httpsArg);
   
-  if (isString(httpsArg) && httpsArg=='https') {
+  if (isString(httpsArg) && httpsArg === 'https') {
     /* HTTPS */
     const options = {
       key: fs.readFileSync(process.env.SERVER_KEY),
