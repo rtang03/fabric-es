@@ -1,4 +1,4 @@
-import { ApolloClient, InMemoryCache, HttpLink, ApolloLink } from '@apollo/client';
+import { ApolloClient, InMemoryCache, HttpLink, ApolloLink, Operation } from '@apollo/client';
 import { setContext } from '@apollo/link-context';
 import { SchemaLink } from '@apollo/link-schema';
 import { useMemo } from 'react';
@@ -13,8 +13,8 @@ const authLink = () =>
     headers: { ...headers, authorization: `Bearer ${getToken()}` },
   }));
 
-// fetching link for BBF
-const homeLink = new HttpLink({
+// fetching link for bbf (aka. BackendForFrontend}
+const bbfLink = new HttpLink({
   uri: '/control/api/graphql',
   credentials: 'same-origin',
 });
@@ -26,22 +26,25 @@ const queryHandlerLink = new HttpLink({
   uri: process.env.QH_EXTERNAL_HOST || 'http://localhost:5001/graphql',
 });
 
+const gatewayLink = new HttpLink({
+  uri: process.env.GW_ORG_EXTERNAL_HOST || 'http://localhost:4001/graphql',
+});
+
+const condition = (dest: string) => ({ getContext }: Operation) => getContext().backend === dest;
+
 // https://www.loudnoises.us/next-js-two-apollo-clients-two-graphql-data-sources-the-easy-way/
-const createIsomorphLink = () => {
-  if (typeof window === 'undefined') {
-    return ApolloLink.split(
-      (operation) => operation.getContext().backend === 'queryHandler',
-      queryHandlerLink,
-      new SchemaLink({ schema })
-    );
-  } else {
-    return ApolloLink.split(
-      (operation) => operation.getContext().backend === 'queryHandler',
-      queryHandlerLink,
-      homeLink
-    );
-  }
-};
+const createIsomorphLink = () =>
+  typeof window === 'undefined'
+    ? ApolloLink.split(
+        condition('queryHandler'),
+        queryHandlerLink,
+        ApolloLink.split(condition('gateway'), gatewayLink, new SchemaLink({ schema }))
+      )
+    : ApolloLink.split(
+        condition('queryHandler'),
+        queryHandlerLink,
+        ApolloLink.split(condition('gateway'), gatewayLink, bbfLink)
+      );
 
 const createClient = () =>
   new ApolloClient({

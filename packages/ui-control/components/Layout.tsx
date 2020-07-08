@@ -15,8 +15,8 @@ const Layout: React.FC<{
   title?: string;
   loading?: boolean;
   user?: User | null;
-  restrictedArea?: boolean;
-}> = ({ children, title = 'No title', loading, user, restrictedArea }) => {
+  restricted?: boolean;
+}> = ({ children, title = 'No title', loading, user, restricted }) => {
   const alert = useAlert();
   const dispatchAlert = useDispatchAlert();
   const dispatchAuth = useDispatchAuth();
@@ -38,7 +38,7 @@ const Layout: React.FC<{
   }, [logoutResult]);
 
   useEffect(() => {
-    if (!user && restrictedArea) {
+    if (!user && restricted) {
       setTimeout(async () => logout(), 2000);
       setTimeout(() => {
         dispatchAlert({ type: 'ERROR', message: 'log-in required' });
@@ -81,6 +81,10 @@ const Layout: React.FC<{
             <>
               <Link href="/control/dashboard">
                 <a>Dashboard</a>
+              </Link>{' '}
+              |{' '}
+              <Link href="/control/profile">
+                <a>Profile</a>
               </Link>{' '}
               | <a onClick={() => logout()}>Log out</a>
             </>

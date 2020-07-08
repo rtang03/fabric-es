@@ -9,6 +9,7 @@ export const typeDefs = gql`
   type User {
     id: String!
     username: String!
+    email: String!
     is_deleted: Boolean!
     is_admin: Boolean!
     password: String!
@@ -16,11 +17,18 @@ export const typeDefs = gql`
 
   type Mutation {
     refreshToken: RefreshToken!
-    register(email: String!, password: String!, username: String!): RegisteredUser
-    login(password: String!, username: String!): LoggedInUser
-    logout: Boolean
+    register(email: String!, password: String!, username: String!): RegisteredUser!
+    login(password: String!, username: String!): LoggedInUser!
+    logout: Boolean!
     forget(email: String!): Boolean
     reset(password: String!, password2: String!): Boolean
+    updateProfile(id: String!, email: String!, username: String!): UpdatedProfile!
+  }
+
+  type UpdatedProfile {
+    ok: Boolean!
+    username: String!
+    email: String!
   }
 
   type RefreshToken {

@@ -10,7 +10,7 @@ import Entities from 'components/Entities';
 import Layout from 'components/Layout';
 import ProTip from 'components/ProTip';
 import SearchInputField from 'components/SearchInputField';
-import withAuthAsync from 'components/withAuth';
+import withAuth from 'components/withAuth';
 import { Form, Formik } from 'formik';
 import { useMeQuery } from 'graphql/generated';
 import { useFtsEntityLazyQuery, useFtsCommitLazyQuery } from 'graphql/generated/queryHandler';
@@ -18,7 +18,7 @@ import { NextPage } from 'next';
 import React, { useState } from 'react';
 import { useStyles } from 'utils';
 
-const PAGESIZE = 2;
+const PAGESIZE = 5;
 
 const Dashboard: NextPage<any> = () => {
   const { data, error, loading } = useMeQuery();
@@ -52,17 +52,16 @@ const Dashboard: NextPage<any> = () => {
     commitTotal = commits?.fullTextSearchCommit.total as number;
   }
 
-  const handlePageChangeEntity = async (event: React.ChangeEvent<unknown>, pagenumber: number) =>
-    fetchMoreEntity?.({ variables: { cursor: (pagenumber - 1) * PAGESIZE } });
-
-  const handlePageChangeCommit = async (event: React.ChangeEvent<unknown>, pagenumber: number) =>
-    fetchMoreCommit?.({ variables: { cursor: (pagenumber - 1) * PAGESIZE } });
+  const handlePageChange = (fetchMore: any) => async (
+    event: React.ChangeEvent<unknown>,
+    pagenumber: number
+  ) => fetchMore?.({ variables: { cursor: (pagenumber - 1) * PAGESIZE } });
 
   const handleFindBy = (event: React.MouseEvent<HTMLElement>, item: string) => setFindBy(item);
 
   if (!data?.me)
     return (
-      <Layout title="Dashboard" loading={loading} user={null} restrictedArea={false}>
+      <Layout title="Dashboard" loading={loading} user={null} restricted={false}>
         {error?.message}
       </Layout>
     );
@@ -72,7 +71,7 @@ const Dashboard: NextPage<any> = () => {
       title="Dashboard"
       loading={entityLoading || commitLoading}
       user={data?.me}
-      restrictedArea={true}>
+      restricted={true}>
       <Container>
         <br />
         <ToggleButtonGroup
@@ -117,7 +116,7 @@ const Dashboard: NextPage<any> = () => {
                       count={entityCount}
                       showFirstButton
                       showLastButton
-                      onChange={handlePageChangeEntity}
+                      onChange={handlePageChange(fetchMoreEntity)}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -154,7 +153,7 @@ const Dashboard: NextPage<any> = () => {
                       count={commitCount}
                       showFirstButton
                       showLastButton
-                      onChange={handlePageChangeCommit}
+                      onChange={handlePageChange(fetchMoreCommit)}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -171,4 +170,4 @@ const Dashboard: NextPage<any> = () => {
   );
 };
 
-export default withAuthAsync(Dashboard);
+export default withAuth(Dashboard);

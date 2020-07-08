@@ -5,6 +5,7 @@ import {
   LoginResponse,
   RefreshTokenResponse,
   RegisterResponse,
+  UpdateProfileResponse,
   User,
 } from '../types';
 import {
@@ -12,6 +13,7 @@ import {
   isLoginResponse,
   isRefreshTokenResponse,
   isRegisterResponse,
+  isUpdateProfileResponse,
   isUser,
 } from '../utils';
 import { typeDefs } from './typeDefs';
@@ -26,7 +28,7 @@ const initConfig = {
 };
 
 // TODO: need fix secure
-const cookieOption = { httpOnly: true, secure: false, sameSite: true };
+const cookieOption = { httpOnly: true, secure: false, sameSite: true, path: '/control' };
 
 export const resolvers = {
   Query: {
@@ -117,6 +119,20 @@ export const resolvers = {
           });
         },
       }
+    ),
+    updateProfile: catchErrors<UpdateProfileResponse>(
+      ({ id, username, email }, { authUri, accessToken }) =>
+        fetch(`${authUri}/account/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            authorization: `bearer ${accessToken}`,
+          },
+          mode: 'cors',
+          body: JSON.stringify({ username, email }),
+        }),
+      { fcnName: 'updateProfile', typeGuard: isUpdateProfileResponse }
     ),
     logout: (_: any, __: any, { res }: ApolloContext) => {
       res.cookie('rt', '', { ...cookieOption, maxAge: 0 });

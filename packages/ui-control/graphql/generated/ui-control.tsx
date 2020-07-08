@@ -21,6 +21,7 @@ export type Query = {
 export type User = {
   id: Scalars['String'];
   username: Scalars['String'];
+  email: Scalars['String'];
   is_deleted: Scalars['Boolean'];
   is_admin: Scalars['Boolean'];
   password: Scalars['String'];
@@ -28,11 +29,12 @@ export type User = {
 
 export type Mutation = {
   refreshToken: RefreshToken;
-  register?: Maybe<RegisteredUser>;
-  login?: Maybe<LoggedInUser>;
-  logout?: Maybe<Scalars['Boolean']>;
+  register: RegisteredUser;
+  login: LoggedInUser;
+  logout: Scalars['Boolean'];
   forget?: Maybe<Scalars['Boolean']>;
   reset?: Maybe<Scalars['Boolean']>;
+  updateProfile: UpdatedProfile;
 };
 
 export type MutationRegisterArgs = {
@@ -53,6 +55,18 @@ export type MutationForgetArgs = {
 export type MutationResetArgs = {
   password: Scalars['String'];
   password2: Scalars['String'];
+};
+
+export type MutationUpdateProfileArgs = {
+  id: Scalars['String'];
+  email: Scalars['String'];
+  username: Scalars['String'];
+};
+
+export type UpdatedProfile = {
+  ok: Scalars['Boolean'];
+  username: Scalars['String'];
+  email: Scalars['String'];
 };
 
 export type RefreshToken = {
@@ -85,9 +99,7 @@ export type LoginMutationVariables = {
 };
 
 export type LoginMutation = {
-  login?: Maybe<
-    Pick<LoggedInUser, 'id' | 'access_token' | 'username' | 'token_type' | 'jwtExpiryInSec'>
-  >;
+  login: Pick<LoggedInUser, 'id' | 'access_token' | 'username' | 'token_type' | 'jwtExpiryInSec'>;
 };
 
 export type LogoutMutationVariables = {};
@@ -96,7 +108,7 @@ export type LogoutMutation = Pick<Mutation, 'logout'>;
 
 export type MeQueryVariables = {};
 
-export type MeQuery = { me: Pick<User, 'id' | 'username' | 'is_deleted' | 'is_admin'> };
+export type MeQuery = { me: Pick<User, 'id' | 'username' | 'email' | 'is_deleted' | 'is_admin'> };
 
 export type RegisterMutationVariables = {
   username: Scalars['String'];
@@ -104,7 +116,7 @@ export type RegisterMutationVariables = {
   password: Scalars['String'];
 };
 
-export type RegisterMutation = { register?: Maybe<Pick<RegisteredUser, 'id' | 'username'>> };
+export type RegisterMutation = { register: Pick<RegisteredUser, 'id' | 'username'> };
 
 export type ResetMutationVariables = {
   password: Scalars['String'];
@@ -112,6 +124,16 @@ export type ResetMutationVariables = {
 };
 
 export type ResetMutation = Pick<Mutation, 'reset'>;
+
+export type UpdateProfileMutationVariables = {
+  username: Scalars['String'];
+  email: Scalars['String'];
+  id: Scalars['String'];
+};
+
+export type UpdateProfileMutation = {
+  updateProfile: Pick<UpdatedProfile, 'ok' | 'email' | 'username'>;
+};
 
 export const ForgetDocument = gql`
   mutation Forget($email: String!) {
@@ -247,6 +269,7 @@ export const MeDocument = gql`
     me {
       id
       username
+      email
       is_deleted
       is_admin
     }
@@ -368,4 +391,54 @@ export type ResetMutationResult = ApolloReactCommon.MutationResult<ResetMutation
 export type ResetMutationOptions = ApolloReactCommon.BaseMutationOptions<
   ResetMutation,
   ResetMutationVariables
+>;
+export const UpdateProfileDocument = gql`
+  mutation UpdateProfile($username: String!, $email: String!, $id: String!) {
+    updateProfile(username: $username, email: $email, id: $id) {
+      ok
+      email
+      username
+    }
+  }
+`;
+export type UpdateProfileMutationFn = ApolloReactCommon.MutationFunction<
+  UpdateProfileMutation,
+  UpdateProfileMutationVariables
+>;
+
+/**
+ * __useUpdateProfileMutation__
+ *
+ * To run a mutation, you first call `useUpdateProfileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateProfileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateProfileMutation, { data, loading, error }] = useUpdateProfileMutation({
+ *   variables: {
+ *      username: // value for 'username'
+ *      email: // value for 'email'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUpdateProfileMutation(
+  baseOptions?: ApolloReactHooks.MutationHookOptions<
+    UpdateProfileMutation,
+    UpdateProfileMutationVariables
+  >
+) {
+  return ApolloReactHooks.useMutation<UpdateProfileMutation, UpdateProfileMutationVariables>(
+    UpdateProfileDocument,
+    baseOptions
+  );
+}
+export type UpdateProfileMutationHookResult = ReturnType<typeof useUpdateProfileMutation>;
+export type UpdateProfileMutationResult = ApolloReactCommon.MutationResult<UpdateProfileMutation>;
+export type UpdateProfileMutationOptions = ApolloReactCommon.BaseMutationOptions<
+  UpdateProfileMutation,
+  UpdateProfileMutationVariables
 >;

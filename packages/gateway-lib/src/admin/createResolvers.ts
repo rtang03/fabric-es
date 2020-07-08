@@ -150,21 +150,18 @@ export const createResolvers: (option: {
         }
       ),
       getCaIdentityByUsername: catchErrors(
-        async (_, __, { username }) => {
-          return ca.getByEnrollmentId(username || '').then(({ result }) => {
-            if (result) {
-              return {
-                id: result.id,
-                typ: result.type,
-                affiliation: result.affiliation,
-                max_enrollments: result.max_enrollments,
-                attrs: result.attrs,
-              };
-            } else {
-              return null;
-            }
-          });
-        },
+        async (_, __, { username }) =>
+          ca.getByEnrollmentId(username || '').then(({ result }) =>
+            result
+              ? {
+                  id: result.id,
+                  typ: result.type,
+                  affiliation: result.affiliation,
+                  max_enrollments: result.max_enrollments,
+                  attrs: result.attrs,
+                }
+              : null
+          ),
         { fcnName: 'getCaIdentityByEnrollmentId', logger, useAuth: false, useAdmin: true }
       ),
       getChainHeight: catchErrors(

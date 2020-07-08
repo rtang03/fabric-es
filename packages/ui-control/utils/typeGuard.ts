@@ -1,4 +1,10 @@
-import { LoginResponse, RefreshTokenResponse, RegisterResponse, User } from '../types';
+import {
+  LoginResponse,
+  RefreshTokenResponse,
+  RegisterResponse,
+  UpdateProfileResponse,
+  User,
+} from '../types';
 
 export const isRegisterResponse = (input: any): input is RegisterResponse =>
   input?.id !== undefined && input?.username !== undefined;
@@ -16,3 +22,6 @@ export const isRefreshTokenResponse = (input: any): input is RefreshTokenRespons
   input?.token_type !== undefined &&
   input?.refresh_token !== undefined &&
   input?.access_token !== undefined;
+
+export const isUpdateProfileResponse = (input: any): input is UpdateProfileResponse =>
+  input?.ok !== undefined && input?.username !== undefined && input?.email !== undefined;

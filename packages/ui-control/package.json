@@ -27,7 +27,8 @@
     "start": "NODE_ENV=production node dist/server/index.js",
     "lint": "eslint --max-warnings 10 '*/**/*.{ts,tsx}'",
     "gen-hook:ui": "graphql-codegen --config graphql/generated/ui.codegen.yml",
-    "gen-hook:qh": "graphql-codegen --config graphql/generated/qh.codegen.yml"
+    "gen-hook:qh": "graphql-codegen --config graphql/generated/qh.codegen.yml",
+    "gen-hook:gw": "graphql-codegen --config graphql/generated/gateway.codegen.yml"
   },
   "private": true,
   "dependencies": {

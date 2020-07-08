@@ -1,4 +1,5 @@
 import { ApolloProvider } from '@apollo/client';
+import cookie from 'cookie';
 import { NextPage, NextPageContext } from 'next';
 import Router from 'next/router';
 import React, { Component, useEffect } from 'react';
@@ -65,8 +66,9 @@ const auth = async (ctx: NextPageContext) => {
         const jwtexpiryinsec = parseInt(response.headers.get('jwtexpiryinsec') || '', 10);
         const reftokenexpiryinsec = parseInt(response.headers.get('reftokenexpiryinsec') || '', 10);
 
-        console.log('[withAuth] when 200: data', data);
-        console.log('[withAuth] when 200: errors', errors);
+        // Debug
+        // console.log('[withAuth] when 200: data', data);
+        // console.log('[withAuth] when 200: errors', errors);
 
         // Note: GQL response may return 200, with errors
         if (!data || errors) {
@@ -77,12 +79,17 @@ const auth = async (ctx: NextPageContext) => {
         newRTDetails = data?.refreshToken;
 
         // at server-side, set cookie from BBF to client
+        // note: maxAge in cookie.serialize is second; maxAge in Express.response is in ms
+        // if maxAge is null, the browser will be set as session cookie; will be misbehave
         newRTDetails &&
           ctx?.res?.setHeader(
             'Set-Cookie',
-            `rt=${newRTDetails.refresh_token};HttpOnly;SameSite;Max-Age:${
-              1000 * reftokenexpiryinsec
-            };Path="/"`
+            cookie.serialize('rt', newRTDetails.refresh_token, {
+              httpOnly: true,
+              maxAge: reftokenexpiryinsec,
+              sameSite: true,
+              path: '/control',
+            })
           );
 
         // save token to inMemory
