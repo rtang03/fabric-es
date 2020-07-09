@@ -8,7 +8,6 @@ import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
-import fetch from 'isomorphic-unfetch';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import React, { useState } from 'react';

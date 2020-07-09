@@ -3,16 +3,16 @@ import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
+import { useAuth, useDispatchAlert, useDispatchAuth } from 'components';
+import Layout from 'components/Layout';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
+import { useLoginMutation } from 'graphql/generated';
 import { NextPage } from 'next';
 import Router from 'next/router';
 import React, { useEffect } from 'react';
+import { getValidationSchema, saveToken, useStyles } from 'utils';
 import * as yup from 'yup';
-import { useAuth, useDispatchAlert, useDispatchAuth } from '../../components';
-import Layout from '../../components/Layout';
-import { useLoginMutation } from '../../graphql/generated';
-import { getValidationSchema, useStyles } from '../../utils';
 
 const validation = yup.object(getValidationSchema(['username', 'password']));
 const ERROR = 'Fail to login';
@@ -23,12 +23,11 @@ const Login: NextPage<any> = () => {
   const dispatchAlert = useDispatchAlert();
   const dispatchAuth = useDispatchAuth();
   const classes = useStyles();
-  const [login, { data, loading, error }] = useLoginMutation();
+
+  const [login, { data, loading, error }] = useLoginMutation({ fetchPolicy: 'no-cache' });
 
   useEffect(() => {
-    if (data?.login) {
-      setTimeout(async () => Router.push('/control/dashboard'), 4200);
-    }
+    data?.login && setTimeout(async () => Router.push('/control'), 3200);
   }, [data]);
 
   error && setTimeout(() => dispatchAlert({ type: 'ERROR', message: ERROR }), 500);
@@ -45,7 +44,12 @@ const Login: NextPage<any> = () => {
             setSubmitting(true);
             try {
               dispatchAuth({ type: 'LOGIN' });
-              await login({ variables: { username, password } });
+              const response = await login({ variables: { username, password } });
+              const result = response?.data?.login;
+
+              // save accessToken
+              saveToken(result?.access_token, result?.jwtExpiryInSec as any);
+
               setSubmitting(false);
               setTimeout(
                 () => dispatchAlert({ type: 'SUCCESS', message: `${username} ${SUCCESS}` }),
@@ -97,7 +101,8 @@ const Login: NextPage<any> = () => {
                     disabled={
                       isSubmitting ||
                       (!!errors?.username && !values?.username) ||
-                      (!!errors?.password && !values?.password)
+                      (!!errors?.password && !values?.password) ||
+                      auth.loading
                     }
                     type="submit">
                     Log In

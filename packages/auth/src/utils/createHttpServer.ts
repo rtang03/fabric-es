@@ -5,17 +5,30 @@ import { Redis } from 'ioredis';
 import morgan from 'morgan';
 import passport from 'passport';
 import { ConnectionOptions, createConnection } from 'typeorm';
-import { createClientRoute, createAccountRoute, createOauthRoute, createApiKeyRoute } from '../route';
-import { createTokenRepo, setupPassport } from './index';
+import {
+  createClientRoute,
+  createAccountRoute,
+  createOauthRoute,
+  createApiKeyRoute,
+} from '../route';
+import { createRefreshTokenRepo, createTokenRepo, setupPassport } from './index';
 
 export const createHttpServer: (option: {
   connection: ConnectionOptions;
   jwtSecret: string;
-  expiryInSeconds: number;
+  jwtExpiryInSec: number;
+  refTokenExpiryInSec: number;
   orgAdminSecret: string;
   redis: Redis;
-}) => Promise<express.Express> = async option => {
-  const { connection, jwtSecret, expiryInSeconds, orgAdminSecret, redis } = option;
+}) => Promise<express.Express> = async (option) => {
+  const {
+    connection,
+    jwtSecret,
+    jwtExpiryInSec,
+    refTokenExpiryInSec,
+    orgAdminSecret,
+    redis,
+  } = option;
 
   try {
     await createConnection(connection);
@@ -23,7 +36,8 @@ export const createHttpServer: (option: {
     console.error(e);
     process.exit(1);
   }
-  const tokenRepo = createTokenRepo({ redis, expiryInSeconds });
+  const tokenRepo = createTokenRepo({ redis, jwtExpiryInSec });
+  const refreshTokenRepo = createRefreshTokenRepo({ redis, refTokenExpiryInSec });
 
   const app = express();
   app.use(morgan('dev'));
@@ -36,8 +50,27 @@ export const createHttpServer: (option: {
 
   app.use('/api_key', createApiKeyRoute());
   app.use('/client', createClientRoute());
-  app.use('/oauth', createOauthRoute({ jwtSecret, expiryInSeconds, tokenRepo }));
-  app.use('/account', createAccountRoute({ orgAdminSecret, jwtSecret, expiryInSeconds, tokenRepo }));
+  app.use(
+    '/oauth',
+    createOauthRoute({
+      jwtSecret,
+      jwtExpiryInSec,
+      refTokenExpiryInSec,
+      tokenRepo,
+      refreshTokenRepo,
+    })
+  );
+  app.use(
+    '/account',
+    createAccountRoute({
+      orgAdminSecret,
+      jwtSecret,
+      jwtExpiryInSec,
+      tokenRepo,
+      refreshTokenRepo,
+      refTokenExpiryInSec
+    })
+  );
 
   return app;
 };

@@ -19,7 +19,7 @@ import { reducer, CounterEvent, Counter } from '../../unit-test-reducer';
 import { getLogger, isCommitRecord, waitForSecond } from '../../utils';
 
 /**
- * ./dn-run.1-px-db-red-auth.sh
+ * ./dn-run.1-db-red-auth.sh
  */
 
 let wallet: Wallet;
@@ -264,8 +264,8 @@ describe('Repository Test', () => {
 });
 
 describe('Verify Result', () => {
-  beforeAll(async () => waitForSecond(8));
-  beforeEach(async () => waitForSecond(1));
+  beforeAll(async () => waitForSecond(10));
+  beforeEach(async () => waitForSecond(2));
 
   it('should verify result by getById, after #2 commit', async () =>
     repo.getById({ enrollmentId, id }).then(({ currentState: { value, desc } }) => {
@@ -369,6 +369,8 @@ describe('Verify Result', () => {
       });
     }));
 });
+
+/*
 
 describe('Paginated entity and commit Tests', () => {
   beforeAll(async () => {
@@ -512,3 +514,6 @@ describe('Paginated entity and commit Tests', () => {
         expect(items.map(({ id }) => id)).toEqual([]);
       }));
 });
+
+
+ */

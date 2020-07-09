@@ -6,20 +6,29 @@ export const generateToken: (option: {
   secret: string;
   user_id?: string;
   is_admin?: boolean;
-  expiryInSeconds?: number;
-}) => string = ({ client, user_id, is_admin, secret, expiryInSeconds }) =>
-  expiryInSeconds
+  jwtExpiryInSec?: number;
+}) => string = ({ client, user_id, is_admin, secret, jwtExpiryInSec }) =>
+  jwtExpiryInSec
     ? sign(
         Object.assign(
           {},
           {
-            expires: Date.now() + expiryInSeconds * 1000
+            expires: Date.now() + jwtExpiryInSec * 1000,
           },
           { client_id: client?.id },
           { is_admin },
           { user_id }
         ),
         secret,
-        { expiresIn: expiryInSeconds }
+        { expiresIn: jwtExpiryInSec }
       )
-    : sign(Object.assign({}, { client_id: client?.id }, { is_api_key: true }, { is_admin }, { user_id }), secret);
+    : sign(
+        Object.assign(
+          {},
+          { client_id: client?.id },
+          { is_api_key: true },
+          { is_admin },
+          { user_id }
+        ),
+        secret
+      );

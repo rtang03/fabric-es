@@ -6,3 +6,5 @@ export * from './createHttpServer';
 export * from './bootstrapAuthServer';
 export * from './typeGuard';
 export * from './catchErrors';
+export * from './createRefreshTokenRepo';
+export * from './generateRefreshToken';

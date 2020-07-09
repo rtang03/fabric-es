@@ -1,5 +1,4 @@
 import express from 'express';
-import fetch from 'isomorphic-unfetch';
 import { catchErrors, getLogger, processResult } from '../../utils';
 
 const logger = getLogger({ name: '[ui-account] createGatewayRoute.js' });

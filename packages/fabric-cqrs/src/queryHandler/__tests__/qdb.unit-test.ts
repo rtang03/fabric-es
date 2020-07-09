@@ -7,7 +7,7 @@ import { reducer } from '../../unit-test-reducer';
 import { commit, commits, newCommit, simpleCounterReducer } from './__utils__';
 
 /**
- * ./dn-run.0-px-db-red.sh
+ * .dn-run.0-db-red.sh
  */
 
 let queryDatabase: QueryDatabase;
@@ -212,7 +212,7 @@ describe('Projection db test', () => {
         query: ['handler', 'SORTBY', 'id', 'ASC', 'LIMIT', '0', '0'],
         countTotalOnly: true,
       })
-      .then(({ status, message, result }) => {
+      .then(({ status, result }) => {
         expect(status).toEqual('OK');
         expect(result).toEqual(3);
       }));
@@ -275,7 +275,7 @@ describe('Projection db test', () => {
       })
       .then(({ status, result }) => {
         expect(status).toEqual('OK');
-        expect(omit(result[0], '_reducer', 'ts', '_organization')).toEqual({
+        expect(omit(result[0], 'ts', '_organization')).toEqual({
           value: 2,
           id: 'qh_proj_test_001',
           desc: 'query handler #2 proj',

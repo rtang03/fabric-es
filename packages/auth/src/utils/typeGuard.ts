@@ -5,10 +5,11 @@ import {
   CreateClientRequest,
   CreateClientResponse,
   LoginResponse,
+  RefreshTokenResponse,
   RegisterRequest,
   RegisterResponse,
   UpdateClientRequest,
-  UpdateUserRequest
+  UpdateUserRequest,
 } from '../types';
 
 export const isCreateClientRequest = (input: any): input is CreateClientRequest =>
@@ -48,3 +49,8 @@ export const isUpdateUserRequest = (input: any): input is UpdateUserRequest =>
 
 export const isUpdateClientRequest = (input: any): input is UpdateClientRequest =>
   input?.application_name !== undefined || input?.client_secret !== undefined;
+
+export const isRefreshTokenResponse = (input: any): input is RefreshTokenResponse =>
+  input?.access_token !== undefined &&
+  input?.refresh_token !== undefined &&
+  input?.token_type !== undefined;

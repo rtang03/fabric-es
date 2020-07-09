@@ -2,51 +2,57 @@ import util from 'util';
 import { ApolloError } from '@apollo/client';
 import { ApolloContext } from '../types';
 
-export const catchErrors: <TResponse = any>(
+export const catchErrors: <TBody = any>(
   fetchFunction: (variables: Record<string, string>, context: ApolloContext) => Promise<any>,
   option: {
     fcnName: string;
     useAuth?: boolean;
     typeGuard?: (input: any) => boolean;
-    onSuccess?: (result: TResponse, context: ApolloContext) => any;
+    onSuccess?: (body: TBody, headers: Response['headers'], context: ApolloContext) => any;
+    onError?: (error: any, context: ApolloContext) => any;
   }
 ) => (
   root: null,
   variables: Record<string, string>,
   context: ApolloContext
-) => Promise<TResponse | ApolloError> = (
+) => Promise<TBody | ApolloError> = (
   fetchFunction,
-  { fcnName, useAuth = false, typeGuard, onSuccess }
+  { fcnName, useAuth = false, typeGuard, onSuccess, onError }
 ) => async (root, variables, context) => {
   let response;
 
   try {
     response = await fetchFunction(variables, context);
   } catch (e) {
-    console.error(util.format('%s: fail to fetch, %j', fcnName, e));
-    return new ApolloError(e);
+    console.error(util.format('[catchErrors-1] %s: fail to fetch, %s', fcnName, e.message));
+    return new ApolloError({ errorMessage: e.message });
   }
 
   if (response.status !== 200) {
     const errorMessage = await response.text();
-    console.error(`fail to fetch: code: ${response.status}`);
+    const statusText = response.statusText;
+    console.error(
+      util.format('[catchErrors-2] fail to fetch: %s, message: %s', response.status, errorMessage)
+    );
+
+    onError?.({ errorMessage, statusText }, context);
 
     return new ApolloError({ errorMessage });
   }
 
   try {
-    const result = await response.json();
+    const body = await response.json();
 
-    onSuccess?.(result, context);
+    onSuccess?.(body, response.headers, context);
 
     if (typeGuard)
-      return typeGuard(result)
-        ? result
+      return typeGuard(body)
+        ? body
         : new ApolloError({ errorMessage: 'unexpected response format' });
 
-    return result;
+    return body;
   } catch (e) {
-    console.error(util.format('%s: fail to parse json, %j', fcnName, e));
-    return new ApolloError(e);
+    console.error(util.format('[catchErrors-3] %s: fail to parse json, %j', fcnName, e));
+    return new ApolloError({ errorMessage: e.message });
   }
 };

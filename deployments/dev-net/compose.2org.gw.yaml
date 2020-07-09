@@ -17,7 +17,7 @@ services:
       - ORG_ADMIN_SECRET=admin-org2.netPW
       - GATEWAY_HOST=gw-org2
       - REDIS_HOST=redis02
-      - QUERY_HANDLER_PORT=5002
+      - QUERY_PORT=5002
       - REMOTE_URI=http://gw-org1:4001/graphql\ http://gw-org3:4001/graphql
     working_dir: /home/app/packages/gw-org2
     ports:

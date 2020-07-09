@@ -15,6 +15,7 @@ services:
       - $ARTIFACTS/postgres01:/var/lib/postgresql/data
       - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
     command: postgres
+    # this open port for development, should be removed for production
     ports:
       - 5432:5432
     networks:
@@ -27,6 +28,7 @@ services:
       - $VOLUME/redis-data01:/data
     # custom configuration. will require if AUTH is set
     # - $VOLUME/redis.conf:/usr/local/etc/redis/redis.conf
+    # this open port for development, should be removed for production
     ports:
       - 6379:6379
     networks:

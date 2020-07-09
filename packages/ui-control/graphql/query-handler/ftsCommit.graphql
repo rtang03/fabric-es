@@ -1,0 +1,23 @@
+query FTSCommit (
+    $query: String!
+    $cursor: Int
+    $pagesize: Int
+   ) {
+    fullTextSearchCommit (
+      query: $query
+      cursor: $cursor
+      pagesize: $pagesize
+    ) {
+      total
+      hasMore
+      cursor
+      items {
+        id
+        entityName
+        version
+        commitId
+        entityId
+        eventsString
+      }
+    }
+  }

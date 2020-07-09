@@ -25,7 +25,7 @@
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
     "clean": "rimraf dist",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
-    "generate-types-for-admin": "(broke) graphql-codegen --config src/generated/codegen.yml",
+    "gen-t-resolver:qh": "graphql-codegen --config src/generated/qh-codegen.yml",
     "enrollAdmin": "node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
     "unit-test:fab": "yarn unit-test-counter && yarn unit-test-qh",

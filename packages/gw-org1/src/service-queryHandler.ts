@@ -1,6 +1,6 @@
 require('./env');
 import util from 'util';
-import { getReducer } from '@fabric-es/fabric-cqrs';
+import { counterReducer, getReducer } from '@fabric-es/fabric-cqrs';
 import { createQueryHandlerService, getLogger } from '@fabric-es/gateway-lib';
 import { User, UserEvents, userReducer } from '@fabric-es/model-common';
 import {
@@ -30,9 +30,10 @@ const logger = getLogger('[query-handler] app.js');
     loan: getReducer<Loan, LoanEvents>(loanReducer),
     docContents: getReducer<DocContents, DocContentsEvents>(docContentsReducer),
     user: getReducer<User, UserEvents>(userReducer),
+    counter: counterReducer
   };
 
-  const { server } = await createQueryHandlerService(['document', 'loan', 'docContents', 'user'], {
+  const { server } = await createQueryHandlerService(['document', 'loan', 'docContents', 'user', 'counter'], {
     redisOptions,
     asLocalhost: !(process.env.NODE_ENV === 'production'),
     channelName: process.env.CHANNEL_NAME,
