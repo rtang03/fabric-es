@@ -87,3 +87,5 @@ deployments/operations
 NOTE.md
 configtxgen
 genesis.block
+
+.mockyeah.json
