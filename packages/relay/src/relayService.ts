@@ -3,7 +3,6 @@ import fs from 'fs';
 import http from 'http';
 import https from 'https';
 import util from 'util';
-import bodyParser from 'body-parser';
 import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import RedisClient, { Redis } from 'ioredis';
@@ -225,8 +224,8 @@ export const relayService = ({
   });
 
   const relayApp = express();
-  relayApp.use(bodyParser.urlencoded({ extended: true }));
-  relayApp.use(bodyParser.json());
+  relayApp.use(express.urlencoded({ extended: true }));
+  relayApp.use(express.json());
   relayApp.use('', apiProxy);
 
   return relayApp;
