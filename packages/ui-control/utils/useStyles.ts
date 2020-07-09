@@ -7,15 +7,13 @@ export const useStyles = makeStyles((theme: Theme) => ({
     },
   },
   root: {
-    '& > *': {
-      marginTop: theme.spacing(2),
-    },
+    // '& > *': {
+    //   marginTop: theme.spacing(2),
+    // },
     flexGrow: 1,
-    display: 'flex',
-    flexWrap: 'wrap',
   },
-  grow: {
-    flexGrow: 1,
+  menuButton: {
+    marginRight: theme.spacing(2),
   },
   paper: {
     marginTop: theme.spacing(8),

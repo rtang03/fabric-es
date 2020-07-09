@@ -19,7 +19,7 @@ import React, { useState } from 'react';
 import { getValidationSchema, useStyles } from 'utils';
 import * as yup from 'yup';
 
-const validationSchema = yup.object(getValidationSchema(['username', 'email']));
+const validationSchema = yup.object(getValidationSchema(['email']));
 const ERROR = 'Fail to update profile';
 const message = 'Profile updated';
 
@@ -72,10 +72,10 @@ const Profile: NextPage<any> = () => {
           />
         </FormGroup>
         <Formik
-          initialValues={{ username, email }}
+          initialValues={{ email }}
           validateOnChange={true}
           validationSchema={validationSchema}
-          onSubmit={async ({ username, email }, { setSubmitting }) => {
+          onSubmit={async ({ email }, { setSubmitting }) => {
             setSubmitting(true);
             try {
               const response = await updateProfile({ variables: { id, email, username } });
@@ -93,19 +93,19 @@ const Profile: NextPage<any> = () => {
           {({ values, errors, isSubmitting }) => (
             <Form>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Field
-                    label="Username"
-                    disabled={!edit}
-                    component={TextField}
-                    name="username"
-                    placeholder="username"
-                    variant="outlined"
-                    margin="normal"
-                    fullwidth="true"
-                    autoFocus
-                  />{' '}
-                </Grid>
+                {/* <Grid item xs={12}> */}
+                {/*  <Field*/}
+                {/*    label="Username"*/}
+                {/*    disabled={!edit}*/}
+                {/*    component={TextField}*/}
+                {/*    name="username"*/}
+                {/*    placeholder="username"*/}
+                {/*    variant="outlined"*/}
+                {/*    margin="normal"*/}
+                {/*    fullwidth="true"*/}
+                {/*    autoFocus*/}
+                {/*  />{' '} */}
+                {/* </Grid> */}
                 <Grid item xs={12}>
                   <Field
                     label="Email"
@@ -123,12 +123,7 @@ const Profile: NextPage<any> = () => {
                     className={classes.submit}
                     variant="contained"
                     color="primary"
-                    disabled={
-                      isSubmitting ||
-                      (values?.username === username && values?.email === email) ||
-                      !!errors?.username ||
-                      !!errors?.email
-                    }
+                    disabled={isSubmitting || values?.email === email || !!errors?.email}
                     type="submit">
                     Update
                   </Button>

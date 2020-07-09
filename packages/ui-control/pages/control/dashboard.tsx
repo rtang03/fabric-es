@@ -1,7 +1,9 @@
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
+import AddBoxIcon from '@material-ui/icons/AddBox';
 import ChangeHistoryIcon from '@material-ui/icons/ChangeHistory';
 import FindInPageIcon from '@material-ui/icons/FindInPage';
+import ListAltIcon from '@material-ui/icons/ListAlt';
 import Pagination from '@material-ui/lab/Pagination';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
@@ -79,12 +81,20 @@ const Dashboard: NextPage<any> = () => {
           exclusive
           value={findBy}
           onChange={handleFindBy}>
+          <ToggleButton value="loaded" aria-label="loaded entity">
+            <ListAltIcon />
+            Loaded
+          </ToggleButton>
           <ToggleButton value="entity" aria-label="find by entity">
             <FindInPageIcon />
-            Entity
+            By Type
           </ToggleButton>
           <ToggleButton value="commit" aria-label="find by commit">
             <ChangeHistoryIcon />
+            History
+          </ToggleButton>
+          <ToggleButton value="newcommit" aria-label="new commit">
+            <AddBoxIcon />
             Commit
           </ToggleButton>
         </ToggleButtonGroup>

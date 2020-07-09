@@ -41,42 +41,51 @@ const Wallet: React.FC<any> = () => {
           <div>Type: {wallet.type}</div>
           <br />
           <div>Msp ID: {wallet.mspId}</div>
-          <p>WARNING: For production deployment, signing certificate needs to remove. </p>
+          <p>
+            <Typography variant="caption" color="secondary">
+              WARNING: For production deployment, signing certificate needs to remove.
+            </Typography>
+          </p>
           <div>Certificate: {wallet.certificate}</div>
         </>
       ) : (
         <p>No wallet found. You may create new wallet. Once created, cannot be removed.</p>
       )}
       <br />
-      <Formik
-        initialValues={{}}
-        onSubmit={async (_, { setSubmitting }) => {
-          setSubmitting(true);
-          try {
-            const response = await create();
-            if (response?.data?.createWallet) {
-              await refetch();
-              dispatchAlert({ type: 'SUCCESS', message });
+      {wallet ? (
+        <React.Fragment />
+      ) : (
+        <Formik
+          initialValues={{}}
+          onSubmit={async (_, { setSubmitting }) => {
+            setSubmitting(true);
+            try {
+              const response = await create();
+              if (response?.data?.createWallet) {
+                await refetch();
+                dispatchAlert({ type: 'SUCCESS', message });
+              }
+              setSubmitting(false);
+            } catch (e) {
+              console.error(e);
+              setSubmitting(false);
             }
-            setSubmitting(false);
-          } catch (e) {
-            console.error(e);
-            setSubmitting(false);
-          }
-        }}>
-        {({ isSubmitting }) => (
-          <Form>
-            <Button
-              className={classes.submit}
-              variant="contained"
-              color="primary"
-              disabled={isSubmitting || !!wallet}
-              type="submit">
-              Create Wallet
-            </Button>
-          </Form>
-        )}
-      </Formik>
+          }}>
+          {({ isSubmitting }) => (
+            <Form>
+              <br />
+              <Button
+                className={classes.submit}
+                variant="contained"
+                color="primary"
+                disabled={isSubmitting || !!wallet}
+                type="submit">
+                Create Wallet
+              </Button>
+            </Form>
+          )}
+        </Formik>
+      )}
     </Container>
   );
 };
