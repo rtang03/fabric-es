@@ -8,7 +8,6 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import { Form, Formik } from 'formik';
-import fetch from 'isomorphic-unfetch';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
 import { NextPage } from 'next';

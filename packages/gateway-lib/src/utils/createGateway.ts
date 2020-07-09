@@ -90,6 +90,7 @@ export const createGateway: (option: {
   });
 
   const app = express();
+  app.use(bodyParser.urlencoded({ extended: false }));
   app.use(morgan('dev'));
 
   app.get('/gw_org/isalive', (_, res) => res.status(204).send({ data: 'hi' }));

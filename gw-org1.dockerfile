@@ -32,9 +32,6 @@ VOLUME /home/app/packages/gw-org1/assets /home/app/packages/gw-org2/connection /
 
 WORKDIR /home/app/packages/gw-org1
 
-EXPOSE 4001
-EXPOSE 5001
-
 ENTRYPOINT ["entrypoint.sh"]
 
 CMD ["gateway", "admin user loan document docContents rLoanDetails queryHandler"]

@@ -2,7 +2,7 @@ import type { BaseEntity, Commit, QueryHandlerEntity, Paginated } from '@fabric-
 import { ApolloError } from 'apollo-server';
 import { withFilter } from 'graphql-subscriptions';
 import assign from 'lodash/assign';
-import values from 'lodash/values';
+import { Resolvers } from '../generated';
 import type { QueryHandlerGqlCtx } from '../types';
 import { getLogger } from '../utils';
 import { catchErrors } from '../utils/catchErrors';
@@ -26,11 +26,10 @@ const parseEntity = (data: BaseEntity[]) =>
         created: entity?._created || 0,
         lastModified: entity?._ts || 0,
         timeline: entity?._timeline,
-        reducer: entity?._reducer,
       }))
-    : null;
+    : [];
 
-export const resolvers = {
+export const resolvers: Resolvers = {
   Mutation: {
     ping: async (_, { message }, { pubSub }: QueryHandlerGqlCtx) => {
       await pubSub.publish(DEV, { pong: message });
@@ -49,7 +48,7 @@ export const resolvers = {
       },
       { fcnName: 'reloadEntity', useAuth: false, useAdmin: false, logger }
     ),
-    createCommit: catchErrors(
+    createCommit: catchErrors<Commit>(
       async (
         _,
         {
@@ -68,19 +67,19 @@ export const resolvers = {
           .create(entityName)({ enrollmentId: 'admin-org1.net', id })
           .save({ events: [{ type, payload }] });
 
-        return values<Commit>(data)[0];
+        return data;
       },
       { fcnName: 'createCommit', useAuth: false, useAdmin: false, logger }
     ),
   },
   Query: {
     me: () => 'Hello',
-    fullTextSearchCommit: catchErrors<Paginated<Commit> | ApolloError>(
+    fullTextSearchCommit: catchErrors<Paginated<Commit>>(
       async (
         _,
         { query, cursor = 0, pagesize = 10 }: { query: string; cursor?: number; pagesize?: number },
         { queryHandler }: QueryHandlerGqlCtx
-      ): Promise<Paginated<Commit> | ApolloError> => {
+      ): Promise<Paginated<Commit>> => {
         const filtered = query.split(' ').filter((item) => !!item);
         const dataOption = ['SORTBY', 'ts', 'DESC'];
 
@@ -90,23 +89,24 @@ export const resolvers = {
           pagesize
         );
 
-        return status !== 'OK'
-          ? new ApolloError(JSON.stringify(error))
-          : {
-              ...data,
-              items: data.items.map((commit) =>
-                assign(commit, { eventsString: JSON.stringify(commit.events) })
-              ),
-            };
+        if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+        return {
+          ...data,
+          items:
+            data.items?.map((commit) =>
+              assign(commit, { eventsString: JSON.stringify(commit.events) })
+            ) || [],
+        };
       },
       { fcnName: 'fullTextSearchCommit', useAdmin: false, useAuth: false, logger }
     ),
-    fullTextSearchEntity: catchErrors<Paginated<QueryHandlerEntity> | ApolloError>(
+    fullTextSearchEntity: catchErrors<Paginated<QueryHandlerEntity>>(
       async (
         _,
         { query, cursor = 0, pagesize = 10 }: { query: string; cursor?: number; pagesize?: number },
         { queryHandler }: QueryHandlerGqlCtx
-      ): Promise<Paginated<QueryHandlerEntity> | ApolloError> => {
+      ): Promise<Paginated<QueryHandlerEntity>> => {
         const filtered = query.split(' ').filter((item) => !!item);
         const dataOption = ['SORTBY', 'ts', 'DESC'];
 
@@ -116,13 +116,13 @@ export const resolvers = {
           pagesize
         );
 
-        return status !== 'OK'
-          ? new ApolloError(JSON.stringify(error))
-          : { ...data, items: parseEntity(data.items) };
+        if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+        return { ...data, items: parseEntity(data.items) };
       },
       { fcnName: 'fullTextSearchEntity', useAdmin: false, useAuth: false, logger }
     ),
-    paginatedEntity: catchErrors<Paginated<QueryHandlerEntity> | ApolloError>(
+    paginatedEntity: catchErrors<Paginated<QueryHandlerEntity>>(
       async (
         _,
         criteria: {
@@ -138,7 +138,7 @@ export const resolvers = {
           sort: 'ASC' | 'DESC';
         },
         { queryHandler }: QueryHandlerGqlCtx
-      ): Promise<Paginated<QueryHandlerEntity> | ApolloError> => {
+      ): Promise<Paginated<QueryHandlerEntity>> => {
         !criteria.cursor && (criteria.cursor = 0);
         !criteria.pagesize && (criteria.pagesize = 10);
 
@@ -148,13 +148,13 @@ export const resolvers = {
           id
         );
 
-        return status !== 'OK'
-          ? new ApolloError(JSON.stringify(error))
-          : { ...data, items: parseEntity(data.items) };
+        if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+        return { ...data, items: parseEntity(data.items) };
       },
       { fcnName: 'paginatedMetaEntity', useAdmin: false, useAuth: false, logger }
     ),
-    paginatedCommit: catchErrors<Paginated<Commit> | ApolloError>(
+    paginatedCommit: catchErrors<Paginated<Commit>>(
       async (
         _,
         criteria: {
@@ -170,7 +170,7 @@ export const resolvers = {
           sort: 'ASC' | 'DESC';
         },
         { queryHandler }: QueryHandlerGqlCtx
-      ): Promise<Paginated<Commit> | ApolloError> => {
+      ): Promise<Paginated<Commit>> => {
         !criteria.cursor && (criteria.cursor = 0);
         !criteria.pagesize && (criteria.pagesize = 10);
 
@@ -180,7 +180,9 @@ export const resolvers = {
           id
         );
 
-        return status !== 'OK' ? new ApolloError(JSON.stringify(error)) : data;
+        if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+        return data;
       },
       { fcnName: 'paginatedCommit', useAdmin: false, useAuth: false, logger }
     ),

@@ -1,11 +1,10 @@
 import util from 'util';
 import { Response } from 'express';
 import httpStatus from 'http-status';
-import fetch from 'isomorphic-unfetch';
 import { Logger } from 'winston';
 
 export const processResult: (option: {
-  response: fetch.IsomorphicResponse;
+  response: any;
   res: Response;
   fcnName: string;
   logger: Logger;

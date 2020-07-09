@@ -1,4 +1,5 @@
 require('dotenv').config({ path: './.env.test' });
+import cookie from 'cookie';
 import express from 'express';
 import httpStatus from 'http-status';
 import Redis from 'ioredis';
@@ -14,12 +15,13 @@ import {
   isAuthenticateResponse,
   isCreateClientResponse,
   isLoginResponse,
+  isRefreshTokenResponse,
   isRegisterResponse,
 } from '../utils';
 import { createDbForUnitTest } from './__utils__/createDbForUnitTest';
 
 /**
- * pre-requisite: requires a running postgres, and redis, e.g. ./dn-run.2-px-db-red.sh
+ * ./dn-run.0-db-red.sh
  */
 
 const connection = {
@@ -46,6 +48,8 @@ let non_root_user_id: string;
 let access_token: string;
 let non_root_access_token: string;
 let api_key: string;
+let refresh_token: string;
+let non_root_refresh_token: string;
 
 beforeAll(async () => {
   try {
@@ -63,7 +67,8 @@ beforeAll(async () => {
     app = await createHttpServer({
       connection,
       jwtSecret: process.env.JWT_SECRET,
-      expiryInSeconds: parseInt(process.env.JWT_EXP_IN_SECOND, 10),
+      jwtExpiryInSec: parseInt(process.env.JWT_EXP_IN_SECOND, 10),
+      refTokenExpiryInSec: parseInt(process.env.REFRESH_TOKEN_EXP_IN_SEC, 10),
       orgAdminSecret: process.env.ORG_ADMIN_SECRET,
       redis,
     });
@@ -83,7 +88,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   redis.disconnect();
-  return new Promise((done) => setTimeout(() => done(), 10));
+  return new Promise((done) => setTimeout(() => done(), 2000));
 });
 
 describe('Auth Tests - / and /account', () => {
@@ -91,7 +96,9 @@ describe('Auth Tests - / and /account', () => {
     request(app)
       .post('/account')
       .send({ username: 'tester02', email: 'tester01@example.com' })
-      .expect(({ body }) => expect(body?.error).toEqual('missing params - username, password, email')));
+      .expect(({ body }) =>
+        expect(body?.error).toEqual('missing params - username, password, email')
+      ));
 
   it('should register (org admin) user', async () =>
     request(app)
@@ -127,6 +134,7 @@ describe('Auth Tests - / and /account', () => {
       .post('/account/login')
       .send({ username: 'tester01', password: 'password01' })
       .expect(({ body, header }) => {
+        refresh_token = cookie.parse(header['set-cookie'][0]).rt;
         user_id = body.id;
         access_token = body.access_token;
         expect(!!header['set-cookie']).toBeTruthy();
@@ -138,6 +146,7 @@ describe('Auth Tests - / and /account', () => {
       .post('/account/login')
       .send({ username: 'non-root', password: 'password02' })
       .expect(({ body, header }) => {
+        non_root_refresh_token = cookie.parse(header['set-cookie'][0]).rt;
         non_root_user_id = body.id;
         non_root_access_token = body.access_token;
         expect(!!body?.id).toBeTruthy();
@@ -329,7 +338,7 @@ describe('Auth Tests - /client', () => {
         redirect_uris: 'http://example.com/callback',
         grants: ['password', 'implicit'],
       })
-      .expect(({ body, status }) => expect(status).toEqual(httpStatus.NOT_FOUND)));
+      .expect(({ status }) => expect(status).toEqual(httpStatus.NOT_FOUND)));
 
   it('should update my client by (org admin) user', async () =>
     request(app)
@@ -401,14 +410,18 @@ describe('Auth Tests - /oauth', () => {
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(`client_id=${client_id}&client_secret=badpassword&grant_type=client_credentials&scope=default`)
+      .send(
+        `client_id=${client_id}&client_secret=badpassword&grant_type=client_credentials&scope=default`
+      )
       .expect(({ body }) => expect(body).toEqual({})));
 
   it('should exchange access_token with client_credential', async () =>
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(`client_id=${client_id}&client_secret=password&grant_type=client_credentials&scope=default`)
+      .send(
+        `client_id=${client_id}&client_secret=password&grant_type=client_credentials&scope=default`
+      )
       .expect(({ body }) => {
         api_key = body.access_token;
         expect(typeof body?.access_token).toEqual('string');
@@ -425,7 +438,9 @@ describe('Auth Tests - /oauth', () => {
     request(app)
       .post('/oauth/token')
       .set('Context-Type', 'application/x-www-form-urlencoded')
-      .send(`client_id=${client_id}&client_secret=password&username=tester01&password=password01&grant_type=password`)
+      .send(
+        `client_id=${client_id}&client_secret=password&username=tester01&password=password01&grant_type=password`
+      )
       .expect(({ body }) => {
         expect(typeof body?.access_token).toEqual('string');
         expect(body?.token_type).toEqual('Bearer');
@@ -442,6 +457,17 @@ describe('Auth Tests - /oauth', () => {
       .delete(`/api_key/${api_key}`)
       .expect(({ body }) => expect(body?.ok).toBeTruthy()));
 
+  it('should refresh token', async () =>
+    request(app)
+      .post('/oauth/refresh_token')
+      // .set('authorization', `Bearer ${access_token}`)
+      .set('Context-Type', 'application/x-www-form-urlencoded')
+      .send(`refresh_token=${refresh_token}&grant_type=refresh_token`)
+      .expect(({ body, status }) => {
+        expect(status).toEqual(200);
+        expect(isRefreshTokenResponse(body)).toBeTruthy();
+      }));
+
   it('should fail to authenicate after waiting 10s, token expires', async () => {
     const timer = new Promise((resolve) => setTimeout(() => resolve(true), 10000));
     await timer;
@@ -449,7 +475,7 @@ describe('Auth Tests - /oauth', () => {
     return request(app)
       .post('/oauth/authenticate')
       .set('authorization', `Bearer ${access_token}`)
-      .expect(({ body, status, error }) => {
+      .expect(({ body, status }) => {
         expect(status).toEqual(httpStatus.UNAUTHORIZED);
         expect(body).toEqual({});
       });

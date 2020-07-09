@@ -6,7 +6,7 @@ import type { RedisOptions } from 'ioredis';
 import { getLogger } from '../utils';
 import { createQueryHandlerService } from './createQueryHandlerService';
 
-const port = parseInt(process.env.PORT, 10) || 5000;
+const port = parseInt(process.env.QUERY_PORT, 10) || 5001;
 const logger = getLogger('[query-handler] app.js');
 
 (async () => {

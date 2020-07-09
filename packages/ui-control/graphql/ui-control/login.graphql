@@ -1,0 +1,15 @@
+mutation Login(
+  $username: String!
+  $password: String!
+ ) {
+  login(
+    username: $username
+    password: $password
+    ) {
+      id
+      access_token
+      username
+      token_type
+      jwtExpiryInSec
+    }
+}

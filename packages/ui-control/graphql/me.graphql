@@ -1,8 +1,0 @@
-query ME {
-  me {
-    id
-    username
-    is_deleted
-    is_admin
-  }
-}

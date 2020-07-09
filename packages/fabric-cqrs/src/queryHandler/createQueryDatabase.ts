@@ -227,7 +227,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         );
         currentState._entityName = entityName;
         currentState._timeline = _timeline;
-        currentState._reducer = reducer.toString();
+        // currentState._reducer = reducer.toString();
 
         // if no id existed in the computed entity, will be considered as error
         if (!currentState?.id) {
@@ -311,7 +311,6 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
               { _commit },
               { _timeline },
               { _entityName: entityName },
-              { _reducer: reducer.toString() },
               reduced,
               trackingReducer(values(group[id]))
             )

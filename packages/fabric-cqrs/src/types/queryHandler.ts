@@ -70,7 +70,6 @@ export interface QueryHandler {
   ) => (option: {
     enrollmentId: string;
     id: string;
-    // reducer?: Reducer;
   }) => Promise<{
     currentState: TEntity;
     save: SaveFcn<TEvent>;

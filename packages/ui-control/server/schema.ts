@@ -1,64 +1,141 @@
-import { gql } from '@apollo/client/core';
+import cookie from 'cookie';
 import { makeExecutableSchema } from 'graphql-tools';
-import fetch from 'isomorphic-unfetch';
-import { ApolloContext, LoginResponse, RegisterResponse, User } from '../types';
-import { catchErrors, isLoginResponse, isRegisterResponse } from '../utils';
+import {
+  ApolloContext,
+  LoginResponse,
+  RefreshTokenResponse,
+  RegisterResponse,
+  UpdateProfileResponse,
+  User,
+} from '../types';
+import {
+  catchErrors,
+  isLoginResponse,
+  isRefreshTokenResponse,
+  isRegisterResponse,
+  isUpdateProfileResponse,
+  isUser,
+} from '../utils';
+import { typeDefs } from './typeDefs';
+
+const initConfig = {
+  method: 'POST',
+  mode: 'cors' as any,
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+  },
+};
+
+// TODO: need fix secure
+const cookieOption = { httpOnly: true, secure: false, sameSite: true, path: '/control' };
 
 export const resolvers = {
   Query: {
+    ping: async () => 'pong',
+    // me returns the userinfo from an authtenticated request
     me: catchErrors<User>(
-      (_: any, { authUri, token }) =>
-        fetch(`${authUri}/account/userinfo`, {
+      (_: any, ctx) => {
+        // Debug
+        // console.log('[schema.tsx] =======me is called==========');
+
+        if (!ctx?.accessToken) return Promise.reject(new Error('No access token'));
+
+        return fetch(`${ctx.authUri}/account/userinfo`, {
           headers: {
             'Access-Control-Allow-Origin': '*',
-            authorization: `bearer ${token}`,
+            authorization: `bearer ${ctx.accessToken}`,
           },
           mode: 'cors',
-        }),
-      { fcnName: 'me' }
+        });
+      },
+      { fcnName: 'me', typeGuard: isUser }
     ),
   },
   Mutation: {
+    refreshToken: catchErrors<RefreshTokenResponse>(
+      (_, { authUri, refreshToken }) => {
+        // Debug
+        // console.log('[schema.tsx] ===refreshToken is called===', refreshToken);
+
+        if (!refreshToken) return Promise.reject(new Error('No refresh token'));
+
+        // follow Oauth specification
+        return fetch(`${authUri}/oauth/refresh_token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: `refresh_token=${refreshToken}&grant_type=refresh_token`,
+          mode: 'cors',
+        });
+      },
+      {
+        fcnName: 'refreshToken',
+        typeGuard: isRefreshTokenResponse,
+        onSuccess: ({ refresh_token }, headers, { res, refreshToken: oldrt }) => {
+          // Debug
+          // console.log(`[schema.tsx] ==refresh-ok === ${oldrt} is removed`);
+
+          // accessToken expiry is currently not used. Still, add to res, and returning to client, for future use
+          // the alternative implementation may later add a countdown timer, to renew the accessToken automatically
+          res.append('jwtexpiryinsec', headers.get('jwtexpiryinsec') || '');
+
+          // refreshToken will expire at Auth-Server and client cookie at the same time
+          res.append('reftokenexpiryinsec', headers.get('reftokenexpiryinsec') || '');
+
+          res.cookie('rt', refresh_token, {
+            ...cookieOption,
+            maxAge: 1000 * parseInt(headers.get('reftokenexpiryinsec') || '', 10),
+          });
+        },
+      }
+    ),
     register: catchErrors<RegisterResponse>(
       ({ username, password, email }, { authUri }) =>
         fetch(`${authUri}/account`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          ...initConfig,
           body: JSON.stringify({ username, password, email }),
-          mode: 'cors',
         }),
-      {
-        fcnName: 'register',
-        typeGuard: isRegisterResponse,
-      }
+      { fcnName: 'register', typeGuard: isRegisterResponse }
     ),
     login: catchErrors<LoginResponse>(
       ({ username, password }, { authUri }) =>
         fetch(`${authUri}/account/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          ...initConfig,
           body: JSON.stringify({ username, password }),
-          mode: 'cors',
         }),
       {
         fcnName: 'login',
         typeGuard: isLoginResponse,
-        onSuccess: ({ access_token }, { res }) =>
-          res.cookie('token', access_token, {
-            httpOnly: true,
-            secure: false,
-            maxAge: 1000 * 60 * 60 * 24 * 31,
-          }),
+        onSuccess: (_, headers, { res }) => {
+          // set refreshToken
+          const refreshToken = cookie.parse(headers.get('set-cookie') || '')?.rt;
+
+          res.cookie('rt', refreshToken, {
+            ...cookieOption,
+            maxAge: 1000 * parseInt(headers.get('reftokenexpiryinsec') || '', 10),
+          });
+        },
       }
     ),
+    updateProfile: catchErrors<UpdateProfileResponse>(
+      ({ id, username, email }, { authUri, accessToken }) =>
+        fetch(`${authUri}/account/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            authorization: `bearer ${accessToken}`,
+          },
+          mode: 'cors',
+          body: JSON.stringify({ username, email }),
+        }),
+      { fcnName: 'updateProfile', typeGuard: isUpdateProfileResponse }
+    ),
     logout: (_: any, __: any, { res }: ApolloContext) => {
-      res.clearCookie('token');
+      res.cookie('rt', '', { ...cookieOption, maxAge: 0 });
       return true;
     },
     forget: (_: any, { email }: { email: string }) => {
@@ -71,39 +148,5 @@ export const resolvers = {
     },
   },
 };
-
-export const typeDefs = gql`
-  type Query {
-    me: User!
-  }
-
-  type User {
-    id: String!
-    username: String!
-    is_deleted: Boolean!
-    is_admin: Boolean!
-    password: String!
-  }
-
-  type Mutation {
-    register(email: String!, password: String!, username: String!): RegisteredUser
-    login(password: String!, username: String!): LoggedInUser
-    logout: Boolean
-    forget(email: String!): Boolean
-    reset(password: String!, password2: String!): Boolean
-  }
-
-  type RegisteredUser {
-    username: String!
-    id: String!
-  }
-
-  type LoggedInUser {
-    username: String!
-    id: String!
-    access_token: String!
-    token_type: String!
-  }
-`;
 
 export const schema = makeExecutableSchema({ typeDefs, resolvers });

@@ -8,3 +8,4 @@ export * from './allowAccessResponse';
 export * from './createClientResponse';
 export * from './updateUserRequest';
 export * from './updateClientRequest';
+export * from './refreshTokenResonse';
