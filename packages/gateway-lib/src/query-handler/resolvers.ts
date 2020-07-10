@@ -1,4 +1,10 @@
-import type { BaseEntity, Commit, QueryHandlerEntity, Paginated } from '@fabric-es/fabric-cqrs';
+import type {
+  BaseEntity,
+  Commit,
+  QueryHandlerEntity,
+  Paginated,
+  EntityInfo,
+} from '@fabric-es/fabric-cqrs';
 import { ApolloError } from 'apollo-server';
 import { withFilter } from 'graphql-subscriptions';
 import assign from 'lodash/assign';
@@ -29,7 +35,7 @@ const parseEntity = (data: BaseEntity[]) =>
       }))
     : [];
 
-export const resolvers: Resolvers = {
+export const resolvers = {
   Mutation: {
     ping: async (_, { message }, { pubSub }: QueryHandlerGqlCtx) => {
       await pubSub.publish(DEV, { pong: message });
@@ -46,7 +52,7 @@ export const resolvers: Resolvers = {
         await reconcile(entityNames, queryHandler, logger);
         return true;
       },
-      { fcnName: 'reloadEntity', useAuth: false, useAdmin: false, logger }
+      { fcnName: 'reloadEntity', useAuth: true, useAdmin: true, logger }
     ),
     createCommit: catchErrors<Commit>(
       async (
@@ -57,23 +63,32 @@ export const resolvers: Resolvers = {
           type,
           payloadString,
         }: { entityName: string; id: string; type: string; payloadString: string },
-        { queryHandler }: QueryHandlerGqlCtx
+        { queryHandler, username }: QueryHandlerGqlCtx
       ) => {
         const payload = JSON.parse(payloadString);
 
-        // TODO: add auth to here.
-
-        const { data } = await queryHandler
-          .create(entityName)({ enrollmentId: 'admin-org1.net', id })
-          .save({ events: [{ type, payload }] });
-
-        return data;
+        return await queryHandler
+          .create(entityName)({ enrollmentId: username, id })
+          .save({ events: [{ type, payload }] })
+          .then(({ data }) => data);
       },
-      { fcnName: 'createCommit', useAuth: false, useAdmin: false, logger }
+      { fcnName: 'createCommit', useAuth: true, useAdmin: false, logger }
     ),
   },
   Query: {
     me: () => 'Hello',
+    getEntityInfo: catchErrors<EntityInfo[]>(
+      async (_, __, { entityNames, queryHandler }: QueryHandlerGqlCtx) => {
+        const result = [];
+        for await (const entityName of entityNames) {
+          const { data, error } = await queryHandler.queryGetEntityInfo({ entityName });
+          !error && result.push({ entityName, ...data });
+        }
+
+        return result;
+      },
+      { fcnName: 'getEntityInfo', useAdmin: false, useAuth: true, logger }
+    ),
     fullTextSearchCommit: catchErrors<Paginated<Commit>>(
       async (
         _,
@@ -99,7 +114,7 @@ export const resolvers: Resolvers = {
             ) || [],
         };
       },
-      { fcnName: 'fullTextSearchCommit', useAdmin: false, useAuth: false, logger }
+      { fcnName: 'fullTextSearchCommit', useAdmin: false, useAuth: true, logger }
     ),
     fullTextSearchEntity: catchErrors<Paginated<QueryHandlerEntity>>(
       async (
@@ -120,7 +135,7 @@ export const resolvers: Resolvers = {
 
         return { ...data, items: parseEntity(data.items) };
       },
-      { fcnName: 'fullTextSearchEntity', useAdmin: false, useAuth: false, logger }
+      { fcnName: 'fullTextSearchEntity', useAdmin: false, useAuth: true, logger }
     ),
     paginatedEntity: catchErrors<Paginated<QueryHandlerEntity>>(
       async (
@@ -152,7 +167,7 @@ export const resolvers: Resolvers = {
 
         return { ...data, items: parseEntity(data.items) };
       },
-      { fcnName: 'paginatedMetaEntity', useAdmin: false, useAuth: false, logger }
+      { fcnName: 'paginatedMetaEntity', useAdmin: false, useAuth: true, logger }
     ),
     paginatedCommit: catchErrors<Paginated<Commit>>(
       async (
@@ -184,7 +199,7 @@ export const resolvers: Resolvers = {
 
         return data;
       },
-      { fcnName: 'paginatedCommit', useAdmin: false, useAuth: false, logger }
+      { fcnName: 'paginatedCommit', useAdmin: false, useAuth: true, logger }
     ),
   },
   Subscription: {

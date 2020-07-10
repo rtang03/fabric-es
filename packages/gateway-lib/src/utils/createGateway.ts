@@ -2,7 +2,6 @@ import util from 'util';
 import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import { ApolloServer } from 'apollo-server-express';
 import bodyParser from 'body-parser';
-import Cookie from 'cookie';
 import express, { Express } from 'express';
 import httpStatus from 'http-status';
 import morgan from 'morgan';
@@ -54,12 +53,7 @@ export const createGateway: (option: {
     playground: true,
     subscriptions: false,
     context: async ({ req: { headers } }) => {
-      const cookies = Cookie.parse(headers.cookie || '');
-      const token = cookies?.jid
-        ? cookies.jid
-        : headers?.authorization
-        ? headers.authorization.split(' ')[1]
-        : null;
+      const token = headers?.authorization?.split(' ')[1] || null;
 
       if (!token) return {};
 
@@ -70,7 +64,7 @@ export const createGateway: (option: {
         });
 
         if (response.status !== httpStatus.OK) {
-          logger.warn(util.format('authenticate fails, status: %s', response.status));
+          logger.warn(`authenticate fails, status: ${response.status}`);
           return {};
         }
 

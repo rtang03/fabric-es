@@ -16,6 +16,10 @@ import type { Commit, QueryHandler } from '../../types';
 import { Counter, reducer } from '../../unit-test-reducer';
 import { isCommit, isCommitRecord, waitForSecond } from '../../utils';
 
+/**
+ * ./dn-run.1-db-red-auth.sh
+ */
+
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
 const caUrl = process.env.ORG_CA_URL;
@@ -274,6 +278,32 @@ describe('Query Handler Tests', () => {
         _event: 'Increment,Decrement',
         _entityName: entityName,
         _organization: ['Org1MSP'],
+      });
+    }));
+
+  it('should queryGetEntityInfo', async () =>
+    queryHandler.queryGetEntityInfo({ entityName: 'noop' }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data).toEqual({
+        total: 0,
+        tagged: [],
+        orgs: [],
+        creators: [],
+        events: [],
+        totalCommit: 0,
+      });
+    }));
+
+  it('should queryGetEntityInfo', async () =>
+    queryHandler.queryGetEntityInfo({ entityName }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data).toEqual({
+        total: 1,
+        tagged: ['subscription'],
+        orgs: ['Org1MSP'],
+        creators: ['admin-org1.net'],
+        events: ['Increment', 'Decrement'],
+        totalCommit: 2,
       });
     }));
 });

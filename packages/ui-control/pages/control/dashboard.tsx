@@ -3,7 +3,7 @@ import Grid from '@material-ui/core/Grid';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import ChangeHistoryIcon from '@material-ui/icons/ChangeHistory';
 import FindInPageIcon from '@material-ui/icons/FindInPage';
-import ListAltIcon from '@material-ui/icons/ListAlt';
+import MemoryIcon from '@material-ui/icons/Memory';
 import Pagination from '@material-ui/lab/Pagination';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
@@ -82,7 +82,7 @@ const Dashboard: NextPage<any> = () => {
           value={findBy}
           onChange={handleFindBy}>
           <ToggleButton value="loaded" aria-label="loaded entity">
-            <ListAltIcon />
+            <MemoryIcon />
             Loaded
           </ToggleButton>
           <ToggleButton value="entity" aria-label="find by entity">

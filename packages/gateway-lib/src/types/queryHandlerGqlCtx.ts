@@ -7,4 +7,8 @@ export interface QueryHandlerGqlCtx {
   queryHandler: QueryHandler;
   queryDatabase?: QueryDatabase;
   publisher: Redis.Redis;
+  user_id?: string;
+  is_admin?: boolean;
+  username?: string;
+  entityNames: string[];
 }

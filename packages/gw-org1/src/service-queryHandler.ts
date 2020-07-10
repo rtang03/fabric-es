@@ -17,6 +17,7 @@ import type { RedisOptions } from 'ioredis';
 
 const port = parseInt(process.env.QUERY_PORT, 10) || 5000;
 const logger = getLogger('[query-handler] app.js');
+const authCheck = process.env.AUTHORIZATION_SERVER_URI;
 
 (async () => {
   const redisOptions: RedisOptions = {
@@ -30,18 +31,22 @@ const logger = getLogger('[query-handler] app.js');
     loan: getReducer<Loan, LoanEvents>(loanReducer),
     docContents: getReducer<DocContents, DocContentsEvents>(docContentsReducer),
     user: getReducer<User, UserEvents>(userReducer),
-    counter: counterReducer
+    counter: counterReducer,
   };
 
-  const { server } = await createQueryHandlerService(['document', 'loan', 'docContents', 'user', 'counter'], {
-    redisOptions,
-    asLocalhost: !(process.env.NODE_ENV === 'production'),
-    channelName: process.env.CHANNEL_NAME,
-    connectionProfile: process.env.CONNECTION_PROFILE,
-    enrollmentId: process.env.ORG_ADMIN_ID,
-    reducers,
-    wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
-  });
+  const { server } = await createQueryHandlerService(
+    ['document', 'loan', 'docContents', 'user', 'counter'],
+    {
+      redisOptions,
+      asLocalhost: !(process.env.NODE_ENV === 'production'),
+      channelName: process.env.CHANNEL_NAME,
+      connectionProfile: process.env.CONNECTION_PROFILE,
+      enrollmentId: process.env.ORG_ADMIN_ID,
+      reducers,
+      wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+      authCheck,
+    }
+  );
 
   const shutdown = async () => {
     await server.stop().catch((err) => {
@@ -66,7 +71,7 @@ const logger = getLogger('[query-handler] app.js');
     logger.info(`🚀 queryHandler available at ${url}graphql`);
     logger.info(`🚀 Subscription ${subscriptionsUrl}`);
 
-    if (process.env.NODE_ENV === 'production') process.send('ready');
+    process?.send?.('ready');
   });
 })().catch((error) => {
   console.error(error);

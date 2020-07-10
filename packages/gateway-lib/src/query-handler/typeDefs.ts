@@ -28,8 +28,9 @@ export const typeDefs = gql`
 
   type Query {
     me: String
-    fullTextSearchCommit(query: String, cursor: Int, pagesize: Int): PaginatedCommit
-    fullTextSearchEntity(query: String, cursor: Int, pagesize: Int): PaginatedEntity
+    getEntityInfo: [EntityInfo!]!
+    fullTextSearchCommit(query: String, cursor: Int, pagesize: Int): PaginatedCommit!
+    fullTextSearchEntity(query: String, cursor: Int, pagesize: Int): PaginatedEntity!
     paginatedEntity(
       creator: String
       cursor: Int
@@ -54,6 +55,16 @@ export const typeDefs = gql`
       sortByField: String
       sort: String
     ): PaginatedCommit!
+  }
+
+  type EntityInfo {
+    entityName: String!
+    total: Int!
+    events: [String!]!
+    tagged: [String!]!
+    creators: [String!]!
+    orgs: [String!]!
+    totalCommit: Int!
   }
 
   enum SearchScope {
@@ -97,7 +108,7 @@ export const typeDefs = gql`
     # e.g. payloadString
     # "{"id":"test_12","desc":"desc12","tag":"gw-lib"}"
     ###
-    createCommit(entityName: String, id: String, type: String, payloadString: String): Commit
+    createCommit(entityName: String, id: String, type: String, payloadString: String): Commit!
   }
 
   type Commit {

@@ -1,4 +1,5 @@
 import AppBar from '@material-ui/core/AppBar';
+import Badge from '@material-ui/core/Badge';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
@@ -9,7 +10,8 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Toolbar from '@material-ui/core/Toolbar';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import MemoryIcon from '@material-ui/icons/Memory';
+import ListAltIcon from '@material-ui/icons/ListAlt';
+import NotificationsIcon from '@material-ui/icons/Notifications';
 import { useLogoutMutation } from 'graphql/generated';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -106,7 +108,7 @@ const Layout: React.FC<{
                 className={classes.menuButton}
                 color="inherit"
                 aria-label="menu">
-                <MemoryIcon />
+                <ListAltIcon />
               </IconButton>
               <div className={classes.root}>
                 <Button color="inherit">
@@ -128,6 +130,11 @@ const Layout: React.FC<{
               </div>
               {user ? (
                 <div>
+                  <IconButton aria-label="show 17 new notifications" color="inherit">
+                    <Badge badgeContent={17} color="secondary">
+                      <NotificationsIcon />
+                    </Badge>
+                  </IconButton>
                   <IconButton
                     aria-label="account of current user"
                     aria-controls="menu-appbar"

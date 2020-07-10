@@ -47,7 +47,7 @@ import { DECREMENT, GET_COUNTER, INCREMENT, resolvers, typeDefs } from './__util
  * no full text search is available. This is intentionally made to minimal implementation.
  */
 
-const proxyServerUri = `${process.env.PROXY_SERVER}`;
+const proxyServerUri = process.env.PROXY_SERVER;
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
 const caUrl = process.env.ORG_CA_URL;
@@ -132,6 +132,7 @@ beforeAll(async () => {
         organization: getReducer<Organization, OrgEvents>(orgReducer),
       },
       wallet,
+      authCheck: `${proxyServerUri}/oauth/authenticate`,
     });
 
     queryHandlerServer = qhService.server;
