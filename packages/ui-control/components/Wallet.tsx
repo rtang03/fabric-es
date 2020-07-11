@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import { Formik, Form } from 'formik';
 import { useGetWalletQuery, WalletEntry, useCreateWalletMutation } from 'graphql/generated/gateway';
 import React from 'react';
-import { useStyles } from '../utils';
+import { useStyles } from 'utils';
 import { useDispatchAlert } from './AlertProvider';
 
 const options = { context: { backend: 'gateway' } };

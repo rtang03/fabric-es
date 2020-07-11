@@ -44,8 +44,9 @@ export type EntityArrived = {
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<Scalars['String']>;
-  fullTextSearchCommit?: Maybe<PaginatedCommit>;
-  fullTextSearchEntity?: Maybe<PaginatedEntity>;
+  getEntityInfo: Array<EntityInfo>;
+  fullTextSearchCommit: PaginatedCommit;
+  fullTextSearchEntity: PaginatedEntity;
   paginatedEntity: PaginatedEntity;
   paginatedCommit: PaginatedCommit;
 };
@@ -88,6 +89,17 @@ export type QueryPaginatedCommitArgs = {
   sort?: Maybe<Scalars['String']>;
 };
 
+export type EntityInfo = {
+  __typename?: 'EntityInfo';
+  entityName: Scalars['String'];
+  total: Scalars['Int'];
+  events: Array<Scalars['String']>;
+  tagged: Array<Scalars['String']>;
+  creators: Array<Scalars['String']>;
+  orgs: Array<Scalars['String']>;
+  totalCommit: Scalars['Int'];
+};
+
 export enum SearchScope {
   Created = 'CREATED',
   LastModified = 'LAST_MODIFIED',
@@ -128,7 +140,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   ping?: Maybe<Scalars['Boolean']>;
   reloadEntities?: Maybe<Scalars['Boolean']>;
-  createCommit?: Maybe<Commit>;
+  createCommit: Commit;
 };
 
 export type MutationPingArgs = {
@@ -262,6 +274,7 @@ export type ResolversTypes = {
   EntityArrived: ResolverTypeWrapper<EntityArrived>;
   Query: ResolverTypeWrapper<{}>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  EntityInfo: ResolverTypeWrapper<EntityInfo>;
   SearchScope: SearchScope;
   PaginatedEntity: ResolverTypeWrapper<PaginatedEntity>;
   PaginatedCommit: ResolverTypeWrapper<PaginatedCommit>;
@@ -282,6 +295,7 @@ export type ResolversParentTypes = {
   EntityArrived: EntityArrived;
   Query: {};
   Int: Scalars['Int'];
+  EntityInfo: EntityInfo;
   PaginatedEntity: PaginatedEntity;
   PaginatedCommit: PaginatedCommit;
   QueryHandlerEntity: QueryHandlerEntity;
@@ -336,14 +350,15 @@ export type QueryResolvers<
   ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']
 > = {
   me?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  getEntityInfo?: Resolver<Array<ResolversTypes['EntityInfo']>, ParentType, ContextType>;
   fullTextSearchCommit?: Resolver<
-    Maybe<ResolversTypes['PaginatedCommit']>,
+    ResolversTypes['PaginatedCommit'],
     ParentType,
     ContextType,
     RequireFields<QueryFullTextSearchCommitArgs, never>
   >;
   fullTextSearchEntity?: Resolver<
-    Maybe<ResolversTypes['PaginatedEntity']>,
+    ResolversTypes['PaginatedEntity'],
     ParentType,
     ContextType,
     RequireFields<QueryFullTextSearchEntityArgs, never>
@@ -360,6 +375,20 @@ export type QueryResolvers<
     ContextType,
     RequireFields<QueryPaginatedCommitArgs, 'entityName'>
   >;
+};
+
+export type EntityInfoResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['EntityInfo'] = ResolversParentTypes['EntityInfo']
+> = {
+  entityName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  events?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  tagged?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  creators?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  orgs?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  totalCommit?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 };
 
 export type PaginatedEntityResolvers<
@@ -419,7 +448,7 @@ export type MutationResolvers<
     RequireFields<MutationReloadEntitiesArgs, never>
   >;
   createCommit?: Resolver<
-    Maybe<ResolversTypes['Commit']>,
+    ResolversTypes['Commit'],
     ParentType,
     ContextType,
     RequireFields<MutationCreateCommitArgs, never>
@@ -449,6 +478,7 @@ export type Resolvers<ContextType = any> = {
   Notification?: NotificationResolvers<ContextType>;
   EntityArrived?: EntityArrivedResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  EntityInfo?: EntityInfoResolvers<ContextType>;
   PaginatedEntity?: PaginatedEntityResolvers<ContextType>;
   PaginatedCommit?: PaginatedCommitResolvers<ContextType>;
   QueryHandlerEntity?: QueryHandlerEntityResolvers<ContextType>;

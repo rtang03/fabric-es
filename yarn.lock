@@ -8272,15 +8272,20 @@ formidable@^1.2.0:
   resolved "https://registry.yarnpkg.com/formidable/-/formidable-1.2.2.tgz#bf69aea2972982675f00865342b982986f6b8dd9"
   integrity sha512-V8gLm+41I/8kguQ4/o1D3RIHRmhYFG4pnNyonvua+40rqcEmT4+V71yaZ3B457xbbgCsCfjSPi65u/W6vK1U5Q==
 
-formik-material-ui-lab@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/formik-material-ui-lab/-/formik-material-ui-lab-0.0.2.tgz#f8eaefd1340bbb184ba451ca5807d5b678a43735"
-  integrity sha512-TzmBvnWW/tCkUR8bWJYqk4MQHZaTnQc3dI8tI4K74hcPppOR5jzWtUcq07gpLumJJ7ZojUiULLdvdT0W9RCERw==
+formik-material-ui-lab@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/formik-material-ui-lab/-/formik-material-ui-lab-0.0.4.tgz#1c22095f815f20d89f615a2919e08889a255a42b"
+  integrity sha512-CYOz2fXZDIbrgXD1JfpOD6EB63eGENNWEUIfNNI8X3wWXyyXYxARb/xN1U4aio0GVKLTf0XOWISCjYGtcM0XRw==
 
 formik-material-ui@^2.0.0-beta.1:
   version "2.0.0-beta.1"
   resolved "https://registry.yarnpkg.com/formik-material-ui/-/formik-material-ui-2.0.0-beta.1.tgz#adf6321c97f8617aff00ed717daba8b66d436fd7"
   integrity sha512-Zt2pHQzaU2f9reXLS0E85ddeU8aFFtVJV42IPfVdC3lLY+kf+PUdzSiyCHFbRFVniG7SGisEoOwOZFMpkA85Qw==
+
+formik-material-ui@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/formik-material-ui/-/formik-material-ui-2.0.1.tgz#29d1e2903e54c722f90ddacbaa1e3d253c2c6b72"
+  integrity sha512-kX+SJuFj9AdjLk7sfZczDfJIK8W/MnNtHWFZ182LkhN4743IFho7+VYycd2QL9qnEEv7vdZhbEm1ts+wp3nPEg==
 
 formik@^2.1.4:
   version "2.1.4"

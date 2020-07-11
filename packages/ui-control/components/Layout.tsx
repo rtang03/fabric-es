@@ -18,7 +18,7 @@ import Link from 'next/link';
 import Router from 'next/router';
 import React, { useCallback, useEffect } from 'react';
 import { User } from 'types';
-import { saveToken, useStyles } from '../utils';
+import { saveToken, useStyles } from 'utils';
 import { useAlert, useDispatchAlert } from './AlertProvider';
 import { useDispatchAuth } from './AuthProvider';
 

@@ -16,7 +16,7 @@ import * as yup from 'yup';
 
 const validation = yup.object(getValidationSchema(['username', 'password']));
 const ERROR = 'Fail to login';
-const SUCCESS = 'logged in';
+const SUCCESS = 'Logged in';
 
 const Login: NextPage<any> = () => {
   const auth = useAuth();
@@ -51,10 +51,7 @@ const Login: NextPage<any> = () => {
               saveToken(result?.access_token, result?.jwtExpiryInSec as any);
 
               setSubmitting(false);
-              setTimeout(
-                () => dispatchAlert({ type: 'SUCCESS', message: `${username} ${SUCCESS}` }),
-                500
-              );
+              setTimeout(() => dispatchAlert({ type: 'SUCCESS', message: SUCCESS }), 500);
             } catch (e) {
               console.error(e);
               setSubmitting(false);

@@ -1,14 +1,8 @@
-import type {
-  BaseEntity,
-  Commit,
-  QueryHandlerEntity,
-  Paginated,
-  EntityInfo,
-} from '@fabric-es/fabric-cqrs';
+import type { BaseEntity, Commit, QueryHandlerEntity, Paginated } from '@fabric-es/fabric-cqrs';
 import { ApolloError } from 'apollo-server';
 import { withFilter } from 'graphql-subscriptions';
 import assign from 'lodash/assign';
-import { Resolvers } from '../generated';
+import { Resolvers, EntityInfo } from '../generated';
 import type { QueryHandlerGqlCtx } from '../types';
 import { getLogger } from '../utils';
 import { catchErrors } from '../utils/catchErrors';
@@ -35,7 +29,7 @@ const parseEntity = (data: BaseEntity[]) =>
       }))
     : [];
 
-export const resolvers = {
+export const resolvers: Resolvers = {
   Mutation: {
     ping: async (_, { message }, { pubSub }: QueryHandlerGqlCtx) => {
       await pubSub.publish(DEV, { pong: message });

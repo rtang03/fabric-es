@@ -13,3 +13,4 @@
 
 https://nextjs.org/docs/basic-features/environment-variables
 https://hasura.io/blog/best-practices-of-using-jwt-with-graphql/
+https://codesandbox.io/s/915qlr56rp?file=/src/index.tsx:250-305
