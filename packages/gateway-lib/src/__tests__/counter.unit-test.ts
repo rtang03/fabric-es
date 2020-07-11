@@ -482,6 +482,20 @@ describe('Gateway Test - admin service', () => {
         expect(errors[0].message).toContain(IDENTITY_ALREADY_EXIST);
       }));
 
+  it('should fail to increment counter, before creating wallet', async () =>
+    request(app)
+      .post('/graphql')
+      .set('authorization', `bearer ${accessToken}`)
+      .send({
+        operationName: 'Increment',
+        query: INCREMENT,
+        variables: { counterId, id: counterId },
+      })
+      .expect(({ body: { data, errors } }) => {
+        expect(data).toBeNull();
+        expect(errors[0].message).toContain('Please register user');
+      }));
+
   it('should createWallet', async () =>
     request(app)
       .post('/graphql')

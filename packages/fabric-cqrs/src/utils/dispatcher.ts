@@ -45,7 +45,7 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
 
         unsubscribe();
 
-        reject(util.format('%s, %j', type, error));
+        reject(new Error(util.format('%s, %j', type, error)));
       }
     });
 

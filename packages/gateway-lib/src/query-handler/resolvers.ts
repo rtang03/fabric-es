@@ -61,10 +61,13 @@ export const resolvers: Resolvers = {
       ) => {
         const payload = JSON.parse(payloadString);
 
-        return await queryHandler
+        const { data, error } = await queryHandler
           .create(entityName)({ enrollmentId: username, id })
-          .save({ events: [{ type, payload }] })
-          .then(({ data }) => data);
+          .save({ events: [{ type, payload }] });
+
+        if (error) throw error;
+
+        return data;
       },
       { fcnName: 'createCommit', useAuth: true, useAdmin: false, logger }
     ),

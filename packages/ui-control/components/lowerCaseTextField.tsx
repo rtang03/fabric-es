@@ -1,8 +1,9 @@
 import MuiTextField from '@material-ui/core/TextField';
 import { fieldToTextField, TextFieldProps } from 'formik-material-ui';
 import React from 'react';
+import { lowerCasing } from '../utils';
 
-const LowerCasTextField = (props: TextFieldProps) => {
+const LowerCasTextField: React.FC<any> = (props: TextFieldProps) => {
   const {
     form: { setFieldValue },
     field: { name },
@@ -10,37 +11,7 @@ const LowerCasTextField = (props: TextFieldProps) => {
   const onChange = React.useCallback(
     (event) => {
       const { value } = event.target;
-      setFieldValue(
-        name,
-        value
-          ? value
-              .toLowerCase()
-              .replace(/-/g, '_')
-              .replace(/:/g, '_')
-              .replace(/;/g, '_')
-              .replace(/&/g, '_')
-              .replace(/#/g, '_')
-              .replace(/!/g, '_')
-              .replace(/\s/g, '_')
-              .replace(/\*/g, '_')
-              .replace(/@/g, '_')
-              .replace(/%/g, '_')
-              .replace(/</g, '_')
-              .replace(/>/g, '_')
-              .replace(/\?/g, '_')
-              .replace(/'/g, '_')
-              .replace(/"/g, '_')
-              .replace(/`/g, '_')
-              .replace(/\[/g, '_')
-              .replace(/]/g, '_')
-              .replace(/{/g, '_')
-              .replace(/}/g, '_')
-              .replace(/\+/g, '_')
-              .replace(/=/g, '_')
-              .replace(/\(/g, '_')
-              .replace(/\)/g, '_')
-          : ''
-      );
+      setFieldValue(name, lowerCasing(value));
     },
     [setFieldValue, name]
   );

@@ -86,4 +86,7 @@ export const useStyles = makeStyles((theme: Theme) => ({
     marginRight: theme.spacing(1),
     width: '60ch',
   },
+  table: {
+    minWidth: 650,
+  },
 }));

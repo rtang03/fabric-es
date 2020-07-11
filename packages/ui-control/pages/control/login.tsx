@@ -30,8 +30,6 @@ const Login: NextPage<any> = () => {
     data?.login && setTimeout(async () => Router.push('/control'), 3200);
   }, [data]);
 
-  error && setTimeout(() => dispatchAlert({ type: 'ERROR', message: ERROR }), 500);
-
   return (
     <Layout title="Account | Login" loading={loading}>
       <Container component="main" maxWidth="sm">

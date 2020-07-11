@@ -6,3 +6,4 @@ export * from './catchErrors';
 export * from './fetcher';
 export * from './tokenStorage';
 export * from './apolloClient';
+export * from './lowerCasing';

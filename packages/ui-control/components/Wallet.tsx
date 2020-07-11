@@ -78,6 +78,7 @@ const Wallet: React.FC<any> = () => {
                 className={classes.submit}
                 variant="contained"
                 color="primary"
+                size="small"
                 disabled={isSubmitting || !!wallet}
                 type="submit">
                 Create Wallet

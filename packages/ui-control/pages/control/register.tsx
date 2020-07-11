@@ -35,8 +35,6 @@ const Register: NextPage<any> = () => {
     }
   }, [data]);
 
-  error && setTimeout(() => dispatch({ type: 'ERROR', message: ERROR }), 500);
-
   return (
     <Layout title="Account | Register" loading={loading}>
       <Container component="main" maxWidth="sm">
