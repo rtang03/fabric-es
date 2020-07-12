@@ -1,4 +1,3 @@
-import Container from '@material-ui/core/Container';
 import Divider from '@material-ui/core/Divider';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Paper from '@material-ui/core/Paper';
@@ -50,10 +49,10 @@ const Metrics: React.FC<any> = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Type</TableCell>
-                  <TableCell align="right">Events</TableCell>
-                  <TableCell align="right">Creators</TableCell>
-                  <TableCell align="right">Orgs</TableCell>
-                  <TableCell align="right">Tags</TableCell>
+                  <TableCell align="right">Event</TableCell>
+                  <TableCell align="right">Creator</TableCell>
+                  <TableCell align="right">Organization</TableCell>
+                  <TableCell align="right">Tag</TableCell>
                   <TableCell align="right">Commits</TableCell>
                   <TableCell align="right">Total</TableCell>
                 </TableRow>
@@ -71,7 +70,7 @@ const Metrics: React.FC<any> = () => {
                       orgs,
                       creators,
                     }: EntityInfo) => (
-                      <TableRow>
+                      <TableRow key={entityName}>
                         <TableCell component="th" scope="row">
                           {entityName}
                         </TableCell>

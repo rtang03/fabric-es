@@ -9,7 +9,7 @@ import { dispatcher } from './dispatcher';
 export const queryGetEntityInfo: (option: {
   store: Store;
   logger: Logger;
-}) => ({ entityName: string }) => Promise<HandlerResponse> = ({ store, logger }) =>
+}) => ({ entityName: string }) => Promise<HandlerResponse<EntityInfo>> = ({ store, logger }) =>
   dispatcher<EntityInfo, { entityName: string }>(
     ({ tx_id, args: { entityName } }) =>
       action.eIdxSearch({ tx_id, args: { query: [`@type:${entityName}`], countTotalOnly: false } }),

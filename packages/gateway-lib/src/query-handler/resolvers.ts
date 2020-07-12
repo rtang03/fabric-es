@@ -2,8 +2,10 @@ import type { BaseEntity, Commit, QueryHandlerEntity, Paginated } from '@fabric-
 import { ApolloError } from 'apollo-server';
 import { withFilter } from 'graphql-subscriptions';
 import assign from 'lodash/assign';
+import keys from 'lodash/keys';
+import values from 'lodash/values';
 import { Resolvers, EntityInfo } from '../generated';
-import type { QueryHandlerGqlCtx } from '../types';
+import type { QueryHandlerGqlCtx, Notification } from '../types';
 import { getLogger } from '../utils';
 import { catchErrors } from '../utils/catchErrors';
 import { rebuildIndex } from './rebuildIndex';
@@ -28,6 +30,19 @@ const parseEntity = (data: BaseEntity[]) =>
         timeline: entity?._timeline,
       }))
     : [];
+const parseNotifications: (data: Record<string, string>[]) => Notification[] = (data) =>
+  data
+    .map((item) => ({ key: keys(item)[0], value: values(item)[0] }))
+    .map(({ key, value }) => {
+      const keypart = key.split('::');
+      return {
+        creator: keypart[1],
+        entityName: keypart[2],
+        id: keypart[3],
+        commitId: keypart[4],
+        read: value === '0',
+      } as Notification;
+    });
 
 export const resolvers: Resolvers = {
   Mutation: {
@@ -197,6 +212,31 @@ export const resolvers: Resolvers = {
         return data;
       },
       { fcnName: 'paginatedCommit', useAdmin: false, useAuth: true, logger }
+    ),
+    getNotifications: catchErrors<Notification[]>(
+      async (_, __, { queryHandler, username }: QueryHandlerGqlCtx): Promise<Notification[]> => {
+        const { data, error, status } = await queryHandler.queryNotify({ creator: username });
+
+        if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+        return parseNotifications(data);
+      },
+      { fcnName: 'getNotifications', useAdmin: false, useAuth: true, logger }
+    ),
+    getNotification: catchErrors<Notification>(
+      async (_, { entityName, commitId, id }, { queryHandler, username }: QueryHandlerGqlCtx) => {
+        const { data, error, status } = await queryHandler.queryNotify({
+          creator: username,
+          entityName,
+          commitId,
+          id,
+        });
+
+        if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+        return parseNotifications(data)[0];
+      },
+      { fcnName: 'getNotification', useAdmin: false, useAuth: true, logger }
     ),
   },
   Subscription: {

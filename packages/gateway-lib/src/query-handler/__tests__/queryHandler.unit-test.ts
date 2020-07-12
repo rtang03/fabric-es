@@ -17,6 +17,8 @@ import {
   FULL_TXT_SEARCH_COMMIT,
   FULL_TXT_SEARCH_ENTITY,
   GET_ENTITYINFO,
+  GET_NOTIFICATION,
+  GET_NOTIFICATIONS,
   ME,
   PAGINATED_COMMIT,
   PAGINATED_ENTITY,
@@ -47,6 +49,10 @@ const noAuthConfig = (body: any) => ({
   body: JSON.stringify(body),
 });
 
+/**
+ * ./dn-run.1-db-red-auth.sh or ./dn-run.2-db-red-auth.sh
+ */
+
 // p.s. tag in redis cannot use '-'. Later, need to check what else character are prohibited.
 const tag = 'unit_test,gw_lib,query_handler';
 
@@ -54,6 +60,7 @@ let server: ApolloServer;
 let queryHandler: QueryHandler;
 let publisher: Redis;
 let fetchConfig;
+let commitId: string;
 
 beforeAll(async () => {
   rimraf.sync(`${walletPath}/${orgAdminId}.id`);
@@ -115,6 +122,11 @@ beforeAll(async () => {
         console.log(`set-up: query_deleteByEntityName, ${entityName}, status: ${status}`)
       );
 
+    // remove all pre-existing notification
+    await queryHandler
+      .queryNotify({ creator: orgAdminId, expireNow: true })
+      .then(({ status }) => console.log(`remove pre-existing notification: ${status}`));
+
     return new Promise((done) =>
       server.listen(QH_PORT, () => {
         console.log('🚀 Query Handler Started');
@@ -159,6 +171,10 @@ afterAll(async () => {
         console.log(`tear-down: command_deleteByEntityId, ${entityName}:paginated-${i}, ${status}`)
       );
 
+  await queryHandler
+    .queryNotify({ creator: orgAdminId, expireNow: true })
+    .then(({ status }) => console.log(`remove notification: ${status}`));
+
   await server.stop();
 
   return new Promise((done) => setTimeout(() => done(), 2000));
@@ -192,7 +208,7 @@ describe('QuerHandler Service Test', () => {
             body: JSON.stringify(body),
           });
           return true;
-        } else return false;
+        } else return Promise.reject('not login response');
       }));
 
   it('should me', async () =>
@@ -238,10 +254,11 @@ describe('QuerHandler Service Test', () => {
       .then(({ data }) => {
         const commit = data?.createCommit;
         if (isCommit(commit)) {
+          commitId = commit.commitId;
           expect(commit.id).toEqual(id);
           expect(commit.entityName).toEqual(entityName);
           expect(commit.version).toEqual(0);
-        } else return false;
+        } else return Promise.reject('not commit');
       }));
 });
 
@@ -286,7 +303,7 @@ describe('Full Text Search Test', () => {
           expect(commit.id).toEqual(id);
           expect(commit.entityName).toEqual(entityName);
           expect(commit.version).toEqual(0);
-        } else return false;
+        } else return Promise.reject('not commit');
       }));
 
   it('should fullTextSearchCommit: search by tag, @event:{increment}', async () =>
@@ -303,12 +320,12 @@ describe('Full Text Search Test', () => {
         expect(data?.fullTextSearchCommit.total).toEqual(1);
         expect(data?.fullTextSearchCommit.hasMore).toEqual(false);
         expect(data?.fullTextSearchCommit.cursor).toEqual(1);
-        const commit = data?.fullTextSearchCommit[0];
+        const commit = data?.fullTextSearchCommit.items[0];
         if (isCommit(commit)) {
           expect(commit.id).toEqual(id);
           expect(commit.entityName).toEqual(entityName);
           expect(commit.version).toEqual(0);
-        } else return false;
+        } else return Promise.reject('not commit');
       }));
 
   it('should fail to fullTextSearchEntity: garbage input', async () =>
@@ -1060,12 +1077,21 @@ describe('Paginated search', () => {
         expect(data.getEntityInfo).toEqual([
           {
             entityName: 'counter',
-            events: [Array],
-            creators: [Array],
-            orgs: [Array],
+            events: ['Increment', 'Decrement'],
+            creators: ['admin-org1.net'],
+            orgs: ['Org1MSP'],
             total: 6,
             totalCommit: 6,
-            tagged: [Array],
+            tagged: [
+              'unit_test',
+              'gw_lib',
+              'query_handler',
+              'paginated_5',
+              'paginated_4',
+              'paginated_3',
+              'paginated_2',
+              'paginated_1',
+            ],
           },
           {
             entityName: 'organization',
@@ -1077,6 +1103,34 @@ describe('Paginated search', () => {
             tagged: [],
           },
         ]);
+        expect(errors).toBeUndefined();
+      }));
+
+  it('should getNotifications', async () =>
+    fetch(url, fetchConfig({ operationName: 'GetNotifications', query: GET_NOTIFICATIONS }))
+      .then((r) => r.json())
+      .then(({ data, errors }) => {
+        data.getNotifications
+          .map(({ creator, entityName, read }) => ({ creator, entityName, read }))
+          .forEach((item) =>
+            expect(item).toEqual({ creator: orgAdminId, entityName, read: false })
+          );
+        expect(errors).toBeUndefined();
+      }));
+
+  it('should get one notification', async () =>
+    fetch(
+      url,
+      fetchConfig({
+        operationName: 'GetNotification',
+        query: GET_NOTIFICATION,
+        variables: { entityName, id, commitId },
+      })
+    )
+      .then((r) => r.json())
+      .then(({ data, errors }) => {
+        // after reading it, the "read" flag change from false to true
+        expect(data.getNotification.read).toBeTruthy();
         expect(errors).toBeUndefined();
       }));
 });

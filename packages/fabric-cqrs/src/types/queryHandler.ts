@@ -131,6 +131,13 @@ export interface QueryHandler {
   unsubscribeHub: () => void;
   disconnect: () => void;
   queryGetEntityInfo: (payload: { entityName: string }) => Promise<HandlerResponse<EntityInfo>>;
+  queryNotify: (payload: {
+    creator: string;
+    entityName?: string;
+    id?: string;
+    commitId?: string;
+    expireNow?: boolean;
+  }) => Promise<HandlerResponse<Record<string, string>[]>>;
 }
 
 export interface EntityInfo {

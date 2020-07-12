@@ -56,14 +56,12 @@ const Dashboard: NextPage<any> = () => {
           </ToggleButton>
         </ToggleButtonGroup>
         <br />
-        {
-          {
-            ['metrics' as string]: <Metrics />,
-            ['entity']: <FullTextSearch findBy={selection} />,
-            ['commit']: <FullTextSearch findBy={selection} />,
-            ['newcommit']: <CreateCommit />,
-          }[selection]
-        }
+        {{
+          ['metrics' as string]: <Metrics />,
+          ['entity']: <FullTextSearch findBy={selection} />,
+          ['commit']: <FullTextSearch findBy={selection} />,
+          ['newcommit']: <CreateCommit />,
+        }[selection] || <Metrics />}
         <ProTip />
       </Container>
     </Layout>

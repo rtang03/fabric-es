@@ -10,10 +10,10 @@ export const typeDefs = gql`
   type Subscription {
     pong: String
     entityAdded(entityName: String): EntityArrived
-    systemEvent: Notification
+    systemEvent: SysNotification
   }
 
-  type Notification {
+  type SysNotification {
     event: String
     message: String
     status: String
@@ -55,6 +55,16 @@ export const typeDefs = gql`
       sortByField: String
       sort: String
     ): PaginatedCommit!
+    getNotifications: [Notification!]!
+    getNotification(entityName: String, id: String, commitId: String): Notification!
+  }
+
+  type Notification {
+    creator: String!
+    entityName: String!
+    id: String!
+    commitId: String!
+    read: Boolean!
   }
 
   type EntityInfo {

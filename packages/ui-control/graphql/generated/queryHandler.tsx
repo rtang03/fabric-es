@@ -18,14 +18,14 @@ export type Scalars = {
 export type Subscription = {
   pong?: Maybe<Scalars['String']>;
   entityAdded?: Maybe<EntityArrived>;
-  systemEvent?: Maybe<Notification>;
+  systemEvent?: Maybe<SysNotification>;
 };
 
 export type SubscriptionEntityAddedArgs = {
   entityName?: Maybe<Scalars['String']>;
 };
 
-export type Notification = {
+export type SysNotification = {
   event?: Maybe<Scalars['String']>;
   message?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
@@ -45,6 +45,8 @@ export type Query = {
   fullTextSearchEntity: PaginatedEntity;
   paginatedEntity: PaginatedEntity;
   paginatedCommit: PaginatedCommit;
+  getNotifications: Array<Notification>;
+  getNotification: Notification;
 };
 
 export type QueryFullTextSearchCommitArgs = {
@@ -83,6 +85,20 @@ export type QueryPaginatedCommitArgs = {
   endTime?: Maybe<Scalars['Int']>;
   sortByField?: Maybe<Scalars['String']>;
   sort?: Maybe<Scalars['String']>;
+};
+
+export type QueryGetNotificationArgs = {
+  entityName?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['String']>;
+  commitId?: Maybe<Scalars['String']>;
+};
+
+export type Notification = {
+  creator: Scalars['String'];
+  entityName: Scalars['String'];
+  id: Scalars['String'];
+  commitId: Scalars['String'];
+  read: Scalars['Boolean'];
 };
 
 export type EntityInfo = {
@@ -227,6 +243,24 @@ export type GetEntityInfoQuery = {
       EntityInfo,
       'entityName' | 'events' | 'creators' | 'orgs' | 'total' | 'totalCommit' | 'tagged'
     >
+  >;
+};
+
+export type GetNotificationQueryVariables = {
+  entityName: Scalars['String'];
+  id: Scalars['String'];
+  commitId: Scalars['String'];
+};
+
+export type GetNotificationQuery = {
+  getNotification: Pick<Notification, 'id' | 'commitId' | 'entityName' | 'creator' | 'read'>;
+};
+
+export type GetNotificationsQueryVariables = {};
+
+export type GetNotificationsQuery = {
+  getNotifications: Array<
+    Pick<Notification, 'id' | 'commitId' | 'entityName' | 'creator' | 'read'>
   >;
 };
 
@@ -467,6 +501,119 @@ export type GetEntityInfoLazyQueryHookResult = ReturnType<typeof useGetEntityInf
 export type GetEntityInfoQueryResult = ApolloReactCommon.QueryResult<
   GetEntityInfoQuery,
   GetEntityInfoQueryVariables
+>;
+export const GetNotificationDocument = gql`
+  query GetNotification($entityName: String!, $id: String!, $commitId: String!) {
+    getNotification(entityName: $entityName, id: $id, commitId: $commitId) {
+      id
+      commitId
+      entityName
+      creator
+      read
+    }
+  }
+`;
+
+/**
+ * __useGetNotificationQuery__
+ *
+ * To run a query within a React component, call `useGetNotificationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNotificationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNotificationQuery({
+ *   variables: {
+ *      entityName: // value for 'entityName'
+ *      id: // value for 'id'
+ *      commitId: // value for 'commitId'
+ *   },
+ * });
+ */
+export function useGetNotificationQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    GetNotificationQuery,
+    GetNotificationQueryVariables
+  >
+) {
+  return ApolloReactHooks.useQuery<GetNotificationQuery, GetNotificationQueryVariables>(
+    GetNotificationDocument,
+    baseOptions
+  );
+}
+export function useGetNotificationLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    GetNotificationQuery,
+    GetNotificationQueryVariables
+  >
+) {
+  return ApolloReactHooks.useLazyQuery<GetNotificationQuery, GetNotificationQueryVariables>(
+    GetNotificationDocument,
+    baseOptions
+  );
+}
+export type GetNotificationQueryHookResult = ReturnType<typeof useGetNotificationQuery>;
+export type GetNotificationLazyQueryHookResult = ReturnType<typeof useGetNotificationLazyQuery>;
+export type GetNotificationQueryResult = ApolloReactCommon.QueryResult<
+  GetNotificationQuery,
+  GetNotificationQueryVariables
+>;
+export const GetNotificationsDocument = gql`
+  query GetNotifications {
+    getNotifications {
+      id
+      commitId
+      entityName
+      creator
+      read
+    }
+  }
+`;
+
+/**
+ * __useGetNotificationsQuery__
+ *
+ * To run a query within a React component, call `useGetNotificationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNotificationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNotificationsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetNotificationsQuery(
+  baseOptions?: ApolloReactHooks.QueryHookOptions<
+    GetNotificationsQuery,
+    GetNotificationsQueryVariables
+  >
+) {
+  return ApolloReactHooks.useQuery<GetNotificationsQuery, GetNotificationsQueryVariables>(
+    GetNotificationsDocument,
+    baseOptions
+  );
+}
+export function useGetNotificationsLazyQuery(
+  baseOptions?: ApolloReactHooks.LazyQueryHookOptions<
+    GetNotificationsQuery,
+    GetNotificationsQueryVariables
+  >
+) {
+  return ApolloReactHooks.useLazyQuery<GetNotificationsQuery, GetNotificationsQueryVariables>(
+    GetNotificationsDocument,
+    baseOptions
+  );
+}
+export type GetNotificationsQueryHookResult = ReturnType<typeof useGetNotificationsQuery>;
+export type GetNotificationsLazyQueryHookResult = ReturnType<typeof useGetNotificationsLazyQuery>;
+export type GetNotificationsQueryResult = ApolloReactCommon.QueryResult<
+  GetNotificationsQuery,
+  GetNotificationsQueryVariables
 >;
 export const MeDocument = gql`
   query ME {

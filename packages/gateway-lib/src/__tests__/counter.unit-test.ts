@@ -278,6 +278,14 @@ afterAll(async () => {
       console.log(`tear-down: command_deleteByEntityId, organization::Org1MSP, status: ${status}`)
     );
 
+  await queryHandler
+    .queryNotify({ creator: orgAdminId, expireNow: true })
+    .then(({ status }) => console.log(`remove notification: ${status}`));
+
+  await queryHandler
+    .queryNotify({ creator: caAdmin, expireNow: true })
+    .then(({ status }) => console.log(`remove notification: ${status}`));
+
   await modelApolloService.stop();
   await adminApolloService.stop();
   await queryHandlerServer.stop();
@@ -305,7 +313,7 @@ describe('Gateway Test - admin service', () => {
         if (isRegisterResponse(res)) {
           userId = res?.id;
           return true;
-        } else return false;
+        } else return Promise.reject('not register response');
       }));
 
   it('should login new user', async () =>
@@ -319,7 +327,7 @@ describe('Gateway Test - admin service', () => {
         if (isLoginResponse(res)) {
           accessToken = res.access_token;
           return true;
-        } else return false;
+        } else return Promise.reject('not login response');
       }));
 
   it('should say hello to counter-service', async () =>
@@ -344,7 +352,7 @@ describe('Gateway Test - admin service', () => {
         if (isLoginResponse(res)) {
           adminAccessToken = res.access_token;
           return true;
-        } else return false;
+        } else return Promise.reject('not login response');
       }));
 
   it('should fail to listWallet: with non-admin accessToken', async () =>

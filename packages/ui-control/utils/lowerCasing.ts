@@ -27,6 +27,6 @@ export const lowerCasing: (value: string) => string = (value) =>
         .replace(/\(/g, '_')
         .replace(/\)/g, '_')
         .replace(/,/g, '_')
-        .replace(/./g, '_')
+        .replace(/\./g, '_')
         .replace(/\|/g, '_')
     : '';

@@ -19,15 +19,15 @@ export type Subscription = {
   __typename?: 'Subscription';
   pong?: Maybe<Scalars['String']>;
   entityAdded?: Maybe<EntityArrived>;
-  systemEvent?: Maybe<Notification>;
+  systemEvent?: Maybe<SysNotification>;
 };
 
 export type SubscriptionEntityAddedArgs = {
   entityName?: Maybe<Scalars['String']>;
 };
 
-export type Notification = {
-  __typename?: 'Notification';
+export type SysNotification = {
+  __typename?: 'SysNotification';
   event?: Maybe<Scalars['String']>;
   message?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
@@ -49,6 +49,8 @@ export type Query = {
   fullTextSearchEntity: PaginatedEntity;
   paginatedEntity: PaginatedEntity;
   paginatedCommit: PaginatedCommit;
+  getNotifications: Array<Notification>;
+  getNotification: Notification;
 };
 
 export type QueryFullTextSearchCommitArgs = {
@@ -87,6 +89,21 @@ export type QueryPaginatedCommitArgs = {
   endTime?: Maybe<Scalars['Int']>;
   sortByField?: Maybe<Scalars['String']>;
   sort?: Maybe<Scalars['String']>;
+};
+
+export type QueryGetNotificationArgs = {
+  entityName?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['String']>;
+  commitId?: Maybe<Scalars['String']>;
+};
+
+export type Notification = {
+  __typename?: 'Notification';
+  creator: Scalars['String'];
+  entityName: Scalars['String'];
+  id: Scalars['String'];
+  commitId: Scalars['String'];
+  read: Scalars['Boolean'];
 };
 
 export type EntityInfo = {
@@ -269,11 +286,12 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Subscription: ResolverTypeWrapper<{}>;
-  Notification: ResolverTypeWrapper<Notification>;
+  SysNotification: ResolverTypeWrapper<SysNotification>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   EntityArrived: ResolverTypeWrapper<EntityArrived>;
   Query: ResolverTypeWrapper<{}>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  Notification: ResolverTypeWrapper<Notification>;
   EntityInfo: ResolverTypeWrapper<EntityInfo>;
   SearchScope: SearchScope;
   PaginatedEntity: ResolverTypeWrapper<PaginatedEntity>;
@@ -290,11 +308,12 @@ export type ResolversParentTypes = {
   String: Scalars['String'];
   Boolean: Scalars['Boolean'];
   Subscription: {};
-  Notification: Notification;
+  SysNotification: SysNotification;
   Float: Scalars['Float'];
   EntityArrived: EntityArrived;
   Query: {};
   Int: Scalars['Int'];
+  Notification: Notification;
   EntityInfo: EntityInfo;
   PaginatedEntity: PaginatedEntity;
   PaginatedCommit: PaginatedCommit;
@@ -317,16 +336,16 @@ export type SubscriptionResolvers<
     RequireFields<SubscriptionEntityAddedArgs, never>
   >;
   systemEvent?: SubscriptionResolver<
-    Maybe<ResolversTypes['Notification']>,
+    Maybe<ResolversTypes['SysNotification']>,
     'systemEvent',
     ParentType,
     ContextType
   >;
 };
 
-export type NotificationResolvers<
+export type SysNotificationResolvers<
   ContextType = any,
-  ParentType extends ResolversParentTypes['Notification'] = ResolversParentTypes['Notification']
+  ParentType extends ResolversParentTypes['SysNotification'] = ResolversParentTypes['SysNotification']
 > = {
   event?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -375,6 +394,25 @@ export type QueryResolvers<
     ContextType,
     RequireFields<QueryPaginatedCommitArgs, 'entityName'>
   >;
+  getNotifications?: Resolver<Array<ResolversTypes['Notification']>, ParentType, ContextType>;
+  getNotification?: Resolver<
+    ResolversTypes['Notification'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetNotificationArgs, never>
+  >;
+};
+
+export type NotificationResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['Notification'] = ResolversParentTypes['Notification']
+> = {
+  creator?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  entityName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  commitId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  read?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 };
 
 export type EntityInfoResolvers<
@@ -475,9 +513,10 @@ export interface UploadScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
 
 export type Resolvers<ContextType = any> = {
   Subscription?: SubscriptionResolvers<ContextType>;
-  Notification?: NotificationResolvers<ContextType>;
+  SysNotification?: SysNotificationResolvers<ContextType>;
   EntityArrived?: EntityArrivedResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  Notification?: NotificationResolvers<ContextType>;
   EntityInfo?: EntityInfoResolvers<ContextType>;
   PaginatedEntity?: PaginatedEntityResolvers<ContextType>;
   PaginatedCommit?: PaginatedCommitResolvers<ContextType>;
