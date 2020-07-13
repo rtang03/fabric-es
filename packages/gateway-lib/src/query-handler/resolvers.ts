@@ -3,6 +3,7 @@ import { ApolloError } from 'apollo-server';
 import { withFilter } from 'graphql-subscriptions';
 import assign from 'lodash/assign';
 import keys from 'lodash/keys';
+import sortBy from 'lodash/sortBy';
 import values from 'lodash/values';
 import { Resolvers, EntityInfo } from '../generated';
 import type { QueryHandlerGqlCtx, Notification } from '../types';
@@ -31,18 +32,21 @@ const parseEntity = (data: BaseEntity[]) =>
       }))
     : [];
 const parseNotifications: (data: Record<string, string>[]) => Notification[] = (data) =>
-  data
-    .map((item) => ({ key: keys(item)[0], value: values(item)[0] }))
-    .map(({ key, value }) => {
-      const keypart = key.split('::');
-      return {
-        creator: keypart[1],
-        entityName: keypart[2],
-        id: keypart[3],
-        commitId: keypart[4],
-        read: value === '0',
-      } as Notification;
-    });
+  sortBy(
+    data
+      .map((item) => ({ key: keys(item)[0], value: values(item)[0] }))
+      .map(({ key, value }) => {
+        const keypart = key.split('::');
+        return {
+          creator: keypart[1],
+          entityName: keypart[2],
+          id: keypart[3],
+          commitId: keypart[4],
+          read: value === '0',
+        } as Notification;
+      }),
+    'commitId'
+  ).reverse();
 
 export const resolvers: Resolvers = {
   Mutation: {

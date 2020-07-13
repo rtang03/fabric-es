@@ -95,7 +95,7 @@ const CreateCommit: React.FC<any> = () => {
                   setAutoId(false);
                   dispatchAlert({
                     type: 'SUCCESS',
-                    message: `${data?.createCommit.commitId} created`,
+                    message: `New commit created`,
                   });
                 }, 500);
               } catch (e) {

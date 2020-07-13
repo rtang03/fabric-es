@@ -109,6 +109,7 @@ const Register: NextPage<any> = () => {
                     className={classes.submit}
                     variant="contained"
                     color="primary"
+                    size="small"
                     disabled={
                       isSubmitting ||
                       (!!errors?.email && !values?.email) ||

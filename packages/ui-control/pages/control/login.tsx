@@ -93,6 +93,7 @@ const Login: NextPage<any> = () => {
                     className={classes.submit}
                     variant="contained"
                     color="primary"
+                    size="small"
                     disabled={
                       isSubmitting ||
                       (!!errors?.username && !values?.username) ||

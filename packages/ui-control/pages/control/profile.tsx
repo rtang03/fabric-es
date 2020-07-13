@@ -45,12 +45,6 @@ const Profile: NextPage<any> = () => {
 
   const { username, email, id } = data?.me;
 
-  updatedError &&
-    setTimeout(() => {
-      console.error(updatedError);
-      dispatchAlert({ type: 'ERROR', message: ERROR });
-    }, 500);
-
   return (
     <Layout title="Profile" loading={loading} user={data?.me} restricted={true}>
       <Container component="main" maxWidth="sm">
@@ -87,6 +81,10 @@ const Profile: NextPage<any> = () => {
               setSubmitting(false);
             } catch (e) {
               console.error(e);
+              setTimeout(() => {
+                console.error(updatedError);
+                dispatchAlert({ type: 'ERROR', message: ERROR });
+              }, 500);
               setSubmitting(false);
             }
           }}>

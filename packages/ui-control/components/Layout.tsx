@@ -1,5 +1,4 @@
 import AppBar from '@material-ui/core/AppBar';
-import Badge from '@material-ui/core/Badge';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
@@ -11,16 +10,16 @@ import Toolbar from '@material-ui/core/Toolbar';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import ListAltIcon from '@material-ui/icons/ListAlt';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import { useLogoutMutation } from 'graphql/generated';
 import Head from 'next/head';
 import Link from 'next/link';
 import Router from 'next/router';
-import React, { useCallback, useEffect } from 'react';
+import React, { Fragment, useCallback, useEffect, useState, MouseEvent } from 'react';
 import { User } from 'types';
 import { saveToken, useStyles } from 'utils';
 import { useAlert, useDispatchAlert } from './AlertProvider';
 import { useDispatchAuth } from './AuthProvider';
+import Notification from './Notification';
 
 const Layout: React.FC<{
   title?: string;
@@ -29,20 +28,19 @@ const Layout: React.FC<{
   restricted?: boolean;
 }> = ({ children, title = 'No title', loading, user, restricted }) => {
   const classes = useStyles();
+
+  // dispatch Alert messag to Toastbox
   const alert = useAlert();
   const dispatchAlert = useDispatchAlert();
   const dispatchAuth = useDispatchAuth();
-  const handleClose = useCallback(() => dispatchAlert({ type: 'CLEAR' }), []);
+  const handleSnackbarClose = useCallback(() => dispatchAlert({ type: 'CLEAR' }), []);
   const [logout, { data: logoutResult }] = useLogoutMutation();
 
   // menu button for accountCircle
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const handleMenu = ({ currentTarget }: React.MouseEvent<HTMLElement>) =>
-    setAnchorEl(currentTarget);
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+  const handleMenu = ({ currentTarget }: MouseEvent<HTMLElement>) => setAnchorEl(currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
 
   // when authenticated
   user && setTimeout(() => dispatchAuth({ type: 'LOGIN_SUCCESS', payload: { user } }), 100);
@@ -125,26 +123,22 @@ const Layout: React.FC<{
                     </Button>
                   </>
                 ) : (
-                  <React.Fragment />
+                  <Fragment />
                 )}
               </div>
               {user ? (
                 <div>
-                  <IconButton aria-label="show 17 new notifications" color="inherit">
-                    <Badge badgeContent={17} color="secondary">
-                      <NotificationsIcon />
-                    </Badge>
-                  </IconButton>
+                  <Notification />
                   <IconButton
                     aria-label="account of current user"
-                    aria-controls="menu-appbar"
+                    aria-controls="menu-account"
                     aria-haspopup="true"
                     onClick={handleMenu}
                     color="inherit">
                     <AccountCircleIcon />
                   </IconButton>
                   <Menu
-                    id="menu-appbar"
+                    id="menu-account"
                     anchorEl={anchorEl}
                     anchorOrigin={{
                       vertical: 'top',
@@ -156,12 +150,12 @@ const Layout: React.FC<{
                       horizontal: 'right',
                     }}
                     open={open}
-                    onClose={handleClose}>
-                    <MenuItem onClick={handleMenuClose}>
-                      <Link href="/control/profile">
+                    onClose={handleMenuClose}>
+                    <Link href="/control/profile">
+                      <MenuItem onClick={handleMenuClose}>
                         <a>Profile</a>
-                      </Link>
-                    </MenuItem>
+                      </MenuItem>
+                    </Link>
                   </Menu>
                   <IconButton color="inherit" onClick={() => logout()}>
                     <ExitToAppIcon />
@@ -195,7 +189,7 @@ const Layout: React.FC<{
         }}
         open={!!alert?.message}
         autoHideDuration={2000}
-        onClose={handleClose}
+        onClose={handleSnackbarClose}
         message={alert?.message}
       />
     </div>
