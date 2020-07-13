@@ -11,7 +11,7 @@ fi
 
 . ./scripts/setup.sh
 
-export UI_CONTROL_IMAGE=fabric-es/ui-account:${RELEASE}
+export UI_CONTROL_IMAGE=fabric-es/ui-control:${RELEASE}
 
 SECONDS=0
 

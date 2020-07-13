@@ -11,7 +11,7 @@ import { useLoginMutation } from 'graphql/generated';
 import { NextPage } from 'next';
 import Router from 'next/router';
 import React, { useEffect } from 'react';
-import { getValidationSchema, saveToken, useStyles } from 'utils';
+import { getValidationSchema, tokenStore, useStyles } from 'utils';
 import * as yup from 'yup';
 
 const validation = yup.object(getValidationSchema(['username', 'password']));
@@ -46,7 +46,7 @@ const Login: NextPage<any> = () => {
               const result = response?.data?.login;
 
               // save accessToken
-              saveToken(result?.access_token, result?.jwtExpiryInSec as any);
+              tokenStore.saveToken(result?.access_token, result?.jwtExpiryInSec as any);
 
               setSubmitting(false);
               setTimeout(() => dispatchAlert({ type: 'SUCCESS', message: SUCCESS }), 500);

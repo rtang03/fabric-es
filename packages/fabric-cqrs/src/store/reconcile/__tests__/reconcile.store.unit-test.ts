@@ -60,7 +60,7 @@ describe('Store/reconcile: failure tests', () => {
     })({ entityName: null }).then(({ data, status, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error).toContain('invalid input argument');
+      expect(error.message).toContain('invalid input argument');
     }));
 
   it('should fail to reconcile: no such entityName', async () =>

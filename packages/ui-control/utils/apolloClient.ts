@@ -3,14 +3,14 @@ import { setContext } from '@apollo/link-context';
 import { SchemaLink } from '@apollo/link-schema';
 import { useMemo } from 'react';
 import { schema } from '../server/schema';
-import { getToken } from './tokenStorage';
+import { tokenStore } from './tokenStore';
 
 let apolloClient: ApolloClient<any>;
 
 // add authorization headers for each ApolloLink
 const authLink = () =>
   setContext((_, { headers }) => ({
-    headers: { ...headers, authorization: `Bearer ${getToken()}` },
+    headers: { ...headers, authorization: `Bearer ${tokenStore.getToken()}` },
   }));
 
 // fetching link for bbf (aka. BackendForFrontend}

@@ -186,7 +186,7 @@ describe('Store/command: failure tests', () => {
     )().then(({ data, status, error }) => {
       expect(status).toEqual('ERROR');
       expect(data).toBeNull();
-      expect(error).toContain('invalid input argument');
+      expect(error.message).toContain('invalid input argument');
     }));
 
   it('should fail to queryByEntityIdCommitId: invalid argument', async () =>
@@ -212,7 +212,7 @@ describe('Store/command: failure tests', () => {
     )({ id, commitId: null }).then(({ data, status, error }) => {
       expect(status).toEqual('ERROR');
       expect(data).toBeNull();
-      expect(error).toContain('invalid input argument');
+      expect(error.message).toContain('invalid input argument');
     }));
 
   it('should fail to queryByEntityId: no result returned', async () =>
@@ -262,7 +262,7 @@ describe('Store/command: failure tests', () => {
     )({ id: null }).then(({ data, status, error }) => {
       expect(status).toEqual('ERROR');
       expect(data).toBeNull();
-      expect(error).toContain('invalid input argument');
+      expect(error.message).toContain('invalid input argument');
     }));
 
   it('should fail to deleteByEntityIdCommitId: invalid argument', async () =>
@@ -287,7 +287,7 @@ describe('Store/command: failure tests', () => {
     )({ id, commitId: null }).then(({ data, status, error }) => {
       expect(status).toEqual('ERROR');
       expect(data).toBeNull();
-      expect(error).toContain('invalid input argument');
+      expect(error.message).toContain('invalid input argument');
     }));
 
   it('should fail to create: invalid argument', async () =>
@@ -313,7 +313,7 @@ describe('Store/command: failure tests', () => {
     )({ events: null }).then(({ status, data, error }) => {
       expect(status).toEqual('ERROR');
       expect(data).toBeNull();
-      expect(error).toContain('invalid input argument');
+      expect(error.message).toContain('invalid input argument');
     }));
 });
 

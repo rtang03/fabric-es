@@ -258,6 +258,6 @@ describe('Store:privatedata Tests', () => {
       }
     )({ id, commitId }).then(({ data, status, error }) => {
       expect(status).toEqual('ERROR');
-      expect(error).toContain('commitId does not exist');
+      expect(error.message).toContain('commitId does not exist');
     }));
 });

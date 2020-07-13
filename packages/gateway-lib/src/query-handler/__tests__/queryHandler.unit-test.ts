@@ -127,12 +127,12 @@ beforeAll(async () => {
       .queryNotify({ creator: orgAdminId, expireNow: true })
       .then(({ status }) => console.log(`remove pre-existing notification: ${status}`));
 
-    return new Promise((done) =>
+    return new Promise((done) => {
       server.listen(QH_PORT, () => {
         console.log('🚀 Query Handler Started');
         done();
-      })
-    );
+      });
+    });
   } catch (e) {
     console.error(e);
     process.exit(1);

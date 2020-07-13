@@ -15,7 +15,7 @@ export CURRENT_DIR=`pwd`
 export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
 export TEST_IMAGE=fabric-es/tester:${RELEASE}
 export PROXY_IMAGE=fabric-es/proxy:${RELEASE}
-export UI_ACCOUNT_IMAGE=fabric-es/ui-account:${RELEASE}
+export UI_ACCOUNT_IMAGE=fabric-es/ui-control:${RELEASE}
 export RELAY_IMAGE=fabric-es/relay:${RELEASE}
 export ROOT_DIR=$CURRENT_DIR/../..
 

@@ -14,9 +14,9 @@ import { useLogoutMutation } from 'graphql/generated';
 import Head from 'next/head';
 import Link from 'next/link';
 import Router from 'next/router';
-import React, { Fragment, useCallback, useEffect, useState, MouseEvent } from 'react';
+import React, { useCallback, useEffect, useState, MouseEvent } from 'react';
 import { User } from 'types';
-import { saveToken, useStyles } from 'utils';
+import { tokenStore, useStyles } from 'utils';
 import { useAlert, useDispatchAlert } from './AlertProvider';
 import { useDispatchAuth } from './AuthProvider';
 import Notification from './Notification';
@@ -52,7 +52,7 @@ const Layout: React.FC<{
       setTimeout(() => {
         dispatchAuth({ type: 'LOGOUT' });
         window.localStorage.setItem('logout', Date.now().toString());
-        saveToken(null);
+        tokenStore.saveToken(null);
       }, 2500);
       setTimeout(async () => Router.push(`/control/login`), 3000);
     }
@@ -109,13 +109,13 @@ const Layout: React.FC<{
                 <ListAltIcon />
               </IconButton>
               <div className={classes.root}>
-                <Button color="inherit">
-                  <Link href="/control">
-                    <a>Home</a>
-                  </Link>
-                </Button>
                 {user ? (
                   <>
+                    <Button color="inherit">
+                      <Link href="/control">
+                        <a>Home</a>
+                      </Link>
+                    </Button>
                     <Button color="inherit">
                       <Link href="/control/dashboard">
                         <a>Dashboard</a>
@@ -123,7 +123,11 @@ const Layout: React.FC<{
                     </Button>
                   </>
                 ) : (
-                  <Fragment />
+                  <Button color="inherit">
+                    <Link href="/">
+                      <a>Home</a>
+                    </Link>
+                  </Button>
                 )}
               </div>
               {user ? (
@@ -151,11 +155,11 @@ const Layout: React.FC<{
                     }}
                     open={open}
                     onClose={handleMenuClose}>
-                    <Link href="/control/profile">
-                      <MenuItem onClick={handleMenuClose}>
+                    <MenuItem onClick={handleMenuClose}>
+                      <Link href="/control/profile">
                         <a>Profile</a>
-                      </MenuItem>
-                    </Link>
+                      </Link>
+                    </MenuItem>
                   </Menu>
                   <IconButton color="inherit" onClick={() => logout()}>
                     <ExitToAppIcon />
@@ -165,12 +169,12 @@ const Layout: React.FC<{
                 <>
                   <Button color="inherit">
                     <Link href="/control/register">
-                      <a>Register</a>
+                      <a>Create account</a>
                     </Link>
                   </Button>
                   <Button color="inherit">
                     <Link href="/control/login">
-                      <a>Log in</a>
+                      <a>Login</a>
                     </Link>
                   </Button>
                 </>

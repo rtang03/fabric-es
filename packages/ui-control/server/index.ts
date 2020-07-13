@@ -6,6 +6,7 @@ import errorHandler from 'errorhandler';
 import express from 'express';
 import next from 'next';
 import { ApolloContext } from 'types';
+import { getLogger } from '../utils';
 import { schema } from './schema';
 
 export const ENV = {
@@ -16,6 +17,7 @@ export const ENV = {
   GW_ORG_EXTERNAL_HOST: process.env.GW_ORG_EXTERNAL_HOST as string,
   QH_EXTERNAL_HOST: process.env.QH_EXTERNAL_HOST as string
 };
+const logger = getLogger({ name: '[ui-control] index.js' });
 const dev = ENV.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
@@ -42,9 +44,11 @@ app.prepare().then(() => {
 
   apolloServer.applyMiddleware({ app, path: '/control/api/graphql' });
 
+  app.get('/islive', (_, res) => res.status(204).end());
   app.get('*', csrfProtection, (req, res) => handle(req, res));
 
   app.listen(port, (error) => {
     console.log(`🚀 Server listening at http://localhost:${port}`);
+    logger.info(`🚀 Server listening at http://localhost:${port}`);
   });
 });
