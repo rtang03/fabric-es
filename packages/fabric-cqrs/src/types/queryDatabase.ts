@@ -44,11 +44,19 @@ export interface QueryDatabase {
     query: string[];
     countTotalOnly?: boolean;
   }) => Promise<QueryDatabaseResponse<TEntity[] | number>>;
-  fullTextSearchGetDocument: (option: {
-    index: string;
-    documentId: string;
+  clearNotification: (option: {
+    creator: string;
+    entityName?: string;
+    id?: string;
+    commitId?: string;
   }) => Promise<QueryDatabaseResponse>;
-  fullTextSearchTagVals: (option: { index: string; tag: string }) => Promise<QueryDatabaseResponse>;
+  getNotification: (option: {
+    creator: string;
+    entityName?: string;
+    id?: string;
+    commitId?: string;
+    expireNow?: boolean;
+  }) => Promise<QueryDatabaseResponse<Record<string, number>[]>>;
   queryEntity: <TEntity = any>(option: {
     entityName: string;
     where?: { [K in keyof TEntity]: TEntity[K] };

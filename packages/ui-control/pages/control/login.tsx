@@ -11,12 +11,12 @@ import { useLoginMutation } from 'graphql/generated';
 import { NextPage } from 'next';
 import Router from 'next/router';
 import React, { useEffect } from 'react';
-import { getValidationSchema, saveToken, useStyles } from 'utils';
+import { getValidationSchema, tokenStore, useStyles } from 'utils';
 import * as yup from 'yup';
 
 const validation = yup.object(getValidationSchema(['username', 'password']));
 const ERROR = 'Fail to login';
-const SUCCESS = 'logged in';
+const SUCCESS = 'Logged in';
 
 const Login: NextPage<any> = () => {
   const auth = useAuth();
@@ -29,8 +29,6 @@ const Login: NextPage<any> = () => {
   useEffect(() => {
     data?.login && setTimeout(async () => Router.push('/control'), 3200);
   }, [data]);
-
-  error && setTimeout(() => dispatchAlert({ type: 'ERROR', message: ERROR }), 500);
 
   return (
     <Layout title="Account | Login" loading={loading}>
@@ -48,13 +46,10 @@ const Login: NextPage<any> = () => {
               const result = response?.data?.login;
 
               // save accessToken
-              saveToken(result?.access_token, result?.jwtExpiryInSec as any);
+              tokenStore.saveToken(result?.access_token, result?.jwtExpiryInSec as any);
 
               setSubmitting(false);
-              setTimeout(
-                () => dispatchAlert({ type: 'SUCCESS', message: `${username} ${SUCCESS}` }),
-                500
-              );
+              setTimeout(() => dispatchAlert({ type: 'SUCCESS', message: SUCCESS }), 500);
             } catch (e) {
               console.error(e);
               setSubmitting(false);
@@ -98,6 +93,7 @@ const Login: NextPage<any> = () => {
                     className={classes.submit}
                     variant="contained"
                     color="primary"
+                    size="small"
                     disabled={
                       isSubmitting ||
                       (!!errors?.username && !values?.username) ||

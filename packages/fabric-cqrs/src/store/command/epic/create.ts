@@ -32,19 +32,19 @@ export default (action$: Observable<CreateAction>, _, context) =>
             context.logger.error(
               util.format('[store/command/create.js] getNework error: %s', error.message)
             );
-            return Object.assign({}, { payload, error });
+            return Object.assign({}, { ...payload, error });
           })
       )
     ),
     mergeMap((getNetwork: any) => {
-      if (getNetwork.error)
+      if (getNetwork.error) {
         return of(
           action.createError({
             tx_id: getNetwork.tx_id,
             error: getNetwork.error,
           })
         );
-      else {
+      } else {
         const { payload, network, gateway } = getNetwork;
         const { tx_id, args, enrollmentId, channelName, connectionProfile, wallet } = payload;
         const { id, entityName, parentName, version, isPrivateData } = args;

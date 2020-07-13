@@ -10,6 +10,7 @@
 - redis-based queryDatabase
 - add refreshToken in auth server and ui-control
 - add synchroize logout
+- add notification
 
 ### Modified
 - dev-net to using queryHandler

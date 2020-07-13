@@ -17,6 +17,7 @@ import { RedisOptions } from 'ioredis';
 
 const port = parseInt(process.env.QUERY_PORT, 10) || 5000;
 const logger = getLogger('[query-handler] app.js');
+const authCheck = process.env.AUTHORIZATION_SERVER_URI;
 
 (async () => {
   const redisOptions: RedisOptions = {
@@ -40,6 +41,7 @@ const logger = getLogger('[query-handler] app.js');
     enrollmentId: process.env.ORG_ADMIN_ID,
     reducers,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+    authCheck,
   });
 
   const shutdown = async () => {

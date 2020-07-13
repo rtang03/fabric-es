@@ -94,3 +94,17 @@ export interface FindAction {
     };
   };
 }
+
+export interface NotifyAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: {
+      creator: string;
+      commitId?: string;
+      entityName?: string;
+      id?: string;
+      expireNow?: boolean;
+    };
+  };
+}

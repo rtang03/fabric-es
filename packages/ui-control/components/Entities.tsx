@@ -1,7 +1,9 @@
+import Typography from '@material-ui/core/Typography';
 import { QueryHandlerEntity } from 'graphql/generated/queryHandler';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
 import React from 'react';
+import Entity from './Entity';
 
 const Entities: React.FC<{ entities?: QueryHandlerEntity[] }> = ({ entities }) => {
   return (
@@ -14,12 +16,14 @@ const Entities: React.FC<{ entities?: QueryHandlerEntity[] }> = ({ entities }) =
           .map((entity) => ({
             ...entity,
             value: JSON.parse(entity.value),
-            created: new Date(entity?.created * 1000).toString(),
-            lastModified: new Date(entity?.lastModified * 1000).toString(),
+            created: new Date(entity?.created * 1000).toString().split('GMT')[0],
+            lastModified: new Date(entity?.lastModified * 1000).toString().split('GMT')[0],
           }))
-          .map((entity) => <pre key={entity.id}>{JSON.stringify(entity, null, 2)}</pre>)
+          .map((entity) => <Entity key={entity.id} entity={entity} />)
       ) : (
-        <p>No data returned</p>
+        <Typography variant="h6" component="p">
+          No data returned
+        </Typography>
       )}
     </>
   );

@@ -30,7 +30,7 @@
   },
   "private": true,
   "dependencies": {
-    "bcrypt": "^4.0.1",
+    "bcrypt": "^5.0.0",
     "cookie-parser": "^1.4.4",
     "dotenv": "^8.1.0",
     "errorhandler": "^1.5.1",

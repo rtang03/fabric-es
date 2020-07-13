@@ -16,6 +16,10 @@ import type { Commit, QueryHandler } from '../../types';
 import { Counter, reducer } from '../../unit-test-reducer';
 import { isCommit, isCommitRecord, waitForSecond } from '../../utils';
 
+/**
+ * ./dn-run.1-db-red-auth.sh
+ */
+
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
 const caUrl = process.env.ORG_CA_URL;
@@ -122,6 +126,10 @@ beforeAll(async () => {
       .then((result) => console.log(`eidx is created: ${result}`))
       .catch((result) => console.log(`eidx is not created: ${result}`));
 
+    await queryHandler
+      .queryNotify({ creator: enrollmentId, expireNow: true })
+      .then(({ status }) => console.log(`expire all notification: ${status}`));
+
     return waitForSecond(3);
   } catch (e) {
     console.error(e);
@@ -193,7 +201,6 @@ describe('Query Handler Tests', () => {
     await waitForSecond(3);
 
     return queryHandler.fullTextSearchCommit(['test*'], 0, 2).then(({ data, status }) => {
-      console.log(data.items);
       expect(status).toEqual('OK');
       expect(data.total).toEqual(2);
       expect(data.hasMore).toBeFalsy();
@@ -238,7 +245,7 @@ describe('Query Handler Tests', () => {
       .then(({ data, status, error, message }) => {
         expect(status).toEqual('ERROR');
         expect(data).toBeUndefined();
-        expect(error).toContain('Syntax error at offset');
+        expect(error.message).toContain('Syntax error at offset');
       }));
 
   it('should FT.SEARCH by test* : return 1 entity', async () =>
@@ -274,6 +281,32 @@ describe('Query Handler Tests', () => {
         _event: 'Increment,Decrement',
         _entityName: entityName,
         _organization: ['Org1MSP'],
+      });
+    }));
+
+  it('should queryGetEntityInfo', async () =>
+    queryHandler.queryGetEntityInfo({ entityName: 'noop' }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data).toEqual({
+        total: 0,
+        tagged: [],
+        orgs: [],
+        creators: [],
+        events: [],
+        totalCommit: 0,
+      });
+    }));
+
+  it('should queryGetEntityInfo', async () =>
+    queryHandler.queryGetEntityInfo({ entityName }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data).toEqual({
+        total: 1,
+        tagged: ['subscription'],
+        orgs: ['Org1MSP'],
+        creators: ['admin-org1.net'],
+        events: ['Increment', 'Decrement'],
+        totalCommit: 2,
       });
     }));
 });
@@ -630,5 +663,39 @@ describe('Pagination tests for getPaginatedEntityById', () => {
           'qh_pag_test_004',
           'qh_pag_test_005',
         ]);
+      }));
+});
+
+describe('Notification Tests', () => {
+  it('should notify by creator', async () =>
+    queryHandler.queryNotify({ creator: orgAdminId }).then(({ status, data }) => {
+      expect(status).toEqual('OK');
+      expect(data.length).toEqual(7);
+      data.forEach((item) => expect(Object.values(item)[0]).toEqual('1'));
+    }));
+
+  it('should notify by creator, entityName', async () =>
+    queryHandler.queryNotify({ creator: orgAdminId, entityName }).then(({ status, data }) => {
+      expect(status).toEqual('OK');
+      expect(data.length).toEqual(7);
+      data.forEach((item) => expect(Object.values(item)[0]).toEqual('1'));
+    }));
+
+  it('should notify by creator, entityName, id', async () =>
+    queryHandler
+      .queryNotify({ creator: orgAdminId, entityName, id: 'qh_sub_test_001' })
+      .then(({ status, data }) => {
+        expect(status).toEqual('OK');
+        expect(data.length).toEqual(2);
+        data.forEach((item) => expect(Object.values(item)[0]).toEqual('1'));
+      }));
+
+  it('should notify by creator, entityName, id', async () =>
+    queryHandler
+      .queryNotify({ creator: orgAdminId, expireNow: true })
+      .then(({ status, data }) => {
+        expect(status).toEqual('OK');
+        expect(data.length).toEqual(7);
+        data.forEach((item) => expect(Object.values(item)[0]).toEqual('0'));
       }));
 });

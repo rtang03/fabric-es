@@ -9,7 +9,8 @@ import type {
   Commit,
   FabricResponse,
   Reducer,
-  Paginated, QueryHandlerEntity
+  Paginated,
+  QueryHandlerEntity,
 } from '.';
 
 export interface QueryHandlerOptions {
@@ -129,4 +130,22 @@ export interface QueryHandler {
   subscribeHub: (entityNames: string[]) => Promise<any>;
   unsubscribeHub: () => void;
   disconnect: () => void;
+  queryGetEntityInfo: (payload: { entityName: string }) => Promise<HandlerResponse<EntityInfo>>;
+  queryNotify: (payload: {
+    creator: string;
+    entityName?: string;
+    id?: string;
+    commitId?: string;
+    expireNow?: boolean;
+  }) => Promise<HandlerResponse<Record<string, string>[]>>;
+}
+
+export interface EntityInfo {
+  entityName?: string;
+  total: number;
+  events: string[];
+  tagged: string[];
+  creators: string[];
+  orgs: string[];
+  totalCommit: number;
 }
