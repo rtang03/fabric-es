@@ -1,15 +1,13 @@
 require('./env');
-import http from 'http';
 import util from 'util';
 import { createGateway, getLogger } from '@fabric-es/gateway-lib';
-import stoppable from 'stoppable';
 
 const PORT = (process.env.GATEWAY_PORT || 4001) as number;
 const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI;
 const logger = getLogger('app.js');
 
 (async () => {
-  const server = await createGateway({
+  const { gateway, shutdown } = await createGateway({
     serviceList: [
       {
         name: 'user',
@@ -42,18 +40,6 @@ const logger = getLogger('app.js');
     debug: false
   });
 
-  const stoppableServer = stoppable(http.createServer(server));
-
-  const shutdown = () => {
-    stoppableServer.close(err => {
-      if (err) {
-        logger.error(util.format('An error occurred while closing the server: %j', err));
-        process.exitCode = 1;
-      } else logger.info('server closes');
-    });
-    process.exit();
-  };
-
   process.on('SIGINT', () => {
     shutdown();
   });
@@ -67,7 +53,7 @@ const logger = getLogger('app.js');
     logger.error(err.stack);
   });
 
-  stoppableServer.listen(PORT, () => {
+  gateway.listen(PORT, () => {
     logger.info(`🚀 gateway ready at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
     if (process.env.NODE_ENV === 'production') process.send('ready');
   });

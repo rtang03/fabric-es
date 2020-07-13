@@ -65,3 +65,77 @@ mockyeah.get('/500', { status: 500, json: { status: 'Return 500' } });
 mockyeah.post('/500', { status: 500, json: { status: 'Return 500' } });
 mockyeah.put('/500', { status: 500, json: { status: 'Return 500' } });
 mockyeah.delete('/500', { status: 500, json: { status: 'Return 500' } });
+
+
+/* ETC PBOC APIs */
+
+mockyeah.get('/sellerformation/inquiry', { json: `{ 
+    "sellerID": "11111", 
+    "sellerName": "businessname",
+    "sellerLEICode": "LEICODE0001",
+    "sellerRegisterJurisdication": "",
+    "sellerRegisterCode": "",
+    "sellerAddress": "address"  
+}` });
+
+mockyeah.post('/order/po', { json: `[
+    {
+        "id":"9966acid55678",//poid
+        "errorCode": "Invoice.002",
+        "errorMessage": "The requested poId is not correct."
+    },
+    {
+        "id":"9966acid55679",//poid
+        "errorCode": "Invoice.002",
+        "errorMessage": "The requested poId is not correct."
+    }
+]` });
+
+mockyeah.post('/order/cancelPO', { json: `[
+    {
+        "poId": "",
+        "reason": ""
+    },
+    {
+        "poId": "",
+        "reason": ""
+    }
+]` });
+
+mockyeah.post('/etccorp/pboc/api/v1/invoices', { json: `{
+    "failedList": [],
+    "totalCount": "1",
+    "totalFailed": "0"
+}` });
+
+mockyeah.put('/etccorp/pboc/api/v1/invoices', { json: `{
+    "failedList": [],
+    "totalCount": "1",
+    "totalFailed": "0"
+}` });
+
+mockyeah.post('/etccorp/pboc/api/v1/invoices/nofify', { json: `[
+    {
+        "invoiceId": "I5c36a9d87d88ddd2c8ac9d95",
+        "remark":”债权已转让给…”
+    }
+]` });
+
+mockyeah.post('/etccorp/pboc/api/v1/invoices/image/upload', { status: 200 });
+
+mockyeah.post('/invoice/result', { json: `[ 
+    {
+        "InvoiceID":"9966acid55678",
+        "ActionResponse":true,
+        "GoodsReceived":true,
+        "ReceiptDate":"2020-06-05",
+        "Comment":"This is good invoice",
+    },
+    {
+        "InvoiceID":"9966acid55679",
+        "ActionResponse":true,
+        "GoodsReceived":true,
+        "ReceiptDate":"2020-06-05",
+        "Comment":"This is good invoice",
+     }
+]` });

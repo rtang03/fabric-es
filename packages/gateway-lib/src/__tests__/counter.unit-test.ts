@@ -8,7 +8,6 @@ import {
 } from '@fabric-es/fabric-cqrs';
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
-import express from 'express';
 import { Wallets } from 'fabric-network';
 import httpStatus from 'http-status';
 import Redis from 'ioredis';
@@ -16,6 +15,7 @@ import keys from 'lodash/keys';
 import values from 'lodash/values';
 import fetch from 'node-fetch';
 import rimraf from 'rimraf';
+import { StoppableServer } from 'stoppable';
 import request from 'supertest';
 import { createAdminService } from '../admin';
 import { IDENTITY_ALREADY_EXIST, UNAUTHORIZED_ACCESS } from '../admin/constants';
@@ -70,7 +70,7 @@ const entityName = 'counter';
 const enrollmentId = orgAdminId;
 const logger = getLogger('[gateway-lib] counter.unit-test.js');
 
-let app: express.Express;
+let app: StoppableServer;
 let adminApolloService: ApolloServer;
 let modelApolloService: ApolloServer;
 let userId: string;
@@ -218,13 +218,14 @@ beforeAll(async () => {
     );
 
     // Step 10: Prepare Federated Gateway
-    app = await createGateway({
+    const { gateway } = await createGateway({
       serviceList: [
         { name: 'admin', url: `http://localhost:${ADMIN_SERVICE_PORT}/graphql` },
         { name: 'counter', url: `http://localhost:${MODEL_SERVICE_PORT}/graphql` },
       ],
       authenticationCheck: `${proxyServerUri}/oauth/authenticate`,
     });
+    app = gateway;
 
     // Step 11: Start Gateway
     return new Promise((done) =>
