@@ -1,0 +1,96 @@
+
+---
+# More example in here https://hyperledger.github.io/caliper/vLatest/fabric-config/
+name: first-network-org1
+version: '1.0'
+mutual-tls: false
+
+caliper:
+  blockchain: fabric
+#  command:
+#    start: docker-compose -f network/fabric-v1.4/2org1peergoleveldb/docker-compose-tls.yaml up -d;sleep 3s
+#    end: docker-compose -f network/fabric-v1.4/2org1peergoleveldb/docker-compose-tls.yaml down;(test -z \"$(docker ps -aq)\") || docker rm $(docker ps -aq);(test -z \"$(docker images dev* -q)\") || docker rmi $(docker images dev* -q);rm -rf /tmp/hfc-*
+
+wallet: assets/wallet
+
+info:
+  Version: 2.1.0
+  Size: 2 Orgs with 1 Peer
+  Orderer: Raft,
+  Distribution: Single Host
+  StateDB: GoLevelDB
+
+clients:
+  admin-org1.net:
+    client:
+      organization: Org1MSP
+#      credentialStore:
+#        path: ./assets/client-certs/hfc-kvs/org1
+#        cryptoStore:
+#          path: ./assets/client-certs/hfc-kvs/org1
+#      clientPrivateKey:
+#        path: ../../deployments/dev-net/artifacts/crypto-config/Org1MSP/admin/msp/keystore/key.pem
+#      clientSignedCert:
+#        path: ../../deployments/dev-net/artifacts/crypto-config/Org1MSP/admin/msp/signcerts/cert.pem
+
+channels:
+  loanapp:
+    configBinary: ../../deployments/dev-net/artifacts/crypto-config/Org1MSP/peer0.org1.net/assets/channel.tx
+    created: false
+    orderers:
+      - orderer0-org0
+    peers:
+      peer0-org1:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+    chaincodes:
+      - id: eventstore
+        version: 'v1'
+        targetPeers:
+          - peer0-org1
+#        language: node
+#        path: ../chaincode
+#        init: []
+#        function: Init
+
+organizations:
+  Org1MSP:
+    mspid: Org1MSP
+    peers:
+      - peer0-org1
+    certificateAuthorities:
+      - rca-org1
+    adminPrivateKey:
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org1MSP/admin/msp/keystore/key.pem
+    signedCert:
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org1MSP/admin/msp/signcerts/cert.pem
+
+orderers:
+  orderer0-org0:
+    url: grpcs://localhost:7050
+    grpcOptions:
+      ssl-target-name-override: orderer0-org0
+    #      grpc-max-send-message-length: 4000
+    tlsCACerts:
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+
+peers:
+  peer0-org1:
+    url: grpcs://localhost:7051
+    tlsCACerts:
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+    grpcOptions:
+      ssl-target-name-override: peer0-org1
+
+certificateAuthorities:
+  rca-org1:
+    url: https://localhost:5054
+    tlsCACerts:
+      path: ../../deployments/dev-net/artifacts/crypto-config/Org1MSP/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: rca-org1-admin
+        enrollSecret: rca-org1-adminPW
+    httpOptions:
+      verify: false

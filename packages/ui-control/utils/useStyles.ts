@@ -7,15 +7,13 @@ export const useStyles = makeStyles((theme: Theme) => ({
     },
   },
   root: {
-    '& > *': {
-      marginTop: theme.spacing(2),
-    },
+    // '& > *': {
+    //   marginTop: theme.spacing(2),
+    // },
     flexGrow: 1,
-    display: 'flex',
-    flexWrap: 'wrap',
   },
-  grow: {
-    flexGrow: 1,
+  menuButton: {
+    marginRight: theme.spacing(2),
   },
   paper: {
     marginTop: theme.spacing(8),
@@ -87,5 +85,18 @@ export const useStyles = makeStyles((theme: Theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: '60ch',
+  },
+  table: {
+    minWidth: 650,
+  },
+  expand: {
+    transform: 'rotate(0deg)',
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
+      duration: theme.transitions.duration.shortest,
+    }),
+  },
+  expandOpen: {
+    transform: 'rotate(180deg)',
   },
 }));

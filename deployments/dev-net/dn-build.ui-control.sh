@@ -2,6 +2,7 @@
 
 #######################################
 # Build ui docker image
+# $@ - list of orgs (e.g. "org1 org2")
 #######################################
 
 if [[ ( $# -eq 1 ) && ( $1 = "-h" || $1 = "--help" ) ]]; then
@@ -11,19 +12,30 @@ fi
 
 . ./scripts/setup.sh
 
-export UI_CONTROL_IMAGE=fabric-es/ui-account:${RELEASE}
-
 SECONDS=0
 
-printf "Cleaning up old image $UI_CONTROL_IMAGE\n"
-docker rmi $UI_CONTROL_IMAGE
+./cleanup.sh
 
-cd $ROOT_DIR/packages/ui-control
+for ORG in "$@"
+do
+  UI_IMAGE=${UI_CONTROL_IMAGE}-${ORG}:${RELEASE}
 
-### build image ###
-DOCKER_BUILD=1 docker build --no-cache -t $UI_CONTROL_IMAGE .
-printMessage "Create ui-control image" $?
-sleep 1
+  printf "Cleaning up old image $UI_IMAGE\n"
+  docker rmi $UI_IMAGE
+
+  ### prepare build directory ###
+  rm -fr $ROOT_DIR/.build
+  mkdir -p $ROOT_DIR/.build
+
+  cp -R $ROOT_DIR/packages/ui-control/. $ROOT_DIR/.build/
+  cp ${CONF_DIR}gw-${ORG}/.env.local.ui $ROOT_DIR/.build/.env.local
+  cd $ROOT_DIR/.build
+
+  ### build image ###
+  DOCKER_BUILD=1 docker build --no-cache -t $UI_IMAGE .
+  printMessage "Create ui-control image" $?
+  sleep 1
+done
 
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"

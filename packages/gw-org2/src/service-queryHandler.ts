@@ -1,6 +1,6 @@
 require('./env');
 import util from 'util';
-import { getReducer } from '@fabric-es/fabric-cqrs';
+import { counterReducer, getReducer } from '@fabric-es/fabric-cqrs';
 import { createQueryHandlerService, getLogger } from '@fabric-es/gateway-lib';
 import { User, UserEvents, userReducer } from '@fabric-es/model-common';
 import { Document, DocumentEvents, documentReducer } from '@fabric-es/model-document';
@@ -17,6 +17,7 @@ import { RedisOptions } from 'ioredis';
 
 const port = parseInt(process.env.QUERY_PORT, 10) || 5000;
 const logger = getLogger('[query-handler] app.js');
+const authCheck = process.env.AUTHORIZATION_SERVER_URI;
 
 (async () => {
   const redisOptions: RedisOptions = {
@@ -30,9 +31,10 @@ const logger = getLogger('[query-handler] app.js');
     loan: getReducer<Loan, LoanEvents>(loanReducer),
     user: getReducer<User, UserEvents>(userReducer),
     loanDetails: getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer),
+    counter: counterReducer,
   };
 
-  const { server } = await createQueryHandlerService(['document', 'loan', 'user', 'loanDetails'], {
+  const { server } = await createQueryHandlerService(['document', 'loan', 'user', 'loanDetails', 'counter'], {
     redisOptions,
     asLocalhost: !(process.env.NODE_ENV === 'production'),
     channelName: process.env.CHANNEL_NAME,
@@ -40,6 +42,7 @@ const logger = getLogger('[query-handler] app.js');
     enrollmentId: process.env.ORG_ADMIN_ID,
     reducers,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+    authCheck,
   });
 
   const shutdown = async () => {

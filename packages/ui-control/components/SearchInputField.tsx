@@ -23,6 +23,7 @@ const SearchInputField: React.FC<{
         <Field
           className={classes.textField}
           label={label}
+          size="small"
           component={TextField}
           name={'query'}
           placeholder={placeholder}

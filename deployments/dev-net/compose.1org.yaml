@@ -219,6 +219,8 @@ services:
       - CORE_PEER_GOSSIP_ENDPOINT=peer0-org1:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-org1:7051
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_OPERATIONS_LISTENADDRESS=peer0-org1:9443
+      - CORE_METRICS_PROVIDER=prometheus
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/Org1MSP/peer0.org1.net
     volumes:
       - /var/run:/host/var/run
@@ -226,3 +228,4 @@ services:
     ports:
       - 7051:7051
       - 7053:7053
+      - 9443:9443

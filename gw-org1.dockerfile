@@ -4,7 +4,7 @@ ENV TIME_ZONE=Asia/Hong_Kong \
     ENV_NAME=production \
     NODE_ENV=production \
     NODE_CONFIG_ENV=production \
-    YARN_VERSION=1.21.1
+    YARN_VERSION=1.22.4
 
 RUN mkdir /home/app/ \
    && chown -R node:node /home/app

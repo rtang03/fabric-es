@@ -11,7 +11,7 @@ server { # simple reverse-proxy
     }
 
     # pass requests for dynamic content to rails/turbogears/zope, et al
-    location /web {
+    location /control {
       proxy_pass      ${APP_HOST};
     }
 

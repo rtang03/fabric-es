@@ -5,6 +5,7 @@ import fullTextSearchCIdxEpic from './fullTextSearchCIdx';
 import fullTextSearchEIdxEpic from './fullTextSearchEIdx';
 import mergeEpic from './mergeCommit';
 import mergeBatchEpic from './mergeCommitBatch';
+import notifyEpic from './notify';
 import queryByEntityIdEpic from './queryByEntityId';
 import queryByEntityNameEpic from './queryByEntityName';
 
@@ -18,4 +19,5 @@ export const epic = [
   fullTextSearchCIdxEpic,
   fullTextSearchEIdxEpic,
   findEpic,
+  notifyEpic,
 ];

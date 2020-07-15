@@ -93,7 +93,7 @@ describe('Store/projection: failure tests', () => {
     )({ commit: null }).then(({ data, status, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error).toContain('invalid input argument');
+      expect(error.message).toContain('invalid input argument');
     }));
 
   it('should fail to mergeEntityBatch: invalid argument: missing commits', async () =>
@@ -110,7 +110,7 @@ describe('Store/projection: failure tests', () => {
     )({ entityName, commits: null }).then(({ data, status, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error).toContain('invalid input argument');
+      expect(error.message).toContain('invalid input argument');
     }));
 
   it('should fail to mergeEntityBatch: invalid argument: missing entityName', async () =>
@@ -127,7 +127,7 @@ describe('Store/projection: failure tests', () => {
     )({ entityName: null, commits }).then(({ data, status, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
-      expect(error).toContain('invalid input argument');
+      expect(error.message).toContain('invalid input argument');
     }));
 
   it('should fail to mergeEntityBatch: invalid argument: empty commits', async () =>

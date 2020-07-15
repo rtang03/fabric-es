@@ -144,6 +144,10 @@ afterAll(async () => {
     .then(({ data }) => console.log(`${data} records deleted`))
     .catch((error) => console.log(error));
 
+  await queryHandler
+    .queryNotify({ creator: enrollmentId, expireNow: true })
+    .then(({ status }) => console.log(`expire all notification: ${status}`));
+
   return waitForSecond(5);
 });
 

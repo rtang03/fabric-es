@@ -18,8 +18,8 @@ export const isCommit = (value: any): value is Commit =>
   value?.id !== undefined &&
   value?.entityId !== undefined &&
   value?.version !== undefined &&
-  value?.entityName !== undefined &&
-  value?.mspId !== undefined;
+  value?.entityName !== undefined;
+// for isCommit, no need to check mspId, which is optional
 
 export const isFabricResponse = (input: any): input is FabricResponse =>
   input?.status !== undefined && input?.message !== undefined;

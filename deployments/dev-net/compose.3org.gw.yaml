@@ -17,9 +17,11 @@ services:
       - ORG_ADMIN_SECRET=admin-org3.netPW
       - GATEWAY_HOST=gw-org3
       - REDIS_HOST=redis03
+      - QUERY_PORT=5003
     working_dir: /home/app/packages/gw-org3
     ports:
       - 4003:4001
+      - 5003:5003
     networks:
       - openplatform
     depends_on:

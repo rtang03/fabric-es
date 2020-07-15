@@ -4,5 +4,6 @@ export * from './getValidationSchema';
 export * from './typeGuard';
 export * from './catchErrors';
 export * from './fetcher';
-export * from './tokenStorage';
+export * from './tokenStore';
 export * from './apolloClient';
+export * from './lowerCasing';

@@ -3,7 +3,7 @@ import cookie from 'cookie';
 import { NextPage, NextPageContext } from 'next';
 import Router from 'next/router';
 import React, { Component, useEffect } from 'react';
-import { getToken, saveToken, useApollo } from 'utils';
+import { tokenStore, useApollo } from 'utils';
 
 /**
  * HOC for refreshing token, for children component
@@ -39,7 +39,7 @@ const auth = async (ctx: NextPageContext) => {
   let response;
   let newRTDetails;
 
-  if (!getToken()) {
+  if (!tokenStore.getToken()) {
     try {
       // fetch BackendForFront (without using apollo client)
       response = await fetch(url, {
@@ -93,7 +93,7 @@ const auth = async (ctx: NextPageContext) => {
           );
 
         // save token to inMemory
-        newRTDetails && saveToken(newRTDetails.access_token, jwtexpiryinsec);
+        newRTDetails && tokenStore.saveToken(newRTDetails.access_token, jwtexpiryinsec);
 
         return { accessToken: newRTDetails.access_token };
       } else return { accessToken: null };
@@ -107,7 +107,7 @@ const auth = async (ctx: NextPageContext) => {
     }
   }
 
-  return { accessToken: getToken() };
+  return { accessToken: tokenStore.getToken() };
 };
 
 const withAuth = (WrappedComponent: NextPage<any>) => {
@@ -115,7 +115,7 @@ const withAuth = (WrappedComponent: NextPage<any>) => {
   // console.log('[withAuth.tsx] =======withAuthSync is called==========');
 
   const AuthComponent = (props: any) => {
-    saveToken(props.accessToken);
+    tokenStore.saveToken(props.accessToken);
 
     // when mount
     useEffect(() => window.addEventListener('storage', syncLogout), []);
@@ -153,7 +153,7 @@ const withAuth = (WrappedComponent: NextPage<any>) => {
     // IMPORTANT: every withAuth call will refresh token
     const { accessToken } = await auth(ctx);
 
-    accessToken && saveToken(accessToken);
+    accessToken && tokenStore.saveToken(accessToken);
 
     const componentProps =
       WrappedComponent.getInitialProps && (await WrappedComponent.getInitialProps(ctx));

@@ -58,6 +58,10 @@ beforeAll(async () => {
     .send_command('FT.CREATE', commitIndex)
     .then((result) => console.log(`cidx is created: ${result}`))
     .catch((result) => console.log(`cidx is not created: ${result}`));
+
+  await queryDatabase
+    .getNotification({ creator: 'org1-admin', expireNow: true })
+    .then(({ status }) => console.log(`clear notification: ${status}`));
 });
 
 afterAll(async () => {
@@ -292,4 +296,64 @@ describe('Projection db test', () => {
           ],
         });
       }));
+
+  it('should getNotification by creator', async () =>
+    queryDatabase.getNotification({ creator: 'org1-admin' }).then(({ status, result }) => {
+      expect(status).toEqual('OK');
+      expect(result[0]).toEqual({
+        'noti::org1-admin::test_proj::qh_proj_test_001::20200528133520841': '1',
+      });
+    }));
+
+  it('should getNotification by creator, entityName', async () =>
+    queryDatabase
+      .getNotification({ creator: 'org1-admin', entityName: 'test_proj' })
+      .then(({ status, result }) => {
+        expect(status).toEqual('OK');
+        expect(result[0]).toEqual({
+          'noti::org1-admin::test_proj::qh_proj_test_001::20200528133520841': '1',
+        });
+      }));
+
+  it('should getNotification by creator, entityName, id', async () =>
+    queryDatabase
+      .getNotification({ creator: 'org1-admin', entityName: 'test_proj', id: 'qh_proj_test_001' })
+      .then(({ status, result }) => {
+        expect(status).toEqual('OK');
+        expect(result[0]).toEqual({
+          'noti::org1-admin::test_proj::qh_proj_test_001::20200528133520841': '1',
+        });
+      }));
+
+  it('should getNotification by creator, entityName, id, commitId', async () =>
+    queryDatabase
+      .getNotification({
+        creator: 'org1-admin',
+        entityName: 'test_proj',
+        id: 'qh_proj_test_001',
+        commitId: '20200528133520841',
+      })
+      .then(({ status, result }) => {
+        expect(status).toEqual('OK');
+        // after reading by commitId, will automaitcally set to 0
+        expect(result[0]).toEqual({
+          'noti::org1-admin::test_proj::qh_proj_test_001::20200528133520841': '0',
+        });
+      }));
+
+  it('should expire all notifications', async () =>
+    queryDatabase
+      .getNotification({ creator: 'org1-admin', expireNow: true })
+      .then(({ status, result }) => {
+        expect(status).toEqual('OK');
+        expect(result[0]).toEqual({
+          'noti::org1-admin::test_proj::qh_proj_test_001::20200528133520841': '0',
+        });
+      }));
+
+  it('should return no notifications', async () =>
+    queryDatabase.getNotification({ creator: 'org1-admin' }).then(({ status, result }) => {
+      expect(status).toEqual('OK');
+      expect(result).toEqual([]);
+    }));
 });

@@ -9,6 +9,7 @@ import type {
   EIdxSearchAction,
   CIdxSearchAction,
   FindAction,
+  NotifyAction,
 } from './types';
 
 const DELETE_COMMIT_BY_ENTITYNAME = '[Query-Db] Delete commits by EntityName';
@@ -32,6 +33,9 @@ const SEARCH_ERROR = '[Query-Db] Search Error';
 const FIND = '[Query-Db] Find';
 const FIND_SUCCESS = '[Query-Db] Find Success';
 const FIND_ERROR = '[Query-Db] Find Error';
+const NOTIFY = '[Query-Db] Notify';
+const NOTIFY_SUCCESS = '[Query-Db] Notify Success';
+const NOTIFY_ERROR = '[Query-Db] Notify Error';
 
 export const action = {
   DELETE_COMMIT_BY_ENTITYNAME,
@@ -55,6 +59,9 @@ export const action = {
   FIND,
   FIND_SUCCESS,
   FIND_ERROR,
+  NOTIFY,
+  NOTIFY_SUCCESS,
+  NOTIFY_ERROR,
   deleteCommitByEntityId: getAction<DeleteCommitByEntityIdAction>(DELETE_COMMIT_BY_ENTITY_ID),
   deleteCommitByEntityName: getAction<DeleteCommitByEntityNameAction>(DELETE_COMMIT_BY_ENTITYNAME),
   mergeCommit: getAction<MergeAction>(MERGE_COMMIT),
@@ -76,4 +83,7 @@ export const action = {
   find: getAction<FindAction>(FIND),
   findSuccess: getSuccessAction(FIND_SUCCESS),
   findError: getErrorAction(FIND_ERROR),
+  notify: getAction<NotifyAction>(NOTIFY),
+  notifySuccess: getSuccessAction(NOTIFY_SUCCESS),
+  notifyError: getErrorAction(NOTIFY_ERROR),
 };

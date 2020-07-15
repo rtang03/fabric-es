@@ -254,6 +254,10 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
 
         // (4) add to secondary index: cidx
         statusCIdx = await fullTextSearchAddCommit(redisKeyCommit, commit, redis);
+
+        // (5) add read notification based on _creator
+        const notificationKey = `noti::${currentState._creator}::${entityName}::${commit.id}::${commit.commitId}`;
+        await redis.set(notificationKey, 1, 'EX', 86400); // expire in 1 day);
       } catch (e) {
         logger.error(util.format('unknown redis error, %j', e));
         throw e;
@@ -354,13 +358,43 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         ? sizeOfSearchResult(query, { redis, logger, index: 'eidx' })
         : doSearch<TEntity>(query, { redis, logger, index: 'eidx' });
     },
-    fullTextSearchGetDocument: async ({ index, documentId }) => {
-      // return the document of index
+    clearNotification: async ({ creator, entityName }) => {
       return null;
     },
-    fullTextSearchTagVals: async ({ index, tag }) => {
-      // return unique tag value
-      return null;
+    getNotification: async ({ creator, entityName, id, commitId, expireNow }) => {
+      const pattern = commitId
+        ? `noti::${creator}::${entityName}::${id}::${commitId}`
+        : id
+        ? `noti::${creator}::${entityName}::${id}::*`
+        : entityName
+        ? `noti::${creator}::${entityName}::*`
+        : `noti::${creator}::*`;
+
+      const result = [];
+
+      try {
+        if (commitId) {
+          // based on one commitId
+          if (expireNow) {
+            await redis.del(pattern);
+          } else await redis.getset(pattern, '0');
+
+          result.push({ [pattern]: '0' });
+        } else {
+          // based on pattern
+          const keys = await redis.keys(pattern);
+          for (const key of keys.sort().reverse())
+            if (expireNow) {
+              await redis.del(key);
+              result.push({ [key]: '0' });
+            } else result.push({ [key]: await redis.get(key) });
+        }
+      } catch (e) {
+        logger.error(util.format('unknown redis error, %j', e));
+        throw e;
+      }
+
+      return { status: 'OK', result, message: `${keys.length} record(s) returned` };
     },
     queryEntity: async ({ entityName, where }) => {
       // queryEntity provides alternative implementation of getProjection

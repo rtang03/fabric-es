@@ -11,9 +11,11 @@ import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import Redis, { RedisOptions } from 'ioredis';
+import fetch from 'node-fetch';
 import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
 import { QueryHandlerGqlCtx } from '../types';
 import { getLogger } from '../utils';
+import { isAuthResponse } from '../utils';
 import { reconcile, rebuildIndex, resolvers, typeDefs } from './index';
 
 export const createQueryHandlerService: (
@@ -26,6 +28,7 @@ export const createQueryHandlerService: (
     asLocalhost: boolean;
     wallet: Wallet;
     reducers: Record<string, Reducer>;
+    authCheck: string;
     playground?: boolean;
     introspection?: boolean;
   }
@@ -39,6 +42,7 @@ export const createQueryHandlerService: (
     wallet,
     asLocalhost,
     reducers,
+    authCheck,
     playground = true,
     introspection = true,
   }
@@ -112,23 +116,50 @@ export const createQueryHandlerService: (
     playground,
     introspection,
     subscriptions: {
-      // onConnect: (connectionParams, webSocket) => {
-      //   if (connectionParams.authToken) {
-      //     return validateToken(connectionParams.authToken)
-      //       .then(findUser(connectionParams.authToken))
-      //       .then(user => {
-      //         return {
-      //           currentUser: user,
-      //         };
-      //       });
-      //   }
-      //   throw new Error('Missing auth token!');
-      // },
-      // onDisconnect: (webSocket, context) => {
-      // },
+      onConnect: (connectionParams, webSocket) => {
+        console.log(connectionParams);
+        // if (connectionParams.authToken) {
+        //   return validateToken(connectionParams.authToken)
+        //     .then(findUser(connectionParams.authToken))
+        //     .then(user => {
+        //       return {
+        //         currentUser: user,
+        //       };
+        //     });
+        // }
+        // throw new Error('Missing auth token!');
+      },
+      onDisconnect: (webSocket, context) => {
+        console.log(context.request);
+      },
     },
-    context: () => {
-      return { pubSub, queryHandler, queryDatabase, publisher } as QueryHandlerGqlCtx;
+    context: async ({ req: { headers } }) => {
+      const token = headers?.authorization?.split(' ')[1] || null;
+
+      const ctx: QueryHandlerGqlCtx = {
+        pubSub,
+        queryHandler,
+        queryDatabase,
+        publisher,
+        entityNames,
+      };
+
+      try {
+        const response = await fetch(authCheck, {
+          method: 'POST',
+          headers: { authorization: `Bearer ${token}` },
+        });
+
+        if (response.status === 200) {
+          const result: unknown = await response.json();
+
+          if (isAuthResponse(result)) return { ...result, ...ctx };
+        }
+        logger.warn(`authenticate fails, status: ${response.status}`);
+      } catch (e) {
+        logger.error(util.format('authenticationCheck error: %j', e));
+      }
+      return ctx;
     },
   });
 

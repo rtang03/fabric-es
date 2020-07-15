@@ -35,8 +35,6 @@ const Register: NextPage<any> = () => {
     }
   }, [data]);
 
-  error && setTimeout(() => dispatch({ type: 'ERROR', message: ERROR }), 500);
-
   return (
     <Layout title="Account | Register" loading={loading}>
       <Container component="main" maxWidth="sm">
@@ -111,6 +109,7 @@ const Register: NextPage<any> = () => {
                     className={classes.submit}
                     variant="contained"
                     color="primary"
+                    size="small"
                     disabled={
                       isSubmitting ||
                       (!!errors?.email && !values?.email) ||

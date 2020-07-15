@@ -15,7 +15,7 @@ export default (
   { queryDatabase, logger }: { queryDatabase: QueryDatabase; logger: Logger }
 ) =>
   action$.pipe(
-    ofType(action.FIND),
+    ofType(FIND),
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName, byId, byDesc, where } }) => {
       let promise;
