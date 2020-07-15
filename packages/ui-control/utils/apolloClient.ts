@@ -22,12 +22,15 @@ const bbfLink = new HttpLink({
 // TODO: Less preferred. The browser client will access the queryHandler, outside nginx
 // Alternate implementation is to create new BBF api, to route request from BBF, to INTERNAL QueryHandler
 // Also, process.env.QH_EXTERNAL_HOST will be available to browser, via .env.local
+
 const queryHandlerLink = new HttpLink({
-  uri: process.env.QH_EXTERNAL_HOST || 'http://localhost:5001/graphql',
+  uri: process.env.NEXT_PUBLIC_QH_EXTERNAL_HOST || process.env.QH_EXTERNAL_HOST,
+  // uri: process.env.QH_EXTERNAL_HOST || 'http://localhost:5001/graphql',
 });
 
 const gatewayLink = new HttpLink({
-  uri: process.env.GW_ORG_EXTERNAL_HOST || 'http://localhost:4001/graphql',
+  uri: process.env.NEXT_PUBLIC_GW_ORG_EXTERNAL_HOST || process.env.GW_ORG_EXTERNAL_HOST,
+  // uri: process.env.GW_ORG_EXTERNAL_HOST || 'http://localhost:4001/graphql',
 });
 
 const condition = (dest: string) => ({ getContext }: Operation) => getContext().backend === dest;

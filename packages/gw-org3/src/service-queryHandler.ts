@@ -1,6 +1,6 @@
 require('./env');
 import util from 'util';
-import { getReducer } from '@fabric-es/fabric-cqrs';
+import { counterReducer, getReducer } from '@fabric-es/fabric-cqrs';
 import { createQueryHandlerService, getLogger } from '@fabric-es/gateway-lib';
 import { User, UserEvents, userReducer } from '@fabric-es/model-common';
 import { DocContents, DocContentsEvents, docContentsReducer } from '@fabric-es/model-document';
@@ -27,10 +27,11 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     docContents: getReducer<DocContents, DocContentsEvents>(docContentsReducer),
     loanDetails: getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer),
     user: getReducer<User, UserEvents>(userReducer),
+    counter: counterReducer,
   };
 
   const { server } = await createQueryHandlerService(
-    ['document', 'loan', 'docContents', 'loanDetails', 'user'],
+    ['document', 'loan', 'docContents', 'loanDetails', 'user', 'counter'],
     {
       redisOptions,
       asLocalhost: !(process.env.NODE_ENV === 'production'),
