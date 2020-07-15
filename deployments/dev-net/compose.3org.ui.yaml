@@ -10,9 +10,9 @@ services:
     environment:
       - HOST=localhost
       - PORT=3000
-      - AUTH_HOST=http://localhost:3003
+      - AUTH_HOST=http://auth-server3:8080
       - GW_ORG_INTERNAL_HOST=http://gw-org3:4001
-      - GW_ORG_EXTERNAL_HOST=http://localhost:8082
+      - GW_ORG_EXTERNAL_HOST=http://localhost:4003
       - QH_EXTERNAL_HOST=http://localhost:5003/graphql
     networks:
       - openplatform
