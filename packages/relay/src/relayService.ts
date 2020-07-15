@@ -7,12 +7,14 @@ import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import RedisClient, { Redis } from 'ioredis';
 import JSON5 from 'json5';
-import { isEmpty, isString } from 'lodash';
+import { isEmpty, isString, isNull } from 'lodash';
 import querystring from 'query-string';
 import stoppable, { StoppableServer } from 'stoppable';
 import { getLogger } from './getLogger';
 import { processMsg } from './processMsg';
 import { ReqRes } from './reqres';
+
+
 
 const logger = getLogger('[relay] relayService.js');
 
@@ -145,10 +147,13 @@ export const relayService = ({
 
   const apiProxy = createProxyMiddleware({
     target: targetUrl,
+    //forward: targetUrl,
     changeOrigin: true,
     agent  : agentCfg,
     secure : secureCfg,
     onProxyReq: (proxyReq, req, res) => {
+      logger.info("Header: " + JSON.stringify(req.headers));
+  
       const reqres: ReqRes = {
         id: crypto.randomBytes(16).toString('hex'),
         startTime: Date.now(),
@@ -161,9 +166,12 @@ export const relayService = ({
         statusMessage: undefined
       };
 
+      
       const raw = util.inspect(req.body, false, null);
-      logger.info('Raw:' + req.body);
-    
+
+      logger.info('Raw:' + raw);
+     
+
       if (req.is('json')) {
         try {
           // Use JSON5 to parse relaxed Json
@@ -179,13 +187,10 @@ export const relayService = ({
 
       res.locals.reqres = reqres;
 
-      // Fix http-proxy-middleware req.body forward issue
-      if (req.body) {
+      // If the request data has been parsed by express, it should be rewritten in the request proxy explicitly. 
+      if ((req.body) && (req.is('json'))) {
         const bodyData = JSON.stringify(req.body);
-        // in case if content-type is application/x-www-form-urlencoded -> we need to change to application/json
-        // proxyReq.setHeader('Content-Type', 'application/json');
-        // proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
-        // stream the content
+        //logger.info("Inside:" + bodyData);
         proxyReq.write(bodyData);
       }
     },
@@ -204,7 +209,7 @@ export const relayService = ({
         message.resBody = body;
 
         await processMsg({ message, client, topic }).then((_) => {
-          logger.info(`Message processed: ${JSON.stringify(message)}`);
+          //logger.info(`Message processed: ${JSON.stringify(message)}`);
         }).catch((error) => {
           logger.error(`Error while processing [${message.id}]: ${error} - '${JSON.stringify(message)}'`);
         });
@@ -223,9 +228,18 @@ export const relayService = ({
     }
   });
 
-  const relayApp = express();
+  const relayApp = express();  
+  
+  // Parse the data only for "Content-Type: application/json"
+  relayApp.use(express.json());  
+  /*
   relayApp.use(express.urlencoded({ extended: true }));
-  relayApp.use(express.json());
+  relayApp.use(express.text());  
+  relayApp.use(express.raw({type:'multipart/form-data'}));
+  */
+  
+
+
   relayApp.use('', apiProxy);
 
   return relayApp;
