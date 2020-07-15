@@ -370,8 +370,6 @@ describe('Verify Result', () => {
     }));
 });
 
-/*
-
 describe('Paginated entity and commit Tests', () => {
   beforeAll(async () => {
     await waitForSecond(2);
@@ -515,5 +513,3 @@ describe('Paginated entity and commit Tests', () => {
       }));
 });
 
-
- */
