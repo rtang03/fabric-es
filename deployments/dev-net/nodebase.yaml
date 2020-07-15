@@ -14,6 +14,7 @@ services:
   orderer:
     image: hyperledger/fabric-orderer:$IMAGE_TAG
     environment:
+#      - FABRIC_LOGGING_SPEC=grpc=debug:debug
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_GENESISMETHOD=file
       - ORDERER_GENERAL_TLS_ENABLED=true
@@ -27,6 +28,7 @@ services:
     environment:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=dev-net_openplatform
+#      - FABRIC_LOGGING_SPEC=grpc=debug:debug
       - FABRIC_LOGGING_SPEC=INFO
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_GOSSIP_USELEADERELECTION=true

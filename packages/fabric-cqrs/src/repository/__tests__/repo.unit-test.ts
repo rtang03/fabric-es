@@ -16,7 +16,7 @@ import {
 import { getNetwork } from '../../services';
 import type { QueryHandler, Repository } from '../../types';
 import { reducer, CounterEvent, Counter } from '../../unit-test-reducer';
-import { getLogger, isCommitRecord, waitForSecond } from '../../utils';
+import { getLogger, waitForSecond } from '../../utils';
 
 /**
  * ./dn-run.1-db-red-auth.sh
