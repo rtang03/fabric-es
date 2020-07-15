@@ -1,5 +1,9 @@
 version: '2'
 
+#volumes:
+#  prometheus_data: {}
+#  grafana_storage: {}
+  
 networks:
   openplatform:
 
@@ -229,3 +233,51 @@ services:
       - 7051:7051
       - 7053:7053
       - 9443:9443
+
+#  prometheus:
+#    image: prom/prometheus
+#    container_name: prometheus
+#    volumes:
+#      - ./prometheus/prometheus-fabric.yml:/etc/prometheus/prometheus.yml
+#      - prometheus_data:/prometheus
+#    command:
+#      - '--config.file=/etc/prometheus/prometheus.yml'
+#      - '--storage.tsdb.path=/prometheus'
+#      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+#      - '--web.console.templates=/usr/share/prometheus/consoles'
+#    ports:
+#      - "9090:9090"
+#
+#  pushGateway:
+#    image: prom/pushgateway
+#    container_name: pushGateway
+#    ports:
+#      - "9091:9091"
+#
+#  grafana:
+#    image: grafana/grafana
+#    container_name: grafana
+#    user: "104"
+#    depends_on:
+#      - prometheus
+#    ports:
+#      - 3000:3000
+#    volumes:
+#      - grafana_storage:/var/lib/grafana
+#      - ./grafana/provisioning/:/etc/grafana/provisioning/
+#    env_file:
+#      - ./grafana/config.monitoring
+#    restart: always
+#
+#  cadvisor:
+#    image: google/cadvisor:v0.27.4
+#    privileged: true
+#    container_name: cadvisor
+#    volumes:
+#      - /var/run:/var/run:rw
+#      - /sys:/sys:ro
+#      - /var/lib/docker/:/var/lib/docker:ro
+#      # - /cgroup:/cgroup:ro
+#    ports:
+#      - 8080:8080
+#    restart: always

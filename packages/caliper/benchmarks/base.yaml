@@ -1,0 +1,40 @@
+---
+test:
+  name: Eventstore
+  description: This is a tps based benchmark targetting using the `evenstore` NodeJS chaincode contract that is interacted with via
+    a Fabric-SDK-Node Gateway. Each test round flexes a single chaincode method.
+  workers:
+    type: local
+    number: 1
+  rounds:
+    - label: createCommit - 100
+      description: >-
+        Test submitTransaction() against `eventstore:createCommit`. This inserts a commit of size 100 bytes into the World State database.
+#      chaincodeId: eventstore
+      txDuration: 1
+      rateControl:
+        type: fixed-backlog
+        opts:
+          unfinished_per_client: 5
+      callback: dist/createCommit.js
+      arguments:
+        bytesize: 1000
+#observer:
+#  type: prometheus
+#  interval: 5
+monitor:
+  type:
+    - docker
+  docker:
+    name:
+      - peer0-org1
+      - orderer0-org0
+  interval: 1
+#  process:
+#    - command: node
+#      arguments: local-client.js
+#      multiOutput: avg
+#  observer:
+#    type: local
+#    interval: 1
+
