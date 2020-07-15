@@ -25,7 +25,7 @@ containerWait "auth-server1" "Auth server started"
 # STEP 3
 docker-compose $COMPOSE_0_S_A_U up -d --no-recreate
 printMessage "docker-compose up $COMPOSE_0_S_A_U" $?
-containerWait "ui-account1" "Server listening at"
+containerWait "ui-control1" "Server listening at"
 
 # STEP 4
 docker-compose $COMPOSE_0_S_A_U $COMPOSE_1_NGX up -d --no-recreate

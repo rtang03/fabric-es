@@ -34,5 +34,5 @@ cp $ROOT_DIR/entrypoint.sh $ROOT_DIR/.build/
 cp $ROOT_DIR/yarn.lock $ROOT_DIR/.build/
 cp $ROOT_DIR/packages/gw-${ORG}/package.json $ROOT_DIR/packages/gw-${ORG}/processes.yaml $ROOT_DIR/.build/packages/gw-${ORG}/
 cp -R $ROOT_DIR/packages/gw-${ORG}/dist $ROOT_DIR/.build/packages/gw-${ORG}/
-cp ${CONF_DIR}gw-${ORG}/.env.prod $ROOT_DIR/.build/packages/gw-${ORG}/.env
+cp ${CONF_DIR}gw-${ORG}/.env.prod.gw $ROOT_DIR/.build/packages/gw-${ORG}/.env
 cp ${CONF_DIR}gw-${ORG}/connection-${ORG}.docker.yaml $ROOT_DIR/.build/packages/gw-${ORG}/connection

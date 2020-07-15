@@ -19,7 +19,6 @@ const logger = getLogger('[relay] relayService.js');
 let secureCfg;
 let agentCfg;
 
-
 export const createRelayService: (option: {
   targetUrl: string;
   redisHost: string;
@@ -32,7 +31,6 @@ export const createRelayService: (option: {
 }> = async ({
   targetUrl, redisHost, redisPort, topic, httpsArg
 }) => {
-
   const client = new RedisClient({
     host: redisHost,
     port: redisPort,
@@ -112,14 +110,8 @@ export const createRelayService: (option: {
         });
       }
     };
-
   }
- 
-
 };
-
-
-
 
 export const relayService = ({
   targetUrl,

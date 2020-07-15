@@ -4,14 +4,16 @@ networks:
   openplatform:
 
 services:
-  ui-account3:
-    image: $UI_ACCOUNT_IMAGE
-    container_name: ui-account3
+  ui-control3:
+    image: $UI_CONTROL_IMAGE-org3:$RELEASE
+    container_name: ui-control3
     environment:
+      - HOST=localhost
       - PORT=3000
-      - AUTH_HOST=http://auth-server3:8080
+      - AUTH_HOST=http://localhost:3003
       - GW_ORG_INTERNAL_HOST=http://gw-org3:4001
-      - GW_ORG_EXTERNAL_HOST=http://localhost:4003
+      - GW_ORG_EXTERNAL_HOST=http://localhost:8082
+      - QH_EXTERNAL_HOST=http://localhost:5003/graphql
     networks:
       - openplatform
     depends_on:
