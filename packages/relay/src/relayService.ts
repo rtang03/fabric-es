@@ -7,7 +7,7 @@ import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import RedisClient, { Redis } from 'ioredis';
 import JSON5 from 'json5';
-import { isEmpty, isString, isNull } from 'lodash';
+import { isEmpty, isString } from 'lodash';
 import querystring from 'query-string';
 import stoppable, { StoppableServer } from 'stoppable';
 import { getLogger } from './getLogger';
