@@ -1,0 +1,105 @@
+global:
+  TZ: Asia/Hong_Kong
+  FABRIC_CFG_PATH: /etc/hyperledger/fabric/
+
+ordererConfiguration:
+  ORDERER_GENERAL_LOCALMSPID: Org0MSP
+
+postgresql-0:
+  postgresqlDatabase: fabric_ca
+  postgresqlPassword: password
+  persistence:
+    enabled: true
+    existingClaim: fabric-pvc-tls-ca
+    subPath: pgdata
+    storageClass: manual
+    accessModes:
+      - ReadWriteOnce
+    size: 10Mi
+
+postgresql-1:
+  postgresqlDatabase: fabric_ca
+  postgresqlPassword: password
+  initdbScripts:
+    1-createdb.sql: |
+      CREATE DATABASE "auth_db";
+  persistence:
+    enabled: true
+    existingClaim: fabric-pvc-rca0
+    subPath: pgdata
+    storageClass: manual
+    accessModes:
+      - ReadWriteOnce
+    size: 10Mi
+
+tls-ca-org0:
+  adminUsername: tls-ca-admin
+  adminPassword: tls-ca-adminPW
+  caName: tls-ca-org0
+  db:
+    ssl: disable
+  externalDatabase:
+    type: postgres
+    host: fdi-postgresql-0
+    port: 5432
+    database: fabric_ca
+    username: postgres
+    password: password
+  persistence:
+    enabled: true
+    storageClass: manual
+    accessMode: ReadWriteOnce
+    existingClaim: fabric-pvc-tls-ca
+    size: 10Mi
+  config:
+    hlfToolsVersion: 1.4.7
+    FABRIC_CA_CLIENT_HOME: /var/hyperledger/fabric-ca/Org0MSP/tls/admin
+    FABRIC_CA_SERVER_HOME: /var/artifacts/crypto-config/HktfpMSP/tls/server
+    FABRIC_CA_SERVER_TLS_ENABLED: "true"
+    csr:
+      names:
+        c: CN
+        st: "Hong Kong"
+        o: Fdi
+        ou: Org0
+  image:
+    tag: 1.4.7
+
+rca-org0:
+  adminUsername: rca-org0-admin
+  adminPassword: rca-org0-adminPW
+  caName: rca-org0
+  db:
+    ssl: disable
+  externalDatabase:
+    type: postgres
+    host: fdi-postgresql-1
+    port: 5432
+    database: fabric_ca
+    username: postgres
+    password: password
+  persistence:
+    enabled: true
+    storageClass: manual
+    accessMode: ReadWriteOnce
+    existingClaim: fabric-pvc-rca0
+    size: 10Mi
+  config:
+    hlfToolsVersion: 1.4.7
+    csr:
+      names:
+        c: CN
+        st: "Hong Kong"
+        o: Fdi
+        ou: Org0
+  image:
+    tag: 1.4.7
+
+cli:
+  image:
+    repository: hyperledger/fabric-tools
+    tag: 2.1.0
+    pullPolicy: IfNotPresent
+  persistence:
+    enabled: true
+    size: 10Mi

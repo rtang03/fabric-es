@@ -1,0 +1,10 @@
+image:
+  tag: 2.1.0
+  pullPolicy: IfNotPresent
+
+persistence:
+  subPath: cli
+
+## Add annotations to all the deployed resources
+##
+commonAnnotations: {}

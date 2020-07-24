@@ -1,0 +1,12 @@
+Run the following commands to...
+1. Get the name of the pod running tls-ca:
+   export POD_TLS_CA=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app=tls-ca-org0,release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+2. Enrol tls-ca admin:
+   kubectl exec $POD_TLS_CA -- sh -c "fabric-ca-client enroll -d -u http://tls-ca-admin:tls-ca-adminPW@0.0.0.0:7054"
+3. Register peer0org1:
+   kubectl exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name peer0.org1.net --id.secret peer0.org1.netPW --id.type peer -u http://0.0.0.0:7054"
+4. Register orderer0:
+   kubectl exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name orderer0.org0.com --id.secret orderer0.org0.comPW --id.type orderer -u http://0.0.0.0:7054"
+
+p.s.
+will return cert/password in console. Need fixing to turn off debug

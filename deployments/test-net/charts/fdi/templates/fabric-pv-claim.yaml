@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: fabric-pv-common
+  labels:
+    type: local
+    name: commonfiles
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Mi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /tmp/data/common
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: fabric-pv-tls-ca
+  labels:
+    type: local
+    name: tlscafiles
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Mi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /tmp/data/tls-ca
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: fabric-pv-rca0
+  labels:
+    type: local
+    name: rca0files
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Mi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /tmp/data/rca0
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fabric-pvc-common
+spec:
+  storageClassName: manual
+  selector:
+    matchLabels:
+      name: commonfiles
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fabric-pvc-tls-ca
+spec:
+  storageClassName: manual
+  selector:
+    matchLabels:
+      name: tlscafiles
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fabric-pvc-rca0
+spec:
+  storageClassName: manual
+  selector:
+    matchLabels:
+      name: rca0files
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Mi
