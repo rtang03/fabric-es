@@ -1,18 +1,18 @@
 dependencies:
-- name: postgresql
-  repository: https://charts.bitnami.com/bitnami
-  version: 9.1.1
-- name: postgresql
-  repository: https://charts.bitnami.com/bitnami
-  version: 9.1.1
-- name: hlf-ca
-  repository: https://kubernetes-charts.storage.googleapis.com
-  version: 1.2.0
-- name: hlf-ca
-  repository: https://kubernetes-charts.storage.googleapis.com
-  version: 1.2.0
 - name: common
   repository: https://charts.bitnami.com/bitnami
   version: 0.3.1
-digest: sha256:55e558eb3dc35709f7735e8f791bdd19656cd39e197e8f7b65bf77f083053b01
-generated: "2020-07-22T23:25:50.490399+08:00"
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 9.1.1
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 9.1.1
+- name: hlf-ca
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 1.2.0
+- name: hlf-ca
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 1.2.0
+digest: sha256:cf8d1e672f9a6e01f321abf717a141f25ef886269032b45495c4e06edd7eca9a
+generated: "2020-07-24T21:00:28.784209+08:00"

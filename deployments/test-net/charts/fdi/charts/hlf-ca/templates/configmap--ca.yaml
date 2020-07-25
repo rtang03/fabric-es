@@ -6,6 +6,8 @@ metadata:
   {{- include "labels.standard" . | nindent 4 }}
 data:
   GODEBUG: "netdns=go"
-  FABRIC_CA_HOME: /var/hyperledger/fabric-ca
+  FABRIC_CA_HOME: {{ .Values.config.fabricCaHome | quote }}
   FABRIC_CA_SERVER_CA_NAME: {{ .Values.caName | quote }}
   SERVICE_DNS: 0.0.0.0  # Point to itself
+  TZ: {{ .Values.config.timezone }}
+  FABRIC_CA_CLIENT_HOME: {{ .Values.config.fabricCaClientHome | quote }}

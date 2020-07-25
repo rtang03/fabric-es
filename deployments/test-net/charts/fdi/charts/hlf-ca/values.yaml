@@ -111,7 +111,11 @@ externalDatabase:
 
 ## Settings used in configMap "--config"
 config:
-  hlfToolsVersion: 1.4.3
+  fabricCaHome: /var/hyperledger/crypto-config/Org0MSP/fabric-ca
+  fabricCaClientHome: /var/hyperledger/crypto-config/Org0MSP/client
+  fabricCaClientTlsCertfiles: /var/hyperledger/crypto-config/Org0MSP/fabric-ca/ca-cert.pem
+  timezone: "Asia/Hong Kong"
+  hlfToolsVersion: 1.4.7
   ## Mount the TLS certificate & key to disk?
   mountTLS: false
   ## Enable debug logging in ca Server configuration file
@@ -122,10 +126,10 @@ config:
       pathlength: 1
     names:
       c: US
-      st: "North Carolina"
+      st: "Hong Kong"
       l:
-      o: Hyperledger
-      ou: Fabric
+      o: Dashslab
+      ou: Sample
   ## "intermediate" is only specified for Intermediate CA's
   # intermediate:
   #   parent:

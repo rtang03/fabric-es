@@ -47,7 +47,7 @@ spec:
             - -c
             - |
               if [ -n "$DB_TYPE" ]; then
-                dockerize -wait tcp://$DB_HOST:$DB_PORT -timeout 30s && echo "Database $DB_TYPE on $DB_HOST:$DB_PORT is ready"
+                dockerize -wait tcp://$DB_HOST:$DB_PORT -timeout 60s && echo "Database $DB_TYPE on $DB_HOST:$DB_PORT is ready"
               fi
       containers:
         - name: ca

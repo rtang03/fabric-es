@@ -28,3 +28,9 @@ psql: error: could not connect to server: FATAL:  password authentication failed
 kubectl get storageclasses.storage.k8s.io
 
 export CA_PASSWORD=$(kubectl get secret --namespace {{ .Release.Namespace }} org1-ca -o jsonpath="{.data.CA_PASSWORD}" | base64 --decode; echo)
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
+
+https://kubernetes.github.io/ingress-nginx/deploy/#docker-for-mac
+
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
