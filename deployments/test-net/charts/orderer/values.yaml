@@ -1,0 +1,28 @@
+orderer0-org0:
+  persistence:
+    enabled: true
+    storageClass: manual
+    accessMode: ReadWriteOnce
+    existingClaim: fabric-pvc-org0
+    size: 10Mi
+  ord:
+    type: raft
+    ## MSP ID of the Orderer
+    mspID: Org0MSP
+    # TLS
+    tls:
+      server:
+        enabled: "true"
+      client:
+        enabled: "false"
+    secrets:
+      ord:
+        cred:
+        cert:
+        key:
+        caCert:
+        tls:
+        tlsRootCert:
+        tlsClientRootCerts:
+        configtxgen:
+        adminCert:
