@@ -42,13 +42,12 @@ tls-ca-org0:
   adminUsername: tls-ca-admin
   adminPassword: tls-ca-adminPW
   caName: tls-ca-org0
-#  ingress:
-#    enabled: true
-#    annotations:
-#      kubernetes.io/ingress.class: nginx
-#    path: /
-#    hosts:
-#      - tls-ca.local
+  ingress:
+    enabled: true
+    annotations:
+      ingress.kubernetes.io/rewrite-target: /
+    hosts:
+      - tls-ca-org0.local
   db:
     ssl: disable
   externalDatabase:
@@ -85,6 +84,12 @@ rca-org0:
   adminUsername: rca-org0-admin
   adminPassword: rca-org0-adminPW
   caName: rca-org0
+  ingress:
+    enabled: true
+    annotations:
+      ingress.kubernetes.io/rewrite-target: /
+    hosts:
+      - rca-org0.local
   db:
     ssl: disable
   externalDatabase:

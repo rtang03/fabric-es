@@ -1,18 +1,12 @@
 dependencies:
+- name: nginx-ingress-controller
+  repository: https://charts.bitnami.com/bitnami
+  version: 5.3.25
 - name: common
   repository: https://charts.bitnami.com/bitnami
   version: 0.3.1
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 9.1.1
-- name: postgresql
-  repository: https://charts.bitnami.com/bitnami
-  version: 9.1.1
-- name: hlf-ca
-  repository: https://kubernetes-charts.storage.googleapis.com
-  version: 1.2.0
-- name: hlf-ca
-  repository: https://kubernetes-charts.storage.googleapis.com
-  version: 1.2.0
-digest: sha256:cf8d1e672f9a6e01f321abf717a141f25ef886269032b45495c4e06edd7eca9a
-generated: "2020-07-24T21:00:28.784209+08:00"
+digest: sha256:ede31e3c772500065acc52527421cee242cca4476060ff87e6263ae9f52221e4
+generated: "2020-07-25T13:01:25.125827+08:00"
