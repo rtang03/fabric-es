@@ -36,3 +36,5 @@ https://kubernetes.github.io/ingress-nginx/deploy/#docker-for-mac
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 
 https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx

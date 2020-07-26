@@ -5,6 +5,20 @@ Run the following commands to...
 2. Enrol tls-ca admin:
    kubectl exec $POD_TLS_CA -- sh -c "fabric-ca-client enroll -d -u http://tls-ca-admin:tls-ca-adminPW@0.0.0.0:7054"
 
+3. tls-ca: Copy cert local
+(pick a working directory)
+kubectl exec $POD_TLS_CA -- cat /var/hyperledger/crypto-config/Org0MSP/tls/server/ca-cert.pem > ca-cert.pem
+
+4. tls-ca: Copy key to local
+
+5. tls-ca: Create secret
+kubectl create secret generic tls-ca-cert --from-file=tls.crt=./ca-cert.pem --from-file=./tls.key --namespace default
+
+7. rca: copy cert local
+8. rca copy key to local
+9. rca: Create secret
+kubectl create secret generic rca-ca-cert --from-file=tls.crt=./ca-cert.pem --from-file=./tls.key --namespace default
+
 3. Register orderer0:
    kubectl exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name orderer0.org0.com --id.secret orderer0.org0.comPW --id.type orderer -u http://0.0.0.0:7054"
 
@@ -14,6 +28,7 @@ Run the following commands to...
 NOT USED
 3. Register peer0org1:
    kubectl exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name peer0.org1.net --id.secret peer0.org1.netPW --id.type peer -u http://0.0.0.0:7054"
+
 
 
 p.s.

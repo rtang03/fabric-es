@@ -21,10 +21,10 @@ spec:
     spec:
       volumes:
         - name: data
-          {{- if .Values.persistence.enabled }}
+        {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (include "hlf-ca.fullname" .) }}
-          {{- else }}
+        {{- else }}
           emptyDir: {}
         {{- end }}
         {{- if (and .Values.config.mountTLS .Values.ingress.tls) }}
@@ -158,16 +158,16 @@ spec:
               mountPath: /var/hyperledger/tls/secret
           {{- end }}
           resources:
-      {{ toYaml .Values.resources | indent 12 }}
-      {{- with .Values.nodeSelector }}
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
       nodeSelector:
-      {{ toYaml . | indent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
       affinity:
-      {{ toYaml . | indent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
       tolerations:
-    {{ toYaml . | indent 8 }}
+{{ toYaml . | indent 8 }}
   {{- end }}

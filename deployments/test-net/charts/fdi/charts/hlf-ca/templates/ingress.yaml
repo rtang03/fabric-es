@@ -1,29 +1,29 @@
 {{- if .Values.ingress.enabled -}}
-  {{- $fullName := include "hlf-ca.fullname" . -}}
-  {{- $ingressPath := .Values.ingress.path -}}
+{{- $fullName := include "hlf-ca.fullname" . -}}
+{{- $ingressPath := .Values.ingress.path -}}
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-  {{- include "labels.standard" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
+{{- include "labels.standard" . | nindent 4 }}
+{{- with .Values.ingress.annotations }}
   annotations:
-  {{ toYaml . | indent 4 }}
-  {{- end }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
-  {{- if .Values.ingress.tls }}
+{{- if .Values.ingress.tls }}
   tls:
-    {{- range .Values.ingress.tls }}
+  {{- range .Values.ingress.tls }}
     - hosts:
-        {{- range .hosts }}
+      {{- range .hosts }}
         - {{ . }}
       {{- end }}
       secretName: {{ .secretName }}
   {{- end }}
-  {{- end }}
+{{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
+  {{- range .Values.ingress.hosts }}
     - host: {{ . }}
       http:
         paths:
@@ -32,4 +32,4 @@ spec:
               serviceName: {{ $fullName }}
               servicePort: http
   {{- end }}
-  {{- end }}
+{{- end }}

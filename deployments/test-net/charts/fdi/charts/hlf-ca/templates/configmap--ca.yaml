@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{ include "hlf-ca.fullname" . }}--ca
   labels:
-  {{- include "labels.standard" . | nindent 4 }}
+{{- include "labels.standard" . | nindent 4 }}
 data:
   GODEBUG: "netdns=go"
   FABRIC_CA_HOME: {{ .Values.config.fabricCaHome | quote }}
