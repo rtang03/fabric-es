@@ -1,4 +1,7 @@
 Run the following commands to...
+
+=== WORKING WITH tls-ca-org0
+(pick any working directory)
 1. Get the name of the pod running tls-ca:
    export POD_TLS_CA=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app=tls-ca-org0,release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
 
@@ -6,30 +9,104 @@ Run the following commands to...
    kubectl exec $POD_TLS_CA -- sh -c "fabric-ca-client enroll -d -u http://tls-ca-admin:tls-ca-adminPW@0.0.0.0:7054"
 
 3. tls-ca: Copy cert local
-(pick a working directory)
-kubectl exec $POD_TLS_CA -- cat /var/hyperledger/crypto-config/Org0MSP/tls/server/ca-cert.pem > ca-cert.pem
+   kubectl exec $POD_TLS_CA -- cat /var/hyperledger/crypto-config/Org0MSP/tls/server/ca-cert.pem > ca-cert.pem
 
 4. tls-ca: Copy key to local
+   kubectl exec $POD_TLS_CA -- ls /var/hyperledger/crypto-config/Org0MSP/tls/server/msp/keystore
+   kubectl exec $POD_TLS_CA -- cat /var/hyperledger/crypto-config/Org0MSP/tls/server/msp/keystore/a6f876d5f5567f4017b8e206e3f39fb4265d218b52bc5627ba7b264f202f70e5_sk > tls.key
 
 5. tls-ca: Create secret
-kubectl create secret generic tls-ca-cert --from-file=tls.crt=./ca-cert.pem --from-file=./tls.key --namespace default
+   kubectl create secret generic tls-ca-cert --from-file=tls.crt=./ca-cert.pem --from-file=./tls.key --namespace default
 
-7. rca: copy cert local
-8. rca copy key to local
-9. rca: Create secret
-kubectl create secret generic rca-ca-cert --from-file=tls.crt=./ca-cert.pem --from-file=./tls.key --namespace default
-
-3. Register orderer0:
+6. Register orderers:
    kubectl exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name orderer0.org0.com --id.secret orderer0.org0.comPW --id.type orderer -u http://0.0.0.0:7054"
+   kubectl exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name orderer1.org0.com --id.secret orderer1.org0.comPW --id.type orderer -u http://0.0.0.0:7054"
+   kubectl exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name orderer2.org0.com --id.secret orderer2.org0.comPW --id.type orderer -u http://0.0.0.0:7054"
+   kubectl exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name orderer3.org0.com --id.secret orderer3.org0.comPW --id.type orderer -u http://0.0.0.0:7054"
+   kubectl exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name orderer4.org0.com --id.secret orderer4.org0.comPW --id.type orderer -u http://0.0.0.0:7054"
 
-4. mkdir
-   kubectl exec $POD_TLS_CA -- sh ""
+7. Copy tls-ca cert
+   kubectl exec $POD_TLS_CA -- sh -c "cp /var/hyperledger/crypto-config/Org0MSP/tls/admin/msp/cacerts/0-0-0-0-7054.pem /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/tls-ca-cert.pem"
+   kubectl exec $POD_TLS_CA -- sh -c "cp /var/hyperledger/crypto-config/Org0MSP/tls/admin/msp/cacerts/0-0-0-0-7054.pem /var/hyperledger/crypto-config/Org0MSP/orderer1.org0.com/tls-ca-cert.pem"
+   kubectl exec $POD_TLS_CA -- sh -c "cp /var/hyperledger/crypto-config/Org0MSP/tls/admin/msp/cacerts/0-0-0-0-7054.pem /var/hyperledger/crypto-config/Org0MSP/orderer2.org0.com/tls-ca-cert.pem"
+   kubectl exec $POD_TLS_CA -- sh -c "cp /var/hyperledger/crypto-config/Org0MSP/tls/admin/msp/cacerts/0-0-0-0-7054.pem /var/hyperledger/crypto-config/Org0MSP/orderer3.org0.com/tls-ca-cert.pem"
+   kubectl exec $POD_TLS_CA -- sh -c "cp /var/hyperledger/crypto-config/Org0MSP/tls/admin/msp/cacerts/0-0-0-0-7054.pem /var/hyperledger/crypto-config/Org0MSP/orderer4.org0.com/tls-ca-cert.pem"
 
-NOT USED
+8. Enrol tls-ca for orderer0
+   kubectl exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com fabric-ca-client enroll -d -u http://orderer0.org0.com:orderer0.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts orderer0-org0,127,0.0.1"
+   kubectl exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer1.org0.com fabric-ca-client enroll -d -u http://orderer1.org0.com:orderer1.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts orderer1-org0,127,0.0.1"
+   kubectl exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer2.org0.com fabric-ca-client enroll -d -u http://orderer2.org0.com:orderer2.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts orderer2-org0,127,0.0.1"
+   kubectl exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer3.org0.com fabric-ca-client enroll -d -u http://orderer3.org0.com:orderer3.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts orderer3-org0,127,0.0.1"
+   kubectl exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer4.org0.com fabric-ca-client enroll -d -u http://orderer4.org0.com:orderer4.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts orderer4-org0,127,0.0.1"
+
+9. Rename private key
+   kubectl exec $POD_TLS_CA -- sh -c "mv /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/keystore/* /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/keystore/key.pem"
+   kubectl exec $POD_TLS_CA -- sh -c "mv /var/hyperledger/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/keystore/* /var/hyperledger/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/keystore/key.pem"
+   kubectl exec $POD_TLS_CA -- sh -c "mv /var/hyperledger/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/keystore/* /var/hyperledger/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/keystore/key.pem"
+   kubectl exec $POD_TLS_CA -- sh -c "mv /var/hyperledger/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/keystore/* /var/hyperledger/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/keystore/key.pem"
+   kubectl exec $POD_TLS_CA -- sh -c "mv /var/hyperledger/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/keystore/* /var/hyperledger/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/keystore/key.pem"
+
+==== WORKING WITH rca-org0
+(pick another working directory)
+1. Get the name of the pod running rca:
+   export POD_RCA_ORG0=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app=rca-org0,release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+
+2. Enrol orderer's ca admin: rca-org0:
+   kubectl exec $POD_RCA_ORG0 -- sh -c "fabric-ca-client enroll -d -u http://rca-org0-admin:rca-org0-adminPW@0.0.0.0:7054"
+
+3. Copy rca cert
+   kubectl exec $POD_RCA_ORG0 -- sh -c "cp /var/hyperledger/crypto-config/Org0MSP/ca/admin/msp/cacerts/0-0-0-0-7054.pem /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/org0-ca-cert.pem"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "cp /var/hyperledger/crypto-config/Org0MSP/ca/admin/msp/cacerts/0-0-0-0-7054.pem /var/hyperledger/crypto-config/Org0MSP/orderer1.org0.com/org0-ca-cert.pem"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "cp /var/hyperledger/crypto-config/Org0MSP/ca/admin/msp/cacerts/0-0-0-0-7054.pem /var/hyperledger/crypto-config/Org0MSP/orderer2.org0.com/org0-ca-cert.pem"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "cp /var/hyperledger/crypto-config/Org0MSP/ca/admin/msp/cacerts/0-0-0-0-7054.pem /var/hyperledger/crypto-config/Org0MSP/orderer3.org0.com/org0-ca-cert.pem"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "cp /var/hyperledger/crypto-config/Org0MSP/ca/admin/msp/cacerts/0-0-0-0-7054.pem /var/hyperledger/crypto-config/Org0MSP/orderer4.org0.com/org0-ca-cert.pem"
+
+4. Register orderer: orderer0-org0:
+   kubectl exec $POD_RCA_ORG0 -- sh -c "fabric-ca-client register -d --id.name orderer0.org0.com --id.secret orderer0.org0.comPW --id.type orderer -u http://0.0.0.0:7054"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "fabric-ca-client register -d --id.name orderer1.org0.com --id.secret orderer1.org0.comPW --id.type orderer -u http://0.0.0.0:7054"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "fabric-ca-client register -d --id.name orderer2.org0.com --id.secret orderer2.org0.comPW --id.type orderer -u http://0.0.0.0:7054"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "fabric-ca-client register -d --id.name orderer3.org0.com --id.secret orderer3.org0.comPW --id.type orderer -u http://0.0.0.0:7054"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "fabric-ca-client register -d --id.name orderer4.org0.com --id.secret orderer4.org0.comPW --id.type orderer -u http://0.0.0.0:7054"
+
+5. Register ordererMSP org admin:
+   kubectl exec $POD_RCA_ORG0 -- sh -c "fabric-ca-client register -d --id.name admin-org0.com --id.secret admin-org0.comPW --id.type admin --id.attrs \"hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert\" -u http://0.0.0.0:7054"
+
+6. rca: copy cert local
+   kubectl exec $POD_RCA_ORG0 -- cat /var/hyperledger/crypto-config/Org0MSP/ca/server/ca-cert.pem > ca-cert.pem
+
+7. rca copy key to local
+   kubectl exec $POD_RCA_ORG0 -- ls /var/hyperledger/crypto-config/Org0MSP/ca/server/msp/keystore
+   kubectl exec $POD_RCA_ORG0 -- cat /var/hyperledger/crypto-config/Org0MSP/ca/server/msp/keystore/a6f876d5f5567f4017b8e206e3f39fb4265d218b52bc5627ba7b264f202f70e5_sk > tls.key
+
+8. rca: Create secret
+   kubectl create secret generic rca-ca-cert --from-file=tls.crt=./ca-cert.pem --from-file=./tls.key --namespace default
+
+9. Enroll ordererMSP org admin
+   kubectl exec $POD_RCA_ORG0 -- sh -c "FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/admin fabric-ca-client enroll -d -u http://admin-org0.com:admin-org0.comPW@0.0.0.0:7054"
+
+10. create secret for org0-admin-cert
+   kubectl exec $POD_RCA_ORG0 -- cat /var/hyperledger/crypto-config/Org0MSP/admin/msp/signcerts/cert.pem > cert.pem
+   kubectl create secret generic org0-admin-cert --from-file=org0-admin-cert=./cert.pem --namespace default
+
+11. Enroll orderer orderer0-org0
+   kubectl exec $POD_RCA_ORG0 -- sh -c "FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com fabric-ca-client enroll -d -u http://orderer0.org0.com:orderer0.org0.comPW@0.0.0.0:7054"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer1.org0.com fabric-ca-client enroll -d -u http://orderer1.org0.com:orderer1.org0.comPW@0.0.0.0:7054"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer2.org0.com fabric-ca-client enroll -d -u http://orderer2.org0.com:orderer2.org0.comPW@0.0.0.0:7054"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer3.org0.com fabric-ca-client enroll -d -u http://orderer3.org0.com:orderer3.org0.comPW@0.0.0.0:7054"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer4.org0.com fabric-ca-client enroll -d -u http://orderer4.org0.com:orderer4.org0.comPW@0.0.0.0:7054"
+
+12. Create admincert from org admin cert
+   kubectl exec $POD_RCA_ORG0 -- sh -c "mkdir -p /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/msp/admincerts"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "mkdir -p /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/msp/cacerts"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "mkdir -p /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/msp/tlscacerts"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "mkdir -p /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/msp/users"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "cp /var/hyperledger/crypto-config/Org0MSP/admin/msp/signcerts/cert.pem /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/msp/admincerts/org0.com-admin-cert.pem"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "cp /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/tls-ca-cert.pem /var/hyperledger/crypto-config/Org0MSP/msp/tlscacerts"
+   kubectl exec $POD_RCA_ORG0 -- sh -c "cp /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/org0-ca-cert.pem /var/hyperledger/crypto-config/Org0MSP/msp/cacerts"
+
+=== WORKING WITH tls-ca-org1
+
+=== WORKING WITH rca-org1
 3. Register peer0org1:
    kubectl exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name peer0.org1.net --id.secret peer0.org1.netPW --id.type peer -u http://0.0.0.0:7054"
 
-
-
-p.s.
-will return cert/password in console. Need fixing to turn off debug

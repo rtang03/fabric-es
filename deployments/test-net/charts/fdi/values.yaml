@@ -11,6 +11,9 @@ postgresql-0:
     1-createdb.sql: |
       CREATE DATABASE "tls_ca_db";
       CREATE DATABASE "rca_db";
+  service:
+    type: NodePort
+    nodePort: 30432
   persistence:
     enabled: true
     existingClaim: fabric-pvc-org0
