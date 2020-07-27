@@ -37,12 +37,4 @@ dependencies:
     version: 1.2.0
     alias: rca-org0
     repository: "http://localhost:10191"
-#  - name: postgresql
-#    version: 9.1.1
-#    repository: https://charts.bitnami.com/bitnami
-#    alias: postgresql-1
-#  - name: hlf-peer
-#    version: 1.5.0
-#    repository: https://kubernetes-charts.storage.googleapis.com
-#    alias: cli
 

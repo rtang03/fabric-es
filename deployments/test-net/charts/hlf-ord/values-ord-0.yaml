@@ -17,7 +17,7 @@ ingress:
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    # nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+  # nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
   # certmanager.k8s.io/cluster-issuer: "letsencrypt-staging"
   path: /
   hosts:
@@ -39,16 +39,22 @@ persistence:
   storageClass: ""
   accessMode: ReadWriteOnce
   size: 1Gi
-  # existingClaim: ""
+  existingClaim: ""
 
 ##################################
 ## Orderer configuration options #
 ##################################
 ord:
-  ## Type of Orderer, `solo` or `kafka`
-  type: solo
+  ledgerPath: /var/hyperledger/production
+  ordOrgPath: /var/hyperledger/crypto-config/Org0MSP
+  ordName: orderer0
+  ordDomain: org0.com
+  debug: debug
+  # fabricLogging: "grpc=debug:debug"
+  fabricLogging: "INFO"
+  type: raft
   ## MSP ID of the Orderer
-  mspID: OrdererMSP
+  mspID: Org0MSP
   # TLS
   tls:
     server:
@@ -56,6 +62,8 @@ ord:
     client:
       enabled: "false"
 
+config:
+  timezone: "Asia/Hong Kong"
 
 secrets:
   ## These secrets should contain the Orderer crypto materials and credentials
@@ -74,7 +82,7 @@ secrets:
     # tls: hlf--ord1-tls
     ## TLS root CA certificate saved under key 'cert.pem'
     # tlsRootCert: hlf--ord-tlsrootcert
-    ## TLS client root CA certificates saved under any names (as there may be multiple)
+  ## TLS client root CA certificates saved under any names (as there may be multiple)
   # tlsClientRootCerts: hlf--peer-tlsrootcert
   ## This should contain "genesis" block derived from a configtx.yaml
   ## configtxgen -profile OrdererGenesis -outputBlock genesis.block
@@ -92,7 +100,7 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
   # requests:
-  #   cpu: 100m
+#   cpu: 100m
 #   memory: 128Mi
 
 nodeSelector: {}
@@ -105,5 +113,5 @@ affinity: {}
   #   requiredDuringSchedulingIgnoredDuringExecution:
   #     - topologyKey: "kubernetes.io/hostname"
   #       labelSelector:
-  #         matchLabels:
+#         matchLabels:
 #           app: hlf-ord

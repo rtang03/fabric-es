@@ -43,3 +43,24 @@ heritage: {{ .Release.Service | quote }}
 release: {{ .Release.Name | quote }}
 chart: {{ include "hlf-ord.chart" . }}
 {{- end -}}
+
+{{/*
+Create Orderer home
+*/}}
+{{- define "hlf-ord.home" -}}
+{{- printf "%s/%s.%s" .Values.ord.ordOrgPath .Values.ord.ordName .Values.ord.ordDomain }}
+{{- end -}}
+
+{{/*
+Create Orderer host
+*/}}
+{{- define "hlf-ord.ordererhost" -}}
+{{- printf "%s-%s" .Values.ord.ordName .Release.Name }}
+{{- end -}}
+
+{{/*
+Create Orderer ledger production data
+*/}}
+{{- define "hlf-ord.ledger" -}}
+{{- printf "%s/%s" .Values.ord.ledgerPath .Values.ord.ordName }}
+{{- end -}}

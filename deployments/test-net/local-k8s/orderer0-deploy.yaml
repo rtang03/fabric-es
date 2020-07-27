@@ -28,7 +28,6 @@ spec:
               value: /etc/hyperledger/fabric/
             - name: CONFIGTX_ORDERER_ADDRESSES
               value: "orderer0-hktfp:7050"
-#              value: "orderer0.hktfp.com:7050"
             - name: ORDERER_GENERAL_LISTENADDRESS
               value: 0.0.0.0
             - name: ORDERER_GENERAL_LISTENPORT

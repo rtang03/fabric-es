@@ -77,20 +77,6 @@ spec:
           secret:
             secretName: {{ .Values.secrets.caServerTls }}
       {{- end }}
-      initContainers:
-        - name: wait-for-db
-          image: jwilder/dockerize
-          imagePullPolicy: IfNotPresent
-          envFrom:
-            - configMapRef:
-                name: {{ include "hlf-ca.fullname" . }}--db
-          command:
-            - sh
-            - -c
-            - |
-              if [ -n "$DB_TYPE" ]; then
-                dockerize -wait tcp://$DB_HOST:$DB_PORT -timeout 60s && echo "Database $DB_TYPE on $DB_HOST:$DB_PORT is ready"
-              fi
       containers:
         - name: orderer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -118,15 +104,15 @@ spec:
             - -c
             - |
 
-              while [ ! -d /var/hyperledger/admin_msp/admincerts ] || [ -z "$(ls -A /var/hyperledger/admin_msp/admincerts)" ];
+              while [ ! -d "$ORDERER_GENERAL_LOCALMSPDIR/admincerts" ] || [ -z "$(ls -A $ORDERER_GENERAL_LOCALMSPDIR/admincerts)" ];
               do
-                echo "\033[0;31m /var/hyperledger/admin_msp/admincerts must contain Ord admin certificates files \033[0m"
+                echo "\033[0;31m $ORDERER_GENERAL_LOCALMSPDIR/admincerts must contain Ord admin certificates files \033[0m"
                 sleep 60
               done
 
               while [ ! -d /hl_config/genesis ] || [ -z "$(ls -A /hl_config/genesis)" ];
               do
-                echo "\033[0;31m /hl_config/genesis must contain Genesis transaction \033[0m"
+                echo "\033[0;31m $ORDERER_HOME/genesis must contain Genesis transaction \033[0m"
                 sleep 60
               done
 
