@@ -85,7 +85,7 @@ data:
       identities:
          - name: <<<ADMIN>>>
            pass: <<<ADMINPW>>>
-           type: client
+           type: admin
            affiliation: ""
            attrs:
               # hf.Registrar.Roles: "peer,orderer,client,user"
