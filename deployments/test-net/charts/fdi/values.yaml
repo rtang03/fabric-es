@@ -23,21 +23,6 @@ postgresql-0:
       - ReadWriteOnce
     size: 10Mi
 
-#postgresql-1:
-#  postgresqlDatabase: fabric_ca
-#  postgresqlPassword: password
-#  initdbScripts:
-#    1-createdb.sql: |
-#      CREATE DATABASE "auth_db";
-#  persistence:
-#    enabled: true
-#    existingClaim: fabric-pvc-rca0
-#    subPath: pgdata
-#    storageClass: manual
-#    accessModes:
-#      - ReadWriteOnce
-#    size: 10Mi
-
 tls-ca-org0:
   service:
     type: ClusterIP
@@ -141,5 +126,6 @@ cli:
     tag: 2.1.0
     pullPolicy: IfNotPresent
   persistence:
+    subPath: cli
     enabled: true
     size: 10Mi
