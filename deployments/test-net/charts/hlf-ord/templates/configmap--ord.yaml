@@ -26,12 +26,16 @@ data:
   ORDERER_HOME: {{ include "hlf-ord.home" . | quote }}
   ORDERER_GENERAL_LOCALMSPID: {{ .Values.ord.mspID | quote }}
   ORDERER_GENERAL_LOCALMSPDIR:  "{{ include "hlf-ord.home" . }}/msp"
-  ORDERER_GENERAL_TLS_CERTIFICATE: "{{ include "hlf-ord.home" . }}/tls-msp/signcerts/cert.pem"
-  ORDERER_GENERAL_TLS_PRIVATEKEY: "{{ include "hlf-ord.home" . }}/tls-msp/keystore/key.pem"
+{{/*  ORDERER_GENERAL_TLS_CERTIFICATE: "{{ include "hlf-ord.home" . }}/tls-msp/signcerts/cert.pem"*/}}
+  ORDERER_GENERAL_TLS_CERTIFICATE: "{{ include "hlf-ord.home" . }}/tls-msp/tls/tls.crt"
+  ORDERER_GENERAL_TLS_PRIVATEKEY: "{{ include "hlf-ord.home" . }}/tls-msp/tls/tls.key"
+{{/*  ORDERER_GENERAL_TLS_PRIVATEKEY: "{{ include "hlf-ord.home" . }}/tls-msp/keystore/key.pem"*/}}
   ORDERER_GENERAL_TLS_ROOTCAS: "[{{ include "hlf-ord.home" . }}/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem]"
-  ORDERER_GENERAL_GENESISFILE: "{{ include "hlf-ord.home" . }}/genesis.block"
-  ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE: "{{ include "hlf-ord.home" . }}/tls-msp/signcerts/cert.pem"
-  ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY: "{{ include "hlf-ord.home" . }}/tls-msp/keystore/key.pem"
+  ORDERER_GENERAL_GENESISFILE: "{{ include "hlf-ord.home" . }}/genesis/genesis.block"
+{{/*  ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE: "{{ include "hlf-ord.home" . }}/tls-msp/signcerts/cert.pem"*/}}
+  ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE: "{{ include "hlf-ord.home" . }}/tls-msp/tls/tls.crt"
+  ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY: "{{ include "hlf-ord.home" . }}/tls-msp/tls/tls.key"
+{{/*  ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY: "{{ include "hlf-ord.home" . }}/tls-msp/keystore/key.pem"*/}}
   ORDERER_GENERAL_CLUSTER_ROOTCAS: "[{{ include "hlf-ord.home" . }}/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem]"
   ORDERER_GENERAL_LISTENPORT: "7050"
   ORDERER_FILELEDGER_LOCATION: {{ include "hlf-ord.ledger" . | quote }}

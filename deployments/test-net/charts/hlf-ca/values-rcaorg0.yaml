@@ -4,6 +4,12 @@
 
 ## hlf-common properties
 ordererDomain: org0.com
+orderers:
+  - "orderer0.org0.com"
+  - "orderer1.org0.com"
+  - "orderer2.org0.com"
+  - "orderer3.org0.com"
+  - "orderer4.org0.com"
 
 ## tls-ca-org0 properties
 adminUsername: rca-org0-admin

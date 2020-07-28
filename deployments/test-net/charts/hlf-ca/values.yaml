@@ -1,6 +1,13 @@
 ## Default values for hlf-ca.
 ## This is a YAML-formatted file.
 ## Declare variables to be passed into your templates.
+ordererDomain: org0.com
+orderers:
+  - "orderer0.org0.com"
+  - "orderer1.org0.com"
+  - "orderer2.org0.com"
+  - "orderer3.org0.com"
+  - "orderer4.org0.com"
 
 image:
   repository: hyperledger/fabric-ca

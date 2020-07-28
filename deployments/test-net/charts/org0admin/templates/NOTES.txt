@@ -4,4 +4,13 @@ Info: this chart install
 - pv for org0
 
 Run the following commands to...
-- None
+# ======= Init steps to bootstrap =======
+
+######## 1. Get the name of the pod running rca:
+export POD_CLI=$(kubectl get pods -n {{ .Release.Namespace }} -l "app=org0admin,release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+
+######## 2. Create genesis.block
+kubectl -n {{ .Release.Namespace }} exec $POD_CLI -- configtxgen -profile OrgsOrdererGenesis -outputBlock genesis.block -channelID ordererchannel
+
+######## 3. Create channel.tx
+kubectl -n {{ .Release.Namespace }} exec $POD_CLI -- configtxgen -profile OrgsChannel -outputCreateChannelTx channel.tx -channelID loanapp

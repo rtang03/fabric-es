@@ -22,9 +22,13 @@ spec:
         - name: dockersocket
           hostPath:
             path: /var/run/docker.sock
+        - name: configtx
+          configMap:
+            name: {{ include "org0admin.fullname" . }}--configtx
       containers:
         - name: cli
           image: "hyperledger/fabric-tools:{{ .Values.cli.image.tag }}"
+          workingDir: "/var/hyperledger/cli"
           command:
             - sh
             - -c
@@ -33,8 +37,11 @@ spec:
             - configMapRef:
                 name: {{ include "org0admin.fullname" . }}--cli
           volumeMounts:
-            - mountPath: /var/artifacts
+            - mountPath: /var/hyperledger
               name: fabricfiles
               subPath: {{ .Values.cli.persistence.subPath }}
             - mountPath: /host/var/run/docker.sock
               name: dockersocket
+            - mountPath: /var/hyperledger/cli
+              readOnly: true
+              name: configtx

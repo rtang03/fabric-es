@@ -64,3 +64,10 @@ Create Orderer ledger production data
 {{- define "hlf-ord.ledger" -}}
 {{- printf "%s/%s" .Values.ord.ledgerPath .Values.ord.ordName }}
 {{- end -}}
+
+{{/*
+Create Orderer ledger production data
+*/}}
+{{- define "hlf-ord.ordDir" -}}
+{{- printf "%s/%s.%s" .Values.ord.ordOrgPath .Values.ord.ordName .Values.ord.ordDomain }}
+{{- end -}}
