@@ -1,0 +1,34 @@
+global:
+  TZ: Asia/Hong_Kong
+  FABRIC_CFG_PATH: /etc/hyperledger/fabric/
+
+ordererConfiguration:
+  ORDERER_GENERAL_LOCALMSPID: Org0MSP
+
+postgresql-0:
+  postgresqlPassword: password
+  initdbScripts:
+    1-createdb.sql: |
+      CREATE DATABASE "tls_ca_db";
+      CREATE DATABASE "rca_db";
+  service:
+    type: NodePort
+    nodePort: 30432
+  persistence:
+    enabled: true
+    existingClaim: fabric-pvc-org0
+    subPath: pgdata
+    storageClass: manual
+    accessModes:
+      - ReadWriteOnce
+    size: 10Mi
+
+cli:
+  image:
+    repository: hyperledger/fabric-tools
+    tag: 2.1.0
+    pullPolicy: IfNotPresent
+  persistence:
+    subPath: cli
+    enabled: true
+    size: 10Mi

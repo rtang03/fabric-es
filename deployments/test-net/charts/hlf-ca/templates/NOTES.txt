@@ -2,10 +2,11 @@ Run the following commands to...
 1. Get the name of the pod running the Fabric CA Server:
   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ include "hlf-ca.name" . }},release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
 
-2. Get the application URL:
+2. Get the application URL to validate your installation
 {{- if .Values.ingress.enabled }}
 {{- range .Values.ingress.hosts }}
-  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ . }}{{ $.Values.ingress.path }}
+  curl http{{ if $.Values.ingress.tls }}s{{ end }}://{{ . }}{{ $.Values.ingress.path }}cainfo -k
+  ps.: it should return the cert.
 {{- end }}
 {{- else if contains "NodePort" .Values.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "hlf-ca.fullname" . }})
@@ -21,13 +22,9 @@ Run the following commands to...
   kubectl port-forward $POD_NAME 8080:7054
 {{- end }}
 
-3. Display local (admin "client" enrollment) certificate, if it has been created:
-  kubectl exec $POD_NAME -- cat /var/hyperledger/fabric-ca/msp/signcerts/cert.pem
-
-4. Enroll the bootstrap admin identity:
-  kubectl exec $POD_NAME -- bash -c 'fabric-ca-client enroll -d -u http://$CA_ADMIN:$CA_PASSWORD@$SERVICE_DNS:{{ .Values.service.port }}'
-
-5. Update the chart without resetting a password:
-  export CA_ADMIN=$(kubectl get secret --namespace {{ .Release.Namespace }} {{ include "hlf-ca.fullname" . }}--ca -o jsonpath="{.data.CA_ADMIN}" | base64 --decode; echo)
-  export CA_PASSWORD=$(kubectl get secret --namespace {{ .Release.Namespace }} {{ include "hlf-ca.fullname" . }}--ca -o jsonpath="{.data.CA_PASSWORD}" | base64 --decode; echo)
-  helm upgrade {{ .Release.Name }} stable/hlf-ca --namespace {{ .Release.Namespace }} -f my-values.yaml --set adminUsername=$CA_ADMIN,adminPassword=$CA_PASSWORD
+{{- if contains "tlscaorg0" .Release.Name }}
+{{ include "tlscaorg0.notes" . }}
+{{- end }}
+{{- if contains "rcaorg0" .Release.Name }}
+{{ include "rcaorg0.notes" . }}
+{{- end }}

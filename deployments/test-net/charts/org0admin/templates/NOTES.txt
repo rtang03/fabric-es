@@ -1,0 +1,7 @@
+Info: this chart install
+- fabric cli tools
+- postgres db for org0
+- pv for org0
+
+Run the following commands to...
+- None

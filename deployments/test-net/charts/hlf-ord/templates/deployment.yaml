@@ -136,7 +136,8 @@ spec:
           envFrom:
             {{- if .Values.secrets.ord.cred }}
             - secretRef:
-                # Environmental variables CA_USERNAME and CA_PASSWORD
+                # Environmental variables CA_ADMIN and CA_PASSWORD
+                # Obsolete: Environmental variables CA_USERNAME and CA_PASSWORD
                 name: {{ .Values.secrets.ord.cred }}
             {{- end }}
             - configMapRef:

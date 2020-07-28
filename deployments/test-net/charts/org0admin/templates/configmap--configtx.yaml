@@ -1,0 +1,167 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "org0admin.fullname" . }}--configtx
+  labels:
+{{- include "labels.standard" . | nindent 4 }}
+data:
+  configtx.yaml: |
+    Organizations:
+      - &Org0MSP
+        Name: Org0MSP
+        ID: Org0MSP
+        MSPDir: /var/artifacts/crypto-config/Org0MSP/msp
+        Policies:
+          Readers:
+            Type: Signature
+            Rule: "OR('Org0MSP.member')"
+          Writers:
+            Type: Signature
+            Rule: "OR('Org0MSP.member')"
+          Admins:
+            Type: Signature
+            Rule: "OR('Org0MSP.admin')"
+      - &Org1MSP
+        Name: Org1MSP
+        ID: Org1MSP
+        MSPDir: /var/artifacts/crypto-config/Org1MSP/msp
+        Policies:
+          Readers:
+            Type: Signature
+            Rule: "OR('Org1MSP.member')"
+          Writers:
+            Type: Signature
+            Rule: "OR('Org1MSP.member')"
+          Admins:
+            Type: Signature
+            Rule: "OR('Org1MSP.admin')"
+          Endorsement:
+            Type: Signature
+            Rule: "OR('Org1MSP.member')"
+        OrdererEndpoints:
+          - orderer0-org0:7050
+          - orderer1-org0:7150
+          - orderer2-org0:7250
+          - orderer3-org0:7350
+          - orderer4-org0:7450
+        AnchorPeers:
+          - Host: peer0-org1
+            Port: 7051
+    Capabilities:
+      Channel: &ChannelCapabilities
+        V2_0: true
+      Orderer: &OrdererCapabilities
+        V2_0: true
+      Application: &ApplicationCapabilities
+        V2_0: true
+    Application: &ApplicationDefaults
+      Organizations:
+      Policies:
+        Readers:
+          Type: ImplicitMeta
+          Rule: "ANY Readers"
+        Writers:
+          Type: ImplicitMeta
+          Rule: "ANY Writers"
+        Admins:
+          Type: ImplicitMeta
+          Rule: "MAJORITY Admins"
+        LifecycleEndorsement:
+          Type: ImplicitMeta
+          Rule: "MAJORITY Endorsement"
+        Endorsement:
+          Type: ImplicitMeta
+          Rule: "MAJORITY Endorsement"
+      Capabilities:
+        <<: *ApplicationCapabilities
+    Orderer: &OrdererDefaults
+      OrdererType: etcdraft
+      Addresses:
+        - orderer0-org0:7050
+        - orderer1-org0:7150
+        - orderer2-org0:7250
+        - orderer3-org0:7350
+        - orderer4-org0:7450
+      BatchTimeout: 2s
+      BatchSize:
+        MaxMessageCount: 500
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 2 MB
+      MaxChannels: 10
+      EtcdRaft:
+        Consenters:
+          - Host: orderer0-org0
+            Port: 7050
+            ClientTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
+          - Host: orderer1-org0
+            Port: 7150
+            ClientTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/signcerts/cert.pem
+          - Host: orderer2-org0
+            Port: 7250
+            ClientTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/signcerts/cert.pem
+          - Host: orderer3-org0
+            Port: 7350
+            ClientTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/signcerts/cert.pem
+          - Host: orderer4-org0
+            Port: 7450
+            ClientTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/signcerts/cert.pem
+        Options:
+          TickInterval: 500ms
+          ElectionTick: 10
+          HeartbeatTick: 1
+          MaxInflightBlocks: 5
+          SnapshotIntervalSize: 20 MB
+      Organizations:
+      Policies:
+        Readers:
+          Type: ImplicitMeta
+          Rule: "ANY Readers"
+        Writers:
+          Type: ImplicitMeta
+          Rule: "ANY Writers"
+        Admins:
+          Type: ImplicitMeta
+          Rule: "MAJORITY Admins"
+        BlockValidation:
+          Type: ImplicitMeta
+          Rule: "ANY Writers"
+    Channel: &ChannelDefaults
+      Policies:
+        Readers:
+          Type: ImplicitMeta
+          Rule: "ANY Readers"
+        Writers:
+          Type: ImplicitMeta
+          Rule: "ANY Writers"
+        Admins:
+          Type: ImplicitMeta
+          Rule: "MAJORITY Admins"
+      Capabilities:
+        <<: *ChannelCapabilities
+    Profiles:
+      OrgsOrdererGenesis:
+        <<: *ChannelDefaults
+        Orderer:
+          <<: *OrdererDefaults
+          Organizations:
+            - *Org0MSP
+          Capabilities:
+            <<: *OrdererCapabilities
+        Consortiums:
+          Big4HK:
+            Organizations:
+              - *Org1MSP
+      OrgsChannel:
+        Consortium: Big4HK
+        <<: *ChannelDefaults
+        Application:
+          <<: *ApplicationDefaults
+          Organizations:
+            - *Org1MSP
+          Capabilities:
+            <<: *ApplicationCapabilities
