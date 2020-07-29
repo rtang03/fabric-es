@@ -1,7 +1,8 @@
+{{- if not .Values.ordererConfiguration }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "org0admin.fullname" . }}--configtx
+  name: {{ include "orgadmin.fullname" . }}--configtx
   labels:
 {{- include "labels.standard" . | nindent 4 }}
 data:
@@ -165,3 +166,4 @@ data:
             - *Org1MSP
           Capabilities:
             <<: *ApplicationCapabilities
+  {{- end }}

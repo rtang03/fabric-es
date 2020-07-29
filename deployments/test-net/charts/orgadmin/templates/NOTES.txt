@@ -4,4 +4,13 @@ Info: this chart install
 - pv for org0
 
 Run the following commands to...
-# NONE
+
+# 1. Check k8s resource
+kubectl get all
+
+kubectl get configmap
+
+kubectl get secret
+
+kubectl get ingress
+

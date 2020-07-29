@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "org0admin.fullname" . }}-cli
+  name: {{ include "orgadmin.fullname" . }}-cli
   labels:
 {{- include "labels.standard" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ include "org0admin.name" . }}
+      app: {{ include "orgadmin.name" . }}
       release: {{ .Release.Name }}
   template:
     metadata:
@@ -24,7 +24,7 @@ spec:
             path: /var/run/docker.sock
         - name: configtx
           configMap:
-            name: {{ include "org0admin.fullname" . }}--configtx
+            name: {{ include "orgadmin.fullname" . }}--configtx
       containers:
         - name: cli
           image: "hyperledger/fabric-tools:{{ .Values.cli.image.tag }}"
@@ -35,7 +35,7 @@ spec:
             - "sleep 48h"
           envFrom:
             - configMapRef:
-                name: {{ include "org0admin.fullname" . }}--cli
+                name: {{ include "orgadmin.fullname" . }}--cli
           volumeMounts:
             - mountPath: /var/hyperledger
               name: fabricfiles

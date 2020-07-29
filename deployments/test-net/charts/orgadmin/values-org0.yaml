@@ -1,6 +1,22 @@
 global:
   TZ: Asia/Hong_Kong
-  FABRIC_CFG_PATH: /etc/hyperledger/fabric/
+
+persistence:
+  enabled: true
+  # Persistence Volume Name for manual storage class
+  pvName: pv-org0
+  pvcName: pvc-org0
+  hostPath: /tmp/data/org0
+
+  ## A manually managed Persistent Volume and Claim
+  ## If defined, PVC must be created manually before volume will be bound
+  subPath: ""
+
+  # storageClass: "-"
+  storageClass: manual
+  accessMode: ReadWriteMany
+  size: 10Mi
+  annotations: {}
 
 ordererConfiguration:
   ORDERER_GENERAL_LOCALMSPID: Org0MSP
