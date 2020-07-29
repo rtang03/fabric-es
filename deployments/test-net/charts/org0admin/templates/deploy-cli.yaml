@@ -39,7 +39,6 @@ spec:
           volumeMounts:
             - mountPath: /var/hyperledger
               name: fabricfiles
-              subPath: {{ .Values.cli.persistence.subPath }}
             - mountPath: /host/var/run/docker.sock
               name: dockersocket
             - mountPath: /var/hyperledger/cli

@@ -10,7 +10,7 @@ data:
       - &Org0MSP
         Name: Org0MSP
         ID: Org0MSP
-        MSPDir: /var/artifacts/crypto-config/Org0MSP/msp
+        MSPDir: /var/hyperledger/crypto-config/Org0MSP/msp
         Policies:
           Readers:
             Type: Signature
@@ -24,7 +24,7 @@ data:
       - &Org1MSP
         Name: Org1MSP
         ID: Org1MSP
-        MSPDir: /var/artifacts/crypto-config/Org1MSP/msp
+        MSPDir: /var/hyperledger/crypto-config/Org1MSP/msp
         Policies:
           Readers:
             Type: Signature
@@ -92,24 +92,24 @@ data:
         Consenters:
           - Host: orderer0-org0
             Port: 7050
-            ClientTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
-            ServerTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
+            ClientTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
           - Host: orderer1-org0
             Port: 7150
-            ClientTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/signcerts/cert.pem
-            ServerTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/signcerts/cert.pem
+            ClientTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/signcerts/cert.pem
           - Host: orderer2-org0
             Port: 7250
-            ClientTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/signcerts/cert.pem
-            ServerTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/signcerts/cert.pem
+            ClientTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/signcerts/cert.pem
           - Host: orderer3-org0
             Port: 7350
-            ClientTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/signcerts/cert.pem
-            ServerTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/signcerts/cert.pem
+            ClientTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/signcerts/cert.pem
           - Host: orderer4-org0
             Port: 7450
-            ClientTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/signcerts/cert.pem
-            ServerTLSCert: /var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/signcerts/cert.pem
+            ClientTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/signcerts/cert.pem
         Options:
           TickInterval: 500ms
           ElectionTick: 10

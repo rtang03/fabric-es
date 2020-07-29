@@ -1,12 +1,16 @@
 Run the following commands to...
-1. Get the name of the pod running the Fabric CA Server:
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ include "hlf-ca.name" . }},release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+{{- if contains "tlscaorg0" .Release.Name }}
+{{ include "tlscaorg0.notes" . }}
+{{- end }}
+{{- if contains "rcaorg0" .Release.Name }}
+{{ include "rcaorg0.notes" . }}
+{{- end }}
 
-2. Get the application URL to validate your installation
+# ===== Validation
+1. Get the application URL to validate your installation, should return cert.
 {{- if .Values.ingress.enabled }}
 {{- range .Values.ingress.hosts }}
   curl http{{ if $.Values.ingress.tls }}s{{ end }}://{{ . }}{{ $.Values.ingress.path }}cainfo -k
-  ps.: it should return the cert.
 {{- end }}
 {{- else if contains "NodePort" .Values.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "hlf-ca.fullname" . }})
@@ -20,11 +24,4 @@ Run the following commands to...
 {{- else if contains "ClusterIP" .Values.service.type }}
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl port-forward $POD_NAME 8080:7054
-{{- end }}
-
-{{- if contains "tlscaorg0" .Release.Name }}
-{{ include "tlscaorg0.notes" . }}
-{{- end }}
-{{- if contains "rcaorg0" .Release.Name }}
-{{ include "rcaorg0.notes" . }}
 {{- end }}
