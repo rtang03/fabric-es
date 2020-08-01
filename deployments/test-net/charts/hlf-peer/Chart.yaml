@@ -1,0 +1,21 @@
+apiVersion: v1
+appVersion: 1.4.3
+description: Hyperledger Fabric Peer chart (these charts are created by AID:Tech and
+  are currently not directly associated with the Hyperledger project)
+home: http://hyperledger-fabric.readthedocs.io
+icon: https://www.hyperledger.org/wp-content/uploads/2018/04/fabric-logo.png
+keywords:
+  - blockchain
+  - hyperledger
+  - fabric
+maintainers:
+  - email: sasha@aid.technology
+    name: alexvicegrab
+  - email: inzamam@aid.technology
+    name: inzamam-iqbal
+  - email: diego@aid.technology
+    name: dbandin
+name: hlf-peer
+sources:
+  - https://github.com/hyperledger/fabric
+version: 1.5.0

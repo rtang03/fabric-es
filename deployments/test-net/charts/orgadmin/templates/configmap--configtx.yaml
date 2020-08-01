@@ -1,4 +1,4 @@
-{{- if not .Values.ordererConfiguration }}
+{{- if .Values.ordererConfiguration.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:

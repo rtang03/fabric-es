@@ -18,13 +18,15 @@ spec:
       volumes:
         - name: fabricfiles
           persistentVolumeClaim:
-            claimName: fabric-pvc-org0
+            claimName: {{ .Values.persistence.pvcName }}
         - name: dockersocket
           hostPath:
             path: /var/run/docker.sock
+        {{- if .Values.ordererConfiguration.enabled }}
         - name: configtx
           configMap:
             name: {{ include "orgadmin.fullname" . }}--configtx
+        {{- end }}
       containers:
         - name: cli
           image: "hyperledger/fabric-tools:{{ .Values.cli.image.tag }}"
@@ -41,6 +43,8 @@ spec:
               name: fabricfiles
             - mountPath: /host/var/run/docker.sock
               name: dockersocket
+            {{- if .Values.ordererConfiguration.enabled }}
             - mountPath: /var/hyperledger/cli
               readOnly: true
               name: configtx
+            {{- end }}

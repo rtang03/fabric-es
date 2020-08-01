@@ -1,9 +1,15 @@
 Run the following commands to...
-{{- if contains "tlscaorg0" .Release.Name }}
+{{- if contains "tlsca0" .Values.caName }}
 {{ include "tlscaorg0.notes" . }}
 {{- end }}
-{{- if contains "rcaorg0" .Release.Name }}
+{{- if contains "rca0" .Values.caName }}
 {{ include "rcaorg0.notes" . }}
+{{- end }}
+{{- if contains "tlscaorg" .Values.caName }}
+{{ include "tlscaorg.notes" . }}
+{{- end }}
+{{- if contains "rcaorg" .Values.caName }}
+{{ include "rcaorg.notes" . }}
 {{- end }}
 
 # ===== Validation

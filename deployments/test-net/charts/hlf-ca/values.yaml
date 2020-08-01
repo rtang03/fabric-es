@@ -1,13 +1,49 @@
 ## Default values for hlf-ca.
 ## This is a YAML-formatted file.
 ## Declare variables to be passed into your templates.
-ordererDomain: org0.com
+
+mspId: Org0MSP
+
+## CA Admin Username
+caAdmin: admin
+## CA Admin password (set to 24 random characters by default)
+caAdminPW: adminPW
+## Name of CA, stored in FABRIC_CA_SERVER_CA_NAME (and the configMap "--config", if deploying a Root CA)
+caName: org1-ca
+
+ordererOrg:
+  firstOrderer: "orderer0.org0.com"
+  domain: org0.com
+  orgadmin: "admin-orderer0.org0.com"
+  orgadminPW: "admin-orderer0.org0.comPW"
+
 orderers:
-  - "orderer0.org0.com"
-  - "orderer1.org0.com"
-  - "orderer2.org0.com"
-  - "orderer3.org0.com"
-  - "orderer4.org0.com"
+  - id: "orderer0.org0.com"
+    pass: "orderer0.org0.comPW"
+    csrHost: "orderer0-org0"
+  - id: "orderer1.org0.com"
+    pass: "orderer1.org0.comPW"
+    csrHost: "orderer1-org0"
+  - id: "orderer2.org0.com"
+    pass: "orderer2.org0.comPW"
+    csrHost: "orderer2-org0"
+  - id: "orderer3.org0.com"
+    pass: "orderer3.org0.comPW"
+    csrHost: "orderer3-org0"
+  - id: "orderer4.org0.com"
+    csrHost: "orderer4-org0"
+    pass: "orderer4.org0.comPW"
+
+peerOrg:
+  firstPeer: "peer0.org1.net"
+  domain: org1.net
+  orgadmin: "admin-peer0.org1.net"
+  orgadminPW: "admin-peer00.org1.netPW"
+
+peers:
+  - id: "peer0.org1.net"
+    csrHost: "peer0-org1"
+    pass: "peer0.org1.netPW"
 
 image:
   repository: hyperledger/fabric-ca
@@ -49,12 +85,6 @@ persistence:
 ##################################
 ## Further configuration options #
 ##################################
-## CA Admin Username
-adminUsername: admin
-## CA Admin password (set to 24 random characters by default)
-# adminPassword:
-## Name of CA, stored in FABRIC_CA_SERVER_CA_NAME (and the configMap "--config", if deploying a Root CA)
-caName: org1-ca
 
 ##
 ## Fabric CA Database

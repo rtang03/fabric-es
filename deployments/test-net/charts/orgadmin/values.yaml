@@ -20,6 +20,7 @@ persistence:
   annotations: {}
 
 ordererConfiguration:
+  enabled: true
   ORDERER_GENERAL_LOCALMSPID: Org0MSP
 
 postgresql-0:

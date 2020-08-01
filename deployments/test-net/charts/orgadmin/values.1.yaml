@@ -1,6 +1,9 @@
 global:
   TZ: Asia/Hong_Kong
 
+ordererConfiguration:
+  enabled: false
+
 persistence:
   enabled: true
   # Persistence Volume Name for manual storage class
@@ -14,8 +17,7 @@ persistence:
 
   # storageClass: "-"
   storageClass: manual
-  accessMode:
-    - ReadWriteMany
+  accessMode: ReadWriteMany
   size: 10Mi
   annotations: {}
 
@@ -27,13 +29,14 @@ postgresql-0:
       CREATE DATABASE "rca_db";
   service:
     type: NodePort
-    nodePort: 30432
+    nodePort: 30433
   persistence:
     enabled: true
-    existingClaim: fabric-pvc-org0
+    existingClaim: pvc-org1
     subPath: pgdata
     storageClass: manual
-    accessModes: ReadWriteOnce
+    accessModes:
+      - ReadWriteOnce
     size: 10Mi
 
 cli:

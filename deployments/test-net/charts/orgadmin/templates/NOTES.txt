@@ -1,16 +1,8 @@
 Info: this chart install
 - fabric cli tools
-- postgres db for org0
-- pv for org0
+- postgres db
+- pv
 
 Run the following commands to...
 
-# 1. Check k8s resource
-kubectl get all
-
-kubectl get configmap
-
-kubectl get secret
-
-kubectl get ingress
 

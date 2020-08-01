@@ -1,24 +1,30 @@
-## Default values for hlf-ca.
-## This is a YAML-formatted file.
-## Declare variables to be passed into your templates.
+mspId: "Org0MSP"
 
-## hlf-common properties
-ordererDomain: org0.com
+caAdmin: tlsca0-admin
+caAdminPW: tlsca0-adminPW
+caName: tlsca0
 
-## tls-ca-org0 properties
-adminUsername: tls-ca-admin
-adminPassword: tls-ca-adminPW
-caName: tls-ca-org0
+ordererOrg:
+  domain: org0.com
+  orgadmin: "admin-orderer0.org0.com"
+  orgadminPW: "admin-orderer0.org0.comPW"
 
-image:
-  repository: hyperledger/fabric-ca
-  tag: 1.4.7
-  pullPolicy: IfNotPresent
-
-service:
-  ## Cluster IP or LoadBalancer
-  type: ClusterIP
-  port: 7054
+orderers:
+  - id: "orderer0.org0.com"
+    pass: "orderer0.org0.comPW"
+    csrHost: "orderer0-org0"
+  - id: "orderer1.org0.com"
+    pass: "orderer1.org0.comPW"
+    csrHost: "orderer1-org0"
+  - id: "orderer2.org0.com"
+    pass: "orderer2.org0.comPW"
+    csrHost: "orderer2-org0"
+  - id: "orderer3.org0.com"
+    pass: "orderer3.org0.comPW"
+    csrHost: "orderer3-org0"
+  - id: "orderer4.org0.com"
+    csrHost: "orderer4-org0"
+    pass: "orderer4.org0.comPW"
 
 # https://kubernetes.github.io/ingress-nginx/user-guide/tls/
 ingress:
@@ -35,13 +41,13 @@ ingress:
     - secretName: "tlscaorg0-tls"
       hosts:
         - tlscaorg0
-db:
-  ssl: disable
 
-# connect db by org0admin
+# connect db by admin0
+# host name: {{ Release.Name }}-postgresql-0
+# if release of "orgadmin" is changed, the host name is required to change it
 externalDatabase:
   type: postgres
-  host: org0admin-postgresql-0
+  host: admin0-postgresql-0
   port: 5432
   database: tls_ca_db
   username: postgres
@@ -52,7 +58,7 @@ persistence:
   enabled: true
   storageClass: manual
   accessMode: ReadWriteOnce
-  existingClaim: fabric-pvc-org0
+  existingClaim: pvc-org0
   size: 10Mi
 
 # configMap
@@ -77,28 +83,3 @@ config:
   #     url: parent-ca.example.com
   #     port: 7054
   ## Affiliations used in ca Server configuration file
-
-resources: {}
-  ## We usually recommend not to specify default resources and to leave this as a conscious
-  ## choice for the user. This also increases chances charts run on environments with little
-  ## resources, such as Minikube. If you do want to specify resources, uncomment the following
-  ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-#   cpu: 100m
-#   memory: 128Mi
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
-  ## Suggested antiAffinity, as each CA should be on a separate Node for resilience
-  # podAntiAffinity:
-  #   requiredDuringSchedulingIgnoredDuringExecution:
-  #     - topologyKey: "kubernetes.io/hostname"
-  #       labelSelector:
-#         matchLabels:
-#           app: hlf-ca

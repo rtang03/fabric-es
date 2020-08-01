@@ -9,7 +9,8 @@ spec:
   storageClassName: manual
   capacity:
     storage: 10Mi
-  accessModes: {{ .Values.persistence.accessMode | quote }}
+  accessModes:
+    - {{ .Values.persistence.accessMode | quote }}
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: {{ .Values.persistence.hostPath | quote }}
