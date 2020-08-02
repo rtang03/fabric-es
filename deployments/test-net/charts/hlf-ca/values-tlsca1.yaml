@@ -28,7 +28,7 @@ ingress:
   tls:
     - secretName: "tlscaorg1-tls"
       hosts:
-        - tlscaorg0
+        - tlscaorg1
 
 # connect db by admin1
 # host name: {{ Release.Name }}-postgresql-0

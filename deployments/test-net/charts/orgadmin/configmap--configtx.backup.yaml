@@ -40,13 +40,13 @@ data:
             Type: Signature
             Rule: "OR('Org1MSP.member')"
         OrdererEndpoints:
-          - o0-hlf-ord:7050
-          - o1-hlf-ord:7050
-          - o2-hlf-ord:7050
-          - o3-hlf-ord:7050
-          - o4-hlf-ord:7050
+          - orderer0-org0:7050
+          - orderer1-org0:7150
+          - orderer2-org0:7250
+          - orderer3-org0:7350
+          - orderer4-org0:7450
         AnchorPeers:
-          - Host: p0o1-hlf-peer
+          - Host: peer0-org1
             Port: 7051
     Capabilities:
       Channel: &ChannelCapabilities
@@ -78,11 +78,11 @@ data:
     Orderer: &OrdererDefaults
       OrdererType: etcdraft
       Addresses:
-        - o0-hlf-ord:7050
-        - o1-hlf-ord:7050
-        - o2-hlf-ord:7050
-        - o3-hlf-ord:7050
-        - o4-hlf-ord:7050
+        - orderer0-org0:7050
+        - orderer1-org0:7150
+        - orderer2-org0:7250
+        - orderer3-org0:7350
+        - orderer4-org0:7450
       BatchTimeout: 2s
       BatchSize:
         MaxMessageCount: 500
@@ -91,24 +91,24 @@ data:
       MaxChannels: 10
       EtcdRaft:
         Consenters:
-          - Host: o0-hlf-ord
+          - Host: orderer0-org0
             Port: 7050
             ClientTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
             ServerTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem
-          - Host: o1-hlf-ord
-            Port: 7050
+          - Host: orderer1-org0
+            Port: 7150
             ClientTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/signcerts/cert.pem
             ServerTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/signcerts/cert.pem
-          - Host: o2-hlf-ord
-            Port: 7050
+          - Host: orderer2-org0
+            Port: 7250
             ClientTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/signcerts/cert.pem
             ServerTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/signcerts/cert.pem
-          - Host: o3-hlf-ord
-            Port: 7050
+          - Host: orderer3-org0
+            Port: 7350
             ClientTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/signcerts/cert.pem
             ServerTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/signcerts/cert.pem
-          - Host: o4-hlf-ord
-            Port: 7050
+          - Host: orderer4-org0
+            Port: 7450
             ClientTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/signcerts/cert.pem
             ServerTLSCert: /var/hyperledger/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/signcerts/cert.pem
         Options:

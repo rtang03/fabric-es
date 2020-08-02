@@ -12,7 +12,7 @@ kubectl -n n1 exec $POD_TLS_CA -- sh -c "fabric-ca-client enroll -d -u http://tl
 kubectl -n n1 exec $POD_TLS_CA -- sh -c "mv ./Org1MSP/tls/server/msp/keystore/*_sk ./Org1MSP/tls/server/msp/keystore/key.pem"
 export CERT=$(kubectl -n n1 exec ${POD_TLS_CA} -- cat ./Org1MSP/tls/server/ca-cert.pem)
 export KEY=$(kubectl -n n1 exec ${POD_TLS_CA} -- cat ./Org1MSP/tls/server/msp/keystore/key.pem)
-kubectl -n n1 create secret generic tlsca1-tls --from-literal=tls.crt="$CERT" --from-literal=tls.key="$KEY"
+kubectl -n n1 create secret generic tlscaorg1-tls --from-literal=tls.crt="$CERT" --from-literal=tls.key="$KEY"
 
 
 ######## 4. Register peer:

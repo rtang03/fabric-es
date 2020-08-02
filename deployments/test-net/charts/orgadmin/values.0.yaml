@@ -21,6 +21,7 @@ persistence:
 ordererConfiguration:
   enabled: true
   ORDERER_GENERAL_LOCALMSPID: Org0MSP
+  org1cacert: "org1-cacerts"
 
 postgresql-0:
   postgresqlPassword: password

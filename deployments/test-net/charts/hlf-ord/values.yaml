@@ -29,6 +29,9 @@ ingress:
 
 persistence:
   enabled: true
+  pvName: pv-ord0
+  pvcName: pvc-ord0
+  hostPath: /tmp/data/orderers/orderer0
   annotations: {}
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -36,10 +39,10 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  storageClass: ""
+  storageClass: manual
   accessMode: ReadWriteOnce
-  size: 1Gi
-  existingClaim: ""
+  size: 10Mi
+  existingClaim: pvc-ord0
 
 ##################################
 ## Orderer configuration options #
@@ -67,29 +70,38 @@ config:
 
 secrets:
   ## These secrets should contain the Orderer crypto materials and credentials
-  ord: {}
+  ord:
     ## Credentials, saved under keys 'CA_USERNAME' and 'CA_PASSWORD'
-    # cred: hlf--ord1-cred
+    cred: "rcaorg0-hlf-ca--ca"
     ## Certificate, saved under key 'cert.pem'
+    ## /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/msp/signcerts
+    cert: "orderer0.org0.com-cert"
     # cert: hlf--ord1-idcert
     ## Key, saved under 'key.pem'
     # key: hlf--ord1-idkey
+    key: "orderer0.org0.com-key"
     ## CA Cert, saved under 'cacert.pem'
     # caCert: hlf--ord1-cacert
+    caCert: "orderer0.org0.com-cacert"
     ## Intermediate CA Cert (optional), saved under 'intermediatecacert.pem'
     # intCaCert: hlf--ord1-caintcert
     ## TLS secret, saved under keys 'tls.crt' and 'tls.key' (to conform with K8S nomenclature)
     # tls: hlf--ord1-tls
+    tls: "orderer0.org0.com-tls"
     ## TLS root CA certificate saved under key 'cert.pem'
     # tlsRootCert: hlf--ord-tlsrootcert
+    tlsRootCert: "orderer0.org0.com-tlsrootcert"
     ## TLS client root CA certificates saved under any names (as there may be multiple)
-  # tlsClientRootCerts: hlf--peer-tlsrootcert
-  ## This should contain "genesis" block derived from a configtx.yaml
-  ## configtxgen -profile OrdererGenesis -outputBlock genesis.block
-  # genesis: hlf--genesis
-  ## This should contain the Certificate of the Orderer Organisation admin
-  ## This is necessary to successfully run the orderer
-  # adminCert: hlf--ord-admincert
+    # tlsClientRootCerts: hlf--peer-tlsrootcert
+#    tlsClientRootCerts: "orderer0.org0.com-tlsrootcert"
+    ## This should contain "genesis" block derived from a configtx.yaml
+    ## configtxgen -profile OrdererGenesis -outputBlock genesis.block
+    # genesis: hlf--genesis
+    genesis: "genesis"
+    ## This should contain the Certificate of the Orderer Organisation admin
+    ## This is necessary to successfully run the orderer
+    # adminCert: hlf--ord-admincert
+    adminCert: "orderer0.org0.com-admincert"
 
 resources: {}
   ## We usually recommend not to specify default resources and to leave this as a conscious

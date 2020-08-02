@@ -15,18 +15,18 @@ ordererOrg:
 orderers:
   - id: "orderer0.org0.com"
     pass: "orderer0.org0.comPW"
-    csrHost: "orderer0-org0"
+    csrHost: "o0-hlf-ord"
   - id: "orderer1.org0.com"
     pass: "orderer1.org0.comPW"
-    csrHost: "orderer1-org0"
+    csrHost: "o1-hlf-ord"
   - id: "orderer2.org0.com"
     pass: "orderer2.org0.comPW"
-    csrHost: "orderer2-org0"
+    csrHost: "o2-hlf-ord"
   - id: "orderer3.org0.com"
     pass: "orderer3.org0.comPW"
-    csrHost: "orderer3-org0"
+    csrHost: "o3-hlf-ord"
   - id: "orderer4.org0.com"
-    csrHost: "orderer4-org0"
+    csrHost: "o4-hlf-ord"
     pass: "orderer4.org0.comPW"
 
 ingress:
@@ -38,11 +38,12 @@ ingress:
     # certmanager.k8s.io/cluster-issuer: "letsencrypt-staging"
   path: /
   hosts:
-    - rcaorg0
+    - rca0
   tls:
-    - secretName: rcaorg0-tls
+    # secretName is {{ Release.Name }}-tls. For org0, it must be rca0-tls
+    - secretName: rca0-tls
       hosts:
-        - rcaorg0
+        - rca0
 
 # connect db by admin0
 # host name: {{ Release.Name }}-postgresql-o

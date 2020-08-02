@@ -19,7 +19,6 @@ export CERT=$(kubectl -n {{ .Release.Namespace }} exec ${POD_TLS_CA} -- cat ./{{
 export KEY=$(kubectl -n {{ .Release.Namespace }} exec ${POD_TLS_CA} -- cat ./{{ .Values.mspId }}/tls/server/msp/keystore/key.pem)
 kubectl -n {{ .Release.Namespace }} create secret generic {{ .Release.Name }}-tls --from-literal=tls.crt="$CERT" --from-literal=tls.key="$KEY"
 
-
 ######## 4. Register peer:
 {{- range .Values.peers }}
 kubectl -n {{ $.Release.Namespace }} exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name {{ .id }} --id.secret {{ .pass }} --id.type peer -u http://0.0.0.0:7054"

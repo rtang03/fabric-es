@@ -63,16 +63,6 @@ kubectl -n {{ .Release.Namespace }} exec $POD_RCA -- sh -c "cp ./{{ $.Values.msp
 kubectl -n {{ .Release.Namespace }} exec $POD_RCA -- sh -c "cp ./{{ $.Values.mspId }}/{{ .Values.ordererOrg.firstOrderer }}/tls-ca-cert.pem ./{{ $.Values.mspId }}/msp/tlscacerts"
 kubectl -n {{ .Release.Namespace }} exec $POD_RCA -- sh -c "cp ./{{ $.Values.mspId }}/{{ .Values.ordererOrg.firstOrderer }}/{{ .Values.ordererOrg.domain }}-ca-cert.pem ./{{ $.Values.mspId }}/msp/cacerts"
 
-=== WORKING WITH genesis.block
-######## 1. Get the name of the pod running rca:
-export POD_CLI=$(kubectl get pods -n {{ .Release.Namespace }} -l "app=orgadmin,release=org0admin" -o jsonpath="{.items[0].metadata.name}")
-
-######## 2. Create genesis.block
-kubectl -n {{ .Release.Namespace }} exec $POD_CLI -- sh -c "configtxgen -profile OrgsOrdererGenesis -outputBlock genesis.block -channelID ordererchannel"
-
-######## 3. Create channel.tx
-kubectl -n {{ .Release.Namespace }} exec $POD_CLI -- sh -c "configtxgen -profile OrgsChannel -outputCreateChannelTx channel.tx -channelID loanapp"
-
 === WORKING WITH secret
 ######## 1. secret: {{ .Release.Name }}-hlf-ca--ca is already set by secret manifest. Below command retrieves it.
 # export CA_ADMIN=$(kubectl -n {{ .Release.Namespace }} get secret {{ .Release.Name }}-hlf-ca--ca -o jsonpath=".data.CA_ADMIN" | base64 -d)

@@ -26,6 +26,18 @@ spec:
         - name: configtx
           configMap:
             name: {{ include "orgadmin.fullname" . }}--configtx
+        - name: org1mspcacerts
+          secret:
+            optional: true
+            secretName: {{ .Values.ordererConfiguration.org1cacert }}
+        - name: org1mspadmincerts
+          secret:
+            optional: true
+            secretName: {{ .Values.ordererConfiguration.org1admincerts }}
+        - name: org1msptlscacerts
+          secret:
+            optional: true
+            secretName: {{ .Values.ordererConfiguration.org1tlscacerts }}
         {{- end }}
       containers:
         - name: cli
@@ -45,6 +57,14 @@ spec:
               name: dockersocket
             {{- if .Values.ordererConfiguration.enabled }}
             - mountPath: /var/hyperledger/cli
-              readOnly: true
               name: configtx
+            - mountPath: /var/hyperledger/crypto-config/Org1MSP/msp/cacerts
+              readOnly: true
+              name: org1mspcacerts
+            - mountPath: /var/hyperledger/crypto-config/Org1MSP/msp/admincerts
+              readOnly: true
+              name: org1mspadmincerts
+            - mountPath: /var/hyperledger/crypto-config/Org1MSP/msp/tlscacerts
+              readOnly: true
+              name: org1msptlscacerts
             {{- end }}

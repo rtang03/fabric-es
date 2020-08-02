@@ -36,6 +36,11 @@ orderers:
 
 peerOrg:
   firstPeer: "peer0.org1.net"
+  # org1cacert is /var/hyperledger/crypto-config/Org1MSP/msp/cacert/org1.net-ca-cert.pem
+  # created by Org1, and then send to Org0 cli, to generate genesis block
+  org1cacert: org1-cacerts
+  org1admincerts: org1-admincerts
+  org1tlscacerts: org1-tlscacerts
   domain: org1.net
   orgadmin: "admin-peer0.org1.net"
   orgadminPW: "admin-peer00.org1.netPW"

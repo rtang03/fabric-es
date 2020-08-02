@@ -23,7 +23,8 @@ spec:
         - name: data
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim | default (include "hlf-ord.fullname" .) }}
+            claimName: pvc-org0
+{{/*            claimName: {{ .Values.persistence.existingClaim | default (include "hlf-ord.fullname" .) }}*/}}
           {{- else }}
           emptyDir: {}
         {{- end }}
@@ -62,15 +63,15 @@ spec:
           secret:
             secretName: {{ .Values.secrets.ord.tlsClientRootCert }}
         {{- end }}
-        {{- if .Values.secrets.genesis }}
+        {{- if .Values.secrets.ord.genesis }}
         - name: genesis
           secret:
-            secretName: {{ .Values.secrets.genesis }}
+            secretName: {{ .Values.secrets.ord.genesis }}
         {{- end }}
-        {{- if .Values.secrets.adminCert }}
+        {{- if .Values.secrets.ord.adminCert }}
         - name: admin-cert
           secret:
-            secretName: {{ .Values.secrets.adminCert }}
+            secretName: {{ .Values.secrets.ord.adminCert }}
         {{- end }}
         {{- if .Values.secrets.caServerTls }}
         - name: ca-server-tls
@@ -100,19 +101,13 @@ spec:
                 - /var/hyperledger
             initialDelaySeconds: 15
           command:
-            - bash
+            - sh
             - -c
             - |
 
               while [ ! -d "$ORDERER_GENERAL_LOCALMSPDIR/admincerts" ] || [ -z "$(ls -A $ORDERER_GENERAL_LOCALMSPDIR/admincerts)" ];
               do
                 echo "\033[0;31m $ORDERER_GENERAL_LOCALMSPDIR/admincerts must contain Ord admin certificates files \033[0m"
-                sleep 60
-              done
-
-              while [ ! -d "$ORDERER_GENERAL_LOCALMSPDIR/genesis" ] || [ -z "$(ls -A $ORDERER_GENERAL_LOCALMSPDIR/genesis)" ];
-              do
-                echo "\033[0;31m $ORDERER_HOME/genesis must contain Genesis transaction \033[0m"
                 sleep 60
               done
 
@@ -132,7 +127,8 @@ spec:
               fi
 
               echo ">\033[0;35m orderer \033[0m"
-              orderer
+              top
+              # orderer
           envFrom:
             {{- if .Values.secrets.ord.cred }}
             - secretRef:
@@ -173,15 +169,15 @@ spec:
             - mountPath: {{ include "hlf-ord.ordDir" . }}/tls-msp/tlscacerts
               name: tls-rootcert
             {{- end }}
-            {{- if .Values.secrets.ord.tlsClientRootCert }}
+            {{- if .Values.secrets.ord.tlsClientRootCerts }}
             - mountPath: /var/hyperledger/tls/client/cert
               name: tls-clientrootcert
             {{- end }}
-            {{- if .Values.secrets.genesis }}
-            - mountPath: {{ include "hlf-ord.ordDir" . }}/genesis
+            {{- if .Values.secrets.ord.genesis }}
+            - mountPath: {{ include "hlf-ord.ordDir" . }}
               name: genesis
             {{- end }}
-            {{- if .Values.secrets.adminCert }}
+            {{- if .Values.secrets.ord.adminCert }}
             - mountPath: {{ include "hlf-ord.ordDir" . }}/msp/admincerts
               name: admin-cert
 {{/*            - mountPath: /var/hyperledger/admin_msp/signcerts*/}}

@@ -12,7 +12,7 @@ data:
   ORDERER_GENERAL_BATCHTIMEOUT: "1s"
   ORDERER_GENERAL_BATCHSIZE_MAXMESSAGECOUNT: "10"
   ORDERER_GENERAL_MAXWINDOWSIZE: "1000"
-  ORDERER_GENERAL_ORDERERTYPE: {{ .Values.ord.type | quote }}
+{{/*  ORDERER_GENERAL_ORDERERTYPE: {{ .Values.ord.type | quote }}*/}}
   ORDERER_GENERAL_GENESISPROFILE: "initial"
   GODEBUG: "netdns=go"
   TZ: {{ .Values.config.timezone | default "Asia/Hong Kong" | quote }}
@@ -21,7 +21,7 @@ data:
   ORDERER_GENERAL_GENESISMETHOD: "file"
   ORDERER_GENERAL_TLS_ENABLED: "true"
   ORDERER_GENERAL_LOGLEVEL: {{ .Values.ord.debug | default "INFO" | quote }}
-  ORDERER_CFG_PATH: "{{ include "hlf-ord.home" . }}/config"
+  ORDERER_CFG_PATH:  "{{ include "hlf-ord.home" . }}/config"
   ORDERER_HOST: {{ include "hlf-ord.ordererhost" . | quote }}
   ORDERER_HOME: {{ include "hlf-ord.home" . | quote }}
   ORDERER_GENERAL_LOCALMSPID: {{ .Values.ord.mspID | quote }}
@@ -30,13 +30,13 @@ data:
   ORDERER_GENERAL_TLS_CERTIFICATE: "{{ include "hlf-ord.home" . }}/tls-msp/tls/tls.crt"
   ORDERER_GENERAL_TLS_PRIVATEKEY: "{{ include "hlf-ord.home" . }}/tls-msp/tls/tls.key"
 {{/*  ORDERER_GENERAL_TLS_PRIVATEKEY: "{{ include "hlf-ord.home" . }}/tls-msp/keystore/key.pem"*/}}
-  ORDERER_GENERAL_TLS_ROOTCAS: "[{{ include "hlf-ord.home" . }}/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem]"
-  ORDERER_GENERAL_GENESISFILE: "{{ include "hlf-ord.home" . }}/genesis/genesis.block"
+  ORDERER_GENERAL_TLS_ROOTCAS: "[{{ include "hlf-ord.home" . }}/tls-msp/tlscacerts/tlscacert.pem]"
+  ORDERER_GENERAL_BOOTSTRAPFILE: "/var/hyperledger/crypto-config/genesis.block"
 {{/*  ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE: "{{ include "hlf-ord.home" . }}/tls-msp/signcerts/cert.pem"*/}}
   ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE: "{{ include "hlf-ord.home" . }}/tls-msp/tls/tls.crt"
   ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY: "{{ include "hlf-ord.home" . }}/tls-msp/tls/tls.key"
 {{/*  ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY: "{{ include "hlf-ord.home" . }}/tls-msp/keystore/key.pem"*/}}
-  ORDERER_GENERAL_CLUSTER_ROOTCAS: "[{{ include "hlf-ord.home" . }}/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem]"
+  ORDERER_GENERAL_CLUSTER_ROOTCAS: "[{{ include "hlf-ord.home" . }}/tls-msp/tlscacerts/tlscacert.pem]"
   ORDERER_GENERAL_LISTENPORT: "7050"
   ORDERER_FILELEDGER_LOCATION: {{ include "hlf-ord.ledger" . | quote }}
 {{/*  ADMIN_MSP_PATH: /var/hyperledger/{{ .Values.ord.mspID }}/admin/msp*/}}

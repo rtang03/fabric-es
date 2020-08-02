@@ -36,11 +36,12 @@ ingress:
     # certmanager.k8s.io/cluster-issuer: "letsencrypt-staging"
   path: /
   hosts:
-    - tlscaorg0
+    - tlsca0
   tls:
-    - secretName: "tlscaorg0-tls"
+    # secretName is {{ Release.Name }}-tls. For org0, it must be tlsca0-tls
+    - secretName: "tlsca0-tls"
       hosts:
-        - tlscaorg0
+        - tlsca0
 
 # connect db by admin0
 # host name: {{ Release.Name }}-postgresql-0

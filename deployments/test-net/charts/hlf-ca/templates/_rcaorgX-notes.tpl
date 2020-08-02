@@ -103,10 +103,20 @@ export CONTENT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA -- sh -c "ca
 kubectl -n {{ $.Release.Namespace }} create secret generic {{ .id }}-admincert --from-literal={{ $.Values.peerOrg.domain }}-admin-cert.pem="$CONTENT"
 {{- end }}
 
-######## 7. secret: genesis.block
-# {{- range .Values.peers }}
-# export CONTENT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA -- cat ./{{ $.Values.mspId }}/{{ .id }}/genesis/genesis.block)
-# kubectl -n {{ $.Release.Namespace }} create secret generic {{ .id }}-genesis --from-literal=genesis.block="$CONTENT"
-# {{- end }}
+######## 7. create secret {{ .Values.peerOrg.domain }}-ca-cert.pem for Org0
+export CERT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA -- cat ./Org1MSP/msp/cacerts/{{ .Values.peerOrg.domain }}-ca-cert.pem)
+kubectl -n n0 create secret generic {{ .Values.peerOrg.org1cacert }} --from-literal={{ .Values.peerOrg.domain }}-ca-cert.pem="$CERT"
+
+######## 8. create secret {{ .Values.peerOrg.domain }}-admin-cert.pem for Org0
+export CERT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA -- cat ./Org1MSP/msp/admincerts/{{ .Values.peerOrg.domain }}-admin-cert.pem)
+kubectl -n n0 create secret generic {{ .Values.peerOrg.org1admincerts }} --from-literal={{ .Values.peerOrg.domain }}-admin-cert.pem="$CERT"
+
+######## 9. create secret org1.net-ca-cert.pem for Org0
+export CERT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA -- cat ./Org1MSP/msp/tlscacerts/tls-ca-cert.pem)
+kubectl -n n0 create secret generic {{ .Values.peerOrg.org1tlscacerts }} --from-literal=tls-ca-cert.pem="$CERT"
+
+=== WORKING WITH Admin0
+Switch back to terminal for Admin0 chart, and continue with genesis block creation.
+
 # ======= END =======
 {{- end }}
