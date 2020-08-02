@@ -48,6 +48,7 @@ persistence:
 ## Orderer configuration options #
 ##################################
 ord:
+  listenAddress: "o0-hlf-ord"
   ledgerPath: /var/hyperledger/production
   ordOrgPath: /var/hyperledger/crypto-config/Org0MSP
   ordName: orderer0
@@ -55,7 +56,7 @@ ord:
   debug: debug
   # fabricLogging: "grpc=debug:debug"
   fabricLogging: "INFO"
-  type: raft
+#  type: raft
   ## MSP ID of the Orderer
   mspID: Org0MSP
   # TLS

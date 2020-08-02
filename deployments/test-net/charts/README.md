@@ -82,7 +82,6 @@ helm install rca1 -f values-rca1.yaml -n n1 .
 # follow the notes instruction of admin0
 # create genesis.block and channel.tx
 # create secret genesis
-
 ```
 
 ### Step 8 - terminal ord
@@ -90,7 +89,7 @@ helm install rca1 -f values-rca1.yaml -n n1 .
 helm install o0 -f values.0.yaml -n n0 .
 ```
 
-### Useful commands
+### Other useful commands
 ```shell script
 # search public helm repository
 helm search repo stable

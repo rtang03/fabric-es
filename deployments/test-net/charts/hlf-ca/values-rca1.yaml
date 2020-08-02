@@ -11,12 +11,7 @@ peerOrg:
   firstPeer: "peer0.org1.net"
   domain: org1.net
   orgadmin: "admin-peer0.org1.net"
-  orgadminPW: "admin-peer00.org1.netPW"
-
-peers:
-  - id: "peer0.org1.net"
-    csrHost: "peer0-org1"
-    pass: "peer0.org1.netPW"
+  orgadminPW: "admin-peer0.org1.netPW"
 
 ingress:
   enabled: true

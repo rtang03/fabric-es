@@ -34,15 +34,14 @@ persistence:
 ## Orderer configuration options #
 ##################################
 ord:
+  listenAddress: "o0-hlf-ord"
   ledgerPath: /var/hyperledger/production
   ordOrgPath: /var/hyperledger/crypto-config/Org0MSP
   ordName: orderer0
   ordDomain: org0.com
   debug: debug
-  # fabricLogging: "grpc=debug:debug"
-  fabricLogging: "INFO"
-  type: raft
-  ## MSP ID of the Orderer
+  fabricLogging: "grpc=debug:debug"
+#  fabricLogging: "INFO"
   mspID: Org0MSP
   # TLS
   tls:
@@ -50,9 +49,6 @@ ord:
       enabled: "true"
     client:
       enabled: "false"
-
-config:
-  timezone: "Asia/Hong Kong"
 
 secrets:
   ## These secrets should contain the Orderer crypto materials and credentials

@@ -18,7 +18,7 @@ kubectl -n n1 create secret generic tlsca1-tls --from-literal=tls.crt="$CERT" --
 kubectl -n n1 exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name peer0.org1.net --id.secret peer0.org1.netPW --id.type peer -u http://0.0.0.0:7054"
 
 ######## 5. Enrol tls-ca for peer
-kubectl -n n1 exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org1MSP/peer0.org1.net fabric-ca-client enroll -d -u http://peer0.org1.net:peer0.org1.netPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts peer0-org1,127,0.0.1"
+kubectl -n n1 exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org1MSP/peer0.org1.net fabric-ca-client enroll -d -u http://peer0.org1.net:peer0.org1.netPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts p0o1-hlf-ca,127,0.0.1"
 sleep 1
 
 ######## 6. Rename private key

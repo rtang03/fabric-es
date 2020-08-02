@@ -127,8 +127,7 @@ spec:
               fi
 
               echo ">\033[0;35m orderer \033[0m"
-              top
-              # orderer
+              orderer
           envFrom:
             {{- if .Values.secrets.ord.cred }}
             - secretRef:

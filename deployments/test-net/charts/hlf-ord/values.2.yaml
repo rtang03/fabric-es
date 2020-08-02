@@ -1,17 +1,3 @@
-## Default values for hlf-ord.
-## This is a YAML-formatted file.
-## Declare variables to be passed into your templates.
-
-image:
-  repository: hyperledger/fabric-orderer
-  tag: 2.1.0
-  pullPolicy: IfNotPresent
-
-service:
-  # Cluster IP or LoadBalancer
-  type: ClusterIP
-  port: 7050
-
 ingress:
   enabled: false
   annotations: {}
@@ -21,14 +7,17 @@ ingress:
   # certmanager.k8s.io/cluster-issuer: "letsencrypt-staging"
   path: /
   hosts:
-    - orderer2-org0
+    - hlf-ord.local
   tls: []
   #  - secretName: hlf-ord-tls
   #    hosts:
   #      - hlf-ord.local
 
 persistence:
-  enabled: false
+  enabled: true
+  pvName: pv-ord2
+  pvcName: pvc-ord2
+  hostPath: /tmp/data/orderers/orderer2
   annotations: {}
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -36,15 +25,13 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  storageClass: ""
+  storageClass: manual
   accessMode: ReadWriteOnce
-  size: 1Gi
-  existingClaim: ""
+  size: 10Mi
+  existingClaim: pvc-ord2
 
-##################################
-## Orderer configuration options #
-##################################
 ord:
+  listenAddress: "o2-hlf-ord"
   ledgerPath: /var/hyperledger/production
   ordOrgPath: /var/hyperledger/crypto-config/Org0MSP
   ordName: orderer2
@@ -52,8 +39,6 @@ ord:
   debug: debug
   # fabricLogging: "grpc=debug:debug"
   fabricLogging: "INFO"
-  type: raft
-  ## MSP ID of the Orderer
   mspID: Org0MSP
   # TLS
   tls:
@@ -62,64 +47,14 @@ ord:
     client:
       enabled: "false"
 
-config:
-  timezone: "Asia/Hong Kong"
-
 secrets:
   ## These secrets should contain the Orderer crypto materials and credentials
   ord:
-    ## Credentials, saved under keys 'CA_USERNAME' and 'CA_PASSWORD'
-    cred: "rcaorg0-hlf-ca--ca"
-    ## Certificate, saved under key 'cert.pem'
-    ## /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/msp/signcerts
+    cred: "rca0-tls"
     cert: "orderer2.org0.com-cert"
-    # cert: hlf--ord1-idcert
-    ## Key, saved under 'key.pem'
-    # key: hlf--ord1-idkey
     key: "orderer2.org0.com-key"
-    ## CA Cert, saved under 'cacert.pem'
-    # caCert: hlf--ord1-cacert
     caCert: "orderer2.org0.com-cacert"
-    ## Intermediate CA Cert (optional), saved under 'intermediatecacert.pem'
-    # intCaCert: hlf--ord1-caintcert
-    ## TLS secret, saved under keys 'tls.crt' and 'tls.key' (to conform with K8S nomenclature)
-    # tls: hlf--ord1-tls
     tls: "orderer2.org0.com-tls"
-    ## TLS root CA certificate saved under key 'cert.pem'
-    # tlsRootCert: hlf--ord-tlsrootcert
     tlsRootCert: "orderer2.org0.com-tlsrootcert"
-    ## TLS client root CA certificates saved under any names (as there may be multiple)
-    # tlsClientRootCerts: hlf--peer-tlsrootcert
-    ## This should contain "genesis" block derived from a configtx.yaml
-    ## configtxgen -profile OrdererGenesis -outputBlock genesis.block
-    # genesis: hlf--genesis
-    genesis: "orderer2.org0.com-genesis"
-    ## This should contain the Certificate of the Orderer Organisation admin
-    ## This is necessary to successfully run the orderer
-    # adminCert: hlf--ord-admincert
+    genesis: "genesis"
     adminCert: "orderer2.org0.com-admincert"
-
-resources: {}
-  ## We usually recommend not to specify default resources and to leave this as a conscious
-  ## choice for the user. This also increases chances charts run on environments with little
-  ## resources, such as Minikube. If you do want to specify resources, uncomment the following
-  ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-# requests:
-#   cpu: 100m
-#   memory: 128Mi
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
-  ## Suggested antiAffinity, as each Orderer should be on a separate Node for resilience
-  # podAntiAffinity:
-  #   requiredDuringSchedulingIgnoredDuringExecution:
-  #     - topologyKey: "kubernetes.io/hostname"
-#       labelSelector:
-#         matchLabels:
-#           app: hlf-ord

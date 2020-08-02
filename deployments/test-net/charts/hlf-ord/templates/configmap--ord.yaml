@@ -17,6 +17,7 @@ data:
   GODEBUG: "netdns=go"
   TZ: {{ .Values.config.timezone | default "Asia/Hong Kong" | quote }}
   FABRIC_LOGGING_SPEC: {{ .Values.ord.fabricLogging | default "INFO"}}
+{{/*  ORDERER_GENERAL_LISTENADDRESS: {{ .Values.ord.listenAddress }}*/}}
   ORDERER_GENERAL_LISTENADDRESS: "0.0.0.0"
   ORDERER_GENERAL_GENESISMETHOD: "file"
   ORDERER_GENERAL_TLS_ENABLED: "true"
@@ -35,4 +36,6 @@ data:
   ORDERER_GENERAL_CLUSTER_ROOTCAS: "[{{ include "hlf-ord.home" . }}/tls-msp/tlscacerts/tlscacert.pem]"
   ORDERER_GENERAL_LISTENPORT: "7050"
   ORDERER_FILELEDGER_LOCATION: {{ include "hlf-ord.ledger" . | quote }}
+  DEBUG_BROADCASTTRACEDIR: "{{ .Values.ord.ledgerPath }}/broadcast"
+  DEBUG_DELIVERTRACEDIR: "{{ .Values.ord.ledgerPath }}/deliver"
 {{/*  ADMIN_MSP_PATH: /var/hyperledger/{{ .Values.ord.mspID }}/admin/msp*/}}

@@ -20,18 +20,18 @@ ordererOrg:
 orderers:
   - id: "orderer0.org0.com"
     pass: "orderer0.org0.comPW"
-    csrHost: "orderer0-org0"
+    csrHost: "o0-hlf-ca"
   - id: "orderer1.org0.com"
     pass: "orderer1.org0.comPW"
-    csrHost: "orderer1-org0"
+    csrHost: "o1-hlf-ca"
   - id: "orderer2.org0.com"
     pass: "orderer2.org0.comPW"
-    csrHost: "orderer2-org0"
+    csrHost: "o2-hlf-ca"
   - id: "orderer3.org0.com"
     pass: "orderer3.org0.comPW"
-    csrHost: "orderer3-org0"
+    csrHost: "o3-hlf-ca"
   - id: "orderer4.org0.com"
-    csrHost: "orderer4-org0"
+    csrHost: "o4-hlf-ca"
     pass: "orderer4.org0.comPW"
 
 peerOrg:
@@ -47,7 +47,7 @@ peerOrg:
 
 peers:
   - id: "peer0.org1.net"
-    csrHost: "peer0-org1"
+    csrHost: "p0o1-hlf-ca"
     pass: "peer0.org1.netPW"
 
 image:
