@@ -102,10 +102,5 @@ export CONTENT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA -- sh -c "ca
 kubectl -n {{ $.Release.Namespace }} create secret generic {{ .id }}-admincert --from-literal={{ $.Values.ordererOrg.domain }}-admin-cert.pem="$CONTENT"
 {{- end }}
 
-######## 7. secret: genesis.block
-# {{- range .Values.orderers }}
-# export CONTENT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA -- cat ./{{ $.Values.mspId }}/{{ .id }}/genesis/genesis.block)
-# kubectl -n {{ $.Release.Namespace }} create secret generic {{ .id }}-genesis --from-literal=genesis.block="$CONTENT"
-# {{- end }}
 # ======= END =======
 {{- end -}}

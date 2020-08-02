@@ -16,13 +16,9 @@ kubectl -n {{ $.Release.Namespace }} exec -it $POD_CLI0 -- configtxgen -profile 
 kubectl -n {{ $.Release.Namespace }} exec -it $POD_CLI0 -- configtxgen -profile OrgsChannel -outputCreateChannelTx /var/hyperledger/crypto-config/channel.tx -channelID loanapp
 
 ######## 4. Create configmap: genesis.block
-export CONTENT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_CLI0 -- cat ../crypto-config/genesis.block)
-kubectl -n {{ $.Release.Namespace }} create secret generic genesis --from-literal=genesis="$CONTENT"
+kubectl -n {{ $.Release.Namespace }} exec $POD_CLI0 -- cat ../crypto-config/genesis.block > genesis.block
+kubectl -n {{ $.Release.Namespace }} create secret generic genesis --from-file=genesis=./genesis.block
+rm genesis.block
 
-######## 5.
 
-# {{- range .Values.peers }}
-# export CONTENT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA -- cat ./{{ $.Values.mspId }}/{{ .id }}/genesis/genesis.block)
-# kubectl -n {{ $.Release.Namespace }} create secret generic {{ .id }}-genesis --from-literal=genesis.block="$CONTENT"
-# {{- end }}
 

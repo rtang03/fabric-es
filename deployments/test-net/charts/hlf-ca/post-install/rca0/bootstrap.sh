@@ -13,7 +13,6 @@ kubectl -n n0 exec $POD_RCA -- sh -c "mv ./Org0MSP/ca/server/msp/keystore/*_sk .
 export CERT=$(kubectl -n n0 exec ${POD_RCA} -- cat ./Org0MSP/ca/server/ca-cert.pem)
 export KEY=$(kubectl -n n0 exec ${POD_RCA} -- cat ./Org0MSP/ca/server/msp/keystore/key.pem)
 kubectl -n n0 create secret generic rca0-tls --from-literal=tls.crt="$CERT" --from-literal=tls.key="$KEY"
-
 ######## 4. Register and enroll ordererMSP org admin:
 kubectl -n n0 exec $POD_RCA -- sh -c "fabric-ca-client register -d --id.name admin-orderer0.org0.com --id.secret admin-orderer0.org0.comPW --id.type admin --id.attrs \"hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert\" -u http://0.0.0.0:7054"
 kubectl -n n0 exec $POD_RCA -- sh -c "FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/admin fabric-ca-client enroll -d -u http://admin-orderer0.org0.com:admin-orderer0.org0.comPW@0.0.0.0:7054"
