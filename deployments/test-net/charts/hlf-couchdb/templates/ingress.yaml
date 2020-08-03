@@ -1,5 +1,5 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "hlf-peer.fullname" . -}}
+{{- $fullName := include "hlf-couchdb.fullname" . -}}
 {{- $ingressPath := .Values.ingress.path -}}
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
@@ -30,6 +30,6 @@ spec:
           - path: {{ $ingressPath }}
             backend:
               serviceName: {{ $fullName }}
-              servicePort: request
+              servicePort: couchdb
   {{- end }}
 {{- end }}

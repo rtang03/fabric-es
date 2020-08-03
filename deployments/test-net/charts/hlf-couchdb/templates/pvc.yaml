@@ -19,7 +19,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ include "hlf-peer.fullname" . }}
+  name: {{ include "hlf-couchdb.fullname" . }}
   labels:
 {{ include "labels.standard" . | indent 4 }}
 {{- if .Values.persistence.annotations }}

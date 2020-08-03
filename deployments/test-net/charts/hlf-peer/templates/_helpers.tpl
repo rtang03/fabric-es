@@ -43,3 +43,10 @@ heritage: {{ .Release.Service | quote }}
 release: {{ .Release.Name | quote }}
 chart: {{ include "hlf-peer.chart" . }}
 {{- end -}}
+
+{{/*
+Create Peer home
+*/}}
+{{- define "hlf-peer.home" -}}
+{{- printf "%s/%s.%s" .Values.peer.orgPath .Values.peer.peerName .Values.peer.domain }}
+{{- end -}}

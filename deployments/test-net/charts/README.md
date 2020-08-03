@@ -16,6 +16,7 @@ You should need multiple terminals
 # terminal 4, namely "admin1"
 # terminal 5, namely "tlsca1"
 # terminal 6, namely "rca1"
+# terminal 7, namely "p0o1"
 
 # create namespaces for org0 & org1
 # kubectl create namespace n0 
@@ -107,6 +108,13 @@ helm install o2 -f values.2.yaml -n n0 .
 helm install o3 -f values.3.yaml -n n0 .
 helm install o4 -f values.4.yaml -n n0 .
 ```
+
+### Step 8 - terminal p0o1
+```shell script
+# install couchdb for peer0-org1
+helm install p0o1db -n n1 .
+```
+
 
 ### Other useful commands
 ```shell script

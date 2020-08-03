@@ -1,6 +1,3 @@
-global:
-  TZ: Asia/Hong_Kong
-
 mspId: Org1MSP
 
 ordererConfiguration:
@@ -39,14 +36,4 @@ postgresql-0:
     storageClass: manual
     accessModes:
       - ReadWriteOnce
-    size: 10Mi
-
-cli:
-  image:
-    repository: hyperledger/fabric-tools
-    tag: 2.1.0
-    pullPolicy: IfNotPresent
-  persistence:
-    subPath: cli
-    enabled: true
     size: 10Mi

@@ -4,7 +4,7 @@
 
 image:
   repository: hyperledger/fabric-peer
-  tag: 1.4.3
+  tag: 2.1.0
   pullPolicy: IfNotPresent
 
 service:
@@ -37,6 +37,9 @@ ingress:
 
 persistence:
   enabled: true
+  pvName: pv-p0o1
+  pvcName: pvc-p0o1
+  hostPath: /tmp/data/p0o1
   annotations: {}
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -44,9 +47,9 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  storageClass: ""
+  storageClass: "manual"
   accessMode: ReadWriteOnce
-  size: 1Gi
+  size: 10Mi
   # existingClaim: ""
 
 logging:
@@ -64,22 +67,26 @@ logging:
 ## Peer configuration options    #
 ##################################
 peer:
+  ledgerPath: /var/hyperledger/production
+  orgPath: /var/hyperledger/crypto-config/Org1MSP
+  peerName: peer0
+  domain: org1.net
   # Type of database ("goleveldb" or "CouchDB"):
-  databaseType: goleveldb
+  databaseType: CouchDB
   # If CouchDB is used, which chart holds it
-  couchdbInstance: cdb-peer1
+  couchdbInstance: p0o1db
   ## MSP ID of the Peer
   mspID: Org1MSP
   gossip:
-    bootstrap: ""
-    endpoint: ""
-    externalEndpoint: ""
+    bootstrap: "p0o1-hlf-peer"
+    endpoint: "p0o1-hlf-peer"
+    externalEndpoint: "p0o1-hlf-peer"
     orgLeader: "false"
     useLeaderElection: "true"
 
   tls:
     server:
-      enabled: "false"
+      enabled: "true"
     client:
       enabled: "false"
   chaincode:
@@ -92,38 +99,49 @@ peer:
 # Secrets references, empty by default, fill in with your secrets (particularly adminCert) or add Peer Admin certificate manually after launching chart.
 secrets:
   ## These secrets should contain the Orderer crypto materials and credentials
-  peer: {}
+  peer:
     ## Credentials, saved under keys 'CA_USERNAME' and 'CA_PASSWORD'
     # cred: hlf--peer1-cred
+    cred: "rcaorg1-tls"
     ## Certificate, saved under key 'cert.pem'
     # cert: hlf--peer1-idcert
+    cert: "peer0.org1.net-cert"
     ## Key, saved under 'key.pem'
     # key: hlf--peer1-idkey
+    key: "peer0.org1.net-key"
     ## CA Cert, saved under 'cacert.pem'
     # caCert: hlf--peer1-cacert
+    caCert: "peer0.org1.net-cacert"
     ## Intermediate CA Cert (optional), saved under 'intermediatecacert.pem'
     # intCaCert: hlf--peer1-caintcert
     ## TLS secret, saved under keys 'tls.crt' and 'tls.key' (to conform with K8S nomenclature)
     # tls: hlf--peer1-tls
+    tls: "peer0.org1.net-tls"
     ## TLS root CA certificate saved under key 'cert.pem'
     # tlsRootCert: hlf--peer-tlsrootcert
+    tlsRootCert: "peer0.org1.net-tlsrootcert"
     ## TLS client root CA certificates saved under any names (as there may be multiple)
     # tlsClient: hlf--peer1-tls
     ## TLS client root CA certificates saved under any names (as there may be multiple)
-  # tlsClientRootCerts: hlf--ord-tlsrootcert
+    # tlsClientRootCerts: hlf--ord-tlsrootcert
   ## This should contain "channel" transaction derived from a configtx.yaml
   ## configtxgen -profile ComposerChannel -channelID composerchannel -outputCreateChannelTx composerchannel.tx
   # channels:
   # - foochannel
   # - barchannel
+  channels:
+    - "channeltx"
   ## This should contain the Certificate of the Peer Organisation admin
   ## This is necessary to successfully run the peer
   # adminCert: hlf--peer-admincert
+  adminCert: "peer0.org1.net-admincert"
   ## This should contain the Private Key of the Peer Organisation admin
   ## This is necessary to successfully join a channel
   # adminKey: hlf--peer-adminkey
+  adminKey: "peer0.org1.net-adminkey"
   ## This should include the Orderer TLS 'cacert.pem'
   # ordTlsRootCert: hlf--ord-tlsrootcert
+  ordTlsRootCert: "orderer0.org0.com-tlsrootcert"
 
 resources: {}
   ## We usually recommend not to specify default resources and to leave this as a conscious

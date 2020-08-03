@@ -39,7 +39,7 @@ postgresql-0:
     nodePort: 30432
   persistence:
     enabled: true
-    existingClaim: fabric-pvc-org0
+    existingClaim: pvc-org0
     subPath: pgdata
     storageClass: manual
     accessModes:

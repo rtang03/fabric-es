@@ -104,6 +104,7 @@ spec:
         - name: peer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          workingDir: {{ include "hlf-peer.home" . }}
           ports:
             - name: request
               containerPort: 7051
@@ -126,13 +127,12 @@ spec:
               - /var/hyperledger
             initialDelaySeconds: 15
           command:
-            - bash
+            - sh
             - -c
             - |
               # To avoid having separate secrets for CouchDB and HLF
               export CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=$COUCHDB_USER
               export CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=$COUCHDB_PASSWORD
-
               while [ ! -d /var/hyperledger/admin_msp/admincerts ] || [ -z "$(ls -A /var/hyperledger/admin_msp/admincerts)" ];
               do
                 echo "\033[0;31m /var/hyperledger/admin_msp/admincerts must contain Peer admin certificates files \033[0m"
@@ -158,7 +158,8 @@ spec:
               fi
 
               echo ">\033[0;35m peer node start \033[0m"
-              peer node start
+              top
+              # peer node start
           envFrom:
             {{- if eq .Values.peer.databaseType "CouchDB" }}
             - secretRef:
@@ -176,31 +177,31 @@ spec:
               mountPath: {{ .Values.dockerConfigMountPath }}
             {{ end }}
             {{- if .Values.secrets.peer.cert }}
-            - mountPath: /var/hyperledger/msp/signcerts
+            - mountPath: {{ include "hlf-peer.home" . }}/msp/signcerts
               name: id-cert
             {{- end }}
             {{- if .Values.secrets.peer.key }}
-            - mountPath: /var/hyperledger/msp/keystore
+            - mountPath: {{ include "hlf-peer.home" . }}/msp/keystore
               name: id-key
             {{- end }}
             {{- if .Values.secrets.peer.caCert }}
-            - mountPath: /var/hyperledger/msp/cacerts
+            - mountPath: {{ include "hlf-peer.home" . }}/msp/cacerts
               name: cacert
             - mountPath: /var/hyperledger/admin_msp/cacerts
               name: cacert
             {{- end }}
             {{- if .Values.secrets.peer.intCaCert }}
-            - mountPath: /var/hyperledger/msp/intermediatecerts
+            - mountPath: {{ include "hlf-peer.home" . }}/msp/intermediatecerts
               name: intcacert
             - mountPath: /var/hyperledger/admin_msp/intermediatecerts
               name: intcacert
             {{- end }}
             {{- if .Values.secrets.peer.tls }}
-            - mountPath: /var/hyperledger/tls/server/pair
+            - mountPath: {{ include "hlf-peer.home" . }}/tls-msp/tls
               name: tls
             {{- end }}
             {{- if .Values.secrets.peer.tlsRootCert }}
-            - mountPath: /var/hyperledger/tls/server/cert
+            - mountPath: {{ include "hlf-peer.home" . }}/tls-msp/tlscacerts
               name: tls-rootcert
             {{- end }}
             {{- if .Values.secrets.peer.tlsClient }}
@@ -212,25 +213,25 @@ spec:
               name: tls-clientrootcert
             {{- end }}
             {{- if .Values.secrets.ordTlsRootCert }}
-            - mountPath: /var/hyperledger/tls/ord/cert
+            - mountPath: {{ include "hlf-peer.home" . }}/tls-msp/ord/cert
               name: ord-tls-rootcert
             {{- end }}
             {{- if .Values.secrets.channels }}
               {{- range .Values.secrets.channels }}
-            - mountPath: /hl_config/channel/{{ . }}
+            - mountPath: {{ include "hlf-peer.home" . }}/hl_config/channel/{{ . }}
               name: {{ . }}
               {{- end }}
             {{- end }}
             {{- if .Values.secrets.adminCert }}
-            - mountPath: /var/hyperledger/admin_msp/admincerts
+            - mountPath: {{ include "hlf-peer.home" . }}/admin_msp/admincerts
               name: admin-cert
-            - mountPath: /var/hyperledger/admin_msp/signcerts
+            - mountPath:{{ include "hlf-peer.home" . }}/admin_msp/signcerts
               name: admin-cert
-            - mountPath: /var/hyperledger/msp/admincerts
+            - mountPath: {{ include "hlf-peer.home" . }}/msp/admincerts
               name: admin-cert
             {{- end }}
             {{- if .Values.secrets.adminKey }}
-            - mountPath: /var/hyperledger/admin_msp/keystore
+            - mountPath: {{ include "hlf-peer.home" . }}/admin_msp/keystore
               name: admin-key
             {{- end }}
           resources:
