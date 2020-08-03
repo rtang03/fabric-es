@@ -5,6 +5,26 @@ import { ReqRes } from './reqres';
 
 const logger = getLogger('[relay] processMsg.js');
 
+// KEYS[1] - publish channel / main list
+// ARGV[1] - message string
+// ARGV[2] - offset
+const lua = `
+local cnt = 0
+local sid = redis.call("xadd", KEYS[1], "*", "msg", ARGV[1])
+if sid then
+  redis.call("publish", KEYS[1], sid)
+
+  local xpr = redis.call("xrange", KEYS[1], "-", ARGV[2])
+  for i = 1, #xpr do
+    cnt = cnt + redis.call("xdel", KEYS[1], xpr[i][1])
+  end
+
+  return cnt
+else
+  return -1
+end
+`;
+
 export const processMsg = ({
   message,
   client,
@@ -26,12 +46,16 @@ export const processMsg = ({
     else {
       const messageStr = JSON.stringify(message);
       const timestamp = Date.now();
-      const offset = ttl ? ttl : 86400000; // 1 day == 24x60x60x1000 milliseconds
+      const offset = '' + (timestamp - (ttl ? ttl : 86400000)); // 1 day == 24x60x60x1000 milliseconds
 
-      client.zremrangebyscore(topic, '-inf', (timestamp - offset));
-      client.zadd(topic, timestamp, messageStr);
-
-      client.publish(topic, messageStr).then(value => resolve(value));
+      client.eval(lua, 1, [topic, messageStr, offset])
+        .then(value => {
+          if (value >= 0)
+            resolve(value);
+          else
+            reject(new Error(`lua script returns ${value}`));
+        })
+        .catch(error => reject(error));
     }
   });
 };
