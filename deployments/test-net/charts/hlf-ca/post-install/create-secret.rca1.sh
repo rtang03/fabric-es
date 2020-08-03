@@ -1,5 +1,12 @@
 #!/bin/bash
-
+######## post-install notes for rca1/hlf-ca
+######## Objective: These steps, create secret
+######## - peer0.org1.net-cert peer0.org1.net-key
+######## - peer0.org1.net-cacert peer0.org1.net-tls peer0.org1.net-tlsrootcert peer0.org1.net-admincert
+######## - org1-cacerts
+######## - org1-admincerts
+######## - org1-tlscacerts
+########
 ######## 1. secret: rca1-hlf-ca--ca is already set by secret manifest. Below command retrieves it.
 # export CA_ADMIN=$(kubectl -n n1 get secret rca1-hlf-ca--ca -o jsonpath=".data.CA_ADMIN" | base64 -d)
 # export CA_PASSWORD=$(kubectl -n n1 get secret rca1-hlf-ca--ca -o jsonpath=".data.CA_PASSWORD" | base64 -d)

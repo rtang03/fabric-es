@@ -3,7 +3,17 @@
 Notes for rca-orgx
 */}}
 {{- define "rcaorg.notes" -}}
-# ======= bootstrap.sh =======
+########  ======= setup.rcax.sh =======
+#!/bin/bash
+######## post-install notes for {{ .Release.Name }}/{{ .Chart.Name }}
+######## Objective: These steps:
+######## - enroll rca0 ca admin
+######## - create secret {{ .Values.caName }}-tls , secret for tls, using k8s convention
+######## - register and enroll org1 org-admin
+######## - register and enroll peers -> rca0
+######## - rename private keys
+######## - prepare org admin and its admin-certs
+########
 
 ######## 1. Get the name of the pod running rca:
 export POD_RCA=$(kubectl get pods -n {{ .Release.Namespace }} -l "app=hlf-ca,release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
@@ -64,7 +74,18 @@ kubectl -n {{ .Release.Namespace }} exec $POD_RCA -- sh -c "cp ./{{ $.Values.msp
 kubectl -n {{ .Release.Namespace }} exec $POD_RCA -- sh -c "cp ./{{ $.Values.mspId }}/{{ .Values.peerOrg.firstPeer }}/{{ .Values.peerOrg.domain }}-ca-cert.pem ./{{ $.Values.mspId }}/msp/cacerts"
 kubectl -n {{ .Release.Namespace }} exec $POD_RCA -- sh -c "mv ./{{ $.Values.mspId }}/admin/msp/keystore/*_sk ./{{ $.Values.mspId }}/admin/msp/keystore/key.pem"
 
-=== WORKING WITH secret
+########  ======= create-secret.rca0.sh =======
+#!/bin/bash
+######## post-install notes for {{ .Release.Name }}/{{ .Chart.Name }}
+######## Objective: These steps, create secret
+{{- range .Values.peers }}
+######## - {{ .id }}-cert {{ .id }}-key
+######## - {{ .id }}-cacert {{ .id }}-tls {{ .id }}-tlsrootcert {{ .id }}-admincert
+{{- end }}
+######## - {{ .Values.peerOrg.org1cacert }}
+######## - {{ .Values.peerOrg.org1admincerts }}
+######## - {{ .Values.peerOrg.org1tlscacerts }}
+########
 ######## 1. secret: {{ .Release.Name }}-hlf-ca--ca is already set by secret manifest. Below command retrieves it.
 # export CA_ADMIN=$(kubectl -n {{ .Release.Namespace }} get secret {{ .Release.Name }}-hlf-ca--ca -o jsonpath=".data.CA_ADMIN" | base64 -d)
 # export CA_PASSWORD=$(kubectl -n {{ .Release.Namespace }} get secret {{ .Release.Name }}-hlf-ca--ca -o jsonpath=".data.CA_PASSWORD" | base64 -d)

@@ -1,6 +1,8 @@
 global:
   TZ: Asia/Hong_Kong
 
+mspId: Org1MSP
+
 ordererConfiguration:
   enabled: false
 

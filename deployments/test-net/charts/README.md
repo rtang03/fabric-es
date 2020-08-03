@@ -4,7 +4,7 @@
 ```shell script
 # install nginx ingress controller
 # see https://kubernetes.github.io/ingress-nginx/deploy/#docker-for-mac
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
+# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
 ```
 
 ### Steps 0 - Preparing Terminals
@@ -16,6 +16,10 @@ You should need multiple terminals
 # terminal 4, namely "admin1"
 # terminal 5, namely "tlsca1"
 # terminal 6, namely "rca1"
+
+# create namespaces for org0 & org1
+# kubectl create namespace n0 
+# kubectl create namespace n1
 
 # optionally, remove pre-existing secret
 # or take a look at hlf-ca/post-install/rca0/cleanup-secret.sh
@@ -31,11 +35,14 @@ helm install admin0 -f values.0.yaml -n n0 .
 
 ### Step 2 - terminal tlsca0
 ```shell script
+# remove all-existing secrets for n0
+./post-instal/rm-secret.n0.sh
+
 # Go directory hlf-ca
 helm install tlsca0 -f values-tlsca0.yaml -n n0 .
 
-# Go direcotry hlf-ca/post-install/tlsca0
-./bootstrap.sh
+# post-install setup
+./post-install/setup.tlsca0.sh
 ```
 
 ### Step 3 - terminal rca0
@@ -43,11 +50,11 @@ helm install tlsca0 -f values-tlsca0.yaml -n n0 .
 # Go directory hlf-ca
 helm install rca0 -f values-rca0.yaml -n n0 .
 
-# Go direcotry hlf-ca/post-install/rca0
-./bootstrap.sh
+# post-install setup
+./post-install/setup.rca0.sh
 
 # create secret
-./secret.sh
+./post-install/create-secret.rca0.sh
 ```
 
 ### Step 4 - terminal admin1
@@ -58,11 +65,14 @@ helm install admin1 -f values.1.yaml -n n1 .
 
 ### Step 5 - terminal tlsca1
 ```shell script
+# remove all-existing secrets for n0
+./post-instal/rm-secret.n1.sh
+
 # Go directory hlf-ca
 helm install tlsca1 -f values-tlsca1.yaml -n n1 .
 
-# Go direcotry hlf-ca/post-install/tlsca1
-./bootstrap.sh
+# post-install setup
+./post-install/setup.tlsca1.sh
 ```
 
 ### Step 6 - terminal rca1
@@ -70,23 +80,32 @@ helm install tlsca1 -f values-tlsca1.yaml -n n1 .
 # Go directory hlf-ca
 helm install rca1 -f values-rca1.yaml -n n1 .
 
-# Go direcotry hlf-ca/post-install/rca1
-./bootstrap.sh
+# post-install setup
+./post-install/setup.rca1.sh
 
 # create secret
-./secret.sh
+./post-install/create-secret.rca1.sh
 ```
 
-### Step 7 - terminal admin0
+### Step 7 - go back terminal admin0
 ```shell script
 # follow the notes instruction of admin0
 # create genesis.block and channel.tx
 # create secret genesis
+# Or Alternatively, go to orgadmin/post-install, and run
+./post-install/create-genesis.sh
+
+########Upgrade the chart, so that the secret "org1.net-ca-cert.pem" is updated
+helm upgrade admin0 -f values.0.yaml . -n n0
 ```
 
 ### Step 8 - terminal ord
 ```shell script
 helm install o0 -f values.0.yaml -n n0 .
+helm install o1 -f values.1.yaml -n n0 .
+helm install o2 -f values.2.yaml -n n0 .
+helm install o3 -f values.3.yaml -n n0 .
+helm install o4 -f values.4.yaml -n n0 .
 ```
 
 ### Other useful commands

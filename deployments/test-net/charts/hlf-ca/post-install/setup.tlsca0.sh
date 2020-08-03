@@ -1,5 +1,12 @@
 #!/bin/bash
-
+######## post-install notes for tlsca0/hlf-ca
+######## Objective: These steps:
+######## - enrol tls-ca
+######## - create secret tlsca0-tls
+######## - register orderers -> tlsca
+######## - enrol orderers -> tlsca
+######## - rename private keys
+########
 ######## 1. Get the name of the pod running tls-ca:
 export POD_TLS_CA=$(kubectl get pods -n n0 -l "app=hlf-ca,release=tlsca0" -o jsonpath="{.items[0].metadata.name}")
 
@@ -22,11 +29,11 @@ kubectl -n n0 exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name 
 kubectl -n n0 exec $POD_TLS_CA -- sh -c "fabric-ca-client register -d --id.name orderer4.org0.com --id.secret orderer4.org0.comPW --id.type orderer -u http://0.0.0.0:7054"
 
 ######## 5. Enrol tls-ca for orderer0
-kubectl -n n0 exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com fabric-ca-client enroll -d -u http://orderer0.org0.com:orderer0.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts o0-hlf-ca,127,0.0.1"
-kubectl -n n0 exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer1.org0.com fabric-ca-client enroll -d -u http://orderer1.org0.com:orderer1.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts o1-hlf-ca,127,0.0.1"
-kubectl -n n0 exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer2.org0.com fabric-ca-client enroll -d -u http://orderer2.org0.com:orderer2.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts o2-hlf-ca,127,0.0.1"
-kubectl -n n0 exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer3.org0.com fabric-ca-client enroll -d -u http://orderer3.org0.com:orderer3.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts o3-hlf-ca,127,0.0.1"
-kubectl -n n0 exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer4.org0.com fabric-ca-client enroll -d -u http://orderer4.org0.com:orderer4.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts o4-hlf-ca,127,0.0.1"
+kubectl -n n0 exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com fabric-ca-client enroll -d -u http://orderer0.org0.com:orderer0.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts o0-hlf-ord,127.0.0.1"
+kubectl -n n0 exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer1.org0.com fabric-ca-client enroll -d -u http://orderer1.org0.com:orderer1.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts o1-hlf-ord,127.0.0.1"
+kubectl -n n0 exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer2.org0.com fabric-ca-client enroll -d -u http://orderer2.org0.com:orderer2.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts o2-hlf-ord,127.0.0.1"
+kubectl -n n0 exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer3.org0.com fabric-ca-client enroll -d -u http://orderer3.org0.com:orderer3.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts o3-hlf-ord,127.0.0.1"
+kubectl -n n0 exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org0MSP/orderer4.org0.com fabric-ca-client enroll -d -u http://orderer4.org0.com:orderer4.org0.comPW@0.0.0.0:7054 --enrollment.profile tls --csr.hosts o4-hlf-ord,127.0.0.1"
 sleep 1
 
 ######## 6. Rename private key

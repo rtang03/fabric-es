@@ -3,9 +3,16 @@
 Notes for tls-ca-org0
 */}}
 {{- define "tlscaorg0.notes" -}}
-
-# ======= bootstrap.sh =======
-
+########  ======= setup.tlsca0.sh =======
+#!/bin/bash
+######## post-install notes for {{ .Release.Name }}/{{ .Chart.Name }}
+######## Objective: These steps:
+######## - enroll tls-ca
+######## - create secret {{ .Release.Name }}-tls , secret for tls, using k8s convention
+######## - register orderers -> tlsca
+######## - enrol orderers -> tlsca
+######## - rename private keys
+########
 ######## 1. Get the name of the pod running tls-ca:
 export POD_TLS_CA=$(kubectl get pods -n {{ .Release.Namespace }} -l "app=hlf-ca,release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
 
@@ -27,7 +34,7 @@ kubectl -n {{ $.Release.Namespace }} exec $POD_TLS_CA -- sh -c "fabric-ca-client
 
 ######## 5. Enrol tls-ca for orderer0
 {{- range .Values.orderers }}
-kubectl -n {{ $.Release.Namespace }} exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/{{ $.Values.mspId }}/{{ .id }} fabric-ca-client enroll -d -u http://{{ .id }}:{{ .pass }}@0.0.0.0:7054 --enrollment.profile tls --csr.hosts {{ .csrHost }},127,0.0.1"
+kubectl -n {{ $.Release.Namespace }} exec $POD_TLS_CA -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/{{ $.Values.mspId }}/{{ .id }} fabric-ca-client enroll -d -u http://{{ .id }}:{{ .pass }}@0.0.0.0:7054 --enrollment.profile tls --csr.hosts {{ .csrHost }},127.0.0.1"
 {{- end }}
 sleep 1
 
@@ -39,5 +46,5 @@ sleep 2
 {{- range .Values.orderers }}
 kubectl -n {{ $.Release.Namespace }} exec $POD_TLS_CA -- sh -c "mv ./{{ $.Values.mspId }}/{{ .id }}/tls-msp/keystore/*_sk ./{{ $.Values.mspId }}/{{ .id }}/tls-msp/keystore/key.pem"
 {{- end }}
-# ======= END of bootstrap.sh =======
+######## ======= END of bootstrap.sh =======
 {{- end -}}

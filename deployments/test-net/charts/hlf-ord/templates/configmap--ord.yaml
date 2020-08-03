@@ -12,12 +12,10 @@ data:
   ORDERER_GENERAL_BATCHTIMEOUT: "1s"
   ORDERER_GENERAL_BATCHSIZE_MAXMESSAGECOUNT: "10"
   ORDERER_GENERAL_MAXWINDOWSIZE: "1000"
-{{/*  ORDERER_GENERAL_ORDERERTYPE: {{ .Values.ord.type | quote }}*/}}
   ORDERER_GENERAL_GENESISPROFILE: "initial"
   GODEBUG: "netdns=go"
   TZ: {{ .Values.config.timezone | default "Asia/Hong Kong" | quote }}
   FABRIC_LOGGING_SPEC: {{ .Values.ord.fabricLogging | default "INFO"}}
-{{/*  ORDERER_GENERAL_LISTENADDRESS: {{ .Values.ord.listenAddress }}*/}}
   ORDERER_GENERAL_LISTENADDRESS: "0.0.0.0"
   ORDERER_GENERAL_GENESISMETHOD: "file"
   ORDERER_GENERAL_TLS_ENABLED: "true"

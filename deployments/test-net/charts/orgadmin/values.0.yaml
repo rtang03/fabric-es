@@ -1,6 +1,8 @@
 global:
   TZ: Asia/Hong_Kong
 
+mspId: Org0MSP
+
 persistence:
   enabled: true
   # Persistence Volume Name for manual storage class

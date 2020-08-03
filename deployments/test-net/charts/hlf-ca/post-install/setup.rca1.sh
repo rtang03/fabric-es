@@ -1,4 +1,13 @@
 #!/bin/bash
+######## post-install notes for rca1/hlf-ca
+######## Objective: These steps:
+######## - enroll rca0 ca admin
+######## - create secret rcaorg1-tls , secret for tls, using k8s convention
+######## - register and enroll org1 org-admin
+######## - register and enroll peers -> rca0
+######## - rename private keys
+######## - prepare org admin and its admin-certs
+########
 
 ######## 1. Get the name of the pod running rca:
 export POD_RCA=$(kubectl get pods -n n1 -l "app=hlf-ca,release=rca1" -o jsonpath="{.items[0].metadata.name}")
@@ -14,8 +23,8 @@ export CERT=$(kubectl -n n1 exec ${POD_RCA} -- cat ./Org1MSP/ca/server/ca-cert.p
 export KEY=$(kubectl -n n1 exec ${POD_RCA} -- cat ./Org1MSP/ca/server/msp/keystore/key.pem)
 kubectl -n n1 create secret generic rcaorg1-tls --from-literal=tls.crt="$CERT" --from-literal=tls.key="$KEY"
 ######## 4. Register and enroll Org1MSP org admin:
-kubectl -n n1 exec $POD_RCA -- sh -c "fabric-ca-client register -d --id.name admin-peer0.org1.net --id.secret admin-peer00.org1.netPW --id.type admin --id.attrs \"hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert\" -u http://0.0.0.0:7054"
-kubectl -n n1 exec $POD_RCA -- sh -c "FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org1MSP/admin fabric-ca-client enroll -d -u http://admin-peer0.org1.net:admin-peer00.org1.netPW@0.0.0.0:7054"
+kubectl -n n1 exec $POD_RCA -- sh -c "fabric-ca-client register -d --id.name admin-peer0.org1.net --id.secret admin-peer0.org1.netPW --id.type admin --id.attrs \"hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert\" -u http://0.0.0.0:7054"
+kubectl -n n1 exec $POD_RCA -- sh -c "FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/Org1MSP/admin fabric-ca-client enroll -d -u http://admin-peer0.org1.net:admin-peer0.org1.netPW@0.0.0.0:7054"
 
 ######## 5. Register peer(s) for Org1MSP
 kubectl -n n1 exec $POD_RCA -- sh -c "fabric-ca-client register -d --id.name peer0.org1.net --id.secret peer0.org1.netPW --id.type peer -u http://0.0.0.0:7054"

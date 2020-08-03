@@ -36,7 +36,7 @@ ord:
   ordOrgPath: /var/hyperledger/crypto-config/Org0MSP
   ordName: orderer1
   ordDomain: org0.com
-  debug: debug
+  debug: INFO
   # fabricLogging: "grpc=debug:debug"
   fabricLogging: "INFO"
   mspID: Org0MSP
