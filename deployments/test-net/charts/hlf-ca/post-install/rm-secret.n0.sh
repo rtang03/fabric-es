@@ -34,6 +34,7 @@ kubectl -n n0 delete secret orderer4.org0.com-tlsrootcert
 kubectl -n n0 delete secret tlsca0-tls
 kubectl -n n0 delete secret rca0-tls
 kubectl -n n0 delete secret genesis
+kubectl -n n0 delete secret channeltx
 # Below certs are created by rca1's secret.sh procedure
 kubectl -n n0 delete secret org1-admincerts
 kubectl -n n0 delete secret org1-tlscacerts

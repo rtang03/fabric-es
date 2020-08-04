@@ -78,9 +78,9 @@ peer:
   ## MSP ID of the Peer
   mspID: Org1MSP
   gossip:
-    bootstrap: "p0o1-hlf-peer"
-    endpoint: "p0o1-hlf-peer"
-    externalEndpoint: "p0o1-hlf-peer"
+    bootstrap: "p0o1-hlf-peer:7051"
+    endpoint: "p0o1-hlf-peer:7051"
+    externalEndpoint: "p0o1-hlf-peer:7051"
     orgLeader: "false"
     useLeaderElection: "true"
 

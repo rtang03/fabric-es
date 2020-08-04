@@ -71,6 +71,8 @@ kubectl -n {{ .Release.Namespace }} exec $POD_RCA0 -- sh -c "cp ./{{ $.Values.ms
 kubectl -n {{ .Release.Namespace }} exec $POD_RCA0 -- sh -c "cp ./{{ $.Values.mspId }}/{{ .Values.ordererOrg.firstOrderer }}/tls-ca-cert.pem ./{{ $.Values.mspId }}/msp/tlscacerts"
 kubectl -n {{ .Release.Namespace }} exec $POD_RCA0 -- sh -c "cp ./{{ $.Values.mspId }}/{{ .Values.ordererOrg.firstOrderer }}/{{ .Values.ordererOrg.domain }}-ca-cert.pem ./{{ $.Values.mspId }}/msp/cacerts"
 
+# ======= END setup.rca0.sh =======
+
 ########  ======= create-secret.rca0.sh =======
 #!/bin/bash
 ######## post-install notes for {{ .Release.Name }}/{{ .Chart.Name }}
@@ -106,10 +108,11 @@ export KEY=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA0 -- cat ./{{ $.V
 kubectl -n {{ $.Release.Namespace }} create secret generic {{ .id }}-tls --from-literal=tls.crt="$CERT" --from-literal=tls.key="$KEY"
 {{- end }}
 
-######## 5. secret: tls root CA cert
+######## 5. secret: tls root CA cert for both n0 and n1
 {{- range .Values.orderers }}
 export CONTENT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA0 -- cat ./{{ $.Values.mspId }}/{{ .id }}/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem)
 kubectl -n {{ $.Release.Namespace }} create secret generic {{ .id }}-tlsrootcert --from-literal=tlscacert.pem="$CONTENT"
+kubectl -n n1 create secret generic {{ .id }}-tlsrootcert --from-literal=tlscacert.pem="$CONTENT"
 {{- end }}
 
 ######## 6. create secret for {{ .Values.ordererOrg.domain }}-admin-cert.pem
@@ -118,5 +121,5 @@ export CONTENT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA0 -- sh -c "c
 kubectl -n {{ $.Release.Namespace }} create secret generic {{ .id }}-admincert --from-literal={{ $.Values.ordererOrg.domain }}-admin-cert.pem="$CONTENT"
 {{- end }}
 
-# ======= END =======
+# ======= END create-secret.rca0.sh =======
 {{- end -}}
