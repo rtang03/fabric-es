@@ -1,4 +1,4 @@
-## v.Next
+## [0.6.3] - 2020-8-4
 ### Added
 - tracking between private and public info
 - pagination
@@ -11,10 +11,14 @@
 - add refreshToken in auth server and ui-control
 - add synchroize logout
 - add notification
+- add sniffer code
 
 ### Modified
 - dev-net to using queryHandler
 - replace "getProjection" function with "find" function
+
+### Broken
+- dn-test.3.sh is broken. Need to fix later.
 
 ### Removed
 - projectionDatabase

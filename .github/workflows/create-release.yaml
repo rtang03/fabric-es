@@ -44,8 +44,12 @@ jobs:
         run: yarn tsc:all
       - name: Build tester image
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.tester.sh
-      - name: Build images for proxy, auth-server, ui-account
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth-px-ui.sh
+      - name: Build auth image
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh
+      - name: Build relay image
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.relay.sh
+      - name: Build ui images
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.ui-control.sh org1 org2
       - name: Build org1 org2 images
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.gw.sh org1 org2
       - name: Run multi-org integration test
