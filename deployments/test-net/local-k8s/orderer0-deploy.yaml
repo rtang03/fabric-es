@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orderer0-hktfp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: orderer0
+  template:
+    metadata:
+      labels:
+        name: orderer0
+        app: orderer
+    spec:
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: task-pv-claim
+      containers:
+        - name: orderer
+          image: hyperledger/fabric-orderer:1.4.3
+          command: ['sh', '-c', 'orderer']
+          env:
+            - name: TZ
+              value: "Asia/Hong_Kong"
+            - name: ORDERER_CFG_PATH
+              value: /etc/hyperledger/fabric/
+            - name: CONFIGTX_ORDERER_ADDRESSES
+              value: "orderer0-hktfp:7050"
+            - name: ORDERER_GENERAL_LISTENADDRESS
+              value: 0.0.0.0
+            - name: ORDERER_GENERAL_LISTENPORT
+              value: "7050"
+            - name: ORDERER_GENERAL_LOGLEVEL
+              value: debug
+            - name: ORDERER_GENERAL_LOCALMSPID
+              value: HktfpMSP
+            - name: ORDERER_HOME
+              value: /var/artifacts/orderer
+            - name: ORDERER_GENERAL_LOCALMSPDIR
+              value: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/msp
+            - name: ORDERER_GENERAL_GENESISMETHOD
+              value: file
+            - name: ORDERER_GENERAL_GENESISFILE
+              value: /var/artifacts/genesis.block
+            - name: ORDERER_GENERAL_TLS_ENABLED
+              value: "true"
+            - name: ORDERER_GENERAL_TLS_CERTIFICATE
+              value: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/signcerts/cert.pem
+            - name: ORDERER_GENERAL_TLS_PRIVATEKEY
+              value: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/keystore/key.pem
+            - name: ORDERER_GENERAL_TLS_ROOTCAS
+              value: "[/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]"
+            - name: ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE
+              value: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/signcerts/cert.pem
+            - name: ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY
+              value: /var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/keystore/key.pem
+            - name: ORDERER_GENERAL_CLUSTER_ROOTCAS
+              value: "[/var/artifacts/crypto-config/HktfpMSP/orderer0.hktfp.com/tls-msp/tlscacerts/tls-0-0-0-0-6052.pem]"
+            # for testing purpose, may change to ram
+            - name: ORDERER_GENERAL_LEDGERTYPE
+              value: file
+            - name: ORDERER_FILELEDGER_LOCATION
+              value: /var/artifacts/production/orderer0
+            - name: GODEBUG
+              value: "netdns=go"
+          volumeMounts:
+            - mountPath: /var/artifacts
+              name: fabricfiles

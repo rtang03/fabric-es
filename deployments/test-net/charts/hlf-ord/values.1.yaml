@@ -1,0 +1,60 @@
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+  # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  # nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+  # certmanager.k8s.io/cluster-issuer: "letsencrypt-staging"
+  path: /
+  hosts:
+    - hlf-ord.local
+  tls: []
+  #  - secretName: hlf-ord-tls
+  #    hosts:
+  #      - hlf-ord.local
+
+persistence:
+  enabled: true
+  pvName: pv-ord1
+  pvcName: pvc-ord1
+  hostPath: /tmp/data/orderers/orderer1
+  annotations: {}
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  storageClass: manual
+  accessMode: ReadWriteOnce
+  size: 10Mi
+  existingClaim: pvc-ord1
+
+ord:
+  listenAddress: "o1-hlf-ord"
+  ledgerPath: /var/hyperledger/production
+  ordOrgPath: /var/hyperledger/crypto-config/Org0MSP
+  ordName: orderer1
+  ordDomain: org0.com
+  debug: INFO
+  # fabricLogging: "grpc=debug:debug"
+  fabricLogging: "INFO"
+  mspID: Org0MSP
+  # TLS
+  tls:
+    server:
+      enabled: "true"
+    client:
+      enabled: "false"
+
+secrets:
+  ## These secrets should contain the Orderer crypto materials and credentials
+  ord:
+    cred: "rca0-tls"
+    cert: "orderer1.org0.com-cert"
+    key: "orderer1.org0.com-key"
+    caCert: "orderer1.org0.com-cacert"
+    tls: "orderer1.org0.com-tls"
+    tlsRootCert: "orderer1.org0.com-tlsrootcert"
+    genesis: "genesis"
+    adminCert: "orderer1.org0.com-admincert"

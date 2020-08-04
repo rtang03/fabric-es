@@ -1,0 +1,39 @@
+mspId: Org1MSP
+
+ordererConfiguration:
+  enabled: false
+
+persistence:
+  enabled: true
+  # Persistence Volume Name for manual storage class
+  pvName: pv-org1
+  pvcName: pvc-org1
+  hostPath: /tmp/data/org1
+
+  ## A manually managed Persistent Volume and Claim
+  ## If defined, PVC must be created manually before volume will be bound
+  subPath: ""
+
+  # storageClass: "-"
+  storageClass: manual
+  accessMode: ReadWriteMany
+  size: 10Mi
+  annotations: {}
+
+postgresql-0:
+  postgresqlPassword: password
+  initdbScripts:
+    1-createdb.sql: |
+      CREATE DATABASE "tls_ca_db";
+      CREATE DATABASE "rca_db";
+  service:
+    type: NodePort
+    nodePort: 30433
+  persistence:
+    enabled: true
+    existingClaim: pvc-org1
+    subPath: pgdata
+    storageClass: manual
+    accessModes:
+      - ReadWriteOnce
+    size: 10Mi
