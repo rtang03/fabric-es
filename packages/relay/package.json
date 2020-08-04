@@ -10,7 +10,8 @@
     "starts": "node dist/relay.js https",
     "sniff": "node dist/sniffer.js",
     "mock-endpoint": "node dist/__mocks__/mockEndpoint.js",
-    "test": "jest --verbose --detectOpenHandles --runInBand --forceExit"
+    "test": "jest --verbose --detectOpenHandles --runInBand --forceExit",
+    "test:sniff": "jest sniffer.test"
   },
   "private": true,
   "dependencies": {

@@ -5,7 +5,7 @@ import RedisClient, { Redis } from 'ioredis';
 import stoppable, { StoppableServer } from 'stoppable';
 import { getLogger } from './getLogger';
 import { ReqRes } from './reqres';
-import { startSniffing } from './startSniffing';
+import { createSubscription } from './snifferSubscription';
 
 const logger = getLogger('[sniffer] snifferService.js');
 
@@ -47,7 +47,8 @@ export const createSnifferService: (option: {
     logger.info('Redis client connected.');
   });
 
-  await startSniffing({ client, topic, callback }).then((result: { read: number; count: number }) => {
+  const { start, stop } = createSubscription(client, topic);
+  await start(callback).then((result: { read: number; count: number }) => {
     logger.info(`Sniffing started on topic '${topic}': ${result}`);
   }).catch((error) => {
     logger.error(`Error starting sniffing on topic '${topic}': ${error}`);
@@ -57,6 +58,7 @@ export const createSnifferService: (option: {
   return {
     sniffer: stoppableServer,
     shutdown: async () => {
+      stop();
       const res = await client.quit();
       if (res === 'OK')
         logger.info('Sniffer disconnected from REDIS successfully');

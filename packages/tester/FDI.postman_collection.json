@@ -1,0 +1,181 @@
+{
+	"info": {
+		"_postman_id": "138a2d20-efc5-4bec-a850-56753efc4f59",
+		"name": "FDI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register user for org1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"user1\",\n\t\"email\": \"user1@org1.net\",\n\t\"password\": \"p@ssw0rd\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3001/account",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"account"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register user for org2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"user2\",\n\t\"email\": \"user2@org2.net\",\n\t\"password\": \"p@ssw0rd\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3002/account",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"account"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register user for org3",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"user3\",\n\t\"email\": \"user3@org3.net\",\n\t\"password\": \"p@ssw0rd\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3003/account",
+					"host": [
+						"localhost"
+					],
+					"port": "3003",
+					"path": [
+						"account"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login user for org1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"user1\",\n\t\"password\": \"p@ssw0rd\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3001/account/login",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"account",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login user for org2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"user2\",\n\t\"password\": \"p@ssw0rd\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3002/account/login",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"account",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login user for org3",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"user3\",\n\t\"password\": \"p@ssw0rd\"\n}"
+				},
+				"url": {
+					"raw": "localhost:3003/account/login",
+					"host": [
+						"localhost"
+					],
+					"port": "3003",
+					"path": [
+						"account",
+						"login"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
