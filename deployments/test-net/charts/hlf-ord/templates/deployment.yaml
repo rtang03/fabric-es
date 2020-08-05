@@ -78,6 +78,17 @@ spec:
             secretName: {{ .Values.secrets.caServerTls }}
       {{- end }}
       containers:
+        {{- if .Values.sidecar.isalive.enabled }}
+        - name: isalive
+          image: hashicorp/http-echo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: isalive-port
+              containerPort: 5678
+              protocol: TCP
+          args:
+            - "-text=iamorderer0"
+        {{- end }}
         - name: orderer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}

@@ -8,9 +8,15 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: 7050
+      targetPort: ord-port
       protocol: TCP
       name: grpc
+    {{- if .Values.sidecar.isalive.enabled }}
+    - port: 5678
+      targetPort: 5678
+      protocol: TCP
+      name: isalive
+    {{- end }}
   selector:
     app: {{ include "hlf-ord.name" . }}
     release: {{ .Release.Name }}

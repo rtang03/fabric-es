@@ -100,6 +100,11 @@ spec:
           secret:
             secretName: {{ .Values.secrets.ordTlsRootCert }}
         {{- end }}
+        {{- if .Values.secrets.ordTlsSignCert }}
+        - name: ord-tlssigncert
+          secret:
+            secretName: {{ .Values.secrets.ordTlsSignCert }}
+        {{- end }}
       containers:
         - name: peer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -186,7 +191,7 @@ spec:
             {{- if .Values.secrets.peer.caCert }}
             - mountPath: {{ include "hlf-peer.home" . }}/msp/cacerts
               name: cacert
-            - mountPath: /var/hyperledger/admin_msp/cacerts
+            - mountPath: {{ include "hlf-peer.home" . }}/admin_msp/cacerts
               name: cacert
             {{- end }}
             {{- if .Values.secrets.peer.intCaCert }}
@@ -212,12 +217,17 @@ spec:
               name: tls-clientrootcert
             {{- end }}
             {{- if .Values.secrets.ordTlsRootCert }}
-            - mountPath: {{ include "hlf-peer.home" . }}/tls-msp/ord/cert
+            # No use, can remove later
+            - mountPath: {{ include "hlf-peer.home" . }}/ord/tls-msp/tlscacerts
               name: ord-tls-rootcert
+            {{- end }}
+            {{- if .Values.secrets.ordTlsSignCert }}
+            - mountPath: {{ include "hlf-peer.home" . }}/ord/tls-msp/signcerts
+              name: ord-tlssigncert
             {{- end }}
             {{- if .Values.secrets.channels }}
               {{- range .Values.secrets.channels }}
-            - mountPath: {{ $.Values.peer.orgPath }}/hl_config/channel/{{ . }}
+            - mountPath: {{ $.Values.peer.orgPath }}/{{ . }}
               name: {{ . }}
               {{- end }}
             {{- end }}

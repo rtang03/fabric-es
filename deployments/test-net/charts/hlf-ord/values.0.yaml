@@ -1,17 +1,18 @@
 ingress:
   enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
-  # nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
+    # nginx.ingress.kubernetes.io/ssl-passthrough: "true"
   # certmanager.k8s.io/cluster-issuer: "letsencrypt-staging"
   path: /
   hosts:
-    - hlf-ord.local
-  tls: []
-  #  - secretName: hlf-ord-tls
-  #    hosts:
-  #      - hlf-ord.local
+    - orderer0.org0.com
+#  tls:
+#    - secretName: orderer0.org0.com-tls
+#      hosts:
+#        - orderer0.org0.com
 
 persistence:
   enabled: true

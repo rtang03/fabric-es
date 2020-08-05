@@ -121,5 +121,11 @@ export CONTENT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA0 -- sh -c "c
 kubectl -n {{ $.Release.Namespace }} create secret generic {{ .id }}-admincert --from-literal={{ $.Values.ordererOrg.domain }}-admin-cert.pem="$CONTENT"
 {{- end }}
 
+######## 7. create secret from orderer's public cert, for use by peers
+{{- range .Values.orderers }}
+export CONTENT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA0 -- cat ./{{ $.Values.mspId }}/{{ .id }}/tls-msp/signcerts/cert.pem)
+kubectl -n n1 create secret generic {{ .id }}-tlssigncert --from-literal=cert.pem="$CONTENT"
+{{- end }}
+
 # ======= END create-secret.rca0.sh =======
 {{- end -}}

@@ -76,7 +76,7 @@ kubectl -n {{ .Release.Namespace }} exec $POD_RCA -- sh -c "mv ./{{ $.Values.msp
 
 # ======= END setup.rcax.sh =======
 
-########  ======= create-secret.rca0.sh =======
+########  ======= create-secret.rca1.sh =======
 #!/bin/bash
 ######## post-install notes for {{ .Release.Name }}/{{ .Chart.Name }}
 ######## Objective: These steps, create secret
@@ -144,7 +144,7 @@ kubectl -n n0 create secret generic {{ .Values.peerOrg.org1admincerts }} --from-
 export CERT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA -- cat ./Org1MSP/msp/tlscacerts/tls-ca-cert.pem)
 kubectl -n n0 create secret generic {{ .Values.peerOrg.org1tlscacerts }} --from-literal=tls-ca-cert.pem="$CERT"
 
-# ======= END create-secret.rca0.sh =======
+# ======= END create-secret.rca1.sh =======
 
 === WORKING WITH Admin0
 Switch back to terminal for Admin0 chart, and continue with genesis.block and channel.tx creation.

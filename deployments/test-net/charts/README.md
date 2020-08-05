@@ -7,39 +7,92 @@
 # kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
 ```
 
-### Steps 0 - Preparing Terminals
-You should need multiple terminals
+### Steps 0 - Get Prepared
 ```shell script
-# terminal 1, namely "org0"
-# terminal 2, namely "org1"
+# You should need multiple terminals
+# new terminal 1, namely "org0"
+# new terminal 2, namely "org1"
 
 # create namespaces for org0 & org1
 # kubectl create namespace n0 
 # kubectl create namespace n1
 
-# optionally, remove pre-existing secret
-# or take a look at hlf-ca/post-install/rca0/cleanup-secret.sh
-# kubectl -n n0 delete secret xxxx
-# kubectl -n n1 delete secret xxxx
+# optionaly, create alias
+# alias k0="kubectl -n n0"
+# alias k1="kubectl -n n1"
+
+# Make sure if all pods are up, before each step
+# k0 get pod
+# k1 get pod
+
+# remove all-existing secrets for n0
+# ./hlf-ca/post-install/rm-secret.n0.sh
+# remove all-existing secrets for n1
+# ./hlf-ca/post-install/rm-secret.n1.sh
+
+# When using k8s manual storage class
+# Ensure below volumes are created, before installation
+# crytpo-material - org0 and config
+# - /tmp/data/org0
+
+# crytpo-material - org1 and config
+# - /tmp/data/org1
+
+# crytpo-material - peer0-org1 and config
+# - /tmp/data/p0o1
+
+# couchdb for org1
+# - /tmp/data/p0o1-couchdb
+
+# orderer's ledger
+# - /tmp/data/orderers/ordere0
+# - /tmp/data/orderers/ordere1
+# - /tmp/data/orderers/ordere2
+# - /tmp/data/orderers/ordere3
+# - /tmp/data/orderers/ordere4
 ```
 
-### Step 1 - terminal org0 - install admin0
+### Step 1 - terminal org1 - install admin1
+```shell script
+# Notes: no post-install steps
+helm install admin1 -f ./orgadmin/values.1.yaml -n n1 ./orgadmin
+```
+
+### Step 2 - terminal org1 - install tlsca1 and rca1
+```shell script
+helm install tlsca1 -f ./hlf-ca/values-tlsca1.yaml -n n1 ./hlf-ca
+
+# after pods are up; run post-install setup
+./hlf-ca/post-install/setup.tlsca1.sh
+```
+
+### Step 3 - terminal org1 - install rca1
+```shell script
+helm install rca1 -f ./hlf-ca/values-rca1.yaml -n n1 ./hlf-ca
+
+# post-install setup
+./hlf-ca/post-install/setup.rca1.sh
+
+# create secret**
+./hlf-ca/post-install/create-secret.rca1.sh
+```
+
+### Step 4 - terminal org0 - install admin0
 ```shell script
 helm install admin0 -f ./orgadmin/values.0.yaml -n n0 ./orgadmin
+
+# DO NOT perform post-install now - create genesis.block
 ```
 
-### Step 2 - terminal org0 - install tlsca0
+### Step 5 - terminal org0 - install tlsca0
 ```shell script
-# remove all-existing secrets for n0
-./orgadmin/post-instal/rm-secret.n0.sh
-
 helm install tlsca0 -f ./hlf-ca/values-tlsca0.yaml -n n0 ./hlf-ca
 
 # post-install setup
 ./hlf-ca/post-install/setup.tlsca0.sh
 ```
 
-### Step 3 - terminal org0 - install rca0
+### Step 6 - terminal org0 - install rca0
 ```shell script
 helm install rca0 -f ./hlf-ca/values-rca0.yaml -n n0 ./hlf-ca
 
@@ -50,36 +103,7 @@ helm install rca0 -f ./hlf-ca/values-rca0.yaml -n n0 ./hlf-ca
 ./hlf-ca/post-install/create-secret.rca0.sh
 ```
 
-### Step 4 - terminal org1 - install admin1
-```shell script
-helm install admin1 -f ./orgadmin/values.1.yaml -n n1 ./orgadmin
-```
-
-### Step 5 - terminal org1 - install tlsca1
-```shell script
-# remove all-existing secrets for n1
-# but don't remove orderer's tls root cert, created by step 3. 
-./hlf-ca/post-install/rm-secret.n1.sh
-
-helm install tlsca1 -f ./hlf-ca/values-tlsca1.yaml -n n1 ./hlf-ca
-
-# post-install setup
-./hlf-ca/post-install/setup.tlsca1.sh
-```
-
-### Step 6 - terminal org1 - install rca1
-```shell script
-# Go directory hlf-ca
-helm install rca1 -f ./hlf-ca/values-rca1.yaml -n n1 ./hlf-ca
-
-# post-install setup
-./hlf-ca/post-install/setup.rca1.sh
-
-# create secret
-./hlf-ca/post-install/create-secret.rca1.sh
-```
-
-### Step 7 - go back terminal org0
+### Step 7 - terminal org0
 ```shell script
 # follow the notes instruction of admin0
 # create genesis.block and channel.tx
@@ -111,28 +135,36 @@ helm install p0o1db -n n1 ./hlf-couchdb
 helm install p0o1 -n n1 ./hlf-peer
 ```
 
-### Step 10 - terminal org1 - create channel
+### Step 10 - terminal org1 - create the channel with peer0
+`cli` container cannot do administrative work, before all missing cert. Later, it may  
+consider to use `cli` to do administrative tasks.  
+
 ```shell script
-docker exec \
-  -e CORE_PEER_ADDRESS=${FIRST_PEER}-${FIRST_CODE}:${FIRST_PORT} \
-  -e CORE_PEER_LOCALMSPID=${FIRST_NAME}MSP \
-  -e CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
-  -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${FIRST_NAME}MSP/admin/msp \
-  cli peer channel create -c loanapp -f /var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/assets/channel.tx -o ${ORDERER_PEER}-${ORDERER_CODE}:${ORDERER_PORT} \
-    --outputBlock /var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/assets/loanapp.block \
-    --tls --cafile /var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+# loggon to the p0o1 container at terminal org1
+export POD_PEER=$(kubectl get pods --namespace n1 -l "app=hlf-peer,release=p0o1" -o jsonpath="{.items[0].metadata.name}")
+kubectl -n n1 exec -it $POD_PEER -- sh
 
-export POD_CLI1=$(kubectl get pods -n n1 -l "app=orgadmin,release=admin1" -o jsonpath="{.items[0].metadata.name}")
+# if side-car is enabled, you need to specific container
+# kubectl -n n1 exec -it $POD_PEER -c orderer -- sh
+```
 
-kubectl -n n1 exec $POD_CLI1 -- /bin/bash
+### Step 11: Create Channel 
+```shell script
+# optionally, you can see log stream in terminal org0
+export POD_ORD=$(kubectl get pods --namespace n0 -l "app=hlf-ord,release=o0" -o jsonpath="{.items[0].metadata.name}")
+kubectl -n n0 logs -f $POD_ORD
 
-export CORE_PEER_LOCALMSPID=Org1MSP
+# back to terminal org1
+# check if you can find orderer0, it should return its resolved address
+nslookup o0-hlf-ord.n0.svc.cluster.local
+
 export CORE_PEER_ADDRESS="p0o1-hlf-peer:7051"
 export CORE_PEER_MSPCONFIGPATH=/var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/admin_msp
-peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/hl_config/channel/channeltx \
- -o o0-hlf-ord:7050 \
+peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/channeltx/channel.tx \
+ -o o0-hlf-ord.n0.svc.cluster.local:7050 \
  --outputBlock /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block --tls \
- --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/ord/cert/tlscacert.pem
+ --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+ --ordererTLSHostnameOverride o0-hlf-ord
 ```
 
 ### Other useful commands
@@ -142,6 +174,9 @@ helm search repo stable
 
 # when there is external helm dependency in Chart.yaml
 helm dep update
+
+# debug helm chart
+helm install rca0 -f ./hlf-ca/values-rca0.yaml -n n0 --dry-run --debug ./hlf-ca
 
 # if you want to install a standsalone postgres to defautl namespace, for testing purpose
 helm install psql --set postgresqlPassword=hello bitnami/postgresql
