@@ -6,9 +6,21 @@ metadata:
 {{- include "labels.standard" . | nindent 4 }}
 data:
   TZ: {{ .Values.global.TZ }}
-  FABRIC_CFG_PATH: "/var/hyperledger/cli"
+  FABRIC_CFG_PATH: /var/hyperledger/cli
   GOPATH: "/opt/gopath"
-  FABRIC_LOGGING_SPEC: "INFO"
+  FABRIC_LOGGING_SPEC: {{ .Values.cli.fabricLogging }}
   CORE_PEER_ID: "cli"
   CORE_PEER_TLS_ENABLED: "true"
   CORE_VM_ENDPOINT: 'unix:///host/var/run/docker.sock'
+  {{- if .Values.cli.peerAddress }}
+  CORE_PEER_ADDRESS: {{ .Values.cli.peerAddress }}
+  {{- end }}
+  {{- if .Values.cli.peerMspConfigPath }}
+  CORE_PEER_MSPCONFIGPATH: {{ .Values.cli.peerMspConfigPath }}
+  {{- end }}
+  {{- if .Values.cli.peerLocalMspId }}
+  CORE_PEER_LOCALMSPID: {{ .Values.cli.peerLocalMspId }}
+  {{- end }}
+  {{- if .Values.cli.peerTlsRootcertFile }}
+  CORE_PEER_TLS_ROOTCERT_FILE: {{ .Values.cli.peerTlsRootcertFile }}
+  {{- end }}

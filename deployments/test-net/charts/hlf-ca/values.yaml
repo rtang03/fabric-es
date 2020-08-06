@@ -47,7 +47,7 @@ peerOrg:
 
 peers:
   - id: "peer0.org1.net"
-    csrHost: "p0o1-hlf-ca"
+    csrHost: "p0o1-hlf-peer"
     pass: "peer0.org1.netPW"
 
 image:

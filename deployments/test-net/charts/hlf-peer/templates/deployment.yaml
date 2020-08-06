@@ -79,11 +79,11 @@ spec:
             secretName: {{ .Values.secrets.peer.tlsClientRootCert }}
         {{- end }}
         {{- if .Values.secrets.channels }}
-          {{- range .Values.secrets.channels }}
+        {{- range .Values.secrets.channels }}
         - name: {{ . }}
           secret:
             secretName: {{ . }}
-          {{- end }}
+        {{- end }}
         {{- end }}
         {{- if .Values.secrets.adminCert }}
         - name: admin-cert
@@ -226,10 +226,10 @@ spec:
               name: ord-tlssigncert
             {{- end }}
             {{- if .Values.secrets.channels }}
-              {{- range .Values.secrets.channels }}
+            {{- range .Values.secrets.channels }}
             - mountPath: {{ $.Values.peer.orgPath }}/{{ . }}
               name: {{ . }}
-              {{- end }}
+            {{- end }}
             {{- end }}
             {{- if .Values.secrets.adminCert }}
             - mountPath: {{ include "hlf-peer.home" . }}/admin_msp/admincerts

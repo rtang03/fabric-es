@@ -39,10 +39,30 @@ spec:
             optional: true
             secretName: {{ .Values.ordererConfiguration.org1tlscacerts }}
         {{- end }}
+        - name: peerconfig
+          configMap:
+            name: {{ include "orgadmin.fullname" . }}--peerconfig
+        - name: core
+          configMap:
+            name: {{ include "orgadmin.fullname" . }}--core
+        {{- if .Values.cli.channels }}
+        {{- range .Values.cli.channels }}
+        - name: {{ . }}
+          secret:
+            optional: true
+            secretName: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.cli.ordTlsSignCert }}
+        - name: ord-tlssigncert
+          secret:
+            optional: true
+            secretName: {{ .Values.cli.ordTlsSignCert }}
+        {{- end }}
       containers:
         - name: cli
           image: "hyperledger/fabric-tools:{{ .Values.cli.image.tag }}"
-          workingDir: "/var/hyperledger/cli"
+          workingDir: {{ .Values.cli.workingDir | quote }}
           command:
             - sh
             - -c
@@ -56,7 +76,7 @@ spec:
             - mountPath: /host/var/run/docker.sock
               name: dockersocket
             {{- if .Values.ordererConfiguration.enabled }}
-            - mountPath: /var/hyperledger/cli
+            - mountPath: /var/hyperledger/cli/configtx
               name: configtx
             - mountPath: /var/hyperledger/crypto-config/Org1MSP/msp/cacerts
               readOnly: true
@@ -67,4 +87,16 @@ spec:
             - mountPath: /var/hyperledger/crypto-config/Org1MSP/msp/tlscacerts
               readOnly: true
               name: org1msptlscacerts
+            {{- end }}
+            - mountPath: /var/hyperledger/cli
+              name: core
+            {{- if .Values.cli.channels }}
+            {{- range .Values.cli.channels }}
+            - mountPath: "{{ $.Values.cli.channeltxDir }}/{{ . }}"
+              name: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.cli.ordTlsSignCert }}
+            - mountPath: /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts
+              name: ord-tlssigncert
             {{- end }}

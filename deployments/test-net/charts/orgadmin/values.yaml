@@ -47,6 +47,13 @@ postgresql-0:
     size: 10Mi
 
 cli:
+  enabled: true
+  workingDir: /var/hyperledger/cli
+  channeltxDir: /var/hyperledger/crypto-config/Org1MSP
+  fabricLogging: "INFO"
+  ordTlsSignCert: "orderer0.org0.com-tlssigncert"
+  channels:
+    - "channeltx"
   image:
     repository: hyperledger/fabric-tools
     tag: 2.1.0

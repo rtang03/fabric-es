@@ -40,3 +40,6 @@ postgresql-0:
       - ReadWriteOnce
     size: 10Mi
 
+cli:
+  enabled: true
+  workingDir: /var/hyperledger/cli

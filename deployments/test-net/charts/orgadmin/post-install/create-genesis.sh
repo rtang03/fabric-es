@@ -8,8 +8,8 @@
 export POD_CLI0=$(kubectl get pods -n n0 -l "app=orgadmin,release=admin0" -o jsonpath="{.items[0].metadata.name}")
 
 ######## 2. Create genesis.block / channel.tx
-kubectl -n n0 exec -it $POD_CLI0 -- configtxgen -profile OrgsOrdererGenesis -outputBlock /var/hyperledger/crypto-config/genesis.block -channelID ordererchannel
-kubectl -n n0 exec -it $POD_CLI0 -- configtxgen -profile OrgsChannel -outputCreateChannelTx /var/hyperledger/crypto-config/channel.tx -channelID loanapp
+kubectl -n n0 exec -it $POD_CLI0 -- configtxgen -configPath /var/hyperledger/cli/configtx -profile OrgsOrdererGenesis -outputBlock /var/hyperledger/crypto-config/genesis.block -channelID ordererchannel
+kubectl -n n0 exec -it $POD_CLI0 -- configtxgen -configPath /var/hyperledger/cli/configtx -profile OrgsChannel -outputCreateChannelTx /var/hyperledger/crypto-config/channel.tx -channelID loanapp
 
 ######## 3. Create configmap: genesis.block
 kubectl -n n0 exec $POD_CLI0 -- cat ../crypto-config/genesis.block > genesis.block

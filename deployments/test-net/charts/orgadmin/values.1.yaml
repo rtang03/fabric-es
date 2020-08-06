@@ -37,3 +37,12 @@ postgresql-0:
     accessModes:
       - ReadWriteOnce
     size: 10Mi
+
+cli:
+  enabled: true
+  workingDir: /var/hyperledger/cli
+  peerAddress: "p0o1-hlf-peer:7051"
+  peerMspConfigPath: /var/hyperledger/crypto-config/Org1MSP/admin/msp
+  peerLocalMspId: "Org1MSP"
+#  peerTlsRootcertFile: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem
+  peerTlsRootcertFile: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+# $1 - message to be printed
+# $2 - exit code of the previous operation
+printMessage() {
+  if [ $2 -ne 0 ] ; then
+  printf "${RED}${1} failed${NC}\n"
+  exit $2
+  fi
+  printf "${GREEN}Complete ${1}${NC}\n\n"
+  sleep 1
+}
+
+preventEmptyValue() {
+  if [ -z $1 ]
+  then
+    printf "No content retrieved error"
+    exit -1
+  fi
+}

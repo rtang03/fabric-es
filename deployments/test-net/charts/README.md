@@ -128,6 +128,12 @@ helm install o4 -f ./hlf-ord/values.4.yaml -n n0 ./hlf-ord
 ```shell script
 # install couchdb for peer0-org1
 helm install p0o1db -n n1 ./hlf-couchdb
+
+# post-install: validate if it runs well
+# https://docs.couchdb.org/en/master/fauxton/install.html
+# export POD_COUCH=$(kubectl get pods --namespace n1 -l "app=hlf-couchdb,release=p0o1db" -o jsonpath="{.items[0].metadata.name}")
+# kubectl port-forward $POD_NAME 8080:5984 -n n1
+# http://127.0.0.1:8080/_utils
 ```
 
 ### Step 9 - terminal org1 - install peer0-org1
@@ -140,31 +146,45 @@ helm install p0o1 -n n1 ./hlf-peer
 consider to use `cli` to do administrative tasks.  
 
 ```shell script
-# loggon to the p0o1 container at terminal org1
-export POD_PEER=$(kubectl get pods --namespace n1 -l "app=hlf-peer,release=p0o1" -o jsonpath="{.items[0].metadata.name}")
-kubectl -n n1 exec -it $POD_PEER -- sh
+# loggon to the cli container of admin1 at terminal org1
+export POD_CLI1=$(kubectl get pods --namespace n1 -l "app=orgadmin,release=admin1" -o jsonpath="{.items[0].metadata.name}")
+kubectl -n n1 exec -it $POD_CLI1 -- sh
 
-# if side-car is enabled, you need to specific container
-# kubectl -n n1 exec -it $POD_PEER -c orderer -- sh
 ```
 
 ### Step 11: Create Channel 
 ```shell script
-# optionally, you can see log stream in terminal org0
+# terminal admin0
+# stream logs from orderer0
 export POD_ORD=$(kubectl get pods --namespace n0 -l "app=hlf-ord,release=o0" -o jsonpath="{.items[0].metadata.name}")
 kubectl -n n0 logs -f $POD_ORD
 
-# back to terminal org1
+# terminal cli1
 # check if you can find orderer0, it should return its resolved address
 nslookup o0-hlf-ord.n0.svc.cluster.local
+nslookup p0o1-hlf-peer.n1.svc.cluster.local
 
-export CORE_PEER_ADDRESS="p0o1-hlf-peer:7051"
-export CORE_PEER_MSPCONFIGPATH=/var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/admin_msp
 peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/channeltx/channel.tx \
  -o o0-hlf-ord.n0.svc.cluster.local:7050 \
  --outputBlock /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block --tls \
- --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+ --cafile /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem \
  --ordererTLSHostnameOverride o0-hlf-ord
+```
+
+### Step 12: Join Channel 
+```shell script
+# terminal cli1
+# Fetch block
+# Join channel
+# Create Anchors.tx
+# Update Anchors.tx
+peer channel join -b /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block \
+ -o o0-hlf-ord.n0.svc.cluster.local:7050 --tls \
+ --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem \
+ --ordererTLSHostnameOverride o0-hlf-ord
+
+peer channel getinfo -c loanapp \
+ --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem
 ```
 
 ### Other useful commands
