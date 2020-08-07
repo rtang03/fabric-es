@@ -1,4 +1,5 @@
 {{- if .Values.ingress.enabled -}}
+{{- if .Values.sidecar.isalive.enabled -}}
 {{- $fullName := include "hlf-ord.fullname" . -}}
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
@@ -17,4 +18,5 @@ spec:
             backend:
               serviceName: {{ $fullName }}
               servicePort: 5678
+{{- end }}
 {{- end }}

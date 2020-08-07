@@ -55,10 +55,10 @@ config:
   debug: true
   csr:
     names:
-      c: CN
-      st: "Hong Kong"
-      o: Fdi
-      ou: Org1
+      c: US
+      st: "North Carolina"
+      o: Hyperledger
+      ou: Fabric
   affiliations: {}
   ## "intermediate" is only specified for Intermediate CA's
   # intermediate:

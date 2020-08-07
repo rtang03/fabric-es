@@ -28,6 +28,9 @@ sleep 60
 sleep 1
 
 helm install admin0 -f ./orgadmin/values.0.yaml -n n0 ./orgadmin
+
+sleep 2
+
 helm install tlsca0 -f ./hlf-ca/values-tlsca0.yaml -n n0 ./hlf-ca
 
 sleep 60
@@ -42,12 +45,14 @@ sleep 60
 
 ./hlf-ca/post-install/setup.rca0.sh
 ./hlf-ca/post-install/create-secret.rca0.sh
-
 ./orgadmin/post-install/create-genesis.sh
 
 sleep 5
 
 helm upgrade admin0 -f ./orgadmin/values.0.yaml -n n0 ./orgadmin
+
+sleep 2
+
 helm upgrade admin1 -f ./orgadmin/values.1.yaml -n n1 ./orgadmin
 
 sleep 60

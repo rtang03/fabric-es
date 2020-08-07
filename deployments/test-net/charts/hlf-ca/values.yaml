@@ -20,18 +20,18 @@ ordererOrg:
 orderers:
   - id: "orderer0.org0.com"
     pass: "orderer0.org0.comPW"
-    csrHost: "o0-hlf-ord"
+    csrHost: "o0-hlf-ord,orderer0.org0.com"
   - id: "orderer1.org0.com"
     pass: "orderer1.org0.comPW"
-    csrHost: "o1-hlf-ord"
+    csrHost: "o1-hlf-ord,orderer1.org0.com"
   - id: "orderer2.org0.com"
     pass: "orderer2.org0.comPW"
-    csrHost: "o2-hlf-ord"
+    csrHost: "o2-hlf-ord,orderer2.org0.com"
   - id: "orderer3.org0.com"
     pass: "orderer3.org0.comPW"
-    csrHost: "o3-hlf-ord"
+    csrHost: "o3-hlf-ord,orderer3.org0.com"
   - id: "orderer4.org0.com"
-    csrHost: "o4-hlf-ord"
+    csrHost: "o4-hlf-ord,orderer4.org0.com"
     pass: "orderer4.org0.comPW"
 
 peerOrg:
@@ -47,7 +47,7 @@ peerOrg:
 
 peers:
   - id: "peer0.org1.net"
-    csrHost: "p0o1-hlf-peer"
+    csrHost: "p0o1-hlf-peer,peer0.org1.net"
     pass: "peer0.org1.netPW"
 
 image:
@@ -168,10 +168,10 @@ config:
       pathlength: 1
     names:
       c: US
-      st: "Hong Kong"
+      st: "North Carolina"
+      o: Hyperledger
+      ou: Fabric
       l:
-      o: Dashslab
-      ou: Sample
   ## "intermediate" is only specified for Intermediate CA's
   # intermediate:
   #   parent:

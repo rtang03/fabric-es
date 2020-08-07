@@ -164,11 +164,11 @@ kubectl -n n0 logs -f $POD_ORD
 nslookup o0-hlf-ord.n0.svc.cluster.local
 nslookup p0o1-hlf-peer.n1.svc.cluster.local
 
-peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/channeltx/channel.tx \
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/channeltx/channel.tx \
  -o o0-hlf-ord.n0.svc.cluster.local:7050 \
  --outputBlock /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block --tls \
- --cafile /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts/cert.pem \
- --ordererTLSHostnameOverride o0-hlf-ord
+ --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+ --ordererTLSHostnameOverride o0-hlf-ord"
 ```
 
 ### Step 12: Join Channel 
@@ -178,10 +178,7 @@ peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/channel
 # Join channel
 # Create Anchors.tx
 # Update Anchors.tx
-peer channel join -b /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block \
- -o o0-hlf-ord.n0.svc.cluster.local:7050 --tls \
- --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem \
- --ordererTLSHostnameOverride o0-hlf-ord
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel join -b /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block"
 
 peer channel getinfo -c loanapp \
  --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem

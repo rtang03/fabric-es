@@ -97,6 +97,6 @@ spec:
             {{- end }}
             {{- end }}
             {{- if .Values.cli.ordTlsSignCert }}
-            - mountPath: /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/signcerts
+            - mountPath: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts
               name: ord-tlssigncert
             {{- end }}

@@ -34,7 +34,7 @@ kubectl -n {{ $.Release.Namespace }} exec $POD_TLSCA0 -- sh -c "fabric-ca-client
 
 ######## 5. Enrol tls-ca for orderer0
 {{- range .Values.orderers }}
-kubectl -n {{ $.Release.Namespace }} exec $POD_TLSCA0 -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/{{ $.Values.mspId }}/{{ .id }} fabric-ca-client enroll -d -u http://{{ .id }}:{{ .pass }}@0.0.0.0:7054 --enrollment.profile tls --csr.hosts {{ .csrHost }},127.0.0.1"
+kubectl -n {{ $.Release.Namespace }} exec $POD_TLSCA0 -- sh -c "FABRIC_CA_CLIENT_MSPDIR=tls-msp FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/{{ $.Values.mspId }}/{{ .id }} fabric-ca-client enroll -d -u http://{{ .id }}:{{ .pass }}@0.0.0.0:7054 --enrollment.profile tls --csr.hosts \"{{ .csrHost }},127.0.0.1\""
 {{- end }}
 sleep 1
 

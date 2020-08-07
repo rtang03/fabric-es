@@ -21,16 +21,18 @@ dockerConfig: null
 dockerConfigMountPath: /root/.docker
 
 ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
     # nginx.ingress.kubernetes.io/ssl-redirect: "true"
     # nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
   # certmanager.k8s.io/cluster-issuer: "letsencrypt-staging"
   path: /
   hosts:
-    - hlf-peer.local
-  tls: []
+    - peer0.org1.net
+#  tls: []
   #  - secretName: hlf-peer-tls
   #    hosts:
   #      - hlf-peer.local
@@ -53,7 +55,8 @@ persistence:
   # existingClaim: ""
 
 logging:
-  level: info
+  # "info" or "grpc=debug:debug"
+  level: "info"
   peer: info
   cauthdsl: warning
   gossip: info
@@ -62,6 +65,17 @@ logging:
   msp: warning
   policies: warning
 
+orderers:
+  - name: "orderer0.org0.com"
+    hostAlias: "10.96.55.82"
+  - name: "orderer1.org0.com"
+    hostAlias: "10.104.96.29"
+  - name: "orderer2.org0.com"
+    hostAlias: "10.96.179.20"
+  - name: "orderer3.org0.com"
+    hostAlias: "10.104.35.23"
+  - name: "orderer4.org0.com"
+    hostAlias: "10.97.171.134"
 
 ##################################
 ## Peer configuration options    #

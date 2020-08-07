@@ -40,11 +40,7 @@ data:
             Type: Signature
             Rule: "OR('Org1MSP.member')"
         OrdererEndpoints:
-          - o0-hlf-ord.n0.svc.cluster.local:7050
-          - o1-hlf-ord.n0.svc.cluster.local:7050
-          - o2-hlf-ord.n0.svc.cluster.local:7050
-          - o3-hlf-ord.n0.svc.cluster.local:7050
-          - o4-hlf-ord.n0.svc.cluster.local:7050
+          - "orderer0.org0.com:7050"
         AnchorPeers:
           - Host: p0o1-hlf-peer
             Port: 7051
@@ -78,11 +74,11 @@ data:
     Orderer: &OrdererDefaults
       OrdererType: etcdraft
       Addresses:
-        - o0-hlf-ord.n0.svc.cluster.local:7050
-        - o1-hlf-ord.n0.svc.cluster.local:7050
-        - o2-hlf-ord.n0.svc.cluster.local:7050
-        - o3-hlf-ord.n0.svc.cluster.local:7050
-        - o4-hlf-ord.n0.svc.cluster.local:7050
+        - "orderer0.org0.com:7050"
+        - "orderer1.org0.com:7050"
+        - "orderer2.org0.com:7050"
+        - "orderer3.org0.com:7050"
+        - "orderer4.org0.com:7050"
       BatchTimeout: 2s
       BatchSize:
         MaxMessageCount: 500

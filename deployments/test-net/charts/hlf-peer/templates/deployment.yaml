@@ -19,6 +19,12 @@ spec:
       labels:
 {{ include "labels.standard" . | indent 8 }}
     spec:
+      hostAliases:
+      {{- range .Values.orderers }}
+        - ip: {{ .hostAlias }}
+          hostnames:
+            - {{ .name }}
+      {{- end }}
       volumes:
         - name: data
         {{- if .Values.persistence.enabled }}
@@ -96,7 +102,7 @@ spec:
             secretName: {{ .Values.secrets.adminKey }}
         {{- end }}
         {{- if .Values.secrets.ordTlsRootCert }}
-        - name: ord-tls-rootcert
+        - name: ord-tlsrootcert
           secret:
             secretName: {{ .Values.secrets.ordTlsRootCert }}
         {{- end }}
@@ -217,9 +223,8 @@ spec:
               name: tls-clientrootcert
             {{- end }}
             {{- if .Values.secrets.ordTlsRootCert }}
-            # No use, can remove later
             - mountPath: {{ include "hlf-peer.home" . }}/ord/tls-msp/tlscacerts
-              name: ord-tls-rootcert
+              name: ord-tlsrootcert
             {{- end }}
             {{- if .Values.secrets.ordTlsSignCert }}
             - mountPath: {{ include "hlf-peer.home" . }}/ord/tls-msp/signcerts
