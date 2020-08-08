@@ -136,33 +136,50 @@ helm install p0o1db -n n1 ./hlf-couchdb
 # http://127.0.0.1:8080/_utils
 ```
 
-### Step 9 - terminal org1 - install peer0-org1
-```shell script
-helm install p0o1 -n n1 ./hlf-peer
-```
-
-### Step 10 - terminal org1 - create the channel with peer0
-`cli` container cannot do administrative work, before all missing cert. Later, it may  
-consider to use `cli` to do administrative tasks.  
+### Step 9 - terminal orderer0  
 
 ```shell script
-# loggon to the cli container of admin1 at terminal org1
-export POD_CLI1=$(kubectl get pods --namespace n1 -l "app=orgadmin,release=admin1" -o jsonpath="{.items[0].metadata.name}")
-kubectl -n n1 exec -it $POD_CLI1 -- sh
-
-```
-
-### Step 11: Create Channel 
-```shell script
-# terminal admin0
-# stream logs from orderer0
+# stream logs from orderer0 for monitoring
 export POD_ORD=$(kubectl get pods --namespace n0 -l "app=hlf-ord,release=o0" -o jsonpath="{.items[0].metadata.name}")
 kubectl -n n0 logs -f $POD_ORD
 
+# validate service
+# nslookup o0-hlf-ord.n0.svc.cluster.local
+# nslookup p0o1-hlf-peer.n1.svc.cluster.local
+kubectl -n n0 get service
+
+# it should return
+# NAME                           TYPE        CLUSTER-IP    
+# admin0-postgresql-0            NodePort    10.99.181.168 
+# admin0-postgresql-0-headless   ClusterIP   None          
+# o0-hlf-ord                     ClusterIP   10.103.183.167
+# o1-hlf-ord                     ClusterIP   10.102.110.159
+# o2-hlf-ord                     ClusterIP   10.109.192.161
+# o3-hlf-ord                     ClusterIP   10.111.235.142
+# o4-hlf-ord                     ClusterIP   10.110.101.179
+# rca0-hlf-ca                    ClusterIP   10.107.243.4  
+# tlsca0-hlf-ca                  ClusterIP   10.96.27.25   
+```
+
+### Step 10 - terminal org1: install peer0-org1
+Before installing `p0o1` chart, we need to add hostAlias of orderers. In `charts/hlf-peer/values.yaml`, 
+update "orderers.hostAlias" for corresponding orderer.
+
+Todo: May later figure out how to discover orderer0.org0.com, via coredns.
+
+```shell script
+helm install p0o1 -n n1 ./hlf-peer
+
+export POD_PEER=$(kubectl get pods --namespace n1 -l "app=hlf-peer,release=p0o1" -o jsonpath="{.items[0].metadata.name}")
+kubectl -n n1 logs -f $POD_PEER
+```
+
+### Step 11: terminal cli: Create Channel 
+```shell script
 # terminal cli1
 # check if you can find orderer0, it should return its resolved address
-nslookup o0-hlf-ord.n0.svc.cluster.local
-nslookup p0o1-hlf-peer.n1.svc.cluster.local
+
+export POD_CLI1=$(kubectl get pods --namespace n1 -l "app=orgadmin,release=admin1" -o jsonpath="{.items[0].metadata.name}")
 
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/channeltx/channel.tx \
  -o o0-hlf-ord.n0.svc.cluster.local:7050 \
@@ -171,19 +188,29 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel create -c loanapp -f /va
  --ordererTLSHostnameOverride o0-hlf-ord"
 ```
 
-### Step 12: Join Channel 
+### Step 12: terminal cli: Join Channel 
 ```shell script
 # terminal cli1
-# Fetch block
-# Join channel
-# Create Anchors.tx
-# Update Anchors.tx
+# join channel
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel join -b /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block"
 
-peer channel getinfo -c loanapp \
- --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem
+# query channel info
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel getinfo -c loanapp"
 ```
 
+### Step 13: terminal cli: Update anchor peer
+```shell script
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel update -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/anchortx/Org1MSPAnchor.tx \
+  -o o0-hlf-ord.n0.svc.cluster.local:7050 \
+  --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+  --ordererTLSHostnameOverride o0-hlf-ord"
+```
+
+
+cli peer channel update -c loanapp -f /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/assets/${NAME}Anchors.tx \
+      -o ${ORDERER_PEER}-${ORDERER_CODE}:${ORDERER_PORT} \
+      --tls --cafile /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      
 ### Other useful commands
 ```shell script
 # search public helm repository
@@ -213,3 +240,5 @@ https://github.com/hyperledger/fabric-ca/blob/master/docs/source/users-guide.rst
 https://github.com/helm/charts/tree/master/stable/hlf-ca
 https://github.com/bitnami/charts/tree/master/bitnami/postgresql#parameters
 https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+
+k0 exec -it admin0-orgadmin-cli-846645c4dc-nlzdf -- cat /etc/resolv.conf

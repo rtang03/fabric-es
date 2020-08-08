@@ -67,15 +67,15 @@ logging:
 
 orderers:
   - name: "orderer0.org0.com"
-    hostAlias: "10.96.55.82"
+    hostAlias: "10.105.4.145"
   - name: "orderer1.org0.com"
-    hostAlias: "10.104.96.29"
+    hostAlias: "10.108.44.111"
   - name: "orderer2.org0.com"
-    hostAlias: "10.96.179.20"
+    hostAlias: "10.101.73.162"
   - name: "orderer3.org0.com"
-    hostAlias: "10.104.35.23"
+    hostAlias: "10.99.239.89"
   - name: "orderer4.org0.com"
-    hostAlias: "10.97.171.134"
+    hostAlias: "10.96.97.134"
 
 ##################################
 ## Peer configuration options    #
@@ -145,6 +145,7 @@ secrets:
   # - barchannel
   channels:
     - "channeltx"
+  anchortx: "org1msp-anchor.tx"
   ## This should contain the Certificate of the Peer Organisation admin
   ## This is necessary to successfully run the peer
   # adminCert: hlf--peer-admincert

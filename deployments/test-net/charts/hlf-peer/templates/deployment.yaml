@@ -19,6 +19,17 @@ spec:
       labels:
 {{ include "labels.standard" . | indent 8 }}
     spec:
+      # Don't work
+{{/*      dnsPolicy: "None"*/}}
+{{/*      dnsConfig:*/}}
+{{/*        nameservers:*/}}
+{{/*          - 10.96.0.10*/}}
+{{/*        searches:*/}}
+{{/*          - n0.svc.cluster.local*/}}
+{{/*          - n1.svc.cluster.local*/}}
+{{/*        options:*/}}
+{{/*          - name: ndots*/}}
+{{/*            value: "5"*/}}
       hostAliases:
       {{- range .Values.orderers }}
         - ip: {{ .hostAlias }}
@@ -89,6 +100,11 @@ spec:
         - name: {{ . }}
           secret:
             secretName: {{ . }}
+        {{- end }}
+        {{- if .Values.secrets.anchortx }}
+        - name: anchor-tx
+          secret:
+            secretName: {{ .Values.secrets.anchortx }}
         {{- end }}
         {{- end }}
         {{- if .Values.secrets.adminCert }}
@@ -235,6 +251,10 @@ spec:
             - mountPath: {{ $.Values.peer.orgPath }}/{{ . }}
               name: {{ . }}
             {{- end }}
+            {{- end }}
+            {{- if .Values.secrets.anchortx }}
+            - mountPath:  {{ $.Values.peer.orgPath }}/{{ .Values.secrets.anchortx }}
+              name: anchor-tx
             {{- end }}
             {{- if .Values.secrets.adminCert }}
             - mountPath: {{ include "hlf-peer.home" . }}/admin_msp/admincerts

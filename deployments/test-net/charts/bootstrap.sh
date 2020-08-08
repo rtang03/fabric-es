@@ -81,4 +81,6 @@ helm install p0o1db -n n1 ./hlf-couchdb
 
 sleep 60
 
-helm install p0o1 -n n1 ./hlf-peer
+# helm upgrade admin1 -f ./orgadmin/values.1.yaml -n n1 ./orgadmin
+
+# helm install p0o1 -n n1 ./hlf-peer

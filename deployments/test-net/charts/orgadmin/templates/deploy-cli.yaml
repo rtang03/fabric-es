@@ -15,6 +15,12 @@ spec:
       labels:
 {{ include "labels.standard" . | indent 8 }}
     spec:
+      hostAliases:
+      {{- range .Values.orderers }}
+      - ip: {{ .hostAlias }}
+        hostnames:
+          - {{ .name }}
+      {{- end }}
       volumes:
         - name: fabricfiles
           persistentVolumeClaim:
@@ -59,6 +65,12 @@ spec:
             optional: true
             secretName: {{ .Values.cli.ordTlsSignCert }}
         {{- end }}
+        {{- if .Values.cli.anchortx }}
+        - name: anchor-tx
+          secret:
+            optional: true
+            secretName: {{ .Values.cli.anchortx }}
+        {{- end }}
       containers:
         - name: cli
           image: "hyperledger/fabric-tools:{{ .Values.cli.image.tag }}"
@@ -99,4 +111,8 @@ spec:
             {{- if .Values.cli.ordTlsSignCert }}
             - mountPath: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts
               name: ord-tlssigncert
+            {{- end }}
+            {{- if .Values.cli.anchortx }}
+            - mountPath: {{ .Values.cli.anchortxDir }}
+              name: anchor-tx
             {{- end }}

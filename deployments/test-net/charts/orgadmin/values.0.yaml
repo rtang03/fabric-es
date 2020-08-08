@@ -1,4 +1,10 @@
-mspId: Org0MSP
+# mspId: Org0MSP
+
+bootstrap:
+  enabled: true
+  channelName: "loanapp"
+  mspId: "Org0MSP"
+  anchorPeer: "Org1MSP"
 
 persistence:
   enabled: true

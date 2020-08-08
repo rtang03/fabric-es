@@ -7,9 +7,10 @@
 ######## 1. Get the name of the pod running rca:
 export POD_CLI0=$(kubectl get pods -n n0 -l "app=orgadmin,release=admin0" -o jsonpath="{.items[0].metadata.name}")
 
-######## 2. Create genesis.block / channel.tx
+######## 2. Create genesis.block / channel.tx / anchor.tx
 kubectl -n n0 exec -it $POD_CLI0 -- configtxgen -configPath /var/hyperledger/cli/configtx -profile OrgsOrdererGenesis -outputBlock /var/hyperledger/crypto-config/genesis.block -channelID ordererchannel
 kubectl -n n0 exec -it $POD_CLI0 -- configtxgen -configPath /var/hyperledger/cli/configtx -profile OrgsChannel -outputCreateChannelTx /var/hyperledger/crypto-config/channel.tx -channelID loanapp
+kubectl -n n0 exec -it $POD_CLI0 -- configtxgen -configPath /var/hyperledger/cli/configtx -profile OrgsChannel -outputAnchorPeersUpdate /var/hyperledger/crypto-config/Org1MSPAnchor.tx -channelID loanapp -asOrg Org1MSP
 
 ######## 3. Create configmap: genesis.block
 kubectl -n n0 exec $POD_CLI0 -- cat ../crypto-config/genesis.block > genesis.block
@@ -20,3 +21,8 @@ rm genesis.block
 kubectl -n n0 exec $POD_CLI0 -- cat ../crypto-config/channel.tx > channel.tx
 kubectl -n n1 create secret generic channeltx --from-file=channel.tx=./channel.tx
 rm channel.tx
+
+######## 5. Create configmap: Org1MSPAnchor.tx
+kubectl -n n0 exec $POD_CLI0 -- cat ../crypto-config/Org1MSPAnchor.tx > Org1MSPAnchor.tx
+kubectl -n n1 create secret generic org1msp-anchor.tx --from-file=Org1MSPAnchor.tx=./Org1MSPAnchor.tx
+rm Org1MSPAnchor.tx

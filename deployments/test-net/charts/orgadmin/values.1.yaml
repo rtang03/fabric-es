@@ -1,4 +1,9 @@
-mspId: Org1MSP
+# mspId: Org1MSP
+
+bootstrap:
+  enabled: false
+  channelName: "loanapp"
+  mspId: "Org0MSP"
 
 ordererConfiguration:
   enabled: false
@@ -46,3 +51,5 @@ cli:
   peerLocalMspId: "Org1MSP"
 #  peerTlsRootcertFile: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem
   peerTlsRootcertFile: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem
+  anchortx: "org1msp-anchor.tx"
+  anchortxDir: /var/hyperledger/crypto-config/Org1MSP/anchortx
