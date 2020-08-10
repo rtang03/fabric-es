@@ -5,7 +5,8 @@ metadata:
   labels:
 {{- include "labels.standard" . | nindent 4 }}
 data:
-  GODEBUG: "netdns=go"
+  # GODEBUG: "netdns=go"
+{{/*  FABRIC_LOGGING_SPEC: error*/}}
   FABRIC_CA_HOME: {{ .Values.config.fabricCaHome | quote }}
   FABRIC_CA_SERVER_CA_NAME: {{ .Values.caName | quote }}
   SERVICE_DNS: 0.0.0.0  # Point to itself

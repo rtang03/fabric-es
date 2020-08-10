@@ -161,7 +161,7 @@ config:
   ## Mount the TLS certificate & key to disk?
   mountTLS: false
   ## Enable debug logging in ca Server configuration file
-  debug: true
+  debug: false
   ## CSR pathlength in ca Server configuration file
   csr:
     ca:

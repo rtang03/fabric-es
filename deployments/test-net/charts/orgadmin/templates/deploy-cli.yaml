@@ -15,12 +15,12 @@ spec:
       labels:
 {{ include "labels.standard" . | indent 8 }}
     spec:
-      hostAliases:
-      {{- range .Values.orderers }}
-      - ip: {{ .hostAlias }}
-        hostnames:
-          - {{ .name }}
-      {{- end }}
+{{/*      hostAliases:*/}}
+{{/*      {{- range .Values.orderers }}*/}}
+{{/*      - ip: {{ .hostAlias }}*/}}
+{{/*        hostnames:*/}}
+{{/*          - {{ .name }}*/}}
+{{/*      {{- end }}*/}}
       volumes:
         - name: fabricfiles
           persistentVolumeClaim:
@@ -65,12 +65,6 @@ spec:
             optional: true
             secretName: {{ .Values.cli.ordTlsSignCert }}
         {{- end }}
-        {{- if .Values.cli.anchortx }}
-        - name: anchor-tx
-          secret:
-            optional: true
-            secretName: {{ .Values.cli.anchortx }}
-        {{- end }}
       containers:
         - name: cli
           image: "hyperledger/fabric-tools:{{ .Values.cli.image.tag }}"
@@ -78,7 +72,9 @@ spec:
           command:
             - sh
             - -c
-            - "sleep 48h"
+            - |
+              mkdir -p {{ .Values.cli.workingDir }}/channel-artifacts
+              sleep 48h
           envFrom:
             - configMapRef:
                 name: {{ include "orgadmin.fullname" . }}--cli
@@ -90,13 +86,13 @@ spec:
             {{- if .Values.ordererConfiguration.enabled }}
             - mountPath: /var/hyperledger/cli/configtx
               name: configtx
-            - mountPath: /var/hyperledger/crypto-config/Org1MSP/msp/cacerts
+            - mountPath: "{{ $.Values.cli.firstOrgDir }}/msp/cacerts"
               readOnly: true
               name: org1mspcacerts
-            - mountPath: /var/hyperledger/crypto-config/Org1MSP/msp/admincerts
+            - mountPath: "{{ $.Values.cli.firstOrgDir }}/msp/admincerts"
               readOnly: true
               name: org1mspadmincerts
-            - mountPath: /var/hyperledger/crypto-config/Org1MSP/msp/tlscacerts
+            - mountPath: "{{ $.Values.cli.firstOrgDir }}/msp/tlscacerts"
               readOnly: true
               name: org1msptlscacerts
             {{- end }}
@@ -104,15 +100,11 @@ spec:
               name: core
             {{- if .Values.cli.channels }}
             {{- range .Values.cli.channels }}
-            - mountPath: "{{ $.Values.cli.channeltxDir }}/{{ . }}"
+            - mountPath: "{{ $.Values.cli.firstOrgDir }}/{{ . }}"
               name: {{ . }}
             {{- end }}
             {{- end }}
             {{- if .Values.cli.ordTlsSignCert }}
-            - mountPath: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts
+            - mountPath: "{{ $.Values.cli.firstOrgDir }}/peer0.org1.net/ord/tls-msp/signcerts"
               name: ord-tlssigncert
-            {{- end }}
-            {{- if .Values.cli.anchortx }}
-            - mountPath: {{ .Values.cli.anchortxDir }}
-              name: anchor-tx
             {{- end }}

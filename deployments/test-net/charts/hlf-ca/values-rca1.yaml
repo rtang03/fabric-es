@@ -52,7 +52,7 @@ config:
   fabricCaClientHome: /var/hyperledger/crypto-config/Org1MSP/ca/admin
   fabricCaClientTlsCertfiles: /var/hyperledger/crypto-config/Org1MSP/ca/server/ca-cert.pem
   ## Enable debug logging in ca Server configuration file
-  debug: true
+  debug: false
   csr:
     names:
       c: US

@@ -4,7 +4,7 @@
 
 image:
   repository: hyperledger/fabric-peer
-  tag: 2.1.0
+  tag: 2.2.0
   pullPolicy: IfNotPresent
 
 service:
@@ -55,7 +55,7 @@ persistence:
   # existingClaim: ""
 
 logging:
-  # "info" or "grpc=debug:debug"
+  # "info" or "debug" or "grpc=debug:debug" or "grpc=debug:info"
   level: "info"
   peer: info
   cauthdsl: warning
@@ -67,15 +67,15 @@ logging:
 
 orderers:
   - name: "orderer0.org0.com"
-    hostAlias: "10.105.4.145"
+    hostAlias: "10.108.239.58"
   - name: "orderer1.org0.com"
-    hostAlias: "10.108.44.111"
+    hostAlias: "10.98.175.154"
   - name: "orderer2.org0.com"
-    hostAlias: "10.101.73.162"
+    hostAlias: "10.106.218.64"
   - name: "orderer3.org0.com"
-    hostAlias: "10.99.239.89"
+    hostAlias: "10.102.215.54"
   - name: "orderer4.org0.com"
-    hostAlias: "10.96.97.134"
+    hostAlias: "10.100.206.49"
 
 ##################################
 ## Peer configuration options    #
@@ -145,7 +145,6 @@ secrets:
   # - barchannel
   channels:
     - "channeltx"
-  anchortx: "org1msp-anchor.tx"
   ## This should contain the Certificate of the Peer Organisation admin
   ## This is necessary to successfully run the peer
   # adminCert: hlf--peer-admincert

@@ -15,10 +15,10 @@ RED='\033[0;31m'
   sleep 1
 }
 
-  preventEmptyValue() {
-  if [ -z $1 ]
+preventEmptyValue() {
+  if [ -z $2 ]
   then
-  printf "No content retrieved error"
+  printf "No content error: $1 \n"
   exit -1
   fi
 }

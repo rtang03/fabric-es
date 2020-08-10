@@ -150,11 +150,11 @@ data:
           Capabilities:
             <<: *OrdererCapabilities
         Consortiums:
-          Big4HK:
+          SampleConsortium:
             Organizations:
               - *Org1MSP
       OrgsChannel:
-        Consortium: Big4HK
+        Consortium: SampleConsortium
         <<: *ChannelDefaults
         Application:
           <<: *ApplicationDefaults

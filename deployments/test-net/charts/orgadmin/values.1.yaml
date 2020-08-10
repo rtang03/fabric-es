@@ -1,12 +1,5 @@
-# mspId: Org1MSP
-
-bootstrap:
-  enabled: false
-  channelName: "loanapp"
-  mspId: "Org0MSP"
-
-ordererConfiguration:
-  enabled: false
+# mspId: Org1MSPordererConfiguration:
+#  enabled: false
 
 persistence:
   enabled: true
@@ -44,12 +37,11 @@ postgresql-0:
     size: 10Mi
 
 cli:
+  bootstrap: false
+  channelName: "loanapp"
+  mspId: "Org1MSP"
   enabled: true
-  workingDir: /var/hyperledger/cli
+  workingDir: /var/hyperledger/crypto-config
   peerAddress: "p0o1-hlf-peer:7051"
-  peerMspConfigPath: /var/hyperledger/crypto-config/Org1MSP/admin/msp
-  peerLocalMspId: "Org1MSP"
 #  peerTlsRootcertFile: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem
   peerTlsRootcertFile: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem
-  anchortx: "org1msp-anchor.tx"
-  anchortxDir: /var/hyperledger/crypto-config/Org1MSP/anchortx

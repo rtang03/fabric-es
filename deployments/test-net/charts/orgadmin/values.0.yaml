@@ -1,10 +1,7 @@
-# mspId: Org0MSP
-
-bootstrap:
+ordererConfiguration:
   enabled: true
-  channelName: "loanapp"
-  mspId: "Org0MSP"
-  anchorPeer: "Org1MSP"
+  ORDERER_GENERAL_LOCALMSPID: Org0MSP
+  org1cacert: "org1-cacerts"
 
 persistence:
   enabled: true
@@ -22,30 +19,3 @@ persistence:
   accessMode: ReadWriteMany
   size: 10Mi
   annotations: {}
-
-ordererConfiguration:
-  enabled: true
-  ORDERER_GENERAL_LOCALMSPID: Org0MSP
-  org1cacert: "org1-cacerts"
-
-postgresql-0:
-  postgresqlPassword: password
-  initdbScripts:
-    1-createdb.sql: |
-      CREATE DATABASE "tls_ca_db";
-      CREATE DATABASE "rca_db";
-  service:
-    type: NodePort
-    nodePort: 30432
-  persistence:
-    enabled: true
-    existingClaim: pvc-org0
-    subPath: pgdata
-    storageClass: manual
-    accessModes:
-      - ReadWriteOnce
-    size: 10Mi
-
-cli:
-  enabled: true
-  workingDir: /var/hyperledger/cli

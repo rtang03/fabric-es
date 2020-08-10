@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: 1.4.3
+appVersion: 2.2.0
 description: Hyperledger Fabric Certificate Authority chart (these charts are created
   by AID:Tech and are currently not directly associated with the Hyperledger project)
 home: http://hyperledger-fabric-ca.readthedocs.io

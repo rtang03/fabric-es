@@ -1,14 +1,6 @@
 global:
   TZ: Asia/Hong_Kong
 
-#mspId: Org0MSP
-
-bootstrap:
-  enabled: true
-  channelName: "loanapp"
-  mspId: "Org0MSP"
-  anchorPeer: "Org1MSP"
-
 persistence:
   enabled: true
   # Persistence Volume Name for manual storage class
@@ -22,17 +14,9 @@ persistence:
 
   # storageClass: "-"
   storageClass: manual
-  accessMode:
-    - ReadWriteMany
+  accessMode: ReadWriteMany
   size: 10Mi
   annotations: {}
-
-ordererConfiguration:
-  enabled: true
-  ORDERER_GENERAL_LOCALMSPID: Org0MSP
-  org1cacert: "org1-cacerts"
-  org1admincerts: "org1-admincerts"
-  org1tlscacerts: "org1-tlscacerts"
 
 postgresql-0:
   postgresqlPassword: password
@@ -53,30 +37,42 @@ postgresql-0:
     size: 10Mi
 
 cli:
+  bootstrap: true
+  channelName: "loanapp"
+  mspId: "Org0MSP"
+  anchorPeer: "Org1MSP"
   enabled: true
-  workingDir: /var/hyperledger/cli
-  channeltxDir: /var/hyperledger/crypto-config/Org1MSP
+  workingDir: /var/hyperledger/crypto-config
+  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
   fabricLogging: "INFO"
   ordTlsSignCert: "orderer0.org0.com-tlssigncert"
   channels:
     - "channeltx"
   image:
     repository: hyperledger/fabric-tools
-    tag: 2.1.0
+    tag: 2.2.0
     pullPolicy: IfNotPresent
   persistence:
     subPath: cli
     enabled: true
     size: 10Mi
 
+# Only applied for Org0
+ordererConfiguration:
+  enabled: true
+  ORDERER_GENERAL_LOCALMSPID: Org0MSP
+  org1cacert: "org1-cacerts"
+  org1admincerts: "org1-admincerts"
+  org1tlscacerts: "org1-tlscacerts"
+
 orderers:
   - name: "orderer0.org0.com"
-    hostAlias: "10.105.4.145"
+    hostAlias: "10.107.200.192"
   - name: "orderer1.org0.com"
-    hostAlias: "10.108.44.111"
+    hostAlias: "10.104.198.33"
   - name: "orderer2.org0.com"
-    hostAlias: "10.101.73.162"
+    hostAlias: "10.96.97.13"
   - name: "orderer3.org0.com"
-    hostAlias: "10.99.239.89"
+    hostAlias: "10.111.189.8"
   - name: "orderer4.org0.com"
-    hostAlias: "10.96.97.134"
+    hostAlias: "10.104.3.252"

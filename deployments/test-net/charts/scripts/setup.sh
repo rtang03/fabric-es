@@ -16,9 +16,10 @@ printMessage() {
 }
 
 preventEmptyValue() {
-  if [ -z $1 ]
+  if [ -z $2 ]
   then
-    printf "No content retrieved error"
-    exit -1
+  printf "No content error: $1 \n"
+  exit -1
   fi
 }
+

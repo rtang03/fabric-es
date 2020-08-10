@@ -132,7 +132,7 @@ helm install p0o1db -n n1 ./hlf-couchdb
 # post-install: validate if it runs well
 # https://docs.couchdb.org/en/master/fauxton/install.html
 # export POD_COUCH=$(kubectl get pods --namespace n1 -l "app=hlf-couchdb,release=p0o1db" -o jsonpath="{.items[0].metadata.name}")
-# kubectl port-forward $POD_NAME 8080:5984 -n n1
+# kubectl port-forward $POD_COUCH 8080:5984 -n n1
 # http://127.0.0.1:8080/_utils
 ```
 
@@ -200,6 +200,17 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel getinfo -c loanapp"
 
 ### Step 13: terminal cli: Update anchor peer
 ```shell script
+
+peer channel fetch config ../config_block.pb \
+-o o0-hlf-ord.n0.svc.cluster.local:7050 \
+--ordererTLSHostnameOverride o0-hlf-ord \
+-c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem
+
+configtxlator proto_decode --input ../config_block.pb --type common.Block --output ../config_block.json
+
+jq .data.data[0].payload.data.config ../config_block.json > ../config.json
+
+
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel update -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/anchortx/Org1MSPAnchor.tx \
   -o o0-hlf-ord.n0.svc.cluster.local:7050 \
   --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
@@ -235,10 +246,16 @@ kubectl port-forward --namespace default svc/psql-postgresql 5433:5432
 PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5433
 ```
 
+Note:  
+For CLI1, after I update the configmap, I found that it cannot uninstall the helm directly. Because rca1 & tlsca1, admin1
+helm charts are referring to the same mounted host volume, `/tmp/data/org1`, in order for admin1 to stop properly;
+it may need to stop rca1 & tlsca1 together. The above situation does not seem to affect the upgrade of admin1.
+
 ### External Reference
 https://github.com/hyperledger/fabric-ca/blob/master/docs/source/users-guide.rst#enabling-tls
 https://github.com/helm/charts/tree/master/stable/hlf-ca
 https://github.com/bitnami/charts/tree/master/bitnami/postgresql#parameters
 https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+https://medium.com/google-cloud/helm-chart-for-fabric-for-kubernetes-80408b9a3fb6
 
 k0 exec -it admin0-orgadmin-cli-846645c4dc-nlzdf -- cat /etc/resolv.conf

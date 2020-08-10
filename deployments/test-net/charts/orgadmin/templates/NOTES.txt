@@ -1,5 +1,6 @@
-{{- if .Values.bootstrap.enabled }}
+{{- if .Values.cli.bootstrap }}
 #!/bin/bash
+. ./scripts/setup.sh
 ######## post-install notes for {{ .Release.Name }}/{{ .Chart.Name }}
 ######## Objective: These steps create geneis.block, and secret "genesis" and "channel.tx"
 
@@ -7,26 +8,26 @@
 ## Below steps are performed ***ONLY AFTER*** all rca0, rca1, tlsca0 and tlsca1 are Done.
 ######## 1. Get the name of the pod running rca:
 export POD_CLI0=$(kubectl get pods -n {{ .Release.Namespace }} -l "app=orgadmin,release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+preventEmptyValue "pod unavailable" $POD_POD_CLI0
 
 ######## 2. Create genesis.block / channel.tx / anchor.tx
 kubectl -n {{ $.Release.Namespace }} exec -it $POD_CLI0 -- configtxgen -configPath /var/hyperledger/cli/configtx -profile OrgsOrdererGenesis -outputBlock /var/hyperledger/crypto-config/genesis.block -channelID ordererchannel
-kubectl -n {{ $.Release.Namespace }} exec -it $POD_CLI0 -- configtxgen -configPath /var/hyperledger/cli/configtx -profile OrgsChannel -outputCreateChannelTx /var/hyperledger/crypto-config/channel.tx -channelID {{ .Values.bootstrap.channelName }}
-kubectl -n {{ $.Release.Namespace }} exec -it $POD_CLI0 -- configtxgen -configPath /var/hyperledger/cli/configtx -profile OrgsChannel -outputAnchorPeersUpdate /var/hyperledger/crypto-config/{{ .Values.bootstrap.anchorPeer }}Anchor.tx -channelID loanapp -asOrg {{ .Values.bootstrap.anchorPeer }}
+printMessage "create genesis block" $?
+
+kubectl -n {{ $.Release.Namespace }} exec -it $POD_CLI0 -- configtxgen -configPath /var/hyperledger/cli/configtx -profile OrgsChannel -outputCreateChannelTx /var/hyperledger/crypto-config/channel.tx -channelID {{ .Values.cli.channelName }}
+printMessage "create channel.tx" $?
 
 ######## 3. Create configmap: genesis.block
 kubectl -n {{ $.Release.Namespace }} exec $POD_CLI0 -- cat ../crypto-config/genesis.block > genesis.block
 kubectl -n {{ $.Release.Namespace }} create secret generic genesis --from-file=genesis=./genesis.block
+printMessage "create secret genesis" $?
 rm genesis.block
 
 ######## 4. Create configmap: channel.tx for org1, with namespace n1
 kubectl -n n0 exec $POD_CLI0 -- cat ../crypto-config/channel.tx > channel.tx
 kubectl -n n1 create secret generic channeltx --from-file=channel.tx=./channel.tx
+printMessage "create secret channeltx" $?
 rm channel.tx
-
-######## 5. Create configmap: {{ .Values.bootstrap.anchorPeer }}Anchors.tx
-kubectl -n n0 exec $POD_CLI0 -- cat ../crypto-config/{{ .Values.bootstrap.anchorPeer }}Anchor.tx > {{ .Values.bootstrap.anchorPeer }}Anchor.tx
-kubectl -n n1 create secret generic {{ lower .Values.bootstrap.anchorPeer }}-anchor.tx --from-file={{ .Values.bootstrap.anchorPeer }}Anchor.tx=./{{ .Values.bootstrap.anchorPeer }}Anchor.tx
-rm {{ .Values.bootstrap.anchorPeer }}Anchor.tx
 
 # == End ==
 {{- end }}

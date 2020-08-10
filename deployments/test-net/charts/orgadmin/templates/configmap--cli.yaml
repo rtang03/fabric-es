@@ -15,12 +15,8 @@ data:
   {{- if .Values.cli.peerAddress }}
   CORE_PEER_ADDRESS: {{ .Values.cli.peerAddress }}
   {{- end }}
-  {{- if .Values.cli.peerMspConfigPath }}
-  CORE_PEER_MSPCONFIGPATH: {{ .Values.cli.peerMspConfigPath }}
-  {{- end }}
-  {{- if .Values.cli.peerLocalMspId }}
-  CORE_PEER_LOCALMSPID: {{ .Values.cli.peerLocalMspId }}
-  {{- end }}
-  {{- if .Values.cli.peerTlsRootcertFile }}
+  CORE_PEER_MSPCONFIGPATH: "{{ .Values.cli.workingDir }}/{{ .Values.cli.mspId }}/admin/msp"
+  CORE_PEER_LOCALMSPID: {{ .Values.cli.mspId }}
+  {{- if not .Values.cli.bootstrap }}
   CORE_PEER_TLS_ROOTCERT_FILE: {{ .Values.cli.peerTlsRootcertFile }}
   {{- end }}

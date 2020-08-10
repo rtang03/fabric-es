@@ -101,11 +101,6 @@ spec:
           secret:
             secretName: {{ . }}
         {{- end }}
-        {{- if .Values.secrets.anchortx }}
-        - name: anchor-tx
-          secret:
-            secretName: {{ .Values.secrets.anchortx }}
-        {{- end }}
         {{- end }}
         {{- if .Values.secrets.adminCert }}
         - name: admin-cert
@@ -251,10 +246,6 @@ spec:
             - mountPath: {{ $.Values.peer.orgPath }}/{{ . }}
               name: {{ . }}
             {{- end }}
-            {{- end }}
-            {{- if .Values.secrets.anchortx }}
-            - mountPath:  {{ $.Values.peer.orgPath }}/{{ .Values.secrets.anchortx }}
-              name: anchor-tx
             {{- end }}
             {{- if .Values.secrets.adminCert }}
             - mountPath: {{ include "hlf-peer.home" . }}/admin_msp/admincerts

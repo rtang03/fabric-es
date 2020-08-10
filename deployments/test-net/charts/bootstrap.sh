@@ -26,7 +26,6 @@ sleep 60
 ./hlf-ca/post-install/create-secret.rca1.sh
 
 sleep 1
-
 helm install admin0 -f ./orgadmin/values.0.yaml -n n0 ./orgadmin
 
 sleep 2
@@ -34,7 +33,6 @@ sleep 2
 helm install tlsca0 -f ./hlf-ca/values-tlsca0.yaml -n n0 ./hlf-ca
 
 sleep 60
-
 ./hlf-ca/post-install/setup.tlsca0.sh
 
 sleep 1
@@ -51,7 +49,7 @@ sleep 5
 
 helm upgrade admin0 -f ./orgadmin/values.0.yaml -n n0 ./orgadmin
 
-sleep 2
+sleep 1
 
 helm upgrade admin1 -f ./orgadmin/values.1.yaml -n n1 ./orgadmin
 
@@ -59,19 +57,19 @@ sleep 60
 
 helm install o1 -f ./hlf-ord/values.1.yaml -n n0 ./hlf-ord
 
-sleep 3
+sleep 1
 
 helm install o2 -f ./hlf-ord/values.2.yaml -n n0 ./hlf-ord
 
-sleep 3
+sleep 1
 
 helm install o3 -f ./hlf-ord/values.3.yaml -n n0 ./hlf-ord
 
-sleep 3
+sleep 1
 
 helm install o4 -f ./hlf-ord/values.4.yaml -n n0 ./hlf-ord
 
-sleep 3
+sleep 1
 
 helm install o0 -f ./hlf-ord/values.0.yaml -n n0 ./hlf-ord
 
@@ -80,7 +78,5 @@ sleep 60
 helm install p0o1db -n n1 ./hlf-couchdb
 
 sleep 60
-
-# helm upgrade admin1 -f ./orgadmin/values.1.yaml -n n1 ./orgadmin
 
 # helm install p0o1 -n n1 ./hlf-peer

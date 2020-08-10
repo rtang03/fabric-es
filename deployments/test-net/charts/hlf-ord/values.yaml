@@ -4,7 +4,7 @@
 
 image:
   repository: hyperledger/fabric-orderer
-  tag: 2.1.0
+  tag: 2.2.0
   pullPolicy: IfNotPresent
 
 service:
@@ -57,10 +57,8 @@ ord:
   ordName: orderer0
   ordDomain: org0.com
   debug: INFO
-  # fabricLogging: "grpc=debug:debug"
+#  fabricLogging: "grpc=debug:debug"
   fabricLogging: "INFO"
-#  type: raft
-  ## MSP ID of the Orderer
   mspID: Org0MSP
   # TLS
   tls:
