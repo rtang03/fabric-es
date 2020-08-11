@@ -4,6 +4,7 @@ import http from 'http';
 import https from 'https';
 import util from 'util';
 import express from 'express';
+import formidable from 'formidable';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import RedisClient, { Redis } from 'ioredis';
 import { isEmpty, isString } from 'lodash';
@@ -128,6 +129,23 @@ export const relayService = ({
     agentCfg  = http.globalAgent;
   }
 
+  const wait4res = (req, res, type, body, file?) => {
+    logger.info('Body: ' + body);
+    res.locals.reqres = {
+      id: crypto.randomBytes(16).toString('hex'),
+      startTime: Date.now(),
+      duration: undefined,
+      method: req.method,
+      url: querystring.parseUrl(req.url),
+      contentType: type,
+      reqBody: body,
+      attachmentInfo: (file) ? JSON.stringify(file) : undefined,
+      resBody: undefined,
+      statusCode: undefined,
+      statusMessage: undefined
+    };
+  };
+
   const apiProxy = createProxyMiddleware({
     target: targetUrl,
     changeOrigin: true,
@@ -136,39 +154,53 @@ export const relayService = ({
     onProxyReq: (_, req, res) => {
       logger.info('Header: ' + JSON.stringify(req.headers));
 
-      const data = [];
-      req.on('data', (chunk) => {
-        data.push(chunk);
-      });
-      req.on('end', () => {
-        const body = Buffer.concat(data).toString();
-        // let body;
-        // try {
-        //   body = JSON.stringify(JSON.parse(raw));
-        // } catch (error) {
-        //   body = raw;
-        // }
-        logger.info('Body: ' + body);
-
-        let type = req.headers['content-type'];
-        if (type) {
-          const tmp = type.split('; ');
-          if (tmp && (tmp.length > 0)) type = tmp[0];
-        }
-
-        res.locals.reqres = {
-          id: crypto.randomBytes(16).toString('hex'),
-          startTime: Date.now(),
-          duration: undefined,
-          method: req.method,
-          url: querystring.parseUrl(req.url),
-          contentType: type,
-          reqBody: body,
-          resBody: undefined,
-          statusCode: undefined,
-          statusMessage: undefined
+      const type = (req.headers['content-type'] || 'text/plain').split(';')[0];
+      let body;
+      if (type === 'multipart/form-data') {
+        const form = formidable({ multiples: true });
+        let fileInfo;
+        form.onPart = (part) => {
+          if (part.filename && (part.filename !== '') && part.mime) {
+            fileInfo = { name: part.filename, type: part.mime };
+          } else {
+            form.handlePart(part);
+          }
         };
-      });
+        form.parse(req, (err, fields, files) => {
+          if (files.files) {
+            console.log('!!!!!!!!!!!!!!!???????????? FILES???');
+          } else {
+            console.log('!!!!!!!!!!!!!!! NO FILE');
+          }
+          if (err) {
+            logger.error('Error parsing multipart data ' + err);
+          } else if (fields && fields['jsonObj']) {
+            try {
+              body = JSON.stringify(JSON.parse(fields['jsonObj']));
+            } catch (error) {
+              body = fields['jsonObj'];
+            }
+            wait4res(req, res, 'application/json', body, fileInfo);
+          }
+        });
+      } else {
+        const data = [];
+        req.on('data', (chunk) => {
+          data.push(chunk);
+        });
+        req.on('end', () => {
+          const raw = Buffer.concat(data).toString();
+          if (type === 'application/json') {
+            try {
+              body = JSON.stringify(JSON.parse(raw));
+            } catch (error) {
+              body = raw;
+            }
+          } else
+            body = raw;
+          wait4res(req, res, type, body);
+        });
+      }
     },
     onProxyRes: (proxyRes, _, res) => {
       const data = [];

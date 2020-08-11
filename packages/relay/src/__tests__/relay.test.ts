@@ -13,6 +13,7 @@ const msg: ReqRes = {
   url: { url: '/test-url', query: { k1: 'v1', k2: 'v2' } },
   contentType: 'application/json',
   reqBody: { key1: 'abc', key2: '123' }, resBody: '',
+  attachmentInfo: '',
   statusCode: 3,
   statusMessage: 'myMsg'
 };
@@ -192,6 +193,7 @@ describe('Pub / Sub', () => {
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
         contentType: 'application/json',
         reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
+        attachmentInfo: '',
         statusCode: 3, statusMessage: `myMsg ${idx}`
       };
     });
@@ -222,6 +224,7 @@ describe('Pub / Sub', () => {
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
         contentType: 'application/json',
         reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
+        attachmentInfo: '',
         statusCode: 3, statusMessage: `myMsg ${idx}`
       };
     });
@@ -259,6 +262,7 @@ describe('Pub / Sub', () => {
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
         contentType: 'application/json',
         reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
+        attachmentInfo: '',
         statusCode: 3, statusMessage: `myMsg ${idx}`
       };
     });

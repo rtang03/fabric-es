@@ -31,6 +31,7 @@ beforeAll(async () => {
       url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
       contentType: 'application/json',
       reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
+      attachmentInfo: '',
       statusCode: 3, statusMessage: `myMsg ${idx}`
     };
   });
@@ -78,6 +79,7 @@ describe('Sniffer Service', () => {
       url: { url: `/test-url999`, query: { k: `k999`, v: `v999` } },
       contentType: 'application/json',
       reqBody: { txt: `abc999`, num: `123999` }, resBody: '',
+      attachmentInfo: '',
       statusCode: 3, statusMessage: `myMsg 999`
     };
     const result = await processMessage({ message: mssg, client: publisher, topic });
@@ -106,6 +108,7 @@ describe('Sniffer Service', () => {
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
         contentType: 'application/json',
         reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
+        attachmentInfo: '',
         statusCode: 3, statusMessage: `myMsg ${idx}`
       };
     });

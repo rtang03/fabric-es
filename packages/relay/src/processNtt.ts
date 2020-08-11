@@ -30,7 +30,7 @@ export const processEntity = (channel: string, message: ReqRes, messageStr?: str
         } else if (!isJsonPayload) {
           console.log(`Received message on '${message.url.url}' with non-JSON payload (${message.contentType}): '${JSON.stringify(message)}'`); // TODO TEMP!!!
         } else {
-          console.log(`Processing '${message.reqBody}'...`); // TODO TEMP!!!
+          console.log(`Processing '${message.reqBody}' with ${message.attachmentInfo ? message.attachmentInfo : 'No attachment'}`); // TODO TEMP!!!
         }
         break;
 
