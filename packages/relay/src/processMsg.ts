@@ -25,7 +25,7 @@ else
 end
 `;
 
-export const processMsg = ({
+export const processMessage = ({
   message,
   client,
   topic,

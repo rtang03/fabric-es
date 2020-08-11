@@ -1,7 +1,7 @@
 import RedisClient, { Redis } from 'ioredis';
 import mockyeah from 'mockyeah';
 import request from 'supertest';
-import { processMsg } from '../processMsg';
+import { processMessage } from '../processMsg';
 import { relayService } from '../relayService';
 import { ReqRes } from '../reqres';
 
@@ -11,6 +11,7 @@ const msg: ReqRes = {
   duration: 2,
   method: 'patch',
   url: { url: '/test-url', query: { k1: 'v1', k2: 'v2' } },
+  contentType: 'application/json',
   reqBody: { key1: 'abc', key2: '123' }, resBody: '',
   statusCode: 3,
   statusMessage: 'myMsg'
@@ -62,19 +63,19 @@ afterEach( () => {
 
 describe('Process Message', () => {
   it('should reject undefined or null message', () => {
-    expect(processMsg({ message: undefined, client: publisher, topic: 'rejection' })).rejects.toThrow();
+    expect(processMessage({ message: undefined, client: publisher, topic: 'rejection' })).rejects.toThrow();
   });
 
   it('should reject undefined or null client', () => {
-    expect(processMsg({ message: msg, client: null, topic: 'rejection' })).rejects.toThrow();
+    expect(processMessage({ message: msg, client: null, topic: 'rejection' })).rejects.toThrow();
   });
 
   it('should reject empty string topic', () => {
-    expect(processMsg({ message: msg, client: publisher, topic: '' })).rejects.toThrow();
+    expect(processMessage({ message: msg, client: publisher, topic: '' })).rejects.toThrow();
   });
 
   it('should publish with no subscriber', async () => {
-    await processMsg({ message: msg, client: publisher, topic: '0 subscriber' })
+    await processMessage({ message: msg, client: publisher, topic: '0 subscriber' })
       .then((numOfSub) => {
         expect(numOfSub).toEqual(0);
       });
@@ -85,7 +86,7 @@ describe('Process Message', () => {
     subscriber1.subscribe(topic);
     subscriber2.subscribe(topic);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    await processMsg({ message: msg, client: publisher, topic })
+    await processMessage({ message: msg, client: publisher, topic })
       .then((numOfSub) => {
         expect(numOfSub).toEqual(2);
       });
@@ -99,7 +100,7 @@ describe('Process Message', () => {
       expect(subObj).toEqual(msg);
     });
     subscriber1.subscribe(topic);
-    await processMsg({ message: msg, client: publisher, topic });
+    await processMessage({ message: msg, client: publisher, topic });
   });
 });
 
@@ -189,6 +190,7 @@ describe('Pub / Sub', () => {
       return {
         id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
+        contentType: 'application/json',
         reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
         statusCode: 3, statusMessage: `myMsg ${idx}`
       };
@@ -202,7 +204,7 @@ describe('Pub / Sub', () => {
 
     for (const mssg of sources) {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      await processMsg({ message: mssg, client: publisher, topic, ttl: 3000 });
+      await processMessage({ message: mssg, client: publisher, topic, ttl: 3000 });
     }
 
     const pubs = (await publisher.zrangebyscore(topic, '-inf', '+inf')).map(str => JSON.parse(str));
@@ -218,6 +220,7 @@ describe('Pub / Sub', () => {
       return {
         id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
+        contentType: 'application/json',
         reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
         statusCode: 3, statusMessage: `myMsg ${idx}`
       };
@@ -237,7 +240,7 @@ describe('Pub / Sub', () => {
 
     for (const mssg of sources) {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      await processMsg({ message: mssg, client: publisher, topic });
+      await processMessage({ message: mssg, client: publisher, topic });
     }
 
     const pubs = (await publisher.zrangebyscore(topic, stamp, '+inf')).map(str => JSON.parse(str));
@@ -254,6 +257,7 @@ describe('Pub / Sub', () => {
       return {
         id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
+        contentType: 'application/json',
         reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
         statusCode: 3, statusMessage: `myMsg ${idx}`
       };
@@ -273,7 +277,7 @@ describe('Pub / Sub', () => {
 
     for (const mssg of sources) {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      await processMsg({ message: mssg, client: publisher, topic });
+      await processMessage({ message: mssg, client: publisher, topic });
     }
 
     for (let idx = 0; idx < sources.length; idx ++) {

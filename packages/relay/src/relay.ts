@@ -16,7 +16,6 @@ const logger = getLogger('[relay] relay.js');
   const myArgs = process.argv.slice(2);
   const httpsArg = myArgs[0];
 
-
   const { relay, shutdown } = await createRelayService({
     targetUrl, redisHost, redisPort, topic, httpsArg
   });
@@ -36,7 +35,7 @@ const logger = getLogger('[relay] relay.js');
   });
 
   relay.listen(SERVICE_PORT, () => {
-    logger.info(`🚀 relay ready`);
+    logger.info(`🚀 relay ready at ${SERVICE_PORT}`);
     if (process.env.NODE_ENV === 'production') process.send('ready');
   });
 })().catch(error => {

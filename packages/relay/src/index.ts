@@ -1,6 +1,8 @@
 
 /**
- * >>> /order/po | POST (create); PUT (update) <<<
+ * /user/inquiry?sellerId=
+ * 
+ * >>> /order/po | POST (create); PUT (update); with file??? <<<
  * poList: [
  *  poBaseinfo: {
  *   poId
@@ -9,8 +11,9 @@
  *   poDate
  *   buyerName ??
  *   buyerBankName ??
+ *   buyerAttention?
  *   sellerName ??
- *   attention?
+ *   sellerAttention?
  *   latestDeliveryDate
  *   incotermsCode
  *   incotermsLocation
@@ -39,7 +42,7 @@
  *  reason?
  * ]
  * 
- * >>> /api/v1/po/process | POST <<<
+ * >>> /etccorp/pboc/api/v1/po/process | POST <<<
  * [
  *  poId
  *  versionNo
@@ -48,7 +51,7 @@
  *  comment?
  * ]
  * 
- * >>> /api/v1/invoices | POST (create); PUT (update) <<<
+ * >>> /etccorp/pboc/api/v1/invoices | POST (create); PUT (update); with file??? <<<
  * [
  *  invBaseInfo: {
  *   invoiceId
@@ -92,7 +95,7 @@
  *  ]
  * ]
  * 
- * >>> /api/v1/invoices/notify | POST <<<
+ * >>> /etccorp/pboc/api/v1/invoices/notify | POST; with file??? <<<
  * [
  *  financeNo
  *  poId
@@ -111,7 +114,7 @@
  *  comment?
  * ]
  * 
- * >>> [renew payment status notification] | POST <<<
+ * >>> /trade-financing/invresult | POST <<<
  * [
  *  invoiceId
  *  paymentAmount ??
@@ -123,3 +126,57 @@
  *  receipDate?
  * ]
 */
+
+`
+[
+  {
+      "poBaseInfo": {
+          "poId": "P12345001",
+          "poNo": "PO001",
+          "versionNo": 1,
+          "poDate": "2020-08-07",
+          "buyerId": "B12345001",
+          "buyerName": "Buyer 001",
+          "buyerAddress": "Address B001",
+          "sellerId": "S12345001",
+          "sellerName": "Seller 001",
+          "sellerAddress": "Address S001",
+          "sellerBrCode": "BR001",
+          "latestDeliveryDate": "2021-08-07",
+          "incotermsCode": "COD",
+          "incotermsLocation": "HK",
+          "shipFromAddress": "Address F001",
+          "shipToAddress": "Address T001",
+          "shipVia": "By Sea",
+          "goodsDescription": "Some stuffs",
+          "currency": "HKD",
+          "settlementCurrency": "RMB",
+          "settlementAmount": 50000
+      },
+      "orderList": [
+          {
+              "sequenceNo": 1,
+              "orderNo": "PO00101",
+              "orderDate": "2020-08-07",
+              "itemDescription": "Stuff A",
+              "unitPrice": 3000,
+              "quantity": 10,
+              "unit": "Piece",
+              "subtotalAmount": 30000,
+              "partialShipment": "N"
+          },
+          {
+              "sequenceNo": 2,
+              "orderNo": "PO00102",
+              "orderDate": "2020-08-07",
+              "itemDescription": "Stuff B",
+              "unitPrice": 2000,
+              "quantity": 10,
+              "unit": "Piece",
+              "subtotalAmount": 20000,
+              "partialShipment": "N"
+          }
+      ]
+  }
+]
+`;

@@ -1,5 +1,5 @@
 import RedisClient, { Redis } from 'ioredis';
-import { processMsg } from '../processMsg';
+import { processMessage } from '../processMsg';
 import { ReqRes } from '../reqres';
 import { createSubscription } from '../snifferSubscription';
 
@@ -29,12 +29,13 @@ beforeAll(async () => {
     return {
       id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
       url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
+      contentType: 'application/json',
       reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
       statusCode: 3, statusMessage: `myMsg ${idx}`
     };
   });
   for (const mssg of sources) {
-    await processMsg({ message: mssg, client: publisher, topic });
+    await processMessage({ message: mssg, client: publisher, topic });
   }
 
   const id1 = await publisher.xadd(topic, '*', 'msg', 'This is an existing unsupported message format!!!');
@@ -75,10 +76,11 @@ describe('Sniffer Service', () => {
     const mssg: ReqRes = {
       id: `id999`, startTime: Date.now(), duration: 5, method: 'patch',
       url: { url: `/test-url999`, query: { k: `k999`, v: `v999` } },
+      contentType: 'application/json',
       reqBody: { txt: `abc999`, num: `123999` }, resBody: '',
       statusCode: 3, statusMessage: `myMsg 999`
     };
-    const result = await processMsg({ message: mssg, client: publisher, topic });
+    const result = await processMessage({ message: mssg, client: publisher, topic });
     expect(result).toBeGreaterThanOrEqual(0);
     await new Promise((resolve) => setTimeout(() => resolve(), 150));
 
@@ -102,12 +104,13 @@ describe('Sniffer Service', () => {
       return {
         id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
+        contentType: 'application/json',
         reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
         statusCode: 3, statusMessage: `myMsg ${idx}`
       };
     });
     for (const mssg of sources) {
-      await processMsg({ message: mssg, client: publisher, topic });
+      await processMessage({ message: mssg, client: publisher, topic });
     }
     await new Promise((resolve) => setTimeout(() => resolve(), 150));
     expect(subscribe.length).toEqual(125);

@@ -1,9 +1,12 @@
+import querystring from 'query-string';
+
 export interface ReqRes {
   id: string;
   startTime: number;
   duration: number;
   method: string;
-  url: any;
+  url: querystring.ParsedUrl;
+  contentType: string;
   reqBody: any;
   resBody: any;
   statusCode: number;

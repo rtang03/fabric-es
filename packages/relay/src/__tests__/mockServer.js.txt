@@ -1,0 +1,113 @@
+/*
+* to run this mock server, need the following in package.json:
+  {
+    "name": "mock",
+    "version": "1.0.0",
+    "description": "Mock Server",
+    "main": "server.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "cors": "^2.8.5",
+      "express": "^4.16.3",
+      "formidable": "^1.2.2",
+      "stoppable": "^1.1.0"
+    }
+  }
+
+* and run 'node server.js'
+*/
+
+const fs = require('fs');
+const http = require('https');
+const cors = require('cors');
+const express = require('express');
+const stoppable = require('stoppable');
+const formidable = require('formidable');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.static('html', { index: false }));
+
+app.post('/order/po', (req, res) => {
+  if (req.headers['content-type'] === 'application/json') {
+    console.log('JSON', JSON.stringify(req.body, null, ' '));
+    console.log('JSON', new Date(), 'Create New PO!!!');
+    res.sendStatus(200);
+  } else if (req.headers['content-type'].startsWith('multipart/form-data')) {
+    const form = formidable({ multiples: true, uploadDir: 'uploads', keepExtensions: true });
+    form.onPart = (part) => {
+      if (part.filename === '' || !part.mime) form.handlePart(part);
+    }
+    form.parse(req, (err, fields, files) => {
+      if (err) {
+        console.log('some error', err);
+      }
+
+      if (!files.files) {
+        console.log('no file received');
+      } else {
+        const file = files.files;
+        console.log('FILE saved file to', file.path);
+        console.log('FILE original name', file.name);
+        console.log('FILE type', file.type);
+        console.log('FILE size', file.size);
+      }
+
+      if (fields) {
+        console.log('FILE', fields);
+      }
+    });
+
+    console.log('FILE', new Date(), 'Create New PO!!!');
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(500);
+  }
+});
+
+const server = stoppable(http.createServer(
+  {
+    key: fs.readFileSync('/Users/paul/cert/OV/wildcard_etradeconnect.key'),
+    cert: fs.readFileSync('/Users/paul/cert/OV/star_etradeconnect_net.cer')
+  },
+  app));
+
+const shutdown = async () => {
+  server.stop(err => {
+    if (err) {
+      console.log('An error occurred while closing the mock server', err);
+      process.exitCode = 1;
+    } else
+    console.log('mock service stopped');
+    process.exit();
+  });
+};
+
+(async () => {
+  console.log('♨️♨️  Starting mock server...');
+
+  process.on('SIGINT', async () => {
+    shutdown();
+  });
+
+  process.on('SIGTERM', async () => {
+    shutdown();
+  });
+
+  process.on('uncaughtException', err => {
+    console.log('An uncaught error occurred!');
+    console.log(err.stack);
+  });
+
+  server.listen(4322, () => {
+    console.log(`🚀 mock server ready at 4322`);
+  });
+})().catch(error => {
+  console.error(error);
+  process.exit(1);
+});

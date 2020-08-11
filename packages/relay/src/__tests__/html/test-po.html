@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <title>PBOC-ETC Test - Create PO</title>
+    <script type="text/javascript">
+function init() {
+  let form = document.getElementById("sform");
+
+  const handler = (url) => {
+    return async () => {
+      const text = document.getElementById("sjson").value;
+      const file = document.getElementById("sfile"); // document.querySelector('input[type="file"]'); 
+      const formData = new FormData();
+      formData.append('files', file.files[0]);
+      formData.append('jsonObj', text);
+
+      const result = await fetch(
+        url,
+        {
+          method: 'POST',
+          body: formData
+        });
+      document.getElementById("rslt").innerText = 'Submitted';
+      console.log(result);
+    }
+  };
+
+  document.getElementById("sbutton").addEventListener("click", handler('https://localhost:2500/order/po'));
+  document.getElementById("tbutton").addEventListener("click", handler('https://localhost:4322/order/po'));
+}
+    </script>
+  </head>
+  <body onload="init()">
+    <h3>PBOC-ETC Test - Create PO</h3>
+    <div>
+      <form id="sform" action="#">
+        <input id="sfile" type=file />
+        <br/>
+        <textarea id="sjson" style="width:300px;height:150px;">
+{
+  "poId": "P12345002",
+  "poNo": "PO002",
+  "versionNo": 1
+}
+        </textarea>
+        <br/>
+        <button id="sbutton">Relay</button>
+        <button id="tbutton">Direct</button>
+      </form>
+    </div>
+    <div id="rslt">&nbsp;</div>
+  </body>
+</html>

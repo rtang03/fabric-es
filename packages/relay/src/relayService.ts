@@ -6,15 +6,12 @@ import util from 'util';
 import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import RedisClient, { Redis } from 'ioredis';
-import JSON5 from 'json5';
 import { isEmpty, isString } from 'lodash';
 import querystring from 'query-string';
 import stoppable, { StoppableServer } from 'stoppable';
 import { getLogger } from './getLogger';
-import { processMsg } from './processMsg';
+import { processMessage } from './processMsg';
 import { ReqRes } from './reqres';
-
-
 
 const logger = getLogger('[relay] relayService.js');
 
@@ -55,7 +52,7 @@ export const createRelayService: (option: {
   client.on('error', (err) => {
     logger.error(`Redis Error: ${err}`);
   });
-  
+
   client.on('connect', () => {
     logger.info('Redis client connected.');
   });
@@ -67,9 +64,6 @@ export const createRelayService: (option: {
   });
 
   let stoppableServer;
-  // logger.info(util.format('b4: %j', httpsArg));
-  // logger.info("b4:" + httpsArg);
-  
   if (isString(httpsArg) && httpsArg === 'https') {
     /* HTTPS */
     const options = {
@@ -77,7 +71,7 @@ export const createRelayService: (option: {
       cert: fs.readFileSync(process.env.SERVER_CERT),
     };
     logger.info('https');
-    stoppableServer = stoppable(https.createServer(options,server));
+    stoppableServer = stoppable(https.createServer(options, server));
     return {
       relay: stoppableServer,
       shutdown: () => {
@@ -92,11 +86,9 @@ export const createRelayService: (option: {
         });
       }
     };
-     
   } else {
     /* HTTP */    
     logger.info('http');
-
     stoppableServer = stoppable(http.createServer(server));
     return {
       relay: stoppableServer,
@@ -124,7 +116,6 @@ export const relayService = ({
   client: Redis;
   topic: string;
 }) => {
-
   if (isEmpty(targetUrl)) throw new Error('Missing target URL.');
   if (isEmpty(client)) throw new Error('Missing client');
   if (isEmpty(topic)) throw new Error('Missing topic.');
@@ -139,52 +130,45 @@ export const relayService = ({
 
   const apiProxy = createProxyMiddleware({
     target: targetUrl,
-    //forward: targetUrl,
     changeOrigin: true,
     agent  : agentCfg,
     secure : secureCfg,
-    onProxyReq: (proxyReq, req, res) => {
-      logger.info("Header: " + JSON.stringify(req.headers));
-  
-      const reqres: ReqRes = {
-        id: crypto.randomBytes(16).toString('hex'),
-        startTime: Date.now(),
-        duration: undefined,
-        method: req.method,
-        url: querystring.parseUrl(req.url),
-        reqBody: undefined,
-        resBody: undefined,
-        statusCode: undefined,
-        statusMessage: undefined
-      };
+    onProxyReq: (_, req, res) => {
+      logger.info('Header: ' + JSON.stringify(req.headers));
 
-      
-      const raw = util.inspect(req.body, false, null);
+      const data = [];
+      req.on('data', (chunk) => {
+        data.push(chunk);
+      });
+      req.on('end', () => {
+        const body = Buffer.concat(data).toString();
+        // let body;
+        // try {
+        //   body = JSON.stringify(JSON.parse(raw));
+        // } catch (error) {
+        //   body = raw;
+        // }
+        logger.info('Body: ' + body);
 
-      logger.info('Raw:' + raw);
-     
-
-      if (req.is('json')) {
-        try {
-          // Use JSON5 to parse relaxed Json
-          reqres.reqBody = JSON5.parse(raw);
-        } catch (error) {
-          logger.error('ERROR' + error);
-          // Request body cannot be parsed, return as a string
-          reqres.reqBody = raw;
+        let type = req.headers['content-type'];
+        if (type) {
+          const tmp = type.split('; ');
+          if (tmp && (tmp.length > 0)) type = tmp[0];
         }
-      } else {
-        reqres.reqBody = raw;
-      }
 
-      res.locals.reqres = reqres;
-
-      // If the request data has been parsed by express, it should be rewritten in the request proxy explicitly. 
-      if ((req.body) && (req.is('json'))) {
-        const bodyData = JSON.stringify(req.body);
-        //logger.info("Inside:" + bodyData);
-        proxyReq.write(bodyData);
-      }
+        res.locals.reqres = {
+          id: crypto.randomBytes(16).toString('hex'),
+          startTime: Date.now(),
+          duration: undefined,
+          method: req.method,
+          url: querystring.parseUrl(req.url),
+          contentType: type,
+          reqBody: body,
+          resBody: undefined,
+          statusCode: undefined,
+          statusMessage: undefined
+        };
+      });
     },
     onProxyRes: (proxyRes, _, res) => {
       const data = [];
@@ -200,8 +184,8 @@ export const relayService = ({
         message.duration = Date.now() - message.startTime;
         message.resBody = body;
 
-        await processMsg({ message, client, topic }).then((_) => {
-          //logger.info(`Message processed: ${JSON.stringify(message)}`);
+        await processMessage({ message, client, topic }).then((result) => {
+          logger.info(`Message processed with response ${result}`);
         }).catch((error) => {
           logger.error(`Error while processing [${message.id}]: ${error} - '${JSON.stringify(message)}'`);
         });
@@ -221,18 +205,6 @@ export const relayService = ({
   });
 
   const relayApp = express();  
-  
-  // Parse the data only for "Content-Type: application/json"
-  relayApp.use(express.json());  
-  /*
-  relayApp.use(express.urlencoded({ extended: true }));
-  relayApp.use(express.text());  
-  relayApp.use(express.raw({type:'multipart/form-data'}));
-  */
-  
-
-
   relayApp.use('', apiProxy);
-
   return relayApp;
 };
