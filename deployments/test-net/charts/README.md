@@ -181,7 +181,7 @@ kubectl -n n1 logs -f $POD_PEER
 
 export POD_CLI1=$(kubectl get pods --namespace n1 -l "app=orgadmin,release=admin1" -o jsonpath="{.items[0].metadata.name}")
 
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/channeltx/channel.tx \
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/channeltx/channel.tx \
  -o o0-hlf-ord.n0.svc.cluster.local:7050 \
  --outputBlock /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block --tls \
  --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
@@ -192,7 +192,7 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel create -c loanapp -f /va
 ```shell script
 # terminal cli1
 # join channel
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel join -b /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block"
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel join -b /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block"
 
 # query channel info
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel getinfo -c loanapp"
@@ -201,27 +201,121 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel getinfo -c loanapp"
 ### Step 13: terminal cli: Update anchor peer
 ```shell script
 
-peer channel fetch config ../config_block.pb \
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel fetch config ./channel-artifacts/config_block.pb \
 -o o0-hlf-ord.n0.svc.cluster.local:7050 \
 --ordererTLSHostnameOverride o0-hlf-ord \
--c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem
+-c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem"
 
-configtxlator proto_decode --input ../config_block.pb --type common.Block --output ../config_block.json
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_decode --input ./channel-artifacts/config_block.pb --type common.Block --output ./channel-artifacts/config_block.json"
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "jq .data.data[0].payload.data.config ./channel-artifacts/config_block.json > ./channel-artifacts/config.json"
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "cp ./channel-artifacts/config.json ./channel-artifacts/config_copy.json"
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "jq '.channel_group.groups.Application.groups.Org1MSP.values += {\"AnchorPeers\":{\"mod_policy\":\"Admins\",\"value\":{\"anchor_peers\":[{\"host\":\"p0o1-hlf-peer\",\"port\":7051}]},\"version\":\"0\"}}' ./channel-artifacts/config_copy.json > ./channel-artifacts/modified_config.json"
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_encode --input ./channel-artifacts/config.json --type common.Config --output ./channel-artifacts/config.pb"
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_encode --input ./channel-artifacts/modified_config.json --type common.Config --output ./channel-artifacts/modified_config.pb"
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator compute_update --channel_id loanapp --original ./channel-artifacts/config.pb --updated ./channel-artifacts/modified_config.pb --output ./channel-artifacts/config_update.pb"
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_decode --input ./channel-artifacts/config_update.pb --type common.ConfigUpdate --output ./channel-artifacts/config_update.json"
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "echo '{\"payload\":{\"header\":{\"channel_header\":{\"channel_id\":\"loanapp\", \"type\":2}},\"data\":{\"config_update\":'\$(cat ./channel-artifacts/config_update.json)'}}}' | jq . > ./channel-artifacts/config_update_in_envelope.json"
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_encode --input ./channel-artifacts/config_update_in_envelope.json --type common.Envelope --output ./channel-artifacts/config_update_in_envelope.pb"
 
-jq .data.data[0].payload.data.config ../config_block.json > ../config.json
-
-
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel update -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/anchortx/Org1MSPAnchor.tx \
-  -o o0-hlf-ord.n0.svc.cluster.local:7050 \
-  --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
-  --ordererTLSHostnameOverride o0-hlf-ord"
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel update -f ./channel-artifacts/config_update_in_envelope.pb \
+-o o0-hlf-ord.n0.svc.cluster.local:7050 \
+--ordererTLSHostnameOverride o0-hlf-ord \
+-c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem"
+```
+     
+### Step 14: Package chaincode
+**Build chaincode**  
+```shell script
+# in terminal cli, at directory ./deployments/test-net/charts/
+pushd .
+cd ../../../packages/chaincode 
+yarn build
+printMessage "Build chaincode" $?
+popd
+rm -r ./chaincode
+mkdir -p ./chaincode
+cp ../../../packages/chaincode/package.json ./chaincode
+cp -R ../../../packages/chaincode/dist ./chaincode
 ```
 
+**Package chaincode**  
+```shell script
+kubectl -n n1 cp chaincode $POD_CLI1:channel-artifacts
 
-cli peer channel update -c loanapp -f /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/assets/${NAME}Anchors.tx \
-      -o ${ORDERER_PEER}-${ORDERER_CODE}:${ORDERER_PORT} \
-      --tls --cafile /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
-      
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode package ./channel-artifacts/eventstore.tar.gz --path /var/hyperledger/crypto-config/channel-artifacts/chaincode --lang node --label eventstorev1"
+```
+
+**Install chaincode**
+```shell script
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode install ./channel-artifacts/eventstore.tar.gz"
+```
+  
+**Query installed chaincode**
+```shell script
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode queryinstalled >& channel-artifacts/installedcc.txt"
+
+export PACKAGE_ID=$(kubectl -n n1 exec -it $POD_CLI1 -- sh -c "sed -n \"/eventstorev1/{s/^Package ID: //; s/, Label:.*$//; p;}\" channel-artifacts/installedcc.txt")
+```
+
+**Approve chaincode**  
+```shell script
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode approveformyorg \
+-o o0-hlf-ord.n0.svc.cluster.local:7050 \
+--ordererTLSHostnameOverride o0-hlf-ord \
+-C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+--name eventstore \
+--version 1.0 \
+--package-id ${PACKAGE_ID} \
+--init-required \
+--sequence 1 \
+--waitForEvent \
+--signature-policy \"AND('Org1MSP.member')\" >& channel-artifacts/approvecc.txt"
+```
+
+**Checkcommitreadiness**  
+```shell script
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode checkcommitreadiness \
+-o o0-hlf-ord.n0.svc.cluster.local:7050 \
+--ordererTLSHostnameOverride o0-hlf-ord \
+-C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+--name eventstore \
+--version 1.0 \
+--init-required \
+--sequence 1 \
+--signature-policy \"AND('Org1MSP.member')\" >& channel-artifacts/checkcommitreadiness.txt"
+```
+
+**Commit chaincode**
+```shell script
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode commit \
+-o o0-hlf-ord.n0.svc.cluster.local:7050 \
+--ordererTLSHostnameOverride o0-hlf-ord \
+-C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+--name eventstore \
+--version 1.0 \
+--init-required \
+--sequence 1 \
+--waitForEvent \
+--peerAddresses p0o1-hlf-peer:7051 \
+--tlsRootCertFiles /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem \
+--signature-policy \"AND('Org1MSP.member')\" >& channel-artifacts/commitcc.txt"
+
+#query committed
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer lifecycle chaincode querycommitted -C loanapp"
+```
+**Commit chaincode**
+```shell script
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer chaincode invoke --isInit \
+-o o0-hlf-ord.n0.svc.cluster.local:7050 \
+--ordererTLSHostnameOverride o0-hlf-ord \
+-C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+--name eventstore \
+-c '{\"Args\":[\"Init\"]}' \
+--peerAddresses p0o1-hlf-peer:7051 \
+--tlsRootCertFiles /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem \
+--waitForEvent "
+```
+
 ### Other useful commands
 ```shell script
 # search public helm repository
@@ -257,5 +351,10 @@ https://github.com/helm/charts/tree/master/stable/hlf-ca
 https://github.com/bitnami/charts/tree/master/bitnami/postgresql#parameters
 https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
 https://medium.com/google-cloud/helm-chart-for-fabric-for-kubernetes-80408b9a3fb6
+https://kubectl.docs.kubernetes.io/
+https://github.com/hyperledger/fabric-samples/blob/master/test-network/scripts/deployCC.sh
 
 k0 exec -it admin0-orgadmin-cli-846645c4dc-nlzdf -- cat /etc/resolv.conf
+
+2020-08-10 05:43:33.376 UTC [common.deliver] Handle -> WARN 896 Error reading from 10.1.0.237:59442: rpc error: code = Canceled desc = context canceled
+2020-08-10 05:43:33.376 UTC [orderer.common.server] func1 -> DEBU 897 Closing Deliver stream

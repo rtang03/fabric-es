@@ -6,6 +6,9 @@ metadata:
 {{ include "labels.standard" . | indent 4 }}
 spec:
   type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 
   selector:
-    app: {{ include "orgadmin.name" . }}
+    app: {{ include "orgadmin.name" . }}--cli
     release: {{ .Release.Name }}

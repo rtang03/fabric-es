@@ -57,8 +57,9 @@ ord:
   ordName: orderer0
   ordDomain: org0.com
   debug: INFO
-#  fabricLogging: "grpc=debug:debug"
-  fabricLogging: "INFO"
+  # https://hyperledger-fabric.readthedocs.io/en/release-2.0/logging-control.html
+  # "info" or "debug" or "grpc=debug:debug" or "grpc=debug:info"
+  fabricLogging: "info"
   mspID: Org0MSP
   # TLS
   tls:

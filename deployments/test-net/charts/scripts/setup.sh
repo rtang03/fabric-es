@@ -4,6 +4,9 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
+export ROOT_DIR=`pwd`/../../..
+export CHAINCODE=$ROOT_DIR/packages/chaincode
+
 # $1 - message to be printed
 # $2 - exit code of the previous operation
 printMessage() {
