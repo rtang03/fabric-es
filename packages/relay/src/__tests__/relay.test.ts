@@ -36,7 +36,7 @@ beforeAll(async () => {
   publisher = new RedisClient({ host, port });
   subscriber1 = new RedisClient({ host, port });
   subscriber2 = new RedisClient({ host, port });
-  relay = relayService({ targetUrl, client: publisher, topic: relayChannel });
+  relay = relayService({ targetUrl, client: publisher, topic: relayChannel, isHttps: false });
 
   subscriber1.on('message', (channel, message) => {
     console.log(`subscriber1 listening ${channel}: ${message}`);
@@ -107,17 +107,17 @@ describe('Process Message', () => {
 
 describe('Relay Service', () => {
   it('should reject undefined or null url', () => {
-    const f = () => { relayService({targetUrl: undefined, client: publisher, topic: 'rejection'}); }; 
+    const f = () => { relayService({targetUrl: undefined, client: publisher, topic: 'rejection', isHttps: false}); }; 
     expect(f).toThrow();
   });
 
   it('should reject undefined or null client', () => {
-    const f = () => { relayService({targetUrl, client: null, topic: 'rejection'}); };
+    const f = () => { relayService({targetUrl, client: null, topic: 'rejection', isHttps: false}); };
     expect(f).toThrow();
   });
 
   it('should reject undefined, null or empty string topic', () => {
-    const f = () => { relayService({targetUrl, client: publisher, topic: null}); };
+    const f = () => { relayService({targetUrl, client: publisher, topic: null, isHttps: false}); };
     expect(f).toThrow();
   });
 

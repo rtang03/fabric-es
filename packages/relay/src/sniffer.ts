@@ -1,7 +1,8 @@
 require('dotenv').config({ path: './.env' });
 import util from 'util';
 import { getLogger } from './getLogger';
-import { processEntity } from './processNtt';
+import { processPbocEtcEntity } from './pbocEtc';
+import { getEntityProcessor } from './processNtt';
 import { createSnifferService } from './snifferService';
 
 const SERVICE_PORT = process.env.SNIFFER_PORT || 80;
@@ -15,7 +16,7 @@ const logger = getLogger('[sniffer] sniffer.js');
   logger.info('♨️♨️  Starting [sniffer] service...');
 
   const { sniffer, shutdown } = await createSnifferService({
-    redisHost, redisPort, topic, callback: processEntity
+    redisHost, redisPort, topic, callback: getEntityProcessor(processPbocEtcEntity)
   });
 
   process.on('SIGINT', async () => {

@@ -4,25 +4,22 @@ import http from 'https';
 import cors from 'cors';
 import express from 'express';
 import formidable from 'formidable';
+import querystring from 'query-string';
 import stoppable from 'stoppable';
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(express.static('src/__tests__/html', { index: false }));
-
-app.post('/order/po', (req, res) => {
+const handleFileUploads = (req, res, resMsg) => {
   const type = (req.headers['content-type'] || 'text/plain').split(';')[0];
 
   if (type === 'application/json') {
     console.log('JSON', JSON.stringify(req.body, null, ' '));
-    console.log('JSON', new Date(), 'Create New PO!!!');
+    console.log('JSON', new Date(), resMsg);
     res.sendStatus(200);
   } else if (type === 'multipart/form-data') {
     const form = formidable({ multiples: true, uploadDir: 'src/__tests__/uploads', keepExtensions: true });
     form.parse(req, (err, fields, files) => {
       if (err) {
-        console.log('some error', err);
+        console.log('multipart form parsing error', err);
+        res.sendStatus(500);
       } else {
         if (!files.files) {
           console.log('no file received');
@@ -37,13 +34,48 @@ app.post('/order/po', (req, res) => {
         if (fields) {
           console.log('FILE', fields);
         }
+        console.log('FILE', new Date(), resMsg);
+        res.send(`<html><head><link rel="icon" href="data:,"></head><body>${resMsg}</body></html>`);
       }
     });
+  } else {
+    console.log(`Unsupported content type ${type}`);
+    res.sendStatus(500);
+  }
+};
 
-    console.log('FILE', new Date(), 'Create New PO!!!');
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.static('src/__tests__/html', { index: false }));
+
+app.post('/order/po', (req, res) => {
+  handleFileUploads(req, res, 'New PO created');
+});
+
+app.post('/etccorp/pboc/api/v1/invoices', (req, res) => {
+  handleFileUploads(req, res, 'New Invoice created');
+});
+
+app.post('/etccorp/pboc/api/v1/invoices/notify', (req, res) => {
+  handleFileUploads(req, res, 'New Invoice created');
+});
+
+app.post('/etccorp/pboc/api/v1/invoices/image/upload', (req, res) => {
+  handleFileUploads(req, res, 'Image uploaded');
+});
+
+app.post('*', (req, res) => {
+  const type = (req.headers['content-type'] || 'text/plain').split(';')[0];
+  const url = querystring.parseUrl(req.url);
+
+  if (type === 'application/json') {
+    console.log('JSON', JSON.stringify(req.body, null, ' '));
+    console.log('JSON', new Date(), JSON.stringify(url));
     res.sendStatus(200);
   } else {
-    res.sendStatus(404);
+    console.log(`Unsupported content type ${type}`);
+    res.sendStatus(500);
   }
 });
 

@@ -34,10 +34,11 @@ const logger = getLogger('[relay] relay.js');
     logger.error(err.stack);
   });
 
-  relay.listen(SERVICE_PORT, () => {
+  const server = relay.listen(SERVICE_PORT, () => {
     logger.info(`🚀 relay ready at ${SERVICE_PORT}`);
     if (process.env.NODE_ENV === 'production') process.send('ready');
   });
+  server.timeout = 600000;
 })().catch(error => {
   console.error(error);
   logger.error(util.format('fail to start relay.js, %j', error));
