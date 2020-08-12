@@ -67,12 +67,12 @@ ordererConfiguration:
 
 orderers:
   - name: "orderer0.org0.com"
-    hostAlias: "10.97.148.244"
+    hostAlias: "10.108.34.139"
   - name: "orderer1.org0.com"
-    hostAlias: "10.96.104.141"
+    hostAlias: "10.108.187.24"
   - name: "orderer2.org0.com"
-    hostAlias: "10.106.149.51"
+    hostAlias: "10.106.2.168"
   - name: "orderer3.org0.com"
-    hostAlias: "10.107.158.220"
+    hostAlias: "10.99.8.134"
   - name: "orderer4.org0.com"
-    hostAlias: "10.99.45.216"
+    hostAlias: "10.105.175.11"

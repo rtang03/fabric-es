@@ -165,5 +165,12 @@ kubectl -n n1 create secret generic {{ .id }}-tlssigncert --from-literal=cert.pe
 printMessage "create secret {{ .id }}-tlssigncert" $?
 {{- end }}
 
+######## 8. create secret for org0-tls-ca-cert
+export CONTENT=$(kubectl -n {{ $.Release.Namespace }} exec $POD_RCA0 -- sh -c "cat ./{{ $.Values.mspId }}/msp/tlscacerts/tls-ca-cert.pem")
+preventEmptyValue "./{{ $.Values.mspId }}/msp/tlscacerts/tls-ca-cert.pem" $CONTENT
+
+kubectl -n n1 create secret generic org0-tls-ca-cert --from-literal=tlscacert.pem="$CONTENT"
+printMessage "create secret org0-tls-ca-cert" $?
+
 # ======= END create-secret.rca0.sh =======
 {{- end -}}

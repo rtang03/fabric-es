@@ -21,7 +21,7 @@ dockerConfig: null
 dockerConfigMountPath: /root/.docker
 
 ingress:
-  enabled: true
+  enabled: false
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
@@ -67,15 +67,15 @@ logging:
 
 orderers:
   - name: "orderer0.org0.com"
-    hostAlias: "10.97.148.244"
+    hostAlias: "10.111.10.122"
   - name: "orderer1.org0.com"
-    hostAlias: "10.96.104.141"
+    hostAlias: "10.106.168.202"
   - name: "orderer2.org0.com"
-    hostAlias: "10.106.149.51"
+    hostAlias: "10.110.156.237"
   - name: "orderer3.org0.com"
-    hostAlias: "10.107.158.220"
+    hostAlias: "10.96.139.48"
   - name: "orderer4.org0.com"
-    hostAlias: "10.99.45.216"
+    hostAlias: "10.103.188.155"
 
 ##################################
 ## Peer configuration options    #
@@ -110,6 +110,17 @@ peer:
       golang: ""
       java: ""
       node: ""
+
+cli:
+  bootstrap: true
+  channelName: "loanapp"
+  anchorPeer: "Org1MSP"
+  enabled: true
+  workingDir: /var/hyperledger/crypto-config
+  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
+  channels:
+    - "channeltx"
+
 # Secrets references, empty by default, fill in with your secrets (particularly adminCert) or add Peer Admin certificate manually after launching chart.
 secrets:
   ## These secrets should contain the Orderer crypto materials and credentials
@@ -157,6 +168,7 @@ secrets:
   # ordTlsRootCert: hlf--ord-tlsrootcert
   ordTlsRootCert: "orderer0.org0.com-tlsrootcert"
   ordTlsSignCert: "orderer0.org0.com-tlssigncert"
+  ordOrg0Tlscacert: "org0-tls-ca-cert"
 
 resources: {}
   ## We usually recommend not to specify default resources and to leave this as a conscious

@@ -65,6 +65,10 @@ spec:
             optional: true
             secretName: {{ .Values.cli.ordTlsSignCert }}
         {{- end }}
+        - name: org0-tls-ca-cert
+          secret:
+            optional: true
+            secretName: "org0-tls-ca-cert"
       containers:
         - name: cli
           image: "hyperledger/fabric-tools:{{ .Values.cli.image.tag }}"
@@ -108,3 +112,5 @@ spec:
             - mountPath: "{{ $.Values.cli.firstOrgDir }}/peer0.org1.net/ord/tls-msp/signcerts"
               name: ord-tlssigncert
             {{- end }}
+            - mountPath: "{{ $.Values.cli.firstOrgDir }}/peer0.org1.net/ord/org0/tlscacerts"
+              name: org0-tls-ca-cert

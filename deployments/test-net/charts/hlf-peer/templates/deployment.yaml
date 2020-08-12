@@ -122,7 +122,24 @@ spec:
           secret:
             secretName: {{ .Values.secrets.ordTlsSignCert }}
         {{- end }}
+        - name: org0-tls-ca-cert
+          secret:
+            secretName: {{ .Values.secrets.ordOrg0Tlscacert }}
       containers:
+#        - name: cli
+#          image: library/busybox:1.32.0
+#          workingDir: {{ .Values.cli.workingDir | quote }}
+#          command:
+#            - sh
+#            - -c
+#            - |
+#              mkdir -p {{ .Values.cli.workingDir }}/channel-artifacts
+#              cd {{ .Values.cli.workingDir }}/channel-artifacts
+#              wget https://github.com/hyperledger/fabric/releases/download/v2.2.0/hyperledger-fabric-linux-amd64-2.2.0.tar.gz
+#              tar -xzf hyperledger-fabric-linux-amd64-2.2.0.tar.gz
+#              mv bin/* /bin
+#              configtxgen --version
+#              sleep 48h
         - name: peer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -259,6 +276,8 @@ spec:
             - mountPath: {{ include "hlf-peer.home" . }}/admin_msp/keystore
               name: admin-key
             {{- end }}
+            - mountPath: {{ include "hlf-peer.home" . }}/ord/org0/tlscacerts
+              name: org0-tls-ca-cert
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}

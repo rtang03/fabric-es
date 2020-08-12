@@ -184,7 +184,7 @@ export POD_CLI1=$(kubectl get pods --namespace n1 -l "app=orgadmin,release=admin
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/channeltx/channel.tx \
  -o o0-hlf-ord.n0.svc.cluster.local:7050 \
  --outputBlock /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block --tls \
- --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+ --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem \
  --ordererTLSHostnameOverride o0-hlf-ord"
 ```
 
@@ -200,11 +200,11 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel getinfo -c loanapp"
 
 ### Step 13: terminal cli: Update anchor peer
 ```shell script
-
+# fetch block 0
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel fetch config ./channel-artifacts/config_block.pb \
 -o o0-hlf-ord.n0.svc.cluster.local:7050 \
 --ordererTLSHostnameOverride o0-hlf-ord \
--c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem"
+-c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem"
 
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_decode --input ./channel-artifacts/config_block.pb --type common.Block --output ./channel-artifacts/config_block.json"
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "jq .data.data[0].payload.data.config ./channel-artifacts/config_block.json > ./channel-artifacts/config.json"
@@ -220,7 +220,7 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_encode --input ./
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel update -f ./channel-artifacts/config_update_in_envelope.pb \
 -o o0-hlf-ord.n0.svc.cluster.local:7050 \
 --ordererTLSHostnameOverride o0-hlf-ord \
--c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem"
+-c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem"
 ```
      
 ### Step 14: Package chaincode
@@ -242,11 +242,13 @@ cp -R ../../../packages/chaincode/dist ./chaincode
 ```shell script
 kubectl -n n1 cp chaincode $POD_CLI1:channel-artifacts
 
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode package ./channel-artifacts/eventstore.tar.gz --path /var/hyperledger/crypto-config/channel-artifacts/chaincode --lang node --label eventstorev1"
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode package ./channel-artifacts/eventstore.tar.gz \
+--path ./channel-artifacts/chaincode --lang node --label eventstorev1"
 ```
 
 **Install chaincode**
 ```shell script
+# Installation will take a few minutes
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode install ./channel-artifacts/eventstore.tar.gz"
 ```
   
@@ -255,6 +257,8 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode inst
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode queryinstalled >& channel-artifacts/installedcc.txt"
 
 export PACKAGE_ID=$(kubectl -n n1 exec -it $POD_CLI1 -- sh -c "sed -n \"/eventstorev1/{s/^Package ID: //; s/, Label:.*$//; p;}\" channel-artifacts/installedcc.txt")
+
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "sed -n \"/eventstorev1/{s/^Package ID: //; s/, Label:.*$//; p;}\" channel-artifacts/installedcc.txt > channel-artifacts/package-id.txt"
 ```
 
 **Approve chaincode**  
@@ -262,14 +266,17 @@ export PACKAGE_ID=$(kubectl -n n1 exec -it $POD_CLI1 -- sh -c "sed -n \"/eventst
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode approveformyorg \
 -o o0-hlf-ord.n0.svc.cluster.local:7050 \
 --ordererTLSHostnameOverride o0-hlf-ord \
--C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+-C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem \
 --name eventstore \
---version 1.0 \
---package-id ${PACKAGE_ID} \
+--version 2.0 \
+--package-id \$(sed -n \"/eventstorev1/{s/^Package ID: //; s/, Label:.*$//; p;}\" channel-artifacts/installedcc.txt) \
 --init-required \
 --sequence 1 \
---waitForEvent \
---signature-policy \"AND('Org1MSP.member')\" >& channel-artifacts/approvecc.txt"
+--waitForEvent  >& channel-artifacts/approvecc.txt"
+
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer lifecycle chaincode queryapproved -C loanapp -n eventstore"
+
+# kubectl -n n1 exec -it $POD_CLI1 -- cat ./channel-artifacts/approvecc.txt
 ```
 
 **Checkcommitreadiness**  
@@ -277,12 +284,13 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode appr
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode checkcommitreadiness \
 -o o0-hlf-ord.n0.svc.cluster.local:7050 \
 --ordererTLSHostnameOverride o0-hlf-ord \
--C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+-C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem \
 --name eventstore \
---version 1.0 \
+--version 2.0 \
 --init-required \
---sequence 1 \
---signature-policy \"AND('Org1MSP.member')\" >& channel-artifacts/checkcommitreadiness.txt"
+--sequence 1 >& channel-artifacts/checkcommitreadiness.txt"
+
+# kubectl -n n1 exec -it $POD_CLI1 -- cat ./channel-artifacts/checkcommitreadiness.txt
 ```
 
 **Commit chaincode**
@@ -290,30 +298,37 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode chec
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode commit \
 -o o0-hlf-ord.n0.svc.cluster.local:7050 \
 --ordererTLSHostnameOverride o0-hlf-ord \
--C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+-C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem \
 --name eventstore \
---version 1.0 \
+--version 2.0 \
 --init-required \
 --sequence 1 \
 --waitForEvent \
 --peerAddresses p0o1-hlf-peer:7051 \
---tlsRootCertFiles /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem \
---signature-policy \"AND('Org1MSP.member')\" >& channel-artifacts/commitcc.txt"
+--tlsRootCertFiles /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem >& channel-artifacts/commitcc.txt"
 
-#query committed
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer lifecycle chaincode querycommitted -C loanapp"
+# querycommitted
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer lifecycle chaincode querycommitted -C loanapp \
+-o o0-hlf-ord.n0.svc.cluster.local:7050 \
+--ordererTLSHostnameOverride o0-hlf-ord \
+-C loanapp --name eventstore \
+--tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem \
+--peerAddresses p0o1-hlf-peer:7051 \
+--tlsRootCertFiles /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem"
 ```
-**Commit chaincode**
+
+**Init chaincode**
 ```shell script
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer chaincode invoke --isInit \
 -o o0-hlf-ord.n0.svc.cluster.local:7050 \
---ordererTLSHostnameOverride o0-hlf-ord \
--C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+-C loanapp \
 --name eventstore \
--c '{\"Args\":[\"Init\"]}' \
+-c '{\"function\":\"eventstore:Init\",\"Args\":[]}' \
+--tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem \
+--ordererTLSHostnameOverride o0-hlf-ord \
 --peerAddresses p0o1-hlf-peer:7051 \
 --tlsRootCertFiles /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem \
---waitForEvent "
+--waitForEvent"
 ```
 
 ### Other useful commands
@@ -353,8 +368,10 @@ https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-g
 https://medium.com/google-cloud/helm-chart-for-fabric-for-kubernetes-80408b9a3fb6
 https://kubectl.docs.kubernetes.io/
 https://github.com/hyperledger/fabric-samples/blob/master/test-network/scripts/deployCC.sh
+https://medium.com/swlh/how-to-implement-hyperledger-fabric-external-chaincodes-within-a-kubernetes-cluster-fd01d7544523
 
 k0 exec -it admin0-orgadmin-cli-846645c4dc-nlzdf -- cat /etc/resolv.conf
 
-2020-08-10 05:43:33.376 UTC [common.deliver] Handle -> WARN 896 Error reading from 10.1.0.237:59442: rpc error: code = Canceled desc = context canceled
-2020-08-10 05:43:33.376 UTC [orderer.common.server] func1 -> DEBU 897 Closing Deliver stream
+
+when configuring busybox binarary, see this
+https://hyperledger-fabric.readthedocs.io/en/release-2.2/upgrading_your_components.html?highlight=kubernetes

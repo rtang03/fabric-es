@@ -239,3 +239,10 @@ preventEmptyValue "./Org0MSP/orderer4.org0.com/tls-msp/signcerts/cert.pem" $CONT
 
 kubectl -n n1 create secret generic orderer4.org0.com-tlssigncert --from-literal=cert.pem="$CONTENT"
 printMessage "create secret orderer4.org0.com-tlssigncert" $?
+
+######## 8. create secret for org0-tls-ca-cert
+export CONTENT=$(kubectl -n n0 exec $POD_RCA0 -- sh -c "cat ./Org0MSP/msp/tlscacerts/tls-ca-cert.pem")
+preventEmptyValue "./Org0MSP/msp/tlscacerts/tls-ca-cert.pem" $CONTENT
+
+kubectl -n n1 create secret generic org0-tls-ca-cert --from-literal=tlscacert.pem="$CONTENT"
+printMessage "create secret org0-tls-ca-cert" $?
