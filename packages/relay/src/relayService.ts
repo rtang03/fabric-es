@@ -131,11 +131,11 @@ export const relayService = ({
 
       const type = (req.headers['content-type'] || 'text/plain').split(';')[0];
       if (type === 'multipart/form-data') {
-        let fileInfo = { name: '', type: '' };
+        const fileInfo = [];
         const form = formidable({ multiples: true });
         form.onPart = (part) => {
-          if (part.filename && (part.filename !== '') && part.mime) {
-            fileInfo = { name: part.filename, type: part.mime };
+          if (part.mime) {
+            if (part.filename !== '') fileInfo.push({ name: part.filename, type: part.mime });
           } else {
             form.handlePart(part);
           }
@@ -148,7 +148,7 @@ export const relayService = ({
             if (files.files)
               logger.warn(`Warning! Unexpected file saved: ${files.files.path}`);
             else
-              logger.info(`Relay ignored uploaded file ${fileInfo.name}`); // Sould be logger.debug()
+              logger.info(`Relay ignored uploaded file ${fileInfo.map(i => i.name)}`); // Sould be logger.debug()
 
             if (fields) {
               wait4res(req, res, type, JSON.stringify(fields), fileInfo);

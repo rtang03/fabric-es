@@ -89,7 +89,7 @@ export const createSubscription = (
                       callback(event.channel, null, msg[1][1]);
                     }
                   } catch (error) {
-                    logger.warn(`Received non-JSON message: '${msg[1][1]}'`);
+                    logger.warn(`${error} Received non-JSON message: '${msg[1][1]}'`);
                     callback(topic, null, msg[1][1]);
                   }
                 } else {
