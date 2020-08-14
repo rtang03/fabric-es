@@ -1,6 +1,6 @@
 import { getLogger } from './getLogger';
-import { ProcessResults } from './processNtt';
 import { ReqRes } from './reqres';
+import { ProcessResults } from './snifferService';
 
 const logger = getLogger('[sniffer] pbocEtc.js');
 
@@ -17,7 +17,6 @@ export const EndPoints = [
 ];
 export type EndPoints = typeof EndPoints[number];
 
-// TODO Parse response as well!!!!!!!!!!!!!!!!!!!!!!!!!
 export const processPbocEtcEntity = (message: ReqRes): ProcessResults => {
   const {
     id, startTime, duration, method, url, contentType, reqBody, resBody, attachmentInfo, statusCode, statusMessage

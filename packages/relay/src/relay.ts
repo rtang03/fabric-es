@@ -21,12 +21,11 @@ const logger = getLogger('[relay] relay.js');
   });
 
   process.on('SIGINT', async () => {
-    shutdown();
-
+    process.exit(await shutdown());
   });
 
   process.on('SIGTERM', async () => {
-    shutdown();
+    process.exit(await shutdown());
   });
 
   process.on('uncaughtException', err => {

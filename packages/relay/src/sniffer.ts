@@ -20,11 +20,11 @@ const logger = getLogger('[sniffer] sniffer.js');
   });
 
   process.on('SIGINT', async () => {
-    shutdown();
+    process.exit(await shutdown());
   });
 
   process.on('SIGTERM', async () => {
-    shutdown();
+    process.exit(await shutdown());
   });
 
   process.on('uncaughtException', err => {

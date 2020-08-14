@@ -24,7 +24,7 @@ export const createRelayService: (option: {
   httpsArg: string;
 }) => Promise<{
   relay: StoppableServer;
-  shutdown: any;
+  shutdown: () => Promise<number>;
 }> = async ({
   targetUrl, redisHost, redisPort, topic, httpsArg
 }) => {
@@ -75,15 +75,18 @@ export const createRelayService: (option: {
 
   return {
     relay: stoppableServer,
-    shutdown: () => {
-      client.quit();
-      stoppableServer.stop(err => {
-        if (err) {
-          logger.error(util.format('An error occurred while closing the relay service: %j', err));
-          process.exitCode = 1;
-        } else
-          logger.info('relay service stopped');
-        process.exit();
+    shutdown: async () => {
+      return new Promise<number>(async resolve => {
+        await client.quit();
+        stoppableServer.stop(err => {
+          if (err) {
+            logger.error(util.format('An error occurred while closing the relay service: %j', err));
+            resolve(1);
+          } else {
+            logger.info('Relay service stopped');
+            resolve(0);
+          }
+        });
       });
     }
   };
