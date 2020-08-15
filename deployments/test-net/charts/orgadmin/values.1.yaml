@@ -14,7 +14,7 @@ persistence:
 
   # storageClass: "-"
   storageClass: manual
-  accessMode: ReadWriteMany
+  accessMode: ReadWriteOnce
   size: 10Mi
   annotations: {}
 
@@ -43,5 +43,4 @@ cli:
   enabled: true
   workingDir: /var/hyperledger/crypto-config
   peerAddress: "p0o1-hlf-peer:7051"
-#  peerTlsRootcertFile: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem
   peerTlsRootcertFile: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem

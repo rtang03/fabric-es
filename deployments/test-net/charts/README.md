@@ -7,6 +7,7 @@
 # kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
 ```
 
+## PART 1
 ### Steps 0 - Get Prepared
 ```shell script
 # You should need multiple terminals
@@ -136,6 +137,8 @@ helm install p0o1db -n n1 ./hlf-couchdb
 # http://127.0.0.1:8080/_utils
 ```
 
+
+## PART 2
 ### Step 9 - terminal orderer0  
 
 ```shell script
@@ -181,52 +184,61 @@ kubectl -n n1 logs -f $POD_PEER
 
 export POD_CLI1=$(kubectl get pods --namespace n1 -l "app=orgadmin,release=admin1" -o jsonpath="{.items[0].metadata.name}")
 
+# CREATE CHANNEL
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/channeltx/channel.tx \
  -o o0-hlf-ord.n0.svc.cluster.local:7050 \
  --outputBlock /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block --tls \
- --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem \
+ --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
  --ordererTLSHostnameOverride o0-hlf-ord"
 ```
+
+/var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem
 
 ### Step 12: terminal cli: Join Channel 
 ```shell script
 # terminal cli1
-# join channel
+# JOIN CHANNEL
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel join -b /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block"
 
-# query channel info
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel getinfo -c loanapp"
+# optionally, query channel info
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer channel getinfo -c loanapp"
 ```
 
 ### Step 13: terminal cli: Update anchor peer
 ```shell script
+# UPDATE ANCHOR PEER: with sh script
+./update-anchor_peers
+
+# OR alternatively, update anchor peer manually
 # fetch block 0
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel fetch config ./channel-artifacts/config_block.pb \
--o o0-hlf-ord.n0.svc.cluster.local:7050 \
---ordererTLSHostnameOverride o0-hlf-ord \
--c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem"
-
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_decode --input ./channel-artifacts/config_block.pb --type common.Block --output ./channel-artifacts/config_block.json"
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "jq .data.data[0].payload.data.config ./channel-artifacts/config_block.json > ./channel-artifacts/config.json"
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "cp ./channel-artifacts/config.json ./channel-artifacts/config_copy.json"
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "jq '.channel_group.groups.Application.groups.Org1MSP.values += {\"AnchorPeers\":{\"mod_policy\":\"Admins\",\"value\":{\"anchor_peers\":[{\"host\":\"p0o1-hlf-peer\",\"port\":7051}]},\"version\":\"0\"}}' ./channel-artifacts/config_copy.json > ./channel-artifacts/modified_config.json"
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_encode --input ./channel-artifacts/config.json --type common.Config --output ./channel-artifacts/config.pb"
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_encode --input ./channel-artifacts/modified_config.json --type common.Config --output ./channel-artifacts/modified_config.pb"
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator compute_update --channel_id loanapp --original ./channel-artifacts/config.pb --updated ./channel-artifacts/modified_config.pb --output ./channel-artifacts/config_update.pb"
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_decode --input ./channel-artifacts/config_update.pb --type common.ConfigUpdate --output ./channel-artifacts/config_update.json"
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "echo '{\"payload\":{\"header\":{\"channel_header\":{\"channel_id\":\"loanapp\", \"type\":2}},\"data\":{\"config_update\":'\$(cat ./channel-artifacts/config_update.json)'}}}' | jq . > ./channel-artifacts/config_update_in_envelope.json"
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_encode --input ./channel-artifacts/config_update_in_envelope.json --type common.Envelope --output ./channel-artifacts/config_update_in_envelope.pb"
-
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel update -f ./channel-artifacts/config_update_in_envelope.pb \
--o o0-hlf-ord.n0.svc.cluster.local:7050 \
---ordererTLSHostnameOverride o0-hlf-ord \
--c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem"
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel fetch config ./channel-artifacts/config_block.pb \
+# -o o0-hlf-ord.n0.svc.cluster.local:7050 \
+# --ordererTLSHostnameOverride o0-hlf-ord \
+# -c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem"
+# 
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_decode --input ./channel-artifacts/config_block.pb --type common.Block --output ./channel-artifacts/config_block.json"
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "jq .data.data[0].payload.data.config ./channel-artifacts/config_block.json > ./channel-artifacts/config.json"
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "cp ./channel-artifacts/config.json ./channel-artifacts/config_copy.json"
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "jq '.channel_group.groups.Application.groups.Org1MSP.values += {\"AnchorPeers\":{\"mod_policy\":\"Admins\",\"value\":{\"anchor_peers\":[{\"host\":\"p0o1-hlf-peer\",\"port\":7051}]},\"version\":\"0\"}}' ./channel-artifacts/config_copy.json > ./channel-artifacts/modified_config.json"
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_encode --input ./channel-artifacts/config.json --type common.Config --output ./channel-artifacts/config.pb"
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_encode --input ./channel-artifacts/modified_config.json --type common.Config --output ./channel-artifacts/modified_config.pb"
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator compute_update --channel_id loanapp --original ./channel-artifacts/config.pb --updated ./channel-artifacts/modified_config.pb --output ./channel-artifacts/config_update.pb"
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_decode --input ./channel-artifacts/config_update.pb --type common.ConfigUpdate --output ./channel-artifacts/config_update.json"
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "echo '{\"payload\":{\"header\":{\"channel_header\":{\"channel_id\":\"loanapp\", \"type\":2}},\"data\":{\"config_update\":'\$(cat ./channel-artifacts/config_update.json)'}}}' | jq . > ./channel-artifacts/config_update_in_envelope.json"
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_encode --input ./channel-artifacts/config_update_in_envelope.json --type common.Envelope --output ./channel-artifacts/config_update_in_envelope.pb"
+# 
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel update -f ./channel-artifacts/config_update_in_envelope.pb \
+# -o o0-hlf-ord.n0.svc.cluster.local:7050 \
+# --ordererTLSHostnameOverride o0-hlf-ord \
+# -c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem"
 ```
      
 ### Step 14: Package chaincode
 **Build chaincode**  
 ```shell script
 # in terminal cli, at directory ./deployments/test-net/charts/
+# Optionally, if create chaincode build material. 
+# if already exists, can skip
 pushd .
 cd ../../../packages/chaincode 
 yarn build
@@ -240,6 +252,7 @@ cp -R ../../../packages/chaincode/dist ./chaincode
 
 **Package chaincode**  
 ```shell script
+# PACKAGE CHAINCODE
 kubectl -n n1 cp chaincode $POD_CLI1:channel-artifacts
 
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode package ./channel-artifacts/eventstore.tar.gz \
@@ -248,17 +261,19 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode pack
 
 **Install chaincode**
 ```shell script
+# INSTALL CHAINCODE
 # Installation will take a few minutes
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode install ./channel-artifacts/eventstore.tar.gz"
 ```
   
 **Query installed chaincode**
 ```shell script
+# EXTRACT THE PACKAGE ID
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode queryinstalled >& channel-artifacts/installedcc.txt"
 
-export PACKAGE_ID=$(kubectl -n n1 exec -it $POD_CLI1 -- sh -c "sed -n \"/eventstorev1/{s/^Package ID: //; s/, Label:.*$//; p;}\" channel-artifacts/installedcc.txt")
-
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "sed -n \"/eventstorev1/{s/^Package ID: //; s/, Label:.*$//; p;}\" channel-artifacts/installedcc.txt > channel-artifacts/package-id.txt"
+# Optional step, for logging purpose
+# export PACKAGE_ID=$(kubectl -n n1 exec -it $POD_CLI1 -- sh -c "sed -n \"/eventstorev1/{s/^Package ID: //; s/, Label:.*$//; p;}\" channel-artifacts/installedcc.txt")
+# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "sed -n \"/eventstorev1/{s/^Package ID: //; s/, Label:.*$//; p;}\" channel-artifacts/installedcc.txt > channel-artifacts/package-id.txt"
 ```
 
 **Approve chaincode**  
@@ -266,16 +281,17 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "sed -n \"/eventstorev1/{s/^Package ID
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode approveformyorg \
 -o o0-hlf-ord.n0.svc.cluster.local:7050 \
 --ordererTLSHostnameOverride o0-hlf-ord \
--C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem \
+-C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
 --name eventstore \
---version 2.0 \
+--version 1.0 \
 --package-id \$(sed -n \"/eventstorev1/{s/^Package ID: //; s/, Label:.*$//; p;}\" channel-artifacts/installedcc.txt) \
 --init-required \
 --sequence 1 \
---waitForEvent  >& channel-artifacts/approvecc.txt"
+--waitForEvent >& channel-artifacts/approvecc.txt"
 
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer lifecycle chaincode queryapproved -C loanapp -n eventstore"
 
+# Optional step, for logging purpose
 # kubectl -n n1 exec -it $POD_CLI1 -- cat ./channel-artifacts/approvecc.txt
 ```
 
@@ -284,12 +300,13 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer lifecycle chaincode queryapprove
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode checkcommitreadiness \
 -o o0-hlf-ord.n0.svc.cluster.local:7050 \
 --ordererTLSHostnameOverride o0-hlf-ord \
--C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem \
+-C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
 --name eventstore \
---version 2.0 \
+--version 1.0 \
 --init-required \
 --sequence 1 >& channel-artifacts/checkcommitreadiness.txt"
 
+# Optional step, for logging purpose
 # kubectl -n n1 exec -it $POD_CLI1 -- cat ./channel-artifacts/checkcommitreadiness.txt
 ```
 
@@ -298,9 +315,9 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode chec
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer lifecycle chaincode commit \
 -o o0-hlf-ord.n0.svc.cluster.local:7050 \
 --ordererTLSHostnameOverride o0-hlf-ord \
--C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem \
+-C loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
 --name eventstore \
---version 2.0 \
+--version 1.0 \
 --init-required \
 --sequence 1 \
 --waitForEvent \
@@ -312,7 +329,7 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "peer lifecycle chaincode querycommitt
 -o o0-hlf-ord.n0.svc.cluster.local:7050 \
 --ordererTLSHostnameOverride o0-hlf-ord \
 -C loanapp --name eventstore \
---tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem \
+--tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
 --peerAddresses p0o1-hlf-peer:7051 \
 --tlsRootCertFiles /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem"
 ```
@@ -324,7 +341,7 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer chaincode invoke --isIni
 -C loanapp \
 --name eventstore \
 -c '{\"function\":\"eventstore:Init\",\"Args\":[]}' \
---tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem \
+--tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
 --ordererTLSHostnameOverride o0-hlf-ord \
 --peerAddresses p0o1-hlf-peer:7051 \
 --tlsRootCertFiles /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-7054.pem \
@@ -369,9 +386,33 @@ https://medium.com/google-cloud/helm-chart-for-fabric-for-kubernetes-80408b9a3fb
 https://kubectl.docs.kubernetes.io/
 https://github.com/hyperledger/fabric-samples/blob/master/test-network/scripts/deployCC.sh
 https://medium.com/swlh/how-to-implement-hyperledger-fabric-external-chaincodes-within-a-kubernetes-cluster-fd01d7544523
+https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/
 
 k0 exec -it admin0-orgadmin-cli-846645c4dc-nlzdf -- cat /etc/resolv.conf
 
 
 when configuring busybox binarary, see this
 https://hyperledger-fabric.readthedocs.io/en/release-2.2/upgrading_your_components.html?highlight=kubernetes
+
+https://www.ateam-oracle.com/how-to-make-chrome-on-os-x-trust-a-self-signed-certificate
+
+namespace/kubernetes-dashboard created
+serviceaccount/kubernetes-dashboard created
+service/kubernetes-dashboard created
+secret/kubernetes-dashboard-certs created
+secret/kubernetes-dashboard-csrf created
+secret/kubernetes-dashboard-key-holder created
+configmap/kubernetes-dashboard-settings created
+role.rbac.authorization.k8s.io/kubernetes-dashboard created
+clusterrole.rbac.authorization.k8s.io/kubernetes-dashboard created
+rolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+clusterrolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+deployment.apps/kubernetes-dashboard created
+service/dashboard-metrics-scraper created
+deployment.apps/dashboard-metrics-scraper created
+
+k8s dashboard token
+eyJhbGciOiJSUzI1NiIsImtpZCI6InBLaERKQ2JETmt6cVR3dzlEOGY2WFBMSXhOaG5hTUk5amZtQ2Y4N0RPY2MifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJrdWJlcm5ldGVzLWRhc2hib2FyZC10b2tlbi00eDZjOCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImViNmJjOTFkLTlhZTQtNDA1Yy04ZTY3LTdkYjg4ZjQwZTAxYyIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDprdWJlcm5ldGVzLWRhc2hib2FyZCJ9.jEz48UIT2otaqPoUu6gHE2pbTHJZXkuNqdn9XFPvk6GfhYCTqJsb7oepUwbqX3AuaZlnSHgu4Hah9oM4eM2xIkEY0IV4wA1jrV-xRHK0OQ_aKtMKAM67d3Fso0sM0NiHF0WUz5p6S5_OY2i9SmHwFJ9KFERGq1DuQZqXhh1GHDEkYrBjXLHbVROTznLUGSywfYK7CHp6tUyRQU0wbgkqiynajhAV_RaDpfzrhwsd5G5clBygFBtiLoVwGIlExy8EKav5Q5GlY1dWSAVbsaksgNZSq0fRD7dHI4sxrfteYRP_Ufg5kGbCagY6ldO3Zeggc92AqYrragCX3n4vg-tKFg
+
+https://github.com/kubernetes/dashboard#kubernetes-dashboard
+https://docs.bitnami.com/kubernetes/get-started-gke/#step-6-access-the-kubernetes-dashboard

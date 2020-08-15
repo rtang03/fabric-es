@@ -1,6 +1,9 @@
 #!/bin/bash
 . ./scripts/setup.sh
 
+export POD_CLI1=$(kubectl get pods --namespace n1 -l "app=orgadmin,release=admin1" -o jsonpath="{.items[0].metadata.name}")
+preventEmptyValue "pod unavailable" $POD_CLI1
+
 kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel fetch config ./channel-artifacts/config_block.pb \
 -o o0-hlf-ord.n0.svc.cluster.local:7050 \
 --ordererTLSHostnameOverride o0-hlf-ord \

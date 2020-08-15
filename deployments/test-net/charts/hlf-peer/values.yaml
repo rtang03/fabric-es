@@ -67,15 +67,15 @@ logging:
 
 orderers:
   - name: "orderer0.org0.com"
-    hostAlias: "10.111.10.122"
+    hostAlias: "10.109.158.242"
   - name: "orderer1.org0.com"
-    hostAlias: "10.106.168.202"
+    hostAlias: "10.108.235.184"
   - name: "orderer2.org0.com"
-    hostAlias: "10.110.156.237"
+    hostAlias: "10.108.92.171"
   - name: "orderer3.org0.com"
-    hostAlias: "10.96.139.48"
+    hostAlias: "10.111.240.111"
   - name: "orderer4.org0.com"
-    hostAlias: "10.103.188.155"
+    hostAlias: "10.110.92.106"
 
 ##################################
 ## Peer configuration options    #

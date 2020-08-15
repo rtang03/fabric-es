@@ -15,7 +15,7 @@ persistence:
   subPath: ""
 
   # storageClass: "-"
-  storageClass: manual
-  accessMode: ReadWriteMany
+  # storageClass: manual
+  accessMode: ReadWriteOnce
   size: 10Mi
   annotations: {}

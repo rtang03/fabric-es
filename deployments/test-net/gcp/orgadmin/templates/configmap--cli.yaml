@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "orgadmin.fullname" . }}--cli
+  labels:
+{{- include "labels.standard" . | nindent 4 }}
+data:
+  TZ: {{ .Values.global.TZ }}
+  FABRIC_CFG_PATH: /var/hyperledger/cli
+  GOPATH: "/opt/gopath"
+  FABRIC_LOGGING_SPEC: {{ .Values.cli.fabricLogging }}
+  CORE_PEER_ID: "cli"
+  GODEBUG: "netdns=go"
+  CORE_PEER_TLS_ENABLED: "true"
+  CORE_VM_ENDPOINT: 'unix:///host/var/run/docker.sock'
+  {{- if .Values.cli.peerAddress }}
+  CORE_PEER_ADDRESS: {{ .Values.cli.peerAddress }}
+  {{- end }}
+  CORE_PEER_MSPCONFIGPATH: "{{ .Values.cli.workingDir }}/{{ .Values.cli.mspId }}/admin/msp"
+  CORE_PEER_LOCALMSPID: {{ .Values.cli.mspId }}
+  {{- if not .Values.cli.bootstrap }}
+  CORE_PEER_TLS_ROOTCERT_FILE: {{ .Values.cli.peerTlsRootcertFile }}
+  {{- end }}
