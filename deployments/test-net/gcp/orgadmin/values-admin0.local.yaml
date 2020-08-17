@@ -1,0 +1,17 @@
+persistence:
+  enabled: true
+  # Used for local dev, Persistence Volume Name only for manual storage class
+  # In public cloud, it should use Dynamic Provisioning
+  pvName: pv-org0
+  pvcName: pvc-org0
+  hostPath: /tmp/data/org0
+
+  ## A manually managed Persistent Volume and Claim
+  ## If defined, PVC must be created manually before volume will be bound
+#  subPath: ""
+
+  # storageClass: "-"
+  storageClass: manual
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  annotations: {}

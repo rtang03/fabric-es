@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "create-crypto.fullname" . }}--crypto
+  labels:
+{{- include "labels.standard" . | nindent 4 }}
+data:
+  FABRIC_CA_HOME: {{ .Values.fabricCaHome | quote }}
+  FABRIC_CA_SERVER_CA_NAME: {{ .Values.caName | quote }}
+  FABRIC_CA_CLIENT_HOME: {{ .Values.fabricCaClientHome | quote }}

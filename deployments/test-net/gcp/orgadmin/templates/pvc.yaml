@@ -1,16 +1,41 @@
+{{- if .Values.persistence.storageClass }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.persistence.pvName }}
+  labels:
+    type: local
+    name: {{ .Values.persistence.pvName }}
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - {{ .Values.persistence.accessMode | quote }}
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: {{ .Values.persistence.hostPath | quote }}
+{{- end }}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-org0
+  name: {{ .Values.persistence.pvcName }}
   labels:
-    app: orgadmin
-    heritage: "Helm"
-    release: "admin0"
-    chart: orgadmin-0.1.0
-    namespace: n0
+{{- include "labels.standard" . | nindent 4 }}
+{{- if .Values.persistence.annotations }}
+  annotations:
+{{ toYaml .Values.persistence.annotations | indent 4 }}
+{{- end }}
 spec:
+  {{- if .Values.persistence.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
+  selector:
+    matchLabels:
+      name: {{ .Values.persistence.pvName }}
+  {{- end }}
   accessModes:
-    - "ReadWriteOnce"
+    - {{ .Values.persistence.accessMode | quote }}
   resources:
     requests:
-      storage: "1Gi"
+      storage: {{ .Values.persistence.size | quote }}

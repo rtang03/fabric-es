@@ -1,0 +1,121 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "create-crypto.fullname" . }}-crypto
+  labels:
+{{- include "labels.standard" . | nindent 4 }}
+spec:
+  backoffLimit: 0
+  parallelism: 1
+  completions: 1
+  template:
+    spec:
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.pvcName }}
+      containers:
+        - name: create-crypto
+          image: library/alpine:3.12.0
+          workingDir: /var/hyperledger/bin
+          command:
+            - sh
+            - -c
+            - |
+              # this fixes the sh: not found issue
+              apk update
+              apk upgrade
+              apk --no-cache add libc6-compat libstdc++
+              # check binary exists
+              export BIN=/var/hyperledger/bin/fabric-ca-client
+              if [ -f "$BIN" ]; then
+                echo "$BIN exists"
+              else
+                echo "fabric-ca-client does not exist"
+                exit -1
+              fi
+              # enroll admin
+              export CONFIG={{ .Values.fabricCaHome }}/fabric-ca-server-config.yaml
+              if [ -f "$CONFIG" ]; then
+                echo "$CONFIG exists"
+                ./fabric-ca-client enroll -u http://{{ .Values.caAdmin }}:{{ .Values.caAdminPW }}@{{ .Values.endpoint }}
+                if [ $? -ne 0 ] ; then
+                  printf "\nfail to enroll admin \n"
+                  exit -1
+                else
+                  echo "\nEnroll admin successfully\n"
+                fi
+              else
+                echo "fabric ca server does not exist"
+                exit -1
+              fi
+              {{- range .Values.items }}
+              export BASE=/var/hyperledger/crypto-config/{{ $.Values.mspId }}/{{ .id }}
+              # Register {{ .id }}
+              ./fabric-ca-client register --id.name register --id.name {{ .id }} --id.secret {{ .secret }} --id.type {{ .type }} -u http://{{ $.Values.endpoint }}> /dev/null
+              if [ $? -ne 0 ] ; then
+                printf "\nfail to register {{ .id }} \n"
+                exit -1
+              else
+                printf "\nRegister {{ .id }} \n\n"
+              fi
+              sleep 1
+              # Enroll {{ .id }}
+              FABRIC_CA_CLIENT_MSPDIR={{ .fabricCaClientMspDir }} FABRIC_CA_CLIENT_HOME="$BASE" ./fabric-ca-client enroll -u http://{{ .id }}:{{ .secret }}@{{ $.Values.endpoint }} {{if .profile }} --enrollment.profile {{ .profile }} {{ end }} --csr.hosts {{ .csrHosts }}
+              if [ $? -ne 0 ] ; then
+                printf "\nfail to enroll {{ .id }} \n"
+                exit -1
+              else
+                printf "\nEnroll {{ .id }} \n\n"
+              fi
+              # Copy tls-ca-cert
+              set -x
+              cp {{ $.Values.tlsCaCert }} $BASE/tls-ca-cert.pem
+              if [ $? -ne 0 ] ; then
+                printf "\nfail to cp tls-ca-cert for {{ .id }} \n"
+                exit -1
+              else
+                printf "\ncp tls-ca-cert for {{ .id }} \n\n"
+              fi
+              sleep 1
+              # Rename private key
+              mv $BASE/{{ .fabricCaClientMspDir }}/keystore/*_sk $BASE/{{ .fabricCaClientMspDir }}/keystore/key.pem
+              if [ $? -ne 0 ] ; then
+                set +x
+                printf "\nfail to rename private key for {{ .id }} \n"
+                exit -1
+              else
+                set +x
+                printf "\nRename private key for {{ .id }} \n\n"
+              fi
+              sleep 1
+              {{- end }}
+              # Copy cacerts to admin
+              {{- if .Values.tlsCaCert }}
+              cp {{ .Values.tlsCaCert }} /var/hyperledger/{{.Values.mspId}}/msp/tlscacerts/tls-ca-cert.pem
+              {{- end }}
+              {{- if .Values.orgCaCert }}
+              cp {{ .Values.orgCaCert }} /var/hyperledger/{{.Values.mspId}}/msp/cacerts/{{ .Values.domain }}-ca-cert.pem
+              {{- end }}
+              if [ $? -ne 0 ] ; then
+                printf "\nfail to cp cacert for admin \n"
+                exit -1
+              else
+                printf "\Copy cacert for admin \n\n"
+              fi
+              {{- if .Values.adminCert }}
+              cp {{ .Values.adminCert }} /var/hyperledger/{{.Values.mspId}}/msp/admincerts
+              {{- end }}
+              if [ $? -ne 0 ] ; then
+                printf "\nfail to copy admincert for admin \n"
+                exit -1
+              else
+                printf "\nCopy admincert for admin \n\n"
+              fi
+          envFrom:
+            - configMapRef:
+                name: {{ include "create-crypto.fullname" . }}--crypto
+          volumeMounts:
+            - mountPath: /var/hyperledger
+              name: fabricfiles
+      restartPolicy: Never

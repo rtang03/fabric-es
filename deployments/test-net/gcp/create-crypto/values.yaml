@@ -1,0 +1,2 @@
+persistence:
+  pvcName: pvc-org0

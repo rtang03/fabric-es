@@ -9,10 +9,6 @@ persistence:
   pvcName: pvc-org0
   hostPath: /tmp/data/org0
 
-  ## A manually managed Persistent Volume and Claim
-  ## If defined, PVC must be created manually before volume will be bound
-#  subPath: ""
-
   # storageClass: "-"
   # storageClass: manual
   accessMode: ReadWriteOnce
@@ -38,6 +34,8 @@ postgresql-0:
     size: 1Gi
 
 cli:
+  fabricBinary: "2.2.0"
+  fabricCABinary: "1.4.7"
   bootstrap: true
   channelName: "loanapp"
   mspId: "Org0MSP"

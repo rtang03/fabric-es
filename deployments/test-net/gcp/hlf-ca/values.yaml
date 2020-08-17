@@ -48,7 +48,7 @@ persistence:
   # storageClass: ""
   # accessMode: ReadWriteOnce
   # size: 1Gi
-  existingClaim: "pvc-org0"
+  # existingClaim: "pvc-org0"
 
 ##################################
 ## Further configuration options #
