@@ -83,7 +83,7 @@ describe('PO tests', () => {
     data = getTestData('501');
   });
 
-  it('create POs', async () => {
+  it('create POs', async () => { // case 0
     await fetch(`http://localhost:${relayPort}${EndPoints[1]}`, {
       method: 'POST',
 				headers: { 'content-type': 'application/json' },
@@ -95,7 +95,19 @@ describe('PO tests', () => {
     });
   });
 
-  it('cancel POs', async () => {
+  it('edit POs', async () => { // case 1
+    await fetch(`http://localhost:${relayPort}${EndPoints[1]}`, {
+      method: 'PUT',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify(data.PoEdit)
+    }).then(res => {
+      console.log('edit POs', res.status, res.statusText);
+      expectResultCount ++;
+      expect(res.status).toEqual(200);
+    });
+  });
+
+  it('cancel POs', async () => { // case 2
     await fetch(`http://localhost:${relayPort}${EndPoints[2]}`, {
       method: 'POST',
 				headers: { 'content-type': 'application/json' },
@@ -107,13 +119,73 @@ describe('PO tests', () => {
     });
   });
 
-  it('process POs', async () => {
+  it('process POs', async () => { // case 3
     await fetch(`http://localhost:${relayPort}${EndPoints[3]}`, {
       method: 'POST',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify(data.PoProcess)
     }).then(res => {
-      console.log('cancel POs', res.status, res.statusText);
+      console.log('process POs', res.status, res.statusText);
+      expectResultCount ++;
+      expect(res.status).toEqual(200);
+    });
+  });
+
+  it('create Invoices', async () => { // case 4
+    await fetch(`http://localhost:${relayPort}${EndPoints[4]}`, {
+      method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify(data.InvCreate)
+    }).then(res => {
+      console.log('create Invoices', res.status, res.statusText);
+      expectResultCount ++;
+      expect(res.status).toEqual(200);
+    });
+  });
+
+  it('edit Invoices', async () => { // case 5
+    await fetch(`http://localhost:${relayPort}${EndPoints[4]}`, {
+      method: 'PUT',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify(data.InvEdit)
+    }).then(res => {
+      console.log('edit Invoices', res.status, res.statusText);
+      expectResultCount ++;
+      expect(res.status).toEqual(200);
+    });
+  });
+
+  it('notify Invoices', async () => { // case 6
+    await fetch(`http://localhost:${relayPort}${EndPoints[5]}`, {
+      method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify(data.InvNotify)
+    }).then(res => {
+      console.log('notify Invoices', res.status, res.statusText);
+      expectResultCount ++;
+      expect(res.status).toEqual(200);
+    });
+  });
+
+  it('invoices results', async () => { // case 7
+    await fetch(`http://localhost:${relayPort}${EndPoints[7]}`, {
+      method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify(data.InvResult)
+    }).then(res => {
+      console.log('invoices results', res.status, res.statusText);
+      expectResultCount ++;
+      expect(res.status).toEqual(200);
+    });
+  });
+
+  it('finance results', async () => { // case 8
+    await fetch(`http://localhost:${relayPort}${EndPoints[8]}`, {
+      method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify(data.InvFin)
+    }).then(res => {
+      console.log('finance results', res.status, res.statusText);
       expectResultCount ++;
       expect(res.status).toEqual(200);
     });
@@ -130,7 +202,6 @@ describe('PO tests', () => {
 
     for (let i = 0; i < results.length; i ++) {
       const { statusMessage, reqBody, resBody, errors, ...rest } = results[i];
-      console.log('RESULT!!!!!!!', JSON.stringify(rest));
       switch (i) {
         case 0:
           expect(results[i].method === 'POST');
@@ -142,6 +213,15 @@ describe('PO tests', () => {
           break;
 
         case 1:
+          expect(results[i].method === 'PUT');
+          expect(results[i].events.length).toEqual(data.PoEdit.length);
+          for (let j = 0; j < results[i].events.length; j ++) {
+            expect(results[i].events[j].type).toEqual('POUpdated');
+            expect(results[i].events[j].payload.poBaseInfo.poId).toEqual(data.PoEdit[j].poBaseInfo.poId);
+          }
+          break;
+
+        case 2:
           expect(results[i].method === 'POST');
           expect(results[i].events.length).toEqual(data.PoCancel.length);
           for (let j = 0; j < results[i].events.length; j ++) {
@@ -150,7 +230,7 @@ describe('PO tests', () => {
           }
           break;
 
-        case 2:
+        case 3:
           expect(results[i].method === 'POST');
           expect(results[i].events.length).toEqual(data.PoProcess.length);
           for (let j = 0; j < results[i].events.length; j ++) {
@@ -158,10 +238,56 @@ describe('PO tests', () => {
             expect(results[i].events[j].payload.poId).toEqual(data.PoCreate[j].poBaseInfo.poId);
           }
           break;
+
+        case 4:
+          expect(results[i].method === 'POST');
+          expect(results[i].events.length).toEqual(data.InvCreate.length);
+          for (let j = 0; j < results[i].events.length; j ++) {
+            expect(results[i].events[j].type).toEqual('InvoiceCreated');
+            expect(results[i].events[j].payload.invBaseInfo.invoiceId).toEqual(data.InvCreate[j].invBaseInfo.invoiceId);
+          }
+          break;
+
+        case 5:
+          expect(results[i].method === 'PUT');
+          expect(results[i].events.length).toEqual(data.InvEdit.length);
+          for (let j = 0; j < results[i].events.length; j ++) {
+            expect(results[i].events[j].type).toEqual('InvoiceUpdated');
+            expect(results[i].events[j].payload.invBaseInfo.invoiceId).toEqual(data.InvEdit[j].invBaseInfo.invoiceId);
+          }
+          break;
+
+        case 6:
+          expect(results[i].method === 'POST');
+          expect(results[i].events.length).toEqual(data.InvNotify.length);
+          for (let j = 0; j < results[i].events.length; j ++) {
+            expect(results[i].events[j].type).toEqual('InvoiceNotified');
+            expect(results[i].events[j].payload.poId).toEqual(data.PoCreate[j].poBaseInfo.poId);
+          }
+          break;
+
+        case 7:
+          expect(results[i].method === 'POST');
+          expect(results[i].events.length).toEqual(data.InvResult.length);
+          for (let j = 0; j < results[i].events.length; j ++) {
+            expect(results[i].events[j].type).toEqual('InvoiceResponded');
+            expect(results[i].events[j].payload.invoiceId).toEqual(data.InvCreate[j].invBaseInfo.invoiceId);
+          }
+          break;
+
+        case 8:
+          expect(results[i].method === 'POST');
+          expect(results[i].events.length).toEqual(data.InvFin.length);
+          for (let j = 0; j < results[i].events.length; j ++) {
+            expect(results[i].events[j].type).toEqual('PaymentStatusNotified');
+            expect(results[i].events[j].payload.invoiceId).toEqual(data.InvCreate[j].invBaseInfo.invoiceId);
+          }
+          break;
       }
     }
 
     // See https://stackoverflow.com/questions/25344879/uploading-file-using-post-request-in-node-js
+    // EDIT: but the npm module 'request' is deprecated!
     // it('create a PO with files', async () => {});
   });
 });
