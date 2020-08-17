@@ -1,5 +1,11 @@
 global:
   TZ: Asia/Hong_Kong
+  mspId: Org0MSP
+
+configmap:
+  # only for org1
+  # peerAddress: "p0o1-hlf-peer:7051"
+  # peerTlsRootcertFile: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem
 
 persistence:
   enabled: true
@@ -28,7 +34,7 @@ postgresql-0:
     enabled: true
     existingClaim: pvc-org0
     subPath: pgdata
-    storageClass: manual
+    # storageClass: manual
     accessModes:
       - ReadWriteOnce
     size: 1Gi
@@ -58,8 +64,8 @@ cli:
 
 # Only applied for Org0
 ordererConfiguration:
-  enabled: true
-  ORDERER_GENERAL_LOCALMSPID: Org0MSP
-  org1cacert: "org1-cacerts"
-  org1admincerts: "org1-admincerts"
-  org1tlscacerts: "org1-tlscacerts"
+  enabled: false
+#   ORDERER_GENERAL_LOCALMSPID: Org0MSP
+#   org1cacert: "org1-cacerts"
+#   org1admincerts: "org1-admincerts"
+#   org1tlscacerts: "org1-tlscacerts"

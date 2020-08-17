@@ -1,0 +1,60 @@
+persistence:
+  enabled: true
+  # Used for local dev, Persistence Volume Name only for manual storage class
+  # In public cloud, it should use Dynamic Provisioning
+  pvName: pv-org1
+  pvcName: pvc-org1
+  hostPath: /tmp/data/org1
+
+  ## A manually managed Persistent Volume and Claim
+  ## If defined, PVC must be created manually before volume will be bound
+  #  subPath: ""
+
+  # storageClass: "-"
+  storageClass: manual
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  annotations: {}
+
+postgresql-0:
+  postgresqlPassword: password
+  initdbScripts:
+    1-createdb.sql: |
+      CREATE DATABASE "tls_ca_db";
+      CREATE DATABASE "rca_db";
+  service:
+    type: NodePort
+    nodePort: 30433
+  persistence:
+    enabled: true
+    existingClaim: pvc-org1
+    subPath: pgdata
+    # storageClass: manual
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+
+cli:
+  fabricBinary: "2.2.0"
+  fabricCABinary: "1.4.7"
+  bootstrap: false
+  channelName: "loanapp"
+  mspId: "Org1MSP"
+  anchorPeer: "Org1MSP"
+  enabled: true
+  workingDir: /var/hyperledger/crypto-config
+  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
+  fabricLogging: "INFO"
+  ordTlsSignCert: "orderer0.org0.com-tlssigncert"
+  channels:
+    - "channeltx"
+  image:
+    repository: hyperledger/fabric-tools
+    tag: 2.2.0
+    pullPolicy: IfNotPresent
+  persistence:
+    subPath: cli
+    enabled: true
+    size: 1Gi
+  peerAddress: "p0o1-hlf-peer:7051"
+  peerTlsRootcertFile: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem

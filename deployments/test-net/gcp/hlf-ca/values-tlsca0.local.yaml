@@ -3,6 +3,16 @@ caAdmin: tlsca0-admin
 caAdminPW: tlsca0-adminPW
 caName: tlsca0
 
+service:
+  ## Cluster IP or LoadBalancer
+  type: ClusterIP
+  port: 7054
+
+image:
+  repository: hyperledger/fabric-ca
+  tag: 1.4.7
+  pullPolicy: IfNotPresent
+
 ingress:
   enabled: true
   annotations:
@@ -19,12 +29,20 @@ ingress:
 #      hosts:
 #        - tlsca0
 
+externalDatabase:
+  type: postgres
+  host: admin0-postgresql-0
+  port: 5432
+  database: tls_ca_db
+  username: postgres
+  password: password
+
 persistence:
   enabled: true
   storageClass: manual
   accessMode: ReadWriteOnce
   existingClaim: pvc-org0
-  size: 10Mi
+#  size: 10Mi
 
 config:
   hlfToolsVersion: 1.4.7

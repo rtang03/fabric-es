@@ -3,9 +3,7 @@
 ## Declare variables to be passed into your templates.
 
 mspId: Org0MSP
-## CA Admin Username
 caAdmin: admin
-## CA Admin password (set to 24 random characters by default)
 caAdminPW: adminPW
 ## Name of CA, stored in FABRIC_CA_SERVER_CA_NAME (and the configMap "--config", if deploying a Root CA)
 caName: org1-ca

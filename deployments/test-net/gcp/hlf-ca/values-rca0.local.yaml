@@ -1,10 +1,18 @@
 mspId: Org0MSP
-
-## rca-org0 properties
 caAdmin: rca0-admin
 caAdminPW: rca0-adminPW
 # Don't change caName for org0
 caName: rca0
+
+image:
+  repository: hyperledger/fabric-ca
+  tag: 1.4.7
+  pullPolicy: IfNotPresent
+
+service:
+  ## Cluster IP or LoadBalancer
+  type: ClusterIP
+  port: 7054
 
 ingress:
   enabled: true
@@ -27,7 +35,15 @@ persistence:
   storageClass: manual
   accessMode: ReadWriteOnce
   existingClaim: pvc-org0
-  size: 10Mi
+  # size: 10Mi
+
+externalDatabase:
+  type: postgres
+  host: admin0-postgresql-0
+  port: 5432
+  database: rca_db
+  username: postgres
+  password: password
 
 config:
   hlfToolsVersion: 1.4.7

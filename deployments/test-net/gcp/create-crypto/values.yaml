@@ -1,2 +1,5 @@
+domain: org0.com
+mspId: Org0MSP
+
 persistence:
   pvcName: pvc-org0

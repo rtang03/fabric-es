@@ -10,7 +10,14 @@ helm install rca0 -n n0 -f ./hlf-ca/values-rca0.local.yaml ./hlf-ca
 
 # the fabric binary download may take a few minutes
 kubectl wait --for=condition=Available --timeout 600s deployment/admin0-orgadmin-cli -n n0
-helm install create-crypto0 ./create-crypto -n n0
+helm install crypto-tlsca0 -n n0 -f ./create-crypto/values-tlsca0.yaml ./create-crypto
+
+kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca0-create-crypto -n n0
+
+helm install crypto-rca0 -n n0 -f ./create-crypto/values-rca0.yaml ./create-crypto
+kubectl wait --for=condition=complete --timeout 120s job/crypto-rca0-create-crypto -n n0
+
+helm install admin1 -n n1 -f ./orgadmin/values-admin1.local.yaml --dry-run --debug ./orgadmin
 
 # GCP
 helm install admin0 -n n0 -f ./orgadmin/values-admin0.gcp.yaml ./orgadmin
@@ -51,3 +58,5 @@ export CA_PASSWORD=$(kubectl get secret -n n0 tlsca0-hlf-ca--ca -o jsonpath="{.d
 
 How to wait po to be ready
 while [[ $(kubectl get pods -l app=hello -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for pod" && sleep 1; done
+
+export CRYPTOTLSCA0=$(kubectl get pods -n n0 -l "job-name=crypto-tlsca0-create-crypto" -o jsonpath="{.items[0].metadata.name}")

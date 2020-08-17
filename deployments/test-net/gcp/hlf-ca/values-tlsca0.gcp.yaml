@@ -20,6 +20,14 @@ persistence:
   annotations: {}
   existingClaim: "pvc-org0"
 
+externalDatabase:
+  type: postgres
+  host: admin0-postgresql-0
+  port: 5432
+  database: tls_ca_db
+  username: postgres
+  password: password
+
 config:
   hlfToolsVersion: 1.4.7
   fabricCaHome: /var/hyperledger/crypto-config/Org0MSP/tls/server

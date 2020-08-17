@@ -2,4 +2,54 @@ persistence:
   enabled: true
   accessMode: ReadWriteOnce
   size: 1Gi
+  pvcName: pvc-org0
+  hostPath: /tmp/data/org0
   # annotations: {}
+
+postgresql-0:
+  postgresqlPassword: password
+  initdbScripts:
+    1-createdb.sql: |
+      CREATE DATABASE "tls_ca_db";
+      CREATE DATABASE "rca_db";
+  service:
+    type: NodePort
+    nodePort: 30432
+  persistence:
+    enabled: true
+    existingClaim: pvc-org0
+    subPath: pgdata
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+
+cli:
+  fabricBinary: "2.2.0"
+  fabricCABinary: "1.4.7"
+  bootstrap: true
+  channelName: "loanapp"
+  mspId: "Org0MSP"
+  anchorPeer: "Org1MSP"
+  enabled: true
+  workingDir: /var/hyperledger/crypto-config
+  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
+  fabricLogging: "INFO"
+  ordTlsSignCert: "orderer0.org0.com-tlssigncert"
+  channels:
+    - "channeltx"
+  image:
+    repository: hyperledger/fabric-tools
+    tag: 2.2.0
+    pullPolicy: IfNotPresent
+  persistence:
+    subPath: cli
+    enabled: true
+    size: 1Gi
+
+# Only applied for Org0
+ordererConfiguration:
+  enabled: true
+  ORDERER_GENERAL_LOCALMSPID: Org0MSP
+  org1cacert: "org1-cacerts"
+  org1admincerts: "org1-admincerts"
+  org1tlscacerts: "org1-tlscacerts"
