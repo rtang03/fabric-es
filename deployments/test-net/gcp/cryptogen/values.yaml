@@ -1,0 +1,39 @@
+global:
+  mspId: Org0MSP
+  caName: tlsca0
+  caServerHome: /var/hyperledger/crypto-config/Org0MSP/tls/server
+  caClientHome: /var/hyperledger/crypto-config/Org0MSP/tls/admin
+  domain: org0.com
+
+caAdmin: tlsca0-admin
+caAdminPW: tlsca0-adminPW
+endpoint: tlsca0-hlf-ca.n0.svc.cluster.local:7054
+# tlscaCert is for tlsca only, not rca. Don't uncomment it.
+# tlsCaCert: /var/hyperledger/crypto-config/Org0MSP/tls/admin/msp/cacerts/tlsca0-hlf-ca-n0-svc-cluster-local-7054.pem
+
+### orgCacert and adminCert exist for rca, not tlsca
+# orgCaCert:
+# adminCert:
+
+### Org admin is required for rca; not for tlsca
+orgAdmin:
+  enabled: false
+  ### no default
+  id:
+  secret:
+  type:
+  attrs:
+
+items:
+  # "orderer" or "peer"
+  - type: orderer
+    id:
+    secret:
+    # tls-msp or msp
+    caClientMspDir: tls-msp
+    # alway "tls", or omit "profile"
+    profile: tls
+    csrHosts:
+
+persistence:
+  pvcName: pvc-org0

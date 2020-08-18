@@ -53,7 +53,7 @@ spec:
         - name: ca
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          workingDir: /var/hyperledger/crypto-config
+          workingDir: {{ .Values.global.workingDir }}
           command:
             - sh
             - -c

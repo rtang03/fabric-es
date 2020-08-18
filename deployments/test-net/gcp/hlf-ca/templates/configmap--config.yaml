@@ -10,7 +10,7 @@ data:
     #   This is a configuration file for the fabric-ca-server command.
     #############################################################################
     # Version of config file
-    version: {{ .Values.config.hlfToolsVersion }}
+    version: {{ .Values.image.tag }}
     # Server's listening port
     port: 7054
     # Enables debug logging
@@ -47,7 +47,7 @@ data:
       # Key file (is only used to import a private key into BCCSP)
       keyfile:
       # Certificate file (default: ca-cert.pem)
-      certfile: {{ .Values.config.fabricCaClientTlsCertfiles }}
+      certfile: {{ .Values.config.caClientTlsCertfiles }}
       # Chain file
       chainfile:
     #############################################################################
@@ -241,7 +241,7 @@ data:
     {{- if .Values.config.intermediate }}
        cn:
     {{- else}}
-       cn: {{ .Values.caName | quote }}
+       cn: {{ .Values.global.caName | quote }}
     {{- end}}
        names:
           - C: {{ .Values.config.csr.names.c | quote }}

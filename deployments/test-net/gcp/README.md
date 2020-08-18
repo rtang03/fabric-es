@@ -3,67 +3,66 @@
 kubectl create n0
 kubectl create n1
 
-# Local
-# ok
+### Local
+# Org0
 helm install admin0 -n n0 -f ./orgadmin/values-admin0.local.yaml ./orgadmin
-helm install tlsca0 -n n0 -f ./hlf-ca/values-tlsca0.local.yaml ./hlf-ca
-helm install rca0 -n n0 -f ./hlf-ca/values-rca0.local.yaml ./hlf-ca
+helm install tlsca0 -n n0 -f ./hlf-ca/values-tlsca0.yaml ./hlf-ca
+helm install rca0 -n n0 -f ./hlf-ca/values-rca0.yaml ./hlf-ca
 
 # the fabric binary download may take a few minutes
 kubectl wait --for=condition=Available --timeout 600s deployment/admin0-orgadmin-cli -n n0
-helm install crypto-tlsca0 -n n0 -f ./create-crypto/values-tlsca0.yaml ./create-crypto
+helm install crypto-tlsca0 -n n0 -f ./cryptogen/values-tlsca0.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca0-cryptogen -n n0
+helm install crypto-rca0 -n n0 -f ./cryptogen/values-rca0.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 120s job/crypto-rca0-cryptogen -n n0
 
-kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca0-create-crypto -n n0
-
-helm install crypto-rca0 -n n0 -f ./create-crypto/values-rca0.yaml ./create-crypto
-kubectl wait --for=condition=complete --timeout 120s job/crypto-rca0-create-crypto -n n0
-
-# ok
+# Org 1
 helm install admin1 -n n1 -f ./orgadmin/values-admin1.local.yaml ./orgadmin
+helm install tlsca1 -n n1 -f ./hlf-ca/values-tlsca1.yaml ./hlf-ca
+helm install rca1 -n n1 -f ./hlf-ca/values-rca1.yaml ./hlf-ca
+
 kubectl wait --for=condition=Available --timeout 600s deployment/admin1-orgadmin-cli -n n1
+helm install crypto-tlsca1 -n n1 -f ./cryptogen/values-tlsca1.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca1-cryptogen -n n1
+helm install crypto-rca1 -n n1 -f ./cryptogen/values-rca1.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 120s job/crypto-rca1-cryptogen -n n1
 
-# GCP
-# ok
+### GCP
+# Org0
 helm install admin0 -n n0 -f ./orgadmin/values-admin0.gcp.yaml ./orgadmin
-helm install tlsca0 -n n0 -f ./hlf-ca/values-tlsca0.gcp.yaml ./hlf-ca
-helm install rca0 -n n0 -f ./hlf-ca/values-rca0.gcp.yaml ./hlf-ca
+helm install tlsca0 -n n0 -f ./hlf-ca/values-tlsca0.yaml ./hlf-ca
+helm install rca0 -n n0 -f ./hlf-ca/values-rca0.yaml ./hlf-ca
 
-#ok
+# the fabric binary download may take a few minutes
+kubectl wait --for=condition=Available --timeout 600s deployment/admin0-orgadmin-cli -n n0
+helm install crypto-tlsca0 -n n0 -f ./cryptogen/values-tlsca0.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca0-cryptogen -n n0
+helm install crypto-rca0 -n n0 -f ./cryptogen/values-rca0.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 120s job/crypto-rca0-cryptogen -n n0
+
+# Org 1
 helm install admin1 -n n1 -f ./orgadmin/values-admin1.gcp.yaml ./orgadmin
+helm install tlsca1 -n n1 -f ./hlf-ca/values-tlsca1.yaml ./hlf-ca
+helm install rca1 -n n1 -f ./hlf-ca/values-rca1.yaml ./hlf-ca
 
-./scripts/rm-secret.n0.sh
-./scripts/setup.tlsca0.sh
-./scripts/setup.rca0.sh
+kubectl wait --for=condition=Available --timeout 600s deployment/admin1-orgadmin-cli -n n1
+helm install crypto-tlsca1 -n n1 -f ./cryptogen/values-tlsca1.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca1-cryptogen -n n1
+helm install crypto-rca1 -n n1 -f ./cryptogen/values-rca1.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 120s job/crypto-rca1-cryptogen -n n1
 ```
 
-helm install admin0 -f ./orgadmin/values.0.yaml -n n0 ./orgadmin
-helm install tlsca0 -n n0 ./hlf-ca
-helm install rca0 -f ./hlf-ca/values-rca0.yaml -n n0 ./hlf-ca
-
-### Commands
+### Useful commands 
+at terminal gcloud
+```shell script
+# First time setup for gcloud
 gcloud container clusters get-credentials dev-org0-core --zone us-central1-c --project fdi-cd
 gcloud config set project fdi-cd
 
-Manual disk creation  
-(not working, need to specific region, along with replicates)
- gcloud compute disks create --type=pd-standard --size=10GB manual-disk-org0
-
-
-### connect gcp n0 pg, for local dev
-at terminal gcloud
-```shell script
+# connect gcp n0 pg, for local dev
 kubectl -n n0 port-forward pod/admin0-postgresql-0-0 5432
-```
 
-kubectl wait --for=condition=Initialized pod/csi-linode-controller-0
-kubectl wait --for=condition=Initialized pod/csi-linode-controller-0
-kubectl wait --for=condition=Available deployment/admin0-orgadmin-cli -n n0
-tlsca0-hlf-ca.n0.svc.cluster.local
-
+# retrieve password
 export CA_ADMIN=$(kubectl get secret -n n0 tlsca0-hlf-ca--ca -o jsonpath="{.data.CA_ADMIN}" | base64 --decode; echo)
 export CA_PASSWORD=$(kubectl get secret -n n0 tlsca0-hlf-ca--ca -o jsonpath="{.data.CA_PASSWORD}" | base64 --decode; echo)
-
-How to wait po to be ready
-while [[ $(kubectl get pods -l app=hello -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for pod" && sleep 1; done
-
-export CRYPTOTLSCA0=$(kubectl get pods -n n0 -l "job-name=crypto-tlsca0-create-crypto" -o jsonpath="{.items[0].metadata.name}")
+```

@@ -1,12 +1,12 @@
-## Default values for hlf-ca for tlsca0
-## This is a YAML-formatted file.
-## Declare variables to be passed into your templates.
+global:
+  TZ: Asia/Hong_Kong
+  mspId: Org0MSP
+  workingDir: /var/hyperledger/crypto-config
+  logging: info
+  caName: org1-ca
 
-mspId: Org0MSP
 caAdmin: admin
 caAdminPW: adminPW
-## Name of CA, stored in FABRIC_CA_SERVER_CA_NAME (and the configMap "--config", if deploying a Root CA)
-caName: org1-ca
 
 image:
   repository: hyperledger/fabric-ca
@@ -18,6 +18,37 @@ service:
   type: ClusterIP
   port: 7054
 
+## Settings used in configMap "--config"
+config:
+  ### Mandatory; no default
+  caServerHome: /var/hyperledger/crypto-config/Org0MSP/fabric-ca
+  caClientHome: /var/hyperledger/crypto-config/Org0MSP/client
+  ### Enable debug logging in ca Server configuration file, in ca.yaml
+  debug: false
+  caClientTlsCertfiles: /var/hyperledger/crypto-config/Org0MSP/fabric-ca/ca-cert.pem
+  ## Mount the TLS certificate & key to disk?
+  mountTLS: false
+  ## CSR pathlength in ca Server configuration file
+  csr:
+    ca:
+      pathlength: 1
+    names:
+      c: US
+      st: "North Carolina"
+      o: Hyperledger
+      ou: Fabric
+      l:
+  ### "intermediate" is only specified for Intermediate CA's
+  # intermediate:
+  #   parent:
+  #     chart: parent-ca
+  #     url: parent-ca.example.com
+  #     port: 7054
+  ### Affiliations used in ca Server configuration file, in ca.yaml
+  # org1: []
+
+### Not decided if it requires external network for CA
+### Ingress is not properly implemented
 ingress:
   enabled: true
   annotations:
@@ -35,29 +66,13 @@ ingress:
 #        - tlsca0
 
 persistence:
+  # Always true
   enabled: true
-  annotations: {}
-  ## If defined, storageClassName: <storageClass>
-  ## If set to "-", storageClassName: "", which disables dynamic provisioning
-  ## If undefined (the default) or set to null, no storageClassName spec is
-  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-  ##   GKE, AWS & OpenStack)
-  ##
-  # storageClass: ""
-  # accessMode: ReadWriteOnce
-  # size: 1Gi
-  # existingClaim: "pvc-org0"
+  existingClaim: pvc-org0
 
 ##################################
 ## Further configuration options #
 ##################################
-
-##
-## Fabric CA Database
-## By default an sqlite3 in-memory database is used
-## To install a 'postgresql' or 'mysql' database, enable and configure the configuration below
-##################################
-##
 db:
   # SSL authentication
   # Supported values are: "disable", "require", "verify-ca" and "verify-full".
@@ -74,36 +89,6 @@ externalDatabase:
   database: tls_ca_db
   username: postgres
   password: password
-
-## Settings used in configMap "--config"
-config:
-  fabricCaHome: /var/hyperledger/crypto-config/Org0MSP/fabric-ca
-  fabricCaClientHome: /var/hyperledger/crypto-config/Org0MSP/client
-  fabricCaClientTlsCertfiles: /var/hyperledger/crypto-config/Org0MSP/fabric-ca/ca-cert.pem
-  timezone: "Asia/Hong Kong"
-  hlfToolsVersion: 1.4.7
-  ## Mount the TLS certificate & key to disk?
-  mountTLS: false
-  ## Enable debug logging in ca Server configuration file
-  debug: false
-  ## CSR pathlength in ca Server configuration file
-  csr:
-    ca:
-      pathlength: 1
-    names:
-      c: US
-      st: "North Carolina"
-      o: Hyperledger
-      ou: Fabric
-      l:
-  ## "intermediate" is only specified for Intermediate CA's
-  # intermediate:
-  #   parent:
-  #     chart: parent-ca
-  #     url: parent-ca.example.com
-  #     port: 7054
-  ## Affiliations used in ca Server configuration file
-  # org1: []
 
 resources: {}
   ## We usually recommend not to specify default resources and to leave this as a conscious
