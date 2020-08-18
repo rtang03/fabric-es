@@ -4,12 +4,8 @@ global:
   # TZ: Asia/Hong_Kong
   ### Default
   # workingDir: /var/hyperledger/crypto-config
-
-config:
   ### Default
   # logging: info
-  orderer:
-    enabled: true
 
 cli:
   ### Default
@@ -36,14 +32,13 @@ persistence:
   # annotations: {}
   ### Default
   # accessMode: ReadWriteOnce
-  enabled: true
+  ### Default
+  # enabled: true
   hostPath: /tmp/data/org0
   pvName: pv-org0
   pvcName: pvc-org0
   size: 1Gi
-  # storageClass can be "-", manual, or storageClass is not required for dynamic provisioning
-  # storageClass: "-"
-  # storageClass: manual
+  storageClass: manual
 
 postgresql-0:
   ### Default
@@ -66,22 +61,4 @@ postgresql-0:
     # accessModes:
     #  - ReadWriteOnce
 
-#cli:
-#  fabricBinary: "2.2.0"
-#  fabricCABinary: "1.4.7"
-#  bootstrap: true
-#  channelName: "loanapp"
-#  mspId: "Org0MSP"
-#  anchorPeer: "Org1MSP"
-#  enabled: true
-#  workingDir: /var/hyperledger/crypto-config
-#  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
-#  fabricLogging: "INFO"
-#  ordTlsSignCert: "orderer0.org0.com-tlssigncert"
-#  channels:
-#    - "channeltx"
-#  persistence:
-#    subPath: cli
-#    enabled: true
-#    size: 1Gi
 

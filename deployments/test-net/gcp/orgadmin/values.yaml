@@ -2,11 +2,7 @@ global:
   TZ: Asia/Hong_Kong
   mspId: Org0MSP
   workingDir: /var/hyperledger/crypto-config
-
-config:
   logging: info
-  orderer:
-    enabled: false
 
 cli:
   fabricBinary: "2.2.0"
@@ -38,13 +34,18 @@ peer:
 persistence:
   annotations: {}
   accessMode: ReadWriteOnce
+  # alway enabled
   enabled: true
+  # hostPath for PV for "manual" storageClass. If no storageClass, hostPath can omit
   hostPath: /tmp/data/org0
+  # pv is requred for "manual" storageClass. If no storageClass, pv can omit
   pvName: pv-org0
+  # mandatory
   pvcName: pvc-org0
   # storageClass can be "-", manual, or storageClass is not required for dynamic provisioning
   # storageClass: "-"
   # storageClass: manual
+  # requested size for pv
   size: 1Gi
 
 postgresql-0:

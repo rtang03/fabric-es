@@ -4,7 +4,8 @@ kubectl create n0
 kubectl create n1
 
 # Local
-helm install admin0 -n n0 -f ./orgadmin/values-admin0.local.yaml --dry-run --debug ./orgadmin
+# ok
+helm install admin0 -n n0 -f ./orgadmin/values-admin0.local.yaml ./orgadmin
 helm install tlsca0 -n n0 -f ./hlf-ca/values-tlsca0.local.yaml ./hlf-ca
 helm install rca0 -n n0 -f ./hlf-ca/values-rca0.local.yaml ./hlf-ca
 
@@ -17,12 +18,18 @@ kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca0-create-cry
 helm install crypto-rca0 -n n0 -f ./create-crypto/values-rca0.yaml ./create-crypto
 kubectl wait --for=condition=complete --timeout 120s job/crypto-rca0-create-crypto -n n0
 
-helm install admin1 -n n1 -f ./orgadmin/values-admin1.local.yaml --dry-run --debug ./orgadmin
+# ok
+helm install admin1 -n n1 -f ./orgadmin/values-admin1.local.yaml ./orgadmin
+kubectl wait --for=condition=Available --timeout 600s deployment/admin1-orgadmin-cli -n n1
 
 # GCP
+# ok
 helm install admin0 -n n0 -f ./orgadmin/values-admin0.gcp.yaml ./orgadmin
 helm install tlsca0 -n n0 -f ./hlf-ca/values-tlsca0.gcp.yaml ./hlf-ca
 helm install rca0 -n n0 -f ./hlf-ca/values-rca0.gcp.yaml ./hlf-ca
+
+#ok
+helm install admin1 -n n1 -f ./orgadmin/values-admin1.gcp.yaml ./orgadmin
 
 ./scripts/rm-secret.n0.sh
 ./scripts/setup.tlsca0.sh
