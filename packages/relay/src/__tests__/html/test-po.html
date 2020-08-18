@@ -1,0 +1,56 @@
+<html>
+  <head>
+    <title>PBOC-ETC Test - Create PO</title>
+    <script type="text/javascript">
+function init() {
+  let form = document.getElementById("sform");
+
+  const handler = (url) => {
+    return async () => {
+      const form = document.getElementById("sform");
+      // const text = document.getElementById("sjson").value;
+      // const file = document.getElementById("sfile"); // document.querySelector('input[type="file"]'); 
+      const formData = new FormData(form);
+      // formData.append('files', file.files[0]);
+      // formData.append('jsonObj', text);
+
+      const result = await fetch(
+        url,
+        {
+          method: 'POST',
+          body: formData
+        });
+      document.getElementById("rslt").innerText = 'Submitted';
+      console.log(result);
+    }
+  };
+
+  document.getElementById("sbutton").addEventListener("click", handler('https://localhost:2500/order/po'));
+  document.getElementById("tbutton").addEventListener("click", handler('https://localhost:4322/order/po'));
+}
+    </script>
+    <link rel="icon" href="data:,">
+  </head>
+  <body>
+    <h3>PBOC-ETC Test - Create PO</h3>
+    <div>
+      <a href="https://localhost:4322/test-po.html">Refresh</a>
+      <br/><br/>
+      <form id="sform" method="post" enctype="multipart/form-data"
+          action="https://localhost:2500/order/po" target="_blank">
+        <input type=file id="files" name="files" />
+        <br/>
+        <textarea id="jsonObj" name="jsonObj" style="width:300px;height:150px;">
+{
+  "poId": "P12345002",
+  "poNo": "PO002",
+  "versionNo": 1
+}
+        </textarea>
+        <br/>
+        <button id="sbutton" onclick="document.getElementById('sform').submit()">Exec</button>
+      </form>
+    </div>
+    <div id="rslt">&nbsp;</div>
+  </body>
+</html>

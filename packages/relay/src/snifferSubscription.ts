@@ -19,6 +19,7 @@ export const createSubscription = (
       callback?: (topic: string, message: ReqRes, messageStr?: string) => void
     ): Promise<{ read: number; count: number }> => {
       return new Promise<{ read: number; count: number }>(async (resolve, reject) => {
+        // First read messages already post to redis before the subscription starts
         const msgs = await client.xrange(topic, '-', Date.now());
         let read = 0;
         for (const str of msgs) {
@@ -88,7 +89,7 @@ export const createSubscription = (
                       callback(event.channel, null, msg[1][1]);
                     }
                   } catch (error) {
-                    logger.warn(`Received non-JSON message: '${msg[1][1]}'`);
+                    logger.warn(`${error} Received non-JSON message: '${msg[1][1]}'`);
                     callback(topic, null, msg[1][1]);
                   }
                 } else {

@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>PBOC-ETC Test - Upload Image</title>
+    <link rel="icon" href="data:,">
+  </head>
+  <body>
+    <h3>PBOC-ETC Test - Upload Image</h3>
+    <div>
+      <a href="https://localhost:4322/test-img.html">Refresh</a>
+      <br/><br/>
+      <form id="sform" method="post" enctype="multipart/form-data"
+          action="https://localhost:2500/etccorp/pboc/api/v1/invoices/image/upload" target="_blank">
+        <input type=file id="files" name="files" />
+        <br/>
+        <input type=text id="invoiceId" name="invoiceId" value="I12345001" />
+        <br/>
+        <input type=text id="imageDesc" name="imageDesc" value="Some invoice images" />
+        <br/>
+        <button id="sbutton" onclick="document.getElementById('sform').submit()">Exec</button>
+      </form>
+    </div>
+  </body>
+</html>
