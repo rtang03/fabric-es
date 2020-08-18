@@ -4,9 +4,27 @@ kubectl create n0
 kubectl create n1
 
 ### Local
+./scripts/rm-secret.n0.sh
+./scripts/rm-secret.n1.sh
+
+# Org 1
+helm install admin1 -n n1 -f ./orgadmin/values-admin1.local.yaml ./orgadmin
+sleep 2
+helm install tlsca1 -n n1 -f ./hlf-ca/values-tlsca1.yaml ./hlf-ca
+sleep 2
+helm install rca1 -n n1 -f ./hlf-ca/values-rca1.yaml ./hlf-ca
+
+kubectl wait --for=condition=Available --timeout 600s deployment/admin1-orgadmin-cli -n n1
+helm install crypto-tlsca1 -n n1 -f ./cryptogen/values-tlsca1.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca1-cryptogen -n n1
+helm install crypto-rca1 -n n1 -f ./cryptogen/values-rca1.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 120s job/crypto-rca1-cryptogen -n n1
+
 # Org0
 helm install admin0 -n n0 -f ./orgadmin/values-admin0.local.yaml ./orgadmin
+sleep 2
 helm install tlsca0 -n n0 -f ./hlf-ca/values-tlsca0.yaml ./hlf-ca
+sleep 2
 helm install rca0 -n n0 -f ./hlf-ca/values-rca0.yaml ./hlf-ca
 
 # the fabric binary download may take a few minutes
@@ -16,16 +34,10 @@ kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca0-cryptogen 
 helm install crypto-rca0 -n n0 -f ./cryptogen/values-rca0.yaml ./cryptogen
 kubectl wait --for=condition=complete --timeout 120s job/crypto-rca0-cryptogen -n n0
 
-# Org 1
-helm install admin1 -n n1 -f ./orgadmin/values-admin1.local.yaml ./orgadmin
-helm install tlsca1 -n n1 -f ./hlf-ca/values-tlsca1.yaml ./hlf-ca
-helm install rca1 -n n1 -f ./hlf-ca/values-rca1.yaml ./hlf-ca
-
-kubectl wait --for=condition=Available --timeout 600s deployment/admin1-orgadmin-cli -n n1
-helm install crypto-tlsca1 -n n1 -f ./cryptogen/values-tlsca1.yaml ./cryptogen
-kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca1-cryptogen -n n1
-helm install crypto-rca1 -n n1 -f ./cryptogen/values-rca1.yaml ./cryptogen
-kubectl wait --for=condition=complete --timeout 120s job/crypto-rca1-cryptogen -n n1
+# create secret
+./scripts/create-secret.rca0.sh
+./scripts/create-secret.rca1.sh
+./scripts/create-genesis.sh
 
 ### GCP
 # Org0
@@ -50,6 +62,11 @@ helm install crypto-tlsca1 -n n1 -f ./cryptogen/values-tlsca1.yaml ./cryptogen
 kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca1-cryptogen -n n1
 helm install crypto-rca1 -n n1 -f ./cryptogen/values-rca1.yaml ./cryptogen
 kubectl wait --for=condition=complete --timeout 120s job/crypto-rca1-cryptogen -n n1
+
+# create secret
+./scripts/create-secret.rca0.sh
+./scripts/create-secret.rca1.sh
+./scripts/create-genesis.sh
 ```
 
 ### Useful commands 

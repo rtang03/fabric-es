@@ -8,7 +8,7 @@ global:
 caAdmin: tlsca0-admin
 caAdminPW: tlsca0-adminPW
 endpoint: tlsca0-hlf-ca.n0.svc.cluster.local:7054
-# tlscaCert is for tlsca only, not rca. Don't uncomment it.
+# tlscaCert is for tlsca only, not rca.
 # tlsCaCert: /var/hyperledger/crypto-config/Org0MSP/tls/admin/msp/cacerts/tlsca0-hlf-ca-n0-svc-cluster-local-7054.pem
 
 ### orgCacert and adminCert exist for rca, not tlsca

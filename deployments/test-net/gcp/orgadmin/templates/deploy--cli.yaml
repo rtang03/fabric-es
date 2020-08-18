@@ -96,6 +96,7 @@ spec:
                 rm bin/orderer
                 rm bin/fabric-ca-server
                 mkdir -p /var/hyperledger/bin
+                mkdir -p /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/admin/msp/admincerts
                 mkdir -p /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/msp/admincerts
                 mkdir -p /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/msp/cacerts
                 mkdir -p /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/msp/tlscacerts
