@@ -47,7 +47,7 @@ const logger = getLogger('service-prv-ctnt.js');
 
       app.listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT }).then(({ url }) => {
         logger.info(`🚀  '${process.env.MSPID}' - 'docContents' available at ${url}`);
-        if (process.env.NODE_ENV === 'production') process.send('ready');
+        process.send?.('ready');
       });
     })
     .catch((error) => {

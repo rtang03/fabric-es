@@ -68,7 +68,7 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     logger.info(`🚀 queryHandler available at ${url}`);
     logger.info(`🚀 Subscription ${subscriptionsUrl}`);
 
-    if (process.env.NODE_ENV === 'production') process.send('ready');
+    process.send?.('ready');
   });
 })().catch((error) => {
   console.error(error);

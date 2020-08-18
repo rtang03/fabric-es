@@ -34,7 +34,7 @@ const logger = getLogger('[sniffer] sniffer.js');
 
   sniffer.listen(SERVICE_PORT, () => {
     logger.info(`🚀 sniffer ready at ${SERVICE_PORT}`);
-    if (process.env.NODE_ENV === 'production') process.send('ready');
+    process.send?.('ready');
   });
 })().catch(error => {
   console.error(error);

@@ -22,7 +22,7 @@ const logger = getLogger('service-rmt-ctnt.js');
 
   server.listen({ port: process.env.REMOTE_DOC_CONTENTS_PORT }).then(({ url }) => {
     logger.info(`🚀  '${process.env.MSPID}' - Remote 'rDocContents' ready at ${url}graphql`);
-    if (process.env.NODE_ENV === 'production') process.send('ready');
+    process.send?.('ready');
   });
 })().catch(error => {
   console.error(error);

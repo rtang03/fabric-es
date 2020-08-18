@@ -38,7 +38,7 @@ const reducer = getReducer<Loan, LoanEvents>(loanReducer);
 
       app.listen({ port: process.env.SERVICE_LOAN_PORT }).then(({ url }) => {
         logger.info(`🚀  '${process.env.MSPID}' - 'loan' available at ${url}`);
-        if (process.env.NODE_ENV === 'production') process.send('ready');
+        process.send?.('ready');
       });
     })
     .catch((error) => {

@@ -35,7 +35,7 @@ const logger = getLogger('[relay] relay.js');
 
   relay.listen(SERVICE_PORT, () => {
     logger.info(`🚀 relay ready at ${SERVICE_PORT}`);
-    if (process.env.NODE_ENV === 'production') process.send('ready');
+    process.send?.('ready');
   });
   // server.timeout = 600000; which: server = relay.listen(....)
 })().catch(error => {
