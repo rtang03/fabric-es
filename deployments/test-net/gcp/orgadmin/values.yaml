@@ -1,25 +1,51 @@
 global:
   TZ: Asia/Hong_Kong
   mspId: Org0MSP
+  workingDir: /var/hyperledger/crypto-config
 
-configmap:
-  # only for org1
-  # peerAddress: "p0o1-hlf-peer:7051"
-  # peerTlsRootcertFile: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem
+config:
+  logging: info
+  orderer:
+    enabled: false
+
+cli:
+  fabricBinary: "2.2.0"
+  fabricCABinary: "1.4.7"
+  # It provides org0 with org1's certs, for creation of genesis.block
+  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
+
+orderer:
+  enabled: false
+  ### certs provided by org1, to org0
+#  secret:
+#    org1cacert: org1-cacerts
+#    org1admincerts: org1-admincerts
+#    org1tlscacerts: org1-tlscacerts
+#  channels:
+#    - "channeltx"
+
+peer:
+  enabled: false
+  ### configmap
+#  config:
+#    peerAddress: "p0o1-hlf-peer:7051"
+#    peerTlsRootcertFile: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem
+  ### certs provider by org0, to peer
+#  secret:
+#    ordTlsSignCert: orderer0.org0.com-tlssigncert
+#    ordTlsCaCert: org0-tls-ca-cert
 
 persistence:
+  annotations: {}
+  accessMode: ReadWriteOnce
   enabled: true
-  # Used for local dev, Persistence Volume Name only for manual storage class
-  # In public cloud, it should use Dynamic Provisioning
+  hostPath: /tmp/data/org0
   pvName: pv-org0
   pvcName: pvc-org0
-  hostPath: /tmp/data/org0
-
+  # storageClass can be "-", manual, or storageClass is not required for dynamic provisioning
   # storageClass: "-"
   # storageClass: manual
-  accessMode: ReadWriteOnce
   size: 1Gi
-  annotations: {}
 
 postgresql-0:
   postgresqlPassword: password
@@ -38,34 +64,3 @@ postgresql-0:
     accessModes:
       - ReadWriteOnce
     size: 1Gi
-
-cli:
-  fabricBinary: "2.2.0"
-  fabricCABinary: "1.4.7"
-  bootstrap: true
-  channelName: "loanapp"
-  mspId: "Org0MSP"
-  anchorPeer: "Org1MSP"
-  enabled: true
-  workingDir: /var/hyperledger/crypto-config
-  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
-  fabricLogging: "INFO"
-  ordTlsSignCert: "orderer0.org0.com-tlssigncert"
-  channels:
-    - "channeltx"
-  image:
-    repository: hyperledger/fabric-tools
-    tag: 2.2.0
-    pullPolicy: IfNotPresent
-  persistence:
-    subPath: cli
-    enabled: true
-    size: 1Gi
-
-# Only applied for Org0
-ordererConfiguration:
-  enabled: false
-#   ORDERER_GENERAL_LOCALMSPID: Org0MSP
-#   org1cacert: "org1-cacerts"
-#   org1admincerts: "org1-admincerts"
-#   org1tlscacerts: "org1-tlscacerts"

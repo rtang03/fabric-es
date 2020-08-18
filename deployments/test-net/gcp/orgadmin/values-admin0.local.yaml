@@ -1,66 +1,87 @@
-persistence:
+global:
+  mspId: Org0MSP
+  ### Default
+  # TZ: Asia/Hong_Kong
+  ### Default
+  # workingDir: /var/hyperledger/crypto-config
+
+config:
+  ### Default
+  # logging: info
+  orderer:
+    enabled: true
+
+cli:
+  ### Default
+  # fabricBinary: "2.2.0"
+  ### Default
+  # fabricCABinary: "1.4.7"
+  # It provides org0 with org1's certs, for creation of genesis.block
+  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
+
+orderer:
   enabled: true
-  # Used for local dev, Persistence Volume Name only for manual storage class
-  # In public cloud, it should use Dynamic Provisioning
+  secret:
+    org1cacert: org1-cacerts
+    org1admincerts: org1-admincerts
+    org1tlscacerts: org1-tlscacerts
+  channels:
+    - channeltx
+
+peer:
+  enabled: false
+
+persistence:
+  ### Default
+  # annotations: {}
+  ### Default
+  # accessMode: ReadWriteOnce
+  enabled: true
+  hostPath: /tmp/data/org0
   pvName: pv-org0
   pvcName: pvc-org0
-  hostPath: /tmp/data/org0
-
-  ## A manually managed Persistent Volume and Claim
-  ## If defined, PVC must be created manually before volume will be bound
-#  subPath: ""
-
-  # storageClass: "-"
-  storageClass: manual
-  accessMode: ReadWriteOnce
   size: 1Gi
-  annotations: {}
+  # storageClass can be "-", manual, or storageClass is not required for dynamic provisioning
+  # storageClass: "-"
+  # storageClass: manual
 
 postgresql-0:
+  ### Default
+  # initdbScripts:
+  #   1-createdb.sql: |
+  #   CREATE DATABASE "tls_ca_db";
+  #   CREATE DATABASE "rca_db";
   postgresqlPassword: password
-  initdbScripts:
-    1-createdb.sql: |
-      CREATE DATABASE "tls_ca_db";
-      CREATE DATABASE "rca_db";
   service:
     type: NodePort
     nodePort: 30432
   persistence:
     enabled: true
     existingClaim: pvc-org0
-    subPath: pgdata
     storageClass: manual
-    accessModes:
-      - ReadWriteOnce
     size: 1Gi
+    ### Default
+    # subPath: pgdata
+    ### Default
+    # accessModes:
+    #  - ReadWriteOnce
 
-cli:
-  fabricBinary: "2.2.0"
-  fabricCABinary: "1.4.7"
-  bootstrap: true
-  channelName: "loanapp"
-  mspId: "Org0MSP"
-  anchorPeer: "Org1MSP"
-  enabled: true
-  workingDir: /var/hyperledger/crypto-config
-  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
-  fabricLogging: "INFO"
-  ordTlsSignCert: "orderer0.org0.com-tlssigncert"
-  channels:
-    - "channeltx"
-  image:
-    repository: hyperledger/fabric-tools
-    tag: 2.2.0
-    pullPolicy: IfNotPresent
-  persistence:
-    subPath: cli
-    enabled: true
-    size: 1Gi
+#cli:
+#  fabricBinary: "2.2.0"
+#  fabricCABinary: "1.4.7"
+#  bootstrap: true
+#  channelName: "loanapp"
+#  mspId: "Org0MSP"
+#  anchorPeer: "Org1MSP"
+#  enabled: true
+#  workingDir: /var/hyperledger/crypto-config
+#  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
+#  fabricLogging: "INFO"
+#  ordTlsSignCert: "orderer0.org0.com-tlssigncert"
+#  channels:
+#    - "channeltx"
+#  persistence:
+#    subPath: cli
+#    enabled: true
+#    size: 1Gi
 
-# Only applied for Org0
-ordererConfiguration:
-  enabled: true
-  ORDERER_GENERAL_LOCALMSPID: Org0MSP
-  org1cacert: "org1-cacerts"
-  org1admincerts: "org1-admincerts"
-  org1tlscacerts: "org1-tlscacerts"

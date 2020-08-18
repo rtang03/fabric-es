@@ -16,30 +16,34 @@ spec:
 {{ include "labels.standard" . | indent 8 }}
     spec:
       volumes:
-        - name: workdir
-          emptyDir: {}
         - name: fabricfiles
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.pvcName }}
         - name: dockersocket
           hostPath:
             path: /var/run/docker.sock
-        {{- if .Values.ordererConfiguration.enabled }}
+        {{- if .Values.config.orderer.enabled }}
         - name: configtx
           configMap:
             name: {{ include "orgadmin.fullname" . }}--configtx
+        {{- end }}
+        {{- if .Values.secret.orderer.enabled }}
         - name: org1mspcacerts
           secret:
             optional: true
-            secretName: {{ .Values.ordererConfiguration.org1cacert }}
+            secretName: {{ .Values.secret.orderer.org1cacert | quote }}
+        {{- end }}
+        {{- if .Values.secret.orderer.enabled }}
         - name: org1mspadmincerts
           secret:
             optional: true
-            secretName: {{ .Values.ordererConfiguration.org1admincerts }}
+            secretName: {{ .Values.secret.orderer.org1admincerts | quote }}
+        {{- end }}
+        {{- if .Values.secret.orderer.enabled }}
         - name: org1msptlscacerts
           secret:
             optional: true
-            secretName: {{ .Values.ordererConfiguration.org1tlscacerts }}
+            secretName: {{ .Values.secret.orderer.org1tlscacerts }}
         {{- end }}
         - name: peerconfig
           configMap:
@@ -47,24 +51,26 @@ spec:
         - name: core
           configMap:
             name: {{ include "orgadmin.fullname" . }}--core
-        {{- if .Values.cli.channels }}
-        {{- range .Values.cli.channels }}
+        {{- if .Values.secret.channels }}
+        {{- range .Values.secret.channels }}
         - name: {{ . }}
           secret:
             optional: true
             secretName: {{ . }}
         {{- end }}
         {{- end }}
-        {{- if .Values.cli.ordTlsSignCert }}
+        {{- if .Values.secret.peer.enabled }}
         - name: ord-tlssigncert
           secret:
             optional: true
-            secretName: {{ .Values.cli.ordTlsSignCert }}
+            secretName: {{ .Values.secret.peer.ordTlsSignCert | quote }}
         {{- end }}
+        {{- if .Values.secret.peer.enabled }}
         - name: org0-tls-ca-cert
           secret:
             optional: true
-            secretName: "org0-tls-ca-cert"
+            secretName: {{ .Values.secret.peer.ordTlsCaCert }}
+        {{- end }}
       initContainers:
         - name: initcli
           image: library/alpine:3.12.0
@@ -88,9 +94,9 @@ spec:
                 rm bin/orderer
                 rm bin/fabric-ca-server
                 mkdir -p /var/hyperledger/bin
-                mkdir -p /var/hyperledger/crypto-config/{{ .Values.cli.mspId }}/msp/admincerts
-                mkdir -p /var/hyperledger/crypto-config/{{ .Values.cli.mspId }}/msp/cacerts
-                mkdir -p /var/hyperledger/crypto-config/{{ .Values.cli.mspId }}/msp/tlscacerts
+                mkdir -p /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/msp/admincerts
+                mkdir -p /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/msp/cacerts
+                mkdir -p /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/msp/tlscacerts
                 if [ -f "bin/configtxgen" ]; then
                   echo "init successfully"
                   mv bin/* /var/hyperledger/bin
@@ -105,7 +111,7 @@ spec:
       containers:
         - name: cli
           image: library/alpine:3.12.0
-          workingDir: {{ .Values.cli.workingDir | quote }}
+          workingDir: {{ .Values.global.workingDir | quote }}
           command:
             - sh
             - -c
@@ -113,7 +119,7 @@ spec:
               apk update
               apk upgrade
               apk --no-cache add curl libc6-compat libstdc++
-              mkdir -p {{ .Values.cli.workingDir }}/channel-artifacts
+              mkdir -p {{ .Values.global.workingDir }}/channel-artifacts
               /var/hyperledger/bin/fabric-ca-client version
               /var/hyperledger/bin/configtxgen --version
               sleep 48h
@@ -125,15 +131,21 @@ spec:
               name: fabricfiles
             - mountPath: /host/var/run/docker.sock
               name: dockersocket
-            {{- if .Values.ordererConfiguration.enabled }}
+            {{- if .Values.config.orderer.enabled }}
             - mountPath: /var/hyperledger/cli/configtx
               name: configtx
+            {{- end }}
+            {{- if .Values.secret.orderer.enabled }}
             - mountPath: "{{ $.Values.cli.firstOrgDir }}/msp/cacerts"
               readOnly: true
               name: org1mspcacerts
+            {{- end }}
+            {{- if .Values.secret.orderer.enabled }}
             - mountPath: "{{ $.Values.cli.firstOrgDir }}/msp/admincerts"
               readOnly: true
               name: org1mspadmincerts
+            {{- end }}
+            {{- if .Values.secret.orderer.enabled }}
             - mountPath: "{{ $.Values.cli.firstOrgDir }}/msp/tlscacerts"
               readOnly: true
               name: org1msptlscacerts
@@ -146,9 +158,11 @@ spec:
               name: {{ . }}
             {{- end }}
             {{- end }}
-            {{- if .Values.cli.ordTlsSignCert }}
+            {{- if .Values.secret.peer.enabled }}
             - mountPath: "{{ $.Values.cli.firstOrgDir }}/peer0.org1.net/ord/tls-msp/signcerts"
               name: ord-tlssigncert
             {{- end }}
+            {{- if .Values.secret.peer.enabled }}
             - mountPath: "{{ $.Values.cli.firstOrgDir }}/peer0.org1.net/ord/org0/tlscacerts"
               name: org0-tls-ca-cert
+            {{- end }}

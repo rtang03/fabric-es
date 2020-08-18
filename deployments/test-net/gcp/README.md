@@ -4,7 +4,7 @@ kubectl create n0
 kubectl create n1
 
 # Local
-helm install admin0 -n n0 -f ./orgadmin/values-admin0.local.yaml ./orgadmin
+helm install admin0 -n n0 -f ./orgadmin/values-admin0.local.yaml --dry-run --debug ./orgadmin
 helm install tlsca0 -n n0 -f ./hlf-ca/values-tlsca0.local.yaml ./hlf-ca
 helm install rca0 -n n0 -f ./hlf-ca/values-rca0.local.yaml ./hlf-ca
 
