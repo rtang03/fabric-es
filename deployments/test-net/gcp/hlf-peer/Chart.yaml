@@ -1,0 +1,7 @@
+apiVersion: v1
+appVersion: 2.2.0
+description: Hyperledger Fabric Orderer chart
+name: hlf-peer
+sources:
+  - https://github.com/hyperledger/fabric
+version: 0.6.3

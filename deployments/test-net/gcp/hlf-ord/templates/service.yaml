@@ -11,6 +11,10 @@ spec:
       targetPort: ord-port
       protocol: TCP
       name: grpc
+    - port: 8443
+      targetPort: 8443
+      protocol: TCP
+      name: http
     {{- if .Values.sidecar.isalive.enabled }}
     - port: 5678
       targetPort: 5678

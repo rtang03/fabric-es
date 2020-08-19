@@ -1,0 +1,295 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "hlf-peer.fullname" . }}
+  labels:
+{{ include "labels.standard" . | indent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "hlf-peer.name" . }}
+      release: {{ .Release.Name }}
+  # Ensure we allow our pod to be unavailable, so we can upgrade
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+{{ include "labels.standard" . | indent 8 }}
+    spec:
+#      hostAliases:
+#      {{- range .Values.orderers }}
+#        - ip: {{ .hostAlias }}
+#          hostnames:
+#            - {{ .name }}
+#      {{- end }}
+      volumes:
+        - name: data
+        {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.pvcName }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        - name: dockersocket
+          hostPath:
+            path: {{ .Values.dockerSocketPath }}
+        {{- if .Values.dockerConfig }}
+        - name: docker-config
+          secret:
+            secretName: {{ include "hlf-peer.fullname" . }}-dockerconfigjson
+            items:
+              - key: .dockerconfigjson
+                path: config.json
+        {{- end }}
+        {{- if .Values.secrets.peer.cert }}
+        - name: id-cert
+          secret:
+            secretName: {{ .Values.secrets.peer.cert }}
+        {{- end }}
+        {{- if .Values.secrets.peer.key }}
+        - name: id-key
+          secret:
+            secretName: {{ .Values.secrets.peer.key }}
+        {{- end }}
+        {{- if .Values.secrets.peer.caCert }}
+        - name: cacert
+          secret:
+            secretName: {{ .Values.secrets.peer.caCert }}
+        {{- end }}
+        {{- if .Values.secrets.peer.intCaCert }}
+        - name: intcacert
+          secret:
+            secretName: {{ .Values.secrets.peer.intCaCert }}
+        {{- end }}
+        {{- if .Values.secrets.peer.tls }}
+        - name: tls
+          secret:
+            secretName: {{ .Values.secrets.peer.tls }}
+        {{- end }}
+        {{- if .Values.secrets.peer.tlsRootCert }}
+        - name: tls-rootcert
+          secret:
+            secretName: {{ .Values.secrets.peer.tlsRootCert }}
+        {{- end }}
+        {{- if .Values.secrets.peer.tlsClient }}
+        - name: tls-client
+          secret:
+            secretName: {{ .Values.secrets.peer.tlsClient }}
+        {{- end }}
+        {{- if .Values.secrets.peer.tlsClientRootCert }}
+        - name: tls-clientrootcert
+          secret:
+            secretName: {{ .Values.secrets.peer.tlsClientRootCert }}
+        {{- end }}
+        {{- if .Values.secrets.channels }}
+        {{- range .Values.secrets.channels }}
+        - name: {{ . }}
+          secret:
+            secretName: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.secrets.adminCert }}
+        - name: admin-cert
+          secret:
+            secretName: {{ .Values.secrets.adminCert }}
+        {{- end }}
+        {{- if .Values.secrets.adminKey }}
+        - name: admin-key
+          secret:
+            secretName: {{ .Values.secrets.adminKey }}
+        {{- end }}
+        {{- if .Values.secrets.ordTlsRootCert }}
+        - name: ord-tlsrootcert
+          secret:
+            secretName: {{ .Values.secrets.ordTlsRootCert }}
+        {{- end }}
+        {{- if .Values.secrets.ordTlsSignCert }}
+        - name: ord-tlssigncert
+          secret:
+            secretName: {{ .Values.secrets.ordTlsSignCert }}
+        {{- end }}
+        - name: org0-tls-ca-cert
+          secret:
+            secretName: {{ .Values.secrets.ordOrg0Tlscacert }}
+      containers:
+#        - name: cli
+#          image: library/busybox:1.32.0
+#          workingDir: {{ .Values.cli.workingDir | quote }}
+#          command:
+#            - sh
+#            - -c
+#            - |
+#              mkdir -p {{ .Values.cli.workingDir }}/channel-artifacts
+#              cd {{ .Values.cli.workingDir }}/channel-artifacts
+#              wget https://github.com/hyperledger/fabric/releases/download/v2.2.0/hyperledger-fabric-linux-amd64-2.2.0.tar.gz
+#              tar -xzf hyperledger-fabric-linux-amd64-2.2.0.tar.gz
+#              mv bin/* /bin
+#              configtxgen --version
+#              sleep 48h
+        - name: peer
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          workingDir: {{ include "hlf-peer.home" . }}
+          ports:
+            - name: request
+              containerPort: 7051
+              protocol: TCP
+            - name: event
+              containerPort: 7053
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - ls
+                - /var/hyperledger
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          # TODO: Improve readiness probe (ideally `ps aux | awk '$11=="orderer"'`)
+          readinessProbe:
+            exec:
+              command:
+              - ls
+              - /var/hyperledger
+            initialDelaySeconds: 15
+          command:
+            - sh
+            - -c
+            - |
+              # To avoid having separate secrets for CouchDB and HLF
+              export CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=$COUCHDB_USER
+              export CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=$COUCHDB_PASSWORD
+              while [ ! -d {{ include "hlf-peer.home" . }}/admin/msp/admincerts ] || [ -z "$(ls -A {{ include "hlf-peer.home" . }}/admin/msp/admincerts)" ];
+              do
+                echo "\033[0;31m {{ include "hlf-peer.home" . }}/admin/msp/admincerts must contain Peer admin certificates files \033[0m"
+                sleep 60
+              done
+
+              while [ ! -d ${CORE_PEER_MSPCONFIGPATH}/signcerts ];
+              do
+                echo "\033[0;31m ${CORE_PEER_MSPCONFIGPATH}/signcerts directory must exist \033[0m"
+                sleep 60
+              done
+
+              if [ ! -d ${FABRIC_CFG_PATH} ]
+              then
+                mkdir -p ${FABRIC_CFG_PATH}
+                cp -r /etc/hyperledger/fabric/core.yaml ${FABRIC_CFG_PATH}
+                ls ${FABRIC_CFG_PATH}
+              fi
+
+              if [ $CORE_PEER_TLS_CLIENTAUTHREQUIRED ]
+              then
+                export CORE_PEER_TLS_CLIENTROOTCAS_FILES=$(ls -d $CORE_PEER_TLS_CLIENTROOTCAS_FILES)
+              fi
+
+              echo ">\033[0;35m peer node start \033[0m"
+              peer node start
+          envFrom:
+            {{- if eq .Values.peer.databaseType "CouchDB" }}
+            - secretRef:
+                name: {{ .Values.peer.couchdbInstance }}-hlf-couchdb
+            {{- end }}
+            - configMapRef:
+                name: {{ include "hlf-peer.fullname" . }}--peer
+          volumeMounts:
+            - mountPath: /var/hyperledger
+              name: data
+            - mountPath: /host/var/run/docker.sock
+              name: dockersocket
+            {{- if .Values.dockerConfig }}
+            - name: docker-config
+              mountPath: {{ .Values.dockerConfigMountPath }}
+            {{ end }}
+            {{- if .Values.secrets.peer.cert }}
+            - mountPath: {{ include "hlf-peer.home" . }}/msp/signcerts
+              name: id-cert
+            {{- end }}
+            {{- if .Values.secrets.peer.key }}
+            - mountPath: {{ include "hlf-peer.home" . }}/msp/keystore
+              name: id-key
+            {{- end }}
+            {{- if .Values.secrets.peer.caCert }}
+            - mountPath: {{ include "hlf-peer.home" . }}/msp/cacerts
+              name: cacert
+            - mountPath: {{ include "hlf-peer.home" . }}/admin/msp/cacerts
+              name: cacert
+            {{- end }}
+            {{- if .Values.secrets.peer.intCaCert }}
+            - mountPath: {{ include "hlf-peer.home" . }}/msp/intermediatecerts
+              name: intcacert
+            - mountPath:{{ include "hlf-peer.home" . }}/admin/msp/intermediatecerts
+              name: intcacert
+            {{- end }}
+            {{- if .Values.secrets.peer.tls }}
+            - mountPath: {{ include "hlf-peer.home" . }}/tls-msp/tls
+              name: tls
+            {{- end }}
+            {{- if .Values.secrets.peer.tlsRootCert }}
+            - mountPath: {{ include "hlf-peer.home" . }}/tls-msp/tlscacerts
+              name: tls-rootcert
+            {{- end }}
+            {{- if .Values.secrets.peer.tlsClient }}
+            - mountPath: {{ include "hlf-peer.home" . }}/tls/client/pair
+              name: tls-client
+            {{- end }}
+            {{- if .Values.secrets.peer.tlsClientRootCert }}
+            - mountPath: {{ include "hlf-peer.home" . }}/tls/client/cert
+              name: tls-clientrootcert
+            {{- end }}
+            {{- if .Values.secrets.ordTlsRootCert }}
+            - mountPath: {{ include "hlf-peer.home" . }}/ord/tls-msp/tlscacerts
+              name: ord-tlsrootcert
+            {{- end }}
+            {{- if .Values.secrets.ordTlsSignCert }}
+            - mountPath: {{ include "hlf-peer.home" . }}/ord/tls-msp/signcerts
+              name: ord-tlssigncert
+            {{- end }}
+            {{- if .Values.secrets.channels }}
+            {{- range .Values.secrets.channels }}
+            - mountPath: {{ $.Values.peer.orgPath }}/{{ . }}
+              name: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.secrets.adminCert }}
+            - mountPath: {{ include "hlf-peer.home" . }}/admin/msp/admincerts
+              name: admin-cert
+            - mountPath: {{ include "hlf-peer.home" . }}/admin/msp/signcerts
+              name: admin-cert
+            - mountPath: {{ include "hlf-peer.home" . }}/msp/admincerts
+              name: admin-cert
+            {{- end }}
+            {{- if .Values.secrets.adminKey }}
+            - mountPath: {{ include "hlf-peer.home" . }}/admin/msp/keystore
+              name: admin-key
+            {{- end }}
+            - mountPath: {{ include "hlf-peer.home" . }}/ord/org0/tlscacerts
+              name: org0-tls-ca-cert
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        ## This affinity is required to ensure reasonable ledger access speeds
+        {{- if eq $.Values.peer.databaseType "CouchDB" }}
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: release
+                operator: In
+                values:
+                - {{ $.Values.peer.couchdbInstance }}
+            topologyKey: "kubernetes.io/hostname"
+        {{- end }}
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

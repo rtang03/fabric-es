@@ -22,8 +22,7 @@ data:
   ORDERER_GENERAL_TLS_ENABLED: "true"
   ORDERER_GENERAL_LOGLEVEL: {{ .Values.ord.debug | default "INFO" | quote }}
   ORDERER_CFG_PATH:  "{{ include "hlf-ord.home" . }}/config"
-  # ORDERER_HOST: {{ include "hlf-ord.fullname" . | quote }}
-  # ORDERER_HOST: {{ include "hlf-ord.ordererhost" . | quote }}
+  ORDERER_HOST: {{ include "hlf-ord.fullname" . | quote }}
   ORDERER_HOME: {{ include "hlf-ord.home" . | quote }}
   ORDERER_GENERAL_LOCALMSPID: {{ .Values.global.mspId | quote }}
   ORDERER_GENERAL_LOCALMSPDIR:  "{{ include "hlf-ord.home" . }}/msp"

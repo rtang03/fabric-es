@@ -74,11 +74,11 @@ data:
     Orderer: &OrdererDefaults
       OrdererType: etcdraft
       Addresses:
-        - "orderer0.org0.com:7050"
-        - "orderer1.org0.com:7050"
-        - "orderer2.org0.com:7050"
-        - "orderer3.org0.com:7050"
-        - "orderer4.org0.com:7050"
+        - "o0-hlf-ord:7050"
+        - "o1-hlf-ord:7050"
+        - "o2-hlf-ord:7050"
+        - "o3-hlf-ord:7050"
+        - "o4-hlf-ord:7050"
       BatchTimeout: 2s
       BatchSize:
         MaxMessageCount: 500

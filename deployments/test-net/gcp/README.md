@@ -40,14 +40,27 @@ kubectl wait --for=condition=complete --timeout 120s job/crypto-rca0-cryptogen -
 ./scripts/create-genesis.sh
 
 helm install o0 -f ./hlf-ord/values-O0.yaml -n n0 ./hlf-ord
-sleep 2
+sleep 3
 helm install o1 -f ./hlf-ord/values-O1.yaml -n n0 ./hlf-ord
-sleep 2
+sleep 3
 helm install o2 -f ./hlf-ord/values-O2.yaml -n n0 ./hlf-ord
-sleep 2
+sleep 3
 helm install o3 -f ./hlf-ord/values-O3.yaml -n n0 ./hlf-ord
-sleep 2
+sleep 3
 helm install o4 -f ./hlf-ord/values-O4.yaml -n n0 ./hlf-ord
+sleep 3
+helm install p0o1db -n n1 ./hlf-couchdb
+sleep 3
+
+helm install p0o1 -n n1 ./hlf-peer
+
+# create channel
+kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/channeltx/channel.tx \
+ -o o0-hlf-ord.n0.svc.cluster.local:7050 \
+ --outputBlock /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block --tls \
+ --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
+ --ordererTLSHostnameOverride o0-hlf-ord"
+printMessage "create channel" $?
 ```
 
 ### GCP

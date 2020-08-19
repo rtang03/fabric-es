@@ -97,6 +97,9 @@ spec:
             - name: ord-port
               containerPort: 7050
               protocol: TCP
+            - name: operation-port
+              containerPort: 8443
+              protocol: TCP
           livenessProbe:
             exec:
               command:
