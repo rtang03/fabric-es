@@ -1,0 +1,211 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "hlf-ord.fullname" . }}
+  labels:
+{{ include "labels.standard" . | indent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "hlf-ord.name" . }}
+      release: {{ .Release.Name }}
+  # Ensure we allow our pod to be unavailable, so we can upgrade
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+{{ include "labels.standard" . | indent 8 }}
+    spec:
+      volumes:
+        - name: data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.pvcName }}
+          {{- else }}
+          emptyDir: {}
+        {{- end }}
+        {{- if .Values.secrets.cert }}
+        - name: id-cert
+          secret:
+            secretName: {{ .Values.secrets.cert }}
+        {{- end }}
+        {{- if .Values.secrets.key }}
+        - name: id-key
+          secret:
+            secretName: {{ .Values.secrets.key }}
+        {{- end }}
+        {{- if .Values.secrets.caCert }}
+        - name: cacert
+          secret:
+            secretName: {{ .Values.secrets.caCert }}
+        {{- end }}
+        {{- if .Values.secrets.intCaCert }}
+        - name: intcacert
+          secret:
+            secretName: {{ .Values.secrets.intCaCert }}
+        {{- end }}
+        {{- if .Values.secrets.tls }}
+        - name: tls
+          secret:
+            secretName: {{ .Values.secrets.tls }}
+        {{- end }}
+        {{- if .Values.secrets.tlsRootCert }}
+        - name: tls-rootcert
+          secret:
+            secretName: {{ .Values.secrets.tlsRootCert }}
+        {{- end }}
+        {{- if .Values.secrets.tlsClientRootCert }}
+        - name: tls-clientrootcert
+          secret:
+            secretName: {{ .Values.secrets.tlsClientRootCert }}
+        {{- end }}
+        {{- if .Values.secrets.genesis }}
+        - name: genesis
+          secret:
+            secretName: {{ .Values.secrets.genesis }}
+        {{- end }}
+        {{- if .Values.secrets.adminCert }}
+        - name: admin-cert
+          secret:
+            secretName: {{ .Values.secrets.adminCert }}
+        {{- end }}
+        {{- if .Values.secrets.caServerTls }}
+        - name: ca-server-tls
+          secret:
+            secretName: {{ .Values.secrets.caServerTls }}
+      {{- end }}
+      containers:
+        {{- if .Values.sidecar.isalive.enabled }}
+        - name: isalive
+          image: hashicorp/http-echo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: isalive-port
+              containerPort: 5678
+              protocol: TCP
+          args:
+            - "-text=iamorderer0"
+        {{- end }}
+        - name: orderer
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          workingDir: {{ include "hlf-ord.home" . }}
+          ports:
+            - name: ord-port
+              containerPort: 7050
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - ls
+                - /var/hyperledger
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          # TODO: Improve readiness probe (ideally `ps aux | awk '$11=="orderer"'`)
+          readinessProbe:
+            exec:
+              command:
+                - ls
+                - /var/hyperledger
+            initialDelaySeconds: 15
+          command:
+            - sh
+            - -c
+            - |
+
+              while [ ! -d "$ORDERER_GENERAL_LOCALMSPDIR/admincerts" ] || [ -z "$(ls -A $ORDERER_GENERAL_LOCALMSPDIR/admincerts)" ];
+              do
+                echo "\033[0;31m $ORDERER_GENERAL_LOCALMSPDIR/admincerts must contain Ord admin certificates files \033[0m"
+                sleep 60
+              done
+
+              while [ ! -d ${ORDERER_GENERAL_LOCALMSPDIR}/signcerts ];
+              do
+                echo "\033[0;31m ${ORDERER_GENERAL_LOCALMSPDIR}/signcerts directory must exist \033[0m"
+                sleep 60
+              done
+
+              echo "\033[0;32m Create ${ORDERER_FILELEDGER_LOCATION} directory to avoid restarts \033[0m"
+              mkdir -p ${ORDERER_FILELEDGER_LOCATION}
+              mkdir -p ${ORDERER_FILELEDGER_LOCATION}/index
+
+              if [ $ORDERER_GENERAL_TLS_CLIENTAUTHREQUIRED ]
+              then
+                export ORDERER_GENERAL_TLS_CLIENTROOTCAS=$(echo $(ls $ORDERER_GENERAL_TLS_CLIENTROOTCAS) | echo "[$(sed 's/ /,/g')]")
+              fi
+
+              echo ">\033[0;35m orderer \033[0m"
+              orderer
+          envFrom:
+            {{- if .Values.secrets.cred }}
+            - secretRef:
+                # Environmental variables CA_ADMIN and CA_PASSWORD
+                # Obsolete: Environmental variables CA_USERNAME and CA_PASSWORD
+                name: {{ .Values.secrets.cred }}
+            {{- end }}
+            - configMapRef:
+                name: {{ include "hlf-ord.fullname" . }}--ord
+          volumeMounts:
+            - mountPath: /var/hyperledger
+              name: data
+            {{- if .Values.secrets.cert }}
+            - mountPath: {{ include "hlf-ord.home" . }}/msp/signcerts
+              name: id-cert
+            {{- end }}
+            {{- if .Values.secrets.key }}
+            - mountPath: {{ include "hlf-ord.home" . }}/msp/keystore
+              name: id-key
+            {{- end }}
+            {{- if .Values.secrets.caCert }}
+            - mountPath: {{ include "hlf-ord.home" . }}/msp/cacerts
+              name: cacert
+            - mountPath: /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/admin/msp/cacerts
+              name: cacert
+            {{- end }}
+            {{- if .Values.secrets.intCaCert }}
+            - mountPath: {{ include "hlf-ord.home" . }}/msp/intermediatecerts
+              name: intcacert
+            - mountPath: /var/hyperledger/admin_msp/intermediatecerts
+              name: intcacert
+            {{- end }}
+            {{- if .Values.secrets.tls }}
+            - mountPath: {{ include "hlf-ord.home" . }}/tls-msp/tls
+              name: tls
+            {{- end }}
+            {{- if .Values.secrets.tlsRootCert }}
+            - mountPath: {{ include "hlf-ord.home" . }}/tls-msp/tlscacerts
+              name: tls-rootcert
+            {{- end }}
+            {{- if .Values.secrets.tlsClientRootCerts }}
+            - mountPath: /var/hyperledger/tls/client/cert
+              name: tls-clientrootcert
+            {{- end }}
+            {{- if .Values.secrets.genesis }}
+            - mountPath: {{ include "hlf-ord.home" . }}
+              name: genesis
+            {{- end }}
+            {{- if .Values.secrets.adminCert }}
+            - mountPath: {{ include "hlf-ord.home" . }}/msp/admincerts
+              name: admin-cert
+            - mountPath: /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/admin/msp/signcerts
+              name: admin-cert
+            - mountPath: /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/msp/admincerts
+              name: admin-cert
+          {{- end }}
+          resources:
+      {{ toYaml .Values.resources | indent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+      {{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+      {{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+    {{ toYaml . | indent 8 }}
+  {{- end }}

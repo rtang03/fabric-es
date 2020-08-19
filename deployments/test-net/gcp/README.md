@@ -1,4 +1,4 @@
-### Step 1
+### LOCAL DEV
 ```shell script
 kubectl create n0
 kubectl create n1
@@ -29,9 +29,9 @@ helm install rca0 -n n0 -f ./hlf-ca/values-rca0.yaml ./hlf-ca
 
 # the fabric binary download may take a few minutes
 kubectl wait --for=condition=Available --timeout 600s deployment/admin0-orgadmin-cli -n n0
-helm install crypto-tlsca0 -n n0 -f ./cryptogen/values-tlsca0.yaml ./cryptogen
+helm install crypto-tlsca0 -n n0 -f ./cryptogen/values-tlsca0.yaml --dry-run --debug ./cryptogen
 kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca0-cryptogen -n n0
-helm install crypto-rca0 -n n0 -f ./cryptogen/values-rca0.yaml ./cryptogen
+helm install crypto-rca0 -n n0 -f ./cryptogen/values-rca0.yaml --dry-run --debug  ./cryptogen
 kubectl wait --for=condition=complete --timeout 120s job/crypto-rca0-cryptogen -n n0
 
 # create secret
@@ -39,6 +39,19 @@ kubectl wait --for=condition=complete --timeout 120s job/crypto-rca0-cryptogen -
 ./scripts/create-secret.rca1.sh
 ./scripts/create-genesis.sh
 
+helm install o0 -f ./hlf-ord/values-O0.yaml -n n0 ./hlf-ord
+sleep 2
+helm install o1 -f ./hlf-ord/values-O1.yaml -n n0 ./hlf-ord
+sleep 2
+helm install o2 -f ./hlf-ord/values-O2.yaml -n n0 ./hlf-ord
+sleep 2
+helm install o3 -f ./hlf-ord/values-O3.yaml -n n0 ./hlf-ord
+sleep 2
+helm install o4 -f ./hlf-ord/values-O4.yaml -n n0 ./hlf-ord
+```
+
+### GCP
+```shell script
 ### GCP
 # Org0
 helm install admin0 -n n0 -f ./orgadmin/values-admin0.gcp.yaml ./orgadmin

@@ -11,7 +11,7 @@ endpoint: rca0-hlf-ca.n0.svc.cluster.local:7054
 
 # fabricCaClientTlsCertfiles: /var/hyperledger/crypto-config/Org0MSP/ca/server/ca-cert.pem
 orgCaCert: /var/hyperledger/crypto-config/Org0MSP/ca/admin/msp/cacerts/rca0-hlf-ca-n0-svc-cluster-local-7054.pem
-adminCert: /var/hyperledger/crypto-config/Org0MSP/tls/admin/msp/signcerts/cert.pem
+adminCert: /var/hyperledger/crypto-config/Org0MSP/admin/msp/signcerts/cert.pem
 
 orgAdmin:
   enabled: true

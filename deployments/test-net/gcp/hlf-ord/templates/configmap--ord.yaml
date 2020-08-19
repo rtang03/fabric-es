@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "hlf-ord.fullname" . }}--ord
+  labels:
+{{ include "labels.standard" . | indent 4 }}
+data:
+  ## Location where fabric-ca-client configuration is saved
+  FABRIC_CA_CLIENT_HOME: {{ include "hlf-ord.home" . }}
+  ## Orderer defaults
+  ORDERER_GENERAL_LEDGERTYPE: "file"
+  ORDERER_GENERAL_BATCHTIMEOUT: "1s"
+  ORDERER_GENERAL_BATCHSIZE_MAXMESSAGECOUNT: "10"
+  ORDERER_GENERAL_MAXWINDOWSIZE: "1000"
+  ORDERER_GENERAL_GENESISPROFILE: "initial"
+  # GODEBUG: "http2debug=2"
+  GODEBUG: "netdns=go"
+  TZ: {{ .Values.global.TZ | quote }}
+  FABRIC_LOGGING_SPEC: {{ .Values.global.logging | default "info"}}
+  ORDERER_GENERAL_LISTENADDRESS: "0.0.0.0"
+  ORDERER_GENERAL_GENESISMETHOD: "file"
+  ORDERER_GENERAL_TLS_ENABLED: "true"
+  ORDERER_GENERAL_LOGLEVEL: {{ .Values.ord.debug | default "INFO" | quote }}
+  ORDERER_CFG_PATH:  "{{ include "hlf-ord.home" . }}/config"
+  # ORDERER_HOST: {{ include "hlf-ord.fullname" . | quote }}
+  # ORDERER_HOST: {{ include "hlf-ord.ordererhost" . | quote }}
+  ORDERER_HOME: {{ include "hlf-ord.home" . | quote }}
+  ORDERER_GENERAL_LOCALMSPID: {{ .Values.global.mspId | quote }}
+  ORDERER_GENERAL_LOCALMSPDIR:  "{{ include "hlf-ord.home" . }}/msp"
+  ORDERER_GENERAL_TLS_CERTIFICATE: "{{ include "hlf-ord.home" . }}/tls-msp/tls/tls.crt"
+  ORDERER_GENERAL_TLS_PRIVATEKEY: "{{ include "hlf-ord.home" . }}/tls-msp/tls/tls.key"
+  ORDERER_GENERAL_TLS_ROOTCAS: "[{{ include "hlf-ord.home" . }}/tls-msp/tlscacerts/tlscacert.pem]"
+  ORDERER_GENERAL_BOOTSTRAPFILE: "{{ include "hlf-ord.home" . }}/genesis"
+  ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE: "{{ include "hlf-ord.home" . }}/tls-msp/tls/tls.crt"
+  ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY: "{{ include "hlf-ord.home" . }}/tls-msp/tls/tls.key"
+  ORDERER_GENERAL_CLUSTER_ROOTCAS: "[{{ include "hlf-ord.home" . }}/tls-msp/tlscacerts/tlscacert.pem]"
+  ORDERER_GENERAL_LISTENPORT: "7050"
+  ORDERER_FILELEDGER_LOCATION: {{ include "hlf-ord.ledger" . | quote }}
+  DEBUG_BROADCASTTRACEDIR: "{{ .Values.ord.ledgerPath }}/broadcast"
+  DEBUG_DELIVERTRACEDIR: "{{ .Values.ord.ledgerPath }}/deliver"
+  METRICS_PROVIDER: prometheus
+  OPERATIONS_LISTENADDRESS: "0.0.0.0:8443"
+  ADMIN_MSP_PATH: /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/admin/msp

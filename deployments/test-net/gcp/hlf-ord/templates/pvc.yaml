@@ -1,4 +1,4 @@
-{{- if contains "manual" .Values.persistence.storageClass}}
+{{- if .Values.persistence.storageClass }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -7,9 +7,13 @@ metadata:
     type: local
     name: {{ .Values.persistence.pvName }}
 spec:
-  storageClassName: manual
+  {{- if (eq "-" .Values.persistence.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.persistence.storageClass }}"
+  {{- end }}
   capacity:
-    storage: 10Mi
+    storage: 1Gi
   accessModes:
     - {{ .Values.persistence.accessMode | quote }}
   persistentVolumeReclaimPolicy: Retain
@@ -17,21 +21,27 @@ spec:
     path: {{ .Values.persistence.hostPath | quote }}
 {{- end }}
 ---
-apiVersion: v1
 kind: PersistentVolumeClaim
+apiVersion: v1
 metadata:
   name: {{ .Values.persistence.pvcName }}
   labels:
-{{- include "labels.standard" . | nindent 4 }}
+{{ include "labels.standard" . | indent 4 }}
 {{- if .Values.persistence.annotations }}
   annotations:
 {{ toYaml .Values.persistence.annotations | indent 4 }}
 {{- end }}
 spec:
-  storageClassName: {{ .Values.persistence.storageClass | quote }}
+{{- if .Values.persistence.storageClass }}
+  {{- if (eq "-" .Values.persistence.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.persistence.storageClass }}"
+  {{- end }}
   selector:
     matchLabels:
       name: {{ .Values.persistence.pvName }}
+{{- end }}
   accessModes:
     - {{ .Values.persistence.accessMode | quote }}
   resources:
