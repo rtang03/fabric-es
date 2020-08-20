@@ -26,6 +26,7 @@
     "lodash": "^4.17.15",
     "mockyeah": "^0.24.1",
     "query-string": "^6.12.1",
+    "rxjs": "^6.5.3",
     "stoppable": "^1.1.0",
     "winston": "^3.2.1"
   },
