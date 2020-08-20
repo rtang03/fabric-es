@@ -1,8 +1,20 @@
-import { getLogger } from './getLogger';
-import { ReqRes } from './reqres';
-import { ProcessResults } from './snifferService';
+import { BaseEntity } from '@fabric-es/fabric-cqrs';
+import { getLogger } from '../getLogger';
+import { ReqRes } from '../reqres';
+import { ProcessResults } from '../snifferService';
 
 const logger = getLogger('[sniffer] pbocEtc.js');
+
+export * from './po';
+export * from './inv';
+
+export class Attachment extends BaseEntity {
+  static entityName: 'attachment';
+
+  id: string;
+  name: string;
+  type: string;
+};
 
 export const EndPoints = [
   '/user/inquiry',                              // 0 GET ?sellerId=
@@ -115,7 +127,7 @@ export const processPbocEtcEntity = (message: ReqRes): ProcessResults => {
       } else if (!isStatusOkay) {
         result = buildError(`${isPost ? 'Create' : 'Update'} PO failed`); // TODO - support partial success?
       } else {
-        result = buildEvent(`PO${isPost ? 'Created' : 'Updated'}`, jsonObj);
+        result = buildEvent(`Po${isPost ? 'Created' : 'Updated'}`, jsonObj);
       }
       break;
 
@@ -129,7 +141,7 @@ export const processPbocEtcEntity = (message: ReqRes): ProcessResults => {
       } else if (!isStatusOkay) {
         result = buildError('Cancel PO failed'); // TODO - support partial success?
       } else {
-        result = buildEvent('POCancelled', jsonObj);
+        result = buildEvent('PoCancelled', jsonObj);
       }
       break;
 
@@ -143,7 +155,7 @@ export const processPbocEtcEntity = (message: ReqRes): ProcessResults => {
       } else if (!isStatusOkay) {
         result = buildError('Process PO failed'); // TODO - support partial success?
       } else {
-        result = buildEvent('POProcessed', jsonObj);
+        result = buildEvent('PoProcessed', jsonObj);
       }
       break;
 

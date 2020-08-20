@@ -207,7 +207,7 @@ describe('PO tests', () => {
           expect(results[i].method === 'POST');
           expect(results[i].events.length).toEqual(data.PoCreate.length);
           for (let j = 0; j < results[i].events.length; j ++) {
-            expect(results[i].events[j].type).toEqual('POCreated');
+            expect(results[i].events[j].type).toEqual('PoCreated');
             expect(results[i].events[j].payload.poBaseInfo.poId).toEqual(data.PoCreate[j].poBaseInfo.poId);
           }
           break;
@@ -216,7 +216,7 @@ describe('PO tests', () => {
           expect(results[i].method === 'PUT');
           expect(results[i].events.length).toEqual(data.PoEdit.length);
           for (let j = 0; j < results[i].events.length; j ++) {
-            expect(results[i].events[j].type).toEqual('POUpdated');
+            expect(results[i].events[j].type).toEqual('PoUpdated');
             expect(results[i].events[j].payload.poBaseInfo.poId).toEqual(data.PoEdit[j].poBaseInfo.poId);
           }
           break;
@@ -225,7 +225,7 @@ describe('PO tests', () => {
           expect(results[i].method === 'POST');
           expect(results[i].events.length).toEqual(data.PoCancel.length);
           for (let j = 0; j < results[i].events.length; j ++) {
-            expect(results[i].events[j].type).toEqual('POCancelled');
+            expect(results[i].events[j].type).toEqual('PoCancelled');
             expect(results[i].events[j].payload.poId).toEqual(data.PoCreate[j+2].poBaseInfo.poId);
           }
           break;
@@ -234,7 +234,7 @@ describe('PO tests', () => {
           expect(results[i].method === 'POST');
           expect(results[i].events.length).toEqual(data.PoProcess.length);
           for (let j = 0; j < results[i].events.length; j ++) {
-            expect(results[i].events[j].type).toEqual('POProcessed');
+            expect(results[i].events[j].type).toEqual('PoProcessed');
             expect(results[i].events[j].payload.poId).toEqual(data.PoCreate[j].poBaseInfo.poId);
           }
           break;
