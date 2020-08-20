@@ -40,8 +40,9 @@ spec:
               apk --no-cache add libc6-compat libstdc++
               echo "Fetch block to see if channel has already been created..."
               ./bin/peer version
+              {{- if .Values.tasks.create_channel.enabled}}
               set -x
-              /var/hyperledger/bin/peer channel fetch 0 -c ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} -o ${ORDERER_URL} {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/${CHANNEL_NAME}.block
+              ${BIN}/peer channel fetch 0 -c ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} -o ${ORDERER_URL} {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/${CHANNEL_NAME}.block
               set +x
               if [ -f {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/${CHANNEL_NAME}.block ]
               then
@@ -49,10 +50,25 @@ spec:
               else
                 echo "Creating Channel ${CHANNEL_NAME}"
                 set -x
-                /var/hyperledger/bin/peer channel create -o ${ORDERER_URL} -c ${CHANNEL_NAME} -f {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/channeltx/channel.tx --tls ${CORE_PEER_TLS_ENABLED} --cafile ${ORDERER_CA}
-                printMessage "create channel" $?
+                ${BIN}/peer channel create -o ${ORDERER_URL} -c ${CHANNEL_NAME} \
+                  -f {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/channeltx/channel.tx \
+                  --outputBlock {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/${CHANNEL_NAME}.block
+                  --tls ${CORE_PEER_TLS_ENABLED} --cafile ${ORDERER_CA} >& ./crypto-config/channel-artifacts/log-createchannel.txt
+                res=$?
                 set +x
+                printMessage "create channel" $res
               fi
+              {{- end }}
+              {{- if .Values.tasks.join_channel.enabled }}
+              set -x
+              ${BIN}/peer channel join -b {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/${CHANNEL_NAME}.block >& ./crypto-config/channel-artifacts/log-joinchannel.txt
+              res=$?
+              set +x
+              printMessage "join channel" $res
+              ${BIN}/peer channel getinfo -c ${CHANNEL_NAME}
+              {{- end }}
+
+              sleep 1h
           workingDir: {{ .Values.global.workingDir }}
           envFrom:
             - configMapRef:

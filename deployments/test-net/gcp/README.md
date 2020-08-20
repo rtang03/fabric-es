@@ -55,14 +55,9 @@ sleep 3
 helm install p0o1 -n n1 ./hlf-peer
 
 # create channel
-helm install create-channel -n n1 --dry-run --debug ./hlf-operator
+helm install create-channel -n n1 ./hlf-operator
 
-kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/channeltx/channel.tx \
- -o o0-hlf-ord.n0.svc.cluster.local:7050 \
- --outputBlock /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block --tls \
- --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/tls-msp/signcerts/cert.pem \
- --ordererTLSHostnameOverride o0-hlf-ord"
-printMessage "create channel" $?
+helm install join-channel -n n1 ./hlf-operator
 ```
 
 ### GCP

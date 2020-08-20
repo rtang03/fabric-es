@@ -13,7 +13,7 @@ data:
       # chaincodeListenAddress: 0.0.0.0:7052
       # chaincodeAddress: 0.0.0.0:7052
       address: 0.0.0.0:7051
-      addressAutoDetect: false
+      addressAutoDetect: true
       keepalive:
         interval: 7200s
         timeout: 20s

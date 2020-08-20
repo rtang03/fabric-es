@@ -5,9 +5,13 @@ global:
   config:
     setupsh: admin1-orgadmin--setupsh
 
-task:
-  # "create-channel"
-  type: create-channel
+tasks:
+  create_channel:
+    enabled: false
+  join_channel:
+    enabled: false
+  update_anchor_peer:
+    enabled: true
 
 secret:
   tlscacert: org0-tls-ca-cert
@@ -19,7 +23,7 @@ persistence:
 peer:
   #Provide the name of the peer as per deployment yaml.
   #Eg. name: peer0
-  id: p0o1-hlf-peer
+  id: cli
   #Provide the address of the peer who creates the channel and port to be mentioned is grpc cluster IP port
   #Eg. address: peer0.org1-example-com:7051
   address: p0o1-hlf-peer:7051

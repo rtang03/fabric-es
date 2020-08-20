@@ -66,7 +66,7 @@ data:
   CORE_PEER_TLS_CERT_FILE: "{{ include "hlf-peer.home" . }}/tls-msp/tls/tls.crt"
   CORE_PEER_TLS_KEY_FILE: "{{ include "hlf-peer.home" . }}/tls-msp/tls/tls.key"
   CORE_PEER_TLS_ROOTCERT_FILE: "{{ include "hlf-peer.home" . }}/tls-msp/tlscacerts/tlscacert.pem"
-  CORE_PEER_TLS_CLIENTROOTCAS_FILES: "[{{ include "hlf-peer.home" . }}/tls-msp/tlscacerts/tlscacert.pem,/var/hyperledger/crypto-config/tls-0-0-0-0-7054.pem]"
+  CORE_PEER_TLS_CLIENTROOTCAS_FILES: "[{{ include "hlf-peer.home" . }}/tls-msp/tlscacerts/tlscacert.pem]"
   CORE_PEER_TLS_CLIENTCERT_FILE: "{{ include "hlf-peer.home" . }}/tls-msp/tls/tls.crt"
   CORE_PEER_TLS_CLIENTKEY_FILE: "{{ include "hlf-peer.home" . }}/tls-msp/tls/tls.key"
   CORE_VM_ENDPOINT: unix:///host/var/run/docker.sock
