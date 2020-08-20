@@ -27,3 +27,4 @@ kubectl -n n0 exec $POD_CLI0 -- cat /var/hyperledger/crypto-config/channel.tx > 
 kubectl -n n1 create secret generic channeltx --from-file=channel.tx=./channel.tx
 printMessage "create secret channeltx" $?
 rm channel.tx
+

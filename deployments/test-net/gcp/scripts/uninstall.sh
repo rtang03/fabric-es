@@ -11,6 +11,7 @@ helm uninstall o2 -n n0
 helm uninstall o3 -n n0
 helm uninstall o4 -n n0
 
+helm uninstall -n n1 createchannel
 helm uninstall -n n1 crypto-rca1
 helm uninstall -n n1 crypto-tlsca1
 helm uninstall -n n1 rca1

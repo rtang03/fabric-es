@@ -1,8 +1,6 @@
 #!/bin/bash
 . ./scripts/setup.sh
 
-SECONDS=0
-
 ./scripts/rm-secret.n0.sh
 ./scripts/rm-secret.n1.sh
 
@@ -44,7 +42,7 @@ kubectl wait --for=condition=complete --timeout 120s job/crypto-rca1-cryptogen -
 printMessage "job/crypto-rca1-cryptogen" $?
 set +x
 
-# Org0
+  # Org0
 helm install admin0 -n n0 -f ./orgadmin/values-admin0.local.yaml ./orgadmin
 printMessage "install admin0" $?
 
@@ -83,14 +81,14 @@ kubectl wait --for=condition=complete --timeout 120s job/crypto-rca0-cryptogen -
 printMessage "job/crypto-rca0-cryptogen" $?
 set +x
 
-# create secret
+  # create secret
 ./scripts/create-secret.rca0.sh
 printMessage "create secret rca0" $?
 
 ./scripts/create-secret.rca1.sh
 printMessage "create secret rca1" $?
 
-sleep 10
+sleep 5
 
 ./scripts/create-genesis.sh
 printMessage "create genesis block/channeltx" $?
@@ -129,12 +127,3 @@ kubectl wait --for=condition=Available --timeout 600s deployment/p0o1db-hlf-couc
 printMessage "deployment/p0o1db-hlf-couchdb" $?
 set +x
 
-helm install p0o1 -n n1 ./hlf-peer
-
-set -x
-kubectl wait --for=condition=Available --timeout 600s deployment/p0o1-hlf-peer -n n1
-printMessage "deployment/p0o1-hlf-peer" $?
-set +x
-
-duration=$SECONDS
-printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"

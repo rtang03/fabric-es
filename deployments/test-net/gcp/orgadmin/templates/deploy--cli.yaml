@@ -92,7 +92,6 @@ spec:
                 curl -sSL https://bit.ly/2ysbOFE > bootstrap.sh
                 chmod +x ./bootstrap.sh
                 ./bootstrap.sh {{ .Values.cli.fabricBinary }} {{ .Values.cli.fabricCABinary }} -s -d
-                rm bin/peer
                 rm bin/orderer
                 rm bin/fabric-ca-server
                 mkdir -p /var/hyperledger/bin
