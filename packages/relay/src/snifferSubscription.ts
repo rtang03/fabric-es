@@ -16,7 +16,7 @@ export const createSubscription = (
 
   return {
     start: async (
-      callback?: (topic: string, message: ReqRes, messageStr?: string) => void
+      callback?: (topic: string, message: ReqRes, messageStr?: string) => Promise<void>
     ): Promise<{ read: number; count: number }> => {
       return new Promise<{ read: number; count: number }>(async (resolve, reject) => {
         // First read messages already post to redis before the subscription starts
@@ -28,14 +28,14 @@ export const createSubscription = (
               const msg = JSON.parse(str[1][1]);
               if (isReqRes(msg)) {
                 read ++;
-                callback(topic, msg);
+                await callback(topic, msg);
               } else {
                 logger.warn(`Read existing message of unknown type: '${str[1][1]}'`);
-                callback(topic, null, str[1][1]);
+                await callback(topic, null, str[1][1]);
               }
             } catch (error) {
               logger.warn(`Read existing non-JSON message: '${str[1][1]}'`);
-              callback(topic, null, str[1][1]);
+              await callback(topic, null, str[1][1]);
             }
           } else
             logger.info(`Read existing message from '${topic}': '${str[1][1]}'`);
@@ -83,14 +83,14 @@ export const createSubscription = (
                   try {
                     const obj = JSON.parse(msg[1][1]);
                     if (isReqRes(obj))
-                      callback(event.channel, obj);
+                    await callback(event.channel, obj);
                     else {
                       logger.warn(`Received message of unknown type: '${msg[1][1]}'`);
-                      callback(event.channel, null, msg[1][1]);
+                      await callback(event.channel, null, msg[1][1]);
                     }
                   } catch (error) {
                     logger.warn(`${error} Received non-JSON message: '${msg[1][1]}'`);
-                    callback(topic, null, msg[1][1]);
+                    await callback(topic, null, msg[1][1]);
                   }
                 } else {
                   logger.info(`Received message from '${event.channel}': '${msg[1][1]}'`);

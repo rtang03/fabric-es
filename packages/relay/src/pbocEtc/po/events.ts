@@ -1,4 +1,6 @@
 import { BaseEvent, Lifecycle } from '@fabric-es/fabric-cqrs';
+import { Attachment } from '..';
+import { PoOrder } from './model';
 
 export type PoPayload = {
   userId: string;
@@ -32,18 +34,8 @@ export type PoPayload = {
   currency: string;
   settlementCurrency: string;
   settlementAmount: number;
-  orderList: {
-    sequenceNo: number;
-    orderNo: string;
-    orderDate: string;
-    itemDescription: string;
-    unitPrice: number;
-    quantity: number;
-    unit: string;
-    subtotalAmount: number;
-    partialShipment: string;
-    remarks?: string;
-  }[];
+  orderList: PoOrder[];
+  attachmentList: Attachment[];
 };
 
 export interface PoCreated extends BaseEvent {

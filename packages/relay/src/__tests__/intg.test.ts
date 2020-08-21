@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { EndPoints, processPbocEtcEntity } from '../pbocEtc';
+import { EndPoints, getPbocEtcEntityProcessor } from '../pbocEtc';
 import { createRelayService } from '../relayService';
 import { ReqRes } from '../reqres';
 import { createSnifferService, ProcessResults } from '../snifferService';
@@ -21,11 +21,12 @@ let stopRelay: () => Promise<number>;
 let stopSniff: () => Promise<number>;
 
 beforeAll(async () => {
+  const processPbocEtcEntity = getPbocEtcEntityProcessor(null);
   const { sniffer, shutdown: shutSniff } = await createSnifferService({
     redisHost: host, redisPort: port,
-    topic, callback: (channel: string, message: ReqRes, messageStr?: string): void => {
+    topic, callback: async (channel: string, message: ReqRes, messageStr?: string): Promise<void> => {
       if (message) {
-        const result = processPbocEtcEntity(message);
+        const result = await processPbocEtcEntity(message);
         mockCallback(result);
       } else if (messageStr) {
         console.log(`Incoming message with invalid format: '${messageStr}'`);

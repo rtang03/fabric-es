@@ -31,7 +31,7 @@ export const createSnifferService: (option: {
   redisHost: string;
   redisPort: number;
   topic: string;
-  callback?: (channel: string, message: ReqRes, messageStr?: string) => void;
+  callback?: (channel: string, message: ReqRes, messageStr?: string) => Promise<void>;
 }) => Promise<{
   sniffer: StoppableServer;
   shutdown: () => Promise<number>;

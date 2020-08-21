@@ -1,5 +1,5 @@
 import { BaseEntity } from '@fabric-es/fabric-cqrs';
-import { Attachment } from '..';
+import { Attachment, Status } from '..';
 
 export class PoOrder extends BaseEntity {
   static entityName: 'poOrder';
@@ -23,7 +23,7 @@ export class PO extends BaseEntity {
   id: string;
   ownerId: string;
   timestamp: number;
-  status: string;
+  status: Status;
 
   poId: string;
   poNo: string;
@@ -42,6 +42,9 @@ export class PO extends BaseEntity {
   sellerJurisdicationOfBr?: string;
   sellerBrCode: string;
   sellerAttention?: string;
+  sellerBankName?: string;
+  sellerBankAccount?: string;
+  comment?: string;
   latestDeliveryDate: string;
   incotermsCode: string;
   incotermsLocation: string;
