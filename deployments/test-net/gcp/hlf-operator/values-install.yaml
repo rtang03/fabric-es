@@ -1,0 +1,3 @@
+tasks:
+  install_chaincode:
+    enabled: true

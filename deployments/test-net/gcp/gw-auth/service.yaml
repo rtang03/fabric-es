@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "hlf-operator.fullname" . }}
+  labels:
+{{ include "labels.standard" . | indent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 7051
+      protocol: TCP
+      name: cli-port
+  selector:
+    app: {{ include "hlf-operator.name" . }}
+    release: {{ .Release.Name }}

@@ -10,8 +10,45 @@ tasks:
     enabled: false
   join_channel:
     enabled: false
+  getchannnelinfo:
+    enabled: false
   update_anchor_peer:
-    enabled: true
+    enabled: false
+  package_chaincode:
+    enabled: false
+  install_chaincode:
+    enabled: false
+  queryinstalled:
+    enabled: false
+  approve_chaincode:
+    enabled: false
+    sequence: 1
+  queryapproved:
+    enabled: false
+  checkcommitreadiness:
+    enabled: false
+  commit_chaincode:
+    enabled: false
+    targets:
+      - peerAddress: p0o1-hlf-peer:7051
+        tlsRootCertFiles: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-tlsca1-hlf-ca-n1-svc-cluster-local-7054.pem
+  querycommitted:
+    enabled: false
+    targets:
+      - peerAddress: p0o1-hlf-peer:7051
+        tlsRootCertFiles: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-tlsca1-hlf-ca-n1-svc-cluster-local-7054.pem
+  init_chaincode:
+    enabled: false
+    targets:
+      - peerAddress: p0o1-hlf-peer:7051
+        tlsRootCertFiles: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-tlsca1-hlf-ca-n1-svc-cluster-local-7054.pem
+  dev_invoke:
+    enabled: false
+    targets:
+      - peerAddress: p0o1-hlf-peer:7051
+        tlsRootCertFiles: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-tlsca1-hlf-ca-n1-svc-cluster-local-7054.pem
+  dev_query:
+    enabled: false
 
 secret:
   tlscacert: org0-tls-ca-cert
@@ -27,8 +64,13 @@ peer:
   #Provide the address of the peer who creates the channel and port to be mentioned is grpc cluster IP port
   #Eg. address: peer0.org1-example-com:7051
   address: p0o1-hlf-peer:7051
-  #Provide the localmspid for organization
-  #Eg. localmspid: Org1MSP
+  target: peer0.org1.net
+
+chaincode:
+  id: eventstore
+  contract: eventstore
+  version: 1
+  lang: node
 
 channel:
   #Provide the name of the channel

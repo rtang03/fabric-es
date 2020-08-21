@@ -1,0 +1,6 @@
+tasks:
+  querycommitted:
+    enabled: true
+    targets:
+      - peerAddress: p0o1-hlf-peer:7051
+        tlsRootCertFiles: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-tlsca1-hlf-ca-n1-svc-cluster-local-7054.pem

@@ -13,7 +13,7 @@ data:
       # chaincodeListenAddress: 0.0.0.0:7052
       # chaincodeAddress: 0.0.0.0:7052
       address: 0.0.0.0:7051
-      addressAutoDetect: true
+      addressAutoDetect: false
       keepalive:
         interval: 7200s
         timeout: 20s
@@ -41,7 +41,7 @@ data:
         publishStateInfoInterval: 4s
         stateInfoRetentionInterval:
         publishCertPeriod: 10s
-        skipBlockVerification: false
+        skipBlockVerification: true
         dialTimeout: 3s
         connTimeout: 2s
         recvBuffSize: 20

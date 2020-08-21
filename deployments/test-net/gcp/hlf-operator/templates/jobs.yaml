@@ -37,12 +37,14 @@ spec:
               . /script/setup.sh
               apk update
               apk upgrade
-              apk --no-cache add libc6-compat libstdc++
-              echo "Fetch block to see if channel has already been created..."
+              apk --no-cache add libc6-compat libstdc++ jq
               ./bin/peer version
-              {{- if .Values.tasks.create_channel.enabled}}
+          {{- if .Values.tasks.create_channel.enabled}}
+              printHeader "Create channel"
+              echo "Fetch block to see if channel has already been created..."
               set -x
-              ${BIN}/peer channel fetch 0 -c ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} -o ${ORDERER_URL} {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/${CHANNEL_NAME}.block
+              ${BIN}/peer channel fetch 0 -c ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} -o ${ORDERER_URL} \
+                {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/${CHANNEL_NAME}.block
               set +x
               if [ -f {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/${CHANNEL_NAME}.block ]
               then
@@ -52,23 +54,256 @@ spec:
                 set -x
                 ${BIN}/peer channel create -o ${ORDERER_URL} -c ${CHANNEL_NAME} \
                   -f {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/channeltx/channel.tx \
-                  --outputBlock {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/${CHANNEL_NAME}.block
-                  --tls ${CORE_PEER_TLS_ENABLED} --cafile ${ORDERER_CA} >& ./crypto-config/channel-artifacts/log-createchannel.txt
+                  --outputBlock {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/${CHANNEL_NAME}.block \
+                  --tls --cafile ${ORDERER_CA} >& {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-createchannel.txt
                 res=$?
                 set +x
                 printMessage "create channel" $res
+                cat {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-createchannel.txt
               fi
-              {{- end }}
-              {{- if .Values.tasks.join_channel.enabled }}
+          {{- end }}
+          {{- if .Values.tasks.join_channel.enabled }}
+              printHeader "Join channel"
               set -x
-              ${BIN}/peer channel join -b {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/${CHANNEL_NAME}.block >& ./crypto-config/channel-artifacts/log-joinchannel.txt
+              ${BIN}/peer channel join -b {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/${CHANNEL_NAME}.block \
+                >& {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-joinchannel.txt
               res=$?
               set +x
               printMessage "join channel" $res
+              cat {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-joinchannel.txt
+          {{- end }}
+          {{- if .Values.tasks.getchannnelinfo.enabled }}
+              set -x
               ${BIN}/peer channel getinfo -c ${CHANNEL_NAME}
+              set +x
+          {{- end }}
+          {{- if .Values.tasks.update_anchor_peer.enabled }}
+              printHeader "Update anchor peer"
+              set -x
+              ${BIN}/peer channel fetch config {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_block.pb \
+                -o ${ORDERER_URL} -c ${CHANNEL_NAME} \
+                --tls --cafile ${ORDERER_CA} >& {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-fetchconfig.txt
+              res=$?
+              set +x
+              printMessage "fetch config_block.pb" $res
+              cat {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-fetchconfig.txt
+              set -x
+              ${BIN}/configtxlator proto_decode --input {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_block.pb \
+                --type common.Block --output {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_block.json
+              res=$?
+              set +x
+              printMessage "decode block0" $res
+              set -x
+              jq .data.data[0].payload.data.config {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_block.json \
+                > {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config.json
+              res=$?
+              set +x
+              printMessage "jq extract channel" $res
+              set -x
+              cp {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config.json {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_copy.json
+              res=$?
+              set +x
+              printMessage "cp block" $res
+              set -x
+              jq ".channel_group.groups.Application.groups.Org1MSP.values += {\"AnchorPeers\":{\"mod_policy\":\"Admins\",\"value\":{\"anchor_peers\":[{\"host\":\"p0o1-hlf-peer\",\"port\":7051}]},\"version\":\"0\"}}" \
+                {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_copy.json > {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/modified_config.json
+              res=$?
+              set +x
+              printMessage "jq add anchorpeer" $res
+              set -x
+              ${BIN}/configtxlator proto_encode --input {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config.json \
+                --type common.Config --output {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config.pb
+              res=$?
+              set +x
+              printMessage "encode current block" $res
+              set -x
+              ${BIN}/configtxlator proto_encode --input {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/modified_config.json \
+                --type common.Config --output {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/modified_config.pb
+              res=$?
+              set +x
+              printMessage "encode new block" $res
+              set -x
+              ${BIN}/configtxlator compute_update --channel_id loanapp --original {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config.pb \
+                --updated {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/modified_config.pb \
+                --output {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_update.pb
+              res=$?
+              set +x
+              printMessage "compute update block" $res
+              set -x
+              ${BIN}/configtxlator proto_decode --input {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_update.pb \
+                --type common.ConfigUpdate --output {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_update.json
+              res=$?
+              set +x
+              printMessage "decode update block" $res
+              echo "{\"payload\":{\"header\":{\"channel_header\":{\"channel_id\":\"loanapp\", \"type\":2}},\"data\":{\"config_update\":$(cat {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_update.json)}}}" \
+                | jq . > {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_update_in_envelope.json
+              res=$?
+              set +x
+              printMessage "create update_envelope" $res
+              set -x
+              ${BIN}/configtxlator proto_encode --input {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_update_in_envelope.json \
+                --type common.Envelope --output {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_update_in_envelope.pb
+              res=$?
+              set +x
+              printMessage "encode update_envelope" $res
+              set -x
+              ${BIN}/peer channel update -f {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_update_in_envelope.pb \
+                -o ${ORDERER_URL} -c ${CHANNEL_NAME} \
+                --tls --cafile ${ORDERER_CA} >& {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-updateanchorpeer.txt
+              res=$?
+              set +x
+              printMessage "send update_envelope proposal" $res
+              cat {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-updateanchorpeer.txt
+          {{- end }}
+          {{- if .Values.tasks.package_chaincode.enabled }}
+              printHeader "package chaincode"
+              set -x
+              ${BIN}/peer lifecycle chaincode package {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/{{ .Values.chaincode.id }}.tar.gz \
+                --path {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/chaincode --lang {{ .Values.chaincode.lang }} --label {{ .Values.chaincode.id }}v{{ .Values.chaincode.version }}
+              res=$?
+              set +x
+              printMessage "package chaincode" $res
+          {{- end }}
+          {{- if .Values.tasks.install_chaincode.enabled }}
+              printHeader "install chaincode"
+              set -x
+              echo "installation will take a few minutes"
+              ${BIN}/peer lifecycle chaincode install {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/{{ .Values.chaincode.id }}.tar.gz >& {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-install.txt
+              res=$?
+              set +x
+              printMessage "install chaincode" $?
+              cat {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-install.txt
+          {{- end }}
+          {{- if .Values.tasks.queryinstalled.enabled }}
+              printHeader "queryinstalled"
+              set -x
+              ${BIN}/peer lifecycle chaincode queryinstalled >& {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-installed.txt
+              res=$?
+              set +x
+              printMessage "query installed chaincode" $?
+              cat {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-installed.txt
+          {{- end }}
+          {{- if .Values.tasks.approve_chaincode.enabled }}
+              printHeader "approve chaincode"
+              set -x
+              ${BIN}/peer lifecycle chaincode approveformyorg \
+                -o ${ORDERER_URL} -C ${CHANNEL_NAME} \
+                --tls --cafile ${ORDERER_CA} \
+                --name {{ .Values.chaincode.id }} \
+                --version {{ .Values.chaincode.version }} \
+                --package-id $(sed -n "/{{ .Values.chaincode.id }}v{{ .Values.chaincode.version }}/{s/^Package ID: //; s/, Label:.*$//; p;}" {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-installed.txt) \
+                --init-required \
+                --sequence {{ .Values.tasks.approve_chaincode.sequence }} \
+                --waitForEvent >& {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-approvecc.txt
+              res=$?
+              set +x
+              printMessage "approve chaincode" $res
+              cat  {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-approvecc.txt
+          {{- end }}
+          {{- if .Values.tasks.queryapproved.enabled }}
+              printHeader "queryapproved"
+              set -x
+              ${BIN}/peer lifecycle chaincode queryapproved -C ${CHANNEL_NAME} -n {{ .Values.chaincode.id }}
+              res=$?
+              set +x
+              printMessage "query approvedchaincode" $res
+          {{- end }}
+          {{- if .Values.tasks.checkcommitreadiness.enabled }}
+              printHeader "checkcommitreadiness"
+              set -x
+              ${BIN}/peer lifecycle chaincode checkcommitreadiness \
+                -o ${ORDERER_URL} -C ${CHANNEL_NAME} \
+                --tls --cafile ${ORDERER_CA} \
+                --name {{ .Values.chaincode.id }} \
+                --version {{ .Values.chaincode.version }} \
+                --init-required \
+                --sequence {{ .Values.tasks.approve_chaincode.sequence }} >& {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-commitreadiness.txt
+              res=$?
+              set +x
+              printMessage "checkcommitreadiness" $res
+              cat {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-commitreadiness.txt
+          {{- end }}
+          {{- if .Values.tasks.commit_chaincode.enabled }}
+              printHeader "commit chaincode"
+              set -x
+              ${BIN}/peer lifecycle chaincode commit \
+                -o ${ORDERER_URL} -C ${CHANNEL_NAME} \
+                --tls --cafile ${ORDERER_CA} \
+                --name {{ .Values.chaincode.id }} \
+                --version {{ .Values.chaincode.version }} \
+                --init-required \
+                --sequence {{ .Values.tasks.approve_chaincode.sequence }} \
+              {{- range .Values.tasks.commit_chaincode.targets }}
+                --peerAddresses {{ .peerAddress }} \
+                --tlsRootCertFiles {{ .tlsRootCertFiles }} \
               {{- end }}
-
-              sleep 1h
+                --waitForEvent >& {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-commitcc.txt
+              res=$?
+              set +x
+              printMessage "commit chaincode" $res
+              cat {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-commitcc.txt
+          {{- end }}
+          {{- if .Values.tasks.querycommitted.enabled }}
+              printHeader "querycommitted chaincode"
+              set -x
+              ${BIN}/peer lifecycle chaincode querycommitted \
+                -o ${ORDERER_URL} -C ${CHANNEL_NAME} \
+                --tls --cafile ${ORDERER_CA} \
+              {{- range .Values.tasks.querycommitted.targets }}
+                --peerAddresses {{ .peerAddress }} \
+                --tlsRootCertFiles {{ .tlsRootCertFiles }} \
+              {{- end }}
+                --name {{ .Values.chaincode.id }} >& {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-querycommitted.txt
+              res=$?
+              set +x
+              printMessage "querycommitted chaincode" $res
+              cat {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-querycommitted.txt
+          {{- end }}
+          {{- if .Values.tasks.init_chaincode.enabled }}
+              printHeader "init chaincode"
+              set -x
+              ${BIN}/peer chaincode invoke --isInit \
+                -o ${ORDERER_URL} -C ${CHANNEL_NAME} \
+                --tls --cafile ${ORDERER_CA} \
+                --name {{ .Values.chaincode.id }} \
+                -c '{"function":"{{ .Values.chaincode.contract }}:Init","Args":[]}' \
+              {{- range .Values.tasks.init_chaincode.targets }}
+                --peerAddresses {{ .peerAddress }} \
+                --tlsRootCertFiles {{ .tlsRootCertFiles }} \
+              {{- end }}
+                --waitForEvent >& {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-initcc.txt
+              res=$?
+              set +x
+              printMessage "init chaincode" $res
+              {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-initcc.txt
+          {{- end }}
+          {{- if .Values.tasks.dev_invoke.enabled }}
+              printHeader "dev-invoke"
+              set -x
+              ${BIN}/peer chaincode invoke -o ${ORDERER_URL} -C ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} --name {{ .Values.chaincode.id }} \
+                -c '{"Args":["createCommit", "dev_entity", "ent_dev", "0","[]", "ent_dev"]}' \
+              {{- range .Values.tasks.dev_invoke.targets }}
+                --peerAddresses {{ .peerAddress }} \
+                --tlsRootCertFiles {{ .tlsRootCertFiles }} \
+              {{- end }}
+                --waitForEvent \
+                --waitForEventTimeout 300s >& {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-devinvoke.txt
+              res=$?
+              set +x
+              printMessage "dev-invoke" $res
+              cat {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-devinvoke.txt
+          {{- end }}
+          {{- if .Values.tasks.dev_query.enabled }}
+              printHeader "dev-query"
+              set -x
+              ${BIN}/peer chaincode query -C ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} --name {{ .Values.chaincode.id }} \
+                -c '{"Args":["eventstore:queryByEntityName","dev_entity"]}' >& {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-devquery.txt
+              res=$?
+              set +x
+              printMessage "dev-query" $res
+              cat {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/log-devquery.txt
+          {{- end }}
+              #  -c "{\"function\":\"{{ .Values.chaincode.contract }}:Init\",\"Args\":[]}" \
           workingDir: {{ .Values.global.workingDir }}
           envFrom:
             - configMapRef:
