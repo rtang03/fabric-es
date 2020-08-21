@@ -44,16 +44,7 @@ persistence:
   accessMode: ReadWriteOnce
   # alway enabled
   enabled: true
-  # hostPath for PV for "manual" storageClass. If no storageClass, hostPath can omit
-  hostPath: /tmp/data/p0o1
-  # pv is requred for "manual" storageClass. If no storageClass, pv can omit
-  pvName: pv-p0o1
-  # mandatory
   pvcName: pvc-p0o1
-  # storageClass can be "-", manual, or storageClass is not required for dynamic provisioning
-  # storageClass: "-"
-  # storageClass: manual
-  # requested size for pv
   size: 1Gi
 
 logging:

@@ -1,0 +1,6 @@
+1. Show the pod of orgadmin's cli
+export POD_CLI=$(kubectl get pods -n {{ .Release.Namespace }} -l "app=orgadmin,release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+kubectl -n {{ .Release.Namespace }} describe pod $POD_CLI
+
+2. cli will take a few minute to start, can wait for.
+kubectl wait --for=condition=Available --timeout 600s deployment/admin1-orgadmin-cli -n n1
