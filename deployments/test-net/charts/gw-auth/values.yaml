@@ -1,0 +1,207 @@
+## Default values for hlf-ca.
+## This is a YAML-formatted file.
+## Declare variables to be passed into your templates.
+
+mspId: Org0MSP
+
+## CA Admin Username
+caAdmin: admin
+## CA Admin password (set to 24 random characters by default)
+caAdminPW: adminPW
+## Name of CA, stored in FABRIC_CA_SERVER_CA_NAME (and the configMap "--config", if deploying a Root CA)
+caName: org1-ca
+
+ordererOrg:
+  firstOrderer: "orderer0.org0.com"
+  domain: org0.com
+  orgadmin: "admin-orderer0.org0.com"
+  orgadminPW: "admin-orderer0.org0.comPW"
+
+orderers:
+  - id: "orderer0.org0.com"
+    pass: "orderer0.org0.comPW"
+    csrHost: "o0-hlf-ord,orderer0.org0.com"
+  - id: "orderer1.org0.com"
+    pass: "orderer1.org0.comPW"
+    csrHost: "o1-hlf-ord,orderer1.org0.com"
+  - id: "orderer2.org0.com"
+    pass: "orderer2.org0.comPW"
+    csrHost: "o2-hlf-ord,orderer2.org0.com"
+  - id: "orderer3.org0.com"
+    pass: "orderer3.org0.comPW"
+    csrHost: "o3-hlf-ord,orderer3.org0.com"
+  - id: "orderer4.org0.com"
+    csrHost: "o4-hlf-ord,orderer4.org0.com"
+    pass: "orderer4.org0.comPW"
+
+peerOrg:
+  firstPeer: "peer0.org1.net"
+  # org1cacert is /var/hyperledger/crypto-config/Org1MSP/msp/cacert/org1.net-ca-cert.pem
+  # created by Org1, and then send to Org0 cli, to generate genesis block
+  org1cacert: org1-cacerts
+  org1admincerts: org1-admincerts
+  org1tlscacerts: org1-tlscacerts
+  domain: org1.net
+  orgadmin: "admin-peer0.org1.net"
+  orgadminPW: "admin-peer00.org1.netPW"
+
+peers:
+  - id: "peer0.org1.net"
+    csrHost: "p0o1-hlf-peer,peer0.org1.net"
+    pass: "peer0.org1.netPW"
+
+image:
+  repository: hyperledger/fabric-ca
+  tag: 1.4.7
+  pullPolicy: IfNotPresent
+
+service:
+  ## Cluster IP or LoadBalancer
+  type: ClusterIP
+  port: 7054
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+  # certmanager.k8s.io/cluster-issuer: "letsencrypt-staging"
+  path: /
+  hosts:
+    - hlf-ca.local
+  tls: []
+  #  - secretName: hlf-ca-tls
+  #    hosts:
+  #      - hlf-ca.local
+
+persistence:
+  enabled: true
+  annotations: {}
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  # existingClaim: ""
+
+##################################
+## Further configuration options #
+##################################
+
+##
+## Fabric CA Database
+## By default an sqlite3 in-memory database is used
+## To install a 'postgresql' or 'mysql' database, enable and configure the configuration below
+##################################
+##
+db:
+  # SSL authentication
+  # Supported values are: "disable", "require", "verify-ca" and "verify-full".
+  # https://github.com/hyperledger/fabric-ca/blob/master/docs/source/users-guide.rst
+  ssl: disable
+
+##
+## PostgreSQL chart configuration
+##
+## https://github.com/helm/charts/tree/master/stable/postgresql
+##
+postgresql:
+  ## Whether to deploy a postgres server to satisfy the Fabric CA database requirements.
+  # To use an external database set this to false and configure the externalDatabase parameters, specifying the type to 'postgres'
+  enabled: false
+  image:
+    registry: docker.io
+    repository: "bitnami/postgresql"
+    tag: "11.8.0-debian-10-r61"
+  postgresqlDatabase: fabric_ca
+  postgresqlUsername: fabric_ca
+
+##
+## MySQL chart configuration
+##
+## https://github.com/helm/charts/tree/master/stable/mysql
+##
+mysql:
+  ## Whether to deploy a mysql server to satisfy the Fabric CA database requirements.
+  # To use an external database set this to false and configure the externalDatabase parameters, specifying the type to 'mysql'
+  enabled: false
+  image: "mysql"
+  imageTag: "5.7.27"
+  mysqlDatabase: fabric_ca
+  mysqlUser: fabric_ca
+  # Custom mysql configuration to remove SQL Mode NO_ZERO_DATE because the Fabric CA schema defines TIMESTAMP to 0 by default
+  # https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html
+  configurationFiles:
+    mysql.cnf: |-
+      [mysqld]
+      sql-mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+
+##
+## External Database configuration (MySQL or PostgresSQL installed on/off Kubernetes)
+##
+externalDatabase:
+  # Either postgres or mysql
+  type:
+  host: ""
+  port: ""
+  database: ""
+  username: ""
+  password: ""
+
+## Settings used in configMap "--config"
+config:
+  fabricCaHome: /var/hyperledger/crypto-config/Org0MSP/fabric-ca
+  fabricCaClientHome: /var/hyperledger/crypto-config/Org0MSP/client
+  fabricCaClientTlsCertfiles: /var/hyperledger/crypto-config/Org0MSP/fabric-ca/ca-cert.pem
+  timezone: "Asia/Hong Kong"
+  hlfToolsVersion: 1.4.7
+  ## Mount the TLS certificate & key to disk?
+  mountTLS: false
+  ## Enable debug logging in ca Server configuration file
+  debug: false
+  ## CSR pathlength in ca Server configuration file
+  csr:
+    ca:
+      pathlength: 1
+    names:
+      c: US
+      st: "North Carolina"
+      o: Hyperledger
+      ou: Fabric
+      l:
+  ## "intermediate" is only specified for Intermediate CA's
+  # intermediate:
+  #   parent:
+  #     chart: parent-ca
+  #     url: parent-ca.example.com
+  #     port: 7054
+  ## Affiliations used in ca Server configuration file
+  # org1: []
+
+resources: {}
+  ## We usually recommend not to specify default resources and to leave this as a conscious
+  ## choice for the user. This also increases chances charts run on environments with little
+  ## resources, such as Minikube. If you do want to specify resources, uncomment the following
+  ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+#   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+  ## Suggested antiAffinity, as each CA should be on a separate Node for resilience
+  # podAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #     - topologyKey: "kubernetes.io/hostname"
+  #       labelSelector:
+  #         matchLabels:
+#           app: hlf-ca

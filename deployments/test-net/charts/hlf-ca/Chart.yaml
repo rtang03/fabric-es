@@ -1,25 +1,7 @@
 apiVersion: v2
-appVersion: 2.2.0
-description: Hyperledger Fabric Certificate Authority chart (these charts are created
-  by AID:Tech and are currently not directly associated with the Hyperledger project)
-home: http://hyperledger-fabric-ca.readthedocs.io
-icon: https://www.hyperledger.org/wp-content/uploads/2018/04/fabric-logo.png
-keywords:
-  - blockchain
-  - hyperledger
-  - fabric
-maintainers:
-  - email: sasha@aid.technology
-    name: alexvicegrab
-  - email: inzamam@aid.technology
-    name: inzamam-iqbal
-  - email: diego@aid.technology
-    name: dbandin
+appVersion: 1.4.7
+description: Hyperledger Fabric Certificate Authority chart
 name: hlf-ca
 sources:
   - https://github.com/hyperledger/fabric-ca
-version: 1.2.0
-dependencies:
-  - name: common
-    version: 0.3.1
-    repository: https://charts.bitnami.com/bitnami
+version: 0.1.0

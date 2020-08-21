@@ -1,0 +1,69 @@
+mspId: "Org0MSP"
+
+caAdmin: tlsca0-admin
+caAdminPW: tlsca0-adminPW
+caName: tlsca0
+
+ordererOrg:
+  domain: org0.com
+  orgadmin: "admin-orderer0.org0.com"
+  orgadminPW: "admin-orderer0.org0.comPW"
+
+# https://kubernetes.github.io/ingress-nginx/user-guide/tls/
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # certmanager.k8s.io/cluster-issuer: "letsencrypt-staging"
+  path: /
+  hosts:
+    - tlsca0
+  tls:
+    # secretName is {{ Release.Name }}-tls. For org0, it must be tlsca0-tls
+    - secretName: "tlsca0-tls"
+      hosts:
+        - tlsca0
+
+# connect db by admin0
+# host name: {{ Release.Name }}-postgresql-0
+# if release of "orgadmin" is changed, the host name is required to change it
+externalDatabase:
+  type: postgres
+  host: admin0-postgresql-0
+  port: 5432
+  database: tls_ca_db
+  username: postgres
+  password: password
+
+# storage for crypto-material, i.e. crypto-config
+persistence:
+  enabled: true
+  storageClass: manual
+  accessMode: ReadWriteOnce
+  existingClaim: pvc-org0
+  size: 10Mi
+
+# configMap
+config:
+  hlfToolsVersion: 1.4.7
+  fabricCaHome: /var/hyperledger/crypto-config/Org0MSP/tls/server
+  fabricCaClientHome: /var/hyperledger/crypto-config/Org0MSP/tls/admin
+  fabricCaClientTlsCertfiles: /var/hyperledger/crypto-config/Org0MSP/tls/server/ca-cert.pem
+  ## Enable debug logging in ca Server configuration file
+  debug: false
+  csr:
+    names:
+      c: US
+      st: "North Carolina"
+      o: Hyperledger
+      ou: Fabric
+  affiliations: {}
+  ## "intermediate" is only specified for Intermediate CA's
+  # intermediate:
+  #   parent:
+  #     chart: parent-ca
+  #     url: parent-ca.example.com
+  #     port: 7054
+  ## Affiliations used in ca Server configuration file

@@ -4,12 +4,9 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-export ROOT_DIR=`pwd`/../../..
-export CHAINCODE=$ROOT_DIR/packages/chaincode
-
 # $1 - message to be printed
 # $2 - exit code of the previous operation
-printMessage() {
+  printMessage() {
   if [ $2 -ne 0 ] ; then
   printf "${RED}${1} failed${NC}\n"
   exit $2
@@ -23,13 +20,5 @@ preventEmptyValue() {
   then
   printf "No content error: $1 \n"
   exit -1
-  fi
-}
-
-verifyResult() {
-  if [ $1 -ne 0 ]; then
-    echo "!!!!!!!!!!!!!!! "$2" !!!!!!!!!!!!!!!!"
-    echo
-    exit 1
   fi
 }

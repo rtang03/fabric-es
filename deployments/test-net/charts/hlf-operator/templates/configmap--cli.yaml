@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "hlf-operator.fullname" . }}--cli
+  labels:
+{{- include "labels.standard" . | nindent 4 }}
+data:
+  CHANNEL_NAME: {{ $.Values.channel.name }}
+  FABRIC_LOGGING_SPEC: {{ $.Values.global.logging }}
+  CORE_PEER_ID: {{ .Values.peer.id }}
+  CORE_PEER_ADDRESS: {{ $.Values.peer.address }}
+  CORE_PEER_LOCALMSPID: {{ $.Values.global.mspId }}
+  CORE_PEER_TLS_ENABLED: "true"
+  CORE_PEER_TLS_ROOTCERT_FILE: /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/{{ .Values.peer.target }}/tls-msp/signcerts/cert.pem
+  ORDERER_CA: {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/org0-tls-ca-cert/tlscacert.pem
+  ORDERER_URL: {{ $.Values.orderer.address }}
+  CORE_PEER_MSPCONFIGPATH:  {{ .Values.global.workingDir }}/crypto-config/{{ .Values.global.mspId }}/admin/msp
+  FABRIC_CFG_PATH: /etc/hyperledger
+  BIN: /var/hyperledger/bin
+  GODEBUG: "netdns=go"
+  # VM_ENDPOINT: http://localhost:2375
