@@ -1,7 +1,7 @@
 ### LOCAL DEV
 ```shell script
-kubectl create n0
-kubectl create n1
+kubectl create namespace n0
+kubectl create namespace n1
 
 ### Local
 ./scripts/rm-secret.n0.sh
@@ -167,3 +167,41 @@ kubectl -n n0 port-forward pod/admin0-postgresql-0-0 5432
 export CA_ADMIN=$(kubectl get secret -n n0 tlsca0-hlf-ca--ca -o jsonpath="{.data.CA_ADMIN}" | base64 --decode; echo)
 export CA_PASSWORD=$(kubectl get secret -n n0 tlsca0-hlf-ca--ca -o jsonpath="{.data.CA_PASSWORD}" | base64 --decode; echo)
 ```
+
+### Other useful commands
+```shell script
+# search public helm repository
+helm search repo stable
+
+# when there is external helm dependency in Chart.yaml
+helm dep update
+
+# debug helm chart
+helm install rca0 -f ./hlf-ca/values-rca0.yaml -n n0 --dry-run --debug ./hlf-ca
+
+# if you want to install a standsalone postgres to defautl namespace, for testing purpose
+helm install psql --set postgresqlPassword=hello bitnami/postgresql
+
+# after postgresql is installed, you can valiate it; by decoding the secret
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace default psql-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
+
+# you can launch a port-forward, so that the psql client in host system can access it
+kubectl port-forward --namespace default svc/psql-postgresql 5433:5432
+
+# login with psql
+PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5433
+```
+
+
+### External Reference
+https://github.com/hyperledger/fabric-ca/blob/master/docs/source/users-guide.rst#enabling-tls
+https://github.com/helm/charts/tree/master/stable/hlf-ca
+https://github.com/bitnami/charts/tree/master/bitnami/postgresql#parameters
+https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+https://medium.com/google-cloud/helm-chart-for-fabric-for-kubernetes-80408b9a3fb6
+https://kubectl.docs.kubernetes.io/
+https://github.com/hyperledger/fabric-samples/blob/master/test-network/scripts/deployCC.sh
+https://medium.com/swlh/how-to-implement-hyperledger-fabric-external-chaincodes-within-a-kubernetes-cluster-fd01d7544523
+https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/
+https://github.com/kubernetes/dashboard#kubernetes-dashboard
+https://docs.bitnami.com/kubernetes/get-started-gke/#step-6-access-the-kubernetes-dashboard

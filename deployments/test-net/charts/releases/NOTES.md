@@ -144,24 +144,7 @@ helm install p0o1db -n n1 ./hlf-couchdb
 ```shell script
 # stream logs from orderer0 for monitoring
 export POD_ORD=$(kubectl get pods --namespace n0 -l "app=hlf-ord,release=o0" -o jsonpath="{.items[0].metadata.name}")
-kubectl -n n0 logs -f $POD_ORD
-
-# validate service
-# nslookup o0-hlf-ord.n0.svc.cluster.local
-# nslookup p0o1-hlf-peer.n1.svc.cluster.local
-kubectl -n n0 get service
-
-# it should return
-# NAME                           TYPE        CLUSTER-IP    
-# admin0-postgresql-0            NodePort    10.99.181.168 
-# admin0-postgresql-0-headless   ClusterIP   None          
-# o0-hlf-ord                     ClusterIP   10.103.183.167
-# o1-hlf-ord                     ClusterIP   10.102.110.159
-# o2-hlf-ord                     ClusterIP   10.109.192.161
-# o3-hlf-ord                     ClusterIP   10.111.235.142
-# o4-hlf-ord                     ClusterIP   10.110.101.179
-# rca0-hlf-ca                    ClusterIP   10.107.243.4  
-# tlsca0-hlf-ca                  ClusterIP   10.96.27.25   
+kubectl -n n0 logs -f $POD_ORD 
 ```
 
 ### Step 10 - terminal org1: install peer0-org1
@@ -206,31 +189,6 @@ kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel join -b /var/hyp
 
 ### Step 13: terminal cli: Update anchor peer
 ```shell script
-# UPDATE ANCHOR PEER: with sh script
-./update-anchor_peers
-
-# OR alternatively, update anchor peer manually
-# fetch block 0
-# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel fetch config ./channel-artifacts/config_block.pb \
-# -o o0-hlf-ord.n0.svc.cluster.local:7050 \
-# --ordererTLSHostnameOverride o0-hlf-ord \
-# -c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem"
-# 
-# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_decode --input ./channel-artifacts/config_block.pb --type common.Block --output ./channel-artifacts/config_block.json"
-# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "jq .data.data[0].payload.data.config ./channel-artifacts/config_block.json > ./channel-artifacts/config.json"
-# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "cp ./channel-artifacts/config.json ./channel-artifacts/config_copy.json"
-# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "jq '.channel_group.groups.Application.groups.Org1MSP.values += {\"AnchorPeers\":{\"mod_policy\":\"Admins\",\"value\":{\"anchor_peers\":[{\"host\":\"p0o1-hlf-peer\",\"port\":7051}]},\"version\":\"0\"}}' ./channel-artifacts/config_copy.json > ./channel-artifacts/modified_config.json"
-# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_encode --input ./channel-artifacts/config.json --type common.Config --output ./channel-artifacts/config.pb"
-# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_encode --input ./channel-artifacts/modified_config.json --type common.Config --output ./channel-artifacts/modified_config.pb"
-# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator compute_update --channel_id loanapp --original ./channel-artifacts/config.pb --updated ./channel-artifacts/modified_config.pb --output ./channel-artifacts/config_update.pb"
-# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_decode --input ./channel-artifacts/config_update.pb --type common.ConfigUpdate --output ./channel-artifacts/config_update.json"
-# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "echo '{\"payload\":{\"header\":{\"channel_header\":{\"channel_id\":\"loanapp\", \"type\":2}},\"data\":{\"config_update\":'\$(cat ./channel-artifacts/config_update.json)'}}}' | jq . > ./channel-artifacts/config_update_in_envelope.json"
-# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "configtxlator proto_encode --input ./channel-artifacts/config_update_in_envelope.json --type common.Envelope --output ./channel-artifacts/config_update_in_envelope.pb"
-# 
-# kubectl -n n1 exec -it $POD_CLI1 -- sh -c "set -x; peer channel update -f ./channel-artifacts/config_update_in_envelope.pb \
-# -o o0-hlf-ord.n0.svc.cluster.local:7050 \
-# --ordererTLSHostnameOverride o0-hlf-ord \
-# -c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem"
 ```
      
 ### Step 14: Package chaincode
@@ -372,47 +330,7 @@ kubectl port-forward --namespace default svc/psql-postgresql 5433:5432
 PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5433
 ```
 
-Note:  
-For CLI1, after I update the configmap, I found that it cannot uninstall the helm directly. Because rca1 & tlsca1, admin1
-helm charts are referring to the same mounted host volume, `/tmp/data/org1`, in order for admin1 to stop properly;
-it may need to stop rca1 & tlsca1 together. The above situation does not seem to affect the upgrade of admin1.
-
-### External Reference
-https://github.com/hyperledger/fabric-ca/blob/master/docs/source/users-guide.rst#enabling-tls
-https://github.com/helm/charts/tree/master/stable/hlf-ca
-https://github.com/bitnami/charts/tree/master/bitnami/postgresql#parameters
-https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
-https://medium.com/google-cloud/helm-chart-for-fabric-for-kubernetes-80408b9a3fb6
-https://kubectl.docs.kubernetes.io/
-https://github.com/hyperledger/fabric-samples/blob/master/test-network/scripts/deployCC.sh
-https://medium.com/swlh/how-to-implement-hyperledger-fabric-external-chaincodes-within-a-kubernetes-cluster-fd01d7544523
-https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/
-
-k0 exec -it admin0-orgadmin-cli-846645c4dc-nlzdf -- cat /etc/resolv.conf
-
-
-when configuring busybox binarary, see this
-https://hyperledger-fabric.readthedocs.io/en/release-2.2/upgrading_your_components.html?highlight=kubernetes
-
 https://www.ateam-oracle.com/how-to-make-chrome-on-os-x-trust-a-self-signed-certificate
-
-namespace/kubernetes-dashboard created
-serviceaccount/kubernetes-dashboard created
-service/kubernetes-dashboard created
-secret/kubernetes-dashboard-certs created
-secret/kubernetes-dashboard-csrf created
-secret/kubernetes-dashboard-key-holder created
-configmap/kubernetes-dashboard-settings created
-role.rbac.authorization.k8s.io/kubernetes-dashboard created
-clusterrole.rbac.authorization.k8s.io/kubernetes-dashboard created
-rolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
-clusterrolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
-deployment.apps/kubernetes-dashboard created
-service/dashboard-metrics-scraper created
-deployment.apps/dashboard-metrics-scraper created
-
-k8s dashboard token
 eyJhbGciOiJSUzI1NiIsImtpZCI6InBLaERKQ2JETmt6cVR3dzlEOGY2WFBMSXhOaG5hTUk5amZtQ2Y4N0RPY2MifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJrdWJlcm5ldGVzLWRhc2hib2FyZC10b2tlbi00eDZjOCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImViNmJjOTFkLTlhZTQtNDA1Yy04ZTY3LTdkYjg4ZjQwZTAxYyIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDprdWJlcm5ldGVzLWRhc2hib2FyZCJ9.jEz48UIT2otaqPoUu6gHE2pbTHJZXkuNqdn9XFPvk6GfhYCTqJsb7oepUwbqX3AuaZlnSHgu4Hah9oM4eM2xIkEY0IV4wA1jrV-xRHK0OQ_aKtMKAM67d3Fso0sM0NiHF0WUz5p6S5_OY2i9SmHwFJ9KFERGq1DuQZqXhh1GHDEkYrBjXLHbVROTznLUGSywfYK7CHp6tUyRQU0wbgkqiynajhAV_RaDpfzrhwsd5G5clBygFBtiLoVwGIlExy8EKav5Q5GlY1dWSAVbsaksgNZSq0fRD7dHI4sxrfteYRP_Ufg5kGbCagY6ldO3Zeggc92AqYrragCX3n4vg-tKFg
 
-https://github.com/kubernetes/dashboard#kubernetes-dashboard
-https://docs.bitnami.com/kubernetes/get-started-gke/#step-6-access-the-kubernetes-dashboard
+
