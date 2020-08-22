@@ -16,18 +16,16 @@ const logger = getLogger('[relay] relay.js');
   const myArgs = process.argv.slice(2);
   const httpsArg = myArgs[0];
 
-
   const { relay, shutdown } = await createRelayService({
     targetUrl, redisHost, redisPort, topic, httpsArg
   });
 
   process.on('SIGINT', async () => {
-    shutdown();
-
+    process.exit(await shutdown());
   });
 
   process.on('SIGTERM', async () => {
-    shutdown();
+    process.exit(await shutdown());
   });
 
   process.on('uncaughtException', err => {
@@ -36,9 +34,10 @@ const logger = getLogger('[relay] relay.js');
   });
 
   relay.listen(SERVICE_PORT, () => {
-    logger.info(`🚀 relay ready`);
+    logger.info(`🚀 relay ready at ${SERVICE_PORT}`);
     if (process.env.NODE_ENV === 'production') process.send('ready');
   });
+  // server.timeout = 600000; which: server = relay.listen(....)
 })().catch(error => {
   console.error(error);
   logger.error(util.format('fail to start relay.js, %j', error));

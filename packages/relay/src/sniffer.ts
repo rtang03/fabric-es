@@ -1,6 +1,8 @@
 require('dotenv').config({ path: './.env' });
 import util from 'util';
 import { getLogger } from './getLogger';
+import { processPbocEtcEntity } from './pbocEtc';
+import { getEntityProcessor } from './processNtt';
 import { createSnifferService } from './snifferService';
 
 const SERVICE_PORT = process.env.SNIFFER_PORT || 80;
@@ -14,15 +16,15 @@ const logger = getLogger('[sniffer] sniffer.js');
   logger.info('♨️♨️  Starting [sniffer] service...');
 
   const { sniffer, shutdown } = await createSnifferService({
-    redisHost, redisPort, topic
+    redisHost, redisPort, topic, callback: getEntityProcessor(processPbocEtcEntity)
   });
 
   process.on('SIGINT', async () => {
-    shutdown();
+    process.exit(await shutdown());
   });
 
   process.on('SIGTERM', async () => {
-    shutdown();
+    process.exit(await shutdown());
   });
 
   process.on('uncaughtException', err => {
@@ -31,7 +33,7 @@ const logger = getLogger('[sniffer] sniffer.js');
   });
 
   sniffer.listen(SERVICE_PORT, () => {
-    logger.info(`🚀 sniffer ready`);
+    logger.info(`🚀 sniffer ready at ${SERVICE_PORT}`);
     if (process.env.NODE_ENV === 'production') process.send('ready');
   });
 })().catch(error => {

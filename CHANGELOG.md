@@ -1,3 +1,7 @@
+## [0.6.4] - 2020-8-18
+### Added
+- relay package with sniffer code
+
 ## [0.6.3] - 2020-8-4
 ### Added
 - tracking between private and public info

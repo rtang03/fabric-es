@@ -7,6 +7,24 @@ import { getLogger } from './getLogger';
 import { ReqRes } from './reqres';
 import { createSubscription } from './snifferSubscription';
 
+export interface ProcessResults {
+  endPoint: string;
+  method: string;
+  statusCode: number;
+  statusMessage?: string;
+  reqBody?: string;
+  resBody?: string;
+  errors?: string[];
+  events?: {
+    type: string;
+    payload: any;
+  }[];
+  attachmentInfo?: {
+    name: string;
+    type: string;
+  }[];
+};
+
 const logger = getLogger('[sniffer] snifferService.js');
 
 export const createSnifferService: (option: {
@@ -16,7 +34,7 @@ export const createSnifferService: (option: {
   callback?: (channel: string, message: ReqRes, messageStr?: string) => void;
 }) => Promise<{
   sniffer: StoppableServer;
-  shutdown: any;
+  shutdown: () => Promise<number>;
 }> = async ({
   redisHost, redisPort, topic, callback
 }) => {
@@ -58,20 +76,23 @@ export const createSnifferService: (option: {
   return {
     sniffer: stoppableServer,
     shutdown: async () => {
-      stop();
-      const res = await client.quit();
-      if (res === 'OK')
-        logger.info('Sniffer disconnected from REDIS successfully');
-      else
-        logger.error('An error occurred while the sniffer trying to disconnect from REDIS');
+      return new Promise<number>(async resolve => {
+        await stop();
+        const res = await client.quit();
+        if (res === 'OK')
+          logger.info('Sniffer disconnected from REDIS successfully');
+        else
+          logger.error('An error occurred while the sniffer trying to disconnect from REDIS');
 
-      stoppableServer.stop(err => {
-        if (err) {
-          logger.error(util.format('An error occurred while closing the sniffer service: %j', err));
-          process.exitCode = 1;
-        } else
-          logger.info('Sniffer service stopped');
-        process.exit();
+        stoppableServer.stop(err => {
+          if (err) {
+            logger.error(util.format('An error occurred while closing the sniffer service: %j', err));
+            resolve(1);
+          } else {
+            logger.info('Sniffer service stopped');
+            resolve(0);
+          }
+        });
       });
     }
   };
