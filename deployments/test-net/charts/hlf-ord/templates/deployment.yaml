@@ -23,54 +23,54 @@ spec:
         - name: data
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim | default (include "hlf-ord.fullname" .) }}
+            claimName: {{ .Values.persistence.pvcName }}
           {{- else }}
           emptyDir: {}
         {{- end }}
-        {{- if .Values.secrets.ord.cert }}
+        {{- if .Values.secrets.cert }}
         - name: id-cert
           secret:
-            secretName: {{ .Values.secrets.ord.cert }}
+            secretName: {{ .Values.secrets.cert }}
         {{- end }}
-        {{- if .Values.secrets.ord.key }}
+        {{- if .Values.secrets.key }}
         - name: id-key
           secret:
-            secretName: {{ .Values.secrets.ord.key }}
+            secretName: {{ .Values.secrets.key }}
         {{- end }}
-        {{- if .Values.secrets.ord.caCert }}
+        {{- if .Values.secrets.caCert }}
         - name: cacert
           secret:
-            secretName: {{ .Values.secrets.ord.caCert }}
+            secretName: {{ .Values.secrets.caCert }}
         {{- end }}
-        {{- if .Values.secrets.ord.intCaCert }}
+        {{- if .Values.secrets.intCaCert }}
         - name: intcacert
           secret:
-            secretName: {{ .Values.secrets.ord.intCaCert }}
+            secretName: {{ .Values.secrets.intCaCert }}
         {{- end }}
-        {{- if .Values.secrets.ord.tls }}
+        {{- if .Values.secrets.tls }}
         - name: tls
           secret:
-            secretName: {{ .Values.secrets.ord.tls }}
+            secretName: {{ .Values.secrets.tls }}
         {{- end }}
-        {{- if .Values.secrets.ord.tlsRootCert }}
+        {{- if .Values.secrets.tlsRootCert }}
         - name: tls-rootcert
           secret:
-            secretName: {{ .Values.secrets.ord.tlsRootCert }}
+            secretName: {{ .Values.secrets.tlsRootCert }}
         {{- end }}
-        {{- if .Values.secrets.ord.tlsClientRootCert }}
+        {{- if .Values.secrets.tlsClientRootCert }}
         - name: tls-clientrootcert
           secret:
-            secretName: {{ .Values.secrets.ord.tlsClientRootCert }}
+            secretName: {{ .Values.secrets.tlsClientRootCert }}
         {{- end }}
-        {{- if .Values.secrets.ord.genesis }}
+        {{- if .Values.secrets.genesis }}
         - name: genesis
           secret:
-            secretName: {{ .Values.secrets.ord.genesis }}
+            secretName: {{ .Values.secrets.genesis }}
         {{- end }}
-        {{- if .Values.secrets.ord.adminCert }}
+        {{- if .Values.secrets.adminCert }}
         - name: admin-cert
           secret:
-            secretName: {{ .Values.secrets.ord.adminCert }}
+            secretName: {{ .Values.secrets.adminCert }}
         {{- end }}
         {{- if .Values.secrets.caServerTls }}
         - name: ca-server-tls
@@ -78,6 +78,17 @@ spec:
             secretName: {{ .Values.secrets.caServerTls }}
       {{- end }}
       containers:
+        {{- if .Values.sidecar.isalive.enabled }}
+        - name: isalive
+          image: hashicorp/http-echo
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: isalive-port
+              containerPort: 5678
+              protocol: TCP
+          args:
+            - "-text=iamorderer0"
+        {{- end }}
         - name: orderer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -85,6 +96,9 @@ spec:
           ports:
             - name: ord-port
               containerPort: 7050
+              protocol: TCP
+            - name: operation-port
+              containerPort: 8443
               protocol: TCP
           livenessProbe:
             exec:
@@ -129,60 +143,60 @@ spec:
               echo ">\033[0;35m orderer \033[0m"
               orderer
           envFrom:
-            {{- if .Values.secrets.ord.cred }}
+            {{- if .Values.secrets.cred }}
             - secretRef:
                 # Environmental variables CA_ADMIN and CA_PASSWORD
                 # Obsolete: Environmental variables CA_USERNAME and CA_PASSWORD
-                name: {{ .Values.secrets.ord.cred }}
+                name: {{ .Values.secrets.cred }}
             {{- end }}
             - configMapRef:
                 name: {{ include "hlf-ord.fullname" . }}--ord
           volumeMounts:
             - mountPath: /var/hyperledger
               name: data
-            {{- if .Values.secrets.ord.cert }}
+            {{- if .Values.secrets.cert }}
             - mountPath: {{ include "hlf-ord.home" . }}/msp/signcerts
               name: id-cert
             {{- end }}
-            {{- if .Values.secrets.ord.key }}
+            {{- if .Values.secrets.key }}
             - mountPath: {{ include "hlf-ord.home" . }}/msp/keystore
               name: id-key
             {{- end }}
-            {{- if .Values.secrets.ord.caCert }}
+            {{- if .Values.secrets.caCert }}
             - mountPath: {{ include "hlf-ord.home" . }}/msp/cacerts
               name: cacert
-            - mountPath: /var/hyperledger/admin_msp/cacerts
+            - mountPath: /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/admin/msp/cacerts
               name: cacert
             {{- end }}
-            {{- if .Values.secrets.ord.intCaCert }}
+            {{- if .Values.secrets.intCaCert }}
             - mountPath: {{ include "hlf-ord.home" . }}/msp/intermediatecerts
               name: intcacert
             - mountPath: /var/hyperledger/admin_msp/intermediatecerts
               name: intcacert
             {{- end }}
-            {{- if .Values.secrets.ord.tls }}
+            {{- if .Values.secrets.tls }}
             - mountPath: {{ include "hlf-ord.home" . }}/tls-msp/tls
               name: tls
             {{- end }}
-            {{- if .Values.secrets.ord.tlsRootCert }}
+            {{- if .Values.secrets.tlsRootCert }}
             - mountPath: {{ include "hlf-ord.home" . }}/tls-msp/tlscacerts
               name: tls-rootcert
             {{- end }}
-            {{- if .Values.secrets.ord.tlsClientRootCerts }}
+            {{- if .Values.secrets.tlsClientRootCerts }}
             - mountPath: /var/hyperledger/tls/client/cert
               name: tls-clientrootcert
             {{- end }}
-            {{- if .Values.secrets.ord.genesis }}
+            {{- if .Values.secrets.genesis }}
             - mountPath: {{ include "hlf-ord.home" . }}
               name: genesis
             {{- end }}
-            {{- if .Values.secrets.ord.adminCert }}
+            {{- if .Values.secrets.adminCert }}
             - mountPath: {{ include "hlf-ord.home" . }}/msp/admincerts
               name: admin-cert
-{{/*            - mountPath: /var/hyperledger/admin_msp/signcerts*/}}
-{{/*              name: admin-cert*/}}
-{{/*            - mountPath: /var/hyperledger/msp/admincerts*/}}
-{{/*              name: admin-cert*/}}
+            - mountPath: /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/admin/msp/signcerts
+              name: admin-cert
+            - mountPath: /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/msp/admincerts
+              name: admin-cert
           {{- end }}
           resources:
       {{ toYaml .Values.resources | indent 12 }}

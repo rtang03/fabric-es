@@ -1,0 +1,172 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "orgadmin.fullname" . }}-cli
+  labels:
+{{- include "labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "orgadmin.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+{{ include "labels.standard" . | indent 8 }}
+    spec:
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.pvcName }}
+        - name: dockersocket
+          hostPath:
+            path: /var/run/docker.sock
+        {{- if .Values.orderer.enabled }}
+        - name: configtx
+          configMap:
+            name: {{ include "orgadmin.fullname" . }}--configtx
+        {{- end }}
+        {{- if .Values.orderer.enabled }}
+        - name: org1mspcacerts
+          secret:
+            optional: true
+            secretName: {{ .Values.orderer.secret.org1cacert | quote }}
+        {{- end }}
+        {{- if .Values.orderer.enabled }}
+        - name: org1mspadmincerts
+          secret:
+            optional: true
+            secretName: {{ .Values.orderer.secret.org1admincerts | quote }}
+        {{- end }}
+        {{- if .Values.orderer.enabled }}
+        - name: org1msptlscacerts
+          secret:
+            optional: true
+            secretName: {{ .Values.orderer.secret.org1tlscacerts }}
+        {{- end }}
+        {{- if .Values.orderer.enabled }}
+        - name: peerconfig
+          configMap:
+            name: {{ include "orgadmin.fullname" . }}--peerconfig
+        - name: core
+          configMap:
+            name: {{ include "orgadmin.fullname" . }}--core
+        {{- end }}
+        {{- if .Values.orderer.enabled }}
+        {{- range .Values.orderer.channels }}
+        - name: {{ . }}
+          secret:
+            optional: true
+            secretName: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.peer.enabled }}
+        - name: ord-tlssigncert
+          secret:
+            optional: true
+            secretName: {{ .Values.peer.secret.ordTlsSignCert | quote }}
+        {{- end }}
+        {{- if .Values.peer.enabled }}
+        - name: org0-tls-ca-cert
+          secret:
+            optional: true
+            secretName: {{ .Values.peer.secret.ordTlsCaCert }}
+        {{- end }}
+      initContainers:
+        - name: initcli
+          image: library/alpine:3.12.0
+          workingDir: /home
+          command:
+            - sh
+            - -c
+            - |
+              set -x
+              BIN=/var/hyperledger/bin/configtxgen
+              if [ -f "$BIN" ]; then
+                echo "$BIN exists"
+              else
+                apk update
+                apk upgrade
+                apk --no-cache add curl bash libc6-compat libstdc++
+                curl -sSL https://bit.ly/2ysbOFE > bootstrap.sh
+                chmod +x ./bootstrap.sh
+                ./bootstrap.sh {{ .Values.cli.fabricBinary }} {{ .Values.cli.fabricCABinary }} -s -d
+                rm bin/orderer
+                rm bin/fabric-ca-server
+                mkdir -p /var/hyperledger/bin
+                mkdir -p /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/admin/msp/admincerts
+                mkdir -p /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/msp/admincerts
+                mkdir -p /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/msp/cacerts
+                mkdir -p /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/msp/tlscacerts
+                if [ -f "bin/configtxgen" ]; then
+                  echo "init successfully"
+                  mv bin/* /var/hyperledger/bin
+                else
+                  echo "init fails"
+                  exit -1
+                fi
+              fi
+          volumeMounts:
+            - mountPath: /var/hyperledger
+              name: fabricfiles
+      containers:
+        - name: cli
+          image: library/alpine:3.12.0
+          workingDir: {{ .Values.global.workingDir | quote }}
+          command:
+            - sh
+            - -c
+            - |
+              apk update
+              apk upgrade
+              apk --no-cache add curl libc6-compat libstdc++
+              mkdir -p {{ .Values.global.workingDir }}/channel-artifacts
+              /var/hyperledger/bin/fabric-ca-client version
+              /var/hyperledger/bin/configtxgen --version
+              sleep 48h
+          envFrom:
+            - configMapRef:
+                name: {{ include "orgadmin.fullname" . }}--cli
+          volumeMounts:
+            - mountPath: /var/hyperledger
+              name: fabricfiles
+            - mountPath: /host/var/run/docker.sock
+              name: dockersocket
+            {{- if .Values.orderer.enabled }}
+            - mountPath: /var/hyperledger/cli/configtx
+              name: configtx
+            {{- end }}
+            {{- if .Values.orderer.enabled }}
+            - mountPath: "{{ $.Values.cli.firstOrgDir }}/msp/cacerts"
+              readOnly: true
+              name: org1mspcacerts
+            {{- end }}
+            {{- if .Values.orderer.enabled }}
+            - mountPath: "{{ $.Values.cli.firstOrgDir }}/msp/admincerts"
+              readOnly: true
+              name: org1mspadmincerts
+            {{- end }}
+            {{- if .Values.orderer.enabled }}
+            - mountPath: "{{ $.Values.cli.firstOrgDir }}/msp/tlscacerts"
+              readOnly: true
+              name: org1msptlscacerts
+            {{- end }}
+            {{- if .Values.orderer.enabled }}
+            - mountPath: /var/hyperledger/cli
+              name: core
+            {{- end }}
+            {{- if .Values.orderer.enabled }}
+            {{- range .Values.cli.channels }}
+            - mountPath: "{{ $.Values.cli.firstOrgDir }}/{{ . }}"
+              name: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.peer.enabled }}
+            - mountPath: "{{ $.Values.cli.firstOrgDir }}/peer0.org1.net/ord/tls-msp/signcerts"
+              name: ord-tlssigncert
+            {{- end }}
+            {{- if .Values.peer.enabled }}
+            - mountPath: "{{ $.Values.cli.firstOrgDir }}/peer0.org1.net/ord/org0/tlscacerts"
+              name: org0-tls-ca-cert
+            {{- end }}

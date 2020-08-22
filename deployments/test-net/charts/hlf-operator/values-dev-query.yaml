@@ -1,0 +1,3 @@
+tasks:
+  dev_query:
+    enabled: true

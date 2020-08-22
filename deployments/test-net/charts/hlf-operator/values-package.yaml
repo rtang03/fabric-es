@@ -1,0 +1,3 @@
+tasks:
+  package_chaincode:
+    enabled: true

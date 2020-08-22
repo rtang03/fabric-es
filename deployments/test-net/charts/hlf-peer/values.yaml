@@ -1,10 +1,12 @@
-# Default values for  hlf-peer.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+global:
+  TZ: Asia/Hong_Kong
+  workingDir: /var/hyperledger/crypto-config
+  mspId: Org1MSP
+  domain: org1.net
 
 image:
   repository: hyperledger/fabric-peer
-  tag: 2.1.0
+  tag: 2.2.0
   pullPolicy: IfNotPresent
 
 service:
@@ -22,38 +24,41 @@ dockerConfigMountPath: /root/.docker
 
 ingress:
   enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
     # nginx.ingress.kubernetes.io/ssl-redirect: "true"
     # nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
   # certmanager.k8s.io/cluster-issuer: "letsencrypt-staging"
   path: /
   hosts:
-    - hlf-peer.local
-  tls: []
+    - peer0.org1.net
+  #  tls: []
   #  - secretName: hlf-peer-tls
   #    hosts:
   #      - hlf-peer.local
 
 persistence:
-  enabled: true
-  pvName: pv-p0o1
-  pvcName: pvc-p0o1
-  hostPath: /tmp/data/p0o1
   annotations: {}
-  ## If defined, storageClassName: <storageClass>
-  ## If set to "-", storageClassName: "", which disables dynamic provisioning
-  ## If undefined (the default) or set to null, no storageClassName spec is
-  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-  ##   GKE, AWS & OpenStack)
-  ##
-  storageClass: "manual"
   accessMode: ReadWriteOnce
-  size: 10Mi
-  # existingClaim: ""
+  # alway enabled
+  enabled: true
+  # hostPath for PV for "manual" storageClass. If no storageClass, hostPath can omit
+  hostPath: /tmp/data/p0o1
+  # pv is requred for "manual" storageClass. If no storageClass, pv can omit
+  pvName: pv-p0o1
+  # mandatory
+  pvcName: pvc-p0o1
+  # storageClass can be "-", manual, or storageClass is not required for dynamic provisioning
+  # storageClass: "-"
+  # storageClass: manual
+  # requested size for pv
+  size: 1Gi
 
 logging:
-  level: info
+  # "info" or "debug" or "grpc=debug:debug" or "grpc=debug:info"
+  level: "info"
   peer: info
   cauthdsl: warning
   gossip: info
@@ -62,28 +67,40 @@ logging:
   msp: warning
   policies: warning
 
+orderers:
+  - name: "orderer0.org0.com"
+    hostAlias: "10.107.38.58"
+  - name: "orderer1.org0.com"
+    hostAlias: "10.109.222.104"
+  - name: "orderer2.org0.com"
+    hostAlias: "10.109.70.201"
+  - name: "orderer3.org0.com"
+    hostAlias: "10.103.108.198"
+  - name: "orderer4.org0.com"
+    hostAlias: "10.108.198.183"
 
 ##################################
 ## Peer configuration options    #
 ##################################
 peer:
   ledgerPath: /var/hyperledger/production
-  orgPath: /var/hyperledger/crypto-config/Org1MSP
   peerName: peer0
-  domain: org1.net
+  orgPath: /var/hyperledger/crypto-config/Org1MSP
   # Type of database ("goleveldb" or "CouchDB"):
   databaseType: CouchDB
   # If CouchDB is used, which chart holds it
   couchdbInstance: p0o1db
+  ## Database username
+  couchdbUsername: couchdb
+  ## Database password (default: random 24 character string)
+  couchdbPassword: password
   ## MSP ID of the Peer
-  mspID: Org1MSP
   gossip:
     bootstrap: "p0o1-hlf-peer:7051"
     endpoint: "p0o1-hlf-peer:7051"
     externalEndpoint: "p0o1-hlf-peer:7051"
     orgLeader: "false"
     useLeaderElection: "true"
-
   tls:
     server:
       enabled: "true"
@@ -96,6 +113,16 @@ peer:
       golang: ""
       java: ""
       node: ""
+
+cli:
+  bootstrap: true
+  channelName: "loanapp"
+  anchorPeer: "Org1MSP"
+  enabled: true
+  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
+  channels:
+    - "channeltx"
+
 # Secrets references, empty by default, fill in with your secrets (particularly adminCert) or add Peer Admin certificate manually after launching chart.
 secrets:
   ## These secrets should contain the Orderer crypto materials and credentials
@@ -142,6 +169,8 @@ secrets:
   ## This should include the Orderer TLS 'cacert.pem'
   # ordTlsRootCert: hlf--ord-tlsrootcert
   ordTlsRootCert: "orderer0.org0.com-tlsrootcert"
+  ordTlsSignCert: "orderer0.org0.com-tlssigncert"
+  ordOrg0Tlscacert: "org0-tls-ca-cert"
 
 resources: {}
   ## We usually recommend not to specify default resources and to leave this as a conscious
@@ -152,7 +181,7 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
   # requests:
-  #   cpu: 100m
+#   cpu: 100m
 #   memory: 128Mi
 
 nodeSelector: {}
@@ -165,5 +194,5 @@ affinity: {}
   #   requiredDuringSchedulingIgnoredDuringExecution:
   #     - topologyKey: "kubernetes.io/hostname"
   #       labelSelector:
-  #         matchLabels:
+#         matchLabels:
 #           app: hlf-peer

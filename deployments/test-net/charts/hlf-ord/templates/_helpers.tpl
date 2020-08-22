@@ -48,7 +48,7 @@ chart: {{ include "hlf-ord.chart" . }}
 Create Orderer home
 */}}
 {{- define "hlf-ord.home" -}}
-{{- printf "%s/%s.%s" .Values.ord.ordOrgPath .Values.ord.ordName .Values.ord.ordDomain }}
+{{- printf "/var/hyperledger/crypto-config/%s/%s.%s" .Values.global.mspId .Values.ord.ordName .Values.global.domain }}
 {{- end -}}
 
 {{/*

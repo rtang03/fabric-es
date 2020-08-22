@@ -42,4 +42,5 @@ app: {{ include "orgadmin.name" . }}
 heritage: {{ .Release.Service | quote }}
 release: {{ .Release.Name | quote }}
 chart: {{ include "orgadmin.chart" . }}
+namespace: {{ .Release.Namespace }}
 {{- end -}}

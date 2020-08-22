@@ -5,9 +5,9 @@ metadata:
   labels:
 {{- include "labels.standard" . | nindent 4 }}
 data:
-  GODEBUG: "netdns=go"
-  FABRIC_CA_HOME: {{ .Values.config.fabricCaHome | quote }}
-  FABRIC_CA_SERVER_CA_NAME: {{ .Values.caName | quote }}
+  FABRIC_LOGGING_SPEC: {{ .Values.global.logging }}
+  FABRIC_CA_HOME: {{ .Values.config.caServerHome | quote }}
+  FABRIC_CA_SERVER_CA_NAME: {{ .Values.global.caName | quote }}
   SERVICE_DNS: 0.0.0.0  # Point to itself
-  TZ: {{ .Values.config.timezone }}
-  FABRIC_CA_CLIENT_HOME: {{ .Values.config.fabricCaClientHome | quote }}
+  TZ: {{ .Values.global.TZ }}
+  FABRIC_CA_CLIENT_HOME: {{ .Values.config.caClientHome | quote }}

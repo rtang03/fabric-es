@@ -53,7 +53,7 @@ spec:
         - name: ca
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          workingDir: /var/hyperledger/crypto-config
+          workingDir: {{ .Values.global.workingDir }}
           command:
             - sh
             - -c
@@ -98,22 +98,6 @@ spec:
             - configMapRef:
                 name: {{ include "hlf-ca.fullname" . }}--ca
           env:
-            {{- if .Values.postgresql.enabled}}
-            # PostgreSQL Database
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "postgresql.fullname" . }}
-                  key: postgresql-password
-            {{- end }}
-            {{- if .Values.mysql.enabled }}
-            # MySQL Database
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "mysql.fullname" . }}
-                  key: mysql-password
-            {{- end }}
             {{- if .Values.externalDatabase.type }}
             # External Database
             - name: DB_PASSWORD

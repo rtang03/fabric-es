@@ -5,8 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: hyperledger/fabric-couchdb
-  tag: 0.4.21
+  repository: couchdb
+  tag: 3.1
   pullPolicy: IfNotPresent
 
 service:
@@ -39,7 +39,7 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  storageClass: "manual"
+  # storageClass: "manual"
   accessMode: ReadWriteOnce
   size: 10Mi
   # existingClaim: ""

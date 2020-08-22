@@ -1,0 +1,47 @@
+Job will perform:
+{{- if .Values.tasks.create_channel.enabled }}
+  - create channel
+{{- end }}
+{{- if .Values.tasks.join_channel.enabled }}
+  - join channel
+{{- end }}
+{{- if .Values.tasks.getchannnelinfo.enabled }}
+  - get channel info
+{{- end }}
+{{- if .Values.tasks.update_anchor_peer.enabled }}
+  - update anchor peer
+{{- end }}
+{{- if .Values.tasks.package_chaincode.enabled }}
+  - package chaincode
+{{- end }}
+{{- if .Values.tasks.install_chaincode.enabled }}
+  - install chaincode
+{{- end }}
+{{- if .Values.tasks.queryinstalled.enabled }}
+  - query installed chaincode
+{{- end }}
+{{- if .Values.tasks.approve_chaincode.enabled }}
+  - approve chaincode
+{{- end }}
+{{- if .Values.tasks.queryapproved.enabled }}
+  - query approved chaincode
+{{- end }}
+{{- if .Values.tasks.checkcommitreadiness.enabled }}
+  - check commit readiness
+{{- end }}
+{{- if .Values.tasks.commit_chaincode.enabled }}
+  - commit chaincode
+{{- end }}
+{{- if .Values.tasks.querycommitted.enabled }}
+  - query committed chaincode
+{{- end }}
+{{- if .Values.tasks.init_chaincode.enabled }}
+  - init chaincode
+{{- end }}
+{{- if .Values.tasks.dev_invoke.enabled }}
+  - smoke test: invoke
+{{- end }}
+{{- if .Values.tasks.dev_query.enabled }}
+  - smoke test: query
+{{- end }}
+--- End ---

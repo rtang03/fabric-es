@@ -1,0 +1,3 @@
+tasks:
+  queryinstalled:
+    enabled: true

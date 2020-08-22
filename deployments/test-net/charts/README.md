@@ -1,138 +1,171 @@
-## Introduction
-
-### Prerequsite
+### LOCAL DEV
 ```shell script
-# install nginx ingress controller
-# see https://kubernetes.github.io/ingress-nginx/deploy/#docker-for-mac
-# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
-```
+kubectl create namespace n0
+kubectl create namespace n1
 
-### Steps 0 - Preparing Terminals
-You should need multiple terminals
-```shell script
-# terminal 1, namely "org0"
-# terminal 2, namely "org1"
+### Local
+./scripts/rm-secret.n0.sh
+./scripts/rm-secret.n1.sh
 
-# create namespaces for org0 & org1
-# kubectl create namespace n0 
-# kubectl create namespace n1
+# Org 1
+helm install admin1 -n n1 -f ./orgadmin/values-admin1.local.yaml ./orgadmin
+sleep 2
+helm install tlsca1 -n n1 -f ./hlf-ca/values-tlsca1.yaml ./hlf-ca
+sleep 2
+helm install rca1 -n n1 -f ./hlf-ca/values-rca1.yaml ./hlf-ca
 
-# optionally, remove pre-existing secret
-# or take a look at hlf-ca/post-install/rca0/cleanup-secret.sh
-# kubectl -n n0 delete secret xxxx
-# kubectl -n n1 delete secret xxxx
-```
+kubectl wait --for=condition=Available --timeout 600s deployment/admin1-orgadmin-cli -n n1
+helm install crypto-tlsca1 -n n1 -f ./cryptogen/values-tlsca1.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca1-cryptogen -n n1
+helm install crypto-rca1 -n n1 -f ./cryptogen/values-rca1.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 120s job/crypto-rca1-cryptogen -n n1
 
-### Step 1 - terminal org0 - install admin0
-```shell script
-helm install admin0 -f ./orgadmin/values.0.yaml -n n0 ./orgadmin
-```
+# Org0
+helm install admin0 -n n0 -f ./orgadmin/values-admin0.local.yaml ./orgadmin
+sleep 2
+helm install tlsca0 -n n0 -f ./hlf-ca/values-tlsca0.yaml ./hlf-ca
+sleep 2
+helm install rca0 -n n0 -f ./hlf-ca/values-rca0.yaml ./hlf-ca
 
-### Step 2 - terminal org0 - install tlsca0
-```shell script
-# remove all-existing secrets for n0
-./orgadmin/post-instal/rm-secret.n0.sh
-
-helm install tlsca0 -f ./hlf-ca/values-tlsca0.yaml -n n0 ./hlf-ca
-
-# post-install setup
-./hlf-ca/post-install/setup.tlsca0.sh
-```
-
-### Step 3 - terminal org0 - install rca0
-```shell script
-helm install rca0 -f ./hlf-ca/values-rca0.yaml -n n0 ./hlf-ca
-
-# post-install setup
-./hlf-ca/post-install/setup.rca0.sh
+# the fabric binary download may take a few minutes
+kubectl wait --for=condition=Available --timeout 600s deployment/admin0-orgadmin-cli -n n0
+helm install crypto-tlsca0 -n n0 -f ./cryptogen/values-tlsca0.yaml --dry-run --debug ./cryptogen
+kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca0-cryptogen -n n0
+helm install crypto-rca0 -n n0 -f ./cryptogen/values-rca0.yaml --dry-run --debug  ./cryptogen
+kubectl wait --for=condition=complete --timeout 120s job/crypto-rca0-cryptogen -n n0
 
 # create secret
-./hlf-ca/post-install/create-secret.rca0.sh
-```
+./scripts/create-secret.rca0.sh
+./scripts/create-secret.rca1.sh
+./scripts/create-genesis.sh
 
-### Step 4 - terminal org1 - install admin1
-```shell script
-helm install admin1 -f ./orgadmin/values.1.yaml -n n1 ./orgadmin
-```
-
-### Step 5 - terminal org1 - install tlsca1
-```shell script
-# remove all-existing secrets for n1
-# but don't remove orderer's tls root cert, created by step 3. 
-./hlf-ca/post-install/rm-secret.n1.sh
-
-helm install tlsca1 -f ./hlf-ca/values-tlsca1.yaml -n n1 ./hlf-ca
-
-# post-install setup
-./hlf-ca/post-install/setup.tlsca1.sh
-```
-
-### Step 6 - terminal org1 - install rca1
-```shell script
-# Go directory hlf-ca
-helm install rca1 -f ./hlf-ca/values-rca1.yaml -n n1 ./hlf-ca
-
-# post-install setup
-./hlf-ca/post-install/setup.rca1.sh
-
-# create secret
-./hlf-ca/post-install/create-secret.rca1.sh
-```
-
-### Step 7 - go back terminal org0
-```shell script
-# follow the notes instruction of admin0
-# create genesis.block and channel.tx
-# Or Alternatively, go to orgadmin/post-install, and run
-./orgadmin/post-install/create-genesis.sh
-
-########Upgrade the chart, so that the secret "org1.net-ca-cert.pem" is updated
-helm upgrade admin0 -f ./orgadmin/values.0.yaml -n n0 ./orgadmin
-helm upgrade admin1 -f ./orgadmin/values.1.yaml -n n1 ./orgadmin
-```
-
-### Step 8 - terminal org0 - install orderers
-```shell script
-helm install o0 -f ./hlf-ord/values.0.yaml -n n0 ./hlf-ord
-helm install o1 -f ./hlf-ord/values.1.yaml -n n0 ./hlf-ord
-helm install o2 -f ./hlf-ord/values.2.yaml -n n0 ./hlf-ord
-helm install o3 -f ./hlf-ord/values.3.yaml -n n0 ./hlf-ord
-helm install o4 -f ./hlf-ord/values.4.yaml -n n0 ./hlf-ord
-```
-
-### Step 8 - terminal org1 - install couchdb
-```shell script
-# install couchdb for peer0-org1
+helm install o0 -f ./hlf-ord/values-O0.yaml -n n0 ./hlf-ord
+sleep 3
+helm install o1 -f ./hlf-ord/values-O1.yaml -n n0 ./hlf-ord
+sleep 3
+helm install o2 -f ./hlf-ord/values-O2.yaml -n n0 ./hlf-ord
+sleep 3
+helm install o3 -f ./hlf-ord/values-O3.yaml -n n0 ./hlf-ord
+sleep 3
+helm install o4 -f ./hlf-ord/values-O4.yaml -n n0 ./hlf-ord
+sleep 3
 helm install p0o1db -n n1 ./hlf-couchdb
-```
+sleep 3
 
-### Step 9 - terminal org1 - install peer0-org1
-```shell script
 helm install p0o1 -n n1 ./hlf-peer
+
 ```
 
-### Step 10 - terminal org1 - create channel
+### Build chaincode
+Note: this step may be change to retrieve from github, for better portability  
 ```shell script
-docker exec \
-  -e CORE_PEER_ADDRESS=${FIRST_PEER}-${FIRST_CODE}:${FIRST_PORT} \
-  -e CORE_PEER_LOCALMSPID=${FIRST_NAME}MSP \
-  -e CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
-  -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${FIRST_NAME}MSP/admin/msp \
-  cli peer channel create -c loanapp -f /var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/assets/channel.tx -o ${ORDERER_PEER}-${ORDERER_CODE}:${ORDERER_PORT} \
-    --outputBlock /var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/assets/loanapp.block \
-    --tls --cafile /var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+# build chaincode
+pushd .
+cd ../../../packages/chaincode
+yarn build
+printMessage "Build chaincode" $?
+popd
+rm -r ./chaincode
+printMessage "remove chaincode directory" $?
+sleep 1
+mkdir -p ./chaincode
+printMessage "create chaincode directory" $?
+sleep 1
+cp ../../../packages/chaincode/package.json ./chaincode
+printMessage "copy package.json" $?
+sleep 1
+cp -R ../../../packages/chaincode/dist ./chaincode
+printMessage "copy dist" $?
+sleep 1
+```
 
-export POD_CLI1=$(kubectl get pods -n n1 -l "app=orgadmin,release=admin1" -o jsonpath="{.items[0].metadata.name}")
+### Chaincode Lifecycle Installation
+```shell script
+# copy chaincode 
+export POD_CLI1=$(kubectl get pods --namespace n1 -l "app=orgadmin,release=admin1" -o jsonpath="{.items[0].metadata.name}")
+kubectl -n n1 cp ./chaincode $POD_CLI1:./channel-artifacts
 
-kubectl -n n1 exec $POD_CLI1 -- /bin/bash
+###### E2E INSTALL
+# helm install bootstrap -n n1 -f ./hlf-operator/values-runn-all.yaml ./hlf-operator
 
-export CORE_PEER_LOCALMSPID=Org1MSP
-export CORE_PEER_ADDRESS="p0o1-hlf-peer:7051"
-export CORE_PEER_MSPCONFIGPATH=/var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/admin_msp
-peer channel create -c loanapp -f /var/hyperledger/crypto-config/Org1MSP/hl_config/channel/channeltx \
- -o o0-hlf-ord:7050 \
- --outputBlock /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/loanapp.block --tls \
- --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/ord/cert/tlscacert.pem
+###### MANUAL INSTALL
+# create channel only
+helm install bootstrap -n n1 -f ./hlf-operator/values-createchannel.yaml ./hlf-operator
+# join channel only
+helm install bootstrap -n n1 -f ./hlf-operator/values-join.yaml ./hlf-operator
+# get channel info
+helm install bootstrap -n n1 -f ./hlf-operator/values-getchannelinfo.yaml ./hlf-operator
+# update anchor peer only
+helm install bootstrap -n n1 -f ./hlf-operator/values-updateanchor.yaml ./hlf-operator
+# package chaincode
+helm install bootstrap -n n1 -f ./hlf-operator/values-package.yaml ./hlf-operator
+# install chaincode
+helm install bootstrap -n n1 -f ./hlf-operator/values-install.yaml ./hlf-operator
+# queryinstalled
+helm install bootstrap -n n1 -f ./hlf-operator/values-queryinstalled.yaml ./hlf-operator
+# approve chaincode
+helm install bootstrap -n n1 -f ./hlf-operator/values-approve.yaml ./hlf-operator
+# queryapproved
+helm install bootstrap -n n1 -f ./hlf-operator/values-queryapproved.yaml ./hlf-operator
+# checkcommitreadiness
+helm install bootstrap -n n1 -f ./hlf-operator/values-checkcommitreadiness.yaml ./hlf-operator
+# commit chaincode
+helm install bootstrap -n n1 -f ./hlf-operator/values-commit.yaml ./hlf-operator
+# querycommitted
+helm install bootstrap -n n1 -f ./hlf-operator/values-querycommitted.yaml ./hlf-operator
+# init chaincode
+helm install bootstrap -n n1 -f ./hlf-operator/values-init.yaml ./hlf-operator
+# dev-mode invoke
+helm install bootstrap -n n1 -f ./hlf-operator/values-dev-invoke.yaml ./hlf-operator
+# dev-mode query
+helm install bootstrap -n n1 -f ./hlf-operator/values-dev-query.yaml ./hlf-operator
+```
+
+### GCP
+```shell script
+### GCP
+# Org0
+helm install admin0 -n n0 -f ./orgadmin/values-admin0.gcp.yaml ./orgadmin
+helm install tlsca0 -n n0 -f ./hlf-ca/values-tlsca0.yaml ./hlf-ca
+helm install rca0 -n n0 -f ./hlf-ca/values-rca0.yaml ./hlf-ca
+
+# the fabric binary download may take a few minutes
+kubectl wait --for=condition=Available --timeout 600s deployment/admin0-orgadmin-cli -n n0
+helm install crypto-tlsca0 -n n0 -f ./cryptogen/values-tlsca0.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca0-cryptogen -n n0
+helm install crypto-rca0 -n n0 -f ./cryptogen/values-rca0.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 120s job/crypto-rca0-cryptogen -n n0
+
+# Org 1
+helm install admin1 -n n1 -f ./orgadmin/values-admin1.gcp.yaml ./orgadmin
+helm install tlsca1 -n n1 -f ./hlf-ca/values-tlsca1.yaml ./hlf-ca
+helm install rca1 -n n1 -f ./hlf-ca/values-rca1.yaml ./hlf-ca
+
+kubectl wait --for=condition=Available --timeout 600s deployment/admin1-orgadmin-cli -n n1
+helm install crypto-tlsca1 -n n1 -f ./cryptogen/values-tlsca1.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 60s job/crypto-tlsca1-cryptogen -n n1
+helm install crypto-rca1 -n n1 -f ./cryptogen/values-rca1.yaml ./cryptogen
+kubectl wait --for=condition=complete --timeout 120s job/crypto-rca1-cryptogen -n n1
+
+# create secret
+./scripts/create-secret.rca0.sh
+./scripts/create-secret.rca1.sh
+./scripts/create-genesis.sh
+```
+
+### Useful commands 
+at terminal gcloud
+```shell script
+# First time setup for gcloud
+gcloud container clusters get-credentials dev-org0-core --zone us-central1-c --project fdi-cd
+gcloud config set project fdi-cd
+
+# connect gcp n0 pg, for local dev
+kubectl -n n0 port-forward pod/admin0-postgresql-0-0 5432
+
+# retrieve password
+export CA_ADMIN=$(kubectl get secret -n n0 tlsca0-hlf-ca--ca -o jsonpath="{.data.CA_ADMIN}" | base64 --decode; echo)
+export CA_PASSWORD=$(kubectl get secret -n n0 tlsca0-hlf-ca--ca -o jsonpath="{.data.CA_PASSWORD}" | base64 --decode; echo)
 ```
 
 ### Other useful commands
@@ -142,6 +175,9 @@ helm search repo stable
 
 # when there is external helm dependency in Chart.yaml
 helm dep update
+
+# debug helm chart
+helm install rca0 -f ./hlf-ca/values-rca0.yaml -n n0 --dry-run --debug ./hlf-ca
 
 # if you want to install a standsalone postgres to defautl namespace, for testing purpose
 helm install psql --set postgresqlPassword=hello bitnami/postgresql
@@ -156,8 +192,16 @@ kubectl port-forward --namespace default svc/psql-postgresql 5433:5432
 PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5433
 ```
 
+
 ### External Reference
 https://github.com/hyperledger/fabric-ca/blob/master/docs/source/users-guide.rst#enabling-tls
 https://github.com/helm/charts/tree/master/stable/hlf-ca
 https://github.com/bitnami/charts/tree/master/bitnami/postgresql#parameters
 https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+https://medium.com/google-cloud/helm-chart-for-fabric-for-kubernetes-80408b9a3fb6
+https://kubectl.docs.kubernetes.io/
+https://github.com/hyperledger/fabric-samples/blob/master/test-network/scripts/deployCC.sh
+https://medium.com/swlh/how-to-implement-hyperledger-fabric-external-chaincodes-within-a-kubernetes-cluster-fd01d7544523
+https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/
+https://github.com/kubernetes/dashboard#kubernetes-dashboard
+https://docs.bitnami.com/kubernetes/get-started-gke/#step-6-access-the-kubernetes-dashboard

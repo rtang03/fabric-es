@@ -1,19 +1,8 @@
-Run the following commands to...
-{{- if contains "tlsca0" .Values.caName }}
-{{ include "tlscaorg0.notes" . }}
-{{- end }}
-{{- if contains "rca0" .Values.caName }}
-{{ include "rcaorg0.notes" . }}
-{{- end }}
-{{- if contains "tlscaorg" .Values.caName }}
-{{ include "tlscaorg.notes" . }}
-{{- end }}
-{{- if contains "rcaorg" .Values.caName }}
-{{ include "rcaorg.notes" . }}
-{{- end }}
+1. Get the pod for hlf-ca
+  export $POD_NAME=$(kubectl get pods -n {{ .Release.Namespace }} -l "app=hlf-ca,release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
 
-# ===== Validation
-1. Get the application URL to validate your installation, should return cert.
+(Need fixing the ingress)
+2. Get the application URL to validate your installation, should return cert.
 {{- if .Values.ingress.enabled }}
 {{- range .Values.ingress.hosts }}
   curl http{{ if $.Values.ingress.tls }}s{{ end }}://{{ . }}{{ $.Values.ingress.path }}cainfo -k

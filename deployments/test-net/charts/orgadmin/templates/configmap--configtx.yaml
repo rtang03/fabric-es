@@ -1,4 +1,4 @@
-{{- if .Values.ordererConfiguration.enabled }}
+{{- if .Values.orderer.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -40,11 +40,7 @@ data:
             Type: Signature
             Rule: "OR('Org1MSP.member')"
         OrdererEndpoints:
-          - o0-hlf-ord:7050
-          - o1-hlf-ord:7050
-          - o2-hlf-ord:7050
-          - o3-hlf-ord:7050
-          - o4-hlf-ord:7050
+          - "orderer0.org0.com:7050"
         AnchorPeers:
           - Host: p0o1-hlf-peer
             Port: 7051
@@ -78,11 +74,11 @@ data:
     Orderer: &OrdererDefaults
       OrdererType: etcdraft
       Addresses:
-        - o0-hlf-ord:7050
-        - o1-hlf-ord:7050
-        - o2-hlf-ord:7050
-        - o3-hlf-ord:7050
-        - o4-hlf-ord:7050
+        - "o0-hlf-ord:7050"
+        - "o1-hlf-ord:7050"
+        - "o2-hlf-ord:7050"
+        - "o3-hlf-ord:7050"
+        - "o4-hlf-ord:7050"
       BatchTimeout: 2s
       BatchSize:
         MaxMessageCount: 500
@@ -154,11 +150,11 @@ data:
           Capabilities:
             <<: *OrdererCapabilities
         Consortiums:
-          Big4HK:
+          SampleConsortium:
             Organizations:
               - *Org1MSP
       OrgsChannel:
-        Consortium: Big4HK
+        Consortium: SampleConsortium
         <<: *ChannelDefaults
         Application:
           <<: *ApplicationDefaults
