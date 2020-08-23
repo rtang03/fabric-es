@@ -5,8 +5,7 @@ metadata:
   labels:
 {{- include "labels.standard" . | nindent 4 }}
 spec:
-  type: NodePort
-  # type: {{ .Values.service.type | quote }}
+  type: {{ .Values.service.type | quote }}
   ports:
     - port: {{ .Values.service.port }}
       targetPort: 7054

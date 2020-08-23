@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-p0o1db
+  labels:
+    type: local
+    name: pv-p0o1db
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - "ReadWriteOnce"
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/tmp/data/p0o1-couchdb"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-p0o1db
+  labels:
+    app: hlf-couchdb
+    heritage: "Helm"
+    release: "p0o1db"
+    chart: hlf-couchdb-1.0.7
+    namespace: n1
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "100Mi"
+  storageClassName: "manual"
+  selector:
+    matchLabels:
+      name: pv-p0o1db

@@ -31,16 +31,19 @@ peer:
 
 persistence:
   ### Default
+  enabled: true
+  pvcName: pvc-org1
+  ### Default
   # annotations: {}
   ### Default
   # accessMode: ReadWriteOnce
-  ### Default
-  # enabled: true
-  storageClass: standard
-  pvcName: pvc-org1
-  hostpath: /
-  size: 1Gi
+#  hostPath: /tmp/data/org1
+#  pvName: pv-org1
+#  size: 1Gi
+#  storageClass: manual
 
+# Detail configuration
+# https://github:com/bitnami/charts/tree/master/bitnami/postgresql
 postgresql-0:
   ### Default
   # initdbScripts:
@@ -54,10 +57,3 @@ postgresql-0:
   persistence:
     enabled: true
     existingClaim: pvc-org1
-    storageClass: manual
-    size: 1Gi
-    ### Default
-    # subPath: pgdata
-    ### Default
-    # accessModes:
-    #  - ReadWriteOnce

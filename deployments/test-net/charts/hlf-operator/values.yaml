@@ -4,6 +4,7 @@ global:
   mspId: Org1MSP
   config:
     setupsh: admin1-orgadmin--setupsh
+    coreyaml: admin1-orgadmin--core
 
 tasks:
   create_channel:

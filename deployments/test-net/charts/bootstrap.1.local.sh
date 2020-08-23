@@ -6,15 +6,23 @@ SECONDS=0
 ./scripts/rm-secret.n0.sh
 ./scripts/rm-secret.n1.sh
 
-helm install admin1 -n n1 -f ./orgadmin/values-admin1.local.yaml ./orgadmin
+# Note: Manually deploy PV
+# kubectl -n n0 create -f ./releases/org0/volumes/pvc-org0.local.yaml
+# kubectl -n n0 create -f ./releases/org0/volumes/pvc-orderers.local.yaml
+# kubectl -n n1 create -f ./releases/org1/volumes/pvc-org1.local.yaml
+# kubectl -n n1 create -f ./releases/org1/volumes/pvc-p0o1db.local.yaml
+# kubectl -n n1 create -f ./releases/org1/volumes/pvc-p0o1.local.yaml
+# printMessage "create pv/pvc for org1" $?
+
+helm install admin1 -n n1 -f ./releases/org1/admin1-orgadmin.local.yaml ./orgadmin
 printMessage "install admin1" $?
 
 sleep 2
-helm install tlsca1 -n n1 -f ./hlf-ca/values-tlsca1.yaml ./hlf-ca
+helm install tlsca1 -n n1 -f ./releases/org1/tlsca1-hlf-ca.local.yaml ./hlf-ca
 printMessage "install tlsca1" $?
 
 sleep 2
-helm install rca1 -n n1 -f ./hlf-ca/values-rca1.yaml ./hlf-ca
+helm install rca1 -n n1 -f ./releases/org1/rca1-hlf-ca.local.yaml ./hlf-ca
 printMessage "install rca1" $?
 
 sleep 1
@@ -25,7 +33,7 @@ res=$?
 set +x
 printMessage "deployment/admin1-orgadmin-cli" $res
 
-helm install crypto-tlsca1 -n n1 -f ./cryptogen/values-tlsca1.yaml ./cryptogen
+helm install crypto-tlsca1 -n n1 -f ./releases/org1/tlsca1-cryptogen.local.yaml ./cryptogen
 printMessage "install crypto-tlsca1" $?
 
 sleep 1
@@ -36,7 +44,7 @@ res=$?
 set +x
 printMessage "job/crypto-tlsca1-cryptogen " $res
 
-helm install crypto-rca1 -n n1 -f ./cryptogen/values-rca1.yaml ./cryptogen
+helm install crypto-rca1 -n n1 -f ./releases/org1/rca1-cryptogen.local.yaml ./cryptogen
 printMessage "install crypto-rca1" $?
 
 sleep 1
@@ -48,17 +56,17 @@ set +x
 printMessage "job/crypto-rca1-cryptogen" $res
 
 # Org0
-helm install admin0 -n n0 -f ./orgadmin/values-admin0.local.yaml ./orgadmin
+helm install admin0 -n n0 -f ./releases/org0/admin0-orgadmin.local.yaml ./orgadmin
 printMessage "install admin0" $?
 
 sleep 2
 
-helm install tlsca0 -n n0 -f ./hlf-ca/values-tlsca0.yaml ./hlf-ca
+helm install tlsca0 -n n0 -f ./releases/org0/tlsca0-hlf-ca.local.yaml ./hlf-ca
 printMessage "install tlsca0" $?
 
 sleep 2
 
-helm install rca0 -n n0 -f ./hlf-ca/values-rca0.yaml ./hlf-ca
+helm install rca0 -n n0 -f ./releases/org0/rca0-hlf-ca.local.yaml ./hlf-ca
 printMessage "install rca0" $?
 
 set -x
@@ -67,7 +75,7 @@ res=$?
 set +x
 printMessage "deployment/admin0-orgadmin-cli" $res
 
-helm install crypto-tlsca0 -n n0 -f ./cryptogen/values-tlsca0.yaml ./cryptogen
+helm install crypto-tlsca0 -n n0 -f ./releases/org0/tlsca0-cryptogen.local.yaml ./cryptogen
 printMessage "install crypto-tlsca0" $?
 
 sleep 1
@@ -78,7 +86,7 @@ res=$?
 set +x
 printMessage "job/crypto-tlsca0-cryptogen" $res
 
-helm install crypto-rca0 -n n0 -f ./cryptogen/values-rca0.yaml ./cryptogen
+helm install crypto-rca0 -n n0 -f ./releases/org0/rca0-cryptogen.local.yaml ./cryptogen
 printMessage "install crypto-rca0" $?
 
 sleep 1

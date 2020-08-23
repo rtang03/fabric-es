@@ -1,28 +1,35 @@
-global:
-  TZ: Asia/Hong_Kong
-  workingDir: /var/hyperledger/crypto-config
+#global:
+  ### Default
+  # TZ: Asia/Hong_Kong
+  ### Default
+  # workingDir: /var/hyperledger/crypto-config
   # https://hyperledger-fabric.readthedocs.io/en/release-2.0/logging-control.html
   # "info" or "debug" or "grpc=debug:debug" or "grpc=debug:info"
-  logging: info
-  mspId: Org0MSP
-  domain: org0.com
+  ### Default
+  # logging: info
+  ### Default
+  # mspId: Org0MSP
+  ### Default
+  # domain: org0.com
 
-image:
-  repository: hyperledger/fabric-orderer
-  tag: 2.2.0
-  pullPolicy: IfNotPresent
+### Default
+#image:
+#  repository: hyperledger/fabric-orderer
+#  tag: 2.2.0
+#  pullPolicy: IfNotPresent
 
-service:
-  # Cluster IP or LoadBalancer
-  type: ClusterIP
-  port: 7050
+### Default
+#service:
+#  # Cluster IP or LoadBalancer
+#  type: ClusterIP
+#  port: 7050
 
 ingress:
   enabled: false
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+  annotations: {}
+#    kubernetes.io/ingress.class: "nginx"
+#    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+#    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
   path: /
   hosts:
     - o0-hlf-ord
@@ -30,9 +37,11 @@ ingress:
     - secretName: orderer0.org0.com-tls
       hosts:
         - o0-hlf-ord
-sidecar:
-  isalive:
-    enabled: false
+
+### Default
+#sidecar:
+#  isalive:
+#    enabled: false
 
 persistence:
   enabled: true
@@ -77,7 +86,7 @@ secrets:
   tlsRootCert: "orderer0.org0.com-tlsrootcert"
   ## TLS client root CA certificates saved under any names (as there may be multiple)
   # tlsClientRootCerts: hlf--peer-tlsrootcert
-#    tlsClientRootCerts: "orderer0.org0.com-tlsrootcert"
+  #    tlsClientRootCerts: "orderer0.org0.com-tlsrootcert"
   ## This should contain "genesis" block derived from a configtx.yaml
   ## configtxgen -profile OrdererGenesis -outputBlock genesis.block
   # genesis: hlf--genesis
@@ -87,27 +96,3 @@ secrets:
   # adminCert: hlf--ord-admincert
   adminCert: "orderer0.org0.com-admincert"
 
-resources: {}
-  ## We usually recommend not to specify default resources and to leave this as a conscious
-  ## choice for the user. This also increases chances charts run on environments with little
-  ## resources, such as Minikube. If you do want to specify resources, uncomment the following
-  ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-#   memory: 128Mi
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
-  ## Suggested antiAffinity, as each Orderer should be on a separate Node for resilience
-  # podAntiAffinity:
-  #   requiredDuringSchedulingIgnoredDuringExecution:
-  #     - topologyKey: "kubernetes.io/hostname"
-  #       labelSelector:
-  #         matchLabels:
-#           app: hlf-ord

@@ -32,22 +32,24 @@ peer:
 #    ordTlsCaCert: org0-tls-ca-cert
 
 persistence:
-  annotations: {}
-  accessMode: ReadWriteOnce
   # alway enabled
   enabled: true
-  # hostPath for PV for "manual" storageClass. If no storageClass, hostPath can omit
-  hostPath: /tmp/data/org0
-  # pv is requred for "manual" storageClass. If no storageClass, pv can omit
-  pvName: pv-org0
-  # mandatory
   pvcName: pvc-org0
-  # storageClass can be "-", manual, or storageClass is not required for dynamic provisioning
-  # storageClass: "-"
-  # storageClass: manual
-  # requested size for pv
-  size: 1Gi
+#  annotations: {}
+#  accessMode: ReadWriteOnce
+#  # hostPath for PV for "manual" storageClass. If no storageClass, hostPath can omit
+#  hostPath: /tmp/data/org0
+#  # pv is requred for "manual" storageClass. If no storageClass, pv can omit
+#  pvName: pv-org0
+#  # mandatory
+#  # storageClass can be "-", manual, or storageClass is not required for dynamic provisioning
+#  # storageClass: "-"
+#  # storageClass: manual
+#  # requested size for pv
+#  size: 1Gi
 
+# Detail configuration
+# https://github:com/bitnami/charts/tree/master/bitnami/postgresql
 postgresql-0:
   postgresqlPassword: password
   initdbScripts:
@@ -61,7 +63,7 @@ postgresql-0:
     enabled: true
     existingClaim: pvc-org0
     subPath: pgdata
-    # storageClass: manual
-    accessModes:
-      - ReadWriteOnce
-    size: 1Gi
+#    # storageClass: manual
+#    accessModes:
+#      - ReadWriteOnce
+#    size: 1Gi

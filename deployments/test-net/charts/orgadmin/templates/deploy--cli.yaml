@@ -49,10 +49,11 @@ spec:
         - name: peerconfig
           configMap:
             name: {{ include "orgadmin.fullname" . }}--peerconfig
+
+        {{- end }}
         - name: core
           configMap:
             name: {{ include "orgadmin.fullname" . }}--core
-        {{- end }}
         {{- if .Values.orderer.enabled }}
         {{- range .Values.orderer.channels }}
         - name: {{ . }}
@@ -152,10 +153,8 @@ spec:
               readOnly: true
               name: org1msptlscacerts
             {{- end }}
-            {{- if .Values.orderer.enabled }}
             - mountPath: /var/hyperledger/cli
               name: core
-            {{- end }}
             {{- if .Values.orderer.enabled }}
             {{- range .Values.cli.channels }}
             - mountPath: "{{ $.Values.cli.firstOrgDir }}/{{ . }}"

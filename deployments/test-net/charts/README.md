@@ -1,5 +1,25 @@
+### Pre-requisite
+```shell script
+# first time installation of Helm dependency
+helm repo add bitnami https://charts.bitnami.com/bitnami
+cd orgadmin
+helm dep update
+```
+
 ### LOCAL DEV
 ```shell script
+# Clean install for local dev
+# ./scripts/rm-tmp-data.sh
+# mkdir -p /tmp/data/org0
+# mkdir -p /tmp/data/org1
+# mkdir -p /tmp/data/orderers/orderer0
+# mkdir -p /tmp/data/orderers/orderer1
+# mkdir -p /tmp/data/orderers/orderer2
+# mkdir -p /tmp/data/orderers/orderer3
+# mkdir -p /tmp/data/orderers/orderer4
+# mkdir -p /tmp/data/p0o1-couchdb
+
+
 kubectl create namespace n0
 kubectl create namespace n1
 
@@ -10,6 +30,7 @@ kubectl create namespace n1
 # Org 1
 helm install admin1 -n n1 -f ./orgadmin/values-admin1.local.yaml ./orgadmin
 sleep 2
+
 helm install tlsca1 -n n1 -f ./hlf-ca/values-tlsca1.yaml ./hlf-ca
 sleep 2
 helm install rca1 -n n1 -f ./hlf-ca/values-rca1.yaml ./hlf-ca
@@ -177,7 +198,7 @@ helm search repo stable
 helm dep update
 
 # debug helm chart
-helm install rca0 -f ./hlf-ca/values-rca0.yaml -n n0 --dry-run --debug ./hlf-ca
+helm install rca0 -f ./hlf-ca/values-rca0.yaml -n n0 ./hlf-ca
 
 # if you want to install a standsalone postgres to defautl namespace, for testing purpose
 helm install psql --set postgresqlPassword=hello bitnami/postgresql
@@ -205,3 +226,6 @@ https://medium.com/swlh/how-to-implement-hyperledger-fabric-external-chaincodes-
 https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/
 https://github.com/kubernetes/dashboard#kubernetes-dashboard
 https://docs.bitnami.com/kubernetes/get-started-gke/#step-6-access-the-kubernetes-dashboard
+
+gcloud container clusters get-credentials dev-org0-core --zone us-central1-c --project fdi-cd \
+ && kubectl port-forward --namespace n1 $(kubectl get pod --namespace n1 --selector="app=hlf-ca,release=rca1" --output jsonpath='{.items[0].metadata.name}') 8080:7054

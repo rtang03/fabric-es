@@ -125,12 +125,18 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
+              scheme: HTTP
               path: /cainfo
               port: 7054
+            initialDelaySeconds: 3
+            periodSeconds: 3
           readinessProbe:
             httpGet:
+              scheme: HTTP
               path: /cainfo
               port: 7054
+            initialDelaySeconds: 3
+            periodSeconds: 3
           volumeMounts:
             - name: data
               mountPath: /var/hyperledger

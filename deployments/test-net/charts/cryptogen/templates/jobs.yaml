@@ -14,7 +14,7 @@ spec:
       volumes:
         - name: setup-script
           configMap:
-            name: {{ include "cryptogen.fullname" . }}--setupsh
+            name: {{ .Values.global.setupsh }}
             defaultMode: 0777
         - name: fabricfiles
           persistentVolumeClaim:

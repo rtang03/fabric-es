@@ -4,6 +4,7 @@ global:
   caServerHome: /var/hyperledger/crypto-config/Org0MSP/tls/server
   caClientHome: /var/hyperledger/crypto-config/Org0MSP/tls/admin
   domain: org0.com
+  setupsh: admin0-orgadmin--setupsh
 
 caAdmin: tlsca0-admin
 caAdminPW: tlsca0-adminPW
