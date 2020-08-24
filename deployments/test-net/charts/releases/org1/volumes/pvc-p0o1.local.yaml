@@ -21,9 +21,7 @@ metadata:
   name: pvc-p0o1
   labels:
     app: hlf-peer
-    heritage: "Helm"
     release: "p0o1"
-    chart: hlf-peer-0.6.3
     namespace: n1
 spec:
   storageClassName: "manual"

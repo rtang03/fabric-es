@@ -21,9 +21,7 @@ metadata:
   name: pvc-org1
   labels:
     app: orgadmin
-    heritage: "Helm"
     release: "admin1"
-    chart: orgadmin-0.1.0
     namespace: n1
 spec:
   storageClassName: "manual"

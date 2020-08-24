@@ -3,9 +3,6 @@
 
 SECONDS=0
 
-./scripts/create-genesis.sh
-printMessage "create genesis block/channeltx" $?
-
 sleep 3
 
 helm install o1 -f ./releases/org0/o1-hlf-ord.gcp.yaml -n n0 ./hlf-ord
@@ -59,7 +56,7 @@ res=$?
 set +x
 printMessage "copy chaincode" $res
 
-helm install bootstrap -n n1 -f ./releases/org1/bootstrap-hlf-operator.common.yaml ./hlf-operator
+helm install bootstrap -n n1 -f ./releases/org1/bootstrap-hlf-operator.gcp.yaml ./hlf-operator
 
 set -x
 kubectl wait --for=condition=complete --timeout 600s job/bootstrap-hlf-operator -n n1

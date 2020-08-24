@@ -1,36 +1,12 @@
 apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: pv-org1
-  labels:
-    type: local
-    name: pv-org1
-    namespace: n1
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - "ReadWriteOnce"
-  persistentVolumeReclaimPolicy: Delete
-  hostPath:
-    path: /
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: pvc-org1
   labels:
     app: orgadmin
-    heritage: "Helm"
     release: "admin1"
-    chart: orgadmin-0.1.0
     namespace: n1
 spec:
-  storageClassName: "manual"
-  selector:
-    matchLabels:
-      name: pv-org1
   accessModes:
     - "ReadWriteOnce"
   resources:

@@ -1,0 +1,14 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-p0o1db
+  labels:
+    app: hlf-couchdb
+    release: "p0o1db"
+    namespace: n1
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "1Gi"

@@ -35,7 +35,6 @@ persistence:
   ### Default
   # enabled: true
   pvcName: pvc-org0
-  size: 1Gi
 
 postgresql-0:
   ### Default
@@ -50,10 +49,3 @@ postgresql-0:
   persistence:
     enabled: true
     existingClaim: pvc-org0
-    size: 1Gi
-    ### Default
-    # subPath: pgdata
-    ### Default
-    # accessModes:
-    #  - ReadWriteOnce
-

@@ -32,6 +32,21 @@ res=$?
 set +x
 printMessage "deployment/o0-hlf-ord" $res
 
+export POD_CLI=$(kubectl get pods -n n1 -l "app=orgadmin,release=admin1" -o jsonpath="{.items[0].metadata.name}")
+helm uninstall admin1 -n n1
+set -x
+kubectl -n n1 wait pod/$POD_CLI --for=delete --timeout=60s
+res=$?
+set +x
+printMessage "delete deployment/admin1-orgadmin-cli" $res
+helm install admin1 -n n1 -f ./releases/org1/admin1-orgadmin.local.yaml ./orgadmin
+
+set -x
+kubectl wait --for=condition=Available --timeout 600s deployment/admin1-orgadmin-cli -n n1
+res=$?
+set +x
+printMessage "re-install deployment/admin1-orgadmin-cli" $res
+
 helm install p0o1db -n n1 -f ./releases/org1/p0o1db-hlf-couchdb.local.yaml ./hlf-couchdb
 
 sleep 5

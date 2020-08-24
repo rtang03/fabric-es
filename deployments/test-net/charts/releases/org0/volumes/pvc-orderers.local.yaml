@@ -21,9 +21,7 @@ metadata:
   name: pvc-ord0
   labels:
     app: hlf-ord
-    heritage: "Helm"
     release: "o0"
-    chart: hlf-ord-0.6.3
     namespace: n0
 spec:
   storageClassName: "manual"
@@ -59,9 +57,7 @@ metadata:
   name: pvc-ord1
   labels:
     app: hlf-ord
-    heritage: "Helm"
     release: "o1"
-    chart: hlf-ord-0.6.3
     namespace: n0
 spec:
   storageClassName: "manual"
@@ -97,9 +93,7 @@ metadata:
   name: pvc-ord2
   labels:
     app: hlf-ord
-    heritage: "Helm"
     release: "o2"
-    chart: hlf-ord-0.6.3
     namespace: n0
 spec:
   storageClassName: "manual"
@@ -135,9 +129,7 @@ metadata:
   name: pvc-ord3
   labels:
     app: hlf-ord
-    heritage: "Helm"
     release: "o3"
-    chart: hlf-ord-0.6.3
     namespace: n0
 spec:
   storageClassName: "manual"
@@ -173,9 +165,7 @@ metadata:
   name: pvc-ord4
   labels:
     app: hlf-ord
-    heritage: "Helm"
     release: "o4"
-    chart: hlf-ord-0.6.3
     namespace: n0
 spec:
   storageClassName: "manual"

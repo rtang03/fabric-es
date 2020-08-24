@@ -21,9 +21,7 @@ metadata:
   name: pvc-p0o1db
   labels:
     app: hlf-couchdb
-    heritage: "Helm"
     release: "p0o1db"
-    chart: hlf-couchdb-1.0.7
     namespace: n1
 spec:
   accessModes:

@@ -129,14 +129,14 @@ spec:
               path: /cainfo
               port: 7054
             initialDelaySeconds: 3
-            periodSeconds: 3
+            periodSeconds: 10
           readinessProbe:
             httpGet:
               scheme: HTTP
               path: /cainfo
               port: 7054
             initialDelaySeconds: 3
-            periodSeconds: 3
+            periodSeconds: 10
           volumeMounts:
             - name: data
               mountPath: /var/hyperledger

@@ -33,14 +33,6 @@ persistence:
   ### Default
   enabled: true
   pvcName: pvc-org1
-  ### Default
-  # annotations: {}
-  ### Default
-  # accessMode: ReadWriteOnce
-#  hostPath: /tmp/data/org1
-#  pvName: pv-org1
-#  size: 1Gi
-#  storageClass: manual
 
 # Detail configuration
 # https://github:com/bitnami/charts/tree/master/bitnami/postgresql

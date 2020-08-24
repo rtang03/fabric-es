@@ -36,10 +36,7 @@ persistence:
   # accessMode: ReadWriteOnce
   ### Default
   # enabled: true
-  storageClass: standard
   pvcName: pvc-org1
-  hostpath: /
-  size: 1Gi
 
 postgresql-0:
   ### Default
@@ -54,10 +51,3 @@ postgresql-0:
   persistence:
     enabled: true
     existingClaim: pvc-org1
-    storageClass: manual
-    size: 1Gi
-    ### Default
-    # subPath: pgdata
-    ### Default
-    # accessModes:
-    #  - ReadWriteOnce

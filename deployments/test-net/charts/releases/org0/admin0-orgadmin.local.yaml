@@ -55,5 +55,6 @@ postgresql-0:
   persistence:
     enabled: true
     existingClaim: pvc-org0
+    subPath: pgdata
 
 
