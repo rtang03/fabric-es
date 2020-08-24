@@ -3,6 +3,7 @@ import fs from 'fs';
 import http from 'http';
 import https from 'https';
 import util from 'util';
+import { getLogger } from '@fabric-es/gateway-lib';
 import express from 'express';
 import formidable from 'formidable';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -10,9 +11,7 @@ import RedisClient, { Redis } from 'ioredis';
 import { isEmpty, isString } from 'lodash';
 import querystring from 'query-string';
 import stoppable, { StoppableServer } from 'stoppable';
-import { getLogger } from './getLogger';
-import { processMessage } from './processMsg';
-import { ReqRes } from './reqres';
+import { processMessage, ReqRes } from '.';
 
 const logger = getLogger('[relay] relayService.js');
 

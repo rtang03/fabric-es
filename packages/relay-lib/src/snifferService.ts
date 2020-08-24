@@ -1,11 +1,11 @@
 import http from 'http';
 import util from 'util';
+import { Commit } from '@fabric-es/fabric-cqrs';
+import { getLogger } from '@fabric-es/gateway-lib';
 import express from 'express';
 import RedisClient, { Redis } from 'ioredis';
 import stoppable, { StoppableServer } from 'stoppable';
-import { getLogger } from './getLogger';
-import { ReqRes } from './reqres';
-import { createSubscription } from './snifferSubscription';
+import { createSubscription, ReqRes } from '.';
 
 export interface ProcessResults {
   endPoint: string;
@@ -15,14 +15,7 @@ export interface ProcessResults {
   reqBody?: string;
   resBody?: string;
   errors?: string[];
-  events?: {
-    type: string;
-    payload: any;
-  }[];
-  attachmentInfo?: {
-    name: string;
-    type: string;
-  }[];
+  commits?: Commit[];
 };
 
 const logger = getLogger('[sniffer] snifferService.js');

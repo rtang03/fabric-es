@@ -1,8 +1,8 @@
+import { getLogger } from '@fabric-es/gateway-lib';
 import { Redis } from 'ioredis';
 import { fromEventPattern, Observable, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { getLogger } from './getLogger';
-import { isReqRes, ReqRes } from './reqres';
+import { isReqRes, ReqRes } from '.';
 
 const logger = getLogger('[sniffer] snifferSubscription.js');
 

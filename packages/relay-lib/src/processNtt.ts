@@ -7,32 +7,12 @@ import {
   Repository,
   createQueryDatabase,
 } from '@fabric-es/fabric-cqrs';
+import { getLogger } from '@fabric-es/gateway-lib';
 import { Gateway, Network, Wallet } from 'fabric-network';
 import type { Redis } from 'ioredis';
-import { getLogger } from './getLogger';
-import { ReqRes } from './reqres';
-import { ProcessResults } from './snifferService';
+import { ProcessResults, ReqRes } from '.';
 
 const logger = getLogger('[sniffer] processNtt.js');
-
-// export const getEntityProcessor2 = (process: (message: ReqRes) => ProcessResults) => {
-//   return (channel: string, message: ReqRes, messageStr?: string): void => {
-//     if (message) {
-//       const result = process(message);
-//       if (!result.errors) {
-//         const { statusMessage, reqBody, resBody, errors, ...rest } = result;
-//         console.log('Events', JSON.stringify(rest, null, ' ')); // TODO write events to blockchain
-//       } else {
-//         const { reqBody, resBody, events, ...rest } = result;
-//         logger.error('Error processing entity: ' + JSON.stringify(rest, null, ' '));
-//       }
-//     } else if (messageStr) {
-//       logger.warn(`Incoming message with invalid format: '${messageStr}'`);
-//     } else {
-//       logger.error('Incoming message missing');
-//     }
-//   };
-// };
 
 export const getEntityProcessor = async ({
   enrollmentId,
@@ -97,17 +77,20 @@ export const getEntityProcessor = async ({
   }[] = [];
   const repositories: Record<string, Repository | PrivateRepository> = {};
 
-  const create = (processor: (repositories: Record<string, Repository | PrivateRepository>) => (message: ReqRes) => Promise<ProcessResults>) => {
-    const process = processor(repositories);
+  const create = (processor: (
+    enrollmentId: string, repositories: Record<string, Repository | PrivateRepository>
+  ) => (message: ReqRes) => Promise<ProcessResults>) => {
+    const process = processor(enrollmentId, repositories);
     return async (channel: string, message: ReqRes, messageStr?: string): Promise<void> => {
       if (message) {
         const result = await process(message);
         if (!result.errors) {
           const { statusMessage, reqBody, resBody, errors, ...rest } = result;
-          console.log('Events', JSON.stringify(rest, null, ' ')); // TODO write events to blockchain
+          console.log('Entity processed', JSON.stringify(rest, null, ' ')); // TODO TEMP
+          logger.info('Entity processed: ' + JSON.stringify(rest));
         } else {
-          const { reqBody, resBody, events, ...rest } = result;
-          logger.error('Error processing entity: ' + JSON.stringify(rest, null, ' '));
+          const { reqBody, resBody, commits, ...rest } = result;
+          logger.error('Error processing entity: ' + JSON.stringify(rest));
         }
       } else if (messageStr) {
         logger.warn(`Incoming message with invalid format: '${messageStr}'`);

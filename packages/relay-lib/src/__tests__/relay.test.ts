@@ -255,6 +255,7 @@ describe('Pub / Sub', () => {
       await processMessage({ message: mssg, client: publisher2, topic });
     }
 
+    await new Promise(resolve => setTimeout(resolve, 1000));
     const pubs = (await publisher2.xrange(topic, stamp, '+')).map(str => str[0]); // JSON.parse(str[1][1]));
     for (let idx = 0; idx < pubs.length; idx ++) {
       expect(pubs[idx]).toEqual(sub1[idx]);
@@ -293,6 +294,7 @@ describe('Pub / Sub', () => {
       await processMessage({ message: mssg, client: publisher2, topic });
     }
 
+    await new Promise(resolve => setTimeout(resolve, 1000));
     for (let idx = 0; idx < sources.length; idx ++) {
       expect(sub1[idx]).toEqual(sub2[idx]);
     }

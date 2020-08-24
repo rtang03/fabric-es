@@ -11,7 +11,7 @@ const stamp = Date.now();
 const topic = `sniffer-test${stamp}`;
 let publisher: Redis;
 let subscription: {
-  start: (callback?: (topic: string, message: ReqRes, messageStr?: string) => void) => Promise<{ read: number; count: number }>;
+  start: (callback?: (topic: string, message: ReqRes, messageStr?: string) => Promise<void>) => Promise<{ read: number; count: number }>;
   stop: () => Promise<void>;
 };
 

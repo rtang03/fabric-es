@@ -1,7 +1,7 @@
 require('dotenv').config({ path: './.env' });
 import util from 'util';
-import { getLogger } from './getLogger';
-import { createRelayService } from './relayService';
+import { getLogger } from '@fabric-es/gateway-lib';
+import { createRelayService } from '@fabric-es/relay-lib';
 
 const SERVICE_PORT = process.env.RELAY_PORT || 80;
 const targetUrl = process.env.TARGET_URL;
@@ -9,10 +9,10 @@ const redisHost = process.env.REDIS_HOST;
 const redisPort = (process.env.REDIS_PORT || 6379) as number;
 const topic = process.env.REDIS_TOPIC;
 
-const logger = getLogger('[relay] relay.js');
+const logger = getLogger('[rl-org3] relay.js');
 
 (async () => {
-  logger.info('♨️♨️  Starting [relay] service...');
+  logger.info(`♨️♨️  Starting [rl-org3] relay service... ${targetUrl} ${redisHost}:${redisPort} ${topic}`);
   const myArgs = process.argv.slice(2);
   const httpsArg = myArgs[0];
 

@@ -1,22 +1,23 @@
 require('dotenv').config({ path: './.env' });
 import util from 'util';
 import { getReducer } from '@fabric-es/fabric-cqrs';
+import { getLogger } from '@fabric-es/gateway-lib';
+import {
+  createSnifferService, getEntityProcessor
+} from '@fabric-es/relay-lib';
 import { Wallets } from 'fabric-network';
 import Redis from 'ioredis';
-import { getLogger } from './getLogger';
 import { getPbocEtcEntityProcessor, PO, PoEvents, poReducer } from './pbocEtc';
-import { getEntityProcessor } from './processNtt';
-import { createSnifferService } from './snifferService';
 
 const SERVICE_PORT = process.env.SNIFFER_PORT || 80;
 const redisHost = process.env.REDIS_HOST;
 const redisPort = (process.env.REDIS_PORT || 6379) as number;
 const topic = process.env.REDIS_TOPIC;
 
-const logger = getLogger('[sniffer] sniffer.js');
+const logger = getLogger('[rl-org3] sniffer.js');
 
 (async () => {
-  logger.info('♨️♨️  Starting [sniffer] service...');
+  logger.info('♨️♨️  Starting [rl-org3] sniffer service...');
 
   getEntityProcessor({
     enrollmentId: process.env.ORG_ADMIN_ID,

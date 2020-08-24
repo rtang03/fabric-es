@@ -1,7 +1,7 @@
+import { getLogger } from '@fabric-es/gateway-lib';
 import { Redis } from 'ioredis';
 import isEmpty from 'lodash/isEmpty';
-import { getLogger } from './getLogger';
-import { ReqRes } from './reqres';
+import { ReqRes } from '.';
 
 const logger = getLogger('[relay] processMsg.js');
 
