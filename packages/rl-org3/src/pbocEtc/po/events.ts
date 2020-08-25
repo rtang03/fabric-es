@@ -1,6 +1,6 @@
 import { BaseEvent, Lifecycle } from '@fabric-es/fabric-cqrs';
 import { Attachment } from '..';
-import { PoOrder } from './model';
+import { PoOrder } from '.';
 
 export type PoPayload = {
   userId: string;

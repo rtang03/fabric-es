@@ -59,4 +59,5 @@ export class PO extends BaseEntity {
   settlementAmount: number;
   orderList: PoOrder[];
   attachmentList: Attachment[];
+  reason?: string;
 };

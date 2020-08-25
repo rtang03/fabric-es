@@ -1,4 +1,5 @@
 import { BaseEntity } from '@fabric-es/fabric-cqrs';
+import { Attachment, Status } from '..';
 
 export class InvOrder extends BaseEntity {
   static entityName: 'invOrder';
@@ -22,7 +23,7 @@ export class Invoice extends BaseEntity {
   id: string;
   ownerId: string;
   timestamp: number;
-  status: string;
+  status: Status;
 
   poId: string;
   poNo: string;
@@ -62,4 +63,15 @@ export class Invoice extends BaseEntity {
   settlementCurrency: string;
   settlementAmount: number;
   orderList: InvOrder[];
+  attachmentList: Attachment[];
+  financeNo?: string;
+  remark?: string;
+  received?: boolean;
+  receiptDate?: string;
+  comment?: string;
+  paymentAmount?: string;
+  paymentAmountCurrency?: string;
+  paymentDate?: string;
+  remittanceBank?: string;
+  remittanceRemarks?: string;
 };

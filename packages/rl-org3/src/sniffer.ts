@@ -7,7 +7,7 @@ import {
 } from '@fabric-es/relay-lib';
 import { Wallets } from 'fabric-network';
 import Redis from 'ioredis';
-import { getPbocEtcEntityProcessor, PO, PoEvents, poReducer } from './pbocEtc';
+import { getPbocEtcEntityProcessor, Invoice, InvoiceEvents, invoiceReducer, PO, PoEvents, poReducer } from './pbocEtc';
 
 const SERVICE_PORT = process.env.SNIFFER_PORT || 80;
 const redisHost = process.env.REDIS_HOST;
@@ -28,8 +28,8 @@ const logger = getLogger('[rl-org3] sniffer.js');
     redis: new Redis({ host: process.env.REDIS_HOST, port: parseInt(process.env.REDIS_PORT, 10) }),
   }).then(async ({ getRepository, addRepository }) => {
     const callback = addRepository(getRepository<PO, PoEvents>('po', getReducer<PO, PoEvents>(poReducer)))
-    // .addRepository(getRepository<Invoice, InvoiceEvents>('invoice', getReducer<Invoice, InvoiceEvents>(invoiceReducer))) // TODO
-    .create(getPbocEtcEntityProcessor);
+      .addRepository(getRepository<Invoice, InvoiceEvents>('invoice', getReducer<Invoice, InvoiceEvents>(invoiceReducer)))
+      .create(getPbocEtcEntityProcessor);
 
     const { sniffer, shutdown } = await createSnifferService({
       redisHost, redisPort, topic, callback

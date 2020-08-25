@@ -13,7 +13,8 @@ export const poReducer = (po: PO, event: PoEvents): PO => {
       };
 
     case 'PoUpdated':
-      const { userId: uid1, poId: pid1, ...rest1 } = event.payload;
+      const { userId: uid1, poId: pid1, attachmentList, ...rest1 } = event.payload;
+      if (attachmentList) po.attachmentList.push(...attachmentList);
       return {
         ...po,
         ...rest1,
@@ -25,7 +26,7 @@ export const poReducer = (po: PO, event: PoEvents): PO => {
       return {
         ...po,
         timestamp,
-        comment: reason,
+        reason,
         status: Status.Cancelled
       };
 

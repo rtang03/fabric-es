@@ -6,6 +6,7 @@ import {
 } from '@fabric-es/fabric-cqrs';
 import { getLogger } from '@fabric-es/gateway-lib';
 import { ProcessResults, ReqRes } from '@fabric-es/relay-lib';
+import { invoiceCommandHandler, InvoiceRepo, invoiceReducer } from './inv';
 import { poCommandHandler, PoRepo } from './po';
 
 const logger = getLogger('[sniffer] pbocEtc.js');
@@ -14,15 +15,13 @@ export * from './po';
 export * from './inv';
 
 export enum Status {
-  New, Updated, Accepted, Rejected, Cancelled
+  New, Updated, Accepted, Rejected, Cancelled, Transferred
 };
 
 export class Attachment extends BaseEntity {
-  static entityName: 'attachment';
-
-  id: string;
   name: string;
   type: string;
+  desc?: string;
 };
 
 export const EndPoints = [
@@ -58,7 +57,7 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
 
     if (contentType) {
       if (contentType === 'multipart/form-data') {
-        if (attachmentInfo && (attachmentInfo.name !== '')) isFileUpload = true;
+        if (attachmentInfo && (attachmentInfo !== '')) isFileUpload = true;
 
         try {
           jsonReq = JSON.parse(reqBody);
@@ -90,11 +89,23 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
       } catch (error) {}
     }
 
-    const parseAttachmentInfo = () => {
-      try {
-        return JSON.parse(attachmentInfo);
-      } catch (error) {
-        return attachmentInfo;
+    const parseAttachmentInfo = (): Attachment[] => {
+      if (attachmentInfo) {
+        try {
+          const result = JSON.parse(attachmentInfo);
+          if (Array.isArray(result))
+            return result;
+          else
+            return [result];
+        } catch (error) {
+          return [{
+            name: 'invalid',
+            type: 'unknown',
+            desc: attachmentInfo
+          }];
+        }
+      } else {
+        return [];
       }
     };
 
@@ -135,7 +146,6 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
         } else if (!isStatusOkay) {
           result = buildError(`${isPost ? 'Create' : 'Update'} PO failed`); // TODO - support partial success? 'No' according to Jason Lu 20200814
         } else {
-          // result = buildEvent(`Po${isPost ? 'Created' : 'Updated'}`, jsonObj);
           const payloads = Array.isArray(jsonObj) ? jsonObj.map(obj => ({
             userId: enrollmentId,
             timestamp: Date.now(),
@@ -161,105 +171,228 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
         }
         break;
 
-      // case EndPoints[2]: // /order/cancelPO
-      //   if (!noQueryParam) {
-      //     result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
-      //   } else if (!isRequestJson) {
-      //     result = buildError(`Received non-JSON payload (${contentType})`);
-      //   } else if (!isPost) {
-      //     result = buildError(`Received unsupported (${method}) action`);
-      //   } else if (!isStatusOkay) {
-      //     result = buildError('Cancel PO failed'); // TODO - support partial success? 'No' according to Jason Lu 20200814
-      //   } else {
-      //     result = buildEvent('PoCancelled', jsonObj);
-      //   }
-      //   break;
+      case EndPoints[2]: // /order/cancelPO
+        if (!noQueryParam) {
+          result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
+        } else if (!isRequestJson) {
+          result = buildError(`Received non-JSON payload (${contentType})`);
+        } else if (!isPost) {
+          result = buildError(`Received unsupported (${method}) action`);
+        } else if (!isStatusOkay) {
+          result = buildError('Cancel PO failed'); // TODO - support partial success? 'No' according to Jason Lu 20200814
+        } else {
+          const payloads = Array.isArray(jsonObj) ? jsonObj.map(obj => ({
+            userId: enrollmentId,
+            timestamp: Date.now(),
+            ...obj
+          })) : [{
+            userId: enrollmentId,
+            timestamp: Date.now(),
+            ...jsonObj
+          }];
+          result = buildResult('PoCancelled',
+            await Promise.all(payloads.map(payload => 
+              poCommandHandler({ enrollmentId, poRepo: repositories['po'] as PoRepo }).CancelPo({ payload })
+            )));
+        }
+        break;
 
-      // case EndPoints[3]: // /etccorp/pboc/api/v1/po/process
-      //   if (!noQueryParam) {
-      //     result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
-      //   } else if (!isRequestJson) {
-      //     result = buildError(`Received non-JSON payload (${contentType})`);
-      //   } else if (!isPost) {
-      //     result = buildError(`Received unsupported (${method}) action`);
-      //   } else if (!isStatusOkay) {
-      //     result = buildError('Process PO failed'); // TODO - support partial success? 'No' according to Jason Lu 20200814
-      //   } else {
-      //     result = buildEvent('PoProcessed', jsonObj);
-      //   }
-      //   break;
+      case EndPoints[3]: // /etccorp/pboc/api/v1/po/process
+        if (!noQueryParam) {
+          result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
+        } else if (!isRequestJson) {
+          result = buildError(`Received non-JSON payload (${contentType})`);
+        } else if (!isPost) {
+          result = buildError(`Received unsupported (${method}) action`);
+        } else if (!isStatusOkay) {
+          result = buildError('Process PO failed'); // TODO - support partial success? 'No' according to Jason Lu 20200814
+        } else {
+          const payloads = Array.isArray(jsonObj) ? jsonObj.map(obj => ({
+            userId: enrollmentId,
+            timestamp: Date.now(),
+            ...obj
+          })) : [{
+            userId: enrollmentId,
+            timestamp: Date.now(),
+            ...jsonObj
+          }];
+          result = buildResult('PoProcessed',
+            await Promise.all(payloads.map(payload => 
+              poCommandHandler({ enrollmentId, poRepo: repositories['po'] as PoRepo }).ProcessPo({ payload })
+            )));
+        }
+        break;
 
-      // case EndPoints[4]: // /etccorp/pboc/api/v1/invoices
-      //   if (!noQueryParam) {
-      //     result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
-      //   } else if (!isRequestJson) {
-      //     result = buildError(`Received non-JSON payload (${contentType})`);
-      //   } else if (!isPost && !isPut) {
-      //     result = buildError(`Received unsupported (${method}) action`);
-      //   } else if (!isStatusOkay) {
-      //     result = buildError(`${isPost ? 'Create' : 'Update'} Invoice failed`); // OK here, no partial success
-      //   } else {
-      //     result = buildEvent(`Invoice${isPost ? 'Created' : 'Updated'}`, jsonObj);
-      //   }
-      //   break;
+      case EndPoints[4]: // /etccorp/pboc/api/v1/invoices
+        if (!noQueryParam) {
+          result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
+        } else if (!isRequestJson) {
+          result = buildError(`Received non-JSON payload (${contentType})`);
+        } else if (!isPost && !isPut) {
+          result = buildError(`Received unsupported (${method}) action`);
+        } else if (!isStatusOkay) {
+          result = buildError(`${isPost ? 'Create' : 'Update'} Invoice failed`); // OK here, no partial success
+        } else {
+          const payloads = Array.isArray(jsonObj) ? jsonObj.map(obj => ({
+            userId: enrollmentId,
+            timestamp: Date.now(),
+            ...obj.invBaseInfo,
+            orderList: obj.orderList,
+            attachmentList: parseAttachmentInfo()
+          })) : [{
+            userId: enrollmentId,
+            timestamp: Date.now(),
+            ...jsonObj.invBaseInfo,
+            orderList: jsonObj.orderList,
+            attachmentList: parseAttachmentInfo()
+          }];
 
-      // case EndPoints[5]: // /etccorp/pboc/api/v1/invoices/notify
-      //   if (!noQueryParam) {
-      //     result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
-      //   } else if (!isRequestJson) {
-      //     result = buildError(`Received non-JSON payload (${contentType})`);
-      //   } else if (!isPost) {
-      //     result = buildError(`Received unsupported (${method}) action`);
-      //   } else if (!isStatusOkay) {
-      //     logger.info('Notification failed'); // OK here, no partial success
-      //   } else {
-      //     result = buildEvent('InvoiceNotified', jsonObj);
-      //   }
-      //   break;
+          const commits = (isPost) ?
+            await Promise.all(payloads.map(payload => 
+              invoiceCommandHandler({ enrollmentId, invoiceRepo: repositories['invoice'] as InvoiceRepo }).CreateInvoice({ payload })
+            )) :
+            await Promise.all(payloads.map(payload => 
+              invoiceCommandHandler({ enrollmentId, invoiceRepo: repositories['invoice'] as InvoiceRepo }).UpdateInvoice({ payload })
+            ));
+          result = buildResult(`Invoice${isPost ? 'Created' : 'Updated'}`, commits);
+        }
+        break;
 
-      // case EndPoints[6]: // /etccorp/pboc/api/v1/invoices/image/upload
-      //   if (!isFileUpload) {
-      //     result = buildError('No file uploaded');
-      //   } else if (!isPost) {
-      //     result = buildError(`Received unsupported (${method}) action`);
-      //   } else if (!isStatusOkay) {
-      //     result = buildError('Invoice image upload failed'); // OK here, batch mode not supported
-      //   } else {
-      //     if ((Object.keys(jsonReq).length <= 0) && (jsonReq.constructor === Object)) {
-      //       if (!noQueryParam) result = buildEvent('InvoiceImageUploaded', url.query);
-      //     } else {
-      //       result = buildEvent('InvoiceImageUploaded', jsonReq);
-      //     }
-      //   }
-      //   break;
+      case EndPoints[5]: // /etccorp/pboc/api/v1/invoices/notify
+        if (!noQueryParam) {
+          result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
+        } else if (!isRequestJson) {
+          result = buildError(`Received non-JSON payload (${contentType})`);
+        } else if (!isPost) {
+          result = buildError(`Received unsupported (${method}) action`);
+        } else if (!isStatusOkay) {
+          logger.info('Notification failed'); // OK here, no partial success
+        } else {
+          const convertPayload = (obj) => {
+            const result = [];
+            for (const item of obj.invoices) {
+              result.push({
+                ...item,
+                financeNo: obj.financeNo,
+                poId: obj.poId
+              });
+            }
+            return result;
+          };
 
-      // case EndPoints[7]: // /invoice/result
-      //   if (!noQueryParam) {
-      //     result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
-      //   } else if (!isRequestJson) {
-      //     result = buildError(`Received non-JSON payload (${contentType})`);
-      //   } else if (!isPost) {
-      //     result = buildError(`Received unsupported (${method}) action`);
-      //   } else if (!isStatusOkay) {
-      //     result = buildError('Invoice response failed'); // OK here, no partial success
-      //   } else {
-      //     result = buildEvent('InvoiceResponded', jsonObj);
-      //   }
-      //   break;
+          let payloads;
+          if (Array.isArray(jsonObj)) {
+            payloads = jsonObj.map(obj => ({
+              userId: enrollmentId,
+              timestamp: Date.now(),
+              ...convertPayload(obj)
+            }));
+          } else {
+            payloads = [{
+              userId: enrollmentId,
+              timestamp: Date.now(),
+              ...convertPayload(jsonObj)
+            }];
+          }
 
-      // case EndPoints[8]: // /trade-financing/invresult
-      //   if (!noQueryParam) {
-      //     result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
-      //   } else if (!isRequestJson) {
-      //     result = buildError(`Received non-JSON payload (${contentType})`);
-      //   } else if (!isPost) {
-      //     result = buildError(`Received unsupported (${method}) action`);
-      //   } else if (!isStatusOkay) {
-      //     result = buildError('Notify payment status failed'); // TODO - support partial success, but how?
-      //   } else {
-      //     result = buildEvent('PaymentStatusNotified', jsonObj);
-      //   }
-      //   break;
+          result = buildResult('InvoiceTransferred',
+            await Promise.all(payloads.map(payload => 
+              invoiceCommandHandler({ enrollmentId, invoiceRepo: repositories['invoice'] as InvoiceRepo }).TransferInvoice({ payload })
+            )));
+        }
+        break;
+
+      case EndPoints[6]: // /etccorp/pboc/api/v1/invoices/image/upload
+        if (!isFileUpload) {
+          result = buildError('No file uploaded');
+        } else if (!isPost) {
+          result = buildError(`Received unsupported (${method}) action`);
+        } else if (!isStatusOkay) {
+          result = buildError('Invoice image upload failed'); // OK here, batch mode not supported
+        } else if (noQueryParam) {
+          result = buildError('Missing query paramters');
+        } else if ((Object.keys(jsonReq).length <= 0) && (jsonReq.constructor === Object)) {
+          if (Array.isArray(url.query.imageDesc) || Array.isArray(url.query.invoiceId)) {
+            result = buildError('Invalid query paramter format');
+          } else {
+            const attachmentList = parseAttachmentInfo();
+            const descs = url.query.imageDesc.split('_');
+            if (descs.length === attachmentList.length) {
+              for (let i = 0; i < attachmentList.length; i ++) {
+                attachmentList[i].desc = descs[i];
+              }
+            } else {
+              for (const attch of attachmentList) {
+                attch.desc = url.query.imageDesc;
+              }
+            }
+            const payload = {
+              userId: enrollmentId,
+              timestamp: Date.now(),
+              invoiceId: url.query.invoiceId,
+              attachmentList
+            };
+            result = buildResult('InvoiceImageUploaded',
+              [await invoiceCommandHandler({ enrollmentId, invoiceRepo: repositories['invoice'] as InvoiceRepo }).UploadInvoiceImage({
+                payload
+              })]);
+          }
+        } else {
+          result = buildError(`Request body not empty: ${JSON.stringify(jsonObj)}`);
+        }
+        break;
+
+      case EndPoints[7]: // /invoice/result
+        if (!noQueryParam) {
+          result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
+        } else if (!isRequestJson) {
+          result = buildError(`Received non-JSON payload (${contentType})`);
+        } else if (!isPost) {
+          result = buildError(`Received unsupported (${method}) action`);
+        } else if (!isStatusOkay) {
+          result = buildError('Invoice response failed'); // OK here, no partial success
+        } else {
+          const payloads = Array.isArray(jsonObj) ? jsonObj.map(obj => ({
+            userId: enrollmentId,
+            timestamp: Date.now(),
+            ...obj
+          })) : [{
+            userId: enrollmentId,
+            timestamp: Date.now(),
+            ...jsonObj
+          }];
+          result = buildResult('InvoiceConfirmed',
+            await Promise.all(payloads.map(payload => 
+              invoiceCommandHandler({ enrollmentId, invoiceRepo: repositories['invoice'] as InvoiceRepo }).ConfirmInvoice({ payload })
+            )));
+        }
+        break;
+
+      case EndPoints[8]: // /trade-financing/invresult
+        if (!noQueryParam) {
+          result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
+        } else if (!isRequestJson) {
+          result = buildError(`Received non-JSON payload (${contentType})`);
+        } else if (!isPost) {
+          result = buildError(`Received unsupported (${method}) action`);
+        } else if (!isStatusOkay) {
+          result = buildError('Notify payment status failed'); // TODO - support partial success, but how?
+        } else {
+          const payloads = Array.isArray(jsonObj) ? jsonObj.map(obj => ({
+            userId: enrollmentId,
+            timestamp: Date.now(),
+            ...obj
+          })) : [{
+            userId: enrollmentId,
+            timestamp: Date.now(),
+            ...jsonObj
+          }];
+          result = buildResult('PaymentStatusUpdated',
+            await Promise.all(payloads.map(payload => 
+              invoiceCommandHandler({ enrollmentId, invoiceRepo: repositories['invoice'] as InvoiceRepo }).UpdatePaymentStatus({ payload })
+            )));
+        }
+        break;
 
       default:
         result = buildError('Unknown end-point');

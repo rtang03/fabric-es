@@ -9,7 +9,7 @@ export interface ReqRes {
   contentType: string;
   reqBody: any;
   resBody: any;
-  attachmentInfo: any;
+  attachmentInfo: string;
   statusCode: number;
   statusMessage: string;
 };
