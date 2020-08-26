@@ -3,11 +3,13 @@ import util from 'util';
 import { getReducer } from '@fabric-es/fabric-cqrs';
 import { getLogger } from '@fabric-es/gateway-lib';
 import {
+  getPbocEtcEntityProcessor, Invoice, InvoiceEvents, invoiceReducer, PO, PoEvents, poReducer
+} from '@fabric-es/model-pboc';
+import {
   createSnifferService, getEntityProcessor
 } from '@fabric-es/relay-lib';
 import { Wallets } from 'fabric-network';
 import Redis from 'ioredis';
-import { getPbocEtcEntityProcessor, Invoice, InvoiceEvents, invoiceReducer, PO, PoEvents, poReducer } from './pbocEtc';
 
 const SERVICE_PORT = process.env.SNIFFER_PORT || 80;
 const redisHost = process.env.REDIS_HOST;

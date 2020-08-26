@@ -1,0 +1,29 @@
+{
+  "name": "@fabric-es/model-pboc",
+  "version": "0.6.4",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "license": "BSD-3-Clause-Clear",
+  "author": "Paul Lai",
+  "description": "Model - PBoC / eTC connectivity",
+  "scripts": {
+    "build": "yarn clean && tsc",
+    "test": "yarn build && ./node_modules/.bin/jest unit.test",
+    "clean": "rimraf dist",
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
+    "unit-test:fab": "jest unit.test"
+  },
+  "private": true,
+  "dependencies": {
+    "@fabric-es/fabric-cqrs": "^0.6.3",
+    "@fabric-es/gateway-lib": "^0.6.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.18",
+    "jest": "^24.9.0",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.0",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.8.3"
+  }
+}

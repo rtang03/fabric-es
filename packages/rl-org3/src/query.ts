@@ -3,9 +3,9 @@ import util from 'util';
 import { getReducer } from '@fabric-es/fabric-cqrs';
 import { createQueryHandlerService, getLogger } from '@fabric-es/gateway-lib';
 import { User, UserEvents, userReducer } from '@fabric-es/model-common';
+import { Invoice, InvoiceEvents, invoiceReducer, PO, PoEvents, poReducer } from '@fabric-es/model-pboc';
 import { Wallets } from 'fabric-network';
 import type { RedisOptions } from 'ioredis';
-import { Invoice, InvoiceEvents, invoiceReducer, PO, PoEvents, poReducer } from './pbocEtc';
 
 const port = parseInt(process.env.QUERY_PORT, 10) || 5000;
 const logger = getLogger('[rl-org3] query.js');
@@ -51,9 +51,9 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     }
   );
 
-  process.on('SIGINT', async () => shutdown());
+  process.on('SIGINT', async () => process.exit(await shutdown()));
 
-  process.on('SIGTERM', async () => shutdown());
+  process.on('SIGTERM', async () => process.exit(await shutdown()));
 
   process.on('uncaughtException', (err) => {
     logger.error('An uncaught error occurred!');

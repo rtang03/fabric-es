@@ -61,9 +61,9 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     }
   );
 
-  process.on('SIGINT', async () => shutdown());
+  process.on('SIGINT', async () => process.exit(await shutdown()));
 
-  process.on('SIGTERM', async () => shutdown());
+  process.on('SIGTERM', async () => process.exit(await shutdown()));
 
   process.on('uncaughtException', (err) => {
     logger.error('An uncaught error occurred!');
