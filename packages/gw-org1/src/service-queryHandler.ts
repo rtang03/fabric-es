@@ -34,7 +34,7 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     counter: counterReducer,
   };
 
-  const { server } = await createQueryHandlerService(
+  const { server, shutdown } = await createQueryHandlerService(
     ['document', 'loan', 'docContents', 'user', 'counter'],
     {
       redisOptions,
@@ -47,16 +47,6 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
       authCheck,
     }
   );
-
-  const shutdown = async () => {
-    await server.stop().catch((err) => {
-      if (err) {
-        logger.error(util.format('An error occurred while closing the server: %j', err));
-        process.exitCode = 1;
-      } else logger.info('server closes');
-    });
-    process.exit();
-  };
 
   process.on('SIGINT', async () => shutdown());
 

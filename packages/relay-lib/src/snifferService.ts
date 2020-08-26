@@ -68,7 +68,7 @@ export const createSnifferService: (option: {
   const stoppableServer = stoppable(http.createServer(express()));
   return {
     sniffer: stoppableServer,
-    shutdown: async () => {
+    shutdown: () => {
       return new Promise<number>(async resolve => {
         await stop();
         const res = await client.quit();

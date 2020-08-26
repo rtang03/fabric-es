@@ -26,7 +26,8 @@
     "mock-endpoint": "node dist/__tests__/mockEndpoint.js",
     "test": "jest --verbose --detectOpenHandles --runInBand --forceExit",
     "test:relay": "jest relay.test",
-    "test:sniff": "jest sniffer.test"
+    "test:sniff": "jest sniffer.test",
+    "test:temp": "jest temp.test"
   },
   "private": true,
   "dependencies": {

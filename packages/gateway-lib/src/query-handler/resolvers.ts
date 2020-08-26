@@ -111,7 +111,8 @@ export const resolvers: Resolvers = {
         { query, cursor = 0, pagesize = 10 }: { query: string; cursor?: number; pagesize?: number },
         { queryHandler }: QueryHandlerGqlCtx
       ): Promise<Paginated<Commit>> => {
-        const filtered = query.split(' ').filter((item) => !!item);
+        // const filtered = query.split(' ').filter((item) => !!item); // TODO - CHECK: why split the input with <space> ???????????????
+        const filtered = [query];
         const dataOption = ['SORTBY', 'ts', 'DESC'];
 
         const { data, error, status } = await queryHandler.fullTextSearchCommit(
@@ -138,7 +139,8 @@ export const resolvers: Resolvers = {
         { query, cursor = 0, pagesize = 10 }: { query: string; cursor?: number; pagesize?: number },
         { queryHandler }: QueryHandlerGqlCtx
       ): Promise<Paginated<QueryHandlerEntity>> => {
-        const filtered = query.split(' ').filter((item) => !!item);
+        // const filtered = query.split(' ').filter((item) => !!item); // TODO - CHECK: why split the input with <space> ???????????????
+        const filtered = [query];
         const dataOption = ['SORTBY', 'ts', 'DESC'];
 
         const { data, error, status } = await queryHandler.fullTextSearchEntity(

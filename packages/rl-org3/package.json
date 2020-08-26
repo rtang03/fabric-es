@@ -15,7 +15,8 @@
     "enrollAdmin": "node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
     "start": "node dist/relay.js https",
-    "sniff": "node dist/sniffer.js"
+    "sniff": "node dist/sniffer.js",
+    "query": "node dist/query.js"
   },
   "private": true,
   "dependencies": {

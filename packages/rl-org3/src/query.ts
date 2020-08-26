@@ -1,37 +1,31 @@
 require('./env');
 import util from 'util';
-import { counterReducer, getReducer } from '@fabric-es/fabric-cqrs';
+import { getReducer } from '@fabric-es/fabric-cqrs';
 import { createQueryHandlerService, getLogger } from '@fabric-es/gateway-lib';
 import { User, UserEvents, userReducer } from '@fabric-es/model-common';
-import { DocContents, DocContentsEvents, docContentsReducer } from '@fabric-es/model-document';
-import { Loan, LoanEvents, loanReducer } from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
-import { RedisOptions } from 'ioredis';
-import { LoanDetails, LoanDetailsEvents, loanDetailsReducer } from './model/private/loan-details';
-import { Document, DocumentEvents, documentReducer } from './model/public/document';
+import type { RedisOptions } from 'ioredis';
+import { Invoice, InvoiceEvents, invoiceReducer, PO, PoEvents, poReducer } from './pbocEtc';
 
 const port = parseInt(process.env.QUERY_PORT, 10) || 5000;
-const logger = getLogger('[query-handler] app.js');
+const logger = getLogger('[rl-org3] query.js');
 const authCheck = process.env.AUTHORIZATION_SERVER_URI;
 
 (async () => {
   const redisOptions: RedisOptions = {
     host: process.env.REDIS_HOST,
-    port: parseInt(process.env.REDIS_PORT, 10),
+    port: parseInt(process.env.REDIS_PORT, 10) || 6379,
     retryStrategy: (times) => Math.min(times * 50, 2000),
   };
 
   const reducers = {
-    document: getReducer<Document, DocumentEvents>(documentReducer),
-    loan: getReducer<Loan, LoanEvents>(loanReducer),
-    docContents: getReducer<DocContents, DocContentsEvents>(docContentsReducer),
-    loanDetails: getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer),
-    user: getReducer<User, UserEvents>(userReducer),
-    counter: counterReducer,
+    po: getReducer<PO, PoEvents>(poReducer),
+    invoice: getReducer<Invoice, InvoiceEvents>(invoiceReducer),
+    user: getReducer<User, UserEvents>(userReducer)
   };
 
   const { server, shutdown } = await createQueryHandlerService(
-    ['document', 'loan', 'docContents', 'loanDetails', 'user', 'counter'],
+    ['po', 'invoice', 'user'],
     {
       redisOptions,
       asLocalhost: !(process.env.NODE_ENV === 'production'),
@@ -54,14 +48,13 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
   });
 
   await server.listen({ port }).then(({ url, subscriptionsUrl }) => {
-    logger.info(`🚀 queryHandler available at port: ${url}graphql`);
+    logger.info(`🚀 query available at ${url}graphql`);
+    logger.info(`🚀 Subscription ${subscriptionsUrl}`);
 
-    logger.info(`🚀 Subscription available at port: ${subscriptionsUrl}`);
-
-    process.send?.('ready');
+    process?.send?.('ready');
   });
 })().catch((error) => {
   console.error(error);
-  logger.info(util.format('fail to start app.js, %j', error));
+  logger.info(util.format('fail to start query.js, %j', error));
   process.exit(1);
 });

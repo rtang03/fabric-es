@@ -74,4 +74,6 @@ export class Invoice extends BaseEntity {
   paymentDate?: string;
   remittanceBank?: string;
   remittanceRemarks?: string;
+  tag?: string;
+  desc?: string;
 };

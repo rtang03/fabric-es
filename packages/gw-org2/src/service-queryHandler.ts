@@ -34,7 +34,7 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     counter: counterReducer,
   };
 
-  const { server } = await createQueryHandlerService(['document', 'loan', 'user', 'loanDetails', 'counter'], {
+  const { server, shutdown } = await createQueryHandlerService(['document', 'loan', 'user', 'loanDetails', 'counter'], {
     redisOptions,
     asLocalhost: !(process.env.NODE_ENV === 'production'),
     channelName: process.env.CHANNEL_NAME,
@@ -44,16 +44,6 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     authCheck,
   });
-
-  const shutdown = async () => {
-    await server.stop().catch((err) => {
-      if (err) {
-        logger.error(util.format('An error occurred while closing the server: %j', err));
-        process.exitCode = 1;
-      } else logger.info('server closes');
-    });
-    process.exit();
-  };
 
   process.on('SIGINT', async () => shutdown());
 

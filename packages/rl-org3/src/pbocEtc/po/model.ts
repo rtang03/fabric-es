@@ -60,4 +60,6 @@ export class PO extends BaseEntity {
   orderList: PoOrder[];
   attachmentList: Attachment[];
   reason?: string;
+  tag?: string;
+  desc?: string;
 };

@@ -32,7 +32,7 @@ export const createQueryHandlerService: (
     playground?: boolean;
     introspection?: boolean;
   }
-) => Promise<{ server: ApolloServer; queryHandler: QueryHandler; publisher: Redis.Redis }> = async (
+) => Promise<{ server: ApolloServer; shutdown: () => Promise<void>; queryHandler: QueryHandler; publisher: Redis.Redis }> = async (
   entityNames,
   {
     redisOptions,
@@ -163,5 +163,24 @@ export const createQueryHandlerService: (
     },
   });
 
-  return { server, queryHandler, publisher };
+  const shutdown = async () => {
+    queryHandler.unsubscribeHub();
+
+    await subscriber.unsubscribe();
+    await subscriber.quit();
+    await publisher.quit();
+
+    return server
+      .stop()
+      .then(() => {
+        logger.info(`Query handler service stopped :)`);
+        process.exit(0);
+      })
+      .catch((err) => {
+        logger.error(util.format(`An error occurred while shutting down the query handler: %j`, err));
+        process.exit(1);
+      });
+  };
+
+  return { server, shutdown, queryHandler, publisher };
 };

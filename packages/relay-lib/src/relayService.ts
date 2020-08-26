@@ -74,7 +74,7 @@ export const createRelayService: (option: {
 
   return {
     relay: stoppableServer,
-    shutdown: async () => {
+    shutdown: () => {
       return new Promise<number>(async resolve => {
         await client.quit();
         stoppableServer.stop(err => {

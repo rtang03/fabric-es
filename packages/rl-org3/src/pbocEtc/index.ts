@@ -6,7 +6,7 @@ import {
 } from '@fabric-es/fabric-cqrs';
 import { getLogger } from '@fabric-es/gateway-lib';
 import { ProcessResults, ReqRes } from '@fabric-es/relay-lib';
-import { invoiceCommandHandler, InvoiceRepo, invoiceReducer } from './inv';
+import { invoiceCommandHandler, InvoiceRepo } from './inv';
 import { poCommandHandler, PoRepo } from './po';
 
 const logger = getLogger('[sniffer] pbocEtc.js');
@@ -22,6 +22,19 @@ export class Attachment extends BaseEntity {
   name: string;
   type: string;
   desc?: string;
+};
+
+export const buildTag = (separator: string, current: string, ...values: string[]): string | undefined => {
+  const orignl = current || '';
+  const inputs = values.filter(w => orignl.indexOf(w) < 0);
+  const size = inputs.length;
+  const elm1st = inputs.shift();
+  const result = (size > 0) ?
+    inputs.reduce((accu, curr) =>
+        (curr && curr.trim()) ? accu + `${separator}${curr}` : accu,
+      elm1st ? (orignl.trim() ? `${orignl}${separator}` : '') + elm1st : orignl)
+    : orignl;
+  return (result.trim()) ? result : undefined;
 };
 
 export const EndPoints = [
