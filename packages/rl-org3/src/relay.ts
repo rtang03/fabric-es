@@ -17,7 +17,24 @@ const logger = getLogger('[rl-org3] relay.js');
   const httpsArg = myArgs[0];
 
   const { relay, shutdown } = await createRelayService({
-    targetUrl, redisHost, redisPort, topic, httpsArg
+    redisOptions: {
+      host: redisHost,
+      port: redisPort,
+      retryStrategy: (times) => {
+        if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
+          logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
+          process.exit(-1);
+        }
+        return Math.min(times * 100, 3000); // reconnect after (ms)
+      },
+      reconnectOnError: (err) => {
+        const targetError = 'READONLY';
+        if (err.message.includes(targetError)) {
+          // Only reconnect when the error contains "READONLY"
+          return 1;
+        }
+      }
+    }, targetUrl, topic, httpsArg
   });
 
   process.on('SIGINT', async () => {

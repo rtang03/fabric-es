@@ -3,7 +3,7 @@ import util from 'util';
 import { Commit } from '@fabric-es/fabric-cqrs';
 import { getLogger } from '@fabric-es/gateway-lib';
 import express from 'express';
-import RedisClient, { Redis } from 'ioredis';
+import RedisClient, { Redis, RedisOptions } from 'ioredis';
 import stoppable, { StoppableServer } from 'stoppable';
 import { createSubscription, ReqRes } from '.';
 
@@ -21,34 +21,16 @@ export interface ProcessResults {
 const logger = getLogger('[sniffer] snifferService.js');
 
 export const createSnifferService: (option: {
-  redisHost: string;
-  redisPort: number;
+  redisOptions: RedisOptions;
   topic: string;
   callback?: (channel: string, message: ReqRes, messageStr?: string) => Promise<void>;
 }) => Promise<{
   sniffer: StoppableServer;
   shutdown: () => Promise<number>;
 }> = async ({
-  redisHost, redisPort, topic, callback
+  redisOptions, topic, callback
 }) => {
-  const client: Redis = new RedisClient({
-    host: redisHost,
-    port: redisPort,
-    retryStrategy: (times) => {
-      if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
-        logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
-        process.exit(-1);
-      }
-      return Math.min(times * 100, 3000); // reconnect after (ms)
-    },
-    reconnectOnError: (err) => {
-      const targetError = 'READONLY';
-      if (err.message.includes(targetError)) {
-        // Only reconnect when the error contains "READONLY"
-        return 1;
-      }
-    },
-  });
+  const client: Redis = new RedisClient(redisOptions);
 
   client.on('error', (err) => {
     logger.error(`Redis Error: ${err}`);

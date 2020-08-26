@@ -7,7 +7,7 @@ import { getLogger } from '@fabric-es/gateway-lib';
 import express from 'express';
 import formidable from 'formidable';
 import { createProxyMiddleware } from 'http-proxy-middleware';
-import RedisClient, { Redis } from 'ioredis';
+import RedisClient, { Redis, RedisOptions } from 'ioredis';
 import { isEmpty, isString } from 'lodash';
 import querystring from 'query-string';
 import stoppable, { StoppableServer } from 'stoppable';
@@ -16,35 +16,17 @@ import { processMessage, ReqRes } from '.';
 const logger = getLogger('[relay] relayService.js');
 
 export const createRelayService: (option: {
+  redisOptions: RedisOptions;
   targetUrl: string;
-  redisHost: string;
-  redisPort: number;
   topic: string;
   httpsArg: string;
 }) => Promise<{
   relay: StoppableServer;
   shutdown: () => Promise<number>;
 }> = async ({
-  targetUrl, redisHost, redisPort, topic, httpsArg
+  redisOptions, targetUrl, topic, httpsArg
 }) => {
-  const client = new RedisClient({
-    host: redisHost,
-    port: redisPort,
-    retryStrategy: (times) => {
-      if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
-        logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
-        process.exit(-1);
-      }
-      return Math.min(times * 100, 3000); // reconnect after (ms)
-    },
-    reconnectOnError: (err) => {
-      const targetError = 'READONLY';
-      if (err.message.includes(targetError)) {
-        // Only reconnect when the error contains "READONLY"
-        return 1;
-      }
-    },
-  });
+  const client = new RedisClient(redisOptions);
 
   client.on('error', (err) => {
     logger.error(`Redis Error: ${err}`);
