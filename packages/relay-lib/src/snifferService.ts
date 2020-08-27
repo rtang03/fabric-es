@@ -26,7 +26,7 @@ export const createSnifferService: (option: {
   callback?: (channel: string, message: ReqRes, messageStr?: string) => Promise<void>;
 }) => Promise<{
   sniffer: StoppableServer;
-  shutdown: () => Promise<number>;
+  shutdown: () => Promise<void>;
 }> = async ({
   redisOptions, topic, callback
 }) => {
@@ -51,7 +51,7 @@ export const createSnifferService: (option: {
   return {
     sniffer: stoppableServer,
     shutdown: () => {
-      return new Promise<number>(async resolve => {
+      return new Promise<void>(async (resolve, reject) => {
         await stop();
         const res = await client.quit();
         if (res === 'OK')
@@ -62,10 +62,10 @@ export const createSnifferService: (option: {
         stoppableServer.stop(err => {
           if (err) {
             logger.error(util.format('An error occurred while closing the sniffer service: %j', err));
-            resolve(1);
+            reject();
           } else {
             logger.info('Sniffer service stopped');
-            resolve(0);
+            resolve();
           }
         });
       });

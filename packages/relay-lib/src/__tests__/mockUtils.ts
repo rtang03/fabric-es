@@ -56,7 +56,7 @@ const handleFileUploads = (req, res, resMsg?) => {
   }
 };
 
-export const createMockServer = (isHttp?: boolean, silent?: boolean) => {
+export const createMockServer = (key: string, cert: string, isHttp?: boolean, silent?: boolean) => {
   const app = express();
   app.use(cors());
   app.use(express.json());
@@ -102,8 +102,8 @@ export const createMockServer = (isHttp?: boolean, silent?: boolean) => {
 
   const server = stoppable((isHttp) ?
     http.createServer(app) : https.createServer({
-      key: fs.readFileSync(process.env.SERVER_KEY),
-      cert: fs.readFileSync(process.env.SERVER_CERT)
+      key: fs.readFileSync(key),
+      cert: fs.readFileSync(cert)
     }, app));
 
   const shutdown = async () => {

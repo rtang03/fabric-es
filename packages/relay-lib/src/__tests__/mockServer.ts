@@ -1,9 +1,11 @@
-require('dotenv').config({ path: './.env' });
 import { createMockServer } from './mockUtils';
 
 (async () => {
   console.log('♨️♨️  Starting mock server...');
-  const { server, shutdown } = createMockServer();
+  const { server, shutdown } = createMockServer(
+    '/Users/paul/cert/OV/wildcard_etradeconnect.key',
+    '/Users/paul/cert/OV/star_etradeconnect_net.cer'
+  );
 
   process.on('SIGINT', async () => {
     process.exit(await shutdown());

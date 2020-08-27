@@ -86,11 +86,12 @@ export const invoiceReducer = (invoice: Invoice, event: InvoiceEvents): Invoice 
       };
 
     case 'PaymentStatusUpdated':
-      const { userId: uid5, invoiceId: vid5, remittanceBank, sellerBank, ...rest5} = event.payload;
+      const { userId: uid5, invoiceId: vid5, remittanceBank, sellerBank, goodsReceived: rcv5, ...rest5} = event.payload;
       return {
         ...invoice,
         sellerBankName: sellerBank,
         remittanceBank,
+        received: rcv5,
         tag: buildTag(',', invoice.tag, sellerBank, remittanceBank),
         ...rest5
       };

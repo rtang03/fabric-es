@@ -24,6 +24,7 @@
     "build": "yarn clean && tsc",
     "clean": "rimraf dist",
     "mock-endpoint": "node dist/__tests__/mockEndpoint.js",
+    "mock": "node dist/__tests__/mockServer.js",
     "test": "jest --verbose --detectOpenHandles --runInBand --forceExit",
     "test:relay": "jest relay.test",
     "test:sniff": "jest sniffer.test",

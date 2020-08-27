@@ -1,11 +1,11 @@
 {
-  "name": "@fabric-es/rl-org3",
+  "name": "@fabric-es/rl-org1",
   "version": "0.6.4",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
   "author": "Paul Lai",
-  "description": "Relay ORG3",
+  "description": "Relay ORG1",
   "scripts": {
     "build": "yarn clean && tsc",
     "clean": "rimraf dist",
@@ -13,7 +13,9 @@
     "test:intg": "jest intg.test",
     "enrollAdmin": "node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
-    "start": "node dist/query.js"
+    "start": "concurrently \"npm:service-*\"",
+    "service-sniff": "node dist/sniffer.js",
+    "service-relay": "node dist/relay.js https"
   },
   "private": true,
   "dependencies": {

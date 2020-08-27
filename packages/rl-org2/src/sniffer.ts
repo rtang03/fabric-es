@@ -55,11 +55,13 @@ const logger = getLogger('[rl-org3] sniffer.js');
     });
 
     process.on('SIGINT', async () => {
-      process.exit(await shutdown());
+      await shutdown().catch(process.exit(1));
+      process.exit(0);
     });
   
     process.on('SIGTERM', async () => {
-      process.exit(await shutdown());
+      await shutdown().catch(process.exit(1));
+      process.exit(0);
     });
   
     process.on('uncaughtException', err => {

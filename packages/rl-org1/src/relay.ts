@@ -37,13 +37,15 @@ const logger = getLogger('[rl-org3] relay.js');
     }, targetUrl, topic, httpsArg
   });
 
-  process.on('SIGINT', async () => {
-    process.exit(await shutdown());
-  });
+  process.on('SIGINT', async () =>
+    await shutdown()
+      .then(process.exit(0))
+      .catch(process.exit(1)));
 
-  process.on('SIGTERM', async () => {
-    process.exit(await shutdown());
-  });
+  process.on('SIGTERM', async () =>
+    await shutdown()
+      .then(process.exit(0))
+      .catch(process.exit(1)));
 
   process.on('uncaughtException', err => {
     logger.error('An uncaught error occurred!');
