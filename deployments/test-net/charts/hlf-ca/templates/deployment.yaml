@@ -126,15 +126,15 @@ spec:
           livenessProbe:
             httpGet:
               scheme: HTTP
-              path: /cainfo
-              port: 7054
+              path: /healthz
+              port: 9443
             initialDelaySeconds: 3
             periodSeconds: 10
           readinessProbe:
             httpGet:
               scheme: HTTP
-              path: /cainfo
-              port: 7054
+              path: /healthz
+              port: 9443
             initialDelaySeconds: 3
             periodSeconds: 10
           volumeMounts:

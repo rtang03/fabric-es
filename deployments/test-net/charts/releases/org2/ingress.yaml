@@ -1,0 +1,9 @@
+{{- $fullName := include "hlf-peer.fullname" . -}}
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+    name: {{ $fullName }}--ing
+spec:
+  backend:
+    serviceName: {{ $fullName }}
+    servicePort: 7051

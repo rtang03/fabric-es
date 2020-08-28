@@ -10,7 +10,7 @@ global:
 #  pullPolicy: IfNotPresent
 
 service:
-  type: LoadBalancer
+  type: ClusterIP
   portRequest: 7051
   portEvent: 7053
 
@@ -22,8 +22,13 @@ dockerConfig: null
 dockerConfigMountPath: /root/.docker
 
 ingress:
-  enabled: false
-  annotations: {}
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
   path: /
   hosts:
     - peer0.org1.net
@@ -62,7 +67,7 @@ peer:
   gossip:
     bootstrap: "p0o1-hlf-peer:7051"
     endpoint: "p0o1-hlf-peer:7051"
-    externalEndpoint: "p0o1-hlf-peer:7051"
+    externalEndpoint: "peer0.org1.net:443"
     orgLeader: "false"
     useLeaderElection: "true"
   tls:

@@ -3,6 +3,9 @@
 
 SECONDS=0
 
+./scripts/create-genesis.sh
+printMessage "create genesis block/channeltx" $?
+
 sleep 3
 
 helm install o1 -f ./releases/org0/o1-hlf-ord.gcp.yaml -n n0 ./hlf-ord
@@ -29,7 +32,7 @@ res=$?
 set +x
 printMessage "deployment/o0-hlf-ord" $res
 
-helm install p0o1db -n n1 -f ./releases/org1/p0o1-hlf-couchdb.gcp.yaml ./hlf-couchdb
+helm install p0o1db -n n1 -f ./releases/org1/p0o1db-hlf-couchdb.gcp.yaml ./hlf-couchdb
 
 sleep 5
 

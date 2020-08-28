@@ -125,6 +125,8 @@ printMessage "create secret rca0" $?
 ./scripts/create-secret.rca1.sh
 printMessage "create secret rca1" $?
 
+sleep 10
+
 ./scripts/create-genesis.sh
 printMessage "create genesis block/channeltx" $?
 
@@ -154,7 +156,7 @@ res=$?
 set +x
 printMessage "deployment/o0-hlf-ord" $res
 
-helm install p0o1db -n n1 -f ./releases/org1/p0o1-hlf-couchdb.gcp.yaml ./hlf-couchdb
+helm install p0o1db -n n1 -f ./releases/org1/p0o1db-hlf-couchdb.gcp.yaml ./hlf-couchdb
 
 sleep 5
 
@@ -180,6 +182,8 @@ kubectl -n n1 cp ./chaincode $POD_CLI1:./channel-artifacts
 res=$?
 set +x
 printMessage "copy chaincode" $res
+
+sleep 30
 
 helm install bootstrap -n n1 -f ./releases/org1/bootstrap-hlf-operator.gcp.yaml ./hlf-operator
 

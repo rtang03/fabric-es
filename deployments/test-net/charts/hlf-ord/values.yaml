@@ -30,10 +30,6 @@ ingress:
     - secretName: orderer0.org0.com-tls
       hosts:
         - o0-hlf-ord
-sidecar:
-  isalive:
-    enabled: false
-
 persistence:
   enabled: true
   pvcName: pvc-ord0

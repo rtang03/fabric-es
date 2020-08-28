@@ -213,7 +213,6 @@ kubectl port-forward --namespace default svc/psql-postgresql 5433:5432
 PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5433
 ```
 
-
 ### External Reference
 https://github.com/hyperledger/fabric-ca/blob/master/docs/source/users-guide.rst#enabling-tls
 https://github.com/helm/charts/tree/master/stable/hlf-ca
@@ -229,3 +228,13 @@ https://docs.bitnami.com/kubernetes/get-started-gke/#step-6-access-the-kubernete
 
 gcloud container clusters get-credentials dev-org0-core --zone us-central1-c --project fdi-cd \
  && kubectl port-forward --namespace n1 $(kubectl get pod --namespace n1 --selector="app=hlf-ca,release=rca1" --output jsonpath='{.items[0].metadata.name}') 8080:7054
+
+curl -d '{"spec":"grpc=debug:debug"}' -H "Content-Type: application/json" -X PUT http://127.0.0.1:9443/logspec
+
+https://pkg.go.dev/k8s.io/api@v0.18.8/core/v1?tab=doc#ServicePort
+
+export NGX=$(kubectl get secret --namespace ingress-nginx ingress-nginx-admission -o jsonpath="{.data.cert}" | base64 --decode)
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
+
+https://github.com/GoogleCloudPlatform/community/blob/master/tutorials/nginx-ingress-gke/index.md

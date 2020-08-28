@@ -78,17 +78,6 @@ spec:
             secretName: {{ .Values.secrets.caServerTls }}
       {{- end }}
       containers:
-        {{- if .Values.sidecar.isalive.enabled }}
-        - name: isalive
-          image: hashicorp/http-echo
-          imagePullPolicy: IfNotPresent
-          ports:
-            - name: isalive-port
-              containerPort: 5678
-              protocol: TCP
-          args:
-            - "-text=iamorderer0"
-        {{- end }}
         - name: orderer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -101,19 +90,19 @@ spec:
               containerPort: 8443
               protocol: TCP
           livenessProbe:
-            exec:
-              command:
-                - ls
-                - /var/hyperledger
+            httpGet:
+              port: 8443
+              scheme: HTTP
+              path: /healthz
             initialDelaySeconds: 5
             periodSeconds: 5
-          # TODO: Improve readiness probe (ideally `ps aux | awk '$11=="orderer"'`)
           readinessProbe:
-            exec:
-              command:
-                - ls
-                - /var/hyperledger
+            httpGet:
+              port: 8443
+              scheme: HTTP
+              path: /healthz
             initialDelaySeconds: 15
+            periodSeconds: 5
           command:
             - sh
             - -c

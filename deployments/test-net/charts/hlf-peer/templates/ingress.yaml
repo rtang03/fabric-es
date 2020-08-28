@@ -4,32 +4,35 @@
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+  name: {{ $fullName }}--ingress
   labels:
 {{ include "labels.standard" . | indent 4 }}
 {{- with .Values.ingress.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}
-{{- end }}
+ {{- end }}
 spec:
-{{- if .Values.ingress.tls }}
+#  backend:
+#    serviceName: {{ $fullName }}
+#    servicePort: request
   tls:
-  {{- range .Values.ingress.tls }}
     - hosts:
-      {{- range .hosts }}
-        - {{ . }}
-      {{- end }}
-      secretName: {{ .secretName }}
-  {{- end }}
-{{- end }}
+        - peer0.org1.net
+      secretName: peer0.org1.net-tls
   rules:
   {{- range .Values.ingress.hosts }}
-    - host: {{ . }}
+    - host: peer0.org1.net # {{ . }}
       http:
         paths:
-          - path: {{ $ingressPath }}
+          - path: /
             backend:
               serviceName: {{ $fullName }}
               servicePort: request
+#    - http:
+#        paths:
+#          - path: /metrics
+#            backend:
+#              serviceName: {{ $fullName }}
+#              servicePort: metrics
   {{- end }}
 {{- end }}

@@ -120,19 +120,21 @@ spec:
             - name: event
               containerPort: 7053
               protocol: TCP
+            - name: metrics
+              containerPort: 9443
+              protocol: TCP
           livenessProbe:
-            exec:
-              command:
-                - ls
-                - /var/hyperledger
+            httpGet:
+              scheme: HTTP
+              port: 9443
+              path: /healthz
             initialDelaySeconds: 5
             periodSeconds: 5
-          # TODO: Improve readiness probe (ideally `ps aux | awk '$11=="orderer"'`)
           readinessProbe:
-            exec:
-              command:
-              - ls
-              - /var/hyperledger
+            httpGet:
+              scheme: HTTP
+              port: 9443
+              path: /healthz
             initialDelaySeconds: 15
           command:
             - sh
