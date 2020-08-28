@@ -9,26 +9,46 @@ import {
 } from '@fabric-es/fabric-cqrs';
 import { getLogger } from '@fabric-es/gateway-lib';
 import { Gateway, Network, Wallet } from 'fabric-network';
-import type { Redis } from 'ioredis';
+import RedisClient, { Redis, RedisOptions } from 'ioredis';
 import { ProcessResults, ReqRes } from '.';
 
-const logger = getLogger('[sniffer] processNtt.js');
+interface AddRepository {
+  create: (
+    processor: (
+      enrollmentId: string,
+      repositories: Record<string, Repository | PrivateRepository>
+    ) => (message: ReqRes) => Promise<ProcessResults>
+  ) => {
+    callback: (channel: string, message: ReqRes, messageStr?: string) => Promise<void>;
+    cleanup: () => Promise<void>;
+  };
+  addRepository: (repository: Repository | PrivateRepository) => this;
+}
 
-export const getEntityProcessor = async ({
-  enrollmentId,
-  channelName,
-  connectionProfile,
-  wallet,
-  asLocalhost,
-  redis,
-}: {
+export const getEntityProcessor: (option: {
   enrollmentId: string;
   channelName: string;
   connectionProfile: string;
   wallet: Wallet;
   asLocalhost: boolean;
-  redis: Redis;
+  redisOptions: RedisOptions;
+}) => Promise<{
+  mspId: string;
+  getRepository: <TEntity, TEvent>(entityName: string, reducer: Reducer) => Repository<TEntity, TEvent>;
+  getPrivateRepository: <TEntity, TEvent>(
+    entityName: string, reducer: Reducer, parentName?: string
+  ) => PrivateRepository<TEntity, TEvent>;
+  addRepository: (repository: Repository | PrivateRepository) => AddRepository;
+}> = async ({
+  enrollmentId,
+  channelName,
+  connectionProfile,
+  wallet,
+  asLocalhost,
+  redisOptions,
 }) => {
+  const logger = getLogger('[sniffer] processNtt.js');
+
   const pNetworkConfig: {
     enrollmentId: string; network: Network; gateway: Gateway;
   } = await getNetwork({
@@ -39,6 +59,8 @@ export const getEntityProcessor = async ({
   } = await getNetwork({
     discovery: true, asLocalhost, channelName, connectionProfile, wallet, enrollmentId
   });
+
+  const client: Redis = new RedisClient(redisOptions);
 
   const mspId =
     networkConfig && networkConfig.gateway && networkConfig.gateway.getIdentity
@@ -65,7 +87,7 @@ export const getEntityProcessor = async ({
   const getRepository = <TEntity, TEvent>(entityName: string, reducer: Reducer) =>
     createRepository<TEntity, TEvent>(entityName, reducer, {
       ...networkConfig,
-      queryDatabase: createQueryDatabase(redis),
+      queryDatabase: createQueryDatabase(client),
       connectionProfile,
       channelName,
       wallet,
@@ -77,25 +99,40 @@ export const getEntityProcessor = async ({
   }[] = [];
   const repositories: Record<string, Repository | PrivateRepository> = {};
 
-  const create = (processor: (
-    enrollmentId: string, repositories: Record<string, Repository | PrivateRepository>
-  ) => (message: ReqRes) => Promise<ProcessResults>) => {
+  const create = (
+    processor: (
+      enrollmentId: string,
+      repositories: Record<string, Repository | PrivateRepository>
+    ) => (message: ReqRes) => Promise<ProcessResults>
+  ) => {
     const process = processor(enrollmentId, repositories);
-    return async (channel: string, message: ReqRes, messageStr?: string): Promise<void> => {
-      if (message) {
-        const result = await process(message);
-        if (!result.errors) {
-          const { statusMessage, reqBody, resBody, errors, ...rest } = result;
-          console.log('Entity processed', JSON.stringify(rest, null, ' ')); // TODO TEMP
-          logger.info('Entity processed: ' + JSON.stringify(rest));
+    return {
+      callback: async (channel: string, message: ReqRes, messageStr?: string): Promise<void> => {
+        if (message) {
+          const result = await process(message);
+          if (!result.errors) {
+            const { statusMessage, reqBody, resBody, errors, ...rest } = result;
+            console.log('Entity processed', JSON.stringify(rest, null, ' ')); // TODO TEMP
+            logger.info('Entity processed: ' + JSON.stringify(rest));
+          } else {
+            const { reqBody, resBody, commits, ...rest } = result;
+            logger.error('Error processing entity: ' + JSON.stringify(rest));
+          }
+        } else if (messageStr) {
+          logger.warn(`Incoming message with invalid format: '${messageStr}'`);
         } else {
-          const { reqBody, resBody, commits, ...rest } = result;
-          logger.error('Error processing entity: ' + JSON.stringify(rest));
+          logger.error('Incoming message missing');
         }
-      } else if (messageStr) {
-        logger.warn(`Incoming message with invalid format: '${messageStr}'`);
-      } else {
-        logger.error('Incoming message missing');
+      },
+      cleanup: () => {
+        return new Promise<void>(async (resolve, reject) => {
+          client.quit()
+            .then(() => resolve())
+            .catch(err => {
+              logger.warn(`Error cleaning up repository: ${err}`);
+              reject();
+            });
+        });
       }
     };
   };

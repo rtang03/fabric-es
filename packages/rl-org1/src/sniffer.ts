@@ -9,7 +9,7 @@ import {
   createSnifferService, getEntityProcessor
 } from '@fabric-es/relay-lib';
 import { Wallets } from 'fabric-network';
-import Redis from 'ioredis';
+import { RedisOptions } from 'ioredis';
 
 const SERVICE_PORT = process.env.SNIFFER_PORT || 80;
 const redisHost = process.env.REDIS_HOST;
@@ -21,48 +21,55 @@ const logger = getLogger('[rl-org3] sniffer.js');
 (async () => {
   logger.info('♨️♨️  Starting [rl-org3] sniffer service...');
 
+  const redisOptions: RedisOptions = {
+    host: redisHost,
+    port: redisPort,
+    retryStrategy: (times) => {
+      if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
+        logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
+        process.exit(-1);
+      }
+      return Math.min(times * 100, 3000); // reconnect after (ms)
+    },
+    reconnectOnError: (err) => {
+      const targetError = 'READONLY';
+      if (err.message.includes(targetError)) {
+        // Only reconnect when the error contains "READONLY"
+        return 1;
+      }
+    }
+  };
+
   getEntityProcessor({
     enrollmentId: process.env.ORG_ADMIN_ID,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     asLocalhost: !(process.env.NODE_ENV === 'production'),
-    redis: new Redis({ host: process.env.REDIS_HOST, port: parseInt(process.env.REDIS_PORT, 10) }),
+    redisOptions,
   }).then(async ({ getRepository, addRepository }) => {
-    const callback = addRepository(getRepository<PO, PoEvents>('po', getReducer<PO, PoEvents>(poReducer)))
+    const { callback, cleanup } =
+       addRepository(getRepository<PO, PoEvents>('po', getReducer<PO, PoEvents>(poReducer)))
       .addRepository(getRepository<Invoice, InvoiceEvents>('invoice', getReducer<Invoice, InvoiceEvents>(invoiceReducer)))
       .create(getPbocEtcEntityProcessor);
 
     const { sniffer, shutdown } = await createSnifferService({
-      redisOptions: {
-        host: redisHost,
-        port: redisPort,
-        retryStrategy: (times) => {
-          if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
-            logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
-            process.exit(-1);
-          }
-          return Math.min(times * 100, 3000); // reconnect after (ms)
-        },
-        reconnectOnError: (err) => {
-          const targetError = 'READONLY';
-          if (err.message.includes(targetError)) {
-            // Only reconnect when the error contains "READONLY"
-            return 1;
-          }
-        }
-      }, topic, callback
+      redisOptions, topic, callback
     });
 
-    process.on('SIGINT', async () =>
+    process.on('SIGINT', async () => {
+      await cleanup();
       await shutdown()
         .then(() => process.exit(0))
-        .catch(() => process.exit(1)));
+        .catch(() => process.exit(1));
+    });
 
-    process.on('SIGTERM', async () =>
+    process.on('SIGTERM', async () => {
+      await cleanup();
       await shutdown()
         .then(() => process.exit(0))
-        .catch(() => process.exit(1)));
+        .catch(() => process.exit(1));
+    });
 
     process.on('uncaughtException', err => {
       logger.error('An uncaught error occurred!');
