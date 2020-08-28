@@ -12,9 +12,6 @@ metadata:
 {{ toYaml . | indent 4 }}
  {{- end }}
 spec:
-#  backend:
-#    serviceName: {{ $fullName }}
-#    servicePort: request
   tls:
     - hosts:
         - peer0.org1.net
@@ -28,11 +25,5 @@ spec:
             backend:
               serviceName: {{ $fullName }}
               servicePort: request
-#    - http:
-#        paths:
-#          - path: /metrics
-#            backend:
-#              serviceName: {{ $fullName }}
-#              servicePort: metrics
   {{- end }}
 {{- end }}

@@ -20,6 +20,12 @@ orderer:
 #  channels:
 #    - "channeltx"
 
+hostAlias:
+  enabled: false
+  hostnames:
+    - hostname: peer0.org1.net
+      ip: 34.68.246.23
+
 peer:
   enabled: false
   ### configmap

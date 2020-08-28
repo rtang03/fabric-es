@@ -125,7 +125,7 @@ printMessage "create secret rca0" $?
 ./scripts/create-secret.rca1.sh
 printMessage "create secret rca1" $?
 
-sleep 10
+sleep 30
 
 ./scripts/create-genesis.sh
 printMessage "create genesis block/channeltx" $?
@@ -183,7 +183,7 @@ res=$?
 set +x
 printMessage "copy chaincode" $res
 
-sleep 30
+sleep 60
 
 helm install bootstrap -n n1 -f ./releases/org1/bootstrap-hlf-operator.gcp.yaml ./hlf-operator
 

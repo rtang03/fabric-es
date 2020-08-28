@@ -15,6 +15,14 @@ spec:
       labels:
 {{ include "labels.standard" . | indent 8 }}
     spec:
+      {{- if .Values.hostAlias.enabled }}
+      hostAliases:
+      {{- range .Values.hostAlias.hostnames }}
+        - hostnames:
+            - {{ .hostname }}
+          ip: {{ .ip }}
+      {{- end }}
+      {{- end }}
       volumes:
         - name: fabricfiles
           persistentVolumeClaim:

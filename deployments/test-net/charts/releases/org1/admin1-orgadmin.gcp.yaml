@@ -18,6 +18,11 @@ cli:
 orderer:
   enabled: false
 
+hostAlias:
+  enabled: true
+  hostnames:
+    - hostname: peer0.org1.net
+      ip: 34.68.246.23
 peer:
   enabled: true
   ### configmap

@@ -191,6 +191,10 @@ export CA_PASSWORD=$(kubectl get secret -n n0 tlsca0-hlf-ca--ca -o jsonpath="{.d
 
 ### Other useful commands
 ```shell script
+# Inside peer or orderer, change logging level 
+apk add curl
+curl -d '{"spec":"grpc=debug:debug"}' -H "Content-Type: application/json" -X PUT http://127.0.0.1:9443/logspec
+
 # search public helm repository
 helm search repo stable
 
@@ -208,33 +212,22 @@ export POSTGRES_PASSWORD=$(kubectl get secret --namespace default psql-postgresq
 
 # you can launch a port-forward, so that the psql client in host system can access it
 kubectl port-forward --namespace default svc/psql-postgresql 5433:5432
-
-# login with psql
-PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5433
 ```
 
 ### External Reference
-https://github.com/hyperledger/fabric-ca/blob/master/docs/source/users-guide.rst#enabling-tls
-https://github.com/helm/charts/tree/master/stable/hlf-ca
-https://github.com/bitnami/charts/tree/master/bitnami/postgresql#parameters
-https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
-https://medium.com/google-cloud/helm-chart-for-fabric-for-kubernetes-80408b9a3fb6
-https://kubectl.docs.kubernetes.io/
-https://github.com/hyperledger/fabric-samples/blob/master/test-network/scripts/deployCC.sh
-https://medium.com/swlh/how-to-implement-hyperledger-fabric-external-chaincodes-within-a-kubernetes-cluster-fd01d7544523
-https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/
-https://github.com/kubernetes/dashboard#kubernetes-dashboard
-https://docs.bitnami.com/kubernetes/get-started-gke/#step-6-access-the-kubernetes-dashboard
-
-gcloud container clusters get-credentials dev-org0-core --zone us-central1-c --project fdi-cd \
- && kubectl port-forward --namespace n1 $(kubectl get pod --namespace n1 --selector="app=hlf-ca,release=rca1" --output jsonpath='{.items[0].metadata.name}') 8080:7054
-
-curl -d '{"spec":"grpc=debug:debug"}' -H "Content-Type: application/json" -X PUT http://127.0.0.1:9443/logspec
-
-https://pkg.go.dev/k8s.io/api@v0.18.8/core/v1?tab=doc#ServicePort
+[hlf-ca helm chart](https://github.com/helm/charts/tree/master/stable/hlf-ca)
+[postgres helm chart](https://github.com/bitnami/charts/tree/master/bitnami/postgresql)
+[example: nginx ingress](https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html)
+[fabric helm chart](https://medium.com/google-cloud/helm-chart-for-fabric-for-kubernetes-80408b9a3fb6)
+[kubect documentation](https://kubectl.docs.kubernetes.io/)
+[external chaincode](https://medium.com/swlh/how-to-implement-hyperledger-fabric-external-chaincodes-within-a-kubernetes-cluster-fd01d7544523)
+[nginx ingress controller](https://docs.nginx.com/nginx-ingress-controller)
+[k8s dashboard](https://github.com/kubernetes/dashboard#kubernetes-dashboard)
+[k8s dashboard: how to access](https://docs.bitnami.com/kubernetes/get-started-gke/#step-6-access-the-kubernetes-dashboard)
+[k8s api spec](https://pkg.go.dev/k8s.io/api@v0.18.8)
+[gke nginx example](https://github.com/GoogleCloudPlatform/community/blob/master/tutorials/nginx-ingress-gke/index.md)
 
 export NGX=$(kubectl get secret --namespace ingress-nginx ingress-nginx-admission -o jsonpath="{.data.cert}" | base64 --decode)
 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
 
-https://github.com/GoogleCloudPlatform/community/blob/master/tutorials/nginx-ingress-gke/index.md
