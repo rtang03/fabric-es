@@ -54,15 +54,15 @@ const logger = getLogger('[rl-org3] sniffer.js');
       }, topic, callback
     });
 
-    process.on('SIGINT', async () => {
-      await shutdown().catch(process.exit(1));
-      process.exit(0);
-    });
+    process.on('SIGINT', async () =>
+      await shutdown()
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1)));
   
-    process.on('SIGTERM', async () => {
-      await shutdown().catch(process.exit(1));
-      process.exit(0);
-    });
+    process.on('SIGTERM', async () =>
+      await shutdown()
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1)));
   
     process.on('uncaughtException', err => {
       logger.error('An uncaught error occurred!');

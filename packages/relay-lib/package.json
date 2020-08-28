@@ -28,7 +28,7 @@
     "test": "jest --verbose --detectOpenHandles --runInBand --forceExit",
     "test:relay": "jest relay.test",
     "test:sniff": "jest sniffer.test",
-    "test:temp": "jest temp.test"
+    "test:program": "jest program.test"
   },
   "private": true,
   "dependencies": {

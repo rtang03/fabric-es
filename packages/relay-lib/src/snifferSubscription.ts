@@ -107,8 +107,10 @@ export const createSubscription = (
         subscribe$.unsubscribe();
 
       if (subscriber) {
-        await subscriber.unsubscribe(topic);
-        await subscriber.quit();
+        await subscriber.unsubscribe(topic)
+          .catch(err => logger.error(`Error unsubscribing from redis: ${err}`));
+        await subscriber.quit()
+          .catch(err => logger.error(`Error disconnecting subscriber from redis: ${err}`));
       }
     }
   };

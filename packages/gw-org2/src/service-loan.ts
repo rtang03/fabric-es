@@ -27,9 +27,13 @@ const reducer = getReducer<Loan, LoanEvents>(loanReducer);
         .addRepository(getRepository<Loan, LoanEvents>('loan', reducer))
         .create();
 
-      process.on('SIGINT', async () => await shutdown(app));
+      process.on('SIGINT', async () => await shutdown(app)
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1)));
 
-      process.on('SIGTERM', async () => await shutdown(app));
+      process.on('SIGTERM', async () => await shutdown(app)
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1)));
 
       process.on('uncaughtException', (err) => {
         logger.error('An uncaught error occurred!');

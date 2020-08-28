@@ -32,7 +32,10 @@ export const createAdminService: (option: {
   playground?: boolean;
   introspection?: boolean;
   enrollmentSecret?: string;
-}) => Promise<{ server: ApolloServer; shutdown: any }> = async ({
+}) => Promise<{
+  server: ApolloServer;
+  shutdown: (server: ApolloServer) => Promise<void>;
+}> = async ({
   caAdmin,
   caAdminPW,
   channelName,
@@ -143,16 +146,18 @@ export const createAdminService: (option: {
         },
       });
 
-      server
-        .stop()
-        .then(() => {
-          logger.info('Admin service stopped');
-          process.exit(0);
-        })
-        .catch((err) => {
-          logger.error(util.format(`An error occurred while shutting down %s: %j`, name, err));
-          process.exit(1);
-        });
+      return new Promise<void>(async (resolve, reject) => {
+        server
+          .stop()
+          .then(() => {
+            logger.info('Admin service stopped');
+            resolve();
+          })
+          .catch((err) => {
+            logger.error(util.format(`An error occurred while shutting down %s: %j`, name, err));
+            reject();
+          });
+      });
     })({ logger, repo: orgrepo }),
   };
 };

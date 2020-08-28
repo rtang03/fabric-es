@@ -13,8 +13,12 @@ const logger = getLogger('service-rmt-ctnt.js');
     urls: process.env.REMOTE_URI.split(' ')
   });
 
-  process.on('SIGINT', () => shutdown(server));
-  process.on('SIGTERM', () => shutdown(server));
+  process.on('SIGINT', async () => await shutdown(server)
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1)));
+  process.on('SIGTERM', async () => await shutdown(server)
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1)));
   process.on('uncaughtException', err => {
     logger.error('An uncaught error occurred!');
     logger.error(err.stack);

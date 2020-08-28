@@ -1,5 +1,4 @@
 import { getLogger } from '..';
-import { shutdown } from '../utils/shutdownApollo';
 import { createAdminService } from '.';
 
 const port = (process.env.PORT || 8080) as number;
@@ -8,7 +7,7 @@ const port = (process.env.PORT || 8080) as number;
   const logger = getLogger('[gw-lib] app.js');
   logger.info('starting admin-service...');
 
-  const { server } = await createAdminService({
+  const { server, shutdown } = await createAdminService({
     caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
     caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN,
     ordererName: process.env.ORDERER_NAME,
@@ -22,13 +21,13 @@ const port = (process.env.PORT || 8080) as number;
     orgUrl: process.env.ORGURL,
   });
 
-  process.on('SIGINT', () => {
-    shutdown({ logger, name: 'admin-service' });
-  });
+  process.on('SIGINT', async () => await shutdown(server)
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1)));
 
-  process.on('SIGTERM', () => {
-    shutdown({ logger, name: 'admin-service' });
-  });
+  process.on('SIGTERM', async () => await shutdown(server)
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1)));
 
   process.on('uncaughtException', (err) => {
     logger.error('An uncaught error occurred!');

@@ -38,9 +38,13 @@ const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
         .addRepository(getRepository<Document, DocumentEvents>('document', getReducer<Document, DocumentEvents>(documentReducer)))
         .create();
 
-      process.on('SIGINT', async () => await shutdown(app));
+      process.on('SIGINT', async () => await shutdown(app)
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1)));
 
-      process.on('SIGTERM', async () => await shutdown(app));
+      process.on('SIGTERM', async () => await shutdown(app)
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1)));
 
       process.on('uncaughtException', (err) => {
         logger.error('An uncaught error occurred!');

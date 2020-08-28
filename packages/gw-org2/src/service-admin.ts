@@ -21,8 +21,12 @@ const logger = getLogger('service-admin.js');
     asLocalhost: !(process.env.NODE_ENV === 'production'),
   });
 
-  process.on('SIGINT', async () => await shutdown(server));
-  process.on('SIGTERM', async () => await shutdown(server));
+  process.on('SIGINT', async () => await shutdown(server)
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1)));
+  process.on('SIGTERM', async () => await shutdown(server)
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1)));
   process.on('uncaughtException', err => {
     logger.error('An uncaught error occurred!');
     logger.error(err.stack);

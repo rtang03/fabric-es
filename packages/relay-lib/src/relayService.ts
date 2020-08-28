@@ -58,7 +58,8 @@ export const createRelayService: (option: {
     relay: stoppableServer,
     shutdown: () => {
       return new Promise<void>(async (resolve, reject) => {
-        await client.quit();
+        await client.quit()
+          .catch(err => logger.error(util.format('Error disconnecting the relay service from redis: %j', err)));
         stoppableServer.stop(err => {
           if (err) {
             logger.error(util.format('An error occurred while closing the relay service: %j', err));
@@ -74,20 +75,14 @@ export const createRelayService: (option: {
 };
 
 const wait4res = (req, res, type, body, file?) => {
-  logger.info('Body: ' + body);
-  res.locals.reqres = {
-    id: crypto.randomBytes(16).toString('hex'),
-    startTime: Date.now(),
-    duration: undefined,
-    method: req.method,
-    url: querystring.parseUrl(req.url),
-    contentType: type,
-    reqBody: body,
-    attachmentInfo: (file) ? JSON.stringify(file) : undefined,
-    resBody: undefined,
-    statusCode: undefined,
-    statusMessage: undefined
-  };
+  res.locals.reqres.id = crypto.randomBytes(16).toString('hex');
+  res.locals.reqres.proxyReqFinish = Date.now();
+  res.locals.reqres.method = req.method;
+  res.locals.reqres.url = querystring.parseUrl(req.url);
+  res.locals.reqres.contentType = type;
+  res.locals.reqres.reqBody = body;
+  res.locals.reqres.attachmentInfo = (file) ? JSON.stringify(file) : undefined;
+  res.locals.reqres.resBody = undefined;
 };
 
 export const relayService = ({
@@ -111,8 +106,16 @@ export const relayService = ({
     agent  : isHttps ? https.globalAgent : http.globalAgent,
     secure : !isHttps,
     onProxyReq: (_, req, res) => {
+      // Initialize
+      res.locals.reqres = {
+        id: undefined,
+        proxyReqStarts: Date.now(),
+        statusCode: -1,
+        statusMessage: ''
+      };
+    
       logger.info('Header: ' + JSON.stringify(req.headers));
-
+    
       const type = (req.headers['content-type'] || 'text/plain').split(';')[0];
       if (type === 'multipart/form-data') {
         const fileInfo = [];
@@ -124,7 +127,7 @@ export const relayService = ({
             form.handlePart(part);
           }
         };
-
+    
         form.parse(req, (err, fields, files) => {
           if (err) {
             logger.error('Error parsing multipart data ' + err);
@@ -133,7 +136,7 @@ export const relayService = ({
               logger.warn(`Warning! Unexpected file saved: ${files.files.path}`);
             else
               logger.info(`Relay ignored uploaded file ${fileInfo.map(i => i.name)}`); // Sould be logger.debug()
-
+    
             if (fields) {
               wait4res(req, res, type, JSON.stringify(fields), fileInfo);
             }
@@ -161,6 +164,8 @@ export const relayService = ({
     },
     onProxyRes: (proxyRes, _, res) => {
       const message: ReqRes = res.locals.reqres;
+      message.proxyResStarts = Date.now();
+
       const data = [];
       proxyRes.on('data', (chunk) => {
         data.push(chunk);
@@ -170,11 +175,11 @@ export const relayService = ({
 
         message.statusCode = proxyRes.statusCode;
         message.statusMessage = proxyRes.statusMessage;
-        message.duration = Date.now() - message.startTime;
+        message.proxyResFinsih = Date.now();
         message.resBody = body;
 
         await processMessage({ message, client, topic }).then((result) => {
-          logger.info(`Message processed with response ${result}`);
+          logger.info(`Message processed with response ${result} - '${JSON.stringify(message)}'`);
         }).catch((error) => {
           logger.error(`Error while processing [${message.id}]: ${error} - '${JSON.stringify(message)}'`);
         });

@@ -53,7 +53,8 @@ export const createSnifferService: (option: {
     shutdown: () => {
       return new Promise<void>(async (resolve, reject) => {
         await stop();
-        const res = await client.quit();
+        const res = await client.quit()
+          .catch(err => logger.error(util.format('Error disconnecting the sniffer service from redis: %j', err)));
         if (res === 'OK')
           logger.info('Sniffer disconnected from REDIS successfully');
         else

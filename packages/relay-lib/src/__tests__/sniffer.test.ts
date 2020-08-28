@@ -27,7 +27,10 @@ beforeAll(async () => {
 
   const sources: ReqRes[] = [...new Array(5)].map((_, idx) => {
     return {
-      id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
+      id: `id00${idx}`,
+      proxyReqStarts: stamp + idx, proxyReqFinish: stamp + idx + 1,
+      proxyResStarts: stamp + idx + 5, proxyResFinsih: stamp + idx + 6,
+      method: 'patch',
       url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
       contentType: 'application/json',
       reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
@@ -75,7 +78,10 @@ describe('Sniffer Service', () => {
     expect(count).toEqual(1);
 
     const mssg: ReqRes = {
-      id: `id999`, startTime: Date.now(), duration: 5, method: 'patch',
+      id: `id999`,
+      proxyReqStarts: stamp, proxyReqFinish: stamp + 1,
+      proxyResStarts: stamp + 5, proxyResFinsih: stamp + 6,
+      method: 'patch',
       url: { url: `/test-url999`, query: { k: `k999`, v: `v999` } },
       contentType: 'application/json',
       reqBody: { txt: `abc999`, num: `123999` }, resBody: '',
@@ -104,7 +110,10 @@ describe('Sniffer Service', () => {
   it('receiving messages from subscription', async () => {
     const sources: ReqRes[] = [...new Array(125)].map((_, idx) => {
       return {
-        id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
+        id: `id00${idx}`,
+        proxyReqStarts: stamp + idx, proxyReqFinish: stamp + idx + 1,
+        proxyResStarts: stamp + idx + 5, proxyResFinsih: stamp + idx + 6,
+        method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
         contentType: 'application/json',
         reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',

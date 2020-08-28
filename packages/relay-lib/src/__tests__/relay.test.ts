@@ -8,8 +8,10 @@ import { ReqRes } from '../reqres';
 
 const msg: ReqRes = {
   id: 'myId',
-  startTime: 0,
-  duration: 2,
+  proxyReqStarts: 0,
+  proxyReqFinish: 1,
+  proxyResStarts: 2,
+  proxyResFinsih: 3,
   method: 'patch',
   url: { url: '/test-url', query: { k1: 'v1', k2: 'v2' } },
   contentType: 'application/json',
@@ -197,7 +199,10 @@ describe('Pub / Sub', () => {
     const stamp = Date.now();
     const sources: ReqRes[] = [...new Array(RUNS)].map((_, idx) => {
       return {
-        id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
+        id: `id00${idx}`,
+        proxyReqStarts: stamp + idx, proxyReqFinish: stamp + idx + 1,
+        proxyResStarts: stamp + idx + 5, proxyResFinsih: stamp + idx + 6,
+        method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
         contentType: 'application/json',
         reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
@@ -229,7 +234,10 @@ describe('Pub / Sub', () => {
     const stamp = Date.now();
     const sources: ReqRes[] = [...new Array(5)].map((_, idx) => {
       return {
-        id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
+        id: `id00${idx}`,
+        proxyReqStarts: stamp + idx, proxyReqFinish: stamp + idx + 1,
+        proxyResStarts: stamp + idx + 5, proxyResFinsih: stamp + idx + 6,
+        method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
         contentType: 'application/json',
         reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
@@ -268,7 +276,10 @@ describe('Pub / Sub', () => {
     const stamp = Date.now();
     const sources: ReqRes[] = [...new Array(5)].map((_, idx) => {
       return {
-        id: `id00${idx}`, startTime: stamp + idx, duration: 5, method: 'patch',
+        id: `id00${idx}`,
+        proxyReqStarts: stamp + idx, proxyReqFinish: stamp + idx + 1,
+        proxyResStarts: stamp + idx + 5, proxyResFinsih: stamp + idx + 6,
+        method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
         contentType: 'application/json',
         reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',

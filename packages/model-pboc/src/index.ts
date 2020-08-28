@@ -53,7 +53,7 @@ export type EndPoints = typeof EndPoints[number];
 export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Record<string, Repository | PrivateRepository>) => {
   return async (message: ReqRes): Promise<ProcessResults> => {
     const {
-      id, startTime, duration, method, url, contentType, reqBody, resBody, attachmentInfo, statusCode, statusMessage
+      id, proxyReqStarts, proxyReqFinish, proxyResStarts, proxyResFinsih, method, url, contentType, reqBody, resBody, attachmentInfo, statusCode, statusMessage
     } = message;
 
     const noQueryParam = (Object.keys(url.query).length <= 0) && (url.query.constructor === Object);
@@ -279,7 +279,7 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
         } else if (!isPost) {
           result = buildError(`Received unsupported (${method}) action`);
         } else if (!isStatusOkay) {
-          logger.info('Notification failed'); // OK here, no partial success
+          logger.info('Transfer failed'); // OK here, no partial success
         } else {
           const convertPayload = (obj) => {
             const result = [];
@@ -295,17 +295,20 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
 
           let payloads;
           if (Array.isArray(jsonObj)) {
-            payloads = jsonObj.map(obj => ({
-              userId: enrollmentId,
-              timestamp: Date.now(),
-              ...convertPayload(obj)
-            }));
+            payloads = [];
+            for (const obj of jsonObj) {
+              payloads.push(...convertPayload(obj).map(c => ({
+                userId: enrollmentId,
+                timestamp: Date.now(),
+                ...c
+              })));
+            }
           } else {
-            payloads = [{
+            payloads = convertPayload(jsonObj).map(c => ({
               userId: enrollmentId,
               timestamp: Date.now(),
-              ...convertPayload(jsonObj)
-            }];
+              ...c
+            }));
           }
 
           result = buildResult('InvoiceTransferred',
