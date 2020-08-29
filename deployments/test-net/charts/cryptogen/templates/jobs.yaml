@@ -14,7 +14,7 @@ spec:
       volumes:
         - name: setup-script
           configMap:
-            name: {{ include "cryptogen.fullname" . }}--setupsh
+            name: {{ .Values.global.setupsh }}
             defaultMode: 0777
         - name: fabricfiles
           persistentVolumeClaim:
@@ -47,7 +47,10 @@ spec:
               ### enroll ca server admin
               #####################
               printHeader "enroll ca server admin"
+              set -x
               export CONFIG={{ .Values.global.caServerHome }}/fabric-ca-server-config.yaml
+              set +x
+              sleep 30
               if [ -f "$CONFIG" ]; then
                 echo "$CONFIG exists"
                 ./fabric-ca-client enroll -u http://{{ .Values.caAdmin }}:{{ .Values.caAdminPW }}@{{ .Values.endpoint }}

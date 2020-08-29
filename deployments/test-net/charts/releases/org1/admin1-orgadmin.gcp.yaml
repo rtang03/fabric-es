@@ -18,6 +18,14 @@ cli:
 orderer:
   enabled: false
 
+hostAlias:
+  enabled: true
+  hostnames:
+    - hostname: peer0.org1.net
+      ip: 34.68.246.23
+    - hostname: orderer0.org0.com
+      ip: 34.68.246.23
+
 peer:
   enabled: true
   ### configmap
@@ -37,7 +45,6 @@ persistence:
   ### Default
   # enabled: true
   pvcName: pvc-org1
-  size: 1Gi
 
 postgresql-0:
   ### Default
@@ -52,10 +59,3 @@ postgresql-0:
   persistence:
     enabled: true
     existingClaim: pvc-org1
-    storageClass: manual
-    size: 1Gi
-    ### Default
-    # subPath: pgdata
-    ### Default
-    # accessModes:
-    #  - ReadWriteOnce

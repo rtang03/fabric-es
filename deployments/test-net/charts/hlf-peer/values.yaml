@@ -24,20 +24,18 @@ dockerConfigMountPath: /root/.docker
 
 ingress:
   enabled: false
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
-    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    # nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
-  # certmanager.k8s.io/cluster-issuer: "letsencrypt-staging"
+  annotations: {}
+#    kubernetes.io/ingress.class: nginx
+#    nginx.ingress.kubernetes.io/rewrite-target: /
+#    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+#    nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
   path: /
   hosts:
     - peer0.org1.net
-  #  tls: []
-  #  - secretName: hlf-peer-tls
-  #    hosts:
-  #      - hlf-peer.local
+  tls:
+    - hosts:
+      - peer0.org1.net
+      secretName: peer0.org1.net-tls
 
 persistence:
   annotations: {}
@@ -66,18 +64,6 @@ logging:
   ledger: info
   msp: warning
   policies: warning
-
-orderers:
-  - name: "orderer0.org0.com"
-    hostAlias: "10.107.38.58"
-  - name: "orderer1.org0.com"
-    hostAlias: "10.109.222.104"
-  - name: "orderer2.org0.com"
-    hostAlias: "10.109.70.201"
-  - name: "orderer3.org0.com"
-    hostAlias: "10.103.108.198"
-  - name: "orderer4.org0.com"
-    hostAlias: "10.108.198.183"
 
 ##################################
 ## Peer configuration options    #

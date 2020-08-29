@@ -19,37 +19,22 @@ service:
 
 ingress:
   enabled: false
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+  annotations: {}
+#    kubernetes.io/ingress.class: nginx
+#    nginx.ingress.kubernetes.io/rewrite-target: /
+#    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+#    nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
   path: /
   hosts:
-    - o0-hlf-ord
+    - orderer0.org0.com
   tls:
-    - secretName: orderer0.org0.com-tls
-      hosts:
-        - o0-hlf-ord
-sidecar:
-  isalive:
-    enabled: false
+    - hosts:
+      - orderer0.org0.com
+      secretName: orderer0.org0.com-tls
 
 persistence:
-  annotations: {}
-  accessMode: ReadWriteOnce
-  # alway enabled
   enabled: true
-  # hostPath for PV for "manual" storageClass. If no storageClass, hostPath can omit
-  hostPath: /tmp/data/orderers/orderer0
-  # pv is requred for "manual" storageClass. If no storageClass, pv can omit
-  pvName: pv-ord0
-  # mandatory
   pvcName: pvc-ord0
-  # storageClass can be "-", manual, or storageClass is not required for dynamic provisioning
-  # storageClass: "-"
-  # storageClass: manual
-  # requested size for pv
-  size: 1Gi
 
 ##################################
 ## Orderer configuration options #

@@ -30,6 +30,6 @@ spec:
           - path: {{ $ingressPath }}
             backend:
               serviceName: {{ $fullName }}
-              servicePort: 7050
+              servicePort: request
 {{- end }}
 {{- end }}

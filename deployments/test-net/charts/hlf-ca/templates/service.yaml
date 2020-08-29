@@ -5,13 +5,16 @@ metadata:
   labels:
 {{- include "labels.standard" . | nindent 4 }}
 spec:
-  type: NodePort
-  # type: {{ .Values.service.type | quote }}
+  type: {{ .Values.service.type | quote }}
   ports:
     - port: {{ .Values.service.port }}
       targetPort: 7054
       protocol: TCP
       name: http
+    - port: 9443
+      targetPort: 9443
+      protocol: TCP
+      name: metrics
   selector:
     app: {{ include "hlf-ca.name" . }}
     release: {{ .Release.Name }}

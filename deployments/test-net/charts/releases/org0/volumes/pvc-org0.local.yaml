@@ -1,0 +1,36 @@
+# For local dev, use "Retain" for troubleshooting
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-org0
+  labels:
+    type: local
+    name: pv-org0
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 200Mi
+  accessModes:
+    - "ReadWriteOnce"
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /tmp/data/org0
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-org0
+  labels:
+    app: orgadmin
+    release: "admin0"
+    namespace: n0
+spec:
+  storageClassName: "manual"
+  selector:
+    matchLabels:
+      name: pv-org0
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "200Mi"

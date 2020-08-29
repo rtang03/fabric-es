@@ -32,7 +32,7 @@ res=$?
 set +x
 printMessage "deployment/o0-hlf-ord" $res
 
-helm install p0o1db -n n1 -f ./releases/org1/p0o1-hlf-couchdb.gcp.yaml ./hlf-couchdb
+helm install p0o1db -n n1 -f ./releases/org1/p0o1db-hlf-couchdb.gcp.yaml ./hlf-couchdb
 
 sleep 5
 
@@ -59,7 +59,7 @@ res=$?
 set +x
 printMessage "copy chaincode" $res
 
-helm install bootstrap -n n1 -f ./releases/org1/bootstrap-hlf-operator.common.yaml ./hlf-operator
+helm install bootstrap -n n1 -f ./releases/org1/bootstrap-hlf-operator.gcp.yaml ./hlf-operator
 
 set -x
 kubectl wait --for=condition=complete --timeout 600s job/bootstrap-hlf-operator -n n1

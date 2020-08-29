@@ -14,8 +14,7 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  ## Cluster IP or LoadBalancer
-  type: ClusterIP
+  type: NodePort
   port: 7054
 
 ## Settings used in configMap "--config"
@@ -50,11 +49,11 @@ config:
 ### Not decided if it requires external network for CA
 ### Ingress is not properly implemented
 ingress:
-  enabled: true
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  enabled: false
+  annotations: {}
+#    kubernetes.io/ingress.class: "nginx"
+#    nginx.ingress.kubernetes.io/rewrite-target: /
+#    nginx.ingress.kubernetes.io/ssl-redirect: "false"
     # certmanager.k8s.io/cluster-issuer: "letsencrypt-staging"
   path: /
   hosts:

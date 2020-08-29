@@ -1,4 +1,3 @@
-{{- if .Values.orderer.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -270,4 +269,3 @@ data:
         address: 127.0.0.1:8125
         writeInterval: 10s
         prefix:
-{{- end }}

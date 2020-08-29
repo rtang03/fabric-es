@@ -21,7 +21,7 @@ spec:
             defaultMode: 0777
         - name: core-yaml
           configMap:
-            name: {{ include "hlf-operator.fullname" . }}--core
+            name: {{ .Values.global.config.coreyaml }}
         - name: org0-tls-ca-cert
           secret:
             secretName: {{ .Values.secret.tlscacert }}

@@ -125,12 +125,18 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /cainfo
-              port: 7054
+              scheme: HTTP
+              path: /healthz
+              port: 9443
+            initialDelaySeconds: 3
+            periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /cainfo
-              port: 7054
+              scheme: HTTP
+              path: /healthz
+              port: 9443
+            initialDelaySeconds: 3
+            periodSeconds: 10
           volumeMounts:
             - name: data
               mountPath: /var/hyperledger
