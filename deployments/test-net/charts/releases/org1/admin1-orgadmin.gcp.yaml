@@ -23,6 +23,9 @@ hostAlias:
   hostnames:
     - hostname: peer0.org1.net
       ip: 34.68.246.23
+    - hostname: orderer0.org0.com
+      ip: 34.68.246.23
+
 peer:
   enabled: true
   ### configmap

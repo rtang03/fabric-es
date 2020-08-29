@@ -14,6 +14,7 @@ data:
   ORDERER_GENERAL_MAXWINDOWSIZE: "1000"
   ORDERER_GENERAL_GENESISPROFILE: "initial"
   GODEBUG: "netdns=go"
+  # GODEBUG: "http2debug=1"
   TZ: {{ .Values.global.TZ | quote }}
   FABRIC_LOGGING_SPEC: {{ .Values.global.logging | default "info"}}
   ORDERER_GENERAL_LISTENADDRESS: "0.0.0.0"
@@ -34,8 +35,8 @@ data:
   ORDERER_GENERAL_CLUSTER_ROOTCAS: "[{{ include "hlf-ord.home" . }}/tls-msp/tlscacerts/tlscacert.pem]"
   ORDERER_GENERAL_LISTENPORT: "7050"
   ORDERER_FILELEDGER_LOCATION: {{ include "hlf-ord.ledger" . | quote }}
-  DEBUG_BROADCASTTRACEDIR: "{{ .Values.ord.ledgerPath }}/broadcast"
-  DEBUG_DELIVERTRACEDIR: "{{ .Values.ord.ledgerPath }}/deliver"
+  # ORDERER_DEBUG_BROADCASTTRACEDIR: "{{ .Values.ord.ledgerPath }}/broadcast"
+  # ORDERER_DEBUG_DELIVERTRACEDIR: "{{ .Values.ord.ledgerPath }}/deliver"
   ORDERER_METRICS_PROVIDER: prometheus
   ORDERER_OPERATIONS_LISTENADDRESS: ":8443"
   ADMIN_MSP_PATH: /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/admin/msp

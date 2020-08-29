@@ -194,6 +194,7 @@ export CA_PASSWORD=$(kubectl get secret -n n0 tlsca0-hlf-ca--ca -o jsonpath="{.d
 # Inside peer or orderer, change logging level 
 apk add curl
 curl -d '{"spec":"grpc=debug:debug"}' -H "Content-Type: application/json" -X PUT http://127.0.0.1:9443/logspec
+curl -d '{"spec":"debug"}' -H "Content-Type: application/json" -X PUT http://127.0.0.1:8443/logspec
 
 # search public helm repository
 helm search repo stable
@@ -230,4 +231,9 @@ kubectl port-forward --namespace default svc/psql-postgresql 5433:5432
 export NGX=$(kubectl get secret --namespace ingress-nginx ingress-nginx-admission -o jsonpath="{.data.cert}" | base64 --decode)
 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
+
+./peer channel fetch 0 -c ${CHANNEL_NAME} --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem -o orderer0.org0.com:443 /var/hyperledger/crypto-config/channel-artifacts/${CHANNEL_NAME}.block
+
+./peer channel fetch 0 -c loanapp --tls --cafile /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/ord/org0/tlscacerts/tlscacert.pem \
+-o orderer0.org0.com:443 /var/hyperledger/loan.block
 

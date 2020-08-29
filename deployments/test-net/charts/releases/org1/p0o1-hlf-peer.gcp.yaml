@@ -31,6 +31,10 @@ ingress:
   path: /
   hosts:
     - peer0.org1.net
+  tls:
+    - hosts:
+        - peer0.org1.net
+      secretName: peer0.org1.net-tls
 
 persistence:
   enabled: true

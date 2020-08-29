@@ -26,7 +26,7 @@ items:
     id: orderer0.org0.com
     secret: orderer0.org0.comPW
     caClientMspDir: msp
-    csrHosts: "o0-hlf-ord,orderer0.org0.com,127.0.0.1"
+    csrHosts: "o0-hlf-ord,orderer0.org0.com,34.68.246.23"
   - type: orderer
     id: orderer1.org0.com
     secret: orderer1.org0.comPW

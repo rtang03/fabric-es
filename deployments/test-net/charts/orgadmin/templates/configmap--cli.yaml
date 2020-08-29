@@ -21,3 +21,4 @@ data:
   GOPATH: "/opt/gopath"
   GODEBUG: "netdns=go"
   TZ: {{ .Values.global.TZ }}
+  CHANNEL_NAME: "loanapp"

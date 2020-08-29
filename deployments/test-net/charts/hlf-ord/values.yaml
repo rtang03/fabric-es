@@ -19,17 +19,19 @@ service:
 
 ingress:
   enabled: false
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+  annotations: {}
+#    kubernetes.io/ingress.class: nginx
+#    nginx.ingress.kubernetes.io/rewrite-target: /
+#    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+#    nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
   path: /
   hosts:
-    - o0-hlf-ord
+    - orderer0.org0.com
   tls:
-    - secretName: orderer0.org0.com-tls
-      hosts:
-        - o0-hlf-ord
+    - hosts:
+      - orderer0.org0.com
+      secretName: orderer0.org0.com-tls
+
 persistence:
   enabled: true
   pvcName: pvc-ord0

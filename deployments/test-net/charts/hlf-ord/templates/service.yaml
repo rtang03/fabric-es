@@ -8,13 +8,13 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: ord-port
+      targetPort: 7050
       protocol: TCP
-      name: grpc
-    - port: 8443
+      name: request
+    - port: 80
       targetPort: 8443
       protocol: TCP
-      name: http
+      name: metrics
   selector:
     app: {{ include "hlf-ord.name" . }}
     release: {{ .Release.Name }}

@@ -18,4 +18,3 @@ data:
   FABRIC_CFG_PATH: /etc/hyperledger
   BIN: /var/hyperledger/bin
   GODEBUG: "netdns=go"
-  # VM_ENDPOINT: http://localhost:2375

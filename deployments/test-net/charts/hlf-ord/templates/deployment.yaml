@@ -83,10 +83,10 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           workingDir: {{ include "hlf-ord.home" . }}
           ports:
-            - name: ord-port
+            - name: request
               containerPort: 7050
               protocol: TCP
-            - name: operation-port
+            - name: metrics
               containerPort: 8443
               protocol: TCP
           livenessProbe:
