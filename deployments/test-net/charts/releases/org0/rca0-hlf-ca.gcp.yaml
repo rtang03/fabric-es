@@ -23,9 +23,7 @@ service:
   port: 7054
 
 config:
-  caServerHome: /var/hyperledger/crypto-config/Org0MSP/ca/server
-  caClientHome: /var/hyperledger/crypto-config/Org0MSP/ca/admin
-  caClientTlsCertfiles: /var/hyperledger/crypto-config/Org0MSP/ca/server/ca-cert.pem
+  type: ca
   ### Default
   # debug: false
   csr:

@@ -19,12 +19,10 @@ service:
 
 ## Settings used in configMap "--config"
 config:
-  ### Mandatory; no default
-  caServerHome: /var/hyperledger/crypto-config/Org0MSP/fabric-ca
-  caClientHome: /var/hyperledger/crypto-config/Org0MSP/client
+  # tls or ca
+  type: tls
   ### Enable debug logging in ca Server configuration file, in ca.yaml
   debug: false
-  caClientTlsCertfiles: /var/hyperledger/crypto-config/Org0MSP/fabric-ca/ca-cert.pem
   ## Mount the TLS certificate & key to disk?
   mountTLS: false
   ## CSR pathlength in ca Server configuration file

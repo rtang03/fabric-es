@@ -6,6 +6,10 @@ global:
     setupsh: admin1-orgadmin--setupsh
     coreyaml: admin1-orgadmin--core
 
+job:
+  bootstrap: false
+  addorg: false
+
 tasks:
   create_channel:
     enabled: false
@@ -83,3 +87,7 @@ orderer:
   #Eg. address: orderer.fratest-com:7050
   address: o0-hlf-ord:7050
 
+addOrg:
+  configtx:
+    mspId: Org2MSP
+    anchorPeer: p0o2-hlf-peer

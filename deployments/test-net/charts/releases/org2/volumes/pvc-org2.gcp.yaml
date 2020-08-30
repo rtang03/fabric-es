@@ -1,11 +1,11 @@
-kind: PersistentVolumeClaim
 apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: pvc-p0o1db
+  name: pvc-org2
   labels:
-    app: hlf-couchdb
-    release: "p0o1db"
-    namespace: n1
+    app: orgadmin
+    release: "admin1"
+    namespace: n2
 spec:
   accessModes:
     - "ReadWriteOnce"

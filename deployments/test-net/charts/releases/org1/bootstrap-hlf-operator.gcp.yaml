@@ -1,3 +1,7 @@
+job:
+  bootstrap: true
+  addorg: false
+
 tasks:
   create_channel:
     enabled: true

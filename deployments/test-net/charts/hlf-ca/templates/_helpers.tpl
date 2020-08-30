@@ -52,3 +52,35 @@ Generate postgres chart name
 {{- printf "%s-%s" .Release.Name "postgresql" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{/*
+Create ca server home
+*/}}
+{{- define "hlf-ca.caServerHome" -}}
+{{- if eq "tls" .Values.config.type }}
+{{- printf "/var/hyperledger/crypto-config/%s/tls/server" $.Values.global.mspId }}
+{{- else }}
+{{- printf "/var/hyperledger/crypto-config/%s/ca/server" $.Values.global.mspId }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create ca client home
+*/}}
+{{- define "hlf-ca.caClientHome" -}}
+{{- if eq "tls" .Values.config.type }}
+{{- printf "/var/hyperledger/crypto-config/%s/tls/admin" $.Values.global.mspId }}
+{{- else }}
+{{- printf "/var/hyperledger/crypto-config/%s/ca/admin" $.Values.global.mspId }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create caClientTlsCertfiles
+*/}}
+{{- define "hlf-ca.caClientTlsCertfiles" -}}
+{{- if eq "tls" .Values.config.type }}
+{{- printf "/var/hyperledger/crypto-config/%s/tls/server/ca-cert.pem" $.Values.global.mspId }}
+{{- else }}
+{{- printf "/var/hyperledger/crypto-config/%s/ca/server/ca-cert.pem" $.Values.global.mspId }}
+{{- end -}}
+{{- end -}}

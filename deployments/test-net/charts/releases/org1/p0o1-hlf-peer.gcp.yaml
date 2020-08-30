@@ -57,7 +57,7 @@ logging:
 peer:
   ledgerPath: /var/hyperledger/production
   peerName: peer0
-  orgPath: /var/hyperledger/crypto-config/Org1MSP
+  # orgPath: /var/hyperledger/crypto-config/Org1MSP
   # Type of database ("goleveldb" or "CouchDB"):
   databaseType: CouchDB
   # If CouchDB is used, which chart holds it
@@ -85,15 +85,6 @@ peer:
       golang: ""
       java: ""
       node: ""
-
-cli:
-  bootstrap: true
-  channelName: "loanapp"
-  anchorPeer: "Org1MSP"
-  enabled: true
-  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
-  channels:
-    - "channeltx"
 
 # Secrets references, empty by default, fill in with your secrets (particularly adminCert) or add Peer Admin certificate manually after launching chart.
 secrets:

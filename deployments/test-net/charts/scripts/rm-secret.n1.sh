@@ -20,3 +20,7 @@ kubectl -n n1 delete secret orderer3.org0.com-tlssigncert
 kubectl -n n1 delete secret orderer4.org0.com-tlssigncert
 kubectl -n n1 delete secret channeltx
 kubectl -n n1 delete secret org0-tls-ca-cert
+# Repeat for n0
+kubectl -n n0 delete secret org1-admincerts
+kubectl -n n0 delete secret org1-tlscacerts
+kubectl -n n0 delete secret org1-cacerts

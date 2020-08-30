@@ -1,3 +1,4 @@
+{{-if .Values.job.bootstrap }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -322,3 +323,4 @@ spec:
               mountPath: {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/channeltx
             - name: org0-tls-ca-cert
               mountPath: {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/org0-tls-ca-cert
+{{- end }}

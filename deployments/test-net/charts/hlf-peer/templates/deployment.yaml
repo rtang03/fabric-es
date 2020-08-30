@@ -231,7 +231,7 @@ spec:
             {{- end }}
             {{- if .Values.secrets.channels }}
             {{- range .Values.secrets.channels }}
-            - mountPath: {{ $.Values.peer.orgPath }}/{{ . }}
+            - mountPath: /var/hyperledger/crypto-config/{{ $.Values.global.mspId }}/{{ . }}
               name: {{ . }}
             {{- end }}
             {{- end }}
