@@ -43,7 +43,7 @@ import {
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
-import Redis from 'ioredis';
+import { RedisOptions } from 'ioredis';
 import fetch from 'node-fetch';
 import { StoppableServer } from 'stoppable';
 import request from 'supertest';
@@ -248,6 +248,25 @@ beforeAll(async () => {
   isAuthenticated = true;
   accessToken = token;
 
+  const redisOptions: RedisOptions = {
+    host: process.env.REDIS_HOST,
+    port: (process.env.REDIS_PORT || 6379) as number,
+    retryStrategy: (times) => {
+      if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
+        console.log(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
+        process.exit(-1);
+      }
+      return Math.min(times * 100, 3000); // reconnect after (ms)
+    },
+    reconnectOnError: (err) => {
+      const targetError = 'READONLY';
+      if (err.message.includes(targetError)) {
+        // Only reconnect when the error contains "READONLY"
+        return 1;
+      }
+    }
+  };
+
   // Start admin service
   ({ server: adminService } = await createAdminService({
     caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
@@ -261,6 +280,7 @@ beforeAll(async () => {
     walletPath: process.env.WALLET,
     orgName: process.env.ORGNAME,
     orgUrl: process.env.ORGURL,
+    redisOptions,
   }));
 
   await adminService.listen({ port: aPort });
@@ -274,7 +294,7 @@ beforeAll(async () => {
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     asLocalhost: !(process.env.NODE_ENV === 'production'),
-    redis: new Redis({ host: process.env.REDIS_HOST, port: parseInt(process.env.REDIS_PORT, 10) }),
+    redisOptions,
   }).then(async ({ config, getRepository, disconnect }) => {
     loanDisconnect = disconnect;
     loanService = await config({ typeDefs: loanTypeDefs, resolvers: loanResolvers })
@@ -295,7 +315,7 @@ beforeAll(async () => {
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     asLocalhost: !(process.env.NODE_ENV === 'production'),
-    redis: new Redis({ host: process.env.REDIS_HOST, port: parseInt(process.env.REDIS_PORT, 10) }),
+    redisOptions,
   }).then(async ({ config, getRepository, disconnect }) => {
     docuDisconnect = disconnect;
     docuService = await config({ typeDefs: documentTypeDefs, resolvers: documentResolvers })
@@ -317,7 +337,7 @@ beforeAll(async () => {
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     asLocalhost: !(process.env.NODE_ENV === 'production'),
-    redis: new Redis({ host: process.env.REDIS_HOST, port: parseInt(process.env.REDIS_PORT, 10) }),
+    redisOptions,
   }).then(async ({ config, getPrivateRepository, disconnect }) => {
     dtlsDisconnect = disconnect;
     dtlsService = await config({ typeDefs: loanDetailsTypeDefs, resolvers: loanDetailsResolvers })
@@ -339,7 +359,7 @@ beforeAll(async () => {
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     asLocalhost: !(process.env.NODE_ENV === 'production'),
-    redis: new Redis({ host: process.env.REDIS_HOST, port: parseInt(process.env.REDIS_PORT, 10) }),
+    redisOptions,
   }).then(async ({ config, getPrivateRepository, disconnect }) => {
     ctntDisconnect = disconnect;
     ctntService = await config({ typeDefs: docContentsTypeDefs, resolvers: docContentsResolvers })

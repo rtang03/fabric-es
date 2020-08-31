@@ -11,7 +11,7 @@ import {
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
-import type { Redis } from 'ioredis';
+import Redis, { RedisOptions } from 'ioredis';
 import { createTrackingData, DataSrc } from '..';
 import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
 import { getLogger } from './getLogger';
@@ -34,7 +34,7 @@ export const createService: (option: {
   connectionProfile: string;
   wallet: Wallet;
   asLocalhost: boolean;
-  redis: Redis;
+  redisOptions: RedisOptions;
 }) => Promise<{
   mspId: string;
   getRepository: <TEntity, TEvent>(entityName: string, reducer: Reducer) => Repository<TEntity, TEvent>;
@@ -55,7 +55,7 @@ export const createService: (option: {
   connectionProfile,
   wallet,
   asLocalhost,
-  redis,
+  redisOptions,
 }) => {
   const logger = getLogger('[gw-lib] createService.js');
 
@@ -75,6 +75,8 @@ export const createService: (option: {
     networkConfig && networkConfig.gateway && networkConfig.gateway.getIdentity
       ? networkConfig.gateway.getIdentity().mspId
       : undefined;
+
+  const redis = new Redis(redisOptions);
 
   const getPrivateRepository = <TEntity, TEvent>(
     entityName: string,
@@ -177,7 +179,7 @@ export const createService: (option: {
       return { addRepository };
     },
     getServiceName: () => serviceName,
-    shutdown: shutdownApollo({ logger, name: serviceName }),
+    shutdown: shutdownApollo({ redis, logger, name: serviceName }),
     disconnect: () => networkConfig.gateway.disconnect(),
   };
 };

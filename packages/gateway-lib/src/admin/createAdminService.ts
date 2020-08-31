@@ -2,7 +2,7 @@ import util from 'util';
 import { getReducer, Repository } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
-import Redis from 'ioredis';
+import { RedisOptions } from 'ioredis';
 import { getLogger } from '..';
 import { createService } from '../utils';
 import {
@@ -32,6 +32,7 @@ export const createAdminService: (option: {
   playground?: boolean;
   introspection?: boolean;
   enrollmentSecret?: string;
+  redisOptions: RedisOptions;
 }) => Promise<{
   server: ApolloServer;
   shutdown: (server: ApolloServer) => Promise<void>;
@@ -51,6 +52,7 @@ export const createAdminService: (option: {
   playground = true,
   introspection = true,
   enrollmentSecret = 'password',
+  redisOptions,
 }) => {
   const logger = getLogger('[gw-lib] createAdminService.js');
 
@@ -84,7 +86,7 @@ export const createAdminService: (option: {
     connectionProfile,
     wallet,
     asLocalhost,
-    redis: new Redis({ host: process.env.REDIS_HOST, port: parseInt(process.env.REDIS_PORT, 10) }),
+    redisOptions,
   }).then(async ({ mspId, config, getRepository }) => {
     const repo = getRepository<Organization, OrgEvents>('organization', reducer);
 

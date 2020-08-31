@@ -19,6 +19,24 @@ const port = (process.env.PORT || 8080) as number;
     walletPath: process.env.WALLET_PATH,
     orgName: process.env.ORGNAME,
     orgUrl: process.env.ORGURL,
+    redisOptions: {
+      host: process.env.REDIS_HOST,
+      port: (process.env.REDIS_PORT || 6379) as number,
+      retryStrategy: (times) => {
+        if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
+          logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
+          process.exit(-1);
+        }
+        return Math.min(times * 100, 3000); // reconnect after (ms)
+      },
+      reconnectOnError: (err) => {
+        const targetError = 'READONLY';
+        if (err.message.includes(targetError)) {
+          // Only reconnect when the error contains "READONLY"
+          return 1;
+        }
+      }
+    }
   });
 
   process.on('SIGINT', async () => await shutdown(server)
