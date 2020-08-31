@@ -10,8 +10,7 @@
     "build": "yarn clean && tsc",
     "test": "yarn build && ./node_modules/.bin/jest unit.test",
     "clean": "rimraf dist",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "unit-test:fab": "jest unit.test"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
   },
   "private": true,
   "dependencies": {
