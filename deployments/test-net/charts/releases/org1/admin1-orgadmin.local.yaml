@@ -1,0 +1,51 @@
+global:
+  mspId: Org1MSP
+  ### Default
+  # TZ: Asia/Hong_Kong
+  ### Default
+  # workingDir: /var/hyperledger/crypto-config
+  ### Default
+  # logging: info
+
+cli:
+  ### Default
+  # fabricBinary: "2.2.0"
+  ### Default
+  # fabricCABinary: "1.4.7"
+  # It provides org0 with org1's certs, for creation of genesis.block
+  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
+
+orderer:
+  enabled: false
+
+peer:
+  enabled: true
+  ### configmap
+  config:
+    peerAddress: "p0o1-hlf-peer:7051"
+    peerTlsRootcertFile: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem
+  ### certs provider by org0, to peer
+  secret:
+    ordTlsSignCert: orderer0.org0.com-tlssigncert
+    ordTlsCaCert: org0-tls-ca-cert
+
+persistence:
+  ### Default
+  enabled: true
+  pvcName: pvc-org1
+
+# Detail configuration
+# https://github:com/bitnami/charts/tree/master/bitnami/postgresql
+postgresql-0:
+  ### Default
+  # initdbScripts:
+  #   1-createdb.sql: |
+  #   CREATE DATABASE "tls_ca_db";
+  #   CREATE DATABASE "rca_db";
+  postgresqlPassword: password
+  service:
+    type: NodePort
+    nodePort: 30433
+  persistence:
+    enabled: true
+    existingClaim: pvc-org1

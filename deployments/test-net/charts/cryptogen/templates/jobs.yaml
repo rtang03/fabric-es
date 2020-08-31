@@ -1,0 +1,158 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "cryptogen.fullname" . }}
+  labels:
+{{- include "labels.standard" . | nindent 4 }}
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 0
+  parallelism: 1
+  completions: 1
+  template:
+    spec:
+      volumes:
+        - name: setup-script
+          configMap:
+            name: {{ .Values.global.setupsh }}
+            defaultMode: 0777
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.pvcName }}
+      containers:
+        - name: cryptogen
+          image: library/alpine:3.12.0
+          workingDir: /var/hyperledger/bin
+          command:
+            - sh
+            - -c
+            - |
+              . /script/setup.sh
+              # this fixes the sh: not found issue
+              apk update
+              apk upgrade
+              apk --no-cache add libc6-compat libstdc++
+              #####################
+              ### check binary exists
+              #####################
+              printHeader "check binary exists"
+              export BIN=/var/hyperledger/bin/fabric-ca-client
+              if [ -f "$BIN" ]; then
+                echo "$BIN exists"
+              else
+                echo "fabric-ca-client does not exist"
+                exit -1
+              fi
+              #####################
+              ### enroll ca server admin
+              #####################
+              printHeader "enroll ca server admin"
+              set -x
+              export CONFIG={{ .Values.global.caServerHome }}/fabric-ca-server-config.yaml
+              set +x
+              sleep 30
+              if [ -f "$CONFIG" ]; then
+                echo "$CONFIG exists"
+                ./fabric-ca-client enroll -u http://{{ .Values.caAdmin }}:{{ .Values.caAdminPW }}@{{ .Values.endpoint }}
+                printMessage "enroll admin" $?
+                mv {{ .Values.global.caServerHome }}/msp/keystore/*_sk {{ .Values.global.caServerHome }}/msp/keystore/key.pem
+                printMessage "rename private key for {{ .Values.global.caServerHome }}" $?
+              else
+                echo "fabric ca server does not exist"
+                exit -1
+              fi
+{{- if .Values.orgAdmin.enabled }}
+              #####################
+              ### register org admin
+              #####################
+              printHeader "register org admin"
+              ./fabric-ca-client register --id.name {{ .Values.orgAdmin.id }} --id.secret {{ .Values.orgAdmin.secret }} --id.type {{ .Values.orgAdmin.type }} --id.attrs {{ .Values.orgAdmin.attrs }} -u http://{{ .Values.endpoint }} > /dev/null
+              printMessage "register org admin" $?
+              #####################
+              ### enroll org admin
+              #####################
+              printHeader "enroll org admin"
+              FABRIC_CA_CLIENT_HOME=/var/hyperledger/crypto-config/{{ .Values.global.mspId }}/admin ./fabric-ca-client enroll -u http://{{ .Values.orgAdmin.id }}:{{ .Values.orgAdmin.secret }}@{{ .Values.endpoint }}
+              printMessage "enroll org admin" $?
+              mv /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/admin/msp/keystore/*_sk /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/admin/msp/keystore/key.pem
+              printMessage "rename private key for /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/admin/msp/keystore/key.pem" $?
+{{- end }}
+{{- range .Values.items }}
+              export BASE=/var/hyperledger/crypto-config/{{ $.Values.global.mspId }}/{{ .id }}
+              #####################
+              ### register {{ .id }}
+              #####################
+              printHeader "register {{ .id }}"
+              ./fabric-ca-client register --id.name {{ .id }} --id.secret {{ .secret }} --id.type {{ .type }} -u http://{{ $.Values.endpoint }} > /dev/null
+              printMessage "register {{ .id }}" $?
+              sleep 1
+              #####################
+              ### enroll {{ .id }}
+              #####################
+              printHeader "enroll {{ .id }}"
+              FABRIC_CA_CLIENT_MSPDIR={{ .caClientMspDir }} FABRIC_CA_CLIENT_HOME="$BASE" ./fabric-ca-client enroll -u http://{{ .id }}:{{ .secret }}@{{ $.Values.endpoint }} {{if .profile }} --enrollment.profile {{ .profile }}{{ end }} --csr.hosts {{ .csrHosts }}
+              printMessage "enroll {{ .id }}" $?
+      {{- if not $.Values.orgAdmin.enabled }}
+              #####################
+              ### copy tls-ca-cert
+              #####################
+              printHeader "copy tls-ca-cert"
+              cp {{ $.Values.tlsCaCert }} $BASE/tls-ca-cert.pem
+      {{- end }}
+      {{- if $.Values.orgAdmin.enabled }}
+              #####################
+              ### copy {{ $.Values.global.domain }}-ca-cert
+              #####################
+              printHeader "copy {{ $.Values.global.domain }}-ca-cert"
+              cp {{ $.Values.orgCaCert }} $BASE/{{ $.Values.global.domain }}-ca-cert.pem
+      {{- end }}
+              printMessage "copy ca-cert for {{ .id }}" $?
+              sleep 1
+              #####################
+              ### rename private key
+              #####################
+              printHeader "rename private key"
+              mv $BASE/{{ .caClientMspDir }}/keystore/*_sk $BASE/{{ .caClientMspDir }}/keystore/key.pem
+              printMessage "rename private key" $?
+              sleep 1
+      {{- if $.Values.orgAdmin.enabled }}
+              #####################
+              ### copy admincert
+              #####################
+              mkdir -p $BASE/msp/admincerts
+              printMessage "mkdir $BASE/msp/admincerts" $?
+              cp /var/hyperledger/crypto-config/{{ $.Values.global.mspId }}/admin/msp/signcerts/cert.pem $BASE/msp/admincerts/{{ $.Values.global.domain }}-admin-cert.pem
+              printMessage "cp $BASE/msp/admincerts/{{ $.Values.global.domain }}-admin-cert.pem" $?
+      {{- end }}
+{{- end }}
+              #####################
+              ### copy cacerts to admin (either tlscacert or orgcacert)
+              #####################
+              printHeader "copy cacerts to admin"
+{{- if not .Values.orgAdmin.enabled }}
+              cp {{ .Values.tlsCaCert }} /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/msp/tlscacerts/tls-ca-cert.pem
+{{- end }}
+{{- if .Values.orgAdmin.enabled }}
+              cp {{ .Values.orgCaCert }} /var/hyperledger/crypto-config/{{ .Values.global.mspId }}/msp/cacerts/{{ .Values.global.domain }}-ca-cert.pem
+{{- end }}
+              printMessage "copy cacert for admin" $?
+{{- if .Values.orgAdmin.enabled }}
+              #####################
+              ### copy admincert to admin folder
+              #####################
+              printHeader "copy admincert to admin folder"
+              cp {{ .Values.adminCert }} /var/hyperledger/crypto-config/{{.Values.global.mspId}}/admin/msp/admincerts/{{ .Values.global.domain }}-admin-cert.pem
+              printMessage "copy admincert for /var/hyperledger/crypto-config/{{.Values.global.mspId}}/admin/msp/admincerts" $?
+              cp {{ .Values.adminCert }} /var/hyperledger/crypto-config/{{.Values.global.mspId}}/msp/admincerts/{{ .Values.global.domain }}-admin-cert.pem
+              printMessage "copy admincert for /var/hyperledger/crypto-config/{{.Values.global.mspId}}/msp/admincerts" $?
+{{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "cryptogen.fullname" . }}--crypto
+          volumeMounts:
+            - name: setup-script
+              mountPath: /script/setup.sh
+              subPath: setup.sh
+            - mountPath: /var/hyperledger
+              name: fabricfiles
+      restartPolicy: Never

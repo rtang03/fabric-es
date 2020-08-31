@@ -5,8 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: hyperledger/fabric-couchdb
-  tag: 0.4.21
+  repository: couchdb
+  tag: 3.1
   pullPolicy: IfNotPresent
 
 service:
@@ -28,21 +28,7 @@ ingress:
 
 persistence:
   enabled: true
-  # Persistence Volume Name for manual storage class
-  pvName: pv-p0o1db
-  pvcName: pvc-p0o1db
-  hostPath: /tmp/data/p0o1-couchdb
-  annotations: {}
-  ## If defined, storageClassName: <storageClass>
-  ## If set to "-", storageClassName: "", which disables dynamic provisioning
-  ## If undefined (the default) or set to null, no storageClassName spec is
-  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-  ##   GKE, AWS & OpenStack)
-  ##
-  storageClass: "manual"
-  accessMode: ReadWriteOnce
-  size: 10Mi
-  # existingClaim: ""
+  pvcName: ""
 
 ##################################
 ## Further configuration options #

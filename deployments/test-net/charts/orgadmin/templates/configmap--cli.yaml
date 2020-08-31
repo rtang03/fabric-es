@@ -5,10 +5,20 @@ metadata:
   labels:
 {{- include "labels.standard" . | nindent 4 }}
 data:
-  TZ: {{ .Values.global.TZ }}
-  FABRIC_CFG_PATH: "/var/hyperledger/cli"
-  GOPATH: "/opt/gopath"
-  FABRIC_LOGGING_SPEC: "INFO"
+  {{- if .Values.peer.enabled }}
+  CORE_PEER_ADDRESS: {{ .Values.peer.config.peerAddress }}
+  {{- end }}
   CORE_PEER_ID: "cli"
+  CORE_PEER_LOCALMSPID: {{ .Values.global.mspId }}
+  CORE_PEER_MSPCONFIGPATH: "{{ .Values.global.workingDir }}/{{ .Values.global.mspId }}/admin/msp"
   CORE_PEER_TLS_ENABLED: "true"
+  {{- if .Values.peer.enabled }}
+  CORE_PEER_TLS_ROOTCERT_FILE: {{ .Values.peer.config.peerTlsRootcertFile }}
+  {{- end }}
   CORE_VM_ENDPOINT: 'unix:///host/var/run/docker.sock'
+  FABRIC_CFG_PATH: /var/hyperledger/cli
+  FABRIC_LOGGING_SPEC: {{ .Values.global.logging }}
+  GOPATH: "/opt/gopath"
+  GODEBUG: "netdns=go"
+  TZ: {{ .Values.global.TZ }}
+  CHANNEL_NAME: "loanapp"

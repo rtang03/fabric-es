@@ -15,6 +15,10 @@ spec:
       targetPort: 7053
       protocol: TCP
       name: event
+    - port: 80
+      targetPort: 9443
+      name: metrics
+      protocol: TCP
   selector:
     app: {{ include "hlf-peer.name" . }}
     release: {{ .Release.Name }}

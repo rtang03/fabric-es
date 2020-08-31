@@ -23,7 +23,7 @@ spec:
       - name: data
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
-          claimName: {{ .Values.persistence.existingClaim | default (include "hlf-couchdb.fullname" .) }}
+          claimName: {{ .Values.persistence.pvcName }}
       {{- else }}
         emptyDir: {}
       {{- end }}

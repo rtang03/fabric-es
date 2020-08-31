@@ -1,0 +1,3 @@
+tasks:
+  join_channel:
+    enabled: true

@@ -1,0 +1,11 @@
+persistence:
+  enabled: true
+  pvcName: pvc-p0o1db
+
+##################################
+## Further configuration options #
+##################################
+## Database username
+couchdbUsername: "couchdb"
+## Database password (default: random 24 character string)
+couchdbPassword: "password"

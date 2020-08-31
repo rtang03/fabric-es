@@ -23,7 +23,7 @@ spec:
         - name: data
         {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim | default (include "hlf-peer.fullname" .) }}
+            claimName: {{ .Values.persistence.pvcName }}
         {{- else }}
           emptyDir: {}
         {{- end }}
@@ -79,11 +79,11 @@ spec:
             secretName: {{ .Values.secrets.peer.tlsClientRootCert }}
         {{- end }}
         {{- if .Values.secrets.channels }}
-          {{- range .Values.secrets.channels }}
+        {{- range .Values.secrets.channels }}
         - name: {{ . }}
           secret:
             secretName: {{ . }}
-          {{- end }}
+        {{- end }}
         {{- end }}
         {{- if .Values.secrets.adminCert }}
         - name: admin-cert
@@ -96,10 +96,18 @@ spec:
             secretName: {{ .Values.secrets.adminKey }}
         {{- end }}
         {{- if .Values.secrets.ordTlsRootCert }}
-        - name: ord-tls-rootcert
+        - name: ord-tlsrootcert
           secret:
             secretName: {{ .Values.secrets.ordTlsRootCert }}
         {{- end }}
+        {{- if .Values.secrets.ordTlsSignCert }}
+        - name: ord-tlssigncert
+          secret:
+            secretName: {{ .Values.secrets.ordTlsSignCert }}
+        {{- end }}
+        - name: org0-tls-ca-cert
+          secret:
+            secretName: {{ .Values.secrets.ordOrg0Tlscacert }}
       containers:
         - name: peer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -112,19 +120,21 @@ spec:
             - name: event
               containerPort: 7053
               protocol: TCP
+            - name: metrics
+              containerPort: 9443
+              protocol: TCP
           livenessProbe:
-            exec:
-              command:
-                - ls
-                - /var/hyperledger
+            httpGet:
+              scheme: HTTP
+              port: 9443
+              path: /healthz
             initialDelaySeconds: 5
             periodSeconds: 5
-          # TODO: Improve readiness probe (ideally `ps aux | awk '$11=="orderer"'`)
           readinessProbe:
-            exec:
-              command:
-              - ls
-              - /var/hyperledger
+            httpGet:
+              scheme: HTTP
+              port: 9443
+              path: /healthz
             initialDelaySeconds: 15
           command:
             - sh
@@ -133,9 +143,9 @@ spec:
               # To avoid having separate secrets for CouchDB and HLF
               export CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=$COUCHDB_USER
               export CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=$COUCHDB_PASSWORD
-              while [ ! -d {{ include "hlf-peer.home" . }}/admin_msp/admincerts ] || [ -z "$(ls -A {{ include "hlf-peer.home" . }}/admin_msp/admincerts)" ];
+              while [ ! -d {{ include "hlf-peer.home" . }}/admin/msp/admincerts ] || [ -z "$(ls -A {{ include "hlf-peer.home" . }}/admin/msp/admincerts)" ];
               do
-                echo "\033[0;31m {{ include "hlf-peer.home" . }}/admin_msp/admincerts must contain Peer admin certificates files \033[0m"
+                echo "\033[0;31m {{ include "hlf-peer.home" . }}/admin/msp/admincerts must contain Peer admin certificates files \033[0m"
                 sleep 60
               done
 
@@ -186,13 +196,13 @@ spec:
             {{- if .Values.secrets.peer.caCert }}
             - mountPath: {{ include "hlf-peer.home" . }}/msp/cacerts
               name: cacert
-            - mountPath: /var/hyperledger/admin_msp/cacerts
+            - mountPath: {{ include "hlf-peer.home" . }}/admin/msp/cacerts
               name: cacert
             {{- end }}
             {{- if .Values.secrets.peer.intCaCert }}
             - mountPath: {{ include "hlf-peer.home" . }}/msp/intermediatecerts
               name: intcacert
-            - mountPath: /var/hyperledger/admin_msp/intermediatecerts
+            - mountPath:{{ include "hlf-peer.home" . }}/admin/msp/intermediatecerts
               name: intcacert
             {{- end }}
             {{- if .Values.secrets.peer.tls }}
@@ -204,35 +214,41 @@ spec:
               name: tls-rootcert
             {{- end }}
             {{- if .Values.secrets.peer.tlsClient }}
-            - mountPath: /var/hyperledger/tls/client/pair
+            - mountPath: {{ include "hlf-peer.home" . }}/tls/client/pair
               name: tls-client
             {{- end }}
             {{- if .Values.secrets.peer.tlsClientRootCert }}
-            - mountPath: /var/hyperledger/tls/client/cert
+            - mountPath: {{ include "hlf-peer.home" . }}/tls/client/cert
               name: tls-clientrootcert
             {{- end }}
             {{- if .Values.secrets.ordTlsRootCert }}
-            - mountPath: {{ include "hlf-peer.home" . }}/tls-msp/ord/cert
-              name: ord-tls-rootcert
+            - mountPath: {{ include "hlf-peer.home" . }}/ord/tls-msp/tlscacerts
+              name: ord-tlsrootcert
+            {{- end }}
+            {{- if .Values.secrets.ordTlsSignCert }}
+            - mountPath: {{ include "hlf-peer.home" . }}/ord/tls-msp/signcerts
+              name: ord-tlssigncert
             {{- end }}
             {{- if .Values.secrets.channels }}
-              {{- range .Values.secrets.channels }}
-            - mountPath: {{ $.Values.peer.orgPath }}/hl_config/channel/{{ . }}
+            {{- range .Values.secrets.channels }}
+            - mountPath: {{ $.Values.peer.orgPath }}/{{ . }}
               name: {{ . }}
-              {{- end }}
+            {{- end }}
             {{- end }}
             {{- if .Values.secrets.adminCert }}
-            - mountPath: {{ include "hlf-peer.home" . }}/admin_msp/admincerts
+            - mountPath: {{ include "hlf-peer.home" . }}/admin/msp/admincerts
               name: admin-cert
-            - mountPath: {{ include "hlf-peer.home" . }}/admin_msp/signcerts
+            - mountPath: {{ include "hlf-peer.home" . }}/admin/msp/signcerts
               name: admin-cert
             - mountPath: {{ include "hlf-peer.home" . }}/msp/admincerts
               name: admin-cert
             {{- end }}
             {{- if .Values.secrets.adminKey }}
-            - mountPath: {{ include "hlf-peer.home" . }}/admin_msp/keystore
+            - mountPath: {{ include "hlf-peer.home" . }}/admin/msp/keystore
               name: admin-key
             {{- end }}
+            - mountPath: {{ include "hlf-peer.home" . }}/ord/org0/tlscacerts
+              name: org0-tls-ca-cert
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}

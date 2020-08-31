@@ -1,0 +1,92 @@
+#global:
+### Default
+# TZ: Asia/Hong_Kong
+### Default
+# workingDir: /var/hyperledger/crypto-config
+# https://hyperledger-fabric.readthedocs.io/en/release-2.0/logging-control.html
+# "info" or "debug" or "grpc=debug:debug" or "grpc=debug:info"
+### Default
+# logging: info
+### Default
+# mspId: Org0MSP
+### Default
+# domain: org0.com
+
+### Default
+#image:
+#  repository: hyperledger/fabric-orderer
+#  tag: 2.2.0
+#  pullPolicy: IfNotPresent
+
+### Default
+#service:
+#  # Cluster IP or LoadBalancer
+#  type: ClusterIP
+#  port: 7050
+
+ingress:
+  enabled: false
+
+### Default
+#sidecar:
+#  isalive:
+#    enabled: false
+
+persistence:
+  ### Default
+  # annotations: {}
+  ### Default
+  # accessMode: ReadWriteOnce
+  ### Default
+  # enabled: true
+  pvcName: pvc-ord3
+  size: 1Gi
+
+##################################
+## Orderer configuration options #
+##################################
+ord:
+  listenAddress: "o3-hlf-ord"
+  ledgerPath: /var/hyperledger/production
+  ordName: orderer3
+  debug: INFO
+  # TLS
+  tls:
+    server:
+      enabled: "false"
+    client:
+      enabled: "false"
+
+secrets:
+  ## These secrets should contain the Orderer crypto materials and credentials
+  ## Credentials, saved under keys 'CA_USERNAME' and 'CA_PASSWORD'
+  cred: "rca0-hlf-ca--ca"
+  ## Certificate, saved under key 'cert.pem'
+  ## /var/hyperledger/crypto-config/Org0MSP/orderer0.org0.com/msp/signcerts
+  cert: "orderer3.org0.com-cert"
+  # cert: hlf--ord1-idcert
+  ## Key, saved under 'key.pem'
+  # key: hlf--ord1-idkey
+  key: "orderer3.org0.com-key"
+  ## CA Cert, saved under 'cacert.pem'
+  # caCert: hlf--ord1-cacert
+  caCert: "orderer3.org0.com-cacert"
+  ## Intermediate CA Cert (optional), saved under 'intermediatecacert.pem'
+  # intCaCert: hlf--ord1-caintcert
+  ## TLS secret, saved under keys 'tls.crt' and 'tls.key' (to conform with K8S nomenclature)
+  # tls: hlf--ord1-tls
+  tls: "orderer3.org0.com-tls"
+  ## TLS root CA certificate saved under key 'cert.pem'
+  # tlsRootCert: hlf--ord-tlsrootcert
+  tlsRootCert: "orderer3.org0.com-tlsrootcert"
+  ## TLS client root CA certificates saved under any names (as there may be multiple)
+  # tlsClientRootCerts: hlf--peer-tlsrootcert
+  #    tlsClientRootCerts: "orderer0.org0.com-tlsrootcert"
+  ## This should contain "genesis" block derived from a configtx.yaml
+  ## configtxgen -profile OrdererGenesis -outputBlock genesis.block
+  # genesis: hlf--genesis
+  genesis: "genesis"
+  ## This should contain the Certificate of the Orderer Organisation admin
+  ## This is necessary to successfully run the orderer
+  # adminCert: hlf--ord-admincert
+  adminCert: "orderer3.org0.com-admincert"

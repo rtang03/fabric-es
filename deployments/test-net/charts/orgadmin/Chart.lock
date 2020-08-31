@@ -1,12 +1,6 @@
 dependencies:
-- name: common
-  repository: https://charts.bitnami.com/bitnami
-  version: 0.3.1
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 9.1.1
-- name: ingress-nginx
-  repository: https://kubernetes.github.io/ingress-nginx
-  version: 2.11.1
-digest: sha256:98af7c2f136d7e21557518c039007ba1100843b3bd2db4563e0a564a46f978b1
-generated: "2020-07-25T19:13:46.305125+08:00"
+digest: sha256:bbc905a8f25333bca9eb1d2a0988b5349fca66e94eec8ac7449240c6048f7293
+generated: "2020-08-15T19:37:03.197299+08:00"

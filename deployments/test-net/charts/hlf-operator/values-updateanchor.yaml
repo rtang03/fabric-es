@@ -1,0 +1,3 @@
+tasks:
+  update_anchor_peer:
+    enabled: true

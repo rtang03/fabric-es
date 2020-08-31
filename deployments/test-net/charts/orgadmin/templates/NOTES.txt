@@ -1,26 +1,6 @@
-{{- if contains "Org0MSP" .Values.mspId }}
-#!/bin/bash
-######## post-install notes for {{ .Release.Name }}/{{ .Chart.Name }}
-######## Objective: These steps create geneis.block, and secret "genesis" and "channel.tx"
+1. Show the pod of orgadmin's cli
+export POD_CLI=$(kubectl get pods -n {{ .Release.Namespace }} -l "app=orgadmin,release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+kubectl -n {{ .Release.Namespace }} describe pod $POD_CLI
 
-######## IMPORTANT ########
-## Below steps are performed ***ONLY AFTER*** all rca0, rca1, tlsca0 and tlsca1 are Done.
-######## 1. Get the name of the pod running rca:
-export POD_CLI0=$(kubectl get pods -n {{ .Release.Namespace }} -l "app=orgadmin,release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-
-######## 2. Create genesis.block / channel.tx
-kubectl -n {{ $.Release.Namespace }} exec -it $POD_CLI0 -- configtxgen -profile OrgsOrdererGenesis -outputBlock /var/hyperledger/crypto-config/genesis.block -channelID ordererchannel
-kubectl -n {{ $.Release.Namespace }} exec -it $POD_CLI0 -- configtxgen -profile OrgsChannel -outputCreateChannelTx /var/hyperledger/crypto-config/channel.tx -channelID loanapp
-
-######## 3. Create configmap: genesis.block
-kubectl -n {{ $.Release.Namespace }} exec $POD_CLI0 -- cat ../crypto-config/genesis.block > genesis.block
-kubectl -n {{ $.Release.Namespace }} create secret generic genesis --from-file=genesis=./genesis.block
-rm genesis.block
-
-######## 4. Create configmap: channel.tx for org1, with namespace n1
-kubectl -n n0 exec $POD_CLI0 -- cat ../crypto-config/channel.tx > channel.tx
-kubectl -n n1 create secret generic channeltx --from-file=channel.tx=./channel.tx
-rm channel.tx
-
-# == End ==
-{{- end }}
+2. cli will take a few minute to start, can wait for.
+kubectl wait --for=condition=Available --timeout 600s deployment/admin1-orgadmin-cli -n n1

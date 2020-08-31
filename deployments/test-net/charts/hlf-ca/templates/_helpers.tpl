@@ -42,6 +42,7 @@ app: {{ include "hlf-ca.name" . }}
 heritage: {{ .Release.Service | quote }}
 release: {{ .Release.Name | quote }}
 chart: {{ include "hlf-ca.chart" . }}
+namespace: {{ .Release.Namespace }}
 {{- end -}}
 
 {{/*
@@ -51,9 +52,3 @@ Generate postgres chart name
 {{- printf "%s-%s" .Release.Name "postgresql" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{/*
-Generate mysql chart name
-*/}}
-{{- define "mysql.fullname" -}}
-{{- printf "%s-%s" .Release.Name "mysql" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}

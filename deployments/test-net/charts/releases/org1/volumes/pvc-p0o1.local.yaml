@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-p0o1
+  labels:
+    type: local
+    name: pv-p0o1
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - "ReadWriteOnce"
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/tmp/data/p0o1"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-p0o1
+  labels:
+    app: hlf-peer
+    release: "p0o1"
+    namespace: n1
+spec:
+  storageClassName: "manual"
+  selector:
+    matchLabels:
+      name: pv-p0o1
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "100Mi"
