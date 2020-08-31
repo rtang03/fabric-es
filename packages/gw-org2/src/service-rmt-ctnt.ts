@@ -13,8 +13,12 @@ const logger = getLogger('service-rmt-ctnt.js');
     urls: process.env.REMOTE_URI.split(' ')
   });
 
-  process.on('SIGINT', () => shutdown(server));
-  process.on('SIGTERM', () => shutdown(server));
+  process.on('SIGINT', async () => await shutdown(server)
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1)));
+  process.on('SIGTERM', async () => await shutdown(server)
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1)));
   process.on('uncaughtException', err => {
     logger.error('An uncaught error occurred!');
     logger.error(err.stack);
@@ -22,7 +26,7 @@ const logger = getLogger('service-rmt-ctnt.js');
 
   server.listen({ port: process.env.REMOTE_DOC_CONTENTS_PORT }).then(({ url }) => {
     logger.info(`🚀  '${process.env.MSPID}' - Remote 'rDocContents' ready at ${url}graphql`);
-    if (process.env.NODE_ENV === 'production') process.send('ready');
+    process.send?.('ready');
   });
 })().catch(error => {
   console.error(error);

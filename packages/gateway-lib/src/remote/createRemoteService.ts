@@ -5,7 +5,7 @@ import { HttpLink } from 'apollo-link-http';
 import { ApolloError, ApolloServer } from 'apollo-server';
 import nodeFetch from 'node-fetch';
 import { getLogger } from '..';
-import { shutdown } from '../utils';
+import { shutdownApollo } from '../utils';
 
 const fetch = nodeFetch as any;
 
@@ -74,6 +74,6 @@ export const createRemoteService = async ({
           ),
       }),
     }),
-    shutdown: shutdown({ logger, name }),
+    shutdown: shutdownApollo({ logger, name }),
   };
 };

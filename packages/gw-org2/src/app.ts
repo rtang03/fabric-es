@@ -55,7 +55,7 @@ const logger = getLogger('app.js');
 
   gateway.listen(PORT, () => {
     logger.info(`🚀 gateway ready at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
-    if (process.env.NODE_ENV === 'production') process.send('ready');
+    process.send?.('ready');
   });
 })().catch(error => {
   console.error(error);

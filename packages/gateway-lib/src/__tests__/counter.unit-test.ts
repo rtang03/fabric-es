@@ -10,7 +10,7 @@ import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import httpStatus from 'http-status';
-import Redis from 'ioredis';
+import Redis, { RedisOptions } from 'ioredis';
 import keys from 'lodash/keys';
 import values from 'lodash/values';
 import fetch from 'node-fetch';
@@ -76,7 +76,7 @@ let modelApolloService: ApolloServer;
 let userId: string;
 let accessToken: string;
 let adminAccessToken: string;
-let redis: Redis.Redis;
+let redisOptions: RedisOptions;
 let queryHandlerServer: ApolloServer;
 let queryHandler: QueryHandler;
 let publisher: Redis.Redis;
@@ -95,7 +95,7 @@ beforeAll(async () => {
   rimraf.sync(`${walletPath}/${caAdmin}.id`);
 
   try {
-    redis = new Redis();
+    redisOptions= {};
 
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     // Step 1: EnrollAdmin
@@ -182,7 +182,7 @@ beforeAll(async () => {
       serviceName: 'counter',
       enrollmentId: orgAdminId,
       wallet,
-      redis,
+      redisOptions,
     });
 
     modelApolloService = await config({ typeDefs, resolvers })
@@ -210,6 +210,7 @@ beforeAll(async () => {
       walletPath,
       orgName: 'org1',
       orgUrl: `http://localhost:${MODEL_SERVICE_PORT}/graphql`,
+      redisOptions,
     });
     adminApolloService = service.server;
 

@@ -23,7 +23,20 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
   const redisOptions: RedisOptions = {
     host: process.env.REDIS_HOST,
     port: parseInt(process.env.REDIS_PORT, 10) || 6379,
-    retryStrategy: (times) => Math.min(times * 50, 2000),
+    retryStrategy: (times) => {
+      if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
+        logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
+        process.exit(-1);
+      }
+      return Math.min(times * 100, 3000); // reconnect after (ms)
+    },
+    reconnectOnError: (err) => {
+      const targetError = 'READONLY';
+      if (err.message.includes(targetError)) {
+        // Only reconnect when the error contains "READONLY"
+        return 1;
+      }
+    }
   };
 
   const reducers = {
@@ -34,7 +47,7 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     counter: counterReducer,
   };
 
-  const { server } = await createQueryHandlerService(
+  const { server, shutdown } = await createQueryHandlerService(
     ['document', 'loan', 'docContents', 'user', 'counter'],
     {
       redisOptions,
@@ -48,19 +61,13 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     }
   );
 
-  const shutdown = async () => {
-    await server.stop().catch((err) => {
-      if (err) {
-        logger.error(util.format('An error occurred while closing the server: %j', err));
-        process.exitCode = 1;
-      } else logger.info('server closes');
-    });
-    process.exit();
-  };
+  process.on('SIGINT', async () => await shutdown()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1)));
 
-  process.on('SIGINT', async () => shutdown());
-
-  process.on('SIGTERM', async () => shutdown());
+  process.on('SIGTERM', async () => await shutdown()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1)));
 
   process.on('uncaughtException', (err) => {
     logger.error('An uncaught error occurred!');
