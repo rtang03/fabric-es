@@ -1,0 +1,48 @@
+{
+  "name": "relay",
+  "version": "0.6.4",
+  "main": "app.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn clean && tsc",
+    "clean": "rimraf dist",
+    "start": "node dist/relay.js",
+    "starts": "node dist/relay.js https",
+    "sniff": "node dist/sniffer.js",
+    "mock": "node dist/__tests__/mockServer.js",
+    "mock-endpoint": "node dist/__tests__/mockEndpoint.js",
+    "test": "jest --verbose --detectOpenHandles --runInBand --forceExit",
+    "test:relay": "jest relay.test",
+    "test:sniff": "jest sniffer.test",
+    "test:intg": "jest intg.test"
+  },
+  "private": true,
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "formidable": "^1.2.2",
+    "http-proxy-middleware": "^1.0.4",
+    "ioredis": "^4.17.3",
+    "lodash": "^4.17.15",
+    "mockyeah": "^0.24.1",
+    "query-string": "^6.12.1",
+    "rxjs": "^6.5.3",
+    "stoppable": "^1.1.0",
+    "winston": "^3.2.1"
+  },
+  "dependenciesComments": {
+    "mockyeah": "It should be removed from dependencies when mock server is no longer needed."
+  },
+  "devDependencies": {
+    "@types/ioredis": "^4.16.4",
+    "@types/lodash": "^4.14.152",
+    "@types/stoppable": "^1.1.0",
+    "jest": "^24.9.0",
+    "mockyeah": "^0.24.1",
+    "rimraf": "^3.0.2",
+    "run-container": "^1.2.1",
+    "supertest": "^4.0.2",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.8.3"
+  }
+}
