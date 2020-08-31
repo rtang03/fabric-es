@@ -21,6 +21,7 @@
   "dependencies": {
     "@fabric-es/fabric-cqrs": "^0.6.3",
     "@fabric-es/gateway-lib": "^0.6.3",
+    "@fabric-es/relay-lib": "^0.6.4",
     "@fabric-es/model-pboc": "^0.6.4",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
