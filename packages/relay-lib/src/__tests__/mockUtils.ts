@@ -321,6 +321,55 @@ export const getTestData = (seq: string) => {
             'partialShipment': 'N'
           }
         ]
+      },
+      {
+        'poBaseInfo': {
+          'poId': `P12345${seq}5`,
+          'poNo': `PO${seq}5`,
+          'versionNo': 1,
+          'poDate': '2020-08-07',
+          'buyerId': `B12345${seq}5`,
+          'buyerName': `Buyer ${seq}5`,
+          'buyerAddress': `Address B${seq}5`,
+          'sellerId': `S12345${seq}5`,
+          'sellerName': `Seller ${seq}5`,
+          'sellerAddress': `Address S${seq}5`,
+          'sellerBrCode': `BR${seq}5XXX`,
+          'latestDeliveryDate': '2021-08-07',
+          'incotermsCode': 'COD',
+          'incotermsLocation': 'HK',
+          'shipFromAddress': `Address F${seq}5`,
+          'shipToAddress': `Address T${seq}5`,
+          'shipVia': 'By Sea',
+          'goodsDescription': 'Some stuffs',
+          'currency': 'HKD',
+          'settlementCurrency': 'RMB',
+          'settlementAmount': 50000
+        },
+        'orderList': [
+          {
+            'sequenceNo': 1,
+            'orderNo': `ORD${seq}501`,
+            'orderDate': '2020-08-07',
+            'itemDescription': 'Stuff A',
+            'unitPrice': 3000,
+            'quantity': 10,
+            'unit': 'Piece',
+            'subtotalAmount': 30000,
+            'partialShipment': 'N'
+          },
+          {
+            'sequenceNo': 2,
+            'orderNo': `ORD${seq}502`,
+            'orderDate': '2020-08-07',
+            'itemDescription': 'Stuff B',
+            'unitPrice': 2000,
+            'quantity': 10,
+            'unit': 'Piece',
+            'subtotalAmount': 20000,
+            'partialShipment': 'N'
+          }
+        ]
       }
     ],
     PoCancel: [
@@ -347,7 +396,7 @@ export const getTestData = (seq: string) => {
           'shipFromAddress': `Address F${seq}2`,
           'shipToAddress': `Address T${seq}2`,
           'shipVia': 'By Sea',
-          'goodsDescription': 'Some good stuffs',
+          'goodsDescription': 'Some EDITED stuffs',
           'currency': 'HKD',
           'settlementCurrency': 'RMB',
           'settlementAmount': 50000
@@ -357,7 +406,7 @@ export const getTestData = (seq: string) => {
             'sequenceNo': 1,
             'orderNo': `ORD${seq}201`,
             'orderDate': '2020-08-07',
-            'itemDescription': 'Good stuff A',
+            'itemDescription': 'EDITED stuff A',
             'unitPrice': 3000,
             'quantity': 10,
             'unit': 'Piece',
@@ -368,7 +417,7 @@ export const getTestData = (seq: string) => {
             'sequenceNo': 2,
             'orderNo': `ORD${seq}202`,
             'orderDate': '2020-08-07',
-            'itemDescription': 'Good stuff B',
+            'itemDescription': 'EDITED stuff B',
             'unitPrice': 2000,
             'quantity': 10,
             'unit': 'Piece',
@@ -391,10 +440,19 @@ export const getTestData = (seq: string) => {
       {
         'poId': `P12345${seq}2`,
         'versionNo':'1',
-        'actionResponse': '0',
+        'actionResponse': '1',
         'sellerId': `S12345${seq}2`,
         'sellerBankName': `Seller bank ${seq}2`,
         'sellerBankAccount': `S12-345${seq}2-001`,
+        'comment': 'No comment'
+      },
+      {
+        'poId': `P12345${seq}5`,
+        'versionNo':'1',
+        'actionResponse': '0',
+        'sellerId': `S12345${seq}5`,
+        'sellerBankName': `Seller bank ${seq}5`,
+        'sellerBankAccount': `S12-345${seq}5-001`,
         'comment': 'No comment'
       }
     ],
@@ -527,7 +585,7 @@ export const getTestData = (seq: string) => {
           'shipFromAddress': `Address F${seq}2`,
           'shipToAddress': `Address T${seq}2`,
           'shipVia': 'By Sea',
-          'goodsDescription': 'Some good stuffs',
+          'goodsDescription': 'Some EDITED good stuffs',
           'currency': 'HKD',
           'settlementCurrency': 'RMB',
           'settlementAmount': 50000,
@@ -546,7 +604,7 @@ export const getTestData = (seq: string) => {
             'sequenceNo': 1,
             'orderNo': `ORD${seq}201`,
             'orderDate': '2020-08-07',
-            'itemDescription': 'Good stuff A',
+            'itemDescription': 'EDITED good stuff A',
             'unitPrice': 3500,
             'quantity': 10,
             'unit': 'Piece',
@@ -557,7 +615,7 @@ export const getTestData = (seq: string) => {
             'sequenceNo': 2,
             'orderNo': `ORD${seq}202`,
             'orderDate': '2020-08-07',
-            'itemDescription': 'Good stuff B',
+            'itemDescription': 'EDITED good stuff B',
             'unitPrice': 2100,
             'quantity': 10,
             'unit': 'Piece',
@@ -593,16 +651,16 @@ export const getTestData = (seq: string) => {
       {
         'invoiceId': `I12345${seq}1`,
         'versionNo': '001',
-        'actionResponse': 1,
-        'goodsReceived': 1,
+        'actionResponse': '1',
+        'goodsReceived': '1',
         'receiptDate': '2020-06-05',
         'comment': 'This is good invoice'
       },
       {
         'invoiceId': `I12345${seq}2`,
         'versionNo': '001',
-        'actionResponse': 1,
-        'goodsReceived': 1,
+        'actionResponse': '1',
+        'goodsReceived': '1',
         'receiptDate': '2020-06-05',
         'comment': 'This is good invoice'
       }

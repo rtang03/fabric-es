@@ -9,11 +9,10 @@
   "scripts": {
     "build": "yarn clean && tsc",
     "clean": "rimraf dist",
-    "test": "jest --verbose --detectOpenHandles --runInBand --forceExit",
-    "test:intg": "jest intg.test",
     "enrollAdmin": "node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
-    "start": "node dist/query.js"
+    "start": "node dist/query.js",
+    "test:intg": "jest intg.test"
   },
   "private": true,
   "dependencies": {
