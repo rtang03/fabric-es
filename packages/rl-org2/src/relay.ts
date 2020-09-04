@@ -13,10 +13,9 @@ const logger = getLogger('[rl-org3] relay.js');
 
 (async () => {
   logger.info(`♨️♨️  Starting [rl-org3] relay service... ${targetUrl} ${redisHost}:${redisPort} ${topic}`);
-  const myArgs = process.argv.slice(2);
-  const httpsArg = myArgs[0];
+  const httpsArg = process.argv.slice(2)[0];
 
-  const { relay, shutdown } = await createRelayService({
+  const { isHttps, relay, shutdown } = await createRelayService({
     redisOptions: {
       host: redisHost,
       port: redisPort,
@@ -53,7 +52,7 @@ const logger = getLogger('[rl-org3] relay.js');
   });
 
   relay.listen(SERVICE_PORT, () => {
-    logger.info(`🚀 relay ready at ${SERVICE_PORT}`);
+    logger.info(`🚀 relay ready at  ${isHttps ? 'https://' : ''}${SERVICE_PORT}`);
     process.send?.('ready');
   });
   // server.timeout = 600000; which: server = relay.listen(....)

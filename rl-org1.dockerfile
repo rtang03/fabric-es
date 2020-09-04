@@ -28,10 +28,10 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
 
 USER root
 
-VOLUME /home/app/packages/gw-org1/assets /home/app/packages/gw-org1/connection /home/app/packages/gw-org1/logs /var/artifacts/crypto-config
+VOLUME /home/app/packages/rl-org1/assets /home/app/packages/rl-org1/connection /home/app/packages/rl-org1/logs /var/artifacts/crypto-config
 
-WORKDIR /home/app/packages/gw-org1
+WORKDIR /home/app/packages/rl-org1
 
 ENTRYPOINT ["entrypoint.sh"]
 
-CMD ["gateway", "admin user loan document docContents rLoanDetails queryHandler"]
+CMD ["relay", "sniffer"]

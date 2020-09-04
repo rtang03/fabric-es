@@ -8,12 +8,7 @@ function init() {
   const handler = (url) => {
     return async () => {
       const form = document.getElementById("sform");
-      // const text = document.getElementById("sjson").value;
-      // const file = document.getElementById("sfile"); // document.querySelector('input[type="file"]'); 
       const formData = new FormData(form);
-      // formData.append('files', file.files[0]);
-      // formData.append('jsonObj', text);
-
       const result = await fetch(
         url,
         {
@@ -36,19 +31,64 @@ function init() {
     <div>
       <a href="https://localhost:4322/test-po.html">Refresh</a>
       <br/><br/>
-      <form id="sform" method="post" enctype="multipart/form-data"
-          action="https://localhost:2500/order/po" target="_blank">
+      <form id="sform" method="post" enctype="multipart/form-data" action="https://localhost:2500/order/po" target="_blank">
         <input type=file id="files" name="files" />
         <br/>
-        <textarea id="jsonObj" name="jsonObj" style="width:300px;height:150px;">
-{
-  "poId": "P12345002",
-  "poNo": "PO002",
-  "versionNo": 1
-}
-        </textarea>
-        <br/>
         <button id="sbutton" onclick="document.getElementById('sform').submit()">Exec</button>
+        <br/>
+        <textarea id="jsonObj" name="jsonObj" style="width:500px;height:400px;">
+[
+  {
+    "poBaseInfo": {
+      "poId": "P01234X0001",
+      "poNo": "POX0001",
+      "versionNo": 1,
+      "poDate": "2020-08-07",
+      "buyerId": "B12345X0001",
+      "buyerName": "Buyer X0001",
+      "buyerAddress": "Address BX0001",
+      "sellerId": "S12345X0001",
+      "sellerName": "Seller X0001",
+      "sellerAddress": "Address SX0001",
+      "sellerBrCode": "BRX0001",
+      "latestDeliveryDate": "2021-08-07",
+      "incotermsCode": "COD",
+      "incotermsLocation": "HK",
+      "shipFromAddress": "Address FX0001",
+      "shipToAddress": "Address TX0001",
+      "shipVia": "By Sea",
+      "goodsDescription": "Some stuffs",
+      "currency": "HKD",
+      "settlementCurrency": "RMB",
+      "settlementAmount": 50000
+    },
+    "orderList": [
+      {
+        "sequenceNo": 1,
+        "orderNo": "ORDX000101",
+        "orderDate": "2020-08-07",
+        "itemDescription": "Stuff A",
+        "unitPrice": 3000,
+        "quantity": 10,
+        "unit": "Piece",
+        "subtotalAmount": 30000,
+        "partialShipment": "N"
+      },
+      {
+        "sequenceNo": 2,
+        "orderNo": "ORDX000102",
+        "orderDate": "2020-08-07",
+        "itemDescription": "Stuff B",
+        "unitPrice": 2000,
+        "quantity": 10,
+        "unit": "Piece",
+        "subtotalAmount": 20000,
+        "partialShipment": "N"
+      }
+    ]
+  }
+]
+        </textarea>
       </form>
     </div>
     <div id="rslt">&nbsp;</div>

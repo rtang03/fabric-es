@@ -5,7 +5,7 @@ export interface ReqRes {
   proxyReqStarts: number;
   proxyReqFinish: number;
   proxyResStarts: number;
-  proxyResFinsih: number;
+  proxyResFinish: number;
   method: string;
   url: querystring.ParsedUrl;
   contentType: string;

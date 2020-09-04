@@ -29,7 +29,7 @@ beforeAll(async () => {
     return {
       id: `id00${idx}`,
       proxyReqStarts: stamp + idx, proxyReqFinish: stamp + idx + 1,
-      proxyResStarts: stamp + idx + 5, proxyResFinsih: stamp + idx + 6,
+      proxyResStarts: stamp + idx + 5, proxyResFinish: stamp + idx + 6,
       method: 'patch',
       url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
       contentType: 'application/json',
@@ -80,7 +80,7 @@ describe('Sniffer Service', () => {
     const mssg: ReqRes = {
       id: `id999`,
       proxyReqStarts: stamp, proxyReqFinish: stamp + 1,
-      proxyResStarts: stamp + 5, proxyResFinsih: stamp + 6,
+      proxyResStarts: stamp + 5, proxyResFinish: stamp + 6,
       method: 'patch',
       url: { url: `/test-url999`, query: { k: `k999`, v: `v999` } },
       contentType: 'application/json',
@@ -112,7 +112,7 @@ describe('Sniffer Service', () => {
       return {
         id: `id00${idx}`,
         proxyReqStarts: stamp + idx, proxyReqFinish: stamp + idx + 1,
-        proxyResStarts: stamp + idx + 5, proxyResFinsih: stamp + idx + 6,
+        proxyResStarts: stamp + idx + 5, proxyResFinish: stamp + idx + 6,
         method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
         contentType: 'application/json',

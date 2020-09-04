@@ -10,6 +10,11 @@ import { Wallets } from 'fabric-network';
 import { RedisOptions } from 'ioredis';
 import fetch from 'node-fetch';
 
+/*
+  See https://stackoverflow.com/questions/25344879/uploading-file-using-post-request-in-node-js
+  EDIT: but the npm module 'request' is deprecated!
+ */
+
 const QUERY = {
   'FullTextSearchEntity': `
   query FullTextSearchEntity($query: String!) {
