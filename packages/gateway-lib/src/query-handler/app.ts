@@ -17,7 +17,7 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     retryStrategy: (times) => Math.min(times * 50, 2000),
   };
 
-  const { server } = await createQueryHandlerService(['counter'], {
+  const { server, shutdown } = await createQueryHandlerService(['counter'], {
     redisOptions,
     asLocalhost: !(process.env.NODE_ENV === 'production'),
     channelName: process.env.CHANNEL_NAME,
@@ -28,19 +28,13 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     authCheck,
   });
 
-  const shutdown = async () => {
-    await server.stop().catch((err) => {
-      if (err) {
-        logger.error(util.format('An error occurred while closing the server: %j', err));
-        process.exitCode = 1;
-      } else logger.info('server closes');
-    });
-    process.exit();
-  };
+  process.on('SIGINT', async () => await shutdown()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1)));
 
-  process.on('SIGINT', () => shutdown());
-
-  process.on('SIGTERM', () => shutdown());
+  process.on('SIGTERM', async () => await shutdown()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1)));
 
   process.on('uncaughtException', (err) => {
     logger.error('An uncaught error occurred!');

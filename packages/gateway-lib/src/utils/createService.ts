@@ -11,12 +11,20 @@ import {
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
-import type { Redis } from 'ioredis';
+import Redis, { RedisOptions } from 'ioredis';
 import { createTrackingData, DataSrc } from '..';
 import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
-import type { ModelService } from '../types';
 import { getLogger } from './getLogger';
-import { shutdown } from './shutdownApollo';
+import { shutdownApollo } from './shutdownApollo';
+
+interface AddRepository {
+  create: (option?: {
+    mspId?: string;
+    playground?: boolean;
+    introspection?: boolean;
+  }) => Promise<ApolloServer>;
+  addRepository: (repository: Repository | PrivateRepository) => this;
+}
 
 export const createService: (option: {
   enrollmentId: string;
@@ -26,8 +34,20 @@ export const createService: (option: {
   connectionProfile: string;
   wallet: Wallet;
   asLocalhost: boolean;
-  redis: Redis;
-}) => Promise<ModelService> = async ({
+  redisOptions: RedisOptions;
+}) => Promise<{
+  mspId: string;
+  getRepository: <TEntity, TEvent>(entityName: string, reducer: Reducer) => Repository<TEntity, TEvent>;
+  getPrivateRepository: <TEntity, TEvent>(
+    entityName: string, reducer: Reducer, parentName?: string
+  ) => PrivateRepository<TEntity, TEvent>;
+  config: (option: { typeDefs: any; resolvers: any }) => {
+    addRepository: (repository: Repository | PrivateRepository) => AddRepository;
+  };
+  getServiceName: () => string;
+  shutdown: (server: ApolloServer) => Promise<void>;
+  disconnect: () => void;
+}> = async ({
   enrollmentId,
   serviceName,
   isPrivate = false,
@@ -35,7 +55,7 @@ export const createService: (option: {
   connectionProfile,
   wallet,
   asLocalhost,
-  redis,
+  redisOptions,
 }) => {
   const logger = getLogger('[gw-lib] createService.js');
 
@@ -55,6 +75,8 @@ export const createService: (option: {
     networkConfig && networkConfig.gateway && networkConfig.gateway.getIdentity
       ? networkConfig.gateway.getIdentity().mspId
       : undefined;
+
+  const redis = new Redis(redisOptions);
 
   const getPrivateRepository = <TEntity, TEvent>(
     entityName: string,
@@ -157,7 +179,7 @@ export const createService: (option: {
       return { addRepository };
     },
     getServiceName: () => serviceName,
-    shutdown: shutdown({ logger, name: serviceName }),
+    shutdown: shutdownApollo({ redis, logger, name: serviceName }),
     disconnect: () => networkConfig.gateway.disconnect(),
   };
 };

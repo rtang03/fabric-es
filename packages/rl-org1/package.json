@@ -1,0 +1,36 @@
+{
+  "name": "@fabric-es/rl-org1",
+  "version": "0.6.5",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "license": "BSD-3-Clause-Clear",
+  "author": "Paul Lai",
+  "description": "Relay ORG1",
+  "scripts": {
+    "build": "yarn clean && tsc",
+    "clean": "rimraf dist",
+    "enrollAdmin": "node ./dist/enrollAdmin.js",
+    "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
+    "start": "concurrently \"npm:service-*\"",
+    "service-sniff": "node dist/sniffer.js",
+    "service-relay": "node dist/relay.js https"
+  },
+  "private": true,
+  "dependencies": {
+    "@fabric-es/fabric-cqrs": "^0.6.3",
+    "@fabric-es/gateway-lib": "^0.6.5",
+    "@fabric-es/model-pboc": "^0.6.5",
+    "@fabric-es/relay-lib": "^0.6.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "stoppable": "^1.1.0",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/stoppable": "^1.1.0",
+    "jest": "^24.9.0",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.8.3"
+  }
+}

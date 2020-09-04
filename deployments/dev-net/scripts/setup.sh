@@ -4,7 +4,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-export RELEASE=0.6.4
+export RELEASE=0.6.5
 export IMAGE_TAG=2.1.0
 export CONFIG=./config
 export VOLUME=./volume
@@ -16,7 +16,6 @@ export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
 export TEST_IMAGE=fabric-es/tester:${RELEASE}
 export PROXY_IMAGE=fabric-es/proxy:${RELEASE}
 export UI_CONTROL_IMAGE=fabric-es/ui-control
-export RELAY_IMAGE=fabric-es/relay:${RELEASE}
 export ROOT_DIR=$CURRENT_DIR/../..
 
 export CHAINCODE=$ROOT_DIR/packages/chaincode
@@ -27,6 +26,7 @@ export CONF_DIR=$CURRENT_DIR/build.
 export NGX_TEMPLATE_A_U_G=./scripts/nginx/auth-ui-gw.template
 export NGX_TEMPLATE_A_U=./scripts/nginx/auth-ui.template
 export NGX_TEMPLATE_A=./scripts/nginx/auth.template
+
 export COMPOSE_1_NGX="-f compose.1org.ngx.yaml"
 export COMPOSE_2_NGX="$COMPOSE_1_NGX -f compose.2org.ngx.yaml"
 export COMPOSE_3_NGX="$COMPOSE_2_NGX -f compose.3org.ngx.yaml"
@@ -43,6 +43,9 @@ export CMP_3_UIA="$CMP_2_UIA -f compose.3org.ui.yaml"
 export CMP_1_GWY="-f compose.1org.gw.yaml"
 export CMP_2_GWY="$CMP_1_GWY -f compose.2org.gw.yaml"
 export CMP_3_GWY="$CMP_2_GWY -f compose.3org.gw.yaml"
+export CMP_1_RLY="-f compose.1org.rl.yaml"
+export CMP_2_RLY="$CMP_1_RLY -f compose.2org.rl.yaml"
+export CMP_3_RLY="$CMP_2_RLY -f compose.3org.rl.yaml"
 
 export COMPOSE_0_S_A="$COMPOSE_0_S $CMP_1_ATH"
 export COMPOSE_0_S_A_U="$COMPOSE_0_S_A $CMP_1_UIA"
@@ -55,6 +58,7 @@ export COMPOSE_1_S="$COMPOSE_1 $COMPOSE_0_S"
 export COMPOSE_1_S_A="$COMPOSE_1_S $CMP_1_ATH"
 export COMPOSE_1_S_A_U="$COMPOSE_1_S_A $CMP_1_UIA"
 export COMPOSE_1_S_A_U_G="$COMPOSE_1_S_A_U $CMP_1_GWY"
+export COMPOSE_1_S_A_R="$COMPOSE_1_S_A $CMP_1_RLY"
 
 export COMPOSE_2_S="$COMPOSE_2 $CMP_2_SRV"
 export COMPOSE_2_S_A="$COMPOSE_2_S $CMP_2_ATH"
@@ -62,6 +66,7 @@ export COMPOSE_2_S_A_U="$COMPOSE_2_S_A $CMP_2_UIA"
 export COMPOSE_2_S_A_U_G="$COMPOSE_2_S_A_U $CMP_2_GWY"
 export COMPOSE_2_S_A_G="$COMPOSE_2_S_A $CMP_2_GWY"
 export COMPOSE_2_S_A_G_T="$COMPOSE_2_S_A_G -f compose.2org.tester.yaml"
+export COMPOSE_2_S_A_R="$COMPOSE_2_S_A $CMP_2_RLY"
 
 export COMPOSE_3_S="$COMPOSE_3 $CMP_3_SRV"
 export COMPOSE_3_S_A="$COMPOSE_3_S $CMP_3_ATH"
@@ -69,8 +74,9 @@ export COMPOSE_3_S_A_U="$COMPOSE_3_S_A $CMP_3_UIA"
 export COMPOSE_3_S_A_U_G="$COMPOSE_3_S_A_U $CMP_3_GWY"
 export COMPOSE_3_S_A_G="$COMPOSE_3_S_A $CMP_3_GWY"
 export COMPOSE_3_S_A_G_T="$COMPOSE_3_S_A_G -f compose.3org.tester.yaml"
+export COMPOSE_3_S_A_R="$COMPOSE_3_S_A $CMP_3_RLY"
 
-export COMPOSE_ALL="$COMPOSE_3_S_A_G_T $CMP_3_UIA $COMPOSE_3_NGX"
+export COMPOSE_ALL="$COMPOSE_3_S_A_G_T $CMP_3_UIA $COMPOSE_3_NGX $CMP_3_RLY"
 
 # $1 - message to be printed
 # $2 - exit code of the previous operation
@@ -92,7 +98,6 @@ getConfig() {
       DOMAIN="org0.com"
       CAPORT=5052
       PORT=7050
-      GATEWAY="-"
       ;;
     org1)
       NAME="Org1"
@@ -101,7 +106,6 @@ getConfig() {
       CAPORT=5054
       PORT=7051
       CCPORT=7052
-      GATEWAY="gw-org1"
       ;;
     org2)
       NAME="Org2"
@@ -110,7 +114,6 @@ getConfig() {
       CAPORT=5055
       PORT=7251
       CCPORT=7252
-      GATEWAY="gw-org2"
       ;;
     org3)
       NAME="Org3"
@@ -119,7 +122,6 @@ getConfig() {
       CAPORT=5056
       PORT=7451
       CCPORT=7452
-      GATEWAY="gw-org3"
       ;;
   esac
 }

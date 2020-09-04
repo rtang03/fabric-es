@@ -53,11 +53,13 @@ sleep 1
 
 pm2 flush
 
-echo "Starting \"$PLST\""
-pm2 start ./processes.yaml --only "$PLST"
+if [ $COUNT -gt 0 ]; then
+  echo "Starting \"$PLST\""
+  pm2 start ./processes.yaml --only "$PLST"
 
-echo "Wait for $COUNT services"
-pm2Wait $COUNT "$2"
+  echo "Wait for $COUNT services"
+  pm2Wait $COUNT "$2"
+fi
 
 echo "Starting \"$1\""
 exec pm2-runtime start ./processes.yaml --only "$1"

@@ -1,0 +1,97 @@
+---
+name: dev-net_openplatform
+version: 1.0.0
+
+client:
+  organization: Org1MSP
+  credentialStore:
+    path: /home/app/packages/rl-org1/assets/client-certs/hfc-kvs/org1
+    cryptoStore:
+      path: /home/app/packages/rl-org1/assets/client-certs/hfc-kvs/org1
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+
+channels:
+  loanapp:
+    orderers:
+      - orderer0-org0
+      - orderer1-org0
+      - orderer2-org0
+      - orderer3-org0
+      - orderer4-org0
+    peers:
+      peer0-org1:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+    chaincodes:
+      - eventstore
+
+organizations:
+  Org1MSP:
+    mspid: Org1MSP
+    peers:
+      - peer0-org1
+    certificateAuthorities:
+      - rca-org1
+    adminPrivateKey:
+      path: /var/artifacts/crypto-config/Org1MSP/admin/msp/keystore/key.pem
+    signedCert:
+      path: /var/artifacts/crypto-config/Org1MSP/admin/msp/signcerts/cert.pem
+
+orderers:
+  orderer0-org0:
+    url: grpcs://orderer0-org0:7050
+    grpcOptions:
+      ssl-target-name-override: orderer0-org0
+#     grpc-max-send-message-length: 4000
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+  orderer1-org0:
+    url: grpcs://orderer1-org0:7150
+    grpcOptions:
+      ssl-target-name-override: orderer1-org0
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org0MSP/orderer1.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+  orderer2-org0:
+    url: grpcs://orderer2-org0:7250
+    grpcOptions:
+      ssl-target-name-override: orderer2-org0
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org0MSP/orderer2.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+  orderer3-org0:
+    url: grpcs://orderer3-org0:7350
+    grpcOptions:
+      ssl-target-name-override: orderer3-org0
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org0MSP/orderer3.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+  orderer4-org0:
+    url: grpcs://orderer4-org0:7450
+    grpcOptions:
+      ssl-target-name-override: orderer4-org0
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org0MSP/orderer4.org0.com/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+
+peers:
+  peer0-org1:
+    url: grpcs://peer0-org1:7051
+    eventUrl: grpcs://peer0-org1:7053
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+    grpcOptions:
+      ssl-target-name-override: peer0-org1
+
+certificateAuthorities:
+  rca-org1:
+    url: https://rca-org1:5054
+    caName: rca-org1
+    tlsCACerts:
+      path: /var/artifacts/crypto-config/Org1MSP/msp/tlscacerts/tls-ca-cert.pem
+    registrar:
+      - enrollId: rca-org1-admin
+        enrollSecret: rca-org1-adminPW
+    httpOptions:
+      verify: false

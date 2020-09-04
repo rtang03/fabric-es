@@ -47,7 +47,7 @@ app.prepare().then(() => {
   app.get('/islive', (_, res) => res.status(204).end());
   app.get('*', csrfProtection, (req, res) => handle(req, res));
 
-  app.listen(port, (error) => {
+  app.listen(port, () => {
     console.log(`🚀 Server listening at http://localhost:${port}`);
     logger.info(`🚀 Server listening at http://localhost:${port}`);
   });

@@ -1,0 +1,19 @@
+apps:
+  - script: ./dist/relay.js
+    name: 'relay'
+    instances: 1
+    max_restarts: 3
+    autorestart: false
+    restart_delay: 500
+    kill_timeout: 3000
+    listen_timeout: 10000
+    wait_ready: true
+  - script : ./dist/sniffer.js
+    name   : 'sniffer'
+    instances: 1
+    max_restarts: 3
+    autorestart: false
+    restart_delay: 500
+    kill_timeout : 3000
+    listen_timeout: 10000
+    wait_ready: true
