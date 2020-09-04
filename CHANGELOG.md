@@ -1,3 +1,8 @@
+## [0.6.5] - 2020-8-18
+### Modified
+- debugged version - replay package
+- splitt reply package
+
 ## [0.6.4] - 2020-8-18
 ### Added
 - relay package with sniffer code
