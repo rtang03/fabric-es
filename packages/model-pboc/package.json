@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/model-pboc",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -15,8 +15,8 @@
   "private": true,
   "dependencies": {
     "@fabric-es/fabric-cqrs": "^0.6.3",
-    "@fabric-es/gateway-lib": "^0.6.3",
-    "@fabric-es/relay-lib": "^0.6.4"
+    "@fabric-es/gateway-lib": "^0.6.5",
+    "@fabric-es/relay-lib": "^0.6.5"
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
