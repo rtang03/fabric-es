@@ -21,6 +21,7 @@ export const createRelayService: (option: {
   topic: string;
   httpsArg: string;
 }) => Promise<{
+  isHttps: boolean;
   relay: StoppableServer;
   shutdown: () => Promise<void>;
 }> = async ({
@@ -36,17 +37,19 @@ export const createRelayService: (option: {
     logger.info('Redis client connected.');
   });
 
+  const isHttps = (isString(httpsArg) && httpsArg === 'https') || targetUrl.startsWith('https://');
+
   const app = express();
   
   const proxy = relayService({
     targetUrl,
     client,
     topic,
-    isHttps: targetUrl.startsWith('https://')
+    isHttps
   });
   app.use('', proxy);
 
-  const server = (isString(httpsArg) && httpsArg === 'https') ?
+  const server = isHttps ?
     https.createServer({
       key: fs.readFileSync(process.env.SERVER_KEY),
       cert: fs.readFileSync(process.env.SERVER_CERT),
@@ -55,6 +58,7 @@ export const createRelayService: (option: {
   const stoppableServer = stoppable(server);
 
   return {
+    isHttps,
     relay: stoppableServer,
     shutdown: () => {
       return new Promise<void>(async (resolve, reject) => {
@@ -74,15 +78,21 @@ export const createRelayService: (option: {
   };
 };
 
-const wait4res = (req, res, type, body, file?) => {
-  res.locals.reqres.id = crypto.randomBytes(16).toString('hex');
-  res.locals.reqres.proxyReqFinish = Date.now();
-  res.locals.reqres.method = req.method;
-  res.locals.reqres.url = querystring.parseUrl(req.url);
-  res.locals.reqres.contentType = type;
-  res.locals.reqres.reqBody = body;
-  res.locals.reqres.attachmentInfo = (file) ? JSON.stringify(file) : undefined;
-  res.locals.reqres.resBody = undefined;
+const wait4res = async (client: Redis, req: any, res: any, ts: number, type: string, body: string, file?: any) => {
+  const id = crypto.randomBytes(16).toString('hex');
+  const msg = {
+    id,
+    proxyReqStarts: ts,
+    proxyReqFinish: Date.now(),
+    method: req.method,
+    url: querystring.parseUrl(req.url),
+    contentType: type,
+    reqBody: body,
+    attachmentInfo: (file) ? JSON.stringify(file) : undefined
+  };
+  logger.info(`ProxyReq Finish ${msg.proxyReqFinish}`);
+  res.locals.reqres = id;
+  await client.set(`PROXY${id}`, JSON.stringify(msg), 'EX', 3600);
 };
 
 export const relayService = ({
@@ -107,13 +117,8 @@ export const relayService = ({
     secure : !isHttps,
     onProxyReq: (_, req, res) => {
       // Initialize
-      res.locals.reqres = {
-        id: undefined,
-        proxyReqStarts: Date.now(),
-        statusCode: -1,
-        statusMessage: ''
-      };
-    
+      const proxyReqStarts = Date.now();
+      logger.info(`ProxyReq Starts ${proxyReqStarts}`);
       logger.info('Header: ' + JSON.stringify(req.headers));
     
       const type = (req.headers['content-type'] || 'text/plain').split(';')[0];
@@ -138,7 +143,7 @@ export const relayService = ({
               logger.info(`Relay ignored uploaded file ${fileInfo.map(i => i.name)}`); // Sould be logger.debug()
     
             if (fields) {
-              wait4res(req, res, type, JSON.stringify(fields), fileInfo);
+              wait4res(client, req, res, proxyReqStarts, type, JSON.stringify(fields), fileInfo);
             }
           }
         });
@@ -158,13 +163,15 @@ export const relayService = ({
             }
           } else
             body = raw;
-          wait4res(req, res, type, body);
+          wait4res(client, req, res, proxyReqStarts, type, body);
         });
       }
     },
-    onProxyRes: (proxyRes, _, res) => {
-      const message: ReqRes = res.locals.reqres;
-      message.proxyResStarts = Date.now();
+    onProxyRes: (proxyRes, req, res) => {
+      const msgId = res.locals.reqres;
+      res.locals.reqres = undefined;
+      const proxyResStarts = Date.now();
+      logger.info(`ProxyRes Starts ${proxyResStarts}`);
 
       const data = [];
       proxyRes.on('data', (chunk) => {
@@ -173,16 +180,37 @@ export const relayService = ({
       proxyRes.on('end', async () => {
         const body = Buffer.concat(data).toString();
 
-        message.statusCode = proxyRes.statusCode;
-        message.statusMessage = proxyRes.statusMessage;
-        message.proxyResFinsih = Date.now();
-        message.resBody = body;
-
-        await processMessage({ message, client, topic }).then((result) => {
-          logger.info(`Message processed with response ${result} - '${JSON.stringify(message)}'`);
-        }).catch((error) => {
-          logger.error(`Error while processing [${message.id}]: ${error} - '${JSON.stringify(message)}'`);
-        });
+        const str = await client.get(`PROXY${msgId}`);
+        if (str) {
+          console.log('HAHAHA', str);
+          try {
+            const msg = JSON.parse(str);
+            const message: ReqRes = {
+              ...msg,
+              proxyResStarts,
+              proxyResFinish: Date.now(),
+              statusCode: proxyRes.statusCode,
+              statusMessage: proxyRes.statusMessage,
+              resBody: body
+            };
+            await processMessage({ message, client, topic }).then((result) => {
+              logger.info(`Message processed with response ${result} - '${JSON.stringify(message)}',
+  proxyReq (${message.proxyReqFinish - message.proxyReqStarts}ms),
+  endpoint (${message.proxyResStarts - message.proxyReqFinish}ms),
+  proxyRes (${message.proxyResFinish - message.proxyResStarts}ms)`);
+            }).catch((error) => {
+              logger.error(`Error while processing [${message.id}]: ${error} - '${JSON.stringify(message)}',
+  proxyReq (${message.proxyReqFinish - message.proxyReqStarts}ms),
+  endpoint (${message.proxyResStarts - message.proxyReqFinish}ms),
+  proxyRes (${message.proxyResFinish - message.proxyResStarts}ms)`);
+            });
+            logger.info(`ProxyRes Completed ${Date.now()}`);
+          } catch (error) {
+            logger.error(error);
+          }
+        } else {
+          logger.error(`Request ${msgId} not found`);
+        }
       });
     },
     onError: (err, _, res) => {

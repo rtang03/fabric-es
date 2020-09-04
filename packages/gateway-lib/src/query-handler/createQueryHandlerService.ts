@@ -171,6 +171,7 @@ export const createQueryHandlerService: (
   const shutdown = async () => {
     return new Promise<void>(async (resolve, reject) => {
       queryHandler.unsubscribeHub();
+      queryHandler.disconnect();
 
       await subscriber.unsubscribe()
         .catch(err => logger.error(util.format('Error unsubscribing from redis: %j', err)));
@@ -182,7 +183,7 @@ export const createQueryHandlerService: (
       return server
         .stop()
         .then(() => {
-          logger.info(`Query handler service stopped :)`);
+          logger.info(`Query handler service stopped`);
           resolve();
         })
         .catch((err) => {

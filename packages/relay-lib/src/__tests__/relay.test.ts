@@ -11,7 +11,7 @@ const msg: ReqRes = {
   proxyReqStarts: 0,
   proxyReqFinish: 1,
   proxyResStarts: 2,
-  proxyResFinsih: 3,
+  proxyResFinish: 3,
   method: 'patch',
   url: { url: '/test-url', query: { k1: 'v1', k2: 'v2' } },
   contentType: 'application/json',
@@ -201,7 +201,7 @@ describe('Pub / Sub', () => {
       return {
         id: `id00${idx}`,
         proxyReqStarts: stamp + idx, proxyReqFinish: stamp + idx + 1,
-        proxyResStarts: stamp + idx + 5, proxyResFinsih: stamp + idx + 6,
+        proxyResStarts: stamp + idx + 5, proxyResFinish: stamp + idx + 6,
         method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
         contentType: 'application/json',
@@ -236,7 +236,7 @@ describe('Pub / Sub', () => {
       return {
         id: `id00${idx}`,
         proxyReqStarts: stamp + idx, proxyReqFinish: stamp + idx + 1,
-        proxyResStarts: stamp + idx + 5, proxyResFinsih: stamp + idx + 6,
+        proxyResStarts: stamp + idx + 5, proxyResFinish: stamp + idx + 6,
         method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
         contentType: 'application/json',
@@ -278,7 +278,7 @@ describe('Pub / Sub', () => {
       return {
         id: `id00${idx}`,
         proxyReqStarts: stamp + idx, proxyReqFinish: stamp + idx + 1,
-        proxyResStarts: stamp + idx + 5, proxyResFinsih: stamp + idx + 6,
+        proxyResStarts: stamp + idx + 5, proxyResFinish: stamp + idx + 6,
         method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
         contentType: 'application/json',

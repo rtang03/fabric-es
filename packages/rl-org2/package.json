@@ -9,13 +9,11 @@
   "scripts": {
     "build": "yarn clean && tsc",
     "clean": "rimraf dist",
-    "test": "jest --verbose --detectOpenHandles --runInBand --forceExit",
-    "test:intg": "jest intg.test",
     "enrollAdmin": "node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
     "start": "concurrently \"npm:service-*\"",
     "service-sniff": "node dist/sniffer.js",
-    "service-relay": "node dist/relay.js https"
+    "service-relay": "node dist/relay.js"
   },
   "private": true,
   "dependencies": {

@@ -53,7 +53,7 @@ export type EndPoints = typeof EndPoints[number];
 export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Record<string, Repository | PrivateRepository>) => {
   return async (message: ReqRes): Promise<ProcessResults> => {
     const {
-      id, proxyReqStarts, proxyReqFinish, proxyResStarts, proxyResFinsih, method, url, contentType, reqBody, resBody, attachmentInfo, statusCode, statusMessage
+      id, proxyReqStarts, proxyReqFinish, proxyResStarts, proxyResFinish, method, url, contentType, reqBody, resBody, attachmentInfo, statusCode, statusMessage
     } = message;
 
     const noQueryParam = (Object.keys(url.query).length <= 0) && (url.query.constructor === Object);
