@@ -1,3 +1,4 @@
+{{- if .Values.job.addorg }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -33,3 +34,4 @@ data:
           # encoded in the genesis block in the Application section context
           - Host: {{ .Values.addOrg.configtx.anchorPeer }}
             Port: 7051
+{{- end }}

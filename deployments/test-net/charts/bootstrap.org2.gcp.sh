@@ -86,5 +86,7 @@ printMessage "deployment/p0o2-hlf-peer" $res
 export POD_CLI2=$(kubectl get pods -n n2 -l "app=orgadmin,release=admin2" -o jsonpath="{.items[0].metadata.name}")
 preventEmptyValue "pod unavailable" $POD_CLI2
 
+helm install addorg -n n2 -f ./releases/org2/addorg-hlf-operator.gcp.yaml ./hlf-operator
+
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"

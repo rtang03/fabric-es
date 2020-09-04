@@ -1,6 +1,17 @@
+global:
+  logging: info
+  workingDir: /var/hyperledger
+  mspId: Org1MSP
+  config:
+    setupsh: admin1-orgadmin--setupsh
+    coreyaml: admin1-orgadmin--core
+
 job:
   bootstrap: true
   addorg: false
+
+persistence:
+  pvcName: pvc-org1
 
 tasks:
   create_channel:

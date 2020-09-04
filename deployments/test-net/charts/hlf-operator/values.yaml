@@ -7,9 +7,18 @@ global:
     coreyaml: admin1-orgadmin--core
 
 job:
+  singletask: false
+    fetchChannelConfig: false
   bootstrap: false
   addorg: false
 
+persistence:
+  pvcName: pvc-org1
+
+
+#######################
+### Param for Bootstrap
+#######################
 tasks:
   create_channel:
     enabled: false
@@ -59,9 +68,6 @@ secret:
   tlscacert: org0-tls-ca-cert
   channeltx: channeltx
 
-persistence:
-  pvcName: pvc-org1
-
 peer:
   #Provide the name of the peer as per deployment yaml.
   #Eg. name: peer0
@@ -87,6 +93,10 @@ orderer:
   #Eg. address: orderer.fratest-com:7050
   address: o0-hlf-ord:7050
 
+
+#######################
+### Param for addOrg
+#######################
 addOrg:
   configtx:
     mspId: Org2MSP
