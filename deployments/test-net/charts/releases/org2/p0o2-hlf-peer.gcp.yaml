@@ -1,16 +1,15 @@
 global:
-  TZ: Asia/Hong_Kong
-  workingDir: /var/hyperledger/crypto-config
-  mspId: Org1MSP
-  domain: org1.net
+#  TZ: Asia/Hong_Kong
+#  workingDir: /var/hyperledger/crypto-config
+  mspId: Org2MSP
+  domain: org2.net
 
-image:
-  repository: hyperledger/fabric-peer
-  tag: 2.2.0
-  pullPolicy: IfNotPresent
+#image:
+#  repository: hyperledger/fabric-peer
+#  tag: 2.2.0
+#  pullPolicy: IfNotPresent
 
 service:
-  # Cluster IP or LoadBalancer
   type: ClusterIP
   portRequest: 7051
   portEvent: 7053
@@ -23,36 +22,23 @@ dockerConfig: null
 dockerConfigMountPath: /root/.docker
 
 ingress:
-  enabled: false
-  annotations: {}
-#    kubernetes.io/ingress.class: nginx
-#    nginx.ingress.kubernetes.io/rewrite-target: /
-#    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-#    nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
   path: /
   hosts:
-    - peer0.org1.net
+    - peer0.org2.net
   tls:
     - hosts:
-      - peer0.org1.net
-      secretName: peer0.org1.net-tls
+        - peer0.org2.net
+      secretName: peer0.org2.net-tls
 
 persistence:
-  annotations: {}
-  accessMode: ReadWriteOnce
-  # alway enabled
   enabled: true
-  # hostPath for PV for "manual" storageClass. If no storageClass, hostPath can omit
-  hostPath: /tmp/data/p0o1
-  # pv is requred for "manual" storageClass. If no storageClass, pv can omit
-  pvName: pv-p0o1
-  # mandatory
-  pvcName: pvc-p0o1
-  # storageClass can be "-", manual, or storageClass is not required for dynamic provisioning
-  # storageClass: "-"
-  # storageClass: manual
-  # requested size for pv
-  size: 1Gi
+  pvcName: pvc-p0o2
 
 logging:
   # "info" or "debug" or "grpc=debug:debug" or "grpc=debug:info"
@@ -71,20 +57,19 @@ logging:
 peer:
   ledgerPath: /var/hyperledger/production
   peerName: peer0
-  # orgPath: /var/hyperledger/crypto-config/Org1MSP
   # Type of database ("goleveldb" or "CouchDB"):
   databaseType: CouchDB
   # If CouchDB is used, which chart holds it
-  couchdbInstance: p0o1db
+  couchdbInstance: p0o2db
   ## Database username
   couchdbUsername: couchdb
   ## Database password (default: random 24 character string)
   couchdbPassword: password
   ## MSP ID of the Peer
   gossip:
-    bootstrap: "p0o1-hlf-peer:7051"
-    endpoint: "p0o1-hlf-peer:7051"
-    externalEndpoint: "p0o1-hlf-peer:7051"
+    bootstrap: "p0o2-hlf-peer:7051"
+    endpoint: "p0o2-hlf-peer:7051"
+    externalEndpoint: "peer0.org2.net:443"
     orgLeader: "false"
     useLeaderElection: "true"
   tls:
@@ -100,39 +85,30 @@ peer:
       java: ""
       node: ""
 
-#cli:
-#  bootstrap: true
-#  channelName: "loanapp"
-#  anchorPeer: "Org1MSP"
-#  enabled: true
-#  firstOrgDir: /var/hyperledger/crypto-config/Org1MSP
-#  channels:
-#    - "channeltx"
-
 # Secrets references, empty by default, fill in with your secrets (particularly adminCert) or add Peer Admin certificate manually after launching chart.
 secrets:
   ## These secrets should contain the Orderer crypto materials and credentials
   peer:
     ## Credentials, saved under keys 'CA_USERNAME' and 'CA_PASSWORD'
     # cred: hlf--peer1-cred
-    cred: "rcaorg1-tls"
+    cred: "rcaorg2-tls"
     ## Certificate, saved under key 'cert.pem'
     # cert: hlf--peer1-idcert
-    cert: "peer0.org1.net-cert"
+    cert: "peer0.org2.net-cert"
     ## Key, saved under 'key.pem'
     # key: hlf--peer1-idkey
-    key: "peer0.org1.net-key"
+    key: "peer0.org2.net-key"
     ## CA Cert, saved under 'cacert.pem'
     # caCert: hlf--peer1-cacert
-    caCert: "peer0.org1.net-cacert"
+    caCert: "peer0.org2.net-cacert"
     ## Intermediate CA Cert (optional), saved under 'intermediatecacert.pem'
     # intCaCert: hlf--peer1-caintcert
     ## TLS secret, saved under keys 'tls.crt' and 'tls.key' (to conform with K8S nomenclature)
     # tls: hlf--peer1-tls
-    tls: "peer0.org1.net-tls"
+    tls: "peer0.org2.net-tls"
     ## TLS root CA certificate saved under key 'cert.pem'
     # tlsRootCert: hlf--peer-tlsrootcert
-    tlsRootCert: "peer0.org1.net-tlsrootcert"
+    tlsRootCert: "peer0.org2.net-tlsrootcert"
     ## TLS client root CA certificates saved under any names (as there may be multiple)
     # tlsClient: hlf--peer1-tls
     ## TLS client root CA certificates saved under any names (as there may be multiple)
@@ -142,43 +118,18 @@ secrets:
   # channels:
   # - foochannel
   # - barchannel
-  # channels:
-  #   - "channeltx"
+#  channels:
+#    - "channeltx"
   ## This should contain the Certificate of the Peer Organisation admin
   ## This is necessary to successfully run the peer
   # adminCert: hlf--peer-admincert
-  adminCert: "peer0.org1.net-admincert"
+  adminCert: "peer0.org2.net-admincert"
   ## This should contain the Private Key of the Peer Organisation admin
   ## This is necessary to successfully join a channel
   # adminKey: hlf--peer-adminkey
-  adminKey: "peer0.org1.net-adminkey"
+  adminKey: "peer0.org2.net-adminkey"
   ## This should include the Orderer TLS 'cacert.pem'
   # ordTlsRootCert: hlf--ord-tlsrootcert
   ordTlsRootCert: "orderer0.org0.com-tlsrootcert"
   ordTlsSignCert: "orderer0.org0.com-tlssigncert"
   ordOrg0Tlscacert: "org0-tls-ca-cert"
-
-resources: {}
-  ## We usually recommend not to specify default resources and to leave this as a conscious
-  ## choice for the user. This also increases chances charts run on environments with little
-  ## resources, such as Minikube. If you do want to specify resources, uncomment the following
-  ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-#   cpu: 100m
-#   memory: 128Mi
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
-  ## Suggested antiAffinity, as each Peer should be on a separate Node for resilience
-  # podAntiAffinity:
-  #   requiredDuringSchedulingIgnoredDuringExecution:
-  #     - topologyKey: "kubernetes.io/hostname"
-  #       labelSelector:
-#         matchLabels:
-#           app: hlf-peer

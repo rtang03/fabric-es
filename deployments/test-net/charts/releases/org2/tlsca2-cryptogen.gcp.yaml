@@ -1,0 +1,26 @@
+global:
+  mspId: Org2MSP
+  caName: tlsca2
+  caServerHome: /var/hyperledger/crypto-config/Org2MSP/tls/server
+  caClientHome: /var/hyperledger/crypto-config/Org2MSP/tls/admin
+  domain: org2.net
+  setupsh: admin2-orgadmin--setupsh
+
+caAdmin: tlsca2-admin
+caAdminPW: tlsca2-adminPW
+endpoint: tlsca2-hlf-ca.n2.svc.cluster.local:7054
+tlsCaCert: /var/hyperledger/crypto-config/Org2MSP/tls/admin/msp/cacerts/tlsca2-hlf-ca-n2-svc-cluster-local-7054.pem
+
+orgAdmin:
+  enabled: false
+
+items:
+  - type: type
+    id: peer0.org2.net
+    secret: peer0.org2.netPW
+    caClientMspDir: tls-msp
+    profile: tls
+    csrHosts: "p0o2-hlf-peer,peer0.org2.net"
+
+persistence:
+  pvcName: pvc-org2

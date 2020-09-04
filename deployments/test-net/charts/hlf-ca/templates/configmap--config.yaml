@@ -47,7 +47,7 @@ data:
       # Key file (is only used to import a private key into BCCSP)
       keyfile:
       # Certificate file (default: ca-cert.pem)
-      certfile: {{ .Values.config.caClientTlsCertfiles }}
+      certfile: {{ include "hlf-ca.caClientTlsCertfiles" . }}
       # Chain file
       chainfile:
     #############################################################################

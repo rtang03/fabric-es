@@ -227,6 +227,7 @@ kubectl port-forward --namespace default svc/psql-postgresql 5433:5432
 [k8s dashboard: how to access](https://docs.bitnami.com/kubernetes/get-started-gke/#step-6-access-the-kubernetes-dashboard)
 [k8s api spec](https://pkg.go.dev/k8s.io/api@v0.18.8)
 [gke nginx example](https://github.com/GoogleCloudPlatform/community/blob/master/tutorials/nginx-ingress-gke/index.md)
+https://github.com/Azure/Hyperledger-Fabric-on-Azure-Kubernetes-Service/blob/master/fabricTools/deployments/peer/fabric-peer-template-couchDB.yaml
 
 export NGX=$(kubectl get secret --namespace ingress-nginx ingress-nginx-admission -o jsonpath="{.data.cert}" | base64 --decode)
 

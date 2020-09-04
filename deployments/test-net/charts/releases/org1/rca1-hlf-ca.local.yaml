@@ -24,9 +24,7 @@ caAdminPW: rca1-adminPW
 #  port: 7054
 
 config:
-  caServerHome: /var/hyperledger/crypto-config/Org1MSP/ca/server
-  caClientHome: /var/hyperledger/crypto-config/Org1MSP/ca/admin
-  caClientTlsCertfiles: /var/hyperledger/crypto-config/Org1MSP/ca/server/ca-cert.pem
+  type: ca
   ### Default
   # debug: false
   csr:

@@ -1,0 +1,152 @@
+{{- if .Values.job.addorg }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "hlf-operator.fullname" . }}--addorg
+  labels:
+{{- include "labels.standard" . | nindent 4 }}
+spec:
+  backoffLimit: 0
+  parallelism: 1
+  completions: 1
+  template:
+    spec:
+      restartPolicy: Never
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.pvcName }}
+        - name: setup-script
+          configMap:
+            name: {{ .Values.global.config.setupsh }}
+            defaultMode: 0777
+        - name: core-yaml
+          configMap:
+            name: {{ .Values.global.config.coreyaml }}
+        - name: configtx-yaml
+          configMap:
+            name: {{ include "hlf-operator.fullname" . }}--configtx
+        - name: org0-tls-ca-cert
+          secret:
+            secretName: {{ .Values.secret.tlscacert }}
+      containers:
+        - name: addorg
+          image: library/alpine:3.12.0
+          tty: true
+          command: ["sh", "-c"]
+          args:
+            - |-
+              . /script/setup.sh
+              apk update
+              apk upgrade
+              apk --no-cache add libc6-compat libstdc++ jq
+              ./bin/peer version
+              export DIR={{ .Values.global.workingDir }}/crypto-config/channel-artifacts
+              # check config.json exists
+              if [ -f $DIR/config.json ]
+              then
+                echo "config.json exists"
+              else
+                echo "error: config.json not exists"
+                exit -1
+              fi
+              # Step 1
+              printHeader "generate channel definition"
+              set -x
+              $BIN/configtxgen -configPath /configtx -printOrg {{ .Values.global.mspId }} > $DIR/{{ .Values.global.mspId }}-configtx.json
+              res=$?
+              set +x
+              printMessage "generate channel definition" $res
+              # Step 2
+              printHeader "Modify config to append new org: {{ .Values.global.mspId }}"
+              set -x
+              jq -s '.[0] * {"channel_group":{"groups":{"Application":{"groups": {"{{ .Values.global.mspId }}":.[1]}}}}}' \
+                $DIR/config.json \
+                $DIR/{{ .Values.global.mspId }}-configtx.json > $DIR/modified_config.json
+              res=$?
+              set +x
+              printMessage "modify config to append new org:  {{ .Values.global.mspId }}" $res
+              # Step 3
+              printHeader "Encode current block: config.json to config.pb"
+              set -x
+              $BIN/configtxlator proto_encode --input $DIR/config.json --type common.Config --output $DIR/config.pb
+              res=$?
+              set +x
+              printMessage "encode config.json to config.pb" $res
+              # Step 4
+              printHeader "Encode new block: modified_config.json to modified_config.pb"
+              set -x
+              $BIN/configtxlator proto_encode --input $DIR/modified_config.json --type common.Config --output $DIR/modified_config.pb
+              res=$?
+              set +x
+              printMessage "encode modified_config.json to modified_config.pb" $res
+              # Step 5
+              printHeader "Compute update block"
+              set -x
+              $BIN/configtxlator compute_update --channel_id $CHANNEL_NAME --original $DIR/config.pb --updated $DIR/modified_config.pb --output $DIR/config_update.pb
+              res=$?
+              set +x
+              printMessage "compute update block" $res
+              # Step 6
+              printHeader "Decode update block"
+              set -x
+              $BIN/configtxlator proto_decode --input $DIR/config_update.pb --type common.ConfigUpdate | jq . > $DIR/config_update.json
+              res=$?
+              set +x
+              printMessage "decode update block" $res
+              # Step 7
+              printHeader "Create update_envelope"
+              echo "{\"payload\":{\"header\":{\"channel_header\":{\"channel_id\":\"$CHANNEL_NAME\", \"type\":2}},\"data\":{\"config_update\":$(cat $DIR/config_update.json)}}}" | jq . > $DIR/config_update_in_envelope.json
+              set -x
+              res=$?
+              set +x
+              printMessage "create update_envelope" $res
+              # Step 8
+              printHeader "Encode update_envelope"
+              set -x
+              $BIN/configtxlator proto_encode --input $DIR/config_update_in_envelope.json --type common.Envelope --output $DIR/config_update_in_envelope.pb
+              res=$?
+              set +x
+              printMessage "encode update_envelope" $res
+              # Step 9
+              printHeader ""
+              set -x
+              res=$?
+              set +x
+              printMessage "" $res
+              # Step 5
+              printHeader ""
+              set -x
+              res=$?
+              set +x
+              printMessage "" $res
+              # Step 5
+              printHeader ""
+              set -x
+              res=$?
+              set +x
+              printMessage "" $res
+              # Step 5
+              printHeader ""
+              set -x
+              res=$?
+              set +x
+              printMessage "" $res
+              sleep 2h
+          workingDir: {{ .Values.global.workingDir }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "hlf-operator.fullname" . }}--cli
+          volumeMounts:
+            - mountPath: /var/hyperledger
+              name: fabricfiles
+            - mountPath: /etc/hyperledger
+              name: core-yaml
+            - name: setup-script
+              mountPath: /script/setup.sh
+              subPath: setup.sh
+            - name: configtx-yaml
+              mountPath: /configtx
+            - name: org0-tls-ca-cert
+              mountPath: {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/org0-tls-ca-cert
+{{- end }}

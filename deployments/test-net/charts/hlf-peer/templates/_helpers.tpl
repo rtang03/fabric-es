@@ -48,5 +48,5 @@ chart: {{ include "hlf-peer.chart" . }}
 Create Peer home
 */}}
 {{- define "hlf-peer.home" -}}
-{{- printf "%s/%s.%s" $.Values.peer.orgPath $.Values.peer.peerName $.Values.global.domain }}
+{{- printf "/var/hyperledger/crypto-config/%s/%s.%s" $.Values.global.mspId $.Values.peer.peerName $.Values.global.domain }}
 {{- end -}}

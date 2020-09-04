@@ -1,4 +1,0 @@
-tasks:
-  approve_chaincode:
-    enabled: true
-    sequence: 1

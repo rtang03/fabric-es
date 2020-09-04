@@ -5,11 +5,11 @@ global:
   # workingDir: /var/hyperledger/crypto-config
   ### Default
   # logging: info
-  mspId: Org0MSP
-  caName: tlsca0
+  mspId: Org2MSP
+  caName: tlsca2
 
-caAdmin: tlsca0-admin
-caAdminPW: tlsca0-adminPW
+caAdmin: tlsca2-admin
+caAdminPW: tlsca2-adminPW
 
 ### Default
 #image:
@@ -46,17 +46,17 @@ ingress:
   annotations: {}
   path: /
   hosts:
-    - tlsca0
+    - tlsca2
   tls: []
 
 persistence:
   ### Default
   # enabled: true
-  existingClaim: pvc-org0
+  existingClaim: pvc-org2
 
 externalDatabase:
   type: postgres
-  host: admin0-postgresql-0
+  host: admin2-postgresql-0
   port: 5432
   database: tls_ca_db
   username: postgres
@@ -65,4 +65,3 @@ externalDatabase:
 ### Default
 #db:
 #  ssl: disable
-

@@ -23,9 +23,7 @@ caAdminPW: tlsca0-adminPW
 #  port: 7054
 
 config:
-  caServerHome: /var/hyperledger/crypto-config/Org0MSP/tls/server
-  caClientHome: /var/hyperledger/crypto-config/Org0MSP/tls/admin
-  caClientTlsCertfiles: /var/hyperledger/crypto-config/Org0MSP/tls/server/ca-cert.pem
+  type: tls
   ### Default
   # debug: false
   csr:
