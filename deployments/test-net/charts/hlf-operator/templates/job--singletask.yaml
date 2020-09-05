@@ -27,7 +27,7 @@ spec:
           secret:
             secretName: {{ .Values.secret.tlscacert }}
       containers:
-        - name: addorg
+        - name: fetch-decode-send
           image: library/alpine:3.12.0
           tty: true
           command: ["sh", "-c"]
@@ -38,6 +38,7 @@ spec:
               apk upgrade
               apk --no-cache add libc6-compat libstdc++ jq
               ./bin/peer version
+              ### Fetch channel config and turn into config.json
               {{- if .Values.job.singletask.fetchChannelConfig }}
               printHeader "Fetch channel config"
               ${BIN}/peer channel fetch config {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/config_block.pb \
@@ -55,6 +56,7 @@ spec:
               set +x
               printMessage "decode block and extract channel config: config.json" $res
               {{- end }}
+              ### Gupload to new org
           workingDir: {{ .Values.global.workingDir }}
           envFrom:
             - configMapRef:

@@ -1,6 +1,5 @@
-{{- if .Values.ingress.enabled -}}
-{{- $fullName := include "hlf-peer.fullname" . -}}
-{{- $ingressPath := .Values.ingress.path -}}
+{{- if .Values.ingress.enabled }}
+{{- $fullName := include "gupload.fullname" . -}}
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
@@ -27,7 +26,7 @@ spec:
     - host: {{ . }}
       http:
         paths:
-          - path: {{ $ingressPath }}
+          - path: /
             backend:
               serviceName: {{ $fullName }}
               servicePort: request

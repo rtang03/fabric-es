@@ -193,5 +193,7 @@ res=$?
 set +x
 printMessage "job/bootstrap" $res
 
+helm install g1 -n n1 -f ./releases/org1/g1-gupload.gcp.yaml ./gupload
+
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"

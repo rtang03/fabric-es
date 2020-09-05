@@ -41,6 +41,7 @@ spec:
               apk upgrade
               apk --no-cache add libc6-compat libstdc++ jq
               ./bin/peer version
+              # todo: THIS STEP NEED FIXING config.json is not in directory; is coming from gupload
               export DIR={{ .Values.global.workingDir }}/crypto-config/channel-artifacts
               # check config.json exists
               if [ -f $DIR/config.json ]
