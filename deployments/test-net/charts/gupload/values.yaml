@@ -1,5 +1,6 @@
 global:
   fabricBinary: 2.2.0
+  guploadImage: ghcr.io/rtang03/gupload:0.0.7
 
 persistence:
   enabled: true

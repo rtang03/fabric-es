@@ -14,40 +14,41 @@ spec:
       labels:
 {{ include "labels.standard" . | indent 8 }}
     spec:
-      initContainers:
-        - name: init-gupload
-          image: library/alpine:3.12.0
-          workingDir: /home
-          command:
-            - sh
-            - -c
-            - |
-              set -x
-              BIN=/var/gupload/uploaded/peer
-              if [ -f "$BIN" ]; then
-                echo "$BIN exists"
-              else
-                apk update
-                apk upgrade
-                apk --no-cache add curl bash libc6-compat libstdc++
-                curl -sSL https://bit.ly/2ysbOFE > bootstrap.sh
-                chmod +x ./bootstrap.sh
-                ./bootstrap.sh {{ .Values.global.fabricBinary }} 1.4.7 -s -d
-                mkdir - p /var/gupload/bin
-                if [ -f "bin/peer" ]; then
-                  echo "init successfully"
-                  mv bin/peer /var/gupload/uploaded
-                else
-                  echo "init fails"
-                  exit -1
-                fi
-              fi
-          volumeMounts:
-            - mountPath: /var/gupload/uploaded
-              name: files
+#      initContainers:
+#        - name: init-gupload
+#          image: library/alpine:3.12.0
+#          workingDir: /home
+#          command:
+#            - sh
+#            - -c
+#            - |
+#              set -x
+#              BIN=/var/gupload/uploaded/peer
+#              if [ -f "$BIN" ]; then
+#                echo "$BIN exists"
+#              else
+#                apk update
+#                apk upgrade
+#                apk --no-cache add curl bash libc6-compat libstdc++
+#                curl -sSL https://bit.ly/2ysbOFE > bootstrap.sh
+#                chmod +x ./bootstrap.sh
+#                ./bootstrap.sh {{ .Values.global.fabricBinary }} 1.4.7 -s -d
+#                mkdir - p /var/gupload/bin
+#                if [ -f "bin/peer" ]; then
+#                  echo "init successfully"
+#                  mv bin/peer /var/gupload/uploaded
+#                else
+#                  echo "init fails"
+#                  exit -1
+#                fi
+#              fi
+#              cp /var/gupload/gupload /var/gupload/uploaded/gupload
+#          volumeMounts:
+#            - mountPath: /var/gupload/uploaded
+#              name: files
       containers:
         - name: gupload
-          image: ghcr.io/rtang03/gupload:0.0.7
+          image: {{ .Values.global.guploadImage | quote }}
           imagePullPolicy: IfNotPresent
           workingDir: /var/gupload
           ports:
@@ -61,6 +62,7 @@ spec:
               apk update
               apk upgrade
               apk --no-cache add curl libc6-compat libstdc++
+              cp /var/gupload/gupload /var/gupload/uploaded
               echo "### Starting gupload ###"
               ./gupload serve --key ./cert/tls.key --certificate ./cert/tls.crt
           volumeMounts:

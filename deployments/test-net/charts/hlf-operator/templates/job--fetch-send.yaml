@@ -1,0 +1,93 @@
+{{- if .Values.fetchSend.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "hlf-operator.fullname" . }}--fetch-send
+  labels:
+{{- include "labels.standard" . | nindent 4 }}
+spec:
+  backoffLimit: 0
+  parallelism: 1
+  completions: 1
+  template:
+    spec:
+      restartPolicy: Never
+      hostAliases:
+        - hostnames:
+            - {{ .Values.fetchSend.address.url }}
+          ip: {{ .Values.fetchSend.address.ip | quote }}
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: {{ .Values.fetchSend.orgadmin.pvcName }}
+        - name: upload
+          persistentVolumeClaim:
+            claimName: {{ .Values.fetchSend.gupload.pvcName }}
+        - name: setup-script
+          configMap:
+            name: {{ .Values.global.config.setupsh }}
+            defaultMode: 0777
+        - name: core-yaml
+          configMap:
+            name: {{ .Values.global.config.coreyaml }}
+        - name: org0-tls-ca-cert
+          secret:
+            secretName: {{ .Values.fetchSend.secret.org0tlscacert }}
+        - name: send-target-tls
+          secret:
+            secretName: {{ .Values.fetchSend.secret.peerTlscacert }}
+      containers:
+        - name: fetch-decode-send
+          image: {{ .Values.global.guploadImage | quote }}
+          command: ["sh", "-c"]
+          workingDir: /var/hyperledger
+          args:
+            - |-
+              . /script/setup.sh
+              apk update
+              apk upgrade
+              apk --no-cache add libc6-compat libstdc++ jq
+              $BIN/peer version
+              ### Fetch channel config and turn into config.json
+              printHeader "Fetch channel config"
+              export TMP={{ .Values.global.workingDir }}/uploaded/tmp/{{include "hlf-operator.fullname" .}}
+              set -x
+              rm -r $TMP
+              mkdir -p $TMP
+              $BIN/peer channel fetch config $TMP/config_block.pb -o ${ORDERER_URL} -c ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} >& $TMP/log-fetchconfig.txt
+              res=$?
+              set +x
+              printMessage "fetch channel config: config_block.pb" $res
+              cat $TMP/log-fetchconfig.txt
+              printHeader "Decoding config block to JSON and isolating config"
+              set -x
+              $BIN/configtxlator proto_decode --input $TMP/config_block.pb --type common.Block | jq .data.data[0].payload.data.config > $TMP/config.json
+              res=$?
+              set +x
+              printMessage "decode block and extract channel config: config.json" $res
+              ### Gupload
+              printHeader "Gupload to remote server"
+              set -x
+              /var/gupload/gupload upload --cacert /var/gupload/cert/tls.crt --label o1_channel_config --file $TMP/config.json --filename config.json \
+                --address "{{ .Values.fetchSend.address.url }}:{{ .Values.fetchSend.address.port }}"
+              res=$?
+              set +x
+              printMessage "gupload to {{ .Values.fetchSend.address.url }}:{{ .Values.fetchSend.address.port }}" $res
+          envFrom:
+            - configMapRef:
+                name: {{ include "hlf-operator.fullname" . }}--cli
+          volumeMounts:
+            - mountPath: /var/hyperledger
+              name: fabricfiles
+            - mountPath: {{ .Values.global.workingDir }}/uploaded
+              name: upload
+            - mountPath: /etc/hyperledger
+              name: core-yaml
+            - name: setup-script
+              mountPath: /script/setup.sh
+              subPath: setup.sh
+            - name: send-target-tls
+              mountPath: /var/gupload/cert
+            - name: org0-tls-ca-cert
+              mountPath: {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/org0-tls-ca-cert
+{{- end }}

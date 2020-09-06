@@ -1,4 +1,4 @@
-{{- if .Values.job.addorg }}
+{{- if .Values.addOrg.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -15,7 +15,7 @@ spec:
       volumes:
         - name: fabricfiles
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.pvcName }}
+            claimName: {{ .Values.addOrg.pvcName }}
         - name: setup-script
           configMap:
             name: {{ .Values.global.config.setupsh }}
@@ -28,7 +28,7 @@ spec:
             name: {{ include "hlf-operator.fullname" . }}--configtx
         - name: org0-tls-ca-cert
           secret:
-            secretName: {{ .Values.secret.tlscacert }}
+            secretName: {{ .Values.addOrg.secret.tlscacert }}
       containers:
         - name: addorg
           image: library/alpine:3.12.0

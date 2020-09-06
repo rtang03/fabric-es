@@ -1,4 +1,4 @@
-{{- if .Values.job.bootstrap }}
+{{- if .Values.bootstrap.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -15,7 +15,7 @@ spec:
       volumes:
         - name: fabricfiles
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.pvcName }}
+            claimName: {{ .Values.bootstrap.pvcName }}
         - name: setup-script
           configMap:
             name: {{ .Values.global.config.setupsh }}
@@ -25,10 +25,10 @@ spec:
             name: {{ .Values.global.config.coreyaml }}
         - name: org0-tls-ca-cert
           secret:
-            secretName: {{ .Values.secret.tlscacert }}
+            secretName: {{ .Values.bootstrap.secret.tlscacert }}
         - name: channel-tx
           secret:
-            secretName: {{ .Values.secret.channeltx }}
+            secretName: {{ .Values.bootstrap.secret.channeltx }}
       containers:
         - name: bootstrap
           image: library/alpine:3.12.0
@@ -42,7 +42,7 @@ spec:
               apk --no-cache add libc6-compat libstdc++ jq
               ./bin/peer version
               export DIR={{ .Values.global.workingDir }}/crypto-config/channel-artifacts
-          {{- if .Values.tasks.create_channel.enabled}}
+          {{- if .Values.bootstrap.tasks.create_channel.enabled}}
               printHeader "Create channel"
               echo "Fetch block to see if channel has already been created..."
               set -x
@@ -64,7 +64,7 @@ spec:
                 cat $DIR/log-createchannel.txt
               fi
           {{- end }}
-          {{- if .Values.tasks.join_channel.enabled }}
+          {{- if .Values.bootstrap.tasks.join_channel.enabled }}
               printHeader "Join channel"
               set -x
               ${BIN}/peer channel join -b $DIR/${CHANNEL_NAME}.block >& $DIR/log-joinchannel.txt
@@ -73,12 +73,12 @@ spec:
               printMessage "join channel" $res
               cat $DIR/log-joinchannel.txt
           {{- end }}
-          {{- if .Values.tasks.getchannnelinfo.enabled }}
+          {{- if .Values.bootstrap.tasks.getchannnelinfo.enabled }}
               set -x
               ${BIN}/peer channel getinfo -c ${CHANNEL_NAME}
               set +x
           {{- end }}
-          {{- if .Values.tasks.update_anchor_peer.enabled }}
+          {{- if .Values.bootstrap.tasks.update_anchor_peer.enabled }}
               printHeader "Update anchor peer"
               set -x
               ${BIN}/peer channel fetch config $DIR/config_block.pb \
@@ -148,25 +148,25 @@ spec:
               printMessage "send update_envelope proposal" $res
               cat $DIR/log-updateanchorpeer.txt
           {{- end }}
-          {{- if .Values.tasks.package_chaincode.enabled }}
+          {{- if .Values.bootstrap.tasks.package_chaincode.enabled }}
               printHeader "package chaincode"
               set -x
-              ${BIN}/peer lifecycle chaincode package $DIR/{{ .Values.chaincode.id }}.tar.gz --path $DIR/chaincode --lang {{ .Values.chaincode.lang }} --label {{ .Values.chaincode.id }}v{{ .Values.chaincode.version }}
+              ${BIN}/peer lifecycle chaincode package $DIR/{{ .Values.bootstrap.chaincode.id }}.tar.gz --path $DIR/chaincode --lang {{ .Values.bootstrap.chaincode.lang }} --label {{ .Values.bootstrap.chaincode.id }}v{{ .Values.bootstrap.chaincode.version }}
               res=$?
               set +x
               printMessage "package chaincode" $res
           {{- end }}
-          {{- if .Values.tasks.install_chaincode.enabled }}
+          {{- if .Values.bootstrap.tasks.install_chaincode.enabled }}
               printHeader "install chaincode"
               set -x
               echo "installation will take a few minutes"
-              ${BIN}/peer lifecycle chaincode install $DIR/{{ .Values.chaincode.id }}.tar.gz >& $DIR/log-install.txt
+              ${BIN}/peer lifecycle chaincode install $DIR/{{ .Values.bootstrap.chaincode.id }}.tar.gz >& $DIR/log-install.txt
               res=$?
               set +x
               printMessage "install chaincode" $?
               cat $DIR/log-install.txt
           {{- end }}
-          {{- if .Values.tasks.queryinstalled.enabled }}
+          {{- if .Values.bootstrap.tasks.queryinstalled.enabled }}
               printHeader "queryinstalled"
               set -x
               ${BIN}/peer lifecycle chaincode queryinstalled >& $DIR/log-installed.txt
@@ -175,57 +175,57 @@ spec:
               printMessage "query installed chaincode" $?
               cat $DIR/log-installed.txt
           {{- end }}
-          {{- if .Values.tasks.approve_chaincode.enabled }}
+          {{- if .Values.bootstrap.tasks.approve_chaincode.enabled }}
               printHeader "approve chaincode"
               set -x
               ${BIN}/peer lifecycle chaincode approveformyorg \
                 -o ${ORDERER_URL} -C ${CHANNEL_NAME} \
                 --tls --cafile ${ORDERER_CA} \
-                --name {{ .Values.chaincode.id }} \
-                --version {{ .Values.chaincode.version }} \
-                --package-id $(sed -n "/{{ .Values.chaincode.id }}v{{ .Values.chaincode.version }}/{s/^Package ID: //; s/, Label:.*$//; p;}" $DIR/log-installed.txt) \
+                --name {{ .Values.bootstrap.chaincode.id }} \
+                --version {{ .Values.bootstrap.chaincode.version }} \
+                --package-id $(sed -n "/{{ .Values.bootstrap.chaincode.id }}v{{ .Values.bootstrap.chaincode.version }}/{s/^Package ID: //; s/, Label:.*$//; p;}" $DIR/log-installed.txt) \
                 --init-required \
-                --sequence {{ .Values.tasks.approve_chaincode.sequence }} \
+                --sequence {{ .Values.bootstrap.tasks.approve_chaincode.sequence }} \
                 --waitForEvent >& $DIR/log-approvecc.txt
               res=$?
               set +x
               printMessage "approve chaincode" $res
               cat  $DIR/log-approvecc.txt
           {{- end }}
-          {{- if .Values.tasks.queryapproved.enabled }}
+          {{- if .Values.bootstrap.tasks.queryapproved.enabled }}
               printHeader "queryapproved"
               set -x
-              ${BIN}/peer lifecycle chaincode queryapproved -C ${CHANNEL_NAME} -n {{ .Values.chaincode.id }}
+              ${BIN}/peer lifecycle chaincode queryapproved -C ${CHANNEL_NAME} -n {{ .Values.bootstrap.chaincode.id }}
               res=$?
               set +x
               printMessage "query approvedchaincode" $res
           {{- end }}
-          {{- if .Values.tasks.checkcommitreadiness.enabled }}
+          {{- if .Values.bootstrap.tasks.checkcommitreadiness.enabled }}
               printHeader "checkcommitreadiness"
               set -x
               ${BIN}/peer lifecycle chaincode checkcommitreadiness \
                 -o ${ORDERER_URL} -C ${CHANNEL_NAME} \
                 --tls --cafile ${ORDERER_CA} \
-                --name {{ .Values.chaincode.id }} \
-                --version {{ .Values.chaincode.version }} \
+                --name {{ .Values.bootstrap.chaincode.id }} \
+                --version {{ .Values.bootstrap.chaincode.version }} \
                 --init-required \
-                --sequence {{ .Values.tasks.approve_chaincode.sequence }} >& $DIR/log-commitreadiness.txt
+                --sequence {{ .Values.bootstrap.tasks.approve_chaincode.sequence }} >& $DIR/log-commitreadiness.txt
               res=$?
               set +x
               printMessage "checkcommitreadiness" $res
               cat $DIR/log-commitreadiness.txt
           {{- end }}
-          {{- if .Values.tasks.commit_chaincode.enabled }}
+          {{- if .Values.bootstrap.tasks.commit_chaincode.enabled }}
               printHeader "commit chaincode"
               set -x
               ${BIN}/peer lifecycle chaincode commit \
                 -o ${ORDERER_URL} -C ${CHANNEL_NAME} \
                 --tls --cafile ${ORDERER_CA} \
-                --name {{ .Values.chaincode.id }} \
-                --version {{ .Values.chaincode.version }} \
+                --name {{ .Values.bootstrap.chaincode.id }} \
+                --version {{ .Values.bootstrap.chaincode.version }} \
                 --init-required \
-                --sequence {{ .Values.tasks.approve_chaincode.sequence }} \
-              {{- range .Values.tasks.commit_chaincode.targets }}
+                --sequence {{ .Values.bootstrap.tasks.approve_chaincode.sequence }} \
+              {{- range .Values.bootstrap.tasks.commit_chaincode.targets }}
                 --peerAddresses {{ .peerAddress }} \
                 --tlsRootCertFiles {{ .tlsRootCertFiles }} \
               {{- end }}
@@ -235,31 +235,31 @@ spec:
               printMessage "commit chaincode" $res
               cat $DIR/log-commitcc.txt
           {{- end }}
-          {{- if .Values.tasks.querycommitted.enabled }}
+          {{- if .Values.bootstrap.tasks.querycommitted.enabled }}
               printHeader "querycommitted chaincode"
               set -x
               ${BIN}/peer lifecycle chaincode querycommitted \
                 -o ${ORDERER_URL} -C ${CHANNEL_NAME} \
                 --tls --cafile ${ORDERER_CA} \
-              {{- range .Values.tasks.querycommitted.targets }}
+              {{- range .Values.bootstrap.tasks.querycommitted.targets }}
                 --peerAddresses {{ .peerAddress }} \
                 --tlsRootCertFiles {{ .tlsRootCertFiles }} \
               {{- end }}
-                --name {{ .Values.chaincode.id }} >& $DIR/log-querycommitted.txt
+                --name {{ .Values.bootstrap.chaincode.id }} >& $DIR/log-querycommitted.txt
               res=$?
               set +x
               printMessage "querycommitted chaincode" $res
               cat $DIR/log-querycommitted.txt
           {{- end }}
-          {{- if .Values.tasks.init_chaincode.enabled }}
+          {{- if .Values.bootstrap.tasks.init_chaincode.enabled }}
               printHeader "init chaincode"
               set -x
               ${BIN}/peer chaincode invoke --isInit \
                 -o ${ORDERER_URL} -C ${CHANNEL_NAME} \
                 --tls --cafile ${ORDERER_CA} \
-                --name {{ .Values.chaincode.id }} \
+                --name {{ .Values.bootstrap.chaincode.id }} \
                 -c '{"Args":["Init"]}' \
-              {{- range .Values.tasks.init_chaincode.targets }}
+              {{- range .Values.bootstrap.tasks.init_chaincode.targets }}
                 --peerAddresses {{ .peerAddress }} \
                 --tlsRootCertFiles {{ .tlsRootCertFiles }} \
               {{- end }}
@@ -268,14 +268,14 @@ spec:
               set +x
               # printMessage "init chaincode" $res
               cat $DIR/log-initcc.txt
-              #  -c '{"function":"{{ .Values.chaincode.contract }}:Init","Args":[]}' \
+              #  -c '{"function":"{{ .Values.bootstrap.chaincode.contract }}:Init","Args":[]}' \
               {{- end }}
-          {{- if .Values.tasks.dev_invoke.enabled }}
+          {{- if .Values.bootstrap.tasks.dev_invoke.enabled }}
               printHeader "dev-invoke"
               set -x
-              ${BIN}/peer chaincode invoke -o ${ORDERER_URL} -C ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} --name {{ .Values.chaincode.id }} \
+              ${BIN}/peer chaincode invoke -o ${ORDERER_URL} -C ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} --name {{ .Values.bootstrap.chaincode.id }} \
                 -c '{"Args":["createCommit", "dev_entity", "ent_dev", "0","[]", "ent_dev"]}' \
-              {{- range .Values.tasks.dev_invoke.targets }}
+              {{- range .Values.bootstrap.tasks.dev_invoke.targets }}
                 --peerAddresses {{ .peerAddress }} \
                 --tlsRootCertFiles {{ .tlsRootCertFiles }} \
               {{- end }}
@@ -286,17 +286,17 @@ spec:
               printMessage "dev-invoke" $res
               cat $DIR/log-devinvoke.txt
           {{- end }}
-          {{- if .Values.tasks.dev_query.enabled }}
+          {{- if .Values.bootstrap.tasks.dev_query.enabled }}
               printHeader "dev-query"
               set -x
-              ${BIN}/peer chaincode query -C ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} --name {{ .Values.chaincode.id }} \
+              ${BIN}/peer chaincode query -C ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} --name {{ .Values.bootstrap.chaincode.id }} \
                 -c '{"Args":["eventstore:queryByEntityName","dev_entity"]}' >& $DIR/log-devquery.txt
               res=$?
               set +x
               printMessage "dev-query" $res
               cat $DIR/log-devquery.txt
           {{- end }}
-              #  -c "{\"function\":\"{{ .Values.chaincode.contract }}:Init\",\"Args\":[]}" \
+              #  -c "{\"function\":\"{{ .Values.bootstrap.chaincode.contract }}:Init\",\"Args\":[]}" \
           workingDir: {{ .Values.global.workingDir }}
           envFrom:
             - configMapRef:
