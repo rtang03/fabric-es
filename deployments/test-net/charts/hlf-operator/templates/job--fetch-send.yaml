@@ -68,7 +68,7 @@ spec:
               ### Gupload
               printHeader "Gupload to remote server"
               set -x
-              /var/gupload/gupload upload --cacert /var/gupload/cert/tls.crt --label o1_channel_config --file $TMP/config.json --filename config.json \
+              /var/gupload/gupload upload --cacert /var/gupload/cert/tls.crt --label {{ .Values.fetchSend.label }} --file $TMP/config.json --filename config.json \
                 --address "{{ .Values.fetchSend.address.url }}:{{ .Values.fetchSend.address.port }}"
               res=$?
               set +x

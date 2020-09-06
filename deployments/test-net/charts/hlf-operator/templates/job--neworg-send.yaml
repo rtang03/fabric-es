@@ -1,0 +1,169 @@
+{{- if .Values.neworgSend.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "hlf-operator.fullname" . }}--neworg-send
+  labels:
+{{- include "labels.standard" . | nindent 4 }}
+spec:
+  backoffLimit: 0
+  parallelism: 1
+  completions: 1
+  template:
+    spec:
+      restartPolicy: Never
+      hostAliases:
+        - hostnames:
+            - {{ .Values.neworgSend.address.url }}
+          ip: {{ .Values.neworgSend.address.ip | quote }}
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: {{ .Values.neworgSend.orgadmin.pvcName }}
+        - name: upload
+          persistentVolumeClaim:
+            claimName: {{ .Values.neworgSend.gupload.pvcName }}
+        - name: setup-script
+          configMap:
+            name: {{ .Values.global.config.setupsh }}
+            defaultMode: 0777
+        # - name: core-yaml
+        #   configMap:
+        #     name: {{ .Values.global.config.coreyaml }}
+        - name: send-target-tls
+          secret:
+            secretName: {{ .Values.neworgSend.secret.peerTlscacert }}
+        - name: configtx-yaml
+          configMap:
+            name: {{ include "hlf-operator.fullname" . }}--configtx
+      containers:
+        - name: neworg-send
+          image: {{ .Values.global.guploadImage | quote }}
+          command: ["sh", "-c"]
+          workingDir: /var/hyperledger
+          args:
+            - |-
+              . /script/setup.sh
+              apk update
+              apk upgrade
+              apk --no-cache add libc6-compat libstdc++ jq
+              $BIN/peer version
+              ### check config.json exists
+              if [ -f /var/hyperledger/uploaded/{{ .Values.neworgSend.channelConfg }} ]
+              then
+                echo "config.json exists"
+              else
+                echo "error: config.json not exists"
+                exit -1
+              fi
+              ########
+              # Step 0: prepare tmp dir
+              ########
+              export TMP={{ .Values.global.workingDir }}/uploaded/tmp/{{include "hlf-operator.fullname" .}}
+              set -x
+              rm -r $TMP
+              mkdir -p $TMP
+              set +x
+              ########
+              # Step 1: generate channel definition
+              ########
+              printHeader "generate channel definition"
+              set -x
+              $BIN/configtxgen -configPath /configtx -printOrg {{ .Values.global.mspId }} > $TMP/{{ .Values.global.mspId }}-configtx.json
+              res=$?
+              set +x
+              printMessage "generate channel definition" $res
+              ########
+              # Step 2: modify config to append new org
+              ########
+              printHeader "Modify config to append new org: {{ .Values.global.mspId }}"
+              set -x
+              jq -s '.[0] * {"channel_group":{"groups":{"Application":{"groups": {"{{ .Values.global.mspId }}":.[1]}}}}}' \
+                /var/hyperledger/uploaded/{{ .Values.neworgSend.channelConfg }} \
+                $TMP/{{ .Values.global.mspId }}-configtx.json > $TMP/modified_config.json
+              res=$?
+              set +x
+              printMessage "modify config to append new org: {{ .Values.global.mspId }}" $res
+              ########
+              # Step 3: encode config.json to config.pb
+              ########
+              printHeader "Encode current block: config.json to config.pb"
+              set -x
+              $BIN/configtxlator proto_encode --input /var/hyperledger/uploaded/{{ .Values.neworgSend.channelConfg }} \
+                --type common.Config --output $TMP/config.pb
+              res=$?
+              set +x
+              printMessage "encode config.json to config.pb" $res
+              ########
+              # Step 4: encode modified_config.json to modified_config.pb
+              ########
+              printHeader "Encode new block: modified_config.json to modified_config.pb"
+              set -x
+              $BIN/configtxlator proto_encode --input $TMP/modified_config.json --type common.Config --output $TMP/modified_config.pb
+              res=$?
+              set +x
+              printMessage "encode modified_config.json to modified_config.pb" $res
+              ########
+              # Step 5: compute update block
+              ########
+              printHeader "Compute update block"
+              set -x
+              $BIN/configtxlator compute_update --channel_id $CHANNEL_NAME --original $TMP/config.pb --updated $TMP/modified_config.pb --output $TMP/config_update.pb
+              res=$?
+              set +x
+              printMessage "compute update block" $res
+              ########
+              # Step 6: decode update block
+              ########
+              printHeader "Decode update block"
+              set -x
+              $BIN/configtxlator proto_decode --input $TMP/config_update.pb --type common.ConfigUpdate | jq . > $TMP/config_update.json
+              res=$?
+              set +x
+              printMessage "decode update block" $res
+              ########
+              # Step 7: create update_envelope
+              ########
+              printHeader "Create update_envelope"
+              echo "{\"payload\":{\"header\":{\"channel_header\":{\"channel_id\":\"$CHANNEL_NAME\", \"type\":2}},\"data\":{\"config_update\":$(cat $TMP/config_update.json)}}}" | jq . > $TMP/config_update_in_envelope.json
+              set -x
+              res=$?
+              set +x
+              printMessage "create update_envelope" $res
+              ########
+              # Step 8: encode update_envelope
+              ########
+              printHeader "Encode update_envelope"
+              set -x
+              $BIN/configtxlator proto_encode --input $TMP/config_update_in_envelope.json --type common.Envelope --output $TMP/config_update_in_envelope.pb
+              res=$?
+              set +x
+              printMessage "encode update_envelope" $res
+              ########
+              # Step 9: gupload to obtain signature
+              ########
+              printHeader "Gupload to remote server"
+              set -x
+              /var/gupload/gupload upload --cacert /var/gupload/cert/tls.crt --label {{ .Values.neworgSend.label }} --file $TMP/config_update_in_envelope.pb --filename config_update_in_envelope.pb \
+                --address "{{ .Values.neworgSend.address.url }}:{{ .Values.neworgSend.address.port }}"
+              res=$?
+              set +x
+              printMessage "gupload to {{ .Values.neworgSend.address.url }}:{{ .Values.neworgSend.address.port }}" $res
+          envFrom:
+            - configMapRef:
+                name: {{ include "hlf-operator.fullname" . }}--cli
+          volumeMounts:
+            - mountPath: /var/hyperledger
+              name: fabricfiles
+            - mountPath: {{ .Values.global.workingDir }}/uploaded
+              name: upload
+            # - mountPath: /etc/hyperledger
+            #   name: core-yaml
+            - name: setup-script
+              mountPath: /script/setup.sh
+              subPath: setup.sh
+            - name: configtx-yaml
+              mountPath: /configtx
+            - name: send-target-tls
+              mountPath: /var/gupload/cert
+{{- end }}

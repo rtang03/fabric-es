@@ -1,10 +1,10 @@
 global:
   logging: info
   workingDir: /var/hyperledger
-  mspId: Org1MSP
+  mspId: Org2MSP
   config:
-    setupsh: admin1-orgadmin--setupsh
-    coreyaml: admin1-orgadmin--core
+    setupsh: admin2-orgadmin--setupsh
+    coreyaml: admin2-orgadmin--core
   guploadImage: ghcr.io/rtang03/gupload:0.0.7
   channel:
     name: loanapp
@@ -14,32 +14,31 @@ config:
     #Provide the name of the peer as per deployment yaml.
     #Eg. name: peer0
     id: cli
-    peerTlsCaCert:  /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tls.crt
+    peerTlsCaCert:  /var/hyperledger/crypto-config/Org2MSP/peer0.org2.net/tls-msp/signcerts/cert.pem
     #Provide the address of the peer who creates the channel and port to be mentioned is grpc cluster IP port
     #Eg. address: peer0.org1-example-com:7051
-    address: p0o1-hlf-peer:7051
-    target: peer0.org1.net
+    address: p0o2-hlf-peer:7051
+    target: peer0.org2.net
   orderer:
     #Provide the address for orderer
     #Eg. address: orderer.fratest-com:7050
     address: o0-hlf-ord:7050
 
-
-#######################
-### Param for fetch current channel config, and send to other org
-#######################
-fetchSend:
+neworgSend:
   enabled: true
+  channelConfg: o1_channel_config--config.json
   orgadmin:
-    pvcName: pvc-org1
+    pvcName: pvc-org2
   gupload:
-    pvcName: pvc-gupload1
+    pvcName: pvc-gupload2
   secret:
-    org0tlscacert: org0-tls-ca-cert
-    peerTlscacert: peer0.org2.net-tls
-  label: o1_channel_config
+    tlscacert: org0-tls-ca-cert
+    peerTlscacert: peer0.org1.net-tls
+  configtx:
+    mspId: Org2MSP
+    anchorPeer: p0o2-hlf-peer
+  label: o2_neworg_update
   address:
-    url: p0o2-hlf-peer
+    url: p0o1-hlf-peer
     port: 443
     ip: 34.68.246.23
-

@@ -95,6 +95,7 @@ fetchSend:
   secret:
     org0tlscacert: org0-tls-ca-cert
     peerTlscacert: peer0.org2.net-tls
+  label: o1_channel_config
   address:
     url: p0o2-hlf-peer
     port: 443
@@ -103,14 +104,25 @@ fetchSend:
 #######################
 ### Param for create new org update, and send to other org
 #######################
-addOrg:
+neworgSend:
   enabled: false
-  pvcName: pvc-gupload2
+  channelConfg: /var/hyperledger/uploaded/tmp/o1_channel_config--config.json
+  orgadmin:
+    pvcName: pvc-org2
+  gupload:
+    pvcName: pvc-gupload2
   secret:
     tlscacert: org0-tls-ca-cert
+    peerTlscacert: peer0.org1.net-tls
   configtx:
     mspId: Org2MSP
     anchorPeer: p0o2-hlf-peer
+  label: o2_neworg_update
+  address:
+    url: p0o1-hlf-peer
+    port: 443
+    ip: 34.68.246.23
+
 
 #######################
 ### Param for package chaincode and send to other org

@@ -94,11 +94,8 @@ kubectl -n n1 create secret generic peer0.org2.net-tls --from-file=tls.crt=./dow
 
 helm install fetch1 -n n1 -f ./releases/org1/fetchsend-hlf-operator.gcp.yaml ./hlf-operator
 
-helm install addorg -n n2 -f ./releases/org2/addorg-hlf-operator.gcp.yaml ./hlf-operator
+kubectl -n n2 create secret generic peer0.org1.net-tls --from-file=tls.crt=./download/p0o1.crt
+helm install neworg2 -n n2 -f ./releases/org2/neworgsend-hlf-operator.gcp.yaml --dry-run --debug ./hlf-operator
 
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"
-
-# ./build/gupload upload --cacert ./cert/p0o1.crt --file ../yarn.lock --label 007 --filename yarn.lock --address p0o1-hlf-peer:443
-
-./uploaded/peer channel fetch config /var/hyperledger/uploaded/config_block.pb -o ${ORDERER_URL} -c ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA}
