@@ -1,0 +1,85 @@
+{{- if .Values.updateChannel.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "hlf-operator.fullname" . }}--updatechannel
+  labels:
+{{- include "labels.standard" . | nindent 4 }}
+spec:
+  backoffLimit: 0
+  parallelism: 1
+  completions: 1
+  template:
+    spec:
+      restartPolicy: Never
+      hostAliases:
+        - hostnames:
+            - {{ .Values.updateChannel.address.url }}
+          ip: {{ .Values.updateChannel.address.ip | quote }}
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: {{ .Values.updateChannel.orgadmin.pvcName }}
+        - name: upload
+          persistentVolumeClaim:
+            claimName: {{ .Values.updateChannel.gupload.pvcName }}
+        - name: setup-script
+          configMap:
+            name: {{ .Values.global.config.setupsh }}
+            defaultMode: 0777
+        - name: core-yaml
+          configMap:
+            name: {{ .Values.global.config.coreyaml }}
+        - name: org0-tls-ca-cert
+          secret:
+            secretName: {{ .Values.updateChannel.secret.tlscacert }}
+      containers:
+        - name: updatechannel
+          image: library/alpine:3.12.0
+          command: ["sh", "-c"]
+          workingDir: /var/hyperledger
+          args:
+            - |-
+              . /script/setup.sh
+              apk update
+              apk upgrade
+              apk --no-cache add libc6-compat libstdc++
+              $BIN/peer version
+              ### check config.json exists
+              if [ -f /var/hyperledger/uploaded/{{ .Values.updateChannel.updateChannelEnvelop }} ]
+              then
+                echo "config_update_in_envelope.pb exists"
+              else
+                echo "error: config_update_in_envelope.pb not exists"
+                exit -1
+              fi
+              ########
+              # Step 1: update channel
+              ########
+              export TMP={{ .Values.global.workingDir }}/uploaded/tmp/{{include "hlf-operator.fullname" .}}
+              printHeader "Update channel"
+              set -x
+              rm -r $TMP
+              mkdir -p $TMP
+              $BIN/peer channel update -f /var/hyperledger/uploaded/{{ .Values.updateChannel.updateChannelEnvelop }} \
+                -c $CHANNEL_NAME -o ${ORDERER_URL} --tls --cafile ${ORDERER_CA} >& $TMP/log-updatechannel.txt
+              res=$?
+              set +x
+              printMessage "update channel" $res
+              cat $TMP/log-updatechannel.txt
+          envFrom:
+            - configMapRef:
+                name: {{ include "hlf-operator.fullname" . }}--cli
+          volumeMounts:
+            - mountPath: /var/hyperledger
+              name: fabricfiles
+            - mountPath: {{ .Values.global.workingDir }}/uploaded
+              name: upload
+            - mountPath: /etc/hyperledger
+              name: core-yaml
+            - name: setup-script
+              mountPath: /script/setup.sh
+              subPath: setup.sh
+            - name: org0-tls-ca-cert
+              mountPath: {{ .Values.global.workingDir }}/crypto-config/channel-artifacts/org0-tls-ca-cert
+{{- end }}

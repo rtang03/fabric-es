@@ -88,14 +88,25 @@ preventEmptyValue "pod unavailable" $POD_CLI2
 
 helm install g2 -n n2 -f ./releases/org2/g2-gupload.gcp.yaml ./gupload
 
-# org1 operator's tasks
-# Manually send
-kubectl -n n1 create secret generic peer0.org2.net-tls --from-file=tls.crt=./download/p0o2.crt
+# Out-of-band process: Manually send p0o1.crt from org2 to org1
+# kubectl -n n2 exec $POD_RCA -- cat ./Org2MSP/peer0.org2.net/tls-msp/signcerts/cert.pem > ./download/p0o2.crt
 
+# org1 admin tasks
+kubectl -n n1 create secret generic peer0.org2.net-tls --from-file=tls.crt=./download/p0o2.crt
 helm install fetch1 -n n1 -f ./releases/org1/fetchsend-hlf-operator.gcp.yaml ./hlf-operator
 
+# Out-of-band process: Manually send p0o2.crt from org1 to org2
+# kubectl -n n1 exec $POD_RCA -- cat ./Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem > ./download/p0o1.crt
+
+# org2 admin tasks
 kubectl -n n2 create secret generic peer0.org1.net-tls --from-file=tls.crt=./download/p0o1.crt
-helm install neworg2 -n n2 -f ./releases/org2/neworgsend-hlf-operator.gcp.yaml --dry-run --debug ./hlf-operator
+helm install neworg2 -n n2 -f ./releases/org2/neworgsend-hlf-operator.gcp.yaml ./hlf-operator
+
+# org1 admin tasks
+helm install upch1 -n n1 -f ./releases/org1/upch1-hlf-operator.gcp.yaml ./hlf-operator
+
+# org2 admin tasks
+helm install joinch2 -n n2 -f ./releases/org2/joinch2-hlf-operator.gcp.yaml ./hlf-operator
 
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"

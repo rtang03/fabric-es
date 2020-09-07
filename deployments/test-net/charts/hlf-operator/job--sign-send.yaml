@@ -1,0 +1,5 @@
+# This is to be done later.
+# The org3 will be provisioned in AWS
+# sign-send
+# What to do: after org3 gupload his update envelop to org2 (NOT org1); this job will represent org2 to sign the update
+# and forward the updated config back org1 to submit
