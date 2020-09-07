@@ -42,8 +42,8 @@ data:
         OrdererEndpoints:
           - "orderer0.org0.com:7050"
         AnchorPeers:
-          - Host: p0o1-hlf-peer
-            Port: 7051
+          - Host: peer0.org1.net
+            Port: 443
     Capabilities:
       Channel: &ChannelCapabilities
         V2_0: true

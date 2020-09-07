@@ -12,10 +12,6 @@ spec:
   template:
     spec:
       restartPolicy: Never
-      hostAliases:
-        - hostnames:
-            - {{ .Values.updateChannel.address.url }}
-          ip: {{ .Values.updateChannel.address.ip | quote }}
       volumes:
         - name: fabricfiles
           persistentVolumeClaim:

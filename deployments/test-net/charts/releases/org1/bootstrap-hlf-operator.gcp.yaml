@@ -24,16 +24,10 @@ config:
     #Eg. address: orderer.fratest-com:7050
     address: o0-hlf-ord:7050
 
-job:
-  singletask: false
-  bootstrap: true
-  addorg: false
-  packageccSend: false
-
 #######################
 ### Param for bootstrap
 #######################
-boostrap:
+bootstrap:
   enabled: true
   pvcName: pvc-org1
   secret:

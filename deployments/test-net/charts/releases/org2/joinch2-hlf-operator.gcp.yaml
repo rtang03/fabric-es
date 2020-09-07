@@ -1,0 +1,33 @@
+global:
+  logging: info
+  workingDir: /var/hyperledger
+  mspId: Org2MSP
+  config:
+    setupsh: admin2-orgadmin--setupsh
+    coreyaml: admin2-orgadmin--core
+  channel:
+    name: loanapp
+
+config:
+  peer:
+    #Provide the name of the peer as per deployment yaml.
+    #Eg. name: peer0
+    id: cli
+    peerTlsCaCert:  /var/hyperledger/crypto-config/Org2MSP/peer0.org2.net/tls-msp/signcerts/cert.pem
+    #Provide the address of the peer who creates the channel and port to be mentioned is grpc cluster IP port
+    #Eg. address: peer0.org1-example-com:7051
+    address: p0o2-hlf-peer:7051
+    target: peer0.org2.net
+  orderer:
+    #Provide the address for orderer
+    #Eg. address: orderer.fratest-com:7050
+    address: o0-hlf-ord:7050
+
+joinChannel:
+  enabled: true
+  orgadmin:
+    pvcName: pvc-org2
+  gupload:
+    pvcName: pvc-gupload2
+  secret:
+    tlscacert: org0-tls-ca-cert

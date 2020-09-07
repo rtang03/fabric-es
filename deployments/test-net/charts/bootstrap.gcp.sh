@@ -185,7 +185,7 @@ printMessage "copy chaincode" $res
 
 sleep 60
 
-helm install bootstrap -n n1 -f ./releases/org1/bootstrap-hlf-operator.gcp.yaml ./hlf-operator
+helm install bootstrap -n n1 -f ./releases/org1/bootstrap-hlf-operator.gcp.yaml --dry-run --debug ./hlf-operator
 
 set -x
 kubectl wait --for=condition=complete --timeout 600s job/bootstrap-hlf-operator -n n1

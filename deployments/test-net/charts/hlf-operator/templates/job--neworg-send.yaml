@@ -27,9 +27,6 @@ spec:
           configMap:
             name: {{ .Values.global.config.setupsh }}
             defaultMode: 0777
-        # - name: core-yaml
-        #   configMap:
-        #     name: {{ .Values.global.config.coreyaml }}
         - name: send-target-tls
           secret:
             secretName: {{ .Values.neworgSend.secret.peerTlscacert }}
@@ -157,8 +154,6 @@ spec:
               name: fabricfiles
             - mountPath: {{ .Values.global.workingDir }}/uploaded
               name: upload
-            # - mountPath: /etc/hyperledger
-            #   name: core-yaml
             - name: setup-script
               mountPath: /script/setup.sh
               subPath: setup.sh

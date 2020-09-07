@@ -135,10 +135,18 @@ updateChannel:
     pvcName: pvc-gupload1
   secret:
     tlscacert: org0-tls-ca-cert
-  address:
-    url: p0o1-hlf-peer
-    port: 443
-    ip: 34.68.246.23
+
+#######################
+### Param for join channel
+#######################
+joinChannel:
+  enabled: false
+  orgadmin:
+    pvcName: pvc-org2
+  gupload:
+    pvcName: pvc-gupload2
+  secret:
+    tlscacert: org0-tls-ca-cert
 
 #######################
 ### Param for add signature and forward
