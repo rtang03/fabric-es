@@ -15,10 +15,10 @@ ingress:
     nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
   path: /
   hosts:
-    - p0o1-hlf-peer
+    - gupload.org1.net
   tls:
     - hosts:
-        - p0o1-hlf-peer
+        - gupload.org1.net
       secretName: peer0.org1.net-tls
 
 secrets:

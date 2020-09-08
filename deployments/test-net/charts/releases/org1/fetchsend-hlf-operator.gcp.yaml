@@ -39,7 +39,7 @@ fetchSend:
     peerTlscacert: peer0.org2.net-tls
   label: o1_channel_config
   address:
-    url: p0o2-hlf-peer
+    url: gupload.org2.net
     port: 443
     ip: 34.68.246.23
 

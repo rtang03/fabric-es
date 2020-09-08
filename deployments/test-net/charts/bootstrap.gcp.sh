@@ -125,7 +125,7 @@ printMessage "create secret rca0" $?
 ./scripts/create-secret.rca1.sh
 printMessage "create secret rca1" $?
 
-sleep 30
+sleep 60
 
 ./scripts/create-genesis.sh
 printMessage "create genesis block/channeltx" $?
@@ -185,10 +185,10 @@ printMessage "copy chaincode" $res
 
 sleep 60
 
-helm install bootstrap -n n1 -f ./releases/org1/bootstrap-hlf-operator.gcp.yaml --dry-run --debug ./hlf-operator
+helm install bootstrap -n n1 -f ./releases/org1/bootstrap-hlf-operator.gcp.yaml ./hlf-operator
 
 set -x
-kubectl wait --for=condition=complete --timeout 600s job/bootstrap-hlf-operator -n n1
+kubectl wait --for=condition=complete --timeout 600s job/bootstrap-hlf-operator--bootstrap -n n1
 res=$?
 set +x
 printMessage "job/bootstrap" $res
@@ -197,3 +197,5 @@ helm install g1 -n n1 -f ./releases/org1/g1-gupload.gcp.yaml ./gupload
 
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"
+
+#${BIN}/peer channel fetch 0 -c ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} -o orderer0.org0.com:443 $DIR/${CHANNEL_NAME}.block

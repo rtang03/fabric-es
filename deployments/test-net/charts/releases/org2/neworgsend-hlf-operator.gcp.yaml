@@ -39,6 +39,6 @@ neworgSend:
     anchorPeer: p0o2-hlf-peer
   label: o2_neworg_update
   address:
-    url: p0o1-hlf-peer
+    url: gupload.org1.net
     port: 443
     ip: 34.68.246.23

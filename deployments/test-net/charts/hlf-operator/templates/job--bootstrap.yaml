@@ -12,6 +12,16 @@ spec:
   template:
     spec:
       restartPolicy: Never
+      {{- if .Values.bootstrap.hostAlias }}
+      hostAliases:
+        {{- range .Values.bootstrap.hostAlias }}
+        - hostnames:
+            {{- range .hostnames }}
+            - {{ . }}
+            {{- end }}
+          ip: {{ .ip }}
+        {{- end }}
+      {{- end }}
       volumes:
         - name: fabricfiles
           persistentVolumeClaim:
@@ -104,8 +114,8 @@ spec:
               set +x
               printMessage "cp block" $res
               set -x
-              jq ".channel_group.groups.Application.groups.Org1MSP.values += {\"AnchorPeers\":{\"mod_policy\":\"Admins\",\"value\":{\"anchor_peers\":[{\"host\":\"p0o1-hlf-peer\",\"port\":7051}]},\"version\":\"0\"}}" \
-                $DIR/config_copy.json > $DIR/modified_config.json
+              # jq ".channel_group.groups.Application.groups.Org1MSP.values += {\"AnchorPeers\":{\"mod_policy\":\"Admins\",\"value\":{\"anchor_peers\":[{\"host\":\"p0o1-hlf-peer\",\"port\":7051}]},\"version\":\"0\"}}" $DIR/config_copy.json > $DIR/modified_config.json
+              jq ".channel_group.groups.Application.groups.Org1MSP.values += {\"AnchorPeers\":{\"mod_policy\":\"Admins\",\"value\":{\"anchor_peers\":[{\"host\":\"peer0.org1.net\",\"port\":443}]},\"version\":\"0\"}}" $DIR/config_copy.json > $DIR/modified_config.json
               res=$?
               set +x
               printMessage "jq add anchorpeer" $res
@@ -140,9 +150,7 @@ spec:
               set +x
               printMessage "encode update_envelope" $res
               set -x
-              ${BIN}/peer channel update -f $DIR/config_update_in_envelope.pb \
-                -o ${ORDERER_URL} -c ${CHANNEL_NAME} \
-                --tls --cafile ${ORDERER_CA} >& $DIR/log-updateanchorpeer.txt
+              ${BIN}/peer channel update -f $DIR/config_update_in_envelope.pb -o ${ORDERER_URL} -c ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} >& $DIR/log-updateanchorpeer.txt
               res=$?
               set +x
               printMessage "send update_envelope proposal" $res

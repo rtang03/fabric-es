@@ -20,7 +20,7 @@ items:
     secret: peer0.org2.netPW
     caClientMspDir: tls-msp
     profile: tls
-    csrHosts: "p0o2-hlf-peer,peer0.org2.net"
+    csrHosts: "p0o2-hlf-peer,peer0.org2.net,gupload.org2.net"
 
 persistence:
   pvcName: pvc-org2

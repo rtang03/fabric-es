@@ -4,6 +4,7 @@
 SECONDS=0
 
 ./scripts/rm-secret.n2.sh
+rm ./download/*.crt
 
 # Note: Manually deploy PV
 #kubectl -n n2 create -f ../releases/org2/volumes/pvc-org2.gcp.yaml
@@ -66,7 +67,7 @@ printMessage "create secret rca2" $?
 
 helm install p0o2db -n n2 -f ./releases/org2/p0o2db-hlf-couchdb.gcp.yaml ./hlf-couchdb
 
-sleep 5
+sleep 10
 
 set -x
 kubectl wait --for=condition=Available --timeout 600s deployment/p0o2db-hlf-couchdb -n n2
@@ -76,6 +77,8 @@ printMessage "deployment/p0o2db-hlf-couchdb" $res
 
 export POD_CLI2=$(kubectl get pods -n n2 -l "app=orgadmin,release=admin2" -o jsonpath="{.items[0].metadata.name}")
 preventEmptyValue "pod unavailable" $POD_CLI2
+
+sleep 5
 
 helm install g2 -n n2 -f ./releases/org2/g2-gupload.gcp.yaml ./gupload
 
@@ -166,7 +169,7 @@ res=$?
 set +x
 printMessage "deployment/p0o2-hlf-peer" $res
 
-sleep 15
+sleep 10
 
 ### MULTIPLE ORGS WORKFLOW
 ## org1 admin tasks
@@ -178,29 +181,35 @@ res=$?
 set +x
 printMessage "job/fetch1-hlf-operator" $res
 
+sleep 10
+
 ## org2 admin tasks
 helm install neworg2 -n n2 -f ./releases/org2/neworgsend-hlf-operator.gcp.yaml ./hlf-operator
 
 set -x
-kubectl wait --for=condition=complete --timeout 120s job/neworg2-hlf-operator -n n2
+kubectl wait --for=condition=complete --timeout 120s job/neworg2-hlf-operator--neworg-send -n n2
 res=$?
 set +x
 printMessage "job/neworg2-hlf-operator" $res
+
+sleep 10
 
 ## org1 admin tasks
 helm install upch1 -n n1 -f ./releases/org1/upch1-hlf-operator.gcp.yaml ./hlf-operator
 
 set -x
-kubectl wait --for=condition=complete --timeout 120s job/upch1-hlf-operator -n n1
+kubectl wait --for=condition=complete --timeout 120s job/upch1-hlf-operator--updatechannel -n n1
 res=$?
 set +x
 printMessage "job/upch1-hlf-operator" $res
+
+sleep 10
 
 ## org2 admin tasks
 helm install joinch2 -n n2 -f ./releases/org2/joinch2-hlf-operator.gcp.yaml ./hlf-operator
 
 set -x
-kubectl wait --for=condition=complete --timeout 120s job/joinch2-hlf-operator -n n2
+kubectl wait --for=condition=complete --timeout 120s job/joinch2-hlf-operator--joinchannel -n n2
 res=$?
 set +x
 printMessage "job/joinch2-hlf-operator" $res

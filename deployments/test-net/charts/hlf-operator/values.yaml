@@ -17,18 +17,23 @@ config:
     peerTlsCaCert:  /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem
     #Provide the address of the peer who creates the channel and port to be mentioned is grpc cluster IP port
     #Eg. address: peer0.org1-example-com:7051
-    address: p0o1-hlf-peer:7051
+    # address: p0o1-hlf-peer:7051
+    address: peer0.org1.net:443
     target: peer0.org1.net
   orderer:
     #Provide the address for orderer
-    #Eg. address: orderer.fratest-com:7050
-    address: o0-hlf-ord:7050
+    address: orderer0.org0.com
 
 #######################
 ### Param for bootstrap
 #######################
 bootstrap:
   enabled: false
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org1.net
+      ip: 34.68.246.23
   pvcName: pvc-org1
   secret:
     tlscacert: org0-tls-ca-cert

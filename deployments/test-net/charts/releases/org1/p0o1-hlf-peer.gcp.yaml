@@ -36,6 +36,20 @@ ingress:
         - peer0.org1.net
       secretName: peer0.org1.net-tls
 
+externalService:
+  - name: o0-hlf-ord
+    externalName: o0-hlf-ord.n0.svc.cluster.local
+  - name: o1-hlf-ord
+    externalName: o1-hlf-ord.n0.svc.cluster.local
+  - name: o2-hlf-ord
+    externalName: o2-hlf-ord.n0.svc.cluster.local
+  - name: o3-hlf-ord
+    externalName: o3-hlf-ord.n0.svc.cluster.local
+  - name: o4-hlf-ord
+    externalName: o4-hlf-ord.n0.svc.cluster.local
+  - name: p0o2-hlf-peer
+    externalName: peer0.org2.net
+
 persistence:
   enabled: true
   pvcName: pvc-p0o1
