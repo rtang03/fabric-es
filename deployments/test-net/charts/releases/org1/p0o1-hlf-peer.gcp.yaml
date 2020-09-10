@@ -10,7 +10,7 @@ global:
 #  pullPolicy: IfNotPresent
 
 service:
-  type: LoadBalancer # ClusterIP
+  type: ClusterIP
   portRequest: 7051
   portEvent: 7053
 
@@ -22,7 +22,7 @@ dockerConfig: null
 dockerConfigMountPath: /root/.docker
 
 ingress:
-  enabled: false
+  enabled: true
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/rewrite-target: /
@@ -33,7 +33,7 @@ ingress:
     - peer0.org1.net
   tls:
     - hosts:
-        - peer0.org1.net
+        - p0o1-hlf-peer
       secretName: peer0.org1.net-tls
 
 externalService:
@@ -57,10 +57,10 @@ persistence:
 logging:
   # "info" or "debug" or "grpc=debug:debug" or "grpc=debug:info"
   level: info # "info"
-  peer: debug # info
+  peer: info # info
   cauthdsl: debug # warning
-  gossip: debug # info
-  grpc: debug # error
+  gossip: info # info
+  grpc: error # error
   ledger: info
   msp: warning
   policies: warning
@@ -76,10 +76,8 @@ peer:
         - orderer2.org0.com
         - orderer3.org0.com
         - orderer4.org0.com
-      ip: 34.68.246.23
-    - hostnames:
         - peer0.org1.net
-      ip: 35.232.135.120
+      ip: 34.68.246.23
   ledgerPath: /var/hyperledger/production
   peerName: peer0
   # orgPath: /var/hyperledger/crypto-config/Org1MSP
@@ -95,9 +93,9 @@ peer:
   gossip:
     bootstrap: "p0o1-hlf-peer:7051"
     endpoint: "p0o1-hlf-peer:7051"
-    # externalEndpoint: "p0o1-hlf-peer:7051"
-    orgLeader: "false"
-    useLeaderElection: "true"
+    externalEndpoint: "peer0.org1.net:443"
+    orgLeader: "true"
+    useLeaderElection: "false"
   tls:
     server:
       enabled: "true"

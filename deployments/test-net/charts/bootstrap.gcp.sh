@@ -200,11 +200,11 @@ printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elap
 
 #${BIN}/peer channel fetch 0 -c ${CHANNEL_NAME} --tls --cafile ${ORDERER_CA} -o ${ORDERER_URL} $DIR/${CHANNEL_NAME}.block
 
-2020/09/09 19:29:21 [error] 41615#41615: *16476145 upstream rejected request with error 0 while reading response header from upstream,
- client: 10.52.0.145, server: _, request: "POST /orderer.AtomicBroadcast/Deliver HTTP/2.0", upstream: "grpcs://10.52.0.145:7051", host: "orderer0.org0.com:443"
-
-2020-09-10 08:36:52.306 UTC [gossip.gossip] func1 -> WARN 027 Deep probe of peer0.org1.net:443 failed: context deadline exceeded
-2020-09-10 08:36:52.306 UTC [gossip.discovery] func1 -> WARN 028 Could not connect to Endpoint: peer0.org1.net:443, InternalEndpoint: peer0.org1.net:443, PKI-ID: <nil>, Metadata:  : context deadline exceeded
-2020-09-10 08:37:20.308 UTC [gossip.gossip] func1 -> WARN 029 Deep probe of peer0.org1.net:443 failed: context deadline exceeded
-2020-09-10 08:37:20.308 UTC [gossip.discovery] func1 -> WARN 02a Could not connect to Endpoint: peer0.org1.net:443, InternalEndpoint: peer0.org1.net:443, PKI-ID: <nil>, Metadata:  : context deadline exceeded
-2020-09-10 08:37:27.324 UTC [peer.blocksprovider] func1 -> WARN 02b Encountered an error reading from deliver stream: rpc error: code = Internal desc = stream terminated by RST_STREAM with error code: PROTOCOL_ERROR channel=loanapp orderer-address=orderer0.org0.com:44
+#2020/09/09 19:29:21 [error] 41615#41615: *16476145 upstream rejected request with error 0 while reading response header from upstream,
+# client: 10.52.0.145, server: _, request: "POST /orderer.AtomicBroadcast/Deliver HTTP/2.0", upstream: "grpcs://10.52.0.145:7051", host: "orderer0.org0.com:443"
+#
+#2020-09-10 08:36:52.306 UTC [gossip.gossip] func1 -> WARN 027 Deep probe of peer0.org1.net:443 failed: context deadline exceeded
+#2020-09-10 08:36:52.306 UTC [gossip.discovery] func1 -> WARN 028 Could not connect to Endpoint: peer0.org1.net:443, InternalEndpoint: peer0.org1.net:443, PKI-ID: <nil>, Metadata:  : context deadline exceeded
+#2020-09-10 08:37:20.308 UTC [gossip.gossip] func1 -> WARN 029 Deep probe of peer0.org1.net:443 failed: context deadline exceeded
+#2020-09-10 08:37:20.308 UTC [gossip.discovery] func1 -> WARN 02a Could not connect to Endpoint: peer0.org1.net:443, InternalEndpoint: peer0.org1.net:443, PKI-ID: <nil>, Metadata:  : context deadline exceeded
+#2020-09-10 08:37:27.324 UTC [peer.blocksprovider] func1 -> WARN 02b Encountered an error reading from deliver stream: rpc error: code = Internal desc = stream terminated by RST_STREAM with error code: PROTOCOL_ERROR channel=loanapp orderer-address=orderer0.org0.com:44

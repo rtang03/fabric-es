@@ -60,10 +60,8 @@ ord:
         - orderer2.org0.com
         - orderer3.org0.com
         - orderer4.org0.com
-      ip: 34.68.246.23
-    - hostnames:
         - peer0.org1.net
-      ip: 35.232.135.120
+      ip: 34.68.246.23
   listenAddress: "o4-hlf-ord"
   host: orderer4.org0.com
   ledgerPath: /var/hyperledger/production

@@ -41,7 +41,7 @@ data:
             Rule: "OR('Org1MSP.member')"
         AnchorPeers:
           - Host: peer0.org1.net
-            Port: 7051
+            Port: 443
     Capabilities:
       Channel: &ChannelCapabilities
         V2_0: true
@@ -77,12 +77,6 @@ data:
         - "orderer2.org0.com:443"
         - "orderer3.org0.com:443"
         - "orderer4.org0.com:443"
-      # Addresses:
-      #   - "o0-hlf-ord:7050"
-      #   - "o1-hlf-ord:7050"
-      #   - "o2-hlf-ord:7050"
-      #   - "o3-hlf-ord:7050"
-      #   - "o4-hlf-ord:7050"
       BatchTimeout: 2s
       BatchSize:
         MaxMessageCount: 500
