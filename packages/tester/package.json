@@ -13,6 +13,8 @@
   },
   "private": true,
   "devDependencies": {
+    "@fabric-es/fabric-cqrs": "^0.6.3",
+    "@fabric-es/model-pboc": "^0.6.5",
     "@types/jest": "^24.0.18",
     "@types/lodash": "^4.14.138",
     "@types/node": "^12.12.41",
