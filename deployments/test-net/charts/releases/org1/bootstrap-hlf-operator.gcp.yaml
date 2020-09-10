@@ -13,7 +13,7 @@ config:
   peer:
     #Provide the name of the peer as per deployment yaml.
     #Eg. name: peer0
-    id: cli
+    id: p0o1-hlf-peer
     peerTlsCaCert:  /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem
     #Provide the address of the peer who creates the channel and port to be mentioned is grpc cluster IP port
     #Eg. address: peer0.org1-example-com:7051
@@ -31,8 +31,14 @@ bootstrap:
   hostAlias:
     - hostnames:
         - orderer0.org0.com
-        - peer0.org1.net
+        - orderer1.org0.com
+        - orderer2.org0.com
+        - orderer3.org0.com
+        - orderer4.org0.com
       ip: 34.68.246.23
+    - hostnames:
+        - peer0.org1.net
+      ip: 35.232.135.120
   pvcName: pvc-org1
   secret:
     tlscacert: org0-tls-ca-cert

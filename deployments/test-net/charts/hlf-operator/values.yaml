@@ -93,6 +93,14 @@ bootstrap:
 #######################
 fetchSend:
   enabled: false
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org1.net
+      ip: 34.68.246.23
+    - hostnames:
+        - gupload.org2.net
+      ip: 34.68.246.23
   orgadmin:
     pvcName: pvc-org1
   gupload:
@@ -102,15 +110,22 @@ fetchSend:
     peerTlscacert: peer0.org2.net-tls
   label: o1_channel_config
   address:
-    url: p0o2-hlf-peer
+    url: gupload.org2.net
     port: 443
-    ip: 34.68.246.23
 
 #######################
 ### Param for create new org update, and send to other org
 #######################
 neworgSend:
   enabled: false
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org2.net
+      ip: 34.68.246.23
+    - hostnames:
+        - gupload.org1.net
+      ip: 34.68.246.23
   channelConfg: o1_channel_config--config.json
   orgadmin:
     pvcName: pvc-org2
@@ -124,15 +139,19 @@ neworgSend:
     anchorPeer: p0o2-hlf-peer
   label: o2_neworg_update
   address:
-    url: p0o1-hlf-peer
+    url: gupload.org1.net
     port: 443
-    ip: 34.68.246.23
 
 #######################
 ### Param for update channel
 #######################
 updateChannel:
   enabled: false
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org1.net
+      ip: 34.68.246.23
   updateChannelEnvelop: o2_neworg_update--config_update_in_envelope.pb
   orgadmin:
     pvcName: pvc-org1
@@ -146,6 +165,11 @@ updateChannel:
 #######################
 joinChannel:
   enabled: false
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org2.net
+      ip: 34.68.246.23
   orgadmin:
     pvcName: pvc-org2
   gupload:

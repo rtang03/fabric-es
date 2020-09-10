@@ -10,7 +10,7 @@ global:
 #  pullPolicy: IfNotPresent
 
 service:
-  type: ClusterIP
+  type: LoadBalancer # ClusterIP
   portRequest: 7051
   portEvent: 7053
 
@@ -22,7 +22,7 @@ dockerConfig: null
 dockerConfigMountPath: /root/.docker
 
 ingress:
-  enabled: true
+  enabled: false
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/rewrite-target: /
@@ -37,16 +37,16 @@ ingress:
       secretName: peer0.org1.net-tls
 
 externalService:
-  - name: o0-hlf-ord
-    externalName: o0-hlf-ord.n0.svc.cluster.local
-  - name: o1-hlf-ord
-    externalName: o1-hlf-ord.n0.svc.cluster.local
-  - name: o2-hlf-ord
-    externalName: o2-hlf-ord.n0.svc.cluster.local
-  - name: o3-hlf-ord
-    externalName: o3-hlf-ord.n0.svc.cluster.local
-  - name: o4-hlf-ord
-    externalName: o4-hlf-ord.n0.svc.cluster.local
+#  - name: o0-hlf-ord
+#    externalName: o0-hlf-ord.n0.svc.cluster.local
+#  - name: o1-hlf-ord
+#    externalName: o1-hlf-ord.n0.svc.cluster.local
+#  - name: o2-hlf-ord
+#    externalName: o2-hlf-ord.n0.svc.cluster.local
+#  - name: o3-hlf-ord
+#    externalName: o3-hlf-ord.n0.svc.cluster.local
+#  - name: o4-hlf-ord
+#    externalName: o4-hlf-ord.n0.svc.cluster.local
   - name: p0o2-hlf-peer
     externalName: peer0.org2.net
 
@@ -56,11 +56,11 @@ persistence:
 
 logging:
   # "info" or "debug" or "grpc=debug:debug" or "grpc=debug:info"
-  level: "info"
-  peer: info
-  cauthdsl: warning
-  gossip: info
-  grpc: error
+  level: info # "info"
+  peer: debug # info
+  cauthdsl: debug # warning
+  gossip: debug # info
+  grpc: debug # error
   ledger: info
   msp: warning
   policies: warning
@@ -69,6 +69,17 @@ logging:
 ## Peer configuration options    #
 ##################################
 peer:
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - orderer1.org0.com
+        - orderer2.org0.com
+        - orderer3.org0.com
+        - orderer4.org0.com
+      ip: 34.68.246.23
+    - hostnames:
+        - peer0.org1.net
+      ip: 35.232.135.120
   ledgerPath: /var/hyperledger/production
   peerName: peer0
   # orgPath: /var/hyperledger/crypto-config/Org1MSP
@@ -84,7 +95,7 @@ peer:
   gossip:
     bootstrap: "p0o1-hlf-peer:7051"
     endpoint: "p0o1-hlf-peer:7051"
-    externalEndpoint: "peer0.org1.net:443"
+    # externalEndpoint: "p0o1-hlf-peer:7051"
     orgLeader: "false"
     useLeaderElection: "true"
   tls:

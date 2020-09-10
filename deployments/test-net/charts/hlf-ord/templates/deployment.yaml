@@ -19,6 +19,16 @@ spec:
       labels:
 {{ include "labels.standard" . | indent 8 }}
     spec:
+      {{- if .Values.ord.hostAlias }}
+      hostAliases:
+        {{- range .Values.ord.hostAlias }}
+        - hostnames:
+            {{- range .hostnames }}
+            - {{ . }}
+          {{- end }}
+          ip: {{ .ip }}
+      {{- end }}
+      {{- end }}
       volumes:
         - name: data
           {{- if .Values.persistence.enabled }}
@@ -82,13 +92,13 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           workingDir: {{ include "hlf-ord.home" . }}
-          ports:
-            - name: request
-              containerPort: 7050
-              protocol: TCP
-            - name: metrics
-              containerPort: 8443
-              protocol: TCP
+          # ports:
+          #   - name: request
+          #     containerPort: 7050
+          #     protocol: TCP
+          #   - name: metrics
+          #     containerPort: 8443
+          #     protocol: TCP
           livenessProbe:
             httpGet:
               port: 8443
@@ -107,7 +117,8 @@ spec:
             - sh
             - -c
             - |
-
+              mkdir -p /var/hyperledger/production/deliver
+              mkdir -p /var/hyperledger/production/broadcast
               while [ ! -d "$ORDERER_GENERAL_LOCALMSPDIR/admincerts" ] || [ -z "$(ls -A $ORDERER_GENERAL_LOCALMSPDIR/admincerts)" ];
               do
                 echo "\033[0;31m $ORDERER_GENERAL_LOCALMSPDIR/admincerts must contain Ord admin certificates files \033[0m"

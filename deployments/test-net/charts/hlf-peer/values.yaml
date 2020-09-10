@@ -69,6 +69,14 @@ logging:
 ## Peer configuration options    #
 ##################################
 peer:
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org1.net
+      ip: 34.68.246.23
+    - hostnames:
+        - peer0.org2.net
+      ip: 34.68.246.23
   ledgerPath: /var/hyperledger/production
   peerName: peer0
   # orgPath: /var/hyperledger/crypto-config/Org1MSP
@@ -158,17 +166,17 @@ secrets:
   ordTlsSignCert: "orderer0.org0.com-tlssigncert"
   ordOrg0Tlscacert: "org0-tls-ca-cert"
 
-externalService:
-  - name: o0-hlf-ord
-    externalName: o0-hlf-ord.n0.svc.cluster.local
-  - name: o1-hlf-ord
-    externalName: o1-hlf-ord.n0.svc.cluster.local
-  - name: o2-hlf-ord
-    externalName: o2-hlf-ord.n0.svc.cluster.local
-  - name: o3-hlf-ord
-    externalName: o3-hlf-ord.n0.svc.cluster.local
-  - name: o4-hlf-ord
-    externalName: o4-hlf-ord.n0.svc.cluster.local
+#externalService:
+#  - name: o0-hlf-ord
+#    externalName: o0-hlf-ord.n0.svc.cluster.local
+#  - name: o1-hlf-ord
+#    externalName: o1-hlf-ord.n0.svc.cluster.local
+#  - name: o2-hlf-ord
+#    externalName: o2-hlf-ord.n0.svc.cluster.local
+#  - name: o3-hlf-ord
+#    externalName: o3-hlf-ord.n0.svc.cluster.local
+#  - name: o4-hlf-ord
+#    externalName: o4-hlf-ord.n0.svc.cluster.local
 
 resources: {}
   ## We usually recommend not to specify default resources and to leave this as a conscious
