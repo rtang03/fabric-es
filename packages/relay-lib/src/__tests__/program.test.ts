@@ -245,4 +245,56 @@ describe('Temp tests', () => {
     const end = Date.now();
     console.log('Duration:', (end - start));
   });
+
+  it('test Promise return', async () => {
+    const test = (flag: boolean): Promise<number> => {
+      return new Promise<number>(async (resolve, reject) => {
+        if (!flag) {
+          console.log('test Promise false 1');
+          reject('test Promise error');
+          console.log('test Promise false 2');
+        } else {
+          console.log('test Promise true 1');
+          resolve(0);
+          console.log('test Promise true 2');
+        }
+      });
+    };
+    const t = await test(true).catch(error => console.log('test Promise A error', error));
+    console.log('test Promise A result', t);
+    const f = await test(false).catch(error => console.log('test Promise B error', error));;
+    console.log('test Promise B result', f);
+  });
+
+  it('test Promise flow', async () => {
+    const test2 = (flag: boolean): Promise<number> => {
+      return new Promise<number>(async (resolve) => {
+        if (!flag) {
+          resolve(1);
+        } else {
+          resolve(0);
+        }
+      });
+    };
+    const test1 = (flag: boolean): Promise<number> => {
+      return new Promise<number>(async (resolve, reject) => {
+        const result1 = await test2(flag)
+          .then(result2 => {
+            if (result2 !== 0) {
+              reject('test Promise flow error');
+            } else {
+              return result2;
+            }
+          });
+        if (result1 === undefined) return;
+
+        console.log(`test Promise flow ${result1}`);
+        resolve(0);
+      });
+    };
+    const t = await test1(true).catch(error => console.log('test Promise flow A error', error));
+    console.log('test Promise flow A result', t);
+    const f = await test1(false).catch(error => console.log('test Promise flow B error', error));
+    console.log('test Promise flow B result', f);
+  });
 });

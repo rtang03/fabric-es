@@ -11,6 +11,7 @@ services:
       - POSTGRES_PASSWORD=docker
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
+    # - POSTGRES_INITDB_ARGS=--max_files_per_process=200
     volumes:
       - $ARTIFACTS/postgres02:/var/lib/postgresql/data
       - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql

@@ -182,7 +182,6 @@ export const relayService = ({
 
         const str = await client.get(`PROXY${msgId}`);
         if (str) {
-          console.log('HAHAHA', str);
           try {
             const msg = JSON.parse(str);
             const message: ReqRes = {

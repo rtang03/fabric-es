@@ -6,8 +6,10 @@
   "scripts": {
     "build": "yarn run clean && tsc",
     "clean": "rimraf dist",
+    "mock": "node dist/relay/mockServer.js",
     "test:3org": "jest intg.3org.test",
-    "test:2org": "jest intg.2org.test"
+    "test:2org": "jest intg.2org.test",
+    "ptest:relay": "node ./dist/relay/relay.ptest.js"
   },
   "private": true,
   "devDependencies": {

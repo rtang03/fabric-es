@@ -149,20 +149,22 @@ export const createQueryHandlerService: (
         entityNames,
       };
 
-      try {
-        const response = await fetch(authCheck, {
-          method: 'POST',
-          headers: { authorization: `Bearer ${token}` },
-        });
+      if (token) {
+        try {
+          const response = await fetch(authCheck, {
+            method: 'POST',
+            headers: { authorization: `Bearer ${token}` },
+          });
 
-        if (response.status === 200) {
-          const result: unknown = await response.json();
+          if (response.status === 200) {
+            const result: unknown = await response.json();
 
-          if (isAuthResponse(result)) return { ...result, ...ctx };
+            if (isAuthResponse(result)) return { ...result, ...ctx };
+          }
+          logger.warn(`authenticate fails, status: ${response.status}`);
+        } catch (e) {
+          logger.error(util.format('authenticationCheck error: %j', e));
         }
-        logger.warn(`authenticate fails, status: ${response.status}`);
-      } catch (e) {
-        logger.error(util.format('authenticationCheck error: %j', e));
       }
       return ctx;
     },

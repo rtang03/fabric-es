@@ -16,10 +16,10 @@ const redisHost = process.env.REDIS_HOST;
 const redisPort = (process.env.REDIS_PORT || 6379) as number;
 const topic = process.env.REDIS_TOPIC;
 
-const logger = getLogger('[rl-org3] sniffer.js');
+const logger = getLogger('[rl-org1] sniffer.js');
 
 (async () => {
-  logger.info('♨️♨️  Starting [rl-org3] sniffer service...');
+  logger.info('♨️♨️  Starting sniffer service...');
 
   const redisOptions: RedisOptions = {
     host: redisHost,
