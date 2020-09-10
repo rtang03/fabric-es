@@ -12,10 +12,16 @@ spec:
   template:
     spec:
       restartPolicy: Never
+      {{- if .Values.fetchSend.hostAlias }}
       hostAliases:
+        {{- range .Values.fetchSend.hostAlias }}
         - hostnames:
-            - {{ .Values.fetchSend.address.url }}
-          ip: {{ .Values.fetchSend.address.ip | quote }}
+            {{- range .hostnames }}
+            - {{ . }}
+          {{- end }}
+          ip: {{ .ip }}
+      {{- end }}
+      {{- end }}
       volumes:
         - name: fabricfiles
           persistentVolumeClaim:

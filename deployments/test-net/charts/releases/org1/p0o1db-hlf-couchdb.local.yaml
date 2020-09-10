@@ -1,3 +1,0 @@
-persistence:
-  enabled: true
-  pvcName: pvc-p0o1db

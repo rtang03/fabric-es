@@ -21,11 +21,18 @@ config:
     target: peer0.org2.net
   orderer:
     #Provide the address for orderer
-    #Eg. address: orderer.fratest-com:7050
-    address: o0-hlf-ord:7050
+    address: orderer0.org0.com:443
 
 neworgSend:
   enabled: true
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org2.net
+      ip: 34.68.246.23
+    - hostnames:
+        - gupload.org1.net
+      ip: 34.68.246.23
   channelConfg: o1_channel_config--config.json
   orgadmin:
     pvcName: pvc-org2
@@ -41,4 +48,3 @@ neworgSend:
   address:
     url: gupload.org1.net
     port: 443
-    ip: 34.68.246.23

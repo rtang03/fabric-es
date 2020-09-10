@@ -12,6 +12,16 @@ spec:
   template:
     spec:
       restartPolicy: Never
+      {{- if .Values.joinChannel.hostAlias }}
+      hostAliases:
+        {{- range .Values.joinChannel.hostAlias }}
+        - hostnames:
+            {{- range .hostnames }}
+            - {{ . }}
+          {{- end }}
+          ip: {{ .ip }}
+      {{- end }}
+      {{- end }}
       volumes:
         - name: fabricfiles
           persistentVolumeClaim:

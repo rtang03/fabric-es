@@ -69,6 +69,14 @@ logging:
 ## Peer configuration options    #
 ##################################
 peer:
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org1.net
+      ip: 34.68.246.23
+    - hostnames:
+        - peer0.org2.net
+      ip: 34.68.246.23
   ledgerPath: /var/hyperledger/production
   peerName: peer0
   # Type of database ("goleveldb" or "CouchDB"):
