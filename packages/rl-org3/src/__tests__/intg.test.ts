@@ -4,11 +4,12 @@ import {
   EndPoints, getPbocEtcEntityProcessor, Invoice, InvoiceEvents, invoiceReducer, PO, PoEvents, poReducer
 } from '@fabric-es/model-pboc';
 import {
-  createMockServer, createRelayService, createSnifferService, getEntityProcessor, getTestData
+  createRelayService, createSnifferService, getEntityProcessor
 } from '@fabric-es/relay-lib';
 import { Wallets } from 'fabric-network';
 import { RedisOptions } from 'ioredis';
 import fetch from 'node-fetch';
+import { createMockServer, getTestData } from './mockUtils';
 
 /*
   See https://stackoverflow.com/questions/25344879/uploading-file-using-post-request-in-node-js
@@ -143,8 +144,8 @@ describe('PO tests', () => {
   it('create POs', async () => { // case 0
     await fetch(`http://localhost:${relayPort}${EndPoints[1]}`, {
       method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify(data.PoCreate)
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(data.PoCreate)
     }).then(res => {
       expect(res.status).toEqual(200);
       poIds = data.PoCreate.map(d => d.poBaseInfo.poId);
@@ -154,8 +155,8 @@ describe('PO tests', () => {
   it('edit POs', async () => { // case 0
     await fetch(`http://localhost:${relayPort}${EndPoints[1]}`, {
       method: 'PUT',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify(data.PoEdit)
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(data.PoEdit)
     }).then(res => {
       expect(res.status).toEqual(200);
       editedPoId = data.PoEdit[0].poBaseInfo.poId;
@@ -165,8 +166,8 @@ describe('PO tests', () => {
   it('cancel POs', async () => { // case 0
     await fetch(`http://localhost:${relayPort}${EndPoints[2]}`, {
       method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify(data.PoCancel)
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(data.PoCancel)
     }).then(res => {
       expect(res.status).toEqual(200);
       cancelledPoIds = data.PoCancel.map(d => d.poId);
@@ -176,8 +177,8 @@ describe('PO tests', () => {
   it('process POs', async () => { // case 0
     await fetch(`http://localhost:${relayPort}${EndPoints[3]}`, {
       method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify(data.PoProcess)
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(data.PoProcess)
     }).then(res => {
       expect(res.status).toEqual(200);
     });
@@ -192,8 +193,8 @@ describe('Invoice tests', () => {
   it('create Invoices', async () => {
     await fetch(`http://localhost:${relayPort}${EndPoints[4]}`, {
       method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify(data.InvCreate)
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(data.InvCreate)
     }).then(res => {
       expect(res.status).toEqual(200);
       invIds = data.InvCreate.map(d => d.invBaseInfo.invoiceId);
@@ -203,8 +204,8 @@ describe('Invoice tests', () => {
   it('edit Invoices', async () => {
     await fetch(`http://localhost:${relayPort}${EndPoints[4]}`, {
       method: 'PUT',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify(data.InvEdit)
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(data.InvEdit)
     }).then(res => {
       expect(res.status).toEqual(200);
       editedInvId = data.InvEdit[0].invBaseInfo.invoiceId;
@@ -214,8 +215,8 @@ describe('Invoice tests', () => {
   it('notify Invoices', async () => { // case 6
     await fetch(`http://localhost:${relayPort}${EndPoints[5]}`, {
       method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify(data.InvNotify)
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(data.InvNotify)
     }).then(res => {
       expect(res.status).toEqual(200);
       notifiedInvId = data.InvNotify.map(d => d.invoices[0].invoiceId);
@@ -225,8 +226,8 @@ describe('Invoice tests', () => {
   it('invoices results', async () => { // case 7
     await fetch(`http://localhost:${relayPort}${EndPoints[7]}`, {
       method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify(data.InvResult)
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(data.InvResult)
     }).then(res => {
       expect(res.status).toEqual(200);
     });
@@ -235,8 +236,8 @@ describe('Invoice tests', () => {
   it('finance results', async () => { // case 8
     await fetch(`http://localhost:${relayPort}${EndPoints[8]}`, {
       method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify(data.InvFin)
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(data.InvFin)
     }).then(res => {
       expect(res.status).toEqual(200);
     });

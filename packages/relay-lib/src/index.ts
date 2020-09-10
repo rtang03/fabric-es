@@ -5,7 +5,6 @@ export * from './processNtt';
 export * from './relayService';
 export * from './snifferSubscription';
 export * from './snifferService';
-export * from './__tests__/mockUtils';
 
 /**
  * /user/inquiry?sellerId=

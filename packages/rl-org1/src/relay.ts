@@ -9,10 +9,10 @@ const redisHost = process.env.REDIS_HOST;
 const redisPort = (process.env.REDIS_PORT || 6379) as number;
 const topic = process.env.REDIS_TOPIC;
 
-const logger = getLogger('[rl-org3] relay.js');
+const logger = getLogger('[rl-org1] relay.js');
 
 (async () => {
-  logger.info(`♨️♨️  Starting [rl-org3] relay service... ${targetUrl} ${redisHost}:${redisPort} ${topic}`);
+  logger.info(`♨️♨️  Starting relay service... ${targetUrl} ${redisHost}:${redisPort} ${topic}`);
   const httpsArg = process.argv.slice(2)[0];
 
   const { isHttps, relay, shutdown } = await createRelayService({
