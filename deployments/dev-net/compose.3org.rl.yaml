@@ -17,6 +17,8 @@ services:
       - ORG_ADMIN_SECRET=admin-org3.netPW
       - REDIS_HOST=redis03
       - QUERY_HOST=rl-org3
+      - LOG_LEVEL=$LOG_LEVEL
+      - LOG_TARGET=$LOG_TARGET
     working_dir: /home/app/packages/rl-org3
     ports:
       - 5003:5003

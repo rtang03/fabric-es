@@ -194,7 +194,7 @@ module.exports = {
     'id-match': 'off',
     'import/order': ['error', { alphabetize: { order: 'asc' } }],
     'max-classes-per-file': 'off',
-    'no-bitwise': 'error',
+    'no-bitwise': 'off',
     'no-caller': 'error',
     'no-cond-assign': 'error',
     'no-console': 'off',

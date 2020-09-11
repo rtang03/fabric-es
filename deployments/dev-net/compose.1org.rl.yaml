@@ -20,6 +20,8 @@ services:
       - TARGET_URL=https://192.168.0.188:4322
       - SERVER_KEY=/var/keys/wildcard_etradeconnect.key
       - SERVER_CERT=/var/keys/star_etradeconnect_net.cer
+      - LOG_LEVEL=$LOG_LEVEL
+      - LOG_TARGET=$LOG_TARGET
     working_dir: /home/app/packages/rl-org1
     ports:
       - 2500:2500

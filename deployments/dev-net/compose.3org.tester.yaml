@@ -7,6 +7,8 @@ services:
   tester:
     environment:
       - TEST_TARGETS=gw-org1 4001 gw-org2 4001 gw-org3 4001
+      - LOG_LEVEL=$LOG_LEVEL
+      - LOG_TARGET=$LOG_TARGET
     image: $TEST_IMAGE
     container_name: tester
     working_dir: /home/app/packages/tester

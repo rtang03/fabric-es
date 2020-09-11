@@ -1,3 +1,4 @@
+require('dotenv').config({ path: './.env' });
 import https from 'https';
 import { QueryHandlerEntity } from '@fabric-es/fabric-cqrs';
 import {
@@ -6,9 +7,11 @@ import {
 import fetch from 'node-fetch';
 import { getTestData, QUERY } from './mockUtils';
 
-const RUNS = 100;
-const BATCH = 20;
-const RETRY = 30;
+const BATCH = 10;
+const RUNS = 1000;
+const RUNS_WAIT = 60000;
+const READ_RETRY = 30;
+const READ_WAIT = 3500; // Wait between each read retry
 const relay1 = 'https://localhost:2500'; // ETC side
 const relay2 = 'https://localhost:2502'; // PBOC side
 const authen = 'http://localhost:8082'; // FDI node
@@ -182,7 +185,7 @@ const confirmInvoice = (data) => {
     const confirmInvResult = await fetch(`${relay2}${EndPoints[7]}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(data), agent // .InvResult
+      body: JSON.stringify(data), agent
     }).then(res => {
       if (res.status !== 200) {
         reject(`ERROR! Confirm Invoice failed (${res.status}): ${res.statusText}`);
@@ -199,7 +202,7 @@ const updatePaymentStatus = (data) => {
     const invFinInvIds = await fetch(`${relay2}${EndPoints[8]}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(data), agent // .InvFin
+      body: JSON.stringify(data), agent
     }).then(res => {
       if (res.status !== 200) {
         reject(`ERROR! Update payment status of Invoice failed (${res.status}): ${res.statusText}`);
@@ -229,7 +232,7 @@ const readCommits = (accessToken: string, query: string) => {
 
 const readEntities = (tag: string, accessToken: string, query: string, expected?: (results: QueryHandlerEntity[]) => boolean) => {
   return new Promise<any>(async (resolve, reject) => {
-    let count = RETRY;
+    let count = READ_RETRY;
     let result: void | QueryHandlerEntity[];
 
     const headers = { 'content-type': 'application/json' };
@@ -251,8 +254,8 @@ const readEntities = (tag: string, accessToken: string, query: string, expected?
       .catch(error => reject(error));
       if (result === undefined) {
         count --;
-        if (count < 1) console.log(`${tag} read entities ${query} retrying in 3500 ms (${count})`);
-        await new Promise(resolve => setTimeout(resolve, 3500));
+        if (count < 1) console.log(`${tag} read entities ${query} retrying in ${READ_WAIT} ms (${count})`);
+        await new Promise(resolve => setTimeout(resolve, READ_WAIT));
       }
     }
     if (result === undefined)
@@ -267,7 +270,6 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
 
   return new Promise<number>(async (resolve, reject) => {
     const runStarted = Date.now();
-    console.log(`[Test run ${run} #${variant}] Start  (ts ${runStarted})...`);
 
     // Get access token
     let token;
@@ -279,10 +281,10 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
         reject(index);
         return;
       }
-      console.log(`[Test run ${run} #${variant}] Access token: ${token.substr(0, 70)}...`);
     } else {
       token = accessToken;
     }
+    console.log(`[Test run ${run} #${variant}] Start  (ts ${runStarted}), access token: ${token.substr(0, 70)}...`);
 
     // PO processing
     const poIds = await createPo(data.PoCreate).catch(error => console.log(`[Test run ${run} #${variant}] ${error}`));
@@ -405,6 +407,44 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
       return;
     }
 
+    const confirmInvResult = await confirmInvoice(data.InvResult).catch(error => console.log(`[Test run ${run} #${variant}] ${error}`));
+    if (confirmInvResult && (confirmInvResult !== undefined)) {
+      const shouldContinue = await Promise.all(confirmInvResult.map(async v => 
+        readEntities(`[Test run ${run} #${variant}] Confirm Invoices`, token, v.invoiceId, (results: QueryHandlerEntity[]) =>
+          results.reduce((accu, r) => {
+            return (
+              accu &&
+              v.actionResponse === '1' ? (r.value.indexOf(`"status":2`) >= 0) : (r.value.indexOf(`"status":3`) >= 0)
+            );
+          }, true)
+        ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Confirm Invoices ${error}`))
+      ));
+      if (!shouldContinue.reduce((a, c) => a && c, true)) {
+        reject(index);
+        return;
+      }
+    } else {
+      console.log(`[Test run ${run} #${variant}] ERROR! Confirm Invoices failed`);
+      reject(index);
+      return;
+    }
+
+    const invFinInvIds = await updatePaymentStatus(data.InvFin).catch(error => console.log(`[Test run ${run} #${variant}] ${error}`));
+    if (invFinInvIds && (invFinInvIds !== undefined)) {
+      const shouldContinue = await Promise.all(invFinInvIds.map(async v => 
+        readEntities(`[Test run ${run} #${variant}] Update payment status`, token, v, (results: QueryHandlerEntity[]) =>
+          results.reduce((accu, r) => (accu && (r.value.indexOf(`"remittanceBank"`) >= 0)), true)
+        ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Update payment status ${error}`))
+      ));
+      if (!shouldContinue.reduce((a, c) => a && c, true)) {
+        reject(index);
+        return;
+      }
+    } else {
+      console.log(`[Test run ${run} #${variant}] ERROR! Update payment status failed`);
+      reject(index);
+      return;
+    }
 
     const runFinish = Date.now();
     console.log(`[Test run ${run} #${variant}] Finish (ts ${runFinish}), elapsed time ${runFinish - runStarted} ms`);
@@ -441,6 +481,6 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
       .catch(errors => {
         console.log(`[Test run ${run}] Error ${errors}`);
       });
-    await new Promise(resolve => setTimeout(resolve, 40000));
+    await new Promise(resolve => setTimeout(resolve, RUNS_WAIT));
   }
 })();

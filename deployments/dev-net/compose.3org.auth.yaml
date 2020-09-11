@@ -24,6 +24,8 @@ services:
       - ORG_ADMIN_EMAIL=admin@org3.net
       - CLIENT_APPLICATION_NAME=root_client
       - CLIENT_SECRET=password
+      - LOG_LEVEL=$LOG_LEVEL
+      - LOG_TARGET=$LOG_TARGET
     ports:
       - 8082:8080
     networks:

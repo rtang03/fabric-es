@@ -11,20 +11,18 @@ const handleFileUploads = (req, res, resMsg?) => {
   const type = (req.headers['content-type'] || 'text/plain').split(';')[0];
 
   if (type === 'application/json') {
-    if (resMsg) {
-      console.log('JSON', JSON.stringify(req.body, null, ' '));
-      console.log('JSON', new Date(), resMsg);
-    }
+    console.log('JSON', JSON.stringify(req.body, null, ' '), Date.now(), new Date(), resMsg || 'No message');
     res.sendStatus(200);
   } else if (type === 'multipart/form-data') {
+    console.log('FILE', Date.now(), new Date(), resMsg || 'No message', '...');
     const form = formidable({ multiples: true, uploadDir: 'src/__tests__/uploads', keepExtensions: true });
     form.parse(req, (err, fields, files) => {
       if (err) {
-        if (resMsg) console.log('multipart form parsing error', err);
+        console.log('multipart form parsing error', err);
         res.sendStatus(500);
       } else {
         if (!files.files) {
-          if (resMsg) console.log('no file received');
+          console.log('no file received');
         } else {
           const display = file => {
             if (resMsg) {
@@ -46,12 +44,12 @@ const handleFileUploads = (req, res, resMsg?) => {
         if (fields && resMsg) {
           console.log('FILE', fields);
         }
-        if (resMsg) console.log('FILE', new Date(), resMsg);
+        console.log('FILE', Date.now(), new Date(), resMsg || 'No message');
         res.send(`<html><head><link rel="icon" href="data:,"></head><body>${resMsg}</body></html>`);
       }
     });
   } else {
-    if (resMsg) console.log(`Unsupported content type ${type}`);
+    console.log(`Unsupported content type ${type}`, Date.now(), new Date(), resMsg || 'No message');
     res.sendStatus(500);
   }
 };
@@ -90,8 +88,7 @@ export const createMockServer = (key: string, cert: string, isHttp?: boolean, si
 
     if (type === 'application/json') {
       if (!silent) {
-        console.log('JSON', JSON.stringify(req.body, null, ' '));
-        console.log('JSON', new Date(), JSON.stringify(url));
+        console.log('JSON*', JSON.stringify(req.body, null, ' '), Date.now(), new Date(), JSON.stringify(url));
       }
       res.sendStatus(200);
     } else {
