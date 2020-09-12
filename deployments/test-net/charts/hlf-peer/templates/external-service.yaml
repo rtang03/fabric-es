@@ -1,49 +1,12 @@
+{{- range .Values.externalService }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: o0-hlf-ord
+  name: {{ .name }}
   labels:
-{{ include "labels.standard" . | indent 4 }}
+{{ include "labels.standard" $ | indent 4 }}
 spec:
   type: ExternalName
-  externalName: o0-hlf-ord.n0.svc.cluster.local
+  externalName: {{ .externalName }}
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: o1-hlf-ord
-  labels:
-{{ include "labels.standard" . | indent 4 }}
-spec:
-  type: ExternalName
-  externalName: o1-hlf-ord.n0.svc.cluster.local
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: o2-hlf-ord
-  labels:
-{{ include "labels.standard" . | indent 4 }}
-spec:
-  type: ExternalName
-  externalName: o2-hlf-ord.n0.svc.cluster.local
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: o3-hlf-ord
-  labels:
-{{ include "labels.standard" . | indent 4 }}
-spec:
-  type: ExternalName
-  externalName: o3-hlf-ord.n0.svc.cluster.local
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: o4-hlf-ord
-  labels:
-{{ include "labels.standard" . | indent 4 }}
-spec:
-  type: ExternalName
-  externalName: o4-hlf-ord.n0.svc.cluster.local
+{{- end }}

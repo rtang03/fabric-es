@@ -1,0 +1,27 @@
+global:
+  fabricBinary: 2.2.0
+  guploadImage: ghcr.io/rtang03/gupload:0.0.7
+
+persistence:
+  enabled: true
+  pvcName: pvc-gupload1
+
+ingress:
+  enabled: true
+  type: ClusterIP
+  annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/rewrite-target: /
+      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
+  path: /
+  hosts:
+    - p0o1-hlf-peer
+  tls:
+    - hosts:
+        - p0o1-hlf-peer
+      secretName: peer0.org1.net-tls
+
+secrets:
+  peer:
+    tls: peer0.org1.net-tls

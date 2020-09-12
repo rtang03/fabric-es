@@ -33,8 +33,22 @@ ingress:
     - peer0.org1.net
   tls:
     - hosts:
-        - peer0.org1.net
+        - p0o1-hlf-peer
       secretName: peer0.org1.net-tls
+
+externalService:
+#  - name: o0-hlf-ord
+#    externalName: o0-hlf-ord.n0.svc.cluster.local
+#  - name: o1-hlf-ord
+#    externalName: o1-hlf-ord.n0.svc.cluster.local
+#  - name: o2-hlf-ord
+#    externalName: o2-hlf-ord.n0.svc.cluster.local
+#  - name: o3-hlf-ord
+#    externalName: o3-hlf-ord.n0.svc.cluster.local
+#  - name: o4-hlf-ord
+#    externalName: o4-hlf-ord.n0.svc.cluster.local
+  - name: p0o2-hlf-peer
+    externalName: peer0.org2.net
 
 persistence:
   enabled: true
@@ -42,11 +56,11 @@ persistence:
 
 logging:
   # "info" or "debug" or "grpc=debug:debug" or "grpc=debug:info"
-  level: "info"
-  peer: info
-  cauthdsl: warning
-  gossip: info
-  grpc: error
+  level: info # "info"
+  peer: info # info
+  cauthdsl: debug # warning
+  gossip: info # info
+  grpc: error # error
   ledger: info
   msp: warning
   policies: warning
@@ -55,6 +69,15 @@ logging:
 ## Peer configuration options    #
 ##################################
 peer:
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - orderer1.org0.com
+        - orderer2.org0.com
+        - orderer3.org0.com
+        - orderer4.org0.com
+        - peer0.org1.net
+      ip: 34.68.246.23
   ledgerPath: /var/hyperledger/production
   peerName: peer0
   # orgPath: /var/hyperledger/crypto-config/Org1MSP
@@ -71,8 +94,8 @@ peer:
     bootstrap: "p0o1-hlf-peer:7051"
     endpoint: "p0o1-hlf-peer:7051"
     externalEndpoint: "peer0.org1.net:443"
-    orgLeader: "false"
-    useLeaderElection: "true"
+    orgLeader: "true"
+    useLeaderElection: "false"
   tls:
     server:
       enabled: "true"

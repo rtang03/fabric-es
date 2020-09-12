@@ -39,11 +39,9 @@ data:
           Endorsement:
             Type: Signature
             Rule: "OR('Org1MSP.member')"
-        OrdererEndpoints:
-          - "orderer0.org0.com:7050"
         AnchorPeers:
-          - Host: p0o1-hlf-peer
-            Port: 7051
+          - Host: peer0.org1.net
+            Port: 443
     Capabilities:
       Channel: &ChannelCapabilities
         V2_0: true
@@ -74,11 +72,11 @@ data:
     Orderer: &OrdererDefaults
       OrdererType: etcdraft
       Addresses:
-        - "o0-hlf-ord:7050"
-        - "o1-hlf-ord:7050"
-        - "o2-hlf-ord:7050"
-        - "o3-hlf-ord:7050"
-        - "o4-hlf-ord:7050"
+        - "orderer0.org0.com:443"
+        - "orderer1.org0.com:443"
+        - "orderer2.org0.com:443"
+        - "orderer3.org0.com:443"
+        - "orderer4.org0.com:443"
       BatchTimeout: 2s
       BatchSize:
         MaxMessageCount: 500

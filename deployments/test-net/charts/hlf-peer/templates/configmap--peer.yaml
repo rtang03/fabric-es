@@ -14,7 +14,7 @@ data:
 #  {{- else }}
 #  # Otherwise we use CORE_PEER_ADDRESSAUTODETECT to auto-detect its address
 #  {{- end }}
-  CORE_PEER_ADDRESS: {{ include "hlf-peer.fullname" . }}:7051
+  # CORE_PEER_ADDRESS: {{ include "hlf-peer.fullname" . }}:7051
   CORE_PEER_LISTENADDRESS: 0.0.0.0:7051
   CORE_PEER_CHAINCODELISTENADDRESS: 0.0.0.0:7052
   CORE_VM_DOCKER_ATTACHOUT: "true"
@@ -82,6 +82,7 @@ data:
   # https://golang.org/pkg/net/#:~:text=A%20numeric%20netdns%20setting%2C%20as,%3Dnetdns%3Dgo%2B1.
   # https://medium.com/@Alibaba_Cloud/hyperledger-fabric-deployment-on-alibaba-cloud-environment-sigsegv-problem-analysis-and-solutions-9a708313f1a4
   GODEBUG: "netdns=go"
+  # GODEBUG: "http2debug=1"
   ADMIN_MSP_PATH: "{{ include "hlf-peer.home" . }}/admin/msp"
   ORD_TLS_PATH: "{{ include "hlf-peer.home" . }}/ord/org0/tlscacerts"
   CORE_METRICS_PROVIDER: prometheus

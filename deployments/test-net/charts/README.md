@@ -193,7 +193,7 @@ export CA_PASSWORD=$(kubectl get secret -n n0 tlsca0-hlf-ca--ca -o jsonpath="{.d
 ```shell script
 # Inside peer or orderer, change logging level 
 apk add curl
-curl -d '{"spec":"grpc=debug:debug"}' -H "Content-Type: application/json" -X PUT http://127.0.0.1:9443/logspec
+curl -d '{"spec":"grpc=debug:debug"}' -H "Content-Type: application/json" -X PUT http://127.0.0.1:8443/logspec
 curl -d '{"spec":"debug"}' -H "Content-Type: application/json" -X PUT http://127.0.0.1:8443/logspec
 
 # search public helm repository

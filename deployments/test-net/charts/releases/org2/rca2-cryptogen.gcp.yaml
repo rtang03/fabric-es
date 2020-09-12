@@ -25,7 +25,7 @@ items:
     id: peer0.org2.net
     secret: peer0.org2.netPW
     caClientMspDir: msp
-    csrHosts: "p0o2-hlf-peer,peer0.org2.net"
+    csrHosts: "p0o2-hlf-peer,peer0.org2.net,gupload.org2.net"
 
 persistence:
   pvcName: pvc-org2

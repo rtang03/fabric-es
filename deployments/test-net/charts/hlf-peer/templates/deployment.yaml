@@ -19,6 +19,16 @@ spec:
       labels:
 {{ include "labels.standard" . | indent 8 }}
     spec:
+      {{- if .Values.peer.hostAlias }}
+      hostAliases:
+        {{- range .Values.peer.hostAlias }}
+        - hostnames:
+            {{- range .hostnames }}
+            - {{ . }}
+          {{- end }}
+          ip: {{ .ip }}
+      {{- end }}
+      {{- end }}
       volumes:
         - name: data
         {{- if .Values.persistence.enabled }}

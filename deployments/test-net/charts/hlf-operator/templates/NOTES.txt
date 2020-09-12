@@ -1,47 +1,47 @@
 Job will perform:
-{{- if .Values.tasks.create_channel.enabled }}
+{{- if .Values.bootstrap.tasks.create_channel.enabled }}
   - create channel
 {{- end }}
-{{- if .Values.tasks.join_channel.enabled }}
+{{- if .Values.bootstrap.tasks.join_channel.enabled }}
   - join channel
 {{- end }}
-{{- if .Values.tasks.getchannnelinfo.enabled }}
+{{- if .Values.bootstrap.tasks.getchannnelinfo.enabled }}
   - get channel info
 {{- end }}
-{{- if .Values.tasks.update_anchor_peer.enabled }}
+{{- if .Values.bootstrap.tasks.update_anchor_peer.enabled }}
   - update anchor peer
 {{- end }}
-{{- if .Values.tasks.package_chaincode.enabled }}
+{{- if .Values.bootstrap.tasks.package_chaincode.enabled }}
   - package chaincode
 {{- end }}
-{{- if .Values.tasks.install_chaincode.enabled }}
+{{- if .Values.bootstrap.tasks.install_chaincode.enabled }}
   - install chaincode
 {{- end }}
-{{- if .Values.tasks.queryinstalled.enabled }}
+{{- if .Values.bootstrap.tasks.queryinstalled.enabled }}
   - query installed chaincode
 {{- end }}
-{{- if .Values.tasks.approve_chaincode.enabled }}
+{{- if .Values.bootstrap.tasks.approve_chaincode.enabled }}
   - approve chaincode
 {{- end }}
-{{- if .Values.tasks.queryapproved.enabled }}
+{{- if .Values.bootstrap.tasks.queryapproved.enabled }}
   - query approved chaincode
 {{- end }}
-{{- if .Values.tasks.checkcommitreadiness.enabled }}
+{{- if .Values.bootstrap.tasks.checkcommitreadiness.enabled }}
   - check commit readiness
 {{- end }}
-{{- if .Values.tasks.commit_chaincode.enabled }}
+{{- if .Values.bootstrap.tasks.commit_chaincode.enabled }}
   - commit chaincode
 {{- end }}
-{{- if .Values.tasks.querycommitted.enabled }}
+{{- if .Values.bootstrap.tasks.querycommitted.enabled }}
   - query committed chaincode
 {{- end }}
-{{- if .Values.tasks.init_chaincode.enabled }}
+{{- if .Values.bootstrap.tasks.init_chaincode.enabled }}
   - init chaincode
 {{- end }}
-{{- if .Values.tasks.dev_invoke.enabled }}
+{{- if .Values.bootstrap.tasks.dev_invoke.enabled }}
   - smoke test: invoke
 {{- end }}
-{{- if .Values.tasks.dev_query.enabled }}
+{{- if .Values.bootstrap.tasks.dev_query.enabled }}
   - smoke test: query
 {{- end }}
 --- End ---

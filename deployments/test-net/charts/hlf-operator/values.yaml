@@ -5,99 +5,186 @@ global:
   config:
     setupsh: admin1-orgadmin--setupsh
     coreyaml: admin1-orgadmin--core
+  guploadImage: ghcr.io/rtang03/gupload:0.0.7
+  channel:
+    name: loanapp
 
-job:
-  singletask: false
-    fetchChannelConfig: false
-  bootstrap: false
-  addorg: false
+config:
+  peer:
+    #Provide the name of the peer as per deployment yaml.
+    #Eg. name: peer0
+    id: cli
+    peerTlsCaCert:  /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/signcerts/cert.pem
+    #Provide the address of the peer who creates the channel and port to be mentioned is grpc cluster IP port
+    #Eg. address: peer0.org1-example-com:7051
+    # address: p0o1-hlf-peer:7051
+    address: peer0.org1.net:443
+    target: peer0.org1.net
+  orderer:
+    #Provide the address for orderer
+    address: orderer0.org0.com
 
-persistence:
+#######################
+### Param for bootstrap
+#######################
+bootstrap:
+  enabled: false
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org1.net
+      ip: 34.68.246.23
   pvcName: pvc-org1
-
-
-#######################
-### Param for Bootstrap
-#######################
-tasks:
-  create_channel:
-    enabled: false
-  join_channel:
-    enabled: false
-  getchannnelinfo:
-    enabled: false
-  update_anchor_peer:
-    enabled: false
-  package_chaincode:
-    enabled: false
-  install_chaincode:
-    enabled: false
-  queryinstalled:
-    enabled: false
-  approve_chaincode:
-    enabled: false
-    sequence: 1
-  queryapproved:
-    enabled: false
-  checkcommitreadiness:
-    enabled: false
-  commit_chaincode:
-    enabled: false
-    targets:
-      - peerAddress: p0o1-hlf-peer:7051
-        tlsRootCertFiles: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-tlsca1-hlf-ca-n1-svc-cluster-local-7054.pem
-  querycommitted:
-    enabled: false
-    targets:
-      - peerAddress: p0o1-hlf-peer:7051
-        tlsRootCertFiles: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-tlsca1-hlf-ca-n1-svc-cluster-local-7054.pem
-  init_chaincode:
-    enabled: false
-    targets:
-      - peerAddress: p0o1-hlf-peer:7051
-        tlsRootCertFiles: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-tlsca1-hlf-ca-n1-svc-cluster-local-7054.pem
-  dev_invoke:
-    enabled: false
-    targets:
-      - peerAddress: p0o1-hlf-peer:7051
-        tlsRootCertFiles: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-tlsca1-hlf-ca-n1-svc-cluster-local-7054.pem
-  dev_query:
-    enabled: false
-
-secret:
-  tlscacert: org0-tls-ca-cert
-  channeltx: channeltx
-
-peer:
-  #Provide the name of the peer as per deployment yaml.
-  #Eg. name: peer0
-  id: cli
-  #Provide the address of the peer who creates the channel and port to be mentioned is grpc cluster IP port
-  #Eg. address: peer0.org1-example-com:7051
-  address: p0o1-hlf-peer:7051
-  target: peer0.org1.net
-
-chaincode:
-  id: eventstore
-  contract: eventstore
-  version: 1
-  lang: node
-
-channel:
-  #Provide the name of the channel
-  #Eg. name: mychannel
-  name: loanapp
-
-orderer:
-  #Provide the address for orderer
-  #Eg. address: orderer.fratest-com:7050
-  address: o0-hlf-ord:7050
-
+  secret:
+    tlscacert: org0-tls-ca-cert
+    channeltx: channeltx
+  chaincode:
+    id: eventstore
+    contract: eventstore
+    version: 1
+    lang: node
+  tasks:
+    create_channel:
+      enabled: false
+    join_channel:
+      enabled: false
+    getchannnelinfo:
+      enabled: false
+    update_anchor_peer:
+      enabled: false
+    package_chaincode:
+      enabled: false
+    install_chaincode:
+      enabled: false
+    queryinstalled:
+      enabled: false
+    approve_chaincode:
+      enabled: false
+      sequence: 1
+    queryapproved:
+      enabled: false
+    checkcommitreadiness:
+      enabled: false
+    commit_chaincode:
+      enabled: false
+      targets:
+        - peerAddress: p0o1-hlf-peer:7051
+          tlsRootCertFiles: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-tlsca1-hlf-ca-n1-svc-cluster-local-7054.pem
+    querycommitted:
+      enabled: false
+      targets:
+        - peerAddress: p0o1-hlf-peer:7051
+          tlsRootCertFiles: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-tlsca1-hlf-ca-n1-svc-cluster-local-7054.pem
+    init_chaincode:
+      enabled: false
+      targets:
+        - peerAddress: p0o1-hlf-peer:7051
+          tlsRootCertFiles: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-tlsca1-hlf-ca-n1-svc-cluster-local-7054.pem
+    dev_invoke:
+      enabled: false
+      targets:
+        - peerAddress: p0o1-hlf-peer:7051
+          tlsRootCertFiles: /var/hyperledger/crypto-config/Org1MSP/peer0.org1.net/tls-msp/tlscacerts/tls-tlsca1-hlf-ca-n1-svc-cluster-local-7054.pem
+    dev_query:
+      enabled: false
 
 #######################
-### Param for addOrg
+### Param for fetch current channel config, and send config.json to other org
 #######################
-addOrg:
+fetchSend:
+  enabled: false
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org1.net
+      ip: 34.68.246.23
+    - hostnames:
+        - gupload.org2.net
+      ip: 34.68.246.23
+  orgadmin:
+    pvcName: pvc-org1
+  gupload:
+    pvcName: pvc-gupload1
+  secret:
+    org0tlscacert: org0-tls-ca-cert
+    peerTlscacert: peer0.org2.net-tls
+  label: o1_channel_config
+  address:
+    url: gupload.org2.net
+    port: 443
+
+#######################
+### Param for create new org update, and send to other org
+#######################
+neworgSend:
+  enabled: false
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org2.net
+      ip: 34.68.246.23
+    - hostnames:
+        - gupload.org1.net
+      ip: 34.68.246.23
+  channelConfg: o1_channel_config--config.json
+  orgadmin:
+    pvcName: pvc-org2
+  gupload:
+    pvcName: pvc-gupload2
+  secret:
+    tlscacert: org0-tls-ca-cert
+    peerTlscacert: peer0.org1.net-tls
   configtx:
     mspId: Org2MSP
     anchorPeer: p0o2-hlf-peer
+  label: o2_neworg_update
+  address:
+    url: gupload.org1.net
+    port: 443
+
+#######################
+### Param for update channel
+#######################
+updateChannel:
+  enabled: false
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org1.net
+      ip: 34.68.246.23
+  updateChannelEnvelop: o2_neworg_update--config_update_in_envelope.pb
+  orgadmin:
+    pvcName: pvc-org1
+  gupload:
+    pvcName: pvc-gupload1
+  secret:
+    tlscacert: org0-tls-ca-cert
+
+#######################
+### Param for join channel
+#######################
+joinChannel:
+  enabled: false
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org2.net
+      ip: 34.68.246.23
+  orgadmin:
+    pvcName: pvc-org2
+  gupload:
+    pvcName: pvc-gupload2
+  secret:
+    tlscacert: org0-tls-ca-cert
+
+#######################
+### Param for add signature and forward
+#######################
+signSend:
+  enabled: false
+
+#######################
+### Param for package chaincode and send to other org
+#######################
+packageccSend:
+  enabled: false

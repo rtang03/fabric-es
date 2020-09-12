@@ -57,7 +57,6 @@ spec:
         - name: peerconfig
           configMap:
             name: {{ include "orgadmin.fullname" . }}--peerconfig
-
         {{- end }}
         - name: core
           configMap:

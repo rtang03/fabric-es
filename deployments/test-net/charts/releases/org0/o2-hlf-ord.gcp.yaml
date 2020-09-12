@@ -25,12 +25,19 @@
 #  port: 7050
 
 ingress:
-  enabled: false
-
-### Default
-#sidecar:
-#  isalive:
-#    enabled: false
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPCS"
+  path: /
+  hosts:
+    - orderer2.org0.com
+  tls:
+    - hosts:
+        - orderer2.org0.com
+      secretName: orderer2.org0.com-tls
 
 persistence:
   ### Default
@@ -46,7 +53,17 @@ persistence:
 ## Orderer configuration options #
 ##################################
 ord:
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - orderer1.org0.com
+        - orderer2.org0.com
+        - orderer3.org0.com
+        - orderer4.org0.com
+        - peer0.org1.net
+      ip: 34.68.246.23
   listenAddress: "o2-hlf-ord"
+  host: orderer2.org0.com
   ledgerPath: /var/hyperledger/production
   ordName: orderer2
   debug: INFO

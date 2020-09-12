@@ -1,4 +1,4 @@
-{{- if .Values.job.addorg }}
+{{- if .Values.neworgSend.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,30 +8,34 @@ metadata:
 data:
   configtx.yaml: |
     Organizations:
-      - &{{ .Values.addOrg.configtx.mspId }}
+      - &{{ .Values.neworgSend.configtx.mspId }}
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
-        Name: {{ .Values.addOrg.configtx.mspId }}
+        Name: {{ .Values.neworgSend.configtx.mspId }}
         # ID to load the MSP definition as
-        ID: {{ .Values.addOrg.configtx.mspId }}
-        MSPDir: /var/hyperledger/crypto-config/{{ .Values.addOrg.configtx.mspId }}/msp
+        ID: {{ .Values.neworgSend.configtx.mspId }}
+        MSPDir: /var/hyperledger/crypto-config/{{ .Values.neworgSend.configtx.mspId }}/msp
         Policies:
           Readers:
             Type: Signature
-            Rule: "OR('{{ .Values.addOrg.configtx.mspId }}.admin', '{{ .Values.addOrg.configtx.mspId }}.peer', '{{ .Values.addOrg.configtx.mspId }}.client')"
+            # Rule: "OR('{{ .Values.neworgSend.configtx.mspId }}.admin', '{{ .Values.neworgSend.configtx.mspId }}.peer', '{{ .Values.neworgSend.configtx.mspId }}.client')"
+            Rule: "OR('{{ .Values.neworgSend.configtx.mspId }}.member')"
           Writers:
             Type: Signature
-            Rule: "OR('{{ .Values.addOrg.configtx.mspId }}.admin', '{{ .Values.addOrg.configtx.mspId }}.client')"
+            # Rule: "OR('{{ .Values.neworgSend.configtx.mspId }}.admin', '{{ .Values.neworgSend.configtx.mspId }}.client')"
+            Rule: "OR('{{ .Values.neworgSend.configtx.mspId }}.member')"
           Admins:
             Type: Signature
-            Rule: "OR('{{ .Values.addOrg.configtx.mspId }}.admin')"
+            # Rule: "OR('{{ .Values.neworgSend.configtx.mspId }}.admin')"
+            Rule: "OR('{{ .Values.neworgSend.configtx.mspId }}.admin')"
           Endorsement:
             Type: Signature
-            Rule: "OR('{{ .Values.addOrg.configtx.mspId }}.peer')"
+            # Rule: "OR('{{ .Values.neworgSend.configtx.mspId }}.peer')"
+            Rule: "OR('{{ .Values.neworgSend.configtx.mspId }}.member')"
         AnchorPeers:
           # AnchorPeers defines the location of peers which can be used
           # for cross org gossip communication.  Note, this value is only
           # encoded in the genesis block in the Application section context
-          - Host: {{ .Values.addOrg.configtx.anchorPeer }}
-            Port: 7051
+          - Host: peer0.org2.net # {{ .Values.neworgSend.configtx.anchorPeer }}
+            Port: 443 # 7051
 {{- end }}

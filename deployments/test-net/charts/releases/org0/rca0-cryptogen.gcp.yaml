@@ -10,7 +10,6 @@ caAdmin: rca0-admin
 caAdminPW: rca0-adminPW
 endpoint: rca0-hlf-ca.n0.svc.cluster.local:7054
 
-# fabricCaClientTlsCertfiles: /var/hyperledger/crypto-config/Org0MSP/ca/server/ca-cert.pem
 orgCaCert: /var/hyperledger/crypto-config/Org0MSP/ca/admin/msp/cacerts/rca0-hlf-ca-n0-svc-cluster-local-7054.pem
 adminCert: /var/hyperledger/crypto-config/Org0MSP/admin/msp/signcerts/cert.pem
 
@@ -26,7 +25,7 @@ items:
     id: orderer0.org0.com
     secret: orderer0.org0.comPW
     caClientMspDir: msp
-    csrHosts: "o0-hlf-ord,orderer0.org0.com,34.68.246.23"
+    csrHosts: "o0-hlf-ord,orderer0.org0.com,127.0.0.1"
   - type: orderer
     id: orderer1.org0.com
     secret: orderer1.org0.comPW

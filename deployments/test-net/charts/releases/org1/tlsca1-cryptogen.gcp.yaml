@@ -21,7 +21,7 @@ items:
     secret: peer0.org1.netPW
     caClientMspDir: tls-msp
     profile: tls
-    csrHosts: "p0o1-hlf-peer,peer0.org1.net,34.68.246.23"
+    csrHosts: "p0o1-hlf-peer,peer0.org1.net,gupload.org1.net"
 
 persistence:
   pvcName: pvc-org1

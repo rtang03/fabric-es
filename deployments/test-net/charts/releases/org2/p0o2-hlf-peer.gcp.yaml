@@ -36,6 +36,20 @@ ingress:
         - peer0.org2.net
       secretName: peer0.org2.net-tls
 
+externalService:
+  - name: o0-hlf-ord
+    externalName: orderer0.org0.com
+  - name: o1-hlf-ord
+    externalName: orderer1.org0.com
+  - name: o2-hlf-ord
+    externalName: orderer2.org0.com
+  - name: o3-hlf-ord
+    externalName: orderer3.org0.com
+  - name: o4-hlf-ord
+    externalName: orderer4.org0.com
+  - name: p0o1-hlf-peer
+    externalName: peer0.org1.net
+
 persistence:
   enabled: true
   pvcName: pvc-p0o2
@@ -55,6 +69,14 @@ logging:
 ## Peer configuration options    #
 ##################################
 peer:
+  hostAlias:
+    - hostnames:
+        - orderer0.org0.com
+        - peer0.org1.net
+      ip: 34.68.246.23
+    - hostnames:
+        - peer0.org2.net
+      ip: 34.68.246.23
   ledgerPath: /var/hyperledger/production
   peerName: peer0
   # Type of database ("goleveldb" or "CouchDB"):

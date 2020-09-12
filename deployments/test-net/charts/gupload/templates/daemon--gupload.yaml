@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "gupload.fullname" . }}
+  labels:
+{{- include "labels.standard" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "gupload.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+{{ include "labels.standard" . | indent 8 }}
+    spec:
+      containers:
+        - name: gupload
+          image: {{ .Values.global.guploadImage | quote }}
+          imagePullPolicy: IfNotPresent
+          workingDir: /var/gupload
+          ports:
+            - containerPort: 1313
+              protocol: TCP
+              name: request
+          command:
+            - sh
+            - -c
+            - |
+              apk update
+              apk upgrade
+              apk --no-cache add curl libc6-compat libstdc++
+              cp /var/gupload/gupload /var/gupload/uploaded
+              echo "### Starting gupload ###"
+              ./gupload serve --key ./cert/tls.key --certificate ./cert/tls.crt
+          volumeMounts:
+            - mountPath: /var/gupload/cert
+              name: tls
+            - mountPath: /var/gupload/uploaded
+              name: files
+      volumes:
+        - name: files
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.pvcName }}
+        - name: tls
+          secret:
+            secretName: {{ .Values.secrets.peer.tls }}
