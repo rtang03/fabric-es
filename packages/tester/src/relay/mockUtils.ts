@@ -11,10 +11,10 @@ const handleFileUploads = (req, res, resMsg?) => {
   const type = (req.headers['content-type'] || 'text/plain').split(';')[0];
 
   if (type === 'application/json') {
-    console.log('JSON', JSON.stringify(req.body, null, ' '), Date.now(), new Date(), resMsg || 'No message');
+    if (resMsg) console.log('JSON', JSON.stringify(req.body, null, ' '), Date.now(), new Date(), resMsg);
     res.sendStatus(200);
   } else if (type === 'multipart/form-data') {
-    console.log('FILE', Date.now(), new Date(), resMsg || 'No message', '...');
+    if (resMsg) console.log('FILE', Date.now(), new Date(), resMsg, '...');
     const form = formidable({ multiples: true, uploadDir: 'src/__tests__/uploads', keepExtensions: true });
     form.parse(req, (err, fields, files) => {
       if (err) {
@@ -22,7 +22,7 @@ const handleFileUploads = (req, res, resMsg?) => {
         res.sendStatus(500);
       } else {
         if (!files.files) {
-          console.log('no file received');
+          if (resMsg) console.log('no file received');
         } else {
           const display = file => {
             if (resMsg) {
@@ -42,14 +42,14 @@ const handleFileUploads = (req, res, resMsg?) => {
         }
 
         if (fields && resMsg) {
-          console.log('FILE', fields);
+          if (resMsg) console.log('FILE', fields);
         }
-        console.log('FILE', Date.now(), new Date(), resMsg || 'No message');
+        if (resMsg) console.log('FILE', Date.now(), new Date(), resMsg);
         res.send(`<html><head><link rel="icon" href="data:,"></head><body>${resMsg}</body></html>`);
       }
     });
   } else {
-    console.log(`Unsupported content type ${type}`, Date.now(), new Date(), resMsg || 'No message');
+    if (resMsg) console.log(`Unsupported content type ${type}`, Date.now(), new Date(), resMsg);
     res.sendStatus(500);
   }
 };
@@ -95,6 +95,10 @@ export const createMockServer = (key: string, cert: string, isHttp?: boolean, si
       if (!silent) console.log(`Unsupported content type ${type}`);
       res.sendStatus(500);
     }
+  });
+
+  app.get('/ready', (req, res) => {
+    res.send('Ready');
   });
 
   const server = stoppable((isHttp) ?

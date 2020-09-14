@@ -21,7 +21,7 @@ services:
       - LOG_TARGET=$LOG_TARGET
     working_dir: /home/app/packages/rl-org3
     ports:
-      - 5003:5003
+      - 5003:5001
     networks:
       - openplatform
     depends_on:

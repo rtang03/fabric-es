@@ -42,4 +42,9 @@ describe('Programming tests', () => {
     expect(tester({ level: 'verbose', target: 'file' }))
       .toEqual({ lvl: 'verbose', level: 'verbose', target: 2 }); // input | input | input
   });
+
+  it('test environment variables 2', () => {
+    const value = parseInt(process.env.NONEXISTING, 10) || 2345;
+    console.log(value);
+  });
 });

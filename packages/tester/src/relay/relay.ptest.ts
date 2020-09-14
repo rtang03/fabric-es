@@ -1,29 +1,39 @@
 require('dotenv').config({ path: './.env' });
 import https from 'https';
-import { QueryHandlerEntity } from '@fabric-es/fabric-cqrs';
-import {
-  EndPoints, Invoice, PO
-} from '@fabric-es/model-pboc';
 import fetch from 'node-fetch';
 import { getTestData, QUERY } from './mockUtils';
 
-const BATCH = 10;
-const RUNS = 1000;
-const RUNS_WAIT = 60000;
-const READ_RETRY = 30;
-const READ_WAIT = 3500; // Wait between each read retry
-const relay1 = 'https://localhost:2500'; // ETC side
-const relay2 = 'https://localhost:2502'; // PBOC side
-const authen = 'http://localhost:8082'; // FDI node
-const qryhdr = 'http://localhost:5003/graphql'; // FDI node
+const EndPoints = [
+  '/user/inquiry',                              // 0 GET ?sellerId=
+  '/order/po',                                  // 1 POST; PUT; multipart/form-data ???
+  '/order/cancelPO',                            // 2 POST
+  '/etccorp/pboc/api/v1/po/process',            // 3 POST
+  '/etccorp/pboc/api/v1/invoices',              // 4 POST; PUT; multipart/form-data ???
+  '/etccorp/pboc/api/v1/invoices/notify',       // 5 POST; multipart/form-data ???
+  '/etccorp/pboc/api/v1/invoices/image/upload', // 6 POST ?invoiceId= &imageDesc=; multipart/form-data ???
+  '/invoice/result',                            // 7 POST
+  '/trade-financing/invresult'                  // 8 POST
+];
+type EndPoints = typeof EndPoints[number];
 
-const range = Math.round(Math.log10(RUNS * BATCH));
+const BATCH = parseInt(process.env.BATCH_NUM, 10) || 5; // Number of tests per run
+const RUNS = parseInt(process.env.RUNS_NUM, 10) || 3; // Total number of runs
+const RUNS_WAIT = parseInt(process.env.RUNS_WAIT, 10) || 30000; // Time to wait before sending the next batch of test (ms)
+const READ_RETRY = parseInt(process.env.READ_RETRY, 10) || 20; // Number of retries to read expected results from Fabric
+const READ_WAIT = parseInt(process.env.READ_WAIT, 10) || 3000; // Time to wait between each read retry
+const athreg = `http://${process.env.AUTH_HOST3}:${process.env.AUTH_PORT3}/account`;
+const athlog = `http://${process.env.AUTH_HOST3}:${process.env.AUTH_PORT3}/account/login`;
+const relay1 = `https://${process.env.RELAY_HOST1}:${process.env.RELAY_PORT1}`; // ETC side
+const relay2 = `https://${process.env.RELAY_HOST2}:${process.env.RELAY_PORT2}`; // PBOC side
+const qryhdr = `http://${process.env.QUERY_HOST}:${process.env.QUERY_PORT}/graphql`; // FDI node
+
+const range = Math.round(Math.log10(RUNS * BATCH)) + 1;
 const stamp = Date.now();
 const agent = new https.Agent({ rejectUnauthorized: false });
 
 const authenticate = (username, email, password) => {
   return new Promise<string>(async (resolve, reject) => {
-    const uid = await fetch(`${authen}/account`, {
+    const uid = await fetch(`${athreg}`, {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
         username, email, password
       })})
@@ -37,7 +47,7 @@ const authenticate = (username, email, password) => {
     });
 
     if (uid !== undefined) {
-      const token = await fetch(`${authen}/account/login`, {
+      const token = await fetch(`${athlog}`, {
         method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
           username, password
         })})
@@ -214,26 +224,26 @@ const updatePaymentStatus = (data) => {
   });
 };
 
-const readCommits = (accessToken: string, query: string) => {
-  return new Promise<any>(async (resolve, reject) => {
-    const result = await fetch(qryhdr, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken}` },
-      body: JSON.stringify({
-        operationName: 'FullTextSearchCommit',
-        query: QUERY['FullTextSearchCommit'], variables: { query } // : `${id} @event:{PoProcessed}`
-      })
-    }).then(res => res.json())
-      .then(({ data: { fullTextSearchCommit: { items } } }) => items)
-      .catch(error => reject(error));
-    if (result !== undefined) resolve(result);
-  });
-};
+// const readCommits = (accessToken: string, query: string) => {
+//   return new Promise<any>(async (resolve, reject) => {
+//     const result = await fetch(qryhdr, {
+//       method: 'POST',
+//       headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken}` },
+//       body: JSON.stringify({
+//         operationName: 'FullTextSearchCommit',
+//         query: QUERY['FullTextSearchCommit'], variables: { query } // : `${id} @event:{PoProcessed}`
+//       })
+//     }).then(res => res.json())
+//       .then(({ data: { fullTextSearchCommit: { items } } }) => items)
+//       .catch(error => reject(error));
+//     if (result !== undefined) resolve(result);
+//   });
+// };
 
-const readEntities = (tag: string, accessToken: string, query: string, expected?: (results: QueryHandlerEntity[]) => boolean) => {
+const readEntities = (tag: string, accessToken: string, query: string, expected?: (results: any[]) => boolean) => {
   return new Promise<any>(async (resolve, reject) => {
     let count = READ_RETRY;
-    let result: void | QueryHandlerEntity[];
+    let result: void | any[];
 
     const headers = { 'content-type': 'application/json' };
     if (accessToken) headers['authorization'] = `bearer ${accessToken}`;
@@ -248,7 +258,7 @@ const readEntities = (tag: string, accessToken: string, query: string, expected?
         })
       })
       .then(res => res.json())
-      .then(({ data: { fullTextSearchEntity: { items }}}: { data: { fullTextSearchEntity: { items: QueryHandlerEntity[] }}}) => {
+      .then(({ data: { fullTextSearchEntity: { items }}}: { data: { fullTextSearchEntity: { items: any[] }}}) => {
         if (Array.isArray(items) && (items.length > 0) && (!expected || expected(items))) return items;
       })
       .catch(error => reject(error));
@@ -307,7 +317,7 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
     const editedPoIds = await editPo(data.PoEdit).catch(error => console.log(`[Test run ${run} #${variant}] ${error}`));
     if (editedPoIds && (editedPoIds !== undefined)) {
       const shouldContinue = await Promise.all(editedPoIds.map(async p => 
-        readEntities(`[Test run ${run} #${variant}] Edit POs`, token, p, (results: QueryHandlerEntity[]) =>
+        readEntities(`[Test run ${run} #${variant}] Edit POs`, token, p, (results: any[]) =>
           results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":1`) >= 0)), true)
         ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Edit POs ${error}`))
       ));
@@ -324,7 +334,7 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
     const cancelledPoIds = await cancelPo(data.PoCancel).catch(error => console.log(`[Test run ${run} #${variant}] ${error}`));
     if (cancelledPoIds && (cancelledPoIds !== undefined)) {
       const shouldContinue = await Promise.all(cancelledPoIds.map(async p => 
-        readEntities(`[Test run ${run} #${variant}] Cancel POs`, token, p, (results: QueryHandlerEntity[]) =>
+        readEntities(`[Test run ${run} #${variant}] Cancel POs`, token, p, (results: any[]) =>
           results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":4`) >= 0)), true)
         ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Cancel POs ${error}`))
       ));
@@ -341,7 +351,7 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
     const processPoResult = await processPo(data.PoProcess).catch(error => console.log(`[Test run ${run} #${variant}] ${error}`));
     if (processPoResult && (processPoResult !== undefined)) {
       const shouldContinue = await Promise.all(processPoResult.map(async p =>
-        readEntities(`[Test run ${run} #${variant}] Process POs`, token, p.poId, (results: QueryHandlerEntity[]) =>
+        readEntities(`[Test run ${run} #${variant}] Process POs`, token, p.poId, (results: any[]) =>
           results.reduce((accu, r) => {
             return (
               accu &&
@@ -376,7 +386,7 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
     const editedInvIds = await editInvoice(data.InvEdit).catch(error => console.log(`[Test run ${run} #${variant}] ${error}`));
     if (editedInvIds && (editedInvIds !== undefined)) {
       const shouldContinue = await Promise.all(editedInvIds.map(async v => 
-        readEntities(`[Test run ${run} #${variant}] Edit Invoices`, token, v, (results: QueryHandlerEntity[]) =>
+        readEntities(`[Test run ${run} #${variant}] Edit Invoices`, token, v, (results: any[]) =>
           results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":1`) >= 0)), true)
         ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Edit Invoices ${error}`))
       ));
@@ -393,7 +403,7 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
     const notifiedInvIds = await transferInvoice(data.InvNotify).catch(error => console.log(`[Test run ${run} #${variant}] ${error}`));
     if (notifiedInvIds && (notifiedInvIds !== undefined)) {
       const shouldContinue = await Promise.all(notifiedInvIds.map(async v => 
-        readEntities(`[Test run ${run} #${variant}] Transfer Invoices`, token, v, (results: QueryHandlerEntity[]) =>
+        readEntities(`[Test run ${run} #${variant}] Transfer Invoices`, token, v, (results: any[]) =>
           results.reduce((accu, r) => (accu && (r.value.indexOf(`"financeNo"`) >= 0)), true)
         ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Trasnfer Invoices ${error}`))
       ));
@@ -410,7 +420,7 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
     const confirmInvResult = await confirmInvoice(data.InvResult).catch(error => console.log(`[Test run ${run} #${variant}] ${error}`));
     if (confirmInvResult && (confirmInvResult !== undefined)) {
       const shouldContinue = await Promise.all(confirmInvResult.map(async v => 
-        readEntities(`[Test run ${run} #${variant}] Confirm Invoices`, token, v.invoiceId, (results: QueryHandlerEntity[]) =>
+        readEntities(`[Test run ${run} #${variant}] Confirm Invoices`, token, v.invoiceId, (results: any[]) =>
           results.reduce((accu, r) => {
             return (
               accu &&
@@ -432,7 +442,7 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
     const invFinInvIds = await updatePaymentStatus(data.InvFin).catch(error => console.log(`[Test run ${run} #${variant}] ${error}`));
     if (invFinInvIds && (invFinInvIds !== undefined)) {
       const shouldContinue = await Promise.all(invFinInvIds.map(async v => 
-        readEntities(`[Test run ${run} #${variant}] Update payment status`, token, v, (results: QueryHandlerEntity[]) =>
+        readEntities(`[Test run ${run} #${variant}] Update payment status`, token, v, (results: any[]) =>
           results.reduce((accu, r) => (accu && (r.value.indexOf(`"remittanceBank"`) >= 0)), true)
         ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Update payment status ${error}`))
       ));
@@ -464,6 +474,7 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
   // }
   // console.log(`Access token: ${token.substr(0, 70)}...`);
 
+  console.log(`Running ${RUNS}x${BATCH} relay tests (${RUNS_WAIT}ms, ${READ_WAIT}ms x ${READ_RETRY})...`);
   for (let i = 0; i < RUNS; i ++) {
     const variants = [];
     for (let j = 0; j < BATCH; j ++) {

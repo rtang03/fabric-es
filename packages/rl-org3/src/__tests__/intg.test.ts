@@ -78,7 +78,7 @@ beforeAll(async () => {
   const { relay, shutdown: shutRelay } = await createRelayService({
     redisOptions: { host, port },
     targetUrl: `http://localhost:${mockPort}`,
-    topic, httpsArg: 'http'
+    topic, httpsArg: undefined
   });
   stopRelay = shutRelay;
 

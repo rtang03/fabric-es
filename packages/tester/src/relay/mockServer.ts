@@ -1,11 +1,14 @@
+require('dotenv').config({ path: './.env' });
 import { createMockServer } from './mockUtils';
+
+const PORT = parseInt(process.env.MOCK_PORT, 10) || 4320;
+const key = process.env.SERVER_KEY;
+const cert = process.env.SERVER_CERT;
+const verbose = process.env.SERVER_MSGS;
 
 (async () => {
   console.log('♨️♨️  Starting mock server...');
-  const { server, shutdown } = createMockServer(
-    '/Users/paul/cert/OV/wildcard_etradeconnect.key',
-    '/Users/paul/cert/OV/star_etradeconnect_net.cer'
-  );
+  const { server, shutdown } = createMockServer(key, cert, (!key || !cert), !verbose);
 
   process.on('SIGINT', async () => {
     process.exit(await shutdown());
@@ -20,8 +23,8 @@ import { createMockServer } from './mockUtils';
     console.log(err.stack);
   });
 
-  server.listen(4322, () => {
-    console.log(`🚀 mock server ready at 4322`);
+  server.listen(PORT, () => {
+    console.log(`🚀 mock server ready at ${PORT}`);
   });
 })().catch(error => {
   console.error(error);
