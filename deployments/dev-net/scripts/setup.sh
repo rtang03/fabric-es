@@ -160,7 +160,8 @@ containerWait() {
 # $1 - script name
 # $2 - options
 parseArgs() {
-  OPTION=-d
+  OPTION=-d # default cleanup operation (?)
+  COMPOSE=0 # do not run docker-compose only
   if [ $# -eq 2 ]; then
     case $2 in
       -h|--help)
@@ -169,6 +170,9 @@ parseArgs() {
         ;;
       -R|--remove-cc-images)
         OPTION=$2
+        ;;
+      -C|--compose-only)
+        COMPOSE=1
         ;;
     esac
   fi

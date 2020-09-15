@@ -5,14 +5,16 @@
 ################################
 
 . ./scripts/setup.sh
+export TARGET_URL=https://192.168.0.188:4322
 
 SECONDS=0
 
 parseArgs $0 "$@"
-./cleanup.sh $OPTION
+if [[ "$COMPOSE" == "0" ]]; then
+  ./cleanup.sh $OPTION
 
-# STEP 1
-./bootstrap.sh "$COMPOSE_3_S" "org0" "org1 org2 org3"
+  ./bootstrap.sh "$COMPOSE_3_S" "org0" "org1 org2 org3"
+fi
 
 # STEP 2
 docker-compose $COMPOSE_3_S up -d

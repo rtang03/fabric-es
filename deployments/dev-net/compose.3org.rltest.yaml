@@ -7,13 +7,14 @@ services:
   tester:
     environment:
       - TEST_TARGETS=relay-pboc
-      - TEST_OPTIONS=https://tester:4321
+      - TEST_OPTIONS=$TARGET_URL
       - SERVER_KEY=/var/keys/wildcard_etradeconnect.key
       - SERVER_CERT=/var/keys/star_etradeconnect_net.cer
+      - LESS_AUTH=yes
       - LOG_LEVEL=$LOG_LEVEL
       - LOG_TARGET=$LOG_TARGET
       - BATCH_NUM=10
-      - RUNS_NUM=1000
+      - RUNS_NUM=5000
       - RUNS_WAIT=60000
       - READ_RETRY=30
       - READ_WAIT=3500
