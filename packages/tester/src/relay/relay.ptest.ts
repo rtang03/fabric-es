@@ -306,7 +306,7 @@ const readEntities = (tag: string, accessToken: string, query: string, expected?
         }
 
         count --;
-        // if (count < 1) console.log(`${tag} read entities ${query} retrying in ${READ_WAIT} ms (${count})`);
+        if (count < 0) console.log(`${tag} read entities ${query} retrying in ${READ_WAIT} ms (${count})`);
         await new Promise(resolve => setTimeout(resolve, READ_WAIT));
       } catch(error) {
         reject(error);
@@ -334,12 +334,12 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
       try {
         token = await authenticate(`u${variant}`, `${variant}@fake.it`, 'p@ssw0rd');
       } catch (error) {
-        console.log(`[Test run ${run} #${variant}] ${error}`);
+        console.log(`[Test run ${run}][#${variant}] ${error}`);
         reject(index);
         return;
       }
       if (!token || (token === undefined)) {
-        console.log(`[Test run ${run} #${variant}] ERROR! Get access token failed for user u${variant}`);
+        console.log(`[Test run ${run}][#${variant}] ERROR! Get access token failed for user u${variant}`);
         reject(index);
         return;
       }
@@ -348,28 +348,28 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
     }
 
     const procStarts = Date.now();
-    console.log(`[Test run ${run} #${variant}] Starting (ts ${procStarts})${(!accessToken) ? `, access token: ${token.substr(0, 70)}...` : '...'}`);
+    console.log(`[Test run ${run}][#${variant}] Starting (ts ${procStarts})${(!accessToken) ? `, access token: ${token.substr(0, 70)}...` : '...'}`);
 
     // PO processing
     try {
       const poIds = await createPo(data.PoCreate);
       if (poIds && (poIds !== undefined)) {
         const shouldContinue = await Promise.all(poIds.map(async p =>
-          readEntities(`[Test run ${run} #${variant}] Create POs`, token, p)
+          readEntities(`[Test run ${run}][#${variant}] Create POs`, token, p)
             .then(_ => true)
-            .catch(error => console.log(`[Test run ${run} #${variant}] Create POs ${error}`))
+            .catch(error => console.log(`[Test run ${run}][#${variant}] Create POs ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           reject(index);
           return;
         }
       } else {
-        console.log(`[Test run ${run} #${variant}] ERROR! Create POs failed`);
+        console.log(`[Test run ${run}][#${variant}] ERROR! Create POs failed`);
         reject(index);
         return;
       }
     } catch (error) {
-      console.log(`[Test run ${run} #${variant}] ${error}`);
+      console.log(`[Test run ${run}][#${variant}] ${error}`);
       reject(index);
       return;
     }
@@ -378,21 +378,21 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
       const editedPoIds = await editPo(data.PoEdit);
       if (editedPoIds && (editedPoIds !== undefined)) {
         const shouldContinue = await Promise.all(editedPoIds.map(async p => 
-          readEntities(`[Test run ${run} #${variant}] Edit POs`, token, p, (results: any[]) =>
+          readEntities(`[Test run ${run}][#${variant}] Edit POs`, token, p, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":1`) >= 0)), true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Edit POs ${error}`))
+          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Edit POs ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           reject(index);
           return;
         }
       } else {
-        console.log(`[Test run ${run} #${variant}] ERROR! Edit POs failed`);
+        console.log(`[Test run ${run}][#${variant}] ERROR! Edit POs failed`);
         reject(index);
         return;
       }
     } catch (error) {
-      console.log(`[Test run ${run} #${variant}] ${error}`);
+      console.log(`[Test run ${run}][#${variant}] ${error}`);
       reject(index);
       return;
     }
@@ -401,21 +401,21 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
       const cancelledPoIds = await cancelPo(data.PoCancel);
       if (cancelledPoIds && (cancelledPoIds !== undefined)) {
         const shouldContinue = await Promise.all(cancelledPoIds.map(async p => 
-          readEntities(`[Test run ${run} #${variant}] Cancel POs`, token, p, (results: any[]) =>
+          readEntities(`[Test run ${run}][#${variant}] Cancel POs`, token, p, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":4`) >= 0)), true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Cancel POs ${error}`))
+          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Cancel POs ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           reject(index);
           return;
         }
       } else {
-        console.log(`[Test run ${run} #${variant}] ERROR! Cancel POs failed`);
+        console.log(`[Test run ${run}][#${variant}] ERROR! Cancel POs failed`);
         reject(index);
         return;
       }
     } catch (error) {
-      console.log(`[Test run ${run} #${variant}] ${error}`);
+      console.log(`[Test run ${run}][#${variant}] ${error}`);
       reject(index);
       return;
     }
@@ -424,22 +424,22 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
       const processPoResult = await processPo(data.PoProcess);
       if (processPoResult && (processPoResult !== undefined)) {
         const shouldContinue = await Promise.all(processPoResult.map(async p =>
-          readEntities(`[Test run ${run} #${variant}] Process POs`, token, p.poId, (results: any[]) =>
+          readEntities(`[Test run ${run}][#${variant}] Process POs`, token, p.poId, (results: any[]) =>
             results.reduce((accu, r) => {
               return (
                 accu &&
                 p.actionResponse === '1' ? (r.value.indexOf(`"status":2`) >= 0) : (r.value.indexOf(`"status":3`) >= 0)
               );
             }, true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Process POs ${error}`))
+          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Process POs ${error}`))
         ));
       } else {
-        console.log(`[Test run ${run} #${variant}] ERROR! Process POs failed`);
+        console.log(`[Test run ${run}][#${variant}] ERROR! Process POs failed`);
         reject(index);
         return;
       }
     } catch (error) {
-      console.log(`[Test run ${run} #${variant}] ${error}`);
+      console.log(`[Test run ${run}][#${variant}] ${error}`);
       reject(index);
       return;
     }
@@ -449,20 +449,20 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
       const invIds = await createInvoice(data.InvCreate);
       if (invIds && (invIds !== undefined)) {
         const shouldContinue = await Promise.all(invIds.map(async v => 
-          readEntities(`[Test run ${run} #${variant}] Create Invoices`, token, v).then(_ => true)
-            .catch(error => console.log(`[Test run ${run} #${variant}] Create Invoices ${error}`))
+          readEntities(`[Test run ${run}][#${variant}] Create Invoices`, token, v).then(_ => true)
+            .catch(error => console.log(`[Test run ${run}][#${variant}] Create Invoices ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           reject(index);
           return;
         }
       } else {
-        console.log(`[Test run ${run} #${variant}] ERROR! Create Invoices failed`);
+        console.log(`[Test run ${run}][#${variant}] ERROR! Create Invoices failed`);
         reject(index);
         return;
       }
     } catch (error) {
-      console.log(`[Test run ${run} #${variant}] ${error}`);
+      console.log(`[Test run ${run}][#${variant}] ${error}`);
       reject(index);
       return;
     }
@@ -471,21 +471,21 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
       const editedInvIds = await editInvoice(data.InvEdit);
       if (editedInvIds && (editedInvIds !== undefined)) {
         const shouldContinue = await Promise.all(editedInvIds.map(async v => 
-          readEntities(`[Test run ${run} #${variant}] Edit Invoices`, token, v, (results: any[]) =>
+          readEntities(`[Test run ${run}][#${variant}] Edit Invoices`, token, v, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":1`) >= 0)), true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Edit Invoices ${error}`))
+          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Edit Invoices ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           reject(index);
           return;
         }
       } else {
-        console.log(`[Test run ${run} #${variant}] ERROR! Edit Invoices failed`);
+        console.log(`[Test run ${run}][#${variant}] ERROR! Edit Invoices failed`);
         reject(index);
         return;
       }
     } catch (error) {
-      console.log(`[Test run ${run} #${variant}] ${error}`);
+      console.log(`[Test run ${run}][#${variant}] ${error}`);
       reject(index);
       return;
     }
@@ -494,21 +494,21 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
       const notifiedInvIds = await transferInvoice(data.InvNotify);
       if (notifiedInvIds && (notifiedInvIds !== undefined)) {
         const shouldContinue = await Promise.all(notifiedInvIds.map(async v => 
-          readEntities(`[Test run ${run} #${variant}] Transfer Invoices`, token, v, (results: any[]) =>
+          readEntities(`[Test run ${run}][#${variant}] Transfer Invoices`, token, v, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`"financeNo"`) >= 0)), true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Trasnfer Invoices ${error}`))
+          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Trasnfer Invoices ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           reject(index);
           return;
         }
       } else {
-        console.log(`[Test run ${run} #${variant}] ERROR! Transfer Invoices failed`);
+        console.log(`[Test run ${run}][#${variant}] ERROR! Transfer Invoices failed`);
         reject(index);
         return;
       }
     } catch (error) {
-      console.log(`[Test run ${run} #${variant}] ${error}`);
+      console.log(`[Test run ${run}][#${variant}] ${error}`);
       reject(index);
       return;
     }
@@ -517,26 +517,26 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
       const confirmInvResult = await confirmInvoice(data.InvResult);
       if (confirmInvResult && (confirmInvResult !== undefined)) {
         const shouldContinue = await Promise.all(confirmInvResult.map(async v => 
-          readEntities(`[Test run ${run} #${variant}] Confirm Invoices`, token, v.invoiceId, (results: any[]) =>
+          readEntities(`[Test run ${run}][#${variant}] Confirm Invoices`, token, v.invoiceId, (results: any[]) =>
             results.reduce((accu, r) => {
               return (
                 accu &&
                 v.actionResponse === '1' ? (r.value.indexOf(`"status":2`) >= 0) : (r.value.indexOf(`"status":3`) >= 0)
               );
             }, true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Confirm Invoices ${error}`))
+          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Confirm Invoices ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           reject(index);
           return;
         }
       } else {
-        console.log(`[Test run ${run} #${variant}] ERROR! Confirm Invoices failed`);
+        console.log(`[Test run ${run}][#${variant}] ERROR! Confirm Invoices failed`);
         reject(index);
         return;
       }
     } catch (error) {
-      console.log(`[Test run ${run} #${variant}] ${error}`);
+      console.log(`[Test run ${run}][#${variant}] ${error}`);
       reject(index);
       return;
     }
@@ -545,21 +545,21 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
       const invFinInvIds = await updatePaymentStatus(data.InvFin);
       if (invFinInvIds && (invFinInvIds !== undefined)) {
         const shouldContinue = await Promise.all(invFinInvIds.map(async v => 
-          readEntities(`[Test run ${run} #${variant}] Update payment status`, token, v, (results: any[]) =>
+          readEntities(`[Test run ${run}][#${variant}] Update payment status`, token, v, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`"remittanceBank"`) >= 0)), true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run} #${variant}] Update payment status ${error}`))
+          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Update payment status ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           reject(index);
           return;
         }
       } else {
-        console.log(`[Test run ${run} #${variant}] ERROR! Update payment status failed`);
+        console.log(`[Test run ${run}][#${variant}] ERROR! Update payment status failed`);
         reject(index);
         return;
       }
     } catch (error) {
-      console.log(`[Test run ${run} #${variant}] ${error}`);
+      console.log(`[Test run ${run}][#${variant}] ${error}`);
       reject(index);
       return;
     }
@@ -574,11 +574,11 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
     totalRuns ++;
     if (!accessToken) {
       console.log(
-`[Test run ${run} #${variant}] Finished (ts ${runFinish}). E: ${elapsed}ms/${Math.round(totalElapsed/totalRuns)}s; A: ${auth}ms/${Math.round(totalAuth/totalRuns)}s; P: ${proc}ms/${Math.round(totalProc/totalRuns)}s`
+`[Test run ${run}][#${variant}] Finished (ts ${runFinish}). E: ${elapsed}ms/${Math.round(totalElapsed/totalRuns)}s; A: ${auth}ms/${Math.round(totalAuth/totalRuns)}s; P: ${proc}ms/${Math.round(totalProc/totalRuns)}s`
       );
     } else {
       console.log(
-`[Test run ${run} #${variant}] Finished (ts ${runFinish}). Elapsed time: ${proc}ms/${Math.round(totalProc/totalRuns)}s`
+`[Test run ${run}][#${variant}] Finished (ts ${runFinish}). Elapsed time: ${proc}ms/${Math.round(totalProc/totalRuns)}s`
       );
     }
     resolve(0);
@@ -638,7 +638,7 @@ const runTest = (run: string, index: number, variant: string, accessToken?: stri
         }
       })
       .catch(errors => {
-        console.log(`[Test run ${run}] Error ${errors}`);
+        console.log(`[Test run ${run}] Error ${errors}. Total elapsed time: ${((Date.now() - stamp)/1000/60).toFixed(6)} min`);
       });
     await new Promise(resolve => setTimeout(resolve, RUNS_WAIT));
   }
