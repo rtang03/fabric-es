@@ -16,7 +16,9 @@ options:
   -a, --auth-server
     * hostname / IP address of the authentication server, default to localhost
   -P, --auth-port
-    * port of the authentication server, default to empty`
+    * port of the authentication server, default to empty
+note:
+    either specify -h or -a, the other will default to the given value instead of localhost`
   );
 };
 
@@ -52,6 +54,8 @@ const parseOptions = (args: string[]) => {
     }
   };
 
+  let hostSet = false;
+  let authSet = false;
   for (let i = 0; i < args.length; i ++) {
     if (i < (args.length - 1)) {
       const field = options(args[i]);
@@ -69,6 +73,10 @@ const parseOptions = (args: string[]) => {
       } else {
         if (result[field]) throw new Error(`Duplicated option ${field}`);
         result[field] = args[++i];
+        if (field === 'host')
+          hostSet = true;
+        else if (field === 'ahost')
+          authSet = true;
       }
     } else {
       // last argument which is not following a switch
@@ -76,6 +84,11 @@ const parseOptions = (args: string[]) => {
       result['queryString'] = args[i];
     }
   }
+
+  if (hostSet && !authSet)
+    result['ahost'] = result['host'];
+  else if (!hostSet && authSet)
+    result['host'] = result['ahost'];
 
   return result;
 };
