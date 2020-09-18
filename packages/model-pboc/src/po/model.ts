@@ -38,7 +38,7 @@ export class PO extends BaseEntity {
   buyerAttention?: string;
   sellerId: string;
   sellerName: string;
-  sellerAddress: string;
+  sellerAddress?: string;
   sellerJurisdicationOfBr?: string;
   sellerBrCode: string;
   sellerAttention?: string;

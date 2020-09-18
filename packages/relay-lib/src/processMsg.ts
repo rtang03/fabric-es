@@ -1,8 +1,5 @@
-import { getLogger } from '@fabric-es/gateway-lib';
 import { Redis } from 'ioredis';
 import { ReqRes } from '.';
-
-const logger = getLogger('[relay] processMsg.js');
 
 // KEYS[1] - publish channel / main list
 // ARGV[1] - message string
