@@ -1,4 +1,3 @@
-import values from 'lodash/values';
 import type { Commit, Reducer } from '../types';
 
 export const commitsToGroupByEntityId: <TResult>(

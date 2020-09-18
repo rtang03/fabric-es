@@ -1,9 +1,5 @@
-import { getLogger } from '@fabric-es/gateway-lib';
 import { Redis } from 'ioredis';
-import isEmpty from 'lodash/isEmpty';
 import { ReqRes } from '.';
-
-const logger = getLogger('[relay] processMsg.js');
 
 // KEYS[1] - publish channel / main list
 // ARGV[1] - message string
@@ -37,11 +33,11 @@ export const processMessage = ({
   ttl?: number;
 }) => {
   return new Promise<number>((resolve, reject) => {
-    if (isEmpty(message))
+    if (!message)
       reject(new Error('Message missing'));
-    else if (isEmpty(client))
+    else if (!client)
       reject(new Error('Client missing'));
-    else if (isEmpty(topic))
+    else if (!topic)
       reject(new Error('Topic missing'));
     else {
       const messageStr = JSON.stringify(message);

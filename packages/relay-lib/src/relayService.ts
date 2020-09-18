@@ -8,7 +8,6 @@ import express from 'express';
 import formidable from 'formidable';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import RedisClient, { Redis, RedisOptions } from 'ioredis';
-import { isEmpty, isString } from 'lodash';
 import querystring from 'query-string';
 import stoppable, { StoppableServer } from 'stoppable';
 import { processMessage, ReqRes } from '.';
@@ -19,7 +18,10 @@ export const createRelayService: (option: {
   redisOptions: RedisOptions;
   targetUrl: string;
   topic: string;
-  httpsArg: string;
+  httpsArg: {
+    key: string;
+    cert: string;
+  };
 }) => Promise<{
   isHttps: boolean;
   relay: StoppableServer;
@@ -37,7 +39,7 @@ export const createRelayService: (option: {
     logger.info('Redis client connected.');
   });
 
-  const isHttps = (isString(httpsArg) && httpsArg === 'https') || targetUrl.startsWith('https://');
+  const isHttps = (httpsArg && httpsArg.key && httpsArg.cert) ? true : false;
 
   const app = express();
   
@@ -51,8 +53,8 @@ export const createRelayService: (option: {
 
   const server = isHttps ?
     https.createServer({
-      key: fs.readFileSync(process.env.SERVER_KEY),
-      cert: fs.readFileSync(process.env.SERVER_CERT),
+      key: fs.readFileSync(httpsArg.key),
+      cert: fs.readFileSync(httpsArg.cert),
     }, app) :
     http.createServer(app);
   const stoppableServer = stoppable(server);
@@ -106,9 +108,9 @@ export const relayService = ({
   topic: string;
   isHttps: boolean;
 }) => {
-  if (isEmpty(targetUrl)) throw new Error('Missing target URL.');
-  if (isEmpty(client)) throw new Error('Missing client');
-  if (isEmpty(topic)) throw new Error('Missing topic.');
+  if (!targetUrl) throw new Error('Missing target URL.');
+  if (!client) throw new Error('Missing client');
+  if (!topic) throw new Error('Missing topic.');
 
   return createProxyMiddleware({
     target: targetUrl,

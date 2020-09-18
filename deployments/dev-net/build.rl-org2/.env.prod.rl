@@ -7,5 +7,5 @@ ORDERER_TLSCA_CERT=/var/artifacts/crypto-config/Org0MSP/orderer0.org0.com/tls-ms
 WALLET=assets/wallet
 REDIS_TOPIC=request-notify
 REDIS_PORT=6379
-RELAY_PORT=2502
-SNIFFER_PORT=2503
+RELAY_PORT=2500
+SNIFFER_PORT=2501

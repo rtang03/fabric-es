@@ -23,22 +23,22 @@ export const createSubscription = (
         const msgs = await client.xrange(topic, '-', Date.now());
         let read = 0;
         for (const str of msgs) {
-          if (callback) {
-            try {
-              const msg = JSON.parse(str[1][1]);
-              if (isReqRes(msg)) {
-                read ++;
-                await callback(topic, msg);
-              } else {
-                logger.warn(`Read existing message of unknown type: '${str[1][1]}'`);
-                await callback(topic, null, str[1][1]);
-              }
-            } catch (error) {
-              logger.warn(`Read existing non-JSON message: '${str[1][1]}'`);
-              await callback(topic, null, str[1][1]);
-            }
-          } else
-            logger.info(`Read existing message from '${topic}': '${str[1][1]}'`);
+          // if (callback) {
+          //   try {
+          //     const msg = JSON.parse(str[1][1]);
+          //     if (isReqRes(msg)) {
+          //       read ++;
+          //       await callback(topic, msg);
+          //     } else {
+          //       logger.warn(`Read existing message of unknown type: '${str[1][1]}'`);
+          //       await callback(topic, null, str[1][1]);
+          //     }
+          //   } catch (error) {
+          //     logger.warn(`Read existing non-JSON message: '${str[1][1]}'`);
+          //     await callback(topic, null, str[1][1]);
+          //   }
+          // } else
+          //   logger.info(`Read existing message from '${topic}': '${str[1][1]}'`);
 
           const sid = str[0].split('-');
           lastPosition = `${sid[0]}-${parseInt(sid[1], 10) + 1}`;

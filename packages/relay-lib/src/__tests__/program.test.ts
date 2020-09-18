@@ -297,4 +297,18 @@ describe('Temp tests', () => {
     const f = await test1(false).catch(error => console.log('test Promise flow B error', error));
     console.log('test Promise flow B result', f);
   });
+
+  it('test bitwise boolean ops', () => {
+    const FLAG1 = 1;
+    const FLAG2 = 2;
+    const FLAG3 = 4;
+    if (FLAG1 & 6)
+      console.log('TRUE');
+    else
+      console.log('FALSE');
+    if (FLAG2 & 3)
+      console.log('TRUE');
+    else
+      console.log('FALSE');
+  });
 });

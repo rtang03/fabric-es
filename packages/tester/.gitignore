@@ -72,3 +72,5 @@ walletOrg2/
 artifacts/
 genesis.block
 channel.tx
+uploads*
+build/

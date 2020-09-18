@@ -17,6 +17,8 @@ export TEST_IMAGE=fabric-es/tester:${RELEASE}
 export PROXY_IMAGE=fabric-es/proxy:${RELEASE}
 export UI_CONTROL_IMAGE=fabric-es/ui-control
 export ROOT_DIR=$CURRENT_DIR/../..
+export LOG_LEVEL=info
+export LOG_TARGET=console
 
 export CHAINCODE=$ROOT_DIR/packages/chaincode
 
@@ -46,6 +48,7 @@ export CMP_3_GWY="$CMP_2_GWY -f compose.3org.gw.yaml"
 export CMP_1_RLY="-f compose.1org.rl.yaml"
 export CMP_2_RLY="$CMP_1_RLY -f compose.2org.rl.yaml"
 export CMP_3_RLY="$CMP_2_RLY -f compose.3org.rl.yaml"
+export CMP_RTEST="-f compose.3org.rltest.yaml"
 
 export COMPOSE_0_S_A="$COMPOSE_0_S $CMP_1_ATH"
 export COMPOSE_0_S_A_U="$COMPOSE_0_S_A $CMP_1_UIA"
@@ -65,7 +68,7 @@ export COMPOSE_2_S_A="$COMPOSE_2_S $CMP_2_ATH"
 export COMPOSE_2_S_A_U="$COMPOSE_2_S_A $CMP_2_UIA"
 export COMPOSE_2_S_A_U_G="$COMPOSE_2_S_A_U $CMP_2_GWY"
 export COMPOSE_2_S_A_G="$COMPOSE_2_S_A $CMP_2_GWY"
-export COMPOSE_2_S_A_G_T="$COMPOSE_2_S_A_G -f compose.2org.tester.yaml"
+export COMPOSE_2_S_A_G_T="$COMPOSE_2_S_A_G -f compose.2org.gwtest.yaml"
 export COMPOSE_2_S_A_R="$COMPOSE_2_S_A $CMP_2_RLY"
 
 export COMPOSE_3_S="$COMPOSE_3 $CMP_3_SRV"
@@ -73,10 +76,11 @@ export COMPOSE_3_S_A="$COMPOSE_3_S $CMP_3_ATH"
 export COMPOSE_3_S_A_U="$COMPOSE_3_S_A $CMP_3_UIA"
 export COMPOSE_3_S_A_U_G="$COMPOSE_3_S_A_U $CMP_3_GWY"
 export COMPOSE_3_S_A_G="$COMPOSE_3_S_A $CMP_3_GWY"
-export COMPOSE_3_S_A_G_T="$COMPOSE_3_S_A_G -f compose.3org.tester.yaml"
+export COMPOSE_3_S_A_G_T="$COMPOSE_3_S_A_G -f compose.3org.gwtest.yaml"
 export COMPOSE_3_S_A_R="$COMPOSE_3_S_A $CMP_3_RLY"
+export COMPOSE_3_S_A_R_T="$COMPOSE_3_S_A_R $CMP_RTEST"
 
-export COMPOSE_ALL="$COMPOSE_3_S_A_G_T $CMP_3_UIA $COMPOSE_3_NGX $CMP_3_RLY"
+export COMPOSE_ALL="$COMPOSE_3_S_A_G_T $CMP_3_UIA $COMPOSE_3_NGX $CMP_3_RLY $CMP_RTEST"
 
 # $1 - message to be printed
 # $2 - exit code of the previous operation
@@ -156,7 +160,8 @@ containerWait() {
 # $1 - script name
 # $2 - options
 parseArgs() {
-  OPTION=-d
+  OPTION=-d # default cleanup operation (?)
+  COMPOSE=0 # do not run docker-compose only
   if [ $# -eq 2 ]; then
     case $2 in
       -h|--help)
@@ -165,6 +170,9 @@ parseArgs() {
         ;;
       -R|--remove-cc-images)
         OPTION=$2
+        ;;
+      -C|--compose-only)
+        COMPOSE=1
         ;;
     esac
   fi

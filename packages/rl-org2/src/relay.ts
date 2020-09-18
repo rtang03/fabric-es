@@ -8,12 +8,15 @@ const targetUrl = process.env.TARGET_URL;
 const redisHost = process.env.REDIS_HOST;
 const redisPort = (process.env.REDIS_PORT || 6379) as number;
 const topic = process.env.REDIS_TOPIC;
+const key = process.env.SERVER_KEY;
+const cert = process.env.SERVER_CERT;
 
 const logger = getLogger('[rl-org2] relay.js');
 
 (async () => {
   logger.info(`♨️♨️  Starting relay service... ${targetUrl} ${redisHost}:${redisPort} ${topic}`);
-  const httpsArg = process.argv.slice(2)[0];
+  const args = process.argv.slice(2)[0];
+  const httpsArg = ((args && args === 'https') || targetUrl.startsWith('https://')) ? { key, cert } : undefined;
 
   const { isHttps, relay, shutdown } = await createRelayService({
     redisOptions: {
