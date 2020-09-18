@@ -10,14 +10,14 @@ services:
       - TEST_OPTIONS=$TARGET_URL
       - SERVER_KEY=/var/keys/wildcard_etradeconnect.key
       - SERVER_CERT=/var/keys/star_etradeconnect_net.cer
-      - LESS_AUTH=yes
+      - LESS_AUTH=off
       - LOG_LEVEL=$LOG_LEVEL
       - LOG_TARGET=$LOG_TARGET
       - BATCH_NUM=10
       - RUNS_NUM=5000
       - RUNS_WAIT=60000
-      - READ_RETRY=30
-      - READ_WAIT=3500
+      - READ_RETRY=100
+      - READ_WAIT=3000
     image: $TEST_IMAGE
     container_name: tester
     working_dir: /home/app

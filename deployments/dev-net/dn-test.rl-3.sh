@@ -41,20 +41,5 @@ containerWait "rl-org3" "query available"
 docker-compose $COMPOSE_3_S_A_R_T up -d --no-recreate
 printMessage "docker-compose up $COMPOSE_3_S_A_R_T" $?
 
+./dn-test.cleanup.sh tester $SECONDS &
 echo "Starting automated tests..."
-TEST_EXIT_CODE=`docker wait tester`;
-docker logs tester
-
-./cleanup.sh
-
-if [ -z ${TEST_EXIT_CODE+x} ] || [ "$TEST_EXIT_CODE" -ne 0 ] ; then
-  printf "${RED}Tests Failed${NC} - Exit Code: $TEST_EXIT_CODE\n"
-  printf "\n${RED} [DEBUG] docker logs rl-org3${NC}\n"
-  docker logs rl-org3
-  exit 1
-else
-  printf "${GREEN}Tests Passed${NC}\n"
-fi
-
-duration=$SECONDS
-printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"
