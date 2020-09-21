@@ -521,7 +521,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
         write += (Date.now() - writeStart);
         const shouldContinue = await Promise.all(notifiedInvIds.map(async v => 
           readEntities(`[Test run ${run}][#${variant}] Transfer Invoices`, token, v, (results: any[]) =>
-            results.reduce((accu, r) => (accu && (r.value.indexOf(`"financeNo"`) >= 0)), true)
+            results.reduce((accu, r) => (accu && (r.value.indexOf(`,InvoiceTransferred`) >= 0)), true)
           ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Trasnfer Invoices ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
@@ -578,7 +578,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
         write += (Date.now() - writeStart);
         const shouldContinue = await Promise.all(invFinInvIds.map(async v => 
           readEntities(`[Test run ${run}][#${variant}] Update payment status`, token, v, (results: any[]) =>
-            results.reduce((accu, r) => (accu && (r.value.indexOf(`"remittanceBank"`) >= 0)), true)
+            results.reduce((accu, r) => (accu && (r.value.indexOf(`,PaymentStatusUpdated`) >= 0)), true)
           ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Update payment status ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
