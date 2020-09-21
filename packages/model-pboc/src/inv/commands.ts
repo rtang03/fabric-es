@@ -13,10 +13,10 @@ export interface InvoiceCommands {
       userId: string;
       timestamp: number;
       invoiceId: string;
-      remark?: string;
-      financeNo: string;
+      // remark?: string;
+      // financeNo: string;
       poId: string;
-      attachmentList: Attachment[];
+      // attachmentList: Attachment[];
     };
   };
   UploadInvoiceImage: {
@@ -24,7 +24,7 @@ export interface InvoiceCommands {
       userId: string;
       timestamp: number;
       invoiceId: string;
-      attachmentList: Attachment[];
+      // attachmentList: Attachment[];
     };
   };
   ConfirmInvoice: {
@@ -34,9 +34,9 @@ export interface InvoiceCommands {
       invoiceId: string;
       versionNo: number;
       actionResponse: string;
-      goodsReceived?: string;
-      receiptDate?: string;
-      comment?: string;
+      // goodsReceived?: string;
+      // receiptDate?: string;
+      // comment?: string;
     };
   };
   UpdatePaymentStatus: {
@@ -44,15 +44,15 @@ export interface InvoiceCommands {
       userId: string;
       timestamp: number;
       invoiceId: string;
-      paymentAmount: string;
-      paymentAmountCurrency: string;
-      paymentDate: string;
-      remittanceBank: string;
-      remittanceRemarks?: string;
-      sellerBank: string;
-      sellerBankAccount?: string;
-      goodsReceived?: boolean;
-      receiptDate?: string;
+      // paymentAmount: string;
+      // paymentAmountCurrency: string;
+      // paymentDate: string;
+      // remittanceBank: string;
+      // remittanceRemarks?: string;
+      // sellerBank: string;
+      // sellerBankAccount?: string;
+      // goodsReceived?: boolean;
+      // receiptDate?: string;
     };
   };
 };

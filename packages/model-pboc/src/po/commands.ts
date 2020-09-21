@@ -12,7 +12,7 @@ export interface PoCommands {
       userId: string;
       timestamp: number;
       poId: string;
-      reason?: string;
+      // reason?: string;
     };
   };
   ProcessPo: {
@@ -22,10 +22,10 @@ export interface PoCommands {
       poId: string;
       versionNo: number;
       actionResponse: string;
-      sellerId: string;
-      sellerBankName: string;
-      sellerBankAccount: string;
-      comment?: string;
+      // sellerId: string;
+      // sellerBankName: string;
+      // sellerBankAccount: string;
+      // comment?: string;
     };
   };
 };

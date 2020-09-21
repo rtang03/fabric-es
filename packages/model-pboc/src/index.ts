@@ -6,8 +6,8 @@ import {
 } from '@fabric-es/fabric-cqrs';
 import { getLogger } from '@fabric-es/gateway-lib';
 import { ProcessResults, ReqRes } from '@fabric-es/relay-lib';
-import { invoiceCommandHandler, InvoiceRepo } from './inv';
-import { poCommandHandler, PoRepo } from './po';
+import { invoiceCommandHandler, InvoiceRepo, InvKeys, InvOrderKeys } from './inv';
+import { poCommandHandler, PoRepo, PoKeys, PoOrderKeys } from './po';
 
 const logger = getLogger('[sniffer] pbocEtc.js');
 
@@ -36,6 +36,9 @@ export const buildTag = (separator: string, current: string, ...values: string[]
     : orignl;
   return (result.trim()) ? result : undefined;
 };
+
+export const objFilter = (obj, keys) =>
+  keys.reduce((a, c) => ({ ...a, [c]: obj[c] }), {});
 
 export const EndPoints = [
   '/user/inquiry',                              // 0 GET ?sellerId=
@@ -162,15 +165,15 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
           const payloads = Array.isArray(jsonObj) ? jsonObj.map(obj => ({
             userId: enrollmentId,
             timestamp: Date.now(),
-            ...obj.poBaseInfo,
-            orderList: obj.orderList,
-            attachmentList: parseAttachmentInfo()
+            ...objFilter(obj.poBaseInfo, PoKeys),
+            orderList: obj.orderList.map(l => objFilter(l, PoOrderKeys)),
+            // attachmentList: parseAttachmentInfo()
           })) : [{
             userId: enrollmentId,
             timestamp: Date.now(),
-            ...jsonObj.poBaseInfo,
-            orderList: jsonObj.orderList,
-            attachmentList: parseAttachmentInfo()
+            ...objFilter(jsonObj.poBaseInfo, PoKeys),
+            orderList: jsonObj.orderList.map(l => objFilter(l, PoOrderKeys)),
+            // attachmentList: parseAttachmentInfo()
           }];
 
           const commits = (isPost) ?
@@ -249,15 +252,15 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
           const payloads = Array.isArray(jsonObj) ? jsonObj.map(obj => ({
             userId: enrollmentId,
             timestamp: Date.now(),
-            ...obj.invBaseInfo,
-            orderList: obj.orderList,
-            attachmentList: parseAttachmentInfo()
+            ...objFilter(obj.invBaseInfo, InvKeys),
+            orderList: obj.orderList.map(l => objFilter(l, InvOrderKeys)),
+            // attachmentList: parseAttachmentInfo()
           })) : [{
             userId: enrollmentId,
             timestamp: Date.now(),
-            ...jsonObj.invBaseInfo,
-            orderList: jsonObj.orderList,
-            attachmentList: parseAttachmentInfo()
+            ...objFilter(jsonObj.invBaseInfo, InvKeys),
+            orderList: jsonObj.orderList.map(l => objFilter(l, InvOrderKeys)),
+            // attachmentList: parseAttachmentInfo()
           }];
 
           const commits = (isPost) ?
@@ -286,7 +289,7 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
             for (const item of obj.invoices) {
               result.push({
                 ...item,
-                financeNo: obj.financeNo,
+                // financeNo: obj.financeNo,
                 poId: obj.poId
               });
             }
@@ -331,22 +334,22 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
           if (Array.isArray(url.query.imageDesc) || Array.isArray(url.query.invoiceId)) {
             result = buildError('Invalid query paramter format');
           } else {
-            const attachmentList = parseAttachmentInfo();
-            const descs = url.query.imageDesc.split('_');
-            if (descs.length === attachmentList.length) {
-              for (let i = 0; i < attachmentList.length; i ++) {
-                attachmentList[i].desc = descs[i];
-              }
-            } else {
-              for (const attch of attachmentList) {
-                attch.desc = url.query.imageDesc;
-              }
-            }
+            // const attachmentList = parseAttachmentInfo();
+            // const descs = url.query.imageDesc.split('_');
+            // if (descs.length === attachmentList.length) {
+            //   for (let i = 0; i < attachmentList.length; i ++) {
+            //     attachmentList[i].desc = descs[i];
+            //   }
+            // } else {
+            //   for (const attch of attachmentList) {
+            //     attch.desc = url.query.imageDesc;
+            //   }
+            // }
             const payload = {
               userId: enrollmentId,
               timestamp: Date.now(),
               invoiceId: url.query.invoiceId,
-              attachmentList
+              // attachmentList
             };
             result = buildResult('InvoiceImageUploaded',
               [await invoiceCommandHandler({ enrollmentId, invoiceRepo: repositories['invoice'] as InvoiceRepo }).UploadInvoiceImage({
