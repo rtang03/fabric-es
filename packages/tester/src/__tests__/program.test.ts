@@ -1,33 +1,4 @@
 require('dotenv').config({ path: './.env' });
-import fetch from 'node-fetch';
-
-const QUERY = {
-  'FullTextSearchEntity': `
-  query FullTextSearchEntity($query: String!) {
-    fullTextSearchEntity (query: $query) {
-      items {
-        id
-        entityName
-        value
-        events
-        desc
-        tag
-        creator
-        timeline
-      }
-    }
-  }`,
-  'FullTextSearchCommit': `
-  query FullTextSearchCommit($query: String!) {
-    fullTextSearchCommit (query: $query) {
-      items {
-        id
-        mspId
-        eventsString
-      }
-    }
-  }`
-};
 
 afterAll(async () => {
   await new Promise(resolve => setTimeout(resolve, 1000));
@@ -79,5 +50,31 @@ describe('Programming tests', () => {
   it('test environment variables 2', () => {
     const value = parseInt(process.env.NONEXISTING, 10) || 2345;
     console.log(value);
+  });
+});
+
+type Needed = {
+  field1: string;
+  field2: number;
+  field3: string;
+};
+
+const needed: (keyof Needed)[] = ['field1', 'field2', 'field3'];
+
+const src = `{
+  "field0": "hello",
+  "field1": "how",
+  "field2": "are",
+  "field3": "you",
+  "field4": "today"
+}`;
+
+describe('type related tests', () => {
+  it('test interface vs objects', () => {
+    const v0 = JSON.parse(src);
+    const v1 = needed.reduce((accu, curr) => ({
+      ...accu, [curr]: v0[curr]
+    }), {});
+    console.log('1', JSON.stringify(v1, null, ' '));
   });
 });

@@ -29,10 +29,12 @@ export const poCommandHandler: (option: {
       .then(({ data }) => data);
   },
   CancelPo: async ({
-    payload: { userId, timestamp, poId, reason }
+    // payload: { userId, timestamp, poId, reason }
+    payload: { userId, timestamp, poId }
   }) => {
     const events: PoEvents[] = [
-      { type: 'PoCancelled', payload: { userId, timestamp, poId, reason }}
+      // { type: 'PoCancelled', payload: { userId, timestamp, poId, reason }}
+      { type: 'PoCancelled', payload: { userId, timestamp, poId }}
     ];
 
     return poRepo
@@ -42,14 +44,16 @@ export const poCommandHandler: (option: {
   },
   ProcessPo: async ({
     payload: {
-      userId, timestamp, poId, versionNo, actionResponse, sellerId, sellerBankName, sellerBankAccount, comment
+      // userId, timestamp, poId, versionNo, actionResponse, sellerId, sellerBankName, sellerBankAccount, comment
+      userId, timestamp, poId, versionNo, actionResponse
     }
   }) => {
     const events: PoEvents[] = [
       {
         type: 'PoProcessed',
         payload: {
-          userId, timestamp, poId, versionNo, actionResponse, sellerId, sellerBankName, sellerBankAccount, comment
+          // userId, timestamp, poId, versionNo, actionResponse, sellerId, sellerBankName, sellerBankAccount, comment
+          userId, timestamp, poId, versionNo, actionResponse
         }
       }
     ];

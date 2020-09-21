@@ -28,17 +28,19 @@ export const invoiceCommandHandler: (option: {
       .save({ events })
       .then(({ data }) => data);
   },
-  TransferInvoice: async ({ payload }) => { // TODO NOTE transform incoming data from endpoint to payload
+  TransferInvoice: async ({
+    payload: { userId, timestamp, invoiceId, poId }
+  }) => {
     const events: InvoiceEvents[] = [
-      { type: 'InvoiceTransferred', payload }
+      { type: 'InvoiceTransferred', payload: { userId, timestamp, invoiceId, poId }}
     ];
 
     return invoiceRepo
-      .create({ enrollmentId, id: payload.invoiceId })
+      .create({ enrollmentId, id: invoiceId })
       .save({ events })
       .then(({ data }) => data);
   },
-  UploadInvoiceImage: async ({ payload }) => { // TODO NOTE transform incoming data from endpoint to payload
+  UploadInvoiceImage: async ({ payload }) => {
     const events: InvoiceEvents[] = [
       { type: 'InvoiceImageUploaded', payload }
     ];
@@ -48,23 +50,27 @@ export const invoiceCommandHandler: (option: {
       .save({ events })
       .then(({ data }) => data);
   },
-  ConfirmInvoice: async ({ payload }) => {
+  ConfirmInvoice: async ({
+    payload: { userId, timestamp, invoiceId, versionNo, actionResponse }
+  }) => {
     const events: InvoiceEvents[] = [
-      { type: 'InvoiceConfirmed', payload }
+      { type: 'InvoiceConfirmed', payload: { userId, timestamp, invoiceId, versionNo, actionResponse }}
     ];
 
     return invoiceRepo
-      .create({ enrollmentId, id: payload.invoiceId })
+      .create({ enrollmentId, id: invoiceId })
       .save({ events })
       .then(({ data }) => data);
   },
-  UpdatePaymentStatus: async ({ payload }) => {
+  UpdatePaymentStatus: async ({
+    payload: { userId, timestamp, invoiceId }
+  }) => {
     const events: InvoiceEvents[] = [
-      { type: 'PaymentStatusUpdated', payload }
+      { type: 'PaymentStatusUpdated', payload: { userId, timestamp, invoiceId }}
     ];
 
     return invoiceRepo
-      .create({ enrollmentId, id: payload.invoiceId })
+      .create({ enrollmentId, id: invoiceId })
       .save({ events })
       .then(({ data }) => data);
   },
