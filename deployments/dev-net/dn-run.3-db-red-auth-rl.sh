@@ -13,6 +13,7 @@ parseArgs $0 "$@"
 if [[ "$COMPOSE" == "0" ]]; then
   ./cleanup.sh $OPTION
 
+  # STEP 1
   ./bootstrap.sh "$COMPOSE_3_S" "org0" "org1 org2 org3"
 fi
 

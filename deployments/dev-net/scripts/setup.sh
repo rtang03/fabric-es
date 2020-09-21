@@ -160,8 +160,10 @@ containerWait() {
 # $1 - script name
 # $2 - options
 parseArgs() {
-  OPTION=-d # default cleanup operation (?)
-  COMPOSE=0 # do not run docker-compose only
+  OPTION=-d  # default cleanup operation (?)
+  COMPOSE=0  # run docker-compose only, skip bootstrap
+  TESTONLY=0 # run docker-compose for tester only
+  CLEANUP=1  # run cleaup after tester finish
   if [ $# -eq 2 ]; then
     case $2 in
       -h|--help)
@@ -173,6 +175,13 @@ parseArgs() {
         ;;
       -C|--compose-only)
         COMPOSE=1
+        ;;
+      -T|--test-only)
+        COMPOSE=1
+        TESTONLY=1
+        ;;
+      -U|--no-cleanup)
+        CLEANUP=0
         ;;
     esac
   fi
