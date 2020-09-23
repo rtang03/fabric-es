@@ -176,7 +176,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         throw e;
       }
 
-      logger.info(`entityName: ${entityName} mergBatch: ${status}`);
+      logger.debug(`entityName: ${entityName} mergBatch: ${status}`);
 
       return {
         status,
@@ -259,7 +259,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
         const notificationKey = `noti::${currentState._creator}::${entityName}::${commit.id}::${commit.commitId}`;
         await redis.set(notificationKey, 1, 'EX', 86400); // expire in 1 day);
       } catch (e) {
-        logger.error(util.format('unknown redis error, %j', e));
+        if (!e.message.startsWith('[lifecycle]')) logger.error(util.format('unknown redis error, %j', e));
         throw e;
       }
       return {

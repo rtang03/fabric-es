@@ -52,6 +52,11 @@ export const poReducer = (po: PO, event: PoEvents): PO => {
         ...rest1
       } = event.payload;
       // if (attachmentList) po.attachmentList.push(...attachmentList);
+
+      if (!po) { // TODO: TEMP!!! should move this checking to generic reducer impl, and check with event Lifecycle (https://github.com/rtang03/fabric-es/issues/131)
+        throw new Error(`[lifecycle] entity '${pid1}' not found when reducing event '${event.type}'`); // TODO: HERE is an example of not havning info such as commit ids in events, impossible to write more intelligent reducers (https://github.com/rtang03/fabric-es/issues/131)
+      }
+
       return {
         ...po,
         // buyerName: buy1,
@@ -71,6 +76,11 @@ export const poReducer = (po: PO, event: PoEvents): PO => {
 
     case 'PoCancelled':
       const { userId: uid2, poId: pid2, timestamp } = event.payload;
+
+      if (!po) { // TODO: TEMP!!! should move this checking to generic reducer impl, and check with event Lifecycle (https://github.com/rtang03/fabric-es/issues/131)
+        throw new Error(`[lifecycle] entity '${pid2}' not found when reducing event '${event.type}'`); // TODO: HERE is an example of not havning info such as commit ids in events, impossible to write more intelligent reducers (https://github.com/rtang03/fabric-es/issues/131)
+      }
+
       return {
         ...po,
         timestamp,
@@ -80,6 +90,11 @@ export const poReducer = (po: PO, event: PoEvents): PO => {
 
     case 'PoProcessed':
       const { userId: uid3, poId: pid3, actionResponse, ...rest3 } = event.payload;
+
+      if (!po) { // TODO: TEMP!!! should move this checking to generic reducer impl, and check with event Lifecycle (https://github.com/rtang03/fabric-es/issues/131)
+        throw new Error(`[lifecycle] entity '${pid3}' not found when reducing event '${event.type}'`); // TODO: HERE is an example of not havning info such as commit ids in events, impossible to write more intelligent reducers (https://github.com/rtang03/fabric-es/issues/131)
+      }
+
       return {
         ...po,
         // sellerBankName,
