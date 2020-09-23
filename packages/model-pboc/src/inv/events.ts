@@ -1,5 +1,4 @@
 import { BaseEvent, Lifecycle } from '@fabric-es/fabric-cqrs';
-import { Attachment } from '..';
 import { InvOrder } from '.';
 
 export type InvPayload = {

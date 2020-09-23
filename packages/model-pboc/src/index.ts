@@ -4,12 +4,9 @@ import {
   PrivateRepository,
   Repository,
 } from '@fabric-es/fabric-cqrs';
-import { getLogger } from '@fabric-es/gateway-lib';
 import { ProcessResults, ReqRes } from '@fabric-es/relay-lib';
 import { invoiceCommandHandler, InvoiceRepo, InvKeys, InvOrderKeys } from './inv';
 import { poCommandHandler, PoRepo, PoKeys, PoOrderKeys } from './po';
-
-const logger = getLogger('[sniffer] pbocEtc.js');
 
 export * from './po';
 export * from './inv';
@@ -282,7 +279,7 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
         } else if (!isPost) {
           result = buildError(`Received unsupported (${method}) action`);
         } else if (!isStatusOkay) {
-          logger.info('Transfer failed'); // OK here, no partial success
+          result = buildError('Invoice transfer failed'); // OK here, no partial success
         } else {
           const convertPayload = (obj) => {
             const result = [];

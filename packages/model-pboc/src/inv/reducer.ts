@@ -52,6 +52,11 @@ export const invoiceReducer = (invoice: Invoice, event: InvoiceEvents): Invoice 
         ...rest1
       } = event.payload;
       // if (att1) invoice.attachmentList.push(...att1);
+
+      if (!invoice) { // TODO: TEMP!!! should move this checking to generic reducer impl, and check with event Lifecycle (https://github.com/rtang03/fabric-es/issues/131)
+        throw new Error(`[lifecycle] entity '${vid1}' not found when reducing event '${event.type}'`); // TODO: HERE is an example of not havning info such as commit ids in events, impossible to write more intelligent reducers (https://github.com/rtang03/fabric-es/issues/131)
+      }
+
       return {
         ...invoice,
         // buyerName: buy1,
@@ -72,6 +77,11 @@ export const invoiceReducer = (invoice: Invoice, event: InvoiceEvents): Invoice 
     case 'InvoiceTransferred':
       const { userId: uid2, invoiceId: vid2, ...rest2 } = event.payload;
       // if (att2) invoice.attachmentList.push(...att2);
+
+      if (!invoice) { // TODO: TEMP!!! should move this checking to generic reducer impl, and check with event Lifecycle (https://github.com/rtang03/fabric-es/issues/131)
+        throw new Error(`[lifecycle] entity '${vid2}' not found when reducing event '${event.type}'`); // TODO: HERE is an example of not havning info such as commit ids in events, impossible to write more intelligent reducers (https://github.com/rtang03/fabric-es/issues/131)
+      }
+
       return {
         ...invoice,
         // financeNo,
@@ -83,6 +93,11 @@ export const invoiceReducer = (invoice: Invoice, event: InvoiceEvents): Invoice 
     case 'InvoiceImageUploaded':
       const { userId: uid3, invoiceId: vid3, ...rest3 } = event.payload;
       // if (att3) invoice.attachmentList.push(...att3);
+
+      if (!invoice) { // TODO: TEMP!!! should move this checking to generic reducer impl, and check with event Lifecycle (https://github.com/rtang03/fabric-es/issues/131)
+        throw new Error(`[lifecycle] entity '${vid3}' not found when reducing event '${event.type}'`); // TODO: HERE is an example of not havning info such as commit ids in events, impossible to write more intelligent reducers (https://github.com/rtang03/fabric-es/issues/131)
+      }
+
       return {
         ...invoice,
         ...rest3
@@ -90,6 +105,11 @@ export const invoiceReducer = (invoice: Invoice, event: InvoiceEvents): Invoice 
 
     case 'InvoiceConfirmed':
       const { userId: uid4, invoiceId: vid4, actionResponse, ...rest4} = event.payload;
+
+      if (!invoice) { // TODO: TEMP!!! should move this checking to generic reducer impl, and check with event Lifecycle (https://github.com/rtang03/fabric-es/issues/131)
+        throw new Error(`[lifecycle] entity '${vid4}' not found when reducing event '${event.type}'`); // TODO: HERE is an example of not havning info such as commit ids in events, impossible to write more intelligent reducers (https://github.com/rtang03/fabric-es/issues/131)
+      }
+
       return {
         ...invoice,
         ...rest4,
@@ -99,6 +119,11 @@ export const invoiceReducer = (invoice: Invoice, event: InvoiceEvents): Invoice 
 
     case 'PaymentStatusUpdated':
       const { userId: uid5, invoiceId: vid5, ...rest5} = event.payload;
+
+      if (!invoice) { // TODO: TEMP!!! should move this checking to generic reducer impl, and check with event Lifecycle (https://github.com/rtang03/fabric-es/issues/131)
+        throw new Error(`[lifecycle] entity '${vid5}' not found when reducing event '${event.type}'`); // TODO: HERE is an example of not havning info such as commit ids in events, impossible to write more intelligent reducers (https://github.com/rtang03/fabric-es/issues/131)
+      }
+
       return {
         ...invoice,
         // sellerBankName: sellerBank,

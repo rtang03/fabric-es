@@ -322,6 +322,7 @@ let totalAuth = 0;
 let totalProc = 0;
 let totalWrite = 0;
 let totalRuns = 0;
+const lastElapsedTimes = [];
 
 const runTest = (run: string, index: number, variant: string, useAuth: boolean, accessToken?: string) => {
   const data = getTestData(variant);
@@ -601,11 +602,14 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
     const auth = procStarts - authStarts;
     const proc = runFinish - procStarts;
     const elapsed = runFinish - authStarts;
-    totalElapsed += (elapsed) / 1000;
+    totalElapsed += elapsed / 1000;
     if (!accessToken) totalAuth += (auth) / 1000;
     totalProc += (proc) / 1000;
     totalWrite += write;
     totalRuns ++;
+    lastElapsedTimes.push(elapsed / 1000);
+    if (lastElapsedTimes.length > 100) lastElapsedTimes.shift(); // Elapsed times of the last 10 runs
+
     if (useAuth) {
       console.log(
 `[Test run ${run}][#${variant}] Finished (ts ${runFinish}). E: ${elapsed}ms/${Math.round(totalElapsed/totalRuns)}s; A: ${auth}ms/${Math.round(totalAuth/totalRuns)}s; P: ${proc}ms/${Math.round(totalProc/totalRuns)}s; W: ${write}ms/${Math.round(totalWrite/totalRuns)}ms`
@@ -629,6 +633,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
   totalProc = 0;
   totalWrite = 0;
   totalRuns = 0;
+  lastElapsedTimes.splice(0, lastElapsedTimes.length);
   for (let i = 0; i < RUNS; i ++) {
     const variants = [];
     for (let j = 0; j < BATCH; j ++) {
@@ -637,7 +642,9 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
     }
 
     const run = (''+(i+1)).padStart(range, '0');
-    const runsWait = totalRuns === 0 ? RUNS_WAIT : (Math.ceil(totalElapsed / totalRuns) * 1000) + 5000;
+    const runsWait = lastElapsedTimes.length <= 0 ?
+      RUNS_WAIT :
+      (Math.ceil(lastElapsedTimes.reduce((a, c) => a + c, 0) / lastElapsedTimes.length) * 1000);
     const authStarts = Date.now();
 
     let token;

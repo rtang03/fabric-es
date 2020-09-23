@@ -51,6 +51,7 @@ export const poCommandHandler: (option: {
     const events: PoEvents[] = [
       {
         type: 'PoProcessed',
+        // lifeCycle: Lifecycle.INTERMEDIATE,
         payload: {
           // userId, timestamp, poId, versionNo, actionResponse, sellerId, sellerBankName, sellerBankAccount, comment
           userId, timestamp, poId, versionNo, actionResponse
