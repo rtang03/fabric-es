@@ -45,13 +45,13 @@ export interface PoCreated extends BaseEvent {
 
 export interface PoUpdated extends BaseEvent {
   readonly type: 'PoUpdated';
-  readonly lifeCycle: Lifecycle.INTERMEDIATE;
+  // readonly lifeCycle: Lifecycle.INTERMEDIATE;
   payload: PoPayload;
 };
 
 export interface PoCancelled extends BaseEvent {
   readonly type: 'PoCancelled';
-  readonly lifeCycle: Lifecycle.INTERMEDIATE;
+  // readonly lifeCycle: Lifecycle.INTERMEDIATE;
   payload: {
     userId: string;
     timestamp: number;
@@ -62,7 +62,7 @@ export interface PoCancelled extends BaseEvent {
 
 export interface PoProcessed extends BaseEvent {
   readonly type: 'PoProcessed';
-  readonly lifeCycle: Lifecycle.INTERMEDIATE;
+  // readonly lifeCycle: Lifecycle.INTERMEDIATE;
   payload: {
     userId: string;
     timestamp: number;

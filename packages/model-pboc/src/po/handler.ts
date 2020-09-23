@@ -20,7 +20,7 @@ export const poCommandHandler: (option: {
   },
   UpdatePo: async ({ payload }) => {
     const events: PoEvents[] = [
-      { type: 'PoUpdated', lifeCycle: Lifecycle.INTERMEDIATE, payload }
+      { type: 'PoUpdated', payload }
     ];
 
     return poRepo
@@ -34,7 +34,7 @@ export const poCommandHandler: (option: {
   }) => {
     const events: PoEvents[] = [
       // { type: 'PoCancelled', payload: { userId, timestamp, poId, reason }}
-      { type: 'PoCancelled', lifeCycle: Lifecycle.INTERMEDIATE, payload: { userId, timestamp, poId }}
+      { type: 'PoCancelled', payload: { userId, timestamp, poId }}
     ];
 
     return poRepo
@@ -51,7 +51,7 @@ export const poCommandHandler: (option: {
     const events: PoEvents[] = [
       {
         type: 'PoProcessed',
-        lifeCycle: Lifecycle.INTERMEDIATE,
+        // lifeCycle: Lifecycle.INTERMEDIATE,
         payload: {
           // userId, timestamp, poId, versionNo, actionResponse, sellerId, sellerBankName, sellerBankAccount, comment
           userId, timestamp, poId, versionNo, actionResponse
