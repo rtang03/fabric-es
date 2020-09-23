@@ -37,7 +37,7 @@ export const createSnifferService: (option: {
   });
   
   client.on('connect', () => {
-    logger.info('Redis client connected.');
+    logger.debug('Redis client connected.');
   });
 
   const { start, stop } = createSubscription(client, topic);
@@ -56,7 +56,7 @@ export const createSnifferService: (option: {
         const res = await client.quit()
           .catch(err => logger.error(util.format('Error disconnecting the sniffer service from redis: %j', err)));
         if (res === 'OK')
-          logger.info('Sniffer disconnected from REDIS successfully');
+          logger.debug('Sniffer disconnected from REDIS successfully');
         else
           logger.error('An error occurred while the sniffer trying to disconnect from REDIS');
 

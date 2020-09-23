@@ -47,7 +47,7 @@ export const createOauthRoute: (option: {
 
   server.grant(
     grant.code(async (client: Client, redirect_uri, user: User, ares, done) => {
-      logger.info('register grant type - code');
+      logger.debug('register grant type - code');
 
       const authorization_code = generateToken({
         client,
@@ -77,7 +77,7 @@ export const createOauthRoute: (option: {
 
   server.grant(
     grant.token((client: Client, user: User, ares, done) => {
-      logger.info('register grant type - token');
+      logger.debug('register grant type - token');
 
       const access_token = generateToken({
         client,
@@ -105,7 +105,7 @@ export const createOauthRoute: (option: {
 
   server.exchange(
     exchange.code(async (client: Client, authorization_code, redirectUri, done) => {
-      logger.info('exchange authorization code');
+      logger.debug('exchange authorization code');
 
       let authCode: AuthorizationCode;
 
@@ -147,7 +147,7 @@ export const createOauthRoute: (option: {
   // "/oauth/token" return { access_token: string, token_type: 'Bearer'} and does not set-cookie
   server.exchange(
     exchange.password(async (client: Client, username, password, scope, done) => {
-      logger.info('exchange username/password for token');
+      logger.debug('exchange username/password for token');
 
       let user: User;
       try {
@@ -200,7 +200,7 @@ export const createOauthRoute: (option: {
 
   server.exchange(
     exchange.clientCredentials(async (client: Client, scope, done) => {
-      logger.info('exchange clientCredentials for token');
+      logger.debug('exchange clientCredentials for token');
 
       const api_key = generateToken({
         client,
@@ -286,7 +286,7 @@ export const createOauthRoute: (option: {
 
   router.post('/authenticate', passport.authenticate('bearer', { session: false }), (req, res) => {
     const { id, is_admin, username } = req.user as User;
-    logger.info(`account ${id} is authenticated`);
+    logger.debug(`account ${id} is authenticated`);
     const response: AuthenticateResponse = {
       ok: true,
       authenticated: true,

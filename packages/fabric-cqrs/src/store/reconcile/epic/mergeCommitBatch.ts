@@ -29,7 +29,7 @@ export default (action$: Observable<MergeCommitBatchAction>, _, { logger }: { lo
           }
         )({ entityName, commits })
           .then(({ data }) => {
-            logger.info(
+            logger.debug(
               util.format(
                 '[store/reconcile/mergeCommitBatch.js] %s commits are merged to QueryDatabase: %j',
                 data.length,

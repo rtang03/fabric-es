@@ -91,7 +91,7 @@ export const getNetwork: (option: {
     throw new Error(err);
   }
 
-  logger.info(util.format('gateway connected: %s', enrollmentId));
+  logger.debug(util.format('gateway connected: %s', enrollmentId));
 
   return { enrollmentId, gateway, network };
 };

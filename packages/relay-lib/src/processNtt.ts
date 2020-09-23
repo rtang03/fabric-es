@@ -112,7 +112,7 @@ export const getEntityProcessor: (option: {
           const result = await process(message);
           if (!result.errors) {
             const { statusMessage, reqBody, resBody, errors, ...rest } = result;
-            logger.info('Entity processed: ' + JSON.stringify(rest));
+            logger.debug('Entity processed: ' + JSON.stringify(rest));
           } else {
             const { reqBody, resBody, commits, ...rest } = result;
             logger.error('Error processing entity: ' + JSON.stringify(rest));

@@ -118,7 +118,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
       contract = network.getContract('eventstore');
       contractListener = network.getContract('eventstore').addContractListener(
         async ({ payload, eventName, getTransactionEvent }) => {
-          logger.info(`💢  event arrives - tx_id: ${getTransactionEvent().transactionId}`);
+          logger.debug(`💢  event arrives - tx_id: ${getTransactionEvent().transactionId}`);
           // check eventName
           let commit: unknown;
           if (eventName !== 'createCommit') {
@@ -162,7 +162,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
             })({ commit });
 
             if (mergeEntityResult.status === 'OK')
-              logger.info(
+              logger.debug(
                 util.format('mergeComit: %j', mergeEntityResult?.data || 'no data written')
               );
             else logger.error(util.format('fail to mergeEntity, %j', mergeEntityResult));

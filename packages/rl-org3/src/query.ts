@@ -72,6 +72,6 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
   });
 })().catch((error) => {
   console.error(error);
-  logger.info(util.format('fail to start query.js, %j', error));
+  logger.error(util.format('fail to start query.js, %j', error));
   process.exit(1);
 });

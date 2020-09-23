@@ -41,7 +41,7 @@ export const createAccountRoute: (option: {
   router.get('/userinfo', passport.authenticate('bearer', { session: false }), (req, res) => {
     const response: ProfileResponse = omit(req.user, 'password') as any;
 
-    logger.info(`userinfo ${response.id} is retrieved`);
+    logger.debug(`userinfo ${response.id} is retrieved`);
 
     return res.status(httpStatus.OK).send(response);
   });
@@ -85,7 +85,7 @@ export const createAccountRoute: (option: {
             is_admin: user.is_admin,
           })
           .then(() => {
-            logger.info(`logging in ${user.id}`);
+            logger.debug(`logging in ${user.id}`);
 
             res.append('jwtExpiryInSec', jwtExpiryInSec.toString());
             res.append('refTokenExpiryInSec', refTokenExpiryInSec.toString());
@@ -159,7 +159,7 @@ export const createAccountRoute: (option: {
         } else {
           await User.update(user_id, request);
 
-          logger.info(`${message} is done`);
+          logger.debug(`${message} is done`);
           return res.status(httpStatus.OK).send({ ok: true, ...(request as any) });
         }
       },
@@ -188,7 +188,7 @@ export const createAccountRoute: (option: {
 
         await User.update(user.id, { is_deleted });
 
-        logger.info(`${message} is done`);
+        logger.debug(`${message} is done`);
 
         return res.status(httpStatus.OK).send({ ok: true });
       },
@@ -251,7 +251,7 @@ export const createAccountRoute: (option: {
 
       await User.insert(user);
 
-      logger.info(`new account ${user.id} is created`);
+      logger.debug(`new account ${user.id} is created`);
 
       const response: RegisterResponse = { username, id: user.id };
 

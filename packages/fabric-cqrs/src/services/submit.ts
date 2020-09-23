@@ -35,7 +35,7 @@ export const submit: (
       .submit(...input_args)
       .then<Record<string, Commit>>((res: any) => {
         const result = JSON.parse(Buffer.from(JSON.parse(res)).toString());
-        logger.info(util.format('%s successful response', fcn));
+        logger.debug(util.format('%s successful response', fcn));
         return result;
       })
       .catch((error) => {

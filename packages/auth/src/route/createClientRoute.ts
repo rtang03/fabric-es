@@ -23,7 +23,7 @@ export const createClientRoute: () => express.Router = () => {
         const client = await Client.findOne({ where: { id: client_id, user_id: user.id } });
 
         if (client) {
-          logger.info(`account ${user.id} retrieves client ${client_id}`);
+          logger.debug(`account ${user.id} retrieves client ${client_id}`);
 
           return res.status(httpStatus.OK).send(client);
         } else {
@@ -70,7 +70,7 @@ export const createClientRoute: () => express.Router = () => {
 
             await Client.update(client_id, payload);
 
-            logger.info(`account ${user.id} updates client ${client_id}`);
+            logger.debug(`account ${user.id} updates client ${client_id}`);
 
             return res.status(httpStatus.OK).send({ ok: true, ...payload });
           }
@@ -97,7 +97,7 @@ export const createClientRoute: () => express.Router = () => {
         } else {
           await Client.delete(client_id);
 
-          logger.info(`account ${user.id} deletes client ${client_id}`);
+          logger.debug(`account ${user.id} deletes client ${client_id}`);
 
           return res.status(httpStatus.OK).send({ ok: true });
         }
@@ -118,7 +118,7 @@ export const createClientRoute: () => express.Router = () => {
         if (application_name) {
           const client = await Client.findOne({ where: { application_name, user_id: user.id } });
 
-          logger.info(`account ${user.id} retrieves client record ${client.id}`);
+          logger.debug(`account ${user.id} retrieves client record ${client.id}`);
           return res.status(httpStatus.OK).send(client);
         } else {
           const clients: Client[] = await Client.find({
@@ -129,7 +129,7 @@ export const createClientRoute: () => express.Router = () => {
           });
 
           if (clients?.length) {
-            logger.info(`account ${user.id} retrieves ${clients.length} client records`);
+            logger.debug(`account ${user.id} retrieves ${clients.length} client records`);
             return res.status(httpStatus.OK).send(clients);
           } else {
             logger.warn(`no clients`);
@@ -167,7 +167,7 @@ export const createClientRoute: () => express.Router = () => {
 
         await Client.insert(client);
 
-        logger.info(`account ${user_id} register new client ${client.id}`);
+        logger.debug(`account ${user_id} register new client ${client.id}`);
 
         return res
           .status(httpStatus.OK)

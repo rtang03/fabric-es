@@ -24,7 +24,7 @@ export const setupPassport: (option: { tokenRepo: TokenRepo }) => void = ({ toke
     new LocalStrategy(
       { session: false, passReqToCallback: true },
       async (request, username, password, done) => {
-        logger.info('LocalStrategy is used');
+        logger.debug('LocalStrategy is used');
         let user: User;
         try {
           user = await User.findOne({ where: { username } });
@@ -46,7 +46,7 @@ export const setupPassport: (option: { tokenRepo: TokenRepo }) => void = ({ toke
 
   passport.serializeUser(({ id }: User, done) => done(null, id));
   passport.deserializeUser((id, done) => {
-    logger.info('deserializeUser is called: ', id);
+    logger.debug('deserializeUser is called: ', id);
     return User.findOne(id)
       .then((user) => done(null, user))
       .catch((error) => done(error));
@@ -88,7 +88,7 @@ export const setupPassport: (option: { tokenRepo: TokenRepo }) => void = ({ toke
    */
   passport.use(
     new BearerStrategy(async (access_token, done) => {
-      logger.info('BearerStrategy is used');
+      logger.debug('BearerStrategy is used');
       let token: AccessToken;
 
       try {

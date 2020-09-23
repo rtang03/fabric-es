@@ -21,7 +21,7 @@ export const bootstrapAuthServer: (option: {
     const hashPassword = await bcrypt.hash(orgAdminSecret, 10);
     newOrgAdmin = User.create({ username: orgAdminId, password: hashPassword, email: orgAdminEmail, is_admin: true });
     await User.insert(newOrgAdmin);
-    logger.info(`org admin ${newOrgAdmin.id} is created`);
+    logger.debug(`org admin ${newOrgAdmin.id} is created`);
   }
 
   const rootClientExist = await Client.findOne({ where: { application_name: applicationName } });
@@ -38,6 +38,6 @@ export const bootstrapAuthServer: (option: {
       grants: ['password', 'authorization_code', 'refresh_token', 'client_credentials', 'implicit']
     });
     await Client.insert(client);
-    logger.info(`${applicationName} ${client.id} is created`);
+    logger.debug(`${applicationName} ${client.id} is created`);
   }
 };

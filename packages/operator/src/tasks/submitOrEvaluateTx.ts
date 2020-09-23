@@ -79,7 +79,7 @@ export const submitOrEvaluateTx: (
         .createTransaction(fcn)
         .evaluate(...args)
         .then<Record<string, Commit>>((res: any) => {
-          logger.info(util.format('successfully evaluate tx: %s', fcn));
+          logger.debug(util.format('successfully evaluate tx: %s', fcn));
           return JSON.parse(Buffer.from(JSON.parse(res)).toString());
         })
         .catch((error) => {
@@ -95,7 +95,7 @@ export const submitOrEvaluateTx: (
         .createTransaction(fcn)
         .submit(...input_args)
         .then<Record<string, Commit>>((res: any) => {
-          logger.info(util.format('successfully submit tx: %s', fcn));
+          logger.debug(util.format('successfully submit tx: %s', fcn));
           return JSON.parse(Buffer.from(JSON.parse(res)).toString());
         })
         .catch((error) => {
