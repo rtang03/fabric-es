@@ -92,7 +92,7 @@ const wait4res = async (client: Redis, req: any, res: any, ts: number, type: str
     reqBody: body,
     attachmentInfo: (file) ? JSON.stringify(file) : undefined
   };
-  logger.debug(`ProxyReq Finish ${msg.proxyReqFinish}`);
+  logger.info(`ProxyReq Finish ${msg.proxyReqFinish}`);
   res.locals.reqres = id;
   await client.set(`PROXY${id}`, JSON.stringify(msg), 'EX', 3600);
 };
@@ -120,8 +120,8 @@ export const relayService = ({
     onProxyReq: (_, req, res) => {
       // Initialize
       const proxyReqStarts = Date.now();
-      logger.debug(`ProxyReq Starts ${proxyReqStarts}`);
-      logger.debug('Header: ' + JSON.stringify(req.headers));
+      logger.info(`ProxyReq Starts ${proxyReqStarts}`);
+      // logger.debug('Header: ' + JSON.stringify(req.headers));
     
       const type = (req.headers['content-type'] || 'text/plain').split(';')[0];
       if (type === 'multipart/form-data') {
@@ -173,7 +173,7 @@ export const relayService = ({
       const msgId = res.locals.reqres;
       res.locals.reqres = undefined;
       const proxyResStarts = Date.now();
-      logger.debug(`ProxyRes Starts ${proxyResStarts}`);
+      logger.info(`ProxyRes Starts ${proxyResStarts}`);
 
       const data = [];
       proxyRes.on('data', (chunk) => {
@@ -194,18 +194,19 @@ export const relayService = ({
               statusMessage: proxyRes.statusMessage,
               resBody: body
             };
+            const { reqBody, attachmentInfo, resBody, ...rest } = message;
             await processMessage({ message, client, topic }).then((result) => {
-              logger.debug(`Message processed with response ${result} - '${JSON.stringify(message)}',
+              logger.info(`Message processed with response ${result} - '${JSON.stringify(rest)}',
   proxyReq (${message.proxyReqFinish - message.proxyReqStarts}ms),
   endpoint (${message.proxyResStarts - message.proxyReqFinish}ms),
   proxyRes (${message.proxyResFinish - message.proxyResStarts}ms)`);
             }).catch((error) => {
-              logger.error(`Error while processing [${message.id}]: ${error} - '${JSON.stringify(message)}',
+              logger.warn(`Error while processing [${message.id}]: ${error},
   proxyReq (${message.proxyReqFinish - message.proxyReqStarts}ms),
   endpoint (${message.proxyResStarts - message.proxyReqFinish}ms),
   proxyRes (${message.proxyResFinish - message.proxyResStarts}ms)`);
             });
-            logger.debug(`ProxyRes Completed ${Date.now()}`);
+            logger.info(`ProxyRes Completed ${Date.now()}`);
           } catch (error) {
             logger.error(error);
           }
