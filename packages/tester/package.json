@@ -10,6 +10,7 @@
     "test:3org": "jest intg.3org.test",
     "test:2org": "jest intg.2org.test",
     "test:program": "jest program.test",
+    "test:regex": "jest regex.test",
     "ptest:relay": "node ./dist/relay/relay.ptest.js"
   },
   "private": true,
