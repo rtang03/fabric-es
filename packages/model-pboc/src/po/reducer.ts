@@ -30,7 +30,9 @@ export const poReducer = (po: PO, event: PoEvents): PO => {
         // goodsDescription: desc0,
         currency: curr0,
         settlementCurrency: scur0,
-        tag: buildTag(',', 'PO,Purchase Order', inco0, svia0, curr0, scur0), // .replace(REGEX, '\\$1')
+        tag: buildTag('entity:"PO,Purchase Order"', {
+          incotermsCode: inco0, shipVia: svia0, currency: curr0, settlementCurrency: scur0
+        }),
         // desc: buildTag(' ', undefined, desc0),
         ...rest0
       };
@@ -68,7 +70,9 @@ export const poReducer = (po: PO, event: PoEvents): PO => {
         // goodsDescription: desc1,
         currency: curr1,
         settlementCurrency: scur1,
-        tag: buildTag(',', po.tag, inco1, svia1, curr1, scur1),
+        tag: buildTag(po.tag, {
+          incotermsCode: inco1, shipVia: svia1, currency: curr1, settlementCurrency: scur1
+        }),
         // desc: buildTag(' ', po.desc, desc1),
         ...rest1,
         status: Status.Updated

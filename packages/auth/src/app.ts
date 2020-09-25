@@ -58,7 +58,7 @@ const connection = {
     }
   });
 
-  logger.info(util.format('db connection: %j', omit(connection, 'password', 'entities')));
+  logger.debug(util.format('db connection: %j', omit(connection, 'password', 'entities')));
 
   let server;
   const redis = new Redis({ port: parseInt(ENV.REDIS_PORT, 10), host: ENV.REDIS_HOST });
@@ -99,7 +99,6 @@ const connection = {
   });
 
   stoppableServer.listen(port, async () => {
-    console.info(`🚀  Auth server started at port: http://0.0.0.0:${port}`);
     logger.info(`🚀  Auth server started at port: http://0.0.0.0:${port}`);
 
     try {
@@ -118,7 +117,6 @@ const connection = {
     process?.send?.('ready');
   });
 })().catch((error) => {
-  console.error(error);
-  logger.info(util.format('fail to start app.js, %j', error));
+  logger.error(util.format('fail to start app.js, %j', error));
   process.exit(1);
 });

@@ -5,7 +5,7 @@ import { enrollAdmin } from '@fabric-es/operator';
 import { Wallet, Wallets } from 'fabric-network';
 import rimraf from 'rimraf';
 
-const logger = getLogger('[rl-org3] enrollAdmin.js');
+const logger = getLogger('[rl-org1] enrollAdmin.js');
 
 rimraf(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}.id`, async error => {
   if (error) {

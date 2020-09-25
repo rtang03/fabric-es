@@ -36,7 +36,7 @@ export const createRelayService: (option: {
   });
 
   client.on('connect', () => {
-    logger.info('Redis client connected.');
+    logger.debug('Redis client connected.');
   });
 
   const isHttps = (httpsArg && httpsArg.key && httpsArg.cert) ? true : false;
@@ -121,7 +121,7 @@ export const relayService = ({
       // Initialize
       const proxyReqStarts = Date.now();
       logger.info(`ProxyReq Starts ${proxyReqStarts}`);
-      logger.info('Header: ' + JSON.stringify(req.headers));
+      // logger.debug('Header: ' + JSON.stringify(req.headers));
     
       const type = (req.headers['content-type'] || 'text/plain').split(';')[0];
       if (type === 'multipart/form-data') {
@@ -142,7 +142,7 @@ export const relayService = ({
             if (files.files)
               logger.warn(`Warning! Unexpected file saved: ${files.files.path}`);
             else
-              logger.info(`Relay ignored uploaded file ${fileInfo.map(i => i.name)}`); // Sould be logger.debug()
+              logger.debug(`Relay ignored uploaded file ${fileInfo.map(i => i.name)}`); // Sould be logger.debug()
     
             if (fields) {
               wait4res(client, req, res, proxyReqStarts, type, JSON.stringify(fields), fileInfo);
@@ -194,13 +194,14 @@ export const relayService = ({
               statusMessage: proxyRes.statusMessage,
               resBody: body
             };
+            const { reqBody, attachmentInfo, resBody, ...rest } = message;
             await processMessage({ message, client, topic }).then((result) => {
-              logger.info(`Message processed with response ${result} - '${JSON.stringify(message)}',
+              logger.info(`Message processed with response ${result} - '${JSON.stringify(rest)}',
   proxyReq (${message.proxyReqFinish - message.proxyReqStarts}ms),
   endpoint (${message.proxyResStarts - message.proxyReqFinish}ms),
   proxyRes (${message.proxyResFinish - message.proxyResStarts}ms)`);
             }).catch((error) => {
-              logger.error(`Error while processing [${message.id}]: ${error} - '${JSON.stringify(message)}',
+              logger.warn(`Error while processing [${message.id}]: ${error},
   proxyReq (${message.proxyReqFinish - message.proxyReqStarts}ms),
   endpoint (${message.proxyResStarts - message.proxyReqFinish}ms),
   proxyRes (${message.proxyResFinish - message.proxyResStarts}ms)`);

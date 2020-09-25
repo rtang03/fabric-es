@@ -61,7 +61,7 @@ export const createSubscription = (
           },
           _ => {
             subscriber.unsubscribe(topic)
-              .then(count => logger.info(`Redis publication unsubscribed (${count})`))
+              .then(count => logger.debug(`Redis publication unsubscribed (${count})`))
               .catch(error => logger.error(`Redis publication unsubscribe error ${error}`));
           }
         );
@@ -93,12 +93,12 @@ export const createSubscription = (
                     await callback(topic, null, msg[1][1]);
                   }
                 } else {
-                  logger.info(`Received message from '${event.channel}': '${msg[1][1]}'`);
+                  logger.debug(`Received message from '${event.channel}': '${msg[1][1]}'`);
                 }
               }
             },
             error: error => reject(error),
-						complete: () => logger.info('observer complete!')
+						complete: () => logger.debug('observer complete!')
           });
       });
     },

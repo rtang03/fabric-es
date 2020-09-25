@@ -30,7 +30,9 @@ export const invoiceReducer = (invoice: Invoice, event: InvoiceEvents): Invoice 
         // goodsDescription: desc0,
         currency: curr0,
         settlementCurrency: scur0,
-        tag: buildTag(',', 'Invoice', inco0, svia0, curr0, scur0),
+        tag: buildTag('entity:Invoice', {
+          incotermsCode: inco0, shipVia: svia0, currency: curr0, settlementCurrency: scur0
+        }),
         // desc: buildTag(' ', undefined, desc0),
         ...rest0
       };
@@ -68,7 +70,9 @@ export const invoiceReducer = (invoice: Invoice, event: InvoiceEvents): Invoice 
         // goodsDescription: desc1,
         currency: curr1,
         settlementCurrency: scur1,
-        tag: buildTag(',', invoice.tag, inco1, svia1, curr1, scur1),
+        tag: buildTag(invoice.tag, {
+          incotermsCode: inco1, shipVia: svia1, currency: curr1, settlementCurrency: scur1
+        }),
         // desc: buildTag(' ', invoice.desc, desc1),
         ...rest1,
         status: Status.Updated

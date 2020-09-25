@@ -50,7 +50,7 @@ export default (action$: Observable<ReconcileAction>, _, { logger }: { logger: L
                   return reconcileSuccess({ tx_id, result: [] });
 
                 const keys = Object.keys(commits);
-                logger.info(
+                logger.debug(
                   util.format(
                     '[store/reconcile.js] %s commits are retrieved from Fabric: %j',
                     keys.length,

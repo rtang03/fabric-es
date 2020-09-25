@@ -21,17 +21,36 @@ export class Attachment extends BaseEntity {
   desc?: string;
 };
 
-export const buildTag = (separator: string, current: string, ...values: string[]): string | undefined => {
-  const orignl = current || '';
-  const inputs = values.filter(w => orignl.indexOf(w) < 0);
-  const size = inputs.length;
-  const elm1st = inputs.shift();
-  const result = (size > 0) ?
-    inputs.reduce((accu, curr) =>
-        (curr && curr.trim()) ? accu + `${separator}${curr}` : accu,
-      elm1st ? (orignl.trim() ? `${orignl}${separator}` : '') + elm1st : orignl)
-    : orignl;
-  return (result.trim()) ? result : undefined;
+export const dsplit = (input: string, separator = ',', delimiter = '"'): string[] => {
+  const regex1 = new RegExp(`${separator}?((?<!\\\\)${delimiter}.+?(?<!\\\\)${delimiter})${separator}?`); // Split quoted parts first
+  const regex2 = new RegExp(`((?<!\\\\)${delimiter}|\\\\)+`, 'g');  // Remove quotes from quoted parts
+  return input
+    .split(regex1).filter(v => v)
+    .reduce((a, c) => (c.includes(delimiter)) ? [...a, c.replace(regex2, '')] : [...a, ...c.split(separator)], []);
+};
+
+export const djoin = (input: string[], separator = ',', delimiter = '"'): string => {
+  const regex = new RegExp(`${delimiter}`, 'g');
+  return input.reduce((a, c) => {
+    const delim = `\\${delimiter}`;
+    const d = c.replace(regex, delim);
+    const needDelimit = d.includes(separator) || (d.includes(delim) && !(d.startsWith(delim) && d.endsWith(delim)));
+    return `${a ? `${a}${separator}` : ''}${needDelimit ? `${delimiter}${d}${delimiter}` : d}`;
+  }, '');
+};
+
+export const buildTag = (current: string, values: Record<string, string>): string => {
+  const otag: Record<string, string> = dsplit(current || '').reduce((a, c) => {
+    const w = dsplit(c, ':');
+    if (w.length === 2) return { ...a, [w[0]]: w[1] };
+  }, {});
+
+  const ntag: Record<string, string> = {
+    ...otag,
+    ...values
+  };
+
+  return djoin(Object.entries(ntag).map(r => djoin(r, ':')));
 };
 
 export const objFilter = (obj, keys) =>
