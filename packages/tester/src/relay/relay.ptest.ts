@@ -1,4 +1,5 @@
 require('dotenv').config({ path: './.env' });
+import fs from 'fs';
 import https from 'https';
 import fetch from 'node-fetch';
 import { getTestData, QUERY } from './mockUtils';
@@ -27,7 +28,12 @@ const relay1 = `https://${process.env.RELAY_HOST1}:${process.env.RELAY_PORT1}`; 
 const relay2 = `https://${process.env.RELAY_HOST2}:${process.env.RELAY_PORT2}`; // PBOC side
 const qryhdr = `http://${process.env.QUERY_HOST}:${process.env.QUERY_PORT}/graphql`; // FDI node
 
-const lessAuth = process.env.LESS_AUTH || 'no';
+const STATS_DATA = process.env.STATS_DATA;
+
+// 'yes'  - authenticate for every test
+// 'no'   - do not authenticate at all
+// 'less' - authenticate once per batch
+const authOn = process.env.AUTH_ON || 'yes';
 
 const range = Math.round(Math.log10(RUNS * BATCH)) + 1;
 const stamp = Date.now();
@@ -317,11 +323,11 @@ const readEntities = (tag: string, accessToken: string, query: string, expected?
   });
 };
 
-let totalElapsed = 0;
-let totalAuth = 0;
-let totalProc = 0;
-let totalWrite = 0;
-let totalRuns = 0;
+let totalElapsed;
+let totalAuth;
+let totalProc;
+let totalWrite;
+let totalRuns;
 const lastElapsedTimes = [];
 
 const runTest = (run: string, index: number, variant: string, useAuth: boolean, accessToken?: string) => {
@@ -634,6 +640,16 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
   totalWrite = 0;
   totalRuns = 0;
   lastElapsedTimes.splice(0, lastElapsedTimes.length);
+  
+  if (STATS_DATA) {
+    try {
+      fs.accessSync(STATS_DATA, fs.constants.F_OK);
+      fs.unlinkSync(STATS_DATA);
+    } catch (err) {
+      if (!err.message.includes('no such file')) console.log(err);
+    }
+  }
+
   for (let i = 0; i < RUNS; i ++) {
     const variants = [];
     for (let j = 0; j < BATCH; j ++) {
@@ -644,11 +660,19 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
     const run = (''+(i+1)).padStart(range, '0');
     const runsWait = lastElapsedTimes.length <= 0 ?
       RUNS_WAIT :
-      (Math.ceil(lastElapsedTimes.reduce((a, c) => a + c, 0) / lastElapsedTimes.length) * 1000);
+      Math.ceil(lastElapsedTimes.reduce((a, c) => a + c, 0) / lastElapsedTimes.length);
     const authStarts = Date.now();
 
+    if (STATS_DATA) {
+      const d = new Date();
+      const dttm = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString();
+      fs.writeFile(STATS_DATA, `${dttm.substring(0, 10)} ${dttm.substring(11, 19)}|${runsWait}\n`, { flag: 'a' }, err => {
+        if (err) console.log('Error writing statistic data file', err);
+      });
+    }
+
     let token;
-    if (lessAuth === 'yes') {
+    if (authOn === 'less') {
       try {
         token = await authenticate(`u${stamp}${run}`, `${stamp}${run}@fake.it`, 'p@ssw0rd');
       } catch (error) {
@@ -659,16 +683,16 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
         console.log(`ERROR! Get access token failed for user u${stamp}${run}`);
         continue;
       }
-      console.log(`[Test run ${run}][Ran for ${((Date.now() - stamp)/1000).toFixed(3)}s] Starting, next batch in ${runsWait}ms, access token: ${token.substr(0, 70)}...`);
+      console.log(`[Test run ${run}][Ran for ${((Date.now() - stamp)/1000).toFixed(3)}s] Starting, next batch in ${runsWait}s, access token: ${token.substr(0, 70)}...`);
       totalAuth += ((Date.now() - authStarts) / 1000);
     } else {
-      console.log(`[Test run ${run}][Ran for ${((Date.now() - stamp)/1000).toFixed(3)}s] Starting, next batch in ${runsWait}ms...`);
+      console.log(`[Test run ${run}][Ran for ${((Date.now() - stamp)/1000).toFixed(3)}s] Starting, next batch in ${runsWait}s...`);
     }
 
     Promise.all(variants.map(async (v, i) => {
-      if (lessAuth === 'yes') {
+      if (authOn === 'less') {
         return runTest(run, i, v, true, token);
-      } else if (lessAuth === 'off') {
+      } else if (authOn === 'no') {
         return runTest(run, i, v, false);
       } else {
         return runTest(run, i, v, true);
@@ -676,7 +700,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
     }))
       .then(values => {
         // Promise.all will resolve only if all promises resolved
-        if (lessAuth === 'yes') {
+        if (authOn === 'less') {
           console.log(`[Test run ${run}][Elapsed time ${((Date.now() - authStarts)/1000).toFixed(3)}s] Completed: ${values.length} (A: ${Math.round(totalAuth/(i+1))}s)`);
         } else {
           console.log(`[Test run ${run}][Elapsed time ${((Date.now() - authStarts)/1000).toFixed(3)}s] Completed: ${values.length}`);
@@ -686,6 +710,6 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
         console.log(`[Test run ${run}][Elapsed time ${((Date.now() - authStarts)/1000).toFixed(3)}s] Error: ${errors}`);
       });
 
-    await new Promise(resolve => setTimeout(resolve, runsWait));
+    await new Promise(resolve => setTimeout(resolve, runsWait * 1000));
   }
 })();
