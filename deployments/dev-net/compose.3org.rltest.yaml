@@ -18,6 +18,7 @@ services:
       - RUNS_WAIT=65
       - READ_RETRY=100
       - READ_WAIT=3000
+      - STATS_DATA=/var/stats/data.json
     image: $TEST_IMAGE
     container_name: tester
     working_dir: /home/app
