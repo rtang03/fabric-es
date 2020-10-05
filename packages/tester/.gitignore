@@ -74,3 +74,4 @@ genesis.block
 channel.tx
 uploads*
 build/
+data.json

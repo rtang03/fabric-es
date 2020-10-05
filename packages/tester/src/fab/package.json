@@ -6,7 +6,7 @@
   "scripts": {
     "build": "yarn run clean && tsc",
     "clean": "rimraf dist && rimraf build",
-    "mock": "node dist/relay/mockServer.js",
+    "mock": "node dist/relay/mockServer.js ",
     "test:3org": "jest intg.3org.test",
     "test:2org": "jest intg.2org.test",
     "test:program": "jest program.test",
@@ -16,14 +16,14 @@
   },
   "private": true,
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^8.1.0",
-    "lodash": "^4.17.15",
-    "node-fetch": "^2.6.0",
     "express": "^4.17.1",
     "formidable": "^1.2.2",
-    "stoppable": "^1.1.0",
+    "lodash": "^4.17.15",
+    "node-fetch": "^2.6.0",
     "query-string": "^6.12.1",
-    "cors": "^2.8.5"
+    "stoppable": "^1.1.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
