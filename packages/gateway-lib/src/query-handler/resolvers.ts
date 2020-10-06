@@ -103,7 +103,7 @@ export const resolvers: Resolvers = {
 
         return result;
       },
-      { fcnName: 'getEntityInfo', useAdmin: false, useAuth: true, logger }
+      { fcnName: 'getEntityInfo', useAdmin: false, useAuth: false, logger }
     ),
     fullTextSearchCommit: catchErrors<Paginated<Commit>>(
       async (
@@ -131,7 +131,7 @@ export const resolvers: Resolvers = {
             ) || [],
         };
       },
-      { fcnName: 'fullTextSearchCommit', useAdmin: false, useAuth: true, logger }
+      { fcnName: 'fullTextSearchCommit', useAdmin: false, useAuth: false, logger }
     ),
     fullTextSearchEntity: catchErrors<Paginated<QueryHandlerEntity>>(
       async (
@@ -153,7 +153,7 @@ export const resolvers: Resolvers = {
 
         return { ...data, items: parseEntity(data.items) };
       },
-      { fcnName: 'fullTextSearchEntity', useAdmin: false, useAuth: true, logger }
+      { fcnName: 'fullTextSearchEntity', useAdmin: false, useAuth: false, logger }
     ),
     paginatedEntity: catchErrors<Paginated<QueryHandlerEntity>>(
       async (
@@ -185,7 +185,7 @@ export const resolvers: Resolvers = {
 
         return { ...data, items: parseEntity(data.items) };
       },
-      { fcnName: 'paginatedMetaEntity', useAdmin: false, useAuth: true, logger }
+      { fcnName: 'paginatedMetaEntity', useAdmin: false, useAuth: false, logger }
     ),
     paginatedCommit: catchErrors<Paginated<Commit>>(
       async (
@@ -217,7 +217,7 @@ export const resolvers: Resolvers = {
 
         return data;
       },
-      { fcnName: 'paginatedCommit', useAdmin: false, useAuth: true, logger }
+      { fcnName: 'paginatedCommit', useAdmin: false, useAuth: false, logger }
     ),
     getNotifications: catchErrors<Notification[]>(
       async (_, __, { queryHandler, username }: QueryHandlerGqlCtx): Promise<Notification[]> => {
@@ -227,7 +227,7 @@ export const resolvers: Resolvers = {
 
         return parseNotifications(data);
       },
-      { fcnName: 'getNotifications', useAdmin: false, useAuth: true, logger }
+      { fcnName: 'getNotifications', useAdmin: false, useAuth: false, logger }
     ),
     getNotification: catchErrors<Notification>(
       async (_, { entityName, commitId, id }, { queryHandler, username }: QueryHandlerGqlCtx) => {
@@ -242,7 +242,7 @@ export const resolvers: Resolvers = {
 
         return parseNotifications(data)[0];
       },
-      { fcnName: 'getNotification', useAdmin: false, useAuth: true, logger }
+      { fcnName: 'getNotification', useAdmin: false, useAuth: false, logger }
     ),
   },
   Subscription: {
