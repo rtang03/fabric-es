@@ -6,8 +6,8 @@ networks:
 services:
   tester:
     environment:
-      - TEST_TARGETS=relay-pboc
-      - TEST_OPTIONS=$TARGET_URL
+      - TEST_OPTIONS=relay-pboc
+      - TEST_TARGETS=$TARGET_URL
       - SERVER_KEY=/var/keys/wildcard_etradeconnect.key
       - SERVER_CERT=/var/keys/star_etradeconnect_net.cer
       - AUTH_ON=no
