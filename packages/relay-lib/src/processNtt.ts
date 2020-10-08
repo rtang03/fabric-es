@@ -109,11 +109,19 @@ export const getEntityProcessor: (option: {
     return {
       callback: async (channel: string, message: ReqRes, messageStr?: string): Promise<void> => {
         if (message) {
+          const procStartTs = Date.now();
           const result = await process(message);
           if (!result.errors) {
             const { statusMessage, reqBody, resBody, errors, ...rest } = result;
             logger.debug('Entity processed: ' + JSON.stringify(rest));
-            logger.info(`[PERFTEST]:{${Object.entries(rest).map(e => `"${e[0]}":"${JSON.stringify(e[1])}"`)},"writeChainFinish":${Date.now()}}`);
+            logger.info(`[PERFTEST]:{${Object.entries(rest).map(e => `"${e[0]}":${JSON.stringify(e[1])}`)}`
+              + `,"proxyReqStarts":"${message.proxyReqStarts}"`
+              + `,"proxyReqFinish":"${message.proxyReqFinish}"`
+              + `,"proxyResStarts":"${message.proxyResStarts}"`
+              + `,"proxyResFinish":"${message.proxyResFinish}"`
+              + `,"writeChainStart":"${procStartTs}"`
+              + `,"writeChainFinish":"${Date.now()}"}`
+              );
           } else {
             const { reqBody, resBody, commits, ...rest } = result;
             logger.error('Error processing entity: ' + JSON.stringify(rest));

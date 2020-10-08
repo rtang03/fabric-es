@@ -15,10 +15,23 @@ export interface PerfTestConfig {
   relay1:string;
   relay2:string;
   qryhdr:string;
-  lessAuth:string
+  authOn:string
   range:number;
   stamp:number;
-  agent:https.Agent
+  agent:https.Agent;
+  STATS_DATA?:string
+}
+
+export enum API {
+  createPo = 'createPo', 
+  editPo = 'editPo', 
+  cancelPo = 'cancelPo', 
+  processPo = 'processPo', 
+  createInvoice = 'createInvoice', 
+  editInvoice = 'editInvoice', 
+  transferInvoice = 'transferInvoice', 
+  confirmInvoice = 'confirmInvoice', 
+  updatePaymentStatus = 'updatePaymentStatus'
 }
 
 export class PerfTest {
@@ -46,11 +59,15 @@ export class PerfTest {
     ,relay2:      `https://${process.env.RELAY_HOST2}:${process.env.RELAY_PORT2}` // PBOC side
     ,qryhdr:      `http://${process.env.QUERY_HOST}:${process.env.QUERY_PORT}/graphql` // FDI node
     
-    ,lessAuth:    process.env.LESS_AUTH || 'no'
+    // 'yes'  - authenticate for every test
+    // 'no'   - do not authenticate at all
+    // 'less' - authenticate once per batch
+    ,authOn:      process.env.AUTH_ON || 'yes'
     
     ,range:       Math.round(Math.log10(parseInt(process.env.RUNS_NUM, 10) * parseInt(process.env.BATCH_NUM, 10))) + 1
     ,stamp:       Date.now()
     ,agent:       new https.Agent({ rejectUnauthorized: false })
+    ,STATS_DATA:  process.env.STATS_DATA
   }; 
 
   static authenticate = (username:string , email:string, password:string, pTestConfig?:PerfTestConfig ) : Promise<String> => {

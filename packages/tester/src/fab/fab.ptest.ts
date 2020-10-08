@@ -1,11 +1,14 @@
 require('dotenv').config({ path: './.env' });
-import { Console } from 'console';
+import { Console, exception } from 'console';
+import fs from 'fs';
 import https from 'https';
 import { curry } from 'lodash';
 import fetch from 'node-fetch';
-import { getTestData, QUERY } from '../relay/mockUtils';
-import { PerfTest } from './ptest';
-// const percentile = require('percentile');
+import { getTestData } from '../relay/mockUtils';
+import { PerfTest, API } from './ptest';
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
+
 
 let totalElapsed = 0;
 let totalAuth = 0;
@@ -13,46 +16,175 @@ let totalProc = 0;
 let totalWrite = 0;
 let totalRuns = 0;
 
-enum API {
-  createPo = 'createPo', 
-  editPo = 'editPo', 
-  cancelPo = 'cancelPo', 
-  processPo = 'processPo', 
-  createInvoice = 'createInvoice', 
-  editInvoice = 'editInvoice', 
-  transferInvoice = 'transferInvoice', 
-  confirmInvoice = 'confirmInvoice', 
-  updatePaymentStatus = 'updatePaymentStatus'
-}
-const TestRules = {
-  createPo:[API.createPo], 
-  editPo:[API.createPo, API.editPo], 
-  cancelPo:[API.createPo, API.cancelPo],
-  processPo:[API.createPo, API.processPo], 
-  createInvoice:[API.createPo, API.processPo, API.createInvoice],  
-  editInvoice:[API.createPo, API.processPo, API.createInvoice, API.editInvoice],
-  transferInvoice:[API.createPo, API.processPo, API.createInvoice, API.transferInvoice],
-  confirmInvoice:[API.createPo, API.processPo, API.createInvoice, API.confirmInvoice],
-  updatePaymentStatus:[API.createPo, API.processPo, API.createInvoice, API.confirmInvoice, API.updatePaymentStatus],
-  all:[API.createPo, API.editPo, API.cancelPo, API.processPo, API.createInvoice, API.editInvoice, API.transferInvoice, API.confirmInvoice, API.updatePaymentStatus],
+enum DocId {
+  po = "poId",
+  inv = "invoiceId",
 }
 
 interface runTestResult {
-  resolveResult:number,
-  batchId:string,
-  urlTsRec:{[k:string]:any},
+  res:string,
+  uid:string,
+  tsRec:{[k:string]:any},
 }
 
-// TODO: Set rule to be test
-const testRule:API[] = TestRules.all;
+const GrepLogCfg:{logPh:string, rules:API[]}[] = [
+  { logPh: (process.env.RL_ORG1_LOG_PATH || './log/all.log')
+   ,rules:[API.createInvoice, API.editInvoice, API.transferInvoice, API.confirmInvoice, API.updatePaymentStatus]
+  },
+  { logPh: (process.env.RL_ORG2_LOG_PATH || './log/all.log')
+    ,rules:[API.createPo, API.editPo, API.cancelPo, API.processPo]
+  },
+]
 
+const TestRules = {
+  createPo:           { preGenId:[]
+                      , rules:[API.createPo]}, 
+  // editPo:             { preGenId:['po']
+  //                     , rules:[API.editPo]}, 
+  // cancelPo:           { preGenId:['po']
+  //                     , rules:[API.cancelPo]},
+  // processPo:          { preGenId:['po']
+                      // , rules:[API.processPo]}, 
+  createInvoice:      { preGenId:[DocId.po]
+                      , rules:[API.createInvoice]},  
+  // editInvoice:        { preGenId:['po','inv']
+  //                     , rules:[API.editInvoice]},
+  transferInvoice:    { preGenId:[DocId.po, DocId.inv]
+                      , rules:[API.transferInvoice]},
+  // confirmInvoice:     { preGenId:['po','inv']
+  //                     , rules:[API.confirmInvoice]},
+  updatePaymentStatus:{ preGenId:[DocId.po, DocId.inv]
+                      , rules:[API.updatePaymentStatus]},
+  all:                { preGenId:[]
+                      , rules:[API.createPo, API.editPo, API.cancelPo, API.processPo, API.createInvoice, API.editInvoice, API.transferInvoice, API.confirmInvoice, API.updatePaymentStatus]},
+  custom1:            { preGenId:[]
+                      , rules:[API.createPo, API.createInvoice, API.updatePaymentStatus]},
+}
+
+const cfgTestRun = TestRules[process.env.FAB_TEST_RULE || 'all'];
+const isPreGenId = cfgTestRun? (cfgTestRun.preGenId > 0) : false;
+const testRule = cfgTestRun?cfgTestRun.rules : [];
 const lastElapsedTimes = [];
+
+let preGenIds = {};
+
+const preRunTest = (run: string, index: number, variant: string, useAuth: boolean, accessToken?: string) => {
+  const data = getTestData(variant);
+  const genIds = TestRules[process.env.FAB_TEST_RULE || 'all'].preGenId;
+  genIds.forEach( (e: DocId) => {
+    if (e === DocId.po) {
+      preGenIds['preGenPo'] = data.PoCreate[0].poBaseInfo.poId;
+    } else if (e === DocId.inv) {
+      preGenIds['preGenInv'] = data.InvCreate[0].invBaseInfo.invoiceId;
+    }
+  });
+
+  return new Promise<void> (async (resolve, reject) => {
+    const authStarts = Date.now();
+
+    // Get access token
+    let token;
+    if (!accessToken && useAuth) {
+      try {
+        token = await PerfTest.authenticate(`u${variant}`, `${variant}@fake.it`, 'p@ssw0rd');
+      } catch (error) {
+        console.log(`[Test run ${run}][#${variant}] ${error}`);
+        reject(index);
+        return;
+      }
+      if (!token || (token === undefined)) {
+        console.log(`[Test run ${run}][#${variant}] ERROR! Get access token failed for user u${variant}`);
+        reject(index);
+        return;
+      }
+    } else {
+      token = accessToken;
+    }
+
+    const procStarts = Date.now();
+    let write = 0;
+    // console.log(`[Test run ${run}][#${variant}] Starting (ts ${procStarts})${(!accessToken && useAuth) ? `, access token: ${token.substr(0, 70)}...` : '...'}`);
+
+    // PO processing
+    if (genIds.some(e => e === DocId.po)) {
+      try {
+        const writeStart = Date.now();
+        const poIds = await PerfTest.createPo(data.PoCreate);
+
+        if (poIds && (poIds !== undefined)) {
+          const shouldContinue = await Promise.all(poIds.map(async p =>
+            PerfTest.readEntities(`[Test run ${run}][#${variant}] Create POs`, token, p)
+              .then(_ => true)
+              .catch(error => console.log(`[Test run ${run}][#${variant}] Create POs ${error}`))
+          ));
+          if (!shouldContinue.reduce((a, c) => a && c, true)) {
+            console.log(`[Test run ${run}][#${variant}] Create POs stopped. Reading created POs failed`);
+            reject(index);
+            return;
+          }
+        } else {
+          console.log(`[Test run ${run}][#${variant}] ERROR! Create POs failed`);
+          reject(index);
+          return;
+        }
+      } catch (error) {
+        console.log(`[Test run ${run}][#${variant}] Create POs throws ${error}`);
+        reject(index);
+        return;
+      }
+    }
+
+    // Invoice processing
+    if (genIds.some(e => e === DocId.po)) {
+      try {
+        const writeStart = Date.now();
+        const invIds = await PerfTest.createInvoice(data.InvCreate);
+        if (invIds && (invIds !== undefined)) {
+          write += (Date.now() - writeStart);
+          const shouldContinue = await Promise.all(invIds.map(async v => 
+            PerfTest.readEntities(`[Test run ${run}][#${variant}] Create Invoices`, token, v).then(_ => true)
+              .catch(error => console.log(`[Test run ${run}][#${variant}] Create Invoices ${error}`))
+          ));
+          if (!shouldContinue.reduce((a, c) => a && c, true)) {
+            console.log(`[Test run ${run}][#${variant}] Create Invoices stopped. Reading created invoices failed`);
+            reject(index);
+            return;
+          }
+        } else {
+          console.log(`[Test run ${run}][#${variant}] ERROR! Create Invoices failed`);
+          reject(index);
+          return;
+        }
+      } catch (error) {
+        console.log(`[Test run ${run}][#${variant}] Create Invoices throws ${error}`);
+        reject(index);
+        return;
+      }
+    }
+
+    resolve();
+  });
+};
+
 const runTest = (run: string, index: number, variant: string, useAuth: boolean, accessToken?: string) => {
   const data = getTestData(variant);
+
+  if (isPreGenId) {
+    testRule.forEach (e => {
+      if (e === API.createInvoice) {
+        data.InvCreate.forEach(e => e.invBaseInfo.poId = preGenIds['preGenPo']);  
+      } else if (e === API.transferInvoice) {
+        data.InvNotify.forEach(e => {e.poId = preGenIds['preGenPo']; e.invoices.forEach(f => f.invoiceId = preGenIds['preGenInv'])});
+      } else if (e === API.updatePaymentStatus) {
+        data.InvFin.forEach(e => {e.invoiceId = preGenIds['preGenInv'];});
+      }
+    });
+  }
+
   let batchRes:runTestResult ={
-    resolveResult:0,
-    batchId:run,
-    urlTsRec:{},
+    res:'reject',
+    uid:variant,
+    tsRec:{},
   };
 
   return new Promise<runTestResult>(async (resolve, reject) => {
@@ -99,7 +231,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.urlTsRec.createPo = Date.now()-writeStart;
+          batchRes.tsRec.createPo = {"id":poIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Create POs failed`);
           reject(index);
@@ -128,7 +260,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.urlTsRec.editPo = Date.now()-writeStart;
+          batchRes.tsRec.PoEdit = {"id":editedPoIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Edit POs failed`);
           reject(index);
@@ -157,7 +289,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.urlTsRec.cancelPo = Date.now()-writeStart;
+          batchRes.tsRec.PoCancel = {"id":cancelledPoIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Cancel POs failed`);
           reject(index);
@@ -191,7 +323,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.urlTsRec.processPo = Date.now()-writeStart;
+          batchRes.tsRec.processPo = {"id":processPoResult[0].poId,"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Process POs failed`);
           reject(index);
@@ -220,7 +352,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.urlTsRec.createInvoice = Date.now()-writeStart;
+          batchRes.tsRec.createInvoice = {"id":invIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Create Invoices failed`);
           reject(index);
@@ -249,7 +381,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.urlTsRec.editInvoice = Date.now()-writeStart;
+          batchRes.tsRec.editInvoice = {"id":editedInvIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Edit Invoices failed`);
           reject(index);
@@ -278,7 +410,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.urlTsRec.transferInvoice = Date.now()-writeStart;
+          batchRes.tsRec.transferInvoice = {"id":notifiedInvIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Transfer Invoices failed`);
           reject(index);
@@ -312,7 +444,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.urlTsRec.confirmInvoice = Date.now()-writeStart;
+          batchRes.tsRec.confirmInvoice = {"id":confirmInvResult[0].invoiceId,"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Confirm Invoices failed`);
           reject(index);
@@ -325,7 +457,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       }
     }
 
-    if (testRule.some(e => e === API.editPo)) {
+    if (testRule.some(e => e === API.updatePaymentStatus)) {
       try {
         const writeStart = Date.now();
         const invFinInvIds = await PerfTest.updatePaymentStatus(data.InvFin);
@@ -341,7 +473,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.urlTsRec.updatePaymentStatus = Date.now()-writeStart;
+          batchRes.tsRec.updatePaymentStatus = {"id":invFinInvIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Update payment status failed`);
           reject(index);
@@ -376,9 +508,70 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       );
     }
     
+    batchRes.res='resolve';
+
+    // Grep ts from rl-org1
+    await Promise.all(Object.keys(batchRes.tsRec).map(async (key, idx) =>{
+      return consolidTsWithSrv(key, batchRes.tsRec[key],idx);
+    }))
+      .then(values => {
+        values.forEach( result => {
+          batchRes.tsRec[result.apiStr] = Object.assign(batchRes.tsRec[result.apiStr], result.recTs);
+        });
+      })
+      .catch(errors => {
+        reject(errors);
+      });
+
     resolve(batchRes);
   });
 };
+
+
+const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiStr:string, recTs:{proxyReqStarts:number, proxyReqFinish:number, proxyResStarts:number, proxyResFinish:number, writeChainStart:number, writeChainFinish:number}}> => {
+
+  let logPath:string;
+
+  if (GrepLogCfg[0].rules.some(e => e === apiStr)) {
+    logPath = GrepLogCfg[0].logPh;
+  } if (GrepLogCfg[1].rules.some(e => e === apiStr)) {
+    logPath = GrepLogCfg[1].logPh;
+  }
+
+  return new Promise<{apiStr:string, recTs:{proxyReqStarts:number, proxyReqFinish:number, proxyResStarts:number, proxyResFinish:number, writeChainStart:number, writeChainFinish:number}}> ( async (resolve, reject) => {
+    try {
+      const {stdout, stderr} = await exec(`grep "PERFTEST\\].*${tsRec['id']}" ${logPath}`);
+
+      if (stderr) {
+        reject(`error[${apiStr}-${idx}] : ${stderr}`);
+      } else if (stdout) {
+        const log = `${stdout}`;
+        const json = JSON.parse(`{${log.replace('([sniffer] processNtt.js)','').substr(log.indexOf('"proxyReqStarts'))}`);
+        const res = {'apiStr':apiStr,
+          recTs:{
+            'proxyReqStarts':json.proxyReqStarts,
+            'proxyReqFinish':json.proxyReqFinish,
+            'proxyResStarts':json.proxyResStarts,
+            'proxyResFinish':json.proxyResFinish,
+            'writeChainStart':json.writeChainStart,
+            'writeChainFinish':json.writeChainFinish,
+            'rl': `${json.proxyResFinish-tsRec['callEndPtStart']}`,
+            'redis': `${json.writeChainStart-json.proxyResFinish}`,
+            'chainOrg1': `${json.writeChainFinish-json.writeChainStart}`,
+            'chainOrg3': `${tsRec['callEndPtEnd']-json.writeChainFinish}`,
+            'ttl': `${tsRec['callEndPtEnd']-tsRec['callEndPtStart']}`
+          }
+        }
+
+        resolve(res);
+      }
+    } catch(error) {
+      console.log(`Internal error[${apiStr}-${idx}] : ${error}`);
+      reject(`error[${apiStr}-${idx}] : ${error}`);
+    }
+  })
+}
+
 
 // Start
 (async () => {
@@ -390,8 +583,14 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
   const READ_WAIT = cfg.RUNS_WAIT;
   const stamp = cfg.stamp;
   const range = cfg.range;
-  const lessAuth = cfg.lessAuth;
+  const authOn = cfg.authOn;
   const READ_RETRY = cfg.READ_RETRY;
+
+  //Validation
+  if (testRule.length === 0) {
+    console.log('Invalid FAB_TEST_RULE value, suport: ['+ Object.keys(TestRules)+']');
+    return;
+  }
 
   console.log(`Running ${RUNS} x ${BATCH} relay tests (${RUNS_WAIT}ms, ${READ_WAIT}ms x ${READ_RETRY})...`);
   totalElapsed = 0;
@@ -401,6 +600,20 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
   totalRuns = 0;
   lastElapsedTimes.splice(0, lastElapsedTimes.length);
   
+  if (cfg.STATS_DATA) {
+    try {
+      fs.accessSync(cfg.STATS_DATA, fs.constants.F_OK);
+      fs.unlinkSync(cfg.STATS_DATA);
+    } catch (err) {
+      if (!err.message.includes('no such file')) console.log(err);
+    }
+  }
+
+  //Pre Gen PO & Inv
+  if (isPreGenId) {
+    await preRunTest('PRE', 0, `${stamp}PREGEN`, (authOn === 'no')?false:true);
+  }
+
   for (let i = 0; i < RUNS; i ++) {
     const variants = [];
     for (let j = 0; j < BATCH; j ++) {
@@ -411,11 +624,19 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
     const run = (''+(i+1)).padStart(range, '0');
     const runsWait = lastElapsedTimes.length <= 0 ?
       RUNS_WAIT :
-      (Math.ceil(lastElapsedTimes.reduce((a, c) => a + c, 0) / lastElapsedTimes.length) * 1000);
+      Math.ceil(lastElapsedTimes.reduce((a, c) => a + c, 0) / lastElapsedTimes.length);
     const authStarts = Date.now();
 
+    if (cfg.STATS_DATA) {
+      const d = new Date();
+      const dttm = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString();
+      fs.writeFile(cfg.STATS_DATA, `${dttm.substring(0, 10)} ${dttm.substring(11, 19)}|${runsWait}\n`, { flag: 'a' }, err => {
+        if (err) console.log('Error writing statistic data file', err);
+      });
+    }
+
     let token;
-    if (lessAuth === 'yes') {
+    if (authOn === 'less') {
       try {
         token = await PerfTest.authenticate(`u${stamp}${run}`, `${stamp}${run}@fake.it`, 'p@ssw0rd');
       } catch (error) {
@@ -426,38 +647,39 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
         console.log(`ERROR! Get access token failed for user u${stamp}${run}`);
         continue;
       }
-      console.log(`[Test run ${run}][Ran for ${((Date.now() - stamp)/1000).toFixed(3)}s] Starting, next batch in ${runsWait}ms, access token: ${token.substr(0, 70)}...`);
+      console.log(`[Test run ${run}][Ran for ${((Date.now() - stamp)/1000).toFixed(3)}s] Starting, next batch in ${runsWait}s, access token: ${token.substr(0, 70)}...`);
       totalAuth += ((Date.now() - authStarts) / 1000);
     } else {
-      console.log(`[Test run ${run}][Ran for ${((Date.now() - stamp)/1000).toFixed(3)}s] Starting, next batch in ${runsWait}ms...`);
+      console.log(`[Test run ${run}][Ran for ${((Date.now() - stamp)/1000).toFixed(3)}s] Starting, next batch in ${runsWait}s...`);
     }
 
     Promise.all(variants.map(async (v, i) => {
-      if (lessAuth === 'yes') {
+      if (authOn === 'less') {
         return runTest(run, i, v, true, token);
-      } else if (lessAuth === 'off') {
+      } else if (authOn === 'no') {
         return runTest(run, i, v, false);
       } else {
         return runTest(run, i, v, true);
       }
     }))
-      .then(values => {
+      .then(async (values) => {
 
         values.forEach( batchRes => {
-          console.log("Details of Each PO(s) " + JSON.stringify(batchRes));
+          console.log(`[Test run ${run}][Breakdown]` + JSON.stringify(batchRes));
         });
-
+        
         testRule.forEach(e => {
-          console.log(`[Test run ${run}][Stat. of ${e}] `
-          + `Min: ${Math.min.apply(Math, values.map(function(o) { return o.urlTsRec[e]; }))}ms, `
-          + `Max: ${Math.max.apply(Math, values.map(function(o) { return o.urlTsRec[e]; }))}ms, `
-          + `Avg: ${values.reduce((sum, cur) => sum+cur.urlTsRec[e], 0) / values.length}ms, `  
+          console.log(`[Test run ${run}][Stat. of ${e}]`
+          + ` rl:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].rl; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].rl; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt((cur.tsRec[e].rl)), 0) / values.length)}ms}`
+          + ` redis:[Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].redis), 0) / values.length)}ms}`
+          + ` chainOrg1:[Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg1), 0) / values.length)}ms}`
+          + ` chainOrg3:[Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg3), 0) / values.length)}ms}`
           // + `P95: ${percentile(95, values.map(o => o.urlTsRec[e]))}`
           );
         });
-      
+
         // Promise.all will resolve only if all promises resolved
-        if (lessAuth === 'yes') {
+        if (authOn === 'less') {
           console.log(`[Test run ${run}][Elapsed time ${((Date.now() - authStarts)/1000).toFixed(3)}s] Completed: ${values.length} (A: ${Math.round(totalAuth/(i+1))}s)`);
         } else {
           console.log(`[Test run ${run}][Elapsed time ${((Date.now() - authStarts)/1000).toFixed(3)}s] Completed: ${values.length}`);
@@ -466,6 +688,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       .catch(errors => {
         console.log(`[Test run ${run}][Elapsed time ${((Date.now() - authStarts)/1000).toFixed(3)}s] Error: ${errors}`);
       });
-    await new Promise(resolve => setTimeout(resolve, runsWait));
+
+    await new Promise(resolve => setTimeout(resolve, runsWait * 1000));
   }
 })();
