@@ -27,14 +27,35 @@ interface runTestResult {
   tsRec:{[k:string]:any},
 }
 
-const GrepLogCfg:{logPh:string, rules:API[]}[] = [
-  { logPh: (process.env.RL_ORG1_LOG_PATH || './log/all.log')
-   ,rules:[API.createInvoice, API.editInvoice, API.transferInvoice, API.confirmInvoice, API.updatePaymentStatus]
-  },
-  { logPh: (process.env.RL_ORG2_LOG_PATH || './log/all.log')
-    ,rules:[API.createPo, API.editPo, API.cancelPo, API.processPo]
-  },
-]
+const GrepLogCfg:{[key in keyof typeof API]: {addSrhStrRegExp:string, logPath:string}} = {
+  [API.createInvoice]:        { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[4]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: (process.env.RL_ORG1_LOG_PATH || './log/all.log'),
+                              },
+  [API.editInvoice]:          { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[4]}\\",\\"method\\":\\"PUT\\"`,
+                                logPath:(process.env.RL_ORG1_LOG_PATH || './log/all.log'),
+                              },
+  [API.transferInvoice]:      { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[5]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: (process.env.RL_ORG1_LOG_PATH || './log/all.log'),
+                              },
+  [API.confirmInvoice]:       { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[7]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
+                              },
+  [API.updatePaymentStatus]:  { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[8]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
+                              },
+  [API.createPo]:             { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[1]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
+                              },
+  [API.editPo]:               { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[1]}\\",\\"method\\":\\"PUT\\"`,
+                                logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
+                              },
+  [API.cancelPo]:             { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[2]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
+                              },
+  [API.processPo]:            { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[3]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: (process.env.RL_ORG1_LOG_PATH || './log/all.log'),
+                              },
+}
 
 const TestRules = {
   createPo:           { preGenId:[]
@@ -57,12 +78,10 @@ const TestRules = {
                       , rules:[API.updatePaymentStatus]},
   all:                { preGenId:[]
                       , rules:[API.createPo, API.editPo, API.cancelPo, API.processPo, API.createInvoice, API.editInvoice, API.transferInvoice, API.confirmInvoice, API.updatePaymentStatus]},
-  custom1:            { preGenId:[]
-                      , rules:[API.createPo, API.createInvoice, API.updatePaymentStatus]},
 }
 
 const cfgTestRun = TestRules[process.env.FAB_TEST_RULE || 'all'];
-const isPreGenId = cfgTestRun? (cfgTestRun.preGenId > 0) : false;
+const isPreGenId = cfgTestRun? (cfgTestRun.preGenId.length > 0) : false;
 const testRule = cfgTestRun?cfgTestRun.rules : [];
 const lastElapsedTimes = [];
 
@@ -231,7 +250,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.tsRec.createPo = {"id":poIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
+          batchRes.tsRec[API.createPo] = {"id":poIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Create POs failed`);
           reject(index);
@@ -260,7 +279,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.tsRec.PoEdit = {"id":editedPoIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
+          batchRes.tsRec[API.editPo] = {"id":editedPoIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Edit POs failed`);
           reject(index);
@@ -289,7 +308,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.tsRec.PoCancel = {"id":cancelledPoIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
+          batchRes.tsRec[API.cancelPo] = {"id":cancelledPoIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Cancel POs failed`);
           reject(index);
@@ -323,7 +342,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.tsRec.processPo = {"id":processPoResult[0].poId,"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
+          batchRes.tsRec[API.processPo] = {"id":processPoResult[0].poId,"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Process POs failed`);
           reject(index);
@@ -352,7 +371,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.tsRec.createInvoice = {"id":invIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
+          batchRes.tsRec[API.createInvoice]  = {"id":invIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Create Invoices failed`);
           reject(index);
@@ -381,7 +400,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.tsRec.editInvoice = {"id":editedInvIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
+          batchRes.tsRec[API.editInvoice] = {"id":editedInvIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Edit Invoices failed`);
           reject(index);
@@ -410,7 +429,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.tsRec.transferInvoice = {"id":notifiedInvIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
+          batchRes.tsRec[API.transferInvoice] = {"id":notifiedInvIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Transfer Invoices failed`);
           reject(index);
@@ -444,7 +463,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.tsRec.confirmInvoice = {"id":confirmInvResult[0].invoiceId,"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
+          batchRes.tsRec[API.confirmInvoice] = {"id":confirmInvResult[0].invoiceId,"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Confirm Invoices failed`);
           reject(index);
@@ -473,7 +492,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
             reject(index);
             return;
           }
-          batchRes.tsRec.updatePaymentStatus = {"id":invFinInvIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
+          batchRes.tsRec[API.updatePaymentStatus] = {"id":invFinInvIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
         } else {
           console.log(`[Test run ${run}][#${variant}] ERROR! Update payment status failed`);
           reject(index);
@@ -530,40 +549,37 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
 
 const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiStr:string, recTs:{proxyReqStarts:number, proxyReqFinish:number, proxyResStarts:number, proxyResFinish:number, writeChainStart:number, writeChainFinish:number}}> => {
 
-  let logPath:string;
-
-  if (GrepLogCfg[0].rules.some(e => e === apiStr)) {
-    logPath = GrepLogCfg[0].logPh;
-  } if (GrepLogCfg[1].rules.some(e => e === apiStr)) {
-    logPath = GrepLogCfg[1].logPh;
-  }
-
   return new Promise<{apiStr:string, recTs:{proxyReqStarts:number, proxyReqFinish:number, proxyResStarts:number, proxyResFinish:number, writeChainStart:number, writeChainFinish:number}}> ( async (resolve, reject) => {
     try {
-      const {stdout, stderr} = await exec(`grep "PERFTEST\\].*${tsRec['id']}" ${logPath}`);
+      const {stdout, stderr} = await exec(`grep "PERFTEST\\].*${GrepLogCfg[apiStr].addSrhStrRegExp}.*${tsRec['id']}" ${GrepLogCfg[apiStr].logPath}`);
 
       if (stderr) {
         reject(`error[${apiStr}-${idx}] : ${stderr}`);
       } else if (stdout) {
         const log = `${stdout}`;
-        const json = JSON.parse(`{${log.replace('([sniffer] processNtt.js)','').substr(log.indexOf('"proxyReqStarts'))}`);
-        const res = {'apiStr':apiStr,
-          recTs:{
-            'proxyReqStarts':json.proxyReqStarts,
-            'proxyReqFinish':json.proxyReqFinish,
-            'proxyResStarts':json.proxyResStarts,
-            'proxyResFinish':json.proxyResFinish,
-            'writeChainStart':json.writeChainStart,
-            'writeChainFinish':json.writeChainFinish,
-            'rl': `${json.proxyResFinish-tsRec['callEndPtStart']}`,
-            'redis': `${json.writeChainStart-json.proxyResFinish}`,
-            'chainOrg1': `${json.writeChainFinish-json.writeChainStart}`,
-            'chainOrg3': `${tsRec['callEndPtEnd']-json.writeChainFinish}`,
-            'ttl': `${tsRec['callEndPtEnd']-tsRec['callEndPtStart']}`
+        try {
+          const json = JSON.parse(`{${log.replace('([sniffer] processNtt.js)','').substr(log.indexOf('"proxyReqStarts'))}`);
+          const res = {'apiStr':apiStr,
+            recTs:{
+              'proxyReqStarts':json.proxyReqStarts,
+              'proxyReqFinish':json.proxyReqFinish,
+              'proxyResStarts':json.proxyResStarts,
+              'proxyResFinish':json.proxyResFinish,
+              'writeChainStart':json.writeChainStart,
+              'writeChainFinish':json.writeChainFinish,
+              'rl': `${json.proxyResFinish-tsRec['callEndPtStart']}`,
+              'redis': `${json.writeChainStart-json.proxyResFinish}`,
+              'chainOrg1': `${json.writeChainFinish-json.writeChainStart}`,
+              'chainOrg3': `${tsRec['callEndPtEnd']-json.writeChainFinish}`,
+              'ttl': `${tsRec['callEndPtEnd']-tsRec['callEndPtStart']}`
+            }
           }
+  
+          resolve(res);
+        } catch (error) {
+          console.log(`Internal error[${apiStr}-${idx}] grep : ${log}`);
+          throw error;
         }
-
-        resolve(res);
       }
     } catch(error) {
       console.log(`Internal error[${apiStr}-${idx}] : ${error}`);
@@ -663,18 +679,18 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
       }
     }))
       .then(async (values) => {
-
+        // Print Breakdown
         values.forEach( batchRes => {
           console.log(`[Test run ${run}][Breakdown]` + JSON.stringify(batchRes));
         });
         
+        // Calculate and Print Stat.
         testRule.forEach(e => {
           console.log(`[Test run ${run}][Stat. of ${e}]`
           + ` rl:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].rl; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].rl; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt((cur.tsRec[e].rl)), 0) / values.length)}ms}`
           + ` redis:[Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].redis), 0) / values.length)}ms}`
           + ` chainOrg1:[Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg1), 0) / values.length)}ms}`
           + ` chainOrg3:[Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg3), 0) / values.length)}ms}`
-          // + `P95: ${percentile(95, values.map(o => o.urlTsRec[e]))}`
           );
         });
 
