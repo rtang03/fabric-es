@@ -56,30 +56,30 @@ jobs:
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-test.gw-2.sh
 # Comment out the step to send docker images to Google Registry.
 # Below step needs re-test, if uncomment
-      - name: Setup Google account
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-        with:
-          version: '270.0.0'
-          service_account_email: ${{ secrets.GKE_EMAIL }}
-          service_account_key: ${{ secrets.GKE_KEY }}
-      - name: Authenticate Google account
-        run: gcloud auth configure-docker
-      - name: Rename image tag for auth-server
-        run: |
-          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-          docker tag fabric-es/auth-server:1.0 "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/auth-server:"$TAG"
-      - name: Publish auth-server image
-        run: |
-          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-          docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/auth-server:"$TAG"
-      - name: Rename image tag for gw-org1
-        run: |
-          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-          docker tag fabric-es/gw-org1:1.0  "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/gw-org1:"$TAG"
-      - name: Publish gw-org1 image
-        run: |
-          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-          docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/gw-org1:"$TAG"
+#      - name: Setup Google account
+#        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+#        with:
+#          version: '270.0.0'
+#          service_account_email: ${{ secrets.GKE_EMAIL }}
+#          service_account_key: ${{ secrets.GKE_KEY }}
+#      - name: Authenticate Google account
+#        run: gcloud auth configure-docker
+#      - name: Rename image tag for auth-server
+#        run: |
+#          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
+#          docker tag fabric-es/auth-server:1.0 "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/auth-server:"$TAG"
+#      - name: Publish auth-server image
+#        run: |
+#          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
+#          docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/auth-server:"$TAG"
+#      - name: Rename image tag for gw-org1
+#        run: |
+#          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
+#          docker tag fabric-es/gw-org1:1.0  "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/gw-org1:"$TAG"
+#      - name: Publish gw-org1 image
+#        run: |
+#          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
+#          docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/gw-org1:"$TAG"
       - name: Create Release
         uses: docker://antonyurchenko/git-release:latest
         env:
