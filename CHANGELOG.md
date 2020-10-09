@@ -1,6 +1,9 @@
 ## [0.6.6] - 2020-10-9
 ### Modified
 - improved release to publish to docker hub
+- fix issue with logging mechanism opening too many log files
+- enhance automated tester for long running robustness tests 
+- clean-up pboc-etc domain model for production release
 
 ## [0.6.5] - 2020-8-18
 ### Modified
