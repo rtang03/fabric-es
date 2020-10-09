@@ -1,3 +1,7 @@
+## [0.6.6] - 2020-10-9
+### Modified
+- improved release to publish to docker hub
+
 ## [0.6.5] - 2020-8-18
 ### Modified
 - debugged version - replay package
