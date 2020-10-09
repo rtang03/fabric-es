@@ -3,7 +3,7 @@ on:
   release:
     types: [published]
 jobs:
-  push_to_registry:
+  dockerhub:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
@@ -21,9 +21,12 @@ jobs:
       - name: prepare build context - tester
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.tester.sh
       - name: Push to Docker Hub
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v2
         with:
           context: /home/runner/work/fabric-es/fabric-es/packages/auth/build
           file: /home/runner/work/fabric-es/fabric-es/packages/auth/Dockerfile
-          repository: hktfp5/rl-org1
-          tag_with_ref: true
+          push: true
+          tags: |
+            hktfp5/auth-server:latest
+#          repository: hktfp5/rl-org1
+#          tag_with_ref: true
