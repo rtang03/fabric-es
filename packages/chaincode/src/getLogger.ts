@@ -12,18 +12,6 @@ export const getLogger = (name: string, sendToConsole = true) => {
   } else {
     let transportArray: any[] = [
       new transports.File({ filename: `./logs/all.log` }),
-      new transports.File({
-        filename: `./logs/error.log`,
-        level: 'error',
-      }),
-      new transports.File({
-        filename: `./logs/debug.log`,
-        level: 'debug',
-      }),
-      new transports.File({
-        filename: `./logs/warn.log`,
-        level: 'warn',
-      }),
     ];
 
     if (sendToConsole) transportArray = [new transports.Console(), ...transportArray];
