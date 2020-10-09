@@ -121,7 +121,7 @@ export const createMockServer = (key: string, cert: string, isHttp?: boolean, si
     });
   };
 
-  return { server, shutdown };
+  return { server, shutdown, isHttp };
 };
 
 export const getTestData = (seq: string) => {

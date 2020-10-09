@@ -17,6 +17,7 @@ const EndPoints = [
 ];
 type EndPoints = typeof EndPoints[number];
 
+const poto = (!process.env.SERVER_KEY || !process.env.SERVER_CERT) ? 'http://' : 'https://';
 const BATCH = parseInt(process.env.BATCH_NUM, 10) || 5; // Number of tests per run
 const RUNS = parseInt(process.env.RUNS_NUM, 10) || 3; // Total number of runs
 const RUNS_WAIT = parseInt(process.env.RUNS_WAIT, 10) || 30000; // Time to wait before sending the next batch of test (ms)
@@ -24,8 +25,8 @@ const READ_RETRY = parseInt(process.env.READ_RETRY, 10) || 20; // Number of retr
 const READ_WAIT = parseInt(process.env.READ_WAIT, 10) || 3000; // Time to wait between each read retry
 const athreg = `http://${process.env.AUTH_HOST3}:${process.env.AUTH_PORT3}/account`;
 const athlog = `http://${process.env.AUTH_HOST3}:${process.env.AUTH_PORT3}/account/login`;
-const relay1 = `https://${process.env.RELAY_HOST1}:${process.env.RELAY_PORT1}`; // ETC side
-const relay2 = `https://${process.env.RELAY_HOST2}:${process.env.RELAY_PORT2}`; // PBOC side
+const relay1 = `${poto}${process.env.RELAY_HOST1}:${process.env.RELAY_PORT1}`; // ETC side
+const relay2 = `${poto}${process.env.RELAY_HOST2}:${process.env.RELAY_PORT2}`; // PBOC side
 const qryhdr = `http://${process.env.QUERY_HOST}:${process.env.QUERY_PORT}/graphql`; // FDI node
 
 const STATS_DATA = process.env.STATS_DATA;
@@ -37,7 +38,7 @@ const authOn = process.env.AUTH_ON || 'yes';
 
 const range = Math.round(Math.log10(RUNS * BATCH)) + 1;
 const stamp = Date.now();
-const agent = new https.Agent({ rejectUnauthorized: false });
+const agent = (poto === 'https://') ? new https.Agent({ rejectUnauthorized: false }) : undefined;
 
 const authenticate = (username, email, password) => {
   return new Promise<string>(async (resolve, reject) => {

@@ -8,7 +8,7 @@ const verbose = process.env.SERVER_MSGS;
 
 (async () => {
   console.log('♨️♨️  Starting mock server...');
-  const { server, shutdown } = createMockServer(key, cert, (!key || !cert), !verbose);
+  const { server, shutdown, isHttp } = createMockServer(key, cert, (!key || !cert), !verbose);
 
   process.on('SIGINT', async () => {
     process.exit(await shutdown());
@@ -24,7 +24,7 @@ const verbose = process.env.SERVER_MSGS;
   });
 
   server.listen(PORT, () => {
-    console.log(`🚀 mock server ready at ${PORT}`);
+    console.log(`🚀 ${isHttp ? '' : 'secured '}mock server ready at ${PORT}`);
   });
 })().catch(error => {
   console.error(error);
