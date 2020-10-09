@@ -34,6 +34,12 @@ Step 0 is already complete; above information is for documentation purpose only.
 _step 1: Manually update Changelog_
 Update the changelog.md with right version tag. The version tag in step 3 must be the exist in changelog.
 
+Update the release number under `deployments/dev-net/scripts/setup.sh`
+
+```shell script
+export RELEASE=0.6.6
+```
+
 _step 2: Commit and push all changes_
 
 _step 3: create release tag_
