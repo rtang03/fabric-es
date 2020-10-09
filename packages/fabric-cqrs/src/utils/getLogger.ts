@@ -35,10 +35,7 @@ export const getLogger: (
 
     if (logTarget & FILE) {
       transportArray.push(
-        new transports.File({ filename: `./logs/all.log` }),
-        new transports.File({ filename: `./logs/error.log`, level: 'error' }),
-        new transports.File({ filename: `./logs/debug.log`, level: 'debug' }),
-        new transports.File({ filename: `./logs/warn.log`, level: 'warn' }),
+        new transports.File({ filename: `./logs/app.log` }),
       );
     }
     if (logTarget & CONSOLE)

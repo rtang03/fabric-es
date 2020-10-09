@@ -21,7 +21,7 @@ export const createSubscription = (
       return new Promise<{ read: number; count: number }>(async (resolve, reject) => {
         // First read messages already post to redis before the subscription starts
         const msgs = await client.xrange(topic, '-', Date.now());
-        let read = 0;
+        // let read = 0;
         for (const str of msgs) {
           // if (callback) {
           //   try {
@@ -55,7 +55,7 @@ export const createSubscription = (
                 if (count <= 0)
                   reject(new Error(`[Subscription] subsciibing to ${topic} failed, number of subscribers == ${count}`));
                 else
-                  resolve({ read, count });
+                  resolve({ read: 0, count });
               })
               .catch(error => reject(new Error(`[Subscription] subscribing to ${topic} failed: ${error}`)));;
           },
@@ -82,9 +82,9 @@ export const createSubscription = (
                 if (callback) {
                   try {
                     const obj = JSON.parse(msg[1][1]);
-                    if (isReqRes(obj))
-                    await callback(event.channel, obj);
-                    else {
+                    if (isReqRes(obj)) {
+                      await callback(event.channel, obj);
+                    } else {
                       logger.warn(`Received message of unknown type: '${msg[1][1]}'`);
                       await callback(event.channel, null, msg[1][1]);
                     }
