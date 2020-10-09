@@ -48,12 +48,12 @@ jobs:
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh
       - name: Build relay image
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.relay.sh
-#      - name: Build ui images
-#        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.ui-control.sh org1 org2
-#      - name: Build org1 org2 images
-#        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.gw.sh org1 org2
-#      - name: Run multi-org integration test
-#        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-test.gw-2.sh
+      - name: Build ui images
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.ui-control.sh org1 org2
+      - name: Build org1 org2 images
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.gw.sh org1 org2
+      - name: Run multi-org integration test
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-test.gw-2.sh
 # Comment out the step to send docker images to Google Registry.
 # Below step needs re-test, if uncomment
 #      - name: Setup Google account
@@ -99,23 +99,3 @@ jobs:
 #        run: yarn run publish:lib
 #        env:
 #          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: echo "Build image done"
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Login to Dockerhub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: prepare build context - auth server
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./build-auth.sh
-      - name: prepare build context - tester
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.tester.sh
-      - name: Push to Docker Hub
-        uses: docker/build-push-action@v2
-        with:
-          context: /home/runner/work/fabric-es/fabric-es/packages/auth/build
-          file: /home/runner/work/fabric-es/fabric-es/packages/auth/Dockerfile
-          push: true
-          tags: |
-            hktfp5/auth-server:latest
