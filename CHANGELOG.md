@@ -1,3 +1,7 @@
+## [0.7.0] - 2020-10-9
+### Modified
+- release candidate for pboc production
+
 ## [0.6.6] - 2020-10-9
 ### Modified
 - improved release to publish to docker hub
