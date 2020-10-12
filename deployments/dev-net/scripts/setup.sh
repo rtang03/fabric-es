@@ -19,7 +19,7 @@ export UI_CONTROL_IMAGE=fabric-es/ui-control
 export ROOT_DIR=$CURRENT_DIR/../..
 
 export LOG_LEVEL=info
-export LOG_TARGET=console
+export LOG_TARGET="console|file"
 
 export CHAINCODE=$ROOT_DIR/packages/chaincode
 

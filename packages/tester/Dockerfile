@@ -23,7 +23,7 @@ RUN apk add --no-cache curl \
   && npm install -g jest \
   && apk del .build-deps
 
-USER node
+USER root
 
 VOLUME /var/keys/
 

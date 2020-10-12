@@ -28,6 +28,30 @@ case $1 in
     exec node ./dist/relay/relay.ptest.js
     ;;
 
+  fab)
+    echo "Starting 3 orgs relay test..."
+    exec node ./dist/relay/mockServer.js &
+
+    TIMEOUT=80
+    while [ $TIMEOUT -gt 0 ]; do
+      RESULT=`curl -k $2/ready | grep "Ready"`
+      if [ ! -z "$RESULT" ]; then
+        echo "Mock server found"
+        break;
+      fi
+      TIMEOUT=$(( TIMEOUT - 1 ))
+      echo "$TIMEOUT - waiting for mock server..."
+      sleep 1
+    done
+
+    if [ $TIMEOUT -le 0 ]; then
+      echo "Timed out"
+      exit 1
+    fi
+
+    exec node ./dist/fab/fab.ptest.js
+    ;;
+
   ref-impl)
     COUNT=0
     HOSTS=

@@ -1,9 +1,5 @@
 require('dotenv').config({ path: './.env' });
-import { Console, exception } from 'console';
 import fs from 'fs';
-import https from 'https';
-import { curry } from 'lodash';
-import fetch from 'node-fetch';
 import { getTestData } from '../relay/mockUtils';
 import { PerfTest, API } from './ptest';
 const util = require('util');
@@ -65,15 +61,15 @@ const TestRules = {
   // cancelPo:           { preGenId:['po']
   //                     , rules:[API.cancelPo]},
   // processPo:          { preGenId:['po']
-                      // , rules:[API.processPo]}, 
+  //                     , rules:[API.processPo]}, 
   createInvoice:      { preGenId:[DocId.po]
                       , rules:[API.createInvoice]},  
   // editInvoice:        { preGenId:['po','inv']
   //                     , rules:[API.editInvoice]},
   transferInvoice:    { preGenId:[DocId.po, DocId.inv]
                       , rules:[API.transferInvoice]},
-  // confirmInvoice:     { preGenId:['po','inv']
-  //                     , rules:[API.confirmInvoice]},
+  confirmInvoice:     { preGenId:[DocId.po, DocId.inv]
+                      , rules:[API.confirmInvoice]},
   updatePaymentStatus:{ preGenId:[DocId.po, DocId.inv]
                       , rules:[API.updatePaymentStatus]},
   all:                { preGenId:[]
@@ -196,7 +192,9 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
         data.InvNotify.forEach(e => {e.poId = preGenIds['preGenPo']; e.invoices.forEach(f => f.invoiceId = preGenIds['preGenInv'])});
       } else if (e === API.updatePaymentStatus) {
         data.InvFin.forEach(e => {e.invoiceId = preGenIds['preGenInv'];});
-      }
+      } else if (e === API.confirmInvoice) {
+        data.InvResult.forEach(e => {e.invoiceId = preGenIds['preGenInv'];});
+      } 
     });
   }
 
@@ -686,11 +684,11 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
         
         // Calculate and Print Stat.
         testRule.forEach(e => {
-          console.log(`[Test run ${run}][Stat. of ${e}]`
+          console.log(`[Test run ${run}][Perf Stat. of ${e}]`
           + ` rl:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].rl; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].rl; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt((cur.tsRec[e].rl)), 0) / values.length)}ms}`
-          + ` redis:[Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].redis), 0) / values.length)}ms}`
-          + ` chainOrg1:[Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg1), 0) / values.length)}ms}`
-          + ` chainOrg3:[Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg3), 0) / values.length)}ms}`
+          + ` redis:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].redis), 0) / values.length)}ms}`
+          + ` chainOrg1:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg1), 0) / values.length)}ms}`
+          + ` chainOrg3:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg3), 0) / values.length)}ms}`
           );
         });
 
