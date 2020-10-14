@@ -72,6 +72,12 @@ const TestRules = {
                       , rules:[API.confirmInvoice]},
   updatePaymentStatus:{ preGenId:[DocId.po, DocId.inv]
                       , rules:[API.updatePaymentStatus]},
+  enqPo:              { preGenId:[DocId.po]
+                      , isEnqOnly:true
+                      , rules:[API.createPo]},
+  enqInv:             { preGenId:[DocId.po, DocId.inv]
+                      , isEnqOnly:true
+                      , rules:[API.createInvoice]},
   all:                { preGenId:[]
                       , rules:[API.createPo, API.editPo, API.cancelPo, API.processPo, API.createInvoice, API.editInvoice, API.transferInvoice, API.confirmInvoice, API.updatePaymentStatus]},
 }
@@ -79,7 +85,9 @@ const TestRules = {
 const cfgTestRun = TestRules[process.env.FAB_TEST_RULE || 'all'];
 const isPreGenId = cfgTestRun? (cfgTestRun.preGenId.length > 0) : false;
 const testRule = cfgTestRun?cfgTestRun.rules : [];
+const isEnqOnly = cfgTestRun? (cfgTestRun.isEnqOnly || false):false;
 const lastElapsedTimes = [];
+const isShowBkdn:boolean = (process.env.FAB_SHOW_BKDN || 'true') === "true";
 
 let preGenIds = {};
 
@@ -118,7 +126,6 @@ const preRunTest = (run: string, index: number, variant: string, useAuth: boolea
 
     const procStarts = Date.now();
     let write = 0;
-    // console.log(`[Test run ${run}][#${variant}] Starting (ts ${procStarts})${(!accessToken && useAuth) ? `, access token: ${token.substr(0, 70)}...` : '...'}`);
 
     // PO processing
     if (genIds.some(e => e === DocId.po)) {
@@ -186,8 +193,15 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
 
   if (isPreGenId) {
     testRule.forEach (e => {
-      if (e === API.createInvoice) {
-        data.InvCreate.forEach(e => e.invBaseInfo.poId = preGenIds['preGenPo']);  
+      if (e === API.createPo) {
+        data.PoCreate.forEach(e => e.poBaseInfo.poId = preGenIds['preGenPo']);  
+      } else if (e === API.createInvoice) {
+        data.InvCreate.forEach(e => {
+          e.invBaseInfo.poId = preGenIds['preGenPo'];
+          if (preGenIds['preGenInv']) {
+           e.invBaseInfo.invoiceId = preGenIds['preGenInv'];
+          }
+        });
       } else if (e === API.transferInvoice) {
         data.InvNotify.forEach(e => {e.poId = preGenIds['preGenPo']; e.invoices.forEach(f => f.invoiceId = preGenIds['preGenInv'])});
       } else if (e === API.updatePaymentStatus) {
@@ -234,7 +248,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
     if (testRule.some(e => e === API.createPo)) {
       try {
         const writeStart = Date.now();
-        const poIds = await PerfTest.createPo(data.PoCreate);
+        const poIds = (isEnqOnly)?data.PoCreate.map(d => d.poBaseInfo.poId):await PerfTest.createPo(data.PoCreate);
 
         if (poIds && (poIds !== undefined)) {
           write += (Date.now() - writeStart);
@@ -357,7 +371,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
     if (testRule.some(e => e === API.createInvoice)) {
       try {
         const writeStart = Date.now();
-        const invIds = await PerfTest.createInvoice(data.InvCreate);
+        const invIds = (isEnqOnly)?data.InvCreate.map(d => d.invBaseInfo.invoiceId):await PerfTest.createInvoice(data.InvCreate);
         if (invIds && (invIds !== undefined)) {
           write += (Date.now() - writeStart);
           const shouldContinue = await Promise.all(invIds.map(async v => 
@@ -528,17 +542,19 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
     batchRes.res='resolve';
 
     // Grep ts from rl-org1
-    await Promise.all(Object.keys(batchRes.tsRec).map(async (key, idx) =>{
-      return consolidTsWithSrv(key, batchRes.tsRec[key],idx);
-    }))
-      .then(values => {
-        values.forEach( result => {
-          batchRes.tsRec[result.apiStr] = Object.assign(batchRes.tsRec[result.apiStr], result.recTs);
+    if (!isEnqOnly) {
+      await Promise.all(Object.keys(batchRes.tsRec).map(async (key, idx) =>{
+        return consolidTsWithSrv(key, batchRes.tsRec[key],idx);
+      }))
+        .then(values => {
+          values.forEach( result => {
+            batchRes.tsRec[result.apiStr] = Object.assign(batchRes.tsRec[result.apiStr], result.recTs);
+          });
+        })
+        .catch(errors => {
+          reject(errors);
         });
-      })
-      .catch(errors => {
-        reject(errors);
-      });
+    } 
 
     resolve(batchRes);
   });
@@ -548,14 +564,18 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
 const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiStr:string, recTs:{proxyReqStarts:number, proxyReqFinish:number, proxyResStarts:number, proxyResFinish:number, writeChainStart:number, writeChainFinish:number}}> => {
 
   return new Promise<{apiStr:string, recTs:{proxyReqStarts:number, proxyReqFinish:number, proxyResStarts:number, proxyResFinish:number, writeChainStart:number, writeChainFinish:number}}> ( async (resolve, reject) => {
-    try {
-      const {stdout, stderr} = await exec(`grep "PERFTEST\\].*${GrepLogCfg[apiStr].addSrhStrRegExp}.*${tsRec['id']}" ${GrepLogCfg[apiStr].logPath}`);
 
-      if (stderr) {
-        reject(`error[${apiStr}-${idx}] : ${stderr}`);
-      } else if (stdout) {
-        const log = `${stdout}`;
-        try {
+    let maxRun:number = 3;
+    let isStop:boolean = false;
+
+    while (maxRun >= 1 && !isStop) {
+      try {
+        const {stdout, stderr} = await exec(`grep "PERFTEST\\].*${GrepLogCfg[apiStr].addSrhStrRegExp}.*${tsRec['id']}" ${GrepLogCfg[apiStr].logPath}`);
+  
+        if (stderr) {
+          throw new Error(`error[${apiStr}-${idx}] : ${stderr}`);
+        } else if (stdout) {
+          const log = `${stdout}`;
           const json = JSON.parse(`{${log.replace('([sniffer] processNtt.js)','').substr(log.indexOf('"proxyReqStarts'))}`);
           const res = {'apiStr':apiStr,
             recTs:{
@@ -574,15 +594,19 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
           }
   
           resolve(res);
-        } catch (error) {
-          console.log(`Internal error[${apiStr}-${idx}] grep : ${log}`);
-          throw error;
+          isStop = true;
+          break;
+        }
+      } catch(error) {
+        if (--maxRun > 0 ) {
+          console.log(`GrepLog error[${apiStr}-${idx}-retrying] : ${error}`);
+          await new Promise(resolve => setTimeout(resolve, 100));
+        } else {
+          isStop = true;
+          reject(`error[${apiStr}-${idx}] : ${error}`);
         }
       }
-    } catch(error) {
-      console.log(`Internal error[${apiStr}-${idx}] : ${error}`);
-      reject(`error[${apiStr}-${idx}] : ${error}`);
-    }
+    } 
   })
 }
 
@@ -678,19 +702,30 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
     }))
       .then(async (values) => {
         // Print Breakdown
-        values.forEach( batchRes => {
-          console.log(`[Test run ${run}][Breakdown]` + JSON.stringify(batchRes));
-        });
+        if (isShowBkdn) {
+          values.forEach( batchRes => {
+            console.log(`[Test run ${run}][Breakdown]` + JSON.stringify(batchRes));
+          });
+        }
         
         // Calculate and Print Stat.
-        testRule.forEach(e => {
-          console.log(`[Test run ${run}][Perf Stat. of ${e}]`
-          + ` rl:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].rl; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].rl; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt((cur.tsRec[e].rl)), 0) / values.length)}ms}`
-          + ` redis:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].redis), 0) / values.length)}ms}`
-          + ` chainOrg1:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg1), 0) / values.length)}ms}`
-          + ` chainOrg3:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg3), 0) / values.length)}ms}`
-          );
-        });
+        if (!isEnqOnly) {
+          testRule.forEach(e => {
+            console.log(`[Test run ${run}][Perf Stat. of ${e},]`
+            + `NoTrans: ${values.length}`
+            + `, rl:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].rl; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].rl; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt((cur.tsRec[e].rl)), 0) / values.length)}ms}`
+            + `, redis:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].redis), 0) / values.length)}ms}`
+            + `, chainOrg1:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg1), 0) / values.length)}ms}`
+            + `, chainOrg3:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg3), 0) / values.length)}ms}`
+            );
+          });
+        } else {
+          testRule.forEach(e => {
+            console.log(`[Test run ${run}][Perf Stat. of ${process.env.FAB_TEST_RULE}]`
+            + ` NoTrans: ${values.length}, Min: ${Math.min.apply(Math, values.map(function(o) { return (o.tsRec[e].callEndPtEnd-o.tsRec[e].callEndPtStart); }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return (o.tsRec[e].callEndPtEnd-o.tsRec[e].callEndPtStart); }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+(parseInt(cur.tsRec[e].callEndPtEnd) - parseInt(cur.tsRec[e].callEndPtStart)), 0) / values.length)}ms`
+            );
+          });
+        }
 
         // Promise.all will resolve only if all promises resolved
         if (authOn === 'less') {
