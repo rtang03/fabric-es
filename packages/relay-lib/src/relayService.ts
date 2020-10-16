@@ -121,7 +121,7 @@ export const relayService = ({
       // Initialize
       const proxyReqStarts = Date.now();
       logger.info(`ProxyReq Starts ${proxyReqStarts}`);
-      // logger.debug('Header: ' + JSON.stringify(req.headers));
+      logger.debug('URL: ' + JSON.stringify(req.url));
     
       const type = (req.headers['content-type'] || 'text/plain').split(';')[0];
       if (type === 'multipart/form-data') {
