@@ -105,6 +105,17 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
             jsonObj = jsonReq['jsonObj'];
           }
         }
+
+        if (!noQueryParam && url.query['jsonObj']) {
+          // NOTE 2020-10-15
+          // For work around with eTC sending jsonObj in query param instead of with the html form along with the file field
+          try {
+            jsonObj = JSON.parse(url.query['jsonObj'] as string);
+            isRequestJson = true;
+          } catch (error) {
+            jsonObj = url.query['jsonObj'] as string;
+          }
+        }
       } else if (contentType === 'application/json') {
         try {
           jsonObj = JSON.parse(reqBody);
@@ -169,9 +180,9 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
 
     switch (url.url) {
       case EndPoints[1]: // /order/po
-        if (!noQueryParam) {
-          result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
-        } else if (!isRequestJson) {
+        // if (!noQueryParam) {
+        //   result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
+        if (!isRequestJson) {
           result = buildError(`Received non-JSON payload (${contentType})`);
         } else if (!isPost && !isPut) {
           result = buildError(`Received unsupported (${method}) action`);
@@ -204,9 +215,9 @@ export const getPbocEtcEntityProcessor = (enrollmentId: string, repositories: Re
         break;
 
       case EndPoints[2]: // /order/cancelPO
-        if (!noQueryParam) {
-          result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
-        } else if (!isRequestJson) {
+        // if (!noQueryParam) {
+        //   result = buildError(`Received query string: '${JSON.stringify(url.query)}'`);
+        if (!isRequestJson) {
           result = buildError(`Received non-JSON payload (${contentType})`);
         } else if (!isPost) {
           result = buildError(`Received unsupported (${method}) action`);
