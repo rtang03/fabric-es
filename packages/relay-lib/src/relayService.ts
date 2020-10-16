@@ -130,7 +130,12 @@ export const relayService = ({
         const form = formidable({ multiples: true });
         form.onPart = (part) => {
           if (part.mime) {
-            if (part.filename !== '') fileInfo.push({ name: part.filename, type: part.mime });
+            if (part.filename !== '')
+              fileInfo.push({ name: part.filename, type: part.mime });
+            else {
+              form.handlePart(part);
+              console.log(part);
+            }
           } else {
             form.handlePart(part);
           }
@@ -199,7 +204,7 @@ export const relayService = ({
             };
             const { reqBody, attachmentInfo, resBody, ...rest } = message;
             await processMessage({ message, client, topic }).then((result) => {
-              logger.info(`Message processed with response ${result} - '${JSON.stringify(rest)}',
+              logger.info(`Message processed with response ${result} - '${JSON.stringify(message)}',
   proxyReq (${message.proxyReqFinish - message.proxyReqStarts}ms),
   endpoint (${message.proxyResStarts - message.proxyReqFinish}ms),
   proxyRes (${message.proxyResFinish - message.proxyResStarts}ms)`);
