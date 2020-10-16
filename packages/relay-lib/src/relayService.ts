@@ -123,24 +123,23 @@ export const relayService = ({
       const proxyReqStarts = Date.now();
       logger.info(`ProxyReq Starts ${proxyReqStarts}`);
       logger.debug('URL: ' + JSON.stringify(req.url));
-    
+
       const type = (req.headers['content-type'] || 'text/plain').split(';')[0];
       if (type === 'multipart/form-data') {
         const fileInfo = [];
         const form = formidable({ multiples: true });
         form.onPart = (part) => {
           if (part.mime) {
-            if (part.filename !== '')
+            if (part.filename && (part.filename !== '')) {
               fileInfo.push({ name: part.filename, type: part.mime });
-            else {
+            } else if (part.name && part.name !== '') {
               form.handlePart(part);
-              console.log(part);
             }
           } else {
             form.handlePart(part);
           }
         };
-    
+
         form.parse(req, (err, fields, files) => {
           if (err) {
             logger.error('Error parsing multipart data ' + err);
@@ -204,15 +203,9 @@ export const relayService = ({
             };
             const { reqBody, attachmentInfo, resBody, ...rest } = message;
             await processMessage({ message, client, topic }).then((result) => {
-              logger.info(`Message processed with response ${result} - '${JSON.stringify(message)}',
-  proxyReq (${message.proxyReqFinish - message.proxyReqStarts}ms),
-  endpoint (${message.proxyResStarts - message.proxyReqFinish}ms),
-  proxyRes (${message.proxyResFinish - message.proxyResStarts}ms)`);
+              logger.info(`Message processed with response ${result} - '${JSON.stringify(rest)}'`);
             }).catch((error) => {
-              logger.warn(`Error while processing [${message.id}]: ${error},
-  proxyReq (${message.proxyReqFinish - message.proxyReqStarts}ms),
-  endpoint (${message.proxyResStarts - message.proxyReqFinish}ms),
-  proxyRes (${message.proxyResFinish - message.proxyResStarts}ms)`);
+              logger.warn(`Error while processing [${message.id}]: ${error}`);
             });
             logger.info(`ProxyRes Completed ${Date.now()}`);
           } catch (error) {
