@@ -80,8 +80,15 @@ export const createSubscription = (
 
               for (const msg of incoming) {
                 if (callback) {
+                  let obj;
                   try {
-                    const obj = JSON.parse(msg[1][1]);
+                    obj = JSON.parse(msg[1][1]);
+                  } catch (error) {
+                    logger.warn(`Received non-JSON message: '${msg[1][1]}'`);
+                    await callback(topic, null, msg[1][1]);
+                    continue;
+                  }
+                  try {
                     if (isReqRes(obj)) {
                       await callback(event.channel, obj);
                     } else {
@@ -89,7 +96,7 @@ export const createSubscription = (
                       await callback(event.channel, null, msg[1][1]);
                     }
                   } catch (error) {
-                    logger.warn(`${error} Received non-JSON message: '${msg[1][1]}'`);
+                    logger.warn(JSON.stringify(error));
                     await callback(topic, null, msg[1][1]);
                   }
                 } else {

@@ -8,6 +8,7 @@ import express from 'express';
 import formidable from 'formidable';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import RedisClient, { Redis, RedisOptions } from 'ioredis';
+import { isEmpty } from 'lodash';
 import querystring from 'query-string';
 import stoppable, { StoppableServer } from 'stoppable';
 import { processMessage, ReqRes } from '.';
@@ -143,9 +144,11 @@ export const relayService = ({
               logger.warn(`Warning! Unexpected file saved: ${files.files.path}`);
             else
               logger.debug(`Relay ignored uploaded file ${fileInfo.map(i => i.name)}`); // Sould be logger.debug()
-    
-            if (fields) {
+
+            if (fields && !isEmpty(fields)) {
               wait4res(client, req, res, proxyReqStarts, type, JSON.stringify(fields), fileInfo);
+            } else {
+              wait4res(client, req, res, proxyReqStarts, type, '', fileInfo); // JSON.stringify(querystring.parseUrl(req.url).query)
             }
           }
         });
