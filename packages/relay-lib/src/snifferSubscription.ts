@@ -90,6 +90,7 @@ export const createSubscription = (
                   }
                   try {
                     if (isReqRes(obj)) {
+                      logger.debug(`[ROBUSTNESS]{"id":"${obj.id}","redisResFinish":${Date.now()}}`);
                       await callback(event.channel, obj);
                     } else {
                       logger.warn(`Received message of unknown type: '${msg[1][1]}'`);

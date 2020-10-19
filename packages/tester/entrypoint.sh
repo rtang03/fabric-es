@@ -25,7 +25,7 @@ case $1 in
       exit 1
     fi
 
-    exec node ./dist/relay/relay.ptest.js
+    exec node ./dist/relay/relay.rtest.js
     ;;
 
   ref-impl)

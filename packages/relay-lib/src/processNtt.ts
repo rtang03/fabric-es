@@ -113,6 +113,7 @@ export const getEntityProcessor: (option: {
           if (!result.errors) {
             const { statusMessage, reqBody, resBody, errors, ...rest } = result;
             logger.debug('Entity processed: ' + JSON.stringify(rest));
+            logger.debug(`[ROBUSTNESS]{"id":"${message.id}","url":"${message.url.url}","method":"${message.method}","entities":[${rest.commits.reduce((a,c) => {return `${(a) ? `${a},` : ''}"${c.entityId}"`;}, '')}],"writeFabFinish":${Date.now()}}`);
           } else {
             const { reqBody, resBody, commits, ...rest } = result;
             logger.error('Error processing entity: ' + JSON.stringify(rest));

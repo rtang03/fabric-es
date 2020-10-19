@@ -11,7 +11,7 @@
     "test:2org": "jest intg.2org.test",
     "test:program": "jest program.test",
     "test:regex": "jest regex.test",
-    "ptest:relay": "node ./dist/relay/relay.ptest.js",
+    "rtest:relay": "node ./dist/relay/relay.rtest.js",
     "ptest:fab": "node ./dist/fab/fab.ptest.js"
   },
   "private": true,
@@ -23,7 +23,8 @@
     "lodash": "^4.17.15",
     "node-fetch": "^2.6.0",
     "query-string": "^6.12.1",
-    "stoppable": "^1.1.0"
+    "stoppable": "^1.1.0",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",

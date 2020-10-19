@@ -14,7 +14,7 @@ COPY --chown=node:node ./build/ /home/app/
 
 COPY ./build/entrypoint.sh /usr/local/bin/
 
-RUN apk add --no-cache curl \
+RUN apk add --no-cache curl bash \
   && apk add --no-cache --virtual .build-deps python make g++ tzdata \
   && cp /usr/share/zoneinfo/Asia/Hong_Kong /etc/localtime \
   && echo "Asia/Hong_Kong" > /etc/timezone \

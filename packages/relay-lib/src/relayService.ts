@@ -204,6 +204,7 @@ export const relayService = ({
             const { reqBody, attachmentInfo, resBody, ...rest } = message;
             await processMessage({ message, client, topic }).then((result) => {
               logger.info(`Message processed with response ${result} - '${JSON.stringify(rest)}'`);
+              logger.debug(`[ROBUSTNESS]{"id":"${message.id}","url":"${message.url.url}","method":"${message.method}","status":${message.statusCode},"proxyReqStarts":${message.proxyReqStarts},"proxyReqFinish":${message.proxyReqFinish},"proxyResStarts":${message.proxyResStarts},"proxyResFinish":${message.proxyResFinish}}`);
             }).catch((error) => {
               logger.warn(`Error while processing [${message.id}]: ${error}`);
             });

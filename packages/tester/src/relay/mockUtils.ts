@@ -7,7 +7,7 @@ import formidable from 'formidable';
 import querystring from 'query-string';
 import stoppable from 'stoppable';
 
-const handleFileUploads = (req, res, resMsg?) => {
+const processRequest = (req, res, keepFile, resMsg?) => {
   const type = (req.headers['content-type'] || 'text/plain').split(';')[0];
 
   if (type === 'application/json') {
@@ -16,28 +16,39 @@ const handleFileUploads = (req, res, resMsg?) => {
   } else if (type === 'multipart/form-data') {
     if (resMsg) console.log('FILE', Date.now(), new Date(), resMsg, '...');
     const form = formidable({ multiples: true, uploadDir: 'src/__tests__/uploads', keepExtensions: true });
+    form.onPart = (part) => {
+      if (!keepFile) {
+        if (part.mime && part.filename && (part.filename !== '')) {
+          console.log('FILE ignored', part.filename);
+          return;
+        }
+      }
+      form.handlePart(part);
+    };
     form.parse(req, (err, fields, files) => {
       if (err) {
         console.log('multipart form parsing error', err);
         res.sendStatus(500);
       } else {
-        if (!files.files) {
-          if (resMsg) console.log('no file received');
-        } else {
-          const display = file => {
-            if (resMsg) {
-              console.log('FILE saved file to', file.path);
-              console.log('FILE original name', file.name);
-              console.log('FILE type', file.type);
-              console.log('FILE size', file.size);
-            }
-          };
-          if (Array.isArray(files.files)) {
-            for (const file of files.files) {
-              display(file);
-            }
+        if (keepFile) {
+          if (!files.files) {
+            if (resMsg) console.log('no file received');
           } else {
-            display(files.files);
+            const display = file => {
+              if (resMsg) {
+                console.log('FILE saved file to', file.path);
+                console.log('FILE original name', file.name);
+                console.log('FILE type', file.type);
+                console.log('FILE size', file.size);
+              }
+            };
+            if (Array.isArray(files.files)) {
+              for (const file of files.files) {
+                display(file);
+              }
+            } else {
+              display(files.files);
+            }
           }
         }
 
@@ -45,7 +56,8 @@ const handleFileUploads = (req, res, resMsg?) => {
           if (resMsg) console.log('FILE', fields);
         }
         if (resMsg) console.log('FILE', Date.now(), new Date(), resMsg);
-        res.send(`<html><head><link rel="icon" href="data:,"></head><body>${resMsg}</body></html>`);
+        // res.send(`<html><head><link rel="icon" href="data:,"></head><body>${resMsg}</body></html>`);
+        res.sendStatus(200);
       }
     });
   } else {
@@ -54,32 +66,32 @@ const handleFileUploads = (req, res, resMsg?) => {
   }
 };
 
-export const createMockServer = (key: string, cert: string, isHttp?: boolean, silent?: boolean) => {
+export const createMockServer = (key: string, cert: string, isHttp?: boolean, silent?: boolean, keepFile?: boolean) => {
   const app = express();
   app.use(cors());
   app.use(express.json());
   app.use(express.static('src/__tests__/html', { index: false }));
 
   app.post('/order/po', (req, res) => {
-    handleFileUploads(req, res, (!silent) ? 'New PO created' : undefined);
+    processRequest(req, res, !!keepFile, (!silent) ? 'New PO created' : undefined);
   });
   app.put('/order/po', (req, res) => {
-    handleFileUploads(req, res, (!silent) ? 'PO updated' : undefined);
+    processRequest(req, res, !!keepFile, (!silent) ? 'PO updated' : undefined);
   });
 
   app.post('/etccorp/pboc/api/v1/invoices', (req, res) => {
-    handleFileUploads(req, res, (!silent) ? 'New Invoice created' : undefined);
+    processRequest(req, res, !!keepFile, (!silent) ? 'New Invoice created' : undefined);
   });
   app.put('/etccorp/pboc/api/v1/invoices', (req, res) => {
-    handleFileUploads(req, res, (!silent) ? 'Invoice updated' : undefined);
+    processRequest(req, res, !!keepFile, (!silent) ? 'Invoice updated' : undefined);
   });
 
   app.post('/etccorp/pboc/api/v1/invoices/notify', (req, res) => {
-    handleFileUploads(req, res, (!silent) ? 'New Invoice created' : undefined);
+    processRequest(req, res, !!keepFile, (!silent) ? 'New Invoice created' : undefined);
   });
 
   app.post('/etccorp/pboc/api/v1/invoices/image/upload', (req, res) => {
-    handleFileUploads(req, res, (!silent) ? 'Image uploaded' : undefined);
+    processRequest(req, res, !!keepFile, (!silent) ? 'Image uploaded' : undefined);
   });
 
   app.post('*', (req, res) => {
@@ -223,7 +235,8 @@ export const getTestData = (seq: string) => {
             'subtotalAmount': 20000,
             'partialShipment': 'N'
           }
-        ]
+        ],
+        'attachment': 'sample00.pdf'
       },
       {
         'poBaseInfo': {
@@ -511,7 +524,8 @@ export const getTestData = (seq: string) => {
             'subtotalAmount': 20000,
             'partialShipment': 'N'
           }
-        ]
+        ],
+        'attachment': 'sample01.pdf'
       },
       {
         'invBaseInfo': {
