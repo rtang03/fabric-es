@@ -8,8 +8,8 @@ services:
     environment:
       - TEST_OPTIONS=relay-pboc
       - TEST_TARGETS=$TARGET_URL
-      - SERVER_KEY=/var/keys/wildcard_etradeconnect.key
-      - SERVER_CERT=/var/keys/star_etradeconnect_net.cer
+    # - SERVER_KEY=/var/keys/wildcard_etradeconnect.key
+    # - SERVER_CERT=/var/keys/star_etradeconnect_net.cer
       - AUTH_ON=no
       - LOG_LEVEL=$LOG_LEVEL
       - LOG_TARGET=$LOG_TARGET
@@ -18,8 +18,9 @@ services:
       - RUNS_WAIT=65
       - READ_RETRY=100
       - READ_WAIT=3000
-      - STATS_DATA=/var/stats/data.json
-      - STATS_LOGS=/home/app/logs/app.log
+    # - STATS_DATA=/var/stats/data.log
+    # - STATS_LOGS=/home/app/logs/app.log
+      - ATTACHMENT_PATH=/home/app/files/
     image: $TEST_IMAGE
     container_name: tester
     working_dir: /home/app
@@ -28,4 +29,5 @@ services:
     volumes:
       - $VOLUME/testers/stats/:/var/stats/
       - $VOLUME/testers/logs/:/home/app/logs/
-      - /Users/paul/cert/OV/:/var/keys/
+    # - /Users/paul/cert/OV/:/var/keys/
+      - /Users/paul/temp/:/home/app/files/

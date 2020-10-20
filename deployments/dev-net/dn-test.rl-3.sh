@@ -5,7 +5,7 @@
 ################################
 
 . ./scripts/setup.sh
-export TARGET_URL=https://tester:4321
+export TARGET_URL=http://tester:4321
 
 SECONDS=0
 

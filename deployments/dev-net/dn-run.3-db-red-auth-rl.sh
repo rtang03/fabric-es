@@ -5,7 +5,7 @@
 ################################
 
 . ./scripts/setup.sh
-export TARGET_URL=https://192.168.0.188:4322
+export TARGET_URL=http://192.168.0.188:4322
 
 SECONDS=0
 

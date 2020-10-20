@@ -1,6 +1,8 @@
 require('dotenv').config({ path: './.env' });
 import fs from 'fs';
 import https from 'https';
+import axios from 'axios';
+import FormData from 'form-data';
 import fetch from 'node-fetch';
 import { getLogger } from './getLogger';
 import { getTestData, QUERY } from './mockUtils';
@@ -33,6 +35,7 @@ const relay1 = `${poto}${process.env.RELAY_HOST1}:${process.env.RELAY_PORT1}`; /
 const relay2 = `${poto}${process.env.RELAY_HOST2}:${process.env.RELAY_PORT2}`; // PBOC side
 const qryhdr = `http://${process.env.QUERY_HOST}:${process.env.QUERY_PORT}/graphql`; // FDI node
 
+const ATTACHMENT_PATH = process.env.ATTACHMENT_PATH;
 const STATS_DATA = process.env.STATS_DATA;
 const LOG_TARGET = process.env.LOG_TARGET;
 const STATS_LOGS = process.env.STATS_LOGS;
@@ -94,17 +97,54 @@ const authenticate = (username, email, password) => {
 const createPo = (data) => {
   return new Promise<string[]>(async (resolve, reject) => {
     try {
-      await fetch(`${relay2}${EndPoints[1]}`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(data), agent
-      }).then(res => {
-        if (res.status !== 200) {
-          reject(`ERROR! Create PO failed (${res.status}): ${res.statusText}`);
-        } else {
-          resolve(data.map(d => d.poBaseInfo.poId));
+      if (ATTACHMENT_PATH && (data.filter(d => d.attachment).length > 0)) {
+        // Since the API only allows either no file at all, or each PO with 1 file, the API is called separately here
+        // for POs without attachments
+        const json = data.filter(d => !d.attachment);
+
+        const atths = data.filter(d => d.attachment);
+        const form = new FormData();
+        const jsonObj = [];
+        for (const atth of atths) {
+          const { attachment, ...rest } = atth;
+          form.append('files', fs.createReadStream(`${ATTACHMENT_PATH}${attachment}`));
+          jsonObj.push(rest);
         }
-      });
+        form.append('jsonObj', JSON.stringify(jsonObj));
+
+        Promise.all([
+          axios({
+            method: 'POST',
+            url: `${relay2}${EndPoints[1]}`,
+            data: form,
+            headers: form.getHeaders(),
+            httpsAgent: agent
+          }),
+          fetch(`${relay2}${EndPoints[1]}`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(json), agent
+          }),
+        ]).then(res => {
+          if (res.filter(r => r.status !== 200).length > 0) {
+            reject(`ERROR! Create PO failed (${res}`);
+          } else {
+            resolve(data.map(d => d.poBaseInfo.poId));
+          }
+        });
+      } else {
+        await fetch(`${relay2}${EndPoints[1]}`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(data), agent
+        }).then(res => {
+          if (res.status !== 200) {
+            reject(`ERROR! Create PO failed (${res.status}): ${res.statusText}`);
+          } else {
+            resolve(data.map(d => d.poBaseInfo.poId));
+          }
+        });
+      }
     } catch (error) {
       reject(error);
     }
