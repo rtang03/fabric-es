@@ -1,7 +1,7 @@
 require('dotenv').config({ path: './.env' });
 import fs from 'fs';
 import { getTestData, genTestData } from '../relay/mockUtils';
-import { PerfTest, API } from './ptest';
+import { PerfTest, API, PerfTestConfig } from './ptest';
 import percentile from 'stats-percentile';
 import { rawListeners } from 'process';
 const util = require('util');
@@ -12,7 +12,7 @@ let totalAuth = 0;
 let totalProc = 0;
 let totalWrite = 0;
 let totalRuns = 0;
-let rawData;
+let rawData:{[k:string]:{rl:number[], rd:number[], o1:number[], o3:number[]}} = {};
 
 enum DocId {
   po = "poId",
@@ -101,6 +101,9 @@ const isEnqOnly = cfgTestRun? (cfgTestRun.isEnqOnly || false):false;
 const lastElapsedTimes = [];
 const isShowBkdn:boolean = (process.env.FAB_SHOW_BKDN || 'true') === "true";
 const dataType = cfgTestRun.rules.map(e => GrepLogCfg[e].dataType);
+const PT_HI:number = parseInt(process.env.FAB_PERCENTILE_HI_VAL || '100');
+const PT_LO:number = parseInt(process.env.FAB_PERCENTILE_LO_VAL || '0');
+const numSortfunc = function (a,b) {return a-b};
 
 let preGenIds = {};
 
@@ -609,14 +612,20 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
               'proxyResFinish':json.proxyResFinish,
               'writeChainStart':json.writeChainStart,
               'writeChainFinish':json.writeChainFinish,
-              'rl': `${json.proxyResFinish-tsRec['callEndPtStart']}`,
-              'redis': `${json.writeChainStart-json.proxyResFinish}`,
-              'chainOrg1': `${json.writeChainFinish-json.writeChainStart}`,
-              'chainOrg3': `${tsRec['callEndPtEnd']-json.writeChainFinish}`,
-              'ttl': `${tsRec['callEndPtEnd']-tsRec['callEndPtStart']}`
+              'rl': `${parseInt(json.proxyResFinish)-parseInt(tsRec['callEndPtStart'])}`,
+              'redis': `${parseInt(json.writeChainStart)-parseInt(json.proxyResFinish)}`,
+              'chainOrg1': `${parseInt(json.writeChainFinish)-parseInt(json.writeChainStart)}`,
+              'chainOrg3': `${parseInt(tsRec['callEndPtEnd'])-parseInt(json.writeChainFinish)}`,
+              'ttl': `${parseInt(tsRec['callEndPtEnd'])-parseInt(tsRec['callEndPtStart'])}`
             }
           }
   
+          // For Summary use
+          rawData[apiStr]['rl'].push(parseInt(res.recTs.rl));
+          rawData[apiStr]['rd'].push(parseInt(res.recTs.redis));
+          rawData[apiStr]['o1'].push(parseInt(res.recTs.chainOrg1));
+          rawData[apiStr]['o3'].push(parseInt(res.recTs.chainOrg3));
+
           resolve(res);
           isStop = true;
           break;
@@ -634,19 +643,38 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
   })
 }
 
+let runList:number[] = [];
+const calFinalStat = (runIdx: number, cfg: PerfTestConfig): void => {
+  runList.push(runIdx);
+  if ((runList.length === cfg.RUNS) && Object.keys(rawData).length > 0) {
+    testRule.forEach(e => {
+      const rls = rawData[e].rl.sort(numSortfunc);
+      const rds = rawData[e].rd.sort(numSortfunc);
+      const o1s = rawData[e].o1.sort(numSortfunc);
+      const o3s = rawData[e].o3.sort(numSortfunc);
+
+      const pAvg_rl = rls.filter( (_, idx) => idx >= Math.round(rls.length*PT_LO/100)-1 && idx <= Math.round(rls.length*PT_HI/100)-1);
+      const pAvg_rd = rds.filter( (_, idx) => idx >= Math.round(rds.length*PT_LO/100)-1 && idx <= Math.round(rds.length*PT_HI/100)-1);
+      const pAvg_o1 = o1s.filter( (_, idx) => idx >= Math.round(o1s.length*PT_LO/100)-1 && idx <= Math.round(o1s.length*PT_HI/100)-1);
+      const pAvg_o3 = o3s.filter( (_, idx) => idx >= Math.round(o3s.length*PT_LO/100)-1 && idx <= Math.round(o3s.length*PT_HI/100)-1);
+
+      console.log(`[Summary][Perf Stat. of ${e} (${cfg.BATCH} REQ x${cfg.RUNS} BTH)] {`
+      + `rl:{Min: ${Math.min.apply(Math, rls)}ms, Max: ${Math.max.apply(Math, rls)}ms, Avg: ${Math.round(rls.reduce((sum, cur) => sum+cur, 0) / rls.length)}ms, p${PT_LO}: ${percentile(rls, PT_LO)}ms, p${PT_HI}: ${percentile(rls, PT_HI)}ms, p_avg: ${Math.round(pAvg_rl.reduce((sum, cur) => sum+cur, 0) / pAvg_rl.length)}}`
+      + `, redis:{Min: ${Math.min.apply(Math, rds)}ms, Max: ${Math.max.apply(Math, rds)}ms, Avg: ${Math.round(rds.reduce((sum, cur) => sum+cur, 0) / rds.length)}ms, p${PT_LO}: ${percentile(rds, PT_LO)}ms, p${PT_HI}: ${percentile(rds, PT_HI)}ms, p_avg: ${Math.round(pAvg_rd.reduce((sum, cur) => sum+cur, 0) / pAvg_rd.length)}}`
+      + `, chainOrg1:{Min: ${Math.min.apply(Math, o1s)}ms, Max: ${Math.max.apply(Math, o1s)}ms, Avg: ${Math.round(o1s.reduce((sum, cur) => sum+cur, 0) / o1s.length)}ms, p${PT_LO}: ${percentile(o1s, PT_LO)}ms, p${PT_HI}: ${percentile(o1s, PT_HI)}ms, p_avg: ${Math.round(pAvg_o1.reduce((sum, cur) => sum+cur, 0) / pAvg_o1.length)}}`
+      + `, chainOrg3:{Min: ${Math.min.apply(Math, o3s)}ms, Max: ${Math.max.apply(Math, o3s)}ms, Avg: ${Math.round(o3s.reduce((sum, cur) => sum+cur, 0) / o3s.length)}ms, p${PT_LO}: ${percentile(o3s, PT_LO)}ms, p${PT_HI}: ${percentile(o3s, PT_HI)}ms, p_avg: ${Math.round(pAvg_o3.reduce((sum, cur) => sum+cur, 0) / pAvg_o3.length)}}`
+      + `}`
+      );
+
+    });
+  }
+}
 
 // Start
 (async () => {
   let index = 0;
   const cfg = PerfTest.defaultCfg;
-  const RUNS = cfg.RUNS;
-  const BATCH = cfg.BATCH;
-  const RUNS_WAIT = cfg.RUNS_WAIT;
-  const READ_WAIT = cfg.RUNS_WAIT;
-  const stamp = cfg.stamp;
-  const range = cfg.range;
-  const authOn = cfg.authOn;
-  const READ_RETRY = cfg.READ_RETRY;
+  const { RUNS, BATCH, RUNS_WAIT, READ_WAIT, stamp, range, authOn, READ_RETRY, ... OTH_CFG } = cfg;
 
   //Validation
   if (testRule.length === 0) {
@@ -661,6 +689,8 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
   totalWrite = 0;
   totalRuns = 0;
 
+  testRule.forEach(api => {rawData[api] = {rl:[],rd:[],o1:[],o3:[]};});
+  
   lastElapsedTimes.splice(0, lastElapsedTimes.length);
   
   if (cfg.STATS_DATA) {
@@ -726,6 +756,8 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
       }
     }))
       .then(async (values) => {
+
+        
         // Print Breakdown
         if (isShowBkdn) {
           values.forEach( batchRes => {
@@ -742,24 +774,14 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
             const o1RawData = values.map( o=> parseInt(o.tsRec[e].chainOrg1));
             const o3RawData = values.map( o=> parseInt(o.tsRec[e].chainOrg3));
 
-            if (rawData === undefined) 
-              rawData = { 'values' :values.length };
-            if (rawData[e] === undefined) {
-              rawData[e] = { rl: rlRawData, rd:rdRawData, o1:o1RawData, o3: o3RawData};
-            } else {
-              rawData[e] = { rl: rawData[e].rl.concat(rlRawData)
-                          , rd: rawData[e].rd.concat(rdRawData)
-                          , o1: rawData[e].o1.concat(o1RawData)
-                          , o3: rawData[e].r3.concat(o3RawData)};
-            }
-
             console.log(`[Test run ${run}][Perf Stat. of ${e}]`
             + `NoTrans: ${values.length}`
-            + `, rl:{Min: ${Math.min.apply(Math, rlRawData)}ms, Max: ${Math.max.apply(Math, rlRawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt((cur.tsRec[e].rl)), 0) / values.length)}ms, p95: ${percentile(rlRawData.sort(), 95)}ms}`
-            + `, redis:{Min: ${Math.min.apply(Math, rdRawData)}ms, Max: ${Math.max.apply(Math, rdRawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].redis), 0) / values.length)}ms, p95: ${percentile(rdRawData.sort(), 95)}ms}`
-            + `, chainOrg1:{Min: ${Math.min.apply(Math, o1RawData)}ms, Max: ${Math.max.apply(Math, o1RawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg1), 0) / values.length)}ms, p95: ${percentile(o1RawData.sort(), 95)}ms}`
-            + `, chainOrg3:{Min: ${Math.min.apply(Math, o3RawData)}ms, Max: ${Math.max.apply(Math, o3RawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg3), 0) / values.length)}ms, p95: ${percentile(o3RawData.sort(), 95)}ms}`
+            + `, rl:{Min: ${Math.min.apply(Math, rlRawData)}ms, Max: ${Math.max.apply(Math, rlRawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt((cur.tsRec[e].rl)), 0) / values.length)}ms, p${PT_HI}: ${percentile(rlRawData.sort(numSortfunc), PT_HI)}ms}`
+            + `, redis:{Min: ${Math.min.apply(Math, rdRawData)}ms, Max: ${Math.max.apply(Math, rdRawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].redis), 0) / values.length)}ms, p${PT_HI}: ${percentile(rdRawData.sort(numSortfunc), PT_HI)}ms}`
+            + `, chainOrg1:{Min: ${Math.min.apply(Math, o1RawData)}ms, Max: ${Math.max.apply(Math, o1RawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg1), 0) / values.length)}ms, p${PT_HI}: ${percentile(o1RawData.sort(numSortfunc), PT_HI)}ms}`
+            + `, chainOrg3:{Min: ${Math.min.apply(Math, o3RawData)}ms, Max: ${Math.max.apply(Math, o3RawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg3), 0) / values.length)}ms, p${PT_HI}: ${percentile(o3RawData.sort(numSortfunc), PT_HI)}ms}`
             );
+
           });
         } else {
           testRule.forEach(e => {
@@ -775,6 +797,8 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
         } else {
           console.log(`[Test run ${run}][Elapsed time ${((Date.now() - authStarts)/1000).toFixed(3)}s] Completed: ${values.length}`);
         }
+
+        calFinalStat(i , cfg);
       })
       .catch(errors => {
         console.log(`[Test run ${run}][Elapsed time ${((Date.now() - authStarts)/1000).toFixed(3)}s] Error: ${errors}`);
@@ -782,19 +806,6 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
 
     if ((i+1) < RUNS) {
       await new Promise(resolve => setTimeout(resolve, runsWait * 1000));
-    } else {
-      console.log(`HERE: ${JSON.stringify(rawData)}`);
-      if (rawData) {
-        testRule.forEach(e => {
-          console.log(`[Test run Summary][Perf Stat. of ${e}]`
-          + `NoTrans: ${rawData.values}`
-          + `, rl:{Min: ${Math.min.apply(Math, rawData[e].rl)}ms, Max: ${Math.max.apply(Math, rawData[e].rl)}ms, Avg: ${Math.round(rawData[e].rl.reduce((sum, cur) => sum+cur, 0) / rawData[e].rl.length)}ms, p95: ${percentile(rawData[e].rl.sort(), 95)}ms}}`
-          + `, redis:{Min: ${Math.min.apply(Math, rawData[e].rd)}ms, Max: ${Math.max.apply(Math, rawData[e].rd)}ms, Avg: ${Math.round(rawData[e].rd.reduce((sum, cur) => sum+cur, 0) / rawData[e].rd.length)}ms, p95: ${percentile(rawData[e].rd.sort(), 95)}ms}}`
-          + `, chainOrg1:{Min: ${Math.min.apply(Math, rawData[e].o1)}ms, Max: ${Math.max.apply(Math, rawData[e].o1)}ms, Avg: ${Math.round(rawData[e].rd.reduce((sum, cur) => sum+cur, 0) / rawData[e].o1.length)}ms, p95: ${percentile(rawData[e].o1.sort(), 95)}ms}}`
-          + `, chainOrg3:{Min: ${Math.min.apply(Math, rawData[e].o3)}ms, Max: ${Math.max.apply(Math, rawData[e].o3)}ms, Avg: ${Math.round(rawData[e].rd.reduce((sum, cur) => sum+cur, 0) / rawData[e].o3.length)}ms, p95: ${percentile(rawData[e].o3.sort(), 95)}ms}}`
-          );
-        });
-      }
-    }
+    } 
   }
 })();
