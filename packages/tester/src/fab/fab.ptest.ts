@@ -1,16 +1,18 @@
 require('dotenv').config({ path: './.env' });
 import fs from 'fs';
-import { getTestData } from '../relay/mockUtils';
+import { getTestData, genTestData } from '../relay/mockUtils';
 import { PerfTest, API } from './ptest';
+import percentile from 'stats-percentile';
+import { rawListeners } from 'process';
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
-
 
 let totalElapsed = 0;
 let totalAuth = 0;
 let totalProc = 0;
 let totalWrite = 0;
 let totalRuns = 0;
+let rawData;
 
 enum DocId {
   po = "poId",
@@ -23,33 +25,42 @@ interface runTestResult {
   tsRec:{[k:string]:any},
 }
 
-const GrepLogCfg:{[key in keyof typeof API]: {addSrhStrRegExp:string, logPath:string}} = {
+const GrepLogCfg:{[key in keyof typeof API]: {addSrhStrRegExp:string, logPath:string, dataType:string}} = {
   [API.createInvoice]:        { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[4]}\\",\\"method\\":\\"POST\\"`,
                                 logPath: (process.env.RL_ORG1_LOG_PATH || './log/all.log'),
+                                dataType: 'InvCreate',
                               },
   [API.editInvoice]:          { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[4]}\\",\\"method\\":\\"PUT\\"`,
                                 logPath:(process.env.RL_ORG1_LOG_PATH || './log/all.log'),
+                                dataType: 'InvEdit',
                               },
   [API.transferInvoice]:      { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[5]}\\",\\"method\\":\\"POST\\"`,
                                 logPath: (process.env.RL_ORG1_LOG_PATH || './log/all.log'),
+                                dataType: 'InvNotify',
                               },
   [API.confirmInvoice]:       { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[7]}\\",\\"method\\":\\"POST\\"`,
                                 logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
+                                dataType: 'InvResult',
                               },
   [API.updatePaymentStatus]:  { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[8]}\\",\\"method\\":\\"POST\\"`,
                                 logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
+                                dataType: 'InvFin',
                               },
   [API.createPo]:             { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[1]}\\",\\"method\\":\\"POST\\"`,
                                 logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
+                                dataType: 'PoCreate',
                               },
   [API.editPo]:               { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[1]}\\",\\"method\\":\\"PUT\\"`,
                                 logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
+                                dataType: 'PoEdit',
                               },
   [API.cancelPo]:             { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[2]}\\",\\"method\\":\\"POST\\"`,
                                 logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
+                                dataType: 'PoCancel',
                               },
   [API.processPo]:            { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[3]}\\",\\"method\\":\\"POST\\"`,
                                 logPath: (process.env.RL_ORG1_LOG_PATH || './log/all.log'),
+                                dataType: 'PoProcess',
                               },
 }
 
@@ -66,12 +77,12 @@ const TestRules = {
                       , rules:[API.createInvoice]},  
   // editInvoice:        { preGenId:['po','inv']
   //                     , rules:[API.editInvoice]},
-  transferInvoice:    { preGenId:[DocId.po, DocId.inv]
-                      , rules:[API.transferInvoice]},
-  confirmInvoice:     { preGenId:[DocId.po, DocId.inv]
-                      , rules:[API.confirmInvoice]},
-  updatePaymentStatus:{ preGenId:[DocId.po, DocId.inv]
-                      , rules:[API.updatePaymentStatus]},
+  transferInvoice:    { preGenId:[DocId.po]
+                      , rules:[API.createInvoice, API.transferInvoice]},
+  confirmInvoice:     { preGenId:[DocId.po]
+                      , rules:[API.createInvoice, API.confirmInvoice]},
+  updatePaymentStatus:{ preGenId:[DocId.po]
+                      , rules:[API.createInvoice, API.updatePaymentStatus]},
   enqPo:              { preGenId:[DocId.po]
                       , isEnqOnly:true
                       , rules:[API.createPo]},
@@ -79,6 +90,7 @@ const TestRules = {
                       , isEnqOnly:true
                       , rules:[API.createInvoice]},
   all:                { preGenId:[]
+                      , usePerfTestData:false
                       , rules:[API.createPo, API.editPo, API.cancelPo, API.processPo, API.createInvoice, API.editInvoice, API.transferInvoice, API.confirmInvoice, API.updatePaymentStatus]},
 }
 
@@ -88,11 +100,13 @@ const testRule = cfgTestRun?cfgTestRun.rules : [];
 const isEnqOnly = cfgTestRun? (cfgTestRun.isEnqOnly || false):false;
 const lastElapsedTimes = [];
 const isShowBkdn:boolean = (process.env.FAB_SHOW_BKDN || 'true') === "true";
+const dataType = cfgTestRun.rules.map(e => GrepLogCfg[e].dataType);
 
 let preGenIds = {};
 
 const preRunTest = (run: string, index: number, variant: string, useAuth: boolean, accessToken?: string) => {
-  const data = getTestData(variant);
+
+  const data = genTestData(variant, ['PoCreate','InvCreate']);
   const genIds = TestRules[process.env.FAB_TEST_RULE || 'all'].preGenId;
   genIds.forEach( (e: DocId) => {
     if (e === DocId.po) {
@@ -189,34 +203,39 @@ const preRunTest = (run: string, index: number, variant: string, useAuth: boolea
 };
 
 const runTest = (run: string, index: number, variant: string, useAuth: boolean, accessToken?: string) => {
-  const data = getTestData(variant);
 
+  const data = (typeof cfgTestRun.usePerfTestData === 'undefined' || cfgTestRun.usePerfTestData) ? genTestData(variant, dataType, parseInt(process.env.FAB_REQ_DATA_SIZE || '2')) : getTestData(variant);
+  let batchRes:runTestResult ={
+    res:'reject',
+    uid:variant,
+    tsRec:{},
+  };
+  
   if (isPreGenId) {
     testRule.forEach (e => {
       if (e === API.createPo) {
         data.PoCreate.forEach(e => e.poBaseInfo.poId = preGenIds['preGenPo']);  
       } else if (e === API.createInvoice) {
         data.InvCreate.forEach(e => {
-          e.invBaseInfo.poId = preGenIds['preGenPo'];
-          if (preGenIds['preGenInv']) {
+          if (preGenIds['preGenPo'])
+            e.invBaseInfo.poId = preGenIds['preGenPo'];
+          if (preGenIds['preGenInv'])
            e.invBaseInfo.invoiceId = preGenIds['preGenInv'];
-          }
         });
       } else if (e === API.transferInvoice) {
-        data.InvNotify.forEach(e => {e.poId = preGenIds['preGenPo']; e.invoices.forEach(f => f.invoiceId = preGenIds['preGenInv'])});
-      } else if (e === API.updatePaymentStatus) {
+        data.InvNotify.forEach(e => {
+          if (preGenIds['preGenPo'])
+            e.poId = preGenIds['preGenPo']; 
+          if (preGenIds['preGenInv'])
+            e.invoices.forEach(f => f.invoiceId = preGenIds['preGenInv'])
+        });
+      } else if (e === API.updatePaymentStatus && preGenIds['preGenInv']) {
         data.InvFin.forEach(e => {e.invoiceId = preGenIds['preGenInv'];});
-      } else if (e === API.confirmInvoice) {
+      } else if (e === API.confirmInvoice && preGenIds['preGenInv']) {
         data.InvResult.forEach(e => {e.invoiceId = preGenIds['preGenInv'];});
       } 
     });
   }
-
-  let batchRes:runTestResult ={
-    res:'reject',
-    uid:variant,
-    tsRec:{},
-  };
 
   return new Promise<runTestResult>(async (resolve, reject) => {
     const authStarts = Date.now();
@@ -242,13 +261,14 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
 
     const procStarts = Date.now();
     let write = 0;
-    console.log(`[Test run ${run}][#${variant}] Starting (ts ${procStarts})${(!accessToken && useAuth) ? `, access token: ${token.substr(0, 70)}...` : '...'}`);
+    if (isShowBkdn)
+      console.log(`[Test run ${run}][#${variant}] Starting (ts ${procStarts})${(!accessToken && useAuth) ? `, access token: ${token.substr(0, 70)}...` : '...'}`);
 
     // PO processing
     if (testRule.some(e => e === API.createPo)) {
       try {
         const writeStart = Date.now();
-        const poIds = (isEnqOnly)?data.PoCreate.map(d => d.poBaseInfo.poId):await PerfTest.createPo(data.PoCreate);
+        const poIds = (isEnqOnly)?Array.from(new Set(data.PoCreate.map(d => d.poBaseInfo.poId))):await PerfTest.createPo(data.PoCreate);
 
         if (poIds && (poIds !== undefined)) {
           write += (Date.now() - writeStart);
@@ -371,7 +391,8 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
     if (testRule.some(e => e === API.createInvoice)) {
       try {
         const writeStart = Date.now();
-        const invIds = (isEnqOnly)?data.InvCreate.map(d => d.invBaseInfo.invoiceId):await PerfTest.createInvoice(data.InvCreate);
+        const invIds = (isEnqOnly)?Array.from(new Set(data.InvCreate.map(d => d.invBaseInfo.invoiceId))):await PerfTest.createInvoice(data.InvCreate);
+
         if (invIds && (invIds !== undefined)) {
           write += (Date.now() - writeStart);
           const shouldContinue = await Promise.all(invIds.map(async v => 
@@ -429,6 +450,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       try {
         const writeStart = Date.now();
         const notifiedInvIds = await PerfTest.transferInvoice(data.InvNotify);
+
         if (notifiedInvIds && (notifiedInvIds !== undefined)) {
           write += (Date.now() - writeStart);
           const shouldContinue = await Promise.all(notifiedInvIds.map(async v => 
@@ -529,21 +551,23 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
     lastElapsedTimes.push(elapsed / 1000);
     if (lastElapsedTimes.length > 100) lastElapsedTimes.shift(); // Elapsed times of the last 10 runs
 
-    if (useAuth) {
-      console.log(
-`[Test run ${run}][#${variant}] Finished (ts ${runFinish}). E: ${elapsed}ms/${Math.round(totalElapsed/totalRuns)}s; A: ${auth}ms/${Math.round(totalAuth/totalRuns)}s; P: ${proc}ms/${Math.round(totalProc/totalRuns)}s; W: ${write}ms/${Math.round(totalWrite/totalRuns)}ms`
-      );
-    } else {
-      console.log(
-`[Test run ${run}][#${variant}] Finished (ts ${runFinish}). Elapsed time: ${proc}ms/${Math.round(totalProc/totalRuns)}s; W: ${write}ms/${Math.round(totalWrite/totalRuns)}ms`
-      );
+    if (isShowBkdn) {
+      if (useAuth) {
+        console.log(
+  `[Test run ${run}][#${variant}] Finished (ts ${runFinish}). E: ${elapsed}ms/${Math.round(totalElapsed/totalRuns)}s; A: ${auth}ms/${Math.round(totalAuth/totalRuns)}s; P: ${proc}ms/${Math.round(totalProc/totalRuns)}s; W: ${write}ms/${Math.round(totalWrite/totalRuns)}ms`
+        );
+      } else {
+        console.log(
+  `[Test run ${run}][#${variant}] Finished (ts ${runFinish}). Elapsed time: ${proc}ms/${Math.round(totalProc/totalRuns)}s; W: ${write}ms/${Math.round(totalWrite/totalRuns)}ms`
+        );
+      }
     }
     
     batchRes.res='resolve';
 
     // Grep ts from rl-org1
     if (!isEnqOnly) {
-      await Promise.all(Object.keys(batchRes.tsRec).map(async (key, idx) =>{
+      await Promise.all(Object.keys(batchRes.tsRec).map(async (key, idx) => {
         return consolidTsWithSrv(key, batchRes.tsRec[key],idx);
       }))
         .then(values => {
@@ -630,12 +654,13 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
     return;
   }
 
-  console.log(`Running ${RUNS} x ${BATCH} relay tests (${RUNS_WAIT}ms, ${READ_WAIT}ms x ${READ_RETRY})...`);
+  console.log(`Running ${RUNS} x ${BATCH} relay tests (${RUNS_WAIT}s, ${READ_WAIT}ms x ${READ_RETRY})...`);
   totalElapsed = 0;
   totalAuth = 0;
   totalProc = 0;
   totalWrite = 0;
   totalRuns = 0;
+
   lastElapsedTimes.splice(0, lastElapsedTimes.length);
   
   if (cfg.STATS_DATA) {
@@ -707,16 +732,33 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
             console.log(`[Test run ${run}][Breakdown]` + JSON.stringify(batchRes));
           });
         }
-        
+
         // Calculate and Print Stat.
         if (!isEnqOnly) {
           testRule.forEach(e => {
-            console.log(`[Test run ${run}][Perf Stat. of ${e},]`
+
+            const rlRawData = values.map( o=> parseInt(o.tsRec[e].rl));
+            const rdRawData = values.map( o=> parseInt(o.tsRec[e].redis));
+            const o1RawData = values.map( o=> parseInt(o.tsRec[e].chainOrg1));
+            const o3RawData = values.map( o=> parseInt(o.tsRec[e].chainOrg3));
+
+            if (rawData === undefined) 
+              rawData = { 'values' :values.length };
+            if (rawData[e] === undefined) {
+              rawData[e] = { rl: rlRawData, rd:rdRawData, o1:o1RawData, o3: o3RawData};
+            } else {
+              rawData[e] = { rl: rawData[e].rl.concat(rlRawData)
+                          , rd: rawData[e].rd.concat(rdRawData)
+                          , o1: rawData[e].o1.concat(o1RawData)
+                          , o3: rawData[e].r3.concat(o3RawData)};
+            }
+
+            console.log(`[Test run ${run}][Perf Stat. of ${e}]`
             + `NoTrans: ${values.length}`
-            + `, rl:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].rl; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].rl; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt((cur.tsRec[e].rl)), 0) / values.length)}ms}`
-            + `, redis:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].redis; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].redis), 0) / values.length)}ms}`
-            + `, chainOrg1:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg1; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg1), 0) / values.length)}ms}`
-            + `, chainOrg3:{Min: ${Math.min.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return o.tsRec[e].chainOrg3; }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg3), 0) / values.length)}ms}`
+            + `, rl:{Min: ${Math.min.apply(Math, rlRawData)}ms, Max: ${Math.max.apply(Math, rlRawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt((cur.tsRec[e].rl)), 0) / values.length)}ms, p95: ${percentile(rlRawData.sort(), 95)}ms}`
+            + `, redis:{Min: ${Math.min.apply(Math, rdRawData)}ms, Max: ${Math.max.apply(Math, rdRawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].redis), 0) / values.length)}ms, p95: ${percentile(rdRawData.sort(), 95)}ms}`
+            + `, chainOrg1:{Min: ${Math.min.apply(Math, o1RawData)}ms, Max: ${Math.max.apply(Math, o1RawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg1), 0) / values.length)}ms, p95: ${percentile(o1RawData.sort(), 95)}ms}`
+            + `, chainOrg3:{Min: ${Math.min.apply(Math, o3RawData)}ms, Max: ${Math.max.apply(Math, o3RawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg3), 0) / values.length)}ms, p95: ${percentile(o3RawData.sort(), 95)}ms}`
             );
           });
         } else {
@@ -738,6 +780,21 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
         console.log(`[Test run ${run}][Elapsed time ${((Date.now() - authStarts)/1000).toFixed(3)}s] Error: ${errors}`);
       });
 
-    await new Promise(resolve => setTimeout(resolve, runsWait * 1000));
+    if ((i+1) < RUNS) {
+      await new Promise(resolve => setTimeout(resolve, runsWait * 1000));
+    } else {
+      console.log(`HERE: ${JSON.stringify(rawData)}`);
+      if (rawData) {
+        testRule.forEach(e => {
+          console.log(`[Test run Summary][Perf Stat. of ${e}]`
+          + `NoTrans: ${rawData.values}`
+          + `, rl:{Min: ${Math.min.apply(Math, rawData[e].rl)}ms, Max: ${Math.max.apply(Math, rawData[e].rl)}ms, Avg: ${Math.round(rawData[e].rl.reduce((sum, cur) => sum+cur, 0) / rawData[e].rl.length)}ms, p95: ${percentile(rawData[e].rl.sort(), 95)}ms}}`
+          + `, redis:{Min: ${Math.min.apply(Math, rawData[e].rd)}ms, Max: ${Math.max.apply(Math, rawData[e].rd)}ms, Avg: ${Math.round(rawData[e].rd.reduce((sum, cur) => sum+cur, 0) / rawData[e].rd.length)}ms, p95: ${percentile(rawData[e].rd.sort(), 95)}ms}}`
+          + `, chainOrg1:{Min: ${Math.min.apply(Math, rawData[e].o1)}ms, Max: ${Math.max.apply(Math, rawData[e].o1)}ms, Avg: ${Math.round(rawData[e].rd.reduce((sum, cur) => sum+cur, 0) / rawData[e].o1.length)}ms, p95: ${percentile(rawData[e].o1.sort(), 95)}ms}}`
+          + `, chainOrg3:{Min: ${Math.min.apply(Math, rawData[e].o3)}ms, Max: ${Math.max.apply(Math, rawData[e].o3)}ms, Avg: ${Math.round(rawData[e].rd.reduce((sum, cur) => sum+cur, 0) / rawData[e].o3.length)}ms, p95: ${percentile(rawData[e].o3.sort(), 95)}ms}}`
+          );
+        });
+      }
+    }
   }
 })();

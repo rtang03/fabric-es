@@ -695,6 +695,294 @@ export const getTestData = (seq: string) => {
   };
 };
 
+
+const TestDataTmpl = (seq:string, key:string) => {
+    return {PoCreate: [
+      {
+        'poBaseInfo': {
+          'poId': `P12345${seq}${key}`,
+          'poNo': `PO${seq}${key}`,
+          'versionNo': 1,
+          'poDate': '2020-08-07',
+          'buyerId': `B12345${seq}${key}`,
+          'buyerName': `Buyer ${seq}${key}`,
+          'buyerAddress': `Address B${seq}${key}`,
+          'sellerId': `S12345${seq}${key}`,
+          'sellerName': `Seller ${seq}${key}`,
+          'sellerAddress': `Address S${seq}${key}`,
+          'sellerBrCode': `BR${seq}${key}XXX`,
+          'latestDeliveryDate': '2021-08-07',
+          'incotermsCode': 'COD',
+          'incotermsLocation': 'HK',
+          'shipFromAddress': `Address F${seq}${key}`,
+          'shipToAddress': `Address T${seq}${key}`,
+          'shipVia': 'By Sea',
+          'goodsDescription': 'Some stuffs',
+          'currency': 'HKD',
+          'settlementCurrency': 'RMB',
+          'settlementAmount': 50000
+        },
+        'orderList': [
+          {
+            'sequenceNo': 1,
+            'orderNo': `ORD${seq}${key}01`,
+            'orderDate': '2020-08-07',
+            'itemDescription': 'Stuff A',
+            'unitPrice': 3000,
+            'quantity': 10,
+            'unit': 'Piece',
+            'subtotalAmount': 30000,
+            'partialShipment': 'N'
+          },
+          {
+            'sequenceNo': 2,
+            'orderNo': `ORD${seq}${key}02`,
+            'orderDate': '2020-08-07',
+            'itemDescription': 'Stuff B',
+            'unitPrice': 2000,
+            'quantity': 10,
+            'unit': 'Piece',
+            'subtotalAmount': 20000,
+            'partialShipment': 'N'
+          }
+        ]
+      }
+    ],
+    PoCancel: [
+      { 'poId': `P12345${seq}${key}`, 'reason': 'None required' },
+    ],
+    PoEdit: [
+      {
+        'poBaseInfo': {
+          'poId': `P12345${seq}${key}`,
+          'poNo': `PO${seq}${key}`,
+          'versionNo': 1,
+          'poDate': '2020-08-07',
+          'buyerId': `B12345${seq}${key}`,
+          'buyerName': `Buyer ${seq}${key}`,
+          'buyerAddress': `Address B${seq}2`,
+          'sellerId': `S12345${seq}2`,
+          'sellerName': `Seller ${seq}2`,
+          'sellerAddress': `Address S${seq}2`,
+          'sellerBrCode': `BR${seq}2XXX`,
+          'latestDeliveryDate': '2021-08-07',
+          'incotermsCode': 'COD',
+          'incotermsLocation': 'HK',
+          'shipFromAddress': `Address F${seq}2`,
+          'shipToAddress': `Address T${seq}2`,
+          'shipVia': 'By Sea',
+          'goodsDescription': 'Some EDITED stuffs',
+          'currency': 'HKD',
+          'settlementCurrency': 'RMB',
+          'settlementAmount': 50000
+        },
+        'orderList': [
+          {
+            'sequenceNo': 1,
+            'orderNo': `ORD${seq}${key}01`,
+            'orderDate': '2020-08-07',
+            'itemDescription': 'EDITED stuff A',
+            'unitPrice': 3000,
+            'quantity': 10,
+            'unit': 'Piece',
+            'subtotalAmount': 30000,
+            'partialShipment': 'N'
+          },
+          {
+            'sequenceNo': 2,
+            'orderNo': `ORD${seq}${key}02`,
+            'orderDate': '2020-08-07',
+            'itemDescription': 'EDITED stuff B',
+            'unitPrice': 2000,
+            'quantity': 10,
+            'unit': 'Piece',
+            'subtotalAmount': 20000,
+            'partialShipment': 'N'
+          }
+        ]
+      }
+    ],
+    PoProcess: [
+      {
+        'poId': `P12345${seq}${key}`,
+        'versionNo':'1',
+        'actionResponse': '1',
+        'sellerId': `S12345${seq}${key}`,
+        'sellerBankName': `Seller bank ${seq}${key}`,
+        'sellerBankAccount': `S12-345${seq}${key}-001`,
+        'comment': 'No comment'
+      },
+    ],
+    InvCreate: [
+      {
+        'invBaseInfo': {
+          'poId': `P12345${seq}${key}`,
+          'invoiceId': `I12345${seq}${key}`,
+          'invoiceNo': `INV${seq}${key}`,
+          'versionNo': 1,
+          'invoiceDate': '2020-08-09',
+          'sellerBankName': 'CCB Asia',
+          'sellerBankAccount': `12345678${seq}${key}`,
+          'paymentMaturityDate': '2021-09-07',
+          'shipmentDate': '2020-12-23',
+          'incotermsCode': 'COD',
+          'incotermsLocation': 'HK',
+          'shipFromAddress': `Address F${seq}${key}`,
+          'shipToAddress': `Address T${seq}${key}`,
+          'shipVia': 'By Sea',
+          'goodsDescription': 'Some stuffs',
+          'currency': 'HKD',
+          'settlementCurrency': 'RMB',
+          'settlementAmount': 50000,
+          'poNo': `PO${seq}${key}`,
+          'buyerId': `B12345${seq}${key}`,
+          'buyerName': `Buyer ${seq}${key}`,
+          'buyerAddress': `Address B${seq}${key}`,
+          'buyerBankName': 'BoC HK',
+          'buyerBankAccount': `23456789${seq}${key}`,
+          'sellerId': `S12345${seq}${key}`,
+          'sellerName': `Seller ${seq}${key}`,
+          'sellerAddress': `Address S${seq}${key}`
+        },
+        'orderList': [
+          {
+            'sequenceNo': 1,
+            'orderNo': `ORD${seq}${key}01`,
+            'orderDate': '2020-08-07',
+            'itemDescription': 'Stuff A',
+            'unitPrice': 3000,
+            'quantity': 10,
+            'unit': 'Piece',
+            'subtotalAmount': 30000,
+            'partialShipment': 'N'
+          },
+          {
+            'sequenceNo': 2,
+            'orderNo': `ORD${seq}${key}02`,
+            'orderDate': '2020-08-07',
+            'itemDescription': 'Stuff B',
+            'unitPrice': 2000,
+            'quantity': 10,
+            'unit': 'Piece',
+            'subtotalAmount': 20000,
+            'partialShipment': 'N'
+          }
+        ]
+      },
+    ],
+    InvEdit: [
+      {
+        'invBaseInfo': {
+          'poId': `P12345${seq}${key}`,
+          'invoiceId': `I12345${seq}${key}`,
+          'invoiceNo': `INV${seq}${key}`,
+          'versionNo': 1,
+          'invoiceDate': '2020-08-09',
+          'sellerBankName': 'CCB Asia',
+          'sellerBankAccount': `12345678${seq}${key}`,
+          'paymentMaturityDate': '2021-09-07',
+          'shipmentDate': '2020-12-23',
+          'incotermsCode': 'COD',
+          'incotermsLocation': 'HK',
+          'shipFromAddress': `Address F${seq}${key}`,
+          'shipToAddress': `Address T${seq}${key}`,
+          'shipVia': 'By Sea',
+          'goodsDescription': 'Some EDITED good stuffs',
+          'currency': 'HKD',
+          'settlementCurrency': 'RMB',
+          'settlementAmount': 50000,
+          'poNo': `PO${seq}${key}`,
+          'buyerId': `B12345${seq}${key}`,
+          'buyerName': `Buyer ${seq}${key}`,
+          'buyerAddress': `Address B${seq}${key}`,
+          'buyerBankName': 'BoC HK',
+          'buyerBankAccount': `23456789${seq}${key}`,
+          'sellerId': `S12345${seq}${key}`,
+          'sellerName': `Seller ${seq}${key}`,
+          'sellerAddress': `Address S${seq}${key}`
+        },
+        'orderList': [
+          {
+            'sequenceNo': 1,
+            'orderNo': `ORD${seq}${key}01`,
+            'orderDate': '2020-08-07',
+            'itemDescription': 'EDITED good stuff A',
+            'unitPrice': 3500,
+            'quantity': 10,
+            'unit': 'Piece',
+            'subtotalAmount': 35000,
+            'partialShipment': 'N'
+          },
+          {
+            'sequenceNo': 2,
+            'orderNo': `ORD${seq}${key}02`,
+            'orderDate': '2020-08-07',
+            'itemDescription': 'EDITED good stuff B',
+            'unitPrice': 2100,
+            'quantity': 10,
+            'unit': 'Piece',
+            'subtotalAmount': 21000,
+            'partialShipment': 'N'
+          }
+        ]
+      }
+    ],
+    InvNotify: [
+      {
+        'financeNo': `F12345${seq}${key}`,
+        'poId': `P12345${seq}${key}`,
+        'invoices': [
+          {
+            'invoiceId': `I12345${seq}${key}`,
+            'remark': 'No remark'
+          }
+        ]
+      },
+    ],
+    InvResult: [
+      {
+        'invoiceId': `I12345${seq}${key}`,
+        'versionNo': '001',
+        'actionResponse': '1',
+        'goodsReceived': '1',
+        'receiptDate': '2020-06-05',
+        'comment': 'This is good invoice'
+      },
+    ],
+    InvFin: [
+      {
+        'invoiceId': `I12345${seq}${key}`,
+        'paymentAmount': '12345',
+        'paymentAmountCurrency': 'RMB',
+        'paymentDate': '2020-09-10',
+        'remittanceBank': 'BoC HK',
+        'remittanceRemarks': '',
+        'sellerBank': 'CCB Asia',
+        'sellerBankAccount': `123456789${seq}${key}`,
+        'goodsReceived': false,
+        'receiptDate': '2020-07-21'
+      },
+    ]
+  }
+};
+
+export const genTestData = (seq:string, dataType:string[], arrSize ?:number) => {
+  const res = TestDataTmpl(seq, '1');
+  Object.keys(res).forEach( e => {if (!dataType.includes(e)) res[e]=[] });
+
+  if (arrSize && arrSize > 1) {
+    let cnt=2;
+    while (cnt <= arrSize) {
+      const tmpData = TestDataTmpl(seq, `${cnt++}`);
+      dataType.forEach( e => { res[e].push(tmpData[e][0]);});
+    }
+  }
+  
+
+  return res;
+};
+
+
 export const QUERY = {
   'FullTextSearchEntity': `
   query FullTextSearchEntity($query: String!) {
