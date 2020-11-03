@@ -816,7 +816,6 @@ const calSummaryStat = (runIdx: number, cfg: PerfTestConfig, batchRes?: runTestR
             const rdRawData = values.map( o=> parseInt(o.tsRec[e].redis));
             const o1RawData = values.map( o=> parseInt(o.tsRec[e].chainOrg1));
             const o3RawData = values.map( o=> parseInt(o.tsRec[e].chainOrg3));
-            const tlRawData = values.map( o=> parseInt(o.tsRec[e].ttl));
 
             console.log(`[Test run ${run}][Perf Stat. of ${e}]`
             + `NoTrans: ${values.length}`
@@ -824,7 +823,6 @@ const calSummaryStat = (runIdx: number, cfg: PerfTestConfig, batchRes?: runTestR
             + `, redis:{Min: ${Math.min.apply(Math, rdRawData)}ms, Max: ${Math.max.apply(Math, rdRawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].redis), 0) / values.length)}ms, p${PT_HI}: ${percentile(rdRawData.sort(numSortfunc), PT_HI)}ms}`
             + `, chainOrg1:{Min: ${Math.min.apply(Math, o1RawData)}ms, Max: ${Math.max.apply(Math, o1RawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg1), 0) / values.length)}ms, p${PT_HI}: ${percentile(o1RawData.sort(numSortfunc), PT_HI)}ms}`
             + `, chainOrg3:{Min: ${Math.min.apply(Math, o3RawData)}ms, Max: ${Math.max.apply(Math, o3RawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg3), 0) / values.length)}ms, p${PT_HI}: ${percentile(o3RawData.sort(numSortfunc), PT_HI)}ms}`
-            + `, total:{Min: ${Math.min.apply(Math, tlRawData)}ms, Max: ${Math.max.apply(Math, tlRawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].ttl), 0) / values.length)}ms, p${PT_HI}: ${percentile(tlRawData.sort(numSortfunc), PT_HI)}ms}`
             );
 
           });
