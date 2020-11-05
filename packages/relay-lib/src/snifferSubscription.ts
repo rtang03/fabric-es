@@ -83,7 +83,7 @@ export const createSubscription = (
                   try {
                     const obj = JSON.parse(msg[1][1]);
                     if (isReqRes(obj)) {
-                      await callback(event.channel, obj);
+                      callback(event.channel, obj);
                     } else {
                       logger.warn(`Received message of unknown type: '${msg[1][1]}'`);
                       await callback(event.channel, null, msg[1][1]);

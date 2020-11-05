@@ -6,15 +6,7 @@ import percentile from 'stats-percentile';
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-let totalElapsed = 0;
-let totalAuth = 0;
-let totalProc = 0;
-let totalWrite = 0;
-let totalRuns = 0;
-let MaxRuns = 0;
-let rawData:{[k:string]:{rl:number[], rd:number[], o1:number[], o3:number[]}} = {};
-
-enum DocId {
+const enum DocId {
   po = "poId",
   inv = "invoiceId",
 }
@@ -23,45 +15,6 @@ interface runTestResult {
   res:string,
   uid:string,
   tsRec:{[k:string]:any},
-}
-
-const GrepLogCfg:{[key in keyof typeof API]: {addSrhStrRegExp:string, logPath:string, dataType:string}} = {
-  [API.createInvoice]:        { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[4]}\\",\\"method\\":\\"POST\\"`,
-                                logPath: (process.env.RL_ORG1_LOG_PATH || './log/all.log'),
-                                dataType: 'InvCreate',
-                              },
-  [API.editInvoice]:          { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[4]}\\",\\"method\\":\\"PUT\\"`,
-                                logPath:(process.env.RL_ORG1_LOG_PATH || './log/all.log'),
-                                dataType: 'InvEdit',
-                              },
-  [API.transferInvoice]:      { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[5]}\\",\\"method\\":\\"POST\\"`,
-                                logPath: (process.env.RL_ORG1_LOG_PATH || './log/all.log'),
-                                dataType: 'InvNotify',
-                              },
-  [API.confirmInvoice]:       { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[7]}\\",\\"method\\":\\"POST\\"`,
-                                logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
-                                dataType: 'InvResult',
-                              },
-  [API.updatePaymentStatus]:  { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[8]}\\",\\"method\\":\\"POST\\"`,
-                                logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
-                                dataType: 'InvFin',
-                              },
-  [API.createPo]:             { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[1]}\\",\\"method\\":\\"POST\\"`,
-                                logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
-                                dataType: 'PoCreate',
-                              },
-  [API.editPo]:               { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[1]}\\",\\"method\\":\\"PUT\\"`,
-                                logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
-                                dataType: 'PoEdit',
-                              },
-  [API.cancelPo]:             { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[2]}\\",\\"method\\":\\"POST\\"`,
-                                logPath: (process.env.RL_ORG2_LOG_PATH || './log/all.log'),
-                                dataType: 'PoCancel',
-                              },
-  [API.processPo]:            { addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[3]}\\",\\"method\\":\\"POST\\"`,
-                                logPath: (process.env.RL_ORG1_LOG_PATH || './log/all.log'),
-                                dataType: 'PoProcess',
-                              },
 }
 
 const TestRules = {
@@ -94,13 +47,21 @@ const TestRules = {
                       , rules:[API.createPo, API.editPo, API.cancelPo, API.processPo, API.createInvoice, API.editInvoice, API.transferInvoice, API.confirmInvoice, API.updatePaymentStatus]},
 }
 
+
+let totalElapsed = 0;
+let totalAuth = 0;
+let totalProc = 0;
+let totalWrite = 0;
+let totalRuns = 0;
+let MaxRuns = 0;
+let rawData:{[k:string]:{rl:number[], rd:number[], o1:number[], o3:number[]}} = {};
+
 const cfgTestRun = TestRules[process.env.FAB_TEST_RULE || 'all'];
 const isPreGenId = cfgTestRun? (cfgTestRun.preGenId.length > 0) : false;
-const testRule = cfgTestRun?cfgTestRun.rules : [];
+const testRule:API[] = cfgTestRun?cfgTestRun.rules : [];
 const isEnqOnly = cfgTestRun? (cfgTestRun.isEnqOnly || false):false;
 const lastElapsedTimes = [];
 const isShowBkdn:boolean = (process.env.FAB_SHOW_BKDN || 'true') === "true";
-const dataType = cfgTestRun.rules.map(e => GrepLogCfg[e].dataType);
 const PT_HI:number = parseInt(process.env.FAB_PERCENTILE_HI_VAL || '100');
 const PT_LO:number = parseInt(process.env.FAB_PERCENTILE_LO_VAL || '0');
 const NUM_DOC_IN_REQ_DATA = parseInt(process.env.FAB_REQ_DATA_SIZE || '2');
@@ -108,17 +69,185 @@ const numSortfunc = function (a,b) {return a-b};
 
 let preGenIds = {};
 
+interface IApiCfg {
+  GrepLogCfg: {   addSrhStrRegExp:string
+                , logPath:string
+                , dataType:String
+              };
+  RunTestCfg: {
+                  submitRequest(data:any) : string[] | Promise<any>
+                , checkEntity(tag:string, token:string, p:any, expected?: (results: any[]) => boolean, pTestConfig?: PerfTestConfig) : Promise<any>
+                , tag:string
+              }
+}
+
+class ProcSetting {
+
+  static rlLogPath = { rl1: (process.env.RL_ORG1_LOG_PATH || './log/all.log'), rl2: (process.env.RL_ORG2_LOG_PATH || './log/all.log')};
+
+  static ApiCfg:{[k in keyof typeof API]:IApiCfg} = {
+    [API.createInvoice]:    { 
+                              GrepLogCfg:  {
+                                addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[4]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: 'rl1',
+                                dataType: "InvCreate",
+                              },
+                              RunTestCfg: {
+                                submitRequest: (data:any) => (isEnqOnly)?Array.from(new Set(data.InvCreate.map(d => d.invBaseInfo.invoiceId))):PerfTest.createInvoice(data.InvCreate),
+                                checkEntity: (tag:string, token:string, p:string, expected?: (results: any[]) => boolean, pTestConfig?: PerfTestConfig) => 
+                                      PerfTest.readEntities(tag, token, p),
+                                tag: "Create Invoices",
+                              }                         
+                            },
+    [API.editInvoice]:      { 
+                              GrepLogCfg:  {
+                                addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[4]}\\",\\"method\\":\\"PUT\\"`,
+                                logPath:'rl1',
+                                dataType: 'InvEdit',
+                              },
+                              RunTestCfg: {
+                                submitRequest: (data:any) => PerfTest.editInvoice(data.InvEdit),
+                                checkEntity: (tag:string, token:string, p:string, expected?: (results: any[]) => boolean, pTestConfig?: PerfTestConfig) => 
+                                      PerfTest.readEntities(tag, token, p, (results: any[]) => results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":1`) >= 0)), true)),
+                                tag: "Edit Invoices",
+                              }                         
+                            },
+    [API.transferInvoice]:  { 
+                              GrepLogCfg:  {
+                                addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[5]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: 'rl1',
+                                dataType: 'InvNotify',
+                              },
+                              RunTestCfg: {
+                                submitRequest: (data:any) => PerfTest.transferInvoice(data.InvNotify),
+                                checkEntity: (tag:string, token:string, p:string, expected?: (results: any[]) => boolean, pTestConfig?: PerfTestConfig) => 
+                                      PerfTest.readEntities(tag, token, p, (results: any[]) => results.reduce((accu, r) => (accu && (r.value.indexOf(`,InvoiceTransferred`) >= 0)), true)),
+                                tag: "Transfer Invoices",
+                              }                         
+                            },
+    [API.confirmInvoice]:  { 
+                              GrepLogCfg:  {
+                                addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[7]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: 'rl2',
+                                dataType: 'InvResult',
+                              },
+                              RunTestCfg: {
+                                submitRequest: (data:any) => PerfTest.confirmInvoice(data.InvResult),
+                                checkEntity: (tag:string, token:string, p:{invoiceId: string,actionResponse: string;}, expected?: (results: any[]) => boolean, pTestConfig?: PerfTestConfig) => 
+                                      PerfTest.readEntities(tag, token, p.invoiceId, (results: any[]) => results.reduce((accu, r) => { return ( accu && p.actionResponse === '1' ? (r.value.indexOf(`"status":2`) >= 0) : (r.value.indexOf(`"status":3`) >= 0));}, true)),
+                                tag: "Confirm Invoices",
+                              }                         
+                            },
+    [API.updatePaymentStatus]:  { 
+                              GrepLogCfg:  {
+                                addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[8]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: 'rl2',
+                                dataType: 'InvFin',
+                              },
+                              RunTestCfg: {
+                                submitRequest: (data:any) => PerfTest.updatePaymentStatus(data.InvFin),
+                                checkEntity: (tag:string, token:string, p:string, expected?: (results: any[]) => boolean, pTestConfig?: PerfTestConfig) => 
+                                      PerfTest.readEntities(tag, token, p, (results: any[]) => results.reduce((accu, r) => (accu && (r.value.indexOf(`,PaymentStatusUpdated`) >= 0)), true)),
+                                tag: "Update payment status",
+                              }                         
+                            },
+    [API.createPo]:         { 
+                              GrepLogCfg:  {
+                                addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[1]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: 'rl2',
+                                dataType: 'PoCreate',
+                              },
+                              RunTestCfg: {
+                                submitRequest: (data:any) => PerfTest.createPo(data.PoCreate),
+                                checkEntity: (tag:string, token:string, p:string, expected?: (results: any[]) => boolean, pTestConfig?: PerfTestConfig) => 
+                                      PerfTest.readEntities(tag, token, p),
+                                tag: "Create POs",
+                              }                         
+                            },
+    [API.editPo]:           { 
+                              GrepLogCfg:  {
+                                addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[1]}\\",\\"method\\":\\"PUT\\"`,
+                                logPath: 'rl2',
+                                dataType: 'PoEdit',
+                              },
+                              RunTestCfg: {
+                                submitRequest: (data:any) => PerfTest.editPo(data.PoEdit),
+                                checkEntity: (tag:string, token:string, p:string, expected?: (results: any[]) => boolean, pTestConfig?: PerfTestConfig) => 
+                                      PerfTest.readEntities(tag, token, p, (results: any[]) => results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":1`) >= 0)), true)),
+                                tag: "Edit POs",
+                              }                         
+                            },
+    [API.cancelPo]:         { 
+                              GrepLogCfg:  {
+                                addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[2]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: 'rl2',
+                                dataType: 'PoCancel',
+                              },
+                              RunTestCfg: {
+                                submitRequest: (data:any) => PerfTest.cancelPo(data.PoCancel),
+                                checkEntity: (tag:string, token:string, p:string, expected?: (results: any[]) => boolean, pTestConfig?: PerfTestConfig) => 
+                                      PerfTest.readEntities(tag, token, p, (results: any[]) => results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":4`) >= 0)), true)),
+                                tag: "Cancel POs",
+                              }                         
+                            },
+    [API.processPo]:         { 
+                              GrepLogCfg:  {
+                                addSrhStrRegExp: `\\"endPoint\\":\\"${PerfTest.defaultCfg.EndPoints[3]}\\",\\"method\\":\\"POST\\"`,
+                                logPath: 'rl1',
+                                dataType: 'PoProcess',
+                              },
+                              RunTestCfg: {
+                                submitRequest: (data:any) => PerfTest.processPo(data.PoProcess),
+                                checkEntity: (tag:string, token:string, p:{poId:string; actionResponse:string}, expected?: (results: any[]) => boolean, pTestConfig?: PerfTestConfig) => 
+                                      PerfTest.readEntities(tag, token, p.poId, (results: any[]) => results.reduce((accu, r) => {return (accu && p.actionResponse === '1' ? (r.value.indexOf(`"status":2`) >= 0) : (r.value.indexOf(`"status":3`) >= 0));}, true)),
+                                tag: "Process POs",
+                              }                         
+                            },
+    }
+
+}
+
+const reqCaller = (apiCfg: IApiCfg, data:any, token:string, run:string, variant:string, index:number, batchRes?:runTestResult) => {
+
+  return new Promise<{ids:string[], callEndPtStart:number, callEndPtEnd:number, reqSubmElapsed:number}> ( async (resolve, reject) => {
+    const writeStart = Date.now();
+    let write = 0;
+    const rtnObj = apiCfg.RunTestCfg.submitRequest;
+  
+    try {
+      const objIds:string[] = (rtnObj instanceof Array)? rtnObj: await rtnObj(data);
+  
+      if (objIds && (objIds !== undefined)) {
+        write += (Date.now() - writeStart);
+        const shouldContinue = await Promise.all(objIds.map(async p =>
+          apiCfg.RunTestCfg.checkEntity(`[Test run ${run}][#${variant}] ${apiCfg.RunTestCfg.tag}`, token, p)
+            .then(_ => true)
+            .catch(error => console.log(`[Test run ${run}][#${variant}] ${apiCfg.RunTestCfg.tag} ${error}`))
+        ));
+        if (!shouldContinue.reduce((a, c) => a && c, true)) {
+          console.log(`[Test run ${run}][#${variant}] ${apiCfg.RunTestCfg.tag} stopped. Reading ${apiCfg.RunTestCfg.tag} failed`);
+          reject(index);
+          return;
+        }
+
+        resolve({"ids": objIds, "callEndPtStart":writeStart, "callEndPtEnd": Date.now(), "reqSubmElapsed": write});
+      } else {
+        console.log(`[Test run ${run}][#${variant}] ERROR! ${apiCfg.RunTestCfg.tag} failed`);
+        reject(index);
+        return;
+      }
+    } catch (error) {
+      console.log(`[Test run ${run}][#${variant}] ${apiCfg.RunTestCfg.tag} throws ${error}`);
+      reject(index);
+      return;
+    }
+  })
+};
+
 const preRunTest = (run: string, index: number, variant: string, useAuth: boolean, accessToken?: string) => {
 
   const data = genTestData(variant, ['PoCreate','InvCreate']);
   const genIds = TestRules[process.env.FAB_TEST_RULE || 'all'].preGenId;
-  genIds.forEach( (e: DocId) => {
-    if (e === DocId.po) {
-      preGenIds['preGenPo'] = data.PoCreate[0].poBaseInfo.poId;
-    } else if (e === DocId.inv) {
-      preGenIds['preGenInv'] = data.InvCreate[0].invBaseInfo.invoiceId;
-    }
-  });
 
   return new Promise<void> (async (resolve, reject) => {
     const authStarts = Date.now();
@@ -135,72 +264,36 @@ const preRunTest = (run: string, index: number, variant: string, useAuth: boolea
       }
       if (!token || (token === undefined)) {
         console.log(`[Test run ${run}][#${variant}] ERROR! Get access token failed for user u${variant}`);
-        reject(index);
+        reject(index);accessToken
         return;
       }
     } else {
       token = accessToken;
     }
 
-    const procStarts = Date.now();
-    let write = 0;
+    genIds.forEach( (e: DocId) => {
+      let apiCfg:IApiCfg;
+      if (e === DocId.po) {
+        preGenIds['preGenPo'] = data.PoCreate[0].poBaseInfo.poId;
+        apiCfg = ProcSetting.ApiCfg.createPo;
+      } else if (e === DocId.inv) {
+        preGenIds['preGenInv'] = data.InvCreate[0].invBaseInfo.invoiceId;
+        apiCfg = ProcSetting.ApiCfg.createInvoice;
+      }
 
-    // PO processing
-    if (genIds.some(e => e === DocId.po)) {
-      try {
-        const writeStart = Date.now();
-        const poIds = await PerfTest.createPo(data.PoCreate);
-
-        if (poIds && (poIds !== undefined)) {
-          const shouldContinue = await Promise.all(poIds.map(async p =>
-            PerfTest.readEntities(`[Test run ${run}][#${variant}] Create POs`, token, p)
-              .then(_ => true)
-              .catch(error => console.log(`[Test run ${run}][#${variant}] Create POs ${error}`))
-          ));
-          if (!shouldContinue.reduce((a, c) => a && c, true)) {
-            console.log(`[Test run ${run}][#${variant}] Create POs stopped. Reading created POs failed`);
-            reject(index);
-            return;
-          }
-        } else {
-          console.log(`[Test run ${run}][#${variant}] ERROR! Create POs failed`);
+      if (apiCfg) {
+        reqCaller(apiCfg, data, token, run, variant, index)
+        .then(_ => true)
+        .catch(error => {
           reject(index);
           return;
-        }
-      } catch (error) {
-        console.log(`[Test run ${run}][#${variant}] Create POs throws ${error}`);
+        });
+      } else {
+        console.log(`Unknown DocId value : ${e}`)
         reject(index);
         return;
       }
-    }
-
-    // Invoice processing
-    if (genIds.some(e => e === DocId.po)) {
-      try {
-        const writeStart = Date.now();
-        const invIds = await PerfTest.createInvoice(data.InvCreate);
-        if (invIds && (invIds !== undefined)) {
-          write += (Date.now() - writeStart);
-          const shouldContinue = await Promise.all(invIds.map(async v => 
-            PerfTest.readEntities(`[Test run ${run}][#${variant}] Create Invoices`, token, v).then(_ => true)
-              .catch(error => console.log(`[Test run ${run}][#${variant}] Create Invoices ${error}`))
-          ));
-          if (!shouldContinue.reduce((a, c) => a && c, true)) {
-            console.log(`[Test run ${run}][#${variant}] Create Invoices stopped. Reading created invoices failed`);
-            reject(index);
-            return;
-          }
-        } else {
-          console.log(`[Test run ${run}][#${variant}] ERROR! Create Invoices failed`);
-          reject(index);
-          return;
-        }
-      } catch (error) {
-        console.log(`[Test run ${run}][#${variant}] Create Invoices throws ${error}`);
-        reject(index);
-        return;
-      }
-    }
+    });
 
     resolve();
   });
@@ -208,7 +301,9 @@ const preRunTest = (run: string, index: number, variant: string, useAuth: boolea
 
 const runTest = (run: string, index: number, variant: string, useAuth: boolean, accessToken?: string) => {
 
+  const dataType = cfgTestRun.rules.map(e => ProcSetting.ApiCfg[e].GrepLogCfg.dataType);
   const data = (typeof cfgTestRun.usePerfTestData === 'undefined' || cfgTestRun.usePerfTestData) ? genTestData(variant, dataType, NUM_DOC_IN_REQ_DATA) : getTestData(variant);
+
   let batchRes:runTestResult ={
     res:'reject',
     uid:variant,
@@ -268,279 +363,23 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
     if (isShowBkdn)
       console.log(`[Test run ${run}][#${variant}] Starting (ts ${procStarts})${(!accessToken && useAuth) ? `, access token: ${token.substr(0, 70)}...` : '...'}`);
 
-    // PO processing
-    if (testRule.some(e => e === API.createPo)) {
+    for (const e of testRule) {
       try {
-        const writeStart = Date.now();
-        const poIds = (isEnqOnly)?Array.from(new Set(data.PoCreate.map(d => d.poBaseInfo.poId))):await PerfTest.createPo(data.PoCreate);
-
-        if (poIds && (poIds !== undefined)) {
-          write += (Date.now() - writeStart);
-          const shouldContinue = await Promise.all(poIds.map(async p =>
-            PerfTest.readEntities(`[Test run ${run}][#${variant}] Create POs`, token, p)
-              .then(_ => true)
-              .catch(error => console.log(`[Test run ${run}][#${variant}] Create POs ${error}`))
-          ));
-          if (!shouldContinue.reduce((a, c) => a && c, true)) {
-            console.log(`[Test run ${run}][#${variant}] Create POs stopped. Reading created POs failed`);
-            reject(index);
-            return;
-          }
-          batchRes.tsRec[API.createPo] = {"id":poIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
-        } else {
-          console.log(`[Test run ${run}][#${variant}] ERROR! Create POs failed`);
+        await reqCaller(ProcSetting.ApiCfg[e], data, token, run, variant, index)
+        .then(rtn => {
+          write += rtn.reqSubmElapsed;
+          delete rtn.reqSubmElapsed;
+          batchRes.tsRec[e] = rtn;
+        })
+        .catch(error => {
           reject(index);
-          return;
-        }
-      } catch (error) {
-        console.log(`[Test run ${run}][#${variant}] Create POs throws ${error}`);
+          return;  
+        });
+      } catch (error){
+        console.log(`[Test run ${run}][#${variant}] ${ProcSetting.ApiCfg[e]} throws ${error}`);
         reject(index);
         return;
-      }
-    }
-
-    if (testRule.some(e => e === API.editPo)) {
-      try {
-        const writeStart = Date.now();
-        const editedPoIds = await PerfTest.editPo(data.PoEdit);
-        if (editedPoIds && (editedPoIds !== undefined)) {
-          write += (Date.now() - writeStart);
-          const shouldContinue = await Promise.all(editedPoIds.map(async p => 
-            PerfTest.readEntities(`[Test run ${run}][#${variant}] Edit POs`, token, p, (results: any[]) =>
-              results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":1`) >= 0)), true)
-            ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Edit POs ${error}`))
-          ));
-          if (!shouldContinue.reduce((a, c) => a && c, true)) {
-            console.log(`[Test run ${run}][#${variant}] Edit POs stopped. Reading edited POs failed`);
-            reject(index);
-            return;
-          }
-          batchRes.tsRec[API.editPo] = {"id":editedPoIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
-        } else {
-          console.log(`[Test run ${run}][#${variant}] ERROR! Edit POs failed`);
-          reject(index);
-          return;
-        }
-      } catch (error) {
-        console.log(`[Test run ${run}][#${variant}] Edit POs throws ${error}`);
-        reject(index);
-        return;
-      }
-    }
-
-    if (testRule.some(e => e === API.cancelPo)) {
-      try {
-        const writeStart = Date.now();
-        const cancelledPoIds = await PerfTest.cancelPo(data.PoCancel);
-        if (cancelledPoIds && (cancelledPoIds !== undefined)) {
-          write += (Date.now() - writeStart);
-          const shouldContinue = await Promise.all(cancelledPoIds.map(async p => 
-            PerfTest.readEntities(`[Test run ${run}][#${variant}] Cancel POs`, token, p, (results: any[]) =>
-              results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":4`) >= 0)), true)
-            ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Cancel POs ${error}`))
-          ));
-          if (!shouldContinue.reduce((a, c) => a && c, true)) {
-            console.log(`[Test run ${run}][#${variant}] Cancel POs stopped. Reading cancelled POs failed`);
-            reject(index);
-            return;
-          }
-          batchRes.tsRec[API.cancelPo] = {"id":cancelledPoIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
-        } else {
-          console.log(`[Test run ${run}][#${variant}] ERROR! Cancel POs failed`);
-          reject(index);
-          return;
-        }
-      } catch (error) {
-        console.log(`[Test run ${run}][#${variant}] Cancel POs throws ${error}`);
-        reject(index);
-        return;
-      }
-    }
-
-    if (testRule.some(e => e === API.processPo)) {
-      try {
-        const writeStart = Date.now();
-        const processPoResult = await PerfTest.processPo(data.PoProcess);
-        if (processPoResult && (processPoResult !== undefined)) {
-          write += (Date.now() - writeStart);
-          const shouldContinue = await Promise.all(processPoResult.map(async p =>
-            PerfTest.readEntities(`[Test run ${run}][#${variant}] Process POs`, token, p.poId, (results: any[]) =>
-              results.reduce((accu, r) => {
-                return (
-                  accu &&
-                  p.actionResponse === '1' ? (r.value.indexOf(`"status":2`) >= 0) : (r.value.indexOf(`"status":3`) >= 0)
-                );
-              }, true)
-            ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Process POs ${error}`))
-          ));
-          if (!shouldContinue.reduce((a, c) => a && c, true)) {
-            console.log(`[Test run ${run}][#${variant}] Process POs stopped. Reading processed POs failed`);
-            reject(index);
-            return;
-          }
-          batchRes.tsRec[API.processPo] = {"id":processPoResult[0].poId,"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
-        } else {
-          console.log(`[Test run ${run}][#${variant}] ERROR! Process POs failed`);
-          reject(index);
-          return;
-        }
-      } catch (error) {
-        console.log(`[Test run ${run}][#${variant}] Process POs throws ${error}`);
-        reject(index);
-        return;
-      }
-    }
-
-    // Invoice processing
-    if (testRule.some(e => e === API.createInvoice)) {
-      try {
-        const writeStart = Date.now();
-        const invIds = (isEnqOnly)?Array.from(new Set(data.InvCreate.map(d => d.invBaseInfo.invoiceId))):await PerfTest.createInvoice(data.InvCreate);
-
-        if (invIds && (invIds !== undefined)) {
-          write += (Date.now() - writeStart);
-          const shouldContinue = await Promise.all(invIds.map(async v => 
-            PerfTest.readEntities(`[Test run ${run}][#${variant}] Create Invoices`, token, v).then(_ => true)
-              .catch(error => console.log(`[Test run ${run}][#${variant}] Create Invoices ${error}`))
-          ));
-          if (!shouldContinue.reduce((a, c) => a && c, true)) {
-            console.log(`[Test run ${run}][#${variant}] Create Invoices stopped. Reading created invoices failed`);
-            reject(index);
-            return;
-          }
-          batchRes.tsRec[API.createInvoice]  = {"id":invIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
-        } else {
-          console.log(`[Test run ${run}][#${variant}] ERROR! Create Invoices failed`);
-          reject(index);
-          return;
-        }
-      } catch (error) {
-        console.log(`[Test run ${run}][#${variant}] Create Invoices throws ${error}`);
-        reject(index);
-        return;
-      }
-    }
-
-    if (testRule.some(e => e === API.editInvoice)) {
-      try {
-        const writeStart = Date.now();
-        const editedInvIds = await PerfTest.editInvoice(data.InvEdit);
-        if (editedInvIds && (editedInvIds !== undefined)) {
-          write += (Date.now() - writeStart);
-          const shouldContinue = await Promise.all(editedInvIds.map(async v => 
-            PerfTest.readEntities(`[Test run ${run}][#${variant}] Edit Invoices`, token, v, (results: any[]) =>
-              results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":1`) >= 0)), true)
-            ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Edit Invoices ${error}`))
-          ));
-          if (!shouldContinue.reduce((a, c) => a && c, true)) {
-            console.log(`[Test run ${run}][#${variant}] Edit Invoices stopped. Reading edited invoices failed`);
-            reject(index);
-            return;
-          }
-          batchRes.tsRec[API.editInvoice] = {"id":editedInvIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
-        } else {
-          console.log(`[Test run ${run}][#${variant}] ERROR! Edit Invoices failed`);
-          reject(index);
-          return;
-        }
-      } catch (error) {
-        console.log(`[Test run ${run}][#${variant}] Edit Invoices throws ${error}`);
-        reject(index);
-        return;
-      } 
-    }
-
-    if (testRule.some(e => e === API.transferInvoice)) {
-      try {
-        const writeStart = Date.now();
-        const notifiedInvIds = await PerfTest.transferInvoice(data.InvNotify);
-
-        if (notifiedInvIds && (notifiedInvIds !== undefined)) {
-          write += (Date.now() - writeStart);
-          const shouldContinue = await Promise.all(notifiedInvIds.map(async v => 
-            PerfTest.readEntities(`[Test run ${run}][#${variant}] Transfer Invoices`, token, v, (results: any[]) =>
-              results.reduce((accu, r) => (accu && (r.value.indexOf(`,InvoiceTransferred`) >= 0)), true)
-            ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Trasnfer Invoices ${error}`))
-          ));
-          if (!shouldContinue.reduce((a, c) => a && c, true)) {
-            console.log(`[Test run ${run}][#${variant}] Transfer Invoices stopped. Reading transferred invoices failed`);
-            reject(index);
-            return;
-          }
-          batchRes.tsRec[API.transferInvoice] = {"id":notifiedInvIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
-        } else {
-          console.log(`[Test run ${run}][#${variant}] ERROR! Transfer Invoices failed`);
-          reject(index);
-          return;
-        }
-      } catch (error) {
-        console.log(`[Test run ${run}][#${variant}] Transfer Invoices throws ${error}`);
-        reject(index);
-        return;
-      }
-    }
-
-    if (testRule.some(e => e === API.confirmInvoice)) {
-      try {
-        const writeStart = Date.now();
-        const confirmInvResult = await PerfTest.confirmInvoice(data.InvResult);
-        if (confirmInvResult && (confirmInvResult !== undefined)) {
-          write += (Date.now() - writeStart);
-          const shouldContinue = await Promise.all(confirmInvResult.map(async v => 
-            PerfTest.readEntities(`[Test run ${run}][#${variant}] Confirm Invoices`, token, v.invoiceId, (results: any[]) =>
-              results.reduce((accu, r) => {
-                return (
-                  accu &&
-                  v.actionResponse === '1' ? (r.value.indexOf(`"status":2`) >= 0) : (r.value.indexOf(`"status":3`) >= 0)
-                );
-              }, true)
-            ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Confirm Invoices ${error}`))
-          ));
-          if (!shouldContinue.reduce((a, c) => a && c, true)) {
-            console.log(`[Test run ${run}][#${variant}] Confirm Invoices stopped. Reading confirmed invoices failed`);
-            reject(index);
-            return;
-          }
-          batchRes.tsRec[API.confirmInvoice] = {"id":confirmInvResult[0].invoiceId,"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
-        } else {
-          console.log(`[Test run ${run}][#${variant}] ERROR! Confirm Invoices failed`);
-          reject(index);
-          return;
-        }
-      } catch (error) {
-        console.log(`[Test run ${run}][#${variant}] Confirm Invoices throws ${error}`);
-        reject(index);
-        return;
-      }
-    }
-
-    if (testRule.some(e => e === API.updatePaymentStatus)) {
-      try {
-        const writeStart = Date.now();
-        const invFinInvIds = await PerfTest.updatePaymentStatus(data.InvFin);
-        if (invFinInvIds && (invFinInvIds !== undefined)) {
-          write += (Date.now() - writeStart);
-          const shouldContinue = await Promise.all(invFinInvIds.map(async v => 
-            PerfTest.readEntities(`[Test run ${run}][#${variant}] Update payment status`, token, v, (results: any[]) =>
-              results.reduce((accu, r) => (accu && (r.value.indexOf(`,PaymentStatusUpdated`) >= 0)), true)
-            ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Update payment status ${error}`))
-          ));
-          if (!shouldContinue.reduce((a, c) => a && c, true)) {
-            console.log(`[Test run ${run}][#${variant}] Update payment status stopped. Reading updated invoices failed`);
-            reject(index);
-            return;
-          }
-          batchRes.tsRec[API.updatePaymentStatus] = {"id":invFinInvIds[0],"callEndPtStart":writeStart, "callEndPtEnd": Date.now()};
-        } else {
-          console.log(`[Test run ${run}][#${variant}] ERROR! Update payment status failed`);
-          reject(index);
-          return;
-        }
-      } catch (error) {
-        console.log(`[Test run ${run}][#${variant}] Update payment status throws ${error}`);
-        reject(index);
-        return;
-      }
+      };
     }
 
     const runFinish = Date.now();
@@ -574,9 +413,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
 
     // Grep ts from rl-org1
     if (!isEnqOnly) {
-      await Promise.all(Object.keys(batchRes.tsRec).map(async (key, idx) => {
-        return consolidTsWithSrv(key, batchRes.tsRec[key],idx);
-      }))
+      await Promise.all(Object.keys(batchRes.tsRec).map(async (key, idx) => consolidTsWithSrv(key, batchRes.tsRec[key],idx)))
         .then(values => {
           values.forEach( result => {
             batchRes.tsRec[result.apiStr] = Object.assign(batchRes.tsRec[result.apiStr], result.recTs);
@@ -596,17 +433,18 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
 
   return new Promise<{apiStr:string, recTs:{proxyReqStarts:number, proxyReqFinish:number, proxyResStarts:number, proxyResFinish:number, writeChainStart:number, writeChainFinish:number}}> ( async (resolve, reject) => {
 
-    let maxRun:number = 3;
+    let maxRun:number = parseInt(process.env.FAB_GREP_MAX_RUN || '5');
     let isStop:boolean = false;
 
     while (maxRun >= 1 && !isStop) {
       try {
-        const {stdout, stderr} = await exec(`grep "PERFTEST\\].*${GrepLogCfg[apiStr].addSrhStrRegExp}.*${tsRec['id']}" ${GrepLogCfg[apiStr].logPath}`);
+        const {stdout, stderr} = await exec(`grep "PERFTEST\\].*${ProcSetting.ApiCfg[apiStr].GrepLogCfg.addSrhStrRegExp}.*${tsRec['ids'][0]}" ${ProcSetting.rlLogPath[ProcSetting.ApiCfg[apiStr].GrepLogCfg.logPath]}`);
   
         if (stderr) {
           throw new Error(`error[${apiStr}-${idx}] : ${stderr}`);
         } else if (stdout) {
           const log = `${stdout}`;
+
           const json = JSON.parse(`{${log.replace('([sniffer] processNtt.js)','').substr(log.indexOf('"proxyReqStarts'))}`);
           const res = {'apiStr':apiStr,
             recTs:{
@@ -616,20 +454,9 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
               'proxyResFinish':json.proxyResFinish,
               'writeChainStart':json.writeChainStart,
               'writeChainFinish':json.writeChainFinish,
-              'rl': `${parseInt(json.proxyResFinish)-parseInt(tsRec['callEndPtStart'])}`,
-              'redis': `${parseInt(json.writeChainStart)-parseInt(json.proxyResFinish)}`,
-              'chainOrg1': `${parseInt(json.writeChainFinish)-parseInt(json.writeChainStart)}`,
-              'chainOrg3': `${parseInt(tsRec['callEndPtEnd'])-parseInt(json.writeChainFinish)}`,
-              'ttl': `${parseInt(tsRec['callEndPtEnd'])-parseInt(tsRec['callEndPtStart'])}`
             }
           }
   
-          // For Summary use
-          rawData[apiStr]['rl'].push(parseInt(res.recTs.rl));
-          rawData[apiStr]['rd'].push(parseInt(res.recTs.redis));
-          rawData[apiStr]['o1'].push(parseInt(res.recTs.chainOrg1));
-          rawData[apiStr]['o3'].push(parseInt(res.recTs.chainOrg3));
-
           resolve(res);
           isStop = true;
           break;
@@ -637,13 +464,14 @@ const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiSt
       } catch(error) {
         if (--maxRun > 0 ) {
           console.log(`GrepLog error[${apiStr}-${idx}-retrying] : ${error}`);
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise(resolve => setTimeout(resolve, 1000));
         } else {
           isStop = true;
-          reject(`error[${apiStr}-${idx}] : ${error}`);
+          reject(`[${apiStr}-${idx}-${tsRec['id']}] : ${error}`);
         }
       }
     } 
+
   })
 }
 
@@ -683,7 +511,7 @@ const calSummaryStat = (runIdx: number, cfg: PerfTestConfig, batchRes?: runTestR
         const pAvg_o3 = o3s.filter( (_, idx) => idx >= Math.round(o3s.length*PT_LO/100)-1 && idx <= Math.round(o3s.length*PT_HI/100)-1);
   
         const ttlUse_rls = runList.res.map( f => Math.max.apply(Math, f.map( g => g.tsRec[e].proxyResFinish)) - Math.min.apply(Math, f.map(g => g.tsRec[e].callEndPtStart))).sort(numSortfunc);
-        const ttlUse_rds = runList.res.map( f => Math.max.apply(Math, f.map( g => g.tsRec[e].writeChainStart)) - Math.min.apply(Math, f.map(g => g.tsRec[e].proxyResFinish))).sort(numSortfunc);
+        const ttlUse_rds = runList.res.map( f => Math.min.apply(Math, f.map( g => g.tsRec[e].writeChainStart)) - Math.min.apply(Math, f.map(g => g.tsRec[e].proxyResFinish))).sort(numSortfunc);
         const ttlUse_o1s = runList.res.map( f => Math.max.apply(Math, f.map( g => g.tsRec[e].writeChainFinish)) - Math.min.apply(Math, f.map(g => g.tsRec[e].writeChainStart))).sort(numSortfunc);
         const ttlUse_o3s = runList.res.map( f => Math.max.apply(Math, f.map( g => g.tsRec[e].callEndPtEnd)) - Math.min.apply(Math, f.map(g => g.tsRec[e].writeChainFinish))).sort(numSortfunc);
   
@@ -801,21 +629,37 @@ const calSummaryStat = (runIdx: number, cfg: PerfTestConfig, batchRes?: runTestR
     }))
       .then(async (values) => {
         
-        // Print Breakdown
-        if (isShowBkdn) {
-          values.forEach( batchRes => {
-            console.log(`[Test run ${run}][Breakdown]` + JSON.stringify(batchRes));
-          });
-        }
-
+        
         // Calculate and Print Stat.
         if (!isEnqOnly) {
           testRule.forEach(e => {
+            // Re-calculation of rl, writeChain1, writeChain2, ttl
+            const strWriteChain1 = Math.min.apply(Math, values.map(o=> parseInt(o.tsRec[e].writeChainStart)));
+            console.log(`strWriteChain1: ${strWriteChain1}`);
+            values.forEach (res => {
+              res.tsRec[e].rl = res.tsRec[e].proxyResFinish - res.tsRec[e].callEndPtStart;
+              res.tsRec[e].redis = strWriteChain1 - res.tsRec[e].proxyResFinish;
+              res.tsRec[e].chainOrg1 = res.tsRec[e].writeChainFinish - strWriteChain1;
+              res.tsRec[e].chainOrg3 = res.tsRec[e].callEndPtEnd - res.tsRec[e].writeChainFinish;
+              res.tsRec[e].ttl = res.tsRec[e].callEndPtEnd - res.tsRec[e].callEndPtStart;
+
+              // For Summary use
+              rawData[e]['rl'].push(parseInt(res.tsRec[e].rl));
+              rawData[e]['rd'].push(parseInt(res.tsRec[e].redis));
+              rawData[e]['o1'].push(parseInt(res.tsRec[e].chainOrg1));
+              rawData[e]['o3'].push(parseInt(res.tsRec[e].chainOrg3));
+
+              // Print Breakdown
+              if (isShowBkdn) {
+                console.log(`[Test run ${run}][Breakdown]` + JSON.stringify(res));
+              }
+            });
 
             const rlRawData = values.map( o=> parseInt(o.tsRec[e].rl));
             const rdRawData = values.map( o=> parseInt(o.tsRec[e].redis));
             const o1RawData = values.map( o=> parseInt(o.tsRec[e].chainOrg1));
             const o3RawData = values.map( o=> parseInt(o.tsRec[e].chainOrg3));
+            const tlRawData = values.map( o=> parseInt(o.tsRec[e].ttl));
 
             console.log(`[Test run ${run}][Perf Stat. of ${e}]`
             + `NoTrans: ${values.length}`
@@ -823,6 +667,7 @@ const calSummaryStat = (runIdx: number, cfg: PerfTestConfig, batchRes?: runTestR
             + `, redis:{Min: ${Math.min.apply(Math, rdRawData)}ms, Max: ${Math.max.apply(Math, rdRawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].redis), 0) / values.length)}ms, p${PT_HI}: ${percentile(rdRawData.sort(numSortfunc), PT_HI)}ms}`
             + `, chainOrg1:{Min: ${Math.min.apply(Math, o1RawData)}ms, Max: ${Math.max.apply(Math, o1RawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg1), 0) / values.length)}ms, p${PT_HI}: ${percentile(o1RawData.sort(numSortfunc), PT_HI)}ms}`
             + `, chainOrg3:{Min: ${Math.min.apply(Math, o3RawData)}ms, Max: ${Math.max.apply(Math, o3RawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].chainOrg3), 0) / values.length)}ms, p${PT_HI}: ${percentile(o3RawData.sort(numSortfunc), PT_HI)}ms}`
+            + `, total:{Min: ${Math.min.apply(Math, tlRawData)}ms, Max: ${Math.max.apply(Math, tlRawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].ttl), 0) / values.length)}ms, p${PT_HI}: ${percentile(tlRawData.sort(numSortfunc), PT_HI)}ms}`
             );
 
           });
