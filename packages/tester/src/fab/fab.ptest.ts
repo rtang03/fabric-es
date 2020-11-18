@@ -3,6 +3,7 @@ import fs from 'fs';
 import { getTestData, genTestData } from '../relay/mockUtils';
 import { PerfTest, API, PerfTestConfig } from './ptest';
 import percentile from 'stats-percentile';
+const os = require('os');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
@@ -54,7 +55,8 @@ let totalProc = 0;
 let totalWrite = 0;
 let totalRuns = 0;
 let MaxRuns = 0;
-let rawData:{[k:string]:{rl:number[], rd:number[], o1:number[], o3:number[]}} = {};
+let initSvrLogLineCnt:{} = {};
+// let grepLogs:{rl1:string[], rl2:string[]} = {rl1:[], rl2:[]};
 
 const cfgTestRun = TestRules[process.env.FAB_TEST_RULE || 'all'];
 const isPreGenId = cfgTestRun? (cfgTestRun.preGenId.length > 0) : false;
@@ -66,6 +68,7 @@ const PT_HI:number = parseInt(process.env.FAB_PERCENTILE_HI_VAL || '100');
 const PT_LO:number = parseInt(process.env.FAB_PERCENTILE_LO_VAL || '0');
 const NUM_DOC_IN_REQ_DATA = parseInt(process.env.FAB_REQ_DATA_SIZE || '2');
 const numSortfunc = function (a,b) {return a-b};
+let tailProc:any = {};
 
 let preGenIds = {};
 
@@ -75,7 +78,7 @@ interface IApiCfg {
                 , dataType:String
               };
   RunTestCfg: {
-                  submitRequest(data:any) : string[] | Promise<any>
+                  submitRequest(data:any, frmPerGen:boolean) : string[] | Promise<any>
                 , checkEntity(tag:string, token:string, p:any, expected?: (results: any[]) => boolean, pTestConfig?: PerfTestConfig) : Promise<any>
                 , tag:string
               }
@@ -93,7 +96,7 @@ class ProcSetting {
                                 dataType: "InvCreate",
                               },
                               RunTestCfg: {
-                                submitRequest: (data:any) => (isEnqOnly)?Array.from(new Set(data.InvCreate.map(d => d.invBaseInfo.invoiceId))):PerfTest.createInvoice(data.InvCreate),
+                                submitRequest: (data:any, frmPerGenFun?:boolean) => (isEnqOnly && !frmPerGenFun)?Array.from(new Set(data.InvCreate.map(d => d.invBaseInfo.invoiceId))):PerfTest.createInvoice(data.InvCreate),
                                 checkEntity: (tag:string, token:string, p:string, expected?: (results: any[]) => boolean, pTestConfig?: PerfTestConfig) => 
                                       PerfTest.readEntities(tag, token, p),
                                 tag: "Create Invoices",
@@ -158,7 +161,7 @@ class ProcSetting {
                                 dataType: 'PoCreate',
                               },
                               RunTestCfg: {
-                                submitRequest: (data:any) => PerfTest.createPo(data.PoCreate),
+                                submitRequest: (data:any, frmPerGenFun?:boolean) => (isEnqOnly && !frmPerGenFun)?Array.from(new Set(data.PoCreate.map(d => d.poBaseInfo.poId))):PerfTest.createPo(data.PoCreate),
                                 checkEntity: (tag:string, token:string, p:string, expected?: (results: any[]) => boolean, pTestConfig?: PerfTestConfig) => 
                                       PerfTest.readEntities(tag, token, p),
                                 tag: "Create POs",
@@ -207,7 +210,7 @@ class ProcSetting {
 
 }
 
-const reqCaller = (apiCfg: IApiCfg, data:any, token:string, run:string, variant:string, index:number, batchRes?:runTestResult) => {
+const reqCaller = (apiCfg: IApiCfg, data:any, token:string, run:string, variant:string, index:number, frmPerGen?:boolean, batchRes?:runTestResult) => {
 
   return new Promise<{ids:string[], callEndPtStart:number, callEndPtEnd:number, reqSubmElapsed:number}> ( async (resolve, reject) => {
     const writeStart = Date.now();
@@ -215,7 +218,7 @@ const reqCaller = (apiCfg: IApiCfg, data:any, token:string, run:string, variant:
     const rtnObj = apiCfg.RunTestCfg.submitRequest;
   
     try {
-      const objIds:string[] = (rtnObj instanceof Array)? rtnObj: await rtnObj(data);
+      const objIds:string[] = (rtnObj instanceof Array)? rtnObj: await rtnObj(data, frmPerGen);
   
       if (objIds && (objIds !== undefined)) {
         write += (Date.now() - writeStart);
@@ -224,6 +227,7 @@ const reqCaller = (apiCfg: IApiCfg, data:any, token:string, run:string, variant:
             .then(_ => true)
             .catch(error => console.log(`[Test run ${run}][#${variant}] ${apiCfg.RunTestCfg.tag} ${error}`))
         ));
+
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           console.log(`[Test run ${run}][#${variant}] ${apiCfg.RunTestCfg.tag} stopped. Reading ${apiCfg.RunTestCfg.tag} failed`);
           reject(index);
@@ -271,7 +275,7 @@ const preRunTest = (run: string, index: number, variant: string, useAuth: boolea
       token = accessToken;
     }
 
-    genIds.forEach( (e: DocId) => {
+    for (const e of genIds) {
       let apiCfg:IApiCfg;
       if (e === DocId.po) {
         preGenIds['preGenPo'] = data.PoCreate[0].poBaseInfo.poId;
@@ -282,7 +286,7 @@ const preRunTest = (run: string, index: number, variant: string, useAuth: boolea
       }
 
       if (apiCfg) {
-        reqCaller(apiCfg, data, token, run, variant, index)
+        await reqCaller(apiCfg, data, token, run, variant, index, true)
         .then(_ => true)
         .catch(error => {
           reject(index);
@@ -293,7 +297,7 @@ const preRunTest = (run: string, index: number, variant: string, useAuth: boolea
         reject(index);
         return;
       }
-    });
+    }
 
     resolve();
   });
@@ -365,7 +369,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
 
     for (const e of testRule) {
       try {
-        await reqCaller(ProcSetting.ApiCfg[e], data, token, run, variant, index)
+        await reqCaller(ProcSetting.ApiCfg[e], data, token, run, variant, index, false)
         .then(rtn => {
           write += rtn.reqSubmElapsed;
           delete rtn.reqSubmElapsed;
@@ -411,67 +415,62 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
     // For controlling grep resource process
     isAllRun();
 
-    // Grep ts from rl-org1
-    if (!isEnqOnly) {
-      await Promise.all(Object.keys(batchRes.tsRec).map(async (key, idx) => consolidTsWithSrv(key, batchRes.tsRec[key],idx)))
-        .then(values => {
-          values.forEach( result => {
-            batchRes.tsRec[result.apiStr] = Object.assign(batchRes.tsRec[result.apiStr], result.recTs);
-          });
-        })
-        .catch(errors => {
-          reject(errors);
-        });
-    } 
-
     resolve(batchRes);
   });
 };
 
-
-const consolidTsWithSrv = (apiStr:string, tsRec:{}, idx: number): Promise<{apiStr:string, recTs:{proxyReqStarts:number, proxyReqFinish:number, proxyResStarts:number, proxyResFinish:number, writeChainStart:number, writeChainFinish:number}}> => {
-
-  return new Promise<{apiStr:string, recTs:{proxyReqStarts:number, proxyReqFinish:number, proxyResStarts:number, proxyResFinish:number, writeChainStart:number, writeChainFinish:number}}> ( async (resolve, reject) => {
-
+const getTsRecFrSvr = (apiStr:string, resObjs:runTestResult[], run:string): Promise<void> => {
+  return new Promise<void> ( async (resolve, reject) => {
     let maxRun:number = parseInt(process.env.FAB_GREP_MAX_RUN || '5');
     let isStop:boolean = false;
 
-    while (maxRun >= 1 && !isStop) {
-      try {
-        const {stdout, stderr} = await exec(`grep "PERFTEST\\].*${ProcSetting.ApiCfg[apiStr].GrepLogCfg.addSrhStrRegExp}.*${tsRec['ids'][0]}" ${ProcSetting.rlLogPath[ProcSetting.ApiCfg[apiStr].GrepLogCfg.logPath]}`);
-  
-        if (stderr) {
-          throw new Error(`error[${apiStr}-${idx}] : ${stderr}`);
-        } else if (stdout) {
-          const log = `${stdout}`;
+    while (maxRun-- >= 1 && !isStop) {
+      const ids = resObjs.filter( r => !r.tsRec[apiStr].proxyReqStarts || r.tsRec[apiStr].proxyReqStarts === undefined);
 
-          const json = JSON.parse(`{${log.replace('([sniffer] processNtt.js)','').substr(log.indexOf('"proxyReqStarts'))}`);
-          const res = {'apiStr':apiStr,
-            recTs:{
-              'proxyReqStarts':json.proxyReqStarts,
-              'proxyReqFinish':json.proxyReqFinish,
-              'proxyResStarts':json.proxyResStarts,
-              'proxyResFinish':json.proxyResFinish,
-              'writeChainStart':json.writeChainStart,
-              'writeChainFinish':json.writeChainFinish,
+      if (ids === undefined || ids.length === 0) {
+        isStop = true;
+        resolve();
+        break;
+      } else {
+        try {
+          if (maxRun <= 0) {
+            throw new Error(`Reach Max Run`);
+          }
+
+          const grepCmd = `tail -n +${initSvrLogLineCnt[run][ProcSetting.ApiCfg[apiStr].GrepLogCfg.logPath]} ${ProcSetting.rlLogPath[ProcSetting.ApiCfg[apiStr].GrepLogCfg.logPath]} | grep "PERFTEST\\].*${ProcSetting.ApiCfg[apiStr].GrepLogCfg.addSrhStrRegExp}.*processNtt\\.js)$"`;
+          const {stdout, stderr} = await exec(grepCmd);
+
+          if (stderr) {
+            throw new Error(`error[${apiStr}-${run}] : ${stderr}`);
+          } else if (stdout) {
+            const grepLogs = `${stdout}`.toString().split(os.EOL);
+            if (grepLogs !== undefined && grepLogs.length > 0) {
+              resObjs.forEach( res => {
+                const logs = grepLogs.filter(s => s.trim().match(`${res.tsRec[apiStr]['ids'][0]}.*processNtt\\.js\\)$`));
+                if (logs !== undefined && logs.length > 0) {
+                  const log = logs[0].trim();
+                  const json = JSON.parse(`{${log.replace('([sniffer] processNtt.js)','').substr(log.indexOf('"proxyReqStarts'))}`);
+                  res.tsRec[apiStr].proxyReqStarts = json.proxyReqStarts;
+                  res.tsRec[apiStr].proxyReqFinish = json.proxyReqFinish;
+                  res.tsRec[apiStr].proxyResStarts = json.proxyResStarts;
+                  res.tsRec[apiStr].proxyResFinish = json.proxyResFinish;
+                  res.tsRec[apiStr].writeChainStart = json.writeChainStart;
+                  res.tsRec[apiStr].writeChainFinish = json.writeChainFinish;
+                }
+              });  
             }
           }
-  
-          resolve(res);
-          isStop = true;
-          break;
-        }
-      } catch(error) {
-        if (--maxRun > 0 ) {
-          console.log(`GrepLog error[${apiStr}-${idx}-retrying] : ${error}`);
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        } else {
-          isStop = true;
-          reject(`[${apiStr}-${idx}-${tsRec['id']}] : ${error}`);
-        }
-      }
-    } 
 
+        } catch(error) {
+          if (maxRun > 0 ) {
+            console.log(`GrepLog error[${apiStr}-${run}-retrying] : ${error}`);
+          } else {
+            isStop = true;
+            reject(`[${apiStr}-${run}] : Not found ids ${JSON.stringify(ids)}`);
+          }
+        } finally { await new Promise(resolve => setTimeout(resolve, 1000)); };
+      }
+    }
   })
 }
 
@@ -487,7 +486,7 @@ const calSummaryStat = (runIdx: number, cfg: PerfTestConfig, batchRes?: runTestR
   if (batchRes)
     runList.res.push(batchRes);
 
-  if ((runList.batch.length === cfg.RUNS) && Object.keys(rawData).length > 0) {
+  if ((runList.batch.length === cfg.RUNS)) {
 
     if (isEnqOnly) {
       testRule.forEach(e => {
@@ -500,26 +499,30 @@ const calSummaryStat = (runIdx: number, cfg: PerfTestConfig, batchRes?: runTestR
       });
     } else {
       testRule.forEach(e => {
-        const rls = rawData[e].rl.sort(numSortfunc);
-        const rds = rawData[e].rd.sort(numSortfunc);
-        const o1s = rawData[e].o1.sort(numSortfunc);
-        const o3s = rawData[e].o3.sort(numSortfunc);
-  
-        const pAvg_rl = rls.filter( (_, idx) => idx >= Math.round(rls.length*PT_LO/100)-1 && idx <= Math.round(rls.length*PT_HI/100)-1);
-        const pAvg_rd = rds.filter( (_, idx) => idx >= Math.round(rds.length*PT_LO/100)-1 && idx <= Math.round(rds.length*PT_HI/100)-1);
-        const pAvg_o1 = o1s.filter( (_, idx) => idx >= Math.round(o1s.length*PT_LO/100)-1 && idx <= Math.round(o1s.length*PT_HI/100)-1);
-        const pAvg_o3 = o3s.filter( (_, idx) => idx >= Math.round(o3s.length*PT_LO/100)-1 && idx <= Math.round(o3s.length*PT_HI/100)-1);
-  
+
+        // Prepare "Per Request" records
+        const rls = [].concat.apply([],runList.res.map( f => f.map(g => g.tsRec[e].rl))).sort(numSortfunc);
+        const rds = [].concat.apply([],runList.res.map( f => f.map(g => g.tsRec[e].redis))).sort(numSortfunc);
+        const o1s = [].concat.apply([],runList.res.map( f => f.map(g => g.tsRec[e].chainOrg1))).sort(numSortfunc);
+        const o3s = [].concat.apply([],runList.res.map( f => f.map(g => g.tsRec[e].chainOrg3))).sort(numSortfunc);
+
+        const pAvg_rl = rls.filter( (_: any, idx: number) => idx >= Math.round(rls.length*PT_LO/100)-1 && idx <= Math.round(rls.length*PT_HI/100)-1);
+        const pAvg_rd = rds.filter( (_: any, idx: number) => idx >= Math.round(rds.length*PT_LO/100)-1 && idx <= Math.round(rds.length*PT_HI/100)-1);
+        const pAvg_o1 = o1s.filter( (_: any, idx: number) => idx >= Math.round(o1s.length*PT_LO/100)-1 && idx <= Math.round(o1s.length*PT_HI/100)-1);
+        const pAvg_o3 = o3s.filter( (_: any, idx: number) => idx >= Math.round(o3s.length*PT_LO/100)-1 && idx <= Math.round(o3s.length*PT_HI/100)-1);
+
+        // Prepare "Per Batch" records
         const ttlUse_rls = runList.res.map( f => Math.max.apply(Math, f.map( g => g.tsRec[e].proxyResFinish)) - Math.min.apply(Math, f.map(g => g.tsRec[e].callEndPtStart))).sort(numSortfunc);
         const ttlUse_rds = runList.res.map( f => Math.min.apply(Math, f.map( g => g.tsRec[e].writeChainStart)) - Math.min.apply(Math, f.map(g => g.tsRec[e].proxyResFinish))).sort(numSortfunc);
         const ttlUse_o1s = runList.res.map( f => Math.max.apply(Math, f.map( g => g.tsRec[e].writeChainFinish)) - Math.min.apply(Math, f.map(g => g.tsRec[e].writeChainStart))).sort(numSortfunc);
         const ttlUse_o3s = runList.res.map( f => Math.max.apply(Math, f.map( g => g.tsRec[e].callEndPtEnd)) - Math.min.apply(Math, f.map(g => g.tsRec[e].writeChainFinish))).sort(numSortfunc);
-  
+
         const pAvg_ttlUse_rl = ttlUse_rls.filter( (_, idx) => idx >= Math.round(ttlUse_rls.length*PT_LO/100)-1 && idx <= Math.round(ttlUse_rls.length*PT_HI/100)-1);
         const pAvg_ttlUse_rd = ttlUse_rds.filter( (_, idx) => idx >= Math.round(ttlUse_rds.length*PT_LO/100)-1 && idx <= Math.round(ttlUse_rds.length*PT_HI/100)-1);
         const pAvg_ttlUse_o1 = ttlUse_o1s.filter( (_, idx) => idx >= Math.round(ttlUse_o1s.length*PT_LO/100)-1 && idx <= Math.round(ttlUse_o1s.length*PT_HI/100)-1);
         const pAvg_ttlUse_o3 = ttlUse_o3s.filter( (_, idx) => idx >= Math.round(ttlUse_o3s.length*PT_LO/100)-1 && idx <= Math.round(ttlUse_o3s.length*PT_HI/100)-1);
-  
+
+        // Print Stat.
         console.log(`[Summary][Perf Stat. of ${e} ( ${NUM_DOC_IN_REQ_DATA} DOCS X ${cfg.BATCH} BTH x ${cfg.RUNS} RUN ), total ${runList.res.length} batch run]`
         + `{`
         +   `byREQ:{`
@@ -561,8 +564,6 @@ const calSummaryStat = (runIdx: number, cfg: PerfTestConfig, batchRes?: runTestR
   totalRuns = 0;
   MaxRuns = RUNS * BATCH;
 
-  testRule.forEach(api => {rawData[api] = {rl:[],rd:[],o1:[],o3:[]};});
-  
   lastElapsedTimes.splice(0, lastElapsedTimes.length);
   
   if (cfg.STATS_DATA) {
@@ -600,6 +601,19 @@ const calSummaryStat = (runIdx: number, cfg: PerfTestConfig, batchRes?: runTestR
       });
     }
 
+    // Check Server log line no before running test
+    initSvrLogLineCnt[run] = {"rl1":0,"rl2":0};
+    for (let k of Object.getOwnPropertyNames(ProcSetting.rlLogPath)) {
+      const {stdout, stderr} = await exec(`cat ${ProcSetting.rlLogPath[k]} | wc -l`);
+
+      if (stderr) {
+        console.log(`ERROR on checking server log(${ProcSetting.rlLogPath[k]}), ${stderr}`)
+        process.exit(-1);
+      } else if (stdout) {
+        initSvrLogLineCnt[run][k] = parseInt(stdout.toString());
+      }    
+    }
+
     let token;
     if (authOn === 'less') {
       try {
@@ -629,25 +643,23 @@ const calSummaryStat = (runIdx: number, cfg: PerfTestConfig, batchRes?: runTestR
     }))
       .then(async (values) => {
         
-        
         // Calculate and Print Stat.
         if (!isEnqOnly) {
-          testRule.forEach(e => {
+          testRule.forEach(async e => {
+
+            // Grep Svr Log
+            await getTsRecFrSvr(e, values, run);
+
             // Re-calculation of rl, writeChain1, writeChain2, ttl
-            const strWriteChain1 = Math.min.apply(Math, values.map(o=> parseInt(o.tsRec[e].writeChainStart)));
-            console.log(`strWriteChain1: ${strWriteChain1}`);
+            const minWriteChainStart = Math.min.apply(Math, values.map( g => g.tsRec[e].writeChainStart));
+
             values.forEach (res => {
+              // For "per request" record
               res.tsRec[e].rl = res.tsRec[e].proxyResFinish - res.tsRec[e].callEndPtStart;
-              res.tsRec[e].redis = strWriteChain1 - res.tsRec[e].proxyResFinish;
-              res.tsRec[e].chainOrg1 = res.tsRec[e].writeChainFinish - strWriteChain1;
+              res.tsRec[e].redis = minWriteChainStart - res.tsRec[e].proxyResFinish;
+              res.tsRec[e].chainOrg1 = res.tsRec[e].writeChainFinish - minWriteChainStart;
               res.tsRec[e].chainOrg3 = res.tsRec[e].callEndPtEnd - res.tsRec[e].writeChainFinish;
               res.tsRec[e].ttl = res.tsRec[e].callEndPtEnd - res.tsRec[e].callEndPtStart;
-
-              // For Summary use
-              rawData[e]['rl'].push(parseInt(res.tsRec[e].rl));
-              rawData[e]['rd'].push(parseInt(res.tsRec[e].redis));
-              rawData[e]['o1'].push(parseInt(res.tsRec[e].chainOrg1));
-              rawData[e]['o3'].push(parseInt(res.tsRec[e].chainOrg3));
 
               // Print Breakdown
               if (isShowBkdn) {
@@ -670,6 +682,7 @@ const calSummaryStat = (runIdx: number, cfg: PerfTestConfig, batchRes?: runTestR
             + `, total:{Min: ${Math.min.apply(Math, tlRawData)}ms, Max: ${Math.max.apply(Math, tlRawData)}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+parseInt(cur.tsRec[e].ttl), 0) / values.length)}ms, p${PT_HI}: ${percentile(tlRawData.sort(numSortfunc), PT_HI)}ms}`
             );
 
+            calSummaryStat(i , cfg, values);
           });
         } else {
           testRule.forEach(e => {
@@ -677,6 +690,8 @@ const calSummaryStat = (runIdx: number, cfg: PerfTestConfig, batchRes?: runTestR
             + ` NoTrans: ${values.length}, Min: ${Math.min.apply(Math, values.map(function(o) { return (o.tsRec[e].callEndPtEnd-o.tsRec[e].callEndPtStart); }))}ms, Max: ${Math.max.apply(Math, values.map(function(o) { return (o.tsRec[e].callEndPtEnd-o.tsRec[e].callEndPtStart); }))}ms, Avg: ${Math.round(values.reduce((sum, cur) => sum+(parseInt(cur.tsRec[e].callEndPtEnd) - parseInt(cur.tsRec[e].callEndPtStart)), 0) / values.length)}ms`
             );
           });
+
+          calSummaryStat(i , cfg, values);
         }
 
         // Promise.all will resolve only if all promises resolved
@@ -685,8 +700,6 @@ const calSummaryStat = (runIdx: number, cfg: PerfTestConfig, batchRes?: runTestR
         } else {
           console.log(`[Test run ${run}][Elapsed time ${((Date.now() - authStarts)/1000).toFixed(3)}s] Completed: ${values.length}`);
         }
-
-        calSummaryStat(i , cfg, values);
       })
       .catch(errors => {
         console.log(`[Test run ${run}][Elapsed time ${((Date.now() - authStarts)/1000).toFixed(3)}s] Error: ${errors}`);
