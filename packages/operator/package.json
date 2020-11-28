@@ -8,10 +8,6 @@
     "type": "git",
     "url": "git://github.com/fabric-es/fabric-es.git"
   },
-  "engines": {
-    "node": "^12.16.0"
-  },
-  "engineStrict": true,
   "keywords": [
     "hyperledger"
   ],
