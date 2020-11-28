@@ -28,18 +28,20 @@ jobs:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         uses: actions/setup-node@v2-beta
         with:
-          node-version: '12.13.1'
+          node-version: '12.16.1'
           check-latest: true
       - name: yarn install
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         run: |
+          env
           yarn config list
           echo "npm version"
           npm version
           echo "yarn version"
           yarn versions
-          yarn install --frozen-lockfile
+          yarn install
+#          yarn install --frozen-lockfile
       - name: npm rebuild
         run: npm rebuild grpc
 #        run: npm rebuild grpc --target=12.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
