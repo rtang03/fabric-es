@@ -28,14 +28,14 @@ jobs:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         uses: actions/setup-node@v2-beta
         with:
-          node-version: '14'
+          node-version: '12'
           check-latest: false
       - name: yarn install
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         run: yarn install --frozen-lockfile
       - name: npm rebuild
-        run: npm rebuild grpc --target=14.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
+        run: npm rebuild grpc --unsafe-perm --build-from-source
       - name: lint auth, chaincode, fabric-cqrs, operator, gateway-lib, proxy
         run: yarn lint:lib
       - name: lint gw-org*, model-*, ui-account
