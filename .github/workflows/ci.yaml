@@ -54,6 +54,8 @@ jobs:
       - name: deploy base 2-org fabric v2.1 network with proxy, postgres, redis, auth
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2-db-red-auth.sh
       - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*, auth, gateway-lib
+        env:
+          NODE_MODULE_VERSION: 72
         run: |
           # curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
           # export NVM_DIR="$HOME/.nvm"
@@ -64,6 +66,4 @@ jobs:
           # nvm use v12.16.1
           node -v
           sudo yarn unit-test
-        env:
-          CI: true
       - run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
