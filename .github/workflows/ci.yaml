@@ -6,9 +6,6 @@ on:
 
 name: CI
 
-#env:
-#  NODE_MODULE_VERSION: 57
-
 jobs:
   build:
     name: CI
