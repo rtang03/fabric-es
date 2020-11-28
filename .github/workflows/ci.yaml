@@ -28,15 +28,12 @@ jobs:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         uses: actions/setup-node@v2-beta
         with:
-          node-version: '12'
-          check-latest: false
+          node-version: '12.x'
+          check-latest: true
       - name: install nvm
         run: |
-          curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
           nvm --version
+          nvm install v12.16.0
           nvm use v12.16.0
       - name: yarn install
         env:
