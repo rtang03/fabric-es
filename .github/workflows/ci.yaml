@@ -28,7 +28,7 @@ jobs:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         uses: actions/setup-node@v2-beta
         with:
-          node-version: '12.0.0'
+          node-version: '12.13.1'
           check-latest: true
       - name: yarn install
         env:
