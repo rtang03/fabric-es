@@ -34,7 +34,7 @@ jobs:
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         run: |
-          env
+          yarn config list
           yarn install --frozen-lockfile
       - name: npm rebuild
         run: npm rebuild
