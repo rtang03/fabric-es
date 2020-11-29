@@ -60,22 +60,6 @@ if (!redis) {
 
 beforeAll(async () => {
   try {
-    console.log('👉  createDbForUnitTest');
-
-    console.log(process.env.TYPEORM_DATABASE);
-    console.log(process.env.TYPEORM_HOST);
-    console.log(process.env.TYPEORM_PORT);
-    console.log(process.env.TYPEORM_USERNAME);
-    console.log(process.env.TYPEORM_PASSWORD);
-
-    // await createDbForUnitTest({
-    //   database: process.env.TYPEORM_DATABASE,
-    //   host: process.env.TYPEORM_HOST,
-    //   port: process.env.TYPEORM_PORT,
-    //   user: process.env.TYPEORM_USERNAME,
-    //   password: process.env.TYPEORM_PASSWORD,
-    // });
-
     console.log('👉  app');
 
     app = await createHttpServer({
@@ -86,10 +70,12 @@ beforeAll(async () => {
       orgAdminSecret: process.env.ORG_ADMIN_SECRET,
       redis,
     });
+
     if (!app) {
       console.error('🚫  app is undefined');
       process.exit(1);
     }
+
     console.log('🔆  Echo app');
     console.log(app);
 

@@ -31,12 +31,17 @@ export const createHttpServer: (option: {
   } = option;
 
   try {
+    console.log('👉  createConnection - psql');
     await createConnection(connection);
   } catch (e) {
     console.error(e);
     process.exit(1);
   }
+
+  console.log('👉  createTokenRepo - redis');
   const tokenRepo = createTokenRepo({ redis, jwtExpiryInSec });
+
+  console.log('👉  createRefreshTokenRepo - redis');
   const refreshTokenRepo = createRefreshTokenRepo({ redis, refTokenExpiryInSec });
 
   const app = express();
@@ -46,10 +51,16 @@ export const createHttpServer: (option: {
   app.use(express.urlencoded({ extended: false }));
   app.use(errorHandler());
   app.use(passport.initialize());
+
+  console.log('👉  setupPassport');
   setupPassport({ tokenRepo });
 
+  console.log('👉  createApiKeyRoute');
   app.use('/api_key', createApiKeyRoute());
+
+  console.log('👉  createClientRoute');
   app.use('/client', createClientRoute());
+  console.log('👉  createOauthRoute');
   app.use(
     '/oauth',
     createOauthRoute({
@@ -60,6 +71,7 @@ export const createHttpServer: (option: {
       refreshTokenRepo,
     })
   );
+  console.log('👉  createAccountRoute');
   app.use(
     '/account',
     createAccountRoute({
@@ -71,6 +83,6 @@ export const createHttpServer: (option: {
       refTokenExpiryInSec
     })
   );
-
+  console.log('👉  returning app');
   return app;
 };
