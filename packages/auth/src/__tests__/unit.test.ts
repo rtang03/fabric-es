@@ -57,13 +57,11 @@ if (!redis) {
   console.error('🚫  Redis is undefined');
   process.exit(1);
 }
-console.log('🔆  Echo Redis');
-console.log(redis);
-console.log('🔆  Echo Supertest.request');
-console.log(request);
 
 beforeAll(async () => {
   try {
+    console.log('👉  createDbForUnitTest');
+
     await createDbForUnitTest({
       database: process.env.TYPEORM_DATABASE,
       host: process.env.TYPEORM_HOST,
@@ -71,6 +69,8 @@ beforeAll(async () => {
       user: process.env.TYPEORM_USERNAME,
       password: process.env.TYPEORM_PASSWORD,
     });
+
+    console.log('👉  app');
 
     app = await createHttpServer({
       connection,
@@ -87,6 +87,7 @@ beforeAll(async () => {
     console.log('🔆  Echo app');
     console.log(app);
 
+    console.log('👉  User.create');
 
     const user = User.create({
       email: 'tester@example.com',
