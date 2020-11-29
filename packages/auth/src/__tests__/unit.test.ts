@@ -39,7 +39,7 @@ const connection = {
 };
 const org_admin_secret = process.env.ORG_ADMIN_SECRET;
 
-let redis: Redis.Redis;
+// const redis: Redis.Redis;
 let app: express.Express;
 let user_id: string;
 let client_id: string;
@@ -50,6 +50,7 @@ let non_root_access_token: string;
 let api_key: string;
 let refresh_token: string;
 let non_root_refresh_token: string;
+const redis = new Redis(6379);
 
 beforeAll(async () => {
   try {
@@ -60,9 +61,6 @@ beforeAll(async () => {
       user: process.env.TYPEORM_USERNAME,
       password: process.env.TYPEORM_PASSWORD,
     });
-
-    // Connect to 127.0.0.1:6379
-    redis = new Redis(6379);
 
     app = await createHttpServer({
       connection,
