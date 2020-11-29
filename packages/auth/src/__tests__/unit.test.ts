@@ -68,13 +68,13 @@ beforeAll(async () => {
     console.log(process.env.TYPEORM_USERNAME);
     console.log(process.env.TYPEORM_PASSWORD);
 
-    await createDbForUnitTest({
-      database: process.env.TYPEORM_DATABASE,
-      host: process.env.TYPEORM_HOST,
-      port: process.env.TYPEORM_PORT,
-      user: process.env.TYPEORM_USERNAME,
-      password: process.env.TYPEORM_PASSWORD,
-    });
+    // await createDbForUnitTest({
+    //   database: process.env.TYPEORM_DATABASE,
+    //   host: process.env.TYPEORM_HOST,
+    //   port: process.env.TYPEORM_PORT,
+    //   user: process.env.TYPEORM_USERNAME,
+    //   password: process.env.TYPEORM_PASSWORD,
+    // });
 
     console.log('👉  app');
 
