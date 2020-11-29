@@ -468,16 +468,16 @@ describe('Auth Tests - /oauth', () => {
         expect(isRefreshTokenResponse(body)).toBeTruthy();
       }));
 
-  it('should fail to authenicate after waiting 10s, token expires', async () => {
-    const timer = new Promise((resolve) => setTimeout(() => resolve(true), 10000));
-    await timer;
-
-    return request(app)
-      .post('/oauth/authenticate')
-      .set('authorization', `Bearer ${access_token}`)
-      .expect(({ body, status }) => {
-        expect(status).toEqual(httpStatus.UNAUTHORIZED);
-        expect(body).toEqual({});
-      });
-  });
+  // it('should fail to authenicate after waiting 10s, token expires', async () => {
+  //   const timer = new Promise((resolve) => setTimeout(() => resolve(true), 10000));
+  //   await timer;
+  //
+  //   return request(app)
+  //     .post('/oauth/authenticate')
+  //     .set('authorization', `Bearer ${access_token}`)
+  //     .expect(({ body, status }) => {
+  //       expect(status).toEqual(httpStatus.UNAUTHORIZED);
+  //       expect(body).toEqual({});
+  //     });
+  // });
 });
