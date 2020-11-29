@@ -21,6 +21,7 @@ import {
 import { createDbForUnitTest } from './__utils__/createDbForUnitTest';
 
 /**
+ * Pre-requisite:
  * ./dn-run.0-db-red.sh
  */
 
@@ -39,7 +40,7 @@ const connection = {
 };
 const org_admin_secret = process.env.ORG_ADMIN_SECRET;
 
-// const redis: Redis.Redis;
+let redis: Redis.Redis;
 let app: express.Express;
 let user_id: string;
 let client_id: string;
@@ -50,7 +51,6 @@ let non_root_access_token: string;
 let api_key: string;
 let refresh_token: string;
 let non_root_refresh_token: string;
-const redis = new Redis(6379);
 
 beforeAll(async () => {
   try {
@@ -61,6 +61,11 @@ beforeAll(async () => {
       user: process.env.TYPEORM_USERNAME,
       password: process.env.TYPEORM_PASSWORD,
     });
+
+    redis = new Redis(6379);
+
+    console.log('Print Redis');
+    console.log(redis);
 
     app = await createHttpServer({
       connection,
@@ -466,16 +471,16 @@ describe('Auth Tests - /oauth', () => {
         expect(isRefreshTokenResponse(body)).toBeTruthy();
       }));
 
-  // it('should fail to authenicate after waiting 10s, token expires', async () => {
-  //   const timer = new Promise((resolve) => setTimeout(() => resolve(true), 10000));
-  //   await timer;
-  //
-  //   return request(app)
-  //     .post('/oauth/authenticate')
-  //     .set('authorization', `Bearer ${access_token}`)
-  //     .expect(({ body, status }) => {
-  //       expect(status).toEqual(httpStatus.UNAUTHORIZED);
-  //       expect(body).toEqual({});
-  //     });
-  // });
+  it('should fail to authenicate after waiting 10s, token expires', async () => {
+    const timer = new Promise((resolve) => setTimeout(() => resolve(true), 10000));
+    await timer;
+
+    return request(app)
+      .post('/oauth/authenticate')
+      .set('authorization', `Bearer ${access_token}`)
+      .expect(({ body, status }) => {
+        expect(status).toEqual(httpStatus.UNAUTHORIZED);
+        expect(body).toEqual({});
+      });
+  });
 });
