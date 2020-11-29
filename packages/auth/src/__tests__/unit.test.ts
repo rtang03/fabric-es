@@ -62,6 +62,12 @@ beforeAll(async () => {
   try {
     console.log('👉  createDbForUnitTest');
 
+    console.log(process.env.TYPEORM_DATABASE);
+    console.log(process.env.TYPEORM_HOST);
+    console.log(process.env.TYPEORM_PORT);
+    console.log(process.env.TYPEORM_USERNAME);
+    console.log(process.env.TYPEORM_PASSWORD);
+
     await createDbForUnitTest({
       database: process.env.TYPEORM_DATABASE,
       host: process.env.TYPEORM_HOST,
