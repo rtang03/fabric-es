@@ -46,9 +46,9 @@ jobs:
           nvm install v14.0.0
           nvm use v14.0.0
           npm rebuild grpc
-          npm rebuild ioredis
           # npm rebuild grpc --target=14.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
           nvm use v12.16.1
+          npm rebuild supertest
       - name: lint auth, chaincode, fabric-cqrs, operator, gateway-lib, proxy
         run: yarn lint:lib
       - name: lint gw-org*, model-*, ui-account
@@ -57,10 +57,12 @@ jobs:
         run: yarn tsc:all
       - name: build images for proxy, auth-server, ui-account
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh && ./dn-build.ui-control.sh
-      - name: deploy base 2-org fabric v2.1 network with proxy, postgres, redis, auth
+      - name: deploy base 0-org fabric v2.1 network with proxy, postgres, redis
         env:
          LOG_TARGET: console
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.0-db-red.sh
+        run: |
+          cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.0-db-red.sh
+          docker ps
       - name: Run unit tests for auth
         env:
           LOG_TARGET: console
