@@ -64,7 +64,7 @@ jobs:
       - name: Run unit tests for auth
         env:
           LOG_TARGET: console
-        run: sudo yarn unit-test:auth
+        run: cd packages/auth && sudo yarn unit-test:fab
       - name: deploy base 2-org fabric v2.1 network with proxy, postgres, redis, auth
         env:
           LOG_TARGET: console
