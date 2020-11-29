@@ -43,6 +43,7 @@ jobs:
           nvm install v12.16.1
           nvm use v12.16.1
           yarn install
+          yarn list --depth=1
           # nvm install v14.0.0
           # nvm use v14.0.0
           # npm rebuild grpc
