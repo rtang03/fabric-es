@@ -40,7 +40,7 @@ const connection = {
 };
 const org_admin_secret = process.env.ORG_ADMIN_SECRET;
 
-let redis: Redis.Redis;
+// let redis: Redis.Redis;
 let app: express.Express;
 let user_id: string;
 let client_id: string;
@@ -52,6 +52,8 @@ let api_key: string;
 let refresh_token: string;
 let non_root_refresh_token: string;
 
+const redis = new Redis(6379);
+
 beforeAll(async () => {
   try {
     await createDbForUnitTest({
@@ -61,11 +63,6 @@ beforeAll(async () => {
       user: process.env.TYPEORM_USERNAME,
       password: process.env.TYPEORM_PASSWORD,
     });
-
-    redis = new Redis(6379);
-
-    console.log('Print Redis');
-    console.log(redis);
 
     app = await createHttpServer({
       connection,

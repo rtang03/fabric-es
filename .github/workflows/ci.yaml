@@ -58,11 +58,19 @@ jobs:
       - name: build images for proxy, auth-server, ui-account
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh && ./dn-build.ui-control.sh
       - name: deploy base 2-org fabric v2.1 network with proxy, postgres, redis, auth
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2-db-red-auth.sh
-      - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*, auth, gateway-lib
+        env:
+         LOG_TARGET: console
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.0-db-red.sh
+      - name: Run unit tests for auth
         env:
           LOG_TARGET: console
-        run: |
-          node -v
-          sudo yarn unit-test
+        run: sudo yarn unit-test:auth
+      - name: deploy base 2-org fabric v2.1 network with proxy, postgres, redis, auth
+        env:
+          LOG_TARGET: console
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2-db-red-auth.sh
+      - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*, gateway-lib
+        env:
+          LOG_TARGET: console
+        run: sudo yarn unit-test
       - run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
