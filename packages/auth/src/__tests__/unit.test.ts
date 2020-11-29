@@ -53,6 +53,14 @@ let refresh_token: string;
 let non_root_refresh_token: string;
 
 const redis = new Redis(6379);
+if (!redis) {
+  console.error('🚫  Redis is undefined');
+  process.exit(1);
+}
+console.log('🔆  Echo Redis');
+console.log(redis);
+console.log('🔆  Echo Supertest.request');
+console.log(request);
 
 beforeAll(async () => {
   try {
@@ -72,6 +80,13 @@ beforeAll(async () => {
       orgAdminSecret: process.env.ORG_ADMIN_SECRET,
       redis,
     });
+    if (!app) {
+      console.error('🚫  app is undefined');
+      process.exit(1);
+    }
+    console.log('🔆  Echo app');
+    console.log(app);
+
 
     const user = User.create({
       email: 'tester@example.com',
