@@ -61,6 +61,7 @@ if (!redis) {
 beforeAll(async () => {
   try {
     console.log('👉  app');
+    console.log(process.env.TYPEORM_HOST);
 
     app = await createHttpServer({
       connection,
