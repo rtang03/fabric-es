@@ -34,6 +34,7 @@ jobs:
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         run: |
+          # see https://github.com/rtang03/fabric-es/issues/142
           curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
