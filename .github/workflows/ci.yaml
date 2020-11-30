@@ -62,27 +62,15 @@ jobs:
       - name: build images for proxy, auth-server, ui-account
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh && ./dn-build.ui-control.sh
       - name: deploy base 0-org fabric v2.1 network with proxy, postgres, redis
-        env:
-         LOG_TARGET: console
         run: |
           set -x
           cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && sudo ./dn-run.0-db-red.sh
-          sleep 30
-          docker logs postgres01
           docker exec postgres01 psql -U postgres --list
       - name: Run unit tests for auth
-        env:
-          LOG_TARGET: console
         run: cd packages/auth && sudo yarn unit-test:fab
-      # - name: deploy base 2-org fabric v2.1 network with proxy, postgres, redis, auth
-      #   env:
-      #     LOG_TARGET: console
-      #   run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2-db-red-auth.sh
-      # - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*, gateway-lib
-      #   env:
-      #     LOG_TARGET: console
-      #   run: sudo yarn unit-test
-      - name: closing
-        run: |
-          docker logs postgres01
-          sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
+      - name: deploy base 2-org fabric v2.1 network with proxy, postgres, redis, auth
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2-db-red-auth.sh
+      - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*, gateway-lib
+        run: sudo yarn unit-test
+      - name: clean-up
+        run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts

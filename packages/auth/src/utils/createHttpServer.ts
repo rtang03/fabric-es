@@ -31,9 +31,7 @@ export const createHttpServer: (option: {
   } = option;
 
   try {
-    console.log('👉  createConnection - psql');
     await createConnection(connection);
-    console.log('👉  connected - psql');
   } catch (e) {
     console.error(e);
     process.exit(1);

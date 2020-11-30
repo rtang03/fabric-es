@@ -33,8 +33,8 @@ const connection = {
   username: process.env.TYPEORM_USERNAME,
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
-  logging: true,
-  synchronize: true,
+  logging: false,
+  synchronize: true, // true, for dev/test
   dropSchema: true,
   entities: [ApiKey, Client, User],
   connectTimeoutMS: 10000
