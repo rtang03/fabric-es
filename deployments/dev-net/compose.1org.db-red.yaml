@@ -6,12 +6,11 @@ networks:
 services:
   postgres01:
     container_name: postgres01
-    image: postgres:9.6.17-alpine
+    image: postgres:9.6.20
     environment:
       - POSTGRES_PASSWORD=docker
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-    # - POSTGRES_INITDB_ARGS=--max_files_per_process=200
     volumes:
       - $ARTIFACTS/postgres01:/var/lib/postgresql/data
       - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql

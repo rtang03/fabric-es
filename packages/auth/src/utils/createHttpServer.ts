@@ -36,7 +36,9 @@ export const createHttpServer: (option: {
     console.error(e);
     process.exit(1);
   }
+
   const tokenRepo = createTokenRepo({ redis, jwtExpiryInSec });
+
   const refreshTokenRepo = createRefreshTokenRepo({ redis, refTokenExpiryInSec });
 
   const app = express();
@@ -46,9 +48,11 @@ export const createHttpServer: (option: {
   app.use(express.urlencoded({ extended: false }));
   app.use(errorHandler());
   app.use(passport.initialize());
+
   setupPassport({ tokenRepo });
 
   app.use('/api_key', createApiKeyRoute());
+
   app.use('/client', createClientRoute());
   app.use(
     '/oauth',
@@ -68,9 +72,8 @@ export const createHttpServer: (option: {
       jwtExpiryInSec,
       tokenRepo,
       refreshTokenRepo,
-      refTokenExpiryInSec
+      refTokenExpiryInSec,
     })
   );
-
   return app;
 };

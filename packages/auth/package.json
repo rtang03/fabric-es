@@ -24,7 +24,7 @@
     "build": "yarn clean && tsc",
     "clean": "rimraf dist && rimraf build",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
-    "unit-test:fab": "jest --detectOpenHandles unit.test",
+    "unit-test:fab": "jest --verbose --runInBand --forceExit --detectOpenHandles unit.test",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "publish:gh:fabric-es": "npm publish"
   },
@@ -36,7 +36,7 @@
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
     "http-status": "^1.4.1",
-    "ioredis": "^4.17.1",
+    "ioredis": "^4.17.3",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "morgan": "^1.10.0",
@@ -47,10 +47,9 @@
     "passport-http-bearer": "^1.0.1",
     "passport-local": "^1.0.0",
     "passport-oauth2-client-password": "^0.1.2",
-    "pg": "^8.0.2",
-    "pgtools": "^0.3.0",
+    "pg": "8.3.3",
     "stoppable": "^1.1.0",
-    "typeorm": "^0.2.20",
+    "typeorm": "0.2.25",
     "winston": "^3.2.1"
   },
   "devDependencies": {

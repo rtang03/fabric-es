@@ -4,7 +4,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-export RELEASE=0.7.0
+export RELEASE=0.7.1
 export IMAGE_TAG=2.1.0
 export CONFIG=./config
 export VOLUME=./volume

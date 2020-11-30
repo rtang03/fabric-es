@@ -33,6 +33,7 @@ const ENV = {
   CLIENT_APPLICATION_NAME: process.env.CLIENT_APPLICATION_NAME,
   CLIENT_SECRET: process.env.CLIENT_SECRET,
 };
+// see https://github.com/typeorm/typeorm/blob/master/docs/connection-options.md
 const connection = {
   name: 'default',
   type: 'postgres' as any,
@@ -42,9 +43,10 @@ const connection = {
   password: ENV.TYPEORM_PASSWORD,
   database: ENV.TYPEORM_DATABASE,
   logging: ENV.TYPEORM_LOGGING === 'true',
-  synchronize: true,
-  dropSchema: ENV.TYPEORM_DROPSCHEMA === 'true',
+  synchronize: false, // false => production
+  dropSchema: false, // ENV.TYPEORM_DROPSCHEMA === 'true',
   entities: [Client, User, ApiKey],
+  connectTimeoutMS: 10000
 };
 
 (async () => {

@@ -1,3 +1,6 @@
+## [0.7.1] - 2020-10-9
+- enhance github action workflow
+
 ## [0.7.0] - 2020-10-9
 ### Modified
 - release candidate for pboc production

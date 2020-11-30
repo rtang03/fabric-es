@@ -6,15 +6,16 @@ on:
     paths-ignore:
       - '**.md'
 env:
-  GKE_PROJECT: fdi-cd
-  GKE_EMAIL: ${{ secrets.GKE_EMAIL }}
+  # GKE push is not enabled. Leave for future use
+  # GKE_PROJECT: fdi-cd
+  # GKE_EMAIL: ${{ secrets.GKE_EMAIL }}
+  # GKE_ZONE: us-central1-a
+  # GKE_CLUSTER: test-net-cluster-1
+  # DEPLOYMENT_NAME: gke-test
+  # GW_ORG1_IMAGE: fabric-es/gw-org1
+  # REGISTRY_HOSTNAME: gcr.io
   GITHUB_SHA: ${{ github.sha }}
-  GKE_ZONE: us-central1-a
-  GKE_CLUSTER: test-net-cluster-1
-  AUTH_IMAGE: fabric-es/auth-server
-  GW_ORG1_IMAGE: fabric-es/gw-org1
-  REGISTRY_HOSTNAME: gcr.io
-  DEPLOYMENT_NAME: gke-test
+  AUTH_IMAGE: auth-server
 
 jobs:
   build:
@@ -54,6 +55,23 @@ jobs:
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.gw.sh org1 org2
       - name: Run multi-org integration test
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-test.gw-2.sh
+      - name: Log into GitHub Container Registry
+        run: echo "${{ secrets.CREATE_PACKAGE }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Push auth-server to GCR
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$AUTH_IMAGE
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "$default-branch" ] && VERSION=latest
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
 # Comment out the step to send docker images to Google Registry.
 # Below step needs re-test, if uncomment
 #      - name: Setup Google account
@@ -87,8 +105,7 @@ jobs:
           DRAFT_RELEASE: "true"
           PRE_RELEASE: "true"
           CHANGELOG_FILE: "CHANGELOG.md"
-          ALLOW_EMPTY_CHANGELOG: "false"
-          ALLOW_TAG_PREFIX: "true"
+          ALLOW_EMPTY_CHANGELOG: "true"
       - name: Cleanup artifacts
         run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
       - name: Cleanup data volume

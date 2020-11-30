@@ -27,6 +27,7 @@ sleep 1
 ### build image ###
 cd $ROOT_DIR/packages/auth
 DOCKER_BUILD=1 docker build --no-cache -t $AUTH_IMAGE .
+docker tag $AUTH_IMAGE auth-server
 printMessage "Create auth-server image" $?
 sleep 1
 

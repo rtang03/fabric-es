@@ -18,9 +18,9 @@ import {
   isRefreshTokenResponse,
   isRegisterResponse,
 } from '../utils';
-import { createDbForUnitTest } from './__utils__/createDbForUnitTest';
 
 /**
+ * Pre-requisite:
  * ./dn-run.0-db-red.sh
  */
 
@@ -33,13 +33,14 @@ const connection = {
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
   logging: false,
-  synchronize: true,
+  synchronize: true, // true, for dev/test
   dropSchema: true,
   entities: [ApiKey, Client, User],
+  connectTimeoutMS: 10000
 };
 const org_admin_secret = process.env.ORG_ADMIN_SECRET;
 
-let redis: Redis.Redis;
+// let redis: Redis.Redis;
 let app: express.Express;
 let user_id: string;
 let client_id: string;
@@ -51,19 +52,14 @@ let api_key: string;
 let refresh_token: string;
 let non_root_refresh_token: string;
 
+const redis = new Redis(6379);
+if (!redis) {
+  console.error('🚫  Redis is undefined');
+  process.exit(1);
+}
+
 beforeAll(async () => {
   try {
-    await createDbForUnitTest({
-      database: process.env.TYPEORM_DATABASE,
-      host: process.env.TYPEORM_HOST,
-      port: process.env.TYPEORM_PORT,
-      user: process.env.TYPEORM_USERNAME,
-      password: process.env.TYPEORM_PASSWORD,
-    });
-
-    // Connect to 127.0.0.1:6379
-    redis = new Redis(6379);
-
     app = await createHttpServer({
       connection,
       jwtSecret: process.env.JWT_SECRET,
@@ -72,6 +68,11 @@ beforeAll(async () => {
       orgAdminSecret: process.env.ORG_ADMIN_SECRET,
       redis,
     });
+
+    if (!app) {
+      console.error('🚫  app is undefined');
+      process.exit(1);
+    }
 
     const user = User.create({
       email: 'tester@example.com',
@@ -84,7 +85,7 @@ beforeAll(async () => {
     console.error(e);
     process.exit(1);
   }
-});
+}, 300);
 
 afterAll(async () => {
   redis.disconnect();
