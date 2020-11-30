@@ -10,11 +10,11 @@ jobs:
   build:
     name: CI
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:11.5
-        ports: [ "5432:5432" ]
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    # services:
+    #   postgres:
+    #     image: postgres:11.5
+    #     ports: [ "5432:5432" ]
+    #     options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -68,8 +68,8 @@ jobs:
           set -x
           cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && sudo ./dn-run.0-db-red.sh
           sleep 30
-          # docker logs postgres01
-          # docker exec postgres01 psql -U postgres --list
+          docker logs postgres01
+          docker exec postgres01 psql -U postgres --list
       - name: Run unit tests for auth
         env:
           LOG_TARGET: console

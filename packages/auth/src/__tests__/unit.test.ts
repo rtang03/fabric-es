@@ -89,7 +89,7 @@ beforeAll(async () => {
     console.error(e);
     process.exit(1);
   }
-}, 60);
+}, 600);
 
 afterAll(async () => {
   redis.disconnect();
