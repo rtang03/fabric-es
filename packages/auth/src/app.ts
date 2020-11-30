@@ -33,6 +33,7 @@ const ENV = {
   CLIENT_APPLICATION_NAME: process.env.CLIENT_APPLICATION_NAME,
   CLIENT_SECRET: process.env.CLIENT_SECRET,
 };
+// see https://github.com/typeorm/typeorm/blob/master/docs/connection-options.md
 const connection = {
   name: 'default',
   type: 'postgres' as any,
