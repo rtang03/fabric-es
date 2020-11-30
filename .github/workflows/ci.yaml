@@ -62,6 +62,8 @@ jobs:
         run: |
           cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.0-db-red.sh
           docker ps
+          echo "PRINT CREATEDB"
+          more /docker-entrypoint-initdb.d/1-createdb.sql
           docker logs postgres01
       - name: Run unit tests for auth
         env:
