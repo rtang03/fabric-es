@@ -10,9 +10,9 @@ const operations = {
   'processPo'           : '"url":"/etccorp/pboc/api/v1/po/process","method":"POST"',
   'createInvoice'       : '"url":"/etccorp/pboc/api/v1/invoices","method":"POST"',
   'editInvoice'         : '"url":"/etccorp/pboc/api/v1/invoices","method":"PUT"',
-  'transferInvoice'     : '"/etccorp/pboc/api/v1/invoices/notify","method":"POST"',
-  'confirmInvoice'      : '"/invoice/result","method":"POST"',
-  'updatePaymentStatus' : '"/trade-financing/invresult","method":"POST"',
+  'transferInvoice'     : '"url":"/etccorp/pboc/api/v1/invoices/notify","method":"POST"',
+  'confirmInvoice'      : '"url":"/invoice/result","method":"POST"',
+  'updatePaymentStatus' : '"url":"/trade-financing/invresult","method":"POST"',
 };
 
 const grabId = async (path: string, ops: string, eid: string): Promise<string> => {

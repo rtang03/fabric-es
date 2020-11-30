@@ -94,6 +94,7 @@ const wait4res = async (client: Redis, req: any, res: any, ts: number, type: str
     attachmentInfo: (file) ? JSON.stringify(file) : undefined
   };
   logger.info(`ProxyReq Finish ${msg.proxyReqFinish}`);
+  logger.debug(`[PERFTEST]{"id":"${id}","url":"${msg.url}","method":"${msg.method}","proxyReqStarts":${msg.proxyReqStarts},"proxyReqFinish":${msg.proxyReqFinish}`);
   res.locals.reqres = id;
   await client.set(`PROXY${id}`, JSON.stringify(msg), 'EX', 3600);
 };
@@ -204,7 +205,7 @@ export const relayService = ({
             const { reqBody, attachmentInfo, resBody, ...rest } = message;
             await processMessage({ message, client, topic }).then((result) => {
               logger.info(`Message processed with response ${result} - '${JSON.stringify(rest)}'`);
-              logger.debug(`[ROBUSTNESS]{"id":"${message.id}","url":"${message.url.url}","method":"${message.method}","status":${message.statusCode},"proxyReqStarts":${message.proxyReqStarts},"proxyReqFinish":${message.proxyReqFinish},"proxyResStarts":${message.proxyResStarts},"proxyResFinish":${message.proxyResFinish}}`);
+              logger.debug(`[PERFTEST]{"id":"${message.id}","url":"${message.url.url}","method":"${message.method}","status":${message.statusCode},"proxyResStarts":${message.proxyResStarts},"proxyResFinish":${message.proxyResFinish}}`);
             }).catch((error) => {
               logger.warn(`Error while processing [${message.id}]: ${error}`);
             });

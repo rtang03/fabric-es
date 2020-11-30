@@ -6,7 +6,6 @@ import FormData from 'form-data';
 import fetch from 'node-fetch';
 import { getLogger } from './getLogger';
 import { getTestData, QUERY } from './mockUtils';
-import { getAnalyzer } from './relay.analyzer';
 
 const logger = getLogger('[tester] relay.rtest.js');
 
@@ -36,16 +35,16 @@ const relay2 = `${poto}${process.env.RELAY_HOST2}:${process.env.RELAY_PORT2}`; /
 const qryhdr = `http://${process.env.QUERY_HOST}:${process.env.QUERY_PORT}/graphql`; // FDI node
 
 const ATTACHMENT_PATH = process.env.ATTACHMENT_PATH;
-const STATS_DATA = process.env.STATS_DATA;
-const LOG_TARGET = process.env.LOG_TARGET;
-const STATS_LOGS = process.env.STATS_LOGS;
-let analyzer;
-if (LOG_TARGET.includes('file')) {
-  if (STATS_DATA)
-    analyzer = getAnalyzer(STATS_LOGS, STATS_DATA);
-  else
-    analyzer = getAnalyzer(STATS_LOGS);
-}
+// const STATS_DATA = process.env.STATS_DATA;
+// const LOG_TARGET = process.env.LOG_TARGET;
+// const STATS_LOGS = process.env.STATS_LOGS;
+// let analyzer;
+// if (LOG_TARGET.includes('file')) {
+//   if (STATS_DATA)
+//     analyzer = getAnalyzer(STATS_LOGS, STATS_DATA);
+//   else
+//     analyzer = getAnalyzer(STATS_LOGS);
+// }
 
 // 'yes'  - authenticate for every test
 // 'no'   - do not authenticate at all
@@ -420,12 +419,11 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       if (poIds && (poIds !== undefined)) {
         const writeFinish = Date.now();
         write += (writeFinish - writeStart);
-        logger.debug(`[ROBUSTNESS]{"url":"/order/po","method":"POST","entities":${JSON.stringify(poIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
+        logger.debug(`[PERFTEST]{"url":"/order/po","method":"POST","entities":${JSON.stringify(poIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(poIds.map(async p =>
           readEntities(`[Test run ${run}][#${variant}] Create POs`, token, p)
             .then(_ => {
-              logger.debug(`[ROBUSTNESS]{"url":"/order/po","method":"POST","entities":"${p}","readNttyFinish":${Date.now()}}`);
-              if (analyzer) analyzer('createPo', p);
+              logger.debug(`[PERFTEST]{"url":"/order/po","method":"POST","entities":"${p}","readNttyFinish":${Date.now()}}`);
               return true;
             })
             .catch(error => console.log(`[Test run ${run}][#${variant}] Create POs ${error}`))
@@ -452,13 +450,12 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       if (editedPoIds && (editedPoIds !== undefined)) {
         const writeFinish = Date.now();
         write += (writeFinish - writeStart);
-        logger.debug(`[ROBUSTNESS]{"url":"/order/po","method":"PUT","entities":${JSON.stringify(editedPoIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
+        logger.debug(`[PERFTEST]{"url":"/order/po","method":"PUT","entities":${JSON.stringify(editedPoIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(editedPoIds.map(async p => 
           readEntities(`[Test run ${run}][#${variant}] Edit POs`, token, p, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":1`) >= 0)), true)
           ).then(_ => {
-            logger.debug(`[ROBUSTNESS]{"url":"/order/po","method":"PUT","entities":"${p}","readNttyFinish":${Date.now()}}`);
-            if (analyzer) analyzer('editPo', p);
+            logger.debug(`[PERFTEST]{"url":"/order/po","method":"PUT","entities":"${p}","readNttyFinish":${Date.now()}}`);
             return true;
           })
           .catch(error => console.log(`[Test run ${run}][#${variant}] Edit POs ${error}`))
@@ -485,13 +482,12 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       if (cancelledPoIds && (cancelledPoIds !== undefined)) {
         const writeFinish = Date.now();
         write += (writeFinish - writeStart);
-        logger.debug(`[ROBUSTNESS]{"url":"/order/cancelPO","method":"POST","entities":${JSON.stringify(cancelledPoIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
+        logger.debug(`[PERFTEST]{"url":"/order/cancelPO","method":"POST","entities":${JSON.stringify(cancelledPoIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(cancelledPoIds.map(async p => 
           readEntities(`[Test run ${run}][#${variant}] Cancel POs`, token, p, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":4`) >= 0)), true)
           ).then(_ => {
-            logger.debug(`[ROBUSTNESS]{"url":"/order/cancelPO","method":"POST","entities":"${p}","readNttyFinish":${Date.now()}}`);
-            if (analyzer) analyzer('cancelPo', p);
+            logger.debug(`[PERFTEST]{"url":"/order/cancelPO","method":"POST","entities":"${p}","readNttyFinish":${Date.now()}}`);
             return true;
           })
           .catch(error => console.log(`[Test run ${run}][#${variant}] Cancel POs ${error}`))
@@ -518,7 +514,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       if (processPoResult && (processPoResult !== undefined)) {
         const writeFinish = Date.now();
         write += (writeFinish - writeStart);
-        logger.debug(`[ROBUSTNESS]{"url":"/etccorp/pboc/api/v1/po/process","method":"POST","entities":${JSON.stringify(processPoResult.map(p => p.poId))},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
+        logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/po/process","method":"POST","entities":${JSON.stringify(processPoResult.map(p => p.poId))},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(processPoResult.map(async p =>
           readEntities(`[Test run ${run}][#${variant}] Process POs`, token, p.poId, (results: any[]) =>
             results.reduce((accu, r) => {
@@ -528,8 +524,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
               );
             }, true)
           ).then(_ => {
-            logger.debug(`[ROBUSTNESS]{"url":"/etccorp/pboc/api/v1/po/process","method":"POST","entities":"${p.poId}","readNttyFinish":${Date.now()}}`);
-            if (analyzer) analyzer('processPo', p.poId);
+            logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/po/process","method":"POST","entities":"${p.poId}","readNttyFinish":${Date.now()}}`);
             return true;
           })
           .catch(error => console.log(`[Test run ${run}][#${variant}] Process POs ${error}`))
@@ -557,12 +552,11 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       if (invIds && (invIds !== undefined)) {
         const writeFinish = Date.now();
         write += (writeFinish - writeStart);
-        logger.debug(`[ROBUSTNESS]{"url":"/etccorp/pboc/api/v1/invoices","method":"POST","entities":${JSON.stringify(invIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
+        logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/invoices","method":"POST","entities":${JSON.stringify(invIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(invIds.map(async v => 
           readEntities(`[Test run ${run}][#${variant}] Create Invoices`, token, v)
             .then(_ => {
-              logger.debug(`[ROBUSTNESS]{"url":"/etccorp/pboc/api/v1/invoices","method":"POST","entities":"${v}","readNttyFinish":${Date.now()}}`);
-              if (analyzer) analyzer('createInvoice', v);
+              logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/invoices","method":"POST","entities":"${v}","readNttyFinish":${Date.now()}}`);
               return true;
             })
             .catch(error => console.log(`[Test run ${run}][#${variant}] Create Invoices ${error}`))
@@ -589,13 +583,12 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       if (editedInvIds && (editedInvIds !== undefined)) {
         const writeFinish = Date.now();
         write += (writeFinish - writeStart);
-        logger.debug(`[ROBUSTNESS]{"url":"/etccorp/pboc/api/v1/invoices","method":"PUT","entities":${JSON.stringify(editedInvIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
+        logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/invoices","method":"PUT","entities":${JSON.stringify(editedInvIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(editedInvIds.map(async v => 
           readEntities(`[Test run ${run}][#${variant}] Edit Invoices`, token, v, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":1`) >= 0)), true)
           ).then(_ => {
-            logger.debug(`[ROBUSTNESS]{"url":"/etccorp/pboc/api/v1/invoices","method":"PUT","entities":"${v}","readNttyFinish":${Date.now()}}`);
-            if (analyzer) analyzer('editInvoice', v);
+            logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/invoices","method":"PUT","entities":"${v}","readNttyFinish":${Date.now()}}`);
             return true;
           })
           .catch(error => console.log(`[Test run ${run}][#${variant}] Edit Invoices ${error}`))
@@ -622,13 +615,12 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       if (notifiedInvIds && (notifiedInvIds !== undefined)) {
         const writeFinish = Date.now();
         write += (writeFinish - writeStart);
-        logger.debug(`[ROBUSTNESS]{"url":"/etccorp/pboc/api/v1/invoices/notify","method":"POST","entities":${JSON.stringify(notifiedInvIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
+        logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/invoices/notify","method":"POST","entities":${JSON.stringify(notifiedInvIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(notifiedInvIds.map(async v => 
           readEntities(`[Test run ${run}][#${variant}] Transfer Invoices`, token, v, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`,InvoiceTransferred`) >= 0)), true)
           ).then(_ => {
-            logger.debug(`[ROBUSTNESS]{"url":"/etccorp/pboc/api/v1/invoices/notify","method":"POST","entities":"${v}","readNttyFinish":${Date.now()}}`);
-            if (analyzer) analyzer('transferInvoice', v);
+            logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/invoices/notify","method":"POST","entities":"${v}","readNttyFinish":${Date.now()}}`);
             return true;
           })
           .catch(error => console.log(`[Test run ${run}][#${variant}] Trasnfer Invoices ${error}`))
@@ -655,7 +647,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       if (confirmInvResult && (confirmInvResult !== undefined)) {
         const writeFinish = Date.now();
         write += (writeFinish - writeStart);
-        logger.debug(`[ROBUSTNESS]{"url":"/invoice/result","method":"POST","entities":${JSON.stringify(confirmInvResult.map(v => v.invoiceId))},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
+        logger.debug(`[PERFTEST]{"url":"/invoice/result","method":"POST","entities":${JSON.stringify(confirmInvResult.map(v => v.invoiceId))},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(confirmInvResult.map(async v => 
           readEntities(`[Test run ${run}][#${variant}] Confirm Invoices`, token, v.invoiceId, (results: any[]) =>
             results.reduce((accu, r) => {
@@ -665,8 +657,7 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
               );
             }, true)
           ).then(_ => {
-            logger.debug(`[ROBUSTNESS]{"url":"/invoice/result","method":"POST","entities":"${v.invoiceId}","readNttyFinish":${Date.now()}}`);
-            if (analyzer) analyzer('confirmInvoice', v.invoiceId);
+            logger.debug(`[PERFTEST]{"url":"/invoice/result","method":"POST","entities":"${v.invoiceId}","readNttyFinish":${Date.now()}}`);
             return true;
           })
           .catch(error => console.log(`[Test run ${run}][#${variant}] Confirm Invoices ${error}`))
@@ -693,13 +684,12 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       if (invFinInvIds && (invFinInvIds !== undefined)) {
         const writeFinish = Date.now();
         write += (writeFinish - writeStart);
-        logger.debug(`[ROBUSTNESS]{"url":"/trade-financing/invresult","method":"POST","entities":${JSON.stringify(invFinInvIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
+        logger.debug(`[PERFTEST]{"url":"/trade-financing/invresult","method":"POST","entities":${JSON.stringify(invFinInvIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(invFinInvIds.map(async v => 
           readEntities(`[Test run ${run}][#${variant}] Update payment status`, token, v, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`,PaymentStatusUpdated`) >= 0)), true)
           ).then(_ => {
-            logger.debug(`[ROBUSTNESS]{"url":"/trade-financing/invresult","method":"POST","entities":"${v}","readNttyFinish":${Date.now()}}`);
-            if (analyzer) analyzer('updatePaymentStatus', v);
+            logger.debug(`[PERFTEST]{"url":"/trade-financing/invresult","method":"POST","entities":"${v}","readNttyFinish":${Date.now()}}`);
             return true;
           })
           .catch(error => console.log(`[Test run ${run}][#${variant}] Update payment status ${error}`))
