@@ -62,10 +62,9 @@ jobs:
         run: |
           set -x
           cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && sudo ./dn-run.0-db-red.sh
-          sleep 60
+          sleep 30
           docker logs postgres01
           docker exec postgres01 psql -U postgres --list
-          docker logs redis01
       - name: Run unit tests for auth
         env:
           LOG_TARGET: console

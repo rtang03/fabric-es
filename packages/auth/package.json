@@ -24,7 +24,7 @@
     "build": "yarn clean && tsc",
     "clean": "rimraf dist && rimraf build",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
-    "unit-test:fab": "jest --verbose --runInBand --forceExit --detectOpenHandles unit.test",
+    "unit-test:fab": "sudo jest --verbose --runInBand --forceExit --detectOpenHandles unit.test",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "publish:gh:fabric-es": "npm publish"
   },
