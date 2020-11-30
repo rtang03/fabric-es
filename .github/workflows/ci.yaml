@@ -62,6 +62,7 @@ jobs:
         run: |
           cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && sudo ./dn-run.0-db-red.sh
           docker ps
+          sleep 60
           docker logs postgres01
       - name: Run unit tests for auth
         env:
