@@ -18,7 +18,7 @@ import {
   isRefreshTokenResponse,
   isRegisterResponse,
 } from '../utils';
-import { createDbForUnitTest } from './__utils__/createDbForUnitTest';
+// import { createDbForUnitTest } from './__utils__/createDbForUnitTest';
 
 /**
  * Pre-requisite:
@@ -33,7 +33,7 @@ const connection = {
   username: process.env.TYPEORM_USERNAME,
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
-  logging: false,
+  logging: true,
   synchronize: true,
   dropSchema: true,
   entities: [ApiKey, Client, User],
@@ -75,9 +75,6 @@ beforeAll(async () => {
       console.error('🚫  app is undefined');
       process.exit(1);
     }
-
-    console.log('🔆  Echo app');
-    console.log(app);
 
     console.log('👉  User.create');
 
