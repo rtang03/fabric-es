@@ -45,7 +45,7 @@ jobs:
           yarn install
           nvm install v14.0.0
           nvm use v14.0.0
-          npm rebuild grpc
+          npm rebuild grpc pg typeorm
           # npm rebuild grpc --target=14.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
           nvm use v12.16.1
       - name: lint auth, chaincode, fabric-cqrs, operator, gateway-lib, proxy
@@ -62,6 +62,7 @@ jobs:
         run: |
           cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.0-db-red.sh
           docker ps
+          sudo lsof -i :5432
       - name: Run unit tests for auth
         env:
           LOG_TARGET: console
@@ -74,4 +75,6 @@ jobs:
       #   env:
       #     LOG_TARGET: console
       #   run: sudo yarn unit-test
-      - run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
+      - run: |
+          npm list jest
+          sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts

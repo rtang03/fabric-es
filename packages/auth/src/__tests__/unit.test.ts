@@ -61,7 +61,6 @@ if (!redis) {
 beforeAll(async () => {
   try {
     console.log('👉  app');
-    console.log(process.env.TYPEORM_HOST);
 
     app = await createHttpServer({
       connection,
@@ -93,7 +92,7 @@ beforeAll(async () => {
     console.error(e);
     process.exit(1);
   }
-});
+}, 60);
 
 afterAll(async () => {
   redis.disconnect();
