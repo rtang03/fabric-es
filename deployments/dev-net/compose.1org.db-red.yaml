@@ -6,14 +6,14 @@ networks:
 services:
   postgres01:
     container_name: postgres01
-    image: postgres:13-alpine
+    image: postgres:9.6.20
     environment:
       - POSTGRES_PASSWORD=docker
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
     # - POSTGRES_INITDB_ARGS=--max_files_per_process=200
     volumes:
-      - $ARTIFACTS/postgres01:/var/lib/postgresql/data
+      # - $ARTIFACTS/postgres01:/var/lib/postgresql/data
       - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
     command: postgres
     # this open port for development, should be removed for production
