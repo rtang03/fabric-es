@@ -45,7 +45,7 @@ jobs:
           yarn install
           nvm install v14.0.0
           nvm use v14.0.0
-          npm rebuild grpc bcrypt
+          npm rebuild grpc
           # npm rebuild grpc --target=14.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
           nvm use v12.16.1
       - name: lint auth, chaincode, fabric-cqrs, operator, gateway-lib, proxy
@@ -63,7 +63,7 @@ jobs:
           cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.0-db-red.sh
           docker ps
           echo "PRINT CREATEDB"
-          more /docker-entrypoint-initdb.d/1-createdb.sql
+          docker exec postgres01 more /docker-entrypoint-initdb.d/1-createdb.sql
           docker logs postgres01
       - name: Run unit tests for auth
         env:
