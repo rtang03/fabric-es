@@ -42,9 +42,10 @@ const connection = {
   password: ENV.TYPEORM_PASSWORD,
   database: ENV.TYPEORM_DATABASE,
   logging: ENV.TYPEORM_LOGGING === 'true',
-  synchronize: true,
+  synchronize: false,
   dropSchema: ENV.TYPEORM_DROPSCHEMA === 'true',
   entities: [Client, User, ApiKey],
+  connectTimeoutMS: 10000
 };
 
 (async () => {

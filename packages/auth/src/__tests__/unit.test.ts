@@ -37,6 +37,7 @@ const connection = {
   synchronize: true,
   dropSchema: true,
   entities: [ApiKey, Client, User],
+  connectTimeoutMS: 10000
 };
 const org_admin_secret = process.env.ORG_ADMIN_SECRET;
 
