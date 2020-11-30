@@ -33,9 +33,15 @@ export const createHttpServer: (option: {
   try {
     console.log('👉  createConnection - psql');
     console.log(connection);
-    const conn = await createConnection(connection);
+    await createConnection(connection)
+      .then((result) => {
+        console.log('result');
+        console.log(result);
+      })
+      .finally(() => console.log('finally'));
     console.log('👉  connected - psql');
   } catch (e) {
+    console.error('What is it?');
     console.error(e);
     process.exit(1);
   }
@@ -82,7 +88,7 @@ export const createHttpServer: (option: {
       jwtExpiryInSec,
       tokenRepo,
       refreshTokenRepo,
-      refTokenExpiryInSec
+      refTokenExpiryInSec,
     })
   );
   console.log('👉  returning app');
