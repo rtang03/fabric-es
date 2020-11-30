@@ -61,8 +61,6 @@ if (!redis) {
 
 beforeAll(async () => {
   try {
-    console.log('👉  app');
-
     app = await createHttpServer({
       connection,
       jwtSecret: process.env.JWT_SECRET,
@@ -76,8 +74,6 @@ beforeAll(async () => {
       console.error('🚫  app is undefined');
       process.exit(1);
     }
-
-    console.log('👉  User.create');
 
     const user = User.create({
       email: 'tester@example.com',
