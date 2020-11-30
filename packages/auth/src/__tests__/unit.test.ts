@@ -18,7 +18,6 @@ import {
   isRefreshTokenResponse,
   isRegisterResponse,
 } from '../utils';
-// import { createDbForUnitTest } from './__utils__/createDbForUnitTest';
 
 /**
  * Pre-requisite:
