@@ -10,7 +10,8 @@ export RELEASE=0.6.6
 _step 2: Commit and push all changes_
 
 _step 3: create release tag_
-Method 1:
+Method 1:  
+
 This will bump version, create version tag, and push to origin in go.
 
 ```shell script
@@ -18,8 +19,10 @@ This will bump version, create version tag, and push to origin in go.
 yarn version:patch
 ```
 
-Method 2:  
-Or equivalently, manually create version tag, and push.
+Method 1 will update `lerna.json` and related packages' version automatically. Therefore, cannot not run repeatedly 
+
+Method 2:    
+If the release by methed 1 fails, can choose manually create version tag, and push.
 
 ```shell script
 # create local tag
@@ -42,7 +45,6 @@ git push --delete origin v0.5.1
 
 After both local and remote tags are removed,
 
-- make sure CHANGELOG.md is correct
 - commit all changes
 - repeat above method 2: (a) create local tag, (b) push remote
 
