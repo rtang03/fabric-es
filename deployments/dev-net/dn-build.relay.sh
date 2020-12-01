@@ -30,7 +30,11 @@ do
 
   ### build image ###
   cd $ROOT_DIR
+  set -x
   DOCKER_BUILD=1 docker build --no-cache -f ./rl-${ORG}.dockerfile -t fabric-es/rl-${ORG}:${RELEASE} .
+  res=$?
+  docker tag fabric-es/rl-${ORG}:${RELEASE} fabric-es/rl-${ORG}
+  set +x
   printMessage "Create image fabric-es/rl-${ORG}:${RELEASE}" $?
   sleep 1
 done
