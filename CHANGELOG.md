@@ -4,9 +4,9 @@
 
 [Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.1...HEAD)
 
-**Closed issues:**
+**Implemented enhancements:**
 
-- update README.md and OPERATIONS.md [\#40](https://github.com/rtang03/fabric-es/issues/40)
+- feat: GitHub action enhancements [\#140](https://github.com/rtang03/fabric-es/issues/140)
 
 ## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-01)
 
@@ -24,6 +24,7 @@
 **Closed issues:**
 
 - fail: CI fails because of Nodejs version change in GH Action's ubuntu image [\#142](https://github.com/rtang03/fabric-es/issues/142)
+- update README.md and OPERATIONS.md [\#40](https://github.com/rtang03/fabric-es/issues/40)
 
 **Merged pull requests:**
 
