@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.0...HEAD)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.1...HEAD)
+
+**Closed issues:**
+
+- update README.md and OPERATIONS.md [\#40](https://github.com/rtang03/fabric-es/issues/40)
+
+## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-01)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.0...v0.7.1)
 
 **Implemented enhancements:**
 
