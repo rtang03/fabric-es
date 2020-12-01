@@ -29,7 +29,7 @@ jobs:
       - name: Setup Node.js for use with action
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-        uses: actions/setup-node@v2-beat
+        uses: actions/setup-node@v2-beta
         with:
           version: '12.16.1'
           check-latest: true
