@@ -68,7 +68,7 @@ jobs:
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           # Use Docker `latest` tag convention
           [ "$VERSION" == "$default-branch" ] && VERSION=latest
-          docker tag fabric-es/$AUTH_IMAGE $IMAGE_ID:$VERSION
+          docker tag $AUTH_IMAGE $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
       - name: Push Relay-1 to GCR
         run: |
