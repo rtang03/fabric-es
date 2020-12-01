@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- attempt a clean run after using auto changelog [\#146](https://github.com/rtang03/fabric-es/pull/146) ([rtang03](https://github.com/rtang03))
 - feat: enhance GitHub Actions [\#141](https://github.com/rtang03/fabric-es/pull/141) ([rtang03](https://github.com/rtang03))
 
 **Fixed bugs:**
@@ -22,6 +23,175 @@
 - attempt changelog.yaml [\#144](https://github.com/rtang03/fabric-es/pull/144) ([rtang03](https://github.com/rtang03))
 - Handle multipart form fields with content types [\#139](https://github.com/rtang03/fabric-es/pull/139) ([pangduckwai](https://github.com/pangduckwai))
 - Add work around to accept JSON data provided in query params [\#137](https://github.com/rtang03/fabric-es/pull/137) ([pangduckwai](https://github.com/pangduckwai))
+
+## [v0.7.0](https://github.com/rtang03/fabric-es/tree/v0.7.0) (2020-10-09)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.6.5...v0.7.0)
+
+**Implemented enhancements:**
+
+- expand the CD to Org2 [\#129](https://github.com/rtang03/fabric-es/issues/129)
+- external chaincode launcher [\#126](https://github.com/rtang03/fabric-es/issues/126)
+- operator grpc server [\#119](https://github.com/rtang03/fabric-es/issues/119)
+- add Prometheus [\#116](https://github.com/rtang03/fabric-es/issues/116)
+- pick the better / readable log format [\#99](https://github.com/rtang03/fabric-es/issues/99)
+- build k8s based dev-net [\#97](https://github.com/rtang03/fabric-es/issues/97)
+- upload micro-service [\#47](https://github.com/rtang03/fabric-es/issues/47)
+- Boilerplate-d continuous delivery [\#15](https://github.com/rtang03/fabric-es/issues/15)
+- partially work with ingress controller [\#124](https://github.com/rtang03/fabric-es/pull/124) ([rtang03](https://github.com/rtang03))
+- add new org - interim change [\#122](https://github.com/rtang03/fabric-es/pull/122) ([rtang03](https://github.com/rtang03))
+
+**Merged pull requests:**
+
+- Fix issue with logging to files [\#136](https://github.com/rtang03/fabric-es/pull/136) ([pangduckwai](https://github.com/pangduckwai))
+- Tester enhancements [\#135](https://github.com/rtang03/fabric-es/pull/135) ([pangduckwai](https://github.com/pangduckwai))
+- Improve key fields tagging for pboc/etc, improve logging [\#134](https://github.com/rtang03/fabric-es/pull/134) ([pangduckwai](https://github.com/pangduckwai))
+- Improve error message when trying to process non-existing entities \(i… [\#133](https://github.com/rtang03/fabric-es/pull/133) ([pangduckwai](https://github.com/pangduckwai))
+- Add missing fix to relay test [\#128](https://github.com/rtang03/fabric-es/pull/128) ([pangduckwai](https://github.com/pangduckwai))
+- Update domain model of pbc/etc connectivity [\#127](https://github.com/rtang03/fabric-es/pull/127) ([pangduckwai](https://github.com/pangduckwai))
+- Domain model updates [\#125](https://github.com/rtang03/fabric-es/pull/125) ([pangduckwai](https://github.com/pangduckwai))
+- Fix getLogger issue which open too many files [\#123](https://github.com/rtang03/fabric-es/pull/123) ([pangduckwai](https://github.com/pangduckwai))
+- update image build version to 0.6.5 [\#121](https://github.com/rtang03/fabric-es/pull/121) ([hohowin](https://github.com/hohowin))
+
+## [v0.6.5](https://github.com/rtang03/fabric-es/tree/v0.6.5) (2020-09-04)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.6.4...v0.6.5)
+
+**Implemented enhancements:**
+
+- redeploy helm chart to GCP [\#105](https://github.com/rtang03/fabric-es/issues/105)
+- evaluate ansible and choice of dns [\#104](https://github.com/rtang03/fabric-es/issues/104)
+- gcp networking [\#115](https://github.com/rtang03/fabric-es/pull/115) ([rtang03](https://github.com/rtang03))
+- deploy 5 orderers 1 peer to GCP [\#114](https://github.com/rtang03/fabric-es/pull/114) ([rtang03](https://github.com/rtang03))
+
+**Closed issues:**
+
+- Define IAM users, groups, roles, and policies [\#108](https://github.com/rtang03/fabric-es/issues/108)
+
+**Merged pull requests:**
+
+- Add relay services to dev-net [\#120](https://github.com/rtang03/fabric-es/pull/120) ([pangduckwai](https://github.com/pangduckwai))
+- PbOC / eTC connectivity [\#118](https://github.com/rtang03/fabric-es/pull/118) ([pangduckwai](https://github.com/pangduckwai))
+- Successfully released v0.6.4 [\#109](https://github.com/rtang03/fabric-es/pull/109) ([hohowin](https://github.com/hohowin))
+- update version to 0.6.4 [\#107](https://github.com/rtang03/fabric-es/pull/107) ([hohowin](https://github.com/hohowin))
+
+## [v0.6.4](https://github.com/rtang03/fabric-es/tree/v0.6.4) (2020-08-18)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.6.3...v0.6.4)
+
+**Implemented enhancements:**
+
+- merge 0.6.3 [\#103](https://github.com/rtang03/fabric-es/pull/103) ([rtang03](https://github.com/rtang03))
+
+**Merged pull requests:**
+
+- Sniffing [\#106](https://github.com/rtang03/fabric-es/pull/106) ([pangduckwai](https://github.com/pangduckwai))
+
+## [v0.6.3](https://github.com/rtang03/fabric-es/tree/v0.6.3) (2020-08-04)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.6.2...v0.6.3)
+
+**Implemented enhancements:**
+
+- evaluate broader use of Prometheus [\#95](https://github.com/rtang03/fabric-es/issues/95)
+- caliper performance and capacity tests [\#94](https://github.com/rtang03/fabric-es/issues/94)
+- make ui-control image, and be part of dev-net [\#86](https://github.com/rtang03/fabric-es/issues/86)
+- enhance the security; add refresh token [\#85](https://github.com/rtang03/fabric-es/issues/85)
+- add Apollo Client subscription to ui-control [\#84](https://github.com/rtang03/fabric-es/issues/84)
+- valid token check for ui-control [\#81](https://github.com/rtang03/fabric-es/issues/81)
+- add Rxjs timeInterval when createCommit [\#78](https://github.com/rtang03/fabric-es/issues/78)
+- consolidate ui-account to ui-control [\#77](https://github.com/rtang03/fabric-es/issues/77)
+- additional api and meta data for createQueryDatabase [\#76](https://github.com/rtang03/fabric-es/issues/76)
+- paginated api and pagination retrieval \(cursor based\) [\#75](https://github.com/rtang03/fabric-es/issues/75)
+- Inconsistent result type from Query-side Redis result [\#74](https://github.com/rtang03/fabric-es/issues/74)
+- add health-check for dev-net, during CI [\#72](https://github.com/rtang03/fabric-es/issues/72)
+- refactoring gw-org\* and model\* [\#65](https://github.com/rtang03/fabric-es/issues/65)
+- full text search enhancement [\#64](https://github.com/rtang03/fabric-es/issues/64)
+- Change from http-middleware-proxy to Ngnix [\#63](https://github.com/rtang03/fabric-es/issues/63)
+- 🔆 adopt RediSearch to power full text search and auto-complete [\#56](https://github.com/rtang03/fabric-es/issues/56)
+- Refactor fabric-cqrs and Gatewaylib, to using newly added Redis and Query-Handler [\#54](https://github.com/rtang03/fabric-es/issues/54)
+- event notification for queryHandler [\#53](https://github.com/rtang03/fabric-es/issues/53)
+- Dashboard and reporting [\#52](https://github.com/rtang03/fabric-es/issues/52)
+- enhance proxy server [\#46](https://github.com/rtang03/fabric-es/issues/46)
+- finishing the current sprint by creating 0.6.2 release [\#42](https://github.com/rtang03/fabric-es/issues/42)
+- Query-Handler implementation [\#20](https://github.com/rtang03/fabric-es/issues/20)
+- interim changes for caliper [\#96](https://github.com/rtang03/fabric-es/pull/96) ([rtang03](https://github.com/rtang03))
+- ui-control is done [\#93](https://github.com/rtang03/fabric-es/pull/93) ([rtang03](https://github.com/rtang03))
+- add createWallet to ui-control [\#89](https://github.com/rtang03/fabric-es/pull/89) ([rtang03](https://github.com/rtang03))
+- enhanced web security by changing to inmemory access token [\#87](https://github.com/rtang03/fabric-es/pull/87) ([rtang03](https://github.com/rtang03))
+- fullTextSearch for Entity and Commit [\#83](https://github.com/rtang03/fabric-es/pull/83) ([rtang03](https://github.com/rtang03))
+- ui for fulltext search [\#82](https://github.com/rtang03/fabric-es/pull/82) ([rtang03](https://github.com/rtang03))
+- add paginated full text search and parametric search [\#80](https://github.com/rtang03/fabric-es/pull/80) ([rtang03](https://github.com/rtang03))
+- use nginx  [\#70](https://github.com/rtang03/fabric-es/pull/70) ([rtang03](https://github.com/rtang03))
+- query-handler implementation [\#67](https://github.com/rtang03/fabric-es/pull/67) ([rtang03](https://github.com/rtang03))
+- query-handler is functionally ok [\#62](https://github.com/rtang03/fabric-es/pull/62) ([rtang03](https://github.com/rtang03))
+
+**Fixed bugs:**
+
+- when there is no enrolled wallet,... fail to return [\#92](https://github.com/rtang03/fabric-es/issues/92)
+- change the server side wallet file from \[username\].id to \[user\_id\].id [\#90](https://github.com/rtang03/fabric-es/issues/90)
+- findBy function cannot replace getProjection [\#68](https://github.com/rtang03/fabric-es/issues/68)
+- getProjection function [\#66](https://github.com/rtang03/fabric-es/issues/66)
+- fix security bugs in ui-control [\#88](https://github.com/rtang03/fabric-es/pull/88) ([rtang03](https://github.com/rtang03))
+- where-clause added for find.js [\#69](https://github.com/rtang03/fabric-es/pull/69) ([rtang03](https://github.com/rtang03))
+- remove auth from publishing [\#51](https://github.com/rtang03/fabric-es/pull/51) ([rtang03](https://github.com/rtang03))
+
+**Closed issues:**
+
+- Pick better log cloud [\#101](https://github.com/rtang03/fabric-es/issues/101)
+- Define system backup strategy [\#100](https://github.com/rtang03/fabric-es/issues/100)
+- Prepare the infrastructure for UAT and Prod [\#98](https://github.com/rtang03/fabric-es/issues/98)
+- Add Checking in Auth Docker Image [\#71](https://github.com/rtang03/fabric-es/issues/71)
+- Develop recovery mechanism for the relay [\#60](https://github.com/rtang03/fabric-es/issues/60)
+- Enhance security module for the relay [\#59](https://github.com/rtang03/fabric-es/issues/59)
+- Deploy Fabric 2.1 and gw-org1 / gw-org2 to AWS [\#58](https://github.com/rtang03/fabric-es/issues/58)
+- Deploy relay to AWS [\#57](https://github.com/rtang03/fabric-es/issues/57)
+
+**Merged pull requests:**
+
+- Fix relay/sniffer issues working with redis [\#102](https://github.com/rtang03/fabric-es/pull/102) ([pangduckwai](https://github.com/pangduckwai))
+- Issue57 fixes [\#91](https://github.com/rtang03/fabric-es/pull/91) ([pangduckwai](https://github.com/pangduckwai))
+- Track private data [\#79](https://github.com/rtang03/fabric-es/pull/79) ([pangduckwai](https://github.com/pangduckwai))
+- Issue71 [\#73](https://github.com/rtang03/fabric-es/pull/73) ([hohowin](https://github.com/hohowin))
+- Issue\# 57: Deploy relay to AWS [\#61](https://github.com/rtang03/fabric-es/pull/61) ([hohowin](https://github.com/hohowin))
+
+## [v0.6.2](https://github.com/rtang03/fabric-es/tree/v0.6.2) (2020-05-21)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.6.1...v0.6.2)
+
+**Implemented enhancements:**
+
+- add "CreateWallet" function to ui-account [\#41](https://github.com/rtang03/fabric-es/issues/41)
+- Digital wallet [\#36](https://github.com/rtang03/fabric-es/issues/36)
+- add reverse proxy in micro-service style [\#26](https://github.com/rtang03/fabric-es/issues/26)
+- collective revamping task for authentication package [\#19](https://github.com/rtang03/fabric-es/issues/19)
+- interim changes [\#49](https://github.com/rtang03/fabric-es/pull/49) ([rtang03](https://github.com/rtang03))
+- add createWallet to ui and run e2e 1org scenario [\#45](https://github.com/rtang03/fabric-es/pull/45) ([rtang03](https://github.com/rtang03))
+- Refactor gateway-lib to using new auth package [\#38](https://github.com/rtang03/fabric-es/pull/38) ([rtang03](https://github.com/rtang03))
+- Revamp auth-server [\#34](https://github.com/rtang03/fabric-es/pull/34) ([rtang03](https://github.com/rtang03))
+- Backporting docker image building scripts [\#33](https://github.com/rtang03/fabric-es/pull/33) ([pangduckwai](https://github.com/pangduckwai))
+- Use release versions as dev-net docker image versions [\#32](https://github.com/rtang03/fabric-es/pull/32) ([pangduckwai](https://github.com/pangduckwai))
+- Merge projectionDb search changes from 0.5.16 to master [\#30](https://github.com/rtang03/fabric-es/pull/30) ([pangduckwai](https://github.com/pangduckwai))
+- Update the GCP deployment of gw-org1, gw-org2, and auth-servers for release v0.6.1 [\#29](https://github.com/rtang03/fabric-es/pull/29) ([hohowin](https://github.com/hohowin))
+- V2dn3org [\#25](https://github.com/rtang03/fabric-es/pull/25) ([pangduckwai](https://github.com/pangduckwai))
+
+**Fixed bugs:**
+
+- TypeOrm Dependency Error [\#43](https://github.com/rtang03/fabric-es/issues/43)
+- ui-account: token expiry and /home [\#35](https://github.com/rtang03/fabric-es/issues/35)
+- registerAndEnroll misbehaviour in gw-node [\#2](https://github.com/rtang03/fabric-es/issues/2)
+- fix bug for issue \#43 [\#44](https://github.com/rtang03/fabric-es/pull/44) ([rtang03](https://github.com/rtang03))
+
+**Closed issues:**
+
+- upgrade to Fabric v2.1 [\#39](https://github.com/rtang03/fabric-es/issues/39)
+- split micro-services to running on standalone container [\#21](https://github.com/rtang03/fabric-es/issues/21)
+
+**Merged pull requests:**
+
+- update dependency and upgrade to Fabric V2.1 [\#50](https://github.com/rtang03/fabric-es/pull/50) ([rtang03](https://github.com/rtang03))
+- Dev-net for new auth server [\#48](https://github.com/rtang03/fabric-es/pull/48) ([pangduckwai](https://github.com/pangduckwai))
+- Add entity lifecycle event checking for writing into blockchain \(issue \#84\) [\#37](https://github.com/rtang03/fabric-es/pull/37) ([pangduckwai](https://github.com/pangduckwai))
 
 
 
