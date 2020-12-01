@@ -8,6 +8,9 @@ on:
 env:
   GITHUB_SHA: ${{ github.sha }}
   AUTH_IMAGE: auth-server
+  RELAY_1: rl-org1
+  RELAY_2: rl-org2
+  RELAY_3: rl-org3
 
 jobs:
   build:
@@ -43,7 +46,7 @@ jobs:
       - name: Build auth image
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh
       - name: Build relay image
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.relay.sh
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.relay.sh org1 org2
       - name: Build ui images
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.ui-control.sh org1 org2
       - name: Build org1 org2 images
@@ -65,9 +68,21 @@ jobs:
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           # Use Docker `latest` tag convention
           [ "$VERSION" == "$default-branch" ] && VERSION=latest
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
           docker tag $AUTH_IMAGE $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+      - name: Push Relay-1 to GCR
+        run: |
+          set -x
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$RELAY_1
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "$default-branch" ] && VERSION=latest
+          docker tag $RELAY_1 $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
       - name: Create Release
         uses: docker://antonyurchenko/git-release:latest
@@ -77,6 +92,7 @@ jobs:
           PRE_RELEASE: "true"
           CHANGELOG_FILE: "none"
           ALLOW_EMPTY_CHANGELOG: "true"
+          ALLOW_TAG_PREFIX: "true"
       - name: Cleanup artifacts
         run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
       - name: Cleanup data volume
