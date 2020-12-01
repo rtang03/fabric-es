@@ -67,7 +67,7 @@ jobs:
           [ "$VERSION" == "$default-branch" ] && VERSION=latest
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          docker tag $AUTH_NAME $IMAGE_ID:$VERSION
+          docker tag $AUTH_IMAGE $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
       - name: Create Release
         uses: docker://antonyurchenko/git-release:latest
