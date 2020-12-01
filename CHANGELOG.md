@@ -7,6 +7,7 @@
 **Implemented enhancements:**
 
 - feat: GitHub action enhancements [\#140](https://github.com/rtang03/fabric-es/issues/140)
+- add step to create image during releasing [\#132](https://github.com/rtang03/fabric-es/issues/132)
 
 ## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-01)
 
