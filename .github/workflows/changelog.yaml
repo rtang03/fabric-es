@@ -20,6 +20,7 @@ jobs:
         with:
           token: ${{ secrets.CI_TOKEN }}
           since_tag: v0.7.0
+          exclude_tags: "v0.5.13,v0.5.14"
       - name: Commit files
         env:
           CI_USER: ${{ secrets.CI_USER }}
