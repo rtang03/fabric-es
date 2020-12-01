@@ -57,7 +57,6 @@ jobs:
         run: echo "${{ secrets.CREATE_PACKAGE }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Push auth-server to GCR
         run: |
-          set -x
           docker images
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$AUTH_IMAGE
           # Change all uppercase to lowercase
