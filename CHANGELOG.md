@@ -36,7 +36,11 @@
 
 ## [v0.7.0](https://github.com/rtang03/fabric-es/tree/v0.7.0) (2020-10-09)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.6.5...v0.7.0)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.6.6...v0.7.0)
+
+## [v0.6.6](https://github.com/rtang03/fabric-es/tree/v0.6.6) (2020-10-09)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.6.5...v0.6.6)
 
 **Implemented enhancements:**
 
