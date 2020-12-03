@@ -24,12 +24,13 @@
     "build": "yarn clean && tsc",
     "clean": "rimraf dist && rimraf build",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
-    "unit-test:fab": "jest --verbose --runInBand --forceExit --detectOpenHandles unit.test",
+    "unit-test:fab": "jest --forceExit --detectOpenHandles unit.test",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "publish:gh:fabric-es": "npm publish"
   },
   "private": true,
   "dependencies": {
+    "@godaddy/terminus": "^4.4.1",
     "bcrypt": "^5.0.0",
     "cookie-parser": "^1.4.4",
     "dotenv": "^8.1.0",

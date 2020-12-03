@@ -20,7 +20,6 @@ RUN apk add --no-cache postgresql-client \
   && echo "Asia/Hong_Kong" > /etc/timezone \
   && cd /home/app \
   && npm install --production  \
-  && npm -g add pm2 \
   && apk del .build-deps
 
 USER node

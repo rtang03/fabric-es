@@ -21,7 +21,6 @@ const ENV = {
   TYPEORM_DATABASE: process.env.TYPEORM_DATABASE,
   TYPEORM_PORT: process.env.TYPEORM_PORT,
   TYPEORM_LOGGING: process.env.TYPEORM_LOGGING,
-  TYPEORM_DROPSCHEMA: process.env.TYPEORM_DROPSCHEMA,
   REDIS_HOST: process.env.REDIS_HOST,
   REDIS_PORT: process.env.REDIS_PORT,
   JWT_SECRET: process.env.JWT_SECRET,
@@ -43,8 +42,8 @@ const connection = {
   password: ENV.TYPEORM_PASSWORD,
   database: ENV.TYPEORM_DATABASE,
   logging: ENV.TYPEORM_LOGGING === 'true',
-  synchronize: false, // false => production
-  dropSchema: false, // ENV.TYPEORM_DROPSCHEMA === 'true',
+  synchronize: false,
+  dropSchema: false,
   entities: [Client, User, ApiKey],
   connectTimeoutMS: 10000
 };
