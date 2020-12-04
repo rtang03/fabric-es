@@ -8031,6 +8031,25 @@ fabric-common@2.1.2, fabric-common@latest-2.1:
   optionalDependencies:
     pkcs11js "^1.0.6"
 
+fabric-common@2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/fabric-common/-/fabric-common-2.2.3.tgz#c3b2788896b9320be7f3bcf13db99527871d819e"
+  integrity sha512-eOj7A2h+8ME4SSFtOvtUYgE/FYiyCpmMsyI7BtFZIMuyFzx2EXNrvp0k9IowE+ZNpuq45BQBEbrNRnIjIvIm+A==
+  dependencies:
+    callsite "^1.0.0"
+    elliptic "^6.5.3"
+    fabric-protos "2.2.3"
+    js-sha3 "^0.7.0"
+    jsrsasign "^8.0.20"
+    long "^4.0.0"
+    nconf "^0.10.0"
+    promise-settle "^0.3.0"
+    sjcl "1.0.7"
+    winston "^2.4.0"
+    yn "^3.1.0"
+  optionalDependencies:
+    pkcs11js "^1.0.6"
+
 fabric-common@2.3.0-snapshot.21, fabric-common@unstable:
   version "2.3.0-snapshot.21"
   resolved "https://registry.yarnpkg.com/fabric-common/-/fabric-common-2.3.0-snapshot.21.tgz#87d4d8ac9df279502affbc5c144aeeaebde518ee"
@@ -8074,10 +8093,29 @@ fabric-network@2.1.0:
     nano "^8.1.0"
     winston "^2.4.0"
 
+fabric-network@2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/fabric-network/-/fabric-network-2.2.3.tgz#4a75d24948ce4bd519ed89f0dc76bf13aed96b16"
+  integrity sha512-JBfLQqx5kdi8I6bGduAVJIhdM6HMiQQbVb7sIlq7/dwTMGnbVwBqAx6wzJpTk+A6boqlz4KkQcKFIDlNsiqOjw==
+  dependencies:
+    fabric-common "2.2.3"
+    fabric-protos "2.2.3"
+    long "^4.0.0"
+    nano "^8.2.2"
+
 fabric-protos@2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/fabric-protos/-/fabric-protos-2.1.2.tgz#eab6afbf53c71801a12c766ee112b1e973029665"
   integrity sha512-R7zEe/4Tf2Ms009K5X/Jw7A0e4Mf8FvjELdiV6XZCsaZr8dMYs5/bWhc5Rag+D30+04bPmK3dUkAH1c/jRE8mA==
+  dependencies:
+    "@grpc/grpc-js" "1.0.3"
+    "@grpc/proto-loader" "0.5.4"
+    protobufjs "^6.9.0"
+
+fabric-protos@2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/fabric-protos/-/fabric-protos-2.2.3.tgz#ce14924d95ade0532a5b08179a337829ae5d817b"
+  integrity sha512-3rBGg/5Q7YU7H/JgmIhgKL374SPE0HTwD2O3rCv78ppY8z8zRlMe7mcz7kytkzZPSBe2VfIFa6YFWS/wXTHnEw==
   dependencies:
     "@grpc/grpc-js" "1.0.3"
     "@grpc/proto-loader" "0.5.4"
@@ -11921,7 +11959,7 @@ nan@^2.12.1, nan@^2.13.2, nan@^2.14.2:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
   integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
 
-nano@^8.1.0:
+nano@^8.1.0, nano@^8.2.2:
   version "8.2.3"
   resolved "https://registry.yarnpkg.com/nano/-/nano-8.2.3.tgz#f7bcc777ef8399757e2b38136adbf7bea0958345"
   integrity sha512-nubyTQeZ/p+xf3ZFFMd7WrZwpcy9tUDrbaXw9HFBsM6zBY5gXspvOjvG2Zz3emT6nfJtP/h7F2/ESfsVVXnuMw==
