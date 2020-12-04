@@ -79,9 +79,9 @@ beforeAll(async () => {
     process.exit(1);
   }
 
-  listener = network.getContract('eventstore').addContractListener(
-    ({ payload, eventName }) => {
-      console.log(`contract event arrives => ${eventName}`, payload.toString('utf8'));
+  listener = await network.getContract('eventstore').addContractListener(
+    async ({ payload, eventName }) => {
+      return console.log(`contract event arrives => ${eventName}`, payload.toString('utf8'));
     },
     { type: 'full' }
   );
