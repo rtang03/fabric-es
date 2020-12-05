@@ -26,7 +26,7 @@
     "build-chaincode": "cd ../chaincode && yarn build",
     "prepare-asset": "rimraf assets && mkdir -p ./assets/client-certs/hfc-kvs/org1",
     "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
-    "unit-test:fab": "jest unit.test",
+    "unit-test:fab": "jest --detectOpenHandles unit.test",
     "clean": "rimraf dist",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}' --fix",
     "prepublish": "yarn typedoc && yarn tsc:prod",
@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "dotenv": "^8.1.0",
-    "fabric-ca-client": "^1.4.8",
+    "fabric-ca-client": "2.2.3",
     "fabric-client": "2.0.0-snapshot.326",
     "fabric-contract-api": "2.2.1",
     "fabric-network": "2.2.3",

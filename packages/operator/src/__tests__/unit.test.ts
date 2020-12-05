@@ -18,6 +18,7 @@ const caName = 'rca-org1';
 const enrollmentId = 'test0001';
 const txSubmitter = process.env.ORG_ADMIN_ID;
 const newId = `newId_${Math.floor(Math.random() * 10000)}`;
+const sleep5 = new Promise((resolve) => setTimeout(() => resolve(true), 5000));
 
 let operator: NetworkOperator;
 
@@ -27,28 +28,32 @@ beforeAll(async () => {
   const wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
 
   await enrollAdmin({
-    caUrl: process.env.ORG_CA_URL,
+    caName,
+    // caUrl: process.env.ORG_CA_URL,
     connectionProfile,
     enrollmentID: process.env.ORG_ADMIN_ID,
     enrollmentSecret: process.env.ORG_ADMIN_SECRET,
     fabricNetwork,
     mspId,
-    wallet
-  }).catch(e => {
+    wallet,
+  }).catch(async (e) => {
     console.error(e);
+    await sleep5;
     process.exit(1);
   });
 
   await enrollAdmin({
-    caUrl: process.env.ORG_CA_URL,
+    caName,
+    // caUrl: process.env.ORG_CA_URL,
     connectionProfile,
     enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
     enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
     fabricNetwork,
     mspId,
-    wallet
-  }).catch(e => {
+    wallet,
+  }).catch(async (e) => {
     console.error(e);
+    await sleep5;
     process.exit(1);
   });
 
@@ -61,7 +66,7 @@ beforeAll(async () => {
     wallet,
     caAdmin,
     caAdminPW,
-    mspId: process.env.MSPID
+    mspId: process.env.MSPID,
   });
 });
 
@@ -70,7 +75,7 @@ describe('Network operator - registerAndEnroll', () => {
     operator
       .registerAndEnroll({
         enrollmentId: newId,
-        enrollmentSecret: 'password'
+        enrollmentSecret: 'password',
       })
       .then(({ disconnect, registerAndEnroll }) =>
         registerAndEnroll().then(({ status, info }) => {
@@ -81,6 +86,7 @@ describe('Network operator - registerAndEnroll', () => {
       ));
 });
 
+/*
 describe('Network operator - submitOrEvaluateTx', () => {
   it('should submit transaction', async () =>
     operator
@@ -90,14 +96,14 @@ describe('Network operator - submitOrEvaluateTx', () => {
           'dev_test',
           `dev_test_${Math.floor(Math.random() * 10000)}`,
           '0',
-          JSON.stringify([{ type: 'Created', payload: { name: 'me' } }])
+          JSON.stringify([{ type: 'Created', payload: { name: 'me' } }]),
         ],
         identity: txSubmitter,
         asLocalhost: true,
-        chaincodeId: 'eventstore'
+        chaincodeId: 'eventstore',
       })
       .then(({ disconnect, submit }) =>
-        submit().then(result => {
+        submit().then((result) => {
           disconnect();
           expect(isCommitRecord(result)).toBeTruthy();
         })
@@ -110,10 +116,10 @@ describe('Network operator - submitOrEvaluateTx', () => {
         fcn: 'eventstore:queryByEntityName',
         args: ['dev_test'],
         chaincodeId: 'eventstore',
-        identity: txSubmitter
+        identity: txSubmitter,
       })
       .then(({ disconnect, evaluate }) =>
-        evaluate().then(result => {
+        evaluate().then((result) => {
           disconnect();
           expect(isCommitRecord(result)).toBeTruthy();
         })
@@ -125,7 +131,7 @@ describe('Network operator - getQueries', () => {
     operator
       .getQueries()
       .then(({ getChannels }) => getChannels(peerName))
-      .then(result => expect(result).toEqual({ channels: [{ channel_id: channelName }] })));
+      .then((result) => expect(result).toEqual({ channels: [{ channel_id: channelName }] })));
 
   it('should query - getMspid', async () =>
     operator.getQueries().then(({ getMspid }) => expect(getMspid()).toEqual(mspId)));
@@ -134,7 +140,7 @@ describe('Network operator - getQueries', () => {
     operator
       .getQueries()
       .then(async ({ getChainInfo }) => getChainInfo(peerName))
-      .then(chainInfo => {
+      .then((chainInfo) => {
         expect(typeof chainInfo.height).toEqual('object');
         expect(typeof chainInfo.currentBlockHash).toEqual('object');
       }));
@@ -143,7 +149,7 @@ describe('Network operator - getQueries', () => {
     operator
       .getQueries()
       .then(({ getBlockByNumber }) => getBlockByNumber(blockNumber))
-      .then(block => expect(block.header.number).toEqual(blockNumber.toString())));
+      .then((block) => expect(block.header.number).toEqual(blockNumber.toString())));
 });
 
 describe('Network operator - identityService', () => {
@@ -167,8 +173,8 @@ describe('Network operator - identityService', () => {
     operator.identityService().then(({ create }) =>
       create({
         affiliation: 'org1', // default affiliation
-        enrollmentID: enrollmentId
-      }).then(secret => expect(typeof secret).toEqual('string'))
+        enrollmentID: enrollmentId,
+      }).then((secret) => expect(typeof secret).toEqual('string'))
     ));
 
   // should getOne will return
@@ -202,3 +208,5 @@ describe('Network operator - identityService', () => {
         expect(success).toBeTruthy();
       }));
 });
+
+ */

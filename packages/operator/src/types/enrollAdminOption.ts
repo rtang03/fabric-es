@@ -6,9 +6,10 @@ import { Wallet } from 'fabric-network';
 export interface EnrollAdminOption {
   enrollmentID: string;
   enrollmentSecret: string;
-  caUrl: string;
+  caUrl?: string;
   mspId: string;
   connectionProfile: string;
-  fabricNetwork: string;
+  fabricNetwork?: string;
   wallet: Wallet;
+  caName?: string;
 }
