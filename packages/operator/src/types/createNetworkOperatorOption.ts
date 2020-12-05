@@ -10,4 +10,6 @@ export interface CreateNetworkOperatorOption {
   caAdminPW: string;
   wallet: Wallet;
   mspId: string;
+  // need to make it mandatory
+  caName?: string;
 }

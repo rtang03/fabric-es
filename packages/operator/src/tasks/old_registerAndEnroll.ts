@@ -1,6 +1,5 @@
-import fs from 'fs';
+/*
 import util from 'util';
-import FabricCAServices from 'fabric-ca-client';
 import { User } from 'fabric-common';
 import {
   DefaultEventHandlerStrategies,
@@ -8,7 +7,6 @@ import {
   Gateway,
   X509Identity,
 } from 'fabric-network';
-import yaml from 'js-yaml';
 import {
   CreateNetworkOperatorOption,
   IDENTITY_ALREADY_EXIST,
@@ -17,7 +15,7 @@ import {
   ORG_ADMIN_NOT_EXIST,
   SUCCESS,
 } from '../types';
-import { getFabricCaService, getLogger } from '../utils';
+import { getClientForOrg, getLogger } from '../utils';
 
 export const registerAndEnroll: (
   option: CreateNetworkOperatorOption
@@ -37,31 +35,22 @@ export const registerAndEnroll: (
   eventHandlerStrategies = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
   queryHandlerStrategies = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
 }) => {
-  const logger = getLogger({ name: '[operator] registerAndEnroll.js' });
-  const { caName, caAdmin, caAdminPW, fabricNetwork, connectionProfile, wallet, mspId } = option;
-
   if (!enrollmentId) throw new Error(MISSING_ENROLLMENTID);
   if (!enrollmentSecret) throw new Error(MISSING_ENROLLMENTSECRET);
+
+  const logger = getLogger({ name: '[operator] registerAndEnroll.js' });
+  const { caAdmin, caAdminPW, fabricNetwork, connectionProfile, wallet, mspId } = option;
+  const client = await getClientForOrg(connectionProfile, fabricNetwork, mspId);
+  const gateway = new Gateway();
+  const certificateAuthority = client.getCertificateAuthority();
+
   if (!mspId) {
     logger.error('mspId not found');
     throw new Error('mspId not found');
   }
 
-  // Create a new CA client for interacting with the CA.
-  let caService: FabricCAServices;
   try {
-    caService = getFabricCaService(connectionProfile, caName);
-  } catch (e) {
-    logger.error(util.format('fail to newFabricCAServices: %j', e));
-    throw new Error(e);
-  }
-
-  // use the loaded connection profile
-  const ccp = yaml.safeLoad(fs.readFileSync(connectionProfile, 'utf8')) as object;
-  const gateway = new Gateway();
-
-  try {
-    await gateway.connect(ccp, {
+    await gateway.connect(client, {
       identity: caAdmin,
       wallet,
       eventHandlerOptions: { strategy: eventHandlerStrategies },
@@ -72,6 +61,7 @@ export const registerAndEnroll: (
     logger.error(util.format('fail to connect gateway, %j', e));
     throw new Error(e);
   }
+
   logger.info(util.format('gateway connected: %s', mspId));
 
   return {
@@ -115,7 +105,7 @@ export const registerAndEnroll: (
 
       // Step 1: register new enrollmentId
       try {
-        await caService.register(
+        await certificateAuthority.register(
           {
             enrollmentID: enrollmentId,
             enrollmentSecret,
@@ -136,7 +126,7 @@ export const registerAndEnroll: (
       let enroll;
 
       try {
-        enroll = await caService.enroll({
+        enroll = await certificateAuthority.enroll({
           enrollmentID: enrollmentId,
           enrollmentSecret,
         });
@@ -167,3 +157,5 @@ export const registerAndEnroll: (
     },
   };
 };
+
+ */

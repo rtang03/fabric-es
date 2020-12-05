@@ -67,6 +67,7 @@ beforeAll(async () => {
     caAdmin,
     caAdminPW,
     mspId: process.env.MSPID,
+    caName
   });
 });
 
