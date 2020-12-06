@@ -1,7 +1,7 @@
 // prettier-ignore
 export const FULL_TXT_SEARCH_ENTITY= `
   query FullTextSearchEntity (
-    $query: String
+    $query: String!
     $cursor: Int
     $pagesize: Int
    ) {

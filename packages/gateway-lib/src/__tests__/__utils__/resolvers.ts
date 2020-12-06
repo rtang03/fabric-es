@@ -1,5 +1,6 @@
 import { Commit, Counter } from '@fabric-es/fabric-cqrs';
-import { catchErrors, getLogger } from '../../utils';
+import { getLogger } from '../../utils';
+import { catchErrors } from '../../utils/catchErrors';
 import { commandHanlder } from './handler';
 import { Context } from './types';
 

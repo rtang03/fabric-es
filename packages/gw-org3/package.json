@@ -35,7 +35,7 @@
     "@fabric-es/model-loan": "^0.7.0",
     "@fabric-es/operator": "^0.7.0",
     "apollo-server": "^2.13.1",
-    "bcrypt": "^4.0.1",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "dotenv": "^8.1.0",
     "express": "^4.17.1",
