@@ -1,14 +1,7 @@
-import fs from 'fs';
 import util from 'util';
 import FabricCAServices from 'fabric-ca-client';
 import { User } from 'fabric-common';
-import {
-  DefaultEventHandlerStrategies,
-  DefaultQueryHandlerStrategies,
-  Gateway,
-  X509Identity,
-} from 'fabric-network';
-import yaml from 'js-yaml';
+import { Gateway, X509Identity } from 'fabric-network';
 import {
   CreateNetworkOperatorOption,
   IDENTITY_ALREADY_EXIST,
@@ -17,7 +10,7 @@ import {
   ORG_ADMIN_NOT_EXIST,
   SUCCESS,
 } from '../types';
-import { getFabricCaService, getLogger } from '../utils';
+import { getFabricCaService, getGateway, getLogger } from '../utils';
 
 export const registerAndEnroll: (
   option: CreateNetworkOperatorOption
@@ -25,20 +18,15 @@ export const registerAndEnroll: (
   enrollmentId: string;
   enrollmentSecret: string;
   asLocalhost?: boolean;
-  eventHandlerStrategies?: any;
-  queryHandlerStrategies?: any;
 }) => Promise<{
   disconnect: () => void;
   registerAndEnroll: () => Promise<any>;
-}> = (option) => async ({
-  enrollmentId,
-  enrollmentSecret,
-  asLocalhost = true,
-  eventHandlerStrategies = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
-  queryHandlerStrategies = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
-}) => {
+}> = (option) => async ({ enrollmentId, enrollmentSecret, asLocalhost = true }) => {
+  let caService: FabricCAServices;
+  let gateway: Gateway;
+
   const logger = getLogger({ name: '[operator] registerAndEnroll.js' });
-  const { caName, caAdmin, caAdminPW, fabricNetwork, connectionProfile, wallet, mspId } = option;
+  const { caName, caAdmin, caAdminPW, connectionProfile, wallet, mspId } = option;
 
   if (!enrollmentId) throw new Error(MISSING_ENROLLMENTID);
   if (!enrollmentSecret) throw new Error(MISSING_ENROLLMENTSECRET);
@@ -48,31 +36,25 @@ export const registerAndEnroll: (
   }
 
   // Create a new CA client for interacting with the CA.
-  let caService: FabricCAServices;
   try {
-    caService = getFabricCaService(connectionProfile, caName);
+    caService = await getFabricCaService(connectionProfile, caName);
   } catch (e) {
     logger.error(util.format('fail to newFabricCAServices: %j', e));
     throw new Error(e);
   }
 
   // use the loaded connection profile
-  const ccp = yaml.safeLoad(fs.readFileSync(connectionProfile, 'utf8')) as object;
-  const gateway = new Gateway();
-
   try {
-    await gateway.connect(ccp, {
+    gateway = await getGateway({
+      connectionProfile,
       identity: caAdmin,
       wallet,
-      eventHandlerOptions: { strategy: eventHandlerStrategies },
-      queryHandlerOptions: { strategy: queryHandlerStrategies },
-      discovery: { asLocalhost, enabled: true },
+      asLocalhost,
     });
   } catch (e) {
     logger.error(util.format('fail to connect gateway, %j', e));
     throw new Error(e);
   }
-  logger.info(util.format('gateway connected: %s', mspId));
 
   return {
     disconnect: () => gateway.disconnect(),

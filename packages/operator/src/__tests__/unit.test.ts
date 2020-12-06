@@ -29,11 +29,9 @@ beforeAll(async () => {
 
   await enrollAdmin({
     caName,
-    // caUrl: process.env.ORG_CA_URL,
     connectionProfile,
     enrollmentID: process.env.ORG_ADMIN_ID,
     enrollmentSecret: process.env.ORG_ADMIN_SECRET,
-    fabricNetwork,
     mspId,
     wallet,
   }).catch(async (e) => {
@@ -44,11 +42,9 @@ beforeAll(async () => {
 
   await enrollAdmin({
     caName,
-    // caUrl: process.env.ORG_CA_URL,
     connectionProfile,
     enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
     enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
-    fabricNetwork,
     mspId,
     wallet,
   }).catch(async (e) => {
@@ -58,16 +54,13 @@ beforeAll(async () => {
   });
 
   operator = await createNetworkOperator({
-    channelName,
-    ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
-    ordererName: process.env.ORDERER_HOSTNAME,
-    fabricNetwork,
-    connectionProfile,
-    wallet,
     caAdmin,
     caAdminPW,
+    caName,
+    channelName,
+    connectionProfile,
     mspId: process.env.MSPID,
-    caName
+    wallet,
   });
 });
 
@@ -87,7 +80,6 @@ describe('Network operator - registerAndEnroll', () => {
       ));
 });
 
-/*
 describe('Network operator - submitOrEvaluateTx', () => {
   it('should submit transaction', async () =>
     operator
@@ -128,29 +120,29 @@ describe('Network operator - submitOrEvaluateTx', () => {
 });
 
 describe('Network operator - getQueries', () => {
-  it('should query - getChannels', async () =>
-    operator
-      .getQueries()
-      .then(({ getChannels }) => getChannels(peerName))
-      .then((result) => expect(result).toEqual({ channels: [{ channel_id: channelName }] })));
-
   it('should query - getMspid', async () =>
     operator.getQueries().then(({ getMspid }) => expect(getMspid()).toEqual(mspId)));
 
-  it('should query - getChainInfo', async () =>
-    operator
-      .getQueries()
-      .then(async ({ getChainInfo }) => getChainInfo(peerName))
-      .then((chainInfo) => {
-        expect(typeof chainInfo.height).toEqual('object');
-        expect(typeof chainInfo.currentBlockHash).toEqual('object');
-      }));
-
-  it('should query - ChannelPeers', async () =>
-    operator
-      .getQueries()
-      .then(({ getBlockByNumber }) => getBlockByNumber(blockNumber))
-      .then((block) => expect(block.header.number).toEqual(blockNumber.toString())));
+  // TODO: CAN REMOVE
+  // it('should query - getChannels', async () =>
+  //   operator
+  //     .getQueries()
+  //     .then(({ getChannels }) => getChannels(peerName))
+  //     .then((result) => expect(result).toEqual({ channels: [{ channel_id: channelName }] })));
+  // it('should query - getChainInfo', async () =>
+  //   operator
+  //     .getQueries()
+  //     .then(async ({ getChainInfo }) => getChainInfo(peerName))
+  //     .then((chainInfo) => {
+  //       expect(typeof chainInfo.height).toEqual('object');
+  //       expect(typeof chainInfo.currentBlockHash).toEqual('object');
+  //     }));
+  //
+  // it('should query - ChannelPeers', async () =>
+  //   operator
+  //     .getQueries()
+  //     .then(({ getBlockByNumber }) => getBlockByNumber(blockNumber))
+  //     .then((block) => expect(block.header.number).toEqual(blockNumber.toString())));
 });
 
 describe('Network operator - identityService', () => {
@@ -209,5 +201,3 @@ describe('Network operator - identityService', () => {
         expect(success).toBeTruthy();
       }));
 });
-
- */

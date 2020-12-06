@@ -19,9 +19,8 @@ const enrollmentId = `command_test${Math.floor(Math.random() * 10000)}`;
 const id = `command_test_counter_001`;
 const connectionProfile = process.env.CONNECTION_PROFILE;
 const channelName = process.env.CHANNEL_NAME;
-const fabricNetwork = process.env.NETWORK_LOCATION;
+const caName = process.env.CA_NAME;
 const mspId = process.env.MSPID;
-const caUrl = process.env.ORG_CA_URL;
 const logger = getLogger({ name: 'command.integration.ts' });
 const events = [
   {
@@ -40,21 +39,19 @@ beforeAll(async () => {
     wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
 
     await enrollAdmin({
-      caUrl,
       connectionProfile,
       enrollmentID: process.env.ORG_ADMIN_ID,
       enrollmentSecret: process.env.ORG_ADMIN_SECRET,
-      fabricNetwork,
+      caName,
       mspId,
       wallet,
     });
 
     await enrollAdmin({
-      caUrl,
       connectionProfile,
       enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
       enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
-      fabricNetwork,
+      caName,
       mspId,
       wallet,
     });
@@ -62,7 +59,7 @@ beforeAll(async () => {
     await registerUser({
       caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
       caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN,
-      fabricNetwork,
+      caName,
       enrollmentId,
       enrollmentSecret: 'password',
       connectionProfile,

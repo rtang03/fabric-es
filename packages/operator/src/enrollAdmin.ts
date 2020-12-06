@@ -19,7 +19,7 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
 
   // Create a new CA client for interacting with the CA.
   try {
-    caService = getFabricCaService(connectionProfile, caName);
+    caService = await getFabricCaService(connectionProfile, caName);
   } catch (e) {
     logger.error(util.format('fail to newFabricCAServices: %j', e));
     throw new Error(e);

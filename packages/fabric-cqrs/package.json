@@ -50,7 +50,6 @@
   "dependencies": {
     "@fabric-es/operator": "^0.7.0",
     "dotenv": "^8.1.0",
-    "fabric-client": "2.0.0-snapshot.326",
     "fabric-contract-api": "2.2.1",
     "fabric-network": "2.2.3",
     "graphql-redis-subscriptions": "^2.2.1",

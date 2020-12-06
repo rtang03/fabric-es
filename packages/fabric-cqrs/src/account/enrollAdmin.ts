@@ -11,11 +11,10 @@ rimraf(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}`, async () => {
   console.log(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID} is removed`);
 
   await enrollAdmin({
-    caUrl: process.env.ORG_CA_URL,
+    caName: process.env.CA_NAME,
     enrollmentID: process.env.ORG_ADMIN_ID,
     enrollmentSecret: process.env.ORG_ADMIN_SECRET,
     mspId: process.env.MSPID,
-    fabricNetwork: process.env.NETWORK_LOCATION,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
   })
