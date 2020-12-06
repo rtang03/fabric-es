@@ -6,14 +6,14 @@
 
 **Implemented enhancements:**
 
-- feat: add Healthz probe to auth-server [\#147](https://github.com/rtang03/fabric-es/issues/147)
+- add Healthz probe to auth-server [\#147](https://github.com/rtang03/fabric-es/issues/147)
 - feat: GitHub action enhancements [\#140](https://github.com/rtang03/fabric-es/issues/140)
 - feat: add step to create image during releasing [\#132](https://github.com/rtang03/fabric-es/issues/132)
 - feat: multiple important updates and bug fixes [\#149](https://github.com/rtang03/fabric-es/pull/149) ([rtang03](https://github.com/rtang03))
 
 **Fixed bugs:**
 
-- bug: "tester" docker does not run test properly [\#153](https://github.com/rtang03/fabric-es/issues/153)
+- "tester" docker does not run test properly [\#153](https://github.com/rtang03/fabric-es/issues/153)
 - fail to run "tsc" during CI [\#150](https://github.com/rtang03/fabric-es/issues/150)
 - missing psql schema in auth-server [\#148](https://github.com/rtang03/fabric-es/issues/148)
 - fix: run 2org integration test during create-release [\#154](https://github.com/rtang03/fabric-es/pull/154) ([rtang03](https://github.com/rtang03))
@@ -33,7 +33,7 @@
 
 **Fixed bugs:**
 
-- fail: during CI, the auth-server fail because of not connecting psql [\#143](https://github.com/rtang03/fabric-es/issues/143)
+- during CI, the auth-server fail because of not connecting psql [\#143](https://github.com/rtang03/fabric-es/issues/143)
 
 **Closed issues:**
 
