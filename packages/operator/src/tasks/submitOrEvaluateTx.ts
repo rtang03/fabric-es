@@ -50,7 +50,7 @@ export const submitOrEvaluateTx: (
   try {
     const cp = await promiseToReadFile(connectionProfile);
 
-    await gateway.connect(yaml.safeLoad(cp), {
+    await gateway.connect(yaml.safeLoad(cp) as any, {
       identity,
       wallet,
       eventHandlerOptions: { strategy: eventHandlerStrategies },

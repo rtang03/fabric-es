@@ -8,7 +8,7 @@ import { createService } from '../utils';
 import {
   MISSING_CHANNELNAME,
   MISSING_CONNECTION_PROFILE,
-  MISSING_FABRIC_NETWORK,
+  MISSING_CA_NAME,
   MISSING_WALLET,
 } from './constants';
 import { createResolvers } from './createResolvers';
@@ -20,11 +20,8 @@ export const createAdminService: (option: {
   caAdmin: string;
   caAdminPW: string;
   channelName: string;
-  ordererTlsCaCert: string;
-  ordererName: string;
-  peerName: string;
   connectionProfile: string;
-  fabricNetwork: string;
+  caName: string;
   walletPath: string;
   orgName: string;
   orgUrl: string;
@@ -40,11 +37,8 @@ export const createAdminService: (option: {
   caAdmin,
   caAdminPW,
   channelName,
-  ordererTlsCaCert,
-  ordererName,
-  peerName,
   connectionProfile,
-  fabricNetwork,
+  caName,
   walletPath,
   orgName,
   orgUrl,
@@ -64,9 +58,9 @@ export const createAdminService: (option: {
     logger.error(MISSING_CONNECTION_PROFILE);
     throw new Error(MISSING_CONNECTION_PROFILE);
   }
-  if (!fabricNetwork) {
-    logger.error(MISSING_FABRIC_NETWORK);
-    throw new Error(MISSING_FABRIC_NETWORK);
+  if (!caName) {
+    logger.error(MISSING_CA_NAME);
+    throw new Error(MISSING_CA_NAME);
   }
 
   if (!walletPath) {
@@ -106,11 +100,8 @@ export const createAdminService: (option: {
       caAdmin,
       caAdminPW,
       channelName,
-      ordererTlsCaCert,
-      ordererName,
       connectionProfile,
-      fabricNetwork,
-      peerName,
+      caName,
       wallet,
       asLocalhost,
       mspId,

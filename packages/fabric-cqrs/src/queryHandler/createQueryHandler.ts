@@ -114,89 +114,103 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
       ),
     subscribeHub: async (entityNames) => {
       logger.info('♨️  subscribe channel event hub');
-      network = await gateway.getNetwork(channelName);
+      try {
+        network = await gateway.getNetwork(channelName);
+      } catch (err) {
+        logger.error(
+          util.format('❌  failed to subscribeHub. cannot getNetwork from gateway', err)
+        );
+        return Promise.reject(new Error('failed to subscribeHub. cannot getNetwork from gateway'));
+      }
       contract = network.getContract('eventstore');
-      contractListener = network.getContract('eventstore').addContractListener(
-        async ({ payload, eventName, getTransactionEvent }) => {
-          logger.debug(`💢  event arrives - tx_id: ${getTransactionEvent().transactionId}`);
-          // check eventName
-          let commit: unknown;
-          if (eventName !== 'createCommit') {
-            logger.warn(`receive unexpected contract event: ${eventName}`);
-            return;
-          }
-
-          // parse commit
-          try {
-            commit = JSON.parse(payload.toString('utf8'));
-          } catch (e) {
-            logger.error(util.format('fail to parse contract event, %j', e));
-            return;
-          }
-
-          // check commit type
-          if (isCommit(commit)) {
-            // filter subscribed entityNames
-            if (!entityNames.includes(commit?.entityName)) {
-              logger.warn(
-                util.format(
-                  'receive commit of unsubscribed entityName, %s:%s',
-                  commit.entityName,
-                  commit.id
-                )
-              );
+      try {
+        contractListener = await network.getContract('eventstore').addContractListener(
+          async ({ payload, eventName, getTransactionEvent }) => {
+            logger.debug(`💢  event arrives - tx_id: ${getTransactionEvent().transactionId}`);
+            // check eventName
+            let commit: unknown;
+            if (eventName !== 'createCommit') {
+              logger.warn(`receive unexpected contract event: ${eventName}`);
               return;
             }
 
-            // dispatch
-            const mergeEntityResult = await dispatcher<
-              { key: string; status: string },
-              { commit: Commit }
-            >((payload) => projAction.mergeEntity(payload), {
-              name: 'merge_one_entity',
-              store,
-              slice: 'projection',
-              SuccessAction: projAction.MERGE_ENTITY_SUCCESS,
-              ErrorAction: projAction.MERGE_ENTITY_ERROR,
-              logger,
-            })({ commit });
-
-            if (mergeEntityResult.status === 'OK')
-              logger.debug(
-                util.format('mergeComit: %j', mergeEntityResult?.data || 'no data written')
-              );
-            else logger.error(util.format('fail to mergeEntity, %j', mergeEntityResult));
-
-            // send merged entity to PubSub
-            if (pubSub && mergeEntityResult.status === 'OK') {
-              const events = [];
-              commit.events.forEach((event) => events.push(event?.type));
-
-              await pubSub
-                .publish<PubSubPayload>('COMMIT_ARRIVED', {
-                  entityAdded: {
-                    commit,
-                    events,
-                    key: mergeEntityResult?.data[0]?.key,
-                  },
-                })
-                .catch((e) => {
-                  logger.error(util.format('fail to publish commit, %j, %j ', commit, e));
-                });
-            } else if (pubSub && mergeEntityResult.status !== 'OK') {
-              await pubSub.publish<PubSubSysEvent>('SYSTEM_EVENT', {
-                systemEvent: {
-                  ...mergeEntityResult,
-                  error: JSON.stringify(mergeEntityResult?.error),
-                  event: 'FAIL_TO_MERGE_ENTITY_TO_QDB',
-                  timestamp: Date.now(),
-                },
-              });
+            // parse commit
+            try {
+              commit = JSON.parse(payload.toString('utf8'));
+            } catch (e) {
+              logger.error(util.format('fail to parse contract event, %j', e));
+              return;
             }
-          } else logger.error(util.format('receive commit of unknown type, %j', commit));
-        },
-        { type: 'full' }
-      );
+
+            // check commit type
+            if (isCommit(commit)) {
+              // filter subscribed entityNames
+              if (!entityNames.includes(commit?.entityName)) {
+                logger.warn(
+                  util.format(
+                    'receive commit of unsubscribed entityName, %s:%s',
+                    commit.entityName,
+                    commit.id
+                  )
+                );
+                return;
+              }
+
+              // dispatch
+              const mergeEntityResult = await dispatcher<
+                { key: string; status: string },
+                { commit: Commit }
+              >((payload) => projAction.mergeEntity(payload), {
+                name: 'merge_one_entity',
+                store,
+                slice: 'projection',
+                SuccessAction: projAction.MERGE_ENTITY_SUCCESS,
+                ErrorAction: projAction.MERGE_ENTITY_ERROR,
+                logger,
+              })({ commit });
+
+              if (mergeEntityResult.status === 'OK')
+                logger.debug(
+                  util.format('mergeComit: %j', mergeEntityResult?.data || 'no data written')
+                );
+              else logger.error(util.format('fail to mergeEntity, %j', mergeEntityResult));
+
+              // send merged entity to PubSub
+              if (pubSub && mergeEntityResult.status === 'OK') {
+                const events = [];
+                commit.events.forEach((event) => events.push(event?.type));
+
+                await pubSub
+                  .publish<PubSubPayload>('COMMIT_ARRIVED', {
+                    entityAdded: {
+                      commit,
+                      events,
+                      key: mergeEntityResult?.data[0]?.key,
+                    },
+                  })
+                  .catch((e) => {
+                    logger.error(util.format('fail to publish commit, %j, %j ', commit, e));
+                  });
+              } else if (pubSub && mergeEntityResult.status !== 'OK') {
+                await pubSub.publish<PubSubSysEvent>('SYSTEM_EVENT', {
+                  systemEvent: {
+                    ...mergeEntityResult,
+                    error: JSON.stringify(mergeEntityResult?.error),
+                    event: 'FAIL_TO_MERGE_ENTITY_TO_QDB',
+                    timestamp: Date.now(),
+                  },
+                });
+              }
+            } else logger.error(util.format('receive commit of unknown type, %j', commit));
+          },
+          { type: 'full' }
+        );
+      } catch (err) {
+        logger.error(
+          util.format('❌  failed to subscribeHub. cannot addContractlistner', err)
+        );
+        return Promise.reject(new Error('failed to subscribeHub. cannot addContractlistner'));
+      }
       return true;
     },
     unsubscribeHub: () => contract.removeContractListener(contractListener),

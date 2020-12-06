@@ -32,11 +32,11 @@ const connection = {
   username: process.env.TYPEORM_USERNAME,
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
-  logging: false,
+  logging: true,
   synchronize: true, // true, for dev/test
   dropSchema: true,
   entities: [ApiKey, Client, User],
-  connectTimeoutMS: 10000
+  connectTimeoutMS: 10000,
 };
 const org_admin_secret = process.env.ORG_ADMIN_SECRET;
 
@@ -85,7 +85,7 @@ beforeAll(async () => {
     console.error(e);
     process.exit(1);
   }
-}, 300);
+});
 
 afterAll(async () => {
   redis.disconnect();

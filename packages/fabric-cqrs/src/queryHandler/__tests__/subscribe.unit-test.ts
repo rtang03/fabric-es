@@ -22,10 +22,9 @@ import { isCommit, isCommitRecord, waitForSecond } from '../../utils';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
-const caUrl = process.env.ORG_CA_URL;
 const channelName = process.env.CHANNEL_NAME;
 const connectionProfile = process.env.CONNECTION_PROFILE;
-const fabricNetwork = process.env.NETWORK_LOCATION;
+const caName = process.env.CA_NAME;
 const mspId = process.env.MSPID;
 const orgAdminId = process.env.ORG_ADMIN_ID;
 const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
@@ -49,9 +48,8 @@ beforeAll(async () => {
     await enrollAdmin({
       enrollmentID: orgAdminId,
       enrollmentSecret: orgAdminSecret,
-      caUrl,
       connectionProfile,
-      fabricNetwork,
+      caName,
       mspId,
       wallet,
     });
@@ -60,9 +58,8 @@ beforeAll(async () => {
     await enrollAdmin({
       enrollmentID: caAdmin,
       enrollmentSecret: caAdminPW,
-      caUrl,
       connectionProfile,
-      fabricNetwork,
+      caName,
       mspId,
       wallet,
     });

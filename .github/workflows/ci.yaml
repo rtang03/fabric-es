@@ -60,13 +60,14 @@ jobs:
       - name: Run tsc for all packages
         run: yarn tsc:all
       - name: build images for proxy, auth-server, ui-account
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh && ./dn-build.ui-control.sh
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh
+        # run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh && ./dn-build.ui-control.sh org1 org2
       - name: deploy base 0-org fabric v2.1 network with proxy, postgres, redis
         run: |
           set -x
           cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && sudo ./dn-run.0-db-red.sh
           docker exec postgres01 psql -U postgres --list
-      - name: Run unit tests for auth
+      - name: Run unit tests for auth-server
         run: cd packages/auth && sudo yarn unit-test:fab
       - name: deploy base 2-org fabric v2.1 network with proxy, postgres, redis, auth
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2-db-red-auth.sh

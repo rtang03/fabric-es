@@ -50,9 +50,8 @@
   "dependencies": {
     "@fabric-es/operator": "^0.7.0",
     "dotenv": "^8.1.0",
-    "fabric-client": "2.0.0-snapshot.326",
-    "fabric-contract-api": "^2.1.2",
-    "fabric-network": "2.1.0",
+    "fabric-contract-api": "2.2.1",
+    "fabric-network": "2.2.3",
     "graphql-redis-subscriptions": "^2.2.1",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
@@ -63,7 +62,6 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "@types/bytebuffer": "^5.0.41",
     "@types/ioredis": "^4.16.4",
     "@types/jest": "^24.0.18",
     "@types/js-yaml": "^3.12.4",

@@ -28,10 +28,9 @@ import {
  * ./dn-run.1-db-red-auth.sh or ./dn-run.2-db-red-auth.sh
  */
 const proxyServerUri = process.env.PROXY_SERVER;
-const caUrl = process.env.ORG_CA_URL;
 const channelName = process.env.CHANNEL_NAME;
 const connectionProfile = process.env.CONNECTION_PROFILE;
-const fabricNetwork = process.env.NETWORK_LOCATION;
+const caName = process.env.CA_NAME;
 const mspId = process.env.MSPID;
 const orgAdminId = process.env.ORG_ADMIN_ID;
 const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
@@ -71,9 +70,8 @@ beforeAll(async () => {
     await enrollAdmin({
       enrollmentID: orgAdminId,
       enrollmentSecret: orgAdminSecret,
-      caUrl,
       connectionProfile,
-      fabricNetwork,
+      caName,
       mspId,
       wallet,
     });
@@ -177,7 +175,7 @@ afterAll(async () => {
 
   await server.stop();
 
-  return new Promise((done) => setTimeout(() => done(), 2000));
+  return new Promise((done) => setTimeout(() => done(), 5000));
 });
 
 describe('QuerHandler Service Test', () => {
@@ -338,14 +336,14 @@ describe('Full Text Search Test', () => {
       })
     )
       .then((r) => r.json())
-      .then(({ data }) =>
+      .then(({ data }) => {
         expect(data?.fullTextSearchEntity).toEqual({
           cursor: null,
           hasMore: false,
           items: [],
           total: 0,
-        })
-      ));
+        });
+      }));
 
   it('should fullTextSearchEntity: search by entityId wildcard', async () =>
     fetch(

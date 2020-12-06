@@ -15,6 +15,7 @@ services:
     volumes:
       - $ARTIFACTS/postgres03:/var/lib/postgresql/data
       - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+      - $SCRIPTS/init-auth-db.sh:/docker-entrypoint-initdb.d/2-init-auth-db.sh
     command: postgres
     ports:
       - 5432

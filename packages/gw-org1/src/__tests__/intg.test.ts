@@ -112,11 +112,10 @@ beforeAll(async () => {
   console.log(`♨️♨️  Enroll administrator ${process.env.ORG_ADMIN_ID}`);
   if (
     !(await enrollAdmin({
-      caUrl: process.env.ORG_CA_URL,
       enrollmentID: process.env.ORG_ADMIN_ID,
       enrollmentSecret: process.env.ORG_ADMIN_SECRET,
       mspId: process.env.MSPID,
-      fabricNetwork: process.env.NETWORK_LOCATION,
+      caName: process.env.CA_NAME,
       connectionProfile: process.env.CONNECTION_PROFILE,
       wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     })
@@ -130,11 +129,10 @@ beforeAll(async () => {
   console.log(`♨️♨️  Enroll CA administrator ${process.env.CA_ENROLLMENT_ID_ADMIN}`);
   if (
     !(await enrollAdmin({
-      caUrl: process.env.ORG_CA_URL,
       enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
       enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
       mspId: process.env.MSPID,
-      fabricNetwork: process.env.NETWORK_LOCATION,
+      caName: process.env.CA_NAME,
       connectionProfile: process.env.CONNECTION_PROFILE,
       wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     })
@@ -252,7 +250,8 @@ beforeAll(async () => {
     host: process.env.REDIS_HOST,
     port: (process.env.REDIS_PORT || 6379) as number,
     retryStrategy: (times) => {
-      if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
+      if (times > 3) {
+        // the 4th return will exceed 10 seconds, based on the return value...
         console.log(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
         process.exit(-1);
       }
@@ -264,19 +263,16 @@ beforeAll(async () => {
         // Only reconnect when the error contains "READONLY"
         return 1;
       }
-    }
+    },
   };
 
   // Start admin service
   ({ server: adminService } = await createAdminService({
     caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
     caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN,
-    ordererName: process.env.ORDERER_NAME,
-    ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
-    peerName: process.env.PEER_NAME,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
-    fabricNetwork: process.env.NETWORK_LOCATION,
+    caName: process.env.CA_NAME,
     walletPath: process.env.WALLET,
     orgName: process.env.ORGNAME,
     orgUrl: process.env.ORGURL,

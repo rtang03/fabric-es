@@ -22,10 +22,7 @@ import { IDENTITY_ALREADY_EXIST, UNAUTHORIZED_ACCESS } from '../admin/constants'
 import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
 import {
   CREATE_WALLET,
-  GET_BLOCK_BY_NUMBER,
   GET_CA_IDENTITY_BY_USERNAME,
-  GET_CHAIN_HEIGHT,
-  GET_PEERINFO,
   GET_WALLET,
   LIST_WALLET,
 } from '../admin/query';
@@ -50,16 +47,12 @@ import { DECREMENT, GET_COUNTER, INCREMENT, resolvers, typeDefs } from './__util
 const proxyServerUri = process.env.PROXY_SERVER;
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
-const caUrl = process.env.ORG_CA_URL;
 const channelName = process.env.CHANNEL_NAME;
 const connectionProfile = process.env.CONNECTION_PROFILE;
-const fabricNetwork = process.env.NETWORK_LOCATION;
+const caName = process.env.CA_NAME;
 const mspId = process.env.MSPID;
-const ordererName = process.env.ORDERER_NAME;
-const ordererTlsCaCert = process.env.ORDERER_TLSCA_CERT;
 const orgAdminId = process.env.ORG_ADMIN_ID;
 const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
-const peerName = process.env.PEER_NAME;
 const walletPath = process.env.WALLET;
 const random = Math.floor(Math.random() * 10000);
 const username = `gw_test_username_${random}`;
@@ -85,6 +78,7 @@ const MODEL_SERVICE_PORT = 15001;
 const ADMIN_SERVICE_PORT = 15000;
 const GATEWAY_PORT = 4000;
 const QH_PORT = 4400;
+const sleep5 = new Promise((resolve) => setTimeout(() => resolve(true), 5000));
 
 /**
  * ./dn-run-1-px-db-red-auth.sh
@@ -102,9 +96,8 @@ beforeAll(async () => {
     await enrollAdmin({
       enrollmentID: orgAdminId,
       enrollmentSecret: orgAdminSecret,
-      caUrl,
       connectionProfile,
-      fabricNetwork,
+      caName,
       mspId,
       wallet,
     });
@@ -113,9 +106,8 @@ beforeAll(async () => {
     await enrollAdmin({
       enrollmentID: caAdmin,
       enrollmentSecret: caAdminPW,
-      caUrl,
       connectionProfile,
-      fabricNetwork,
+      caName,
       mspId,
       wallet,
     });
@@ -201,11 +193,8 @@ beforeAll(async () => {
       caAdminPW,
       channelName,
       connectionProfile,
-      fabricNetwork,
+      caName,
       introspection: false,
-      ordererName,
-      ordererTlsCaCert,
-      peerName,
       playground: false,
       walletPath,
       orgName: 'org1',
@@ -237,6 +226,7 @@ beforeAll(async () => {
     );
   } catch (e) {
     console.error(e);
+    await sleep5;
     process.exit(1);
   }
 });
@@ -406,67 +396,6 @@ describe('Gateway Test - admin service', () => {
         expect(data?.getWallet.type).toEqual('X.509');
         expect(data?.getWallet.mspId).toEqual('Org1MSP');
         expect(errors).toBeUndefined();
-      }));
-
-  it('should fail to getBlockByNumber: non-exist block', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
-      .send({
-        operationName: 'GetBlockByNumber',
-        query: GET_BLOCK_BY_NUMBER,
-        variables: { blockNumber: 10000 },
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(data?.getBlockByNumber).toBeNull();
-      }));
-
-  it('should fail to getBlockByNumber without admin accessToken', async () =>
-    request(app)
-      .post('/graphql')
-      .send({
-        operationName: 'GetBlockByNumber',
-        query: GET_BLOCK_BY_NUMBER,
-        variables: { blockNumber: 10 },
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(data.getBlockByNumber).toBeNull();
-        expect(errors[0].message).toEqual(UNAUTHORIZED_ACCESS);
-      }));
-
-  it('should getBlockByNumber', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
-      .send({
-        operationName: 'GetBlockByNumber',
-        query: GET_BLOCK_BY_NUMBER,
-        variables: { blockNumber: 10 },
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(data?.getBlockByNumber.block_number).toEqual('10');
-      }));
-
-  it('should getChainHeight', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
-      .send({ operationName: 'GetChainHeight', query: GET_CHAIN_HEIGHT })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(typeof data?.getChainHeight).toEqual('number');
-      }));
-
-  it('should getPeerInfo', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
-      .send({ operationName: 'GetPeerInfo', query: GET_PEERINFO })
-      .expect(({ body: { data, errors } }) => {
-        expect(errors).toBeUndefined();
-        expect(data?.getPeerInfo).toEqual({ peerName: 'peer0-org1', mspId: 'Org1MSP' });
       }));
 
   it('should getCaIdentityByUsername', async () =>

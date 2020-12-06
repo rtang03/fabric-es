@@ -10,22 +10,23 @@ export interface Commit {
   events?: any[];
 }
 
-import { Block, BlockchainInfo, ChannelPeer, ChannelQueryResponse } from 'fabric-client';
-
 export interface Queries {
-  getChannels: (peerName: string) => Promise<ChannelQueryResponse>;
-  getBlockByNumber: (blockNumber: number) => Promise<Block>;
-  getChainInfo: (peerName: string) => Promise<BlockchainInfo>;
   getMspid: () => string;
-  getTransactionByID: (txId: string) => Promise<any>;
-  getChannelPeers: () => Promise<ChannelPeer[]>;
+  disconnect: () => void;
+  // TODO: CAN REMOVE
+  // getChannels: (peerName: string) => Promise<ChannelQueryResponse>;
+  // getBlockByNumber: (blockNumber: number) => Promise<Block>;
+  // getChainInfo: (peerName: string) => Promise<BlockchainInfo>;
+  // getTransactionByID: (txId: string) => Promise<any>;
+  // getChannelPeers: () => Promise<ChannelPeer[]>;
 }
 
 export interface NetworkOperator {
-  getQueries: () => Promise<Queries>;
+  getQueries: (option?: { asLocalhost: boolean }) => Promise<Queries>;
   identityService: (option?: {
     asLocalhost: boolean;
   }) => Promise<{
+    disconnect: () => void;
     create: (request: IIdentityRequest) => Promise<any>;
     getAll: () => Promise<any>;
     getByEnrollmentId: (enrollmentId: string) => Promise<any>;

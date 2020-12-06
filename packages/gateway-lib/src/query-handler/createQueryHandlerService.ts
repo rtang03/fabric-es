@@ -103,6 +103,7 @@ export const createQueryHandlerService: (
     // Note: This may sometimes subscribe a pre-existing contract event (commit)
     // from a running Fabric Peer. This commit is invalid, and be remove by step 3 below
     await queryHandler.subscribeHub(entityNames);
+    logger.info('subscribe eventhub');
   } catch (e) {
     logger.error(util.format('fail to subscribeHub, %j', e));
     throw new Error(e);
@@ -110,6 +111,7 @@ export const createQueryHandlerService: (
   try {
     // Step 3: Clean up query-database, and Reconcile
     await reconcile(entityNames, queryHandler, logger);
+    logger.info('clean up and reconcile');
   } catch (e) {
     logger.error(util.format('fail to reconcile, %j', e));
     throw new Error(e);
@@ -170,17 +172,26 @@ export const createQueryHandlerService: (
     },
   });
 
-  const shutdown = async () => {
-    return new Promise<void>(async (resolve, reject) => {
+  const shutdown = async () =>
+    new Promise<void>(async (resolve, reject) => {
       queryHandler.unsubscribeHub();
       queryHandler.disconnect();
 
-      await subscriber.unsubscribe()
-        .catch(err => logger.error(util.format('Error unsubscribing from redis: %j', err)));
-      await subscriber.quit()
-        .catch(err => logger.error(util.format('Error disconnecting the subscriber from redis: %j', err)));
-      await publisher.quit()
-        .catch(err => logger.error(util.format('Error disconnecting the publisher from redis: %j', err)));
+      await subscriber
+        .unsubscribe()
+        .catch((err) => logger.error(util.format('Error unsubscribing from redis: %j', err)));
+
+      await subscriber
+        .quit()
+        .catch((err) =>
+          logger.error(util.format('Error disconnecting the subscriber from redis: %j', err))
+        );
+
+      await publisher
+        .quit()
+        .catch((err) =>
+          logger.error(util.format('Error disconnecting the publisher from redis: %j', err))
+        );
 
       return server
         .stop()
@@ -189,11 +200,12 @@ export const createQueryHandlerService: (
           resolve();
         })
         .catch((err) => {
-          logger.error(util.format(`An error occurred while shutting down the query handler: %j`, err));
+          logger.error(
+            util.format(`An error occurred while shutting down the query handler: %j`, err)
+          );
           reject();
         });
-      });
-  };
+    });
 
   return { server, shutdown, queryHandler, publisher };
 };
