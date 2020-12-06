@@ -77,7 +77,7 @@ beforeAll(async () => {
       connectionProfile,
       wallet,
       enrollmentId,
-      discovery: true,
+      discovery: false,
       asLocalhost: true,
     });
 
