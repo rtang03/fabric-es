@@ -6,8 +6,19 @@
 
 **Implemented enhancements:**
 
+- feat: add Healthz probe to auth-server [\#147](https://github.com/rtang03/fabric-es/issues/147)
 - feat: GitHub action enhancements [\#140](https://github.com/rtang03/fabric-es/issues/140)
 - feat: add step to create image during releasing [\#132](https://github.com/rtang03/fabric-es/issues/132)
+- feat: multiple important updates and bug fixes [\#149](https://github.com/rtang03/fabric-es/pull/149) ([rtang03](https://github.com/rtang03))
+
+**Fixed bugs:**
+
+- fail: fail to run "tsc" during CI [\#150](https://github.com/rtang03/fabric-es/issues/150)
+- bug: missing psql schema in auth-server [\#148](https://github.com/rtang03/fabric-es/issues/148)
+
+**Closed issues:**
+
+- refactor: replace fabric-client v1.4.x [\#151](https://github.com/rtang03/fabric-es/issues/151)
 
 ## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-01)
 
@@ -36,7 +47,11 @@
 
 ## [v0.7.0](https://github.com/rtang03/fabric-es/tree/v0.7.0) (2020-10-09)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.6.5...v0.7.0)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.6.6...v0.7.0)
+
+## [v0.6.6](https://github.com/rtang03/fabric-es/tree/v0.6.6) (2020-10-09)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.6.5...v0.6.6)
 
 **Implemented enhancements:**
 
