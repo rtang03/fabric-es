@@ -14,8 +14,8 @@
 **Fixed bugs:**
 
 - bug: "tester" docker does not run test properly [\#153](https://github.com/rtang03/fabric-es/issues/153)
-- fail: fail to run "tsc" during CI [\#150](https://github.com/rtang03/fabric-es/issues/150)
-- bug: missing psql schema in auth-server [\#148](https://github.com/rtang03/fabric-es/issues/148)
+- fail to run "tsc" during CI [\#150](https://github.com/rtang03/fabric-es/issues/150)
+- missing psql schema in auth-server [\#148](https://github.com/rtang03/fabric-es/issues/148)
 - fix: run 2org integration test during create-release [\#154](https://github.com/rtang03/fabric-es/pull/154) ([rtang03](https://github.com/rtang03))
 
 **Closed issues:**
