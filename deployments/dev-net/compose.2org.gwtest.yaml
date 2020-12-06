@@ -6,13 +6,12 @@ networks:
 services:
   tester:
     environment:
-      - TEST_TARGETS=ref-impl
-      - TEST_OPTIONS=gw-org1 4001 gw-org2 4001
+      - TEST_OPTIONS=ref-impl
+      - TEST_TARGETS=gw-org1 4001 gw-org2 4001
       - LOG_LEVEL=$LOG_LEVEL
       - LOG_TARGET=$LOG_TARGET
     image: $TEST_IMAGE
     container_name: tester
-    working_dir: /home/app/packages/tester
+    working_dir: /home/app
     networks:
       - openplatform
-  # command: ["jest", "integration.test"]

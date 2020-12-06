@@ -19,7 +19,7 @@ RUN apk add --no-cache curl \
   && cp /usr/share/zoneinfo/Asia/Hong_Kong /etc/localtime \
   && echo "Asia/Hong_Kong" > /etc/timezone \
   && cd /home/app \
-  && npm install --production \
+  && npm install \
   && npm install -g jest \
   && apk del .build-deps
 
