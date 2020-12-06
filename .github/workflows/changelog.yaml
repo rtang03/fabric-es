@@ -1,6 +1,7 @@
 name: Changelog
 on:
   pull_request:
+    branches: [ master ]
     types: [closed]
 
   release:
