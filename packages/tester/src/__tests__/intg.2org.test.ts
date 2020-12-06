@@ -54,15 +54,15 @@ beforeAll(async () => {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
         username: user1, email: user1, password
       })})
-    .then(res => res.json())
-    .then(data => {
-      if (data.username && data.id) {
-        return { reg1: true, rol1: data.id };
-      } else {
-        console.log(`Register Org1 user: ${JSON.stringify(data)}`);
-        return { reg1: false, rol1: null };
-      }
-    });
+      .then(res => res.json())
+      .then(data => {
+        if (data.username && data.id) {
+          return { reg1: true, rol1: data.id };
+        } else {
+          console.log(`Register Org1 user: ${JSON.stringify(data)}`);
+          return { reg1: false, rol1: null };
+        }
+      });
     if (!reg1) {
       console.log(`♨️♨️  Registering to OAUTH server ${AUTH_REG_1} failed`);
       return;
@@ -72,15 +72,15 @@ beforeAll(async () => {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
         username: user1, password
       })})
-    .then(res => res.json())
-    .then(data => {
-      if (data.id === rol1) {
-        return { log1: true, tok1: data.access_token };
-      } else {
-        console.log(`Login Org1 user: ${JSON.stringify(data)}`);
-        return { log1: false, tok1: null };
-      }
-    });
+      .then(res => res.json())
+      .then(data => {
+        if (data.id === rol1) {
+          return { log1: true, tok1: data.access_token };
+        } else {
+          console.log(`Login Org1 user: ${JSON.stringify(data)}`);
+          return { log1: false, tok1: null };
+        }
+      });
     if (!log1) {
       console.log(`♨️♨️  Logging in to OAUTH server ${AUTH_LOG_1} as ${user1} / ${password} failed`);
       return;
@@ -90,8 +90,8 @@ beforeAll(async () => {
       method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${tok1}` }, body: JSON.stringify({
         operationName: 'CreateWallet', query: CREATE_WALLET
       })})
-    .then(res => res.json())
-    .then(({ data }) => data);
+      .then(res => res.json())
+      .then(({ data }) => data);
     if (!org1Ready) {
       console.log(`♨️♨️  Create wallet for user ${rol1} in gateway ${GATEWAY1} failed`);
       return;
@@ -104,15 +104,15 @@ beforeAll(async () => {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
         username: user2, email: user2, password
       })})
-    .then(res => res.json())
-    .then(data => {
-      if (data.username && data.id) {
-        return { reg2: true, rol2: data.id };
-      } else {
-        console.log(`Register Org2 user: ${JSON.stringify(data)}`);
-        return { reg2: false, rol2: null };
-      }
-    });
+      .then(res => res.json())
+      .then(data => {
+        if (data.username && data.id) {
+          return { reg2: true, rol2: data.id };
+        } else {
+          console.log(`Register Org2 user: ${JSON.stringify(data)}`);
+          return { reg2: false, rol2: null };
+        }
+      });
     if (!reg2) {
       console.log(`♨️♨️  Registering to OAUTH server ${AUTH_REG_2} failed`);
       return;
@@ -122,15 +122,15 @@ beforeAll(async () => {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
         username: user2, password
       })})
-    .then(res => res.json())
-    .then(data => {
-      if (data.id === rol2) {
-        return { log2: true, tok2: data.access_token };
-      } else {
-        console.log(`Login Org2 user: ${JSON.stringify(data)}`);
-        return { log2: false, tok2: null };
-      }
-    });
+      .then(res => res.json())
+      .then(data => {
+        if (data.id === rol2) {
+          return { log2: true, tok2: data.access_token };
+        } else {
+          console.log(`Login Org2 user: ${JSON.stringify(data)}`);
+          return { log2: false, tok2: null };
+        }
+      });
     if (!log2) {
       console.log(`♨️♨️  Logging in to OAUTH server ${AUTH_LOG_2} as ${user2} / ${password} failed`);
       return;
@@ -140,8 +140,8 @@ beforeAll(async () => {
       method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${tok2}` }, body: JSON.stringify({
         operationName: 'CreateWallet', query: CREATE_WALLET
       })})
-    .then(res => res.json())
-    .then(({ data }) => data);
+      .then(res => res.json())
+      .then(({ data }) => data);
     if (!org2Ready) {
       console.log(`♨️♨️  Create wallet for user ${rol2} in gateway ${GATEWAY2} failed`);
       return;
@@ -151,6 +151,8 @@ beforeAll(async () => {
     isReady = org1Ready && org2Ready;
   } catch (e) {
     console.error(e);
+    const sleep10 = new Promise((resolve) => setTimeout(() => resolve(true), 10000));
+    await sleep10;
     process.exit(1);
   }
 });
@@ -499,11 +501,11 @@ describe('Multi-Org Test - Query Loans', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken1}` }, body: JSON.stringify({
           operationName: 'GetLoanById', query: GET_LOAN_BY_ID_ORG1, variables: { loanId: loanId1 }
         })})
-      .then(res => res.json())
-      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot({
-        comment: expect.any(String)
-      }))
-      .catch(_ => expect(false).toBeTruthy());
+        .then(res => res.json())
+        .then(({ data }) => expect(data.getLoanById).toMatchSnapshot({
+          comment: expect.any(String)
+        }))
+        .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
@@ -543,11 +545,11 @@ describe('Multi-Org Test - Query Loans', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
           operationName: 'GetLoanById', query: GET_LOAN_BY_ID_ORG2, variables: { loanId: loanId2 }
         })})
-      .then(res => res.json())
-      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot({
-        comment: expect.any(String)
-      }))
-      .catch(_ => expect(false).toBeTruthy());
+        .then(res => res.json())
+        .then(({ data }) => expect(data.getLoanById).toMatchSnapshot({
+          comment: expect.any(String)
+        }))
+        .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
@@ -587,14 +589,14 @@ describe('Multi-Org Test - Query Loans', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
           operationName: 'GetDocumentById', query: GET_DOCUMENT_BY_ID, variables: { documentId: docId1a }
         })})
-      .then(res => res.json())
-      .then(({ data }) => expect(data.getDocumentById).toMatchSnapshot({
-        documentId: expect.any(String), loanId: expect.any(String), timestamp: expect.any(String),
-        loan: {
-          loanId: expect.any(String), timestamp: expect.any(String),
-        }
-      }))
-      .catch(_ => expect(false).toBeTruthy());
+        .then(res => res.json())
+        .then(({ data }) => expect(data.getDocumentById).toMatchSnapshot({
+          documentId: expect.any(String), loanId: expect.any(String), timestamp: expect.any(String),
+          loan: {
+            loanId: expect.any(String), timestamp: expect.any(String),
+          }
+        }))
+        .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
@@ -606,14 +608,14 @@ describe('Multi-Org Test - Query Loans', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken1}` }, body: JSON.stringify({
           operationName: 'GetDocumentById', query: GET_DOCUMENT_BY_ID, variables: { documentId: docId2b }
         })})
-      .then(res => res.json())
-      .then(({ data }) => expect(data.getDocumentById).toMatchSnapshot({
-        documentId: expect.any(String), loanId: expect.any(String), timestamp: expect.any(String),
-        loan: {
-          loanId: expect.any(String), timestamp: expect.any(String),
-        }
-      }))
-      .catch(_ => expect(false).toBeTruthy());
+        .then(res => res.json())
+        .then(({ data }) => expect(data.getDocumentById).toMatchSnapshot({
+          documentId: expect.any(String), loanId: expect.any(String), timestamp: expect.any(String),
+          loan: {
+            loanId: expect.any(String), timestamp: expect.any(String),
+          }
+        }))
+        .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
@@ -681,9 +683,9 @@ describe('Multi-Org Test - Query Loans', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
           operationName: 'GetCommitsByLoanId', query: GET_COMMITS_BY_LOAN, variables: { loanId: loanId1 }
         })})
-      .then(res => res.json())
-      .then(({ data }) => expect(data.getCommitsByLoanId).toMatchSnapshot())
-      .catch(_ => expect(false).toBeTruthy());
+        .then(res => res.json())
+        .then(({ data }) => expect(data.getCommitsByLoanId).toMatchSnapshot())
+        .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();
@@ -695,9 +697,9 @@ describe('Multi-Org Test - Query Loans', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken1}` }, body: JSON.stringify({
           operationName: 'GetCommitsByDocument', query: GET_COMMITS_BY_DOCUMENT, variables: { documentId: docId2a }
         })})
-      .then(res => res.json())
-      .then(({ data }) => expect(data.getCommitsByDocumentId).toMatchSnapshot())
-      .catch(_ => expect(false).toBeTruthy());
+        .then(res => res.json())
+        .then(({ data }) => expect(data.getCommitsByDocumentId).toMatchSnapshot())
+        .catch(_ => expect(false).toBeTruthy());
       return;
     }
     expect(false).toBeTruthy();

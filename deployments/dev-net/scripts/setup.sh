@@ -136,7 +136,7 @@ getConfig() {
 # $3 - optional: expected
 containerWait() {
   FOUND=false
-  COUNT=90
+  COUNT=120
   while [[ ("$FOUND"=false) && (COUNT -gt 0) ]]; do
     if [ $# -eq 3 ]; then
       RESULT=`docker container exec -i $1 "$2" | grep -e "$3"`
@@ -187,4 +187,3 @@ parseArgs() {
     esac
   fi
 }
-

@@ -33,7 +33,7 @@ case $1 in
     HOSTS=
     DELIM=
     STATE=0
-    for VAL in $1; do
+    for VAL in $2; do
       HOSTS=$HOSTS$DELIM$VAL
       if [ $STATE -eq 0 ]; then
         DELIM=":"
@@ -84,11 +84,11 @@ case $1 in
       exec jest intg.3org.test
     else
       echo "Starting 2 orgs integration test..."
-      exec jest intg.2org.test
+      exec jest --verbose intg.2org.test
     fi
     ;;
-
   *)
-    echo "Uknown test target $1"
+    echo "Unknown test options $1"
+    exit 1
     ;;
 esac
