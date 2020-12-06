@@ -37,7 +37,7 @@
 
 **Closed issues:**
 
-- fail: CI fails because of Nodejs version change in GH Action's ubuntu image [\#142](https://github.com/rtang03/fabric-es/issues/142)
+- CI fails because of Nodejs version change in GH Action's ubuntu image [\#142](https://github.com/rtang03/fabric-es/issues/142)
 - update README.md and OPERATIONS.md [\#40](https://github.com/rtang03/fabric-es/issues/40)
 
 **Merged pull requests:**
