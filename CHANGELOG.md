@@ -7,8 +7,8 @@
 **Implemented enhancements:**
 
 - add Healthz probe to auth-server [\#147](https://github.com/rtang03/fabric-es/issues/147)
-- feat: GitHub action enhancements [\#140](https://github.com/rtang03/fabric-es/issues/140)
-- feat: add step to create image during releasing [\#132](https://github.com/rtang03/fabric-es/issues/132)
+- GitHub action enhancements [\#140](https://github.com/rtang03/fabric-es/issues/140)
+- add step to create image during releasing [\#132](https://github.com/rtang03/fabric-es/issues/132)
 - feat: multiple important updates and bug fixes [\#149](https://github.com/rtang03/fabric-es/pull/149) ([rtang03](https://github.com/rtang03))
 
 **Fixed bugs:**
@@ -181,6 +181,7 @@
 - Track private data [\#79](https://github.com/rtang03/fabric-es/pull/79) ([pangduckwai](https://github.com/pangduckwai))
 - Issue71 [\#73](https://github.com/rtang03/fabric-es/pull/73) ([hohowin](https://github.com/hohowin))
 - Issue\# 57: Deploy relay to AWS [\#61](https://github.com/rtang03/fabric-es/pull/61) ([hohowin](https://github.com/hohowin))
+- update dependency and upgrade to Fabric V2.1 [\#50](https://github.com/rtang03/fabric-es/pull/50) ([rtang03](https://github.com/rtang03))
 
 ## [v0.6.2](https://github.com/rtang03/fabric-es/tree/v0.6.2) (2020-05-21)
 
@@ -216,7 +217,6 @@
 
 **Merged pull requests:**
 
-- update dependency and upgrade to Fabric V2.1 [\#50](https://github.com/rtang03/fabric-es/pull/50) ([rtang03](https://github.com/rtang03))
 - Dev-net for new auth server [\#48](https://github.com/rtang03/fabric-es/pull/48) ([pangduckwai](https://github.com/pangduckwai))
 - Add entity lifecycle event checking for writing into blockchain \(issue \#84\) [\#37](https://github.com/rtang03/fabric-es/pull/37) ([pangduckwai](https://github.com/pangduckwai))
 
