@@ -2,54 +2,38 @@
 
 ## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.1...HEAD)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.0...HEAD)
 
 **Implemented enhancements:**
 
-- add Healthz probe to auth-server [\#147](https://github.com/rtang03/fabric-es/issues/147)
+- add /healthcheck probe to auth-server [\#147](https://github.com/rtang03/fabric-es/issues/147)
 - GitHub action enhancements [\#140](https://github.com/rtang03/fabric-es/issues/140)
 - add step to create image during releasing [\#132](https://github.com/rtang03/fabric-es/issues/132)
+- attempt a clean run after using auto changelog [\#146](https://github.com/rtang03/fabric-es/pull/146) ([rtang03](https://github.com/rtang03))
 
 **Fixed bugs:**
 
 - "tester" docker does not run test properly [\#153](https://github.com/rtang03/fabric-es/issues/153)
 - fail to run "tsc" during CI [\#150](https://github.com/rtang03/fabric-es/issues/150)
 - missing psql schema in auth-server [\#148](https://github.com/rtang03/fabric-es/issues/148)
+- during CI, the auth-server fail because of not connecting psql [\#143](https://github.com/rtang03/fabric-es/issues/143)
 
 **Closed issues:**
 
 - replace fabric-client v1.4.x [\#151](https://github.com/rtang03/fabric-es/issues/151)
+- CI fails because of Nodejs version change in GH Action's ubuntu image [\#142](https://github.com/rtang03/fabric-es/issues/142)
+- update README.md and OPERATIONS.md [\#40](https://github.com/rtang03/fabric-es/issues/40)
 
 **Merged pull requests:**
 
 - chore: restrict changelog to master [\#155](https://github.com/rtang03/fabric-es/pull/155) ([rtang03](https://github.com/rtang03))
 - fix: run 2org integration test during create-release [\#154](https://github.com/rtang03/fabric-es/pull/154) ([rtang03](https://github.com/rtang03))
 - feat: multiple important updates and bug fixes [\#149](https://github.com/rtang03/fabric-es/pull/149) ([rtang03](https://github.com/rtang03))
-
-## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-01)
-
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.0...v0.7.1)
-
-**Implemented enhancements:**
-
-- attempt a clean run after using auto changelog [\#146](https://github.com/rtang03/fabric-es/pull/146) ([rtang03](https://github.com/rtang03))
+- chore: debug changelog.yaml [\#145](https://github.com/rtang03/fabric-es/pull/145) ([rtang03](https://github.com/rtang03))
+- chore: attempt changelog.yaml [\#144](https://github.com/rtang03/fabric-es/pull/144) ([rtang03](https://github.com/rtang03))
 - feat: enhance GitHub Actions [\#141](https://github.com/rtang03/fabric-es/pull/141) ([rtang03](https://github.com/rtang03))
-
-**Fixed bugs:**
-
-- during CI, the auth-server fail because of not connecting psql [\#143](https://github.com/rtang03/fabric-es/issues/143)
-
-**Closed issues:**
-
-- CI fails because of Nodejs version change in GH Action's ubuntu image [\#142](https://github.com/rtang03/fabric-es/issues/142)
-- update README.md and OPERATIONS.md [\#40](https://github.com/rtang03/fabric-es/issues/40)
-
-**Merged pull requests:**
-
-- debug changelog.yaml [\#145](https://github.com/rtang03/fabric-es/pull/145) ([rtang03](https://github.com/rtang03))
-- attempt changelog.yaml [\#144](https://github.com/rtang03/fabric-es/pull/144) ([rtang03](https://github.com/rtang03))
-- Handle multipart form fields with content types [\#139](https://github.com/rtang03/fabric-es/pull/139) ([pangduckwai](https://github.com/pangduckwai))
-- Add work around to accept JSON data provided in query params [\#137](https://github.com/rtang03/fabric-es/pull/137) ([pangduckwai](https://github.com/pangduckwai))
+- refactor: handle multipart form fields with content types [\#139](https://github.com/rtang03/fabric-es/pull/139) ([pangduckwai](https://github.com/pangduckwai))
+- fix: add work around to accept JSON data provided in query params [\#137](https://github.com/rtang03/fabric-es/pull/137) ([pangduckwai](https://github.com/pangduckwai))
 
 ## [v0.7.0](https://github.com/rtang03/fabric-es/tree/v0.7.0) (2020-10-09)
 
