@@ -9,22 +9,22 @@
 - add Healthz probe to auth-server [\#147](https://github.com/rtang03/fabric-es/issues/147)
 - GitHub action enhancements [\#140](https://github.com/rtang03/fabric-es/issues/140)
 - add step to create image during releasing [\#132](https://github.com/rtang03/fabric-es/issues/132)
-- feat: multiple important updates and bug fixes [\#149](https://github.com/rtang03/fabric-es/pull/149) ([rtang03](https://github.com/rtang03))
 
 **Fixed bugs:**
 
 - "tester" docker does not run test properly [\#153](https://github.com/rtang03/fabric-es/issues/153)
 - fail to run "tsc" during CI [\#150](https://github.com/rtang03/fabric-es/issues/150)
 - missing psql schema in auth-server [\#148](https://github.com/rtang03/fabric-es/issues/148)
-- fix: run 2org integration test during create-release [\#154](https://github.com/rtang03/fabric-es/pull/154) ([rtang03](https://github.com/rtang03))
 
 **Closed issues:**
 
-- refactor: replace fabric-client v1.4.x [\#151](https://github.com/rtang03/fabric-es/issues/151)
+- replace fabric-client v1.4.x [\#151](https://github.com/rtang03/fabric-es/issues/151)
 
 **Merged pull requests:**
 
 - chore: restrict changelog to master [\#155](https://github.com/rtang03/fabric-es/pull/155) ([rtang03](https://github.com/rtang03))
+- fix: run 2org integration test during create-release [\#154](https://github.com/rtang03/fabric-es/pull/154) ([rtang03](https://github.com/rtang03))
+- feat: multiple important updates and bug fixes [\#149](https://github.com/rtang03/fabric-es/pull/149) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-01)
 
