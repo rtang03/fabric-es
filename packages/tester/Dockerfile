@@ -1,5 +1,5 @@
 FROM node:12.16.0-alpine
-
+LABEL org.opencontainers.image.source https://github.com/rtang03/fabric-es
 ENV TIME_ZONE=Asia/Hong_Kong \
     ENV_NAME=test \
     NODE_ENV=test \
