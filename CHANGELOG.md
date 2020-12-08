@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- add /healthcheck probe to gateway-lib [\#156](https://github.com/rtang03/fabric-es/issues/156)
 - add /healthcheck probe to auth-server [\#147](https://github.com/rtang03/fabric-es/issues/147)
 - GitHub action enhancements [\#140](https://github.com/rtang03/fabric-es/issues/140)
 - add step to create image during releasing [\#132](https://github.com/rtang03/fabric-es/issues/132)
@@ -22,10 +23,13 @@
 
 - replace fabric-client v1.4.x [\#151](https://github.com/rtang03/fabric-es/issues/151)
 - CI fails because of Nodejs version change in GH Action's ubuntu image [\#142](https://github.com/rtang03/fabric-es/issues/142)
+- Revamp reducer related types [\#131](https://github.com/rtang03/fabric-es/issues/131)
+- Revamp usage of log-level functions in code [\#130](https://github.com/rtang03/fabric-es/issues/130)
 - update README.md and OPERATIONS.md [\#40](https://github.com/rtang03/fabric-es/issues/40)
 
 **Merged pull requests:**
 
+- feat: add /healthcheck to gw-orgX [\#157](https://github.com/rtang03/fabric-es/pull/157) ([rtang03](https://github.com/rtang03))
 - chore: restrict changelog to master [\#155](https://github.com/rtang03/fabric-es/pull/155) ([rtang03](https://github.com/rtang03))
 - fix: run 2org integration test during create-release [\#154](https://github.com/rtang03/fabric-es/pull/154) ([rtang03](https://github.com/rtang03))
 - feat: multiple important updates and bug fixes [\#149](https://github.com/rtang03/fabric-es/pull/149) ([rtang03](https://github.com/rtang03))
