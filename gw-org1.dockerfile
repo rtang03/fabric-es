@@ -23,7 +23,6 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl python make g++ tzdata \
   && echo "Asia/Hong_Kong" > /etc/timezone \
   && cd /home/app \
   && yarn install --production --ignore-engines --network-timeout 1000000 \
-  && yarn global add pm2 \
   && apk del .build-deps-yarn
 
 USER root

@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/model-loan",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -22,7 +22,7 @@
     "apollo-server-errors": "^2.3.4"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^1.14.0",
+    "@graphql-codegen/cli": "^1.19.4",
     "@graphql-codegen/introspection": "^1.14.0",
     "@graphql-codegen/typescript": "^1.14.0",
     "@graphql-codegen/typescript-document-nodes": "^1.14.0",
