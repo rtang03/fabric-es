@@ -119,28 +119,35 @@ const connection = {
   };
 
   // SIGINT
-  const onSignal = async () => {
-    logger.info('👋  server is closing');
+  const onSignal = () =>
+    Promise.all([
+      psql
+        .end()
+        .then(() => logger.info('🚫  psql disconnected'))
+        .catch((err) => logger.error('❌  error during disconnection', err.stack)),
+      redis
+        .quit()
+        .then(() => logger.info('🚫  redis disconnected'))
+        .catch((err) => logger.error('❌  error during disconnection', err.stack)),
+    ]);
 
-    await psql
-      .end()
-      .then(() => logger.info('🚫  psql disconnected'))
-      .catch((err) => logger.error('❌  error during disconnection', err.stack));
-
-    return redis
-      .quit()
-      .then(() => logger.info('🚫  redis disconnected'))
-      .catch((err) => logger.error('❌  error during disconnection', err.stack));
-  };
+  // Required for k8s : given your readiness probes run every 5 second
+  // may be worth using a bigger number so you won't run into any race conditions
+  const beforeShutdown = () => new Promise((resolve) => {
+    logger.info('cleanup finished, gateway is shutting down');
+    setTimeout(resolve, 5000);
+  });
 
   terminus
     .createTerminus(http.createServer(server), {
+      timeout: 3000,
       logger: console.log,
-      signal: 'SIGINT',
+      signals: ['SIGINT', 'SIGTERM'],
       healthChecks: {
         '/healthcheck': onHealthCheck,
       },
       onSignal,
+      beforeShutdown
     })
     .listen(port, '0.0.0.0', async () => {
       logger.info(`🚀  Auth server started at port: http://0.0.0.0:${port}`);

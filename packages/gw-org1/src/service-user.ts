@@ -10,7 +10,6 @@ import {
   userTypeDefs,
 } from '@fabric-es/model-common';
 import { Wallets } from 'fabric-network';
-import Redis from 'ioredis';
 
 const logger = getLogger('service-user.js');
 const reducer = getReducer<User, UserEvents>(userReducer);

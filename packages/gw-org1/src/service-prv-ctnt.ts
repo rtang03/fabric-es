@@ -13,7 +13,6 @@ import {
   documentReducer,
 } from '@fabric-es/model-document';
 import { Wallets } from 'fabric-network';
-import Redis from 'ioredis';
 
 const logger = getLogger('service-prv-ctnt.js');
 

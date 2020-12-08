@@ -5,7 +5,7 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 export RELEASE=0.7.1
-export IMAGE_TAG=2.1.0
+export IMAGE_TAG=2.2.0
 export CONFIG=./config
 export VOLUME=./volume
 export ARTIFACTS=./artifacts

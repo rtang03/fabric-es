@@ -3,7 +3,7 @@ version: '2'
 services:
 
   ca:
-    image: hyperledger/fabric-ca:1.4.7
+    image: hyperledger/fabric-ca:1.4.8
     environment:
       - FABRIC_CA_SERVER_TLS_ENABLED=true
       - FABRIC_CA_SERVER_CSR_HOSTS=0.0.0.0

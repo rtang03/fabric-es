@@ -1,5 +1,5 @@
 apps:
-  - script: ./dist/app.js
+  - script: ./dist/app2.js
     name: 'gateway'
     instances: 1
     max_restarts: 3

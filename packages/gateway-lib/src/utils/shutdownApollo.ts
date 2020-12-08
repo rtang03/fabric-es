@@ -10,18 +10,15 @@ import { Logger } from 'winston';
 export const shutdownApollo = ({
   redis,
   logger,
-  name = 'service'
+  name = 'service',
 }: {
   redis?: Redis;
   logger: Logger;
   name?: string;
-}) => async (
-  server: ApolloServer
-): Promise<void> => {
-  return new Promise<void>(async (resolve, reject) => {
+}) => async (server: ApolloServer): Promise<void> =>
+  new Promise<void>(async (resolve, reject) => {
     if (redis)
-      redis.quit()
-        .catch(err => logger.error(`Error disconnecting client from redis: ${err}`));
+      redis.quit().catch((err) => logger.error(`Error disconnecting client from redis: ${err}`));
 
     return server
       .stop()
@@ -34,4 +31,3 @@ export const shutdownApollo = ({
         reject();
       });
   });
-};

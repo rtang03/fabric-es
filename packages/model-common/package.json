@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/model-common",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -20,7 +20,7 @@
     "@fabric-es/gateway-lib": "^0.7.0"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^1.14.0",
+    "@graphql-codegen/cli": "^1.19.4",
     "@graphql-codegen/introspection": "^1.14.0",
     "@graphql-codegen/typescript": "^1.14.0",
     "@graphql-codegen/typescript-document-nodes": "^1.14.0",
@@ -34,5 +34,8 @@
     "rimraf": "^3.0.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.8.3"
+  },
+  "resolutions": {
+    "graphql": "^15.4.0"
   }
 }

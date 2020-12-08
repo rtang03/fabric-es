@@ -24,7 +24,7 @@ pm2Wait() {
   while [ $STARTED -eq 0 -a $TIMEOUT -gt 0 ]; do
     COUNT=0
     for SERVICE in $2; do
-      RESULT=`pm2 logs --nostream | grep $SERVICE | grep "ready at\|available at"`
+      RESULT=`/home/app/node_modules/pm2/bin/pm2 logs --nostream | grep $SERVICE | grep "ready at\|available at"`
       if [ ! -z "$RESULT" ]; then
         COUNT=$(( COUNT + 1 ))
       fi
@@ -51,15 +51,15 @@ sleep 1
 node ./dist/enrollCaAdmin.js
 sleep 1
 
-pm2 flush
+/home/app/node_modules/pm2/bin/pm2 flush
 
 if [ $COUNT -gt 0 ]; then
   echo "Starting \"$PLST\""
-  pm2 start ./processes.yaml --only "$PLST"
+  /home/app/node_modules/pm2/bin/pm2 start ./processes.yaml --only "$PLST"
 
   echo "Wait for $COUNT services"
   pm2Wait $COUNT "$2"
 fi
 
 echo "Starting \"$1\""
-exec pm2-runtime start ./processes.yaml --only "$1"
+exec /home/app/node_modules/pm2/bin/pm2-runtime start ./processes.yaml --only "$1"

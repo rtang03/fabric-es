@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/gateway-lib",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "description": "Gateway library",
@@ -37,16 +37,17 @@
     "unit-test-counter": "jest --forceExit --detectOpenHandles counter.unit-test"
   },
   "dependencies": {
-    "@apollo/federation": "^0.16.0",
-    "@apollo/gateway": "^0.16.0",
+    "@apollo/federation": "^0.20.7",
+    "@apollo/gateway": "^0.21.4",
     "@fabric-es/fabric-cqrs": "^0.7.0",
     "@fabric-es/operator": "^0.7.0",
+    "@godaddy/terminus": "^4.4.1",
     "apollo-link-http": "^1.5.17",
     "apollo-server": "^2.13.1",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "cookie": "^0.4.1",
-    "dotenv": "^8.1.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "fabric-network": "2.2.3",
     "graphql": "^15.0.0",
@@ -59,8 +60,8 @@
     "js-yaml": "^3.13.1",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
-    "morgan": "^1.10.0",
     "node-fetch": "^2.6.0",
+    "pm2": "^4.5.0",
     "rimraf": "^3.0.0",
     "subscriptions-transport-ws": "^0.9.16",
     "winston": "^3.2.1"
@@ -86,5 +87,8 @@
     "typedoc": "^0.17.7",
     "typedoc-plugin-markdown": "^2.2.16",
     "typescript": "^3.8.3"
+  },
+  "resolutions": {
+    "debug": "^4.3.1"
   }
 }

@@ -6,10 +6,7 @@ import { isReqRes, ReqRes } from '.';
 
 const logger = getLogger('[sniffer] snifferSubscription.js');
 
-export const createSubscription = (
-  client: Redis,
-  topic: string
-) => {
+export const createSubscription = (client: Redis, topic: string) => {
   let subscriber: Redis;
   let subscribe$: Subscription;
   let lastPosition: string;
@@ -17,8 +14,8 @@ export const createSubscription = (
   return {
     start: async (
       callback?: (topic: string, message: ReqRes, messageStr?: string) => Promise<void>
-    ): Promise<{ read: number; count: number }> => {
-      return new Promise<{ read: number; count: number }>(async (resolve, reject) => {
+    ): Promise<{ read: number; count: number }> =>
+      new Promise<{ read: number; count: number }>(async (resolve, reject) => {
         // First read messages already post to redis before the subscription starts
         const msgs = await client.xrange(topic, '-', Date.now());
         // let read = 0;
@@ -46,79 +43,84 @@ export const createSubscription = (
 
         subscriber = client.duplicate();
         const source$: Observable<any> = fromEventPattern(
-          handler => {
+          (handler) => {
             subscriber.on('message', (channel: string, message: string) => {
               handler({ channel, message });
             });
-            subscriber.subscribe(topic)
-              .then(count => {
+            subscriber
+              .subscribe(topic)
+              .then((count) => {
                 if (count <= 0)
-                  reject(new Error(`[Subscription] subsciibing to ${topic} failed, number of subscribers == ${count}`));
-                else
-                  resolve({ read: 0, count });
+                  reject(
+                    new Error(
+                      `[Subscription] subsciibing to ${topic} failed, number of subscribers == ${count}`
+                    )
+                  );
+                else resolve({ read: 0, count });
               })
-              .catch(error => reject(new Error(`[Subscription] subscribing to ${topic} failed: ${error}`)));;
+              .catch((error) =>
+                reject(new Error(`[Subscription] subscribing to ${topic} failed: ${error}`))
+              );
           },
-          _ => {
-            subscriber.unsubscribe(topic)
-              .then(count => logger.debug(`Redis publication unsubscribed (${count})`))
-              .catch(error => logger.error(`Redis publication unsubscribe error ${error}`));
+          (_) => {
+            subscriber
+              .unsubscribe(topic)
+              .then((count) => logger.debug(`Redis publication unsubscribed (${count})`))
+              .catch((error) => logger.error(`Redis publication unsubscribe error ${error}`));
           }
         );
 
-        subscribe$ = source$.pipe(
-            debounceTime(100)
-          ).subscribe({
-            next: async event => {
-              const incoming = await client.xrange(
-                event.channel,
-                lastPosition ? lastPosition : '-',
-                event.message as string
-              );
-              const sid = event.message.split('-');
-              lastPosition = `${sid[0]}-${parseInt(sid[1], 10) + 1}`;
+        subscribe$ = source$.pipe(debounceTime(100)).subscribe({
+          next: async (event) => {
+            const incoming = await client.xrange(
+              event.channel,
+              lastPosition ? lastPosition : '-',
+              event.message as string
+            );
+            const sid = event.message.split('-');
+            lastPosition = `${sid[0]}-${parseInt(sid[1], 10) + 1}`;
 
-              for (const msg of incoming) {
-                if (callback) {
-                  let obj;
-                  try {
-                    obj = JSON.parse(msg[1][1]);
-                  } catch (error) {
-                    logger.warn(`Received non-JSON message: '${msg[1][1]}'`);
-                    await callback(topic, null, msg[1][1]);
-                    continue;
-                  }
-                  try {
-                    if (isReqRes(obj)) {
-                      await callback(event.channel, obj);
-                    } else {
-                      logger.warn(`Received message of unknown type: '${msg[1][1]}'`);
-                      await callback(event.channel, null, msg[1][1]);
-                    }
-                  } catch (error) {
-                    logger.warn(JSON.stringify(error));
-                    await callback(topic, null, msg[1][1]);
-                  }
-                } else {
-                  logger.debug(`Received message from '${event.channel}': '${msg[1][1]}'`);
+            for (const msg of incoming) {
+              if (callback) {
+                let obj;
+                try {
+                  obj = JSON.parse(msg[1][1]);
+                } catch (error) {
+                  logger.warn(`Received non-JSON message: '${msg[1][1]}'`);
+                  await callback(topic, null, msg[1][1]);
+                  continue;
                 }
+                try {
+                  if (isReqRes(obj)) {
+                    await callback(event.channel, obj);
+                  } else {
+                    logger.warn(`Received message of unknown type: '${msg[1][1]}'`);
+                    await callback(event.channel, null, msg[1][1]);
+                  }
+                } catch (error) {
+                  logger.warn(JSON.stringify(error));
+                  await callback(topic, null, msg[1][1]);
+                }
+              } else {
+                logger.debug(`Received message from '${event.channel}': '${msg[1][1]}'`);
               }
-            },
-            error: error => reject(error),
-						complete: () => logger.debug('observer complete!')
-          });
-      });
-    },
+            }
+          },
+          error: (error) => reject(error),
+          complete: () => logger.debug('observer complete!'),
+        });
+      }),
     stop: async () => {
-      if (subscribe$)
-        subscribe$.unsubscribe();
+      if (subscribe$) subscribe$.unsubscribe();
 
       if (subscriber) {
-        await subscriber.unsubscribe(topic)
-          .catch(err => logger.error(`Error unsubscribing from redis: ${err}`));
-        await subscriber.quit()
-          .catch(err => logger.error(`Error disconnecting subscriber from redis: ${err}`));
+        await subscriber
+          .unsubscribe(topic)
+          .catch((err) => logger.error(`Error unsubscribing from redis: ${err}`));
+        await subscriber
+          .quit()
+          .catch((err) => logger.error(`Error disconnecting subscriber from redis: ${err}`));
       }
-    }
+    },
   };
 };
