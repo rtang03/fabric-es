@@ -57,6 +57,12 @@ else
   printf "${GREEN}Tests Passed${NC}\n"
 fi
 
+# check /healthcheck
+set -x
+apk add curl
+curl localhost:4001/healthcheck
+set +x
+
 # if test fails, it won't run cleanup
 ./cleanup.sh
 
