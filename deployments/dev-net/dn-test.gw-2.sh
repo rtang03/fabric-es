@@ -58,7 +58,7 @@ else
 fi
 
 # if test fails, it won't run cleanup
-#./cleanup.sh
+./cleanup.sh
 
 duration=$SECONDS
 printf "${GREEN}$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed.\n\n${NC}"
