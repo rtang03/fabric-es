@@ -33,7 +33,7 @@ do
   set -x
   DOCKER_BUILD=1 docker build --no-cache -f ./gw-${ORG}.dockerfile -t fabric-es/gw-${ORG}:${RELEASE} .
   res=$?
-  docker tag fabric-es/gw-${ORG}:${RELEASE} gw-${ORG}
+  docker tag fabric-es/gw-${ORG}:${RELEASE} fabric-es/gw-${ORG}
   set +x
   printMessage "Create image fabric-es/gw-${ORG}:${RELEASE}" $res
   sleep 1
