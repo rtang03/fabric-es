@@ -13,11 +13,19 @@ export const getFabricCaService: (
   const logger = getLogger({ name: '[operator] getFabricCaService.js' });
   const ccpPath = path.resolve(connectionProfile);
 
+  logger.debug(`ccpPath: ${ccpPath}`);
+
   try {
     const connection = await promiseToReadFile(ccpPath);
     const ccp: any = yaml.safeLoad(connection);
     const caInfo = ccp.certificateAuthorities[caName];
+
+    logger.debug(util.format('cainfo: %j', caInfo));
+
     const caTLSCACerts = await promiseToReadFile(caInfo.tlsCACerts.path);
+
+    logger.debug(`caTLSCACerts: ${caTLSCACerts}`);
+
     caService = new FabricCAServices(
       caInfo.url,
       { trustedRoots: Buffer.from(caTLSCACerts), verify: false },
