@@ -38,8 +38,12 @@ sleep 1
 
 ### build image ###
 cd $ROOT_DIR/packages/tester
+set -x
 DOCKER_BUILD=1 docker build --no-cache -t $TEST_IMAGE .
-printMessage "Create image ${TEST_IMAGE}" $?
+res=$?
+docker tag $TEST_IMAGE fabric-es/tester
+set +x
+printMessage "Create image ${TEST_IMAGE}" $res
 sleep 1
 
 duration=$SECONDS

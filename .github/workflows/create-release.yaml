@@ -8,6 +8,9 @@ on:
 env:
   GITHUB_SHA: ${{ github.sha }}
   AUTH_IMAGE: auth-server
+  GW_1: gw-org1
+  GW_2: gw-org2
+  TESTER: tester
   RELAY_1: rl-org1
   RELAY_2: rl-org2
   RELAY_3: rl-org3
@@ -68,9 +71,9 @@ jobs:
           [ "$VERSION" == "$default-branch" ] && VERSION=latest
           docker tag $AUTH_IMAGE $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-      - name: Push Relay-1 to GCR
+      - name: Push GW-1 to GCR
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$RELAY_1
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$GW_1
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           # Strip git ref prefix from version
@@ -79,26 +82,27 @@ jobs:
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           # Use Docker `latest` tag convention
           [ "$VERSION" == "$default-branch" ] && VERSION=latest
-          docker tag fabric-es/$RELAY_1 $IMAGE_ID:$VERSION
+          docker tag fabric-es/$GW_1 $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-      - name: Push Relay-2 to GCR
+      - name: Push GW-2 to GCR
         run: |
           set -x
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$RELAY_2
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$GW_2
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           [ "$VERSION" == "$default-branch" ] && VERSION=latest
-          docker tag fabric-es/$RELAY_2 $IMAGE_ID:$VERSION
+          docker tag fabric-es/$GW_2 $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-      - name: Push Relay-3 to GCR
+      - name: Push Tester to GCR
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$RELAY_3
+          set -x
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$TESTER
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           [ "$VERSION" == "$default-branch" ] && VERSION=latest
-          docker tag fabric-es/$RELAY_3 $IMAGE_ID:$VERSION
+          docker tag fabric-es/$TESTER $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
       - name: Create Release
         uses: docker://antonyurchenko/git-release:latest

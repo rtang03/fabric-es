@@ -15,6 +15,11 @@ export const enrollAdmin = async (option: EnrollAdminOption): Promise<any> => {
     }
   });
 
+  logger.debug(`enrollmentID: ${enrollmentID}`);
+  logger.debug(`mspId: ${mspId}`);
+  logger.debug(`caName: ${caName}`);
+  logger.debug(`connectionProfile: ${connectionProfile}`);
+
   let caService: FabricCAServices;
 
   // Create a new CA client for interacting with the CA.

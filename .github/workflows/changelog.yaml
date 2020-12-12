@@ -4,6 +4,9 @@ on:
     branches: [ master ]
     types: [closed]
 
+  release:
+    types: [ published ]
+
 jobs:
   generate_changelog:
     runs-on: ubuntu-latest
