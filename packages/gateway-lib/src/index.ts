@@ -2,6 +2,7 @@ import { Commit } from '@fabric-es/fabric-cqrs';
 import { DataSource } from 'apollo-datasource';
 export { catchErrors } from './utils/catchErrors';
 export { createGateway } from './utils/createGateway';
+export { createGatewayV2 } from './utils/createGatewayV2';
 export { createService } from './utils/createService';
 export { getLogger } from './utils/getLogger';
 export { createAdminService } from './admin/createAdminService';

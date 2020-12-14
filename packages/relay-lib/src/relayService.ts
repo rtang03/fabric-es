@@ -27,9 +27,7 @@ export const createRelayService: (option: {
   isHttps: boolean;
   relay: StoppableServer;
   shutdown: () => Promise<void>;
-}> = async ({
-  redisOptions, targetUrl, topic, httpsArg
-}) => {
+}> = async ({ redisOptions, targetUrl, topic, httpsArg }) => {
   const client = new RedisClient(redisOptions);
 
   client.on('error', (err) => {
@@ -40,34 +38,40 @@ export const createRelayService: (option: {
     logger.debug('Redis client connected.');
   });
 
-  const isHttps = (httpsArg && httpsArg.key && httpsArg.cert) ? true : false;
+  const isHttps = !!(httpsArg && httpsArg.key && httpsArg.cert);
 
   const app = express();
-  
+
   const proxy = relayService({
     targetUrl,
     client,
     topic,
-    isHttps
+    isHttps,
   });
   app.use('', proxy);
 
-  const server = isHttps ?
-    https.createServer({
-      key: fs.readFileSync(httpsArg.key),
-      cert: fs.readFileSync(httpsArg.cert),
-    }, app) :
-    http.createServer(app);
+  const server = isHttps
+    ? https.createServer(
+        {
+          key: fs.readFileSync(httpsArg.key),
+          cert: fs.readFileSync(httpsArg.cert),
+        },
+        app
+      )
+    : http.createServer(app);
   const stoppableServer = stoppable(server);
 
   return {
     isHttps,
     relay: stoppableServer,
-    shutdown: () => {
-      return new Promise<void>(async (resolve, reject) => {
-        await client.quit()
-          .catch(err => logger.error(util.format('Error disconnecting the relay service from redis: %j', err)));
-        stoppableServer.stop(err => {
+    shutdown: () =>
+      new Promise<void>(async (resolve, reject) => {
+        await client
+          .quit()
+          .catch((err) =>
+            logger.error(util.format('Error disconnecting the relay service from redis: %j', err))
+          );
+        stoppableServer.stop((err) => {
           if (err) {
             logger.error(util.format('An error occurred while closing the relay service: %j', err));
             reject();
@@ -76,12 +80,19 @@ export const createRelayService: (option: {
             resolve();
           }
         });
-      });
-    }
+      }),
   };
 };
 
-const wait4res = async (client: Redis, req: any, res: any, ts: number, type: string, body: string, file?: any) => {
+const wait4res = async (
+  client: Redis,
+  req: any,
+  res: any,
+  ts: number,
+  type: string,
+  body: string,
+  file?: any
+) => {
   const id = crypto.randomBytes(16).toString('hex');
   const msg = {
     id,
@@ -91,7 +102,7 @@ const wait4res = async (client: Redis, req: any, res: any, ts: number, type: str
     url: querystring.parseUrl(req.url),
     contentType: type,
     reqBody: body,
-    attachmentInfo: (file) ? JSON.stringify(file) : undefined
+    attachmentInfo: file ? JSON.stringify(file) : undefined,
   };
   logger.info(`ProxyReq Finish ${msg.proxyReqFinish}`);
   logger.debug(`[PERFTEST]{"id":"${id}","url":"${msg.url}","method":"${msg.method}","proxyReqStarts":${msg.proxyReqStarts},"proxyReqFinish":${msg.proxyReqFinish}`);
@@ -103,7 +114,7 @@ export const relayService = ({
   targetUrl,
   client,
   topic,
-  isHttps
+  isHttps,
 }: {
   targetUrl: string;
   client: Redis;
@@ -117,8 +128,8 @@ export const relayService = ({
   return createProxyMiddleware({
     target: targetUrl,
     changeOrigin: true,
-    agent  : isHttps ? https.globalAgent : http.globalAgent,
-    secure : !isHttps,
+    agent: isHttps ? https.globalAgent : http.globalAgent,
+    secure: !isHttps,
     onProxyReq: (_, req, res) => {
       // Initialize
       const proxyReqStarts = Date.now();
@@ -131,7 +142,7 @@ export const relayService = ({
         const form = formidable({ multiples: true });
         form.onPart = (part) => {
           if (part.mime) {
-            if (part.filename && (part.filename !== '')) {
+            if (part.filename && part.filename !== '') {
               fileInfo.push({ name: part.filename, type: part.mime });
             } else if (part.name && part.name !== '') {
               form.handlePart(part);
@@ -145,10 +156,8 @@ export const relayService = ({
           if (err) {
             logger.error('Error parsing multipart data ' + err);
           } else {
-            if (files.files)
-              logger.warn(`Warning! Unexpected file saved: ${files.files.path}`);
-            else
-              logger.debug(`Relay ignored uploaded file ${fileInfo.map(i => i.name)}`); // Sould be logger.debug()
+            if (files.files) logger.warn(`Warning! Unexpected file saved: ${files.files.path}`);
+            else logger.debug(`Relay ignored uploaded file ${fileInfo.map((i) => i.name)}`); // Sould be logger.debug()
 
             if (fields && !isEmpty(fields)) {
               wait4res(client, req, res, proxyReqStarts, type, JSON.stringify(fields), fileInfo);
@@ -171,8 +180,7 @@ export const relayService = ({
             } catch (error) {
               body = raw;
             }
-          } else
-            body = raw;
+          } else body = raw;
           wait4res(client, req, res, proxyReqStarts, type, body);
         });
       }
@@ -200,7 +208,7 @@ export const relayService = ({
               proxyResFinish: Date.now(),
               statusCode: proxyRes.statusCode,
               statusMessage: proxyRes.statusMessage,
-              resBody: body
+              resBody: body,
             };
             const { reqBody, attachmentInfo, resBody, ...rest } = message;
             await processMessage({ message, client, topic }).then((result) => {
@@ -223,11 +231,10 @@ export const relayService = ({
         'Content-Type': 'text/plain',
       });
       let errStr = 'Error! ';
-      if (err)
-        errStr += err.message;
+      if (err) errStr += err.message;
       errStr += ' Please check if endpoint is down.';
       logger.error(errStr);
       res.end(errStr);
-    }
+    },
   });
 };

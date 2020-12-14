@@ -10,8 +10,8 @@ export const registerUser: (option: {
   enrollmentId: string;
   enrollmentSecret: string;
   connectionProfile: string;
-  fabricNetwork: string;
   wallet: Wallet;
+  caName: string;
   caAdmin: string;
   caAdminPW: string;
   mspId: string;
@@ -19,20 +19,18 @@ export const registerUser: (option: {
   enrollmentId,
   enrollmentSecret,
   connectionProfile,
-  fabricNetwork,
   wallet,
+  caName,
   caAdmin,
   caAdminPW,
   mspId,
 }) => {
   const logger = Utils.getLogger('[fabric-cqrs] registerUser.js');
   const operator = await registerAndEnroll({
+    caName,
     caAdmin,
     caAdminPW,
     channelName: null,
-    ordererName: null,
-    ordererTlsCaCert: null,
-    fabricNetwork,
     connectionProfile,
     wallet,
     mspId,

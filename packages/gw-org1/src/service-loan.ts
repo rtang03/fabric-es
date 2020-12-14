@@ -4,7 +4,6 @@ import { getReducer } from '@fabric-es/fabric-cqrs';
 import { createService, getLogger } from '@fabric-es/gateway-lib';
 import { Loan, LoanEvents, loanReducer, loanResolvers, loanTypeDefs } from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
-import Redis from 'ioredis';
 
 const logger = getLogger('service-loan.js');
 const reducer = getReducer<Loan, LoanEvents>(loanReducer);

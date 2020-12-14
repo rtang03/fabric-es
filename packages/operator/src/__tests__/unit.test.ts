@@ -11,13 +11,11 @@ const channelName = process.env.CHANNEL_NAME;
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
 const connectionProfile = process.env.CONNECTION_PROFILE;
-const fabricNetwork = process.env.NETWORK_ARTIFACTS;
-const peerName = 'peer0-org1';
-const blockNumber = 6;
 const caName = 'rca-org1';
 const enrollmentId = 'test0001';
 const txSubmitter = process.env.ORG_ADMIN_ID;
 const newId = `newId_${Math.floor(Math.random() * 10000)}`;
+const sleep5 = new Promise((resolve) => setTimeout(() => resolve(true), 5000));
 
 let operator: NetworkOperator;
 
@@ -27,41 +25,39 @@ beforeAll(async () => {
   const wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
 
   await enrollAdmin({
-    caUrl: process.env.ORG_CA_URL,
+    caName,
     connectionProfile,
     enrollmentID: process.env.ORG_ADMIN_ID,
     enrollmentSecret: process.env.ORG_ADMIN_SECRET,
-    fabricNetwork,
     mspId,
-    wallet
-  }).catch(e => {
+    wallet,
+  }).catch(async (e) => {
     console.error(e);
+    await sleep5;
     process.exit(1);
   });
 
   await enrollAdmin({
-    caUrl: process.env.ORG_CA_URL,
+    caName,
     connectionProfile,
     enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
     enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
-    fabricNetwork,
     mspId,
-    wallet
-  }).catch(e => {
+    wallet,
+  }).catch(async (e) => {
     console.error(e);
+    await sleep5;
     process.exit(1);
   });
 
   operator = await createNetworkOperator({
-    channelName,
-    ordererTlsCaCert: process.env.ORDERER_TLSCA_CERT,
-    ordererName: process.env.ORDERER_HOSTNAME,
-    fabricNetwork,
-    connectionProfile,
-    wallet,
     caAdmin,
     caAdminPW,
-    mspId: process.env.MSPID
+    caName,
+    channelName,
+    connectionProfile,
+    mspId: process.env.MSPID,
+    wallet,
   });
 });
 
@@ -70,7 +66,7 @@ describe('Network operator - registerAndEnroll', () => {
     operator
       .registerAndEnroll({
         enrollmentId: newId,
-        enrollmentSecret: 'password'
+        enrollmentSecret: 'password',
       })
       .then(({ disconnect, registerAndEnroll }) =>
         registerAndEnroll().then(({ status, info }) => {
@@ -90,14 +86,14 @@ describe('Network operator - submitOrEvaluateTx', () => {
           'dev_test',
           `dev_test_${Math.floor(Math.random() * 10000)}`,
           '0',
-          JSON.stringify([{ type: 'Created', payload: { name: 'me' } }])
+          JSON.stringify([{ type: 'Created', payload: { name: 'me' } }]),
         ],
         identity: txSubmitter,
         asLocalhost: true,
-        chaincodeId: 'eventstore'
+        chaincodeId: 'eventstore',
       })
       .then(({ disconnect, submit }) =>
-        submit().then(result => {
+        submit().then((result) => {
           disconnect();
           expect(isCommitRecord(result)).toBeTruthy();
         })
@@ -110,10 +106,10 @@ describe('Network operator - submitOrEvaluateTx', () => {
         fcn: 'eventstore:queryByEntityName',
         args: ['dev_test'],
         chaincodeId: 'eventstore',
-        identity: txSubmitter
+        identity: txSubmitter,
       })
       .then(({ disconnect, evaluate }) =>
-        evaluate().then(result => {
+        evaluate().then((result) => {
           disconnect();
           expect(isCommitRecord(result)).toBeTruthy();
         })
@@ -121,29 +117,29 @@ describe('Network operator - submitOrEvaluateTx', () => {
 });
 
 describe('Network operator - getQueries', () => {
-  it('should query - getChannels', async () =>
-    operator
-      .getQueries()
-      .then(({ getChannels }) => getChannels(peerName))
-      .then(result => expect(result).toEqual({ channels: [{ channel_id: channelName }] })));
-
   it('should query - getMspid', async () =>
     operator.getQueries().then(({ getMspid }) => expect(getMspid()).toEqual(mspId)));
 
-  it('should query - getChainInfo', async () =>
-    operator
-      .getQueries()
-      .then(async ({ getChainInfo }) => getChainInfo(peerName))
-      .then(chainInfo => {
-        expect(typeof chainInfo.height).toEqual('object');
-        expect(typeof chainInfo.currentBlockHash).toEqual('object');
-      }));
-
-  it('should query - ChannelPeers', async () =>
-    operator
-      .getQueries()
-      .then(({ getBlockByNumber }) => getBlockByNumber(blockNumber))
-      .then(block => expect(block.header.number).toEqual(blockNumber.toString())));
+  // TODO: CAN REMOVE
+  // it('should query - getChannels', async () =>
+  //   operator
+  //     .getQueries()
+  //     .then(({ getChannels }) => getChannels(peerName))
+  //     .then((result) => expect(result).toEqual({ channels: [{ channel_id: channelName }] })));
+  // it('should query - getChainInfo', async () =>
+  //   operator
+  //     .getQueries()
+  //     .then(async ({ getChainInfo }) => getChainInfo(peerName))
+  //     .then((chainInfo) => {
+  //       expect(typeof chainInfo.height).toEqual('object');
+  //       expect(typeof chainInfo.currentBlockHash).toEqual('object');
+  //     }));
+  //
+  // it('should query - ChannelPeers', async () =>
+  //   operator
+  //     .getQueries()
+  //     .then(({ getBlockByNumber }) => getBlockByNumber(blockNumber))
+  //     .then((block) => expect(block.header.number).toEqual(blockNumber.toString())));
 });
 
 describe('Network operator - identityService', () => {
@@ -167,8 +163,8 @@ describe('Network operator - identityService', () => {
     operator.identityService().then(({ create }) =>
       create({
         affiliation: 'org1', // default affiliation
-        enrollmentID: enrollmentId
-      }).then(secret => expect(typeof secret).toEqual('string'))
+        enrollmentID: enrollmentId,
+      }).then((secret) => expect(typeof secret).toEqual('string'))
     ));
 
   // should getOne will return

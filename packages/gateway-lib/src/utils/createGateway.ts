@@ -4,7 +4,6 @@ import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
 import httpStatus from 'http-status';
-import morgan from 'morgan';
 import fetch from 'node-fetch';
 import stoppable, { StoppableServer } from 'stoppable';
 import { getLogger } from './getLogger';
@@ -85,9 +84,8 @@ export const createGateway: (option: {
 
   const app = express();
   app.use(express.urlencoded({ extended: false }));
-  app.use(morgan('dev'));
 
-  app.get('/gw_org/isalive', (_, res) => res.status(204).send({ data: 'hi' }));
+  app.get('/gw_org/isalive', (_, res) => res.status(200).send({ data: 'hi' }));
 
   // Note: this cors implementation is redundant. Cors should be check at ui-account's express backend
   // However, if there is alternative implementation, other than custom backend of SSR; there may require

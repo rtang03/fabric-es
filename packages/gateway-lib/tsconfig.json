@@ -7,7 +7,7 @@
     "module": "commonjs",
     "declaration": true,
     "sourceMap": false,
-    "types": ["node", "jest", "@types/bytebuffer"],
+    "types": ["node", "jest"],
     "lib": ["es2017", "dom", "esnext.asynciterable"],
     "rootDir": "src",
     "emitDecoratorMetadata": true,

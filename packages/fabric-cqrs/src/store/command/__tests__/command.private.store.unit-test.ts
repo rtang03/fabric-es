@@ -16,7 +16,7 @@ let commitId: string;
 let store: Store;
 const connectionProfile = process.env.CONNECTION_PROFILE;
 const channelName = process.env.CHANNEL_NAME;
-const fabricNetwork = process.env.NETWORK_LOCATION;
+const caName = process.env.CA_NAME;
 const mspId = process.env.MSPID;
 const entityName = 'store_privatedata';
 const enrollmentId = `store_privatedata${Math.floor(Math.random() * 1000)}`;
@@ -39,21 +39,19 @@ beforeAll(async () => {
     wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
 
     await enrollAdmin({
-      caUrl: process.env.ORG_CA_URL,
       connectionProfile,
       enrollmentID: process.env.ORG_ADMIN_ID,
       enrollmentSecret: process.env.ORG_ADMIN_SECRET,
-      fabricNetwork,
+      caName,
       mspId,
       wallet,
     });
 
     await enrollAdmin({
-      caUrl: process.env.ORG_CA_URL,
       connectionProfile,
       enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
       enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
-      fabricNetwork,
+      caName,
       mspId,
       wallet,
     });
@@ -61,7 +59,7 @@ beforeAll(async () => {
     await registerUser({
       caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
       caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN,
-      fabricNetwork,
+      caName,
       enrollmentId,
       enrollmentSecret: 'password',
       connectionProfile,

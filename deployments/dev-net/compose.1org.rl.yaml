@@ -12,6 +12,7 @@ services:
       - AUTHORIZATION_SERVER_URI=http://auth-server1:8080/oauth/authenticate
       - CA_ENROLLMENT_ID_ADMIN=rca-org1-admin
       - CA_ENROLLMENT_SECRET_ADMIN=rca-org1-adminPW
+      - CA_NAME=rca-org1
       - ORG_CA_URL=https://rca-org1:5054
       - ORG_ADMIN_ID=admin-org1.net
       - ORG_ADMIN_SECRET=admin-org1.netPW

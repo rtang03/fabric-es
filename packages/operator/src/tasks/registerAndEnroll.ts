@@ -1,11 +1,7 @@
 import util from 'util';
+import FabricCAServices from 'fabric-ca-client';
 import { User } from 'fabric-common';
-import {
-  DefaultEventHandlerStrategies,
-  DefaultQueryHandlerStrategies,
-  Gateway,
-  X509Identity,
-} from 'fabric-network';
+import { Gateway, X509Identity } from 'fabric-network';
 import {
   CreateNetworkOperatorOption,
   IDENTITY_ALREADY_EXIST,
@@ -14,7 +10,7 @@ import {
   ORG_ADMIN_NOT_EXIST,
   SUCCESS,
 } from '../types';
-import { getClientForOrg, getLogger } from '../utils';
+import { getFabricCaService, getGateway, getLogger } from '../utils';
 
 export const registerAndEnroll: (
   option: CreateNetworkOperatorOption
@@ -22,46 +18,43 @@ export const registerAndEnroll: (
   enrollmentId: string;
   enrollmentSecret: string;
   asLocalhost?: boolean;
-  eventHandlerStrategies?: any;
-  queryHandlerStrategies?: any;
 }) => Promise<{
   disconnect: () => void;
   registerAndEnroll: () => Promise<any>;
-}> = (option) => async ({
-  enrollmentId,
-  enrollmentSecret,
-  asLocalhost = true,
-  eventHandlerStrategies = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
-  queryHandlerStrategies = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
-}) => {
-  if (!enrollmentId) throw new Error(MISSING_ENROLLMENTID);
-  if (!enrollmentSecret) throw new Error(MISSING_ENROLLMENTSECRET);
+}> = (option) => async ({ enrollmentId, enrollmentSecret, asLocalhost = true }) => {
+  let caService: FabricCAServices;
+  let gateway: Gateway;
 
   const logger = getLogger({ name: '[operator] registerAndEnroll.js' });
-  const { caAdmin, caAdminPW, fabricNetwork, connectionProfile, wallet, mspId } = option;
-  const client = await getClientForOrg(connectionProfile, fabricNetwork, mspId);
-  const gateway = new Gateway();
-  const certificateAuthority = client.getCertificateAuthority();
+  const { caName, caAdmin, caAdminPW, connectionProfile, wallet, mspId } = option;
 
+  if (!enrollmentId) throw new Error(MISSING_ENROLLMENTID);
+  if (!enrollmentSecret) throw new Error(MISSING_ENROLLMENTSECRET);
   if (!mspId) {
     logger.error('mspId not found');
     throw new Error('mspId not found');
   }
 
+  // Create a new CA client for interacting with the CA.
   try {
-    await gateway.connect(client, {
+    caService = await getFabricCaService(connectionProfile, caName);
+  } catch (e) {
+    logger.error(util.format('fail to newFabricCAServices: %j', e));
+    throw new Error(e);
+  }
+
+  // use the loaded connection profile
+  try {
+    gateway = await getGateway({
+      connectionProfile,
       identity: caAdmin,
       wallet,
-      eventHandlerOptions: { strategy: eventHandlerStrategies },
-      queryHandlerOptions: { strategy: queryHandlerStrategies },
-      discovery: { asLocalhost, enabled: true },
+      asLocalhost,
     });
   } catch (e) {
     logger.error(util.format('fail to connect gateway, %j', e));
     throw new Error(e);
   }
-
-  logger.info(util.format('gateway connected: %s', mspId));
 
   return {
     disconnect: () => gateway.disconnect(),
@@ -104,7 +97,7 @@ export const registerAndEnroll: (
 
       // Step 1: register new enrollmentId
       try {
-        await certificateAuthority.register(
+        await caService.register(
           {
             enrollmentID: enrollmentId,
             enrollmentSecret,
@@ -125,7 +118,7 @@ export const registerAndEnroll: (
       let enroll;
 
       try {
-        enroll = await certificateAuthority.enroll({
+        enroll = await caService.enroll({
           enrollmentID: enrollmentId,
           enrollmentSecret,
         });

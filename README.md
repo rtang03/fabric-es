@@ -1,5 +1,6 @@
 ![CI](https://github.com/rtang03/open-platform-dlt/workflows/CI/badge.svg?branch=master)
-![Build Images](https://github.com/rtang03/open-platform-dlt/workflows/Build%20Images/badge.svg?branch=master)
+![Create Release](https://github.com/rtang03/fabric-es/workflows/Create%20Release/badge.svg)
+![Changelog](https://github.com/rtang03/fabric-es/workflows/Changelog/badge.svg)
 
 # Project Overview
 
@@ -145,8 +146,8 @@ Goto [~/deployments/dev-net](./deployments/dev-net/README.md), pick the developm
 
 ### References
 
-Some source is refactored from below repo.  
-[Sample Code - 1](https://github.com/kevin-hf/kevin-fabric-sdk-node)  
-[IBM Sample Code - 2](https://github.com/PacktPublishing/Handson-Blockchain-Development-with-Hyperledger)  
-[ampretia sample](https://github.com/ampretia/fabric-application-examples)
-[sample monorepo build](https://github.com/benawad/fullstack-graphql-airbnb-clone)
+Some source is refactored from below repo  
+- [Sample Code - 1](https://github.com/kevin-hf/kevin-fabric-sdk-node)  
+- [IBM Sample Code - 2](https://github.com/PacktPublishing/Handson-Blockchain-Development-with-Hyperledger)  
+- [ampretia sample](https://github.com/ampretia/fabric-application-examples)
+- [sample monorepo build](https://github.com/benawad/fullstack-graphql-airbnb-clone)

@@ -41,7 +41,7 @@ export const createAccountRoute: (option: {
   router.get('/userinfo', passport.authenticate('bearer', { session: false }), (req, res) => {
     const response: ProfileResponse = omit(req.user, 'password') as any;
 
-    logger.debug(`userinfo ${response.id} is retrieved`);
+    logger.info(`userinfo ${response.id} is retrieved`);
 
     return res.status(httpStatus.OK).send(response);
   });

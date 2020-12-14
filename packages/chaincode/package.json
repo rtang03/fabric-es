@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/chaincode",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "description": "Event Store Chaincode for Hyperledger Fabric",
@@ -35,8 +35,8 @@
   },
   "dependencies": {
     "@types/bytebuffer": "^5.0.41",
-    "fabric-contract-api": "^2.1.2",
-    "fabric-shim": "~2.1.2",
+    "fabric-contract-api": "2.2.1",
+    "fabric-shim": "2.2.1",
     "lodash": "^4.17.15"
   },
   "devDependencies": {

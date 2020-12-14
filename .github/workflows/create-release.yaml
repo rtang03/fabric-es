@@ -6,15 +6,14 @@ on:
     paths-ignore:
       - '**.md'
 env:
-  GKE_PROJECT: fdi-cd
-  GKE_EMAIL: ${{ secrets.GKE_EMAIL }}
   GITHUB_SHA: ${{ github.sha }}
-  GKE_ZONE: us-central1-a
-  GKE_CLUSTER: test-net-cluster-1
-  AUTH_IMAGE: fabric-es/auth-server
-  GW_ORG1_IMAGE: fabric-es/gw-org1
-  REGISTRY_HOSTNAME: gcr.io
-  DEPLOYMENT_NAME: gke-test
+  AUTH_IMAGE: auth-server
+  GW_1: gw-org1
+  GW_2: gw-org2
+  TESTER: tester
+  RELAY_1: rl-org1
+  RELAY_2: rl-org2
+  RELAY_3: rl-org3
 
 jobs:
   build:
@@ -34,9 +33,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - name: Setup Node.js for use with action
-        uses: actions/setup-node@v1.1.0
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+        uses: actions/setup-node@v2-beta
         with:
-          version: '12.x'
+          node-version: '12.16.1'
+          check-latest: true
           registry-url: 'https://npm.pkg.github.com'
           scope: '@fabric-es'
       - run: yarn install --frozen-lockfile
@@ -46,56 +48,72 @@ jobs:
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.tester.sh
       - name: Build auth image
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh
-      - name: Build relay image
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.relay.sh
-      - name: Build ui images
+      - name: Build relay image (org1 org2 org3)
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.relay.sh org1 org2 org3
+      - name: Build ui images (org1 org2)
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.ui-control.sh org1 org2
-      - name: Build org1 org2 images
+      - name: Build org1 org2 images (org1 org2)
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.gw.sh org1 org2
       - name: Run multi-org integration test
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-test.gw-2.sh
-# Comment out the step to send docker images to Google Registry.
-# Below step needs re-test, if uncomment
-#      - name: Setup Google account
-#        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-#        with:
-#          version: '270.0.0'
-#          service_account_email: ${{ secrets.GKE_EMAIL }}
-#          service_account_key: ${{ secrets.GKE_KEY }}
-#      - name: Authenticate Google account
-#        run: gcloud auth configure-docker
-#      - name: Rename image tag for auth-server
-#        run: |
-#          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-#          docker tag fabric-es/auth-server:1.0 "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/auth-server:"$TAG"
-#      - name: Publish auth-server image
-#        run: |
-#          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-#          docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/auth-server:"$TAG"
-#      - name: Rename image tag for gw-org1
-#        run: |
-#          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-#          docker tag fabric-es/gw-org1:1.0  "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/gw-org1:"$TAG"
-#      - name: Publish gw-org1 image
-#        run: |
-#          TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\/\(.*\)/\1/') && \
-#          docker push "$REGISTRY_HOSTNAME"/"$GKE_PROJECT"/gw-org1:"$TAG"
+      - name: Log into GitHub Container Registry
+        run: echo "${{ secrets.CREATE_PACKAGE }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Push auth-server to GCR
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$AUTH_IMAGE
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "$default-branch" ] && VERSION=latest
+          docker tag $AUTH_IMAGE $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+      - name: Push GW-1 to GCR
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$GW_1
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "$default-branch" ] && VERSION=latest
+          docker tag fabric-es/$GW_1 $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+      - name: Push GW-2 to GCR
+        run: |
+          set -x
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$GW_2
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [ "$VERSION" == "$default-branch" ] && VERSION=latest
+          docker tag fabric-es/$GW_2 $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+      - name: Push Tester to GCR
+        run: |
+          set -x
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$TESTER
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [ "$VERSION" == "$default-branch" ] && VERSION=latest
+          docker tag fabric-es/$TESTER $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
       - name: Create Release
         uses: docker://antonyurchenko/git-release:latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DRAFT_RELEASE: "true"
+          DRAFT_RELEASE: "false"
           PRE_RELEASE: "true"
-          CHANGELOG_FILE: "CHANGELOG.md"
-          ALLOW_EMPTY_CHANGELOG: "false"
+          CHANGELOG_FILE: "none"
+          ALLOW_EMPTY_CHANGELOG: "true"
           ALLOW_TAG_PREFIX: "true"
       - name: Cleanup artifacts
         run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
       - name: Cleanup data volume
         run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/volume
-#  This step will only publish to the same repo. However, our use case may need to publish other registry.
-#  So disable it for now.
-#      - name: Publish Github Packages
-#        run: yarn run publish:lib
-#        env:
-#          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

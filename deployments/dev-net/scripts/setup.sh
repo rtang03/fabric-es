@@ -4,8 +4,8 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-export RELEASE=0.7.0
-export IMAGE_TAG=2.1.0
+export RELEASE=0.7.1
+export IMAGE_TAG=2.2.0
 export CONFIG=./config
 export VOLUME=./volume
 export ARTIFACTS=./artifacts
@@ -136,7 +136,7 @@ getConfig() {
 # $3 - optional: expected
 containerWait() {
   FOUND=false
-  COUNT=90
+  COUNT=120
   while [[ ("$FOUND"=false) && (COUNT -gt 0) ]]; do
     if [ $# -eq 3 ]; then
       RESULT=`docker container exec -i $1 "$2" | grep -e "$3"`
@@ -187,4 +187,3 @@ parseArgs() {
     esac
   fi
 }
-

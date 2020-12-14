@@ -70,7 +70,7 @@ export const getNetwork: (option: {
   }
 
   const connect = (identity: string) =>
-    gateway.connect(safeLoad(cp), {
+    gateway.connect(safeLoad(cp) as any, {
       identity,
       wallet,
       discovery: { enabled: discovery, asLocalhost },

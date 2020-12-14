@@ -1,5 +1,5 @@
 FROM node:12.16.0-alpine
-
+LABEL org.opencontainers.image.source https://github.com/rtang03/fabric-es
 ENV TIME_ZONE=Asia/Hong_Kong \
     ENV_NAME=test \
     NODE_ENV=test \
@@ -19,7 +19,7 @@ RUN apk add --no-cache curl bash \
   && cp /usr/share/zoneinfo/Asia/Hong_Kong /etc/localtime \
   && echo "Asia/Hong_Kong" > /etc/timezone \
   && cd /home/app \
-  && npm install --production \
+  && npm install \
   && npm install -g jest \
   && apk del .build-deps
 

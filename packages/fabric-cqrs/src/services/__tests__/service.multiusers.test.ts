@@ -21,7 +21,8 @@ let walletOrg1: Wallet;
 let walletOrg2: Wallet;
 const connectionProfile = process.env.CONNECTION_PROFILE;
 const channelName = process.env.CHANNEL_NAME;
-const fabricNetwork = process.env.NETWORK_LOCATION;
+const caName = process.env.CA_NAME;
+const caNameOrg2 = process.env.ORG2_CA_NAME;
 const entityName = 'dev_multiusers_test';
 const identityOrg1 = `org1user_test${Math.floor(Math.random() * 1000)}`;
 const identityOrg2 = `org2user_test${Math.floor(Math.random() * 1000)}`;
@@ -37,22 +38,20 @@ beforeAll(async () => {
 
     // Org1
     await enrollAdmin({
-      caUrl: process.env.ORG_CA_URL,
       connectionProfile,
       enrollmentID: process.env.ORG_ADMIN_ID,
       enrollmentSecret: process.env.ORG_ADMIN_SECRET,
-      fabricNetwork,
+      caName,
       mspId: process.env.MSPID,
       wallet: walletOrg1,
     });
 
     await enrollAdmin({
-      caUrl: process.env.ORG_CA_URL,
       connectionProfile,
       enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
       enrollmentSecret: process.env.CA_ENROLLMENT_SECRET_ADMIN,
       mspId: process.env.MSPID,
-      fabricNetwork,
+      caName,
       wallet: walletOrg1,
     });
 
@@ -60,7 +59,7 @@ beforeAll(async () => {
       enrollmentId: identityOrg1,
       enrollmentSecret: 'password',
       connectionProfile: process.env.CONNECTION_PROFILE,
-      fabricNetwork,
+      caName,
       wallet: walletOrg1,
       caAdmin: process.env.CA_ENROLLMENT_ID_ADMIN,
       caAdminPW: process.env.CA_ENROLLMENT_SECRET_ADMIN,
@@ -78,22 +77,20 @@ beforeAll(async () => {
 
     // Org2
     await enrollAdmin({
-      caUrl: process.env.ORG2_ORG_CA_URL,
       connectionProfile: process.env.ORG2_CONNECTION_PROFILE,
       enrollmentID: process.env.ORG2_ORG_ADMIN_ID,
       enrollmentSecret: process.env.ORG2_ORG_ADMIN_SECRET,
       mspId: process.env.ORG2_MSPID,
-      fabricNetwork,
+      caName: caNameOrg2,
       wallet: walletOrg2,
     });
 
     await enrollAdmin({
-      caUrl: process.env.ORG2_ORG_CA_URL,
       connectionProfile: process.env.ORG2_CONNECTION_PROFILE,
       enrollmentID: process.env.ORG2_CA_ENROLLMENT_ID_ADMIN,
       enrollmentSecret: process.env.ORG2_CA_ENROLLMENT_SECRET_ADMIN,
       mspId: process.env.ORG2_MSPID,
-      fabricNetwork,
+      caName: caNameOrg2,
       wallet: walletOrg2,
     });
 
@@ -101,7 +98,7 @@ beforeAll(async () => {
       enrollmentId: identityOrg2,
       enrollmentSecret: 'password',
       connectionProfile: process.env.ORG2_CONNECTION_PROFILE,
-      fabricNetwork,
+      caName: caNameOrg2,
       wallet: walletOrg2,
       caAdmin: process.env.ORG2_CA_ENROLLMENT_ID_ADMIN,
       caAdminPW: process.env.ORG2_CA_ENROLLMENT_SECRET_ADMIN,

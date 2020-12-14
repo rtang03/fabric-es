@@ -25,11 +25,10 @@ rimraf(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}.id`, async error => {
   }
 
   await enrollAdmin({
-    caUrl: process.env.ORG_CA_URL,
     enrollmentID: process.env.ORG_ADMIN_ID,
     enrollmentSecret: process.env.ORG_ADMIN_SECRET,
     mspId: process.env.MSPID,
-    fabricNetwork: process.env.NETWORK_LOCATION,
+    caName: process.env.CA_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet
   })

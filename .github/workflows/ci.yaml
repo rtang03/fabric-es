@@ -6,16 +6,18 @@ on:
 
 name: CI
 
-#env:
-#  NODE_MODULE_VERSION: 57
-
 jobs:
   build:
     name: CI
     runs-on: ubuntu-latest
+    # services:
+    #   postgres:
+    #     image: postgres:11.5
+    #     ports: [ "5432:5432" ]
+    #     options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Checkout code
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -27,12 +29,30 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - name: Setup Node.js for use with action
-        uses: actions/setup-node@v1.1.0
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+        uses: actions/setup-node@v2-beta
         with:
-          node-version: '12.x'
-          version: '12.x'
+          node-version: '12.16.1'
+          check-latest: true
       - name: yarn install
-        run: yarn install --frozen-lockfile
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+        run: |
+          # see https://github.com/rtang03/fabric-es/issues/142
+          curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+          nvm --version
+          nvm install v12.16.1
+          nvm use v12.16.1
+          yarn install
+          nvm install v14.0.0
+          nvm use v14.0.0
+          npm rebuild grpc
+          # npm rebuild grpc --target=14.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
+          nvm use v12.16.1
       - name: lint auth, chaincode, fabric-cqrs, operator, gateway-lib, proxy
         run: yarn lint:lib
       - name: lint gw-org*, model-*, ui-account
@@ -40,11 +60,18 @@ jobs:
       - name: Run tsc for all packages
         run: yarn tsc:all
       - name: build images for proxy, auth-server, ui-account
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh && ./dn-build.ui-control.sh
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh
+        # run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh && ./dn-build.ui-control.sh org1 org2
+      - name: deploy base 0-org fabric v2.1 network with proxy, postgres, redis
+        run: |
+          set -x
+          cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && sudo ./dn-run.0-db-red.sh
+          docker exec postgres01 psql -U postgres --list
+      - name: Run unit tests for auth-server
+        run: cd packages/auth && sudo yarn unit-test:fab
       - name: deploy base 2-org fabric v2.1 network with proxy, postgres, redis, auth
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2-db-red-auth.sh
-      - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*, auth, gateway-lib
+      - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*, gateway-lib
         run: sudo yarn unit-test
-        env:
-          CI: true
-      - run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
+      - name: clean-up
+        run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts

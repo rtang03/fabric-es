@@ -2,7 +2,6 @@ import cookieParser from 'cookie-parser';
 import errorHandler from 'errorhandler';
 import express from 'express';
 import { Redis } from 'ioredis';
-import morgan from 'morgan';
 import passport from 'passport';
 import { ConnectionOptions, createConnection } from 'typeorm';
 import {
@@ -36,19 +35,22 @@ export const createHttpServer: (option: {
     console.error(e);
     process.exit(1);
   }
+
   const tokenRepo = createTokenRepo({ redis, jwtExpiryInSec });
+
   const refreshTokenRepo = createRefreshTokenRepo({ redis, refTokenExpiryInSec });
 
   const app = express();
-  app.use(morgan('dev'));
   app.use(express.json());
   app.use(cookieParser());
   app.use(express.urlencoded({ extended: false }));
   app.use(errorHandler());
   app.use(passport.initialize());
-  setupPassport({ tokenRepo });
 
+  setupPassport({ tokenRepo });
+  app.get('/oauth/authenticate/ping', (_, res) => res.status(200).send({ data: 'pong' }));
   app.use('/api_key', createApiKeyRoute());
+
   app.use('/client', createClientRoute());
   app.use(
     '/oauth',
@@ -68,9 +70,8 @@ export const createHttpServer: (option: {
       jwtExpiryInSec,
       tokenRepo,
       refreshTokenRepo,
-      refTokenExpiryInSec
+      refTokenExpiryInSec,
     })
   );
-
   return app;
 };

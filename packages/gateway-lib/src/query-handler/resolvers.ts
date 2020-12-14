@@ -48,22 +48,22 @@ const parseNotifications: (data: Record<string, string>[]) => Notification[] = (
     'commitId'
   ).reverse();
 
-export const resolvers: Resolvers = {
+export const resolvers = {
   Mutation: {
     ping: async (_, { message }, { pubSub }: QueryHandlerGqlCtx) => {
       await pubSub.publish(DEV, { pong: message });
       return true;
     },
-    reloadEntities: catchErrors(
+    reloadEntities: catchErrors<boolean>(
       async (
         _,
         { entityNames }: { entityNames: string[] },
         { publisher, queryHandler }: QueryHandlerGqlCtx
-      ) => {
+      ): Promise<boolean> => {
         await rebuildIndex(publisher, logger);
 
         await reconcile(entityNames, queryHandler, logger);
-        return true;
+        return Promise.resolve(true);
       },
       { fcnName: 'reloadEntity', useAuth: true, useAdmin: true, logger }
     ),

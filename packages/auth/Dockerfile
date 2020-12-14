@@ -1,5 +1,7 @@
 FROM node:12.16.0-alpine
 
+LABEL org.opencontainers.image.source https://github.com/rtang03/fabric-es
+
 ENV TIME_ZONE=Asia/Hong_Kong \
     ENV_NAME=production \
     NODE_ENV=production \
@@ -18,7 +20,6 @@ RUN apk add --no-cache postgresql-client \
   && echo "Asia/Hong_Kong" > /etc/timezone \
   && cd /home/app \
   && npm install --production  \
-  && npm -g add pm2 \
   && apk del .build-deps
 
 USER node
