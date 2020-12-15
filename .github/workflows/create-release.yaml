@@ -11,6 +11,8 @@ env:
   GW_1: gw-org1
   GW_2: gw-org2
   TESTER: tester
+  UI_1: ui-control-org1
+  UI_2: ui-control-org2
   RELAY_1: rl-org1
   RELAY_2: rl-org2
   RELAY_3: rl-org3
@@ -104,6 +106,34 @@ jobs:
           [ "$VERSION" == "$default-branch" ] && VERSION=latest
           docker tag fabric-es/$TESTER $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+      - name: Push ui-control-org1 to GCR
+        run: |
+          set -x
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$UI_1
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [ "$VERSION" == "$default-branch" ] && VERSION=latest
+          docker tag fabric-es/$UI_1 $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+      - name: Push ui-control-org2 to GCR
+        run: |
+          set -x
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$UI_2
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [ "$VERSION" == "$default-branch" ] && VERSION=latest
+          docker tag fabric-es/$UI_2 $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+      - name: Cleanup artifacts
+        run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
+      - name: Cleanup data volume
+        run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/volume
+      - name: Make dev-net asset
+        run: |
+          set -x
+          tar -czvf dev-net.tar.gz /home/runner/work/fabric-es/fabric-es/deployments/dev-net
       - name: Create Release
         uses: docker://antonyurchenko/git-release:latest
         env:
@@ -113,7 +143,6 @@ jobs:
           CHANGELOG_FILE: "none"
           ALLOW_EMPTY_CHANGELOG: "true"
           ALLOW_TAG_PREFIX: "true"
-      - name: Cleanup artifacts
-        run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
-      - name: Cleanup data volume
-        run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/volume
+        with:
+          args: |
+            dev-net.tar.gz

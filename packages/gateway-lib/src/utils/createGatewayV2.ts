@@ -7,6 +7,7 @@ import express from 'express';
 import httpStatus from 'http-status';
 import pick from 'lodash/pick';
 import fetch from 'node-fetch';
+import winston from 'winston';
 import { getLogger } from './getLogger';
 import { pm2Connect, pm2List } from './promisifyPm2';
 import { isAuthResponse } from './typeGuard';
@@ -18,6 +19,18 @@ class AuthenticatedDataSource extends RemoteGraphQLDataSource {
     if (context?.is_admin) request.http.headers.set('is_admin', context.is_admin);
   }
 }
+
+// return pm2 status of underlying micro-services
+const getProcessDescriptions = (logger: winston.Logger) =>
+  pm2List(logger)
+    .then<{ proc: any[] }>((desc) => ({
+      proc: desc.map(({ name, pm2_env, monit }) => ({
+        name,
+        monit,
+        ...pick(pm2_env, 'status', 'unstable_restarts', 'pm_uptime', 'instances', 'restart_time'),
+      })),
+    }))
+    .catch((err) => ({ proc: [], error: util.format('unknown err: %j', err) }));
 
 export const createGatewayV2: (option: {
   serviceList?: any;
@@ -53,6 +66,8 @@ export const createGatewayV2: (option: {
     context: async ({ req: { headers } }) => {
       const token = headers?.authorization?.split(' ')[1] || null;
 
+      logger.debug(`token: ${token}`);
+
       if (!token) return {};
 
       try {
@@ -60,6 +75,8 @@ export const createGatewayV2: (option: {
           method: 'POST',
           headers: { authorization: `Bearer ${token}` },
         });
+
+        logger.debug(`authenticaionCheck response: ${response}`);
 
         if (response.status !== httpStatus.OK) {
           logger.warn(
@@ -84,6 +101,7 @@ export const createGatewayV2: (option: {
   });
 
   const app = express();
+
   app.use(express.urlencoded({ extended: false }));
 
   app.get('/ping', (_, res) => res.status(200).send({ data: 'pong' }));
@@ -98,26 +116,23 @@ export const createGatewayV2: (option: {
     });
   else server.applyMiddleware({ app });
 
+  await pm2Connect(logger);
+
   // check auth-server is alive
   const onHealthCheck = async () => {
     // ping auth-server
     const authCheck = await fetch(`${authenticationCheck}/ping`)
       .then<{ auth: string }>((response) =>
-        response.status === httpStatus.OK ? { auth: 'ok' } : { auth: response.status.toString() }
+        response.status === httpStatus.OK ? { auth: 'ok' } : { auth: `${response.status}` }
       )
       .catch((err) => ({ auth: util.format('unknown err: %j', err) }));
 
+    logger.debug(`authCheck response onHealthCheck: ${authCheck}`);
+
     // pm2 processes
-    await pm2Connect(logger);
-    const processes = await pm2List(logger)
-      .then<{ proc: any[] }>((desc) => ({
-        proc: desc.map(({ name, pm2_env, monit }) => ({
-          name,
-          monit,
-          ...pick(pm2_env, 'status', 'unstable_restarts', 'pm_uptime', 'instances', 'restart_time'),
-        })),
-      }))
-      .catch((err) => ({ proc: [], error: util.format('unknown err: %j', err) }));
+    const processes = await getProcessDescriptions(logger);
+
+    logger.debug(util.format('pm2 processes: %j', processes));
 
     const pm2Check = {
       pm2: processes.proc.reduce<boolean>((pre, { status }) => status === 'online' && pre, true)
@@ -133,8 +148,11 @@ export const createGatewayV2: (option: {
   };
 
   const onSignal = () =>
-    new Promise((resolve) => {
+    new Promise(async (resolve) => {
       logger.info('〽️  gateway is going to shut down');
+
+      const processes = await getProcessDescriptions(logger);
+      logger.info(util.format('pm2: %j', processes));
       resolve();
     });
 
@@ -149,7 +167,7 @@ export const createGatewayV2: (option: {
   return terminus.createTerminus(http.createServer(app), {
     timeout: 3000,
     logger: console.log,
-    signals: ['SIGINT', 'SIGTERM'],
+    signals: ['SIGINT', 'SIGTERM', 'SIGKILL'],
     healthChecks: {
       '/healthcheck': onHealthCheck,
     },
