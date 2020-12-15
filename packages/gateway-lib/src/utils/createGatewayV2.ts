@@ -167,7 +167,7 @@ export const createGatewayV2: (option: {
   return terminus.createTerminus(http.createServer(app), {
     timeout: 3000,
     logger: console.log,
-    signals: ['SIGINT', 'SIGTERM', 'SIGKILL'],
+    signals: ['SIGINT', 'SIGTERM'],
     healthChecks: {
       '/healthcheck': onHealthCheck,
     },
