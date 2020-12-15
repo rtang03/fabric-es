@@ -6,18 +6,24 @@
 
 **Implemented enhancements:**
 
-- enhanced logger.debug [\#158](https://github.com/rtang03/fabric-es/issues/158)
+- create release artifact "dev-net" [\#162](https://github.com/rtang03/fabric-es/issues/162)
+- create "ui-control" image in create-release workflow [\#161](https://github.com/rtang03/fabric-es/issues/161)
+
+**Closed issues:**
+
+- \(postponed\) upgrade RediSearch from v1.8.3 to v2.0 [\#160](https://github.com/rtang03/fabric-es/issues/160)
 
 **Merged pull requests:**
 
-- refactor: add debug message to enrolAdmin [\#159](https://github.com/rtang03/fabric-es/pull/159) ([rtang03](https://github.com/rtang03))
+- feat: add ui-control to create-release [\#163](https://github.com/rtang03/fabric-es/pull/163) ([rtang03](https://github.com/rtang03))
 
-## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-08)
+## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-12)
 
 [Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.0...v0.7.1)
 
 **Implemented enhancements:**
 
+- enhanced logger.debug [\#158](https://github.com/rtang03/fabric-es/issues/158)
 - add /healthcheck probe to gateway-lib [\#156](https://github.com/rtang03/fabric-es/issues/156)
 - add /healthcheck probe to auth-server [\#147](https://github.com/rtang03/fabric-es/issues/147)
 - GitHub action enhancements [\#140](https://github.com/rtang03/fabric-es/issues/140)
@@ -40,11 +46,13 @@
 
 **Merged pull requests:**
 
+- refactor: add debug message to enrolAdmin [\#159](https://github.com/rtang03/fabric-es/pull/159) ([rtang03](https://github.com/rtang03))
 - feat: add /healthcheck to gw-orgX [\#157](https://github.com/rtang03/fabric-es/pull/157) ([rtang03](https://github.com/rtang03))
 - chore: restrict changelog to master [\#155](https://github.com/rtang03/fabric-es/pull/155) ([rtang03](https://github.com/rtang03))
 - fix: run 2org integration test during create-release [\#154](https://github.com/rtang03/fabric-es/pull/154) ([rtang03](https://github.com/rtang03))
 - feat: multiple important updates and bug fixes [\#149](https://github.com/rtang03/fabric-es/pull/149) ([rtang03](https://github.com/rtang03))
-- attempt a clean run after using auto changelog [\#146](https://github.com/rtang03/fabric-es/pull/146) ([rtang03](https://github.com/rtang03))
+- test: attempt a clean run after using auto changelog [\#146](https://github.com/rtang03/fabric-es/pull/146) ([rtang03](https://github.com/rtang03))
+- chore: debug changelog.yaml [\#145](https://github.com/rtang03/fabric-es/pull/145) ([rtang03](https://github.com/rtang03))
 - chore: attempt changelog.yaml [\#144](https://github.com/rtang03/fabric-es/pull/144) ([rtang03](https://github.com/rtang03))
 - feat: enhance GitHub Actions [\#141](https://github.com/rtang03/fabric-es/pull/141) ([rtang03](https://github.com/rtang03))
 - refactor: handle multipart form fields with content types [\#139](https://github.com/rtang03/fabric-es/pull/139) ([pangduckwai](https://github.com/pangduckwai))
@@ -73,7 +81,6 @@
 
 **Merged pull requests:**
 
-- chore: debug changelog.yaml [\#145](https://github.com/rtang03/fabric-es/pull/145) ([rtang03](https://github.com/rtang03))
 - Fix issue with logging to files [\#136](https://github.com/rtang03/fabric-es/pull/136) ([pangduckwai](https://github.com/pangduckwai))
 - Tester enhancements [\#135](https://github.com/rtang03/fabric-es/pull/135) ([pangduckwai](https://github.com/pangduckwai))
 - Improve key fields tagging for pboc/etc, improve logging [\#134](https://github.com/rtang03/fabric-es/pull/134) ([pangduckwai](https://github.com/pangduckwai))
@@ -110,6 +117,10 @@
 
 [Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.6.3...v0.6.4)
 
+**Implemented enhancements:**
+
+- merge 0.6.3 [\#103](https://github.com/rtang03/fabric-es/pull/103) ([rtang03](https://github.com/rtang03))
+
 **Merged pull requests:**
 
 - Sniffing [\#106](https://github.com/rtang03/fabric-es/pull/106) ([pangduckwai](https://github.com/pangduckwai))
@@ -142,7 +153,6 @@
 - enhance proxy server [\#46](https://github.com/rtang03/fabric-es/issues/46)
 - finishing the current sprint by creating 0.6.2 release [\#42](https://github.com/rtang03/fabric-es/issues/42)
 - Query-Handler implementation [\#20](https://github.com/rtang03/fabric-es/issues/20)
-- merge 0.6.3 [\#103](https://github.com/rtang03/fabric-es/pull/103) ([rtang03](https://github.com/rtang03))
 - interim changes for caliper [\#96](https://github.com/rtang03/fabric-es/pull/96) ([rtang03](https://github.com/rtang03))
 - ui-control is done [\#93](https://github.com/rtang03/fabric-es/pull/93) ([rtang03](https://github.com/rtang03))
 - add createWallet to ui-control [\#89](https://github.com/rtang03/fabric-es/pull/89) ([rtang03](https://github.com/rtang03))
