@@ -1,6 +1,6 @@
 {
   "name": "fabric-es",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "license": "BSD-3-Clause-Clear",
   "scripts": {
     "cp:root": "rimraf .build && mkdir -p ./.build && cp ./package.json .build",
