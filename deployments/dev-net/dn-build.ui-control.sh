@@ -35,7 +35,7 @@ do
   set -x
   DOCKER_BUILD=1 docker build --no-cache -t $UI_IMAGE .
   res=$?
-  docker tag $UI_IMAGE fabric-es/${UI_CONTROL_IMAGE}-${ORG}
+  docker tag $UI_IMAGE ${UI_CONTROL_IMAGE}-${ORG}
   set +x
   printMessage "Create ui-control image" $res
   sleep 1
