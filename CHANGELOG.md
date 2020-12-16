@@ -6,23 +6,20 @@
 
 **Implemented enhancements:**
 
-- create release artifact "dev-net" [\#162](https://github.com/rtang03/fabric-es/issues/162)
-- create "ui-control" image in create-release workflow [\#161](https://github.com/rtang03/fabric-es/issues/161)
-
-**Closed issues:**
-
-- \(postponed\) upgrade RediSearch from v1.8.3 to v2.0 [\#160](https://github.com/rtang03/fabric-es/issues/160)
+- reduce ui-control image size [\#164](https://github.com/rtang03/fabric-es/issues/164)
 
 **Merged pull requests:**
 
-- feat: add ui-control to create-release [\#163](https://github.com/rtang03/fabric-es/pull/163) ([rtang03](https://github.com/rtang03))
+- chore: reduce image size [\#165](https://github.com/rtang03/fabric-es/pull/165) ([rtang03](https://github.com/rtang03))
 
-## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-12)
+## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-15)
 
 [Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.0...v0.7.1)
 
 **Implemented enhancements:**
 
+- create release artifact "dev-net" [\#162](https://github.com/rtang03/fabric-es/issues/162)
+- create "ui-control" image in create-release workflow [\#161](https://github.com/rtang03/fabric-es/issues/161)
 - enhanced logger.debug [\#158](https://github.com/rtang03/fabric-es/issues/158)
 - add /healthcheck probe to gateway-lib [\#156](https://github.com/rtang03/fabric-es/issues/156)
 - add /healthcheck probe to auth-server [\#147](https://github.com/rtang03/fabric-es/issues/147)
@@ -38,6 +35,7 @@
 
 **Closed issues:**
 
+- \(postponed\) upgrade RediSearch from v1.8.3 to v2.0 [\#160](https://github.com/rtang03/fabric-es/issues/160)
 - replace fabric-client v1.4.x [\#151](https://github.com/rtang03/fabric-es/issues/151)
 - CI fails because of Nodejs version change in GH Action's ubuntu image [\#142](https://github.com/rtang03/fabric-es/issues/142)
 - Revamp reducer related types [\#131](https://github.com/rtang03/fabric-es/issues/131)
@@ -46,6 +44,7 @@
 
 **Merged pull requests:**
 
+- feat: add ui-control to create-release [\#163](https://github.com/rtang03/fabric-es/pull/163) ([rtang03](https://github.com/rtang03))
 - refactor: add debug message to enrolAdmin [\#159](https://github.com/rtang03/fabric-es/pull/159) ([rtang03](https://github.com/rtang03))
 - feat: add /healthcheck to gw-orgX [\#157](https://github.com/rtang03/fabric-es/pull/157) ([rtang03](https://github.com/rtang03))
 - chore: restrict changelog to master [\#155](https://github.com/rtang03/fabric-es/pull/155) ([rtang03](https://github.com/rtang03))
