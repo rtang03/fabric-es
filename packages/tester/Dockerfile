@@ -21,6 +21,7 @@ RUN apk add --no-cache curl \
   && cd /home/app \
   && npm install \
   && npm install -g jest \
+  && npm uninstall --save-dev prettier \
   && apk del .build-deps
 
 USER node
