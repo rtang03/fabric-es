@@ -2,6 +2,8 @@
 ![Create Release](https://github.com/rtang03/fabric-es/workflows/Create%20Release/badge.svg)
 ![Changelog](https://github.com/rtang03/fabric-es/workflows/Changelog/badge.svg)
 
+NOTE: README is out-of-date
+
 # Project Overview
 
 This project aims to provide event-driven architecture for Hyperledger Fabric projects. It shall offer technical capabilities

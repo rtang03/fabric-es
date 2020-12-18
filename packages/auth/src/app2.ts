@@ -108,6 +108,7 @@ const connection = {
       await psql.query('SELECT 1');
       response.psql = 'ready';
     } catch (err) {
+      logger.error(util.format('fail to run psql healthcheck, %j', err));
       response.psql = 'failed';
     }
 
