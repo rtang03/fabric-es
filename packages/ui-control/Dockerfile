@@ -13,10 +13,7 @@ COPY . .
 RUN npm install --production \
   && npx next telemetry disable \
   && npm run build \
-  && npm uninstall typescript rimraf @material-ui/core @material-ui/icons \
-  @material-ui/lab formik formik-material-ui formik-material-ui-lab @types/body-parser \
-  @types/cookie @types/cookie-parser @types/cors @types/csurf @types/errorhandler @types/express \
-  @types/lodash @types/morgan @types/node @types/react @types/react-dom @types/yup
+  && npm uninstall typescript rimraf
 
 CMD [ "npm", "start" ]
 

@@ -5,6 +5,8 @@
 
 NOTE: README is out-of-date
 
+NOTE: README is out-of-date
+
 # Project Overview
 
 This project aims to provide event-driven architecture for Hyperledger Fabric projects. It shall offer technical capabilities
