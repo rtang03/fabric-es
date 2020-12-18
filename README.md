@@ -1,6 +1,9 @@
 ![CI](https://github.com/rtang03/open-platform-dlt/workflows/CI/badge.svg?branch=master)
 ![Create Release](https://github.com/rtang03/fabric-es/workflows/Create%20Release/badge.svg)
 ![Changelog](https://github.com/rtang03/fabric-es/workflows/Changelog/badge.svg)
+[![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
+
+NOTE: README is out-of-date
 
 NOTE: README is out-of-date
 
