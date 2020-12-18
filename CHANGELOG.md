@@ -4,22 +4,18 @@
 
 [Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.1...HEAD)
 
-**Implemented enhancements:**
-
-- add /healthcheck probe to ui-control [\#166](https://github.com/rtang03/fabric-es/issues/166)
-- reduce ui-control image size [\#164](https://github.com/rtang03/fabric-es/issues/164)
-
 **Merged pull requests:**
 
-- feat: add /healthcheck probe to ui-control [\#167](https://github.com/rtang03/fabric-es/pull/167) ([rtang03](https://github.com/rtang03))
-- chore: reduce image size [\#165](https://github.com/rtang03/fabric-es/pull/165) ([rtang03](https://github.com/rtang03))
+- fix: ui-control images with correct dependency [\#168](https://github.com/rtang03/fabric-es/pull/168) ([rtang03](https://github.com/rtang03))
 
-## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-15)
+## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-18)
 
 [Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.0...v0.7.1)
 
 **Implemented enhancements:**
 
+- add /healthcheck probe to ui-control [\#166](https://github.com/rtang03/fabric-es/issues/166)
+- reduce ui-control image size [\#164](https://github.com/rtang03/fabric-es/issues/164)
 - create release artifact "dev-net" [\#162](https://github.com/rtang03/fabric-es/issues/162)
 - create "ui-control" image in create-release workflow [\#161](https://github.com/rtang03/fabric-es/issues/161)
 - enhanced logger.debug [\#158](https://github.com/rtang03/fabric-es/issues/158)
@@ -46,6 +42,8 @@
 
 **Merged pull requests:**
 
+- feat: add /healthcheck probe to ui-control [\#167](https://github.com/rtang03/fabric-es/pull/167) ([rtang03](https://github.com/rtang03))
+- chore: reduce image size [\#165](https://github.com/rtang03/fabric-es/pull/165) ([rtang03](https://github.com/rtang03))
 - feat: add ui-control to create-release [\#163](https://github.com/rtang03/fabric-es/pull/163) ([rtang03](https://github.com/rtang03))
 - refactor: add debug message to enrolAdmin [\#159](https://github.com/rtang03/fabric-es/pull/159) ([rtang03](https://github.com/rtang03))
 - feat: add /healthcheck to gw-orgX [\#157](https://github.com/rtang03/fabric-es/pull/157) ([rtang03](https://github.com/rtang03))
