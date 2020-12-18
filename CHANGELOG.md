@@ -6,10 +6,12 @@
 
 **Implemented enhancements:**
 
+- add /healthcheck probe to ui-control [\#166](https://github.com/rtang03/fabric-es/issues/166)
 - reduce ui-control image size [\#164](https://github.com/rtang03/fabric-es/issues/164)
 
 **Merged pull requests:**
 
+- feat: add /healthcheck probe to ui-control [\#167](https://github.com/rtang03/fabric-es/pull/167) ([rtang03](https://github.com/rtang03))
 - chore: reduce image size [\#165](https://github.com/rtang03/fabric-es/pull/165) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-15)
