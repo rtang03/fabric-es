@@ -24,13 +24,11 @@ const bbfLink = new HttpLink({
 // Also, process.env.QH_EXTERNAL_HOST will be available to browser, via .env.local
 
 const queryHandlerLink = new HttpLink({
-  uri: process.env.NEXT_PUBLIC_QH_EXTERNAL_HOST || process.env.QH_EXTERNAL_HOST,
-  // uri: process.env.QH_EXTERNAL_HOST || 'http://localhost:5001/graphql',
+  uri: process.env.NEXT_PUBLIC_QH_EXTERNAL_HOST || process.env.QH_EXTERNAL_HOST || 'http://localhost:5001/graphql',
 });
 
 const gatewayLink = new HttpLink({
-  uri: process.env.NEXT_PUBLIC_GW_ORG_EXTERNAL_HOST || process.env.GW_ORG_EXTERNAL_HOST,
-  // uri: process.env.GW_ORG_EXTERNAL_HOST || 'http://localhost:4001/graphql',
+  uri: process.env.NEXT_PUBLIC_GW_ORG_EXTERNAL_HOST || process.env.GW_ORG_EXTERNAL_HOST || 'http://localhost:4001/graphql',
 });
 
 const condition = (dest: string) => ({ getContext }: Operation) => getContext().backend === dest;
