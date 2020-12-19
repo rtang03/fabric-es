@@ -14,16 +14,9 @@ import type { ApolloContext } from '../types';
 import { getLogger } from '../utils';
 import { schema } from './schema';
 
-export const ENV = {
-  AUTH_HOST: process.env.AUTH_HOST as string,
-  NODE_ENV: process.env.NODE_ENV as string,
-  GW_ORG_INTERNAL_HOST: process.env.GW_ORG_INTERNAL_HOST as string,
-  GW_ORG_EXTERNAL_HOST: process.env.GW_ORG_EXTERNAL_HOST as string,
-  QH_EXTERNAL_HOST: process.env.QH_EXTERNAL_HOST as string,
-  PORT: (process.env.PORT as string) || '3000',
-};
 const logger = getLogger({ name: '[ui-control] index.js' });
-const dev = ENV.NODE_ENV !== 'production';
+const authUri = process.env.AUTH_HOST as string;
+const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 const port = parseInt(process.env.PORT || '3000', 10);
@@ -36,13 +29,20 @@ const apolloServer = new ApolloServer({
     const _accessToken = authorization?.split(' ')[1];
     const accessToken = _accessToken === 'null' ? undefined : _accessToken;
 
-    return { res, accessToken, refreshToken, authUri: ENV.AUTH_HOST } as ApolloContext;
+    return { res, accessToken, refreshToken, authUri } as ApolloContext;
   },
 });
 
 app
   .prepare()
   .then(() => {
+    if (!authUri) {
+      logger.error('environment variable $AUTH_HOST is empty');
+      process.exit(1);
+    }
+
+    logger.debug(util.format('Env - $AUTH_HOST: %s', authUri));
+
     const server = express();
     server.use(cookieParser());
     server.use(express.json());
@@ -63,15 +63,16 @@ app
       });
 
     const onHealthCheck = async () => {
-      const auth = await fetch(`${ENV.AUTH_HOST}/oauth/authenticate/ping`)
+      const url = `${authUri}/oauth/authenticate/ping`;
+      const result = await fetch(url)
         .then((res) => (res.status === httpStatus.OK ? { auth: 'ok' } : { auth: `${res.status}` }))
-        .catch((err) => ({ auth: util.format('unknown err: %j', err) }));
+        .catch((err) => ({ auth: util.format('url: %s, unknown err: %j', url, err) }));
 
-      logger.debug(util.format('onHealthCheck ${ENV.AUTH_HOST}/oauth/authenticate/ping: %j', auth));
+      logger.debug(util.format('onHealthCheck %s: %j', url, result));
 
-      return auth.auth === 'ok'
-        ? Promise.resolve(auth)
-        : Promise.reject(new Error(util.format('checks: %j', auth)));
+      return result.auth === 'ok'
+        ? Promise.resolve(result)
+        : Promise.reject(new Error(util.format('checks: %j', result)));
     };
 
     const onSignal = () =>
