@@ -72,6 +72,12 @@ jobs:
       # Second, unit for other components
       - name: deploy base 2-org fabric v2.1 network with proxy, postgres, redis, auth
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2-db-red-auth.sh
+      - name: debug
+        run: |
+          set -x
+          docker ps -a
+          docker logs eventstore-cc1
+          docker logs peer0-org1
       - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*, gateway-lib
         run: sudo yarn unit-test
       - name: clean-up
