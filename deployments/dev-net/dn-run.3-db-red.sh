@@ -13,6 +13,7 @@ parseArgs $0 "$@"
 
 # STEP 1
 ./bootstrap.sh "$COMPOSE_3_S" "org0" "org1 org2 org3"
+printMessage "bootstrap script" $?
 
 # STEP 2
 docker-compose $COMPOSE_3_S up -d

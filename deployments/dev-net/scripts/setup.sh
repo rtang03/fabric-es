@@ -17,11 +17,10 @@ export TEST_IMAGE=fabric-es/tester:${RELEASE}
 export PROXY_IMAGE=fabric-es/proxy:${RELEASE}
 export UI_CONTROL_IMAGE=fabric-es/ui-control
 export ROOT_DIR=$CURRENT_DIR/../..
+export CC_IMAGE=ghcr.io/rtang03/eventstore-cc:0.0.3
 
 export LOG_LEVEL=info
 export LOG_TARGET=console
-
-export CHAINCODE=$ROOT_DIR/packages/chaincode
 
 export LIBS_DIR=$ROOT_DIR/node_modules
 export CONF_DIR=$CURRENT_DIR/build.
@@ -50,6 +49,10 @@ export CMP_1_RLY="-f compose.1org.rl.yaml"
 export CMP_2_RLY="$CMP_1_RLY -f compose.2org.rl.yaml"
 export CMP_3_RLY="$CMP_2_RLY -f compose.3org.rl.yaml"
 export CMP_RTEST="-f compose.3org.rltest.yaml"
+export CMP_1_CC="-f compose.cc.org1.yaml"
+export CMP_2_CC="-f compose.cc.org2.yaml"
+export CMP_3_CC="-f compose.cc.org3.yaml"
+export COMPOSE_CC="$CMP_1_CC $CMP_2_CC $CMP_3_CC"
 
 export COMPOSE_0_S_A="$COMPOSE_0_S $CMP_1_ATH"
 export COMPOSE_0_S_A_U="$COMPOSE_0_S_A $CMP_1_UIA"
@@ -81,7 +84,7 @@ export COMPOSE_3_S_A_G_T="$COMPOSE_3_S_A_G -f compose.3org.gwtest.yaml"
 export COMPOSE_3_S_A_R="$COMPOSE_3_S_A $CMP_3_RLY"
 export COMPOSE_3_S_A_R_T="$COMPOSE_3_S_A_R $CMP_RTEST"
 
-export COMPOSE_ALL="$COMPOSE_3_S_A_G_T $CMP_3_UIA $COMPOSE_3_NGX $CMP_3_RLY $CMP_RTEST"
+export COMPOSE_ALL="$COMPOSE_3_S_A_G_T $CMP_3_UIA $COMPOSE_3_NGX $CMP_3_RLY $CMP_RTEST $COMPOSE_CC"
 
 # $1 - message to be printed
 # $2 - exit code of the previous operation

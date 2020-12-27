@@ -1,0 +1,16 @@
+version: '2'
+
+networks:
+  openplatform:
+
+services:
+  eventstore-cc2:
+    image: "${CC_IMAGE}"
+    container_name: eventstore-cc2
+    environment:
+      - CHAINCODE_ADDRESS="0.0.0.0:7252"
+      - CHAINCODE_CCID
+    ports:
+      - 7252:7252
+    networks:
+      - openplatform

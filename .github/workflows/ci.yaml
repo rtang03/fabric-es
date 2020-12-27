@@ -21,7 +21,7 @@ jobs:
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
-      - uses: actions/cache@v1
+      - uses: actions/cache@v2
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -29,15 +29,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - name: Setup Node.js for use with action
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-        uses: actions/setup-node@v2-beta
+#        env:
+#          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+        uses: actions/setup-node@v2
         with:
           node-version: '12.16.1'
           check-latest: true
       - name: yarn install
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+#        env:
+#          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         run: |
           # see https://github.com/rtang03/fabric-es/issues/142
           curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
@@ -61,7 +61,7 @@ jobs:
         run: yarn tsc:all
       - name: build images for proxy, auth-server, ui-account
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh
-        # run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.auth.sh && ./dn-build.ui-control.sh org1 org2
+      # First, unit test for auth-server only
       - name: deploy base 0-org fabric v2.1 network with proxy, postgres, redis
         run: |
           set -x
@@ -69,8 +69,9 @@ jobs:
           docker exec postgres01 psql -U postgres --list
       - name: Run unit tests for auth-server
         run: cd packages/auth && sudo yarn unit-test:fab
+      # Second, unit for other components
       - name: deploy base 2-org fabric v2.1 network with proxy, postgres, redis, auth
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2-db-red-auth.sh
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && sudo ./dn-run.2-db-red-auth.sh
       - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*, gateway-lib
         run: sudo yarn unit-test
       - name: clean-up

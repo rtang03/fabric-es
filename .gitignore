@@ -74,8 +74,6 @@ wallet/
 
 .DS_Store
 
-docs
-
 authentication-server/.env
 artifacts
 .build

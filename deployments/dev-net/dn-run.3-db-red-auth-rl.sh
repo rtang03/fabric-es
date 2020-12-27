@@ -15,6 +15,7 @@ if [[ "$COMPOSE" == "0" ]]; then
 
   # STEP 1
   ./bootstrap.sh "$COMPOSE_3_S" "org0" "org1 org2 org3"
+  printMessage "bootstrap script" $?
 fi
 
 # STEP 2
