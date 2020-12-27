@@ -71,7 +71,7 @@ jobs:
         run: cd packages/auth && sudo yarn unit-test:fab
       # Second, unit for other components
       - name: deploy base 2-org fabric v2.1 network with proxy, postgres, redis, auth
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.2-db-red-auth.sh
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && sudo ./dn-run.2-db-red-auth.sh
       - name: debug
         run: |
           set -x
