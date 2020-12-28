@@ -9,8 +9,13 @@
 - migrate to external chaincode launcher - refactor dev-net [\#171](https://github.com/rtang03/fabric-es/issues/171)
 - migrate to external chaincode launcher - new chaincode repo [\#170](https://github.com/rtang03/fabric-es/issues/170)
 
+**Closed issues:**
+
+- detach auth-server to separate repo [\#176](https://github.com/rtang03/fabric-es/issues/176)
+
 **Merged pull requests:**
 
+- refactor: remove auth-server [\#177](https://github.com/rtang03/fabric-es/pull/177) ([rtang03](https://github.com/rtang03))
 - refactor: change to external cc launcher [\#175](https://github.com/rtang03/fabric-es/pull/175) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-19)
@@ -216,6 +221,7 @@
 - Backporting docker image building scripts [\#33](https://github.com/rtang03/fabric-es/pull/33) ([pangduckwai](https://github.com/pangduckwai))
 - Use release versions as dev-net docker image versions [\#32](https://github.com/rtang03/fabric-es/pull/32) ([pangduckwai](https://github.com/pangduckwai))
 - Merge projectionDb search changes from 0.5.16 to master [\#30](https://github.com/rtang03/fabric-es/pull/30) ([pangduckwai](https://github.com/pangduckwai))
+- Update the GCP deployment of gw-org1, gw-org2, and auth-servers for release v0.6.1 [\#29](https://github.com/rtang03/fabric-es/pull/29) ([hohowin](https://github.com/hohowin))
 - V2dn3org [\#25](https://github.com/rtang03/fabric-es/pull/25) ([pangduckwai](https://github.com/pangduckwai))
 
 **Fixed bugs:**
