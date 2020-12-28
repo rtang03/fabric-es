@@ -345,7 +345,6 @@ docker exec \
   -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${FIRST_NAME}MSP/admin/msp \
   cli peer lifecycle chaincode querycommitted --channelID loanapp
 printMessage "querycommitted" $?
-sleep 1
 
 printf "\n##################"
 printf "\n# Init CHAINCODE #"
