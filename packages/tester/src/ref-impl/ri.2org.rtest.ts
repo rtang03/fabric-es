@@ -597,7 +597,7 @@ const runTest = (idx: number, run: string, test: string, user1: string, token1: 
 
     const testFinish = Date.now();
     const elapsed = (testFinish - testStarts) / 1000;
-    console.log(`[Test run ${run}][#${test}] Finished, total elapsed time: ${elapsed}s | read elapsed time: ${elapsed9/1000}`);
+    console.log(`[Test run ${run}][#${test}] Finished, total elapsed time: ${elapsed}s | read elapsed time: ${elapsed9/1000}s`);
     resolve({ results: [loanId, ...docIds], elapsed });
   });
 };
