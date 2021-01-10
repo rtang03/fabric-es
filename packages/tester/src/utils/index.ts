@@ -4,6 +4,8 @@ import fetch from 'node-fetch';
 //   New, Updated, Accepted, Rejected, Cancelled, Transferred
 // };
 
+export * from './getLogger';
+
 export const query = (url: string, queryName: string, queryStr: string, search: string, token: string) => {
   return new Promise<any>(async (resolve, reject) => {
     try {

@@ -12,7 +12,8 @@
     "test:program": "jest program.test",
     "test:regex": "jest regex.test",
     "rtest:relay": "node ./dist/relay/relay.rtest.js",
-    "ptest:fab": "node ./dist/fab/fab.ptest.js"
+    "ptest:fab": "node ./dist/fab/fab.ptest.js",
+    "rtest:ri2": "node ./dist/ref-impl/ri.2org.rtest.js"
   },
   "private": true,
   "dependencies": {

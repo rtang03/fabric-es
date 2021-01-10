@@ -4,7 +4,7 @@ import https from 'https';
 import axios from 'axios';
 import FormData from 'form-data';
 import fetch from 'node-fetch';
-import { getLogger } from './getLogger';
+import { getLogger } from '../utils';
 import { getTestData, QUERY } from './mockUtils';
 
 const logger = getLogger('[tester] relay.rtest.js');
