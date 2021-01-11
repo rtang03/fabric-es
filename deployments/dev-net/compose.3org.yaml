@@ -46,6 +46,8 @@ services:
     volumes:
       - /var/run:/host/var/run
       - $ARTIFACTS:/var/artifacts
+      - $CONFIG/bin:/builders/external/bin
+      - ./core.yaml:/etc/hyperledger/fabric/core.yaml
     ports:
       - 7451:7451
       - 7453:7453

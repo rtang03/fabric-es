@@ -11,6 +11,8 @@ env:
   GW_1: gw-org1
   GW_2: gw-org2
   TESTER: tester
+  UI_1: ui-control-org1
+  UI_2: ui-control-org2
   RELAY_1: rl-org1
   RELAY_2: rl-org2
   RELAY_3: rl-org3
@@ -25,7 +27,7 @@ jobs:
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
-      - uses: actions/cache@v1
+      - uses: actions/cache@v2
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -33,8 +35,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - name: Setup Node.js for use with action
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+#        env:
+#          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         uses: actions/setup-node@v2-beta
         with:
           node-version: '12.16.1'
@@ -58,19 +60,6 @@ jobs:
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-test.gw-2.sh
       - name: Log into GitHub Container Registry
         run: echo "${{ secrets.CREATE_PACKAGE }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
-      - name: Push auth-server to GCR
-        run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$AUTH_IMAGE
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "$default-branch" ] && VERSION=latest
-          docker tag $AUTH_IMAGE $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
       - name: Push GW-1 to GCR
         run: |
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$GW_1
@@ -104,6 +93,34 @@ jobs:
           [ "$VERSION" == "$default-branch" ] && VERSION=latest
           docker tag fabric-es/$TESTER $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+      - name: Push ui-control-org1 to GCR
+        run: |
+          set -x
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$UI_1
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [ "$VERSION" == "$default-branch" ] && VERSION=latest
+          docker tag fabric-es/$UI_1 $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+      - name: Push ui-control-org2 to GCR
+        run: |
+          set -x
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$UI_2
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [ "$VERSION" == "$default-branch" ] && VERSION=latest
+          docker tag fabric-es/$UI_2 $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+      - name: Cleanup artifacts
+        run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
+      - name: Cleanup data volume
+        run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/volume
+      - name: Make dev-net asset
+        run: |
+          set -x
+          tar -czvf dev-net.tar.gz /home/runner/work/fabric-es/fabric-es/deployments/dev-net
       - name: Create Release
         uses: docker://antonyurchenko/git-release:latest
         env:
@@ -113,7 +130,6 @@ jobs:
           CHANGELOG_FILE: "none"
           ALLOW_EMPTY_CHANGELOG: "true"
           ALLOW_TAG_PREFIX: "true"
-      - name: Cleanup artifacts
-        run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
-      - name: Cleanup data volume
-        run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/volume
+        with:
+          args: |
+            dev-net.tar.gz

@@ -8,10 +8,7 @@ export const pm2Connect = (logger: Logger) =>
       if (err) {
         logger.error(util.format('fail to connect pm2, %j', err));
         reject(new Error('fail to connect pm2'));
-      } else {
-        logger.info('connect pm2 daemon');
-        resolve(true);
-      }
+      } else resolve(true);
     });
   });
 

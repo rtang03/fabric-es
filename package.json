@@ -1,25 +1,23 @@
 {
   "name": "fabric-es",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "license": "BSD-3-Clause-Clear",
   "scripts": {
     "cp:root": "rimraf .build && mkdir -p ./.build && cp ./package.json .build",
     "tsc:lib": "lerna run tsc:prod --scope={@fabric-es/fabric-cqrs,@fabric-es/operator,@fabric-es/gateway-lib}",
     "tsc:all": "lerna run build",
-    "build:auth": "cd ./deployments/dev-net && ./build-auth.sh",
     "build:gw-dev-net:org1": "cd ./deployments/dev-net && ./build-gw.sh org1",
     "build:gw-dev-net:org2": "cd ./deployments/dev-net && ./build-gw.sh org2",
     "build:gw-dev-net:org3": "cd ./deployments/dev-net && ./build-gw.sh org3",
     "bootstrap:fab": "cd ./deployments/dev-net && ./dn-run.2.sh ",
     "build-run-test:fab": "cd ./deployments/dev-net && ./dn-test.2.sh",
     "shutdown": "cd ./deployments/dev-net && ./cleanup.sh",
-    "unit-test": "lerna run unit-test:fab --stream --scope={@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/operator,@fabric-es/model-*}",
-    "unit-test:auth": "cd packages/auth && yarn unit-test:fab",
-    "lint:lib": "lerna run lint --stream --scope={@fabric-es/auth,@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
+    "unit-test": "lerna run unit-test:fab --stream --scope={@fabric-es/fabric-cqrs,@fabric-es/operator,@fabric-es/model-*}",
+    "lint:lib": "lerna run lint --stream --scope={@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
     "lint:app": "lerna run lint --stream --scope={@fabric-es/gw-org*,@fabric-es/model-*,@fabric-es/ui-account,@fabric-es/ui-control}",
-    "publish:lib": "lerna run publish:gh:fabric-es --scope={@fabric-es/chaincode,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
+    "publish:lib": "lerna run publish:gh:fabric-es --scope={@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
     "version:patch": "lerna version patch",
-    "typedoc": "lerna run typedoc --scope={@fabric-es/auth,@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}"
+    "typedoc": "lerna run typedoc --scope={@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}"
   },
   "workspaces": [
     "packages/*"
