@@ -9,7 +9,7 @@ services:
     container_name: eventstore-cc3
     environment:
       - CHAINCODE_ADDRESS="0.0.0.0:7452"
-      - CHAINCODE_CCID
+      - CHAINCODE_CCID="${CHAINCODE_CCID_org3}"
     ports:
       - 7452:7452
     networks:

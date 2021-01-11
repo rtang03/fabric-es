@@ -31,7 +31,7 @@ services:
     environment:
       - CORE_PEER_ID=peer0-org3
       - CORE_PEER_ADDRESS=peer0-org3:7451
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:7451
+      - CORE_PEER_LISTENADDRESS=peer0-org3:7451
       - CORE_PEER_LOCALMSPID=Org3MSP
       - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/Org3MSP/peer0.org3.net/msp
       - CORE_PEER_TLS_CERT_FILE=/var/artifacts/crypto-config/Org3MSP/peer0.org3.net/tls-msp/signcerts/cert.pem

@@ -12,11 +12,11 @@ parseArgs $0 "$@"
 ./cleanup.sh $OPTION
 
 # STEP 1
-./bootstrap.sh "$COMPOSE_1_S" "org0" "org1"
+./bootstrap.sh "$COMPOSE_1" "org0" "org1"
 printMessage "bootstrap script" $?
 
 # STEP 2
-docker-compose $COMPOSE_1_S up -d
+docker-compose $COMPOSE_1_S up -d --no-recreate
 printMessage "docker-compose up $COMPOSE_1_S" $?
 containerWait "postgres01" "init process complete"
 
