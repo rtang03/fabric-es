@@ -16,7 +16,7 @@ parseArgs $0 "$@"
 ./bootstrap.sh "$COMPOSE_3" "org0" "org1 org2 org3"
 
 # STEP 2
-docker-compose $COMPOSE_3_S up -d
+docker-compose $COMPOSE_3_S up -d --no-recreate
 printMessage "docker-compose up $COMPOSE_3_S" $?
 containerWait "postgres01" "init process complete"
 containerWait "postgres02" "init process complete"

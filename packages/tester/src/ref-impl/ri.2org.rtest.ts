@@ -677,7 +677,7 @@ const runTest = (idx: number, run: string, test: string, user1: string, token1: 
         }
       }
       runsWait = Math.ceil(lastElapsedTimes.reduce((a, c) => a + c, 0) / lastElapsedTimes.length);
-      console.log(`[Test run ${run}][Elapsed time ${((Date.now() - runStarts)/1000).toFixed(3)}s] Completed with result: ${values.reduce((a, v) => a + v.results.length, 0)}`);
+      console.log(`[Test run ${run}][Elapsed time ${((Date.now() - runStarts)/1000).toFixed(3)}s] Completed # of tests: ${values.reduce((a, v) => a + v.results.length, 0)}`);
     })
     .catch(errors => {
       console.log(`[Test run ${run}][Elapsed time ${((Date.now() - runStarts)/1000).toFixed(3)}s] Error: ${errors}`);

@@ -19,7 +19,7 @@ fi
 
 if [[ "$TESTONLY" == "0" ]]; then
   # STEP 2
-  docker-compose $COMPOSE_3_S up -d
+  docker-compose $COMPOSE_3_S up -d --no-recreate
   printMessage "docker-compose up $COMPOSE_3_S" $?
   containerWait "postgres01" "init process complete"
   containerWait "postgres02" "init process complete"

@@ -1,0 +1,69 @@
+version: '2'
+
+networks:
+  openplatform:
+
+# Jest
+#services:
+# tester:
+#   environment:
+#     - TEST_OPTIONS=jest
+#     - TEST_TARGETS=gw-org1 4001 gw-org2 4001
+#   # - TEST_TARGETS=gw-org1 4001 gw-org2 4001 gw-org3 4001
+#     - LOG_LEVEL=$LOG_LEVEL
+#     - LOG_TARGET=$LOG_TARGET
+#   image: $TEST_IMAGE
+#   container_name: tester
+#   working_dir: /home/app
+#   networks:
+#     - openplatform
+
+# Ref Impl
+services:
+  tester:
+    environment:
+      - TEST_OPTIONS=ref-impl
+#     - TEST_TARGETS=gw-org1 4001 gw-org2 4001
+      - TEST_TARGETS=gw-org1 4001 gw-org2 4001 gw-org3 4001
+      - LOG_LEVEL=$LOG_LEVEL
+      - LOG_TARGET=$LOG_TARGET
+      - RUNS_NUM=5
+      - BATCH_NUM=10
+      - RUNS_WAIT=60
+      - READ_RETRY=10
+      - READ_WAIT=3000
+    image: $TEST_IMAGE
+    container_name: tester
+    working_dir: /home/app
+    networks:
+      - openplatform
+
+# Relay
+#services:
+# tester:
+#   environment:
+#     - TEST_OPTIONS=relay-pboc
+#     - TEST_TARGETS=$TARGET_URL
+#   # - SERVER_KEY=/var/keys/wildcard_etradeconnect.key
+#   # - SERVER_CERT=/var/keys/star_etradeconnect_net.cer
+#     - AUTH_ON=no
+#     - LOG_LEVEL=$LOG_LEVEL
+#     - LOG_TARGET=$LOG_TARGET
+#     - BATCH_NUM=10
+#     - RUNS_NUM=5000
+#     - RUNS_WAIT=65
+#     - READ_RETRY=100
+#     - READ_WAIT=3000
+#   # - STATS_DATA=/var/stats/data.log
+#   # - STATS_LOGS=/home/app/logs/app.log
+#     - ATTACHMENT_PATH=/home/app/files/
+#   image: $TEST_IMAGE
+#   container_name: tester
+#   working_dir: /home/app
+#   networks:
+#     - openplatform
+#   volumes:
+#     - $VOLUME/testers/stats/:/var/stats/
+#     - $VOLUME/testers/logs/:/home/app/logs/
+#   # - /Users/paul/cert/OV/:/var/keys/
+#     - /Users/paul/temp/:/home/app/files/

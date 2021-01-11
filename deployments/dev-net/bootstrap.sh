@@ -256,17 +256,14 @@ do
   printf "\n#####################################"
   printf "\n# DEPLOY CHAINCODE CONTAINER - $NAME #"
   printf "\n#####################################\n"
-  echo "Determining package ID"
   REGEX='Package ID: (.*), Label: eventstore'
   if [[ `${PEER_ORG} lifecycle chaincode queryinstalled` =~ $REGEX ]]; then
-    CHAINCODE_CCID=${BASH_REMATCH[1]}
-    eval "CHAINCODE_CCID_${ORG}"='${CHAINCODE_CCID}'
-    export "CHAINCODE_CCID_${ORG}"
+    export CHAINCODE_CCID=${BASH_REMATCH[1]}
   else
     echo "Could not find package ID"
     exit 1
   fi
-  printMessage "query packageId ${CHAINCODE_CCID}" $?
+  printMessage "determining package ID ${CHAINCODE_CCID}" $?
 
   CMP_CC="$CMP_CC -f compose.cc.${ORG}.yaml "
   docker-compose $1 $CMP_CC up -d --no-recreate
@@ -295,7 +292,9 @@ do
   printMessage "approveformyorg for eventstore for ${ORG}" $?
 done
 
-echo "Checkcommitreadiness for eventstore"
+printf "\n########################################"
+printf "\n# CHECK commit rediness for EVENTSTORE #"
+printf "\n########################################\n"
 docker exec \
   -e CORE_PEER_ADDRESS=${FIRST_PEER}-${FIRST_CODE}:${FIRST_PORT} \
   -e CORE_PEER_LOCALMSPID=${FIRST_NAME}MSP \
@@ -310,7 +309,7 @@ docker exec \
     --signature-policy "AND(${MEMBERS})" \
     --version 1.0 \
     --sequence 1
-printMessage "checkcommitreadiness for eventstore" $?
+printMessage "check commit readiness for EVENTSTORE" $?
 
 CMD_SFX=
 for ORG in $ORGLIST; do
