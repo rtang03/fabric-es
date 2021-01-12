@@ -120,9 +120,9 @@ docker exec \
     --tls --cafile /var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
 printMessage "Create channel" $?
 
-printf "\n###########################"
-printf "\n# JOIN CHANNEL - $FIRST_CODE"
-printf "\n###########################\n"
+printf "\n#######################"
+printf "\n# JOIN CHANNEL - $FIRST_NAME #"
+printf "\n#######################\n"
 
 docker exec \
   -e CORE_PEER_ADDRESS=${FIRST_PEER}-${FIRST_CODE}:${FIRST_PORT} \
@@ -142,9 +142,9 @@ do
   fi
 
   getConfig $ORG
-  printf "\n###########################"
-  printf "\n# JOIN CHANNEL - $NAME"
-  printf "\n###########################\n"
+  printf "\n#######################"
+  printf "\n# JOIN CHANNEL - $NAME #"
+  printf "\n#######################\n"
 
   docker exec cli sh -c "cp /var/artifacts/crypto-config/${FIRST_NAME}MSP/${FIRST_PEER}.${FIRST_DOMAIN}/assets/loanapp.block /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/assets"
   docker exec cli sh -c "mkdir -p ${CRYPTO}/${NAME}MSP/admin/msp/admincerts"
@@ -181,9 +181,9 @@ done
 for ORG in $ORGLIST
 do
   getConfig $ORG
-  printf "\n###########################"
-  printf "\n# UPDATE ANCHOR PEER - $NAME"
-  printf "\n###########################\n"
+  printf "\n#############################"
+  printf "\n# UPDATE ANCHOR PEER - $NAME #"
+  printf "\n#############################\n"
 
   docker exec -w /config -e FABRIC_CFG_PATH=/config cli \
    sh -c "configtxgen -profile OrgsChannel -outputAnchorPeersUpdate /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/assets/${NAME}Anchors.tx -channelID loanapp -asOrg ${NAME}MSP"
@@ -203,9 +203,10 @@ sleep 1
 
 for ORG in $ORGLIST
 do
-  printf "\n###################"
-  printf "\n# BUILD CHAINCODE #"
-  printf "\n###################\n"
+  getConfig $ORG
+  printf "\n##########################"
+  printf "\n# BUILD CHAINCODE - $NAME #"
+  printf "\n##########################\n"
   set -x
   cat $CONFIG/connection.${ORG}.json > $ARTIFACTS/connection.json
   res=$?
@@ -226,7 +227,6 @@ do
 
   cd $CURRENT_DIR && sleep 1
 
-  getConfig $ORG
   printf "\n############################"
   printf "\n# INSTALL CHAINCODE - $NAME #"
   printf "\n############################\n"
@@ -242,6 +242,7 @@ do
   sleep 1
 done
 
+CMP_CC=
 for ORG in $ORGLIST
 do
   getConfig $ORG
@@ -252,7 +253,9 @@ do
     -e CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${NAME}MSP/admin/msp
     cli peer"
 
-  echo "Determining package ID"
+  printf "\n#####################################"
+  printf "\n# DEPLOY CHAINCODE CONTAINER - $NAME #"
+  printf "\n#####################################\n"
   REGEX='Package ID: (.*), Label: eventstore'
   if [[ `${PEER_ORG} lifecycle chaincode queryinstalled` =~ $REGEX ]]; then
     export CHAINCODE_CCID=${BASH_REMATCH[1]}
@@ -260,12 +263,10 @@ do
     echo "Could not find package ID"
     exit 1
   fi
-  printMessage "query packageId ${CHAINCODE_CCID}" $?
+  printMessage "determining package ID ${CHAINCODE_CCID}" $?
 
-  printf "\n############################"
-  printf "\n# DEPLOY CHAINCODE CONTAINER - $NAME #"
-  printf "\n############################\n"
-  docker-compose $1 -f compose.cc.${ORG}.yaml up -d
+  CMP_CC="$CMP_CC -f compose.cc.${ORG}.yaml "
+  docker-compose $1 $CMP_CC up -d --no-recreate
 
   printf "\n############################"
   printf "\n# APPROVE CHAINCODE - $NAME #"
@@ -291,7 +292,9 @@ do
   printMessage "approveformyorg for eventstore for ${ORG}" $?
 done
 
-echo "Checkcommitreadiness for eventstore"
+printf "\n########################################"
+printf "\n# CHECK commit rediness for EVENTSTORE #"
+printf "\n########################################\n"
 docker exec \
   -e CORE_PEER_ADDRESS=${FIRST_PEER}-${FIRST_CODE}:${FIRST_PORT} \
   -e CORE_PEER_LOCALMSPID=${FIRST_NAME}MSP \
@@ -306,7 +309,7 @@ docker exec \
     --signature-policy "AND(${MEMBERS})" \
     --version 1.0 \
     --sequence 1
-printMessage "checkcommitreadiness for eventstore" $?
+printMessage "check commit readiness for EVENTSTORE" $?
 
 CMD_SFX=
 for ORG in $ORGLIST; do
@@ -371,8 +374,10 @@ sleep 1
 for ORG in $ORGLIST
 do
   getConfig $ORG
+  printf "\n###########################"
+  printf "\n# Invoke CHAINCODE - $NAME #"
+  printf "\n###########################\n"
 
-  # Invoke eventstore
   CMD="peer chaincode invoke \
       -o ${ORDERER_PEER}-${ORDERER_CODE}:${ORDERER_PORT} \
       -C loanapp -n eventstore \

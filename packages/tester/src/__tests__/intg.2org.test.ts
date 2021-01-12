@@ -18,7 +18,7 @@ import {
   UPDATE_DOC_CONTENTS,
   UPDATE_DOCUMENT,
   UPDATE_LOAN
-} from './queries';
+} from '../ref-impl/queries';
 
 const AUTH_REG_1 = `http://${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}/account`;
 const AUTH_LOG_1 = `http://${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}/account/login`;

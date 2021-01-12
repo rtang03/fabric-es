@@ -1,8 +1,13 @@
 require('dotenv').config({ path: './.env' });
 import fs from 'fs';
 import https from 'https';
+import axios from 'axios';
+import FormData from 'form-data';
 import fetch from 'node-fetch';
+import { getLogger } from '../utils';
 import { getTestData, QUERY } from './mockUtils';
+
+const logger = getLogger('[tester] relay.rtest.js');
 
 const EndPoints = [
   '/user/inquiry',                              // 0 GET ?sellerId=
@@ -29,7 +34,17 @@ const relay1 = `${poto}${process.env.RELAY_HOST1}:${process.env.RELAY_PORT1}`; /
 const relay2 = `${poto}${process.env.RELAY_HOST2}:${process.env.RELAY_PORT2}`; // PBOC side
 const qryhdr = `http://${process.env.QUERY_HOST}:${process.env.QUERY_PORT}/graphql`; // FDI node
 
-const STATS_DATA = process.env.STATS_DATA;
+const ATTACHMENT_PATH = process.env.ATTACHMENT_PATH;
+// const STATS_DATA = process.env.STATS_DATA;
+// const LOG_TARGET = process.env.LOG_TARGET;
+// const STATS_LOGS = process.env.STATS_LOGS;
+// let analyzer;
+// if (LOG_TARGET.includes('file')) {
+//   if (STATS_DATA)
+//     analyzer = getAnalyzer(STATS_LOGS, STATS_DATA);
+//   else
+//     analyzer = getAnalyzer(STATS_LOGS);
+// }
 
 // 'yes'  - authenticate for every test
 // 'no'   - do not authenticate at all
@@ -81,17 +96,54 @@ const authenticate = (username, email, password) => {
 const createPo = (data) => {
   return new Promise<string[]>(async (resolve, reject) => {
     try {
-      await fetch(`${relay2}${EndPoints[1]}`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(data), agent
-      }).then(res => {
-        if (res.status !== 200) {
-          reject(`ERROR! Create PO failed (${res.status}): ${res.statusText}`);
-        } else {
-          resolve(data.map(d => d.poBaseInfo.poId));
+      if (ATTACHMENT_PATH && (data.filter(d => d.attachment).length > 0)) {
+        // Since the API only allows either no file at all, or each PO with 1 file, the API is called separately here
+        // for POs without attachments
+        const json = data.filter(d => !d.attachment);
+
+        const atths = data.filter(d => d.attachment);
+        const form = new FormData();
+        const jsonObj = [];
+        for (const atth of atths) {
+          const { attachment, ...rest } = atth;
+          form.append('files', fs.createReadStream(`${ATTACHMENT_PATH}${attachment}`));
+          jsonObj.push(rest);
         }
-      });
+        form.append('jsonObj', JSON.stringify(jsonObj));
+
+        Promise.all([
+          axios({
+            method: 'POST',
+            url: `${relay2}${EndPoints[1]}`,
+            data: form,
+            headers: form.getHeaders(),
+            httpsAgent: agent
+          }),
+          fetch(`${relay2}${EndPoints[1]}`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(json), agent
+          }),
+        ]).then(res => {
+          if (res.filter(r => r.status !== 200).length > 0) {
+            reject(`ERROR! Create PO failed (${res}`);
+          } else {
+            resolve(data.map(d => d.poBaseInfo.poId));
+          }
+        });
+      } else {
+        await fetch(`${relay2}${EndPoints[1]}`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(data), agent
+        }).then(res => {
+          if (res.status !== 200) {
+            reject(`ERROR! Create PO failed (${res.status}): ${res.statusText}`);
+          } else {
+            resolve(data.map(d => d.poBaseInfo.poId));
+          }
+        });
+      }
     } catch (error) {
       reject(error);
     }
@@ -365,10 +417,15 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       const writeStart = Date.now();
       const poIds = await createPo(data.PoCreate);
       if (poIds && (poIds !== undefined)) {
-        write += (Date.now() - writeStart);
+        const writeFinish = Date.now();
+        write += (writeFinish - writeStart);
+        logger.debug(`[PERFTEST]{"url":"/order/po","method":"POST","entities":${JSON.stringify(poIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(poIds.map(async p =>
           readEntities(`[Test run ${run}][#${variant}] Create POs`, token, p)
-            .then(_ => true)
+            .then(_ => {
+              logger.debug(`[PERFTEST]{"url":"/order/po","method":"POST","entities":"${p}","readNttyFinish":${Date.now()}}`);
+              return true;
+            })
             .catch(error => console.log(`[Test run ${run}][#${variant}] Create POs ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
@@ -391,11 +448,17 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       const writeStart = Date.now();
       const editedPoIds = await editPo(data.PoEdit);
       if (editedPoIds && (editedPoIds !== undefined)) {
-        write += (Date.now() - writeStart);
+        const writeFinish = Date.now();
+        write += (writeFinish - writeStart);
+        logger.debug(`[PERFTEST]{"url":"/order/po","method":"PUT","entities":${JSON.stringify(editedPoIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(editedPoIds.map(async p => 
           readEntities(`[Test run ${run}][#${variant}] Edit POs`, token, p, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":1`) >= 0)), true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Edit POs ${error}`))
+          ).then(_ => {
+            logger.debug(`[PERFTEST]{"url":"/order/po","method":"PUT","entities":"${p}","readNttyFinish":${Date.now()}}`);
+            return true;
+          })
+          .catch(error => console.log(`[Test run ${run}][#${variant}] Edit POs ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           console.log(`[Test run ${run}][#${variant}] Edit POs stopped. Reading edited POs failed`);
@@ -417,11 +480,17 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       const writeStart = Date.now();
       const cancelledPoIds = await cancelPo(data.PoCancel);
       if (cancelledPoIds && (cancelledPoIds !== undefined)) {
-        write += (Date.now() - writeStart);
+        const writeFinish = Date.now();
+        write += (writeFinish - writeStart);
+        logger.debug(`[PERFTEST]{"url":"/order/cancelPO","method":"POST","entities":${JSON.stringify(cancelledPoIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(cancelledPoIds.map(async p => 
           readEntities(`[Test run ${run}][#${variant}] Cancel POs`, token, p, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":4`) >= 0)), true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Cancel POs ${error}`))
+          ).then(_ => {
+            logger.debug(`[PERFTEST]{"url":"/order/cancelPO","method":"POST","entities":"${p}","readNttyFinish":${Date.now()}}`);
+            return true;
+          })
+          .catch(error => console.log(`[Test run ${run}][#${variant}] Cancel POs ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           console.log(`[Test run ${run}][#${variant}] Cancel POs stopped. Reading cancelled POs failed`);
@@ -443,7 +512,9 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       const writeStart = Date.now();
       const processPoResult = await processPo(data.PoProcess);
       if (processPoResult && (processPoResult !== undefined)) {
-        write += (Date.now() - writeStart);
+        const writeFinish = Date.now();
+        write += (writeFinish - writeStart);
+        logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/po/process","method":"POST","entities":${JSON.stringify(processPoResult.map(p => p.poId))},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(processPoResult.map(async p =>
           readEntities(`[Test run ${run}][#${variant}] Process POs`, token, p.poId, (results: any[]) =>
             results.reduce((accu, r) => {
@@ -452,7 +523,11 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
                 p.actionResponse === '1' ? (r.value.indexOf(`"status":2`) >= 0) : (r.value.indexOf(`"status":3`) >= 0)
               );
             }, true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Process POs ${error}`))
+          ).then(_ => {
+            logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/po/process","method":"POST","entities":"${p.poId}","readNttyFinish":${Date.now()}}`);
+            return true;
+          })
+          .catch(error => console.log(`[Test run ${run}][#${variant}] Process POs ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           console.log(`[Test run ${run}][#${variant}] Process POs stopped. Reading processed POs failed`);
@@ -475,9 +550,15 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       const writeStart = Date.now();
       const invIds = await createInvoice(data.InvCreate);
       if (invIds && (invIds !== undefined)) {
-        write += (Date.now() - writeStart);
+        const writeFinish = Date.now();
+        write += (writeFinish - writeStart);
+        logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/invoices","method":"POST","entities":${JSON.stringify(invIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(invIds.map(async v => 
-          readEntities(`[Test run ${run}][#${variant}] Create Invoices`, token, v).then(_ => true)
+          readEntities(`[Test run ${run}][#${variant}] Create Invoices`, token, v)
+            .then(_ => {
+              logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/invoices","method":"POST","entities":"${v}","readNttyFinish":${Date.now()}}`);
+              return true;
+            })
             .catch(error => console.log(`[Test run ${run}][#${variant}] Create Invoices ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
@@ -500,11 +581,17 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       const writeStart = Date.now();
       const editedInvIds = await editInvoice(data.InvEdit);
       if (editedInvIds && (editedInvIds !== undefined)) {
-        write += (Date.now() - writeStart);
+        const writeFinish = Date.now();
+        write += (writeFinish - writeStart);
+        logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/invoices","method":"PUT","entities":${JSON.stringify(editedInvIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(editedInvIds.map(async v => 
           readEntities(`[Test run ${run}][#${variant}] Edit Invoices`, token, v, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`"status":1`) >= 0)), true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Edit Invoices ${error}`))
+          ).then(_ => {
+            logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/invoices","method":"PUT","entities":"${v}","readNttyFinish":${Date.now()}}`);
+            return true;
+          })
+          .catch(error => console.log(`[Test run ${run}][#${variant}] Edit Invoices ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           console.log(`[Test run ${run}][#${variant}] Edit Invoices stopped. Reading edited invoices failed`);
@@ -526,11 +613,17 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       const writeStart = Date.now();
       const notifiedInvIds = await transferInvoice(data.InvNotify);
       if (notifiedInvIds && (notifiedInvIds !== undefined)) {
-        write += (Date.now() - writeStart);
+        const writeFinish = Date.now();
+        write += (writeFinish - writeStart);
+        logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/invoices/notify","method":"POST","entities":${JSON.stringify(notifiedInvIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(notifiedInvIds.map(async v => 
           readEntities(`[Test run ${run}][#${variant}] Transfer Invoices`, token, v, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`,InvoiceTransferred`) >= 0)), true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Trasnfer Invoices ${error}`))
+          ).then(_ => {
+            logger.debug(`[PERFTEST]{"url":"/etccorp/pboc/api/v1/invoices/notify","method":"POST","entities":"${v}","readNttyFinish":${Date.now()}}`);
+            return true;
+          })
+          .catch(error => console.log(`[Test run ${run}][#${variant}] Trasnfer Invoices ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           console.log(`[Test run ${run}][#${variant}] Transfer Invoices stopped. Reading transferred invoices failed`);
@@ -552,7 +645,9 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       const writeStart = Date.now();
       const confirmInvResult = await confirmInvoice(data.InvResult);
       if (confirmInvResult && (confirmInvResult !== undefined)) {
-        write += (Date.now() - writeStart);
+        const writeFinish = Date.now();
+        write += (writeFinish - writeStart);
+        logger.debug(`[PERFTEST]{"url":"/invoice/result","method":"POST","entities":${JSON.stringify(confirmInvResult.map(v => v.invoiceId))},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(confirmInvResult.map(async v => 
           readEntities(`[Test run ${run}][#${variant}] Confirm Invoices`, token, v.invoiceId, (results: any[]) =>
             results.reduce((accu, r) => {
@@ -561,7 +656,11 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
                 v.actionResponse === '1' ? (r.value.indexOf(`"status":2`) >= 0) : (r.value.indexOf(`"status":3`) >= 0)
               );
             }, true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Confirm Invoices ${error}`))
+          ).then(_ => {
+            logger.debug(`[PERFTEST]{"url":"/invoice/result","method":"POST","entities":"${v.invoiceId}","readNttyFinish":${Date.now()}}`);
+            return true;
+          })
+          .catch(error => console.log(`[Test run ${run}][#${variant}] Confirm Invoices ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           console.log(`[Test run ${run}][#${variant}] Confirm Invoices stopped. Reading confirmed invoices failed`);
@@ -583,11 +682,17 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       const writeStart = Date.now();
       const invFinInvIds = await updatePaymentStatus(data.InvFin);
       if (invFinInvIds && (invFinInvIds !== undefined)) {
-        write += (Date.now() - writeStart);
+        const writeFinish = Date.now();
+        write += (writeFinish - writeStart);
+        logger.debug(`[PERFTEST]{"url":"/trade-financing/invresult","method":"POST","entities":${JSON.stringify(invFinInvIds)},"writeNttStarts":${writeStart},"writeNttFinish":${writeFinish}}`);
         const shouldContinue = await Promise.all(invFinInvIds.map(async v => 
           readEntities(`[Test run ${run}][#${variant}] Update payment status`, token, v, (results: any[]) =>
             results.reduce((accu, r) => (accu && (r.value.indexOf(`,PaymentStatusUpdated`) >= 0)), true)
-          ).then(_ => true).catch(error => console.log(`[Test run ${run}][#${variant}] Update payment status ${error}`))
+          ).then(_ => {
+            logger.debug(`[PERFTEST]{"url":"/trade-financing/invresult","method":"POST","entities":"${v}","readNttyFinish":${Date.now()}}`);
+            return true;
+          })
+          .catch(error => console.log(`[Test run ${run}][#${variant}] Update payment status ${error}`))
         ));
         if (!shouldContinue.reduce((a, c) => a && c, true)) {
           console.log(`[Test run ${run}][#${variant}] Update payment status stopped. Reading updated invoices failed`);
@@ -642,14 +747,14 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
   totalRuns = 0;
   lastElapsedTimes.splice(0, lastElapsedTimes.length);
   
-  if (STATS_DATA) {
-    try {
-      fs.accessSync(STATS_DATA, fs.constants.F_OK);
-      fs.unlinkSync(STATS_DATA);
-    } catch (err) {
-      if (!err.message.includes('no such file')) console.log(err);
-    }
-  }
+  // if (STATS_DATA) {
+  //   try {
+  //     fs.accessSync(STATS_DATA, fs.constants.F_OK);
+  //     fs.unlinkSync(STATS_DATA);
+  //   } catch (err) {
+  //     if (!err.message.includes('no such file')) console.log(err);
+  //   }
+  // }
 
   for (let i = 0; i < RUNS; i ++) {
     const variants = [];
@@ -664,13 +769,13 @@ const runTest = (run: string, index: number, variant: string, useAuth: boolean, 
       Math.ceil(lastElapsedTimes.reduce((a, c) => a + c, 0) / lastElapsedTimes.length);
     const authStarts = Date.now();
 
-    if (STATS_DATA) {
-      const d = new Date();
-      const dttm = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString();
-      fs.writeFile(STATS_DATA, `${dttm.substring(0, 10)} ${dttm.substring(11, 19)}|${runsWait}\n`, { flag: 'a' }, err => {
-        if (err) console.log('Error writing statistic data file', err);
-      });
-    }
+    // if (STATS_DATA) {
+    //   const d = new Date();
+    //   const dttm = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString();
+    //   fs.writeFile(STATS_DATA, `${dttm.substring(0, 10)} ${dttm.substring(11, 19)}|${runsWait}\n`, { flag: 'a' }, err => {
+    //     if (err) console.log('Error writing statistic data file', err);
+    //   });
+    // }
 
     let token;
     if (authOn === 'less') {

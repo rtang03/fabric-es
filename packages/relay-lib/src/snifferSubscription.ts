@@ -80,6 +80,7 @@ export const createSubscription = (client: Redis, topic: string) => {
             const sid = event.message.split('-');
             lastPosition = `${sid[0]}-${parseInt(sid[1], 10) + 1}`;
 
+            logger.debug(`[PERFTEST]{"sid":${event.message},"count":${incoming.length},"redisEventStart":${Date.now()}}`);
             for (const msg of incoming) {
               if (callback) {
                 let obj;
@@ -92,6 +93,7 @@ export const createSubscription = (client: Redis, topic: string) => {
                 }
                 try {
                   if (isReqRes(obj)) {
+                    logger.debug(`[PERFTEST]{"id":"${obj.id}","sid":${event.message},"redisResFinish":${Date.now()}}`);
                     await callback(event.channel, obj);
                   } else {
                     logger.warn(`Received message of unknown type: '${msg[1][1]}'`);

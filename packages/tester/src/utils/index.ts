@@ -1,34 +1,12 @@
 import fetch from 'node-fetch';
 
-const QUERY = {
-  'FullTextSearchEntity': `
-  query FullTextSearchEntity($query: String!) {
-    fullTextSearchEntity (query: $query) {
-      items {
-        id
-        entityName
-        value
-        events
-        desc
-        tag
-        creator
-        timeline
-      }
-    }
-  }`,
-  'FullTextSearchCommit': `
-  query FullTextSearchCommit($query: String!) {
-    fullTextSearchCommit (query: $query) {
-      items {
-        id
-        mspId
-        eventsString
-      }
-    }
-  }`
-};
+// export enum Status {
+//   New, Updated, Accepted, Rejected, Cancelled, Transferred
+// };
 
-export const query = (url: string, query: string, search: string, token: string) => {
+export * from './getLogger';
+
+export const query = (url: string, queryName: string, queryStr: string, search: string, token: string) => {
   return new Promise<any>(async (resolve, reject) => {
     try {
       const result = await fetch(`http://${url}/graphql`, {
@@ -38,8 +16,8 @@ export const query = (url: string, query: string, search: string, token: string)
           'authorization': `bearer ${token}`
         },
         body: JSON.stringify({
-          operationName: query,
-          query: QUERY[query],
+          operationName: queryName,
+          query: queryStr,
           variables: { query: search } // : `${id} @event:{PoProcessed}`
         })
       })

@@ -5,10 +5,11 @@ const PORT = parseInt(process.env.MOCK_PORT, 10) || 4320;
 const key = process.env.SERVER_KEY;
 const cert = process.env.SERVER_CERT;
 const verbose = process.env.SERVER_MSGS;
+const keepFile = (process.env.MOCK_KEEPFILE || 'false') === 'true';
 
 (async () => {
   console.log('♨️♨️  Starting mock server...');
-  const { server, shutdown, isHttp } = createMockServer(key, cert, (!key || !cert), !verbose);
+  const { server, shutdown, isHttp } = createMockServer(key, cert, (!key || !cert), !verbose, keepFile);
 
   process.on('SIGINT', async () => {
     process.exit(await shutdown());

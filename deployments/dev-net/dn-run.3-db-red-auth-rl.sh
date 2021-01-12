@@ -5,7 +5,7 @@
 ################################
 
 . ./scripts/setup.sh
-export TARGET_URL=https://192.168.0.188:4322
+export TARGET_URL=http://192.168.0.188:4322
 
 SECONDS=0
 
@@ -14,12 +14,12 @@ if [[ "$COMPOSE" == "0" ]]; then
   ./cleanup.sh $OPTION
 
   # STEP 1
-  ./bootstrap.sh "$COMPOSE_3_S" "org0" "org1 org2 org3"
+  ./bootstrap.sh "$COMPOSE_3" "org0" "org1 org2 org3"
   printMessage "bootstrap script" $?
 fi
 
 # STEP 2
-docker-compose $COMPOSE_3_S up -d
+docker-compose $COMPOSE_3_S up -d --no-recreate
 printMessage "docker-compose up $COMPOSE_3_S" $?
 containerWait "postgres01" "init process complete"
 containerWait "postgres02" "init process complete"

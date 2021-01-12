@@ -459,7 +459,7 @@ export const CREATE_LOAN_DETAILS = `
   }
 `;
 
-export const UPDATE_LOAN_DETAILS_CUST = `
+export const UPDATE_LOAN_DETAILS = `
   mutation UpdateLoanDetails(
     $userId: String!
     $loanId: String!
@@ -495,6 +495,42 @@ export const UPDATE_LOAN_DETAILS_CUST = `
         mspId
       }
       ... on LoanDetailsError {
+        message
+      }
+    }
+  }
+`;
+
+export const APPROVE_LOAN = `
+  mutation ApproveLoan($userId: String!, $loanId: String!) {
+    approveLoan(userId: $userId, loanId: $loanId) {
+      ... on LoanCommit {
+        id
+        entityName
+        version
+        commitId
+        entityId
+        mspId
+      }
+      ... on LoanError {
+        message
+      }
+    }
+  }
+`;
+
+export const RESTRICT_DOC_ACCESS = `
+  mutation RestrictAccess($userId: String!, $documentId: String!) {
+    restrictAccess(userId: $userId, documentId: $documentId) {
+      ... on DocCommit {
+        id
+        entityName
+        version
+        commitId
+        entityId
+        mspId
+      }
+      ... on DocError {
         message
       }
     }

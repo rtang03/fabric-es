@@ -19,8 +19,8 @@ services:
       - REDIS_HOST=redis02
       - RELAY_HOST=rl-org2
       - TARGET_URL=$TARGET_URL
-      - SERVER_KEY=/var/keys/wildcard_etradeconnect.key
-      - SERVER_CERT=/var/keys/star_etradeconnect_net.cer
+    # - SERVER_KEY=/var/keys/wildcard_etradeconnect.key
+    # - SERVER_CERT=/var/keys/star_etradeconnect_net.cer
       - LOG_LEVEL=$LOG_LEVEL
       - LOG_TARGET=$LOG_TARGET
     working_dir: /home/app/packages/rl-org2
@@ -37,4 +37,4 @@ services:
       - $VOLUME/rl-org2/assets/:/home/app/packages/rl-org2/assets/
       - $VOLUME/rl-org2/logs/:/home/app/packages/rl-org2/logs/
       - $ARTIFACTS/crypto-config/:/var/artifacts/crypto-config/
-      - /Users/paul/cert/OV/:/var/keys/
+    # - /Users/paul/cert/OV/:/var/keys/

@@ -78,3 +78,11 @@ describe('type related tests', () => {
     console.log('1', JSON.stringify(v1, null, ' '));
   });
 });
+
+describe('object related tests', () => {
+  it('test object', () => {
+    const obj = JSON.parse(src);
+    console.log('1', obj['field3']);
+    console.log('2', obj['field5']);
+  });
+});

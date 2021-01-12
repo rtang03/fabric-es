@@ -21,8 +21,8 @@ import {
   UPDATE_DOC_CONTENTS,
   UPDATE_DOCUMENT_CUST,
   UPDATE_LOAN,
-  UPDATE_LOAN_DETAILS_CUST
-} from './queries';
+  UPDATE_LOAN_DETAILS
+} from '../ref-impl/queries';
 
 const AUTH_REG_1 = `http://${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}/account`;
 const AUTH_LOG_1 = `http://${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}/account/login`;
@@ -715,7 +715,7 @@ describe('Multi-Org Test - Initialize Org3', () => {
       await fetch(GATEWAY3, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
           operationName: 'UpdateLoanDetails',
-          query: UPDATE_LOAN_DETAILS_CUST,
+          query: UPDATE_LOAN_DETAILS,
           variables: {
             userId: userId3, loanId: loanId3,
             contact: { company: '' }
@@ -734,7 +734,7 @@ describe('Multi-Org Test - Initialize Org3', () => {
       await fetch(GATEWAY3, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
           operationName: 'UpdateLoanDetails',
-          query: UPDATE_LOAN_DETAILS_CUST,
+          query: UPDATE_LOAN_DETAILS,
           variables: {
             userId: userId3, loanId: loanId3,
             requester: { name: 'Loan Requester 999' },

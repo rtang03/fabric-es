@@ -19,6 +19,9 @@ export PROXY_IMAGE=fabric-es/proxy:${RELEASE}
 export UI_CONTROL_IMAGE=fabric-es/ui-control
 export ROOT_DIR=$CURRENT_DIR/../..
 export CC_IMAGE=ghcr.io/rtang03/eventstore-cc:0.0.3
+export CHAINCODE_CCID_org1=
+export CHAINCODE_CCID_org2=
+export CHAINCODE_CCID_org3=
 
 export LOG_LEVEL=info
 export LOG_TARGET=console
@@ -29,6 +32,7 @@ export CONF_DIR=$CURRENT_DIR/build.
 export NGX_TEMPLATE_A_U_G=./scripts/nginx/auth-ui-gw.template
 export NGX_TEMPLATE_A_U=./scripts/nginx/auth-ui.template
 export NGX_TEMPLATE_A=./scripts/nginx/auth.template
+export NGX_TEMPLATE=
 
 export COMPOSE_1_NGX="-f compose.1org.ngx.yaml"
 export COMPOSE_2_NGX="$COMPOSE_1_NGX -f compose.2org.ngx.yaml"
@@ -46,14 +50,14 @@ export CMP_3_UIA="$CMP_2_UIA -f compose.3org.ui.yaml"
 export CMP_1_GWY="-f compose.1org.gw.yaml"
 export CMP_2_GWY="$CMP_1_GWY -f compose.2org.gw.yaml"
 export CMP_3_GWY="$CMP_2_GWY -f compose.3org.gw.yaml"
-export CMP_1_RLY="-f compose.1org.rl.yaml"
-export CMP_2_RLY="$CMP_1_RLY -f compose.2org.rl.yaml"
-export CMP_3_RLY="$CMP_2_RLY -f compose.3org.rl.yaml"
-export CMP_RTEST="-f compose.3org.rltest.yaml"
+#export CMP_1_RLY="-f compose.1org.rl.yaml"
+#export CMP_2_RLY="$CMP_1_RLY -f compose.2org.rl.yaml"
+#export CMP_3_RLY="$CMP_2_RLY -f compose.3org.rl.yaml"
+#export CMP_RTEST="-f compose.tester.yaml"
 export CMP_1_CC="-f compose.cc.org1.yaml"
-export CMP_2_CC="-f compose.cc.org2.yaml"
-export CMP_3_CC="-f compose.cc.org3.yaml"
-export COMPOSE_CC="$CMP_1_CC $CMP_2_CC $CMP_3_CC"
+export CMP_2_CC="$CMP_1_CC -f compose.cc.org2.yaml"
+export CMP_3_CC="$CMP_2_CC -f compose.cc.org3.yaml"
+#export COMPOSE_CC="$CMP_1_CC $CMP_2_CC $CMP_3_CC"
 
 export COMPOSE_0_S_A="$COMPOSE_0_S $CMP_1_ATH"
 export COMPOSE_0_S_A_U="$COMPOSE_0_S_A $CMP_1_UIA"
@@ -62,30 +66,31 @@ export COMPOSE_1="-f compose.1org.yaml"
 export COMPOSE_2="$COMPOSE_1 -f compose.2org.yaml"
 export COMPOSE_3="$COMPOSE_2 -f compose.3org.yaml"
 
-export COMPOSE_1_S="$COMPOSE_1 $COMPOSE_0_S"
+export COMPOSE_1_S="$COMPOSE_1 $CMP_1_CC $COMPOSE_0_S"
 export COMPOSE_1_S_A="$COMPOSE_1_S $CMP_1_ATH"
 export COMPOSE_1_S_A_U="$COMPOSE_1_S_A $CMP_1_UIA"
 export COMPOSE_1_S_A_U_G="$COMPOSE_1_S_A_U $CMP_1_GWY"
-export COMPOSE_1_S_A_R="$COMPOSE_1_S_A $CMP_1_RLY"
+#export COMPOSE_1_S_A_R="$COMPOSE_1_S_A $CMP_1_RLY"
 
-export COMPOSE_2_S="$COMPOSE_2 $CMP_2_SRV"
+export COMPOSE_2_S="$COMPOSE_2 $CMP_2_CC $CMP_2_SRV"
 export COMPOSE_2_S_A="$COMPOSE_2_S $CMP_2_ATH"
 export COMPOSE_2_S_A_U="$COMPOSE_2_S_A $CMP_2_UIA"
 export COMPOSE_2_S_A_U_G="$COMPOSE_2_S_A_U $CMP_2_GWY"
 export COMPOSE_2_S_A_G="$COMPOSE_2_S_A $CMP_2_GWY"
-export COMPOSE_2_S_A_G_T="$COMPOSE_2_S_A_G -f compose.2org.gwtest.yaml"
-export COMPOSE_2_S_A_R="$COMPOSE_2_S_A $CMP_2_RLY"
+export COMPOSE_2_S_A_G_T="$COMPOSE_2_S_A_G -f compose.tester.yaml"
+#export COMPOSE_2_S_A_R="$COMPOSE_2_S_A $CMP_2_RLY"
 
-export COMPOSE_3_S="$COMPOSE_3 $CMP_3_SRV $CMP_2_SRV $CMP_1_CC $CMP_2_CC $CMP_3_CC"
+export COMPOSE_3_S="$COMPOSE_3 $CMP_3_CC $CMP_3_SRV"
 export COMPOSE_3_S_A="$COMPOSE_3_S $CMP_3_ATH"
 export COMPOSE_3_S_A_U="$COMPOSE_3_S_A $CMP_3_UIA"
 export COMPOSE_3_S_A_U_G="$COMPOSE_3_S_A_U $CMP_3_GWY"
 export COMPOSE_3_S_A_G="$COMPOSE_3_S_A $CMP_3_GWY"
-export COMPOSE_3_S_A_G_T="$COMPOSE_3_S_A_G -f compose.3org.gwtest.yaml"
-export COMPOSE_3_S_A_R="$COMPOSE_3_S_A $CMP_3_RLY"
-export COMPOSE_3_S_A_R_T="$COMPOSE_3_S_A_R $CMP_RTEST"
+export COMPOSE_3_S_A_G_T="$COMPOSE_3_S_A_G -f compose.tester.yaml"
+#export COMPOSE_3_S_A_R="$COMPOSE_3_S_A $CMP_3_RLY"
+#export COMPOSE_3_S_A_R_T="$COMPOSE_3_S_A_R $CMP_RTEST"
 
-export COMPOSE_ALL="$COMPOSE_3_S_A_G_T $CMP_3_UIA $COMPOSE_3_NGX $CMP_3_RLY $CMP_RTEST $COMPOSE_CC"
+#export COMPOSE_ALL="$COMPOSE_3_S_A_G_T $CMP_3_UIA $COMPOSE_3_NGX $CMP_3_RLY $CMP_RTEST $COMPOSE_CC"
+export COMPOSE_ALL="$COMPOSE_3_S_A_G_T $CMP_3_UIA $COMPOSE_3_NGX"
 
 # $1 - message to be printed
 # $2 - exit code of the previous operation
