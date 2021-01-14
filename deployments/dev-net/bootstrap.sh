@@ -265,7 +265,7 @@ do
   fi
   printMessage "determining package ID ${CHAINCODE_CCID}" $?
 
-  CMP_CC="$CMP_CC -f compose.cc.${ORG}.yaml "
+  CMP_CC="$CMP_CC -f compose.${CCNAME}.cc.yaml "
   docker-compose $1 $CMP_CC up -d --no-recreate
 
   printf "\n############################"

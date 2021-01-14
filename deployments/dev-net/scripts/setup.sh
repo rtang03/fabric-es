@@ -12,12 +12,10 @@ export ARTIFACTS=./artifacts
 export SCRIPTS=./scripts
 export CRYPTO=/var/artifacts/crypto-config
 export CURRENT_DIR=`pwd`
-#export AUTH_IMAGE=fabric-es/auth-server:${RELEASE}
+export ROOT_DIR=$CURRENT_DIR/../..
 export AUTH_IMAGE=ghcr.io/rtang03/auth-server:0.0.2
 export TEST_IMAGE=fabric-es/tester:${RELEASE}
-export PROXY_IMAGE=fabric-es/proxy:${RELEASE}
 export UI_CONTROL_IMAGE=fabric-es/ui-control
-export ROOT_DIR=$CURRENT_DIR/../..
 export CC_IMAGE=ghcr.io/rtang03/eventstore-cc:0.0.3
 export CHAINCODE_CCID_org1=
 export CHAINCODE_CCID_org2=
@@ -54,10 +52,9 @@ export CMP_3_GWY="$CMP_2_GWY -f compose.3org.gw.yaml"
 #export CMP_2_RLY="$CMP_1_RLY -f compose.2org.rl.yaml"
 #export CMP_3_RLY="$CMP_2_RLY -f compose.3org.rl.yaml"
 #export CMP_RTEST="-f compose.tester.yaml"
-export CMP_1_CC="-f compose.cc.org1.yaml"
-export CMP_2_CC="$CMP_1_CC -f compose.cc.org2.yaml"
-export CMP_3_CC="$CMP_2_CC -f compose.cc.org3.yaml"
-#export COMPOSE_CC="$CMP_1_CC $CMP_2_CC $CMP_3_CC"
+export CMP_1_CC="-f compose.1org.cc.yaml"
+export CMP_2_CC="$CMP_1_CC -f compose.2org.cc.yaml"
+export CMP_3_CC="$CMP_2_CC -f compose.3org.cc.yaml"
 
 export COMPOSE_0_S_A="$COMPOSE_0_S $CMP_1_ATH"
 export COMPOSE_0_S_A_U="$COMPOSE_0_S_A $CMP_1_UIA"
@@ -89,7 +86,7 @@ export COMPOSE_3_S_A_G_T="$COMPOSE_3_S_A_G -f compose.tester.yaml"
 #export COMPOSE_3_S_A_R="$COMPOSE_3_S_A $CMP_3_RLY"
 #export COMPOSE_3_S_A_R_T="$COMPOSE_3_S_A_R $CMP_RTEST"
 
-#export COMPOSE_ALL="$COMPOSE_3_S_A_G_T $CMP_3_UIA $COMPOSE_3_NGX $CMP_3_RLY $CMP_RTEST $COMPOSE_CC"
+#export COMPOSE_ALL="$COMPOSE_3_S_A_G_T $CMP_3_UIA $COMPOSE_3_NGX $CMP_3_RLY"
 export COMPOSE_ALL="$COMPOSE_3_S_A_G_T $CMP_3_UIA $COMPOSE_3_NGX"
 
 # $1 - message to be printed
@@ -120,6 +117,7 @@ getConfig() {
       CAPORT=5054
       PORT=7051
       CCPORT=7052
+      CCNAME="1org"
       ;;
     org2)
       NAME="Org2"
@@ -128,6 +126,7 @@ getConfig() {
       CAPORT=5055
       PORT=7251
       CCPORT=7252
+      CCNAME="2org"
       ;;
     org3)
       NAME="Org3"
@@ -136,6 +135,7 @@ getConfig() {
       CAPORT=5056
       PORT=7451
       CCPORT=7452
+      CCNAME="3org"
       ;;
   esac
 }
