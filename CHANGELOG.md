@@ -15,6 +15,7 @@
 
 **Merged pull requests:**
 
+- chore: Prepare tester and dev-net to port to cdi-samples [\#179](https://github.com/rtang03/fabric-es/pull/179) ([pangduckwai](https://github.com/pangduckwai))
 - Reference Implementation robustness test [\#178](https://github.com/rtang03/fabric-es/pull/178) ([pangduckwai](https://github.com/pangduckwai))
 - refactor: remove auth-server [\#177](https://github.com/rtang03/fabric-es/pull/177) ([rtang03](https://github.com/rtang03))
 - refactor: change to external cc launcher [\#175](https://github.com/rtang03/fabric-es/pull/175) ([rtang03](https://github.com/rtang03))
