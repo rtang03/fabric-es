@@ -30,11 +30,11 @@ const RUNS_WAIT = parseInt(process.env.RUNS_WAIT, 10) || 30000; // Time to wait 
 const READ_RETRY = parseInt(process.env.READ_RETRY, 10) || 20; // Number of retries to read expected results from Fabric
 const READ_WAIT = parseInt(process.env.READ_WAIT, 10) || 3000; // Time to wait between each read retry
 
-const gw1 = `http://${process.env.GATE_HOST1}:${process.env.GATE_PORT1}/graphql`;
+const gw1 = `http://${process.env.GATEWAY_HOST1}:${process.env.GATEWAY_PORT1}/graphql`;
 const au1 = `${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}`;
-const gw2 = `http://${process.env.GATE_HOST2}:${process.env.GATE_PORT2}/graphql`;
+const gw2 = `http://${process.env.GATEWAY_HOST2}:${process.env.GATEWAY_PORT2}/graphql`;
 const au2 = `${process.env.AUTH_HOST2}:${process.env.AUTH_PORT2}`;
-// const gw3 = `http://${process.env.GATE_HOST3}:${process.env.GATE_PORT3}/graphql`;
+// const gw3 = `http://${process.env.GATEWAY_HOST3}:${process.env.GATEWAY_PORT3}/graphql`;
 // const au3 = `${process.env.AUTH_HOST3}:${process.env.AUTH_PORT3}`;
 
 const range = Math.round(Math.log10(RUNS * BATCH)) + 1;
