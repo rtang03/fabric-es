@@ -9,6 +9,13 @@ import {
   commandGetByEntityIdCommitId,
 } from '../utils';
 
+/**
+ * Create repository for private data
+ * @param entityName
+ * @param reducer
+ * @param option
+ * @param parentName
+ */
 export const createPrivateRepository: <TEntity = any, TEvent = any>(
   entityName: string,
   reducer: Reducer,

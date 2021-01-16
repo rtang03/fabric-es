@@ -33,6 +33,10 @@ import {
 } from '../utils';
 import { queryNotify } from '../utils/queryNotify';
 
+/**
+ * Create query handler
+ * @param options
+ */
 export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler = (options) => {
   const {
     entityNames,

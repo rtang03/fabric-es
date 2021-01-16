@@ -1,5 +1,15 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import type { Redis } from 'ioredis';
 
+/**
+ * Batch execution of redis command
+ * @param redis
+ * @param action
+ * @param pattern
+ */
 export const pipelineExecute = async (
   redis: Redis,
   action: 'GET' | 'DEL' | 'GET_ENTITY_ONLY',

@@ -3,6 +3,7 @@
  * @hidden
  */
 
+// State used by Redux store
 export interface State {
   tx_id: string;
   type: string;

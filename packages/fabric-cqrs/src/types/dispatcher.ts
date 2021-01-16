@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { Action, Store } from 'redux';
 import type { Logger } from 'winston';
 import { HandlerResponse } from './queryHandler';

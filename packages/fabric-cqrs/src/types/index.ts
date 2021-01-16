@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 export * from './actionHandler';
 export * from './commit';
 export * from './reducer';

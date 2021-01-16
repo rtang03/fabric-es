@@ -18,6 +18,10 @@ import {
   sizeOfSearchResult,
 } from '.';
 
+/**
+ * Create query database
+ * @param redis Redis instance
+ */
 export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js' });
   const countNonNull = (deletedItems: number[][]) =>

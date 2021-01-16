@@ -1,3 +1,13 @@
+### Features
+
+- Hyperledger Fabric High Level Contract API
+- External chaincode launcher
+- Event sourcing / CQRS pattern
+- Domain driven design
+Apollo API Federation
+
+Clean Architecture
+
 ## Technical Components
 
 This project is built with monorepo, primarily written in Typescript.

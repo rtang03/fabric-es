@@ -26,6 +26,14 @@ import {
   doPaginatedSearch,
 } from '../utils';
 
+/**
+ * Create repository for public / onchain data
+ * @typeParam TEntity
+ * @typeParam TEvent
+ * @param entityName
+ * @param reducer
+ * @param option
+ */
 export const createRepository: <TEntity extends BaseEntity, TEvent extends BaseEvent>(
   entityName: string,
   reducer: Reducer,

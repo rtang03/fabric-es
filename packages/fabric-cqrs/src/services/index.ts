@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 export * from './submit';
 export * from './submitPrivateData';
 export * from './evaluate';

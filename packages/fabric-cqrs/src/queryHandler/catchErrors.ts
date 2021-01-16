@@ -1,7 +1,17 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import util from 'util';
 import type { Logger } from 'winston';
 import type { HandlerResponse } from '../types';
 
+/**
+ * High order function for try / catch
+ * @param fcn
+ * @param fcnName
+ * @param logger
+ */
 export const catchErrors: <TResult = any>(
   fcn: Promise<any>,
   option: { fcnName: string; logger: Logger }

@@ -22,6 +22,12 @@ const getEntities = ({ mockdb, entityName, reducer }) =>
     )
   ).map((events) => reducer(events));
 
+/**
+ * Create mock repository for public / onchain data
+ * @param mockdb
+ * @param entityName
+ * @param reducer
+ */
 export const getMockRepository = <TEntity, TEvent>(
   mockdb: Record<string, Commit>,
   entityName: string,

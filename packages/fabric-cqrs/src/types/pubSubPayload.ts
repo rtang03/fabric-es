@@ -1,5 +1,8 @@
 import { Commit } from './commit';
 
+/**
+ * Payload fired when entity is added to Redis
+ */
 export interface PubSubPayload {
   entityAdded: {
     commit: Commit;
@@ -8,6 +11,9 @@ export interface PubSubPayload {
   };
 }
 
+/**
+ * System event when Redis PubSub event is sent
+ */
 export interface PubSubSysEvent {
   systemEvent: {
     event: string;

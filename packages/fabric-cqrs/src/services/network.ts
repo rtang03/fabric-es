@@ -10,7 +10,7 @@ import { safeLoad } from 'js-yaml';
 import { getLogger, promiseToReadFile } from '../utils';
 
 /**
- * **getNetwork** return network services
+ * Return network services
  * @returns `{
  *   enrollmentId: string;
  *   network: Network;
