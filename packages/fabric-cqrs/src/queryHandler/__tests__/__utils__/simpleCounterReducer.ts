@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import type { BaseEvent, Reducer } from '../../../types';
 
 interface Add extends BaseEvent {

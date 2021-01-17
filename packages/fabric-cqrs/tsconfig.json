@@ -17,7 +17,7 @@
   "typedocOptions": {
     "entryPoints": ["src/index.ts"],
     "out": "docs",
-    "name": "Documentation",
+    "name": "fabric-cqrs",
     "includeVersion": true,
     "excludeExternals": true,
     "exclude": "\"**/*+(.test|constants|index).ts\"",

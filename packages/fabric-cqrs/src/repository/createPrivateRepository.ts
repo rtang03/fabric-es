@@ -1,5 +1,5 @@
 import { getCommandStore } from '../store';
-import { PrivateRepoOption, PrivateRepository, Reducer } from '../types';
+import type { PrivateRepoOption, PrivateRepository, Reducer } from '../types';
 import {
   getLogger,
   commandCreate,
@@ -11,6 +11,8 @@ import {
 
 /**
  * Create repository for private data
+ * @typeParam TEntity
+ * @typeParam TEvent
  * @param entityName
  * @param reducer
  * @param option

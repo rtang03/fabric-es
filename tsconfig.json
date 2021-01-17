@@ -25,6 +25,6 @@
   "exclude": ["node_modules"],
   "typedocOptions": {
     "mode": "modules",
-    "out": "docs"
+    "out": "doc"
   }
 }
