@@ -8,6 +8,10 @@ import type {
 } from '../types';
 import { getPaginated } from './getPaginated';
 
+/**
+ * perform search
+ * @ignore
+ */
 export const doPaginatedSearch: <
   TResult,
   TCriteria extends PaginatedEntityCriteria | PaginatedCommitCriteria

@@ -65,16 +65,34 @@ export interface HandlerResponse<TData = any> {
 
 /**
  * input criteria for RedisSearch, return paginated commit
+ * - see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
+ * - see example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
+ * ```typescript
+ * // search by wildcard
+ * ['test*']
+ * // search by event TAG
+ * ['@event:{increment}']
+ * // search by msp TAG
+ * ['@msp:{org1msp}']
+ * ```
  */
 export interface PaginatedCommitCriteria {
+  /** events array **/
   events?: string[];
+
   startTime?: number;
+
   endTime?: number;
+
   creator?: string;
+
+  /** cursor-based pagination, default 0 **/
   cursor: number;
 
-  /* page size */
+  /** page size, default 10 **/
   pagesize: number;
+
+  /** indexes by RediSearch **/
   sortByField?: 'id' | 'key' | 'entityName' | 'ts' | 'creator';
 
   /** sortBy either ASC or DESC **/
@@ -83,29 +101,64 @@ export interface PaginatedCommitCriteria {
 
 /**
  * input criteria for RedisSearch, return paginated entity
+ * - see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
+ * - see example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
+ * ```typescript
+ * // search by wildcard
+ * ['test*']
+ * // search by organization TAG
+ * ['@org:{org1msp}']
+ * ```
  */
 export interface PaginatedEntityCriteria {
+  /** aka mspId **/
   organization?: string;
+
+  /** either LAST_MODIFIEd or CREATED **/
   scope?: 'LAST_MODIFIED' | 'CREATED';
+
   startTime?: number;
+
   endTime?: number;
+
   creator?: string;
+
+  /** cursor-based pagination, default 0 **/
   cursor: number;
+
+  /** page size, default 10 **/
   pagesize: number;
+
+  /** indexes by RediSearch **/
   sortByField?: 'id' | 'key' | 'created' | 'creator' | 'ts';
+
+  /** sortBy either ASC or DESC **/
   sort?: 'ASC' | 'DESC';
 }
 
 /**
- * **QueryHandler**
+ * ### QueryHandler
+ * QueryHandler provides utility to access query database
  */
 export interface QueryHandler {
-  /* command-side: create commit */
+  /**
+   * 📥 write events to onchain repository, with enrollmentId, and entityId
+   *
+   * 🔬 this api is solely for *unit-test* purpose.
+   *
+   * 🧬 same as [[Repository.create]]
+   * **/
   create: <TEvent>(
     entityName: string
   ) => (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
 
-  /* (1) get currentstate by EntityId; (2) return save function to append new events */
+  /**
+   * update current entity, by appending new events
+   * 1. 📤  get currentState of entity by entityId
+   * 1. 📥  return [[SaveFcn | Save]] function to append new events
+   *
+   * 🧬 same as [[Repository.getById]]
+   * **/
   getById: <TEntity, TEvent>(
     entityName: string
   ) => (option: {
@@ -116,29 +169,83 @@ export interface QueryHandler {
     save: SaveFcn<TEvent>;
   }>;
 
-  /* query-side:  (1) get commits by EntityName; (2) and then reduce to Entity, on the fly
-  * There is no meta data, like _commit, _event
-  */
+  /**
+   * 📤  get commits by entityName. Reduce to _entity_, on the fly
+   * @return ```typescript
+   * () => Promise<HandlerResponse<TEntity[]>>
+   * ```
+   **/
   getByEntityName: <TEntity = any>(entityName: string) => RepoFcn<TEntity[]>;
 
-  /* query-side: return commits by entityId */
+  /**
+   * 📤 get commits by entityId
+   *
+   * 🧬 same as [[Repository.getCommitById]]
+   * @return ```typescript
+   * (payload: { id: string }) => Promise<HandlerResponse<Commit[]>>
+   * ```
+   * **/
   getCommitById: (entityName: string) => RepoFcn_Id<Commit[]>;
 
-  /* command-side: delete commit by entityId
-  * It is private api, only used for development and unit test of QueryHandler */
+  /**
+   * 📥 delete commit by entityId
+   *
+   * 🔬 this api is solely for *unit-test* purpose.
+   *
+   * 🧬 same as [[Repository.command_deleteByEntityId]]
+   * @return ```typescript
+   * (payload: { id: string }) =>
+   *   Promise<HandlerResponse<<FabricResponse>>>
+   * ```
+   * **/
   command_deleteByEntityId: (entityName: string) => RepoFcn_Id<FabricResponse>;
 
   /* command-side: get commit by entityName
-  * It is private api, only used for development and unit test of QueryHandler */
+   * It is private api, only used for development and unit test of QueryHandler */
+  /**
+   * 📥 get commits by entityName
+   *
+   * 🔬 this api is solely for *unit-test* purpose.
+   *
+   * 🧬 same as [[Repository.command_getByEntityName]]
+   * @return ```typescript
+   * () => Promise<HandlerResponse<Commit[]>>
+   * ```
+   * **/
   command_getByEntityName: (entityName: string) => RepoFcn<Commit[]>;
 
-  /* query-side: delete commmts by entityId */
+  /**
+   * 📤 delete commmts by entityId
+   *
+   * 🧬 same as [[Repository.query_deleteCommitByEntityId]]
+   * @return ```typescript
+   * (payload: { id: string }) => Promise<HandlerResponse<number>>
+   * ```
+   * **/
   query_deleteCommitByEntityId: (entityName: string) => RepoFcn_Id<number>;
 
-  /* query-side: delete commit by entityName */
+  /**
+   * 📤 delete commit by entityName
+   *
+   * 🧬 same as [[Repository.query_deleteCommitByEntityName]]
+   * @return ```typescript
+   * () => Promise<HandlerResponse<number>>
+   * ```
+   * **/
   query_deleteCommitByEntityName: (entityName: string) => RepoFcn<number>;
 
-  /* query-side: return paginated entity by entityId  */
+  /**
+   * 📤 get paginated entity by entityId. This is specialized version of
+   * [[QueryHandler.fullTextSearchEntity]], with parametric query.
+   *
+   * 🧬 same as [[Repository.getPaginatedEntityById]]
+   *
+   * 🧬 similar as [[QueryHandler.fullTextSearchEntity]]
+   * @return ```typescript
+   * (criteria: PaginatedEntityCriteria, id?: string) =>
+   *   Promise<HandlerResponse<Paginated<TResult>>>
+   * ```
+   * **/
   getPaginatedEntityById: <TResult>(
     entiyName: string
   ) => (
@@ -146,7 +253,18 @@ export interface QueryHandler {
     id?: string
   ) => Promise<HandlerResponse<Paginated<TResult>>>;
 
-  /* query-side: return paginated commit by entityId */
+  /**
+   * 📤 get paginated commit by entityId. This is specialized version of
+   * [[QueryHandler.fullTextSearchCommit]], with parametric query.
+   *
+   * 🧬 same as [[Repository.getPaginatedCommitById]]
+   *
+   * 🧬 similar as [[QueryHandler.fullTextSearchCommit]]
+   * @return ```typescript
+   * (criteria: PaginatedCommitCriteria, id?: string) =>
+   *   Promise<HandlerResponse<Paginated<Commit>>>
+   * ```
+   * **/
   getPaginatedCommitById: (
     entiyName: string
   ) => (
@@ -154,24 +272,36 @@ export interface QueryHandler {
     id?: string
   ) => Promise<HandlerResponse<Paginated<Commit>>>;
 
-  /* full text search of commit */
+  /**
+   * full text search of commit.
+   *
+   * 🧬 similar as [[QueryHandler.getPaginatedCommitById]]
+   */
   fullTextSearchCommit: (
     query: string[],
     cursor: number,
     pagesize: number
   ) => Promise<HandlerResponse<Paginated<Commit>>>;
 
-  /* full text search of entity */
+  /**
+   * full text search of entity
+   *
+   * 🧬 similar as [[QueryHandler.getPaginatedEntityById]]
+   */
   fullTextSearchEntity: (
     query: string[],
     cursor: number,
     pagesize: number
   ) => Promise<HandlerResponse<Paginated<QueryHandlerEntity>>>;
 
-  /* query-side: return summary info of entity */
+  /**
+   * Primarily used by web ui, to summary info of entities
+   */
   queryGetEntityInfo: (payload: { entityName: string }) => Promise<HandlerResponse<EntityInfo>>;
 
-  /* query-side: return active notification */
+  /**
+   * Primarily used by web ui, to retrieve the list of active notifications.
+   */
   queryNotify: (payload: {
     creator: string;
     entityName?: string;
@@ -180,42 +310,58 @@ export interface QueryHandler {
     expireNow?: boolean;
   }) => Promise<HandlerResponse<Record<string, string>[]>>;
 
-  /* used by bootstraping programs to reconcile entity from Fabric to Redis */
+  /**
+   * used by bootstraping programs to reconcile entity from Fabric to Redis
+   * @return
+   * ```typescript
+   * (payload: { entityName: string }) =>
+   *   Promise<HandlerResponse<{ key: string; status: string }[]>>
+   * ```
+   * **/
   reconcile: () => (payload: {
     entityName: string;
   }) => Promise<HandlerResponse<{ key: string; status: string }[]>>;
 
-  /* subscribe to Fabric channel event hub */
+  /**
+   * subscribe to Fabric channel event hub
+   * @return `() => void`
+   * **/
   subscribeHub: (entityNames: string[]) => Promise<any>;
 
-  /* unsubscribe to Fabric channel event hub */
+  /**
+   * unsubscribe to Fabric channel event hub
+   * @return `() => void`
+   * **/
   unsubscribeHub: () => void;
 
-  /* disconnect from fabric peer */
+  /**
+   * disconnect from fabric peer
+   * @return `() => void`
+   * **/
   disconnect: () => void;
 }
 
 /**
- * **EntityInfo** is the summary info of entity
+ * EntityInfo is the summary info of entity
  */
 export interface EntityInfo {
   entityName?: string;
 
-  /* total number of entity */
+  /** total number of entity **/
   total: number;
 
-  /* type of events  */
+  /** type of events  **/
   events: string[];
 
-  /* tags used */
+  /** tags used **/
   tagged: string[];
 
-  /* creators involved */
+  /** creators involved **/
   creators: string[];
 
-  /* organization involved */
+  /** organization involved **/
   orgs: string[];
 
-  /* total number of commits */
+  /** total number of commits **/
   totalCommit: number;
 }

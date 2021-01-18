@@ -1,13 +1,9 @@
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import flatten from 'lodash/flatten';
 import type { Commit } from '../types';
 
 /**
  * transform array of commit to record of commit
+ * @ignore
  * @param commitArrays
  */
 export const arraysToCommitRecords: (commitArrays: string[][]) => Record<string, Commit> = (

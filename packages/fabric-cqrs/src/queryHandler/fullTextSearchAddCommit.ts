@@ -32,7 +32,7 @@ export const commitIndex = [
 ];
 
 /**
- * Create index "cidx"
+ * Create index *cidx*
  * @param documentId
  * @param redisKey
  * @param entityName
@@ -76,7 +76,7 @@ export const createCommitIndex: (option: {
 };
 
 /**
- * Add new entity to "cidx"
+ * Add new entity to *cidx*
  * @param redisKey
  * @param commit
  * @param redis

@@ -5,7 +5,7 @@ export const TRACK_FIELD = '_remoteDataTracking';
 export const ORGAN_FIELD = '_organization';
 
 /**
- * **Reducer**
+ * Reducer computes the current state of an entity
  */
 export type Reducer<TEntity = any> = (
   history: { type: string; payload?: any }[],
@@ -13,8 +13,7 @@ export type Reducer<TEntity = any> = (
 ) => TEntity;
 
 /**
- * **getReducer** return high order reducer function
- * @param reducer
+ * return high order reducer function
  */
 export const getReducer = <T, E>(reducer: (entity: T, event: E) => T) => (
   history: E[],
@@ -22,8 +21,7 @@ export const getReducer = <T, E>(reducer: (entity: T, event: E) => T) => (
 ) => history.reduce(reducer, initialState);
 
 /**
- * Reducer for private data tracking events.
- * @param commits
+ * reducer for private data tracking events.
  */
 export const trackingReducer = (commits: Commit[]) => {
   const result = commits.reduce(

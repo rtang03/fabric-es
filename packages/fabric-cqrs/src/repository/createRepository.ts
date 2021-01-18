@@ -28,7 +28,7 @@ import {
 
 /**
  * ♨️  Create repository for public / onchain data
- * - See example at [repo.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/repository/__tests__/repo.unit-test.ts)
+ * - see example at [repo.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/repository/__tests__/repo.unit-test.ts)
  * ```typescript
  * const repo = createRepository<Counter, CounterEvent>(
  *     entityName,

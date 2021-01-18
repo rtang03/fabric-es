@@ -1,3 +1,6 @@
+/**
+ * Generic response from Fabric
+ */
 export interface FabricResponse {
   status: string;
   message: string;

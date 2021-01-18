@@ -1,11 +1,8 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 import type { Redis } from 'ioredis';
 
 /**
  * Batch execution of redis command
+ * @ignore
  * @param redis
  * @param action
  * @param pattern

@@ -7,9 +7,7 @@ import { dispatcher } from './dispatcher';
 /**
  * delete commit by entityId
  * Basic Query-side Operation
- * @param entityName
- * @param store
- * @param logger
+ * @ignore
  */
 export const queryDeleteCommitByEntityId: (
   entityName: string,

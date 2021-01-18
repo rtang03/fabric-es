@@ -1,5 +1,8 @@
 import { BaseEvent, Reducer } from '../types';
 
+/**
+ * @ignore
+ */
 export interface Increment extends BaseEvent {
   readonly type: 'Increment';
   payload: {
@@ -8,6 +11,9 @@ export interface Increment extends BaseEvent {
   };
 }
 
+/**
+ * @ignore
+ */
 export interface Decrement extends BaseEvent {
   readonly type: 'Decrement';
   payload: {
@@ -16,13 +22,22 @@ export interface Decrement extends BaseEvent {
   };
 }
 
+/**
+ * @ignore
+ */
 export type CounterEvents = Increment | Decrement;
 
+/**
+ * @ignore
+ */
 export interface CounterEvent {
   type: string;
   payload: any;
 }
 
+/**
+ * @ignore
+ */
 export interface Counter {
   id: string;
   value: number;
@@ -31,6 +46,9 @@ export interface Counter {
   ts: number;
 }
 
+/**
+ * @ignore
+ */
 export const dummyReducer: Reducer<Counter> = (
   history: CounterEvent[],
   initial = { id: null, value: 0, ts: 0 }

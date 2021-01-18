@@ -4,6 +4,9 @@ import { action } from '../store/query';
 import type { HandlerResponse } from '../types';
 import { dispatcher } from './dispatcher';
 
+/**
+ * @ignore
+ */
 export const queryFTSGetPaginated: (
   index: 'cidx' | 'eidx',
   option: {

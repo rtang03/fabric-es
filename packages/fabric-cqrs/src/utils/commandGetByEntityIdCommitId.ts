@@ -9,13 +9,7 @@ import { dispatcher, isCommitRecord } from '.';
  * get commit by EntityId and CommitId
  * Basic Command-side Operation: mostly used by command handler
  * and also used by privateRepository
- * @param entityName
- * @param isPrivateData
- * @param store
- * @param logger
- * @param connectionProfile
- * @param channelName
- * @param wallet
+ * @ignore
  */
 export const commandGetByEntityIdCommitId: (
   entityName: string,

@@ -25,16 +25,41 @@ import {
   queryGetEntityByEntityName,
   queryGetById,
   queryGetCommitByEntityId,
+  queryNotify,
   doPaginatedSearch,
   queryGetPaginatedEntityById,
   queryGetPaginatedCommitById,
   doPaginatedFullTextSearch,
   queryGetEntityInfo,
 } from '../utils';
-import { queryNotify } from '../utils/queryNotify';
 
 /**
- * Create query handler
+ * ♨️  Create query handler
+ - see example at [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
+ * ```typescript
+ * // example
+ * const wallet = await Wallets.newFileSystemWallet(walletPath);
+ * const redis = new Redis();
+ * const queryDatabase = createQueryData(redis);
+ * const networkConfig = await getNetwork({
+ *     discovery: true,
+ *     asLocalhost: true,
+ *     channelName,
+ *     connectionProfile,
+ *     wallet,
+ *     enrollmentId,
+ * })
+ * const queryHandler = createQueryHandler({
+ *     entityNames: [entityName],
+ *     gateway: networkConfig.gateway
+ *     network: networkConfig.network,
+ *     queryDatabase,
+ *     connectionProfile,
+ *     channelName,
+ *     wallet,
+ *     reducers
+ * });
+ * ```
  * @param options
  */
 export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler = (options) => {

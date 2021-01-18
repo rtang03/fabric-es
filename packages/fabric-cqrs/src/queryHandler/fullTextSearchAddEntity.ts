@@ -34,7 +34,7 @@ export const entityIndex = [
 ];
 
 /**
- * Create index "eidx"
+ * Create index *eidx*
  * @param documentId
  * @param redisKey
  * @param entityName
@@ -105,7 +105,7 @@ export const createEntityIndex: (option: {
 };
 
 /**
- * Add new entity to "eidx"
+ * Add new entity to *eidx*
  * @param redisKey
  * @param entity
  * @param redis

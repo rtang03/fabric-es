@@ -6,7 +6,8 @@ import { createCommitId, getLogger } from '../utils';
 import { getContract } from './contract';
 
 /**
- * **submitPrivateData** submit transaction to privatedata chaincode
+ * submit transaction to privatedata chaincode
+ * @ignore
  * @param fcn function
  * @param args args
  * @param transientData transient data
@@ -48,6 +49,12 @@ export const submitPrivateData: (
   );
 };
 
+/**
+ * @param fcn
+ * @param args
+ * @param transientData
+ * @param options
+ */
 export const submitPrivateData$: (
   fcn: string,
   args: string[],

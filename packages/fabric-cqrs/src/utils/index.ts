@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 export * from './getLogger';
 export * from './typeGuard';
 export * from './addTimestamp';
@@ -32,3 +28,4 @@ export * from './doPaginatedSearch';
 export * from './doPaginatedFullTextSearch';
 export * from './queryFTSGetPaginated';
 export * from './queryGetEntityInfo';
+export * from './queryNotify';

@@ -6,7 +6,7 @@ import { getLogger } from '../utils';
 import { getContract } from './contract';
 
 /**
- * **evaluate** evaluate transaction
+ * evaluate transaction
  * @param fcn function
  * @param args args
  * @param network network `{ network: Network }`
@@ -39,6 +39,12 @@ export const evaluate: (
   );
 };
 
+/**
+ * Observables
+ * @param fcn
+ * @param args
+ * @param options
+ */
 export const evaluate$: (
   fcn: string,
   args: string[],

@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 import util from 'util';
 import type { Redis } from 'ioredis';
 import drop from 'lodash/drop';
@@ -9,6 +5,7 @@ import type { QueryDatabaseResponse } from '../types';
 
 /**
  * Perform full text search
+ * @ignore
  * @param query
  * @param index
  * @param redis

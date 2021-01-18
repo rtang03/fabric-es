@@ -2,24 +2,34 @@
  * Generic entity at Query Handler. It does not carry model information of entity.
  */
 export interface QueryHandlerEntity {
-  /* entityId */
+  /** entityId **/
   id: string;
+
   entityName: string;
-  /* stringified value of entity object */
+
+  /** stringified value of entity object **/
   value: string;
-  /* commit id history */
+
+  /** commit id history **/
   commits: string[];
-  /* event type history */
+
+  /** event type history **/
   events: string;
-  /* committing timestamp history */
+
+  /** committing timestamp history **/
   timeline: string;
-  /* TAG by Redisearch */
+
+  /** TAG by Redisearch **/
   tag: string;
-  /* desc field; indexed */
+
+  /** desc field; indexed **/
   desc: string;
-  /* creation timestamp */
+
+  /** creation timestamp **/
   created: number;
+
   creator: string;
-  /* last modified timestamp */
+
+  /** last modified timestamp **/
   lastModified: number;
 }

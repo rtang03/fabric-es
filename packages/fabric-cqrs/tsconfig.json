@@ -15,7 +15,13 @@
   },
   "exclude": ["node_modules", "dist"],
   "typedocOptions": {
-    "entryPoints": ["src/index.ts"],
+    "entryPoints": [
+      "src/repository/index.ts",
+      "src/queryHandler/index.ts",
+      "src/services/index.ts",
+      "src/types/index.ts",
+      "src/utils/index.ts"
+    ],
     "out": "docs",
     "name": "fabric-cqrs",
     "includeVersion": true,
