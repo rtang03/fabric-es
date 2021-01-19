@@ -1,7 +1,0 @@
-*
-!dist/
-!dist/**/*
-!package.json
-!collections.json
-!*.md
-!LICENSE

@@ -6,26 +6,23 @@
   "description": "Network operator",
   "repository": {
     "type": "git",
-    "url": "git://github.com/fabric-es/fabric-es.git"
+    "url": "git://github.com/rtang03/fabric-es.git"
   },
   "keywords": [
     "hyperledger"
   ],
   "author": "Ross Tang",
   "license": "BSD-3-Clause-Clear",
-  "homepage": "https://github.com/fabric-es/fabric-es",
+  "homepage": "https://github.com/rtang03/fabric-es",
   "bugs": {
-    "url": "https://github.com/fabric-es/fabric-es/issues"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+    "url": "https://github.com/rtang03/fabric-es/issues"
   },
   "scripts": {
     "build": "yarn clean && tsc",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
     "build-chaincode": "cd ../chaincode && yarn build",
     "prepare-asset": "rimraf assets && mkdir -p ./assets/client-certs/hfc-kvs/org1",
-    "typedoc": "typedoc --excludeNotExported --theme markdown --exclude \"**/*+(.test|constants).ts\" --out docs src/index.ts",
+    "typedoc": "typedoc",
     "unit-test:fab": "jest --detectOpenHandles unit.test",
     "clean": "rimraf dist",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}' --fix",

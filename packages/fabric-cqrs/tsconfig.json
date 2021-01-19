@@ -13,21 +13,5 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true
   },
-  "exclude": ["node_modules", "dist"],
-  "typedocOptions": {
-    "entryPoints": [
-      "src/repository/index.ts",
-      "src/queryHandler/index.ts",
-      "src/services/index.ts",
-      "src/types/index.ts",
-      "src/utils/index.ts"
-    ],
-    "out": "docs",
-    "name": "fabric-cqrs",
-    "includeVersion": true,
-    "excludeExternals": true,
-    "exclude": "\"**/*+(.test|constants|index).ts\"",
-    "readme": "../../README.md",
-    "hideGenerator": true
-  }
+  "exclude": ["node_modules", "dist"]
 }

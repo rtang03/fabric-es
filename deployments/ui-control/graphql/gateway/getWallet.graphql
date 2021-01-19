@@ -1,7 +1,0 @@
-query GetWallet {
-  getWallet {
-   type
-   mspId
-   certificate
-  }
-}

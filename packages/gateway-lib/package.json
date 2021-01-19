@@ -21,7 +21,6 @@
     "build": "yarn clean && tsc",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
     "clean": "rimraf dist",
-    "typedoc": "typedoc",
     "gen-t-resolver:qh": "graphql-codegen --config src/generated/qh-codegen.yml",
     "enrollAdmin": "node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
@@ -81,10 +80,10 @@
     "jest": "^24.9.0",
     "prettier": "^2.0.5",
     "ts-jest": "^24.0.2",
-    "typedoc": "^0.20.14",
     "typescript": "^3.8.3"
   },
   "resolutions": {
     "debug": "^4.3.1"
-  }
+  },
+  "private": true
 }

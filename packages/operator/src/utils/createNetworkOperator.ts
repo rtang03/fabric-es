@@ -1,7 +1,11 @@
-import { getQueries, identityService, registerAndEnroll, submitOrEvaluateTx } from './tasks';
-import { CreateNetworkOperatorOption, NetworkOperator } from './types';
-import { getLogger } from './utils';
+import { getQueries, identityService, registerAndEnroll, submitOrEvaluateTx } from '../tasks';
+import { CreateNetworkOperatorOption, NetworkOperator } from '../types';
+import { getLogger } from './getLogger';
 
+/**
+ *
+ * @param option
+ */
 export const createNetworkOperator = async (
   option: CreateNetworkOperatorOption
 ): Promise<NetworkOperator> => {

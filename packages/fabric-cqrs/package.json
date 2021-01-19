@@ -27,7 +27,6 @@
     "test:service.multiusers": "rimraf assets/walletOrg1 && rimraf assets/walletOrg2 && jest service.multiusers.test",
     "enrollAdmin": "node ./dist/account/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/account/enrollCaAdmin.js",
-    "typedoc": "typedoc",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "prepublish": "yarn typedoc && yarn tsc:prod",
     "publish:gh:fabric-es": "npm publish",
@@ -70,7 +69,6 @@
     "jest": "^24.9.0",
     "prettier": "^2.0.5",
     "ts-jest": "^24.0.2",
-    "typedoc": "^0.20.14",
     "typescript": "^3.8.3"
   }
 }
