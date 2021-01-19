@@ -1,4 +1,5 @@
 require('../env');
+import http from 'http';
 import { getReducer } from '@fabric-es/fabric-cqrs';
 import { createAdminService, createGateway, createService } from '@fabric-es/gateway-lib';
 import {
@@ -45,7 +46,6 @@ import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import { RedisOptions } from 'ioredis';
 import fetch from 'node-fetch';
-import { StoppableServer } from 'stoppable';
 import request from 'supertest';
 import {
   GET_COMMITS_BY_DOCUMENT,
@@ -102,7 +102,7 @@ let dtlsService: ApolloServer;
 let dtlsDisconnect: any;
 let ctntService: ApolloServer;
 let ctntDisconnect: any;
-let gateway: StoppableServer;
+let gateway: http.Server;
 
 let isAuthenticated = false;
 let isReady = false;
@@ -369,7 +369,7 @@ beforeAll(async () => {
   });
 
   // Start federated gateway
-  const { gateway: gw } = await createGateway({
+  gateway = await createGateway({
     serviceList: [
       { name: 'admin', url: `http://localhost:${aPort}/graphql` },
       { name: 'loan', url: `http://localhost:${lPort}/graphql` },
@@ -381,7 +381,6 @@ beforeAll(async () => {
     useCors: true,
     debug: false,
   });
-  gateway = gw;
 
   isReady = await request(gateway)
     .post('/graphql')

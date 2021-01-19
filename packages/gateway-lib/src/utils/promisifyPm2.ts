@@ -2,6 +2,9 @@ import util from 'util';
 import pm2, { ProcessDescription } from 'pm2';
 import { Logger } from 'winston';
 
+/**
+ * @ignore
+ */
 export const pm2Connect = (logger: Logger) =>
   new Promise<boolean>((resolve, reject) => {
     pm2.connect((err) => {
@@ -12,6 +15,9 @@ export const pm2Connect = (logger: Logger) =>
     });
   });
 
+/**
+ * @ignore
+ */
 export const pm2List = (logger: Logger) =>
   new Promise<ProcessDescription[]>((resolve, reject) => {
     pm2.list((err, processDescriptions) => {

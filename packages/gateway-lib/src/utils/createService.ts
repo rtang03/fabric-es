@@ -26,6 +26,51 @@ interface AddRepository {
   addRepository: (repository: Repository | PrivateRepository) => this;
 }
 
+/**
+ * ♨️  Entity microservice
+ *
+ * 🧬 see example [counter.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/gateway-lib/src/__tests__/counter.unit-test.ts)
+ * ```typescript
+ *  // step 1: init service
+ *  const { config, getRepository } = await createService({
+ *    asLocalhost: true,
+ *    channelName,
+ *    connectionProfile,
+ *    serviceName: 'counter',
+ *    enrollmentId: orgAdminId,
+ *    wallet,
+ *    redisOptions,
+ *  });
+ *
+ *  // step 2: configure service with Repository
+ *  const modelApolloService = await config({ typeDefs, resolvers })
+ *    .addRepository(getRepository<Counter, CounterEvent>(entityName, counterReduer))
+ *    .create();
+ *
+ *  // step 3: run service
+ *  await modeApolloService.listen({ port });
+ * ```
+ *
+ * @params option
+ * ```typescript
+ * {
+ *   // run as local host, when using docker-compose
+ *   asLocalhost: boolean;
+ *   enrollmentId: string
+ *   // microserver name
+ *   serviceName: string;
+ *   // is a private data repository
+ *   isPrivate: boolean;
+ *   channelName: string;
+ *   // path to connectionProfile
+ *   connectionProfile: string;
+ *   // Fabric file wallet
+ *   wallet: Wallet;
+ *   // redis option
+ *   redisOptions: RedisOptions;
+ * }
+ * ```
+ */
 export const createService: (option: {
   enrollmentId: string;
   serviceName: string;

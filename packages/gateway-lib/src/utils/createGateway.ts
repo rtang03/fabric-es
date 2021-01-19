@@ -1,15 +1,18 @@
 import http from 'http';
 import util from 'util';
 import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
+import terminus from '@godaddy/terminus';
 import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
 import httpStatus from 'http-status';
+import pick from 'lodash/pick';
 import fetch from 'node-fetch';
-import stoppable, { StoppableServer } from 'stoppable';
+import winston from 'winston';
 import { getLogger } from './getLogger';
+import { pm2Connect, pm2List } from './promisifyPm2';
 import { isAuthResponse } from './typeGuard';
 
-export class AuthenticatedDataSource extends RemoteGraphQLDataSource {
+class AuthenticatedDataSource extends RemoteGraphQLDataSource {
   willSendRequest({ request, context }: { request: any; context: any }) {
     if (context?.username) request.http.headers.set('username', context.username);
     if (context?.user_id) request.http.headers.set('user_id', context.user_id);
@@ -17,16 +20,56 @@ export class AuthenticatedDataSource extends RemoteGraphQLDataSource {
   }
 }
 
+// return pm2 status of underlying micro-services
+const getProcessDescriptions = (logger: winston.Logger) =>
+  pm2List(logger)
+    .then<{ proc: any[] }>((desc) => ({
+      proc: desc.map(({ name, pm2_env, monit }) => ({
+        name,
+        monit,
+        ...pick(pm2_env, 'status', 'unstable_restarts', 'pm_uptime', 'instances', 'restart_time'),
+      })),
+    }))
+    .catch((err) => ({ proc: [], error: util.format('unknown err: %j', err) }));
+
+/**
+ * ♨️ Apollo federated gateway
+ *
+ * 🧬 see example [counter.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/gateway-lib/src/__tests__/counter.unit-test.ts)
+ * ```typescript
+ * // example
+ * const apollo = await createGateway({
+ *   serviceList: [{
+ *     name: 'admin': url: 'http://localhost:15011/graphql'
+ *     name: 'counter': url: 'http://localhost:15012/graphql'
+ *   }],
+ *   authenticationCheck: 'http://localhost:8080/oauth/authenticate'
+ * })
+ * ```
+ *
+ * @params option
+ * ```typescript
+ * {
+ *   // arrays of microservice
+ *   serviceList : { url: string; name: string; }[];
+ *   // url for authentication check
+ *   authenticationCheck: string
+ *   // reserved for future use
+ *   useCors: boolean;
+ *   // reserved for future use
+ *   corsOrigin: string;
+ *   // toggle Apollo Gateway debug mode
+ *   debug: boolean;
+ * }
+ * ```
+ */
 export const createGateway: (option: {
   serviceList?: any;
   authenticationCheck: string;
   useCors?: boolean;
   corsOrigin?: string;
   debug?: boolean;
-}) => Promise<{
-  gateway: StoppableServer;
-  shutdown: any;
-}> = async ({
+}) => Promise<http.Server> = async ({
   serviceList = [
     {
       name: 'admin',
@@ -54,6 +97,8 @@ export const createGateway: (option: {
     context: async ({ req: { headers } }) => {
       const token = headers?.authorization?.split(' ')[1] || null;
 
+      logger.debug(`token: ${token}`);
+
       if (!token) return {};
 
       try {
@@ -62,8 +107,12 @@ export const createGateway: (option: {
           headers: { authorization: `Bearer ${token}` },
         });
 
+        logger.debug(`authenticaionCheck response: ${response}`);
+
         if (response.status !== httpStatus.OK) {
-          logger.warn(`authenticate fails, status: ${response.status}`);
+          logger.warn(
+            `fail to authenticate; no token is passed to microservice, status: ${response.status}`
+          );
           return {};
         }
 
@@ -83,9 +132,10 @@ export const createGateway: (option: {
   });
 
   const app = express();
+
   app.use(express.urlencoded({ extended: false }));
 
-  app.get('/gw_org/isalive', (_, res) => res.status(200).send({ data: 'hi' }));
+  app.get('/ping', (_, res) => res.status(200).send({ data: 'pong' }));
 
   // Note: this cors implementation is redundant. Cors should be check at ui-account's express backend
   // However, if there is alternative implementation, other than custom backend of SSR; there may require
@@ -97,18 +147,62 @@ export const createGateway: (option: {
     });
   else server.applyMiddleware({ app });
 
-  const stoppableServer = stoppable(http.createServer(app));
-  return {
-    gateway: stoppableServer,
-    shutdown: () => {
-      stoppableServer.stop(err => {
-        if (err) {
-          logger.error(util.format('An error occurred while closing the gateway: %j', err));
-          process.exitCode = 1;
-        } else
-          logger.info('gateway stopped');
-        process.exit();
-      });
-    }
+  await pm2Connect(logger);
+
+  // check auth-server is alive
+  const onHealthCheck = async () => {
+    // ping auth-server
+    const authCheck = await fetch(`${authenticationCheck}/ping`)
+      .then<{ auth: string }>((response) =>
+        response.status === httpStatus.OK ? { auth: 'ok' } : { auth: `${response.status}` }
+      )
+      .catch((err) => ({ auth: util.format('unknown err: %j', err) }));
+
+    logger.debug(`authCheck response onHealthCheck: ${authCheck}`);
+
+    // pm2 processes
+    const processes = await getProcessDescriptions(logger);
+
+    logger.debug(util.format('pm2 processes: %j', processes));
+
+    const pm2Check = {
+      pm2: processes.proc.reduce<boolean>((pre, { status }) => status === 'online' && pre, true)
+        ? 'ok'
+        : 'error',
+      ...processes,
+    };
+    const response = { ...authCheck, ...pm2Check };
+
+    return authCheck.auth === 'ok' && pm2Check.pm2 === 'ok'
+      ? Promise.resolve(response)
+      : Promise.reject(new Error(util.format('checks: %j', response)));
   };
+
+  const onSignal = () =>
+    new Promise(async (resolve) => {
+      logger.info('〽️  gateway is going to shut down');
+
+      const processes = await getProcessDescriptions(logger);
+      logger.info(util.format('pm2: %j', processes));
+      resolve();
+    });
+
+  // Required for k8s : given your readiness probes run every 5 second
+  // may be worth using a bigger number so you won't run into any race conditions
+  const beforeShutdown = () =>
+    new Promise((resolve) => {
+      logger.info('cleanup finished, gateway is shutting down');
+      setTimeout(resolve, 5000);
+    });
+
+  return terminus.createTerminus(http.createServer(app), {
+    timeout: 3000,
+    logger: console.log,
+    signals: ['SIGINT', 'SIGTERM'],
+    healthChecks: {
+      '/healthcheck': onHealthCheck,
+    },
+    onSignal,
+    beforeShutdown,
+  });
 };

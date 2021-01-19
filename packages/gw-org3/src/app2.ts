@@ -1,13 +1,13 @@
 require('./env');
 import util from 'util';
-import { createGatewayV2, getLogger } from '@fabric-es/gateway-lib';
+import { createGateway, getLogger } from '@fabric-es/gateway-lib';
 
 const PORT = (process.env.GATEWAY_PORT || 4001) as number;
 const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI;
 const logger = getLogger('app.js');
 
 (async () => {
-  const gateway = await createGatewayV2({
+  const gateway = await createGateway({
     serviceList: [
       {
         name: 'user',

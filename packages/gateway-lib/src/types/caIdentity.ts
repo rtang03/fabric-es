@@ -1,3 +1,8 @@
+/**
+ * CA Identity is is identity object of Fabric CA Server
+ *
+ * 🧬 see [Fabric.User](https://hyperledger.github.io/fabric-sdk-node/release-2.2/User.html)
+ */
 export interface CaIdentity {
   id: string;
   typ: string;

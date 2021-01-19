@@ -23,6 +23,13 @@ export interface RemoteData {
   }) => Promise<any[]>;
 };
 
+/**
+ * Remote service retrieve data from another organization gateway
+ * @params name
+ * @params typeDefs
+ * @params resolvers
+ * @params urls
+ */
 export const createRemoteService = async ({
   name,
   typeDefs,
