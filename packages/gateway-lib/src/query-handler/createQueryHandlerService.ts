@@ -12,12 +12,37 @@ import { Gateway, Network, Wallet } from 'fabric-network';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import Redis, { RedisOptions } from 'ioredis';
 import fetch from 'node-fetch';
-import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
+import { Organization, OrgEvents, orgReducer } from '../admin';
 import { QueryHandlerGqlCtx } from '../types';
 import { getLogger } from '../utils';
 import { isAuthResponse } from '../utils';
 import { reconcile, rebuildIndex, resolvers, typeDefs } from './index';
 
+/**
+ * Create query handler microservice
+ * @params entityNames
+ * @params option
+ * ```typescript
+ * {
+ *   // true if running with docker-compose
+ *   asLocalhost: boolean;
+ *   // url to auth-server
+ *   authCheck: string;
+ *   channelName: string;
+ *   // path to connection profile yaml
+ *   connectionProfile: string;
+ *   enrollmentId: string;
+ *   // allow graphql introspection
+ *   introspection: boolean;
+ *   // allow graphql playground
+ *   playground: boolean;
+ *   // reducer map
+ *   reducers: Record<string, Reducer>
+ *   // FileWallet instance
+ *   wallet: Wallet
+ * }
+ * ```
+ */
 export const createQueryHandlerService: (
   entityNames: string[],
   option: {

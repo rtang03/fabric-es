@@ -11,12 +11,12 @@ import {
 
 /**
  * Create repository for private data
- * @typeParam TEntity
- * @typeParam TEvent
- * @param entityName
- * @param reducer
- * @param option
- * @param parentName
+ * @typeParams TEntity
+ * @typeParams TEvent
+ * @params entityName
+ * @params reducer
+ * @params option
+ * @params parentName
  */
 export const createPrivateRepository: <TEntity = any, TEvent = any>(
   entityName: string,

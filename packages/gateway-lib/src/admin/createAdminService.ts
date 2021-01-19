@@ -2,7 +2,7 @@ import util from 'util';
 import { getReducer, Repository } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
-import { RedisOptions } from 'ioredis';
+import type { RedisOptions } from 'ioredis';
 import { getLogger } from '..';
 import { createService } from '../utils';
 import {
@@ -16,6 +16,36 @@ import { Organization, orgCommandHandler, OrgEvents, orgReducer } from './model/
 import { resolvers as orgResolvers } from './model/organization/typeDefs';
 import { typeDefs } from './typeDefs';
 
+/**
+ * ♨️  Create admin micro-service
+ * @params option
+ * ```typescript
+ * {
+ *   // true if running with docker-compose
+ *   asLocalhost?: boolean;
+ *   // ca administrator id
+ *   caAdmin: string;
+ *   // ca administrator password
+ *   caAdminPW: string;
+ *   channelName: string;
+ *   // path to connection profile yaml
+ *   connectionProfile: string;
+ *   // enrollment secret for organization admin
+ *   enrollmentSecret?: string;
+ *   // allow graphql introspection
+ *   introspection?: boolean;
+ *   // the same as mspId
+ *   orgName: string;
+ *   // uri for Apollo Federated Gateway
+ *   orgUrl: string;
+ *   // allow graphql playground
+ *   playground?: boolean
+ *   redisOptions: RedisOptions
+ *   // path to file system wallet
+ *   walletPath: string
+ * }
+ * ```
+ */
 export const createAdminService: (option: {
   caAdmin: string;
   caAdminPW: string;

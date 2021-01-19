@@ -85,7 +85,8 @@ export interface Repository<TEntity = any, TEvent = any> {
    *   .create({ enrollmentId, id })
    *   .save({ events });
    * ```
-   * @return ```typescript
+   * @return
+   * ```typescript
    * {
    *   save: (payload: { events: TEvent[] }) =>
    *     Promise<HandlerResponse<Commit>>
@@ -98,7 +99,8 @@ export interface Repository<TEntity = any, TEvent = any> {
    * 📥 delete commit by entityId
    *
    * 🧬 same as [[QueryHandler.command_deleteByEntityId]]
-   * @return ```typescript
+   * @return
+   * ```typescript
    * (payload: { id: string }) =>
    *   Promise<HandlerResponse<<FabricResponse>>>
    * ```
@@ -109,7 +111,8 @@ export interface Repository<TEntity = any, TEvent = any> {
    * 📥 get commits by entityName
    *
    * 🧬 same as [[QueryHandler.command_getByEntityName]]
-   * @return ```typescript
+   * @return
+   * ```typescript
    * () => Promise<HandlerResponse<Commit[]>>
    * ```
    * **/
@@ -117,7 +120,8 @@ export interface Repository<TEntity = any, TEvent = any> {
 
   /**
    * 📥 get commits by entityName and commitId \
-   * @return ```typescript
+   * @return
+   * ```typescript
    * (payload: { commitId: string; id: string }) =>
    *   Promise<HandlerResponse<Commit[]>>
    * ```
@@ -143,7 +147,8 @@ export interface Repository<TEntity = any, TEvent = any> {
    *     ],
    *   })
    * ```
-   * @return ```typescript
+   * @return
+   * ```typescript
    * {
    *   currentState: TEntity;
    *   save: (payload: { events: TEvent[] }) =>
@@ -161,7 +166,8 @@ export interface Repository<TEntity = any, TEvent = any> {
 
   /**
    * 📤 get commits by entityName. Reduce to _entity_, on the fly. There is no meta data, like _commit, _event
-   * @return ```typescript
+   * @return
+   * ```typescript
    * () => Promise<HandlerResponse<TEntity[]>>
    * ```
    **/
@@ -171,7 +177,8 @@ export interface Repository<TEntity = any, TEvent = any> {
    * 📤 get commits by entityId
    *
    * 🧬 same as [[QueryHandler.getCommitById]]
-   * @return ```typescript
+   * @return
+   * ```typescript
    * (payload: { id: string }) => Promise<HandlerResponse<Commit[]>>
    * ```
    * **/
@@ -181,7 +188,8 @@ export interface Repository<TEntity = any, TEvent = any> {
    * 📤 delete commmts by entityId
    *
    * 🧬 same as [[QueryHandler.query_deleteCommitByEntityId]]
-   * @return ```typescript
+   * @return
+   * ```typescript
    * (payload: { id: string }) => Promise<HandlerResponse<number>>
    * ```
    * **/
@@ -191,7 +199,8 @@ export interface Repository<TEntity = any, TEvent = any> {
    * 📤 delete commit by entityName
    *
    * 🧬 same as [[QueryHandler.query_deleteCommitByEntityId]]
-   * @return ```typescript
+   * @return
+   * ```typescript
    * () => Promise<HandlerResponse<number>>
    * ```
    * **/
@@ -219,7 +228,8 @@ export interface Repository<TEntity = any, TEvent = any> {
    * 📤 get paginated entity by entityId
    *
    * 🧬 same as [[QueryHandler.getPaginatedEntityById]]
-   * @return ```typescript
+   * @return
+   * ```typescript
    * (criteria: PaginatedEntityCriteria, id?: string) =>
    *   Promise<HandlerResponse<Paginated<TEntity>>>
    * ```
@@ -233,7 +243,8 @@ export interface Repository<TEntity = any, TEvent = any> {
    * 📤 get paginated commit by entityId
    *
    * 🧬 same as [[QueryHandler.getPaginatedCommitById]]
-   * @return ```typescript
+   * @return
+   * ```typescript
    * (criteria: PaginatedCommitCriteria, id?: string) =>
    *   Promise<HandlerResponse<Paginated<Commit>>>
    * ```
@@ -259,7 +270,8 @@ export interface PrivateRepository<TEntity = any, TEvent = any> {
    *   .create({ enrollmentId, id })
    *   .save({ events });
    * ```
-   * @return ```typescript
+   * @return
+   * ```typescript
    * {
    *   save: (payload: { events: TEvent[] }) =>
    *     Promise<HandlerResponse<Commit>>
@@ -272,7 +284,8 @@ export interface PrivateRepository<TEntity = any, TEvent = any> {
    * 📥 get commits by entityName
    *
    * 🧬 similar as [[Repository.getCommitByEntityName]]
-   * @return ```typescript
+   * @return
+   * ```typescript
    * () => Promise<HandlerResponse<Commit[]>>
    * ```
    * **/
@@ -282,7 +295,8 @@ export interface PrivateRepository<TEntity = any, TEvent = any> {
    * 📥 get commits by entityName and commitId
    *
    * 🧬 similar as [[Repository.getCommitByEntityIdCommitId]]
-   * @return ```typescript
+   * @return
+   * ```typescript
    * (payload: { commitId: string; id: string }) =>
    *   Promise<HandlerResponse<Commit[]>>
    * ```
@@ -291,7 +305,8 @@ export interface PrivateRepository<TEntity = any, TEvent = any> {
 
   /**
    * 📥 delete commits by entityId and commitId
-   * @return ```typescript
+   * @return
+   * ```typescript
    * (payload: { commitId: string; id: string }) =>
    *   Promise<HandlerResponse<FabricResponse>>
    * ```
@@ -317,7 +332,8 @@ export interface PrivateRepository<TEntity = any, TEvent = any> {
    *     ],
    *   })
    * ```
-   * @return ```typescript
+   * @return
+   * ```typescript
    * {
    *   currentState: TEntity;
    *   save: (payload: { events: TEvent[] }) =>

@@ -60,7 +60,7 @@ import {
  *     reducers
  * });
  * ```
- * @param options
+ * @params options [[QueryHandlerOptions]]
  */
 export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler = (options) => {
   const {

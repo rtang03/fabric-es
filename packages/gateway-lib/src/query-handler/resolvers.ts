@@ -11,6 +11,7 @@ import { getLogger } from '../utils';
 import { catchErrors } from '../utils/catchErrors';
 import { rebuildIndex } from './rebuildIndex';
 import { reconcile } from './reconcile';
+import { QueryHandlerResolvers } from './types';
 
 const COMMIT_ARRIVED = 'COMMIT_ARRIVED';
 const DEV = 'DEV';
@@ -48,18 +49,17 @@ const parseNotifications: (data: Record<string, string>[]) => Notification[] = (
     'commitId'
   ).reverse();
 
-export const resolvers = {
+/**
+ * query handler resolvers
+ */
+export const resolvers: QueryHandlerResolvers = {
   Mutation: {
-    ping: async (_, { message }, { pubSub }: QueryHandlerGqlCtx) => {
+    ping: async (_, { message }, { pubSub }) => {
       await pubSub.publish(DEV, { pong: message });
       return true;
     },
     reloadEntities: catchErrors<boolean>(
-      async (
-        _,
-        { entityNames }: { entityNames: string[] },
-        { publisher, queryHandler }: QueryHandlerGqlCtx
-      ): Promise<boolean> => {
+      async (_, { entityNames }, { publisher, queryHandler }): Promise<boolean> => {
         await rebuildIndex(publisher, logger);
 
         await reconcile(entityNames, queryHandler, logger);
@@ -68,16 +68,7 @@ export const resolvers = {
       { fcnName: 'reloadEntity', useAuth: true, useAdmin: true, logger }
     ),
     createCommit: catchErrors<Commit>(
-      async (
-        _,
-        {
-          entityName,
-          id,
-          type,
-          payloadString,
-        }: { entityName: string; id: string; type: string; payloadString: string },
-        { queryHandler, username }: QueryHandlerGqlCtx
-      ) => {
+      async (_, { entityName, id, type, payloadString }, { queryHandler, username }) => {
         const payload = JSON.parse(payloadString);
 
         const { data, error } = await queryHandler
@@ -94,7 +85,7 @@ export const resolvers = {
   Query: {
     me: () => 'Hello',
     getEntityInfo: catchErrors<EntityInfo[]>(
-      async (_, __, { entityNames, queryHandler }: QueryHandlerGqlCtx) => {
+      async (_, __, { entityNames, queryHandler }) => {
         const result = [];
         for await (const entityName of entityNames) {
           const { data, error } = await queryHandler.queryGetEntityInfo({ entityName });
@@ -108,8 +99,8 @@ export const resolvers = {
     fullTextSearchCommit: catchErrors<Paginated<Commit>>(
       async (
         _,
-        { query, cursor = 0, pagesize = 10 }: { query: string; cursor?: number; pagesize?: number },
-        { queryHandler }: QueryHandlerGqlCtx
+        { query, cursor = 0, pagesize = 10 },
+        { queryHandler }
       ): Promise<Paginated<Commit>> => {
         // const filtered = query.split(' ').filter((item) => !!item); // TODO - CHECK: why split the input with <space> ???????????????
         const filtered = [query];
@@ -136,8 +127,8 @@ export const resolvers = {
     fullTextSearchEntity: catchErrors<Paginated<QueryHandlerEntity>>(
       async (
         _,
-        { query, cursor = 0, pagesize = 10 }: { query: string; cursor?: number; pagesize?: number },
-        { queryHandler }: QueryHandlerGqlCtx
+        { query, cursor = 0, pagesize = 10 },
+        { queryHandler }
       ): Promise<Paginated<QueryHandlerEntity>> => {
         // const filtered = query.split(' ').filter((item) => !!item); // TODO - CHECK: why split the input with <space> ???????????????
         const filtered = [query];
@@ -156,22 +147,7 @@ export const resolvers = {
       { fcnName: 'fullTextSearchEntity', useAdmin: false, useAuth: true, logger }
     ),
     paginatedEntity: catchErrors<Paginated<QueryHandlerEntity>>(
-      async (
-        _,
-        criteria: {
-          creator: string;
-          cursor: number;
-          pagesize: number;
-          entityName: string;
-          id: string;
-          scope: 'CREATED' | 'LAST_MODIFIED';
-          startTime: number;
-          endTime: number;
-          sortByField: 'id' | 'key' | 'ts' | 'created' | 'creator';
-          sort: 'ASC' | 'DESC';
-        },
-        { queryHandler }: QueryHandlerGqlCtx
-      ): Promise<Paginated<QueryHandlerEntity>> => {
+      async (_, criteria, { queryHandler }): Promise<Paginated<QueryHandlerEntity>> => {
         !criteria.cursor && (criteria.cursor = 0);
         !criteria.pagesize && (criteria.pagesize = 10);
 
@@ -188,22 +164,7 @@ export const resolvers = {
       { fcnName: 'paginatedMetaEntity', useAdmin: false, useAuth: true, logger }
     ),
     paginatedCommit: catchErrors<Paginated<Commit>>(
-      async (
-        _,
-        criteria: {
-          creator: string;
-          cursor: number;
-          pagesize: number;
-          entityName: string;
-          id: string;
-          events: string[];
-          startTime: number;
-          endTime: number;
-          sortByField: 'id' | 'key' | 'entityName' | 'ts' | 'creator';
-          sort: 'ASC' | 'DESC';
-        },
-        { queryHandler }: QueryHandlerGqlCtx
-      ): Promise<Paginated<Commit>> => {
+      async (_, criteria, { queryHandler }): Promise<Paginated<Commit>> => {
         !criteria.cursor && (criteria.cursor = 0);
         !criteria.pagesize && (criteria.pagesize = 10);
 
@@ -220,7 +181,7 @@ export const resolvers = {
       { fcnName: 'paginatedCommit', useAdmin: false, useAuth: true, logger }
     ),
     getNotifications: catchErrors<Notification[]>(
-      async (_, __, { queryHandler, username }: QueryHandlerGqlCtx): Promise<Notification[]> => {
+      async (_, __, { queryHandler, username }): Promise<Notification[]> => {
         const { data, error, status } = await queryHandler.queryNotify({ creator: username });
 
         if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
@@ -230,7 +191,7 @@ export const resolvers = {
       { fcnName: 'getNotifications', useAdmin: false, useAuth: true, logger }
     ),
     getNotification: catchErrors<Notification>(
-      async (_, { entityName, commitId, id }, { queryHandler, username }: QueryHandlerGqlCtx) => {
+      async (_, { entityName, commitId, id }, { queryHandler, username }) => {
         const { data, error, status } = await queryHandler.queryNotify({
           creator: username,
           entityName,
@@ -247,7 +208,7 @@ export const resolvers = {
   },
   Subscription: {
     pong: {
-      subscribe: (_, __, { pubSub }: QueryHandlerGqlCtx) => {
+      subscribe: (_, __, { pubSub }) => {
         logger.info(`pubSub triggered: ${DEV} - ping`);
 
         return pubSub.asyncIterator([DEV]);
@@ -257,13 +218,12 @@ export const resolvers = {
       // note: transformation can be implemented, if needed
       // resolve: ({ events, key }) => ({ events, key, }),
       subscribe: withFilter(
-        (_, { entityName }, { pubSub }: QueryHandlerGqlCtx) =>
-          pubSub.asyncIterator(`${COMMIT_ARRIVED}`),
+        (_, { entityName }, { pubSub }) => pubSub.asyncIterator(`${COMMIT_ARRIVED}`),
         ({ entityAdded }, variables) => entityAdded.commit.entityName === variables.entityName
       ),
     },
     systemEvent: {
-      subscribe: (_, __, { pubSub }: QueryHandlerGqlCtx) => pubSub.asyncIterator('SYSTEM_EVENT'),
+      subscribe: (_, __, { pubSub }) => pubSub.asyncIterator('SYSTEM_EVENT'),
     },
   },
 };

@@ -13,5 +13,21 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true
   },
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist"],
+  "typedocOptions": {
+    "entryPoints": [
+      "src/admin/index.ts",
+      "src/query-handler/index.ts",
+      "src/remote/index.ts",
+      "src/types/index.ts",
+      "src/utils/index.ts"
+    ],
+    "out": "docs",
+    "name": "gateway-lib",
+    "includeVersion": true,
+    "excludeExternals": true,
+    "exclude": "\"**/*+(.test|constants|index).ts\"",
+    "readme": "../../README.md",
+    "hideGenerator": true
+  }
 }

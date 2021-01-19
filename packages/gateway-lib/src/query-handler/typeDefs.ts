@@ -1,5 +1,8 @@
 import gql from 'graphql-tag';
 
+/**
+ * type definition for queryHandler microservice
+ */
 export const typeDefs = gql`
   schema {
     query: Query
