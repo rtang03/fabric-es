@@ -72,7 +72,7 @@ jobs:
         with:
           ACCESS_TOKEN: ${{ secrets.CI_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages # The branch the action should deploy to.
+          BRANCH: . # The branch the action should deploy to.
           FOLDER: build # The folder the action should deploy.
           CLEAN: true # Auto
           REPOSITORY_NAME: rtang03/fabric-es.github.io
