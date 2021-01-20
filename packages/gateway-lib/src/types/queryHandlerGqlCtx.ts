@@ -3,9 +3,9 @@ import { RedisPubSub } from 'graphql-redis-subscriptions';
 import Redis from 'ioredis';
 
 /**
- * Apollo context for QueryHandler
+ * @about apollo context for QueryHandler
  */
-export interface QueryHandlerGqlCtx {
+export type QueryHandlerGqlCtx = {
   pubSub?: RedisPubSub;
   queryHandler: QueryHandler;
   queryDatabase?: QueryDatabase;

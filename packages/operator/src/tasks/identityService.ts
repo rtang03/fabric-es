@@ -5,6 +5,10 @@ import { Gateway, X509Identity } from 'fabric-network';
 import { CreateNetworkOperatorOption } from '../types';
 import { getFabricCaService, getGateway, getLogger } from '../utils';
 
+/**
+ * @ignore
+ * @param option
+ */
 export const identityService: (
   option: CreateNetworkOperatorOption
 ) => (option?: {

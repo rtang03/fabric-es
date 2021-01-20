@@ -1,9 +1,9 @@
 import { Wallet } from 'fabric-network';
 
 /**
- * EnrollAdminOption
+ * @about enroll admin option
  */
-export interface EnrollAdminOption {
+export type EnrollAdminOption = {
   enrollmentID: string;
   enrollmentSecret: string;
   mspId: string;

@@ -3,7 +3,7 @@ import { CreateNetworkOperatorOption, NetworkOperator } from '../types';
 import { getLogger } from './getLogger';
 
 /**
- *
+ * @about network operator
  * @param option
  */
 export const createNetworkOperator = async (

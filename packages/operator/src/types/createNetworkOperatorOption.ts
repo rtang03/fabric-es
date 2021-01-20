@@ -1,6 +1,6 @@
 import { Wallet } from 'fabric-network';
 
-export interface CreateNetworkOperatorOption {
+export type CreateNetworkOperatorOption = {
   channelName: string;
   connectionProfile: string;
   caAdmin: string;
@@ -8,4 +8,4 @@ export interface CreateNetworkOperatorOption {
   wallet: Wallet;
   mspId: string;
   caName: string;
-}
+};

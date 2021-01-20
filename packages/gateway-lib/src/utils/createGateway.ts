@@ -33,11 +33,9 @@ const getProcessDescriptions = (logger: winston.Logger) =>
     .catch((err) => ({ proc: [], error: util.format('unknown err: %j', err) }));
 
 /**
- * ♨️ Apollo federated gateway
- *
- * 🧬 see example [counter.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/gateway-lib/src/__tests__/counter.unit-test.ts)
+ * @about apollo federated gateway
+ * @example [counter.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/gateway-lib/src/__tests__/counter.unit-test.ts)
  * ```typescript
- * // example
  * const apollo = await createGateway({
  *   serviceList: [{
  *     name: 'admin': url: 'http://localhost:15011/graphql'

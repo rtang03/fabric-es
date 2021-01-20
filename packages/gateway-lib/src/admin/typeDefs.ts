@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { OrgTypeDefsQuery, OrgTypeDefsType } from './model/organization/typeDefs';
 
 /**
- * type definition for admin microservice
+ * @about type definition for admin microservice
  */
 export const typeDefs = gql`
   type Mutation {

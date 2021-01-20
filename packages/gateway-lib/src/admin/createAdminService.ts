@@ -17,7 +17,7 @@ import { resolvers as orgResolvers } from './model/organization/typeDefs';
 import { typeDefs } from './typeDefs';
 
 /**
- * ♨️  Create admin micro-service
+ * @about create admin micro-service
  * @params option
  * ```typescript
  * {

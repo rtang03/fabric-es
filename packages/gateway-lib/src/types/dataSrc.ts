@@ -1,7 +1,7 @@
 import { DataSource } from 'apollo-datasource';
 
 /**
- * Apollo Data Source
+ * @about apollo data source
  */
 export class DataSrc<TRepo = any> extends DataSource {
   context;

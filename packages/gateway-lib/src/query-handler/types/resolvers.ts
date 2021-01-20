@@ -2,6 +2,9 @@ import type { Commit, QueryHandlerEntity, Paginated } from '@fabric-es/fabric-cq
 import type { EntityInfo } from '../../generated';
 import type { Notification, QueryHandlerGqlCtx } from '../../types';
 
+/**
+ * @about resovlers
+ */
 export type QueryHandlerResolvers = {
   Mutation: {
     /**

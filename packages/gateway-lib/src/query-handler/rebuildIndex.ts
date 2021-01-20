@@ -3,7 +3,7 @@ import type { Redis } from 'ioredis';
 import type { Logger } from 'winston';
 
 /**
- * drop and rebuild cidx and eidx
+ * @about drop and rebuild cidx and eidx
  * @params publisher
  * @params logger
  */

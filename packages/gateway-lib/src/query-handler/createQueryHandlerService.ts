@@ -19,7 +19,7 @@ import { isAuthResponse } from '../utils';
 import { reconcile, rebuildIndex, resolvers, typeDefs } from './index';
 
 /**
- * Create query handler microservice
+ * @about create query handler microservice
  * @params entityNames
  * @params option
  * ```typescript

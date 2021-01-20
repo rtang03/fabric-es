@@ -50,7 +50,7 @@ const parseNotifications: (data: Record<string, string>[]) => Notification[] = (
   ).reverse();
 
 /**
- * query handler resolvers
+ * @about query handler resolvers
  */
 export const resolvers: QueryHandlerResolvers = {
   Mutation: {

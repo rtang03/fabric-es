@@ -6,7 +6,7 @@ import { getLogger } from '..';
 import { catchErrors } from '../utils/catchErrors';
 
 /**
- * create resolvers
+ * @about create resolvers
  */
 export const createResolvers: (option: {
   caAdmin: string;

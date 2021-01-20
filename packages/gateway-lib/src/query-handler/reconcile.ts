@@ -2,7 +2,7 @@ import { QueryHandler } from '@fabric-es/fabric-cqrs';
 import type { Logger } from 'winston';
 
 /**
- * reconcile on chain data from Fabric to redis
+ * @about reconcile on chain data from Fabric to redis
  * @params entityNames
  * @params queryHandler
  * @params logger

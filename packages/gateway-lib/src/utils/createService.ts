@@ -27,9 +27,8 @@ interface AddRepository {
 }
 
 /**
- * ♨️  Entity microservice
- *
- * 🧬 see example [counter.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/gateway-lib/src/__tests__/counter.unit-test.ts)
+ * @about entity microservice
+ * @example [counter.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/gateway-lib/src/__tests__/counter.unit-test.ts)
  * ```typescript
  *  // step 1: init service
  *  const { config, getRepository } = await createService({

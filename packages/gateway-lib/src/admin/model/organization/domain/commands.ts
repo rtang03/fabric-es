@@ -1,4 +1,4 @@
-export interface OrgCommands {
+export type OrgCommands = {
   StartOrg: {
     mspId: string;
     payload: {
@@ -27,4 +27,4 @@ export interface OrgCommands {
       timestamp: number;
     };
   };
-}
+};
