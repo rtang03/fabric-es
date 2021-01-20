@@ -1,5 +1,4 @@
 /**
- * **BaseEntity**
  * TODO: This is confusing to use class for BaseEntity. May later clean it up
  * @ignore
  */
@@ -48,6 +47,10 @@ export type BaseEvent = {
   payload?: any;
 };
 
+// TODO: don't why it is omitted by typedoc
+/**
+ * @about BaseEntity
+ */
 export interface BaseEntity {
   /** entity Id **/
   id?: string;
@@ -83,6 +86,9 @@ export interface BaseEntity {
   _organization?: string[];
 }
 
+/**
+ * @about Commit
+ */
 export type Commit = {
   /** commit Id (same as commitId) **/
   id: string;

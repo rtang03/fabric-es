@@ -23,10 +23,10 @@ const getEntities = ({ mockdb, entityName, reducer }) =>
   ).map((events) => reducer(events));
 
 /**
- * Create mocked repository for private data
- * @param mockdb
- * @param entityName
- * @param reducer
+ * @about create mocked repository for private data
+ * @params mockdb
+ * @params entityName
+ * @params reducer
  */
 export const getPrivateMockRepository = <TEntity, TEvent>(
   mockdb: Record<string, Commit>,

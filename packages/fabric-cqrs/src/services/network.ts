@@ -10,10 +10,11 @@ import { safeLoad } from 'js-yaml';
 import { getLogger, promiseToReadFile } from '../utils';
 
 /**
- * get network services
+ * @about get network services
  * Special Notes:
  * 1. *asLocalhost* is used only for running with docker-compose
  * 1. *discovery* is used for on chain / public data only
+ * @params option
  * @returns ```typescript
  * {
  *   enrollmentId: string;

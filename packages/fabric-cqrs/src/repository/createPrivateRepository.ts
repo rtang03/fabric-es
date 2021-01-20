@@ -10,7 +10,7 @@ import {
 } from '../utils';
 
 /**
- * Create repository for private data
+ * @about create repository for private data
  * @typeParams TEntity
  * @typeParams TEvent
  * @params entityName

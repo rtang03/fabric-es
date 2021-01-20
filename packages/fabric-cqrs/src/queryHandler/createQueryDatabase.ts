@@ -19,8 +19,9 @@ import {
 } from '.';
 
 /**
- * Create query database
+ * @about Create query database
  * @params redis
+ * @returns [[QueryDatabase]]
  */
 export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js' });

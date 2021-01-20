@@ -1,20 +1,19 @@
 import type { Commit, Reducer } from '.';
 
-export interface QueryDatabaseResponse<TResult = any> {
+export type QueryDatabaseResponse<TResult = any> = {
   status: string;
   message: string;
   result?: TResult;
   error?: any;
-}
+};
 
 /**
- * ### Query Database
+ * @about query database
  *
- * 🔑 key format of commit *entityName::entityId::commitId*
- *
- * 🔑 key format of entity *entityName::entityId*
+ * - 🔑 key format of commit *entityName::entityId::commitId*
+ * - 🔑 key format of entity *entityName::entityId*
  */
-export interface QueryDatabase {
+export type QueryDatabase = {
   /**
    * delete commit by entityId
    * @return ```typescript
@@ -155,4 +154,4 @@ export interface QueryDatabase {
     entityName: string;
     where?: { [K in keyof TEntity]: TEntity[K] };
   }) => Promise<QueryDatabaseResponse<TEntity[]>>;
-}
+};

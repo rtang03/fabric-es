@@ -34,10 +34,9 @@ import {
 } from '../utils';
 
 /**
- * ♨️  Create query handler
- - see example at [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
+ * @about Create query handler
+ * @example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
  * ```typescript
- * // example
  * const wallet = await Wallets.newFileSystemWallet(walletPath);
  * const redis = new Redis();
  * const queryDatabase = createQueryData(redis);
@@ -61,6 +60,7 @@ import {
  * });
  * ```
  * @params options [[QueryHandlerOptions]]
+ * @returns [[QueryHandler]]
  */
 export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler = (options) => {
   const {

@@ -11,9 +11,9 @@ import type {
 } from '.';
 
 /**
- * Repository Options
+ * @about repository options
  */
-export interface RepoOption {
+export type RepoOption = {
   /** path to connectionProfile **/
   connectionProfile: string;
 
@@ -33,12 +33,12 @@ export interface RepoOption {
 
   /** winston logger **/
   logger?: Logger;
-}
+};
 
 /**
- * Private Repository Options
+ * @about private Repository Options
  */
-export interface PrivateRepoOption {
+export type PrivateRepoOption = {
   /** path to connectionProfile **/
   connectionProfile: string;
 
@@ -55,7 +55,7 @@ export interface PrivateRepoOption {
 
   /** winston logger **/
   logger?: Logger;
-}
+};
 
 export type SaveFcn<TEvent> = (payload: { events: TEvent[] }) => Promise<HandlerResponse<Commit>>;
 
@@ -71,16 +71,16 @@ export type RepoFcn_IdCommitId<TResponse> = (payload: {
 }) => Promise<HandlerResponse<TResponse>>;
 
 /**
- * ### Repository
- * 📌 prefix *command_* is comand-side 📥 ; and *query_* is query-side 📤 operation
+ * @about repository
+ * @command-side.📥 prefix *command_* is write-to-Fabric operations
+ * @query-side.📤 prefix *query_* is query-from-Redis operation
  */
-export interface Repository<TEntity = any, TEvent = any> {
+export type Repository<TEntity = any, TEvent = any> = {
   /**
-   * 📥 Write events to repository, with enrollmentId, and entityId
-   *
-   * 🧬 same as [[QueryHandler.create]]
+   * @about 📥 write events to repository, with enrollmentId, and entityId
+   * @same [[QueryHandler]].create
+   * @example
    * ```typescript
-   * // example
    * const response: HandlerResponse<Commit> = await repository
    *   .create({ enrollmentId, id })
    *   .save({ events });
@@ -96,9 +96,8 @@ export interface Repository<TEntity = any, TEvent = any> {
   create: (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
 
   /**
-   * 📥 delete commit by entityId
-   *
-   * 🧬 same as [[QueryHandler.command_deleteByEntityId]]
+   * @about 📥 delete commit by entityId
+   * @same [[QueryHandler]].command_deleteByEntityId
    * @return
    * ```typescript
    * (payload: { id: string }) =>
@@ -108,9 +107,8 @@ export interface Repository<TEntity = any, TEvent = any> {
   command_deleteByEntityId: RepoFcn_Id<FabricResponse>;
 
   /**
-   * 📥 get commits by entityName
-   *
-   * 🧬 same as [[QueryHandler.command_getByEntityName]]
+   * @about 📥 get commits by entityName
+   * @same [[QueryHandler]].command_getByEntityName
    * @return
    * ```typescript
    * () => Promise<HandlerResponse<Commit[]>>
@@ -119,7 +117,7 @@ export interface Repository<TEntity = any, TEvent = any> {
   command_getByEntityName: RepoFcn<Commit[]>;
 
   /**
-   * 📥 get commits by entityName and commitId \
+   * @about 📥 get commits by entityName and commitId
    * @return
    * ```typescript
    * (payload: { commitId: string; id: string }) =>
@@ -129,13 +127,12 @@ export interface Repository<TEntity = any, TEvent = any> {
   command_getByEntityIdCommitId?: RepoFcn_IdCommitId<Commit[]>;
 
   /**
-   * update current entity, by appending new events
+   * @about update current entity, by appending new events
    * 1. 📤  get currentState of entity by entityId
    * 1. 📥  return [[SaveFcn | Save]] function to append new events
-   *
-   * 🧬 same as [[QueryHandler.getById]]
+   * @same [[QueryHandler]].getById
+   * @example
    * ```typescript
-   * // example
    * const { save, currentState } = await repository.getById({ enrollmentId, id });
    * console.log(currentState);
    * const { data, status } = await save({
@@ -165,7 +162,7 @@ export interface Repository<TEntity = any, TEvent = any> {
   }>;
 
   /**
-   * 📤 get commits by entityName. Reduce to _entity_, on the fly. There is no meta data, like _commit, _event
+   * @about 📤 get commits by entityName. Reduce to _entity_, on the fly. There is no meta data, like _commit, _event
    * @return
    * ```typescript
    * () => Promise<HandlerResponse<TEntity[]>>
@@ -174,9 +171,8 @@ export interface Repository<TEntity = any, TEvent = any> {
   getByEntityName: () => Promise<HandlerResponse<TEntity[]>>;
 
   /**
-   * 📤 get commits by entityId
-   *
-   * 🧬 same as [[QueryHandler.getCommitById]]
+   * @about 📤 get commits by entityId
+   * @same [[QueryHandler]].getCommitById
    * @return
    * ```typescript
    * (payload: { id: string }) => Promise<HandlerResponse<Commit[]>>
@@ -185,9 +181,8 @@ export interface Repository<TEntity = any, TEvent = any> {
   getCommitById: RepoFcn_Id<Commit[]>;
 
   /**
-   * 📤 delete commmts by entityId
-   *
-   * 🧬 same as [[QueryHandler.query_deleteCommitByEntityId]]
+   * @about 📤 delete commmts by entityId
+   * @same [[QueryHandler]].query_deleteCommitByEntityId
    * @return
    * ```typescript
    * (payload: { id: string }) => Promise<HandlerResponse<number>>
@@ -196,9 +191,8 @@ export interface Repository<TEntity = any, TEvent = any> {
   query_deleteCommitByEntityId: RepoFcn_Id<number>;
 
   /**
-   * 📤 delete commit by entityName
-   *
-   * 🧬 same as [[QueryHandler.query_deleteCommitByEntityId]]
+   * @about 📤 delete commit by entityName
+   * @same [[QueryHandler]].query_deleteCommitByEntityId
    * @return
    * ```typescript
    * () => Promise<HandlerResponse<number>>
@@ -214,20 +208,19 @@ export interface Repository<TEntity = any, TEvent = any> {
   }) => Promise<HandlerResponse<TEntity[]>>;
 
   /**
-   * 📤 get EntityName
+   * @about 📤 get EntityName
    * @return `() => string`
    * **/
   getEntityName: () => string;
 
-  /** disconnect from fabric peer
+  /** @about disconnect from fabric peer
    * @return `() => void`
    * **/
   disconnect: () => void;
 
   /**
-   * 📤 get paginated entity by entityId
-   *
-   * 🧬 same as [[QueryHandler.getPaginatedEntityById]]
+   * @about 📤 get paginated entity by entityId
+   * @same [[QueryHandler]].getPaginatedEntityById
    * @return
    * ```typescript
    * (criteria: PaginatedEntityCriteria, id?: string) =>
@@ -240,9 +233,8 @@ export interface Repository<TEntity = any, TEvent = any> {
   ) => Promise<HandlerResponse<Paginated<TEntity>>>;
 
   /**
-   * 📤 get paginated commit by entityId
-   *
-   * 🧬 same as [[QueryHandler.getPaginatedCommitById]]
+   * @about 📤 get paginated commit by entityId
+   * @same [[QueryHandler]].getPaginatedCommitById
    * @return
    * ```typescript
    * (criteria: PaginatedCommitCriteria, id?: string) =>
@@ -253,19 +245,18 @@ export interface Repository<TEntity = any, TEvent = any> {
     criteria: PaginatedCommitCriteria,
     id?: string
   ) => Promise<HandlerResponse<Paginated<Commit>>>;
-}
+};
 
 /**
- * ### Repository for Private Data
- * 📌 Noitce that both read and write are made directly to Fabric. No Redis involved.
+ * @about repository for private data
+ * Noitce that both read and write are made directly to Fabric. No Redis involved.
  */
-export interface PrivateRepository<TEntity = any, TEvent = any> {
+export type PrivateRepository<TEntity = any, TEvent = any> = {
   /**
-   * 📥 Write events to private repository, with enrollmentId, and entityId
-   *
-   * 🧬 similar as [[Repository.create]]
+   * @about 📥 write events to private repository, with enrollmentId, and entityId
+   * @similar [[Repository]].create
+   * @example
    * ```typescript
-   * // example
    * const response: HandlerResponse<Commit> = await repository
    *   .create({ enrollmentId, id })
    *   .save({ events });
@@ -281,9 +272,8 @@ export interface PrivateRepository<TEntity = any, TEvent = any> {
   create: (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
 
   /**
-   * 📥 get commits by entityName
-   *
-   * 🧬 similar as [[Repository.getCommitByEntityName]]
+   * @about 📥 get commits by entityName
+   * @similar [[Repository]].getCommitByEntityName
    * @return
    * ```typescript
    * () => Promise<HandlerResponse<Commit[]>>
@@ -292,9 +282,8 @@ export interface PrivateRepository<TEntity = any, TEvent = any> {
   getCommitByEntityName: RepoFcn<Commit[]>;
 
   /**
-   * 📥 get commits by entityName and commitId
-   *
-   * 🧬 similar as [[Repository.getCommitByEntityIdCommitId]]
+   * @about 📥 get commits by entityName and commitId
+   * @similar [[Repository]].getCommitByEntityIdCommitId
    * @return
    * ```typescript
    * (payload: { commitId: string; id: string }) =>
@@ -304,7 +293,7 @@ export interface PrivateRepository<TEntity = any, TEvent = any> {
   getCommitByEntityIdCommitId: RepoFcn_IdCommitId<Commit[]>;
 
   /**
-   * 📥 delete commits by entityId and commitId
+   * @about 📥 delete commits by entityId and commitId
    * @return
    * ```typescript
    * (payload: { commitId: string; id: string }) =>
@@ -314,13 +303,12 @@ export interface PrivateRepository<TEntity = any, TEvent = any> {
   deleteByEntityIdCommitId: RepoFcn_IdCommitId<FabricResponse>;
 
   /**
-   * update current entity, by appending new events
+   * @about update current entity, by appending new events
    * 1. 📥 get currentState of entity by entityId
    * 1. 📥 return [[SaveFcn | Save]] function to append new events
-   *
-   * 🧬 similar as [[Repository.getById]]
+   * @similar [[Repository]].getById
+   * @example
    * ```typescript
-   * // example
    * const { save, currentState } = await repository.getById({ enrollmentId, id });
    * console.log(currentState);
    * const { data, status } = await save({
@@ -350,16 +338,15 @@ export interface PrivateRepository<TEntity = any, TEvent = any> {
   }>;
 
   /**
-   * 📥 get EntityName
-   *
-   * 🧬 similar as [[Repository.getById]]
+   * @about 📥 get entityName
+   * @similar [[Repository]].getEntityName
    * @return `() => string`
    * **/
   getEntityName: () => string;
 
   /**
-   * disconnect from fabric peer
+   * @about disconnect from fabric peer
    * @return `() => void`
    * **/
   disconnect: () => void;
-}
+};

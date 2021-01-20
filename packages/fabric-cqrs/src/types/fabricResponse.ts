@@ -1,8 +1,8 @@
 /**
- * Generic response from Fabric
+ * @about generic response from Fabric
  */
-export interface FabricResponse {
+export type FabricResponse = {
   status: string;
   message: string;
   result: any;
-}
+};

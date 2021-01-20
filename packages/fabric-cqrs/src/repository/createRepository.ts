@@ -27,8 +27,7 @@ import {
 } from '../utils';
 
 /**
- * @about Create repository for public / onchain data
- *
+ * @about create repository for public / onchain data
  * @example
  * [repo.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/repository/__tests__/repo.unit-test.ts)
  * ```typescript

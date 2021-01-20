@@ -1,11 +1,22 @@
 import { Commit } from '.';
 
+/**
+ * @ignore
+ */
 export const TRACK_EVENT = 'PrivateDataTracked';
+
+/**
+ * @ignore
+ */
 export const TRACK_FIELD = '_remoteDataTracking';
+
+/**
+ * @ignore
+ */
 export const ORGAN_FIELD = '_organization';
 
 /**
- * Reducer computes the current state of an entity
+ * @about reducer computes the current state of an entity
  */
 export type Reducer<TEntity = any> = (
   history: { type: string; payload?: any }[],
@@ -13,7 +24,7 @@ export type Reducer<TEntity = any> = (
 ) => TEntity;
 
 /**
- * return high order reducer function
+ * @about return high order reducer function
  */
 export const getReducer = <T, E>(reducer: (entity: T, event: E) => T) => (
   history: E[],
@@ -21,7 +32,7 @@ export const getReducer = <T, E>(reducer: (entity: T, event: E) => T) => (
 ) => history.reduce(reducer, initialState);
 
 /**
- * reducer for private data tracking events.
+ * @about reducer for private data tracking events.
  */
 export const trackingReducer = (commits: Commit[]) => {
   const result = commits.reduce(

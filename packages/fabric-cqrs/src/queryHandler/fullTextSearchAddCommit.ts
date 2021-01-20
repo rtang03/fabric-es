@@ -3,7 +3,7 @@ import trimStart from 'lodash/trimStart';
 import type { Commit } from '../types';
 
 /**
- * 📌 IMPORTANT: It defines the indexed field of commit
+ * @about define the indexed field of commit
  */
 export const commitIndex = [
   'cidx',
@@ -32,15 +32,8 @@ export const commitIndex = [
 ];
 
 /**
- * Create index *cidx*
- * @param documentId
- * @param redisKey
- * @param entityName
- * @param entityId
- * @param event
- * @param ts
- * @param creator
- * @param msp
+ * @about create index *cidx*
+ * @params option
  */
 export const createCommitIndex: (option: {
   documentId: string;
@@ -76,10 +69,10 @@ export const createCommitIndex: (option: {
 };
 
 /**
- * Add new entity to *cidx*
- * @param redisKey
- * @param commit
- * @param redis
+ * @about add new entity to *cidx*
+ * @params redisKey
+ * @params commit
+ * @params redis
  */
 export const fullTextSearchAddCommit = async (redisKey: string, commit: Commit, redis: Redis) => {
   const { entityId, entityName } = commit;

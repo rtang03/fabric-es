@@ -2,7 +2,7 @@ import type { Redis } from 'ioredis';
 import uniq from 'lodash/uniq';
 
 /**
- * 📌 IMPORTANT: It defines the indexed field of entity
+ * @about defines the indexed field of entity
  */
 export const entityIndex = [
   'eidx',
@@ -34,18 +34,8 @@ export const entityIndex = [
 ];
 
 /**
- * Create index *eidx*
- * @param documentId
- * @param redisKey
- * @param entityName
- * @param id
- * @param creator
- * @param created
- * @param ts
- * @param desc
- * @param tag
- * @param event
- * @param org
+ * @about create index *eidx*
+ * @params option
  */
 export const createEntityIndex: (option: {
   documentId: string;
@@ -105,10 +95,11 @@ export const createEntityIndex: (option: {
 };
 
 /**
- * Add new entity to *eidx*
- * @param redisKey
- * @param entity
- * @param redis
+ * @about add new entity to *eidx*
+ * @typeParams TEntity
+ * @params redisKey
+ * @params entity
+ * @params redis
  */
 export const fullTextSearchAddEntity = async <
   TEntity extends {

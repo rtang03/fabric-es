@@ -6,10 +6,10 @@ import { getLogger } from '../utils';
 import { getContract } from './contract';
 
 /**
- * evaluate transaction
- * @param fcn function
- * @param args args
- * @param network network `{ network: Network }`
+ * @about evaluate transaction
+ * @params fcn function
+ * @params args args
+ * @params network network `{ network: Network }`
  * @returns `Record<string, Commit> | { error: any }`
  */
 export const evaluate: (
@@ -40,10 +40,10 @@ export const evaluate: (
 };
 
 /**
- * Observables
- * @param fcn
- * @param args
- * @param options
+ * @about observables
+ * @params fcn
+ * @params args
+ * @params options
  */
 export const evaluate$: (
   fcn: string,

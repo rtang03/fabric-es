@@ -1,7 +1,7 @@
 /**
- * Generic entity at Query Handler. It does not carry model information of entity.
+ * @about generic entity at query handler. It does not carry model information of entity.
  */
-export interface QueryHandlerEntity {
+export type QueryHandlerEntity = {
   /** entityId **/
   id: string;
 
@@ -32,4 +32,4 @@ export interface QueryHandlerEntity {
 
   /** last modified timestamp **/
   lastModified: number;
-}
+};

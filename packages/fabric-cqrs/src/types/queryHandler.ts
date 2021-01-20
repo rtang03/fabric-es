@@ -14,9 +14,9 @@ import type {
 } from '.';
 
 /**
- * QueryHandler Options
+ * @about queryHandler Options
  */
-export interface QueryHandlerOptions {
+export type QueryHandlerOptions = {
   /** when the query handler starts, it reconciles entities from Fabric to Redis **/
   entityNames: string[];
 
@@ -45,28 +45,28 @@ export interface QueryHandlerOptions {
 
   /** winston logger **/
   logger?: Logger;
-}
+};
 
-export interface GetByEntityNameResponse<TEntity = any> {
+export type GetByEntityNameResponse<TEntity = any> = {
   currentStates: TEntity[];
   errors: string[];
-}
+};
 
 /**
- * Query handler response
+ * @about query handler response
  * @typeParam TData Type of data returned
  */
-export interface HandlerResponse<TData = any> {
+export type HandlerResponse<TData = any> = {
   data?: TData;
   message?: string;
   error?: any;
   status?: string;
-}
+};
 
 /**
- * input criteria for RedisSearch, return paginated commit
+ * @about input criteria for RedisSearch, return paginated commit
  * - see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
- * - see example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
+ * @example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
  * ```typescript
  * // search by wildcard
  * ['test*']
@@ -76,7 +76,7 @@ export interface HandlerResponse<TData = any> {
  * ['@msp:{org1msp}']
  * ```
  */
-export interface PaginatedCommitCriteria {
+export type PaginatedCommitCriteria = {
   /** events array **/
   events?: string[];
 
@@ -97,12 +97,12 @@ export interface PaginatedCommitCriteria {
 
   /** sortBy either ASC or DESC **/
   sort?: 'ASC' | 'DESC';
-}
+};
 
 /**
- * input criteria for RedisSearch, return paginated entity
+ * @about input criteria for RedisSearch, return paginated entity
  * - see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
- * - see example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
+ * @example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
  * ```typescript
  * // search by wildcard
  * ['test*']
@@ -110,7 +110,7 @@ export interface PaginatedCommitCriteria {
  * ['@org:{org1msp}']
  * ```
  */
-export interface PaginatedEntityCriteria {
+export type PaginatedEntityCriteria = {
   /** aka mspId **/
   organization?: string;
 
@@ -134,30 +134,28 @@ export interface PaginatedEntityCriteria {
 
   /** sortBy either ASC or DESC **/
   sort?: 'ASC' | 'DESC';
-}
+};
 
 /**
- * ### QueryHandler
+ * @about queryHandler
  * QueryHandler provides utility to access query database
  */
-export interface QueryHandler {
+export type QueryHandler = {
   /**
-   * 📥 write events to onchain repository, with enrollmentId, and entityId
-   *
-   * 🔬 this api is solely for *unit-test* purpose.
-   *
-   * 🧬 same as [[Repository.create]]
+   * @about 📥 write events to onchain repository, with enrollmentId, and entityId
+   * @unit_test this api is solely for *unit-test* purpose.
+   * @same [[Repository]].create
    * **/
   create: <TEvent>(
     entityName: string
   ) => (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
 
   /**
-   * update current entity, by appending new events
+   * @about update current entity, by appending new events
    * 1. 📤  get currentState of entity by entityId
    * 1. 📥  return [[SaveFcn | Save]] function to append new events
    *
-   * 🧬 same as [[Repository.getById]]
+   * @same [[Repository]].getById
    * **/
   getById: <TEntity, TEvent>(
     entityName: string
@@ -170,7 +168,7 @@ export interface QueryHandler {
   }>;
 
   /**
-   * 📤  get commits by entityName. Reduce to _entity_, on the fly
+   * @about 📤  get commits by entityName. Reduce to _entity_, on the fly
    * @return ```typescript
    * () => Promise<HandlerResponse<TEntity[]>>
    * ```
@@ -178,9 +176,8 @@ export interface QueryHandler {
   getByEntityName: <TEntity = any>(entityName: string) => RepoFcn<TEntity[]>;
 
   /**
-   * 📤 get commits by entityId
-   *
-   * 🧬 same as [[Repository.getCommitById]]
+   * @about 📤 get commits by entityId
+   * @same [[Repository]].getCommitById
    * @return ```typescript
    * (payload: { id: string }) => Promise<HandlerResponse<Commit[]>>
    * ```
@@ -188,11 +185,9 @@ export interface QueryHandler {
   getCommitById: (entityName: string) => RepoFcn_Id<Commit[]>;
 
   /**
-   * 📥 delete commit by entityId
-   *
-   * 🔬 this api is solely for *unit-test* purpose.
-   *
-   * 🧬 same as [[Repository.command_deleteByEntityId]]
+   * @about 📥 delete commit by entityId
+   * @unit_test this api is solely for *unit-test* purpose.
+   * @same [[Repository]].command_deleteByEntityId
    * @return ```typescript
    * (payload: { id: string }) =>
    *   Promise<HandlerResponse<<FabricResponse>>>
@@ -200,14 +195,10 @@ export interface QueryHandler {
    * **/
   command_deleteByEntityId: (entityName: string) => RepoFcn_Id<FabricResponse>;
 
-  /* command-side: get commit by entityName
-   * It is private api, only used for development and unit test of QueryHandler */
   /**
-   * 📥 get commits by entityName
-   *
-   * 🔬 this api is solely for *unit-test* purpose.
-   *
-   * 🧬 same as [[Repository.command_getByEntityName]]
+   * @about 📥 get commits by entityName
+   * @unit_test this api is solely for *unit-test* purpose.
+   * @same [[Repository]].command_getByEntityName
    * @return ```typescript
    * () => Promise<HandlerResponse<Commit[]>>
    * ```
@@ -215,9 +206,8 @@ export interface QueryHandler {
   command_getByEntityName: (entityName: string) => RepoFcn<Commit[]>;
 
   /**
-   * 📤 delete commmts by entityId
-   *
-   * 🧬 same as [[Repository.query_deleteCommitByEntityId]]
+   * @about 📤 delete commmts by entityId
+   * @same [[Repository]].query_deleteCommitByEntityId
    * @return ```typescript
    * (payload: { id: string }) => Promise<HandlerResponse<number>>
    * ```
@@ -225,9 +215,8 @@ export interface QueryHandler {
   query_deleteCommitByEntityId: (entityName: string) => RepoFcn_Id<number>;
 
   /**
-   * 📤 delete commit by entityName
-   *
-   * 🧬 same as [[Repository.query_deleteCommitByEntityName]]
+   * @about 📤 delete commit by entityName
+   * @same [[Repository]].query_deleteCommitByEntityName
    * @return ```typescript
    * () => Promise<HandlerResponse<number>>
    * ```
@@ -235,12 +224,10 @@ export interface QueryHandler {
   query_deleteCommitByEntityName: (entityName: string) => RepoFcn<number>;
 
   /**
-   * 📤 get paginated entity by entityId. This is specialized version of
-   * [[QueryHandler.fullTextSearchEntity]], with parametric query.
-   *
-   * 🧬 same as [[Repository.getPaginatedEntityById]]
-   *
-   * 🧬 similar as [[QueryHandler.fullTextSearchEntity]]
+   * @about 📤 get paginated entity by entityId. This is specialized version of
+   * [QueryHandler.fullTextSearchEntity], with parametric query.
+   * @same [[Repository]].getPaginatedEntityById
+   * @similar [[QueryHandler]].fullTextSearchEntity
    * @return ```typescript
    * (criteria: PaginatedEntityCriteria, id?: string) =>
    *   Promise<HandlerResponse<Paginated<TResult>>>
@@ -254,12 +241,10 @@ export interface QueryHandler {
   ) => Promise<HandlerResponse<Paginated<TResult>>>;
 
   /**
-   * 📤 get paginated commit by entityId. This is specialized version of
-   * [[QueryHandler.fullTextSearchCommit]], with parametric query.
-   *
-   * 🧬 same as [[Repository.getPaginatedCommitById]]
-   *
-   * 🧬 similar as [[QueryHandler.fullTextSearchCommit]]
+   * @about 📤 get paginated commit by entityId. This is specialized version of
+   * [QueryHandler.fullTextSearchCommit], with parametric query.
+   * @same [[Repository]].getPaginatedCommitById
+   * @similar [[QueryHandler]].fullTextSearchCommit
    * @return ```typescript
    * (criteria: PaginatedCommitCriteria, id?: string) =>
    *   Promise<HandlerResponse<Paginated<Commit>>>
@@ -273,9 +258,8 @@ export interface QueryHandler {
   ) => Promise<HandlerResponse<Paginated<Commit>>>;
 
   /**
-   * full text search of commit.
-   *
-   * 🧬 similar as [[QueryHandler.getPaginatedCommitById]]
+   * @about full text search of commit.
+   * @similar [[QueryHandler]].getPaginatedCommitById
    */
   fullTextSearchCommit: (
     query: string[],
@@ -284,9 +268,8 @@ export interface QueryHandler {
   ) => Promise<HandlerResponse<Paginated<Commit>>>;
 
   /**
-   * full text search of entity
-   *
-   * 🧬 similar as [[QueryHandler.getPaginatedEntityById]]
+   * @about full text search of entity
+   * @similar [[QueryHandler]].getPaginatedEntityById
    */
   fullTextSearchEntity: (
     query: string[],
@@ -295,12 +278,12 @@ export interface QueryHandler {
   ) => Promise<HandlerResponse<Paginated<QueryHandlerEntity>>>;
 
   /**
-   * Primarily used by web ui, to summary info of entities
+   * @about primarily used by web ui, to summary info of entities
    */
   queryGetEntityInfo: (payload: { entityName: string }) => Promise<HandlerResponse<EntityInfo>>;
 
   /**
-   * Primarily used by web ui, to retrieve the list of active notifications.
+   * @about primarily used by web ui, to retrieve the list of active notifications.
    */
   queryNotify: (payload: {
     creator: string;
@@ -311,7 +294,7 @@ export interface QueryHandler {
   }) => Promise<HandlerResponse<Record<string, string>[]>>;
 
   /**
-   * used by bootstraping programs to reconcile entity from Fabric to Redis
+   * @about used by bootstraping programs to reconcile entity from Fabric to Redis
    * @return
    * ```typescript
    * (payload: { entityName: string }) =>
@@ -323,28 +306,28 @@ export interface QueryHandler {
   }) => Promise<HandlerResponse<{ key: string; status: string }[]>>;
 
   /**
-   * subscribe to Fabric channel event hub
+   * @about subscribe to Fabric channel event hub
    * @return `() => void`
    * **/
   subscribeHub: (entityNames: string[]) => Promise<any>;
 
   /**
-   * unsubscribe to Fabric channel event hub
+   * @about unsubscribe to Fabric channel event hub
    * @return `() => void`
    * **/
   unsubscribeHub: () => void;
 
   /**
-   * disconnect from fabric peer
+   * @about disconnect from fabric peer
    * @return `() => void`
    * **/
   disconnect: () => void;
-}
+};
 
 /**
- * EntityInfo is the summary info of entity
+ * @about entityInfo is the summary info of entity
  */
-export interface EntityInfo {
+export type EntityInfo = {
   entityName?: string;
 
   /** total number of entity **/
@@ -364,4 +347,4 @@ export interface EntityInfo {
 
   /** total number of commits **/
   totalCommit: number;
-}
+};
