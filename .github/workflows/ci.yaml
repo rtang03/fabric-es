@@ -63,3 +63,12 @@ jobs:
         run: sudo rm -rf deployments/dev-net/artifacts
       - name: clean-up volume
         run: sudo rm -rf deployments/dev-net/volume
+      - name: typedoc
+        run: sudo yarn typedoc
+      - name: Deploy doc
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.CI_TOKEN }}
+          BRANCH: gh-pages # The branch the action should deploy to.
+          FOLDER: build # The folder the action should deploy.
+          CLEAN: true # Auto
