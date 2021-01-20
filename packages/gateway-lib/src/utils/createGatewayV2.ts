@@ -68,7 +68,7 @@ export const createGatewayV2: (option: {
 
       logger.debug(`token: ${token}`);
 
-      if (!token) return {};
+      if (!token || (token === 'undefined')) return {};
 
       try {
         const response = await fetch(authenticationCheck, {
@@ -80,7 +80,7 @@ export const createGatewayV2: (option: {
 
         if (response.status !== httpStatus.OK) {
           logger.warn(
-            `fail to authenticate; no token is passed to microservice, status: ${response.status}`
+            `check authentication failed, status: ${response.status}`
           );
           return {};
         }
@@ -148,7 +148,7 @@ export const createGatewayV2: (option: {
   };
 
   const onSignal = () =>
-    new Promise(async (resolve) => {
+    new Promise<void>(async (resolve) => {
       logger.info('〽️  gateway is going to shut down');
 
       const processes = await getProcessDescriptions(logger);
