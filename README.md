@@ -301,3 +301,6 @@ deployment will be running with k8s.
 cd dev-net
 ./dn-run.2-db-red-auth.sh
 ```
+
+### Todo
+- Improve search functions
