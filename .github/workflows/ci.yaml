@@ -65,6 +65,8 @@ jobs:
         run: sudo rm -rf deployments/dev-net/volume
       - name: typedoc
         run: sudo yarn typedoc
+      - name: make dir
+        run: mkdir -p /home/runner/work/fabric-es/fabric-es/build
       - name: Deploy doc
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
@@ -72,3 +74,4 @@ jobs:
           BRANCH: gh-pages # The branch the action should deploy to.
           FOLDER: build # The folder the action should deploy.
           CLEAN: true # Auto
+          REPOSITORY_NAME: rtang03/fabric-es.github.io
