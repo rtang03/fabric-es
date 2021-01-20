@@ -177,6 +177,7 @@ beforeAll(async () => {
       redisOptions,
     });
 
+    // config Apollo
     modelApolloService = await config({ typeDefs, resolvers })
       .addRepository(getRepository<Counter, CounterEvents>(entityName, counterReducer))
       .create();

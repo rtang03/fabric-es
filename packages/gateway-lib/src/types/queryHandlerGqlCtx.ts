@@ -14,4 +14,4 @@ export type QueryHandlerGqlCtx = {
   is_admin?: boolean;
   username?: string;
   entityNames: string[];
-}
+};

@@ -10,4 +10,4 @@ export type EnrollAdminOption = {
   connectionProfile: string;
   wallet: Wallet;
   caName: string;
-}
+};

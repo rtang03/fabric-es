@@ -5,3 +5,4 @@ Some source is refactored from below repo
 - [IBM Sample Code - 2](https://github.com/PacktPublishing/Handson-Blockchain-Development-with-Hyperledger)
 - [ampretia sample](https://github.com/ampretia/fabric-application-examples)
 - [sample monorepo build](https://github.com/benawad/fullstack-graphql-airbnb-clone)
+- [Fabric-postgres-wallet](https://github.com/IBM/fabric-postgres-wallet)

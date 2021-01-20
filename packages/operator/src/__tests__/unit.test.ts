@@ -1,10 +1,10 @@
 require('../env');
 import { Wallets } from 'fabric-network';
 import rimraf from 'rimraf';
-import { createNetworkOperator } from '../utils/createNetworkOperator';
 import { enrollAdmin } from '../enrollAdmin';
 import { NetworkOperator } from '../types';
 import { isCommitRecord } from '../utils';
+import { createNetworkOperator } from '../utils/createNetworkOperator';
 
 const mspId = process.env.MSPID;
 const channelName = process.env.CHANNEL_NAME;
