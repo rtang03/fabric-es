@@ -49,6 +49,12 @@ jobs:
           npm rebuild grpc
           # npm rebuild grpc --target=14.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
           nvm use v12.16.1
+      - name: lint auth, chaincode, fabric-cqrs, operator, gateway-lib, proxy
+        run: yarn lint:lib
+      - name: lint gw-org*, model-*, ui-account
+        run: yarn lint:app
+      - name: Run tsc for all packages
+        run: yarn tsc:all
       - name: typedoc
         run: sudo yarn typedoc
       - name: Deploy doc
@@ -59,12 +65,6 @@ jobs:
           BRANCH: gh-pages # The branch the action should deploy to.
           FOLDER: typedocs # The folder the action should deploy.
           CLEAN: true # Auto
-      - name: lint auth, chaincode, fabric-cqrs, operator, gateway-lib, proxy
-        run: yarn lint:lib
-      - name: lint gw-org*, model-*, ui-account
-        run: yarn lint:app
-      - name: Run tsc for all packages
-        run: yarn tsc:all
       - name: deploy base 2-org fabric network with proxy, postgres, redis, auth
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && sudo ./dn-run.2-db-red-auth.sh
       - name: Run unit tests for chaincode, operator, fabric-cqrs, model-*, gateway-lib
