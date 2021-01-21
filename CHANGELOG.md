@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- refactor: in ui-control, replace queryHandler apollolink with gw-org apollolink [\#174](https://github.com/rtang03/fabric-es/issues/174)
 - migrate to external chaincode launcher - refactor dev-net [\#171](https://github.com/rtang03/fabric-es/issues/171)
 - migrate to external chaincode launcher - new chaincode repo [\#170](https://github.com/rtang03/fabric-es/issues/170)
 
@@ -15,6 +16,7 @@
 
 **Merged pull requests:**
 
+- docs: add typedoc [\#180](https://github.com/rtang03/fabric-es/pull/180) ([rtang03](https://github.com/rtang03))
 - chore: Prepare tester and dev-net to port to cdi-samples [\#179](https://github.com/rtang03/fabric-es/pull/179) ([pangduckwai](https://github.com/pangduckwai))
 - Reference Implementation robustness test [\#178](https://github.com/rtang03/fabric-es/pull/178) ([pangduckwai](https://github.com/pangduckwai))
 - refactor: remove auth-server [\#177](https://github.com/rtang03/fabric-es/pull/177) ([rtang03](https://github.com/rtang03))
@@ -224,6 +226,7 @@
 - Use release versions as dev-net docker image versions [\#32](https://github.com/rtang03/fabric-es/pull/32) ([pangduckwai](https://github.com/pangduckwai))
 - Merge projectionDb search changes from 0.5.16 to master [\#30](https://github.com/rtang03/fabric-es/pull/30) ([pangduckwai](https://github.com/pangduckwai))
 - Update the GCP deployment of gw-org1, gw-org2, and auth-servers for release v0.6.1 [\#29](https://github.com/rtang03/fabric-es/pull/29) ([hohowin](https://github.com/hohowin))
+- Entity search APIs [\#28](https://github.com/rtang03/fabric-es/pull/28) ([pangduckwai](https://github.com/pangduckwai))
 - V2dn3org [\#25](https://github.com/rtang03/fabric-es/pull/25) ([pangduckwai](https://github.com/pangduckwai))
 
 **Fixed bugs:**
