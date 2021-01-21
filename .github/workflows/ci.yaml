@@ -49,6 +49,16 @@ jobs:
           npm rebuild grpc
           # npm rebuild grpc --target=14.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
           nvm use v12.16.1
+      - name: typedoc
+        run: sudo yarn typedoc
+      - name: Deploy doc
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          ACCESS_TOKEN: ${{ secrets.CI_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages # The branch the action should deploy to.
+          FOLDER: typedocs # The folder the action should deploy.
+          CLEAN: true # Auto
       - name: lint auth, chaincode, fabric-cqrs, operator, gateway-lib, proxy
         run: yarn lint:lib
       - name: lint gw-org*, model-*, ui-account
@@ -63,16 +73,3 @@ jobs:
         run: sudo rm -rf deployments/dev-net/artifacts
       - name: clean-up volume
         run: sudo rm -rf deployments/dev-net/volume
-      - name: typedoc
-        run: sudo yarn typedoc
-      - name: make dir
-        run: mkdir -p /home/runner/work/fabric-es/fabric-es/build
-      - name: Deploy doc
-        uses: JamesIves/github-pages-deploy-action@3.7.1
-        with:
-          ACCESS_TOKEN: ${{ secrets.CI_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: . # The branch the action should deploy to.
-          FOLDER: build # The folder the action should deploy.
-          CLEAN: true # Auto
-          REPOSITORY_NAME: rtang03/fabric-es.github.io

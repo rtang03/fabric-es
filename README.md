@@ -10,16 +10,16 @@ packages to accelerate development of Hyperledger Fabric application stack.
 
 See [Concept](https://github.com/rtang03/fabric-es/docs/CONCEPT.md)
 
-
 ### Package libraries
-This monerepo includes three package libraries. 
+
+This monerepo includes three package libraries.
 
 1. `fabric-cqrs` is the utility to write data to Hyperledger Fabric, and query data from Redis/RediSearch.
 1. `gateway-lib` creates Apollo federated gateway, along with entity-based microservice (in form of Apollo server)
 1. `operator` is utility library for system administrative works.
 
-
 # Simple-counter example
+
 Let start with simple-counter example. See [simple-counter](https://github.com/rtang03/fabric-es/blob/master/packages/gateway-lib/src/__tests__/__utils__/)
 
 ## Application Architecture
@@ -234,12 +234,15 @@ const qhService = await createQueryHandlerService(['counter'], {
 });
 ```
 
-### Step 3: Make it Clean-way
+### Step 3: Bootstrap it
 
 The funniest part is here, when every part are glued together.
 
+📌 Make sure `dev-net` is running, before executing the unit-test above.
+
 ```typescript
-// packages/gateway-lib/src/__tests__/counter.unit-test.ts
+// Full implementation is here
+// ./packages/gateway-lib/src/__tests__/counter.unit-test.ts
 
 // (1) Wallet
 const wallet = await Wallets.newFileSystemWallet(walletPath);
@@ -289,10 +292,56 @@ app = await createGateway({
 });
 ```
 
-📌 Make sure `dev-net` is running, before executing the unit-test above.
+### Step 4: Register / Login / Invoke Tx
 
+```typescript
+// (11) Reister new user, targeting RESTful auth-server
+await fetch(`http://localhost:8080/account`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ username, email, password }),
+});
 
-# dev-net
+// (12) Login new user
+await fetch(`http://localhost:8080/account/login`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ username, password }),
+})
+  .then((r) => r.json())
+  .then((res) => {
+    accessToken = res.access_token; // accessToken is obtained
+  });
+
+// (13) Create server side digital wallet, targeting Apollo federated gateway;
+// authtenicated with above accessToken
+await request(app)
+  .post('/graphql')
+  .set('authorization', `bearer ${accessToken}`)
+  .send({
+    operationName: 'CreateWallet',
+    query: CREATE_WALLET,
+  })
+  .expect(({ body: { data, errors } }) => {
+    /* ... */
+  });
+
+// (14) Increment counter, targeting Apollo federated gateway;
+// authtenicated with above accessToken
+await request(app)
+  .post('/graphql')
+  .set('authorization', `bearer ${accessToken}`)
+  .send({
+    operationName: 'Increment',
+    query: INCREMENT,
+    variables: { counterId, id: counterId },
+  })
+  .expect(({ body: { data, errors } }) => {
+    /* ... */
+  });
+```
+
+## dev-net
 
 `dev-net` provisions different development networks, based on docker-compose. Notice that the upcoming production
 deployment will be running with k8s.
@@ -302,5 +351,6 @@ cd dev-net
 ./dn-run.2-db-red-auth.sh
 ```
 
-### Todo
-- Improve search functions
+## Advanced example
+
+`packages/gw-orgX` & `package/model-X` provide advanced example, about how multiple organizations gateways are configured.
