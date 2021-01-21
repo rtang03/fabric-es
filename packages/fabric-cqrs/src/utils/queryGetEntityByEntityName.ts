@@ -9,10 +9,7 @@ import { dispatcher } from './dispatcher';
 /**
  * retrieve commits and then reduce
  * NOTE: there is no meta data, like __commit, nor __event
- * @param entityName
- * @param reducer
- * @param logger
- * @param store
+ * @ignore
  */
 export const queryGetEntityByEntityName: <TEntity>(
   entityName: string,

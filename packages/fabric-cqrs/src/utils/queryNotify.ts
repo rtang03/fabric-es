@@ -4,6 +4,10 @@ import { action } from '../store/query';
 import { HandlerResponse } from '../types';
 import { dispatcher } from './dispatcher';
 
+/**
+ * query side: query notification details
+ * @ignore
+ */
 export const queryNotify: (option: {
   store: Store;
   logger: Logger;

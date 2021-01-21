@@ -26,6 +26,30 @@ import {
   doPaginatedSearch,
 } from '../utils';
 
+/**
+ * @about create repository for public / onchain data
+ * @example
+ * [repo.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/repository/__tests__/repo.unit-test.ts)
+ * ```typescript
+ * const repo = createRepository<Counter, CounterEvent>(
+ *     entityName,
+ *     reducer,
+ *     {
+ *         queryDatabase,
+ *         gateway,
+ *         network,
+ *         channelName,
+ *         connectionProfile,
+ *         wallet,
+ *         logger,
+ *   });
+ * ```
+ * @typeParams TEntity
+ * @typeParams TEvent
+ * @params entityName
+ * @params reducer [[Reducer]]
+ * @params option [[RepoOption]]
+ */
 export const createRepository: <TEntity extends BaseEntity, TEvent extends BaseEvent>(
   entityName: string,
   reducer: Reducer,

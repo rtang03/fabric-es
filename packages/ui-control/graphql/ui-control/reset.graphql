@@ -1,9 +1,0 @@
-mutation Reset (
-  $password: String!
-  $password2: String!
- ) {
-  reset (
-    password: $password
-    password2: $password2
-    )
-}

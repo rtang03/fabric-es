@@ -1,9 +1,10 @@
 import { Contract, Network } from 'fabric-network';
 
 /**
- * **getContract** return contract instance of fabric-sdk
- * @param network network instance of fabric-sdk
- * @returns `{ contract: Contract }`
+ * @about return contract of fabric-sdk
+ * Notice that the contract is hardcoded 'eventstore'
+ * @params [fabric-network.Network](https://hyperledger.github.io/fabric-sdk-node/release-2.2/module-fabric-network.Network.html)
+ * @returns `{ contract: fabric-network.Contract }`
  */
 export const getContract: (network: Network) => Promise<{ contract: Contract }> = async (
   network

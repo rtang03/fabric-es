@@ -12,6 +12,10 @@ import {
 } from '../types';
 import { getFabricCaService, getGateway, getLogger } from '../utils';
 
+/**
+ * @ignore
+ * @param option
+ */
 export const registerAndEnroll: (
   option: CreateNetworkOperatorOption
 ) => (opt: {

@@ -9,14 +9,7 @@ import { addTimestamp, dispatcher, getHistory, isCommitRecord, replaceTag } from
 /**
  * get CurrentState by entityId, and return save function
  * Basic Command-side Operation: only used by privateRepository
- * @param entityName
- * @param reducer
- * @param isPrivateData
- * @param store
- * @param logger
- * @param wallet
- * @param connectionProfile
- * @param channelName
+ * @ignore
  */
 export const commandGetById: <TEntity, TEvent>(
   entityName: string,

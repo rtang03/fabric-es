@@ -6,6 +6,10 @@ import { action } from '../store/query';
 import { BaseEntity, EntityInfo, HandlerResponse } from '../types';
 import { dispatcher } from './dispatcher';
 
+/**
+ * query-side: get summary of entityInfo
+ * @ignore
+ */
 export const queryGetEntityInfo: (option: {
   store: Store;
   logger: Logger;

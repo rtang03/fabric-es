@@ -5,6 +5,11 @@ import yaml from 'js-yaml';
 import { getLogger } from './getLogger';
 import { promiseToReadFile } from './promiseToReadFile';
 
+/**
+ * @about get Fabric CA service
+ * @param connectionProfile
+ * @param caName
+ */
 export const getFabricCaService: (
   connectionProfile: string,
   caName: string

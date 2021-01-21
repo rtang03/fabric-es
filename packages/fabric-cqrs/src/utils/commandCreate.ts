@@ -8,14 +8,7 @@ import { addCreatedAt, addCreator, dispatcher, isCommitRecord, replaceTag } from
 /**
  * create Commit
  * Basic Command-side Operation: mostly used by command handler
- * @param entityName
- * @param isPrivateData
- * @param channelName
- * @param logger
- * @param connectionProfile
- * @param wallet
- * @param store
- * @param parentName
+ * @ignore
  */
 export const commandCreate: <TEvent = any>(
   entityName: string,

@@ -10,19 +10,24 @@ export interface Commit {
   events?: any[];
 }
 
-export interface Queries {
+export type Queries = {
   getMspid: () => string;
   disconnect: () => void;
-  // TODO: CAN REMOVE
-  // getChannels: (peerName: string) => Promise<ChannelQueryResponse>;
-  // getBlockByNumber: (blockNumber: number) => Promise<Block>;
-  // getChainInfo: (peerName: string) => Promise<BlockchainInfo>;
-  // getTransactionByID: (txId: string) => Promise<any>;
-  // getChannelPeers: () => Promise<ChannelPeer[]>;
-}
+};
 
-export interface NetworkOperator {
+/**
+ * @about network operator
+ */
+export type NetworkOperator = {
+  /**
+   * @about some queries
+   * @param option
+   */
   getQueries: (option?: { asLocalhost: boolean }) => Promise<Queries>;
+  /**
+   * @about identiy server of Fabric CA server
+   * @param option
+   */
   identityService: (option?: {
     asLocalhost: boolean;
   }) => Promise<{
@@ -32,6 +37,10 @@ export interface NetworkOperator {
     getByEnrollmentId: (enrollmentId: string) => Promise<any>;
     deleteOne: (enrollmentId: string) => Promise<any>;
   }>;
+  /**
+   * @about register and enroll user of Fabric CA server
+   * @param option
+   */
   registerAndEnroll: (option: {
     enrollmentId: string;
     enrollmentSecret: string;
@@ -42,6 +51,10 @@ export interface NetworkOperator {
     disconnect: () => void;
     registerAndEnroll: () => Promise<any>;
   }>;
+  /**
+   * @about submit or transaction transaction
+   * @param option
+   */
   submitOrEvaluateTx: (option: {
     identity: string;
     chaincodeId: string;
@@ -55,4 +68,4 @@ export interface NetworkOperator {
     evaluate: () => Promise<Record<string, Commit> | { error: any }>;
     submit: () => Promise<Record<string, Commit> | { error: any }>;
   }>;
-}
+};

@@ -5,10 +5,9 @@ import { HandlerResponse } from '../types';
 import { dispatcher } from './dispatcher';
 
 /**
+ * TODO: REMOVE IT
  * FindBy operation
- * @param entityName
- * @param store
- * @param logger
+ * @ignore
  */
 export const queryFind: <TEntity>(
   entityName: string,

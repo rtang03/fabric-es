@@ -3,6 +3,14 @@ import type { Redis } from 'ioredis';
 import drop from 'lodash/drop';
 import type { QueryDatabaseResponse } from '../types';
 
+/**
+ * Perform full text search
+ * @ignore
+ * @param query
+ * @param index
+ * @param redis
+ * @param logger
+ */
 export const doSearch: <T = any>(
   query: string[],
   option: { index: string; redis: Redis; logger }

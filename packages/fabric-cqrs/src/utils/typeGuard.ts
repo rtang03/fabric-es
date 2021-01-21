@@ -1,6 +1,6 @@
 import type { FabricResponse, Commit } from '../types';
 
-export const isCommitRecord = (input: unknown): input is Record<string, Commit> =>
+export const isCommitRecord = (input: Record<string, any>): input is Record<string, Commit> =>
   Object.entries(input)
     .map(
       ([key, value]) =>

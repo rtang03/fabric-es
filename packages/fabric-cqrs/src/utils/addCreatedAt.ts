@@ -1,5 +1,9 @@
 import { BaseEvent } from '../types';
 
+/**
+ * add metadata - creation timestamp
+ * @ignore
+ */
 export const addCreatedAt: (events: BaseEvent[]) => BaseEvent[] = (events) => {
   const currentTime = Math.round(new Date().getTime() / 1000);
 

@@ -1,12 +1,11 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 import util from 'util';
 import { ApolloServer } from 'apollo-server';
 import { Redis } from 'ioredis';
 import { Logger } from 'winston';
 
+/**
+ * @ignore
+ */
 export const shutdownApollo = ({
   redis,
   logger,

@@ -1,5 +1,8 @@
 import { BaseEvent } from '../types';
 
+/**
+ * @ignore
+ */
 export interface Increment extends BaseEvent {
   readonly type: 'Increment';
   payload: {
@@ -12,6 +15,9 @@ export interface Increment extends BaseEvent {
   };
 }
 
+/**
+ * @ignore
+ */
 export interface Decrement extends BaseEvent {
   readonly type: 'Decrement';
   payload: {
@@ -24,4 +30,7 @@ export interface Decrement extends BaseEvent {
   };
 }
 
+/**
+ * @ignore
+ */
 export type CounterEvents = Increment | Decrement;

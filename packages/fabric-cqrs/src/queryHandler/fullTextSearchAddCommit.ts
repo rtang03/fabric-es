@@ -2,6 +2,9 @@ import type { Redis } from 'ioredis';
 import trimStart from 'lodash/trimStart';
 import type { Commit } from '../types';
 
+/**
+ * @about define the indexed field of commit
+ */
 export const commitIndex = [
   'cidx',
   'SCHEMA',
@@ -28,6 +31,10 @@ export const commitIndex = [
   'SORTABLE',
 ];
 
+/**
+ * @about create index *cidx*
+ * @params option
+ */
 export const createCommitIndex: (option: {
   documentId: string;
   redisKey: string;
@@ -61,6 +68,12 @@ export const createCommitIndex: (option: {
   return creator ? [...baseIndex, 'creator', creator] : baseIndex;
 };
 
+/**
+ * @about add new entity to *cidx*
+ * @params redisKey
+ * @params commit
+ * @params redis
+ */
 export const fullTextSearchAddCommit = async (redisKey: string, commit: Commit, redis: Redis) => {
   const { entityId, entityName } = commit;
   const evt = commit.events.reduce<string>((prev, { type }) => `${prev},${type}`, '');

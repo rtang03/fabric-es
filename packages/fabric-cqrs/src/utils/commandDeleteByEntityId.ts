@@ -8,13 +8,7 @@ import { dispatcher, isFabricResponse } from '.';
 /**
  * command-side: delete commit by EntityId
  * Basic Command-side Operation: commonly used by unit test
- * @param entityName
- * @param isPrivateData
- * @param connectionProfile
- * @param channelName
- * @param logger
- * @param store
- * @param wallet
+ * @ignore
  */
 export const commandDeleteByEntityId: (
   entityName: string,

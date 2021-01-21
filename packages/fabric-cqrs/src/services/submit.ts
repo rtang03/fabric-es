@@ -6,10 +6,10 @@ import { createCommitId, getLogger } from '../utils';
 import { getContract } from './contract';
 
 /**
- * **submit** submit transaction to eventstore chaincode
- * @param fcn function
- * @param args args
- * @param network `{ network: Network }`
+ * @about submit transaction to eventstore chaincode
+ * @params fcn function
+ * @params args args
+ * @params network `{ network: Network }`
  * @returns `Record<string, Commit> & { error?: any; status?: string; message?: string }`
  */
 export const submit: (
@@ -45,6 +45,12 @@ export const submit: (
   );
 };
 
+/**
+ * @about observables
+ * @params fcn
+ * @params args
+ * @params options
+ */
 export const submit$: (
   fcn: string,
   args: string[],

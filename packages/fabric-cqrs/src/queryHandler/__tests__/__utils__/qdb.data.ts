@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 export const commit = {
   id: 'qh_proj_test_001',
   entityName: 'test_proj',

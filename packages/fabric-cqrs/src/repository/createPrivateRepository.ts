@@ -1,5 +1,5 @@
 import { getCommandStore } from '../store';
-import { PrivateRepoOption, PrivateRepository, Reducer } from '../types';
+import type { PrivateRepoOption, PrivateRepository, Reducer } from '../types';
 import {
   getLogger,
   commandCreate,
@@ -9,6 +9,15 @@ import {
   commandGetByEntityIdCommitId,
 } from '../utils';
 
+/**
+ * @about create repository for private data
+ * @typeParams TEntity
+ * @typeParams TEvent
+ * @params entityName
+ * @params reducer
+ * @params option
+ * @params parentName
+ */
 export const createPrivateRepository: <TEntity = any, TEvent = any>(
   entityName: string,
   reducer: Reducer,
