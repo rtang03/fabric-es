@@ -64,7 +64,7 @@ jobs:
       - name: clean-up volume
         run: sudo rm -rf deployments/dev-net/volume
       - name: typedoc
-        run: sudo yarn typedoc && touch typedocs/.nojekyll
+        run: sudo yarn typedoc && sudo touch typedocs/.nojekyll
       - name: Deploy doc
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
