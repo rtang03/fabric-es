@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/model-document",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -16,9 +16,9 @@
   },
   "private": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.7.0",
-    "@fabric-es/gateway-lib": "^0.7.0",
-    "@fabric-es/model-common": "^0.7.0",
+    "@fabric-es/fabric-cqrs": "^0.7.2",
+    "@fabric-es/gateway-lib": "^0.7.2",
+    "@fabric-es/model-common": "^0.7.2",
     "apollo-server-errors": "^2.3.4",
     "graphql": "^15.0.0"
   },
