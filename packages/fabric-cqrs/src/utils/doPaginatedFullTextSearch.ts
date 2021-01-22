@@ -4,6 +4,10 @@ import type { HandlerResponse, Paginated } from '../types';
 import { getPaginated } from './getPaginated';
 import { queryFTSGetPaginated } from './queryFTSGetPaginated';
 
+/**
+ * perform search
+ * @ignore
+ */
 export const doPaginatedFullTextSearch: <TResult = any>(
   index: 'cidx' | 'eidx',
   option: { store: Store; logger: Logger }

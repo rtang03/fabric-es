@@ -1,8 +1,7 @@
 /**
- * @packageDocumentation
- * @hidden
+ * State used by Redux store
+ * @ignore
  */
-
 export interface State {
   tx_id: string;
   type: string;
@@ -10,6 +9,9 @@ export interface State {
   error: string | null;
 }
 
+/**
+ * @ignore
+ */
 export const initialState: State = {
   tx_id: null,
   type: null,

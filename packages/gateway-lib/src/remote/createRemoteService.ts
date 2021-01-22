@@ -9,7 +9,7 @@ import { shutdownApollo } from '../utils';
 
 const fetch = nodeFetch as any;
 
-export interface RemoteData {
+export type RemoteData = {
   user_id?: string;
   is_admin?: string;
   client_id?: string;
@@ -23,16 +23,20 @@ export interface RemoteData {
   }) => Promise<any[]>;
 };
 
-export const createRemoteService = async ({
-  name,
-  typeDefs,
-  resolvers,
-  urls,
-}: {
+/**
+ * @about remote service retrieve data from another organization gateway
+ * @params option
+ */
+export const createRemoteService: (option: {
   name: string;
   typeDefs: any;
   resolvers: any;
   urls: string[];
+}) => Promise<{ server: ApolloServer; shutdown: any }> = async ({
+  name,
+  typeDefs,
+  resolvers,
+  urls,
 }) => {
   const logger = getLogger('createRemoteService');
 

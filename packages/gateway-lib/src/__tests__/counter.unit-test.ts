@@ -1,4 +1,5 @@
 require('dotenv').config({ path: './.env.test' });
+import http from 'http';
 import {
   QueryHandler,
   Counter,
@@ -15,11 +16,10 @@ import keys from 'lodash/keys';
 import values from 'lodash/values';
 import fetch from 'node-fetch';
 import rimraf from 'rimraf';
-import { StoppableServer } from 'stoppable';
 import request from 'supertest';
 import { createAdminService } from '../admin';
+import { Organization, OrgEvents, orgReducer } from '../admin';
 import { IDENTITY_ALREADY_EXIST, UNAUTHORIZED_ACCESS } from '../admin/constants';
-import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
 import {
   CREATE_WALLET,
   GET_CA_IDENTITY_BY_USERNAME,
@@ -63,7 +63,7 @@ const entityName = 'counter';
 const enrollmentId = orgAdminId;
 const logger = getLogger('[gateway-lib] counter.unit-test.js');
 
-let app: StoppableServer;
+let app: http.Server;
 let adminApolloService: ApolloServer;
 let modelApolloService: ApolloServer;
 let userId: string;
@@ -89,7 +89,7 @@ beforeAll(async () => {
   rimraf.sync(`${walletPath}/${caAdmin}.id`);
 
   try {
-    redisOptions= {};
+    redisOptions = {};
 
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     // Step 1: EnrollAdmin
@@ -177,6 +177,7 @@ beforeAll(async () => {
       redisOptions,
     });
 
+    // config Apollo
     modelApolloService = await config({ typeDefs, resolvers })
       .addRepository(getRepository<Counter, CounterEvents>(entityName, counterReducer))
       .create();
@@ -208,14 +209,13 @@ beforeAll(async () => {
     );
 
     // Step 10: Prepare Federated Gateway
-    const { gateway } = await createGateway({
+    app = await createGateway({
       serviceList: [
         { name: 'admin', url: `http://localhost:${ADMIN_SERVICE_PORT}/graphql` },
         { name: 'counter', url: `http://localhost:${MODEL_SERVICE_PORT}/graphql` },
       ],
       authenticationCheck: `${proxyServerUri}/oauth/authenticate`,
     });
-    app = gateway;
 
     // Step 11: Start Gateway
     return new Promise((done) =>

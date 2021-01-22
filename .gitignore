@@ -87,3 +87,4 @@ configtxgen
 genesis.block
 
 .mockyeah.json
+typedocs/

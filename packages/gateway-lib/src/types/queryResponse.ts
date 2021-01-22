@@ -1,8 +1,8 @@
 import { ApolloError } from 'apollo-server';
 
-export interface QueryResponse {
+export type QueryResponse = {
   body: {
     data: any;
     errors: ApolloError[];
   };
-}
+};

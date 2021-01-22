@@ -9,6 +9,10 @@ import yaml from 'js-yaml';
 import { getLogger } from './getLogger';
 import { promiseToReadFile } from './promiseToReadFile';
 
+/**
+ * @about get gateway
+ * @param option
+ */
 export const getGateway: (option: {
   connectionProfile: string;
   identity: string;

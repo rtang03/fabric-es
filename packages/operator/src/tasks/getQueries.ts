@@ -4,6 +4,10 @@ import { Gateway } from 'fabric-network';
 import { CreateNetworkOperatorOption, Queries } from '../types';
 import { getGateway, getLogger } from '../utils';
 
+/**
+ * @ignore
+ * @param option
+ */
 export const getQueries: (
   option: CreateNetworkOperatorOption
 ) => (opt?: { asLocalhost?: boolean }) => Promise<Queries> = (option) => async (

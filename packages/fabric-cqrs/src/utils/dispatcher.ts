@@ -2,6 +2,10 @@ import util from 'util';
 import { generateToken } from '../store/utils';
 import { Dispatcher } from '../types';
 
+/**
+ * dispatch action to Redux store
+ * @ignore
+ */
 export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options, onSuccess) => (
   args: TArgs
 ) =>

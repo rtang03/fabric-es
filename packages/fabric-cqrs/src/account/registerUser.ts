@@ -6,6 +6,17 @@ import { registerAndEnroll } from '@fabric-es/operator';
 import { Utils } from 'fabric-common';
 import { Wallet } from 'fabric-network';
 
+/**
+ * Register new user upon Fabric CA server
+ * @param enrollmentId
+ * @param enrollmentSecret
+ * @param connectionProfile
+ * @param wallet
+ * @param caName
+ * @param caAdmin
+ * @param caAdminPW
+ * @param mspId
+ */
 export const registerUser: (option: {
   enrollmentId: string;
   enrollmentSecret: string;

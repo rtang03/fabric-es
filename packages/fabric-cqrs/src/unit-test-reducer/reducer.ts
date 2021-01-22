@@ -2,6 +2,9 @@ import { Reducer } from '../types';
 import { CounterEvents } from './events';
 import { Counter, CounterEvent } from './types';
 
+/**
+ * @ignore
+ */
 export const reducer: Reducer<Counter> = (
   history: CounterEvent[],
   initial = { id: null, desc: null, tag: null, value: 0, _ts: 0, _created: 0, _creator: null }

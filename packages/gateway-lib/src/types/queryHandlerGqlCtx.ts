@@ -2,7 +2,10 @@ import { QueryDatabase, QueryHandler } from '@fabric-es/fabric-cqrs';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import Redis from 'ioredis';
 
-export interface QueryHandlerGqlCtx {
+/**
+ * @about apollo context for QueryHandler
+ */
+export type QueryHandlerGqlCtx = {
   pubSub?: RedisPubSub;
   queryHandler: QueryHandler;
   queryDatabase?: QueryDatabase;
@@ -11,4 +14,4 @@ export interface QueryHandlerGqlCtx {
   is_admin?: boolean;
   username?: string;
   entityNames: string[];
-}
+};

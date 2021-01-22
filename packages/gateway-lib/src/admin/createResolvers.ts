@@ -5,6 +5,9 @@ import { Wallet, X509Identity } from 'fabric-network';
 import { getLogger } from '..';
 import { catchErrors } from '../utils/catchErrors';
 
+/**
+ * @about create resolvers
+ */
 export const createResolvers: (option: {
   caAdmin: string;
   caAdminPW: string;

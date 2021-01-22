@@ -6,11 +6,11 @@ import { createCommitId, getLogger } from '../utils';
 import { getContract } from './contract';
 
 /**
- * **submitPrivateData** submit transaction to privatedata chaincode
- * @param fcn function
- * @param args args
- * @param transientData transient data
- * @param network network
+ * @about submit transaction to privatedata chaincode
+ * @params fcn function
+ * @params args args
+ * @params transientData transient data
+ * @params network network
  */
 export const submitPrivateData: (
   fcn: string,
@@ -48,6 +48,13 @@ export const submitPrivateData: (
   );
 };
 
+/**
+ * @about observables
+ * @params fcn
+ * @params args
+ * @params transientData
+ * @params options
+ */
 export const submitPrivateData$: (
   fcn: string,
   args: string[],

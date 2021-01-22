@@ -1,5 +1,11 @@
 import type { Commit, Reducer } from '../types';
 
+/**
+ * compute the entity current state from commit, returning with groupBy entityId
+ * @ignore
+ * @param commits
+ * @param reducer
+ */
 export const commitsToGroupByEntityId: <TResult>(
   commits: Commit[],
   reducer: Reducer

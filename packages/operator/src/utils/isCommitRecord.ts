@@ -1,5 +1,9 @@
 import { Commit } from '../types';
 
+/**
+ * @about typeGuard
+ * @param input
+ */
 export const isCommitRecord = (input: unknown): input is Record<string, Commit> =>
   Object.entries(input)
     .map(

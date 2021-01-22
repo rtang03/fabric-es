@@ -18,6 +18,11 @@ import {
   sizeOfSearchResult,
 } from '.';
 
+/**
+ * @about Create query database
+ * @params redis
+ * @returns [[QueryDatabase]]
+ */
 export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js' });
   const countNonNull = (deletedItems: number[][]) =>
@@ -34,6 +39,7 @@ export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
     deleteCommitByEntityId: async ({ entityName, id }) => {
       if (!entityName || !id) throw new Error('invalid input argument');
 
+      // use pattern-based search
       const pattern = `${entityName}::${id}::*`;
       let result: number;
 

@@ -1,9 +1,0 @@
-query GetNotifications {
-  getNotifications {
-    id
-    commitId
-    entityName
-    creator
-    read
-  }
-}

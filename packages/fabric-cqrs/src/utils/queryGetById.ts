@@ -10,14 +10,7 @@ import { addTimestamp, dispatcher, getHistory, isCommitRecord, replaceTag } from
 /**
  * get CurrentState by entityId, and return save function
  * Basic Query-side Operation
- * @param entityName
- * @param reducer
- * @param isPrivateData
- * @param store
- * @param logger
- * @param wallet
- * @param connectionProfile
- * @param channelName
+ * @ignore
  */
 export const queryGetById: <TEntity, TEvent>(
   entityName: string,

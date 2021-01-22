@@ -2,6 +2,11 @@ import { commitIndex, entityIndex } from '@fabric-es/fabric-cqrs';
 import type { Redis } from 'ioredis';
 import type { Logger } from 'winston';
 
+/**
+ * @about drop and rebuild cidx and eidx
+ * @params publisher
+ * @params logger
+ */
 export const rebuildIndex = async (publisher: Redis, logger: Logger) => {
   await publisher
     .send_command('FT.DROP', ['cidx'])

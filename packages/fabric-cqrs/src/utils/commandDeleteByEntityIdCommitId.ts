@@ -8,13 +8,7 @@ import { dispatcher, isFabricResponse } from '.';
 /**
  * command-side: delete commit by EntityId and CommitIt
  * Basic Command-side Operation: commonly used by unit test, specially privateRepo
- * @param entityName
- * @param isPrivateData
- * @param store
- * @param logger
- * @param channelName
- * @param connectionProfile
- * @param wallet
+ * @ignore
  */
 export const commandDeleteByEntityIdCommitId: (
   entityName: string,

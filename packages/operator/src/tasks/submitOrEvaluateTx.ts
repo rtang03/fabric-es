@@ -15,6 +15,10 @@ import {
 } from '../types';
 import { createCommitId, getLogger, promiseToReadFile } from '../utils';
 
+/**
+ * @ignore
+ * @param option
+ */
 export const submitOrEvaluateTx: (
   option: CreateNetworkOperatorOption
 ) => (option: {

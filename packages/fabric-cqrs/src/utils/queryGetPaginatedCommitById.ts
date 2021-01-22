@@ -8,10 +8,7 @@ import { dispatcher } from './dispatcher';
 /**
  * Pagination: get Entity from indexed content
  * NOTE: the returning entity includes meta data
- * @param entityName
- * @param id
- * @param logger
- * @param store
+ * @ignore
  */
 export const queryGetPaginatedCommitById: <TResult>(
   entityName: string,

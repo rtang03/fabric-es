@@ -12,4 +12,4 @@ export * from './domain/handler';
 
 export type OrgRepo = Repository<Organization, OrgEvents>;
 export type OrgCommandHandler = CommandHandler<OrgCommands>;
-export type OrgDS = DataSrc<OrgRepo>;
+export type OrgDataSource = DataSrc<OrgRepo>;

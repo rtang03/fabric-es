@@ -5,3 +5,5 @@ export * from './caIdentity';
 export * from './queryResponse';
 export * from './queryHandlerGqlCtx';
 export * from './notification';
+export * from './dataSrc';
+export * from './commandHandler';

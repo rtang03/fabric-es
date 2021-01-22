@@ -3,6 +3,14 @@ import { Redis } from 'ioredis';
 import isNumber from 'lodash/isNumber';
 import { QueryDatabaseResponse } from '../types';
 
+/**
+ * Return number of records in search result
+ * @ignore
+ * @param query
+ * @param index
+ * @param redis
+ * @param logger
+ */
 export const sizeOfSearchResult: (
   query: string[],
   option: { index: string; redis: Redis; logger }

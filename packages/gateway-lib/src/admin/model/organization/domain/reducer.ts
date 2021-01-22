@@ -1,7 +1,7 @@
 import { Organization, OrgEvents, OrgStatus } from '..';
 
 /**
- * Org Reducer
+ * @about organization reducer
  * @param org
  * @param event
  */

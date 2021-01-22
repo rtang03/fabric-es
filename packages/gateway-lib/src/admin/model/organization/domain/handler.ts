@@ -2,6 +2,11 @@ import { OrgCommandHandler, OrgRepo } from '..';
 import { Errors } from '../../../..';
 import { OrgEvents } from './events';
 
+/**
+ * @about command handler for organization
+ * @param enrollmentId
+ * @param orgRepo
+ */
 export const orgCommandHandler: (option: {
   enrollmentId: string;
   orgRepo: OrgRepo;

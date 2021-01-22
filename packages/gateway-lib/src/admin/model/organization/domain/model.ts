@@ -5,7 +5,7 @@ export enum OrgStatus {
 }
 
 /**
- * **Organization** is one of the on-chain top-level entities representing the organization participating in the blockchain network.
+ * @about **organization** is one of the on-chain top-level entities representing the organization participating in the blockchain network.
  */
 export class Organization extends BaseEntity {
   static entityName = 'organization';

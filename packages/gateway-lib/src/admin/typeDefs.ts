@@ -1,10 +1,9 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 import gql from 'graphql-tag';
 import { OrgTypeDefsQuery, OrgTypeDefsType } from './model/organization/typeDefs';
 
+/**
+ * @about type definition for admin microservice
+ */
 export const typeDefs = gql`
   type Mutation {
     createWallet: Boolean!

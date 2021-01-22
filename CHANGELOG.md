@@ -6,15 +6,19 @@
 
 **Implemented enhancements:**
 
+- refactor: in ui-control, replace queryHandler apollolink with gw-org apollolink [\#174](https://github.com/rtang03/fabric-es/issues/174)
 - migrate to external chaincode launcher - refactor dev-net [\#171](https://github.com/rtang03/fabric-es/issues/171)
 - migrate to external chaincode launcher - new chaincode repo [\#170](https://github.com/rtang03/fabric-es/issues/170)
 
 **Closed issues:**
 
 - detach auth-server to separate repo [\#176](https://github.com/rtang03/fabric-es/issues/176)
+- doc: Typedoc [\#152](https://github.com/rtang03/fabric-es/issues/152)
 
 **Merged pull requests:**
 
+- fix: .nojerkll  [\#181](https://github.com/rtang03/fabric-es/pull/181) ([rtang03](https://github.com/rtang03))
+- docs: add typedoc [\#180](https://github.com/rtang03/fabric-es/pull/180) ([rtang03](https://github.com/rtang03))
 - chore: Prepare tester and dev-net to port to cdi-samples [\#179](https://github.com/rtang03/fabric-es/pull/179) ([pangduckwai](https://github.com/pangduckwai))
 - Reference Implementation robustness test [\#178](https://github.com/rtang03/fabric-es/pull/178) ([pangduckwai](https://github.com/pangduckwai))
 - refactor: remove auth-server [\#177](https://github.com/rtang03/fabric-es/pull/177) ([rtang03](https://github.com/rtang03))
