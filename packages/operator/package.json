@@ -22,11 +22,9 @@
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
     "build-chaincode": "cd ../chaincode && yarn build",
     "prepare-asset": "rimraf assets && mkdir -p ./assets/client-certs/hfc-kvs/org1",
-    "typedoc": "typedoc",
     "unit-test:fab": "jest --detectOpenHandles unit.test",
     "clean": "rimraf dist",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}' --fix",
-    "prepublish": "yarn typedoc && yarn tsc:prod",
     "publish:gh:fabric-es": "npm publish"
   },
   "dependencies": {

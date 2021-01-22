@@ -17,9 +17,6 @@
   "bugs": {
     "url": "https://github.com/rtang03/fabric-es/issues"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "scripts": {
     "build": "yarn clean && tsc",
     "tsc:prod": "yarn clean && tsc -p ./tsconfig.prod.json",
@@ -28,7 +25,6 @@
     "enrollAdmin": "node ./dist/account/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/account/enrollCaAdmin.js",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "prepublish": "yarn typedoc && yarn tsc:prod",
     "publish:gh:fabric-es": "npm publish",
     "test:service": "jest service.unit-test && jest service.private.unit-test",
     "test:service-pri": "jest service.unit-test && jest service.private.unit-test",

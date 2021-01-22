@@ -26,7 +26,6 @@
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
     "unit-test:fab": "yarn unit-test-counter && yarn unit-test-qh",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "prepublish": "yarn typedoc && yarn tsc:prod",
     "publish:gh:fabric-es": "npm publish",
     "dev:query-handler": "yarn build && node ./dist/query-handler/app.js",
     "unit-test-qh": "jest --forceExit --detectOpenHandles queryHandler.unit-test",
