@@ -29,7 +29,7 @@ export default (action$: Observable<TrackAction>, _, context): Observable<any> =
           discovery: true,
           asLocalhost: !(process.env.NODE_ENV === 'production')
         }).then(({ network, gateway }) => {
-            logger.info('getNetwork succeed');
+            logger.debug('getNetwork succeed');
             return Object.assign({}, payload, { network, gateway });
         }).catch(error => {
             logger.error(util.format('getNework error: %s', error.message));
