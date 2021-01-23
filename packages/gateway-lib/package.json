@@ -86,6 +86,5 @@
   },
   "resolutions": {
     "debug": "^4.3.1"
-  },
-  "private": true
+  }
 }
