@@ -29,14 +29,17 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Run tsc for library packages
         run: yarn tsc:lib
-      - name: Make public - fabric-cqrs
-        run: cd packages/fabric-cqrs && npm config set access public
-      - name: Make public - gateway-lib
-        run: cd packages/gateway-lib && npm config set access public
-      - name: Make public - operator
-        run: cd packages/operator && npm config set access public
-      - name: publish
-        run: yarn publish:lib
+      ### NOTE: fabric-cqrs depends on operator
+      - name: publish - operator
+        run: cd packages/operator && npm publish --access=public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: publish - fabric-cqrs
+        run: packages/fabric-cqrs && npm publish --access=public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: publish - gateway-lib
+        run: packages/gateway-lib && npm publish --access=public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
