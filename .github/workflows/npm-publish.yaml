@@ -4,7 +4,7 @@ on:
     types: [released]
 jobs:
   build:
-    name: Push Docker image to Docker Hub
+    name: Public npmjs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,6 +29,12 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Run tsc for library packages
         run: yarn tsc:lib
+      - name: Make public - fabric-cqrs
+        run: cd pakcages/fabric-cqrs && npm config set access public
+      - name: Make public - gateway-lib
+        run: cd pakcages/gateway-lib && npm config set access public
+      - name: Make public - operator
+        run: cd pakcages/operator && npm config set access public
       - name: publish
         run: yarn publish
         env:
