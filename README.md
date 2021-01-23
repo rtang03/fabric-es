@@ -3,6 +3,8 @@
 ![Changelog](https://github.com/rtang03/fabric-es/workflows/Changelog/badge.svg)
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
 
+**Test Purpose Only; Not ready for use**  
+
 # Project Overview
 
 This project enables event-driven architecture for Hyperledger Fabric projects. It provides a collection of library
