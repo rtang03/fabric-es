@@ -24,7 +24,7 @@ Let start with simple-counter example. See [simple-counter](https://github.com/r
 
 ## Application Architecture
 
-The application is based on [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html).
+The application is developed based on [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html).
 
 _Dependency graph_
 
@@ -82,7 +82,7 @@ interface Counter extends BaseEntity {
 }
 ```
 
-**Reduer**
+**Reducer**
 
 The reducer computes from the current state of the entity, from events history.
 
