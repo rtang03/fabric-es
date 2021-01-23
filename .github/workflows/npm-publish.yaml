@@ -1,7 +1,7 @@
 name: Node.js package
 on:
   release:
-    types: [created]
+    types: [released]
 jobs:
   build:
     name: Push Docker image to Docker Hub
