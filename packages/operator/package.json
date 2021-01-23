@@ -24,8 +24,7 @@
     "prepare-asset": "rimraf assets && mkdir -p ./assets/client-certs/hfc-kvs/org1",
     "unit-test:fab": "jest --detectOpenHandles unit.test",
     "clean": "rimraf dist",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}' --fix",
-    "publish": "npm publish --access=public"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}' --fix"
   },
   "dependencies": {
     "dotenv": "^8.1.0",

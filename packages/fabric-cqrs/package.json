@@ -27,7 +27,6 @@
     "enrollAdmin": "node ./dist/account/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/account/enrollCaAdmin.js",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "publish": "npm publish --access=public",
     "test:service": "jest service.unit-test && jest service.private.unit-test",
     "test:service-pri": "jest service.unit-test && jest service.private.unit-test",
     "test:store-cmd": "jest --forceExit --detectOpenHandles command.store.unit-test",
