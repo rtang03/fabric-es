@@ -35,11 +35,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: publish - fabric-cqrs
-        run: packages/fabric-cqrs && npm publish --access=public
+        run: cd packages/fabric-cqrs && npm publish --access=public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: publish - gateway-lib
-        run: packages/gateway-lib && npm publish --access=public
+        run: cd packages/gateway-lib && npm publish --access=public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
