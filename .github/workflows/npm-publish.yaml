@@ -36,7 +36,7 @@ jobs:
       - name: Make public - operator
         run: cd packages/operator && npm config set access public
       - name: publish
-        run: yarn publish
+        run: yarn publish:lib
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
