@@ -9,7 +9,7 @@
     "url": "git://github.com/rtang03/fabric-es.git"
   },
   "keywords": [
-    "hyperledger"
+    "hyperledger-fabric"
   ],
   "author": "Ross Tang",
   "license": "BSD-3-Clause-Clear",
@@ -25,7 +25,7 @@
     "unit-test:fab": "jest --detectOpenHandles unit.test",
     "clean": "rimraf dist",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}' --fix",
-    "publish": "npm publish"
+    "publish": "npm publish --access=public"
   },
   "dependencies": {
     "dotenv": "^8.1.0",
