@@ -108,7 +108,7 @@ afterAll(async () => {
   rimraf.sync(`${process.env.WALLET}/${enrollmentId}.id`);
 
   context.gateway.disconnect();
-  return new Promise((done) => setTimeout(() => done(), 2000));
+  return new Promise<void>((ok) => setTimeout(() => ok(), 2000));
 });
 
 describe('Store/command: failure tests', () => {

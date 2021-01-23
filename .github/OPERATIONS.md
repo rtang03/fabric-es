@@ -22,7 +22,9 @@ yarn version:patch
 Method 1 will update `lerna.json` and related packages' version automatically. Therefore, cannot not run repeatedly 
 
 Method 2:    
-If the release by methed 1 fails, can choose manually create version tag, and push.
+If the release by methed 1 fails, can choose manually create version tag, and push. Try Method 1 first, because it will
+search all releases being impacted in all package.json, under `packages`. Method 2 requires you updating the impacted
+releases manually, and is error prone. 
 
 ```shell script
 # create local tag

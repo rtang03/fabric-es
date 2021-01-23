@@ -69,10 +69,10 @@ beforeAll(async () => {
 
 afterAll(
   async () =>
-    new Promise((done) =>
+    new Promise<void>((ok) =>
       setTimeout(() => {
         console.log('Loan Unit Test - Resolver Finished');
-        done();
+        ok();
       }, 500)
     )
 );

@@ -415,10 +415,10 @@ afterAll(async () => {
     await loanService.stop();
   }
 
-  return new Promise((done) =>
+  return new Promise<void>((ok) =>
     setTimeout(() => {
       console.log('🚀  Test finished');
-      done();
+      ok();
     }, 500)
   );
 });

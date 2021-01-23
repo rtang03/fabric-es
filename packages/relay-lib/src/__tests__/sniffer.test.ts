@@ -11,7 +11,9 @@ const stamp = Date.now();
 const topic = `sniffer-test${stamp}`;
 let publisher: Redis;
 let subscription: {
-  start: (callback?: (topic: string, message: ReqRes, messageStr?: string) => Promise<void>) => Promise<{ read: number; count: number }>;
+  start: (
+    callback?: (topic: string, message: ReqRes, messageStr?: string) => Promise<void>
+  ) => Promise<{ read: number; count: number }>;
   stop: () => Promise<void>;
 };
 
@@ -28,22 +30,36 @@ beforeAll(async () => {
   const sources: ReqRes[] = [...new Array(5)].map((_, idx) => {
     return {
       id: `id00${idx}`,
-      proxyReqStarts: stamp + idx, proxyReqFinish: stamp + idx + 1,
-      proxyResStarts: stamp + idx + 5, proxyResFinish: stamp + idx + 6,
+      proxyReqStarts: stamp + idx,
+      proxyReqFinish: stamp + idx + 1,
+      proxyResStarts: stamp + idx + 5,
+      proxyResFinish: stamp + idx + 6,
       method: 'patch',
       url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
       contentType: 'application/json',
-      reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
+      reqBody: { txt: `abc${idx}`, num: `123${idx}` },
+      resBody: '',
       attachmentInfo: '',
-      statusCode: 3, statusMessage: `myMsg ${idx}`
+      statusCode: 3,
+      statusMessage: `myMsg ${idx}`,
     };
   });
   for (const mssg of sources) {
     await processMessage({ message: mssg, client: publisher, topic });
   }
 
-  const id1 = await publisher.xadd(topic, '*', 'msg', 'This is an existing unsupported message format!!!');
-  const id2 = await publisher.xadd(topic, '*', 'msg', '{"message": "This is a existing non-JSON message!!!"}');
+  const id1 = await publisher.xadd(
+    topic,
+    '*',
+    'msg',
+    'This is an existing unsupported message format!!!'
+  );
+  const id2 = await publisher.xadd(
+    topic,
+    '*',
+    'msg',
+    '{"message": "This is a existing non-JSON message!!!"}'
+  );
   await publisher.publish(topic, id1);
   await publisher.publish(topic, id2);
 
@@ -54,16 +70,21 @@ beforeAll(async () => {
     if (messageStr) wrongFrmt.push(messageStr);
   });
 
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 });
 
 afterAll(async () => {
   await subscription.stop();
   await publisher.quit();
-  return new Promise((resolve) => setTimeout(() => {
-    console.log(topic, subscribe.map(s => s.id));
-    resolve();
-  }, 1000));
+  return new Promise<void>((ok) =>
+    setTimeout(() => {
+      console.log(
+        topic,
+        subscribe.map((s) => s.id)
+      );
+      ok();
+    }, 1000)
+  );
 });
 
 beforeEach(() => {
@@ -79,18 +100,22 @@ describe('Sniffer Service', () => {
 
     const mssg: ReqRes = {
       id: `id999`,
-      proxyReqStarts: stamp, proxyReqFinish: stamp + 1,
-      proxyResStarts: stamp + 5, proxyResFinish: stamp + 6,
+      proxyReqStarts: stamp,
+      proxyReqFinish: stamp + 1,
+      proxyResStarts: stamp + 5,
+      proxyResFinish: stamp + 6,
       method: 'patch',
       url: { url: `/test-url999`, query: { k: `k999`, v: `v999` } },
       contentType: 'application/json',
-      reqBody: { txt: `abc999`, num: `123999` }, resBody: '',
+      reqBody: { txt: `abc999`, num: `123999` },
+      resBody: '',
       attachmentInfo: '',
-      statusCode: 3, statusMessage: `myMsg 999`
+      statusCode: 3,
+      statusMessage: `myMsg 999`,
     };
     const result = await processMessage({ message: mssg, client: publisher, topic });
     expect(result).toBeGreaterThanOrEqual(0);
-    await new Promise((resolve) => setTimeout(() => resolve(), 150));
+    await new Promise<void>((ok) => setTimeout(() => ok(), 150));
 
     expect(subscribe.length).toEqual(INIT_MSG + 1);
     expect(wrongFrmt.length).toEqual(2);
@@ -98,10 +123,15 @@ describe('Sniffer Service', () => {
 
   it('receving message with unsupported format', async () => {
     const id1 = await publisher.xadd(topic, '*', 'msg', 'This is an unsupported message format!!!');
-    const id2 = await publisher.xadd(topic, '*', 'msg', '{"message": "This is a non-JSON message!!!"}');
+    const id2 = await publisher.xadd(
+      topic,
+      '*',
+      'msg',
+      '{"message": "This is a non-JSON message!!!"}'
+    );
     await publisher.publish(topic, id1);
     await publisher.publish(topic, id2);
-    await new Promise((resolve) => setTimeout(() => resolve(), 150));
+    await new Promise<void>((ok) => setTimeout(() => ok(), 150));
 
     expect(subscribe.length).toEqual(0);
     expect(wrongFrmt.length).toEqual(2);
@@ -111,20 +141,24 @@ describe('Sniffer Service', () => {
     const sources: ReqRes[] = [...new Array(125)].map((_, idx) => {
       return {
         id: `id00${idx}`,
-        proxyReqStarts: stamp + idx, proxyReqFinish: stamp + idx + 1,
-        proxyResStarts: stamp + idx + 5, proxyResFinish: stamp + idx + 6,
+        proxyReqStarts: stamp + idx,
+        proxyReqFinish: stamp + idx + 1,
+        proxyResStarts: stamp + idx + 5,
+        proxyResFinish: stamp + idx + 6,
         method: 'patch',
         url: { url: `/test-url${idx}`, query: { k: `k${idx}`, v: `v${idx}` } },
         contentType: 'application/json',
-        reqBody: { txt: `abc${idx}`, num: `123${idx}` }, resBody: '',
+        reqBody: { txt: `abc${idx}`, num: `123${idx}` },
+        resBody: '',
         attachmentInfo: '',
-        statusCode: 3, statusMessage: `myMsg ${idx}`
+        statusCode: 3,
+        statusMessage: `myMsg ${idx}`,
       };
     });
     for (const mssg of sources) {
       await processMessage({ message: mssg, client: publisher, topic });
     }
-    await new Promise((resolve) => setTimeout(() => resolve(), 150));
+    await new Promise<void>((ok) => setTimeout(() => ok(), 150));
     expect(subscribe.length).toEqual(125);
   });
 });

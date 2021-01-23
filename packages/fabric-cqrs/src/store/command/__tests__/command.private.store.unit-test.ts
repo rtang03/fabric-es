@@ -88,7 +88,7 @@ beforeAll(async () => {
 afterAll(async () => {
   rimraf.sync(`${process.env.WALLET}/${enrollmentId}.id`);
   context.gateway.disconnect();
-  return new Promise((done) => setTimeout(() => done(), 5000));
+  return new Promise<void>((ok) => setTimeout(() => ok(), 5000));
 });
 
 // failure tests are not required.

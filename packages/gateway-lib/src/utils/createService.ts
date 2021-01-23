@@ -13,7 +13,7 @@ import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
 import Redis, { RedisOptions } from 'ioredis';
 import { createTrackingData, DataSrc } from '..';
-import { Organization, OrgEvents, orgReducer } from '../admin/model/organization';
+import { Organization, OrgEvents, orgReducer } from '../admin';
 import { getLogger } from './getLogger';
 import { shutdownApollo } from './shutdownApollo';
 
