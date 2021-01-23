@@ -4,7 +4,7 @@ on:
     types: [released]
 jobs:
   build:
-    name: Public npmjs
+    name: Publish to (public) npmjs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,11 +30,11 @@ jobs:
       - name: Run tsc for library packages
         run: yarn tsc:lib
       - name: Make public - fabric-cqrs
-        run: cd pakcages/fabric-cqrs && npm config set access public
+        run: cd packages/fabric-cqrs && npm config set access public
       - name: Make public - gateway-lib
-        run: cd pakcages/gateway-lib && npm config set access public
+        run: cd packages/gateway-lib && npm config set access public
       - name: Make public - operator
-        run: cd pakcages/operator && npm config set access public
+        run: cd packages/operator && npm config set access public
       - name: publish
         run: yarn publish
         env:
