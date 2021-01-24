@@ -12,7 +12,8 @@
   "keywords": [
     "hyperledger-fabric",
     "redux",
-    "rxjs"
+    "rxjs",
+    "redis"
   ],
   "author": "Ross Tang",
   "homepage": "https://github.com/rtang03/fabric-es",
@@ -41,7 +42,8 @@
     "t:sub": "jest --forceExit --detectOpenHandles subscribe.unit-test",
     "t:qdb": "jest --forceExit --detectOpenHandles qdb.unit-test",
     "t:store": "yarn test:store-cmd && yarn test:store-cmd-pri && yarn test:store-query && yarn test:store-proj && yarn test:store-rec",
-    "unit-test:fab": "yarn t:store && yarn t:srv && yarn t:repo && yarn t:p-repo && yarn t:rec && yarn t:sub yarn t:qdb"
+    "unit-test:fab": "yarn t:store && yarn t:srv && yarn t:repo && yarn t:p-repo && yarn t:rec && yarn t:sub yarn t:qdb",
+    "t:qdbV2": "jest --forceExit --detectOpenHandles qdbV2.unit-test"
   },
   "dependencies": {
     "@fabric-es/operator": "^0.7.4",
@@ -51,6 +53,7 @@
     "graphql-redis-subscriptions": "^2.2.1",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
+    "redis-modules-sdk": "^0.2.5",
     "redux": "^4.0.4",
     "redux-observable": "^1.2.0",
     "rimraf": "^3.0.0",
