@@ -49,7 +49,7 @@ export const createEntityIndex: (option: {
   tag?: string;
   event: string;
   org: string;
-}) => any[] = ({
+}) => (string | number)[] = ({
   documentId,
   redisKey,
   entityName,

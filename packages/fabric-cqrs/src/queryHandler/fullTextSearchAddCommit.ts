@@ -44,7 +44,16 @@ export const createCommitIndex: (option: {
   ts: number;
   creator: string;
   msp: string;
-}) => any[] = ({ documentId, redisKey, entityName, entityId, event, ts, creator, msp }) => {
+}) => (string | number)[] = ({
+  documentId,
+  redisKey,
+  entityName,
+  entityId,
+  event,
+  ts,
+  creator,
+  msp,
+}) => {
   const baseIndex = [
     'cidx',
     documentId,

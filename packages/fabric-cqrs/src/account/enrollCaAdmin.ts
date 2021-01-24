@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 require('../env');
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallets } from 'fabric-network';
@@ -9,6 +5,7 @@ import rimraf from 'rimraf';
 
 /**
  * Enroll CA admin from Fabric CA Server
+ * @ignore
  */
 rimraf(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}`, async () => {
   console.log(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN} is removed`);
