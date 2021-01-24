@@ -177,7 +177,7 @@ export const createGateway: (option: {
   };
 
   const onSignal = () =>
-    new Promise(async (resolve) => {
+    new Promise<void>(async (resolve) => {
       logger.info('〽️  gateway is going to shut down');
 
       const processes = await getProcessDescriptions(logger);

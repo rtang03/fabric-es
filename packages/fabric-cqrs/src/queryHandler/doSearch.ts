@@ -6,10 +6,6 @@ import type { QueryDatabaseResponse } from '../types';
 /**
  * Perform full text search
  * @ignore
- * @param query
- * @param index
- * @param redis
- * @param logger
  */
 export const doSearch: <T = any>(
   query: string[],

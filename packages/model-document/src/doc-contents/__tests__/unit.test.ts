@@ -60,10 +60,10 @@ beforeAll(async () => {
 
 afterAll(
   () =>
-    new Promise((done) =>
+    new Promise<void>((ok) =>
       setTimeout(() => {
         console.log('DocContents Unit Test - Resolver Finished');
-        done();
+        ok();
       }, 500)
     )
 );

@@ -98,10 +98,8 @@ export type QueryDatabase = {
 
   /**
    * full text search on commit, or just return item count of result
-   *
-   * 🧬 see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
-   *
-   * 🧬 see example [qdb.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/qdb.unit-test.ts)
+   * @see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
+   * @example [qdb.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/qdb.unit-test.ts)
    * **/
   fullTextSearchCommit: (option: {
     query: string[];
@@ -110,8 +108,7 @@ export type QueryDatabase = {
 
   /**
    * full text search on entity, or just return item count of result
-   *
-   * 🧬 see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
+   * @see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
    * @param query ```typescript
    * // example
    * { query: ['searching info', 'SORTBY', 'id', 'ASC'] }

@@ -84,7 +84,7 @@ afterAll(async () => {
     .then(({ message }) => console.log(message))
     .catch((result) => console.log(result));
 
-  return new Promise((done) => setTimeout(() => done(), 2000));
+  return new Promise<void>((ok) => setTimeout(() => ok(), 2000));
 });
 
 describe('Store/query: failure tests', () => {
@@ -426,14 +426,17 @@ describe('Store/query Test', () => {
     }));
 
   it('should deleteByEntityId: return number of commits deleted', async () =>
-    dispatcher<number, { entityName: string; id: string }>((payload) => deleteCommitByEntityId(payload), {
-      name: 'deleteByEntityId',
-      store,
-      slice: 'query',
-      SuccessAction: DELETE_SUCCESS,
-      ErrorAction: DELETE_ERROR,
-      logger,
-    })({ entityName, id: 'test_003' }).then(({ status, data }) => {
+    dispatcher<number, { entityName: string; id: string }>(
+      (payload) => deleteCommitByEntityId(payload),
+      {
+        name: 'deleteByEntityId',
+        store,
+        slice: 'query',
+        SuccessAction: DELETE_SUCCESS,
+        ErrorAction: DELETE_ERROR,
+        logger,
+      }
+    )({ entityName, id: 'test_003' }).then(({ status, data }) => {
       expect(data).toEqual(2);
       expect(status).toEqual('OK');
     }));

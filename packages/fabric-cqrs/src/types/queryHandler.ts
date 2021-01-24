@@ -65,7 +65,7 @@ export type HandlerResponse<TData = any> = {
 
 /**
  * @about input criteria for RedisSearch, return paginated commit
- * - see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
+ * @see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
  * @example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
  * ```typescript
  * // search by wildcard
@@ -101,7 +101,7 @@ export type PaginatedCommitCriteria = {
 
 /**
  * @about input criteria for RedisSearch, return paginated entity
- * - see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
+ * @see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
  * @example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
  * ```typescript
  * // search by wildcard

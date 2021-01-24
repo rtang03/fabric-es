@@ -46,7 +46,9 @@ beforeAll(async () => {
     .catch((result) => console.log(`eidx is not dropped: ${result}`));
 });
 
-afterAll(async () => new Promise((done) => setTimeout(() => done(), 2000)));
+afterAll(
+  async () => new Promise<void>((ok) => setTimeout(() => ok(), 2000))
+);
 
 describe('Store/reconcile: failure tests', () => {
   it('should fail to reconcile: invalid argument', async () =>

@@ -125,7 +125,7 @@ beforeAll(async () => {
       .queryNotify({ creator: orgAdminId, expireNow: true })
       .then(({ status }) => console.log(`remove pre-existing notification: ${status}`));
 
-    return new Promise((done) => {
+    return new Promise<void>((done) => {
       server.listen(QH_PORT, () => {
         console.log('🚀 Query Handler Started');
         done();
@@ -175,7 +175,7 @@ afterAll(async () => {
 
   await server.stop();
 
-  return new Promise((done) => setTimeout(() => done(), 5000));
+  return new Promise<void>((done) => setTimeout(() => done(), 5000));
 });
 
 describe('QuerHandler Service Test', () => {
@@ -261,7 +261,9 @@ describe('QuerHandler Service Test', () => {
 });
 
 describe('Full Text Search Test', () => {
-  beforeAll(() => new Promise((done) => setTimeout(() => done(), 4000)));
+  beforeAll(
+    () => new Promise<void>((done) => setTimeout(() => done(), 4000))
+  );
 
   it('should fail to fullTextSearchCommit: garbage input', async () =>
     fetch(
@@ -421,7 +423,7 @@ describe('Paginated search', () => {
         .then((r) => r.text())
         .then((data) => console.log(data));
 
-      await new Promise((done) => setTimeout(() => done(), 2000));
+      await new Promise<void>((done) => setTimeout(() => done(), 2000));
     }
   });
 

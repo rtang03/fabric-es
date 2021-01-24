@@ -142,8 +142,8 @@ describe('Multi-org Tests', () => {
       .then((result) => values(result)[0])
       .then((commit) => (createdCommit_1 = commit));
 
-    const timer = new Promise((done) => {
-      setTimeout(() => done(), 2000);
+    const timer = new Promise<void>((ok) => {
+      setTimeout(() => ok(), 2000);
     });
     await timer;
 
@@ -153,7 +153,7 @@ describe('Multi-org Tests', () => {
       [entityName, identityOrg1, createdCommit_1.commitId],
       {
         network: contextOrg2.network,
-      },
+      }
     )
       .then((result) => values(result)[0])
       .then(({ id, entityName }) => {

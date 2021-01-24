@@ -80,7 +80,7 @@ afterAll(async () => {
     .then(({ message }) => console.log(message))
     .catch((result) => console.log(result));
 
-  return new Promise((done) => setTimeout(() => done(), 2000));
+  return new Promise<void>((done) => setTimeout(() => done(), 2000));
 });
 
 describe('Projection db test', () => {

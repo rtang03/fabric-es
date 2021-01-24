@@ -1,12 +1,7 @@
 require('dotenv').config({ path: './.env.test' });
 import Redis from 'ioredis';
 import { Store } from 'redux';
-import {
-  commitIndex,
-  createQueryDatabase,
-  dummyReducer,
-  entityIndex,
-} from '../../../queryHandler';
+import { commitIndex, createQueryDatabase, dummyReducer, entityIndex } from '../../../queryHandler';
 import type { Commit, QueryDatabase, QueryDatabaseResponse } from '../../../types';
 import { dispatcher, getLogger, isCommitRecord } from '../../../utils';
 import { action as queryAction } from '../../query';
@@ -75,7 +70,7 @@ afterAll(async () => {
     .then(({ message }) => console.log(message))
     .catch((result) => console.log(result));
 
-  return new Promise((done) => setTimeout(() => done(), 2000));
+  return new Promise<void>((ok) => setTimeout(() => ok(), 2000));
 });
 
 describe('Store/projection: failure tests', () => {

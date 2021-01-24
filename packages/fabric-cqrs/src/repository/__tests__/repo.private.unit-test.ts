@@ -24,7 +24,7 @@ let repo: PrivateRepository<Counter, CounterEvent>;
 let commitId: string;
 
 const entityName = 'test_private_repo';
-const reducers = { [entityName]: reducer };
+// const reducers = { [entityName]: reducer };
 const enrollmentId = `repo_pd_tester_${Math.floor(Math.random() * 10000)}`;
 const id = `repo_test_counter_002`;
 const entityId = id;
@@ -114,7 +114,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   repo.disconnect();
-  return new Promise((done) => setTimeout(() => done(), 3000));
+  return new Promise<void>((done) => setTimeout(() => done(), 3000));
 });
 
 describe('Private Repository Test - Part 1', () => {
@@ -134,7 +134,9 @@ describe('Private Repository Test - Part 1', () => {
 });
 
 describe('Private Repository Test - Part 2', () => {
-  beforeEach(() => new Promise((resolve) => setTimeout(() => resolve(), 2000)));
+  beforeEach(
+    () => new Promise<void>((ok) => setTimeout(() => ok(), 2000))
+  );
 
   it('should getByEntityName', async () =>
     repo.getCommitByEntityName().then(({ data, status }) => {

@@ -6,10 +6,6 @@ import { QueryDatabaseResponse } from '../types';
 /**
  * Return number of records in search result
  * @ignore
- * @param query
- * @param index
- * @param redis
- * @param logger
  */
 export const sizeOfSearchResult: (
   query: string[],

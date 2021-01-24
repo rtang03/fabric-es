@@ -218,7 +218,7 @@ beforeAll(async () => {
     });
 
     // Step 11: Start Gateway
-    return new Promise((done) =>
+    return new Promise<void>((done) =>
       app.listen(GATEWAY_PORT, () => {
         console.log('🚀  Federated Gateway started');
         done();
@@ -281,7 +281,7 @@ afterAll(async () => {
   await modelApolloService.stop();
   await adminApolloService.stop();
   await queryHandlerServer.stop();
-  return new Promise((done) => setTimeout(() => done(), 3000));
+  return new Promise<void>((done) => setTimeout(() => done(), 3000));
 });
 
 describe('Gateway Test - admin service', () => {

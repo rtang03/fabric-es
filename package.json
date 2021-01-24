@@ -14,7 +14,7 @@
     "shutdown": "cd ./deployments/dev-net && ./cleanup.sh",
     "unit-test": "lerna run unit-test:fab --stream --scope={@fabric-es/fabric-cqrs,@fabric-es/operator,@fabric-es/model-*}",
     "lint:lib": "lerna run lint --stream --scope={@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
-    "lint:app": "lerna run lint --stream --scope={@fabric-es/gw-org*,@fabric-es/model-*,@fabric-es/ui-account,@fabric-es/ui-control}",
+    "lint:app": "lerna run lint --stream --scope={@fabric-es/gw-org*,@fabric-es/model-*}",
     "publish:lib": "lerna run publish --scope={@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
     "version:patch": "lerna version patch",
     "typedoc": "typedoc --theme ./node_modules/typedoc-neo-theme/bin/default"
@@ -34,19 +34,19 @@
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jest": "^23.8.0",
     "eslint-plugin-prefer-arrow": "^1.1.7",
-    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-standard": "^4.0.1",
     "json-to-pretty-yaml": "^1.2.2",
     "lerna": "^3.21.0",
-    "prettier": "^2.0.5",
+    "prettier": "^2.2.1",
     "rimraf": "^3.0.0",
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.0.1",
+    "tslint-plugin-prettier": "^2.3.0",
     "typedoc": "^0.19.2",
     "typedoc-plugin-lerna-packages": "^0.3.1",
     "typedoc-neo-theme": "^1.1.0",
-    "typescript": "^3.8.3"
+    "typescript": "^4.1.3"
   },
   "prettier": {
     "eslintIntegration": true,

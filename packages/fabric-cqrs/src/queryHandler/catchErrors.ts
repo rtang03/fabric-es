@@ -5,9 +5,6 @@ import type { HandlerResponse } from '../types';
 /**
  * High order function for try / catch
  * @ignore
- * @param fcn
- * @param fcnName
- * @param logger
  */
 export const catchErrors: <TResult = any>(
   fcn: Promise<any>,
