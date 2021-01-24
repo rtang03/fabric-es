@@ -2,7 +2,28 @@
 
 ## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.1...HEAD)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.4...HEAD)
+
+**Closed issues:**
+
+- upgrade to latest typescript [\#183](https://github.com/rtang03/fabric-es/issues/183)
+- publish libraries to npmjs.com [\#172](https://github.com/rtang03/fabric-es/issues/172)
+
+**Merged pull requests:**
+
+- chore: update typescript v4.1.3 [\#185](https://github.com/rtang03/fabric-es/pull/185) ([rtang03](https://github.com/rtang03))
+
+## [v0.7.4](https://github.com/rtang03/fabric-es/tree/v0.7.4) (2021-01-23)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.3...v0.7.4)
+
+## [v0.7.3](https://github.com/rtang03/fabric-es/tree/v0.7.3) (2021-01-23)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.2...v0.7.3)
+
+## [v0.7.2](https://github.com/rtang03/fabric-es/tree/v0.7.2) (2021-01-23)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.1...v0.7.2)
 
 **Implemented enhancements:**
 
@@ -20,7 +41,7 @@
 - fix: .nojerkll  [\#181](https://github.com/rtang03/fabric-es/pull/181) ([rtang03](https://github.com/rtang03))
 - docs: add typedoc [\#180](https://github.com/rtang03/fabric-es/pull/180) ([rtang03](https://github.com/rtang03))
 - chore: Prepare tester and dev-net to port to cdi-samples [\#179](https://github.com/rtang03/fabric-es/pull/179) ([pangduckwai](https://github.com/pangduckwai))
-- Reference Implementation robustness test [\#178](https://github.com/rtang03/fabric-es/pull/178) ([pangduckwai](https://github.com/pangduckwai))
+- feat: reference Implementation robustness test [\#178](https://github.com/rtang03/fabric-es/pull/178) ([pangduckwai](https://github.com/pangduckwai))
 - refactor: remove auth-server [\#177](https://github.com/rtang03/fabric-es/pull/177) ([rtang03](https://github.com/rtang03))
 - refactor: change to external cc launcher [\#175](https://github.com/rtang03/fabric-es/pull/175) ([rtang03](https://github.com/rtang03))
 
@@ -137,6 +158,7 @@
 **Implemented enhancements:**
 
 - merge 0.6.3 [\#103](https://github.com/rtang03/fabric-es/pull/103) ([rtang03](https://github.com/rtang03))
+- fullTextSearch for Entity and Commit [\#83](https://github.com/rtang03/fabric-es/pull/83) ([rtang03](https://github.com/rtang03))
 
 **Merged pull requests:**
 
@@ -174,7 +196,6 @@
 - ui-control is done [\#93](https://github.com/rtang03/fabric-es/pull/93) ([rtang03](https://github.com/rtang03))
 - add createWallet to ui-control [\#89](https://github.com/rtang03/fabric-es/pull/89) ([rtang03](https://github.com/rtang03))
 - enhanced web security by changing to inmemory access token [\#87](https://github.com/rtang03/fabric-es/pull/87) ([rtang03](https://github.com/rtang03))
-- fullTextSearch for Entity and Commit [\#83](https://github.com/rtang03/fabric-es/pull/83) ([rtang03](https://github.com/rtang03))
 - ui for fulltext search [\#82](https://github.com/rtang03/fabric-es/pull/82) ([rtang03](https://github.com/rtang03))
 - add paginated full text search and parametric search [\#80](https://github.com/rtang03/fabric-es/pull/80) ([rtang03](https://github.com/rtang03))
 - use nginx  [\#70](https://github.com/rtang03/fabric-es/pull/70) ([rtang03](https://github.com/rtang03))
