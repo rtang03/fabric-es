@@ -27,6 +27,7 @@ export CONF_DIR=$CURRENT_DIR/build.
 
 export NGX_TEMPLATE_A_U_G=./scripts/nginx/auth-ui-gw.template
 export NGX_TEMPLATE_A_U=./scripts/nginx/auth-ui.template
+export NGX_TEMPLATE_A_G=./scripts/nginx/auth-gw.template
 export NGX_TEMPLATE_A=./scripts/nginx/auth.template
 export NGX_TEMPLATE=
 
