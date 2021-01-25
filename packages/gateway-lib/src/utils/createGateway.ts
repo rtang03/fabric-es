@@ -97,7 +97,7 @@ export const createGateway: (option: {
 
       logger.debug(`token: ${token}`);
 
-      if (!token) return {};
+      if (!token || (token === 'undefined') || (token === 'null')) return {};
 
       try {
         const response = await fetch(authenticationCheck, {
@@ -109,7 +109,7 @@ export const createGateway: (option: {
 
         if (response.status !== httpStatus.OK) {
           logger.warn(
-            `fail to authenticate; no token is passed to microservice, status: ${response.status}`
+            `authentication check failed, status: ${response.status}`
           );
           return {};
         }
