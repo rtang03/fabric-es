@@ -45,9 +45,8 @@ jobs:
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.tester.sh
       - name: Build org1 org2 images (org1 org2)
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.gw.sh org1 org2
-# BROKEN - FIX LATER
-#      - name: Run multi-org integration test
-#        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-test.gw-2.sh
+      - name: Run multi-org integration test
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-test.gw-2.sh
       - name: Log into GitHub Container Registry
         run: echo "${{ secrets.CREATE_PACKAGE }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Push GW-1 to GCR
@@ -73,17 +72,16 @@ jobs:
           [ "$VERSION" == "$default-branch" ] && VERSION=latest
           docker tag fabric-es/$GW_2 $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-# NOT SURE TESTER WORKS FOR CD. VERIFY IT LATER
-#      - name: Push Tester to GCR
-#        run: |
-#          set -x
-#          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$TESTER
-#          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-#          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-#          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-#          [ "$VERSION" == "$default-branch" ] && VERSION=latest
-#          docker tag fabric-es/$TESTER $IMAGE_ID:$VERSION
-#          docker push $IMAGE_ID:$VERSION
+      - name: Push Tester to GCR
+        run: |
+          set -x
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$TESTER
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [ "$VERSION" == "$default-branch" ] && VERSION=latest
+          docker tag fabric-es/$TESTER $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
       - name: Cleanup artifacts
         run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
       - name: Cleanup data volume
