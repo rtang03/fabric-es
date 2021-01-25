@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/rl-org1",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -17,10 +17,10 @@
   },
   "private": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.7.4",
-    "@fabric-es/gateway-lib": "^0.7.4",
-    "@fabric-es/model-pboc": "^0.7.4",
-    "@fabric-es/relay-lib": "^0.7.4",
+    "@fabric-es/fabric-cqrs": "^0.7.5",
+    "@fabric-es/gateway-lib": "^0.7.5",
+    "@fabric-es/model-pboc": "^0.7.5",
+    "@fabric-es/relay-lib": "^0.7.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "stoppable": "^1.1.0",
