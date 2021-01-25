@@ -20,7 +20,8 @@ const logger = getLogger('service-admin.js');
       host: process.env.REDIS_HOST,
       port: (process.env.REDIS_PORT || 6379) as number,
       retryStrategy: (times) => {
-        if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
+        if (times > 3) {
+          // the 4th return will exceed 10 seconds, based on the return value...
           logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
           process.exit(-1);
         }
@@ -32,26 +33,34 @@ const logger = getLogger('service-admin.js');
           // Only reconnect when the error contains "READONLY"
           return 1;
         }
-      }
-    }
+      },
+    },
   });
 
-  process.on('SIGINT', async () => await shutdown(server)
-    .then(() => process.exit(0))
-    .catch(() => process.exit(1)));
-  process.on('SIGTERM', async () => await shutdown(server)
-    .then(() => process.exit(0))
-    .catch(() => process.exit(1)));
-  process.on('uncaughtException', err => {
+  process.on(
+    'SIGINT',
+    async () =>
+      await shutdown(server)
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1))
+  );
+  process.on(
+    'SIGTERM',
+    async () =>
+      await shutdown(server)
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1))
+  );
+  process.on('uncaughtException', (err) => {
     logger.error('An uncaught error occurred!');
     logger.error(err.stack);
   });
 
-  server.listen({ port }).then(({ url }) => {
+  void server.listen({ port }).then(({ url }) => {
     logger.info(`🚀 admin service ready at ${url}graphql`);
     process.send?.('ready');
   });
-})().catch(error => {
+})().catch((error) => {
   console.error(error);
   logger.error(util.format('fail to start service, %j', error));
   process.exit(1);

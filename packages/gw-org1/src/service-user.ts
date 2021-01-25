@@ -14,7 +14,7 @@ import { Wallets } from 'fabric-network';
 const logger = getLogger('service-user.js');
 const reducer = getReducer<User, UserEvents>(userReducer);
 
-(async () =>
+void (async () =>
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'user',
@@ -26,7 +26,8 @@ const reducer = getReducer<User, UserEvents>(userReducer);
       host: process.env.REDIS_HOST,
       port: (process.env.REDIS_PORT || 6379) as number,
       retryStrategy: (times) => {
-        if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
+        if (times > 3) {
+          // the 4th return will exceed 10 seconds, based on the return value...
           logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
           process.exit(-1);
         }
@@ -38,8 +39,8 @@ const reducer = getReducer<User, UserEvents>(userReducer);
           // Only reconnect when the error contains "READONLY"
           return 1;
         }
-      }
-    }
+      },
+    },
   })
     .then(async ({ config, shutdown, getRepository }) => {
       const app = await config({
@@ -49,20 +50,28 @@ const reducer = getReducer<User, UserEvents>(userReducer);
         .addRepository(getRepository<User, UserEvents>('user', reducer))
         .create();
 
-      process.on('SIGINT', async () => await shutdown(app)
-        .then(() => process.exit(0))
-        .catch(() => process.exit(1)));
+      process.on(
+        'SIGINT',
+        async () =>
+          await shutdown(app)
+            .then(() => process.exit(0))
+            .catch(() => process.exit(1))
+      );
 
-      process.on('SIGTERM', async () => await shutdown(app)
-        .then(() => process.exit(0))
-        .catch(() => process.exit(1)));
+      process.on(
+        'SIGTERM',
+        async () =>
+          await shutdown(app)
+            .then(() => process.exit(0))
+            .catch(() => process.exit(1))
+      );
 
       process.on('uncaughtException', (err) => {
         logger.error('An uncaught error occurred!');
         logger.error(err.stack);
       });
 
-      app.listen({ port: process.env.SERVICE_USER_PORT }).then(({ url }) => {
+      void app.listen({ port: process.env.SERVICE_USER_PORT }).then(({ url }) => {
         logger.info(`🚀  '${process.env.MSPID}' - 'user' available at ${url}`);
         process.send?.('ready');
       });

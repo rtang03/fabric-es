@@ -49,7 +49,7 @@ const port = (process.env.PORT || 8080) as number;
     logger.error(err.stack);
   });
 
-  server.listen({ port }).then(({ url }) => {
+  void server.listen({ port }).then(({ url }) => {
     console.log(`🚀 Admin service started at ${url}graphql`);
     logger.info(`🚀 Admin service started at ${url}graphql`);
   });

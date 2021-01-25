@@ -17,7 +17,7 @@ export const doPaginatedSearch: <
   TCriteria extends PaginatedEntityCriteria | PaginatedCommitCriteria
 >(
   entityName: string,
-  fcn: Function,
+  fcn: any,
   option: { logger: Logger; store: Store }
 ) => (criteria: TCriteria, id?: string) => Promise<HandlerResponse<Paginated<TResult>>> = <
   TResult,

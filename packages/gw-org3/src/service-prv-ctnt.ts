@@ -10,7 +10,7 @@ import {
   docContentsTypeDefs,
   Document,
   DocumentEvents,
-  documentReducer
+  documentReducer,
 } from '@fabric-es/model-document';
 import { Wallets } from 'fabric-network';
 import Redis from 'ioredis';
@@ -18,7 +18,7 @@ import Redis from 'ioredis';
 const logger = getLogger('service-prv-ctnt.js');
 const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
 
-(async () =>
+void (async () =>
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'docContents',
@@ -31,7 +31,8 @@ const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
       host: process.env.REDIS_HOST,
       port: (process.env.REDIS_PORT || 6379) as number,
       retryStrategy: (times) => {
-        if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
+        if (times > 3) {
+          // the 4th return will exceed 10 seconds, based on the return value...
           logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
           process.exit(-1);
         }
@@ -43,32 +44,47 @@ const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
           // Only reconnect when the error contains "READONLY"
           return 1;
         }
-      }
-    }
+      },
+    },
   })
     .then(async ({ config, shutdown, getRepository, getPrivateRepository }) => {
       const app = await config({
         typeDefs: docContentsTypeDefs,
         resolvers: docContentsResolvers,
       })
-        .addRepository(getPrivateRepository<DocContents, DocContentsEvents>('docContents', reducer, 'document'))
-        .addRepository(getRepository<Document, DocumentEvents>('document', getReducer<Document, DocumentEvents>(documentReducer)))
+        .addRepository(
+          getPrivateRepository<DocContents, DocContentsEvents>('docContents', reducer, 'document')
+        )
+        .addRepository(
+          getRepository<Document, DocumentEvents>(
+            'document',
+            getReducer<Document, DocumentEvents>(documentReducer)
+          )
+        )
         .create();
 
-      process.on('SIGINT', async () => await shutdown(app)
-        .then(() => process.exit(0))
-        .catch(() => process.exit(1)));
+      process.on(
+        'SIGINT',
+        async () =>
+          await shutdown(app)
+            .then(() => process.exit(0))
+            .catch(() => process.exit(1))
+      );
 
-      process.on('SIGTERM', async () => await shutdown(app)
-        .then(() => process.exit(0))
-        .catch(() => process.exit(1)));
+      process.on(
+        'SIGTERM',
+        async () =>
+          await shutdown(app)
+            .then(() => process.exit(0))
+            .catch(() => process.exit(1))
+      );
 
       process.on('uncaughtException', (err) => {
         logger.error('An uncaught error occurred!');
         logger.error(err.stack);
       });
 
-      app.listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT }).then(({ url }) => {
+      void app.listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT }).then(({ url }) => {
         logger.info(`🚀  '${process.env.MSPID}' - 'docContents' available at ${url}`);
         process.send?.('ready');
       });
