@@ -15,7 +15,7 @@ import {
 const logger = getLogger('service-prv-dtls.js');
 const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
 
-(async () =>
+void (async () =>
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'loanDetails',
@@ -28,7 +28,8 @@ const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
       host: process.env.REDIS_HOST,
       port: (process.env.REDIS_PORT || 6379) as number,
       retryStrategy: (times) => {
-        if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
+        if (times > 3) {
+          // the 4th return will exceed 10 seconds, based on the return value...
           logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
           process.exit(-1);
         }
@@ -40,8 +41,8 @@ const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
           // Only reconnect when the error contains "READONLY"
           return 1;
         }
-      }
-    }
+      },
+    },
   })
     .then(async ({ config, shutdown, getPrivateRepository }) => {
       const app = await config({
@@ -51,20 +52,28 @@ const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
         .addRepository(getPrivateRepository<LoanDetails, LoanDetailsEvents>('loanDetails', reducer))
         .create();
 
-      process.on('SIGINT', async () => await shutdown(app)
-        .then(() => process.exit(0))
-        .catch(() => process.exit(1)));
+      process.on(
+        'SIGINT',
+        async () =>
+          await shutdown(app)
+            .then(() => process.exit(0))
+            .catch(() => process.exit(1))
+      );
 
-      process.on('SIGTERM', async () => await shutdown(app)
-        .then(() => process.exit(0))
-        .catch(() => process.exit(1)));
+      process.on(
+        'SIGTERM',
+        async () =>
+          await shutdown(app)
+            .then(() => process.exit(0))
+            .catch(() => process.exit(1))
+      );
 
       process.on('uncaughtException', (err) => {
         logger.error('An uncaught error occurred!');
         logger.error(err.stack);
       });
 
-      app.listen({ port: process.env.PRIVATE_LOAN_DETAILS_PORT }).then(({ url }) => {
+      void app.listen({ port: process.env.PRIVATE_LOAN_DETAILS_PORT }).then(({ url }) => {
         logger.info(`🚀  '${process.env.MSPID}' - 'loanDetails' available at ${url}`);
         process.send?.('ready');
       });

@@ -126,7 +126,7 @@ beforeAll(async () => {
       .then(({ status }) => console.log(`remove pre-existing notification: ${status}`));
 
     return new Promise<void>((done) => {
-      server.listen(QH_PORT, () => {
+      void server.listen(QH_PORT, () => {
         console.log('🚀 Query Handler Started');
         done();
       });

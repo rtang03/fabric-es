@@ -26,7 +26,7 @@ export const getGateway: (option: {
   const gateway = new Gateway();
   try {
     const connection = await promiseToReadFile(connectionProfile);
-    const ccp = yaml.safeLoad(connection) as object;
+    const ccp = yaml.safeLoad(connection) as Record<string, unknown>;
     await gateway.connect(ccp, {
       identity,
       wallet,
