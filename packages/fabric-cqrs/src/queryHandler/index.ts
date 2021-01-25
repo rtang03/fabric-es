@@ -11,3 +11,4 @@ export * from './createQueryHandler';
 export * from './doSearch';
 export * from './sizeOfSearchResult';
 export * from './tokenizeTextField';
+export * from './createQueryDatabaseV2';

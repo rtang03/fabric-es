@@ -16,7 +16,7 @@ import { Wallets } from 'fabric-network';
 
 const logger = getLogger('service-prv-ctnt.js');
 
-(async () =>
+void (async () =>
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'docContents',
@@ -29,7 +29,8 @@ const logger = getLogger('service-prv-ctnt.js');
       host: process.env.REDIS_HOST,
       port: (process.env.REDIS_PORT || 6379) as number,
       retryStrategy: (times) => {
-        if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
+        if (times > 3) {
+          // the 4th return will exceed 10 seconds, based on the return value...
           logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
           process.exit(-1);
         }
@@ -41,31 +42,51 @@ const logger = getLogger('service-prv-ctnt.js');
           // Only reconnect when the error contains "READONLY"
           return 1;
         }
-      }
-    }
+      },
+    },
   })
     .then(async ({ config, shutdown, getRepository, getPrivateRepository }) => {
       const app = await config({
         typeDefs: docContentsTypeDefs,
         resolvers: docContentsResolvers,
-      }).addRepository(getPrivateRepository<DocContents, DocContentsEvents>('docContents', getReducer<DocContents, DocContentsEvents>(docContentsReducer), 'document')) // TODO
-        .addRepository(getRepository<Document, DocumentEvents>('document', getReducer<Document, DocumentEvents>(documentReducer)))
+      })
+        .addRepository(
+          getPrivateRepository<DocContents, DocContentsEvents>(
+            'docContents',
+            getReducer<DocContents, DocContentsEvents>(docContentsReducer),
+            'document'
+          )
+        ) // TODO
+        .addRepository(
+          getRepository<Document, DocumentEvents>(
+            'document',
+            getReducer<Document, DocumentEvents>(documentReducer)
+          )
+        )
         .create();
 
-      process.on('SIGINT', async () => await shutdown(app)
-        .then(() => process.exit(0))
-        .catch(() => process.exit(1)));
+      process.on(
+        'SIGINT',
+        async () =>
+          await shutdown(app)
+            .then(() => process.exit(0))
+            .catch(() => process.exit(1))
+      );
 
-      process.on('SIGTERM', async () => await shutdown(app)
-        .then(() => process.exit(0))
-        .catch(() => process.exit(1)));
+      process.on(
+        'SIGTERM',
+        async () =>
+          await shutdown(app)
+            .then(() => process.exit(0))
+            .catch(() => process.exit(1))
+      );
 
       process.on('uncaughtException', (err) => {
         logger.error('An uncaught error occurred!');
         logger.error(err.stack);
       });
 
-      app.listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT }).then(({ url }) => {
+      void app.listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT }).then(({ url }) => {
         logger.info(`🚀  '${process.env.MSPID}' - 'docContents' available at ${url}`);
         process.send?.('ready');
       });

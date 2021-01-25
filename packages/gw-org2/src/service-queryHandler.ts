@@ -24,7 +24,8 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     host: process.env.REDIS_HOST,
     port: parseInt(process.env.REDIS_PORT, 10) || 6379,
     retryStrategy: (times) => {
-      if (times > 3) { // the 4th return will exceed 10 seconds, based on the return value...
+      if (times > 3) {
+        // the 4th return will exceed 10 seconds, based on the return value...
         logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
         process.exit(-1);
       }
@@ -36,7 +37,7 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
         // Only reconnect when the error contains "READONLY"
         return 1;
       }
-    }
+    },
   };
 
   const reducers = {
@@ -47,31 +48,42 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     counter: counterReducer,
   };
 
-  const { server, shutdown } = await createQueryHandlerService(['document', 'loan', 'user', 'loanDetails', 'counter'], {
-    redisOptions,
-    asLocalhost: !(process.env.NODE_ENV === 'production'),
-    channelName: process.env.CHANNEL_NAME,
-    connectionProfile: process.env.CONNECTION_PROFILE,
-    enrollmentId: process.env.ORG_ADMIN_ID,
-    reducers,
-    wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
-    authCheck,
-  });
+  const { server, shutdown } = await createQueryHandlerService(
+    ['document', 'loan', 'user', 'loanDetails', 'counter'],
+    {
+      redisOptions,
+      asLocalhost: !(process.env.NODE_ENV === 'production'),
+      channelName: process.env.CHANNEL_NAME,
+      connectionProfile: process.env.CONNECTION_PROFILE,
+      enrollmentId: process.env.ORG_ADMIN_ID,
+      reducers,
+      wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+      authCheck,
+    }
+  );
 
-  process.on('SIGINT', async () => await shutdown()
-    .then(() => process.exit(0))
-    .catch(() => process.exit(1)));
+  process.on(
+    'SIGINT',
+    async () =>
+      await shutdown()
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1))
+  );
 
-  process.on('SIGTERM', async () => await shutdown()
-    .then(() => process.exit(0))
-    .catch(() => process.exit(1)));
+  process.on(
+    'SIGTERM',
+    async () =>
+      await shutdown()
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1))
+  );
 
   process.on('uncaughtException', (err) => {
     logger.error('An uncaught error occurred!');
     logger.error(err.stack);
   });
 
-  await server.listen({ port }).then(({ url, subscriptionsUrl }) => {
+  void server.listen({ port }).then(({ url, subscriptionsUrl }) => {
     logger.info(`🚀 queryHandler available at ${url}`);
     logger.info(`🚀 Subscription ${subscriptionsUrl}`);
 
