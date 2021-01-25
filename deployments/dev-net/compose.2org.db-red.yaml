@@ -24,7 +24,7 @@ services:
 
   redis02:
     container_name: redis02
-    image: redislabs/redisearch:1.8.3
+    image: $REDISEARCH_IMAGE
     volumes:
       - $VOLUME/redis-data02:/data
     # custom configuration. will require if AUTH is set

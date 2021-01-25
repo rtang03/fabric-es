@@ -109,7 +109,7 @@ export type QueryDatabase = {
   /**
    * full text search on entity, or just return item count of result
    * @see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
-   * @param query ```typescript
+   * @example query ```typescript
    * // example
    * { query: ['searching info', 'SORTBY', 'id', 'ASC'] }
    * ```

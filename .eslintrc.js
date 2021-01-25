@@ -2,19 +2,19 @@ module.exports = {
   env: {
     browser: true,
     es6: true,
-    node: true
+    node: true,
   },
   extends: [
     'plugin:@typescript-eslint/recommended',
     'prettier/@typescript-eslint',
     'plugin:prettier/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking'
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
   ],
   ignorePatterns: [],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: 'tsconfig.json',
-    sourceType: 'module'
+    sourceType: 'module',
   },
   plugins: [
     '@typescript-eslint',
@@ -23,7 +23,7 @@ module.exports = {
     'eslint-plugin-import',
     'eslint-plugin-standard',
     'eslint-plugin-prefer-arrow',
-    'jest'
+    'jest',
   ],
   rules: {
     camelcase: 'off',
@@ -113,8 +113,8 @@ module.exports = {
     '@typescript-eslint/no-misused-promises': [
       'error',
       {
-        checksVoidReturn: false
-      }
+        checksVoidReturn: false,
+      },
     ],
     'require-await': 'off',
     '@typescript-eslint/require-await': 'off',
@@ -129,13 +129,13 @@ module.exports = {
       {
         multiline: {
           delimiter: 'semi',
-          requireLast: true
+          requireLast: true,
         },
         singleline: {
           delimiter: 'semi',
-          requireLast: false
-        }
-      }
+          requireLast: false,
+        },
+      },
     ],
     '@typescript-eslint/no-extra-parens': ['off'],
     '@typescript-eslint/no-extra-semi': ['off'],
@@ -145,7 +145,7 @@ module.exports = {
     '@typescript-eslint/adjacent-overload-signatures': 'error',
     '@typescript-eslint/ban-ts-ignore': ['off'],
     '@typescript-eslint/ban-types': 'error',
-    '@typescript-eslint/class-name-casing': 'error',
+    '@typescript-eslint/class-name-casing': 'off',
     '@typescript-eslint/consistent-type-assertions': 'off',
     '@typescript-eslint/no-unnecessary-type-assertion': 'off',
     '@typescript-eslint/explicit-function-return-type': ['off'],
@@ -177,8 +177,8 @@ module.exports = {
     '@typescript-eslint/explicit-member-accessibility': [
       'off',
       {
-        accessibility: 'explicit'
-      }
+        accessibility: 'explicit',
+      },
     ],
     '@typescript-eslint/member-ordering': 'off',
     '@typescript-eslint/no-parameter-properties': 'off',
@@ -208,8 +208,8 @@ module.exports = {
     'no-shadow': [
       'off',
       {
-        hoist: 'all'
-      }
+        hoist: 'all',
+      },
     ],
     'no-throw-literal': 'error',
     'no-undef-init': 'error',
@@ -229,11 +229,11 @@ module.exports = {
       {
         rules: {
           'jsdoc-format': false,
-          'no-reference-import': true
-        }
-      }
+          'no-reference-import': true,
+        },
+      },
     ],
-    '@typescript-eslint/unbound-method': ['off', { ignoreStatic: false }]
+    '@typescript-eslint/unbound-method': ['off', { ignoreStatic: false }],
   },
-  settings: {}
+  settings: {},
 };

@@ -38,6 +38,7 @@ beforeAll(async () => {
     .then((result) => console.log(`${key3} is deleted: ${result}`))
     .catch((result) => console.log(`${key3} is not deleted: ${result}`));
 
+  // CLEAR
   // prepare eidx
   await redis
     .send_command('FT.DROP', ['eidx'])
@@ -80,7 +81,7 @@ afterAll(async () => {
     .then(({ message }) => console.log(message))
     .catch((result) => console.log(result));
 
-  return new Promise<void>((done) => setTimeout(() => done(), 2000));
+  return new Promise<void>((ok) => setTimeout(() => ok(), 2000));
 });
 
 describe('Projection db test', () => {
