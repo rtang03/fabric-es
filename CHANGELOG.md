@@ -4,13 +4,19 @@
 
 [Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.4...HEAD)
 
+**Fixed bugs:**
+
+- fail to run dev-net/dn-test.gw-2.sh, because of timeout [\#182](https://github.com/rtang03/fabric-es/issues/182)
+
 **Closed issues:**
 
+- upgrade eslint to work with ts 4.1.x [\#186](https://github.com/rtang03/fabric-es/issues/186)
 - upgrade to latest typescript [\#183](https://github.com/rtang03/fabric-es/issues/183)
 - publish libraries to npmjs.com [\#172](https://github.com/rtang03/fabric-es/issues/172)
 
 **Merged pull requests:**
 
+- chore: upgrade eslint [\#187](https://github.com/rtang03/fabric-es/pull/187) ([rtang03](https://github.com/rtang03))
 - chore: update typescript v4.1.3 [\#185](https://github.com/rtang03/fabric-es/pull/185) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.4](https://github.com/rtang03/fabric-es/tree/v0.7.4) (2021-01-23)
@@ -158,7 +164,6 @@
 **Implemented enhancements:**
 
 - merge 0.6.3 [\#103](https://github.com/rtang03/fabric-es/pull/103) ([rtang03](https://github.com/rtang03))
-- fullTextSearch for Entity and Commit [\#83](https://github.com/rtang03/fabric-es/pull/83) ([rtang03](https://github.com/rtang03))
 
 **Merged pull requests:**
 
@@ -196,6 +201,7 @@
 - ui-control is done [\#93](https://github.com/rtang03/fabric-es/pull/93) ([rtang03](https://github.com/rtang03))
 - add createWallet to ui-control [\#89](https://github.com/rtang03/fabric-es/pull/89) ([rtang03](https://github.com/rtang03))
 - enhanced web security by changing to inmemory access token [\#87](https://github.com/rtang03/fabric-es/pull/87) ([rtang03](https://github.com/rtang03))
+- fullTextSearch for Entity and Commit [\#83](https://github.com/rtang03/fabric-es/pull/83) ([rtang03](https://github.com/rtang03))
 - ui for fulltext search [\#82](https://github.com/rtang03/fabric-es/pull/82) ([rtang03](https://github.com/rtang03))
 - add paginated full text search and parametric search [\#80](https://github.com/rtang03/fabric-es/pull/80) ([rtang03](https://github.com/rtang03))
 - use nginx  [\#70](https://github.com/rtang03/fabric-es/pull/70) ([rtang03](https://github.com/rtang03))
