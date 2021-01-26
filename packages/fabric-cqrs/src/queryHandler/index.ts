@@ -12,3 +12,7 @@ export * from './doSearch';
 export * from './sizeOfSearchResult';
 export * from './tokenizeTextField';
 export * from './createQueryDatabaseV2';
+export * from './createEIndex';
+export * from './createCIndex';
+export * from './typeGuards';
+export * from './parseCommitHashfields';
