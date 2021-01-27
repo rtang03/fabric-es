@@ -1,4 +1,4 @@
-import type { FabricResponse, Commit } from '../types';
+import type { FabricResponse, Commit, BaseEvent } from '../types';
 
 export const isCommitRecord = (input: Record<string, any>): input is Record<string, Commit> =>
   Object.entries(input)
@@ -23,3 +23,8 @@ export const isCommit = (value: any): value is Commit =>
 
 export const isFabricResponse = (input: any): input is FabricResponse =>
   input?.status !== undefined && input?.message !== undefined;
+
+export const isBaseEventArray = (input: any): input is BaseEvent[] =>
+  input
+    .map((item) => item?.type !== undefined && item?.payload !== undefined)
+    .reduce((prev, curr) => curr && prev, true);

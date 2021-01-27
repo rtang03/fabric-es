@@ -1,4 +1,4 @@
-import { BaseEntity } from '../types';
+import type { BaseMetaEntity } from '../types';
 
 /**
  * @ignore
@@ -33,7 +33,7 @@ export interface CounterEvent {
 /**
  * @ignore
  */
-export interface Counter extends BaseEntity {
+export interface Counter extends BaseMetaEntity {
   id: string;
   desc: string;
   tag: string;

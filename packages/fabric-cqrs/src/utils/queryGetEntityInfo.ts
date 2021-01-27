@@ -3,7 +3,7 @@ import uniq from 'lodash/uniq';
 import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action } from '../store/query';
-import { BaseEntity, EntityInfo, HandlerResponse } from '../types';
+import type { BaseMetaEntity, EntityInfo, HandlerResponse } from '../types';
 import { dispatcher } from './dispatcher';
 
 /**
@@ -25,7 +25,7 @@ export const queryGetEntityInfo: (option: {
       ErrorAction: action.SEARCH_ERROR,
       logger,
     },
-    (data: BaseEntity[]) => {
+    (data: BaseMetaEntity[]) => {
       const tagged = uniq(
         flatten(data?.map(({ tag }) => tag?.replace(/\s/g, '').split(',') || []))
       );

@@ -21,6 +21,7 @@ beforeAll(async () => {
   redis = new Redis();
   queryDatabase = createQueryDatabase(redis);
 
+  // CLEAR
   // first commit for merge test
   await redis
     .set(key, JSON.stringify(commit))
@@ -45,16 +46,19 @@ beforeAll(async () => {
     .then((result) => console.log(`entityIndex is dropped: ${result}`))
     .catch((result) => console.log(`entityIndex is not dropped: ${result}`));
 
+  // CLEAR
   await redis
     .send_command('FT.CREATE', entityIndex)
     .then((result) => console.log(`entityIndex is created: ${result}`))
     .catch((result) => console.log(`entityIndex is not created: ${result}`));
 
+  // CLEAR
   await redis
     .send_command('FT.DROP', ['cidx'])
     .then((result) => console.log(`cidx is dropped: ${result}`))
     .catch((result) => console.log(`cidx is not dropped: ${result}`));
 
+  // CLEAR
   await redis
     .send_command('FT.CREATE', commitIndex)
     .then((result) => console.log(`cidx is created: ${result}`))
@@ -66,11 +70,13 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  // CLEAR
   await redis
     .send_command('FT.DROP', ['eidx'])
     .then((result) => console.log(`entityIndex is dropped: ${result}`))
     .catch((result) => console.log(`entityIndex is not dropped: ${result}`));
 
+  // CLEAR
   await redis
     .send_command('FT.DROP', ['cidx'])
     .then((result) => console.log(`cidx is dropped: ${result}`))

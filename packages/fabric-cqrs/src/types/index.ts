@@ -10,3 +10,4 @@ export * from './dispatcher';
 export * from './pubSubPayload';
 export * from './paginated';
 export * from './queryHandlerEntity';
+export * from './baseMetaEntity';

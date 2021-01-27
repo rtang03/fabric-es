@@ -9,6 +9,7 @@ export const orgReducer = (org: Organization, event: OrgEvents): Organization =>
   switch (event.type) {
     case 'OrgStarted':
       return {
+        entityName: 'organization',
         id: event.payload.mspId,
         mspId: event.payload.mspId,
         timestamp: event.payload.timestamp,

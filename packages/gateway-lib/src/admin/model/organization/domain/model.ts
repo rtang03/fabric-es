@@ -1,4 +1,4 @@
-import { BaseEntity } from '@fabric-es/fabric-cqrs';
+import type { BaseMetaEntity } from '@fabric-es/fabric-cqrs';
 
 export enum OrgStatus {
   UP, DOWN
@@ -7,8 +7,8 @@ export enum OrgStatus {
 /**
  * @about **organization** is one of the on-chain top-level entities representing the organization participating in the blockchain network.
  */
-export class Organization extends BaseEntity {
-  static entityName = 'organization';
+export interface Organization extends BaseMetaEntity {
+  readonly entityName: 'organization';
 
   id: string;
 
