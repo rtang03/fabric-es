@@ -197,7 +197,7 @@ export const createQueryHandlerService: (
     },
   });
 
-  const shutdown = async () =>
+  const shutdown = async () => {
     new Promise<void>(async (resolve, reject) => {
       queryHandler.unsubscribeHub();
       queryHandler.disconnect();
@@ -231,6 +231,7 @@ export const createQueryHandlerService: (
           reject();
         });
     });
+  };
 
   return { server, shutdown, queryHandler, publisher };
 };
