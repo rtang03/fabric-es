@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.4...HEAD)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.5...HEAD)
+
+**Merged pull requests:**
+
+- refactor: deduplicate BaseEntity class and interface [\#188](https://github.com/rtang03/fabric-es/pull/188) ([rtang03](https://github.com/rtang03))
+
+## [v0.7.5](https://github.com/rtang03/fabric-es/tree/v0.7.5) (2021-01-25)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.4...v0.7.5)
 
 **Fixed bugs:**
 
