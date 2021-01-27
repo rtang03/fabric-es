@@ -16,3 +16,4 @@ export * from './createEIndex';
 export * from './createCIndex';
 export * from './typeGuards';
 export * from './parseCommitHashfields';
+export * from './constants';

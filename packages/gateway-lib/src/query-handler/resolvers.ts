@@ -1,4 +1,4 @@
-import type { BaseEntity, Commit, QueryHandlerEntity, Paginated } from '@fabric-es/fabric-cqrs';
+import type { BaseMetaEntity, Commit, QueryHandlerEntity, Paginated } from '@fabric-es/fabric-cqrs';
 import { ApolloError } from 'apollo-server';
 import { withFilter } from 'graphql-subscriptions';
 import assign from 'lodash/assign';
@@ -16,7 +16,7 @@ import { QueryHandlerResolvers } from './types';
 const COMMIT_ARRIVED = 'COMMIT_ARRIVED';
 const DEV = 'DEV';
 const logger = getLogger('[gateway-lib] queryHandler/resolvers.js');
-const parseEntity = (data: BaseEntity[]) =>
+const parseEntity = (data: BaseMetaEntity[]) =>
   data
     ? data.map((entity) => ({
         id: entity.id,
