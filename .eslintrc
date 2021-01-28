@@ -116,7 +116,6 @@
         "checksVoidReturn": false
       }
     ],
-    "@typescript-eslint/no-floating-promises": "off",
     "require-await": "off",
     "@typescript-eslint/require-await": "off",
     "@typescript-eslint/prefer-includes": "off",
