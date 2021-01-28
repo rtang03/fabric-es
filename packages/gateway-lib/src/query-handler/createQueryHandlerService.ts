@@ -16,7 +16,7 @@ import { Organization, OrgEvents, orgReducer } from '../admin';
 import { QueryHandlerGqlCtx } from '../types';
 import { getLogger } from '../utils';
 import { isAuthResponse } from '../utils';
-import { reconcile, rebuildIndex, resolvers, typeDefs } from './index';
+import { reconcile, rebuildIndex, resolvers, typeDefs, REDIS_CONNECTION_CLOSED } from './index';
 
 /**
  * @about create query handler microservice
@@ -208,15 +208,15 @@ export const createQueryHandlerService: (
 
       await subscriber
         .quit()
-        .catch((err) =>
-          logger.error(util.format('Error disconnecting the subscriber from redis: %j', err))
-        );
+        .catch((err) => {
+          if (err.message !== REDIS_CONNECTION_CLOSED) logger.error(util.format('Error disconnecting the subscriber from redis: %j', err));
+        });
 
       await publisher
         .quit()
-        .catch((err) =>
-          logger.error(util.format('Error disconnecting the publisher from redis: %j', err))
-        );
+        .catch((err) => {
+          if (err.message !== REDIS_CONNECTION_CLOSED) logger.error(util.format('Error disconnecting the publisher from redis: %j', err));
+        });
 
       return server
         .stop()
