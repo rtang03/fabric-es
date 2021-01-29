@@ -1,10 +1,9 @@
 import util from 'util';
 import flatten from 'lodash/flatten';
-import { Redisearch } from 'redis-modules-sdk';
-import type { Commit, QueryDatabase } from '../types';
+import type { Commit } from '../types';
 import { getLogger, isCommit } from '../utils';
 import { INVALID_ARG } from './constants';
-import { getCommitHashFields, getCommitKey } from './createCIndex';
+import type { QueryDatabaseV2, RedisRepository } from './types';
 
 /**
  * @about create query database
@@ -12,9 +11,9 @@ import { getCommitHashFields, getCommitKey } from './createCIndex';
  * @returns [[QueryDatabase]]
  */
 export const createQueryDatabaseV2: (
-  client: Redisearch,
+  repos: Record<string, RedisRepository>,
   option?: { debug: boolean }
-) => QueryDatabase = (client, { debug } = { debug: false }) => {
+) => QueryDatabaseV2 = (repos, { debug } = { debug: false }) => {
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js', target: 'console' });
   const countNonNull = (deletedItems: number[][]) =>
     flatten(deletedItems)
@@ -27,26 +26,14 @@ export const createQueryDatabaseV2: (
   };
 
   return {
-    clearNotification: null,
-    deleteCommitByEntityId: null,
-    deleteCommitByEntityName: null,
-    getNotification: null,
-    fullTextSearchCommit: null,
-    fullTextSearchEntity: null,
     mergeCommit: async ({ commit }) => {
       // merge one commit
       if (!isCommit(commit)) throw new Error(INVALID_ARG);
       debug && logger.debug(util.format('%s - commit: %j', INVALID_ARG, commit));
 
-      const key = getCommitKey(commit);
-      debug && logger.debug(`getCommitKey returns: ${key}`);
-
-      const value = getCommitHashFields(commit);
-      debug && logger.debug(`getCommitHashFields returns: ${value}`);
-
       try {
-        // see https://redis.io/commands/hmset
-        const status = await client.redis.hmset(key, value);
+        const key = repos['commit'].getKey(commit);
+        const status = await repos['commit'].hmset(commit);
         const result = {
           status,
           message: `${key} merged successfully`,
@@ -60,11 +47,5 @@ export const createQueryDatabaseV2: (
         throw e;
       }
     },
-    mergeCommitBatch: null,
-    mergeEntity: null,
-    mergeEntityBatch: null,
-    queryCommitByEntityId: null,
-    queryCommitByEntityName: null,
-    queryEntity: null,
   };
 };

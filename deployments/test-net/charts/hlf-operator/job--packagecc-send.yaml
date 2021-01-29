@@ -1,2 +1,0 @@
-{{- if .Values.packageccSend.enabled }}
-{{- end }}

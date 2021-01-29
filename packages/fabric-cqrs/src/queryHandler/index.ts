@@ -11,8 +11,3 @@ export * from './createQueryHandler';
 export * from './doSearch';
 export * from './sizeOfSearchResult';
 export * from './tokenizeTextField';
-export * from './createQueryDatabaseV2';
-export * from './typeGuards';
-export * from './parseCommitHashfields';
-export * from './constants';
-export * from './createRedisRepository';
