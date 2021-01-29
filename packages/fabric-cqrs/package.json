@@ -43,7 +43,8 @@
     "t:qdb": "jest --forceExit --detectOpenHandles qdb.unit-test",
     "t:store": "yarn test:store-cmd && yarn test:store-cmd-pri && yarn test:store-query && yarn test:store-proj && yarn test:store-rec",
     "unit-test:fab": "yarn t:store && yarn t:srv && yarn t:repo && yarn t:p-repo && yarn t:rec && yarn t:sub yarn t:qdb",
-    "t:qdbV2": "jest --forceExit --detectOpenHandles qdbV2.unit-test"
+    "t:qdbV2": "jest --forceExit --detectOpenHandles qdbV2.unit-test",
+    "poc": "jest --forceExit --detectOpenHandles poc.unit-test"
   },
   "dependencies": {
     "@fabric-es/operator": "^0.7.5",

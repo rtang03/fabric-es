@@ -1,4 +1,4 @@
-import { Commit } from '../../types';
+import type { Commit } from '../../types';
 
 /**
  * @about field definition used by Redis Hash record for Commit. Notice that there is name

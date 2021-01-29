@@ -2,26 +2,20 @@ import flatten from 'lodash/flatten';
 import uniq from 'lodash/uniq';
 import values from 'lodash/values';
 import { Redisearch, FTSchemaField, FTCreateParameters } from 'redis-modules-sdk';
+import type { BaseMetaEntity } from '../types';
 import type { EntityDefaultSchema } from './types';
 
 export const TEST_ENTITYNAME = 'test_proj';
 export const getEidxName = (entityName: string) => `eidx:${entityName}`;
 export const getEidxPrefix = (entityName: string) => `e:${entityName}:`;
+
 export const getEntityHashFields: <TEntity>(entity) => (string | number)[] = <
-  TEntity extends {
-    id?: string;
-    _creator?: string;
-    _created?: number;
-    _ts?: number;
-    _event?: string;
-    _organization?: string[];
-    desc?: string;
-    tag?: string;
-  }
+  TEntity extends BaseMetaEntity
 >(
   entity
-) =>
-  flatten(
+) => {
+
+  return flatten(
     Object.entries<TEntity>(entity).map(([key, value]) => [
       key,
       {
@@ -43,6 +37,7 @@ export const getEntityHashFields: <TEntity>(entity) => (string | number)[] = <
       }[key](value),
     ])
   );
+};
 
 /**
  * @about default schema is used for secondary indexing
