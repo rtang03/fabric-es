@@ -1,9 +1,13 @@
 import util from 'util';
 import flatten from 'lodash/flatten';
+import { Redisearch } from 'redis-modules-sdk';
 import type { Commit } from '../types';
 import { getLogger, isCommit } from '../utils';
 import { INVALID_ARG } from './constants';
+import { createRedisRepository } from './createRedisRepository';
+import { redisCommit, restoreCommit } from './model';
 import type { QueryDatabaseV2, RedisRepository } from './types';
+import { CommitInRedis, ReselectedCommitAfterRedis } from './types';
 
 /**
  * @about create query database
@@ -11,29 +15,30 @@ import type { QueryDatabaseV2, RedisRepository } from './types';
  * @returns [[QueryDatabase]]
  */
 export const createQueryDatabaseV2: (
-  repos: Record<string, RedisRepository>,
+  client: Redisearch,
+  repos: Record<string, RedisRepository<any>>,
   option?: { debug: boolean }
-) => QueryDatabaseV2 = (repos, { debug } = { debug: false }) => {
+) => QueryDatabaseV2 = (client, repos, { debug } = { debug: false }) => {
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js', target: 'console' });
-  const countNonNull = (deletedItems: number[][]) =>
-    flatten(deletedItems)
-      .filter((item) => !!item)
-      .reduce((prev, curr) => prev + curr, 0);
-  const getHistory = (commits: Commit[]): any[] => {
-    const history = [];
-    commits.forEach(({ events }) => events.forEach((item) => history.push(item)));
-    return history;
-  };
+  const commitRepo = createRedisRepository<Commit, CommitInRedis, ReselectedCommitAfterRedis>({
+    client,
+    kind: 'commit',
+    fields: redisCommit,
+    restore: restoreCommit,
+  });
+
+  const allRepos = Object.assign({}, repos, { commit: commitRepo });
 
   return {
+    getRedisCommitRepo: () => commitRepo,
     mergeCommit: async ({ commit }) => {
       // merge one commit
       if (!isCommit(commit)) throw new Error(INVALID_ARG);
       debug && logger.debug(util.format('%s - commit: %j', INVALID_ARG, commit));
 
       try {
-        const key = repos['commit'].getKey(commit);
-        const status = await repos['commit'].hmset(commit);
+        const key = allRepos['commit'].getKey(commit);
+        const status = await allRepos['commit'].hmset(commit);
         const result = {
           status,
           message: `${key} merged successfully`,

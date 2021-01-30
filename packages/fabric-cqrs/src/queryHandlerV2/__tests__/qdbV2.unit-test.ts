@@ -5,8 +5,7 @@ import { Redisearch } from 'redis-modules-sdk';
 import { reducer } from '../../unit-test-reducer';
 import { createQueryDatabaseV2 } from '../createQueryDatabaseV2';
 import { createRedisRepository } from '../createRedisRepository';
-import { redisCommit, restoreCommit } from '../model';
-import type { QueryDatabaseV2, RedisRepository } from '../types';
+import type { QueryDatabaseV2, RedisRepository, ReselectedCommitAfterRedis } from '../types';
 import { commit } from './__utils__';
 
 // const key = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
@@ -18,7 +17,7 @@ import { commit } from './__utils__';
  */
 let queryDatabase: QueryDatabaseV2;
 let client: Redisearch;
-let redisCommitRepo: RedisRepository;
+let redisCommitRepo: RedisRepository<ReselectedCommitAfterRedis>;
 const TEST_ENTITYNAME = 'test_proj';
 
 beforeAll(async () => {
@@ -26,13 +25,8 @@ beforeAll(async () => {
 
   await client.connect();
 
-  redisCommitRepo = createRedisRepository({
-    client,
-    kind: 'commit',
-    fields: redisCommit,
-    restore: restoreCommit,
-  });
-  queryDatabase = createQueryDatabaseV2({ commit: redisCommitRepo });
+  queryDatabase = createQueryDatabaseV2(client, { commit: redisCommitRepo });
+  redisCommitRepo = queryDatabase.getRedisCommitRepo();
 
   // // prepare eidx
   // await client
@@ -73,10 +67,12 @@ describe('Projecion db test', () => {
   // first commit for merge test
   it('should merge commit', async () => {
     const key = redisCommitRepo.getKey(commit);
+    // test the returned result
     const { result, status } = await queryDatabase.mergeCommit({ commit });
     expect(status).toBe('OK');
     expect(result).toStrictEqual([key]);
 
+    // test the reselected data
     const data = await redisCommitRepo.hgetall(key);
     expect(omit(commit, 'events')).toStrictEqual(
       pick(data, 'id', 'entityName', 'version', 'commitId', 'entityId', 'mspId')

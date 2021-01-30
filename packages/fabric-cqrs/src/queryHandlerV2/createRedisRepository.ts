@@ -7,14 +7,14 @@ import type { FieldOption, MapField, RedisRepository } from './types';
 /**
  * @about create abstract layer for redis repository
  */
-export const createRedisRepository: <TItem, TResult>(option: {
+export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
   client: Redisearch;
   kind: 'entity' | 'commit';
   fields: MapField<TItem>;
   entityName?: string;
   param?: FTCreateParameters;
-  restore?: OutputSelector<any, any, any>;
-}) => RedisRepository<TResult> = <TItem, TResult = any>({
+  restore?: OutputSelector<TItemInRedis, TResult, any>;
+}) => RedisRepository<TResult> = <TItem, TItemInRedis, TResult>({
   client,
   kind,
   fields,
@@ -40,11 +40,11 @@ export const createRedisRepository: <TItem, TResult>(option: {
     item
   ) =>
     flatten<string | number>(
-      Object.entries<FieldOption<E>>(input).map(([key, { altName, preHset }]) => [
+      Object.entries<FieldOption<E>>(input).map(([key, { altName, transform }]) => [
         // if alternate name exist, will replace orgingal key
         altName ?? key,
         // if transformation rule not exist, use original value
-        preHset?.(item) || item[key],
+        transform?.(item) || item[key],
       ])
     );
 
@@ -70,7 +70,8 @@ export const createRedisRepository: <TItem, TResult>(option: {
     createIndex: () => client.create(indexName, getSchema<TItem>(fields), getParam(param)),
     dropIndex: (deleteHash = true) => client.dropindex(indexName, deleteHash),
     hmset: (item) => client.redis.hmset(getKey(item), transformBeforeHset<TItem>(fields, item)),
-    hgetall: (key) => client.redis.hgetall(key).then((result) => restore?.(result) || result),
+    hgetall: (key) =>
+      client.redis.hgetall(key).then((result) => (restore?.(result) || result) as TResult),
     getKey: (item) => getKey(item),
     getIndexName: () => indexName,
     convert: (item) => transformBeforeHset<TItem>(fields, item),

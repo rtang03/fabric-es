@@ -1,10 +1,10 @@
 import trimStart from 'lodash/trimStart';
-import { RedisCommit } from '../types';
+import { RedisCommitFields } from '../types';
 
 /**
  * @about options in Redis
  */
-export const redisCommit: RedisCommit = {
+export const redisCommit: RedisCommitFields = {
   // Common field
   commitId: { altName: 'commitId' },
   entityName: {
@@ -16,21 +16,21 @@ export const redisCommit: RedisCommit = {
   version: { altName: 'v' },
   // Derived fields
   /* event name involved */
-  creator: { index: { type: 'TEXT' }, preHset: ({ events }) => events[0]?.payload?._creator },
+  creator: { index: { type: 'TEXT' }, transform: ({ events }) => events[0]?.payload?._creator },
   /* stringify list of event involved */
   event: {
     index: { type: 'TAG' },
-    preHset: ({ events }) =>
+    transform: ({ events }) =>
       trimStart(
         events.reduce<string>((prev, { type }) => `${prev},${type}`, ''),
         ','
       ),
   },
   /* stringified events */
-  evstr: { preHset: ({ events }) => JSON.stringify(events) },
+  evstr: { transform: ({ events }) => JSON.stringify(events) },
   /* timestamp */
   ts: {
     index: { type: 'NUMERIC', sortable: true },
-    preHset: ({ events }) => events[0]?.payload?._ts || 0,
+    transform: ({ events }) => events[0]?.payload?._ts || 0,
   },
 };

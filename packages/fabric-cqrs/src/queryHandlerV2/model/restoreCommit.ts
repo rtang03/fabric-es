@@ -1,11 +1,21 @@
 import util from 'util';
-import omit from 'lodash/omit';
+import pick from 'lodash/pick';
 import { createSelector, OutputSelector } from 'reselect';
+import { CommitInRedis, ReselectedCommitAfterRedis } from '../types';
 
 // remove original fields
-const base = (commit) => omit(commit, 'events', 'v', 'evstr', 'ts');
+const base: (
+  commit: CommitInRedis
+) => {
+  id: string;
+  entityName: string;
+  commitId?: string;
+  version?: string;
+  event: string;
+  mspId: string;
+} = (commit) => pick(commit, 'id', 'entityName', 'commitId', 'creator', 'event', 'mspId');
 
-const versionSelector: (commit) => { version: number } = (commit) => {
+const versionSelector: (commit: CommitInRedis) => { version: number } = (commit) => {
   let version;
   try {
     version = parseInt(commit?.v, 10);
@@ -16,7 +26,9 @@ const versionSelector: (commit) => { version: number } = (commit) => {
   return { version };
 };
 
-const eventsSelector: (commit) => { events: Record<string, unknown>[] } = (commit) => {
+const eventsSelector: (commit: CommitInRedis) => { events: Record<string, unknown>[] } = (
+  commit
+) => {
   let events;
   try {
     events = JSON.parse(commit?.evstr);
@@ -27,7 +39,7 @@ const eventsSelector: (commit) => { events: Record<string, unknown>[] } = (commi
   return { events };
 };
 
-const tsSelector: (commit) => { ts: number } = (commit) => {
+const tsSelector: (commit: CommitInRedis) => { ts: number } = (commit) => {
   let ts: number;
   try {
     ts = parseInt(commit?.ts, 10);
@@ -39,7 +51,9 @@ const tsSelector: (commit) => { ts: number } = (commit) => {
   return { ts };
 };
 
-const entityIdSelector: (commit) => { entityId: string } = (commit) => ({ entityId: commit?.id });
+const entityIdSelector: (commit: CommitInRedis) => { entityId: string } = (commit) => ({
+  entityId: commit?.id,
+});
 
 /**
  * @about restore redisCommit base to original Commit format, appended with additional fields
@@ -55,7 +69,20 @@ const entityIdSelector: (commit) => { entityId: string } = (commit) => ({ entity
  *    mspId: 'Org1MSP',
  *    events: [ { type: 'Increment', payload: [Object] } ]
  *  }
- * // restored commit
+ * // CommitInRedis
+ *  {
+ *    id: 'qh_proj_test_001',
+ *    entityName: 'test_proj',
+ *    v: '0',
+ *    commitId: '20200528133519841',
+ *    entityId: 'qh_proj_test_001',
+ *    mspId: 'Org1MSP',
+ *    events: [ { type: 'Increment', payload: [Object] } ]
+ *    event: 'Increment',
+ *    creator: 'org1-admin',
+ *    evstr: [{\"type\":\"Increment\",\"payload\": .... \"}}]
+ *  }
+ * // ReselectedCommitAfterRedis
  *  {
  *    id: 'qh_proj_test_001',
  *    entityName: 'test_proj',
@@ -70,7 +97,11 @@ const entityIdSelector: (commit) => { entityId: string } = (commit) => ({ entity
  *  }
  * ```
  */
-export const restoreCommit: OutputSelector<any, any, any> = createSelector(
+export const restoreCommit: OutputSelector<
+  CommitInRedis,
+  ReselectedCommitAfterRedis,
+  any
+> = createSelector(
   base,
   versionSelector,
   eventsSelector,

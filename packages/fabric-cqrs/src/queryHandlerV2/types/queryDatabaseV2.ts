@@ -1,5 +1,5 @@
 import type { Commit, Reducer } from '../../types';
-import { QueryDatabaseResponse } from '.';
+import { QueryDatabaseResponse, RedisRepository, ReselectedCommitAfterRedis } from '.';
 
 /**
  * @about query database
@@ -8,6 +8,7 @@ import { QueryDatabaseResponse } from '.';
  * - 🔑 key format of entity *entityName::entityId*
  */
 export type QueryDatabaseV2 = {
+  getRedisCommitRepo: () => RedisRepository<ReselectedCommitAfterRedis>;
   /**
    * delete commit by entityId
    * @return ```typescript

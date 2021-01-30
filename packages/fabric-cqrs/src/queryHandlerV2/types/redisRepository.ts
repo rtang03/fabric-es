@@ -1,4 +1,7 @@
-export type RedisRepository<TResult = any> = {
+/**
+ * @about abstraction of Redis operations
+ */
+export type RedisRepository<TResult> = {
   // https://oss.redislabs.com/redisearch/Commands/#ftcreate
   createIndex: () => Promise<'OK'>;
   dropIndex: (deleteHash?: boolean) => Promise<'OK'>;
