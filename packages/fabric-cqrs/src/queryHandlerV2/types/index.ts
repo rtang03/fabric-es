@@ -1,5 +1,5 @@
-export * from './mapField';
-export * from './redisCommitFields';
+export * from './redisearchMapField';
+export * from './commitMapFields';
 export * from './redisRepository';
 export * from './queryDatabaseResponse';
 export * from './queryDatabaseV2';

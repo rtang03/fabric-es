@@ -1,4 +1,4 @@
-import type { BaseMetaEntity } from '../types';
+import type { BaseMetaEntity } from '../../types';
 
 /**
  * @ignore
@@ -38,4 +38,7 @@ export interface Counter extends BaseMetaEntity {
   desc: string;
   tag: string;
   value: number;
+  _ts: number;
+  _created: number;
+  _creator: string;
 }

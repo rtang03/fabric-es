@@ -2,30 +2,30 @@ import flatten from 'lodash/flatten';
 import { FTCreateParameters, FTSchemaField, Redisearch } from 'redis-modules-sdk';
 import type { OutputSelector } from 'reselect';
 import type { Commit } from '../types';
-import type { FieldOption, MapField, RedisRepository } from './types';
+import type { FieldOption, RedisearchMapField, RedisRepository } from './types';
 
 /**
  * @about create abstract layer for redis repository
  */
 export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
   client: Redisearch;
-  kind: 'entity' | 'commit';
-  fields: MapField<TItem>;
+  kind?: 'entity' | 'commit';
+  fields: RedisearchMapField<TItem>;
   entityName?: string;
   param?: FTCreateParameters;
   restore?: OutputSelector<TItemInRedis, TResult, any>;
 }) => RedisRepository<TResult> = <TItem, TItemInRedis, TResult>({
   client,
-  kind,
+  kind = 'entity' as any,
   fields,
   entityName,
   param,
   restore,
 }) => {
   // every entity is indexed with Prefix "e:entityName:". commit is "c:"
-  const indexName = { entity: `eidx:${entityName}`, commit: 'cidx' }[kind];
+  const indexName = { entity: `eidx`, commit: 'cidx' }[kind];
 
-  const prefix = { entity: `e:${entityName}:`, commit: 'c:' }[kind];
+  const prefix = { entity: `e:`, commit: 'c:' }[kind];
 
   // compute key
   const getKey = {
@@ -35,7 +35,9 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
   }[kind];
 
   // convert to Redis Hash fields format, before hset / hmset
-  const transformBeforeHset: <E>(fields: MapField<E>, item: E) => (string | number)[] = <E>(
+  const transformBeforeHset: <E>(fields: RedisearchMapField<E>, item: E) => (string | number)[] = <
+    E
+  >(
     input,
     item
   ) =>

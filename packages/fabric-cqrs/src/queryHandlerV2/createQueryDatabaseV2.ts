@@ -1,13 +1,11 @@
 import util from 'util';
-import flatten from 'lodash/flatten';
 import { Redisearch } from 'redis-modules-sdk';
 import type { Commit } from '../types';
 import { getLogger, isCommit } from '../utils';
 import { INVALID_ARG } from './constants';
 import { createRedisRepository } from './createRedisRepository';
-import { redisCommit, restoreCommit } from './model';
-import type { QueryDatabaseV2, RedisRepository } from './types';
-import { CommitInRedis, ReselectedCommitAfterRedis } from './types';
+import { commitMapFields, restoreCommit } from './model';
+import type { CommitInRedis, ReselectedCommit, QueryDatabaseV2, RedisRepository } from './types';
 
 /**
  * @about create query database
@@ -20,10 +18,10 @@ export const createQueryDatabaseV2: (
   option?: { debug: boolean }
 ) => QueryDatabaseV2 = (client, repos, { debug } = { debug: false }) => {
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js', target: 'console' });
-  const commitRepo = createRedisRepository<Commit, CommitInRedis, ReselectedCommitAfterRedis>({
+  const commitRepo = createRedisRepository<Commit, CommitInRedis, ReselectedCommit>({
     client,
     kind: 'commit',
-    fields: redisCommit,
+    fields: commitMapFields,
     restore: restoreCommit,
   });
 

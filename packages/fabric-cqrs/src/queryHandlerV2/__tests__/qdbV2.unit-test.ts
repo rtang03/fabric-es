@@ -2,10 +2,11 @@ require('dotenv').config({ path: './.env.dev' });
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import { Redisearch } from 'redis-modules-sdk';
-import { reducer } from '../../unit-test-reducer';
+import type { FTCreateParameters } from 'redis-modules-sdk';
+import { Counter, reducer, counterMapFields as fields } from '../../unit-test-reducer';
 import { createQueryDatabaseV2 } from '../createQueryDatabaseV2';
 import { createRedisRepository } from '../createRedisRepository';
-import type { QueryDatabaseV2, RedisRepository, ReselectedCommitAfterRedis } from '../types';
+import type { QueryDatabaseV2, RedisRepository, ReselectedCommit } from '../types';
 import { commit } from './__utils__';
 
 // const key = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
@@ -13,11 +14,13 @@ import { commit } from './__utils__';
 // const key3 = `test_proj::qh_proj_test_003`;
 
 /**
- * .dn-run.0-db-red.sh
+ * running it: .dn-run.0-db-red.sh
  */
 let queryDatabase: QueryDatabaseV2;
 let client: Redisearch;
-let redisCommitRepo: RedisRepository<ReselectedCommitAfterRedis>;
+let commitRepo: RedisRepository<ReselectedCommit>;
+let counter: RedisRepository<any>;
+
 const TEST_ENTITYNAME = 'test_proj';
 
 beforeAll(async () => {
@@ -25,32 +28,34 @@ beforeAll(async () => {
 
   await client.connect();
 
-  queryDatabase = createQueryDatabaseV2(client, { commit: redisCommitRepo });
-  redisCommitRepo = queryDatabase.getRedisCommitRepo();
+  counter = createRedisRepository<Counter, any, any>({ client, fields });
 
-  // // prepare eidx
-  // await client
-  //   .dropindex(eIdx, true)
-  //   .then((result) => console.log(`${eIdx} is dropped: ${result}`))
-  //   .catch((result) => console.log(`${eIdx} is not dropped: ${result}`));
-  //
-  // await createEIndex(client, {
-  //   param: { prefix: [{ count: 1, name: getEidxPrefix(TEST_ENTITYNAME) }] },
-  // })
-  //   .then((result) => console.log(`${eIdx} is created: ${result}`))
-  //   .catch((result) => {
-  //     console.log(`${eIdx} is not created: ${result}`);
-  //     process.exit(1);
-  //   });
+  queryDatabase = createQueryDatabaseV2(client, { counter });
+  commitRepo = queryDatabase.getRedisCommitRepo();
 
-  const cidx = redisCommitRepo.getIndexName();
+  // prepare eidx
+  const eidx = counter.getIndexName();
+  await counter
+    .dropIndex()
+    .then((result) => console.log(`${eidx} is dropped: ${result}`))
+    .catch((result) => console.log(`${eidx} is not dropped: ${result}`));
 
-  await redisCommitRepo
+  await counter
+    .createIndex()
+    .then((result) => console.log(`${eidx} is created: ${result}`))
+    .catch((result) => {
+      console.log(`${eidx} is not created: ${result}`);
+      process.exit(1);
+    });
+
+  const cidx = commitRepo.getIndexName();
+
+  await commitRepo
     .dropIndex()
     .then((result) => console.log(`${cidx} is dropped: ${result}`))
     .catch((result) => console.log(`${cidx} is not dropped: ${result}`));
 
-  await redisCommitRepo
+  await commitRepo
     .createIndex()
     .then((result) => console.log(`${cidx} is created: ${result}`))
     .catch((result) => {
@@ -66,14 +71,14 @@ afterAll(async () => {
 describe('Projecion db test', () => {
   // first commit for merge test
   it('should merge commit', async () => {
-    const key = redisCommitRepo.getKey(commit);
+    const key = commitRepo.getKey(commit);
     // test the returned result
     const { result, status } = await queryDatabase.mergeCommit({ commit });
     expect(status).toBe('OK');
     expect(result).toStrictEqual([key]);
 
     // test the reselected data
-    const data = await redisCommitRepo.hgetall(key);
+    const data = await commitRepo.hgetall(key);
     expect(omit(commit, 'events')).toStrictEqual(
       pick(data, 'id', 'entityName', 'version', 'commitId', 'entityId', 'mspId')
     );

@@ -1,2 +1,2 @@
-export * from './redisCommit';
+export * from './commitMapFields';
 export * from './restoreCommit';

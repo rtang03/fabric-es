@@ -22,7 +22,7 @@ export type CommitInRedis = {
  * @about re-selector processes the Commit after reading from Redis. It renders the query result
  * and, restore back to [[Commit]]; but appended with dervied field.
  */
-export type ReselectedCommitAfterRedis = {
+export type ReselectedCommit = {
   id: string;
   entityId: string;
   commitId?: string;
