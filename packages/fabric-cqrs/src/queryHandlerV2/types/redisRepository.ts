@@ -14,7 +14,7 @@ export type RedisRepository<TResult> = {
   hgetall: (key: string) => Promise<TResult>;
   getKey: (item: any) => string;
   getIndexName: () => string;
-  convert: (item: any) => (string | number)[];
   getPattern: (pattern: string, args: string[]) => string;
-  getSelector: () => OutputSelector<any, any, any>;
+  getPreSelector: () => OutputSelector<any, any, any>;
+  getPostSelector: () => OutputSelector<any, any, any>;
 };

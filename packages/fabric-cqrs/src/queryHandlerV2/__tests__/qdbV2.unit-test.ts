@@ -91,7 +91,8 @@ describe('Projecion db test', () => {
       pick(data, 'id', 'entityName', 'version', 'commitId', 'entityId', 'mspId')
     );
   });
-  it('should merge entity', async () => {
-    const result = await queryDatabase.mergeEntity({ commit: newCommit, reducer });
-  });
+
+  // it('should merge entity', async () => {
+  //   const result = await queryDatabase.mergeEntity({ commit: newCommit, reducer });
+  // });
 });

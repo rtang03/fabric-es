@@ -17,20 +17,20 @@ import type { CommitInRedis, OutputCommit } from '../types';
  *    mspId: 'Org1MSP',
  *    events: [ { type: 'Increment', payload: [Object] } ]
  *  }
- * // CommitInRedis
+ * // CommitInRedis - processed by preSelector
  *  {
  *    id: 'qh_proj_test_001',
  *    entityName: 'test_proj',
- *    v: '0',
+ *    v: '0',       // renamed
  *    commitId: '20200528133519841',
  *    entityId: 'qh_proj_test_001',
  *    mspId: 'Org1MSP',
- *    events: [ { type: 'Increment', payload: [Object] } ]
- *    event: 'Increment',
- *    creator: 'org1-admin',
- *    evstr: [{\"type\":\"Increment\",\"payload\": .... \"}}]
+ *    event: 'Increment', // derived field
+ *    creator: 'org1-admin', // derived field
+ *    evstr: [{\"type\":\"Increment\", .... \"}}]   // dervied field
+ *    ts: '1590738792' // derived field
  *  }
- * // ReselectedCommitAfterRedis
+ * // OutputCommit - processed by postSelector
  *  {
  *    id: 'qh_proj_test_001',
  *    entityName: 'test_proj',
@@ -39,13 +39,13 @@ import type { CommitInRedis, OutputCommit } from '../types';
  *    creator: 'org1-admin',
  *    commitId: '20200528133519841',
  *    entityId: 'qh_proj_test_001',
- *    version: 0,
- *    events: [ { type: 'Increment', payload: [Object] } ],
- *    ts: 1590738792000
+ *    version: 0,    // converted
+ *    events: [ { type: 'Increment', ... } ],   // converted
+ *    ts: 1590738792
  *  }
  * ```
  */
-export const outputCommit: OutputSelector<CommitInRedis, OutputCommit, any> = createSelector(
+export const postSelector: OutputSelector<CommitInRedis, OutputCommit, any> = createSelector(
   // pick some fields, which does not require processing.
   (commit) => pick(commit, 'id', 'entityName', 'commitId', 'creator', 'event', 'mspId'),
   // version selector
@@ -73,7 +73,6 @@ export const outputCommit: OutputSelector<CommitInRedis, OutputCommit, any> = cr
     let ts: number;
     try {
       ts = parseInt(commit?.ts, 10);
-      ts *= 1000;
     } catch {
       console.error('fail to parse redisCommit - ts');
     }

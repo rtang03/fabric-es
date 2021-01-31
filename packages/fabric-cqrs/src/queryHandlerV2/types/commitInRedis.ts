@@ -12,7 +12,6 @@ export type CommitInRedis = {
     | 'entityId'
     | 'mspId'
     | 'event'
-    | 'events'
     | 'creator'
     | 'ts'
     | 'evstr']: string;

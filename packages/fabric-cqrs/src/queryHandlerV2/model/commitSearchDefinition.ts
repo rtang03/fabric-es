@@ -6,31 +6,21 @@ import { CommitSearchDefinition } from '../types';
  */
 export const commitSearchDefinition: CommitSearchDefinition = {
   // Common field
-  commitId: { altName: 'commitId' },
+  commitId: {},
   entityName: {
     index: { type: 'TEXT', sortable: true },
   },
   /* entityId */
   id: { index: { type: 'TEXT', sortable: true } },
   mspId: { index: { type: 'TAG' } },
-  version: { altName: 'v' },
+  version: {},
   // Derived fields
   /* event name involved */
-  creator: { index: { type: 'TEXT' }, transform: ({ events }) => events[0]?.payload?._creator },
+  creator: { index: { type: 'TEXT' } },
   /* stringify list of event involved */
-  event: {
-    index: { type: 'TAG' },
-    transform: ({ events }) =>
-      trimStart(
-        events.reduce<string>((prev, { type }) => `${prev},${type}`, ''),
-        ','
-      ),
-  },
+  event: { index: { type: 'TAG' } },
   /* stringified events */
-  evstr: { transform: ({ events }) => JSON.stringify(events) },
+  evstr: {},
   /* timestamp */
-  ts: {
-    index: { type: 'NUMERIC', sortable: true },
-    transform: ({ events }) => events[0]?.payload?._ts || 0,
-  },
+  ts: { index: { type: 'NUMERIC', sortable: true } },
 };

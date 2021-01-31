@@ -5,7 +5,7 @@ import type { Commit } from '../types';
 import { getLogger, isCommit } from '../utils';
 import { INVALID_ARG } from './constants';
 import { createRedisRepository } from './createRedisRepository';
-import { commitSearchDefinition, outputCommit as selector } from './model';
+import { commitSearchDefinition, postSelector, preSelector } from './model';
 import { pipelineExec } from './pipelineExec';
 import type { CommitInRedis, OutputCommit, QueryDatabaseV2, RedisRepository } from './types';
 
@@ -25,7 +25,8 @@ export const createQueryDatabaseV2: (
     client,
     kind: 'commit',
     fields: commitSearchDefinition,
-    selector,
+    preSelector,
+    postSelector,
   });
 
   const allRepos = Object.assign({}, repos, { commit: commitRepo });
@@ -70,7 +71,7 @@ export const createQueryDatabaseV2: (
     },
     mergeEntity: async <TEntity, TEntityInRedis>({ commit, reducer }) => {
       if (!isCommit(commit) || !reducer) throw new Error(INVALID_ARG);
-      const restore: OutputSelector<CommitInRedis, OutputCommit, any> = commitRepo.getSelector();
+      const restore: OutputSelector<CommitInRedis, OutputCommit, any> = commitRepo.getPostSelector();
       const pattern = commitRepo.getPattern('COMMITS_BY_ENTITYNAME_ENTITYID', [
         commit?.entityName,
         commit?.entityId,

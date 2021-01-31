@@ -15,14 +15,16 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
   fields: RedisearchDefinition<TItem>;
   entityName?: string;
   param?: FTCreateParameters;
-  selector?: OutputSelector<TItemInRedis, TResult, any>;
+  preSelector?: OutputSelector<any, any, any>;
+  postSelector?: OutputSelector<TItemInRedis, TResult, any>;
 }) => RedisRepository<TResult> = <TItem, TItemInRedis, TResult>({
   client,
   kind = 'entity' as any,
   fields,
   entityName,
   param,
-  selector,
+  preSelector,
+  postSelector,
 }) => {
   // every entity is indexed with Prefix "e:entityName:". commit is "c:"
   const indexName = { entity: `eidx:${entityName}`, commit: 'cidx' }[kind];
@@ -35,20 +37,6 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
     commit: ({ entityName, entityId, commitId }: Commit) =>
       `${prefix}${entityName}:${entityId}:${commitId}`,
   }[kind];
-
-  // convert to Redis Hash fields format, before hset / hmset
-  const transformBeforeHset: <E>(
-    fields: RedisearchDefinition<E>,
-    item: E
-  ) => (string | number)[] = <E>(input, item) =>
-    flatten<string | number>(
-      Object.entries<FieldOption<E>>(input).map(([key, { altName, transform }]) => [
-        // if alternate name exist, will replace orgingal key
-        altName ?? key,
-        // if transformation rule not exist, use original value
-        transform?.(item) || item[key],
-      ])
-    );
 
   // add default FTCreateParameters
   const getParam: (param: FTCreateParameters) => FTCreateParameters = (param) =>
@@ -71,17 +59,17 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
   return {
     createIndex: () => client.create(indexName, getSchema<TItem>(fields), getParam(param)),
     dropIndex: (deleteHash = true) => client.dropindex(indexName, deleteHash),
-    hmset: (item) => client.redis.hmset(getKey(item), transformBeforeHset<TItem>(fields, item)),
+    hmset: (item) => client.redis.hmset(getKey(item), preSelector?.(item) || item),
     hgetall: (key) =>
-      client.redis.hgetall(key).then((result) => (selector?.(result) || result) as TResult),
+      client.redis.hgetall(key).then((result) => (postSelector?.(result) || result) as TResult),
     getKey: (item: TItemInRedis) => getKey(item),
     getIndexName: () => indexName,
-    convert: (item) => transformBeforeHset<TItem>(fields, item),
     getPattern: (pattern, args) =>
       ({
         COMMITS_BY_ENTITYNAME_ENTITYID: `c:${args[0]}:${args[1]}:*`,
         ENTITIES_BY_ENTITYNAME_ENTITYID: `e:${args[0]}:${args[1]}:*`,
       }[pattern]),
-    getSelector: () => selector,
+    getPreSelector: () => preSelector,
+    getPostSelector: () => postSelector,
   };
 };
