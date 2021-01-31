@@ -1,5 +1,5 @@
 import { Commit } from '../../types';
-import { RedisearchMapField } from './redisearchMapField';
+import { RedisearchDefinition } from './redisearchDefinition';
 
 /**
  * @about common field of commit; originated from [[Commit]]
@@ -25,4 +25,4 @@ export type DerivedCommitFields = {
  * @about consolidated fields defintion of commit in Redis. It defines all [[FieldOption]] of
  * [[Commit]]
  */
-export type CommitMapFields = RedisearchMapField<CommonCommitFields & DerivedCommitFields>;
+export type CommitSearchDefinition = RedisearchDefinition<CommonCommitFields & DerivedCommitFields>;

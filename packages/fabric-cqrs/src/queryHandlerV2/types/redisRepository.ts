@@ -1,3 +1,5 @@
+import type { OutputSelector } from 'reselect';
+
 /**
  * @about abstraction of Redis operations
  */
@@ -13,4 +15,6 @@ export type RedisRepository<TResult> = {
   getKey: (item: any) => string;
   getIndexName: () => string;
   convert: (item: any) => (string | number)[];
+  getPattern: (pattern: string, args: string[]) => string;
+  getSelector: () => OutputSelector<any, any, any>;
 };

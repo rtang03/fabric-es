@@ -1,5 +1,5 @@
-import type { Commit, Reducer } from '../../types';
-import { QueryDatabaseResponse, RedisRepository, ReselectedCommit } from '.';
+import type { BaseMetaEntity, Commit, Reducer } from '../../types';
+import { QueryDatabaseResponse, RedisRepository, OutputCommit } from '.';
 
 /**
  * @about query database
@@ -8,7 +8,7 @@ import { QueryDatabaseResponse, RedisRepository, ReselectedCommit } from '.';
  * - 🔑 key format of entity *entityName::entityId*
  */
 export type QueryDatabaseV2 = {
-  getRedisCommitRepo: () => RedisRepository<ReselectedCommit>;
+  getRedisCommitRepo: () => RedisRepository<OutputCommit>;
   /**
    * delete commit by entityId
    * @return ```typescript
@@ -67,10 +67,10 @@ export type QueryDatabaseV2 = {
   //   commits: Record<string, Commit>;
   // }) => Promise<QueryDatabaseResponse<string[]>>;
   //
-  // mergeEntity: <TEntity = any>(entity: {
-  //   commit: Commit;
-  //   reducer: Reducer<TEntity>;
-  // }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
+  mergeEntity: <TEntity extends BaseMetaEntity, TEntityInRedis extends BaseMetaEntity>(option: {
+    commit: Commit;
+    reducer: Reducer<TEntity>;
+  }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
 
   /** merge multiple new entity **/
   // mergeEntityBatch: <TEntity>(entities: {

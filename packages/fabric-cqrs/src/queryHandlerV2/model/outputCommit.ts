@@ -1,6 +1,6 @@
 import pick from 'lodash/pick';
 import { createSelector, OutputSelector } from 'reselect';
-import type { CommitInRedis, ReselectedCommit } from '../types';
+import type { CommitInRedis, OutputCommit } from '../types';
 
 /**
  * @about restore redisCommit base to original Commit format, appended with additional fields
@@ -45,7 +45,7 @@ import type { CommitInRedis, ReselectedCommit } from '../types';
  *  }
  * ```
  */
-export const restoreCommit: OutputSelector<CommitInRedis, ReselectedCommit, any> = createSelector(
+export const outputCommit: OutputSelector<CommitInRedis, OutputCommit, any> = createSelector(
   // pick some fields, which does not require processing.
   (commit) => pick(commit, 'id', 'entityName', 'commitId', 'creator', 'event', 'mspId'),
   // version selector

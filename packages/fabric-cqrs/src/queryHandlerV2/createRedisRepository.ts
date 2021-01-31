@@ -2,7 +2,9 @@ import flatten from 'lodash/flatten';
 import { FTCreateParameters, FTSchemaField, Redisearch } from 'redis-modules-sdk';
 import type { OutputSelector } from 'reselect';
 import type { Commit } from '../types';
-import type { FieldOption, RedisearchMapField, RedisRepository } from './types';
+import type { FieldOption, RedisearchDefinition, RedisRepository } from './types';
+
+declare function MaybeCommit<T>(x: T): T extends Commit ? Commit : any;
 
 /**
  * @about create abstract layer for redis repository
@@ -10,37 +12,35 @@ import type { FieldOption, RedisearchMapField, RedisRepository } from './types';
 export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
   client: Redisearch;
   kind?: 'entity' | 'commit';
-  fields: RedisearchMapField<TItem>;
+  fields: RedisearchDefinition<TItem>;
   entityName?: string;
   param?: FTCreateParameters;
-  restore?: OutputSelector<TItemInRedis, TResult, any>;
+  selector?: OutputSelector<TItemInRedis, TResult, any>;
 }) => RedisRepository<TResult> = <TItem, TItemInRedis, TResult>({
   client,
   kind = 'entity' as any,
   fields,
   entityName,
   param,
-  restore,
+  selector,
 }) => {
   // every entity is indexed with Prefix "e:entityName:". commit is "c:"
-  const indexName = { entity: `eidx`, commit: 'cidx' }[kind];
+  const indexName = { entity: `eidx:${entityName}`, commit: 'cidx' }[kind];
 
-  const prefix = { entity: `e:`, commit: 'c:' }[kind];
+  const prefix = { entity: `e:${entityName}:`, commit: 'c:' }[kind];
 
   // compute key
   const getKey = {
-    entity: ({ entityName, entityId }) => `${prefix}${entityName}:${entityId}`,
+    entity: ({ entityId }) => `${prefix}${entityId}`,
     commit: ({ entityName, entityId, commitId }: Commit) =>
       `${prefix}${entityName}:${entityId}:${commitId}`,
   }[kind];
 
   // convert to Redis Hash fields format, before hset / hmset
-  const transformBeforeHset: <E>(fields: RedisearchMapField<E>, item: E) => (string | number)[] = <
-    E
-  >(
-    input,
-    item
-  ) =>
+  const transformBeforeHset: <E>(
+    fields: RedisearchDefinition<E>,
+    item: E
+  ) => (string | number)[] = <E>(input, item) =>
     flatten<string | number>(
       Object.entries<FieldOption<E>>(input).map(([key, { altName, transform }]) => [
         // if alternate name exist, will replace orgingal key
@@ -73,9 +73,15 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
     dropIndex: (deleteHash = true) => client.dropindex(indexName, deleteHash),
     hmset: (item) => client.redis.hmset(getKey(item), transformBeforeHset<TItem>(fields, item)),
     hgetall: (key) =>
-      client.redis.hgetall(key).then((result) => (restore?.(result) || result) as TResult),
-    getKey: (item) => getKey(item),
+      client.redis.hgetall(key).then((result) => (selector?.(result) || result) as TResult),
+    getKey: (item: TItemInRedis) => getKey(item),
     getIndexName: () => indexName,
     convert: (item) => transformBeforeHset<TItem>(fields, item),
+    getPattern: (pattern, args) =>
+      ({
+        COMMITS_BY_ENTITYNAME_ENTITYID: `c:${args[0]}:${args[1]}:*`,
+        ENTITIES_BY_ENTITYNAME_ENTITYID: `e:${args[0]}:${args[1]}:*`,
+      }[pattern]),
+    getSelector: () => selector,
   };
 };

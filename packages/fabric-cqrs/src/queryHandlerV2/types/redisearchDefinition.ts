@@ -19,6 +19,6 @@ export type FieldOption<TItem = any> = {
 /**
  * @about Map of FieldOptions for each Hash field of Redisearch
  */
-export type RedisearchMapField<T> = {
+export type RedisearchDefinition<T> = {
   [K in keyof T]: FieldOption<T>;
 };

@@ -1,10 +1,10 @@
 import trimStart from 'lodash/trimStart';
-import { CommitMapFields } from '../types';
+import { CommitSearchDefinition } from '../types';
 
 /**
  * @about options in Redis
  */
-export const commitMapFields: CommitMapFields = {
+export const commitSearchDefinition: CommitSearchDefinition = {
   // Common field
   commitId: { altName: 'commitId' },
   entityName: {

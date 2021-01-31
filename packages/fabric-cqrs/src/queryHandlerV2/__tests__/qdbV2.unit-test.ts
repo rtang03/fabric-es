@@ -3,11 +3,16 @@ import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import { Redisearch } from 'redis-modules-sdk';
 import type { FTCreateParameters } from 'redis-modules-sdk';
-import { Counter, reducer, counterMapFields as fields } from '../../unit-test-reducer';
+import {
+  Counter,
+  reducer,
+  counterSearchDefinition as fields,
+  CounterInRedis,
+} from '../../unit-test-reducer';
 import { createQueryDatabaseV2 } from '../createQueryDatabaseV2';
 import { createRedisRepository } from '../createRedisRepository';
-import type { QueryDatabaseV2, RedisRepository, ReselectedCommit } from '../types';
-import { commit } from './__utils__';
+import type { QueryDatabaseV2, RedisRepository, OutputCommit } from '../types';
+import { commit, newCommit } from './__utils__';
 
 // const key = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
 // const key2 = `test_proj::qh_proj_test_002`;
@@ -18,7 +23,7 @@ import { commit } from './__utils__';
  */
 let queryDatabase: QueryDatabaseV2;
 let client: Redisearch;
-let commitRepo: RedisRepository<ReselectedCommit>;
+let commitRepo: RedisRepository<OutputCommit>;
 let counter: RedisRepository<any>;
 
 const TEST_ENTITYNAME = 'test_proj';
@@ -28,7 +33,10 @@ beforeAll(async () => {
 
   await client.connect();
 
-  counter = createRedisRepository<Counter, any, any>({ client, fields });
+  counter = createRedisRepository<Counter, CounterInRedis, any>({
+    client,
+    fields,
+  });
 
   queryDatabase = createQueryDatabaseV2(client, { counter });
   commitRepo = queryDatabase.getRedisCommitRepo();
@@ -82,5 +90,8 @@ describe('Projecion db test', () => {
     expect(omit(commit, 'events')).toStrictEqual(
       pick(data, 'id', 'entityName', 'version', 'commitId', 'entityId', 'mspId')
     );
+  });
+  it('should merge entity', async () => {
+    const result = await queryDatabase.mergeEntity({ commit: newCommit, reducer });
   });
 });
