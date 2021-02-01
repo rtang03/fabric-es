@@ -1,6 +1,6 @@
 import flatten from 'lodash/flatten';
 import { FTCreateParameters, FTSchemaField, Redisearch } from 'redis-modules-sdk';
-import type { OutputSelector } from 'reselect';
+import type { Selector } from 'reselect';
 import type { Commit } from '../types';
 import type { FieldOption, RedisearchDefinition, RedisRepository } from './types';
 
@@ -13,10 +13,10 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
   client: Redisearch;
   kind?: 'entity' | 'commit';
   fields: RedisearchDefinition<TItem>;
-  entityName?: string;
+  entityName: string;
   param?: FTCreateParameters;
-  preSelector?: OutputSelector<any, any, any>;
-  postSelector?: OutputSelector<TItemInRedis, TResult, any>;
+  preSelector?: Selector<[TItem, Commit[]?], TItemInRedis>;
+  postSelector?: Selector<TItemInRedis, TResult>;
 }) => RedisRepository<TResult> = <TItem, TItemInRedis, TResult>({
   client,
   kind = 'entity' as any,
@@ -59,7 +59,8 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
   return {
     createIndex: () => client.create(indexName, getSchema<TItem>(fields), getParam(param)),
     dropIndex: (deleteHash = true) => client.dropindex(indexName, deleteHash),
-    hmset: (item) => client.redis.hmset(getKey(item), preSelector?.(item) || item),
+    hmset: (item, history) =>
+      client.redis.hmset(getKey(item), preSelector?.([item, history]) || item),
     hgetall: (key) =>
       client.redis.hgetall(key).then((result) => (postSelector?.(result) || result) as TResult),
     getKey: (item: TItemInRedis) => getKey(item),

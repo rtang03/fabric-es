@@ -6,5 +6,14 @@
  * And, all in-redis object is "string" type.
  */
 export type CounterInRedis = {
-  [K in 'id' | 'val' | 'de' | 'tag' | 'ts' | 'creator' | 'created']: string;
+  created: number;
+  creator: string;
+  de: string;
+  event: string;
+  id: string;
+  tag: string;
+  tl: string;
+  ts: number;
+  val: number;
+  history: string;
 };

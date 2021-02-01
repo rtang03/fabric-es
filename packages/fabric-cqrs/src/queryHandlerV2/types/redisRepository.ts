@@ -1,4 +1,5 @@
 import type { OutputSelector } from 'reselect';
+import { Commit } from '../../types';
 
 /**
  * @about abstraction of Redis operations
@@ -9,12 +10,12 @@ export type RedisRepository<TResult> = {
   dropIndex: (deleteHash?: boolean) => Promise<'OK'>;
   // see https://redis.io/commands/hmset
   // see https://oss.redislabs.com/redisearch/Commands/#hsethsetnxhdelhincrbyhdecrby
-  hmset: (item: any) => Promise<'OK'>;
+  hmset: (item: any, history?: Commit[]) => Promise<'OK'>;
   // see https://redis.io/commands/hgetall
   hgetall: (key: string) => Promise<TResult>;
   getKey: (item: any) => string;
   getIndexName: () => string;
   getPattern: (pattern: string, args: string[]) => string;
-  getPreSelector: () => OutputSelector<any, any, any>;
-  getPostSelector: () => OutputSelector<any, any, any>;
+  getPreSelector: <TInput, TOutput>() => OutputSelector<TInput, TOutput, any>;
+  getPostSelector: <TInput, TOutput>() => OutputSelector<TInput, TOutput, any>;
 };

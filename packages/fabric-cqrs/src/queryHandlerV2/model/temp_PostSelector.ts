@@ -1,4 +1,5 @@
-import { createStructuredSelector, Selector } from 'reselect';
+import pick from 'lodash/pick';
+import { createSelector, OutputSelector } from 'reselect';
 import type { CommitInRedis, OutputCommit } from '../types';
 
 /**
@@ -44,39 +45,46 @@ import type { CommitInRedis, OutputCommit } from '../types';
  *  }
  * ```
  */
-export const postSelector: Selector<CommitInRedis, OutputCommit> = createStructuredSelector({
-  id: ({ id }) => id,
-  entityName: ({ entityName }) => entityName,
-  commitId: ({ commitId }) => commitId,
-  mspId: ({ mspId }) => mspId,
-  creator: ({ creator }) => creator,
-  event: ({ event }) => event,
-  entityId: ({ entityId }) => entityId,
-  version: (commit) => {
+export const postSelector: OutputSelector<CommitInRedis, OutputCommit, any> = createSelector(
+  // pick some fields, which does not require processing.
+  (commit) => pick(commit, 'id', 'entityName', 'commitId', 'creator', 'event', 'mspId'),
+  // version selector
+  (commit) => {
     let version;
     try {
       version = parseInt(commit?.v, 10);
     } catch {
       console.error('fail to parse redisCommit - version');
     }
-    return version;
+    return { version };
   },
-  ts: (commit) => {
-    let ts: number;
-    try {
-      ts = parseInt(commit?.ts, 10);
-    } catch {
-      console.error('fail to parse redisCommit - ts');
-    }
-    return ts;
-  },
-  events: (commit) => {
+  // events selector
+  (commit) => {
     let events;
     try {
       events = JSON.parse(commit?.evstr);
     } catch {
       console.error('fail to parse redisCommit - events');
     }
-    return events;
+    return { events };
   },
-});
+  // ts selector
+  (commit) => {
+    let ts: number;
+    try {
+      ts = parseInt(commit?.ts, 10);
+    } catch {
+      console.error('fail to parse redisCommit - ts');
+    }
+    return { ts };
+  },
+  // entityId selector
+  (commit) => ({ entityId: commit?.id }),
+  (base, version, events, ts, entityId) => ({
+    ...base,
+    ...entityId,
+    ...version,
+    ...events,
+    ...ts,
+  })
+);

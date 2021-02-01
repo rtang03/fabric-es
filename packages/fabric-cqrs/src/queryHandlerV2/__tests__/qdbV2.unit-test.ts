@@ -2,12 +2,14 @@ require('dotenv').config({ path: './.env.dev' });
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import { Redisearch } from 'redis-modules-sdk';
-import type { FTCreateParameters } from 'redis-modules-sdk';
 import {
   Counter,
   reducer,
   counterSearchDefinition as fields,
   CounterInRedis,
+  postSelector,
+  preSelector,
+  OutputCounter,
 } from '../../unit-test-reducer';
 import { createQueryDatabaseV2 } from '../createQueryDatabaseV2';
 import { createRedisRepository } from '../createRedisRepository';
@@ -33,12 +35,15 @@ beforeAll(async () => {
 
   await client.connect();
 
-  counter = createRedisRepository<Counter, CounterInRedis, any>({
+  counter = createRedisRepository<Counter, CounterInRedis, OutputCounter>({
     client,
     fields,
+    entityName: 'test_proj',
+    postSelector,
+    preSelector,
   });
 
-  queryDatabase = createQueryDatabaseV2(client, { counter });
+  queryDatabase = createQueryDatabaseV2(client, { [TEST_ENTITYNAME]: counter });
   commitRepo = queryDatabase.getRedisCommitRepo();
 
   // prepare eidx
@@ -92,7 +97,8 @@ describe('Projecion db test', () => {
     );
   });
 
-  // it('should merge entity', async () => {
-  //   const result = await queryDatabase.mergeEntity({ commit: newCommit, reducer });
-  // });
+  it('should merge entity', async () => {
+    const result = await queryDatabase.mergeEntity({ commit: newCommit, reducer });
+    console.log(result);
+  });
 });
