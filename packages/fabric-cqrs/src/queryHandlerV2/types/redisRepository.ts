@@ -1,5 +1,6 @@
-import type { OutputSelector } from 'reselect';
-import { Commit } from '../../types';
+import type { Selector } from 'reselect';
+import type { Commit } from '../../types';
+import { OutputCommit } from './outputCommit';
 
 /**
  * @about abstraction of Redis operations
@@ -16,6 +17,7 @@ export type RedisRepository<TResult> = {
   getKey: (item: any) => string;
   getIndexName: () => string;
   getPattern: (pattern: string, args: string[]) => string;
-  getPreSelector: <TInput, TOutput>() => OutputSelector<TInput, TOutput, any>;
-  getPostSelector: <TInput, TOutput>() => OutputSelector<TInput, TOutput, any>;
+  getPreSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
+  getPostSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
+  queryCommitsByPattern: (pattern: string) => Promise<[any, OutputCommit[]] | null>;
 };

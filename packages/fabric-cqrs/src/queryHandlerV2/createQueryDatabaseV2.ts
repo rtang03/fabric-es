@@ -3,7 +3,7 @@ import { Redisearch } from 'redis-modules-sdk';
 import type { Selector } from 'reselect';
 import { Commit, trackingReducer } from '../types';
 import { getLogger, isCommit } from '../utils';
-import { INVALID_ARG, REDUCE_ERR } from './constants';
+import { INVALID_ARG, REDIS_ERR, REDUCE_ERR } from './constants';
 import { createRedisRepository } from './createRedisRepository';
 import { commitSearchDefinition, postSelector, preSelector } from './model';
 import { pipelineExec } from './pipelineExec';
@@ -38,14 +38,14 @@ export const createQueryDatabaseV2: (
   const allRepos = Object.assign({}, repos, { commit: commitRepo });
 
   // restore commit history from Redis format, and detect any errors
-  const parseCommitHistory: <T extends CommitInRedis, K extends OutputCommit>(
-    data: [Error, T][],
-    restoreFn: Selector<T, K>
-  ) => [boolean, K[]] = (data, restoreFn) => {
-    const isError = data.map(([err, _]) => err).reduce((pre, cur) => pre || !!cur, false);
-    const result = data.map(([_, item]) => item).map((item) => restoreFn(item));
-    return [isError, result];
-  };
+  // const parseCommitHistory: <T extends CommitInRedis, K extends OutputCommit>(
+  //   data: [Error, T][],
+  //   restoreFn: Selector<T, K>
+  // ) => [boolean, K[]] = (data, restoreFn) => {
+  //   const isError = data.map(([err, _]) => err).reduce((pre, cur) => pre || !!cur, false);
+  //   const result = data.map(([_, item]) => item).map((item) => restoreFn(item));
+  //   return [isError, result];
+  // };
 
   const getHistory = (commits: (Commit | OutputCommit)[]): any[] => {
     const history = [];
@@ -55,9 +55,15 @@ export const createQueryDatabaseV2: (
 
   return {
     getRedisCommitRepo: () => commitRepo,
+    queryCommitByEntityId: async ({ entityName, id }) => {
+      if (!entityName || !id) throw new Error(INVALID_ARG);
+
+      return null;
+    },
     mergeCommit: async ({ commit }) => {
       // merge one commit
       if (!isCommit(commit)) throw new Error(INVALID_ARG);
+
       debug && logger.debug(util.format('%s - commit: %j', INVALID_ARG, commit));
 
       try {
@@ -68,11 +74,12 @@ export const createQueryDatabaseV2: (
           message: `${key} merged successfully`,
           result: [key],
         };
+
         debug && logger.debug(util.format('returns: %j', result));
 
         return result;
       } catch (e) {
-        logger.error(util.format('unknown redis error, %j', e));
+        logger.error(util.format('%s, %j', REDIS_ERR, e));
         throw e;
       }
     },
@@ -85,28 +92,15 @@ export const createQueryDatabaseV2: (
       if (!entityRepo) throw new Error('entity repo not found');
       if (!isCommit(commit) || !reducer) throw new Error(INVALID_ARG);
 
-      const restoreCommit: Selector<CommitInRedis, OutputCommit> = commitRepo.getPostSelector();
-
+      // step 1: retrieve existing commit
       const pattern = commitRepo.getPattern('COMMITS_BY_ENTITYNAME_ENTITYID', [
         entityName,
         entityId,
       ]);
 
-      // step 1: retrieve existing commit
-      let isRetrievingError = false;
-      let restoredCommits: OutputCommit[];
-      try {
-        [isRetrievingError, restoredCommits] = await pipelineExec<CommitInRedis>(
-          client,
-          'GET_ALL',
-          pattern
-        ).then((result) => parseCommitHistory(result, restoreCommit));
-      } catch (e) {
-        logger.error(util.format('fail to retrieve existing commit, %j', e));
-        isRetrievingError = true;
-      }
+      const [isError, restoredCommits] = await commitRepo.queryCommitsByPattern(pattern);
 
-      if (isRetrievingError)
+      if (isError)
         return {
           status: 'ERROR',
           message: 'fail to retrieve existing commit',
@@ -162,8 +156,7 @@ export const createQueryDatabaseV2: (
         await client.redis.set(notifyKey, 1, 'EX', notifyExpiryBySec);
       } catch (e) {
         // TODO: clarify what it means.
-        if (!e.message.startsWith('[lifecycle]'))
-          logger.error(util.format('unknown redis error, %j', e));
+        if (!e.message.startsWith('[lifecycle]')) logger.error(util.format('%s, %j', REDIS_ERR, e));
         throw e;
       }
 

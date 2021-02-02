@@ -1,8 +1,12 @@
-import flatten from 'lodash/flatten';
 import { FTCreateParameters, FTSchemaField, Redisearch } from 'redis-modules-sdk';
 import type { Selector } from 'reselect';
 import type { Commit } from '../types';
+import { postSelector as restoreCommit } from './model';
+import { pipelineExec } from './pipelineExec';
 import type { FieldOption, RedisearchDefinition, RedisRepository } from './types';
+import { CommitInRedis, OutputCommit } from './types';
+import util from 'util';
+import { getLogger } from '../utils';
 
 declare function MaybeCommit<T>(x: T): T extends Commit ? Commit : any;
 
@@ -26,6 +30,8 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
   preSelector,
   postSelector,
 }) => {
+  const logger = getLogger({ name: '[query-handler] createRedisRepository.js', target: 'console' });
+
   // every entity is indexed with Prefix "e:entityName:". commit is "c:"
   const indexName = { entity: `eidx:${entityName}`, commit: 'cidx' }[kind];
 
@@ -68,9 +74,22 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
     getPattern: (pattern, args) =>
       ({
         COMMITS_BY_ENTITYNAME_ENTITYID: `c:${args[0]}:${args[1]}:*`,
+        ENTITIES_BY_ENTITYNAME: `e:${args[0]}:*`,
         ENTITIES_BY_ENTITYNAME_ENTITYID: `e:${args[0]}:${args[1]}:*`,
       }[pattern]),
     getPreSelector: () => preSelector,
     getPostSelector: () => postSelector,
+    queryCommitsByPattern: async (pattern) => {
+      // restore commit history from Redis format, and detect any errors
+      try {
+        return await pipelineExec<CommitInRedis>(client, 'GET_ALL', pattern).then((data) => [
+          data.map(([err, _]) => err).reduce((pre, cur) => pre || !!cur, false),
+          data.map(([_, commit]) => commit).map((commitInRedis) => restoreCommit(commitInRedis)),
+        ]);
+      } catch (e) {
+        logger.error(util.format('fail to retrieve existing commit, %j', e));
+        return [e, null];
+      }
+    },
   };
 };

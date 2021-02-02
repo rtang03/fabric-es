@@ -30,11 +30,11 @@ export type QueryDatabaseV2 = {
   //   entityName: string;
   // }) => Promise<QueryDatabaseResponse<number>>;
   //
-  // /** query commits by entityId **/
-  // queryCommitByEntityId: (option: {
-  //   entityName: string;
-  //   id: string;
-  // }) => Promise<QueryDatabaseResponse<Commit[]>>;
+  /** query commits by entityId **/
+  queryCommitByEntityId: (option: {
+    entityName: string;
+    id: string;
+  }) => Promise<QueryDatabaseResponse<Commit[]>>;
   //
   // /** query commits by entityName **/
   // queryCommitByEntityName: (option: {
