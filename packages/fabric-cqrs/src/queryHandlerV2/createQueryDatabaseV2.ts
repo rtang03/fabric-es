@@ -1,13 +1,14 @@
 import util from 'util';
+import filter from 'lodash/filter';
+import groupBy from 'lodash/groupBy';
+import isEqual from 'lodash/isEqual';
 import { Redisearch } from 'redis-modules-sdk';
-import type { Selector } from 'reselect';
 import { Commit, trackingReducer } from '../types';
 import { getLogger, isCommit } from '../utils';
-import { INVALID_ARG, REDIS_ERR, REDUCE_ERR } from './constants';
-import { createRedisRepository } from './createRedisRepository';
+import { INVALID_ARG, NO_RECORDS, QUERY_ERR, REDIS_ERR, REDUCE_ERR } from './constants';
 import { commitSearchDefinition, postSelector, preSelector } from './model';
-import { pipelineExec } from './pipelineExec';
 import type { CommitInRedis, OutputCommit, QueryDatabaseV2, RedisRepository } from './types';
+import { createRedisRepository } from '.';
 
 /**
  * @about create query database
@@ -58,7 +59,22 @@ export const createQueryDatabaseV2: (
     queryCommitByEntityId: async ({ entityName, id }) => {
       if (!entityName || !id) throw new Error(INVALID_ARG);
 
-      return null;
+      const pattern = commitRepo.getPattern('COMMITS_BY_ENTITYNAME_ENTITYID', [entityName, id]);
+      const [error, result] = await commitRepo.queryCommitsByPattern(pattern);
+
+      return error
+        ? { status: 'ERROR', message: QUERY_ERR, error }
+        : { status: 'OK', message: `${result.length} record(s) returned`, result };
+    },
+    queryCommitByEntityName: async ({ entityName }) => {
+      if (!entityName) throw new Error(INVALID_ARG);
+
+      const pattern = commitRepo.getPattern('COMMITS_BY_ENTITYNAME', [entityName]);
+      const [error, result] = await commitRepo.queryCommitsByPattern(pattern);
+
+      return error
+        ? { status: 'ERROR', message: QUERY_ERR, error }
+        : { status: 'OK', message: `${result.length} record(s) returned`, result };
     },
     mergeCommit: async ({ commit }) => {
       // merge one commit
@@ -83,7 +99,10 @@ export const createQueryDatabaseV2: (
         throw e;
       }
     },
-    mergeEntity: async <TEntity, TEntityInRedis>({ commit, reducer }) => {
+    mergeCommitBatch: async () => {
+      return null;
+    },
+    mergeEntity: async ({ commit, reducer }) => {
       const { entityName, entityId, commitId } = commit;
       const entityRepo = allRepos[entityName];
       const entityKeyInRedis = allRepos[entityName].getKey(commit);
@@ -100,13 +119,13 @@ export const createQueryDatabaseV2: (
 
       const [isError, restoredCommits] = await commitRepo.queryCommitsByPattern(pattern);
 
+      debug && logger.debug('restored commits, %j', restoredCommits);
+
       if (isError)
         return {
           status: 'ERROR',
           message: 'fail to retrieve existing commit',
         };
-
-      debug && logger.debug('restored commits, %j', restoredCommits);
 
       // step 2: merge existing record with newly retrieved commit
       const history: (Commit | OutputCommit)[] = [...restoredCommits, commit];
@@ -161,6 +180,49 @@ export const createQueryDatabaseV2: (
       }
 
       return { status: 'OK', message: `${entityKeyInRedis} merged successfully`, result };
+    },
+    mergeEntityBatch: async ({ entityName, commits, reducer }) => {
+      if (!entityName || !commits || !reducer) throw new Error(INVALID_ARG);
+      if (isEqual(commits, {}))
+        return {
+          status: 'OK',
+          message: NO_RECORDS,
+          result: [],
+        };
+
+      // safety filter: ensure only relevant entityName is processed
+      const filteredCommits = filter(commits, { entityName });
+      const groupByEntityId: Record<string, Commit[]> = groupBy(filteredCommits, ({ id }) => id);
+      const toCommitInRedis = commitRepo.getPreSelector<Commit, CommitInRedis>();
+      const errors = [];
+      const entities = Object.entries(groupByEntityId).map(([entityId, commits]) => {
+        const history = commits.map((commit) => toCommitInRedis(commit));
+        const state = reducer(getHistory(history));
+        // entityKeyInRedis
+        const key = allRepos[entityName].getKey(commits[0]);
+        // if reducer fails
+        !state && errors.push(entityId);
+        return { state, history, key };
+      });
+      // .filter(([state]) => !!state); // ensure no null; if error happens when reducing
+
+      // add entity. Notice that the original orginal commit is not saved.
+      const result = [];
+      for await (const { state, history, key } of entities) {
+        try {
+          const status = await allRepos[entityName].hmset(state, history);
+          result.push({ key, status });
+        } catch (e) {
+          logger.error(util.format('%s, %j', REDIS_ERR, e));
+          throw e;
+        }
+      }
+      return {
+        status: errors.length === 0 ? 'OK' : 'ERROR',
+        message: `${result.length} entitie(s) are merged`,
+        result,
+        error: errors.length === 0 ? null : errors,
+      };
     },
   };
 };

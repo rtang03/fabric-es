@@ -1,3 +1,5 @@
+import { isOutputCommit } from '../typeGuard';
+
 require('dotenv').config({ path: './.env.dev' });
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
@@ -14,7 +16,8 @@ import {
 import { createQueryDatabaseV2 } from '../createQueryDatabaseV2';
 import { createRedisRepository } from '../createRedisRepository';
 import type { QueryDatabaseV2, RedisRepository, OutputCommit } from '../types';
-import { commit, newCommit } from './__utils__';
+import { commit, faultReducer, newCommit } from './__utils__';
+import { REDUCE_ERR } from '../constants';
 
 // const key = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
 // const key2 = `test_proj::qh_proj_test_002`;
@@ -28,7 +31,8 @@ let client: Redisearch;
 let commitRepo: RedisRepository<OutputCommit>;
 let counter: RedisRepository<any>;
 
-const TEST_ENTITYNAME = 'test_proj';
+const ENTITYNAME = 'test_proj';
+const ENTITYID = 'qh_proj_test_001';
 
 beforeAll(async () => {
   client = new Redisearch({ host: 'localhost', port: 6379 });
@@ -43,7 +47,7 @@ beforeAll(async () => {
     preSelector,
   });
 
-  queryDatabase = createQueryDatabaseV2(client, { [TEST_ENTITYNAME]: counter });
+  queryDatabase = createQueryDatabaseV2(client, { [ENTITYNAME]: counter });
   commitRepo = queryDatabase.getRedisCommitRepo();
 
   // prepare eidx
@@ -97,8 +101,44 @@ describe('Projecion db test', () => {
     );
   });
 
-  it('should merge entity', async () => {
-    const result = await queryDatabase.mergeEntity({ commit: newCommit, reducer });
-    console.log(result);
-  });
+  it('should fail to mergeEntity with IRRELEVANT reducer', async () =>
+    queryDatabase
+      .mergeEntity({ commit: newCommit, reducer: faultReducer })
+      .then(({ status, message, error }) => {
+        expect(status).toEqual('ERROR');
+        expect(error.message.startsWith('fail to reduce')).toBeTruthy();
+        expect(message).toContain(REDUCE_ERR);
+      }));
+
+  it('should merge entity', async () =>
+    queryDatabase
+      .mergeEntity({ commit: newCommit, reducer })
+      .then(({ status, message, result }) => {
+        expect(status).toBe('OK');
+        expect(result).toEqual([
+          { key: 'e:test_proj:qh_proj_test_001', status: 'OK' },
+          {
+            key: 'c:test_proj:qh_proj_test_001:20200528133520841',
+            status: 'OK',
+          },
+        ]);
+      }));
+
+  it('should queryCommitsBy: entityNamd and entityId', async () =>
+    queryDatabase
+      .queryCommitByEntityId({ entityName: ENTITYNAME, id: ENTITYID })
+      .then(({ status, message, result }) => {
+        expect(status).toBe('OK');
+        expect(message).toEqual('2 record(s) returned');
+        result.forEach((commit) => expect(isOutputCommit(commit)).toBeTruthy());
+      }));
+
+  it('should queryCommitsBy: entityName', async () =>
+    queryDatabase
+      .queryCommitByEntityName({ entityName: ENTITYNAME })
+      .then(({ status, message, result }) => {
+        expect(status).toBe('OK');
+        expect(message).toEqual('2 record(s) returned');
+        result.forEach((commit) => expect(isOutputCommit(commit)).toBeTruthy());
+      }));
 });

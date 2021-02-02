@@ -73,12 +73,13 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
     getIndexName: () => indexName,
     getPattern: (pattern, args) =>
       ({
+        COMMITS_BY_ENTITYNAME: `c:${args[0]}:*`,
         COMMITS_BY_ENTITYNAME_ENTITYID: `c:${args[0]}:${args[1]}:*`,
         ENTITIES_BY_ENTITYNAME: `e:${args[0]}:*`,
         ENTITIES_BY_ENTITYNAME_ENTITYID: `e:${args[0]}:${args[1]}:*`,
       }[pattern]),
-    getPreSelector: () => preSelector,
-    getPostSelector: () => postSelector,
+    getPreSelector: <TInput, TOutput>(): Selector<TInput, TOutput> => preSelector,
+    getPostSelector: <TInput, TOutput>(): Selector<TInput, TOutput> => postSelector,
     queryCommitsByPattern: async (pattern) => {
       // restore commit history from Redis format, and detect any errors
       try {

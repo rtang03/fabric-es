@@ -34,12 +34,12 @@ export type QueryDatabaseV2 = {
   queryCommitByEntityId: (option: {
     entityName: string;
     id: string;
-  }) => Promise<QueryDatabaseResponse<Commit[]>>;
-  //
-  // /** query commits by entityName **/
-  // queryCommitByEntityName: (option: {
-  //   entityName: string;
-  // }) => Promise<QueryDatabaseResponse<Commit[]>>;
+  }) => Promise<QueryDatabaseResponse<OutputCommit[]>>;
+
+  /** query commits by entityName **/
+  queryCommitByEntityName: (option: {
+    entityName: string;
+  }) => Promise<QueryDatabaseResponse<OutputCommit[]>>;
 
   /**
    * merge new commit
@@ -62,10 +62,10 @@ export type QueryDatabaseV2 = {
    * 1. append batch of commit to commit history
    * 1. update cidx index
    * **/
-  // mergeCommitBatch: (option: {
-  //   entityName: string;
-  //   commits: Record<string, Commit>;
-  // }) => Promise<QueryDatabaseResponse<string[]>>;
+  mergeCommitBatch: (option: {
+    entityName: string;
+    commits: Record<string, Commit>;
+  }) => Promise<QueryDatabaseResponse<string[]>>;
   //
   mergeEntity: <TEntity extends BaseMetaEntity, TEntityInRedis extends BaseMetaEntity>(option: {
     commit: Commit;
@@ -73,11 +73,11 @@ export type QueryDatabaseV2 = {
   }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
 
   /** merge multiple new entity **/
-  // mergeEntityBatch: <TEntity>(entities: {
-  //   entityName: string;
-  //   commits: Record<string, Commit>;
-  //   reducer: Reducer<TEntity>;
-  // }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
+  mergeEntityBatch: <TEntity>(option: {
+    entityName: string;
+    commits: Record<string, Commit>;
+    reducer: Reducer<TEntity>;
+  }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
 
   /**
    * full text search on commit, or just return item count of result

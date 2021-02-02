@@ -2,6 +2,12 @@ import type { Selector } from 'reselect';
 import type { Commit } from '../../types';
 import { OutputCommit } from './outputCommit';
 
+type Pattern =
+  | 'COMMITS_BY_ENTITYNAME'
+  | 'COMMITS_BY_ENTITYNAME_ENTITYID'
+  | 'ENTITIES_BY_ENTITYNAME'
+  | 'ENTITIES_BY_ENTITYNAME_ENTITYID';
+
 /**
  * @about abstraction of Redis operations
  */
@@ -16,7 +22,7 @@ export type RedisRepository<TResult> = {
   hgetall: (key: string) => Promise<TResult>;
   getKey: (item: any) => string;
   getIndexName: () => string;
-  getPattern: (pattern: string, args: string[]) => string;
+  getPattern: (pattern: Pattern, args: string[]) => string;
   getPreSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
   getPostSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
   queryCommitsByPattern: (pattern: string) => Promise<[any, OutputCommit[]] | null>;
