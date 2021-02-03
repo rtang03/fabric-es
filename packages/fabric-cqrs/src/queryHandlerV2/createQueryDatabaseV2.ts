@@ -25,7 +25,6 @@ export const createQueryDatabaseV2: (
   { debug, notifyExpiryBySec } = { debug: false, notifyExpiryBySec: 86400 }
 ) => {
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js', target: 'console' });
-
   const commitRepo = createRedisRepository<Commit, CommitInRedis, OutputCommit>({
     client,
     kind: 'commit',
@@ -38,23 +37,40 @@ export const createQueryDatabaseV2: (
   // add built-in commit repo
   const allRepos = Object.assign({}, repos, { commit: commitRepo });
 
-  // restore commit history from Redis format, and detect any errors
-  // const parseCommitHistory: <T extends CommitInRedis, K extends OutputCommit>(
-  //   data: [Error, T][],
-  //   restoreFn: Selector<T, K>
-  // ) => [boolean, K[]] = (data, restoreFn) => {
-  //   const isError = data.map(([err, _]) => err).reduce((pre, cur) => pre || !!cur, false);
-  //   const result = data.map(([_, item]) => item).map((item) => restoreFn(item));
-  //   return [isError, result];
-  // };
-
   const getHistory = (commits: (Commit | OutputCommit)[]): any[] => {
     const history = [];
-    commits.forEach(({ events }) => events.forEach((item) => history.push(item)));
+    commits.forEach(({ events }) => events.forEach((event) => history.push(event)));
     return history;
   };
 
+  const deleteCommit = async (pattern: string) => {
+    const [error, count] = await commitRepo.deleteCommitsByPattern(pattern);
+    return error
+      ? {
+          status: 'ERROR',
+          message: 'some delete fails',
+          error,
+        }
+      : {
+          status: 'OK',
+          message: `${count} record(s) deleted`,
+          result: count,
+        };
+  };
+
   return {
+    deleteCommitByEntityId: async ({ entityName, id }) => {
+      if (!entityName || !id) throw new Error(INVALID_ARG);
+
+      return deleteCommit(
+        commitRepo.getPattern('COMMITS_BY_ENTITYNAME_ENTITYID', [entityName, id])
+      );
+    },
+    deleteCommitByEntityName: async ({ entityName }) => {
+      if (!entityName) throw new Error(INVALID_ARG);
+
+      return deleteCommit(commitRepo.getPattern('COMMITS_BY_ENTITYNAME', [entityName]));
+    },
     getRedisCommitRepo: () => commitRepo,
     queryCommitByEntityId: async ({ entityName, id }) => {
       if (!entityName || !id) throw new Error(INVALID_ARG);
@@ -77,7 +93,6 @@ export const createQueryDatabaseV2: (
         : { status: 'OK', message: `${result.length} record(s) returned`, result };
     },
     mergeCommit: async ({ commit }) => {
-      // merge one commit
       if (!isCommit(commit)) throw new Error(INVALID_ARG);
 
       debug && logger.debug(util.format('%s - commit: %j', INVALID_ARG, commit));
@@ -91,7 +106,7 @@ export const createQueryDatabaseV2: (
           result: [key],
         };
 
-        debug && logger.debug(util.format('returns: %j', result));
+        debug && logger.debug(util.format('result returns: %j', result));
 
         return result;
       } catch (e) {
@@ -99,8 +114,37 @@ export const createQueryDatabaseV2: (
         throw e;
       }
     },
-    mergeCommitBatch: async () => {
-      return null;
+    mergeCommitBatch: async ({ entityName, commits }) => {
+      if (!entityName || !commits) throw new Error(INVALID_ARG);
+      if (isEqual(commits, {}))
+        return {
+          status: 'OK',
+          message: NO_RECORDS,
+          result: [],
+        };
+
+      const result = [];
+      const error = [];
+      try {
+        for await (const commit of Object.values(commits)) {
+          const status = await allRepos['commit'].hmset(commit);
+          const key = allRepos['commit'].getKey(commit);
+          if (status === 'OK') result.push(key);
+          else error.push(key);
+        }
+      } catch (e) {
+        logger.error(util.format('%s, %j', REDIS_ERR, e));
+        throw e;
+      }
+      debug && logger.debug(util.format('result returns: %j', result));
+      debug && logger.debug(util.format('error returns: %j', error));
+
+      return {
+        status: error.length === 0 ? 'OK' : 'ERROR',
+        message: `${result.length} record(s) merged successfully`,
+        result,
+        error,
+      };
     },
     mergeEntity: async ({ commit, reducer }) => {
       const { entityName, entityId, commitId } = commit;
@@ -179,6 +223,8 @@ export const createQueryDatabaseV2: (
         throw e;
       }
 
+      debug && logger.debug(util.format('result returns: %j', result));
+
       return { status: 'OK', message: `${entityKeyInRedis} merged successfully`, result };
     },
     mergeEntityBatch: async ({ entityName, commits, reducer }) => {
@@ -193,33 +239,36 @@ export const createQueryDatabaseV2: (
       // safety filter: ensure only relevant entityName is processed
       const filteredCommits = filter(commits, { entityName });
       const groupByEntityId: Record<string, Commit[]> = groupBy(filteredCommits, ({ id }) => id);
-      const toCommitInRedis = commitRepo.getPreSelector<Commit, CommitInRedis>();
       const errors = [];
-      const entities = Object.entries(groupByEntityId).map(([entityId, commits]) => {
-        const history = commits.map((commit) => toCommitInRedis(commit));
-        const state = reducer(getHistory(history));
-        // entityKeyInRedis
-        const key = allRepos[entityName].getKey(commits[0]);
-        // if reducer fails
-        !state && errors.push(entityId);
-        return { state, history, key };
-      });
-      // .filter(([state]) => !!state); // ensure no null; if error happens when reducing
+      const entities = Object.entries(groupByEntityId)
+        .map(([entityId, commits]) => {
+          const state = reducer(getHistory(commits));
+          const keyOfEntityInRedis = allRepos[entityName].getKey(commits[0]);
+          // if reducer fails
+          !state && errors.push(entityId);
+          return { state, commits, key: keyOfEntityInRedis };
+        })
+        .filter(({ state }) => !!state); // ensure no null; if error happens when reducing
+
+      debug && logger.debug(util.format('errors found, %j', errors));
 
       // add entity. Notice that the original orginal commit is not saved.
       const result = [];
-      for await (const { state, history, key } of entities) {
+      for await (const { state, commits, key } of entities) {
         try {
-          const status = await allRepos[entityName].hmset(state, history);
+          const status = await allRepos[entityName].hmset(state, commits);
           result.push({ key, status });
         } catch (e) {
           logger.error(util.format('%s, %j', REDIS_ERR, e));
           throw e;
         }
       }
+
+      debug && logger.debug(util.format('result returns: %j', result));
+
       return {
         status: errors.length === 0 ? 'OK' : 'ERROR',
-        message: `${result.length} entitie(s) are merged`,
+        message: `${result.length} record(s) merged`,
         result,
         error: errors.length === 0 ? null : errors,
       };

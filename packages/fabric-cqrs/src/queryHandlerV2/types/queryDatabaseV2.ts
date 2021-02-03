@@ -20,15 +20,15 @@ export type QueryDatabaseV2 = {
    * }
    * ```
    * **/
-  // deleteCommitByEntityId: (option: {
-  //   entityName: string;
-  //   id: string;
-  // }) => Promise<QueryDatabaseResponse<number>>;
+  deleteCommitByEntityId: (option: {
+    entityName: string;
+    id: string;
+  }) => Promise<QueryDatabaseResponse<number>>;
   //
-  // /** delete commit by entityName **/
-  // deleteCommitByEntityName: (option: {
-  //   entityName: string;
-  // }) => Promise<QueryDatabaseResponse<number>>;
+  /** delete commit by entityName **/
+  deleteCommitByEntityName: (option: {
+    entityName: string;
+  }) => Promise<QueryDatabaseResponse<number>>;
   //
   /** query commits by entityId **/
   queryCommitByEntityId: (option: {

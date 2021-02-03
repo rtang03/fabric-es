@@ -6,7 +6,7 @@ import { Redisearch } from 'redis-modules-sdk';
  */
 export const pipelineExec: <TResult = any>(
   client: Redisearch,
-  action: 'GET_ALL',
+  action: 'GET_ALL' | 'DELETE',
   pattern: string
 ) => Promise<[Error, TResult][]> = async (client, action, pattern) => {
   const keys = await client.redis.keys(pattern);
@@ -21,6 +21,7 @@ export const pipelineExec: <TResult = any>(
 
   ({
     GET_ALL: () => keys.sort().forEach((key) => pipeline.hgetall(key)),
+    DELETE: () => keys.forEach((key) => pipeline.del(key)),
   }[action]());
 
   return pipeline.exec();

@@ -14,6 +14,11 @@ type Pattern =
 export type RedisRepository<TResult> = {
   // https://oss.redislabs.com/redisearch/Commands/#ftcreate
   createIndex: () => Promise<'OK'>;
+  /**
+   * @example 2 commits are successfully delete, pipelineExec returns [ [ null, 1 ], [ null, 1 ] ]
+   * .then return tuple [error, number-of-successful-delete]
+   */
+  deleteCommitsByPattern: (pattern: string) => Promise<[any, number]>;
   dropIndex: (deleteHash?: boolean) => Promise<'OK'>;
   // see https://redis.io/commands/hmset
   // see https://oss.redislabs.com/redisearch/Commands/#hsethsetnxhdelhincrbyhdecrby
@@ -25,5 +30,9 @@ export type RedisRepository<TResult> = {
   getPattern: (pattern: Pattern, args: string[]) => string;
   getPreSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
   getPostSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
+  /**
+   * @about restore commit history from Redis format, and detect any errors
+   * pipelinExec .then will return tuple [error, commitInRedis[])
+   */
   queryCommitsByPattern: (pattern: string) => Promise<[any, OutputCommit[]] | null>;
 };

@@ -1,5 +1,3 @@
-import { isOutputCommit } from '../typeGuard';
-
 require('dotenv').config({ path: './.env.dev' });
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
@@ -13,11 +11,12 @@ import {
   preSelector,
   OutputCounter,
 } from '../../unit-test-reducer';
+import { REDUCE_ERR } from '../constants';
 import { createQueryDatabaseV2 } from '../createQueryDatabaseV2';
 import { createRedisRepository } from '../createRedisRepository';
+import { isOutputCommit } from '../typeGuard';
 import type { QueryDatabaseV2, RedisRepository, OutputCommit } from '../types';
-import { commit, faultReducer, newCommit } from './__utils__';
-import { REDUCE_ERR } from '../constants';
+import { commit, commits, faultReducer, newCommit } from './__utils__';
 
 // const key = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
 // const key2 = `test_proj::qh_proj_test_002`;
@@ -29,10 +28,11 @@ import { REDUCE_ERR } from '../constants';
 let queryDatabase: QueryDatabaseV2;
 let client: Redisearch;
 let commitRepo: RedisRepository<OutputCommit>;
-let counter: RedisRepository<any>;
+let counter: RedisRepository<OutputCounter>;
 
 const ENTITYNAME = 'test_proj';
 const ENTITYID = 'qh_proj_test_001';
+const noResult = { status: 'OK', message: '0 record(s) returned', result: [] };
 
 beforeAll(async () => {
   client = new Redisearch({ host: 'localhost', port: 6379 });
@@ -83,9 +83,15 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await client.disconnect();
+  return new Promise<void>((ok) => setTimeout(() => ok(), 2000));
 });
 
 describe('Projecion db test', () => {
+  it('should deleteCommitByEntityName', async () =>
+    queryDatabase
+      .deleteCommitByEntityName({ entityName: ENTITYNAME })
+      .then(({ status }) => expect(status).toBe('OK')));
+
   // first commit for merge test
   it('should merge commit', async () => {
     const key = commitRepo.getKey(commit);
@@ -124,7 +130,17 @@ describe('Projecion db test', () => {
         ]);
       }));
 
-  it('should queryCommitsBy: entityNamd and entityId', async () =>
+  it('should fail to queryCommitByEntityId: non-exist entityName', async () =>
+    queryDatabase
+      .queryCommitByEntityId({ entityName: 'ABC', id: ENTITYID })
+      .then((result) => expect(result).toEqual(noResult)));
+
+  it('should fail to queryCommitByEntityId: non-exist id', async () =>
+    queryDatabase
+      .queryCommitByEntityId({ entityName: ENTITYNAME, id: 'DEF' })
+      .then((result) => expect(result).toEqual(noResult)));
+
+  it('should queryCommitsBy: entityName and entityId', async () =>
     queryDatabase
       .queryCommitByEntityId({ entityName: ENTITYNAME, id: ENTITYID })
       .then(({ status, message, result }) => {
@@ -132,6 +148,11 @@ describe('Projecion db test', () => {
         expect(message).toEqual('2 record(s) returned');
         result.forEach((commit) => expect(isOutputCommit(commit)).toBeTruthy());
       }));
+
+  it('should fail to queryCommitsBy: non-exist entityName', async () =>
+    queryDatabase
+      .queryCommitByEntityName({ entityName: 'ABC' })
+      .then((result) => expect(result).toEqual(noResult)));
 
   it('should queryCommitsBy: entityName', async () =>
     queryDatabase
@@ -141,4 +162,29 @@ describe('Projecion db test', () => {
         expect(message).toEqual('2 record(s) returned');
         result.forEach((commit) => expect(isOutputCommit(commit)).toBeTruthy());
       }));
+
+  it('should mergeBatch', async () =>
+    queryDatabase
+      .mergeEntityBatch({ entityName: ENTITYNAME, reducer, commits })
+      .then(({ result, status, message }) => {
+        expect(status).toBe('OK');
+        expect(result).toEqual([
+          { key: 'e:test_proj:qh_proj_test_002', status: 'OK' },
+          { key: 'e:test_proj:qh_proj_test_003', status: 'OK' },
+        ]);
+      }));
+
+  it('should fail to deleteCommitByEntityId with invalid entityName', async () =>
+    queryDatabase
+      .deleteCommitByEntityId({ entityName: 'ABC', id: ENTITYID })
+      .then((result) =>
+        expect(result).toEqual({ status: 'OK', message: '0 record(s) deleted', result: 0 })
+      ));
+
+  it('should deleteCommitByEntityId', async () =>
+    queryDatabase
+      .deleteCommitByEntityId({ entityName: ENTITYNAME, id: ENTITYID })
+      .then((result) =>
+        expect(result).toEqual({ status: 'OK', message: '2 record(s) deleted', result: 2 })
+      ));
 });

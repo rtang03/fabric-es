@@ -1,12 +1,12 @@
+import util from 'util';
 import { FTCreateParameters, FTSchemaField, Redisearch } from 'redis-modules-sdk';
 import type { Selector } from 'reselect';
 import type { Commit } from '../types';
+import { getLogger } from '../utils';
 import { postSelector as restoreCommit } from './model';
 import { pipelineExec } from './pipelineExec';
 import type { FieldOption, RedisearchDefinition, RedisRepository } from './types';
 import { CommitInRedis, OutputCommit } from './types';
-import util from 'util';
-import { getLogger } from '../utils';
 
 declare function MaybeCommit<T>(x: T): T extends Commit ? Commit : any;
 
@@ -64,6 +64,17 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
 
   return {
     createIndex: () => client.create(indexName, getSchema<TItem>(fields), getParam(param)),
+    deleteCommitsByPattern: async (pattern) => {
+      try {
+        return await pipelineExec<number>(client, 'DELETE', pattern).then((data) => [
+          data.map(([err, _]) => err).reduce((pre, cur) => pre || !!cur, false),
+          data.map(([_, count]) => count).reduce((pre, cur) => pre + cur, 0),
+        ]);
+      } catch (e) {
+        logger.error(util.format('fail to deleteCommitsByPattern, %j', e));
+        return [e, null];
+      }
+    },
     dropIndex: (deleteHash = true) => client.dropindex(indexName, deleteHash),
     hmset: (item, history) =>
       client.redis.hmset(getKey(item), preSelector?.([item, history]) || item),
@@ -81,14 +92,13 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
     getPreSelector: <TInput, TOutput>(): Selector<TInput, TOutput> => preSelector,
     getPostSelector: <TInput, TOutput>(): Selector<TInput, TOutput> => postSelector,
     queryCommitsByPattern: async (pattern) => {
-      // restore commit history from Redis format, and detect any errors
       try {
         return await pipelineExec<CommitInRedis>(client, 'GET_ALL', pattern).then((data) => [
           data.map(([err, _]) => err).reduce((pre, cur) => pre || !!cur, false),
           data.map(([_, commit]) => commit).map((commitInRedis) => restoreCommit(commitInRedis)),
         ]);
       } catch (e) {
-        logger.error(util.format('fail to retrieve existing commit, %j', e));
+        logger.error(util.format('fail to queryCommitsByPattern, %j', e));
         return [e, null];
       }
     },
