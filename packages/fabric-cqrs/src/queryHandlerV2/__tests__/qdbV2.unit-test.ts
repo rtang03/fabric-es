@@ -174,17 +174,22 @@ describe('Projecion db test', () => {
         ]);
       }));
 
-  it('should fail to deleteCommitByEntityId with invalid entityName', async () =>
-    queryDatabase
-      .deleteCommitByEntityId({ entityName: 'ABC', id: ENTITYID })
-      .then((result) =>
-        expect(result).toEqual({ status: 'OK', message: '0 record(s) deleted', result: 0 })
-      ));
+  it('should fullTextSearchCommit: qh', async () =>
+    queryDatabase.fullTextSearchCommit({ query: 'qh*' }).then((result) => {
+      console.log(result);
+    }));
 
-  it('should deleteCommitByEntityId', async () =>
-    queryDatabase
-      .deleteCommitByEntityId({ entityName: ENTITYNAME, id: ENTITYID })
-      .then((result) =>
-        expect(result).toEqual({ status: 'OK', message: '2 record(s) deleted', result: 2 })
-      ));
+  // it('should fail to deleteCommitByEntityId with invalid entityName', async () =>
+  //   queryDatabase
+  //     .deleteCommitByEntityId({ entityName: 'ABC', id: ENTITYID })
+  //     .then((result) =>
+  //       expect(result).toEqual({ status: 'OK', message: '0 record(s) deleted', result: 0 })
+  //     ));
+  //
+  // it('should deleteCommitByEntityId', async () =>
+  //   queryDatabase
+  //     .deleteCommitByEntityId({ entityName: ENTITYNAME, id: ENTITYID })
+  //     .then((result) =>
+  //       expect(result).toEqual({ status: 'OK', message: '2 record(s) deleted', result: 2 })
+  //     ));
 });

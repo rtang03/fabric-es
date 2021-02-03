@@ -1,5 +1,6 @@
 import type { BaseMetaEntity, Commit, Reducer } from '../../types';
 import { QueryDatabaseResponse, RedisRepository, OutputCommit } from '.';
+import { FTSearchParameters } from 'redis-modules-sdk';
 
 /**
  * @about query database
@@ -42,10 +43,7 @@ export type QueryDatabaseV2 = {
   }) => Promise<QueryDatabaseResponse<OutputCommit[]>>;
 
   /**
-   * merge new commit
-   * 1. append single commit to commit history
-   * 1. update cidx index
-   *
+   * @about merge single commit to commit history, and update index
    * @return ```typescript
    * // example
    * {
@@ -58,9 +56,7 @@ export type QueryDatabaseV2 = {
   mergeCommit: (option: { commit: Commit }) => Promise<QueryDatabaseResponse<string[]>>;
 
   /**
-   * merge multiple new commits
-   * 1. append batch of commit to commit history
-   * 1. update cidx index
+   * @about merge multiple batch of commit to commit history and update index
    * **/
   mergeCommitBatch: (option: {
     entityName: string;
@@ -84,10 +80,11 @@ export type QueryDatabaseV2 = {
    * @see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
    * @example [qdb.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/qdb.unit-test.ts)
    * **/
-  // fullTextSearchCommit: (option: {
-  //   query: string[];
-  //   countTotalOnly?: boolean;
-  // }) => Promise<QueryDatabaseResponse<Commit[] | number>>;
+  fullTextSearchCommit: (option: {
+    query: string;
+    param?: FTSearchParameters;
+    countTotalOnly?: boolean;
+  }) => Promise<QueryDatabaseResponse<OutputCommit[] | number>>;
 
   /**
    * full text search on entity, or just return item count of result
@@ -97,18 +94,20 @@ export type QueryDatabaseV2 = {
    * { query: ['searching info', 'SORTBY', 'id', 'ASC'] }
    * ```
    * **/
-  // fullTextSearchEntity: <TEntity = any>(option: {
-  //   query: string[];
-  //   countTotalOnly?: boolean;
-  // }) => Promise<QueryDatabaseResponse<TEntity[] | number>>;
+  fullTextSearchEntity: <TEntity = any>(option: {
+    entityName: string;
+    query: string;
+    param?: FTSearchParameters;
+    countTotalOnly?: boolean;
+  }) => Promise<QueryDatabaseResponse<TEntity[] | number>>;
 
   /** clear notification **/
-  // clearNotification: (option: {
-  //   creator: string;
-  //   entityName?: string;
-  //   id?: string;
-  //   commitId?: string;
-  // }) => Promise<QueryDatabaseResponse>;
+  clearNotification: (option: {
+    creator: string;
+    entityName?: string;
+    id?: string;
+    commitId?: string;
+  }) => Promise<QueryDatabaseResponse>;
 
   /**
    * get active notification by commitId
@@ -121,11 +120,11 @@ export type QueryDatabaseV2 = {
    * }
    * ```
    * **/
-  // getNotification: (option: {
-  //   creator: string;
-  //   entityName?: string;
-  //   id?: string;
-  //   commitId?: string;
-  //   expireNow?: boolean;
-  // }) => Promise<QueryDatabaseResponse<Record<string, number>[]>>;
+  getNotification: (option: {
+    creator: string;
+    entityName?: string;
+    id?: string;
+    commitId?: string;
+    expireNow?: boolean;
+  }) => Promise<QueryDatabaseResponse<Record<string, number>[]>>;
 };

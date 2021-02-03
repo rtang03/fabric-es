@@ -5,7 +5,14 @@ import isEqual from 'lodash/isEqual';
 import { Redisearch } from 'redis-modules-sdk';
 import { Commit, trackingReducer } from '../types';
 import { getLogger, isCommit } from '../utils';
-import { INVALID_ARG, NO_RECORDS, QUERY_ERR, REDIS_ERR, REDUCE_ERR } from './constants';
+import {
+  INVALID_ARG,
+  NO_RECORDS,
+  QUERY_ERR,
+  REDIS_ERR,
+  REDUCE_ERR,
+  REPO_NOT_FOUND,
+} from './constants';
 import { commitSearchDefinition, postSelector, preSelector } from './model';
 import type { CommitInRedis, OutputCommit, QueryDatabaseV2, RedisRepository } from './types';
 import { createRedisRepository } from '.';
@@ -58,7 +65,18 @@ export const createQueryDatabaseV2: (
         };
   };
 
+  const queryCommit = async (pattern, args) => {
+    const [error, result] = await commitRepo.queryCommitsByPattern(
+      commitRepo.getPattern(pattern, args)
+    );
+
+    return error
+      ? { status: 'ERROR', message: QUERY_ERR, error }
+      : { status: 'OK', message: `${result.length} record(s) returned`, result };
+  };
+
   return {
+    clearNotification: async () => null,
     deleteCommitByEntityId: async ({ entityName, id }) => {
       if (!entityName || !id) throw new Error(INVALID_ARG);
 
@@ -71,26 +89,48 @@ export const createQueryDatabaseV2: (
 
       return deleteCommit(commitRepo.getPattern('COMMITS_BY_ENTITYNAME', [entityName]));
     },
+    fullTextSearchCommit: async ({ query, param, countTotalOnly }) => {
+      if (!query) throw new Error(INVALID_ARG);
+
+      const { search, getIndexName } = commitRepo;
+
+      const [error, result] = await search({ kind: 'commit', index: getIndexName(), query, param });
+
+      debug && logger.debug(util.format('returns result, %j', result));
+      debug && logger.debug(util.format('returns error, %j', error));
+
+      return error ? { status: 'ERROR', message: '' } : { status: 'OK', message: '' };
+    },
+    fullTextSearchEntity: async ({ entityName, query, param, countTotalOnly }) => {
+      if (!query || !entityName) throw new Error(INVALID_ARG);
+
+      const entityRepo = allRepos[entityName];
+      if (!entityRepo) throw new Error(REPO_NOT_FOUND);
+
+      const { search, getIndexName } = entityRepo;
+
+      const [error, result] = await search({
+        kind: 'entity',
+        index: getIndexName(),
+        query,
+        param,
+        restoreFn: null,
+      });
+      return error ? { status: 'ERROR', message: '' } : { status: 'OK', message: '' };
+    },
+    getNotification: async () => {
+      return null;
+    },
     getRedisCommitRepo: () => commitRepo,
     queryCommitByEntityId: async ({ entityName, id }) => {
       if (!entityName || !id) throw new Error(INVALID_ARG);
 
-      const pattern = commitRepo.getPattern('COMMITS_BY_ENTITYNAME_ENTITYID', [entityName, id]);
-      const [error, result] = await commitRepo.queryCommitsByPattern(pattern);
-
-      return error
-        ? { status: 'ERROR', message: QUERY_ERR, error }
-        : { status: 'OK', message: `${result.length} record(s) returned`, result };
+      return queryCommit('COMMITS_BY_ENTITYNAME_ENTITYID', [entityName, id]);
     },
     queryCommitByEntityName: async ({ entityName }) => {
       if (!entityName) throw new Error(INVALID_ARG);
 
-      const pattern = commitRepo.getPattern('COMMITS_BY_ENTITYNAME', [entityName]);
-      const [error, result] = await commitRepo.queryCommitsByPattern(pattern);
-
-      return error
-        ? { status: 'ERROR', message: QUERY_ERR, error }
-        : { status: 'OK', message: `${result.length} record(s) returned`, result };
+      return queryCommit('COMMITS_BY_ENTITYNAME', [entityName]);
     },
     mergeCommit: async ({ commit }) => {
       if (!isCommit(commit)) throw new Error(INVALID_ARG);
@@ -152,7 +192,7 @@ export const createQueryDatabaseV2: (
       const entityKeyInRedis = allRepos[entityName].getKey(commit);
       const commitKeyInRedis = allRepos['commit'].getKey(commit);
 
-      if (!entityRepo) throw new Error('entity repo not found');
+      if (!entityRepo) throw new Error(REPO_NOT_FOUND);
       if (!isCommit(commit) || !reducer) throw new Error(INVALID_ARG);
 
       // step 1: retrieve existing commit
@@ -229,6 +269,10 @@ export const createQueryDatabaseV2: (
     },
     mergeEntityBatch: async ({ entityName, commits, reducer }) => {
       if (!entityName || !commits || !reducer) throw new Error(INVALID_ARG);
+
+      const entityRepo = allRepos[entityName];
+      if (!entityRepo) throw new Error(REPO_NOT_FOUND);
+
       if (isEqual(commits, {}))
         return {
           status: 'OK',

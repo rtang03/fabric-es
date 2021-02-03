@@ -1,6 +1,7 @@
 import type { Selector } from 'reselect';
 import type { Commit } from '../../types';
 import { OutputCommit } from './outputCommit';
+import { FTSearchParameters } from 'redis-modules-sdk';
 
 type Pattern =
   | 'COMMITS_BY_ENTITYNAME'
@@ -35,4 +36,11 @@ export type RedisRepository<TResult> = {
    * pipelinExec .then will return tuple [error, commitInRedis[])
    */
   queryCommitsByPattern: (pattern: string) => Promise<[any, OutputCommit[]] | null>;
+  search: (option: {
+    kind: 'commit' | 'entity';
+    index: string;
+    query: string;
+    param?: FTSearchParameters;
+    restoreFn?: any;
+  }) => Promise<[any, TResult[]]>;
 };
