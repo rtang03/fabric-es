@@ -40,9 +40,11 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
 
   // compute key
   const getKey = {
-    entity: ({ entityId }) => `${prefix}${entityId}`,
+    entity: ({ id }) => (!id ? null : `${prefix}${id}`),
     commit: ({ entityName, entityId, commitId }: Commit) =>
-      `${prefix}${entityName}:${entityId}:${commitId}`,
+      !entityName || !entityId || !commitId
+        ? null
+        : `${prefix}${entityName}:${entityId}:${commitId}`,
   }[kind];
 
   // add default FTCreateParameters
@@ -77,8 +79,13 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
       }
     },
     dropIndex: (deleteHash = true) => client.dropindex(indexName, deleteHash),
-    hmset: (item, history) =>
-      client.redis.hmset(getKey(item), preSelector?.([item, history]) || item),
+    hmset: (item, history) => {
+      const key = getKey(item);
+
+      if (!key) throw new Error('invalid key');
+
+      return client.redis.hmset(key, preSelector?.([item, history]) || item);
+    },
     hgetall: (key) =>
       client.redis.hgetall(key).then((result) => (postSelector?.(result) || result) as TResult),
     getKey: (item: TItemInRedis) => getKey(item),
@@ -103,7 +110,7 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
         return [e, null];
       }
     },
-    search: async ({ kind, index, query, param, restoreFn }) => {
+    search: async ({ countTotalOnly, kind, index, query, param, restoreFn }) => {
       try {
         // step 1: use FT.SEARCH to find corresponding keys
         const data: any[] = await client.search(index, query, param);
@@ -123,16 +130,21 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
         // keys will be ['c:test_proj:qh_proj_test_001:20200528133520841', /* ... */ ]
         const keys = data.slice(1).filter((item) => startsWith(item, prefix));
 
-        if (keys.length !== count) return [new Error('count does not match'), []];
+        if (keys.length !== count) return [new Error('count does not match'), null, []];
+
+        if (countTotalOnly) return [null, count, null];
 
         // step 2: retrieve actual content, and restore to proper shape
         return await pipelineExec<TResult>(client, 'GET_ALL', null, keys).then((data) => [
           data.map(([err, _]) => err).reduce((pre, cur) => pre || !!cur, false),
-          data.map(([_, item]) => ({ commit: restoreCommit, entity: restoreFn }[kind](item))),
+          count,
+          data.map(
+            ([_, item]) => ({ commit: restoreCommit, entity: restoreFn }[kind]?.(item) || item)
+          ),
         ]);
       } catch (e) {
         logger.error(util.format('fail to search, %j', e));
-        return [e, null];
+        return [e, null, null];
       }
     },
   };

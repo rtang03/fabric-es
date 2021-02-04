@@ -37,10 +37,11 @@ export type RedisRepository<TResult> = {
    */
   queryCommitsByPattern: (pattern: string) => Promise<[any, OutputCommit[]] | null>;
   search: (option: {
+    countTotalOnly?: boolean;
     kind: 'commit' | 'entity';
     index: string;
     query: string;
     param?: FTSearchParameters;
     restoreFn?: any;
-  }) => Promise<[any, TResult[]]>;
+  }) => Promise<[any, number, TResult[]]>;
 };

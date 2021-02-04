@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Projecion db test should fullTextSearchEntity by "de" 1`] = `
+Object {
+  "message": "3 record(s) returned",
+  "result": Array [
+    Object {
+      "created": "1590738792",
+      "creator": "org1-admin",
+      "de": "query handler #2 proj",
+      "event": "Increment,Increment",
+      "history": "c:test_proj:qh_proj_test_00120200528133519841,c:test_proj:qh_proj_test_00120200528133520841",
+      "id": "qh_proj_test_001",
+      "tag": "projection",
+      "tl": "1590738792,1590739000",
+      "ts": "1590739000",
+      "val": "2",
+    },
+    Object {
+      "created": "1590740000",
+      "creator": "org1-admin",
+      "de": "query handler #5 proj",
+      "event": "Increment,Increment,Increment",
+      "history": "c:test_proj:qh_proj_test_00220200528133530001,c:test_proj:qh_proj_test_00220200528133530002,c:test_proj:qh_proj_test_00220200528133530003",
+      "id": "qh_proj_test_002",
+      "tag": "projection",
+      "tl": "1590740000,1590740001,1590740002",
+      "ts": "1590740002",
+      "val": "3",
+    },
+    Object {
+      "created": "1590740003",
+      "creator": "org1-admin",
+      "de": "query handler #7 proj",
+      "event": "Increment,Increment",
+      "history": "c:test_proj:qh_proj_test_00320200528133530004,c:test_proj:qh_proj_test_00320200528133530005",
+      "id": "qh_proj_test_003",
+      "tag": "projection",
+      "tl": "1590740003,1590740004",
+      "ts": "1590740004",
+      "val": "2",
+    },
+  ],
+  "status": "OK",
+}
+`;

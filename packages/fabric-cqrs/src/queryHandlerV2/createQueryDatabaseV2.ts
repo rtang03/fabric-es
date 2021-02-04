@@ -2,7 +2,7 @@ import util from 'util';
 import filter from 'lodash/filter';
 import groupBy from 'lodash/groupBy';
 import isEqual from 'lodash/isEqual';
-import { Redisearch } from 'redis-modules-sdk';
+import { FTSearchParameters, Redisearch } from 'redis-modules-sdk';
 import { Commit, trackingReducer } from '../types';
 import { getLogger, isCommit } from '../utils';
 import {
@@ -14,7 +14,13 @@ import {
   REPO_NOT_FOUND,
 } from './constants';
 import { commitSearchDefinition, postSelector, preSelector } from './model';
-import type { CommitInRedis, OutputCommit, QueryDatabaseV2, RedisRepository } from './types';
+import type {
+  CommitInRedis,
+  OutputCommit,
+  QueryDatabaseResponse,
+  QueryDatabaseV2,
+  RedisRepository,
+} from './types';
 import { createRedisRepository } from '.';
 
 /**
@@ -75,6 +81,35 @@ export const createQueryDatabaseV2: (
       : { status: 'OK', message: `${result.length} record(s) returned`, result };
   };
 
+  const doSearch: <T>(option: {
+    repo: RedisRepository<T>;
+    kind: 'commit' | 'entity';
+    query: string;
+    param: FTSearchParameters;
+    countTotalOnly: boolean;
+  }) => Promise<QueryDatabaseResponse<any>> = async ({
+    repo,
+    kind,
+    query,
+    param,
+    countTotalOnly,
+  }) => {
+    const { search, getIndexName } = repo;
+    const index = getIndexName();
+    const [error, count, result] = await search({ countTotalOnly, kind, index, query, param });
+
+    debug && logger.debug(util.format('returns result, %j', result));
+    debug && logger.debug(util.format('returns error, %j', error));
+
+    return error
+      ? { status: 'ERROR', message: 'search error', error }
+      : {
+          status: 'OK',
+          message: `${count} record(s) returned`,
+          result: countTotalOnly ? count : result,
+        };
+  };
+
   return {
     clearNotification: async () => null,
     deleteCommitByEntityId: async ({ entityName, id }) => {
@@ -92,31 +127,21 @@ export const createQueryDatabaseV2: (
     fullTextSearchCommit: async ({ query, param, countTotalOnly }) => {
       if (!query) throw new Error(INVALID_ARG);
 
-      const { search, getIndexName } = commitRepo;
-
-      const [error, result] = await search({ kind: 'commit', index: getIndexName(), query, param });
-
-      debug && logger.debug(util.format('returns result, %j', result));
-      debug && logger.debug(util.format('returns error, %j', error));
-
-      return error ? { status: 'ERROR', message: '' } : { status: 'OK', message: '' };
-    },
-    fullTextSearchEntity: async ({ entityName, query, param, countTotalOnly }) => {
-      if (!query || !entityName) throw new Error(INVALID_ARG);
-
-      const entityRepo = allRepos[entityName];
-      if (!entityRepo) throw new Error(REPO_NOT_FOUND);
-
-      const { search, getIndexName } = entityRepo;
-
-      const [error, result] = await search({
-        kind: 'entity',
-        index: getIndexName(),
+      return doSearch<OutputCommit>({
+        repo: commitRepo,
+        countTotalOnly,
+        kind: 'commit',
         query,
         param,
-        restoreFn: null,
       });
-      return error ? { status: 'ERROR', message: '' } : { status: 'OK', message: '' };
+    },
+    fullTextSearchEntity: async <TEntity>({ entityName, query, param, countTotalOnly }) => {
+      if (!query || !entityName) throw new Error(INVALID_ARG);
+
+      const repo = allRepos[entityName];
+      if (!repo) throw new Error(REPO_NOT_FOUND);
+
+      return doSearch<TEntity>({ repo, countTotalOnly, kind: 'entity', query, param });
     },
     getNotification: async () => {
       return null;

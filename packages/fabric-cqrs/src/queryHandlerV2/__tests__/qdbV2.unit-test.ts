@@ -174,10 +174,75 @@ describe('Projecion db test', () => {
         ]);
       }));
 
-  it('should fullTextSearchCommit: qh', async () =>
-    queryDatabase.fullTextSearchCommit({ query: 'qh*' }).then((result) => {
-      console.log(result);
+  it('should fullTextSearchCommit: qh*', async () =>
+    queryDatabase.fullTextSearchCommit({ query: 'qh*' }).then(({ status, result }) => {
+      expect(status).toBe('OK');
+      (result as any[]).forEach((item) => expect(isOutputCommit(item)).toBeTruthy());
+      expect((result as any[]).length).toBe(2);
     }));
+
+  it('should fullTextSearchCommit: return count-only', async () =>
+    queryDatabase
+      .fullTextSearchCommit({ query: 'qh*', countTotalOnly: true })
+      .then(({ status, result }) => {
+        expect(status).toBe('OK');
+        expect(result).toBe(2);
+      }));
+
+  it('should fail to fullTextSearchEntity: invalid character', async () =>
+    queryDatabase
+      .fullTextSearchEntity({ entityName: ENTITYNAME, query: 'xffd;;;;;df' })
+      .then(({ status, error }) => {
+        expect(status).toEqual('ERROR');
+        // "error": [Error: Redisearch: ReplyError: Syntax error at offset 4 near xffd],
+      }));
+
+  it('should fail to fullTextSearchEntity: entityName not found', async () =>
+    queryDatabase.fullTextSearchEntity({ entityName: ENTITYNAME, query: 'abc' }).then((result) => {
+      expect(result).toEqual({ status: 'OK', message: '0 record(s) returned', result: [] });
+    }));
+
+  it('should fail to fullTextSearchEntity by "de": invalid input', async () =>
+    queryDatabase
+      .fullTextSearchEntity({
+        query: 'xyz',
+        entityName: ENTITYNAME,
+        param: { sortBy: { sort: 'ASC', field: 'de' } },
+      })
+      .then((result) => expect(result).toEqual(noResult)));
+
+  it('should fail to fullTextSearchEntity by "abc": no such indexed field', async () =>
+    queryDatabase
+      .fullTextSearchEntity({
+        query: 'xyz',
+        entityName: ENTITYNAME,
+        param: { sortBy: { sort: 'ASC', field: 'abc' } },
+      })
+      .then(({ status, error }) => {
+        expect(status).toBe('ERROR');
+        expect(error.message).toContain('not loaded nor in schema');
+      }));
+
+  it('should fullTextSearchEntity by "de"', async () =>
+    queryDatabase
+      .fullTextSearchEntity({
+        query: 'handler',
+        entityName: ENTITYNAME,
+        param: { sortBy: { sort: 'ASC', field: 'de' } },
+      })
+      .then((result) => expect(result).toMatchSnapshot()));
+
+  it('should fullTextSearchEntity by "de": countTotalOnly', async () =>
+    queryDatabase
+      .fullTextSearchEntity({
+        countTotalOnly: true,
+        query: 'handler',
+        entityName: ENTITYNAME,
+        param: { sortBy: { sort: 'ASC', field: 'de' } },
+      })
+      .then((result) =>
+        expect(result).toEqual({ status: 'OK', message: '3 record(s) returned', result: 3 })
+      ));
 
   // it('should fail to deleteCommitByEntityId with invalid entityName', async () =>
   //   queryDatabase
