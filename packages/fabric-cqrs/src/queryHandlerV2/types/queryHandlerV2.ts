@@ -1,27 +1,31 @@
 import { Gateway, Network, Wallet } from 'fabric-network';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
-import type { Logger } from 'winston';
+import { Logger } from 'winston';
 import type {
-  RepoFcn,
-  RepoFcn_Id,
-  QueryDatabase,
+  Reducer,
   SaveFcn,
   Commit,
+  EntityInfo,
   FabricResponse,
-  Reducer,
   Paginated,
+  PaginatedCommitCriteria,
+  PaginatedEntityCriteria,
   QueryHandlerEntity,
-} from '.';
+  RepoFcn,
+  RepoFcn_Id,
+  HandlerResponse,
+} from '../../types';
+import type { QueryDatabaseV2 } from '.';
 
 /**
  * @about queryHandler Options
  */
-export type QueryHandlerOptions = {
+export type QueryHandlerOption = {
   /** when the query handler starts, it reconciles entities from Fabric to Redis **/
   entityNames: string[];
 
   /** query database instance **/
-  queryDatabase: QueryDatabase;
+  queryDatabase: QueryDatabaseV2;
 
   /** high level fabric api - gateway **/
   gateway: Gateway;
@@ -47,107 +51,13 @@ export type QueryHandlerOptions = {
   logger?: Logger;
 };
 
-export type GetByEntityNameResponse<TEntity = any> = {
-  currentStates: TEntity[];
-  errors: string[];
-};
-
-/**
- * @about query handler response
- * @typeParam TData Type of data returned
- */
-export type HandlerResponse<TData = any> = {
-  data?: TData;
-  message?: string;
-  error?: any;
-  errors?: Error[];
-  status: string;
-};
-
-/**
- * @about input criteria for RedisSearch, return paginated commit
- * @see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
- * @example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
- * ```typescript
- * // search by wildcard
- * ['test*']
- * // search by event TAG
- * ['@event:{increment}']
- * // search by msp TAG
- * ['@msp:{org1msp}']
- * ```
- */
-export type PaginatedCommitCriteria = {
-  /** events array **/
-  events?: string[];
-
-  startTime?: number;
-
-  endTime?: number;
-
-  creator?: string;
-
-  /** cursor-based pagination, default 0 **/
-  cursor: number;
-
-  /** page size, default 10 **/
-  pagesize: number;
-
-  /** indexes by RediSearch **/
-  sortByField?: 'id' | 'key' | 'entityName' | 'ts' | 'creator';
-
-  /** sortBy either ASC or DESC **/
-  sort?: 'ASC' | 'DESC';
-};
-
-/**
- * @about input criteria for RedisSearch, return paginated entity
- * @see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
- * @example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
- * ```typescript
- * // search by wildcard
- * ['test*']
- * // search by organization TAG
- * ['@org:{org1msp}']
- * ```
- */
-export type PaginatedEntityCriteria = {
-  /** aka mspId **/
-  organization?: string;
-
-  /** either LAST_MODIFIEd or CREATED **/
-  scope?: 'LAST_MODIFIED' | 'CREATED';
-
-  startTime?: number;
-
-  endTime?: number;
-
-  creator?: string;
-
-  /** cursor-based pagination, default 0 **/
-  cursor: number;
-
-  /** page size, default 10 **/
-  pagesize: number;
-
-  /** indexes by RediSearch **/
-  sortByField?: 'id' | 'key' | 'created' | 'creator' | 'ts';
-
-  /** sortBy either ASC or DESC **/
-  sort?: 'ASC' | 'DESC';
-};
-
-/**
- * @about queryHandler
- * QueryHandler provides utility to access query database
- */
-export type QueryHandler = {
+export type QueryHandlerV2 = {
   /**
    * @about 📥 write events to onchain repository, with enrollmentId, and entityId
    * @unit_test this api is solely for *unit-test* purpose.
    * @same [[Repository]].create
    * **/
-  create: <TEvent>(
+  create?: <TEvent>(
     entityName: string
   ) => (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
 
@@ -158,7 +68,7 @@ export type QueryHandler = {
    *
    * @same [[Repository]].getById
    * **/
-  getById: <TEntity, TEvent>(
+  getById?: <TEntity, TEvent>(
     entityName: string
   ) => (option: {
     enrollmentId: string;
@@ -174,7 +84,7 @@ export type QueryHandler = {
    * () => Promise<HandlerResponse<TEntity[]>>
    * ```
    **/
-  getByEntityName: <TEntity = any>(entityName: string) => RepoFcn<TEntity[]>;
+  getByEntityName?: <TEntity = any>(entityName: string) => RepoFcn<TEntity[]>;
 
   /**
    * @about 📤 get commits by entityId
@@ -183,7 +93,7 @@ export type QueryHandler = {
    * (payload: { id: string }) => Promise<HandlerResponse<Commit[]>>
    * ```
    * **/
-  getCommitById: (entityName: string) => RepoFcn_Id<Commit[]>;
+  getCommitById?: (entityName: string) => RepoFcn_Id<Commit[]>;
 
   /**
    * @about 📥 delete commit by entityId
@@ -194,7 +104,7 @@ export type QueryHandler = {
    *   Promise<HandlerResponse<<FabricResponse>>>
    * ```
    * **/
-  command_deleteByEntityId: (entityName: string) => RepoFcn_Id<FabricResponse>;
+  command_deleteByEntityId?: (entityName: string) => RepoFcn_Id<FabricResponse>;
 
   /**
    * @about 📥 get commits by entityName
@@ -204,7 +114,7 @@ export type QueryHandler = {
    * () => Promise<HandlerResponse<Commit[]>>
    * ```
    * **/
-  command_getByEntityName: (entityName: string) => RepoFcn<Commit[]>;
+  command_getByEntityName?: (entityName: string) => RepoFcn<Commit[]>;
 
   /**
    * @about 📤 delete commmts by entityId
@@ -213,7 +123,7 @@ export type QueryHandler = {
    * (payload: { id: string }) => Promise<HandlerResponse<number>>
    * ```
    * **/
-  query_deleteCommitByEntityId: (entityName: string) => RepoFcn_Id<number>;
+  query_deleteCommitByEntityId?: (entityName: string) => RepoFcn_Id<number>;
 
   /**
    * @about 📤 delete commit by entityName
@@ -222,7 +132,7 @@ export type QueryHandler = {
    * () => Promise<HandlerResponse<number>>
    * ```
    * **/
-  query_deleteCommitByEntityName: (entityName: string) => RepoFcn<number>;
+  query_deleteCommitByEntityName?: (entityName: string) => RepoFcn<number>;
 
   /**
    * @about 📤 get paginated entity by entityId. This is specialized version of
@@ -234,7 +144,7 @@ export type QueryHandler = {
    *   Promise<HandlerResponse<Paginated<TResult>>>
    * ```
    * **/
-  getPaginatedEntityById: <TResult>(
+  getPaginatedEntityById?: <TResult>(
     entiyName: string
   ) => (
     criteria: PaginatedEntityCriteria,
@@ -251,7 +161,7 @@ export type QueryHandler = {
    *   Promise<HandlerResponse<Paginated<Commit>>>
    * ```
    * **/
-  getPaginatedCommitById: (
+  getPaginatedCommitById?: (
     entiyName: string
   ) => (
     criteria: PaginatedCommitCriteria,
@@ -262,7 +172,7 @@ export type QueryHandler = {
    * @about full text search of commit.
    * @similar [[QueryHandler]].getPaginatedCommitById
    */
-  fullTextSearchCommit: (
+  fullTextSearchCommit?: (
     query: string[],
     cursor: number,
     pagesize: number
@@ -272,7 +182,7 @@ export type QueryHandler = {
    * @about full text search of entity
    * @similar [[QueryHandler]].getPaginatedEntityById
    */
-  fullTextSearchEntity: (
+  fullTextSearchEntity?: (
     query: string[],
     cursor: number,
     pagesize: number
@@ -281,12 +191,12 @@ export type QueryHandler = {
   /**
    * @about primarily used by web ui, to summary info of entities
    */
-  queryGetEntityInfo: (payload: { entityName: string }) => Promise<HandlerResponse<EntityInfo>>;
+  queryGetEntityInfo?: (payload: { entityName: string }) => Promise<HandlerResponse<EntityInfo>>;
 
   /**
    * @about primarily used by web ui, to retrieve the list of active notifications.
    */
-  queryNotify: (payload: {
+  queryNotify?: (payload: {
     creator: string;
     entityName?: string;
     id?: string;
@@ -302,7 +212,7 @@ export type QueryHandler = {
    *   Promise<HandlerResponse<{ key: string; status: string }[]>>
    * ```
    * **/
-  reconcile: () => (payload: {
+  reconcile?: () => (payload: {
     entityName: string;
   }) => Promise<HandlerResponse<{ key: string; status: string }[]>>;
 
@@ -310,42 +220,17 @@ export type QueryHandler = {
    * @about subscribe to Fabric channel event hub
    * @return `() => void`
    * **/
-  subscribeHub: (entityNames: string[]) => Promise<any>;
+  subscribeHub?: (entityNames: string[]) => Promise<any>;
 
   /**
    * @about unsubscribe to Fabric channel event hub
    * @return `() => void`
    * **/
-  unsubscribeHub: () => void;
+  unsubscribeHub?: () => void;
 
   /**
    * @about disconnect from fabric peer
    * @return `() => void`
    * **/
-  disconnect: () => void;
-};
-
-/**
- * @about entityInfo is the summary info of entity
- */
-export type EntityInfo = {
-  entityName?: string;
-
-  /** total number of entity **/
-  total: number;
-
-  /** type of events  **/
-  events: string[];
-
-  /** tags used **/
-  tagged: string[];
-
-  /** creators involved **/
-  creators: string[];
-
-  /** organization involved **/
-  orgs: string[];
-
-  /** total number of commits **/
-  totalCommit: number;
+  disconnect?: () => void;
 };

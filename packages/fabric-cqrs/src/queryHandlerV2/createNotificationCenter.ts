@@ -34,10 +34,10 @@ export const createNotificationCenter: (client: Redisearch) => NotificationCente
 
       try {
         await client.redis.del(key);
-        return { status: 'OK', result: [key] };
+        return { status: 'OK', data: [key] };
       } catch (e) {
         logger.error(util.format('%s, %j', REDIS_ERR, e));
-        return { status: 'ERROR', error: [e] };
+        return { status: 'ERROR', errors: [e] };
       }
     },
     clearNotifications: async ({ creator, entityName, id }) => {
@@ -53,10 +53,10 @@ export const createNotificationCenter: (client: Redisearch) => NotificationCente
 
         const isError = errors.reduce((pre, cur) => pre || !!cur, false);
 
-        return isError ? { status: 'ERROR', error: errors } : { status: 'OK', result: keys };
+        return isError ? { status: 'ERROR', errors } : { status: 'OK', data: keys };
       } catch (e) {
         logger.error(util.format('%s, %j', REDIS_ERR, e));
-        return { status: 'ERROR', error: [e] };
+        return { status: 'ERROR', errors: [e] };
       }
     },
     notify: async ({ creator, entityName, id, commitId, expiryBySec = 86400 }) => {
@@ -71,7 +71,7 @@ export const createNotificationCenter: (client: Redisearch) => NotificationCente
         return { status: 'OK' };
       } catch (e) {
         logger.error(util.format('%s, %j', REDIS_ERR, e));
-        return { status: 'ERROR', error: [e] };
+        return { status: 'ERROR', errors: [e] };
       }
     },
     getNotification: async ({ creator, entityName, id, commitId }) => {
@@ -81,11 +81,11 @@ export const createNotificationCenter: (client: Redisearch) => NotificationCente
 
       try {
         // getset will turn the notification flag off, after reading
-        const result = await client.redis.getset(key, '0').then((value) => ({ [key]: value }));
-        return { status: 'OK', result };
+        const data = await client.redis.getset(key, '0').then((value) => ({ [key]: value }));
+        return { status: 'OK', data };
       } catch (e) {
         logger.error(util.format('%s, %j', REDIS_ERR, e));
-        return { status: 'ERROR', error: [e] };
+        return { status: 'ERROR', errors: [e] };
       }
     },
     getNotificationsByFields: async ({ creator, entityName, id }) => {
@@ -94,9 +94,9 @@ export const createNotificationCenter: (client: Redisearch) => NotificationCente
       if (!pattern) throw new Error(INVALID_ARG);
 
       try {
-        const result = {};
+        const data = {};
         const [_, keys] = await client.redis.scan(0, 'MATCH', pattern);
-        if (keys?.length === 0) return { status: 'OK', result: [] };
+        if (keys?.length === 0) return { status: 'OK', data: [] };
 
         const [errors, items]: [error: Error[], items: any[]] = await pipelineExec(
           client,
@@ -105,19 +105,19 @@ export const createNotificationCenter: (client: Redisearch) => NotificationCente
         ).then((data) => [data.map(([e, _]) => e), data.map(([_, item]) => item)]);
 
         if (items?.length !== keys?.length)
-          return { status: 'ERROR', error: [new Error('unexpected error')] };
+          return { status: 'ERROR', errors: [new Error('unexpected error')] };
 
         for (const index in keys) {
           // https://eslint.org/docs/rules/guard-for-in
-          if (Object.prototype.hasOwnProperty.call(keys, index)) result[keys[index]] = items[index];
+          if (Object.prototype.hasOwnProperty.call(keys, index)) data[keys[index]] = items[index];
         }
 
         const isError = errors.reduce((pre, cur) => pre || !!cur, false);
 
-        return isError ? { status: 'ERROR', error: errors } : { status: 'OK', result };
+        return isError ? { status: 'ERROR', errors } : { status: 'OK', data };
       } catch (e) {
         logger.error(util.format('%s, %j', REDIS_ERR, e));
-        return { status: 'ERROR', error: [e] };
+        return { status: 'ERROR', errors: [e] };
       }
     },
   };

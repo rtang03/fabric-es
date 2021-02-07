@@ -1,6 +1,6 @@
-import type { BaseMetaEntity, Commit, Reducer } from '../../types';
-import { CommonResponse, RedisRepository, OutputCommit } from '.';
-import { FTSearchParameters } from 'redis-modules-sdk';
+import type { FTSearchParameters } from 'redis-modules-sdk';
+import type { BaseMetaEntity, Commit, HandlerResponse, Reducer } from '../../types';
+import type { RedisRepository, OutputCommit } from '.';
 
 /**
  * @about query database
@@ -15,14 +15,14 @@ export type QueryDatabaseV2 = {
     entityName: string;
     id: string;
     commitId: string;
-  }) => Promise<CommonResponse>;
+  }) => Promise<HandlerResponse<string[]>>;
   /** clear notification **/
   clearNotifications: (option: {
     creator: string;
     entityName?: string;
     id?: string;
     commitId?: string;
-  }) => Promise<CommonResponse>;
+  }) => Promise<HandlerResponse<string[]>>;
   getRedisCommitRepo: () => RedisRepository<OutputCommit>;
   /**
    * delete commit by entityId
@@ -38,21 +38,24 @@ export type QueryDatabaseV2 = {
   deleteCommitByEntityId: (option: {
     entityName: string;
     id: string;
-  }) => Promise<CommonResponse<number>>;
-  //
+  }) => Promise<HandlerResponse<number>>;
+
   /** delete commit by entityName **/
-  deleteCommitByEntityName: (option: { entityName: string }) => Promise<CommonResponse<number>>;
-  //
+  deleteCommitByEntityName: (option: { entityName: string }) => Promise<HandlerResponse<number>>;
+
+  /* delete entity by entityName */
+  deleteEntityByEntityName: (option: { entityName: string }) => Promise<HandlerResponse<any>>;
+
   /** query commits by entityId **/
   queryCommitByEntityId: (option: {
     entityName: string;
     id: string;
-  }) => Promise<CommonResponse<OutputCommit[]>>;
+  }) => Promise<HandlerResponse<OutputCommit[]>>;
 
   /** query commits by entityName **/
   queryCommitByEntityName: (option: {
     entityName: string;
-  }) => Promise<CommonResponse<OutputCommit[]>>;
+  }) => Promise<HandlerResponse<OutputCommit[]>>;
 
   /**
    * @about merge single commit to commit history, and update index
@@ -65,7 +68,7 @@ export type QueryDatabaseV2 = {
    * }
    * ```
    * **/
-  mergeCommit: (option: { commit: Commit }) => Promise<CommonResponse<string[]>>;
+  mergeCommit: (option: { commit: Commit }) => Promise<HandlerResponse<string[]>>;
 
   /**
    * @about merge multiple batch of commit to commit history and update index
@@ -73,19 +76,19 @@ export type QueryDatabaseV2 = {
   mergeCommitBatch: (option: {
     entityName: string;
     commits: Record<string, Commit>;
-  }) => Promise<CommonResponse<string[]>>;
+  }) => Promise<HandlerResponse<string[]>>;
   //
   mergeEntity: <TEntity extends BaseMetaEntity, TEntityInRedis extends BaseMetaEntity>(option: {
     commit: Commit;
     reducer: Reducer<TEntity>;
-  }) => Promise<CommonResponse<{ key: string; status: string }[]>>;
+  }) => Promise<HandlerResponse<{ key: string; status: string }[]>>;
 
   /** merge multiple new entity **/
   mergeEntityBatch: <TEntity>(option: {
     entityName: string;
     commits: Record<string, Commit>;
     reducer: Reducer<TEntity>;
-  }) => Promise<CommonResponse<{ key: string; status: string }[]>>;
+  }) => Promise<HandlerResponse<{ key: string; status: string }[]>>;
 
   /**
    * full text search on commit, or just return item count of result
@@ -96,7 +99,7 @@ export type QueryDatabaseV2 = {
     query: string;
     param?: FTSearchParameters;
     countTotalOnly?: boolean;
-  }) => Promise<CommonResponse<OutputCommit[] | number>>;
+  }) => Promise<HandlerResponse<OutputCommit[] | number>>;
 
   /**
    * full text search on entity, or just return item count of result
@@ -111,7 +114,7 @@ export type QueryDatabaseV2 = {
     query: string;
     param?: FTSearchParameters;
     countTotalOnly?: boolean;
-  }) => Promise<CommonResponse<TEntity[] | number>>;
+  }) => Promise<HandlerResponse<TEntity[] | number>>;
 
   /**
    * get active notification by commitId
@@ -128,10 +131,10 @@ export type QueryDatabaseV2 = {
     entityName?: string;
     id?: string;
     commitId?: string;
-  }) => Promise<CommonResponse<Record<string, string>>>;
+  }) => Promise<HandlerResponse<Record<string, string>>>;
   getNotificationsByFields: (option: {
     creator: string;
     entityName?: string;
     id?: string;
-  }) => Promise<CommonResponse<any>>;
+  }) => Promise<HandlerResponse<Record<string, string>>>;
 };

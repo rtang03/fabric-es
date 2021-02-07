@@ -19,7 +19,7 @@ export type RedisRepository<TResult> = {
    * @example 2 commits are successfully delete, pipelineExec returns [ [ null, 1 ], [ null, 1 ] ]
    * .then return tuple [error, number-of-successful-delete]
    */
-  deleteCommitsByPattern: (pattern: string) => Promise<[any, number]>;
+  deleteItemsByPattern: (pattern: string) => Promise<[any, number]>;
   dropIndex: (deleteHash?: boolean) => Promise<'OK'>;
   // see https://redis.io/commands/hmset
   // see https://oss.redislabs.com/redisearch/Commands/#hsethsetnxhdelhincrbyhdecrby

@@ -67,7 +67,7 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
 
   return {
     createIndex: () => client.create(indexName, getSchema<TItem>(fields), getParam(param)),
-    deleteCommitsByPattern: async (pattern) => {
+    deleteItemsByPattern: async (pattern) => {
       try {
         return await pipelineExec<number>(client, 'DELETE', pattern).then((data) => [
           data.map(([err, _]) => err),

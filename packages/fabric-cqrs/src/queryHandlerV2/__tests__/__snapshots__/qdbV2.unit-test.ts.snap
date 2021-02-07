@@ -2,8 +2,7 @@
 
 exports[`Projecion db test should fullTextSearchEntity by "de" 1`] = `
 Object {
-  "message": "3 record(s) returned",
-  "result": Array [
+  "data": Array [
     Object {
       "created": "1590738792",
       "creator": "org1-admin",
@@ -41,6 +40,7 @@ Object {
       "val": "2",
     },
   ],
+  "message": "3 record(s) returned",
   "status": "OK",
 }
 `;
