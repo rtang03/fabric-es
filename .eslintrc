@@ -26,6 +26,7 @@
     "jest"
   ],
   "rules": {
+    "@typescript-eslint/no-for-in-array": "off",
     "camelcase": "off",
     "@typescript-eslint/camelcase": ["off"],
     "prettier/prettier": ["off"],

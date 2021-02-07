@@ -1,5 +1,5 @@
 import type { BaseMetaEntity, Commit, Reducer } from '../../types';
-import { QueryDatabaseResponse, RedisRepository, OutputCommit } from '.';
+import { CommonResponse, RedisRepository, OutputCommit } from '.';
 import { FTSearchParameters } from 'redis-modules-sdk';
 
 /**
@@ -9,6 +9,20 @@ import { FTSearchParameters } from 'redis-modules-sdk';
  * - 🔑 key format of entity *entityName::entityId*
  */
 export type QueryDatabaseV2 = {
+  /** clear notification **/
+  clearNotification: (option: {
+    creator: string;
+    entityName: string;
+    id: string;
+    commitId: string;
+  }) => Promise<CommonResponse>;
+  /** clear notification **/
+  clearNotifications: (option: {
+    creator: string;
+    entityName?: string;
+    id?: string;
+    commitId?: string;
+  }) => Promise<CommonResponse>;
   getRedisCommitRepo: () => RedisRepository<OutputCommit>;
   /**
    * delete commit by entityId
@@ -24,23 +38,21 @@ export type QueryDatabaseV2 = {
   deleteCommitByEntityId: (option: {
     entityName: string;
     id: string;
-  }) => Promise<QueryDatabaseResponse<number>>;
+  }) => Promise<CommonResponse<number>>;
   //
   /** delete commit by entityName **/
-  deleteCommitByEntityName: (option: {
-    entityName: string;
-  }) => Promise<QueryDatabaseResponse<number>>;
+  deleteCommitByEntityName: (option: { entityName: string }) => Promise<CommonResponse<number>>;
   //
   /** query commits by entityId **/
   queryCommitByEntityId: (option: {
     entityName: string;
     id: string;
-  }) => Promise<QueryDatabaseResponse<OutputCommit[]>>;
+  }) => Promise<CommonResponse<OutputCommit[]>>;
 
   /** query commits by entityName **/
   queryCommitByEntityName: (option: {
     entityName: string;
-  }) => Promise<QueryDatabaseResponse<OutputCommit[]>>;
+  }) => Promise<CommonResponse<OutputCommit[]>>;
 
   /**
    * @about merge single commit to commit history, and update index
@@ -53,7 +65,7 @@ export type QueryDatabaseV2 = {
    * }
    * ```
    * **/
-  mergeCommit: (option: { commit: Commit }) => Promise<QueryDatabaseResponse<string[]>>;
+  mergeCommit: (option: { commit: Commit }) => Promise<CommonResponse<string[]>>;
 
   /**
    * @about merge multiple batch of commit to commit history and update index
@@ -61,19 +73,19 @@ export type QueryDatabaseV2 = {
   mergeCommitBatch: (option: {
     entityName: string;
     commits: Record<string, Commit>;
-  }) => Promise<QueryDatabaseResponse<string[]>>;
+  }) => Promise<CommonResponse<string[]>>;
   //
   mergeEntity: <TEntity extends BaseMetaEntity, TEntityInRedis extends BaseMetaEntity>(option: {
     commit: Commit;
     reducer: Reducer<TEntity>;
-  }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
+  }) => Promise<CommonResponse<{ key: string; status: string }[]>>;
 
   /** merge multiple new entity **/
   mergeEntityBatch: <TEntity>(option: {
     entityName: string;
     commits: Record<string, Commit>;
     reducer: Reducer<TEntity>;
-  }) => Promise<QueryDatabaseResponse<{ key: string; status: string }[]>>;
+  }) => Promise<CommonResponse<{ key: string; status: string }[]>>;
 
   /**
    * full text search on commit, or just return item count of result
@@ -84,7 +96,7 @@ export type QueryDatabaseV2 = {
     query: string;
     param?: FTSearchParameters;
     countTotalOnly?: boolean;
-  }) => Promise<QueryDatabaseResponse<OutputCommit[] | number>>;
+  }) => Promise<CommonResponse<OutputCommit[] | number>>;
 
   /**
    * full text search on entity, or just return item count of result
@@ -99,15 +111,7 @@ export type QueryDatabaseV2 = {
     query: string;
     param?: FTSearchParameters;
     countTotalOnly?: boolean;
-  }) => Promise<QueryDatabaseResponse<TEntity[] | number>>;
-
-  /** clear notification **/
-  clearNotification: (option: {
-    creator: string;
-    entityName?: string;
-    id?: string;
-    commitId?: string;
-  }) => Promise<QueryDatabaseResponse>;
+  }) => Promise<CommonResponse<TEntity[] | number>>;
 
   /**
    * get active notification by commitId
@@ -115,8 +119,7 @@ export type QueryDatabaseV2 = {
    * // example
    * {
    *   status,
-   *   message: 'xxx records returned',
-   *   result: [{ 'any-commitId': NotificationDetails }]
+   *   result:
    * }
    * ```
    * **/
@@ -125,6 +128,10 @@ export type QueryDatabaseV2 = {
     entityName?: string;
     id?: string;
     commitId?: string;
-    expireNow?: boolean;
-  }) => Promise<QueryDatabaseResponse<Record<string, number>[]>>;
+  }) => Promise<CommonResponse<Record<string, string>>>;
+  getNotificationsByFields: (option: {
+    creator: string;
+    entityName?: string;
+    id?: string;
+  }) => Promise<CommonResponse<any>>;
 };

@@ -18,10 +18,6 @@ import { isOutputCommit } from '../typeGuard';
 import type { QueryDatabaseV2, RedisRepository, OutputCommit } from '../types';
 import { commit, commits, faultReducer, newCommit } from './__utils__';
 
-// const key = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
-// const key2 = `test_proj::qh_proj_test_002`;
-// const key3 = `test_proj::qh_proj_test_003`;
-
 /**
  * running it: .dn-run.0-db-red.sh
  */
@@ -79,6 +75,9 @@ beforeAll(async () => {
       console.log(`${cidx} is not created: ${result}`);
       process.exit(1);
     });
+
+  const { status } = await queryDatabase.clearNotifications({ creator: 'org1-admin' });
+  console.log(`clearNotifications: ${status}`);
 });
 
 afterAll(async () => {
@@ -112,7 +111,7 @@ describe('Projecion db test', () => {
       .mergeEntity({ commit: newCommit, reducer: faultReducer })
       .then(({ status, message, error }) => {
         expect(status).toEqual('ERROR');
-        expect(error.message.startsWith('fail to reduce')).toBeTruthy();
+        expect(error[0].message.startsWith('fail to reduce')).toBeTruthy();
         expect(message).toContain(REDUCE_ERR);
       }));
 
@@ -220,7 +219,7 @@ describe('Projecion db test', () => {
       })
       .then(({ status, error }) => {
         expect(status).toBe('ERROR');
-        expect(error.message).toContain('not loaded nor in schema');
+        expect(error[0].message).toContain('not loaded nor in schema');
       }));
 
   it('should fullTextSearchEntity by "de"', async () =>
@@ -244,17 +243,86 @@ describe('Projecion db test', () => {
         expect(result).toEqual({ status: 'OK', message: '3 record(s) returned', result: 3 })
       ));
 
-  // it('should fail to deleteCommitByEntityId with invalid entityName', async () =>
-  //   queryDatabase
-  //     .deleteCommitByEntityId({ entityName: 'ABC', id: ENTITYID })
-  //     .then((result) =>
-  //       expect(result).toEqual({ status: 'OK', message: '0 record(s) deleted', result: 0 })
-  //     ));
-  //
-  // it('should deleteCommitByEntityId', async () =>
-  //   queryDatabase
-  //     .deleteCommitByEntityId({ entityName: ENTITYNAME, id: ENTITYID })
-  //     .then((result) =>
-  //       expect(result).toEqual({ status: 'OK', message: '2 record(s) deleted', result: 2 })
-  //     ));
+  it('should getNotifications by creator', async () =>
+    queryDatabase.getNotificationsByFields({ creator: 'org1-admin' }).then(({ status, result }) => {
+      expect(status).toBe('OK');
+      expect(result).toEqual({ 'n:org1-admin:test_proj:qh_proj_test_001:20200528133520841': '1' });
+    }));
+
+  it('should getNotifications by creator, entityName', async () =>
+    queryDatabase
+      .getNotificationsByFields({ creator: 'org1-admin', entityName: ENTITYNAME })
+      .then(({ status, result }) => {
+        expect(status).toBe('OK');
+        expect(result).toEqual({
+          'n:org1-admin:test_proj:qh_proj_test_001:20200528133520841': '1',
+        });
+      }));
+
+  it('should getNotifications by creator, entityName, id', async () =>
+    queryDatabase
+      .getNotificationsByFields({ creator: 'org1-admin', entityName: ENTITYNAME, id: ENTITYID })
+      .then(({ status, result }) => {
+        expect(status).toBe('OK');
+        expect(result).toEqual({
+          'n:org1-admin:test_proj:qh_proj_test_001:20200528133520841': '1',
+        });
+      }));
+
+  it('should getNotification: return 1, for first time', async () =>
+    queryDatabase
+      .getNotification({
+        creator: 'org1-admin',
+        entityName: ENTITYNAME,
+        id: ENTITYID,
+        commitId: '20200528133520841',
+      })
+      .then(({ status, result }) => {
+        expect(status).toBe('OK');
+        expect(result).toEqual({
+          'n:org1-admin:test_proj:qh_proj_test_001:20200528133520841': '1',
+        });
+      }));
+
+  it('should getNotification: return 0, for second time', async () =>
+    queryDatabase
+      .getNotification({
+        creator: 'org1-admin',
+        entityName: ENTITYNAME,
+        id: ENTITYID,
+        commitId: '20200528133520841',
+      })
+      .then(({ status, result }) => {
+        expect(status).toBe('OK');
+        expect(result).toEqual({
+          'n:org1-admin:test_proj:qh_proj_test_001:20200528133520841': '0',
+        });
+      }));
+
+  it('should clearNotification: one notification', async () =>
+    queryDatabase
+      .clearNotification({
+        creator: 'org1-admin',
+        entityName: ENTITYNAME,
+        id: ENTITYID,
+        commitId: '20200528133520841',
+      })
+      .then(({ result, status }) => {
+        expect(status).toBe('OK');
+        expect(result).toEqual([ 'n:org1-admin:test_proj:qh_proj_test_001:20200528133520841' ]);
+      }));
+
+  it('should fail to deleteCommitByEntityId with invalid entityName', async () =>
+    queryDatabase
+      .deleteCommitByEntityId({ entityName: 'ABC', id: ENTITYID })
+      .then((result) =>
+        expect(result).toEqual({ status: 'OK', message: '0 record(s) deleted', result: 0 })
+      ));
+
+  it('should deleteCommitByEntityId', async () =>
+    queryDatabase
+      .deleteCommitByEntityId({ entityName: ENTITYNAME, id: ENTITYID })
+      .then((result) =>
+        expect(result).toEqual({ status: 'OK', message: '2 record(s) deleted', result: 2 })
+      ));
 });

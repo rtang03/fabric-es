@@ -70,7 +70,7 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
     deleteCommitsByPattern: async (pattern) => {
       try {
         return await pipelineExec<number>(client, 'DELETE', pattern).then((data) => [
-          data.map(([err, _]) => err).reduce((pre, cur) => pre || !!cur, false),
+          data.map(([err, _]) => err),
           data.map(([_, count]) => count).reduce((pre, cur) => pre + cur, 0),
         ]);
       } catch (e) {
@@ -99,10 +99,13 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
       }[pattern]),
     getPreSelector: <TInput, TOutput>(): Selector<TInput, TOutput> => preSelector,
     getPostSelector: <TInput, TOutput>(): Selector<TInput, TOutput> => postSelector,
+    getSet: () => {
+      return null;
+    },
     queryCommitsByPattern: async (pattern) => {
       try {
-        return await pipelineExec<CommitInRedis>(client, 'GET_ALL', pattern).then((data) => [
-          data.map(([err, _]) => err).reduce((pre, cur) => pre || !!cur, false),
+        return await pipelineExec<CommitInRedis>(client, 'HGETALL', pattern).then((data) => [
+          data.map(([err, _]) => err),
           data.map(([_, commit]) => restoreCommit(commit)),
         ]);
       } catch (e) {
@@ -130,13 +133,13 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
         // keys will be ['c:test_proj:qh_proj_test_001:20200528133520841', /* ... */ ]
         const keys = data.slice(1).filter((item) => startsWith(item, prefix));
 
-        if (keys.length !== count) return [new Error('count does not match'), null, []];
+        if (keys.length !== count) return [[new Error('count does not match')], null, []];
 
-        if (countTotalOnly) return [null, count, null];
+        if (countTotalOnly) return [[], count, null];
 
         // step 2: retrieve actual content, and restore to proper shape
-        return await pipelineExec<TResult>(client, 'GET_ALL', null, keys).then((data) => [
-          data.map(([err, _]) => err).reduce((pre, cur) => pre || !!cur, false),
+        return await pipelineExec<TResult>(client, 'HGETALL', null, keys).then((data) => [
+          data.map(([err, _]) => err),
           count,
           data.map(
             ([_, item]) => ({ commit: restoreCommit, entity: restoreFn }[kind]?.(item) || item)
@@ -144,7 +147,7 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
         ]);
       } catch (e) {
         logger.error(util.format('fail to search, %j', e));
-        return [e, null, null];
+        return [[e], null, null];
       }
     },
   };

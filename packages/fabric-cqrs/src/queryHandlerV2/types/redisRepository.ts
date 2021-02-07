@@ -1,7 +1,7 @@
+import type { FTSearchParameters } from 'redis-modules-sdk';
 import type { Selector } from 'reselect';
 import type { Commit } from '../../types';
-import { OutputCommit } from './outputCommit';
-import { FTSearchParameters } from 'redis-modules-sdk';
+import type { OutputCommit } from './outputCommit';
 
 type Pattern =
   | 'COMMITS_BY_ENTITYNAME'
@@ -31,6 +31,7 @@ export type RedisRepository<TResult> = {
   getPattern: (pattern: Pattern, args: string[]) => string;
   getPreSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
   getPostSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
+  getSet: () => Promise<any>;
   /**
    * @about restore commit history from Redis format, and detect any errors
    * pipelinExec .then will return tuple [error, commitInRedis[])
@@ -43,5 +44,5 @@ export type RedisRepository<TResult> = {
     query: string;
     param?: FTSearchParameters;
     restoreFn?: any;
-  }) => Promise<[any, number, TResult[]]>;
+  }) => Promise<[Error[], number, TResult[]]>;
 };

@@ -6,19 +6,21 @@ import { Redisearch } from 'redis-modules-sdk';
  */
 export const pipelineExec: <TResult = any>(
   client: Redisearch,
-  action: 'GET_ALL' | 'DELETE',
+  action: 'HGETALL' | 'DELETE' | 'GET',
   pattern: string,
   keys?: string[]
 ) => Promise<[Error, TResult][]> = async (client, action, pattern, keys) => {
-  const _keys = keys || (await client.redis.keys(pattern));
+  // scan return [string, string[]] , i.e. [cursor, keys[]]
+  const _keys = keys || (await client.redis.scan(0, 'MATCH', pattern))[1];
 
   if (!_keys) throw new Error('keys not found');
 
   const pipeline = client.redis.pipeline();
 
   ({
-    GET_ALL: () => _keys.sort().forEach((key) => pipeline.hgetall(key)),
     DELETE: () => _keys.forEach((key) => pipeline.del(key)),
+    HGETALL: () => _keys.sort().forEach((key) => pipeline.hgetall(key)),
+    GET: () => _keys.sort().forEach((key) => pipeline.get(key)),
   }[action]());
 
   return pipeline.exec();

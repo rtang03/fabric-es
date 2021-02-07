@@ -17,11 +17,11 @@ import { commitSearchDefinition, postSelector, preSelector } from './model';
 import type {
   CommitInRedis,
   OutputCommit,
-  QueryDatabaseResponse,
+  CommonResponse,
   QueryDatabaseV2,
   RedisRepository,
 } from './types';
-import { createRedisRepository } from '.';
+import { createNotificationCenter, createRedisRepository } from '.';
 
 /**
  * @about create query database
@@ -47,6 +47,8 @@ export const createQueryDatabaseV2: (
     entityName: 'commit',
   });
 
+  const notificationCenter = createNotificationCenter(client);
+
   // add built-in commit repo
   const allRepos = Object.assign({}, repos, { commit: commitRepo });
 
@@ -57,28 +59,34 @@ export const createQueryDatabaseV2: (
   };
 
   const deleteCommit = async (pattern: string) => {
-    const [error, count] = await commitRepo.deleteCommitsByPattern(pattern);
-    return error
+    const [errors, count] = await commitRepo.deleteCommitsByPattern(pattern);
+    const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
+
+    return isError
       ? {
-          status: 'ERROR',
-          message: 'some delete fails',
-          error,
+          status: 'ERROR' as any,
+          message: `${count} record(s) deleted`,
+          error: errors,
         }
       : {
-          status: 'OK',
+          status: 'OK' as any,
           message: `${count} record(s) deleted`,
           result: count,
         };
   };
 
   const queryCommit = async (pattern, args) => {
-    const [error, result] = await commitRepo.queryCommitsByPattern(
+    const [errors, result] = await commitRepo.queryCommitsByPattern(
       commitRepo.getPattern(pattern, args)
     );
+    const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
 
-    return error
-      ? { status: 'ERROR', message: QUERY_ERR, error }
-      : { status: 'OK', message: `${result.length} record(s) returned`, result };
+    debug && logger.debug(util.format('returns result, %j', result));
+    debug && logger.debug(util.format('returns error, %j', errors));
+
+    return isError
+      ? { status: 'ERROR' as any, message: QUERY_ERR, error: errors }
+      : { status: 'OK' as any, message: `${result.length} record(s) returned`, result };
   };
 
   const doSearch: <T>(option: {
@@ -87,22 +95,17 @@ export const createQueryDatabaseV2: (
     query: string;
     param: FTSearchParameters;
     countTotalOnly: boolean;
-  }) => Promise<QueryDatabaseResponse<any>> = async ({
-    repo,
-    kind,
-    query,
-    param,
-    countTotalOnly,
-  }) => {
+  }) => Promise<CommonResponse<any>> = async ({ repo, kind, query, param, countTotalOnly }) => {
     const { search, getIndexName } = repo;
     const index = getIndexName();
-    const [error, count, result] = await search({ countTotalOnly, kind, index, query, param });
+    const [errors, count, result] = await search({ countTotalOnly, kind, index, query, param });
+    const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
 
     debug && logger.debug(util.format('returns result, %j', result));
-    debug && logger.debug(util.format('returns error, %j', error));
+    debug && logger.debug(util.format('returns error, %j', errors));
 
-    return error
-      ? { status: 'ERROR', message: 'search error', error }
+    return isError
+      ? { status: 'ERROR', message: 'search error', error: errors }
       : {
           status: 'OK',
           message: `${count} record(s) returned`,
@@ -111,7 +114,8 @@ export const createQueryDatabaseV2: (
   };
 
   return {
-    clearNotification: async () => null,
+    clearNotification: async (option) => notificationCenter.clearNotification(option),
+    clearNotifications: async (option) => notificationCenter.clearNotifications(option),
     deleteCommitByEntityId: async ({ entityName, id }) => {
       if (!entityName || !id) throw new Error(INVALID_ARG);
 
@@ -143,8 +147,11 @@ export const createQueryDatabaseV2: (
 
       return doSearch<TEntity>({ repo, countTotalOnly, kind: 'entity', query, param });
     },
-    getNotification: async () => {
-      return null;
+    getNotification: async ({ creator, entityName, id, commitId }) => {
+      return notificationCenter.getNotification({ creator, entityName, id, commitId });
+    },
+    getNotificationsByFields: async ({ creator, entityName, id }) => {
+      return notificationCenter.getNotificationsByFields({ creator, entityName, id });
     },
     getRedisCommitRepo: () => commitRepo,
     queryCommitByEntityId: async ({ entityName, id }) => {
@@ -226,14 +233,15 @@ export const createQueryDatabaseV2: (
         entityId,
       ]);
 
-      const [isError, restoredCommits] = await commitRepo.queryCommitsByPattern(pattern);
-
+      const [errors, restoredCommits] = await commitRepo.queryCommitsByPattern(pattern);
+      const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
       debug && logger.debug('restored commits, %j', restoredCommits);
 
       if (isError)
         return {
           status: 'ERROR',
           message: 'fail to retrieve existing commit',
+          error: errors
         };
 
       // step 2: merge existing record with newly retrieved commit
@@ -264,7 +272,7 @@ export const createQueryDatabaseV2: (
         return {
           status: 'ERROR',
           message: REDUCE_ERR,
-          error: new Error(`fail to reduce, ${entityName}:${entityId}:${commitId}`),
+          error: [new Error(`fail to reduce, ${entityName}:${entityId}:${commitId}`)],
         };
       }
 
@@ -280,8 +288,12 @@ export const createQueryDatabaseV2: (
         result.push({ key: commitKeyInRedis, status });
 
         // step 8: add notification flag
-        const notifyKey = `n:${state._created}:${entityName}:${entityId}:${commitId}`;
-        await client.redis.set(notifyKey, 1, 'EX', notifyExpiryBySec);
+        await notificationCenter.notify({
+          creator: state._creator,
+          entityName,
+          id: entityId,
+          commitId,
+        });
       } catch (e) {
         // TODO: clarify what it means.
         if (!e.message.startsWith('[lifecycle]')) logger.error(util.format('%s, %j', REDIS_ERR, e));
