@@ -57,7 +57,7 @@ export type QueryHandlerV2 = {
    * @unit_test this api is solely for *unit-test* purpose.
    * @same [[Repository]].create
    * **/
-  create?: <TEvent>(
+  create: <TEvent>(
     entityName: string
   ) => (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
 
@@ -68,7 +68,7 @@ export type QueryHandlerV2 = {
    *
    * @same [[Repository]].getById
    * **/
-  getById?: <TEntity, TEvent>(
+  getById: <TEntity, TEvent>(
     entityName: string
   ) => (option: {
     enrollmentId: string;
@@ -84,7 +84,7 @@ export type QueryHandlerV2 = {
    * () => Promise<HandlerResponse<TEntity[]>>
    * ```
    **/
-  getByEntityName?: <TEntity = any>(entityName: string) => RepoFcn<TEntity[]>;
+  getByEntityName: <TEntity = any>(entityName: string) => RepoFcn<TEntity[]>;
 
   /**
    * @about 📤 get commits by entityId
@@ -93,7 +93,7 @@ export type QueryHandlerV2 = {
    * (payload: { id: string }) => Promise<HandlerResponse<Commit[]>>
    * ```
    * **/
-  getCommitById?: (entityName: string) => RepoFcn_Id<Commit[]>;
+  getCommitById: (entityName: string) => RepoFcn_Id<Commit[]>;
 
   /**
    * @about 📥 delete commit by entityId
@@ -104,7 +104,7 @@ export type QueryHandlerV2 = {
    *   Promise<HandlerResponse<<FabricResponse>>>
    * ```
    * **/
-  command_deleteByEntityId?: (entityName: string) => RepoFcn_Id<FabricResponse>;
+  command_deleteByEntityId: (entityName: string) => RepoFcn_Id<FabricResponse>;
 
   /**
    * @about 📥 get commits by entityName
@@ -114,7 +114,7 @@ export type QueryHandlerV2 = {
    * () => Promise<HandlerResponse<Commit[]>>
    * ```
    * **/
-  command_getByEntityName?: (entityName: string) => RepoFcn<Commit[]>;
+  command_getByEntityName: (entityName: string) => RepoFcn<Commit[]>;
 
   /**
    * @about 📤 delete commmts by entityId
@@ -123,7 +123,7 @@ export type QueryHandlerV2 = {
    * (payload: { id: string }) => Promise<HandlerResponse<number>>
    * ```
    * **/
-  query_deleteCommitByEntityId?: (entityName: string) => RepoFcn_Id<number>;
+  query_deleteCommitByEntityId: (entityName: string) => RepoFcn_Id<number>;
 
   /**
    * @about 📤 delete commit by entityName
@@ -132,7 +132,7 @@ export type QueryHandlerV2 = {
    * () => Promise<HandlerResponse<number>>
    * ```
    * **/
-  query_deleteCommitByEntityName?: (entityName: string) => RepoFcn<number>;
+  query_deleteCommitByEntityName: (entityName: string) => RepoFcn<number>;
 
   /**
    * @about 📤 get paginated entity by entityId. This is specialized version of
@@ -144,7 +144,7 @@ export type QueryHandlerV2 = {
    *   Promise<HandlerResponse<Paginated<TResult>>>
    * ```
    * **/
-  getPaginatedEntityById?: <TResult>(
+  getPaginatedEntityById: <TResult>(
     entiyName: string
   ) => (
     criteria: PaginatedEntityCriteria,
@@ -161,7 +161,7 @@ export type QueryHandlerV2 = {
    *   Promise<HandlerResponse<Paginated<Commit>>>
    * ```
    * **/
-  getPaginatedCommitById?: (
+  getPaginatedCommitById: (
     entiyName: string
   ) => (
     criteria: PaginatedCommitCriteria,
@@ -172,7 +172,7 @@ export type QueryHandlerV2 = {
    * @about full text search of commit.
    * @similar [[QueryHandler]].getPaginatedCommitById
    */
-  fullTextSearchCommit?: (
+  fullTextSearchCommit: (
     query: string[],
     cursor: number,
     pagesize: number
@@ -182,7 +182,7 @@ export type QueryHandlerV2 = {
    * @about full text search of entity
    * @similar [[QueryHandler]].getPaginatedEntityById
    */
-  fullTextSearchEntity?: (
+  fullTextSearchEntity: (
     query: string[],
     cursor: number,
     pagesize: number
@@ -191,12 +191,12 @@ export type QueryHandlerV2 = {
   /**
    * @about primarily used by web ui, to summary info of entities
    */
-  queryGetEntityInfo?: (payload: { entityName: string }) => Promise<HandlerResponse<EntityInfo>>;
+  queryGetEntityInfo: (payload: { entityName: string }) => Promise<HandlerResponse<EntityInfo>>;
 
   /**
    * @about primarily used by web ui, to retrieve the list of active notifications.
    */
-  queryNotify?: (payload: {
+  queryNotify: (payload: {
     creator: string;
     entityName?: string;
     id?: string;
@@ -212,7 +212,7 @@ export type QueryHandlerV2 = {
    *   Promise<HandlerResponse<{ key: string; status: string }[]>>
    * ```
    * **/
-  reconcile?: () => (payload: {
+  reconcile: () => (payload: {
     entityName: string;
   }) => Promise<HandlerResponse<{ key: string; status: string }[]>>;
 
@@ -220,17 +220,17 @@ export type QueryHandlerV2 = {
    * @about subscribe to Fabric channel event hub
    * @return `() => void`
    * **/
-  subscribeHub?: (entityNames: string[]) => Promise<any>;
+  subscribeHub: (entityNames: string[]) => Promise<any>;
 
   /**
    * @about unsubscribe to Fabric channel event hub
    * @return `() => void`
    * **/
-  unsubscribeHub?: () => void;
+  unsubscribeHub: () => void;
 
   /**
    * @about disconnect from fabric peer
    * @return `() => void`
    * **/
-  disconnect?: () => void;
+  disconnect: () => void;
 };

@@ -11,6 +11,7 @@ import {
   preSelector,
   OutputCounter,
 } from '../../unit-test-reducer';
+import { waitForSecond } from '../../utils';
 import { REDUCE_ERR } from '../constants';
 import { createQueryDatabaseV2 } from '../createQueryDatabaseV2';
 import { createRedisRepository } from '../createRedisRepository';
@@ -38,7 +39,7 @@ beforeAll(async () => {
   counter = createRedisRepository<Counter, CounterInRedis, OutputCounter>({
     client,
     fields,
-    entityName: 'test_proj',
+    entityName: ENTITYNAME,
     postSelector,
     preSelector,
   });
@@ -82,7 +83,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await client.disconnect();
-  return new Promise<void>((ok) => setTimeout(() => ok(), 2000));
+  return waitForSecond(2);
 });
 
 describe('Projecion db test', () => {
