@@ -4,7 +4,7 @@ import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
-import type { QueryDatabase } from '../../../types';
+import type { QueryDatabaseV2 } from '../../../queryHandlerV2/types';
 import { action } from '../action';
 import type { QueryByEntityNameAction } from '../types';
 
@@ -13,7 +13,7 @@ const { QUERY_BY_ENTITYNAME, querySuccess, queryError } = action;
 export default (
   action$: Observable<QueryByEntityNameAction>,
   _,
-  { queryDatabase, logger }: { queryDatabase: QueryDatabase; logger: Logger }
+  { queryDatabase, logger }: { queryDatabase: QueryDatabaseV2; logger: Logger }
 ) =>
   action$.pipe(
     ofType(QUERY_BY_ENTITYNAME),
@@ -22,10 +22,12 @@ export default (
       from(
         queryDatabase
           .queryCommitByEntityName({ entityName })
-          .then(({ result }) =>
-            isEqual(result, {})
-              ? querySuccess({ tx_id, result: null })
-              : querySuccess({ tx_id, result })
+          .then(({ data, status, errors }) =>
+            status === 'OK'
+              ? isEqual(data, [])
+                ? querySuccess({ tx_id, result: null })
+                : querySuccess({ tx_id, result: data })
+              : queryError({ tx_id, error: errors })
           )
           .catch((error) => {
             logger.error(

@@ -3,29 +3,31 @@ import { Contract, ContractListener, Network } from 'fabric-network';
 import { getStore } from '../store';
 import { action as projAction } from '../store/projection';
 import { action as reconcileAction } from '../store/reconcile';
-import type { Commit, PubSubPayload, PubSubSysEvent } from '../types';
+import type {
+  Commit,
+  PubSubPayload,
+  PubSubSysEvent,
+} from '../types';
 import {
   commandCreate,
   commandDeleteByEntityId,
   commandGetByEntityName,
   dispatcher,
-  doPaginatedFullTextSearch,
-  doPaginatedSearch,
   getLogger,
+  getPaginated,
   isCommit,
   queryDeleteCommitByEntityId,
   queryDeleteCommitByEntityName,
+  queryFTSGetPaginatedCommit,
+  queryFTSGetPaginatedEntity,
   queryGetById,
   queryGetCommitByEntityId,
   queryGetEntityByEntityName,
   queryGetEntityInfo,
-  queryGetPaginatedCommitById,
-  queryGetPaginatedEntityById,
   queryNotify,
 } from '../utils';
 import { INVALID_ARG } from './constants';
-import type { QueryHandlerOption, QueryHandlerV2 } from './types';
-import { PaginatedCommitCriteria, PaginatedEntityCriteria, QueryHandlerEntity } from '../types';
+import type { OutputCommit, QueryHandlerOption, QueryHandlerV2 } from './types';
 
 export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandlerV2 = (options) => {
   const {
@@ -76,20 +78,56 @@ export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandler
       queryDeleteCommitByEntityId(entityName, queryOption),
     query_deleteCommitByEntityName: (entityName) =>
       queryDeleteCommitByEntityName(entityName, queryOption),
-    getPaginatedEntityById: <TResult>(entityName) =>
-      doPaginatedSearch<TResult, PaginatedEntityCriteria>(
+    fullTextSearchCommit: async ({ query, param, cursor, pagesize }) => {
+      const total = await queryFTSGetPaginatedCommit(queryOption)({
+        query,
+        param: { limit: { first: 0, num: 0 } },
+        countTotalOnly: true,
+      });
+
+      const paginated = await queryFTSGetPaginatedCommit(queryOption)({
+        query,
+        param: {
+          ...param,
+          ...{ sortBy: { sort: 'DESC', field: 'ts' }, limit: { first: cursor, num: pagesize } },
+        },
+      });
+
+      return total?.status !== 'OK'
+        ? { status: 'ERROR', error: total.error, message: total.message }
+        : paginated?.status !== 'OK'
+        ? { status: 'ERROR', error: paginated.error, message: paginated.message }
+        : {
+            status: 'OK',
+            data: getPaginated<OutputCommit>(paginated.data, total.data, cursor),
+          };
+    },
+    fullTextSearchEntity: async <TOutputEntity>({ entityName, query, param, cursor, pagesize }) => {
+      const total = await queryFTSGetPaginatedEntity(queryOption)({
         entityName,
-        queryGetPaginatedEntityById,
-        queryOption
-      ),
-    getPaginatedCommitById: (entityName) =>
-      doPaginatedSearch<Commit, PaginatedCommitCriteria>(
+        query,
+        param: { limit: { first: 0, num: 0 } },
+        countTotalOnly: true,
+      });
+
+      const paginated = await queryFTSGetPaginatedEntity<TOutputEntity[]>(queryOption)({
         entityName,
-        queryGetPaginatedCommitById,
-        queryOption
-      ),
-    fullTextSearchCommit: doPaginatedFullTextSearch<Commit>('cidx', queryOption),
-    fullTextSearchEntity: doPaginatedFullTextSearch<QueryHandlerEntity>('eidx', queryOption),
+        query,
+        param: {
+          ...param,
+          ...{ sortBy: { sort: 'DESC', field: 'ts' }, limit: { first: cursor, num: pagesize } },
+        },
+      });
+
+      return total?.status !== 'OK'
+        ? { status: 'ERROR', error: total.error, message: total.message }
+        : paginated?.status !== 'OK'
+        ? { status: 'ERROR', error: paginated.error, message: paginated.message }
+        : {
+            status: 'OK',
+            data: getPaginated<TOutputEntity>(paginated.data, total.data, cursor),
+          };
+    },
     queryGetEntityInfo: queryGetEntityInfo(queryOption),
     queryNotify: queryNotify(queryOption),
     disconnect: () => gateway.disconnect(),

@@ -16,7 +16,7 @@ export const queryGetEntityInfo: (option: {
 }) => ({ entityName: string }) => Promise<HandlerResponse<EntityInfo>> = ({ store, logger }) =>
   dispatcher<EntityInfo, { entityName: string }>(
     ({ tx_id, args: { entityName } }) =>
-      action.eIdxSearch({ tx_id, args: { query: [`@type:${entityName}`], countTotalOnly: false } }),
+      action.eIdxSearch({ tx_id, args: { entityName, query: `@type:${entityName}`, countTotalOnly: false } }),
     {
       name: 'queryGetEntityInfo',
       store,

@@ -12,12 +12,9 @@ export const queryNotify: (option: {
   store: Store;
   logger: Logger;
 }) => () => Promise<HandlerResponse> = ({ store, logger }) =>
-  dispatcher<
-    any,
-    { creator: string; entityName: string; id: string; commitId: string; expireNow: boolean }
-  >(
-    ({ tx_id, args: { creator, entityName, id, commitId, expireNow } }) =>
-      action.notify({ tx_id, args: { creator, entityName, id, commitId, expireNow } }),
+  dispatcher<any, { creator: string; entityName: string; id: string; commitId: string }>(
+    ({ tx_id, args: { creator, entityName, id, commitId } }) =>
+      action.notify({ tx_id, args: { creator, entityName, id, commitId } }),
     {
       name: 'queryNotify',
       store,

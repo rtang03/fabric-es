@@ -49,15 +49,16 @@ export const queryGetPaginatedCommitById: <TResult>(
       action.cIdxSearch({
         tx_id,
         args: {
-          query: [
-            getRangedQuery(startTime, endTime, events, creator),
-            'SORTBY',
-            sortByField || 'id',
-            sort || 'ASC',
-            'LIMIT',
-            cursor,
-            pagesize,
-          ],
+          query: '',
+          // query: [
+          //   getRangedQuery(startTime, endTime, events, creator),
+          //   'SORTBY',
+          //   sortByField || 'id',
+          //   sort || 'ASC',
+          //   'LIMIT',
+          //   cursor,
+          //   pagesize,
+          // ],
           countTotalOnly: cursor === 0 && pagesize === 0,
         },
       }),

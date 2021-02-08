@@ -1,5 +1,6 @@
 import { Gateway, Network, Wallet } from 'fabric-network';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
+import type { FTSearchParameters } from 'redis-modules-sdk';
 import { Logger } from 'winston';
 import type {
   Reducer,
@@ -8,9 +9,6 @@ import type {
   EntityInfo,
   FabricResponse,
   Paginated,
-  PaginatedCommitCriteria,
-  PaginatedEntityCriteria,
-  QueryHandlerEntity,
   RepoFcn,
   RepoFcn_Id,
   HandlerResponse,
@@ -135,58 +133,27 @@ export type QueryHandlerV2 = {
   query_deleteCommitByEntityName: (entityName: string) => RepoFcn<number>;
 
   /**
-   * @about 📤 get paginated entity by entityId. This is specialized version of
-   * [QueryHandler.fullTextSearchEntity], with parametric query.
-   * @same [[Repository]].getPaginatedEntityById
-   * @similar [[QueryHandler]].fullTextSearchEntity
-   * @return ```typescript
-   * (criteria: PaginatedEntityCriteria, id?: string) =>
-   *   Promise<HandlerResponse<Paginated<TResult>>>
-   * ```
-   * **/
-  getPaginatedEntityById: <TResult>(
-    entiyName: string
-  ) => (
-    criteria: PaginatedEntityCriteria,
-    id?: string
-  ) => Promise<HandlerResponse<Paginated<TResult>>>;
-
-  /**
-   * @about 📤 get paginated commit by entityId. This is specialized version of
-   * [QueryHandler.fullTextSearchCommit], with parametric query.
-   * @same [[Repository]].getPaginatedCommitById
-   * @similar [[QueryHandler]].fullTextSearchCommit
-   * @return ```typescript
-   * (criteria: PaginatedCommitCriteria, id?: string) =>
-   *   Promise<HandlerResponse<Paginated<Commit>>>
-   * ```
-   * **/
-  getPaginatedCommitById: (
-    entiyName: string
-  ) => (
-    criteria: PaginatedCommitCriteria,
-    id?: string
-  ) => Promise<HandlerResponse<Paginated<Commit>>>;
-
-  /**
    * @about full text search of commit.
    * @similar [[QueryHandler]].getPaginatedCommitById
    */
-  fullTextSearchCommit: (
-    query: string[],
-    cursor: number,
-    pagesize: number
-  ) => Promise<HandlerResponse<Paginated<Commit>>>;
+  fullTextSearchCommit: (option: {
+    query: string;
+    cursor: number;
+    pagesize: number;
+    param?: FTSearchParameters;
+  }) => Promise<HandlerResponse<Paginated<Commit>>>;
 
   /**
    * @about full text search of entity
    * @similar [[QueryHandler]].getPaginatedEntityById
    */
-  fullTextSearchEntity: (
-    query: string[],
-    cursor: number,
-    pagesize: number
-  ) => Promise<HandlerResponse<Paginated<QueryHandlerEntity>>>;
+  fullTextSearchEntity: <TOutputEntity>(option: {
+    entityName: string;
+    query: string;
+    cursor: number;
+    pagesize: number;
+    param?: FTSearchParameters;
+  }) => Promise<HandlerResponse<Paginated<TOutputEntity>>>;
 
   /**
    * @about primarily used by web ui, to summary info of entities

@@ -62,15 +62,32 @@ export const queryGetPaginatedEntityById: <TResult>(
       action.eIdxSearch({
         tx_id,
         args: {
-          query: [
-            getRangedQuery(startTime, endTime, scope, creator, organization),
-            'SORTBY',
-            sortByField || 'id',
-            sort || 'ASC',
-            'LIMIT',
-            cursor,
-            pagesize,
-          ],
+          entityName,
+          query,
+          param: {
+            filter: {
+              field: 'ts',
+              min: startTime,
+              max: endTime,
+            },
+            sortBy: {
+              sort,
+              field: sortByField,
+            },
+            limit: {
+              first: cursor,
+              num: pagesize,
+            },
+          },
+          // query: [
+          //   getRangedQuery(startTime, endTime, scope, creator, organization),
+          //   'SORTBY',
+          //   sortByField || 'id',
+          //   sort || 'ASC',
+          //   'LIMIT',
+          //   cursor,
+          //   pagesize,
+          // ],
           countTotalOnly: cursor === 0 && pagesize === 0,
         },
       }),

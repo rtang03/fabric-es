@@ -262,7 +262,7 @@ export type QueryHandler = {
    * @about full text search of commit.
    * @similar [[QueryHandler]].getPaginatedCommitById
    */
-  fullTextSearchCommit: (
+  fullTextSearchCommit?: (
     query: string[],
     cursor: number,
     pagesize: number
@@ -272,7 +272,7 @@ export type QueryHandler = {
    * @about full text search of entity
    * @similar [[QueryHandler]].getPaginatedEntityById
    */
-  fullTextSearchEntity: (
+  fullTextSearchEntity?: (
     query: string[],
     cursor: number,
     pagesize: number

@@ -3,7 +3,8 @@ import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
-import type { QueryDatabase, Reducer } from '../../../types';
+import type { QueryDatabaseV2 } from '../../../queryHandlerV2/types';
+import type { Reducer } from '../../../types';
 import { action } from '../action';
 import type { MergeEntityAction } from '../types';
 
@@ -16,7 +17,7 @@ export default (
     queryDatabase,
     reducers,
     logger,
-  }: { queryDatabase: QueryDatabase; reducers: Record<string, Reducer>; logger: Logger }
+  }: { queryDatabase: QueryDatabaseV2; reducers: Record<string, Reducer>; logger: Logger }
 ) =>
   action$.pipe(
     ofType(MERGE_ENTITY),
@@ -33,10 +34,10 @@ export default (
         promise = reducer
           ? queryDatabase
               .mergeEntity({ commit, reducer })
-              .then(({ result, status, error }) =>
+              .then(({ data, status, errors }) =>
                 status === 'OK'
-                  ? mergeEntitySuccess({ tx_id, result })
-                  : mergeEntityError({ tx_id, error })
+                  ? mergeEntitySuccess({ tx_id, result: data })
+                  : mergeEntityError({ tx_id, error: errors })
               )
               .catch((error) => {
                 logger.warn(

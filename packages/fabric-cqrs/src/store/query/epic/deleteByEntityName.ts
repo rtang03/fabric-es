@@ -3,7 +3,7 @@ import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
-import type { QueryDatabase } from '../../../types';
+import type { QueryDatabaseV2 } from '../../../queryHandlerV2/types';
 import { action } from '../action';
 import type { DeleteCommitByEntityNameAction } from '../types';
 
@@ -12,7 +12,7 @@ const { DELETE_COMMIT_BY_ENTITYNAME, deleteSuccess, deleteError } = action;
 export default (
   action$: Observable<DeleteCommitByEntityNameAction>,
   _,
-  { queryDatabase, logger }: { queryDatabase: QueryDatabase; logger: Logger }
+  { queryDatabase, logger }: { queryDatabase: QueryDatabaseV2; logger: Logger }
 ) =>
   action$.pipe(
     ofType(DELETE_COMMIT_BY_ENTITYNAME),
@@ -21,7 +21,11 @@ export default (
       from(
         queryDatabase
           .deleteCommitByEntityName({ entityName })
-          .then(({ result }) => deleteSuccess({ tx_id, result }))
+          .then(({ data, status, errors }) =>
+            status === 'OK'
+              ? deleteSuccess({ tx_id, result: data })
+              : deleteError({ tx_id, error: errors })
+          )
           .catch((error) => {
             logger.error(
               util.format(

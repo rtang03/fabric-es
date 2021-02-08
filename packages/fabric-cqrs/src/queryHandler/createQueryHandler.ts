@@ -29,7 +29,6 @@ import {
   doPaginatedSearch,
   queryGetPaginatedEntityById,
   queryGetPaginatedCommitById,
-  doPaginatedFullTextSearch,
   queryGetEntityInfo,
 } from '../utils';
 
@@ -117,8 +116,8 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
         queryGetPaginatedCommitById,
         queryOption
       ),
-    fullTextSearchCommit: doPaginatedFullTextSearch<Commit>('cidx', queryOption),
-    fullTextSearchEntity: doPaginatedFullTextSearch<QueryHandlerEntity>('eidx', queryOption),
+    // fullTextSearchCommit: doPaginatedFullTextSearch<Commit>('cidx', queryOption),
+    // fullTextSearchEntity: doPaginatedFullTextSearch<QueryHandlerEntity>('eidx', queryOption),
     queryGetEntityInfo: queryGetEntityInfo(queryOption),
     queryNotify: queryNotify(queryOption),
     reconcile: () =>
