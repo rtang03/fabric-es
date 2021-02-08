@@ -77,8 +77,9 @@ beforeAll(async () => {
       process.exit(1);
     });
 
-  const { status } = await queryDatabase.clearNotifications({ creator: 'org1-admin' });
-  console.log(`clearNotifications: ${status}`);
+  await queryDatabase
+    .clearNotifications({ creator: 'org1-admin' })
+    .then(({ status }) => console.log(`clearNotifications: ${status}`));
 });
 
 afterAll(async () => {

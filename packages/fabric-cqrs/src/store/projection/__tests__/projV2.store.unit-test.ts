@@ -1,3 +1,5 @@
+import { commitIndex, entityIndex } from '../../../queryHandler';
+
 require('dotenv').config({ path: './.env.test' });
 import { Redisearch } from 'redis-modules-sdk';
 import { Store } from 'redux';
@@ -89,7 +91,7 @@ beforeAll(async () => {
       });
 
     // Step 6: delete all query-side commits by entityName
-    await dispatcher<HandlerResponse, { entityName: string }>(
+    await dispatcher<number, { entityName: string }>(
       (payload) => queryAction.deleteCommitByEntityName(payload),
       {
         name: 'deleteByEntityName',
@@ -100,7 +102,7 @@ beforeAll(async () => {
         logger,
       }
     )({ entityName })
-      .then(({ data }) => console.log(data.message))
+      .then(({ data }) => console.log(`${data} record(s) deleted`))
       .catch((error) => console.error(error.message));
   } catch (e) {
     console.error(e);
@@ -118,6 +120,10 @@ afterAll(async () => {
     .deleteEntityByEntityName({ entityName })
     .then(({ message }) => console.log(message))
     .catch((result) => console.log(result));
+
+  await queryDatabase
+    .clearNotifications({ creator: 'org1-admin' })
+    .then(({ status }) => console.log(`clearNotifications: ${status}`));
 
   await client.disconnect();
   console.log('Test ends,... quitting');
@@ -191,5 +197,90 @@ describe('Store/projection: failure tests', () => {
       expect(data).toBeNull();
       expect(status).toEqual('OK');
     }));
+});
 
+describe('Store/query Test', () => {
+  beforeAll(async () => {
+    await dispatcher<number, { entityName: string }>(
+      (payload) => queryAction.deleteCommitByEntityName(payload),
+      {
+        name: 'deleteByEntityName',
+        store,
+        slice: 'query',
+        SuccessAction: queryAction.DELETE_SUCCESS,
+        ErrorAction: queryAction.DELETE_ERROR,
+        logger,
+      }
+    )({ entityName }).then(({ status, data }) =>
+      console.log(`entityName: ${entityName} ${data} record(s) is deleted: ${status}`)
+    );
+  });
+
+  it('should query:mergeCommit: first commit', async () =>
+    dispatcher<string[], { commit: Commit }>((payload) => queryAction.mergeCommit(payload), {
+      name: 'query:mergeCommit',
+      store,
+      slice: 'query',
+      SuccessAction: queryAction.MERGE_COMMIT_SUCCESS,
+      ErrorAction: queryAction.MERGE_COMMIT_ERROR,
+      logger,
+    })({ commit }).then(({ status, data }) => {
+      expect(data).toEqual(['c:store_projection:test_001:20200528133519841']);
+      expect(status).toEqual('OK');
+    }));
+
+  it('should projection:mergeEntity: add newCommit', async () =>
+    dispatcher<{ key: string; status: string }[], { commit: Commit }>(
+      (payload) => projAction.mergeEntity(payload),
+      {
+        name: 'projection:mergeEntity',
+        store,
+        slice: 'projection',
+        logger,
+        SuccessAction: projAction.MERGE_ENTITY_SUCCESS,
+        ErrorAction: projAction.MERGE_ENTITY_ERROR,
+      }
+    )({ commit: newCommit }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data).toEqual([
+        { key: 'e:store_projection:test_001', status: 'OK' },
+        { key: 'c:store_projection:test_001:20200528133520842', status: 'OK' },
+      ]);
+    }));
+
+  it('should query:queryByEntityId: verify test_001', async () =>
+    dispatcher<Record<string, Commit>, { entityName: string; id: string }>(
+      (payload) => queryAction.queryByEntityId(payload),
+      {
+        name: 'query:queryByEntityId',
+        store,
+        slice: 'query',
+        logger,
+        SuccessAction: queryAction.QUERY_SUCCESS,
+        ErrorAction: queryAction.QUERY_ERROR,
+      }
+    )({ entityName, id }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(Object.keys(data).length).toEqual(2);
+      expect(isCommitRecord(data)).toBeTruthy();
+    }));
+
+  it('should projection:mergeEntityBatch', async () =>
+    dispatcher<
+      { key: string; status: string }[],
+      { entityName: string; commits: Record<string, Commit> }
+    >((payload) => projAction.mergeEntityBatch(payload), {
+      name: 'projection:mergeEntityBatch',
+      store,
+      slice: 'projection',
+      logger,
+      SuccessAction: projAction.MERGE_ENTITY_BATCH_SUCCESS,
+      ErrorAction: projAction.MERGE_ENTITY_BATCH_ERROR,
+    })({ entityName, commits }).then(({ status, data }) => {
+      expect(status).toEqual('OK');
+      expect(data).toEqual([
+        { key: 'e:store_projection:test_002', status: 'OK' },
+        { key: 'e:store_projection:test_003', status: 'OK' },
+      ]);
+    }));
 });

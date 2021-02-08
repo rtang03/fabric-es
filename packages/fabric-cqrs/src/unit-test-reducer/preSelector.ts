@@ -49,7 +49,7 @@ export const preSelector: Selector<[Counter, Commit[]], CounterInRedis> = create
       .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null),
   history: ([_, history]) =>
     history
-      .map(({ commitId, entityId, entityName }) => `c:${entityName}:${entityId}${commitId}`)
+      .map(({ commitId, entityId, entityName }) => `c:${entityName}:${entityId}:${commitId}`)
       .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null),
   id: ([{ id }]) => id,
   tag: ([{ tag }]) => tag,
