@@ -1,5 +1,3 @@
-import { HandlerResponse, QueryDatabaseResponse } from '../../../types';
-
 require('dotenv').config({ path: './.env.test' });
 import { Redisearch } from 'redis-modules-sdk';
 import { Store } from 'redux';
@@ -11,7 +9,7 @@ import type {
   QueryDatabaseV2,
   RedisRepository,
 } from '../../../queryHandlerV2/types';
-import type { Commit } from '../../../types';
+import type { Commit, HandlerResponse } from '../../../types';
 import {
   Counter,
   CounterInRedis,
@@ -118,7 +116,7 @@ beforeAll(async () => {
       .then(({ data }) => console.log(`${data} record(s) deleted`))
       .catch((error) => console.error(error.message));
 
-    // clear all pre-existing records
+    // Step 7: clear all pre-existing records
     await queryDatabase
       .deleteCommitByEntityName({ entityName })
       .then(({ message }) => console.log(message))
@@ -229,7 +227,7 @@ describe('Store/query: failure tests', () => {
     }));
 
   it('should fail to deleteByEntityId: invalid argument', async () =>
-    dispatcher<QueryDatabaseResponse, { entityName: string; id: string }>(
+    dispatcher<HandlerResponse, { entityName: string; id: string }>(
       (payload) => deleteCommitByEntityId(payload),
       {
         name: 'deleteByEntityId',
@@ -246,7 +244,7 @@ describe('Store/query: failure tests', () => {
     }));
 
   it('should fail to deleteByEntityName: invalid argument', async () =>
-    dispatcher<QueryDatabaseResponse, { entityName: string }>(
+    dispatcher<HandlerResponse, { entityName: string }>(
       (payload) => deleteCommitByEntityName(payload),
       {
         name: 'deleteByEntityName',

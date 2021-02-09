@@ -6,8 +6,7 @@ import type { QueryDatabaseResponse } from '../../../types';
 import { dispatcher, getLogger } from '../../../utils';
 import { action as queryAction } from '../../query';
 import { action } from '../action';
-import { entityName } from './__utils__/data';
-import { getStore } from './__utils__/store';
+import { getStore, entityName } from './__utils__';
 
 let store: Store;
 let redis: Redis.Redis;
