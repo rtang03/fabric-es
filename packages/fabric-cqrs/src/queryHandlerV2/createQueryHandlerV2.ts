@@ -3,11 +3,7 @@ import { Contract, ContractListener, Network } from 'fabric-network';
 import { getStore } from '../store';
 import { action as projAction } from '../store/projection';
 import { action as reconcileAction } from '../store/reconcile';
-import type {
-  Commit,
-  PubSubPayload,
-  PubSubSysEvent,
-} from '../types';
+import type { Commit, PubSubPayload, PubSubSysEvent } from '../types';
 import {
   commandCreate,
   commandDeleteByEntityId,
@@ -54,6 +50,8 @@ export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandler
   const queryOption = { logger, store };
 
   return {
+    clearNotification: (option) => queryDatabase.clearNotification(option),
+    clearNotifications: (option) => queryDatabase.clearNotifications(option),
     create: <TEvent = any>(entityName) => {
       if (!entityNames.includes(entityName)) throw new Error(INVALID_ARG);
 

@@ -46,7 +46,8 @@
     "t:qdbV2": "jest --forceExit --detectOpenHandles qdbV2.unit-test",
     "t:store-projV2": "jest --forceExit --detectOpenHandles projV2.store.unit-test",
     "t:store-queryV2": "jest --forceExit --detectOpenHandles queryV2.store.unit-test",
-    "t:store-reconcileV2": "jest --forceExit --detectOpenHandles reconcileV2.store.unit-test"
+    "t:store-reconcileV2": "jest --forceExit --detectOpenHandles reconcileV2.store.unit-test",
+    "t:reconcileV2": "jest --forceExit --detectOpenHandles reconcileV2.unit-test"
   },
   "dependencies": {
     "@fabric-es/operator": "^0.7.5",

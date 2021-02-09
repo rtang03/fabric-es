@@ -50,6 +50,20 @@ export type QueryHandlerOption = {
 };
 
 export type QueryHandlerV2 = {
+  clearNotification: (option: {
+    creator: string;
+    entityName: string;
+    id: string;
+    commitId: string;
+  }) => Promise<HandlerResponse<string[]>>;
+
+  clearNotifications: (option: {
+    creator: string;
+    entityName?: string;
+    id?: string;
+    commitId?: string;
+  }) => Promise<HandlerResponse<string[]>>;
+
   /**
    * @about 📥 write events to onchain repository, with enrollmentId, and entityId
    * @unit_test this api is solely for *unit-test* purpose.
