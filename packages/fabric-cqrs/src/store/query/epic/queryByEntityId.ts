@@ -24,9 +24,7 @@ export default (
           .queryCommitByEntityId({ entityName, id })
           .then(({ data, status, errors }) =>
             status === 'OK'
-              ? isEqual(data, [])
-                ? querySuccess({ tx_id, result: null })
-                : querySuccess({ tx_id, result: data })
+              ? querySuccess({ tx_id, result: data })
               : queryError({ tx_id, error: errors })
           )
           .catch((error) => {
