@@ -218,7 +218,7 @@ export const createQueryDatabaseV2: (
         message: `${data.length} record(s) merged successfully`,
         data,
         error,
-        errors: error
+        errors: error,
       };
     },
     mergeEntity: async ({ commit, reducer }) => {

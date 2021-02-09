@@ -1,5 +1,6 @@
 import { BaseEvent, Reducer } from '../types';
 
+// CAN REMOVE
 /**
  * @ignore
  */

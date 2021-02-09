@@ -17,8 +17,7 @@ import type {
 } from '../../../types';
 import { dispatcher, getLogger } from '../../../utils';
 import { action } from '../action';
-import { commit, commits, newCommit, entityName } from './__utils__/data';
-import { getStore } from './__utils__/store';
+import { getStore, commit, commits, newCommit, entityName } from './__utils__';
 
 let store: Store;
 let redis: Redis.Redis;
