@@ -172,11 +172,6 @@ export type QueryHandlerV2 = {
   }) => Promise<HandlerResponse<Paginated<TOutputEntity>>>;
 
   /**
-   * @about primarily used by web ui, to summary info of entities
-   */
-  queryGetEntityInfo: (payload: { entityName: string }) => Promise<HandlerResponse<EntityInfo>>;
-
-  /**
    * @about primarily used by web ui, to retrieve the list of active notifications.
    */
   queryNotify: (payload: {

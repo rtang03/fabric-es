@@ -36,7 +36,7 @@ const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
 const walletPath = process.env.WALLET;
 const entityName = 'test_subscribe';
 const id = `qh_sub_test_001`;
-const timestampesOnCreate = [];
+const timestampsOnCreate = [];
 const reducers = { [entityName]: reducer };
 
 let queryHandler: QueryHandlerV2;
@@ -208,18 +208,17 @@ describe('Query Handler Tests', () => {
     return waitForSecond(2);
   });
 
-  // returns
   // [
   //   {
   //     id: 'qh_sub_test_001',
   //     entityName: 'test_subscribe',
-  //     commitId: '20210210033651668',
+  //     commitId: '20210210160816772',
   //     mspId: 'Org1MSP',
   //     creator: 'admin-org1.net',
   //     event: 'Increment',
   //     entityId: 'qh_sub_test_001',
   //     version: 0,
-  //     ts: 1612928210,
+  //     ts: 1612973294601,
   //     events: [ [Object] ]
   //   }
   // ]
@@ -287,13 +286,13 @@ describe('Query Handler Tests', () => {
   //   {
   //     id: 'qh_sub_test_001',
   //     entityName: 'test_subscribe',
-  //     commitId: '20210210093740270',
+  //     commitId: '20210210160816772',
   //     mspId: 'Org1MSP',
   //     creator: 'admin-org1.net',
   //     event: 'Increment',
   //     entityId: 'qh_sub_test_001',
   //     version: 0,
-  //     ts: 1612949858,
+  //     ts: 1612973294601,
   //     events: [Array]
   //   }
   // ],
@@ -312,32 +311,31 @@ describe('Query Handler Tests', () => {
         expect(isCommitRecord(data.items)).toBeTruthy();
       }));
 
-  // returns
   // {
   //   total: 2,
   //     items: [
   //   {
   //     id: 'qh_sub_test_001',
   //     entityName: 'test_subscribe',
-  //     commitId: '20210210100536268',
+  //     commitId: '20210210160816772',
   //     mspId: 'Org1MSP',
   //     creator: 'admin-org1.net',
   //     event: 'Increment',
   //     entityId: 'qh_sub_test_001',
   //     version: 0,
-  //     ts: 1612951534,
+  //     ts: 1612973294601,
   //     events: [Array]
   //   },
   //   {
   //     id: 'qh_sub_test_001',
   //     entityName: 'test_subscribe',
-  //     commitId: '20210210100543718',
+  //     commitId: '20210210160824083',
   //     mspId: 'Org1MSP',
   //     creator: 'admin-org1.net',
   //     event: 'Decrement',
   //     entityId: 'qh_sub_test_001',
   //     version: 0,
-  //     ts: 1612951542,
+  //     ts: 1612973302118,
   //     events: [Array]
   //   }
   // ],
@@ -371,14 +369,14 @@ describe('Query Handler Tests', () => {
   //   total: 1,
   //     items: [
   //   {
-  //     createdAt: '2021-02-10T13:02:21.000Z',
+  //     createdAt: '1612973294601',
   //     creator: 'admin-org1.net',
   //     description: 'query hander #2 sub-test',
   //     eventInvolved: [Array],
   //     id: 'qh_sub_test_001',
   //     tags: [Array],
-  //     timestamp: '2021-02-10T13:02:28.000Z',
-  //     value: '0'
+  //     timestamp: '1612973302118',
+  //     value: 0
   //   }
   // ],
   //   hasMore: false,
@@ -402,5 +400,307 @@ describe('Query Handler Tests', () => {
         });
       }));
 
+  it('should FT.SEARCH by tag:{subscription} : return 1 entity', async () =>
+    queryHandler
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: '@tag:{subscription}',
+        cursor: 0,
+        pagesize: 2,
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(1);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(1);
+        expect(omit(data.items[0], 'createdAt', 'timestamp')).toEqual({
+          id,
+          value: 0,
+          tags: ['subscription'],
+          description: 'query hander #2 sub-test',
+          creator: 'admin-org1.net',
+          eventInvolved: ['Increment', 'Decrement'],
+        });
+      }));
+});
 
+describe('Pagination tests for getPaginatedEntityById', () => {
+  beforeAll(async () => {
+    for await (const i of [1, 2, 3, 4, 5]) {
+      // timestampsOnCreate remembers when the new CountEvents are saved.
+      timestampsOnCreate.push(Math.floor(Date.now()));
+
+      await queryHandler
+        .command_deleteByEntityId(entityName)({ id: `qh_pag_test_00${i}` })
+        .then(({ data: { message } }) => console.log(message));
+
+      await queryHandler
+        .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id: `qh_pag_test_00${i}` })
+        .save({
+          events: [
+            {
+              type: i % 2 === 0 ? 'Increment' : 'Decrement',
+              payload: {
+                id: `qh_pag_test_00${i}`,
+                desc: `#${i} pag-test`,
+                tag: 'pagination,unit-test',
+              },
+            },
+          ],
+        });
+
+      await waitForSecond(3);
+    }
+  });
+
+  // {
+  //   total: 5,
+  //     items: [
+  //   {
+  //     createdAt: '1612973312032',
+  //     creator: 'admin-org1.net',
+  //     description: '#1 pag-test',
+  //     eventInvolved: [Array],
+  //     id: 'qh_pag_test_001',
+  //     tags: [Array],
+  //     timestamp: '1612973312032',
+  //     value: -1
+  //   },
+  //   {
+  //     createdAt: '1612973323153',
+  //     creator: 'admin-org1.net',
+  //     description: '#2 pag-test',
+  //     eventInvolved: [Array],
+  //     id: 'qh_pag_test_002',
+  //     tags: [Array],
+  //     timestamp: '1612973323153',
+  //     value: 1
+  //   }
+  // ],
+  //   hasMore: true,
+  //   cursor: 2
+  // }
+  it('should run paginated test: cursor=0, pagesize=2', async () =>
+    queryHandler
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: 'qh_pag_test_00*',
+        cursor: 0,
+        pagesize: 2,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.hasMore).toBeTruthy();
+        expect(data.cursor).toEqual(2);
+        expect(
+          data.items.map(({ id, description, value }) => ({ id, description, value }))
+        ).toEqual([
+          { id: 'qh_pag_test_001', description: '#1 pag-test', value: -1 },
+          { id: 'qh_pag_test_002', description: '#2 pag-test', value: 1 },
+        ]);
+      }));
+
+  it('should run paginated test: cursor=1, pagesize=2', async () =>
+    queryHandler
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: 'qh_pag_test_00*',
+        cursor: 1,
+        pagesize: 2,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.hasMore).toBeTruthy();
+        expect(data.cursor).toEqual(3);
+        expect(
+          data.items.map(({ id, description, value }) => ({ id, description, value }))
+        ).toEqual([
+          { id: 'qh_pag_test_002', description: '#2 pag-test', value: 1 },
+          { id: 'qh_pag_test_003', description: '#3 pag-test', value: -1 },
+        ]);
+      }));
+
+  it('should run paginated test: cursor=0, pagesize=10', async () =>
+    queryHandler
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: 'qh_pag_test_00*',
+        cursor: 0,
+        pagesize: 10,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(5);
+        expect(
+          data.items.map(({ id, description, value }) => ({ id, description, value }))
+        ).toEqual([
+          { id: 'qh_pag_test_001', description: '#1 pag-test', value: -1 },
+          { id: 'qh_pag_test_002', description: '#2 pag-test', value: 1 },
+          { id: 'qh_pag_test_003', description: '#3 pag-test', value: -1 },
+          { id: 'qh_pag_test_004', description: '#4 pag-test', value: 1 },
+          { id: 'qh_pag_test_005', description: '#5 pag-test', value: -1 },
+        ]);
+      }));
+
+  // {
+  //   total: 5,
+  //     items: [
+  //   {
+  //     id: 'qh_pag_test_001',
+  //     entityName: 'test_subscribe',
+  //     commitId: '20210210160834056',
+  //     mspId: 'Org1MSP',
+  //     creator: 'admin-org1.net',
+  //     event: 'Decrement',
+  //     entityId: 'qh_pag_test_001',
+  //     version: 0,
+  //     ts: 1612973312032,
+  //     events: [Array]
+  //   },
+  //   {
+  //     id: 'qh_pag_test_002',
+  //     entityName: 'test_subscribe',
+  //     commitId: '20210210160845167',
+  //     mspId: 'Org1MSP',
+  //     creator: 'admin-org1.net',
+  //     event: 'Increment',
+  //     entityId: 'qh_pag_test_002',
+  //     version: 0,
+  //     ts: 1612973323153,
+  //     events: [Array]
+  //   }
+  // ],
+  //   hasMore: true,
+  //   cursor: 2
+  // }
+  it('should fullTextSearchCommit: cursor=0, pagesize=2', async () =>
+    queryHandler
+      .fullTextSearchCommit({
+        query: 'qh_pag_test_00*',
+        cursor: 0,
+        pagesize: 2,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.hasMore).toBeTruthy();
+        expect(data.cursor).toEqual(2);
+        expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_001', 'qh_pag_test_002']);
+      }));
+
+  it('should fullTextSearchCommit: cursor=1, pagesize=2', async () =>
+    queryHandler
+      .fullTextSearchCommit({
+        query: 'qh_pag_test_00*',
+        cursor: 1,
+        pagesize: 2,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.hasMore).toBeTruthy();
+        expect(data.cursor).toEqual(3);
+        expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_002', 'qh_pag_test_003']);
+      }));
+
+  it('should fullTextSearchCommit: cursor=0, pagesize=10', async () =>
+    queryHandler
+      .fullTextSearchCommit({
+        query: 'qh_pag_test_00*',
+        cursor: 0,
+        pagesize: 10,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(5);
+        expect(data.items.map(({ id }) => id)).toEqual([
+          'qh_pag_test_001',
+          'qh_pag_test_002',
+          'qh_pag_test_003',
+          'qh_pag_test_004',
+          'qh_pag_test_005',
+        ]);
+      }));
+
+  it('should fullTextSearchCommit: events=increment', async () =>
+    queryHandler
+      .fullTextSearchCommit({
+        query: '@event:{increment}',
+        cursor: 0,
+        pagesize: 10,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(3);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(3);
+        expect(data.items.map(({ id }) => id)).toEqual([
+          'qh_pag_test_002',
+          'qh_pag_test_004',
+          'qh_sub_test_001',
+        ]);
+      }));
+
+  // {
+  //   total: 2,
+  //     items: [
+  //   {
+  //     id: 'qh_pag_test_002',
+  //     entityName: 'test_subscribe',
+  //     commitId: '20210210163830103',
+  //     mspId: 'Org1MSP',
+  //     creator: 'admin-org1.net',
+  //     event: 'Increment',
+  //     entityId: 'qh_pag_test_002',
+  //     version: 0,
+  //     ts: 1612975108177,
+  //     events: [Array]
+  //   },
+  //   {
+  //     id: 'qh_pag_test_003',
+  //     entityName: 'test_subscribe',
+  //     commitId: '20210210163840385',
+  //     mspId: 'Org1MSP',
+  //     creator: 'admin-org1.net',
+  //     event: 'Decrement',
+  //     entityId: 'qh_pag_test_003',
+  //     version: 0,
+  //     ts: 1612975118708,
+  //     events: [Array]
+  //   }
+  // ],
+  //   hasMore: false,
+  //   cursor: 2
+  // }
+  it('should fullTextSearchCommit: range of timestamp', async () =>
+    queryHandler
+      .fullTextSearchCommit({
+        // see https://oss.redislabs.com/redisearch/Query_Syntax/#numeric_filters_in_query
+        query: `@ts:[${timestampsOnCreate[1]} ${timestampsOnCreate[3] + 1}]`,
+        cursor: 0,
+        pagesize: 10,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(2);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(2);
+        expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_002', 'qh_pag_test_003']);
+      }));
+
+  describe('Notification Tests', () => {});
 });

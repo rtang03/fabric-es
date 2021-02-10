@@ -3,12 +3,12 @@
  * and, restore back to [[Counter]]; but appended with dervied field.
  */
 export interface OutputCounter {
-  createdAt: string;
+  createdAt: number;
   creator: string;
   description: string;
   eventInvolved: string[];
   id: string;
   tags: string[];
-  timestamp: string;
+  timestamp: number;
   value: number;
 }

@@ -112,11 +112,17 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
     },
     search: async ({ countTotalOnly, kind, index, query, param, restoreFn }) => {
       try {
+        const customParm = countTotalOnly
+          ? { ...param, ...{ limit: { first: 0, num: 0 } } }
+          : param;
         // step 1: use FT.SEARCH to find corresponding keys
-        const data: any[] = await client.search(index, query, param);
+        const data: any[] = await client.search(index, query, customParm);
+
+        // Notice that if there is paginated result, the number of total count of search result, data[0] will the total count.
+        // But the subsequment array element will only return ONE page
         // e.g.
         // [
-        //   2,
+        //   2, <== Number of total count of search result
         //   'c:test_proj:qh_proj_test_001:20200528133520841',
         //   [
         //     'entityName',
@@ -124,15 +130,12 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
         //     'id',
         //    ....
         // ]
-        const count = data[0];
         const prefix = { commit: 'c:', entity: 'e:' }[kind];
 
         // keys will be ['c:test_proj:qh_proj_test_001:20200528133520841', /* ... */ ]
         const keys = data.slice(1).filter((item) => startsWith(item, prefix));
 
-        // maybe unncessary check: this is safety code; don't know if there is such situation
-        if (!countTotalOnly && keys.length !== count)
-          return [[new Error('count does not match')], null, []];
+        const count = countTotalOnly ? data[0] : keys?.length;
 
         if (countTotalOnly) return [[], count, null];
 

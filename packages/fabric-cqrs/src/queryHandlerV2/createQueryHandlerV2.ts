@@ -1,5 +1,7 @@
 import util from 'util';
 import { Contract, ContractListener, Network } from 'fabric-network';
+import flatten from 'lodash/flatten';
+import uniq from 'lodash/uniq';
 import { getStore } from '../store';
 import { action as projAction } from '../store/projection';
 import { action as reconcileAction } from '../store/reconcile';
@@ -19,7 +21,6 @@ import {
   queryGetById,
   queryGetCommitByEntityId,
   queryGetEntityByEntityName,
-  queryGetEntityInfo,
   queryNotify,
 } from '../utils';
 import { INVALID_ARG } from './constants';
@@ -88,8 +89,9 @@ export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandler
       const paginated = await queryFTSGetPaginatedCommit(queryOption)({
         query,
         param: {
+          sortBy: { sort: 'DESC', field: 'ts' },
           ...param,
-          ...{ sortBy: { sort: 'DESC', field: 'ts' }, limit: { first: cursor, num: pagesize } },
+          limit: { first: cursor, num: pagesize },
         },
       });
 
@@ -114,8 +116,11 @@ export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandler
         entityName,
         query,
         param: {
+          // sorty timestamp can be overriden by input argument "param"
+          ...{ sortBy: { sort: 'DESC', field: 'ts' } },
           ...param,
-          ...{ sortBy: { sort: 'DESC', field: 'ts' }, limit: { first: cursor, num: pagesize } },
+          // input argument "cursor" and "pagesize" is final
+          ...{ limit: { first: cursor, num: pagesize } },
         },
       });
 
@@ -128,7 +133,6 @@ export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandler
             data: getPaginated<TOutputEntity>(paginated.data, total.data, cursor),
           };
     },
-    queryGetEntityInfo: queryGetEntityInfo(queryOption),
     queryNotify: queryNotify(queryOption),
     disconnect: () => gateway.disconnect(),
     reconcile: () =>

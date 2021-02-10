@@ -5,7 +5,7 @@ import { BaseEvent } from '../types';
  * @ignore
  */
 export const addTimestamp: (events: BaseEvent[]) => BaseEvent[] = (events) => {
-  const currentTime = Math.round(new Date().getTime() / 1000);
+  const currentTime = Math.round(new Date().getTime());
 
   return events.map((event) => ({
     ...event,
