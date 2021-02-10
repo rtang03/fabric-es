@@ -47,7 +47,8 @@
     "t:store-projV2": "jest --forceExit --detectOpenHandles projV2.store.unit-test",
     "t:store-queryV2": "jest --forceExit --detectOpenHandles queryV2.store.unit-test",
     "t:store-reconcileV2": "jest --forceExit --detectOpenHandles reconcileV2.store.unit-test",
-    "t:reconcileV2": "jest --forceExit --detectOpenHandles reconcileV2.unit-test"
+    "t:reconcileV2": "jest --forceExit --detectOpenHandles reconcileV2.unit-test",
+    "t:subscribeV2": "jest --forceExit --detectOpenHandles subscribeV2.unit-test"
   },
   "dependencies": {
     "@fabric-es/operator": "^0.7.5",
@@ -57,7 +58,7 @@
     "graphql-redis-subscriptions": "^2.2.1",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
-    "redis-modules-sdk": "^0.2.5",
+    "redis-modules-sdk": "^0.2.7",
     "redux": "^4.0.4",
     "redux-observable": "^1.2.0",
     "reselect": "^4.0.0",

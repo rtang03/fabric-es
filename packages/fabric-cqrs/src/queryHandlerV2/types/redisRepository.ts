@@ -31,7 +31,6 @@ export type RedisRepository<TResult> = {
   getPattern: (pattern: Pattern, args: string[]) => string;
   getPreSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
   getPostSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
-  getSet: () => Promise<any>;
   /**
    * @about restore commit history from Redis format, and detect any errors
    * pipelinExec .then will return tuple [error, commitInRedis[])

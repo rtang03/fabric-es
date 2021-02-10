@@ -76,6 +76,8 @@ export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandler
       queryDeleteCommitByEntityId(entityName, queryOption),
     query_deleteCommitByEntityName: (entityName) =>
       queryDeleteCommitByEntityName(entityName, queryOption),
+    query_deleteEntityByEntityName: (entityName) => () =>
+      queryDatabase.deleteEntityByEntityName({ entityName }),
     fullTextSearchCommit: async ({ query, param, cursor, pagesize }) => {
       const total = await queryFTSGetPaginatedCommit(queryOption)({
         query,
@@ -163,7 +165,7 @@ export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandler
       try {
         contractListener = await network.getContract('eventstore').addContractListener(
           async ({ payload, eventName, getTransactionEvent }) => {
-            logger.debug(`💢  event arrives - tx_id: ${getTransactionEvent().transactionId}`);
+            logger.info(`💢  event arrives - tx_id: ${getTransactionEvent().transactionId}`);
             // check eventName
             let commit: unknown;
             if (eventName !== 'createCommit') {
@@ -210,7 +212,7 @@ export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandler
                 logger.debug(
                   util.format('mergeComit: %j', mergeEntityResult?.data || 'no data written')
                 );
-              else logger.error(util.format('fail to mergeEntity, %j', mergeEntityResult));
+              else logger.error(util.format('❌ fail to mergeEntity, %j', mergeEntityResult));
 
               // send merged entity to PubSub
               if (pubSub && mergeEntityResult.status === 'OK') {

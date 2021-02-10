@@ -14,6 +14,6 @@ export type CounterInRedis = {
   tag: string;
   tl: string;
   ts: number;
-  val: number;
+  val: string | number;
   history: string;
 };

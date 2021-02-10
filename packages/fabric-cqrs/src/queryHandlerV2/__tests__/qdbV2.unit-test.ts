@@ -2,6 +2,7 @@ require('dotenv').config({ path: './.env.dev' });
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import { Redisearch } from 'redis-modules-sdk';
+import { createQueryDatabaseV2, createRedisRepository } from '..';
 import {
   Counter,
   reducer,
@@ -13,8 +14,6 @@ import {
 } from '../../unit-test-reducer';
 import { waitForSecond } from '../../utils';
 import { REDUCE_ERR } from '../constants';
-import { createQueryDatabaseV2 } from '../createQueryDatabaseV2';
-import { createRedisRepository } from '../createRedisRepository';
 import { isOutputCommit } from '../typeGuard';
 import type { QueryDatabaseV2, RedisRepository, OutputCommit } from '../types';
 import { commit, commits, faultReducer, newCommit } from './__utils__';

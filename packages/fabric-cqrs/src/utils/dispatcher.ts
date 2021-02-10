@@ -21,17 +21,17 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
 
         if (typeGuard)
           if (result === null) {
-            logger.debug(util.format('actionName %s, tx_id: %s resolved', name, tx_id));
+            logger.info(util.format('actionName %s, tx_id: %s resolved', name, tx_id));
             resolve({ data: null });
           } else if (typeGuard(result)) {
-            logger.debug(util.format('actionName %s, tx_id: %s resolved', name, tx_id));
+            logger.info(util.format('actionName %s, tx_id: %s resolved', name, tx_id));
             resolve({ data });
           } else {
             logger.error(util.format('fail to pass TypeGuard, %s, %j', name, result));
             reject(`fail to pass TypeGuard: ${name}`);
           }
         else {
-          logger.debug(util.format('actionName %s, tx_id: %s resolved', name, tx_id));
+          logger.info(util.format('actionName %s, tx_id: %s resolved', name, tx_id));
           resolve({ data });
         }
       }
@@ -55,7 +55,7 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
 
     store.dispatch(actionDispatcher({ tx_id: tid, args }));
 
-    logger.debug(util.format('[dispatcher] actionName: %s, tx_id: %s dispatched', name, tid));
+    logger.info(util.format('[dispatcher] actionName: %s, tx_id: %s dispatched', name, tid));
   })
     .then(({ data }) => ({
       status: 'OK',

@@ -12,7 +12,7 @@ import {
   entityIndex,
 } from '..';
 import { getNetwork } from '../../services';
-import type { Commit, QueryHandler } from '../../types';
+import type { QueryHandler } from '../../types';
 import { Counter, reducer } from '../../unit-test-reducer';
 import { isCommit, isCommitRecord, waitForSecond } from '../../utils';
 
@@ -688,11 +688,9 @@ describe('Notification Tests', () => {
       }));
 
   it('should notify by creator, entityName, id', async () =>
-    queryHandler
-      .queryNotify({ creator: orgAdminId, expireNow: true })
-      .then(({ status, data }) => {
-        expect(status).toEqual('OK');
-        expect(data.length).toEqual(7);
-        data.forEach((item) => expect(Object.values(item)[0]).toEqual('0'));
-      }));
+    queryHandler.queryNotify({ creator: orgAdminId, expireNow: true }).then(({ status, data }) => {
+      expect(status).toEqual('OK');
+      expect(data.length).toEqual(7);
+      data.forEach((item) => expect(Object.values(item)[0]).toEqual('0'));
+    }));
 });

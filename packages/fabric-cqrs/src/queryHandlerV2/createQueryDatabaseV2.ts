@@ -75,8 +75,8 @@ export const createQueryDatabaseV2: (
     );
     const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
 
-    debug && logger.debug(util.format('returns data, %j', data));
-    debug && logger.debug(util.format('returns error, %j', errors));
+    debug && console.debug(util.format('returns data, %j', data));
+    debug && console.debug(util.format('returns error, %j', errors));
 
     return isError
       ? { status: 'ERROR' as any, message: QUERY_ERR, errors }
@@ -92,11 +92,18 @@ export const createQueryDatabaseV2: (
   }) => Promise<HandlerResponse> = async ({ repo, kind, query, param, countTotalOnly }) => {
     const { search, getIndexName } = repo;
     const index = getIndexName();
-    const [errors, count, data] = await search({ countTotalOnly, kind, index, query, param });
+    const [errors, count, data] = await search({
+      countTotalOnly,
+      kind,
+      index,
+      query,
+      param,
+      restoreFn: kind === 'entity' && repo.getPostSelector(),
+    });
     const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
 
-    debug && logger.debug(util.format('returns data, %j', data));
-    debug && logger.debug(util.format('returns error, %j', errors));
+    debug && console.debug(util.format('returns data, %j', data));
+    debug && console.debug(util.format('returns error, %j', errors));
 
     return isError
       ? { status: 'ERROR', message: 'search error', errors }
@@ -173,7 +180,7 @@ export const createQueryDatabaseV2: (
     mergeCommit: async ({ commit }) => {
       if (!isCommit(commit)) throw new Error(INVALID_ARG);
 
-      debug && logger.debug(util.format('%s - commit: %j', INVALID_ARG, commit));
+      debug && console.debug(util.format('%s - commit: %j', INVALID_ARG, commit));
 
       try {
         const key = allRepos['commit'].getKey(commit);
@@ -184,7 +191,7 @@ export const createQueryDatabaseV2: (
           data: [key],
         };
       } catch (e) {
-        logger.error(util.format('%s, %j', REDIS_ERR, e));
+        logger.error(util.format('mergeCommit - %s, %j', REDIS_ERR, e));
         throw e;
       }
     },
@@ -207,11 +214,11 @@ export const createQueryDatabaseV2: (
           else error.push(key);
         }
       } catch (e) {
-        logger.error(util.format('%s, %j', REDIS_ERR, e));
+        logger.error(util.format('mergeCommitBatch - %s, %j', REDIS_ERR, e));
         throw e;
       }
-      debug && logger.debug(util.format('data returns: %j', data));
-      debug && logger.debug(util.format('error returns: %j', error));
+      debug && console.debug(util.format('data returns: %j', data));
+      debug && console.debug(util.format('error returns: %j', error));
 
       return {
         status: error.length === 0 ? 'OK' : 'ERROR',
@@ -238,7 +245,8 @@ export const createQueryDatabaseV2: (
 
       const [errors, restoredCommits] = await commitRepo.queryCommitsByPattern(pattern);
       const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
-      debug && logger.debug('restored commits, %j', restoredCommits);
+
+      debug && console.debug('restored commits, %j', restoredCommits);
 
       if (isError)
         return {
@@ -268,7 +276,7 @@ export const createQueryDatabaseV2: (
       // TODO: need Paul's help about how to represent tracking information in Redis
       // const newComputedState = Object.assign({}, state, trackingReducer(history));
 
-      debug && logger.debug(util.format('entity being merged, %j', state));
+      debug && console.debug(util.format('entity being merged, %j', state));
 
       // step 5: compute events history, returning comma separator
       if (!state?.id) {
@@ -298,12 +306,12 @@ export const createQueryDatabaseV2: (
           commitId,
         });
       } catch (e) {
-        // TODO: clarify what it means.
-        if (!e.message.startsWith('[lifecycle]')) logger.error(util.format('%s, %j', REDIS_ERR, e));
+        if (!e.message.startsWith('[lifecycle]'))
+          logger.error(util.format('mergeEntity - %s, %j', REDIS_ERR, e));
         throw e;
       }
 
-      debug && logger.debug(util.format('data returns: %j', data));
+      debug && console.debug(util.format('data returns: %j', data));
 
       return { status: 'OK', message: `${entityKeyInRedis} merged successfully`, data };
     },
@@ -334,7 +342,7 @@ export const createQueryDatabaseV2: (
         })
         .filter(({ state }) => !!state); // ensure no null; if error happens when reducing
 
-      debug && logger.debug(util.format('errors found, %j', errors));
+      debug && console.debug(util.format('errors found, %j', errors));
 
       // add entity. Notice that the original orginal commit is not saved.
       const data = [];
@@ -343,12 +351,12 @@ export const createQueryDatabaseV2: (
           const status = await allRepos[entityName].hmset(state, commits);
           data.push({ key, status });
         } catch (e) {
-          logger.error(util.format('%s, %j', REDIS_ERR, e));
+          logger.error(util.format('mergeEntityBatch - %s, %j', REDIS_ERR, e));
           throw e;
         }
       }
 
-      debug && logger.debug(util.format('data returns: %j', data));
+      debug && console.debug(util.format('data returns: %j', data));
 
       return {
         status: errors.length === 0 ? 'OK' : 'ERROR',

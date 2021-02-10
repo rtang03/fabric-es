@@ -99,9 +99,6 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
       }[pattern]),
     getPreSelector: <TInput, TOutput>(): Selector<TInput, TOutput> => preSelector,
     getPostSelector: <TInput, TOutput>(): Selector<TInput, TOutput> => postSelector,
-    getSet: () => {
-      return null;
-    },
     queryCommitsByPattern: async (pattern) => {
       try {
         return await pipelineExec<CommitInRedis>(client, 'HGETALL', pattern).then((data) => [
@@ -133,7 +130,9 @@ export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
         // keys will be ['c:test_proj:qh_proj_test_001:20200528133520841', /* ... */ ]
         const keys = data.slice(1).filter((item) => startsWith(item, prefix));
 
-        if (keys.length !== count) return [[new Error('count does not match')], null, []];
+        // maybe unncessary check: this is safety code; don't know if there is such situation
+        if (!countTotalOnly && keys.length !== count)
+          return [[new Error('count does not match')], null, []];
 
         if (countTotalOnly) return [[], count, null];
 

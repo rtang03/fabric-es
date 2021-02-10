@@ -44,7 +44,7 @@ export type QueryDatabaseV2 = {
   deleteCommitByEntityName: (option: { entityName: string }) => Promise<HandlerResponse<number>>;
 
   /* delete entity by entityName */
-  deleteEntityByEntityName: (option: { entityName: string }) => Promise<HandlerResponse<any>>;
+  deleteEntityByEntityName: (option: { entityName: string }) => Promise<HandlerResponse<number>>;
 
   /** query commits by entityId **/
   queryCommitByEntityId: (option: {

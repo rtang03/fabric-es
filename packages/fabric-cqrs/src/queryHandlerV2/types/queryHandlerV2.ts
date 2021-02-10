@@ -146,6 +146,8 @@ export type QueryHandlerV2 = {
    * **/
   query_deleteCommitByEntityName: (entityName: string) => RepoFcn<number>;
 
+  query_deleteEntityByEntityName: (entityName: string) => RepoFcn<number>;
+
   /**
    * @about full text search of commit.
    * @similar [[QueryHandler]].getPaginatedCommitById

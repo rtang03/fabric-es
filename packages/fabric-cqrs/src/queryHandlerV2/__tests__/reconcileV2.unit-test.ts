@@ -24,7 +24,6 @@ const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
 const caName = process.env.CA_NAME;
 const channelName = process.env.CHANNEL_NAME;
-const ENTITYID = 'qh_proj_test_001';
 const entityName = 'test_reconcile';
 const connectionProfile = process.env.CONNECTION_PROFILE;
 const id = `qh_test_001`;
@@ -471,6 +470,14 @@ describe('Reconcile Tests', () => {
     queryHandler
       .query_deleteCommitByEntityId(entityName)({ id })
       .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual(2);
+      }));
+
+  it('should query_deleteEntityByEntityName', async () =>
+    queryHandler
+      .query_deleteEntityByEntityName(entityName)()
+      .then(({ status, data }) => {
         expect(status).toEqual('OK');
         expect(data).toEqual(2);
       }));
