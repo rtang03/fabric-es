@@ -702,5 +702,28 @@ describe('Pagination tests for getPaginatedEntityById', () => {
         expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_002', 'qh_pag_test_003']);
       }));
 
-  describe('Notification Tests', () => {});
+  it('should deleteEntityByEntityName', async () =>
+    queryHandler
+      .query_deleteEntityByEntityName(entityName)()
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toBe(6);
+      }));
+});
+
+describe('Notification Tests', () => {
+  it('should getNotications by creator', async () =>
+    queryHandler.getNotifications({ creator: 'admin-org1.net' }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      Object.entries(data).forEach(([key, value]) => {
+        expect(key.startsWith('n:admin-org1.net')).toBeTruthy();
+        expect(value).toBe('1');
+      });
+    }));
+
+  it('should clearNotications by creator', async () =>
+    queryHandler.clearNotifications({ creator: 'admin-org1.net' }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      data.forEach((key) => expect(key.startsWith('n:admin-org1.net')).toBeTruthy());
+    }));
 });

@@ -95,7 +95,8 @@ export const createNotificationCenter: (client: Redisearch) => NotificationCente
 
       try {
         const data = {};
-        const [_, keys] = await client.redis.scan(0, 'MATCH', pattern);
+        // TODO: double check the right use of COUNT
+        const [_, keys] = await client.redis.scan(0, 'MATCH', pattern, 'COUNT', 1000);
         if (keys?.length === 0) return { status: 'OK', data: [] };
 
         const [errors, items]: [error: Error[], items: any[]] = await pipelineExec(

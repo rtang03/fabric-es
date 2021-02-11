@@ -174,14 +174,21 @@ export type QueryHandlerV2 = {
   /**
    * @about primarily used by web ui, to retrieve the list of active notifications.
    */
-  queryNotify: (payload: {
+  getNotifications: (payload: {
     creator: string;
     entityName?: string;
     id?: string;
-    commitId?: string;
-    expireNow?: boolean;
-  }) => Promise<HandlerResponse<Record<string, string>[]>>;
+  }) => Promise<HandlerResponse<Record<string, string>>>;
 
+  /**
+   * @about primarily used by web ui, to retrieve one notification.
+   */
+  getNotification: (payload: {
+    creator: string;
+    entityName: string;
+    id: string;
+    commitId: string;
+  }) => Promise<HandlerResponse<Record<string, string>>>;
   /**
    * @about used by bootstraping programs to reconcile entity from Fabric to Redis
    * @return

@@ -101,6 +101,11 @@ beforeAll(async () => {
     )({ entityName })
       .then(({ data }) => console.log(`${data} record(s) deleted`))
       .catch((error) => console.error(error.message));
+
+    // Step 7: remove existing all notifications
+    await queryDatabase
+      .clearNotifications({ creator: 'org1-admin', entityName })
+      .then(({ status }) => console.log(`clearNotifications: ${status}`));
   } catch (e) {
     console.error(e);
     process.exit(1);
@@ -113,14 +118,10 @@ afterAll(async () => {
     .then(({ message }) => console.log(message))
     .catch((result) => console.log(result));
 
-  await queryDatabase
-    .deleteEntityByEntityName({ entityName })
-    .then(({ message }) => console.log(message))
-    .catch((result) => console.log(result));
-
-  await queryDatabase
-    .clearNotifications({ creator: 'org1-admin' })
-    .then(({ status }) => console.log(`clearNotifications: ${status}`));
+  // await queryDatabase
+  //   .deleteEntityByEntityName({ entityName })
+  //   .then(({ message }) => console.log(message))
+  //   .catch((result) => console.log(result));
 
   await client.disconnect();
   console.log('Test ends,... quitting');
@@ -280,4 +281,90 @@ describe('Store/query Test', () => {
         { key: 'e:store_projection:test_003', status: 'OK' },
       ]);
     }));
+
+  it('should query:deleteEntityByEntityName', async () =>
+    dispatcher<number, { entityName: string }>(
+      (payload) => queryAction.deleteEntityByEntityName(payload),
+      {
+        store,
+        logger,
+        slice: 'query',
+        name: 'query:deleteEntityByEntityName',
+        SuccessAction: queryAction.DELETE_ENTITY_SUCCESS,
+        ErrorAction: queryAction.DELETE_ENTITY_ERROR,
+      }
+    )({ entityName }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data).toBe(3);
+    }));
+
+  it('should getNotifications', async () =>
+    dispatcher<Record<string, string>, { creator: string; entityName: string; id: string }>(
+      (payload) => queryAction.getNotifications(payload),
+      {
+        name: 'query:getNotifications',
+        store,
+        slice: 'query',
+        logger,
+        SuccessAction: queryAction.GET_NOTI_SUCCESS,
+        ErrorAction: queryAction.GET_NOTI_ERROR,
+      }
+    )({ creator: 'org1-admin', entityName, id }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data).toEqual({ 'n:org1-admin:store_projection:test_001:20200528133520842': '1' });
+    }));
+
+  it('should getNotification: first read = 1', async () =>
+    dispatcher<
+      Record<string, string>,
+      { creator: string; entityName: string; id: string; commitId: string }
+    >((payload) => queryAction.getNotification(payload), {
+      name: 'query:getNotification',
+      store,
+      slice: 'query',
+      logger,
+      SuccessAction: queryAction.GET_NOTI_SUCCESS,
+      ErrorAction: queryAction.GET_NOTI_ERROR,
+    })({ creator: 'org1-admin', entityName, id, commitId: '20200528133520842' }).then(
+      ({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual({ 'n:org1-admin:store_projection:test_001:20200528133520842': '1' });
+      }
+    ));
+
+  it('should getNotification: second read = 0', async () =>
+    dispatcher<
+      Record<string, string>,
+      { creator: string; entityName: string; id: string; commitId: string }
+    >((payload) => queryAction.getNotification(payload), {
+      name: 'query:getNotification',
+      store,
+      slice: 'query',
+      logger,
+      SuccessAction: queryAction.GET_NOTI_SUCCESS,
+      ErrorAction: queryAction.GET_NOTI_ERROR,
+    })({ creator: 'org1-admin', entityName, id, commitId: '20200528133520842' }).then(
+      ({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual({ 'n:org1-admin:store_projection:test_001:20200528133520842': '0' });
+      }
+    ));
+
+  it('should clearNotification', async () =>
+    dispatcher<string[], { creator: string; entityName: string; id: string; commitId: string }>(
+      (payload) => queryAction.clearNotification(payload),
+      {
+        name: 'query:clearNotification',
+        store,
+        slice: 'query',
+        logger,
+        SuccessAction: queryAction.CLEAR_NOTI_SUCCESS,
+        ErrorAction: queryAction.CLEAR_NOTI_ERROR,
+      }
+    )({ creator: 'org1-admin', entityName, id, commitId: '20200528133520842' }).then(
+      ({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual(['n:org1-admin:store_projection:test_001:20200528133520842']);
+      }
+    ));
 });

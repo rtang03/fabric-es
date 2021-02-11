@@ -5,36 +5,40 @@ import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
 import type { QueryDatabaseV2 } from '../../../queryHandlerV2/types';
 import { action } from '../action';
-import type { QueryByEntityNameAction } from '../types';
+import type { DeleteEntityByEntityNameAction } from '../types';
 
-const { QUERY_BY_ENTITYNAME, querySuccess, queryError } = action;
+const {
+  DELETE_ENTITY_BY_ENTITYNAME,
+  deleteEntityByEntityNameSuccess,
+  deleteEntityByEntityNameError,
+} = action;
 
 export default (
-  action$: Observable<QueryByEntityNameAction>,
+  action$: Observable<DeleteEntityByEntityNameAction>,
   _,
   { queryDatabase, logger }: { queryDatabase: QueryDatabaseV2; logger: Logger }
 ) =>
   action$.pipe(
-    ofType(QUERY_BY_ENTITYNAME),
+    ofType(DELETE_ENTITY_BY_ENTITYNAME),
     map(({ payload }) => payload),
     mergeMap(({ tx_id, args: { entityName } }) =>
       from(
         queryDatabase
-          .queryCommitByEntityName({ entityName })
+          .deleteEntityByEntityName({ entityName })
           .then(({ data, status, errors }) =>
             status === 'OK'
-              ? querySuccess({ tx_id, result: data })
-              : queryError({ tx_id, error: errors })
+              ? deleteEntityByEntityNameSuccess({ tx_id, result: data })
+              : deleteEntityByEntityNameError({ tx_id, error: errors })
           )
           .catch((error) => {
             logger.error(
               util.format(
-                '[store/query/queryByEntityName.js] fail to %s: %j',
-                QUERY_BY_ENTITYNAME,
+                '[store/query/deleteEntityByEntityName.js] fail to %s: %j',
+                DELETE_ENTITY_BY_ENTITYNAME,
                 error
               )
             );
-            return queryError({ tx_id, error: error.message });
+            return deleteEntityByEntityNameError({ tx_id, error: error.message });
           })
       )
     )

@@ -18,6 +18,12 @@ const {
   FIND_SUCCESS,
   NOTIFY_ERROR,
   NOTIFY_SUCCESS,
+  GET_NOTI_ERROR,
+  GET_NOTI_SUCCESS,
+  CLEAR_NOTI_ERROR,
+  CLEAR_NOTI_SUCCESS,
+  DELETE_ENTITY_ERROR,
+  DELETE_ENTITY_SUCCESS,
 } = action;
 
 const actionHandler: ActionHandler = {
@@ -35,6 +41,12 @@ const actionHandler: ActionHandler = {
   [FIND_SUCCESS]: getSuccessActionHandler(FIND_SUCCESS),
   [NOTIFY_ERROR]: getErrorActionHandler(NOTIFY_ERROR),
   [NOTIFY_SUCCESS]: getSuccessActionHandler(NOTIFY_SUCCESS),
+  [GET_NOTI_ERROR]: getErrorActionHandler(GET_NOTI_ERROR),
+  [GET_NOTI_SUCCESS]: getSuccessActionHandler(GET_NOTI_SUCCESS),
+  [CLEAR_NOTI_ERROR]: getErrorActionHandler(CLEAR_NOTI_ERROR),
+  [CLEAR_NOTI_SUCCESS]: getSuccessActionHandler(CLEAR_NOTI_SUCCESS),
+  [DELETE_ENTITY_ERROR]: getErrorActionHandler(DELETE_ENTITY_ERROR),
+  [DELETE_ENTITY_SUCCESS]: getSuccessActionHandler(DELETE_ENTITY_SUCCESS),
 };
 
 export const reducer: Reducer<State> = getReducer(initialState, actionHandler);

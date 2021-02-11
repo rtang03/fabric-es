@@ -5,36 +5,37 @@ import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
 import type { QueryDatabaseV2 } from '../../../queryHandlerV2/types';
 import { action } from '../action';
-import type { QueryByEntityNameAction } from '../types';
+import type { GetNotificationsAction } from '../types';
 
-const { QUERY_BY_ENTITYNAME, querySuccess, queryError } = action;
+const { GET_NOTIFICATIONS, getNotiSuccess, getNotiError } = action;
 
 export default (
-  action$: Observable<QueryByEntityNameAction>,
+  action$: Observable<GetNotificationsAction>,
   _,
   { queryDatabase, logger }: { queryDatabase: QueryDatabaseV2; logger: Logger }
 ) =>
   action$.pipe(
-    ofType(QUERY_BY_ENTITYNAME),
+    ofType(GET_NOTIFICATIONS),
     map(({ payload }) => payload),
-    mergeMap(({ tx_id, args: { entityName } }) =>
+    mergeMap(({ tx_id, args: { creator, entityName, id } }) =>
       from(
         queryDatabase
-          .queryCommitByEntityName({ entityName })
+          .getNotificationsByFields({ creator, entityName, id })
           .then(({ data, status, errors }) =>
             status === 'OK'
-              ? querySuccess({ tx_id, result: data })
-              : queryError({ tx_id, error: errors })
+              ? getNotiSuccess({ tx_id, result: data })
+              : getNotiError({ tx_id, error: errors })
           )
           .catch((error) => {
             logger.error(
               util.format(
-                '[store/query/queryByEntityName.js] fail to %s: %j',
-                QUERY_BY_ENTITYNAME,
+                '[store/query/getNotifications.js] fail to %s: tx_id:%s, %j',
+                GET_NOTIFICATIONS,
+                tx_id,
                 error
               )
             );
-            return queryError({ tx_id, error: error.message });
+            return getNotiError({ tx_id, error: error.message });
           })
       )
     )

@@ -11,7 +11,8 @@ export const pipelineExec: <TResult = any>(
   keys?: string[]
 ) => Promise<[Error, TResult][]> = async (client, action, pattern, keys) => {
   // scan return [string, string[]] , i.e. [cursor, keys[]]
-  const _keys = keys || (await client.redis.scan(0, 'MATCH', pattern))[1];
+  // TODO: Need double check what is right number of COUNT
+  const _keys = keys || (await client.redis.scan(0, 'MATCH', pattern, 'COUNT', 1000))[1];
 
   if (!_keys) throw new Error('keys not found');
 

@@ -61,4 +61,4 @@ export const dispatcher: Dispatcher = <TResult, TArgs>(actionDispatcher, options
       status: 'OK',
       data,
     }))
-    .catch((e) => ({ status: 'ERROR', data: null, error: e }));
+    .catch((error) => ({ status: 'ERROR', data: null, error }));

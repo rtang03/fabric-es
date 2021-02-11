@@ -160,12 +160,10 @@ export const createQueryDatabaseV2: (
 
       return doSearch<TEntity>({ repo, countTotalOnly, kind: 'entity', query, param });
     },
-    getNotification: async ({ creator, entityName, id, commitId }) => {
-      return notificationCenter.getNotification({ creator, entityName, id, commitId });
-    },
-    getNotificationsByFields: async ({ creator, entityName, id }) => {
-      return notificationCenter.getNotificationsByFields({ creator, entityName, id });
-    },
+    getNotification: async ({ creator, entityName, id, commitId }) =>
+      notificationCenter.getNotification({ creator, entityName, id, commitId }),
+    getNotificationsByFields: async ({ creator, entityName, id }) =>
+      notificationCenter.getNotificationsByFields({ creator, entityName, id }),
     getRedisCommitRepo: () => commitRepo,
     queryCommitByEntityId: async ({ entityName, id }) => {
       if (!entityName || !id) throw new Error(INVALID_ARG);
@@ -179,8 +177,6 @@ export const createQueryDatabaseV2: (
     },
     mergeCommit: async ({ commit }) => {
       if (!isCommit(commit)) throw new Error(INVALID_ARG);
-
-      debug && console.debug(util.format('%s - commit: %j', INVALID_ARG, commit));
 
       try {
         const key = allRepos['commit'].getKey(commit);

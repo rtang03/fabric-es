@@ -112,3 +112,61 @@ export interface NotifyAction {
     };
   };
 }
+
+export interface GetNotificationsAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: {
+      creator: string;
+      entityName: string;
+      id: string;
+    };
+  };
+}
+
+export interface GetNotificationAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: {
+      creator: string;
+      commitId: string;
+      entityName: string;
+      id: string;
+    };
+  };
+}
+
+export interface ClearNotificationsAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: {
+      creator: string;
+      entityName: string;
+      id: string;
+    };
+  };
+}
+
+export interface ClearNotificationAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: {
+      creator: string;
+      commitId: string;
+      entityName: string;
+      id: string;
+    };
+  };
+}
+
+export interface DeleteEntityByEntityNameAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: { entityName: string };
+  };
+}

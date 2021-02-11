@@ -1,9 +1,8 @@
 import util from 'util';
 import { Contract, ContractListener, Network } from 'fabric-network';
-import flatten from 'lodash/flatten';
-import uniq from 'lodash/uniq';
 import { getStore } from '../store';
 import { action as projAction } from '../store/projection';
+import { action as queryAction } from '../store/query';
 import { action as reconcileAction } from '../store/reconcile';
 import type { Commit, PubSubPayload, PubSubSysEvent } from '../types';
 import {
@@ -21,7 +20,6 @@ import {
   queryGetById,
   queryGetCommitByEntityId,
   queryGetEntityByEntityName,
-  queryNotify,
 } from '../utils';
 import { INVALID_ARG } from './constants';
 import type { OutputCommit, QueryHandlerOption, QueryHandlerV2 } from './types';
@@ -51,8 +49,30 @@ export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandler
   const queryOption = { logger, store };
 
   return {
-    clearNotification: (option) => queryDatabase.clearNotification(option),
-    clearNotifications: (option) => queryDatabase.clearNotifications(option),
+    clearNotification: async ({ creator, entityName, id, commitId }) =>
+      dispatcher<string[], { creator: string; entityName: string; id: string; commitId: string }>(
+        (payload) => queryAction.clearNotification(payload),
+        {
+          store,
+          logger,
+          name: 'query:clearNotification',
+          slice: 'query',
+          SuccessAction: queryAction.CLEAR_NOTI_SUCCESS,
+          ErrorAction: queryAction.CLEAR_NOTI_ERROR,
+        }
+      )({ creator, entityName, id, commitId }),
+    clearNotifications: async ({ creator, entityName, id }) =>
+      dispatcher<string[], { creator: string; entityName: string; id: string }>(
+        (payload) => queryAction.clearNotifications(payload),
+        {
+          store,
+          logger,
+          name: 'query:clearNotifications',
+          slice: 'query',
+          SuccessAction: queryAction.CLEAR_NOTI_SUCCESS,
+          ErrorAction: queryAction.CLEAR_NOTI_ERROR,
+        }
+      )({ creator, entityName, id }),
     create: <TEvent = any>(entityName) => {
       if (!entityNames.includes(entityName)) throw new Error(INVALID_ARG);
 
@@ -78,7 +98,17 @@ export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandler
     query_deleteCommitByEntityName: (entityName) =>
       queryDeleteCommitByEntityName(entityName, queryOption),
     query_deleteEntityByEntityName: (entityName) => () =>
-      queryDatabase.deleteEntityByEntityName({ entityName }),
+      dispatcher<number, { entityName: string }>(
+        (payload) => queryAction.deleteEntityByEntityName(payload),
+        {
+          store,
+          logger,
+          slice: 'query',
+          name: 'query:deleteEntityByEntityName',
+          SuccessAction: queryAction.DELETE_ENTITY_SUCCESS,
+          ErrorAction: queryAction.DELETE_ENTITY_ERROR,
+        }
+      )({ entityName }),
     fullTextSearchCommit: async ({ query, param, cursor, pagesize }) => {
       const total = await queryFTSGetPaginatedCommit(queryOption)({
         query,
@@ -133,7 +163,30 @@ export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandler
             data: getPaginated<TOutputEntity>(paginated.data, total.data, cursor),
           };
     },
-    queryNotify: queryNotify(queryOption),
+    getNotification: async ({ creator, entityName, id, commitId }) =>
+      dispatcher<
+        Record<string, string>,
+        { creator: string; entityName: string; id: string; commitId: string }
+      >((payload) => queryAction.getNotifications(payload), {
+        store,
+        logger,
+        name: 'query:getNotification',
+        slice: 'query',
+        SuccessAction: queryAction.GET_NOTI_SUCCESS,
+        ErrorAction: queryAction.GET_NOTI_ERROR,
+      })({ creator, entityName, id, commitId }),
+    getNotifications: async ({ creator, entityName, id }) =>
+      dispatcher<Record<string, string>, { creator: string; entityName: string; id: string }>(
+        (payload) => queryAction.getNotifications(payload),
+        {
+          store,
+          logger,
+          name: 'query:getNotifications',
+          slice: 'query',
+          SuccessAction: queryAction.GET_NOTI_SUCCESS,
+          ErrorAction: queryAction.GET_NOTI_ERROR,
+        }
+      )({ creator, entityName, id }),
     disconnect: () => gateway.disconnect(),
     reconcile: () =>
       dispatcher<{ key: string; status: string }[], { entityName: string }>(

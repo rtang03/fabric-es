@@ -10,6 +10,11 @@ import type {
   CIdxSearchAction,
   FindAction,
   NotifyAction,
+  GetNotificationsAction,
+  GetNotificationAction,
+  ClearNotificationAction,
+  ClearNotificationsAction,
+  DeleteEntityByEntityNameAction,
 } from './types';
 
 const DELETE_COMMIT_BY_ENTITYNAME = '[Query-Db] Delete commits by EntityName';
@@ -36,6 +41,17 @@ const FIND_ERROR = '[Query-Db] Find Error';
 const NOTIFY = '[Query-Db] Notify';
 const NOTIFY_SUCCESS = '[Query-Db] Notify Success';
 const NOTIFY_ERROR = '[Query-Db] Notify Error';
+const GET_NOTIFICATION = '[Query-Db] Get notification';
+const GET_NOTIFICATIONS = '[Query-Db] Get notifications';
+const GET_NOTI_SUCCESS = '[Query-Db] Get Notification / Notifications Success';
+const GET_NOTI_ERROR = '[Query-Db] Get Notification / Notifications Error';
+const CLEAR_NOTIFICATION = '[Query-Db] Clear notification';
+const CLEAR_NOTIFICATIONS = '[Query-Db] Clear notifications';
+const CLEAR_NOTI_SUCCESS = '[Query-Db] Clear Notification / Notifications Success';
+const CLEAR_NOTI_ERROR = '[Query-Db] Clear Notification / Notifications Error';
+const DELETE_ENTITY_BY_ENTITYNAME = '[Query-Db] Delete entity by EntityName';
+const DELETE_ENTITY_SUCCESS = '[Query-Db] Delete entity by EntityName Success';
+const DELETE_ENTITY_ERROR = '[Query-Db] Delete entity by EntityName Error';
 
 export const action = {
   DELETE_COMMIT_BY_ENTITYNAME,
@@ -62,6 +78,17 @@ export const action = {
   NOTIFY,
   NOTIFY_SUCCESS,
   NOTIFY_ERROR,
+  GET_NOTIFICATION,
+  GET_NOTIFICATIONS,
+  GET_NOTI_SUCCESS,
+  GET_NOTI_ERROR,
+  CLEAR_NOTIFICATION,
+  CLEAR_NOTIFICATIONS,
+  CLEAR_NOTI_SUCCESS,
+  CLEAR_NOTI_ERROR,
+  DELETE_ENTITY_BY_ENTITYNAME,
+  DELETE_ENTITY_SUCCESS,
+  DELETE_ENTITY_ERROR,
   deleteCommitByEntityId: getAction<DeleteCommitByEntityIdAction>(DELETE_COMMIT_BY_ENTITY_ID),
   deleteCommitByEntityName: getAction<DeleteCommitByEntityNameAction>(DELETE_COMMIT_BY_ENTITYNAME),
   mergeCommit: getAction<MergeAction>(MERGE_COMMIT),
@@ -86,4 +113,15 @@ export const action = {
   notify: getAction<NotifyAction>(NOTIFY),
   notifySuccess: getSuccessAction(NOTIFY_SUCCESS),
   notifyError: getErrorAction(NOTIFY_ERROR),
+  getNotification: getAction<GetNotificationAction>(GET_NOTIFICATION),
+  getNotifications: getAction<GetNotificationsAction>(GET_NOTIFICATIONS),
+  getNotiSuccess: getSuccessAction(GET_NOTI_SUCCESS),
+  getNotiError: getErrorAction(GET_NOTI_ERROR),
+  clearNotification: getAction<ClearNotificationAction>(CLEAR_NOTIFICATION),
+  clearNotifications: getAction<ClearNotificationsAction>(CLEAR_NOTIFICATIONS),
+  clearNotiSuccess: getSuccessAction(CLEAR_NOTI_SUCCESS),
+  clearNotiError: getErrorAction(CLEAR_NOTI_ERROR),
+  deleteEntityByEntityName: getAction<DeleteEntityByEntityNameAction>(DELETE_ENTITY_BY_ENTITYNAME),
+  deleteEntityByEntityNameSuccess: getSuccessAction(DELETE_ENTITY_SUCCESS),
+  deleteEntityByEntityNameError: getErrorAction(DELETE_ENTITY_ERROR),
 };
