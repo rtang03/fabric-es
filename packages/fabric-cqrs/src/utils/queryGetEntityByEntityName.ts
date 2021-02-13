@@ -1,6 +1,6 @@
 import { Store } from 'redux';
 import type { Logger } from 'winston';
-import { commitsToGroupByEntityId } from '../queryHandlerV2';
+import { commitsToGroupByEntityId } from '../queryHandler';
 import { action } from '../store/query';
 import type { HandlerResponse, Reducer } from '../types';
 import { dispatcher } from './dispatcher';

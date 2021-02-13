@@ -1,8 +1,8 @@
 require('dotenv').config({ path: './.env.test' });
 import { Redisearch } from 'redis-modules-sdk';
 import { Store } from 'redux';
-import { createQueryDatabaseV2, createRedisRepository } from '../../../queryHandlerV2';
-import type { OutputCommit, QueryDatabaseV2, RedisRepository } from '../../../queryHandlerV2/types';
+import { createQueryDatabase, createRedisRepository } from '../../../queryHandler';
+import type { OutputCommit, QueryDatabase, RedisRepository } from '../../../queryHandler/types';
 import type { Commit } from '../../../types';
 import {
   Counter,
@@ -22,7 +22,7 @@ let client: Redisearch;
 let commitRepo: RedisRepository<OutputCommit>;
 let counterRedisRepo: RedisRepository<OutputCounter>;
 let store: Store;
-let queryDatabase: QueryDatabaseV2;
+let queryDatabase: QueryDatabase;
 
 const logger = getLogger({ name: 'proj.store.unit-test.ts' });
 const reducers = { [entityName]: reducer };
@@ -52,7 +52,7 @@ beforeAll(async () => {
     });
 
     // Step 3: create QueryDatabase; return commitRepo
-    queryDatabase = createQueryDatabaseV2(client, { [entityName]: counterRedisRepo });
+    queryDatabase = createQueryDatabase(client, { [entityName]: counterRedisRepo });
     commitRepo = queryDatabase.getRedisCommitRepo();
 
     // Step 4: redux store

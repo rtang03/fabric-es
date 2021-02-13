@@ -14,7 +14,7 @@ import {
   REPO_NOT_FOUND,
 } from './constants';
 import { commitSearchDefinition, postSelector, preSelector } from './model';
-import type { CommitInRedis, OutputCommit, QueryDatabaseV2, RedisRepository } from './types';
+import type { CommitInRedis, OutputCommit, QueryDatabase, RedisRepository } from './types';
 import { createNotificationCenter, createRedisRepository } from '.';
 
 /**
@@ -22,11 +22,11 @@ import { createNotificationCenter, createRedisRepository } from '.';
  * @params redisearch client
  * @returns [[QueryDatabase]]
  */
-export const createQueryDatabaseV2: (
+export const createQueryDatabase: (
   client: Redisearch,
   repos: Record<string, RedisRepository<any>>,
   option?: { debug?: boolean; notifyExpiryBySec?: number }
-) => QueryDatabaseV2 = (
+) => QueryDatabase = (
   client,
   repos,
   { debug, notifyExpiryBySec } = { debug: false, notifyExpiryBySec: 86400 }

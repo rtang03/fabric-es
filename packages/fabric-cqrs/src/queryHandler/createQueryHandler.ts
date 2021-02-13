@@ -21,9 +21,9 @@ import {
   queryGetEntityByEntityName,
 } from '../utils';
 import { INVALID_ARG } from './constants';
-import type { OutputCommit, QueryHandlerOption, QueryHandlerV2 } from './types';
+import type { OutputCommit, QueryHandlerOption, QueryHandler } from './types';
 
-export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandlerV2 = (options) => {
+export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler = (options) => {
   const {
     entityNames,
     gateway,

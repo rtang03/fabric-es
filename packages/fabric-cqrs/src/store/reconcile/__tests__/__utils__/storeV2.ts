@@ -3,7 +3,7 @@ import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import type { Logger } from 'winston';
 import { reconcileEpic, reducer as reconcile } from '../..';
-import type { QueryDatabaseV2 } from '../../../../queryHandlerV2/types';
+import type { QueryDatabase } from '../../../../queryHandler/types';
 import type { Reducer } from '../../../../types';
 import { commandEpic, reducer as write } from '../../../command';
 import { projectionEpic, reducer as projection } from '../../../projection';
@@ -14,7 +14,7 @@ const rootEpic = combineEpics(...projectionEpic, ...queryEpic, ...reconcileEpic,
 const rootReducer = combineReducers({ projection, query, write, reconcile });
 
 export const getStore: (options: {
-  queryDatabase: QueryDatabaseV2;
+  queryDatabase: QueryDatabase;
   reducers: Record<string, Reducer>;
   gateway?: Gateway;
   network?: Network;

@@ -5,7 +5,7 @@ import omit from 'lodash/omit';
 import values from 'lodash/values';
 import { Redisearch } from 'redis-modules-sdk';
 import rimraf from 'rimraf';
-import { createQueryHandlerV2, createQueryDatabaseV2, createRedisRepository } from '..';
+import { createQueryHandler, createQueryDatabase, createRedisRepository } from '..';
 import { getNetwork } from '../../services';
 import {
   Counter,
@@ -18,7 +18,7 @@ import {
   reducer,
 } from '../../unit-test-counter';
 import { isCommit, waitForSecond } from '../../utils';
-import type { OutputCommit, QueryHandlerV2, RedisRepository } from '../types';
+import type { OutputCommit, QueryHandler, RedisRepository } from '../types';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -35,7 +35,7 @@ const reducers = { [entityName]: reducer };
 const walletPath = process.env.WALLET;
 
 let client: Redisearch;
-let queryHandler: QueryHandlerV2;
+let queryHandler: QueryHandler;
 let counterRedisRepo: RedisRepository<OutputCounter>;
 let commitRepo: RedisRepository<OutputCommit>;
 
@@ -83,7 +83,7 @@ beforeAll(async () => {
     });
 
     // Step 5: create QueryDatabase
-    const queryDatabase = createQueryDatabaseV2(client, { [entityName]: counterRedisRepo });
+    const queryDatabase = createQueryDatabase(client, { [entityName]: counterRedisRepo });
     commitRepo = queryDatabase.getRedisCommitRepo();
 
     // Step 6: obtain network configuration of Hyperledger Fabric
@@ -96,7 +96,7 @@ beforeAll(async () => {
       enrollmentId: orgAdminId,
     });
 
-    queryHandler = createQueryHandlerV2({
+    queryHandler = createQueryHandler({
       entityNames: [entityName],
       gateway,
       network,

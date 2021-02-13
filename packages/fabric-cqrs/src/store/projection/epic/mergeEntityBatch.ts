@@ -4,7 +4,7 @@ import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
-import type { QueryDatabaseV2 } from '../../../queryHandlerV2/types';
+import type { QueryDatabase } from '../../../queryHandler/types';
 import type { Reducer } from '../../../types';
 import { action } from '../action';
 import type { MergeEntityBatchAction } from '../types';
@@ -18,7 +18,7 @@ export default (
     queryDatabase,
     reducers,
     logger,
-  }: { queryDatabase: QueryDatabaseV2; reducers: Record<string, Reducer>; logger: Logger }
+  }: { queryDatabase: QueryDatabase; reducers: Record<string, Reducer>; logger: Logger }
 ) =>
   action$.pipe(
     ofType(MERGE_ENTITY_BATCH),

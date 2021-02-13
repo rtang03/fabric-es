@@ -14,7 +14,7 @@ export {
 } from './services';
 export * from './types';
 export { isCommit, getHistory, getPaginated } from './utils';
-export { createQueryDatabaseV2, createQueryHandlerV2 } from './queryHandlerV2';
+export { createQueryDatabase, createQueryHandler } from './queryHandler';
 export {
   createRepository,
   createPrivateRepository,
@@ -23,6 +23,7 @@ export {
 } from './repository';
 
 import {
+  OutputCounter,
   CounterCommands,
   Increment,
   Decrement,
@@ -32,6 +33,7 @@ import {
   reducer as counterReducer,
 } from './unit-test-counter';
 export {
+  OutputCounter,
   CounterCommands,
   Counter,
   counterReducer,

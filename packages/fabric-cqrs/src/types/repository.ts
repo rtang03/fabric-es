@@ -1,7 +1,7 @@
 import { Gateway, Network, Wallet } from 'fabric-network';
 import type { FTSearchParameters } from 'redis-modules-sdk';
 import type { Logger } from 'winston';
-import type { QueryDatabaseV2 } from '../queryHandlerV2/types';
+import type { QueryDatabase } from '../queryHandler/types';
 import type {
   Commit,
   FabricResponse,
@@ -25,7 +25,7 @@ export type RepoOption = {
   gateway: Gateway;
 
   /** queryDatabase instance */
-  queryDatabase: QueryDatabaseV2;
+  queryDatabase: QueryDatabase;
 
   /** see [fabric-network.Network](https://hyperledger.github.io/fabric-sdk-node/release-2.2/module-fabric-network.Network.html) **/
   network: Network;

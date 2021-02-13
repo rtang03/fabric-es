@@ -2,7 +2,7 @@ require('dotenv').config({ path: './.env.dev' });
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import { Redisearch } from 'redis-modules-sdk';
-import { createQueryDatabaseV2, createRedisRepository } from '..';
+import { createQueryDatabase, createRedisRepository } from '..';
 import {
   Counter,
   reducer,
@@ -15,13 +15,13 @@ import {
 import { waitForSecond } from '../../utils';
 import { REDUCE_ERR } from '../constants';
 import { isOutputCommit } from '../typeGuard';
-import type { QueryDatabaseV2, RedisRepository, OutputCommit } from '../types';
+import type { QueryDatabase, RedisRepository, OutputCommit } from '../types';
 import { commit, commits, faultReducer, newCommit } from './__utils__';
 
 /**
  * running it: .dn-run.0-db-red.sh
  */
-let queryDatabase: QueryDatabaseV2;
+let queryDatabase: QueryDatabase;
 let client: Redisearch;
 let commitRepo: RedisRepository<OutputCommit>;
 let counter: RedisRepository<OutputCounter>;
@@ -43,7 +43,7 @@ beforeAll(async () => {
     preSelector,
   });
 
-  queryDatabase = createQueryDatabaseV2(client, { [ENTITYNAME]: counter });
+  queryDatabase = createQueryDatabase(client, { [ENTITYNAME]: counter });
   commitRepo = queryDatabase.getRedisCommitRepo();
 
   // prepare eidx

@@ -5,7 +5,7 @@ import { enrollAdmin } from '@fabric-es/operator';
 import { Wallets } from 'fabric-network';
 import { Redisearch } from 'redis-modules-sdk';
 import rimraf from 'rimraf';
-import { createQueryDatabaseV2, createQueryHandlerV2, createRedisRepository } from '..';
+import { createQueryDatabase, createQueryHandler, createRedisRepository } from '..';
 import { getNetwork } from '../../services';
 import {
   Counter,
@@ -18,7 +18,7 @@ import {
   OutputCounter,
 } from '../../unit-test-counter';
 import { isCommit, isCommitRecord, waitForSecond } from '../../utils';
-import type { QueryHandlerV2, RedisRepository, OutputCommit } from '../types';
+import type { QueryHandler, RedisRepository, OutputCommit } from '../types';
 import { commit, commits, newCommit } from './__utils__';
 
 /**
@@ -42,7 +42,7 @@ const reducers = { [entityName]: reducer };
 let client: Redisearch;
 let commitRepo: RedisRepository<OutputCommit>;
 let counterRedisRepo: RedisRepository<OutputCounter>;
-let queryHandler: QueryHandlerV2;
+let queryHandler: QueryHandler;
 
 beforeAll(async () => {
   rimraf.sync(`${walletPath}/${orgAdminId}.id`);
@@ -103,7 +103,7 @@ beforeAll(async () => {
     });
 
     // Step 5: create QueryDatabase
-    const queryDatabase = createQueryDatabaseV2(client, { [entityName]: counterRedisRepo });
+    const queryDatabase = createQueryDatabase(client, { [entityName]: counterRedisRepo });
     commitRepo = queryDatabase.getRedisCommitRepo();
 
     // Step 6: obtain network configuration of Hyperledger Fabric
@@ -117,7 +117,7 @@ beforeAll(async () => {
     });
 
     // Step 7: QueryHandler
-    queryHandler = createQueryHandlerV2({
+    queryHandler = createQueryHandler({
       channelName,
       connectionProfile,
       entityNames: [entityName],

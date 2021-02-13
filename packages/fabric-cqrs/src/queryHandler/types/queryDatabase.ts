@@ -8,7 +8,7 @@ import type { RedisRepository, OutputCommit } from '.';
  * - 🔑 key format of commit *entityName::entityId::commitId*
  * - 🔑 key format of entity *entityName::entityId*
  */
-export type QueryDatabaseV2 = {
+export type QueryDatabase = {
   /** clear notification **/
   clearNotification: (option: {
     creator: string;

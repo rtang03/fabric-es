@@ -1,4 +1,4 @@
-import type { RedisearchDefinition } from '../../queryHandlerV2/types';
+import type { RedisearchDefinition } from '../../queryHandler/types';
 import type { Counter } from '.';
 
 export type CommonCounterFields = Pick<

@@ -10,7 +10,6 @@ import type {
   FabricResponse,
   Reducer,
   Paginated,
-  QueryHandlerEntity,
 } from '.';
 
 /**
@@ -267,16 +266,6 @@ export type QueryHandler = {
     cursor: number,
     pagesize: number
   ) => Promise<HandlerResponse<Paginated<Commit>>>;
-
-  /**
-   * @about full text search of entity
-   * @similar [[QueryHandler]].getPaginatedEntityById
-   */
-  fullTextSearchEntity?: (
-    query: string[],
-    cursor: number,
-    pagesize: number
-  ) => Promise<HandlerResponse<Paginated<QueryHandlerEntity>>>;
 
   /**
    * @about primarily used by web ui, to summary info of entities

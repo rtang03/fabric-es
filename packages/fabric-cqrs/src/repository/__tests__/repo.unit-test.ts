@@ -7,11 +7,11 @@ import rimraf from 'rimraf';
 import { createRepository } from '..';
 import { registerUser } from '../../account';
 import {
-  createQueryDatabaseV2,
-  createQueryHandlerV2,
+  createQueryDatabase,
+  createQueryHandler,
   createRedisRepository,
-} from '../../queryHandlerV2';
-import type { OutputCommit, QueryHandlerV2, RedisRepository } from '../../queryHandlerV2/types';
+} from '../../queryHandler';
+import type { OutputCommit, QueryHandler, RedisRepository } from '../../queryHandler/types';
 import { getNetwork } from '../../services';
 import type { Repository } from '../../types';
 import {
@@ -36,7 +36,7 @@ let commitId: string;
 let client: Redisearch;
 let commitRepo: RedisRepository<OutputCommit>;
 let counterRedisRepo: RedisRepository<OutputCounter>;
-let queryHandler: QueryHandlerV2;
+let queryHandler: QueryHandler;
 
 const caName = process.env.CA_NAME;
 const channelName = process.env.CHANNEL_NAME;
@@ -145,7 +145,7 @@ beforeAll(async () => {
     });
 
     // Step 5: create QueryDatabase
-    const queryDatabase = createQueryDatabaseV2(client, { [entityName]: counterRedisRepo });
+    const queryDatabase = createQueryDatabase(client, { [entityName]: counterRedisRepo });
     commitRepo = queryDatabase.getRedisCommitRepo();
 
     // Step 6: obtain network configuration of Hyperledger Fabric
@@ -170,7 +170,7 @@ beforeAll(async () => {
     });
 
     // Step 8: QueryHandler
-    queryHandler = createQueryHandlerV2({
+    queryHandler = createQueryHandler({
       channelName,
       connectionProfile,
       entityNames: [entityName],

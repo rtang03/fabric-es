@@ -6,7 +6,7 @@ import { Gateway, Network } from 'fabric-network';
 import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import type { Logger } from 'winston';
-import type { QueryDatabaseV2 } from '../queryHandlerV2/types';
+import type { QueryDatabase } from '../queryHandler/types';
 import type { Reducer } from '../types';
 import { commandEpic, reducer as write } from './command';
 import { projectionEpic, reducer as projection } from './projection';
@@ -18,7 +18,7 @@ const rootEpic = combineEpics(...commandEpic, ...projectionEpic, ...queryEpic, .
 const rootReducer = combineReducers({ write, projection, query, reconcile });
 
 export const getStore: (options: {
-  queryDatabase: QueryDatabaseV2;
+  queryDatabase: QueryDatabase;
   gateway: Gateway;
   network: Network;
   reducers: Record<string, Reducer>;

@@ -12,7 +12,7 @@ import type {
   RepoFcn_Id,
   HandlerResponse,
 } from '../../types';
-import type { QueryDatabaseV2 } from '.';
+import type { QueryDatabase } from '.';
 
 /**
  * @about queryHandler Options
@@ -39,7 +39,7 @@ export type QueryHandlerOption = {
   pubSub?: RedisPubSub;
 
   /** query database instance **/
-  queryDatabase: QueryDatabaseV2;
+  queryDatabase: QueryDatabase;
 
   /** multiple reducers **/
   reducers: Record<string, Reducer>;
@@ -48,7 +48,7 @@ export type QueryHandlerOption = {
   wallet: Wallet;
 };
 
-export type QueryHandlerV2 = {
+export type QueryHandler = {
   clearNotification: (option: {
     creator: string;
     entityName: string;
