@@ -15,8 +15,7 @@ import {
   isCommit,
   queryDeleteCommitByEntityId,
   queryDeleteCommitByEntityName,
-  queryFTSGetPaginatedCommit,
-  queryFTSGetPaginatedEntity,
+  queryFullTextSearch,
   queryGetById,
   queryGetCommitByEntityId,
   queryGetEntityByEntityName,
@@ -109,60 +108,10 @@ export const createQueryHandlerV2: (options: QueryHandlerOption) => QueryHandler
           ErrorAction: queryAction.DELETE_ENTITY_ERROR,
         }
       )({ entityName }),
-    fullTextSearchCommit: async ({ query, param, cursor, pagesize }) => {
-      const total = await queryFTSGetPaginatedCommit(queryOption)({
-        query,
-        param: { limit: { first: 0, num: 0 } },
-        countTotalOnly: true,
-      });
-
-      const paginated = await queryFTSGetPaginatedCommit(queryOption)({
-        query,
-        param: {
-          sortBy: { sort: 'DESC', field: 'ts' },
-          ...param,
-          limit: { first: cursor, num: pagesize },
-        },
-      });
-
-      return total?.status !== 'OK'
-        ? { status: 'ERROR', error: total.error, message: total.message }
-        : paginated?.status !== 'OK'
-        ? { status: 'ERROR', error: paginated.error, message: paginated.message }
-        : {
-            status: 'OK',
-            data: getPaginated<OutputCommit>(paginated.data, total.data, cursor),
-          };
-    },
-    fullTextSearchEntity: async <TOutputEntity>({ entityName, query, param, cursor, pagesize }) => {
-      const total = await queryFTSGetPaginatedEntity(queryOption)({
-        entityName,
-        query,
-        param: { limit: { first: 0, num: 0 } },
-        countTotalOnly: true,
-      });
-
-      const paginated = await queryFTSGetPaginatedEntity<TOutputEntity[]>(queryOption)({
-        entityName,
-        query,
-        param: {
-          // sorty timestamp can be overriden by input argument "param"
-          ...{ sortBy: { sort: 'DESC', field: 'ts' } },
-          ...param,
-          // input argument "cursor" and "pagesize" is final
-          ...{ limit: { first: cursor, num: pagesize } },
-        },
-      });
-
-      return total?.status !== 'OK'
-        ? { status: 'ERROR', error: total.error, message: total.message }
-        : paginated?.status !== 'OK'
-        ? { status: 'ERROR', error: paginated.error, message: paginated.message }
-        : {
-            status: 'OK',
-            data: getPaginated<TOutputEntity>(paginated.data, total.data, cursor),
-          };
-    },
+    fullTextSearchCommit: async <OutputCommit>({ query, param, cursor, pagesize }) =>
+      queryFullTextSearch({ store, logger, query, param, cursor, pagesize }),
+    fullTextSearchEntity: async <TEntity>({ query, param, cursor, pagesize, entityName }) =>
+      queryFullTextSearch({ store, logger, query, param, cursor, pagesize, entityName }),
     getNotification: async ({ creator, entityName, id, commitId }) =>
       dispatcher<
         Record<string, string>,

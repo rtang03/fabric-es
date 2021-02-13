@@ -1,15 +1,8 @@
-import { action } from '../action';
-
 require('dotenv').config({ path: './.env.test' });
 import { Redisearch } from 'redis-modules-sdk';
 import { Store } from 'redux';
 import { createQueryDatabaseV2, createRedisRepository } from '../../../queryHandlerV2';
-import type {
-  GetByEntityNameResponse,
-  OutputCommit,
-  QueryDatabaseV2,
-  RedisRepository,
-} from '../../../queryHandlerV2/types';
+import type { OutputCommit, QueryDatabaseV2, RedisRepository } from '../../../queryHandlerV2/types';
 import {
   Counter,
   CounterInRedis,
@@ -18,11 +11,11 @@ import {
   postSelector,
   preSelector,
   reducer,
-} from '../../../unit-test-reducer';
+} from '../../../unit-test-counter';
 import { dispatcher, getLogger, waitForSecond } from '../../../utils';
-import { commit, commits, entityName, newCommit } from './__utils__';
-import { getStore } from './__utils__/storeV2';
 import { action as queryAction } from '../../query';
+import { action } from '../action';
+import { getStore, entityName } from './__utils__';
 
 let client: Redisearch;
 let commitRepo: RedisRepository<OutputCommit>;

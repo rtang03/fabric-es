@@ -11,7 +11,7 @@ import {
   postSelector,
   preSelector,
   OutputCounter,
-} from '../../unit-test-reducer';
+} from '../../unit-test-counter';
 import { waitForSecond } from '../../utils';
 import { REDUCE_ERR } from '../constants';
 import { isOutputCommit } from '../typeGuard';

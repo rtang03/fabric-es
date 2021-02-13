@@ -13,7 +13,7 @@ import {
 } from '..';
 import { getNetwork } from '../../services';
 import type { QueryHandler } from '../../types';
-import { Counter, reducer } from '../../unit-test-reducer';
+import { Counter, reducer } from '../../unit-test-counter';
 import { isCommit, isCommitRecord, waitForSecond } from '../../utils';
 
 /**

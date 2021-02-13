@@ -1,14 +1,5 @@
 import { getStore } from '../store';
-import {
-  Reducer,
-  Repository,
-  RepoOption,
-  BaseEntity,
-  BaseEvent,
-  Commit,
-  PaginatedEntityCriteria,
-  PaginatedCommitCriteria,
-} from '../types';
+import type { Reducer, Repository, RepoOption, BaseEntity, BaseEvent } from '../types';
 import {
   getLogger,
   commandCreate,
@@ -20,10 +11,7 @@ import {
   queryDeleteCommitByEntityName,
   queryGetById,
   commandGetByEntityIdCommitId,
-  queryFind,
-  queryGetPaginatedEntityById,
-  queryGetPaginatedCommitById,
-  doPaginatedSearch,
+  queryFullTextSearch,
 } from '../utils';
 
 /**
@@ -74,27 +62,20 @@ export const createRepository: <TEntity extends BaseEntity, TEvent extends BaseE
   const queryOption = { logger, store };
 
   return {
-    create: commandCreate<TEvent>(entityName, false, commandOption),
     command_deleteByEntityId: commandDeleteByEntityId(entityName, false, commandOption),
     command_getByEntityName: commandGetByEntityName(entityName, false, commandOption),
     command_getByEntityIdCommitId: commandGetByEntityIdCommitId(entityName, false, commandOption),
-    getById: queryGetById<TEntity, TEvent>(entityName, reducer, false, commandOption),
+    create: commandCreate<TEvent>(entityName, false, commandOption),
+    disconnect: () => gateway.disconnect(),
+    fullTextSearchCommit: async <OutputCommit>({ query, param, cursor, pagesize }) =>
+      queryFullTextSearch({ store, logger, query, param, cursor, pagesize }),
+    fullTextSearchEntity: async <TEntity>({ query, param, cursor, pagesize, entityName }) =>
+      queryFullTextSearch({ store, logger, query, param, cursor, pagesize, entityName }),
     getByEntityName: queryGetEntityByEntityName<TEntity>(entityName, reducer, queryOption),
+    getById: queryGetById<TEntity, TEvent>(entityName, reducer, false, commandOption),
     getCommitById: queryGetCommitByEntityId(entityName, queryOption),
+    getEntityName: () => entityName,
     query_deleteCommitByEntityId: queryDeleteCommitByEntityId(entityName, queryOption),
     query_deleteCommitByEntityName: queryDeleteCommitByEntityName(entityName, queryOption),
-    find: queryFind<TEntity>(entityName, queryOption),
-    getPaginatedEntityById: doPaginatedSearch<TEntity, PaginatedEntityCriteria>(
-      entityName,
-      queryGetPaginatedEntityById,
-      queryOption
-    ),
-    getPaginatedCommitById: doPaginatedSearch<Commit, PaginatedCommitCriteria>(
-      entityName,
-      queryGetPaginatedCommitById,
-      queryOption
-    ),
-    getEntityName: () => entityName,
-    disconnect: () => gateway.disconnect(),
   };
 };

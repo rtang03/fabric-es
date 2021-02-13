@@ -87,32 +87,6 @@ export interface EIdxSearchAction {
   };
 }
 
-export interface FindAction {
-  type: string;
-  payload?: {
-    tx_id: string;
-    args: {
-      entityName: string;
-      byId?: string;
-      byDesc?: string;
-      where?: any;
-    };
-  };
-}
-
-export interface NotifyAction {
-  type: string;
-  payload?: {
-    tx_id: string;
-    args: {
-      creator: string;
-      commitId: string;
-      entityName: string;
-      id: string;
-    };
-  };
-}
-
 export interface GetNotificationsAction {
   type: string;
   payload?: {

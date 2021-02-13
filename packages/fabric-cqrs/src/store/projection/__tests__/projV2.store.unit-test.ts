@@ -12,7 +12,7 @@ import {
   postSelector,
   preSelector,
   reducer,
-} from '../../../unit-test-reducer';
+} from '../../../unit-test-counter';
 import { dispatcher, getLogger, isCommitRecord, waitForSecond } from '../../../utils';
 import { action as queryAction } from '../../query';
 import { action as projAction, action } from '../action';

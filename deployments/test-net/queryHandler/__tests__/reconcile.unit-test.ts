@@ -8,7 +8,7 @@ import rimraf from 'rimraf';
 import { commitIndex, createQueryDatabase, createQueryHandler, entityIndex } from '..';
 import { getNetwork } from '../../services';
 import type { QueryHandler } from '../../types';
-import { reducer, CounterEvent, Counter } from '../../unit-test-reducer';
+import { reducer, CounterEvent, Counter } from '../../unit-test-counter';
 import { isCommit, waitForSecond } from '../../utils';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;

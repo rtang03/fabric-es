@@ -34,7 +34,7 @@ export const getMockRepository = <TEntity, TEvent>(
   reducer: (history) => TEntity
 ): Pick<
   Repository<TEntity, TEvent>,
-  'create' | 'getById' | 'getByEntityName' | 'getCommitById' | 'find' | 'getEntityName'
+  'create' | 'getById' | 'getByEntityName' | 'getCommitById' | 'getEntityName'
 > => ({
   create: ({ id, enrollmentId }) => ({
     save: ({ events }) => {
@@ -105,22 +105,6 @@ export const getMockRepository = <TEntity, TEvent>(
           }),
         50
       );
-    }),
-  find: ({ byId, byDesc }) =>
-    new Promise<HandlerResponse<TEntity[]>>((resolve) => {
-      setTimeout(() => {
-        const entities: TEntity[] = getEntities({
-          entityName,
-          reducer,
-          mockdb,
-        });
-        const entityArray: any[] = byDesc ? [] : byId ? filter(entities, { id: byId }) : [];
-        const data = {};
-
-        entityArray.forEach((entity) => (data[`${entityName}::${entity.id}`] = entity));
-
-        resolve({ data: values(data), status: 'OK' });
-      }, 50);
     }),
   getEntityName: () => entityName,
 });

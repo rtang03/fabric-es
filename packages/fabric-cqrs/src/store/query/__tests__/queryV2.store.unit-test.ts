@@ -1,7 +1,7 @@
 require('dotenv').config({ path: './.env.test' });
 import { Redisearch } from 'redis-modules-sdk';
 import { Store } from 'redux';
-import { commitsToGroupByEntityId } from '../../../queryHandler';
+import { commitsToGroupByEntityId } from '../../../queryHandlerV2';
 import { createQueryDatabaseV2, createRedisRepository } from '../../../queryHandlerV2';
 import type {
   GetByEntityNameResponse,
@@ -18,11 +18,10 @@ import {
   postSelector,
   preSelector,
   reducer,
-} from '../../../unit-test-reducer';
+} from '../../../unit-test-counter';
 import { dispatcher, getLogger, waitForSecond } from '../../../utils';
 import { action, action as queryAction } from '../action';
-import { commit, commits, entityName, newCommit } from './__utils__';
-import { getStore } from './__utils__/storeV2';
+import { getStore, commit, commits, entityName, newCommit } from './__utils__';
 
 let client: Redisearch;
 let commitRepo: RedisRepository<OutputCommit>;

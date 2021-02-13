@@ -16,7 +16,7 @@ import {
   postSelector,
   preSelector,
   reducer,
-} from '../../unit-test-reducer';
+} from '../../unit-test-counter';
 import { isCommit, waitForSecond } from '../../utils';
 import type { OutputCommit, QueryHandlerV2, RedisRepository } from '../types';
 

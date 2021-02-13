@@ -5,3 +5,4 @@ export * from './createQueryDatabaseV2';
 export * from './createNotificationCenter';
 export * from './typeGuard';
 export * from './createQueryHandlerV2';
+export * from './commitsToGroupByEntityId';

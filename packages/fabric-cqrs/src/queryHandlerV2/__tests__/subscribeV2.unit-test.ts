@@ -16,7 +16,7 @@ import {
   postSelector,
   preSelector,
   OutputCounter,
-} from '../../unit-test-reducer';
+} from '../../unit-test-counter';
 import { isCommit, isCommitRecord, waitForSecond } from '../../utils';
 import type { QueryHandlerV2, RedisRepository, OutputCommit } from '../types';
 import { commit, commits, newCommit } from './__utils__';
@@ -39,10 +39,10 @@ const id = `qh_sub_test_001`;
 const timestampsOnCreate = [];
 const reducers = { [entityName]: reducer };
 
-let queryHandler: QueryHandlerV2;
 let client: Redisearch;
 let commitRepo: RedisRepository<OutputCommit>;
 let counterRedisRepo: RedisRepository<OutputCounter>;
+let queryHandler: QueryHandlerV2;
 
 beforeAll(async () => {
   rimraf.sync(`${walletPath}/${orgAdminId}.id`);
@@ -116,20 +116,21 @@ beforeAll(async () => {
       enrollmentId: orgAdminId,
     });
 
+    // Step 7: QueryHandler
     queryHandler = createQueryHandlerV2({
+      channelName,
+      connectionProfile,
       entityNames: [entityName],
       gateway,
       network,
       queryDatabase,
-      connectionProfile,
-      channelName,
-      wallet,
       reducers,
+      wallet,
     });
 
     await queryHandler.subscribeHub([entityName]);
 
-    // Step 7: prepare Redisearch indexes
+    // Step 8: prepare Redisearch indexes
     const eidx = counterRedisRepo.getIndexName();
     await counterRedisRepo
       .dropIndex()
@@ -154,7 +155,7 @@ beforeAll(async () => {
         process.exit(1);
       });
 
-    // Step 8: remove pre-existing records
+    // Step 9: remove pre-existing records
     await queryDatabase
       .clearNotifications({ creator: 'admin-org1.net' })
       .then(({ status }) => console.log(`clearNotifications: ${status}`));

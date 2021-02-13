@@ -6,7 +6,6 @@ import type {
   Reducer,
   SaveFcn,
   Commit,
-  EntityInfo,
   FabricResponse,
   Paginated,
   RepoFcn,
@@ -19,34 +18,34 @@ import type { QueryDatabaseV2 } from '.';
  * @about queryHandler Options
  */
 export type QueryHandlerOption = {
+  /** path to connectionProfile **/
+  connectionProfile: string;
+
+  channelName: string;
+
   /** when the query handler starts, it reconciles entities from Fabric to Redis **/
   entityNames: string[];
-
-  /** query database instance **/
-  queryDatabase: QueryDatabaseV2;
 
   /** high level fabric api - gateway **/
   gateway: Gateway;
 
+  /** winston logger **/
+  logger?: Logger;
+
   /** high level fabric api - network **/
   network: Network;
-
-  channelName: string;
-
-  /** wallet instance **/
-  wallet: Wallet;
-
-  /** path to connectionProfile **/
-  connectionProfile: string;
-
-  /** multiple reducers **/
-  reducers: Record<string, Reducer>;
 
   /** redisPubSub instance **/
   pubSub?: RedisPubSub;
 
-  /** winston logger **/
-  logger?: Logger;
+  /** query database instance **/
+  queryDatabase: QueryDatabaseV2;
+
+  /** multiple reducers **/
+  reducers: Record<string, Reducer>;
+
+  /** wallet instance **/
+  wallet: Wallet;
 };
 
 export type QueryHandlerV2 = {
@@ -63,49 +62,6 @@ export type QueryHandlerV2 = {
     id?: string;
     commitId?: string;
   }) => Promise<HandlerResponse<string[]>>;
-
-  /**
-   * @about 📥 write events to onchain repository, with enrollmentId, and entityId
-   * @unit_test this api is solely for *unit-test* purpose.
-   * @same [[Repository]].create
-   * **/
-  create: <TEvent>(
-    entityName: string
-  ) => (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
-
-  /**
-   * @about update current entity, by appending new events
-   * 1. 📤  get currentState of entity by entityId
-   * 1. 📥  return [[SaveFcn | Save]] function to append new events
-   *
-   * @same [[Repository]].getById
-   * **/
-  getById: <TEntity, TEvent>(
-    entityName: string
-  ) => (option: {
-    enrollmentId: string;
-    id: string;
-  }) => Promise<{
-    currentState: TEntity;
-    save: SaveFcn<TEvent>;
-  }>;
-
-  /**
-   * @about 📤  get commits by entityName. Reduce to _entity_, on the fly
-   * @return ```typescript
-   * () => Promise<HandlerResponse<TEntity[]>>
-   * ```
-   **/
-  getByEntityName: <TEntity = any>(entityName: string) => RepoFcn<TEntity[]>;
-
-  /**
-   * @about 📤 get commits by entityId
-   * @same [[Repository]].getCommitById
-   * @return ```typescript
-   * (payload: { id: string }) => Promise<HandlerResponse<Commit[]>>
-   * ```
-   * **/
-  getCommitById: (entityName: string) => RepoFcn_Id<Commit[]>;
 
   /**
    * @about 📥 delete commit by entityId
@@ -129,24 +85,19 @@ export type QueryHandlerV2 = {
   command_getByEntityName: (entityName: string) => RepoFcn<Commit[]>;
 
   /**
-   * @about 📤 delete commmts by entityId
-   * @same [[Repository]].query_deleteCommitByEntityId
-   * @return ```typescript
-   * (payload: { id: string }) => Promise<HandlerResponse<number>>
-   * ```
+   * @about 📥 write events to onchain repository, with enrollmentId, and entityId
+   * @unit_test this api is solely for *unit-test* purpose.
+   * @same [[Repository]].create
    * **/
-  query_deleteCommitByEntityId: (entityName: string) => RepoFcn_Id<number>;
+  create: <TEvent>(
+    entityName: string
+  ) => (option: { enrollmentId: string; id: string }) => { save: SaveFcn<TEvent> };
 
   /**
-   * @about 📤 delete commit by entityName
-   * @same [[Repository]].query_deleteCommitByEntityName
-   * @return ```typescript
-   * () => Promise<HandlerResponse<number>>
-   * ```
+   * @about disconnect from fabric peer
+   * @return `() => void`
    * **/
-  query_deleteCommitByEntityName: (entityName: string) => RepoFcn<number>;
-
-  query_deleteEntityByEntityName: (entityName: string) => RepoFcn<number>;
+  disconnect: () => void;
 
   /**
    * @about full text search of commit.
@@ -172,6 +123,40 @@ export type QueryHandlerV2 = {
   }) => Promise<HandlerResponse<Paginated<TOutputEntity>>>;
 
   /**
+   * @about 📤  get commits by entityName. Reduce to _entity_, on the fly
+   * @return ```typescript
+   * () => Promise<HandlerResponse<TEntity[]>>
+   * ```
+   **/
+  getByEntityName: <TEntity = any>(entityName: string) => RepoFcn<TEntity[]>;
+
+  /**
+   * @about update current entity, by appending new events
+   * 1. 📤  get currentState of entity by entityId
+   * 1. 📥  return [[SaveFcn | Save]] function to append new events
+   *
+   * @same [[Repository]].getById
+   * **/
+  getById: <TEntity, TEvent>(
+    entityName: string
+  ) => (option: {
+    enrollmentId: string;
+    id: string;
+  }) => Promise<{
+    currentState: TEntity;
+    save: SaveFcn<TEvent>;
+  }>;
+
+  /**
+   * @about 📤 get commits by entityId
+   * @same [[Repository]].getCommitById
+   * @return ```typescript
+   * (payload: { id: string }) => Promise<HandlerResponse<Commit[]>>
+   * ```
+   * **/
+  getCommitById: (entityName: string) => RepoFcn_Id<Commit[]>;
+
+  /**
    * @about primarily used by web ui, to retrieve the list of active notifications.
    */
   getNotifications: (payload: {
@@ -189,6 +174,27 @@ export type QueryHandlerV2 = {
     id: string;
     commitId: string;
   }) => Promise<HandlerResponse<Record<string, string>>>;
+
+  /**
+   * @about 📤 delete commmts by entityId
+   * @same [[Repository]].query_deleteCommitByEntityId
+   * @return ```typescript
+   * (payload: { id: string }) => Promise<HandlerResponse<number>>
+   * ```
+   * **/
+  query_deleteCommitByEntityId: (entityName: string) => RepoFcn_Id<number>;
+
+  /**
+   * @about 📤 delete commit by entityName
+   * @same [[Repository]].query_deleteCommitByEntityName
+   * @return ```typescript
+   * () => Promise<HandlerResponse<number>>
+   * ```
+   * **/
+  query_deleteCommitByEntityName: (entityName: string) => RepoFcn<number>;
+
+  query_deleteEntityByEntityName: (entityName: string) => RepoFcn<number>;
+
   /**
    * @about used by bootstraping programs to reconcile entity from Fabric to Redis
    * @return
@@ -212,10 +218,4 @@ export type QueryHandlerV2 = {
    * @return `() => void`
    * **/
   unsubscribeHub: () => void;
-
-  /**
-   * @about disconnect from fabric peer
-   * @return `() => void`
-   * **/
-  disconnect: () => void;
 };

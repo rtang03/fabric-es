@@ -8,8 +8,6 @@ import type {
   QueryByEntityNameAction,
   EIdxSearchAction,
   CIdxSearchAction,
-  FindAction,
-  NotifyAction,
   GetNotificationsAction,
   GetNotificationAction,
   ClearNotificationAction,
@@ -35,12 +33,6 @@ const CIDX_SEARCH = '[Query-Db] cidx Search';
 const EIDX_SEARCH = '[Query-Db] eidx Search';
 const SEARCH_SUCCESS = '[Query-Db] Search Success';
 const SEARCH_ERROR = '[Query-Db] Search Error';
-const FIND = '[Query-Db] Find';
-const FIND_SUCCESS = '[Query-Db] Find Success';
-const FIND_ERROR = '[Query-Db] Find Error';
-const NOTIFY = '[Query-Db] Notify';
-const NOTIFY_SUCCESS = '[Query-Db] Notify Success';
-const NOTIFY_ERROR = '[Query-Db] Notify Error';
 const GET_NOTIFICATION = '[Query-Db] Get notification';
 const GET_NOTIFICATIONS = '[Query-Db] Get notifications';
 const GET_NOTI_SUCCESS = '[Query-Db] Get Notification / Notifications Success';
@@ -72,12 +64,6 @@ export const action = {
   EIDX_SEARCH,
   SEARCH_SUCCESS,
   SEARCH_ERROR,
-  FIND,
-  FIND_SUCCESS,
-  FIND_ERROR,
-  NOTIFY,
-  NOTIFY_SUCCESS,
-  NOTIFY_ERROR,
   GET_NOTIFICATION,
   GET_NOTIFICATIONS,
   GET_NOTI_SUCCESS,
@@ -107,12 +93,6 @@ export const action = {
   eIdxSearch: getAction<EIdxSearchAction>(EIDX_SEARCH),
   searchSuccess: getSuccessAction(SEARCH_SUCCESS),
   searchError: getErrorAction(SEARCH_ERROR),
-  find: getAction<FindAction>(FIND),
-  findSuccess: getSuccessAction(FIND_SUCCESS),
-  findError: getErrorAction(FIND_ERROR),
-  notify: getAction<NotifyAction>(NOTIFY),
-  notifySuccess: getSuccessAction(NOTIFY_SUCCESS),
-  notifyError: getErrorAction(NOTIFY_ERROR),
   getNotification: getAction<GetNotificationAction>(GET_NOTIFICATION),
   getNotifications: getAction<GetNotificationsAction>(GET_NOTIFICATIONS),
   getNotiSuccess: getSuccessAction(GET_NOTI_SUCCESS),

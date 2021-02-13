@@ -14,7 +14,7 @@ export {
 } from './services';
 export * from './types';
 export { isCommit, getHistory, getPaginated } from './utils';
-export { commitIndex, entityIndex, createQueryDatabase, createQueryHandler } from './queryHandler';
+export { createQueryDatabaseV2, createQueryHandlerV2 } from './queryHandlerV2';
 export {
   createRepository,
   createPrivateRepository,
@@ -30,7 +30,7 @@ import {
   CounterEvent,
   CounterEvents,
   reducer as counterReducer,
-} from './unit-test-reducer';
+} from './unit-test-counter';
 export {
   CounterCommands,
   Counter,

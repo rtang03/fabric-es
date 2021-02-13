@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import omit from 'lodash/omit';
 import { entityIndex, createQueryDatabase, commitIndex } from '..';
 import type { QueryDatabase } from '../../types';
-import { reducer } from '../../unit-test-reducer';
+import { reducer } from '../../unit-test-counter';
 import { commit, commits, newCommit, simpleCounterReducer } from './__utils__';
 
 /**
