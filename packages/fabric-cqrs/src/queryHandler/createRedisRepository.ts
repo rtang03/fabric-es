@@ -9,20 +9,18 @@ import { pipelineExec } from './pipelineExec';
 import type { FieldOption, RedisearchDefinition, RedisRepository } from './types';
 import type { CommitInRedis } from './types';
 
-declare function MaybeCommit<T>(x: T): T extends Commit ? Commit : any;
-
 /**
  * @about create abstract layer for redis repository
  */
-export const createRedisRepository: <TItem, TItemInRedis, TResult>(option: {
+export const createRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
   client: Redisearch;
   kind?: 'entity' | 'commit';
-  fields: RedisearchDefinition<TItem>;
+  fields: RedisearchDefinition<TInput>;
   entityName: string;
   param?: FTCreateParameters;
-  preSelector?: Selector<[TItem, Commit[]?], TItemInRedis>;
-  postSelector?: Selector<TItemInRedis, TResult>;
-}) => RedisRepository<TResult> = <TItem, TItemInRedis, TResult>({
+  preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+  postSelector?: Selector<TItemInRedis, TOutput>;
+}) => RedisRepository<TOutput> = <TItem, TItemInRedis, TResult>({
   client,
   kind = 'entity' as any,
   fields,

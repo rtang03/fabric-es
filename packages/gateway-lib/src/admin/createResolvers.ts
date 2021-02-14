@@ -3,7 +3,7 @@ import { createNetworkOperator, NetworkOperator } from '@fabric-es/operator';
 import { ApolloError } from 'apollo-server';
 import { Wallet, X509Identity } from 'fabric-network';
 import { getLogger } from '..';
-import { catchErrors } from '../utils/catchErrors';
+import { catchResolverErrors } from '../utils/catchResolverErrors';
 
 /**
  * @about create resolvers
@@ -58,7 +58,7 @@ export const createResolvers: (option: {
 
   return {
     Mutation: {
-      createWallet: catchErrors(
+      createWallet: catchResolverErrors(
         async (_, __, { username }) => {
           const res = await operator.registerAndEnroll({
             enrollmentId: username,
@@ -82,7 +82,7 @@ export const createResolvers: (option: {
     },
     Query: {
       isadmin: () => 'echo admin',
-      getCaIdentityByUsername: catchErrors(
+      getCaIdentityByUsername: catchResolverErrors(
         async (_, __, { username }) =>
           ca.getByEnrollmentId(username || '').then(({ result }) =>
             result
@@ -97,7 +97,7 @@ export const createResolvers: (option: {
           ),
         { fcnName: 'getCaIdentityByEnrollmentId', logger, useAuth: false, useAdmin: true }
       ),
-      getWallet: catchErrors(
+      getWallet: catchResolverErrors(
         async (_, __, context) => {
           const identity = (await wallet.get(context.username)) as X509Identity;
           return identity
@@ -110,7 +110,7 @@ export const createResolvers: (option: {
         },
         { fcnName: 'getWallet', logger, useAuth: true, useAdmin: false }
       ),
-      listWallet: catchErrors(async () => wallet.list(), {
+      listWallet: catchResolverErrors(async () => wallet.list(), {
         fcnName: 'listWallet',
         logger,
         useAuth: false,

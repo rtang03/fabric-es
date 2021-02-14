@@ -4,6 +4,8 @@ import gql from 'graphql-tag';
  * @about type definition for queryHandler microservice
  */
 export const typeDefs = gql`
+  scalar JSON
+
   schema {
     query: Query
     mutation: Mutation
@@ -31,35 +33,10 @@ export const typeDefs = gql`
 
   type Query {
     me: String
-    getEntityInfo: [EntityInfo!]!
     fullTextSearchCommit(query: String!, cursor: Int, pagesize: Int): PaginatedCommit!
     fullTextSearchEntity(query: String!, cursor: Int, pagesize: Int): PaginatedEntity!
-    paginatedEntity(
-      creator: String
-      cursor: Int
-      pagesize: Int
-      entityName: String!
-      id: String
-      scope: SearchScope
-      startTime: Int
-      endTime: Int
-      sortByField: String
-      sort: String
-    ): PaginatedEntity!
-    paginatedCommit(
-      creator: String
-      cursor: Int
-      pagesize: Int
-      entityName: String!
-      id: String
-      events: [String!]
-      startTime: Int
-      endTime: Int
-      sortByField: String
-      sort: String
-    ): PaginatedCommit!
     getNotifications: [Notification!]!
-    getNotification(entityName: String, id: String, commitId: String): Notification!
+    getNotification(entityName: String, id: String, commitId: String): [Notification]!
   }
 
   type Notification {
@@ -70,26 +47,11 @@ export const typeDefs = gql`
     read: Boolean!
   }
 
-  type EntityInfo {
-    entityName: String!
-    total: Int!
-    events: [String!]!
-    tagged: [String!]!
-    creators: [String!]!
-    orgs: [String!]!
-    totalCommit: Int!
-  }
-
-  enum SearchScope {
-    CREATED
-    LAST_MODIFIED
-  }
-
   type PaginatedEntity {
     total: Int
     cursor: Int
     hasMore: Boolean!
-    items: [QueryHandlerEntity!]!
+    items: [JSON!]!
   }
 
   type PaginatedCommit {
@@ -97,20 +59,6 @@ export const typeDefs = gql`
     cursor: Int
     hasMore: Boolean!
     items: [Commit!]!
-  }
-
-  type QueryHandlerEntity {
-    id: String!
-    entityName: String!
-    value: String!
-    commits: [String!]!
-    events: String!
-    desc: String
-    tag: String
-    created: Float!
-    creator: String!
-    lastModified: Float!
-    timeline: String!
   }
 
   type Mutation {

@@ -6,7 +6,7 @@ import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from '../admin/constants';
 /**
  * @ignore
  */
-export const catchErrors: <T = any>(
+export const catchResolverErrors: <T = any>(
   fcn: (root, variables, context) => Promise<T>,
   option: { fcnName: string; logger: Logger; useAuth: boolean; useAdmin?: boolean }
 ) => (root, variables, context) => Promise<T> = <TResult>(

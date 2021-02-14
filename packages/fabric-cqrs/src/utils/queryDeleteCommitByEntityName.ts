@@ -1,7 +1,8 @@
 import { Store } from 'redux';
 import type { Logger } from 'winston';
+import type { QueryDatabaseResponse } from '../queryHandler/types';
 import { action } from '../store/query';
-import type { RepoFcn, QueryDatabaseResponse } from '../types';
+import type { RepoFcn } from '../types';
 import { dispatcher } from './dispatcher';
 
 /**

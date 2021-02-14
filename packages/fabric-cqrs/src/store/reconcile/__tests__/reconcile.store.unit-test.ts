@@ -6,7 +6,7 @@ import type { OutputCommit, QueryDatabase, RedisRepository } from '../../../quer
 import {
   Counter,
   CounterInRedis,
-  counterSearchDefinition as fields,
+  counterIndexDefinition as fields,
   OutputCounter,
   postSelector,
   preSelector,

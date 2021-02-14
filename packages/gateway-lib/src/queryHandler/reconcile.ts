@@ -1,4 +1,4 @@
-import { QueryHandler } from '@fabric-es/fabric-cqrs';
+import type { QueryHandler } from '@fabric-es/fabric-cqrs';
 import type { Logger } from 'winston';
 
 /**

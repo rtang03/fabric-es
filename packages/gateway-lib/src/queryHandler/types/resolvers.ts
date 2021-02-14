@@ -1,5 +1,4 @@
-import type { Commit, QueryHandlerEntity, Paginated } from '@fabric-es/fabric-cqrs';
-import type { EntityInfo } from '../../generated';
+import type { Commit, Paginated } from '@fabric-es/fabric-cqrs';
 import type { Notification, QueryHandlerGqlCtx } from '../../types';
 
 /**
@@ -48,12 +47,6 @@ export type QueryHandlerResolvers = {
     me: (_: null, __: null, ctx: QueryHandlerGqlCtx) => string;
 
     /**
-     * @params ctx
-     * @return `Promise<EntityInfo[]>`
-     */
-    getEntityInfo: (_: null, __: null, ctx: QueryHandlerGqlCtx) => Promise<EntityInfo[]>;
-
-    /**
      * @params query
      * @params cursor
      * @params pagesize
@@ -73,73 +66,11 @@ export type QueryHandlerResolvers = {
      * @params ctx
      * @return `Promise<Paginated<QueryHandlerEntity>>`
      */
-    fullTextSearchEntity: (
+    fullTextSearchEntity: <TEntity>(
       _: null,
       variables: { query: string; cursor?: number; pagesize?: number },
       ctx: QueryHandlerGqlCtx
-    ) => Promise<Paginated<QueryHandlerEntity>>;
-
-    /**
-     * @params creator
-     * @params cursor
-     * @params pagesize
-     * @params entityName
-     * @params id
-     * @params scope
-     * @params startTime
-     * @params endTime
-     * @params sortByField
-     * @params sort
-     * @params ctx
-     * @return `Promise<Paginated<QueryHandlerEntity>>`
-     */
-    paginatedEntity: (
-      _: null,
-      variables: {
-        creator: string;
-        cursor: number;
-        pagesize: number;
-        entityName: string;
-        id: string;
-        scope: 'CREATED' | 'LAST_MODIFIED';
-        startTime: number;
-        endTime: number;
-        sortByField: 'id' | 'key' | 'ts' | 'created' | 'creator';
-        sort: 'ASC' | 'DESC';
-      },
-      ctx: QueryHandlerGqlCtx
-    ) => Promise<Paginated<QueryHandlerEntity>>;
-
-    /**
-     * @params creator
-     * @params cursor
-     * @params pagesize
-     * @params entityName
-     * @params id
-     * @params events
-     * @params startTime
-     * @params endTime
-     * @params sortByField
-     * @params sort
-     * @params ctx
-     * @return `Promise<Paginated<Commit>>`
-     */
-    paginatedCommit: (
-      _: null,
-      variables: {
-        creator: string;
-        cursor: number;
-        pagesize: number;
-        entityName: string;
-        id: string;
-        events: string[];
-        startTime: number;
-        endTime: number;
-        sortByField: 'id' | 'key' | 'entityName' | 'ts' | 'creator';
-        sort: 'ASC' | 'DESC';
-      },
-      ctx: QueryHandlerGqlCtx
-    ) => Promise<Paginated<Commit>>;
+    ) => Promise<Paginated<TEntity>>;
 
     /**
      * @params ctx

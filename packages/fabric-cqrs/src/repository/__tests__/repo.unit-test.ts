@@ -20,7 +20,7 @@ import {
   Counter,
   OutputCounter,
   CounterInRedis,
-  counterSearchDefinition as fields,
+  counterIndexDefinition as fields,
   postSelector,
   preSelector,
   isOutputCounter,

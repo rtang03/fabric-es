@@ -12,7 +12,7 @@ import type {
   RepoFcn_Id,
   HandlerResponse,
 } from '../../types';
-import type { QueryDatabase } from '.';
+import type { OutputCommit, QueryDatabase } from '.';
 
 /**
  * @about queryHandler Options
@@ -108,7 +108,7 @@ export type QueryHandler = {
     cursor: number;
     pagesize: number;
     param?: FTSearchParameters;
-  }) => Promise<HandlerResponse<Paginated<Commit>>>;
+  }) => Promise<HandlerResponse<Paginated<OutputCommit>>>;
 
   /**
    * @about full text search of entity

@@ -6,7 +6,7 @@ import { createQueryDatabase, createRedisRepository } from '..';
 import {
   Counter,
   reducer,
-  counterSearchDefinition as fields,
+  counterIndexDefinition as fields,
   CounterInRedis,
   postSelector,
   preSelector,

@@ -2,6 +2,13 @@ import type { FTSearchParameters } from 'redis-modules-sdk';
 import type { BaseMetaEntity, Commit, HandlerResponse, Reducer } from '../../types';
 import type { RedisRepository, OutputCommit } from '.';
 
+export type QueryDatabaseResponse<TResult = any> = {
+  status: string;
+  message: string;
+  result?: TResult;
+  error?: any;
+};
+
 /**
  * @about query database
  *

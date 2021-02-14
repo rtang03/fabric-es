@@ -12,7 +12,7 @@ type Pattern =
 /**
  * @about abstraction of Redis operations
  */
-export type RedisRepository<TResult> = {
+export type RedisRepository<TResult = any> = {
   // https://oss.redislabs.com/redisearch/Commands/#ftcreate
   createIndex: () => Promise<'OK'>;
   /**

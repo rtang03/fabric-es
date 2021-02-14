@@ -7,7 +7,7 @@ import type { Commit } from '../../../types';
 import {
   Counter,
   CounterInRedis,
-  counterSearchDefinition as fields,
+  counterIndexDefinition as fields,
   OutputCounter,
   postSelector,
   preSelector,

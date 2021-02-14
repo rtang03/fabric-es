@@ -1,4 +1,4 @@
-import type { CounterSearchDefintion } from './types';
+import type { CounterIndexDefintion } from './types';
 
 /**
  * @about Redisearch index modeling information. This is map of [[FieldOption]].
@@ -7,7 +7,7 @@ import type { CounterSearchDefintion } from './types';
  * - index: indexing rule
  * - transform: transformation function
  */
-export const counterSearchDefinition: CounterSearchDefintion = {
+export const counterIndexDefinition: CounterIndexDefintion = {
   // common fields
   id: { index: { type: 'TEXT', sortable: true } },
   value: { altName: 'val' },

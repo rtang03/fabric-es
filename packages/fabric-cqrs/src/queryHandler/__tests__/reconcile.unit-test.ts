@@ -11,7 +11,7 @@ import {
   Counter,
   CounterEvent,
   CounterInRedis,
-  counterSearchDefinition as fields,
+  counterIndexDefinition as fields,
   OutputCounter,
   postSelector,
   preSelector,

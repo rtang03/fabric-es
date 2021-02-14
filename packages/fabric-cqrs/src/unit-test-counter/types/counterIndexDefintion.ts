@@ -15,6 +15,6 @@ export type DerivedCounterFields = {
   event: string;
 };
 
-export type CounterSearchDefintion = RedisearchDefinition<
+export type CounterIndexDefintion = RedisearchDefinition<
   CommonCounterFields & DerivedCounterFields
 >;

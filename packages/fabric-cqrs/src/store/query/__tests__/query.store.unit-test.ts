@@ -13,7 +13,7 @@ import type { Commit, HandlerResponse } from '../../../types';
 import {
   Counter,
   CounterInRedis,
-  counterSearchDefinition as fields,
+  counterIndexDefinition as fields,
   OutputCounter,
   postSelector,
   preSelector,

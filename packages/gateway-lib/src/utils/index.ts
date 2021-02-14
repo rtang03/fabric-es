@@ -4,5 +4,6 @@ export * from './shutdownApollo';
 export * from './createService';
 export * from './createGateway';
 export * from './errors';
-
-// DONT export catchErrors, it seems to have conflicting name somewhere
+export * from './composeRedisRepos';
+export * from './waitForSecond';
+export * from './catchResolverErrors';
