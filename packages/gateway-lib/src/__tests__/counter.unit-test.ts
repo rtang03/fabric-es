@@ -135,7 +135,7 @@ beforeAll(async () => {
     });
 
     queryHandlerServer = qhService.server;
-    queryHandler = qhService.queryHandler;
+    queryHandler = qhService.getQueryHandler();
     redisRepos = qhService.getRedisRepos();
 
     // Step 4: define the Redisearch index, and selectors

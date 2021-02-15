@@ -5,12 +5,14 @@ export const FULL_TXT_SEARCH_ENTITY= `
     $query: String!
     $cursor: Int
     $pagesize: Int
+    $param: String
    ) {
     fullTextSearchEntity (
       entityName: $entityName
       query: $query
       cursor: $cursor
       pagesize: $pagesize
+      param: $param
     ) {
       total
       hasMore

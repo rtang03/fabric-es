@@ -2,7 +2,6 @@ import type { Commit, OutputCommit, Paginated, QueryHandler } from '@fabric-es/f
 import { ApolloError, PubSub, UserInputError } from 'apollo-server';
 import { withFilter } from 'graphql-subscriptions';
 import GraphQLJSON from 'graphql-type-json';
-import assign from 'lodash/assign';
 import type { FTSearchParameters } from 'redis-modules-sdk';
 import type { Notification } from '../types';
 import { catchResolverErrors, getLogger } from '../utils';
@@ -12,7 +11,7 @@ type FullTextSearchInput = {
   query: string;
   cursor: number;
   pagesize?: number;
-  param?: FTSearchParameters;
+  param?: string;
 };
 
 type ApolloContext = { queryHandler: QueryHandler; username: string; pubSub: PubSub };
@@ -69,11 +68,13 @@ export const resolvers = {
         { query, cursor = 0, pagesize = 10, param }: FullTextSearchInput,
         { queryHandler }: ApolloContext
       ): Promise<Paginated<OutputCommit>> => {
+        const paramJSON = param && JSON.parse(param);
+
         const { data, error, status } = await queryHandler.fullTextSearchCommit({
           query,
           cursor,
           pagesize,
-          param,
+          param: paramJSON,
         });
 
         // OutputCommit - "data" returns
@@ -112,12 +113,14 @@ export const resolvers = {
       ): Promise<Paginated<any>> => {
         if (!entityName) throw new UserInputError('entityName is missing');
 
+        const paramJSON = param && JSON.parse(param);
+
         const { data, error, status } = await queryHandler.fullTextSearchEntity({
           entityName,
           query,
           pagesize,
           cursor,
-          param,
+          param: paramJSON,
         });
 
         // e.g. OutputCounter - "data" returns
@@ -153,6 +156,7 @@ export const resolvers = {
               creator: keypart[1],
               entityName: keypart[2],
               id: keypart[3],
+              commitId: keypart[4],
               read: value === '0',
             } as Notification;
           })
