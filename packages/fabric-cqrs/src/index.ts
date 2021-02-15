@@ -26,6 +26,7 @@ export {
 } from './repository';
 
 import {
+  isOutputCounter,
   OutputCounter,
   CounterCommands,
   Increment,
@@ -40,6 +41,7 @@ import {
   preSelector as counterPreSelector,
 } from './unit-test-counter';
 export {
+  isOutputCounter,
   CounterInRedis,
   counterPostSelector,
   counterPreSelector,

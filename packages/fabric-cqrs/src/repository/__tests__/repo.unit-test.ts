@@ -6,11 +6,7 @@ import { Redisearch } from 'redis-modules-sdk';
 import rimraf from 'rimraf';
 import { createRepository } from '..';
 import { registerUser } from '../../account';
-import {
-  createQueryDatabase,
-  createQueryHandler,
-  createRedisRepository,
-} from '../../queryHandler';
+import { createQueryDatabase, createQueryHandler, createRedisRepository } from '../../queryHandler';
 import type { OutputCommit, QueryHandler, RedisRepository } from '../../queryHandler/types';
 import { getNetwork } from '../../services';
 import type { Repository } from '../../types';
@@ -224,11 +220,15 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  // await repo
-  //   .query_deleteCommitByEntityName()
-  //   .then(({ data, status }) =>
-  //     console.log(`${entityName}: ${data} record(s) deleted, status: ${status}`)
-  //   );
+  await repo
+    .query_deleteCommitByEntityName()
+    .then(({ data, status }) =>
+      console.log(`${entityName}: ${data} record(s) deleted, status: ${status}`)
+    );
+
+  await queryHandler
+    .clearNotifications({ creator: 'admin-org1.net' })
+    .then((result) => console.log(result));
 
   repo.disconnect();
 

@@ -7,7 +7,9 @@ import {
   counterPreSelector,
   counterReducer,
   isCommit,
+  isOutputCounter,
   OutputCounter,
+  Paginated,
   QueryHandler,
   RedisRepository,
 } from '@fabric-es/fabric-cqrs';
@@ -22,17 +24,14 @@ import values from 'lodash/values';
 import fetch from 'node-fetch';
 import rimraf from 'rimraf';
 import { createQueryHandlerService } from '..';
-import { getLogger, isLoginResponse, waitForSecond } from '../../utils';
+import { getLogger, isBaseEvent, isLoginResponse, waitForSecond } from '../../utils';
 import {
   CREATE_COMMIT,
   FULL_TXT_SEARCH_COMMIT,
   FULL_TXT_SEARCH_ENTITY,
-  GET_ENTITYINFO,
   GET_NOTIFICATION,
   GET_NOTIFICATIONS,
   ME,
-  PAGINATED_COMMIT,
-  PAGINATED_ENTITY,
 } from '../query';
 
 /**
@@ -150,25 +149,25 @@ beforeAll(async () => {
     });
   } catch (e) {
     console.error(e);
-    // process.exit(1);
+    process.exit(1);
   }
 });
 
 // Tear-down the tests in queryHandler shall perform cleanup, for both command & query; so that
 // unit-test can run repeatedly
 afterAll(async () => {
-  for await (const [entityName, redisRepo] of Object.entries(redisRepos)) {
-    await redisRepo
-      .dropIndex(true)
-      .then(() => console.log(`${entityName} - index is dropped`))
-      .catch((error) => console.error(error));
-  }
-
-  await queryHandler
-    .query_deleteCommitByEntityName(entityName)()
-    .then(({ status }) =>
-      console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
-    );
+  // for await (const [entityName, redisRepo] of Object.entries(redisRepos)) {
+  //   await redisRepo
+  //     .dropIndex(true)
+  //     .then(() => console.log(`${entityName} - index is dropped`))
+  //     .catch((error) => console.error(error));
+  // }
+  //
+  // await queryHandler
+  //   .query_deleteCommitByEntityName(entityName)()
+  //   .then(({ status }) =>
+  //     console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
+  //   );
 
   await queryHandler
     .command_deleteByEntityId(entityName)({ id })
@@ -183,9 +182,9 @@ afterAll(async () => {
         console.log(`tear-down: command_deleteByEntityId, ${entityName}:paginated-${i}, ${status}`)
       );
 
-  // await queryHandler
-  //   .queryNotify({ creator: orgAdminId, expireNow: true })
-  //   .then(({ status }) => console.log(`remove notification: ${status}`));
+  await queryHandler
+    .clearNotifications({ creator: 'admin-org1.net' })
+    .then(({ status }) => console.log(`clearNotification: ${status}`));
 
   await server.stop();
 
@@ -277,25 +276,25 @@ describe('QueryHandler Service Test', () => {
 describe('Full Text Search Test', () => {
   beforeAll(async () => waitForSecond(4));
 
-  // it('should fail to fullTextSearchCommit: garbage input', async () =>
-  //   fetch(
-  //     url,
-  //     fetchConfig({
-  //       operationName: 'FullTextSearchCommit',
-  //       query: FULL_TXT_SEARCH_COMMIT,
-  //       variables: { query: 'xyz' },
-  //     })
-  //   )
-  //     .then((r) => r.json())
-  //     .then(({ data }) =>
-  //       expect(data?.fullTextSearchCommit).toEqual({
-  //         cursor: null,
-  //         hasMore: false,
-  //         items: [],
-  //         total: 0,
-  //       })
-  //     ));
-  /*
+  it('should fail to fullTextSearchCommit: garbage input', async () =>
+    fetch(
+      url,
+      fetchConfig({
+        operationName: 'FullTextSearchCommit',
+        query: FULL_TXT_SEARCH_COMMIT,
+        variables: { query: 'xyz' },
+      })
+    )
+      .then((r) => r.json())
+      .then(({ data }) =>
+        expect(data?.fullTextSearchCommit).toEqual({
+          cursor: null,
+          hasMore: false,
+          items: [],
+          total: 0,
+        })
+      ));
+
   it('should fullTextSearchCommit: search by coun*, entityName wildcard', async () =>
     fetch(
       url,
@@ -312,6 +311,7 @@ describe('Full Text Search Test', () => {
         expect(data?.fullTextSearchCommit.cursor).toEqual(1);
         const commit = data?.fullTextSearchCommit.items[0];
         if (isCommit(commit)) {
+          commit.events.forEach((event) => expect(isBaseEvent(event)).toBeTruthy());
           expect(commit.id).toEqual(id);
           expect(commit.entityName).toEqual(entityName);
           expect(commit.version).toEqual(0);
@@ -334,6 +334,7 @@ describe('Full Text Search Test', () => {
         expect(data?.fullTextSearchCommit.cursor).toEqual(1);
         const commit = data?.fullTextSearchCommit.items[0];
         if (isCommit(commit)) {
+          commit.events.forEach((event) => expect(isBaseEvent(event)).toBeTruthy());
           expect(commit.id).toEqual(id);
           expect(commit.entityName).toEqual(entityName);
           expect(commit.version).toEqual(0);
@@ -346,7 +347,7 @@ describe('Full Text Search Test', () => {
       fetchConfig({
         operationName: 'FullTextSearchEntity',
         query: FULL_TXT_SEARCH_ENTITY,
-        variables: { query: 'xyz' },
+        variables: { entityName, query: 'xyz' },
       })
     )
       .then((r) => r.json())
@@ -359,31 +360,36 @@ describe('Full Text Search Test', () => {
         });
       }));
 
+  // data.fullTextSearchEntity.items returns
+  // [
+  //   {
+  //     createdAt: '1613367268189',
+  //     creator: 'admin-org1.net',
+  //     description: 'my desc',
+  //     eventInvolved: [ 'Increment' ],
+  //     id: 'qh_gql_test_counter_001',
+  //     tags: [ 'unit_test', 'gw_lib', 'query_handler' ],
+  //     timestamp: '1613367268189',
+  //     value: 1
+  //   }
+  // ]
   it('should fullTextSearchEntity: search by entityId wildcard', async () =>
     fetch(
       url,
       fetchConfig({
         operationName: 'FullTextSearchEntity',
         query: FULL_TXT_SEARCH_ENTITY,
-        variables: { query: 'qh_gql*' },
+        variables: { entityName, query: 'qh_gql*' },
       })
     )
       .then((r) => r.json())
-      .then(({ data }) => {
+      .then(({ data }: { data: { fullTextSearchEntity: Paginated<any> } }) => {
         expect(data?.fullTextSearchEntity.total).toEqual(1);
         expect(data?.fullTextSearchEntity.hasMore).toEqual(false);
         expect(data?.fullTextSearchEntity.cursor).toEqual(1);
-        const counterObject: QueryHandlerEntity = data?.fullTextSearchEntity.items[0];
-        expect(
-          omit(counterObject, 'value', 'commits', 'created', 'lastModified', 'timeline', 'reducer')
-        ).toEqual({
-          id,
-          entityName,
-          desc: 'my desc',
-          events: 'Increment',
-          creator: 'admin-org1.net',
-          tag: 'unit_test,gw_lib,query_handler',
-        });
+        data?.fullTextSearchEntity.items.forEach((item) =>
+          expect(isOutputCounter(item)).toBeTruthy()
+        );
       }));
 
   it('should fullTextSearchEntity: search by tag, @tag:{query*}', async () =>
@@ -392,7 +398,7 @@ describe('Full Text Search Test', () => {
       fetchConfig({
         operationName: 'FullTextSearchEntity',
         query: FULL_TXT_SEARCH_ENTITY,
-        variables: { query: '@tag:{query*}' },
+        variables: { entityName, query: '@tag:{query*}' },
       })
     )
       .then((r) => r.json())
@@ -400,23 +406,11 @@ describe('Full Text Search Test', () => {
         expect(data?.fullTextSearchEntity.total).toEqual(1);
         expect(data?.fullTextSearchEntity.hasMore).toEqual(false);
         expect(data?.fullTextSearchEntity.cursor).toEqual(1);
-        const counterObject: QueryHandlerEntity = data?.fullTextSearchEntity.items[0];
-        expect(
-          omit(counterObject, 'value', 'commits', 'created', 'lastModified', 'timeline', 'reducer')
-        ).toEqual({
-          id,
-          entityName,
-          desc: 'my desc',
-          events: 'Increment',
-          creator: 'admin-org1.net',
-          tag: 'unit_test,gw_lib,query_handler',
-        });
+        data?.fullTextSearchEntity.items.forEach((item) =>
+          expect(isOutputCounter(item)).toBeTruthy()
+        );
       }));
-
-   */
 });
-
-/*
 
 describe('Paginated search', () => {
   beforeAll(async () => {
@@ -445,25 +439,24 @@ describe('Paginated search', () => {
 
   // when searching out-of-range, the other search criteria remains valid.
   // therefore, it is not returning null, and total is also valid
-  it('should paginatedEntity, cursor=10, out-of-range', async () =>
+  it('should paginated Entity, cursor=10, out-of-range', async () =>
     fetch(
       url,
       fetchConfig({
-        operationName: 'PaginatedEntity',
-        query: PAGINATED_ENTITY,
+        operationName: 'FullTextSearchEntity',
+        query: FULL_TXT_SEARCH_ENTITY,
         variables: {
           cursor: 10,
           pagesize: 2,
           entityName,
-          sortByField: 'id',
-          sort: 'ASC',
+          query: '@id:paginated*',
         },
       })
     )
       .then((r) => r.json())
       .then(({ data, errors }) => {
-        expect(data?.paginatedEntity).toEqual({
-          total: 6,
+        expect(data?.fullTextSearchEntity).toEqual({
+          total: 5,
           hasMore: false,
           cursor: null,
           items: [],
@@ -471,79 +464,72 @@ describe('Paginated search', () => {
         expect(errors).toBeUndefined();
       }));
 
-  it('should fail to paginatedEntity: invalid input argument', async () =>
+  it('should fail to paginated Entity: missing entityName', async () =>
     fetch(
       url,
       fetchConfig({
-        operationName: 'PaginatedEntity',
-        query: PAGINATED_ENTITY,
+        operationName: 'FullTextSearchEntity',
+        query: FULL_TXT_SEARCH_ENTITY,
         variables: {
           cursor: 0,
           pagesize: 2,
-          entityName,
-          sortByField: 'non-exist field',
-          sort: 'ASC',
+          query: '@id:paginated*',
+        },
+      })
+    )
+      .then((r) => r.json())
+      .then(({ data, errors }) => {
+        expect(data).toBeUndefined();
+        expect(errors[0].message).toContain('"$entityName" of required type "String!"');
+      }));
+
+  it('should fail to paginated Entity: invalid input EntityName', async () =>
+    fetch(
+      url,
+      fetchConfig({
+        operationName: 'FullTextSearchEntity',
+        query: FULL_TXT_SEARCH_ENTITY,
+        variables: {
+          cursor: 0,
+          pagesize: 2,
+          entityName: 'noop',
+          query: '@id:paginated*',
         },
       })
     )
       .then((r) => r.json())
       .then(({ data, errors }) => {
         expect(data).toBeNull();
-        expect(errors[0].message).toContain('non-exist');
+        expect(errors[0].message).toContain('entity repo not found');
       }));
 
-  it('should fail to paginatedEntity: invalid input argument', async () =>
+  it('should paginated Entity, cursor=0', async () =>
     fetch(
       url,
       fetchConfig({
-        operationName: 'PaginatedEntity',
-        query: PAGINATED_ENTITY,
-        variables: {
-          cursor: 0,
-          pagesize: 2,
-          entityName: 'noop',
-          sortByField: 'id',
-          sort: 'ASC',
-        },
-      })
-    )
-      .then((r) => r.json())
-      .then(({ data, errors }) => {
-        expect(data?.paginatedEntity).toEqual({
-          cursor: null,
-          hasMore: false,
-          items: [],
-          total: 0,
-        });
-        expect(errors).toBeUndefined();
-      }));
-
-  it('should paginatedEntity, cursor=0', async () =>
-    fetch(
-      url,
-      fetchConfig({
-        operationName: 'PaginatedEntity',
-        query: PAGINATED_ENTITY,
+        operationName: 'FullTextSearchEntity',
+        query: FULL_TXT_SEARCH_ENTITY,
         variables: {
           cursor: 0,
           pagesize: 2,
           entityName,
-          sortByField: 'id',
-          sort: 'ASC',
+          query: '@id:paginated*',
         },
       })
     )
       .then((r) => r.json())
       .then(({ data, errors }) => {
-        expect(data?.paginatedEntity.hasMore).toEqual(true);
-        expect(data?.paginatedEntity.cursor).toEqual(2);
-        expect(data?.paginatedEntity.items.map(({ id }) => id)).toEqual([
+        console.log(data);
+        expect(data?.fullTextSearchEntity.hasMore).toEqual(true);
+        expect(data?.fullTextSearchEntity.cursor).toEqual(2);
+        expect(data?.fullTextSearchEntity.items.map(({ id }) => id)).toEqual([
           'paginated-1',
           'paginated-2',
         ]);
         expect(errors).toBeUndefined();
       }));
 
+  /* ============
   it('should paginatedEntity, last 3rd item: cursor=3 (total is 6)', async () =>
     fetch(
       url,
@@ -1149,8 +1135,11 @@ describe('Paginated search', () => {
         expect(data.getNotification.read).toBeTruthy();
         expect(errors).toBeUndefined();
       }));
+
+   */
 });
 
+/*
 describe('Authentication Failure tests', () => {
   it('should fail with createCommit: no token', async () =>
     fetch(

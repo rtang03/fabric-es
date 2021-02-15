@@ -34,7 +34,7 @@ export const typeDefs = gql`
   type Query {
     me: String
     fullTextSearchCommit(query: String!, cursor: Int, pagesize: Int): PaginatedCommit!
-    fullTextSearchEntity(query: String!, cursor: Int, pagesize: Int): PaginatedEntity!
+    fullTextSearchEntity(entityName: String!, query: String!, cursor: Int, pagesize: Int): PaginatedEntity!
     getNotifications: [Notification!]!
     getNotification(entityName: String, id: String, commitId: String): [Notification]!
   }
@@ -72,13 +72,18 @@ export const typeDefs = gql`
     createCommit(entityName: String, id: String, type: String, payloadString: String): Commit!
   }
 
+  ### OutputCommit
   type Commit {
+    commitId: String
+    creator: String!
+    entityId: String
+    entityName: String
+    event: String
+    events: [JSON]
+    eventsString: String
     id: String
     mspId: String
-    entityName: String
+    ts: Float
     version: Int
-    commitId: String
-    entityId: String
-    eventsString: String
   }
 `;

@@ -1,5 +1,5 @@
 import type { Commit, OutputCommit, Paginated, QueryHandler } from '@fabric-es/fabric-cqrs';
-import { ApolloError, PubSub } from 'apollo-server';
+import { ApolloError, PubSub, UserInputError } from 'apollo-server';
 import { withFilter } from 'graphql-subscriptions';
 import GraphQLJSON from 'graphql-type-json';
 import assign from 'lodash/assign';
@@ -76,15 +76,25 @@ export const resolvers = {
           param,
         });
 
+        // OutputCommit - "data" returns
+        // items: [
+        //   {
+        //     id: 'qh_gql_test_counter_001',
+        //     entityName: 'counter',
+        //     commitId: '20210215044613772',
+        //     mspId: 'Org1MSP',
+        //     creator: 'admin-org1.net',
+        //     event: 'Increment',
+        //     entityId: 'qh_gql_test_counter_001',
+        //     version: 0,
+        //     ts: 1613364371883,
+        //     events: [Array]
+        //   }
+        // ],
+
         if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
 
-        return {
-          ...data,
-          items:
-            data.items?.map((commit) =>
-              assign(commit, { eventsString: JSON.stringify(commit.events) })
-            ) || [],
-        };
+        return data;
       },
       { fcnName: 'fullTextSearchCommit', useAdmin: false, useAuth: true, logger }
     ),
@@ -100,6 +110,8 @@ export const resolvers = {
         }: { entityName: string } & FullTextSearchInput,
         { queryHandler }: ApolloContext
       ): Promise<Paginated<any>> => {
+        if (!entityName) throw new UserInputError('entityName is missing');
+
         const { data, error, status } = await queryHandler.fullTextSearchEntity({
           entityName,
           query,
@@ -107,6 +119,20 @@ export const resolvers = {
           cursor,
           param,
         });
+
+        // e.g. OutputCounter - "data" returns
+        // items: [
+        //   {
+        //     createdAt: '1613366214804',
+        //     creator: 'admin-org1.net',
+        //     description: 'my desc',
+        //     eventInvolved: [Array],
+        //     id: 'qh_gql_test_counter_001',
+        //     tags: [Array],
+        //     timestamp: '1613366214804',
+        //     value: 1
+        //   }
+        // ],
 
         if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
 

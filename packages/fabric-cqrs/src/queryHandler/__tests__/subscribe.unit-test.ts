@@ -1,8 +1,7 @@
-import omit from 'lodash/omit';
-
 require('dotenv').config({ path: './.env.dev' });
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallets } from 'fabric-network';
+import omit from 'lodash/omit';
 import { Redisearch } from 'redis-modules-sdk';
 import rimraf from 'rimraf';
 import { createQueryDatabase, createQueryHandler, createRedisRepository } from '..';
@@ -19,7 +18,7 @@ import {
 } from '../../unit-test-counter';
 import { isCommit, isCommitRecord, waitForSecond } from '../../utils';
 import type { QueryHandler, RedisRepository, OutputCommit } from '../types';
-import { commit, commits, newCommit } from './__utils__';
+
 
 /**
  * ./dn-run.1-db-red-auth.sh

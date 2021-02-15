@@ -1,11 +1,13 @@
 // prettier-ignore
 export const FULL_TXT_SEARCH_ENTITY= `
   query FullTextSearchEntity (
+    $entityName: String!
     $query: String!
     $cursor: Int
     $pagesize: Int
    ) {
     fullTextSearchEntity (
+      entityName: $entityName
       query: $query
       cursor: $cursor
       pagesize: $pagesize
@@ -13,19 +15,7 @@ export const FULL_TXT_SEARCH_ENTITY= `
       total
       hasMore
       cursor
-      items {
-        id
-        entityName
-        value
-        commits
-        events
-        tag
-        desc
-        created
-        creator
-        lastModified
-        timeline
-      }
+      items
     }
   }
 `;
