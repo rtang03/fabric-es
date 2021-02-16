@@ -41,7 +41,7 @@ const caName = process.env.CA_NAME;
 const channelName = process.env.CHANNEL_NAME;
 const connectionProfile = process.env.CONNECTION_PROFILE;
 const enrollmentId = process.env.ORG_ADMIN_ID;
-const entityName = 'counter';
+const entityName = 'gw-gh-counter';
 const id = `qh_gql_test_counter_001`;
 const mspId = process.env.MSPID;
 const proxyServerUri = process.env.PROXY_SERVER;
@@ -49,7 +49,6 @@ const orgAdminId = process.env.ORG_ADMIN_ID;
 const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
 const timestampesOnCreate = [];
 const walletPath = process.env.WALLET;
-const logger = getLogger('[gateway-lib] queryHandler.unit-test.js');
 const QH_PORT = 4400;
 const url = `http://localhost:${QH_PORT}/graphql`;
 const noAuthConfig = (body: any) => ({
@@ -156,13 +155,6 @@ beforeAll(async () => {
 // Tear-down the tests in queryHandler shall perform cleanup, for both command & query; so that
 // unit-test can run repeatedly
 afterAll(async () => {
-  // for await (const [entityName, redisRepo] of Object.entries(redisRepos)) {
-  //   await redisRepo
-  //     .dropIndex(true)
-  //     .then(() => console.log(`${entityName} - index is dropped`))
-  //     .catch((error) => console.error(error));
-  // }
-
   await queryHandler
     .query_deleteEntityByEntityName(entityName)()
     .then(({ status }) =>

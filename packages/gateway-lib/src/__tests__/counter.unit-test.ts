@@ -32,15 +32,15 @@ import {
   GET_WALLET,
   LIST_WALLET,
 } from '../admin/query';
-import { createQueryHandlerService, rebuildIndex } from '../queryHandler';
+import { createQueryHandlerService } from '../queryHandler';
 import { QueryResponse } from '../types';
 import {
   createGateway,
   createService,
-  getLogger,
   isCaIdentity,
   isLoginResponse,
-  isRegisterResponse, waitForSecond
+  isRegisterResponse,
+  waitForSecond,
 } from '../utils';
 import { DECREMENT, GET_COUNTER, INCREMENT, resolvers, typeDefs } from './__utils__';
 
@@ -65,9 +65,8 @@ const username = `gw_test_username_${random}`;
 const password = `password`;
 const email = `gw_test_${random}@test.com`;
 const counterId = `counter_${random}`;
-const entityName = 'counter';
+const entityName = 'gw-repo-counter';
 const enrollmentId = orgAdminId;
-const logger = getLogger('[gateway-lib] counter.unit-test.js');
 
 let app: http.Server;
 let adminApolloService: ApolloServer;
@@ -134,10 +133,6 @@ beforeAll(async () => {
       wallet,
     });
 
-    queryHandlerServer = qhService.server;
-    queryHandler = qhService.getQueryHandler();
-    redisRepos = qhService.getRedisRepos();
-
     // Step 4: define the Redisearch index, and selectors
     qhService.addRedisRepository<Counter, CounterInRedis, OutputCounter>({
       entityName,
@@ -146,6 +141,8 @@ beforeAll(async () => {
       preSelector: counterPreSelector,
     });
 
+    // Notice that, not like createService.
+    // Step 4 and Step 5 cannot be interchanged. The index creation requires index definition.
     // Step 5: Prepare queryHandler
     // 1. connect Fabric
     // 2. recreate Indexes
@@ -153,8 +150,14 @@ beforeAll(async () => {
     // 4. reconcile
     await qhService.prepare();
 
-    // clean-up before tests
-    const { data } = await queryHandler.command_getByEntityName('counter')();
+    // this is Apollo Server
+    queryHandlerServer = qhService.server;
+    queryHandler = qhService.getQueryHandler();
+    // redisRepos will be later use for manually creating and dropping indexes
+    redisRepos = qhService.getRedisRepos();
+
+    // Step 6: clean-up before tests
+    const { data } = await queryHandler.command_getByEntityName(entityName)();
     if (keys(data).length > 0) {
       for await (const { id } of values(data)) {
         await queryHandler
@@ -163,7 +166,7 @@ beforeAll(async () => {
       }
     }
 
-    // Step 6: clean up pre existing Redis
+    // Step 7: clean up pre existing Redis records
     await queryHandler
       .query_deleteCommitByEntityName(entityName)()
       .then(({ status }) =>
@@ -176,13 +179,13 @@ beforeAll(async () => {
         console.log(`set-up: query_deleteByEntityName: organization, status: ${status}`)
       );
 
-    // Step 7: start queryHandler
+    // Step 8: start queryHandler
     await queryHandlerServer.listen({ port: QH_PORT }, () =>
       console.log('queryHandler server started')
     );
 
-    // Step 8: Prepare Counter federated service
-    const { config, getRepository, addRedisRepository } = await createService({
+    // Step 9: Prepare Counter federated service
+    const { config } = await createService({
       asLocalhost: true,
       channelName,
       connectionProfile,
@@ -192,25 +195,20 @@ beforeAll(async () => {
       redisOptions,
     });
 
-    // Step 9: define the Redisearch index, and selectors
-    addRedisRepository<Counter, CounterInRedis, OutputCounter>({
-      entityName,
-      fields: counterIndexDefinition,
-      postSelector: counterPostSelector,
-      preSelector: counterPreSelector,
-    });
+    // Step 9: config Apollo server with models
+    await config({ typeDefs, resolvers })
+      // define the Redisearch index, and selectors
+      .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
+        entityName,
+        fields: counterIndexDefinition,
+        postSelector: counterPostSelector,
+        preSelector: counterPreSelector,
+      })
+      .addRepository<Counter, CounterEvents>(entityName, counterReducer)
+      .create()
+      .listen({ port: MODEL_SERVICE_PORT }, () => console.log('model service started'));
 
-    // Step 10: config Apollo
-    modelApolloService = await config({ typeDefs, resolvers })
-      .addRepository(getRepository<Counter, CounterEvents>(entityName, counterReducer))
-      .create();
-
-    // Step 11: start model service
-    await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () =>
-      console.log('model service started')
-    );
-
-    // step 12: Prepare Admin microservice
+    // step 10: Prepare Admin microservice
     const service = await createAdminService({
       asLocalhost: !(process.env.NODE_ENV === 'production'),
       caAdmin,
@@ -231,7 +229,7 @@ beforeAll(async () => {
       console.log('admin service started')
     );
 
-    // Step 13: Prepare Federated Gateway
+    // Step 11: Prepare Federated Gateway
     app = await createGateway({
       serviceList: [
         { name: 'admin', url: `http://localhost:${ADMIN_SERVICE_PORT}/graphql` },
@@ -240,7 +238,7 @@ beforeAll(async () => {
       authenticationCheck: `${proxyServerUri}/oauth/authenticate`,
     });
 
-    // Step 14: Start Gateway
+    // Step 12: Start Gateway
     return new Promise<void>((done) =>
       app.listen(GATEWAY_PORT, () => {
         console.log('🚀  Federated Gateway started');

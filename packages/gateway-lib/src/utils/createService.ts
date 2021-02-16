@@ -1,3 +1,4 @@
+import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
 import {
   createRepository,
@@ -17,9 +18,7 @@ import { Redisearch } from 'redis-modules-sdk';
 import { createTrackingData, DataSrc } from '..';
 import { Organization, OrgEvents, orgReducer } from '../admin';
 import type { FederatedService } from '../types';
-import { composeRedisRepos } from './composeRedisRepos';
-import { getLogger } from './getLogger';
-import { shutdownApollo } from './shutdownApollo';
+import { composeRedisRepos, getLogger, shutdownApollo } from '.';
 
 /**
  * @about entity microservice
@@ -84,26 +83,44 @@ export const createService: (option: {
   serviceName,
   wallet,
 }) => {
-  const redisRepos: Record<string, RedisRepository> = {};
   const logger = getLogger('[gw-lib] createService.js');
+  const redisRepos: Record<string, RedisRepository> = {};
+  const client = new Redisearch(redisOptions);
 
-  const networkConfig: {
-    enrollmentId: string;
-    network: Network;
-    gateway: Gateway;
-  } = await getNetwork({
-    discovery: !isPrivate,
-    asLocalhost,
-    channelName,
-    connectionProfile,
-    wallet,
-    enrollmentId,
-  });
+  let networkConfig;
+  let gateway: Gateway;
+  let network: Network;
 
-  const mspId =
-    networkConfig && networkConfig.gateway && networkConfig.gateway.getIdentity
-      ? networkConfig.gateway.getIdentity().mspId
-      : undefined;
+  // connect Redis
+  try {
+    await client.connect();
+    logger.info('redis connected');
+  } catch (e) {
+    logger.error(util.format('fail to connect Redis, %j', e));
+    throw new Error(e);
+  }
+
+  // prepare Fabric network connection
+  try {
+    networkConfig = await getNetwork({
+      discovery: !isPrivate,
+      asLocalhost,
+      channelName,
+      connectionProfile,
+      wallet,
+      enrollmentId,
+    });
+
+    logger.info('fabric connected');
+
+    gateway = networkConfig.gateway;
+    network = networkConfig.network;
+  } catch (e) {
+    logger.error(util.format('fail to obtain Fabric network config, %j', e));
+    throw new Error(e);
+  }
+
+  const mspId = gateway?.getIdentity()?.mspId;
 
   const getPrivateRepository = <TEntity, TEvent>(
     entityName: string,
@@ -122,8 +139,6 @@ export const createService: (option: {
       parentName
     );
 
-  const client = new Redisearch(redisOptions);
-
   const queryDatabase = createQueryDatabase(client, redisRepos);
 
   const getRepository = <TEntity, TEvent>(entityName: string, reducer: Reducer) =>
@@ -136,7 +151,6 @@ export const createService: (option: {
     });
 
   return {
-    addRedisRepository: composeRedisRepos(client, redisRepos),
     config: ({ typeDefs, resolvers }) => {
       const repositories: {
         entityName: string;
@@ -147,13 +161,13 @@ export const createService: (option: {
         mspId?: string;
         playground?: boolean;
         introspection?: boolean;
-      }) => Promise<ApolloServer> = async (option) => {
+      }) => ApolloServer = (option) => {
         const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
 
         const args = mspId ? { mspId } : undefined;
         const flags = {
-          playground: option && option.playground,
-          introspection: option && option.introspection,
+          playground: option?.playground,
+          introspection: option?.introspection,
         };
 
         if (repositories.filter((element) => element.entityName === 'organization').length <= 0) {
@@ -196,18 +210,34 @@ export const createService: (option: {
         );
       };
 
-      const addRepository = (repository: Repository | PrivateRepository) => {
+      const addRepository = <TEntity, TEvent>(entityName, reducer) => {
+        const repository = getRepository<TEntity, TEvent>(entityName, reducer);
         repositories.push({
           entityName: repository.getEntityName(),
           repository,
         });
-        return { create, addRepository };
+        return { create, addRepository, addPrivateRepository };
       };
 
-      return { addRepository };
+      const addPrivateRepository = <TEntity, TEvent>(entityName, reducer, parentName) => {
+        const repository = getPrivateRepository<TEntity, TEvent>(entityName, reducer, parentName);
+        repositories.push({
+          entityName: repository.getEntityName(),
+          repository,
+        });
+        return { create, addPrivateRepository };
+      };
+
+      const addRedisRepository = () => {
+        composeRedisRepos(client, redisRepos);
+        return { addRedisRepository, addRepository };
+      };
+
+      return { addRepository, addRedisRepository };
     },
-    disconnect: () => networkConfig.gateway.disconnect(),
-    mspId,
+    disconnect: () => gateway.disconnect(),
+    getMspId: () => mspId,
+    getRedisRepos: () => redisRepos,
     getRepository,
     getPrivateRepository,
     getServiceName: () => serviceName,

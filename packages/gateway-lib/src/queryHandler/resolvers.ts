@@ -48,6 +48,8 @@ export const resolvers = {
       await pubSub.publish(DEV, { pong: message });
       return true;
     },
+    // TODO: This api is NOT well-tested, and need further development
+    //  see https://github.com/rtang03/fabric-es/issues/173
     reloadEntities: catchResolverErrors<boolean>(
       async (
         _,

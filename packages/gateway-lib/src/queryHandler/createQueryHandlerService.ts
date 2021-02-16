@@ -90,15 +90,19 @@ export const createQueryHandlerService: (option: {
   let queryDatabase: QueryDatabase;
   let readyToRunServer = false;
 
+  // TODO: "prepare" function can be change to configurable.
   const prepare = async () => {
     // connect Redis
-    await publisher.connect();
+    try {
+      await publisher.connect();
+      logger.info('publisher connected');
 
-    logger.info('publisher connected');
-
-    await subscriber.connect();
-
-    logger.info('subscriber connected');
+      await subscriber.connect();
+      logger.info('subscriber connected');
+    } catch (e) {
+      logger.error(util.format('fail to connect Redis, %j', e));
+      throw new Error(e);
+    }
 
     // prepare Fabric network connection
     let gateway: Gateway;
