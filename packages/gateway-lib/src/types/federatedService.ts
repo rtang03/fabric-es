@@ -3,7 +3,7 @@ import type { Commit, RedisearchDefinition, RedisRepository } from '@fabric-es/f
 import { ApolloServer } from 'apollo-server';
 import type { Selector } from 'reselect';
 
-interface AddRedisRepository {
+export interface AddRedisRepository {
   addRepository: <TEntity, TEvent>(entityName: string, reducer: Reducer<TEntity>) => AddRepository;
   addRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
     entityName: string;

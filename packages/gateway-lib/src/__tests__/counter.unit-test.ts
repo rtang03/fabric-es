@@ -42,7 +42,7 @@ import {
   isRegisterResponse,
   waitForSecond,
 } from '../utils';
-import { DECREMENT, GET_COUNTER, INCREMENT, resolvers, typeDefs } from './__utils__';
+import { DECREMENT, GET_COUNTER, INCREMENT, resolvers, SEARCH, typeDefs } from './__utils__';
 
 /**
  * ./dn-run.1-db-red-auth.sh or ./dn-run.2-db-red-auth.sh
@@ -527,17 +527,26 @@ describe('Gateway Test - admin service', () => {
         expect(errors).toBeUndefined();
       }));
 
-  it('should getCounter, value = 1', async () =>
+  it('should search, value = 1', async () =>
     request(app)
       .post('/graphql')
       .set('authorization', `bearer ${accessToken}`)
       .send({
-        operationName: 'GetCounter',
-        query: GET_COUNTER,
-        variables: { counterId },
+        operationName: 'Search',
+        query: SEARCH,
+        variables: { query: 'counter_*' },
       })
       .expect(({ body: { data, errors } }) => {
-        expect(data?.getCounter).toEqual({ value: 1 });
+        expect(data?.search.items[0].value).toBe(1);
+        expect(data?.search.items[0].description).toBe('');
+        expect(data?.search.items[0].eventInvolved).toEqual([
+          'Increment',
+          'Increment',
+          'Decrement',
+        ]);
+        expect(data?.search.total).toBe(1);
+        expect(data?.search.cursor).toBe(1);
+        expect(data?.search.hasMore).toBeFalsy();
         expect(errors).toBeUndefined();
       }));
 });

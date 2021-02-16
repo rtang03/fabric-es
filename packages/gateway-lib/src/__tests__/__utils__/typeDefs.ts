@@ -7,9 +7,18 @@ export const typeDefs = gql`
     increment(counterId: String!): Commit!
     decrement(counterId: String!): Commit!
   }
+
   type Query {
     pingCounter: String!
     getCounter(counterId: String!): Counter!
+    search(query: String!): PaginatedOutputCounter!
+  }
+
+  type PaginatedOutputCounter {
+    total: Int
+    cursor: Int
+    hasMore: Boolean!
+    items: [JSON!]!
   }
 
   type Counter {

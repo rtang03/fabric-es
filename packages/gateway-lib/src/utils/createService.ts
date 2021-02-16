@@ -10,6 +10,8 @@ import {
   Reducer,
   Repository,
   createQueryDatabase,
+  RedisearchDefinition,
+  Commit,
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
@@ -17,8 +19,9 @@ import type { RedisOptions } from 'ioredis';
 import { Redisearch } from 'redis-modules-sdk';
 import { createTrackingData, DataSrc } from '..';
 import { Organization, OrgEvents, orgReducer } from '../admin';
-import type { FederatedService } from '../types';
+import type { AddRedisRepository, FederatedService } from '../types';
 import { composeRedisRepos, getLogger, shutdownApollo } from '.';
+import { Selector } from 'reselect';
 
 /**
  * @about entity microservice
@@ -84,12 +87,12 @@ export const createService: (option: {
   wallet,
 }) => {
   const logger = getLogger('[gw-lib] createService.js');
-  const redisRepos: Record<string, RedisRepository> = {};
   const client = new Redisearch(redisOptions);
 
   let networkConfig;
   let gateway: Gateway;
   let network: Network;
+  let redisRepos: Record<string, RedisRepository> = {};
 
   // connect Redis
   try {
@@ -140,12 +143,10 @@ export const createService: (option: {
       parentName
     );
 
-  const queryDatabase = createQueryDatabase(client, redisRepos);
-
   const getRepository = <TEntity, TEvent>(entityName: string, reducer: Reducer) =>
     createRepository<TEntity, TEvent>(entityName, reducer, {
       ...networkConfig,
-      queryDatabase,
+      queryDatabase: createQueryDatabase(client, redisRepos),
       connectionProfile,
       channelName,
       wallet,
@@ -229,8 +230,21 @@ export const createService: (option: {
         return { create, addPrivateRepository };
       };
 
-      const addRedisRepository = () => {
-        composeRedisRepos(client, redisRepos);
+      const addRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
+        entityName: string;
+        fields: RedisearchDefinition<TInput>;
+        preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+        postSelector?: Selector<TItemInRedis, TOutput>;
+      }) => AddRedisRepository = ({ entityName, fields, preSelector, postSelector }) => {
+        redisRepos = composeRedisRepos(
+          client,
+          redisRepos
+        )({
+          entityName,
+          fields,
+          preSelector,
+          postSelector,
+        });
         return { addRedisRepository, addRepository };
       };
 
