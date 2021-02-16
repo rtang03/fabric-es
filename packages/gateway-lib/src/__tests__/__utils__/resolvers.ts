@@ -1,8 +1,8 @@
-import { Commit, Counter } from '@fabric-es/fabric-cqrs';
+import type { Commit, Counter } from '@fabric-es/fabric-cqrs';
 import { getLogger } from '../../utils';
 import { catchResolverErrors } from '../../utils/catchResolverErrors';
 import { commandHanlder } from './handler';
-import { Context } from './types';
+import type { Context } from './types';
 
 const logger = getLogger('[gw-lib-test] resolvers.js');
 
@@ -15,7 +15,7 @@ export const resolvers = {
         { counterId },
         {
           dataSources: {
-            counter: { repo },
+            'gw-repo-counter': { repo },
           },
           username,
         }: Context
@@ -33,7 +33,7 @@ export const resolvers = {
         { counterId },
         {
           dataSources: {
-            counter: { repo },
+            'gw-repo-counter': { repo },
           },
           user_id,
           username,
@@ -51,7 +51,7 @@ export const resolvers = {
         { counterId },
         {
           dataSources: {
-            counter: { repo },
+            'gw-repo-counter': { repo },
           },
           user_id,
           username,

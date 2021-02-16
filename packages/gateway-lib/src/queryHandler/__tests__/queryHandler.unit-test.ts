@@ -19,12 +19,11 @@ import { Wallets } from 'fabric-network';
 import httpStatus from 'http-status';
 import type { RedisOptions } from 'ioredis';
 import keys from 'lodash/keys';
-import omit from 'lodash/omit';
 import values from 'lodash/values';
 import fetch from 'node-fetch';
 import rimraf from 'rimraf';
 import { createQueryHandlerService } from '..';
-import { getLogger, isBaseEvent, isLoginResponse, waitForSecond } from '../../utils';
+import { isBaseEvent, isLoginResponse, waitForSecond } from '../../utils';
 import {
   CREATE_COMMIT,
   FULL_TXT_SEARCH_COMMIT,
@@ -100,31 +99,25 @@ beforeAll(async () => {
       connectionProfile,
       enrollmentId,
       redisOptions,
-      reducers: { counter: counterReducer },
+      reducers: { [entityName]: counterReducer },
       wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
-    });
+    })
+      // define the Redisearch index, and selectors for Counter
+      .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
+        entityName,
+        fields: counterIndexDefinition,
+        postSelector: counterPostSelector,
+        preSelector: counterPreSelector,
+      })
+      // 1. connect Fabric; 2. recreate Indexes; 3. subscribe channel hub; 4. reconcile
+      .run();
 
-    // Step 3: define the Redisearch index, and selectors
-    qhService.addRedisRepository<Counter, CounterInRedis, OutputCounter>({
-      entityName,
-      fields: counterIndexDefinition,
-      postSelector: counterPostSelector,
-      preSelector: counterPreSelector,
-    });
-
-    // Step 5: Prepare queryHandler
-    // 1. connect Fabric
-    // 2. recreate Indexes
-    // 3. subscribe channel hub
-    // 4. reconcile
-    await qhService.prepare();
-
-    server = qhService.server;
+    server = qhService.getServer();
     queryHandler = qhService.getQueryHandler();
     redisRepos = qhService.getRedisRepos();
 
     // clean-up before tests
-    const { data } = await queryHandler.command_getByEntityName('counter')();
+    const { data } = await queryHandler.command_getByEntityName(entityName)();
     if (keys(data).length > 0) {
       for await (const { id } of values(data)) {
         await queryHandler

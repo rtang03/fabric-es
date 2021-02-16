@@ -121,6 +121,7 @@ export const createService: (option: {
   }
 
   const mspId = gateway?.getIdentity()?.mspId;
+  logger.info('mspId: ', mspId);
 
   const getPrivateRepository = <TEntity, TEvent>(
     entityName: string,

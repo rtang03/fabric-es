@@ -1,4 +1,4 @@
-import { CounterCommandHandler, CounterRepo } from './types';
+import type { CounterCommandHandler, CounterRepo } from './types';
 
 export const commandHanlder: (option: {
   enrollmentId: string;

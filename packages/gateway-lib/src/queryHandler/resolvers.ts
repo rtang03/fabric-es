@@ -2,9 +2,9 @@ import type { Commit, OutputCommit, Paginated, QueryHandler } from '@fabric-es/f
 import { ApolloError, PubSub, UserInputError } from 'apollo-server';
 import { withFilter } from 'graphql-subscriptions';
 import GraphQLJSON from 'graphql-type-json';
-import type { FTSearchParameters } from 'redis-modules-sdk';
 import type { Notification } from '../types';
-import { catchResolverErrors, getLogger } from '../utils';
+import { getLogger } from '../utils';
+import { catchResolverErrors } from '../utils/catchResolverErrors';
 import { reconcile } from './reconcile';
 
 type FullTextSearchInput = {

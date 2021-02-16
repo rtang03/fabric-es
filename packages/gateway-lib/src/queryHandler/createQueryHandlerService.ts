@@ -3,7 +3,6 @@ import {
   Commit,
   createQueryDatabase,
   createQueryHandler,
-  createRedisRepository,
   getNetwork,
   getReducer,
   QueryDatabase,
@@ -18,10 +17,18 @@ import { RedisPubSub } from 'graphql-redis-subscriptions';
 import type { RedisOptions } from 'ioredis';
 import fetch from 'node-fetch';
 import { Redisearch } from 'redis-modules-sdk';
+import type { Selector } from 'reselect';
 import { Organization, OrgEvents, orgReducer } from '../admin';
-import { QueryHandlerGqlCtx } from '../types';
+import type { QueryHandlerGqlCtx } from '../types';
 import { composeRedisRepos, getLogger, isAuthResponse } from '../utils';
-import { reconcile, rebuildIndex, resolvers, typeDefs, QueryHandlerService } from '.';
+import {
+  reconcile,
+  rebuildIndex,
+  resolvers,
+  typeDefs,
+  QueryHandlerService,
+  AddQHRedisRepository,
+} from '.';
 
 /**
  * @about create query handler microservice
@@ -59,7 +66,14 @@ export const createQueryHandlerService: (option: {
   redisOptions: RedisOptions;
   reducers: Record<string, Reducer>;
   wallet: Wallet;
-}) => Promise<QueryHandlerService> = async ({
+}) => {
+  addRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
+    entityName: string;
+    fields: RedisearchDefinition<TInput>;
+    preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+    postSelector?: Selector<TItemInRedis, TOutput>;
+  }) => AddQHRedisRepository;
+} = ({
   asLocalhost,
   authCheck,
   connectionProfile,
@@ -79,105 +93,29 @@ export const createQueryHandlerService: (option: {
   const subscriber = new Redisearch(redisOptions);
   const pubSub = new RedisPubSub({ publisher: publisher.redis, subscriber: subscriber.redis });
 
-  // add common domain model reducer(s)
+  // TODO: @paul, please revisit here. add common domain model reducer(s)
   entityNames.push('organization');
   reducers['organization'] = getReducer<Organization, OrgEvents>(orgReducer);
 
   logger.debug(util.format('redis option: %j', redisOptions));
 
-  const redisRepos: Record<string, RedisRepository> = {};
+  let redisRepos: Record<string, RedisRepository> = {};
   let queryHandler: QueryHandler = null;
   let queryDatabase: QueryDatabase;
   let readyToRunServer = false;
 
-  // TODO: "prepare" function can be change to configurable.
-  const prepare = async () => {
-    // connect Redis
-    try {
-      await publisher.connect();
-      logger.info('publisher connected');
+  const addRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
+    entityName: string;
+    fields: RedisearchDefinition<TInput>;
+    preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+    postSelector?: Selector<TItemInRedis, TOutput>;
+  }) => AddQHRedisRepository = ({ entityName, fields, preSelector, postSelector }) => {
+    redisRepos = composeRedisRepos(
+      publisher,
+      redisRepos
+    )({ entityName, fields, preSelector, postSelector });
 
-      await subscriber.connect();
-      logger.info('subscriber connected');
-    } catch (e) {
-      logger.error(util.format('fail to connect Redis, %j', e));
-      throw new Error(e);
-    }
-
-    // prepare Fabric network connection
-    let gateway: Gateway;
-    let network: Network;
-    try {
-      const networkConfig = await getNetwork({
-        asLocalhost,
-        channelName,
-        connectionProfile,
-        discovery: true,
-        enrollmentId,
-        wallet,
-      });
-
-      logger.info('fabric connected');
-
-      gateway = networkConfig.gateway;
-      network = networkConfig.network;
-    } catch (e) {
-      logger.error(util.format('fail to obtain Fabric network config, %j', e));
-      throw new Error(e);
-    }
-
-    // prepare queryHandler
-    queryDatabase = createQueryDatabase(publisher, redisRepos);
-
-    logger.info('queryDatabase ready');
-
-    queryHandler = createQueryHandler({
-      channelName,
-      connectionProfile,
-      entityNames,
-      gateway,
-      network,
-      pubSub,
-      queryDatabase,
-      reducers,
-      wallet,
-    });
-
-    logger.info('queryHandler ready');
-
-    // rebuild Index
-    const commitRepo = queryDatabase.getRedisCommitRepo();
-    const indexes = [commitRepo, ...Object.values(redisRepos)];
-    try {
-      for await (const repo of indexes) {
-        await rebuildIndex(repo, logger);
-      }
-      logger.info(`indexes created`);
-    } catch (e) {
-      logger.error(util.format('fail to rebuild index, %j', e));
-      throw new Error(e);
-    }
-
-    // subscribe Fabric channel hub
-    try {
-      // Note: This may sometimes subscribe a pre-existing contract event (commit)
-      // from a running Fabric Peer. This commit is invalid, and be remove by step 3 below
-      await queryHandler.subscribeHub(entityNames);
-      logger.info('subscribe eventhub');
-    } catch (e) {
-      logger.error(util.format('fail to subscribeHub, %j', e));
-      throw new Error(e);
-    }
-
-    // clean up query-database, and reconcile
-    try {
-      await reconcile(entityNames, queryHandler, logger);
-      logger.info('clean up and reconcile');
-    } catch (e) {
-      logger.error(util.format('fail to reconcile, %j', e));
-      throw new Error(e);
-    }
-    readyToRunServer = true;
+    return { addRedisRepository, run };
   };
 
   const server = new ApolloServer({
@@ -270,16 +208,107 @@ export const createQueryHandlerService: (option: {
         });
     });
 
-  return {
-    addRedisRepository: composeRedisRepos(publisher, redisRepos),
-    getEntityNames: () => entityNames,
-    getRedisRepos: () => redisRepos,
-    getReducers: () => reducers,
-    isReady: () => readyToRunServer,
-    prepare,
-    getQueryHandler: () => queryHandler,
-    publisher,
-    server,
-    shutdown,
+  const run: () => Promise<QueryHandlerService> = async () => {
+    // connect Redis
+    try {
+      await publisher.connect();
+      logger.info('publisher connected');
+
+      await subscriber.connect();
+      logger.info('subscriber connected');
+    } catch (e) {
+      logger.error(util.format('fail to connect Redis, %j', e));
+      throw new Error(e);
+    }
+
+    // prepare Fabric network connection
+    let gateway: Gateway;
+    let network: Network;
+    try {
+      const networkConfig = await getNetwork({
+        asLocalhost,
+        channelName,
+        connectionProfile,
+        discovery: true,
+        enrollmentId,
+        wallet,
+      });
+
+      logger.info('fabric connected');
+
+      gateway = networkConfig.gateway;
+      network = networkConfig.network;
+    } catch (e) {
+      logger.error(util.format('fail to obtain Fabric network config, %j', e));
+      throw new Error(e);
+    }
+
+    // prepare queryHandler
+    queryDatabase = createQueryDatabase(publisher, redisRepos);
+
+    logger.info('queryDatabase ready');
+
+    queryHandler = createQueryHandler({
+      channelName,
+      connectionProfile,
+      entityNames,
+      gateway,
+      network,
+      pubSub,
+      queryDatabase,
+      reducers,
+      wallet,
+    });
+
+    logger.info('queryHandler ready');
+
+    // rebuild Index
+    const commitRepo = queryDatabase.getRedisCommitRepo();
+    const indexes = [commitRepo, ...Object.values(redisRepos)];
+    try {
+      for await (const repo of indexes) {
+        await rebuildIndex(repo, logger);
+      }
+      logger.info(`indexes created`);
+    } catch (e) {
+      logger.error(util.format('fail to rebuild index, %j', e));
+      throw new Error(e);
+    }
+
+    // subscribe Fabric channel hub
+    try {
+      // Note: This may sometimes subscribe a pre-existing contract event (commit)
+      // from a running Fabric Peer. This commit is invalid, and be remove by step 3 below
+      await queryHandler.subscribeHub(entityNames);
+      logger.info('subscribe eventhub');
+    } catch (e) {
+      logger.error(util.format('fail to subscribeHub, %j', e));
+      throw new Error(e);
+    }
+
+    // clean up query-database, and reconcile
+    try {
+      await reconcile(entityNames, queryHandler, logger);
+      logger.info('clean up and reconcile');
+    } catch (e) {
+      logger.error(util.format('fail to reconcile, %j', e));
+      throw new Error(e);
+    }
+    readyToRunServer = true;
+
+    return {
+      addRedisRepository,
+      getEntityNames: () => entityNames,
+      getRedisRepos: () => redisRepos,
+      getReducers: () => reducers,
+      isReady: () => readyToRunServer,
+      run,
+      getQueryHandler: () => queryHandler,
+      publisher,
+      getServer: () => server,
+      shutdown,
+    };
   };
+
+  return { addRedisRepository };
 };

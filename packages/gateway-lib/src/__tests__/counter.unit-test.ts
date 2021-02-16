@@ -65,6 +65,7 @@ const username = `gw_test_username_${random}`;
 const password = `password`;
 const email = `gw_test_${random}@test.com`;
 const counterId = `counter_${random}`;
+// If requiring to change entityName, need to update the Context, and resolvers as well.
 const entityName = 'gw-repo-counter';
 const enrollmentId = orgAdminId;
 
@@ -127,31 +128,20 @@ beforeAll(async () => {
       enrollmentId,
       redisOptions: { host: 'localhost', port: 6379 },
       reducers: {
-        counter: counterReducer,
+        [entityName]: counterReducer,
         organization: getReducer<Organization, OrgEvents>(orgReducer),
       },
       wallet,
-    });
+    })
+      .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
+        entityName,
+        fields: counterIndexDefinition,
+        postSelector: counterPostSelector,
+        preSelector: counterPreSelector,
+      })
+      .run();
 
-    // Step 4: define the Redisearch index, and selectors
-    qhService.addRedisRepository<Counter, CounterInRedis, OutputCounter>({
-      entityName,
-      fields: counterIndexDefinition,
-      postSelector: counterPostSelector,
-      preSelector: counterPreSelector,
-    });
-
-    // Notice that, not like createService.
-    // Step 4 and Step 5 cannot be interchanged. The index creation requires index definition.
-    // Step 5: Prepare queryHandler
-    // 1. connect Fabric
-    // 2. recreate Indexes
-    // 3. subscribe channel hub
-    // 4. reconcile
-    await qhService.prepare();
-
-    // this is Apollo Server
-    queryHandlerServer = qhService.server;
+    queryHandlerServer = qhService.getServer();
     queryHandler = qhService.getQueryHandler();
     // redisRepos will be later use for manually creating and dropping indexes
     redisRepos = qhService.getRedisRepos();
@@ -195,8 +185,8 @@ beforeAll(async () => {
       redisOptions,
     });
 
-    // Step 9: config Apollo server with models
-    await config({ typeDefs, resolvers })
+    // Step 10: config Apollo server with models
+    modelApolloService = config({ typeDefs, resolvers })
       // define the Redisearch index, and selectors
       .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
         entityName,
@@ -205,10 +195,13 @@ beforeAll(async () => {
         preSelector: counterPreSelector,
       })
       .addRepository<Counter, CounterEvents>(entityName, counterReducer)
-      .create()
-      .listen({ port: MODEL_SERVICE_PORT }, () => console.log('model service started'));
+      .create();
 
-    // step 10: Prepare Admin microservice
+    await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () =>
+      console.log('model service started')
+    );
+
+    // step 11: Prepare Admin microservice
     const service = await createAdminService({
       asLocalhost: !(process.env.NODE_ENV === 'production'),
       caAdmin,
@@ -229,7 +222,7 @@ beforeAll(async () => {
       console.log('admin service started')
     );
 
-    // Step 11: Prepare Federated Gateway
+    // Step 12: Prepare Federated Gateway
     app = await createGateway({
       serviceList: [
         { name: 'admin', url: `http://localhost:${ADMIN_SERVICE_PORT}/graphql` },
@@ -238,7 +231,7 @@ beforeAll(async () => {
       authenticationCheck: `${proxyServerUri}/oauth/authenticate`,
     });
 
-    // Step 12: Start Gateway
+    // Step 13: Start Gateway
     return new Promise<void>((done) =>
       app.listen(GATEWAY_PORT, () => {
         console.log('🚀  Federated Gateway started');
@@ -247,7 +240,6 @@ beforeAll(async () => {
     );
   } catch (e) {
     console.error(e);
-    await sleep5;
     process.exit(1);
   }
 });
@@ -484,7 +476,7 @@ describe('Gateway Test - admin service', () => {
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.increment.id).toEqual(counterId);
-        expect(data?.increment.entityName).toEqual('counter');
+        expect(data?.increment.entityName).toEqual(entityName);
         expect(data?.increment.version).toEqual(0);
         expect(errors).toBeUndefined();
       }));
@@ -500,7 +492,7 @@ describe('Gateway Test - admin service', () => {
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.increment.id).toEqual(counterId);
-        expect(data?.increment.entityName).toEqual('counter');
+        expect(data?.increment.entityName).toEqual(entityName);
         expect(data?.increment.version).toEqual(0);
         expect(errors).toBeUndefined();
       }));
@@ -530,7 +522,7 @@ describe('Gateway Test - admin service', () => {
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.decrement.id).toEqual(counterId);
-        expect(data?.decrement.entityName).toEqual('counter');
+        expect(data?.decrement.entityName).toEqual(entityName);
         expect(data?.decrement.version).toEqual(0);
         expect(errors).toBeUndefined();
       }));
