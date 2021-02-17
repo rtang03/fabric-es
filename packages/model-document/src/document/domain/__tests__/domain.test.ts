@@ -1,11 +1,6 @@
 import { Commit, getMockRepository, getReducer, Repository } from '@fabric-es/fabric-cqrs';
-import {
-  Document,
-  documentCommandHandler,
-  DocumentEvents,
-  documentReducer,
-  DocumentStatus,
-} from '../..';
+import { documentCommandHandler, documentReducer, DocumentStatus } from '../..';
+import type { Document, DocumentEvents } from '../../types';
 
 const enrollmentId = '';
 const userId = 'USER002';

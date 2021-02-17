@@ -1,6 +1,6 @@
 import { RemoteData } from '@fabric-es/gateway-lib';
 import gql from 'graphql-tag';
-import { GET_CONTENTS_BY_ID } from '.';
+import { GET_CONTENTS_BY_ID } from './query';
 
 /*
 NOTE!!! This is the type definition publish by an ORG, who has certain private-data to share to other ORGs.

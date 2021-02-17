@@ -232,34 +232,6 @@ export type Repository<TEntity = any, TEvent = any> = {
    * ```
    * **/
   query_deleteCommitByEntityName: RepoFcn<number>;
-
-  /**
-   * @about 📤 get paginated entity by entityId
-   * @same [[QueryHandler]].getPaginatedEntityById
-   * @return
-   * ```typescript
-   * (criteria: PaginatedEntityCriteria, id?: string) =>
-   *   Promise<HandlerResponse<Paginated<TEntity>>>
-   * ```
-   * **/
-  // getPaginatedEntityById: (
-  //   criteria: PaginatedEntityCriteria,
-  //   id?: string
-  // ) => Promise<HandlerResponse<Paginated<TEntity>>>;
-
-  /**
-   * @about 📤 get paginated commit by entityId
-   * @same [[QueryHandler]].getPaginatedCommitById
-   * @return
-   * ```typescript
-   * (criteria: PaginatedCommitCriteria, id?: string) =>
-   *   Promise<HandlerResponse<Paginated<Commit>>>
-   * ```
-   * **/
-  // getPaginatedCommitById: (
-  //   criteria: PaginatedCommitCriteria,
-  //   id?: string
-  // ) => Promise<HandlerResponse<Paginated<Commit>>>;
 };
 
 /**

@@ -34,7 +34,12 @@ export const getMockRepository = <TEntity, TEvent>(
   reducer: (history) => TEntity
 ): Pick<
   Repository<TEntity, TEvent>,
-  'create' | 'getById' | 'getByEntityName' | 'getCommitById' | 'getEntityName'
+  | 'create'
+  | 'getById'
+  | 'getByEntityName'
+  | 'getCommitById'
+  | 'getEntityName'
+  | 'fullTextSearchEntity'
 > => ({
   create: ({ id, enrollmentId }) => ({
     save: ({ events }) => {
@@ -107,4 +112,22 @@ export const getMockRepository = <TEntity, TEvent>(
       );
     }),
   getEntityName: () => entityName,
+  // WARN: it partially mocks fulltextsearch, "query" need EXACT match; no wildcard. Cursor is NOT correct.
+  fullTextSearchEntity: ({ entityName, query, cursor, pagesize }) =>
+    new Promise((resolve) => {
+      setTimeout(() => {
+        const items = getEntities({ entityName, reducer, mockdb }).filter((entity) =>
+          entity.toString().contains(query)
+        );
+        resolve({
+          status: 'OK',
+          data: {
+            total: items.length,
+            cursor: 10,
+            hasMore: false,
+            items,
+          },
+        });
+      }, 50);
+    }),
 });

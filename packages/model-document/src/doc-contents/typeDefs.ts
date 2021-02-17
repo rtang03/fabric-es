@@ -1,5 +1,5 @@
-import { Commit } from '@fabric-es/fabric-cqrs';
-import { catchErrors, getLogger, queryTrackingData } from '@fabric-es/gateway-lib';
+import type { Commit } from '@fabric-es/fabric-cqrs';
+import { catchResolverErrors, getLogger, queryTrackingData } from '@fabric-es/gateway-lib';
 import gql from 'graphql-tag';
 import { DocContents, docContentsCommandHandler, GET_CONTENTS_BY_ID } from '.';
 
@@ -75,14 +75,16 @@ const logger = getLogger('doc-contents/typeDefs.js');
 
 export const resolvers = {
   Query: {
-    getDocContentsById: catchErrors(
+    getDocContentsById: catchResolverErrors(
       async (_, { documentId }, { dataSources: { docContents }, username }): Promise<DocContents> =>
-        docContents.repo.getById({ id: documentId, enrollmentId: username }).then(({ currentState }) => currentState),
+        docContents.repo
+          .getById({ id: documentId, enrollmentId: username })
+          .then(({ currentState }) => currentState),
       { fcnName: 'getDocContentsById', logger, useAuth: false }
-    )
+    ),
   },
   Mutation: {
-    createDocContents: catchErrors(
+    createDocContents: catchResolverErrors(
       async (
         _,
         { userId, documentId, content },
@@ -98,15 +100,15 @@ export const resolvers = {
         }
         return docContentsCommandHandler({
           enrollmentId: username,
-          docContentsRepo: docContents.repo
+          docContentsRepo: docContents.repo,
         }).CreateDocContents({
           userId,
-          payload: { documentId, content: val, timestamp: Date.now() }
+          payload: { documentId, content: val, timestamp: Date.now() },
         });
       },
       { fcnName: 'createDocContents', logger, useAuth: true }
     ),
-    updateDocContents: catchErrors(
+    updateDocContents: catchResolverErrors(
       async (
         _,
         { userId, documentId, content },
@@ -122,17 +124,17 @@ export const resolvers = {
         }
         return docContentsCommandHandler({
           enrollmentId: username,
-          docContentsRepo: docContents.repo
+          docContentsRepo: docContents.repo,
         }).DefineDocContentsContent({
           userId,
-          payload: { documentId, content: val, timestamp: Date.now() }
+          payload: { documentId, content: val, timestamp: Date.now() },
         });
       },
       { fcnName: 'updateDocContents', logger, useAuth: true }
-    )
+    ),
   },
   Document: {
-    contents: catchErrors(
+    contents: catchResolverErrors(
       async ({ documentId }, { token }, context) => {
         return queryTrackingData({
           id: documentId,
@@ -144,15 +146,16 @@ export const resolvers = {
         }); // TODO - Document.getEntityName(), DocContents.getEntityName()
       },
       { fcnName: 'Document/contents', logger, useAuth: false }
-    )
+    ),
   },
   DocContents: {
-    document: ({ documentId }) => ({ __typename: 'Document', documentId })
+    document: ({ documentId }) => ({ __typename: 'Document', documentId }),
   },
   Docs: {
-    __resolveType: obj => (obj.body ? 'Data' : obj.format ? 'File' : {})
+    __resolveType: (obj) => (obj.body ? 'Data' : obj.format ? 'File' : {}),
   },
   DocContentsResp: {
-    __resolveType: obj => (obj.commitId ? 'DocContentsCommit' : obj.message ? 'DocContentsError' : {})
-  }
+    __resolveType: (obj) =>
+      obj.commitId ? 'DocContentsCommit' : obj.message ? 'DocContentsError' : {},
+  },
 };

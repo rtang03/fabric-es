@@ -42,12 +42,18 @@ void (async () =>
       },
     },
   })
-    .then(async ({ config, shutdown, getRepository }) => {
-      const app = await config({
+    .then(({ config, shutdown }) => {
+      const app = config({
         typeDefs: documentTypeDefs,
         resolvers: documentResolvers,
       })
-        .addRepository(getRepository<Document, DocumentEvents>('document', reducer))
+        .addRedisRepository<Document, any, any>({
+          entityName: 'document',
+          fields: null,
+          preSelector: null,
+          postSelector: null,
+        })
+        .addRepository<Document, DocumentEvents>('document', reducer)
         .create();
 
       process.on(

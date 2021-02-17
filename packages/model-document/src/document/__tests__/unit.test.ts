@@ -7,14 +7,13 @@ import gql from 'graphql-tag';
 import {
   CREATE_DOCUMENT,
   DELETE_DOCUMENT,
-  Document,
-  DocumentEvents,
   documentReducer,
   documentResolvers,
   documentTypeDefs,
   RESTRICT_DOCUMENT_ACCESS,
   UPDATE_DOCUMENT,
 } from '..';
+import type { Document, DocumentEvents } from '../types';
 
 const GET_BY_ID = gql`
   query GetDocumentById($documentId: String!) {
@@ -251,7 +250,7 @@ describe('Document Unit Test - Resolver', () => {
       })
       .then(({ data, errors }) => {
         expect(errors.map((e) => e.message)).toContain('Error: INVALID_OPERATION');
-        expect(data.updateDocument.map((d) => (d && d.id ? d.id : ''))).toContain('D0005');
+        expect(data.updateDocument.map((d) => d?.id || '')).toContain('D0005');
       }));
 
   it('delete document 4', async () =>

@@ -1,6 +1,5 @@
 import { Errors } from '@fabric-es/gateway-lib';
-import values from 'lodash/values';
-import { DataContent, DocContentsCommandHandler, DocContentsRepo, FileContent } from '..';
+import type { DataContent, DocContentsCommandHandler, DocContentsRepo, FileContent } from '..';
 
 export const DocContentsErrors = {
   docContentsNotFound: (id) => new Error(`DOC_CONTENTS_NOT_FOUND: id: ${id}`),
