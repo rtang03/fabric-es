@@ -2,9 +2,16 @@ require('./env');
 import util from 'util';
 import { getReducer } from '@fabric-es/fabric-cqrs';
 import { createService, getLogger } from '@fabric-es/gateway-lib';
-import { Loan, LoanEvents, loanReducer, loanResolvers, loanTypeDefs } from '@fabric-es/model-loan';
+import {
+  loanReducer,
+  loanResolvers,
+  loanTypeDefs,
+  loanIndexDefinition,
+  postSelector,
+  preSelector,
+} from '@fabric-es/model-loan';
+import type { Loan, LoanEvents, LoanInRedis, OutputLoan } from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
-import Redis from 'ioredis';
 
 const logger = getLogger('service-loan.js');
 const reducer = getReducer<Loan, LoanEvents>(loanReducer);
@@ -37,12 +44,18 @@ void (async () =>
       },
     },
   })
-    .then(async ({ config, shutdown, getRepository }) => {
-      const app = await config({
+    .then(({ config, shutdown }) => {
+      const app = config({
         typeDefs: loanTypeDefs,
         resolvers: loanResolvers,
       })
-        .addRepository(getRepository<Loan, LoanEvents>('loan', reducer))
+        .addRedisRepository<Loan, LoanInRedis, OutputLoan>({
+          entityName: 'loan',
+          fields: loanIndexDefinition,
+          postSelector,
+          preSelector,
+        })
+        .addRepository<Loan, LoanEvents>('loan', reducer)
         .create();
 
       process.on(

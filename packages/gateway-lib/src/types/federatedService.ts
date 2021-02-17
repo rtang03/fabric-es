@@ -45,6 +45,11 @@ export type FederatedService = {
     typeDefs: any;
     resolvers: any;
   }) => {
+    addPrivateRepository: <TEntity, TEvent>(
+      entityName: string,
+      reducer: Reducer<TEntity>,
+      parentName?: string
+    ) => AddPrivateRepository;
     addRepository: <TEntity, TEvent>(
       entityName: string,
       reducer: Reducer<TEntity>

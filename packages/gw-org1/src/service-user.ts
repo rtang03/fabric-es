@@ -8,6 +8,7 @@ import {
   userReducer,
   userResolvers,
   userTypeDefs,
+  userIndexDefinition,
 } from '@fabric-es/model-common';
 import { Wallets } from 'fabric-network';
 
@@ -42,12 +43,13 @@ void (async () =>
       },
     },
   })
-    .then(async ({ config, shutdown, getRepository }) => {
-      const app = await config({
+    .then(({ config, shutdown }) => {
+      const app = config({
         typeDefs: userTypeDefs,
         resolvers: userResolvers,
       })
-        .addRepository(getRepository<User, UserEvents>('user', reducer))
+        .addRedisRepository({ entityName: 'user', fields: userIndexDefinition })
+        .addRepository<User, UserEvents>('user', reducer)
         .create();
 
       process.on(

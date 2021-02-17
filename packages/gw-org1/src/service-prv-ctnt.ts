@@ -3,14 +3,16 @@ import util from 'util';
 import { getReducer } from '@fabric-es/fabric-cqrs';
 import { createService, getLogger } from '@fabric-es/gateway-lib';
 import {
-  DocContents,
-  DocContentsEvents,
   docContentsReducer,
   docContentsResolvers,
   docContentsTypeDefs,
+  documentReducer,
+} from '@fabric-es/model-document';
+import type {
+  DocContents,
+  DocContentsEvents,
   Document,
   DocumentEvents,
-  documentReducer,
 } from '@fabric-es/model-document';
 import { Wallets } from 'fabric-network';
 
@@ -45,23 +47,19 @@ void (async () =>
       },
     },
   })
-    .then(async ({ config, shutdown, getRepository, getPrivateRepository }) => {
-      const app = await config({
+    .then(({ config, shutdown, getRepository, getPrivateRepository }) => {
+      const app = config({
         typeDefs: docContentsTypeDefs,
         resolvers: docContentsResolvers,
       })
-        .addRepository(
-          getPrivateRepository<DocContents, DocContentsEvents>(
-            'docContents',
-            getReducer<DocContents, DocContentsEvents>(docContentsReducer),
-            'document'
-          )
-        ) // TODO
-        .addRepository(
-          getRepository<Document, DocumentEvents>(
-            'document',
-            getReducer<Document, DocumentEvents>(documentReducer)
-          )
+        .addRepository<Document, DocumentEvents>(
+          'document',
+          getReducer<Document, DocumentEvents>(documentReducer)
+        )
+        .addPrivateRepository<DocContents, DocContentsEvents>(
+          'docContents',
+          getReducer<DocContents, DocContentsEvents>(docContentsReducer),
+          'document'
         )
         .create();
 

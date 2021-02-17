@@ -249,7 +249,7 @@ export const createService: (option: {
         return { addRedisRepository, addRepository };
       };
 
-      return { addRepository, addRedisRepository };
+      return { addRepository, addRedisRepository, addPrivateRepository };
     },
     disconnect: () => gateway.disconnect(),
     getMspId: () => mspId,

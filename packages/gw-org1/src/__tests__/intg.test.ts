@@ -283,7 +283,7 @@ beforeAll(async () => {
 
   console.log('🚀  Ready, starting services');
   // Start loan service
-  await createService({
+  const loanService = await createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'loan',
     channelName: process.env.CHANNEL_NAME,
@@ -291,20 +291,21 @@ beforeAll(async () => {
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     asLocalhost: !(process.env.NODE_ENV === 'production'),
     redisOptions,
-  }).then(async ({ config, getRepository, disconnect }) => {
+  }).then(({ config, disconnect }) => {
     loanDisconnect = disconnect;
-    loanService = await config({ typeDefs: loanTypeDefs, resolvers: loanResolvers })
-      .addRepository(getRepository<Loan, LoanEvents>('loan', lReducer))
+    return config({ typeDefs: loanTypeDefs, resolvers: loanResolvers })
+      .addRepository<Loan, LoanEvents>('loan', lReducer)
       .create();
-    await loanService
-      .listen({ port: lPort })
-      .then(({ url }) =>
-        console.log(`🚀  ${process.env.ORGNAME} unit test`, 'loan available at', url)
-      );
   });
 
+  await loanService
+    .listen({ port: lPort })
+    .then(({ url }) =>
+      console.log(`🚀  ${process.env.ORGNAME} unit test`, 'loan available at', url)
+    );
+
   // Start document service
-  await createService({
+  const docuService = await createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'document',
     channelName: process.env.CHANNEL_NAME,
@@ -312,20 +313,21 @@ beforeAll(async () => {
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     asLocalhost: !(process.env.NODE_ENV === 'production'),
     redisOptions,
-  }).then(async ({ config, getRepository, disconnect }) => {
+  }).then(({ config, disconnect }) => {
     docuDisconnect = disconnect;
-    docuService = await config({ typeDefs: documentTypeDefs, resolvers: documentResolvers })
-      .addRepository(getRepository<Document, DocumentEvents>('document', dReducer))
+    return config({ typeDefs: documentTypeDefs, resolvers: documentResolvers })
+      .addRepository<Document, DocumentEvents>('document', dReducer)
       .create();
-    await docuService
-      .listen({ port: dPort })
-      .then(({ url }) =>
-        console.log(`🚀  ${process.env.ORGNAME} unit test`, 'document available at', url)
-      );
   });
 
+  await docuService
+    .listen({ port: dPort })
+    .then(({ url }) =>
+      console.log(`🚀  ${process.env.ORGNAME} unit test`, 'document available at', url)
+    );
+
   // Start loan-details service
-  await createService({
+  const dtlsService = await createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'loanDetails',
     isPrivate: true,
@@ -334,20 +336,21 @@ beforeAll(async () => {
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     asLocalhost: !(process.env.NODE_ENV === 'production'),
     redisOptions,
-  }).then(async ({ config, getPrivateRepository, disconnect }) => {
+  }).then(({ config, getPrivateRepository, disconnect }) => {
     dtlsDisconnect = disconnect;
-    dtlsService = await config({ typeDefs: loanDetailsTypeDefs, resolvers: loanDetailsResolvers })
-      .addRepository(getPrivateRepository<LoanDetails, LoanDetailsEvents>('loanDetails', tReducer))
+    return config({ typeDefs: loanDetailsTypeDefs, resolvers: loanDetailsResolvers })
+      .addPrivateRepository<LoanDetails, LoanDetailsEvents>('loanDetails', tReducer)
       .create();
-    await dtlsService
-      .listen({ port: tPort })
-      .then(({ url }) =>
-        console.log(`🚀  ${process.env.ORGNAME} unit test`, 'loan-details available at', url)
-      );
   });
 
+  await dtlsService
+    .listen({ port: tPort })
+    .then(({ url }) =>
+      console.log(`🚀  ${process.env.ORGNAME} unit test`, 'loan-details available at', url)
+    );
+
   // Start doc-contents service
-  await createService({
+  const ctntService = await createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName: 'docContents',
     isPrivate: true,
@@ -356,17 +359,18 @@ beforeAll(async () => {
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     asLocalhost: !(process.env.NODE_ENV === 'production'),
     redisOptions,
-  }).then(async ({ config, getPrivateRepository, disconnect }) => {
+  }).then(({ config, disconnect }) => {
     ctntDisconnect = disconnect;
-    ctntService = await config({ typeDefs: docContentsTypeDefs, resolvers: docContentsResolvers })
-      .addRepository(getPrivateRepository<DocContents, DocContentsEvents>('docContents', cReducer))
+    return config({ typeDefs: docContentsTypeDefs, resolvers: docContentsResolvers })
+      .addPrivateRepository<DocContents, DocContentsEvents>('docContents', cReducer)
       .create();
-    await ctntService
-      .listen({ port: cPort })
-      .then(({ url }) =>
-        console.log(`🚀  ${process.env.ORGNAME} unit test`, 'doc-contents available at', url)
-      );
   });
+
+  await ctntService
+    .listen({ port: cPort })
+    .then(({ url }) =>
+      console.log(`🚀  ${process.env.ORGNAME} unit test`, 'doc-contents available at', url)
+    );
 
   // Start federated gateway
   gateway = await createGateway({

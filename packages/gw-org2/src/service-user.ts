@@ -5,6 +5,7 @@ import { createService, getLogger } from '@fabric-es/gateway-lib';
 import {
   User,
   UserEvents,
+  userIndexDefinition,
   userReducer,
   userResolvers,
   userTypeDefs,
@@ -43,12 +44,13 @@ void (async () =>
       },
     },
   })
-    .then(async ({ config, shutdown, getRepository }) => {
-      const app = await config({
+    .then(({ config, shutdown }) => {
+      const app = config({
         typeDefs: userTypeDefs,
         resolvers: userResolvers,
       })
-        .addRepository(getRepository<User, UserEvents>('user', reducer))
+        .addRedisRepository({ entityName: 'user', fields: userIndexDefinition })
+        .addRepository<User, UserEvents>('user', reducer)
         .create();
 
       process.on(

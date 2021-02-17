@@ -2,6 +2,7 @@ import type { DocumentIndexDefinition } from '../types';
 
 export const documentIndexDefinition: DocumentIndexDefinition = {
   id: { index: { type: 'TEXT', sortable: true } },
+  documentId: { altName: 'docId' },
   ownerId: { altName: 'owner', index: { type: 'TEXT', sortable: true } },
   loanId: { index: { type: 'TEXT' } },
   title: { index: { type: 'TEXT' } },

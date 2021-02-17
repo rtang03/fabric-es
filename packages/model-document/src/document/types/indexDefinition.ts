@@ -1,9 +1,9 @@
 import type { RedisearchDefinition } from '@fabric-es/fabric-cqrs';
 import type { Document } from '.';
 
-export type CommonDocumentFields = Pick<
+export type PartialDocument = Pick<
   Document,
-  'id' | 'ownerId' | 'loanId' | 'title' | 'reference' | 'status' | 'timestamp'
+  'id' | 'ownerId' | 'loanId' | 'title' | 'reference' | 'status' | 'timestamp' | 'documentId'
 >;
 
-export type DocumentIndexDefinition = RedisearchDefinition<CommonDocumentFields>;
+export type DocumentIndexDefinition = RedisearchDefinition<PartialDocument>;
