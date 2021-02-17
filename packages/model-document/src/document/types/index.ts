@@ -5,7 +5,7 @@ import type { DocumentCommands } from './commands';
 import type { Document } from './document';
 import type { DocumentEvents } from './events';
 
-export * from './apolloContext';
+export * from './documentContext';
 export * from './commands';
 export * from './events';
 export * from './document';

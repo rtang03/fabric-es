@@ -1,12 +1,12 @@
-export interface OutputDocument {
+export interface OutputLoan {
   id: string;
-  documentId: string;
-  ownerId: string;
   loanId: string;
-  title: string;
+  ownerId: string;
+  description: string;
   reference: string;
+  comment: string;
   status: string;
   timestamp: number;
-  creator: string;
   createdAt: number;
+  creator: string;
 }

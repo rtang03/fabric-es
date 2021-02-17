@@ -1,4 +1,4 @@
-import { BaseEvent } from '@fabric-es/fabric-cqrs';
+import type { BaseEvent } from '@fabric-es/fabric-cqrs';
 
 export interface LoanDetailsCreated extends BaseEvent {
   readonly type: 'LoanDetailsCreated';

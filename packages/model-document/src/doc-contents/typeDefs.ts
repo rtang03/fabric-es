@@ -1,7 +1,9 @@
 import type { Commit } from '@fabric-es/fabric-cqrs';
 import { catchResolverErrors, getLogger, queryTrackingData } from '@fabric-es/gateway-lib';
 import gql from 'graphql-tag';
-import { DocContents, docContentsCommandHandler, GET_CONTENTS_BY_ID } from '.';
+import { docContentsCommandHandler } from './domain';
+import { GET_CONTENTS_BY_ID } from './query';
+import type { DocContents, DocContentsContext } from './types';
 
 export const typeDefs = gql`
   type Query {
@@ -76,8 +78,17 @@ const logger = getLogger('doc-contents/typeDefs.js');
 export const resolvers = {
   Query: {
     getDocContentsById: catchResolverErrors(
-      async (_, { documentId }, { dataSources: { docContents }, username }): Promise<DocContents> =>
-        docContents.repo
+      async (
+        _,
+        { documentId },
+        {
+          dataSources: {
+            docContents: { repo },
+          },
+          username,
+        }: DocContentsContext
+      ): Promise<DocContents> =>
+        repo
           .getById({ id: documentId, enrollmentId: username })
           .then(({ currentState }) => currentState),
       { fcnName: 'getDocContentsById', logger, useAuth: false }
@@ -88,7 +99,12 @@ export const resolvers = {
       async (
         _,
         { userId, documentId, content },
-        { dataSources: { docContents }, username }
+        {
+          dataSources: {
+            docContents: { repo },
+          },
+          username,
+        }: DocContentsContext
       ): Promise<Commit> => {
         let val;
         if (content.body && !content.format && !content.link) {
@@ -100,7 +116,7 @@ export const resolvers = {
         }
         return docContentsCommandHandler({
           enrollmentId: username,
-          docContentsRepo: docContents.repo,
+          docContentsRepo: repo,
         }).CreateDocContents({
           userId,
           payload: { documentId, content: val, timestamp: Date.now() },
@@ -112,7 +128,12 @@ export const resolvers = {
       async (
         _,
         { userId, documentId, content },
-        { dataSources: { docContents }, username }
+        {
+          dataSources: {
+            docContents: { repo },
+          },
+          username,
+        }: DocContentsContext
       ): Promise<Commit> => {
         let val;
         if (content.body && !content.format && !content.link) {
@@ -124,7 +145,7 @@ export const resolvers = {
         }
         return docContentsCommandHandler({
           enrollmentId: username,
-          docContentsRepo: docContents.repo,
+          docContentsRepo: repo,
         }).DefineDocContentsContent({
           userId,
           payload: { documentId, content: val, timestamp: Date.now() },

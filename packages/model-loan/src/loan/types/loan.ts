@@ -1,4 +1,4 @@
-import { BaseEntity } from '@fabric-es/fabric-cqrs';
+import type { BaseMetaEntity } from '@fabric-es/fabric-cqrs';
 
 export enum LoanStatus {
   LoanApplied,
@@ -6,7 +6,7 @@ export enum LoanStatus {
   LoanApproved,
   LoanReturned,
   LoanRejected,
-  LoanExpired
+  LoanExpired,
 }
 
 /**
@@ -14,9 +14,7 @@ export enum LoanStatus {
  * to a loan request scattered among the participating organizations. Each loan is uniquely identified by an auto-generated `loanId`. The
  * loan applicants may also utilize the `reference` property as their internal identifier unique within their individual organizations.
  */
-export class Loan extends BaseEntity {
-  static entityName: 'loan';
-
+export interface Loan extends BaseMetaEntity {
   id: string;
   loanId: string;
   ownerId: string;
@@ -25,4 +23,6 @@ export class Loan extends BaseEntity {
   status: LoanStatus;
   comment?: string;
   timestamp: number;
+  _created?: number;
+  _creator?: string;
 }

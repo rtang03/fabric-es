@@ -1,6 +1,6 @@
 import type { DocumentDataSource } from './index';
 
-export type ApolloContext = {
+export type DocumentContext = {
   dataSources: { document: DocumentDataSource };
   username: string;
 };

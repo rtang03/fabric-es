@@ -8,7 +8,8 @@ import type { DocContents } from './model';
 export * from './commands';
 export * from './model';
 export * from './events';
+export * from './docContentsContext';
 
 export type DocContentsRepo = PrivateRepository<DocContents, DocContentsEvents>;
 export type DocContentsCommandHandler = CommandHandler<DocContentsCommands>;
-export type DocContentsDS = DataSrc<DocContentsRepo>;
+export type DocContentsDataSource = DataSrc<DocContentsRepo>;

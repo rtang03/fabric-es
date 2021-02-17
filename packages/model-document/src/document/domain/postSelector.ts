@@ -2,7 +2,6 @@ import { createStructuredSelector, Selector } from 'reselect';
 import type { DocumentInRedis, OutputDocument } from '../types';
 
 export const postSelector: Selector<DocumentInRedis, OutputDocument> = createStructuredSelector({
-  entityName: () => 'document',
   id: (item) => item?.id,
   documentId: (item) => item?.id,
   ownerId: (item) => item?.owner,

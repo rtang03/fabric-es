@@ -1,7 +1,7 @@
 import type { Commit, Paginated } from '@fabric-es/fabric-cqrs';
 import { catchResolverErrors, getLogger } from '@fabric-es/gateway-lib';
 import { ApolloError } from 'apollo-server-errors';
-import type { ApolloContext, OutputDocument } from './types';
+import type { DocumentContext, OutputDocument } from './types';
 import { documentCommandHandler } from '.';
 
 const logger = getLogger('document/typeDefs.js');
@@ -16,12 +16,10 @@ export const resolvers = {
           dataSources: {
             document: { repo },
           },
-        }: ApolloContext
+        }: DocumentContext
       ): Promise<Commit[]> => repo.getCommitById({ id: documentId }).then(({ data }) => data || []),
       { fcnName: 'getCommitsByDocumentId', logger, useAuth: false }
     ),
-    // 📌 Notice that this is NOT returning OutputDocument
-    // reserved for comparison purpose
     getDocumentById: catchResolverErrors(
       async (
         _,
@@ -31,7 +29,7 @@ export const resolvers = {
             document: { repo },
           },
           username,
-        }: ApolloContext
+        }: DocumentContext
       ): Promise<OutputDocument> => {
         const { data, status, error } = await repo.fullTextSearchEntity<OutputDocument>({
           entityName: 'document',
@@ -54,7 +52,7 @@ export const resolvers = {
           dataSources: {
             document: { repo },
           },
-        }: ApolloContext
+        }: DocumentContext
       ): Promise<Paginated<OutputDocument>> => {
         const { data, error, status } = await repo.fullTextSearchEntity<OutputDocument>({
           entityName: 'document',
@@ -77,7 +75,7 @@ export const resolvers = {
           dataSources: {
             document: { repo },
           },
-        }: ApolloContext
+        }: DocumentContext
       ): Promise<OutputDocument[]> => {
         const whereJSON = JSON.parse(where);
         const [key, value] = Object.entries(whereJSON)[0];
@@ -102,7 +100,7 @@ export const resolvers = {
           dataSources: {
             document: { repo },
           },
-        }: ApolloContext
+        }: DocumentContext
       ): Promise<OutputDocument[]> => {
         const { data, status, error } = await repo.fullTextSearchEntity<OutputDocument>({
           entityName: 'document',
@@ -128,7 +126,7 @@ export const resolvers = {
             document: { repo },
           },
           username,
-        }: ApolloContext
+        }: DocumentContext
       ): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
@@ -154,7 +152,7 @@ export const resolvers = {
             document: { repo },
           },
           username,
-        }: ApolloContext
+        }: DocumentContext
       ): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
@@ -174,7 +172,7 @@ export const resolvers = {
             document: { repo },
           },
           username,
-        }: ApolloContext
+        }: DocumentContext
       ): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
@@ -193,7 +191,7 @@ export const resolvers = {
           document: { repo },
         },
         username,
-      }: ApolloContext
+      }: DocumentContext
     ): Promise<Commit[]> => {
       const result = [];
 
@@ -250,7 +248,7 @@ export const resolvers = {
           dataSources: {
             document: { repo },
           },
-        }: ApolloContext
+        }: DocumentContext
       ): Promise<OutputDocument[]> => {
         const { data, status, error } = await repo.fullTextSearchEntity<OutputDocument>({
           entityName: 'document',
@@ -274,7 +272,7 @@ export const resolvers = {
           dataSources: {
             document: { repo },
           },
-        }: ApolloContext
+        }: DocumentContext
       ): Promise<OutputDocument> => {
         {
           const { data, status, error } = await repo.fullTextSearchEntity<OutputDocument>({
