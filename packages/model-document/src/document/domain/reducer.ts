@@ -1,6 +1,7 @@
 import type { Document, DocumentEvents } from '../types';
 import { DocumentStatus } from './constants';
 
+// TODO: What to do with ????
 export const documentReducer = (document: Document, event: DocumentEvents): Document => {
   switch (event.type) {
     case 'DocumentCreated':

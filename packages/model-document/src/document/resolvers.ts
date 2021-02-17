@@ -1,7 +1,7 @@
 import type { Commit, Paginated } from '@fabric-es/fabric-cqrs';
 import { catchResolverErrors, getLogger } from '@fabric-es/gateway-lib';
 import { ApolloError } from 'apollo-server-errors';
-import type { Document } from './types';
+import type { ApolloContext, OutputDocument } from './types';
 import { documentCommandHandler } from '.';
 
 const logger = getLogger('document/typeDefs.js');
@@ -9,37 +9,112 @@ const logger = getLogger('document/typeDefs.js');
 export const resolvers = {
   Query: {
     getCommitsByDocumentId: catchResolverErrors(
-      async (_, { documentId }, { dataSources: { document } }): Promise<Commit[]> =>
-        document.repo.getCommitById({ id: documentId }).then(({ data }) => data || []),
+      async (
+        _,
+        { documentId }: { documentId: string },
+        {
+          dataSources: {
+            document: { repo },
+          },
+        }: ApolloContext
+      ): Promise<Commit[]> => repo.getCommitById({ id: documentId }).then(({ data }) => data || []),
       { fcnName: 'getCommitsByDocumentId', logger, useAuth: false }
     ),
+    // 📌 Notice that this is NOT returning OutputDocument
+    // reserved for comparison purpose
     getDocumentById: catchResolverErrors(
-      async (_, { documentId }, { dataSources: { document }, username }): Promise<Document> =>
-        document.repo
-          .getById({ id: documentId, enrollmentId: username })
-          .then(({ currentState }) => currentState),
+      async (
+        _,
+        { documentId }: { documentId: string },
+        {
+          dataSources: {
+            document: { repo },
+          },
+          username,
+        }: ApolloContext
+      ): Promise<OutputDocument> => {
+        const { data, status, error } = await repo.fullTextSearchEntity<OutputDocument>({
+          entityName: 'document',
+          query: `@id:${documentId}`,
+          cursor: 0,
+          pagesize: 1,
+        });
+
+        if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+        return data?.items[0];
+      },
       { fcnName: 'getDocumentById', logger, useAuth: false }
     ),
     getPaginatedDocuments: catchResolverErrors(
-      async (_, { pageSize }, { dataSources: { document } }): Promise<Paginated<Document>> =>
-        document.repo.getByEntityName().then(
-          ({ data }: { data: any[] }) =>
-            ({
-              items: data || [],
-              total: data.length,
-              hasMore: data.length > pageSize,
-            } as Paginated<Document>)
-        ),
+      async (
+        _,
+        { cursor, pageSize }: { cursor: number; pageSize: number },
+        {
+          dataSources: {
+            document: { repo },
+          },
+        }: ApolloContext
+      ): Promise<Paginated<OutputDocument>> => {
+        const { data, error, status } = await repo.fullTextSearchEntity<OutputDocument>({
+          entityName: 'document',
+          query: '*',
+          cursor: cursor ?? 0,
+          pagesize: pageSize,
+        });
+
+        if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+        return data;
+      },
       { fcnName: 'getPaginatedDocuments', logger, useAuth: false }
     ),
     searchDocumentByFields: catchResolverErrors(
-      async (_, { where }, { dataSources: { document } }): Promise<Document[]> =>
-        document.repo.find({ byId: where }).then(({ data }) => Object.values(data)),
+      async (
+        _,
+        { where }: { where: string },
+        {
+          dataSources: {
+            document: { repo },
+          },
+        }: ApolloContext
+      ): Promise<OutputDocument[]> => {
+        const whereJSON = JSON.parse(where);
+        const [key, value] = Object.entries(whereJSON)[0];
+        const { data, error, status } = await repo.fullTextSearchEntity<OutputDocument>({
+          entityName: 'document',
+          query: `@${key}:${value}*`,
+          cursor: 0,
+          pagesize: 100,
+        });
+
+        if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+        return data?.items || [];
+      },
       { fcnName: 'searchDocumentByFields', logger, useAuth: false }
     ),
     searchDocumentContains: catchResolverErrors(
-      async (_, { contains }, { dataSources: { document } }): Promise<Document[]> =>
-        document.repo.find({ byDesc: contains }).then(({ data }) => Object.values(data)),
+      async (
+        _,
+        { contains }: { contains: string },
+        {
+          dataSources: {
+            document: { repo },
+          },
+        }: ApolloContext
+      ): Promise<OutputDocument[]> => {
+        const { data, status, error } = await repo.fullTextSearchEntity<OutputDocument>({
+          entityName: 'document',
+          query: `@title:${contains}*`,
+          cursor: 0,
+          pagesize: 100,
+        });
+
+        if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+        return data?.items || [];
+      },
       { fcnName: 'searchDocumentContains', logger, useAuth: false }
     ),
   },
@@ -48,11 +123,16 @@ export const resolvers = {
       async (
         _,
         { userId, documentId, loanId, title, reference },
-        { dataSources: { document }, username }
+        {
+          dataSources: {
+            document: { repo },
+          },
+          username,
+        }: ApolloContext
       ): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
-          documentRepo: document.repo,
+          documentRepo: repo,
         }).CreateDocument({
           userId,
           payload: {
@@ -66,10 +146,19 @@ export const resolvers = {
       { fcnName: 'createDocument', logger, useAuth: true }
     ),
     deleteDocument: catchResolverErrors(
-      async (_, { userId, documentId }, { dataSources: { document }, username }): Promise<Commit> =>
+      async (
+        _,
+        { userId, documentId },
+        {
+          dataSources: {
+            document: { repo },
+          },
+          username,
+        }: ApolloContext
+      ): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
-          documentRepo: document.repo,
+          documentRepo: repo,
         }).DeleteDocument({
           userId,
           payload: { documentId, timestamp: Date.now() },
@@ -77,10 +166,19 @@ export const resolvers = {
       { fcnName: 'deleteDocument', logger, useAuth: true }
     ),
     restrictAccess: catchResolverErrors(
-      async (_, { userId, documentId }, { dataSources: { document }, username }): Promise<Commit> =>
+      async (
+        _,
+        { userId, documentId },
+        {
+          dataSources: {
+            document: { repo },
+          },
+          username,
+        }: ApolloContext
+      ): Promise<Commit> =>
         documentCommandHandler({
           enrollmentId: username,
-          documentRepo: document.repo,
+          documentRepo: repo,
         }).RestrictDocumentAccess({
           userId,
           payload: { documentId, timestamp: Date.now() },
@@ -90,14 +188,19 @@ export const resolvers = {
     updateDocument: async (
       _,
       { userId, documentId, loanId, title, reference },
-      { dataSources: { document }, username }
+      {
+        dataSources: {
+          document: { repo },
+        },
+        username,
+      }: ApolloContext
     ): Promise<Commit[]> => {
       const result = [];
 
       if (typeof loanId !== 'undefined') {
         const c = await documentCommandHandler({
           enrollmentId: username,
-          documentRepo: document.repo,
+          documentRepo: repo,
         })
           .DefineDocumentLoanId({
             userId,
@@ -107,10 +210,11 @@ export const resolvers = {
           .catch((error) => new ApolloError(error));
         result.push(c);
       }
+
       if (typeof title !== 'undefined') {
         const c = await documentCommandHandler({
           enrollmentId: username,
-          documentRepo: document.repo,
+          documentRepo: repo,
         })
           .DefineDocumentTitle({
             userId,
@@ -120,10 +224,11 @@ export const resolvers = {
           .catch((error) => new ApolloError(error));
         result.push(c);
       }
+
       if (typeof reference !== 'undefined') {
         const c = await documentCommandHandler({
           enrollmentId: username,
-          documentRepo: document.repo,
+          documentRepo: repo,
         })
           .DefineDocumentReference({
             userId,
@@ -138,20 +243,55 @@ export const resolvers = {
   },
   Loan: {
     documents: catchResolverErrors(
-      async ({ loanId }, _, { dataSources: { document } }) =>
-        document.repo.find({ where: { loanId } }).then(({ data }) => data),
+      async (
+        { loanId }: { loanId: string },
+        _,
+        {
+          dataSources: {
+            document: { repo },
+          },
+        }: ApolloContext
+      ): Promise<OutputDocument[]> => {
+        const { data, status, error } = await repo.fullTextSearchEntity<OutputDocument>({
+          entityName: 'document',
+          query: `@loanId:${loanId}`,
+          cursor: 0,
+          pagesize: 100,
+        });
+
+        if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+        return data?.items || [];
+      },
       { fcnName: 'Loan/docuemnts', logger, useAuth: false }
     ),
   },
   Document: {
     __resolveReference: catchResolverErrors(
-      async ({ documentId }, { dataSources: { document }, username }): Promise<Document> =>
-        document.repo
-          .getById({ id: documentId, enrollmentId: username })
-          .then(({ currentState }) => currentState),
+      async (
+        { documentId }: { documentId: string },
+        {
+          dataSources: {
+            document: { repo },
+          },
+        }: ApolloContext
+      ): Promise<OutputDocument> => {
+        {
+          const { data, status, error } = await repo.fullTextSearchEntity<OutputDocument>({
+            entityName: 'document',
+            query: `@id:${documentId}`,
+            cursor: 0,
+            pagesize: 1,
+          });
+
+          if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+          return data?.items?.[0];
+        }
+      },
       { fcnName: 'Document/__resolveReference', logger, useAuth: false }
     ),
-    loan: ({ loanId }) => ({ __typename: 'Loan', loanId }),
+    loan: ({ loanId }: { loanId: string }) => ({ __typename: 'Loan', loanId }),
   },
   DocResponse: {
     __resolveType: (obj) => (obj.commitId ? 'DocCommit' : obj.message ? 'DocError' : {}),

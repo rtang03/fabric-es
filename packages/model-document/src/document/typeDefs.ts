@@ -4,7 +4,7 @@ export const typeDefs = gql`
   type Query {
     getCommitsByDocumentId(documentId: String!): [DocCommit]!
     getDocumentById(documentId: String!): Document
-    getPaginatedDocuments(pageSize: Int = 10): PaginatedDocuments!
+    getPaginatedDocuments(cursor: Int, pageSize: Int = 10): PaginatedDocuments!
     searchDocumentByFields(where: String!): [Document]
     searchDocumentContains(contains: String!): [Document]
   }

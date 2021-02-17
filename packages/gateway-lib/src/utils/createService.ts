@@ -197,6 +197,7 @@ export const createService: (option: {
               context: ({ req: { headers } }) =>
                 Object.assign(
                   {
+                    ...headers,
                     user_id: headers.user_id,
                     is_admin: headers.is_admin,
                     username: headers.username,

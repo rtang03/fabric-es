@@ -2,8 +2,10 @@ import type { Repository } from '@fabric-es/fabric-cqrs';
 import type { CommandHandler } from '@fabric-es/gateway-lib';
 import { DataSrc } from '@fabric-es/gateway-lib';
 import type { DocumentCommands } from './commands';
+import type { Document } from './document';
 import type { DocumentEvents } from './events';
 
+export * from './apolloContext';
 export * from './commands';
 export * from './events';
 export * from './document';
@@ -13,4 +15,4 @@ export * from './outputDocument';
 
 export type DocumentRepo = Repository<Document, DocumentEvents>;
 export type DocumentCommandHandler = CommandHandler<DocumentCommands>;
-export type DocumentDS = DataSrc<DocumentRepo>;
+export type DocumentDataSource = DataSrc<DocumentRepo>;
