@@ -56,6 +56,8 @@ const loanRepo = getMockRepository<Loan, LoanEvents>(
   getReducer<Loan, LoanEvents>(loanReducer)
 );
 
+loanRepo.fullTextSearchEntity = jest.fn();
+
 let service;
 
 beforeAll(async () => {
@@ -468,50 +470,252 @@ describe('Loan Unit Test - Resolver', () => {
       })
       .then(({ data }) => expect(data.expireLoan.id).toEqual('L0011')));
 
-  it('query loan 0 by id', async () =>
-    createTestClient(service)
+  it('query loan 0 by id', async () => {
+    loanRepo.fullTextSearchEntity = jest.fn().mockResolvedValueOnce({
+      status: 'OK',
+      data: {
+        total: 1,
+        hasMore: false,
+        items: [
+          {
+            comment: 'Hello 0000VERWRITTEN',
+            description: 'Unit test loan 0VERWRITTEN',
+            loanId: 'L0000',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-0VERWRITTEN',
+            status: 0,
+          },
+        ],
+      },
+    });
+
+    return createTestClient(service)
       .query({
         query: GET_BY_ID,
         variables: { loanId: 'L0000' },
       })
-      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot()));
+      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot());
+  });
 
-  it('query loan 1 by id', async () =>
-    createTestClient(service)
+  it('query loan 1 by id', async () => {
+    loanRepo.fullTextSearchEntity = jest.fn().mockResolvedValueOnce({
+      status: 'OK',
+      data: {
+        total: 1,
+        hasMore: false,
+        items: [
+          {
+            comment: 'Hello 0001',
+            description: 'Unit test loan 1',
+            loanId: 'L0001',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-1',
+            status: 0,
+          },
+        ],
+      },
+    });
+
+    return createTestClient(service)
       .query({
         query: GET_BY_ID,
         variables: { loanId: 'L0001' },
       })
-      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot()));
+      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot());
+  });
 
-  it('query loan 2 by id', async () =>
-    createTestClient(service)
+  it('query loan 2 by id', async () => {
+    loanRepo.fullTextSearchEntity = jest.fn().mockResolvedValueOnce({
+      status: 'OK',
+      data: {
+        total: 1,
+        hasMore: false,
+        items: [
+          {
+            comment: 'Hello 0002 ADDED',
+            description: 'Unit test loan 2 EDITED',
+            loanId: 'L0002',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-2',
+            status: 0,
+          },
+        ],
+      },
+    });
+
+    return createTestClient(service)
       .query({
         query: GET_BY_ID,
         variables: { loanId: 'L0002' },
       })
-      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot()));
+      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot());
+  });
 
-  it('query loan 3 by id', async () =>
-    createTestClient(service)
+  it('query loan 3 by id', async () => {
+    loanRepo.fullTextSearchEntity = jest.fn().mockResolvedValueOnce({
+      status: 'OK',
+      data: {
+        total: 1,
+        hasMore: false,
+        items: [
+          {
+            comment: 'Hello 0003 EDITED',
+            description: 'Unit test loan 3',
+            loanId: 'L0003',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-3',
+            status: 0,
+          },
+        ],
+      },
+    });
+
+    return createTestClient(service)
       .query({
         query: GET_BY_ID,
         variables: { loanId: 'L0003' },
       })
-      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot()));
+      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot());
+  });
 
-  it('query loan 4 by id', async () =>
-    createTestClient(service)
+  it('query loan 4 by id', async () => {
+    loanRepo.fullTextSearchEntity = jest.fn().mockResolvedValueOnce({
+      status: 'OK',
+      data: {
+        total: 1,
+        hasMore: false,
+        items: [
+          {
+            comment: 'Hello 0004 EDITED',
+            description: 'Unit test loan 4 EDITED',
+            loanId: 'L0004',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-4',
+            status: 0,
+          },
+        ],
+      },
+    });
+
+    return createTestClient(service)
       .query({
         query: GET_BY_ID,
         variables: { loanId: 'L0004' },
       })
-      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot()));
+      .then(({ data }) => expect(data.getLoanById).toMatchSnapshot());
+  });
 
-  it('query loans by page', async () =>
-    createTestClient(service)
+  it('query loans by page', async () => {
+    loanRepo.fullTextSearchEntity = jest.fn().mockResolvedValueOnce({
+      status: 'OK',
+      data: {
+        total: 12,
+        hasMore: true,
+        items: [
+          {
+            comment: 'Hello 0000VERWRITTEN',
+            description: 'Unit test loan 0VERWRITTEN',
+            loanId: 'L0000',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-0VERWRITTEN',
+            status: 0,
+          },
+          {
+            comment: 'Hello 0001',
+            description: 'Unit test loan 1',
+            loanId: 'L0001',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-1',
+            status: 0,
+          },
+          {
+            comment: 'Hello 0002 ADDED',
+            description: 'Unit test loan 2 EDITED',
+            loanId: 'L0002',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-2',
+            status: 0,
+          },
+          {
+            comment: 'Hello 0003 EDITED',
+            description: 'Unit test loan 3',
+            loanId: 'L0003',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-3',
+            status: 0,
+          },
+          {
+            comment: 'Hello 0004 EDITED',
+            description: 'Unit test loan 4 EDITED',
+            loanId: 'L0004',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-4',
+            status: 0,
+          },
+          {
+            comment: 'Hello 0005',
+            description: 'Unit test loan 5',
+            loanId: 'L0005',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-5',
+            status: 0,
+          },
+          {
+            comment: 'Hello 0006 EDITED',
+            description: 'Unit test loan 6',
+            loanId: 'L0006',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-6',
+            status: 0,
+          },
+          {
+            comment: 'Hello 0007',
+            description: 'Unit test loan 7',
+            loanId: 'L0007',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-7',
+            status: 1,
+          },
+          {
+            comment: 'Hello 0008',
+            description: 'Unit test loan 8',
+            loanId: 'L0008',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-8',
+            status: 2,
+          },
+          {
+            comment: 'Hello 0009',
+            description: 'Unit test loan 9',
+            loanId: 'L0009',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-9',
+            status: 3,
+          },
+          {
+            comment: 'Hello 0010',
+            description: 'Unit test loan 10',
+            loanId: 'L0010',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-A',
+            status: 4,
+          },
+          {
+            comment: 'Hello 0011',
+            description: 'Unit test loan 11',
+            loanId: 'L0011',
+            ownerId: 'unitTestUser',
+            reference: 'REF-UNIT-TEST-LOAN-B',
+            status: 5,
+          },
+        ],
+      },
+    });
+
+    return createTestClient(service)
       .query({
         query: GET_LOANS_BY_PAGE,
       })
-      .then(({ data }) => expect(data.getPaginatedLoans).toMatchSnapshot()));
+      .then(({ data }) => expect(data.getPaginatedLoans).toMatchSnapshot());
+  });
 });
