@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 export const typeDefs = gql`
   type Query {
     getCommitsByUserId(userId: String!): [UserCommit]!
-    getPaginatedUser(cursor: Int = 10): PaginatedUsers!
+    getPaginatedUser(cursor: Int, pageSize: Int = 10): PaginatedUsers!
     getUserById(userId: String!): User
     searchUserByFields(where: String!): [User]
     searchUserContains(contains: String!): [User]

@@ -17,11 +17,11 @@ import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
 import type { RedisOptions } from 'ioredis';
 import { Redisearch } from 'redis-modules-sdk';
+import type { Selector } from 'reselect';
 import { createTrackingData, DataSrc } from '..';
 import { Organization, OrgEvents, orgReducer } from '../admin';
 import type { AddRedisRepository, FederatedService } from '../types';
 import { composeRedisRepos, getLogger, shutdownApollo } from '.';
-import { Selector } from 'reselect';
 
 /**
  * @about entity microservice

@@ -1,10 +1,10 @@
 import type { Commit, Counter, OutputCounter, Paginated } from '@fabric-es/fabric-cqrs';
+import { ApolloError } from 'apollo-server';
 import GraphQLJSON from 'graphql-type-json';
 import { getLogger } from '../../utils';
 import { catchResolverErrors } from '../../utils/catchResolverErrors';
 import { commandHanlder } from './handler';
 import type { Context } from './types';
-import { ApolloError } from 'apollo-server';
 
 const logger = getLogger('[gw-lib-test] resolvers.js');
 

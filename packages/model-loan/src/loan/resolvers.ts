@@ -11,7 +11,7 @@ export const resolvers = {
     getCommitsByLoanId: catchResolverErrors(
       async (
         _,
-        { loanId },
+        { loanId }: { loanId: string },
         {
           dataSources: {
             loan: { repo },

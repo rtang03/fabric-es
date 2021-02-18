@@ -4,7 +4,7 @@ export const typeDefs = gql`
   type Query {
     getCommitsByLoanId(loanId: String!): [LoanCommit]!
     getLoanById(loanId: String!): Loan
-    getPaginatedLoans(pageSize: Int = 10): PaginatedLoans!
+    getPaginatedLoans(cursor: Int, pageSize: Int = 10): PaginatedLoans!
     searchLoanByFields(where: String!): [Loan]
     searchLoanContains(contains: String!): [Loan]
   }

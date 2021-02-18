@@ -8,4 +8,4 @@ export type LoanInRedis = {
   ts: number;
   created: number;
   creator: string;
-}
+};

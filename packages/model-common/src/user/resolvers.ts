@@ -1,8 +1,8 @@
 import type { Commit, Paginated } from '@fabric-es/fabric-cqrs';
 import { catchResolverErrors, getLogger } from '@fabric-es/gateway-lib';
+import { ApolloError } from 'apollo-server-errors';
 import { userCommandHandler } from './domain';
 import type { User, ApolloContext } from './types';
-import { ApolloError } from 'apollo-server-errors';
 
 const logger = getLogger('user/typeDefs.js');
 
@@ -15,8 +15,15 @@ export const resolvers = {
         mergedUserIds: [],
       }),
     getCommitsByUserId: catchResolverErrors(
-      async (_, { userId }, { dataSources: { user } }: ApolloContext): Promise<Commit[]> =>
-        user.repo.getCommitById(userId).then(({ data }) => data || []),
+      async (
+        _,
+        { userId }: { userId: string },
+        {
+          dataSources: {
+            user: { repo },
+          },
+        }: ApolloContext
+      ): Promise<Commit[]> => repo.getCommitById({ id: userId }).then(({ data }) => data || []),
       { fcnName: 'getCommitsByUserId', logger, useAuth: false }
     ),
     getPaginatedUser: catchResolverErrors(
@@ -119,7 +126,7 @@ export const resolvers = {
     createUser: catchResolverErrors(
       async (
         _,
-        { name, userId },
+        { name, userId }: { name: string; userId: string },
         { dataSources: { user }, username }: ApolloContext
       ): Promise<Commit> =>
         userCommandHandler({
