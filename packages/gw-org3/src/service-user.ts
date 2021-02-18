@@ -5,12 +5,12 @@ import { createService, getLogger } from '@fabric-es/gateway-lib';
 import {
   User,
   UserEvents,
+  userIndexDefinition,
   userReducer,
   userResolvers,
   userTypeDefs,
 } from '@fabric-es/model-common';
 import { Wallets } from 'fabric-network';
-import Redis from 'ioredis';
 
 const logger = getLogger('service-user.js');
 const reducer = getReducer<User, UserEvents>(userReducer);
@@ -43,12 +43,13 @@ void (async () =>
       },
     },
   })
-    .then(async ({ config, shutdown, getRepository }) => {
-      const app = await config({
+    .then(async ({ config, shutdown }) => {
+      const app = config({
         typeDefs: userTypeDefs,
         resolvers: userResolvers,
       })
-        .addRepository(getRepository<User, UserEvents>('user', reducer))
+        .addRedisRepository({ entityName: 'user', fields: userIndexDefinition })
+        .addRepository<User, UserEvents>('user', reducer)
         .create();
 
       process.on(

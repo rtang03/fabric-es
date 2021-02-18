@@ -13,7 +13,13 @@ import {
   documentReducer,
 } from '@fabric-es/model-document';
 import { Wallets } from 'fabric-network';
-import Redis from 'ioredis';
+import {
+  documentIndexDefinition,
+  DocumentInRedis,
+  OutputDocument,
+  postSelector,
+  preSelector,
+} from './model/public/document';
 
 const logger = getLogger('service-prv-ctnt.js');
 const reducer = getReducer<DocContents, DocContentsEvents>(docContentsReducer);
@@ -47,20 +53,22 @@ void (async () =>
       },
     },
   })
-    .then(async ({ config, shutdown, getRepository, getPrivateRepository }) => {
-      const app = await config({
+    .then(({ config, shutdown }) => {
+      const app = config({
         typeDefs: docContentsTypeDefs,
         resolvers: docContentsResolvers,
       })
-        .addRepository(
-          getPrivateRepository<DocContents, DocContentsEvents>('docContents', reducer, 'document')
+        .addRedisRepository<Document, DocumentInRedis, OutputDocument>({
+          entityName: 'document',
+          fields: documentIndexDefinition,
+          preSelector,
+          postSelector,
+        })
+        .addRepository<Document, DocumentEvents>(
+          'document',
+          getReducer<Document, DocumentEvents>(documentReducer)
         )
-        .addRepository(
-          getRepository<Document, DocumentEvents>(
-            'document',
-            getReducer<Document, DocumentEvents>(documentReducer)
-          )
-        )
+        .addPrivateRepository<DocContents, DocContentsEvents>('docContents', reducer, 'document')
         .create();
 
       process.on(

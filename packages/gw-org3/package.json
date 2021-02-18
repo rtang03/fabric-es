@@ -33,6 +33,7 @@
     "@fabric-es/gateway-lib": "^0.7.5",
     "@fabric-es/model-common": "^0.7.5",
     "@fabric-es/model-loan": "^0.7.5",
+    "@fabric-es/model-document": "^0.7.5",
     "@fabric-es/operator": "^0.7.5",
     "apollo-server": "^2.13.1",
     "body-parser": "^1.19.0",

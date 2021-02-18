@@ -2,13 +2,31 @@ require('./env');
 import util from 'util';
 import { counterReducer, getReducer } from '@fabric-es/fabric-cqrs';
 import { createQueryHandlerService, getLogger } from '@fabric-es/gateway-lib';
-import { User, UserEvents, userReducer } from '@fabric-es/model-common';
+import { User, UserEvents, userIndexDefinition, userReducer } from '@fabric-es/model-common';
 import { DocContents, DocContentsEvents, docContentsReducer } from '@fabric-es/model-document';
-import { Loan, LoanEvents, loanReducer } from '@fabric-es/model-loan';
+import {
+  Loan,
+  LoanEvents,
+  loanIndexDefinition,
+  LoanInRedis,
+  loanReducer,
+  OutputLoan,
+  postSelector as loanPostSelector,
+  preSelector as loanPreSelector,
+} from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
-import { RedisOptions } from 'ioredis';
+import type { RedisOptions } from 'ioredis';
 import { LoanDetails, LoanDetailsEvents, loanDetailsReducer } from './model/private/loan-details';
-import { Document, DocumentEvents, documentReducer } from './model/public/document';
+import {
+  Document,
+  DocumentEvents,
+  documentIndexDefinition,
+  documentReducer,
+  preSelector as docPreSelector,
+  postSelector as docPostSelector,
+  DocumentInRedis,
+  OutputDocument,
+} from './model/public/document';
 
 const port = parseInt(process.env.QUERY_PORT, 10) || 5000;
 const logger = getLogger('[query-handler] app.js');
@@ -44,19 +62,32 @@ void (async () => {
     counter: counterReducer,
   };
 
-  const { server, shutdown } = await createQueryHandlerService(
-    ['document', 'loan', 'docContents', 'loanDetails', 'user', 'counter'],
-    {
-      redisOptions,
-      asLocalhost: !(process.env.NODE_ENV === 'production'),
-      channelName: process.env.CHANNEL_NAME,
-      connectionProfile: process.env.CONNECTION_PROFILE,
-      enrollmentId: process.env.ORG_ADMIN_ID,
-      reducers,
-      wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
-      authCheck,
-    }
-  );
+  const { getServer, shutdown } = await createQueryHandlerService({
+    redisOptions,
+    asLocalhost: !(process.env.NODE_ENV === 'production'),
+    channelName: process.env.CHANNEL_NAME,
+    connectionProfile: process.env.CONNECTION_PROFILE,
+    enrollmentId: process.env.ORG_ADMIN_ID,
+    reducers,
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+    authCheck,
+  })
+    .addRedisRepository({ entityName: 'user', fields: userIndexDefinition })
+    .addRedisRepository<Document, DocumentInRedis, OutputDocument>({
+      entityName: 'document',
+      fields: documentIndexDefinition,
+      preSelector: docPreSelector,
+      postSelector: docPostSelector,
+    })
+    .addRedisRepository<Loan, LoanInRedis, OutputLoan>({
+      entityName: 'loan',
+      fields: loanIndexDefinition,
+      postSelector: loanPostSelector,
+      preSelector: loanPreSelector,
+    })
+    .run();
+
+  const server = getServer();
 
   process.on(
     'SIGINT',
