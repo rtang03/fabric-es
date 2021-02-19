@@ -6,7 +6,7 @@
 
 **Merged pull requests:**
 
-- refactor: deduplicate BaseEntity class and interface [\#188](https://github.com/rtang03/fabric-es/pull/188) ([rtang03](https://github.com/rtang03))
+- chore: Add workaround to avoid redis error when shutdown query-handler service [\#189](https://github.com/rtang03/fabric-es/pull/189) ([pangduckwai](https://github.com/pangduckwai))
 
 ## [v0.7.5](https://github.com/rtang03/fabric-es/tree/v0.7.5) (2021-01-25)
 
@@ -52,6 +52,7 @@
 
 **Merged pull requests:**
 
+- refactor: deduplicate BaseEntity class and interface [\#188](https://github.com/rtang03/fabric-es/pull/188) ([rtang03](https://github.com/rtang03))
 - fix: .nojerkll  [\#181](https://github.com/rtang03/fabric-es/pull/181) ([rtang03](https://github.com/rtang03))
 - docs: add typedoc [\#180](https://github.com/rtang03/fabric-es/pull/180) ([rtang03](https://github.com/rtang03))
 - chore: Prepare tester and dev-net to port to cdi-samples [\#179](https://github.com/rtang03/fabric-es/pull/179) ([pangduckwai](https://github.com/pangduckwai))
@@ -261,9 +262,9 @@
 - Revamp auth-server [\#34](https://github.com/rtang03/fabric-es/pull/34) ([rtang03](https://github.com/rtang03))
 - Backporting docker image building scripts [\#33](https://github.com/rtang03/fabric-es/pull/33) ([pangduckwai](https://github.com/pangduckwai))
 - Use release versions as dev-net docker image versions [\#32](https://github.com/rtang03/fabric-es/pull/32) ([pangduckwai](https://github.com/pangduckwai))
-- Merge projectionDb search changes from 0.5.16 to master [\#30](https://github.com/rtang03/fabric-es/pull/30) ([pangduckwai](https://github.com/pangduckwai))
 - Update the GCP deployment of gw-org1, gw-org2, and auth-servers for release v0.6.1 [\#29](https://github.com/rtang03/fabric-es/pull/29) ([hohowin](https://github.com/hohowin))
 - V2dn3org [\#25](https://github.com/rtang03/fabric-es/pull/25) ([pangduckwai](https://github.com/pangduckwai))
+- refactor to "consolidated" dev-net; add "unit-test with running fabric" [\#4](https://github.com/rtang03/fabric-es/pull/4) ([rtang03](https://github.com/rtang03))
 
 **Fixed bugs:**
 

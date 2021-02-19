@@ -2,6 +2,7 @@ import util from 'util';
 import { ApolloServer } from 'apollo-server';
 import { Redis } from 'ioredis';
 import { Logger } from 'winston';
+import { REDIS_CONNECTION_CLOSED } from '../query-handler';
 
 /**
  * @ignore
@@ -17,7 +18,9 @@ export const shutdownApollo = ({
 }) => async (server: ApolloServer): Promise<void> =>
   new Promise<void>(async (resolve, reject) => {
     if (redis)
-      redis.quit().catch((err) => logger.error(`Error disconnecting client from redis: ${err}`));
+      redis.quit().catch((err) => {
+        if (err.message !== REDIS_CONNECTION_CLOSED) logger.error(`Error disconnecting client from redis: ${err}`);
+      });
 
     return server
       .stop()
