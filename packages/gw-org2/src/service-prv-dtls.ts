@@ -44,12 +44,12 @@ void (async () =>
       },
     },
   })
-    .then(async ({ config, shutdown, getPrivateRepository }) => {
-      const app = await config({
+    .then(({ config, shutdown }) => {
+      const app = config({
         typeDefs: loanDetailsTypeDefs,
         resolvers: loanDetailsResolvers,
       })
-        .addRepository(getPrivateRepository<LoanDetails, LoanDetailsEvents>('loanDetails', reducer))
+        .addPrivateRepository<LoanDetails, LoanDetailsEvents>('loanDetails', reducer)
         .create();
 
       process.on(

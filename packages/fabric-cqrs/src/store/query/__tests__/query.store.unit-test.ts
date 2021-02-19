@@ -1,34 +1,36 @@
 require('dotenv').config({ path: './.env.test' });
-import Redis from 'ioredis';
+import { Redisearch } from 'redis-modules-sdk';
 import { Store } from 'redux';
-import {
-  createQueryDatabase,
-  dummyReducer,
-  Counter,
-  commitsToGroupByEntityId,
-  commitIndex,
-} from '../../../queryHandler';
+import { commitsToGroupByEntityId } from '../../../queryHandler';
+import { createQueryDatabase, createRedisRepository } from '../../../queryHandler';
 import type {
-  Commit,
   GetByEntityNameResponse,
+  OutputCommit,
   QueryDatabase,
-  QueryDatabaseResponse,
-  HandlerResponse,
-} from '../../../types';
-import { dispatcher, getLogger } from '../../../utils';
-import { action } from '../action';
-import { commit, commits, newCommit, entityName } from './__utils__/data';
-import { getStore } from './__utils__/store';
+  RedisRepository,
+} from '../../../queryHandler/types';
+import type { Commit, HandlerResponse } from '../../../types';
+import {
+  Counter,
+  CounterInRedis,
+  counterIndexDefinition as fields,
+  OutputCounter,
+  postSelector,
+  preSelector,
+  reducer,
+} from '../../../unit-test-counter';
+import { dispatcher, getLogger, waitForSecond } from '../../../utils';
+import { action, action as queryAction } from '../action';
+import { getStore, commit, commits, entityName, newCommit } from './__utils__';
 
+let client: Redisearch;
+let commitRepo: RedisRepository<OutputCommit>;
+let counterRedisRepo: RedisRepository<OutputCounter>;
 let store: Store;
-let redis: Redis.Redis;
 let queryDatabase: QueryDatabase;
 
 const logger = getLogger({ name: 'query.store.unit-test.ts' });
 const {
-  find,
-  FIND_SUCCESS,
-  FIND_ERROR,
   deleteCommitByEntityName,
   deleteCommitByEntityId,
   DELETE_SUCCESS,
@@ -44,47 +46,99 @@ const {
   QUERY_SUCCESS,
   QUERY_ERROR,
 } = action;
-const reducers = { [entityName]: dummyReducer };
+const reducers = { [entityName]: reducer };
 const id = 'test_001';
 
 beforeAll(async () => {
-  redis = new Redis();
-  queryDatabase = createQueryDatabase(redis);
-  store = getStore({ queryDatabase, reducers, logger });
+  try {
+    // Step 1: connect Redis
+    client = new Redisearch({ host: 'localhost', port: 6379 });
+    await client.connect();
 
-  // tear up
-  await dispatcher<QueryDatabaseResponse, { entityName: string }>(
-    (payload) => deleteCommitByEntityName(payload),
-    {
-      name: 'deleteByEntityName',
-      store,
-      slice: 'query',
-      SuccessAction: DELETE_SUCCESS,
-      ErrorAction: DELETE_ERROR,
-      logger,
-    }
-  )({ entityName })
-    .then(({ data }) => console.log(data.message))
-    .catch((error) => console.log(error.message));
+    // Step 2: create counter's RedisRepo
+    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>({
+      client,
+      fields,
+      entityName,
+      postSelector,
+      preSelector,
+    });
 
-  await redis
-    .send_command('FT.DROP', ['cidx'])
-    .then((result) => console.log(`cidx is dropped: ${result}`))
-    .catch((result) => console.log(`cidx is not dropped: ${result}`));
+    // Step 3: create QueryDatabase; return commitRepo
+    queryDatabase = createQueryDatabase(client, { [entityName]: counterRedisRepo });
+    commitRepo = queryDatabase.getRedisCommitRepo();
+
+    // Step 4: redux store
+    store = getStore({ queryDatabase, reducers, logger });
+
+    // Step 5: prepare Redisearch indexes
+    const eidx = counterRedisRepo.getIndexName();
+    await counterRedisRepo
+      .dropIndex()
+      .then((result) => console.log(`${eidx} is dropped: ${result}`))
+      .catch((result) => console.log(`${eidx} is not dropped: ${result}`));
+
+    await counterRedisRepo
+      .createIndex()
+      .then((result) => console.log(`${eidx} is created: ${result}`))
+      .catch((result) => {
+        console.log(`${eidx} is not created: ${result}`);
+        process.exit(1);
+      });
+
+    const cidx = commitRepo.getIndexName();
+    await commitRepo
+      .dropIndex()
+      .then((result) => console.log(`${cidx} is dropped: ${result}`))
+      .catch((result) => console.log(`${cidx} is not dropped: ${result}`));
+
+    await commitRepo
+      .createIndex()
+      .then((result) => console.log(`${cidx} is created: ${result}`))
+      .catch((result) => {
+        console.log(`${cidx} is not created: ${result}`);
+        process.exit(1);
+      });
+
+    // Step 6: delete all query-side commits by entityName
+    await dispatcher<number, { entityName: string }>(
+      (payload) => queryAction.deleteCommitByEntityName(payload),
+      {
+        name: 'deleteByEntityName',
+        store,
+        slice: 'query',
+        SuccessAction: queryAction.DELETE_SUCCESS,
+        ErrorAction: queryAction.DELETE_ERROR,
+        logger,
+      }
+    )({ entityName })
+      .then(({ data }) => console.log(`${data} record(s) deleted`))
+      .catch((error) => console.error(error.message));
+
+    // Step 7: clear all pre-existing records
+    await queryDatabase
+      .deleteCommitByEntityName({ entityName })
+      .then(({ message }) => console.log(message))
+      .catch((result) => console.log(result));
+
+    await queryDatabase
+      .deleteEntityByEntityName({ entityName })
+      .then(({ message }) => console.log(message))
+      .catch((result) => console.log(result));
+
+    await queryDatabase
+      .clearNotifications({ creator: 'org1-admin' })
+      .then(({ status }) => console.log(`clearNotifications: ${status}`));
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  }
 });
 
 afterAll(async () => {
-  await redis
-    .send_command('FT.DROP', ['cidx'])
-    .then((result) => console.log(`cidx is dropped: ${result}`))
-    .catch((result) => console.log(`cidx is not dropped: ${result}`));
-
-  await queryDatabase
-    .deleteCommitByEntityName({ entityName })
-    .then(({ message }) => console.log(message))
-    .catch((result) => console.log(result));
-
-  return new Promise<void>((ok) => setTimeout(() => ok(), 2000));
+  await client.disconnect();
+  console.log('Test ends,... quitting');
+  return waitForSecond(2);
 });
 
 describe('Store/query: failure tests', () => {
@@ -99,7 +153,7 @@ describe('Store/query: failure tests', () => {
         ErrorAction: QUERY_ERROR,
         logger,
       },
-      (commits) => commitsToGroupByEntityId<Counter>(commits, reducers[entityName])
+      (commits: OutputCommit[]) => commitsToGroupByEntityId<Counter>(commits, reducers[entityName])
     )({ entityName }).then((result) =>
       expect(result).toEqual({ status: 'OK', data: { currentStates: [], errors: [] } })
     ));
@@ -172,7 +226,7 @@ describe('Store/query: failure tests', () => {
     }));
 
   it('should fail to deleteByEntityId: invalid argument', async () =>
-    dispatcher<QueryDatabaseResponse, { entityName: string; id: string }>(
+    dispatcher<HandlerResponse, { entityName: string; id: string }>(
       (payload) => deleteCommitByEntityId(payload),
       {
         name: 'deleteByEntityId',
@@ -189,7 +243,7 @@ describe('Store/query: failure tests', () => {
     }));
 
   it('should fail to deleteByEntityName: invalid argument', async () =>
-    dispatcher<QueryDatabaseResponse, { entityName: string }>(
+    dispatcher<HandlerResponse, { entityName: string }>(
       (payload) => deleteCommitByEntityName(payload),
       {
         name: 'deleteByEntityName',
@@ -204,47 +258,9 @@ describe('Store/query: failure tests', () => {
       expect(status).toEqual('ERROR');
       expect(error.message).toContain('invalid input argument');
     }));
-
-  it('should fail to mergeCommit, where cidx is not exist', async () =>
-    dispatcher<string[], { commit: Commit }>((payload) => mergeCommit(payload), {
-      name: 'mergeCommit',
-      store,
-      slice: 'query',
-      SuccessAction: MERGE_COMMIT_SUCCESS,
-      ErrorAction: MERGE_COMMIT_ERROR,
-      logger,
-    })({ commit }).then(({ status, data, error }) => {
-      expect(data).toBeNull();
-      expect(status).toEqual('ERROR');
-      expect(error.message).toContain('Unknown index name');
-    }));
-
-  it('should fail to mergeCommitBatch, where cidx is not exist', async () =>
-    dispatcher<string[], { entityName: string; commits: Record<string, Commit> }>(
-      (payload) => mergeCommitBatch(payload),
-      {
-        name: 'mergeBatchCommit',
-        store,
-        slice: 'query',
-        SuccessAction: MERGE_COMMIT_BATCH_SUCCESS,
-        ErrorAction: MERGE_COMMIT_BATCH_ERROR,
-        logger,
-      }
-    )({ entityName, commits }).then(({ status, data, error }) => {
-      expect(data).toBeNull();
-      expect(status).toEqual('ERROR');
-      expect(error.message).toContain('Unknown index name');
-    }));
 });
 
 describe('Store/query Test', () => {
-  beforeAll(async () =>
-    redis
-      .send_command('FT.CREATE', commitIndex)
-      .then((result) => console.log(`cidx is created: ${result}`))
-      .catch((result) => console.error(`cidx is not created: ${result}`))
-  );
-
   it('should #1 mergeCommit', async () =>
     dispatcher<string[], { commit: Commit }>((payload) => mergeCommit(payload), {
       name: 'mergeCommit',
@@ -254,10 +270,40 @@ describe('Store/query Test', () => {
       ErrorAction: MERGE_COMMIT_ERROR,
       logger,
     })({ commit }).then(({ data, status }) => {
-      expect(data[0]).toContain('store_query::test_001::');
+      expect(data[0]).toContain('c:store_query:test_001:');
       expect(status).toEqual('OK');
     }));
 
+  // step 1. retrieve OutputCommit[] by entityName
+  // step 2. group by entityId
+  // step. 3. compute back to entity, reducers. It does NOT store the computed result, back to Redis
+  // step 1 returns OutputCommit
+  // [
+  //   {
+  //     id: 'test_001',
+  //     entityName: 'store_query',
+  //     commitId: '20200528133519841',
+  //     mspId: 'Org1MSP',
+  //     creator: 'org1-admin',
+  //     event: 'Increment',
+  //     entityId: 'test_001',
+  //     version: 0,
+  //     ts: 1590738792,
+  //     events: [ [Object] ]
+  //   }
+  // ]
+  // step 3 returns Counter, but NOT CounterInRedis / OutputCounter
+  // [
+  //   {
+  //     id: 'test_001',
+  //     desc: 'store #1',
+  //     tag: 'store,query',
+  //     value: 1,
+  //     _ts: 1590738792,
+  //     _created: 1590738792,
+  //     _creator: 'org1-admin'
+  //   }
+  // ]
   it('should queryByEntityName: return counter.value = 1', async () =>
     dispatcher<GetByEntityNameResponse<Counter>, { entityName: string }>(
       (payload) => queryByEntityName(payload),
@@ -269,7 +315,7 @@ describe('Store/query Test', () => {
         ErrorAction: QUERY_ERROR,
         logger,
       },
-      (commits) =>
+      (commits: OutputCommit[]) =>
         commits ? commitsToGroupByEntityId<Counter>(commits, reducers[entityName]) : null
     )({ entityName }).then(({ status, data: { currentStates, errors } }) => {
       expect(status).toEqual('OK');
@@ -279,7 +325,7 @@ describe('Store/query Test', () => {
     }));
 
   it('should queryByEntityId', async () =>
-    dispatcher<Commit[], { entityName: string; id: string }>(
+    dispatcher<OutputCommit[], { entityName: string; id: string }>(
       (payload) => queryByEntityId(payload),
       {
         name: 'queryByEntityId',
@@ -289,9 +335,16 @@ describe('Store/query Test', () => {
         ErrorAction: QUERY_ERROR,
         logger,
       },
-      (result) => (result ? Object.values<Commit>(result).reverse() : null)
+      (result) => (result ? Object.values<OutputCommit>(result).reverse() : null)
     )({ entityName, id }).then(({ data, status }) => {
-      expect(data).toEqual([commit]);
+      // in previous step, "mergeCommit", the raw Commit appends a derived fields,
+      // creator, event, and ts, resulting OutputCommit
+      const mockedOutputCommit = Object.assign({}, commit, {
+        creator: 'org1-admin',
+        event: 'Increment',
+        ts: 1590738792,
+      });
+      expect(data).toEqual([mockedOutputCommit]);
       expect(status).toEqual('OK');
     }));
 
@@ -304,7 +357,7 @@ describe('Store/query Test', () => {
       ErrorAction: MERGE_COMMIT_ERROR,
       logger,
     })({ commit: newCommit }).then(({ data, status }) => {
-      expect(data[0]).toContain('store_query::test_001::');
+      expect(data[0]).toContain('c:store_query:test_001:');
       expect(status).toEqual('OK');
     }));
 
@@ -329,7 +382,7 @@ describe('Store/query Test', () => {
     }));
 
   it('should #2 queryByEntityId: DESC order', async () =>
-    dispatcher<Commit[], { entityName: string; id: string }>(
+    dispatcher<OutputCommit[], { entityName: string; id: string }>(
       (payload) => queryByEntityId(payload),
       {
         name: 'queryByEntityId',
@@ -339,9 +392,19 @@ describe('Store/query Test', () => {
         ErrorAction: QUERY_ERROR,
         logger,
       },
-      (result) => (result ? Object.values<Commit>(result).reverse() : null)
+      (result) => (result ? Object.values<OutputCommit>(result).reverse() : null)
     )({ entityName, id }).then(({ data, status }) => {
-      expect(data).toEqual([newCommit, commit]);
+      const mockedOutputCommit2 = Object.assign({}, newCommit, {
+        creator: '',
+        event: 'Increment',
+        ts: 1590739000,
+      });
+      const mockedOutputCommit1 = Object.assign({}, commit, {
+        creator: 'org1-admin',
+        event: 'Increment',
+        ts: 1590738792,
+      });
+      expect(data).toEqual([mockedOutputCommit2, mockedOutputCommit1]);
       expect(status).toEqual('OK');
     }));
 
@@ -358,11 +421,11 @@ describe('Store/query Test', () => {
       }
     )({ entityName, commits }).then(({ status, data }) => {
       expect(data).toEqual([
-        'store_query::test_002::20200528133530001',
-        'store_query::test_002::20200528133530002',
-        'store_query::test_002::20200528133530003',
-        'store_query::test_003::20200528133530004',
-        'store_query::test_003::20200528133530005',
+        'c:store_query:test_002:20200528133530001',
+        'c:store_query:test_002:20200528133530002',
+        'c:store_query:test_002:20200528133530003',
+        'c:store_query:test_003:20200528133530004',
+        'c:store_query:test_003:20200528133530005',
       ]);
       expect(status).toEqual('OK');
     }));
@@ -384,9 +447,33 @@ describe('Store/query Test', () => {
       expect(status).toEqual('OK');
       expect(errors).toEqual([]);
       expect(currentStates).toEqual([
-        { value: 2, id: 'test_001', ts: 1590739000 },
-        { value: 3, id: 'test_002', ts: 1590740002 },
-        { value: 2, id: 'test_003', ts: 1590740004 },
+        {
+          value: 2,
+          id: 'test_001',
+          desc: 'store #2',
+          tag: 'store,query',
+          _ts: 1590739000,
+          _creator: 'org1-admin',
+          _created: 1590738792,
+        },
+        {
+          value: 3,
+          id: 'test_002',
+          desc: 'store #5',
+          tag: 'store,query',
+          _ts: 1590740002,
+          _creator: 'org1-admin',
+          _created: 1590740000,
+        },
+        {
+          value: 2,
+          id: 'test_003',
+          desc: 'store #7',
+          tag: 'store,query',
+          _ts: 1590740004,
+          _creator: 'org1-admin',
+          _created: 1590740003,
+        },
       ]);
     }));
 
@@ -410,6 +497,9 @@ describe('Store/query Test', () => {
         commitId: '20200528133530003',
         entityId: 'test_002',
         mspId: 'Org1MSP',
+        creator: '',
+        event: 'Increment',
+        ts: 1590740002,
         events: [
           {
             type: 'Increment',
@@ -417,7 +507,7 @@ describe('Store/query Test', () => {
               id: 'test_002',
               desc: 'store #5',
               tag: 'store,query',
-              ts: 1590740002,
+              _ts: 1590740002,
             },
           },
         ],
@@ -458,13 +548,29 @@ describe('Store/query Test', () => {
       expect(status).toEqual('OK');
       expect(errors).toEqual([]);
       expect(currentStates).toEqual([
-        { value: 2, id: 'test_001', ts: 1590739000 },
-        { value: 3, id: 'test_002', ts: 1590740002 },
+        {
+          value: 2,
+          id: 'test_001',
+          desc: 'store #2',
+          tag: 'store,query',
+          _ts: 1590739000,
+          _created: 1590738792,
+          _creator: 'org1-admin',
+        },
+        {
+          value: 3,
+          id: 'test_002',
+          desc: 'store #5',
+          tag: 'store,query',
+          _ts: 1590740002,
+          _created: 1590740000,
+          _creator: 'org1-admin',
+        },
       ]);
     }));
 
   it('should #4 queryByEntityId: DESC order', async () =>
-    dispatcher<Commit[], { entityName: string; id: string }>(
+    dispatcher<OutputCommit[], { entityName: string; id: string }>(
       (payload) => queryByEntityId(payload),
       {
         name: 'queryByEntityId',
@@ -474,7 +580,7 @@ describe('Store/query Test', () => {
         ErrorAction: QUERY_ERROR,
         logger,
       },
-      (result) => (result ? Object.values<Commit>(result).reverse() : null)
+      (result) => (result ? Object.values<OutputCommit>(result).reverse() : null)
     )({ entityName, id: 'test_003' }).then(({ data, status }) => {
       expect(data).toEqual([]);
       expect(status).toEqual('OK');

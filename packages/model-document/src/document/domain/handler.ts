@@ -1,7 +1,6 @@
 import { Lifecycle } from '@fabric-es/fabric-cqrs';
 import { Errors } from '@fabric-es/gateway-lib';
-import values from 'lodash/values';
-import { DocumentCommandHandler, DocumentEvents, DocumentRepo } from '..';
+import type { DocumentCommandHandler, DocumentEvents, DocumentRepo } from '../types';
 
 export const DocumentErrors = {
   documentNotFound: (documentId) => new Error(`DOCUMENT_NOT_FOUND: id: ${documentId}`),

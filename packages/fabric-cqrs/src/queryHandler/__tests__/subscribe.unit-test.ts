@@ -1,20 +1,24 @@
 require('dotenv').config({ path: './.env.dev' });
 import { enrollAdmin } from '@fabric-es/operator';
 import { Wallets } from 'fabric-network';
-import Redis from 'ioredis';
 import omit from 'lodash/omit';
+import { Redisearch } from 'redis-modules-sdk';
 import rimraf from 'rimraf';
-import {
-  commitIndex,
-  CounterEvent,
-  createQueryDatabase,
-  createQueryHandler,
-  entityIndex,
-} from '..';
+import { createQueryDatabase, createQueryHandler, createRedisRepository } from '..';
 import { getNetwork } from '../../services';
-import type { Commit, QueryHandler } from '../../types';
-import { Counter, reducer } from '../../unit-test-reducer';
+import {
+  Counter,
+  CounterEvent,
+  reducer,
+  counterIndexDefinition as fields,
+  CounterInRedis,
+  postSelector,
+  preSelector,
+  OutputCounter,
+} from '../../unit-test-counter';
 import { isCommit, isCommitRecord, waitForSecond } from '../../utils';
+import type { QueryHandler, RedisRepository, OutputCommit } from '../types';
+
 
 /**
  * ./dn-run.1-db-red-auth.sh
@@ -31,10 +35,12 @@ const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
 const walletPath = process.env.WALLET;
 const entityName = 'test_subscribe';
 const id = `qh_sub_test_001`;
-const timestampesOnCreate = [];
-const enrollmentId = orgAdminId;
+const timestampsOnCreate = [];
 const reducers = { [entityName]: reducer };
-let redis: Redis.Redis;
+
+let client: Redisearch;
+let commitRepo: RedisRepository<OutputCommit>;
+let counterRedisRepo: RedisRepository<OutputCounter>;
 let queryHandler: QueryHandler;
 
 beforeAll(async () => {
@@ -64,70 +70,108 @@ beforeAll(async () => {
       wallet,
     });
 
-    // localhost:6379
-    redis = new Redis();
-    const queryDatabase = createQueryDatabase(redis);
+    // Step 3: connect Redis
+    client = new Redisearch({
+      host: '127.0.0.1',
+      port: 6379,
+      retryStrategy: (times) => {
+        if (times > 3) {
+          // the 4th return will exceed 10 seconds, based on the return value...
+          console.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
+          process.exit(-1);
+        }
+        return Math.min(times * 100, 3000); // reconnect after (ms)
+      },
+      reconnectOnError: (err) => {
+        const targetError = 'READONLY';
+        if (err.message.includes(targetError)) {
+          // Only reconnect when the error contains "READONLY"
+          return 1;
+        }
+      },
+    });
+    await client.connect();
 
-    const networkConfig = await getNetwork({
+    // Step 4: create counter's RedisRepo
+    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>({
+      client,
+      fields,
+      entityName,
+      postSelector,
+      preSelector,
+    });
+
+    // Step 5: create QueryDatabase
+    const queryDatabase = createQueryDatabase(client, { [entityName]: counterRedisRepo });
+    commitRepo = queryDatabase.getRedisCommitRepo();
+
+    // Step 6: obtain network configuration of Hyperledger Fabric
+    const { gateway, network } = await getNetwork({
       discovery: true,
       asLocalhost: true,
       channelName,
       connectionProfile,
       wallet,
-      enrollmentId,
+      enrollmentId: orgAdminId,
     });
 
+    // Step 7: QueryHandler
     queryHandler = createQueryHandler({
-      entityNames: [entityName],
-      gateway: networkConfig.gateway,
-      network: networkConfig.network,
-      queryDatabase,
-      connectionProfile,
       channelName,
-      wallet,
+      connectionProfile,
+      entityNames: [entityName],
+      gateway,
+      network,
+      queryDatabase,
       reducers,
+      wallet,
     });
 
-    // tear down
-    await queryHandler
-      .command_deleteByEntityId(entityName)({ id })
-      .then(({ data }) => console.log(data.message))
-      .catch((e) => {
-        console.error(e);
+    await queryHandler.subscribeHub([entityName]);
+
+    // Step 8: prepare Redisearch indexes
+    const eidx = counterRedisRepo.getIndexName();
+    await counterRedisRepo
+      .dropIndex()
+      .then((result) => console.log(`${eidx} is dropped: ${result}`))
+      .catch((result) => console.log(`${eidx} is not dropped: ${result}`));
+
+    await counterRedisRepo
+      .createIndex()
+      .then((result) => console.log(`${eidx} is created: ${result}`));
+
+    const cidx = commitRepo.getIndexName();
+    await commitRepo
+      .dropIndex()
+      .then((result) => console.log(`${cidx} is dropped: ${result}`))
+      .catch((result) => console.log(`${cidx} is not dropped: ${result}`));
+
+    await commitRepo
+      .createIndex()
+      .then((result) => console.log(`${cidx} is created: ${result}`))
+      .catch((result) => {
+        console.log(`${cidx} is not created: ${result}`);
         process.exit(1);
       });
+
+    // Step 9: remove pre-existing records
+    await queryDatabase
+      .clearNotifications({ creator: 'admin-org1.net' })
+      .then(({ status }) => console.log(`clearNotifications: ${status}`));
+
+    await queryHandler
+      .command_deleteByEntityId(entityName)({ id })
+      .then(({ data: { message } }) => console.log(message));
 
     await queryHandler
       .query_deleteCommitByEntityName(entityName)()
       .then(({ data }) => console.log(`${data} record(s) deleted`));
 
-    await queryHandler.subscribeHub([entityName]);
-
-    await redis
-      .send_command('FT.DROP', ['cidx'])
-      .then((result) => console.log(`cidx is dropped: ${result}`))
-      .catch((result) => console.log(`cidx is not dropped: ${result}`));
-
-    await redis
-      .send_command('FT.CREATE', commitIndex)
-      .then((result) => console.log(`cidx is created: ${result}`))
-      .catch((result) => console.log(`cidx is not created: ${result}`));
-
-    await redis
-      .send_command('FT.DROP', ['eidx'])
-      .then((result) => console.log(`eidx is dropped: ${result}`))
-      .catch((result) => console.log(`eidx is not dropped: ${result}`));
-
-    await redis
-      .send_command('FT.CREATE', entityIndex)
-      .then((result) => console.log(`eidx is created: ${result}`))
-      .catch((result) => console.log(`eidx is not created: ${result}`));
-
     await queryHandler
-      .queryNotify({ creator: enrollmentId, expireNow: true })
-      .then(({ status }) => console.log(`expire all notification: ${status}`));
+      .query_deleteEntityByEntityName(entityName)()
+      .then(({ data }) => console.log(`${data} record(s) deleted`));
 
-    return waitForSecond(3);
+    return waitForSecond(5);
   } catch (e) {
     console.error(e);
     process.exit(1);
@@ -136,30 +180,18 @@ beforeAll(async () => {
 
 afterAll(async () => {
   queryHandler.unsubscribeHub();
-
-  // clean up
-  await redis
-    .send_command('FT.DROP', ['cidx'])
-    .then((result) => console.log(`cidx is dropped: ${result}`))
-    .catch((result) => console.log(`cidx is not dropped: ${result}`));
-
-  await redis
-    .send_command('FT.DROP', ['eidx'])
-    .then((result) => console.log(`eidx is dropped: ${result}`))
-    .catch((result) => console.log(`eidx is not dropped: ${result}`));
-
-  await queryHandler
-    .query_deleteCommitByEntityName(entityName)()
-    .then(({ data }) => console.log(`${data} records deleted`))
-    .catch((error) => console.log(error));
-
-  return waitForSecond(1);
+  await waitForSecond(10);
+  return client.disconnect();
 });
 
 describe('Query Handler Tests', () => {
-  it('should create #1 record for id', async () =>
-    queryHandler
-      .create<CounterEvent>(entityName)({ enrollmentId, id })
+  // will create these keys
+  // 1) "e:test_subscribe:qh_sub_test_001"
+  // 2) "n:admin-org1.net:test_subscribe:qh_sub_test_001:20210210032205925"
+  // 3) "c:test_subscribe:qh_sub_test_001:20210210032205925"
+  it('should create #1 record for id', async () => {
+    await queryHandler
+      .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id })
       .save({
         events: [
           {
@@ -168,12 +200,33 @@ describe('Query Handler Tests', () => {
           },
         ],
       })
-      .then(({ data }) => expect(isCommit(data)).toBeTruthy()));
+      .then(({ data, status }) => {
+        expect(status).toBe('OK');
+        expect(isCommit(data)).toBeTruthy();
+      });
+    // await mergeEntity
+    return waitForSecond(2);
+  });
 
+  // [
+  //   {
+  //     id: 'qh_sub_test_001',
+  //     entityName: 'test_subscribe',
+  //     commitId: '20210210160816772',
+  //     mspId: 'Org1MSP',
+  //     creator: 'admin-org1.net',
+  //     event: 'Increment',
+  //     entityId: 'qh_sub_test_001',
+  //     version: 0,
+  //     ts: 1612973294601,
+  //     events: [ [Object] ]
+  //   }
+  // ]
   it('should query_getCommitById', async () =>
     queryHandler
       .getCommitById(entityName)({ id })
-      .then(({ data }) => {
+      .then(({ data, status }) => {
+        expect(status).toBe('OK');
         data.forEach((commit) => {
           expect(commit.entityName).toEqual(entityName);
           expect(commit.id).toEqual(id);
@@ -181,9 +234,15 @@ describe('Query Handler Tests', () => {
         });
       }));
 
-  it('should create #2 record for id', async () =>
-    queryHandler
-      .create<CounterEvent>(entityName)({ enrollmentId, id })
+  // will create these keys
+  // 1) "c:test_subscribe:qh_sub_test_001:20210210035257594"
+  // 2) "n:admin-org1.net:test_subscribe:qh_sub_test_001:20210210035257594"
+  // 3) "c:test_subscribe:qh_sub_test_001:20210210035250191"
+  // 4) "e:test_subscribe:qh_sub_test_001"
+  // 5) "n:admin-org1.net:test_subscribe:qh_sub_test_001:20210210035250191"
+  it('should create #2 record for id', async () => {
+    await queryHandler
+      .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id })
       .save({
         events: [
           {
@@ -192,129 +251,191 @@ describe('Query Handler Tests', () => {
           },
         ],
       })
-      .then(({ data }) => expect(isCommit(data)).toBeTruthy()));
-
-  it('should FT.SEARCH by test* : return 2 commit', async () => {
-    await waitForSecond(3);
-
-    return queryHandler.fullTextSearchCommit(['test*'], 0, 2).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      expect(data.total).toEqual(2);
-      expect(data.hasMore).toBeFalsy();
-      expect(data.cursor).toEqual(2);
-      expect(isCommitRecord(data.items)).toBeTruthy();
-    });
+      .then(({ data, status }) => {
+        expect(status).toBe('OK');
+        expect(isCommit(data)).toBeTruthy();
+      });
+    return waitForSecond(2);
   });
 
+  // returns
+  // {
+  //   status: 'OK',
+  //   data: {
+  //     total: 2,
+  //     items: [ [Object], [Object] ],
+  //     hasMore: false,
+  //     cursor: 2
+  //   }
+  // }
   it('should FT.SEARCH by qh* : return 2 commits', async () =>
-    queryHandler.fullTextSearchCommit(['qh*'], 0, 2).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      expect(data.total).toEqual(2);
-      expect(data.hasMore).toBeFalsy();
-      expect(data.cursor).toEqual(2);
-      expect(isCommitRecord(data.items)).toBeTruthy();
-    }));
+    queryHandler
+      .fullTextSearchCommit({ query: 'qh*', cursor: 0, pagesize: 2 })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(2);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(2);
+        expect(isCommitRecord(data.items)).toBeTruthy();
+      }));
 
+  // returns
+  // {
+  //   total: 1,
+  //     items: [
+  //   {
+  //     id: 'qh_sub_test_001',
+  //     entityName: 'test_subscribe',
+  //     commitId: '20210210160816772',
+  //     mspId: 'Org1MSP',
+  //     creator: 'admin-org1.net',
+  //     event: 'Increment',
+  //     entityId: 'qh_sub_test_001',
+  //     version: 0,
+  //     ts: 1612973294601,
+  //     events: [Array]
+  //   }
+  // ],
+  //   hasMore: false,
+  //   cursor: 1
+  // }
   it('should FT.SEARCH by @event:{increment} : return 1 commit', async () =>
-    queryHandler.fullTextSearchCommit(['@event:{increment}'], 0, 2).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      expect(data.total).toEqual(1);
-      expect(data.hasMore).toBeFalsy();
-      expect(data.cursor).toEqual(1);
-      expect(data.items[0].events[0].type).toEqual('Increment');
-      expect(isCommitRecord(data.items)).toBeTruthy();
-    }));
+    queryHandler
+      .fullTextSearchCommit({ query: '@event:{increment}', cursor: 0, pagesize: 2 })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(1);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(1);
+        expect(data.items[0].events[0].type).toEqual('Increment');
+        expect(isCommitRecord(data.items)).toBeTruthy();
+      }));
 
-  it('should FT.SEARCH by @msp:{org1msp} : return 2 commit', async () =>
-    queryHandler.fullTextSearchCommit(['@msp:{org1msp}'], 0, 2).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      expect(data.total).toEqual(2);
-      expect(data.hasMore).toBeFalsy();
-      expect(data.cursor).toEqual(2);
-      expect(data.items[0].events[0].type).toEqual('Decrement');
-      expect(data.items[0].mspId).toEqual('Org1MSP');
-      expect(isCommitRecord(data.items)).toBeTruthy();
-    }));
+  // {
+  //   total: 2,
+  //     items: [
+  //   {
+  //     id: 'qh_sub_test_001',
+  //     entityName: 'test_subscribe',
+  //     commitId: '20210210160816772',
+  //     mspId: 'Org1MSP',
+  //     creator: 'admin-org1.net',
+  //     event: 'Increment',
+  //     entityId: 'qh_sub_test_001',
+  //     version: 0,
+  //     ts: 1612973294601,
+  //     events: [Array]
+  //   },
+  //   {
+  //     id: 'qh_sub_test_001',
+  //     entityName: 'test_subscribe',
+  //     commitId: '20210210160824083',
+  //     mspId: 'Org1MSP',
+  //     creator: 'admin-org1.net',
+  //     event: 'Decrement',
+  //     entityId: 'qh_sub_test_001',
+  //     version: 0,
+  //     ts: 1612973302118,
+  //     events: [Array]
+  //   }
+  // ],
+  //   hasMore: false,
+  //   cursor: 2
+  // }
+  // note: @mspId is tag, is case sensitive
+  it('should FT.SEARCH by @mspId:{org1msp} : return 2 commit', async () =>
+    queryHandler
+      .fullTextSearchCommit({ query: '@mspId:{org1msp}', cursor: 0, pagesize: 2 })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(2);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(2);
+        expect(data.items[0].mspId).toEqual('Org1MSP');
+        expect(isCommitRecord(data.items)).toBeTruthy();
+      }));
 
   it('should fail to FT.SEARCH: invalid input;', async () =>
     queryHandler
-      .fullTextSearchCommit(['kljkljkljjkljklj;jkl;'], 0, 2)
+      .fullTextSearchCommit({ query: 'kljkljkljjkljklj;jkl;', cursor: 0, pagesize: 2 })
       .then(({ data, status, error, message }) => {
         expect(status).toEqual('ERROR');
         expect(data).toBeUndefined();
         expect(error.message).toContain('Syntax error at offset');
       }));
 
+  // returns OutputCounter
+  // {
+  //   total: 1,
+  //     items: [
+  //   {
+  //     createdAt: '1612973294601',
+  //     creator: 'admin-org1.net',
+  //     description: 'query hander #2 sub-test',
+  //     eventInvolved: [Array],
+  //     id: 'qh_sub_test_001',
+  //     tags: [Array],
+  //     timestamp: '1612973302118',
+  //     value: 0
+  //   }
+  // ],
+  //   hasMore: false,
+  //   cursor: 1
+  // }
   it('should FT.SEARCH by test* : return 1 entity', async () =>
-    queryHandler.fullTextSearchEntity(['test*'], 0, 2).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      expect(data.total).toEqual(1);
-      expect(data.hasMore).toBeFalsy();
-      expect(data.cursor).toEqual(1);
-      expect(omit(data.items[0], '_ts', '_created', '_commit', '_timeline')).toEqual({
-        id,
-        value: 0,
-        tag: 'subscription',
-        desc: 'query hander #2 sub-test',
-        _creator: 'admin-org1.net',
-        _event: 'Increment,Decrement',
-        _entityName: entityName,
-        _organization: ['Org1MSP'],
-      });
-    }));
+    queryHandler
+      .fullTextSearchEntity<OutputCounter>({ entityName, query: 'test*', cursor: 0, pagesize: 2 })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(1);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(1);
+        expect(omit(data.items[0], 'createdAt', 'timestamp')).toEqual({
+          id,
+          value: 0,
+          tags: ['subscription'],
+          description: 'query hander #2 sub-test',
+          creator: 'admin-org1.net',
+          eventInvolved: ['Increment', 'Decrement'],
+        });
+      }));
 
-  it('should FT.SEARCH by tag:{org} : return 1 entity', async () =>
-    queryHandler.fullTextSearchEntity(['@org:{org1msp}'], 0, 2).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      expect(data.total).toEqual(1);
-      expect(data.hasMore).toBeFalsy();
-      expect(data.cursor).toEqual(1);
-      expect(omit(data.items[0], '_ts', '_created', '_commit', '_timeline')).toEqual({
-        id,
-        value: 0,
-        tag: 'subscription',
-        desc: 'query hander #2 sub-test',
-        _creator: 'admin-org1.net',
-        _event: 'Increment,Decrement',
-        _entityName: entityName,
-        _organization: ['Org1MSP'],
-      });
-    }));
-
-  it('should queryGetEntityInfo', async () =>
-    queryHandler.queryGetEntityInfo({ entityName: 'noop' }).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      expect(data).toEqual({
-        total: 0,
-        tagged: [],
-        orgs: [],
-        creators: [],
-        events: [],
-        totalCommit: 0,
-      });
-    }));
-
-  it('should queryGetEntityInfo', async () =>
-    queryHandler.queryGetEntityInfo({ entityName }).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      expect(data).toEqual({
-        total: 1,
-        tagged: ['subscription'],
-        orgs: ['Org1MSP'],
-        creators: ['admin-org1.net'],
-        events: ['Increment', 'Decrement'],
-        totalCommit: 2,
-      });
-    }));
+  it('should FT.SEARCH by tag:{subscription} : return 1 entity', async () =>
+    queryHandler
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: '@tag:{subscription}',
+        cursor: 0,
+        pagesize: 2,
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(1);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.cursor).toEqual(1);
+        expect(omit(data.items[0], 'createdAt', 'timestamp')).toEqual({
+          id,
+          value: 0,
+          tags: ['subscription'],
+          description: 'query hander #2 sub-test',
+          creator: 'admin-org1.net',
+          eventInvolved: ['Increment', 'Decrement'],
+        });
+      }));
 });
 
 describe('Pagination tests for getPaginatedEntityById', () => {
   beforeAll(async () => {
     for await (const i of [1, 2, 3, 4, 5]) {
-      timestampesOnCreate.push(Math.floor(Date.now() / 1000));
+      // timestampsOnCreate remembers when the new CountEvents are saved.
+      timestampsOnCreate.push(Math.floor(Date.now()));
 
       await queryHandler
-        .create<CounterEvent>(entityName)({ enrollmentId, id: `qh_pag_test_00${i}` })
+        .command_deleteByEntityId(entityName)({ id: `qh_pag_test_00${i}` })
+        .then(({ data: { message } }) => console.log(message));
+
+      await queryHandler
+        .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id: `qh_pag_test_00${i}` })
         .save({
           events: [
             {
@@ -332,174 +453,141 @@ describe('Pagination tests for getPaginatedEntityById', () => {
     }
   });
 
-  it('should getPaginatedEntityById: cursor=0, pagesize=2', async () =>
+  // {
+  //   total: 5,
+  //     items: [
+  //   {
+  //     createdAt: '1612973312032',
+  //     creator: 'admin-org1.net',
+  //     description: '#1 pag-test',
+  //     eventInvolved: [Array],
+  //     id: 'qh_pag_test_001',
+  //     tags: [Array],
+  //     timestamp: '1612973312032',
+  //     value: -1
+  //   },
+  //   {
+  //     createdAt: '1612973323153',
+  //     creator: 'admin-org1.net',
+  //     description: '#2 pag-test',
+  //     eventInvolved: [Array],
+  //     id: 'qh_pag_test_002',
+  //     tags: [Array],
+  //     timestamp: '1612973323153',
+  //     value: 1
+  //   }
+  // ],
+  //   hasMore: true,
+  //   cursor: 2
+  // }
+  it('should run paginated test: cursor=0, pagesize=2', async () =>
     queryHandler
-      .getPaginatedEntityById<Counter>(entityName)({
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: 'qh_pag_test_00*',
         cursor: 0,
         pagesize: 2,
-        sortByField: 'id',
-        sort: 'ASC',
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
       })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
-        expect(data.total).toEqual(6);
+        expect(data.total).toEqual(5);
         expect(data.hasMore).toBeTruthy();
         expect(data.cursor).toEqual(2);
-        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
-          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: -1 },
-          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
+        expect(
+          data.items.map(({ id, description, value }) => ({ id, description, value }))
+        ).toEqual([
+          { id: 'qh_pag_test_001', description: '#1 pag-test', value: -1 },
+          { id: 'qh_pag_test_002', description: '#2 pag-test', value: 1 },
         ]);
       }));
 
-  it('should getPaginatedEntityById: cursor=1, pagesize=2', async () =>
+  it('should run paginated test: cursor=1, pagesize=2', async () =>
     queryHandler
-      .getPaginatedEntityById<Counter>(entityName)({
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: 'qh_pag_test_00*',
         cursor: 1,
         pagesize: 2,
-        sortByField: 'id',
-        sort: 'ASC',
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
       })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
-        expect(data.total).toEqual(6);
+        expect(data.total).toEqual(5);
         expect(data.hasMore).toBeTruthy();
         expect(data.cursor).toEqual(3);
-        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
-          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
-          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
+        expect(
+          data.items.map(({ id, description, value }) => ({ id, description, value }))
+        ).toEqual([
+          { id: 'qh_pag_test_002', description: '#2 pag-test', value: 1 },
+          { id: 'qh_pag_test_003', description: '#3 pag-test', value: -1 },
         ]);
       }));
 
-  it('should getPaginatedEntityById: id=001, cursor=0, pagesize=2', async () =>
+  it('should run paginated test: cursor=0, pagesize=10', async () =>
     queryHandler
-      .getPaginatedEntityById<Counter>(entityName)(
-        {
-          cursor: 0,
-          pagesize: 2,
-          sortByField: 'id',
-          sort: 'ASC',
-        },
-        'qh_pag_test_001'
-      )
-      .then(({ data, status }) => {
-        expect(status).toEqual('OK');
-        expect(data.total).toEqual(1);
-        expect(data.hasMore).toBeFalsy();
-        expect(data.cursor).toEqual(1);
-        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
-          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: -1 },
-        ]);
-      }));
-
-  it('should getPaginatedEntityById: cursor=0, pagesize=10', async () =>
-    queryHandler
-      .getPaginatedEntityById<Counter>(entityName)(
-        {
-          cursor: 0,
-          pagesize: 10,
-          sortByField: 'id',
-          sort: 'ASC',
-        },
-        'qh_pag_test_00*'
-      )
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: 'qh_pag_test_00*',
+        cursor: 0,
+        pagesize: 10,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data.total).toEqual(5);
         expect(data.hasMore).toBeFalsy();
         expect(data.cursor).toEqual(5);
-        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
-          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: -1 },
-          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
-          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
-          { id: 'qh_pag_test_004', desc: '#4 pag-test', tag: 'pagination,unit_test', value: 1 },
-          { id: 'qh_pag_test_005', desc: '#5 pag-test', tag: 'pagination,unit_test', value: -1 },
+        expect(
+          data.items.map(({ id, description, value }) => ({ id, description, value }))
+        ).toEqual([
+          { id: 'qh_pag_test_001', description: '#1 pag-test', value: -1 },
+          { id: 'qh_pag_test_002', description: '#2 pag-test', value: 1 },
+          { id: 'qh_pag_test_003', description: '#3 pag-test', value: -1 },
+          { id: 'qh_pag_test_004', description: '#4 pag-test', value: 1 },
+          { id: 'qh_pag_test_005', description: '#5 pag-test', value: -1 },
         ]);
       }));
 
-  it('should getPaginatedEntityById: cursor=0, scope=CREATED', async () =>
+  // {
+  //   total: 5,
+  //     items: [
+  //   {
+  //     id: 'qh_pag_test_001',
+  //     entityName: 'test_subscribe',
+  //     commitId: '20210210160834056',
+  //     mspId: 'Org1MSP',
+  //     creator: 'admin-org1.net',
+  //     event: 'Decrement',
+  //     entityId: 'qh_pag_test_001',
+  //     version: 0,
+  //     ts: 1612973312032,
+  //     events: [Array]
+  //   },
+  //   {
+  //     id: 'qh_pag_test_002',
+  //     entityName: 'test_subscribe',
+  //     commitId: '20210210160845167',
+  //     mspId: 'Org1MSP',
+  //     creator: 'admin-org1.net',
+  //     event: 'Increment',
+  //     entityId: 'qh_pag_test_002',
+  //     version: 0,
+  //     ts: 1612973323153,
+  //     events: [Array]
+  //   }
+  // ],
+  //   hasMore: true,
+  //   cursor: 2
+  // }
+  it('should fullTextSearchCommit: cursor=0, pagesize=2', async () =>
     queryHandler
-      .getPaginatedEntityById<Counter>(entityName)(
-        {
-          scope: 'CREATED',
-          startTime: timestampesOnCreate[1],
-          endTime: timestampesOnCreate[3] + 1,
-          cursor: 0,
-          pagesize: 10,
-          sortByField: 'id',
-          sort: 'ASC',
-        },
-        'qh_pag_test_00*'
-      )
-      .then(({ data, status }) => {
-        expect(status).toEqual('OK');
-        expect(data.total).toEqual(3);
-        expect(data.hasMore).toBeFalsy();
-        expect(data.cursor).toEqual(3);
-        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
-          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
-          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
-          { id: 'qh_pag_test_004', desc: '#4 pag-test', tag: 'pagination,unit_test', value: 1 },
-        ]);
-      }));
-
-  it('should getPaginatedEntityById: cursor=0, scope=LAST_MODIFIED', async () =>
-    queryHandler
-      .getPaginatedEntityById<Counter>(entityName)(
-        {
-          scope: 'LAST_MODIFIED',
-          startTime: timestampesOnCreate[1],
-          endTime: timestampesOnCreate[3] + 1,
-          cursor: 0,
-          pagesize: 10,
-          sortByField: 'id',
-          sort: 'ASC',
-        },
-        'qh_pag_test_00*'
-      )
-      .then(({ data, status }) => {
-        expect(status).toEqual('OK');
-        expect(data.total).toEqual(3);
-        expect(data.hasMore).toBeFalsy();
-        expect(data.cursor).toEqual(3);
-        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
-          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
-          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
-          { id: 'qh_pag_test_004', desc: '#4 pag-test', tag: 'pagination,unit_test', value: 1 },
-        ]);
-      }));
-
-  it('should getPaginatedEntityById: creator=enrollmentId', async () =>
-    queryHandler
-      .getPaginatedEntityById<Counter>(entityName)(
-        {
-          cursor: 0,
-          pagesize: 10,
-          sortByField: 'id',
-          sort: 'ASC',
-          creator: enrollmentId,
-        },
-        'qh_pag_test_00*'
-      )
-      .then(({ data, status }) => {
-        expect(status).toEqual('OK');
-        expect(data.total).toEqual(5);
-        expect(data.hasMore).toBeFalsy();
-        expect(data.cursor).toEqual(5);
-        expect(data.items.map(({ id, desc, tag, value }) => ({ id, desc, tag, value }))).toEqual([
-          { id: 'qh_pag_test_001', desc: '#1 pag-test', tag: 'pagination,unit_test', value: -1 },
-          { id: 'qh_pag_test_002', desc: '#2 pag-test', tag: 'pagination,unit_test', value: 1 },
-          { id: 'qh_pag_test_003', desc: '#3 pag-test', tag: 'pagination,unit_test', value: -1 },
-          { id: 'qh_pag_test_004', desc: '#4 pag-test', tag: 'pagination,unit_test', value: 1 },
-          { id: 'qh_pag_test_005', desc: '#5 pag-test', tag: 'pagination,unit_test', value: -1 },
-        ]);
-      }));
-
-  it('should getPaginatedCommitById: cursor=0, pagesize=2', async () =>
-    queryHandler
-      .getPaginatedCommitById(entityName)(
-        { cursor: 0, pagesize: 2, sortByField: 'id', sort: 'ASC' },
-        'qh_pag_test_00*'
-      )
+      .fullTextSearchCommit({
+        query: 'qh_pag_test_00*',
+        cursor: 0,
+        pagesize: 2,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data.total).toEqual(5);
@@ -508,12 +596,14 @@ describe('Pagination tests for getPaginatedEntityById', () => {
         expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_001', 'qh_pag_test_002']);
       }));
 
-  it('should getPaginatedCommitById: cursor=1, pagesize=2', async () =>
+  it('should fullTextSearchCommit: cursor=1, pagesize=2', async () =>
     queryHandler
-      .getPaginatedCommitById(entityName)(
-        { cursor: 1, pagesize: 2, sortByField: 'id', sort: 'ASC' },
-        'qh_pag_test_00*'
-      )
+      .fullTextSearchCommit({
+        query: 'qh_pag_test_00*',
+        cursor: 1,
+        pagesize: 2,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data.total).toEqual(5);
@@ -522,12 +612,14 @@ describe('Pagination tests for getPaginatedEntityById', () => {
         expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_002', 'qh_pag_test_003']);
       }));
 
-  it('should getPaginatedCommitById: cursor=0, pagesize=10', async () =>
+  it('should fullTextSearchCommit: cursor=0, pagesize=10', async () =>
     queryHandler
-      .getPaginatedCommitById(entityName)(
-        { cursor: 0, pagesize: 10, sortByField: 'id', sort: 'ASC' },
-        'qh_pag_test_00*'
-      )
+      .fullTextSearchCommit({
+        query: 'qh_pag_test_00*',
+        cursor: 0,
+        pagesize: 10,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data.total).toEqual(5);
@@ -542,33 +634,14 @@ describe('Pagination tests for getPaginatedEntityById', () => {
         ]);
       }));
 
-  it('should getPaginatedCommitById: events=increment', async () =>
+  it('should fullTextSearchCommit: events=increment', async () =>
     queryHandler
-      .getPaginatedCommitById(entityName)(
-        { cursor: 0, pagesize: 10, sortByField: 'id', sort: 'ASC', events: ['increment'] },
-        'qh_pag_test_00*'
-      )
-      .then(({ data, status }) => {
-        expect(status).toEqual('OK');
-        expect(data.total).toEqual(2);
-        expect(data.hasMore).toBeFalsy();
-        expect(data.cursor).toEqual(2);
-        expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_002', 'qh_pag_test_004']);
-      }));
-
-  it('should getPaginatedCommitById: startTime/endTime', async () =>
-    queryHandler
-      .getPaginatedCommitById(entityName)(
-        {
-          cursor: 0,
-          pagesize: 10,
-          sortByField: 'id',
-          sort: 'ASC',
-          startTime: timestampesOnCreate[1],
-          endTime: timestampesOnCreate[3] + 1,
-        },
-        'qh_pag_test_00*'
-      )
+      .fullTextSearchCommit({
+        query: '@event:{increment}',
+        cursor: 0,
+        pagesize: 10,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data.total).toEqual(3);
@@ -576,123 +649,81 @@ describe('Pagination tests for getPaginatedEntityById', () => {
         expect(data.cursor).toEqual(3);
         expect(data.items.map(({ id }) => id)).toEqual([
           'qh_pag_test_002',
-          'qh_pag_test_003',
           'qh_pag_test_004',
+          'qh_sub_test_001',
         ]);
       }));
 
-  it('should getPaginatedCommitById: startTime/endTime', async () =>
+  // {
+  //   total: 2,
+  //     items: [
+  //   {
+  //     id: 'qh_pag_test_002',
+  //     entityName: 'test_subscribe',
+  //     commitId: '20210210163830103',
+  //     mspId: 'Org1MSP',
+  //     creator: 'admin-org1.net',
+  //     event: 'Increment',
+  //     entityId: 'qh_pag_test_002',
+  //     version: 0,
+  //     ts: 1612975108177,
+  //     events: [Array]
+  //   },
+  //   {
+  //     id: 'qh_pag_test_003',
+  //     entityName: 'test_subscribe',
+  //     commitId: '20210210163840385',
+  //     mspId: 'Org1MSP',
+  //     creator: 'admin-org1.net',
+  //     event: 'Decrement',
+  //     entityId: 'qh_pag_test_003',
+  //     version: 0,
+  //     ts: 1612975118708,
+  //     events: [Array]
+  //   }
+  // ],
+  //   hasMore: false,
+  //   cursor: 2
+  // }
+  it('should fullTextSearchCommit: range of timestamp', async () =>
     queryHandler
-      .getPaginatedCommitById(entityName)(
-        {
-          cursor: 0,
-          pagesize: 10,
-          sortByField: 'id',
-          sort: 'ASC',
-          startTime: 0,
-          endTime: timestampesOnCreate[1] + 1,
-        },
-        'qh_pag_test_00*'
-      )
+      .fullTextSearchCommit({
+        // see https://oss.redislabs.com/redisearch/Query_Syntax/#numeric_filters_in_query
+        query: `@ts:[${timestampsOnCreate[1]} ${timestampsOnCreate[3] + 1}]`,
+        cursor: 0,
+        pagesize: 10,
+        param: { sortBy: { sort: 'ASC', field: 'id' } },
+      })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data.total).toEqual(2);
         expect(data.hasMore).toBeFalsy();
         expect(data.cursor).toEqual(2);
-        expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_001', 'qh_pag_test_002']);
+        expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_002', 'qh_pag_test_003']);
       }));
 
-  it('should getPaginatedCommitById: creator=enrollmentId', async () =>
+  it('should deleteEntityByEntityName', async () =>
     queryHandler
-      .getPaginatedCommitById(entityName)(
-        { cursor: 0, pagesize: 10, sortByField: 'id', sort: 'ASC', creator: enrollmentId },
-        'qh_pag_test_00*'
-      )
+      .query_deleteEntityByEntityName(entityName)()
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
-        expect(data.total).toEqual(5);
-        expect(data.hasMore).toBeFalsy();
-        expect(data.cursor).toEqual(5);
-        expect(data.items.map(({ id }) => id)).toEqual([
-          'qh_pag_test_001',
-          'qh_pag_test_002',
-          'qh_pag_test_003',
-          'qh_pag_test_004',
-          'qh_pag_test_005',
-        ]);
-      }));
-
-  it('should getPaginatedCommitById: by single event', async () =>
-    queryHandler
-      .getPaginatedCommitById(entityName)(
-        { cursor: 0, pagesize: 10, sortByField: 'id', sort: 'ASC', events: ['increment'] },
-        'qh_pag_test_00*'
-      )
-      .then(({ data, status }) => {
-        expect(status).toEqual('OK');
-        expect(data.total).toEqual(2);
-        expect(data.hasMore).toBeFalsy();
-        expect(data.cursor).toEqual(2);
-        expect(data.items.map(({ id }) => id)).toEqual(['qh_pag_test_002', 'qh_pag_test_004']);
-      }));
-
-  it('should getPaginatedCommitById: by events array', async () =>
-    queryHandler
-      .getPaginatedCommitById(entityName)(
-        {
-          cursor: 0,
-          pagesize: 10,
-          sortByField: 'id',
-          sort: 'ASC',
-          events: ['increment', 'decrement'],
-        },
-        'qh_pag_test_00*'
-      )
-      .then(({ data, status }) => {
-        expect(status).toEqual('OK');
-        expect(data.total).toEqual(5);
-        expect(data.hasMore).toBeFalsy();
-        expect(data.cursor).toEqual(5);
-        expect(data.items.map(({ id }) => id)).toEqual([
-          'qh_pag_test_001',
-          'qh_pag_test_002',
-          'qh_pag_test_003',
-          'qh_pag_test_004',
-          'qh_pag_test_005',
-        ]);
+        expect(data).toBe(6);
       }));
 });
 
 describe('Notification Tests', () => {
-  it('should notify by creator', async () =>
-    queryHandler.queryNotify({ creator: orgAdminId }).then(({ status, data }) => {
+  it('should getNotications by creator', async () =>
+    queryHandler.getNotifications({ creator: 'admin-org1.net' }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      expect(data.length).toEqual(7);
-      data.forEach((item) => expect(Object.values(item)[0]).toEqual('1'));
+      Object.entries(data).forEach(([key, value]) => {
+        expect(key.startsWith('n:admin-org1.net')).toBeTruthy();
+        expect(value).toBe('1');
+      });
     }));
 
-  it('should notify by creator, entityName', async () =>
-    queryHandler.queryNotify({ creator: orgAdminId, entityName }).then(({ status, data }) => {
+  it('should clearNotications by creator', async () =>
+    queryHandler.clearNotifications({ creator: 'admin-org1.net' }).then(({ data, status }) => {
       expect(status).toEqual('OK');
-      expect(data.length).toEqual(7);
-      data.forEach((item) => expect(Object.values(item)[0]).toEqual('1'));
+      data.forEach((key) => expect(key.startsWith('n:admin-org1.net')).toBeTruthy());
     }));
-
-  it('should notify by creator, entityName, id', async () =>
-    queryHandler
-      .queryNotify({ creator: orgAdminId, entityName, id: 'qh_sub_test_001' })
-      .then(({ status, data }) => {
-        expect(status).toEqual('OK');
-        expect(data.length).toEqual(2);
-        data.forEach((item) => expect(Object.values(item)[0]).toEqual('1'));
-      }));
-
-  it('should notify by creator, entityName, id', async () =>
-    queryHandler
-      .queryNotify({ creator: orgAdminId, expireNow: true })
-      .then(({ status, data }) => {
-        expect(status).toEqual('OK');
-        expect(data.length).toEqual(7);
-        data.forEach((item) => expect(Object.values(item)[0]).toEqual('0'));
-      }));
 });

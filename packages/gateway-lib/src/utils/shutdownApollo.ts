@@ -2,7 +2,7 @@ import util from 'util';
 import { ApolloServer } from 'apollo-server';
 import { Redis } from 'ioredis';
 import { Logger } from 'winston';
-import { REDIS_CONNECTION_CLOSED } from '../query-handler';
+import { REDIS_CONNECTION_CLOSED } from '../queryHandler';
 
 /**
  * @ignore

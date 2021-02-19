@@ -1,17 +1,23 @@
 require('dotenv').config({ path: './.env.test' });
 import http from 'http';
 import {
+  CounterInRedis,
+  counterIndexDefinition,
+  counterPreSelector,
+  counterPostSelector,
   QueryHandler,
   Counter,
   CounterEvents,
   counterReducer,
   getReducer,
+  OutputCounter,
+  RedisRepository,
 } from '@fabric-es/fabric-cqrs';
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import httpStatus from 'http-status';
-import Redis, { RedisOptions } from 'ioredis';
+import type { RedisOptions } from 'ioredis';
 import keys from 'lodash/keys';
 import values from 'lodash/values';
 import fetch from 'node-fetch';
@@ -26,17 +32,17 @@ import {
   GET_WALLET,
   LIST_WALLET,
 } from '../admin/query';
-import { createQueryHandlerService, rebuildIndex } from '../query-handler';
+import { createQueryHandlerService } from '../queryHandler';
 import { QueryResponse } from '../types';
 import {
   createGateway,
   createService,
-  getLogger,
   isCaIdentity,
   isLoginResponse,
   isRegisterResponse,
+  waitForSecond,
 } from '../utils';
-import { DECREMENT, GET_COUNTER, INCREMENT, resolvers, typeDefs } from './__utils__';
+import { DECREMENT, GET_COUNTER, INCREMENT, resolvers, SEARCH, typeDefs } from './__utils__';
 
 /**
  * ./dn-run.1-db-red-auth.sh or ./dn-run.2-db-red-auth.sh
@@ -44,7 +50,6 @@ import { DECREMENT, GET_COUNTER, INCREMENT, resolvers, typeDefs } from './__util
  * no full text search is available. This is intentionally made to minimal implementation.
  */
 
-const proxyServerUri = process.env.PROXY_SERVER;
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
 const channelName = process.env.CHANNEL_NAME;
@@ -53,15 +58,16 @@ const caName = process.env.CA_NAME;
 const mspId = process.env.MSPID;
 const orgAdminId = process.env.ORG_ADMIN_ID;
 const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
+const proxyServerUri = process.env.PROXY_SERVER;
 const walletPath = process.env.WALLET;
 const random = Math.floor(Math.random() * 10000);
 const username = `gw_test_username_${random}`;
 const password = `password`;
 const email = `gw_test_${random}@test.com`;
 const counterId = `counter_${random}`;
-const entityName = 'counter';
+// If requiring to change entityName, need to update the Context, and resolvers as well.
+const entityName = 'gw-repo-counter';
 const enrollmentId = orgAdminId;
-const logger = getLogger('[gateway-lib] counter.unit-test.js');
 
 let app: http.Server;
 let adminApolloService: ApolloServer;
@@ -72,7 +78,7 @@ let adminAccessToken: string;
 let redisOptions: RedisOptions;
 let queryHandlerServer: ApolloServer;
 let queryHandler: QueryHandler;
-let publisher: Redis.Redis;
+let redisRepos: Record<string, RedisRepository>;
 
 const MODEL_SERVICE_PORT = 15001;
 const ADMIN_SERVICE_PORT = 15000;
@@ -92,6 +98,7 @@ beforeAll(async () => {
     redisOptions = {};
 
     const wallet = await Wallets.newFileSystemWallet(walletPath);
+
     // Step 1: EnrollAdmin
     await enrollAdmin({
       enrollmentID: orgAdminId,
@@ -112,43 +119,44 @@ beforeAll(async () => {
       wallet,
     });
 
-    // Step 3: Start Query-Handler
-    const qhService = await createQueryHandlerService([entityName, 'organization'], {
-      redisOptions: { host: 'localhost', port: 6379 },
+    // Step 3. create QueryHandlerService
+    const qhService = await createQueryHandlerService({
       asLocalhost: !(process.env.NODE_ENV === 'production'),
+      authCheck: `${proxyServerUri}/oauth/authenticate`,
       channelName,
       connectionProfile,
       enrollmentId,
+      redisOptions: { host: 'localhost', port: 6379 },
       reducers: {
-        counter: counterReducer,
+        [entityName]: counterReducer,
         organization: getReducer<Organization, OrgEvents>(orgReducer),
       },
       wallet,
-      authCheck: `${proxyServerUri}/oauth/authenticate`,
-    });
+    })
+      .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
+        entityName,
+        fields: counterIndexDefinition,
+        postSelector: counterPostSelector,
+        preSelector: counterPreSelector,
+      })
+      .run();
 
-    queryHandlerServer = qhService.server;
-    queryHandler = qhService.queryHandler;
-    publisher = qhService.publisher;
+    queryHandlerServer = qhService.getServer();
+    queryHandler = qhService.getQueryHandler();
+    // redisRepos will be later use for manually creating and dropping indexes
+    redisRepos = qhService.getRedisRepos();
 
-    // Step 4: setup Redis cidx and eidx indexes
-    await rebuildIndex(publisher, logger);
-
-    const { data } = await queryHandler.command_getByEntityName('counter')();
-
+    // Step 6: clean-up before tests
+    const { data } = await queryHandler.command_getByEntityName(entityName)();
     if (keys(data).length > 0) {
       for await (const { id } of values(data)) {
         await queryHandler
           .command_deleteByEntityId(entityName)({ id })
-          .then(({ status }) =>
-            console.log(
-              `setup: command_deleteByEntityId, status: ${status}, ${entityName}:${id} deleted`
-            )
-          );
+          .then(({ status }) => console.log(`status: ${status}, ${entityName}:${id} deleted`));
       }
     }
 
-    // Step 5: clean up pre existing Redis
+    // Step 7: clean up pre existing Redis records
     await queryHandler
       .query_deleteCommitByEntityName(entityName)()
       .then(({ status }) =>
@@ -161,13 +169,13 @@ beforeAll(async () => {
         console.log(`set-up: query_deleteByEntityName: organization, status: ${status}`)
       );
 
-    // Step 6: start queryHandler
+    // Step 8: start queryHandler
     await queryHandlerServer.listen({ port: QH_PORT }, () =>
       console.log('queryHandler server started')
     );
 
-    // Step 7: Prepare Counter Model microservice
-    const { config, getRepository } = await createService({
+    // Step 9: Prepare Counter federated service
+    const { config } = await createService({
       asLocalhost: true,
       channelName,
       connectionProfile,
@@ -177,17 +185,23 @@ beforeAll(async () => {
       redisOptions,
     });
 
-    // config Apollo
-    modelApolloService = await config({ typeDefs, resolvers })
-      .addRepository(getRepository<Counter, CounterEvents>(entityName, counterReducer))
+    // Step 10: config Apollo server with models
+    modelApolloService = config({ typeDefs, resolvers })
+      // define the Redisearch index, and selectors
+      .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
+        entityName,
+        fields: counterIndexDefinition,
+        postSelector: counterPostSelector,
+        preSelector: counterPreSelector,
+      })
+      .addRepository<Counter, CounterEvents>(entityName, counterReducer)
       .create();
 
-    // Step 8: start model service
     await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () =>
       console.log('model service started')
     );
 
-    // step 9: Prepare Admin microservice
+    // step 11: Prepare Admin microservice
     const service = await createAdminService({
       asLocalhost: !(process.env.NODE_ENV === 'production'),
       caAdmin,
@@ -208,7 +222,7 @@ beforeAll(async () => {
       console.log('admin service started')
     );
 
-    // Step 10: Prepare Federated Gateway
+    // Step 12: Prepare Federated Gateway
     app = await createGateway({
       serviceList: [
         { name: 'admin', url: `http://localhost:${ADMIN_SERVICE_PORT}/graphql` },
@@ -217,7 +231,7 @@ beforeAll(async () => {
       authenticationCheck: `${proxyServerUri}/oauth/authenticate`,
     });
 
-    // Step 11: Start Gateway
+    // Step 13: Start Gateway
     return new Promise<void>((done) =>
       app.listen(GATEWAY_PORT, () => {
         console.log('🚀  Federated Gateway started');
@@ -226,7 +240,6 @@ beforeAll(async () => {
     );
   } catch (e) {
     console.error(e);
-    await sleep5;
     process.exit(1);
   }
 });
@@ -234,15 +247,12 @@ beforeAll(async () => {
 // Tear-down the tests in queryHandler shall perform cleanup, for both command & query; so that
 // unit-test can run repeatedly
 afterAll(async () => {
-  await publisher
-    .send_command('FT.DROP', ['cidx'])
-    .then((result) => console.log(`cidx is dropped: ${result}`))
-    .catch((result) => console.log(`cidx is not dropped: ${result}`));
-
-  await publisher
-    .send_command('FT.DROP', ['eidx'])
-    .then((result) => console.log(`eidx is dropped: ${result}`))
-    .catch((result) => console.log(`eidx is not dropped: ${result}`));
+  for await (const [entityName, redisRepo] of Object.entries(redisRepos)) {
+    await redisRepo
+      .dropIndex(true)
+      .then(() => console.log(`${entityName} - index is dropped`))
+      .catch((error) => console.error(error));
+  }
 
   await queryHandler
     .query_deleteCommitByEntityName(entityName)()
@@ -270,18 +280,11 @@ afterAll(async () => {
       console.log(`tear-down: command_deleteByEntityId, organization::Org1MSP, status: ${status}`)
     );
 
-  await queryHandler
-    .queryNotify({ creator: orgAdminId, expireNow: true })
-    .then(({ status }) => console.log(`remove notification: ${status}`));
-
-  await queryHandler
-    .queryNotify({ creator: caAdmin, expireNow: true })
-    .then(({ status }) => console.log(`remove notification: ${status}`));
-
   await modelApolloService.stop();
   await adminApolloService.stop();
   await queryHandlerServer.stop();
-  return new Promise<void>((done) => setTimeout(() => done(), 3000));
+
+  return waitForSecond(3);
 });
 
 describe('Gateway Test - admin service', () => {
@@ -473,7 +476,7 @@ describe('Gateway Test - admin service', () => {
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.increment.id).toEqual(counterId);
-        expect(data?.increment.entityName).toEqual('counter');
+        expect(data?.increment.entityName).toEqual(entityName);
         expect(data?.increment.version).toEqual(0);
         expect(errors).toBeUndefined();
       }));
@@ -489,7 +492,7 @@ describe('Gateway Test - admin service', () => {
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.increment.id).toEqual(counterId);
-        expect(data?.increment.entityName).toEqual('counter');
+        expect(data?.increment.entityName).toEqual(entityName);
         expect(data?.increment.version).toEqual(0);
         expect(errors).toBeUndefined();
       }));
@@ -519,22 +522,31 @@ describe('Gateway Test - admin service', () => {
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.decrement.id).toEqual(counterId);
-        expect(data?.decrement.entityName).toEqual('counter');
+        expect(data?.decrement.entityName).toEqual(entityName);
         expect(data?.decrement.version).toEqual(0);
         expect(errors).toBeUndefined();
       }));
 
-  it('should getCounter, value = 1', async () =>
+  it('should search, value = 1', async () =>
     request(app)
       .post('/graphql')
       .set('authorization', `bearer ${accessToken}`)
       .send({
-        operationName: 'GetCounter',
-        query: GET_COUNTER,
-        variables: { counterId },
+        operationName: 'Search',
+        query: SEARCH,
+        variables: { query: 'counter_*' },
       })
       .expect(({ body: { data, errors } }) => {
-        expect(data?.getCounter).toEqual({ value: 1 });
+        expect(data?.search.items[0].value).toBe(1);
+        expect(data?.search.items[0].description).toBe('');
+        expect(data?.search.items[0].eventInvolved).toEqual([
+          'Increment',
+          'Increment',
+          'Decrement',
+        ]);
+        expect(data?.search.total).toBe(1);
+        expect(data?.search.cursor).toBe(1);
+        expect(data?.search.hasMore).toBeFalsy();
         expect(errors).toBeUndefined();
       }));
 });

@@ -24,7 +24,7 @@
     "prepare-asset": "rimraf assets && mkdir -p ./assets/client-certs/hfc-kvs/org1",
     "unit-test:fab": "jest --detectOpenHandles unit.test",
     "clean": "rimraf dist",
-    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}' --fix"
+    "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
   },
   "dependencies": {
     "dotenv": "^8.1.0",
@@ -38,14 +38,14 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.18",
+    "@types/jest": "^26.0.20",
     "@types/js-yaml": "^3.12.4",
     "@types/lodash": "^4.14.152",
     "@types/node": "^12.12.41",
     "execa": "3.4.0",
-    "jest": "^24.9.0",
+    "jest": "^26.6.3",
     "prettier": "^2.2.1",
-    "ts-jest": "^24.0.2",
+    "ts-jest": "^26.4.4",
     "typescript": "^4.1.3"
   }
 }

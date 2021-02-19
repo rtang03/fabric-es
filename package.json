@@ -1,6 +1,6 @@
 {
   "name": "fabric-es",
-  "version": "0.7.1",
+  "version": "0.7.5",
   "license": "BSD-3-Clause-Clear",
   "scripts": {
     "cp:root": "rimraf .build && mkdir -p ./.build && cp ./package.json .build",
@@ -12,8 +12,8 @@
     "bootstrap:fab": "cd ./deployments/dev-net && ./dn-run.2.sh ",
     "build-run-test:fab": "cd ./deployments/dev-net && ./dn-test.2.sh",
     "shutdown": "cd ./deployments/dev-net && ./cleanup.sh",
-    "unit-test": "lerna run unit-test:fab --stream --scope={@fabric-es/fabric-cqrs,@fabric-es/operator,@fabric-es/model-*}",
-    "lint:lib": "lerna run lint --stream --scope={@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
+    "unit-test": "lerna run unit-test:fab --stream --scope={@fabric-es/fabric-cqrs,@fabric-es/operator,@fabric-es/gateway-lib,@fabric-es/model-*}",
+    "lint:lib": "lerna run lint --stream --scope={@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator,@fabric-es/tester}",
     "lint:app": "lerna run lint --stream --scope={@fabric-es/gw-org*,@fabric-es/model-*}",
     "publish:lib": "lerna run publish --scope={@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
     "version:patch": "lerna version patch",

@@ -3,11 +3,18 @@ import util from 'util';
 import { getReducer } from '@fabric-es/fabric-cqrs';
 import { createService, getLogger } from '@fabric-es/gateway-lib';
 import {
-  Document,
-  DocumentEvents,
   documentReducer,
   documentResolvers,
   documentTypeDefs,
+  preSelector,
+  postSelector,
+  documentIndexDefinition,
+} from '@fabric-es/model-document';
+import type {
+  Document,
+  DocumentEvents,
+  DocumentInRedis,
+  OutputDocument,
 } from '@fabric-es/model-document';
 import { Wallets } from 'fabric-network';
 
@@ -42,12 +49,18 @@ void (async () =>
       },
     },
   })
-    .then(async ({ config, shutdown, getRepository }) => {
-      const app = await config({
+    .then(({ config, shutdown }) => {
+      const app = config({
         typeDefs: documentTypeDefs,
         resolvers: documentResolvers,
       })
-        .addRepository(getRepository<Document, DocumentEvents>('document', reducer))
+        .addRedisRepository<Document, DocumentInRedis, OutputDocument>({
+          entityName: 'document',
+          fields: documentIndexDefinition,
+          preSelector,
+          postSelector,
+        })
+        .addRepository<Document, DocumentEvents>('document', reducer)
         .create();
 
       process.on(

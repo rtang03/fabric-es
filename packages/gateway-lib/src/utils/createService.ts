@@ -1,3 +1,4 @@
+import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
 import {
   createRepository,
@@ -5,26 +6,22 @@ import {
   getNetwork,
   getReducer,
   PrivateRepository,
+  RedisRepository,
   Reducer,
   Repository,
   createQueryDatabase,
+  RedisearchDefinition,
+  Commit,
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
-import Redis, { RedisOptions } from 'ioredis';
+import type { RedisOptions } from 'ioredis';
+import { Redisearch } from 'redis-modules-sdk';
+import type { Selector } from 'reselect';
 import { createTrackingData, DataSrc } from '..';
 import { Organization, OrgEvents, orgReducer } from '../admin';
-import { getLogger } from './getLogger';
-import { shutdownApollo } from './shutdownApollo';
-
-interface AddRepository {
-  create: (option?: {
-    mspId?: string;
-    playground?: boolean;
-    introspection?: boolean;
-  }) => Promise<ApolloServer>;
-  addRepository: (repository: Repository | PrivateRepository) => this;
-}
+import type { AddRedisRepository, FederatedService } from '../types';
+import { composeRedisRepos, getLogger, shutdownApollo } from '.';
 
 /**
  * @about entity microservice
@@ -56,7 +53,7 @@ interface AddRepository {
  *   // run as local host, when using docker-compose
  *   asLocalhost: boolean;
  *   enrollmentId: string
- *   // microserver name
+ *   // microservice name
  *   serviceName: string;
  *   // is a private data repository
  *   isPrivate: boolean;
@@ -71,56 +68,63 @@ interface AddRepository {
  * ```
  */
 export const createService: (option: {
-  enrollmentId: string;
-  serviceName: string;
-  isPrivate?: boolean;
   channelName: string;
   connectionProfile: string;
-  wallet: Wallet;
   asLocalhost: boolean;
+  enrollmentId: string;
+  isPrivate?: boolean;
   redisOptions: RedisOptions;
-}) => Promise<{
-  mspId: string;
-  getRepository: <TEntity, TEvent>(entityName: string, reducer: Reducer) => Repository<TEntity, TEvent>;
-  getPrivateRepository: <TEntity, TEvent>(
-    entityName: string, reducer: Reducer, parentName?: string
-  ) => PrivateRepository<TEntity, TEvent>;
-  config: (option: { typeDefs: any; resolvers: any }) => {
-    addRepository: (repository: Repository | PrivateRepository) => AddRepository;
-  };
-  getServiceName: () => string;
-  shutdown: (server: ApolloServer) => Promise<void>;
-  disconnect: () => void;
-}> = async ({
-  enrollmentId,
-  serviceName,
-  isPrivate = false,
+  serviceName: string;
+  wallet: Wallet;
+}) => Promise<FederatedService> = async ({
+  asLocalhost,
   channelName,
   connectionProfile,
-  wallet,
-  asLocalhost,
+  enrollmentId,
+  isPrivate = false,
   redisOptions,
+  serviceName,
+  wallet,
 }) => {
   const logger = getLogger('[gw-lib] createService.js');
+  const client = new Redisearch(redisOptions);
 
-  const networkConfig: {
-    enrollmentId: string;
-    network: Network;
-    gateway: Gateway;
-  } = await getNetwork({
-    discovery: !isPrivate,
-    asLocalhost,
-    channelName,
-    connectionProfile,
-    wallet,
-    enrollmentId,
-  });
-  const mspId =
-    networkConfig && networkConfig.gateway && networkConfig.gateway.getIdentity
-      ? networkConfig.gateway.getIdentity().mspId
-      : undefined;
+  let networkConfig;
+  let gateway: Gateway;
+  let network: Network;
+  let redisRepos: Record<string, RedisRepository> = {};
 
-  const redis = new Redis(redisOptions);
+  // connect Redis
+  try {
+    await client.connect();
+    logger.info('redis connected');
+  } catch (e) {
+    logger.error(util.format('fail to connect Redis, %j', e));
+    throw new Error(e);
+  }
+
+  // prepare Fabric network connection
+  try {
+    networkConfig = await getNetwork({
+      discovery: !isPrivate,
+      asLocalhost,
+      channelName,
+      connectionProfile,
+      wallet,
+      enrollmentId,
+    });
+
+    logger.info('fabric connected');
+
+    gateway = networkConfig.gateway;
+    network = networkConfig.network;
+  } catch (e) {
+    logger.error(util.format('fail to obtain Fabric network config, %j', e));
+    throw new Error(e);
+  }
+
+  const mspId = gateway?.getIdentity()?.mspId;
+  logger.info('mspId: ', mspId);
 
   const getPrivateRepository = <TEntity, TEvent>(
     entityName: string,
@@ -142,16 +146,13 @@ export const createService: (option: {
   const getRepository = <TEntity, TEvent>(entityName: string, reducer: Reducer) =>
     createRepository<TEntity, TEvent>(entityName, reducer, {
       ...networkConfig,
-      queryDatabase: createQueryDatabase(redis),
+      queryDatabase: createQueryDatabase(client, redisRepos),
       connectionProfile,
       channelName,
       wallet,
     });
 
   return {
-    mspId,
-    getRepository,
-    getPrivateRepository,
     config: ({ typeDefs, resolvers }) => {
       const repositories: {
         entityName: string;
@@ -162,17 +163,16 @@ export const createService: (option: {
         mspId?: string;
         playground?: boolean;
         introspection?: boolean;
-      }) => Promise<ApolloServer> = async (option) => {
+      }) => ApolloServer = (option) => {
         const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
 
         const args = mspId ? { mspId } : undefined;
         const flags = {
-          playground: option && option.playground,
-          introspection: option && option.introspection,
+          playground: option?.playground,
+          introspection: option?.introspection,
         };
 
         if (repositories.filter((element) => element.entityName === 'organization').length <= 0) {
-          // TODO
           repositories.push({
             entityName: 'organization',
             repository: getRepository<Organization, OrgEvents>(
@@ -197,6 +197,7 @@ export const createService: (option: {
               context: ({ req: { headers } }) =>
                 Object.assign(
                   {
+                    ...headers,
                     user_id: headers.user_id,
                     is_admin: headers.is_admin,
                     username: headers.username,
@@ -212,18 +213,50 @@ export const createService: (option: {
         );
       };
 
-      const addRepository = (repository: Repository | PrivateRepository) => {
+      const addRepository = <TEntity, TEvent>(entityName, reducer) => {
+        const repository = getRepository<TEntity, TEvent>(entityName, reducer);
         repositories.push({
           entityName: repository.getEntityName(),
           repository,
         });
-        return { create, addRepository };
+        return { create, addRepository, addPrivateRepository };
       };
 
-      return { addRepository };
+      const addPrivateRepository = <TEntity, TEvent>(entityName, reducer, parentName) => {
+        const repository = getPrivateRepository<TEntity, TEvent>(entityName, reducer, parentName);
+        repositories.push({
+          entityName: repository.getEntityName(),
+          repository,
+        });
+        return { create, addPrivateRepository };
+      };
+
+      const addRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
+        entityName: string;
+        fields: RedisearchDefinition<TInput>;
+        preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+        postSelector?: Selector<TItemInRedis, TOutput>;
+      }) => AddRedisRepository = ({ entityName, fields, preSelector, postSelector }) => {
+        redisRepos = composeRedisRepos(
+          client,
+          redisRepos
+        )({
+          entityName,
+          fields,
+          preSelector,
+          postSelector,
+        });
+        return { addRedisRepository, addRepository };
+      };
+
+      return { addRepository, addRedisRepository, addPrivateRepository };
     },
+    disconnect: () => gateway.disconnect(),
+    getMspId: () => mspId,
+    getRedisRepos: () => redisRepos,
+    getRepository,
+    getPrivateRepository,
     getServiceName: () => serviceName,
-    shutdown: shutdownApollo({ redis, logger, name: serviceName }),
-    disconnect: () => networkConfig.gateway.disconnect(),
+    shutdown: shutdownApollo({ redis: client.redis, logger, name: serviceName }),
   };
 };

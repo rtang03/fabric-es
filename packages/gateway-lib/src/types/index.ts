@@ -7,3 +7,4 @@ export * from './queryHandlerGqlCtx';
 export * from './notification';
 export * from './dataSrc';
 export * from './commandHandler';
+export * from './federatedService';

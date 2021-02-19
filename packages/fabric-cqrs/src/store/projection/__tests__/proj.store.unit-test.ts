@@ -1,19 +1,31 @@
 require('dotenv').config({ path: './.env.test' });
-import Redis from 'ioredis';
+import { Redisearch } from 'redis-modules-sdk';
 import { Store } from 'redux';
-import { commitIndex, createQueryDatabase, dummyReducer, entityIndex } from '../../../queryHandler';
-import type { Commit, QueryDatabase, QueryDatabaseResponse } from '../../../types';
-import { dispatcher, getLogger, isCommitRecord } from '../../../utils';
+import { createQueryDatabase, createRedisRepository } from '../../../queryHandler';
+import type { OutputCommit, QueryDatabase, RedisRepository } from '../../../queryHandler/types';
+import type { Commit } from '../../../types';
+import {
+  Counter,
+  CounterInRedis,
+  counterIndexDefinition as fields,
+  OutputCounter,
+  postSelector,
+  preSelector,
+  reducer,
+} from '../../../unit-test-counter';
+import { dispatcher, getLogger, isCommitRecord, waitForSecond } from '../../../utils';
 import { action as queryAction } from '../../query';
 import { action as projAction, action } from '../action';
-import { commit, commits, newCommit, entityName } from './__utils__/data';
-import { getStore } from './__utils__/store';
+import { getStore, commit, commits, newCommit, entityName } from './__utils__';
 
+let client: Redisearch;
+let commitRepo: RedisRepository<OutputCommit>;
+let counterRedisRepo: RedisRepository<OutputCounter>;
 let store: Store;
-let redis: Redis.Redis;
 let queryDatabase: QueryDatabase;
+
 const logger = getLogger({ name: 'proj.store.unit-test.ts' });
-const reducers = { [entityName]: dummyReducer };
+const reducers = { [entityName]: reducer };
 const id = 'test_001';
 const {
   mergeEntity,
@@ -25,52 +37,95 @@ const {
 } = action;
 
 beforeAll(async () => {
-  redis = new Redis();
-  queryDatabase = createQueryDatabase(redis);
-  store = getStore({ queryDatabase, reducers, logger });
+  try {
+    // Step 1: connect Redis
+    client = new Redisearch({ host: 'localhost', port: 6379 });
+    await client.connect();
 
-  await dispatcher<QueryDatabaseResponse, { entityName: string }>(
-    (payload) => queryAction.deleteCommitByEntityName(payload),
-    {
-      name: 'deleteByEntityName',
-      store,
-      slice: 'query',
-      SuccessAction: queryAction.DELETE_SUCCESS,
-      ErrorAction: queryAction.DELETE_ERROR,
-      logger,
-    }
-  )({ entityName })
-    .then(({ data }) => console.log(data.message))
-    .catch((error) => console.error(error.message));
+    // Step 2: create counter's RedisRepo
+    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>({
+      client,
+      fields,
+      entityName,
+      postSelector,
+      preSelector,
+    });
 
-  await redis
-    .send_command('FT.DROP', ['cidx'])
-    .then((result) => console.log(`cidx is dropped: ${result}`))
-    .catch((result) => console.log(`cidx is not dropped: ${result}`));
+    // Step 3: create QueryDatabase; return commitRepo
+    queryDatabase = createQueryDatabase(client, { [entityName]: counterRedisRepo });
+    commitRepo = queryDatabase.getRedisCommitRepo();
 
-  await redis
-    .send_command('FT.DROP', ['eidx'])
-    .then((result) => console.log(`eidx is dropped: ${result}`))
-    .catch((result) => console.log(`eidx is not dropped: ${result}`));
+    // Step 4: redux store
+    store = getStore({ queryDatabase, reducers, logger });
+
+    // Step 5: prepare Redisearch indexes
+    const eidx = counterRedisRepo.getIndexName();
+    await counterRedisRepo
+      .dropIndex()
+      .then((result) => console.log(`${eidx} is dropped: ${result}`))
+      .catch((result) => console.log(`${eidx} is not dropped: ${result}`));
+
+    await counterRedisRepo
+      .createIndex()
+      .then((result) => console.log(`${eidx} is created: ${result}`))
+      .catch((result) => {
+        console.log(`${eidx} is not created: ${result}`);
+        process.exit(1);
+      });
+
+    const cidx = commitRepo.getIndexName();
+    await commitRepo
+      .dropIndex()
+      .then((result) => console.log(`${cidx} is dropped: ${result}`))
+      .catch((result) => console.log(`${cidx} is not dropped: ${result}`));
+
+    await commitRepo
+      .createIndex()
+      .then((result) => console.log(`${cidx} is created: ${result}`))
+      .catch((result) => {
+        console.log(`${cidx} is not created: ${result}`);
+        process.exit(1);
+      });
+
+    // Step 6: delete all query-side commits by entityName
+    await dispatcher<number, { entityName: string }>(
+      (payload) => queryAction.deleteCommitByEntityName(payload),
+      {
+        name: 'deleteByEntityName',
+        store,
+        slice: 'query',
+        SuccessAction: queryAction.DELETE_SUCCESS,
+        ErrorAction: queryAction.DELETE_ERROR,
+        logger,
+      }
+    )({ entityName })
+      .then(({ data }) => console.log(`${data} record(s) deleted`))
+      .catch((error) => console.error(error.message));
+
+    // Step 7: remove existing all notifications
+    await queryDatabase
+      .clearNotifications({ creator: 'org1-admin', entityName })
+      .then(({ status }) => console.log(`clearNotifications: ${status}`));
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  }
 });
 
 afterAll(async () => {
-  await redis
-    .send_command('FT.DROP', ['cidx'])
-    .then((result) => console.log(`cidx is dropped: ${result}`))
-    .catch((result) => console.log(`cidx is not dropped: ${result}`));
-
-  await redis
-    .send_command('FT.DROP', ['eidx'])
-    .then((result) => console.log(`eidx is dropped: ${result}`))
-    .catch((result) => console.log(`eidx is not dropped: ${result}`));
-
   await queryDatabase
     .deleteCommitByEntityName({ entityName })
     .then(({ message }) => console.log(message))
     .catch((result) => console.log(result));
 
-  return new Promise<void>((ok) => setTimeout(() => ok(), 2000));
+  // await queryDatabase
+  //   .deleteEntityByEntityName({ entityName })
+  //   .then(({ message }) => console.log(message))
+  //   .catch((result) => console.log(result));
+
+  await client.disconnect();
+  console.log('Test ends,... quitting');
+  return waitForSecond(2);
 });
 
 describe('Store/projection: failure tests', () => {
@@ -144,16 +199,6 @@ describe('Store/projection: failure tests', () => {
 
 describe('Store/query Test', () => {
   beforeAll(async () => {
-    await redis
-      .send_command('FT.CREATE', commitIndex)
-      .then((result) => console.log(`cidx is created: ${result}`))
-      .catch((result) => console.error(`cidx is not created: ${result}`));
-
-    await redis
-      .send_command('FT.CREATE', entityIndex)
-      .then((result) => console.log(`eidx is created: ${result}`))
-      .catch((result) => console.error(`eidx is not created: ${result}`));
-
     await dispatcher<number, { entityName: string }>(
       (payload) => queryAction.deleteCommitByEntityName(payload),
       {
@@ -178,7 +223,7 @@ describe('Store/query Test', () => {
       ErrorAction: queryAction.MERGE_COMMIT_ERROR,
       logger,
     })({ commit }).then(({ status, data }) => {
-      expect(data).toEqual(['store_projection::test_001::20200528133519841']);
+      expect(data).toEqual(['c:store_projection:test_001:20200528133519841']);
       expect(status).toEqual('OK');
     }));
 
@@ -196,13 +241,8 @@ describe('Store/query Test', () => {
     )({ commit: newCommit }).then(({ data, status }) => {
       expect(status).toEqual('OK');
       expect(data).toEqual([
-        { key: 'store_projection::test_001', status: 'OK' },
-        {
-          key: 'store_projection::test_001::20200528133520842',
-          status: 'OK',
-        },
-        { key: 'eidx::store_projection::test_001', status: 'OK' },
-        { key: 'cidx::store_projection::test_001::20200528133520842', status: 'OK' },
+        { key: 'e:store_projection:test_001', status: 'OK' },
+        { key: 'c:store_projection:test_001:20200528133520842', status: 'OK' },
       ]);
     }));
 
@@ -237,8 +277,94 @@ describe('Store/query Test', () => {
     })({ entityName, commits }).then(({ status, data }) => {
       expect(status).toEqual('OK');
       expect(data).toEqual([
-        { key: 'store_projection::test_002', status: 'OK' },
-        { key: 'store_projection::test_003', status: 'OK' },
+        { key: 'e:store_projection:test_002', status: 'OK' },
+        { key: 'e:store_projection:test_003', status: 'OK' },
       ]);
     }));
+
+  it('should query:deleteEntityByEntityName', async () =>
+    dispatcher<number, { entityName: string }>(
+      (payload) => queryAction.deleteEntityByEntityName(payload),
+      {
+        store,
+        logger,
+        slice: 'query',
+        name: 'query:deleteEntityByEntityName',
+        SuccessAction: queryAction.DELETE_ENTITY_SUCCESS,
+        ErrorAction: queryAction.DELETE_ENTITY_ERROR,
+      }
+    )({ entityName }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data).toBe(3);
+    }));
+
+  it('should getNotifications', async () =>
+    dispatcher<Record<string, string>, { creator: string; entityName: string; id: string }>(
+      (payload) => queryAction.getNotifications(payload),
+      {
+        name: 'query:getNotifications',
+        store,
+        slice: 'query',
+        logger,
+        SuccessAction: queryAction.GET_NOTI_SUCCESS,
+        ErrorAction: queryAction.GET_NOTI_ERROR,
+      }
+    )({ creator: 'org1-admin', entityName, id }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data).toEqual({ 'n:org1-admin:store_projection:test_001:20200528133520842': '1' });
+    }));
+
+  it('should getNotification: first read = 1', async () =>
+    dispatcher<
+      Record<string, string>,
+      { creator: string; entityName: string; id: string; commitId: string }
+    >((payload) => queryAction.getNotification(payload), {
+      name: 'query:getNotification',
+      store,
+      slice: 'query',
+      logger,
+      SuccessAction: queryAction.GET_NOTI_SUCCESS,
+      ErrorAction: queryAction.GET_NOTI_ERROR,
+    })({ creator: 'org1-admin', entityName, id, commitId: '20200528133520842' }).then(
+      ({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual({ 'n:org1-admin:store_projection:test_001:20200528133520842': '1' });
+      }
+    ));
+
+  it('should getNotification: second read = 0', async () =>
+    dispatcher<
+      Record<string, string>,
+      { creator: string; entityName: string; id: string; commitId: string }
+    >((payload) => queryAction.getNotification(payload), {
+      name: 'query:getNotification',
+      store,
+      slice: 'query',
+      logger,
+      SuccessAction: queryAction.GET_NOTI_SUCCESS,
+      ErrorAction: queryAction.GET_NOTI_ERROR,
+    })({ creator: 'org1-admin', entityName, id, commitId: '20200528133520842' }).then(
+      ({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual({ 'n:org1-admin:store_projection:test_001:20200528133520842': '0' });
+      }
+    ));
+
+  it('should clearNotification', async () =>
+    dispatcher<string[], { creator: string; entityName: string; id: string; commitId: string }>(
+      (payload) => queryAction.clearNotification(payload),
+      {
+        name: 'query:clearNotification',
+        store,
+        slice: 'query',
+        logger,
+        SuccessAction: queryAction.CLEAR_NOTI_SUCCESS,
+        ErrorAction: queryAction.CLEAR_NOTI_ERROR,
+      }
+    )({ creator: 'org1-admin', entityName, id, commitId: '20200528133520842' }).then(
+      ({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data).toEqual(['n:org1-admin:store_projection:test_001:20200528133520842']);
+      }
+    ));
 });

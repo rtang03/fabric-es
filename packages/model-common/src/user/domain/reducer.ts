@@ -1,4 +1,4 @@
-import { User, UserEvents } from '..';
+import type { User, UserEvents } from '../types';
 
 export const userReducer = (user: User, event: UserEvents): User => {
   switch (event.type) {
@@ -7,12 +7,12 @@ export const userReducer = (user: User, event: UserEvents): User => {
         id: event.payload.userId,
         userId: event.payload.userId,
         name: event.payload.name,
-        mergedUserIds: event.payload.mergedUserIds
+        mergedUserIds: event.payload.mergedUserIds,
       };
     case 'ReviewInvitationDeclined':
     case 'ReviewInvitationExpired':
       return {
-        ...user
+        ...user,
       };
     default:
       return user; // NOTE!!! VERY IMPORTANT! do not omit this case, otherwise will return null if contain unrecognized events

@@ -1,366 +1,339 @@
 require('dotenv').config({ path: './.env.dev' });
-import Redis from 'ioredis';
 import omit from 'lodash/omit';
-import { entityIndex, createQueryDatabase, commitIndex } from '..';
-import type { QueryDatabase } from '../../types';
-import { reducer } from '../../unit-test-reducer';
-import { commit, commits, newCommit, simpleCounterReducer } from './__utils__';
+import pick from 'lodash/pick';
+import { Redisearch } from 'redis-modules-sdk';
+import { createQueryDatabase, createRedisRepository } from '..';
+import {
+  Counter,
+  reducer,
+  counterIndexDefinition as fields,
+  CounterInRedis,
+  postSelector,
+  preSelector,
+  OutputCounter,
+} from '../../unit-test-counter';
+import { waitForSecond } from '../../utils';
+import { REDUCE_ERR } from '../constants';
+import { isOutputCommit } from '../typeGuard';
+import type { QueryDatabase, RedisRepository, OutputCommit } from '../types';
+import { commit, commits, faultReducer, newCommit } from './__utils__';
 
 /**
- * .dn-run.0-db-red.sh
+ * running it: .dn-run.0-db-red.sh
  */
-
 let queryDatabase: QueryDatabase;
-let redis: Redis.Redis;
+let client: Redisearch;
+let commitRepo: RedisRepository<OutputCommit>;
+let counter: RedisRepository<OutputCounter>;
 
-const key = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
-const key2 = `test_proj::qh_proj_test_002`;
-const key3 = `test_proj::qh_proj_test_003`;
+const ENTITYNAME = 'test_proj';
+const ENTITYID = 'qh_proj_test_001';
+const noResult = { status: 'OK', message: '0 record(s) returned', data: [] };
 
 beforeAll(async () => {
-  redis = new Redis();
-  queryDatabase = createQueryDatabase(redis);
+  client = new Redisearch({ host: 'localhost', port: 6379 });
 
-  // CLEAR
-  // first commit for merge test
-  await redis
-    .set(key, JSON.stringify(commit))
-    .then((result) => console.log(`${key} is set: ${result}`))
-    .catch((result) => console.log(`${key} is not set: ${result}`));
+  await client.connect();
 
-  // delete keys for mergeBatch test
-  await redis
-    .del(key2)
-    .then((result) => console.log(`${key2} is deleted: ${result}`))
-    .catch((result) => console.log(`${key2} is not deleted: ${result}`));
+  counter = createRedisRepository<Counter, CounterInRedis, OutputCounter>({
+    client,
+    fields,
+    entityName: ENTITYNAME,
+    postSelector,
+    preSelector,
+  });
 
-  await redis
-    .del(key3)
-    .then((result) => console.log(`${key3} is deleted: ${result}`))
-    .catch((result) => console.log(`${key3} is not deleted: ${result}`));
+  queryDatabase = createQueryDatabase(client, { [ENTITYNAME]: counter });
+  commitRepo = queryDatabase.getRedisCommitRepo();
 
-  // CLEAR
   // prepare eidx
-  await redis
-    .send_command('FT.DROP', ['eidx'])
-    .then((result) => console.log(`entityIndex is dropped: ${result}`))
-    .catch((result) => console.log(`entityIndex is not dropped: ${result}`));
+  const eidx = counter.getIndexName();
+  await counter
+    .dropIndex()
+    .then((result) => console.log(`${eidx} is dropped: ${result}`))
+    .catch((result) => console.log(`${eidx} is not dropped: ${result}`));
 
-  // CLEAR
-  await redis
-    .send_command('FT.CREATE', entityIndex)
-    .then((result) => console.log(`entityIndex is created: ${result}`))
-    .catch((result) => console.log(`entityIndex is not created: ${result}`));
+  await counter
+    .createIndex()
+    .then((result) => console.log(`${eidx} is created: ${result}`))
+    .catch((result) => {
+      console.log(`${eidx} is not created: ${result}`);
+      process.exit(1);
+    });
 
-  // CLEAR
-  await redis
-    .send_command('FT.DROP', ['cidx'])
-    .then((result) => console.log(`cidx is dropped: ${result}`))
-    .catch((result) => console.log(`cidx is not dropped: ${result}`));
+  const cidx = commitRepo.getIndexName();
 
-  // CLEAR
-  await redis
-    .send_command('FT.CREATE', commitIndex)
-    .then((result) => console.log(`cidx is created: ${result}`))
-    .catch((result) => console.log(`cidx is not created: ${result}`));
+  await commitRepo
+    .dropIndex()
+    .then((result) => console.log(`${cidx} is dropped: ${result}`))
+    .catch((result) => console.log(`${cidx} is not dropped: ${result}`));
+
+  await commitRepo
+    .createIndex()
+    .then((result) => console.log(`${cidx} is created: ${result}`))
+    .catch((result) => {
+      console.log(`${cidx} is not created: ${result}`);
+      process.exit(1);
+    });
 
   await queryDatabase
-    .getNotification({ creator: 'org1-admin', expireNow: true })
-    .then(({ status }) => console.log(`clear notification: ${status}`));
+    .clearNotifications({ creator: 'org1-admin' })
+    .then(({ status }) => console.log(`clearNotifications: ${status}`));
 });
 
 afterAll(async () => {
-  // CLEAR
-  await redis
-    .send_command('FT.DROP', ['eidx'])
-    .then((result) => console.log(`entityIndex is dropped: ${result}`))
-    .catch((result) => console.log(`entityIndex is not dropped: ${result}`));
-
-  // CLEAR
-  await redis
-    .send_command('FT.DROP', ['cidx'])
-    .then((result) => console.log(`cidx is dropped: ${result}`))
-    .catch((result) => console.log(`cidx is not dropped: ${result}`));
-
-  await queryDatabase
-    .deleteCommitByEntityName({ entityName: commit.entityName })
-    .then(({ message }) => console.log(message))
-    .catch((result) => console.log(result));
-
-  return new Promise<void>((ok) => setTimeout(() => ok(), 2000));
+  await client.disconnect();
+  return waitForSecond(2);
 });
 
-describe('Projection db test', () => {
+describe('Projecion db test', () => {
+  it('should deleteCommitByEntityName', async () =>
+    queryDatabase
+      .deleteCommitByEntityName({ entityName: ENTITYNAME })
+      .then(({ status }) => expect(status).toBe('OK')));
+
+  // first commit for merge test
+  it('should merge commit', async () => {
+    const key = commitRepo.getKey(commit);
+    // test the returned result
+    const { data, status } = await queryDatabase.mergeCommit({ commit });
+    expect(status).toBe('OK');
+    expect(data).toStrictEqual([key]);
+
+    // test the reselected data
+    const result = await commitRepo.hgetall(key);
+    expect(omit(commit, 'events')).toStrictEqual(
+      pick(result, 'id', 'entityName', 'version', 'commitId', 'entityId', 'mspId')
+    );
+  });
+
   it('should fail to mergeEntity with IRRELEVANT reducer', async () =>
     queryDatabase
-      .mergeEntity({ commit: newCommit, reducer: simpleCounterReducer })
-      .then(({ status, message, error }) => {
+      .mergeEntity({ commit: newCommit, reducer: faultReducer })
+      .then(({ status, message, errors }) => {
         expect(status).toEqual('ERROR');
-        expect(message).toEqual('fail to reduce to currentState');
-        expect(error.message).toContain('fail to reduce');
+        expect(errors[0].message.startsWith('fail to reduce')).toBeTruthy();
+        expect(message).toContain(REDUCE_ERR);
       }));
 
-  it('should merge', async () =>
-    queryDatabase.mergeEntity({ commit: newCommit, reducer }).then((result) =>
-      expect(result).toEqual({
-        status: 'OK',
-        message: 'test_proj::qh_proj_test_001 merged successfully',
-        result: [
-          { key: 'test_proj::qh_proj_test_001', status: 'OK' },
-          { key: 'test_proj::qh_proj_test_001::20200528133520841', status: 'OK' },
-          { key: 'eidx::test_proj::qh_proj_test_001', status: 'OK' },
-          { key: 'cidx::test_proj::qh_proj_test_001::20200528133520841', status: 'OK' },
-        ],
-      })
-    ));
+  it('should merge entity', async () =>
+    queryDatabase.mergeEntity({ commit: newCommit, reducer }).then(({ status, data }) => {
+      expect(status).toBe('OK');
+      expect(data).toEqual([
+        { key: 'e:test_proj:qh_proj_test_001', status: 'OK' },
+        {
+          key: 'c:test_proj:qh_proj_test_001:20200528133520841',
+          status: 'OK',
+        },
+      ]);
+    }));
 
-  it('should fail to mergeEntityBatch with BAD reducer', async () =>
+  it('should fail to queryCommitByEntityId: non-exist entityName', async () =>
     queryDatabase
-      .mergeEntityBatch({
-        entityName: commit.entityName,
-        reducer: simpleCounterReducer,
-        commits,
-      })
-      .then(({ status, error }) => {
-        expect(status).toEqual('ERROR');
-        expect(error).toEqual([{ id: 'qh_proj_test_002' }, { id: 'qh_proj_test_003' }]);
+      .queryCommitByEntityId({ entityName: 'ABC', id: ENTITYID })
+      .then((result) => expect(result).toEqual(noResult)));
+
+  it('should fail to queryCommitByEntityId: non-exist id', async () =>
+    queryDatabase
+      .queryCommitByEntityId({ entityName: ENTITYNAME, id: 'DEF' })
+      .then((result) => expect(result).toEqual(noResult)));
+
+  it('should queryCommitsBy: entityName and entityId', async () =>
+    queryDatabase
+      .queryCommitByEntityId({ entityName: ENTITYNAME, id: ENTITYID })
+      .then(({ status, message, data }) => {
+        expect(status).toBe('OK');
+        expect(message).toEqual('2 record(s) returned');
+        data.forEach((commit) => expect(isOutputCommit(commit)).toBeTruthy());
+      }));
+
+  it('should fail to queryCommitsBy: non-exist entityName', async () =>
+    queryDatabase
+      .queryCommitByEntityName({ entityName: 'ABC' })
+      .then((result) => expect(result).toEqual(noResult)));
+
+  it('should queryCommitsBy: entityName', async () =>
+    queryDatabase
+      .queryCommitByEntityName({ entityName: ENTITYNAME })
+      .then(({ status, message, data }) => {
+        expect(status).toBe('OK');
+        expect(message).toEqual('2 record(s) returned');
+        data.forEach((commit) => expect(isOutputCommit(commit)).toBeTruthy());
       }));
 
   it('should mergeBatch', async () =>
     queryDatabase
-      .mergeEntityBatch({ entityName: commit.entityName, reducer, commits })
-      .then((result) => {
-        expect(result).toEqual({
-          status: 'OK',
-          message: '2 entitie(s) are merged',
-          result: [
-            { key: 'test_proj::qh_proj_test_002', status: 'OK' },
-            { key: 'test_proj::qh_proj_test_003', status: 'OK' },
-          ],
-          error: null,
-        });
-      }));
-
-  it('should fail to FT.SEARCH by invalid FIELD desc', async () =>
-    queryDatabase
-      .fullTextSearchEntity({ query: ['xffd;;;;;df'] })
-      .catch((error) => expect(error.message).toContain('Syntax error at offset')));
-
-  it('should fail to FT.SEARCH by valid/non-existing FIELD desc', async () =>
-    queryDatabase.fullTextSearchEntity({ query: ['xfdf'] }).then((result) =>
-      expect(result).toEqual({
-        status: 'OK',
-        message: 'full text search: 0 record returned',
-        result: null,
-      })
-    ));
-
-  it('should FT.SEARCH by FIELD desc', async () =>
-    queryDatabase
-      .fullTextSearchEntity({ query: ['handler', 'SORTBY', 'id', 'ASC'] })
-      .then(({ status, message, result }) => {
-        expect(status).toEqual('OK');
-        expect(message).toEqual('full text search: 3 record(s) returned');
-        expect((result as any[]).map((item) => omit(item, '_reducer'))).toEqual([
-          {
-            value: 2,
-            id: 'qh_proj_test_001',
-            desc: 'query handler #2 proj',
-            tag: 'projection',
-            _organization: ['Org1MSP'],
-            _ts: 1590739000,
-            _created: 1590738792,
-            _creator: 'org1-admin',
-            _entityName: commit.entityName,
-            _timeline: '1590738792,1590739000',
-            _event: 'Increment,Increment',
-            _commit: [
-              'test_proj::qh_proj_test_001::20200528133519841',
-              'test_proj::qh_proj_test_001::20200528133520841',
-            ],
-          },
-          {
-            id: 'qh_proj_test_002',
-            value: 3,
-            desc: 'query handler #5 proj',
-            tag: 'projection',
-            _organization: ['Org1MSP'],
-            _ts: 1590740002,
-            _created: 1590740000,
-            _creator: 'org1-admin',
-            _entityName: commit.entityName,
-            _timeline: '1590740000,1590740001,1590740002',
-            _event: 'Increment,Increment,Increment',
-            _commit: [
-              'test_proj::qh_proj_test_002::20200528133530001',
-              'test_proj::qh_proj_test_002::20200528133530002',
-              'test_proj::qh_proj_test_002::20200528133530003',
-            ],
-          },
-          {
-            id: 'qh_proj_test_003',
-            value: 2,
-            desc: 'query handler #7 proj',
-            tag: 'projection',
-            _organization: ['Org1MSP'],
-            _ts: 1590740004,
-            _created: 1590740003,
-            _creator: 'org1-admin',
-            _entityName: commit.entityName,
-            _timeline: '1590740003,1590740004',
-            _event: 'Increment,Increment',
-            _commit: [
-              'test_proj::qh_proj_test_003::20200528133530004',
-              'test_proj::qh_proj_test_003::20200528133530005',
-            ],
-          },
+      .mergeEntityBatch({ entityName: ENTITYNAME, reducer, commits })
+      .then(({ data, status, message }) => {
+        expect(status).toBe('OK');
+        expect(data).toEqual([
+          { key: 'e:test_proj:qh_proj_test_002', status: 'OK' },
+          { key: 'e:test_proj:qh_proj_test_003', status: 'OK' },
         ]);
       }));
 
-  it('should FT.SEARCH by FIELD desc, countTotalOnly', async () =>
-    queryDatabase
-      .fullTextSearchEntity({
-        query: ['handler', 'SORTBY', 'id', 'ASC', 'LIMIT', '0', '0'],
-        countTotalOnly: true,
-      })
-      .then(({ status, result }) => {
-        expect(status).toEqual('OK');
-        expect(result).toEqual(3);
-      }));
-
-  it('should fail to queryEntity: invalid where clause', async () =>
-    queryDatabase
-      .queryEntity({
-        entityName: commit.entityName,
-        where: { hello: 'world' },
-      })
-      .then(({ status, result, message }) => {
-        expect(status).toEqual('OK');
-        expect(result).toBeNull();
-        expect(message).toEqual('0 record(s) returned');
-      }));
-
-  it('should fail to queryEntity: non-existing entityName', async () =>
-    queryDatabase
-      .queryEntity({
-        entityName: 'invalid',
-        where: { tag: 'projection' },
-      })
-      .then(({ status, result }) => {
-        expect(status).toEqual('OK');
-        expect(result).toBeNull();
-        expect('no record exists');
-      }));
-
-  it('should queryEntity, with tag', async () =>
-    queryDatabase
-      .queryEntity({
-        entityName: commit.entityName,
-        where: { tag: 'projection' },
-      })
-      .then(({ status, result }) => {
-        expect(status).toEqual('OK');
-        expect(omit(result[0], '_reducer', 'ts', '_organization')).toEqual({
-          value: 2,
-          id: 'qh_proj_test_001',
-          desc: 'query handler #2 proj',
-          tag: 'projection',
-          _ts: 1590739000,
-          _created: 1590738792,
-          _creator: 'org1-admin',
-          _entityName: commit.entityName,
-          _timeline: '1590738792,1590739000',
-          _event: 'Increment,Increment',
-          _commit: [
-            'test_proj::qh_proj_test_001::20200528133519841',
-            'test_proj::qh_proj_test_001::20200528133520841',
-          ],
-        });
-      }));
-
-  it('should queryEntity, with desc', async () =>
-    queryDatabase
-      .queryEntity({
-        entityName: commit.entityName,
-        where: { desc: 'query handler #2 proj' },
-      })
-      .then(({ status, result }) => {
-        expect(status).toEqual('OK');
-        expect(omit(result[0], 'ts', '_organization')).toEqual({
-          value: 2,
-          id: 'qh_proj_test_001',
-          desc: 'query handler #2 proj',
-          tag: 'projection',
-          _ts: 1590739000,
-          _created: 1590738792,
-          _creator: 'org1-admin',
-          _entityName: commit.entityName,
-          _timeline: '1590738792,1590739000',
-          _event: 'Increment,Increment',
-          _commit: [
-            'test_proj::qh_proj_test_001::20200528133519841',
-            'test_proj::qh_proj_test_001::20200528133520841',
-          ],
-        });
-      }));
-
-  it('should getNotification by creator', async () =>
-    queryDatabase.getNotification({ creator: 'org1-admin' }).then(({ status, result }) => {
-      expect(status).toEqual('OK');
-      expect(result[0]).toEqual({
-        'noti::org1-admin::test_proj::qh_proj_test_001::20200528133520841': '1',
-      });
+  it('should fullTextSearchCommit: qh*', async () =>
+    queryDatabase.fullTextSearchCommit({ query: 'qh*' }).then(({ status, data }) => {
+      expect(status).toBe('OK');
+      (data as any[]).forEach((item) => expect(isOutputCommit(item)).toBeTruthy());
+      expect((data as any[]).length).toBe(2);
     }));
 
-  it('should getNotification by creator, entityName', async () =>
+  it('should fullTextSearchCommit: return count-only', async () =>
     queryDatabase
-      .getNotification({ creator: 'org1-admin', entityName: 'test_proj' })
-      .then(({ status, result }) => {
-        expect(status).toEqual('OK');
-        expect(result[0]).toEqual({
-          'noti::org1-admin::test_proj::qh_proj_test_001::20200528133520841': '1',
+      .fullTextSearchCommit({ query: 'qh*', countTotalOnly: true })
+      .then(({ status, data }) => {
+        expect(status).toBe('OK');
+        expect(data).toBe(2);
+      }));
+
+  it('should fail to fullTextSearchEntity: invalid character', async () =>
+    queryDatabase
+      .fullTextSearchEntity({ entityName: ENTITYNAME, query: 'xffd;;;;;df' })
+      .then(({ status, errors }) => {
+        expect(status).toEqual('ERROR');
+        // "error": [Error: Redisearch: ReplyError: Syntax error at offset 4 near xffd],
+      }));
+
+  it('should fail to fullTextSearchEntity: entityName not found', async () =>
+    queryDatabase.fullTextSearchEntity({ entityName: ENTITYNAME, query: 'abc' }).then((result) => {
+      expect(result).toEqual(noResult);
+    }));
+
+  it('should fail to fullTextSearchEntity by "de": invalid input', async () =>
+    queryDatabase
+      .fullTextSearchEntity({
+        query: 'xyz',
+        entityName: ENTITYNAME,
+        param: { sortBy: { sort: 'ASC', field: 'de' } },
+      })
+      .then((result) => expect(result).toEqual(noResult)));
+
+  it('should fail to fullTextSearchEntity by "abc": no such indexed field', async () =>
+    queryDatabase
+      .fullTextSearchEntity({
+        query: 'xyz',
+        entityName: ENTITYNAME,
+        param: { sortBy: { sort: 'ASC', field: 'abc' } },
+      })
+      .then(({ status, errors }) => {
+        expect(status).toBe('ERROR');
+        expect(errors[0].message).toContain('not loaded nor in schema');
+      }));
+
+  it('should fullTextSearchEntity by "de"', async () =>
+    queryDatabase
+      .fullTextSearchEntity({
+        query: 'handler',
+        entityName: ENTITYNAME,
+        param: { sortBy: { sort: 'ASC', field: 'de' } },
+      })
+      .then((result) => expect(result).toMatchSnapshot()));
+
+  it('should fullTextSearchEntity by "de": countTotalOnly', async () =>
+    queryDatabase
+      .fullTextSearchEntity({
+        countTotalOnly: true,
+        query: 'handler',
+        entityName: ENTITYNAME,
+        param: { sortBy: { sort: 'ASC', field: 'de' } },
+      })
+      .then((result) =>
+        expect(result).toEqual({ status: 'OK', message: '3 record(s) returned', data: 3 })
+      ));
+
+  it('should fail to getNotifications', async () =>
+    queryDatabase
+      .getNotificationsByFields({ creator: 'abc' })
+      .then((result) => expect(result).toEqual({ status: 'OK', data: [] })));
+
+  it('should getNotifications by creator', async () =>
+    queryDatabase.getNotificationsByFields({ creator: 'org1-admin' }).then(({ status, data }) => {
+      expect(status).toBe('OK');
+      expect(data).toEqual({ 'n:org1-admin:test_proj:qh_proj_test_001:20200528133520841': '1' });
+    }));
+
+  it('should getNotifications by creator, entityName', async () =>
+    queryDatabase
+      .getNotificationsByFields({ creator: 'org1-admin', entityName: ENTITYNAME })
+      .then(({ status, data }) => {
+        expect(status).toBe('OK');
+        expect(data).toEqual({
+          'n:org1-admin:test_proj:qh_proj_test_001:20200528133520841': '1',
         });
       }));
 
-  it('should getNotification by creator, entityName, id', async () =>
+  it('should getNotifications by creator, entityName, id', async () =>
     queryDatabase
-      .getNotification({ creator: 'org1-admin', entityName: 'test_proj', id: 'qh_proj_test_001' })
-      .then(({ status, result }) => {
-        expect(status).toEqual('OK');
-        expect(result[0]).toEqual({
-          'noti::org1-admin::test_proj::qh_proj_test_001::20200528133520841': '1',
+      .getNotificationsByFields({ creator: 'org1-admin', entityName: ENTITYNAME, id: ENTITYID })
+      .then(({ status, data }) => {
+        expect(status).toBe('OK');
+        expect(data).toEqual({
+          'n:org1-admin:test_proj:qh_proj_test_001:20200528133520841': '1',
         });
       }));
 
-  it('should getNotification by creator, entityName, id, commitId', async () =>
+  it('should getNotification: return 1, for first time', async () =>
     queryDatabase
       .getNotification({
         creator: 'org1-admin',
-        entityName: 'test_proj',
-        id: 'qh_proj_test_001',
+        entityName: ENTITYNAME,
+        id: ENTITYID,
         commitId: '20200528133520841',
       })
-      .then(({ status, result }) => {
-        expect(status).toEqual('OK');
-        // after reading by commitId, will automaitcally set to 0
-        expect(result[0]).toEqual({
-          'noti::org1-admin::test_proj::qh_proj_test_001::20200528133520841': '0',
+      .then(({ status, data }) => {
+        expect(status).toBe('OK');
+        expect(data).toEqual({
+          'n:org1-admin:test_proj:qh_proj_test_001:20200528133520841': '1',
         });
       }));
 
-  it('should expire all notifications', async () =>
+  it('should getNotification: return 0, for second time', async () =>
     queryDatabase
-      .getNotification({ creator: 'org1-admin', expireNow: true })
-      .then(({ status, result }) => {
-        expect(status).toEqual('OK');
-        expect(result[0]).toEqual({
-          'noti::org1-admin::test_proj::qh_proj_test_001::20200528133520841': '0',
+      .getNotification({
+        creator: 'org1-admin',
+        entityName: ENTITYNAME,
+        id: ENTITYID,
+        commitId: '20200528133520841',
+      })
+      .then(({ status, data }) => {
+        expect(status).toBe('OK');
+        expect(data).toEqual({
+          'n:org1-admin:test_proj:qh_proj_test_001:20200528133520841': '0',
         });
       }));
 
-  it('should return no notifications', async () =>
-    queryDatabase.getNotification({ creator: 'org1-admin' }).then(({ status, result }) => {
-      expect(status).toEqual('OK');
-      expect(result).toEqual([]);
-    }));
+  it('should clearNotification: one notification', async () =>
+    queryDatabase
+      .clearNotification({
+        creator: 'org1-admin',
+        entityName: ENTITYNAME,
+        id: ENTITYID,
+        commitId: '20200528133520841',
+      })
+      .then(({ data, status }) => {
+        expect(status).toBe('OK');
+        expect(data).toEqual(['n:org1-admin:test_proj:qh_proj_test_001:20200528133520841']);
+      }));
+
+  it('should fail to deleteCommitByEntityId with invalid entityName', async () =>
+    queryDatabase
+      .deleteCommitByEntityId({ entityName: 'ABC', id: ENTITYID })
+      .then((result) =>
+        expect(result).toEqual({ status: 'OK', message: '0 record(s) deleted', data: 0 })
+      ));
+
+  it('should deleteCommitByEntityId', async () =>
+    queryDatabase
+      .deleteCommitByEntityId({ entityName: ENTITYNAME, id: ENTITYID })
+      .then((result) =>
+        expect(result).toEqual({ status: 'OK', message: '2 record(s) deleted', data: 2 })
+      ));
+
+  it('should deleteEntityByEntityName', async () =>
+    queryDatabase
+      .deleteEntityByEntityName({ entityName: ENTITYNAME })
+      .then((result) =>
+        expect(result).toEqual({ status: 'OK', message: '3 record(s) deleted', data: 3 })
+      ));
 });

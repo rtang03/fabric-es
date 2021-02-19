@@ -1,4 +1,3 @@
-import values from 'lodash/values';
 import { UserCommandHandler, UserRepo } from '..';
 
 export const userCommandHandler: (option: {

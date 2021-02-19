@@ -2,67 +2,28 @@ import util from 'util';
 import { Contract, ContractListener, Network } from 'fabric-network';
 import { getStore } from '../store';
 import { action as projAction } from '../store/projection';
+import { action as queryAction } from '../store/query';
 import { action as reconcileAction } from '../store/reconcile';
-import type {
-  Commit,
-  PaginatedCommitCriteria,
-  PaginatedEntityCriteria,
-  PubSubPayload,
-  PubSubSysEvent,
-  QueryHandler,
-  QueryHandlerEntity,
-  QueryHandlerOptions,
-} from '../types';
+import type { Commit, PubSubPayload, PubSubSysEvent } from '../types';
 import {
   commandCreate,
   commandDeleteByEntityId,
   commandGetByEntityName,
   dispatcher,
   getLogger,
+  getPaginated,
   isCommit,
   queryDeleteCommitByEntityId,
   queryDeleteCommitByEntityName,
-  queryGetEntityByEntityName,
+  queryFullTextSearch,
   queryGetById,
   queryGetCommitByEntityId,
-  queryNotify,
-  doPaginatedSearch,
-  queryGetPaginatedEntityById,
-  queryGetPaginatedCommitById,
-  doPaginatedFullTextSearch,
-  queryGetEntityInfo,
+  queryGetEntityByEntityName,
 } from '../utils';
+import { INVALID_ARG } from './constants';
+import type { OutputCommit, QueryHandlerOption, QueryHandler } from './types';
 
-/**
- * @about Create query handler
- * @example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
- * ```typescript
- * const wallet = await Wallets.newFileSystemWallet(walletPath);
- * const redis = new Redis();
- * const queryDatabase = createQueryData(redis);
- * const networkConfig = await getNetwork({
- *     discovery: true,
- *     asLocalhost: true,
- *     channelName,
- *     connectionProfile,
- *     wallet,
- *     enrollmentId,
- * })
- * const queryHandler = createQueryHandler({
- *     entityNames: [entityName],
- *     gateway: networkConfig.gateway
- *     network: networkConfig.network,
- *     queryDatabase,
- *     connectionProfile,
- *     channelName,
- *     wallet,
- *     reducers
- * });
- * ```
- * @params options [[QueryHandlerOptions]]
- * @returns [[QueryHandler]]
- */
-export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler = (options) => {
+export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler = (options) => {
   const {
     entityNames,
     gateway,
@@ -87,15 +48,45 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
   const queryOption = { logger, store };
 
   return {
+    clearNotification: async ({ creator, entityName, id, commitId }) =>
+      dispatcher<string[], { creator: string; entityName: string; id: string; commitId: string }>(
+        (payload) => queryAction.clearNotification(payload),
+        {
+          store,
+          logger,
+          name: 'query:clearNotification',
+          slice: 'query',
+          SuccessAction: queryAction.CLEAR_NOTI_SUCCESS,
+          ErrorAction: queryAction.CLEAR_NOTI_ERROR,
+        }
+      )({ creator, entityName, id, commitId }),
+    clearNotifications: async ({ creator, entityName, id }) =>
+      dispatcher<string[], { creator: string; entityName: string; id: string }>(
+        (payload) => queryAction.clearNotifications(payload),
+        {
+          store,
+          logger,
+          name: 'query:clearNotifications',
+          slice: 'query',
+          SuccessAction: queryAction.CLEAR_NOTI_SUCCESS,
+          ErrorAction: queryAction.CLEAR_NOTI_ERROR,
+        }
+      )({ creator, entityName, id }),
     create: <TEvent = any>(entityName) => {
-      if (!entityNames.includes(entityName)) throw new Error('invalid entityName');
+      if (!entityNames.includes(entityName)) throw new Error(INVALID_ARG);
 
       return commandCreate<TEvent>(entityName, false, commandOption);
     },
-    command_deleteByEntityId: (entityName) =>
-      commandDeleteByEntityId(entityName, false, commandOption),
-    command_getByEntityName: (entityName) =>
-      commandGetByEntityName(entityName, false, commandOption),
+    command_deleteByEntityId: (entityName) => {
+      if (!entityNames.includes(entityName)) throw new Error(INVALID_ARG);
+
+      return commandDeleteByEntityId(entityName, false, commandOption);
+    },
+    command_getByEntityName: (entityName) => {
+      if (!entityNames.includes(entityName)) throw new Error(INVALID_ARG);
+
+      return commandGetByEntityName(entityName, false, commandOption);
+    },
     getById: <TEntity = any, TEvent = any>(entityName) =>
       queryGetById<TEntity, TEvent>(entityName, reducers[entityName], false, commandOption),
     getByEntityName: <TEntity = any>(entityName) =>
@@ -105,22 +96,47 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
       queryDeleteCommitByEntityId(entityName, queryOption),
     query_deleteCommitByEntityName: (entityName) =>
       queryDeleteCommitByEntityName(entityName, queryOption),
-    getPaginatedEntityById: <TResult>(entityName) =>
-      doPaginatedSearch<TResult, PaginatedEntityCriteria>(
-        entityName,
-        queryGetPaginatedEntityById,
-        queryOption
-      ),
-    getPaginatedCommitById: (entityName) =>
-      doPaginatedSearch<Commit, PaginatedCommitCriteria>(
-        entityName,
-        queryGetPaginatedCommitById,
-        queryOption
-      ),
-    fullTextSearchCommit: doPaginatedFullTextSearch<Commit>('cidx', queryOption),
-    fullTextSearchEntity: doPaginatedFullTextSearch<QueryHandlerEntity>('eidx', queryOption),
-    queryGetEntityInfo: queryGetEntityInfo(queryOption),
-    queryNotify: queryNotify(queryOption),
+    query_deleteEntityByEntityName: (entityName) => () =>
+      dispatcher<number, { entityName: string }>(
+        (payload) => queryAction.deleteEntityByEntityName(payload),
+        {
+          store,
+          logger,
+          slice: 'query',
+          name: 'query:deleteEntityByEntityName',
+          SuccessAction: queryAction.DELETE_ENTITY_SUCCESS,
+          ErrorAction: queryAction.DELETE_ENTITY_ERROR,
+        }
+      )({ entityName }),
+    fullTextSearchCommit: async <OutputCommit>({ query, param, cursor, pagesize }) =>
+      queryFullTextSearch({ store, logger, query, param, cursor, pagesize }),
+    fullTextSearchEntity: async <TEntity>({ query, param, cursor, pagesize, entityName }) =>
+      queryFullTextSearch({ store, logger, query, param, cursor, pagesize, entityName }),
+    getNotification: async ({ creator, entityName, id, commitId }) =>
+      dispatcher<
+        Record<string, string>,
+        { creator: string; entityName: string; id: string; commitId: string }
+      >((payload) => queryAction.getNotifications(payload), {
+        store,
+        logger,
+        name: 'query:getNotification',
+        slice: 'query',
+        SuccessAction: queryAction.GET_NOTI_SUCCESS,
+        ErrorAction: queryAction.GET_NOTI_ERROR,
+      })({ creator, entityName, id, commitId }),
+    getNotifications: async ({ creator, entityName, id }) =>
+      dispatcher<Record<string, string>, { creator: string; entityName: string; id: string }>(
+        (payload) => queryAction.getNotifications(payload),
+        {
+          store,
+          logger,
+          name: 'query:getNotifications',
+          slice: 'query',
+          SuccessAction: queryAction.GET_NOTI_SUCCESS,
+          ErrorAction: queryAction.GET_NOTI_ERROR,
+        }
+      )({ creator, entityName, id }),
+    disconnect: () => gateway.disconnect(),
     reconcile: () =>
       dispatcher<{ key: string; status: string }[], { entityName: string }>(
         ({ tx_id, args }) =>
@@ -155,7 +171,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
       try {
         contractListener = await network.getContract('eventstore').addContractListener(
           async ({ payload, eventName, getTransactionEvent }) => {
-            logger.debug(`💢  event arrives - tx_id: ${getTransactionEvent().transactionId}`);
+            logger.info(`💢  event arrives - tx_id: ${getTransactionEvent().transactionId}`);
             // check eventName
             let commit: unknown;
             if (eventName !== 'createCommit') {
@@ -202,7 +218,7 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
                 logger.debug(
                   util.format('mergeComit: %j', mergeEntityResult?.data || 'no data written')
                 );
-              else logger.error(util.format('fail to mergeEntity, %j', mergeEntityResult));
+              else logger.error(util.format('❌ fail to mergeEntity, %j', mergeEntityResult));
 
               // send merged entity to PubSub
               if (pubSub && mergeEntityResult.status === 'OK') {
@@ -235,14 +251,11 @@ export const createQueryHandler: (options: QueryHandlerOptions) => QueryHandler 
           { type: 'full' }
         );
       } catch (err) {
-        logger.error(
-          util.format('❌  failed to subscribeHub. cannot addContractlistner', err)
-        );
+        logger.error(util.format('❌  failed to subscribeHub. cannot addContractlistner', err));
         return Promise.reject(new Error('failed to subscribeHub. cannot addContractlistner'));
       }
       return true;
     },
     unsubscribeHub: () => contract.removeContractListener(contractListener),
-    disconnect: () => gateway.disconnect(),
   };
 };

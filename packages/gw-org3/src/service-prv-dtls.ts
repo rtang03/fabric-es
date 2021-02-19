@@ -3,7 +3,6 @@ import util from 'util';
 import { getReducer } from '@fabric-es/fabric-cqrs';
 import { createService, getLogger } from '@fabric-es/gateway-lib';
 import { Wallets } from 'fabric-network';
-import Redis from 'ioredis';
 import {
   LoanDetails,
   LoanDetailsEvents,
@@ -44,12 +43,12 @@ void (async () =>
       },
     },
   })
-    .then(async ({ config, shutdown, getPrivateRepository }) => {
-      const app = await config({
+    .then(({ config, shutdown, getPrivateRepository }) => {
+      const app = config({
         typeDefs: loanDetailsTypeDefs,
         resolvers: loanDetailsResolvers,
       })
-        .addRepository(getPrivateRepository<LoanDetails, LoanDetailsEvents>('loanDetails', reducer))
+        .addPrivateRepository<LoanDetails, LoanDetailsEvents>('loanDetails', reducer)
         .create();
 
       process.on(

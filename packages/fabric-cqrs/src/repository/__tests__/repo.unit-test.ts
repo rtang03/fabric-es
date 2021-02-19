@@ -1,48 +1,49 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 require('dotenv').config({ path: './.env.dev' });
 import { enrollAdmin } from '@fabric-es/operator';
-import { Wallet, Wallets } from 'fabric-network';
-import Redis from 'ioredis';
+import { Wallets } from 'fabric-network';
 import omit from 'lodash/omit';
-import values from 'lodash/values';
+import { Redisearch } from 'redis-modules-sdk';
 import rimraf from 'rimraf';
 import { createRepository } from '..';
 import { registerUser } from '../../account';
-import {
-  createQueryHandler,
-  createQueryDatabase,
-  commitIndex,
-  entityIndex,
-} from '../../queryHandler';
+import { createQueryDatabase, createQueryHandler, createRedisRepository } from '../../queryHandler';
+import type { OutputCommit, QueryHandler, RedisRepository } from '../../queryHandler/types';
 import { getNetwork } from '../../services';
-import type { QueryHandler, Repository } from '../../types';
-import { reducer, CounterEvent, Counter } from '../../unit-test-reducer';
+import type { Repository } from '../../types';
+import {
+  reducer,
+  CounterEvent,
+  Counter,
+  OutputCounter,
+  CounterInRedis,
+  counterIndexDefinition as fields,
+  postSelector,
+  preSelector,
+  isOutputCounter,
+} from '../../unit-test-counter';
 import { getLogger, waitForSecond } from '../../utils';
 
 /**
  * ./dn-run.1-db-red-auth.sh
  */
 
-let wallet: Wallet;
-let context;
-let queryHandler: QueryHandler;
-let redis: Redis.Redis;
 let repo: Repository<Counter, CounterEvent>;
 let commitId: string;
+let client: Redisearch;
+let commitRepo: RedisRepository<OutputCommit>;
+let counterRedisRepo: RedisRepository<OutputCounter>;
+let queryHandler: QueryHandler;
 
-const entityName = 'test_repo';
-const reducers = { [entityName]: reducer };
-const enrollmentId = `repo_tester_${Math.floor(Math.random() * 10000)}`;
-const id = `repo_test_counter_001`;
-const connectionProfile = process.env.CONNECTION_PROFILE;
-const channelName = process.env.CHANNEL_NAME;
 const caName = process.env.CA_NAME;
-const mspId = process.env.MSPID;
-const timestampesOnCreate = [];
+const channelName = process.env.CHANNEL_NAME;
+const connectionProfile = process.env.CONNECTION_PROFILE;
+const enrollmentId = `repo_tester_${Math.floor(Math.random() * 10000)}`;
+const entityName = 'test_repo';
+const id = `repo_test_counter_001`;
 const logger = getLogger({ name: 'repo-unit.test.js' });
+const mspId = process.env.MSPID;
+const reducers = { [entityName]: reducer };
+const timestampesOnCreate = [];
 const events = [
   {
     type: 'Increment',
@@ -50,16 +51,34 @@ const events = [
   },
 ];
 
+const firstVerification = ({ status, cursor, hasMore, total, items }) => {
+  expect(status).toEqual('OK');
+  expect(cursor).toBe(1);
+  expect(hasMore).toBeFalsy();
+  expect(total).toBe(1);
+  const counter = items[0];
+  expect(isOutputCounter(counter)).toBeTruthy();
+  expect(omit(counter, 'createdAt', 'timestamp', 'creator')).toEqual({
+    description: 'repo #2 create-test',
+    eventInvolved: ['Increment', 'Increment'],
+    id: 'repo_test_counter_001',
+    tags: ['repo_test'],
+    value: 2,
+  });
+};
+const noResult = {
+  status: 'OK',
+  data: { total: 0, items: [], hasMore: false, cursor: null },
+};
+
 beforeAll(async () => {
   rimraf.sync(`${process.env.WALLET}/${process.env.ORG_ADMIN_ID}.id`);
   rimraf.sync(`${process.env.WALLET}/${process.env.CA_ENROLLMENT_ID_ADMIN}.id`);
 
-  wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
-  // localhost:6379
-  redis = new Redis();
-  const queryDatabase = createQueryDatabase(redis);
-
   try {
+    const wallet = await Wallets.newFileSystemWallet(process.env.WALLET);
+
+    // Step 1: EnrollAdmin
     await enrollAdmin({
       connectionProfile,
       enrollmentID: process.env.ORG_ADMIN_ID,
@@ -69,6 +88,7 @@ beforeAll(async () => {
       wallet,
     });
 
+    // Step 2: EnrollCaAdmin
     await enrollAdmin({
       connectionProfile,
       enrollmentID: process.env.CA_ENROLLMENT_ID_ADMIN,
@@ -89,7 +109,43 @@ beforeAll(async () => {
       mspId,
     });
 
-    context = await getNetwork({
+    // Step 3: connect Redis
+    client = new Redisearch({
+      host: '127.0.0.1',
+      port: 6379,
+      retryStrategy: (times) => {
+        if (times > 3) {
+          // the 4th return will exceed 10 seconds, based on the return value...
+          console.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
+          process.exit(-1);
+        }
+        return Math.min(times * 100, 3000); // reconnect after (ms)
+      },
+      reconnectOnError: (err) => {
+        const targetError = 'READONLY';
+        if (err.message.includes(targetError)) {
+          // Only reconnect when the error contains "READONLY"
+          return 1;
+        }
+      },
+    });
+    await client.connect();
+
+    // Step 4: create counter's RedisRepo
+    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>({
+      client,
+      fields,
+      entityName,
+      postSelector,
+      preSelector,
+    });
+
+    // Step 5: create QueryDatabase
+    const queryDatabase = createQueryDatabase(client, { [entityName]: counterRedisRepo });
+    commitRepo = queryDatabase.getRedisCommitRepo();
+
+    // Step 6: obtain network configuration of Hyperledger Fabric
+    const { gateway, network } = await getNetwork({
       channelName,
       connectionProfile,
       wallet,
@@ -98,55 +154,61 @@ beforeAll(async () => {
       asLocalhost: true,
     });
 
-    queryHandler = createQueryHandler({
-      entityNames: [entityName],
-      queryDatabase,
-      connectionProfile,
-      channelName,
-      wallet,
-      gateway: context.gateway,
-      network: context.network,
-      reducers,
-      logger,
-    });
-
+    // Step 7: Repo
     repo = createRepository<Counter, CounterEvent>(entityName, reducer, {
-      queryDatabase,
-      gateway: context.gateway,
-      network: context.network,
       channelName,
       connectionProfile,
-      wallet,
+      queryDatabase,
+      gateway,
+      network,
       logger,
+      wallet,
     });
 
-    // clear previously written entity
+    // Step 8: QueryHandler
+    queryHandler = createQueryHandler({
+      channelName,
+      connectionProfile,
+      entityNames: [entityName],
+      gateway,
+      network,
+      queryDatabase,
+      reducers,
+      wallet,
+    });
+
+    // Step 9: prepare Redisearch indexes
+    const eidx = counterRedisRepo.getIndexName();
+    await counterRedisRepo
+      .dropIndex()
+      .then((result) => console.log(`${eidx} is dropped: ${result}`))
+      .catch((result) => console.log(`${eidx} is not dropped: ${result}`));
+
+    await counterRedisRepo
+      .createIndex()
+      .then((result) => console.log(`${eidx} is created: ${result}`));
+
+    const cidx = commitRepo.getIndexName();
+    await commitRepo
+      .dropIndex()
+      .then((result) => console.log(`${cidx} is dropped: ${result}`))
+      .catch((result) => console.log(`${cidx} is not dropped: ${result}`));
+
+    await commitRepo
+      .createIndex()
+      .then((result) => console.log(`${cidx} is created: ${result}`))
+      .catch((result) => {
+        console.log(`${cidx} is not created: ${result}`);
+        process.exit(1);
+      });
+
+    // Step 9: remove pre-existing records
     await repo.command_deleteByEntityId({ id }).then(({ status }) => console.log(status));
 
     for await (const i of [1, 2, 3, 4, 5])
       await repo
         .command_deleteByEntityId({ id: `repo_pag_test_0${i}` })
         .then(({ status }) => console.log(status));
-
-    await redis
-      .send_command('FT.DROP', ['cidx'])
-      .then((result) => console.log(`cidx is dropped: ${result}`))
-      .catch((result) => console.log(`cidx is not dropped: ${result}`));
-
-    await redis
-      .send_command('FT.CREATE', commitIndex)
-      .then((result) => console.log(`cidx is created: ${result}`))
-      .catch((result) => console.log(`cidx is not created: ${result}`));
-
-    await redis
-      .send_command('FT.DROP', ['eidx'])
-      .then((result) => console.log(`eidx is dropped: ${result}`))
-      .catch((result) => console.log(`eidx is not dropped: ${result}`));
-
-    await redis
-      .send_command('FT.CREATE', entityIndex)
-      .then((result) => console.log(`eidx is created: ${result}`))
-      .catch((result) => console.log(`eidx is not created: ${result}`));
 
     // invoke contract listener, AT LAST
     await queryHandler.subscribeHub([entityName]);
@@ -158,21 +220,15 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await redis
-    .send_command('FT.DROP', ['cidx'])
-    .then((result) => console.log(`cidx is dropped: ${result}`))
-    .catch((result) => console.log(`cidx is not dropped: ${result}`));
-
-  await redis
-    .send_command('FT.DROP', ['eidx'])
-    .then((result) => console.log(`eidx is dropped: ${result}`))
-    .catch((result) => console.log(`eidx is not dropped: ${result}`));
-
   await repo
     .query_deleteCommitByEntityName()
     .then(({ data, status }) =>
       console.log(`${entityName}: ${data} record(s) deleted, status: ${status}`)
     );
+
+  await queryHandler
+    .clearNotifications({ creator: 'admin-org1.net' })
+    .then((result) => console.log(result));
 
   repo.disconnect();
 
@@ -297,78 +353,39 @@ describe('Verify Result', () => {
       });
     }));
 
-  it('should find by entityId', async () =>
-    repo.find({ byId: id }).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      const counter = data[0];
-      expect(
-        omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
-      ).toEqual({
-        value: 2,
-        id: 'repo_test_counter_001',
-        desc: 'repo #2 create-test',
-        tag: 'repo_test',
-        _event: 'Increment,Increment',
-        _entityName: entityName,
-        _organization: ['Org1MSP'],
-      });
-    }));
-
-  it('should find by desc with wildcard', async () =>
-    repo.find({ byDesc: 'repo*' }).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      expect(
-        omit(data[0], '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
-      ).toEqual({
-        value: 2,
-        id: 'repo_test_counter_001',
-        desc: 'repo #2 create-test',
-        tag: 'repo_test',
-        _event: 'Increment,Increment',
-        _entityName: entityName,
-        _organization: ['Org1MSP'],
-      });
-    }));
-
-  it('should find by entityId, and desc with wildcard', async () =>
-    repo.find({ byId: id, byDesc: 'repo*' }).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      const counter = data[0];
-      expect(
-        omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
-      ).toEqual({
-        value: 2,
-        id: 'repo_test_counter_001',
-        desc: 'repo #2 create-test',
-        tag: 'repo_test',
-        _event: 'Increment,Increment',
-        _entityName: entityName,
-        _organization: ['Org1MSP'],
-      });
-    }));
-
   it('should fail find by where: invalid id', async () =>
-    repo.find({ where: { id: 'abcdec' } }).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      expect(data).toBeNull();
-    }));
+    repo
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: `@id:abcdefg*`,
+        cursor: 0,
+        pagesize: 10,
+      })
+      .then((result) => expect(result).toEqual(noResult)));
 
-  it('should find by where', async () =>
-    repo.find({ where: { id } }).then(({ data, status }) => {
-      expect(status).toEqual('OK');
-      const counter = data[0];
-      expect(
-        omit(counter, '_ts', '_created', '_creator', '_commit', '_reducer', '_timeline')
-      ).toEqual({
-        value: 2,
-        id: 'repo_test_counter_001',
-        desc: 'repo #2 create-test',
-        tag: 'repo_test',
-        _event: 'Increment,Increment',
-        _entityName: entityName,
-        _organization: ['Org1MSP'],
-      });
-    }));
+  it('should find by entityId', async () =>
+    repo
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: `@id:${id}`,
+        cursor: 0,
+        pagesize: 10,
+      })
+      .then(({ data: { total, cursor, hasMore, items }, status }) =>
+        firstVerification({ status, total, cursor, hasMore, items })
+      ));
+
+  it('should find by description', async () =>
+    repo
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: `@de:repo*`,
+        cursor: 0,
+        pagesize: 10,
+      })
+      .then(({ data: { total, cursor, hasMore, items }, status }) =>
+        firstVerification({ status, total, cursor, hasMore, items })
+      ));
 });
 
 describe('Paginated entity and commit Tests', () => {
@@ -393,124 +410,229 @@ describe('Paginated entity and commit Tests', () => {
     }
   });
 
-  it('should getPaginatedCommitById: cursor=0 pagesize=2', async () =>
+  it('should do paginated commit search: cursor=0 pagesize=2', async () =>
     repo
-      .getPaginatedCommitById({ cursor: 0, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, items } }) => {
-        expect(total).toEqual(5);
-        expect(cursor).toEqual(2);
+      .fullTextSearchCommit({
+        query: '@id:repo_pag_test*',
+        cursor: 0,
+        pagesize: 2,
+        param: { sortBy: { field: 'ts', sort: 'ASC' } },
+      })
+      .then(({ status, data: { total, cursor, hasMore, items } }) => {
+        expect(status).toEqual('OK');
+        expect(total).toBe(5);
+        expect(cursor).toBe(2);
         expect(hasMore).toBeTruthy();
         expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_01', 'repo_pag_test_02']);
       }));
 
-  it('should getPaginatedCommitById: cursor=1 pagesize=2', async () =>
+  it('should do paginated commit search: cursor=1 pagesize=2', async () =>
     repo
-      .getPaginatedCommitById({ cursor: 1, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, items } }) => {
-        expect(total).toEqual(5);
-        expect(cursor).toEqual(3);
+      .fullTextSearchCommit({
+        query: '@id:repo_pag_test*',
+        cursor: 1,
+        pagesize: 2,
+        param: { sortBy: { field: 'ts', sort: 'ASC' } },
+      })
+      .then(({ status, data: { total, cursor, hasMore, items } }) => {
+        expect(status).toEqual('OK');
+        expect(total).toBe(5);
+        expect(cursor).toBe(3);
         expect(hasMore).toBeTruthy();
         expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_02', 'repo_pag_test_03']);
       }));
 
-  it('should getPaginatedCommitById: cursor=2 pagesize=2', async () =>
+  it('should do paginated commit search: cursor=2 pagesize=2', async () =>
     repo
-      .getPaginatedCommitById({ cursor: 2, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, items } }) => {
-        expect(total).toEqual(5);
-        expect(cursor).toEqual(4);
+      .fullTextSearchCommit({
+        query: '@id:repo_pag_test*',
+        cursor: 2,
+        pagesize: 2,
+        param: { sortBy: { field: 'ts', sort: 'ASC' } },
+      })
+      .then(({ status, data: { total, cursor, hasMore, items } }) => {
+        expect(status).toEqual('OK');
+        expect(total).toBe(5);
+        expect(cursor).toBe(4);
         expect(hasMore).toBeTruthy();
         expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_03', 'repo_pag_test_04']);
       }));
 
-  it('should getPaginatedCommitById: cursor=3 pagesize=2', async () =>
+  it('should do paginated commit search: cursor=3 pagesize=2', async () =>
     repo
-      .getPaginatedCommitById({ cursor: 3, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, items } }) => {
-        expect(total).toEqual(5);
-        expect(cursor).toEqual(5);
+      .fullTextSearchCommit({
+        query: '@id:repo_pag_test*',
+        cursor: 3,
+        pagesize: 2,
+        param: { sortBy: { field: 'ts', sort: 'ASC' } },
+      })
+      .then(({ status, data: { total, cursor, hasMore, items } }) => {
+        expect(status).toEqual('OK');
+        expect(total).toBe(5);
+        expect(cursor).toBe(5);
         expect(hasMore).toBeFalsy();
         expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_04', 'repo_pag_test_05']);
       }));
 
-  it('should getPaginatedCommitById: cursor=4 pagesize=2', async () =>
+  it('should do paginated commit search: cursor=4 pagesize=2', async () =>
     repo
-      .getPaginatedCommitById({ cursor: 4, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, items } }) => {
-        expect(total).toEqual(5);
-        expect(cursor).toEqual(5);
+      .fullTextSearchCommit({
+        query: '@id:repo_pag_test*',
+        cursor: 4,
+        pagesize: 2,
+        param: { sortBy: { field: 'ts', sort: 'ASC' } },
+      })
+      .then(({ status, data: { total, cursor, hasMore, items } }) => {
+        expect(status).toEqual('OK');
+        expect(total).toBe(5);
+        expect(cursor).toBe(5);
         expect(hasMore).toBeFalsy();
         expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_05']);
       }));
 
-  it('should getPaginatedCommitById: cursor=5 pagesize=2', async () =>
+  it('should do paginated commit search: cursor=5 pagesize=2', async () =>
     repo
-      .getPaginatedCommitById({ cursor: 5, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, items } }) => {
-        expect(total).toEqual(5);
-        expect(cursor).toBeNull();
+      .fullTextSearchCommit({
+        query: '@id:repo_pag_test*',
+        cursor: 5,
+        pagesize: 2,
+        param: { sortBy: { field: 'ts', sort: 'ASC' } },
+      })
+      .then(({ status, data: { total, cursor, hasMore, items } }) => {
+        expect(status).toEqual('OK');
+        expect(total).toBe(5);
+        expect(cursor).toBe(null);
         expect(hasMore).toBeFalsy();
-        expect(items.map(({ id }) => id)).toEqual([]);
+        expect(items).toEqual([]);
       }));
 
-  it('should getPaginatedEntityById: cursor=0 pagesize=2', async () =>
+  // returns
+  // {
+  //   total: 5,
+  //     items: [
+  //   {
+  //     createdAt: '1613227831604',
+  //     creator: 'repo_tester_5391',
+  //     description: '#1 pag-test',
+  //     eventInvolved: [Array],
+  //     id: 'repo_pag_test_01',
+  //     tags: [Array],
+  //     timestamp: '1613227831604',
+  //     value: 1
+  //   },
+  //   {
+  //     createdAt: '1613227839882',
+  //     creator: 'repo_tester_5391',
+  //     description: '#2 pag-test',
+  //     eventInvolved: [Array],
+  //     id: 'repo_pag_test_02',
+  //     tags: [Array],
+  //     timestamp: '1613227839882',
+  //     value: -1
+  //   }
+  // ],
+  //   hasMore: true,
+  //   cursor: 2
+  // }
+  it('should do paginated entity search: cursor=0 pagesize=2', async () =>
     repo
-      .getPaginatedEntityById({ cursor: 0, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, items } }) => {
-        expect(total).toEqual(5);
-        expect(cursor).toEqual(2);
-        expect(hasMore).toBeTruthy();
-        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_01', 'repo_pag_test_02']);
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: '@id:repo_pag_test*',
+        cursor: 0,
+        pagesize: 2,
+        param: { sortBy: { field: 'ts', sort: 'ASC' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.cursor).toEqual(2);
+        expect(data.hasMore).toBeTruthy();
+        expect(data.items.map(({ id }) => id)).toEqual(['repo_pag_test_01', 'repo_pag_test_02']);
       }));
 
-  it('should getPaginatedEntityById: cursor=1 pagesize=2', async () =>
+  it('should do paginated entity search: cursor=1 pagesize=2', async () =>
     repo
-      .getPaginatedEntityById({ cursor: 1, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, items } }) => {
-        expect(total).toEqual(5);
-        expect(cursor).toEqual(3);
-        expect(hasMore).toBeTruthy();
-        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_02', 'repo_pag_test_03']);
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: '@id:repo_pag_test*',
+        cursor: 1,
+        pagesize: 2,
+        param: { sortBy: { field: 'ts', sort: 'ASC' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.cursor).toEqual(3);
+        expect(data.hasMore).toBeTruthy();
+        expect(data.items.map(({ id }) => id)).toEqual(['repo_pag_test_02', 'repo_pag_test_03']);
       }));
 
-  it('should getPaginatedEntityById: cursor=2 pagesize=2', async () =>
+  it('should do paginated entity search: cursor=2 pagesize=2', async () =>
     repo
-      .getPaginatedEntityById({ cursor: 2, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, items } }) => {
-        expect(total).toEqual(5);
-        expect(cursor).toEqual(4);
-        expect(hasMore).toBeTruthy();
-        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_03', 'repo_pag_test_04']);
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: '@id:repo_pag_test*',
+        cursor: 2,
+        pagesize: 2,
+        param: { sortBy: { field: 'ts', sort: 'ASC' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.cursor).toEqual(4);
+        expect(data.hasMore).toBeTruthy();
+        expect(data.items.map(({ id }) => id)).toEqual(['repo_pag_test_03', 'repo_pag_test_04']);
       }));
 
-  it('should getPaginatedEntityById: cursor=3 pagesize=2', async () =>
+  it('should do paginated entity search: cursor=0 pagesize=2', async () =>
     repo
-      .getPaginatedEntityById({ cursor: 3, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, items } }) => {
-        expect(total).toEqual(5);
-        expect(cursor).toEqual(5);
-        expect(hasMore).toBeFalsy();
-        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_04', 'repo_pag_test_05']);
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: '@id:repo_pag_test*',
+        cursor: 3,
+        pagesize: 2,
+        param: { sortBy: { field: 'ts', sort: 'ASC' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.cursor).toEqual(5);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.items.map(({ id }) => id)).toEqual(['repo_pag_test_04', 'repo_pag_test_05']);
       }));
 
-  it('should getPaginatedEntityById: cursor=4 pagesize=2', async () =>
+  it('should do paginated entity search: cursor=0 pagesize=2', async () =>
     repo
-      .getPaginatedEntityById({ cursor: 4, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, items } }) => {
-        expect(total).toEqual(5);
-        expect(cursor).toEqual(5);
-        expect(hasMore).toBeFalsy();
-        expect(items.map(({ id }) => id)).toEqual(['repo_pag_test_05']);
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: '@id:repo_pag_test*',
+        cursor: 4,
+        pagesize: 2,
+        param: { sortBy: { field: 'ts', sort: 'ASC' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toEqual(5);
+        expect(data.cursor).toEqual(5);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.items.map(({ id }) => id)).toEqual(['repo_pag_test_05']);
       }));
 
-  it('should getPaginatedEntityById: cursor=5 pagesize=2', async () =>
+  it('should do paginated entity search: cursor=0 pagesize=2', async () =>
     repo
-      .getPaginatedEntityById({ cursor: 5, pagesize: 2 }, 'repo_pag_test*')
-      .then(({ data: { total, hasMore, cursor, items } }) => {
-        expect(total).toEqual(5);
-        expect(cursor).toBeNull();
-        expect(hasMore).toBeFalsy();
-        expect(items.map(({ id }) => id)).toEqual([]);
+      .fullTextSearchEntity<OutputCounter>({
+        entityName,
+        query: '@id:repo_pag_test*',
+        cursor: 5,
+        pagesize: 2,
+        param: { sortBy: { field: 'ts', sort: 'ASC' } },
+      })
+      .then(({ data, status }) => {
+        expect(status).toEqual('OK');
+        expect(data.total).toBe(5);
+        expect(data.cursor).toBe(null);
+        expect(data.hasMore).toBeFalsy();
+        expect(data.items).toEqual([]);
       }));
 });
-

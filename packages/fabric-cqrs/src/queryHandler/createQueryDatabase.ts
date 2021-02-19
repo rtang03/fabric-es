@@ -1,442 +1,364 @@
 import util from 'util';
-import type { Redis } from 'ioredis';
-import assign from 'lodash/assign';
 import filter from 'lodash/filter';
-import flatten from 'lodash/flatten';
 import groupBy from 'lodash/groupBy';
 import isEqual from 'lodash/isEqual';
-import keys from 'lodash/keys';
-import values from 'lodash/values';
-import { Commit, QueryDatabase, trackingReducer } from '../types';
-import { isCommit, getLogger } from '../utils';
+import { FTSearchParameters, Redisearch } from 'redis-modules-sdk';
+import { Commit, HandlerResponse, trackingReducer } from '../types';
+import { getLogger, isCommit } from '../utils';
 import {
-  arraysToCommitRecords,
-  fullTextSearchAddCommit,
-  fullTextSearchAddEntity,
-  doSearch,
-  pipelineExecute,
-  sizeOfSearchResult,
-} from '.';
+  INVALID_ARG,
+  NO_RECORDS,
+  QUERY_ERR,
+  REDIS_ERR,
+  REDUCE_ERR,
+  REPO_NOT_FOUND,
+} from './constants';
+import { commitSearchDefinition, postSelector, preSelector } from './model';
+import type { CommitInRedis, OutputCommit, QueryDatabase, RedisRepository } from './types';
+import { createNotificationCenter, createRedisRepository } from '.';
 
 /**
- * @about Create query database
- * @params redis
+ * @about create query database
+ * @params redisearch client
  * @returns [[QueryDatabase]]
  */
-export const createQueryDatabase: (redis: Redis) => QueryDatabase = (redis) => {
-  const logger = getLogger({ name: '[query-handler] createQueryDatabase.js' });
-  const countNonNull = (deletedItems: number[][]) =>
-    flatten(deletedItems)
-      .filter((item) => !!item)
-      .reduce((prev, curr) => prev + curr, 0);
-  const getHistory = (commits: Commit[]): any[] => {
+export const createQueryDatabase: (
+  client: Redisearch,
+  repos: Record<string, RedisRepository<any>>,
+  option?: { debug?: boolean; notifyExpiryBySec?: number }
+) => QueryDatabase = (
+  client,
+  repos,
+  { debug, notifyExpiryBySec } = { debug: false, notifyExpiryBySec: 86400 }
+) => {
+  const logger = getLogger({ name: '[query-handler] createQueryDatabase.js', target: 'console' });
+  const commitRepo = createRedisRepository<Commit, CommitInRedis, OutputCommit>({
+    client,
+    kind: 'commit',
+    fields: commitSearchDefinition,
+    preSelector,
+    postSelector,
+    entityName: 'commit',
+  });
+
+  const notificationCenter = createNotificationCenter(client);
+
+  // add built-in commit repo
+  const allRepos = Object.assign({}, repos, { commit: commitRepo });
+
+  const getHistory = (commits: (Commit | OutputCommit)[]): any[] => {
     const history = [];
-    commits.forEach(({ events }) => events.forEach((item) => history.push(item)));
+    commits.forEach(({ events }) => events.forEach((event) => history.push(event)));
     return history;
   };
 
+  const deleteItems = async <TItem>(repo: RedisRepository<TItem>, pattern: string) => {
+    const [errors, count] = await repo.deleteItemsByPattern(pattern);
+    const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
+
+    return isError
+      ? {
+          status: 'ERROR' as any,
+          message: `${count} record(s) deleted`,
+          errors,
+        }
+      : {
+          status: 'OK' as any,
+          message: `${count} record(s) deleted`,
+          data: count,
+        };
+  };
+
+  const queryCommit = async (pattern, args) => {
+    const [errors, data] = await commitRepo.queryCommitsByPattern(
+      commitRepo.getPattern(pattern, args)
+    );
+    const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
+
+    debug && console.debug(util.format('returns data, %j', data));
+    debug && console.debug(util.format('returns error, %j', errors));
+
+    return isError
+      ? { status: 'ERROR' as any, message: QUERY_ERR, errors }
+      : { status: 'OK' as any, message: `${data.length} record(s) returned`, data };
+  };
+
+  const doSearch: <T>(option: {
+    repo: RedisRepository<T>;
+    kind: 'commit' | 'entity';
+    query: string;
+    param: FTSearchParameters;
+    countTotalOnly: boolean;
+  }) => Promise<HandlerResponse> = async ({ repo, kind, query, param, countTotalOnly }) => {
+    const { search, getIndexName } = repo;
+    const index = getIndexName();
+    const [errors, count, data] = await search({
+      countTotalOnly,
+      kind,
+      index,
+      query,
+      param,
+      restoreFn: kind === 'entity' && repo.getPostSelector(),
+    });
+    const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
+
+    debug && console.debug(util.format('returns data, %j', data));
+    debug && console.debug(util.format('returns error, %j', errors));
+
+    return isError
+      ? { status: 'ERROR', message: 'search error', errors }
+      : {
+          status: 'OK',
+          message: `${count} record(s) returned`,
+          data: countTotalOnly ? count : data,
+        };
+  };
+
   return {
+    clearNotification: async (option) => notificationCenter.clearNotification(option),
+    clearNotifications: async (option) => notificationCenter.clearNotifications(option),
     deleteCommitByEntityId: async ({ entityName, id }) => {
-      if (!entityName || !id) throw new Error('invalid input argument');
+      if (!entityName || !id) throw new Error(INVALID_ARG);
 
-      // use pattern-based search
-      const pattern = `${entityName}::${id}::*`;
-      let result: number;
-
-      try {
-        const redisResult = await pipelineExecute(redis, 'DEL', pattern);
-        result = countNonNull(redisResult);
-      } catch (e) {
-        logger.error(util.format('unknown redis error, %j', e));
-        throw e;
-      }
-      return {
-        status: 'OK',
-        message: `${entityName}::${id}: ${result} records are removed`,
-        result,
-      };
+      return deleteItems(
+        commitRepo,
+        commitRepo.getPattern('COMMITS_BY_ENTITYNAME_ENTITYID', [entityName, id])
+      );
     },
     deleteCommitByEntityName: async ({ entityName }) => {
-      if (!entityName) throw new Error('invalid input argument');
+      if (!entityName) throw new Error(INVALID_ARG);
 
-      const pattern = `${entityName}::*`;
-      let result: number;
-
-      try {
-        const redisResult = await pipelineExecute(redis, 'DEL', pattern);
-        result = countNonNull(redisResult);
-      } catch (e) {
-        logger.error(util.format('unknown redis error, %j', e));
-        throw e;
-      }
-      return {
-        status: 'OK',
-        message: `entityName ${entityName}: ${result} record(s) is removed`,
-        result,
-      };
+      return deleteItems(commitRepo, commitRepo.getPattern('COMMITS_BY_ENTITYNAME', [entityName]));
     },
+    deleteEntityByEntityName: async <TEntity>({ entityName }) => {
+      if (!entityName) throw new Error(INVALID_ARG);
+      const entityRepo = allRepos[entityName];
+
+      if (!entityRepo) throw new Error(REPO_NOT_FOUND);
+
+      return deleteItems<TEntity>(
+        entityRepo,
+        entityRepo.getPattern('ENTITIES_BY_ENTITYNAME', [entityName])
+      );
+    },
+    fullTextSearchCommit: async ({ query, param, countTotalOnly }) => {
+      if (!query) throw new Error(INVALID_ARG);
+
+      return doSearch<OutputCommit>({
+        repo: commitRepo,
+        countTotalOnly,
+        kind: 'commit',
+        query,
+        param,
+      });
+    },
+    fullTextSearchEntity: async <TEntity>({ entityName, query, param, countTotalOnly }) => {
+      if (!query || !entityName) throw new Error(INVALID_ARG);
+
+      const repo = allRepos[entityName];
+      if (!repo) throw new Error(REPO_NOT_FOUND);
+
+      return doSearch<TEntity>({ repo, countTotalOnly, kind: 'entity', query, param });
+    },
+    getNotification: async ({ creator, entityName, id, commitId }) =>
+      notificationCenter.getNotification({ creator, entityName, id, commitId }),
+    getNotificationsByFields: async ({ creator, entityName, id }) =>
+      notificationCenter.getNotificationsByFields({ creator, entityName, id }),
+    getRedisCommitRepo: () => commitRepo,
     queryCommitByEntityId: async ({ entityName, id }) => {
-      if (!entityName || !id) throw new Error('invalid input argument');
+      if (!entityName || !id) throw new Error(INVALID_ARG);
 
-      const pattern = `${entityName}::${id}::*`;
-      let commitArrays: string[][];
-      let result: Commit[];
-
-      try {
-        commitArrays = await pipelineExecute(redis, 'GET', pattern);
-      } catch (e) {
-        logger.error(util.format('unknown redis error, %j', e));
-        throw e;
-      }
-
-      if (commitArrays.length === 0)
-        return { status: 'OK', message: `queryByEntityId: 0 record is returned`, result: [] };
-
-      try {
-        result = values(arraysToCommitRecords(commitArrays));
-      } catch (e) {
-        logger.error(util.format('fail to parse json, %j', e));
-        throw e;
-      }
-
-      return {
-        status: 'OK',
-        message: `${Object.keys(result).length} records are returned`,
-        result,
-      };
+      return queryCommit('COMMITS_BY_ENTITYNAME_ENTITYID', [entityName, id]);
     },
     queryCommitByEntityName: async ({ entityName }) => {
-      if (!entityName) throw new Error('invalid input argument');
+      if (!entityName) throw new Error(INVALID_ARG);
 
-      const pattern = `${entityName}::*::*`;
-      let commitArrays: string[][];
-      let result: Commit[];
-
-      try {
-        // retrieve commit by pattern
-        commitArrays = await pipelineExecute(redis, 'GET', pattern);
-      } catch (e) {
-        logger.error(util.format('unknown redis error, %j', e));
-        throw e;
-      }
-
-      try {
-        // convert from record to arrays
-        result = values(arraysToCommitRecords(commitArrays));
-      } catch (e) {
-        logger.error(util.format('fail to parse json, %j', e));
-        throw e;
-      }
-      return {
-        status: 'OK',
-        message: `${Object.keys(result).length} records are returned`,
-        result,
-      };
+      return queryCommit('COMMITS_BY_ENTITYNAME', [entityName]);
     },
     mergeCommit: async ({ commit }) => {
-      // merge one commit
-      if (!isCommit(commit)) throw new Error('invalid input argument');
-
-      const redisKey = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
-      let status;
+      if (!isCommit(commit)) throw new Error(INVALID_ARG);
 
       try {
-        status = await redis.set(redisKey, JSON.stringify(commit));
-
-        // secondary index
-        await fullTextSearchAddCommit(redisKey, commit, redis);
+        const key = allRepos['commit'].getKey(commit);
+        const status = await allRepos['commit'].hmset(commit);
+        return {
+          status,
+          message: `${key} merged successfully`,
+          data: [key],
+        };
       } catch (e) {
-        logger.error(util.format('unknown redis error, %j', e));
+        logger.error(util.format('mergeCommit - %s, %j', REDIS_ERR, e));
         throw e;
       }
-      return { status, message: `${redisKey} merged successfully`, result: [redisKey] };
     },
     mergeCommitBatch: async ({ entityName, commits }) => {
-      // merge batch of commits
-      if (!entityName || !commits) throw new Error('invalid input argument');
-
-      const map: Record<string, string> = {};
-      const entityNameKeys = [];
-      let status;
-
+      if (!entityName || !commits) throw new Error(INVALID_ARG);
       if (isEqual(commits, {}))
         return {
           status: 'OK',
-          message: 'no commit record exists',
-          result: [],
+          message: NO_RECORDS,
+          data: [],
         };
 
-      try {
-        for await (const [commitId, commit] of Object.entries(commits)) {
-          // construct primary key-value map
-          const redisKey = `${entityName}::${commit.entityId}::${commitId}`;
-          map[redisKey] = JSON.stringify(commit);
-          entityNameKeys.push(redisKey);
-
-          // secondary index
-          await fullTextSearchAddCommit(redisKey, commit, redis);
-        }
-        status = await redis.mset(map);
-      } catch (e) {
-        logger.error(util.format('unknown redis error, %j', e));
-        throw e;
-      }
-
-      logger.debug(`entityName: ${entityName} mergBatch: ${status}`);
-
-      return {
-        status,
-        message: `${entityNameKeys.length} records merged successfully`,
-        result: entityNameKeys,
-      };
-    },
-    mergeEntity: async <TEntity>({ commit, reducer }) => {
-      // merge the commit, to upsert the entity
-      if (!isCommit(commit) || !reducer) throw new Error('invalid input argument');
-
-      const entityName = commit.entityName;
-      const entityId = commit.entityId;
-
-      let statusCommit;
-      let statusEntity;
-      let statusCIdx;
-      let statusEIdx;
-      let redisKeyCommit: string;
-      let redisKeyEntity: string;
-
-      try {
-        // retrieve existing commit
-        const commitsInRedis = await pipelineExecute(redis, 'GET', `${entityName}::${entityId}::*`);
-        const commitToMerge: Record<string, Commit> = { [commit.commitId]: commit };
-
-        // merge existing record with newly arrived commit
-        const mergedResult: Record<string, Commit> = isEqual(commitsInRedis, [])
-          ? commitToMerge
-          : assign({}, arraysToCommitRecords(commitsInRedis), commitToMerge);
-
-        // compute events history, returning comma separator
-        const _event: string = flatten(values(mergedResult).map(({ events }) => events))
-          .map(({ type }) => type)
-          .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
-
-        // compute the timeline of event history
-        const _timeline: string = flatten(values(mergedResult).map(({ events }) => events))
-          .map(({ payload }) => payload._ts)
-          .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
-
-        const currentState = reducer(getHistory(values(mergedResult)));
-        if (currentState) Object.assign(currentState, trackingReducer(values(mergedResult)));
-
-        currentState._event = _event;
-        currentState._commit = keys(mergedResult).map(
-          (commitId) => `${entityName}::${entityId}::${commitId}`
-        );
-        currentState._entityName = entityName;
-        currentState._timeline = _timeline;
-        // currentState._reducer = reducer.toString();
-
-        // if no id existed in the computed entity, will be considered as error
-        if (!currentState?.id) {
-          return {
-            status: 'ERROR',
-            message: 'fail to reduce to currentState',
-            error: new Error(
-              `fail to reduce, entityName: ${commit.entityName} entityId: ${commit.id}, commitid: ${commit.commitId}`
-            ),
-          };
-        }
-
-        redisKeyEntity = `${commit.entityName}::${commit.entityId}`;
-
-        // (1) add newly computed entity
-        statusEntity = await redis.set(redisKeyEntity, JSON.stringify(currentState));
-
-        // (2) add new commit
-        redisKeyCommit = `${commit.entityName}::${commit.entityId}::${commit.commitId}`;
-        statusCommit = await redis.set(redisKeyCommit, JSON.stringify(commit));
-
-        // (3) add to secondary index: eidx
-        statusEIdx = await fullTextSearchAddEntity<TEntity>(redisKeyEntity, currentState, redis);
-
-        // (4) add to secondary index: cidx
-        statusCIdx = await fullTextSearchAddCommit(redisKeyCommit, commit, redis);
-
-        // (5) add read notification based on _creator
-        const notificationKey = `noti::${currentState._creator}::${entityName}::${commit.id}::${commit.commitId}`;
-        await redis.set(notificationKey, 1, 'EX', 86400); // expire in 1 day);
-      } catch (e) {
-        if (!e.message.startsWith('[lifecycle]')) logger.error(util.format('unknown redis error, %j', e));
-        throw e;
-      }
-      return {
-        status: 'OK',
-        message: `${redisKeyEntity} merged successfully`,
-        result: [
-          { key: redisKeyEntity, status: statusEntity },
-          { key: redisKeyCommit, status: statusCommit },
-          { key: `eidx::${redisKeyEntity}`, status: statusEIdx },
-          { key: `cidx::${redisKeyCommit}`, status: statusCIdx },
-        ],
-      };
-    },
-    mergeEntityBatch: async <TEntity>({ entityName, commits, reducer }) => {
-      if (!entityName || !commits || !reducer) throw new Error('invalid input argument');
-
-      const result = [];
-      if (isEqual(commits, {}))
-        return {
-          status: 'OK',
-          message: 'no commit record exists',
-          result: [],
-        };
-
-      const filterCommits = filter(commits, (item) => entityName === item.entityName);
-      const group: Record<string, Commit[]> = groupBy(filterCommits, ({ id }) => id);
-      const entities = [];
+      const data = [];
       const error = [];
-
-      keys(group).forEach((id) => {
-        const reduced = reducer(getHistory(values(group[id])));
-
-        // compute events history, returning commit separator
-        const _event = flatten(group[id].map(({ events }) => events))
-          .map(({ type }) => type)
-          .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
-
-        // compute the timeline of event history
-        const _timeline = flatten(group[id].map(({ events }) => events))
-          .map(({ payload }) => payload._ts)
-          .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null);
-
-        const _commit = flatten(group[id]).map(
-          ({ commitId }) => `${entityName}::${id}::${commitId}`
-        );
-
-        // if no id existed in the computed entity, will be considered as error
-        if (reduced?.id)
-          entities.push(
-            assign(
-              { id },
-              { _event },
-              { _commit },
-              { _timeline },
-              { _entityName: entityName },
-              reduced,
-              trackingReducer(values(group[id]))
-            )
-          );
-        else error.push({ id });
-      });
-
       try {
-        for await (const entity of entities) {
-          // (1) add entity
-          const redisKey = `${entityName}::${entity.id}`;
-          const status = await redis.set(redisKey, JSON.stringify(entity));
-          result.push({ key: redisKey, status });
-
-          // (2) secondary index
-          await fullTextSearchAddEntity<TEntity>(redisKey, entity, redis);
+        for await (const commit of Object.values(commits)) {
+          const status = await allRepos['commit'].hmset(commit);
+          const key = allRepos['commit'].getKey(commit);
+          if (status === 'OK') data.push(key);
+          else error.push(key);
         }
       } catch (e) {
-        logger.error(util.format('unknown redis error, %j', e));
+        logger.error(util.format('mergeCommitBatch - %s, %j', REDIS_ERR, e));
         throw e;
       }
+      debug && console.debug(util.format('data returns: %j', data));
+      debug && console.debug(util.format('error returns: %j', error));
 
       return {
         status: error.length === 0 ? 'OK' : 'ERROR',
-        message: `${result.length} entitie(s) are merged`,
-        result,
-        error: error.length === 0 ? null : error,
+        message: `${data.length} record(s) merged successfully`,
+        data,
+        error,
+        errors: error,
       };
     },
-    fullTextSearchCommit: async ({ query, countTotalOnly }) => {
-      if (!query) throw new Error('invalid input argument');
+    mergeEntity: async ({ commit, reducer }) => {
+      const { entityName, entityId, commitId } = commit;
+      const entityRepo = allRepos[entityName];
+      const entityKeyInRedis = allRepos[entityName].getKey(commit);
+      const commitKeyInRedis = allRepos['commit'].getKey(commit);
 
-      return countTotalOnly
-        ? sizeOfSearchResult(query, { redis, logger, index: 'cidx' })
-        : doSearch<Commit>(query, { redis, logger, index: 'cidx' });
-    },
-    fullTextSearchEntity: async <TEntity>({ query, countTotalOnly }) => {
-      if (!query) throw new Error('invalid input argument');
+      if (!entityRepo) throw new Error(REPO_NOT_FOUND);
+      if (!isCommit(commit) || !reducer) throw new Error(INVALID_ARG);
 
-      return countTotalOnly
-        ? sizeOfSearchResult(query, { redis, logger, index: 'eidx' })
-        : doSearch<TEntity>(query, { redis, logger, index: 'eidx' });
-    },
-    clearNotification: async ({ creator, entityName }) => {
-      return null;
-    },
-    getNotification: async ({ creator, entityName, id, commitId, expireNow }) => {
-      const pattern = commitId
-        ? `noti::${creator}::${entityName}::${id}::${commitId}`
-        : id
-        ? `noti::${creator}::${entityName}::${id}::*`
-        : entityName
-        ? `noti::${creator}::${entityName}::*`
-        : `noti::${creator}::*`;
+      // step 1: retrieve existing commit
+      const pattern = commitRepo.getPattern('COMMITS_BY_ENTITYNAME_ENTITYID', [
+        entityName,
+        entityId,
+      ]);
 
-      const result = [];
+      const [errors, restoredCommits] = await commitRepo.queryCommitsByPattern(pattern);
+      const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
 
-      try {
-        if (commitId) {
-          // based on one commitId
-          if (expireNow) {
-            await redis.del(pattern);
-          } else await redis.getset(pattern, '0');
+      debug && console.debug('restored commits, %j', restoredCommits);
 
-          result.push({ [pattern]: '0' });
-        } else {
-          // based on pattern
-          const keys = await redis.keys(pattern);
-          for (const key of keys.sort().reverse())
-            if (expireNow) {
-              await redis.del(key);
-              result.push({ [key]: '0' });
-            } else result.push({ [key]: await redis.get(key) });
-        }
-      } catch (e) {
-        logger.error(util.format('unknown redis error, %j', e));
-        throw e;
-      }
-
-      return { status: 'OK', result, message: `${keys.length} record(s) returned` };
-    },
-    queryEntity: async ({ entityName, where }) => {
-      // queryEntity provides alternative implementation of getProjection
-      let entityArrays: string[][];
-      let entities: any[];
-      const result: any = {};
-
-      try {
-        entityArrays = await pipelineExecute(redis, 'GET_ENTITY_ONLY', `${entityName}::*`);
-      } catch (e) {
-        logger.error(util.format('unknown redis error, %j', e));
-        throw e;
-      }
-
-      if (entityArrays.length === 0)
+      if (isError)
         return {
-          status: 'OK',
-          message: 'no record exists',
-          result: null,
+          status: 'ERROR',
+          message: 'fail to retrieve existing commit',
+          errors,
         };
 
+      // step 2: merge existing record with newly retrieved commit
+      const history: (Commit | OutputCommit)[] = [...restoredCommits, commit];
+
+      // step 3: compute the timeline of event history
+      const state = reducer(getHistory(history));
+      /* e.g. newly computed state =
+      {
+        id: 'qh_proj_test_001',
+        desc: 'query handler #2 proj',
+        tag: 'projection',
+        value: 2,
+        _ts: 1590739000,
+        _created: 1590738792,
+        _creator: 'org1-admin'
+      }
+      */
+
+      // step 4 add Tracking Info
+      // TODO: need Paul's help about how to represent tracking information in Redis
+      // const newComputedState = Object.assign({}, state, trackingReducer(history));
+
+      debug && console.debug(util.format('entity being merged, %j', state));
+
+      // step 5: compute events history, returning comma separator
+      if (!state?.id) {
+        return {
+          status: 'ERROR',
+          message: REDUCE_ERR,
+          errors: [new Error(`fail to reduce, ${entityName}:${entityId}:${commitId}`)],
+        };
+      }
+
+      const data = [];
       try {
-        entities = flatten(entityArrays)
-          .filter((item) => !!item)
-          .map((item) => JSON.parse(item));
+        let status;
+        // step 6: add entity
+        status = await allRepos[entityName].hmset(state, history);
+        data.push({ key: entityKeyInRedis, status });
+
+        // step 7: add commit
+        status = await allRepos['commit'].hmset(commit);
+        data.push({ key: commitKeyInRedis, status });
+
+        // step 8: add notification flag
+        await notificationCenter.notify({
+          creator: state._creator,
+          entityName,
+          id: entityId,
+          commitId,
+        });
       } catch (e) {
-        logger.error(util.format('fail to parse entity, %e', e));
+        if (!e.message.startsWith('[lifecycle]'))
+          logger.error(util.format('mergeEntity - %s, %j', REDIS_ERR, e));
         throw e;
       }
 
-      filter(entities, where).forEach((entity) => (result[entity.id] = entity));
+      debug && console.debug(util.format('data returns: %j', data));
+
+      return { status: 'OK', message: `${entityKeyInRedis} merged successfully`, data };
+    },
+    mergeEntityBatch: async ({ entityName, commits, reducer }) => {
+      if (!entityName || !commits || !reducer) throw new Error(INVALID_ARG);
+
+      const entityRepo = allRepos[entityName];
+      if (!entityRepo) throw new Error(REPO_NOT_FOUND);
+
+      if (isEqual(commits, {}))
+        return {
+          status: 'OK',
+          message: NO_RECORDS,
+          data: [],
+        };
+
+      // safety filter: ensure only relevant entityName is processed
+      const filteredCommits = filter(commits, { entityName });
+      const groupByEntityId: Record<string, Commit[]> = groupBy(filteredCommits, ({ id }) => id);
+      const errors = [];
+      const entities = Object.entries(groupByEntityId)
+        .map(([entityId, commits]) => {
+          const state = reducer(getHistory(commits));
+          const keyOfEntityInRedis = allRepos[entityName].getKey(commits[0]);
+          // if reducer fails
+          !state && errors.push(entityId);
+          return { state, commits, key: keyOfEntityInRedis };
+        })
+        .filter(({ state }) => !!state); // ensure no null; if error happens when reducing
+
+      debug && console.debug(util.format('errors found, %j', errors));
+
+      // add entity. Notice that the original orginal commit is not saved.
+      const data = [];
+      for await (const { state, commits, key } of entities) {
+        try {
+          const status = await allRepos[entityName].hmset(state, commits);
+          data.push({ key, status });
+        } catch (e) {
+          logger.error(util.format('mergeEntityBatch - %s, %j', REDIS_ERR, e));
+          throw e;
+        }
+      }
+
+      debug && console.debug(util.format('data returns: %j', data));
 
       return {
-        status: 'OK',
-        message: `${keys(result).length} record(s) returned`,
-        result: isEqual(result, {}) ? null : Object.values(result),
+        status: errors.length === 0 ? 'OK' : 'ERROR',
+        message: `${data.length} record(s) merged`,
+        data,
+        errors: errors.length === 0 ? null : errors,
       };
     },
   };

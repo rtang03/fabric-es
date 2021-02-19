@@ -10,11 +10,6 @@ jobs:
   build:
     name: CI
     runs-on: ubuntu-latest
-    # services:
-    #   postgres:
-    #     image: postgres:11.5
-    #     ports: [ "5432:5432" ]
-    #     options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -49,9 +44,9 @@ jobs:
           npm rebuild grpc
           # npm rebuild grpc --target=14.0.0 --target_platform=linux --target_arch=x64 --target_libc=glibc
           nvm use v12.16.1
-      - name: lint auth, chaincode, fabric-cqrs, operator, gateway-lib, proxy
+      - name: fabric-cqrs, operator, gateway-lib, tester
         run: yarn lint:lib
-      - name: lint gw-org*, model-*, ui-account
+      - name: lint gw-org*, model-*
         run: yarn lint:app
       - name: Run tsc for all packages
         run: yarn tsc:all

@@ -34,7 +34,12 @@ export const getMockRepository = <TEntity, TEvent>(
   reducer: (history) => TEntity
 ): Pick<
   Repository<TEntity, TEvent>,
-  'create' | 'getById' | 'getByEntityName' | 'getCommitById' | 'find' | 'getEntityName'
+  | 'create'
+  | 'getById'
+  | 'getByEntityName'
+  | 'getCommitById'
+  | 'getEntityName'
+  | 'fullTextSearchEntity'
 > => ({
   create: ({ id, enrollmentId }) => ({
     save: ({ events }) => {
@@ -106,21 +111,23 @@ export const getMockRepository = <TEntity, TEvent>(
         50
       );
     }),
-  find: ({ byId, byDesc }) =>
-    new Promise<HandlerResponse<TEntity[]>>((resolve) => {
+  getEntityName: () => entityName,
+  // WARN: it partially mocks fulltextsearch, "query" need EXACT match; no wildcard. Cursor is NOT correct.
+  fullTextSearchEntity: ({ entityName, query, cursor, pagesize }) =>
+    new Promise((resolve) => {
       setTimeout(() => {
-        const entities: TEntity[] = getEntities({
-          entityName,
-          reducer,
-          mockdb,
+        const items = getEntities({ entityName, reducer, mockdb }).filter((entity) =>
+          entity.toString().contains(query)
+        );
+        resolve({
+          status: 'OK',
+          data: {
+            total: items.length,
+            cursor: 10,
+            hasMore: false,
+            items,
+          },
         });
-        const entityArray: any[] = byDesc ? [] : byId ? filter(entities, { id: byId }) : [];
-        const data = {};
-
-        entityArray.forEach((entity) => (data[`${entityName}::${entity.id}`] = entity));
-
-        resolve({ data: values(data), status: 'OK' });
       }, 50);
     }),
-  getEntityName: () => entityName,
 });

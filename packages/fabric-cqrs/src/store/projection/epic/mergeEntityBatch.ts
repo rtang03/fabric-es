@@ -4,7 +4,8 @@ import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
-import type { QueryDatabase, Reducer } from '../../../types';
+import type { QueryDatabase } from '../../../queryHandler/types';
+import type { Reducer } from '../../../types';
 import { action } from '../action';
 import type { MergeEntityBatchAction } from '../types';
 
@@ -38,10 +39,10 @@ export default (
         promise = reducer
           ? queryDatabase
               .mergeEntityBatch({ entityName, commits, reducer })
-              .then(({ result, status, error }) =>
+              .then(({ data, status, errors }) =>
                 status === 'OK'
-                  ? mergeEntityBatchSuccess({ tx_id, result })
-                  : mergeEntityBatchError({ tx_id, error })
+                  ? mergeEntityBatchSuccess({ tx_id, result: data })
+                  : mergeEntityBatchError({ tx_id, error: errors })
               )
               .catch((error) => {
                 logger.warn(

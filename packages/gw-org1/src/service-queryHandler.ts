@@ -1,17 +1,38 @@
 require('./env');
 import util from 'util';
-import { counterReducer, getReducer } from '@fabric-es/fabric-cqrs';
-import { createQueryHandlerService, getLogger } from '@fabric-es/gateway-lib';
-import { User, UserEvents, userReducer } from '@fabric-es/model-common';
 import {
+  counterReducer,
+  getReducer,
+  counterPreSelector,
+  counterPostSelector,
+  counterIndexDefinition,
+} from '@fabric-es/fabric-cqrs';
+import type { Counter, CounterInRedis, OutputCounter } from '@fabric-es/fabric-cqrs';
+import { createQueryHandlerService, getLogger } from '@fabric-es/gateway-lib';
+import { userReducer, userIndexDefinition } from '@fabric-es/model-common';
+import type { User, UserEvents } from '@fabric-es/model-common';
+import {
+  docContentsReducer,
+  documentReducer,
+  postSelector as docPostSelector,
+  preSelector as docPreSelector,
+  documentIndexDefinition,
+} from '@fabric-es/model-document';
+import type {
   DocContents,
   DocContentsEvents,
-  docContentsReducer,
   Document,
   DocumentEvents,
-  documentReducer,
+  OutputDocument,
+  DocumentInRedis,
 } from '@fabric-es/model-document';
-import { Loan, LoanEvents, loanReducer } from '@fabric-es/model-loan';
+import {
+  loanReducer,
+  loanIndexDefinition,
+  postSelector as loanPostSelector,
+  preSelector as loanPreSelector,
+} from '@fabric-es/model-loan';
+import type { Loan, LoanEvents, LoanInRedis, OutputLoan } from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
 import type { RedisOptions } from 'ioredis';
 
@@ -48,19 +69,38 @@ void (async () => {
     counter: counterReducer,
   };
 
-  const { server, shutdown } = await createQueryHandlerService(
-    ['document', 'loan', 'docContents', 'user', 'counter'],
-    {
-      redisOptions,
-      asLocalhost: !(process.env.NODE_ENV === 'production'),
-      channelName: process.env.CHANNEL_NAME,
-      connectionProfile: process.env.CONNECTION_PROFILE,
-      enrollmentId: process.env.ORG_ADMIN_ID,
-      reducers,
-      wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
-      authCheck,
-    }
-  );
+  const { getServer, shutdown } = await createQueryHandlerService({
+    redisOptions,
+    asLocalhost: !(process.env.NODE_ENV === 'production'),
+    channelName: process.env.CHANNEL_NAME,
+    connectionProfile: process.env.CONNECTION_PROFILE,
+    enrollmentId: process.env.ORG_ADMIN_ID,
+    reducers,
+    wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
+    authCheck,
+  })
+    .addRedisRepository({ entityName: 'user', fields: userIndexDefinition })
+    .addRedisRepository<Document, DocumentInRedis, OutputDocument>({
+      entityName: 'document',
+      fields: documentIndexDefinition,
+      preSelector: docPreSelector,
+      postSelector: docPostSelector,
+    })
+    .addRedisRepository<Loan, LoanInRedis, OutputLoan>({
+      entityName: 'loan',
+      fields: loanIndexDefinition,
+      postSelector: loanPostSelector,
+      preSelector: loanPreSelector,
+    })
+    .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
+      entityName: 'counter',
+      fields: counterIndexDefinition,
+      postSelector: counterPostSelector,
+      preSelector: counterPreSelector,
+    })
+    .run();
+
+  const server = getServer();
 
   process.on(
     'SIGINT',

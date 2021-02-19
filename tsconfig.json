@@ -26,7 +26,6 @@
       "packages/**/*.js",
       "packages/fabric-cqrs/src/account/**/*",
       "packages/fabric-cqrs/src/store/**/*",
-      "packages/fabric-cqrs/src/unit-test-reducer/**/*",
       "packages/gateway-lib/src/**/query/*",
       "packages/gw-org1/src/**/*",
       "packages/gw-org2/src/**/*",

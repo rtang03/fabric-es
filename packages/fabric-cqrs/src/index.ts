@@ -2,6 +2,8 @@
  * @packageDocumentation
  * @hidden
  */
+import { createRedisRepository } from './queryHandler';
+
 export {
   getContract,
   getNetwork,
@@ -13,8 +15,9 @@ export {
   evaluate$,
 } from './services';
 export * from './types';
+export * from './queryHandler/types';
 export { isCommit, getHistory, getPaginated } from './utils';
-export { commitIndex, entityIndex, createQueryDatabase, createQueryHandler } from './queryHandler';
+export { createQueryDatabase, createRedisRepository, createQueryHandler } from './queryHandler';
 export {
   createRepository,
   createPrivateRepository,
@@ -23,6 +26,8 @@ export {
 } from './repository';
 
 import {
+  isOutputCounter,
+  OutputCounter,
   CounterCommands,
   Increment,
   Decrement,
@@ -30,8 +35,18 @@ import {
   CounterEvent,
   CounterEvents,
   reducer as counterReducer,
-} from './unit-test-reducer';
+  CounterInRedis,
+  counterIndexDefinition,
+  postSelector as counterPostSelector,
+  preSelector as counterPreSelector,
+} from './unit-test-counter';
 export {
+  isOutputCounter,
+  CounterInRedis,
+  counterPostSelector,
+  counterPreSelector,
+  counterIndexDefinition,
+  OutputCounter,
   CounterCommands,
   Counter,
   counterReducer,

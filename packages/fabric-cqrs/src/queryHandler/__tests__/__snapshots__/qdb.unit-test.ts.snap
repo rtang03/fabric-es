@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Projecion db test should fullTextSearchEntity by "de" 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "createdAt": "1590738792",
+      "creator": "org1-admin",
+      "description": "query handler #2 proj",
+      "eventInvolved": Array [
+        "Increment",
+        "Increment",
+      ],
+      "id": "qh_proj_test_001",
+      "tags": Array [
+        "projection",
+      ],
+      "timestamp": "1590739000",
+      "value": 2,
+    },
+    Object {
+      "createdAt": "1590740000",
+      "creator": "org1-admin",
+      "description": "query handler #5 proj",
+      "eventInvolved": Array [
+        "Increment",
+        "Increment",
+        "Increment",
+      ],
+      "id": "qh_proj_test_002",
+      "tags": Array [
+        "projection",
+      ],
+      "timestamp": "1590740002",
+      "value": 3,
+    },
+    Object {
+      "createdAt": "1590740003",
+      "creator": "org1-admin",
+      "description": "query handler #7 proj",
+      "eventInvolved": Array [
+        "Increment",
+        "Increment",
+      ],
+      "id": "qh_proj_test_003",
+      "tags": Array [
+        "projection",
+      ],
+      "timestamp": "1590740004",
+      "value": 2,
+    },
+  ],
+  "message": "3 record(s) returned",
+  "status": "OK",
+}
+`;

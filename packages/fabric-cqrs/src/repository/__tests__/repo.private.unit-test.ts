@@ -11,7 +11,7 @@ import { createPrivateRepository } from '..';
 import { registerUser } from '../../account';
 import { getNetwork } from '../../services';
 import type { PrivateRepository } from '../../types';
-import { Counter, CounterEvent, reducer } from '../../unit-test-reducer';
+import { Counter, CounterEvent, reducer } from '../../unit-test-counter';
 import { getLogger, isCommitRecord } from '../../utils';
 
 /**

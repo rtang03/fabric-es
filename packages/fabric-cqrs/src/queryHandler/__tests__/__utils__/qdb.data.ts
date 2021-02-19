@@ -50,7 +50,7 @@ export const commits = {
     entityName: 'test_proj',
     version: 0,
     commitId: '20200528133530001',
-    entityId: 'qh_proj_test_001',
+    entityId: 'qh_proj_test_002',
     mspId: 'Org1MSP',
     events: [
       {

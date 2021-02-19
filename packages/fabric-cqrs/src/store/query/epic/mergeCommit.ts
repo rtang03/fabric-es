@@ -3,7 +3,7 @@ import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
-import type { QueryDatabase } from '../../../types';
+import type { QueryDatabase } from '../../../queryHandler/types';
 import { action } from '../action';
 import type { MergeAction } from '../types';
 
@@ -21,7 +21,11 @@ export default (
       from(
         queryDatabase
           .mergeCommit({ commit })
-          .then(({ result }) => mergeCommitSuccess({ tx_id, result }))
+          .then(({ data, status, errors }) =>
+            status === 'OK'?
+            mergeCommitSuccess({ tx_id, result: data }):
+            mergeCommitError({ tx_id, error: errors })
+          )
           .catch((error) => {
             logger.error(
               util.format(

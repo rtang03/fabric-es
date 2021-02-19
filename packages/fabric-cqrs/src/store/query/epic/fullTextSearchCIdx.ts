@@ -3,7 +3,7 @@ import { ofType } from 'redux-observable';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import type { Logger } from 'winston';
-import type { QueryDatabase } from '../../../types';
+import type { QueryDatabase } from '../../../queryHandler/types';
 import { action } from '../action';
 import type { CIdxSearchAction } from '../types';
 
@@ -17,11 +17,15 @@ export default (
   action$.pipe(
     ofType(CIDX_SEARCH),
     map(({ payload }) => payload),
-    mergeMap(({ tx_id, args: { query, countTotalOnly } }) =>
+    mergeMap(({ tx_id, args: { query, param, countTotalOnly } }) =>
       from(
         queryDatabase
-          .fullTextSearchCommit({ query, countTotalOnly })
-          .then(({ result }) => searchSuccess({ tx_id, result }))
+          .fullTextSearchCommit({ query, param, countTotalOnly })
+          .then(({ data, status, errors }) =>
+            status === 'OK'
+              ? searchSuccess({ tx_id, result: data })
+              : searchError({ tx_id, error: errors })
+          )
           .catch((error) => {
             logger.error(
               util.format(

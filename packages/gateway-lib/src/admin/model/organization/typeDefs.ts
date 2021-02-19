@@ -1,5 +1,5 @@
 import { getLogger } from '../../../utils';
-import { catchErrors } from '../../../utils/catchErrors';
+import { catchResolverErrors } from '../../../utils/catchResolverErrors';
 import { Organization } from '.';
 
 export const OrgTypeDefsQuery = `
@@ -21,14 +21,14 @@ const logger = getLogger('organization/typeDefs.js');
 
 export const resolvers = {
   Query: {
-    us: catchErrors(
+    us: catchResolverErrors(
       async (__, _, { dataSources: { organization }, mspId }): Promise<Organization> =>
         organization.repo
           .getById({ id: mspId, enrollmentId: mspId })
           .then(({ currentState }) => currentState),
       { fcnName: 'us', logger, useAuth: false }
     ),
-    getOrgById: catchErrors(
+    getOrgById: catchResolverErrors(
       async (_, { mspId }, { dataSources: { organization } }): Promise<Organization> =>
         organization.repo
           .getById({ id: mspId, enrollmentId: mspId })
@@ -37,7 +37,7 @@ export const resolvers = {
     ),
   },
   Organization: {
-    __resolveReference: catchErrors(
+    __resolveReference: catchResolverErrors(
       async ({ mspId }, { dataSources: { organization } }, username): Promise<Organization> =>
         organization.repo
           .getById({ id: mspId, enrollmentId: username })

@@ -1,4 +1,5 @@
-import { Commit } from '../../types';
+import type { FTSearchParameters } from 'redis-modules-sdk';
+import type { Commit } from '../../types';
 
 export interface DeleteCommitByEntityIdAction {
   type: string;
@@ -18,6 +19,7 @@ export interface DeleteCommitByEntityNameAction {
     args: { entityName: string };
   };
 }
+
 export interface QueryByEntityNameAction {
   type: string;
   payload?: {
@@ -65,7 +67,8 @@ export interface CIdxSearchAction {
   payload?: {
     tx_id: string;
     args: {
-      query: string[];
+      query: string;
+      param?: FTSearchParameters;
       countTotalOnly?: boolean;
     };
   };
@@ -76,35 +79,68 @@ export interface EIdxSearchAction {
   payload?: {
     tx_id: string;
     args: {
-      query: string[];
+      entityName: string;
+      query: string;
+      param?: FTSearchParameters;
       countTotalOnly?: boolean;
     };
   };
 }
 
-export interface FindAction {
-  type: string;
-  payload?: {
-    tx_id: string;
-    args: {
-      entityName: string;
-      byId?: string;
-      byDesc?: string;
-      where?: any;
-    };
-  };
-}
-
-export interface NotifyAction {
+export interface GetNotificationsAction {
   type: string;
   payload?: {
     tx_id: string;
     args: {
       creator: string;
-      commitId?: string;
-      entityName?: string;
-      id?: string;
-      expireNow?: boolean;
+      entityName: string;
+      id: string;
     };
+  };
+}
+
+export interface GetNotificationAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: {
+      creator: string;
+      commitId: string;
+      entityName: string;
+      id: string;
+    };
+  };
+}
+
+export interface ClearNotificationsAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: {
+      creator: string;
+      entityName: string;
+      id: string;
+    };
+  };
+}
+
+export interface ClearNotificationAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: {
+      creator: string;
+      commitId: string;
+      entityName: string;
+      id: string;
+    };
+  };
+}
+
+export interface DeleteEntityByEntityNameAction {
+  type: string;
+  payload?: {
+    tx_id: string;
+    args: { entityName: string };
   };
 }
