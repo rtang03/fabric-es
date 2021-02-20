@@ -4,6 +4,7 @@
  * For illustration purpose, the [[Counter]].value is re-named to [[CounterInRedis]].val. And,
  * [[Counter]].desc is re-name to [[CounterInRedis]].de.
  * And, all in-redis object is "string" type.
+ * @ignore
  */
 export type CounterInRedis = {
   created: number;

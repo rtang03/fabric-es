@@ -19,7 +19,6 @@ import {
 import { isCommit, isCommitRecord, waitForSecond } from '../../utils';
 import type { QueryHandler, RedisRepository, OutputCommit } from '../types';
 
-
 /**
  * ./dn-run.1-db-red-auth.sh
  */

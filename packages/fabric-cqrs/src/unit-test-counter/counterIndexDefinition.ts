@@ -6,6 +6,7 @@ import type { CounterIndexDefintion } from './types';
  * - altName: rename the key name after writing to Redis
  * - index: indexing rule
  * - transform: transformation function
+ * @ignore
  */
 export const counterIndexDefinition: CounterIndexDefintion = {
   // common fields

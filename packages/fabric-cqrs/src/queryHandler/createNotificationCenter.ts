@@ -5,6 +5,10 @@ import { INVALID_ARG, REDIS_ERR } from './constants';
 import { pipelineExec } from './pipelineExec';
 import type { NotificationCenter } from './types';
 
+/**
+ * @about
+ * @param client Redisearch client
+ */
 export const createNotificationCenter: (client: Redisearch) => NotificationCenter = (client) => {
   const logger = getLogger({
     name: '[query-handler] createNotificationCenter.js',

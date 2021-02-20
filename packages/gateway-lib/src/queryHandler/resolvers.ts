@@ -21,7 +21,7 @@ const DEV = 'DEV';
 const logger = getLogger('[gateway-lib] queryHandler/resolvers.js');
 
 /**
- * @about query handler resolvers
+ * @about query handler resolvers.
  */
 export const resolvers = {
   JSON: GraphQLJSON,

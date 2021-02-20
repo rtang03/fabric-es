@@ -5,6 +5,7 @@ import type { Counter, CounterInRedis } from './types';
 
 /**
  * @see counterSearchDefinition.ts
+ * @ignore
  * @input example [[Counter]]
  * ```typescript
  * {

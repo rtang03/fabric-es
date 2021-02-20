@@ -19,7 +19,9 @@ import { createNotificationCenter, createRedisRepository } from '.';
 
 /**
  * @about create query database
- * @params redisearch client
+ * @example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
+ * @params client redisearch client
+ * @params repos RedisRepositories
  * @returns [[QueryDatabase]]
  */
 export const createQueryDatabase: (
@@ -75,9 +77,6 @@ export const createQueryDatabase: (
     );
     const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
 
-    debug && console.debug(util.format('returns data, %j', data));
-    debug && console.debug(util.format('returns error, %j', errors));
-
     return isError
       ? { status: 'ERROR' as any, message: QUERY_ERR, errors }
       : { status: 'OK' as any, message: `${data.length} record(s) returned`, data };
@@ -101,9 +100,6 @@ export const createQueryDatabase: (
       restoreFn: kind === 'entity' && repo.getPostSelector(),
     });
     const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
-
-    debug && console.debug(util.format('returns data, %j', data));
-    debug && console.debug(util.format('returns error, %j', errors));
 
     return isError
       ? { status: 'ERROR', message: 'search error', errors }
@@ -213,8 +209,6 @@ export const createQueryDatabase: (
         logger.error(util.format('mergeCommitBatch - %s, %j', REDIS_ERR, e));
         throw e;
       }
-      debug && console.debug(util.format('data returns: %j', data));
-      debug && console.debug(util.format('error returns: %j', error));
 
       return {
         status: error.length === 0 ? 'OK' : 'ERROR',
@@ -241,8 +235,6 @@ export const createQueryDatabase: (
 
       const [errors, restoredCommits] = await commitRepo.queryCommitsByPattern(pattern);
       const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
-
-      debug && console.debug('restored commits, %j', restoredCommits);
 
       if (isError)
         return {

@@ -1,7 +1,7 @@
-import { Commit } from '../../types';
+import type { Commit } from '../../types';
 
 /**
- * @about re-selector processes the Commit after reading from Redis. It renders the query result
+ * @about postelector processes the [[CommitInRedis]]. It renders the query result
  * and, restore back to [[Commit]]; but appended with dervied field.
  */
 export interface OutputCommit extends Commit {

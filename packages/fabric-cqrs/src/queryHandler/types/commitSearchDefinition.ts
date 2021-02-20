@@ -7,10 +7,10 @@ import { RedisearchDefinition } from './redisearchDefinition';
 export type CommonCommitFields = Pick<
   Commit,
   'id' | 'commitId' | 'entityName' | 'mspId' | 'version' | 'events'
->;
+  >;
 
 /**
- * @about derived / new fields introducted, right BEFORE writing to Redis. The dervied fields is
+ * @about derived / new fields introducted, before writing to Redis. The dervied fields is
  * useful to better search capability, during full-text-search. It may uplift the deeply nested
  * field values, such "creator", to flatten Redis K/V structure.
  */

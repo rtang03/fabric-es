@@ -1,26 +1,25 @@
-import trimStart from 'lodash/trimStart';
-import { CommitSearchDefinition } from '../types';
+import type { CommitSearchDefinition } from '../types';
 
 /**
- * @about options in Redis
+ * @about Redisearch index definition of [[CommitInRedis]].
+ * This is internal use only.
  */
 export const commitSearchDefinition: CommitSearchDefinition = {
-  // Common field
   commitId: {},
   entityName: {
     index: { type: 'TEXT', sortable: true },
   },
-  /* entityId */
+  /** same as entityId **/
   id: { index: { type: 'TEXT', sortable: true } },
+  /** MSP Id **/
   mspId: { index: { type: 'TAG' } },
   version: {},
-  // Derived fields
-  /* event name involved */
+  /** Derived field of _creator event name involved **/
   creator: { index: { type: 'TEXT' } },
-  /* stringify list of event involved */
+  /** Derived field of _event - it indicates event name included in this commit **/
   event: { index: { type: 'TAG' } },
-  /* stringified events */
+  /** Derived field of stringified events **/
   evstr: {},
-  /* timestamp */
+  /** Derived field of _ts, i.e. timestamp **/
   ts: { index: { type: 'NUMERIC', sortable: true } },
 };

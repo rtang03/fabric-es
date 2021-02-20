@@ -3,6 +3,7 @@ import { OrgTypeDefsQuery, OrgTypeDefsType } from './model/organization/typeDefs
 
 /**
  * @about type definition for admin microservice
+ * @ignore
  */
 export const typeDefs = gql`
   type Mutation {

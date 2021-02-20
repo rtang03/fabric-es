@@ -2,7 +2,8 @@ import { createStructuredSelector, Selector } from 'reselect';
 import type { CommitInRedis, OutputCommit } from '../types';
 
 /**
- * @about restore redisCommit base to original Commit format, appended with additional fields
+ * @about restore [[CommitInRedis]] base to original Commit format, appended with additional fields
+ * producing [[OutputCommit]]
  * @see https://www.npmjs.com/package/reselect
  * @example
  * ```typescript

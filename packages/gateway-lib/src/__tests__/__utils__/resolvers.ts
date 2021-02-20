@@ -36,7 +36,6 @@ export const resolvers = {
           dataSources: {
             'gw-repo-counter': { repo },
           },
-          username,
         }: Context
       ): Promise<Paginated<OutputCounter>> => {
         const { data, error, status } = await repo.fullTextSearchEntity<OutputCounter>({

@@ -74,17 +74,17 @@ export const createQueryHandlerService: (option: {
     postSelector?: Selector<TItemInRedis, TOutput>;
   }) => AddQHRedisRepository;
 } = ({
-  asLocalhost,
-  authCheck,
-  connectionProfile,
-  channelName,
-  enrollmentId,
-  introspection = true,
-  playground = true,
-  redisOptions,
-  reducers,
-  wallet,
-}) => {
+       asLocalhost,
+       authCheck,
+       connectionProfile,
+       channelName,
+       enrollmentId,
+       introspection = true,
+       playground = true,
+       redisOptions,
+       reducers,
+       wallet,
+     }) => {
   const logger = getLogger('[gateway-lib] createQueryHandlerService.js');
   const entityNames = Object.keys(reducers);
 
@@ -118,6 +118,7 @@ export const createQueryHandlerService: (option: {
     return { addRedisRepository, run };
   };
 
+  // Note: queryHandler is turned off auth check.
   const server = new ApolloServer({
     typeDefs,
     resolvers,

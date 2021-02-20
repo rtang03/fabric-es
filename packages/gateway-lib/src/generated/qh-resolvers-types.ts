@@ -1,9 +1,10 @@
-/* eslint-disable */
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null;
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } &
   { [P in K]-?: NonNullable<T[P]> };
-
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -11,6 +12,8 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
+  JSON: any;
   /** The `Upload` scalar type represents a file upload. */
   Upload: any;
 };
@@ -44,51 +47,25 @@ export type EntityArrived = {
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<Scalars['String']>;
-  getEntityInfo: Array<EntityInfo>;
   fullTextSearchCommit: PaginatedCommit;
   fullTextSearchEntity: PaginatedEntity;
-  paginatedEntity: PaginatedEntity;
-  paginatedCommit: PaginatedCommit;
   getNotifications: Array<Notification>;
-  getNotification: Notification;
+  getNotification: Array<Maybe<Notification>>;
 };
 
 export type QueryFullTextSearchCommitArgs = {
-  query?: Maybe<Scalars['String']>;
+  query: Scalars['String'];
   cursor?: Maybe<Scalars['Int']>;
   pagesize?: Maybe<Scalars['Int']>;
+  param?: Maybe<Scalars['String']>;
 };
 
 export type QueryFullTextSearchEntityArgs = {
-  query?: Maybe<Scalars['String']>;
-  cursor?: Maybe<Scalars['Int']>;
-  pagesize?: Maybe<Scalars['Int']>;
-};
-
-export type QueryPaginatedEntityArgs = {
-  creator?: Maybe<Scalars['String']>;
-  cursor?: Maybe<Scalars['Int']>;
-  pagesize?: Maybe<Scalars['Int']>;
   entityName: Scalars['String'];
-  id?: Maybe<Scalars['String']>;
-  scope?: Maybe<SearchScope>;
-  startTime?: Maybe<Scalars['Int']>;
-  endTime?: Maybe<Scalars['Int']>;
-  sortByField?: Maybe<Scalars['String']>;
-  sort?: Maybe<Scalars['String']>;
-};
-
-export type QueryPaginatedCommitArgs = {
-  creator?: Maybe<Scalars['String']>;
+  query: Scalars['String'];
   cursor?: Maybe<Scalars['Int']>;
   pagesize?: Maybe<Scalars['Int']>;
-  entityName: Scalars['String'];
-  id?: Maybe<Scalars['String']>;
-  events?: Maybe<Array<Scalars['String']>>;
-  startTime?: Maybe<Scalars['Int']>;
-  endTime?: Maybe<Scalars['Int']>;
-  sortByField?: Maybe<Scalars['String']>;
-  sort?: Maybe<Scalars['String']>;
+  param?: Maybe<Scalars['String']>;
 };
 
 export type QueryGetNotificationArgs = {
@@ -102,32 +79,16 @@ export type Notification = {
   creator: Scalars['String'];
   entityName: Scalars['String'];
   id: Scalars['String'];
-  commitId: Scalars['String'];
+  commitId?: Maybe<Scalars['String']>;
   read: Scalars['Boolean'];
 };
-
-export type EntityInfo = {
-  __typename?: 'EntityInfo';
-  entityName: Scalars['String'];
-  total: Scalars['Int'];
-  events: Array<Scalars['String']>;
-  tagged: Array<Scalars['String']>;
-  creators: Array<Scalars['String']>;
-  orgs: Array<Scalars['String']>;
-  totalCommit: Scalars['Int'];
-};
-
-export enum SearchScope {
-  Created = 'CREATED',
-  LastModified = 'LAST_MODIFIED',
-}
 
 export type PaginatedEntity = {
   __typename?: 'PaginatedEntity';
   total?: Maybe<Scalars['Int']>;
   cursor?: Maybe<Scalars['Int']>;
   hasMore: Scalars['Boolean'];
-  items: Array<QueryHandlerEntity>;
+  items: Array<Scalars['JSON']>;
 };
 
 export type PaginatedCommit = {
@@ -136,21 +97,6 @@ export type PaginatedCommit = {
   cursor?: Maybe<Scalars['Int']>;
   hasMore: Scalars['Boolean'];
   items: Array<Commit>;
-};
-
-export type QueryHandlerEntity = {
-  __typename?: 'QueryHandlerEntity';
-  id: Scalars['String'];
-  entityName: Scalars['String'];
-  value: Scalars['String'];
-  commits: Array<Scalars['String']>;
-  events: Scalars['String'];
-  desc?: Maybe<Scalars['String']>;
-  tag?: Maybe<Scalars['String']>;
-  created: Scalars['Float'];
-  creator: Scalars['String'];
-  lastModified: Scalars['Float'];
-  timeline: Scalars['String'];
 };
 
 export type Mutation = {
@@ -177,13 +123,17 @@ export type MutationCreateCommitArgs = {
 
 export type Commit = {
   __typename?: 'Commit';
+  commitId?: Maybe<Scalars['String']>;
+  creator?: Maybe<Scalars['String']>;
+  entityId?: Maybe<Scalars['String']>;
+  entityName?: Maybe<Scalars['String']>;
+  event?: Maybe<Scalars['String']>;
+  events?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  eventsString?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['String']>;
   mspId?: Maybe<Scalars['String']>;
-  entityName?: Maybe<Scalars['String']>;
+  ts?: Maybe<Scalars['Float']>;
   version?: Maybe<Scalars['Int']>;
-  commitId?: Maybe<Scalars['String']>;
-  entityId?: Maybe<Scalars['String']>;
-  eventsString?: Maybe<Scalars['String']>;
 };
 
 export enum CacheControlScope {
@@ -266,8 +216,9 @@ export type TypeResolveFn<TTypes, TParent = {}, TContext = {}> = (
   info: GraphQLResolveInfo
 ) => Maybe<TTypes> | Promise<Maybe<TTypes>>;
 
-export type IsTypeOfResolverFn<T = {}> = (
+export type IsTypeOfResolverFn<T = {}, TContext = {}> = (
   obj: T,
+  context: TContext,
   info: GraphQLResolveInfo
 ) => boolean | Promise<boolean>;
 
@@ -283,20 +234,18 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  String: ResolverTypeWrapper<Scalars['String']>;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  JSON: ResolverTypeWrapper<Scalars['JSON']>;
   Subscription: ResolverTypeWrapper<{}>;
+  String: ResolverTypeWrapper<Scalars['String']>;
   SysNotification: ResolverTypeWrapper<SysNotification>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   EntityArrived: ResolverTypeWrapper<EntityArrived>;
   Query: ResolverTypeWrapper<{}>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Notification: ResolverTypeWrapper<Notification>;
-  EntityInfo: ResolverTypeWrapper<EntityInfo>;
-  SearchScope: SearchScope;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   PaginatedEntity: ResolverTypeWrapper<PaginatedEntity>;
   PaginatedCommit: ResolverTypeWrapper<PaginatedCommit>;
-  QueryHandlerEntity: ResolverTypeWrapper<QueryHandlerEntity>;
   Mutation: ResolverTypeWrapper<{}>;
   Commit: ResolverTypeWrapper<Commit>;
   CacheControlScope: CacheControlScope;
@@ -305,23 +254,38 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  String: Scalars['String'];
-  Boolean: Scalars['Boolean'];
+  JSON: Scalars['JSON'];
   Subscription: {};
+  String: Scalars['String'];
   SysNotification: SysNotification;
   Float: Scalars['Float'];
   EntityArrived: EntityArrived;
   Query: {};
   Int: Scalars['Int'];
   Notification: Notification;
-  EntityInfo: EntityInfo;
+  Boolean: Scalars['Boolean'];
   PaginatedEntity: PaginatedEntity;
   PaginatedCommit: PaginatedCommit;
-  QueryHandlerEntity: QueryHandlerEntity;
   Mutation: {};
   Commit: Commit;
   Upload: Scalars['Upload'];
 };
+
+export type CacheControlDirectiveArgs = {
+  maxAge?: Maybe<Scalars['Int']>;
+  scope?: Maybe<CacheControlScope>;
+};
+
+export type CacheControlDirectiveResolver<
+  Result,
+  Parent,
+  ContextType = any,
+  Args = CacheControlDirectiveArgs
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
+  name: 'JSON';
+}
 
 export type SubscriptionResolvers<
   ContextType = any,
@@ -352,7 +316,7 @@ export type SysNotificationResolvers<
   status?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   error?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type EntityArrivedResolvers<
@@ -361,7 +325,7 @@ export type EntityArrivedResolvers<
 > = {
   events?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
   key?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type QueryResolvers<
@@ -369,34 +333,21 @@ export type QueryResolvers<
   ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']
 > = {
   me?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  getEntityInfo?: Resolver<Array<ResolversTypes['EntityInfo']>, ParentType, ContextType>;
   fullTextSearchCommit?: Resolver<
     ResolversTypes['PaginatedCommit'],
     ParentType,
     ContextType,
-    RequireFields<QueryFullTextSearchCommitArgs, never>
+    RequireFields<QueryFullTextSearchCommitArgs, 'query'>
   >;
   fullTextSearchEntity?: Resolver<
     ResolversTypes['PaginatedEntity'],
     ParentType,
     ContextType,
-    RequireFields<QueryFullTextSearchEntityArgs, never>
-  >;
-  paginatedEntity?: Resolver<
-    ResolversTypes['PaginatedEntity'],
-    ParentType,
-    ContextType,
-    RequireFields<QueryPaginatedEntityArgs, 'entityName'>
-  >;
-  paginatedCommit?: Resolver<
-    ResolversTypes['PaginatedCommit'],
-    ParentType,
-    ContextType,
-    RequireFields<QueryPaginatedCommitArgs, 'entityName'>
+    RequireFields<QueryFullTextSearchEntityArgs, 'entityName' | 'query'>
   >;
   getNotifications?: Resolver<Array<ResolversTypes['Notification']>, ParentType, ContextType>;
   getNotification?: Resolver<
-    ResolversTypes['Notification'],
+    Array<Maybe<ResolversTypes['Notification']>>,
     ParentType,
     ContextType,
     RequireFields<QueryGetNotificationArgs, never>
@@ -410,23 +361,9 @@ export type NotificationResolvers<
   creator?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   entityName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  commitId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  commitId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   read?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
-};
-
-export type EntityInfoResolvers<
-  ContextType = any,
-  ParentType extends ResolversParentTypes['EntityInfo'] = ResolversParentTypes['EntityInfo']
-> = {
-  entityName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  events?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  tagged?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  creators?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  orgs?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  totalCommit?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type PaginatedEntityResolvers<
@@ -436,8 +373,8 @@ export type PaginatedEntityResolvers<
   total?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   cursor?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   hasMore?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  items?: Resolver<Array<ResolversTypes['QueryHandlerEntity']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+  items?: Resolver<Array<ResolversTypes['JSON']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type PaginatedCommitResolvers<
@@ -448,25 +385,7 @@ export type PaginatedCommitResolvers<
   cursor?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   hasMore?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   items?: Resolver<Array<ResolversTypes['Commit']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
-};
-
-export type QueryHandlerEntityResolvers<
-  ContextType = any,
-  ParentType extends ResolversParentTypes['QueryHandlerEntity'] = ResolversParentTypes['QueryHandlerEntity']
-> = {
-  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  entityName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  commits?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  events?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  desc?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  tag?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  created?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  creator?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  lastModified?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  timeline?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MutationResolvers<
@@ -497,14 +416,18 @@ export type CommitResolvers<
   ContextType = any,
   ParentType extends ResolversParentTypes['Commit'] = ResolversParentTypes['Commit']
 > = {
+  commitId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  creator?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  entityId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  entityName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  event?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  events?: Resolver<Maybe<Array<Maybe<ResolversTypes['JSON']>>>, ParentType, ContextType>;
+  eventsString?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   mspId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  entityName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  ts?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   version?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  commitId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  entityId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  eventsString?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export interface UploadScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Upload'], any> {
@@ -512,15 +435,14 @@ export interface UploadScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
 }
 
 export type Resolvers<ContextType = any> = {
+  JSON?: GraphQLScalarType;
   Subscription?: SubscriptionResolvers<ContextType>;
   SysNotification?: SysNotificationResolvers<ContextType>;
   EntityArrived?: EntityArrivedResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;
-  EntityInfo?: EntityInfoResolvers<ContextType>;
   PaginatedEntity?: PaginatedEntityResolvers<ContextType>;
   PaginatedCommit?: PaginatedCommitResolvers<ContextType>;
-  QueryHandlerEntity?: QueryHandlerEntityResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Commit?: CommitResolvers<ContextType>;
   Upload?: GraphQLScalarType;
@@ -531,3 +453,12 @@ export type Resolvers<ContextType = any> = {
  * Use "Resolvers" root object instead. If you wish to get "IResolvers", add "typesPrefix: I" to your config.
  */
 export type IResolvers<ContextType = any> = Resolvers<ContextType>;
+export type DirectiveResolvers<ContextType = any> = {
+  cacheControl?: CacheControlDirectiveResolver<any, any, ContextType>;
+};
+
+/**
+ * @deprecated
+ * Use "DirectiveResolvers" root object instead. If you wish to get "IDirectiveResolvers", add "typesPrefix: I" to your config.
+ */
+export type IDirectiveResolvers<ContextType = any> = DirectiveResolvers<ContextType>;

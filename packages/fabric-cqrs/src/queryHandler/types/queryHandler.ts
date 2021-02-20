@@ -48,7 +48,11 @@ export type QueryHandlerOption = {
   wallet: Wallet;
 };
 
+/**
+ * @about QueryHandler provides high level query capability per organization
+ */
 export type QueryHandler = {
+  /** clear one notification **/
   clearNotification: (option: {
     creator: string;
     entityName: string;
@@ -56,6 +60,7 @@ export type QueryHandler = {
     commitId: string;
   }) => Promise<HandlerResponse<string[]>>;
 
+  /* clear list of notificaions **/
   clearNotifications: (option: {
     creator: string;
     entityName?: string;
@@ -100,8 +105,9 @@ export type QueryHandler = {
   disconnect: () => void;
 
   /**
-   * @about full text search of commit.
-   * @similar [[QueryHandler]].getPaginatedCommitById
+   * @about full text search of commit, returning paginated result
+   * @see FTSearchParameters is defined by `node_modules/redis-modules-sdk/lib/modules/redisearch.d.ts`
+   * @see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
    */
   fullTextSearchCommit: (option: {
     query: string;
@@ -111,8 +117,9 @@ export type QueryHandler = {
   }) => Promise<HandlerResponse<Paginated<OutputCommit>>>;
 
   /**
-   * @about full text search of entity
-   * @similar [[QueryHandler]].getPaginatedEntityById
+   * @about full text search of entity, returning paginated result
+   * @see FTSearchParameters is defined by `node_modules/redis-modules-sdk/lib/modules/redisearch.d.ts`
+   * @see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
    */
   fullTextSearchEntity: <TOutputEntity>(option: {
     entityName: string;
@@ -124,7 +131,8 @@ export type QueryHandler = {
 
   /**
    * @about 📤  get commits by entityName. Reduce to _entity_, on the fly
-   * @return ```typescript
+   * @return
+   * ```typescript
    * () => Promise<HandlerResponse<TEntity[]>>
    * ```
    **/
@@ -150,7 +158,8 @@ export type QueryHandler = {
   /**
    * @about 📤 get commits by entityId
    * @same [[Repository]].getCommitById
-   * @return ```typescript
+   * @return
+   * ```typescript
    * (payload: { id: string }) => Promise<HandlerResponse<Commit[]>>
    * ```
    * **/
@@ -178,7 +187,8 @@ export type QueryHandler = {
   /**
    * @about 📤 delete commmts by entityId
    * @same [[Repository]].query_deleteCommitByEntityId
-   * @return ```typescript
+   * @return
+   * ```typescript
    * (payload: { id: string }) => Promise<HandlerResponse<number>>
    * ```
    * **/
@@ -187,7 +197,8 @@ export type QueryHandler = {
   /**
    * @about 📤 delete commit by entityName
    * @same [[Repository]].query_deleteCommitByEntityName
-   * @return ```typescript
+   * @return
+   * ```typescript
    * () => Promise<HandlerResponse<number>>
    * ```
    * **/

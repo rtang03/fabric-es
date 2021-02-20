@@ -3,7 +3,7 @@
 ![Changelog](https://github.com/rtang03/fabric-es/workflows/Changelog/badge.svg)
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
 
-**Test Purpose Only; Not ready for use**  
+**Test Purpose Only; Not ready for use**
 
 # Project Overview
 
@@ -19,6 +19,7 @@ This monerepo includes three package libraries.
 1. `fabric-cqrs` is the utility to write data to Hyperledger Fabric, and query data from Redis/RediSearch.
 1. `gateway-lib` creates Apollo federated gateway, along with entity-based microservice (in form of Apollo server)
 1. `operator` is utility library for system administrative works.
+1. `tester` performs integration test during create-release workflow.
 
 # Simple-counter example
 
@@ -31,22 +32,25 @@ The application is developed based on [Clean Architecture](https://blog.cleancod
 _Dependency graph_
 
 ```text
-(1) fabric.Wallet & fabric.connectionProfile & Redis
-    ⎿ entity microservice (aka api gateway)
+(1) fabric.Wallet & fabric.connectionProfile & Redisearch connection & authCheck
+    ⎿ Apollo federated microservice
         ⎿ typeDefs
-        ⎿ resolvers
-           ⎿ command handler
+        ⎿ Resolvers
+           ⎿ Command handler
                ⎿ repository
                     ⎿ event
                     ⎿ entity
                     ⎿ reducer
-(2) fabric.Wallet & fabric.connectionProfile & Redis & Reducers & authCheck
-    ⎿ query handler microservice
+                    ⎿ Query database
+                        ⎿ RedisRepository
+(2) fabric.Wallet & fabric.connectionProfile & Redisearch connection & all Reducers & authCheck
+    ⎿ Apollo query handler microservice
         ⎿ typeDefs
-        ⎿ resolvers
-            ⎿ query handler
-                ⎿ query database
+        ⎿ Resolvers
+            ⎿ Query handler
+                ⎿ Query database
                     ⎿ reducers (reducer map)
+                    ⎿ RedisRepository
 
 ```
 
@@ -61,7 +65,7 @@ The simple counter accepts two event `Increment` and `Decrement`.
 
 ```typescript
 // Typing
-// packages/fabric-cqrs/src/unit-test-reducer/events.ts
+// packages/fabric-cqrs/src/unit-test-counter/events.ts
 interface Increment extends BaseEvent {
   readonly type: 'Increment';
   payload: {
@@ -89,7 +93,7 @@ interface Counter extends BaseEntity {
 The reducer computes from the current state of the entity, from events history.
 
 ```typescript
-// packages/fabric-cqrs/src/unit-test-reducer/reducer.ts
+// packages/fabric-cqrs/src/unit-test-counter/reducer.ts
 import { Reducer } from '../types';
 import { CounterEvents } from './events';
 import { Counter, CounterEvent } from './types';
@@ -122,7 +126,107 @@ const entityName = 'counter';
 const counterRepo = getRepository<Counter, CounterEvents>(entityName, counterReducer);
 ```
 
-### Step 2: Define application architecture
+### Step 2: Define additional model for Redisearch
+
+`Redisearch` uses Redis hashes object, for data storage and indexing. This step defines the domain models with Redisearch.
+Notice that Redis is a primiarly key-value database. Also, it has naming convention, and data type restriction; so that
+the data model used in Hyperledger Fabric and in Redis are likely incompatible. Besides, it shall require additional
+fields in Redis, for a better search experienece. Hence, a moderate complex scenario shall require different domain
+model definition. See below example.
+
+```typescript
+// packages/fabric-cqrs/src/unit-test-counter/types/counter.ts
+// all fields here are persisted in Hyperledger Fabric
+interface Counter {
+  id: string;
+  desc: string;
+  tag: string;
+  value: number;
+  _ts: number;
+  _created: number;
+  _creator: string;
+}
+
+// packages/fabric-cqrs/src/unit-test-counter/types/counterInRedis.ts
+interface CounterInRedis {
+  created: number; // renamed field
+  creator: string; // renamed field
+  de: string; // renamed field
+  event: string; // derived field
+  id: string; // no change
+  tag: string; // no change
+  tl: string; // derived field
+  ts: number; // <== renamed field
+  val: string | number; // renamed field
+  history: string; // derived field
+}
+
+// packages/fabric-cqrs/src/unit-test-counter/types/outputCounter.ts
+// the output counter restore CounterInRedis back, after search.
+interface OutputCounter {
+  createdAt: number;
+  creator: string;
+  description: string;
+  eventInvolved: string[]; // derived field
+  id: string;
+  tags: string[]; // derived field
+  timestamp: number;
+  value: number;
+}
+```
+
+### Step 3: Define indexing definition for Redisearch
+
+Define which fields of Counter to save to Redis. Optionally step may pick some fields, and / or define
+newly derived fields.
+
+```typescript
+// packages/fabric-cqrs/src/unit-test-counter/types/counterIndexDefinition.ts
+type PickedCounterFields = Pick<
+  Counter,
+  'id' | 'value' | 'desc' | 'tag' | '_ts' | '_created' | '_creator'
+>;
+type DerivedCounterFields = { event: string };
+type CounterIndexDefintion = RedisearchDefinition<PickedCounterFields & DerivedCounterFields>;
+```
+
+**IndexDefinition**
+
+Define the indexing definition
+
+```typescript
+// packages/fabric-cqrs/src/unit-test-counter/domain/counterIndexDefinition.ts
+const counterIndexDefinition: CounterIndexDefintion = {
+  // original fields
+  id: { index: { type: 'TEXT', sortable: true } },
+  value: { altName: 'val' },
+  // ...
+  // derived fields
+  event: { index: { type: 'TAG' } },
+};
+```
+
+**Selector**
+
+_preSelector_ and _postSelector_ define the transformation.
+
+```typescript
+// packages/fabric-cqrs/src/unit-test-counter/preSelector.ts
+// the input argument of preSelector is a tuple of Coutner, and its commit history.
+const preSelector: Selector<[Counter, Commit[]], CounterInRedis> = createStructuredSelector({
+  // ...
+});
+
+// packages/fabric-cqrs/src/unit-test-counter/postSelector.ts
+const postSelector: Selector<CounterInRedis, OutputCounter> = createStructuredSelector({
+  // ...
+});
+```
+
+Suppose the model is simple, so that derived field is not required; single type definition may be sufficient.
+Also, _Selector_ no longer required.
+
+### Step 4: Define application architecture
 
 There are serveral technical constructs, _commandHandler_, _resolvers_, _queryHandler microservice_, and
 _entity microservice_. They are not carrying domain model information. They are defining the architecture how
@@ -167,39 +271,76 @@ Graphql resolvers defines the endpoint behaviours, via the use of `commandHandle
 successfully writes to Fabric.
 
 ```typescript
-// Implementation
+// Resolver Mutation
 // packages/gateway-lib/src/__tests__/__utils__/resolvers.ts
-export const resolvers = {
+const resolvers = {
+  /** ... **/
   Mutation: {
-    increment: catchErrors( // catchErrors decorates the orignal mutation function
+    increment: catchResolverErrors(
+      // catchResolverErrors decorates the orignal mutation function
       async (
         _,
-        { counterId },  // variables
-        {               // Apollo Data Source
+        { counterId }, // variables
+        {
+          // Apollo Data Source
           dataSources: {
             counter: { repo },
           },
-          user_id,     // user_id will be saved in the event payload
-          username,    // authenticated username will be used as enrollmentId
-        }: Context     // Apollo Context bring in data source, i.e. counterRepo
+          user_id, // user_id will be saved in the event payload
+          username, // authenticated username will be used as enrollmentId
+        }: Context // Apollo Context bring in data source, i.e. counterRepo
       ): Promise<Commit> =>
         commandHanlder({ enrollmentId: username, counterRepo: repo }).Increment({
           userId: user_id,
-          payload: { id: counterId, /* ... */ },
+          payload: { id: counterId /* ... */ },
         }),
       { fcnName: 'increment', logger, useAuth: true, useAdmin: false }
     ),
-}
+  },
+  // ...
+};
+```
+
+On the query side, the _resolvers_ utilize entity repository, to invoke _fullTextSearchEntity_ api.
+
+```typescript
+// Resolver Query
+// packages/gateway-lib/src/__tests__/__utils__/resolvers.ts
+const resolvers = {
+  /** ... */
+  Query: {
+    search: catchResolverErrors(
+      async (
+        _,
+        { query }: { query: string },
+        {
+          dataSources: {
+            'gw-repo-counter': { repo },
+          },
+        }
+      ): Promise<Paginated<OutputCounter>> => {
+        const { data, error, status } = await repo.fullTextSearchEntity<OutputCounter>({
+          entityName: 'gw-repo-counter',
+          query,
+        });
+        return data;
+      }
+    ),
+  },
+  // ...
+};
 ```
 
 **Entity microservice**
 
-Entity microservice configures Apollo federated service, based on `counter` models, and resolvers.
+Entity microservice configures Apollo federated service, based on `counter` models, and resolvers. Each
+entity microservice may define one or mulitple _Repository_ or _RedisRepository_. `addRedisRepository`
+requires the input argument from previous steps, e.g. indexDefinition and Selector.
 
 ```typescript
 // packages/gateway-lib/src/__tests__/counter.unit-test.ts
 // (1) inject persistence
-const { config, getRepository } = await createService({
+const { config } = await createService({
   asLocalhost: true,
   channelName,
   connectionProfile,
@@ -210,21 +351,27 @@ const { config, getRepository } = await createService({
 });
 
 // (2) inject Apollo typeDefs and resolvers
-modelApolloService = await config({ typeDefs, resolvers })
-  .addRepository(getRepository<Counter, CounterEvents>(entityName, counterReducer))
+modelApolloService = config({ typeDefs, resolvers })
+  // define the search capability per entity
+  .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
+    entityName,
+    fields: counterIndexDefinition,
+    postSelector: counterPostSelector,
+    preSelector: counterPreSelector,
+  })
+  .addRepository<Counter, CounterEvents>(entityName, counterReducer)
   .create();
 ```
 
 **QueryHandler microservice**
 
 Query handler microservice is a single microservice per organization. It is NOT part of federated services.
-In current release, query handler microservice is partially configurable. You are not required
-to define the `typeDefs`, and `resolvers`, query database indexes. You need to provide reducer map,
-like `{ counter: counterReducer }`. Future release will give better configurability.
+It is partially configurable. You are not required to define the `typeDefs`, and `resolvers`. You are only
+required to define indexes, AND organziational-wide reducer map, like `{ counter: counterReducer }`.
 
 ```typescript
 // packages/gateway-lib/src/__tests__/counter.unit-test.ts
-const qhService = await createQueryHandlerService(['counter'], {
+const { getServer } = await createQueryHandlerService({
   redisOptions: { host: 'localhost', port: 6379 },
   asLocalhost: true,
   channelName,
@@ -233,10 +380,19 @@ const qhService = await createQueryHandlerService(['counter'], {
   reducers: { counter: counterReducer },
   wallet,
   authCheck: `http://localhost:8080/oauth/authenticate`,
-});
+})
+  .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
+    entityName,
+    fields: counterIndexDefinition,
+    postSelector: counterPostSelector,
+    preSelector: counterPreSelector,
+  })
+  .run();
+// return normal Apollo Server. This is NOT federated service. 
+const server = getServer();
 ```
 
-### Step 3: Bootstrap it
+### Step 5: Bootstrap it
 
 The funniest part is here, when every part are glued together.
 
@@ -264,22 +420,19 @@ await enrollAdmin({
 });
 
 // (4) Start QueryHandler
-const qhService = await createQueryHandlerService(['counter'], {
+const qhService = await createQueryHandlerService({
   /*...*/
 });
 
-// (5) Setup Redis cidx and eidx indexes
-await rebuildIndex(publisher, logger);
-
-// (6) Launh queryHander non-federated service
+// (5) Launh queryHander non-federated service
 await queryHandlerServer.listen({ port });
 
-// (7) Prepare Counter microservice
-const { config, getRepository } = await createService({
+// (6) Prepare Counter microservice
+const { config } = await createService({
   /* ... */
 });
 
-// (8) Config Apollo with typeDefs, resolver, and repository
+// (7) Config Apollo with typeDefs, resolver, and repository
 modelApolloService = await config({ typeDefs, resolvers })
   .addRepository(getRepository<Counter, CounterEvents>(entityName, counterReducer))
   .create();
@@ -294,7 +447,7 @@ app = await createGateway({
 });
 ```
 
-### Step 4: Register / Login / Invoke Tx
+### Step 6: Register / Login / Invoke Tx
 
 ```typescript
 // (11) Reister new user, targeting RESTful auth-server
@@ -346,7 +499,8 @@ await request(app)
 ## dev-net
 
 `dev-net` provisions different development networks, based on docker-compose. Notice that the upcoming production
-deployment will be running with k8s.
+deployment will be running with k8s. For common development scenario, may use `./dn-run.2-db-red-auth.sh`,
+which is 2-org Fabric setup, with Redis, and auth-server.
 
 ```shell
 cd dev-net
