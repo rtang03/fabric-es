@@ -1,5 +1,8 @@
 import type { OutputCounter } from './types';
 
+/**
+ * @ignore
+ */
 export const isOutputCounter = (input: any): input is OutputCounter =>
   input?.createdAt !== undefined &&
   input?.creator !== undefined &&

@@ -10,26 +10,28 @@ export type QueryDatabaseResponse<TResult = any> = {
 };
 
 /**
- * @about query database
+ * @about Query database
  *
- * - 🔑 key format of commit *entityName::entityId::commitId*
- * - 🔑 key format of entity *entityName::entityId*
+ * - 🔑 key format of commit c:entityName:entityId:commitId*
+ * - 🔑 key format of entity e:entityName:entityId*
  */
 export type QueryDatabase = {
-  /** clear notification **/
+  /** clear one notification **/
   clearNotification: (option: {
     creator: string;
     entityName: string;
     id: string;
     commitId: string;
   }) => Promise<HandlerResponse<string[]>>;
-  /** clear notification **/
+
+  /** clear all notifications **/
   clearNotifications: (option: {
     creator: string;
     entityName?: string;
     id?: string;
     commitId?: string;
   }) => Promise<HandlerResponse<string[]>>;
+
   getRedisCommitRepo: () => RedisRepository<OutputCommit>;
   /**
    * delete commit by entityId
@@ -110,10 +112,18 @@ export type QueryDatabase = {
 
   /**
    * full text search on entity, or just return item count of result
+   * @see FTSearchParameters is defined by `node_modules/redis-modules-sdk/lib/modules/redisearch.d.ts`
    * @see [Search Query Syntax](https://oss.redislabs.com/redisearch/Query_Syntax/)
-   * @example query ```typescript
+   * @example query
+   * ```typescript
    * // example
-   * { query: ['searching info', 'SORTBY', 'id', 'ASC'] }
+   * {
+   *    entityName: 'counter'
+   *    query: 'some_input*'
+   *    cursor: 0,
+   *    pagesize: 10,
+   *    param: { sortBy: { sort: 'ASC', field: 'de' } }
+   * }
    * ```
    * **/
   fullTextSearchEntity: <TEntity = any>(option: {
@@ -124,7 +134,7 @@ export type QueryDatabase = {
   }) => Promise<HandlerResponse<TEntity[] | number>>;
 
   /**
-   * get active notification by commitId
+   * @about get active notification by commitId
    * @return ```typescript
    * // example
    * {
@@ -139,6 +149,10 @@ export type QueryDatabase = {
     id?: string;
     commitId?: string;
   }) => Promise<HandlerResponse<Record<string, string>>>;
+
+  /**
+   * @about get list of notifications
+   */
   getNotificationsByFields: (option: {
     creator: string;
     entityName?: string;

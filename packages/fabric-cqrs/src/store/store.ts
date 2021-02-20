@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 import { Gateway, Network } from 'fabric-network';
 import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';

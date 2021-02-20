@@ -11,6 +11,9 @@ import type { CommitInRedis } from './types';
 
 /**
  * @about create abstract layer for redis repository
+ * @typeParams TInput item before writing to Redis / input to preSelector
+ * @typeParams TIItemInRedis item in redis
+ * @typeParams TOutput item after processing by postSelector
  */
 export const createRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
   client: Redisearch;

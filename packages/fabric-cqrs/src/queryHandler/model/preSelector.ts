@@ -10,7 +10,7 @@ import type { CommitInRedis } from '../types';
  */
 export type PickedCommit = Required<
   Pick<Commit, 'id' | 'entityName' | 'commitId' | 'mspId' | 'entityId' | 'events' | 'version'>
->;
+  >;
 
 /**
  * @about from [[PickedCommit]] to [[CommitInRedis]]

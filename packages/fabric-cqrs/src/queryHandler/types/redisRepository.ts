@@ -13,29 +13,57 @@ type Pattern =
  * @about abstraction of Redis operations
  */
 export type RedisRepository<TResult = any> = {
-  // https://oss.redislabs.com/redisearch/Commands/#ftcreate
+  /**
+   * create index, either eidx:ENTITYNAME or cidx
+   * @see https://oss.redislabs.com/redisearch/Commands/#ftcreate
+   */
   createIndex: () => Promise<'OK'>;
+
   /**
    * @example 2 commits are successfully delete, pipelineExec returns [ [ null, 1 ], [ null, 1 ] ]
    * .then return tuple [error, number-of-successful-delete]
    */
   deleteItemsByPattern: (pattern: string) => Promise<[any, number]>;
+
+  /** drop redisearch index, either eidx:ENTITYNAME or cidx **/
   dropIndex: (deleteHash?: boolean) => Promise<'OK'>;
-  // see https://redis.io/commands/hmset
-  // see https://oss.redislabs.com/redisearch/Commands/#hsethsetnxhdelhincrbyhdecrby
+
+  /**
+   * hmset write to Redis.
+   * @param item item to save
+   * @param history is used to compute derived fields, if preSelector exists
+   * @see https://redis.io/commands/hmset
+   * @see https://oss.redislabs.com/redisearch/Commands/#hsethsetnxhdelhincrbyhdecrby
+   */
   hmset: (item: any, history?: Commit[]) => Promise<'OK'>;
   // see https://redis.io/commands/hgetall
+
+  /**
+   * return hash
+   * @see https://redis.io/commands/hgetall
+   * @param key
+   */
   hgetall: (key: string) => Promise<TResult>;
+
+  /** return key of item. The item is either an entity, or commit **/
   getKey: (item: any) => string;
+
   getIndexName: () => string;
+
+  /** return the pattern expression **/
   getPattern: (pattern: Pattern, args: string[]) => string;
+
   getPreSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
+
   getPostSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
+
   /**
    * @about restore commit history from Redis format, and detect any errors
    * pipelinExec .then will return tuple [error, commitInRedis[])
    */
   queryCommitsByPattern: (pattern: string) => Promise<[any, OutputCommit[]] | null>;
+
+  /** perform search **/
   search: (option: {
     countTotalOnly?: boolean;
     kind: 'commit' | 'entity';

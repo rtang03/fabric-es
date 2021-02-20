@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 
 /**
  * @about type definition for queryHandler microservice
+ * @ignore
  */
 export const typeDefs = gql`
   scalar JSON
@@ -75,7 +76,7 @@ export const typeDefs = gql`
   ### OutputCommit
   type Commit {
     commitId: String
-    creator: String!
+    creator: String
     entityId: String
     entityName: String
     event: String

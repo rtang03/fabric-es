@@ -21,8 +21,14 @@ import {
   queryGetEntityByEntityName,
 } from '../utils';
 import { INVALID_ARG } from './constants';
-import type { OutputCommit, QueryHandlerOption, QueryHandler } from './types';
+import type { QueryHandlerOption, QueryHandler } from './types';
 
+/**
+ * @about Create query handler
+ * @example [subscribe.unit-test.ts](https://github.com/rtang03/fabric-es/blob/master/packages/fabric-cqrs/src/queryHandler/__tests__/subscribe.unit-test.ts)
+ * @params options [[QueryHandlerOptions]]
+ * @returns [[QueryHandler]]
+ */
 export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler = (options) => {
   const {
     entityNames,
@@ -116,7 +122,7 @@ export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler =
       dispatcher<
         Record<string, string>,
         { creator: string; entityName: string; id: string; commitId: string }
-      >((payload) => queryAction.getNotifications(payload), {
+        >((payload) => queryAction.getNotifications(payload), {
         store,
         logger,
         name: 'query:getNotification',
@@ -205,7 +211,7 @@ export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler =
               const mergeEntityResult = await dispatcher<
                 { key: string; status: string },
                 { commit: Commit }
-              >((payload) => projAction.mergeEntity(payload), {
+                >((payload) => projAction.mergeEntity(payload), {
                 name: 'merge_one_entity',
                 store,
                 slice: 'projection',

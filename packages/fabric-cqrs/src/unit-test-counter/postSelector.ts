@@ -3,7 +3,7 @@ import type { CounterInRedis, OutputCounter } from './types';
 
 /**
  * @about transform from [[CounterInRedis]] to [[OutputCounter]]
- * do not use destructor for item
+ * @ignore
  */
 export const postSelector: Selector<CounterInRedis, OutputCounter> = createStructuredSelector({
   createdAt: (item) => item?.created,
