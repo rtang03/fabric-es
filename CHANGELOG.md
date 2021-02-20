@@ -10,6 +10,7 @@
 
 **Merged pull requests:**
 
+- docs: add comment / readme [\#191](https://github.com/rtang03/fabric-es/pull/191) ([rtang03](https://github.com/rtang03))
 - feat: new search capability [\#190](https://github.com/rtang03/fabric-es/pull/190) ([rtang03](https://github.com/rtang03))
 - chore: Add workaround to avoid redis error when shutdown query-handler service [\#189](https://github.com/rtang03/fabric-es/pull/189) ([pangduckwai](https://github.com/pangduckwai))
 - refactor: deduplicate BaseEntity class and interface [\#188](https://github.com/rtang03/fabric-es/pull/188) ([rtang03](https://github.com/rtang03))
