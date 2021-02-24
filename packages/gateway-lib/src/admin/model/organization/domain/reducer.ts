@@ -9,12 +9,11 @@ export const orgReducer = (org: Organization, event: OrgEvents): Organization =>
   switch (event.type) {
     case 'OrgStarted':
       return {
-        entityName: 'organization',
+        ...org,
         id: event.payload.mspId,
         mspId: event.payload.mspId,
         timestamp: event.payload.timestamp,
         status: OrgStatus.UP,
-        name: null,
         _ts: event.payload._ts,
         _created: org?._created || event.payload?._created,
         _creator: org?._creator || event.payload?._creator,

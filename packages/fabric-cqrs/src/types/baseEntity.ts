@@ -1,7 +1,7 @@
 /**
- * @about BaseMetaEntity includes auto-gen meta data, starting with underscored
+ * @about BaseEntity includes auto-gen meta data, starting with underscored
  */
-export interface BaseMetaEntity {
+export interface BaseEntity {
   /** entity Id **/
   id?: string;
 

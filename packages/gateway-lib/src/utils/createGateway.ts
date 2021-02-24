@@ -108,7 +108,7 @@ export const createGateway: (option: {
         logger.debug(`authenticaionCheck response: ${response}`);
 
         if (response.status !== httpStatus.OK) {
-          logger.warn(
+          logger.info(
             `authentication check failed, status: ${response.status}`
           );
           return {};

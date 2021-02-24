@@ -1,5 +1,5 @@
 import type { FTSearchParameters } from 'redis-modules-sdk';
-import type { BaseMetaEntity, Commit, HandlerResponse, Reducer } from '../../types';
+import type { BaseEntity, Commit, HandlerResponse, Reducer } from '../../types';
 import type { RedisRepository, OutputCommit } from '.';
 
 export type QueryDatabaseResponse<TResult = any> = {
@@ -87,7 +87,7 @@ export type QueryDatabase = {
     commits: Record<string, Commit>;
   }) => Promise<HandlerResponse<string[]>>;
   //
-  mergeEntity: <TEntity extends BaseMetaEntity, TEntityInRedis extends BaseMetaEntity>(option: {
+  mergeEntity: <TEntity extends BaseEntity, TEntityInRedis extends BaseEntity>(option: {
     commit: Commit;
     reducer: Reducer<TEntity>;
   }) => Promise<HandlerResponse<{ key: string; status: string }[]>>;

@@ -1,4 +1,4 @@
-import type { BaseMetaEntity } from '@fabric-es/fabric-cqrs';
+import type { BaseEntity } from '@fabric-es/fabric-cqrs';
 import { DocumentStatus } from '../domain';
 
 /**
@@ -7,7 +7,7 @@ import { DocumentStatus } from '../domain';
  * also utilize the `reference` property as their internal identifier unique within their individual organizations. The on-chain
  * portion of a document is a placeholder, with a resource locator (the `link` property) pointing to the document's details
  */
-export interface Document extends BaseMetaEntity {
+export interface Document extends BaseEntity {
   id: string;
   documentId: string;
   ownerId: string;

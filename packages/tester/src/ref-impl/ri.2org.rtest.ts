@@ -603,7 +603,7 @@ const runTest = (idx: number, run: string, test: string, user1: string, token1: 
 };
 
 // Start
-(async () => {
+void (async () => {
   console.log(`Running ${RUNS} x ${BATCH} ref-impl tests (${RUNS_WAIT}s, ${READ_WAIT}ms x ${READ_RETRY})...`);
 
   let idx = 0;

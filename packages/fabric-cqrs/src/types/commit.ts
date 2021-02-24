@@ -1,30 +1,17 @@
-/**
- * TODO: This is confusing to use class for BaseEntity. May later clean it up
- * @ignore
- */
-export class BaseEntity {
-  static parentName: string;
-  static entityName: string;
-  public static getParentName(): string {
-    return this.parentName;
-  }
-  public static getEntityName(): string {
-    return this.entityName;
-  }
-  constructor() {}
-}
+import { BaseEntity } from '.';
 
 /**
  * @ignore
  */
-export interface EntityClass<TEntity extends BaseEntity> {
+export interface EntityType<TEntity extends BaseEntity> {
   new (...args: any[]): TEntity;
-  parentName: string;
+  parentName?: string;
   entityName: string;
 }
 
 /**
  * **Lifecycle**
+ * Entity lifecycle markers
  * BEGIN  - start of lifecycle, only appear once as the first event
  * END    - end of lifecycle, only appear once as the last event
  * NORMAL - other events without restriction
