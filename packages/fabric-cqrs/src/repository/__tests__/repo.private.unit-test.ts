@@ -11,7 +11,7 @@ import { createPrivateRepository } from '..';
 import { registerUser } from '../../account';
 import { getNetwork } from '../../services';
 import type { PrivateRepository } from '../../types';
-import { Counter, CounterEvent, reducer } from '../../unit-test-counter';
+import { Counter, CounterEvents, reducer } from '../../unit-test-counter';
 import { getLogger, isCommitRecord } from '../../utils';
 
 /**
@@ -20,7 +20,7 @@ import { getLogger, isCommitRecord } from '../../utils';
 
 let wallet: Wallet;
 let context;
-let repo: PrivateRepository<Counter, CounterEvent>;
+let repo: PrivateRepository<Counter, CounterEvents>;
 let commitId: string;
 
 const entityName = 'test_private_repo';
@@ -33,7 +33,7 @@ const channelName = process.env.CHANNEL_NAME;
 const caName = process.env.CA_NAME;
 const mspId = process.env.MSPID;
 const logger = getLogger({ name: 'repo-unit.test.js' });
-const events = [
+const events: CounterEvents[] = [
   {
     type: 'Increment',
     payload: { id, desc: 'repo #1 create-test', tag: 'private-repo-test' },
@@ -85,7 +85,7 @@ beforeAll(async () => {
       asLocalhost: true,
     });
 
-    repo = createPrivateRepository<Counter, CounterEvent>(entityName, reducer, {
+    repo = createPrivateRepository<Counter, CounterEvents>(entityName, reducer, {
       gateway: context.gateway,
       network: context.network,
       channelName,

@@ -9,7 +9,7 @@ import { createQueryHandler, createQueryDatabase, createRedisRepository } from '
 import { getNetwork } from '../../services';
 import {
   Counter,
-  CounterEvent,
+  CounterEvents,
   CounterInRedis,
   counterIndexDefinition as fields,
   OutputCounter,
@@ -185,7 +185,7 @@ afterAll(async () => {
 describe('Reconcile Tests', () => {
   it('should create #1 record for id1', async () =>
     queryHandler
-      .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id })
+      .create<CounterEvents>(entityName)({ enrollmentId: orgAdminId, id })
       .save({
         events: [
           {
@@ -255,7 +255,7 @@ describe('Reconcile Tests', () => {
       }));
 
   it('should query_getById, and add new event for id1', async () => {
-    const { currentState, save } = await queryHandler.getById<Counter, CounterEvent>(entityName)({
+    const { currentState, save } = await queryHandler.getById<Counter, CounterEvents>(entityName)({
       enrollmentId: orgAdminId,
       id,
     });
@@ -299,7 +299,7 @@ describe('Reconcile Tests', () => {
   // }
   it('should query_getById for id1', async () =>
     queryHandler
-      .getById<Counter, CounterEvent>(entityName)({ enrollmentId: orgAdminId, id })
+      .getById<Counter, CounterEvents>(entityName)({ enrollmentId: orgAdminId, id })
       .then(({ currentState }) => {
         expect(currentState.id).toEqual(id);
         expect(currentState.value).toEqual(2);
@@ -328,7 +328,7 @@ describe('Reconcile Tests', () => {
 
   it('should create #2 record for id2', async () =>
     queryHandler
-      .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id: id2 })
+      .create<CounterEvents>(entityName)({ enrollmentId: orgAdminId, id: id2 })
       .save({
         events: [
           {
@@ -353,7 +353,7 @@ describe('Reconcile Tests', () => {
 
   it('should query_getById for id2', async () =>
     queryHandler
-      .getById<Counter, CounterEvent>(entityName)({ enrollmentId: orgAdminId, id: id2 })
+      .getById<Counter, CounterEvents>(entityName)({ enrollmentId: orgAdminId, id: id2 })
       .then(({ currentState }) => {
         expect(currentState.id).toEqual(id2);
         expect(currentState.tag).toEqual('reconcile');

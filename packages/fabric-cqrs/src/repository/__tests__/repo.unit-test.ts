@@ -12,7 +12,7 @@ import { getNetwork } from '../../services';
 import type { Repository } from '../../types';
 import {
   reducer,
-  CounterEvent,
+  CounterEvents,
   Counter,
   OutputCounter,
   CounterInRedis,
@@ -27,7 +27,7 @@ import { getLogger, waitForSecond } from '../../utils';
  * ./dn-run.1-db-red-auth.sh
  */
 
-let repo: Repository<Counter, CounterEvent>;
+let repo: Repository<Counter, CounterEvents>;
 let commitId: string;
 let client: Redisearch;
 let commitRepo: RedisRepository<OutputCommit>;
@@ -44,7 +44,7 @@ const logger = getLogger({ name: 'repo-unit.test.js' });
 const mspId = process.env.MSPID;
 const reducers = { [entityName]: reducer };
 const timestampesOnCreate = [];
-const events = [
+const events: CounterEvents[] = [
   {
     type: 'Increment',
     payload: { id, desc: 'repo #1 create-test', tag: 'repo-test' },
@@ -155,7 +155,7 @@ beforeAll(async () => {
     });
 
     // Step 7: Repo
-    repo = createRepository<Counter, CounterEvent>(entityName, reducer, {
+    repo = createRepository<Counter, CounterEvents>(entityName, reducer, {
       channelName,
       connectionProfile,
       queryDatabase,

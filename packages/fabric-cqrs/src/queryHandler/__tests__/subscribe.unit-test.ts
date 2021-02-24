@@ -8,7 +8,7 @@ import { createQueryDatabase, createQueryHandler, createRedisRepository } from '
 import { getNetwork } from '../../services';
 import {
   Counter,
-  CounterEvent,
+  CounterEvents,
   reducer,
   counterIndexDefinition as fields,
   CounterInRedis,
@@ -190,7 +190,7 @@ describe('Query Handler Tests', () => {
   // 3) "c:test_subscribe:qh_sub_test_001:20210210032205925"
   it('should create #1 record for id', async () => {
     await queryHandler
-      .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id })
+      .create<CounterEvents>(entityName)({ enrollmentId: orgAdminId, id })
       .save({
         events: [
           {
@@ -241,7 +241,7 @@ describe('Query Handler Tests', () => {
   // 5) "n:admin-org1.net:test_subscribe:qh_sub_test_001:20210210035250191"
   it('should create #2 record for id', async () => {
     await queryHandler
-      .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id })
+      .create<CounterEvents>(entityName)({ enrollmentId: orgAdminId, id })
       .save({
         events: [
           {
@@ -434,7 +434,7 @@ describe('Pagination tests for getPaginatedEntityById', () => {
         .then(({ data: { message } }) => console.log(message));
 
       await queryHandler
-        .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id: `qh_pag_test_00${i}` })
+        .create<CounterEvents>(entityName)({ enrollmentId: orgAdminId, id: `qh_pag_test_00${i}` })
         .save({
           events: [
             {

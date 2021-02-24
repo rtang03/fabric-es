@@ -25,14 +25,6 @@ export interface CounterCommands {
 /**
  * @ignore
  */
-export interface CounterEvent {
-  type: string;
-  payload: any;
-}
-
-/**
- * @ignore
- */
 export interface Counter extends BaseEntity {
   id: string;
   desc: string;

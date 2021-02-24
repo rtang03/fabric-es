@@ -1,13 +1,13 @@
 import { Reducer } from '../types';
 import { CounterEvents } from './events';
-import { Counter, CounterEvent } from './types';
+import { Counter } from './types';
 
 /**
  * @about counter reducer
  * @ignore
  */
 export const reducer: Reducer<Counter> = (
-  history: CounterEvent[],
+  history: CounterEvents[],
   initial = { id: null, desc: null, tag: null, value: 0, _ts: 0, _created: 0, _creator: null }
 ) =>
   history.reduce(
