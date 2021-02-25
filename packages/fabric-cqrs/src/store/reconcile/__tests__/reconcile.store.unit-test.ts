@@ -3,6 +3,7 @@ import { Redisearch } from 'redis-modules-sdk';
 import { Store } from 'redux';
 import { createQueryDatabase, createRedisRepository } from '../../../queryHandler';
 import type { OutputCommit, QueryDatabase, RedisRepository } from '../../../queryHandler/types';
+import { getReducer } from '../../../types';
 import {
   Counter,
   CounterInRedis,
@@ -10,7 +11,7 @@ import {
   OutputCounter,
   postSelector,
   preSelector,
-  reducer,
+  reducerCallback,
 } from '../../../unit-test-counter';
 import { dispatcher, getLogger, waitForSecond } from '../../../utils';
 import { action as queryAction } from '../../query';
@@ -23,6 +24,7 @@ let counterRedisRepo: RedisRepository<OutputCounter>;
 let store: Store;
 let queryDatabase: QueryDatabase;
 
+const reducer = getReducer(reducerCallback);
 const logger = getLogger({ name: 'reconcile.store.unit-test.ts' });
 const reducers = { [entityName]: reducer };
 const { reconcile, RECONCILE_SUCCESS, RECONCILE_ERROR } = action;

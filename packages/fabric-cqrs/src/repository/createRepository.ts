@@ -1,5 +1,6 @@
 import { getStore } from '../store';
-import type { Reducer, Repository, RepoOption, BaseEntity, BaseEvent } from '../types';
+import type { ReducerCallback, Repository, RepoOption, BaseEntity, BaseEvent, EntityType } from '../types';
+import { getReducer } from '../types';
 import {
   getLogger,
   commandCreate,
@@ -39,10 +40,12 @@ import {
  * @params option [[RepoOption]]
  */
 export const createRepository: <TEntity extends BaseEntity, TEvent extends BaseEvent>(
-  entityName: string,
-  reducer: Reducer,
+  entity: EntityType<TEntity>,
+  callback: ReducerCallback<TEntity, TEvent>,
   option: RepoOption
-) => Repository<TEntity, TEvent> = <TEntity, TEvent>(entityName, reducer, option) => {
+) => Repository<TEntity, TEvent> = <TEntity, TEvent>(entity, callback, option) => {
+  const entityName = entity.entityName;
+  const reducer = getReducer<TEntity, TEvent>(callback);
   const logger = option?.logger || getLogger({ name: '[fabric-cqrs] createRepository.js' });
   const { queryDatabase, gateway, network, channelName, connectionProfile, wallet } = option;
   const store = getStore({

@@ -6,10 +6,11 @@ import { Redisearch } from 'redis-modules-sdk';
 import rimraf from 'rimraf';
 import { createQueryDatabase, createQueryHandler, createRedisRepository } from '..';
 import { getNetwork } from '../../services';
+import { getReducer } from '../../types';
 import {
   Counter,
   CounterEvents,
-  reducer,
+  reducerCallback,
   counterIndexDefinition as fields,
   CounterInRedis,
   postSelector,
@@ -23,6 +24,7 @@ import type { QueryHandler, RedisRepository, OutputCommit } from '../types';
  * ./dn-run.1-db-red-auth.sh
  */
 
+const reducer = getReducer(reducerCallback);
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
 const channelName = process.env.CHANNEL_NAME;

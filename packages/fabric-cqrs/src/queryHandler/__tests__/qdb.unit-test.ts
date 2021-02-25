@@ -3,9 +3,10 @@ import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import { Redisearch } from 'redis-modules-sdk';
 import { createQueryDatabase, createRedisRepository } from '..';
+import { getReducer } from '../../types';
 import {
   Counter,
-  reducer,
+  reducerCallback,
   counterIndexDefinition as fields,
   CounterInRedis,
   postSelector,
@@ -26,6 +27,7 @@ let client: Redisearch;
 let commitRepo: RedisRepository<OutputCommit>;
 let counter: RedisRepository<OutputCounter>;
 
+const reducer = getReducer(reducerCallback);
 const ENTITYNAME = 'test_proj';
 const ENTITYID = 'qh_proj_test_001';
 const noResult = { status: 'OK', message: '0 record(s) returned', data: [] };

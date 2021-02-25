@@ -11,7 +11,7 @@ import { createPrivateRepository } from '..';
 import { registerUser } from '../../account';
 import { getNetwork } from '../../services';
 import type { PrivateRepository } from '../../types';
-import { Counter, CounterEvents, reducer } from '../../unit-test-counter';
+import { Counter, CounterEvents, reducerCallback } from '../../unit-test-counter';
 import { getLogger, isCommitRecord } from '../../utils';
 
 /**
@@ -85,7 +85,8 @@ beforeAll(async () => {
       asLocalhost: true,
     });
 
-    repo = createPrivateRepository<Counter, CounterEvents>(entityName, reducer, {
+    Counter.entityName = entityName;
+    repo = createPrivateRepository<Counter, CounterEvents>(Counter, reducerCallback, {
       gateway: context.gateway,
       network: context.network,
       channelName,

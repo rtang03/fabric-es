@@ -9,7 +9,7 @@ import type {
   QueryDatabase,
   RedisRepository,
 } from '../../../queryHandler/types';
-import type { Commit, HandlerResponse } from '../../../types';
+import { getReducer, Commit, HandlerResponse } from '../../../types';
 import {
   Counter,
   CounterInRedis,
@@ -17,7 +17,7 @@ import {
   OutputCounter,
   postSelector,
   preSelector,
-  reducer,
+  reducerCallback,
 } from '../../../unit-test-counter';
 import { dispatcher, getLogger, waitForSecond } from '../../../utils';
 import { action, action as queryAction } from '../action';
@@ -29,6 +29,7 @@ let counterRedisRepo: RedisRepository<OutputCounter>;
 let store: Store;
 let queryDatabase: QueryDatabase;
 
+const reducer = getReducer(reducerCallback);
 const logger = getLogger({ name: 'query.store.unit-test.ts' });
 const {
   deleteCommitByEntityName,

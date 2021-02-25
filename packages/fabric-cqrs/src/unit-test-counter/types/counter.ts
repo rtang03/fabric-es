@@ -25,7 +25,8 @@ export interface CounterCommands {
 /**
  * @ignore
  */
-export interface Counter extends BaseEntity {
+export class Counter implements BaseEntity {
+  static entityName = 'counter';
   id: string;
   desc: string;
   tag: string;

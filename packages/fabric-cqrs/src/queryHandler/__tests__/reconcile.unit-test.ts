@@ -7,6 +7,7 @@ import { Redisearch } from 'redis-modules-sdk';
 import rimraf from 'rimraf';
 import { createQueryHandler, createQueryDatabase, createRedisRepository } from '..';
 import { getNetwork } from '../../services';
+import { getReducer } from '../../types';
 import {
   Counter,
   CounterEvents,
@@ -15,11 +16,12 @@ import {
   OutputCounter,
   postSelector,
   preSelector,
-  reducer,
+  reducerCallback,
 } from '../../unit-test-counter';
 import { isCommit, waitForSecond } from '../../utils';
 import type { OutputCommit, QueryHandler, RedisRepository } from '../types';
 
+const reducer = getReducer(reducerCallback);
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
 const caName = process.env.CA_NAME;

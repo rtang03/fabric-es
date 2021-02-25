@@ -9,9 +9,9 @@ import { registerUser } from '../../account';
 import { createQueryDatabase, createQueryHandler, createRedisRepository } from '../../queryHandler';
 import type { OutputCommit, QueryHandler, RedisRepository } from '../../queryHandler/types';
 import { getNetwork } from '../../services';
-import type { Repository } from '../../types';
+import { getReducer, Repository } from '../../types';
 import {
-  reducer,
+  reducerCallback,
   CounterEvents,
   Counter,
   OutputCounter,
@@ -34,6 +34,7 @@ let commitRepo: RedisRepository<OutputCommit>;
 let counterRedisRepo: RedisRepository<OutputCounter>;
 let queryHandler: QueryHandler;
 
+const reducer = getReducer(reducerCallback);
 const caName = process.env.CA_NAME;
 const channelName = process.env.CHANNEL_NAME;
 const connectionProfile = process.env.CONNECTION_PROFILE;
@@ -155,7 +156,8 @@ beforeAll(async () => {
     });
 
     // Step 7: Repo
-    repo = createRepository<Counter, CounterEvents>(entityName, reducer, {
+    Counter.entityName = entityName;
+    repo = createRepository<Counter, CounterEvents>(Counter, reducerCallback, {
       channelName,
       connectionProfile,
       queryDatabase,
