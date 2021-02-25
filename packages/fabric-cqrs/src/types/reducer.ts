@@ -26,7 +26,7 @@ export type Reducer<TEntity = any, TEvent = any> = (
 /**
  * @about domain entity specific callback function used in reducer
  */
-export type ReducerCallback<TEntity extends BaseEntity, TEvent extends BaseEvent> = (entity: TEntity, event: TEvent) => TEntity;
+export type ReducerCallback<TEntity = any, TEvent = any> = (entity: TEntity, event: TEvent) => TEntity;
 
 /**
  * @about return high order reducer function
