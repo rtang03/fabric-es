@@ -57,12 +57,13 @@ beforeAll(async () => {
     await client.connect();
 
     // Step 2: create counter's RedisRepo
-    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>({
-      client,
-      fields,
-      entityName,
-      postSelector,
-      preSelector,
+    Counter.entityName = entityName;
+    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>(
+      Counter, {
+        client,
+        fields,
+        postSelector,
+        preSelector,
     });
 
     // Step 3: create QueryDatabase; return commitRepo

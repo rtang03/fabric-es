@@ -2,7 +2,7 @@ import util from 'util';
 import startsWith from 'lodash/startsWith';
 import { FTCreateParameters, FTSchemaField, Redisearch } from 'redis-modules-sdk';
 import type { Selector } from 'reselect';
-import type { Commit } from '../types';
+import type { Commit, EntityType } from '../types';
 import { getLogger } from '../utils';
 import { postSelector as restoreCommit } from './model';
 import { pipelineExec } from './pipelineExec';
@@ -15,23 +15,25 @@ import type { CommitInRedis } from './types';
  * @typeParams TIItemInRedis item in redis
  * @typeParams TOutput item after processing by postSelector
  */
-export const createRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
-  client: Redisearch;
-  kind?: 'entity' | 'commit';
-  fields: RedisearchDefinition<TInput>;
-  entityName: string;
-  param?: FTCreateParameters;
-  preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
-  postSelector?: Selector<TItemInRedis, TOutput>;
-}) => RedisRepository<TOutput> = <TItem, TItemInRedis, TResult>({
-  client,
-  kind = 'entity' as any,
-  fields,
-  entityName,
-  param,
-  preSelector,
-  postSelector,
+export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
+  entity: EntityType<TInput> | string,
+  option: {
+    client: Redisearch;
+    kind?: 'entity' | 'commit';
+    fields: RedisearchDefinition<TInput>;
+    param?: FTCreateParameters;
+    preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+    postSelector?: Selector<TItemInRedis, TOutput>;
+}) => RedisRepository<TOutput> = <TItem, TItemInRedis, TResult>(
+    entity, {
+    client,
+    kind = 'entity' as any,
+    fields,
+    param,
+    preSelector,
+    postSelector,
 }) => {
+  const entityName = (typeof entity === 'string') ? entity : entity.entityName;
   const logger = getLogger({ name: '[query-handler] createRedisRepository.js', target: 'console' });
 
   // every entity is indexed with Prefix "e:entityName:". commit is "c:"

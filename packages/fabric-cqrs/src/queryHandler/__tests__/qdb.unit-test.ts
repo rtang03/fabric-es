@@ -37,12 +37,13 @@ beforeAll(async () => {
 
   await client.connect();
 
-  counter = createRedisRepository<Counter, CounterInRedis, OutputCounter>({
-    client,
-    fields,
-    entityName: ENTITYNAME,
-    postSelector,
-    preSelector,
+  Counter.entityName = ENTITYNAME;
+  counter = createRedisRepository<Counter, CounterInRedis, OutputCounter>(
+    Counter, {
+      client,
+      fields,
+      postSelector,
+      preSelector,
   });
 
   queryDatabase = createQueryDatabase(client, { [ENTITYNAME]: counter });

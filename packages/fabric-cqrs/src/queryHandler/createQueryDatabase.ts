@@ -34,13 +34,13 @@ export const createQueryDatabase: (
   { debug, notifyExpiryBySec } = { debug: false, notifyExpiryBySec: 86400 }
 ) => {
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js', target: 'console' });
-  const commitRepo = createRedisRepository<Commit, CommitInRedis, OutputCommit>({
-    client,
-    kind: 'commit',
-    fields: commitSearchDefinition,
-    preSelector,
-    postSelector,
-    entityName: 'commit',
+  const commitRepo = createRedisRepository<Commit, CommitInRedis, OutputCommit>(
+    'commit', {
+      client,
+      kind: 'commit',
+      fields: commitSearchDefinition,
+      preSelector,
+      postSelector,
   });
 
   const notificationCenter = createNotificationCenter(client);
