@@ -66,7 +66,6 @@ export const createQueryHandlerService: (option: {
   introspection?: boolean;
   playground?: boolean;
   redisOptions: RedisOptions;
-  // reducers: Record<string, ReducerCallback>;
   wallet: Wallet;
 }) => {
   addRedisRepository: <TInput, TItemInRedis, TOutput, TEvent>(
@@ -86,18 +85,16 @@ export const createQueryHandlerService: (option: {
        introspection = true,
        playground = true,
        redisOptions,
-      //  reducers,
        wallet,
      }) => {
   const logger = getLogger('[gateway-lib] createQueryHandlerService.js');
-  // const entityNames = Object.keys(reducers);
 
   // prepare Redis pub / sub
   const publisher = new Redisearch(redisOptions);
   const subscriber = new Redisearch(redisOptions);
   const pubSub = new RedisPubSub({ publisher: publisher.redis, subscriber: subscriber.redis });
 
-  // TODO: @paul, please revisit here. add common domain model reducer(s)
+  // Add organization reducers
   const entityNames: string[] = [Organization.entityName];
   const reducers: Record<string, Reducer> = {
     [Organization.entityName]: getReducer(orgReducer)

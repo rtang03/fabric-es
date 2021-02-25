@@ -19,6 +19,7 @@ type Organization @key(fields: "mspId") {
 
 const logger = getLogger('organization/typeDefs.js');
 
+// TODO - use new full text search APIs?
 export const resolvers = {
   Query: {
     us: catchResolverErrors(

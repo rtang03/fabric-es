@@ -24,7 +24,6 @@ import fetch from 'node-fetch';
 import rimraf from 'rimraf';
 import request from 'supertest';
 import { createAdminService } from '../admin';
-import { Organization, OrgEvents, orgReducer } from '../admin';
 import { IDENTITY_ALREADY_EXIST, UNAUTHORIZED_ACCESS } from '../admin/constants';
 import {
   CREATE_WALLET,
@@ -68,7 +67,6 @@ const counterId = `counter_${random}`;
 // If requiring to change entityName, need to update the Context, and resolvers as well.
 const entityName = 'counter';
 const enrollmentId = orgAdminId;
-const counterReducer = getReducer(counterReducerCallback);
 
 let app: http.Server;
 let adminApolloService: ApolloServer;
@@ -129,10 +127,6 @@ beforeAll(async () => {
       connectionProfile,
       enrollmentId,
       redisOptions: { host: 'localhost', port: 6379 },
-      // reducers: {
-      //   [entityName]: counterReducer,
-      //   organization: getReducer<Organization, OrgEvents>(orgReducer),
-      // },
       wallet,
     })
       .addRedisRepository<Counter, CounterInRedis, OutputCounter, CounterEvents>(
