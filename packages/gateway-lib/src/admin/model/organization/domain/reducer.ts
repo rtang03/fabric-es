@@ -1,3 +1,4 @@
+import { ReducerCallback } from '@fabric-es/fabric-cqrs';
 import { Organization, OrgEvents, OrgStatus } from '..';
 
 /**
@@ -5,7 +6,7 @@ import { Organization, OrgEvents, OrgStatus } from '..';
  * @param org
  * @param event
  */
-export const orgReducer = (org: Organization, event: OrgEvents): Organization => {
+export const orgReducer: ReducerCallback<Organization, OrgEvents> = (org: Organization, event: OrgEvents): Organization => {
   switch (event.type) {
     case 'OrgStarted':
       return {

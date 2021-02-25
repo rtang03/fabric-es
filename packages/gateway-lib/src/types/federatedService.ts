@@ -1,15 +1,18 @@
-import type { PrivateRepository, Reducer, Repository } from '@fabric-es/fabric-cqrs';
-import type { Commit, RedisearchDefinition, RedisRepository } from '@fabric-es/fabric-cqrs';
+import type {
+  PrivateRepository, Repository, Commit, RedisearchDefinition, RedisRepository, EntityType, ReducerCallback,
+} from '@fabric-es/fabric-cqrs';
+import type {  } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import type { Selector } from 'reselect';
 
 export interface AddRedisRepository {
-  addRepository: <TEntity, TEvent>(entityName: string, reducer: Reducer<TEntity>) => AddRepository;
-  addRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
-    entityName: string;
-    fields: RedisearchDefinition<TInput>;
-    preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
-    postSelector?: Selector<TItemInRedis, TOutput>;
+  addRepository: <TEntity, TEvent>(entity: EntityType<TEntity>, reducer: ReducerCallback<TEntity, TEvent>) => AddRepository;
+  addRedisRepository: <TInput, TItemInRedis, TOutput>(
+    entity: EntityType<TInput>,
+    option: {
+      fields: RedisearchDefinition<TInput>;
+      preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+      postSelector?: Selector<TItemInRedis, TOutput>;
   }) => this;
 }
 
@@ -19,11 +22,13 @@ interface AddRepository {
     playground?: boolean;
     introspection?: boolean;
   }) => ApolloServer;
-  addRepository: <TEntity, TEvent>(entityName: string, reducer: Reducer<TEntity>) => this;
+  addRepository: <TEntity, TEvent>(
+    entity: EntityType<TEntity>,
+    reducer: ReducerCallback<TEntity, TEvent>
+  ) => this;
   addPrivateRepository: <TEntity, TEvent>(
-    entityName: string,
-    reducer: Reducer<TEntity>,
-    parentName?: string
+    entity: EntityType<TEntity>,
+    reducer: ReducerCallback<TEntity, TEvent>,
   ) => AddPrivateRepository;
 }
 
@@ -34,9 +39,8 @@ interface AddPrivateRepository {
     introspection?: boolean;
   }) => ApolloServer;
   addPrivateRepository: <TEntity, TEvent>(
-    entityName: string,
-    reducer: Reducer<TEntity>,
-    parentName?: string
+    entity: EntityType<TEntity>,
+    reducer: ReducerCallback<TEntity, TEvent>,
   ) => this;
 }
 
@@ -46,33 +50,31 @@ export type FederatedService = {
     resolvers: any;
   }) => {
     addPrivateRepository: <TEntity, TEvent>(
-      entityName: string,
-      reducer: Reducer<TEntity>,
-      parentName?: string
+      entity: EntityType<TEntity>,
+      reducer: ReducerCallback<TEntity, TEvent>,
     ) => AddPrivateRepository;
     addRepository: <TEntity, TEvent>(
-      entityName: string,
-      reducer: Reducer<TEntity>
+      entity: EntityType<TEntity>,
+      reducer: ReducerCallback<TEntity, TEvent>,
     ) => AddRepository;
-    // addRepository: (repository: Repository | PrivateRepository) => AddRepository;
-    addRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
-      entityName: string;
-      fields: RedisearchDefinition<TInput>;
-      preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
-      postSelector?: Selector<TItemInRedis, TOutput>;
+    addRedisRepository: <TInput, TItemInRedis, TOutput>(
+      entity: EntityType<TInput>,
+      option: {
+        fields: RedisearchDefinition<TInput>;
+        preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+        postSelector?: Selector<TItemInRedis, TOutput>;
     }) => AddRedisRepository;
   };
   disconnect: () => void;
   getMspId: () => string;
   getRedisRepos: () => Record<string, RedisRepository>;
   getRepository: <TEntity, TEvent>(
-    entityName: string,
-    reducer: Reducer
+    entity: EntityType<TEntity>,
+    reducer: ReducerCallback<TEntity, TEvent>
   ) => Repository<TEntity, TEvent>;
   getPrivateRepository: <TEntity, TEvent>(
-    entityName: string,
-    reducer: Reducer,
-    parentName?: string
+    entity: EntityType<TEntity>,
+    reducer: ReducerCallback<TEntity, TEvent>
   ) => PrivateRepository<TEntity, TEvent>;
   getServiceName: () => string;
   shutdown: (server: ApolloServer) => Promise<void>;

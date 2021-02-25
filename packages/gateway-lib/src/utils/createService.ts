@@ -4,14 +4,14 @@ import {
   createRepository,
   createPrivateRepository,
   getNetwork,
-  getReducer,
   PrivateRepository,
   RedisRepository,
-  Reducer,
   Repository,
   createQueryDatabase,
   RedisearchDefinition,
   Commit,
+  EntityType,
+  ReducerCallback,
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
@@ -127,12 +127,11 @@ export const createService: (option: {
   logger.info('mspId: ', mspId);
 
   const getPrivateRepository = <TEntity, TEvent>(
-    entityName: string,
-    reducer: Reducer,
-    parentName?: string
+    entity: EntityType<TEntity>,
+    reducer: ReducerCallback<TEntity, TEvent>,
   ) =>
     createPrivateRepository<TEntity, TEvent>(
-      entityName,
+      entity,
       reducer,
       {
         ...networkConfig,
@@ -140,11 +139,10 @@ export const createService: (option: {
         channelName,
         wallet,
       },
-      parentName
     );
 
-  const getRepository = <TEntity, TEvent>(entityName: string, reducer: Reducer) =>
-    createRepository<TEntity, TEvent>(entityName, reducer, {
+  const getRepository = <TEntity, TEvent>(entity: EntityType<TEntity>, reducer: ReducerCallback<TEntity, TEvent>) =>
+    createRepository<TEntity, TEvent>(entity, reducer, {
       ...networkConfig,
       queryDatabase: createQueryDatabase(client, redisRepos),
       connectionProfile,
@@ -172,12 +170,11 @@ export const createService: (option: {
           introspection: option?.introspection,
         };
 
-        if (repositories.filter((element) => element.entityName === 'organization').length <= 0) {
+        if (repositories.filter((element) => element.entityName === Organization.entityName).length <= 0) {
           repositories.push({
-            entityName: 'organization',
+            entityName: Organization.entityName,
             repository: getRepository<Organization, OrgEvents>(
-              'organization',
-              getReducer<Organization, OrgEvents>(orgReducer)
+              Organization, orgReducer
             ),
           });
         }
@@ -213,8 +210,8 @@ export const createService: (option: {
         );
       };
 
-      const addRepository = <TEntity, TEvent>(entityName, reducer) => {
-        const repository = getRepository<TEntity, TEvent>(entityName, reducer);
+      const addRepository = <TEntity, TEvent>(entity, reducer) => {
+        const repository = getRepository<TEntity, TEvent>(entity, reducer);
         repositories.push({
           entityName: repository.getEntityName(),
           repository,
@@ -222,8 +219,8 @@ export const createService: (option: {
         return { create, addRepository, addPrivateRepository };
       };
 
-      const addPrivateRepository = <TEntity, TEvent>(entityName, reducer, parentName) => {
-        const repository = getPrivateRepository<TEntity, TEvent>(entityName, reducer, parentName);
+      const addPrivateRepository = <TEntity, TEvent>(entity, reducer) => {
+        const repository = getPrivateRepository<TEntity, TEvent>(entity, reducer);
         repositories.push({
           entityName: repository.getEntityName(),
           repository,
@@ -231,17 +228,17 @@ export const createService: (option: {
         return { create, addPrivateRepository };
       };
 
-      const addRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
-        entityName: string;
-        fields: RedisearchDefinition<TInput>;
-        preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
-        postSelector?: Selector<TItemInRedis, TOutput>;
-      }) => AddRedisRepository = ({ entityName, fields, preSelector, postSelector }) => {
+      const addRedisRepository: <TInput, TItemInRedis, TOutput>(
+        entity: EntityType<TInput>,
+        option: {
+          fields: RedisearchDefinition<TInput>;
+          preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+          postSelector?: Selector<TItemInRedis, TOutput>;
+      }) => AddRedisRepository = (entity, { fields, preSelector, postSelector }) => {
         redisRepos = composeRedisRepos(
           client,
           redisRepos
-        )({
-          entityName,
+        )(entity, {
           fields,
           preSelector,
           postSelector,

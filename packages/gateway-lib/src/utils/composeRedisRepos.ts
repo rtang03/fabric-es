@@ -1,4 +1,4 @@
-import type { Commit, RedisearchDefinition, RedisRepository } from '@fabric-es/fabric-cqrs';
+import type { Commit, RedisearchDefinition, RedisRepository, EntityType } from '@fabric-es/fabric-cqrs';
 import { createRedisRepository } from '@fabric-es/fabric-cqrs';
 import { Redisearch } from 'redis-modules-sdk';
 import type { Selector } from 'reselect';
@@ -6,20 +6,19 @@ import type { Selector } from 'reselect';
 export const composeRedisRepos: (
   client: Redisearch,
   redisRepos: Record<string, RedisRepository>
-) => <TInput, TItemInRedis, TOutput>(option: {
-  entityName: string;
-  fields: RedisearchDefinition<TInput>;
-  preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
-  postSelector?: Selector<TItemInRedis, TOutput>;
-}) => Record<string, RedisRepository> = (client, redisRepos) => <TInput, TItemInRedis, TOutput>({
-  entityName,
+) => <TInput, TItemInRedis, TOutput>(
+  entity: EntityType<TInput>,
+  option: {
+    fields: RedisearchDefinition<TInput>;
+    preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+    postSelector?: Selector<TItemInRedis, TOutput>;
+}) => Record<string, RedisRepository> = (client, redisRepos) => <TInput, TItemInRedis, TOutput>(entity, {
   fields,
   preSelector,
   postSelector,
 }) => {
-  redisRepos[entityName] = createRedisRepository<TInput, TItemInRedis, TOutput>({
+  redisRepos[entity.entityName] = createRedisRepository<TInput, TItemInRedis, TOutput>(entity, {
     client,
-    entityName,
     fields,
     postSelector,
     preSelector,

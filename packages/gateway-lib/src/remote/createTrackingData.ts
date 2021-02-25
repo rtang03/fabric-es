@@ -51,7 +51,7 @@ export const queryTrackingData: (option: {
 
   for (const mspid of pub[TRACK_FIELD][context.dataSources[privateDataSrc].repo.getEntityName()]) {
     if (mspid !== context.mspId) {
-      const org = await context.dataSources['organization'].repo.getById({ id: mspid, enrollmentId: context.username }).then(({ currentState }) => currentState);
+      const org = await context.dataSources[Organization.entityName].repo.getById({ id: mspid, enrollmentId: context.username }).then(({ currentState }) => currentState);
       await context.trackingData({
         uri: org.url,
         query,

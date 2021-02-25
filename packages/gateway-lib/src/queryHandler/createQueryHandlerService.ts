@@ -4,12 +4,14 @@ import {
   createQueryDatabase,
   createQueryHandler,
   getNetwork,
-  getReducer,
   QueryDatabase,
   QueryHandler,
   RedisearchDefinition,
   RedisRepository,
   Reducer,
+  ReducerCallback,
+  getReducer,
+  EntityType,
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
@@ -64,14 +66,16 @@ export const createQueryHandlerService: (option: {
   introspection?: boolean;
   playground?: boolean;
   redisOptions: RedisOptions;
-  reducers: Record<string, Reducer>;
+  // reducers: Record<string, ReducerCallback>;
   wallet: Wallet;
 }) => {
-  addRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
-    entityName: string;
-    fields: RedisearchDefinition<TInput>;
-    preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
-    postSelector?: Selector<TItemInRedis, TOutput>;
+  addRedisRepository: <TInput, TItemInRedis, TOutput, TEvent>(
+    entity: EntityType<TInput>,
+    option: {
+      reducer: ReducerCallback<TInput, TEvent>;
+      fields: RedisearchDefinition<TInput>;
+      preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+      postSelector?: Selector<TItemInRedis, TOutput>;
   }) => AddQHRedisRepository;
 } = ({
        asLocalhost,
@@ -82,11 +86,11 @@ export const createQueryHandlerService: (option: {
        introspection = true,
        playground = true,
        redisOptions,
-       reducers,
+      //  reducers,
        wallet,
      }) => {
   const logger = getLogger('[gateway-lib] createQueryHandlerService.js');
-  const entityNames = Object.keys(reducers);
+  // const entityNames = Object.keys(reducers);
 
   // prepare Redis pub / sub
   const publisher = new Redisearch(redisOptions);
@@ -94,8 +98,10 @@ export const createQueryHandlerService: (option: {
   const pubSub = new RedisPubSub({ publisher: publisher.redis, subscriber: subscriber.redis });
 
   // TODO: @paul, please revisit here. add common domain model reducer(s)
-  entityNames.push('organization');
-  reducers['organization'] = getReducer<Organization, OrgEvents>(orgReducer);
+  const entityNames: string[] = [Organization.entityName];
+  const reducers: Record<string, Reducer> = {
+    [Organization.entityName]: getReducer(orgReducer)
+  };
 
   logger.debug(util.format('redis option: %j', redisOptions));
 
@@ -104,16 +110,21 @@ export const createQueryHandlerService: (option: {
   let queryDatabase: QueryDatabase;
   let readyToRunServer = false;
 
-  const addRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
-    entityName: string;
-    fields: RedisearchDefinition<TInput>;
-    preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
-    postSelector?: Selector<TItemInRedis, TOutput>;
-  }) => AddQHRedisRepository = ({ entityName, fields, preSelector, postSelector }) => {
+  const addRedisRepository: <TInput, TItemInRedis, TOutput, TEvent>(
+    entity: EntityType<TInput>,
+    option: {
+      reducer: ReducerCallback<TInput, TEvent>;
+      fields: RedisearchDefinition<TInput>;
+      preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+      postSelector?: Selector<TItemInRedis, TOutput>;
+  }) => AddQHRedisRepository = <TInput, TItemInRedis, TOutput, TEvent>(entity, { reducer, fields, preSelector, postSelector }) => {
+    entityNames.push(entity.entityName);
+    reducers[entity.entityName] = getReducer<TInput, TEvent>(reducer);
+
     redisRepos = composeRedisRepos(
       publisher,
       redisRepos
-    )({ entityName, fields, preSelector, postSelector });
+    )(entity, { fields, preSelector, postSelector });
 
     return { addRedisRepository, run };
   };

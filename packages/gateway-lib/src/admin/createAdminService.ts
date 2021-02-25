@@ -100,8 +100,6 @@ export const createAdminService: (option: {
 
   const wallet = await Wallets.newFileSystemWallet(walletPath);
 
-  const reducer = getReducer<Organization, OrgEvents>(orgReducer);
-
   const { config, getMspId, getRepository } = await createService({
     enrollmentId: caAdmin,
     serviceName: 'admin',
@@ -116,7 +114,7 @@ export const createAdminService: (option: {
 
   const mspId = getMspId();
 
-  const orgRepo = getRepository<Organization, OrgEvents>('organization', reducer);
+  const orgRepo = getRepository<Organization, OrgEvents>(Organization, orgReducer);
 
   // TODO: OrgCommandHandler is not compatible with createService.ts. counter.unit-test.ts will fail.
   // Fix it later
@@ -155,7 +153,7 @@ export const createAdminService: (option: {
       Organization: orgResolvers.Organization,
     },
   })
-    .addRepository<Organization, OrgEvents>('organization', reducer)
+    .addRepository<Organization, OrgEvents>(Organization, orgReducer)
     .create({ playground, introspection });
 
   return {

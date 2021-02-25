@@ -10,7 +10,7 @@ export const commandHanlder: (option: {
         {
           type: 'Increment',
           payload: {
-            id,
+            id, tag: '', desc: ''
           },
         },
       ],
@@ -26,7 +26,7 @@ export const commandHanlder: (option: {
         {
           type: 'Decrement',
           payload: {
-            id,
+            id, tag: '', desc: ''
           },
         },
       ],

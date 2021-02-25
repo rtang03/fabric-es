@@ -8,7 +8,7 @@ import {
   QueryHandler,
   Counter,
   CounterEvents,
-  counterReducer,
+  counterReducerCallback,
   getReducer,
   OutputCounter,
   RedisRepository,
@@ -66,8 +66,9 @@ const password = `password`;
 const email = `gw_test_${random}@test.com`;
 const counterId = `counter_${random}`;
 // If requiring to change entityName, need to update the Context, and resolvers as well.
-const entityName = 'gw-repo-counter';
+const entityName = 'counter';
 const enrollmentId = orgAdminId;
+const counterReducer = getReducer(counterReducerCallback);
 
 let app: http.Server;
 let adminApolloService: ApolloServer;
@@ -120,6 +121,7 @@ beforeAll(async () => {
     });
 
     // Step 3. create QueryHandlerService
+    Counter.entityName = entityName;
     const qhService = await createQueryHandlerService({
       asLocalhost: !(process.env.NODE_ENV === 'production'),
       authCheck: `${proxyServerUri}/oauth/authenticate`,
@@ -127,17 +129,18 @@ beforeAll(async () => {
       connectionProfile,
       enrollmentId,
       redisOptions: { host: 'localhost', port: 6379 },
-      reducers: {
-        [entityName]: counterReducer,
-        organization: getReducer<Organization, OrgEvents>(orgReducer),
-      },
+      // reducers: {
+      //   [entityName]: counterReducer,
+      //   organization: getReducer<Organization, OrgEvents>(orgReducer),
+      // },
       wallet,
     })
-      .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
-        entityName,
-        fields: counterIndexDefinition,
-        postSelector: counterPostSelector,
-        preSelector: counterPreSelector,
+      .addRedisRepository<Counter, CounterInRedis, OutputCounter, CounterEvents>(
+        Counter, {
+          reducer: counterReducerCallback,
+          fields: counterIndexDefinition,
+          postSelector: counterPostSelector,
+          preSelector: counterPreSelector,
       })
       .run();
 
@@ -186,15 +189,15 @@ beforeAll(async () => {
     });
 
     // Step 10: config Apollo server with models
+    Counter.entityName = entityName;
     modelApolloService = config({ typeDefs, resolvers })
       // define the Redisearch index, and selectors
-      .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
-        entityName,
+      .addRedisRepository<Counter, CounterInRedis, OutputCounter>(Counter, {
         fields: counterIndexDefinition,
         postSelector: counterPostSelector,
         preSelector: counterPreSelector,
       })
-      .addRepository<Counter, CounterEvents>(entityName, counterReducer)
+      .addRepository<Counter, CounterEvents>(Counter, counterReducerCallback)
       .create();
 
     await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () =>

@@ -18,7 +18,7 @@ export const resolvers = {
         { counterId },
         {
           dataSources: {
-            'gw-repo-counter': { repo },
+            'counter': { repo },
           },
           username,
         }: Context
@@ -34,12 +34,12 @@ export const resolvers = {
         { query }: { query: string },
         {
           dataSources: {
-            'gw-repo-counter': { repo },
+            'counter': { repo },
           },
         }: Context
       ): Promise<Paginated<OutputCounter>> => {
         const { data, error, status } = await repo.fullTextSearchEntity<OutputCounter>({
-          entityName: 'gw-repo-counter',
+          entityName: 'counter',
           query,
           cursor: 0,
           pagesize: 10,
@@ -59,7 +59,7 @@ export const resolvers = {
         { counterId },
         {
           dataSources: {
-            'gw-repo-counter': { repo },
+            'counter': { repo },
           },
           user_id,
           username,
@@ -77,7 +77,7 @@ export const resolvers = {
         { counterId },
         {
           dataSources: {
-            'gw-repo-counter': { repo },
+            'counter': { repo },
           },
           user_id,
           username,

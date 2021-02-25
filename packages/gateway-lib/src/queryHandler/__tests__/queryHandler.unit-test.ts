@@ -1,11 +1,12 @@
 require('dotenv').config({ path: './.env.test' });
 import {
   Counter,
+  CounterEvents,
   counterIndexDefinition,
   CounterInRedis,
   counterPostSelector,
   counterPreSelector,
-  counterReducer,
+  counterReducerCallback,
   isCommit,
   isOutputCounter,
   OutputCounter,
@@ -40,7 +41,7 @@ const caName = process.env.CA_NAME;
 const channelName = process.env.CHANNEL_NAME;
 const connectionProfile = process.env.CONNECTION_PROFILE;
 const enrollmentId = process.env.ORG_ADMIN_ID;
-const entityName = 'gw-gh-counter';
+const entityName = 'counter';
 const id = `qh_gql_test_counter_001`;
 const mspId = process.env.MSPID;
 const proxyServerUri = process.env.PROXY_SERVER;
@@ -92,6 +93,7 @@ beforeAll(async () => {
     };
 
     // Step 2. create QueryHandlerService
+    Counter.entityName = entityName;
     const qhService = await createQueryHandlerService({
       asLocalhost: !(process.env.NODE_ENV === 'production'),
       authCheck: `${proxyServerUri}/oauth/authenticate`,
@@ -99,15 +101,15 @@ beforeAll(async () => {
       connectionProfile,
       enrollmentId,
       redisOptions,
-      reducers: { [entityName]: counterReducer },
       wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     })
       // define the Redisearch index, and selectors for Counter
-      .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
-        entityName,
-        fields: counterIndexDefinition,
-        postSelector: counterPostSelector,
-        preSelector: counterPreSelector,
+      .addRedisRepository<Counter, CounterInRedis, OutputCounter, CounterEvents>(
+        Counter, {
+          reducer: counterReducerCallback,
+          fields: counterIndexDefinition,
+          postSelector: counterPostSelector,
+          preSelector: counterPreSelector,
       })
       // 1. connect Fabric; 2. recreate Indexes; 3. subscribe channel hub; 4. reconcile
       .run();
