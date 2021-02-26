@@ -1,7 +1,6 @@
 import { Lifecycle } from '@fabric-es/fabric-cqrs';
 import { Errors } from '@fabric-es/gateway-lib';
-import values from 'lodash/values';
-import { LoanCommandHandler, LoanEvents, LoanRepo } from '..';
+import { LoanCommandHandler, LoanEvents, LoanRepo } from '.';
 
 export const LoanErrors = {
   loanNotFound: (loanId) => new Error(`LOAN_NOT_FOUND: id: ${loanId}`),

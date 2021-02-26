@@ -1,4 +1,4 @@
-import type { User, UserEvents } from '../types';
+import type { User, UserEvents } from '.';
 
 export const userReducer = (user: User, event: UserEvents): User => {
   switch (event.type) {

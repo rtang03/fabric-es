@@ -1,6 +1,5 @@
 import { Errors } from '@fabric-es/gateway-lib';
-import values from 'lodash/values';
-import { LoanDetailsCommandHandler, LoanDetailsRepo } from '..';
+import { LoanDetailsCommandHandler, LoanDetailsRepo } from '.';
 
 export const LoanDetailsErrors = {
   loanDetailsNotFound: (loanId) => new Error(`LOAN_DETAILS_NOT_FOUND: id: ${loanId}`),

@@ -1,6 +1,6 @@
-import type { OutputLoan } from '../types';
+import type { LoanOutput } from '.';
 
-export const isOutputLoan = (input: any): input is OutputLoan =>
+export const isLoanOutput = (input: any): input is LoanOutput =>
   input?.id !== undefined &&
   input?.loanId !== undefined &&
   input?.ownerId !== undefined &&

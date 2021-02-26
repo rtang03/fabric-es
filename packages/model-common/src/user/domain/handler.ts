@@ -1,4 +1,4 @@
-import { UserCommandHandler, UserRepo } from '..';
+import { UserCommandHandler, UserRepo } from '.';
 
 export const userCommandHandler: (option: {
   enrollmentId: string;
