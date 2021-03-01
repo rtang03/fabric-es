@@ -13,7 +13,6 @@
     "service-loan": "node ./dist/service-loan.js",
     "service-user": "node ./dist/service-user.js",
     "service-ctnt": "node ./dist/service-prv-ctnt.js",
-    "service-rdtls": "node ./dist/service-rmt-dtls.js",
     "service-admin": "node ./dist/service-admin.js",
     "service-queryHandler": "node ./dist/service-queryHandler.js",
     "start-services": "yarn build && concurrently \"npm:service-*\"",

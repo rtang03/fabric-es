@@ -1,5 +1,6 @@
 require('dotenv').config({ path: './.env.test' });
 import http from 'http';
+import { buildFederatedSchema } from '@apollo/federation';
 import {
   CounterInRedis,
   counterIndexDefinition,
@@ -9,7 +10,6 @@ import {
   Counter,
   CounterEvents,
   counterReducerCallback,
-  getReducer,
   OutputCounter,
   RedisRepository,
 } from '@fabric-es/fabric-cqrs';
@@ -184,7 +184,7 @@ beforeAll(async () => {
 
     // Step 10: config Apollo server with models
     Counter.entityName = entityName;
-    modelApolloService = config({ typeDefs, resolvers })
+    modelApolloService = config(buildFederatedSchema([{ typeDefs, resolvers }]))
       // define the Redisearch index, and selectors
       .addRedisRepository<Counter, CounterInRedis, OutputCounter>(Counter, {
         fields: counterIndexDefinition,

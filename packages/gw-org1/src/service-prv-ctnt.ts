@@ -1,6 +1,6 @@
 require('./env');
 import util from 'util';
-import { getReducer } from '@fabric-es/fabric-cqrs';
+import { buildFederatedSchema } from '@apollo/federation';
 import { createService, getLogger } from '@fabric-es/gateway-lib';
 import {
   docContentsReducer,
@@ -8,7 +8,7 @@ import {
   docContentsTypeDefs,
   documentReducer,
 } from '@fabric-es/model-document';
-import type {
+import {
   DocContents,
   DocContentsEvents,
   Document,
@@ -48,20 +48,13 @@ void (async () =>
     },
   })
     .then(({ config, shutdown, getRepository, getPrivateRepository }) => {
-      const app = config({
+      const app = config(buildFederatedSchema([{
         typeDefs: docContentsTypeDefs,
         resolvers: docContentsResolvers,
-      })
-        .addRepository<Document, DocumentEvents>(
-          'document',
-          getReducer<Document, DocumentEvents>(documentReducer)
-        )
-        .addPrivateRepository<DocContents, DocContentsEvents>(
-          'docContents',
-          getReducer<DocContents, DocContentsEvents>(docContentsReducer),
-          'document'
-        )
-        .create();
+      }]))
+      .addRepository<Document, DocumentEvents>(Document, documentReducer)
+      .addPrivateRepository<DocContents, DocContentsEvents>(DocContents, docContentsReducer)
+      .create();
 
       process.on(
         'SIGINT',

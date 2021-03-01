@@ -1,9 +1,14 @@
 import util from 'util';
-import { getReducer, Repository } from '@fabric-es/fabric-cqrs';
+import { buildFederatedSchema } from '@apollo/federation';
+import { Repository } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import type { RedisOptions } from 'ioredis';
 import { getLogger } from '..';
+import {
+  Organization, OrgEvents, orgReducer, orgIndices, orgCommandHandler,
+  User, UserEvents, userReducer, userIndices,
+} from '../common/model';
 import { createService } from '../utils';
 import {
   MISSING_CHANNELNAME,
@@ -12,8 +17,6 @@ import {
   MISSING_WALLET,
 } from './constants';
 import { createResolvers } from './createResolvers';
-import { Organization, orgCommandHandler, OrgEvents, orgReducer } from './model';
-import { resolvers as orgResolvers } from './model/organization/typeDefs';
 import { typeDefs } from './typeDefs';
 
 /**
@@ -113,19 +116,9 @@ export const createAdminService: (option: {
   logger.info('createService complete');
 
   const mspId = getMspId();
-
   const orgRepo = getRepository<Organization, OrgEvents>(Organization, orgReducer);
-
-  const result = await orgCommandHandler({
-    enrollmentId: caAdmin,
-    orgRepo,
-  }).StartOrg({
-    mspId,
-    payload: {
-      name: orgName,
-      url: orgUrl,
-      timestamp: Date.now(),
-    },
+  await orgCommandHandler({ enrollmentId: caAdmin, orgRepo }).StartOrg({
+    mspId, payload: { name: orgName, url: orgUrl, timestamp: Date.now() },
   });
   logger.info('orgCommandHandler.StartOrg complete');
 
@@ -140,18 +133,14 @@ export const createAdminService: (option: {
     mspId,
     enrollmentSecret,
   });
-
   logger.info('createResolvers complete');
 
-  const server = config({
-    typeDefs,
-    resolvers: {
-      Query: { ...resolvers.Query, ...orgResolvers.Query },
-      Mutation: resolvers.Mutation,
-      Organization: orgResolvers.Organization,
-    },
-  })
+  const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
+  const server = config(schema)
+    .addRedisRepository(Organization, { fields: orgIndices })
+    .addRedisRepository(User, { fields: userIndices })
     .addRepository<Organization, OrgEvents>(Organization, orgReducer)
+    .addRepository<User, UserEvents>(User, userReducer)
     .create({ playground, introspection });
 
   return {
@@ -159,14 +148,8 @@ export const createAdminService: (option: {
     shutdown: (({ logger, repo }: { logger: any; repo: Repository }) => async (
       server: ApolloServer
     ) => {
-      await orgCommandHandler({
-        enrollmentId: caAdmin,
-        orgRepo: repo,
-      }).ShutdownOrg({
-        mspId,
-        payload: {
-          timestamp: Date.now(),
-        },
+      await orgCommandHandler({ enrollmentId: caAdmin, orgRepo: repo, }).ShutdownOrg({
+        mspId, payload: { timestamp: Date.now() },
       });
 
       return new Promise<void>((resolve, reject) => {

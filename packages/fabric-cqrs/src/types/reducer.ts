@@ -13,7 +13,9 @@ export const TRACK_FIELD = '_remoteDataTracking';
 /**
  * @ignore
  */
-export const ORGAN_FIELD = '_organization';
+export const ORGAN_NAME = 'organization';
+
+const ORGAN_FIELD = '_organization';
 
 /**
  * @about reducer computes the current state of an entity

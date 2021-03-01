@@ -15,11 +15,12 @@ import {
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
+import { GraphQLSchema } from 'graphql';
 import type { RedisOptions } from 'ioredis';
 import { Redisearch } from 'redis-modules-sdk';
 import type { Selector } from 'reselect';
 import { createTrackingData, DataSrc } from '..';
-import { Organization, OrgEvents, orgReducer } from '../admin';
+import { Organization, OrgEvents, orgReducer } from '../common/model';
 import type { AddRedisRepository, FederatedService } from '../types';
 import { composeRedisRepos, getLogger, shutdownApollo } from '.';
 
@@ -151,7 +152,7 @@ export const createService: (option: {
     });
 
   return {
-    config: ({ typeDefs, resolvers }) => {
+    config: (schema: GraphQLSchema) => { // { typeDefs, resolvers }
       const repositories: {
         entityName: string;
         repository: Repository | PrivateRepository;
@@ -162,7 +163,7 @@ export const createService: (option: {
         playground?: boolean;
         introspection?: boolean;
       }) => ApolloServer = (option) => {
-        const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
+        // const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
 
         const args = mspId ? { mspId } : undefined;
         const flags = {

@@ -3,6 +3,7 @@ import type {
 } from '@fabric-es/fabric-cqrs';
 import type {  } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
+import { GraphQLSchema } from 'graphql';
 import type { Selector } from 'reselect';
 
 export interface AddRedisRepository {
@@ -45,10 +46,7 @@ interface AddPrivateRepository {
 }
 
 export type FederatedService = {
-  config: (option: {
-    typeDefs: any;
-    resolvers: any;
-  }) => {
+  config: (schema: GraphQLSchema) => {
     addPrivateRepository: <TEntity, TEvent>(
       entity: EntityType<TEntity>,
       reducer: ReducerCallback<TEntity, TEvent>,

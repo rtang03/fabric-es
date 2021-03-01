@@ -1,9 +1,9 @@
 import util from 'util';
-import { TRACK_FIELD } from '@fabric-es/fabric-cqrs';
+import { TRACK_FIELD, ORGAN_NAME } from '@fabric-es/fabric-cqrs';
 import { execute, makePromise, DocumentNode } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import nodeFetch from 'node-fetch';
-import { getLogger, Organization } from '..';
+import { getLogger } from '..';
 
 const fetch = nodeFetch as any;
 
@@ -42,30 +42,32 @@ export const queryTrackingData: (option: {
   };
 
   const logger = getLogger('[gw-lib] remoteData.js');
-  const temp: Organization = null;
   const result: any[] = [];
   result.push(await context.dataSources[privateDataSrc].repo.getById({ id, enrollmentId: context.username }).then(({ currentState }) => currentState));
 
   const pub = await context.dataSources[publicDataSrc].repo.getById({ id, enrollmentId: context.username}).then(({ currentState }) => currentState);
   if (!pub[TRACK_FIELD]) return result;
 
-  for (const mspid of pub[TRACK_FIELD][context.dataSources[privateDataSrc].repo.getEntityName()]) {
-    if (mspid !== context.mspId) {
-      const org = await context.dataSources[Organization.entityName].repo.getById({ id: mspid, enrollmentId: context.username }).then(({ currentState }) => currentState);
-      await context.trackingData({
-        uri: org.url,
-        query,
-        operationName: query.definitions[0]['name'].value,
-        variables: args,
-        token
-      }).then(({ data, errors }) => {
-        if (errors)
-          logger.error(util.format('reemote data, %j', errors));
-        else if (data)
-          result.push(data[query.definitions[0]['selectionSet'].selections[0].name.value]);
-      }).catch(error => {
-        logger.error(util.format('remote data, %j', error));
-      });
+  const ds = context.dataSources[ORGAN_NAME]; // TODO here!!!
+  if (ds) {
+    for (const mspid of pub[TRACK_FIELD][context.dataSources[privateDataSrc].repo.getEntityName()]) {
+      if (mspid !== context.mspId) {
+        const org = await ds.repo.getById({ id: mspid, enrollmentId: context.username }).then(({ currentState }) => currentState);
+        await context.trackingData({
+          uri: org.url,
+          query,
+          operationName: query.definitions[0]['name'].value,
+          variables: args,
+          token
+        }).then(({ data, errors }) => {
+          if (errors)
+            logger.error(util.format('reemote data, %j', errors));
+          else if (data)
+            result.push(data[query.definitions[0]['selectionSet'].selections[0].name.value]);
+        }).catch(error => {
+          logger.error(util.format('remote data, %j', error));
+        });
+      }
     }
   }
 

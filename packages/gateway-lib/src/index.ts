@@ -8,6 +8,4 @@ export { createTrackingData, queryTrackingData } from './remote/createTrackingDa
 export { createQueryHandlerService } from './queryHandler';
 export { DataSrc, CommandHandler } from './types';
 export { Errors } from './utils';
-
 export * from './admin/query';
-export * from './admin/model/organization';

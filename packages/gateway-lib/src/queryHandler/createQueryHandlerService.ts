@@ -20,7 +20,10 @@ import type { RedisOptions } from 'ioredis';
 import fetch from 'node-fetch';
 import { Redisearch } from 'redis-modules-sdk';
 import type { Selector } from 'reselect';
-import { Organization, OrgEvents, orgReducer } from '../admin';
+import {
+  Organization, OrgEvents, orgReducer, orgIndices,
+  User, UserEvents, userReducer, userIndices,
+} from '../common/model';
 import type { QueryHandlerGqlCtx } from '../types';
 import { composeRedisRepos, getLogger, isAuthResponse } from '../utils';
 import {
@@ -94,12 +97,6 @@ export const createQueryHandlerService: (option: {
   const subscriber = new Redisearch(redisOptions);
   const pubSub = new RedisPubSub({ publisher: publisher.redis, subscriber: subscriber.redis });
 
-  // Add organization reducers
-  const entityNames: string[] = [Organization.entityName];
-  const reducers: Record<string, Reducer> = {
-    [Organization.entityName]: getReducer(orgReducer)
-  };
-
   logger.debug(util.format('redis option: %j', redisOptions));
 
   let redisRepos: Record<string, RedisRepository> = {};
@@ -107,11 +104,20 @@ export const createQueryHandlerService: (option: {
   let queryDatabase: QueryDatabase;
   let readyToRunServer = false;
 
+  // Add common reducers
+  const entityNames: string[] = [Organization.entityName, User.entityName];
+  const reducers: Record<string, Reducer> = {
+    [Organization.entityName]: getReducer(orgReducer),
+    [User.entityName]: getReducer(userReducer),
+  };
+  redisRepos = composeRedisRepos(publisher, redisRepos)(Organization, { fields: orgIndices});
+  redisRepos = composeRedisRepos(publisher, redisRepos)(User, { fields: userIndices});
+
   const addRedisRepository: <TInput, TItemInRedis, TOutput, TEvent>(
     entity: EntityType<TInput>,
     option: {
-      reducer: ReducerCallback<TInput, TEvent>;
       fields: RedisearchDefinition<TInput>;
+      reducer: ReducerCallback<TInput, TEvent>;
       preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
       postSelector?: Selector<TItemInRedis, TOutput>;
   }) => AddQHRedisRepository = <TInput, TItemInRedis, TOutput, TEvent>(entity, { reducer, fields, preSelector, postSelector }) => {
