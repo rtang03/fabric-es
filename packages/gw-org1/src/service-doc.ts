@@ -3,12 +3,12 @@ import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
 import { createService, getLogger } from '@fabric-es/gateway-lib';
 import {
+  documentIndices,
+  documentPostSelector,
+  documentPreSelector,
   documentReducer,
   documentResolvers,
   documentTypeDefs,
-  documentPreSelector,
-  documentPostSelector,
-  documentIndices,
 } from '@fabric-es/model-document';
 import {
   Document,

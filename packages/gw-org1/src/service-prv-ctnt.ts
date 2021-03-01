@@ -47,7 +47,7 @@ void (async () =>
       },
     },
   })
-    .then(({ config, shutdown, getRepository, getPrivateRepository }) => {
+    .then(({ config, shutdown }) => {
       const app = config(buildFederatedSchema([{
         typeDefs: docContentsTypeDefs,
         resolvers: docContentsResolvers,

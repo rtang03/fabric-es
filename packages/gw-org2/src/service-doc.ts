@@ -1,25 +1,24 @@
 require('./env');
 import util from 'util';
-import { getReducer } from '@fabric-es/fabric-cqrs';
+import { buildFederatedSchema } from '@apollo/federation';
 import { createService, getLogger } from '@fabric-es/gateway-lib';
 import {
-  documentIndexDefinition,
+  documentIndices,
+  documentPostSelector,
+  documentPreSelector,
   documentReducer,
   documentResolvers,
   documentTypeDefs,
-  postSelector,
-  preSelector,
 } from '@fabric-es/model-document';
-import type {
+import {
   Document,
   DocumentEvents,
   DocumentInRedis,
-  OutputDocument,
+  DocumentOutput,
 } from '@fabric-es/model-document';
 import { Wallets } from 'fabric-network';
 
 const logger = getLogger('service-doc.js');
-const reducer = getReducer<Document, DocumentEvents>(documentReducer);
 
 void (async () =>
   createService({
@@ -50,17 +49,17 @@ void (async () =>
     },
   })
     .then(({ config, shutdown }) => {
-      const app = config({
+      const app = config(buildFederatedSchema([{
         typeDefs: documentTypeDefs,
         resolvers: documentResolvers,
-      })
-        .addRedisRepository<Document, DocumentInRedis, OutputDocument>({
-          entityName: 'document',
-          fields: documentIndexDefinition,
-          preSelector,
-          postSelector,
-        })
-        .addRepository<Document, DocumentEvents>('document', reducer)
+      }]))
+        .addRedisRepository<Document, DocumentInRedis, DocumentOutput>(
+          Document, {
+            fields: documentIndices,
+            preSelector: documentPreSelector,
+            postSelector: documentPostSelector,
+          })
+        .addRepository<Document, DocumentEvents>(Document, documentReducer)
         .create();
 
       process.on(

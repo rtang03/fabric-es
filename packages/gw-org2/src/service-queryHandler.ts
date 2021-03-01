@@ -1,53 +1,31 @@
 require('./env');
 import util from 'util';
-import {
-  Counter,
-  counterIndexDefinition,
-  CounterInRedis,
-  counterPostSelector,
-  counterPreSelector,
-  counterReducer,
-  getReducer,
-  OutputCounter,
-} from '@fabric-es/fabric-cqrs';
 import { createQueryHandlerService, getLogger } from '@fabric-es/gateway-lib';
-import { userReducer, userIndexDefinition } from '@fabric-es/model-common';
-import type { User, UserEvents } from '@fabric-es/model-common';
 import {
-  documentReducer,
-  postSelector as docPostSelector,
-  preSelector as docPreSelector,
-  documentIndexDefinition,
-} from '@fabric-es/model-document';
-import type {
   Document,
   DocumentEvents,
-  OutputDocument,
+  DocumentOutput,
   DocumentInRedis,
+  documentReducer,
+  documentPostSelector,
+  documentPreSelector,
+  documentIndices,
 } from '@fabric-es/model-document';
 import {
   loanReducer,
-  loanIndexDefinition,
-  postSelector as loanPostSelector,
-  preSelector as loanPreSelector,
-  loanDetailsReducer,
-} from '@fabric-es/model-loan';
-import type {
-  LoanDetailsEvents,
-  LoanDetails,
-  Loan,
-  LoanEvents,
-  LoanInRedis,
-  OutputLoan,
+  loanIndices,
+  loanPostSelector,
+  loanPreSelector,
+  Loan, LoanEvents, LoanInRedis, LoanOutput
 } from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
-import { RedisOptions } from 'ioredis';
+import type { RedisOptions } from 'ioredis';
 
 const port = parseInt(process.env.QUERY_PORT, 10) || 5000;
 const logger = getLogger('[query-handler] app.js');
 const authCheck = process.env.AUTHORIZATION_SERVER_URI;
 
-(async () => {
+void (async () => {
   const redisOptions: RedisOptions = {
     host: process.env.REDIS_HOST,
     port: parseInt(process.env.REDIS_PORT, 10) || 6379,
@@ -68,43 +46,29 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     },
   };
 
-  const reducers = {
-    document: getReducer<Document, DocumentEvents>(documentReducer),
-    loan: getReducer<Loan, LoanEvents>(loanReducer),
-    user: getReducer<User, UserEvents>(userReducer),
-    loanDetails: getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer),
-    counter: counterReducer,
-  };
-
   const { getServer, shutdown } = await createQueryHandlerService({
     redisOptions,
     asLocalhost: !(process.env.NODE_ENV === 'production'),
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     enrollmentId: process.env.ORG_ADMIN_ID,
-    reducers,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     authCheck,
   })
-    .addRedisRepository({ entityName: 'user', fields: userIndexDefinition })
-    .addRedisRepository<Document, DocumentInRedis, OutputDocument>({
-      entityName: 'document',
-      fields: documentIndexDefinition,
-      preSelector: docPreSelector,
-      postSelector: docPostSelector,
-    })
-    .addRedisRepository<Loan, LoanInRedis, OutputLoan>({
-      entityName: 'loan',
-      fields: loanIndexDefinition,
-      postSelector: loanPostSelector,
-      preSelector: loanPreSelector,
-    })
-    .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
-      entityName: 'counter',
-      fields: counterIndexDefinition,
-      postSelector: counterPostSelector,
-      preSelector: counterPreSelector,
-    })
+    .addRedisRepository<Document, DocumentInRedis, DocumentOutput, DocumentEvents>(
+      Document, {
+        fields: documentIndices,
+        reducer: documentReducer,
+        preSelector: documentPreSelector,
+        postSelector: documentPostSelector,
+      })
+    .addRedisRepository<Loan, LoanInRedis, LoanOutput, LoanEvents>(
+      Loan, {
+        fields: loanIndices,
+        reducer: loanReducer,
+        postSelector: loanPostSelector,
+        preSelector: loanPreSelector,
+      })
     .run();
 
   const server = getServer();
@@ -131,13 +95,13 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
   });
 
   void server.listen({ port }).then(({ url, subscriptionsUrl }) => {
-    logger.info(`🚀 queryHandler available at ${url}`);
+    logger.info(`🚀 queryHandler available at ${url}graphql`);
     logger.info(`🚀 Subscription ${subscriptionsUrl}`);
 
-    process.send?.('ready');
+    process?.send?.('ready');
   });
 })().catch((error) => {
   console.error(error);
-  logger.error(util.format('fail to start app.js, %j', error));
+  logger.error(util.format('fail to start queryHandler.js, %j', error));
   process.exit(1);
 });

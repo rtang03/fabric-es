@@ -1,6 +1,6 @@
 require('./env');
 import util from 'util';
-import { getReducer } from '@fabric-es/fabric-cqrs';
+import { buildFederatedSchema } from '@apollo/federation';
 import { createService, getLogger } from '@fabric-es/gateway-lib';
 import {
   LoanDetails,
@@ -10,10 +10,8 @@ import {
   loanDetailsTypeDefs,
 } from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
-import Redis from 'ioredis';
 
 const logger = getLogger('service-prv-dtls.js');
-const reducer = getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer);
 
 void (async () =>
   createService({
@@ -45,12 +43,12 @@ void (async () =>
     },
   })
     .then(({ config, shutdown }) => {
-      const app = config({
+      const app = config(buildFederatedSchema([{
         typeDefs: loanDetailsTypeDefs,
         resolvers: loanDetailsResolvers,
-      })
-        .addPrivateRepository<LoanDetails, LoanDetailsEvents>('loanDetails', reducer)
-        .create();
+      }]))
+      .addPrivateRepository<LoanDetails, LoanDetailsEvents>(LoanDetails, loanDetailsReducer)
+      .create();
 
       process.on(
         'SIGINT',

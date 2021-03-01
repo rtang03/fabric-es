@@ -1,20 +1,19 @@
 require('./env');
 import util from 'util';
-import { getReducer } from '@fabric-es/fabric-cqrs';
+import { buildFederatedSchema } from '@apollo/federation';
 import { createService, getLogger } from '@fabric-es/gateway-lib';
 import {
   loanReducer,
   loanResolvers,
   loanTypeDefs,
-  loanIndexDefinition,
-  postSelector,
-  preSelector,
+  loanIndices,
+  loanPostSelector,
+  loanPreSelector,
 } from '@fabric-es/model-loan';
-import type { Loan, LoanEvents, LoanInRedis, OutputLoan } from '@fabric-es/model-loan';
+import { Loan, LoanEvents, LoanInRedis, LoanOutput } from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
 
 const logger = getLogger('service-loan.js');
-const reducer = getReducer<Loan, LoanEvents>(loanReducer);
 
 void (async () =>
   createService({
@@ -45,17 +44,17 @@ void (async () =>
     },
   })
     .then(({ config, shutdown }) => {
-      const app = config({
+      const app = config(buildFederatedSchema([{
         typeDefs: loanTypeDefs,
         resolvers: loanResolvers,
-      })
-        .addRedisRepository<Loan, LoanInRedis, OutputLoan>({
-          entityName: 'loan',
-          fields: loanIndexDefinition,
-          postSelector,
-          preSelector,
-        })
-        .addRepository<Loan, LoanEvents>('loan', reducer)
+      }]))
+        .addRedisRepository<Loan, LoanInRedis, LoanOutput>(
+          Loan, {
+            fields: loanIndices,
+            postSelector: loanPostSelector,
+            preSelector: loanPreSelector,
+          })
+        .addRepository<Loan, LoanEvents>(Loan, loanReducer)
         .create();
 
       process.on(
