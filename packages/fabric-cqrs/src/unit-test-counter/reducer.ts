@@ -11,7 +11,7 @@ export const reducerCallback: ReducerCallback<Counter, CounterEvents> = (
 ) => {
   // NOTE: initialize `state` to cater for the fact that the original version of the counterReducer has the following
   //   hardcoded into the reducer's initial value!!!
-  if (!state) state = { id: null, desc: null, tag: null, value: 0, _ts: 0, _created: 0, _creator: null };
+  if (!state) state = { id: null, desc: null, tag: null, value: 0, _ts: 0, _created: 0, _creator: null, _organization: null };
 
   return ({
     Increment: {

@@ -3,7 +3,7 @@ import type { Loan } from '.';
 
 export type CommonLoanFields = Pick<
   Loan,
-  'id' | 'ownerId' | 'loanId' | 'description' | 'status' | 'reference' | 'comment' | 'timestamp'
+  'id' | 'ownerId' | 'loanId' | 'description' | 'status' | 'reference' | 'comment' | 'timestamp' | '_organization'
 >;
 
 export type LoanIndices = RedisearchDefinition<CommonLoanFields>;
@@ -17,4 +17,5 @@ export const loanIndices: LoanIndices = {
   reference: { altName: 'ref' },
   status: { index: { type: 'TEXT' } },
   timestamp: { altName: 'ts', index: { type: 'NUMERIC', sortable: true } },
+  _organization: { altName: 'organ', index: { type: 'TEXT', sortable: true }},
 };

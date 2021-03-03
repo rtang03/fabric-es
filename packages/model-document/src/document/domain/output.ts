@@ -16,6 +16,7 @@ export type DocumentOutput = {
   timestamp: number;
   creator: string;
   createdAt: number;
+  organization: string[];
 };
 
 /**
@@ -32,4 +33,5 @@ export const documentPostSelector: Selector<DocumentInRedis, DocumentOutput> = c
   timestamp: (item) => item?.ts,
   createdAt: (item) => item?.created,
   creator: (item) => item?.creator,
+  organization: (item) => item?.organ,
 });

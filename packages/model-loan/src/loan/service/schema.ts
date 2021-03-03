@@ -39,7 +39,7 @@ export const typeDefs = gql`
     comment: String
     status: Int!
     timestamp: String!
-    _organization: [String]!
+    organization: [String]!
   }
 
   type PaginatedLoans {

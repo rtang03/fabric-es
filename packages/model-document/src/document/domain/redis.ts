@@ -16,6 +16,7 @@ export type DocumentInRedis = {
   ts: number;
   created: number;
   creator: string;
+  organ: string[];
 };
 
 /**
@@ -34,4 +35,5 @@ export const documentPreSelector: Selector<
   ts: ([{ timestamp }]) => timestamp,
   created: ([{ _created }]) => _created,
   creator: ([{ _creator }]) => _creator,
+  organ: ([{ _organization }]) => _organization,
 });

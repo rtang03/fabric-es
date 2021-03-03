@@ -103,7 +103,7 @@ export const createAdminService: (option: {
 
   const wallet = await Wallets.newFileSystemWallet(walletPath);
 
-  const { config, getMspId, getRepository } = await createService({
+  const { config, getMspId, getRepository, shutdown } = await createService({
     enrollmentId: caAdmin,
     serviceName: 'admin',
     channelName,
@@ -143,27 +143,38 @@ export const createAdminService: (option: {
     .addRepository<User, UserEvents>(User, userReducer)
     .create({ playground, introspection });
 
+  let stopping = false;
+  let stopped = false;
+
   return {
     server,
-    shutdown: (({ logger, repo }: { logger: any; repo: Repository }) => async (
+    shutdown: ((repo: Repository) => (
       server: ApolloServer
     ) => {
-      await orgCommandHandler({ enrollmentId: caAdmin, orgRepo: repo, }).ShutdownOrg({
-        mspId, payload: { timestamp: Date.now() },
-      });
-
-      return new Promise<void>((resolve, reject) => {
-        server
-          .stop()
-          .then(() => {
-            logger.info('Admin service stopped');
-            resolve();
-          })
-          .catch((err) => {
-            logger.error(util.format(`An error occurred while shutting down: %j`, err));
-            reject();
+      if (!stopping) {
+        stopping = true;
+        return orgCommandHandler({ enrollmentId: caAdmin, orgRepo: repo, }).ShutdownOrg({
+          mspId, payload: { timestamp: Date.now() },
+        }).then(_ => {
+          return shutdown(server).then(_ => {
+            stopped = true;
           });
-      });
-    })({ logger, repo: orgRepo }),
+        });
+      } else {
+        let cnt = 10;
+        const loop = (func) => {
+          setTimeout(() => {
+            if (!stopped && cnt > 0) {
+              cnt --;
+              logger.debug(`waiting for shutdown() to complete... ${cnt}`);
+              loop(func);
+            } else {
+              func();
+            }
+          }, 1000);
+        };
+        return new Promise<void>(resolve => loop(resolve));
+      }
+    })(orgRepo),
   };
 };

@@ -261,10 +261,10 @@ export const createQueryDatabase: (
       */
 
       // step 4 add Tracking Info
-      // TODO: need Paul's help about how to represent tracking information in Redis
-      // const newComputedState = Object.assign({}, state, trackingReducer(history));
+      if (state) Object.assign(state, trackingReducer(history));
 
       debug && console.debug(util.format('entity being merged, %j', state));
+      console.log('YOYOYOYOYO-2', util.format('merging, %j', state)); // TODO TEMP, to be removed
 
       // step 5: compute events history, returning comma separator
       if (!state?.id) {
@@ -323,6 +323,8 @@ export const createQueryDatabase: (
       const entities = Object.entries(groupByEntityId)
         .map(([entityId, commits]) => {
           const state = reducer(getHistory(commits));
+          if (state) Object.assign(state, trackingReducer(commits));
+          console.log('YOYOYOYOYO-3', util.format('batch merging, %j', state)); // TODO TEMP, to be removed
           const keyOfEntityInRedis = allRepos[entityName].getKey(commits[0]);
           // if reducer fails
           !state && errors.push(entityId);

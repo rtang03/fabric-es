@@ -12,4 +12,5 @@ export type OutputCounter = {
   tags: string[];
   timestamp: number;
   value: number;
+  organization: string[];
 };

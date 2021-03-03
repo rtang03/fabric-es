@@ -16,6 +16,7 @@ export interface LoanOutput {
   timestamp: number;
   createdAt: number;
   creator: string;
+  organization: string[];
 }
 
 /**
@@ -32,4 +33,5 @@ export const loanPostSelector: Selector<LoanInRedis, LoanOutput> = createStructu
   timestamp: (item) => item?.ts,
   createdAt: (item) => item?.created,
   creator: (item) => item?.creator,
+  organization: (item) => item?.organ,
 });

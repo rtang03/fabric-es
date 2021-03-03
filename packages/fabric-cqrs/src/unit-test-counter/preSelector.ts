@@ -60,4 +60,5 @@ export const preSelector: Selector<[Counter, Commit[]], CounterInRedis> = create
       .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null),
   ts: ([{ _ts }]) => _ts,
   val: ([{ value }]) => value,
+  organ: ([{ _organization }]) => _organization,
 });

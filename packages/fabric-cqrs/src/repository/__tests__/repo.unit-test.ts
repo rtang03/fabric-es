@@ -284,6 +284,7 @@ describe('Repository Test', () => {
         id: 'repo_test_counter_001',
         desc: 'repo #1 create-test',
         tag: 'repo_test',
+        _organization: null,
       });
     }));
 
@@ -353,6 +354,7 @@ describe('Verify Result', () => {
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
         tag: 'repo_test',
+        _organization: null,
       });
     }));
 

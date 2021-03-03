@@ -226,7 +226,7 @@ describe('Reconcile Tests', () => {
 
   it('should fail to reconcile non-existing entityName', async () =>
     queryHandler
-      .reconcile()({ entityName: 'Noop' })
+      .reconcile({ entityName: 'Noop' })
       .then(({ data, status }) => {
         expect(data).toEqual([]);
         expect(status).toEqual('OK');
@@ -234,7 +234,7 @@ describe('Reconcile Tests', () => {
 
   it('should reconcile', async () =>
     queryHandler
-      .reconcile()({ entityName })
+      .reconcile({ entityName })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data).toEqual([{ key: 'e:test_reconcile:qh_test_001', status: 'OK' }]);
@@ -282,7 +282,7 @@ describe('Reconcile Tests', () => {
 
   it('should reconcile', async () =>
     queryHandler
-      .reconcile()({ entityName })
+      .reconcile({ entityName })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data).toEqual([{ key: 'e:test_reconcile:qh_test_001', status: 'OK' }]);
@@ -344,7 +344,7 @@ describe('Reconcile Tests', () => {
 
   it('should reconcile', async () =>
     queryHandler
-      .reconcile()({ entityName })
+      .reconcile({ entityName })
       .then(({ data, status }) => {
         expect(data).toEqual([
           { key: 'e:test_reconcile:qh_test_001', status: 'OK' },
@@ -378,6 +378,7 @@ describe('Reconcile Tests', () => {
             tag: 'reconcile',
             desc: 'query handler #2 reconcile-test',
             _creator: 'admin-org1.net',
+            _organization: null,
           },
           {
             value: 1,
@@ -385,6 +386,7 @@ describe('Reconcile Tests', () => {
             tag: 'reconcile',
             desc: 'query handler #3 reconcile-test',
             _creator: 'admin-org1.net',
+            _organization: null,
           },
         ]);
       }));

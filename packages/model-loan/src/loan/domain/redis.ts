@@ -16,6 +16,7 @@ export type LoanInRedis = {
   ts: number;
   created: number;
   creator: string;
+  organ: string[];
 };
 
 /**
@@ -31,4 +32,5 @@ export const loanPreSelector: Selector<[Loan, Commit[]], LoanInRedis> = createSt
   ts: ([{ timestamp }]) => timestamp,
   created: ([{ _created }]) => _created,
   creator: ([{ _creator }]) => _creator,
+  organ: ([{ _organization }]) => _organization,
 });

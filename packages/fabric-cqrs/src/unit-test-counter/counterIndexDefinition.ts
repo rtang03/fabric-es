@@ -19,4 +19,5 @@ export const counterIndexDefinition: CounterIndexDefintion = {
   _creator: { altName: 'creator', index: { type: 'TEXT' } },
   // derived fields
   event: { index: { type: 'TAG' } },
+  _organization: { altName: 'organ', index: { type: 'TEXT', sortable: true }},
 };

@@ -13,6 +13,6 @@ export const reconcile = async (entityNames, queryHandler: QueryHandler, logger:
       .query_deleteCommitByEntityName(entityName)()
       .then(({ data, status }) => logger.debug(`status: ${status}; ${data} record(s) deleted`));
 
-    await queryHandler.reconcile()({ entityName });
+    await queryHandler.reconcile({ entityName }).then(_ => queryHandler.reconciled());
   }
 };
