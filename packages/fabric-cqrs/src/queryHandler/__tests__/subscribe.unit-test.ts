@@ -129,7 +129,7 @@ beforeAll(async () => {
       wallet,
     });
 
-    await queryHandler.subscribeHub([entityName]);
+    await queryHandler.subscribeHub([entityName]).then(_ => queryHandler.reconciled());
 
     // Step 8: prepare Redisearch indexes
     const eidx = counterRedisRepo.getIndexName();
@@ -399,6 +399,7 @@ describe('Query Handler Tests', () => {
           description: 'query hander #2 sub-test',
           creator: 'admin-org1.net',
           eventInvolved: ['Increment', 'Decrement'],
+          organization: ['Org1MSP'],
         });
       }));
 
@@ -422,6 +423,7 @@ describe('Query Handler Tests', () => {
           description: 'query hander #2 sub-test',
           creator: 'admin-org1.net',
           eventInvolved: ['Increment', 'Decrement'],
+          organization: ['Org1MSP'],
         });
       }));
 });

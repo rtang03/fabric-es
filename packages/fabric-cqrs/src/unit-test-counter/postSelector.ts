@@ -14,5 +14,5 @@ export const postSelector: Selector<CounterInRedis, OutputCounter> = createStruc
   tags: (item) => item?.tag.split(','),
   timestamp: (item) => item?.ts,
   value: (item) => parseInt(item?.val as string, 10),
-  organization: (item) => item?.organ,
+  organization: (item) => JSON.parse(item?.organ),
 });

@@ -65,6 +65,7 @@ const firstVerification = ({ status, cursor, hasMore, total, items }) => {
     id: 'repo_test_counter_001',
     tags: ['repo_test'],
     value: 2,
+    organization: ['Org1MSP'],
   });
 };
 const noResult = {
@@ -214,7 +215,7 @@ beforeAll(async () => {
         .then(({ status }) => console.log(status));
 
     // invoke contract listener, AT LAST
-    await queryHandler.subscribeHub([entityName]);
+    await queryHandler.subscribeHub([entityName]).then(_ => queryHandler.reconciled());
   } catch (e) {
     console.error('Bootstrap network error');
     console.error(e);

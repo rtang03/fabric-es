@@ -33,5 +33,5 @@ export const documentPostSelector: Selector<DocumentInRedis, DocumentOutput> = c
   timestamp: (item) => item?.ts,
   createdAt: (item) => item?.created,
   creator: (item) => item?.creator,
-  organization: (item) => item?.organ,
+  organization: (item) => JSON.parse(item?.organ),
 });
