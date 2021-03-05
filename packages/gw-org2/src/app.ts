@@ -24,6 +24,9 @@ const logger = getLogger('[gw-org2] app.js');
         url: `http://${process.env.GATEWAY_HOST}:${process.env.PRIVATE_LOAN_DETAILS_PORT}/graphql`
       },
       {
+        name: 'docContents', url: `http://${process.env.GATEWAY_HOST}:${process.env.REMOTE_DOC_CONTENTS_PORT}/graphql`
+      },
+      {
         name: 'admin',
         url: `http://${process.env.GATEWAY_HOST}:${process.env.ADMINISTRATOR_PORT}/graphql`
       }

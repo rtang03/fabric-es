@@ -1,8 +1,8 @@
 import { Commit } from '@fabric-es/fabric-cqrs';
-import { catchResolverErrors, getLogger } from '@fabric-es/gateway-lib';
+import { catchResolverErrors, getLogger, queryRemoteData } from '@fabric-es/gateway-lib';
 import { ApolloError } from 'apollo-server-errors';
 import { loanDetailsCommandHandler } from '..';
-import type { LoanDetailsContext, LoanDetails } from '..';
+import { LoanDetailsContext, LoanDetails, GET_DETAILS_BY_ID } from '..';
 
 const logger = getLogger('loan-details/typeDefs.js');
 
@@ -13,7 +13,7 @@ export const resolvers = {
         _,
         { loanId },
         { dataSources: { loanDetails }, username }: LoanDetailsContext
-      ): Promise<LoanDetails> =>
+      ) =>
         loanDetails.repo
           .getById({ id: loanId, enrollmentId: username })
           .then(({ currentState }) => currentState),
@@ -38,7 +38,7 @@ export const resolvers = {
           comment,
         },
         { dataSources: { loanDetails }, username }: LoanDetailsContext
-      ): Promise<Commit> =>
+      ) =>
         loanDetailsCommandHandler({
           enrollmentId: username,
           loanDetailsRepo: loanDetails.repo,
@@ -76,9 +76,8 @@ export const resolvers = {
         comment,
       },
       { dataSources: { loanDetails }, username }: LoanDetailsContext
-    ): Promise<Commit[] | { error: any }> => {
-      // TODO: any[] is wrong typing, need fixing
-      const result: any[] = [];
+    ): Promise<(Commit | ApolloError)[]> => {
+      const result: (Commit | ApolloError)[] = [];
 
       if (typeof requester !== 'undefined' && Object.keys(requester).length > 0) {
         const c = await loanDetailsCommandHandler({
@@ -202,12 +201,16 @@ export const resolvers = {
   },
   Loan: {
     details: catchResolverErrors(
-      async ({ loanId }, _, { dataSources: { loanDetails }, username }: LoanDetailsContext) =>
-        loanDetails.repo
-          .getById({ id: loanId, enrollmentId: username })
-          .then(({ currentState }) => currentState),
+      async ({ loanId }, { token }, context) =>
+        queryRemoteData(
+          LoanDetails, {
+            id: loanId,
+            token,
+            context,
+            query: GET_DETAILS_BY_ID,
+          }),
       { fcnName: 'Loan/details', logger, useAuth: false }
-    ),
+    )
   },
   LoanDetails: {
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId }),

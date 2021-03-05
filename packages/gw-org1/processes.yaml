@@ -35,7 +35,7 @@ apps:
     kill_timeout: 3000
     listen_timeout: 10000
     wait_ready: true
-  - script: ./dist/service-prv-ctnt.js
+  - script: ./dist/service-content.js
     name: 'docContents'
     instances: 1
     max_restarts: 3
@@ -44,8 +44,8 @@ apps:
     kill_timeout: 3000
     listen_timeout: 10000
     wait_ready: true
-  - script: ./dist/service-rmt-dtls.js
-    name: 'rLoanDetails'
+  - script: ./dist/service-details.js
+    name: 'loanDetails'
     instances: 1
     max_restarts: 3
     autorestart: false

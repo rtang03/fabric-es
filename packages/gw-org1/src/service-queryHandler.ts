@@ -55,20 +55,18 @@ void (async () => {
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     authCheck,
   })
-    .addRedisRepository<Document, DocumentInRedis, DocumentOutput, DocumentEvents>(
-      Document, {
-        fields: documentIndices,
-        reducer: documentReducer,
-        preSelector: documentPreSelector,
-        postSelector: documentPostSelector,
-      })
-    .addRedisRepository<Loan, LoanInRedis, LoanOutput, LoanEvents>(
-      Loan, {
-        fields: loanIndices,
-        reducer: loanReducer,
-        postSelector: loanPostSelector,
-        preSelector: loanPreSelector,
-      })
+    .addRedisRepository(Document, {
+      reducer: documentReducer,
+      fields: documentIndices,
+      preSelector: documentPreSelector,
+      postSelector: documentPostSelector,
+    })
+    .addRedisRepository(Loan, {
+      reducer: loanReducer,
+      fields: loanIndices,
+      postSelector: loanPostSelector,
+      preSelector: loanPreSelector,
+    })
     .run();
 
   const server = getServer();

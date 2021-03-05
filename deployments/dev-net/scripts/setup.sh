@@ -16,7 +16,7 @@ export ROOT_DIR=$CURRENT_DIR/../..
 export AUTH_IMAGE=ghcr.io/rtang03/auth-server:0.0.2
 export TEST_IMAGE=fabric-es/tester:${RELEASE}
 export UI_CONTROL_IMAGE=fabric-es/ui-control
-export CC_IMAGE=ghcr.io/rtang03/eventstore-cc:0.0.3
+export CC_IMAGE=ghcr.io/rtang03/eventstore-cc:0.0.4
 export REDISEARCH_IMAGE=redislabs/redisearch:2.0.5
 
 export LOG_LEVEL=info

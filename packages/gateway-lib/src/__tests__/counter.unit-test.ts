@@ -186,12 +186,12 @@ beforeAll(async () => {
     Counter.entityName = entityName;
     modelApolloService = config(buildFederatedSchema([{ typeDefs, resolvers }]))
       // define the Redisearch index, and selectors
-      .addRedisRepository<Counter, CounterInRedis, OutputCounter>(Counter, {
+      .addRepository<Counter, CounterInRedis, OutputCounter, CounterEvents>(Counter, {
+        reducer: counterReducerCallback,
         fields: counterIndexDefinition,
         postSelector: counterPostSelector,
         preSelector: counterPreSelector,
       })
-      .addRepository<Counter, CounterEvents>(Counter, counterReducerCallback)
       .create();
 
     await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () =>

@@ -39,11 +39,11 @@ import {
  * @params reducer [[Reducer]]
  * @params option [[RepoOption]]
  */
-export const createRepository: <TEntity extends BaseEntity, TEvent extends BaseEvent>(
+export const createRepository: <TEntity = any, TOutputEntity = any, TEvent = any>(
   entity: EntityType<TEntity>,
   callback: ReducerCallback<TEntity, TEvent>,
   option: RepoOption
-) => Repository<TEntity, TEvent> = <TEntity, TEvent>(entity, callback, option) => {
+) => Repository<TEntity, TOutputEntity, TEvent> = <TEntity, TEvent>(entity, callback, option) => {
   const entityName = entity.entityName;
   const reducer = getReducer<TEntity, TEvent>(callback);
   const logger = option?.logger || getLogger({ name: '[fabric-cqrs] createRepository.js' });
@@ -68,14 +68,14 @@ export const createRepository: <TEntity extends BaseEntity, TEvent extends BaseE
     command_deleteByEntityId: commandDeleteByEntityId(entityName, false, commandOption),
     command_getByEntityName: commandGetByEntityName(entityName, false, commandOption),
     command_getByEntityIdCommitId: commandGetByEntityIdCommitId(entityName, false, commandOption),
-    create: commandCreate<TEvent>(entityName, false, commandOption),
+    create: commandCreate(entityName, false, commandOption),
     disconnect: () => gateway.disconnect(),
-    fullTextSearchCommit: async <OutputCommit>({ query, param, cursor, pagesize }) =>
+    fullTextSearchCommit: async ({ query, param, cursor, pagesize }) =>
       queryFullTextSearch({ store, logger, query, param, cursor, pagesize }),
-    fullTextSearchEntity: async <TEntity>({ query, param, cursor, pagesize, entityName }) =>
+    fullTextSearchEntity: async ({ query, param, cursor, pagesize, entityName }) =>
       queryFullTextSearch({ store, logger, query, param, cursor, pagesize, entityName }),
-    getByEntityName: queryGetEntityByEntityName<TEntity>(entityName, reducer, queryOption),
-    getById: queryGetById<TEntity, TEvent>(entityName, reducer, false, commandOption),
+    getByEntityName: queryGetEntityByEntityName(entityName, reducer, queryOption),
+    getById: queryGetById(entityName, reducer, false, commandOption),
     getCommitById: queryGetCommitByEntityId(entityName, queryOption),
     getEntityName: () => entityName,
     query_deleteCommitByEntityId: queryDeleteCommitByEntityId(entityName, queryOption),

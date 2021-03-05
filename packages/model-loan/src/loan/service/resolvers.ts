@@ -30,8 +30,8 @@ export const resolvers = {
           },
           username,
         }: LoanContext
-      ): Promise<LoanOutput> => {
-        const { data, status, error } = await repo.fullTextSearchEntity<LoanOutput>({
+      ) => {
+        const { data, status, error } = await repo.fullTextSearchEntity({
           entityName: 'loan',
           query: `@id:${loanId}`,
           cursor: 0,
@@ -53,8 +53,8 @@ export const resolvers = {
             loan: { repo },
           },
         }: LoanContext
-      ): Promise<Paginated<LoanOutput>> => {
-        const { data, error, status } = await repo.fullTextSearchEntity<LoanOutput>({
+      ) => {
+        const { data, error, status } = await repo.fullTextSearchEntity({
           entityName: 'loan',
           query: `*`,
           cursor,
@@ -76,10 +76,10 @@ export const resolvers = {
             loan: { repo },
           },
         }: LoanContext
-      ): Promise<LoanOutput[]> => {
+      ) => {
         const whereJSON = JSON.parse(where);
         const [key, value] = Object.entries(whereJSON)[0];
-        const { data, status, error } = await repo.fullTextSearchEntity<LoanOutput>({
+        const { data, status, error } = await repo.fullTextSearchEntity({
           entityName: 'loan',
           query: `@${key}:${value}*`,
           cursor: 0,
@@ -101,8 +101,8 @@ export const resolvers = {
             loan: { repo },
           },
         }: LoanContext
-      ): Promise<LoanOutput[]> => {
-        const { data, status, error } = await repo.fullTextSearchEntity<LoanOutput>({
+      ) => {
+        const { data, status, error } = await repo.fullTextSearchEntity({
           entityName: 'loan',
           query: `@de:${contains}*`,
           cursor: 0,
@@ -252,9 +252,8 @@ export const resolvers = {
         },
         username,
       }: LoanContext
-    ): Promise<Commit[]> => {
-      // TODO: any[] is wrong typing, need fixing
-      const result: any[] = [];
+    ): Promise<(Commit | ApolloError)[]> => {
+      const result: (Commit | ApolloError)[] = [];
 
       if (typeof reference !== 'undefined') {
         const c = await loanCommandHandler({
@@ -308,8 +307,8 @@ export const resolvers = {
           },
           username,
         }: LoanContext
-      ): Promise<LoanOutput> => {
-        const { data, status, error } = await repo.fullTextSearchEntity<LoanOutput>({
+      ) => {
+        const { data, status, error } = await repo.fullTextSearchEntity({
           entityName: 'loan',
           query: `@id:${loanId}`,
           cursor: 0,

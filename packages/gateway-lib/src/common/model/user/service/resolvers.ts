@@ -37,7 +37,7 @@ export const resolvers = {
           },
         }: UserContext
       ): Promise<Paginated<User>> => {
-        const { data, status, error } = await repo.fullTextSearchEntity<User>({
+        const { data, status, error } = await repo.fullTextSearchEntity({
           entityName: 'user',
           query: '',
           cursor: cursor ?? 0,
@@ -61,7 +61,7 @@ export const resolvers = {
           username,
         }: UserContext
       ): Promise<User> => {
-        const { data, status, error } = await repo.fullTextSearchEntity<User>({
+        const { data, status, error } = await repo.fullTextSearchEntity({
           entityName: 'document',
           query: `@id:${userId}`,
           cursor: 0,
@@ -87,7 +87,7 @@ export const resolvers = {
       ): Promise<User[]> => {
         const whereJSON = JSON.parse(where);
         const [key, value] = Object.entries(whereJSON)[0];
-        const { data, status, error } = await repo.fullTextSearchEntity<User>({
+        const { data, status, error } = await repo.fullTextSearchEntity({
           entityName: 'user',
           query: `@${key}:${value}*`,
           cursor: 0,
@@ -110,7 +110,7 @@ export const resolvers = {
           },
         }: UserContext
       ): Promise<User[]> => {
-        const { data, status, error } = await repo.fullTextSearchEntity<User>({
+        const { data, status, error } = await repo.fullTextSearchEntity({
           entityName: 'user',
           query: `@name:${contains}*`,
           cursor: 0,

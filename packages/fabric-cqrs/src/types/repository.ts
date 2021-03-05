@@ -74,7 +74,7 @@ export type RepoFcn_IdCommitId<TResponse> = (payload: {
  * @command-side.📥 prefix *command_* is write-to-Fabric operations
  * @query-side.📤 prefix *query_* is query-from-Redis operation
  */
-export type Repository<TEntity = any, TEvent = any> = {
+export type Repository<TEntity = any, TOutputEntity = any, TEvent = any> = {
   /**
    * @about 📥 delete commit by entityId
    * @same [[QueryHandler]].command_deleteByEntityId
@@ -145,7 +145,7 @@ export type Repository<TEntity = any, TEvent = any> = {
    * @about full text search of entity
    * @similar [[QueryHandler]].getPaginatedEntityById
    */
-  fullTextSearchEntity: <TOutputEntity>(option: {
+  fullTextSearchEntity: (option: {
     entityName: string;
     query: string;
     cursor: number;

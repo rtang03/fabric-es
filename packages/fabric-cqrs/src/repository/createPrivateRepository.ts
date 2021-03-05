@@ -40,11 +40,11 @@ export const createPrivateRepository: <TEntity extends BaseEntity, TEvent extend
   };
 
   return {
-    create: commandCreate<TEvent>(entityName, true, commandOption, parentName),
+    create: commandCreate(entityName, true, commandOption, parentName),
     getCommitByEntityName: commandGetByEntityName(entityName, true, commandOption),
     getCommitByEntityIdCommitId: commandGetByEntityIdCommitId(entityName, true, commandOption),
     deleteByEntityIdCommitId: commandDeleteByEntityIdCommitId(entityName, true, commandOption),
-    getById: commandGetById<TEntity, TEvent>(entityName, reducer, true, commandOption),
+    getById: commandGetById(entityName, reducer, true, commandOption),
     getEntityName: () => entityName,
     getParentName: () => parentName,
     disconnect: () => gateway.disconnect(),

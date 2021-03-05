@@ -1,11 +1,11 @@
 export { catchResolverErrors } from './utils/catchResolverErrors';
+export { buildRedisOptions } from './utils/composeRedisRepos';
 export { createGateway } from './utils/createGateway';
 export { createService } from './utils/createService';
 export { getLogger } from './utils/getLogger';
+export { createRemoteData, queryRemoteData } from './utils/createRemoteData';
 export { createAdminService } from './admin/createAdminService';
-export { createRemoteService, RemoteData } from './remote/createRemoteService';
-export { createTrackingData, queryTrackingData } from './remote/createTrackingData';
 export { createQueryHandlerService } from './queryHandler';
-export { DataSrc, CommandHandler } from './types';
+export { DataSrc, CommandHandler, ServiceType } from './types';
 export { Errors } from './utils';
 export * from './admin/query';

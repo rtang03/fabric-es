@@ -21,8 +21,8 @@ import fetch from 'node-fetch';
 import { Redisearch } from 'redis-modules-sdk';
 import type { Selector } from 'reselect';
 import {
-  Organization, OrgEvents, orgReducer, orgIndices,
-  User, UserEvents, userReducer, userIndices,
+  Organization, orgReducer, orgIndices,
+  User, userReducer, userIndices,
 } from '../common/model';
 import type { QueryHandlerGqlCtx } from '../types';
 import { composeRedisRepos, getLogger, isAuthResponse } from '../utils';
@@ -116,8 +116,8 @@ export const createQueryHandlerService: (option: {
   const addRedisRepository: <TInput, TItemInRedis, TOutput, TEvent>(
     entity: EntityType<TInput>,
     option: {
-      fields: RedisearchDefinition<TInput>;
       reducer: ReducerCallback<TInput, TEvent>;
+      fields: RedisearchDefinition<TInput>;
       preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
       postSelector?: Selector<TItemInRedis, TOutput>;
   }) => AddQHRedisRepository = <TInput, TItemInRedis, TOutput, TEvent>(entity, { reducer, fields, preSelector, postSelector }) => {

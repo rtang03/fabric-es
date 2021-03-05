@@ -1,6 +1,4 @@
-import { RemoteData } from '@fabric-es/gateway-lib';
 import gql from 'graphql-tag';
-import { GET_DETAILS_BY_ID } from '..';
 
 /*
 NOTE!!! This is the type definition publish by an ORG, who has certain private-data to share to other ORGs.
@@ -11,7 +9,7 @@ export const typeDefs = gql`
   ###
   # Local Type: Loan Details
   ###
-  type _LoanDetails @key(fields: "loanId") {
+  type LoanDetails @key(fields: "loanId") {
     loanId: String!
     requester: LoanRequester!
     contact: ContactInfo!
@@ -42,21 +40,6 @@ export const typeDefs = gql`
 
   extend type Loan @key(fields: "loanId") {
     loanId: String! @external
-    _details: [_LoanDetails]
+    details: [LoanDetails]
   }
 `;
-
-export const resolvers = {
-  Loan: {
-    _details: async ({ loanId }, { token }, { remoteData }: RemoteData) =>
-      remoteData({
-        query: GET_DETAILS_BY_ID,
-        operationName: 'GetLoanDetailsById',
-        variables: { loanId },
-        token
-      }).then(results => results.map(({ data }) => data?.getLoanDetailsById))
-  },
-  LoanDetails: {
-    loan: ({ loanId }) => ({ __typename: 'Loan', loanId })
-  }
-};

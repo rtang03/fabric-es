@@ -7,3 +7,4 @@ export * from './errors';
 export * from './composeRedisRepos';
 export * from './waitForSecond';
 export * from './catchResolverErrors';
+export * from './createRemoteData';

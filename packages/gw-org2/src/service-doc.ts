@@ -3,6 +3,10 @@ import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
 import { createService, getLogger } from '@fabric-es/gateway-lib';
 import {
+  Document,
+  DocumentEvents,
+  DocumentInRedis,
+  DocumentOutput,
   documentIndices,
   documentPostSelector,
   documentPreSelector,
@@ -10,20 +14,15 @@ import {
   documentResolvers,
   documentTypeDefs,
 } from '@fabric-es/model-document';
-import {
-  Document,
-  DocumentEvents,
-  DocumentInRedis,
-  DocumentOutput,
-} from '@fabric-es/model-document';
 import { Wallets } from 'fabric-network';
 
+const serviceName = 'document';
 const logger = getLogger('service-doc.js');
 
 void (async () =>
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    serviceName: 'document',
+    serviceName,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
@@ -53,13 +52,12 @@ void (async () =>
         typeDefs: documentTypeDefs,
         resolvers: documentResolvers,
       }]))
-        .addRedisRepository<Document, DocumentInRedis, DocumentOutput>(
-          Document, {
-            fields: documentIndices,
-            preSelector: documentPreSelector,
-            postSelector: documentPostSelector,
-          })
-        .addRepository<Document, DocumentEvents>(Document, documentReducer)
+        .addRepository(Document, {
+          reducer: documentReducer,
+          fields: documentIndices,
+          preSelector: documentPreSelector,
+          postSelector: documentPostSelector,
+        })
         .create();
 
       process.on(
@@ -84,7 +82,7 @@ void (async () =>
       });
 
       void app.listen({ port: process.env.SERVICE_DOCUMENT_PORT }).then(({ url }) => {
-        logger.info(`🚀  '${process.env.MSPID}' - 'document' available at ${url}`);
+        logger.info(`🚀  '${process.env.MSPID}' - '${serviceName}' available at ${url}`);
         process.send?.('ready');
       });
     })

@@ -137,10 +137,8 @@ export const createAdminService: (option: {
 
   const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
   const server = config(schema)
-    .addRedisRepository(Organization, { fields: orgIndices })
-    .addRedisRepository(User, { fields: userIndices })
-    .addRepository<Organization, OrgEvents>(Organization, orgReducer)
-    .addRepository<User, UserEvents>(User, userReducer)
+    .addRepository(Organization, { reducer: orgReducer, fields: orgIndices })
+    .addRepository(User, { reducer: userReducer, fields: userIndices })
     .create({ playground, introspection });
 
   let stopping = false;

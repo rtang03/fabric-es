@@ -1,8 +1,4 @@
-import { RemoteData } from '@fabric-es/gateway-lib';
 import gql from 'graphql-tag';
-import { GET_CONTENTS_BY_ID } from '../query';
-
-// TODO Still need this after tracking is fixed???
 
 /*
 NOTE!!! This is the type definition publish by an ORG, who has certain private-data to share to other ORGs.
@@ -13,7 +9,7 @@ export const typeDefs = gql`
   ###
   # Local Type: Doc Contents
   ###
-  type _DocContents @key(fields: "documentId") {
+  type DocContents @key(fields: "documentId") {
     documentId: String!
     content: Docs!
     timestamp: String!
@@ -35,24 +31,6 @@ export const typeDefs = gql`
 
   extend type Document @key(fields: "documentId") {
     documentId: String! @external
-    _contents: [_DocContents]
+    contents: [DocContents]
   }
 `;
-
-export const resolvers = {
-  Document: {
-    _contents: async ({ documentId }, { token }, { remoteData }: RemoteData) =>
-      remoteData({
-        query: GET_CONTENTS_BY_ID,
-        operationName: 'GetDocContentsById',
-        variables: { documentId },
-        token
-      }).then(results => results.map(({ data }) => data?.getDocContentsById))
-  },
-  DocContents: {
-    document: ({ documentId }) => ({ __typename: 'Document', documentId })
-  },
-  Docs: {
-    __resolveType: (obj: any) => (obj?.body ? 'Data' : obj?.format ? 'File' : null)
-  }
-};

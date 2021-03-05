@@ -1,4 +1,4 @@
-import type { Commit, Counter, OutputCounter, Paginated } from '@fabric-es/fabric-cqrs';
+import type { Commit, Counter } from '@fabric-es/fabric-cqrs';
 import { ApolloError } from 'apollo-server';
 import GraphQLJSON from 'graphql-type-json';
 import { getLogger } from '../../utils';
@@ -37,8 +37,8 @@ export const resolvers = {
             'counter': { repo },
           },
         }: Context
-      ): Promise<Paginated<OutputCounter>> => {
-        const { data, error, status } = await repo.fullTextSearchEntity<OutputCounter>({
+      ) => {
+        const { data, error, status } = await repo.fullTextSearchEntity({
           entityName: 'counter',
           query,
           cursor: 0,

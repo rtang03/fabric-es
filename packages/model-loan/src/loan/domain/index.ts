@@ -4,6 +4,7 @@ import { DataSrc } from '@fabric-es/gateway-lib';
 import type { LoanCommands } from './commands';
 import type { LoanEvents } from './events';
 import type { Loan } from './model';
+import { LoanOutput } from './output';
 
 export * from './model';
 export * from './redis';
@@ -15,7 +16,7 @@ export * from './handler';
 export * from './reducer';
 export * from './typeGuard';
 
-export type LoanRepo = Repository<Loan, LoanEvents>;
+export type LoanRepo = Repository<Loan, LoanOutput, LoanEvents>;
 export type LoanCommandHandler = CommandHandler<LoanCommands>;
 export type LoanDataSource = DataSrc<LoanRepo>;
 

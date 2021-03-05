@@ -1,23 +1,6 @@
 import { BaseEntity, BaseEvent, Commit } from '.';
 
 /**
- * @ignore
- */
-export const TRACK_EVENT = 'PrivateDataTracked';
-
-/**
- * @ignore
- */
-export const TRACK_FIELD = '_remoteDataTracking';
-
-/**
- * @ignore
- */
-export const ORGAN_NAME = 'organization';
-
-const ORGAN_FIELD = '_organization';
-
-/**
  * @about reducer computes the current state of an entity
  */
 export type Reducer<TEntity = any, TEvent = any> = (
@@ -37,6 +20,26 @@ export const getReducer = <T extends BaseEntity, E extends BaseEvent>(callback: 
   history: E[],
   initialState?: T
 ) => history.reduce(callback, initialState);
+
+/**
+ * @ignore
+ */
+export const TRACK_EVENT = 'PrivateDataTracked';
+
+/**
+ * @ignore
+ */
+export const TRACK_FIELD = '_privateData';
+
+/**
+ * @ignore
+ */
+export const ORGAN_NAME = 'organization';
+
+/**
+ * @ignore
+ */
+export const ORGAN_FIELD = '_organization';
 
 /**
  * @about reducer for private data tracking events.

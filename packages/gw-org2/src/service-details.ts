@@ -1,28 +1,29 @@
 require('./env');
 import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
-import { createService, getLogger } from '@fabric-es/gateway-lib';
+import { createService, getLogger, ServiceType } from '@fabric-es/gateway-lib';
 import {
-  docContentsReducer,
-  docContentsResolvers,
-  docContentsTypeDefs,
-  documentReducer,
-} from '@fabric-es/model-document';
-import {
-  DocContents,
-  DocContentsEvents,
-  Document,
-  DocumentEvents,
-} from '@fabric-es/model-document';
+  LoanDetails,
+  LoanDetailsEvents,
+  loanDetailsReducer,
+  loanDetailsResolvers,
+  loanDetailsTypeDefs,
+  Loan,
+  loanIndices,
+  loanPostSelector,
+  loanPreSelector,
+  loanReducer,
+} from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
 
-const logger = getLogger('service-prv-ctnt.js');
+const serviceName = 'loanDetails';
+const logger = getLogger('service-prv-dtls.js');
 
 void (async () =>
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    serviceName: 'docContents',
-    isPrivate: true,
+    serviceName,
+    type: ServiceType.Private,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
@@ -49,11 +50,16 @@ void (async () =>
   })
     .then(({ config, shutdown }) => {
       const app = config(buildFederatedSchema([{
-        typeDefs: docContentsTypeDefs,
-        resolvers: docContentsResolvers,
+        typeDefs: loanDetailsTypeDefs,
+        resolvers: loanDetailsResolvers,
       }]))
-      .addRepository<Document, DocumentEvents>(Document, documentReducer)
-      .addPrivateRepository<DocContents, DocContentsEvents>(DocContents, docContentsReducer)
+      .addRepository(Loan, {
+        reducer: loanReducer,
+        fields: loanIndices,
+        postSelector: loanPostSelector,
+        preSelector: loanPreSelector,
+      })
+      .addPrivateRepository(LoanDetails, loanDetailsReducer)
       .create();
 
       process.on(
@@ -77,8 +83,8 @@ void (async () =>
         logger.error(err.stack);
       });
 
-      void app.listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT }).then(({ url }) => {
-        logger.info(`🚀  '${process.env.MSPID}' - 'docContents' available at ${url}`);
+      void app.listen({ port: process.env.PRIVATE_LOAN_DETAILS_PORT }).then(({ url }) => {
+        logger.info(`🚀  '${process.env.MSPID}' - '${serviceName}' available at ${url}`);
         process.send?.('ready');
       });
     })

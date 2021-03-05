@@ -13,12 +13,13 @@ import {
 import { Loan, LoanEvents, LoanInRedis, LoanOutput } from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
 
+const serviceName = 'loan';
 const logger = getLogger('service-loan.js');
 
 void (async () =>
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    serviceName: 'loan',
+    serviceName,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
@@ -48,13 +49,12 @@ void (async () =>
         typeDefs: loanTypeDefs,
         resolvers: loanResolvers,
       }]))
-        .addRedisRepository<Loan, LoanInRedis, LoanOutput>(
-          Loan, {
-            fields: loanIndices,
-            postSelector: loanPostSelector,
-            preSelector: loanPreSelector,
-          })
-        .addRepository<Loan, LoanEvents>(Loan, loanReducer)
+        .addRepository(Loan, {
+          reducer: loanReducer,
+          fields: loanIndices,
+          postSelector: loanPostSelector,
+          preSelector: loanPreSelector,
+        })
         .create();
 
       process.on(
@@ -79,7 +79,7 @@ void (async () =>
       });
 
       void app.listen({ port: process.env.SERVICE_LOAN_PORT }).then(({ url }) => {
-        logger.info(`🚀  '${process.env.MSPID}' - 'loan' available at ${url}`);
+        logger.info(`🚀  '${process.env.MSPID}' - '${serviceName}' available at ${url}`);
         process.send?.('ready');
       });
     })

@@ -20,7 +20,7 @@ export * from './query/getCommitsByUserId';
 export * from './query/getPaginatedUser';
 export * from './query/getUserById';
 
-export type UserRepo = Repository<User, UserEvents>;
+export type UserRepo = Repository<User, User, UserEvents>;
 export type UserCommandHandler = CommandHandler<UserCommands>;
 export type UserDataSource = DataSrc<UserRepo>;
 

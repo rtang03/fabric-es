@@ -1,10 +1,10 @@
 import type { Commit } from '@fabric-es/fabric-cqrs';
-import { catchResolverErrors, getLogger, queryTrackingData } from '@fabric-es/gateway-lib';
-import type { DocContents, DocContentsContext } from '..';
+import { catchResolverErrors, getLogger, queryRemoteData } from '@fabric-es/gateway-lib';
+import { DocContents, DocContentsContext } from '..';
 import { docContentsCommandHandler } from '../domain';
 import { GET_CONTENTS_BY_ID } from '../query';
 
-const logger = getLogger('doc-contents/typeDefs.js');
+const logger = getLogger('doc-contents/resolvers.js');
 
 export const resolvers = {
   Query: {
@@ -87,16 +87,14 @@ export const resolvers = {
   },
   Document: {
     contents: catchResolverErrors(
-      async ({ documentId }, { token }, context) => {
-        return queryTrackingData({
-          id: documentId,
-          token,
-          context,
-          query: GET_CONTENTS_BY_ID,
-          publicDataSrc: 'document',
-          privateDataSrc: 'docContents',
-        }); // TODO - Document.getEntityName(), DocContents.getEntityName()
-      },
+      async ({ documentId }, { token }, context) =>
+        queryRemoteData(
+          DocContents, {
+            id: documentId,
+            token,
+            context,
+            query: GET_CONTENTS_BY_ID,
+          }),
       { fcnName: 'Document/contents', logger, useAuth: false }
     ),
   },

@@ -27,7 +27,7 @@ import { getLogger, waitForSecond } from '../../utils';
  * ./dn-run.1-db-red-auth.sh
  */
 
-let repo: Repository<Counter, CounterEvents>;
+let repo: Repository<Counter, OutputCounter, CounterEvents>;
 let commitId: string;
 let client: Redisearch;
 let commitRepo: RedisRepository<OutputCommit>;
@@ -159,7 +159,7 @@ beforeAll(async () => {
 
     // Step 7: Repo
     Counter.entityName = entityName;
-    repo = createRepository<Counter, CounterEvents>(Counter, reducerCallback, {
+    repo = createRepository(Counter, reducerCallback, {
       channelName,
       connectionProfile,
       queryDatabase,
@@ -361,7 +361,7 @@ describe('Verify Result', () => {
 
   it('should fail find by where: invalid id', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: `@id:abcdefg*`,
         cursor: 0,
@@ -371,7 +371,7 @@ describe('Verify Result', () => {
 
   it('should find by entityId', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: `@id:${id}`,
         cursor: 0,
@@ -383,7 +383,7 @@ describe('Verify Result', () => {
 
   it('should find by description', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: `@de:repo*`,
         cursor: 0,
@@ -542,7 +542,7 @@ describe('Paginated entity and commit Tests', () => {
   // }
   it('should do paginated entity search: cursor=0 pagesize=2', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: '@id:repo_pag_test*',
         cursor: 0,
@@ -559,7 +559,7 @@ describe('Paginated entity and commit Tests', () => {
 
   it('should do paginated entity search: cursor=1 pagesize=2', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: '@id:repo_pag_test*',
         cursor: 1,
@@ -576,7 +576,7 @@ describe('Paginated entity and commit Tests', () => {
 
   it('should do paginated entity search: cursor=2 pagesize=2', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: '@id:repo_pag_test*',
         cursor: 2,
@@ -593,7 +593,7 @@ describe('Paginated entity and commit Tests', () => {
 
   it('should do paginated entity search: cursor=0 pagesize=2', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: '@id:repo_pag_test*',
         cursor: 3,
@@ -610,7 +610,7 @@ describe('Paginated entity and commit Tests', () => {
 
   it('should do paginated entity search: cursor=0 pagesize=2', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: '@id:repo_pag_test*',
         cursor: 4,
@@ -627,7 +627,7 @@ describe('Paginated entity and commit Tests', () => {
 
   it('should do paginated entity search: cursor=0 pagesize=2', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: '@id:repo_pag_test*',
         cursor: 5,

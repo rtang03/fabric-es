@@ -46,7 +46,7 @@ export const createQueryDatabase: (
   const notificationCenter = createNotificationCenter(client);
 
   // add built-in commit repo
-  const allRepos = Object.assign({}, repos, { commit: commitRepo });
+  const allRepos = Object.assign(repos, { commit: commitRepo });
 
   const getHistory = (commits: (Commit | OutputCommit)[]): any[] => {
     const history = [];
@@ -130,7 +130,7 @@ export const createQueryDatabase: (
       if (!entityName) throw new Error(INVALID_ARG);
       const entityRepo = allRepos[entityName];
 
-      if (!entityRepo) throw new Error(REPO_NOT_FOUND);
+      if (!entityRepo) throw new Error(`deleteEntityByEntityName: ${entityName} ${REPO_NOT_FOUND}`);
 
       return deleteItems<TEntity>(
         entityRepo,
@@ -152,7 +152,7 @@ export const createQueryDatabase: (
       if (!query || !entityName) throw new Error(INVALID_ARG);
 
       const repo = allRepos[entityName];
-      if (!repo) throw new Error(REPO_NOT_FOUND);
+      if (!repo) throw new Error(`fullTextSearchEntity: ${entityName} ${REPO_NOT_FOUND} -- ${Object.keys(allRepos)}`);
 
       return doSearch<TEntity>({ repo, countTotalOnly, kind: 'entity', query, param });
     },
@@ -224,7 +224,7 @@ export const createQueryDatabase: (
       const entityKeyInRedis = allRepos[entityName].getKey(commit);
       const commitKeyInRedis = allRepos['commit'].getKey(commit);
 
-      if (!entityRepo) throw new Error(REPO_NOT_FOUND);
+      if (!entityRepo) throw new Error(`mergeEntity: ${entityName} ${REPO_NOT_FOUND}`);
       if (!isCommit(commit) || !reducer) throw new Error(INVALID_ARG);
 
       // step 1: retrieve existing commit
@@ -307,7 +307,7 @@ export const createQueryDatabase: (
       if (!entityName || !commits || !reducer) throw new Error(INVALID_ARG);
 
       const entityRepo = allRepos[entityName];
-      if (!entityRepo) throw new Error(REPO_NOT_FOUND);
+      if (!entityRepo) throw new Error(`mergeEntityBatch: ${entityName} ${REPO_NOT_FOUND}`);
 
       if (isEqual(commits, {}))
         return {
