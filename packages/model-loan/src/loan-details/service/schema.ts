@@ -103,6 +103,6 @@ export const typeDefs = gql`
   ###
   extend type Loan @key(fields: "loanId") {
     loanId: String! @external
-    details: LoanDetails
+    details: [LoanDetails]
   }
 `;

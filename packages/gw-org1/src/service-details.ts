@@ -4,9 +4,6 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { buildRedisOptions, createService, getLogger, ServiceType } from '@fabric-es/gateway-lib';
 import {
   Loan,
-  LoanEvents,
-  LoanInRedis,
-  LoanOutput,
   loanIndices,
   loanPostSelector,
   loanPreSelector,
