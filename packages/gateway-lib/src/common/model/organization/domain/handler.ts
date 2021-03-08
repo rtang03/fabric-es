@@ -29,7 +29,7 @@ export const orgCommandHandler: (option: {
       ];
       if (url) events.push({ type: 'OrgUrlDefined', payload: { mspId, url, timestamp }});
       return orgRepo
-        .create({ enrollmentId, id: mspId }) // TODO HERE Fix also - add "id" to reducer output
+        .create({ enrollmentId, id: mspId })
         .save({ events })
         .then(({ data }) => data);
     }

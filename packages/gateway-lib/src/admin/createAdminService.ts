@@ -116,7 +116,7 @@ export const createAdminService: (option: {
   logger.info('createService complete');
 
   const mspId = getMspId();
-  const orgRepo = getRepository<Organization, OrgEvents>(Organization, orgReducer);
+  const orgRepo = getRepository<Organization, Organization, OrgEvents>(Organization, orgReducer);
   await orgCommandHandler({ enrollmentId: caAdmin, orgRepo }).StartOrg({
     mspId, payload: { name: orgName, url: orgUrl, timestamp: Date.now() },
   });

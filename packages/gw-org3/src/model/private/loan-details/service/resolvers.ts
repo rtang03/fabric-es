@@ -75,10 +75,8 @@ export const resolvers = {
         },
         username,
       }: LoadDetailsContext
-    ): Promise<Commit[] | { error: any }> => {
-      // TODO: any[] is wrong typing. Need fixing
-
-      const result: any[] = [];
+    ): Promise<(Commit | ApolloError)[]> => {
+      const result: (Commit | ApolloError)[] = [];
       if (typeof requester !== 'undefined' && Object.keys(requester).length > 0) {
         const c = await loanDetailsCommandHandler({
           enrollmentId: username,

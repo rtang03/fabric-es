@@ -30,7 +30,7 @@ export const resolvers = {
           },
           username,
         }: DocumentContext
-      ): Promise<DocumentOutput> => {
+      ) => {
         const { data, status, error } = await repo.fullTextSearchEntity({
           entityName: 'document',
           query: `@id:${documentId}`,
@@ -53,7 +53,7 @@ export const resolvers = {
             document: { repo },
           },
         }: DocumentContext
-      ): Promise<Paginated<DocumentOutput>> => {
+      ) => {
         const { data, error, status } = await repo.fullTextSearchEntity({
           entityName: 'document',
           query: '*',
@@ -76,7 +76,7 @@ export const resolvers = {
             document: { repo },
           },
         }: DocumentContext
-      ): Promise<DocumentOutput[]> => {
+      ) => {
         const whereJSON = JSON.parse(where);
         const [key, value] = Object.entries(whereJSON)[0];
         const { data, error, status } = await repo.fullTextSearchEntity({
@@ -101,7 +101,7 @@ export const resolvers = {
             document: { repo },
           },
         }: DocumentContext
-      ): Promise<DocumentOutput[]> => {
+      ) => {
         const { data, status, error } = await repo.fullTextSearchEntity({
           entityName: 'document',
           query: `@title:${contains}*`,
@@ -249,7 +249,7 @@ export const resolvers = {
             document: { repo },
           },
         }: DocumentContext
-      ): Promise<DocumentOutput[]> => {
+      ) => {
         const { data, status, error } = await repo.fullTextSearchEntity({
           entityName: 'document',
           query: `@loanId:${loanId}`,
@@ -273,7 +273,7 @@ export const resolvers = {
             document: { repo },
           },
         }: DocumentContext
-      ): Promise<DocumentOutput> => {
+      ) => {
         {
           const { data, status, error } = await repo.fullTextSearchEntity({
             entityName: 'document',

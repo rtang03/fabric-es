@@ -141,8 +141,8 @@ export const createService: (option: {
       },
     );
 
-  const getRepository = <TEntity, TEvent>(entity: EntityType<TEntity>, reducer: ReducerCallback<TEntity, TEvent>) =>
-    createRepository<TEntity, TEvent>(entity, reducer, {
+  const getRepository = <TEntity, TOutput, TEvent>(entity: EntityType<TEntity>, reducer: ReducerCallback<TEntity, TEvent>) =>
+    createRepository<TEntity, TOutput, TEvent>(entity, reducer, {
       ...networkConfig,
       queryDatabase: createQueryDatabase(client, redisRepos),
       connectionProfile,
@@ -172,9 +172,9 @@ export const createService: (option: {
         redisRepos = composeRedisRepos(client, redisRepos)(Organization, { fields: orgIndices});
         redisRepos = composeRedisRepos(client, redisRepos)(User, { fields: userIndices});
         repositories.push({
-          entityName: Organization.entityName, repository: getRepository<Organization, OrgEvents>(Organization, orgReducer),
+          entityName: Organization.entityName, repository: getRepository<Organization, Organization, OrgEvents>(Organization, orgReducer),
         }, {
-          entityName: User.entityName, repository: getRepository<User, UserEvents>(User, userReducer),
+          entityName: User.entityName, repository: getRepository<User, User, UserEvents>(User, userReducer),
         });
         // }
 

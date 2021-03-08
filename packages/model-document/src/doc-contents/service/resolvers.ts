@@ -18,7 +18,7 @@ export const resolvers = {
           },
           username,
         }: DocContentsContext
-      ): Promise<DocContents> =>
+      ) =>
         repo
           .getById({ id: documentId, enrollmentId: username })
           .then(({ currentState }) => currentState),

@@ -36,10 +36,8 @@ export const resolvers = {
       _,
       { userId, documentId, loanId, title, reference, link },
       { dataSources: { document }, username }: DocumentContext
-    ): Promise<Commit[] | { error: any }> => {
-      // TODO: any[] is wrong typing. Need Fixing
-
-      const result: any[] = [];
+    ): Promise<(Commit | ApolloError)[]> => {
+      const result: (Commit | ApolloError)[] = [];
       if (typeof loanId !== 'undefined') {
         const c = await documentCommandHandler({
           enrollmentId: username,

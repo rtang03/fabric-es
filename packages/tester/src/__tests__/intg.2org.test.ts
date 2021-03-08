@@ -9,8 +9,7 @@ import {
   GET_COMMITS_BY_DOCUMENT,
   GET_COMMITS_BY_LOAN,
   GET_DOCUMENT_BY_ID,
-  GET_LOAN_BY_ID_ORG1,
-  GET_LOAN_BY_ID_ORG2,
+  GET_LOAN_BY_ID,
   SEARCH_DOCUMENT_BY_FIELDS,
   SEARCH_DOCUMENT_CONTAINS,
   SEARCH_LOAN_BY_FIELDS,
@@ -499,7 +498,7 @@ describe('Multi-Org Test - Query Loans', () => {
     if (isReady) {
       await fetch(GATEWAY1, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken1}` }, body: JSON.stringify({
-          operationName: 'GetLoanById', query: GET_LOAN_BY_ID_ORG1, variables: { loanId: loanId1 }
+          operationName: 'GetLoanById', query: GET_LOAN_BY_ID, variables: { loanId: loanId1 }
         })})
         .then(res => res.json())
         .then(({ data }) => expect(data.getLoanById).toMatchSnapshot({
@@ -543,7 +542,7 @@ describe('Multi-Org Test - Query Loans', () => {
     if (isReady) {
       await fetch(GATEWAY2, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
-          operationName: 'GetLoanById', query: GET_LOAN_BY_ID_ORG2, variables: { loanId: loanId2 }
+          operationName: 'GetLoanById', query: GET_LOAN_BY_ID, variables: { loanId: loanId2 }
         })})
         .then(res => res.json())
         .then(({ data }) => expect(data.getLoanById).toMatchSnapshot({

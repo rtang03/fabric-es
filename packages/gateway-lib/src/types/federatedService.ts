@@ -110,10 +110,10 @@ export type FederatedService = {
   disconnect: () => void;
   getMspId: () => string;
   getRedisRepos: () => Record<string, RedisRepository>;
-  getRepository: <TEntity, TEvent>(
+  getRepository: <TEntity, TOutput, TEvent>(
     entity: EntityType<TEntity>,
     reducer: ReducerCallback<TEntity, TEvent>
-  ) => Repository<TEntity, TEvent>;
+  ) => Repository<TEntity, TOutput, TEvent>;
   getPrivateRepository: <TEntity, TEvent>(
     entity: EntityType<TEntity>,
     reducer: ReducerCallback<TEntity, TEvent>

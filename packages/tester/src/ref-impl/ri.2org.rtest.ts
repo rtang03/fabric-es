@@ -11,8 +11,7 @@ import {
   GET_COMMITS_BY_DOCUMENT,
   GET_COMMITS_BY_LOAN,
   GET_DOCUMENT_BY_ID,
-  GET_LOAN_BY_ID_ORG1,
-  GET_LOAN_BY_ID_ORG2,
+  GET_LOAN_BY_ID,
   RESTRICT_DOC_ACCESS,
   SEARCH_DOCUMENT_BY_FIELDS,
   SEARCH_DOCUMENT_CONTAINS,
@@ -577,7 +576,7 @@ const runTest = (idx: number, run: string, test: string, user1: string, token1: 
     // Org1 read results
     let elapsed9;
     try {
-      const rst = await readLoan(gw1, token1, GET_LOAN_BY_ID_ORG1, loanId, run, test, validate);
+      const rst = await readLoan(gw1, token1, GET_LOAN_BY_ID, loanId, run, test, validate);
       if (rst && (rst !== undefined) && rst.id) {
         if (rst.id !== loanId) {
           console.log(`[Test run ${run}][#${test}] Error: expected to read ${loanId}, got ${rst.id}`);

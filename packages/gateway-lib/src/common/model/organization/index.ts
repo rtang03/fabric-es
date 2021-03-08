@@ -15,6 +15,11 @@ export * from './domain/typeGuard';
 export { resolvers as orgResolvers } from './service/resolvers';
 export * from './service/schema';
 
-export type OrgRepo = Repository<Organization, OrgEvents>;
+export type OrgRepo = Repository<Organization, Organization, OrgEvents>;
 export type OrgCommandHandler = CommandHandler<OrgCommands>;
 export type OrgDataSource = DataSrc<OrgRepo>;
+
+export type OrgContext = {
+  dataSources: { organization: OrgDataSource };
+  mspId: string;
+};
