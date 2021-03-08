@@ -9,10 +9,10 @@ import { registerUser } from '../../account';
 import { createQueryDatabase, createQueryHandler, createRedisRepository } from '../../queryHandler';
 import type { OutputCommit, QueryHandler, RedisRepository } from '../../queryHandler/types';
 import { getNetwork } from '../../services';
-import type { Repository } from '../../types';
+import { getReducer, Repository } from '../../types';
 import {
-  reducer,
-  CounterEvent,
+  reducerCallback,
+  CounterEvents,
   Counter,
   OutputCounter,
   CounterInRedis,
@@ -27,13 +27,14 @@ import { getLogger, waitForSecond } from '../../utils';
  * ./dn-run.1-db-red-auth.sh
  */
 
-let repo: Repository<Counter, CounterEvent>;
+let repo: Repository<Counter, OutputCounter, CounterEvents>;
 let commitId: string;
 let client: Redisearch;
 let commitRepo: RedisRepository<OutputCommit>;
 let counterRedisRepo: RedisRepository<OutputCounter>;
 let queryHandler: QueryHandler;
 
+const reducer = getReducer(reducerCallback);
 const caName = process.env.CA_NAME;
 const channelName = process.env.CHANNEL_NAME;
 const connectionProfile = process.env.CONNECTION_PROFILE;
@@ -44,7 +45,7 @@ const logger = getLogger({ name: 'repo-unit.test.js' });
 const mspId = process.env.MSPID;
 const reducers = { [entityName]: reducer };
 const timestampesOnCreate = [];
-const events = [
+const events: CounterEvents[] = [
   {
     type: 'Increment',
     payload: { id, desc: 'repo #1 create-test', tag: 'repo-test' },
@@ -64,6 +65,7 @@ const firstVerification = ({ status, cursor, hasMore, total, items }) => {
     id: 'repo_test_counter_001',
     tags: ['repo_test'],
     value: 2,
+    organization: ['Org1MSP'],
   });
 };
 const noResult = {
@@ -132,12 +134,13 @@ beforeAll(async () => {
     await client.connect();
 
     // Step 4: create counter's RedisRepo
-    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>({
-      client,
-      fields,
-      entityName,
-      postSelector,
-      preSelector,
+    Counter.entityName = entityName;
+    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>(
+      Counter, {
+        client,
+        fields,
+        postSelector,
+        preSelector,
     });
 
     // Step 5: create QueryDatabase
@@ -155,7 +158,8 @@ beforeAll(async () => {
     });
 
     // Step 7: Repo
-    repo = createRepository<Counter, CounterEvent>(entityName, reducer, {
+    Counter.entityName = entityName;
+    repo = createRepository(Counter, reducerCallback, {
       channelName,
       connectionProfile,
       queryDatabase,
@@ -211,7 +215,7 @@ beforeAll(async () => {
         .then(({ status }) => console.log(status));
 
     // invoke contract listener, AT LAST
-    await queryHandler.subscribeHub([entityName]);
+    await queryHandler.subscribeHub([entityName]).then(_ => queryHandler.reconciled());
   } catch (e) {
     console.error('Bootstrap network error');
     console.error(e);
@@ -281,6 +285,7 @@ describe('Repository Test', () => {
         id: 'repo_test_counter_001',
         desc: 'repo #1 create-test',
         tag: 'repo_test',
+        _organization: null,
       });
     }));
 
@@ -350,12 +355,13 @@ describe('Verify Result', () => {
         id: 'repo_test_counter_001',
         desc: 'repo #2 create-test',
         tag: 'repo_test',
+        _organization: null,
       });
     }));
 
   it('should fail find by where: invalid id', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: `@id:abcdefg*`,
         cursor: 0,
@@ -365,7 +371,7 @@ describe('Verify Result', () => {
 
   it('should find by entityId', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: `@id:${id}`,
         cursor: 0,
@@ -377,7 +383,7 @@ describe('Verify Result', () => {
 
   it('should find by description', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: `@de:repo*`,
         cursor: 0,
@@ -536,7 +542,7 @@ describe('Paginated entity and commit Tests', () => {
   // }
   it('should do paginated entity search: cursor=0 pagesize=2', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: '@id:repo_pag_test*',
         cursor: 0,
@@ -553,7 +559,7 @@ describe('Paginated entity and commit Tests', () => {
 
   it('should do paginated entity search: cursor=1 pagesize=2', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: '@id:repo_pag_test*',
         cursor: 1,
@@ -570,7 +576,7 @@ describe('Paginated entity and commit Tests', () => {
 
   it('should do paginated entity search: cursor=2 pagesize=2', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: '@id:repo_pag_test*',
         cursor: 2,
@@ -587,7 +593,7 @@ describe('Paginated entity and commit Tests', () => {
 
   it('should do paginated entity search: cursor=0 pagesize=2', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: '@id:repo_pag_test*',
         cursor: 3,
@@ -604,7 +610,7 @@ describe('Paginated entity and commit Tests', () => {
 
   it('should do paginated entity search: cursor=0 pagesize=2', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: '@id:repo_pag_test*',
         cursor: 4,
@@ -621,7 +627,7 @@ describe('Paginated entity and commit Tests', () => {
 
   it('should do paginated entity search: cursor=0 pagesize=2', async () =>
     repo
-      .fullTextSearchEntity<OutputCounter>({
+      .fullTextSearchEntity({
         entityName,
         query: '@id:repo_pag_test*',
         cursor: 5,

@@ -12,10 +12,6 @@ const logger = getLogger('[gw-org1] app.js');
   const gateway = await createGateway({
     serviceList: [
       {
-        name: 'user',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_USER_PORT}/graphql`
-      },
-      {
         name: 'loan',
         url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_LOAN_PORT}/graphql`
       },
@@ -28,7 +24,7 @@ const logger = getLogger('[gw-org1] app.js');
         url: `http://${process.env.GATEWAY_HOST}:${process.env.PRIVATE_DOC_CONTENTS_PORT}/graphql`
       },
       {
-        name: 'rLoanDetails',
+        name: 'loanDetails',
         url: `http://${process.env.GATEWAY_HOST}:${process.env.REMOTE_LOAN_DETAILS_PORT}/graphql`
       },
       {

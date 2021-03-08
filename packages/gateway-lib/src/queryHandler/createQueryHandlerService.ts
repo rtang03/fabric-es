@@ -4,12 +4,14 @@ import {
   createQueryDatabase,
   createQueryHandler,
   getNetwork,
-  getReducer,
   QueryDatabase,
   QueryHandler,
   RedisearchDefinition,
   RedisRepository,
   Reducer,
+  ReducerCallback,
+  getReducer,
+  EntityType,
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
@@ -18,7 +20,10 @@ import type { RedisOptions } from 'ioredis';
 import fetch from 'node-fetch';
 import { Redisearch } from 'redis-modules-sdk';
 import type { Selector } from 'reselect';
-import { Organization, OrgEvents, orgReducer } from '../admin';
+import {
+  Organization, orgReducer, orgIndices,
+  User, userReducer, userIndices,
+} from '../common/model';
 import type { QueryHandlerGqlCtx } from '../types';
 import { composeRedisRepos, getLogger, isAuthResponse } from '../utils';
 import {
@@ -64,14 +69,15 @@ export const createQueryHandlerService: (option: {
   introspection?: boolean;
   playground?: boolean;
   redisOptions: RedisOptions;
-  reducers: Record<string, Reducer>;
   wallet: Wallet;
 }) => {
-  addRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
-    entityName: string;
-    fields: RedisearchDefinition<TInput>;
-    preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
-    postSelector?: Selector<TItemInRedis, TOutput>;
+  addRedisRepository: <TInput, TItemInRedis, TOutput, TEvent>(
+    entity: EntityType<TInput>,
+    option: {
+      reducer: ReducerCallback<TInput, TEvent>;
+      fields: RedisearchDefinition<TInput>;
+      preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+      postSelector?: Selector<TItemInRedis, TOutput>;
   }) => AddQHRedisRepository;
 } = ({
        asLocalhost,
@@ -82,20 +88,14 @@ export const createQueryHandlerService: (option: {
        introspection = true,
        playground = true,
        redisOptions,
-       reducers,
        wallet,
      }) => {
   const logger = getLogger('[gateway-lib] createQueryHandlerService.js');
-  const entityNames = Object.keys(reducers);
 
   // prepare Redis pub / sub
   const publisher = new Redisearch(redisOptions);
   const subscriber = new Redisearch(redisOptions);
   const pubSub = new RedisPubSub({ publisher: publisher.redis, subscriber: subscriber.redis });
-
-  // TODO: @paul, please revisit here. add common domain model reducer(s)
-  entityNames.push('organization');
-  reducers['organization'] = getReducer<Organization, OrgEvents>(orgReducer);
 
   logger.debug(util.format('redis option: %j', redisOptions));
 
@@ -104,16 +104,30 @@ export const createQueryHandlerService: (option: {
   let queryDatabase: QueryDatabase;
   let readyToRunServer = false;
 
-  const addRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
-    entityName: string;
-    fields: RedisearchDefinition<TInput>;
-    preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
-    postSelector?: Selector<TItemInRedis, TOutput>;
-  }) => AddQHRedisRepository = ({ entityName, fields, preSelector, postSelector }) => {
+  // Add common reducers
+  const entityNames: string[] = [Organization.entityName, User.entityName];
+  const reducers: Record<string, Reducer> = {
+    [Organization.entityName]: getReducer(orgReducer),
+    [User.entityName]: getReducer(userReducer),
+  };
+  redisRepos = composeRedisRepos(publisher, redisRepos)(Organization, { fields: orgIndices});
+  redisRepos = composeRedisRepos(publisher, redisRepos)(User, { fields: userIndices});
+
+  const addRedisRepository: <TInput, TItemInRedis, TOutput, TEvent>(
+    entity: EntityType<TInput>,
+    option: {
+      reducer: ReducerCallback<TInput, TEvent>;
+      fields: RedisearchDefinition<TInput>;
+      preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+      postSelector?: Selector<TItemInRedis, TOutput>;
+  }) => AddQHRedisRepository = <TInput, TItemInRedis, TOutput, TEvent>(entity, { reducer, fields, preSelector, postSelector }) => {
+    entityNames.push(entity.entityName);
+    reducers[entity.entityName] = getReducer<TInput, TEvent>(reducer);
+
     redisRepos = composeRedisRepos(
       publisher,
       redisRepos
-    )({ entityName, fields, preSelector, postSelector });
+    )(entity, { fields, preSelector, postSelector });
 
     return { addRedisRepository, run };
   };

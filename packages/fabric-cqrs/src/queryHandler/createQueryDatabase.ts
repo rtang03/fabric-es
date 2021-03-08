@@ -34,19 +34,19 @@ export const createQueryDatabase: (
   { debug, notifyExpiryBySec } = { debug: false, notifyExpiryBySec: 86400 }
 ) => {
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js', target: 'console' });
-  const commitRepo = createRedisRepository<Commit, CommitInRedis, OutputCommit>({
-    client,
-    kind: 'commit',
-    fields: commitSearchDefinition,
-    preSelector,
-    postSelector,
-    entityName: 'commit',
+  const commitRepo = createRedisRepository<Commit, CommitInRedis, OutputCommit>(
+    'commit', {
+      client,
+      kind: 'commit',
+      fields: commitSearchDefinition,
+      preSelector,
+      postSelector,
   });
 
   const notificationCenter = createNotificationCenter(client);
 
   // add built-in commit repo
-  const allRepos = Object.assign({}, repos, { commit: commitRepo });
+  const allRepos = Object.assign(repos, { commit: commitRepo });
 
   const getHistory = (commits: (Commit | OutputCommit)[]): any[] => {
     const history = [];
@@ -130,7 +130,7 @@ export const createQueryDatabase: (
       if (!entityName) throw new Error(INVALID_ARG);
       const entityRepo = allRepos[entityName];
 
-      if (!entityRepo) throw new Error(REPO_NOT_FOUND);
+      if (!entityRepo) throw new Error(`deleteEntityByEntityName: ${entityName} ${REPO_NOT_FOUND}`);
 
       return deleteItems<TEntity>(
         entityRepo,
@@ -152,7 +152,7 @@ export const createQueryDatabase: (
       if (!query || !entityName) throw new Error(INVALID_ARG);
 
       const repo = allRepos[entityName];
-      if (!repo) throw new Error(REPO_NOT_FOUND);
+      if (!repo) throw new Error(`fullTextSearchEntity: ${entityName} ${REPO_NOT_FOUND} -- ${Object.keys(allRepos)}`);
 
       return doSearch<TEntity>({ repo, countTotalOnly, kind: 'entity', query, param });
     },
@@ -224,7 +224,7 @@ export const createQueryDatabase: (
       const entityKeyInRedis = allRepos[entityName].getKey(commit);
       const commitKeyInRedis = allRepos['commit'].getKey(commit);
 
-      if (!entityRepo) throw new Error(REPO_NOT_FOUND);
+      if (!entityRepo) throw new Error(`mergeEntity: ${entityName} ${REPO_NOT_FOUND}`);
       if (!isCommit(commit) || !reducer) throw new Error(INVALID_ARG);
 
       // step 1: retrieve existing commit
@@ -261,8 +261,7 @@ export const createQueryDatabase: (
       */
 
       // step 4 add Tracking Info
-      // TODO: need Paul's help about how to represent tracking information in Redis
-      // const newComputedState = Object.assign({}, state, trackingReducer(history));
+      if (state) Object.assign(state, trackingReducer(history));
 
       debug && console.debug(util.format('entity being merged, %j', state));
 
@@ -307,7 +306,7 @@ export const createQueryDatabase: (
       if (!entityName || !commits || !reducer) throw new Error(INVALID_ARG);
 
       const entityRepo = allRepos[entityName];
-      if (!entityRepo) throw new Error(REPO_NOT_FOUND);
+      if (!entityRepo) throw new Error(`mergeEntityBatch: ${entityName} ${REPO_NOT_FOUND}`);
 
       if (isEqual(commits, {}))
         return {
@@ -323,6 +322,7 @@ export const createQueryDatabase: (
       const entities = Object.entries(groupByEntityId)
         .map(([entityId, commits]) => {
           const state = reducer(getHistory(commits));
+          if (state) Object.assign(state, trackingReducer(commits));
           const keyOfEntityInRedis = allRepos[entityName].getKey(commits[0]);
           // if reducer fails
           !state && errors.push(entityId);

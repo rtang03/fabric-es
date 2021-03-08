@@ -7,19 +7,21 @@ import { Redisearch } from 'redis-modules-sdk';
 import rimraf from 'rimraf';
 import { createQueryHandler, createQueryDatabase, createRedisRepository } from '..';
 import { getNetwork } from '../../services';
+import { getReducer } from '../../types';
 import {
   Counter,
-  CounterEvent,
+  CounterEvents,
   CounterInRedis,
   counterIndexDefinition as fields,
   OutputCounter,
   postSelector,
   preSelector,
-  reducer,
+  reducerCallback,
 } from '../../unit-test-counter';
 import { isCommit, waitForSecond } from '../../utils';
 import type { OutputCommit, QueryHandler, RedisRepository } from '../types';
 
+const reducer = getReducer(reducerCallback);
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
 const caName = process.env.CA_NAME;
@@ -74,12 +76,13 @@ beforeAll(async () => {
     await client.connect();
 
     // Step 4: create counter's RedisRepo
-    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>({
-      client,
-      fields,
-      entityName,
-      postSelector,
-      preSelector,
+    Counter.entityName = entityName;
+    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>(
+      Counter, {
+        client,
+        fields,
+        postSelector,
+        preSelector,
     });
 
     // Step 5: create QueryDatabase
@@ -185,7 +188,7 @@ afterAll(async () => {
 describe('Reconcile Tests', () => {
   it('should create #1 record for id1', async () =>
     queryHandler
-      .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id })
+      .create<CounterEvents>(entityName)({ enrollmentId: orgAdminId, id })
       .save({
         events: [
           {
@@ -223,7 +226,7 @@ describe('Reconcile Tests', () => {
 
   it('should fail to reconcile non-existing entityName', async () =>
     queryHandler
-      .reconcile()({ entityName: 'Noop' })
+      .reconcile({ entityName: 'Noop' })
       .then(({ data, status }) => {
         expect(data).toEqual([]);
         expect(status).toEqual('OK');
@@ -231,7 +234,7 @@ describe('Reconcile Tests', () => {
 
   it('should reconcile', async () =>
     queryHandler
-      .reconcile()({ entityName })
+      .reconcile({ entityName })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data).toEqual([{ key: 'e:test_reconcile:qh_test_001', status: 'OK' }]);
@@ -255,7 +258,7 @@ describe('Reconcile Tests', () => {
       }));
 
   it('should query_getById, and add new event for id1', async () => {
-    const { currentState, save } = await queryHandler.getById<Counter, CounterEvent>(entityName)({
+    const { currentState, save } = await queryHandler.getById<Counter, CounterEvents>(entityName)({
       enrollmentId: orgAdminId,
       id,
     });
@@ -279,7 +282,7 @@ describe('Reconcile Tests', () => {
 
   it('should reconcile', async () =>
     queryHandler
-      .reconcile()({ entityName })
+      .reconcile({ entityName })
       .then(({ data, status }) => {
         expect(status).toEqual('OK');
         expect(data).toEqual([{ key: 'e:test_reconcile:qh_test_001', status: 'OK' }]);
@@ -299,7 +302,7 @@ describe('Reconcile Tests', () => {
   // }
   it('should query_getById for id1', async () =>
     queryHandler
-      .getById<Counter, CounterEvent>(entityName)({ enrollmentId: orgAdminId, id })
+      .getById<Counter, CounterEvents>(entityName)({ enrollmentId: orgAdminId, id })
       .then(({ currentState }) => {
         expect(currentState.id).toEqual(id);
         expect(currentState.value).toEqual(2);
@@ -328,7 +331,7 @@ describe('Reconcile Tests', () => {
 
   it('should create #2 record for id2', async () =>
     queryHandler
-      .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id: id2 })
+      .create<CounterEvents>(entityName)({ enrollmentId: orgAdminId, id: id2 })
       .save({
         events: [
           {
@@ -341,7 +344,7 @@ describe('Reconcile Tests', () => {
 
   it('should reconcile', async () =>
     queryHandler
-      .reconcile()({ entityName })
+      .reconcile({ entityName })
       .then(({ data, status }) => {
         expect(data).toEqual([
           { key: 'e:test_reconcile:qh_test_001', status: 'OK' },
@@ -353,7 +356,7 @@ describe('Reconcile Tests', () => {
 
   it('should query_getById for id2', async () =>
     queryHandler
-      .getById<Counter, CounterEvent>(entityName)({ enrollmentId: orgAdminId, id: id2 })
+      .getById<Counter, CounterEvents>(entityName)({ enrollmentId: orgAdminId, id: id2 })
       .then(({ currentState }) => {
         expect(currentState.id).toEqual(id2);
         expect(currentState.tag).toEqual('reconcile');
@@ -375,6 +378,7 @@ describe('Reconcile Tests', () => {
             tag: 'reconcile',
             desc: 'query handler #2 reconcile-test',
             _creator: 'admin-org1.net',
+            _organization: null,
           },
           {
             value: 1,
@@ -382,6 +386,7 @@ describe('Reconcile Tests', () => {
             tag: 'reconcile',
             desc: 'query handler #3 reconcile-test',
             _creator: 'admin-org1.net',
+            _organization: null,
           },
         ]);
       }));

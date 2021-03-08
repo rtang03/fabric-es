@@ -1,5 +1,5 @@
 import { loanDetailsReducer as superReducer } from '@fabric-es/model-loan';
-import type { LoanDetails, LoanDetailsEvents } from '../types';
+import type { LoanDetails, LoanDetailsEvents } from '.';
 
 export const loanDetailsReducer = (details: LoanDetails, event: LoanDetailsEvents): LoanDetails => {
   switch (event.type) {

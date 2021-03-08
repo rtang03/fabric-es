@@ -6,7 +6,7 @@ import type { Counter } from '.';
  */
 export type CommonCounterFields = Pick<
   Counter,
-  'id' | 'value' | 'desc' | 'tag' | '_ts' | '_created' | '_creator'
+  'id' | 'value' | 'desc' | 'tag' | '_ts' | '_created' | '_creator' | '_organization'
   >;
 
 /**

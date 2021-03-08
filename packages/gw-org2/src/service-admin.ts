@@ -1,6 +1,6 @@
 require('./env');
 import util from 'util';
-import { createAdminService, getLogger } from '@fabric-es/gateway-lib';
+import { buildRedisOptions, createAdminService, getLogger } from '@fabric-es/gateway-lib';
 
 const port = process.env.ADMINISTRATOR_PORT || 15002;
 const logger = getLogger('service-admin.js');
@@ -16,25 +16,11 @@ const logger = getLogger('service-admin.js');
     orgName: process.env.ORGNAME,
     orgUrl: process.env.ORGURL,
     asLocalhost: !(process.env.NODE_ENV === 'production'),
-    redisOptions: {
-      host: process.env.REDIS_HOST,
-      port: (process.env.REDIS_PORT || 6379) as number,
-      retryStrategy: (times) => {
-        if (times > 3) {
-          // the 4th return will exceed 10 seconds, based on the return value...
-          logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
-          process.exit(-1);
-        }
-        return Math.min(times * 100, 3000); // reconnect after (ms)
-      },
-      reconnectOnError: (err) => {
-        const targetError = 'READONLY';
-        if (err.message.includes(targetError)) {
-          // Only reconnect when the error contains "READONLY"
-          return 1;
-        }
-      },
-    },
+    redisOptions: buildRedisOptions(
+      process.env.REDIS_HOST,
+      (process.env.REDIS_PORT || 6379) as number,
+      logger
+    ),
   });
 
   process.on(

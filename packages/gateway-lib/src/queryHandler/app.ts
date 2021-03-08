@@ -4,10 +4,11 @@ import {
   Counter,
   counterIndexDefinition,
   CounterInRedis,
-  counterReducer,
+  counterReducerCallback,
   OutputCounter,
   counterPreSelector,
   counterPostSelector,
+  CounterEvents,
 } from '@fabric-es/fabric-cqrs';
 import { Wallets } from 'fabric-network';
 import type { RedisOptions } from 'ioredis';
@@ -29,21 +30,22 @@ const authCheck = process.env.AUTHORIZATION_SERVER_URI;
     retryStrategy: (times) => Math.min(times * 50, 2000),
   };
 
+  Counter.entityName = 'counter';
   const { getServer, shutdown } = await createQueryHandlerService({
     redisOptions,
     asLocalhost: !(process.env.NODE_ENV === 'production'),
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     enrollmentId: process.env.ORG_ADMIN_ID,
-    reducers: { counter: counterReducer },
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     authCheck,
   })
-    .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
-      entityName: 'counter',
-      fields: counterIndexDefinition,
-      preSelector: counterPreSelector,
-      postSelector: counterPostSelector,
+    .addRedisRepository<Counter, CounterInRedis, OutputCounter, CounterEvents>(
+      Counter, {
+        reducer: counterReducerCallback,
+        fields: counterIndexDefinition,
+        preSelector: counterPreSelector,
+        postSelector: counterPostSelector,
     })
     .run();
 

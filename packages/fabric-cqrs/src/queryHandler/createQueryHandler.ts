@@ -53,6 +53,8 @@ export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler =
   const commandOption = { logger, wallet, store, connectionProfile, channelName };
   const queryOption = { logger, store };
 
+  let isReconciled = false;
+
   return {
     clearNotification: async ({ creator, entityName, id, commitId }) =>
       dispatcher<string[], { creator: string; entityName: string; id: string; commitId: string }>(
@@ -143,7 +145,27 @@ export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler =
         }
       )({ creator, entityName, id }),
     disconnect: () => gateway.disconnect(),
-    reconcile: () =>
+    // reconcile: () =>
+    //   dispatcher<{ key: string; status: string }[], { entityName: string }>(
+    //     ({ tx_id, args }) =>
+    //       reconcileAction.reconcile({
+    //         tx_id,
+    //         args,
+    //         store,
+    //         channelName,
+    //         connectionProfile,
+    //         wallet,
+    //       }),
+    //     {
+    //       name: 'reconcile',
+    //       store,
+    //       slice: 'reconcile',
+    //       SuccessAction: reconcileAction.RECONCILE_SUCCESS,
+    //       ErrorAction: reconcileAction.RECONCILE_ERROR,
+    //       logger,
+    //     }
+    //   ),
+    reconcile: (payload: { entityName: string }) => (() =>
       dispatcher<{ key: string; status: string }[], { entityName: string }>(
         ({ tx_id, args }) =>
           reconcileAction.reconcile({
@@ -162,7 +184,12 @@ export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler =
           ErrorAction: reconcileAction.RECONCILE_ERROR,
           logger,
         }
-      ),
+      ))()(payload)
+      .then(result => {
+        isReconciled = true;
+        return result;
+      }),
+    reconciled: () => isReconciled = true,
     subscribeHub: async (entityNames) => {
       logger.info('♨️  subscribe channel event hub');
       try {
@@ -178,6 +205,11 @@ export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler =
         contractListener = await network.getContract('eventstore').addContractListener(
           async ({ payload, eventName, getTransactionEvent }) => {
             logger.info(`💢  event arrives - tx_id: ${getTransactionEvent().transactionId}`);
+            if (!isReconciled) {
+              logger.info(`pending reconciliation, skipping 'merge_one_entity'...`);
+              return;
+            }
+
             // check eventName
             let commit: unknown;
             if (eventName !== 'createCommit') {

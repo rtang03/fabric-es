@@ -1,5 +1,6 @@
 import { getCommandStore } from '../store';
-import type { PrivateRepoOption, PrivateRepository, Reducer } from '../types';
+import type { BaseEntity, BaseEvent, PrivateRepoOption, PrivateRepository, ReducerCallback, EntityType } from '../types';
+import { getReducer } from '../types';
 import {
   getLogger,
   commandCreate,
@@ -18,12 +19,14 @@ import {
  * @params option
  * @params parentName
  */
-export const createPrivateRepository: <TEntity = any, TEvent = any>(
-  entityName: string,
-  reducer: Reducer,
+export const createPrivateRepository: <TEntity extends BaseEntity, TEvent extends BaseEvent>(
+  entity: EntityType<TEntity>,
+  callback: ReducerCallback<TEntity, TEvent>,
   option: PrivateRepoOption,
-  parentName?: string
-) => PrivateRepository<TEntity, TEvent> = <TEntity, TEvent>(entityName, reducer, option, parentName) => {
+) => PrivateRepository<TEntity, TEvent> = <TEntity, TEvent>(entity, callback, option) => {
+  const entityName = entity.entityName;
+  const parentName = entity.parentName || '';
+  const reducer = getReducer<TEntity, TEvent>(callback);
   const logger = option?.logger || getLogger({ name: '[fabric-cqrs] createPrivateRepository.js' });
   const { gateway, network, channelName, connectionProfile, wallet } = option;
 
@@ -37,11 +40,11 @@ export const createPrivateRepository: <TEntity = any, TEvent = any>(
   };
 
   return {
-    create: commandCreate<TEvent>(entityName, true, commandOption, parentName),
+    create: commandCreate(entityName, true, commandOption, parentName),
     getCommitByEntityName: commandGetByEntityName(entityName, true, commandOption),
     getCommitByEntityIdCommitId: commandGetByEntityIdCommitId(entityName, true, commandOption),
     deleteByEntityIdCommitId: commandDeleteByEntityIdCommitId(entityName, true, commandOption),
-    getById: commandGetById<TEntity, TEvent>(entityName, reducer, true, commandOption),
+    getById: commandGetById(entityName, reducer, true, commandOption),
     getEntityName: () => entityName,
     getParentName: () => parentName,
     disconnect: () => gateway.disconnect(),

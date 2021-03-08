@@ -4,15 +4,13 @@ import { createGateway, getLogger } from '@fabric-es/gateway-lib';
 
 const PORT = (process.env.GATEWAY_PORT || 4001) as number;
 const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI;
-const logger = getLogger('app.js');
+const logger = getLogger('[gw-org3] app.js');
 
 (async () => {
+  logger.info('♨️♨️  Starting [gw-org3] gateway');
+
   const gateway = await createGateway({
     serviceList: [
-      {
-        name: 'user',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_USER_PORT}/graphql`
-      },
       {
         name: 'loan',
         url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_LOAN_PORT}/graphql`
@@ -47,7 +45,7 @@ const logger = getLogger('app.js');
 
   gateway.listen(PORT, () => {
     logger.info(`🚀 gateway ready at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
-    process.send?.('ready');
+    process?.send?.('ready');
   });
 })().catch(error => {
   console.error(error);

@@ -4,7 +4,7 @@ mutation CreateWallet {
 }
 `;
 
-export const GET_LOAN_BY_ID_ORG1 = `
+export const GET_LOAN_BY_ID = `
 query GetLoanById($loanId: String!) {
   getLoanById(loanId: $loanId) {
     ownerId
@@ -17,54 +17,6 @@ query GetLoanById($loanId: String!) {
       reference
       status
       contents {
-        content {
-          ... on Data {
-            body
-          }
-          ... on File {
-            format
-            link
-          }
-        }
-      }
-    }
-    _details {
-      requester {
-        registration
-        name
-        type
-      }
-      contact {
-        salutation
-        name
-        title
-        phone
-        email
-      }
-      loanType
-      startDate
-      tenor
-      currency
-      requestedAmt
-      approvedAmt
-      comment
-    }
-  }
-}`;
-
-export const GET_LOAN_BY_ID_ORG2 = `
-query GetLoanById($loanId: String!) {
-  getLoanById(loanId: $loanId) {
-    ownerId
-    description
-    reference
-    comment
-    status
-    documents {
-      title
-      reference
-      status
-      _contents {
         content {
           ... on Data {
             body

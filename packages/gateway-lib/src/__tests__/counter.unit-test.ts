@@ -1,5 +1,6 @@
 require('dotenv').config({ path: './.env.test' });
 import http from 'http';
+import { buildFederatedSchema } from '@apollo/federation';
 import {
   CounterInRedis,
   counterIndexDefinition,
@@ -8,8 +9,7 @@ import {
   QueryHandler,
   Counter,
   CounterEvents,
-  counterReducer,
-  getReducer,
+  counterReducerCallback,
   OutputCounter,
   RedisRepository,
 } from '@fabric-es/fabric-cqrs';
@@ -24,7 +24,6 @@ import fetch from 'node-fetch';
 import rimraf from 'rimraf';
 import request from 'supertest';
 import { createAdminService } from '../admin';
-import { Organization, OrgEvents, orgReducer } from '../admin';
 import { IDENTITY_ALREADY_EXIST, UNAUTHORIZED_ACCESS } from '../admin/constants';
 import {
   CREATE_WALLET,
@@ -66,7 +65,7 @@ const password = `password`;
 const email = `gw_test_${random}@test.com`;
 const counterId = `counter_${random}`;
 // If requiring to change entityName, need to update the Context, and resolvers as well.
-const entityName = 'gw-repo-counter';
+const entityName = 'counter';
 const enrollmentId = orgAdminId;
 
 let app: http.Server;
@@ -120,6 +119,7 @@ beforeAll(async () => {
     });
 
     // Step 3. create QueryHandlerService
+    Counter.entityName = entityName;
     const qhService = await createQueryHandlerService({
       asLocalhost: !(process.env.NODE_ENV === 'production'),
       authCheck: `${proxyServerUri}/oauth/authenticate`,
@@ -127,17 +127,14 @@ beforeAll(async () => {
       connectionProfile,
       enrollmentId,
       redisOptions: { host: 'localhost', port: 6379 },
-      reducers: {
-        [entityName]: counterReducer,
-        organization: getReducer<Organization, OrgEvents>(orgReducer),
-      },
       wallet,
     })
-      .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
-        entityName,
-        fields: counterIndexDefinition,
-        postSelector: counterPostSelector,
-        preSelector: counterPreSelector,
+      .addRedisRepository<Counter, CounterInRedis, OutputCounter, CounterEvents>(
+        Counter, {
+          reducer: counterReducerCallback,
+          fields: counterIndexDefinition,
+          postSelector: counterPostSelector,
+          preSelector: counterPreSelector,
       })
       .run();
 
@@ -186,15 +183,15 @@ beforeAll(async () => {
     });
 
     // Step 10: config Apollo server with models
-    modelApolloService = config({ typeDefs, resolvers })
+    Counter.entityName = entityName;
+    modelApolloService = config(buildFederatedSchema([{ typeDefs, resolvers }]))
       // define the Redisearch index, and selectors
-      .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
-        entityName,
+      .addRepository<Counter, CounterInRedis, OutputCounter, CounterEvents>(Counter, {
+        reducer: counterReducerCallback,
         fields: counterIndexDefinition,
         postSelector: counterPostSelector,
         preSelector: counterPreSelector,
       })
-      .addRepository<Counter, CounterEvents>(entityName, counterReducer)
       .create();
 
     await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () =>

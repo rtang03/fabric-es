@@ -1,3 +1,4 @@
+require('dotenv').config({ path: './.env.test' });
 import { getLogger } from '..';
 import { createAdminService } from '.';
 
@@ -13,7 +14,7 @@ const port = (process.env.PORT || 8080) as number;
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     caName: process.env.CA_NAME,
-    walletPath: process.env.WALLET_PATH,
+    walletPath: process.env.WALLET,
     orgName: process.env.ORGNAME,
     orgUrl: process.env.ORGURL,
     redisOptions: {

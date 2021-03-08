@@ -1,64 +1,46 @@
 require('./env');
 import util from 'util';
-import { getReducer } from '@fabric-es/fabric-cqrs';
-import { createService, getLogger } from '@fabric-es/gateway-lib';
+import { buildFederatedSchema } from '@apollo/federation';
+import { buildRedisOptions, createService, getLogger } from '@fabric-es/gateway-lib';
 import {
   Loan,
-  LoanEvents,
-  loanIndexDefinition,
-  LoanInRedis,
+  loanIndices,
   loanReducer,
   loanResolvers,
   loanTypeDefs,
-  OutputLoan,
-  postSelector,
-  preSelector,
+  loanPostSelector,
+  loanPreSelector,
 } from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
 
+const serviceName = 'loan';
 const logger = getLogger('service-loan.js');
-const reducer = getReducer<Loan, LoanEvents>(loanReducer);
 
 void (async () =>
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
-    serviceName: 'loan',
+    serviceName,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     asLocalhost: !(process.env.NODE_ENV === 'production'),
-    redisOptions: {
-      host: process.env.REDIS_HOST,
-      port: (process.env.REDIS_PORT || 6379) as number,
-      retryStrategy: (times) => {
-        if (times > 3) {
-          // the 4th return will exceed 10 seconds, based on the return value...
-          logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
-          process.exit(-1);
-        }
-        return Math.min(times * 100, 3000); // reconnect after (ms)
-      },
-      reconnectOnError: (err) => {
-        const targetError = 'READONLY';
-        if (err.message.includes(targetError)) {
-          // Only reconnect when the error contains "READONLY"
-          return 1;
-        }
-      },
-    },
+    redisOptions: buildRedisOptions(
+      process.env.REDIS_HOST,
+      (process.env.REDIS_PORT || 6379) as number,
+      logger
+    ),
   })
     .then(({ config, shutdown }) => {
-      const app = config({
+      const app = config(buildFederatedSchema([{
         typeDefs: loanTypeDefs,
         resolvers: loanResolvers,
-      })
-        .addRedisRepository<Loan, LoanInRedis, OutputLoan>({
-          entityName: 'loan',
-          fields: loanIndexDefinition,
-          postSelector,
-          preSelector,
+      }]))
+        .addRepository(Loan, {
+          reducer: loanReducer,
+          fields: loanIndices,
+          postSelector: loanPostSelector,
+          preSelector: loanPreSelector,
         })
-        .addRepository<Loan, LoanEvents>('loan', reducer)
         .create();
 
       process.on(
@@ -83,7 +65,7 @@ void (async () =>
       });
 
       void app.listen({ port: process.env.SERVICE_LOAN_PORT }).then(({ url }) => {
-        logger.info(`🚀  '${process.env.MSPID}' - 'loan' available at ${url}`);
+        logger.info(`🚀  '${process.env.MSPID}' - '${serviceName}' available at ${url}`);
         process.send?.('ready');
       });
     })

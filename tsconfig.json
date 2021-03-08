@@ -30,14 +30,8 @@
       "packages/gw-org1/src/**/*",
       "packages/gw-org2/src/**/*",
       "packages/gw-org3/src/**/*",
-      "packages/model-common/**/*",
       "packages/model-document/**/*",
       "packages/model-loan/**/*",
-      "packages/model-pboc/**/*",
-      "packages/rl-org1/**/*",
-      "packages/rl-org2/**/*",
-      "packages/rl-org3/**/*",
-      "packages/relay-lib/**/*",
       "packages/tester/**/*"
     ],
     "excludePrivate": true,
@@ -50,14 +44,8 @@
       "@fabric-es/gw-org1",
       "@fabric-es/gw-org2",
       "@fabric-es/gw-org3",
-      "@fabric-es/model-common",
       "@fabric-es/model-document",
       "@fabric-es/model-loan",
-      "@fabric-es/model-pboc",
-      "@fabric-es/relay-lib",
-      "@fabric-es/rl-org1",
-      "@fabric-es/rl-org2",
-      "@fabric-es/rl-org3",
       "@fabric-es/tester"
     ]
   }

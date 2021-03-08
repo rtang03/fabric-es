@@ -1,26 +1,26 @@
 import util from 'util';
-import { buildFederatedSchema } from '@apollo/federation';
 import {
   createRepository,
   createPrivateRepository,
   getNetwork,
-  getReducer,
   PrivateRepository,
   RedisRepository,
-  Reducer,
   Repository,
   createQueryDatabase,
   RedisearchDefinition,
   Commit,
+  EntityType,
+  ReducerCallback
 } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
+import { GraphQLSchema } from 'graphql';
 import type { RedisOptions } from 'ioredis';
 import { Redisearch } from 'redis-modules-sdk';
 import type { Selector } from 'reselect';
-import { createTrackingData, DataSrc } from '..';
-import { Organization, OrgEvents, orgReducer } from '../admin';
-import type { AddRedisRepository, FederatedService } from '../types';
+import { DataSrc } from '..';
+import { Organization, OrgEvents, orgReducer, orgIndices, User, UserEvents, userReducer, userIndices } from '../common/model';
+import { AddRepository, AddRemoteRepository, FederatedService, ServiceType } from '../types';
 import { composeRedisRepos, getLogger, shutdownApollo } from '.';
 
 /**
@@ -72,7 +72,7 @@ export const createService: (option: {
   connectionProfile: string;
   asLocalhost: boolean;
   enrollmentId: string;
-  isPrivate?: boolean;
+  type?: ServiceType;
   redisOptions: RedisOptions;
   serviceName: string;
   wallet: Wallet;
@@ -81,7 +81,7 @@ export const createService: (option: {
   channelName,
   connectionProfile,
   enrollmentId,
-  isPrivate = false,
+  type = ServiceType.Public,
   redisOptions,
   serviceName,
   wallet,
@@ -106,7 +106,7 @@ export const createService: (option: {
   // prepare Fabric network connection
   try {
     networkConfig = await getNetwork({
-      discovery: !isPrivate,
+      discovery: (type !== ServiceType.Private), // only for non-private repo
       asLocalhost,
       channelName,
       connectionProfile,
@@ -127,12 +127,11 @@ export const createService: (option: {
   logger.info('mspId: ', mspId);
 
   const getPrivateRepository = <TEntity, TEvent>(
-    entityName: string,
-    reducer: Reducer,
-    parentName?: string
+    entity: EntityType<TEntity>,
+    reducer: ReducerCallback<TEntity, TEvent>,
   ) =>
     createPrivateRepository<TEntity, TEvent>(
-      entityName,
+      entity,
       reducer,
       {
         ...networkConfig,
@@ -140,11 +139,10 @@ export const createService: (option: {
         channelName,
         wallet,
       },
-      parentName
     );
 
-  const getRepository = <TEntity, TEvent>(entityName: string, reducer: Reducer) =>
-    createRepository<TEntity, TEvent>(entityName, reducer, {
+  const getRepository = <TEntity, TOutput, TEvent>(entity: EntityType<TEntity>, reducer: ReducerCallback<TEntity, TEvent>) =>
+    createRepository<TEntity, TOutput, TEvent>(entity, reducer, {
       ...networkConfig,
       queryDatabase: createQueryDatabase(client, redisRepos),
       connectionProfile,
@@ -153,7 +151,7 @@ export const createService: (option: {
     });
 
   return {
-    config: ({ typeDefs, resolvers }) => {
+    config: (schema: GraphQLSchema) => { // { typeDefs, resolvers }
       const repositories: {
         entityName: string;
         repository: Repository | PrivateRepository;
@@ -164,23 +162,21 @@ export const createService: (option: {
         playground?: boolean;
         introspection?: boolean;
       }) => ApolloServer = (option) => {
-        const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
-
         const args = mspId ? { mspId } : undefined;
         const flags = {
           playground: option?.playground,
           introspection: option?.introspection,
         };
 
-        if (repositories.filter((element) => element.entityName === 'organization').length <= 0) {
-          repositories.push({
-            entityName: 'organization',
-            repository: getRepository<Organization, OrgEvents>(
-              'organization',
-              getReducer<Organization, OrgEvents>(orgReducer)
-            ),
-          });
-        }
+        // if (repositories.filter((element) => element.entityName === Organization.entityName).length <= 0) {
+        redisRepos = composeRedisRepos(client, redisRepos)(Organization, { fields: orgIndices});
+        redisRepos = composeRedisRepos(client, redisRepos)(User, { fields: userIndices});
+        repositories.push({
+          entityName: Organization.entityName, repository: getRepository<Organization, Organization, OrgEvents>(Organization, orgReducer),
+        }, {
+          entityName: User.entityName, repository: getRepository<User, User, UserEvents>(User, userReducer),
+        });
+        // }
 
         return new ApolloServer(
           Object.assign(
@@ -201,11 +197,10 @@ export const createService: (option: {
                     user_id: headers.user_id,
                     is_admin: headers.is_admin,
                     username: headers.username,
+                    serviceName,
+                    serviceType: type,
                   },
                   args,
-                  {
-                    trackingData: createTrackingData,
-                  }
                 ),
             },
             flags
@@ -213,8 +208,10 @@ export const createService: (option: {
         );
       };
 
-      const addRepository = <TEntity, TEvent>(entityName, reducer) => {
-        const repository = getRepository<TEntity, TEvent>(entityName, reducer);
+      const addPrivateRepository = <TEntity, TEvent>(entity, reducer) => {
+        if (type !== ServiceType.Private) throw new Error('Invlid operation for non-private repo');
+
+        const repository = getPrivateRepository<TEntity, TEvent>(entity, reducer);
         repositories.push({
           entityName: repository.getEntityName(),
           repository,
@@ -222,34 +219,68 @@ export const createService: (option: {
         return { create, addRepository, addPrivateRepository };
       };
 
-      const addPrivateRepository = <TEntity, TEvent>(entityName, reducer, parentName) => {
-        const repository = getPrivateRepository<TEntity, TEvent>(entityName, reducer, parentName);
-        repositories.push({
-          entityName: repository.getEntityName(),
-          repository,
-        });
-        return { create, addPrivateRepository };
-      };
-
-      const addRedisRepository: <TInput, TItemInRedis, TOutput>(option: {
-        entityName: string;
-        fields: RedisearchDefinition<TInput>;
-        preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
-        postSelector?: Selector<TItemInRedis, TOutput>;
-      }) => AddRedisRepository = ({ entityName, fields, preSelector, postSelector }) => {
+      const addRepository: <TEntity, TRedis, TOutput, TEvent>(
+        entity: EntityType<TEntity>,
+        option: {
+          reducer: ReducerCallback<TEntity, TEvent>;
+          fields: RedisearchDefinition<TEntity>;
+          preSelector?: Selector<[TEntity, Commit[]?], TRedis>;
+          postSelector?: Selector<TRedis, TOutput>;
+      }) => AddRepository = (entity, { reducer, fields, preSelector, postSelector }) => {
         redisRepos = composeRedisRepos(
           client,
           redisRepos
-        )({
-          entityName,
+        )(entity, {
           fields,
           preSelector,
           postSelector,
         });
-        return { addRedisRepository, addRepository };
+
+        const repository = getRepository(entity, reducer);
+        repositories.push({
+          entityName: entity.entityName,
+          repository,
+        });
+
+        return { create, addRepository, addPrivateRepository };
       };
 
-      return { addRepository, addRedisRepository, addPrivateRepository };
+      const addRemoteRepository: <TParent, TEntity, TRedis, TOutput, TEvent>(
+        parent: EntityType<TParent>,
+        entity: EntityType<TEntity>,
+        option: {
+          reducer: ReducerCallback<TParent, TEvent>;
+          fields: RedisearchDefinition<TParent>;
+          preSelector?: Selector<[TParent, Commit[]?], TRedis>;
+          postSelector?: Selector<TRedis, TOutput>;
+      }) => AddRemoteRepository = (parent, entity, option) => {
+        if (type !== ServiceType.Remote) throw new Error('Invlid operation for non-remote repo');
+        if (!entity.parentName || entity.parentName !== parent.entityName)
+          throw new Error(`invalid 'parentName' in entity '${entity.entityName}'`);
+
+        addRepository(parent, option);
+        return { create, addRemoteRepository };
+      };
+
+      // const addRedisRepository: <TInput, TItemInRedis, TOutput>(
+      //   entity: EntityType<TInput>,
+      //   option: {
+      //     fields: RedisearchDefinition<TInput>;
+      //     preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
+      //     postSelector?: Selector<TItemInRedis, TOutput>;
+      // }) => AddRedisRepository = (entity, { fields, preSelector, postSelector }) => {
+      //   redisRepos = composeRedisRepos(
+      //     client,
+      //     redisRepos
+      //   )(entity, {
+      //     fields,
+      //     preSelector,
+      //     postSelector,
+      //   });
+      //   return { addRedisRepository, addRepository };
+      // };
+
+      return { addRepository, addPrivateRepository, addRemoteRepository };
     },
     disconnect: () => gateway.disconnect(),
     getMspId: () => mspId,

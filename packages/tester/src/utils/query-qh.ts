@@ -106,7 +106,7 @@ const parseOptions = (args: string[]) => {
 
 // DEV '18.163.137.250';
 // UAT '18.163.83.185';
-(async () => {
+void (async () => {
   const args = process.argv.slice(2); // [0];
   const options = {
     userName: undefined,

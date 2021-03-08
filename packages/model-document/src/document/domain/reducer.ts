@@ -1,5 +1,5 @@
-import type { Document, DocumentEvents } from '../types';
-import { DocumentStatus } from './constants';
+import type { Document, DocumentEvents } from '.';
+import { DocumentStatus } from '.';
 
 // TODO: What to do with ????
 export const documentReducer = (document: Document, event: DocumentEvents): Document => {

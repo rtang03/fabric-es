@@ -1,9 +1,14 @@
 import util from 'util';
-import { getReducer, Repository } from '@fabric-es/fabric-cqrs';
+import { buildFederatedSchema } from '@apollo/federation';
+import { Repository } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import type { RedisOptions } from 'ioredis';
 import { getLogger } from '..';
+import {
+  Organization, OrgEvents, orgReducer, orgIndices, orgCommandHandler,
+  User, UserEvents, userReducer, userIndices,
+} from '../common/model';
 import { createService } from '../utils';
 import {
   MISSING_CHANNELNAME,
@@ -12,8 +17,6 @@ import {
   MISSING_WALLET,
 } from './constants';
 import { createResolvers } from './createResolvers';
-import { Organization, orgCommandHandler, OrgEvents, orgReducer } from './model';
-import { resolvers as orgResolvers } from './model/organization/typeDefs';
 import { typeDefs } from './typeDefs';
 
 /**
@@ -100,9 +103,7 @@ export const createAdminService: (option: {
 
   const wallet = await Wallets.newFileSystemWallet(walletPath);
 
-  const reducer = getReducer<Organization, OrgEvents>(orgReducer);
-
-  const { config, getMspId, getRepository } = await createService({
+  const { config, getMspId, getRepository, shutdown } = await createService({
     enrollmentId: caAdmin,
     serviceName: 'admin',
     channelName,
@@ -115,23 +116,11 @@ export const createAdminService: (option: {
   logger.info('createService complete');
 
   const mspId = getMspId();
-
-  const orgRepo = getRepository<Organization, OrgEvents>('organization', reducer);
-
-  // TODO: OrgCommandHandler is not compatible with createService.ts. counter.unit-test.ts will fail.
-  // Fix it later
-  // const result = await orgCommandHandler({
-  //   enrollmentId: caAdmin,
-  //   orgRepo,
-  // }).StartOrg({
-  //   mspId,
-  //   payload: {
-  //     name: orgName,
-  //     url: orgUrl,
-  //     timestamp: Date.now(),
-  //   },
-  // });
-  // logger.info('orgCommandHandler.StartOrg complete');
+  const orgRepo = getRepository<Organization, Organization, OrgEvents>(Organization, orgReducer);
+  await orgCommandHandler({ enrollmentId: caAdmin, orgRepo }).StartOrg({
+    mspId, payload: { name: orgName, url: orgUrl, timestamp: Date.now() },
+  });
+  logger.info('orgCommandHandler.StartOrg complete');
 
   const resolvers = await createResolvers({
     caAdmin,
@@ -144,49 +133,46 @@ export const createAdminService: (option: {
     mspId,
     enrollmentSecret,
   });
-
   logger.info('createResolvers complete');
 
-  const server = config({
-    typeDefs,
-    resolvers: {
-      Query: { ...resolvers.Query, ...orgResolvers.Query },
-      Mutation: resolvers.Mutation,
-      Organization: orgResolvers.Organization,
-    },
-  })
-    .addRepository<Organization, OrgEvents>('organization', reducer)
+  const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
+  const server = config(schema)
+    .addRepository(Organization, { reducer: orgReducer, fields: orgIndices })
+    .addRepository(User, { reducer: userReducer, fields: userIndices })
     .create({ playground, introspection });
+
+  let stopping = false;
+  let stopped = false;
 
   return {
     server,
-    shutdown: (({ logger, repo }: { logger: any; repo: Repository }) => async (
+    shutdown: ((repo: Repository) => (
       server: ApolloServer
     ) => {
-      // TODO: OrgCommandHandler is not compatible with createService.ts. counter.unit-test.ts will fail.
-      // Fix it later
-      // await orgCommandHandler({
-      //   enrollmentId: caAdmin,
-      //   orgRepo: repo,
-      // }).ShutdownOrg({
-      //   mspId,
-      //   payload: {
-      //     timestamp: Date.now(),
-      //   },
-      // });
-
-      return new Promise<void>((resolve, reject) => {
-        server
-          .stop()
-          .then(() => {
-            logger.info('Admin service stopped');
-            resolve();
-          })
-          .catch((err) => {
-            logger.error(util.format(`An error occurred while shutting down: %j`, err));
-            reject();
+      if (!stopping) {
+        stopping = true;
+        return orgCommandHandler({ enrollmentId: caAdmin, orgRepo: repo, }).ShutdownOrg({
+          mspId, payload: { timestamp: Date.now() },
+        }).then(_ => {
+          return shutdown(server).then(_ => {
+            stopped = true;
           });
-      });
-    })({ logger, repo: orgRepo }),
+        });
+      } else {
+        let cnt = 10;
+        const loop = (func) => {
+          setTimeout(() => {
+            if (!stopped && cnt > 0) {
+              cnt --;
+              logger.debug(`waiting for shutdown() to complete... ${cnt}`);
+              loop(func);
+            } else {
+              func();
+            }
+          }, 1000);
+        };
+        return new Promise<void>(resolve => loop(resolve));
+      }
+    })(orgRepo),
   };
 };

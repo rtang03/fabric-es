@@ -13,7 +13,7 @@ import {
   RESTRICT_DOCUMENT_ACCESS,
   UPDATE_DOCUMENT,
 } from '..';
-import type { Document, DocumentEvents } from '../types';
+import type { Document, DocumentEvents } from '..';
 
 const GET_BY_ID = gql`
   query GetDocumentById($documentId: String!) {
