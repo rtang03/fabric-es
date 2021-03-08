@@ -98,19 +98,18 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
     .getById({ id, enrollmentId: context.username})
     .then(({ currentState }) => currentState);
 
-  // step 3 - the private data tracking field missing in the parent entity means no parent entity relationship is setup for this private entity:
+  // step 3
+  // * the flow of private data tracking:
   //  - a tracking event is added to the parent public entity when a private entity with parent entity relationship defined is created.
   //  - the @/fabric-cqrs/trackingReducer convert these tracking events into the private data tracking field in the parent entity.
   //  - when retrieving private data, the corresponding graphql resovler use this queryTrackingData() to consolidate local and remote private
   //    entitites byt this private data tracking field.
-  // *therefore for private data micro-services, if the data tracking field is missing, just need to return the private entities read locally*
+  // * the private data tracking field missing in the parent entity means:
+  //  1. no parent entity relationship is setup for this private entity, or
+  //  2. a corresponding private entity is not yet created.
+  // *therefore if the data tracking field is missing, just need to return the private entities read locally*
   if (!presult.data?.items[0][TRACK_FIELD]) {
-    if (context.serviceType === ServiceType.Private) {
-      return result;
-    } else {
-      // tracking info required for remote service
-      throw new Error(`tracking info missing in the public entity ${parentName}:${id}`);
-    }
+    return result;
   }
 
   if (!context.dataSources[ORGAN_NAME]) throw new Error(`${ORGAN_NAME} data source missing`);
