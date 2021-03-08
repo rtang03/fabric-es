@@ -1,4 +1,4 @@
-import type { Document as SuperDocument } from '@fabric-es/model-document';
+import { Document as SuperDocument } from '@fabric-es/model-document';
 
 /**
  * **Document** represents any supporting resources, such as trade documents, shipping documents, custom declarations, associating
@@ -6,6 +6,6 @@ import type { Document as SuperDocument } from '@fabric-es/model-document';
  * also utilize the `reference` property as their internal identifier unique within their individual organizations. The on-chain
  * portion of a document is a placeholder, with a resource locator (the `link` property) pointing to the document's details
  */
-export interface Document extends SuperDocument {
+export class Document extends SuperDocument {
   link: string;
 }

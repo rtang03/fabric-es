@@ -1,25 +1,30 @@
 require('./env');
 import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
-import { buildRedisOptions, createService, getLogger } from '@fabric-es/gateway-lib';
+import { buildRedisOptions, createService, getLogger, ServiceType } from '@fabric-es/gateway-lib';
 import {
-  Loan,
-  loanIndices,
-  loanReducer,
-  loanResolvers,
-  loanTypeDefs,
-  loanPostSelector,
-  loanPreSelector,
-} from '@fabric-es/model-loan';
+  DocContents,
+  docContentsReducer,
+  docContentsResolvers,
+  docContentsTypeDefs,
+} from '@fabric-es/model-document';
 import { Wallets } from 'fabric-network';
+import {
+  Document,
+  documentReducer,
+  documentIndices,
+  documentPostSelector,
+  documentPreSelector,
+} from './model/public/document';
 
-const serviceName = 'loan';
-const logger = getLogger('service-loan.js');
+const serviceName = 'docContents';
+const logger = getLogger('service-prv-ctnt.js');
 
 void (async () =>
   createService({
     enrollmentId: process.env.ORG_ADMIN_ID,
     serviceName,
+    type: ServiceType.Private,
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
@@ -32,16 +37,17 @@ void (async () =>
   })
     .then(({ config, shutdown }) => {
       const app = config(buildFederatedSchema([{
-        typeDefs: loanTypeDefs,
-        resolvers: loanResolvers,
+        typeDefs: docContentsTypeDefs,
+        resolvers: docContentsResolvers,
       }]))
-        .addRepository(Loan, {
-          reducer: loanReducer,
-          fields: loanIndices,
-          postSelector: loanPostSelector,
-          preSelector: loanPreSelector,
-        })
-        .create();
+      .addRepository(Document, {
+        reducer: documentReducer,
+        fields: documentIndices,
+        preSelector: documentPreSelector,
+        postSelector: documentPostSelector,
+      })
+      .addPrivateRepository(DocContents, docContentsReducer)
+      .create();
 
       process.on(
         'SIGINT',
@@ -64,7 +70,7 @@ void (async () =>
         logger.error(err.stack);
       });
 
-      void app.listen({ port: process.env.SERVICE_LOAN_PORT }).then(({ url }) => {
+      void app.listen({ port: process.env.PRIVATE_DOC_CONTENTS_PORT }).then(({ url }) => {
         logger.info(`🚀  '${process.env.MSPID}' - '${serviceName}' available at ${url}`);
         process.send?.('ready');
       });

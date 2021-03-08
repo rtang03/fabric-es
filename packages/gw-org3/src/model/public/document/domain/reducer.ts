@@ -1,5 +1,5 @@
 import { documentReducer as superReducer, DocumentStatus } from '@fabric-es/model-document';
-import type { Document, DocumentEvents } from '../types';
+import type { Document, DocumentEvents } from '.';
 
 export const documentReducer = (document: Document, event: DocumentEvents): Document => {
   switch (event.type) {

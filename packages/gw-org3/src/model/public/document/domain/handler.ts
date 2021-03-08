@@ -3,7 +3,7 @@ import {
   documentCommandHandler as superCommandHandler,
   DocumentErrors,
 } from '@fabric-es/model-document';
-import { DocumentCommandHandler, DocumentRepo } from '../types';
+import { DocumentCommandHandler, DocumentRepo } from '.';
 
 export const documentCommandHandler: (option: {
   enrollmentId: string;

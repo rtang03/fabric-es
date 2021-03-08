@@ -2,8 +2,7 @@ import type { Commit } from '@fabric-es/fabric-cqrs';
 import { catchResolverErrors, getLogger } from '@fabric-es/gateway-lib';
 import { documentResolvers } from '@fabric-es/model-document';
 import { ApolloError } from 'apollo-server-errors';
-import { documentCommandHandler } from './domain';
-import type { DocumentContext } from '.';
+import { documentCommandHandler, DocumentContext } from '../domain';
 
 const logger = getLogger('document/typeDefs.js');
 

@@ -1,4 +1,4 @@
-import type {
+import {
   ContactInfo as SuperContactInfo,
   LoanDetails as SuperDetails,
 } from '@fabric-es/model-loan';
@@ -11,6 +11,6 @@ export type ContactInfo = SuperContactInfo & {
  * **LoanDetails** is the private counterpart of the on-chain entity **Loan**, containing non-public details of a loan
  * for authorized parties' use only.
  */
-export interface LoanDetails extends SuperDetails {
+export class LoanDetails extends SuperDetails {
   contact: ContactInfo;
 }

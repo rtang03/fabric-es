@@ -1,8 +1,13 @@
 import type { Commit } from '@fabric-es/fabric-cqrs';
+import type { DocumentInRedis as SuperDocumentInRedis } from '@fabric-es/model-document';
 import { createStructuredSelector, Selector } from 'reselect';
-import type { Document, DocumentInRedis } from '../types';
+import type { Document } from '.';
 
-export const preSelector: Selector<
+export interface DocumentInRedis extends SuperDocumentInRedis {
+  link: string;
+}
+
+export const documentPreSelector: Selector<
   [Document, Commit[]],
   DocumentInRedis
 > = createStructuredSelector({
@@ -16,4 +21,5 @@ export const preSelector: Selector<
   created: ([{ _created }]) => _created,
   creator: ([{ _creator }]) => _creator,
   link: ([{ link }]) => link, // new field
+  organ: ([{ _organization }]) => JSON.stringify(_organization),
 });

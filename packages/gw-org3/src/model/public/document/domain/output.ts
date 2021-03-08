@@ -1,7 +1,12 @@
+import type { DocumentOutput as SuperOutputDocument } from '@fabric-es/model-document';
 import { createStructuredSelector, Selector } from 'reselect';
-import type { DocumentInRedis, OutputDocument } from '../types';
+import type { DocumentInRedis } from '.';
 
-export const postSelector: Selector<DocumentInRedis, OutputDocument> = createStructuredSelector({
+export interface DocumentOutput extends SuperOutputDocument {
+  link: string;
+}
+
+export const documentPostSelector: Selector<DocumentInRedis, DocumentOutput> = createStructuredSelector({
   id: (item) => item?.id,
   documentId: (item) => item?.id,
   ownerId: (item) => item?.owner,
@@ -13,4 +18,5 @@ export const postSelector: Selector<DocumentInRedis, OutputDocument> = createStr
   createdAt: (item) => item?.created,
   creator: (item) => item?.creator,
   link: (item) => item?.link, // new field
+  organization: (item) => JSON.parse(item?.organ),
 });
