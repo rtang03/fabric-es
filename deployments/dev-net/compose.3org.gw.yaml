@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 
 networks:
   openplatform:
@@ -8,7 +8,7 @@ services:
     image: fabric-es/gw-org3:$RELEASE
     container_name: gw-org3
     environment:
-      - CONNECTION_PROFILE=/home/app/packages/gw-org3/connection/connection-org3.docker.yaml
+      - CONNECTION_PROFILE=/home/app/packages/gw-org3/connection/connection.gw-org3.docker.yaml
       - AUTHORIZATION_SERVER_URI=http://auth-server3:8080/oauth/authenticate
       - CA_ENROLLMENT_ID_ADMIN=rca-org3-admin
       - CA_ENROLLMENT_SECRET_ADMIN=rca-org3-adminPW
@@ -17,7 +17,7 @@ services:
       - ORG_ADMIN_ID=admin-org3.net
       - ORG_ADMIN_SECRET=admin-org3.netPW
       - GATEWAY_HOST=gw-org3
-      - REDIS_HOST=redis03
+      - REDIS_HOST=redis3
       - QUERY_PORT=5003
     working_dir: /home/app/packages/gw-org3
     ports:
@@ -27,9 +27,10 @@ services:
       - openplatform
     depends_on:
       - auth-server3
+      - redis3
       - orderer0-org0
       - peer0-org3
     volumes:
-      - $VOLUME/gw-org3/assets/:/home/app/packages/gw-org3/assets/
-      - $VOLUME/gw-org3/logs/:/home/app/packages/gw-org3/logs/
+      # - $VOLUME/gw-org3/assets/:/home/app/packages/gw-org3/assets/
+      # - $VOLUME/gw-org3/logs/:/home/app/packages/gw-org3/logs/
       - $ARTIFACTS/crypto-config/:/var/artifacts/crypto-config/

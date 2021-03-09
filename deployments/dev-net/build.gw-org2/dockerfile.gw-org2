@@ -1,0 +1,26 @@
+FROM node:12.20-alpine
+LABEL org.opencontainers.image.source https://github.com/hktfpcl/cdi-samples
+ENV TZ=Asia/Hong_Kong \
+  ENV_NAME=production \
+  NODE_ENV=production \
+  NODE_CONFIG_ENV=production
+
+WORKDIR /home/app
+
+COPY ./.build /home/app/
+
+RUN apk add --no-cache tzdata \
+  && yarn install --production --ignore-engines --network-timeout 1000000 \
+  && yarn cache clean \
+  && chown -R node:node /home/app \
+  && mv /home/app/packages/gw-org2/entrypoint.gw.sh /usr/local/bin/entrypoint.sh
+
+USER node
+
+VOLUME /home/app/packages/gw-org2/connection /var/artifacts/crypto-config
+
+WORKDIR /home/app/packages/gw-org2
+
+ENTRYPOINT ["entrypoint.sh"]
+
+CMD ["gateway", "admin queryHandler loan loanDetails document rDocContents"]

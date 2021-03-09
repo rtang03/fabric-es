@@ -1,0 +1,7 @@
+    location /graphql {
+      proxy_pass      ${GW_HOST};
+    }
+
+    location /gw_org {
+      proxy_pass      ${GW_HOST};
+    }

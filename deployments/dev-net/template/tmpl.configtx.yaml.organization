@@ -1,0 +1,30 @@
+  - &${TMPL_PARAM_ORG_MSP}
+    Name: ${TMPL_PARAM_ORG_MSP}
+    ID: ${TMPL_PARAM_ORG_MSP}
+    MSPDir: /var/artifacts/crypto-config/${TMPL_PARAM_ORG_MSP}/msp
+
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('${TMPL_PARAM_ORG_MSP}.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('${TMPL_PARAM_ORG_MSP}.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('${TMPL_PARAM_ORG_MSP}.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('${TMPL_PARAM_ORG_MSP}.member')"
+
+    OrdererEndpoints:
+      - orderer0-org0:7050
+      - orderer1-org0:7150
+      - orderer2-org0:7250
+      - orderer3-org0:7350
+      - orderer4-org0:7450
+
+    AnchorPeers:
+      - Host: peer0-${TMPL_PARAM_ORG_NAME}
+        Port: ${TMPL_PARAM_PEER_PORT}
+

@@ -1,0 +1,31 @@
+  # For ORG${TMPL_PARAM_ID}
+  auth-server${TMPL_PARAM_ID}:
+    image: $AUTH_IMAGE
+    container_name: auth-server${TMPL_PARAM_ID}
+    environment:
+      - PORT=8080
+      - TYPEORM_HOST=postgres${TMPL_PARAM_ID}
+      - TYPEORM_USERNAME=postgres
+      - TYPEORM_PASSWORD=docker
+      - TYPEORM_DATABASE=auth_db
+      - TYPEORM_PORT=5432
+      - REDIS_HOST=redis${TMPL_PARAM_ID}
+      - REDIS_PORT=6379
+      - JWT_SECRET=secret
+      - JWT_EXP_IN_SECOND=900
+      - REFRESH_TOKEN_EXP_IN_SEC=86400
+      - ORG_ADMIN_ID=admin-${TMPL_PARAM_ORG_NAME}.net
+      - ORG_ADMIN_SECRET=admin-${TMPL_PARAM_ORG_NAME}.netPW
+      - ORG_ADMIN_EMAIL=admin@${TMPL_PARAM_ORG_NAME}.net
+      - CLIENT_APPLICATION_NAME=root_client
+      - CLIENT_SECRET=password
+      - LOG_LEVEL=$LOG_LEVEL
+      - LOG_TARGET=$LOG_TARGET
+    # this open port for development of ui, should be removed for production
+    ports:
+      - ${TMPL_PARAM_AUTH_PORT}:8080
+    networks:
+      - openplatform
+    depends_on:
+      - redis${TMPL_PARAM_ID}
+      - postgres${TMPL_PARAM_ID}
