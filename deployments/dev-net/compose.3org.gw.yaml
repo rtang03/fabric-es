@@ -19,6 +19,7 @@ services:
       - GATEWAY_HOST=gw-org3
       - REDIS_HOST=redis03
       - QUERY_PORT=5003
+      - ORGURL=http://gw-org3:4001/graphql
     working_dir: /home/app/packages/gw-org3
     ports:
       - 4003:4001

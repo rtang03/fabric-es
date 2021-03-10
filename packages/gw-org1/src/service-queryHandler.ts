@@ -82,7 +82,6 @@ void (async () => {
     process?.send?.('ready');
   });
 })().catch((error) => {
-  console.error(error);
   logger.error(util.format('fail to start queryHandler.js, %j', error));
   process.exit(1);
 });
