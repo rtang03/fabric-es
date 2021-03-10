@@ -33,4 +33,4 @@ WORKDIR /home/app/packages/gw-org1
 
 ENTRYPOINT ["entrypoint.sh"]
 
-CMD ["gateway", "admin user loan document docContents rLoanDetails queryHandler"]
+CMD ["gateway", "admin loan document docContents loanDetails queryHandler"]

@@ -95,7 +95,7 @@ export const createQueryHandlerService: (option: {
   // prepare Redis pub / sub
   const publisher = new Redisearch(redisOptions);
   const subscriber = new Redisearch(redisOptions);
-  const pubSub = new RedisPubSub({ publisher: publisher.redis, subscriber: subscriber.redis });
+  const pubSub = new RedisPubSub({ connection: redisOptions });
 
   logger.debug(util.format('redis option: %j', redisOptions));
 
@@ -192,6 +192,8 @@ export const createQueryHandlerService: (option: {
     new Promise<void>(async (resolve, reject) => {
       queryHandler.unsubscribeHub();
       queryHandler.disconnect();
+
+      await pubSub.close().catch((err) => logger.error(util.format('Error unsubscribing pubSub: %j', err)));
 
       await subscriber.redis
         .unsubscribe()
