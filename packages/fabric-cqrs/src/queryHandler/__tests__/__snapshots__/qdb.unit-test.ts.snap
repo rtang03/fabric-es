@@ -12,6 +12,9 @@ Object {
         "Increment",
       ],
       "id": "qh_proj_test_001",
+      "organization": Array [
+        "Org1MSP",
+      ],
       "tags": Array [
         "projection",
       ],
@@ -28,6 +31,9 @@ Object {
         "Increment",
       ],
       "id": "qh_proj_test_002",
+      "organization": Array [
+        "Org1MSP",
+      ],
       "tags": Array [
         "projection",
       ],
@@ -43,6 +49,9 @@ Object {
         "Increment",
       ],
       "id": "qh_proj_test_003",
+      "organization": Array [
+        "Org1MSP",
+      ],
       "tags": Array [
         "projection",
       ],
