@@ -10,15 +10,15 @@ _dev-net_ is a core deployment network for below purposes:
 ### Fabric Networks
 
 It aims to offer 2 types of network configurations.  
-_Type 1_
 
-For development of authentication server WITHOUT Fabric network, there is one compose file:
+_Type 1_  
+For development of authentication server WITHOUT Fabric network, there are the compose files:
 
-- `compose.db-red.yaml` and `compose.auth.yaml` deploys 1 x postgres database, 1 x redis ram database, and 1 x auther-server containers
-- (TBC) as a future scenario, it may additionally a tester container, for integration test.
+- `compose.db-red.yaml` deploys 1 x postgres database, 1 x redis ram database
+- `compose.auth.yaml` deploys 1 x auther-server containers
 
 _Type 2_  
-For development of gw-org WITH Fabric network, via multiple steps compose file execution:
+For development of gw-org WITH Fabric network up to ***n*** nodes, via multiple steps compose file execution:
 
 1. `compose.orderer.yaml`  
    - cli, tls-ca-org0, rca-org0, orderer-org[0..4]
@@ -37,19 +37,28 @@ For development of gw-org WITH Fabric network, via multiple steps compose file e
 
 ### Instructions for Local Developement
 
-_Scenario 1a: Local development mode for Auth-Server using [dn-run.sh 0](dn-run.sh)_
+_Scenario 1a: Local development mode for Auth-Server using `dn-run.sh`_
 
+- with shellscript [dn-run.sh](dn-run.sh) 
+```shell script
+./dn-run.sh 0
+```
 - launch [bootstrap_zero.sh](bootstrap_zero.sh)
   - launch [cleanup.sh](cleanup.sh) to 
     1. shutdown the running network, 
-    1. remove _artifacts_ 
+    1. remove _artifacts_ subdirectory
+    1. kill docker containers
   - launch [build-config.sh](build-config.sh) to generate
     1. [docker compose file](#Fabric-Networks) with postgre, redis
   - launch the postgres db redis for auth server : `compose.org.db-red.yaml`
 - for develop auth-server (_gw-org_)
 
-_Scenario 1b: Local development mode for gw-org using [dn-run.sh n auth](dn-run.sh)_
+_Scenario 1b: Local development mode for gw-org using `dn-run.sh`_
 
+- with shellscript [dn-run.sh](dn-run.sh) up to ***n*** nodes (from 1 to 9)
+```shell script
+./dn-run.sh n auth
+```
 - launch [bootstrap_supp.sh](bootstrap_supp.sh)
   - launch [cleanup.sh](cleanup.sh) to 
     1. shutdown the running network, 
@@ -57,31 +66,43 @@ _Scenario 1b: Local development mode for gw-org using [dn-run.sh n auth](dn-run.
     1. kill docker containers
   - launch [build-config.sh](build-config.sh) to generate
     1. config file for [bootstrap.sh](bootstrap.sh) and 
-    1. [docker compose file](#Fabric-Networks) with ***N*** organizations
+    1. [docker compose file](#Fabric-Networks) with ***n*** organizations
   - launch [bootstrap.sh](bootstrap.sh) for local development network include
     1. the tls-ca, rca-0 and orderer-org for core of dev-net : `compose.orderer.yaml` 
-    1. the peer and rca of organizations for the rest of dev-net : `compose.org.yaml`
+    1. the peer and rca of up to ***n*** organizations for the rest of dev-net : `compose.org.yaml`
     1. the eventchain code for each organization : `compose.cc.yaml` 
   - launch the postgres db for auth server and redis for query : `compose.org.db-red.yaml`
   - launch the auth server : `compose.auth.yaml` 
 - for develop micro services of organization gateway (_gw-org_)
 
-_Scenario 2: Run local unit test using [dn-run.sh ***N*** gw-org test](dn-run.sh)_
+_Scenario 2: Run local unit test using `dn-run.sh`_
 
+- with shellscript [dn-run.sh ***n*** gw-org test](dn-run.sh) up to ***n*** nodes (either 2 or 3)
+```shell script
+./dn-run.sh n gw-org test
+```
 - launch the same network as _Scenario 1b_
-- in addition launch ***N*** _gw-org_(s) with micro services `compose.1org.gw.yaml` `compose.2org.gw.yaml` `compose.3org.gw.yaml`
+- in addition launch ***n*** _gw-org_(s) with micro services `compose.1org.gw.yaml` `compose.2org.gw.yaml` `compose.3org.gw.yaml`
 - used for run the integration test in _tester_ package for _gw-org_
-- _required _gw-org_ ***N*** image(s) mentioned in Scenario 3_
+- _required _gw-org_ ***n*** image(s) mentioned in Scenario 3_
 - _required _tester_ image(s) mentioned in Scenario 4_
 
-_Scenario 3: Build docker images for all gw-orgs with `dn-build.gw.sh org1 org2 org3`_
+_Scenario 3: Build docker images for all gw-orgs with `dn-build.gw.sh`_
 
+- with shellscript [dn-build.gw.sh](dn-build.gw.sh) 
+```shell script
+./dn-build.gw.sh org1 org2 org3
+```
 - clean up the network
 - compile and build the package _gw_org1_, _gw_org2_ and _gw_org3_
 - produce _gw_org1_, _gw_org2_ and _gw_org3_ docker images
 
-_Scenario 4: Build docker image for test with [dn-build.tester.sh]_
+_Scenario 4: Build docker image for test with [dn-build.tester.sh](dn-build.tester.sh)_
 
+- with shellscript [dn-build.tester.sh](dn-build.tester.sh) 
+```shell script
+./dn-build.tester.sh
+```
 - clean up the network
 - compile and build the package _tester_
 - produce _tester_ docker image
