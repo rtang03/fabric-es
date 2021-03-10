@@ -39,7 +39,7 @@ For development of gw-org WITH Fabric network up to ***n*** nodes, via multiple 
 
 _Scenario 1a: Local development mode for Auth-Server using `dn-run.sh`_
 
-- with shellscript [dn-run.sh](dn-run.sh) 
+- use shellscript [dn-run.sh](dn-run.sh) with command
 ```shell script
 ./dn-run.sh 0
 ```
@@ -55,7 +55,7 @@ _Scenario 1a: Local development mode for Auth-Server using `dn-run.sh`_
 
 _Scenario 1b: Local development mode for gw-org using `dn-run.sh`_
 
-- with shellscript [dn-run.sh](dn-run.sh) up to ***n*** nodes (from 1 to 9)
+- use shellscript [dn-run.sh](dn-run.sh) that support up to ***n*** nodes (from 1 to 9) with command
 ```shell script
 ./dn-run.sh n auth
 ```
@@ -77,7 +77,7 @@ _Scenario 1b: Local development mode for gw-org using `dn-run.sh`_
 
 _Scenario 2: Run local unit test using `dn-run.sh`_
 
-- with shellscript [dn-run.sh ***n*** gw-org test](dn-run.sh) up to ***n*** nodes (either 2 or 3)
+- use shellscript [dn-run.sh](dn-run.sh) that support up to ***n*** nodes (either 2 or 3) with command
 ```shell script
 ./dn-run.sh n gw-org test
 ```
@@ -89,7 +89,7 @@ _Scenario 2: Run local unit test using `dn-run.sh`_
 
 _Scenario 3: Build docker images for all gw-orgs with `dn-build.gw.sh`_
 
-- with shellscript [dn-build.gw.sh](dn-build.gw.sh) 
+- use shellscript [dn-build.gw.sh](dn-build.gw.sh) with command
 ```shell script
 ./dn-build.gw.sh org1 org2 org3
 ```
@@ -99,7 +99,7 @@ _Scenario 3: Build docker images for all gw-orgs with `dn-build.gw.sh`_
 
 _Scenario 4: Build docker image for test with [dn-build.tester.sh](dn-build.tester.sh)_
 
-- with shellscript [dn-build.tester.sh](dn-build.tester.sh) 
+- use shellscript [dn-build.tester.sh](dn-build.tester.sh) with command
 ```shell script
 ./dn-build.tester.sh
 ```
@@ -151,6 +151,6 @@ sudo lsof -i :5432
 ### Todo: implement trigger, so that cli can run reconcile, cleanup action
 
 TBD
-https://pm2.keymetrics.io/docs/usage/process-actions/
+https://pm2.keymetrics.io/docs/usage/process-actions/  
 pm2 trigger <application-name> <action-name> [parameter]
 https://linuxize.com/post/nginx-reverse-proxy/
