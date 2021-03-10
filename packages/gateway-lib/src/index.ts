@@ -1,5 +1,5 @@
+export { buildRedisOptions } from './utils/buildRedisOptions';
 export { catchResolverErrors } from './utils/catchResolverErrors';
-export { buildRedisOptions } from './utils/composeRedisRepos';
 export { createGateway } from './utils/createGateway';
 export { createService } from './utils/createService';
 export { getLogger } from './utils/getLogger';
