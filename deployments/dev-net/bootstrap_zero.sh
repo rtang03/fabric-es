@@ -2,11 +2,11 @@
 
 
 ################################################################
-# Run local development network with zero blockchain network
+# Run local development network with no blockchain network
 ################################################################
 if [[ ( $# -ne 0 ) && ( $# -ne 1 ) || ( $1 = "-h" || $1 = "--help" ) ]]; then
   echo "Usage: $0 [option]"
-  echo "{option} : option to startup docker images \"auth\" or \"gw-org\""
+  echo "{option} : option to additionally startup docker images \"auth\""
   exit 0
 fi
 

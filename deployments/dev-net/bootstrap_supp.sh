@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ################################################################
-# Run local development network with blockchain netowrk supplied custom image
+# Run local development network with hyperledger fabric and supplementary custom image
 ################################################################
 if [[ ( $# -le 0 ) || ( $# -gt 3 ) || ( $1 = "-h" || $1 = "--help" ) ]]; then
   echo "Usage: $0 [org no] {gw-org} {test}"
