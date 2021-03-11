@@ -10,6 +10,7 @@ WORKDIR /home/app
 COPY ./.build /home/app/
 
 RUN apk add --no-cache tzdata \
+  && yarn config set ignore-optional true \
   && yarn install --production --ignore-engines --network-timeout 1000000 \
   && yarn cache clean \
   && chown -R node:node /home/app \
