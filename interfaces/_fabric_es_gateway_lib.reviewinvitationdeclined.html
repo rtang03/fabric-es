@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>OrgNameDefined | fabric-es - v0.7.6</title>
+	<title>ReviewInvitationDeclined | fabric-es - v0.7.6</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,7 +56,7 @@
 					<a href="../modules/_fabric_es_gateway_lib.html">@fabric-es/gateway-lib</a>
 				</li>
 				<li>
-					<a href="_fabric_es_gateway_lib.orgnamedefined.html">OrgNameDefined</a>
+					<a href="_fabric_es_gateway_lib.reviewinvitationdeclined.html">ReviewInvitationDeclined</a>
 				</li>
 			</ul>
 		</div>
@@ -83,7 +83,7 @@
 			</nav>
 		</div>
 		<div class="col-7 offset-3 col-content">
-			<h1>Interface OrgNameDefined</h1>
+			<h1>Interface ReviewInvitationDeclined</h1>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -91,7 +91,7 @@
 						<span class="tsd-signature-type">object</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">OrgNameDefined</span>
+								<span class="target">ReviewInvitationDeclined</span>
 							</li>
 						</ul>
 					</li>
@@ -103,9 +103,9 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_fabric_es_gateway_lib.orgnamedefined.html#lifecycle" class="tsd-kind-icon">life<wbr>Cycle</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_fabric_es_gateway_lib.orgnamedefined.html#payload" class="tsd-kind-icon">payload</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_fabric_es_gateway_lib.orgnamedefined.html#type" class="tsd-kind-icon">type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_fabric_es_gateway_lib.reviewinvitationdeclined.html#lifecycle" class="tsd-kind-icon">life<wbr>Cycle</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_fabric_es_gateway_lib.reviewinvitationdeclined.html#payload" class="tsd-kind-icon">payload</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_fabric_es_gateway_lib.reviewinvitationdeclined.html#type" class="tsd-kind-icon">type</a></li>
 							</ul>
 						</section>
 					</div>
@@ -131,29 +131,23 @@
 					<aside class="tsd-sources">
 						<p>Overrides <a href="../modules/_fabric_es_fabric_cqrs.html#baseevent.__type">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#baseevent.__type.payload">payload</a></p>
 						<ul>
-							<li>Defined in packages/gateway-lib/src/common/model/organization/domain/events.ts:16</li>
+							<li>Defined in packages/gateway-lib/src/common/model/user/domain/events.ts:15</li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter">
-								<h5><span class="tsd-flag ts-flagOptional">Optional</span> _created<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+								<h5>document<wbr>Id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
 							</li>
 							<li class="tsd-parameter">
-								<h5><span class="tsd-flag ts-flagOptional">Optional</span> _creator<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
-							</li>
-							<li class="tsd-parameter">
-								<h5><span class="tsd-flag ts-flagOptional">Optional</span> _ts<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
-							</li>
-							<li class="tsd-parameter">
-								<h5>msp<wbr>Id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-							</li>
-							<li class="tsd-parameter">
-								<h5>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+								<h5>review<wbr>Owner<wbr>Id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
 							</li>
 							<li class="tsd-parameter">
 								<h5>timestamp<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>trade<wbr>Id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
 							</li>
 						</ul>
 					</div>
@@ -161,11 +155,11 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
 					<a name="type" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> type</h3>
-					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"OrgNameDefined"</span></div>
+					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"ReviewInvitationDeclined"</span></div>
 					<aside class="tsd-sources">
 						<p>Overrides <a href="../modules/_fabric_es_fabric_cqrs.html#baseevent.__type">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#baseevent.__type.type">type</a></p>
 						<ul>
-							<li>Defined in packages/gateway-lib/src/common/model/organization/domain/events.ts:15</li>
+							<li>Defined in packages/gateway-lib/src/common/model/user/domain/events.ts:14</li>
 						</ul>
 					</aside>
 				</section>
@@ -178,16 +172,16 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface tsd-parent-kind-module root">
-						<a href="_fabric_es_gateway_lib.orgnamedefined.html" class="tsd-kind-icon">Org<wbr>Name<wbr>Defined</a>
+						<a href="_fabric_es_gateway_lib.reviewinvitationdeclined.html" class="tsd-kind-icon">Review<wbr>Invitation<wbr>Declined</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="_fabric_es_gateway_lib.orgnamedefined.html#lifecycle" class="tsd-kind-icon">life<wbr>Cycle</a>
+								<a href="_fabric_es_gateway_lib.reviewinvitationdeclined.html#lifecycle" class="tsd-kind-icon">life<wbr>Cycle</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
-								<a href="_fabric_es_gateway_lib.orgnamedefined.html#payload" class="tsd-kind-icon">payload</a>
+								<a href="_fabric_es_gateway_lib.reviewinvitationdeclined.html#payload" class="tsd-kind-icon">payload</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
-								<a href="_fabric_es_gateway_lib.orgnamedefined.html#type" class="tsd-kind-icon">type</a>
+								<a href="_fabric_es_gateway_lib.reviewinvitationdeclined.html#type" class="tsd-kind-icon">type</a>
 							</li>
 						</ul>
 					</li>

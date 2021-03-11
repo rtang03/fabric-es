@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>OrgNameDefined | fabric-es - v0.7.6</title>
+	<title>OutputCommit | fabric-es - v0.7.6</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -53,10 +53,10 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../modules/_fabric_es_gateway_lib.html">@fabric-es/gateway-lib</a>
+					<a href="../modules/_fabric_es_fabric_cqrs.html">@fabric-es/fabric-cqrs</a>
 				</li>
 				<li>
-					<a href="_fabric_es_gateway_lib.orgnamedefined.html">OrgNameDefined</a>
+					<a href="_fabric_es_fabric_cqrs.outputcommit.html">OutputCommit</a>
 				</li>
 			</ul>
 		</div>
@@ -70,10 +70,10 @@
 					<li class="globals  ">
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
-					<li class=" tsd-kind-module">
+					<li class="current tsd-kind-module">
 						<a href="../modules/_fabric_es_fabric_cqrs.html">@fabric-es/fabric-cqrs</a>
 					</li>
-					<li class="current tsd-kind-module">
+					<li class=" tsd-kind-module">
 						<a href="../modules/_fabric_es_gateway_lib.html">@fabric-es/gateway-lib</a>
 					</li>
 					<li class=" tsd-kind-module">
@@ -83,7 +83,13 @@
 			</nav>
 		</div>
 		<div class="col-7 offset-3 col-content">
-			<h1>Interface OrgNameDefined</h1>
+			<h1>Interface OutputCommit</h1>
+			<section class="tsd-panel tsd-comment"><div class="tsd-comment tsd-typography tsd-comment-tags">
+					<dl class="tsd-comment-tags"><dt>about</dt>
+						<dd><p>postelector processes the <a href="../modules/_fabric_es_fabric_cqrs.html#commitinredis">CommitInRedis</a>. It renders the query result
+							and, restore back to <a href="../modules/_fabric_es_fabric_cqrs.html#commit">Commit</a>; but appended with dervied field.</p>
+					</dd></dl>
+			</div></section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -91,7 +97,7 @@
 						<span class="tsd-signature-type">object</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">OrgNameDefined</span>
+								<span class="target">OutputCommit</span>
 							</li>
 						</ul>
 					</li>
@@ -103,9 +109,17 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_fabric_es_gateway_lib.orgnamedefined.html#lifecycle" class="tsd-kind-icon">life<wbr>Cycle</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_fabric_es_gateway_lib.orgnamedefined.html#payload" class="tsd-kind-icon">payload</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_fabric_es_gateway_lib.orgnamedefined.html#type" class="tsd-kind-icon">type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_fabric_es_fabric_cqrs.outputcommit.html#commitid" class="tsd-kind-icon">commit<wbr>Id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_fabric_es_fabric_cqrs.outputcommit.html#entityid" class="tsd-kind-icon">entity<wbr>Id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_fabric_es_fabric_cqrs.outputcommit.html#entityname" class="tsd-kind-icon">entity<wbr>Name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_fabric_es_fabric_cqrs.outputcommit.html#event" class="tsd-kind-icon">event</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_fabric_es_fabric_cqrs.outputcommit.html#events" class="tsd-kind-icon">events</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_fabric_es_fabric_cqrs.outputcommit.html#eventsstring" class="tsd-kind-icon">events<wbr>String</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_fabric_es_fabric_cqrs.outputcommit.html#hash" class="tsd-kind-icon">hash</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_fabric_es_fabric_cqrs.outputcommit.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_fabric_es_fabric_cqrs.outputcommit.html#mspid" class="tsd-kind-icon">msp<wbr>Id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_fabric_es_fabric_cqrs.outputcommit.html#ts" class="tsd-kind-icon">ts</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite"><a href="_fabric_es_fabric_cqrs.outputcommit.html#version" class="tsd-kind-icon">version</a></li>
 							</ul>
 						</section>
 					</div>
@@ -113,59 +127,132 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-					<a name="lifecycle" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> life<wbr>Cycle</h3>
-					<div class="tsd-signature tsd-kind-icon">life<wbr>Cycle<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Lifecycle</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="commitid" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> commit<wbr>Id</h3>
+					<div class="tsd-signature tsd-kind-icon">commit<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="../modules/_fabric_es_fabric_cqrs.html#baseevent.__type">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#baseevent.__type.lifecycle">lifeCycle</a></p>
+						<p>Overrides <a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1.commitid">commitId</a></p>
 						<ul>
-							<li>Defined in packages/fabric-cqrs/dist/types/commit.d.ts:14</li>
+							<li>Defined in packages/fabric-cqrs/src/queryHandler/types/outputCommit.ts:10</li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
-					<a name="payload" class="tsd-anchor"></a>
-					<h3>payload</h3>
-					<div class="tsd-signature tsd-kind-icon">payload<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<a name="entityid" class="tsd-anchor"></a>
+					<h3>entity<wbr>Id</h3>
+					<div class="tsd-signature tsd-kind-icon">entity<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
-						<p>Overrides <a href="../modules/_fabric_es_fabric_cqrs.html#baseevent.__type">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#baseevent.__type.payload">payload</a></p>
+						<p>Overrides <a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1.entityid">entityId</a></p>
 						<ul>
-							<li>Defined in packages/gateway-lib/src/common/model/organization/domain/events.ts:16</li>
+							<li>Defined in packages/fabric-cqrs/src/queryHandler/types/outputCommit.ts:9</li>
 						</ul>
 					</aside>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter">
-								<h5><span class="tsd-flag ts-flagOptional">Optional</span> _created<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
-							</li>
-							<li class="tsd-parameter">
-								<h5><span class="tsd-flag ts-flagOptional">Optional</span> _creator<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
-							</li>
-							<li class="tsd-parameter">
-								<h5><span class="tsd-flag ts-flagOptional">Optional</span> _ts<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
-							</li>
-							<li class="tsd-parameter">
-								<h5>msp<wbr>Id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-							</li>
-							<li class="tsd-parameter">
-								<h5>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-							</li>
-							<li class="tsd-parameter">
-								<h5>timestamp<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
-							</li>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="entityname" class="tsd-anchor"></a>
+					<h3>entity<wbr>Name</h3>
+					<div class="tsd-signature tsd-kind-icon">entity<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1.entityname">entityName</a></p>
+						<ul>
+							<li>Defined in packages/fabric-cqrs/src/queryHandler/types/outputCommit.ts:11</li>
 						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="event" class="tsd-anchor"></a>
+					<h3>event</h3>
+					<div class="tsd-signature tsd-kind-icon">event<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in packages/fabric-cqrs/src/queryHandler/types/outputCommit.ts:15</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="events" class="tsd-anchor"></a>
+					<h3>events</h3>
+					<div class="tsd-signature tsd-kind-icon">events<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1.events">events</a></p>
+						<ul>
+							<li>Defined in packages/fabric-cqrs/src/queryHandler/types/outputCommit.ts:14</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="eventsstring" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> events<wbr>String</h3>
+					<div class="tsd-signature tsd-kind-icon">events<wbr>String<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1.eventsstring">eventsString</a></p>
+						<ul>
+							<li>Defined in packages/fabric-cqrs/src/types/commit.ts:66</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
+						<div class="lead">
+							<p>stringified events</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="hash" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> hash</h3>
+					<div class="tsd-signature tsd-kind-icon">hash<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1.hash">hash</a></p>
+						<ul>
+							<li>Defined in packages/fabric-cqrs/src/types/commit.ts:63</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
+						<div class="lead">
+							<p>hash of privatedata&#39;s events string</p>
+						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
-					<a name="type" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> type</h3>
-					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"OrgNameDefined"</span></div>
+					<a name="id" class="tsd-anchor"></a>
+					<h3>id</h3>
+					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
-						<p>Overrides <a href="../modules/_fabric_es_fabric_cqrs.html#baseevent.__type">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#baseevent.__type.type">type</a></p>
+						<p>Overrides <a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1.id">id</a></p>
 						<ul>
-							<li>Defined in packages/gateway-lib/src/common/model/organization/domain/events.ts:15</li>
+							<li>Defined in packages/fabric-cqrs/src/queryHandler/types/outputCommit.ts:8</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="mspid" class="tsd-anchor"></a>
+					<h3>msp<wbr>Id</h3>
+					<div class="tsd-signature tsd-kind-icon">msp<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1.mspid">mspId</a></p>
+						<ul>
+							<li>Defined in packages/fabric-cqrs/src/queryHandler/types/outputCommit.ts:16</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="ts" class="tsd-anchor"></a>
+					<h3>ts</h3>
+					<div class="tsd-signature tsd-kind-icon">ts<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in packages/fabric-cqrs/src/queryHandler/types/outputCommit.ts:12</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+					<a name="version" class="tsd-anchor"></a>
+					<h3>version</h3>
+					<div class="tsd-signature tsd-kind-icon">version<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1">__type</a>.<a href="../modules/_fabric_es_fabric_cqrs.html#commit.__type-1.version">version</a></p>
+						<ul>
+							<li>Defined in packages/fabric-cqrs/src/queryHandler/types/outputCommit.ts:13</li>
 						</ul>
 					</aside>
 				</section>
@@ -178,16 +265,40 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface tsd-parent-kind-module root">
-						<a href="_fabric_es_gateway_lib.orgnamedefined.html" class="tsd-kind-icon">Org<wbr>Name<wbr>Defined</a>
+						<a href="_fabric_es_fabric_cqrs.outputcommit.html" class="tsd-kind-icon">Output<wbr>Commit</a>
 						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_fabric_es_fabric_cqrs.outputcommit.html#commitid" class="tsd-kind-icon">commit<wbr>Id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_fabric_es_fabric_cqrs.outputcommit.html#entityid" class="tsd-kind-icon">entity<wbr>Id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_fabric_es_fabric_cqrs.outputcommit.html#entityname" class="tsd-kind-icon">entity<wbr>Name</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_fabric_es_fabric_cqrs.outputcommit.html#event" class="tsd-kind-icon">event</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_fabric_es_fabric_cqrs.outputcommit.html#events" class="tsd-kind-icon">events</a>
+							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="_fabric_es_gateway_lib.orgnamedefined.html#lifecycle" class="tsd-kind-icon">life<wbr>Cycle</a>
+								<a href="_fabric_es_fabric_cqrs.outputcommit.html#eventsstring" class="tsd-kind-icon">events<wbr>String</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_fabric_es_fabric_cqrs.outputcommit.html#hash" class="tsd-kind-icon">hash</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
-								<a href="_fabric_es_gateway_lib.orgnamedefined.html#payload" class="tsd-kind-icon">payload</a>
+								<a href="_fabric_es_fabric_cqrs.outputcommit.html#id" class="tsd-kind-icon">id</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
-								<a href="_fabric_es_gateway_lib.orgnamedefined.html#type" class="tsd-kind-icon">type</a>
+								<a href="_fabric_es_fabric_cqrs.outputcommit.html#mspid" class="tsd-kind-icon">msp<wbr>Id</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_fabric_es_fabric_cqrs.outputcommit.html#ts" class="tsd-kind-icon">ts</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-overwrite">
+								<a href="_fabric_es_fabric_cqrs.outputcommit.html#version" class="tsd-kind-icon">version</a>
 							</li>
 						</ul>
 					</li>
