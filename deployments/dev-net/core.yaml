@@ -1,10 +1,10 @@
 peer:
   id: cli
   networkId: nid1
-  listenAddress: 0.0.0.0:7051
+  listenAddress: 0.0.0.0:7151
   # chaincodeListenAddress: 0.0.0.0:7052
   # chaincodeAddress: 0.0.0.0:7052
-  address: 0.0.0.0:7051
+  address: 0.0.0.0:7151
   addressAutoDetect: false
   keepalive:
     interval: 7200s
@@ -17,7 +17,7 @@ peer:
       interval: 60s
       timeout: 20s
   gossip:
-    bootstrap: 127.0.0.1:7051
+    bootstrap: 127.0.0.1:7151
     useLeaderElection: true
     orgLeader: false
     membershipTrackerInterval: 5s
@@ -70,7 +70,7 @@ peer:
       blockBufferSize: 100
       maxRetries: 3
   tls:
-    enabled:  false
+    enabled: false
     clientAuthRequired: false
     cert:
       file: tls/server.crt
@@ -119,17 +119,14 @@ peer:
   # Type for the local MSP - by default it's of type bccsp
   localMspType: bccsp
   profile:
-    enabled:     false
+    enabled: false
     listenAddress: 0.0.0.0:6060
   handlers:
     authFilters:
-      -
-        name: DefaultAuth
-      -
-        name: ExpirationCheck    # This filter checks identity x509 certificate expiration
+      - name: DefaultAuth
+      - name: ExpirationCheck # This filter checks identity x509 certificate expiration
     decorators:
-      -
-        name: DefaultDecorator
+      - name: DefaultDecorator
     endorsers:
       escc:
         name: DefaultEndorsement
@@ -200,7 +197,7 @@ chaincode:
     - name: external-builder
       path: /builders/external
       environmentWhitelist:
-      - GOPROXY
+        - GOPROXY
     # - path: /path/to/directory
     #   name: descriptive-builder-name
     #   environmentWhitelist:
@@ -219,9 +216,9 @@ chaincode:
     vscc: enable
     qscc: enable
   logging:
-    level:  info
-    shim:   warning
-    format: '%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}'
+    level: info
+    shim: warning
+    format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
 ledger:
   blockchain:
   state:

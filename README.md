@@ -499,12 +499,12 @@ await request(app)
 ## dev-net
 
 `dev-net` provisions different development networks, based on docker-compose. Notice that the upcoming production
-deployment will be running with k8s. For common development scenario, may use `./dn-run.2-db-red-auth.sh`,
+deployment will be running with k8s. For common development scenario, may use `./dn-run.sh 2 auth`,
 which is 2-org Fabric setup, with Redis, and auth-server.
 
 ```shell
 cd dev-net
-./dn-run.2-db-red-auth.sh
+./dn-run.sh 2 auth
 ```
 
 ## Advanced example

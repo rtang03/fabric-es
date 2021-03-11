@@ -9,90 +9,148 @@ _dev-net_ is a core deployment network for below purposes:
 
 ### Fabric Networks
 
-It aims to offer 3 types of network configurations.  
-_Part A_
+It aims to offer 2 types of network configurations.  
 
-For development of authentication server WITHOUT Fabric network, there is one compose file:
+_Type 1_  
+For development of authentication server WITHOUT Fabric network, there are the compose files:
 
-- `compose.auth-server.yaml` deploys 1 x postgres database, and 1 x auther-server containers
-- (TBC) as a future scenario, it may additionally a tester container, for integration test.
+- `compose.db-red.yaml` deploys 1 x postgres database, 1 x redis ram database
+- `compose.auth.yaml` deploys 1 x auther-server containers
 
-_Part B_  
-For development of auth-server, gw-org WITH Fabric network, via multiple steps compose file execution:
+_Type 2_  
+For development of gw-org WITH Fabric network up to ***n*** nodes, via multiple steps compose file execution:
 
-1. `compose.1.2org.yaml`  
-   peer0-etradeconnect, peer0-pbctfp, orderer0-hktfp, postgres01, postgres02, cli, tls-ca, rca0, rca1, rca2
-1. `compose.2.2org.auth.yaml`
-   - add: auth-server1, auth-server2
-1. `compose.3.2org.auth-gw.yaml`
-   - add: gw-org1, gw-org2
-1. `compose.4.2org.auth-gw-tester.yaml`
+1. `compose.orderer.yaml`  
+   - cli, tls-ca-org0, rca-org0, orderer-org[0..4]
+1. `compose.org.yaml`  
+   - rca-org[1..n], peer-org[1..n]
+1. `compose.db-red.yaml`
+   - add: postgres[1..n], redis[1..n] 
+1. `compose.cc.yaml`
+   - add: eventchaincc[1..n]
+1. `compose.auth.yaml`
+   - add: auth-server[1..n]
+1. `compose.1org.gw.yaml` `compose.2org.gw.yaml` `compose.3org.gw.yaml`
+   - add: gw-org1, gw-org2, gw-org3
+1. `compose.tester.yaml`
    - add: tester
 
 ### Instructions for Local Developement
 
-_Scenario 1: Local development mode using `run-dev-net.sh`_
+_Scenario 1a: Local development mode for Auth-Server using `dn-run.sh`_
 
-- launch the local development network: `compose.1.2org.yaml`
+- use shellscript [dn-run.sh](dn-run.sh) with command
+```shell script
+./dn-run.sh 0
+```
+- launch [bootstrap_zero.sh](bootstrap_zero.sh)
+  - launch [cleanup.sh](cleanup.sh) to 
+    1. shutdown the running network, 
+    1. remove _artifacts_ subdirectory
+    1. kill docker containers
+  - launch [build-config.sh](build-config.sh) to generate
+    1. [docker compose file](#Fabric-Networks) with postgre, redis
+  - launch the postgres db redis for auth server : `compose.org.db-red.yaml`
+- for develop auth-server (_gw-org_)
 
-Or alternatively rebuild the Fabric development network
+_Scenario 1b: Local development mode for gw-org using `dn-run.sh`_
 
-- run `shutdown-cleanup.sh` to (a) shutdown the running network, (b) remove _artifacts_ subdirectory, (c) kill docker containers
-- run `run-dev-net.sh` again.
+- use shellscript [dn-run.sh](dn-run.sh) that support up to ***n*** nodes (from 1 to 9) with command
+```shell script
+./dn-run.sh n auth
+```
+- launch [bootstrap_supp.sh](bootstrap_supp.sh)
+  - launch [cleanup.sh](cleanup.sh) to 
+    1. shutdown the running network, 
+    1. remove _artifacts_ subdirectory
+    1. kill docker containers
+  - launch [build-config.sh](build-config.sh) to generate
+    1. config file for [bootstrap.sh](bootstrap.sh) and 
+    1. [docker compose file](#Fabric-Networks) with ***n*** organizations
+  - launch [bootstrap.sh](bootstrap.sh) for local development network include
+    1. the tls-ca, rca-0 and orderer-org for core of dev-net : `compose.orderer.yaml` 
+    1. the peer and rca of up to ***n*** organizations for the rest of dev-net : `compose.org.yaml`
+    1. the eventchain code for each organization : `compose.cc.yaml` 
+  - launch the postgres db for auth server and redis for query : `compose.org.db-red.yaml`
+  - launch the auth server : `compose.auth.yaml` 
+- for develop micro services of organization gateway (_gw-org_)
 
-_Scenario 2: Run local unit test using`run-unit-test.sh`_
+_Scenario 2: Run local unit test using `dn-run.sh`_
 
-- launch the same network `compose.1.2org.yaml`
-- run unit tests in local machine, for unit test development
-- no clean up the network, after launch
-- used for _auth-server_ development
+- use shellscript [dn-run.sh](dn-run.sh) that support up to ***n*** nodes (either 2 or 3) with command
+```shell script
+./dn-run.sh n gw-org test
+```
+- launch the same network as _Scenario 1b_
+- in addition launch ***n*** _gw-org_(s) with micro services `compose.1org.gw.yaml` `compose.2org.gw.yaml` `compose.3org.gw.yaml`
+- used for run the integration test in _tester_ package for _gw-org_
+- _required _gw-org_ ***n*** image(s) mentioned in Scenario 3_
+- _required _tester_ image(s) mentioned in Scenario 4_
 
-_Scenario 3: Build docker image for auth server with`build-run-auth-server`_
+_Scenario 3: Build docker images for all gw-orgs with `dn-build.gw.sh`_
 
-- launch `compose.auth-server.yaml`, for 1 postgres and 1 auth-server
-- do not run unit test
-- no clean up the network, after launch
-- produce _auth-server_ docker image
+- use shellscript [dn-build.gw.sh](dn-build.gw.sh) with command
+```shell script
+./dn-build.gw.sh org1 org2 org3
+```
+- clean up the network
+- compile and build the package _gw_org1_, _gw_org2_ and _gw_org3_
+- produce _gw_org1_, _gw_org2_ and _gw_org3_ docker images
 
-_Scenario 4: Build docker images for all components wtih `build-run-3.2org.auth-gw-tester.sh`_
+_Scenario 4: Build docker image for test with [dn-build.tester.sh](dn-build.tester.sh)_
 
-- launch `compose.4.2org.auth-gw-tester.yaml`
+- use shellscript [dn-build.tester.sh](dn-build.tester.sh) with command
+```shell script
+./dn-build.tester.sh
+```
+- clean up the network
+- compile and build the package _tester_
+- produce _tester_ docker image
 - run unit test
 - run integration test
-- no clean up the network, after launch
-- produce _auth-server_ _gw-org1_ _gw-org2_ docker images
-- this is used for local execution, for CI workflow development
 
 After launch, use below links for local development:
 
-- Goto gw-org1 `http://localhost:4011/graphql`
-- Goto auth-server1, with either `http://localhost:3901` or `http://localhost:3901/graphql`
-- Goto gw-org2 `http://localhost:4012/graphql`
-- Goto auth-server2, with either `http://localhost:3902` or `http://localhost:3902/graphql`
+- Goto gw-org1 `http://localhost:4001/graphql`
+- Goto auth-server1, with either `http://localhost:3001` or `http://localhost:3001/graphql`
+- Goto gw-org2 `http://localhost:4002/graphql`
+- Goto auth-server2, with either `http://localhost:3002` or `http://localhost:3002/graphql`
+- Goto gw-org3 `http://localhost:4003/graphql`
+- Goto auth-server3, with either `http://localhost:3003` or `http://localhost:3003/graphql`
+
 
 After use, you may use below command to tear down the network:
 
 ```shell script
-docker-compose -f compose.4.2org.auth-gw-tester.yaml down
+./clean.sh
 ```
 
 ### Useful Commands
 
 ```shell script
+# Remove docker container with status=exited
 docker rm -f \$(docker ps -aq -f status=exited)
 
+# Remove all docker containers
+docker rm -f (docker ps -aq)
+
+# Remove all docker images
+docker rmi -f (docker images -q)
+
+# LiSt Open Files
 sudo lsof -P -sTCP:LISTEN -i TCP -a -p 5432
 sudo lsof -i :5432
 ```
 
 ### References
 
-[Node, pm2 dockers devops](https://medium.com/@adriendesbiaux/node-js-pm2-docker-docker-compose-devops-907dedd2b69a)
-[pm2 documentation](https://pm2.keymetrics.io/docs/usage/application-declaration/)
+- [Node, pm2 dockers devops](https://medium.com/@adriendesbiaux/node-js-pm2-docker-docker-compose-devops-907dedd2b69a)
+
+- [pm2 documentation](https://pm2.keymetrics.io/docs/usage/application-declaration/)
 
 ### Todo: implement trigger, so that cli can run reconcile, cleanup action
 
 TBD
-https://pm2.keymetrics.io/docs/usage/process-actions/
+https://pm2.keymetrics.io/docs/usage/process-actions/  
 pm2 trigger <application-name> <action-name> [parameter]
 https://linuxize.com/post/nginx-reverse-proxy/

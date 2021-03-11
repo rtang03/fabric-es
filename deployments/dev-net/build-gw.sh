@@ -7,32 +7,48 @@
 
 . ./scripts/setup.sh
 
-ORG=$1
-
-rm -fr $ROOT_DIR/.build
-mkdir -p $ROOT_DIR/.build
-cp $ROOT_DIR/package.json $ROOT_DIR/.build/
-
-# Building packages
-for PKG in operator fabric-cqrs gateway-lib model-document model-loan gw-${ORG}
+#############################
+# LOCAL variables
+#############################
+ORGLIST=
+PKGLIST='operator fabric-cqrs gateway-lib model-document model-loan'
+for ORGS in $*
 do
-  rm -fr $ROOT_DIR/packages/$PKG/dist
-  $LIBS_DIR/.bin/tsc -p $ROOT_DIR/packages/$PKG/tsconfig.prod.json
+  ORGLIST=$ORGLIST' 'gw-$ORGS
+  PKGLIST=$PKGLIST' 'gw-$ORGS
 done
 
-# Packing library files
-for PKG in operator fabric-cqrs gateway-lib model-document model-loan
+
+#############################
+# main
+#############################
+
+# clean build
+rm -fr $ROOT_DIR/.build
+mkdir -p $ROOT_DIR/.build
+
+# common package file
+cp $ROOT_DIR/yarn.lock $ROOT_DIR/.build/
+cp $ROOT_DIR/package.json $ROOT_DIR/.build/
+
+for PKG in $PKGLIST
 do
+  # Building packages
+  rm -fr $ROOT_DIR/packages/$PKG/dist
+  $LIBS_DIR/.bin/tsc -p $ROOT_DIR/packages/$PKG/tsconfig.prod.json
+
+  # Packing library files
   mkdir -p $ROOT_DIR/.build/packages/$PKG
   cp $ROOT_DIR/packages/$PKG/package.json $ROOT_DIR/.build/packages/$PKG/
   cp -R $ROOT_DIR/packages/$PKG/dist $ROOT_DIR/.build/packages/$PKG/
 done
 
 # Packing app files
-mkdir -p $ROOT_DIR/.build/packages/gw-${ORG}/connection
-cp $ROOT_DIR/entrypoint.sh $ROOT_DIR/.build/
-cp $ROOT_DIR/yarn.lock $ROOT_DIR/.build/
-cp $ROOT_DIR/packages/gw-${ORG}/package.json $ROOT_DIR/packages/gw-${ORG}/processes.yaml $ROOT_DIR/.build/packages/gw-${ORG}/
-cp -R $ROOT_DIR/packages/gw-${ORG}/dist $ROOT_DIR/.build/packages/gw-${ORG}/
-cp ${CONF_DIR}gw-${ORG}/.env.prod.gw $ROOT_DIR/.build/packages/gw-${ORG}/.env
-cp ${CONF_DIR}gw-${ORG}/connection-${ORG}.docker.yaml $ROOT_DIR/.build/packages/gw-${ORG}/connection
+for ORG in $ORGLIST
+do
+  mkdir -p $ROOT_DIR/.build/packages/${ORG}/connection
+  cp ${CONF_DIR}${ORG}/entrypoint.gw.sh $ROOT_DIR/.build/packages/${ORG}
+  cp ${CONF_DIR}${ORG}/.env.dev-net.${ORG} $ROOT_DIR/.build/packages/${ORG}/.env
+  cp ${CONF_DIR}${ORG}/processes.${ORG}.yaml $ROOT_DIR/.build/packages/${ORG}/processes.yaml
+  cp ${CONF_DIR}${ORG}/connection.${ORG}.docker.yaml $ROOT_DIR/.build/packages/${ORG}/connection
+done

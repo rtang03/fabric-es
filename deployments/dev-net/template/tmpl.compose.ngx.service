@@ -1,0 +1,15 @@
+  # For ORG${TMPL_PARAM_ID}
+  nginx${TMPL_PARAM_ID}:
+    image: nginx:alpine
+    container_name: nginx${TMPL_PARAM_ID}
+    ports:
+      - ${TMPL_PARAM_NGX_PORT}:80
+    environment:
+      - NGINX_PORT=80
+      - AUTH_HOST=http://auth-server${TMPL_PARAM_ID}:8080
+      - APP_HOST=http://ui-control${TMPL_PARAM_ID}:3000
+      - GW_HOST=http://gw-${TMPL_PARAM_ORG_NAME}:4001
+    volumes:
+      - ${NGX_TEMPLATE}:/etc/nginx/templates/default.conf.template
+    networks:
+      - openplatform

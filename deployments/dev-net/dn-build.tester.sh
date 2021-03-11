@@ -4,7 +4,7 @@
 # Build tester docker images
 #######################################
 
-if [[ ( $# -eq 1 ) && ( $1 = "-h" || $1 = "--help" ) ]]; then
+if [[ ( $# -ne 0 ) || ( $# -eq 1 ) && ( $1 = "-h" || $1 = "--help" ) ]]; then
   echo "Usage: ./dn-build.tester.sh"
   exit 0
 fi
@@ -30,8 +30,8 @@ echo "Packing app files..."
 cp $ROOT_DIR/packages/tester/*.json $ROOT_DIR/packages/tester/*.js $ROOT_DIR/packages/tester/build
 cp -R $ROOT_DIR/packages/tester/src $ROOT_DIR/packages/tester/build
 cp -R $ROOT_DIR/packages/tester/dist $ROOT_DIR/packages/tester/build
-cp ${CONF_DIR}tester/.env.test $ROOT_DIR/packages/tester/build/.env
-cp $ROOT_DIR/packages/tester/entrypoint.sh $ROOT_DIR/packages/tester/build
+cp ${CONF_DIR}tester/.env.dev-net.tester $ROOT_DIR/packages/tester/build/.env
+cp ${CONF_DIR}tester/entrypoint.tester.sh $ROOT_DIR/packages/tester/build/entrypoint.sh
 
 printMessage "Create build context for tester" $?
 sleep 1
@@ -39,9 +39,9 @@ sleep 1
 ### build image ###
 cd $ROOT_DIR/packages/tester
 set -x
-DOCKER_BUILD=1 docker build --no-cache -t $TEST_IMAGE .
+DOCKER_BUILD=1 docker build --no-cache -f ${CONF_DIR}tester/dockerfile.tester -t $TEST_IMAGE .
 res=$?
-docker tag $TEST_IMAGE fabric-es/tester
+docker tag $TEST_IMAGE cdi-samples/tester
 set +x
 printMessage "Create image ${TEST_IMAGE}" $res
 sleep 1

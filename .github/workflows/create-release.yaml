@@ -2,9 +2,9 @@ name: Create Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
     paths-ignore:
-      - '**.md'
+      - "**.md"
 env:
   GITHUB_SHA: ${{ github.sha }}
   AUTH_IMAGE: auth-server
@@ -32,7 +32,7 @@ jobs:
       - name: Setup Node.js for use with action
         uses: actions/setup-node@v2
         with:
-          node-version: '12.16.1'
+          node-version: "12.16.1"
           check-latest: true
       - name: Install
         run: yarn install --frozen-lockfile
@@ -43,7 +43,7 @@ jobs:
       - name: Build org1 org2 org3 images (org1 org2 org3)
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.gw.sh org1 org2 org3
       - name: Run multi-org integration test
-        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-test.gw-3.sh
+        run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.sh 3 gw-org test
       - name: Log into GitHub Container Registry
         run: echo "${{ secrets.CREATE_PACKAGE }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Push GW-1 to GCR

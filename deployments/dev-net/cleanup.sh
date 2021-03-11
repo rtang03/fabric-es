@@ -5,13 +5,14 @@
 
 . ./scripts/setup.sh
 
-NEEDSUDO=1
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  NEEDSUDO=0
-fi
+ORG_COUNT=`docker ps | grep gw-org | awk '{print $NF}' | wc -l`
+COMPOSE_GATEWAY=
+for ((i=1;i<=$ORG_COUNT;i++));
+do
+  COMPOSE_GATEWAY="$COMPOSE_GATEWAY -f compose.${i}org.gw.yaml"
+done
+COMPOSE="$COMPOSE_ORG $COMPOSE_CC $COMPOSE_DBRD $COMPOSE_AUTH $COMPOSE_GATEWAY $COMPOSE_NGX $COMPOSE_TST"
 
-COMPOSE=$COMPOSE_ALL
-CLEAN_CC_IMG=0
 case $# in
   0)
     ;;
@@ -20,19 +21,6 @@ case $# in
       -d)
         if [ $# -gt 1 ]; then
           printMessage "Usage: cleanup.sh {-R | --remove-cc-images} {[docker-compose file]}; cleanup" 2
-        fi
-        ;;
-      -R|--remove-cc-images)
-        CLEAN_CC_IMG=1
-        if [ $# -eq 2 ]; then
-          case $2 in
-            -f*)
-              COMPOSE=$2
-              ;;
-            *)
-              printMessage "Usage: cleanup.sh {-R | --remove-cc-images} {[docker-compose file]}; cleanup" 5
-              ;;
-          esac
         fi
         ;;
       -f*)
@@ -87,13 +75,4 @@ DANGLE=`docker images -qf "dangling=true"`
 if [ ! -z "$DANGLE" ]; then
   echo "Cleaning up dangling docker images..."
   docker rmi $(docker images -qf "dangling=true")
-fi
-
-# Cleanup chaincode images
-if [ $CLEAN_CC_IMG -eq 1 ]; then
-  CHAIN=`docker images -qf "reference=*eventstore*"`
-  if [ ! -z "$CHAIN" ]; then
-    echo "Cleaning up chaincode docker images..."
-    docker rmi $(docker images -qf "reference=dev-peer*")
-  fi
 fi
