@@ -46,7 +46,24 @@ if [ ! -z "$LOGSPOUT" ]; then
   docker rm -f logspout
 fi
 
-docker-compose $COMPOSE down
+COMPOSE_CHECK=`echo $COMPOSE | sed -e "s/\-f //g"`
+CNT=0
+for eachFile in $COMPOSE_CHECK
+do
+  #echo "loop : $eachFile"
+  if [ ! -f "$eachFile" ]; then
+    echo "$eachFile not exist"
+    CNT=$(( CNT + 1 ))
+  fi
+done
+#echo "CNT=$CNT"
+if [[ "$CNT" -eq 0 ]]; then
+  docker-compose $COMPOSE down
+else
+  echo "No network is shut down (this is normal for the first time to run build)"
+  #docker rm -f $(docker ps -aq)
+fi
+
 sleep 1
 
 EXITED=`docker ps -aq -f status=exited`
