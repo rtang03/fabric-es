@@ -15,10 +15,19 @@ SECONDS=0
 
 ./cleanup.sh
 
-printf "Cleaning up old image $TEST_IMAGE\n"
-docker rmi $TEST_IMAGE
+### Package Name ###
+PKG_NAME=`cat $ROOT_DIR/packages/tester/package.json | grep \"name\" | awk '{print $2}' | awk -F'"' '{print $2}' | awk -F'@' '{print $2}'`
+### Image ID ###
+IMG_ID=`docker images | grep "${PKG_NAME}" | grep "${RELEASE}" | awk '{print $3}'`
 
-echo "Create build context..."
+### clean image ###
+if [[ ! -z $IMG_ID ]]; then
+  printf "Cleaning up old image ${PKG_NAME}:${RELEASE} with ID:$IMG_ID \n"
+  docker rmi -f $IMG_ID
+fi
+
+### compile and build the packages ###
+echo "Create build context of tester ..."
 rm -fr $ROOT_DIR/packages/tester/build
 mkdir -p $ROOT_DIR/packages/tester/build
 cp $ROOT_DIR/package.json $ROOT_DIR/packages/tester/build/
@@ -39,11 +48,11 @@ sleep 1
 ### build image ###
 cd $ROOT_DIR/packages/tester
 set -x
-DOCKER_BUILD=1 docker build --no-cache -f ${CONF_DIR}tester/dockerfile.tester -t $TEST_IMAGE .
+DOCKER_BUILD=1 docker build --no-cache -f ${CONF_DIR}tester/dockerfile.tester -t ${PKG_NAME}:${RELEASE} .
 res=$?
-docker tag $TEST_IMAGE cdi-samples/tester
+docker tag ${PKG_NAME}:${RELEASE} ${PKG_NAME}
 set +x
-printMessage "Create image ${TEST_IMAGE}" $res
+printMessage "Create image ${PKG_NAME}:${RELEASE}" $res
 sleep 1
 
 duration=$SECONDS
