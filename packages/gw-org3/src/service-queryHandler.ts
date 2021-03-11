@@ -1,31 +1,21 @@
 require('./env');
 import util from 'util';
-import { counterReducer, getReducer } from '@fabric-es/fabric-cqrs';
-import { createQueryHandlerService, getLogger } from '@fabric-es/gateway-lib';
-import { User, UserEvents, userIndexDefinition, userReducer } from '@fabric-es/model-common';
-import { DocContents, DocContentsEvents, docContentsReducer } from '@fabric-es/model-document';
+import { buildRedisOptions, createQueryHandlerService, getLogger } from '@fabric-es/gateway-lib';
 import {
   Loan,
-  LoanEvents,
-  loanIndexDefinition,
-  LoanInRedis,
+  loanIndices,
   loanReducer,
-  OutputLoan,
-  postSelector as loanPostSelector,
-  preSelector as loanPreSelector,
+  loanPostSelector,
+  loanPreSelector,
 } from '@fabric-es/model-loan';
 import { Wallets } from 'fabric-network';
 import type { RedisOptions } from 'ioredis';
-import { LoanDetails, LoanDetailsEvents, loanDetailsReducer } from './model/private/loan-details';
 import {
   Document,
-  DocumentEvents,
-  documentIndexDefinition,
+  documentIndices,
   documentReducer,
-  preSelector as docPreSelector,
-  postSelector as docPostSelector,
-  DocumentInRedis,
-  OutputDocument,
+  documentPostSelector,
+  documentPreSelector,
 } from './model/public/document';
 
 const port = parseInt(process.env.QUERY_PORT, 10) || 5000;
@@ -33,34 +23,11 @@ const logger = getLogger('[query-handler] app.js');
 const authCheck = process.env.AUTHORIZATION_SERVER_URI;
 
 void (async () => {
-  const redisOptions: RedisOptions = {
-    host: process.env.REDIS_HOST,
-    port: parseInt(process.env.REDIS_PORT, 10),
-    retryStrategy: (times) => {
-      if (times > 3) {
-        // the 4th return will exceed 10 seconds, based on the return value...
-        logger.error(`Redis: connection retried ${times} times, exceeded 10 seconds.`);
-        process.exit(-1);
-      }
-      return Math.min(times * 100, 3000); // reconnect after (ms)
-    },
-    reconnectOnError: (err) => {
-      const targetError = 'READONLY';
-      if (err.message.includes(targetError)) {
-        // Only reconnect when the error contains "READONLY"
-        return 1;
-      }
-    },
-  };
-
-  const reducers = {
-    document: getReducer<Document, DocumentEvents>(documentReducer),
-    loan: getReducer<Loan, LoanEvents>(loanReducer),
-    docContents: getReducer<DocContents, DocContentsEvents>(docContentsReducer),
-    loanDetails: getReducer<LoanDetails, LoanDetailsEvents>(loanDetailsReducer),
-    user: getReducer<User, UserEvents>(userReducer),
-    counter: counterReducer,
-  };
+  const redisOptions: RedisOptions = buildRedisOptions(
+    process.env.REDIS_HOST,
+    (process.env.REDIS_PORT || 6379) as number,
+    logger
+  );
 
   const { getServer, shutdown } = await createQueryHandlerService({
     redisOptions,
@@ -68,20 +35,18 @@ void (async () => {
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     enrollmentId: process.env.ORG_ADMIN_ID,
-    reducers,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     authCheck,
   })
-    .addRedisRepository({ entityName: 'user', fields: userIndexDefinition })
-    .addRedisRepository<Document, DocumentInRedis, OutputDocument>({
-      entityName: 'document',
-      fields: documentIndexDefinition,
-      preSelector: docPreSelector,
-      postSelector: docPostSelector,
+    .addRedisRepository(Document, {
+      reducer: documentReducer,
+      fields: documentIndices,
+      preSelector: documentPreSelector,
+      postSelector: documentPostSelector,
     })
-    .addRedisRepository<Loan, LoanInRedis, OutputLoan>({
-      entityName: 'loan',
-      fields: loanIndexDefinition,
+    .addRedisRepository(Loan, {
+      reducer: loanReducer,
+      fields: loanIndices,
       postSelector: loanPostSelector,
       preSelector: loanPreSelector,
     })
@@ -118,7 +83,6 @@ void (async () => {
     process.send?.('ready');
   });
 })().catch((error) => {
-  console.error(error);
   logger.error(util.format('fail to start app.js, %j', error));
   process.exit(1);
 });

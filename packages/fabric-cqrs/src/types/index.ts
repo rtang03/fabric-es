@@ -7,5 +7,5 @@ export * from './fabricResponse';
 export * from './dispatcher';
 export * from './pubSubPayload';
 export * from './paginated';
-export * from './baseMetaEntity';
+export * from './baseEntity';
 export * from './handlerResponse';

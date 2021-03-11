@@ -26,10 +26,10 @@ interface Minus extends BaseEvent {
 
 type SimpleCounterEvents = Add | Minus;
 
-interface SimpleCounterEvent {
-  type: string;
-  payload: any;
-}
+// interface SimpleCounterEvent {
+//   type: string;
+//   payload: any;
+// }
 
 export interface SimpleCounter {
   id?: string;
@@ -37,8 +37,8 @@ export interface SimpleCounter {
   value: number;
 }
 
-export const faultReducer: Reducer<SimpleCounter> = (
-  history: SimpleCounterEvent[],
+export const faultReducer: Reducer<SimpleCounter, SimpleCounterEvents> = (
+  history: SimpleCounterEvents[],
   initial = { value: 0 }
 ): SimpleCounter => history.reduce(reducerFcn, initial);
 

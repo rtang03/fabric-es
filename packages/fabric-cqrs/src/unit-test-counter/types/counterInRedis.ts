@@ -17,4 +17,5 @@ export type CounterInRedis = {
   ts: number;
   val: string | number;
   history: string;
+  organ: string;
 };

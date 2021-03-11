@@ -214,9 +214,15 @@ export type QueryHandler = {
    *   Promise<HandlerResponse<{ key: string; status: string }[]>>
    * ```
    * **/
-  reconcile: () => (payload: {
+  reconcile: (payload: {
     entityName: string;
   }) => Promise<HandlerResponse<{ key: string; status: string }[]>>;
+
+  /**
+   * @about notify the query-handler that reconciliation completed
+   * @return `() => void`
+   * **/
+  reconciled: () => void;
 
   /**
    * @about subscribe to Fabric channel event hub

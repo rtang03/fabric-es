@@ -10,6 +10,8 @@
 
 **Merged pull requests:**
 
+- fix: Fix RedisPubSub related issue when running gateway as docker images [\#193](https://github.com/rtang03/fabric-es/pull/193) ([pangduckwai](https://github.com/pangduckwai))
+- feat: Remote Data on the New Query Handler [\#192](https://github.com/rtang03/fabric-es/pull/192) ([pangduckwai](https://github.com/pangduckwai))
 - docs: add comment / readme [\#191](https://github.com/rtang03/fabric-es/pull/191) ([rtang03](https://github.com/rtang03))
 - feat: new search capability [\#190](https://github.com/rtang03/fabric-es/pull/190) ([rtang03](https://github.com/rtang03))
 - chore: Add workaround to avoid redis error when shutdown query-handler service [\#189](https://github.com/rtang03/fabric-es/pull/189) ([pangduckwai](https://github.com/pangduckwai))

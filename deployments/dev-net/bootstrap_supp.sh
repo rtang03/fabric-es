@@ -40,7 +40,7 @@ if [[ ! -z $2 && $2 == "gw-org" ]]; then
 fi
 
 # STEP 0 Gen blockchain config oand docker-compose file
-./build-config.sh $ORG_COUNT "$NGX_ARG"
+./build-config.sh $ORG_COUNT "$NGX_ARG" $3
 
 
 # STEP 1

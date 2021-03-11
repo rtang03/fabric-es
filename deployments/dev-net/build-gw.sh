@@ -11,7 +11,7 @@
 # LOCAL variables
 #############################
 ORGLIST=
-PKGLIST='operator fabric-cqrs gateway-lib model-common model-document model-loan'
+PKGLIST='operator fabric-cqrs gateway-lib model-document model-loan'
 for ORGS in $*
 do
   ORGLIST=$ORGLIST' 'gw-$ORGS

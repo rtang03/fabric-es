@@ -1,28 +1,11 @@
 require('dotenv').config({ path: './.env' });
 import fetch from 'node-fetch';
 import { authenticate, getLogger } from '../utils';
+import { CREATE_WALLET, GET_LOAN_BY_ID } from './queries';
 import {
-  APPLY_LOAN,
-  APPROVE_LOAN,
-  CREATE_DOC_CONTENTS,
-  CREATE_DOCUMENT,
-  CREATE_LOAN_DETAILS,
-  CREATE_WALLET,
-  GET_COMMITS_BY_DOCUMENT,
-  GET_COMMITS_BY_LOAN,
-  GET_DOCUMENT_BY_ID,
-  GET_LOAN_BY_ID_ORG1,
-  GET_LOAN_BY_ID_ORG2,
-  RESTRICT_DOC_ACCESS,
-  SEARCH_DOCUMENT_BY_FIELDS,
-  SEARCH_DOCUMENT_CONTAINS,
-  SEARCH_LOAN_BY_FIELDS,
-  SEARCH_LOAN_CONTAINS,
-  UPDATE_DOC_CONTENTS,
-  UPDATE_DOCUMENT,
-  UPDATE_LOAN,
-  UPDATE_LOAN_DETAILS
-} from './queries';
+  createLoan, createLoanDetails, updateLoan, updateLoanDetails, approveLoan,
+  createDocument, createDocContents, updateDocument, updateDocContents, restrictDocAccess,
+} from './utils';
 
 const RUNS = parseInt(process.env.RUNS_NUM, 10) || 3; // Total number of runs
 const BATCH = parseInt(process.env.BATCH_NUM, 10) || 5; // Number of tests per run
@@ -41,270 +24,6 @@ const range = Math.round(Math.log10(RUNS * BATCH)) + 1;
 const stamp = Date.now();
 
 const logger = getLogger('[tester] ri.rtest.js');
-
-const createLoan = (url: string, token: string, userId: string, loanId: string, description: string, reference: string) => {
-  return new Promise<{ id: string; elapsed: number }>(async (resolve, reject) => {
-    const start = Date.now();
-    try {
-      await fetch(url, {
-        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${token}` }, body: JSON.stringify({
-          operationName: 'ApplyLoan', query: APPLY_LOAN,
-          variables: { userId, loanId, description, reference }})})
-        .then(res => res.json())
-        // .then(res => {
-        //   console.log(res);
-        //   return res;
-        // })
-        .then(res => {
-          if (res.data && res.data.applyLoan && (res.data.applyLoan.id === loanId))
-            resolve({ id: loanId, elapsed: Date.now() - start });
-          else
-            reject(res);
-        }).catch(errors => {
-          reject(errors);
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-const updateLoan = (
-  url: string, token: string, userId: string, loanId: string,
-  payload: { description?: string; comment?: string }
-) => {
-  return new Promise<{ id: string; elapsed: number }>(async (resolve, reject) => {
-    const start = Date.now();
-    try {
-      await fetch(url, {
-        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${token}` }, body: JSON.stringify({
-          operationName: 'UpdateLoan', query: UPDATE_LOAN,
-          variables: { userId, loanId, ...payload }})})
-        .then(res => res.json())
-        .then(res => {
-          if (res.data && res.data.updateLoan && (res.data.updateLoan.map(l => l.id).includes(loanId)))
-            resolve({ id: loanId, elapsed: Date.now() - start });
-          else
-            reject(res);
-        }).catch(errors => {
-          reject(errors);
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-const createLoanDetails = (
-  url: string, token: string, userId: string, loanId: string,
-  registration: string, requesterName: string,
-  contactName: string, phone: string, email: string,
-  startDate: string, tenor: number, currency: string, amount: number, comment: string
-) => {
-  return new Promise<{ id: string; elapsed: number }>(async (resolve, reject) => {
-    const start = Date.now();
-    try {
-      await fetch(url, {
-        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${token}` }, body: JSON.stringify({
-          operationName: 'CreateLoanDetails',
-          query: CREATE_LOAN_DETAILS,
-          variables: {
-            userId, loanId, requester: { registration, name: requesterName },
-            contact: { name: contactName, phone, email },
-            startDate, tenor, currency, requestedAmt: amount, comment
-          }})})
-        .then(res => res.json())
-        .then(res => {
-          if (res.data && res.data.createLoanDetails && (res.data.createLoanDetails.id === loanId))
-            resolve({ id: loanId, elapsed: Date.now() - start });
-          else
-            reject(res);
-        }).catch(errors => {
-          reject(errors);
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-const updateLoanDetails = (
-  url: string, token: string, userId: string, loanId: string,
-  payload: {
-    contact?: { name?: string; phone?: string; email?: string };
-    comment?: string;
-  }
-) => {
-  return new Promise<{ id: string; elapsed: number }>(async (resolve, reject) => {
-    const start = Date.now();
-    try {
-      await fetch(url, {
-        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${token}` }, body: JSON.stringify({
-          operationName: 'UpdateLoanDetails',
-          query: UPDATE_LOAN_DETAILS,
-          variables: { userId, loanId, ...payload }})})
-        .then(res => res.json())
-        .then(res => {
-          if (res.data && res.data.updateLoanDetails && (res.data.updateLoanDetails.map(d => d.id).includes(loanId)))
-            resolve({ id: loanId, elapsed: Date.now() - start });
-          else
-            reject(res);
-        }).catch(errors => {
-          reject(errors);
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-const createDocument = (url: string, token: string, userId: string, loanId: string, documentId: string, title: string, reference: string) => {
-  return new Promise<{ id: string; elapsed: number }>(async (resolve, reject) => {
-    const start = Date.now();
-    try {
-      await fetch(url, {
-        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${token}` }, body: JSON.stringify({
-          operationName: 'CreateDocument', query: CREATE_DOCUMENT,
-          variables: { userId, documentId, loanId, title, reference }})})
-        .then(res => res.json())
-        .then(res => {
-          if (res.data && res.data.createDocument && (res.data.createDocument.id === documentId))
-            resolve({ id: documentId, elapsed: Date.now() - start });
-          else
-            reject(res);
-        }).catch(errors => {
-          reject(errors);
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-const updateDocument = (
-  url: string, token: string, userId: string, documentId: string,
-  payload: { loanId?: string; title?: string }
-) => {
-  return new Promise<{ id: string; elapsed: number }>(async (resolve, reject) => {
-    const start = Date.now();
-    try {
-      await fetch(url, {
-        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${token}` }, body: JSON.stringify({
-          operationName: 'UpdateDocument', query: UPDATE_DOCUMENT,
-          variables: { userId, documentId, ...payload }})})
-        .then(res => res.json())
-        .then(res => {
-          if (res.data && res.data.updateDocument && (res.data.updateDocument.map(d => d.id).includes(documentId)))
-            resolve({ id: documentId, elapsed: Date.now() - start });
-          else
-            reject(res);
-        }).catch(errors => {
-          reject(errors);
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-const createDocContents = (
-  url: string, token: string, userId: string, documentId: string,
-  content: { body: string } | { format: string; link: string },
-) => {
-  return new Promise<{ id: string; elapsed: number }>(async (resolve, reject) => {
-    const start = Date.now();
-    try {
-      await fetch(url, {
-        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${token}` }, body: JSON.stringify({
-          operationName: 'CreateDocContents', query: CREATE_DOC_CONTENTS,
-          variables: { userId, documentId, content }})})
-        .then(res => res.json())
-        .then(res => {
-          if (res.data && res.data.createDocContents && (res.data.createDocContents.id === documentId))
-            resolve({ id: documentId, elapsed: Date.now() - start });
-          else
-            reject(res);
-        }).catch(errors => {
-          reject(errors);
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-const updateDocContents = (
-  url: string, token: string, userId: string, documentId: string,
-  content: { body: string } | { format: string; link: string },
-) => {
-  return new Promise<{ id: string; elapsed: number }>(async (resolve, reject) => {
-    const start = Date.now();
-    try {
-      await fetch(url, {
-        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${token}` }, body: JSON.stringify({
-          operationName: 'UpdateDocContents', query: UPDATE_DOC_CONTENTS,
-          variables: { userId, documentId, content }})})
-        .then(res => res.json())
-        .then(res => {
-          if (res.data && res.data.updateDocContents && (res.data.updateDocContents.id === documentId))
-            resolve({ id: documentId, elapsed: Date.now() - start });
-          else
-            reject(res);
-        }).catch(errors => {
-          reject(errors);
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-
-const restrictDocAccess = (url: string, token: string, userId: string, documentId: string) => {
-  return new Promise<{ id: string; elapsed: number }>(async (resolve, reject) => {
-    const start = Date.now();
-    try {
-      await fetch(url, {
-        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${token}` }, body: JSON.stringify({
-          operationName: 'RestrictAccess', query: RESTRICT_DOC_ACCESS,
-          variables: { userId, documentId }})})
-        .then(res => res.json())
-        .then(res => {
-          if (res.data && res.data.restrictAccess && (res.data.restrictAccess.id === documentId))
-            resolve({ id: documentId, elapsed: Date.now() - start });
-          else
-            reject(res);
-        }).catch(errors => {
-          reject(errors);
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-const approveLoan = (url: string, token: string, userId: string, loanId: string) => {
-  return new Promise<{ id: string; elapsed: number }>(async (resolve, reject) => {
-    const start = Date.now();
-    try {
-      await fetch(url, {
-        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${token}` }, body: JSON.stringify({
-          operationName: 'ApproveLoan', query: APPROVE_LOAN,
-          variables: { userId, loanId }})})
-        .then(res => res.json())
-        .then(res => {
-          if (res.data && res.data.approveLoan && (res.data.approveLoan.id === loanId))
-            resolve({ id: loanId, elapsed: Date.now() - start });
-          else
-            reject(res);
-        }).catch(errors => {
-          reject(errors);
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
 
 const readLoan = (
   url: string, token: string, query: string, loanId: string,
@@ -577,7 +296,7 @@ const runTest = (idx: number, run: string, test: string, user1: string, token1: 
     // Org1 read results
     let elapsed9;
     try {
-      const rst = await readLoan(gw1, token1, GET_LOAN_BY_ID_ORG1, loanId, run, test, validate);
+      const rst = await readLoan(gw1, token1, GET_LOAN_BY_ID, loanId, run, test, validate);
       if (rst && (rst !== undefined) && rst.id) {
         if (rst.id !== loanId) {
           console.log(`[Test run ${run}][#${test}] Error: expected to read ${loanId}, got ${rst.id}`);
@@ -603,7 +322,7 @@ const runTest = (idx: number, run: string, test: string, user1: string, token1: 
 };
 
 // Start
-(async () => {
+void (async () => {
   console.log(`Running ${RUNS} x ${BATCH} ref-impl tests (${RUNS_WAIT}s, ${READ_WAIT}ms x ${READ_RETRY})...`);
 
   let idx = 0;

@@ -3,6 +3,7 @@ import { createNetworkOperator, NetworkOperator } from '@fabric-es/operator';
 import { ApolloError } from 'apollo-server';
 import { Wallet, X509Identity } from 'fabric-network';
 import { getLogger } from '..';
+import { orgResolvers, userResolvers } from '../common/model';
 import { catchResolverErrors } from '../utils/catchResolverErrors';
 
 /**
@@ -56,6 +57,9 @@ export const createResolvers: (option: {
     throw new Error(e);
   }
 
+  const { Query: orgQuery, ...orgTypes  } = orgResolvers;
+  const { Query: usrQuery, Mutation: usrMutation, ...usrTypes } = userResolvers;
+
   return {
     Mutation: {
       createWallet: catchResolverErrors(
@@ -79,6 +83,7 @@ export const createResolvers: (option: {
         },
         { fcnName: 'createWallet', logger, useAuth: true, useAdmin: false }
       ),
+      ...usrMutation
     },
     Query: {
       isadmin: () => 'echo admin',
@@ -116,6 +121,10 @@ export const createResolvers: (option: {
         useAuth: false,
         useAdmin: true,
       }),
+      ...orgQuery,
+      ...usrQuery
     },
+    ...orgTypes,
+    ...usrTypes
   };
 };

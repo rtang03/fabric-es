@@ -29,6 +29,10 @@ if [[ ! -z $2 && ( $2 != "auth" && $2 != "gw-org" ) ]]; then
   echo "invalid arg : $2 !!! only accept \"auth\" or \"gw-org\""
   exit 0
 fi
+if [[ ! -z $2 && $2 == "gw-org" && ( "$1" -gt 3 || "$1" -lt 1 ) ]]; then
+  echo "invalid arg : $2 !!! \"gw-org\" only allow [org no] within 1 to 3"
+  exit 0
+fi
 if [[ ! -z $3 && ( $3 != "test") ]]; then
   echo "invalid arg : $3 !!! only accept \"test\""
   exit 0

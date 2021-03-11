@@ -6,10 +6,11 @@ import { Redisearch } from 'redis-modules-sdk';
 import rimraf from 'rimraf';
 import { createQueryDatabase, createQueryHandler, createRedisRepository } from '..';
 import { getNetwork } from '../../services';
+import { getReducer } from '../../types';
 import {
   Counter,
-  CounterEvent,
-  reducer,
+  CounterEvents,
+  reducerCallback,
   counterIndexDefinition as fields,
   CounterInRedis,
   postSelector,
@@ -23,6 +24,7 @@ import type { QueryHandler, RedisRepository, OutputCommit } from '../types';
  * ./dn-run.1-db-red-auth.sh
  */
 
+const reducer = getReducer(reducerCallback);
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
 const channelName = process.env.CHANNEL_NAME;
@@ -92,12 +94,13 @@ beforeAll(async () => {
     await client.connect();
 
     // Step 4: create counter's RedisRepo
-    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>({
-      client,
-      fields,
-      entityName,
-      postSelector,
-      preSelector,
+    Counter.entityName = entityName;
+    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>(
+      Counter, {
+        client,
+        fields,
+        postSelector,
+        preSelector,
     });
 
     // Step 5: create QueryDatabase
@@ -126,7 +129,7 @@ beforeAll(async () => {
       wallet,
     });
 
-    await queryHandler.subscribeHub([entityName]);
+    await queryHandler.subscribeHub([entityName]).then(_ => queryHandler.reconciled());
 
     // Step 8: prepare Redisearch indexes
     const eidx = counterRedisRepo.getIndexName();
@@ -190,7 +193,7 @@ describe('Query Handler Tests', () => {
   // 3) "c:test_subscribe:qh_sub_test_001:20210210032205925"
   it('should create #1 record for id', async () => {
     await queryHandler
-      .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id })
+      .create<CounterEvents>(entityName)({ enrollmentId: orgAdminId, id })
       .save({
         events: [
           {
@@ -241,7 +244,7 @@ describe('Query Handler Tests', () => {
   // 5) "n:admin-org1.net:test_subscribe:qh_sub_test_001:20210210035250191"
   it('should create #2 record for id', async () => {
     await queryHandler
-      .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id })
+      .create<CounterEvents>(entityName)({ enrollmentId: orgAdminId, id })
       .save({
         events: [
           {
@@ -396,6 +399,7 @@ describe('Query Handler Tests', () => {
           description: 'query hander #2 sub-test',
           creator: 'admin-org1.net',
           eventInvolved: ['Increment', 'Decrement'],
+          organization: ['Org1MSP'],
         });
       }));
 
@@ -419,6 +423,7 @@ describe('Query Handler Tests', () => {
           description: 'query hander #2 sub-test',
           creator: 'admin-org1.net',
           eventInvolved: ['Increment', 'Decrement'],
+          organization: ['Org1MSP'],
         });
       }));
 });
@@ -434,7 +439,7 @@ describe('Pagination tests for getPaginatedEntityById', () => {
         .then(({ data: { message } }) => console.log(message));
 
       await queryHandler
-        .create<CounterEvent>(entityName)({ enrollmentId: orgAdminId, id: `qh_pag_test_00${i}` })
+        .create<CounterEvents>(entityName)({ enrollmentId: orgAdminId, id: `qh_pag_test_00${i}` })
         .save({
           events: [
             {

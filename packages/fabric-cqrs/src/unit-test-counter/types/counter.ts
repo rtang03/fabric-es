@@ -1,4 +1,4 @@
-import type { BaseMetaEntity } from '../../types';
+import type { BaseEntity } from '../../types';
 
 /**
  * @ignore
@@ -25,15 +25,8 @@ export interface CounterCommands {
 /**
  * @ignore
  */
-export interface CounterEvent {
-  type: string;
-  payload: any;
-}
-
-/**
- * @ignore
- */
-export interface Counter extends BaseMetaEntity {
+export class Counter implements BaseEntity {
+  static entityName = 'counter';
   id: string;
   desc: string;
   tag: string;
@@ -41,4 +34,5 @@ export interface Counter extends BaseMetaEntity {
   _ts: number;
   _created: number;
   _creator: string;
+  _organization: string[];
 }

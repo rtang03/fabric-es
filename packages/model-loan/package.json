@@ -12,13 +12,12 @@
     "clean": "rimraf dist",
     "gen-resolvers-type": "graphql-codegen --config codegen.yml",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "unit-test:fab": "jest unit.test"
+    "unit-test:fab": "jest"
   },
   "private": true,
   "dependencies": {
     "@fabric-es/fabric-cqrs": "^0.7.5",
     "@fabric-es/gateway-lib": "^0.7.5",
-    "@fabric-es/model-common": "^0.7.5",
     "apollo-server-errors": "^2.3.4"
   },
   "devDependencies": {

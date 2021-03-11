@@ -19,7 +19,7 @@ services:
       - GATEWAY_HOST=gw-org1
       - REDIS_HOST=redis1
       - QUERY_PORT=5001
-      - REMOTE_URI=http://gw-org2:4001/graphql\ http://gw-org3:4001/graphql
+      - ORGURL=http://gw-org1:4001/graphql
     working_dir: /home/app/packages/gw-org1
     ports:
       - 4001:4001

@@ -9,7 +9,7 @@ import type {
   QueryDatabase,
   RedisRepository,
 } from '../../../queryHandler/types';
-import type { Commit, HandlerResponse } from '../../../types';
+import { getReducer, Commit, HandlerResponse } from '../../../types';
 import {
   Counter,
   CounterInRedis,
@@ -17,7 +17,7 @@ import {
   OutputCounter,
   postSelector,
   preSelector,
-  reducer,
+  reducerCallback,
 } from '../../../unit-test-counter';
 import { dispatcher, getLogger, waitForSecond } from '../../../utils';
 import { action, action as queryAction } from '../action';
@@ -29,6 +29,7 @@ let counterRedisRepo: RedisRepository<OutputCounter>;
 let store: Store;
 let queryDatabase: QueryDatabase;
 
+const reducer = getReducer(reducerCallback);
 const logger = getLogger({ name: 'query.store.unit-test.ts' });
 const {
   deleteCommitByEntityName,
@@ -56,12 +57,13 @@ beforeAll(async () => {
     await client.connect();
 
     // Step 2: create counter's RedisRepo
-    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>({
-      client,
-      fields,
-      entityName,
-      postSelector,
-      preSelector,
+    Counter.entityName = entityName;
+    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>(
+      Counter, {
+        client,
+        fields,
+        postSelector,
+        preSelector,
     });
 
     // Step 3: create QueryDatabase; return commitRepo
@@ -455,6 +457,7 @@ describe('Store/query Test', () => {
           _ts: 1590739000,
           _creator: 'org1-admin',
           _created: 1590738792,
+          _organization: null,
         },
         {
           value: 3,
@@ -464,6 +467,7 @@ describe('Store/query Test', () => {
           _ts: 1590740002,
           _creator: 'org1-admin',
           _created: 1590740000,
+          _organization: null,
         },
         {
           value: 2,
@@ -473,6 +477,7 @@ describe('Store/query Test', () => {
           _ts: 1590740004,
           _creator: 'org1-admin',
           _created: 1590740003,
+          _organization: null,
         },
       ]);
     }));
@@ -556,6 +561,7 @@ describe('Store/query Test', () => {
           _ts: 1590739000,
           _created: 1590738792,
           _creator: 'org1-admin',
+          _organization: null,
         },
         {
           value: 3,
@@ -565,6 +571,7 @@ describe('Store/query Test', () => {
           _ts: 1590740002,
           _created: 1590740000,
           _creator: 'org1-admin',
+          _organization: null,
         },
       ]);
     }));

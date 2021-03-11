@@ -3,7 +3,7 @@ import {
   loanDetailsCommandHandler as superHandler,
   LoanDetailsErrors,
 } from '@fabric-es/model-loan';
-import type { LoanDetailsCommandHandler, LoanDetailsRepo } from '../types';
+import type { LoanDetailsCommandHandler, LoanDetailsRepo } from '.';
 
 export const loanDetailsCommandHandler: (option: {
   enrollmentId: string;

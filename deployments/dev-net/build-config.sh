@@ -373,6 +373,9 @@ updateFile "$NGX_TMPL" "#%__tmpl.ngx.service__%" $WORK_DIR/ngx.template
 mv $WORK_DIR/ngx.template $NGX_TEMPLATE
 printLog $LOG_LVL_INFO "genConfig return $NGX_TEMPLATE"
 
-if [[ ! -z $3 ]]; then
-  cp -Rp $OUTPUT_DIR/compose.${ORG_COUNT}org.test.yaml $OUTPUT_DIR/compose.tester.yaml
+COMPOSE_TEST_CNT=2
+if [[ ! -z $3 &&  "$ORG_COUNT" -le 3 && "$ORG_COUNT" -ge 2 ]]; then
+  COMPOSE_TEST_CNT=$ORG_COUNT
 fi
+cp -Rp $OUTPUT_DIR/compose.${COMPOSE_TEST_CNT}org.test.yaml $OUTPUT_DIR/compose.tester.yaml
+printLog $LOG_LVL_INFO "genConfig return $OUTPUT_DIR/compose.tester.yaml"

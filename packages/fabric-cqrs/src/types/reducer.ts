@@ -1,4 +1,25 @@
-import { Commit } from '.';
+import { BaseEntity, BaseEvent, Commit } from '.';
+
+/**
+ * @about reducer computes the current state of an entity
+ */
+export type Reducer<TEntity = any, TEvent = any> = (
+  history: TEvent[],
+  initial?: TEntity
+) => TEntity;
+
+/**
+ * @about domain entity specific callback function used in reducer
+ */
+export type ReducerCallback<TEntity extends BaseEntity, TEvent extends BaseEvent> = (entity: TEntity, event: TEvent) => TEntity;
+
+/**
+ * @about return high order reducer function
+ */
+export const getReducer = <T extends BaseEntity, E extends BaseEvent>(callback: ReducerCallback<T, E>): Reducer<T, E> => (
+  history: E[],
+  initialState?: T
+) => history.reduce(callback, initialState);
 
 /**
  * @ignore
@@ -8,28 +29,17 @@ export const TRACK_EVENT = 'PrivateDataTracked';
 /**
  * @ignore
  */
-export const TRACK_FIELD = '_remoteDataTracking';
+export const TRACK_FIELD = '_privateData';
+
+/**
+ * @ignore
+ */
+export const ORGAN_NAME = 'organization';
 
 /**
  * @ignore
  */
 export const ORGAN_FIELD = '_organization';
-
-/**
- * @about reducer computes the current state of an entity
- */
-export type Reducer<TEntity = any> = (
-  history: { type: string; payload?: any }[],
-  initial?: TEntity
-) => TEntity;
-
-/**
- * @about return high order reducer function
- */
-export const getReducer = <T, E>(reducer: (entity: T, event: E) => T) => (
-  history: E[],
-  initialState?: T
-) => history.reduce(reducer, initialState);
 
 /**
  * @about reducer for private data tracking events.
