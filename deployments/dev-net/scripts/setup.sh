@@ -20,7 +20,6 @@ fi
 
 export CURRENT_UID=$(id -u):$(id -g)
 export RELEASE=${RELEASE_VERSION}
-export IMAGE_TAG=2.2.0
 export CONFIG=./config
 export VOLUME=./volume
 export ARTIFACTS=./artifacts
@@ -28,10 +27,17 @@ export SCRIPTS=./scripts
 export CRYPTO=/var/artifacts/crypto-config
 export CURRENT_DIR=`pwd`
 export ROOT_DIR=$CURRENT_DIR/../..
-export TEST_IMAGE=fabric-es/tester:${RELEASE}
+
+export HLF_VERSION=2.2.0
+export HLF_CA_IMAGE=hyperledger/fabric-ca:1.4.8
+export HLF_ORDERER_IMAGE=hyperledger/fabric-orderer:$HLF_VERSION
+export HLF_PEER_IMAGE=hyperledger/fabric-peer:$HLF_VERSION
+export HLF_TOOLS_IMAGE=hyperledger/fabric-tools:$HLF_VERSION
 export AUTH_IMAGE=ghcr.io/rtang03/auth-server:0.0.2
 export CC_IMAGE=ghcr.io/rtang03/eventstore-cc:0.0.4
+export POSTGRES_IMAGE=postgres:9.6.17-alpine
 export REDISEARCH_IMAGE=redislabs/redisearch:2.0.5
+export NGX_IMAGE=nginx:alpine
 
 export LOG_LEVEL=info
 export LOG_TARGET=console
