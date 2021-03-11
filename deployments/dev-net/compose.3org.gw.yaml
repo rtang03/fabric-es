@@ -13,7 +13,7 @@ services:
       - CA_ENROLLMENT_ID_ADMIN=rca-org3-admin
       - CA_ENROLLMENT_SECRET_ADMIN=rca-org3-adminPW
       - CA_NAME=rca-org3
-      - ORG_CA_URL=https://rca-org3:5056
+      - ORG_CA_URL=https://rca-org3:5353
       - ORG_ADMIN_ID=admin-org3.net
       - ORG_ADMIN_SECRET=admin-org3.netPW
       - GATEWAY_HOST=gw-org3
