@@ -1,6 +1,6 @@
   # For ORG${TMPL_PARAM_ID}
   nginx${TMPL_PARAM_ID}:
-    image: nginx:alpine
+    image: $NGX_IMAGE
     container_name: nginx${TMPL_PARAM_ID}
     ports:
       - ${TMPL_PARAM_NGX_PORT}:80

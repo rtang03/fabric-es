@@ -141,10 +141,10 @@ case $1 in
 
     if [ $FOUND -eq 3 ]; then
       echo "Starting 3 orgs integration test..."
-      exec jest intg.3org.test
+      exec yarn test:3org
     else
       echo "Starting 2 orgs integration test..."
-      exec jest --verbose intg.2org.test
+      exec yarn test:2org --verbose
     fi
     ;;
   *)
