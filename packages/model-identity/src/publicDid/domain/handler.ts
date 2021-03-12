@@ -1,6 +1,6 @@
 import { UserInputError } from 'apollo-server';
+import { createDidDocument } from '../../utils';
 import type { DidDocumentCommandHandler, DidDocumentRepo } from '../types';
-import { createDidDocument } from '../utils';
 
 export const didDocumentCommandHandler: (option: {
   enrollmentId: string;

@@ -1,7 +1,7 @@
 /**
  * https://w3c-ccg.github.io/did-resolution/
  */
-import type { CreateDidOption } from '../utils';
+import type { CreateDidOption } from '../../utils';
 
 export type DidDocumentCommands = {
   /**

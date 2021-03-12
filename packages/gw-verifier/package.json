@@ -1,11 +1,11 @@
 {
-  "name": "@fabric-es/gw-registrar",
+  "name": "@fabric-es/gw-verifier",
   "version": "0.7.6",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
   "author": "Ross Tang",
-  "description": "gw-registrar",
+  "description": "gw-verifier",
   "scripts": {
     "build": "yarn clean && tsc",
     "clean": "rimraf dist",
@@ -25,7 +25,7 @@
     "@types/jest": "^26.0.20",
     "@types/js-yaml": "^3.12.4",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/node": "^12.17.18",
+    "@types/node": "^10.17.18",
     "@types/node-fetch": "^2.5.7",
     "apollo-server-testing": "^2.13.1",
     "concurrently": "^5.2.0",

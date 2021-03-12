@@ -3,9 +3,9 @@ import { catchResolverErrors, getLogger } from '@fabric-es/gateway-lib';
 import { ApolloError } from 'apollo-server-errors';
 import type { VerificationMethod } from 'did-resolver';
 import GraphQLJSON from 'graphql-type-json';
+import type { CreateDidOption } from '../utils';
 import { didDocumentCommandHandler } from './domain';
 import type { DidDocument, DidDocumentContext } from './types';
-import type { CreateDidOption } from './utils';
 
 const logger = getLogger('didDocument/resolvers.js');
 
