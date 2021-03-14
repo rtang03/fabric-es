@@ -1,4 +1,4 @@
-import type { BaseMetaEntity } from '@fabric-es/fabric-cqrs';
+import type { BaseEntity } from '@fabric-es/fabric-cqrs';
 import type { DIDDocument, VerificationMethod, ServiceEndpoint } from 'did-resolver';
 
 /**
@@ -19,7 +19,9 @@ export type LinkedDataProof = {
 };
 
 // @see https://github.com/decentralized-identity/did-resolver/blob/master/src/resolver.ts
-export interface DidDocument extends DIDDocument, BaseMetaEntity {
+export class DidDocument implements DIDDocument, BaseEntity {
+  static entityName = 'didDocument';
+
   /** "https://www.w3.org/2019/did/v1" **/
   context: 'https://w3id.org/did/v1' | string | string[];
 
@@ -50,4 +52,6 @@ export interface DidDocument extends DIDDocument, BaseMetaEntity {
   keyAgreement?: (string | VerificationMethod)[];
 
   _ts: number;
+
+  _created?: number;
 }

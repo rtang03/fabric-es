@@ -1,5 +1,5 @@
 import type { ServiceEndpoint, VerificationMethod } from 'did-resolver';
-import type { DidDocument, LinkedDataProof } from '../publicDid';
+import type { DidDocument, LinkedDataProof } from '../types';
 
 export type CreateDidOption = {
   context?: 'https://w3id.org/did/v1' | string | string[];

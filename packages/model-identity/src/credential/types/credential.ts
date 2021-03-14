@@ -1,4 +1,4 @@
-import type { BaseMetaEntity } from '@fabric-es/fabric-cqrs';
+import type { BaseEntity } from '@fabric-es/fabric-cqrs';
 
 export type Issuer = {
   id: string;
@@ -21,7 +21,7 @@ export type VCLinkDataProof = {
 /**
  * @see https://github.com/w3c-ccg/vc-http-api/blob/master/docs/vc-http-api.yml
  */
-export interface Credential extends BaseMetaEntity {
+export interface Credential extends BaseEntity {
   /** "https://www.w3.org/2019/did/v1" **/
   context: 'https://w3id.org/did/v1' | string | string[];
 

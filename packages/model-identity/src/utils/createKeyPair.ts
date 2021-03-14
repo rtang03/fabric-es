@@ -19,3 +19,5 @@ export const createKeyPair = () => {
 
   return { address, publicKey, privateKey };
 };
+
+export const addressToDid = (address: string) => `did:fab:${address}`;

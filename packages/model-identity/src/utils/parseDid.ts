@@ -1,4 +1,4 @@
-import type { Did } from '../publicDid';
+import type { Did } from '../types';
 
 const queryStringToObject = (queryString: string): Record<string, any> => {
   const params = new URLSearchParams(queryString);

@@ -8,7 +8,20 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createDidDocument(did: String!, publicKeyHex: String!): DidDocCommit
+    createDidDocument(did: String!, publicKeyHex: String!): DidDocCommit!
+    createDidDocWithKeyGen: KeyPair
+    addServiceEndpoint: DidDocCommit!
+    removeServiceEndpoint: DidDocCommit!
+    addVerificationMethod: DidDocCommit!
+    removeVerificationMethod: DidDocCommit!
+    deactivate(did: String!): DidDocCommit!
+  }
+
+  type KeyPair {
+    did: String!
+    publicKeyHex: String!
+    privateKey: String!
+    commit: JSON
   }
 
   type DidDocument {

@@ -1,5 +1,5 @@
 import type { VerificationMethod, ServiceEndpoint } from 'did-resolver';
-import type { DidDocument, LinkedDataProof } from '../types';
+import type { DidDocument, LinkedDataProof } from '../../types';
 
 /**
  * @ignore

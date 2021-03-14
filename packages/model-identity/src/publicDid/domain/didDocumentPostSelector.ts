@@ -1,6 +1,6 @@
 import { createStructuredSelector, Selector } from 'reselect';
-import type { DidDocumentInRedis, DidDocument } from '../types';
-import { DID_PREFIX } from './constant';
+import type { DidDocument } from '../../types';
+import type { DidDocumentInRedis } from '../types';
 
 export const didDocumentPostSelector: Selector<
   DidDocumentInRedis,

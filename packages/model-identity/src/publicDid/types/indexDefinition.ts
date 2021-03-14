@@ -1,5 +1,5 @@
 import type { RedisearchDefinition } from '@fabric-es/fabric-cqrs';
-import type { DidDocument } from './didDocument';
+import type { DidDocument } from '../../types';
 
 export type PartialDidDocument = Pick<
   DidDocument,
@@ -11,7 +11,7 @@ export type PartialDidDocument = Pick<
   | 'proof'
   | 'keyAgreement'
   | '_ts'
-  >;
+>;
 
 export type DerivedField = {
   created: string;

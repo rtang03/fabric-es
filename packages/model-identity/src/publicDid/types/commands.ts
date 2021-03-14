@@ -15,10 +15,35 @@ export type DidDocumentCommands = {
   /**
    * @see https://www.w3.org/2019/08/did-20190828/#update
    */
-  UpdateController: {
+  AddVerificationMethod: {
     did: string;
     payload: {
+      id: string;
       controller: string;
+      publicKeyHex: string;
+    };
+  };
+
+  RemoveVerificationMethod: {
+    did: string;
+    payload: {
+      id: string;
+    };
+  };
+
+  AddServiceEndpoint: {
+    did: string;
+    payload: {
+      id: string;
+      type: string;
+      serviceEndpoint: string;
+    };
+  };
+
+  RemoveServiceEndpoint: {
+    did: string;
+    payload: {
+      id: string;
     };
   };
 
@@ -26,10 +51,9 @@ export type DidDocumentCommands = {
    * @see https://www.w3.org/2019/08/did-20190828/#deactivate
    */
   Deactivate: {
-    userId: string;
+    did: string;
     payload: {
       id: string;
-      timestamp: number;
     };
   };
 };

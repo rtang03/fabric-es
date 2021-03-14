@@ -3,18 +3,20 @@ import { Commit, getMockRepository, getReducer } from '@fabric-es/fabric-cqrs';
 import { DataSrc } from '@fabric-es/gateway-lib';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
-import type { VerificationMethod, ServiceEndpoint } from 'did-resolver';
+import type { ServiceEndpoint } from 'did-resolver';
 import gql from 'graphql-tag';
 import pick from 'lodash/pick';
+import type { DidDocument } from '../../types';
 import { createDidDocument, createKeyPair, waitForSecond } from '../../utils';
 import {
+  CREATE_DIDDOC_WITH_KEYGEN,
   CREATE_DIDDOCUMENT,
   didDocumentReducer,
   didDocumentResolvers as resolvers,
   didDocumentTypeDefs as typeDefs,
   RESOLVE_DIDDOCUMENT,
 } from '../index';
-import type { DidDocument, DidDocumentEvents } from '../types';
+import type { DidDocumentEvents } from '../types';
 
 const mockdb: Record<string, Commit> = {};
 const repo = getMockRepository<DidDocument, DidDocumentEvents>(
@@ -37,9 +39,7 @@ beforeAll(async () => {
   });
 });
 
-afterAll(async () => {
-  return waitForSecond(2);
-});
+afterAll(async () => waitForSecond(2));
 
 describe('Did Unit Test', () => {
   it('should gen key', async () => {
@@ -47,7 +47,7 @@ describe('Did Unit Test', () => {
       { id, type: 'LinkedDomains', serviceEndpoint: 'https://bar.example.com' },
     ];
     const didDocument = createDidDocument({ id, service, controllerKey: publicKeyHex });
-    expect(didDocument.id).toEqual(id);
+    expect(didDocument.id).toEqual(`did:fab:${id}`);
   });
 
   it('should create', async () =>
@@ -99,4 +99,29 @@ describe('Did Unit Test', () => {
         expect(errors).toBeUndefined();
       });
   });
+
+  // {
+  //   did: 'did:fab:0x5b61e5b1b0c9c89f1b2e5579a9ea807f98b0286a',
+  //   publicKeyHex: '0406ab0c769553340f9c9f27f12fddc2eec7a8150564b34ef5b783c71d7c7dd16dd983555fc02648c815e6bfaa12539f6b5eb9a4d3ab68d300b0ac562191412531',
+  //   privateKey: '7ed1bbaa78bc0a89d248491509ed50b6bee278d70c5b921293980fabafd00c10',
+  //   commit: {
+  //     id: 'did:fab:0x5b61e5b1b0c9c89f1b2e5579a9ea807f98b0286a',
+  //     entityName: 'didDocument',
+  //     commitId: '20210313162438583',
+  //     version: 0,
+  //     entityId: 'did:fab:0x5b61e5b1b0c9c89f1b2e5579a9ea807f98b0286a'
+  //   }
+  // }
+  it('should createDidWithKeyGen', async () =>
+    createTestClient(server)
+      .mutate({ mutation: gql(CREATE_DIDDOC_WITH_KEYGEN) })
+      .then(({ data, errors }) => {
+        console.log(data?.createDidDocWithKeyGen);
+        expect(data?.createDidDocWithKeyGen?.did).toBeDefined();
+        expect(data?.createDidDocWithKeyGen?.publicKeyHex).toBeDefined();
+        expect(data?.createDidDocWithKeyGen?.privateKey).toBeDefined();
+        expect(errors).toBeUndefined();
+      }));
+
+
 });

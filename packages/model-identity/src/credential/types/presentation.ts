@@ -1,7 +1,7 @@
-import type { BaseMetaEntity } from '@fabric-es/fabric-cqrs';
+import type { BaseEntity } from '@fabric-es/fabric-cqrs';
 import type { VerificableCredential } from './credential';
 
-export interface Presentation extends BaseMetaEntity {
+export interface Presentation extends BaseEntity {
   context: 'https://w3id.org/did/v1' | string | string[];
 
   id: string;

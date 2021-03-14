@@ -1,11 +1,12 @@
-import type { Commit, Paginated } from '@fabric-es/fabric-cqrs';
+import type { Commit } from '@fabric-es/fabric-cqrs';
 import { catchResolverErrors, getLogger } from '@fabric-es/gateway-lib';
 import { ApolloError } from 'apollo-server-errors';
-import type { VerificationMethod } from 'did-resolver';
 import GraphQLJSON from 'graphql-type-json';
+import type { DidDocument } from '../types';
 import type { CreateDidOption } from '../utils';
+import { addressToDid, createKeyPair } from '../utils';
 import { didDocumentCommandHandler } from './domain';
-import type { DidDocument, DidDocumentContext } from './types';
+import type { DidDocumentContext } from './types';
 
 const logger = getLogger('didDocument/resolvers.js');
 
@@ -23,7 +24,7 @@ export const resolvers = {
           },
         }: DidDocumentContext
       ): Promise<DidDocument> => {
-        const { data, status, error } = await repo.fullTextSearchEntity<DidDocument>({
+        const { data, status, error } = await repo.fullTextSearchEntity({
           entityName: 'didDocument',
           query: `@id:${did}`,
           pagesize: 1,
@@ -57,6 +58,122 @@ export const resolvers = {
         });
       },
       { fcnName: 'create-did', logger, useAdmin: false, useAuth: true }
+    ),
+    createDidDocWithKeyGen: catchResolverErrors(
+      async (
+        _,
+        __,
+        {
+          dataSources: {
+            didDocument: { repo },
+          },
+          username,
+        }: DidDocumentContext
+      ): Promise<{ did: string; publicKeyHex: string; privateKey: string; commit: Commit }> => {
+        const { address, privateKey, publicKey } = createKeyPair();
+        const did = addressToDid(address);
+        const commit = await didDocumentCommandHandler({
+          enrollmentId: username,
+          didDocumentRepo: repo,
+        }).Create({ did, payload: { id: did, controllerKey: publicKey } });
+
+        if (!commit?.commitId) throw new ApolloError('unknown error');
+
+        return { did, publicKeyHex: publicKey, privateKey, commit };
+      },
+      { fcnName: 'create-did-keygen', logger, useAdmin: false, useAuth: true }
+    ),
+    AddVerificationMethod: catchResolverErrors(
+      async (
+        _,
+        { did },
+        {
+          dataSources: {
+            didDocument: { repo },
+          },
+          username,
+        }: DidDocumentContext
+      ): Promise<Commit> =>
+        didDocumentCommandHandler({
+          enrollmentId: username,
+          didDocumentRepo: repo,
+        }).AddVerificationMethod({ did, payload: null }),
+      { fcnName: 'add-vm', logger, useAdmin: false, useAuth: false }
+    ),
+    RemoveVerificationMethod: catchResolverErrors(
+      async (
+        _,
+        { did },
+        {
+          dataSources: {
+            didDocument: { repo },
+          },
+          username,
+        }: DidDocumentContext
+      ): Promise<Commit> =>
+        didDocumentCommandHandler({
+          enrollmentId: username,
+          didDocumentRepo: repo,
+        }).RemoveVerificationMethod({ did, payload: null }),
+      { fcnName: 'remove-vm', logger, useAdmin: false, useAuth: false }
+    ),
+    addServiceEndpoint: catchResolverErrors(
+      async (
+        _,
+        { did, id, type, serviceEndpoint },
+        {
+          dataSources: {
+            didDocument: { repo },
+          },
+          username,
+        }: DidDocumentContext
+      ): Promise<Commit> =>
+        didDocumentCommandHandler({
+          enrollmentId: username,
+          didDocumentRepo: repo,
+        }).AddServiceEndpoint({
+          did,
+          payload: {
+            id,
+            type,
+            serviceEndpoint,
+          },
+        }),
+      { fcnName: 'add-service', logger, useAdmin: false, useAuth: false }
+    ),
+    removeServiceEndpoint: catchResolverErrors(
+      async (
+        _,
+        { did },
+        {
+          dataSources: {
+            didDocument: { repo },
+          },
+          username,
+        }: DidDocumentContext
+      ): Promise<Commit> =>
+        didDocumentCommandHandler({
+          enrollmentId: username,
+          didDocumentRepo: repo,
+        }).RemoveServiceEndpoint({ did, payload: null }),
+      { fcnName: 'remove-service', logger, useAdmin: false, useAuth: false }
+    ),
+    deactivate: catchResolverErrors(
+      async (
+        _,
+        { did },
+        {
+          dataSources: {
+            didDocument: { repo },
+          },
+          username,
+        }: DidDocumentContext
+      ): Promise<Commit> =>
+        didDocumentCommandHandler({
+          enrollmentId: username,
+          didDocumentRepo: repo,
+        }).Deactivate({ did, payload: null }),
+      { fcnName: 'revoke', logger, useAdmin: false, useAuth: false }
     ),
   },
 };
