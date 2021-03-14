@@ -9,6 +9,8 @@ import pick from 'lodash/pick';
 import type { DidDocument } from '../../types';
 import { createDidDocument, createKeyPair, waitForSecond } from '../../utils';
 import {
+  ADD_SERVICE_ENDPOINT,
+  ADD_VERIFICATION_METHOD,
   CREATE_DIDDOC_WITH_KEYGEN,
   CREATE_DIDDOCUMENT,
   didDocumentReducer,
@@ -30,6 +32,9 @@ const id = address;
 repo.fullTextSearchEntity = jest.fn();
 
 let server: ApolloServer;
+let did_KeyGen: string;
+let privateKey_KeyGen: string;
+let publicKeyHex_KeyGen: string;
 
 beforeAll(async () => {
   server = new ApolloServer({
@@ -116,12 +121,47 @@ describe('Did Unit Test', () => {
     createTestClient(server)
       .mutate({ mutation: gql(CREATE_DIDDOC_WITH_KEYGEN) })
       .then(({ data, errors }) => {
-        console.log(data?.createDidDocWithKeyGen);
+        did_KeyGen = data?.createDidDocWithKeyGen.did;
+        privateKey_KeyGen = data?.createDidDocWithKeyGen.privateKey;
+        publicKeyHex_KeyGen = data?.createDidDocWithKeyGen.publicKeyHex;
         expect(data?.createDidDocWithKeyGen?.did).toBeDefined();
         expect(data?.createDidDocWithKeyGen?.publicKeyHex).toBeDefined();
         expect(data?.createDidDocWithKeyGen?.privateKey).toBeDefined();
         expect(errors).toBeUndefined();
       }));
 
+  it('should addVerificationMethod', async () =>
+    createTestClient(server)
+      .mutate({
+        mutation: gql(ADD_VERIFICATION_METHOD),
+        variables: {
+          did: did_KeyGen,
+          id: `${did_KeyGen}#key-1`,
+          publicKeyHex: '/* public key */',
+          controller: did_KeyGen,
+        },
+      })
+      .then(({ data, errors }) => {
+        expect(data?.addVerificationMethod.id).toEqual(did_KeyGen);
+        expect(data?.addVerificationMethod.version).toEqual(1);
+        expect(errors).toBeUndefined();
+      }));
 
+  it('should addServiceEndpoint', async () =>
+    createTestClient(server)
+      .mutate({
+        mutation: gql(ADD_SERVICE_ENDPOINT),
+        variables: {
+          did: did_KeyGen,
+          id: `${did_KeyGen}#vcr`,
+          typ: 'CredentialRepositoryService',
+          serviceEndpoint: 'https://repository.example.com/service/8377464',
+        },
+      })
+      .then(({ data, errors }) => {
+        expect(data?.addServiceEndpoint.id).toEqual(did_KeyGen);
+        expect(data?.addServiceEndpoint.version).toEqual(2);
+        expect(errors).toBeUndefined();
+      }));
+  // TODO: more tests to add later.
 });

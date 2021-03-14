@@ -10,10 +10,20 @@ export const typeDefs = gql`
   type Mutation {
     createDidDocument(did: String!, publicKeyHex: String!): DidDocCommit!
     createDidDocWithKeyGen: KeyPair
-    addServiceEndpoint: DidDocCommit!
-    removeServiceEndpoint: DidDocCommit!
-    addVerificationMethod: DidDocCommit!
-    removeVerificationMethod: DidDocCommit!
+    addVerificationMethod(
+      did: String!
+      id: String!
+      controller: String!
+      publicKeyHex: String!
+    ): DidDocCommit!
+    removeVerificationMethod(did: String!, id: String!): DidDocCommit!
+    addServiceEndpoint(
+      did: String!
+      id: String!
+      typ: String!
+      serviceEndpoint: String!
+    ): DidDocCommit!
+    removeServiceEndpoint(did: String!, id: String!): DidDocCommit!
     deactivate(did: String!): DidDocCommit!
   }
 

@@ -38,6 +38,7 @@ export class DidDocument implements DIDDocument, BaseEntity {
 
   assertionMethod?: (string | VerificationMethod)[];
 
+  // https://www.w3.org/2019/08/did-20190828/#service-endpoints
   service?: ServiceEndpoint[];
 
   /** Standard metadata for identifier records includes a timestamp of the original creation. **/
