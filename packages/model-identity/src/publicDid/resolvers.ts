@@ -3,8 +3,7 @@ import { catchResolverErrors, getLogger } from '@fabric-es/gateway-lib';
 import { UserInputError } from 'apollo-server';
 import { ApolloError } from 'apollo-server-errors';
 import GraphQLJSON from 'graphql-type-json';
-import type { DidDocument } from '../types';
-import type { CreateDidOption } from '../utils';
+import type { DidDocument, CreateDidOption } from '../types';
 import { addressToDid, createKeyPair } from '../utils';
 import { didDocumentCommandHandler } from './domain';
 import type { DidDocumentContext } from './types';
@@ -54,7 +53,7 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username,
+          username: enrollmentId,
         }: DidDocumentContext
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
@@ -62,10 +61,7 @@ export const resolvers = {
 
         const payload: CreateDidOption = { id: did, controllerKey: publicKeyHex };
 
-        return didDocumentCommandHandler({ enrollmentId: username, didDocumentRepo: repo }).Create({
-          did,
-          payload,
-        });
+        return didDocumentCommandHandler({ enrollmentId, repo }).Create({ did, payload });
       },
       { fcnName: 'create-did', logger, useAdmin: false, useAuth: true }
     ),
@@ -77,15 +73,15 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username,
+          username: enrollmentId,
         }: DidDocumentContext
       ): Promise<{ did: string; publicKeyHex: string; privateKey: string; commit: Commit }> => {
         const { address, privateKey, publicKey } = createKeyPair();
         const did = addressToDid(address);
-        const commit = await didDocumentCommandHandler({
-          enrollmentId: username,
-          didDocumentRepo: repo,
-        }).Create({ did, payload: { id: did, controllerKey: publicKey } });
+        const commit = await didDocumentCommandHandler({ enrollmentId, repo }).Create({
+          did,
+          payload: { id: did, controllerKey: publicKey },
+        });
 
         if (!commit?.commitId) throw new ApolloError('unknown error');
 
@@ -101,7 +97,7 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username,
+          username: enrollmentId,
         }: DidDocumentContext
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
@@ -109,10 +105,10 @@ export const resolvers = {
         if (!controller) throw new UserInputError('missing controller');
         if (!publicKeyHex) throw new UserInputError('missing publicKeyHex');
 
-        return didDocumentCommandHandler({
-          enrollmentId: username,
-          didDocumentRepo: repo,
-        }).AddVerificationMethod({ did, payload: { id, publicKeyHex, controller } });
+        return didDocumentCommandHandler({ enrollmentId, repo }).AddVerificationMethod({
+          did,
+          payload: { id, publicKeyHex, controller },
+        });
       },
       { fcnName: 'add-vm', logger, useAdmin: false, useAuth: false }
     ),
@@ -124,16 +120,16 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username,
+          username: enrollmentId,
         }: DidDocumentContext
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
         if (!id) throw new UserInputError('missing id');
 
-        return didDocumentCommandHandler({
-          enrollmentId: username,
-          didDocumentRepo: repo,
-        }).RemoveVerificationMethod({ did, payload: { id } });
+        return didDocumentCommandHandler({ enrollmentId, repo }).RemoveVerificationMethod({
+          did,
+          payload: { id },
+        });
       },
       { fcnName: 'remove-vm', logger, useAdmin: false, useAuth: false }
     ),
@@ -145,7 +141,7 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username,
+          username: enrollmentId,
         }: DidDocumentContext
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
@@ -153,10 +149,7 @@ export const resolvers = {
         if (!typ) throw new UserInputError('missing typ');
         if (!serviceEndpoint) throw new UserInputError('missing serviceEndpoint');
 
-        return didDocumentCommandHandler({
-          enrollmentId: username,
-          didDocumentRepo: repo,
-        }).AddServiceEndpoint({
+        return didDocumentCommandHandler({ enrollmentId, repo }).AddServiceEndpoint({
           did,
           payload: {
             id,
@@ -175,16 +168,16 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username,
+          username: enrollmentId,
         }: DidDocumentContext
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
         if (!id) throw new UserInputError('missing id');
 
-        return didDocumentCommandHandler({
-          enrollmentId: username,
-          didDocumentRepo: repo,
-        }).RemoveServiceEndpoint({ did, payload: { id } });
+        return didDocumentCommandHandler({ enrollmentId, repo }).RemoveServiceEndpoint({
+          did,
+          payload: { id },
+        });
       },
       { fcnName: 'remove-service', logger, useAdmin: false, useAuth: false }
     ),
@@ -196,15 +189,15 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username,
+          username: enrollmentId,
         }: DidDocumentContext
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
 
-        return didDocumentCommandHandler({
-          enrollmentId: username,
-          didDocumentRepo: repo,
-        }).Deactivate({ did, payload: null });
+        return didDocumentCommandHandler({ enrollmentId, repo }).Deactivate({
+          did,
+          payload: { id: did },
+        });
       },
       { fcnName: 'revoke', logger, useAdmin: false, useAuth: false }
     ),

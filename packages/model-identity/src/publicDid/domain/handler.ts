@@ -5,21 +5,21 @@ import type { DidDocumentCommandHandler, DidDocumentRepo } from '../types';
 
 export const didDocumentCommandHandler: (option: {
   enrollmentId: string;
-  didDocumentRepo: DidDocumentRepo;
-}) => DidDocumentCommandHandler = ({ enrollmentId, didDocumentRepo }) => ({
+  repo: DidDocumentRepo;
+}) => DidDocumentCommandHandler = ({ enrollmentId, repo }) => ({
   Create: async ({ did, payload: createDidOption }) => {
-    const { currentState } = await didDocumentRepo.getById({ enrollmentId, id: did });
+    const { currentState } = await repo.getById({ enrollmentId, id: did });
     if (currentState) throw new UserInputError('fail to create; Did already exists');
 
     const payload = createDidDocument(createDidOption);
 
-    return didDocumentRepo
+    return repo
       .create({ enrollmentId, id: did })
       .save({ events: [{ type: 'DidDocumentCreated', lifeCycle: Lifecycle.BEGIN, payload }] })
       .then(({ data }) => data);
   },
   AddVerificationMethod: async ({ did, payload: { controller, id, publicKeyHex } }) => {
-    const { save, currentState } = await didDocumentRepo.getById({ enrollmentId, id: did });
+    const { save, currentState } = await repo.getById({ enrollmentId, id: did });
 
     if (!currentState) throw new ApolloError('Did not found');
 
@@ -38,7 +38,7 @@ export const didDocumentCommandHandler: (option: {
     }).then(({ data }) => data);
   },
   RemoveVerificationMethod: async ({ did, payload: { id } }) => {
-    const { save, currentState } = await didDocumentRepo.getById({ enrollmentId, id: did });
+    const { save, currentState } = await repo.getById({ enrollmentId, id: did });
 
     if (!currentState) throw new ApolloError('Did not found');
 
@@ -47,7 +47,7 @@ export const didDocumentCommandHandler: (option: {
     );
   },
   AddServiceEndpoint: async ({ did, payload: { id, type, serviceEndpoint } }) => {
-    const { save, currentState } = await didDocumentRepo.getById({ enrollmentId, id: did });
+    const { save, currentState } = await repo.getById({ enrollmentId, id: did });
 
     if (!currentState) throw new ApolloError('Did not found');
 
@@ -56,7 +56,7 @@ export const didDocumentCommandHandler: (option: {
     }).then(({ data }) => data);
   },
   RemoveServiceEndpoint: async ({ did, payload: { id } }) => {
-    const { save, currentState } = await didDocumentRepo.getById({ enrollmentId, id: did });
+    const { save, currentState } = await repo.getById({ enrollmentId, id: did });
 
     if (!currentState) throw new ApolloError('Did not found');
 
@@ -65,7 +65,7 @@ export const didDocumentCommandHandler: (option: {
     );
   },
   Deactivate: async ({ did, payload: { id } }) => {
-    const { save, currentState } = await didDocumentRepo.getById({ enrollmentId, id: did });
+    const { save, currentState } = await repo.getById({ enrollmentId, id: did });
 
     if (!currentState) throw new ApolloError('Did not found');
 

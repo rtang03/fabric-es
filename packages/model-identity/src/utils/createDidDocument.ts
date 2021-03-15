@@ -1,19 +1,7 @@
-import type { ServiceEndpoint, VerificationMethod } from 'did-resolver';
-import type { DidDocument, LinkedDataProof } from '../types';
+import type { VerificationMethod } from 'did-resolver';
+import type { DidDocument, CreateDidOption } from '../types';
 
-export type CreateDidOption = {
-  context?: 'https://w3id.org/did/v1' | string | string[];
-  id: string;
-  controller?: string;
-  controllerKey: string;
-  service?: ServiceEndpoint[];
-  created?: string;
-  updated?: string;
-  proof?: LinkedDataProof;
-  keyAgreement?: (string | VerificationMethod)[];
-};
-
-export const createDidDocument: (CreateDidOption) => DidDocument = ({
+export const createDidDocument: (option: CreateDidOption) => DidDocument = ({
   context,
   id,
   controller,

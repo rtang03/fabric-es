@@ -13,7 +13,8 @@
     "gen-resolvers-type": "graphql-codegen --config codegen.yml",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "unit-test:fab": "jest unit.test",
-    "unit-test:did": "jest did.unit.test"
+    "unit-test:did": "jest did.unit-test",
+    "unit-test:did-private": "jest did-private.unit-test"
   },
   "private": true,
   "dependencies": {

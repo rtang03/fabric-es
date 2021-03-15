@@ -59,8 +59,8 @@ describe('Did Unit Test', () => {
     createTestClient(server)
       .mutate({ mutation: gql(CREATE_DIDDOCUMENT), variables: { did: id, publicKeyHex } })
       .then(({ data }) => {
-        const did = data?.createDidDocument;
-        expect(did?.entityName).toEqual('didDocument');
+        const commit = data?.createDidDocument;
+        expect(commit?.entityName).toEqual('didDocument');
       }));
 
   it('should resolve', async () => {
@@ -163,5 +163,6 @@ describe('Did Unit Test', () => {
         expect(data?.addServiceEndpoint.version).toEqual(2);
         expect(errors).toBeUndefined();
       }));
+
   // TODO: more tests to add later.
 });

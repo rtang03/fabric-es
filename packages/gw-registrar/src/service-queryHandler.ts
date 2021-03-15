@@ -39,26 +39,24 @@ void (async () => {
     },
   };
 
-  const reducers = {
-    didDocument: getReducer<DidDocument, DidDocumentEvents>(didDocumentReducer),
-  };
-
   const { getServer, shutdown } = await createQueryHandlerService({
     redisOptions,
     asLocalhost: !(process.env.NODE_ENV === 'production'),
     channelName: process.env.CHANNEL_NAME,
     connectionProfile: process.env.CONNECTION_PROFILE,
     enrollmentId: process.env.ORG_ADMIN_ID,
-    reducers,
     wallet: await Wallets.newFileSystemWallet(process.env.WALLET),
     authCheck,
   })
-    .addRedisRepository<DidDocument, DidDocumentInRedis, DidDocument>({
-      entityName: 'didDocument',
-      fields: didDocumentIndexDefinition,
-      preSelector: didDocumentPreSelector,
-      postSelector: didDocumentPostSelector,
-    })
+    .addRedisRepository<DidDocument, DidDocumentInRedis, DidDocument, DidDocumentEvents>(
+      DidDocument,
+      {
+        reducer: didDocumentReducer,
+        fields: didDocumentIndexDefinition,
+        preSelector: didDocumentPreSelector,
+        postSelector: didDocumentPostSelector,
+      }
+    )
     .run();
 
   const server = getServer();
