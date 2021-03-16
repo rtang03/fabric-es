@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.5...HEAD)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.6...HEAD)
+
+**Merged pull requests:**
+
+- feat: model-identity - Did Document [\#199](https://github.com/rtang03/fabric-es/pull/199) ([rtang03](https://github.com/rtang03))
+
+## [v0.7.6](https://github.com/rtang03/fabric-es/tree/v0.7.6) (2021-03-11)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.5...v0.7.6)
 
 **Closed issues:**
 
