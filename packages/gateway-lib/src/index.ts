@@ -8,4 +8,5 @@ export { createAdminService } from './admin/createAdminService';
 export { createQueryHandlerService } from './queryHandler';
 export { DataSrc, CommandHandler, ServiceType } from './types';
 export { Errors } from './utils';
+export * from './utils/typeGuard';
 export * from './admin/query';
