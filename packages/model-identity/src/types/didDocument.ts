@@ -6,14 +6,20 @@ import type { DIDDocument, VerificationMethod, ServiceEndpoint } from 'did-resol
  * @see https://w3c-ccg.github.io/ld-cryptosuite-registry/
  */
 
+// @see https://w3c-ccg.github.io/ld-proofs/
 export type LinkedDataProof = {
   type: string;
 
   created: string;
 
-  creator: string;
-
+  // creator: string;
   nonce: string;
+
+  proofPurpose?: string;
+
+  verificationMethod?: string;
+
+  domain?: string;
 
   signatureValue: string;
 };
@@ -52,7 +58,14 @@ export class DidDocument implements DIDDocument, BaseEntity {
 
   keyAgreement?: (string | VerificationMethod)[];
 
-  _ts: number;
+  deactivated?: boolean;
+
+  versionId?: string;
+
+  // creator is not w3c standard.
+  _creator?: string;
+
+  _ts?: number;
 
   _created?: number;
 }

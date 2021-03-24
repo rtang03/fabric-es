@@ -38,7 +38,7 @@ export type BaseEvent = {
  * @about Commit
  */
 export type Commit = {
-  /** commit Id (same as commitId) **/
+  /** (same as entityId) **/
   id: string;
 
   /** entity name **/
@@ -64,4 +64,7 @@ export type Commit = {
 
   /** stringified events **/
   eventsString?: string;
+
+  /** signed request **/
+  signedRequest?: string;
 };

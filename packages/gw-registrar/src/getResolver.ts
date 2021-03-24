@@ -5,6 +5,7 @@ import type { DIDResolutionResult } from 'did-resolver';
 import omit from 'lodash/omit';
 import replace from 'lodash/replace';
 import fetch from 'node-fetch';
+
 export const getResolver = (url: string) => {
   const resolve: (did: string, parsed: ParsedDID) => Promise<DIDResolutionResult> = async (
     did,

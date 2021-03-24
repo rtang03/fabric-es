@@ -22,4 +22,5 @@ export const commitSearchDefinition: CommitSearchDefinition = {
   evstr: {},
   /** Derived field of _ts, i.e. timestamp **/
   ts: { index: { type: 'NUMERIC', sortable: true } },
+  signedRequest: {},
 };

@@ -1,8 +1,10 @@
+import DidJWT from 'did-jwt';
 import filter from 'lodash/filter';
 import omit from 'lodash/omit';
 import values from 'lodash/values';
 import { createCommit } from '../store/utils';
-import { Commit, HandlerResponse, Repository } from '../types';
+import type { Commit, Repository } from '../types';
+import { isBaseEventArray } from '../utils';
 
 const getHistory = (commits: Commit[]): any[] => {
   const result = [];
@@ -42,21 +44,38 @@ export const getMockRepository = <TEntity, TEvent>(
   | 'fullTextSearchEntity'
 > => ({
   create: ({ id, enrollmentId }) => ({
-    save: ({ events }) => {
-      const entity: Commit = createCommit({
-        id,
-        entityName,
-        version: 0,
-        events,
-      });
-      mockdb[entity.commitId] = entity;
+    save: ({ events, signedRequest }) => {
+      let commit: Commit;
+      if (signedRequest && signedRequest !== '') {
+        // ignore input argument "events"
+        const decoded = DidJWT.decodeJWT(signedRequest);
+        const decodedEvents = decoded?.payload?.events;
+        if (decodedEvents && isBaseEventArray(decodedEvents)) {
+          commit = createCommit({
+            id,
+            entityName,
+            version: 0,
+            events: decodedEvents,
+            signedRequest,
+          });
+        } else return Promise.reject(new Error('fail to parse events'));
+      } else {
+        commit = createCommit({
+          id,
+          entityName,
+          version: 0,
+          events,
+          signedRequest: '',
+        });
+      }
+      mockdb[commit.commitId] = commit;
 
       return new Promise((resolve) =>
         setTimeout(
           () =>
             resolve({
               status: 'OK',
-              data: omit(entity, ['events']),
+              data: omit(commit, 'events', 'signedRequest'),
             }),
           50
         )
@@ -71,18 +90,34 @@ export const getMockRepository = <TEntity, TEvent>(
         () =>
           resolve({
             currentState: reducer(matchEvents),
-            save: ({ events }) => {
-              const entity = createCommit({
-                id,
-                entityName,
-                version: matched.length,
-                events,
-              });
-              mockdb[entity.commitId] = entity;
+            save: ({ events, signedRequest }) => {
+              let commit: Commit;
+              if (signedRequest && signedRequest !== '') {
+                const decoded = DidJWT.decodeJWT(signedRequest);
+                const decodedEvents = decoded?.payload?.events;
+                if (decodedEvents && isBaseEventArray(decodedEvents)) {
+                  commit = createCommit({
+                    id,
+                    entityName,
+                    version: matched.length,
+                    events: decodedEvents,
+                    signedRequest,
+                  });
+                } else return Promise.reject(new Error('fail to parse events'));
+              } else {
+                commit = createCommit({
+                  id,
+                  entityName,
+                  version: matched.length,
+                  events,
+                  signedRequest: '',
+                });
+              }
+              mockdb[commit.commitId] = commit;
 
               return Promise.resolve({
                 status: 'OK',
-                data: omit(entity, ['events']),
+                data: omit(commit, 'events', 'signedRequest'),
               });
             },
           }),

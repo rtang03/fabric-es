@@ -1,15 +1,11 @@
 export const ADD_SERVICE_ENDPOINT = `
   mutation AddServiceEndpoint(
     $did: String!
-    $id: String!
-    $typ: String!
-    $serviceEndpoint: String!
+    $signedRequest: String!
   ) {
     addServiceEndpoint(
       did: $did
-      id: $id
-      typ: $typ
-      serviceEndpoint: $serviceEndpoint
+      signedRequest: $signedRequest
     ) {
       id
       entityName

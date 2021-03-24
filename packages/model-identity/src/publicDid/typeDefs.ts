@@ -8,23 +8,13 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createDidDocument(did: String!, publicKeyHex: String!): DidDocCommit!
+    createDidDocument(did: String!, signedRequest: String!): DidDocCommit!
     createDidDocWithKeyGen: KeyPair
-    addVerificationMethod(
-      did: String!
-      id: String!
-      controller: String!
-      publicKeyHex: String!
-    ): DidDocCommit!
-    removeVerificationMethod(did: String!, id: String!): DidDocCommit!
-    addServiceEndpoint(
-      did: String!
-      id: String!
-      typ: String!
-      serviceEndpoint: String!
-    ): DidDocCommit!
-    removeServiceEndpoint(did: String!, id: String!): DidDocCommit!
-    deactivate(did: String!): DidDocCommit!
+    addVerificationMethod(did: String!, signedRequest: String!): DidDocCommit!
+    removeVerificationMethod(did: String!, signedRequest: String!): DidDocCommit!
+    addServiceEndpoint(did: String!, signedRequest: String!): DidDocCommit!
+    removeServiceEndpoint(did: String!, signedRequest: String!): DidDocCommit!
+    deactivate(did: String!, signedRequest: String!): DidDocCommit!
   }
 
   type KeyPair {
@@ -65,5 +55,6 @@ export const typeDefs = gql`
     mspId: String
     entityId: String
     events: [DidDocEvent!]
+    signedRequest: String
   }
 `;

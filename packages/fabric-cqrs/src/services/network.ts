@@ -37,25 +37,23 @@ export const getNetwork: (option: {
   network: Network;
   gateway: Gateway;
 }> = async ({
-  enrollmentId,
-  channelName,
-  connectionProfile,
-  wallet,
-  eventHandlerStrategy = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
-  queryHandlerStrategy = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
-  discovery,
-  asLocalhost,
-}) => {
+              enrollmentId,
+              channelName,
+              connectionProfile,
+              wallet,
+              eventHandlerStrategy = DefaultEventHandlerStrategies.MSPID_SCOPE_ALLFORTX,
+              queryHandlerStrategy = DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE,
+              discovery,
+              asLocalhost,
+            }) => {
   const logger = getLogger({ name: '[fabric-cqrs] getNetwork.js' });
   let identityExist;
-
   try {
     identityExist = await wallet.get(enrollmentId);
   } catch (e) {
     logger.error(util.format('error in wallet, %j', e));
     throw new Error(e);
   }
-
   if (!identityExist) {
     logger.error('no enrollmentId in the wallet');
     throw new Error('Please register user, before retrying');

@@ -21,7 +21,7 @@ const connectionProfile = process.env.CONNECTION_PROFILE;
 const channelName = process.env.CHANNEL_NAME;
 const caName = process.env.CA_NAME;
 const mspId = process.env.MSPID;
-const logger = getLogger({ name: 'command.integration.ts' });
+const logger = getLogger({ name: 'command.unit-test.ts' });
 const events = [
   {
     type: 'Increment',

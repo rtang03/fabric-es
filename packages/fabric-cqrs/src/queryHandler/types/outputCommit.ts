@@ -14,4 +14,5 @@ export interface OutputCommit extends Commit {
   events: Record<string, unknown>[];
   event: string;
   mspId: string;
+  signedRequest: string;
 }

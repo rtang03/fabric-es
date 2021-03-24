@@ -10,5 +10,6 @@ export const didDocumentIndexDefinition: DidDocumentIndexDefinition = {
   updated: {},
   proof: {},
   keyAgreement: { altName: 'keyagr' },
+  // mandatory field "ts" in Redis
   _ts: { altName: 'ts', index: { type: 'NUMERIC', sortable: true } },
 };

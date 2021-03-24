@@ -12,6 +12,7 @@ export interface CreateAction {
       version: number;
       events: BaseEvent[];
       isPrivateData: boolean;
+      signedRequest?: string;
     };
     enrollmentId?: string;
     channelName?: string;

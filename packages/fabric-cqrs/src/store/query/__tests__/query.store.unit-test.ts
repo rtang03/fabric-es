@@ -58,12 +58,11 @@ beforeAll(async () => {
 
     // Step 2: create counter's RedisRepo
     Counter.entityName = entityName;
-    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>(
-      Counter, {
-        client,
-        fields,
-        postSelector,
-        preSelector,
+    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>(Counter, {
+      client,
+      fields,
+      postSelector,
+      preSelector,
     });
 
     // Step 3: create QueryDatabase; return commitRepo
@@ -345,6 +344,7 @@ describe('Store/query Test', () => {
         creator: 'org1-admin',
         event: 'Increment',
         ts: 1590738792,
+        signedRequest: '',
       });
       expect(data).toEqual([mockedOutputCommit]);
       expect(status).toEqual('OK');
@@ -400,11 +400,13 @@ describe('Store/query Test', () => {
         creator: '',
         event: 'Increment',
         ts: 1590739000,
+        signedRequest: '',
       });
       const mockedOutputCommit1 = Object.assign({}, commit, {
         creator: 'org1-admin',
         event: 'Increment',
         ts: 1590738792,
+        signedRequest: '',
       });
       expect(data).toEqual([mockedOutputCommit2, mockedOutputCommit1]);
       expect(status).toEqual('OK');
@@ -516,6 +518,7 @@ describe('Store/query Test', () => {
             },
           },
         ],
+        signedRequest: '',
       });
       expect(status).toEqual('OK');
     }));

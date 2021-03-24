@@ -27,8 +27,8 @@ export const commandCreate: <TEvent = any>(
   { channelName, logger, connectionProfile, wallet, store },
   parentName
 ) => <TEvent>({ enrollmentId, id }) => ({
-  save: dispatcher<Commit, { events: TEvent[] }>(
-    ({ tx_id, args: { events } }) =>
+  save: dispatcher<Commit, { events: TEvent[]; signedRequest?: string }>(
+    ({ tx_id, args: { events, signedRequest } }) =>
       action.create({
         channelName,
         connectionProfile,
@@ -43,6 +43,7 @@ export const commandCreate: <TEvent = any>(
           version: 0,
           isPrivateData,
           events: replaceTag(addCreator(addCreatedAt(events), enrollmentId)),
+          signedRequest,
         },
       }),
     {

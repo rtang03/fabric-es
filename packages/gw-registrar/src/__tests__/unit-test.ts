@@ -2,7 +2,7 @@ require('dotenv').config({ path: './.env.test' });
 import http from 'http';
 import { buildFederatedSchema } from '@apollo/federation';
 import type { QueryHandler, RedisRepository } from '@fabric-es/fabric-cqrs';
-import { getReducer } from '@fabric-es/fabric-cqrs';
+import { Lifecycle } from '@fabric-es/fabric-cqrs';
 import {
   buildRedisOptions,
   CREATE_WALLET,
@@ -29,6 +29,8 @@ import {
   didDocumentTypeDefs,
   isVerificationMethod,
   waitForSecond,
+  addressToDid,
+  createDidDocument,
 } from '@fabric-es/model-identity';
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
@@ -79,13 +81,13 @@ let redisRepos: Record<string, RedisRepository>;
 
 const MODEL_SERVICE_PORT = 15001;
 const ADMIN_SERVICE_PORT = 15000;
-const GATEWAY_PORT = 4000;
+const GATEWAY_PORT = 4001;
 const QH_PORT = 4400;
-const reducer = getReducer<DidDocument, DidDocumentEvents>(didDocumentReducer);
-const logger = getLogger('unit-test.js');
+const logger = getLogger('[gw-registrar] unit-test.js');
 
 const { address, publicKey: publicKeyHex, privateKey } = createKeyPair();
 const did = address;
+const ENTITY_NAME = 'didDocument';
 
 let didResolver: Resolver;
 let jwt: string;
@@ -95,7 +97,11 @@ beforeAll(async () => {
   rimraf.sync(`${walletPath}/${caAdmin}.id`);
 
   try {
-    redisOptions = {};
+    redisOptions = buildRedisOptions(
+      process.env.REDIS_HOST,
+      (process.env.REDIS_PORT || 6379) as number,
+      logger
+    );
 
     const wallet = await Wallets.newFileSystemWallet(walletPath);
 
@@ -118,7 +124,6 @@ beforeAll(async () => {
       mspId,
       wallet,
     });
-
     // Step 3. create QueryHandlerService
     const qhService = await createQueryHandlerService({
       asLocalhost: !(process.env.NODE_ENV === 'production'),
@@ -126,7 +131,7 @@ beforeAll(async () => {
       channelName,
       connectionProfile,
       enrollmentId,
-      redisOptions: { host: 'localhost', port: 6379 },
+      redisOptions,
       wallet,
     })
       .addRedisRepository<DidDocument, DidDocumentInRedis, DidDocument, DidDocumentEvents>(
@@ -179,11 +184,7 @@ beforeAll(async () => {
       serviceName: 'didDocument',
       enrollmentId: orgAdminId,
       wallet,
-      redisOptions: buildRedisOptions(
-        process.env.REDIS_HOST,
-        (process.env.REDIS_PORT || 6379) as number,
-        logger
-      ),
+      redisOptions,
     });
 
     // Step 10: config Apollo server with models
@@ -246,18 +247,18 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  for await (const [entityName, redisRepo] of Object.entries(redisRepos)) {
-    await redisRepo
-      .dropIndex(true)
-      .then(() => console.log(`${entityName} - index is dropped`))
-      .catch((error) => console.error(error));
-  }
+  // for await (const [entityName, redisRepo] of Object.entries(redisRepos)) {
+  //   await redisRepo
+  //     .dropIndex(true)
+  //     .then(() => console.log(`${entityName} - index is dropped`))
+  //     .catch((error) => console.error(error));
+  // }
 
-  await queryHandler
-    .query_deleteCommitByEntityName(entityName)()
-    .then(({ status }) =>
-      console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
-    );
+  // await queryHandler
+  //   .query_deleteCommitByEntityName(entityName)()
+  //   .then(({ status }) =>
+  //     console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
+  //   );
 
   await queryHandler
     .query_deleteCommitByEntityName('organization')()
@@ -349,24 +350,46 @@ describe('gw-did test', () => {
         expect(errors).toBeUndefined();
       }));
 
-  it('should create didDocument', async () =>
-    request(app)
+  // createDidDocument: {
+  //   id: '0xd6b2613744fa776ae2a081828e4ebc06e16b6dc2',
+  //   entityName: 'didDocument',
+  //   version: 0,
+  //   commitId: '20210322153039749',
+  //   entityId: '0xd6b2613744fa776ae2a081828e4ebc06e16b6dc2'
+  // }
+  it('should create didDocument', async () => {
+    const payload = createDidDocument({ id: address, controllerKey: publicKeyHex });
+    const signer: Signer = DidJWT.ES256KSigner(privateKey);
+    const signedRequest = await DidJWT.createJWT(
+      {
+        aud: addressToDid(address),
+        entityNamd: ENTITY_NAME,
+        entityId: address,
+        version: 0,
+        events: [{ type: 'DidDocumentCreated', lifeCycle: Lifecycle.BEGIN, payload }],
+      },
+      { issuer: addressToDid(address), signer },
+      { alg: 'ES256K' }
+    );
+
+    return request(app)
       .post('/graphql')
       .set('authorization', `bearer ${accessToken}`)
       .send({
         operationName: 'CreateDidDocument',
         query: CREATE_DIDDOCUMENT,
-        variables: { did, publicKeyHex },
+        variables: { did, signedRequest },
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.createDidDocument.entityName).toEqual('didDocument');
         expect(errors).toBeUndefined();
-      }));
+      });
+  });
 
   // returns
   // {
   //   context: 'https://www.w3.org/ns/did/v1',
-  //     controller: '0x050e070bffae3ecb8227c2e935ce98dcde7e4158',
+  //   controller: '0x050e070bffae3ecb8227c2e935ce98dcde7e4158',
   //   created: '2021-03-04T13:35:29.129Z',
   //   id: '0x050e070bffae3ecb8227c2e935ce98dcde7e4158',
   //   keyAgreement: null,
@@ -408,25 +431,27 @@ describe('gw-did test', () => {
     expect(didDocument.id).toEqual(`did:fab:${did}`);
   });
 
+  /*
   // this unit test validate the jwt is created and signed with right "audience", based on DID.
   it('should createJWT with did-jwt', async () => {
     const signer: Signer = DidJWT.ES256KSigner(privateKey);
 
     // returns eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE2MTUwMDQ5MjcsImV4cCI6MTk1NzQ2MzQyMSwiYXVkIjoiZGlkOmZhYjoweDFkZGMzNmZkOTkwYTM0OTVkYTcyMTE5YTRkOTRhOTAyMjY0MGYyNjIiLCJuYW1lIjoibXkgRGV2ZWxvcGVyIiwiaXNzIjoiZGlkOmZhYjoweDFkZGMzNmZkOTkwYTM0OTVkYTcyMTE5YTRkOTRhOTAyMjY0MGYyNjIifQ.GVlTNiIX36E2bgiLEb-Esw__6IoRIeeY-9Mu5vkWwSYAU8Hru6vtteVfKAdrk-o36TrnTDJNdc7pXER1x6-ovw
     jwt = await DidJWT.createJWT(
-      { aud: `did:fab:${did}`, exp: 1957463421, name: 'my Developer' },
-      { issuer: `did:fab:${did}`, signer },
+      { aud: addressToDid(did), exp: 1957463421, name: 'my Developer' },
+      { issuer: addressToDid(did), signer },
       { alg: 'ES256K' }
     );
     const decoded = DidJWT.decodeJWT(jwt);
     // {
+    // {
     //   header: { alg: 'ES256K', typ: 'JWT' },
     //   payload: {
     //     iat: 1615004927,
-    //       exp: 1957463421,
-    //       aud: 'did:fab:0x1ddc36fd990a3495da72119a4d94a9022640f262',
-    //       name: 'my Developer',
-    //       iss: 'did:fab:0x1ddc36fd990a3495da72119a4d94a9022640f262'
+    //     exp: 1957463421,
+    //     aud: 'did:fab:0x1ddc36fd990a3495da72119a4d94a9022640f262',
+    //     name: 'my Developer',
+    //     iss: 'did:fab:0x1ddc36fd990a3495da72119a4d94a9022640f262'
     //   },
     //   signature: 'GVlTNiIX36E2bgiLEb-Esw__6IoRIeeY-9Mu5vkWwSYAU8Hru6vtteVfKAdrk-o36TrnTDJNdc7pXER1x6-ovw',
     //   data: 'eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE2MTUwMDQ5MjcsImV4cCI6MTk1NzQ2MzQyMSwiYXVkIjoiZGlkOmZhYjoweDFkZGMzNmZkOTkwYTM0OTVkYTcyMTE5YTRkOTRhOTAyMjY0MGYyNjIiLCJuYW1lIjoibXkgRGV2ZWxvcGVyIiwiaXNzIjoiZGlkOmZhYjoweDFkZGMzNmZkOTkwYTM0OTVkYTcyMTE5YTRkOTRhOTAyMjY0MGYyNjIifQ'
@@ -443,7 +468,7 @@ describe('gw-did test', () => {
 
     const verificationResponse = await DidJWT.verifyJWT(jwt, {
       resolver,
-      audience: `did:fab:${did}`,
+      audience: addressToDid(did),
     });
 
     // {
@@ -478,4 +503,6 @@ describe('gw-did test', () => {
 
     expect(verificationResponse.payload.name).toEqual('my Developer');
   });
+
+   */
 });

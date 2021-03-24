@@ -11,7 +11,7 @@ export type PartialDidDocument = Pick<
   | 'proof'
   | 'keyAgreement'
   | '_ts'
->;
+  >;
 
 export type DerivedField = {
   created: string;

@@ -2,16 +2,16 @@ import type { VerificationMethod } from 'did-resolver';
 import type { DidDocument, CreateDidOption } from '../types';
 
 export const createDidDocument: (option: CreateDidOption) => DidDocument = ({
-  context,
-  id,
-  controller,
-  controllerKey,
-  service,
-  created,
-  updated,
-  proof,
-  keyAgreement,
-}) => {
+                                                                              context,
+                                                                              id,
+                                                                              controller,
+                                                                              controllerKey,
+                                                                              service,
+                                                                              created,
+                                                                              updated,
+                                                                              proof,
+                                                                              keyAgreement,
+                                                                            }) => {
   context = context
     ? Array.isArray(context)
       ? [...context, 'https://www.w3.org/ns/did/v1']
@@ -60,6 +60,8 @@ export const createDidDocument: (option: CreateDidOption) => DidDocument = ({
     updated: updated ?? isoTime,
     proof,
     keyAgreement,
-    _ts: null,
+    // this is not part of w3 standard, but it is used by notification center
+    _creator: id,
+    _ts: Math.round(new Date().getTime()),
   };
 };

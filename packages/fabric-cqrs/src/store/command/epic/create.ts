@@ -47,41 +47,45 @@ export default (action$: Observable<CreateAction>, _, context) =>
       } else {
         const { payload, network, gateway } = getNetwork;
         const { tx_id, args, enrollmentId, channelName, connectionProfile, wallet } = payload;
-        const { id, entityName, parentName, version, isPrivateData } = args;
+        const { id, entityName, parentName, version, isPrivateData, signedRequest } = args;
         const events = args?.events ? JSON.stringify(args?.events) : null;
 
         return isPrivateData
           ? submitPrivateData$(
-              'privatedata:createCommit',
-              [entityName, id, version.toString()],
-              { eventstr: Buffer.from(events) },
-              { network: network || context.network }
-            ).pipe(
-              tap(() => gateway.disconnect()),
-              map((result: any) => {
-                if (result.error) return createError({ tx_id, error: result.error });
-                else if (result.status) {
-                  if (result.status === 'ERROR') return createError({ tx_id, error: result });
-                }
+            'privatedata:createCommit',
+            [entityName, id, version.toString()],
+            { eventstr: Buffer.from(events) },
+            { network: network || context.network }
+          ).pipe(
+            tap(() => gateway.disconnect()),
+            map((result: any) => {
+              if (result.error) return createError({ tx_id, error: result.error });
+              else if (result.status) {
+                if (result.status === 'ERROR') return createError({ tx_id, error: result });
+              }
 
-                return parentName
-                  ? track({
-                      channelName,
-                      connectionProfile,
-                      wallet,
-                      tx_id,
-                      enrollmentId,
-                      args: { entityName, parentName, id, version: 0 },
-                    })
-                  : createSuccess({ tx_id, result });
-              })
-            )
-          : submit$('eventstore:createCommit', [entityName, id, version.toString(), events], {
+              return parentName
+                ? track({
+                  channelName,
+                  connectionProfile,
+                  wallet,
+                  tx_id,
+                  enrollmentId,
+                  args: { entityName, parentName, id, version: 0 },
+                })
+                : createSuccess({ tx_id, result });
+            })
+          )
+          : submit$(
+            'eventstore:createCommit',
+            [entityName, id, version.toString(), events, signedRequest ?? ''],
+            {
               network: network || context.network,
-            }).pipe(
-              tap(() => gateway.disconnect()),
-              dispatchResult(tx_id, createSuccess, createError)
-            );
+            }
+          ).pipe(
+            tap(() => gateway.disconnect()),
+            dispatchResult(tx_id, createSuccess, createError)
+          );
       }
     })
   );

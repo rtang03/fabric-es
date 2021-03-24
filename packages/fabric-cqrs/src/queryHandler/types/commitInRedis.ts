@@ -14,5 +14,6 @@ export type CommitInRedis = {
     | 'event'
     | 'creator'
     | 'ts'
-    | 'evstr']: string;
+    | 'evstr'
+    | 'signedRequest']: string;
 };

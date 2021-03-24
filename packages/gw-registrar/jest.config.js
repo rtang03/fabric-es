@@ -15,5 +15,6 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleDirectories: ['node_modules'],
   testURL: 'http://localhost/',
-  testEnvironment: 'node'
+  testEnvironment: 'node',
+  setupFilesAfterEnv: ['./jest.setup.js']
 };

@@ -2,12 +2,7 @@ import { Gateway, Network, Wallet } from 'fabric-network';
 import type { FTSearchParameters } from 'redis-modules-sdk';
 import type { Logger } from 'winston';
 import type { QueryDatabase } from '../queryHandler/types';
-import type {
-  Commit,
-  FabricResponse,
-  HandlerResponse,
-  Paginated,
-} from '.';
+import type { Commit, FabricResponse, HandlerResponse, Paginated } from '.';
 
 /**
  * @about repository options
@@ -56,7 +51,10 @@ export type PrivateRepoOption = {
   wallet: Wallet;
 };
 
-export type SaveFcn<TEvent> = (payload: { events: TEvent[] }) => Promise<HandlerResponse<Commit>>;
+export type SaveFcn<TEvent> = (payload: {
+  events: TEvent[];
+  signedRequest?: string;
+}) => Promise<HandlerResponse<Commit>>;
 
 export type RepoFcn<TResponse> = () => Promise<HandlerResponse<TResponse>>;
 

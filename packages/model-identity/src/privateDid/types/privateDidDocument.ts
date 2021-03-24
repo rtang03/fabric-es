@@ -33,7 +33,7 @@ export class PrivateDidDocument implements DIDDocument, BaseEntity {
 
   keyAgreement?: (string | VerificationMethod)[];
 
-  _ts: number;
+  _ts?: number;
 
   _created?: number;
 }

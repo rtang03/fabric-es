@@ -1,11 +1,12 @@
 import { createStructuredSelector, Selector } from 'reselect';
 import type { DidDocument } from '../../types';
+import { addressToDid } from '../../utils';
 import type { DidDocumentInRedis } from '../types';
 
 export const didDocumentPostSelector: Selector<
   DidDocumentInRedis,
   DidDocument
-> = createStructuredSelector({
+  > = createStructuredSelector({
   context: (item) => {
     try {
       return item?.context ? JSON.parse(item?.context)?.value : undefined;
@@ -31,7 +32,8 @@ export const didDocumentPostSelector: Selector<
       return null;
     }
   },
-  id: (item) => item?.id,
+  // restore back to Did syntax
+  id: (item) => addressToDid(item?.id),
   keyAgreement: (item) => {
     try {
       return item?.keyagr ? JSON.parse(item?.keyagr) : undefined;

@@ -1,6 +1,7 @@
 import type { Repository } from '@fabric-es/fabric-cqrs';
 import { CommandHandler, DataSrc } from '@fabric-es/gateway-lib';
-import type { DidDocument, DidDocumentCommands } from '../../types';
+import type { DidDocument } from '../../types';
+import type { DidDocumentCommands } from './didDocumentCommands';
 import type { DidDocumentEvents } from './events';
 
 export * from './events';

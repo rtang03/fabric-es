@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "@fabric-es/operator": "^0.7.6",
+    "did-jwt": "^5.0.2",
     "dotenv": "^8.1.0",
     "fabric-contract-api": "2.2.1",
     "fabric-network": "2.2.3",

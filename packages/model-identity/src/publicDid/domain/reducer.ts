@@ -8,7 +8,8 @@ export const didDocumentReducer: (
 ) => DidDocument = (doc, event) => {
   switch (event.type) {
     case 'DidDocumentCreated':
-      return event.payload;
+      const id = event.payload.id.replace('did:fab:', '');
+      return Object.assign({}, event.payload, { id });
     case 'VerificationMethodAdded':
       // the pre-existing / duplicated VerificationMethod is replaced by new one.
       const vm = doc.verificationMethod.filter((item) => item.id !== event.payload.id);
