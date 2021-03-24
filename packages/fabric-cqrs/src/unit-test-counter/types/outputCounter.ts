@@ -4,13 +4,13 @@
  * @ignore
  */
 export type OutputCounter = {
-  createdAt: number;
-  creator: string;
+  // createdAt: number;
+  // creator: string;
   description: string;
   eventInvolved: string[];
   id: string;
   tags: string[];
-  timestamp: number;
+  // timestamp: number;
   value: number;
-  organization: string[];
+  // organization: string[];
 };

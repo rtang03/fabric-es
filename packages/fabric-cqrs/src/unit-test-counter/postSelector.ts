@@ -6,13 +6,13 @@ import type { CounterInRedis, OutputCounter } from './types';
  * @ignore
  */
 export const postSelector: Selector<CounterInRedis, OutputCounter> = createStructuredSelector({
-  createdAt: (item) => item?.created,
-  creator: (item) => item?.creator,
+  // createdAt: (item) => item?.created,
+  // creator: (item) => item?.creator,
   description: (item) => item?.de,
   eventInvolved: (item) => item?.event.split(','),
   id: (item) => item?.id,
   tags: (item) => item?.tag.split(','),
-  timestamp: (item) => item?.ts,
+  // timestamp: (item) => item?.ts,
   value: (item) => parseInt(item?.val as string, 10),
-  organization: (item) => JSON.parse(item?.organ),
+  // organization: (item) => JSON.parse(item?.organ),
 });

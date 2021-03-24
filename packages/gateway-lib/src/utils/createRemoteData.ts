@@ -1,9 +1,10 @@
 import util from 'util';
-import { BaseEntity, EntityType, TRACK_FIELD, ORGAN_NAME } from '@fabric-es/fabric-cqrs';
+import { BaseEntity, EntityType, TRACK_FIELD } from '@fabric-es/fabric-cqrs';
 import { execute, makePromise, DocumentNode } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import nodeFetch from 'node-fetch';
 import { getLogger } from '..';
+import { ORGAN_NAME } from '../common/model';
 import { ServiceType } from '../types';
 
 const fetch = nodeFetch as any;

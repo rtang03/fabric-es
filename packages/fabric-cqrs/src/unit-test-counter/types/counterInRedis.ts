@@ -7,15 +7,15 @@
  * @ignore
  */
 export type CounterInRedis = {
-  created: number;
-  creator: string;
+  // created: number;
+  // creator: string;
   de: string;
   event: string;
   id: string;
   tag: string;
   tl: string;
-  ts: number;
+  // ts: number;
   val: string | number;
   history: string;
-  organ: string;
+  // organ: string;
 };

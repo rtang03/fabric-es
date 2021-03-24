@@ -457,7 +457,6 @@ describe('Store/query Test', () => {
           _ts: 1590739000,
           _creator: 'org1-admin',
           _created: 1590738792,
-          _organization: null,
         },
         {
           value: 3,
@@ -467,7 +466,6 @@ describe('Store/query Test', () => {
           _ts: 1590740002,
           _creator: 'org1-admin',
           _created: 1590740000,
-          _organization: null,
         },
         {
           value: 2,
@@ -477,7 +475,6 @@ describe('Store/query Test', () => {
           _ts: 1590740004,
           _creator: 'org1-admin',
           _created: 1590740003,
-          _organization: null,
         },
       ]);
     }));
@@ -561,7 +558,6 @@ describe('Store/query Test', () => {
           _ts: 1590739000,
           _created: 1590738792,
           _creator: 'org1-admin',
-          _organization: null,
         },
         {
           value: 3,
@@ -571,7 +567,6 @@ describe('Store/query Test', () => {
           _ts: 1590740002,
           _created: 1590740000,
           _creator: 'org1-admin',
-          _organization: null,
         },
       ]);
     }));

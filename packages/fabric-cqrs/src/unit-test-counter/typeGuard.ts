@@ -4,8 +4,8 @@ import type { OutputCounter } from './types';
  * @ignore
  */
 export const isOutputCounter = (input: any): input is OutputCounter =>
-  input?.createdAt !== undefined &&
-  input?.creator !== undefined &&
+  // input?.createdAt !== undefined &&
+  // input?.creator !== undefined &&
   input?.description !== undefined &&
   input?.eventInvolved !== undefined &&
   input?.id !== undefined &&

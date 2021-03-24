@@ -35,6 +35,42 @@ export type BaseEvent = {
 };
 
 /**
+ * System event name - creating private data
+ * @ignore
+ */
+export const TRACK_EVENT = 'PrivateDataTracked';
+
+/**
+ * System field name - private data org list
+ * @ignore
+ */
+export const TRACK_FIELD = '_privateData';
+
+/**
+ * System field name - org list
+ * @ignore
+ */
+export const ORGAN_FIELD = '_organization';
+
+/**
+ * System field name - commit timestamp
+ * @ignore
+ */
+export const TS_FIELD = '_ts';
+
+/**
+ * System field name - enrollment ID used when creating the entity
+ * @ignore
+ */
+export const CREATOR_FIELD = '_creator';
+
+/**
+ * System field name - timestamp when creating the entity
+ * @ignore
+ */
+export const CREATED_FIELD = '_created';
+
+/**
  * @about Commit
  */
 export type Commit = {

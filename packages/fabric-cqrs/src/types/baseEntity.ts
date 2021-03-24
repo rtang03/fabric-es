@@ -1,3 +1,4 @@
+
 /**
  * @about BaseEntity includes auto-gen meta data, starting with underscored
  */
@@ -35,3 +36,23 @@ export interface BaseEntity {
   /** organization involved, automatically indexed by RedisSearch **/
   _organization?: string[];
 }
+
+// export class BaseEntityImpl implements BaseEntity {
+//   // id: string;
+//   // _ts: number;
+//   _created: number;
+//   _creator: string;
+//   _organization: string[];
+// }
+
+// export class BaseCacheEntity {
+//   created: number;
+//   creator: string;
+//   organ: string;
+// }
+
+// export class BaseOutputEntity {
+//   createdAt: number;
+//   creator: string;
+//   organization: string[];
+// }
