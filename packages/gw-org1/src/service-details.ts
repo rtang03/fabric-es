@@ -1,6 +1,5 @@
 require('./env');
 import util from 'util';
-import { buildFederatedSchema } from '@apollo/federation';
 import { buildRedisOptions, createService, getLogger, ServiceType } from '@fabric-es/gateway-lib';
 import {
   Loan,
@@ -32,10 +31,10 @@ void (async () =>
       logger
     ),
   }).then(({ config, shutdown }) => {
-    const app = config(buildFederatedSchema([{
+    const app = config([{
       typeDefs: loanDetailsRemoteTypeDefs,
       resolvers: loanDetailsRemoteResolvers,
-    }])).addRemoteRepository(
+    }]).addRemoteRepository(
       Loan, LoanDetails, {
         reducer: loanReducer,
         fields: loanIndices,
