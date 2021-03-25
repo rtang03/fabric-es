@@ -1,0 +1,11 @@
+  # For ORG${TMPL_PARAM_ID}
+  eventstore-cc${TMPL_PARAM_ID}:
+    image: $CC_IMAGE
+    container_name: eventstore-cc${TMPL_PARAM_ID}
+    environment:
+      - CHAINCODE_ADDRESS="0.0.0.0:${TMPL_PARAM_CC_PORT}"
+      - CHAINCODE_CCID
+    ports:
+      - ${TMPL_PARAM_CC_PORT}:${TMPL_PARAM_CC_PORT}
+    networks:
+      - openplatform

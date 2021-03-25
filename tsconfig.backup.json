@@ -37,8 +37,8 @@
     { "path": "packages/operator/tsconfig.json" },
     { "path": "packages/relay-lib/tsconfig.json" },
     { "path": "packages/rl-org1/tsconfig.json" },
-    { "path": "packages/rl-org2/tsconfig.json" },
-    { "path": "packages/rl-org3/tsconfig.json" },
+    { "path": "packages/gw-issuer/tsconfig.json"},
+    { "path": "packages/gw-verifier/tsconfig.json"},
     { "path": "packages/tester/tsconfig.json" }
   ],
   "typedocOptions": {

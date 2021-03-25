@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 
 networks:
   openplatform:
@@ -8,16 +8,16 @@ services:
     image: fabric-es/gw-org1:$RELEASE
     container_name: gw-org1
     environment:
-      - CONNECTION_PROFILE=/home/app/packages/gw-org1/connection/connection-org1.docker.yaml
+      - CONNECTION_PROFILE=/home/app/packages/gw-org1/connection/connection.gw-org1.docker.yaml
       - AUTHORIZATION_SERVER_URI=http://auth-server1:8080/oauth/authenticate
       - CA_ENROLLMENT_ID_ADMIN=rca-org1-admin
       - CA_ENROLLMENT_SECRET_ADMIN=rca-org1-adminPW
       - CA_NAME=rca-org1
-      - ORG_CA_URL=https://rca-org1:5054
+      - ORG_CA_URL=https://rca-org1:5153
       - ORG_ADMIN_ID=admin-org1.net
       - ORG_ADMIN_SECRET=admin-org1.netPW
       - GATEWAY_HOST=gw-org1
-      - REDIS_HOST=redis01
+      - REDIS_HOST=redis1
       - QUERY_PORT=5001
       - ORGURL=http://gw-org1:4001/graphql
     working_dir: /home/app/packages/gw-org1
@@ -29,9 +29,10 @@ services:
       - openplatform
     depends_on:
       - auth-server1
+      - redis1
       - orderer0-org0
       - peer0-org1
     volumes:
-      - $VOLUME/gw-org1/assets/:/home/app/packages/gw-org1/assets/
-      - $VOLUME/gw-org1/logs/:/home/app/packages/gw-org1/logs/
+      #- $VOLUME/gw-org1/assets/:/home/app/packages/gw-org1/assets/
+      #- $VOLUME/gw-org1/logs/:/home/app/packages/gw-org1/logs/
       - $ARTIFACTS/crypto-config/:/var/artifacts/crypto-config/

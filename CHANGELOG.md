@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.5...HEAD)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.6...HEAD)
+
+**Merged pull requests:**
+
+- feat: model-identity - Did Document [\#199](https://github.com/rtang03/fabric-es/pull/199) ([rtang03](https://github.com/rtang03))
+
+## [v0.7.6](https://github.com/rtang03/fabric-es/tree/v0.7.6) (2021-03-11)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.5...v0.7.6)
 
 **Closed issues:**
 
@@ -10,6 +18,8 @@
 
 **Merged pull requests:**
 
+- feat: dev-net enhancement [\#196](https://github.com/rtang03/fabric-es/pull/196) ([hkicl-ming](https://github.com/hkicl-ming))
+- feat: dev-net enhancement [\#194](https://github.com/rtang03/fabric-es/pull/194) ([hkicl-ming](https://github.com/hkicl-ming))
 - fix: Fix RedisPubSub related issue when running gateway as docker images [\#193](https://github.com/rtang03/fabric-es/pull/193) ([pangduckwai](https://github.com/pangduckwai))
 - feat: Remote Data on the New Query Handler [\#192](https://github.com/rtang03/fabric-es/pull/192) ([pangduckwai](https://github.com/pangduckwai))
 - docs: add comment / readme [\#191](https://github.com/rtang03/fabric-es/pull/191) ([rtang03](https://github.com/rtang03))

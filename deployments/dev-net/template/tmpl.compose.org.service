@@ -1,0 +1,46 @@
+  # ORG${TMPL_PARAM_ID}
+  rca-${TMPL_PARAM_ORG_NAME}:
+    extends:
+      file: nodebase.yaml
+      service: ca
+    container_name: rca-${TMPL_PARAM_ORG_NAME}
+    restart: always
+    environment:
+      - HYPERLEDGER_VOL=/var/artifacts
+      - FABRIC_CA_SERVER_HOME=/var/artifacts/crypto-config/${TMPL_PARAM_ORG_MSP}/ca/server
+      - FABRIC_CA_SERVER_CSR_CN=rca-${TMPL_PARAM_ORG_NAME}
+      - FABRIC_CA_SERVER_CA_NAME=rca-${TMPL_PARAM_ORG_NAME}
+    ports:
+      - ${TMPL_PARAM_RCA_PORT}:${TMPL_PARAM_RCA_PORT}
+    command: sh -c 'fabric-ca-server start -d -b rca-${TMPL_PARAM_ORG_NAME}-admin:rca-${TMPL_PARAM_ORG_NAME}-adminPW --cfg.affiliations.allowremove  --cfg.identities.allowremove --port ${TMPL_PARAM_RCA_PORT}'
+    volumes:
+      - $SCRIPTS:/setup
+      - $ARTIFACTS:/var/artifacts
+
+  peer0-${TMPL_PARAM_ORG_NAME}:
+    extends:
+      file: nodebase.yaml
+      service: peer
+    container_name: peer0-${TMPL_PARAM_ORG_NAME}
+    environment:
+      - CORE_PEER_ID=peer0-${TMPL_PARAM_ORG_NAME}
+      - CORE_PEER_ADDRESS=peer0-${TMPL_PARAM_ORG_NAME}:${TMPL_PARAM_PEER_PORT}
+      - CORE_PEER_LISTENADDRESS=peer0-${TMPL_PARAM_ORG_NAME}:${TMPL_PARAM_PEER_PORT}
+      - CORE_PEER_LOCALMSPID=${TMPL_PARAM_ORG_MSP}
+      - CORE_PEER_MSPCONFIGPATH=/var/artifacts/crypto-config/${TMPL_PARAM_ORG_MSP}/peer0.${TMPL_PARAM_ORG_NAME}.net/msp
+      - CORE_PEER_TLS_CERT_FILE=/var/artifacts/crypto-config/${TMPL_PARAM_ORG_MSP}/peer0.${TMPL_PARAM_ORG_NAME}.net/tls-msp/signcerts/cert.pem
+      - CORE_PEER_TLS_KEY_FILE=/var/artifacts/crypto-config/${TMPL_PARAM_ORG_MSP}/peer0.${TMPL_PARAM_ORG_NAME}.net/tls-msp/keystore/key.pem
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/artifacts/crypto-config/${TMPL_PARAM_ORG_MSP}/peer0.${TMPL_PARAM_ORG_NAME}.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-${TMPL_PARAM_ORG_NAME}:${TMPL_PARAM_PEER_PORT}
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0-${TMPL_PARAM_ORG_NAME}:${TMPL_PARAM_PEER_PORT}
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-${TMPL_PARAM_ORG_NAME}:${TMPL_PARAM_PEER_PORT}
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:${TMPL_PARAM_CC_PORT}
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/${TMPL_PARAM_ORG_MSP}/peer0.${TMPL_PARAM_ORG_NAME}.net
+    volumes:
+      - /var/run:/host/var/run
+      - $ARTIFACTS:/var/artifacts
+      - $CONFIG/bin:/builders/external/bin
+      - ./core.yaml:/etc/hyperledger/fabric/core.yaml
+    ports:
+      - ${TMPL_PARAM_PEER_PORT}:${TMPL_PARAM_PEER_PORT}
+      - ${TMPL_PARAM_EVENT_URL_PORT}:${TMPL_PARAM_EVENT_URL_PORT}

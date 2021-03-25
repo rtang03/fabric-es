@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/model-loan",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -16,8 +16,8 @@
   },
   "private": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.7.5",
-    "@fabric-es/gateway-lib": "^0.7.5",
+    "@fabric-es/fabric-cqrs": "^0.7.6",
+    "@fabric-es/gateway-lib": "^0.7.6",
     "apollo-server-errors": "^2.3.4"
   },
   "devDependencies": {

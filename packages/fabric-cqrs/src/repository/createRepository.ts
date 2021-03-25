@@ -1,5 +1,5 @@
 import { getStore } from '../store';
-import type { ReducerCallback, Repository, RepoOption, BaseEntity, BaseEvent, EntityType } from '../types';
+import type { ReducerCallback, Repository, RepoOption, EntityType } from '../types';
 import { getReducer } from '../types';
 import {
   getLogger,
