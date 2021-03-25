@@ -12,7 +12,6 @@ export type PartialDocument = Pick<
   | 'timestamp'
   | 'documentId'
   | 'link' // <== newly added field
-  | '_organization'
 >;
 
 export type DocumentIndices = RedisearchDefinition<PartialDocument>;
@@ -27,5 +26,4 @@ export const documentIndices: DocumentIndices = {
   reference: { altName: 'ref' },
   timestamp: { altName: 'ts', index: { type: 'NUMERIC', sortable: true } },
   link: { index: { type: 'TEXT' } },
-  _organization: { altName: 'organ', index: { type: 'TEXT', sortable: true }},
 };

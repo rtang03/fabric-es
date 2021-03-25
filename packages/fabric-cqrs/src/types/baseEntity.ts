@@ -37,22 +37,22 @@ export interface BaseEntity {
   _organization?: string[];
 }
 
-// export class BaseEntityImpl implements BaseEntity {
-//   // id: string;
-//   // _ts: number;
-//   _created: number;
-//   _creator: string;
-//   _organization: string[];
-// }
+export interface BaseCacheEntity {
+  id?: string;
+  tag?: string;
+  desc?: string;
+  created?: number;
+  creator?: string;
+  ts?: number;
+  organ?: string;
+}
 
-// export class BaseCacheEntity {
-//   created: number;
-//   creator: string;
-//   organ: string;
-// }
-
-// export class BaseOutputEntity {
-//   createdAt: number;
-//   creator: string;
-//   organization: string[];
-// }
+export interface BaseOutputEntity {
+  id?: string;
+  tag?: string;
+  desc?: string;
+  createdAt?: number;
+  creator?: string;
+  modifiedAt?: number;
+  organization?: string[];
+}

@@ -1,14 +1,14 @@
-import type { Commit } from '@fabric-es/fabric-cqrs';
+import type { Commit, BaseCacheEntity } from '@fabric-es/fabric-cqrs';
 import { createStructuredSelector, Selector } from 'reselect';
 import type { Document } from '.';
 
 /**
- * **DocumentInRedis** it is the representation of the domain entity *Document* cached in Redis. It is optional if the object stored in Redis
+ * **DocumentInCache** it is the representation of the domain entity *Document* cached in Redis. It is optional if the object stored in Redis
  * has the same structure as the domain entity *AND* only contains primitive data types.
  * Possible usage:
  * - splitting a domain entity field into multiple fields for advance searching (e.g. range search) on all (or some) of these derived fields.
  */
-export type DocumentInRedis = {
+export class DocumentInCache implements BaseCacheEntity {
   id: string;
   owner: string;
   loanId: string;
@@ -23,7 +23,7 @@ export type DocumentInRedis = {
  */
 export const documentPreSelector: Selector<
   [Document, Commit[]],
-  DocumentInRedis
+  DocumentInCache
 > = createStructuredSelector({
   id: ([{ id }]) => id,
   owner: ([{ ownerId }]) => ownerId,
