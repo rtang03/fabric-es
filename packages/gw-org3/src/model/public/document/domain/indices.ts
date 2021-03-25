@@ -24,6 +24,6 @@ export const documentIndices: DocumentIndices = {
   title: { index: { type: 'TEXT' } },
   status: { index: { type: 'TEXT' } },
   reference: { altName: 'ref' },
-  timestamp: { altName: 'ts', index: { type: 'NUMERIC', sortable: true } },
+  timestamp: { index: { type: 'NUMERIC', sortable: true } },
   link: { index: { type: 'TEXT' } },
 };
