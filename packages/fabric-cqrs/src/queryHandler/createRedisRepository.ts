@@ -1,7 +1,7 @@
 import util from 'util';
 import startsWith from 'lodash/startsWith';
 import { FTCreateParameters, FTSchemaField, Redisearch } from 'redis-modules-sdk';
-import { createSelector, Selector } from 'reselect';
+import { createSelector, createStructuredSelector, Selector } from 'reselect';
 import type { Commit, EntityType } from '../types';
 import { getLogger } from '../utils';
 import { postSelector as restoreCommit } from './model';
@@ -43,30 +43,34 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
 
   const prefix = { entity: `e:${entityName}:`, commit: 'c:' }[kind];
 
-  const thisPreSelector: Selector<any, any> = preSelector || (state => ({ ...state }));
-  const combinedPreSelector = {
+  const combinedPreSelector = preSelector ? {
     entity: createSelector(
-      thisPreSelector,
+      preSelector as Selector<any, any>,
       basePreSelector,
       (pre, bse) => ({
         ...pre,
         ...bse,
       })
     ),
-    commit: thisPreSelector,
+    commit: preSelector,
+  }[kind] : {
+    entity: basePreSelector,
+    commit: undefined,
   }[kind];
 
-  const thisPostSelector: Selector<any, any> = postSelector || (state => ({ ...state }));
-  const combinedPostSelector = {
+  const combinedPostSelector = postSelector ? {
     entity: createSelector(
-      thisPostSelector,
+      postSelector as Selector<any, any>,
       basePostSelector,
       (pre, bse) => ({
         ...pre,
         ...bse,
       })
     ),
-    commit: thisPostSelector,
+    commit: postSelector,
+  }[kind] : {
+    entity: basePostSelector,
+    commit: undefined,
   }[kind];
 
   const combinedFields = {

@@ -10,5 +10,4 @@ export const isOutputCounter = (input: any): input is OutputCounter =>
   input?.eventInvolved !== undefined &&
   input?.id !== undefined &&
   input?.tags !== undefined &&
-  input?.timestamp !== undefined &&
   input?.value !== undefined;

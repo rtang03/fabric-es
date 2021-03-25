@@ -15,10 +15,6 @@ export type DocumentInRedis = {
   title: string;
   status: string;
   ref: string;
-  ts: number;
-  created: number;
-  creator: string;
-  organ: string;
 };
 
 /**
@@ -34,8 +30,4 @@ export const documentPreSelector: Selector<
   loanId: ([{ loanId }]) => loanId,
   title: ([{ title }]) => title,
   status: ([{ status }]) => status.toString(),
-  ts: ([{ timestamp }]) => timestamp,
-  created: ([{ _created }]) => _created,
-  creator: ([{ _creator }]) => _creator,
-  organ: ([{ _organization }]) => JSON.stringify(_organization),
 });

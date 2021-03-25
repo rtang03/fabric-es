@@ -8,7 +8,7 @@ export const basePreSelector: Selector<any, any> = createStructuredSelector({
 });
 
 export const basePostSelector: Selector<any, any> = createStructuredSelector({
-  timestamp: (item) => item?.ts,
+  modifiedAt: (item) => item?.ts,
   createdAt: (item) => item?.created,
   creator: (item) => item?.creator,
   organization: (item) => JSON.parse(item?.organ),

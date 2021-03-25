@@ -21,7 +21,7 @@ export class Organization implements BaseEntity {
   url?: string;
   status: OrgStatus;
   timestamp: number;
-  _ts: number;
-  _created: number;
-  _creator: string;
+  // _ts: number;
+  // _created: number;
+  // _creator: string;
 }

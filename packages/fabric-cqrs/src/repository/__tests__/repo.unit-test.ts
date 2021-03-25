@@ -59,7 +59,7 @@ const firstVerification = ({ status, cursor, hasMore, total, items }) => {
   expect(total).toBe(1);
   const counter = items[0];
   expect(isOutputCounter(counter)).toBeTruthy();
-  expect(omit(counter, 'createdAt', 'timestamp', 'creator')).toEqual({
+  expect(omit(counter, 'createdAt', 'modifiedAt', 'creator')).toEqual({
     description: 'repo #2 create-test',
     eventInvolved: ['Increment', 'Increment'],
     id: 'repo_test_counter_001',
@@ -521,7 +521,7 @@ describe('Paginated entity and commit Tests', () => {
   //     eventInvolved: [Array],
   //     id: 'repo_pag_test_01',
   //     tags: [Array],
-  //     timestamp: '1613227831604',
+  //     modifiedAt: '1613227831604',
   //     value: 1
   //   },
   //   {
@@ -531,7 +531,7 @@ describe('Paginated entity and commit Tests', () => {
   //     eventInvolved: [Array],
   //     id: 'repo_pag_test_02',
   //     tags: [Array],
-  //     timestamp: '1613227839882',
+  //     modifiedAt: '1613227839882',
   //     value: -1
   //   }
   // ],
