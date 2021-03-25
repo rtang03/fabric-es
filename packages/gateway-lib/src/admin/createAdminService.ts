@@ -119,8 +119,9 @@ export const createAdminService: (option: {
   const orgRepo = getRepository<Organization, Organization, OrgEvents>(Organization, orgReducer);
   await orgCommandHandler({ enrollmentId: caAdmin, orgRepo }).StartOrg({
     mspId, payload: { name: orgName, url: orgUrl, timestamp: Date.now() },
-  });
-  logger.info('orgCommandHandler.StartOrg complete');
+  })
+  .then(_ => logger.info('orgCommandHandler.StartOrg complete'))
+  .catch(error => logger.error(error));
 
   const resolvers = await createResolvers({
     caAdmin,

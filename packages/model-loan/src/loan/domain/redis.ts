@@ -15,6 +15,7 @@ export type LoanInRedis = {
   ref: string;
   status: string;
   comment: string;
+  timestamp: number;
 };
 
 /**
@@ -27,4 +28,5 @@ export const loanPreSelector: Selector<[Loan, Commit[]], LoanInRedis> = createSt
   comment: ([{ comment }]) => comment,
   ref: ([{ reference }]) => reference,
   status: ([{ status }]) => status.toString(),
+  timestamp: ([{ timestamp }]) => timestamp,
 });

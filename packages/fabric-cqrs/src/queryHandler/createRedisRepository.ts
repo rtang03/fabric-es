@@ -53,10 +53,11 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
       })
     ),
     commit: preSelector,
-  }[kind] : {
-    entity: basePreSelector,
-    commit: undefined,
-  }[kind];
+  }[kind] : undefined;
+  // }[kind] : {
+  //   entity: basePreSelector,
+  //   commit: undefined,
+  // }[kind];
 
   const combinedPostSelector = postSelector ? {
     entity: createSelector(
@@ -68,10 +69,11 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
       })
     ),
     commit: postSelector,
-  }[kind] : {
-    entity: basePostSelector,
-    commit: undefined,
-  }[kind];
+  }[kind] : undefined;
+  // }[kind] : {
+  //   entity: basePostSelector,
+  //   commit: undefined,
+  // }[kind];
 
   const combinedFields = {
     entity: {
