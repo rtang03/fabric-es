@@ -187,9 +187,7 @@ beforeAll(async () => {
     });
 
     // Step 10: config Apollo server with models
-    modelApolloService = config(
-      buildFederatedSchema([{ typeDefs: didDocumentTypeDefs, resolvers: didDocumentResolvers }])
-    )
+    modelApolloService = config([{ typeDefs: didDocumentTypeDefs, resolvers: didDocumentResolvers }])
       .addRepository<DidDocument, DidDocumentInRedis, DidDocument, DidDocumentEvents>(DidDocument, {
         reducer: didDocumentReducer,
         fields: didDocumentIndexDefinition,

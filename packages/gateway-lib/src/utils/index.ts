@@ -8,3 +8,4 @@ export * from './composeRedisRepos';
 export * from './waitForSecond';
 export * from './catchResolverErrors';
 export * from './createRemoteData';
+export * from './buildRedisOptions';

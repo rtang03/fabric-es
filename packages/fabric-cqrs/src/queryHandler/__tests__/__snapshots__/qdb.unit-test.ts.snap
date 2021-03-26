@@ -12,10 +12,13 @@ Object {
         "Increment",
       ],
       "id": "qh_proj_test_001",
+      "modifiedAt": "1590739000",
+      "organization": Array [
+        "Org1MSP",
+      ],
       "tags": Array [
         "projection",
       ],
-      "timestamp": "1590739000",
       "value": 2,
     },
     Object {
@@ -28,10 +31,13 @@ Object {
         "Increment",
       ],
       "id": "qh_proj_test_002",
+      "modifiedAt": "1590740002",
+      "organization": Array [
+        "Org1MSP",
+      ],
       "tags": Array [
         "projection",
       ],
-      "timestamp": "1590740002",
       "value": 3,
     },
     Object {
@@ -43,10 +49,13 @@ Object {
         "Increment",
       ],
       "id": "qh_proj_test_003",
+      "modifiedAt": "1590740004",
+      "organization": Array [
+        "Org1MSP",
+      ],
       "tags": Array [
         "projection",
       ],
-      "timestamp": "1590740004",
       "value": 2,
     },
   ],

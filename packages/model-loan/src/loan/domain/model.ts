@@ -25,7 +25,4 @@ export class Loan implements BaseEntity {
   status: LoanStatus;
   comment?: string;
   timestamp: number;
-  _created?: number;
-  _creator?: string;
-  _organization?: string[];
 }

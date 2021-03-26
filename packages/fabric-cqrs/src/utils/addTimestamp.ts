@@ -1,4 +1,4 @@
-import { BaseEvent } from '../types';
+import { BaseEvent, TS_FIELD } from '../types';
 
 /**
  * add metadata - timestamp
@@ -9,6 +9,6 @@ export const addTimestamp: (events: BaseEvent[]) => BaseEvent[] = (events) => {
 
   return events.map((event) => ({
     ...event,
-    payload: Object.assign({}, event.payload, { _ts: currentTime }),
+    payload: Object.assign({}, event.payload, { [TS_FIELD]: currentTime }),
   }));
 };

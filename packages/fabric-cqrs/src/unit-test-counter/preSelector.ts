@@ -41,8 +41,6 @@ import type { Counter, CounterInRedis } from './types';
  * ```
  */
 export const preSelector: Selector<[Counter, Commit[]], CounterInRedis> = createStructuredSelector({
-  created: ([{ _created }]) => _created,
-  creator: ([{ _creator }]) => _creator,
   de: ([{ desc }]) => desc,
   event: ([_, history]) =>
     flatten(history.map(({ events }) => events))
@@ -58,7 +56,5 @@ export const preSelector: Selector<[Counter, Commit[]], CounterInRedis> = create
     flatten(history.map(({ events }) => events))
       .map(({ payload }) => payload._ts)
       .reduce((prev, curr) => (prev ? `${prev},${curr}` : curr), null),
-  ts: ([{ _ts }]) => _ts,
   val: ([{ value }]) => value,
-  organ: ([{ _organization }]) => JSON.stringify(_organization),
 });

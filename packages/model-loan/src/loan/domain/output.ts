@@ -1,11 +1,12 @@
+import type { BaseOutputEntity } from '@fabric-es/fabric-cqrs';
 import { createStructuredSelector, Selector } from 'reselect';
-import type { LoanInRedis } from '.';
+import type { LoanInCache } from '.';
 
 /**
  * **LoanOutput** represents the advance search result transformed from the domain entity *Loan*.
  * It is optional if the output object has the same structure as the entity stored in Redis.
  */
-export interface LoanOutput {
+export class LoanOutput implements BaseOutputEntity {
   id: string;
   loanId: string;
   ownerId: string;
@@ -14,15 +15,12 @@ export interface LoanOutput {
   comment: string;
   status: string;
   timestamp: number;
-  createdAt: number;
-  creator: string;
-  organization: string[];
 }
 
 /**
  * **loanPostSelector** transform the domain entity cached in Redis into search result format.
  */
-export const loanPostSelector: Selector<LoanInRedis, LoanOutput> = createStructuredSelector({
+export const loanPostSelector: Selector<LoanInCache, LoanOutput> = createStructuredSelector({
   id: (item) => item?.id,
   loanId: (item) => item?.id,
   ownerId: (item) => item?.owner,
@@ -30,8 +28,5 @@ export const loanPostSelector: Selector<LoanInRedis, LoanOutput> = createStructu
   reference: (item) => item?.ref,
   comment: (item) => item?.comment,
   status: (item) => item?.status,
-  timestamp: (item) => item?.ts,
-  createdAt: (item) => item?.created,
-  creator: (item) => item?.creator,
-  organization: (item) => JSON.parse(item?.organ),
+  timestamp: (item) => item?.timestamp,
 });

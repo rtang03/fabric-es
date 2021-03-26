@@ -1,8 +1,8 @@
-/**
- * @packageDocumentation
- * @hidden
- */
-import { createRedisRepository } from './queryHandler';
+// /**
+//  * @packageDocumentation
+//  * @hidden
+//  */
+// import { createRedisRepository } from './queryHandler';
 
 export {
   getContract,

@@ -3,7 +3,7 @@ import type { Document } from '.';
 
 export type PartialDocument = Pick<
   Document,
-  'id' | 'ownerId' | 'loanId' | 'title' | 'reference' | 'status' | 'timestamp' | 'documentId' | '_organization'
+  'id' | 'ownerId' | 'loanId' | 'title' | 'reference' | 'status' | 'timestamp' | 'documentId'
 >;
 
 export type DocumentIndices = RedisearchDefinition<PartialDocument>;
@@ -19,6 +19,5 @@ export const documentIndices: DocumentIndices = {
   title: { index: { type: 'TEXT' } },
   status: { index: { type: 'TEXT' } },
   reference: { altName: 'ref' },
-  timestamp: { altName: 'ts', index: { type: 'NUMERIC', sortable: true } },
-  _organization: { altName: 'organ', index: { type: 'TEXT', sortable: true }},
+  timestamp: { index: { type: 'NUMERIC', sortable: true } },
 };

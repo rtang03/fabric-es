@@ -1,5 +1,3 @@
-import util from 'util';
-import { buildFederatedSchema } from '@apollo/federation';
 import { Repository } from '@fabric-es/fabric-cqrs';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
@@ -7,7 +5,7 @@ import type { RedisOptions } from 'ioredis';
 import { getLogger } from '..';
 import {
   Organization, OrgEvents, orgReducer, orgIndices, orgCommandHandler,
-  User, UserEvents, userReducer, userIndices,
+  User, userReducer, userIndices,
 } from '../common/model';
 import { createService } from '../utils';
 import {
@@ -119,8 +117,9 @@ export const createAdminService: (option: {
   const orgRepo = getRepository<Organization, Organization, OrgEvents>(Organization, orgReducer);
   await orgCommandHandler({ enrollmentId: caAdmin, orgRepo }).StartOrg({
     mspId, payload: { name: orgName, url: orgUrl, timestamp: Date.now() },
-  });
-  logger.info('orgCommandHandler.StartOrg complete');
+  })
+  .then(_ => logger.info('orgCommandHandler.StartOrg complete'))
+  .catch(error => logger.error(error));
 
   const resolvers = await createResolvers({
     caAdmin,
@@ -135,8 +134,7 @@ export const createAdminService: (option: {
   });
   logger.info('createResolvers complete');
 
-  const schema = buildFederatedSchema([{ typeDefs, resolvers }]);
-  const server = config(schema)
+  const server = config([{ typeDefs, resolvers }])
     .addRepository(Organization, { reducer: orgReducer, fields: orgIndices })
     .addRepository(User, { reducer: userReducer, fields: userIndices })
     .create({ playground, introspection });

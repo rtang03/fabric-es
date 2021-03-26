@@ -1,6 +1,5 @@
 require('./env');
 import util from 'util';
-import { buildFederatedSchema } from '@apollo/federation';
 import { buildRedisOptions, createService, getLogger } from '@fabric-es/gateway-lib';
 import {
   Document,
@@ -31,10 +30,10 @@ void (async () =>
     ),
   })
     .then(({ config, shutdown }) => {
-      const app = config(buildFederatedSchema([{
+      const app = config([{
         typeDefs: documentTypeDefs,
         resolvers: documentResolvers,
-      }]))
+      }])
         .addRepository(Document, {
           reducer: documentReducer,
           fields: documentIndices,

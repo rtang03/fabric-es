@@ -2,8 +2,9 @@ import type {
   PrivateRepository, Repository, Commit, RedisearchDefinition, RedisRepository, EntityType, ReducerCallback,
 } from '@fabric-es/fabric-cqrs';
 import type {  } from '@fabric-es/fabric-cqrs';
+import { GraphQLResolverMap } from 'apollo-graphql';
 import { ApolloServer } from 'apollo-server';
-import { GraphQLSchema } from 'graphql';
+import { DocumentNode } from 'graphql';
 import type { Selector } from 'reselect';
 
 export enum ServiceType {
@@ -75,7 +76,10 @@ interface AddPrivateRepository {
 }
 
 export type FederatedService = {
-  config: (schema: GraphQLSchema) => {
+  config: (sdl: {
+    typeDefs: DocumentNode;
+    resolvers: GraphQLResolverMap<any>;
+  }[]) => {
     addPrivateRepository: <TEntity, TEvent>(
       entity: EntityType<TEntity>,
       reducer: ReducerCallback<TEntity, TEvent>,
