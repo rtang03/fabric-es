@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat: Domain Model Refactoring for Query Handler Search [\#201](https://github.com/rtang03/fabric-es/pull/201) ([pangduckwai](https://github.com/pangduckwai))
 - feat: model-identity - Did Document [\#199](https://github.com/rtang03/fabric-es/pull/199) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.6](https://github.com/rtang03/fabric-es/tree/v0.7.6) (2021-03-11)
