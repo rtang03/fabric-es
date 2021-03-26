@@ -44,7 +44,7 @@ export interface BaseCacheEntity {
   created?: number;
   creator?: string;
   ts?: number;
-  organ?: string;
+  organization?: string;
 }
 
 export interface BaseOutputEntity {

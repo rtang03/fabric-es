@@ -32,15 +32,12 @@ void (async () =>
     ),
   })
     .then(({ config, shutdown }) => {
-      const app = config(
-        buildFederatedSchema([
+      const app = config([
           {
             typeDefs: didDocumentTypeDefs,
             resolvers: didDocumentResolvers,
           },
-        ])
-      )
-        .addRepository<DidDocument, DidDocumentInRedis, DidDocument, DidDocumentEvents>(
+      ]).addRepository<DidDocument, DidDocumentInRedis, DidDocument, DidDocumentEvents>(
           DidDocument,
           {
             reducer: didDocumentReducer,

@@ -9,15 +9,11 @@ import { BaseCacheEntity } from '../../types';
  * @ignore
  */
 export class CounterInRedis implements BaseCacheEntity {
-  // created: number;
-  // creator: string;
   de: string;
   event: string;
   id: string;
   tag: string;
   tl: string;
-  // ts: number;
   val: string | number;
   history: string;
-  // organ: string;
 };

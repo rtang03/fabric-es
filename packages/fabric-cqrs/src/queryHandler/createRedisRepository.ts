@@ -1,7 +1,7 @@
 import util from 'util';
 import startsWith from 'lodash/startsWith';
 import { FTCreateParameters, FTSchemaField, Redisearch } from 'redis-modules-sdk';
-import { createSelector, createStructuredSelector, Selector } from 'reselect';
+import { createSelector, Selector } from 'reselect';
 import type { Commit, EntityType } from '../types';
 import { getLogger } from '../utils';
 import { postSelector as restoreCommit } from './model';
@@ -54,10 +54,6 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
     ),
     commit: preSelector,
   }[kind] : undefined;
-  // }[kind] : {
-  //   entity: basePreSelector,
-  //   commit: undefined,
-  // }[kind];
 
   const combinedPostSelector = postSelector ? {
     entity: createSelector(
@@ -70,10 +66,6 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
     ),
     commit: postSelector,
   }[kind] : undefined;
-  // }[kind] : {
-  //   entity: basePostSelector,
-  //   commit: undefined,
-  // }[kind];
 
   const combinedFields = {
     entity: {

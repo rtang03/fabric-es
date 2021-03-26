@@ -1,5 +1,5 @@
 import util from 'util';
-import { BaseEntity, EntityType, TRACK_FIELD } from '@fabric-es/fabric-cqrs';
+import { BaseEntity, EntityType, TRACK_FIELD, TRACK_FIELD_S } from '@fabric-es/fabric-cqrs';
 import { execute, makePromise, DocumentNode } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import nodeFetch from 'node-fetch';
@@ -85,19 +85,15 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
   }
 
   // step 2 - if parent entity is defined for this private service, or for remote services, get the parent entity first
-  // const presult = await context.dataSources[parentName].repo.fullTextSearchEntity({
-  //   entityName: parentName,
-  //   query: `@id:${id}`,
-  //   cursor: 0,
-  //   pagesize: 1,
-  // });
-  // if (presult.status !== 'OK') {
-  //   throw new Error(util.format('getting parent data failed, %j', presult.error));
-  // }
-  const presult = { data: { items: [] }}; // TODO TEMP!!!!!!!!!!!
-  presult.data.items[0] = await context.dataSources[parentName].repo // TODO TEMP!!!!!!!!!!!
-    .getById({ id, enrollmentId: context.username})
-    .then(({ currentState }) => currentState);
+  const presult = await context.dataSources[parentName].repo.fullTextSearchEntity({
+    entityName: parentName,
+    query: `@id:${id}`,
+    cursor: 0,
+    pagesize: 1,
+  });
+  if (presult.status !== 'OK') {
+    throw new Error(util.format('getting parent data failed, %j', presult.error));
+  }
 
   // step 3
   // * the flow of private data tracking:
@@ -109,7 +105,7 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
   //  1. no parent entity relationship is setup for this private entity, or
   //  2. a corresponding private entity is not yet created.
   // *therefore if the data tracking field is missing, just need to return the private entities read locally*
-  if (!presult.data?.items[0][TRACK_FIELD]) {
+  if (!presult.data?.items[0][TRACK_FIELD_S]) {
     return result;
   }
 
@@ -117,7 +113,7 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
 
   // step 4 - loop thru the mspids (organizations) providing the relevent prviate data, tracked by the parent entity,
   //  and attempt to retrieve data from each url provided.
-  for (const mspid of presult.data?.items[0][TRACK_FIELD][entityName]) {
+  for (const mspid of presult.data?.items[0][TRACK_FIELD_S][entityName]) {
     if (mspid !== context.mspId) {
       const oresult = await context.dataSources[ORGAN_NAME].repo.fullTextSearchEntity({
         entityName: ORGAN_NAME,
