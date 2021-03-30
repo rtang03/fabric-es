@@ -27,4 +27,5 @@ export type UserDataSource = DataSrc<UserRepo>;
 export type UserContext = {
   dataSources: { user: UserDataSource };
   username: string;
+  enrollment_id?: string;
 };

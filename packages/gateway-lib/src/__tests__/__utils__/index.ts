@@ -5,3 +5,4 @@ export * from './INCREMENT';
 export * from './DECREMENT';
 export * from './GET_COUNTER';
 export * from './SEARCH';
+export * from './resolversWithAuth0';
