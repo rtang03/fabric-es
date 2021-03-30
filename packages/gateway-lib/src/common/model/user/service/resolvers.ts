@@ -82,7 +82,6 @@ export const resolvers = {
           dataSources: {
             user: { repo },
           },
-          username,
         }: UserContext
       ): Promise<User[]> => {
         const whereJSON = JSON.parse(where);
@@ -128,10 +127,11 @@ export const resolvers = {
       async (
         _,
         { name, userId }: { name: string; userId: string },
-        { dataSources: { user }, username }: UserContext
+        // TODO: username is used by legacy auth-server; enrollment_id by auth0
+        { dataSources: { user }, username, enrollment_id }: UserContext
       ): Promise<Commit> =>
         userCommandHandler({
-          enrollmentId: username,
+          enrollmentId: username || enrollment_id,
           userRepo: user.repo,
         }).CreateUser({
           userId,

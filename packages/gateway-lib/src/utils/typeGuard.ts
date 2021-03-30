@@ -1,5 +1,11 @@
 import type { BaseEvent } from '@fabric-es/fabric-cqrs';
-import { LoginResponse, AuthenticateResponse, RegisterResponse, CaIdentity } from '../types';
+import {
+  LoginResponse,
+  AuthenticateResponse,
+  RegisterResponse,
+  CaIdentity,
+  Auth0UserInfo,
+} from '../types';
 
 export const isAuthResponse = (input: any): input is AuthenticateResponse =>
   input?.ok !== undefined &&
@@ -22,3 +28,6 @@ export const isCaIdentity = (input: any): input is CaIdentity =>
 
 export const isBaseEvent = (input: any): input is BaseEvent =>
   input?.type !== undefined && input?.payload !== undefined;
+
+export const isAuth0UserInfo = (input: any): input is Auth0UserInfo =>
+  input?.sub !== undefined && input?.email !== undefined;

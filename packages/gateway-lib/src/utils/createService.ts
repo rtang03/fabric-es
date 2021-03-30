@@ -201,9 +201,6 @@ export const createService: (option: {
                 Object.assign(
                   {
                     ...headers,
-                    user_id: headers.user_id,
-                    is_admin: headers.is_admin,
-                    username: headers.username,
                     serviceName,
                     serviceType: type,
                   },

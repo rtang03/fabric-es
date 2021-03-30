@@ -1,0 +1,93 @@
+import type { Commit, Counter } from '@fabric-es/fabric-cqrs';
+import { ApolloError } from 'apollo-server';
+import GraphQLJSON from 'graphql-type-json';
+import { getLogger } from '../../utils';
+import { catchResolverErrors } from '../../utils/catchResolverErrors';
+import { commandHanlder } from './handler';
+import type { ContextWithAuth0 } from './types';
+
+const logger = getLogger('[gw-lib-test] resolvers.js');
+
+export const resolversWithAuth0 = {
+  JSON: GraphQLJSON,
+  Query: {
+    pingCounter: () => 'I am a simple counter',
+    getCounter: catchResolverErrors(
+      async (
+        _,
+        { counterId },
+        {
+          dataSources: {
+            counter: { repo },
+          },
+          enrollment_id,
+        }: ContextWithAuth0
+      ): Promise<Counter> =>
+        repo
+          .getById({ id: counterId, enrollmentId: enrollment_id })
+          .then(({ currentState }) => currentState),
+      { fcnName: 'getCounter', logger, useAuth: true, useAdmin: false }
+    ),
+    search: catchResolverErrors(
+      async (
+        _,
+        { query }: { query: string },
+        {
+          dataSources: {
+            counter: { repo },
+          },
+        }: ContextWithAuth0
+      ) => {
+        const { data, error, status } = await repo.fullTextSearchEntity({
+          entityName: 'counter',
+          query,
+          cursor: 0,
+          pagesize: 10,
+        });
+
+        if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+        return data;
+      },
+      { fcnName: 'search', logger, useAuth: true, useAdmin: false }
+    ),
+  },
+  Mutation: {
+    increment: catchResolverErrors(
+      async (
+        _,
+        { counterId },
+        {
+          dataSources: {
+            counter: { repo },
+          },
+          user_id,
+          enrollment_id,
+        }: ContextWithAuth0
+      ): Promise<Commit> =>
+        commandHanlder({ enrollmentId: enrollment_id, counterRepo: repo }).Increment({
+          userId: user_id,
+          payload: { id: counterId, tag: '', desc: '' },
+        }),
+      { fcnName: 'increment', logger, useAuth: true, useAdmin: false }
+    ),
+    decrement: catchResolverErrors(
+      async (
+        _,
+        { counterId },
+        {
+          dataSources: {
+            counter: { repo },
+          },
+          user_id,
+          enrollment_id,
+        }: ContextWithAuth0
+      ): Promise<Commit> =>
+        commandHanlder({
+          enrollmentId: enrollment_id,
+          counterRepo: repo,
+        }).Decrement({ userId: user_id, payload: { id: counterId, tag: '', desc: '' } }),
+      { fcnName: 'decrement', logger, useAuth: true, useAdmin: false }
+    ),
+  },
+};
