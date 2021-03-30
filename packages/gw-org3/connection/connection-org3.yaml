@@ -11,7 +11,7 @@ client:
   connection:
     timeout:
       peer:
-        endorser: '300'
+        endorser: "300"
 
 channels:
   loanapp:
@@ -49,8 +49,8 @@ orderers:
 
 peers:
   peer0-org3:
-    url: grpcs://localhost:7451
-    eventUrl: grpcs://localhost:7453
+    url: grpcs://localhost:7351
+    eventUrl: grpcs://localhost:7353
     tlsCACerts:
       path: ../../deployments/dev-net/artifacts/crypto-config/Org3MSP/peer0.org3.net/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem
     grpcOptions:
@@ -58,7 +58,7 @@ peers:
 
 certificateAuthorities:
   rca-org3:
-    url: https://localhost:5056
+    url: https://localhost:5353
     caName: rca-org3
     tlsCACerts:
       path: ../../deployments/dev-net/artifacts/crypto-config/Org3MSP/msp/tlscacerts/tls-ca-cert.pem

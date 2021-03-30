@@ -1,19 +1,21 @@
 import util from 'util';
 import startsWith from 'lodash/startsWith';
 import { FTCreateParameters, FTSchemaField, Redisearch } from 'redis-modules-sdk';
-import type { Selector } from 'reselect';
+import { createSelector, Selector } from 'reselect';
 import type { Commit, EntityType } from '../types';
 import { getLogger } from '../utils';
 import { postSelector as restoreCommit } from './model';
 import { pipelineExec } from './pipelineExec';
 import type { FieldOption, RedisearchDefinition, RedisRepository } from './types';
 import type { CommitInRedis } from './types';
+import { baseIndexDefinition } from './types/baseIndexDefinition';
+import { basePreSelector, basePostSelector } from './types/baseSelectors';
 
 /**
  * @about create abstract layer for redis repository
- * @typeParams TInput item before writing to Redis / input to preSelector
+ * @typeParams TInput item before writing to Redis / input to pre-selector
  * @typeParams TIItemInRedis item in redis
- * @typeParams TOutput item after processing by postSelector
+ * @typeParams TOutput item after processing by post-selector
  */
 export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
   entity: EntityType<TInput> | string,
@@ -40,6 +42,38 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
   const indexName = { entity: `eidx:${entityName}`, commit: 'cidx' }[kind];
 
   const prefix = { entity: `e:${entityName}:`, commit: 'c:' }[kind];
+
+  const combinedPreSelector = preSelector ? {
+    entity: createSelector(
+      preSelector as Selector<any, any>,
+      basePreSelector,
+      (pre, bse) => ({
+        ...pre,
+        ...bse,
+      })
+    ),
+    commit: preSelector,
+  }[kind] : undefined;
+
+  const combinedPostSelector = postSelector ? {
+    entity: createSelector(
+      postSelector as Selector<any, any>,
+      basePostSelector,
+      (pre, bse) => ({
+        ...pre,
+        ...bse,
+      })
+    ),
+    commit: postSelector,
+  }[kind] : undefined;
+
+  const combinedFields = {
+    entity: {
+      ...fields,
+      ...baseIndexDefinition,
+    },
+    commit: fields,
+  }[kind];
 
   // compute key
   const getKey = {
@@ -69,7 +103,7 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
       .filter((item) => !!item);
 
   return {
-    createIndex: () => client.create(indexName, getSchema<TItem>(fields), getParam(param)),
+    createIndex: () => client.create(indexName, getSchema<TItem>(combinedFields), getParam(param)),
     deleteItemsByPattern: async (pattern) => {
       try {
         return await pipelineExec<number>(client, 'DELETE', pattern).then((data) => [
@@ -87,10 +121,10 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
 
       if (!key) throw new Error('invalid key');
 
-      return client.redis.hmset(key, preSelector?.([item, history]) || item);
+      return client.redis.hmset(key, combinedPreSelector?.([item, history]) || item);
     },
     hgetall: (key) =>
-      client.redis.hgetall(key).then((result) => (postSelector?.(result) || result) as TResult),
+      client.redis.hgetall(key).then((result) => (combinedPostSelector?.(result) || result) as TResult),
     getKey: (item: TItemInRedis) => getKey(item),
     getIndexName: () => indexName,
     getPattern: (pattern, args) =>
@@ -100,8 +134,8 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
         ENTITIES_BY_ENTITYNAME: `e:${args[0]}:*`,
         ENTITIES_BY_ENTITYNAME_ENTITYID: `e:${args[0]}:${args[1]}:*`,
       }[pattern]),
-    getPreSelector: <TInput, TOutput>(): Selector<TInput, TOutput> => preSelector,
-    getPostSelector: <TInput, TOutput>(): Selector<TInput, TOutput> => postSelector,
+    getPreSelector: (): Selector<TItem, TItemInRedis> => combinedPreSelector,
+    getPostSelector: (): Selector<TItemInRedis, TResult> => combinedPostSelector,
     queryCommitsByPattern: async (pattern) => {
       try {
         return await pipelineExec<CommitInRedis>(client, 'HGETALL', pattern).then((data) => [

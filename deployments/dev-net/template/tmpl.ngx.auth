@@ -1,0 +1,16 @@
+    location /api_key {
+      proxy_pass      ${AUTH_HOST};
+    }
+
+    location /account {
+      proxy_pass      ${AUTH_HOST};
+    }
+
+    location /oauth {
+      proxy_pass      ${AUTH_HOST};
+    }
+
+    location /client {
+      proxy_pass      ${AUTH_HOST};
+    }
+

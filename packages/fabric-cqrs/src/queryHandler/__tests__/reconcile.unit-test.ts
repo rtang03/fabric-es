@@ -326,7 +326,7 @@ describe('Reconcile Tests', () => {
         expect(counter.desc).toEqual('query handler #2 reconcile-test');
         expect(counter.tag).toEqual('reconcile');
         expect(counter.value).toEqual(2);
-        expect(typeof counter._ts).toEqual('number');
+        expect(typeof counter['_ts']).toEqual('number');
       }));
 
   it('should create #2 record for id2', async () =>
@@ -362,7 +362,7 @@ describe('Reconcile Tests', () => {
         expect(currentState.tag).toEqual('reconcile');
         expect(currentState.desc).toEqual('query handler #3 reconcile-test');
         expect(currentState.value).toEqual(1);
-        expect(typeof currentState._ts).toEqual('number');
+        expect(typeof currentState['_ts']).toEqual('number');
       }));
 
   it('should query_getByEntityName', async () =>
@@ -378,7 +378,6 @@ describe('Reconcile Tests', () => {
             tag: 'reconcile',
             desc: 'query handler #2 reconcile-test',
             _creator: 'admin-org1.net',
-            _organization: null,
           },
           {
             value: 1,
@@ -386,7 +385,6 @@ describe('Reconcile Tests', () => {
             tag: 'reconcile',
             desc: 'query handler #3 reconcile-test',
             _creator: 'admin-org1.net',
-            _organization: null,
           },
         ]);
       }));

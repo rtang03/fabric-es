@@ -1,0 +1,31 @@
+  # For ORG${TMPL_PARAM_ID}
+  postgres${TMPL_PARAM_ID}:
+    container_name: postgres${TMPL_PARAM_ID}
+    image: $POSTGRES_IMAGE
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      # - $ARTIFACTS/postgres${TMPL_PARAM_ID}:/var/lib/postgresql/data
+      - $SCRIPTS/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+      - $SCRIPTS/init-auth-db.sh:/docker-entrypoint-initdb.d/2-init-auth-db.sh
+    command: postgres
+    # this open port for development, should be removed for production
+    ports:
+      - 5432
+    networks:
+      - openplatform
+
+  redis${TMPL_PARAM_ID}:
+    container_name: redis${TMPL_PARAM_ID}
+    image: $REDISEARCH_IMAGE
+    volumes:
+      - $VOLUME/redis${TMPL_PARAM_ID}-data:/data
+    # custom configuration. will require if AUTH is set
+    # - $VOLUME/redis.conf:/usr/local/etc/redis/redis.conf
+    # this open port for development, should be removed for production
+    ports:
+      - ${TMPL_PARAM_REDIS_PORT}:6379
+    networks:
+      - openplatform

@@ -1,3 +1,5 @@
+import { BaseCacheEntity } from '../../types';
+
 /**
  * @about define field used in [[CounterMapFields]]. Notice that the key name of of HashFields can be
  * re-named from the input [[Counter]] to in-redis [[CounterInRedis]], by defining CounterMapFields.
@@ -6,16 +8,12 @@
  * And, all in-redis object is "string" type.
  * @ignore
  */
-export type CounterInRedis = {
-  created: number;
-  creator: string;
+export class CounterInRedis implements BaseCacheEntity {
   de: string;
   event: string;
   id: string;
   tag: string;
   tl: string;
-  ts: number;
   val: string | number;
   history: string;
-  organ: string;
 };

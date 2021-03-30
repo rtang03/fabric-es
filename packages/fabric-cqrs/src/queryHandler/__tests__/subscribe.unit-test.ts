@@ -377,7 +377,7 @@ describe('Query Handler Tests', () => {
   //     eventInvolved: [Array],
   //     id: 'qh_sub_test_001',
   //     tags: [Array],
-  //     timestamp: '1612973302118',
+  //     modifiedAt: '1612973302118',
   //     value: 0
   //   }
   // ],
@@ -392,7 +392,7 @@ describe('Query Handler Tests', () => {
         expect(data.total).toEqual(1);
         expect(data.hasMore).toBeFalsy();
         expect(data.cursor).toEqual(1);
-        expect(omit(data.items[0], 'createdAt', 'timestamp')).toEqual({
+        expect(omit(data.items[0], 'createdAt', 'modifiedAt')).toEqual({
           id,
           value: 0,
           tags: ['subscription'],
@@ -416,7 +416,7 @@ describe('Query Handler Tests', () => {
         expect(data.total).toEqual(1);
         expect(data.hasMore).toBeFalsy();
         expect(data.cursor).toEqual(1);
-        expect(omit(data.items[0], 'createdAt', 'timestamp')).toEqual({
+        expect(omit(data.items[0], 'createdAt', 'modifiedAt')).toEqual({
           id,
           value: 0,
           tags: ['subscription'],
@@ -467,7 +467,7 @@ describe('Pagination tests for getPaginatedEntityById', () => {
   //     eventInvolved: [Array],
   //     id: 'qh_pag_test_001',
   //     tags: [Array],
-  //     timestamp: '1612973312032',
+  //     modifiedAt: '1612973312032',
   //     value: -1
   //   },
   //   {
@@ -477,7 +477,7 @@ describe('Pagination tests for getPaginatedEntityById', () => {
   //     eventInvolved: [Array],
   //     id: 'qh_pag_test_002',
   //     tags: [Array],
-  //     timestamp: '1612973323153',
+  //     modifiedAt: '1612973323153',
   //     value: 1
   //   }
   // ],

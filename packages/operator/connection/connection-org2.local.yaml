@@ -13,7 +13,7 @@ client:
   connection:
     timeout:
       peer:
-        endorser: '300'
+        endorser: "300"
 
 channels:
   loanapp:
@@ -60,7 +60,7 @@ peers:
 
 certificateAuthorities:
   rca-org2:
-    url: https://localhost:5055
+    url: https://localhost:5253
     caName: rca-org2
     tlsCACerts:
       path: ../../deployments/dev-net/artifacts/crypto-config/Org2MSP/msp/tlscacerts/tls-ca-cert.pem

@@ -7,7 +7,7 @@
 
 getConfig $1
 ORDERER_NAME=$NAME
-ORDERER_PEER=$PEER
+ORDERER_LIST=$LIST
 ORDERER_DOMAIN=$DOMAIN
 ORDERER_CAPORT=$CAPORT
 
@@ -22,7 +22,7 @@ do
   fabric-ca-client register -d --id.name ${PEER}.${DOMAIN} --id.secret ${PEER}.${DOMAIN}PW --id.type peer -u https://0.0.0.0:${ORDERER_CAPORT}
 done
 
-for ODR in ${ORDERER_PEER}; do
+for ODR in ${ORDERER_LIST}; do
   fabric-ca-client register -d --id.name ${ODR}.${ORDERER_DOMAIN} --id.secret ${ODR}.${ORDERER_DOMAIN}PW --id.type orderer -u https://0.0.0.0:${ORDERER_CAPORT}
 done
 
@@ -44,7 +44,7 @@ do
   mv /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/keystore/* /var/artifacts/crypto-config/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/keystore/key.pem
 done
 
-for ODR in ${ORDERER_PEER}; do
+for ODR in ${ORDERER_LIST}; do
   # Copy certificate of tls-ca for orderer
   mkdir -p /var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ODR}.${ORDERER_DOMAIN}/assets/tls-ca
   cp /var/artifacts/crypto-config/${ORDERER_NAME}MSP/tls/admin/msp/cacerts/0-0-0-0-${ORDERER_CAPORT}.pem /var/artifacts/crypto-config/${ORDERER_NAME}MSP/${ODR}.${ORDERER_DOMAIN}/assets/tls-ca/tls-ca-cert.pem

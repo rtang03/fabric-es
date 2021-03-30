@@ -23,7 +23,4 @@ export class Document implements BaseEntity {
   reference: string;
   status: DocumentStatus;
   timestamp: number;
-  _created?: number;
-  _creator?: string;
-  _organization?: string[];
 }

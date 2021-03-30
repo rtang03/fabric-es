@@ -1,5 +1,5 @@
+export { buildRedisOptions } from './utils/buildRedisOptions';
 export { catchResolverErrors } from './utils/catchResolverErrors';
-export { buildRedisOptions } from './utils/composeRedisRepos';
 export { createGateway } from './utils/createGateway';
 export { createService } from './utils/createService';
 export { getLogger } from './utils/getLogger';
@@ -8,4 +8,5 @@ export { createAdminService } from './admin/createAdminService';
 export { createQueryHandlerService } from './queryHandler';
 export { DataSrc, CommandHandler, ServiceType } from './types';
 export { Errors } from './utils';
+export * from './utils/typeGuard';
 export * from './admin/query';

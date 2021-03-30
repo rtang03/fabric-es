@@ -1,4 +1,7 @@
-import { BaseEntity, BaseEvent, Commit } from '.';
+import {
+  BaseEntity, BaseEvent, Commit, ORGAN_FIELD, TRACK_EVENT, TRACK_FIELD,
+  TS_FIELD, CREATOR_FIELD, CREATED_FIELD,
+} from '.';
 
 /**
  * @about reducer computes the current state of an entity
@@ -16,30 +19,22 @@ export type ReducerCallback<TEntity extends BaseEntity, TEvent extends BaseEvent
 /**
  * @about return high order reducer function
  */
+// export const getReducer = <T extends BaseEntity, E extends BaseEvent>(callback: ReducerCallback<T, E>): Reducer<T, E> => (
+//   history: E[],
+//   initialState?: T
+// ) => history.reduce(callback, initialState);
 export const getReducer = <T extends BaseEntity, E extends BaseEvent>(callback: ReducerCallback<T, E>): Reducer<T, E> => (
   history: E[],
   initialState?: T
-) => history.reduce(callback, initialState);
-
-/**
- * @ignore
- */
-export const TRACK_EVENT = 'PrivateDataTracked';
-
-/**
- * @ignore
- */
-export const TRACK_FIELD = '_privateData';
-
-/**
- * @ignore
- */
-export const ORGAN_NAME = 'organization';
-
-/**
- * @ignore
- */
-export const ORGAN_FIELD = '_organization';
+) => {
+  return history.reduce((entity: T, event: E) => {
+    const ntt = callback(entity, event);
+    if (!ntt[CREATOR_FIELD] && event.payload?.[CREATOR_FIELD]) ntt[CREATOR_FIELD] = event.payload[CREATOR_FIELD];
+    if (!ntt[CREATED_FIELD] && event.payload?.[CREATED_FIELD]) ntt[CREATED_FIELD] = event.payload[CREATED_FIELD];
+    if (event.payload?.[TS_FIELD]) ntt[TS_FIELD] = event.payload[TS_FIELD];
+    return ntt;
+  }, initialState);
+};
 
 /**
  * @about reducer for private data tracking events.

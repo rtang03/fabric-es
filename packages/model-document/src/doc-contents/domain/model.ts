@@ -21,5 +21,4 @@ export class DocContents implements BaseEntity {
   documentId: string;
   content: DataContent | FileContent;
   timestamp: number;
-  _organization?: string[];
 }

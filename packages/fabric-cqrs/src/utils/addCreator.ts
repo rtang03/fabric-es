@@ -1,5 +1,5 @@
 import assign from 'lodash/assign';
-import { BaseEvent } from '../types';
+import { BaseEvent, CREATOR_FIELD } from '../types';
 
 /**
  * add metadata - creator
@@ -11,5 +11,5 @@ export const addCreator: (events: BaseEvent[], enrollmentId) => BaseEvent[] = (
 ) =>
   events.map((event) => ({
     ...event,
-    payload: assign({}, event.payload, { _creator: enrollmentId }),
+    payload: assign({}, event.payload, { [CREATOR_FIELD]: enrollmentId }),
   }));

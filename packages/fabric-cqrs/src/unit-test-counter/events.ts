@@ -9,9 +9,9 @@ export interface Increment extends BaseEvent {
     id: string;
     desc: string;
     tag: string;
-    _ts?: number;
-    _created?: number;
-    _creator?: string;
+    // _ts?: number;
+    // _created?: number;
+    // _creator?: string;
   };
 }
 
@@ -24,9 +24,9 @@ export interface Decrement extends BaseEvent {
     id: string;
     desc: string;
     tag: string;
-    _ts?: number;
-    _created?: number;
-    _creator?: string;
+    // _ts?: number;
+    // _created?: number;
+    // _creator?: string;
   };
 }
 

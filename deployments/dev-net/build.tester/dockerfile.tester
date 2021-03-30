@@ -1,0 +1,27 @@
+FROM node:12.20-alpine
+LABEL org.opencontainers.image.source https://github.com/rtang03/fabric-es
+ENV TIME_ZONE=Asia/Hong_Kong \
+  ENV_NAME=test \
+  NODE_ENV=test \
+  NODE_CONFIG_ENV=test \
+  TEST_TARGETS="" \
+  TEST_OPTIONS=""
+
+WORKDIR /home/app
+
+COPY ./build/ /home/app/
+
+RUN apk add --no-cache curl tzdata \
+  && yarn install --ignore-engines --network-timeout 1000000 \
+  && yarn add --dev jest \
+  && yarn cache clean \
+  && chown -R node:node /home/app/ \
+  && mv entrypoint.sh /usr/local/bin/
+
+USER node
+
+VOLUME /var/keys/
+
+EXPOSE 3000
+
+ENTRYPOINT entrypoint.sh "$TEST_OPTIONS" "$TEST_TARGETS"

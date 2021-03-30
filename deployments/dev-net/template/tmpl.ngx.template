@@ -1,0 +1,17 @@
+server { # simple reverse-proxy
+    listen       ${NGINX_PORT};
+    listen       [::]:${NGINX_PORT};
+    server_name  localhost;
+    access_log   /var/log/nginx/host.access.log  main;
+
+    # serve static files
+    location ~ ^/(images|javascript|js|css|flash|media|static)/  {
+      root    /var/www/virtual/big.server.com/htdocs;
+      expires 30d;
+    }
+
+    # pass requests for dynamic content to rails/turbogears/zope, et al
+
+  #%__tmpl.ngx.service__%
+
+  }
