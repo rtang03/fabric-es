@@ -1,54 +1,132 @@
-// import { ApolloServerBase } from 'apollo-server-core';
-import util from 'util';
-import { execute, makePromise } from 'apollo-link';
-import { HttpLink } from 'apollo-link-http';
-import { Request, Response } from 'express';
-import gql from 'graphql-tag';
+import { buildFederatedSchema } from '@apollo/federation';
+import { DocumentNode } from 'graphql';
 import nodeFetch from 'node-fetch';
-import { getLogger } from './getLogger';
 
 const fetch = nodeFetch as any;
 
-export const getCatalog = async (req: Request, res: Response) => {
-  const logger = getLogger('[gw-lib] catalog.js');
+export const buildCatalogedSchema = (service: string, sdl: {
+  typeDefs: DocumentNode;
+  resolvers: any;
+}[]) => {
+  const buildCatalog = (defs: DocumentNode) => {
+    let count = 0;
+    const catalog = { service };
+    if (defs.kind === 'Document') {
+      for (const d of defs.definitions) {
+        let included = false;
+        if (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name') {
+          if (d.name.value === 'Document') {
+            console.log(JSON.stringify(d, null, ' '));
+          }
 
-  const addr = req.socket.address();
-  let results = [];
+          if (d.description) included = true;
+          const fields = [];
+          for (const f of d['fields']) {
+            if (f.kind === 'FieldDefinition' && f.name.kind === 'Name') {
+              if ((d.name.value !== 'Query' && d.name.value !== 'Mutation') || f.description) {
+                if (f.description) included = true;
 
-  if (typeof addr === 'object') {
-    console.log('HAHA', `http://localhost:${addr.port}/graphql`);
-    results = await makePromise(
-      execute(
-        new HttpLink({
-          uri: `http://localhost:${addr.port}/graphql`,
-          fetch,
-        }),
-        {
-          query: gql`{
-            __schema {
-              types {
-                name
-                kind
+                let type = f.type;
+                let count = 10;
+                while (type.kind !== 'NamedType' && count > 0) {
+                  type = type.type;
+                  count --;
+                }
+                if (type.kind !== 'NamedType') type = undefined;
+
+                fields.push(f.description ? {
+                  [f.name.value]: {
+                    description: f.description.value,
+                    type: type?.['name'].value,
+                  }
+                } : {
+                  [f.name.value]: {
+                    type: type?.['name'].value,
+                  }
+                });
               }
             }
-          }`
+          }
+          if (included) {
+            count ++;
+            if (fields.length > 0) {
+              catalog[d.name.value] = d.description ? {
+                description: d.description?.value || '', // type with description given
+                fields
+              } : {
+                fields // type with no description given
+              };
+            } else if (d.description) {
+              catalog[d.name.value] = d.description;
+            }
+          }
         }
-      )
-    ).then(types => {
-      if (!types || !types.data || !types.data.__schema || !types.data.__schema.types) {
-        return ['Error reading schema'];
-      } else {
-        return types.data.__schema.types.filter(t => t.kind !== 'SCALAR' && !t.name.startsWith('__'));
-      }
-    }).catch((error) => {
-      const result = util.format('Getting catalogue: %j', error);
-      logger.error(result);
-      return [result];
-    });
-  } else {
-    results = [addr];
-  }
+      };
+    }
+    return (count > 0) ? catalog : undefined;
+  };
 
-  res.setHeader('content-type', 'text/markdown; charset=UTF-8');
-  res.send(results);
+  const insertSchema = (typeDefs: DocumentNode) => {
+    const defs = JSON.parse(JSON.stringify(typeDefs));
+    if (defs.kind === 'Document') {
+      let found = false;
+      for (const d of defs.definitions) {
+        if (d.kind === 'ScalarTypeDefinition' && d.name.kind === 'Name' && d.name.value === 'JSON') found = true;
+        if (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === 'Query') {
+          d['fields'].push({
+            'kind': 'FieldDefinition',
+            'name': {
+              'kind': 'Name',
+              'value': `_catalog_${service}`
+            },
+            'arguments': [],
+            'type': {
+              'kind': 'NamedType',
+              'name': {
+                'kind': 'Name',
+                'value': 'JSON'
+              }
+            },
+            'directives': []
+          });
+          break;
+        }
+      }
+      if (!found) {
+        defs.definitions.push({
+          'kind': 'ScalarTypeDefinition',
+          'name': {
+            'kind': 'Name',
+            'value': 'JSON'
+          },
+          'directives': []
+        });
+      }
+      return defs as DocumentNode;
+    } else {
+      return typeDefs;
+    }
+  };
+
+  return buildFederatedSchema(sdl.map(({ typeDefs, resolvers }) => {
+    const cat = buildCatalog(typeDefs);
+    const { Query: query, ...rest  } = resolvers;
+
+    if (cat) {
+      const def = insertSchema(typeDefs);
+
+      // NOTE: all schemas given in sdl can only have at most 1 Query entry
+      const res = {
+        Query: {
+          [`_catalog_${service}`]: () => cat,
+          ...query
+        },
+        ...rest
+      };
+
+      return { typeDefs: def, resolvers: res };
+    } else {
+      return { typeDefs, resolvers };
+    }
+  }));
 };

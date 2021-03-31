@@ -1,5 +1,5 @@
 import util from 'util';
-import { buildFederatedSchema } from '@apollo/federation';
+// import { buildFederatedSchema } from '@apollo/federation';
 import {
   createRepository,
   createPrivateRepository,
@@ -23,6 +23,7 @@ import type { Selector } from 'reselect';
 import { DataSrc } from '..';
 import { Organization, OrgEvents, orgReducer, orgIndices, User, UserEvents, userReducer, userIndices } from '../common/model';
 import { AddRepository, AddRemoteRepository, FederatedService, ServiceType } from '../types';
+import { buildCatalogedSchema } from './catalog';
 import { composeRedisRepos, getLogger, shutdownApollo } from '.';
 
 /**
@@ -167,7 +168,7 @@ export const createService: (option: {
         playground?: boolean;
         introspection?: boolean;
       }) => ApolloServer = (option) => {
-        const schema = buildFederatedSchema(sdl);
+        const schema = buildCatalogedSchema(serviceName, sdl);
 
         const args = mspId ? { mspId } : undefined;
         const flags = {

@@ -31,6 +31,11 @@ export const typeDefs = gql`
     expireLoan(userId: String!, loanId: String!): LoanResponse
   }
 
+  """
+  *Loan* is one of the on-chain top-level entities. Being globally accessible, it serves as an anchor point of all information related
+  to a loan request scattered among the participating organizations. Each loan is uniquely identified by a _loanId_. The
+  loan applicants may also utilize the _reference_ property as their internal identifier unique within their individual organizations.
+  """
   type Loan @key(fields: "loanId") {
     loanId: String!
     ownerId: String!

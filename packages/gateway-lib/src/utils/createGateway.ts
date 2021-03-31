@@ -8,7 +8,7 @@ import httpStatus from 'http-status';
 import pick from 'lodash/pick';
 import fetch from 'node-fetch';
 import winston from 'winston';
-import { getCatalog } from './catalog';
+// import { getCatalog } from './catalog';
 import { getLogger } from './getLogger';
 import { pm2Connect, pm2List } from './promisifyPm2';
 import { isAuthResponse } from './typeGuard';
@@ -136,7 +136,7 @@ export const createGateway: (option: {
 
   app.get('/ping', (_, res) => res.status(200).send({ data: 'pong' }));
 
-  app.get('/catalog', getCatalog);
+  // app.get('/catalog', getCatalog);
 
   // Note: this cors implementation is redundant. Cors should be check at ui-account's express backend
   // However, if there is alternative implementation, other than custom backend of SSR; there may require
