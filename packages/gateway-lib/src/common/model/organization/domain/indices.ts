@@ -14,5 +14,5 @@ export const orgIndices: OrgIndices = {
   name: { index: { type: 'TEXT', sortable: true } },
   url: { altName: 'ref' },
   status: { index: { type: 'TEXT' } },
-  timestamp: { altName: 'ts', index: { type: 'NUMERIC', sortable: true } },
+  timestamp: { index: { type: 'NUMERIC', sortable: true } },
 };

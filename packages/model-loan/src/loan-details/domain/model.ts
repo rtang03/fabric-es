@@ -34,5 +34,4 @@ export class LoanDetails implements BaseEntity {
   approvedAmt?: number;
   comment?: string;
   timestamp: number;
-  _organization?: string[];
 }

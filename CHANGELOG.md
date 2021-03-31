@@ -2,10 +2,27 @@
 
 ## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.6...HEAD)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.8...HEAD)
+
+**Implemented enhancements:**
+
+- add alternative implementation of auth0 [\#202](https://github.com/rtang03/fabric-es/issues/202)
 
 **Merged pull requests:**
 
+- feat: enable auth0 in gateway-lib [\#203](https://github.com/rtang03/fabric-es/pull/203) ([rtang03](https://github.com/rtang03))
+
+## [v0.7.8](https://github.com/rtang03/fabric-es/tree/v0.7.8) (2021-03-26)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.7...v0.7.8)
+
+## [v0.7.7](https://github.com/rtang03/fabric-es/tree/v0.7.7) (2021-03-26)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.6...v0.7.7)
+
+**Merged pull requests:**
+
+- feat: Domain Model Refactoring for Query Handler Search [\#201](https://github.com/rtang03/fabric-es/pull/201) ([pangduckwai](https://github.com/pangduckwai))
 - feat: model-identity - Did Document [\#199](https://github.com/rtang03/fabric-es/pull/199) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.6](https://github.com/rtang03/fabric-es/tree/v0.7.6) (2021-03-11)

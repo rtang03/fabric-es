@@ -4,8 +4,14 @@ import { Wallets } from 'fabric-network';
 import type { RedisOptions } from 'ioredis';
 import { getLogger } from '..';
 import {
-  Organization, OrgEvents, orgReducer, orgIndices, orgCommandHandler,
-  User, userReducer, userIndices,
+  Organization,
+  OrgEvents,
+  orgReducer,
+  orgIndices,
+  orgCommandHandler,
+  User,
+  userReducer,
+  userIndices,
 } from '../common/model';
 import { createService } from '../utils';
 import {
@@ -14,7 +20,7 @@ import {
   MISSING_CA_NAME,
   MISSING_WALLET,
 } from './constants';
-import { createResolvers } from './createResolvers';
+import { createResolversWithAuth0 } from './createResolversWithAuth0';
 import { typeDefs } from './typeDefs';
 
 /**
@@ -47,7 +53,7 @@ import { typeDefs } from './typeDefs';
  * }
  * ```
  */
-export const createAdminService: (option: {
+export const createAdminServiceWithAuth0: (option: {
   caAdmin: string;
   caAdminPW: string;
   channelName: string;
@@ -115,13 +121,15 @@ export const createAdminService: (option: {
 
   const mspId = getMspId();
   const orgRepo = getRepository<Organization, Organization, OrgEvents>(Organization, orgReducer);
-  await orgCommandHandler({ enrollmentId: caAdmin, orgRepo }).StartOrg({
-    mspId, payload: { name: orgName, url: orgUrl, timestamp: Date.now() },
-  })
-  .then(_ => logger.info('orgCommandHandler.StartOrg complete'))
-  .catch(error => logger.error(error));
+  await orgCommandHandler({ enrollmentId: caAdmin, orgRepo })
+    .StartOrg({
+      mspId,
+      payload: { name: orgName, url: orgUrl, timestamp: Date.now() },
+    })
+    .then((_) => logger.info('orgCommandHandler.StartOrg complete'))
+    .catch((error) => logger.error(error));
 
-  const resolvers = await createResolvers({
+  const resolvers = await createResolversWithAuth0({
     caAdmin,
     caAdminPW,
     channelName,
@@ -144,24 +152,25 @@ export const createAdminService: (option: {
 
   return {
     server,
-    shutdown: ((repo: Repository) => (
-      server: ApolloServer
-    ) => {
+    shutdown: ((repo: Repository) => (server: ApolloServer) => {
       if (!stopping) {
         stopping = true;
-        return orgCommandHandler({ enrollmentId: caAdmin, orgRepo: repo, }).ShutdownOrg({
-          mspId, payload: { timestamp: Date.now() },
-        }).then(_ => {
-          return shutdown(server).then(_ => {
-            stopped = true;
+        return orgCommandHandler({ enrollmentId: caAdmin, orgRepo: repo })
+          .ShutdownOrg({
+            mspId,
+            payload: { timestamp: Date.now() },
+          })
+          .then((_) => {
+            return shutdown(server).then((_) => {
+              stopped = true;
+            });
           });
-        });
       } else {
         let cnt = 10;
         const loop = (func) => {
           setTimeout(() => {
             if (!stopped && cnt > 0) {
-              cnt --;
+              cnt--;
               logger.debug(`waiting for shutdown() to complete... ${cnt}`);
               loop(func);
             } else {
@@ -169,7 +178,7 @@ export const createAdminService: (option: {
             }
           }, 1000);
         };
-        return new Promise<void>(resolve => loop(resolve));
+        return new Promise<void>((resolve) => loop(resolve));
       }
     })(orgRepo),
   };

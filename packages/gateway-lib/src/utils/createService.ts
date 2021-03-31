@@ -1,4 +1,5 @@
 import util from 'util';
+import { buildFederatedSchema } from '@apollo/federation';
 import {
   createRepository,
   createPrivateRepository,
@@ -12,9 +13,10 @@ import {
   EntityType,
   ReducerCallback
 } from '@fabric-es/fabric-cqrs';
+import { GraphQLResolverMap } from 'apollo-graphql';
 import { ApolloServer } from 'apollo-server';
 import { Gateway, Network, Wallet } from 'fabric-network';
-import { GraphQLSchema } from 'graphql';
+import { DocumentNode } from 'graphql';
 import type { RedisOptions } from 'ioredis';
 import { Redisearch } from 'redis-modules-sdk';
 import type { Selector } from 'reselect';
@@ -151,7 +153,10 @@ export const createService: (option: {
     });
 
   return {
-    config: (schema: GraphQLSchema) => { // { typeDefs, resolvers }
+    config: (sdl: {
+      typeDefs: DocumentNode;
+      resolvers: GraphQLResolverMap<any>;
+    }[]) => {
       const repositories: {
         entityName: string;
         repository: Repository | PrivateRepository;
@@ -162,6 +167,8 @@ export const createService: (option: {
         playground?: boolean;
         introspection?: boolean;
       }) => ApolloServer = (option) => {
+        const schema = buildFederatedSchema(sdl);
+
         const args = mspId ? { mspId } : undefined;
         const flags = {
           playground: option?.playground,
@@ -194,9 +201,6 @@ export const createService: (option: {
                 Object.assign(
                   {
                     ...headers,
-                    user_id: headers.user_id,
-                    is_admin: headers.is_admin,
-                    username: headers.username,
                     serviceName,
                     serviceType: type,
                   },

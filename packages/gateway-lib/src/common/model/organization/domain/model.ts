@@ -1,5 +1,10 @@
 import type { BaseEntity } from '@fabric-es/fabric-cqrs';
 
+/**
+ * @ignore
+ */
+export const ORGAN_NAME = 'organization';
+
 export enum OrgStatus {
   UP, DOWN
 }
@@ -8,7 +13,7 @@ export enum OrgStatus {
  * @about **organization** is one of the on-chain top-level entities representing the organization participating in the blockchain network.
  */
 export class Organization implements BaseEntity {
-  static readonly entityName = 'organization';
+  static readonly entityName = ORGAN_NAME;
 
   id: string;
   mspId: string;
@@ -16,7 +21,7 @@ export class Organization implements BaseEntity {
   url?: string;
   status: OrgStatus;
   timestamp: number;
-  _ts: number;
-  _created: number;
-  _creator: string;
+  // _ts: number;
+  // _created: number;
+  // _creator: string;
 }

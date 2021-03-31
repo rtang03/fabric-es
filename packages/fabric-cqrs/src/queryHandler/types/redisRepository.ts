@@ -12,7 +12,7 @@ type Pattern =
 /**
  * @about abstraction of Redis operations
  */
-export type RedisRepository<TResult = any> = {
+export type RedisRepository<TItem = any, TItemInRedis = any, TResult = any> = {
   /**
    * create index, either eidx:ENTITYNAME or cidx
    * @see https://oss.redislabs.com/redisearch/Commands/#ftcreate
@@ -53,9 +53,9 @@ export type RedisRepository<TResult = any> = {
   /** return the pattern expression **/
   getPattern: (pattern: Pattern, args: string[]) => string;
 
-  getPreSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
+  getPreSelector: () => Selector<TItem, TItemInRedis>;
 
-  getPostSelector: <TInput, TOutput>() => Selector<TInput, TOutput>;
+  getPostSelector: () => Selector<TItemInRedis, TResult>;
 
   /**
    * @about restore commit history from Redis format, and detect any errors

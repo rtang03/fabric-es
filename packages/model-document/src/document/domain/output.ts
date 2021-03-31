@@ -1,11 +1,12 @@
+import type { BaseOutputEntity } from '@fabric-es/fabric-cqrs';
 import { createStructuredSelector, Selector } from 'reselect';
-import type { DocumentInRedis } from '.';
+import type { DocumentInCache } from '.';
 
 /**
  * **DocumentOutput** represents the advance search result transformed from the domain entity *Document*.
  * It is optional if the output object has the same structure as the entity stored in Redis.
  */
-export type DocumentOutput = {
+export class DocumentOutput implements BaseOutputEntity {
   id: string;
   documentId: string;
   ownerId: string;
@@ -14,15 +15,12 @@ export type DocumentOutput = {
   reference: string;
   status: string;
   timestamp: number;
-  creator: string;
-  createdAt: number;
-  organization: string[];
 };
 
 /**
  * **documentPostSelector** transform the domain entity cached in Redis into search result format.
  */
-export const documentPostSelector: Selector<DocumentInRedis, DocumentOutput> = createStructuredSelector({
+export const documentPostSelector: Selector<DocumentInCache, DocumentOutput> = createStructuredSelector({
   id: (item) => item?.id,
   documentId: (item) => item?.id,
   ownerId: (item) => item?.owner,
@@ -30,8 +28,5 @@ export const documentPostSelector: Selector<DocumentInRedis, DocumentOutput> = c
   title: (item) => item?.title,
   reference: (item) => item?.ref,
   status: (item) => item?.status,
-  timestamp: (item) => item?.ts,
-  createdAt: (item) => item?.created,
-  creator: (item) => item?.creator,
-  organization: (item) => JSON.parse(item?.organ),
+  timestamp: (item) => item?.timestamp,
 });

@@ -1,5 +1,6 @@
-require('dotenv').config({ path: './.env.test' });
+require('dotenv').config({ path: './.env' });
 import http from 'http';
+import { URLSearchParams } from 'url';
 import {
   CounterInRedis,
   counterIndexDefinition,
@@ -15,38 +16,30 @@ import {
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
-import httpStatus from 'http-status';
 import type { RedisOptions } from 'ioredis';
 import keys from 'lodash/keys';
 import values from 'lodash/values';
 import fetch from 'node-fetch';
 import rimraf from 'rimraf';
 import request from 'supertest';
-import { createAdminService } from '../admin';
-import { IDENTITY_ALREADY_EXIST, UNAUTHORIZED_ACCESS } from '../admin/constants';
-import {
-  CREATE_WALLET,
-  GET_CA_IDENTITY_BY_USERNAME,
-  GET_WALLET,
-  LIST_WALLET,
-} from '../admin/query';
+import { createAdminServiceWithAuth0 } from '../admin';
+import { GET_CA_IDENTITY_BY_USERNAME, GET_WALLET, LIST_WALLET } from '../admin/query';
 import { createQueryHandlerService } from '../queryHandler';
-import { QueryResponse } from '../types';
 import {
-  createGateway,
+  createGatewayWithAuth0,
   createService,
+  isAuth0UserInfo,
   isCaIdentity,
-  isLoginResponse,
-  isRegisterResponse,
   waitForSecond,
 } from '../utils';
-import { DECREMENT, GET_COUNTER, INCREMENT, resolvers, SEARCH, typeDefs } from './__utils__';
-
-/**
- * ./dn-run.1-db-red-auth.sh or ./dn-run.2-db-red-auth.sh
- * note: this is using counter inside __utils__. The counter has no 'desc' 'tag'. And hence,
- * no full text search is available. This is intentionally made to minimal implementation.
- */
+import {
+  DECREMENT,
+  GET_COUNTER,
+  INCREMENT,
+  resolversWithAuth0 as resolvers,
+  SEARCH,
+  typeDefs,
+} from './__utils__';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -56,23 +49,18 @@ const caName = process.env.CA_NAME;
 const mspId = process.env.MSPID;
 const orgAdminId = process.env.ORG_ADMIN_ID;
 const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
-const proxyServerUri = process.env.PROXY_SERVER;
 const walletPath = process.env.WALLET;
 const random = Math.floor(Math.random() * 10000);
-const username = `gw_test_username_${random}`;
-const password = `password`;
-const email = `gw_test_${random}@test.com`;
 const counterId = `counter_${random}`;
 // If requiring to change entityName, need to update the Context, and resolvers as well.
 const entityName = 'counter';
 const enrollmentId = orgAdminId;
+const issuerBaseUrl = process.env.AUTH0_ISSUER_BASE_URL;
 
+let signInToken;
 let app: http.Server;
 let adminApolloService: ApolloServer;
 let modelApolloService: ApolloServer;
-let userId: string;
-let accessToken: string;
-let adminAccessToken: string;
 let redisOptions: RedisOptions;
 let queryHandlerServer: ApolloServer;
 let queryHandler: QueryHandler;
@@ -82,12 +70,10 @@ const MODEL_SERVICE_PORT = 15001;
 const ADMIN_SERVICE_PORT = 15000;
 const GATEWAY_PORT = 4000;
 const QH_PORT = 4400;
-const sleep5 = new Promise((resolve) => setTimeout(() => resolve(true), 5000));
 
 /**
- * ./dn-run-1-px-db-red-auth.sh
+ * ./dn-run.sh 2 auth
  */
-
 beforeAll(async () => {
   rimraf.sync(`${walletPath}/${orgAdminId}.id`);
   rimraf.sync(`${walletPath}/${caAdmin}.id`);
@@ -121,19 +107,19 @@ beforeAll(async () => {
     Counter.entityName = entityName;
     const qhService = await createQueryHandlerService({
       asLocalhost: !(process.env.NODE_ENV === 'production'),
-      authCheck: `${proxyServerUri}/oauth/authenticate`,
+      authCheck: `${issuerBaseUrl}/userinfo`,
+      // authCheck: `${proxyServerUri}/oauth/authenticate`,
       channelName,
       connectionProfile,
       enrollmentId,
       redisOptions: { host: 'localhost', port: 6379 },
       wallet,
     })
-      .addRedisRepository<Counter, CounterInRedis, OutputCounter, CounterEvents>(
-        Counter, {
-          reducer: counterReducerCallback,
-          fields: counterIndexDefinition,
-          postSelector: counterPostSelector,
-          preSelector: counterPreSelector,
+      .addRedisRepository<Counter, CounterInRedis, OutputCounter, CounterEvents>(Counter, {
+        reducer: counterReducerCallback,
+        fields: counterIndexDefinition,
+        postSelector: counterPostSelector,
+        preSelector: counterPreSelector,
       })
       .run();
 
@@ -198,7 +184,7 @@ beforeAll(async () => {
     );
 
     // step 11: Prepare Admin microservice
-    const service = await createAdminService({
+    const service = await createAdminServiceWithAuth0({
       asLocalhost: !(process.env.NODE_ENV === 'production'),
       caAdmin,
       caAdminPW,
@@ -219,12 +205,13 @@ beforeAll(async () => {
     );
 
     // Step 12: Prepare Federated Gateway
-    app = await createGateway({
+    app = await createGatewayWithAuth0({
       serviceList: [
         { name: 'admin', url: `http://localhost:${ADMIN_SERVICE_PORT}/graphql` },
         { name: 'counter', url: `http://localhost:${MODEL_SERVICE_PORT}/graphql` },
       ],
-      authenticationCheck: `${proxyServerUri}/oauth/authenticate`,
+      authenticationCheck: `${issuerBaseUrl}/userinfo`,
+      enrollmentId: orgAdminId,
     });
 
     // Step 13: Start Gateway
@@ -284,84 +271,103 @@ afterAll(async () => {
 });
 
 describe('Gateway Test - admin service', () => {
-  it('should ping /isalive', async () =>
-    fetch(`${proxyServerUri}/account/isalive`).then((r) => {
-      if (r.status === httpStatus.NO_CONTENT) return true;
-      else {
-        console.error('auth server is not alive');
-        process.exit(1);
-      }
+  it('should reach oauth endpoint', async () =>
+    fetch(`${issuerBaseUrl}/.well-known/openid-configuration`).then((r) => {
+      if (r.status !== 200) return Promise.reject('fail to fetch openid configuration ');
+      return r.json();
     }));
 
-  it('should register new user', async () =>
-    fetch(`${proxyServerUri}/account`, {
+  it('shoudl register new user, if not exist', async () => {
+    const response = await fetch(`${issuerBaseUrl}/oauth/token`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password }),
-    })
-      .then<unknown>((r) => r.json())
-      .then((res) => {
-        if (isRegisterResponse(res)) {
-          userId = res?.id;
-          return true;
-        } else return Promise.reject('not register response');
-      }));
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        client_id: process.env.AUTH0_MGT_CLIENT_ID,
+        client_secret: process.env.AUTH0_MGT_CLIENT_SECRET,
+        audience: 'https://dashslab.us.auth0.com/api/v2/',
+        grant_type: 'client_credentials',
+      }),
+    }).then((r) => {
+      console.log(`Obtain access_token for management api: ${r.status}`);
+      return r.json();
+    });
+    const AUTH0_MGT_API_TOKEN = response?.access_token;
 
-  it('should login new user', async () =>
-    fetch(`${proxyServerUri}/account/login`, {
+    if (!AUTH0_MGT_API_TOKEN) throw new Error('No access_token return for management api');
+
+    return fetch(`${issuerBaseUrl}/api/v2/users`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${AUTH0_MGT_API_TOKEN}`,
+      },
+      body: JSON.stringify({
+        email: process.env.AUTH0_USERNAME,
+        given_name: 'John',
+        family_name: 'Doe',
+        name: 'John Doe',
+        nickname: 'Johnny',
+        picture:
+          'https://secure.gravatar.com/avatar/15626c5e0c749cb912f9d1ad48dba440?s=480&r=pg&d=https%3A%2F%2Fssl.gstatic.com%2Fs2%2Fprofiles%2Fimages%2Fsilhouette80.png',
+        connection: 'Username-Password-Authentication',
+        password: process.env.AUTH0_PASSWORD,
+        verify_email: false,
+        app_metadata: { is_admin: true },
+      }),
     })
-      .then<unknown>((r) => r.json())
-      .then((res) => {
-        if (isLoginResponse(res)) {
-          accessToken = res.access_token;
-          return true;
-        } else return Promise.reject('not login response');
-      }));
+      .then((r) => {
+        console.log(`Create testing user, statusCode: ${r.status}`);
+        return r.json();
+      })
+      .then((response) => console.log(response.message));
+  });
+
+  it('should exchange access_token', async () => {
+    const params = new URLSearchParams();
+    params.append('grant_type', 'password');
+    params.append('client_id', process.env.AUTH0_CLIENT_ID);
+    params.append('audience', process.env.AUTH0_AUDIENCE);
+    params.append('username', process.env.AUTH0_USERNAME);
+    params.append('password', process.env.AUTH0_PASSWORD);
+    params.append('scope', process.env.AUTH0_SCOPE);
+    params.append('client_secret', process.env.AUTH0_CLIENT_SECRET);
+
+    await fetch(`${issuerBaseUrl}/oauth/token`, { method: 'POST', body: params })
+      .then((r) => {
+        expect(r.status).toEqual(200);
+        return r.json();
+      })
+      .then((res) => (signInToken = res));
+
+    if (!signInToken) process.exit(1);
+  });
+
+  it('should retrieve userinfo', async () =>
+    fetch(`${issuerBaseUrl}/userinfo`, {
+      headers: { authorization: `Bearer ${signInToken.access_token}` },
+    })
+      .then((r) => {
+        expect(r.status).toEqual(200);
+        return r.json();
+      })
+      .then((response) => expect(isAuth0UserInfo(response)).toBeTruthy()));
 
   it('should say hello to counter-service', async () =>
     request(app)
       .post('/graphql')
-      .send({
-        query: `query pingCounter { pingCounter }`,
-      })
+      .set('authorization', `Bearer ${signInToken.access_token}`)
+      .send({ query: `query pingCounter { pingCounter }` })
       .expect(({ body: { data, errors } }) => {
         expect(data?.pingCounter).toEqual('I am a simple counter');
         expect(errors).toBeUndefined();
       }));
 
-  it('should login OrgAdmin', async () =>
-    fetch(`${proxyServerUri}/account/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: orgAdminId, password: orgAdminSecret }),
-    })
-      .then<unknown>((r) => r.json())
-      .then((res) => {
-        if (isLoginResponse(res)) {
-          adminAccessToken = res.access_token;
-          return true;
-        } else return Promise.reject('not login response');
-      }));
-
-  it('should fail to listWallet: with non-admin accessToken', async () =>
+  it('should listWallet: with accessToken', async () =>
     request(app)
       .post('/graphql')
-      .send({
-        operationName: 'ListWallet',
-        query: LIST_WALLET,
-      })
-      .expect(({ body: { data, errors } }: QueryResponse) => {
-        expect(data).toBeNull();
-        expect(errors[0].message).toEqual(UNAUTHORIZED_ACCESS);
-      }));
-
-  it('should listWallet: with (admin) accessToken', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
+      .set('authorization', `bearer ${signInToken.access_token}`)
       .send({
         operationName: 'ListWallet',
         query: LIST_WALLET,
@@ -370,23 +376,10 @@ describe('Gateway Test - admin service', () => {
         expect(errors).toBeUndefined();
         expect(data?.listWallet.toString()).toContain(orgAdminId);
       }));
-
-  it('should fail to getWallet: without accessToken', async () =>
-    request(app)
-      .post('/graphql')
-      .send({
-        operationName: 'GetWallet',
-        query: GET_WALLET,
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(data?.getWallet).toBeNull();
-        expect(errors[0]?.message).toEqual('could not find user');
-      }));
-
   it('should getWallet: with accessToken', async () =>
     request(app)
       .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
+      .set('authorization', `bearer ${signInToken.access_token}`)
       .send({
         operationName: 'GetWallet',
         query: GET_WALLET,
@@ -400,51 +393,11 @@ describe('Gateway Test - admin service', () => {
   it('should getCaIdentityByUsername', async () =>
     request(app)
       .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
+      .set('authorization', `bearer ${signInToken.access_token}`)
       .send({ operationName: 'GetCaIdentityByUsername', query: GET_CA_IDENTITY_BY_USERNAME })
       .expect(({ body: { data, errors } }) => {
         expect(errors).toBeUndefined();
         expect(isCaIdentity(data?.getCaIdentityByUsername)).toBeTruthy();
-      }));
-
-  it('should fail createWallet: orgAdmin already exist in wallet', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${adminAccessToken}`)
-      .send({
-        operationName: 'CreateWallet',
-        query: CREATE_WALLET,
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(data).toBeNull();
-        expect(errors[0].message).toContain(IDENTITY_ALREADY_EXIST);
-      }));
-
-  it('should fail to increment counter, before creating wallet', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${accessToken}`)
-      .send({
-        operationName: 'Increment',
-        query: INCREMENT,
-        variables: { counterId, id: counterId },
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(data).toBeNull();
-        expect(errors[0].message).toContain('Please register user');
-      }));
-
-  it('should createWallet', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${accessToken}`)
-      .send({
-        operationName: 'CreateWallet',
-        query: CREATE_WALLET,
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(data?.createWallet).toBeTruthy();
-        expect(errors).toBeUndefined();
       }));
 
   it('should fail to increment counter without valid accessToken', async () =>
@@ -464,7 +417,7 @@ describe('Gateway Test - admin service', () => {
   it('should increment counter', async () =>
     request(app)
       .post('/graphql')
-      .set('authorization', `bearer ${accessToken}`)
+      .set('authorization', `bearer ${signInToken.access_token}`)
       .send({
         operationName: 'Increment',
         query: INCREMENT,
@@ -480,7 +433,7 @@ describe('Gateway Test - admin service', () => {
   it('should increment counter', async () =>
     request(app)
       .post('/graphql')
-      .set('authorization', `bearer ${accessToken}`)
+      .set('authorization', `bearer ${signInToken.access_token}`)
       .send({
         operationName: 'Increment',
         query: INCREMENT,
@@ -496,7 +449,7 @@ describe('Gateway Test - admin service', () => {
   it('should getCounter, value = 2', async () =>
     request(app)
       .post('/graphql')
-      .set('authorization', `bearer ${accessToken}`)
+      .set('authorization', `bearer ${signInToken.access_token}`)
       .send({
         operationName: 'GetCounter',
         query: GET_COUNTER,
@@ -510,7 +463,7 @@ describe('Gateway Test - admin service', () => {
   it('should decrement counter', async () =>
     request(app)
       .post('/graphql')
-      .set('authorization', `bearer ${accessToken}`)
+      .set('authorization', `bearer ${signInToken.access_token}`)
       .send({
         operationName: 'Decrement',
         query: DECREMENT,
@@ -526,7 +479,7 @@ describe('Gateway Test - admin service', () => {
   it('should search, value = 1', async () =>
     request(app)
       .post('/graphql')
-      .set('authorization', `bearer ${accessToken}`)
+      .set('authorization', `bearer ${signInToken.access_token}`)
       .send({
         operationName: 'Search',
         query: SEARCH,
