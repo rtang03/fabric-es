@@ -29,6 +29,7 @@ export interface AddRepository {
     mspId?: string;
     playground?: boolean;
     introspection?: boolean;
+    catalog?: boolean;
   }) => ApolloServer;
   addRepository: <TEntity, TRedis, TOutput, TEvent>(
     entity: EntityType<TEntity>,
@@ -50,6 +51,7 @@ export interface AddRemoteRepository {
     mspId?: string;
     playground?: boolean;
     introspection?: boolean;
+    catalog?: boolean;
   }) => ApolloServer;
   addRemoteRepository: <TParent, TEntity, TRedis, TOutput, TEvent>(
     parent: EntityType<TParent>,
@@ -68,6 +70,7 @@ interface AddPrivateRepository {
     mspId?: string;
     playground?: boolean;
     introspection?: boolean;
+    catalog?: boolean;
   }) => ApolloServer;
   addPrivateRepository: <TEntity, TEvent>(
     entity: EntityType<TEntity>,

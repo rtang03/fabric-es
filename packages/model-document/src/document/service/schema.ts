@@ -1,6 +1,15 @@
 import gql from 'graphql-tag';
 
 export const typeDefs = gql`
+  """
+  Schema level comment. However should not do this because the schema definition should be omitted when using
+  default root operation type names (Query, Mutation and Subscription)
+  """
+  schema {
+    query: Query
+    mutation: Mutation
+  }
+
   type Query {
     getCommitsByDocumentId(documentId: String!): [DocCommit]!
     "Get document by id from query handler"
@@ -44,10 +53,10 @@ export const typeDefs = gql`
     reference: String!
     status: Int!
     timestamp: String!
-    organization: [String]!
     loan: Loan
   }
 
+  "For querying multiple documents in pages"
   type PaginatedDocuments {
     items: [Document!]!
     total: Int!

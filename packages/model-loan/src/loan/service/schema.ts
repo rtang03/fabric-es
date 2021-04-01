@@ -1,6 +1,10 @@
 import gql from 'graphql-tag';
 
 export const typeDefs = gql`
+  """
+  @schema Schema level comment for LOAN!
+  """
+
   type Query {
     getCommitsByLoanId(loanId: String!): [LoanCommit]!
     getLoanById(loanId: String!): Loan
@@ -44,7 +48,6 @@ export const typeDefs = gql`
     comment: String
     status: Int!
     timestamp: String!
-    organization: [String]!
   }
 
   type PaginatedLoans {

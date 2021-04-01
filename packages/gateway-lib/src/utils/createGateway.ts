@@ -8,7 +8,7 @@ import httpStatus from 'http-status';
 import pick from 'lodash/pick';
 import fetch from 'node-fetch';
 import winston from 'winston';
-// import { getCatalog } from './catalog';
+import { getCatalog } from './catalog';
 import { getLogger } from './getLogger';
 import { pm2Connect, pm2List } from './promisifyPm2';
 import { isAuthResponse } from './typeGuard';
@@ -63,11 +63,16 @@ const getProcessDescriptions = (logger: winston.Logger) =>
  * ```
  */
 export const createGateway: (option: {
-  serviceList?: any;
+  serviceList?: {
+    name: string;
+    url: string;
+  }[];
   authenticationCheck: string;
   useCors?: boolean;
   corsOrigin?: string;
   debug?: boolean;
+  playground?: boolean;
+  introspection?: boolean;
 }) => Promise<http.Server> = async ({
   serviceList = [
     {
@@ -79,6 +84,8 @@ export const createGateway: (option: {
   useCors = false,
   corsOrigin = '',
   debug = false,
+  playground = true,
+  introspection = true,
 }) => {
   const logger = getLogger('[gw-lib] createGateway.js');
 
@@ -90,8 +97,8 @@ export const createGateway: (option: {
 
   const server = new ApolloServer({
     gateway,
-    introspection: true,
-    playground: true,
+    introspection,
+    playground,
     subscriptions: false,
     context: async ({ req: { headers } }) => {
       const token = headers?.authorization?.split(' ')[1] || null;
@@ -136,7 +143,7 @@ export const createGateway: (option: {
 
   app.get('/ping', (_, res) => res.status(200).send({ data: 'pong' }));
 
-  // app.get('/catalog', getCatalog);
+  app.get('/catalog', await getCatalog(serviceList));
 
   // Note: this cors implementation is redundant. Cors should be check at ui-account's express backend
   // However, if there is alternative implementation, other than custom backend of SSR; there may require
