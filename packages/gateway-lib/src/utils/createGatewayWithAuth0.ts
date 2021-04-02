@@ -3,7 +3,7 @@ import util from 'util';
 import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import terminus from '@godaddy/terminus';
 import { ApolloServer } from 'apollo-server-express';
-import express from 'express';
+import express, { Express } from 'express';
 import httpStatus from 'http-status';
 import pick from 'lodash/pick';
 import fetch from 'node-fetch';
@@ -71,6 +71,7 @@ export const createGatewayWithAuth0: (option: {
   corsOrigin?: string;
   enrollmentId: string;
   debug?: boolean;
+  customExpressApp?: Express;
 }) => Promise<http.Server> = async ({
   serviceList = [
     {
@@ -83,6 +84,7 @@ export const createGatewayWithAuth0: (option: {
   corsOrigin = '',
   debug = false,
   enrollmentId,
+  customExpressApp,
 }) => {
   const logger = getLogger('[gw-lib] createGateway.js');
 
@@ -135,7 +137,7 @@ export const createGatewayWithAuth0: (option: {
     },
   });
 
-  const app = express();
+  const app = customExpressApp ?? express();
 
   app.use(express.urlencoded({ extended: false }));
 

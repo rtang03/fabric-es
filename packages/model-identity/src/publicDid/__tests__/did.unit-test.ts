@@ -64,33 +64,41 @@ describe('Did Unit Test', () => {
     expect(didDocument.id).toEqual(`did:fab:${id}`);
   });
 
-  it('should create DidDocument by signedRequest', async () => {
-    const payload = createDidDocument({ id, controllerKey: publicKeyHex });
-    const signedRequest = await DidJWT.createJWT(
-      {
-        aud: addressToDid(id),
-        exp: 1957463421,
-        entityName: 'didDocument',
-        entityId: id,
-        version: 0,
-        events: [{ type: 'DidDocumentCreated', lifeCycle: Lifecycle.BEGIN, payload }],
-      },
-      { issuer: addressToDid(id), signer },
-      { alg: 'ES256K' }
-    );
-
-    return createTestClient(server)
-      .mutate({
-        mutation: gql(CREATE_DIDDOCUMENT),
-        variables: { did: id, signedRequest },
-      })
-      .then(({ data, errors }) => {
+  it('should create', async () =>
+    createTestClient(server)
+      .mutate({ mutation: gql(CREATE_DIDDOCUMENT), variables: { did: id, publicKeyHex } })
+      .then(({ data }) => {
         const commit = data?.createDidDocument;
         expect(commit?.entityName).toEqual('didDocument');
-        expect(commit?.version).toEqual(0);
-        expect(errors).toBeUndefined();
-      });
-  });
+      }));
+
+  // it('should create DidDocument', async () => {
+  //   const payload = createDidDocument({ id, controllerKey: publicKeyHex });
+  //   const signedRequest = await DidJWT.createJWT(
+  //     {
+  //       aud: addressToDid(id),
+  //       exp: 1957463421,
+  //       entityName: 'didDocument',
+  //       entityId: id,
+  //       version: 0,
+  //       events: [{ type: 'DidDocumentCreated', lifeCycle: Lifecycle.BEGIN, payload }],
+  //     },
+  //     { issuer: addressToDid(id), signer },
+  //     { alg: 'ES256K' }
+  //   );
+  //
+  //   return createTestClient(server)
+  //     .mutate({
+  //       mutation: gql(CREATE_DIDDOCUMENT),
+  //       variables: { did: id, signedRequest },
+  //     })
+  //     .then(({ data, errors }) => {
+  //       const commit = data?.createDidDocument;
+  //       expect(commit?.entityName).toEqual('didDocument');
+  //       expect(commit?.version).toEqual(0);
+  //       expect(errors).toBeUndefined();
+  //     });
+  // });
 
   it('should resolve', async () => {
     repo.fullTextSearchEntity = jest.fn().mockResolvedValueOnce({

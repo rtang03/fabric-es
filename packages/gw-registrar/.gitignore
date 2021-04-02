@@ -69,4 +69,4 @@ client-certs/
 wallet/
 walletOrg1/
 walletOrg2/
-../../deployments/lib-dev-net/.volume
+.env.test.auth0

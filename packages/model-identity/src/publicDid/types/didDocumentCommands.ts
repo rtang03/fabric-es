@@ -1,7 +1,7 @@
 /**
  * https://w3c-ccg.github.io/did-resolution/
  */
-import { CreateDidOption } from '../../types';
+import type { CreateDidOption } from '../../types';
 
 export type DidDocumentCommands = {
   /**
@@ -9,7 +9,7 @@ export type DidDocumentCommands = {
    */
   Create: {
     did: string;
-    signedRequest: string;
+    payload: CreateDidOption;
   };
   /**
    * @see https://www.w3.org/2019/08/did-20190828/#update

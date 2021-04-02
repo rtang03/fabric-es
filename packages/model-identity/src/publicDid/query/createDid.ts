@@ -1,11 +1,11 @@
 export const CREATE_DIDDOCUMENT = `
   mutation CreateDidDocument(
     $did: String!
-    $signedRequest: String!
+    $publicKeyHex: String!
   ) {
     createDidDocument(
       did: $did
-      signedRequest: $signedRequest
+      publicKeyHex: $publicKeyHex
     ) {
       id
       entityName

@@ -1,5 +1,6 @@
 import omit from 'lodash/omit';
 import type { DidDocument } from '../../types';
+import { removeDidMethodPrefix } from '../../utils';
 import type { DidDocumentEvents } from '../types';
 
 export const didDocumentReducer: (
@@ -8,19 +9,19 @@ export const didDocumentReducer: (
 ) => DidDocument = (doc, event) => {
   switch (event.type) {
     case 'DidDocumentCreated':
-      const id = event.payload.id.replace('did:fab:', '');
+      const id = removeDidMethodPrefix(event.payload.id);
       return Object.assign({}, event.payload, { id });
     case 'VerificationMethodAdded':
       // the pre-existing / duplicated VerificationMethod is replaced by new one.
-      const vm = doc.verificationMethod.filter((item) => item.id !== event.payload.id);
+      const vm = doc.publicKey.filter((item) => item.id !== event.payload.id);
       return {
         ...doc,
-        verificationMethod: [...vm, event.payload],
+        publicKey: [...vm, event.payload],
       };
     case 'VerificationMethodRemoved':
       return {
         ...doc,
-        verificationMethod: doc.verificationMethod.filter((item) => item.id !== event.payload.id),
+        publicKey: doc.publicKey.filter((item) => item.id !== event.payload.id),
       };
     case 'ServiceEndpointAdded':
       // the pre-existing / duplicated service is replaced by new one.
@@ -30,7 +31,7 @@ export const didDocumentReducer: (
     case 'ServiceEndpointRemoved':
       return { ...doc, service: doc.service.filter((item) => item.id !== event.payload.id) };
     case 'DidDocumentDeactivated':
-      return omit(doc, 'verificationMethod');
+      return { ...doc, deactivated: true };
     default:
       return doc;
   }

@@ -1,17 +1,21 @@
 import util from 'util';
-import { isDidDocument, RESOLVE_DIDDOCUMENT } from '@fabric-es/model-identity';
+import {
+  isDidDocument,
+  RESOLVE_DIDDOCUMENT,
+  removeDidMethodPrefix,
+} from '@fabric-es/model-identity';
 import type { ParsedDID } from 'did-resolver';
 import type { DIDResolutionResult } from 'did-resolver';
 import omit from 'lodash/omit';
-import replace from 'lodash/replace';
 import fetch from 'node-fetch';
 
+// TODO: invalid payload format
 export const getResolver = (url: string) => {
   const resolve: (did: string, parsed: ParsedDID) => Promise<DIDResolutionResult> = async (
     did,
     parsed
   ) => {
-    did = replace(did, 'did:fab:', '');
+    did = removeDidMethodPrefix(did);
 
     let result;
     try {

@@ -2,16 +2,16 @@ import type { VerificationMethod } from 'did-resolver';
 import type { DidDocument, CreateDidOption } from '../types';
 
 export const createDidDocument: (option: CreateDidOption) => DidDocument = ({
-                                                                              context,
-                                                                              id,
-                                                                              controller,
-                                                                              controllerKey,
-                                                                              service,
-                                                                              created,
-                                                                              updated,
-                                                                              proof,
-                                                                              keyAgreement,
-                                                                            }) => {
+  context,
+  id,
+  controller,
+  controllerKey,
+  service,
+  created,
+  updated,
+  proof,
+  keyAgreement,
+}) => {
   context = context
     ? Array.isArray(context)
       ? [...context, 'https://www.w3.org/ns/did/v1']
@@ -32,7 +32,7 @@ export const createDidDocument: (option: CreateDidOption) => DidDocument = ({
       controller: identity,
     },
   ];
-  const verificationMethod: VerificationMethod[] = [
+  const publicKey: VerificationMethod[] = [
     // sigAuth
     // {
     //   id: `${identity}`,
@@ -54,14 +54,14 @@ export const createDidDocument: (option: CreateDidOption) => DidDocument = ({
     id: identity,
     controller: controller || identity,
     authentication,
-    verificationMethod,
+    publicKey,
     service,
     created: created ?? isoTime,
     updated: updated ?? isoTime,
     proof,
     keyAgreement,
     // this is not part of w3 standard, but it is used by notification center
-    _creator: id,
-    _ts: Math.round(new Date().getTime()),
+    // _creator: id,
+    // _ts: Math.round(new Date().getTime()),
   };
 };

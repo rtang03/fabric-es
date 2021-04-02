@@ -1,18 +1,16 @@
-require('dotenv').config({ path: './.env.test' });
+require('dotenv').config({ path: './.env.test.auth0' });
 import http from 'http';
-import { buildFederatedSchema } from '@apollo/federation';
+import { URLSearchParams } from 'url';
 import type { QueryHandler, RedisRepository } from '@fabric-es/fabric-cqrs';
-import { Lifecycle } from '@fabric-es/fabric-cqrs';
 import {
   buildRedisOptions,
   CREATE_WALLET,
-  createAdminService,
-  createGateway,
+  createAdminServiceWithAuth0,
+  createGatewayWithAuth0,
   createQueryHandlerService,
   createService,
   getLogger,
-  isLoginResponse,
-  isRegisterResponse,
+  isAuth0UserInfo,
 } from '@fabric-es/gateway-lib';
 import {
   CREATE_DIDDOCUMENT,
@@ -30,25 +28,20 @@ import {
   isVerificationMethod,
   waitForSecond,
   addressToDid,
-  createDidDocument,
+  OutputDidDocument,
 } from '@fabric-es/model-identity';
 import { enrollAdmin } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import DidJWT, { Signer } from 'did-jwt';
 import { Resolver } from 'did-resolver';
 import { Wallets } from 'fabric-network';
-import httpStatus from 'http-status';
 import type { RedisOptions } from 'ioredis';
 import keys from 'lodash/keys';
 import values from 'lodash/values';
 import fetch from 'node-fetch';
 import rimraf from 'rimraf';
 import request from 'supertest';
-import { getResolver } from '../getResolver';
-
-/**
- * ./dn-run.1-db-red-auth.sh
- */
+import { createExpressApp } from '../routes';
 
 const caAdmin = process.env.CA_ENROLLMENT_ID_ADMIN;
 const caAdminPW = process.env.CA_ENROLLMENT_SECRET_ADMIN;
@@ -58,26 +51,20 @@ const caName = process.env.CA_NAME;
 const mspId = process.env.MSPID;
 const orgAdminId = process.env.ORG_ADMIN_ID;
 const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
-const authServerUri = process.env.AUTHORIZATION_SERVER_URI;
 const walletPath = process.env.WALLET;
-const random = Math.floor(Math.random() * 10000);
-const username = `gw_test_username_${random}`;
-const password = `password`;
-const email = `gw_test_${random}@test.com`;
 // If requiring to change entityName, need to update the Context, and resolvers as well.
 const entityName = 'didDocument';
 const enrollmentId = orgAdminId;
+const issuerBaseUrl = process.env.AUTH0_ISSUER_BASE_URL;
 
 let app: http.Server;
 let adminApolloService: ApolloServer;
 let modelApolloService: ApolloServer;
-let userId: string;
-let accessToken: string;
-let adminAccessToken: string;
 let redisOptions: RedisOptions;
 let queryHandlerServer: ApolloServer;
 let queryHandler: QueryHandler;
 let redisRepos: Record<string, RedisRepository>;
+let signInToken;
 
 const MODEL_SERVICE_PORT = 15001;
 const ADMIN_SERVICE_PORT = 15000;
@@ -87,11 +74,10 @@ const logger = getLogger('[gw-registrar] unit-test.js');
 
 const { address, publicKey: publicKeyHex, privateKey } = createKeyPair();
 const did = address;
-const ENTITY_NAME = 'didDocument';
 
-let didResolver: Resolver;
-let jwt: string;
-
+/**
+ * ./dn-run.sh 2 auth
+ */
 beforeAll(async () => {
   rimraf.sync(`${walletPath}/${orgAdminId}.id`);
   rimraf.sync(`${walletPath}/${caAdmin}.id`);
@@ -124,17 +110,18 @@ beforeAll(async () => {
       mspId,
       wallet,
     });
+
     // Step 3. create QueryHandlerService
     const qhService = await createQueryHandlerService({
       asLocalhost: !(process.env.NODE_ENV === 'production'),
-      authCheck: `${authServerUri}/oauth/authenticate`,
+      authCheck: `${issuerBaseUrl}/userinfo`,
       channelName,
       connectionProfile,
       enrollmentId,
       redisOptions,
       wallet,
     })
-      .addRedisRepository<DidDocument, DidDocumentInRedis, DidDocument, DidDocumentEvents>(
+      .addRedisRepository<DidDocument, DidDocumentInRedis, OutputDidDocument, DidDocumentEvents>(
         DidDocument,
         {
           reducer: didDocumentReducer,
@@ -144,6 +131,7 @@ beforeAll(async () => {
         }
       )
       .run();
+
     queryHandlerServer = qhService.getServer();
     queryHandler = qhService.getQueryHandler();
     redisRepos = qhService.getRedisRepos();
@@ -176,7 +164,7 @@ beforeAll(async () => {
       console.log('queryHandler server started')
     );
 
-    // Step 9: Prepare Counter federated service
+    // Step 9: Prepare federated service
     const { config } = await createService({
       asLocalhost: true,
       channelName,
@@ -188,13 +176,18 @@ beforeAll(async () => {
     });
 
     // Step 10: config Apollo server with models
-    modelApolloService = config([{ typeDefs: didDocumentTypeDefs, resolvers: didDocumentResolvers }])
-      .addRepository<DidDocument, DidDocumentInRedis, DidDocument, DidDocumentEvents>(DidDocument, {
-        reducer: didDocumentReducer,
-        fields: didDocumentIndexDefinition,
-        postSelector: didDocumentPostSelector,
-        preSelector: didDocumentPreSelector,
-      })
+    modelApolloService = config([
+      { typeDefs: didDocumentTypeDefs, resolvers: didDocumentResolvers },
+    ])
+      .addRepository<DidDocument, DidDocumentInRedis, OutputDidDocument, DidDocumentEvents>(
+        DidDocument,
+        {
+          reducer: didDocumentReducer,
+          fields: didDocumentIndexDefinition,
+          postSelector: didDocumentPostSelector,
+          preSelector: didDocumentPreSelector,
+        }
+      )
       .create();
 
     await modelApolloService.listen({ port: MODEL_SERVICE_PORT }, () =>
@@ -202,7 +195,7 @@ beforeAll(async () => {
     );
 
     // step 11: Prepare Admin microservice
-    const service = await createAdminService({
+    const service = await createAdminServiceWithAuth0({
       asLocalhost: !(process.env.NODE_ENV === 'production'),
       caAdmin,
       caAdminPW,
@@ -223,12 +216,14 @@ beforeAll(async () => {
     );
 
     // Step 12: Prepare Federated Gateway
-    app = await createGateway({
+    app = await createGatewayWithAuth0({
+      enrollmentId: orgAdminId,
       serviceList: [
         { name: 'admin', url: `http://localhost:${ADMIN_SERVICE_PORT}/graphql` },
         { name: 'didDocument', url: `http://localhost:${MODEL_SERVICE_PORT}/graphql` },
       ],
-      authenticationCheck: `${authServerUri}/oauth/authenticate`,
+      authenticationCheck: `${issuerBaseUrl}/userinfo`,
+      customExpressApp: createExpressApp(`http://localhost:${GATEWAY_PORT}/graphql`),
     });
 
     // Step 13: Start Gateway
@@ -245,18 +240,18 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  // for await (const [entityName, redisRepo] of Object.entries(redisRepos)) {
-  //   await redisRepo
-  //     .dropIndex(true)
-  //     .then(() => console.log(`${entityName} - index is dropped`))
-  //     .catch((error) => console.error(error));
-  // }
+  for await (const [entityName, redisRepo] of Object.entries(redisRepos)) {
+    await redisRepo
+      .dropIndex(true)
+      .then(() => console.log(`${entityName} - index is dropped`))
+      .catch((error) => console.error(error));
+  }
 
-  // await queryHandler
-  //   .query_deleteCommitByEntityName(entityName)()
-  //   .then(({ status }) =>
-  //     console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
-  //   );
+  await queryHandler
+    .query_deleteCommitByEntityName(entityName)()
+    .then(({ status }) =>
+      console.log(`tear-down: query_deleteByEntityName, ${entityName}, status: ${status}`)
+    );
 
   await queryHandler
     .query_deleteCommitByEntityName('organization')()
@@ -284,69 +279,94 @@ afterAll(async () => {
 });
 
 describe('gw-did test', () => {
-  it(`should ping /isalive, ${authServerUri}`, async () =>
-    fetch(`${authServerUri}/account/isalive`).then((r) => {
-      if (r.status === httpStatus.NO_CONTENT) return true;
-      else {
-        console.error(`auth server is not alive, ${authServerUri}`);
-        process.exit(1);
-      }
+  it('should reach oauth endpoint', async () =>
+    fetch(`${issuerBaseUrl}/.well-known/openid-configuration`).then((r) => {
+      if (r.status !== 200) return Promise.reject('fail to fetch openid configuration ');
+      return r.json();
     }));
 
-  it('should register new user', async () =>
-    fetch(`${authServerUri}/account`, {
+  it('should register new user, if not exist', async () => {
+    const response = await fetch(`${issuerBaseUrl}/oauth/token`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password }),
-    })
-      .then<unknown>((r) => r.json())
-      .then((res) => {
-        if (isRegisterResponse(res)) {
-          userId = res?.id;
-          return true;
-        } else return Promise.reject('not register response');
-      }));
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        client_id: process.env.AUTH0_MGT_CLIENT_ID,
+        client_secret: process.env.AUTH0_MGT_CLIENT_SECRET,
+        audience: 'https://dashslab.us.auth0.com/api/v2/',
+        grant_type: 'client_credentials',
+      }),
+    }).then((r) => {
+      console.log(`Obtain access_token for management api: ${r.status}`);
+      return r.json();
+    });
+    const AUTH0_MGT_API_TOKEN = response?.access_token;
 
-  it('should login new user', async () =>
-    fetch(`${authServerUri}/account/login`, {
+    if (!AUTH0_MGT_API_TOKEN) throw new Error('No access_token return for management api');
+
+    return fetch(`${issuerBaseUrl}/api/v2/users`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${AUTH0_MGT_API_TOKEN}`,
+      },
+      body: JSON.stringify({
+        email: process.env.AUTH0_USERNAME,
+        given_name: 'John',
+        family_name: 'Doe',
+        name: 'John Doe',
+        nickname: 'Johnny',
+        picture:
+          'https://secure.gravatar.com/avatar/15626c5e0c749cb912f9d1ad48dba440?s=480&r=pg&d=https%3A%2F%2Fssl.gstatic.com%2Fs2%2Fprofiles%2Fimages%2Fsilhouette80.png',
+        connection: 'Username-Password-Authentication',
+        password: process.env.AUTH0_PASSWORD,
+        verify_email: false,
+        app_metadata: { is_admin: true },
+      }),
     })
-      .then<unknown>((r) => r.json())
-      .then((res) => {
-        if (isLoginResponse(res)) {
-          accessToken = res.access_token;
-          return true;
-        } else return Promise.reject('not login response');
-      }));
-
-  it('should login OrgAdmin', async () =>
-    fetch(`${authServerUri}/account/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: orgAdminId, password: orgAdminSecret }),
-    })
-      .then<unknown>((r) => r.json())
-      .then((res) => {
-        if (isLoginResponse(res)) {
-          adminAccessToken = res.access_token;
-          return true;
-        } else return Promise.reject('not login response');
-      }));
-
-  it('should createWallet', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${accessToken}`)
-      .send({
-        operationName: 'CreateWallet',
-        query: CREATE_WALLET,
+      .then((r) => {
+        console.log(`Create testing user, statusCode: ${r.status}`);
+        return r.json();
       })
-      .expect(({ body: { data, errors } }) => {
-        expect(data?.createWallet).toBeTruthy();
-        expect(errors).toBeUndefined();
-      }));
+      .then((response) => console.log(response.message));
+  });
+
+  it('should exchange access_token', async () => {
+    const params = new URLSearchParams();
+    params.append('grant_type', 'password');
+    params.append('client_id', process.env.AUTH0_CLIENT_ID);
+    params.append('audience', process.env.AUTH0_AUDIENCE);
+    params.append('username', process.env.AUTH0_USERNAME);
+    params.append('password', process.env.AUTH0_PASSWORD);
+    params.append('scope', process.env.AUTH0_SCOPE);
+    params.append('client_secret', process.env.AUTH0_CLIENT_SECRET);
+
+    await fetch(`${issuerBaseUrl}/oauth/token`, { method: 'POST', body: params })
+      .then((r) => {
+        expect(r.status).toEqual(200);
+        return r.json();
+      })
+      .then((res) => (signInToken = res));
+
+    if (!signInToken) process.exit(1);
+  });
+
+  it('should retrieve userinfo', async () =>
+    fetch(`${issuerBaseUrl}/userinfo`, {
+      headers: { authorization: `Bearer ${signInToken.access_token}` },
+    })
+      .then((r) => {
+        expect(r.status).toEqual(200);
+        return r.json();
+      })
+      .then((response) => expect(isAuth0UserInfo(response)).toBeTruthy()));
+
+  // https://learn.mattr.global/api-ref#operation/wellKnownDidConfig
+  it('should get well-known Did Configuration', async () =>
+    fetch(`http://localhost:${GATEWAY_PORT}/.well-known/did-configuration`)
+      .then((r) => r.json())
+      .then((response) => expect(response).toBeDefined()));
 
   // createDidDocument: {
   //   id: '0xd6b2613744fa776ae2a081828e4ebc06e16b6dc2',
@@ -355,152 +375,50 @@ describe('gw-did test', () => {
   //   commitId: '20210322153039749',
   //   entityId: '0xd6b2613744fa776ae2a081828e4ebc06e16b6dc2'
   // }
-  it('should create didDocument', async () => {
-    const payload = createDidDocument({ id: address, controllerKey: publicKeyHex });
-    const signer: Signer = DidJWT.ES256KSigner(privateKey);
-    const signedRequest = await DidJWT.createJWT(
-      {
-        aud: addressToDid(address),
-        entityNamd: ENTITY_NAME,
-        entityId: address,
-        version: 0,
-        events: [{ type: 'DidDocumentCreated', lifeCycle: Lifecycle.BEGIN, payload }],
-      },
-      { issuer: addressToDid(address), signer },
-      { alg: 'ES256K' }
-    );
-
-    return request(app)
+  it('should create didDocument', async () =>
+    request(app)
       .post('/graphql')
-      .set('authorization', `bearer ${accessToken}`)
+      .set('authorization', `bearer ${signInToken.access_token}`)
       .send({
         operationName: 'CreateDidDocument',
         query: CREATE_DIDDOCUMENT,
-        variables: { did, signedRequest },
+        variables: { did, publicKeyHex },
       })
       .expect(({ body: { data, errors } }) => {
         expect(data?.createDidDocument.entityName).toEqual('didDocument');
-        expect(errors).toBeUndefined();
-      });
-  });
-
-  // returns
-  // {
-  //   context: 'https://www.w3.org/ns/did/v1',
-  //   controller: '0x050e070bffae3ecb8227c2e935ce98dcde7e4158',
-  //   created: '2021-03-04T13:35:29.129Z',
-  //   id: '0x050e070bffae3ecb8227c2e935ce98dcde7e4158',
-  //   keyAgreement: null,
-  //   proof: null,
-  //   verificationMethod: [
-  //   {
-  //     id: '0x050e070bffae3ecb8227c2e935ce98dcde7e4158',
-  //     type: 'Secp256k1VerificationKey2018',
-  //     controller: '0x050e070bffae3ecb8227c2e935ce98dcde7e4158',
-  //     publicKeyHex: '04c4dbd496170f76004356d555521a53eb8e584924f780e5cfc5a216accf01a02ce6b7ac804bad19e28087c8690bb645780147d8b03dff003dd191818446158c9c'
-  //   }
-  // ],
-  //   service: null,
-  //   updated: '2021-03-04T13:35:29.129Z'
-  // }
-  it('should resolve didDocument', async () =>
-    request(app)
-      .post('/graphql')
-      .set('authorization', `bearer ${accessToken}`)
-      .send({
-        operationName: 'ResolveDidDocument',
-        query: RESOLVE_DIDDOCUMENT,
-        variables: { did },
-      })
-      .expect(({ body: { data, errors } }) => {
-        expect(data?.resolveDidDocument.context).toEqual('https://www.w3.org/ns/did/v1');
-        expect(data?.resolveDidDocument.id).toEqual(`did:fab:${did}`);
-        data?.resolveDidDocument.verificationMethod.forEach((item) =>
-          expect(isVerificationMethod(item)).toBeTruthy()
-        );
+        expect(data?.createDidDocument.id).toEqual(address);
+        expect(data?.createDidDocument.version).toEqual(0);
         expect(errors).toBeUndefined();
       }));
 
-  it('should getResolver()', async () => {
-    const fabricDidResolver = getResolver(`http://localhost:${GATEWAY_PORT}/graphql`);
-    didResolver = new Resolver(fabricDidResolver);
-    const { didDocument } = await didResolver.resolve(`did:fab:${did}`);
-    expect(didDocument['@context']).toEqual('https://www.w3.org/ns/did/v1');
-    expect(didDocument.id).toEqual(`did:fab:${did}`);
+  // {
+  //   data: {
+  //     resolveDidDocument: {
+  //       context: 'https://www.w3.org/ns/did/v1',
+  //       controller: 'did:fab:0xeea7e44545a7531dee4572828e532ac128c54e79',
+  //       created: '2021-04-02T05:36:59.428Z',
+  //       id: 'did:fab:0xeea7e44545a7531dee4572828e532ac128c54e79',
+  //       keyAgreement: null,
+  //       proof: null,
+  //       service: null,
+  //       verificationMethod: [Array],
+  //       updated: '2021-04-02T05:36:59.428Z',
+  //     },
+  //   },
+  // };
+  it('should resolve didDocument', async () => {
+    await waitForSecond(5);
+
+    return fetch(`http://localhost:${GATEWAY_PORT}/did/${addressToDid(address)}`)
+      .then((r) => r.json())
+      .then((result) => {
+        console.log(result);
+        expect(result['@context']).toEqual('https://www.w3.org/ns/did/v1');
+        expect(result.id).toEqual(`did:fab:${did}`);
+        result.publicKey.forEach((item) =>
+          expect(isVerificationMethod(item)).toBeTruthy()
+        );
+        expect(result.errorMessage).toBeUndefined();
+      });
   });
-
-  /*
-  // this unit test validate the jwt is created and signed with right "audience", based on DID.
-  it('should createJWT with did-jwt', async () => {
-    const signer: Signer = DidJWT.ES256KSigner(privateKey);
-
-    // returns eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE2MTUwMDQ5MjcsImV4cCI6MTk1NzQ2MzQyMSwiYXVkIjoiZGlkOmZhYjoweDFkZGMzNmZkOTkwYTM0OTVkYTcyMTE5YTRkOTRhOTAyMjY0MGYyNjIiLCJuYW1lIjoibXkgRGV2ZWxvcGVyIiwiaXNzIjoiZGlkOmZhYjoweDFkZGMzNmZkOTkwYTM0OTVkYTcyMTE5YTRkOTRhOTAyMjY0MGYyNjIifQ.GVlTNiIX36E2bgiLEb-Esw__6IoRIeeY-9Mu5vkWwSYAU8Hru6vtteVfKAdrk-o36TrnTDJNdc7pXER1x6-ovw
-    jwt = await DidJWT.createJWT(
-      { aud: addressToDid(did), exp: 1957463421, name: 'my Developer' },
-      { issuer: addressToDid(did), signer },
-      { alg: 'ES256K' }
-    );
-    const decoded = DidJWT.decodeJWT(jwt);
-    // {
-    // {
-    //   header: { alg: 'ES256K', typ: 'JWT' },
-    //   payload: {
-    //     iat: 1615004927,
-    //     exp: 1957463421,
-    //     aud: 'did:fab:0x1ddc36fd990a3495da72119a4d94a9022640f262',
-    //     name: 'my Developer',
-    //     iss: 'did:fab:0x1ddc36fd990a3495da72119a4d94a9022640f262'
-    //   },
-    //   signature: 'GVlTNiIX36E2bgiLEb-Esw__6IoRIeeY-9Mu5vkWwSYAU8Hru6vtteVfKAdrk-o36TrnTDJNdc7pXER1x6-ovw',
-    //   data: 'eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE2MTUwMDQ5MjcsImV4cCI6MTk1NzQ2MzQyMSwiYXVkIjoiZGlkOmZhYjoweDFkZGMzNmZkOTkwYTM0OTVkYTcyMTE5YTRkOTRhOTAyMjY0MGYyNjIiLCJuYW1lIjoibXkgRGV2ZWxvcGVyIiwiaXNzIjoiZGlkOmZhYjoweDFkZGMzNmZkOTkwYTM0OTVkYTcyMTE5YTRkOTRhOTAyMjY0MGYyNjIifQ'
-    // }
-
-    const resolver = {
-      resolve: (did: string) =>
-        didResolver.resolve(did).then(({ didDocument }) => {
-          // WORKAROUND: publicKey is deprecated field; however did-jwt remains dependent on it.
-          const doc = { ...didDocument, publicKey: didDocument.verificationMethod };
-          return doc as any;
-        }),
-    };
-
-    const verificationResponse = await DidJWT.verifyJWT(jwt, {
-      resolver,
-      audience: addressToDid(did),
-    });
-
-    // {
-    //   payload: {
-    //     iat: 1615013083,
-    //     exp: 1957463421,
-    //     aud: 'did:fab:0x8837690e47512bd479aa6514dd549951f0fd0f64',
-    //     name: 'my Developer',
-    //     iss: 'did:fab:0x8837690e47512bd479aa6514dd549951f0fd0f64'
-    //   },
-    //   doc: {
-    //     controller: 'did:fab:0x8837690e47512bd479aa6514dd549951f0fd0f64',
-    //     created: '2021-03-06T06:44:38.369Z',
-    //     id: 'did:fab:0x8837690e47512bd479aa6514dd549951f0fd0f64',
-    //     keyAgreement: null,
-    //     proof: null,
-    //     service: null,
-    //     verificationMethod: [ [Object] ],
-    //     updated: '2021-03-06T06:44:38.369Z',
-    //     '@context': 'https://www.w3.org/ns/did/v1',
-    //     publicKey: [ [Object] ]
-    //   },
-    //   issuer: 'did:fab:0x8837690e47512bd479aa6514dd549951f0fd0f64',
-    //   signer: {
-    //     id: 'did:fab:0x8837690e47512bd479aa6514dd549951f0fd0f64',
-    //     type: 'Secp256k1VerificationKey2018',
-    //     publicKeyHex: '042dc447b47d2cc1ebcc5aab1882ae28af8aa6aa05b184e968be611af8080fd336d3b8116f7dce910f7f0b51d1e0b1bbaab588e92ce84df0797a27787f2654976c',
-    //     controller: 'did:fab:0x8837690e47512bd479aa6514dd549951f0fd0f64'
-    //   },
-    //   jwt: 'eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE2MTUwMTMwODMsImV4cCI6MTk1NzQ2MzQyMSwiYXVkIjoiZGlkOmZhYjoweDg4Mzc2OTBlNDc1MTJiZDQ3OWFhNjUxNGRkNTQ5OTUxZjBmZDBmNjQiLCJuYW1lIjoibXkgRGV2ZWxvcGVyIiwiaXNzIjoiZGlkOmZhYjoweDg4Mzc2OTBlNDc1MTJiZDQ3OWFhNjUxNGRkNTQ5OTUxZjBmZDBmNjQifQ.735u73_oQI5oAO7ibjq39PrEwCBNh6bJNpOe6da1ZmOgsDdoYg3Jq7xn0DT4a5iwANlubT-8zcWhaQiiE092Hw'
-    // }
-
-    expect(verificationResponse.payload.name).toEqual('my Developer');
-  });
-
-   */
 });

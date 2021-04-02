@@ -8,7 +8,7 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createDidDocument(did: String!, signedRequest: String!): DidDocCommit!
+    createDidDocument(did: String!, publicKeyHex: String!): DidDocCommit!
     createDidDocWithKeyGen: KeyPair
     addVerificationMethod(did: String!, signedRequest: String!): DidDocCommit!
     removeVerificationMethod(did: String!, signedRequest: String!): DidDocCommit!
@@ -28,7 +28,7 @@ export const typeDefs = gql`
     context: JSON!
     id: String!
     controller: String
-    verificationMethod: [JSON!]!
+    publicKey: [JSON!]!
     created: String!
     keyAgreement: [JSON]
     proof: [JSON]

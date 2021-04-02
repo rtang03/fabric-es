@@ -3,19 +3,7 @@ import type { DidDocument } from '../../types';
 
 export type PartialDidDocument = Pick<
   DidDocument,
-  | 'id'
-  | 'context'
-  | 'controller'
-  | 'verificationMethod'
-  | 'service'
-  | 'proof'
-  | 'keyAgreement'
-  | '_ts'
-  >;
+  'id' | 'context' | 'controller' | 'publicKey' | 'service' | 'proof' | 'keyAgreement' | 'updated'
+>;
 
-export type DerivedField = {
-  created: string;
-  updated: string;
-};
-
-export type DidDocumentIndexDefinition = RedisearchDefinition<PartialDidDocument & DerivedField>;
+export type DidDocumentIndexDefinition = RedisearchDefinition<PartialDidDocument>;

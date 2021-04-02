@@ -57,7 +57,6 @@ const entityName = 'counter';
 const enrollmentId = orgAdminId;
 const issuerBaseUrl = process.env.AUTH0_ISSUER_BASE_URL;
 
-let signInToken;
 let app: http.Server;
 let adminApolloService: ApolloServer;
 let modelApolloService: ApolloServer;
@@ -65,6 +64,7 @@ let redisOptions: RedisOptions;
 let queryHandlerServer: ApolloServer;
 let queryHandler: QueryHandler;
 let redisRepos: Record<string, RedisRepository>;
+let signInToken;
 
 const MODEL_SERVICE_PORT = 15001;
 const ADMIN_SERVICE_PORT = 15000;
@@ -79,7 +79,7 @@ beforeAll(async () => {
   rimraf.sync(`${walletPath}/${caAdmin}.id`);
 
   try {
-    redisOptions = {};
+    redisOptions = { host: 'localhost', port: 6379 };
 
     const wallet = await Wallets.newFileSystemWallet(walletPath);
 
@@ -108,11 +108,10 @@ beforeAll(async () => {
     const qhService = await createQueryHandlerService({
       asLocalhost: !(process.env.NODE_ENV === 'production'),
       authCheck: `${issuerBaseUrl}/userinfo`,
-      // authCheck: `${proxyServerUri}/oauth/authenticate`,
       channelName,
       connectionProfile,
       enrollmentId,
-      redisOptions: { host: 'localhost', port: 6379 },
+      redisOptions,
       wallet,
     })
       .addRedisRepository<Counter, CounterInRedis, OutputCounter, CounterEvents>(Counter, {

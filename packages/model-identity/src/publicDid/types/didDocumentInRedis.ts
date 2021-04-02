@@ -1,12 +1,13 @@
-export type DidDocumentInRedis = {
-  verification: string;
+import type { BaseCacheEntity } from '@fabric-es/fabric-cqrs';
+
+export class DidDocumentInRedis implements BaseCacheEntity {
+  publickey: string;
   context: string;
   controller: string;
-  created: string;
   id: string;
   keyagr: string;
   proof: string;
   service: string;
-  updated: string;
-  ts: number;
-};
+  ts?: number;
+  created?: number;
+}

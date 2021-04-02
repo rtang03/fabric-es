@@ -1,17 +1,21 @@
+import { Lifecycle } from '@fabric-es/fabric-cqrs';
 import { ApolloError, UserInputError } from 'apollo-server';
+import { createDidDocument } from '../../utils';
 import type { DidDocumentCommandHandler, DidDocumentRepo } from '../types';
 
 export const didDocumentCommandHandler: (option: {
   enrollmentId: string;
   repo: DidDocumentRepo;
 }) => DidDocumentCommandHandler = ({ enrollmentId, repo }) => ({
-  Create: async ({ did, signedRequest }) => {
+  Create: async ({ did, payload: createDidOption }) => {
     const { currentState } = await repo.getById({ enrollmentId, id: did });
     if (currentState) throw new UserInputError('fail to create; Did already exists');
 
+    const payload = createDidDocument(createDidOption);
+
     return repo
       .create({ enrollmentId, id: did })
-      .save({ events: [], signedRequest })
+      .save({ events: [{ type: 'DidDocumentCreated', lifeCycle: Lifecycle.BEGIN, payload }] })
       .then(({ data }) => data);
   },
   AddVerificationMethod: async ({ did, signedRequest }) => {
