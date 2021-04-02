@@ -100,7 +100,7 @@ export const resolvers = {
     addVerificationMethod: catchResolverErrors(
       async (
         _,
-        { did, signedRequest }: Args,
+        { did, id, publicKeyHex, controller }: Args,
         {
           dataSources: {
             didDocument: { repo },
@@ -109,11 +109,13 @@ export const resolvers = {
         }: Context
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
-        if (!signedRequest) throw new UserInputError('missing signedRequest');
+        if (!id) throw new UserInputError('missing id');
+        if (!controller) throw new UserInputError('missing controller');
+        if (!publicKeyHex) throw new UserInputError('missing publicKeyHex');
 
         return handler({ enrollmentId: enrollment_id, repo }).AddVerificationMethod({
           did,
-          signedRequest,
+          payload: { id, publicKeyHex, controller },
         });
       },
       { fcnName: 'add-vm', logger, useAdmin: false, useAuth: true }
@@ -121,7 +123,7 @@ export const resolvers = {
     removeVerificationMethod: catchResolverErrors(
       async (
         _,
-        { did, signedRequest }: Args,
+        { did, id }: Args,
         {
           dataSources: {
             didDocument: { repo },
@@ -130,11 +132,11 @@ export const resolvers = {
         }: Context
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
-        if (!signedRequest) throw new UserInputError('missing signedRequest');
+        if (!id) throw new UserInputError('missing id');
 
         return handler({ enrollmentId: enrollment_id, repo }).RemoveVerificationMethod({
           did,
-          signedRequest,
+          payload: { id },
         });
       },
       { fcnName: 'remove-vm', logger, useAdmin: false, useAuth: false }
@@ -142,7 +144,7 @@ export const resolvers = {
     addServiceEndpoint: catchResolverErrors(
       async (
         _,
-        { did, signedRequest }: Args,
+        { did, id, typ, serviceEndpoint }: Args,
         {
           dataSources: {
             didDocument: { repo },
@@ -151,11 +153,17 @@ export const resolvers = {
         }: Context
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
-        if (!signedRequest) throw new UserInputError('missing signedRequest');
+        if (!id) throw new UserInputError('missing id');
+        if (!typ) throw new UserInputError('missing typ');
+        if (!serviceEndpoint) throw new UserInputError('missing serviceEndpoint');
 
         return handler({ enrollmentId: enrollment_id, repo }).AddServiceEndpoint({
           did,
-          signedRequest,
+          payload: {
+            id,
+            type: typ,
+            serviceEndpoint,
+          },
         });
       },
       { fcnName: 'add-service', logger, useAdmin: false, useAuth: true }
@@ -163,7 +171,7 @@ export const resolvers = {
     removeServiceEndpoint: catchResolverErrors(
       async (
         _,
-        { did, signedRequest }: Args,
+        { did, id }: Args,
         {
           dataSources: {
             didDocument: { repo },
@@ -172,11 +180,11 @@ export const resolvers = {
         }: Context
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
-        if (!signedRequest) throw new UserInputError('missing signedRequest');
+        if (!id) throw new UserInputError('missing id');
 
         return handler({ enrollmentId: enrollment_id, repo }).RemoveServiceEndpoint({
           did,
-          signedRequest,
+          payload: { id },
         });
       },
       { fcnName: 'remove-service', logger, useAdmin: false, useAuth: true }
@@ -184,7 +192,7 @@ export const resolvers = {
     deactivate: catchResolverErrors(
       async (
         _,
-        { did, signedRequest }: Args,
+        { did }: Args,
         {
           dataSources: {
             didDocument: { repo },
@@ -193,9 +201,11 @@ export const resolvers = {
         }: Context
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
-        if (!signedRequest) throw new UserInputError('missing signedRequest');
 
-        return handler({ enrollmentId: enrollment_id, repo }).Deactivate({ did, signedRequest });
+        return handler({ enrollmentId: enrollment_id, repo }).Deactivate({
+          did,
+          payload: { id: did },
+        });
       },
       { fcnName: 'revoke', logger, useAdmin: false, useAuth: true }
     ),

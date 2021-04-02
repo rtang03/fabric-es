@@ -18,37 +18,59 @@ export const didDocumentCommandHandler: (option: {
       .save({ events: [{ type: 'DidDocumentCreated', lifeCycle: Lifecycle.BEGIN, payload }] })
       .then(({ data }) => data);
   },
-  AddVerificationMethod: async ({ did, signedRequest }) => {
+  AddVerificationMethod: async ({ did, payload: { controller, id, publicKeyHex } }) => {
     const { save, currentState } = await repo.getById({ enrollmentId, id: did });
+
     if (!currentState) throw new ApolloError('Did not found');
 
-    return save({ events: [], signedRequest }).then(({ data }) => data);
+    return save({
+      events: [
+        {
+          type: 'VerificationMethodAdded',
+          payload: {
+            type: 'Secp256k1VerificationKey2018',
+            id,
+            controller,
+            publicKeyHex,
+          },
+        },
+      ],
+    }).then(({ data }) => data);
   },
-  RemoveVerificationMethod: async ({ did, signedRequest }) => {
+  RemoveVerificationMethod: async ({ did, payload: { id } }) => {
     const { save, currentState } = await repo.getById({ enrollmentId, id: did });
+
     if (!currentState) throw new ApolloError('Did not found');
 
-    // VerificationMethodRemoved
-    return save({ events: [], signedRequest }).then(({ data }) => data);
+    return save({ events: [{ type: 'VerificationMethodRemoved', payload: { id } }] }).then(
+      ({ data }) => data
+    );
   },
-  AddServiceEndpoint: async ({ did, signedRequest }) => {
+  AddServiceEndpoint: async ({ did, payload: { id, type, serviceEndpoint } }) => {
     const { save, currentState } = await repo.getById({ enrollmentId, id: did });
+
     if (!currentState) throw new ApolloError('Did not found');
 
-    return save({ events: [], signedRequest }).then(({ data }) => data);
+    return save({
+      events: [{ type: 'ServiceEndpointAdded', payload: { id, type, serviceEndpoint } }],
+    }).then(({ data }) => data);
   },
-  RemoveServiceEndpoint: async ({ did, signedRequest }) => {
+  RemoveServiceEndpoint: async ({ did, payload: { id } }) => {
     const { save, currentState } = await repo.getById({ enrollmentId, id: did });
+
     if (!currentState) throw new ApolloError('Did not found');
 
-    // ServiceEndpointRemoved
-    return save({ events: [], signedRequest }).then(({ data }) => data);
+    return save({ events: [{ type: 'ServiceEndpointRemoved', payload: { id } }] }).then(
+      ({ data }) => data
+    );
   },
-  Deactivate: async ({ did, signedRequest }) => {
+  Deactivate: async ({ did, payload: { id } }) => {
     const { save, currentState } = await repo.getById({ enrollmentId, id: did });
+
     if (!currentState) throw new ApolloError('Did not found');
 
-    // DidDocumentDeactivated
-    return save({ events: [], signedRequest }).then(({ data }) => data);
+    return save({ events: [{ type: 'DidDocumentDeactivated', payload: { id } }] }).then(
+      ({ data }) => data
+    );
   },
 });

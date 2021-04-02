@@ -16,22 +16,34 @@ export type DidDocumentCommands = {
    */
   AddVerificationMethod: {
     did: string;
-    signedRequest: string;
+    payload: {
+      id: string;
+      controller: string;
+      publicKeyHex: string;
+    };
   };
 
   RemoveVerificationMethod: {
     did: string;
-    signedRequest: string;
+    payload: {
+      id: string;
+    };
   };
 
   AddServiceEndpoint: {
     did: string;
-    signedRequest: string;
+    payload: {
+      id: string;
+      type: string;
+      serviceEndpoint: string;
+    };
   };
 
   RemoveServiceEndpoint: {
     did: string;
-    signedRequest: string;
+    payload: {
+      id: string;
+    };
   };
 
   /**
@@ -39,6 +51,8 @@ export type DidDocumentCommands = {
    */
   Deactivate: {
     did: string;
-    signedRequest: string;
+    payload: {
+      id: string;
+    };
   };
 };

@@ -1,11 +1,15 @@
 export const ADD_VERIFICATION_METHOD = `
   mutation AddVerificationMethod(
     $did: String!
-    $signedRequest: String!
+    $id: String!
+    $controller: String!
+    $publicKeyHex: String!
   ) {
     addVerificationMethod(
       did: $did
-      signedRequest: $signedRequest
+      id: $id
+      controller: $controller
+      publicKeyHex: $publicKeyHex
     ) {
       id
       entityName

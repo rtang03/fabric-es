@@ -3,19 +3,11 @@ import { Commit, getMockRepository, getReducer, Lifecycle } from '@fabric-es/fab
 import { DataSrc } from '@fabric-es/gateway-lib';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
-import DidJWT, { Signer } from 'did-jwt';
 import type { ServiceEndpoint } from 'did-resolver';
 import gql from 'graphql-tag';
 import pick from 'lodash/pick';
 import type { DidDocument } from '../../types';
-import {
-  addressToDid,
-  createDidDocument,
-  createKeyPair,
-  createServiceEndpoint,
-  createVerificationMethod,
-  waitForSecond,
-} from '../../utils';
+import { createDidDocument, createKeyPair, waitForSecond } from '../../utils';
 import {
   ADD_SERVICE_ENDPOINT,
   ADD_VERIFICATION_METHOD,
@@ -36,7 +28,6 @@ const repo = getMockRepository<DidDocument, DidDocumentEvents>(
 );
 const { address, publicKey: publicKeyHex, privateKey } = createKeyPair();
 const id = address;
-const signer: Signer = DidJWT.ES256KSigner(privateKey);
 
 repo.fullTextSearchEntity = jest.fn();
 
@@ -111,7 +102,7 @@ describe('Did Unit Test', () => {
             context: 'https://www.w3.org/ns/did/v1',
             id: '0x5490b3081697c8d8ae324bb0e46a019614994006',
             controller: '0x5490b3081697c8d8ae324bb0e46a019614994006',
-            verificationMethod: [
+            publicKey: [
               {
                 id: '0x5490b3081697c8d8ae324bb0e46a019614994006',
                 type: 'Secp256k1VerificationKey2018',
@@ -177,65 +168,37 @@ describe('Did Unit Test', () => {
   //   commitId: '20210321154634140',
   //   entityId: 'did:fab:0x7b325c08bc6fbc94d863ddab9bff9240393892f3'
   // }
-  it('should addVerificationMethod', async () => {
-    const payload = createVerificationMethod({
-      id: `${did_KeyGen}#key-1`,
-      controller: did_KeyGen,
-      publicKeyHex: '---public key---',
-    });
-    const newSigner = DidJWT.ES256KSigner(privateKey_KeyGen);
-    const signedRequest = await DidJWT.createJWT(
-      {
-        aud: did_KeyGen,
-        entityName: 'didDocument',
-        entityId: did_KeyGen,
-        version: 1, // this is used as nonce
-        events: [{ type: 'VerificationMethodAdded', payload }],
-      },
-      { issuer: did_KeyGen, signer: newSigner },
-      { alg: 'ES256K' }
-    );
-
-    return createTestClient(server)
+  it('should addVerificationMethod', async () =>
+    createTestClient(server)
       .mutate({
         mutation: gql(ADD_VERIFICATION_METHOD),
-        variables: { did: did_KeyGen, signedRequest },
+        variables: {
+          did: did_KeyGen,
+          id: `${did_KeyGen}#key-1`,
+          publicKeyHex: '/* public key */',
+          controller: did_KeyGen,
+        },
       })
       .then(({ data, errors }) => {
         expect(data?.addVerificationMethod.id).toEqual(did_KeyGen);
         expect(data?.addVerificationMethod.version).toEqual(1);
         expect(errors).toBeUndefined();
-      });
-  });
+      }));
 
-  it('should addServiceEndpoint', async () => {
-    const payload = createServiceEndpoint({
-      id: `${did_KeyGen}#vcr`,
-      type: 'CredentialRepositoryService',
-      serviceEndpoint: 'https://repository.example.com/service/8377464',
-    });
-    const newSigner = DidJWT.ES256KSigner(privateKey_KeyGen);
-    const signedRequest = await DidJWT.createJWT(
-      {
-        aud: did_KeyGen,
-        entityName: 'didDocument',
-        entityId: did_KeyGen,
-        version: 2,
-        events: [{ type: 'ServiceEndpointAdded', payload }],
-      },
-      { issuer: did_KeyGen, signer: newSigner },
-      { alg: 'ES256K' }
-    );
-
-    return createTestClient(server)
+  it('should addServiceEndpoint', async () =>
+    createTestClient(server)
       .mutate({
         mutation: gql(ADD_SERVICE_ENDPOINT),
-        variables: { did: did_KeyGen, signedRequest },
+        variables: {
+          did: did_KeyGen,
+          id: `${did_KeyGen}#vcr`,
+          typ: 'CredentialRepositoryService',
+          serviceEndpoint: 'https://repository.example.com/service/8377464',
+        },
       })
       .then(({ data, errors }) => {
         expect(data?.addServiceEndpoint.id).toEqual(did_KeyGen);
         expect(data?.addServiceEndpoint.version).toEqual(2);
         expect(errors).toBeUndefined();
-      });
-  });
+      }));
 });
