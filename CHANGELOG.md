@@ -7,9 +7,11 @@
 **Implemented enhancements:**
 
 - add alternative implementation of auth0 [\#202](https://github.com/rtang03/fabric-es/issues/202)
+- Did data registry [\#197](https://github.com/rtang03/fabric-es/issues/197)
 
 **Merged pull requests:**
 
+- feat: create / resolve DidDocument [\#204](https://github.com/rtang03/fabric-es/pull/204) ([rtang03](https://github.com/rtang03))
 - feat: enable auth0 in gateway-lib [\#203](https://github.com/rtang03/fabric-es/pull/203) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.8](https://github.com/rtang03/fabric-es/tree/v0.7.8) (2021-03-26)
@@ -299,7 +301,6 @@
 - Use release versions as dev-net docker image versions [\#32](https://github.com/rtang03/fabric-es/pull/32) ([pangduckwai](https://github.com/pangduckwai))
 - Merge projectionDb search changes from 0.5.16 to master [\#30](https://github.com/rtang03/fabric-es/pull/30) ([pangduckwai](https://github.com/pangduckwai))
 - Update the GCP deployment of gw-org1, gw-org2, and auth-servers for release v0.6.1 [\#29](https://github.com/rtang03/fabric-es/pull/29) ([hohowin](https://github.com/hohowin))
-- V2dn3org [\#25](https://github.com/rtang03/fabric-es/pull/25) ([pangduckwai](https://github.com/pangduckwai))
 
 **Fixed bugs:**
 
