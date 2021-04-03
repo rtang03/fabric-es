@@ -1,10 +1,11 @@
 import { createStructuredSelector, Selector } from 'reselect';
-import type { DidDocument } from '../../types';
+import type { OutputDidDocument } from '../../types';
+import { addressToDid } from '../../utils';
 import type { DidDocumentInRedis } from '../types';
 
 export const didDocumentPostSelector: Selector<
   DidDocumentInRedis,
-  DidDocument
+  OutputDidDocument
 > = createStructuredSelector({
   context: (item) => {
     try {
@@ -14,9 +15,9 @@ export const didDocumentPostSelector: Selector<
       return null;
     }
   },
-  verificationMethod: (item) => {
+  publicKey: (item) => {
     try {
-      return item?.verification ? JSON.parse(item?.verification) : undefined;
+      return item?.publickey ? JSON.parse(item?.publickey) : undefined;
     } catch {
       console.warn('fail to parse data');
       return null;
@@ -25,13 +26,14 @@ export const didDocumentPostSelector: Selector<
   controller: (item) => item?.controller,
   created: (item) => {
     try {
-      return item?.created ? new Date(parseInt(item?.created, 10)).toISOString() : undefined;
+      return item?.created ? new Date(parseInt(`${item?.created}`, 10)).toISOString() : undefined;
     } catch {
       console.warn('fail to parse data');
       return null;
     }
   },
-  id: (item) => item?.id,
+  // restore back to Did syntax
+  id: (item) => addressToDid(item?.id),
   keyAgreement: (item) => {
     try {
       return item?.keyagr ? JSON.parse(item?.keyagr) : undefined;
@@ -58,11 +60,10 @@ export const didDocumentPostSelector: Selector<
   },
   updated: (item) => {
     try {
-      return item?.updated ? new Date(parseInt(item?.updated, 10)).toISOString() : undefined;
+      return item?.ts ? new Date(parseInt(`${item?.ts}`, 10)).toISOString() : undefined;
     } catch {
       console.warn('fail to parse data');
       return null;
     }
   },
-  _ts: (item) => item?.ts,
 });

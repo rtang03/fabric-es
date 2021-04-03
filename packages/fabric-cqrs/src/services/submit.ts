@@ -23,11 +23,18 @@ export const submit: (
 ) => {
   const logger = getLogger({ name: '[fabric-cqrs] submit.js' });
 
-  const isNullArg = args.reduce((prev, curr) => prev && !!curr, true);
+  const isNullArg = args.reduce((prev, curr) => prev || curr === undefined || curr === null, false);
 
-  if (!isNullArg) return { error: 'invalid input argument' };
+  if (isNullArg) return { error: 'invalid input argument' };
 
-  const input_args = fcn === 'eventstore:createCommit' ? [...args, createCommitId()] : args;
+  let input_args = args;
+
+  if (fcn === 'eventstore:createCommit') {
+    input_args = [...args.slice(0, 4), createCommitId()];
+    // signedRequest
+    if (args[4]) input_args.push(args[4]);
+    else input_args.push('');
+  }
 
   return getContract(network).then(({ contract }) =>
     contract

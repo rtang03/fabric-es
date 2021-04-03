@@ -27,6 +27,4 @@ export const isLinkedDataProof = (input: any): input is LinkedDataProof =>
  * @ignore
  */
 export const isDidDocument = (input: any): input is DidDocument =>
-  input?.id !== undefined &&
-  input?.context !== undefined &&
-  input?.verificationMethod !== undefined;
+  input?.id !== undefined && input?.context !== undefined && input?.publicKey !== undefined;

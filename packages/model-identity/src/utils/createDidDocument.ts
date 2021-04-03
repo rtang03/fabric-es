@@ -32,7 +32,7 @@ export const createDidDocument: (option: CreateDidOption) => DidDocument = ({
       controller: identity,
     },
   ];
-  const verificationMethod: VerificationMethod[] = [
+  const publicKey: VerificationMethod[] = [
     // sigAuth
     // {
     //   id: `${identity}`,
@@ -54,12 +54,14 @@ export const createDidDocument: (option: CreateDidOption) => DidDocument = ({
     id: identity,
     controller: controller || identity,
     authentication,
-    verificationMethod,
+    publicKey,
     service,
     created: created ?? isoTime,
     updated: updated ?? isoTime,
     proof,
     keyAgreement,
-    _ts: null,
+    // this is not part of w3 standard, but it is used by notification center
+    // _creator: id,
+    // _ts: Math.round(new Date().getTime()),
   };
 };

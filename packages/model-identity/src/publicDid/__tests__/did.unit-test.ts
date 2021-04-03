@@ -1,5 +1,5 @@
 import { buildFederatedSchema } from '@apollo/federation';
-import { Commit, getMockRepository, getReducer } from '@fabric-es/fabric-cqrs';
+import { Commit, getMockRepository, getReducer, Lifecycle } from '@fabric-es/fabric-cqrs';
 import { DataSrc } from '@fabric-es/gateway-lib';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
@@ -12,11 +12,11 @@ import {
   ADD_SERVICE_ENDPOINT,
   ADD_VERIFICATION_METHOD,
   CREATE_DIDDOC_WITH_KEYGEN,
-  CREATE_DIDDOCUMENT,
   didDocumentReducer,
   didDocumentResolvers as resolvers,
   didDocumentTypeDefs as typeDefs,
   RESOLVE_DIDDOCUMENT,
+  CREATE_DIDDOCUMENT,
 } from '../index';
 import type { DidDocumentEvents } from '../types';
 
@@ -26,7 +26,7 @@ const repo = getMockRepository<DidDocument, DidDocumentEvents>(
   'didDocument',
   getReducer<DidDocument, DidDocumentEvents>(didDocumentReducer)
 );
-const { address, publicKey: publicKeyHex } = createKeyPair();
+const { address, publicKey: publicKeyHex, privateKey } = createKeyPair();
 const id = address;
 
 repo.fullTextSearchEntity = jest.fn();
@@ -63,6 +63,34 @@ describe('Did Unit Test', () => {
         expect(commit?.entityName).toEqual('didDocument');
       }));
 
+  // it('should create DidDocument', async () => {
+  //   const payload = createDidDocument({ id, controllerKey: publicKeyHex });
+  //   const signedRequest = await DidJWT.createJWT(
+  //     {
+  //       aud: addressToDid(id),
+  //       exp: 1957463421,
+  //       entityName: 'didDocument',
+  //       entityId: id,
+  //       version: 0,
+  //       events: [{ type: 'DidDocumentCreated', lifeCycle: Lifecycle.BEGIN, payload }],
+  //     },
+  //     { issuer: addressToDid(id), signer },
+  //     { alg: 'ES256K' }
+  //   );
+  //
+  //   return createTestClient(server)
+  //     .mutate({
+  //       mutation: gql(CREATE_DIDDOCUMENT),
+  //       variables: { did: id, signedRequest },
+  //     })
+  //     .then(({ data, errors }) => {
+  //       const commit = data?.createDidDocument;
+  //       expect(commit?.entityName).toEqual('didDocument');
+  //       expect(commit?.version).toEqual(0);
+  //       expect(errors).toBeUndefined();
+  //     });
+  // });
+
   it('should resolve', async () => {
     repo.fullTextSearchEntity = jest.fn().mockResolvedValueOnce({
       status: 'OK',
@@ -74,7 +102,7 @@ describe('Did Unit Test', () => {
             context: 'https://www.w3.org/ns/did/v1',
             id: '0x5490b3081697c8d8ae324bb0e46a019614994006',
             controller: '0x5490b3081697c8d8ae324bb0e46a019614994006',
-            verificationMethod: [
+            publicKey: [
               {
                 id: '0x5490b3081697c8d8ae324bb0e46a019614994006',
                 type: 'Secp256k1VerificationKey2018',
@@ -105,21 +133,24 @@ describe('Did Unit Test', () => {
       });
   });
 
+  // data returns
   // {
-  //   did: 'did:fab:0x5b61e5b1b0c9c89f1b2e5579a9ea807f98b0286a',
-  //   publicKeyHex: '0406ab0c769553340f9c9f27f12fddc2eec7a8150564b34ef5b783c71d7c7dd16dd983555fc02648c815e6bfaa12539f6b5eb9a4d3ab68d300b0ac562191412531',
-  //   privateKey: '7ed1bbaa78bc0a89d248491509ed50b6bee278d70c5b921293980fabafd00c10',
+  //   did: 'did:fab:0x9837133caf33fe5ddaaba13bd00c40a030ba5e07',
+  //   publicKeyHex:
+  //     '0414577d972fb4dd7d6656be5a9f095f6fb5d9c377f3e318356ff80f0ee46dc02203bdd8971af420cba8a897acb8c51d4cdcdfb7560cbab64bfde83f26795f92a7',
+  //   privateKey: 'd84dd7b33898bcb4cd8dbb29ea877baf62962ba98592585f505ce69c15d9594f',
   //   commit: {
-  //     id: 'did:fab:0x5b61e5b1b0c9c89f1b2e5579a9ea807f98b0286a',
+  //     id: 'did:fab:0x9837133caf33fe5ddaaba13bd00c40a030ba5e07',
   //     entityName: 'didDocument',
-  //     commitId: '20210313162438583',
+  //     commitId: '20210321133330490',
   //     version: 0,
-  //     entityId: 'did:fab:0x5b61e5b1b0c9c89f1b2e5579a9ea807f98b0286a'
-  //   }
-  // }
+  //     entityId: 'did:fab:0x9837133caf33fe5ddaaba13bd00c40a030ba5e07',
+  //   },
+  // };
+  // notice that both "events" and "signedRequest" are omitted.
   it('should createDidWithKeyGen', async () =>
     createTestClient(server)
-      .mutate({ mutation: gql(CREATE_DIDDOC_WITH_KEYGEN) })
+      .mutate({ mutation: gql(CREATE_DIDDOC_WITH_KEYGEN), variables: { signedRequest: '123' } })
       .then(({ data, errors }) => {
         did_KeyGen = data?.createDidDocWithKeyGen.did;
         privateKey_KeyGen = data?.createDidDocWithKeyGen.privateKey;
@@ -130,6 +161,13 @@ describe('Did Unit Test', () => {
         expect(errors).toBeUndefined();
       }));
 
+  // addVerificationMethod: {
+  //   id: 'did:fab:0x7b325c08bc6fbc94d863ddab9bff9240393892f3',
+  //   entityName: 'didDocument',
+  //   version: 1,
+  //   commitId: '20210321154634140',
+  //   entityId: 'did:fab:0x7b325c08bc6fbc94d863ddab9bff9240393892f3'
+  // }
   it('should addVerificationMethod', async () =>
     createTestClient(server)
       .mutate({
@@ -163,6 +201,4 @@ describe('Did Unit Test', () => {
         expect(data?.addServiceEndpoint.version).toEqual(2);
         expect(errors).toBeUndefined();
       }));
-
-  // TODO: more tests to add later.
 });

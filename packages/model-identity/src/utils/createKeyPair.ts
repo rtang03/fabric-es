@@ -1,5 +1,6 @@
 import EC from 'elliptic';
 import { keccak_256 } from 'js-sha3';
+import replace from 'lodash/replace';
 import u8a from 'uint8arrays';
 
 export const keccak: (data: Uint8Array) => Uint8Array = (data) =>
@@ -21,3 +22,5 @@ export const createKeyPair = () => {
 };
 
 export const addressToDid = (address: string) => `did:fab:${address}`;
+
+export const removeDidMethodPrefix = (didUrl: string) => replace(didUrl, 'did:fab:', '');

@@ -6,14 +6,20 @@ import type { DIDDocument, VerificationMethod, ServiceEndpoint } from 'did-resol
  * @see https://w3c-ccg.github.io/ld-cryptosuite-registry/
  */
 
+// @see https://w3c-ccg.github.io/ld-proofs/
 export type LinkedDataProof = {
   type: string;
 
   created: string;
 
-  creator: string;
-
+  // creator: string;
   nonce: string;
+
+  proofPurpose?: string;
+
+  verificationMethod?: string;
+
+  domain?: string;
 
   signatureValue: string;
 };
@@ -32,7 +38,7 @@ export class DidDocument implements DIDDocument, BaseEntity {
 
   controller?: string;
 
-  verificationMethod?: VerificationMethod[];
+  publicKey: VerificationMethod[];
 
   authentication?: (string | VerificationMethod)[];
 
@@ -41,18 +47,15 @@ export class DidDocument implements DIDDocument, BaseEntity {
   // https://www.w3.org/2019/08/did-20190828/#service-endpoints
   service?: ServiceEndpoint[];
 
-  /** Standard metadata for identifier records includes a timestamp of the original creation. **/
-  created?: string;
-
   /** Standard metadata for identifier records includes a timestamp of the most recent change **/
-  updated?: string;
+  updated: string;
 
   /** A proof on a DID Document is cryptographic proof of the integrity of the DID Document **/
   proof?: LinkedDataProof;
 
   keyAgreement?: (string | VerificationMethod)[];
 
-  _ts: number;
+  deactivated?: boolean;
 
-  _created?: number;
+  versionId?: string;
 }

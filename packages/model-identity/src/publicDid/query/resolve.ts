@@ -8,7 +8,7 @@ export const RESOLVE_DIDDOCUMENT = `
       keyAgreement
       proof
       service
-      verificationMethod
+      publicKey
       updated
     }
   }

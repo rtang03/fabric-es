@@ -52,32 +52,33 @@ export const commandGetById: <TEntity, TEvent>(
 
   const save = !data
     ? null
-    : dispatcher<Commit, { events: TEvent[] }>(
-        ({ tx_id, args: { events } }) =>
-          action.create({
-            channelName,
-            connectionProfile,
-            wallet,
-            tx_id,
-            enrollmentId,
-            args: {
-              entityName,
-              id,
-              version: Object.keys(data).length,
-              isPrivateData,
-              events: replaceTag(addTimestamp(events)),
-            },
-          }),
-        {
-          name: 'create',
-          store,
-          slice: 'write',
-          SuccessAction: action.CREATE_SUCCESS,
-          ErrorAction: action.CREATE_ERROR,
-          logger,
-          typeGuard: isCommitRecord,
-        },
-        (result: Record<string, Commit>) => Object.values<Commit>(result)[0]
-      );
+    : dispatcher<Commit, { events: TEvent[]; signedRequest?: string }>(
+      ({ tx_id, args: { events, signedRequest } }) =>
+        action.create({
+          channelName,
+          connectionProfile,
+          wallet,
+          tx_id,
+          enrollmentId,
+          args: {
+            entityName,
+            id,
+            version: Object.keys(data).length,
+            isPrivateData,
+            events: replaceTag(addTimestamp(events)),
+            signedRequest,
+          },
+        }),
+      {
+        name: 'create',
+        store,
+        slice: 'write',
+        SuccessAction: action.CREATE_SUCCESS,
+        ErrorAction: action.CREATE_ERROR,
+        logger,
+        typeGuard: isCommitRecord,
+      },
+      (result: Record<string, Commit>) => Object.values<Commit>(result)[0]
+    );
   return { currentState, save };
 };

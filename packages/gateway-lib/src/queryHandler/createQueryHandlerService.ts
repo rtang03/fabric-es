@@ -21,8 +21,12 @@ import fetch from 'node-fetch';
 import { Redisearch } from 'redis-modules-sdk';
 import type { Selector } from 'reselect';
 import {
-  Organization, orgReducer, orgIndices,
-  User, userReducer, userIndices,
+  Organization,
+  orgReducer,
+  orgIndices,
+  User,
+  userReducer,
+  userIndices,
 } from '../common/model';
 import type { QueryHandlerGqlCtx } from '../types';
 import { composeRedisRepos, getLogger, isAuthResponse } from '../utils';
@@ -78,7 +82,8 @@ export const createQueryHandlerService: (option: {
       fields: RedisearchDefinition<TInput>;
       preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
       postSelector?: Selector<TItemInRedis, TOutput>;
-  }) => AddQHRedisRepository;
+    }
+  ) => AddQHRedisRepository;
 } = ({
        asLocalhost,
        authCheck,
@@ -96,22 +101,20 @@ export const createQueryHandlerService: (option: {
   const publisher = new Redisearch(redisOptions);
   const subscriber = new Redisearch(redisOptions);
   const pubSub = new RedisPubSub({ connection: redisOptions });
-
   logger.debug(util.format('redis option: %j', redisOptions));
 
   let redisRepos: Record<string, RedisRepository> = {};
   let queryHandler: QueryHandler = null;
   let queryDatabase: QueryDatabase;
   let readyToRunServer = false;
-
   // Add common reducers
   const entityNames: string[] = [Organization.entityName, User.entityName];
   const reducers: Record<string, Reducer> = {
     [Organization.entityName]: getReducer(orgReducer),
     [User.entityName]: getReducer(userReducer),
   };
-  redisRepos = composeRedisRepos(publisher, redisRepos)(Organization, { fields: orgIndices});
-  redisRepos = composeRedisRepos(publisher, redisRepos)(User, { fields: userIndices});
+  redisRepos = composeRedisRepos(publisher, redisRepos)(Organization, { fields: orgIndices });
+  redisRepos = composeRedisRepos(publisher, redisRepos)(User, { fields: userIndices });
 
   const addRedisRepository: <TInput, TItemInRedis, TOutput, TEvent>(
     entity: EntityType<TInput>,
@@ -120,15 +123,19 @@ export const createQueryHandlerService: (option: {
       fields: RedisearchDefinition<TInput>;
       preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
       postSelector?: Selector<TItemInRedis, TOutput>;
-  }) => AddQHRedisRepository = <TInput, TItemInRedis, TOutput, TEvent>(entity, { reducer, fields, preSelector, postSelector }) => {
+    }
+  ) => AddQHRedisRepository = <TInput, TItemInRedis, TOutput, TEvent>(
+    entity,
+    { reducer, fields, preSelector, postSelector }
+  ) => {
     entityNames.push(entity.entityName);
     reducers[entity.entityName] = getReducer<TInput, TEvent>(reducer);
 
-    redisRepos = composeRedisRepos(
-      publisher,
-      redisRepos
-    )(entity, { fields, preSelector, postSelector });
-
+    redisRepos = composeRedisRepos(publisher, redisRepos)(entity, {
+      fields,
+      preSelector,
+      postSelector,
+    });
     return { addRedisRepository, run };
   };
 
@@ -193,7 +200,9 @@ export const createQueryHandlerService: (option: {
       queryHandler.unsubscribeHub();
       queryHandler.disconnect();
 
-      await pubSub.close().catch((err) => logger.error(util.format('Error unsubscribing pubSub: %j', err)));
+      await pubSub
+        .close()
+        .catch((err) => logger.error(util.format('Error unsubscribing pubSub: %j', err)));
 
       await subscriber.redis
         .unsubscribe()
@@ -250,7 +259,6 @@ export const createQueryHandlerService: (option: {
         enrollmentId,
         wallet,
       });
-
       logger.info('fabric connected');
 
       gateway = networkConfig.gateway;

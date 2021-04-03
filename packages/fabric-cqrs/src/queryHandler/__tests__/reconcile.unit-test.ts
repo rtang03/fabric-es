@@ -77,12 +77,11 @@ beforeAll(async () => {
 
     // Step 4: create counter's RedisRepo
     Counter.entityName = entityName;
-    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>(
-      Counter, {
-        client,
-        fields,
-        postSelector,
-        preSelector,
+    counterRedisRepo = createRedisRepository<Counter, CounterInRedis, OutputCounter>(Counter, {
+      client,
+      fields,
+      postSelector,
+      preSelector,
     });
 
     // Step 5: create QueryDatabase
@@ -225,21 +224,17 @@ describe('Reconcile Tests', () => {
       }));
 
   it('should fail to reconcile non-existing entityName', async () =>
-    queryHandler
-      .reconcile({ entityName: 'Noop' })
-      .then(({ data, status }) => {
-        expect(data).toEqual([]);
-        expect(status).toEqual('OK');
-      }));
+    queryHandler.reconcile({ entityName: 'Noop' }).then(({ data, status }) => {
+      expect(data).toEqual([]);
+      expect(status).toEqual('OK');
+    }));
 
   it('should reconcile', async () =>
-    queryHandler
-      .reconcile({ entityName })
-      .then(({ data, status }) => {
-        expect(status).toEqual('OK');
-        expect(data).toEqual([{ key: 'e:test_reconcile:qh_test_001', status: 'OK' }]);
-        expect(data.length).toEqual(1);
-      }));
+    queryHandler.reconcile({ entityName }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data).toEqual([{ key: 'e:test_reconcile:qh_test_001', status: 'OK' }]);
+      expect(data.length).toEqual(1);
+    }));
 
   it('should fail to query_getById: non-existing entityName', async () =>
     queryHandler
@@ -281,13 +276,11 @@ describe('Reconcile Tests', () => {
   });
 
   it('should reconcile', async () =>
-    queryHandler
-      .reconcile({ entityName })
-      .then(({ data, status }) => {
-        expect(status).toEqual('OK');
-        expect(data).toEqual([{ key: 'e:test_reconcile:qh_test_001', status: 'OK' }]);
-        expect(data.length).toEqual(1);
-      }));
+    queryHandler.reconcile({ entityName }).then(({ data, status }) => {
+      expect(status).toEqual('OK');
+      expect(data).toEqual([{ key: 'e:test_reconcile:qh_test_001', status: 'OK' }]);
+      expect(data.length).toEqual(1);
+    }));
 
   // returns
   // {
@@ -343,16 +336,14 @@ describe('Reconcile Tests', () => {
       .then(({ data }) => expect(isCommit(data)).toBeTruthy()));
 
   it('should reconcile', async () =>
-    queryHandler
-      .reconcile({ entityName })
-      .then(({ data, status }) => {
-        expect(data).toEqual([
-          { key: 'e:test_reconcile:qh_test_001', status: 'OK' },
-          { key: 'e:test_reconcile:qh_test_002', status: 'OK' },
-        ]);
-        expect(status).toEqual('OK');
-        expect(data.length).toEqual(2);
-      }));
+    queryHandler.reconcile({ entityName }).then(({ data, status }) => {
+      expect(data).toEqual([
+        { key: 'e:test_reconcile:qh_test_001', status: 'OK' },
+        { key: 'e:test_reconcile:qh_test_002', status: 'OK' },
+      ]);
+      expect(status).toEqual('OK');
+      expect(data.length).toEqual(2);
+    }));
 
   it('should query_getById for id2', async () =>
     queryHandler
@@ -440,6 +431,7 @@ describe('Reconcile Tests', () => {
             creator: 'admin-org1.net',
             entityId: id,
             event: 'Increment',
+            signedRequest: '',
           },
           {
             id,
@@ -449,6 +441,7 @@ describe('Reconcile Tests', () => {
             creator: '',
             entityId: id,
             event: 'Increment',
+            signedRequest: '',
           },
         ]);
       }));

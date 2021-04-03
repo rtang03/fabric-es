@@ -376,7 +376,7 @@ do
   CMD="peer chaincode invoke \
       -o ${ORDERER_PEER}-${ORDERER_CODE}:${ORDERER_PORT} \
       -C loanapp -n eventstore \
-      -c '{\"Args\":[\"createCommit\", \"dev_entity\", \"ent_dev_\", \"0\",\"[{\\\"type\\\":\\\"mon\\\"}]\", \"ent_dev_\"]}' \
+      -c '{\"Args\":[\"createCommit\", \"dev_entity\", \"ent_dev_\", \"0\",\"[{\\\"type\\\":\\\"mon\\\"}]\", \"ent_dev_\",\"\"]}' \
       --tls --cafile $CRYPTO/${NAME}MSP/${PEER}.${DOMAIN}/tls-msp/tlscacerts/tls-0-0-0-0-5052.pem \
       --waitForEvent \
       --waitForEventTimeout 300s $CMD_SFX"

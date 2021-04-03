@@ -9,8 +9,11 @@ import type { CommitInRedis } from '../types';
  * to Private data, will neither be saved in Redis.
  */
 export type PickedCommit = Required<
-  Pick<Commit, 'id' | 'entityName' | 'commitId' | 'mspId' | 'entityId' | 'events' | 'version'>
-  >;
+  Pick<
+    Commit,
+    'id' | 'entityName' | 'commitId' | 'mspId' | 'entityId' | 'events' | 'version' | 'signedRequest'
+  >
+>;
 
 /**
  * @about from [[PickedCommit]] to [[CommitInRedis]]
@@ -68,4 +71,5 @@ export const preSelector: Selector<[PickedCommit], CommitInRedis> = createStruct
   evstr: ([{ events }]) => JSON.stringify(events),
   ts: ([{ events }]) => (events[0]?.payload?._ts || 0).toString(),
   v: ([{ version }]) => version.toString(),
+  signedRequest: ([{ signedRequest }]) => signedRequest,
 });

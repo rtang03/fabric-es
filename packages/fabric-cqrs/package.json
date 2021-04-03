@@ -45,7 +45,8 @@
     "unit-test:fab": "yarn t:store && yarn t:srv && yarn t:repo && yarn t:p-repo && yarn t:rec && yarn t:sub yarn t:qdb"
   },
   "dependencies": {
-    "@fabric-es/operator": "^0.7.8",
+    "@fabric-es/operator": "^0.7.6",
+    "did-jwt": "^5.0.2",
     "dotenv": "^8.1.0",
     "fabric-contract-api": "2.2.1",
     "fabric-network": "2.2.3",

@@ -38,7 +38,7 @@ export const typeDefs = gql`
     context: JSON!
     id: String!
     controller: String
-    verificationMethod: [JSON!]!
+    publicKey: [JSON!]!
     created: String!
     keyAgreement: [JSON]
     proof: [JSON]

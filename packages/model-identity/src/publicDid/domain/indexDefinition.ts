@@ -4,11 +4,9 @@ export const didDocumentIndexDefinition: DidDocumentIndexDefinition = {
   context: {},
   id: { index: { type: 'TEXT' } },
   controller: {},
-  verificationMethod: { altName: 'verification' },
+  publicKey: { altName: 'publickey' },
   service: {},
-  created: {},
-  updated: {},
   proof: {},
   keyAgreement: { altName: 'keyagr' },
-  _ts: { altName: 'ts', index: { type: 'NUMERIC', sortable: true } },
+  updated: {},
 };

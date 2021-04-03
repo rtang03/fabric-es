@@ -26,5 +26,7 @@ export const isFabricResponse = (input: any): input is FabricResponse =>
 
 export const isBaseEventArray = (input: any): input is BaseEvent[] =>
   input
-    .map((item) => item?.type !== undefined && item?.payload !== undefined)
+    .map((item) => {
+      return item?.type !== undefined && item?.payload !== undefined;
+    })
     .reduce((prev, curr) => curr && prev, true);

@@ -3,16 +3,24 @@ import { catchResolverErrors, getLogger } from '@fabric-es/gateway-lib';
 import { UserInputError } from 'apollo-server';
 import { ApolloError } from 'apollo-server-errors';
 import GraphQLJSON from 'graphql-type-json';
-import type { DidDocument, CreateDidOption } from '../types';
+import { CreateDidOption, DidDocument } from '../types';
 import { addressToDid, createKeyPair } from '../utils';
-import { didDocumentCommandHandler } from './domain';
-import type { DidDocumentContext } from './types';
+import { didDocumentCommandHandler as handler } from './domain';
+import type { DidDocumentContext as Context } from './types';
 
 type Args = {
-  [K in 'id' | 'did' | 'controller' | 'publicKeyHex' | 'typ' | 'serviceEndpoint']: string;
+  [K in
+    | 'id'
+    | 'did'
+    | 'controller'
+    | 'publicKeyHex'
+    | 'typ'
+    | 'serviceEndpoint'
+    | 'signedRequest']: string;
 };
 
 const logger = getLogger('didDocument/resolvers.js');
+const ENTITYNAME = DidDocument.entityName;
 
 export const resolvers = {
   JSON: GraphQLJSON,
@@ -26,7 +34,7 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-        }: DidDocumentContext
+        }: Context
       ): Promise<DidDocument> => {
         if (!did) throw new UserInputError('missing did');
 
@@ -53,15 +61,15 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username: enrollmentId,
-        }: DidDocumentContext
+          enrollment_id,
+        }: Context
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
         if (!publicKeyHex) throw new UserInputError('missing publicKeyHex');
 
         const payload: CreateDidOption = { id: did, controllerKey: publicKeyHex };
 
-        return didDocumentCommandHandler({ enrollmentId, repo }).Create({ did, payload });
+        return handler({ enrollmentId: enrollment_id, repo }).Create({ did, payload });
       },
       { fcnName: 'create-did', logger, useAdmin: false, useAuth: true }
     ),
@@ -73,12 +81,12 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username: enrollmentId,
-        }: DidDocumentContext
+          enrollment_id,
+        }: Context
       ): Promise<{ did: string; publicKeyHex: string; privateKey: string; commit: Commit }> => {
         const { address, privateKey, publicKey } = createKeyPair();
         const did = addressToDid(address);
-        const commit = await didDocumentCommandHandler({ enrollmentId, repo }).Create({
+        const commit = await handler({ enrollmentId: enrollment_id, repo }).Create({
           did,
           payload: { id: did, controllerKey: publicKey },
         });
@@ -97,20 +105,20 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username: enrollmentId,
-        }: DidDocumentContext
+          enrollment_id,
+        }: Context
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
         if (!id) throw new UserInputError('missing id');
         if (!controller) throw new UserInputError('missing controller');
         if (!publicKeyHex) throw new UserInputError('missing publicKeyHex');
 
-        return didDocumentCommandHandler({ enrollmentId, repo }).AddVerificationMethod({
+        return handler({ enrollmentId: enrollment_id, repo }).AddVerificationMethod({
           did,
           payload: { id, publicKeyHex, controller },
         });
       },
-      { fcnName: 'add-vm', logger, useAdmin: false, useAuth: false }
+      { fcnName: 'add-vm', logger, useAdmin: false, useAuth: true }
     ),
     removeVerificationMethod: catchResolverErrors(
       async (
@@ -120,13 +128,13 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username: enrollmentId,
-        }: DidDocumentContext
+          enrollment_id,
+        }: Context
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
         if (!id) throw new UserInputError('missing id');
 
-        return didDocumentCommandHandler({ enrollmentId, repo }).RemoveVerificationMethod({
+        return handler({ enrollmentId: enrollment_id, repo }).RemoveVerificationMethod({
           did,
           payload: { id },
         });
@@ -141,15 +149,15 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username: enrollmentId,
-        }: DidDocumentContext
+          enrollment_id,
+        }: Context
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
         if (!id) throw new UserInputError('missing id');
         if (!typ) throw new UserInputError('missing typ');
         if (!serviceEndpoint) throw new UserInputError('missing serviceEndpoint');
 
-        return didDocumentCommandHandler({ enrollmentId, repo }).AddServiceEndpoint({
+        return handler({ enrollmentId: enrollment_id, repo }).AddServiceEndpoint({
           did,
           payload: {
             id,
@@ -158,7 +166,7 @@ export const resolvers = {
           },
         });
       },
-      { fcnName: 'add-service', logger, useAdmin: false, useAuth: false }
+      { fcnName: 'add-service', logger, useAdmin: false, useAuth: true }
     ),
     removeServiceEndpoint: catchResolverErrors(
       async (
@@ -168,18 +176,18 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username: enrollmentId,
-        }: DidDocumentContext
+          enrollment_id,
+        }: Context
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
         if (!id) throw new UserInputError('missing id');
 
-        return didDocumentCommandHandler({ enrollmentId, repo }).RemoveServiceEndpoint({
+        return handler({ enrollmentId: enrollment_id, repo }).RemoveServiceEndpoint({
           did,
           payload: { id },
         });
       },
-      { fcnName: 'remove-service', logger, useAdmin: false, useAuth: false }
+      { fcnName: 'remove-service', logger, useAdmin: false, useAuth: true }
     ),
     deactivate: catchResolverErrors(
       async (
@@ -189,17 +197,17 @@ export const resolvers = {
           dataSources: {
             didDocument: { repo },
           },
-          username: enrollmentId,
-        }: DidDocumentContext
+          enrollment_id,
+        }: Context
       ): Promise<Commit> => {
         if (!did) throw new UserInputError('missing did');
 
-        return didDocumentCommandHandler({ enrollmentId, repo }).Deactivate({
+        return handler({ enrollmentId: enrollment_id, repo }).Deactivate({
           did,
           payload: { id: did },
         });
       },
-      { fcnName: 'revoke', logger, useAdmin: false, useAuth: false }
+      { fcnName: 'revoke', logger, useAdmin: false, useAuth: true }
     ),
   },
 };

@@ -80,4 +80,5 @@ export const postSelector: Selector<CommitInRedis, OutputCommit> = createStructu
     }
     return events;
   },
+  signedRequest: ({ signedRequest }) => signedRequest,
 });

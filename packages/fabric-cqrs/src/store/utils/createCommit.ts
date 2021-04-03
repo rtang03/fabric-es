@@ -9,7 +9,8 @@ export const createCommit: <TEvent extends BaseEvent = any>(option: {
   entityName: string;
   version: number;
   events: TEvent[];
-}) => Commit = ({ id, entityName, version, events }) => {
+  signedRequest?: string;
+}) => Commit = ({ id, entityName, version, events, signedRequest }) => {
   const now = Date.now();
   const date = new Date(now).toISOString().replace(/[^0-9]/g, '');
   const commitId = `${date}`;
@@ -22,6 +23,7 @@ export const createCommit: <TEvent extends BaseEvent = any>(option: {
       version,
       events,
       entityId: id,
-    }
+    },
+    { signedRequest }
   );
 };

@@ -6,8 +6,8 @@ import { RedisearchDefinition } from './redisearchDefinition';
  */
 export type CommonCommitFields = Pick<
   Commit,
-  'id' | 'commitId' | 'entityName' | 'mspId' | 'version' | 'events'
-  >;
+  'id' | 'commitId' | 'entityName' | 'mspId' | 'version' | 'events' | 'signedRequest'
+>;
 
 /**
  * @about derived / new fields introducted, before writing to Redis. The dervied fields is
