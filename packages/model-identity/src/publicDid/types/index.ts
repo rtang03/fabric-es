@@ -7,8 +7,11 @@ import type { DidDocumentEvents } from './events';
 export * from './events';
 export * from './indexDefinition';
 export * from './didDocumentInRedis';
-export * from './didDocumentContext';
 
 export type DidDocumentRepo = Repository<DidDocument, DidDocument, DidDocumentEvents>;
 export type DidDocumentCommandHandler = CommandHandler<DidDocumentCommands>;
 export type DidDocumentDataSource = DataSrc<DidDocumentRepo>;
+export type DidDocumentContext = {
+  dataSources: { didDocument: DidDocumentDataSource };
+  enrollment_id: string;
+};
