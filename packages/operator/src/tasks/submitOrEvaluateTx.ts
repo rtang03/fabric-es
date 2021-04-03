@@ -92,7 +92,13 @@ export const submitOrEvaluateTx: (
         }),
     submit: () => {
       // this insert commitId for each createCommit
-      const input_args = fcn === 'eventstore:createCommit' ? [...args, createCommitId()] : args;
+      let input_args = args;
+      if (fcn === 'eventstore:createCommit') {
+        input_args = [...args.slice(0, 4), createCommitId()];
+        // signedRequest
+        if (args[4]) input_args.push(args[4]);
+        else input_args.push('');
+      }
 
       return network
         .getContract(chaincodeId)
