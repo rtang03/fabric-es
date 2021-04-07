@@ -43,7 +43,6 @@ import {
 import { DECREMENT, GET_COUNTER, INCREMENT, resolvers, SEARCH, typeDefs } from './__utils__';
 
 /**
- * ./dn-run.1-db-red-auth.sh or ./dn-run.2-db-red-auth.sh
  * note: this is using counter inside __utils__. The counter has no 'desc' 'tag'. And hence,
  * no full text search is available. This is intentionally made to minimal implementation.
  */
