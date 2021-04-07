@@ -31,8 +31,4 @@ export class Counter implements BaseEntity {
   desc: string;
   tag: string;
   value: number;
-  // _ts: number;
-  // _created: number;
-  // _creator: string;
-  // _organization: string[];
 }

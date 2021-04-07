@@ -6,13 +6,9 @@ import { BaseOutputEntity } from '../../types';
  * @ignore
  */
 export class OutputCounter implements BaseOutputEntity {
-  // createdAt: number;
-  // creator: string;
   description: string;
   eventInvolved: string[];
   id: string;
   tags: string[];
-  // timestamp: number;
   value: number;
-  // organization: string[];
 };

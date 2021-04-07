@@ -4,10 +4,7 @@ import type { Counter } from '.';
 /**
  * @ignore
  */
-export type CommonCounterFields = Pick<
-  Counter,
-  'id' | 'value' | 'desc' | 'tag' // | '_ts' | '_created' | '_creator' | '_organization'
-  >;
+export type CommonCounterFields = Pick<Counter, 'id' | 'value' | 'desc' | 'tag'>;
 
 /**
  * @about derived / new fields introducted, right BEFORE writing to Redis. The dervied fields is
@@ -22,4 +19,4 @@ export type DerivedCounterFields = {
 
 export type CounterIndexDefintion = RedisearchDefinition<
   CommonCounterFields & DerivedCounterFields
-  >;
+>;

@@ -114,16 +114,20 @@ Its type `CounterRepo` is derived by type computation, `Repository`
 // Typing
 // packages/gateway-lib/src/__tests__/__utils__/types.ts
 import { Counter, CounterEvent, Repository } from '@fabric-es/fabric-cqrs';
-type CounterRepo = Repository<Counter, CounterEvent>;
+type CounterRepo = Repository<Counter, OutputCounter, CounterEvents>;
 ```
 
-The function `getRepository` gives `counterRepo`, the realization of counter repository.
+`CounterRepo` will be used in `packages/gateway-lib/src/__tests__/__utils__/handler.ts`.
 
 ```typescript
-// Implementation
-// packages/gateway-lib/src/__tests__/counter.unit-test.ts
-const entityName = 'counter';
-const counterRepo = getRepository<Counter, CounterEvents>(entityName, counterReducer);
+export const commandHanlder: (option: {
+  enrollmentId: string;
+  counterRepo: CounterRepo;
+}) => CounterCommandHandler = ({ enrollmentId, counterRepo }) => ({
+  Increment: async ({ userId, payload: { id } }) => {
+    const { data, error } = await counterRepo.create({ enrollmentId, id }).save({
+    // ...
+    })
 ```
 
 ### Step 2: Define additional model for Redisearch
@@ -142,21 +146,15 @@ interface Counter {
   desc: string;
   tag: string;
   value: number;
-  _ts: number;
-  _created: number;
-  _creator: string;
 }
 
 // packages/fabric-cqrs/src/unit-test-counter/types/counterInRedis.ts
 interface CounterInRedis {
-  created: number; // renamed field
-  creator: string; // renamed field
   de: string; // renamed field
   event: string; // derived field
   id: string; // no change
   tag: string; // no change
   tl: string; // derived field
-  ts: number; // <== renamed field
   val: string | number; // renamed field
   history: string; // derived field
 }
@@ -164,13 +162,10 @@ interface CounterInRedis {
 // packages/fabric-cqrs/src/unit-test-counter/types/outputCounter.ts
 // the output counter restore CounterInRedis back, after search.
 interface OutputCounter {
-  createdAt: number;
-  creator: string;
   description: string;
   eventInvolved: string[]; // derived field
   id: string;
   tags: string[]; // derived field
-  timestamp: number;
   value: number;
 }
 ```
@@ -182,10 +177,7 @@ newly derived fields.
 
 ```typescript
 // packages/fabric-cqrs/src/unit-test-counter/types/counterIndexDefinition.ts
-type PickedCounterFields = Pick<
-  Counter,
-  'id' | 'value' | 'desc' | 'tag' | '_ts' | '_created' | '_creator'
->;
+export type CommonCounterFields = Pick<Counter, 'id' | 'value' | 'desc' | 'tag'>;
 type DerivedCounterFields = { event: string };
 type CounterIndexDefintion = RedisearchDefinition<PickedCounterFields & DerivedCounterFields>;
 ```
@@ -227,6 +219,14 @@ Suppose the model is simple, so that derived field is not required; single type 
 Also, _Selector_ no longer required.
 
 ### Step 4: Define application architecture
+
+📌 IMPORATNT NOTE: There are two authentication approaches, via:
+
+- legacy [auth-server](https://github.com/rtang03/auth-server), it will call with `createGateway.ts`
+- [Auth0 Identity Provider](https://auth0.com) (recommended), it will call with `createGatewayWithAuth0.ts`
+
+Below example is based on legacy auth-server. If you are interested with Auth0 authentication,
+please see `packages/gateway-lib/src/__tests__/counter.auth0.unit-test.ts`.
 
 There are serveral technical constructs, _commandHandler_, _resolvers_, _queryHandler microservice_, and
 _entity microservice_. They are not carrying domain model information. They are defining the architecture how
@@ -351,15 +351,14 @@ const { config } = await createService({
 });
 
 // (2) inject Apollo typeDefs and resolvers
-modelApolloService = config({ typeDefs, resolvers })
-  // define the search capability per entity
-  .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
-    entityName,
+modelApolloService = config([{ typeDefs, resolvers }])
+  // define the Redisearch index, and selectors
+  .addRepository<Counter, CounterInRedis, OutputCounter, CounterEvents>(Counter, {
+    reducer: counterReducerCallback,
     fields: counterIndexDefinition,
     postSelector: counterPostSelector,
     preSelector: counterPreSelector,
   })
-  .addRepository<Counter, CounterEvents>(entityName, counterReducer)
   .create();
 ```
 
@@ -371,25 +370,23 @@ required to define indexes, AND organziational-wide reducer map, like `{ counter
 
 ```typescript
 // packages/gateway-lib/src/__tests__/counter.unit-test.ts
-const { getServer } = await createQueryHandlerService({
-  redisOptions: { host: 'localhost', port: 6379 },
-  asLocalhost: true,
+const qhService = await createQueryHandlerService({
+  asLocalhost: !(process.env.NODE_ENV === 'production'),
+  authCheck: `${proxyServerUri}/oauth/authenticate`,
   channelName,
   connectionProfile,
   enrollmentId,
-  reducers: { counter: counterReducer },
+  redisOptions: { host: 'localhost', port: 6379 },
   wallet,
-  authCheck: `http://localhost:8080/oauth/authenticate`,
 })
-  .addRedisRepository<Counter, CounterInRedis, OutputCounter>({
-    entityName,
-    fields: counterIndexDefinition,
-    postSelector: counterPostSelector,
-    preSelector: counterPreSelector,
-  })
+  .addRedisRepository<Counter, CounterInRedis, OutputCounter, CounterEvents>(
+    Counter, {
+      reducer: counterReducerCallback,
+      fields: counterIndexDefinition,
+      postSelector: counterPostSelector,
+      preSelector: counterPreSelector,
+    })
   .run();
-// return normal Apollo Server. This is NOT federated service. 
-const server = getServer();
 ```
 
 ### Step 5: Bootstrap it
@@ -433,8 +430,14 @@ const { config } = await createService({
 });
 
 // (7) Config Apollo with typeDefs, resolver, and repository
-modelApolloService = await config({ typeDefs, resolvers })
-  .addRepository(getRepository<Counter, CounterEvents>(entityName, counterReducer))
+modelApolloService = config([{ typeDefs, resolvers }])
+  // define the Redisearch index, and selectors
+  .addRepository<Counter, CounterInRedis, OutputCounter, CounterEvents>(Counter, {
+    reducer: counterReducerCallback,
+    fields: counterIndexDefinition,
+    postSelector: counterPostSelector,
+    preSelector: counterPreSelector,
+  })
   .create();
 
 // (9) Launch Counter federated service
