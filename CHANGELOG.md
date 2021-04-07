@@ -9,8 +9,13 @@
 - add alternative implementation of auth0 [\#202](https://github.com/rtang03/fabric-es/issues/202)
 - Did data registry [\#197](https://github.com/rtang03/fabric-es/issues/197)
 
+**Closed issues:**
+
+- update README [\#198](https://github.com/rtang03/fabric-es/issues/198)
+
 **Merged pull requests:**
 
+- docs: fix README [\#205](https://github.com/rtang03/fabric-es/pull/205) ([rtang03](https://github.com/rtang03))
 - feat: create / resolve DidDocument [\#204](https://github.com/rtang03/fabric-es/pull/204) ([rtang03](https://github.com/rtang03))
 - feat: enable auth0 in gateway-lib [\#203](https://github.com/rtang03/fabric-es/pull/203) ([rtang03](https://github.com/rtang03))
 
