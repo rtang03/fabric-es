@@ -1,6 +1,7 @@
 ![Build](https://github.com/rtang03/fabric-es/workflows/CI/badge.svg?branch=master)
 ![Release](https://github.com/rtang03/fabric-es/workflows/Create%20Release/badge.svg)
 ![Changelog](https://github.com/rtang03/fabric-es/workflows/Changelog/badge.svg)
+[![CodeQL](https://github.com/rtang03/fabric-es/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/rtang03/fabric-es/actions/workflows/codeql-analysis.yml)
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
 
 **Test Purpose Only; Not ready for use**
