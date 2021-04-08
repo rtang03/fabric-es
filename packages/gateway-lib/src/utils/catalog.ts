@@ -1,4 +1,7 @@
+import util from 'util';
 import { buildFederatedSchema } from '@apollo/federation';
+import { execute, makePromise } from 'apollo-link';
+import { HttpLink } from 'apollo-link-http';
 import { Request, Response } from 'express';
 import {
   DocumentNode,
@@ -14,9 +17,16 @@ import {
   InputValueDefinitionNode,
   OperationTypeDefinitionNode,
 } from 'graphql';
+import gql from 'graphql-tag';
 import nodeFetch from 'node-fetch';
+import { getLogger } from './getLogger';
 
 const fetch = nodeFetch as any;
+const logger = getLogger('[gw-lib] catalog.js');
+
+const ROOT_OPS_QUERY = 'query';
+const ROOT_OPS_MUTTN = 'mutation';
+const ROOT_OPS_SBSCP = 'subscription';
 
 export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
   typeDefs: DocumentNode;
@@ -72,15 +82,18 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
   const checkDesc = (n: any) => {
     if (!n['description'] || !n['description']['kind'] || n['description']['kind'] !== 'StringValue' || !n['description']['value']) {
       return false;
-    } else if (!n['description']['value'].toUpperCase().startsWith('@SCHEMA ')) {
-      return true;
-    } else {
+    } else if (n['kind'] && n['kind'] === 'SchemaDefinition') {
       if (!schemaDesc) {
-        schemaDesc = n['description']['value'].substring(8);
-      } else {
-        schemaDesc += `\n${n['description']['value'].substring(8)}`;
+        schemaDesc = n['description']['value'];
       }
       return false;
+    } else if (n['description']['value'].toUpperCase().startsWith('@SCHEMA ')) {
+      if (!schemaDesc) {
+        schemaDesc = n['description']['value'].substring(8);
+      }
+      return false;
+    } else {
+      return true;
     }
   };
 
@@ -90,9 +103,10 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
   ), i: boolean) => {
     let included = i; // if 'i' is true, will include regardless of having comments or not
     const found: string[] = [];
-    if (checkDesc(d)) included = true; // Include if the type has comment
+    const hasDesc = checkDesc(d);
+    if (hasDesc) included = true; // Include if the type has comment
 
-    const fields = [];
+    const fields = {};
     if (d.kind !== 'ScalarTypeDefinition' && d.kind !== 'UnionTypeDefinition' && d.kind !== 'SchemaDefinition' && 
         d.kind !== 'EnumTypeDefinition' && d.kind !== 'DirectiveDefinition') { // All definitions with 'fields'
       for (const f of d.fields) {
@@ -103,7 +117,7 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
           const { field, dataType, isPrimitive } = findDataType(f);
           if (dataType) {
             if (!isPrimitive) found.push(dataType); // Remember this type for the subsequent passes
-            fields.push(field);
+            Object.assign(fields, field);
           }
         }
       }
@@ -111,14 +125,14 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
 
     let result;
     if (included) {
-      if (fields.length > 0) {
-        result = checkDesc(d) ? {
+      if (Object.keys(fields).length > 0) {
+        result = hasDesc ? {
           description: d.description.value, // type with comment given
           fields
         } : {
           fields // type with no comment given
         };
-      } else if (checkDesc(d)) {
+      } else if (hasDesc) {
         result = { description: d.description.value };
       } else {
         result = {}; // No comment, and no field, but somehow asked to include in the catalog...
@@ -131,7 +145,7 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
 
   const buildCatalog = (defs: DocumentNode) => {
     let count = 0;
-    const catalog = { service, count };
+    const catalog = { service: { name: service }, count };
     if (defs.kind === 'Document') {
       const types = {};
 
@@ -180,7 +194,7 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
         }
         if (found && found.length > 0) {
           for (const f of found) {
-            if (!types[f]) types[f] = 0;
+            if (!types[f]) types[f] = 0; // found addition types
           }
         }
       }
@@ -215,22 +229,33 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
       for (const d of defs.definitions.map(d => (
         d.kind === 'ObjectTypeDefinition'
       ) ? d : undefined).filter(d => !!d && (d.name.value === roQuery || d.name.value === roMutation || d.name.value === roSubscription))) {
+        // Always use the default name of the root operations to simplify logic when building the resuling markdown doc
+        const ops = (d.name.value === roQuery) ? ROOT_OPS_QUERY : (d.name.value === roMutation) ? ROOT_OPS_MUTTN : ROOT_OPS_SBSCP;
+
         checkDesc(d);
         for (const f of d.fields) {
           if (f.kind === 'FieldDefinition') {
             const { field, dataType, isPrimitive } = findDataType(f);
             if (dataType && !isPrimitive) {
               if (types[dataType] < 0) { // that is: processed object types
-                if (!catalog[dataType][d.name.value]) catalog[dataType][d.name.value] = {};
-                catalog[dataType][d.name.value][f.name.value] = { returns: field[f.name.value] };
+                if (!catalog[dataType][ops]) catalog[dataType][ops] = {};
 
-                const args = [];
+                if (field[f.name.value]['description']) {
+                  const { description, ...rest } = field[f.name.value];
+                  catalog[dataType][ops][f.name.value] = {
+                    description, returns: rest
+                  };
+                } else {
+                  catalog[dataType][ops][f.name.value] = { returns: field[f.name.value] };
+                }
+
+                const args = {};
                 for (const a of f.arguments) {
                   const { field, dataType } = findDataType(a);
-                  if (dataType) args.push(field);
+                  if (dataType) Object.assign(args, field);
                 }
-                if (args.length > 0) {
-                  catalog[dataType][d.name.value][f.name.value]['arguments'] = args;
+                if (Object.keys(args).length > 0) {
+                  catalog[dataType][ops][f.name.value]['arguments'] = args;
                 }
               }
             }
@@ -239,14 +264,18 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
       }
     }
 
-    catalog.count = count;
+    catalog.count = count; // Number of types found
+
+    // NOTE!!! Comments marked with @SCHEMA overrided by comment on the schema definition.
+    // Only take the first one for multiple @SCHEMA comments,
     if (schemaDesc) {
-      if (!catalog['schema']) {
-        catalog['schema'] = { description: schemaDesc };
+      if (!catalog['service']['description']) {
+        catalog['service']['description'] = schemaDesc;
       } else {
-        catalog['schema']['description'] += `\n${schemaDesc}`;
+        catalog['service']['description'] += `\n${schemaDesc}`;
       }
     }
+
     return catalog;
   };
 
@@ -345,17 +374,101 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
   }));
 };
 
-export const getCatalog = async (services: {
-  name: string;
-  url: string;
-}[]) => {
-  let catalog = '### Hello\n## there\n\nService | URL\n--- | ---\n';
+export const getCatalog = async (
+  gatewayName: string,
+  services: {
+    name: string;
+    url: string;
+  }[]
+) => {
+  const process = (json) => {
+    // console.log(`HEHEHEHEHE`, JSON.stringify(json, null, ' ')); // TODO TEMP
+    const { service, count, ...rest } = json;
+
+    let result = `\n---\n\n### Service: __${service.name}__`;
+    if (service.description) result += `\n> ${service.description}`;
+
+    for (const [typeKey, type] of Object.entries(rest)) {
+      console.log(`HOHOHOHOHO ${typeKey}`, JSON.stringify(type, null, ' ')); // TODO TEMP
+      result += `\n\n\n#### Type: _${typeKey}_`;
+      if (type['description']) result += `\n> ${type['description']}`;
+      if (type['fields']) {
+        result += '\n\n> field | type | required | Comments\n> --- | --- | --- | ---';
+        for (const [fieldKey, field] of Object.entries(type['fields'])) {
+          result += `\n> \`${fieldKey}\` | ${field['type']} | ${(field['required']) ? 'yes' : 'no'} | ${(field['description']) ? field['description'] : '-'}`;
+        }
+      }
+      if (type[ROOT_OPS_QUERY]) {
+        let qcnt = 0;
+        const qlen = Object.keys(type[ROOT_OPS_QUERY]).length;
+        result += `\n\n> #### _**${ROOT_OPS_QUERY}**_\n`;
+        for (const [opsKey, ops] of Object.entries(type[ROOT_OPS_QUERY])) {
+          result += `\n> \`${opsKey}\``;
+          if (ops['description']) result += ` _${ops['description']}_`;
+
+          if (ops['arguments']) {
+            result += `\n\n>   | type | required | Comments\n> --- | --- | --- | ---`;
+            for (const [argKey, arg] of Object.entries(ops['arguments'])) {
+              result += `\n> \`${argKey}\` | ${arg['type']} | ${(arg['required']) ? 'yes' : 'no'} | ${(arg['description']) ? arg['description'] : '-'}`;
+            }
+          }
+          if (ops['returns']) {
+            result += `\n> _**returns**_ | ${ops['returns']['type']} | ${ops['returns']['required'] ? 'yes' : 'no'} | -`;
+          }
+
+          qcnt ++;
+          if (qcnt < qlen) result += '\n> ---\n';
+        }
+      }
+    }
+    result += '\n\n<br></br>';
+
+    return result;
+  };
+
+  let catalog = `# Data Catalogue\n## Gateway: __${gatewayName}__`;
+
+  // TEMP
+  // catalog += 'Service | URL\n--- | ---';
+  // for (const service of services) {
+  //   catalog += `\n${service.name} | ${service.url}`;
+  // }
+  // TEMP
+
   for (const service of services) {
-    catalog += `${service.name} | ${service.url}\n`;
+    const cat = await makePromise(
+      execute(
+        new HttpLink({ uri: service.url, fetch }),
+        { query: gql`{ _catalog_${service.name} }` }
+      )
+    ).then(result => {
+      if (!result.data || !result.data[`_catalog_${service.name}`] || result.data[`_catalog_${service.name}`].count <= 0) {
+        return undefined;
+      } else {
+        return result.data[`_catalog_${service.name}`];
+      }
+    }).catch(error => {
+      const result = util.format('Getting catalogue: %j', error);
+      logger.error(result);
+      return undefined;
+    });
+    if (cat) catalog += `\n${process(cat)}`;
   }
 
+  console.log(`MOMOMOMOMO ${catalog}`); // TODO TEMP
+
+  // return ((req: Request, res: Response) => {
+  //   res.setHeader('content-type', 'text/markdown; charset=UTF-8');
+  //   res.send(temp);
+  // });
+
+  // TODO TEMP
+  const temp = `
+<!DOCTYPE html>
+<html><title>${gatewayName}</title><xmp theme="Spacelab" style="display:none;">${catalog}</xmp><script src="http://strapdownjs.com/v/0.2/strapdown.js"></script></html>
+`;
   return ((req: Request, res: Response) => {
-    res.setHeader('content-type', 'text/markdown; charset=UTF-8');
-    res.send(catalog);
+    res.setHeader('content-type', 'text/html; charset=UTF-8');
+    res.send(temp);
   });
 };

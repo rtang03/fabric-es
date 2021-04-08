@@ -15,7 +15,10 @@ export const typeDefs = gql`
     "Get document by id from query handler"
     getDocumentById(documentId: String!): Document
     getPaginatedDocuments(cursor: Int, pageSize: Int = 10): PaginatedDocuments!
-    searchDocumentByFields(where: String!): [Document]
+    searchDocumentByFields(
+      "Syntax: JSON \`{ [field name 1] = [value 1], [field name 2] = [value 2], ... }\`"
+      where: String!
+    ): [Document]
     searchDocumentContains(contains: String!): [Document]
   }
 
