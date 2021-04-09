@@ -37,7 +37,8 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
   let roSubscription = 'Subscription';
   let schemaDesc;
 
-  const findDataType = (f: FieldDefinitionNode | InputValueDefinitionNode | OperationTypeDefinitionNode) => { // Find data type of field
+  // Find data type of field
+  const findDataType = (f: FieldDefinitionNode | InputValueDefinitionNode | OperationTypeDefinitionNode) => {
     let type = f.type;
     let isNull = true;
     let isList = false;
@@ -71,14 +72,16 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
       } else {
         const field = { [f.name.value]: { type: type.name.value }};
         if (checkDesc(f)) field[f.name.value]['description'] = f.description.value;
-        if (!isNull) field[f.name.value]['required'] = true;
-        if (isList)  field[f.name.value].type = `${type.name.value}[]`;
+        if (!isNull)      field[f.name.value]['required'] = true;
+        if (isList)       field[f.name.value].type = `${type.name.value}[]`;
+        if (!isPrimitive) field[f.name.value]['ref'] = type.name.value.toLowerCase();
         return { field, dataType: type.name.value, isPrimitive };
       }
     }
     return {};
   };
 
+  // Check if given object contain description
   const checkDesc = (n: any) => {
     if (!n['description'] || !n['description']['kind'] || n['description']['kind'] !== 'StringValue' || !n['description']['value']) {
       return false;
@@ -390,12 +393,13 @@ export const getCatalog = async (
 
     for (const [typeKey, type] of Object.entries(rest)) {
       console.log(`HOHOHOHOHO ${typeKey}`, JSON.stringify(type, null, ' ')); // TODO TEMP
-      result += `\n\n\n#### Type: _${typeKey}_`;
+      result += `\n\n<a name="${typeKey.toLowerCase()}"></a>\n#### Type: _${typeKey}_`;
       if (type['description']) result += `\n> ${type['description']}`;
       if (type['fields']) {
         result += '\n\n> field | type | required | Comments\n> --- | --- | --- | ---';
         for (const [fieldKey, field] of Object.entries(type['fields'])) {
-          result += `\n> \`${fieldKey}\` | ${field['type']} | ${(field['required']) ? 'yes' : 'no'} | ${(field['description']) ? field['description'] : '-'}`;
+          const typ = (field['ref']) ? `[${field['type']}](#${field['ref']})` : field['type'];
+          result += `\n> \`${fieldKey}\` | ${typ} | ${(field['required']) ? 'yes' : 'no'} | ${(field['description']) ? field['description'] : '-'}`;
         }
       }
       if (type[ROOT_OPS_QUERY]) {
@@ -409,11 +413,13 @@ export const getCatalog = async (
           if (ops['arguments']) {
             result += `\n\n>   | type | required | Comments\n> --- | --- | --- | ---`;
             for (const [argKey, arg] of Object.entries(ops['arguments'])) {
-              result += `\n> \`${argKey}\` | ${arg['type']} | ${(arg['required']) ? 'yes' : 'no'} | ${(arg['description']) ? arg['description'] : '-'}`;
+              const typ = (arg['ref']) ? `[${arg['type']}](#arg['ref'])` : arg['type'];
+              result += `\n> \`${argKey}\` | ${typ} | ${(arg['required']) ? 'yes' : 'no'} | ${(arg['description']) ? arg['description'] : '-'}`;
             }
           }
           if (ops['returns']) {
-            result += `\n> _**returns**_ | ${ops['returns']['type']} | ${ops['returns']['required'] ? 'yes' : 'no'} | -`;
+            const typ = (ops['returns']['ref']) ? `[${ops['returns']['type']}](#${ops['returns']['ref']})` : ops['returns']['type'];
+            result += `\n> _**returns**_ | ${typ} | ${ops['returns']['required'] ? 'yes' : 'no'} | -`;
           }
 
           qcnt ++;
