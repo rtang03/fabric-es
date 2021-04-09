@@ -50,20 +50,25 @@ export const typeDefs = gql`
   }
 
   """
-  *Document* represents any supporting resources, such as trade documents, shipping documents, custom declarations, associating
-  with individual loan requests. Each document is uniquely identified by _documentId_. The resource owners may
-  also utilize the _reference_ property as their internal identifier unique within their individual organizations. The on-chain
-  portion of a document is a placeholder, with a resource locator (the _link_ property) pointing to the document's details
+  *Document* represents any supporting resources, such as trade documents, shipping documents, custom declarations, each associating with an individual loan request. Each document is uniquely identified by _documentId_.
+  The resource owners may also utilize the _reference_ property as their internal identifier unique within their individual organizations. This on-chain portion of a document is a placeholder, with a resource locator (the _link_ property) pointing to a corresponding [document content](#docContent)
   """
   type Document @key(fields: "documentId") {
     documentId: String!
+
     ownerId: String!
+
     loanId: String
+
     title: String
+
     "External unique reference of the document"
     reference: String!
+
     status: Int!
+
     timestamp: String!
+
     loan: Loan
   }
 
@@ -79,7 +84,7 @@ export const typeDefs = gql`
     documents: [Document]
   }
 
-  "Response from a _mutation_ (create, update, delete) operation"
+  "Response from _mutation_ (create, update, delete) operations related to the *Document* type"
   union DocResponse = DocCommit | DocError
 
   type DocEvent {
@@ -88,17 +93,24 @@ export const typeDefs = gql`
 
   type DocCommit {
     id: String
+
     entityName: String
+
     version: Int
+
     "Timestamp - may not be sufficient"
     commitId: String
+
     mspId: String
+
     entityId: String
+
     events: [DocEvent!]
   }
 
   type DocError {
     message: String!
+
     stack: String
   }
 `;

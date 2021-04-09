@@ -36,9 +36,8 @@ export const typeDefs = gql`
   }
 
   """
-  *Loan* is one of the on-chain top-level entities. Being globally accessible, it serves as an anchor point of all information related
-  to a loan request scattered among the participating organizations. Each loan is uniquely identified by a _loanId_. The
-  loan applicants may also utilize the _reference_ property as their internal identifier unique within their individual organizations.
+  *Loan* is one of the on-chain top-level entities. Being globally accessible, it serves as an anchor point of all information related to a particular loan request found among the participating organizations. Each loan is uniquely identified by a _loanId_.
+  The loan applicants may also utilize the _reference_ property as their internal identifier unique within their individual organizations.
   """
   type Loan @key(fields: "loanId") {
     loanId: String!

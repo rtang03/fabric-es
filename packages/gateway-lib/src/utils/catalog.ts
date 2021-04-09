@@ -16,9 +16,11 @@ import {
   FieldDefinitionNode,
   InputValueDefinitionNode,
   OperationTypeDefinitionNode,
+  TypeNode,
 } from 'graphql';
 import gql from 'graphql-tag';
 import nodeFetch from 'node-fetch';
+import { ServiceType } from '../types';
 import { getLogger } from './getLogger';
 
 const fetch = nodeFetch as any;
@@ -28,7 +30,7 @@ const ROOT_OPS_QUERY = 'query';
 const ROOT_OPS_MUTTN = 'mutation';
 const ROOT_OPS_SBSCP = 'subscription';
 
-export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
+export const buildCatalogedSchema = (service: string, serviceType: ServiceType, enabled: boolean, sdl: {
   typeDefs: DocumentNode;
   resolvers: any;
 }[]) => {
@@ -37,9 +39,10 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
   let roSubscription = 'Subscription';
   let schemaDesc;
 
-  // Find data type of field
-  const findDataType = (f: FieldDefinitionNode | InputValueDefinitionNode | OperationTypeDefinitionNode) => {
-    let type = f.type;
+  const srvType = (serviceType === ServiceType.Public) ? 'Public' : (serviceType === ServiceType.Private) ? 'Private' : 'Remote';
+
+  const parseType = (t: TypeNode) => {
+    let type = t;
     let isNull = true;
     let isList = false;
     let cnt = 10;
@@ -52,8 +55,9 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
       type = type.type;
       cnt --;
     }
+
+    let isPrimitive = true;
     if (type.kind === 'NamedType') {
-      let isPrimitive = true;
       switch (type.name.value) {
         case 'Int':
         case 'Float':
@@ -66,16 +70,25 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
           isPrimitive = false;
           break;
       }
+      return { dataType: type.name.value, isPrimitive, isList, isNull };
+    } else {
+      return {};
+    }
+  };
 
+  // Find data type of field
+  const findDataType = (f: FieldDefinitionNode | InputValueDefinitionNode | OperationTypeDefinitionNode) => {
+    const { dataType, isPrimitive, isList, isNull } = parseType(f.type);
+    if (dataType) {
       if (f.kind === 'OperationTypeDefinition') {
-        return { field: { operation: f.operation }, dataType: type.name.value, isPrimitive };
+        return { field: { operation: f.operation }, dataType, isPrimitive };
       } else {
-        const field = { [f.name.value]: { type: type.name.value }};
+        const field = { [f.name.value]: { type: dataType }};
         if (checkDesc(f)) field[f.name.value]['description'] = f.description.value;
         if (!isNull)      field[f.name.value]['required'] = true;
-        if (isList)       field[f.name.value].type = `${type.name.value}[]`;
-        if (!isPrimitive) field[f.name.value]['ref'] = type.name.value.toLowerCase();
-        return { field, dataType: type.name.value, isPrimitive };
+        if (isList)       field[f.name.value].type = `${dataType}[]`;
+        if (!isPrimitive) field[f.name.value]['ref'] = dataType.toLowerCase();
+        return { field, dataType, isPrimitive };
       }
     }
     return {};
@@ -110,6 +123,7 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
     if (hasDesc) included = true; // Include if the type has comment
 
     const fields = {};
+    const types = {};
     if (d.kind !== 'ScalarTypeDefinition' && d.kind !== 'UnionTypeDefinition' && d.kind !== 'SchemaDefinition' && 
         d.kind !== 'EnumTypeDefinition' && d.kind !== 'DirectiveDefinition') { // All definitions with 'fields'
       for (const f of d.fields) {
@@ -124,6 +138,18 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
           }
         }
       }
+    } else if (d.kind === 'UnionTypeDefinition') {
+      for (const t of d.types) {
+        const { dataType, isPrimitive, isNull, isList } = parseType(t);
+        const type = { [dataType]: {}};
+        if (!isPrimitive) {
+          found.push(dataType);
+          type[dataType]['ref'] = dataType.toLowerCase();
+        }
+        if (!isNull) type[dataType]['required'] = true;
+        if (isList)  type[dataType]['isList'] = true;
+        Object.assign(types, type);
+      }
     }
 
     let result;
@@ -134,6 +160,13 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
           fields
         } : {
           fields // type with no comment given
+        };
+      } else if (Object.keys(types).length > 0) {
+        result = hasDesc ? {
+          description: d.description.value, // union type with comment given
+          types
+        } : {
+          types // union type with no comment given
         };
       } else if (hasDesc) {
         result = { description: d.description.value };
@@ -148,7 +181,7 @@ export const buildCatalogedSchema = (service: string, enabled: boolean, sdl: {
 
   const buildCatalog = (defs: DocumentNode) => {
     let count = 0;
-    const catalog = { service: { name: service }, count };
+    const catalog = { service: { name: service, type: srvType }, count };
     if (defs.kind === 'Document') {
       const types = {};
 
@@ -384,14 +417,14 @@ export const getCatalog = async (
     url: string;
   }[]
 ) => {
-  const process = (json) => {
+  const processDetails = (json) => {
     const { service, count, ...rest } = json;
 
-    let result = `\n---\n\n# Service: __${service.name}__`;
+    let result = `\n---\n\n# ${service.type} chain service: _**${service.name}**_`;
     if (service.description) result += `\n> ${service.description}`;
 
     for (const [typeKey, type] of Object.entries(rest)) {
-      console.log(`HOHOHOHOHO ${typeKey}`, JSON.stringify(type, null, ' ')); // TODO TEMP
+      // console.log(`HOHOHOHOHO ${typeKey}`, JSON.stringify(type, null, ' ')); // TODO TEMP
       result += `\n\n<a name="${typeKey.toLowerCase()}"></a>\n## Type: _${typeKey}_`;
       if (type['description']) result += `\n> ${type['description']}`;
       if (type['fields']) {
@@ -399,6 +432,13 @@ export const getCatalog = async (
         for (const [fieldKey, field] of Object.entries(type['fields'])) {
           const typ = (field['ref']) ? `[${field['type']}](#${field['ref']})` : field['type'];
           result += `\n> \`${fieldKey}\` | ${typ} | ${(field['required']) ? 'yes' : 'no'} | ${(field['description']) ? field['description'] : '-'}`;
+        }
+      }
+      if (type['types']) {
+        result += '\n\n> type | Comments\n> --- | ---';
+        for (const [typeKey, t] of Object.entries(type['types'])) {
+          const typ = (t['ref']) ? `[${typeKey}](#${t['ref']})` : typeKey;
+          result += `\n> ${typ} | ${(t['description']) ? t['description'] : '-' }`;
         }
       }
 
@@ -428,13 +468,24 @@ export const getCatalog = async (
           }
         }
       }
+      result += '\n[↑ top](#top)';
     }
     result += '\n\n<br></br>';
 
     return result;
   };
 
-  let catalog = `# Data Catalogue: Gateway __${gatewayName}__`;
+  const processContent = (json) => {
+    const { service, count, ...rest } = json;
+    let result = '';
+    for (const [typeKey, type] of Object.entries(rest)) {
+      result += `\n[${typeKey}](#${typeKey.toLowerCase()}) | ${service.name} | ${service.type} | ${(type['description']) ? `${type['description'].replace(/\r?\n|\r/g, '<br/>')}` : '-'}`;
+    }
+    return result;
+  };
+
+  let content = '\n## Overview\n\nType | Service name | Service type | Comments\n--- | --- | --- | ---';
+  let details = '';
 
   for (const service of services) {
     const cat = await makePromise(
@@ -453,8 +504,12 @@ export const getCatalog = async (
       logger.error(result);
       return undefined;
     });
-    if (cat) catalog += `\n${process(cat)}`;
+    if (cat) {
+      content += processContent(cat);
+      details += `\n${processDetails(cat)}`;
+    }
   }
+  const catalog = `<a name="top"></a>\n# Data Catalogue: Gateway __${gatewayName}__${content}${details}`;
 
   // return ((req: Request, res: Response) => {
   //   res.setHeader('content-type', 'text/markdown; charset=UTF-8');

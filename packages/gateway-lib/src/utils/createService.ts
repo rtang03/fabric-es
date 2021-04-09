@@ -169,7 +169,7 @@ export const createService: (option: {
         introspection?: boolean;
         catalog?: boolean;
       }) => ApolloServer = (option) => {
-        const schema = buildCatalogedSchema(serviceName, option ? option.catalog : true, sdl);
+        const schema = buildCatalogedSchema(serviceName, type, option ? option.catalog : true, sdl);
 
         const args = mspId ? { mspId } : undefined;
         const flags = {

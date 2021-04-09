@@ -10,9 +10,10 @@ export const typeDefs = gql`
     updateDocContents(userId: String!, documentId: String!, content: DocsInput!): DocContentsResp
   }
 
-  ###
-  # Local Type: Doc Contents
-  ###
+  """
+  *DocContents* is an entity stored in the private-chain with data not suppose to be globally accessible. It contains
+  either the data of the actual document or the link to access the document.
+  """
   type DocContents @key(fields: "documentId") {
     documentId: String!
     content: Docs!
@@ -29,20 +30,20 @@ export const typeDefs = gql`
 
   union Docs = Data | File
 
-  # Free style document content as structural data
   type Data {
+    "Free style document content as structural data"
     body: String!
   }
 
-  # Note: this File entity is Private Data, but the uploaded files themselves are entirly off-chain
+  "Note: this File entity is Private Data, but the uploaded files themselves are entirly off-chain"
   type File {
     format: String!
     link: String!
   }
 
-  ###
-  # Mutation responses
-  ###
+  """
+  Response from _mutation_ (create, update, delete) operations related to the *DocContents* type
+  """
   union DocContentsResp = DocContentsCommit | DocContentsError
 
   type DocContentsCommit {
