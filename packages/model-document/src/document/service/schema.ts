@@ -12,13 +12,17 @@ export const typeDefs = gql`
 
   type Query {
     getCommitsByDocumentId(documentId: String!): [DocCommit]!
+
     "Get document by id from query handler"
     getDocumentById(documentId: String!): Document
+
     getPaginatedDocuments(cursor: Int, pageSize: Int = 10): PaginatedDocuments!
+
     searchDocumentByFields(
       "Syntax: JSON \`{ [field name 1] = [value 1], [field name 2] = [value 2], ... }\`"
       where: String!
     ): [Document]
+
     searchDocumentContains(contains: String!): [Document]
   }
 
@@ -30,8 +34,12 @@ export const typeDefs = gql`
       title: String
       reference: String!
     ): DocResponse
+
     deleteDocument(userId: String!, documentId: String!): DocResponse
+
     restrictAccess(userId: String!, documentId: String!): DocResponse
+
+    "Update one or more updatable field(s) in a *Document* identified by the *userId* and *documentId*"
     updateDocument(
       userId: String!
       documentId: String!
@@ -71,6 +79,7 @@ export const typeDefs = gql`
     documents: [Document]
   }
 
+  "Response from a _mutation_ (create, update, delete) operation"
   union DocResponse = DocCommit | DocError
 
   type DocEvent {

@@ -385,15 +385,14 @@ export const getCatalog = async (
   }[]
 ) => {
   const process = (json) => {
-    // console.log(`HEHEHEHEHE`, JSON.stringify(json, null, ' ')); // TODO TEMP
     const { service, count, ...rest } = json;
 
-    let result = `\n---\n\n### Service: __${service.name}__`;
+    let result = `\n---\n\n# Service: __${service.name}__`;
     if (service.description) result += `\n> ${service.description}`;
 
     for (const [typeKey, type] of Object.entries(rest)) {
       console.log(`HOHOHOHOHO ${typeKey}`, JSON.stringify(type, null, ' ')); // TODO TEMP
-      result += `\n\n<a name="${typeKey.toLowerCase()}"></a>\n#### Type: _${typeKey}_`;
+      result += `\n\n<a name="${typeKey.toLowerCase()}"></a>\n## Type: _${typeKey}_`;
       if (type['description']) result += `\n> ${type['description']}`;
       if (type['fields']) {
         result += '\n\n> field | type | required | Comments\n> --- | --- | --- | ---';
@@ -402,28 +401,31 @@ export const getCatalog = async (
           result += `\n> \`${fieldKey}\` | ${typ} | ${(field['required']) ? 'yes' : 'no'} | ${(field['description']) ? field['description'] : '-'}`;
         }
       }
-      if (type[ROOT_OPS_QUERY]) {
-        let qcnt = 0;
-        const qlen = Object.keys(type[ROOT_OPS_QUERY]).length;
-        result += `\n\n> #### _**${ROOT_OPS_QUERY}**_\n`;
-        for (const [opsKey, ops] of Object.entries(type[ROOT_OPS_QUERY])) {
-          result += `\n> \`${opsKey}\``;
-          if (ops['description']) result += ` _${ops['description']}_`;
 
-          if (ops['arguments']) {
-            result += `\n\n>   | type | required | Comments\n> --- | --- | --- | ---`;
-            for (const [argKey, arg] of Object.entries(ops['arguments'])) {
-              const typ = (arg['ref']) ? `[${arg['type']}](#arg['ref'])` : arg['type'];
-              result += `\n> \`${argKey}\` | ${typ} | ${(arg['required']) ? 'yes' : 'no'} | ${(arg['description']) ? arg['description'] : '-'}`;
+      for (const rootOps of [ROOT_OPS_QUERY, ROOT_OPS_MUTTN, ROOT_OPS_SBSCP]) {
+        if (type[rootOps]) {
+          let qcnt = 0;
+          const qlen = Object.keys(type[rootOps]).length;
+          result += `\n\n> ### _**${rootOps}**_\n`;
+          for (const [opsKey, ops] of Object.entries(type[rootOps])) {
+            result += `\n> ${rootOps}: \`${opsKey}\``;
+            if (ops['description']) result += `\n\n> - _${ops['description']}_\n`;
+
+            if (ops['arguments']) {
+              result += `\n\n>   | type | required | Comments\n> --- | --- | --- | ---`;
+              for (const [argKey, arg] of Object.entries(ops['arguments'])) {
+                const typ = (arg['ref']) ? `[${arg['type']}](#arg['ref'])` : arg['type'];
+                result += `\n> \`${argKey}\` | ${typ} | ${(arg['required']) ? 'yes' : 'no'} | ${(arg['description']) ? arg['description'] : '-'}`;
+              }
             }
-          }
-          if (ops['returns']) {
-            const typ = (ops['returns']['ref']) ? `[${ops['returns']['type']}](#${ops['returns']['ref']})` : ops['returns']['type'];
-            result += `\n> _**returns**_ | ${typ} | ${ops['returns']['required'] ? 'yes' : 'no'} | -`;
-          }
+            if (ops['returns']) {
+              const typ = (ops['returns']['ref']) ? `[${ops['returns']['type']}](#${ops['returns']['ref']})` : ops['returns']['type'];
+              result += `\n> _**returns**_ | ${typ} | ${ops['returns']['required'] ? 'yes' : 'no'} | -`;
+            }
 
-          qcnt ++;
-          if (qcnt < qlen) result += '\n> ---\n';
+            qcnt ++;
+            if (qcnt < qlen) result += '\n> ---\n';
+          }
         }
       }
     }
@@ -432,14 +434,7 @@ export const getCatalog = async (
     return result;
   };
 
-  let catalog = `# Data Catalogue\n## Gateway: __${gatewayName}__`;
-
-  // TEMP
-  // catalog += 'Service | URL\n--- | ---';
-  // for (const service of services) {
-  //   catalog += `\n${service.name} | ${service.url}`;
-  // }
-  // TEMP
+  let catalog = `# Data Catalogue: Gateway __${gatewayName}__`;
 
   for (const service of services) {
     const cat = await makePromise(
@@ -460,8 +455,6 @@ export const getCatalog = async (
     });
     if (cat) catalog += `\n${process(cat)}`;
   }
-
-  console.log(`MOMOMOMOMO ${catalog}`); // TODO TEMP
 
   // return ((req: Request, res: Response) => {
   //   res.setHeader('content-type', 'text/markdown; charset=UTF-8');
