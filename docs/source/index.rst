@@ -8,3 +8,19 @@ Fabric-ES
 =========
 
 Software library for applying event-sourcing pattern to Hyperledger Fabric
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Getting Started
+
+   concept
+
+   architecture
+
+   dev-net
+
+   counter-example
+
+   use-case
+
+   glossary
