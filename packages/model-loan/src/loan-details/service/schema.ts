@@ -1,6 +1,11 @@
 import gql from 'graphql-tag';
 
 export const typeDefs = gql`
+  """
+  @schema The **LOAN DETAILS** schema provides the facilities to manage and manipulate the privte chain entity **LoanDetails**, which
+  contains the detail information of a particular loan request, accessable only under permission.
+  """
+
   type Query {
     getLoanDetailsById(loanId: String!): LoanDetails
   }
@@ -19,6 +24,7 @@ export const typeDefs = gql`
       approvedAmt: Float
       comment: String
     ): LoanDetailsResp
+
     updateLoanDetails(
       userId: String!
       loanId: String!
@@ -34,22 +40,35 @@ export const typeDefs = gql`
     ): [LoanDetailsResp]!
   }
 
-  ###
-  # Local Type: Loan Details
-  ###
+  """
+  **LoanDetails** contains the detail information of a particular loan request on the private-chain, not suppose to be globally accessible.
+  """
   type LoanDetails @key(fields: "loanId") {
     loanId: String!
+
+    "Requester of the loan"
     requester: LoanRequester!
+
+    "Contact information of the requester"
     contact: ContactInfo!
+
+    "Type of loans, free text"
     loanType: String
+    
     startDate: String!
+    
     tenor: Int!
+    
     currency: String!
+    
     requestedAmt: Float!
+    
     approvedAmt: Float
+    
     comment: String
+    
     timestamp: String!
-    _organization: [String]!
+    
     loan: Loan
   }
 
@@ -58,6 +77,7 @@ export const typeDefs = gql`
     name: String
     type: String
   }
+  "Requester of the loan"
   type LoanRequester {
     registration: String!
     name: String!
@@ -71,6 +91,7 @@ export const typeDefs = gql`
     phone: String
     email: String
   }
+  "Contact information of the requester"
   type ContactInfo {
     salutation: String
     name: String!
@@ -79,11 +100,10 @@ export const typeDefs = gql`
     email: String!
   }
 
-  ###
-  # Mutation responses
-  ###
+  "Response from _mutation_ (create, update, delete) operations related to the **LoanDetails** type"
   union LoanDetailsResp = LoanDetailsCommit | LoanDetailsError
 
+  "Place holder for the actual private chain data structure of **LoanDetails**"
   type LoanDetailsCommit {
     id: String
     entityName: String

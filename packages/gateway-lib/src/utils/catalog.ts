@@ -420,7 +420,7 @@ export const getCatalog = async (
   const processDetails = (json) => {
     const { service, count, ...rest } = json;
 
-    let result = `\n---\n\n# ${service.type} chain service: _**${service.name}**_`;
+    let result = `\n---\n\n# Service: _**${service.name}**_ (${service.type})`;
     if (service.description) result += `\n> ${service.description}`;
 
     for (const [typeKey, type] of Object.entries(rest)) {
