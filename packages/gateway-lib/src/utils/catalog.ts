@@ -29,6 +29,8 @@ const logger = getLogger('[gw-lib] catalog.js');
 const ROOT_OPS_QUERY = 'query';
 const ROOT_OPS_MUTTN = 'mutation';
 const ROOT_OPS_SBSCP = 'subscription';
+const ANNO_SCHEMA = '@SCHEMA ';
+const ANNO_IGNORE = '@SKIP';
 
 export const buildCatalogedSchema = (service: string, serviceType: ServiceType, enabled: boolean, sdl: {
   typeDefs: DocumentNode;
@@ -103,7 +105,7 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
         schemaDesc = n['description']['value'];
       }
       return false;
-    } else if (n['description']['value'].toUpperCase().startsWith('@SCHEMA ')) {
+    } else if (n['description']['value'].toUpperCase().startsWith(ANNO_SCHEMA)) {
       if (!schemaDesc) {
         schemaDesc = n['description']['value'].substring(8);
       }
@@ -417,28 +419,51 @@ export const getCatalog = async (
     url: string;
   }[]
 ) => {
+  const checkIgnore = (n: any) => {
+    let ignored = false;
+    let existed = true;
+    let description;
+    if (!n['description']) {
+      description = '-';
+      existed = false;
+    } else if (n['description'].toUpperCase().includes(ANNO_IGNORE)) {
+      ignored = true;
+    } else {
+      description = n['description'];
+    }
+    return { ignored, existed, description };
+  };
+
   const processDetails = (json) => {
     const { service, count, ...rest } = json;
 
+    const { ignored, existed, description } = checkIgnore(service);
+    if (ignored) return '';
     let result = `\n---\n\n# Service: _**${service.name}**_ (${service.type})`;
-    if (service.description) result += `\n> ${service.description}`;
+    if (existed) result += `\n> ${description}`;
 
     for (const [typeKey, type] of Object.entries(rest)) {
       // console.log(`HOHOHOHOHO ${typeKey}`, JSON.stringify(type, null, ' ')); // TODO TEMP
+      const { ignored, existed, description } = checkIgnore(type);
+      if (ignored) continue;
       result += `\n\n<a name="${typeKey.toLowerCase()}"></a>\n## Type: _${typeKey}_`;
-      if (type['description']) result += `\n> ${type['description']}`;
+      if (existed) result += `\n> ${description}`;
       if (type['fields']) {
         result += '\n\n> field | type | required | Comments\n> --- | --- | --- | ---';
         for (const [fieldKey, field] of Object.entries(type['fields'])) {
+          const { ignored, description } = checkIgnore(field);
+          if (ignored) continue;
           const typ = (field['ref']) ? `[${field['type']}](#${field['ref']})` : field['type'];
-          result += `\n> \`${fieldKey}\` | ${typ} | ${(field['required']) ? 'yes' : 'no'} | ${(field['description']) ? field['description'] : '-'}`;
+          result += `\n> \`${fieldKey}\` | ${typ} | ${(field['required']) ? 'yes' : 'no'} | ${description}`;
         }
       }
       if (type['types']) {
         result += '\n\n> type | Comments\n> --- | ---';
         for (const [typeKey, t] of Object.entries(type['types'])) {
+          const { ignored, description } = checkIgnore(t);
+          if (ignored) continue;
           const typ = (t['ref']) ? `[${typeKey}](#${t['ref']})` : typeKey;
-          result += `\n> ${typ} | ${(t['description']) ? t['description'] : '-' }`;
+          result += `\n> ${typ} | ${description}`;
         }
       }
 
@@ -448,14 +473,18 @@ export const getCatalog = async (
           const qlen = Object.keys(type[rootOps]).length;
           result += `\n\n> ### _**${rootOps}**_\n`;
           for (const [opsKey, ops] of Object.entries(type[rootOps])) {
+            const { ignored, existed, description } = checkIgnore(ops);
+            if (ignored) continue;
             result += `\n> ${rootOps}: \`${opsKey}\``;
-            if (ops['description']) result += `\n\n> - _${ops['description']}_\n`;
+            if (existed) result += `\n\n> - _${description}_\n`;
 
             if (ops['arguments']) {
               result += `\n\n>   | type | required | Comments\n> --- | --- | --- | ---`;
               for (const [argKey, arg] of Object.entries(ops['arguments'])) {
+                const { ignored, description } = checkIgnore(arg);
+                if (ignored) continue;
                 const typ = (arg['ref']) ? `[${arg['type']}](#arg['ref'])` : arg['type'];
-                result += `\n> \`${argKey}\` | ${typ} | ${(arg['required']) ? 'yes' : 'no'} | ${(arg['description']) ? arg['description'] : '-'}`;
+                result += `\n> \`${argKey}\` | ${typ} | ${(arg['required']) ? 'yes' : 'no'} | ${description}`;
               }
             }
             if (ops['returns']) {
@@ -479,7 +508,9 @@ export const getCatalog = async (
     const { service, count, ...rest } = json;
     let result = '';
     for (const [typeKey, type] of Object.entries(rest)) {
-      result += `\n[${typeKey}](#${typeKey.toLowerCase()}) | ${service.name} | ${service.type} | ${(type['description']) ? `${type['description'].replace(/\r?\n|\r/g, '<br/>')}` : '-'}`;
+      const { ignored, existed, description } = checkIgnore(type);
+      if (ignored) continue;
+      result += `\n[${typeKey}](#${typeKey.toLowerCase()}) | ${service.name} | ${service.type} | ${description.replace(/\r?\n|\r/g, '<br/>')}`;
     }
     return result;
   };

@@ -77,6 +77,7 @@ export const typeDefs = gql`
 
     status: Int!
 
+    "@Skip"
     timestamp: String!
   }
 
@@ -90,6 +91,7 @@ export const typeDefs = gql`
   "Response from _mutation_ (create, update, delete) operations related to the **Loan** type"
   union LoanResponse = LoanCommit | LoanError
 
+  "@Skip"
   type LoanEvent {
     type: String
   }
@@ -112,6 +114,7 @@ export const typeDefs = gql`
     events: [LoanEvent!]
   }
 
+  "@Skip"
   type LoanError {
     message: String!
     stack: String
