@@ -4,14 +4,12 @@
 [![CodeQL](https://github.com/rtang03/fabric-es/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/rtang03/fabric-es/actions/workflows/codeql-analysis.yml)
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
 
-**Test Purpose Only; Not ready for use**
-
 # Project Overview
 
 This project enables event-driven architecture for Hyperledger Fabric projects. It provides a collection of library
 packages to accelerate development of Hyperledger Fabric application stack.
 
-See [Concept](https://github.com/rtang03/fabric-es/docs/CONCEPT.md)
+See [Documentation](https://fabric-es.readthedocs.io/en/latest/)
 
 ### Package libraries
 
@@ -33,25 +31,26 @@ The application is developed based on [Clean Architecture](https://blog.cleancod
 _Dependency graph_
 
 ```text
-(1) fabric.Wallet & fabric.connectionProfile & Redisearch connection & authCheck
-    ⎿ Apollo federated microservice
+(1) -- data-graph service for on-chain data
+        ⎿ Input-argument < FileWallet, connectionProfile,  Redis connection, auth-server >
         ⎿ typeDefs
         ⎿ Resolvers
            ⎿ Command handler
-               ⎿ repository
-                    ⎿ event
-                    ⎿ entity
-                    ⎿ reducer
-                    ⎿ Query database
-                        ⎿ RedisRepository
-(2) fabric.Wallet & fabric.connectionProfile & Redisearch connection & all Reducers & authCheck
-    ⎿ Apollo query handler microservice
+              ⎿ Repository (same as below)
+           ⎿ Repository
+              ⎿ Input-argument < event, model, reducer >
+              ⎿ Query Database (internal)
+                  ⎿ RedisRepository (internal)
+                      ⎿ Input-argument < IndexDefinition, inRedisModel, outputModel, Selectors >
+(2) -- Query handler service
+        ⎿ Input-argument < FileWallet, connectionProfile,  Redis connection, auth-server >
         ⎿ typeDefs
         ⎿ Resolvers
-            ⎿ Query handler
-                ⎿ Query database
-                    ⎿ reducers (reducer map)
-                    ⎿ RedisRepository
+           ⎿ Query handler
+             ⎿ Input-argument < event, model, reducer >
+             ⎿ Query Database (internal)
+                  ⎿ RedisRepository (internal)
+                      ⎿ Input-argument < IndexDefinition, inRedisModel, outputModel, Selectors >
 
 ```
 

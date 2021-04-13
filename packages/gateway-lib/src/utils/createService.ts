@@ -213,7 +213,8 @@ export const createService: (option: {
       };
 
       const addPrivateRepository = <TEntity, TEvent>(entity, reducer) => {
-        if (type !== ServiceType.Private) throw new Error('Invlid operation for non-private repo');
+        // NOTE: in response to Jack's request
+        // if (type !== ServiceType.Private) throw new Error('Invlid operation for non-private repo');
 
         const repository = getPrivateRepository<TEntity, TEvent>(entity, reducer);
         repositories.push({

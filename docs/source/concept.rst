@@ -1,7 +1,7 @@
 Introduction
 ============
 
-`fabric-es` is a SDK for an enhanced use of Hyperledger Fabric.
+`fabric-es` is a SDK for making Hyperledger Fabric - event driven
 
 It provides highlighted features such as:
 
@@ -9,6 +9,7 @@ It provides highlighted features such as:
   * Event-sourced chaincode
   * Federated API Gateway
   * Full Text search per organization
+  * Reactivity
 
 For developers interested in contributing us, see the
 `fabric-es <https://github.com/rtang03/fabric-es>`__ repository for more information.
@@ -63,7 +64,7 @@ and decoupling.
 Time to market
 ~~~~~~~~~~~~~~
 
-Most designers adopt the conventional database modeling and n-tier achitecture. When there is changes in data requiremnt, it
+Most designers use the conventional database modeling and n-tier achitecture. When there is changes in data requiremnt, it
 requires changes and development it different components. Provided centralized governance, the changes may require to follow
 tedious change control procedures. A simple change in data models invokes a chain reactions across organizations. The
 development and testing effort are also high.
@@ -130,7 +131,7 @@ effort. This is big benefit to time-to-market.
 Federated API gateway
 ~~~~~~~~~~~~~~~~~~~~~
 
-We adopt `Apollo Federation <https://www.apollographql.com/docs/federation/>`__. The declarative / federated API gateway
+We use `Apollo Federation <https://www.apollographql.com/docs/federation/>`__. The declarative / federated API gateway
 implements interface for writing command, and querying state, composing API call from underlying federated service.
 The initial implementation includes (a) Hyperledger Fabric on-chain ledger, and (b) private-data ledger; each are
 exposed via federated service.
@@ -138,11 +139,10 @@ exposed via federated service.
 The strongly typed API is directly derived from DDD domain model. Details will be elaborated via *counter expample*. This
 enables `end-to-end type-safety <https://charlesagile.com/end-to-end-type-safety>`__.
 
-This is typical L2 side-chain, or side-tree design. But added, L2 implementation will expose via federated API gateway.
-Each organization will deploy a federated API gateway. The underlying implementation is transparent to upstream
-client application. And, federated API gateways can fetch data across organizations, via
-`ambassador <https://docs.microsoft.com/en-us/azure/architecture/patterns/ambassador>`__ microservice, or namely
-*remote-data* microservice.
+This is a kind of side-tree design. Each organization will deploy a federated API gateway.
+The underlying implementation is transparent to upstream client application. And, federated
+API gateways can fetch data across organizations, via `ambassador <https://docs.microsoft.com/en-us/azure/architecture/patterns/ambassador>`__
+microservice, or namely *remote-data* service.
 
 The federated gateway capability is under `packages/gateway-lib`.
 
@@ -155,7 +155,7 @@ Each federated service is built with `CQRS <https://docs.microsoft.com/en-us/azu
 For the sake of `reactive design pattern <https://www.reactivedesignpatterns.com/>`__, the internal of of each federated
 microservice is built with `redux-observable <https://redux-observable.js.org/>`__ middleware.
 
-We adopt `RediSearch <https://oss.redislabs.com/redisearch/>`__, the full text search engine from *RedisLab*. Again,
+We use `RediSearch <https://oss.redislabs.com/redisearch/>`__, the full text search engine from *RedisLab*. Again,
 the full text search is modelled in a clean-architecture way; so that each organization does search modelling, declaratively,
 and in an autonomy way. It becomes the core engine for query-side capability of CQRS. In current implementation, only
 on-chain public ledger is sent to Redisearch.
@@ -193,8 +193,10 @@ repository. Its pre-requisite includes Postgresql and Redis. Please feel free to
 This auth-server is for testing purpose; not suitable for production deployment.
 
 Alternatively, we develop a secondary implementation of Federated Gateway using cloud-based OAuth2 / OIDC service
-`Auth0.com <https://auth0.com>`__. If you don't have pre-existing OAuth2 provider / identity provider, I strongly
-recommend using cloud-based provider, rather than building it yourself.
+`Auth0.com <https://auth0.com>`__.
+
+.. hint:: If you don't have pre-existing OAuth2 provider / identity provider, I strongly
+    recommend using cloud-based provider, rather than building it yourself.
 
 `Back to Top`_
 
