@@ -3,9 +3,9 @@ Architecture
 
 .. sidebar:: Our Guiding Principle
 
-     - Simplicity and Clean
+     - Simplicity
      - Developer friendly
-     - Cloud-native
+     - Clean
 
 Table of Contents
 -----------------
@@ -162,4 +162,4 @@ entity types.
                   ⎿ RedisRepository (internal)
                       ⎿ Input-argument < IndexDefinition, inRedisModel, outputModel, Selectors >
 
-Notice that query handler service is not federated via Federated Gatway.
+Notice that query handler service is not part of Federated Gatway underlying service.

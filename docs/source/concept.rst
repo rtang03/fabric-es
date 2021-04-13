@@ -7,9 +7,9 @@ It provides highlighted features such as:
 
   * Domain-driven design (DDD) / clean architecture
   * Event-sourced chaincode
-  * Federated API Gateway
+  * API Federation
   * Full Text search per organization
-  * Reactivity
+  * Private-data protection
 
 For developers interested in contributing us, see the
 `fabric-es <https://github.com/rtang03/fabric-es>`__ repository for more information.

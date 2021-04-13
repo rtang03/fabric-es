@@ -16,4 +16,5 @@ which is 2-org Fabric setup, with Redis, and auth-server.
 Test-net
 --------
 
-TODO
+The test-net by Kubernetes + Istio + ArgoCD is under construction; with `GitOps <https://www.gitops.tech/>`__ included.
+

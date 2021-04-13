@@ -2,6 +2,7 @@ Glossary
 ---------
 
 .. glossary::
+
     Apollo Graphql
       **typeDefs**: also known as graphql schema, see `Apollo documentation <https://www.apollographql.com/docs/tutorial/schema/>`__
 
