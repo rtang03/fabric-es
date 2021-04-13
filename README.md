@@ -9,16 +9,15 @@
 This project enables event-driven architecture for Hyperledger Fabric projects. It provides a collection of library
 packages to accelerate development of Hyperledger Fabric application stack.
 
-See [Documentation](https://fabric-es.readthedocs.io/en/latest/)
+- See [Full Documentation](https://fabric-es.readthedocs.io/en/latest/)
+- See [TypeDocs](https://rtang03.github.io/fabric-es/)
 
 ### Package libraries
 
-This monerepo includes three package libraries.
+This monerepo includes package libraries.
 
 1. `fabric-cqrs` is the utility to write data to Hyperledger Fabric, and query data from Redis/RediSearch.
 1. `gateway-lib` creates Apollo federated gateway, along with entity-based microservice (in form of Apollo server)
-1. `operator` is utility library for system administrative works.
-1. `tester` performs integration test during create-release workflow.
 
 # Simple-counter example
 
@@ -440,10 +439,10 @@ modelApolloService = config([{ typeDefs, resolvers }])
   })
   .create();
 
-// (9) Launch Counter federated service
+// (8) Launch Counter federated service
 await modelApolloService.listen({ port });
 
-// (10) Start federated API gateway
+// (9) Start federated API gateway
 app = await createGateway({
   serviceList: [{ name: 'counter', url }],
   authenticationCheck: `${proxyServerUri}/oauth/authenticate`,
@@ -453,14 +452,14 @@ app = await createGateway({
 ### Step 6: Register / Login / Invoke Tx
 
 ```typescript
-// (11) Reister new user, targeting RESTful auth-server
+// (10) Reister new user, at auth-server
 await fetch(`http://localhost:8080/account`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ username, email, password }),
 });
 
-// (12) Login new user
+// (11) Login new user
 await fetch(`http://localhost:8080/account/login`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -471,7 +470,7 @@ await fetch(`http://localhost:8080/account/login`, {
     accessToken = res.access_token; // accessToken is obtained
   });
 
-// (13) Create server side digital wallet, targeting Apollo federated gateway;
+// (12) Create server side digital wallet, targeting Apollo federated gateway;
 // authtenicated with above accessToken
 await request(app)
   .post('/graphql')
@@ -484,7 +483,7 @@ await request(app)
     /* ... */
   });
 
-// (14) Increment counter, targeting Apollo federated gateway;
+// (13) Increment counter, at Apollo federated gateway;
 // authtenicated with above accessToken
 await request(app)
   .post('/graphql')
