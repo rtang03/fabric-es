@@ -16,6 +16,7 @@
 
 **Merged pull requests:**
 
+- feat: Data Catalog [\#209](https://github.com/rtang03/fabric-es/pull/209) ([pangduckwai](https://github.com/pangduckwai))
 - docs: add readthedocs [\#207](https://github.com/rtang03/fabric-es/pull/207) ([rtang03](https://github.com/rtang03))
 - docs: fix README [\#205](https://github.com/rtang03/fabric-es/pull/205) ([rtang03](https://github.com/rtang03))
 - feat: create / resolve DidDocument [\#204](https://github.com/rtang03/fabric-es/pull/204) ([rtang03](https://github.com/rtang03))
