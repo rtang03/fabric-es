@@ -73,7 +73,7 @@ _Scenario 1b: Local development mode for gw-org using `dn-run.sh`_
     1. the eventchain code for each organization : `compose.cc.yaml` 
   - launch the postgres db for auth server and redis for query : `compose.org.db-red.yaml`
   - launch the auth server : `compose.auth.yaml` 
-- for develop micro services of organization gateway (_gw-org_)
+- for develop microservices of organization gateway (_gw-org_)
 
 _Scenario 2: Run local unit test using `dn-run.sh`_
 

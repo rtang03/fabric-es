@@ -4,7 +4,7 @@ Architecture
 .. sidebar:: Our Guiding Principle
 
      - Simplicity
-     - Developer friendly
+     - Developer friendliness
      - Clean
 
 Table of Contents

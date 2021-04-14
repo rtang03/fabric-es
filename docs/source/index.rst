@@ -19,7 +19,7 @@ Software library for applying event-driven architectre to Hyperledger Fabric
 
    counter-example
 
-   advanced-example
+   loan-example
 
    use-case
 

@@ -30,8 +30,12 @@
       "packages/gw-org1/src/**/*",
       "packages/gw-org2/src/**/*",
       "packages/gw-org3/src/**/*",
+      "packages/gw-registrar/src/**/*",
+      "packages/gw-verifier/src/**/*",
+      "packages/gw-issuer/src/**/*",
       "packages/model-document/**/*",
       "packages/model-loan/**/*",
+      "packages/model-identity/**/*",
       "packages/tester/**/*"
     ],
     "excludePrivate": true,

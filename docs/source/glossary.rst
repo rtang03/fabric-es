@@ -9,7 +9,7 @@ Glossary
       **resolvers**: also known as graphql resolver, see `Apollo documentation <https://www.apollographql.com/docs/tutorial/resolvers/>`__
 
     Client Application Developer
-      He develops the client application to consume the data services from Federated API Gateway.
+      He develops the client application to consume the data services from Federated Gateway.
 
     Command Handler
       A command handler receives command from the aggregate.

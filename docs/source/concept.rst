@@ -42,6 +42,8 @@ Table of Contents
 
 4. `Assumption & limitation`_
 
+5. `Changelog`_
+
 Motivation
 ----------
 
@@ -247,8 +249,6 @@ Deployment network
 
 Under construction.
 
-`Back to Top`_
-
 Assumption & Limitation
 -----------------------
 
@@ -256,3 +256,11 @@ Assumption & Limitation
   2. The current design assumes one public channel.
   3. The current design assumes one peer per organization.
   4. *dev-net* is not suitable for production deployment.
+
+Changelog
+---------
+
+We do not reached stable API. The `Changelog <https://github.com/rtang03/fabric-es/blob/master/CHANGELOG.md>`__
+provide more details for users to understand releases.
+
+`Back to Top`_

@@ -520,8 +520,9 @@ See `Auth-server`_ section; either ``createGateway`` or ``createGatewayWithAuth0
 Counter.unit-test
 -----------------
 
-.. attention::
-    Make sure `dev-net` is running, before executing the unit-test, e.g.
+.. code:: bash
+
+    ## Make sure `dev-net` is running, before executing the unit-test, e.g.
 
     cd dev-net
     ./dn-run.sh 2 auth
