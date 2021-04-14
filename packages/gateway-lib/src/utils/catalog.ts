@@ -260,7 +260,6 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
           }
         }
       } while (pass > 0);
-      // console.log('YEEHAAYEEHAAYEEHAAYEEHAA', service, JSON.stringify(types, null, ' ')); // TODO TEMP!
 
       // Scan for related root operations
       // It seems Query and Mutation are ObjectType nodes only
@@ -443,7 +442,6 @@ export const getCatalog = async (
     if (existed) result += `\n> ${description}`;
 
     for (const [typeKey, type] of Object.entries(rest)) {
-      // console.log(`HOHOHOHOHO ${typeKey}`, JSON.stringify(type, null, ' ')); // TODO TEMP
       const { ignored, existed, description } = checkIgnore(type);
       if (ignored) continue;
       result += `\n\n<a name="${typeKey.toLowerCase()}"></a>\n## Type: _${typeKey}_`;
