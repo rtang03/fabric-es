@@ -27,15 +27,14 @@ const logger = getLogger('[gw-org3] app.js');
         name: 'docContents',
         url: `http://${process.env.GATEWAY_HOST}:${process.env.PRIVATE_DOC_CONTENTS_PORT}/graphql`
       },
-      {
-        name: 'admin',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.ADMINISTRATOR_PORT}/graphql`
-      }
     ],
     authenticationCheck,
     useCors: false,
     corsOrigin: 'http://localhost:3000',
-    debug: false
+    debug: false,
+    gatewayName: 'ORG-3',
+    adminHost: process.env.GATEWAY_HOST,
+    adminPort: parseInt(process.env.ADMINISTRATOR_PORT, 10),
   });
 
   process.on('uncaughtException', err => {
