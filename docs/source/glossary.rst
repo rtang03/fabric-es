@@ -9,7 +9,7 @@ Glossary
       **resolvers**: also known as graphql resolver, see `Apollo documentation <https://www.apollographql.com/docs/tutorial/resolvers/>`__
 
     Client Application Developer
-      He develops the client application to consume the data services from Federated API Gateway.
+      He develops the client application to consume the data services from Federated Gateway.
 
     Command Handler
       A command handler receives command from the aggregate.
@@ -29,17 +29,16 @@ Glossary
       *entity* are *aggregate* are interchangeable in our context.
 
     Federated Gateway
-      also known as, *Apollo Federated API Gateway*; giving API endpoint to compose data graphs from underlying
-      micro-service. Also, it may give `/healthz`, which performs health check monitoring, for underlying service.
+      also known as, *Apollo Federated API Gateway*; giving Domain-Driven API endpoint to compose data graphs from underlying
+      domain service. Also, it may give `/healthz`, which performs health check monitoring, for underlying service.
       This gateway does NOT replace API gateway of client application. The client application is free to choose
       any type of API gateway technology.
 
     Federated Service
-      There are threee types, (1) administrative service, (2) data-graph service, and (3) remote-data service.
+      There are threee types, (1) administrative service, (2) domain service, and (3) remote-data service.
 
-      *Data-graph service* exposes Apollo federated service. The Gateway developer models the data graph for
-      for one `DDD Aggregate <https://martinfowler.com/bliki/DDD_Aggregate.html#:~:text=A%20DDD%20aggregate%20is%20a,items)%20as%20a%20single%20aggregate.>`__,
-      or equivalently *Entity*.
+      *Domain service* exposes via Apollo federated service. The Gateway developer models the data graph for
+      for one *Entity*.
 
     Gateway Developer
       He develops the federated API gateway and underlying federated microservice.

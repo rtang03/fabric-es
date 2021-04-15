@@ -445,7 +445,7 @@ is not required. There are two steps by ``createService``.
       .create();
 
 When configuring endpoint, you need `typeDefs`, `resolvers`, `reducer`, `indexDefinition`, `selectors`,
-`models` and `events` from previous steps. It returns `Apollo server` of data-graph service.
+`models` and `events` from previous steps. It returns `Apollo server` instance of domain service.
 
 
 Query handler service
@@ -520,8 +520,9 @@ See `Auth-server`_ section; either ``createGateway`` or ``createGatewayWithAuth0
 Counter.unit-test
 -----------------
 
-.. attention::
-    Make sure `dev-net` is running, before executing the unit-test, e.g.
+.. code:: bash
+
+    ## Make sure `dev-net` is running, before executing the unit-test, e.g.
 
     cd dev-net
     ./dn-run.sh 2 auth
@@ -572,7 +573,7 @@ Launch Fedaterated Gateway
 
     await queryHandlerServer.listen({ port });
 
-**Step 6: Configure persistence for Counter data-graph service**
+**Step 6: Configure persistence for Counter domain service**
 
 .. code:: typescript
 
@@ -580,7 +581,7 @@ Launch Fedaterated Gateway
       /* ... */
     });
 
-**Step 7: Configure Apollo schema and resolvers for Counter data-graph service**
+**Step 7: Configure Apollo schema and resolvers for Counter domain service**
 
 .. code:: typescript
 
@@ -593,7 +594,7 @@ Launch Fedaterated Gateway
       })
       .create();
 
-**Step 8: Launch Counter data-graph service**
+**Step 8: Launch Counter domain service**
 
 .. code:: typescript
 

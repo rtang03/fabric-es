@@ -4,7 +4,7 @@ Architecture
 .. sidebar:: Our Guiding Principle
 
      - Simplicity
-     - Developer friendly
+     - Developer friendliness
      - Clean
 
 Table of Contents
@@ -12,8 +12,8 @@ Table of Contents
 
   1. `Building blocks`_
   2. `Administrative service`_
-  3. `Data-graph service for on-chain data`_
-  4. `Data-graph service for private data`_
+  3. `Domain service for on-chain data`_
+  4. `Domain service for private data`_
   5. `Remote-data service`_
   6. `Federated gateway`_
   7. `Query handler service`_
@@ -40,7 +40,7 @@ Below diagram depicts the architecture blocks of conceptual application per orga
           +-----------------------------------+                   :
           |               |                   |                   :
     +-----------+ +-----------------+ +----------------+ +-------------------+
-    | Admin svs | | Remote-data svs | | Data-graph svs | | Query handler svs |
+    | Admin svs | | Remote-data svs | | Domain service | | Query handler svs |
     +-----------+ +-----------------+ +----------------+ +-------------------+
                                               |                   |
                                               +-------------------+
@@ -56,16 +56,16 @@ Administrative service
 It provides common administrative API, for example, `createWallet`, `getWallet`, or `listWallet`. Gateway developer
 are not required to build it.
 
-Data-graph service for on-chain data
-------------------------------------
+Domain service for on-chain data
+--------------------------------
 
 Data-graph service exposes the GraphQL endpoint, for each Aggregate. Below is dependency graph of *Data graph service*.
-One data-graph service serves one *entity* model.
+One domain service serves one *entity* model.
 
 .. code:: text
 
     Dependency Graph
-    -- data-graph service for on-chain data
+    -- domain service for on-chain data
         ⎿ Input-argument < FileWallet, connectionProfile,  Redis connection, auth-server >
         ⎿ typeDefs
         ⎿ Resolvers
@@ -83,8 +83,8 @@ developer does not use them directly.
 Gateway developer shall define **domain model**, prior to Federated Gateway construction.
 *typeDefs*, *resolvers*, *events*, *models*, *reducer*, *indexDefinition*
 
-Data-graph service for private data
------------------------------------
+Domain service for private data
+-------------------------------
 
 We do not use CQRS pattern to maniplate Hyperledger Fabric private data; therefore,
 *RedisRepository* and *Query Database* are not required.
@@ -92,7 +92,7 @@ We do not use CQRS pattern to maniplate Hyperledger Fabric private data; therefo
 .. code:: text
 
     Dependency Graph
-    -- data-graph service for private data
+    -- domain service for private data
         ⎿ Input-argument < FileWallet, connectionProfile, auth-server >
         ⎿ typeDefs
         ⎿ Resolvers
@@ -132,7 +132,7 @@ It retrieves data from Federated Gateway of another organization.
 Federated gateway
 -----------------
 
-It composes data-graph from underlying service.
+It composes data graphs from underlying services; resulting a single **Domain-Driven API**.
 
 See `Apollo Federation <https://www.apollographql.com/docs/federation/>`__.
 

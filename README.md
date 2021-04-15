@@ -14,7 +14,7 @@ packages to accelerate development of Hyperledger Fabric application stack.
 
 ### Package libraries
 
-This monerepo includes package libraries.
+This monorepo includes package libraries.
 
 1. `fabric-cqrs` is the utility to write data to Hyperledger Fabric, and query data from Redis/RediSearch.
 1. `gateway-lib` creates Apollo federated gateway, along with entity-based microservice (in form of Apollo server)
@@ -30,7 +30,7 @@ The application is developed based on [Clean Architecture](https://blog.cleancod
 _Dependency graph_
 
 ```text
-(1) -- data-graph service for on-chain data
+(1) -- domain service for on-chain data
         ⎿ Input-argument < FileWallet, connectionProfile,  Redis connection, auth-server >
         ⎿ typeDefs
         ⎿ Resolvers
