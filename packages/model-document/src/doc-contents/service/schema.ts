@@ -1,6 +1,11 @@
 import gql from 'graphql-tag';
 
 export const typeDefs = gql`
+  """
+  @schema The **DOC CONTENTS** schema provides the facilities to manage and manipulate the privte chain entity **DocContents**, which
+  contains the actual content of a particular supporting document, accessable only under permission.
+  """
+
   type Query {
     getDocContentsById(documentId: String!): DocContents
   }
@@ -10,14 +15,14 @@ export const typeDefs = gql`
     updateDocContents(userId: String!, documentId: String!, content: DocsInput!): DocContentsResp
   }
 
-  ###
-  # Local Type: Doc Contents
-  ###
+  """
+  **DocContents** is an entity stored on the private-chain with data not suppose to be globally accessible. It contains
+  either the data of the actual document or the link to access the document.
+  """
   type DocContents @key(fields: "documentId") {
     documentId: String!
     content: Docs!
     timestamp: String!
-    _organization: [String]!
     document: Document
   }
 
@@ -27,24 +32,29 @@ export const typeDefs = gql`
     link: String
   }
 
+  "Actual content of the document"
   union Docs = Data | File
 
-  # Free style document content as structural data
   type Data {
+    "Free style document content as structural data"
     body: String!
   }
 
-  # Note: this File entity is Private Data, but the uploaded files themselves are entirly off-chain
+  "Note: this File entity is Private Data, but the uploaded files themselves are entirly off-chain, accessed via the \`link\` field"
   type File {
+    "Free text, indicator of the file format of the document (such as PDF)"
     format: String!
+
+    "URL of the actual document"
     link: String!
   }
 
-  ###
-  # Mutation responses
-  ###
+  """
+  Response from _mutation_ (create, update, delete) operations related to the **DocContents** type
+  """
   union DocContentsResp = DocContentsCommit | DocContentsError
 
+  "Place holder for the actual private chain data structure of **DocContents**"
   type DocContentsCommit {
     id: String
     entityName: String
