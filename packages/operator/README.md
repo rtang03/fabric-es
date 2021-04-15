@@ -1,7 +1,5 @@
 # operator
 
-**Test Purpose Only; Not ready for use**
-
 ## Installation
 
 ```shell script
