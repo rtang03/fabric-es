@@ -232,7 +232,7 @@ within Federated Gateway. The gateway developer can model the policy data, with 
 Other storage type
 ~~~~~~~~~~~~~~~~~~
 
-Additional storage types are being considered. They will be similarly exposed via data graph microservice.
+Additional storage types are being considered. They will be similarly exposed via domain service.
   - IPFS
   - Object storage
   - Plain file system
