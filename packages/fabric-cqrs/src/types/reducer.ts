@@ -90,7 +90,7 @@ export const computeEntity = <T extends BaseEntity, E extends BaseEvent>(
   if (state) {
     Object.assign(state, trackingReducer(commits));
   } else {
-    console.log('MOMOMOMOMO', JSON.stringify(commits, null, ' '));
+    console.log('KOKOKOKOKO', JSON.stringify(commits, null, ' '));
     // If reducer returns empty, plus receiving a single commit with a single TRACK_EVENT event, meaning the prviate entity
     // is created before its public place holder
     if ((commits.length === 1) && (commits[0].events?.filter((event) => event.type === TRACK_EVENT).length === 1)) {
