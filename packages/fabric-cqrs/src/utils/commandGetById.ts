@@ -3,8 +3,8 @@ import values from 'lodash/values';
 import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action } from '../store/command';
-import { Commit, SaveFcn, Reducer, trackingReducer } from '../types';
-import { addTimestamp, dispatcher, getHistory, isCommitRecord, replaceTag } from '.';
+import { Commit, SaveFcn, Reducer, computeEntity } from '../types';
+import { addTimestamp, dispatcher, isCommitRecord, replaceTag } from '.';
 
 /**
  * get CurrentState by entityId, and return save function
@@ -47,8 +47,17 @@ export const commandGetById: <TEntity, TEvent>(
     }
   )({ id, entityName });
 
-  const currentState: TEntity = data ? reducer(getHistory(data)) : null;
-  if (currentState) Object.assign(currentState, trackingReducer(values(data)));
+  // const currentState: TEntity = data ? reducer(getHistory(data)) : null;
+  // if (currentState) Object.assign(currentState, tracking Reducer(values(data)));
+  const currentState: TEntity =
+    ((data) => {
+      if (data) {
+        const { state } = computeEntity(values(data), reducer);
+        return state;
+      } else {
+        return null;
+      }
+    })(data);
 
   const save = !data
     ? null

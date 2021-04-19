@@ -13,13 +13,13 @@ export interface BaseEntity {
   desc?: string;
 
   /** creation timestamp, automatically indexed by RedisSearch **/
-  _created?: number;
+  // _created?: number;
 
   /** creator, automatically indexed by RedisSearch **/
   _creator?: string;
 
   /** last updated timestamp, automatically indexed by RedisSearch **/
-  _ts?: number;
+  // _ts?: number;
 
   /** event types involved, automatically indexed by RedisSearch **/
   _event?: string;
@@ -34,25 +34,25 @@ export interface BaseEntity {
   _timeline?: string;
 
   /** organization involved, automatically indexed by RedisSearch **/
-  _organization?: string[];
+  // _organization?: string[];
 }
 
 export interface BaseCacheEntity {
   id?: string;
   tag?: string;
   desc?: string;
-  created?: number;
+  // created?: number;
   creator?: string;
-  ts?: number;
-  organization?: string;
+  // ts?: number;
+  // organization?: string;
 }
 
 export interface BaseOutputEntity {
   id?: string;
   tag?: string;
   desc?: string;
-  createdAt?: number;
+  // createdAt?: number;
   creator?: string;
-  modifiedAt?: number;
-  organization?: string[];
+  // modifiedAt?: number;
+  // organization?: string[];
 }

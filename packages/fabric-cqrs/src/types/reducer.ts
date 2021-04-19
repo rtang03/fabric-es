@@ -1,3 +1,4 @@
+import { OutputCommit } from '../queryHandler/types';
 import {
   BaseEntity, BaseEvent, Commit, ORGAN_FIELD, TRACK_EVENT, TRACK_FIELD,
   TS_FIELD, CREATOR_FIELD, CREATED_FIELD,
@@ -29,9 +30,11 @@ export const getReducer = <T extends BaseEntity, E extends BaseEvent>(callback: 
 ) => {
   return history.reduce((entity: T, event: E) => {
     const ntt = callback(entity, event);
-    if (!ntt[CREATOR_FIELD] && event.payload?.[CREATOR_FIELD]) ntt[CREATOR_FIELD] = event.payload[CREATOR_FIELD];
-    if (!ntt[CREATED_FIELD] && event.payload?.[CREATED_FIELD]) ntt[CREATED_FIELD] = event.payload[CREATED_FIELD];
-    if (event.payload?.[TS_FIELD]) ntt[TS_FIELD] = event.payload[TS_FIELD];
+    if (ntt) {
+      if (!ntt[CREATOR_FIELD] && event.payload?.[CREATOR_FIELD]) ntt[CREATOR_FIELD] = event.payload[CREATOR_FIELD];
+      if (!ntt[CREATED_FIELD] && event.payload?.[CREATED_FIELD]) ntt[CREATED_FIELD] = event.payload[CREATED_FIELD];
+      if (event.payload?.[TS_FIELD]) ntt[TS_FIELD] = event.payload[TS_FIELD];
+    }
     return ntt;
   }, initialState);
 };
@@ -74,4 +77,26 @@ export const trackingReducer = (commits: Commit[]) => {
     : tlen > 0
     ? { [TRACK_FIELD]: result[TRACK_FIELD] }
     : null;
+};
+
+export const computeEntity = <T extends BaseEntity, E extends BaseEvent>(
+  commits: (Commit | OutputCommit)[],
+  reducer: Reducer<T, E>,
+) => {
+  const history = [];
+  commits.forEach(({ events }) => events.forEach((event) => history.push(event)));
+
+  const state = reducer(history);
+  if (state) {
+    Object.assign(state, trackingReducer(commits));
+  } else {
+    console.log('MOMOMOMOMO', JSON.stringify(commits, null, ' '));
+    // If reducer returns empty, plus receiving a single commit with a single TRACK_EVENT event, meaning the prviate entity
+    // is created before its public place holder
+    if ((commits.length === 1) && (commits[0].events?.filter((event) => event.type === TRACK_EVENT).length === 1)) {
+      return { reduced: false };
+    }
+  }
+
+  return { state, reduced: true };
 };
