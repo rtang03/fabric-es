@@ -16,7 +16,7 @@ export const typeDefs = gql`
   }
 
   """
-  **DocContents** is an entity stored on the private-chain with data not suppose to be globally accessible. It contains
+  @Primary **DocContents** is an entity stored on the private-chain with data not suppose to be globally accessible. It contains
   either the data of the actual document or the link to access the document.
   """
   type DocContents @key(fields: "documentId") {

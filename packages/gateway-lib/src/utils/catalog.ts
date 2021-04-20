@@ -194,9 +194,8 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
   const buildCatalog = (defs: DocumentNode) => {
     let count = 0;
     const catalog = { service: { name: service, type: srvType }, count };
+    const types = {};
     if (defs.kind === 'Document') {
-      const types = {};
-
       // First pass for types
       // cannot use filter() directly because filter() returns a list of DocumentNodes, instead of a composition of
       // DirectiveDefinitionNode | EnumTypeDefinitionNode | InputObjectTypeDefinitionNode | .... etc. As a result the
@@ -273,42 +272,42 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
 
       // Scan for related root operations
       // It seems Query and Mutation are ObjectType nodes only
-      // for (const d of defs.definitions.map(d => (
-      //   d.kind === 'ObjectTypeDefinition'
-      // ) ? d : undefined).filter(d => !!d && (d.name.value === roQuery || d.name.value === roMutation || d.name.value === roSubscription))) {
-      //   // Always use the default name of the root operations to simplify logic when building the resuling markdown doc
-      //   const ops = (d.name.value === roQuery) ? ROOT_OPS_QUERY : (d.name.value === roMutation) ? ROOT_OPS_MUTTN : ROOT_OPS_SBSCP;
+      for (const d of defs.definitions.map(d => (
+        d.kind === 'ObjectTypeDefinition'
+      ) ? d : undefined).filter(d => !!d && (d.name.value === roQuery || d.name.value === roMutation || d.name.value === roSubscription))) {
+        // Always use the default name of the root operations to simplify logic when building the resuling markdown doc
+        const ops = (d.name.value === roQuery) ? ROOT_OPS_QUERY : (d.name.value === roMutation) ? ROOT_OPS_MUTTN : ROOT_OPS_SBSCP;
 
-      //   checkDesc(d);
-      //   for (const f of d.fields) {
-      //     if (f.kind === 'FieldDefinition') {
-      //       const { field, dataType, isPrimitive } = findDataType(f);
-      //       if (dataType && !isPrimitive) {
-      //         if (types[dataType] < 0) { // that is: processed object types
-      //           if (!catalog[dataType][ops]) catalog[dataType][ops] = {};
+        checkDesc(d);
+        for (const f of d.fields) {
+          if (f.kind === 'FieldDefinition') {
+            const { field, dataType, isPrimitive } = findDataType(f);
+            // if (dataType && !isPrimitive) {
+            //   if (types[dataType] < 0) { // that is: processed object types
+                if (!catalog[ops]) catalog[ops] = {};
 
-      //           if (field[f.name.value]['description']) {
-      //             const { description, ...rest } = field[f.name.value];
-      //             catalog[dataType][ops][f.name.value] = {
-      //               description, returns: rest
-      //             };
-      //           } else {
-      //             catalog[dataType][ops][f.name.value] = { returns: field[f.name.value] };
-      //           }
+                if (field[f.name.value]['description']) {
+                  const { description, ...rest } = field[f.name.value];
+                  catalog[ops][f.name.value] = {
+                    description, returns: rest
+                  };
+                } else {
+                  catalog[ops][f.name.value] = { returns: field[f.name.value] };
+                }
 
-      //           const args = {};
-      //           for (const a of f.arguments) {
-      //             const { field, dataType } = findDataType(a);
-      //             if (dataType) Object.assign(args, field);
-      //           }
-      //           if (Object.keys(args).length > 0) {
-      //             catalog[dataType][ops][f.name.value]['arguments'] = args;
-      //           }
-      //         }
-      //       }
-      //     }
-      //   }
-      // }
+                const args = {};
+                for (const a of f.arguments) {
+                  const { field, dataType } = findDataType(a);
+                  if (dataType) Object.assign(args, field);
+                }
+                if (Object.keys(args).length > 0) {
+                  catalog[ops][f.name.value]['arguments'] = args;
+                }
+            //   }
+            // }
+          }
+        }
+      }
     }
 
     catalog.count = count; // Number of types found
@@ -323,7 +322,7 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
       }
     }
 
-    console.log(`HIHIHIHIHI ${service}`, JSON.stringify(catalog, null, ' '));
+    console.log(`HIHIHIHIHI ${service}`, JSON.stringify(catalog, null, ' '), JSON.stringify(types, null, ' '));
     return catalog;
   };
 
