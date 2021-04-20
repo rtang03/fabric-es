@@ -7,6 +7,7 @@ export const typeDefs = gql`
   """
 
   type Query {
+    "@Skip"
     getCommitsByLoanId(loanId: String!): [LoanCommit]!
 
     "Get loan by id from the query handler"

@@ -231,7 +231,7 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
         // don't consider the root operations in the first pass
         if (typeName === roQuery || typeName === roMutation || typeName === roSubscription) continue;
 
-        if (types[typeName] > 0) continue; // type already processed
+        // if (types[typeName] > 0) continue; // type already processed
 
         const { result, found } = buildObjectType(d, false);
         if (result) {
@@ -247,28 +247,28 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
       }
 
       // Subsequent passes for types
-      // let pass = 0;
-      // do {
-      //   pass = 0;
-      //   for (const d of defs.definitions.map(d => (
-      //     d.kind === 'EnumTypeDefinition' || d.kind === 'InputObjectTypeDefinition' || d.kind === 'InterfaceTypeDefinition' || 
-      //     d.kind === 'ObjectTypeDefinition' || d.kind === 'ScalarTypeDefinition' || d.kind === 'UnionTypeDefinition' ||
-      //     d.kind === 'DirectiveDefinition'
-      //   ) ? d : undefined).filter(d => !!d && types[d.name.value] === 0)) {
-      //     const { result, found } = buildObjectType(d, true);
-      //     if (result) {
-      //       count ++;
-      //       pass ++;
-      //       catalog[d.name.value] = result;
-      //       types[d.name.value] = -1;
-      //     }
-      //     if (found && found.length > 0) {
-      //       for (const f of found) {
-      //         if (!types[f]) types[f] = 0;
-      //       }
-      //     }
-      //   }
-      // } while (pass > 0);
+      let pass = 0;
+      do {
+        pass = 0;
+        for (const d of defs.definitions.map(d => (
+          d.kind === 'EnumTypeDefinition' || d.kind === 'InputObjectTypeDefinition' || d.kind === 'InterfaceTypeDefinition' || 
+          d.kind === 'ObjectTypeDefinition' || d.kind === 'ScalarTypeDefinition' || d.kind === 'UnionTypeDefinition' ||
+          d.kind === 'DirectiveDefinition'
+        ) ? d : undefined).filter(d => !!d && types[d.name.value] === 0)) {
+          const { result, found } = buildObjectType(d, true);
+          if (result) {
+            count ++;
+            pass ++;
+            catalog[d.name.value] = result;
+            types[d.name.value] = -1;
+          }
+          if (found && found.length > 0) {
+            for (const f of found) {
+              if (!types[f]) types[f] = 0;
+            }
+          }
+        }
+      } while (pass > 0);
 
       // Scan for related root operations
       // It seems Query and Mutation are ObjectType nodes only
@@ -282,29 +282,25 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
         for (const f of d.fields) {
           if (f.kind === 'FieldDefinition') {
             const { field, dataType, isPrimitive } = findDataType(f);
-            // if (dataType && !isPrimitive) {
-            //   if (types[dataType] < 0) { // that is: processed object types
-                if (!catalog[ops]) catalog[ops] = {};
+            if (!catalog[ops]) catalog[ops] = {};
 
-                if (field[f.name.value]['description']) {
-                  const { description, ...rest } = field[f.name.value];
-                  catalog[ops][f.name.value] = {
-                    description, returns: rest
-                  };
-                } else {
-                  catalog[ops][f.name.value] = { returns: field[f.name.value] };
-                }
+            if (field[f.name.value]['description']) {
+              const { description, ...rest } = field[f.name.value];
+              catalog[ops][f.name.value] = {
+                description, returns: rest
+              };
+            } else {
+              catalog[ops][f.name.value] = { returns: field[f.name.value] };
+            }
 
-                const args = {};
-                for (const a of f.arguments) {
-                  const { field, dataType } = findDataType(a);
-                  if (dataType) Object.assign(args, field);
-                }
-                if (Object.keys(args).length > 0) {
-                  catalog[ops][f.name.value]['arguments'] = args;
-                }
-            //   }
-            // }
+            const args = {};
+            for (const a of f.arguments) {
+              const { field, dataType } = findDataType(a);
+              if (dataType) Object.assign(args, field);
+            }
+            if (Object.keys(args).length > 0) {
+              catalog[ops][f.name.value]['arguments'] = args;
+            }
           }
         }
       }
@@ -436,6 +432,7 @@ export const getCatalog = async (
       description = '-';
       existed = false;
     } else if (n['description'].toUpperCase().includes(ANNO_IGNORE)) {
+      description = n['description'];
       ignored = true;
     } else {
       description = n['description'];
@@ -443,87 +440,134 @@ export const getCatalog = async (
     return { ignored, existed, description };
   };
 
+  const processOps = (typeKey, type) => {
+    let result = '';
+    for (const [opsKey, ops] of Object.entries(type)) {
+      const { ignored, existed, description } = checkIgnore(ops);
+      if (ignored) continue;
+      result += `\n\n<a name="${opsKey.toLowerCase()}"></a>\n## ${typeKey}: _${opsKey}_`;
+      if (existed) result += `\n> ${description}`;
+
+      let hasTop = false;
+      if (ops['arguments']) {
+        result += `\n\n>   | type | required | Comments\n> --- | --- | --- | ---`;
+        for (const [argKey, arg] of Object.entries(ops['arguments'])) {
+          const { ignored, description } = checkIgnore(arg);
+          if (ignored) continue;
+          const typ = (arg['ref']) ? `[${arg['type']}](#arg['ref'])` : arg['type'];
+          result += `\n> \`${argKey}\` | ${typ} | ${(arg['required']) ? 'yes' : 'no'} | ${description}`;
+          hasTop = true;
+        }
+      }
+      if (ops['returns']) {
+        const typ = (ops['returns']['ref']) ? `[${ops['returns']['type']}](#${ops['returns']['ref']})` : ops['returns']['type'];
+        result += `\n> &nbsp;_**returns**_ | ${typ} | ${ops['returns']['required'] ? 'yes' : 'no'} | -`;
+        hasTop = true;
+      }
+      if (hasTop) result += '\n[↑ top](#top)';
+    }
+    return result;
+  };
+
   const processDetails = (json) => {
     const { service, count, ...rest } = json;
-
     const { ignored, existed, description } = checkIgnore(service);
     if (ignored) return '';
+
+    let queries = '';
+    let mutations = '';
+    let subscriptions = '';
     let result = `\n---\n\n# Service: _**${service.name}**_ (${service.type})`;
     if (existed) result += `\n> ${description}`;
 
     for (const [typeKey, type] of Object.entries(rest)) {
       const { ignored, existed, description } = checkIgnore(type);
       if (ignored) continue;
-      result += `\n\n<a name="${typeKey.toLowerCase()}"></a>\n## Type: _${typeKey}_`;
-      if (existed) result += `\n> ${description}`;
-      if (type['fields']) {
-        result += '\n\n> field | type | required | Comments\n> --- | --- | --- | ---';
-        for (const [fieldKey, field] of Object.entries(type['fields'])) {
-          const { ignored, description } = checkIgnore(field);
-          if (ignored) continue;
-          const typ = (field['ref']) ? `[${field['type']}](#${field['ref']})` : field['type'];
-          result += `\n> \`${fieldKey}\` | ${typ} | ${(field['required']) ? 'yes' : 'no'} | ${description}`;
-        }
-      }
-      if (type['types']) {
-        result += '\n\n> type | Comments\n> --- | ---';
-        for (const [typeKey, t] of Object.entries(type['types'])) {
-          const { ignored, description } = checkIgnore(t);
-          if (ignored) continue;
-          const typ = (t['ref']) ? `[${typeKey}](#${t['ref']})` : typeKey;
-          result += `\n> ${typ} | ${description}`;
-        }
-      }
 
-      for (const rootOps of [ROOT_OPS_QUERY, ROOT_OPS_MUTTN, ROOT_OPS_SBSCP]) {
-        if (type[rootOps]) {
-          let qcnt = 0;
-          const qlen = Object.keys(type[rootOps]).length;
-          result += `\n\n> ### _**${rootOps}**_\n`;
-          for (const [opsKey, ops] of Object.entries(type[rootOps])) {
-            const { ignored, existed, description } = checkIgnore(ops);
+      if ((typeKey === ROOT_OPS_QUERY) || (typeKey === ROOT_OPS_MUTTN) || (typeKey === ROOT_OPS_SBSCP)) {
+        switch (typeKey) {
+          case ROOT_OPS_QUERY:
+            queries += `\n${processOps(typeKey, type)}`;
+            break;
+          case ROOT_OPS_MUTTN:
+            mutations += `\n${processOps(typeKey, type)}`;
+            break;
+          case ROOT_OPS_SBSCP:
+            subscriptions += `\n${processOps(typeKey, type)}`;
+            break;
+        }
+      } else {
+        result += `\n\n<a name="${typeKey.toLowerCase()}"></a>\n## Type: _${typeKey}${(type['main']) ? '*' : ''}_`;
+        if (existed) result += `\n> ${description}`;
+        if (type['fields']) {
+          result += '\n\n> field | type | required | Comments\n> --- | --- | --- | ---';
+          for (const [fieldKey, field] of Object.entries(type['fields'])) {
+            const { ignored, description } = checkIgnore(field);
             if (ignored) continue;
-            result += `\n> ${rootOps}: \`${opsKey}\``;
-            if (existed) result += `\n\n> - _${description}_\n`;
-
-            if (ops['arguments']) {
-              result += `\n\n>   | type | required | Comments\n> --- | --- | --- | ---`;
-              for (const [argKey, arg] of Object.entries(ops['arguments'])) {
-                const { ignored, description } = checkIgnore(arg);
-                if (ignored) continue;
-                const typ = (arg['ref']) ? `[${arg['type']}](#arg['ref'])` : arg['type'];
-                result += `\n> \`${argKey}\` | ${typ} | ${(arg['required']) ? 'yes' : 'no'} | ${description}`;
-              }
-            }
-            if (ops['returns']) {
-              const typ = (ops['returns']['ref']) ? `[${ops['returns']['type']}](#${ops['returns']['ref']})` : ops['returns']['type'];
-              result += `\n> _**returns**_ | ${typ} | ${ops['returns']['required'] ? 'yes' : 'no'} | -`;
-            }
-
-            qcnt ++;
-            if (qcnt < qlen) result += '\n> ---\n';
+            const typ = (field['ref']) ? `[${field['type']}](#${field['ref']})` : field['type'];
+            result += `\n> \`${fieldKey}\` | ${typ} | ${(field['required']) ? 'yes' : 'no'} | ${description}`;
           }
         }
+        if (type['types']) {
+          result += '\n\n> type | Comments\n> --- | ---';
+          for (const [typeKey, t] of Object.entries(type['types'])) {
+            const { ignored, description } = checkIgnore(t);
+            if (ignored) continue;
+            const typ = (t['ref']) ? `[${typeKey}](#${t['ref']})` : typeKey;
+            result += `\n> ${typ} | ${description}`;
+          }
+        }
+        result += '\n[↑ top](#top)';
       }
-      result += '\n[↑ top](#top)';
     }
+
+    if (queries.length > 0) result += queries;
+    if (mutations.length > 0) result += mutations;
+    if (subscriptions.length > 0) result += subscriptions;
     result += '\n\n<br></br>';
 
     return result;
   };
 
-  const processContent = (json) => {
+  const processToc = (json) => {
     const { service, count, ...rest } = json;
-    let result = '';
+    let types = '';
+    let queries = '';
+    let mutations = '';
+    let subscriptions = '';
     for (const [typeKey, type] of Object.entries(rest)) {
-      const { ignored, existed, description } = checkIgnore(type);
-      if (ignored) continue;
-      result += `\n[${typeKey}](#${typeKey.toLowerCase()}) | ${service.name} | ${service.type} | ${description.replace(/\r?\n|\r/g, '<br/>')}`;
+      if ((typeKey === ROOT_OPS_QUERY) || (typeKey === ROOT_OPS_MUTTN) || (typeKey === ROOT_OPS_SBSCP)) {
+        for (const [opsKey, ops] of Object.entries(type)) {
+          const { ignored, existed, description } = checkIgnore(ops);
+          if (ignored) continue;
+          switch (typeKey) {
+            case ROOT_OPS_QUERY:
+              queries += `\n[${opsKey}](#${opsKey.toLowerCase()}) | ${service.name} | ${service.type} | [${ops.returns.type}](#${ops.returns.ref}) | ${description.replace(/\r?\n|\r/g, '<br/>')}`;
+              break;
+            case ROOT_OPS_MUTTN:
+              mutations += `\n[${opsKey}](#${opsKey.toLowerCase()}) | ${service.name} | ${service.type} | [${ops.returns.type}](#${ops.returns.ref}) | ${description.replace(/\r?\n|\r/g, '<br/>')}`;
+              break;
+            case ROOT_OPS_SBSCP:
+              subscriptions += `\n[${opsKey}](#${opsKey.toLowerCase()}) | ${service.name} | ${service.type} | [${ops.returns.type}](#${ops.returns.ref}) | ${description.replace(/\r?\n|\r/g, '<br/>')}`;
+              break;
+          }
+        }
+      } else if (type['main']) {
+        const { ignored, existed, description } = checkIgnore(type);
+        if (ignored) continue;
+        types += `\n[${typeKey}](#${typeKey.toLowerCase()}) | ${service.name} | ${service.type} | ${description.replace(/\r?\n|\r/g, '<br/>')}`;
+      }
     }
-    return result;
+    return {
+      types, queries, mutations, subscriptions
+    };
   };
 
-  let content = '\n## Overview\n\nType | Service name | Service type | Comments\n--- | --- | --- | ---';
+  let tocTyp = '';
+  let tocQry = '';
+  let tocMut = '';
+  let tocSub = '';
+  let content = '';
   let details = '';
 
   for (const service of services) {
@@ -544,9 +588,34 @@ export const getCatalog = async (
       return undefined;
     });
     if (cat) {
-      content += processContent(cat);
+      const { types, queries, mutations, subscriptions } = processToc(cat);
+      if (types.length > 0) tocTyp += types;
+      if (queries.length > 0) tocQry += queries;
+      if (mutations.length > 0) tocMut += mutations;
+      if (subscriptions.length > 0) tocSub += subscriptions;
       details += `\n${processDetails(cat)}`;
     }
+  }
+
+  let hasOverview = false;
+  if (tocTyp.length > 0) {
+    content += '\n\nPrimary Type* | Service name | Service type | Comments\n--- | --- | --- | ---' + tocTyp;
+    hasOverview = true;
+  }
+  if (tocQry.length > 0) {
+    content += '\n\nQuery | Service name | Service type | Returns | Comments\n--- | --- | --- | ---' + tocQry;
+    hasOverview = true;
+  }
+  if (tocMut.length > 0) {
+    content += '\n\nMutation | Service name | Service type | Returns | Comments\n--- | --- | --- | ---' + tocMut;
+    hasOverview = true;
+  }
+  if (tocSub.length > 0) {
+    content += '\n\nSubscription | Service name | Service type | Returns | Comments\n--- | --- | --- | ---' + tocSub;
+    hasOverview = true;
+  }
+  if (hasOverview) {
+    content = '\n## Overview' + content + '\n[↑ top](#top)\n\n<br></br>';
   }
   const catalog = `<a name="top"></a>\n# Data Catalogue: Gateway __${gatewayName}__${content}${details}`;
 
