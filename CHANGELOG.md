@@ -2,7 +2,19 @@
 
 ## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.8...HEAD)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.9...HEAD)
+
+**Closed issues:**
+
+- fix: Private data created before it's public counterpart [\#212](https://github.com/rtang03/fabric-es/issues/212)
+
+**Merged pull requests:**
+
+- fix: Private data created before it's public counterpart [\#213](https://github.com/rtang03/fabric-es/pull/213) ([pangduckwai](https://github.com/pangduckwai))
+
+## [v0.7.9](https://github.com/rtang03/fabric-es/tree/v0.7.9) (2021-04-15)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.8...v0.7.9)
 
 **Implemented enhancements:**
 
