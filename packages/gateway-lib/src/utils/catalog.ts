@@ -318,7 +318,6 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
       }
     }
 
-    console.log(`HIHIHIHIHI ${service}`, JSON.stringify(catalog, null, ' '), JSON.stringify(types, null, ' '));
     return catalog;
   };
 
