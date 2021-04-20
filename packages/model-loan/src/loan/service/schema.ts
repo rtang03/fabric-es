@@ -7,6 +7,7 @@ export const typeDefs = gql`
   """
 
   type Query {
+    "@Skip"
     getCommitsByLoanId(loanId: String!): [LoanCommit]!
 
     "Get loan by id from the query handler"
@@ -59,7 +60,7 @@ export const typeDefs = gql`
   }
 
   """
-  **Loan** is one of the top-level on-chain entities. Being globally accessible, it serves as the anchor of all information related to
+  @Primary **Loan** is one of the top-level on-chain entities. Being globally accessible, it serves as the anchor of all information related to
   a particular loan request found among the participating organizations. Each loan is uniquely identified by a *loanId*.
   The loan applicants may also utilize the *reference* property as an external identifier unique within the applicant's individual organizations.
   """

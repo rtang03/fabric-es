@@ -3,7 +3,7 @@ import filter from 'lodash/filter';
 import groupBy from 'lodash/groupBy';
 import isEqual from 'lodash/isEqual';
 import { FTSearchParameters, Redisearch } from 'redis-modules-sdk';
-import { Commit, HandlerResponse, trackingReducer } from '../types';
+import { Commit, computeEntity, HandlerResponse } from '../types';
 import { getLogger, isCommit } from '../utils';
 import {
   INVALID_ARG,
@@ -246,8 +246,7 @@ export const createQueryDatabase: (
       // step 2: merge existing record with newly retrieved commit
       const history: (Commit | OutputCommit)[] = [...restoredCommits, commit];
 
-      // step 3: compute the timeline of event history
-      const state = reducer(getHistory(history));
+      // step 3: compute the timeline of event history, and add tracking info
       /* e.g. newly computed state =
       {
         id: 'qh_proj_test_001',
@@ -259,14 +258,12 @@ export const createQueryDatabase: (
         _creator: 'org1-admin'
       }
       */
-
-      // step 4 add Tracking Info
-      if (state) Object.assign(state, trackingReducer(history));
+      const { state, reduced } = computeEntity(history, reducer);
 
       debug && console.debug(util.format('entity being merged, %j', state));
 
       // step 5: compute events history, returning comma separator
-      if (!state?.id) {
+      if (reduced && !state?.id) {
         return {
           status: 'ERROR',
           message: REDUCE_ERR,
@@ -278,20 +275,24 @@ export const createQueryDatabase: (
       try {
         let status;
         // step 6: add entity
-        status = await allRepos[entityName].hmset(state, history);
-        data.push({ key: entityKeyInRedis, status });
+        if (reduced) {
+          status = await allRepos[entityName].hmset(state, history);
+          data.push({ key: entityKeyInRedis, status });
+        }
 
         // step 7: add commit
         status = await allRepos['commit'].hmset(commit);
         data.push({ key: commitKeyInRedis, status });
 
         // step 8: add notification flag
-        await notificationCenter.notify({
-          creator: state._creator,
-          entityName,
-          id: entityId,
-          commitId,
-        });
+        if (reduced) {
+          await notificationCenter.notify({
+            creator: state._creator,
+            entityName,
+            id: entityId,
+            commitId,
+          });
+        }
       } catch (e) {
         if (!e.message.startsWith('[lifecycle]'))
           logger.error(util.format('mergeEntity - %s, %j', REDIS_ERR, e));
@@ -321,11 +322,10 @@ export const createQueryDatabase: (
       const errors = [];
       const entities = Object.entries(groupByEntityId)
         .map(([entityId, commits]) => {
-          const state = reducer(getHistory(commits));
-          if (state) Object.assign(state, trackingReducer(commits));
+          const { state, reduced } = computeEntity(commits, reducer);
           const keyOfEntityInRedis = allRepos[entityName].getKey(commits[0]);
           // if reducer fails
-          !state && errors.push(entityId);
+          if (reduced && !state) errors.push(entityId);
           return { state, commits, key: keyOfEntityInRedis };
         })
         .filter(({ state }) => !!state); // ensure no null; if error happens when reducing

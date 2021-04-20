@@ -55,7 +55,7 @@ export const typeDefs = gql`
   }
 
   """
-  **Document** represents any supporting documents, such as trade documents, shipping documents, custom declarations and etc., associating with an individual loan request. Each document is uniquely identified by a *documentId*.
+  @Primary **Document** represents any supporting documents, such as trade documents, shipping documents, custom declarations and etc., associating with an individual loan request. Each document is uniquely identified by a *documentId*.
   The document owners may also utilize the *reference* property as an exteranl identifier unique within resource owner's individual organizations. This publicly accessible entity is a placeholder without the actual content of the document.
   """
   type Document @key(fields: "documentId") {

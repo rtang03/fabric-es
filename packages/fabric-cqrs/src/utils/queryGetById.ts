@@ -4,8 +4,8 @@ import { Store } from 'redux';
 import type { Logger } from 'winston';
 import { action as commandAction } from '../store/command';
 import { action } from '../store/query';
-import { Commit, SaveFcn, Reducer, trackingReducer } from '../types';
-import { addTimestamp, dispatcher, getHistory, isCommitRecord, replaceTag } from '.';
+import { Commit, SaveFcn, Reducer, computeEntity } from '../types';
+import { addTimestamp, dispatcher, isCommitRecord, replaceTag } from '.';
 
 /**
  * get CurrentState by entityId, and return save function
@@ -53,8 +53,17 @@ export const queryGetById: <TEntity, TEvent>(
       save: null,
     };
 
-  let currentState = data ? reducer(getHistory(data)) : null;
-  currentState = currentState?.id ? currentState : null;
+  // let currentState = data ? reducer(getHistory(data)) : null;
+  // currentState = currentState?.id ? currentState : null;
+  const currentState: TEntity =
+    ((data) => {
+      if (data) {
+        const { state } = computeEntity(values(data), reducer);
+        return state?.id ? state : null;
+      } else {
+        return null;
+      }
+    })(data);
 
   if (!currentState)
     return {
@@ -62,7 +71,7 @@ export const queryGetById: <TEntity, TEvent>(
       save: null,
     };
 
-  Object.assign(currentState, trackingReducer(values(data)));
+  // Object.assign(currentState, tracking Reducer(values(data)));
 
   const save = !data
     ? null

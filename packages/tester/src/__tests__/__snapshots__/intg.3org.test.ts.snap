@@ -1,5 +1,87 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Multi-Org Test - Private data b4 public query loan 4 1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org1 Loan 4",
+  "details": Array [
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 4",
+      "contact": Object {
+        "email": "c0004@fake.it",
+        "name": "Contact 4",
+        "phone": "555-0004",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "HKD",
+      "loanType": null,
+      "requestedAmt": 44.9,
+      "requester": Object {
+        "name": "Loan Requester 4",
+        "registration": "BR1234567XXX4",
+        "type": null,
+      },
+      "startDate": "1574846420904",
+      "tenor": 52,
+    },
+  ],
+  "documents": Array [],
+  "ownerId": "USER_ORG1",
+  "reference": "REF-ORG1-LOAN-4",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Private data b4 public query loan 4 again 1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org1 Loan 4",
+  "details": Array [
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 4",
+      "contact": Object {
+        "email": "c0004@fake.it",
+        "name": "Contact 4",
+        "phone": "555-0004",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "HKD",
+      "loanType": null,
+      "requestedAmt": 44.9,
+      "requester": Object {
+        "name": "Loan Requester 4",
+        "registration": "BR1234567XXX4",
+        "type": null,
+      },
+      "startDate": "1574846420904",
+      "tenor": 52,
+    },
+  ],
+  "documents": Array [
+    Object {
+      "contents": Array [
+        Object {
+          "content": Object {
+            "format": "JPG",
+            "link": "http://fake.it/docs/org1DocContents-4.pdf",
+          },
+        },
+      ],
+      "reference": "REF-ORG3-DOC-4",
+      "status": 0,
+      "title": "Org3 Document 4",
+    },
+  ],
+  "ownerId": "USER_ORG1",
+  "reference": "REF-ORG1-LOAN-4",
+  "status": 0,
+}
+`;
+
 exports[`Multi-Org Test - Query Loans query document 1a 1`] = `
 Object {
   "documentId": Any<String>,
