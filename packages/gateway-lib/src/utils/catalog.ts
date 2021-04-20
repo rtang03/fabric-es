@@ -30,6 +30,7 @@ const ROOT_OPS_QUERY = 'query';
 const ROOT_OPS_MUTTN = 'mutation';
 const ROOT_OPS_SBSCP = 'subscription';
 const ANNO_SCHEMA = '@SCHEMA ';
+const ANNO_PRIMRY = '@PRIMARY';
 const ANNO_IGNORE = '@SKIP';
 
 export const buildCatalogedSchema = (service: string, serviceType: ServiceType, enabled: boolean, sdl: {
@@ -86,7 +87,7 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
         return { field: { operation: f.operation }, dataType, isPrimitive };
       } else {
         const field = { [f.name.value]: { type: dataType }};
-        if (checkDesc(f)) field[f.name.value]['description'] = f.description.value;
+        if ((checkDesc(f) & 1) > 0) field[f.name.value]['description'] = f.description.value;
         if (!isNull)      field[f.name.value]['required'] = true;
         if (isList)       field[f.name.value].type = `${dataType}[]`;
         if (!isPrimitive) field[f.name.value]['ref'] = dataType.toLowerCase();
@@ -97,21 +98,27 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
   };
 
   // Check if given object contain description
+  // return 000
+  //        ││└─ 0: no description;     1: description found
+  //        │└── 0: normal types;       1: main types
+  //        └─── 0: normal description; 1: schema description
   const checkDesc = (n: any) => {
     if (!n['description'] || !n['description']['kind'] || n['description']['kind'] !== 'StringValue' || !n['description']['value']) {
-      return false;
+      return 0;
     } else if (n['kind'] && n['kind'] === 'SchemaDefinition') {
       if (!schemaDesc) {
         schemaDesc = n['description']['value'];
       }
-      return false;
+      return 4;
     } else if (n['description']['value'].toUpperCase().startsWith(ANNO_SCHEMA)) {
       if (!schemaDesc) {
         schemaDesc = n['description']['value'].substring(8);
       }
-      return false;
+      return 4;
+    } else if (n['description']['value'].toUpperCase().startsWith(ANNO_PRIMRY)) {
+      return 3;
     } else {
-      return true;
+      return 1;
     }
   };
 
@@ -121,7 +128,9 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
   ), i: boolean) => {
     let included = i; // if 'i' is true, will include regardless of having comments or not
     const found: string[] = [];
-    const hasDesc = checkDesc(d);
+    const chkDesc = checkDesc(d);
+    const hasDesc = (chkDesc & 1) > 0;
+    const isMain = (chkDesc & 2) > 0;
     if (hasDesc) included = true; // Include if the type has comment
 
     const fields = {};
@@ -130,7 +139,7 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
         d.kind !== 'EnumTypeDefinition' && d.kind !== 'DirectiveDefinition') { // All definitions with 'fields'
       for (const f of d.fields) {
         if (f.kind === 'FieldDefinition') {
-          if (checkDesc(f)) included = true; // Also include if a field of the type has comment
+          if ((checkDesc(f) & 1) > 0) included = true; // Also include if a field of the type has comment
 
           // Find base type of field
           const { field, dataType, isPrimitive } = findDataType(f);
@@ -158,23 +167,24 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
     if (included) {
       if (Object.keys(fields).length > 0) {
         result = hasDesc ? {
-          description: d.description.value, // type with comment given
+          description: (isMain) ? d.description.value.substring(8) : d.description.value, // type with comment given
           fields
         } : {
           fields // type with no comment given
         };
       } else if (Object.keys(types).length > 0) {
         result = hasDesc ? {
-          description: d.description.value, // union type with comment given
+          description: (isMain) ? d.description.value.substring(8) : d.description.value, // union type with comment given
           types
         } : {
           types // union type with no comment given
         };
       } else if (hasDesc) {
-        result = { description: d.description.value };
+        result = { description: (isMain) ? d.description.value.substring(8) : d.description.value };
       } else {
         result = {}; // No comment, and no field, but somehow asked to include in the catalog...
       }
+      if (isMain) result['main'] = true;
       return { result, found };
     } else {
       return { result: undefined, found: undefined };
@@ -197,7 +207,7 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
         d.kind === 'ObjectTypeDefinition' || d.kind === 'ScalarTypeDefinition' || d.kind === 'UnionTypeDefinition' ||
         d.kind === 'DirectiveDefinition' || d.kind === 'SchemaDefinition'
       ) ? d : undefined).filter(d => !!d)) { // loop thru all definitions with 'description'
-        let typeName = 'schema';
+        let typeName = 'xxx';
         if (d.kind === 'SchemaDefinition') {
           for (const o of d.operationTypes) {
             if (o.kind === 'OperationTypeDefinition') {
@@ -238,67 +248,67 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
       }
 
       // Subsequent passes for types
-      let pass = 0;
-      do {
-        pass = 0;
-        for (const d of defs.definitions.map(d => (
-          d.kind === 'EnumTypeDefinition' || d.kind === 'InputObjectTypeDefinition' || d.kind === 'InterfaceTypeDefinition' || 
-          d.kind === 'ObjectTypeDefinition' || d.kind === 'ScalarTypeDefinition' || d.kind === 'UnionTypeDefinition' ||
-          d.kind === 'DirectiveDefinition'
-        ) ? d : undefined).filter(d => !!d && types[d.name.value] === 0)) {
-          const { result, found } = buildObjectType(d, true);
-          if (result) {
-            count ++;
-            pass ++;
-            catalog[d.name.value] = result;
-            types[d.name.value] = -1;
-          }
-          if (found && found.length > 0) {
-            for (const f of found) {
-              if (!types[f]) types[f] = 0;
-            }
-          }
-        }
-      } while (pass > 0);
+      // let pass = 0;
+      // do {
+      //   pass = 0;
+      //   for (const d of defs.definitions.map(d => (
+      //     d.kind === 'EnumTypeDefinition' || d.kind === 'InputObjectTypeDefinition' || d.kind === 'InterfaceTypeDefinition' || 
+      //     d.kind === 'ObjectTypeDefinition' || d.kind === 'ScalarTypeDefinition' || d.kind === 'UnionTypeDefinition' ||
+      //     d.kind === 'DirectiveDefinition'
+      //   ) ? d : undefined).filter(d => !!d && types[d.name.value] === 0)) {
+      //     const { result, found } = buildObjectType(d, true);
+      //     if (result) {
+      //       count ++;
+      //       pass ++;
+      //       catalog[d.name.value] = result;
+      //       types[d.name.value] = -1;
+      //     }
+      //     if (found && found.length > 0) {
+      //       for (const f of found) {
+      //         if (!types[f]) types[f] = 0;
+      //       }
+      //     }
+      //   }
+      // } while (pass > 0);
 
       // Scan for related root operations
       // It seems Query and Mutation are ObjectType nodes only
-      for (const d of defs.definitions.map(d => (
-        d.kind === 'ObjectTypeDefinition'
-      ) ? d : undefined).filter(d => !!d && (d.name.value === roQuery || d.name.value === roMutation || d.name.value === roSubscription))) {
-        // Always use the default name of the root operations to simplify logic when building the resuling markdown doc
-        const ops = (d.name.value === roQuery) ? ROOT_OPS_QUERY : (d.name.value === roMutation) ? ROOT_OPS_MUTTN : ROOT_OPS_SBSCP;
+      // for (const d of defs.definitions.map(d => (
+      //   d.kind === 'ObjectTypeDefinition'
+      // ) ? d : undefined).filter(d => !!d && (d.name.value === roQuery || d.name.value === roMutation || d.name.value === roSubscription))) {
+      //   // Always use the default name of the root operations to simplify logic when building the resuling markdown doc
+      //   const ops = (d.name.value === roQuery) ? ROOT_OPS_QUERY : (d.name.value === roMutation) ? ROOT_OPS_MUTTN : ROOT_OPS_SBSCP;
 
-        checkDesc(d);
-        for (const f of d.fields) {
-          if (f.kind === 'FieldDefinition') {
-            const { field, dataType, isPrimitive } = findDataType(f);
-            if (dataType && !isPrimitive) {
-              if (types[dataType] < 0) { // that is: processed object types
-                if (!catalog[dataType][ops]) catalog[dataType][ops] = {};
+      //   checkDesc(d);
+      //   for (const f of d.fields) {
+      //     if (f.kind === 'FieldDefinition') {
+      //       const { field, dataType, isPrimitive } = findDataType(f);
+      //       if (dataType && !isPrimitive) {
+      //         if (types[dataType] < 0) { // that is: processed object types
+      //           if (!catalog[dataType][ops]) catalog[dataType][ops] = {};
 
-                if (field[f.name.value]['description']) {
-                  const { description, ...rest } = field[f.name.value];
-                  catalog[dataType][ops][f.name.value] = {
-                    description, returns: rest
-                  };
-                } else {
-                  catalog[dataType][ops][f.name.value] = { returns: field[f.name.value] };
-                }
+      //           if (field[f.name.value]['description']) {
+      //             const { description, ...rest } = field[f.name.value];
+      //             catalog[dataType][ops][f.name.value] = {
+      //               description, returns: rest
+      //             };
+      //           } else {
+      //             catalog[dataType][ops][f.name.value] = { returns: field[f.name.value] };
+      //           }
 
-                const args = {};
-                for (const a of f.arguments) {
-                  const { field, dataType } = findDataType(a);
-                  if (dataType) Object.assign(args, field);
-                }
-                if (Object.keys(args).length > 0) {
-                  catalog[dataType][ops][f.name.value]['arguments'] = args;
-                }
-              }
-            }
-          }
-        }
-      }
+      //           const args = {};
+      //           for (const a of f.arguments) {
+      //             const { field, dataType } = findDataType(a);
+      //             if (dataType) Object.assign(args, field);
+      //           }
+      //           if (Object.keys(args).length > 0) {
+      //             catalog[dataType][ops][f.name.value]['arguments'] = args;
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
     }
 
     catalog.count = count; // Number of types found
@@ -313,6 +323,7 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
       }
     }
 
+    console.log(`HIHIHIHIHI ${service}`, JSON.stringify(catalog, null, ' '));
     return catalog;
   };
 
