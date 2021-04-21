@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>BaseEntity | fabric-es - v0.7.9</title>
+	<title>BaseEntity | fabric-es - v0.7.11</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -24,7 +24,7 @@
 					</ul>
 					<ul class="results-priority" style="display:none">
 					</ul>
-					<a href="../index.html" class="title">fabric-es - v0.7.9</a>
+					<a href="../index.html" class="title">fabric-es - v0.7.11</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -104,13 +104,10 @@
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_fabric_es_fabric_cqrs.baseentity.html#_commit" class="tsd-kind-icon">_commit</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_fabric_es_fabric_cqrs.baseentity.html#_created" class="tsd-kind-icon">_created</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_fabric_es_fabric_cqrs.baseentity.html#_creator" class="tsd-kind-icon">_creator</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_fabric_es_fabric_cqrs.baseentity.html#_entityname" class="tsd-kind-icon">_entity<wbr>Name</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_fabric_es_fabric_cqrs.baseentity.html#_event" class="tsd-kind-icon">_event</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_fabric_es_fabric_cqrs.baseentity.html#_organization" class="tsd-kind-icon">_organization</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_fabric_es_fabric_cqrs.baseentity.html#_timeline" class="tsd-kind-icon">_timeline</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_fabric_es_fabric_cqrs.baseentity.html#_ts" class="tsd-kind-icon">_ts</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_fabric_es_fabric_cqrs.baseentity.html#desc" class="tsd-kind-icon">desc</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_fabric_es_fabric_cqrs.baseentity.html#id" class="tsd-kind-icon">id</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_fabric_es_fabric_cqrs.baseentity.html#tag" class="tsd-kind-icon">tag</a></li>
@@ -133,21 +130,6 @@
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>commit id involved, automatically indexed by RedisSearch</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="_created" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> _created</h3>
-					<div class="tsd-signature tsd-kind-icon">_created<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in packages/fabric-cqrs/src/types/baseEntity.ts:16</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
-						<div class="lead">
-							<p>creation timestamp, automatically indexed by RedisSearch</p>
 						</div>
 					</div>
 				</section>
@@ -197,21 +179,6 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="_organization" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> _organization</h3>
-					<div class="tsd-signature tsd-kind-icon">_organization<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in packages/fabric-cqrs/src/types/baseEntity.ts:37</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
-						<div class="lead">
-							<p>organization involved, automatically indexed by RedisSearch</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="_timeline" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> _timeline</h3>
 					<div class="tsd-signature tsd-kind-icon">_timeline<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
@@ -223,21 +190,6 @@
 					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>history of commits, automatically indexed by RedisSearch</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="_ts" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> _ts</h3>
-					<div class="tsd-signature tsd-kind-icon">_ts<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in packages/fabric-cqrs/src/types/baseEntity.ts:22</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
-						<div class="lead">
-							<p>last updated timestamp, automatically indexed by RedisSearch</p>
 						</div>
 					</div>
 				</section>
@@ -301,9 +253,6 @@
 								<a href="_fabric_es_fabric_cqrs.baseentity.html#_commit" class="tsd-kind-icon">_commit</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_fabric_es_fabric_cqrs.baseentity.html#_created" class="tsd-kind-icon">_created</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="_fabric_es_fabric_cqrs.baseentity.html#_creator" class="tsd-kind-icon">_creator</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
@@ -313,13 +262,7 @@
 								<a href="_fabric_es_fabric_cqrs.baseentity.html#_event" class="tsd-kind-icon">_event</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_fabric_es_fabric_cqrs.baseentity.html#_organization" class="tsd-kind-icon">_organization</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="_fabric_es_fabric_cqrs.baseentity.html#_timeline" class="tsd-kind-icon">_timeline</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_fabric_es_fabric_cqrs.baseentity.html#_ts" class="tsd-kind-icon">_ts</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="_fabric_es_fabric_cqrs.baseentity.html#desc" class="tsd-kind-icon">desc</a>
