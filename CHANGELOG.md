@@ -1,8 +1,16 @@
 # Changelog
 
-## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
+## [v0.7.12](https://github.com/rtang03/fabric-es/tree/v0.7.12) (2021-04-21)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.9...HEAD)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.11...v0.7.12)
+
+## [v0.7.11](https://github.com/rtang03/fabric-es/tree/v0.7.11) (2021-04-21)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.10...v0.7.11)
+
+## [v0.7.10](https://github.com/rtang03/fabric-es/tree/v0.7.10) (2021-04-21)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.9...v0.7.10)
 
 **Closed issues:**
 
@@ -30,7 +38,6 @@
 
 - docs: add loan example [\#210](https://github.com/rtang03/fabric-es/pull/210) ([rtang03](https://github.com/rtang03))
 - feat: Data Catalog [\#209](https://github.com/rtang03/fabric-es/pull/209) ([pangduckwai](https://github.com/pangduckwai))
-- docs: add readthedocs [\#207](https://github.com/rtang03/fabric-es/pull/207) ([rtang03](https://github.com/rtang03))
 - docs: fix README [\#205](https://github.com/rtang03/fabric-es/pull/205) ([rtang03](https://github.com/rtang03))
 - feat: create / resolve DidDocument [\#204](https://github.com/rtang03/fabric-es/pull/204) ([rtang03](https://github.com/rtang03))
 - feat: enable auth0 in gateway-lib [\#203](https://github.com/rtang03/fabric-es/pull/203) ([rtang03](https://github.com/rtang03))
@@ -58,6 +65,7 @@
 
 **Merged pull requests:**
 
+- docs: add readthedocs [\#207](https://github.com/rtang03/fabric-es/pull/207) ([rtang03](https://github.com/rtang03))
 - feat: dev-net enhancement [\#196](https://github.com/rtang03/fabric-es/pull/196) ([hkicl-ming](https://github.com/hkicl-ming))
 - feat: dev-net enhancement [\#194](https://github.com/rtang03/fabric-es/pull/194) ([hkicl-ming](https://github.com/hkicl-ming))
 - fix: Fix RedisPubSub related issue when running gateway as docker images [\#193](https://github.com/rtang03/fabric-es/pull/193) ([pangduckwai](https://github.com/pangduckwai))
@@ -116,7 +124,7 @@
 - chore: Prepare tester and dev-net to port to cdi-samples [\#179](https://github.com/rtang03/fabric-es/pull/179) ([pangduckwai](https://github.com/pangduckwai))
 - feat: reference Implementation robustness test [\#178](https://github.com/rtang03/fabric-es/pull/178) ([pangduckwai](https://github.com/pangduckwai))
 - refactor: remove auth-server [\#177](https://github.com/rtang03/fabric-es/pull/177) ([rtang03](https://github.com/rtang03))
-- refactor: change to external cc launcher [\#175](https://github.com/rtang03/fabric-es/pull/175) ([rtang03](https://github.com/rtang03))
+- feat: add /healthcheck to gw-orgX [\#157](https://github.com/rtang03/fabric-es/pull/157) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-19)
 
@@ -152,13 +160,13 @@
 
 **Merged pull requests:**
 
+- refactor: change to external cc launcher [\#175](https://github.com/rtang03/fabric-es/pull/175) ([rtang03](https://github.com/rtang03))
 - fix: missing http:// in authCheck uri [\#169](https://github.com/rtang03/fabric-es/pull/169) ([rtang03](https://github.com/rtang03))
 - fix: ui-control images with correct dependency [\#168](https://github.com/rtang03/fabric-es/pull/168) ([rtang03](https://github.com/rtang03))
 - feat: add /healthcheck probe to ui-control [\#167](https://github.com/rtang03/fabric-es/pull/167) ([rtang03](https://github.com/rtang03))
 - chore: reduce image size [\#165](https://github.com/rtang03/fabric-es/pull/165) ([rtang03](https://github.com/rtang03))
 - feat: add ui-control to create-release [\#163](https://github.com/rtang03/fabric-es/pull/163) ([rtang03](https://github.com/rtang03))
 - refactor: add debug message to enrolAdmin [\#159](https://github.com/rtang03/fabric-es/pull/159) ([rtang03](https://github.com/rtang03))
-- feat: add /healthcheck to gw-orgX [\#157](https://github.com/rtang03/fabric-es/pull/157) ([rtang03](https://github.com/rtang03))
 - chore: restrict changelog to master [\#155](https://github.com/rtang03/fabric-es/pull/155) ([rtang03](https://github.com/rtang03))
 - fix: run 2org integration test during create-release [\#154](https://github.com/rtang03/fabric-es/pull/154) ([rtang03](https://github.com/rtang03))
 - feat: multiple important updates and bug fixes [\#149](https://github.com/rtang03/fabric-es/pull/149) ([rtang03](https://github.com/rtang03))
