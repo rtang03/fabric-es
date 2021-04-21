@@ -11,8 +11,7 @@
   "keywords": [
     "hyperledger-fabric",
     "apollo-graphql",
-    "redis",
-    "pm2"
+    "redis"
   ],
   "author": "Ross Tang",
   "license": "BSD-3-Clause-Clear",

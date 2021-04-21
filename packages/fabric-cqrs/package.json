@@ -11,8 +11,7 @@
   },
   "keywords": [
     "hyperledger-fabric",
-    "redux",
-    "redis"
+    "redux"
   ],
   "author": "Ross Tang",
   "homepage": "https://github.com/rtang03/fabric-es",
