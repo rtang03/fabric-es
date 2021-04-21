@@ -9,7 +9,8 @@
     "url": "git://github.com/rtang03/fabric-es.git"
   },
   "keywords": [
-    "hyperledger-fabric"
+    "hyperledger-fabric",
+    "jest"
   ],
   "author": "Ross Tang",
   "license": "BSD-3-Clause-Clear",

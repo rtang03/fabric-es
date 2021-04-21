@@ -87,6 +87,28 @@ jobs:
         run: |
           set -x
           tar -czvf dev-net.tar.gz /home/runner/work/fabric-es/fabric-es/deployments/dev-net
+      - name: Generate changelog
+        uses: charmixer/auto-changelog-action@v1.1
+        with:
+          token: ${{ secrets.CI_TOKEN }}
+          since_tag: v0.6.1
+          exclude_tags: "v0.5.13,v0.5.14"
+      - name: Commit files
+        env:
+          CI_USER: ${{ secrets.CI_USER }}
+          CI_EMAIL: ${{ secrets.CI_EMAIL }}
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+        run: |
+          git config --local user.email "$CI_EMAIL"
+          git config --local user.name "$CI_USER"
+          git add CHANGELOG.md && git commit -m 'Updated CHANGELOG.md' && echo ::set-env name=push::1 || echo "No changes to CHANGELOG.md"
+      - name: Push changes
+        if: env.push == 1
+        env:
+          CI_USER: ${{ secrets.CI_USER }}
+          CI_TOKEN: ${{ secrets.CI_TOKEN }}
+        run: |
+          git push "https://$CI_USER:$CI_TOKEN@github.com/$GITHUB_REPOSITORY.git" HEAD:master
       - name: Create Release
         uses: docker://antonyurchenko/git-release:latest
         env:

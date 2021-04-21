@@ -10,8 +10,7 @@
     "url": "git://github.com/rtang03/fabric-es.git"
   },
   "keywords": [
-    "hyperledger-fabric",
-    "redux"
+    "hyperledger-fabric"
   ],
   "author": "Ross Tang",
   "homepage": "https://github.com/rtang03/fabric-es",
