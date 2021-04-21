@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/operator",
-  "version": "0.7.10",
+  "version": "0.7.11",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "description": "Network operator",
