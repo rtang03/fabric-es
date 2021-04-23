@@ -25,6 +25,7 @@
     "form-data": "^3.0.0",
     "formidable": "^1.2.2",
     "lodash": "^4.17.15",
+    "moment-timezone": "0.5.33",
     "node-fetch": "^2.6.0",
     "query-string": "^6.12.1",
     "stoppable": "^1.1.0",
