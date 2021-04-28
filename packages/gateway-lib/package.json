@@ -59,6 +59,7 @@
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.2",
     "lodash": "^4.17.15",
+    "moment-timezone": "0.5.33",
     "node-fetch": "^2.6.0",
     "pm2": "^4.5.0",
     "reselect": "^4.0.0",

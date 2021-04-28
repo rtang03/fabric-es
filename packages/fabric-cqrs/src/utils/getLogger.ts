@@ -1,8 +1,15 @@
+import moment from 'moment-timezone';
 import { createLogger, format, Logger, transports } from 'winston';
 
-const { combine, timestamp, label, printf } = format;
+const { combine, label, printf } = format;
 const logFormat = printf(({ level, message, label, timestamp }) => {
   return `${timestamp} [${level}]: ${message} (${label})`;
+});
+
+// timezone setting
+const appendTimestamp = format((info, opts) => {
+  if (opts.tz) info.timestamp = moment().tz(opts.tz).format();
+  return info;
 });
 
 const CONSOLE = 1;
@@ -15,38 +22,40 @@ export const getLogger: (
     name: string;
     level?: string;
     target?: string; // console|file|cloud
+    timezone?: string; // default Asia/Hong_Kong
   }
 ) => Logger = ({
-  name, level, target
+  name, level, target, timezone
 }) => {
-  if (loggers[name]) {
-    return loggers[name];
-  } else {
-    const logLevel = level || process.env.LOG_LEVEL || 'info';
-    const logTarget = (target || process.env.LOG_TARGET || 'console|file|cloud').split('|').reduce((accu, curr) => {
-      switch (curr) {
-        case 'console': return accu | CONSOLE;
-        case 'file': return accu | FILE;
-        case 'cloud': return accu | CLOUD;
-        default: return accu;
-      }}, 0);
+    if (loggers[name]) {
+      return loggers[name];
+    } else {
+      const logLevel = level || process.env.LOG_LEVEL || 'info';
+      const logTarget = (target || process.env.LOG_TARGET || 'console|file|cloud').split('|').reduce((accu, curr) => {
+        switch (curr) {
+          case 'console': return accu | CONSOLE;
+          case 'file': return accu | FILE;
+          case 'cloud': return accu | CLOUD;
+          default: return accu;
+        }
+      }, 0);
+      const logTimezone = timezone || process.env.TZ || 'Asia/Hong_Kong';
+      const transportArray = [];
 
-    const transportArray = [];
+      if (logTarget & FILE) {
+        transportArray.push(
+          new transports.File({ filename: `./logs/app.log` }),
+        );
+      }
+      if (logTarget & CONSOLE)
+        transportArray.push(new transports.Console());
 
-    if (logTarget & FILE) {
-      transportArray.push(
-        new transports.File({ filename: `./logs/app.log` }),
-      );
+      loggers[name] = createLogger({
+        level: logLevel,
+        exitOnError: false,
+        format: combine(label({ label: name }), appendTimestamp({ tz: logTimezone }), logFormat),
+        transports: transportArray,
+      });
+      return loggers[name];
     }
-    if (logTarget & CONSOLE)
-      transportArray.push(new transports.Console());
-
-    loggers[name] = createLogger({
-      level: logLevel,
-      exitOnError: false,
-      format: combine(label({ label: name }), timestamp(), logFormat),
-      transports: transportArray,
-    });
-    return loggers[name];
-  }
-};
+  };
