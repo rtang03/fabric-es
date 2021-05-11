@@ -1,6 +1,6 @@
 import util from 'util';
 import { BaseEntity, EntityType, TRACK_FIELD, TRACK_FIELD_S } from '@fabric-es/fabric-cqrs';
-import { execute, makePromise, DocumentNode } from 'apollo-link';
+import { execute, makePromise, DocumentNode, GraphQLRequest } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import nodeFetch from 'node-fetch';
 import { getLogger } from '..';
@@ -9,21 +9,32 @@ import { ServiceType } from '../types';
 
 const fetch = nodeFetch as any;
 
-export const createRemoteData = ({ uri, query, variables, operationName, token }) =>
-  makePromise(
+export const createRemoteData = ({ uri, query, variables, operationName, token }) => {
+  const req: GraphQLRequest = {
+    query,
+    variables,
+    operationName,
+  };
+  console.log('TOTOTOTOTOTO 3', req.query.loc.source.body);
+  console.log('TOTOTOTOTOTO 4', JSON.stringify(variables, null, ' '));
+  console.log('TOTOTOTOTOTO 5', operationName);
+
+  return makePromise(
     execute(
       new HttpLink({
         uri,
         fetch,
         headers: { authorization: `Bearer ${token}` },
       }),
-      {
-        query,
-        variables,
-        operationName,
-      }
+      // {
+      //   query,
+      //   variables,
+      //   operationName,
+      // }
+      req
     )
   );
+};
 
 export const queryRemoteData: <TEntity extends BaseEntity>(
   entity: EntityType<TEntity>,

@@ -199,15 +199,31 @@ export const createService: (option: {
                   }),
                   {}
                 ),
-              context: ({ req: { headers } }) =>
-                Object.assign(
-                  {
-                    ...headers,
-                    serviceName,
-                    serviceType: type,
-                  },
-                  args,
-                ),
+              context: ({ req }) => {
+                if (type === ServiceType.Private) {
+                  // const data = [];
+                  // req.on('data', (chunk) => data.push(chunk));
+                  // req.on('end', () => {
+                  //   const raw = Buffer.concat(data).toString();
+                  //   console.log('YOYOYOYOYOYOYO', raw);
+                  console.log(`HAHAHAHAHAHAHA ${serviceName}`, JSON.stringify(req.body, null, ' '));
+                    return Object.assign({
+                      ...req.headers,
+                      serviceName,
+                      serviceType: type,
+                    }, args);
+                  // });
+                } else {
+                  return Object.assign(
+                    {
+                      ...req.headers,
+                      serviceName,
+                      serviceType: type,
+                    },
+                    args,
+                  );
+                }
+              },
             },
             flags
           )
