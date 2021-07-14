@@ -35,6 +35,11 @@ export const orgReducer: ReducerCallback<Organization, OrgEvents> = (org: Organi
         // _created: org?._created || event.payload?._created,
         // _creator: org?._creator || event.payload?._creator,
       };
+    case 'OrgPubkeyLoaded':
+      return {
+        ...org,
+        pubkey: event.payload.pubkey,
+      };
     case 'OrgDowned':
       return {
         ...org,

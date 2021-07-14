@@ -1,4 +1,5 @@
 import { Repository } from '@fabric-es/fabric-cqrs';
+import { readKey } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import type { RedisOptions } from 'ioredis';
@@ -19,6 +20,7 @@ import {
   MISSING_CONNECTION_PROFILE,
   MISSING_CA_NAME,
   MISSING_WALLET,
+  MISSING_ORGKEY,
 } from './constants';
 import { createResolversWithAuth0 } from './createResolversWithAuth0';
 import { typeDefs } from './typeDefs';
@@ -60,6 +62,7 @@ export const createAdminServiceWithAuth0: (option: {
   connectionProfile: string;
   caName: string;
   walletPath: string;
+  keyPath: string;
   orgName: string;
   orgUrl: string;
   asLocalhost?: boolean;
@@ -77,6 +80,7 @@ export const createAdminServiceWithAuth0: (option: {
   connectionProfile,
   caName,
   walletPath,
+  keyPath,
   orgName,
   orgUrl,
   asLocalhost = true,
@@ -105,6 +109,11 @@ export const createAdminServiceWithAuth0: (option: {
     throw new Error(MISSING_WALLET);
   }
 
+  if (!keyPath) {
+    logger.error(MISSING_ORGKEY);
+    throw new Error(MISSING_ORGKEY);
+  }
+
   const wallet = await Wallets.newFileSystemWallet(walletPath);
 
   const { config, getMspId, getRepository, shutdown } = await createService({
@@ -121,13 +130,14 @@ export const createAdminServiceWithAuth0: (option: {
 
   const mspId = getMspId();
   const orgRepo = getRepository<Organization, Organization, OrgEvents>(Organization, orgReducer);
+  const pubkey = await readKey(keyPath);
   await orgCommandHandler({ enrollmentId: caAdmin, orgRepo })
     .StartOrg({
       mspId,
-      payload: { name: orgName, url: orgUrl, timestamp: Date.now() },
+      payload: { name: orgName, url: orgUrl, pubkey, timestamp: Date.now() },
     })
-    .then((_) => logger.info('orgCommandHandler.StartOrg complete'))
-    .catch((error) => logger.error(error));
+    .then(_ => logger.info('orgCommandHandler.StartOrg complete'))
+    .catch(error => logger.error(error));
 
   const resolvers = await createResolversWithAuth0({
     caAdmin,
@@ -155,13 +165,13 @@ export const createAdminServiceWithAuth0: (option: {
     shutdown: ((repo: Repository) => (server: ApolloServer) => {
       if (!stopping) {
         stopping = true;
-        return orgCommandHandler({ enrollmentId: caAdmin, orgRepo: repo })
+        return orgCommandHandler({ enrollmentId: caAdmin, orgRepo: repo, })
           .ShutdownOrg({
             mspId,
             payload: { timestamp: Date.now() },
           })
-          .then((_) => {
-            return shutdown(server).then((_) => {
+          .then(_ => {
+            return shutdown(server).then(_ => {
               stopped = true;
             });
           });
@@ -170,7 +180,7 @@ export const createAdminServiceWithAuth0: (option: {
         const loop = (func) => {
           setTimeout(() => {
             if (!stopped && cnt > 0) {
-              cnt--;
+              cnt --;
               logger.debug(`waiting for shutdown() to complete... ${cnt}`);
               loop(func);
             } else {
@@ -178,7 +188,7 @@ export const createAdminServiceWithAuth0: (option: {
             }
           }, 1000);
         };
-        return new Promise<void>((resolve) => loop(resolve));
+        return new Promise<void>(resolve => loop(resolve));
       }
     })(orgRepo),
   };

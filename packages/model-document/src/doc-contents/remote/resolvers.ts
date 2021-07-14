@@ -7,11 +7,10 @@ const logger = getLogger('doc-contents/remotes.js');
 export const resolvers = {
   Document: {
     contents: catchResolverErrors(
-      async ({ documentId }, { token }, context) =>
+      async ({ documentId }, _, context) =>
         queryRemoteData(
           DocContents, {
             id: documentId,
-            token,
             context,
             query: GET_CONTENTS_BY_ID,
           }),

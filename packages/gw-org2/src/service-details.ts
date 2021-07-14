@@ -31,6 +31,7 @@ void (async () =>
       (process.env.REDIS_PORT || 6379) as number,
       logger
     ),
+    aclPath: process.env.ACLPATH,
   })
     .then(({ config, shutdown }) => {
       const app = config([{

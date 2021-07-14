@@ -4,6 +4,7 @@ export type OrgCommands = {
     payload: {
       name: string;
       url?: string;
+      pubkey?: string;
       timestamp: number;
     };
   };
@@ -18,6 +19,13 @@ export type OrgCommands = {
     mspId: string;
     payload: {
       url: string;
+      timestamp: number;
+    };
+  };
+  LoadPubkey: {
+    mspId: string;
+    payload: {
+      pubkey: string;
       timestamp: number;
     };
   };

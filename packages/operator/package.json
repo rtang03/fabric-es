@@ -23,11 +23,13 @@
     "build-chaincode": "cd ../chaincode && yarn build",
     "prepare-asset": "rimraf assets && mkdir -p ./assets/client-certs/hfc-kvs/org1",
     "unit-test:fab": "jest --detectOpenHandles unit.test",
+    "key-test": "jest key.test",
     "clean": "rimraf dist",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
   },
   "dependencies": {
     "dotenv": "^8.1.0",
+    "elliptic": "^6.5.4",
     "fabric-ca-client": "2.2.3",
     "fabric-contract-api": "2.2.1",
     "fabric-network": "2.2.3",
@@ -38,6 +40,7 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
+    "@types/elliptic": "^6.4.12",
     "@types/jest": "^26.0.20",
     "@types/js-yaml": "^3.12.4",
     "@types/lodash": "^4.14.152",

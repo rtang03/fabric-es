@@ -57,6 +57,7 @@ const orgAdminId = process.env.ORG_ADMIN_ID;
 const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
 const proxyServerUri = process.env.PROXY_SERVER;
 const walletPath = process.env.WALLET;
+const keyPath = process.env.ORGKEY;
 const random = Math.floor(Math.random() * 10000);
 const username = `gw_test_username_${random}`;
 const password = `password`;
@@ -207,6 +208,7 @@ beforeAll(async () => {
       introspection: false,
       playground: false,
       walletPath,
+      keyPath,
       orgName: 'org1',
       orgUrl: `http://localhost:${MODEL_SERVICE_PORT}/graphql`,
       redisOptions,

@@ -1,5 +1,5 @@
 import type { PrivateRepository } from '@fabric-es/fabric-cqrs';
-import type { CommandHandler } from '@fabric-es/gateway-lib';
+import type { CommandHandler, ServiceContext } from '@fabric-es/gateway-lib';
 import { DataSrc } from '@fabric-es/gateway-lib';
 import type { DocContentsCommands } from './commands';
 import type { DocContentsEvents } from './events';
@@ -17,5 +17,4 @@ export type DocContentsDataSource = DataSrc<DocContentsRepo>;
 
 export type DocContentsContext = {
   dataSources: { docContents: DocContentsDataSource };
-  username: string;
-};
+} & ServiceContext;
