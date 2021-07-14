@@ -1,10 +1,9 @@
 import fs from 'fs';
-import path from 'path';
 import util from 'util';
 import { ApolloError, AuthenticationError, ForbiddenError } from 'apollo-server';
-import StormDB from 'stormdb';
 import { Logger } from 'winston';
 import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from '../admin/constants';
+import { getAcl } from './aclService';
 
 const mkdir = util.promisify(fs.mkdir);
 
@@ -27,15 +26,7 @@ export const catchResolverErrors: <T = any>(
 
           // check if accessor entitle to access
           try {
-            await mkdir(path.dirname(aclPath), { recursive: true });
-            const engine = new StormDB.localFileEngine(aclPath, { async: true });
-            const db = new StormDB(engine);
-            db.default({ acl: {}});
-            const acl = db.get('acl').get(id).value();
-            if (!acl || !acl.includes(accessor)) {
-              logger.warn(`${fcnName}, ${UNAUTHORIZED_ACCESS}`);
-              return new ForbiddenError(UNAUTHORIZED_ACCESS);
-            }
+            await getAcl(aclPath, accessor, id);
           } catch (err) {
             logger.warn(`${fcnName}, ${err}`);
             return new ApolloError(err);

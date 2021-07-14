@@ -214,6 +214,7 @@ beforeAll(async () => {
       walletPath,
       orgName: 'org1',
       orgUrl: `http://localhost:${MODEL_SERVICE_PORT}/graphql`,
+      keyPath: '',
       redisOptions,
     });
     adminApolloService = service.server;
