@@ -260,30 +260,24 @@ export const combinSchema: (options: {
   for (let i = 1; i < sdls.length; i ++) {
     const defs = sdls[i].typeDefs;
     if (defs.kind === 'Document') {
-      // console.log(JSON.stringify(defs, null, ' '));
-
       for (const d of defs.definitions) {
         if (d.kind === 'ScalarTypeDefinition' && d.name.kind === 'Name' && d.name.value === 'JSON') hasJson = true; // JSON scalar already defined
         if (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === roq) {
-          // console.log(roq, JSON.stringify(d, null, ' ')); // TODO TEMP!!!
           hasQry = true;
           if (d.interfaces.length > 0) roQuery.interfaces.push(...d.interfaces);
           if (d.directives.length > 0) roQuery.directives.push(...d.directives);
           if (d.fields.length > 0) roQuery.fields.push(...d.fields); // TODO: check don't add duplicated query
         } else if (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === rom) {
-          // console.log(rom, JSON.stringify(d, null, ' ')); // TODO TEMP!!!
           hasMut = true;
           if (d.interfaces.length > 0) roMutation.interfaces.push(...d.interfaces);
           if (d.directives.length > 0) roMutation.directives.push(...d.directives);
           if (d.fields.length > 0) roMutation.fields.push(...d.fields);
         } else if (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === ros) {
-          // console.log(ros, JSON.stringify(d, null, ' ')); // TODO TEMP!!!
           hasSub = true;
           if (d.interfaces.length > 0) roSubscription.interfaces.push(...d.interfaces);
           if (d.directives.length > 0) roSubscription.directives.push(...d.directives);
           if (d.fields.length > 0) roSubscription.fields.push(...d.fields);
         } else {
-          // console.log('ADD type', d.kind); // TODO TEMP!!!
           typeDefs.definitions.push(d); // TODO: check don't add duplicated type
         }
       }
@@ -312,7 +306,6 @@ export const combinSchema: (options: {
     }
   }
 
-  // console.log('ADD json', !hasJson, needJson); // TODO TEMP!!!
   if (!hasJson && needJson) {
     typeDefs.definitions.push({
       'kind': 'ScalarTypeDefinition',
@@ -339,8 +332,6 @@ export const combinSchema: (options: {
     resolvers[ros] = subscription;
   }
 
-  // console.log('S2', JSON.stringify(typeDefs, null, ' '));
-  // console.log('R2', JSON.stringify(Object.keys(resolvers)), JSON.stringify(Object.keys(resolvers[roq] || 'q')), JSON.stringify(Object.keys(resolvers[rom] || 'm')), JSON.stringify(Object.keys(resolvers[ros] || 's')));
   return {
     typeDefs: typeDefs as DocumentNode,
     resolvers,

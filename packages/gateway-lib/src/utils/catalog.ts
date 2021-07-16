@@ -168,93 +168,6 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
     return catalog;
   };
 
-  // const insertSchema = (typeDefs: DocumentNode) => {
-  //   const defs = JSON.parse(JSON.stringify(typeDefs));
-  //   if (defs.kind === 'Document') {
-  //     let scalr = false;
-  //     let query = false;
-  //     for (const d of defs.definitions) {
-  //       if (d.kind === 'ScalarTypeDefinition' && d.name.kind === 'Name' && d.name.value === 'JSON') scalr = true;
-  //       if (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === roQuery) {
-  //         query = true;
-  //         d.fields.push({
-  //           'kind': 'FieldDefinition',
-  //           'name': {
-  //             'kind': 'Name',
-  //             'value': `_catalog_${service}`
-  //           },
-  //           'arguments': [],
-  //           'type': {
-  //             'kind': 'NamedType',
-  //             'name': {
-  //               'kind': 'Name',
-  //               'value': 'JSON'
-  //             }
-  //           },
-  //           'directives': []
-  //         });
-  //         break;
-  //       }
-  //     }
-  //     if (!query) {
-  //       defs.definitions.push({
-  //         'kind': 'ObjectTypeDefinition',
-  //         'name': {
-  //           'kind': 'Name',
-  //           'value': roQuery
-  //         },
-  //         'interfaces': [],
-  //         'directives': [],
-  //         'fields': [{
-  //           'kind': 'FieldDefinition',
-  //           'name': {
-  //             'kind': 'Name',
-  //             'value': `_catalog_${service}`
-  //           },
-  //           'arguments': [],
-  //           'type': {
-  //             'kind': 'NamedType',
-  //             'name': {
-  //               'kind': 'Name',
-  //               'value': 'JSON'
-  //             }
-  //           },
-  //           'directives': []
-  //         }],
-  //       });
-  //     }
-  //     if (!scalr) {
-  //       defs.definitions.push({
-  //         'kind': 'ScalarTypeDefinition',
-  //         'name': {
-  //           'kind': 'Name',
-  //           'value': 'JSON'
-  //         },
-  //         'directives': []
-  //       });
-  //     }
-  //     return defs as DocumentNode;
-  //   } else {
-  //     return typeDefs;
-  //   }
-  // };
-
-  // TODO TEMP!!!!!!!
-  // const cat = buildCatalog(sdl[0].typeDefs);
-  // const sdls: {
-  //   typeDefs: DocumentNode;
-  //   resolvers: any;
-  // }[] = [{
-  //   typeDefs: getAclTypeDefs(service),
-  //   resolvers: getAclResolver(service),
-  // }];
-  // sdls.push({
-  //   typeDefs: getCatalogTypeDefs(service),
-  //   resolvers: getCatalogResolver(service, cat),
-  // });
-  // combinSchema({sdls});
-  // console.log('S1', JSON.stringify(sdls[0].typeDefs, null, ' '));
-  // TODO TEMP!!!!!!!
   const sdls = [];
   const csdl = combinSchema({sdls: sdl, roq: roQuery, rom: roMutation, ros: roSubscription}); // Combine supplied schemas first
   if (csdl) sdls.push(csdl);
@@ -264,29 +177,6 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
     resolvers: getCatalogResolver(service, cat),
   });
   return combinSchema({sdls, roq: roQuery, rom: roMutation, ros: roSubscription, needJson: true});
-
-  // return buildFederatedSchema(sdl.map(({ typeDefs, resolvers }) => {
-  //   if (enabled) {
-  //     const cat = buildCatalog(typeDefs);
-  //     const { Query: query, ...rest  } = resolvers;
-
-  //     if (cat) {
-  //       const def = insertSchema(typeDefs);
-
-  //       // NOTE: all schemas given in sdl can only have at most 1 Query entry
-  //       const res = {
-  //         Query: {
-  //           [`_catalog_${service}`]: () => cat,
-  //           ...query
-  //         },
-  //         ...rest
-  //       };
-
-  //       return { typeDefs: def, resolvers: res };
-  //     }
-  //   }
-  //   return { typeDefs, resolvers };
-  // }));
 };
 
 export const getCatalogTypeDefs = (service: string) => {

@@ -178,18 +178,16 @@ export const createService: (option: {
         introspection?: boolean;
         catalog?: boolean;
       }) => ApolloServer = (option) => {
-        // console.log('S1', JSON.stringify(sdl[0].typeDefs, null, ' '));
         const sdls = [];
-        let csdl = ((option && option.catalog) || !option) ? buildCatalogedSchema(serviceName, type, sdl) : combinSchema({sdls: sdl});
+        let csdl = ((option && option.catalog) || !option) ? buildCatalogedSchema(serviceName, type, sdl) : combinSchema({sdls: sdl}); // TODO: here assume using default names for the root operations
         if (csdl) sdls.push(csdl);
         if (type === ServiceType.Private) {
           sdls.push({
             typeDefs: getAclTypeDefs(serviceName),
             resolvers: getAclResolver(serviceName),
           });
-          csdl = combinSchema({sdls});
+          csdl = combinSchema({sdls}); // TODO: here assume using default names for the root operations
         }
-        // console.log('S2', JSON.stringify(csdl.typeDefs, null, ' '));
         const schema = buildFederatedSchema(csdl);
 
         const args = mspId ? { mspId } : undefined;
