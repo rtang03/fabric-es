@@ -1,45 +1,27 @@
 import util from 'util';
-import { buildFederatedSchema } from '@apollo/federation';
 import { execute, makePromise } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import { Request, Response } from 'express';
-import {
-  DocumentNode,
-  // DirectiveDefinitionNode,
-  // EnumTypeDefinitionNode,
-  // InputObjectTypeDefinitionNode,
-  // InterfaceTypeDefinitionNode,
-  // ObjectTypeDefinitionNode,
-  // ScalarTypeDefinitionNode,
-  // SchemaDefinitionNode,
-  // UnionTypeDefinitionNode,
-  // FieldDefinitionNode,
-  // InputValueDefinitionNode,
-  // OperationTypeDefinitionNode,
-  // TypeNode,
-} from 'graphql';
+import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import nodeFetch from 'node-fetch';
 import { ServiceType } from '../types';
 import { getLogger } from './getLogger';
 import {
   checkDesc,
+  combinSchema,
   findDataType,
   buildObjectType,
   ANNO_IGNORE,
+  ROOT_OPS_QUERY,
+  ROOT_OPS_MUTTN,
+  ROOT_OPS_SBSCP,
 } from './schemaUtils';
 
 const fetch = nodeFetch as any;
 const logger = getLogger('[gw-lib] catalog.js');
 
-const ROOT_OPS_QUERY = 'query';
-const ROOT_OPS_MUTTN = 'mutation';
-const ROOT_OPS_SBSCP = 'subscription';
-// const ANNO_SCHEMA = '@SCHEMA ';
-// const ANNO_PRIMRY = '@PRIMARY';
-// const ANNO_IGNORE = '@SKIP';
-
-export const buildCatalogedSchema = (service: string, serviceType: ServiceType, enabled: boolean, sdl: {
+export const buildCatalogedSchema = (service: string, serviceType: ServiceType, sdl: {
   typeDefs: DocumentNode;
   resolvers: any;
 }[]) => {
@@ -49,153 +31,6 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
   let schemaDesc;
 
   const srvType = (serviceType === ServiceType.Public) ? 'Public' : (serviceType === ServiceType.Private) ? 'Private' : 'Remote';
-
-  // const parseType = (t: TypeNode) => {
-  //   let type = t;
-  //   let isNull = true;
-  //   let isList = false;
-  //   let cnt = 10;
-  //   while (type.kind !== 'NamedType' && cnt > 0) {
-  //     if (type.kind === 'NonNullType') {
-  //       isNull = false;
-  //     } else if (type.kind === 'ListType') {
-  //       isList = true;
-  //     }
-  //     type = type.type;
-  //     cnt --;
-  //   }
-
-  //   let isPrimitive = true;
-  //   if (type.kind === 'NamedType') {
-  //     switch (type.name.value) {
-  //       case 'Int':
-  //       case 'Float':
-  //       case 'String':
-  //       case 'Boolean':
-  //       case 'ID':
-  //         isPrimitive = true;
-  //         break;
-  //       default:
-  //         isPrimitive = false;
-  //         break;
-  //     }
-  //     return { dataType: type.name.value, isPrimitive, isList, isNull };
-  //   } else {
-  //     return {};
-  //   }
-  // };
-
-  // // Find data type of field
-  // const findDataType = (f: FieldDefinitionNode | InputValueDefinitionNode | OperationTypeDefinitionNode) => {
-  //   const { dataType, isPrimitive, isList, isNull } = parseType(f.type);
-  //   if (dataType) {
-  //     if (f.kind === 'OperationTypeDefinition') {
-  //       return { field: { operation: f.operation }, dataType, isPrimitive };
-  //     } else {
-  //       const field = { [f.name.value]: { type: dataType }};
-  //       if ((checkDesc(f) & 1) > 0) field[f.name.value]['description'] = f.description.value;
-  //       if (!isNull)      field[f.name.value]['required'] = true;
-  //       if (isList)       field[f.name.value].type = `${dataType}[]`;
-  //       if (!isPrimitive) field[f.name.value]['ref'] = dataType.toLowerCase();
-  //       return { field, dataType, isPrimitive };
-  //     }
-  //   }
-  //   return {};
-  // };
-
-  // // Check if given object contain description
-  // // return 000
-  // //        ││└─ 0: no description;     1: description found
-  // //        │└── 0: normal types;       1: main types
-  // //        └─── 0: normal description; 1: schema description
-  // const checkDesc = (n: any) => {
-  //   if (!n['description'] || !n['description']['kind'] || n['description']['kind'] !== 'StringValue' || !n['description']['value']) {
-  //     return 0;
-  //   } else if (n['kind'] && n['kind'] === 'SchemaDefinition') {
-  //     if (!schemaDesc) {
-  //       schemaDesc = n['description']['value'];
-  //     }
-  //     return 4;
-  //   } else if (n['description']['value'].toUpperCase().startsWith(ANNO_SCHEMA)) {
-  //     if (!schemaDesc) {
-  //       schemaDesc = n['description']['value'].substring(8);
-  //     }
-  //     return 4;
-  //   } else if (n['description']['value'].toUpperCase().startsWith(ANNO_PRIMRY)) {
-  //     return 3;
-  //   } else {
-  //     return 1;
-  //   }
-  // };
-
-  // const buildObjectType = (d: (
-  //   DirectiveDefinitionNode | EnumTypeDefinitionNode | InputObjectTypeDefinitionNode | InterfaceTypeDefinitionNode |
-  //   ObjectTypeDefinitionNode | ScalarTypeDefinitionNode | SchemaDefinitionNode| UnionTypeDefinitionNode
-  // ), i: boolean) => {
-  //   let included = i; // if 'i' is true, will include regardless of having comments or not
-  //   const found: string[] = [];
-  //   const chkDesc = checkDesc(d);
-  //   const hasDesc = (chkDesc & 1) > 0;
-  //   const isMain = (chkDesc & 2) > 0;
-  //   if (hasDesc) included = true; // Include if the type has comment
-
-  //   const fields = {};
-  //   const types = {};
-  //   if (d.kind !== 'ScalarTypeDefinition' && d.kind !== 'UnionTypeDefinition' && d.kind !== 'SchemaDefinition' && 
-  //       d.kind !== 'EnumTypeDefinition' && d.kind !== 'DirectiveDefinition') { // All definitions with 'fields'
-  //     for (const f of d.fields) {
-  //       if (f.kind === 'FieldDefinition') {
-  //         if ((checkDesc(f) & 1) > 0) included = true; // Also include if a field of the type has comment
-
-  //         // Find base type of field
-  //         const { field, dataType, isPrimitive } = findDataType(f);
-  //         if (dataType) {
-  //           if (!isPrimitive) found.push(dataType); // Remember this type for the subsequent passes
-  //           Object.assign(fields, field);
-  //         }
-  //       }
-  //     }
-  //   } else if (d.kind === 'UnionTypeDefinition') {
-  //     for (const t of d.types) {
-  //       const { dataType, isPrimitive, isNull, isList } = parseType(t);
-  //       const type = { [dataType]: {}};
-  //       if (!isPrimitive) {
-  //         found.push(dataType);
-  //         type[dataType]['ref'] = dataType.toLowerCase();
-  //       }
-  //       if (!isNull) type[dataType]['required'] = true;
-  //       if (isList)  type[dataType]['isList'] = true;
-  //       Object.assign(types, type);
-  //     }
-  //   }
-
-  //   let result;
-  //   if (included) {
-  //     if (Object.keys(fields).length > 0) {
-  //       result = hasDesc ? {
-  //         description: (isMain) ? d.description.value.substring(8) : d.description.value, // type with comment given
-  //         fields
-  //       } : {
-  //         fields // type with no comment given
-  //       };
-  //     } else if (Object.keys(types).length > 0) {
-  //       result = hasDesc ? {
-  //         description: (isMain) ? d.description.value.substring(8) : d.description.value, // union type with comment given
-  //         types
-  //       } : {
-  //         types // union type with no comment given
-  //       };
-  //     } else if (hasDesc) {
-  //       result = { description: (isMain) ? d.description.value.substring(8) : d.description.value };
-  //     } else {
-  //       result = {}; // No comment, and no field, but somehow asked to include in the catalog...
-  //     }
-  //     if (isMain) result['main'] = true;
-  //     return { result, found };
-  //   } else {
-  //     return { result: undefined, found: undefined };
-  //   }
-  // };
 
   const sideEffect = (v: any) => {
     if (!schemaDesc) {
@@ -333,99 +168,150 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
     return catalog;
   };
 
-  const insertSchema = (typeDefs: DocumentNode) => {
-    const defs = JSON.parse(JSON.stringify(typeDefs));
-    if (defs.kind === 'Document') {
-      let scalr = false;
-      let query = false;
-      for (const d of defs.definitions) {
-        if (d.kind === 'ScalarTypeDefinition' && d.name.kind === 'Name' && d.name.value === 'JSON') scalr = true;
-        if (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === roQuery) {
-          query = true;
-          d.fields.push({
-            'kind': 'FieldDefinition',
-            'name': {
-              'kind': 'Name',
-              'value': `_catalog_${service}`
-            },
-            'arguments': [],
-            'type': {
-              'kind': 'NamedType',
-              'name': {
-                'kind': 'Name',
-                'value': 'JSON'
-              }
-            },
-            'directives': []
-          });
-          break;
-        }
-      }
-      if (!query) {
-        defs.definitions.push({
-          'kind': 'ObjectTypeDefinition',
-          'name': {
-            'kind': 'Name',
-            'value': roQuery
-          },
-          'interfaces': [],
-          'directives': [],
-          'fields': [{
-            'kind': 'FieldDefinition',
-            'name': {
-              'kind': 'Name',
-              'value': `_catalog_${service}`
-            },
-            'arguments': [],
-            'type': {
-              'kind': 'NamedType',
-              'name': {
-                'kind': 'Name',
-                'value': 'JSON'
-              }
-            },
-            'directives': []
-          }],
-        });
-      }
-      if (!scalr) {
-        defs.definitions.push({
-          'kind': 'ScalarTypeDefinition',
-          'name': {
-            'kind': 'Name',
-            'value': 'JSON'
-          },
-          'directives': []
-        });
-      }
-      return defs as DocumentNode;
-    } else {
-      return typeDefs;
-    }
+  // const insertSchema = (typeDefs: DocumentNode) => {
+  //   const defs = JSON.parse(JSON.stringify(typeDefs));
+  //   if (defs.kind === 'Document') {
+  //     let scalr = false;
+  //     let query = false;
+  //     for (const d of defs.definitions) {
+  //       if (d.kind === 'ScalarTypeDefinition' && d.name.kind === 'Name' && d.name.value === 'JSON') scalr = true;
+  //       if (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === roQuery) {
+  //         query = true;
+  //         d.fields.push({
+  //           'kind': 'FieldDefinition',
+  //           'name': {
+  //             'kind': 'Name',
+  //             'value': `_catalog_${service}`
+  //           },
+  //           'arguments': [],
+  //           'type': {
+  //             'kind': 'NamedType',
+  //             'name': {
+  //               'kind': 'Name',
+  //               'value': 'JSON'
+  //             }
+  //           },
+  //           'directives': []
+  //         });
+  //         break;
+  //       }
+  //     }
+  //     if (!query) {
+  //       defs.definitions.push({
+  //         'kind': 'ObjectTypeDefinition',
+  //         'name': {
+  //           'kind': 'Name',
+  //           'value': roQuery
+  //         },
+  //         'interfaces': [],
+  //         'directives': [],
+  //         'fields': [{
+  //           'kind': 'FieldDefinition',
+  //           'name': {
+  //             'kind': 'Name',
+  //             'value': `_catalog_${service}`
+  //           },
+  //           'arguments': [],
+  //           'type': {
+  //             'kind': 'NamedType',
+  //             'name': {
+  //               'kind': 'Name',
+  //               'value': 'JSON'
+  //             }
+  //           },
+  //           'directives': []
+  //         }],
+  //       });
+  //     }
+  //     if (!scalr) {
+  //       defs.definitions.push({
+  //         'kind': 'ScalarTypeDefinition',
+  //         'name': {
+  //           'kind': 'Name',
+  //           'value': 'JSON'
+  //         },
+  //         'directives': []
+  //       });
+  //     }
+  //     return defs as DocumentNode;
+  //   } else {
+  //     return typeDefs;
+  //   }
+  // };
+
+  // TODO TEMP!!!!!!!
+  // const cat = buildCatalog(sdl[0].typeDefs);
+  // const sdls: {
+  //   typeDefs: DocumentNode;
+  //   resolvers: any;
+  // }[] = [{
+  //   typeDefs: getAclTypeDefs(service),
+  //   resolvers: getAclResolver(service),
+  // }];
+  // sdls.push({
+  //   typeDefs: getCatalogTypeDefs(service),
+  //   resolvers: getCatalogResolver(service, cat),
+  // });
+  // combinSchema({sdls});
+  // console.log('S1', JSON.stringify(sdls[0].typeDefs, null, ' '));
+  // TODO TEMP!!!!!!!
+  const sdls = [];
+  const csdl = combinSchema({sdls: sdl, roq: roQuery, rom: roMutation, ros: roSubscription}); // Combine supplied schemas first
+  if (csdl) sdls.push(csdl);
+  const cat = buildCatalog(csdl.typeDefs); // get catalog of the combined schema
+  sdls.push({
+    typeDefs: getCatalogTypeDefs(service),
+    resolvers: getCatalogResolver(service, cat),
+  });
+  return combinSchema({sdls, roq: roQuery, rom: roMutation, ros: roSubscription, needJson: true});
+
+  // return buildFederatedSchema(sdl.map(({ typeDefs, resolvers }) => {
+  //   if (enabled) {
+  //     const cat = buildCatalog(typeDefs);
+  //     const { Query: query, ...rest  } = resolvers;
+
+  //     if (cat) {
+  //       const def = insertSchema(typeDefs);
+
+  //       // NOTE: all schemas given in sdl can only have at most 1 Query entry
+  //       const res = {
+  //         Query: {
+  //           [`_catalog_${service}`]: () => cat,
+  //           ...query
+  //         },
+  //         ...rest
+  //       };
+
+  //       return { typeDefs: def, resolvers: res };
+  //     }
+  //   }
+  //   return { typeDefs, resolvers };
+  // }));
+};
+
+export const getCatalogTypeDefs = (service: string) => {
+  return gql`
+  scalar JSON
+  type Query {
+    _catalog_${service}: JSON
+  }`;
+};
+
+export const getCatalogResolver = (
+  service: string,
+  catalog: {
+    service: {
+      name: string;
+      type: string;
+    };
+    count: number;
+  }
+) => {
+  return {
+    Query: {
+      [`_cataget_${service}`]: () => catalog,
+    },
   };
-
-  return buildFederatedSchema(sdl.map(({ typeDefs, resolvers }) => {
-    if (enabled) {
-      const cat = buildCatalog(typeDefs);
-      const { Query: query, ...rest  } = resolvers;
-
-      if (cat) {
-        const def = insertSchema(typeDefs);
-
-        // NOTE: all schemas given in sdl can only have at most 1 Query entry
-        const res = {
-          Query: {
-            [`_catalog_${service}`]: () => cat,
-            ...query
-          },
-          ...rest
-        };
-
-        return { typeDefs: def, resolvers: res };
-      }
-    }
-    return { typeDefs, resolvers };
-  }));
 };
 
 export const getCatalog = async (

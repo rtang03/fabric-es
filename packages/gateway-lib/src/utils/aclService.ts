@@ -45,6 +45,7 @@ export const setAcl = async (
 
     if (!acl || !acl.includes(accessor)) {
       db.get('acl').get(entityId).push(accessor);
+      await db.save();
       return 1; // add 1 accessor
     } else {
       return 0; // already exists
@@ -71,6 +72,7 @@ export const delAcl = async (
       for (let i = 0; i < acl.length; i ++) {
         if (db.get('acl').get(entityId).get(i).value() === accessor) {
           db.get('acl').get(entityId).get(i).delete(true);
+          await db.save();
           return 1; // delete 1 accessor
         }
       }
@@ -85,26 +87,32 @@ export const delAcl = async (
 export const getAclTypeDefs = (service: string) => {
   return gql`
   type Query {
-    get${service}Acl(entityId: String!, accessor: String!): String!
+    _acl_${service}(entityId: String!, accessor: String!): String!
   }
   type Mutation {
-    set${service}Acl(entityId: String!, accessor: String!): Int!
-    del${service}Acl(entityId: String!, accessor: String!): Int!
+    _set_acl_${service}(entityId: String!, accessor: String!): Int!
+    _del_acl_${service}(entityId: String!, accessor: String!): Int!
   }`;
 };
 
 export const getAclResolver = (service: string) => {
   return {
     Query: {
-      [`get${service}Acl`]: (_, { entityId, accessor }, { aclPath }) => {
+      [`_acl_${service}`]: (_, { entityId, accessor }, { aclPath }) => {
         return getAcl(aclPath, entityId, accessor);
       },
     },
     Mutation: {
-      [`set${service}Acl`]: (_, { entityId, accessor }, { aclPath }) => {
+      [`_set_acl_${service}`]: (_, { entityId, accessor }, { is_admin, user_id, aclPath }) => {
+        if (!is_admin) {
+          return new ForbiddenError(UNAUTHORIZED_ACCESS);
+        }
         return setAcl(aclPath, entityId, accessor);
       },
-      [`del${service}Acl`]: (_, { entityId, accessor }, { aclPath }) => {
+      [`_del_acl_${service}`]: (_, { entityId, accessor }, { is_admin, aclPath }) => {
+        if (!is_admin) {
+          return new ForbiddenError(UNAUTHORIZED_ACCESS);
+        }
         return delAcl(aclPath, entityId, accessor);
       },
     },

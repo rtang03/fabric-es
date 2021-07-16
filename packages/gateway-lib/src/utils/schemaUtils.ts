@@ -14,9 +14,9 @@ import {
   TypeNode,
 } from 'graphql';
 
-// const ROOT_OPS_QUERY = 'query';
-// const ROOT_OPS_MUTTN = 'mutation';
-// const ROOT_OPS_SBSCP = 'subscription';
+export const ROOT_OPS_QUERY = 'query';
+export const ROOT_OPS_MUTTN = 'mutation';
+export const ROOT_OPS_SBSCP = 'subscription';
 export const ANNO_SCHEMA = '@SCHEMA ';
 export const ANNO_PRIMRY = '@PRIMARY';
 export const ANNO_IGNORE = '@SKIP';
@@ -30,17 +30,11 @@ export const checkDesc = (n: any, sideEffect?: (v: any) => void) => {
   if (!n['description'] || !n['description']['kind'] || n['description']['kind'] !== 'StringValue' || !n['description']['value']) {
     return 0;
   } else if (n['kind'] && n['kind'] === 'SchemaDefinition') {
-    // if (!schemaDesc) {
-    //   schemaDesc = n['description']['value'];
-    // }
     if (sideEffect) {
       sideEffect(n['description']['value']);
     }
     return 4;
   } else if (n['description']['value'].toUpperCase().startsWith(ANNO_SCHEMA)) {
-    // if (!schemaDesc) {
-    //   schemaDesc = n['description']['value'].substring(8);
-    // }
     if (sideEffect) {
       sideEffect(n['description']['value'].substring(8));
     }
@@ -181,9 +175,174 @@ export const buildObjectType = (
   }
 };
 
-// export const combinSchema = (sdl: {
-//   typeDefs: DocumentNode;
-//   resolvers: any;
-// }[]) => {
+export const combinSchema: (options: {
+  sdls: {
+    typeDefs: DocumentNode;
+    resolvers: any;
+  }[];
+  roq?: string; // name of root operation 'query'
+  rom?: string; // name of root operation 'mutation'
+  ros?: string; // name of root operation 'subscription'
+  needJson?: boolean;
+}) => {
+  typeDefs: DocumentNode;
+  resolvers: any;
+} = ({
+  sdls,
+  roq = 'Query',
+  rom = 'Mutation',
+  ros = 'Subscription',
+  needJson = false,
+}) => {
+  if (sdls.length < 1) return undefined;
 
-// };
+  let hasJson = false;
+  let hasQry = false;
+  let hasMut = false;
+  let hasSub = false;
+
+  // First, handle the first schema
+  if (sdls[0].typeDefs.kind !== 'Document') return undefined;
+  const typeDefs = JSON.parse(JSON.stringify(sdls[0].typeDefs));
+
+  typeDefs.definitions = sdls[0].typeDefs.definitions.filter(
+    d => (d.kind !== 'ObjectTypeDefinition') || (d.name.value !== roq) && (d.name.value !== rom) && (d.name.value !== ros)
+  );
+
+  hasJson = sdls[0].typeDefs.definitions.filter(d => (d.kind === 'ScalarTypeDefinition' && d.name.kind === 'Name' && d.name.value === 'JSON')).length > 0;
+
+  hasQry = sdls[0].typeDefs.definitions.filter(d => (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === roq)).length > 0;
+  const roQuery = hasQry ? 
+    JSON.parse(JSON.stringify(sdls[0].typeDefs.definitions.filter(d => (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === roq))[0])) : {
+      kind: 'ObjectTypeDefinition',
+      name: {
+        kind: 'Name',
+        value: roq,
+      },
+      interfaces: [],
+      directives: [],
+      fields: [],
+    };
+
+  hasMut = sdls[0].typeDefs.definitions.filter(d => (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === rom)).length > 0;
+  const roMutation = hasMut ? 
+    JSON.parse(JSON.stringify(sdls[0].typeDefs.definitions.filter(d => (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === rom))[0])) : {
+      kind: 'ObjectTypeDefinition',
+      name: {
+        kind: 'Name',
+        value: rom,
+      },
+      interfaces: [],
+      directives: [],
+      fields: [],
+    };
+
+  hasSub = sdls[0].typeDefs.definitions.filter(d => (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === ros)).length > 0;
+  const roSubscription = hasSub ? 
+    JSON.parse(JSON.stringify(sdls[0].typeDefs.definitions.filter(d => (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === ros))[0])) : {
+      kind: 'ObjectTypeDefinition',
+      name: {
+        kind: 'Name',
+        value: ros,
+      },
+      interfaces: [],
+      directives: [],
+      fields: [],
+    };
+
+  const { [roq]: qry, [rom]: mut, [ros]: sub, ...rst  } = sdls[0].resolvers;
+  let query = qry ? { ...qry } : undefined;
+  let mutation = mut ? { ...mut } : undefined;
+  let subscription = sub ? { ...sub } : undefined;
+  let rest = rst ? { ...rst } : undefined;
+
+  // Then, handle the rest
+  for (let i = 1; i < sdls.length; i ++) {
+    const defs = sdls[i].typeDefs;
+    if (defs.kind === 'Document') {
+      // console.log(JSON.stringify(defs, null, ' '));
+
+      for (const d of defs.definitions) {
+        if (d.kind === 'ScalarTypeDefinition' && d.name.kind === 'Name' && d.name.value === 'JSON') hasJson = true; // JSON scalar already defined
+        if (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === roq) {
+          // console.log(roq, JSON.stringify(d, null, ' ')); // TODO TEMP!!!
+          hasQry = true;
+          if (d.interfaces.length > 0) roQuery.interfaces.push(...d.interfaces);
+          if (d.directives.length > 0) roQuery.directives.push(...d.directives);
+          if (d.fields.length > 0) roQuery.fields.push(...d.fields); // TODO: check don't add duplicated query
+        } else if (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === rom) {
+          // console.log(rom, JSON.stringify(d, null, ' ')); // TODO TEMP!!!
+          hasMut = true;
+          if (d.interfaces.length > 0) roMutation.interfaces.push(...d.interfaces);
+          if (d.directives.length > 0) roMutation.directives.push(...d.directives);
+          if (d.fields.length > 0) roMutation.fields.push(...d.fields);
+        } else if (d.kind === 'ObjectTypeDefinition' && d.name.kind === 'Name' && d.name.value === ros) {
+          // console.log(ros, JSON.stringify(d, null, ' ')); // TODO TEMP!!!
+          hasSub = true;
+          if (d.interfaces.length > 0) roSubscription.interfaces.push(...d.interfaces);
+          if (d.directives.length > 0) roSubscription.directives.push(...d.directives);
+          if (d.fields.length > 0) roSubscription.fields.push(...d.fields);
+        } else {
+          // console.log('ADD type', d.kind); // TODO TEMP!!!
+          typeDefs.definitions.push(d); // TODO: check don't add duplicated type
+        }
+      }
+    }
+
+    const { [roq]: qry, [rom]: mut, [ros]: sub, ...rst  } = sdls[i].resolvers;
+    if (query && qry) {
+      Object.assign(query, qry);
+    } else if (!query && qry) {
+      query = { ...qry };
+    }
+    if (mutation && mut) {
+      Object.assign(mutation, mut);
+    } else if (!mutation && mut) {
+      mutation = { ...mut };
+    }
+    if (subscription && sub) {
+      Object.assign(subscription, sub);
+    } else if (!subscription && sub) {
+      subscription = { ...sub };
+    }
+    if (rest && rst) {
+      Object.assign(rest, rst);
+    } else if (!rest && rst) {
+      rest = { ...rst };
+    }
+  }
+
+  // console.log('ADD json', !hasJson, needJson); // TODO TEMP!!!
+  if (!hasJson && needJson) {
+    typeDefs.definitions.push({
+      'kind': 'ScalarTypeDefinition',
+      'name': {
+        'kind': 'Name',
+        'value': 'JSON'
+      },
+      'directives': []
+    });
+  }
+
+  const resolvers = { ...rest };
+
+  if (hasQry) {
+    typeDefs.definitions.push(roQuery);
+    resolvers[roq] = query;
+  }
+  if (hasMut) {
+    typeDefs.definitions.push(roMutation);
+    resolvers[rom] = mutation;
+  }
+  if (hasSub) {
+    typeDefs.definitions.push(roSubscription);
+    resolvers[ros] = subscription;
+  }
+
+  // console.log('S2', JSON.stringify(typeDefs, null, ' '));
+  // console.log('R2', JSON.stringify(Object.keys(resolvers)), JSON.stringify(Object.keys(resolvers[roq] || 'q')), JSON.stringify(Object.keys(resolvers[rom] || 'm')), JSON.stringify(Object.keys(resolvers[ros] || 's')));
+  return {
+    typeDefs: typeDefs as DocumentNode,
+    resolvers,
+  };
+};

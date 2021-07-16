@@ -1,5 +1,6 @@
 import { createHash } from 'crypto';
 import util from 'util';
+import { buildFederatedSchema } from '@apollo/federation';
 import {
   createRepository,
   createPrivateRepository,
@@ -25,7 +26,7 @@ import { DataSrc } from '..';
 import { Organization, OrgEvents, orgReducer, orgIndices, User, UserEvents, userReducer, userIndices } from '../common/model';
 import { AddRepository, AddRemoteRepository, FederatedService, ServiceType } from '../types';
 import { buildCatalogedSchema } from './catalog';
-import { composeRedisRepos, getLogger, shutdownApollo, normalizeReq, getAclTypeDefs, getAclResolver } from '.';
+import { composeRedisRepos, getLogger, shutdownApollo, normalizeReq, combinSchema, getAclTypeDefs, getAclResolver } from '.';
 
 /**
  * @about entity microservice
@@ -177,13 +178,19 @@ export const createService: (option: {
         introspection?: boolean;
         catalog?: boolean;
       }) => ApolloServer = (option) => {
-        // if (type === ServiceType.Private) {
-        //   sdl.push({
-        //     typeDefs: getAclTypeDefs(serviceName),
-        //     resolvers: getAclResolver(serviceName),
-        //   });
-        // }
-        const schema = buildCatalogedSchema(serviceName, type, option ? option.catalog : true, sdl);
+        // console.log('S1', JSON.stringify(sdl[0].typeDefs, null, ' '));
+        const sdls = [];
+        let csdl = ((option && option.catalog) || !option) ? buildCatalogedSchema(serviceName, type, sdl) : combinSchema({sdls: sdl});
+        if (csdl) sdls.push(csdl);
+        if (type === ServiceType.Private) {
+          sdls.push({
+            typeDefs: getAclTypeDefs(serviceName),
+            resolvers: getAclResolver(serviceName),
+          });
+          csdl = combinSchema({sdls});
+        }
+        // console.log('S2', JSON.stringify(csdl.typeDefs, null, ' '));
+        const schema = buildFederatedSchema(csdl);
 
         const args = mspId ? { mspId } : undefined;
         const flags = {
@@ -249,6 +256,7 @@ export const createService: (option: {
                     ...req.headers,
                     serviceName,
                     serviceType: type,
+                    aclPath: aclDbPath,
                   }, args);
                 } else if (type === ServiceType.Remote) {
                   return Object.assign(
