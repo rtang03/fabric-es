@@ -1,11 +1,8 @@
-import fs from 'fs';
 import util from 'util';
 import { ApolloError, AuthenticationError, ForbiddenError } from 'apollo-server';
 import { Logger } from 'winston';
 import { UNAUTHORIZED_ACCESS, USER_NOT_FOUND } from '../admin/constants';
 import { getAcl } from './aclService';
-
-const mkdir = util.promisify(fs.mkdir);
 
 export const catchResolverErrors: <T = any>(
   fcn: (root, variables, context) => Promise<T>,
@@ -26,7 +23,7 @@ export const catchResolverErrors: <T = any>(
 
           // check if accessor entitle to access
           try {
-            await getAcl(aclPath, accessor, id);
+            await getAcl(aclPath, id, accessor);
           } catch (err) {
             logger.warn(`${fcnName}, ${err}`);
             return new ApolloError(err);

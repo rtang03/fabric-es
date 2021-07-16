@@ -25,7 +25,7 @@ import { DataSrc } from '..';
 import { Organization, OrgEvents, orgReducer, orgIndices, User, UserEvents, userReducer, userIndices } from '../common/model';
 import { AddRepository, AddRemoteRepository, FederatedService, ServiceType } from '../types';
 import { buildCatalogedSchema } from './catalog';
-import { composeRedisRepos, getLogger, shutdownApollo, normalizeReq } from '.';
+import { composeRedisRepos, getLogger, shutdownApollo, normalizeReq, getAclTypeDefs, getAclResolver } from '.';
 
 /**
  * @about entity microservice
@@ -177,6 +177,12 @@ export const createService: (option: {
         introspection?: boolean;
         catalog?: boolean;
       }) => ApolloServer = (option) => {
+        // if (type === ServiceType.Private) {
+        //   sdl.push({
+        //     typeDefs: getAclTypeDefs(serviceName),
+        //     resolvers: getAclResolver(serviceName),
+        //   });
+        // }
         const schema = buildCatalogedSchema(serviceName, type, option ? option.catalog : true, sdl);
 
         const args = mspId ? { mspId } : undefined;
@@ -185,7 +191,6 @@ export const createService: (option: {
           introspection: option?.introspection,
         };
 
-        // if (repositories.filter((element) => element.entityName === Organization.entityName).length <= 0) {
         redisRepos = composeRedisRepos(client, redisRepos)(Organization, { fields: orgIndices});
         redisRepos = composeRedisRepos(client, redisRepos)(User, { fields: userIndices});
         repositories.push({
@@ -193,7 +198,6 @@ export const createService: (option: {
         }, {
           entityName: User.entityName, repository: getRepository<User, User, UserEvents>(User, userReducer),
         });
-        // }
 
         return new ApolloServer(
           Object.assign(
@@ -326,24 +330,6 @@ export const createService: (option: {
         addRepository(parent, option);
         return { create, addRemoteRepository };
       };
-
-      // const addRedisRepository: <TInput, TItemInRedis, TOutput>(
-      //   entity: EntityType<TInput>,
-      //   option: {
-      //     fields: RedisearchDefinition<TInput>;
-      //     preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
-      //     postSelector?: Selector<TItemInRedis, TOutput>;
-      // }) => AddRedisRepository = (entity, { fields, preSelector, postSelector }) => {
-      //   redisRepos = composeRedisRepos(
-      //     client,
-      //     redisRepos
-      //   )(entity, {
-      //     fields,
-      //     preSelector,
-      //     postSelector,
-      //   });
-      //   return { addRedisRepository, addRepository };
-      // };
 
       return { addRepository, addPrivateRepository, addRemoteRepository };
     },
