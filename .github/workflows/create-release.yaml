@@ -110,7 +110,7 @@ jobs:
         run: |
           git push "https://$CI_USER:$CI_TOKEN@github.com/$GITHUB_REPOSITORY.git" HEAD:master
       - name: Create Release
-        uses: docker://antonyurchenko/git-release:v4.10 
+        uses: docker://antonyurchenko/git-release:v4.1.0 
         #docker://antonyurchenko/git-release:latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
