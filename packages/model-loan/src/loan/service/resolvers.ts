@@ -115,6 +115,30 @@ export const resolvers = {
       },
       { fcnName: 'searchLoanContains', logger, useAuth: false }
     ),
+    searchLoan: catchResolverErrors(
+      async (
+        _, { query, params, cursor, pageSize }: { query: string; params: string; cursor: number; pageSize: number },
+        {
+          dataSources: {
+            loan: { repo },
+          },
+        }: LoanContext
+      ) => {
+        const param = params && JSON.parse(params);
+        const { data, error, status } = await repo.fullTextSearchEntity({
+          entityName: 'loan',
+          query,
+          param,
+          cursor,
+          pagesize: pageSize,
+        });
+
+        if (status !== 'OK') throw new ApolloError(JSON.stringify(error));
+
+        return data;
+      },
+      { fcnName: 'searchLoan', logger, useAuth: false }
+    ),
   },
   Mutation: {
     applyLoan: catchResolverErrors(

@@ -22,8 +22,16 @@ export const typeDefs = gql`
       where: String!
     ): [Loan]
 
-    "Free text search of loans"
+    "Search loans by text"
     searchLoanContains(contains: String!): [Loan]
+
+    "Full text search of loans"
+    searchLoan(
+      query: String!
+      params: String
+      cursor: Int
+      pageSize: Int = 10
+    ): PaginatedLoans
   }
 
   type Mutation {
