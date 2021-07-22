@@ -306,6 +306,7 @@ export const combinSchema: (options: {
     }
   }
 
+  console.log('HEHEHEHEHEHEHEHEHERE!!!', hasJson, needJson);
   if (!hasJson && needJson) {
     typeDefs.definitions.push({
       'kind': 'ScalarTypeDefinition',

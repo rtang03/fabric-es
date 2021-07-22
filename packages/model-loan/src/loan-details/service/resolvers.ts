@@ -17,7 +17,7 @@ export const resolvers = {
         loanDetails.repo
           .getById({ id: loanId, enrollmentId: username })
           .then(({ currentState }) => currentState),
-      { fcnName: 'getLoanDetailsById', logger, useAuth: false }
+      { fcnName: 'getLoanDetailsById', logger, useAuth: true }
     ),
   },
   Mutation: {

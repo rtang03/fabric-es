@@ -176,6 +176,7 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
     typeDefs: getCatalogTypeDefs(service),
     resolvers: getCatalogResolver(service, cat),
   });
+  console.log('HEHEHEHEHEHEHEHEHERE!!!');
   return combinSchema({sdls, roq: roQuery, rom: roMutation, ros: roSubscription, needJson: true});
 };
 

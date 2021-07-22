@@ -12,7 +12,7 @@ import {
   OutputCounter,
   RedisRepository,
 } from '@fabric-es/fabric-cqrs';
-import { enrollAdmin } from '@fabric-es/operator';
+import { enrollAdmin, prepareOrgKeys } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import httpStatus from 'http-status';
@@ -91,6 +91,7 @@ const sleep5 = new Promise((resolve) => setTimeout(() => resolve(true), 5000));
 beforeAll(async () => {
   rimraf.sync(`${walletPath}/${orgAdminId}.id`);
   rimraf.sync(`${walletPath}/${caAdmin}.id`);
+  rimraf.sync(`${keyPath}`);
 
   try {
     redisOptions = {};
@@ -115,6 +116,12 @@ beforeAll(async () => {
       caName,
       mspId,
       wallet,
+    });
+
+    // Step 2a: Generate keys
+    await prepareOrgKeys({
+      keyPath: process.env.ORGKEY,
+      curve: process.env.ORGKEY_CURVE || undefined,
     });
 
     // Step 3. create QueryHandlerService
@@ -281,7 +288,7 @@ afterAll(async () => {
   await adminApolloService.stop();
   await queryHandlerServer.stop();
 
-  return waitForSecond(3);
+  return waitForSecond(30);
 });
 
 describe('Gateway Test - admin service', () => {

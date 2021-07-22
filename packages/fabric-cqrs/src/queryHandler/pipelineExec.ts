@@ -20,8 +20,8 @@ export const pipelineExec: <TResult = any>(
 
   ({
     DELETE: () => _keys.forEach((key) => pipeline.del(key)),
-    HGETALL: () => _keys.forEach((key) => pipeline.hgetall(key)),
-    GET: () => _keys.forEach((key) => pipeline.get(key)),
+    HGETALL: () => _keys.sort().forEach((key) => pipeline.hgetall(key)),
+    GET: () => _keys.sort().forEach((key) => pipeline.get(key)),
   }[action]());
 
   return pipeline.exec();
