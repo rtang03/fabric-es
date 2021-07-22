@@ -288,7 +288,7 @@ afterAll(async () => {
   await adminApolloService.stop();
   await queryHandlerServer.stop();
 
-  return waitForSecond(30);
+  return waitForSecond(3);
 });
 
 describe('Gateway Test - admin service', () => {

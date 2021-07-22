@@ -42,8 +42,10 @@ export const setAcl = async (
     db.default({ acl: {}});
 
     const acl = db.get('acl').get(entityId).value();
-
-    if (!acl || !acl.includes(accessor)) {
+    if (!acl) {
+      await db.get('acl').set(entityId, [accessor]).save();
+      return 1; // add new acl and 1 accessor
+    } else if (!acl.includes(accessor)) {
       db.get('acl').get(entityId).push(accessor);
       await db.save();
       return 1; // add 1 accessor
@@ -103,7 +105,7 @@ export const getAclResolver = (service: string) => {
       },
     },
     Mutation: {
-      [`_set_acl_${service}`]: (_, { entityId, accessor }, { is_admin, user_id, aclPath }) => {
+      [`_set_acl_${service}`]: (_, { entityId, accessor }, { is_admin, aclPath }) => {
         if (!is_admin) {
           return new ForbiddenError(UNAUTHORIZED_ACCESS);
         }

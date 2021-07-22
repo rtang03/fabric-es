@@ -176,13 +176,11 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
     typeDefs: getCatalogTypeDefs(service),
     resolvers: getCatalogResolver(service, cat),
   });
-  console.log('HEHEHEHEHEHEHEHEHERE!!!');
   return combinSchema({sdls, roq: roQuery, rom: roMutation, ros: roSubscription, needJson: true});
 };
 
 export const getCatalogTypeDefs = (service: string) => {
   return gql`
-  scalar JSON
   type Query {
     _catalog_${service}: JSON
   }`;
@@ -200,7 +198,7 @@ export const getCatalogResolver = (
 ) => {
   return {
     Query: {
-      [`_cataget_${service}`]: () => catalog,
+      [`_catalog_${service}`]: () => catalog,
     },
   };
 };
