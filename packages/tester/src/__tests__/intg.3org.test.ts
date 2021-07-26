@@ -1567,8 +1567,7 @@ describe('Multi-Org Test - Private data b4 public', () => {
   });
 });
 
-// TODO : E2E test case on query remote data with access control
-describe.skip('Multi-Org Test - Access Control on Remote Data with Event Store', () => {
+describe('Multi-Org Test - Access Control on Remote Data with Event Store', () => {
   // Org2 create loan and loanDetail
   // loanDetail 5a allow Org1 only to access
   // loanDetail 5b allow Org3 only to access
@@ -2011,7 +2010,6 @@ describe.skip('Multi-Org Test - Access Control on Remote Data with Event Store',
     expect(false).toBeTruthy();
   });
 
-
   // Query testing on Org3
   it('Org3 - query loan 5a success without loanDetails', async () => {
     if (isReady) {
@@ -2110,6 +2108,5 @@ describe.skip('Multi-Org Test - Access Control on Remote Data with Event Store',
     }
     expect(false).toBeTruthy();
   });
-
 });
 

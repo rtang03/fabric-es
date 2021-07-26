@@ -1,5 +1,331 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org1 - query loan 5a success with loanDetails 5a 1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5a",
+  "details": Array [
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 5a for Org1",
+      "contact": Object {
+        "email": "c0001@fake.it",
+        "name": "Contact 5",
+        "phone": "555-0001",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "HKD",
+      "loanType": null,
+      "requestedAmt": 41.9,
+      "requester": Object {
+        "name": "Loan Requester 5a",
+        "registration": "BR1234567XXX1",
+        "type": null,
+      },
+      "startDate": "1574846420901",
+      "tenor": 51,
+    },
+  ],
+  "documents": Array [],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5a",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org1 - query loan 5b success without loanDetails 1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5b",
+  "details": Array [],
+  "documents": Array [],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5b",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org1 - query loan 5c success with loanDetails 5c 1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5c",
+  "details": Array [
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 5c for Org1 and Org3",
+      "contact": Object {
+        "email": "c0001@fake.it",
+        "name": "Contact 5c",
+        "phone": "555-0001",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "USD",
+      "loanType": null,
+      "requestedAmt": 401.7,
+      "requester": Object {
+        "name": "Loan Requester 5c",
+        "registration": "BR1234567XXX1",
+        "type": null,
+      },
+      "startDate": "1574846420901",
+      "tenor": 66,
+    },
+  ],
+  "documents": Array [],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5c",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org1 - query loan 5d success without loanDetails 1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5d",
+  "details": Array [],
+  "documents": Array [],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5d",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org2 - query loan 5a with loanDetails 5a  1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5a",
+  "details": Array [
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 5a for Org1",
+      "contact": Object {
+        "email": "c0001@fake.it",
+        "name": "Contact 5",
+        "phone": "555-0001",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "HKD",
+      "loanType": null,
+      "requestedAmt": 41.9,
+      "requester": Object {
+        "name": "Loan Requester 5a",
+        "registration": "BR1234567XXX1",
+        "type": null,
+      },
+      "startDate": "1574846420901",
+      "tenor": 51,
+    },
+  ],
+  "documents": Array [],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5a",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org2 - query loan 5b with loanDetails 5b  1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5b",
+  "details": Array [
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 5b for Org3",
+      "contact": Object {
+        "email": "c0001@fake.it",
+        "name": "Contact 5b",
+        "phone": "555-0001",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "CNY",
+      "loanType": null,
+      "requestedAmt": 33.8,
+      "requester": Object {
+        "name": "Loan Requester 5b",
+        "registration": "BR1234567XXX1",
+        "type": null,
+      },
+      "startDate": "1574846420901",
+      "tenor": 49,
+    },
+  ],
+  "documents": Array [],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5b",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org2 - query loan 5c with loanDetails 5c  1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5c",
+  "details": Array [
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 5c for Org1 and Org3",
+      "contact": Object {
+        "email": "c0001@fake.it",
+        "name": "Contact 5c",
+        "phone": "555-0001",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "USD",
+      "loanType": null,
+      "requestedAmt": 401.7,
+      "requester": Object {
+        "name": "Loan Requester 5c",
+        "registration": "BR1234567XXX1",
+        "type": null,
+      },
+      "startDate": "1574846420901",
+      "tenor": 66,
+    },
+  ],
+  "documents": Array [],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5c",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org2 - query loan 5d with loanDetails 5d  1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5d",
+  "details": Array [
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 5d for Org2",
+      "contact": Object {
+        "email": "c0001@fake.it",
+        "name": "Contact 5d",
+        "phone": "555-0001",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "HKD",
+      "loanType": null,
+      "requestedAmt": 41.9,
+      "requester": Object {
+        "name": "Loan Requester 5d",
+        "registration": "BR1234567XXX1",
+        "type": null,
+      },
+      "startDate": "1574846420901",
+      "tenor": 51,
+    },
+  ],
+  "documents": Array [],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5d",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org3 - query loan 5a success without loanDetails 1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5a",
+  "details": Array [
+    null,
+  ],
+  "documents": Array [],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5a",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org3 - query loan 5b success with loanDetails 5b 1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5b",
+  "details": Array [
+    null,
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 5b for Org3",
+      "contact": Object {
+        "email": "c0001@fake.it",
+        "name": "Contact 5b",
+        "phone": "555-0001",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "CNY",
+      "loanType": null,
+      "requestedAmt": 33.8,
+      "requester": Object {
+        "name": "Loan Requester 5b",
+        "registration": "BR1234567XXX1",
+        "type": null,
+      },
+      "startDate": "1574846420901",
+      "tenor": 49,
+    },
+  ],
+  "documents": Array [],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5b",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org3 - query loan 5c success with loanDetails 5c 1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5c",
+  "details": Array [
+    null,
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 5c for Org1 and Org3",
+      "contact": Object {
+        "email": "c0001@fake.it",
+        "name": "Contact 5c",
+        "phone": "555-0001",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "USD",
+      "loanType": null,
+      "requestedAmt": 401.7,
+      "requester": Object {
+        "name": "Loan Requester 5c",
+        "registration": "BR1234567XXX1",
+        "type": null,
+      },
+      "startDate": "1574846420901",
+      "tenor": 66,
+    },
+  ],
+  "documents": Array [],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5c",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org3 - query loan 5d success without loanDetails 1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5d",
+  "details": Array [
+    null,
+  ],
+  "documents": Array [],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5d",
+  "status": 0,
+}
+`;
+
 exports[`Multi-Org Test - Private data b4 public query loan 4 1`] = `
 Object {
   "comment": Any<String>,
