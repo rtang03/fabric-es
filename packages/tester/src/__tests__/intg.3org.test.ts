@@ -1603,6 +1603,16 @@ describe.skip('Multi-Org Test - Access Control on Remote Data with Event Store',
   it('Org2 - add loanDetails 5a for Org1', async () => {
     if (isReady) {
       await fetch(GATEWAY2, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken2}` }, body: JSON.stringify({
+          operationName: `_SetAcl_loanDetails`,
+          query: SET_ACL('loanDetails'),
+          variables: { entityId: loanId5a, accessors: ['Org1MSP'] }
+        })
+      }).then(res => res.json())
+        .then(({ data }) => expect(data['_set_acl_loanDetails']).toEqual(1))
+        .catch(_ => expect(false).toBeTruthy());
+
+      await fetch(GATEWAY2, {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` },
         body: JSON.stringify({
@@ -1657,6 +1667,16 @@ describe.skip('Multi-Org Test - Access Control on Remote Data with Event Store',
   it('Org2 - add loanDetails 5b for Org3', async () => {
     if (isReady) {
       await fetch(GATEWAY2, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken2}` }, body: JSON.stringify({
+          operationName: `_SetAcl_loanDetails`,
+          query: SET_ACL('loanDetails'),
+          variables: { entityId: loanId5b, accessors: ['Org3MSP'] }
+        })
+      }).then(res => res.json())
+        .then(({ data }) => expect(data['_set_acl_loanDetails']).toEqual(1))
+        .catch(_ => expect(false).toBeTruthy());
+
+      await fetch(GATEWAY2, {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` },
         body: JSON.stringify({
@@ -1708,6 +1728,16 @@ describe.skip('Multi-Org Test - Access Control on Remote Data with Event Store',
 
   it('Org2 - add loanDetails 5c for Org1 and Org3', async () => {
     if (isReady) {
+      await fetch(GATEWAY2, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken2}` }, body: JSON.stringify({
+          operationName: `_SetAcl_loanDetails`,
+          query: SET_ACL('loanDetails'),
+          variables: { entityId: loanId5c, accessors: ['Org1MSP', 'Org3MSP'] }
+        })
+      }).then(res => res.json())
+        .then(({ data }) => expect(data['_set_acl_loanDetails']).toEqual(2))
+        .catch(_ => expect(false).toBeTruthy());
+
       await fetch(GATEWAY2, {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` },
@@ -1881,7 +1911,6 @@ describe.skip('Multi-Org Test - Access Control on Remote Data with Event Store',
     }
     expect(false).toBeTruthy();
   });
-
 
   // Query testing on Org1
   it('Org1 - query loan 5a success with loanDetails 5a', async () => {
