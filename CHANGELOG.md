@@ -9,8 +9,17 @@
 - Logger timestamp support timezone setting [\#200](https://github.com/rtang03/fabric-es/issues/200)
 - detach the "reconcile" from gw-org bootstrapping step [\#173](https://github.com/rtang03/fabric-es/issues/173)
 
+**Fixed bugs:**
+
+- RedisSearch full text "DESC" order fails to perform [\#215](https://github.com/rtang03/fabric-es/issues/215)
+
+**Closed issues:**
+
+- chore: Add changelog to Release notes [\#211](https://github.com/rtang03/fabric-es/issues/211)
+
 **Merged pull requests:**
 
+- fix: issue215 - incorrect sorting [\#216](https://github.com/rtang03/fabric-es/pull/216) ([rtang03](https://github.com/rtang03))
 - feat: added timeszone support in logger [\#214](https://github.com/rtang03/fabric-es/pull/214) ([hkicl-ming](https://github.com/hkicl-ming))
 
 ## [v0.7.12](https://github.com/rtang03/fabric-es/tree/v0.7.12) (2021-04-21)
@@ -220,7 +229,6 @@
 - Add missing fix to relay test [\#128](https://github.com/rtang03/fabric-es/pull/128) ([pangduckwai](https://github.com/pangduckwai))
 - Update domain model of pbc/etc connectivity [\#127](https://github.com/rtang03/fabric-es/pull/127) ([pangduckwai](https://github.com/pangduckwai))
 - Domain model updates [\#125](https://github.com/rtang03/fabric-es/pull/125) ([pangduckwai](https://github.com/pangduckwai))
-- Fix getLogger issue which open too many files [\#123](https://github.com/rtang03/fabric-es/pull/123) ([pangduckwai](https://github.com/pangduckwai))
 - update image build version to 0.6.5 [\#121](https://github.com/rtang03/fabric-es/pull/121) ([hohowin](https://github.com/hohowin))
 
 ## [v0.6.5](https://github.com/rtang03/fabric-es/tree/v0.6.5) (2020-09-04)
@@ -240,6 +248,7 @@
 
 **Merged pull requests:**
 
+- Fix getLogger issue which open too many files [\#123](https://github.com/rtang03/fabric-es/pull/123) ([pangduckwai](https://github.com/pangduckwai))
 - Add relay services to dev-net [\#120](https://github.com/rtang03/fabric-es/pull/120) ([pangduckwai](https://github.com/pangduckwai))
 - PbOC / eTC connectivity [\#118](https://github.com/rtang03/fabric-es/pull/118) ([pangduckwai](https://github.com/pangduckwai))
 - Successfully released v0.6.4 [\#109](https://github.com/rtang03/fabric-es/pull/109) ([hohowin](https://github.com/hohowin))
@@ -342,7 +351,6 @@
 - Backporting docker image building scripts [\#33](https://github.com/rtang03/fabric-es/pull/33) ([pangduckwai](https://github.com/pangduckwai))
 - Use release versions as dev-net docker image versions [\#32](https://github.com/rtang03/fabric-es/pull/32) ([pangduckwai](https://github.com/pangduckwai))
 - Merge projectionDb search changes from 0.5.16 to master [\#30](https://github.com/rtang03/fabric-es/pull/30) ([pangduckwai](https://github.com/pangduckwai))
-- Update the GCP deployment of gw-org1, gw-org2, and auth-servers for release v0.6.1 [\#29](https://github.com/rtang03/fabric-es/pull/29) ([hohowin](https://github.com/hohowin))
 - V2dn3org [\#25](https://github.com/rtang03/fabric-es/pull/25) ([pangduckwai](https://github.com/pangduckwai))
 
 **Fixed bugs:**
