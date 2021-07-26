@@ -106,15 +106,15 @@ export type Commit = {
   /** organization Id **/
   mspId?: string;
 
-  /** events array **/
+  /** RESERVED FIELD: events array **/
   events?: BaseEvent[];
 
-  /** hash of privatedata's events string **/
+  /** RESERVED FIELD: hash of privatedata's events string **/
   hash?: string;
 
-  /** stringified events **/
+  /** RESERVED FIELD: stringified events **/
   eventsString?: string;
 
-  /** signed request **/
+  /** RESERVED FIELD: signed request **/
   signedRequest?: string;
 };

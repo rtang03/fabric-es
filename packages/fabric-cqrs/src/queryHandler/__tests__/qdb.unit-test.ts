@@ -20,7 +20,7 @@ import type { QueryDatabase, RedisRepository, OutputCommit } from '../types';
 import { commit, commits, faultReducer, newCommit } from './__utils__';
 
 /**
- * running it: .dn-run.0-db-red.sh
+ * ./dn-run.sh 1 auth
  */
 let queryDatabase: QueryDatabase;
 let client: Redisearch;
@@ -38,12 +38,11 @@ beforeAll(async () => {
   await client.connect();
 
   Counter.entityName = ENTITYNAME;
-  counter = createRedisRepository<Counter, CounterInRedis, OutputCounter>(
-    Counter, {
-      client,
-      fields,
-      postSelector,
-      preSelector,
+  counter = createRedisRepository<Counter, CounterInRedis, OutputCounter>(Counter, {
+    client,
+    fields,
+    postSelector,
+    preSelector,
   });
 
   queryDatabase = createQueryDatabase(client, { [ENTITYNAME]: counter });
@@ -224,12 +223,21 @@ describe('Projecion db test', () => {
         expect(errors[0].message).toContain('not loaded nor in schema');
       }));
 
-  it('should fullTextSearchEntity by "de"', async () =>
+  it('should fullTextSearchEntity by "de", sort-by ASC', async () =>
     queryDatabase
       .fullTextSearchEntity({
         query: 'handler',
         entityName: ENTITYNAME,
         param: { sortBy: { sort: 'ASC', field: 'de' } },
+      })
+      .then((result) => expect(result).toMatchSnapshot()));
+
+  it('should fullTextSearchEntity by "de" sort-by DESC', async () =>
+    queryDatabase
+      .fullTextSearchEntity({
+        query: 'handler',
+        entityName: ENTITYNAME,
+        param: { sortBy: { sort: 'DESC', field: 'de' } },
       })
       .then((result) => expect(result).toMatchSnapshot()));
 

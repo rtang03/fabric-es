@@ -1,4 +1,5 @@
 import util from 'util';
+import Debug from 'debug';
 import filter from 'lodash/filter';
 import groupBy from 'lodash/groupBy';
 import isEqual from 'lodash/isEqual';
@@ -27,20 +28,17 @@ import { createNotificationCenter, createRedisRepository } from '.';
 export const createQueryDatabase: (
   client: Redisearch,
   repos: Record<string, RedisRepository<any>>,
-  option?: { debug?: boolean; notifyExpiryBySec?: number }
-) => QueryDatabase = (
-  client,
-  repos,
-  { debug, notifyExpiryBySec } = { debug: false, notifyExpiryBySec: 86400 }
-) => {
+  option?: { notifyExpiryBySec?: number }
+) => QueryDatabase = (client, repos, { notifyExpiryBySec } = { notifyExpiryBySec: 86400 }) => {
+  const debug = Debug('queryHandler:createQueryBase');
+
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js', target: 'console' });
-  const commitRepo = createRedisRepository<Commit, CommitInRedis, OutputCommit>(
-    'commit', {
-      client,
-      kind: 'commit',
-      fields: commitSearchDefinition,
-      preSelector,
-      postSelector,
+  const commitRepo = createRedisRepository<Commit, CommitInRedis, OutputCommit>('commit', {
+    client,
+    kind: 'commit',
+    fields: commitSearchDefinition,
+    preSelector,
+    postSelector,
   });
 
   const notificationCenter = createNotificationCenter(client);
@@ -152,7 +150,10 @@ export const createQueryDatabase: (
       if (!query || !entityName) throw new Error(INVALID_ARG);
 
       const repo = allRepos[entityName];
-      if (!repo) throw new Error(`fullTextSearchEntity: ${entityName} ${REPO_NOT_FOUND} -- ${Object.keys(allRepos)}`);
+      if (!repo)
+        throw new Error(
+          `fullTextSearchEntity: ${entityName} ${REPO_NOT_FOUND} -- ${Object.keys(allRepos)}`
+        );
 
       return doSearch<TEntity>({ repo, countTotalOnly, kind: 'entity', query, param });
     },
@@ -260,7 +261,7 @@ export const createQueryDatabase: (
       */
       const { state, reduced } = computeEntity(history, reducer);
 
-      debug && console.debug(util.format('entity being merged, %j', state));
+      debug('entity being merged, %O', state);
 
       // step 5: compute events history, returning comma separator
       if (reduced && !state?.id) {
@@ -299,7 +300,7 @@ export const createQueryDatabase: (
         throw e;
       }
 
-      debug && console.debug(util.format('data returns: %j', data));
+      debug('data returns: %O', data);
 
       return { status: 'OK', message: `${entityKeyInRedis} merged successfully`, data };
     },
@@ -330,7 +331,7 @@ export const createQueryDatabase: (
         })
         .filter(({ state }) => !!state); // ensure no null; if error happens when reducing
 
-      debug && console.debug(util.format('errors found, %j', errors));
+      debug('errors found, %O', errors);
 
       // add entity. Notice that the original orginal commit is not saved.
       const data = [];
@@ -344,7 +345,7 @@ export const createQueryDatabase: (
         }
       }
 
-      debug && console.debug(util.format('data returns: %j', data));
+      debug('data returns: %O', data);
 
       return {
         status: errors.length === 0 ? 'OK' : 'ERROR',

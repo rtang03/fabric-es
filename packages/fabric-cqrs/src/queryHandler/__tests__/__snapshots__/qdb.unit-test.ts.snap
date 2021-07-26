@@ -1,21 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Projecion db test should fullTextSearchEntity by "de" 1`] = `
+exports[`Projecion db test should fullTextSearchEntity by "de" sort-by DESC 1`] = `
 Object {
   "data": Array [
     Object {
-      "createdAt": "1590738792",
+      "createdAt": "1590740003",
       "creator": "org1-admin",
-      "description": "query handler #2 proj",
+      "description": "query handler #7 proj",
       "eventInvolved": Array [
         "Increment",
         "Increment",
       ],
-      "id": "qh_proj_test_001",
-      "modifiedAt": "1590739000",
+      "id": "qh_proj_test_003",
+      "modifiedAt": "1590740004",
       "organization": Array [
         "Org1MSP",
       ],
+      "privateData": undefined,
       "tags": Array [
         "projection",
       ],
@@ -35,6 +36,74 @@ Object {
       "organization": Array [
         "Org1MSP",
       ],
+      "privateData": undefined,
+      "tags": Array [
+        "projection",
+      ],
+      "value": 3,
+    },
+    Object {
+      "createdAt": "1590738792",
+      "creator": "org1-admin",
+      "description": "query handler #2 proj",
+      "eventInvolved": Array [
+        "Increment",
+        "Increment",
+      ],
+      "id": "qh_proj_test_001",
+      "modifiedAt": "1590739000",
+      "organization": Array [
+        "Org1MSP",
+      ],
+      "privateData": undefined,
+      "tags": Array [
+        "projection",
+      ],
+      "value": 2,
+    },
+  ],
+  "message": "3 record(s) returned",
+  "status": "OK",
+}
+`;
+
+exports[`Projecion db test should fullTextSearchEntity by "de", sort-by ASC 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "createdAt": "1590738792",
+      "creator": "org1-admin",
+      "description": "query handler #2 proj",
+      "eventInvolved": Array [
+        "Increment",
+        "Increment",
+      ],
+      "id": "qh_proj_test_001",
+      "modifiedAt": "1590739000",
+      "organization": Array [
+        "Org1MSP",
+      ],
+      "privateData": undefined,
+      "tags": Array [
+        "projection",
+      ],
+      "value": 2,
+    },
+    Object {
+      "createdAt": "1590740000",
+      "creator": "org1-admin",
+      "description": "query handler #5 proj",
+      "eventInvolved": Array [
+        "Increment",
+        "Increment",
+        "Increment",
+      ],
+      "id": "qh_proj_test_002",
+      "modifiedAt": "1590740002",
+      "organization": Array [
+        "Org1MSP",
+      ],
+      "privateData": undefined,
       "tags": Array [
         "projection",
       ],
@@ -53,6 +122,7 @@ Object {
       "organization": Array [
         "Org1MSP",
       ],
+      "privateData": undefined,
       "tags": Array [
         "projection",
       ],

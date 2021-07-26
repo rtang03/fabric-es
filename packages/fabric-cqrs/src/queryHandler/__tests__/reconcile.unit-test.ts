@@ -42,7 +42,7 @@ let counterRedisRepo: RedisRepository<OutputCounter>;
 let commitRepo: RedisRepository<OutputCommit>;
 
 /**
- * ./dn-run.1-db-red-auth.sh
+ * ./dn-run.sh 1 auth
  */
 beforeAll(async () => {
   rimraf.sync(`${walletPath}/${orgAdminId}.id`);
