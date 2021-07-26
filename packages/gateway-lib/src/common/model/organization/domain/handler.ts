@@ -12,7 +12,7 @@ export const orgCommandHandler: (option: {
   enrollmentId: string;
   orgRepo: OrgRepo;
 }) => OrgCommandHandler = ({ enrollmentId, orgRepo }) => ({
-  StartOrg: async ({ mspId, payload: { name, url, timestamp }}) => {
+  StartOrg: async ({ mspId, payload: { name, url, pubkey, timestamp }}) => {
     const { currentState, save } = await orgRepo.getById({ enrollmentId, id: mspId });
     let events: OrgEvents[];
 
@@ -20,6 +20,7 @@ export const orgCommandHandler: (option: {
       events = [{ type: 'OrgStarted', payload: { mspId, timestamp }}];
       if (name && name !== currentState.name) events.push({ type: 'OrgNameDefined', payload: { mspId, name, timestamp }});
       if (url && url !== currentState.url) events.push({ type: 'OrgUrlDefined', payload: { mspId, url, timestamp }});
+      if (pubkey && pubkey !== currentState.pubkey) events.push({ type: 'OrgPubkeyLoaded', payload: { mspId, pubkey, timestamp } });
       return save({ events }).then(({ data }) => data);
     } else {
       if (!name) throw Errors.requiredDataMissing();
@@ -28,6 +29,7 @@ export const orgCommandHandler: (option: {
         { type: 'OrgNameDefined', payload: { mspId, name, timestamp }},
       ];
       if (url) events.push({ type: 'OrgUrlDefined', payload: { mspId, url, timestamp }});
+      if (pubkey) events.push({ type: 'OrgPubkeyLoaded', payload: { mspId, pubkey, timestamp } });
       return orgRepo
         .create({ enrollmentId, id: mspId })
         .save({ events })
@@ -46,6 +48,13 @@ export const orgCommandHandler: (option: {
     orgRepo.getById({ enrollmentId, id: mspId }).then(({ currentState, save }) => {
       if (!currentState) throw Errors.entityMissing();
       return save({ events: [{ type: 'OrgUrlDefined', payload: { mspId, url, timestamp }}]}).then(
+        ({ data }) => data
+      );
+    }),
+  LoadPubkey: async ({ mspId, payload: { pubkey, timestamp }}) =>
+    orgRepo.getById({ enrollmentId, id: mspId }).then(({ currentState, save }) => {
+      if (!currentState) throw Errors.entityMissing();
+      return save({ events: [{ type: 'OrgPubkeyLoaded', payload: { mspId, pubkey, timestamp }}]}).then(
         ({ data }) => data
       );
     }),

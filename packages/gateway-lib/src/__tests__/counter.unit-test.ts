@@ -12,7 +12,7 @@ import {
   OutputCounter,
   RedisRepository,
 } from '@fabric-es/fabric-cqrs';
-import { enrollAdmin } from '@fabric-es/operator';
+import { enrollAdmin, prepareOrgKeys } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import httpStatus from 'http-status';
@@ -57,6 +57,7 @@ const orgAdminId = process.env.ORG_ADMIN_ID;
 const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
 const proxyServerUri = process.env.PROXY_SERVER;
 const walletPath = process.env.WALLET;
+const keyPath = process.env.ORGKEY;
 const random = Math.floor(Math.random() * 10000);
 const username = `gw_test_username_${random}`;
 const password = `password`;
@@ -90,6 +91,7 @@ const sleep5 = new Promise((resolve) => setTimeout(() => resolve(true), 5000));
 beforeAll(async () => {
   rimraf.sync(`${walletPath}/${orgAdminId}.id`);
   rimraf.sync(`${walletPath}/${caAdmin}.id`);
+  rimraf.sync(`${keyPath}`);
 
   try {
     redisOptions = {};
@@ -114,6 +116,12 @@ beforeAll(async () => {
       caName,
       mspId,
       wallet,
+    });
+
+    // Step 2a: Generate keys
+    await prepareOrgKeys({
+      keyPath: process.env.ORGKEY,
+      curve: process.env.ORGKEY_CURVE || undefined,
     });
 
     // Step 3. create QueryHandlerService
@@ -207,6 +215,7 @@ beforeAll(async () => {
       introspection: false,
       playground: false,
       walletPath,
+      keyPath,
       orgName: 'org1',
       orgUrl: `http://localhost:${MODEL_SERVICE_PORT}/graphql`,
       redisOptions,

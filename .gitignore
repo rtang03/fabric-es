@@ -69,6 +69,8 @@ dist/
 channel-config/
 client-certs/
 wallet/
+orgkey/
+acl/
 
 .npmrc
 

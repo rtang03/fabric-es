@@ -4,3 +4,4 @@ export * from './isCommitRecord';
 export * from './promiseToReadFile';
 export * from './getFabricCaService';
 export * from './getGateway';
+export * from './orgKeys';

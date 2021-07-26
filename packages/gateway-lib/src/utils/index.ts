@@ -10,3 +10,5 @@ export * from './catchResolverErrors';
 export * from './createRemoteData';
 export * from './buildRedisOptions';
 export * from './createGatewayWithAuth0';
+export * from './aclService';
+export * from './schemaUtils';

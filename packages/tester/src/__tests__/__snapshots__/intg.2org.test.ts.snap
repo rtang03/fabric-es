@@ -1,5 +1,165 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store: loanDetails Org1 - query loan 5a success with loanDetails 5a 1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5a",
+  "details": Array [
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 5a for Org1",
+      "contact": Object {
+        "email": "c0001@fake.it",
+        "name": "Contact 5",
+        "phone": "555-0001",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "HKD",
+      "loanType": null,
+      "requestedAmt": 41.9,
+      "requester": Object {
+        "name": "Loan Requester 5a",
+        "registration": "BR1234567XXX1",
+        "type": null,
+      },
+      "startDate": "1574846420901",
+      "tenor": 51,
+    },
+  ],
+  "documents": Array [
+    Object {
+      "contents": Array [
+        Object {
+          "content": Object {
+            "body": "{ \\"message\\": \\"Org1 docContents 1\\" }",
+          },
+        },
+      ],
+      "reference": "REF-ORG1-DOC-1",
+      "status": 0,
+      "title": "Org1 Document 1",
+    },
+  ],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5a",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store: loanDetails Org1 - query loan 5d success without loanDetails 1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5d",
+  "details": Array [],
+  "documents": Array [
+    Object {
+      "contents": Array [
+        Object {
+          "content": Object {
+            "body": "{ \\"message\\": \\"Org1 docContents 1\\" }",
+          },
+        },
+      ],
+      "reference": "REF-ORG1-DOC-1",
+      "status": 0,
+      "title": "Org1 Document 1",
+    },
+  ],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5d",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store: loanDetails Org2 - query loan 5a with loanDetails 5a  1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5a",
+  "details": Array [
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 5a for Org1",
+      "contact": Object {
+        "email": "c0001@fake.it",
+        "name": "Contact 5",
+        "phone": "555-0001",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "HKD",
+      "loanType": null,
+      "requestedAmt": 41.9,
+      "requester": Object {
+        "name": "Loan Requester 5a",
+        "registration": "BR1234567XXX1",
+        "type": null,
+      },
+      "startDate": "1574846420901",
+      "tenor": 51,
+    },
+  ],
+  "documents": Array [
+    Object {
+      "contents": Array [
+        Object {
+          "content": Object {
+            "body": "{ \\"message\\": \\"Org1 docContents 1\\" }",
+          },
+        },
+      ],
+      "reference": "REF-ORG1-DOC-1",
+      "status": 0,
+      "title": "Org1 Document 1",
+    },
+  ],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5a",
+  "status": 0,
+}
+`;
+
+exports[`Multi-Org Test - Access Control on Remote Data with Event Store: loanDetails Org2 - query loan 5d with loanDetails 5d  1`] = `
+Object {
+  "comment": Any<String>,
+  "description": "Org2 Loan 5d",
+  "details": Array [
+    Object {
+      "approvedAmt": null,
+      "comment": "Org2 LoanDetails 5d for Org2",
+      "contact": Object {
+        "email": "c0001@fake.it",
+        "name": "Contact 5d",
+        "phone": "555-0001",
+        "salutation": null,
+        "title": null,
+      },
+      "currency": "HKD",
+      "loanType": null,
+      "requestedAmt": 41.9,
+      "requester": Object {
+        "name": "Loan Requester 5d",
+        "registration": "BR1234567XXX1",
+        "type": null,
+      },
+      "startDate": "1574846420901",
+      "tenor": 51,
+    },
+  ],
+  "documents": Array [
+    Object {
+      "contents": Array [],
+      "reference": "REF-ORG1-DOC-1",
+      "status": 0,
+      "title": "Org1 Document 1",
+    },
+  ],
+  "ownerId": "USER_ORG2",
+  "reference": "REF-ORG2-LOAN-5d",
+  "status": 0,
+}
+`;
+
 exports[`Multi-Org Test - Query Loans query document 1a 1`] = `
 Object {
   "documentId": Any<String>,

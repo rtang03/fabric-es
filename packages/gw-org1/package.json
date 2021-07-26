@@ -19,6 +19,7 @@
     "start-gateway": "node ./dist/app.js",
     "enrollAdmin": "node ./dist/enrollAdmin.js",
     "enrollCaAdmin": "node ./dist/enrollCaAdmin.js",
+    "prepareKeyPair": "node ./dist/prepareKeyPair.js",
     "gen-resolvers-type": "graphql-codegen --config codegen.yml",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
     "test:intg": "yarn build && ./node_modules/.bin/jest intg.test"

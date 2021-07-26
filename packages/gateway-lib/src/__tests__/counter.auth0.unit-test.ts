@@ -50,6 +50,7 @@ const mspId = process.env.MSPID;
 const orgAdminId = process.env.ORG_ADMIN_ID;
 const orgAdminSecret = process.env.ORG_ADMIN_SECRET;
 const walletPath = process.env.WALLET;
+const keyPath = process.env.ORGKEY;
 const random = Math.floor(Math.random() * 10000);
 const counterId = `counter_${random}`;
 // If requiring to change entityName, need to update the Context, and resolvers as well.
@@ -193,6 +194,7 @@ beforeAll(async () => {
       introspection: false,
       playground: false,
       walletPath,
+      keyPath,
       orgName: 'org1',
       orgUrl: `http://localhost:${MODEL_SERVICE_PORT}/graphql`,
       redisOptions,

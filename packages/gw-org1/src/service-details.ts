@@ -30,6 +30,7 @@ void (async () =>
       (process.env.REDIS_PORT || 6379) as number,
       logger
     ),
+    keyPath: process.env.ORGKEY,
   }).then(({ config, shutdown }) => {
     const app = config([{
       typeDefs: loanDetailsRemoteTypeDefs,

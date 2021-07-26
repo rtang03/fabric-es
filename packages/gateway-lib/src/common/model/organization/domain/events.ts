@@ -1,4 +1,4 @@
-import { BaseEvent } from '@fabric-es/fabric-cqrs';
+import { BaseEntity, BaseEvent } from '@fabric-es/fabric-cqrs';
 
 export interface OrgStarted extends BaseEvent {
   readonly type: 'OrgStarted';
@@ -35,6 +35,15 @@ export interface OrgUrlDefined extends BaseEvent {
   };
 }
 
+export interface OrgPubkeyLoaded extends BaseEntity {
+  readonly type: 'OrgPubkeyLoaded';
+  payload: {
+    mspId: string;
+    pubkey: string;
+    timestamp: number;
+  };
+}
+
 export interface OrgDowned extends BaseEvent {
   readonly type: 'OrgDowned';
   payload: {
@@ -46,4 +55,4 @@ export interface OrgDowned extends BaseEvent {
   };
 }
 
-export type OrgEvents = OrgStarted | OrgNameDefined | OrgUrlDefined | OrgDowned;
+export type OrgEvents = OrgStarted | OrgNameDefined | OrgUrlDefined | OrgPubkeyLoaded | OrgDowned;

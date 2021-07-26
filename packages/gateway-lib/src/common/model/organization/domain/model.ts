@@ -19,6 +19,7 @@ export class Organization implements BaseEntity {
   mspId: string;
   name: string;
   url?: string;
+  pubkey?: string;
   status: OrgStatus;
   timestamp: number;
   // _ts: number;

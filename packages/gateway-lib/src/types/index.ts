@@ -9,3 +9,4 @@ export * from './dataSrc';
 export * from './commandHandler';
 export * from './federatedService';
 export * from './auth0UserInfo';
+export * from './serviceContext';

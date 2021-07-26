@@ -5,3 +5,4 @@ export const MISSING_CONNECTION_PROFILE = 'missing path to connection profile';
 export const MISSING_CA_NAME = 'missing ca name';
 export const MISSING_CHANNELNAME = 'missing channelName';
 export const MISSING_WALLET = 'missing wallet';
+export const MISSING_ORGKEY = 'missing org-key';

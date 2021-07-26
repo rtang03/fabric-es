@@ -2,8 +2,11 @@ import http from 'http';
 import util from 'util';
 import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import terminus from '@godaddy/terminus';
+import { execute, makePromise } from 'apollo-link';
+import { HttpLink } from 'apollo-link-http';
 import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
+import gql from 'graphql-tag';
 import httpStatus from 'http-status';
 import pick from 'lodash/pick';
 import fetch from 'node-fetch';
@@ -18,6 +21,9 @@ class AuthenticatedDataSource extends RemoteGraphQLDataSource {
     if (context?.username) request.http.headers.set('username', context.username);
     if (context?.user_id) request.http.headers.set('user_id', context.user_id);
     if (context?.is_admin) request.http.headers.set('is_admin', context.is_admin);
+    if (context?.signature) request.http.headers.set('signature', context.signature);
+    if (context?.accessor) request.http.headers.set('accessor', context.accessor);
+    if (context?.id) request.http.headers.set('id', context.id);
   }
 }
 
@@ -32,6 +38,11 @@ const getProcessDescriptions = (logger: winston.Logger) =>
       })),
     }))
     .catch((err) => ({ proc: [], error: util.format('unknown err: %j', err) }));
+
+const PUBKEY = gql`
+query Pubkey {
+  pubkey
+}`;
 
 /**
  * @about apollo federated gateway
@@ -70,12 +81,12 @@ export const createGateway: (option: {
   authenticationCheck: string;
   useCors?: boolean;
   corsOrigin?: string;
-  debug?: boolean;
   playground?: boolean;
   introspection?: boolean;
   gatewayName?: string;
   adminHost?: string;
   adminPort?: number;
+  debug?: boolean;
 }) => Promise<http.Server> = async ({
   serviceList = [],
   authenticationCheck,
@@ -110,10 +121,13 @@ export const createGateway: (option: {
     subscriptions: false,
     context: async ({ req: { headers } }) => {
       const token = headers?.authorization?.split(' ')[1] || null;
+      const signature = headers?.signature;
+      const accessor = headers?.accessor;
+      const id = headers?.id;
 
       logger.debug(`token: ${token}`);
 
-      if (!token || (token === 'undefined') || (token === 'null')) return {};
+      if (!token || (token === 'undefined') || (token === 'null')) return { signature, accessor, id };
 
       try {
         const response = await fetch(authenticationCheck, {
@@ -124,23 +138,25 @@ export const createGateway: (option: {
         logger.debug(`authenticaionCheck response: ${response}`);
 
         if (response.status !== httpStatus.OK) {
-          logger.info(
-            `authentication check failed, status: ${response.status}`
-          );
-          return {};
+          logger.debug(`authentication check failed, status: ${response.status}`);
+          return { signature, accessor, id };
         }
-
         const result: unknown = await response.json();
 
         if (isAuthResponse(result)) {
-          return result;
+          return {
+            ...result,
+            signature,
+            accessor,
+            id,
+          };
         } else {
           logger.warn(`fail to parse authenticationCheck result`);
-          return {};
+          return { signature, accessor, id };
         }
       } catch (e) {
         logger.error(util.format('authenticationCheck error: %j', e));
-        return {};
+        return { signature, accessor, id };
       }
     },
   });
@@ -152,6 +168,22 @@ export const createGateway: (option: {
   app.get('/ping', (_, res) => res.status(200).send({ data: 'pong' }));
 
   app.get('/catalog', await getCatalog(gatewayName, serviceList.filter(s => s.name !== 'admin')));
+
+  const { data } = await makePromise(
+    execute(
+      new HttpLink({
+        uri: `http://${adminHost}:${adminPort}/graphql`, fetch: fetch as any,
+      }), {
+        query: PUBKEY, operationName: 'Pubkey',
+      }
+    )
+  );
+  if (data && data.pubkey) {
+    app.get('/.well-known/public.key', (_, res) => {
+      res.setHeader('content-type', 'text/plain; charset=UTF-8');
+      res.send(data.pubkey);
+    });
+  }
 
   // Note: this cors implementation is redundant. Cors should be check at ui-account's express backend
   // However, if there is alternative implementation, other than custom backend of SSR; there may require

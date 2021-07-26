@@ -13,16 +13,15 @@ export const resolvers = {
         _,
         { documentId },
         {
-          dataSources: {
-            docContents: { repo },
-          },
+          dataSources: { docContents: { repo }},
           username,
         }: DocContentsContext
-      ) =>
-        repo
+      ) => {
+        return repo
           .getById({ id: documentId, enrollmentId: username })
-          .then(({ currentState }) => currentState),
-      { fcnName: 'getDocContentsById', logger, useAuth: false }
+          .then(({ currentState }) => currentState);
+      },
+      { fcnName: 'getDocContentsById', logger, useAuth: true }
     ),
   },
   Mutation: {
@@ -87,11 +86,10 @@ export const resolvers = {
   },
   Document: {
     contents: catchResolverErrors(
-      async ({ documentId }, { token }, context) =>
+      async ({ documentId }, _, context) =>
         queryRemoteData(
           DocContents, {
             id: documentId,
-            token,
             context,
             query: GET_CONTENTS_BY_ID,
           }),

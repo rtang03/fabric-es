@@ -17,7 +17,7 @@ export const resolvers = {
         loanDetails.repo
           .getById({ id: loanId, enrollmentId: username })
           .then(({ currentState }) => currentState),
-      { fcnName: 'getLoanDetailsById', logger, useAuth: false }
+      { fcnName: 'getLoanDetailsById', logger, useAuth: true }
     ),
   },
   Mutation: {
@@ -201,11 +201,10 @@ export const resolvers = {
   },
   Loan: {
     details: catchResolverErrors(
-      async ({ loanId }, { token }, context) =>
+      async ({ loanId }, _, context) =>
         queryRemoteData(
           LoanDetails, {
             id: loanId,
-            token,
             context,
             query: GET_DETAILS_BY_ID,
           }),

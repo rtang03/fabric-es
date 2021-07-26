@@ -1,6 +1,8 @@
+import { createHash } from 'crypto';
 import util from 'util';
 import { BaseEntity, EntityType, TRACK_FIELD, TRACK_FIELD_S } from '@fabric-es/fabric-cqrs';
-import { execute, makePromise, DocumentNode } from 'apollo-link';
+import { readKey } from '@fabric-es/operator';
+import { execute, makePromise, DocumentNode, GraphQLRequest } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import nodeFetch from 'node-fetch';
 import { getLogger } from '..';
@@ -9,13 +11,92 @@ import { ServiceType } from '../types';
 
 const fetch = nodeFetch as any;
 
-export const createRemoteData = ({ uri, query, variables, operationName, token }) =>
-  makePromise(
+export const getQueryNames = (query: DocumentNode): {
+  queryName: string | undefined;
+  operationName: string | undefined;
+} => {
+  const result: {
+    queryName: string | undefined;
+    operationName: string | undefined;
+  } = {
+    queryName: undefined,
+    operationName: undefined,
+  };
+
+  if (query.kind === 'Document') {
+    if (query.definitions.length < 1) {
+      throw new Error('Query definition missing');
+    } else if (query.definitions.length > 1) {
+      throw new Error('Multiple queries not supported');
+    }
+
+    if (query.definitions[0].kind === 'OperationDefinition' && query.definitions[0].operation === 'query') {
+      result.operationName = query.definitions[0].name?.value;
+
+      if (query.definitions[0].selectionSet.selections.length < 1) {
+        throw new Error('Query selection set missing');
+      } else if (query.definitions[0].selectionSet.selections.length > 1) {
+        throw new Error('Multiple selection set not supported');
+      }
+
+      if (query.definitions[0].selectionSet.selections[0].kind === 'Field') {
+        result.queryName = query.definitions[0].selectionSet.selections[0].name.value;
+      }
+    }
+  }
+
+  return result;
+};
+
+export const normalizeReq = (
+  query: string, // DocumentNode,
+  variables: Record<string, any>,
+) =>
+  JSON.stringify({
+    query: query.replace(/\s*[\n\r]+\s*/g, ' ').replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, ''),
+    param: JSON.stringify(
+        Object.entries(variables)
+          .sort((a, b) => a[0].localeCompare(b[0]))
+          .map(d => ({ [d[0]]: d[1] }))
+      )
+      .replace(/\s*[\n\r]+\s*/g, ' ')
+      .replace(/\s+/g, ' ')
+      .replace(/^\s+|\s+$/g, ''),
+  });
+
+export const createRemoteData = async ({
+  accessor, keyPath, uri, query, id, context
+}: {
+  accessor: string;
+  keyPath: string;
+  uri: string;
+  query: DocumentNode;
+  id: string;
+  context: any;
+}) => {
+  const { queryName, operationName } = getQueryNames(query);
+  const variables = {
+    [query.definitions[0]['variableDefinitions'].map(({ variable }) => variable.name.value)[0]]: id
+  };
+
+  let signature;
+  if (context.ec) {
+    const hash = createHash('sha256').update(normalizeReq(queryName, variables)).digest('hex');
+    let prvkey = await readKey(keyPath, true);
+    signature = context.ec.keyFromPrivate(prvkey, 'hex').sign(hash).toDER('hex');
+    prvkey = '0000000000000000000000000000000000000000000000000000000000000000'; // cleanup the private key asap
+  }
+
+  return await makePromise(
     execute(
       new HttpLink({
         uri,
         fetch,
-        headers: { authorization: `Bearer ${token}` },
+        headers: {
+          signature,
+          accessor,
+          id,
+        },
       }),
       {
         query,
@@ -24,17 +105,17 @@ export const createRemoteData = ({ uri, query, variables, operationName, token }
       }
     )
   );
+};
 
 export const queryRemoteData: <TEntity extends BaseEntity>(
   entity: EntityType<TEntity>,
   option: {
     id: string;
-    token?: string;
     context: any;
     query: DocumentNode;
 }) => Promise<TEntity[]> = async <TEntity>(
   entity, {
-    id, token, context, query,
+    id, context, query,
 }) => {
   if (query.kind !== 'Document' || query.definitions[0]['operation'] !== 'query') {
     throw new Error('Invalid remote query');
@@ -65,10 +146,6 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
     if (!context.dataSources[parentName]) throw new Error(`repository '${parentName}' missing`);
     break;
   }
-
-  const args = {
-    [query.definitions[0]['variableDefinitions'].map(({ variable }) => variable.name.value)[0]]: id
-  };
 
   const logger = getLogger('[gw-lib] trackingData.js');
   const result: TEntity[] = [];
@@ -126,11 +203,12 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
       }
 
       await createRemoteData({
+        accessor: context.mspId,
+        keyPath: context.keyPath,
         uri: oresult.data?.items[0].url,
         query,
-        operationName: query.definitions[0]['name'].value,
-        variables: args,
-        token
+        id,
+        context,
       }).then(({ data, errors }) => {
         if (errors) {
           logger.error(util.format('reemote data, %j', errors));

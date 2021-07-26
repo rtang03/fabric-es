@@ -30,7 +30,7 @@ export default (
           .catch((error) => {
             logger.error(
               util.format(
-                '[store/query/queryByEntityName.js] fail to %s: %j',
+                '[store/query/queryByEntityId.js] fail to %s: %j',
                 QUERY_BY_ENTITY_ID,
                 error
               )

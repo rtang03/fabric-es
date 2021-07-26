@@ -1,11 +1,18 @@
 import { Repository } from '@fabric-es/fabric-cqrs';
+import { readKey } from '@fabric-es/operator';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import type { RedisOptions } from 'ioredis';
 import { getLogger } from '..';
 import {
-  Organization, OrgEvents, orgReducer, orgIndices, orgCommandHandler,
-  User, userReducer, userIndices,
+  Organization,
+  OrgEvents,
+  orgReducer,
+  orgIndices,
+  orgCommandHandler,
+  User,
+  userReducer,
+  userIndices,
 } from '../common/model';
 import { createService } from '../utils';
 import {
@@ -13,6 +20,7 @@ import {
   MISSING_CONNECTION_PROFILE,
   MISSING_CA_NAME,
   MISSING_WALLET,
+  MISSING_ORGKEY,
 } from './constants';
 import { createResolvers } from './createResolvers';
 import { typeDefs } from './typeDefs';
@@ -54,6 +62,7 @@ export const createAdminService: (option: {
   connectionProfile: string;
   caName: string;
   walletPath: string;
+  keyPath: string;
   orgName: string;
   orgUrl: string;
   asLocalhost?: boolean;
@@ -71,6 +80,7 @@ export const createAdminService: (option: {
   connectionProfile,
   caName,
   walletPath,
+  keyPath,
   orgName,
   orgUrl,
   asLocalhost = true,
@@ -99,6 +109,11 @@ export const createAdminService: (option: {
     throw new Error(MISSING_WALLET);
   }
 
+  if (!keyPath) {
+    logger.error(MISSING_ORGKEY);
+    throw new Error(MISSING_ORGKEY);
+  }
+
   const wallet = await Wallets.newFileSystemWallet(walletPath);
 
   const { config, getMspId, getRepository, shutdown } = await createService({
@@ -115,11 +130,14 @@ export const createAdminService: (option: {
 
   const mspId = getMspId();
   const orgRepo = getRepository<Organization, Organization, OrgEvents>(Organization, orgReducer);
-  await orgCommandHandler({ enrollmentId: caAdmin, orgRepo }).StartOrg({
-    mspId, payload: { name: orgName, url: orgUrl, timestamp: Date.now() },
-  })
-  .then(_ => logger.info('orgCommandHandler.StartOrg complete'))
-  .catch(error => logger.error(error));
+  const pubkey = await readKey(keyPath);
+  await orgCommandHandler({ enrollmentId: caAdmin, orgRepo })
+    .StartOrg({
+      mspId,
+      payload: { name: orgName, url: orgUrl, pubkey, timestamp: Date.now() },
+    })
+    .then(_ => logger.info('orgCommandHandler.StartOrg complete'))
+    .catch(error => logger.error(error));
 
   const resolvers = await createResolvers({
     caAdmin,
@@ -144,18 +162,19 @@ export const createAdminService: (option: {
 
   return {
     server,
-    shutdown: ((repo: Repository) => (
-      server: ApolloServer
-    ) => {
+    shutdown: ((repo: Repository) => (server: ApolloServer) => {
       if (!stopping) {
         stopping = true;
-        return orgCommandHandler({ enrollmentId: caAdmin, orgRepo: repo, }).ShutdownOrg({
-          mspId, payload: { timestamp: Date.now() },
-        }).then(_ => {
-          return shutdown(server).then(_ => {
-            stopped = true;
+        return orgCommandHandler({ enrollmentId: caAdmin, orgRepo: repo, })
+          .ShutdownOrg({
+            mspId,
+            payload: { timestamp: Date.now() },
+          })
+          .then(_ => {
+            return shutdown(server).then(_ => {
+              stopped = true;
+            });
           });
-        });
       } else {
         let cnt = 10;
         const loop = (func) => {

@@ -13,6 +13,7 @@ void (async () => {
     connectionProfile: process.env.CONNECTION_PROFILE,
     caName: process.env.CA_NAME,
     walletPath: process.env.WALLET,
+    keyPath: process.env.ORGKEY,
     orgName: process.env.ORGNAME,
     orgUrl: process.env.ORGURL,
     asLocalhost: !(process.env.NODE_ENV === 'production'),

@@ -2,12 +2,16 @@ import http from 'http';
 import util from 'util';
 import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import terminus from '@godaddy/terminus';
+import { execute, makePromise } from 'apollo-link';
+import { HttpLink } from 'apollo-link-http';
 import { ApolloServer } from 'apollo-server-express';
 import express, { Express } from 'express';
+import gql from 'graphql-tag';
 import httpStatus from 'http-status';
 import pick from 'lodash/pick';
 import fetch from 'node-fetch';
 import winston from 'winston';
+import { getCatalog } from './catalog';
 import { getLogger } from './getLogger';
 import { pm2Connect, pm2List } from './promisifyPm2';
 import { isAuth0UserInfo } from './typeGuard';
@@ -20,6 +24,9 @@ class AuthenticatedDataSource extends RemoteGraphQLDataSource {
     context?.email && request.http.headers.set('auth0_email', context.email);
     context?.nickname && request.http.headers.set('auth0_nickname', context.nickname);
     context?.name && request.http.headers.set('auth0_name', context.name);
+    context?.signature && request.http.headers.set('signature', context.signature);
+    context?.accessor && request.http.headers.set('accessor', context.accessor);
+    context?.id && request.http.headers.set('id', context.id);
   }
 }
 
@@ -34,6 +41,11 @@ const getProcessDescriptions = (logger: winston.Logger) =>
       })),
     }))
     .catch((err) => ({ proc: [], error: util.format('unknown err: %j', err) }));
+
+const PUBKEY = gql`
+query Pubkey {
+  pubkey
+}`;
 
 /**
  * @about apollo federated gateway
@@ -65,28 +77,43 @@ const getProcessDescriptions = (logger: winston.Logger) =>
  * ```
  */
 export const createGatewayWithAuth0: (option: {
-  serviceList?: any;
+  serviceList?: {
+    name: string;
+    url: string;
+  }[];
   authenticationCheck: string;
   useCors?: boolean;
   corsOrigin?: string;
   enrollmentId: string;
+  playground?: boolean;
+  introspection?: boolean;
+  gatewayName?: string;
+  adminHost?: string;
+  adminPort?: number;
   debug?: boolean;
   customExpressApp?: Express;
 }) => Promise<http.Server> = async ({
-  serviceList = [
-    {
-      name: 'admin',
-      url: 'http://localhost:15000/graphql',
-    },
-  ],
+  serviceList = [],
   authenticationCheck,
   useCors = false,
   corsOrigin = '',
   debug = false,
+  playground = true,
+  introspection = true,
   enrollmentId,
+  gatewayName = 'Gateway',
+  adminHost = 'localhost',
+  adminPort = 15000,
   customExpressApp,
 }) => {
   const logger = getLogger('[gw-lib] createGateway.js');
+
+  if (serviceList.filter(s => s.name === 'admin').length <= 0) {
+    serviceList.push({
+      name: 'admin',
+      url: `http://${adminHost}:${adminPort}/graphql`,
+    });
+  }
 
   const gateway = new ApolloGateway({
     serviceList,
@@ -96,18 +123,21 @@ export const createGatewayWithAuth0: (option: {
 
   const server = new ApolloServer({
     gateway,
-    introspection: true,
-    playground: true,
+    introspection,
+    playground,
     subscriptions: false,
     context: async ({ req: { headers } }) => {
       const token = headers?.authorization?.split(' ')[1] ?? null;
+      const signature = headers?.signature;
+      const accessor = headers?.accessor;
+      const id = headers?.id;
 
       logger.debug(`token: ${token}`);
 
       // sometimes, the upstream application (if using default middleware)
       // will mistakenly parse null into 'null'
       // similarily, parse undefined into 'undefined'
-      if (!token || token === 'undefined' || token === 'null') return {};
+      if (!token || token === 'undefined' || token === 'null') return { signature, accessor, id };
 
       try {
         const response = await fetch(authenticationCheck, {
@@ -118,21 +148,24 @@ export const createGatewayWithAuth0: (option: {
         logger.debug(`authenticaionCheck response: ${response}`);
 
         if (response.status !== httpStatus.OK) {
-          logger.info(`authentication check failed, status: ${response.status}`);
-          return {};
+          logger.debug(`authentication check failed, status: ${response.status}`);
+          return { signature, accessor, id };
         }
         const result: unknown = await response.json();
 
         if (isAuth0UserInfo(result)) {
           result['enrollmentId'] = enrollmentId;
+          result['signature'] = signature;
+          result['accessor'] = accessor;
+          result['id'] = id;
           return result;
         } else {
           logger.warn(`fail to parse authenticationCheck result`);
-          return { enrollmentId };
+          return { enrollmentId, signature, accessor, id };
         }
       } catch (e) {
         logger.error(util.format('authenticationCheck error: %j', e));
-        return {};
+        return { signature, accessor, id };
       }
     },
   });
@@ -142,6 +175,24 @@ export const createGatewayWithAuth0: (option: {
   app.use(express.urlencoded({ extended: false }));
 
   app.get('/ping', (_, res) => res.status(200).send({ data: 'pong' }));
+
+  app.get('/catalog', await getCatalog(gatewayName, serviceList.filter(s => s.name !== 'admin')));
+
+  const { data } = await makePromise(
+    execute(
+      new HttpLink({
+        uri: `http://${adminHost}:${adminPort}/graphql`, fetch: fetch as any,
+      }), {
+        query: PUBKEY, operationName: 'Pubkey',
+      }
+    )
+  );
+  if (data && data.pubkey) {
+    app.get('/.well-known/public.key', (_, res) => {
+      res.setHeader('content-type', 'text/plain; charset=UTF-8');
+      res.send(data.pubkey);
+    });
+  }
 
   // Note: this cors implementation is redundant. Cors should be check at ui-account's express backend
   // However, if there is alternative implementation, other than custom backend of SSR; there may require
