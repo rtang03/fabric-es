@@ -652,9 +652,9 @@ describe('Pagination tests for getPaginatedEntityById', () => {
         expect(data.hasMore).toBeFalsy();
         expect(data.cursor).toEqual(3);
         expect(data.items.map(({ id }) => id)).toEqual([
+          'qh_sub_test_001',
           'qh_pag_test_002',
           'qh_pag_test_004',
-          'qh_sub_test_001',
         ]);
       }));
 

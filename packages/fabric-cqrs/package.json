@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@fabric-es/operator": "^0.7.12",
+    "debug": "^4.3.2",
     "did-jwt": "^5.0.2",
     "dotenv": "^8.1.0",
     "fabric-contract-api": "2.2.1",
@@ -60,6 +61,7 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
+    "@types/debug": "^4.1.7",
     "@types/ioredis": "^4.16.4",
     "@types/jest": "^26.0.20",
     "@types/js-yaml": "^3.12.4",

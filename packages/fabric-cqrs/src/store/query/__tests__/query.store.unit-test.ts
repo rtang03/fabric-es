@@ -188,7 +188,6 @@ describe('Store/query: failure tests', () => {
         ErrorAction: QUERY_ERROR,
         logger,
       },
-      (result) => Object.values<Commit>(result).reverse()
     )({ entityName, id: null }).then(({ data, status, error }) => {
       expect(data).toBeNull();
       expect(status).toEqual('ERROR');
@@ -336,7 +335,6 @@ describe('Store/query Test', () => {
         ErrorAction: QUERY_ERROR,
         logger,
       },
-      (result) => (result ? Object.values<OutputCommit>(result).reverse() : null)
     )({ entityName, id }).then(({ data, status }) => {
       // in previous step, "mergeCommit", the raw Commit appends a derived fields,
       // creator, event, and ts, resulting OutputCommit
@@ -383,7 +381,9 @@ describe('Store/query Test', () => {
       expect(currentStates[0].id).toEqual(id);
     }));
 
-  it('should #2 queryByEntityId: DESC order', async () =>
+  // TODO: REVISIT HERE if it should be sorted in QueryDatabase, by "queryCommitsByPattern" in createRedisRepository
+  // Currently, is hardcoded "ASC"
+  it('should #2 queryByEntityId', async () =>
     dispatcher<OutputCommit[], { entityName: string; id: string }>(
       (payload) => queryByEntityId(payload),
       {
@@ -393,8 +393,7 @@ describe('Store/query Test', () => {
         SuccessAction: QUERY_SUCCESS,
         ErrorAction: QUERY_ERROR,
         logger,
-      },
-      (result) => (result ? Object.values<OutputCommit>(result).reverse() : null)
+      }
     )({ entityName, id }).then(({ data, status }) => {
       const mockedOutputCommit2 = Object.assign({}, newCommit, {
         creator: '',
@@ -408,7 +407,7 @@ describe('Store/query Test', () => {
         ts: 1590738792,
         signedRequest: '',
       });
-      expect(data).toEqual([mockedOutputCommit2, mockedOutputCommit1]);
+      expect(data).toEqual([mockedOutputCommit1, mockedOutputCommit2]);
       expect(status).toEqual('OK');
     }));
 
@@ -481,7 +480,7 @@ describe('Store/query Test', () => {
       ]);
     }));
 
-  it('should #3 queryByEntityId: DESC order', async () =>
+  it('should #3 queryByEntityId: ASC order (hard coded)', async () =>
     dispatcher<Commit[], { entityName: string; id: string }>(
       (payload) => queryByEntityId(payload),
       {
@@ -491,10 +490,9 @@ describe('Store/query Test', () => {
         SuccessAction: QUERY_SUCCESS,
         ErrorAction: QUERY_ERROR,
         logger,
-      },
-      (result) => (result ? Object.values<Commit>(result).reverse() : null)
+      }
     )({ entityName, id: 'test_002' }).then(({ data, status }) => {
-      expect(data[0]).toEqual({
+      expect(data[2]).toEqual({
         id: 'test_002',
         entityName: 'store_query',
         version: 2,
@@ -574,7 +572,7 @@ describe('Store/query Test', () => {
       ]);
     }));
 
-  it('should #4 queryByEntityId: DESC order', async () =>
+  it('should #4 queryByEntityId', async () =>
     dispatcher<OutputCommit[], { entityName: string; id: string }>(
       (payload) => queryByEntityId(payload),
       {
@@ -585,7 +583,6 @@ describe('Store/query Test', () => {
         ErrorAction: QUERY_ERROR,
         logger,
       },
-      (result) => (result ? Object.values<OutputCommit>(result).reverse() : null)
     )({ entityName, id: 'test_003' }).then(({ data, status }) => {
       expect(data).toEqual([]);
       expect(status).toEqual('OK');

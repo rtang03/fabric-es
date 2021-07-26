@@ -1,4 +1,6 @@
 import util from 'util';
+import Debug from 'debug';
+import sortBy from 'lodash/sortBy';
 import startsWith from 'lodash/startsWith';
 import { FTCreateParameters, FTSchemaField, Redisearch } from 'redis-modules-sdk';
 import { createSelector, Selector } from 'reselect';
@@ -6,7 +8,7 @@ import type { Commit, EntityType } from '../types';
 import { getLogger } from '../utils';
 import { postSelector as restoreCommit } from './model';
 import { pipelineExec } from './pipelineExec';
-import type { FieldOption, RedisearchDefinition, RedisRepository } from './types';
+import type { FieldOption, OutputCommit, RedisearchDefinition, RedisRepository } from './types';
 import type { CommitInRedis } from './types';
 import { baseIndexDefinition } from './types/baseIndexDefinition';
 import { basePreSelector, basePostSelector } from './types/baseSelectors';
@@ -26,16 +28,14 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
     param?: FTCreateParameters;
     preSelector?: Selector<[TInput, Commit[]?], TItemInRedis>;
     postSelector?: Selector<TItemInRedis, TOutput>;
-}) => RedisRepository<TOutput> = <TItem, TItemInRedis, TResult>(
-    entity, {
-    client,
-    kind = 'entity' as any,
-    fields,
-    param,
-    preSelector,
-    postSelector,
-}) => {
-  const entityName = (typeof entity === 'string') ? entity : entity.entityName;
+  }
+) => RedisRepository<TOutput> = <TItem, TItemInRedis, TResult>(
+  entity,
+  { client, kind = 'entity' as any, fields, param, preSelector, postSelector }
+) => {
+  const debug = Debug('queryHandler:createRedisRepository');
+
+  const entityName = typeof entity === 'string' ? entity : entity.entityName;
   const logger = getLogger({ name: '[query-handler] createRedisRepository.js', target: 'console' });
 
   // every entity is indexed with Prefix "e:entityName:". commit is "c:"
@@ -43,29 +43,29 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
 
   const prefix = { entity: `e:${entityName}:`, commit: 'c:' }[kind];
 
-  const combinedPreSelector = preSelector ? {
-    entity: createSelector(
-      preSelector as Selector<any, any>,
-      basePreSelector,
-      (pre, bse) => ({
-        ...pre,
-        ...bse,
-      })
-    ),
-    commit: preSelector,
-  }[kind] : undefined;
+  const combinedPreSelector = preSelector
+    ? {
+        entity: createSelector(preSelector as Selector<any, any>, basePreSelector, (pre, bse) => ({
+          ...pre,
+          ...bse,
+        })),
+        commit: preSelector,
+      }[kind]
+    : undefined;
 
-  const combinedPostSelector = postSelector ? {
-    entity: createSelector(
-      postSelector as Selector<any, any>,
-      basePostSelector,
-      (pre, bse) => ({
-        ...pre,
-        ...bse,
-      })
-    ),
-    commit: postSelector,
-  }[kind] : undefined;
+  const combinedPostSelector = postSelector
+    ? {
+        entity: createSelector(
+          postSelector as Selector<any, any>,
+          basePostSelector,
+          (pre, bse) => ({
+            ...pre,
+            ...bse,
+          })
+        ),
+        commit: postSelector,
+      }[kind]
+    : undefined;
 
   const combinedFields = {
     entity: {
@@ -124,7 +124,9 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
       return client.redis.hmset(key, combinedPreSelector?.([item, history]) || item);
     },
     hgetall: (key) =>
-      client.redis.hgetall(key).then((result) => (combinedPostSelector?.(result) || result) as TResult),
+      client.redis
+        .hgetall(key)
+        .then((result) => (combinedPostSelector?.(result) || result) as TResult),
     getKey: (item: TItemInRedis) => getKey(item),
     getIndexName: () => indexName,
     getPattern: (pattern, args) =>
@@ -140,7 +142,9 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
       try {
         return await pipelineExec<CommitInRedis>(client, 'HGETALL', pattern).then((data) => [
           data.map(([err, _]) => err),
-          data.map(([_, commit]) => restoreCommit(commit)),
+          data
+            .map<OutputCommit>(([_, commit]) => restoreCommit(commit))
+            .sort((a, b) => a.ts - b.ts),
         ]);
       } catch (e) {
         logger.error(util.format('fail to queryCommitsByPattern, %j', e));
@@ -151,7 +155,10 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
       try {
         const customParm = countTotalOnly
           ? { ...param, ...{ limit: { first: 0, num: 0 } } }
+          : kind === 'commit'
+          ? { ...param, sortBy: { sort: 'ASC', field: 'ts' } }
           : param;
+
         // step 1: use FT.SEARCH to find corresponding keys
         const data: any[] = await client.search(index, query, customParm);
 
