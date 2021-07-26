@@ -202,6 +202,7 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
         throw new Error(util.format(`getting ${ORGAN_NAME} failed, %j`, oresult.error));
       }
 
+      console.log('YEYEYEYEYEYEYE', context.mspId, context.keyPath, oresult.data?.items[0].url, query.definitions[0]['selectionSet'].selections[0].name.value, id);
       await createRemoteData({
         accessor: context.mspId,
         keyPath: context.keyPath,

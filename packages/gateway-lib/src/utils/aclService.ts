@@ -33,7 +33,7 @@ export const getAcl = async (
 export const setAcl = async (
   aclPath: string,
   entityId: string,
-  accessor: string,
+  accessors: string[],
 ) => {
   try {
     await mkdir(path.dirname(aclPath), { recursive: true });
@@ -43,14 +43,18 @@ export const setAcl = async (
 
     const acl = db.get('acl').get(entityId).value();
     if (!acl) {
-      await db.get('acl').set(entityId, [accessor]).save();
-      return 1; // add new acl and 1 accessor
-    } else if (!acl.includes(accessor)) {
-      db.get('acl').get(entityId).push(accessor);
-      await db.save();
-      return 1; // add 1 accessor
+      await db.get('acl').set(entityId, accessors).save();
+      return accessors.length; // add new acl and 1 accessor
     } else {
-      return 0; // already exists
+      let rtn = 0;
+      for (const accessor of accessors) {
+        if (!acl.includes(accessor)) {
+          db.get('acl').get(entityId).push(accessor);
+          rtn ++;
+        }
+      }
+      await db.save();
+      return rtn;
     }
   } catch (err) {
     throw new ApolloError(err);
@@ -92,7 +96,7 @@ export const getAclTypeDefs = (service: string) => {
     _acl_${service}(entityId: String!, accessor: String!): String!
   }
   type Mutation {
-    _set_acl_${service}(entityId: String!, accessor: String!): Int!
+    _set_acl_${service}(entityId: String!, accessors: [String!]!): Int!
     _del_acl_${service}(entityId: String!, accessor: String!): Int!
   }`;
 };
@@ -105,11 +109,11 @@ export const getAclResolver = (service: string) => {
       },
     },
     Mutation: {
-      [`_set_acl_${service}`]: (_, { entityId, accessor }, { is_admin, aclPath }) => {
+      [`_set_acl_${service}`]: (_, { entityId, accessors }, { is_admin, aclPath }) => {
         if (!is_admin) {
           return new ForbiddenError(UNAUTHORIZED_ACCESS);
         }
-        return setAcl(aclPath, entityId, accessor);
+        return setAcl(aclPath, entityId, accessors);
       },
       [`_del_acl_${service}`]: (_, { entityId, accessor }, { is_admin, aclPath }) => {
         if (!is_admin) {

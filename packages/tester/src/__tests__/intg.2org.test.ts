@@ -16,7 +16,8 @@ import {
   SEARCH_LOAN_CONTAINS,
   UPDATE_DOC_CONTENTS,
   UPDATE_DOCUMENT,
-  UPDATE_LOAN
+  UPDATE_LOAN,
+  SET_ACL,
 } from '../ref-impl/queries';
 
 const AUTH_REG_1 = `http://${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}/account`;
@@ -34,16 +35,22 @@ const user1 =   `u1${timestamp}@org.example.com`;
 const loanId1 = `l1${timestamp}`;
 const docId1a = `d1${timestamp}`;
 const docId1b = `d1${timestamp + 10}`;
+const admin1 = process.env.ROOT_ADMIN1;
+const adminPwd1 = process.env.ROOT_ADMIN_PASSWORD1;
 
 const userId2 = 'USER_ORG2';
 const user2 =   `u2${timestamp}@org.example.com`;
 const loanId2 = `l2${timestamp}`;
 const docId2a = `d2${timestamp}`;
 const docId2b = `d2${timestamp + 10}`;
+const admin2 = process.env.ROOT_ADMIN2;
+const adminPwd2 = process.env.ROOT_ADMIN_PASSWORD2;
 
 let isReady = false;
 let accessToken1;
 let accessToken2;
+let adminToken1;
+let adminToken2;
 
 beforeAll(async () => {
   try {
@@ -96,6 +103,26 @@ beforeAll(async () => {
       return;
     }
     accessToken1 = tok1;
+    // Login admin1
+    const { log1a, tok1a } = await fetch(AUTH_LOG_1, {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
+        username: admin1, password: adminPwd1
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.username === admin1) {
+          return { log1a: true, tok1a: data.access_token };
+        } else {
+          console.log(`Login Org1 admin: ${JSON.stringify(data)}`);
+          return { log1a: false, tok1a: null };
+        }
+      });
+    if (!log1a) {
+      console.log(`♨️♨️  Logging in to OAUTH server ${AUTH_LOG_1} as ${admin1} / ${adminPwd1} failed`);
+      return;
+    }
+    adminToken1 = tok1a;
 
     console.log(`♨️♨️  Prepare Org2`);
     // Register Org2 user
@@ -146,6 +173,26 @@ beforeAll(async () => {
       return;
     }
     accessToken2 = tok2;
+    // Login admin2
+    const { log2a, tok2a } = await fetch(AUTH_LOG_2, {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
+        username: admin2, password: adminPwd2
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.username === admin2) {
+          return { log2a: true, tok2a: data.access_token };
+        } else {
+          console.log(`Login Org2 admin: ${JSON.stringify(data)}`);
+          return { log2a: false, tok2a: null };
+        }
+      });
+    if (!log2a) {
+      console.log(`♨️♨️  Logging in to OAUTH server ${AUTH_LOG_2} as ${admin2} / ${adminPwd2} failed`);
+      return;
+    }
+    adminToken2 = tok2a;
 
     isReady = org1Ready && org2Ready;
   } catch (e) {
@@ -220,6 +267,16 @@ describe('Multi-Org Test - Initialize Org1', () => {
   it('add docContents to document 1a', async () => {
     if (isReady) {
       await fetch(GATEWAY1, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken1}` }, body: JSON.stringify({
+          operationName: `_SetAcl_docContents`,
+          query: SET_ACL('docContents'),
+          variables: { entityId: docId1a, accessors: ['Org2MSP', 'Org3MSP'] }
+        })
+      }).then(res => res.json())
+        .then(({ data }) => expect(data['_set_acl_docContents']).toEqual(2))
+        .catch(_ => expect(false).toBeTruthy());
+
+      await fetch(GATEWAY1, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken1}` }, body: JSON.stringify({
           operationName: 'CreateDocContents',
           query: CREATE_DOC_CONTENTS,
@@ -237,6 +294,16 @@ describe('Multi-Org Test - Initialize Org1', () => {
 
   it('add docContents to document 1b', async () => {
     if (isReady) {
+      await fetch(GATEWAY1, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken1}` }, body: JSON.stringify({
+          operationName: `_SetAcl_docContents`,
+          query: SET_ACL('docContents'),
+          variables: { entityId: docId1b, accessors: ['Org2MSP', 'Org3MSP'] }
+        })
+      }).then(res => res.json())
+        .then(({ data }) => expect(data['_set_acl_docContents']).toEqual(2))
+        .catch(_ => expect(false).toBeTruthy());
+
       await fetch(GATEWAY1, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken1}` }, body: JSON.stringify({
           operationName: 'CreateDocContents',
@@ -433,6 +500,16 @@ describe('Multi-Org Test - Initialize Org2', () => {
   it('add loanDetails to loan 2', async () => {
     if (isReady) {
       await fetch(GATEWAY2, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken2}` }, body: JSON.stringify({
+          operationName: `_SetAcl_loanDetails`,
+          query: SET_ACL('loanDetails'),
+          variables: { entityId: loanId2, accessors: ['Org1MSP', 'Org3MSP'] }
+        })
+      }).then(res => res.json())
+        .then(({ data }) => expect(data['_set_acl_loanDetails']).toEqual(2))
+        .catch(_ => expect(false).toBeTruthy());
+
+      await fetch(GATEWAY2, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
           operationName: 'CreateLoanDetails',
           query: CREATE_LOAN_DETAILS,
@@ -456,6 +533,16 @@ describe('Multi-Org Test - Add remote data', () => {
   it('org1 add docContents 2a for org2', async () => {
     if (isReady) {
       await fetch(GATEWAY1, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken1}` }, body: JSON.stringify({
+          operationName: `_SetAcl_docContents`,
+          query: SET_ACL('docContents'),
+          variables: { entityId: docId2a, accessors: ['Org2MSP', 'Org3MSP'] }
+        })
+      }).then(res => res.json())
+        .then(({ data }) => expect(data['_set_acl_docContents']).toEqual(2))
+        .catch(_ => expect(false).toBeTruthy());
+
+      await fetch(GATEWAY1, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken1}` }, body: JSON.stringify({
           operationName: 'CreateDocContents',
           query: CREATE_DOC_CONTENTS,
@@ -473,6 +560,16 @@ describe('Multi-Org Test - Add remote data', () => {
 
   it('org2 add loanDetails 1 for org1', async () => {
     if (isReady) {
+      await fetch(GATEWAY2, {
+        method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken2}` }, body: JSON.stringify({
+          operationName: `_SetAcl_loanDetails`,
+          query: SET_ACL('loanDetails'),
+          variables: { entityId: loanId1, accessors: ['Org1MSP', 'Org3MSP'] }
+        })
+      }).then(res => res.json())
+        .then(({ data }) => expect(data['_set_acl_loanDetails']).toEqual(2))
+        .catch(_ => expect(false).toBeTruthy());
+
       await fetch(GATEWAY2, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
           operationName: 'CreateLoanDetails',

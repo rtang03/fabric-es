@@ -4,6 +4,12 @@ mutation CreateWallet {
 }
 `;
 
+export const SET_ACL = (service) => `
+mutation _SetAcl_${service}($entityId: String!, $accessors: [String!]!) {
+  _set_acl_${service}(entityId: $entityId, accessors: $accessors)
+}
+`;
+
 export const GET_LOAN_BY_ID = `
 query GetLoanById($loanId: String!) {
   getLoanById(loanId: $loanId) {

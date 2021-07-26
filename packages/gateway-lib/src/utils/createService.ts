@@ -254,6 +254,8 @@ export const createService: (option: {
                     ...req.headers,
                     serviceName,
                     serviceType: type,
+                    ec,
+                    keyPath,
                     aclPath: aclDbPath,
                   }, args);
                 } else if (type === ServiceType.Remote) {
