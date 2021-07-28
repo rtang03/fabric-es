@@ -1569,7 +1569,7 @@ describe('Multi-Org Test - Private data b4 public', () => {
   });
 });
 
-describe('Multi-Org Test - Access Control on Remote Data with Event Store', () => {
+describe('Multi-Org Test - Access Control of private data', () => {
   // Org2 create loan and loanDetail
   // loanDetail 5a allow Org1 only to access
   // loanDetail 5b allow Org3 only to access
