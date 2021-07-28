@@ -782,9 +782,12 @@ describe('Multi-Org Test - Query Loans', () => {
       await fetch(GATEWAY2, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
           operationName: 'GetCommitsByLoanId', query: GET_COMMITS_BY_LOAN, variables: { loanId: loanId1 }
-        })})
-        .then(res => res.json())
-        .then(({ data }) => expect(data.getCommitsByLoanId).toMatchSnapshot())
+        })
+      }).then(res => res.json())
+        .then(({ data }) => data.getCommitsByLoanId.forEach(commit => expect(commit).toMatchSnapshot({
+          id: expect.any(String),
+          commitId: expect.any(String),
+        })))
         .catch(_ => expect(false).toBeTruthy());
       return;
     }

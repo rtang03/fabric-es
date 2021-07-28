@@ -8,7 +8,8 @@ import { ofType } from 'redux-observable';
 import { from, Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 import { getNetwork, submit$ } from '../../../services';
-import { TRACK_EVENT } from '../../../types';
+import { TRACK_EVENT, TS_FIELD } from '../../../types';
+import { addCreatedAt, replaceTag } from '../../../utils';
 import { dispatchResult } from '../../utils';
 import { action } from '../action';
 import { TrackAction } from '../types';
@@ -45,12 +46,14 @@ export default (action$: Observable<TrackAction>, _, context): Observable<any> =
           })
         );
       else {
+        const currentTime = Math.round(new Date().getTime());
         const { tx_id, args, network, gateway } = getNetwork;
         const params = [args.parentName, args.id, args.version.toString()];
-        params.push(JSON.stringify([{
+        const events = replaceTag(addCreatedAt([{
           type: TRACK_EVENT,
           payload: { id: args.id, entityName: args.entityName }
         }]));
+        params.push(JSON.stringify(events));
 
         return submit$('eventstore:createCommit', params, { network: network || context.network }).pipe(
           tap(commits => {

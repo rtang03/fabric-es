@@ -214,6 +214,8 @@ export const GET_COMMITS_BY_LOAN = `
       events {
         type
       }
+      id
+      commitId
     }
   }
 `;

@@ -295,44 +295,54 @@ Object {
 `;
 
 exports[`Multi-Org Test - Query Loans query loan 1 commits 1`] = `
-Array [
-  Object {
-    "entityName": "loan",
-    "events": Array [
-      Object {
-        "type": "LoanApplied",
-      },
-      Object {
-        "type": "LoanReferenceDefined",
-      },
-      Object {
-        "type": "LoanDescriptionDefined",
-      },
-    ],
-    "mspId": "Org1MSP",
-    "version": 0,
-  },
-  Object {
-    "entityName": "loan",
-    "events": Array [
-      Object {
-        "type": "LoanCommentDefined",
-      },
-    ],
-    "mspId": "Org1MSP",
-    "version": 1,
-  },
-  Object {
-    "entityName": "loan",
-    "events": Array [
-      Object {
-        "type": "PrivateDataTracked",
-      },
-    ],
-    "mspId": "Org2MSP",
-    "version": 0,
-  },
-]
+Object {
+  "commitId": Any<String>,
+  "entityName": "loan",
+  "events": Array [
+    Object {
+      "type": "LoanApplied",
+    },
+    Object {
+      "type": "LoanReferenceDefined",
+    },
+    Object {
+      "type": "LoanDescriptionDefined",
+    },
+  ],
+  "id": Any<String>,
+  "mspId": "Org1MSP",
+  "version": 0,
+}
+`;
+
+exports[`Multi-Org Test - Query Loans query loan 1 commits 2`] = `
+Object {
+  "commitId": Any<String>,
+  "entityName": "loan",
+  "events": Array [
+    Object {
+      "type": "LoanCommentDefined",
+    },
+  ],
+  "id": Any<String>,
+  "mspId": "Org1MSP",
+  "version": 1,
+}
+`;
+
+exports[`Multi-Org Test - Query Loans query loan 1 commits 3`] = `
+Object {
+  "commitId": Any<String>,
+  "entityName": "loan",
+  "events": Array [
+    Object {
+      "type": "PrivateDataTracked",
+    },
+  ],
+  "id": Any<String>,
+  "mspId": "Org2MSP",
+  "version": 0,
+}
 `;
 
 exports[`Multi-Org Test - Query Loans query loan 2 1`] = `
