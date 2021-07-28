@@ -1386,9 +1386,11 @@ describe('Multi-Org Test - Query Loans', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken3}` }, body: JSON.stringify({
           operationName: 'GetCommitsByLoanId', query: GET_COMMITS_BY_LOAN, variables: { loanId: loanId1 }
         })
-      })
-        .then(res => res.json())
-        .then(({ data }) => expect(data.getCommitsByLoanId).toMatchSnapshot())
+      }).then(res => res.json())
+        .then(({ data }) => data.getCommitsByLoanId.forEach(commit => expect(commit).toMatchSnapshot({
+          id: expect.any(String),
+          commitId: expect.any(String),
+        })))
         .catch(_ => expect(false).toBeTruthy());
       return;
     }
@@ -1567,7 +1569,7 @@ describe('Multi-Org Test - Private data b4 public', () => {
   });
 });
 
-describe('Multi-Org Test - Access Control on Remote Data with Event Store', () => {
+describe('Multi-Org Test - Access Control of private data', () => {
   // Org2 create loan and loanDetail
   // loanDetail 5a allow Org1 only to access
   // loanDetail 5b allow Org3 only to access

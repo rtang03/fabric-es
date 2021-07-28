@@ -782,9 +782,12 @@ describe('Multi-Org Test - Query Loans', () => {
       await fetch(GATEWAY2, {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${accessToken2}` }, body: JSON.stringify({
           operationName: 'GetCommitsByLoanId', query: GET_COMMITS_BY_LOAN, variables: { loanId: loanId1 }
-        })})
-        .then(res => res.json())
-        .then(({ data }) => expect(data.getCommitsByLoanId).toMatchSnapshot())
+        })
+      }).then(res => res.json())
+        .then(({ data }) => data.getCommitsByLoanId.forEach(commit => expect(commit).toMatchSnapshot({
+          id: expect.any(String),
+          commitId: expect.any(String),
+        })))
         .catch(_ => expect(false).toBeTruthy());
       return;
     }
@@ -806,10 +809,12 @@ describe('Multi-Org Test - Query Loans', () => {
   });
 });
 
-describe('Multi-Org Test - Access Control on Remote Data with Event Store: loanDetails', () => {
+describe('Multi-Org Test - Access Control of private data', () => {
   // Org2 create loan and loanDetail
-  // loanDetail 5a allow Org1 only to access
+  // loanDetail 5a allow Org1 to access
   // loanDetail 5d not allow other Org to access
+  // docContent 5a allow Org2 to access
+  // docContent 5d not allow other Org to access
   it('Org2 - add loan 5a ', async () => {
     if (isReady) {
       await fetch(GATEWAY2, {
@@ -1010,7 +1015,7 @@ describe('Multi-Org Test - Access Control on Remote Data with Event Store: loanD
     expect(false).toBeTruthy();
   });
 
-  it('Org2 - query loan 5a with loanDetails 5a ', async () => {
+  it('Org2 - query loan 5a with loanDetails and docContents', async () => {
     if (isReady) {
       await fetch(GATEWAY2, {
         method: 'POST',
@@ -1034,7 +1039,7 @@ describe('Multi-Org Test - Access Control on Remote Data with Event Store: loanD
     expect(false).toBeTruthy();
   });
 
-  it('Org2 - query loan 5d with loanDetails 5d ', async () => {
+  it('Org2 - query loan 5d with loanDetails only', async () => {
     if (isReady) {
       await fetch(GATEWAY2, {
         method: 'POST',
@@ -1059,7 +1064,7 @@ describe('Multi-Org Test - Access Control on Remote Data with Event Store: loanD
   });
 
   // Query testing on Org1
-  it('Org1 - query loan 5a success with loanDetails 5a', async () => {
+  it('Org1 - query loan 5a with loanDetails and docContents', async () => {
     if (isReady) {
       await fetch(GATEWAY1, {
         method: 'POST',
@@ -1083,7 +1088,7 @@ describe('Multi-Org Test - Access Control on Remote Data with Event Store: loanD
     expect(false).toBeTruthy();
   });
 
-  it('Org1 - query loan 5d success without loanDetails', async () => {
+  it('Org1 - query loan 5d with docContents only', async () => {
     if (isReady) {
       await fetch(GATEWAY1, {
         method: 'POST',

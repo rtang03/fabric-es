@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org1 - query loan 5a success with loanDetails 5a 1`] = `
+exports[`Multi-Org Test - Access Control of private data Org1 - query loan 5a success with loanDetails 5a 1`] = `
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5a",
@@ -34,7 +34,7 @@ Object {
 }
 `;
 
-exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org1 - query loan 5b success without loanDetails 1`] = `
+exports[`Multi-Org Test - Access Control of private data Org1 - query loan 5b success without loanDetails 1`] = `
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5b",
@@ -46,7 +46,7 @@ Object {
 }
 `;
 
-exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org1 - query loan 5c success with loanDetails 5c 1`] = `
+exports[`Multi-Org Test - Access Control of private data Org1 - query loan 5c success with loanDetails 5c 1`] = `
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5c",
@@ -80,7 +80,7 @@ Object {
 }
 `;
 
-exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org1 - query loan 5d success without loanDetails 1`] = `
+exports[`Multi-Org Test - Access Control of private data Org1 - query loan 5d success without loanDetails 1`] = `
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5d",
@@ -92,7 +92,7 @@ Object {
 }
 `;
 
-exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org2 - query loan 5a with loanDetails 5a  1`] = `
+exports[`Multi-Org Test - Access Control of private data Org2 - query loan 5a with loanDetails 5a  1`] = `
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5a",
@@ -126,7 +126,7 @@ Object {
 }
 `;
 
-exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org2 - query loan 5b with loanDetails 5b  1`] = `
+exports[`Multi-Org Test - Access Control of private data Org2 - query loan 5b with loanDetails 5b  1`] = `
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5b",
@@ -160,7 +160,7 @@ Object {
 }
 `;
 
-exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org2 - query loan 5c with loanDetails 5c  1`] = `
+exports[`Multi-Org Test - Access Control of private data Org2 - query loan 5c with loanDetails 5c  1`] = `
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5c",
@@ -194,7 +194,7 @@ Object {
 }
 `;
 
-exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org2 - query loan 5d with loanDetails 5d  1`] = `
+exports[`Multi-Org Test - Access Control of private data Org2 - query loan 5d with loanDetails 5d  1`] = `
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5d",
@@ -228,7 +228,7 @@ Object {
 }
 `;
 
-exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org3 - query loan 5a success without loanDetails 1`] = `
+exports[`Multi-Org Test - Access Control of private data Org3 - query loan 5a success without loanDetails 1`] = `
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5a",
@@ -242,7 +242,7 @@ Object {
 }
 `;
 
-exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org3 - query loan 5b success with loanDetails 5b 1`] = `
+exports[`Multi-Org Test - Access Control of private data Org3 - query loan 5b success with loanDetails 5b 1`] = `
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5b",
@@ -277,7 +277,7 @@ Object {
 }
 `;
 
-exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org3 - query loan 5c success with loanDetails 5c 1`] = `
+exports[`Multi-Org Test - Access Control of private data Org3 - query loan 5c success with loanDetails 5c 1`] = `
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5c",
@@ -312,7 +312,7 @@ Object {
 }
 `;
 
-exports[`Multi-Org Test - Access Control on Remote Data with Event Store Org3 - query loan 5d success without loanDetails 1`] = `
+exports[`Multi-Org Test - Access Control of private data Org3 - query loan 5d success without loanDetails 1`] = `
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5d",
@@ -580,54 +580,69 @@ Object {
 `;
 
 exports[`Multi-Org Test - Query Loans query loan 1 commits 1`] = `
-Array [
-  Object {
-    "entityName": "loan",
-    "events": Array [
-      Object {
-        "type": "LoanApplied",
-      },
-      Object {
-        "type": "LoanReferenceDefined",
-      },
-      Object {
-        "type": "LoanDescriptionDefined",
-      },
-    ],
-    "mspId": "Org1MSP",
-    "version": 0,
-  },
-  Object {
-    "entityName": "loan",
-    "events": Array [
-      Object {
-        "type": "LoanCommentDefined",
-      },
-    ],
-    "mspId": "Org1MSP",
-    "version": 1,
-  },
-  Object {
-    "entityName": "loan",
-    "events": Array [
-      Object {
-        "type": "PrivateDataTracked",
-      },
-    ],
-    "mspId": "Org2MSP",
-    "version": 0,
-  },
-  Object {
-    "entityName": "loan",
-    "events": Array [
-      Object {
-        "type": "PrivateDataTracked",
-      },
-    ],
-    "mspId": "Org3MSP",
-    "version": 0,
-  },
-]
+Object {
+  "commitId": Any<String>,
+  "entityName": "loan",
+  "events": Array [
+    Object {
+      "type": "LoanApplied",
+    },
+    Object {
+      "type": "LoanReferenceDefined",
+    },
+    Object {
+      "type": "LoanDescriptionDefined",
+    },
+  ],
+  "id": Any<String>,
+  "mspId": "Org1MSP",
+  "version": 0,
+}
+`;
+
+exports[`Multi-Org Test - Query Loans query loan 1 commits 2`] = `
+Object {
+  "commitId": Any<String>,
+  "entityName": "loan",
+  "events": Array [
+    Object {
+      "type": "LoanCommentDefined",
+    },
+  ],
+  "id": Any<String>,
+  "mspId": "Org1MSP",
+  "version": 1,
+}
+`;
+
+exports[`Multi-Org Test - Query Loans query loan 1 commits 3`] = `
+Object {
+  "commitId": Any<String>,
+  "entityName": "loan",
+  "events": Array [
+    Object {
+      "type": "PrivateDataTracked",
+    },
+  ],
+  "id": Any<String>,
+  "mspId": "Org2MSP",
+  "version": 0,
+}
+`;
+
+exports[`Multi-Org Test - Query Loans query loan 1 commits 4`] = `
+Object {
+  "commitId": Any<String>,
+  "entityName": "loan",
+  "events": Array [
+    Object {
+      "type": "PrivateDataTracked",
+    },
+  ],
+  "id": Any<String>,
+  "mspId": "Org3MSP",
+  "version": 0,
+}
 `;
 
 exports[`Multi-Org Test - Query Loans query loan 2 1`] = `
@@ -722,19 +737,6 @@ Object {
       "contents": Array [
         Object {
           "content": Object {
-            "body": "{ \\"message\\": \\"Org3 docContents 1\\" }",
-          },
-        },
-      ],
-      "link": "Org3-Customized-Link-a",
-      "reference": "REF-ORG3-DOC-1",
-      "status": 0,
-      "title": "Org3 Document 1",
-    },
-    Object {
-      "contents": Array [
-        Object {
-          "content": Object {
             "format": "PDF",
             "link": "http://fake.it/docs/org3DocContents-2.pdf",
           },
@@ -744,6 +746,19 @@ Object {
       "reference": "REF-ORG3-DOC-2",
       "status": 0,
       "title": "Org3 Document 2",
+    },
+    Object {
+      "contents": Array [
+        Object {
+          "content": Object {
+            "body": "{ \\"message\\": \\"Org3 docContents 1\\" }",
+          },
+        },
+      ],
+      "link": "Org3-Customized-Link-a",
+      "reference": "REF-ORG3-DOC-1",
+      "status": 0,
+      "title": "Org3 Document 1",
     },
   ],
   "ownerId": "USER_ORG3",
