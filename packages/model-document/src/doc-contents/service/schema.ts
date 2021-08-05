@@ -11,8 +11,8 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createDocContents(userId: String!, documentId: String!, content: DocsInput!): DocContentsResp
-    updateDocContents(userId: String!, documentId: String!, content: DocsInput!): DocContentsResp
+    createDocContents(userId: String!, documentId: String!, content: DocsInput!): PrvResponse
+    updateDocContents(userId: String!, documentId: String!, content: DocsInput!): PrvResponse
   }
 
   """
@@ -52,10 +52,10 @@ export const typeDefs = gql`
   """
   Response from _mutation_ (create, update, delete) operations related to the **DocContents** type
   """
-  union DocContentsResp = DocContentsCommit | DocContentsError
+  union PrvResponse = PrvCommit | SrvError
 
   "Place holder for the actual private chain data structure of **DocContents**"
-  type DocContentsCommit {
+  type PrvCommit {
     id: String
     entityName: String
     version: Int
@@ -64,7 +64,7 @@ export const typeDefs = gql`
     entityId: String
   }
 
-  type DocContentsError {
+  type SrvError {
     message: String!
     stack: String
   }

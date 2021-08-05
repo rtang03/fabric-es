@@ -102,8 +102,8 @@ export const resolvers = {
   Docs: {
     __resolveType: (obj) => (obj.body ? 'Data' : obj.format ? 'File' : {}),
   },
-  DocContentsResp: {
+  PrvResponse: {
     __resolveType: (obj) =>
-      obj.commitId ? 'DocContentsCommit' : obj.message ? 'DocContentsError' : {},
+      obj.commitId ? 'PrvCommit' : obj.message ? 'SrvError' : {},
   },
 };

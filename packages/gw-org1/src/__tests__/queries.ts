@@ -259,7 +259,7 @@ mutation ApplyLoan {
     description: "Org1 Loan Request 01"
     reference: "REF0001"
   ) {
-    ... on LoanCommit {
+    ... on PubCommit {
       id
       entityName
       version
@@ -267,7 +267,7 @@ mutation ApplyLoan {
       committedAt
       entityId
     }
-    ... on LoanError {
+    ... on SrvError {
       message
     }
   }
@@ -281,14 +281,14 @@ mutation CreateDocument {
     title: "Org1 Loan Document 01",
     reference: "REF0001x"
   ) {
-    ... on DocCommit {
+    ... on PubCommit {
       id
       entityName
       version
       commitId
       committedAt
     }
-    ... on DocError {
+    ... on SrvError {
       message
     }
   }
@@ -300,14 +300,14 @@ mutation CreateDataDocContents {
       documentId: "D0002",
       body: "{ \"message\": \"Org1 Document O2 for Org2\" }"
   ) {
-    ... on DocContentsCommit {
+    ... on PrvCommit {
       id
       entityName
       version
       commitId
       committedAt
     }
-    ... on DocContentsError {
+    ... on SrvError {
       message
     }
   }
@@ -332,14 +332,14 @@ mutation CreateLoanDetails {
     requestedAmt: 25.7
     comment: "Org2 Loan Details 01 for Org1"
   ) {
-    ... on LoanDetailsCommit {
+    ... on PrvCommit {
       id
       entityName
       version
       commitId
       committedAt
     }
-    ... on LoanDetailsError {
+    ... on SrvError {
       message
     }
   }

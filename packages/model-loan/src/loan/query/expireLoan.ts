@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 export const EXPIRE_LOAN = gql`
   mutation ExpireLoan($userId: String!, $loanId: String!) {
     expireLoan(userId: $userId, loanId: $loanId) {
-      ... on LoanCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -11,7 +11,7 @@ export const EXPIRE_LOAN = gql`
         entityId
         mspId
       }
-      ... on LoanError {
+      ... on SrvError {
         message
       }
     }

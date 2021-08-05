@@ -27,7 +27,7 @@ export const CREATE_LOAN_DETAILS = gql`
       approvedAmt: $approvedAmt
       comment: $comment
     ) {
-      ... on LoanDetailsCommit {
+      ... on PrvCommit {
         id
         entityName
         version
@@ -35,7 +35,7 @@ export const CREATE_LOAN_DETAILS = gql`
         entityId
         mspId
       }
-      ... on LoanDetailsError {
+      ... on SrvError {
         message
       }
     }

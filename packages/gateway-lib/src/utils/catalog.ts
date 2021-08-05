@@ -370,7 +370,10 @@ export const getCatalog = async (
       }
     }).catch(error => {
       const result = util.format('Getting catalogue: %j', error);
-      logger.error(result);
+      if (result.includes('_catalog_')) // TODO should find a better way to supress incorrect error message when catalog is disabled
+        logger.debug(result);
+      else
+        logger.error(result);
       return undefined;
     });
     if (cat) {

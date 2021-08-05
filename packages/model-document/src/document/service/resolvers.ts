@@ -291,7 +291,7 @@ export const resolvers = {
     ),
     loan: ({ loanId }: { loanId: string }) => ({ __typename: 'Loan', loanId }),
   },
-  DocResponse: {
-    __resolveType: (obj) => (obj.commitId ? 'DocCommit' : obj.message ? 'DocError' : {}),
+  PubResponse: {
+    __resolveType: (obj) => (obj.commitId ? 'PubCommit' : obj.message ? 'SrvError' : {}),
   },
 };

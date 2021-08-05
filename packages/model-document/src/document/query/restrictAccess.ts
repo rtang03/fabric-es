@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 export const RESTRICT_DOCUMENT_ACCESS = gql`
   mutation RestrictAccess($userId: String!, $documentId: String!) {
     restrictAccess(userId: $userId, documentId: $documentId) {
-      ... on DocCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -11,7 +11,7 @@ export const RESTRICT_DOCUMENT_ACCESS = gql`
         entityId
         mspId
       }
-      ... on DocError {
+      ... on SrvError {
         message
       }
     }

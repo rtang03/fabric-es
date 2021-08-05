@@ -214,8 +214,8 @@ export const resolvers = {
   LoanDetails: {
     loan: ({ loanId }) => ({ __typename: 'Loan', loanId }),
   },
-  LoanDetailsResp: {
+  PrvResponse: {
     __resolveType: (obj) =>
-      obj.commitId ? 'LoanDetailsCommit' : obj.message ? 'LoanDetailsError' : {},
+      obj.commitId ? 'PrvCommit' : obj.message ? 'SrvError' : {},
   },
 };

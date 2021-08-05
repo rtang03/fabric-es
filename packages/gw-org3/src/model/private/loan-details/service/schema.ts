@@ -18,7 +18,7 @@ export const typeDefs = gql`
       requestedAmt: Float!
       approvedAmt: Float
       comment: String
-    ): LoanDetailsResp
+    ): PrvResponse
     updateLoanDetails(
       userId: String!
       loanId: String!
@@ -31,7 +31,7 @@ export const typeDefs = gql`
       requestedAmt: Float
       approvedAmt: Float
       comment: String
-    ): [LoanDetailsResp]!
+    ): [PrvResponse]!
   }
 
   ###
@@ -83,9 +83,9 @@ export const typeDefs = gql`
   ###
   # Mutation responses
   ###
-  union LoanDetailsResp = LoanDetailsCommit | LoanDetailsError
+  union PrvResponse = PrvCommit | SrvError
 
-  type LoanDetailsCommit {
+  type PrvCommit {
     id: String
     entityName: String
     version: Int
@@ -94,7 +94,7 @@ export const typeDefs = gql`
     entityId: String
   }
 
-  type LoanDetailsError {
+  type SrvError {
     message: String!
     stack: String
   }

@@ -15,7 +15,7 @@ export const UPDATE_LOAN = gql`
       description: $description
       comment: $comment
     ) {
-      ... on LoanCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -23,7 +23,7 @@ export const UPDATE_LOAN = gql`
         entityId
         mspId
       }
-      ... on LoanError {
+      ... on SrvError {
         message
       }
     }

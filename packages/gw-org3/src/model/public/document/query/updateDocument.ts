@@ -17,7 +17,7 @@ export const UPDATE_DOCUMENT = gql`
       reference: $reference
       link: $link
     ) {
-      ... on DocCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -25,7 +25,7 @@ export const UPDATE_DOCUMENT = gql`
         entityId
         mspId
       }
-      ... on DocError {
+      ... on SrvError {
         message
       }
     }

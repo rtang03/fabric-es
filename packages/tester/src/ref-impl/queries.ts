@@ -223,7 +223,7 @@ export const GET_COMMITS_BY_LOAN = `
 export const APPLY_LOAN = `
   mutation ApplyLoan($userId: String!, $loanId: String!, $description: String!, $reference: String!, $comment: String) {
     applyLoan(userId: $userId, loanId: $loanId, description: $description, reference: $reference, comment: $comment) {
-      ... on LoanCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -231,7 +231,7 @@ export const APPLY_LOAN = `
         entityId
         mspId
       }
-      ... on LoanError {
+      ... on SrvError {
         message
       }
     }
@@ -241,7 +241,7 @@ export const APPLY_LOAN = `
 export const UPDATE_LOAN = `
   mutation UpdateLoan($userId: String!, $loanId: String!, $reference: String, $description: String, $comment: String) {
     updateLoan(userId: $userId, loanId: $loanId, reference: $reference, description: $description, comment: $comment) {
-      ... on LoanCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -249,7 +249,7 @@ export const UPDATE_LOAN = `
         entityId
         mspId
       }
-      ... on LoanError {
+      ... on SrvError {
         message
       }
     }
@@ -265,7 +265,7 @@ export const CREATE_DOCUMENT = `
     $reference: String!
   ) {
     createDocument(userId: $userId, documentId: $documentId, loanId: $loanId, title: $title, reference: $reference) {
-      ... on DocCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -273,7 +273,7 @@ export const CREATE_DOCUMENT = `
         entityId
         mspId
       }
-      ... on DocError {
+      ... on SrvError {
         message
       }
     }
@@ -290,7 +290,7 @@ export const CREATE_DOCUMENT_CUST = `
     $link: String!
   ) {
     createDocument(userId: $userId, documentId: $documentId, loanId: $loanId, title: $title, reference: $reference, link: $link) {
-      ... on DocCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -298,7 +298,7 @@ export const CREATE_DOCUMENT_CUST = `
         entityId
         mspId
       }
-      ... on DocError {
+      ... on SrvError {
         message
       }
     }
@@ -308,7 +308,7 @@ export const CREATE_DOCUMENT_CUST = `
 export const UPDATE_DOCUMENT = `
   mutation UpdateDocument($userId: String!, $documentId: String!, $loanId: String, $title: String, $reference: String) {
     updateDocument(userId: $userId, documentId: $documentId, loanId: $loanId, title: $title, reference: $reference) {
-      ... on DocCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -316,7 +316,7 @@ export const UPDATE_DOCUMENT = `
         entityId
         mspId
       }
-      ... on DocError {
+      ... on SrvError {
         message
       }
     }
@@ -326,7 +326,7 @@ export const UPDATE_DOCUMENT = `
 export const UPDATE_DOCUMENT_CUST = `
   mutation UpdateDocument($userId: String!, $documentId: String!, $loanId: String, $title: String, $reference: String, $link: String) {
     updateDocument(userId: $userId, documentId: $documentId, loanId: $loanId, title: $title, reference: $reference, link: $link) {
-      ... on DocCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -334,7 +334,7 @@ export const UPDATE_DOCUMENT_CUST = `
         entityId
         mspId
       }
-      ... on DocError {
+      ... on SrvError {
         message
       }
     }
@@ -344,7 +344,7 @@ export const UPDATE_DOCUMENT_CUST = `
 export const CREATE_DOC_CONTENTS = `
   mutation CreateDocContents($userId: String!, $documentId: String!, $content: DocsInput!) {
     createDocContents(userId: $userId, documentId: $documentId, content: $content) {
-      ... on DocContentsCommit {
+      ... on PrvCommit {
         id
         entityName
         version
@@ -352,7 +352,7 @@ export const CREATE_DOC_CONTENTS = `
         entityId
         mspId
       }
-      ... on DocContentsError {
+      ... on SrvError {
         message
       }
     }
@@ -362,7 +362,7 @@ export const CREATE_DOC_CONTENTS = `
 export const UPDATE_DOC_CONTENTS = `
   mutation UpdateDocContents($userId: String!, $documentId: String!, $content: DocsInput!) {
     updateDocContents(userId: $userId, documentId: $documentId, content: $content) {
-      ... on DocContentsCommit {
+      ... on PrvCommit {
         id
         entityName
         version
@@ -370,7 +370,7 @@ export const UPDATE_DOC_CONTENTS = `
         entityId
         mspId
       }
-      ... on DocContentsError {
+      ... on SrvError {
         message
       }
     }
@@ -404,7 +404,7 @@ export const CREATE_LOAN_DETAILS = `
       approvedAmt: $approvedAmt
       comment: $comment
     ) {
-      ... on LoanDetailsCommit {
+      ... on PrvCommit {
         id
         entityName
         version
@@ -412,7 +412,7 @@ export const CREATE_LOAN_DETAILS = `
         entityId
         mspId
       }
-      ... on LoanDetailsError {
+      ... on SrvError {
         message
       }
     }
@@ -446,7 +446,7 @@ export const UPDATE_LOAN_DETAILS = `
       approvedAmt: $approvedAmt
       comment: $comment
     ) {
-      ... on LoanDetailsCommit {
+      ... on PrvCommit {
         id
         entityName
         version
@@ -454,7 +454,7 @@ export const UPDATE_LOAN_DETAILS = `
         entityId
         mspId
       }
-      ... on LoanDetailsError {
+      ... on SrvError {
         message
       }
     }
@@ -464,7 +464,7 @@ export const UPDATE_LOAN_DETAILS = `
 export const APPROVE_LOAN = `
   mutation ApproveLoan($userId: String!, $loanId: String!) {
     approveLoan(userId: $userId, loanId: $loanId) {
-      ... on LoanCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -472,7 +472,7 @@ export const APPROVE_LOAN = `
         entityId
         mspId
       }
-      ... on LoanError {
+      ... on SrvError {
         message
       }
     }
@@ -482,7 +482,7 @@ export const APPROVE_LOAN = `
 export const RESTRICT_DOC_ACCESS = `
   mutation RestrictAccess($userId: String!, $documentId: String!) {
     restrictAccess(userId: $userId, documentId: $documentId) {
-      ... on DocCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -490,7 +490,7 @@ export const RESTRICT_DOC_ACCESS = `
         entityId
         mspId
       }
-      ... on DocError {
+      ... on SrvError {
         message
       }
     }

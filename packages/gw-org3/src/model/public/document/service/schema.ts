@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 export const typeDefs = gql`
   type Query {
-    getCommitsByDocumentId(documentId: String!): [DocCommit]!
+    getCommitsByDocumentId(documentId: String!): [PubCommit]!
     getDocumentById(documentId: String!): Document
     getPaginatedDocuments(cursor: Int, pageSize: Int = 10): PaginatedDocuments!
     searchDocumentByFields(where: String!): [Document]
@@ -17,9 +17,9 @@ export const typeDefs = gql`
       title: String
       reference: String!
       link: String!
-    ): DocResponse
-    deleteDocument(userId: String!, documentId: String!): DocResponse
-    restrictAccess(userId: String!, documentId: String!): DocResponse
+    ): PubResponse
+    deleteDocument(userId: String!, documentId: String!): PubResponse
+    restrictAccess(userId: String!, documentId: String!): PubResponse
     updateDocument(
       userId: String!
       documentId: String!
@@ -27,7 +27,7 @@ export const typeDefs = gql`
       title: String
       reference: String
       link: String
-    ): [DocResponse]!
+    ): [PubResponse]!
   }
 
   type Document @key(fields: "documentId") {
@@ -53,23 +53,23 @@ export const typeDefs = gql`
     documents: [Document]
   }
 
-  union DocResponse = DocCommit | DocError
+  union PubResponse = PubCommit | SrvError
 
-  type DocEvent {
+  type Event {
     type: String
   }
 
-  type DocCommit {
+  type PubCommit {
     id: String
     entityName: String
     version: Int
     commitId: String
     mspId: String
     entityId: String
-    events: [DocEvent!]
+    events: [Event!]
   }
 
-  type DocError {
+  type SrvError {
     message: String!
     stack: String
   }
