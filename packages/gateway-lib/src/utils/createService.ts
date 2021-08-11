@@ -14,6 +14,7 @@ import {
   EntityType,
   ReducerCallback
 } from '@fabric-es/fabric-cqrs';
+import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
 import { GraphQLResolverMap } from 'apollo-graphql';
 import { ApolloServer } from 'apollo-server';
 import EC from 'elliptic';
@@ -26,7 +27,7 @@ import { DataSrc } from '..';
 import { Organization, OrgEvents, orgReducer, orgIndices, User, UserEvents, userReducer, userIndices } from '../common/model';
 import { AddRepository, AddRemoteRepository, FederatedService, ServiceType } from '../types';
 import { buildCatalogedSchema } from './catalog';
-import { composeRedisRepos, getLogger, shutdownApollo, normalizeReq, combinSchema, getAclTypeDefs, getAclResolver } from '.';
+import { composeRedisRepos, getLogger, shutdownApollo, normalizeReq, getAclTypeDefs, getAclResolver } from '.';
 
 /**
  * @about entity microservice
@@ -178,17 +179,29 @@ export const createService: (option: {
         introspection?: boolean;
         catalog?: boolean;
       }) => ApolloServer = (option) => {
-        const sdls = [];
-        let csdl = ((option && option.catalog) || !option) ? buildCatalogedSchema(serviceName, type, sdl) : combinSchema({sdls: sdl}); // TODO: here assume using default names for the root operations
-        if (csdl) sdls.push(csdl);
+        // const sdls = [];
+        // let csdl = ((option && option.catalog) || !option) ? buildCatalogedSchema(serviceName, type, sdl) : combinSchema({sdls: sdl}); // TODO: here assume using default names for the root operations
+        // if (csdl) sdls.push(csdl);
+        // if (type === ServiceType.Private) {
+        //   sdls.push({
+        //    typeDefs: getAclTypeDefs(serviceName),
+        //    resolvers: getAclResolver(serviceName),
+        //   });
+        //   csdl = combinSchema({sdls}); // TODO: here assume using default names for the root operations
+        // }
+        // const schema = buildFederatedSchema(csdl);
         if (type === ServiceType.Private) {
-          sdls.push({
+          sdl.push({
             typeDefs: getAclTypeDefs(serviceName),
             resolvers: getAclResolver(serviceName),
           });
-          csdl = combinSchema({sdls}); // TODO: here assume using default names for the root operations
         }
-        const schema = buildFederatedSchema(csdl);
+        const sdls = {
+          typeDefs: mergeTypeDefs(sdl.map(s => s.typeDefs)),
+          resolvers: mergeResolvers(sdl.map(s => s.resolvers)),
+        };
+        const schema = buildFederatedSchema(((option && option.catalog) || !option) ? buildCatalogedSchema(serviceName, type, sdls) : sdls);
+        //
 
         const args = mspId ? { mspId } : undefined;
         const flags = {

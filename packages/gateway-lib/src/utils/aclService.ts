@@ -93,10 +93,14 @@ export const delAcl = async (
 export const getAclTypeDefs = (service: string) => {
   return gql`
   type Query {
+    "@Skip"
     _acl_${service}(entityId: String!, accessor: String!): String!
   }
   type Mutation {
+    "@Skip"
     _set_acl_${service}(entityId: String!, accessors: [String!]!): Int!
+
+    "@Skip"
     _del_acl_${service}(entityId: String!, accessor: String!): Int!
   }`;
 };

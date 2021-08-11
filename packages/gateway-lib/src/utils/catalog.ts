@@ -1,4 +1,5 @@
 import util from 'util';
+import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
 import { execute, makePromise } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import { Request, Response } from 'express';
@@ -9,7 +10,6 @@ import { ServiceType } from '../types';
 import { getLogger } from './getLogger';
 import {
   checkDesc,
-  combinSchema,
   findDataType,
   buildObjectType,
   ANNO_IGNORE,
@@ -24,7 +24,7 @@ const logger = getLogger('[gw-lib] catalog.js');
 export const buildCatalogedSchema = (service: string, serviceType: ServiceType, sdl: {
   typeDefs: DocumentNode;
   resolvers: any;
-}[]) => {
+}) => {
   let roQuery = 'Query';
   let roMutation = 'Mutation';
   let roSubscription = 'Subscription';
@@ -168,19 +168,25 @@ export const buildCatalogedSchema = (service: string, serviceType: ServiceType, 
     return catalog;
   };
 
-  const sdls = [];
-  const csdl = combinSchema({sdls: sdl, roq: roQuery, rom: roMutation, ros: roSubscription}); // Combine supplied schemas first
-  if (csdl) sdls.push(csdl);
-  const cat = buildCatalog(csdl.typeDefs); // get catalog of the combined schema
+  const sdls = [sdl];
+  // const csdl = combinSchema({sdls: sdl, roq: roQuery, rom: roMutation, ros: roSubscription}); // Combine supplied schemas first
+  // if (csdl) sdls.push(csdl);
+  const cat = buildCatalog(sdl.typeDefs); // get catalog of the combined schema
   sdls.push({
     typeDefs: getCatalogTypeDefs(service),
     resolvers: getCatalogResolver(service, cat),
   });
-  return combinSchema({sdls, roq: roQuery, rom: roMutation, ros: roSubscription, needJson: true});
+  // return combinSchema({sdls, roq: roQuery, rom: roMutation, ros: roSubscription, needJson: true});
+  return {
+    typeDefs: mergeTypeDefs(sdls.map(s => s.typeDefs)),
+    resolvers: mergeResolvers(sdls.map(s => s.resolvers)),
+  };
 };
 
 export const getCatalogTypeDefs = (service: string) => {
   return gql`
+  scalar JSON
+
   type Query {
     _catalog_${service}: JSON
   }`;
@@ -371,7 +377,7 @@ export const getCatalog = async (
     }).catch(error => {
       const result = util.format('Getting catalogue: %j', error);
       if (result.includes('_catalog_')) // TODO should find a better way to supress incorrect error message when catalog is disabled
-        logger.debug(result);
+        logger.warn(result);
       else
         logger.error(result);
       return undefined;
