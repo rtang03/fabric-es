@@ -12,3 +12,4 @@ export * from './buildRedisOptions';
 export * from './createGatewayWithAuth0';
 export * from './aclService';
 export * from './schemaUtils';
+export * from './httpsUtils';

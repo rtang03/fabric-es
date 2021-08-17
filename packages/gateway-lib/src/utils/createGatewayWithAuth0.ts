@@ -1,4 +1,6 @@
+import fs from 'fs';
 import http from 'http';
+import https from 'https';
 import util from 'util';
 import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import terminus from '@godaddy/terminus';
@@ -13,6 +15,7 @@ import fetch from 'node-fetch';
 import winston from 'winston';
 import { getCatalog } from './catalog';
 import { getLogger } from './getLogger';
+import { getHttpsServerOption, IS_HTTPS } from './httpsUtils';
 import { pm2Connect, pm2List } from './promisifyPm2';
 import { isAuth0UserInfo } from './typeGuard';
 
@@ -92,7 +95,9 @@ export const createGatewayWithAuth0: (option: {
   adminPort?: number;
   debug?: boolean;
   customExpressApp?: Express;
-}) => Promise<http.Server> = async ({
+  certPath?: string;
+  certKeyPath?: string;
+}) => Promise<http.Server | https.Server> = async ({
   serviceList = [],
   authenticationCheck,
   useCors = false,
@@ -105,6 +110,8 @@ export const createGatewayWithAuth0: (option: {
   adminHost = 'localhost',
   adminPort = 15000,
   customExpressApp,
+  certPath,
+  certKeyPath,
 }) => {
   const logger = getLogger('[gw-lib] createGateway.js');
 
@@ -241,14 +248,20 @@ export const createGatewayWithAuth0: (option: {
       setTimeout(resolve, 5000);
     });
 
-  return terminus.createTerminus(http.createServer(app), {
-    timeout: 3000,
-    logger: console.log,
-    signals: ['SIGINT', 'SIGTERM'],
-    healthChecks: {
-      '/healthcheck': onHealthCheck,
-    },
-    onSignal,
-    beforeShutdown,
+  const options = await getHttpsServerOption({
+    certKeyPath, certPath
   });
+  const result = terminus.createTerminus(
+    (options) ? https.createServer(options, app) : http.createServer(app), {
+      timeout: 3000,
+      logger: console.log,
+      signals: ['SIGINT', 'SIGTERM'],
+      healthChecks: {
+        '/healthcheck': onHealthCheck,
+      },
+      onSignal,
+      beforeShutdown,
+    });
+  if (options) result[IS_HTTPS] = true;
+  return result;
 };

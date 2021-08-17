@@ -1,6 +1,6 @@
 require('./env');
 import util from 'util';
-import { createGateway, getLogger } from '@fabric-es/gateway-lib';
+import { createGateway, getLogger, IS_HTTPS } from '@fabric-es/gateway-lib';
 
 const PORT = (process.env.GATEWAY_PORT || 4001) as number;
 const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI;
@@ -24,7 +24,8 @@ const logger = getLogger('[gw-org2] app.js');
         url: `http://${process.env.GATEWAY_HOST}:${process.env.PRIVATE_LOAN_DETAILS_PORT}/graphql`
       },
       {
-        name: 'docContents', url: `http://${process.env.GATEWAY_HOST}:${process.env.REMOTE_DOC_CONTENTS_PORT}/graphql`
+        name: 'docContents',
+        url: `http://${process.env.GATEWAY_HOST}:${process.env.REMOTE_DOC_CONTENTS_PORT}/graphql`
       },
     ],
     authenticationCheck,
@@ -34,6 +35,8 @@ const logger = getLogger('[gw-org2] app.js');
     gatewayName: 'ORG-2',
     adminHost: process.env.GATEWAY_HOST,
     adminPort: parseInt(process.env.ADMINISTRATOR_PORT, 10),
+    certPath: process.env.CERT_PATH_CERT,
+    certKeyPath: process.env.CERT_PATH_KEY,
   });
 
   process.on('uncaughtException', err => {
@@ -42,7 +45,7 @@ const logger = getLogger('[gw-org2] app.js');
   });
 
   gateway.listen(PORT, () => {
-    logger.info(`🚀 gateway ready at http://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
+    logger.info(`🚀 gateway ready at ${gateway[IS_HTTPS] ? 'https' : 'http'}://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
     process?.send?.('ready');
   });
 })().catch(error => {

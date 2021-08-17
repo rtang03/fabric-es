@@ -1,12 +1,9 @@
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
-import util from 'util';
 import { ApolloError, ForbiddenError } from 'apollo-server';
 import gql from 'graphql-tag';
 import StormDB from 'stormdb';
 import { UNAUTHORIZED_ACCESS } from '../admin/constants';
-
-const mkdir = util.promisify(fs.mkdir);
 
 export const getAcl = async (
   aclPath: string,
@@ -14,7 +11,7 @@ export const getAcl = async (
   accessor: string,
 ) => {
   try {
-    await mkdir(path.dirname(aclPath), { recursive: true });
+    await fs.mkdir(path.dirname(aclPath), { recursive: true });
     const engine = new StormDB.localFileEngine(aclPath, { async: true });
     const db = new StormDB(engine);
     db.default({ acl: {}});
@@ -36,7 +33,7 @@ export const setAcl = async (
   accessors: string[],
 ) => {
   try {
-    await mkdir(path.dirname(aclPath), { recursive: true });
+    await fs.mkdir(path.dirname(aclPath), { recursive: true });
     const engine = new StormDB.localFileEngine(aclPath, { async: true });
     const db = new StormDB(engine);
     db.default({ acl: {}});
@@ -67,7 +64,7 @@ export const delAcl = async (
   accessor: string,
 ) => {
   try {
-    await mkdir(path.dirname(aclPath), { recursive: true });
+    await fs.mkdir(path.dirname(aclPath), { recursive: true });
     const engine = new StormDB.localFileEngine(aclPath, { async: true });
     const db = new StormDB(engine);
     db.default({ acl: {}});

@@ -22,7 +22,8 @@
     "prepareKeyPair": "node ./dist/prepareKeyPair.js",
     "gen-resolvers-type": "graphql-codegen --config codegen.yml",
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'",
-    "test:intg": "yarn build && ./node_modules/.bin/jest intg.test"
+    "test:intg": "yarn build && ./node_modules/.bin/jest intg.test",
+    "test:prog": "yarn build && ./node_modules/.bin/jest program.test"
   },
   "private": true,
   "dependencies": {
