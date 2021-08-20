@@ -2,7 +2,6 @@ import util from 'util';
 import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
 import { execute, makePromise } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
-import { Request, Response } from 'express';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import nodeFetch from 'node-fetch';
@@ -214,7 +213,7 @@ export const getCatalog = async (
   services: {
     name: string;
     url: string;
-  }[]
+  }[],
 ) => {
   const checkIgnore = (n: any) => {
     let ignored = false;
@@ -412,20 +411,16 @@ export const getCatalog = async (
   if (hasOverview) {
     content = '\n## Overview' + content + '\n[↑ top](#top)\n\n<br></br>';
   }
-  const catalog = `<a name="top"></a>\n# Data Catalogue: Gateway __${gatewayName}__${content}${details}`;
 
-  // return ((req: Request, res: Response) => {
+  return `<a name="top"></a>\n# Data Catalogue: Gateway __${gatewayName}__${content}${details}`;
+  // return ((_, res: Response) => {
   //   res.setHeader('content-type', 'text/markdown; charset=UTF-8');
-  //   res.send(temp);
+  //   res.send(catalog);
   // });
 
-  // TODO TEMP
-  const temp = `
-<!DOCTYPE html>
-<html><title>${gatewayName}</title><xmp theme="Spacelab" style="display:none;">${catalog}</xmp><script src="http://strapdownjs.com/v/0.2/strapdown.js"></script></html>
-`;
-  return ((req: Request, res: Response) => {
-    res.setHeader('content-type', 'text/html; charset=UTF-8');
-    res.send(temp);
-  });
+  // TODO TEMP?!
+  // return ((_, res: Response) => {
+  //   res.setHeader('content-type', 'text/html; charset=UTF-8');
+  //   res.send(`<!DOCTYPE html><html><title>${gatewayName}</title><xmp theme="Spacelab" style="display:none;">${catalog}</xmp><script src="strapdown.js"></script></html>`);
+  // });
 };

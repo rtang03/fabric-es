@@ -208,7 +208,7 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
       await createRemoteData({
         accessor: context.mspId,
         keyPath: context.keyPath,
-        uri: oresult.data?.items[0].url,
+        uri,
         query,
         id,
         context,
@@ -224,7 +224,7 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
           await createRemoteData({
             accessor: context.mspId,
             keyPath: context.keyPath,
-            uri,
+            uri: oresult.data?.items[0].url,
             query,
             id,
             context,

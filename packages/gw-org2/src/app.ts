@@ -1,6 +1,7 @@
 require('./env');
 import util from 'util';
 import { createGateway, getLogger, IS_HTTPS } from '@fabric-es/gateway-lib';
+import { Response } from 'express';
 
 const PORT = (process.env.GATEWAY_PORT || 4001) as number;
 const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI;
@@ -9,6 +10,7 @@ const logger = getLogger('[gw-org2] app.js');
 (async () => {
   logger.info('♨️♨️  Starting [gw-org2] gateway');
 
+  const gatewayName = 'ORG-2';
   const gateway = await createGateway({
     serviceList: [
       {
@@ -32,11 +34,16 @@ const logger = getLogger('[gw-org2] app.js');
     useCors: false,
     corsOrigin: 'http://localhost:3000',
     debug: false,
-    gatewayName: 'ORG-2',
+    gatewayName,
     adminHost: process.env.GATEWAY_HOST,
     adminPort: parseInt(process.env.ADMINISTRATOR_PORT, 10),
     certPath: process.env.CERT_PATH_CERT,
     certKeyPath: process.env.CERT_PATH_KEY,
+  }, (catalog: string) => {
+    return ((_, res: Response) => {
+      res.setHeader('content-type', 'text/html; charset=UTF-8');
+      res.send(`<!DOCTYPE html><html><title>${gatewayName}</title><xmp theme="Spacelab" style="display:none;">${catalog}</xmp><script src="https://strapdownjs.com/v/0.2/strapdown.js"></script></html>`);
+    });
   });
 
   process.on('uncaughtException', err => {

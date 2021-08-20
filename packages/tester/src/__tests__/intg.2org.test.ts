@@ -20,12 +20,15 @@ import {
   SET_ACL,
 } from '../ref-impl/queries';
 
-const AUTH_REG_1 = `http://${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}/account`;
-const AUTH_LOG_1 = `http://${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}/account/login`;
-const AUTH_REG_2 = `http://${process.env.AUTH_HOST2}:${process.env.AUTH_PORT2}/account`;
-const AUTH_LOG_2 = `http://${process.env.AUTH_HOST2}:${process.env.AUTH_PORT2}/account/login`;
-const GATEWAY1 = `http://${process.env.GATEWAY_HOST1}:${process.env.GATEWAY_PORT1}/graphql`;
-const GATEWAY2 = `http://${process.env.GATEWAY_HOST2}:${process.env.GATEWAY_PORT2}/graphql`;
+// set NODE_EXTRA_CA_CERTS equals the CA cert
+const PROTO = (process.env.USE_HTTPS && (process.env.USE_HTTPS === 'true')) ? 'https' : 'http';
+
+const AUTH_REG_1 = `${PROTO}://${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}/account`;
+const AUTH_LOG_1 = `${PROTO}://${process.env.AUTH_HOST1}:${process.env.AUTH_PORT1}/account/login`;
+const AUTH_REG_2 = `${PROTO}://${process.env.AUTH_HOST2}:${process.env.AUTH_PORT2}/account`;
+const AUTH_LOG_2 = `${PROTO}://${process.env.AUTH_HOST2}:${process.env.AUTH_PORT2}/account/login`;
+const GATEWAY1 = `${PROTO}://${process.env.GATEWAY_HOST1}:${process.env.GATEWAY_PORT1}/graphql`;
+const GATEWAY2 = `${PROTO}://${process.env.GATEWAY_HOST2}:${process.env.GATEWAY_PORT2}/graphql`;
 
 const password = 'p@ssw0rd';
 const timestamp = Date.now();

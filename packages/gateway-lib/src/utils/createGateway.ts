@@ -7,7 +7,7 @@ import terminus from '@godaddy/terminus';
 import { execute, makePromise } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import { ApolloServer } from 'apollo-server-express';
-import express from 'express';
+import express, { Express, Request, Response } from 'express';
 import gql from 'graphql-tag';
 import httpStatus from 'http-status';
 import pick from 'lodash/pick';
@@ -76,23 +76,25 @@ query Pubkey {
  * }
  * ```
  */
-export const createGateway: (option: {
-  serviceList?: {
-    name: string;
-    url: string;
-  }[];
-  authenticationCheck: string;
-  useCors?: boolean;
-  corsOrigin?: string;
-  playground?: boolean;
-  introspection?: boolean;
-  gatewayName?: string;
-  adminHost?: string;
-  adminPort?: number;
-  debug?: boolean;
-  certPath?: string;
-  certKeyPath?: string;
-}) => Promise<http.Server | https.Server> = async ({
+export const createGateway: (
+  option: {
+    serviceList?: {
+      name: string;
+      url: string;
+    }[];
+    authenticationCheck: string;
+    useCors?: boolean;
+    corsOrigin?: string;
+    playground?: boolean;
+    introspection?: boolean;
+    gatewayName?: string;
+    adminHost?: string;
+    adminPort?: number;
+    debug?: boolean;
+    certPath?: string;
+    certKeyPath?: string;
+  }, catalog?: (ctlg: string, app?: Express) => (req: Request, res: Response) => void
+) => Promise<http.Server | https.Server> = async ({
   serviceList = [],
   authenticationCheck,
   useCors = false,
@@ -105,7 +107,7 @@ export const createGateway: (option: {
   adminPort = 15000,
   certPath,
   certKeyPath,
-}) => {
+}, catalog) => {
   const logger = getLogger('[gw-lib] createGateway.js');
 
   if (serviceList.filter(s => s.name === 'admin').length <= 0) {
@@ -174,7 +176,15 @@ export const createGateway: (option: {
 
   app.get('/ping', (_, res) => res.status(200).send({ data: 'pong' }));
 
-  app.get('/catalog', await getCatalog(gatewayName, serviceList.filter(s => s.name !== 'admin')));
+  const cltg = await getCatalog(gatewayName, serviceList.filter(s => s.name !== 'admin'));
+  if (!catalog) {
+    app.get('/catalog', (_, res) => {
+      res.setHeader('content-type', 'text/markdown; charset=UTF-8');
+      res.send(cltg);
+    });
+  } else {
+    app.get('/catalog', catalog(cltg, app));
+  }
 
   const { data } = await makePromise(
     execute(
