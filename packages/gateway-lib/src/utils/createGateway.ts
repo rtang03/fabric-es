@@ -1,4 +1,3 @@
-import fs from 'fs';
 import http from 'http';
 import https from 'https';
 import util from 'util';
@@ -176,14 +175,14 @@ export const createGateway: (
 
   app.get('/ping', (_, res) => res.status(200).send({ data: 'pong' }));
 
-  const cltg = await getCatalog(gatewayName, serviceList.filter(s => s.name !== 'admin'));
+  const ctlg = await getCatalog(gatewayName, serviceList.filter(s => s.name !== 'admin'));
   if (!catalog) {
     app.get('/catalog', (_, res) => {
       res.setHeader('content-type', 'text/markdown; charset=UTF-8');
-      res.send(cltg);
+      res.send(ctlg);
     });
   } else {
-    app.get('/catalog', catalog(cltg, app));
+    app.get('/catalog', catalog(ctlg, app));
   }
 
   const { data } = await makePromise(

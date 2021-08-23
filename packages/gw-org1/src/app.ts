@@ -1,7 +1,7 @@
 require('./env');
 import util from 'util';
 import { createGateway, getLogger, IS_HTTPS } from '@fabric-es/gateway-lib';
-import { Response } from 'express';
+import express, { Express, Response } from 'express';
 
 const PORT = (process.env.GATEWAY_PORT || 4001) as number;
 const authenticationCheck = process.env.AUTHORIZATION_SERVER_URI;
@@ -39,10 +39,11 @@ const logger = getLogger('[gw-org1] app.js');
     adminPort: parseInt(process.env.ADMINISTRATOR_PORT, 10),
     certPath: process.env.CERT_PATH_CERT,
     certKeyPath: process.env.CERT_PATH_KEY,
-  }, (catalog: string) => {
+  }, (catalog: string, app: Express) => {
+    app.use(express.static('html', { index: false }));
     return ((_, res: Response) => {
       res.setHeader('content-type', 'text/html; charset=UTF-8');
-      res.send(`<!DOCTYPE html><html><title>${gatewayName}</title><xmp theme="Spacelab" style="display:none;">${catalog}</xmp><script src="https://strapdownjs.com/v/0.2/strapdown.js"></script></html>`);
+      res.send(`<!DOCTYPE html><html><title>${gatewayName}</title><xmp theme="Spacelab" style="display:none;">${catalog}</xmp><script src="strapdown.js"></script></html>`);
     });
   });
 
