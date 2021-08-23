@@ -30,6 +30,7 @@ export const typeDefs = gql`
     ): [PubResponse]!
   }
 
+  "@Primary Customized public type: Document"
   type Document @key(fields: "documentId") {
     documentId: String!
     ownerId: String!

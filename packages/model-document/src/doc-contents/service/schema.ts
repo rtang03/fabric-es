@@ -21,8 +21,12 @@ export const typeDefs = gql`
   """
   type DocContents @key(fields: "documentId") {
     documentId: String!
+
+    "Can be data or link to file"
     content: Docs!
+
     timestamp: String!
+
     document: Document
   }
 

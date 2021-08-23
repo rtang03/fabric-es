@@ -41,7 +41,7 @@ export const typeDefs = gql`
   }
 
   """
-  **LoanDetails** contains the detail information of a particular loan request on the private-chain, not suppose to be globally accessible.
+  @Primary **LoanDetails** contains the detail information of a particular loan request on the private-chain, not suppose to be globally accessible.
   """
   type LoanDetails @key(fields: "loanId") {
     loanId: String!

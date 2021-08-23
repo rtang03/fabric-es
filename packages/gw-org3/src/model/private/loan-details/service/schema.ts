@@ -34,12 +34,12 @@ export const typeDefs = gql`
     ): [PrvResponse]!
   }
 
-  ###
-  # Local Type: Loan Details
-  ###
+  "@Primary Customized local type: Loan Details"
   type LoanDetails @key(fields: "loanId") {
     loanId: String!
     requester: LoanRequester!
+
+    "Data field with customized field"
     contact: ContactInfo!
     loanType: String
     startDate: String!
@@ -77,6 +77,8 @@ export const typeDefs = gql`
     title: String
     phone: String!
     email: String!
+
+    "Customized data field"
     company: String
   }
 
