@@ -14,7 +14,7 @@ import fetch from 'node-fetch';
 import winston from 'winston';
 import { getCatalog } from './catalog';
 import { getLogger } from './getLogger';
-import { getHttpsServerOption, IS_HTTPS } from './httpsUtils';
+import { getHttpsServerOption, IS_HTTPS, httpsify } from './httpsUtils';
 import { pm2Connect, pm2List } from './promisifyPm2';
 import { isAuthResponse } from './typeGuard';
 
@@ -116,6 +116,11 @@ export const createGateway: (
     });
   }
 
+  const options = await getHttpsServerOption({
+    certKeyPath, certPath
+  });
+  const authCheckUrl = (options) ? httpsify(authenticationCheck) : authenticationCheck;
+
   const gateway = new ApolloGateway({
     serviceList,
     buildService: ({ url }) => new AuthenticatedDataSource({ url }),
@@ -138,7 +143,7 @@ export const createGateway: (
       if (!token || (token === 'undefined') || (token === 'null')) return { signature, accessor, id };
 
       try {
-        const response = await fetch(authenticationCheck, {
+        const response = await fetch(authCheckUrl, {
           method: 'POST',
           headers: { authorization: `Bearer ${token}` },
         });
@@ -216,7 +221,7 @@ export const createGateway: (
   // check auth-server is alive
   const onHealthCheck = async () => {
     // ping auth-server
-    const authCheck = await fetch(`${authenticationCheck}/ping`)
+    const authCheck = await fetch(`${authCheckUrl}/ping`)
       .then<{ auth: string }>((response) =>
         response.status === httpStatus.OK ? { auth: 'ok' } : { auth: `${response.status}` }
       )
@@ -259,9 +264,6 @@ export const createGateway: (
       setTimeout(resolve, 5000);
     });
 
-  const options = await getHttpsServerOption({
-    certKeyPath, certPath
-  });
   const result = terminus.createTerminus(
     (options) ? https.createServer(options, app) : http.createServer(app), {
       timeout: 3000,
