@@ -303,6 +303,7 @@ beforeAll(async () => {
     isReady = org1Ready && org2Ready && org3Ready;
   } catch (e) {
     console.error(e);
+    await new Promise((resolve) => setTimeout(() => resolve(true), 5000));
     process.exit(1);
   }
 });

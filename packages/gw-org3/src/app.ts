@@ -15,19 +15,19 @@ const logger = getLogger('[gw-org3] app.js');
     serviceList: [
       {
         name: 'loan',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_LOAN_PORT}/graphql`
+        url: `http://${process.env.SERVICE_LOAN_HOST}:${process.env.SERVICE_LOAN_PORT}/graphql`
       },
       {
         name: 'document',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.SERVICE_DOCUMENT_PORT}/graphql`
+        url: `http://${process.env.SERVICE_DOCUMENT_HOST}:${process.env.SERVICE_DOCUMENT_PORT}/graphql`
       },
       {
         name: 'loanDetails',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.PRIVATE_LOAN_DETAILS_PORT}/graphql`
+        url: `http://${process.env.PRIVATE_LOAN_DETAILS_HOST}:${process.env.PRIVATE_LOAN_DETAILS_PORT}/graphql`
       },
       {
         name: 'docContents',
-        url: `http://${process.env.GATEWAY_HOST}:${process.env.PRIVATE_DOC_CONTENTS_PORT}/graphql`
+        url: `http://${process.env.PRIVATE_DOC_CONTENTS_HOST}:${process.env.PRIVATE_DOC_CONTENTS_PORT}/graphql`
       },
     ],
     authenticationCheck,
@@ -35,7 +35,7 @@ const logger = getLogger('[gw-org3] app.js');
     corsOrigin: 'http://localhost:3000',
     debug: false,
     gatewayName,
-    adminHost: process.env.GATEWAY_HOST,
+    adminHost: process.env.ADMINISTRATOR_HOST,
     adminPort: parseInt(process.env.ADMINISTRATOR_PORT, 10),
     certPath: process.env.CERT_PATH_CERT,
     certKeyPath: process.env.CERT_PATH_KEY,
@@ -53,7 +53,7 @@ const logger = getLogger('[gw-org3] app.js');
   });
 
   gateway.listen(PORT, () => {
-    logger.info(`🚀 gateway ready at ${gateway[IS_HTTPS] ? 'https' : 'http'}://${process.env.GATEWAY_HOST}:${PORT}/graphql`);
+    logger.info(`🚀 gateway ready at ${gateway[IS_HTTPS] ? 'https' : 'http'}://${process.env.GATEWAY_HOST || '127.0.0.1'}:${PORT}/graphql`);
     process?.send?.('ready');
   });
 })().catch(error => {
