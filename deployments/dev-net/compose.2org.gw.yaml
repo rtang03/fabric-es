@@ -13,13 +13,16 @@ services:
       - CA_ENROLLMENT_ID_ADMIN=rca-org2-admin
       - CA_ENROLLMENT_SECRET_ADMIN=rca-org2-adminPW
       - CA_NAME=rca-org2
-      - ORG_CA_URL=https://rca-org2:5253
+      # - ORG_CA_URL=https://rca-org2:5253
       - ORG_ADMIN_ID=admin-org2.net
       - ORG_ADMIN_SECRET=admin-org2.netPW
       - GATEWAY_HOST=gw-org2
       - REDIS_HOST=redis2
       - QUERY_PORT=5002
       - ORGURL=http://gw-org2:4001/graphql
+      # - CERT_PATH_CERT=/cert/org2.crt
+      # - CERT_PATH_KEY=/cert/org2.key
+      # - NODE_EXTRA_CA_CERTS=/cert/ca.crt
     working_dir: /home/app/packages/gw-org2
     ports:
       - 4002:4001
@@ -32,6 +35,7 @@ services:
       - orderer0-org0
       - peer0-org2
     volumes:
-      #- $VOLUME/gw-org2/assets/:/home/app/packages/gw-org2/assets/
-      #- $VOLUME/gw-org2/logs/:/home/app/packages/gw-org2/logs/
+      # - $VOLUME/gw-org2/assets/:/home/app/packages/gw-org2/assets/
+      # - $VOLUME/gw-org2/logs/:/home/app/packages/gw-org2/logs/
       - $ARTIFACTS/crypto-config/:/var/artifacts/crypto-config/
+      - $CERTS:/cert

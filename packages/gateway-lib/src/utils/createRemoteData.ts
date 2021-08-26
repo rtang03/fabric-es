@@ -8,7 +8,6 @@ import nodeFetch from 'node-fetch';
 import { getLogger } from '..';
 import { ORGAN_NAME } from '../common/model';
 import { ServiceType } from '../types';
-import { httpsify } from '.';
 
 const fetch = nodeFetch as any;
 
@@ -203,12 +202,10 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
         throw new Error(util.format(`getting ${ORGAN_NAME} failed, %j`, oresult.error));
       }
 
-      const uri = httpsify(oresult.data?.items[0].url);
-
       await createRemoteData({
         accessor: context.mspId,
         keyPath: context.keyPath,
-        uri,
+        uri: oresult.data?.items[0].url,
         query,
         id,
         context,
@@ -218,28 +215,8 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
         } else if (data) {
           result.push(data[query.definitions[0]['selectionSet'].selections[0].name.value]);
         }
-      }).catch(async error => {
-        if (error.code === 'ECONNRESET') {
-          logger.info(`retry accessing remote data: ${error.code}`);
-          await createRemoteData({
-            accessor: context.mspId,
-            keyPath: context.keyPath,
-            uri: oresult.data?.items[0].url,
-            query,
-            id,
-            context,
-          }).then(({ data, errors }) => {
-            if (errors) {
-              logger.error(util.format('Reemote Data, %j', errors));
-            } else if (data) {
-              result.push(data[query.definitions[0]['selectionSet'].selections[0].name.value]);
-            }
-          }).catch(error => {
-            logger.error(util.format('remote data retry, %j', error));
-          });
-        } else {
-          logger.error(util.format('remote data, %j', error));
-        }
+      }).catch(error => {
+        logger.error(util.format('remote data, %j', error));
       });
     } else {
       logger.debug(`skipping retrieving data remotely from self`);
