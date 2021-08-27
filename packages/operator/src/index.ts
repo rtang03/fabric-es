@@ -1,3 +1,4 @@
+// internal module
 export * from './utils/createNetworkOperator';
 export * from './utils/orgKeys';
 export * from './enrollAdmin';
