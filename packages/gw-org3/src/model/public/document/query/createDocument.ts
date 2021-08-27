@@ -10,7 +10,7 @@ export const CREATE_DOCUMENT = gql`
     $link: String!
   ) {
     createDocument(userId: $userId, documentId: $documentId, loanId: $loanId, title: $title, reference: $reference, link: $link) {
-      ... on DocCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -18,7 +18,7 @@ export const CREATE_DOCUMENT = gql`
         entityId
         mspId
       }
-      ... on DocError {
+      ... on SrvError {
         message
       }
     }

@@ -15,7 +15,7 @@ export const CREATE_DOCUMENT = gql`
       title: $title
       reference: $reference
     ) {
-      ... on DocCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -23,7 +23,7 @@ export const CREATE_DOCUMENT = gql`
         entityId
         mspId
       }
-      ... on DocError {
+      ... on SrvError {
         message
       }
     }

@@ -13,13 +13,17 @@ services:
       - CA_ENROLLMENT_ID_ADMIN=rca-org1-admin
       - CA_ENROLLMENT_SECRET_ADMIN=rca-org1-adminPW
       - CA_NAME=rca-org1
-      - ORG_CA_URL=https://rca-org1:5153
+      # - ORG_CA_URL=https://rca-org1:5153
       - ORG_ADMIN_ID=admin-org1.net
       - ORG_ADMIN_SECRET=admin-org1.netPW
       - GATEWAY_HOST=gw-org1
       - REDIS_HOST=redis1
       - QUERY_PORT=5001
       - ORGURL=http://gw-org1:4001/graphql
+      # - CERT_PATH_CERT=/cert/org1.crt
+      # - CERT_PATH_KEY=/cert/org1.key
+      # this is for using self-signed certs, should be removed for production
+      # - NODE_EXTRA_CA_CERTS=/cert/ca.crt
     working_dir: /home/app/packages/gw-org1
     ports:
       - 4001:4001
@@ -33,6 +37,7 @@ services:
       - orderer0-org0
       - peer0-org1
     volumes:
-      #- $VOLUME/gw-org1/assets/:/home/app/packages/gw-org1/assets/
-      #- $VOLUME/gw-org1/logs/:/home/app/packages/gw-org1/logs/
+      # - $VOLUME/gw-org1/assets/:/home/app/packages/gw-org1/assets/
+      # - $VOLUME/gw-org1/logs/:/home/app/packages/gw-org1/logs/
       - $ARTIFACTS/crypto-config/:/var/artifacts/crypto-config/
+      - $CERTS:/cert

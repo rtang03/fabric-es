@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 export const APPLY_LOAN = gql`
   mutation ApplyLoan($userId: String!, $loanId: String!, $description: String!, $reference: String!, $comment: String) {
     applyLoan(userId: $userId, loanId: $loanId, description: $description, reference: $reference, comment: $comment) {
-      ... on LoanCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -11,7 +11,7 @@ export const APPLY_LOAN = gql`
         entityId
         mspId
       }
-      ... on LoanError {
+      ... on SrvError {
         message
       }
     }

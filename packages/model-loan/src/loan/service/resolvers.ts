@@ -346,7 +346,7 @@ export const resolvers = {
       { fcnName: 'Loan/__resolveReference', logger, useAuth: false }
     ),
   },
-  LoanResponse: {
-    __resolveType: (obj) => (obj.commitId ? 'LoanCommit' : obj.message ? 'LoanError' : {}),
+  PubResponse: {
+    __resolveType: (obj) => (obj.commitId ? 'PubCommit' : obj.message ? 'SrvError' : {}),
   },
 };

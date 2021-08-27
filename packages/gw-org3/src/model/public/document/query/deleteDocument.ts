@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 export const DELETE_DOCUMENT = gql`
   mutation DeleteDocument($userId: String!, $documentId: String!) {
     deleteDocument(userId: $userId, documentId: $documentId) {
-      ... on DocCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -11,7 +11,7 @@ export const DELETE_DOCUMENT = gql`
         entityId
         mspId
       }
-      ... on DocError {
+      ... on SrvError {
         message
       }
     }

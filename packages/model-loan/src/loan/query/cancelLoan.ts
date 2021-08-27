@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 export const CANCEL_LOAN = gql`
   mutation CancelLoan($userId: String!, $loanId: String!) {
     cancelLoan(userId: $userId, loanId: $loanId) {
-      ... on LoanCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -11,7 +11,7 @@ export const CANCEL_LOAN = gql`
         entityId
         mspId
       }
-      ... on LoanError {
+      ... on SrvError {
         message
       }
     }

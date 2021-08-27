@@ -28,12 +28,17 @@ export CRYPTO=/var/artifacts/crypto-config
 export CURRENT_DIR=`pwd`
 export ROOT_DIR=$CURRENT_DIR/../..
 
+# HTTPS related
+export CERTS=/Users/paul/cert/local
+export CERT_PUB=/cert/org0.crt
+export CERT_PRV=/cert/org0.key
+
 export HLF_VERSION=2.2.0
 export HLF_CA_IMAGE=hyperledger/fabric-ca:1.4.8
 export HLF_ORDERER_IMAGE=hyperledger/fabric-orderer:$HLF_VERSION
 export HLF_PEER_IMAGE=hyperledger/fabric-peer:$HLF_VERSION
 export HLF_TOOLS_IMAGE=hyperledger/fabric-tools:$HLF_VERSION
-export AUTH_IMAGE=ghcr.io/rtang03/auth-server:0.0.2
+export AUTH_IMAGE=ghcr.io/rtang03/auth-server:0.0.3
 export CC_IMAGE=ghcr.io/rtang03/eventstore-cc:0.0.6
 export POSTGRES_IMAGE=postgres:9.6.17-alpine
 export REDISEARCH_IMAGE=redislabs/redisearch:2.0.5

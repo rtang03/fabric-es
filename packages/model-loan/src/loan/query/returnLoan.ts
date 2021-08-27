@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 export const RETURN_LOAN = gql`
   mutation ReturnLoan($userId: String!, $loanId: String!) {
     returnLoan(userId: $userId, loanId: $loanId) {
-      ... on LoanCommit {
+      ... on PubCommit {
         id
         entityName
         version
@@ -11,7 +11,7 @@ export const RETURN_LOAN = gql`
         entityId
         mspId
       }
-      ... on LoanError {
+      ... on SrvError {
         message
       }
     }

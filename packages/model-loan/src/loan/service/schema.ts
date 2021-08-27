@@ -8,7 +8,7 @@ export const typeDefs = gql`
 
   type Query {
     "@Skip"
-    getCommitsByLoanId(loanId: String!): [LoanCommit]!
+    getCommitsByLoanId(loanId: String!): [PubCommit]!
 
     "Get loan by id from the query handler"
     getLoanById(loanId: String!): Loan
@@ -41,7 +41,7 @@ export const typeDefs = gql`
       description: String!
       reference: String!
       comment: String
-    ): LoanResponse
+    ): PubResponse
 
     "Update one or more updatable field(s) in a **Loan** identified by the *userId* and *loanId*"
     updateLoan(
@@ -51,20 +51,20 @@ export const typeDefs = gql`
       "NOTE: reference is non-updatable, included here for completeness sake, and as an example"
       reference: String
       comment: String
-    ): [LoanResponse]!
+    ): [PubResponse]!
 
-    cancelLoan(userId: String!, loanId: String!): LoanResponse
+    cancelLoan(userId: String!, loanId: String!): PubResponse
 
-    approveLoan(userId: String!, loanId: String!): LoanResponse
+    approveLoan(userId: String!, loanId: String!): PubResponse
 
     "Mark a loan as \`returned to applicant, request additional information\`"
-    returnLoan(userId: String!, loanId: String!): LoanResponse
+    returnLoan(userId: String!, loanId: String!): PubResponse
 
     "Mark a loan as \`rejected by the lender\`"
-    rejectLoan(userId: String!, loanId: String!): LoanResponse
+    rejectLoan(userId: String!, loanId: String!): PubResponse
 
     "Mark a loan as \`expired\`"
-    expireLoan(userId: String!, loanId: String!): LoanResponse
+    expireLoan(userId: String!, loanId: String!): PubResponse
   }
 
   """
@@ -98,15 +98,15 @@ export const typeDefs = gql`
   }
 
   "Response from _mutation_ (create, update, delete) operations related to the **Loan** type"
-  union LoanResponse = LoanCommit | LoanError
+  union PubResponse = PubCommit | SrvError
 
   "@Skip"
-  type LoanEvent {
+  type Event {
     type: String
   }
 
   "Place holder for the actual on-chain data structure of loans"
-  type LoanCommit {
+  type PubCommit {
     id: String
 
     entityName: String
@@ -120,11 +120,11 @@ export const typeDefs = gql`
 
     entityId: String
 
-    events: [LoanEvent!]
+    events: [Event!]
   }
 
   "@Skip"
-  type LoanError {
+  type SrvError {
     message: String!
     stack: String
   }

@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 export const CREATE_DOC_CONTENTS = gql`
   mutation CreateDocContents($userId: String!, $documentId: String!, $content: DocsInput!) {
     createDocContents(userId: $userId, documentId: $documentId, content: $content) {
-      ... on DocContentsCommit {
+      ... on PrvCommit {
         id
         entityName
         version
@@ -11,7 +11,7 @@ export const CREATE_DOC_CONTENTS = gql`
         entityId
         mspId
       }
-      ... on DocContentsError {
+      ... on SrvError {
         message
       }
     }

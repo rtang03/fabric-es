@@ -10,7 +10,7 @@ import {
   queryGetCommitByEntityId,
   queryDeleteCommitByEntityId,
   queryDeleteCommitByEntityName,
-  queryGetById,
+  commandGetById,
   commandGetByEntityIdCommitId,
   queryFullTextSearch,
 } from '../utils';
@@ -75,7 +75,7 @@ export const createRepository: <TEntity = any, TOutputEntity = any, TEvent = any
     fullTextSearchEntity: async ({ query, param, cursor, pagesize, entityName }) =>
       queryFullTextSearch({ store, logger, query, param, cursor, pagesize, entityName }),
     getByEntityName: queryGetEntityByEntityName(entityName, reducer, queryOption),
-    getById: queryGetById(entityName, reducer, false, commandOption),
+    getById: commandGetById(entityName, reducer, false, commandOption),
     getCommitById: queryGetCommitByEntityId(entityName, queryOption),
     getEntityName: () => entityName,
     query_deleteCommitByEntityId: queryDeleteCommitByEntityId(entityName, queryOption),

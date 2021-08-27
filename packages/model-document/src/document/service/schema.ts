@@ -11,7 +11,7 @@ export const typeDefs = gql`
   }
 
   type Query {
-    getCommitsByDocumentId(documentId: String!): [DocCommit]!
+    getCommitsByDocumentId(documentId: String!): [PubCommit]!
 
     "Get document by id from query handler"
     getDocumentById(documentId: String!): Document
@@ -36,12 +36,12 @@ export const typeDefs = gql`
       loanId: String
       title: String
       reference: String!
-    ): DocResponse
+    ): PubResponse
 
-    deleteDocument(userId: String!, documentId: String!): DocResponse
+    deleteDocument(userId: String!, documentId: String!): PubResponse
 
     "Update document status to \`Access Restricted\`"
-    restrictAccess(userId: String!, documentId: String!): DocResponse
+    restrictAccess(userId: String!, documentId: String!): PubResponse
 
     "Update one or more updatable field(s) in a **Document** identified by the *userId* and *documentId*"
     updateDocument(
@@ -51,7 +51,7 @@ export const typeDefs = gql`
       title: String
       "NOTE: reference is non-updatable, included here for completeness sake, and as an example"
       reference: String
-    ): [DocResponse]!
+    ): [PubResponse]!
   }
 
   """
@@ -90,13 +90,13 @@ export const typeDefs = gql`
   }
 
   "Response from _mutation_ (create, update, delete) operations related to the **Document** type"
-  union DocResponse = DocCommit | DocError
+  union PubResponse = PubCommit | SrvError
 
-  type DocEvent {
+  type Event {
     type: String
   }
 
-  type DocCommit {
+  type PubCommit {
     id: String
 
     entityName: String
@@ -110,10 +110,10 @@ export const typeDefs = gql`
 
     entityId: String
 
-    events: [DocEvent!]
+    events: [Event!]
   }
 
-  type DocError {
+  type SrvError {
     message: String!
     stack: String
   }

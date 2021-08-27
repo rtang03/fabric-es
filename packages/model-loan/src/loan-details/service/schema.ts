@@ -23,7 +23,7 @@ export const typeDefs = gql`
       requestedAmt: Float!
       approvedAmt: Float
       comment: String
-    ): LoanDetailsResp
+    ): PrvResponse
 
     updateLoanDetails(
       userId: String!
@@ -37,11 +37,11 @@ export const typeDefs = gql`
       requestedAmt: Float
       approvedAmt: Float
       comment: String
-    ): [LoanDetailsResp]!
+    ): [PrvResponse]!
   }
 
   """
-  **LoanDetails** contains the detail information of a particular loan request on the private-chain, not suppose to be globally accessible.
+  @Primary **LoanDetails** contains the detail information of a particular loan request on the private-chain, not suppose to be globally accessible.
   """
   type LoanDetails @key(fields: "loanId") {
     loanId: String!
@@ -101,10 +101,10 @@ export const typeDefs = gql`
   }
 
   "Response from _mutation_ (create, update, delete) operations related to the **LoanDetails** type"
-  union LoanDetailsResp = LoanDetailsCommit | LoanDetailsError
+  union PrvResponse = PrvCommit | SrvError
 
   "Place holder for the actual private chain data structure of **LoanDetails**"
-  type LoanDetailsCommit {
+  type PrvCommit {
     id: String
     entityName: String
     version: Int
@@ -113,7 +113,7 @@ export const typeDefs = gql`
     entityId: String
   }
 
-  type LoanDetailsError {
+  type SrvError {
     message: String!
     stack: String
   }

@@ -12,3 +12,4 @@ export { DataSrc, CommandHandler, ServiceType, ServiceContext } from './types';
 export { Errors } from './utils';
 export * from './utils/typeGuard';
 export * from './admin/query';
+export * from './utils/httpsUtils';

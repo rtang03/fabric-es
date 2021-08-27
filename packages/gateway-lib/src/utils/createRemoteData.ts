@@ -1,8 +1,8 @@
 import { createHash } from 'crypto';
 import util from 'util';
-import { BaseEntity, EntityType, TRACK_FIELD, TRACK_FIELD_S } from '@fabric-es/fabric-cqrs';
+import { BaseEntity, EntityType, TRACK_FIELD_S } from '@fabric-es/fabric-cqrs';
 import { readKey } from '@fabric-es/operator';
-import { execute, makePromise, DocumentNode, GraphQLRequest } from 'apollo-link';
+import { execute, makePromise, DocumentNode } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import nodeFetch from 'node-fetch';
 import { getLogger } from '..';
@@ -211,7 +211,7 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
         context,
       }).then(({ data, errors }) => {
         if (errors) {
-          logger.error(util.format('reemote data, %j', errors));
+          logger.error(util.format('Reemote Data, %j', errors));
         } else if (data) {
           result.push(data[query.definitions[0]['selectionSet'].selections[0].name.value]);
         }

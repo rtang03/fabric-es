@@ -51,6 +51,9 @@ sleep 1
 node ./dist/enrollCaAdmin.js
 sleep 1
 
+node ./dist/prepareKeyPair.js
+sleep 1
+
 /home/app/node_modules/pm2/bin/pm2 flush
 
 if [ $COUNT -gt 0 ]; then

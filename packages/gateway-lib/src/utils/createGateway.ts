@@ -1,11 +1,12 @@
 import http from 'http';
+import https from 'https';
 import util from 'util';
 import { ApolloGateway, RemoteGraphQLDataSource } from '@apollo/gateway';
 import terminus from '@godaddy/terminus';
 import { execute, makePromise } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import { ApolloServer } from 'apollo-server-express';
-import express from 'express';
+import express, { Express, Request, Response } from 'express';
 import gql from 'graphql-tag';
 import httpStatus from 'http-status';
 import pick from 'lodash/pick';
@@ -13,6 +14,7 @@ import fetch from 'node-fetch';
 import winston from 'winston';
 import { getCatalog } from './catalog';
 import { getLogger } from './getLogger';
+import { getHttpsServerOption, IS_HTTPS, httpsify } from './httpsUtils';
 import { pm2Connect, pm2List } from './promisifyPm2';
 import { isAuthResponse } from './typeGuard';
 
@@ -73,21 +75,25 @@ query Pubkey {
  * }
  * ```
  */
-export const createGateway: (option: {
-  serviceList?: {
-    name: string;
-    url: string;
-  }[];
-  authenticationCheck: string;
-  useCors?: boolean;
-  corsOrigin?: string;
-  playground?: boolean;
-  introspection?: boolean;
-  gatewayName?: string;
-  adminHost?: string;
-  adminPort?: number;
-  debug?: boolean;
-}) => Promise<http.Server> = async ({
+export const createGateway: (
+  option: {
+    serviceList?: {
+      name: string;
+      url: string;
+    }[];
+    authenticationCheck: string;
+    useCors?: boolean;
+    corsOrigin?: string;
+    playground?: boolean;
+    introspection?: boolean;
+    gatewayName?: string;
+    adminHost?: string;
+    adminPort?: number;
+    debug?: boolean;
+    certPath?: string;
+    certKeyPath?: string;
+  }, catalog?: (ctlg: string, app?: Express) => (req: Request, res: Response) => void
+) => Promise<http.Server | https.Server> = async ({
   serviceList = [],
   authenticationCheck,
   useCors = false,
@@ -98,7 +104,9 @@ export const createGateway: (option: {
   gatewayName = 'Gateway',
   adminHost = 'localhost',
   adminPort = 15000,
-}) => {
+  certPath,
+  certKeyPath,
+}, catalog) => {
   const logger = getLogger('[gw-lib] createGateway.js');
 
   if (serviceList.filter(s => s.name === 'admin').length <= 0) {
@@ -107,6 +115,11 @@ export const createGateway: (option: {
       url: `http://${adminHost}:${adminPort}/graphql`,
     });
   }
+
+  const options = await getHttpsServerOption({
+    certKeyPath, certPath
+  });
+  const authCheckUrl = (options) ? httpsify(authenticationCheck) : authenticationCheck;
 
   const gateway = new ApolloGateway({
     serviceList,
@@ -130,7 +143,7 @@ export const createGateway: (option: {
       if (!token || (token === 'undefined') || (token === 'null')) return { signature, accessor, id };
 
       try {
-        const response = await fetch(authenticationCheck, {
+        const response = await fetch(authCheckUrl, {
           method: 'POST',
           headers: { authorization: `Bearer ${token}` },
         });
@@ -167,7 +180,15 @@ export const createGateway: (option: {
 
   app.get('/ping', (_, res) => res.status(200).send({ data: 'pong' }));
 
-  app.get('/catalog', await getCatalog(gatewayName, serviceList.filter(s => s.name !== 'admin')));
+  const ctlg = await getCatalog(gatewayName, serviceList.filter(s => s.name !== 'admin'));
+  if (!catalog) {
+    app.get('/catalog', (_, res) => {
+      res.setHeader('content-type', 'text/markdown; charset=UTF-8');
+      res.send(ctlg);
+    });
+  } else {
+    app.get('/catalog', catalog(ctlg, app));
+  }
 
   const { data } = await makePromise(
     execute(
@@ -200,7 +221,7 @@ export const createGateway: (option: {
   // check auth-server is alive
   const onHealthCheck = async () => {
     // ping auth-server
-    const authCheck = await fetch(`${authenticationCheck}/ping`)
+    const authCheck = await fetch(`${authCheckUrl}/ping`)
       .then<{ auth: string }>((response) =>
         response.status === httpStatus.OK ? { auth: 'ok' } : { auth: `${response.status}` }
       )
@@ -243,14 +264,17 @@ export const createGateway: (option: {
       setTimeout(resolve, 5000);
     });
 
-  return terminus.createTerminus(http.createServer(app), {
-    timeout: 3000,
-    logger: console.log,
-    signals: ['SIGINT', 'SIGTERM'],
-    healthChecks: {
-      '/healthcheck': onHealthCheck,
-    },
-    onSignal,
-    beforeShutdown,
-  });
+  const result = terminus.createTerminus(
+    (options) ? https.createServer(options, app) : http.createServer(app), {
+      timeout: 3000,
+      logger: console.log,
+      signals: ['SIGINT', 'SIGTERM'],
+      healthChecks: {
+        '/healthcheck': onHealthCheck,
+      },
+      onSignal,
+      beforeShutdown,
+    });
+  if (options) result[IS_HTTPS] = true;
+  return result;
 };

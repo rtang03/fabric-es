@@ -3,7 +3,8 @@
     image: $AUTH_IMAGE
     container_name: auth-server${TMPL_PARAM_ID}
     environment:
-      - PORT=8080
+      - AUTH_PORT=8080
+      - AUTH_SPORT=8080
       - TYPEORM_HOST=postgres${TMPL_PARAM_ID}
       - TYPEORM_USERNAME=postgres
       - TYPEORM_PASSWORD=docker
@@ -21,9 +22,13 @@
       - CLIENT_SECRET=password
       - LOG_LEVEL=$LOG_LEVEL
       - LOG_TARGET=$LOG_TARGET
+      # - CERT_PATH_CERT=${CERT_PUB}
+      # - CERT_PATH_KEY=${CERT_PRV}
     # this open port for development of ui, should be removed for production
     ports:
       - ${TMPL_PARAM_AUTH_PORT}:8080
+    volumes:
+      - $CERTS:/cert
     networks:
       - openplatform
     depends_on:
