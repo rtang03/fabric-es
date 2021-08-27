@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.13...HEAD)
+
+**Merged pull requests:**
+
+- fix: Fix incorrect behaviour in getById, and add https support [\#224](https://github.com/rtang03/fabric-es/pull/224) ([pangduckwai](https://github.com/pangduckwai))
+
 ## [v0.7.13](https://github.com/rtang03/fabric-es/tree/v0.7.13) (2021-07-28)
 
 [Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.12...v0.7.13)
@@ -65,6 +73,7 @@
 - docs: add readthedocs [\#207](https://github.com/rtang03/fabric-es/pull/207) ([rtang03](https://github.com/rtang03))
 - docs: fix README [\#205](https://github.com/rtang03/fabric-es/pull/205) ([rtang03](https://github.com/rtang03))
 - feat: create / resolve DidDocument [\#204](https://github.com/rtang03/fabric-es/pull/204) ([rtang03](https://github.com/rtang03))
+- feat: enable auth0 in gateway-lib [\#203](https://github.com/rtang03/fabric-es/pull/203) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.8](https://github.com/rtang03/fabric-es/tree/v0.7.8) (2021-03-26)
 
@@ -89,7 +98,6 @@
 
 **Merged pull requests:**
 
-- feat: enable auth0 in gateway-lib [\#203](https://github.com/rtang03/fabric-es/pull/203) ([rtang03](https://github.com/rtang03))
 - feat: dev-net enhancement [\#196](https://github.com/rtang03/fabric-es/pull/196) ([hkicl-ming](https://github.com/hkicl-ming))
 - feat: dev-net enhancement [\#194](https://github.com/rtang03/fabric-es/pull/194) ([hkicl-ming](https://github.com/hkicl-ming))
 - fix: Fix RedisPubSub related issue when running gateway as docker images [\#193](https://github.com/rtang03/fabric-es/pull/193) ([pangduckwai](https://github.com/pangduckwai))
@@ -98,7 +106,6 @@
 - feat: new search capability [\#190](https://github.com/rtang03/fabric-es/pull/190) ([rtang03](https://github.com/rtang03))
 - chore: Add workaround to avoid redis error when shutdown query-handler service [\#189](https://github.com/rtang03/fabric-es/pull/189) ([pangduckwai](https://github.com/pangduckwai))
 - refactor: deduplicate BaseEntity class and interface [\#188](https://github.com/rtang03/fabric-es/pull/188) ([rtang03](https://github.com/rtang03))
-- fix: .nojerkll  [\#181](https://github.com/rtang03/fabric-es/pull/181) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.5](https://github.com/rtang03/fabric-es/tree/v0.7.5) (2021-01-25)
 
@@ -144,6 +151,7 @@
 
 **Merged pull requests:**
 
+- fix: .nojerkll  [\#181](https://github.com/rtang03/fabric-es/pull/181) ([rtang03](https://github.com/rtang03))
 - docs: add typedoc [\#180](https://github.com/rtang03/fabric-es/pull/180) ([rtang03](https://github.com/rtang03))
 - chore: Prepare tester and dev-net to port to cdi-samples [\#179](https://github.com/rtang03/fabric-es/pull/179) ([pangduckwai](https://github.com/pangduckwai))
 - feat: reference Implementation robustness test [\#178](https://github.com/rtang03/fabric-es/pull/178) ([pangduckwai](https://github.com/pangduckwai))
@@ -233,7 +241,6 @@
 - Domain model updates [\#125](https://github.com/rtang03/fabric-es/pull/125) ([pangduckwai](https://github.com/pangduckwai))
 - Fix getLogger issue which open too many files [\#123](https://github.com/rtang03/fabric-es/pull/123) ([pangduckwai](https://github.com/pangduckwai))
 - update image build version to 0.6.5 [\#121](https://github.com/rtang03/fabric-es/pull/121) ([hohowin](https://github.com/hohowin))
-- PbOC / eTC connectivity [\#118](https://github.com/rtang03/fabric-es/pull/118) ([pangduckwai](https://github.com/pangduckwai))
 
 ## [v0.6.5](https://github.com/rtang03/fabric-es/tree/v0.6.5) (2020-09-04)
 
@@ -253,6 +260,7 @@
 **Merged pull requests:**
 
 - Add relay services to dev-net [\#120](https://github.com/rtang03/fabric-es/pull/120) ([pangduckwai](https://github.com/pangduckwai))
+- PbOC / eTC connectivity [\#118](https://github.com/rtang03/fabric-es/pull/118) ([pangduckwai](https://github.com/pangduckwai))
 - Successfully released v0.6.4 [\#109](https://github.com/rtang03/fabric-es/pull/109) ([hohowin](https://github.com/hohowin))
 - update version to 0.6.4 [\#107](https://github.com/rtang03/fabric-es/pull/107) ([hohowin](https://github.com/hohowin))
 
