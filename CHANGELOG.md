@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
+## [v0.7.14](https://github.com/rtang03/fabric-es/tree/v0.7.14) (2021-08-27)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.13...HEAD)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.13...v0.7.14)
 
 **Merged pull requests:**
 
@@ -103,7 +103,6 @@
 - fix: Fix RedisPubSub related issue when running gateway as docker images [\#193](https://github.com/rtang03/fabric-es/pull/193) ([pangduckwai](https://github.com/pangduckwai))
 - feat: Remote Data on the New Query Handler [\#192](https://github.com/rtang03/fabric-es/pull/192) ([pangduckwai](https://github.com/pangduckwai))
 - docs: add comment / readme [\#191](https://github.com/rtang03/fabric-es/pull/191) ([rtang03](https://github.com/rtang03))
-- feat: new search capability [\#190](https://github.com/rtang03/fabric-es/pull/190) ([rtang03](https://github.com/rtang03))
 - chore: Add workaround to avoid redis error when shutdown query-handler service [\#189](https://github.com/rtang03/fabric-es/pull/189) ([pangduckwai](https://github.com/pangduckwai))
 - refactor: deduplicate BaseEntity class and interface [\#188](https://github.com/rtang03/fabric-es/pull/188) ([rtang03](https://github.com/rtang03))
 
@@ -151,6 +150,7 @@
 
 **Merged pull requests:**
 
+- feat: new search capability [\#190](https://github.com/rtang03/fabric-es/pull/190) ([rtang03](https://github.com/rtang03))
 - fix: .nojerkll  [\#181](https://github.com/rtang03/fabric-es/pull/181) ([rtang03](https://github.com/rtang03))
 - docs: add typedoc [\#180](https://github.com/rtang03/fabric-es/pull/180) ([rtang03](https://github.com/rtang03))
 - chore: Prepare tester and dev-net to port to cdi-samples [\#179](https://github.com/rtang03/fabric-es/pull/179) ([pangduckwai](https://github.com/pangduckwai))
@@ -250,7 +250,6 @@
 
 - redeploy helm chart to GCP [\#105](https://github.com/rtang03/fabric-es/issues/105)
 - evaluate ansible and choice of dns [\#104](https://github.com/rtang03/fabric-es/issues/104)
-- gcp networking [\#115](https://github.com/rtang03/fabric-es/pull/115) ([rtang03](https://github.com/rtang03))
 - deploy 5 orderers 1 peer to GCP [\#114](https://github.com/rtang03/fabric-es/pull/114) ([rtang03](https://github.com/rtang03))
 
 **Closed issues:**
@@ -304,6 +303,7 @@
 - enhance proxy server [\#46](https://github.com/rtang03/fabric-es/issues/46)
 - finishing the current sprint by creating 0.6.2 release [\#42](https://github.com/rtang03/fabric-es/issues/42)
 - Query-Handler implementation [\#20](https://github.com/rtang03/fabric-es/issues/20)
+- gcp networking [\#115](https://github.com/rtang03/fabric-es/pull/115) ([rtang03](https://github.com/rtang03))
 - interim changes for caliper [\#96](https://github.com/rtang03/fabric-es/pull/96) ([rtang03](https://github.com/rtang03))
 - ui-control is done [\#93](https://github.com/rtang03/fabric-es/pull/93) ([rtang03](https://github.com/rtang03))
 - add createWallet to ui-control [\#89](https://github.com/rtang03/fabric-es/pull/89) ([rtang03](https://github.com/rtang03))
@@ -314,6 +314,7 @@
 - use nginx  [\#70](https://github.com/rtang03/fabric-es/pull/70) ([rtang03](https://github.com/rtang03))
 - query-handler implementation [\#67](https://github.com/rtang03/fabric-es/pull/67) ([rtang03](https://github.com/rtang03))
 - query-handler is functionally ok [\#62](https://github.com/rtang03/fabric-es/pull/62) ([rtang03](https://github.com/rtang03))
+- add createWallet to ui and run e2e 1org scenario [\#45](https://github.com/rtang03/fabric-es/pull/45) ([rtang03](https://github.com/rtang03))
 
 **Fixed bugs:**
 
@@ -355,7 +356,6 @@
 - add reverse proxy in micro-service style [\#26](https://github.com/rtang03/fabric-es/issues/26)
 - collective revamping task for authentication package [\#19](https://github.com/rtang03/fabric-es/issues/19)
 - interim changes [\#49](https://github.com/rtang03/fabric-es/pull/49) ([rtang03](https://github.com/rtang03))
-- add createWallet to ui and run e2e 1org scenario [\#45](https://github.com/rtang03/fabric-es/pull/45) ([rtang03](https://github.com/rtang03))
 - Refactor gateway-lib to using new auth package [\#38](https://github.com/rtang03/fabric-es/pull/38) ([rtang03](https://github.com/rtang03))
 - Revamp auth-server [\#34](https://github.com/rtang03/fabric-es/pull/34) ([rtang03](https://github.com/rtang03))
 - Backporting docker image building scripts [\#33](https://github.com/rtang03/fabric-es/pull/33) ([pangduckwai](https://github.com/pangduckwai))
