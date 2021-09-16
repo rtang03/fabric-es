@@ -30,8 +30,8 @@ export const createQueryDatabase: (
   repos: Record<string, RedisRepository<any>>,
   option?: { notifyExpiryBySec?: number }
 ) => QueryDatabase = (client, repos, { notifyExpiryBySec } = { notifyExpiryBySec: 86400 }) => {
-  const debug = Debug('queryHandler:createQueryBase');
-
+  const debug = Debug('queryHandler:createQuerybase');
+  const FATAL = '[FATAL_DATA_INTEGRITY_ERROR]';
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js', target: 'console' });
   const commitRepo = createRedisRepository<Commit, CommitInRedis, OutputCommit>('commit', {
     client,
@@ -220,13 +220,20 @@ export const createQueryDatabase: (
       };
     },
     mergeEntity: async ({ commit, reducer }) => {
+      debug('=== DEBUG ISSUE 226 ===');
+      debug('commit, %O', commit);
+
       const { entityName, entityId, commitId } = commit;
       const entityRepo = allRepos[entityName];
       const entityKeyInRedis = allRepos[entityName].getKey(commit);
       const commitKeyInRedis = allRepos['commit'].getKey(commit);
 
-      if (!entityRepo) throw new Error(`mergeEntity: ${entityName} ${REPO_NOT_FOUND}`);
-      if (!isCommit(commit) || !reducer) throw new Error(INVALID_ARG);
+      debug('entityKeyInRedis, %s', entityKeyInRedis);
+      debug('commitKeyInRedis, %s', commitKeyInRedis);
+
+      if (!entityRepo) throw new Error(`${FATAL} mergeEntity: ${entityName} ${REPO_NOT_FOUND}`);
+
+      if (!isCommit(commit) || !reducer) throw new Error(`${FATAL} ${INVALID_ARG}`);
 
       // step 1: retrieve existing commit
       const pattern = commitRepo.getPattern('COMMITS_BY_ENTITYNAME_ENTITYID', [
@@ -237,12 +244,19 @@ export const createQueryDatabase: (
       const [errors, restoredCommits] = await commitRepo.queryCommitsByPattern(pattern);
       const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
 
-      if (isError)
+      if (isError) {
+        debug('errors, %O', errors);
+
+        logger.error(
+          util.format('errors of "await commitRepo.queryCommitsByPattern(pattern)", %j', errors)
+        );
+
         return {
           status: 'ERROR',
-          message: 'fail to retrieve existing commit',
+          message: `${FATAL} fail to retrieve existing commit`,
           errors,
         };
+      }
 
       // step 2: merge existing record with newly retrieved commit
       const history: (Commit | OutputCommit)[] = [...restoredCommits, commit];
@@ -261,14 +275,17 @@ export const createQueryDatabase: (
       */
       const { state, reduced } = computeEntity(history, reducer);
 
+      debug('history, %O', history);
       debug('entity being merged, %O', state);
 
       // step 5: compute events history, returning comma separator
       if (reduced && !state?.id) {
+        logger.error(util.format('state, %j', state));
+
         return {
           status: 'ERROR',
           message: REDUCE_ERR,
-          errors: [new Error(`fail to reduce, ${entityName}:${entityId}:${commitId}`)],
+          errors: [new Error(`${FATAL} fail to reduce, ${entityName}:${entityId}:${commitId}`)],
         };
       }
 

@@ -124,7 +124,7 @@ export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler =
       dispatcher<
         Record<string, string>,
         { creator: string; entityName: string; id: string; commitId: string }
-        >((payload) => queryAction.getNotifications(payload), {
+      >((payload) => queryAction.getNotifications(payload), {
         store,
         logger,
         name: 'query:getNotification',
@@ -165,31 +165,31 @@ export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler =
     //       logger,
     //     }
     //   ),
-    reconcile: (payload: { entityName: string }) => (() =>
-      dispatcher<{ key: string; status: string }[], { entityName: string }>(
-        ({ tx_id, args }) =>
-          reconcileAction.reconcile({
-            tx_id,
-            args,
+    reconcile: (payload: { entityName: string }) =>
+      (() =>
+        dispatcher<{ key: string; status: string }[], { entityName: string }>(
+          ({ tx_id, args }) =>
+            reconcileAction.reconcile({
+              tx_id,
+              args,
+              store,
+              channelName,
+              connectionProfile,
+              wallet,
+            }),
+          {
+            name: 'reconcile',
             store,
-            channelName,
-            connectionProfile,
-            wallet,
-          }),
-        {
-          name: 'reconcile',
-          store,
-          slice: 'reconcile',
-          SuccessAction: reconcileAction.RECONCILE_SUCCESS,
-          ErrorAction: reconcileAction.RECONCILE_ERROR,
-          logger,
-        }
-      ))()(payload)
-      .then(result => {
+            slice: 'reconcile',
+            SuccessAction: reconcileAction.RECONCILE_SUCCESS,
+            ErrorAction: reconcileAction.RECONCILE_ERROR,
+            logger,
+          }
+        ))()(payload).then((result) => {
         isReconciled = true;
         return result;
       }),
-    reconciled: () => isReconciled = true,
+    reconciled: () => (isReconciled = true),
     subscribeHub: async (entityNames) => {
       logger.info('♨️  subscribe channel event hub');
       try {
@@ -227,6 +227,8 @@ export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler =
 
             // check commit type
             if (isCommit(commit)) {
+              logger.info(`event arrives: ${commit.id} found`);
+
               // filter subscribed entityNames
               if (!entityNames.includes(commit?.entityName)) {
                 logger.warn(
@@ -243,7 +245,7 @@ export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler =
               const mergeEntityResult = await dispatcher<
                 { key: string; status: string },
                 { commit: Commit }
-                >((payload) => projAction.mergeEntity(payload), {
+              >((payload) => projAction.mergeEntity(payload), {
                 name: 'merge_one_entity',
                 store,
                 slice: 'projection',
