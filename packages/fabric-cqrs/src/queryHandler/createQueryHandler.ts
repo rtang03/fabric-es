@@ -227,7 +227,7 @@ export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler =
 
             // check commit type
             if (isCommit(commit)) {
-              logger.info(`event arrives: ${commit.id} found`);
+              logger.info(`💢  event arrives - commitId: ${commit.id} found`);
 
               // filter subscribed entityNames
               if (!entityNames.includes(commit?.entityName)) {

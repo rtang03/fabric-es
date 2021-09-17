@@ -29,6 +29,7 @@
     "lint": "eslint --max-warnings 10 'src/**/*.{js,ts}'"
   },
   "dependencies": {
+    "@fabric-es/fabric-cqrs": "^0.7.14",
     "dotenv": "^8.1.0",
     "elliptic": "^6.5.4",
     "fabric-ca-client": "2.2.3",

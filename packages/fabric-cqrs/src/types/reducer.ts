@@ -81,6 +81,8 @@ export const trackingReducer = (commits: Commit[]) => {
     }
   );
 
+  debug('trackingReducer:result, %O', result);
+
   const olen = result[ORGAN_FIELD].length;
   const tlen = Object.values(result[TRACK_FIELD]).length;
 
@@ -100,16 +102,16 @@ export const computeEntity = <T extends BaseEntity, E extends BaseEvent>(
   const history = [];
   commits.forEach(({ events }) => events.forEach((event) => history.push(event)));
 
-  debug('history, %O', history);
+  debug('computeEntity:history, %O', history);
 
   const state = reducer(history);
 
-  debug('state, before appending trackingReducer, %O', state);
+  debug('computeEntity:state, before appending trackingReducer, %O', state);
 
   if (state) {
     Object.assign(state, trackingReducer(commits));
 
-    debug('state, after appending trackingReducer, %O', state);
+    debug('computeEntity:state, after appending trackingReducer, %O', state);
   } else {
     // If reducer returns empty, plus receiving a single commit with a single TRACK_EVENT event, meaning the prviate entity
     // is created before its public place holder
@@ -117,7 +119,7 @@ export const computeEntity = <T extends BaseEntity, E extends BaseEvent>(
       commits.length === 1 &&
       commits[0].events?.filter((event) => event.type === TRACK_EVENT).length === 1
     ) {
-      debug('commits, %O', commits);
+      debug('computeEntity:commits, %O', commits);
 
       return { reduced: false };
     }

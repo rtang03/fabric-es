@@ -46,11 +46,11 @@ export const createQueryDatabase: (
   // add built-in commit repo
   const allRepos = Object.assign(repos, { commit: commitRepo });
 
-  const getHistory = (commits: (Commit | OutputCommit)[]): any[] => {
-    const history = [];
-    commits.forEach(({ events }) => events.forEach((event) => history.push(event)));
-    return history;
-  };
+  // const getHistory = (commits: (Commit | OutputCommit)[]): any[] => {
+  //   const history = [];
+  //   commits.forEach(({ events }) => events.forEach((event) => history.push(event)));
+  //   return history;
+  // };
 
   const deleteItems = async <TItem>(repo: RedisRepository<TItem>, pattern: string) => {
     const [errors, count] = await repo.deleteItemsByPattern(pattern);
@@ -87,6 +87,9 @@ export const createQueryDatabase: (
     param: FTSearchParameters;
     countTotalOnly: boolean;
   }) => Promise<HandlerResponse> = async ({ repo, kind, query, param, countTotalOnly }) => {
+    debug('doSearch:kind, %s', kind);
+    debug('doSearch:kind, %s', query);
+
     const { search, getIndexName } = repo;
     const index = getIndexName();
     const [errors, count, data] = await search({
@@ -97,6 +100,9 @@ export const createQueryDatabase: (
       param,
       restoreFn: kind === 'entity' && repo.getPostSelector(),
     });
+
+    debug('doSearch:errors, %O', errors);
+
     const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
 
     return isError
@@ -112,6 +118,8 @@ export const createQueryDatabase: (
     clearNotification: async (option) => notificationCenter.clearNotification(option),
     clearNotifications: async (option) => notificationCenter.clearNotifications(option),
     deleteCommitByEntityId: async ({ entityName, id }) => {
+      debug('deleteCommitByEntityId:id, %s', id);
+
       if (!entityName || !id) throw new Error(INVALID_ARG);
 
       return deleteItems(
@@ -120,12 +128,17 @@ export const createQueryDatabase: (
       );
     },
     deleteCommitByEntityName: async ({ entityName }) => {
+      debug('deleteCommitByEntityName:entityName, %s', entityName);
+
       if (!entityName) throw new Error(INVALID_ARG);
 
       return deleteItems(commitRepo, commitRepo.getPattern('COMMITS_BY_ENTITYNAME', [entityName]));
     },
     deleteEntityByEntityName: async <TEntity>({ entityName }) => {
+      debug('deleteEntityByEntityName:entityName, %s', entityName);
+
       if (!entityName) throw new Error(INVALID_ARG);
+
       const entityRepo = allRepos[entityName];
 
       if (!entityRepo) throw new Error(`deleteEntityByEntityName: ${entityName} ${REPO_NOT_FOUND}`);
@@ -136,6 +149,9 @@ export const createQueryDatabase: (
       );
     },
     fullTextSearchCommit: async ({ query, param, countTotalOnly }) => {
+      debug('fullTextSearchCommit:query, %s', query);
+      debug('fullTextSearchCommit:param, %O', param);
+
       if (!query) throw new Error(INVALID_ARG);
 
       return doSearch<OutputCommit>({
@@ -147,6 +163,9 @@ export const createQueryDatabase: (
       });
     },
     fullTextSearchEntity: async <TEntity>({ entityName, query, param, countTotalOnly }) => {
+      debug('fullTextSearchEntity:query, %s', query);
+      debug('fullTextSearchEntity:param, %O', param);
+
       if (!query || !entityName) throw new Error(INVALID_ARG);
 
       const repo = allRepos[entityName];
@@ -163,32 +182,49 @@ export const createQueryDatabase: (
       notificationCenter.getNotificationsByFields({ creator, entityName, id }),
     getRedisCommitRepo: () => commitRepo,
     queryCommitByEntityId: async ({ entityName, id }) => {
+      debug('queryCommitByEntityId:id, %s', id);
+
       if (!entityName || !id) throw new Error(INVALID_ARG);
 
       return queryCommit('COMMITS_BY_ENTITYNAME_ENTITYID', [entityName, id]);
     },
     queryCommitByEntityName: async ({ entityName }) => {
+      debug('queryCommitByEntityName:entityName, %s', entityName);
+
       if (!entityName) throw new Error(INVALID_ARG);
 
       return queryCommit('COMMITS_BY_ENTITYNAME', [entityName]);
     },
     mergeCommit: async ({ commit }) => {
+      debug('mergeCommit:commit', commit);
+
       if (!isCommit(commit)) throw new Error(INVALID_ARG);
 
       try {
         const key = allRepos['commit'].getKey(commit);
+
+        debug('mergeCommit:key, %s', key);
+
         const status = await allRepos['commit'].hmset(commit);
+
+        debug('mergeCommit:status, %s', status);
+
         return {
           status,
           message: `${key} merged successfully`,
           data: [key],
         };
       } catch (e) {
+        debug('mergeCommit:"try-catch-error"');
+        debug('mergeCommit, %O', e);
+
         logger.error(util.format('mergeCommit - %s, %j', REDIS_ERR, e));
         throw e;
       }
     },
     mergeCommitBatch: async ({ entityName, commits }) => {
+      debug('mergeCommitBatch starts');
+
       if (!entityName || !commits) throw new Error(INVALID_ARG);
       if (isEqual(commits, {}))
         return {
@@ -207,9 +243,14 @@ export const createQueryDatabase: (
           else error.push(key);
         }
       } catch (e) {
+        debug('mergeCommitBatch:"try-catch-error"');
+        debug('mergeCommitBatch, %O', e);
+
         logger.error(util.format('mergeCommitBatch - %s, %j', REDIS_ERR, e));
         throw e;
       }
+
+      debug('mergeCommitBatch:error, %O', error);
 
       return {
         status: error.length === 0 ? 'OK' : 'ERROR',
@@ -220,22 +261,23 @@ export const createQueryDatabase: (
       };
     },
     mergeEntity: async ({ commit, reducer }) => {
-      debug('=== DEBUG ISSUE 226 ===');
-      debug('commit, %O', commit);
+      debug('mergeEntity:commit, %O', commit);
 
       const { entityName, entityId, commitId } = commit;
       const entityRepo = allRepos[entityName];
       const entityKeyInRedis = allRepos[entityName].getKey(commit);
       const commitKeyInRedis = allRepos['commit'].getKey(commit);
 
-      debug('entityKeyInRedis, %s', entityKeyInRedis);
-      debug('commitKeyInRedis, %s', commitKeyInRedis);
+      debug('mergeEntity:entityKeyInRedis, %s', entityKeyInRedis);
+      debug('mergeEntity:commitKeyInRedis, %s', commitKeyInRedis);
 
       if (!entityRepo) throw new Error(`${FATAL} mergeEntity: ${entityName} ${REPO_NOT_FOUND}`);
 
       if (!isCommit(commit) || !reducer) throw new Error(`${FATAL} ${INVALID_ARG}`);
 
       // step 1: retrieve existing commit
+      debug('mergeEntity:step-1');
+
       const pattern = commitRepo.getPattern('COMMITS_BY_ENTITYNAME_ENTITYID', [
         entityName,
         entityId,
@@ -245,7 +287,7 @@ export const createQueryDatabase: (
       const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
 
       if (isError) {
-        debug('errors, %O', errors);
+        debug('mergeEntity:errors, %O', errors);
 
         logger.error(
           util.format('errors of "await commitRepo.queryCommitsByPattern(pattern)", %j', errors)
@@ -259,6 +301,8 @@ export const createQueryDatabase: (
       }
 
       // step 2: merge existing record with newly retrieved commit
+      debug('mergeEntity:step-2');
+
       const history: (Commit | OutputCommit)[] = [...restoredCommits, commit];
 
       // step 3: compute the timeline of event history, and add tracking info
@@ -273,13 +317,17 @@ export const createQueryDatabase: (
         _creator: 'org1-admin'
       }
       */
+      debug('mergeEntity:step-3');
+
       const { state, reduced } = computeEntity(history, reducer);
 
-      debug('history, %O', history);
-      debug('entity being merged, %O', state);
+      debug('mergeEntity:history, %O', history);
+      debug('mergeEntity:entity being merged, %O', state);
 
-      // step 5: compute events history, returning comma separator
+      // step 3: compute events history, returning comma separator
       if (reduced && !state?.id) {
+        debug('mergeEntity:"fail to reduce"');
+
         logger.error(util.format('state, %j', state));
 
         return {
@@ -292,17 +340,23 @@ export const createQueryDatabase: (
       const data = [];
       try {
         let status;
-        // step 6: add entity
+        // step 4: add entity
+        debug('mergeEntity:step-4');
+
         if (reduced) {
           status = await allRepos[entityName].hmset(state, history);
           data.push({ key: entityKeyInRedis, status });
         }
 
-        // step 7: add commit
+        // step 5: add commit
+        debug('mergeEntity:step-5');
+
         status = await allRepos['commit'].hmset(commit);
         data.push({ key: commitKeyInRedis, status });
 
-        // step 8: add notification flag
+        // step 6: add notification flag
+        debug('mergeEntity:step-6');
+
         if (reduced) {
           await notificationCenter.notify({
             creator: state._creator,
@@ -311,6 +365,7 @@ export const createQueryDatabase: (
             commitId,
           });
         }
+        debug('mergeEntity:finish without error');
       } catch (e) {
         if (!e.message.startsWith('[lifecycle]'))
           logger.error(util.format('mergeEntity - %s, %j', REDIS_ERR, e));
@@ -322,6 +377,7 @@ export const createQueryDatabase: (
       return { status: 'OK', message: `${entityKeyInRedis} merged successfully`, data };
     },
     mergeEntityBatch: async ({ entityName, commits, reducer }) => {
+      debug('mergeEntityBatch starts');
       if (!entityName || !commits || !reducer) throw new Error(INVALID_ARG);
 
       const entityRepo = allRepos[entityName];
@@ -348,7 +404,7 @@ export const createQueryDatabase: (
         })
         .filter(({ state }) => !!state); // ensure no null; if error happens when reducing
 
-      debug('errors found, %O', errors);
+      debug('mergeEntityBatch:errors, %O', errors);
 
       // add entity. Notice that the original orginal commit is not saved.
       const data = [];
@@ -357,12 +413,14 @@ export const createQueryDatabase: (
           const status = await allRepos[entityName].hmset(state, commits);
           data.push({ key, status });
         } catch (e) {
+          debug('mergeEntityBatch:e, %O', e);
+
           logger.error(util.format('mergeEntityBatch - %s, %j', REDIS_ERR, e));
           throw e;
         }
       }
 
-      debug('data returns: %O', data);
+      debug('mergeEntityBatch:data, %O', data);
 
       return {
         status: errors.length === 0 ? 'OK' : 'ERROR',
