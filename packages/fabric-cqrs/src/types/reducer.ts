@@ -1,8 +1,18 @@
+import Debug from 'debug';
 import { OutputCommit } from '../queryHandler/types';
 import {
-  BaseEntity, BaseEvent, Commit, ORGAN_FIELD, TRACK_EVENT, TRACK_FIELD,
-  TS_FIELD, CREATOR_FIELD, CREATED_FIELD,
+  BaseEntity,
+  BaseEvent,
+  Commit,
+  ORGAN_FIELD,
+  TRACK_EVENT,
+  TRACK_FIELD,
+  TS_FIELD,
+  CREATOR_FIELD,
+  CREATED_FIELD,
 } from '.';
+
+const debug = Debug('types:reducer');
 
 /**
  * @about reducer computes the current state of an entity
@@ -15,7 +25,10 @@ export type Reducer<TEntity = any, TEvent = any> = (
 /**
  * @about domain entity specific callback function used in reducer
  */
-export type ReducerCallback<TEntity extends BaseEntity, TEvent extends BaseEvent> = (entity: TEntity, event: TEvent) => TEntity;
+export type ReducerCallback<TEntity extends BaseEntity, TEvent extends BaseEvent> = (
+  entity: TEntity,
+  event: TEvent
+) => TEntity;
 
 /**
  * @about return high order reducer function
@@ -24,15 +37,16 @@ export type ReducerCallback<TEntity extends BaseEntity, TEvent extends BaseEvent
 //   history: E[],
 //   initialState?: T
 // ) => history.reduce(callback, initialState);
-export const getReducer = <T extends BaseEntity, E extends BaseEvent>(callback: ReducerCallback<T, E>): Reducer<T, E> => (
-  history: E[],
-  initialState?: T
-) => {
+export const getReducer = <T extends BaseEntity, E extends BaseEvent>(
+  callback: ReducerCallback<T, E>
+): Reducer<T, E> => (history: E[], initialState?: T) => {
   return history.reduce((entity: T, event: E) => {
     const ntt = callback(entity, event);
     if (ntt) {
-      if (!ntt[CREATOR_FIELD] && event.payload?.[CREATOR_FIELD]) ntt[CREATOR_FIELD] = event.payload[CREATOR_FIELD];
-      if (!ntt[CREATED_FIELD] && event.payload?.[CREATED_FIELD]) ntt[CREATED_FIELD] = event.payload[CREATED_FIELD];
+      if (!ntt[CREATOR_FIELD] && event.payload?.[CREATOR_FIELD])
+        ntt[CREATOR_FIELD] = event.payload[CREATOR_FIELD];
+      if (!ntt[CREATED_FIELD] && event.payload?.[CREATED_FIELD])
+        ntt[CREATED_FIELD] = event.payload[CREATED_FIELD];
       if (event.payload?.[TS_FIELD]) ntt[TS_FIELD] = event.payload[TS_FIELD];
     }
     return ntt;
@@ -67,6 +81,8 @@ export const trackingReducer = (commits: Commit[]) => {
     }
   );
 
+  debug('trackingReducer:result, %O', result);
+
   const olen = result[ORGAN_FIELD].length;
   const tlen = Object.values(result[TRACK_FIELD]).length;
 
@@ -81,18 +97,30 @@ export const trackingReducer = (commits: Commit[]) => {
 
 export const computeEntity = <T extends BaseEntity, E extends BaseEvent>(
   commits: (Commit | OutputCommit)[],
-  reducer: Reducer<T, E>,
+  reducer: Reducer<T, E>
 ) => {
   const history = [];
   commits.forEach(({ events }) => events.forEach((event) => history.push(event)));
 
+  debug('computeEntity:history, %O', history);
+
   const state = reducer(history);
+
+  debug('computeEntity:state, before appending trackingReducer, %O', state);
+
   if (state) {
     Object.assign(state, trackingReducer(commits));
+
+    debug('computeEntity:state, after appending trackingReducer, %O', state);
   } else {
     // If reducer returns empty, plus receiving a single commit with a single TRACK_EVENT event, meaning the prviate entity
     // is created before its public place holder
-    if ((commits.length === 1) && (commits[0].events?.filter((event) => event.type === TRACK_EVENT).length === 1)) {
+    if (
+      commits.length === 1 &&
+      commits[0].events?.filter((event) => event.type === TRACK_EVENT).length === 1
+    ) {
+      debug('computeEntity:commits, %O', commits);
+
       return { reduced: false };
     }
   }
