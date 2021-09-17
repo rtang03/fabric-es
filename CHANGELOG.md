@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
+## [v0.7.15](https://github.com/rtang03/fabric-es/tree/v0.7.15) (2021-09-17)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.14...HEAD)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.14...v0.7.15)
 
 **Fixed bugs:**
 
@@ -48,6 +48,7 @@
 - feat: private data access control by organization [\#217](https://github.com/rtang03/fabric-es/pull/217) ([pangduckwai](https://github.com/pangduckwai))
 - fix: issue215 - incorrect sorting [\#216](https://github.com/rtang03/fabric-es/pull/216) ([rtang03](https://github.com/rtang03))
 - feat: added timeszone support in logger [\#214](https://github.com/rtang03/fabric-es/pull/214) ([hkicl-ming](https://github.com/hkicl-ming))
+- fix: Private data created before it's public counterpart [\#213](https://github.com/rtang03/fabric-es/pull/213) ([pangduckwai](https://github.com/pangduckwai))
 
 ## [v0.7.12](https://github.com/rtang03/fabric-es/tree/v0.7.12) (2021-04-21)
 
@@ -64,10 +65,6 @@
 **Closed issues:**
 
 - fix: Private data created before it's public counterpart [\#212](https://github.com/rtang03/fabric-es/issues/212)
-
-**Merged pull requests:**
-
-- fix: Private data created before it's public counterpart [\#213](https://github.com/rtang03/fabric-es/pull/213) ([pangduckwai](https://github.com/pangduckwai))
 
 ## [v0.7.9](https://github.com/rtang03/fabric-es/tree/v0.7.9) (2021-04-15)
 
@@ -174,6 +171,8 @@
 - feat: reference Implementation robustness test [\#178](https://github.com/rtang03/fabric-es/pull/178) ([pangduckwai](https://github.com/pangduckwai))
 - refactor: remove auth-server [\#177](https://github.com/rtang03/fabric-es/pull/177) ([rtang03](https://github.com/rtang03))
 - refactor: change to external cc launcher [\#175](https://github.com/rtang03/fabric-es/pull/175) ([rtang03](https://github.com/rtang03))
+- fix: ui-control images with correct dependency [\#168](https://github.com/rtang03/fabric-es/pull/168) ([rtang03](https://github.com/rtang03))
+- feat: add /healthcheck probe to ui-control [\#167](https://github.com/rtang03/fabric-es/pull/167) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.1](https://github.com/rtang03/fabric-es/tree/v0.7.1) (2020-12-19)
 
@@ -210,8 +209,6 @@
 **Merged pull requests:**
 
 - fix: missing http:// in authCheck uri [\#169](https://github.com/rtang03/fabric-es/pull/169) ([rtang03](https://github.com/rtang03))
-- fix: ui-control images with correct dependency [\#168](https://github.com/rtang03/fabric-es/pull/168) ([rtang03](https://github.com/rtang03))
-- feat: add /healthcheck probe to ui-control [\#167](https://github.com/rtang03/fabric-es/pull/167) ([rtang03](https://github.com/rtang03))
 - chore: reduce image size [\#165](https://github.com/rtang03/fabric-es/pull/165) ([rtang03](https://github.com/rtang03))
 - feat: add ui-control to create-release [\#163](https://github.com/rtang03/fabric-es/pull/163) ([rtang03](https://github.com/rtang03))
 - refactor: add debug message to enrolAdmin [\#159](https://github.com/rtang03/fabric-es/pull/159) ([rtang03](https://github.com/rtang03))
