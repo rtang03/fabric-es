@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/fabric-cqrs",
-  "version": "0.7.14",
+  "version": "0.7.15",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -42,7 +42,7 @@
     "unit-test:fab": "yarn t:store && yarn t:srv && yarn t:repo && yarn t:p-repo && yarn t:rec && yarn t:sub yarn t:qdb"
   },
   "dependencies": {
-    "@fabric-es/operator": "^0.7.14",
+    "@fabric-es/operator": "^0.7.15",
     "debug": "^4.3.2",
     "did-jwt": "^5.0.2",
     "dotenv": "^8.1.0",

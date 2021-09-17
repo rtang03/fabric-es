@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/gateway-lib",
-  "version": "0.7.14",
+  "version": "0.7.15",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "description": "Gateway library",
@@ -36,8 +36,8 @@
   "dependencies": {
     "@apollo/federation": "^0.20.7",
     "@apollo/gateway": "^0.21.4",
-    "@fabric-es/fabric-cqrs": "^0.7.14",
-    "@fabric-es/operator": "^0.7.14",
+    "@fabric-es/fabric-cqrs": "^0.7.15",
+    "@fabric-es/operator": "^0.7.15",
     "@godaddy/terminus": "^4.4.1",
     "@graphql-tools/merge": "6.2.14",
     "apollo-link-http": "^1.5.17",

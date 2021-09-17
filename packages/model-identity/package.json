@@ -1,6 +1,6 @@
 {
   "name": "@fabric-es/model-identity",
-  "version": "0.7.14",
+  "version": "0.7.15",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "BSD-3-Clause-Clear",
@@ -17,8 +17,8 @@
   },
   "private": true,
   "dependencies": {
-    "@fabric-es/fabric-cqrs": "^0.7.14",
-    "@fabric-es/gateway-lib": "^0.7.14",
+    "@fabric-es/fabric-cqrs": "^0.7.15",
+    "@fabric-es/gateway-lib": "^0.7.15",
     "did-jwt": "^4.9.0",
     "did-resolver": "^3.0.1",
     "elliptic": "^6.5.4",
