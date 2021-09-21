@@ -40,7 +40,7 @@ export default (
                   : mergeEntityError({ tx_id, error: errors })
               )
               .catch((error) => {
-                logger.warn(
+                logger.error(
                   util.format(
                     '[store/projection/mergeEntity.js] fail to %s: %s, %j',
                     MERGE_ENTITY,

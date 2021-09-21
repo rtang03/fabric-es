@@ -4,3 +4,4 @@ export const REDIS_ERR = 'unknown redis error';
 export const QUERY_ERR = 'fail to exec query';
 export const NO_RECORDS = 'norecord exists';
 export const REPO_NOT_FOUND = 'entity repo not found';
+export const FATAL = '[FATAL_DATA_INTEGRITY_ERROR]';

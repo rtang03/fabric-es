@@ -11,7 +11,6 @@ import {
   commandGetByEntityName,
   dispatcher,
   getLogger,
-  getPaginated,
   isCommit,
   queryDeleteCommitByEntityId,
   queryDeleteCommitByEntityName,
@@ -20,8 +19,9 @@ import {
   queryGetCommitByEntityId,
   queryGetEntityByEntityName,
 } from '../utils';
-import { INVALID_ARG } from './constants';
+import { FATAL, INVALID_ARG } from './constants';
 import type { QueryHandlerOption, QueryHandler } from './types';
+import Debug from 'debug';
 
 /**
  * @about Create query handler
@@ -30,6 +30,7 @@ import type { QueryHandlerOption, QueryHandler } from './types';
  * @returns [[QueryHandler]]
  */
 export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler = (options) => {
+  const debug = Debug('queryHandler:createQueryHandler');
   const {
     entityNames,
     gateway,
@@ -231,7 +232,7 @@ export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler =
 
               // filter subscribed entityNames
               if (!entityNames.includes(commit?.entityName)) {
-                logger.warn(
+                logger.info(
                   util.format(
                     'receive commit of unsubscribed entityName, %s:%s',
                     commit.entityName,
@@ -254,11 +255,16 @@ export const createQueryHandler: (options: QueryHandlerOption) => QueryHandler =
                 logger,
               })({ commit });
 
-              if (mergeEntityResult.status === 'OK')
-                logger.debug(
+              if (mergeEntityResult.status === 'OK') {
+                debug('subscribeHub:mergeEntityResult, %O', mergeEntityResult);
+
+                logger.info(
                   util.format('mergeComit: %j', mergeEntityResult?.data || 'no data written')
                 );
-              else logger.error(util.format('❌ fail to mergeEntity, %j', mergeEntityResult));
+              } else
+                logger.error(
+                  util.format('%s ❌ fail to mergeEntity, %j', FATAL, mergeEntityResult)
+                );
 
               // send merged entity to PubSub
               if (pubSub && mergeEntityResult.status === 'OK') {
