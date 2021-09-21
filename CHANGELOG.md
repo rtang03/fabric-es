@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
+## [v0.7.16](https://github.com/rtang03/fabric-es/tree/v0.7.16) (2021-09-21)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.15...HEAD)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.15...v0.7.16)
 
 **Fixed bugs:**
 
@@ -61,6 +61,7 @@
 - feat: private data access control by organization [\#217](https://github.com/rtang03/fabric-es/pull/217) ([pangduckwai](https://github.com/pangduckwai))
 - fix: issue215 - incorrect sorting [\#216](https://github.com/rtang03/fabric-es/pull/216) ([rtang03](https://github.com/rtang03))
 - feat: added timeszone support in logger [\#214](https://github.com/rtang03/fabric-es/pull/214) ([hkicl-ming](https://github.com/hkicl-ming))
+- docs: fix README [\#205](https://github.com/rtang03/fabric-es/pull/205) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.12](https://github.com/rtang03/fabric-es/tree/v0.7.12) (2021-04-21)
 
@@ -101,8 +102,8 @@
 - docs: add loan example [\#210](https://github.com/rtang03/fabric-es/pull/210) ([rtang03](https://github.com/rtang03))
 - feat: Data Catalog [\#209](https://github.com/rtang03/fabric-es/pull/209) ([pangduckwai](https://github.com/pangduckwai))
 - docs: add readthedocs [\#207](https://github.com/rtang03/fabric-es/pull/207) ([rtang03](https://github.com/rtang03))
-- docs: fix README [\#205](https://github.com/rtang03/fabric-es/pull/205) ([rtang03](https://github.com/rtang03))
 - feat: create / resolve DidDocument [\#204](https://github.com/rtang03/fabric-es/pull/204) ([rtang03](https://github.com/rtang03))
+- feat: enable auth0 in gateway-lib [\#203](https://github.com/rtang03/fabric-es/pull/203) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.8](https://github.com/rtang03/fabric-es/tree/v0.7.8) (2021-03-26)
 
@@ -127,7 +128,6 @@
 
 **Merged pull requests:**
 
-- feat: enable auth0 in gateway-lib [\#203](https://github.com/rtang03/fabric-es/pull/203) ([rtang03](https://github.com/rtang03))
 - feat: dev-net enhancement [\#196](https://github.com/rtang03/fabric-es/pull/196) ([hkicl-ming](https://github.com/hkicl-ming))
 - feat: dev-net enhancement [\#194](https://github.com/rtang03/fabric-es/pull/194) ([hkicl-ming](https://github.com/hkicl-ming))
 - fix: Fix RedisPubSub related issue when running gateway as docker images [\#193](https://github.com/rtang03/fabric-es/pull/193) ([pangduckwai](https://github.com/pangduckwai))
@@ -136,7 +136,6 @@
 - feat: new search capability [\#190](https://github.com/rtang03/fabric-es/pull/190) ([rtang03](https://github.com/rtang03))
 - chore: Add workaround to avoid redis error when shutdown query-handler service [\#189](https://github.com/rtang03/fabric-es/pull/189) ([pangduckwai](https://github.com/pangduckwai))
 - refactor: deduplicate BaseEntity class and interface [\#188](https://github.com/rtang03/fabric-es/pull/188) ([rtang03](https://github.com/rtang03))
-- chore: upgrade eslint [\#187](https://github.com/rtang03/fabric-es/pull/187) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.5](https://github.com/rtang03/fabric-es/tree/v0.7.5) (2021-01-25)
 
@@ -154,6 +153,7 @@
 
 **Merged pull requests:**
 
+- chore: upgrade eslint [\#187](https://github.com/rtang03/fabric-es/pull/187) ([rtang03](https://github.com/rtang03))
 - chore: update typescript v4.1.3 [\#185](https://github.com/rtang03/fabric-es/pull/185) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.4](https://github.com/rtang03/fabric-es/tree/v0.7.4) (2021-01-23)
@@ -257,7 +257,6 @@
 - build k8s based dev-net [\#97](https://github.com/rtang03/fabric-es/issues/97)
 - upload micro-service [\#47](https://github.com/rtang03/fabric-es/issues/47)
 - Boilerplate-d continuous delivery [\#15](https://github.com/rtang03/fabric-es/issues/15)
-- partially work with ingress controller [\#124](https://github.com/rtang03/fabric-es/pull/124) ([rtang03](https://github.com/rtang03))
 - add new org - interim change [\#122](https://github.com/rtang03/fabric-es/pull/122) ([rtang03](https://github.com/rtang03))
 
 **Merged pull requests:**
@@ -280,6 +279,7 @@
 
 - redeploy helm chart to GCP [\#105](https://github.com/rtang03/fabric-es/issues/105)
 - evaluate ansible and choice of dns [\#104](https://github.com/rtang03/fabric-es/issues/104)
+- partially work with ingress controller [\#124](https://github.com/rtang03/fabric-es/pull/124) ([rtang03](https://github.com/rtang03))
 - gcp networking [\#115](https://github.com/rtang03/fabric-es/pull/115) ([rtang03](https://github.com/rtang03))
 - deploy 5 orderers 1 peer to GCP [\#114](https://github.com/rtang03/fabric-es/pull/114) ([rtang03](https://github.com/rtang03))
 
@@ -372,7 +372,6 @@
 - Issue57 fixes [\#91](https://github.com/rtang03/fabric-es/pull/91) ([pangduckwai](https://github.com/pangduckwai))
 - Track private data [\#79](https://github.com/rtang03/fabric-es/pull/79) ([pangduckwai](https://github.com/pangduckwai))
 - Issue71 [\#73](https://github.com/rtang03/fabric-es/pull/73) ([hohowin](https://github.com/hohowin))
-- Issue\# 57: Deploy relay to AWS [\#61](https://github.com/rtang03/fabric-es/pull/61) ([hohowin](https://github.com/hohowin))
 
 ## [v0.6.2](https://github.com/rtang03/fabric-es/tree/v0.6.2) (2020-05-21)
 
@@ -391,8 +390,10 @@
 - Backporting docker image building scripts [\#33](https://github.com/rtang03/fabric-es/pull/33) ([pangduckwai](https://github.com/pangduckwai))
 - Use release versions as dev-net docker image versions [\#32](https://github.com/rtang03/fabric-es/pull/32) ([pangduckwai](https://github.com/pangduckwai))
 - Merge projectionDb search changes from 0.5.16 to master [\#30](https://github.com/rtang03/fabric-es/pull/30) ([pangduckwai](https://github.com/pangduckwai))
+- Update the GCP deployment of gw-org1, gw-org2, and auth-servers for release v0.6.1 [\#29](https://github.com/rtang03/fabric-es/pull/29) ([hohowin](https://github.com/hohowin))
 - Entity search APIs [\#28](https://github.com/rtang03/fabric-es/pull/28) ([pangduckwai](https://github.com/pangduckwai))
 - V2dn3org [\#25](https://github.com/rtang03/fabric-es/pull/25) ([pangduckwai](https://github.com/pangduckwai))
+- Upgrade to Fabric v2 [\#17](https://github.com/rtang03/fabric-es/pull/17) ([rtang03](https://github.com/rtang03))
 
 **Fixed bugs:**
 
@@ -408,6 +409,7 @@
 
 **Merged pull requests:**
 
+- Issue\# 57: Deploy relay to AWS [\#61](https://github.com/rtang03/fabric-es/pull/61) ([hohowin](https://github.com/hohowin))
 - update dependency and upgrade to Fabric V2.1 [\#50](https://github.com/rtang03/fabric-es/pull/50) ([rtang03](https://github.com/rtang03))
 - Dev-net for new auth server [\#48](https://github.com/rtang03/fabric-es/pull/48) ([pangduckwai](https://github.com/pangduckwai))
 - Add entity lifecycle event checking for writing into blockchain \(issue \#84\) [\#37](https://github.com/rtang03/fabric-es/pull/37) ([pangduckwai](https://github.com/pangduckwai))
