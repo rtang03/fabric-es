@@ -1,4 +1,5 @@
 import util from 'util';
+import Debug from 'debug';
 import { Contract, ContractListener, Network } from 'fabric-network';
 import { getStore } from '../store';
 import { action as projAction } from '../store/projection';
@@ -21,7 +22,6 @@ import {
 } from '../utils';
 import { FATAL, INVALID_ARG } from './constants';
 import type { QueryHandlerOption, QueryHandler } from './types';
-import Debug from 'debug';
 
 /**
  * @about Create query handler
