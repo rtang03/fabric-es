@@ -1,6 +1,5 @@
 import util from 'util';
 import Debug from 'debug';
-import sortBy from 'lodash/sortBy';
 import startsWith from 'lodash/startsWith';
 import { FTCreateParameters, FTSchemaField, Redisearch } from 'redis-modules-sdk';
 import { createSelector, Selector } from 'reselect';
@@ -117,7 +116,11 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
     },
     dropIndex: (deleteHash = true) => client.dropindex(indexName, deleteHash),
     hmset: (item, history) => {
+      debug('hmset:item, %O', item);
+
       const key = getKey(item);
+
+      debug('hmset:key, %s', key);
 
       if (!key) throw new Error('invalid key');
 
@@ -130,6 +133,8 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
     getKey: (item: TItemInRedis) => getKey(item),
     getIndexName: () => indexName,
     getPattern: (pattern, args) =>
+      // args[0] is entityName
+      // args[1] is entityId
       ({
         COMMITS_BY_ENTITYNAME: `c:${args[0]}:*`,
         COMMITS_BY_ENTITYNAME_ENTITYID: `c:${args[0]}:${args[1]}:*`,
@@ -140,10 +145,20 @@ export const createRedisRepository: <TInput, TItemInRedis, TOutput>(
     getPostSelector: (): Selector<TItemInRedis, TResult> => combinedPostSelector,
     queryCommitsByPattern: async (pattern) => {
       try {
+        debug('queryCommitsByPattern:pattern, %s', pattern);
+
         return await pipelineExec<CommitInRedis>(client, 'HGETALL', pattern).then((data) => [
-          data.map(([err, _]) => err),
+          data.map(([err, _]) => {
+            debug('queryCommitsByPattern:error, %O', err);
+
+            return err;
+          }),
           data
-            .map<OutputCommit>(([_, commit]) => restoreCommit(commit))
+            .map<OutputCommit>(([_, commit]) => {
+              debug('queryCommitsByPattern:commit, %O', commit);
+
+              return restoreCommit(commit);
+            })
             .sort((a, b) => a.ts - b.ts),
         ]);
       } catch (e) {

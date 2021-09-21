@@ -7,6 +7,7 @@ import { FTSearchParameters, Redisearch } from 'redis-modules-sdk';
 import { Commit, computeEntity, HandlerResponse } from '../types';
 import { getLogger, isCommit } from '../utils';
 import {
+  FATAL,
   INVALID_ARG,
   NO_RECORDS,
   QUERY_ERR,
@@ -30,8 +31,7 @@ export const createQueryDatabase: (
   repos: Record<string, RedisRepository<any>>,
   option?: { notifyExpiryBySec?: number }
 ) => QueryDatabase = (client, repos, { notifyExpiryBySec } = { notifyExpiryBySec: 86400 }) => {
-  const debug = Debug('queryHandler:createQuerybase');
-  const FATAL = '[FATAL_DATA_INTEGRITY_ERROR]';
+  const debug = Debug('queryHandler:createQueryDatabase');
   const logger = getLogger({ name: '[query-handler] createQueryDatabase.js', target: 'console' });
   const commitRepo = createRedisRepository<Commit, CommitInRedis, OutputCommit>('commit', {
     client,
@@ -283,8 +283,12 @@ export const createQueryDatabase: (
         entityId,
       ]);
 
+      debug('pattern: %s', pattern);
+
       const [errors, restoredCommits] = await commitRepo.queryCommitsByPattern(pattern);
       const isError = errors?.reduce((pre, cur) => pre || !!cur, false);
+
+      debug('restoredCommits: %O', restoredCommits);
 
       if (isError) {
         debug('mergeEntity:errors, %O', errors);
@@ -317,7 +321,6 @@ export const createQueryDatabase: (
         _creator: 'org1-admin'
       }
       */
-      debug('mergeEntity:step-3');
 
       const { state, reduced } = computeEntity(history, reducer);
 
@@ -325,6 +328,8 @@ export const createQueryDatabase: (
       debug('mergeEntity:entity being merged, %O', state);
 
       // step 3: compute events history, returning comma separator
+      // Here assumes that state is valid, only if "id" field exists.
+      // NOTE: "fail to reduce" is FATAL_DATA_INTEGRITY_ERROR. MUST REVISIT
       if (reduced && !state?.id) {
         debug('mergeEntity:"fail to reduce"');
 
