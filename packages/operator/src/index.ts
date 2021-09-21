@@ -5,6 +5,6 @@ export * from './enrollAdmin';
 export * from './tasks/registerAndEnroll';
 export * from './types';
 
-type dummyCode = {
+type dummyCode2 = {
   testOnly: boolean;
 };
