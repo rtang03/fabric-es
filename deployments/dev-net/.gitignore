@@ -5,6 +5,9 @@ volume/
 .env
 config/configtx.yaml
 
+# Individual env specific config for dev-net
+cfg.sh
+
 # Generated very time by build-config.sh
 config/configtx.org.yaml
 compose.auth.yaml
