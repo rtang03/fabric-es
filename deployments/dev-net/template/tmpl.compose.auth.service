@@ -22,8 +22,8 @@
       - CLIENT_SECRET=password
       - LOG_LEVEL=$LOG_LEVEL
       - LOG_TARGET=$LOG_TARGET
-      # - CERT_PATH_CERT=${CERT_PUB}
-      # - CERT_PATH_KEY=${CERT_PRV}
+      - CERT_PATH_CERT=${CERT_PUB}
+      - CERT_PATH_KEY=${CERT_PRV}
     # this open port for development of ui, should be removed for production
     ports:
       - ${TMPL_PARAM_AUTH_PORT}:8080
