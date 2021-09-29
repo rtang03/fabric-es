@@ -30,8 +30,8 @@ export ROOT_DIR=$CURRENT_DIR/../..
 
 # HTTPS related
 export CERTS=./certs
-export CERT_PUB=/cert/org0.crt
-export CERT_PRV=/cert/org0.key
+export CERT_PUB=
+export CERT_PRV=
 
 export HLF_VERSION=2.2.0
 export HLF_CA_IMAGE=hyperledger/fabric-ca:1.4.8
