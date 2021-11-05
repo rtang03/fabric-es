@@ -53,6 +53,10 @@ export const typeDefs = gql`
     link: String!
   }
 
+  type Event {
+    type: String
+  }
+
   """
   Response from _mutation_ (create, update, delete) operations related to the **DocContents** type
   """
@@ -66,6 +70,7 @@ export const typeDefs = gql`
     commitId: String
     mspId: String
     entityId: String
+    events: [Event!]
   }
 
   type SrvError {

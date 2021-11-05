@@ -17,11 +17,12 @@ export const resolvers = {
           username,
         }: DocContentsContext
       ) => {
+        logger.warn(`YOYOYOYOYOYOYO getDocContentsById ${username} ${documentId}`);
         return repo
           .getById({ id: documentId, enrollmentId: username })
           .then(({ currentState }) => currentState);
       },
-      { fcnName: 'getDocContentsById', logger, useAuth: true }
+      { fcnName: 'getDocContentsById', logger, useAuth: false }
     ),
   },
   Mutation: {
@@ -65,6 +66,7 @@ export const resolvers = {
           username,
         }: DocContentsContext
       ): Promise<Commit> => {
+        logger.warn(`YOYOYOYOYOYOYO updateDocContents ${username}`);
         let val;
         if (content.body && !content.format && !content.link) {
           val = { body: content.body };

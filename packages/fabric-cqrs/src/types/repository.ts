@@ -329,6 +329,15 @@ export type PrivateRepository<TEntity = any, TEvent = any> = {
   getCommitByEntityIdCommitId: RepoFcn_IdCommitId<Commit[]>;
 
   /**
+   * @about get commits by entity id
+   * @return
+   * ```typescript
+   * (payload: { id: string }) => Promise<HandlerResponse<Commit[]>>
+   * ```
+   * **/
+  getCommitById: RepoFcn_Id<Commit[]>;
+
+  /**
    * @about 📥 get entityName
    * @similar [[Repository]].getEntityName
    * @return `() => string`

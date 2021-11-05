@@ -100,6 +100,10 @@ export const typeDefs = gql`
     email: String!
   }
 
+  type Event {
+    type: String
+  }
+
   "Response from _mutation_ (create, update, delete) operations related to the **LoanDetails** type"
   union PrvResponse = PrvCommit | SrvError
 
@@ -111,6 +115,7 @@ export const typeDefs = gql`
     commitId: String
     mspId: String
     entityId: String
+    events: [Event!]
   }
 
   type SrvError {
