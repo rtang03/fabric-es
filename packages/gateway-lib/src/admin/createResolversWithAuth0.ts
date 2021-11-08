@@ -3,7 +3,6 @@ import { createNetworkOperator, NetworkOperator } from '@fabric-es/operator';
 import { ApolloError } from 'apollo-server';
 import { Wallet, X509Identity } from 'fabric-network';
 import { getLogger } from '..';
-import { orgResolvers, userResolvers } from '../common/model';
 import { catchResolverErrors } from '../utils/catchResolverErrors';
 
 /**
@@ -33,100 +32,92 @@ export const createResolversWithAuth0: (option: {
   mspId,
   enrollmentSecret,
 }) => {
-  const logger = getLogger('[gw-lib] createResolvers.js');
+    const logger = getLogger('[gw-lib] createResolversWithAuth0.js');
 
-  let operator: NetworkOperator;
+    let operator: NetworkOperator;
 
-  try {
-    operator = await createNetworkOperator({
-      caName,
-      caAdmin,
-      caAdminPW,
-      channelName,
-      connectionProfile,
-      wallet,
-      mspId,
-    });
-  } catch (e) {
-    logger.error(util.format('createNetworkOperator error: %j', e));
-    throw new Error(e);
-  }
+    try {
+      operator = await createNetworkOperator({
+        caName,
+        caAdmin,
+        caAdminPW,
+        channelName,
+        connectionProfile,
+        wallet,
+        mspId,
+      });
+    } catch (e) {
+      logger.error(util.format('createNetworkOperator error: %j', e));
+      throw new Error(e);
+    }
 
-  let ca;
-  try {
-    ca = await operator.identityService({ asLocalhost });
-  } catch (e) {
-    logger.error(util.format('createNetworkOperator error: %j', e));
-    throw new Error(e);
-  }
+    let ca;
+    try {
+      ca = await operator.identityService({ asLocalhost });
+    } catch (e) {
+      logger.error(util.format('createNetworkOperator error: %j', e));
+      throw new Error(e);
+    }
 
-  const { Query: orgQuery, ...orgTypes } = orgResolvers;
-  const { Query: usrQuery, Mutation: usrMutation, ...usrTypes } = userResolvers;
+    return {
+      Mutation: {
+        createWallet: catchResolverErrors(
+          async (_, __, { enrollment_id }) => {
+            const res = await operator.registerAndEnroll({
+              enrollmentId: enrollment_id,
+              enrollmentSecret,
+              asLocalhost,
+            });
 
-  return {
-    Mutation: {
-      createWallet: catchResolverErrors(
-        async (_, __, { enrollment_id }) => {
-          const res = await operator.registerAndEnroll({
-            enrollmentId: enrollment_id,
-            enrollmentSecret,
-            asLocalhost,
-          });
+            const registerResult = await res.registerAndEnroll();
 
-          const registerResult = await res.registerAndEnroll();
+            res.disconnect();
 
-          res.disconnect();
+            if (registerResult instanceof Error) {
+              logger.error(util.format('createWallet error: %j', registerResult));
+              return new ApolloError(registerResult.message);
+            }
 
-          if (registerResult instanceof Error) {
-            logger.error(util.format('createWallet error: %j', registerResult));
-            return new ApolloError(registerResult.message);
-          }
-
-          return registerResult?.status === 'SUCCESS';
-        },
-        { fcnName: 'createWallet', logger, useAuth: true, }
-      ),
-      ...usrMutation,
-    },
-    Query: {
-      isadmin: () => 'echo admin',
-      getCaIdentityByUsername: catchResolverErrors(
-        async (_, __, { enrollment_id }) =>
-          ca.getByEnrollmentId(enrollment_id || '').then(({ result }) =>
-            result
-              ? {
+            return registerResult?.status === 'SUCCESS';
+          },
+          { fcnName: 'createWallet', logger, useAuth: true, }
+        ),
+      },
+      Query: {
+        isadmin: () => 'echo admin',
+        getCaIdentityByUsername: catchResolverErrors(
+          async (_, __, { enrollment_id }) =>
+            ca.getByEnrollmentId(enrollment_id || '').then(({ result }) =>
+              result
+                ? {
                   id: result.id,
                   typ: result.type,
                   affiliation: result.affiliation,
                   max_enrollments: result.max_enrollments,
                   attrs: result.attrs,
                 }
-              : null
-          ),
-        { fcnName: 'getCaIdentityByEnrollmentId', logger, useAuth: false, }
-      ),
-      getWallet: catchResolverErrors(
-        async (_, __, { enrollment_id }) => {
-          const identity = (await wallet.get(enrollment_id)) as X509Identity;
-          return identity
-            ? {
+                : null
+            ),
+          { fcnName: 'getCaIdentityByEnrollmentId', logger, useAuth: false, }
+        ),
+        getWallet: catchResolverErrors(
+          async (_, __, { enrollment_id }) => {
+            const identity = (await wallet.get(enrollment_id)) as X509Identity;
+            return identity
+              ? {
                 type: identity.type,
                 mspId: identity.mspId,
                 certificate: identity.credentials.certificate,
               }
-            : null;
-        },
-        { fcnName: 'getWallet', logger, useAuth: true }
-      ),
-      listWallet: catchResolverErrors(async () => wallet.list(), {
-        fcnName: 'listWallet',
-        logger,
-        useAuth: false,
-      }),
-      ...orgQuery,
-      ...usrQuery,
-    },
-    ...orgTypes,
-    ...usrTypes,
+              : null;
+          },
+          { fcnName: 'getWallet', logger, useAuth: true }
+        ),
+        listWallet: catchResolverErrors(async () => wallet.list(), {
+          fcnName: 'listWallet',
+          logger,
+          useAuth: false,
+        }),
+      },
+    };
   };
-};
