@@ -6,10 +6,12 @@ import { DataSource } from 'apollo-datasource';
 export class DataSrc<TRepo = any> extends DataSource {
   context;
   repo: TRepo;
+  isPrivate: boolean;
 
-  constructor({ repo }: { repo?: TRepo }) {
+  constructor({ repo, isPrivate }: { repo?: TRepo; isPrivate?: boolean }) {
     super();
     this.repo = repo;
+    this.isPrivate = (isPrivate) ? true : false;
   }
 
   initialize(config) {

@@ -1,12 +1,12 @@
 
 export const orgTypeDefsQuery = `
-  us: Organization
-  getOrgById(mspId: String!): Organization
+  us: _Organization
+  getOrgById(mspId: String!): _Organization
   pubkey: String
 `;
 
 export const orgTypeDefsType = `
-type Organization @key(fields: "mspId") {
+type _Organization @key(fields: "mspId") {
   mspId: String!
   name: String!
   url: String!

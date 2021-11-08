@@ -228,9 +228,9 @@ export const createService: (option: {
               schema,
               dataSources: () =>
                 repositories.reduce(
-                  (obj, { entityName, repository }) => ({
+                  (obj, { entityName, repository, isPrivate }) => ({
                     ...obj,
-                    [entityName]: new DataSrc({ repo: repository }),
+                    [entityName]: (isPrivate) ? new DataSrc({ repo: repository, isPrivate: true }) : new DataSrc({ repo: repository }),
                   }),
                   {}
                 ),

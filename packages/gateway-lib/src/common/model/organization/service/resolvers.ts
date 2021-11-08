@@ -44,7 +44,7 @@ export const resolvers = {
       }, { fcnName: 'pubkey', logger, useAuth: false }
     ),
   },
-  Organization: {
+  _Organization: {
     __resolveReference: catchResolverErrors(
       async ({ mspId }, { dataSources: { organization }}: OrgContext) => {
         const { data, status, error } = await organization.repo.fullTextSearchEntity({
@@ -55,7 +55,7 @@ export const resolvers = {
         });
         if (status !== 'OK') throw new Error(util.format(`'__resolveReference': getting ${ORGAN_NAME} failed, %j`, error));
         return data?.items[0];
-      }, { fcnName: 'Organization/__resolveReference', logger, useAuth: false }
+      }, { fcnName: '_Organization/__resolveReference', logger, useAuth: false }
     ),
   },
 };

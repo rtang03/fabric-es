@@ -17,12 +17,11 @@ export const resolvers = {
           username,
         }: DocContentsContext
       ) => {
-        logger.warn(`YOYOYOYOYOYOYO getDocContentsById ${username} ${documentId}`);
         return repo
           .getById({ id: documentId, enrollmentId: username })
           .then(({ currentState }) => currentState);
       },
-      { fcnName: 'getDocContentsById', logger, useAuth: false }
+      { fcnName: 'getDocContentsById', logger, useAuth: true, privateEntityName: 'docContents' }
     ),
   },
   Mutation: {
