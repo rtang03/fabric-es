@@ -178,17 +178,6 @@ export const createService: (option: {
           introspection?: boolean;
           catalog?: boolean;
         }) => ApolloServer = (option) => {
-          // const sdls = [];
-          // let csdl = ((option && option.catalog) || !option) ? buildCatalogedSchema(serviceName, type, sdl) : combinSchema({sdls: sdl}); // TODO: here assume using default names for the root operations
-          // if (csdl) sdls.push(csdl);
-          // if (type === ServiceType.Private) {
-          //   sdls.push({
-          //    typeDefs: getAclTypeDefs(serviceName),
-          //    resolvers: getAclResolver(serviceName),
-          //   });
-          //   csdl = combinSchema({sdls}); // TODO: here assume using default names for the root operations
-          // }
-          // const schema = buildFederatedSchema(csdl);
           if (type === ServiceType.Private) {
             for (const repo of repositories) {
               if (repo.isPrivate) {
