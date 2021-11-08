@@ -4,6 +4,11 @@
 
 [Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.16...HEAD)
 
+**Implemented enhancements:**
+
+- feat : disable userService in createAdminService [\#222](https://github.com/rtang03/fabric-es/issues/222)
+- feat: Changed add userRepo as optional in createAdminService / createAdminServiceWithAuth0 / createQueryHandlerService / createService [\#234](https://github.com/rtang03/fabric-es/pull/234) ([hkicl-ming](https://github.com/hkicl-ming))
+
 **Fixed bugs:**
 
 - hardcode path [\#231](https://github.com/rtang03/fabric-es/issues/231)
@@ -72,6 +77,7 @@
 - fix: Fix sorting of commits for derived events [\#220](https://github.com/rtang03/fabric-es/pull/220) ([pangduckwai](https://github.com/pangduckwai))
 - feat: private data access control by organization [\#217](https://github.com/rtang03/fabric-es/pull/217) ([pangduckwai](https://github.com/pangduckwai))
 - fix: issue215 - incorrect sorting [\#216](https://github.com/rtang03/fabric-es/pull/216) ([rtang03](https://github.com/rtang03))
+- feat: added timeszone support in logger [\#214](https://github.com/rtang03/fabric-es/pull/214) ([hkicl-ming](https://github.com/hkicl-ming))
 
 ## [v0.7.12](https://github.com/rtang03/fabric-es/tree/v0.7.12) (2021-04-21)
 
@@ -109,7 +115,6 @@
 
 **Merged pull requests:**
 
-- feat: added timeszone support in logger [\#214](https://github.com/rtang03/fabric-es/pull/214) ([hkicl-ming](https://github.com/hkicl-ming))
 - docs: add loan example [\#210](https://github.com/rtang03/fabric-es/pull/210) ([rtang03](https://github.com/rtang03))
 - feat: Data Catalog [\#209](https://github.com/rtang03/fabric-es/pull/209) ([pangduckwai](https://github.com/pangduckwai))
 - docs: add readthedocs [\#207](https://github.com/rtang03/fabric-es/pull/207) ([rtang03](https://github.com/rtang03))
@@ -402,6 +407,7 @@
 - Revamp auth-server [\#34](https://github.com/rtang03/fabric-es/pull/34) ([rtang03](https://github.com/rtang03))
 - Backporting docker image building scripts [\#33](https://github.com/rtang03/fabric-es/pull/33) ([pangduckwai](https://github.com/pangduckwai))
 - Use release versions as dev-net docker image versions [\#32](https://github.com/rtang03/fabric-es/pull/32) ([pangduckwai](https://github.com/pangduckwai))
+- Merge projectionDb search changes from 0.5.16 to master [\#30](https://github.com/rtang03/fabric-es/pull/30) ([pangduckwai](https://github.com/pangduckwai))
 - Update the GCP deployment of gw-org1, gw-org2, and auth-servers for release v0.6.1 [\#29](https://github.com/rtang03/fabric-es/pull/29) ([hohowin](https://github.com/hohowin))
 - V2dn3org [\#25](https://github.com/rtang03/fabric-es/pull/25) ([pangduckwai](https://github.com/pangduckwai))
 

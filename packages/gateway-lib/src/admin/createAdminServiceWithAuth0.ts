@@ -1,26 +1,18 @@
 import { Repository } from '@fabric-es/fabric-cqrs';
 import { readKey } from '@fabric-es/operator';
+import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
 import { ApolloServer } from 'apollo-server';
 import { Wallets } from 'fabric-network';
 import type { RedisOptions } from 'ioredis';
 import { getLogger } from '..';
 import {
-  Organization,
-  OrgEvents,
-  orgReducer,
-  orgIndices,
-  orgCommandHandler,
-  User,
-  userReducer,
-  userIndices,
+  Organization, orgCommandHandler, OrgEvents, orgIndices, orgReducer, orgResolvers, orgTypeDefs,
+  User, userIndices, userReducer, userResolvers, userTypeDefs
 } from '../common/model';
 import { createService } from '../utils';
 import {
-  MISSING_CHANNELNAME,
-  MISSING_CONNECTION_PROFILE,
-  MISSING_CA_NAME,
-  MISSING_WALLET,
-  MISSING_ORGKEY,
+  MISSING_CA_NAME, MISSING_CHANNELNAME,
+  MISSING_CONNECTION_PROFILE, MISSING_ORGKEY, MISSING_WALLET
 } from './constants';
 import { createResolversWithAuth0 } from './createResolversWithAuth0';
 import { typeDefs } from './typeDefs';
@@ -70,6 +62,7 @@ export const createAdminServiceWithAuth0: (option: {
   introspection?: boolean;
   enrollmentSecret?: string;
   redisOptions: RedisOptions;
+  isAddUserRepo?: boolean;
 }) => Promise<{
   server: ApolloServer;
   shutdown: (server: ApolloServer) => Promise<void>;
@@ -88,108 +81,119 @@ export const createAdminServiceWithAuth0: (option: {
   introspection = true,
   enrollmentSecret = 'password',
   redisOptions,
+  isAddUserRepo = false
 }) => {
-  const logger = getLogger('[gw-lib] createAdminService.js');
+    const logger = getLogger('[gw-lib] createAdminServiceWithAuth0.js');
 
-  if (!channelName) {
-    logger.error(MISSING_CHANNELNAME);
-    throw new Error(MISSING_CHANNELNAME);
-  }
-  if (!connectionProfile) {
-    logger.error(MISSING_CONNECTION_PROFILE);
-    throw new Error(MISSING_CONNECTION_PROFILE);
-  }
-  if (!caName) {
-    logger.error(MISSING_CA_NAME);
-    throw new Error(MISSING_CA_NAME);
-  }
+    if (!channelName) {
+      logger.error(MISSING_CHANNELNAME);
+      throw new Error(MISSING_CHANNELNAME);
+    }
+    if (!connectionProfile) {
+      logger.error(MISSING_CONNECTION_PROFILE);
+      throw new Error(MISSING_CONNECTION_PROFILE);
+    }
+    if (!caName) {
+      logger.error(MISSING_CA_NAME);
+      throw new Error(MISSING_CA_NAME);
+    }
 
-  if (!walletPath) {
-    logger.error(MISSING_WALLET);
-    throw new Error(MISSING_WALLET);
-  }
+    if (!walletPath) {
+      logger.error(MISSING_WALLET);
+      throw new Error(MISSING_WALLET);
+    }
 
-  if (!keyPath) {
-    logger.error(MISSING_ORGKEY);
-    throw new Error(MISSING_ORGKEY);
-  }
+    if (!keyPath) {
+      logger.error(MISSING_ORGKEY);
+      throw new Error(MISSING_ORGKEY);
+    }
 
-  const wallet = await Wallets.newFileSystemWallet(walletPath);
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
 
-  const { config, getMspId, getRepository, shutdown } = await createService({
-    enrollmentId: caAdmin,
-    serviceName: 'admin',
-    channelName,
-    connectionProfile,
-    wallet,
-    asLocalhost,
-    redisOptions,
-  });
+    const { config, getMspId, getRepository, shutdown } = await createService({
+      enrollmentId: caAdmin,
+      serviceName: 'admin',
+      channelName,
+      connectionProfile,
+      wallet,
+      asLocalhost,
+      redisOptions,
+    });
 
-  logger.info('createService complete');
+    logger.info('createService complete');
 
-  const mspId = getMspId();
-  const orgRepo = getRepository<Organization, Organization, OrgEvents>(Organization, orgReducer);
-  const pubkey = await readKey(keyPath);
-  await orgCommandHandler({ enrollmentId: caAdmin, orgRepo })
-    .StartOrg({
+    const mspId = getMspId();
+    const orgRepo = getRepository<Organization, Organization, OrgEvents>(Organization, orgReducer);
+    const pubkey = await readKey(keyPath);
+    await orgCommandHandler({ enrollmentId: caAdmin, orgRepo })
+      .StartOrg({
+        mspId,
+        payload: { name: orgName, url: orgUrl, pubkey, timestamp: Date.now() },
+      })
+      .then(_ => logger.info('orgCommandHandler.StartOrg complete'))
+      .catch(error => logger.error(error));
+
+    const resolvers = await createResolversWithAuth0({
+      caAdmin,
+      caAdminPW,
+      channelName,
+      connectionProfile,
+      caName,
+      wallet,
+      asLocalhost,
       mspId,
-      payload: { name: orgName, url: orgUrl, pubkey, timestamp: Date.now() },
-    })
-    .then(_ => logger.info('orgCommandHandler.StartOrg complete'))
-    .catch(error => logger.error(error));
+      enrollmentSecret,
+    });
+    logger.info('createResolvers complete');
 
-  const resolvers = await createResolversWithAuth0({
-    caAdmin,
-    caAdminPW,
-    channelName,
-    connectionProfile,
-    caName,
-    wallet,
-    asLocalhost,
-    mspId,
-    enrollmentSecret,
-  });
-  logger.info('createResolvers complete');
+    const server = isAddUserRepo ?
+      config([{
+        typeDefs: mergeTypeDefs([typeDefs, orgTypeDefs, userTypeDefs]),
+        resolvers: mergeResolvers([resolvers, orgResolvers, userResolvers])
+      }])
+        .addRepository(Organization, { reducer: orgReducer, fields: orgIndices })
+        .addRepository(User, { reducer: userReducer, fields: userIndices })
+        .create({ playground, introspection }) :
+      config([{
+        typeDefs: mergeTypeDefs([typeDefs, orgTypeDefs]),
+        resolvers: mergeResolvers([resolvers, orgResolvers])
+      }])
+        .addRepository(Organization, { reducer: orgReducer, fields: orgIndices })
+        .create({ playground, introspection });
 
-  const server = config([{ typeDefs, resolvers }])
-    .addRepository(Organization, { reducer: orgReducer, fields: orgIndices })
-    .addRepository(User, { reducer: userReducer, fields: userIndices })
-    .create({ playground, introspection });
+    let stopping = false;
+    let stopped = false;
 
-  let stopping = false;
-  let stopped = false;
-
-  return {
-    server,
-    shutdown: ((repo: Repository) => (server: ApolloServer) => {
-      if (!stopping) {
-        stopping = true;
-        return orgCommandHandler({ enrollmentId: caAdmin, orgRepo: repo, })
-          .ShutdownOrg({
-            mspId,
-            payload: { timestamp: Date.now() },
-          })
-          .then(_ => {
-            return shutdown(server).then(_ => {
-              stopped = true;
+    return {
+      server,
+      shutdown: ((repo: Repository) => (server: ApolloServer) => {
+        if (!stopping) {
+          stopping = true;
+          return orgCommandHandler({ enrollmentId: caAdmin, orgRepo: repo, })
+            .ShutdownOrg({
+              mspId,
+              payload: { timestamp: Date.now() },
+            })
+            .then(_ => {
+              return shutdown(server).then(_ => {
+                stopped = true;
+              });
             });
-          });
-      } else {
-        let cnt = 10;
-        const loop = (func) => {
-          setTimeout(() => {
-            if (!stopped && cnt > 0) {
-              cnt --;
-              logger.debug(`waiting for shutdown() to complete... ${cnt}`);
-              loop(func);
-            } else {
-              func();
-            }
-          }, 1000);
-        };
-        return new Promise<void>(resolve => loop(resolve));
-      }
-    })(orgRepo),
+        } else {
+          let cnt = 10;
+          const loop = (func) => {
+            setTimeout(() => {
+              if (!stopped && cnt > 0) {
+                cnt--;
+                logger.debug(`waiting for shutdown() to complete... ${cnt}`);
+                loop(func);
+              } else {
+                func();
+              }
+            }, 1000);
+          };
+          return new Promise<void>(resolve => loop(resolve));
+        }
+      })(orgRepo),
+    };
   };
-};
