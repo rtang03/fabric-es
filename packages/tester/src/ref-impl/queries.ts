@@ -5,8 +5,8 @@ mutation CreateWallet {
 `;
 
 export const SET_ACL = (entityName) => `
-mutation _GrantAccess_${entityName}($entityId: String!, $mspId: String!) {
-  _grantAccess_${entityName}(entityId: $entityId, mspId: $mspId) {
+mutation _GrantAccess_${entityName}($entityId: String!, $accessor: String!) {
+  _grantAccess_${entityName}(entityId: $entityId, accessor: $accessor) {
     ... on PrvCommit {
       id
       entityName

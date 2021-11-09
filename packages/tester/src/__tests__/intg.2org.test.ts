@@ -277,7 +277,7 @@ describe('Multi-Org Test - Initialize Org1', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken1}` }, body: JSON.stringify({
           operationName: `_GrantAccess_docContents`,
           query: SET_ACL('docContents'),
-          variables: { entityId: docId1a, mspId: 'Org2MSP' }
+          variables: { entityId: docId1a, accessor: 'Org2MSP' }
         })
       }).then(res => res.json())
         .then(({ data }) => expect(data['_grantAccess_docContents'].id).toEqual(docId1a + 'Org2MSP'))
@@ -286,7 +286,7 @@ describe('Multi-Org Test - Initialize Org1', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken1}` }, body: JSON.stringify({
           operationName: `_GrantAccess_docContents`,
           query: SET_ACL('docContents'),
-          variables: { entityId: docId1a, mspId: 'Org3MSP' }
+          variables: { entityId: docId1a, accessor: 'Org3MSP' }
         })
       }).then(res => res.json())
         .then(({ data }) => expect(data['_grantAccess_docContents'].id).toEqual(docId1a + 'Org3MSP'))
@@ -314,7 +314,7 @@ describe('Multi-Org Test - Initialize Org1', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken1}` }, body: JSON.stringify({
           operationName: `_GrantAccess_docContents`,
           query: SET_ACL('docContents'),
-          variables: { entityId: docId1b, mspId: 'Org2MSP' }
+          variables: { entityId: docId1b, accessor: 'Org2MSP' }
         })
       }).then(res => res.json())
         .then(({ data }) => expect(data['_grantAccess_docContents'].id).toEqual(docId1b + 'Org2MSP'))
@@ -323,7 +323,7 @@ describe('Multi-Org Test - Initialize Org1', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken1}` }, body: JSON.stringify({
           operationName: `_GrantAccess_docContents`,
           query: SET_ACL('docContents'),
-          variables: { entityId: docId1b, mspId: 'Org3MSP' }
+          variables: { entityId: docId1b, accessor: 'Org3MSP' }
         })
       }).then(res => res.json())
         .then(({ data }) => expect(data['_grantAccess_docContents'].id).toEqual(docId1b + 'Org3MSP'))
@@ -528,7 +528,7 @@ describe('Multi-Org Test - Initialize Org2', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken2}` }, body: JSON.stringify({
           operationName: `_GrantAccess_loanDetails`,
           query: SET_ACL('loanDetails'),
-          variables: { entityId: loanId2, mspId: 'Org1MSP' }
+          variables: { entityId: loanId2, accessor: 'Org1MSP' }
         })
       }).then(res => res.json())
         .then(({ data }) => expect(data['_grantAccess_loanDetails'].id).toEqual(loanId2 + 'Org1MSP'))
@@ -537,7 +537,7 @@ describe('Multi-Org Test - Initialize Org2', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken2}` }, body: JSON.stringify({
           operationName: `_GrantAccess_loanDetails`,
           query: SET_ACL('loanDetails'),
-          variables: { entityId: loanId2, mspId: 'Org3MSP' }
+          variables: { entityId: loanId2, accessor: 'Org3MSP' }
         })
       }).then(res => res.json())
         .then(({ data }) => expect(data['_grantAccess_loanDetails'].id).toEqual(loanId2 + 'Org3MSP'))
@@ -570,7 +570,7 @@ describe('Multi-Org Test - Add remote data', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken1}` }, body: JSON.stringify({
           operationName: `_GrantAccess_docContents`,
           query: SET_ACL('docContents'),
-          variables: { entityId: docId2a, mspId: 'Org2MSP' }
+          variables: { entityId: docId2a, accessor: 'Org2MSP' }
         })
       }).then(res => res.json())
         .then(({ data }) => expect(data['_grantAccess_docContents'].id).toEqual(docId2a + 'Org2MSP'))
@@ -579,7 +579,7 @@ describe('Multi-Org Test - Add remote data', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken1}` }, body: JSON.stringify({
           operationName: `_GrantAccess_docContents`,
           query: SET_ACL('docContents'),
-          variables: { entityId: docId2a, mspId: 'Org3MSP' }
+          variables: { entityId: docId2a, accessor: 'Org3MSP' }
         })
       }).then(res => res.json())
         .then(({ data }) => expect(data['_grantAccess_docContents'].id).toEqual(docId2a + 'Org3MSP'))
@@ -607,7 +607,7 @@ describe('Multi-Org Test - Add remote data', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken2}` }, body: JSON.stringify({
           operationName: `_GrantAccess_loanDetails`,
           query: SET_ACL('loanDetails'),
-          variables: { entityId: loanId1, mspId: 'Org1MSP' }
+          variables: { entityId: loanId1, accessor: 'Org1MSP' }
         })
       }).then(res => res.json())
         .then(({ data }) => expect(data['_grantAccess_loanDetails'].id).toEqual(loanId1 + 'Org1MSP'))
@@ -616,7 +616,7 @@ describe('Multi-Org Test - Add remote data', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken2}` }, body: JSON.stringify({
           operationName: `_GrantAccess_loanDetails`,
           query: SET_ACL('loanDetails'),
-          variables: { entityId: loanId1, mspId: 'Org3MSP' }
+          variables: { entityId: loanId1, accessor: 'Org3MSP' }
         })
       }).then(res => res.json())
         .then(({ data }) => expect(data['_grantAccess_loanDetails'].id).toEqual(loanId1 + 'Org3MSP'))
@@ -895,7 +895,7 @@ describe('Multi-Org Test - Access Control of private data', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken2}` }, body: JSON.stringify({
           operationName: `_GrantAccess_loanDetails`,
           query: SET_ACL('loanDetails'),
-          variables: { entityId: loanId5a, mspId: 'Org1MSP' }
+          variables: { entityId: loanId5a, accessor: 'Org1MSP' }
         })
       }).then(res => res.json())
         .then(({ data }) => expect(data['_grantAccess_loanDetails'].id).toEqual(loanId5a + 'Org1MSP'))
@@ -1004,7 +1004,7 @@ describe('Multi-Org Test - Access Control of private data', () => {
         method: 'POST', headers: { 'content-type': 'application/json', authorization: `bearer ${adminToken1}` }, body: JSON.stringify({
           operationName: `_GrantAccess_docContents`,
           query: SET_ACL('docContents'),
-          variables: { entityId: docId5a, mspId: 'Org2MSP' }
+          variables: { entityId: docId5a, accessor: 'Org2MSP' }
         })
       }).then(res => res.json())
         .then(({ data }) => expect(data['_grantAccess_docContents'].id).toEqual(docId5a + 'Org2MSP'))
