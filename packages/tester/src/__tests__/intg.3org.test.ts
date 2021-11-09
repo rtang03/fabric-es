@@ -1180,7 +1180,7 @@ describe('Multi-Org Test - Add remote data', () => {
           variables: { entityId: docId1a, mspId: 'Org2MSP' }
         })
       }).then(res => res.json())
-        .then(({ data }) => expect(data['_grantAccess_docContents'].id).toEqual(docId1a + 'Org1MSP'))
+        .then(({ data }) => expect(data['_grantAccess_docContents'].id).toEqual(docId1a + 'Org2MSP'))
         .catch(_ => expect(false).toBeTruthy());
   
       await fetch(GATEWAY3, {
