@@ -65,7 +65,6 @@ export const resolvers = {
           username,
         }: DocContentsContext
       ): Promise<Commit> => {
-        logger.warn(`YOYOYOYOYOYOYO updateDocContents ${username}`);
         let val;
         if (content.body && !content.format && !content.link) {
           val = { body: content.body };

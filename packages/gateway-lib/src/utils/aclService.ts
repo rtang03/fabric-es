@@ -10,16 +10,21 @@ export class Acl implements BaseEntity {
   id: string;
   entity: string; // name of the private entity
   entityId: string;
-  mspId: string;
+  accessor: string; // mspId of the organization who has access to this entity
   status: string;
+  createAt: number;
+  revokeAt?: number;
+  expireAt: number;
 }
 
-export interface AclAdded extends BaseEvent {
-  readonly type: 'AclAdded';
+export interface AclGranted extends BaseEvent {
+  readonly type: 'AclGranted';
   payload: {
     entity: string;
     entityId: string;
-    mspId: string;
+    accessor: string;
+    grantAt: number;
+    expireAt: number;
   };
 }
 export interface AclRevoked extends BaseEvent {
@@ -27,24 +32,26 @@ export interface AclRevoked extends BaseEvent {
   payload: {
     entity: string;
     entityId: string;
-    mspId: string;
+    accessor: string;
+    revokeAt: number;
   };
 }
-export type AclEvents = AclAdded | AclRevoked;
+export type AclEvents = AclGranted | AclRevoked;
 
 export interface AclCommands {
-  AddAcl: {
+  GrantAcl: {
     payload: {
       entity: string;
       entityId: string;
-      mspId: string;
+      accessor: string;
+      expireAt?: number;
     };
   };
   RevokeAcl: {
     payload: {
       entity: string;
       entityId: string;
-      mspId: string;
+      accessor: string;
     };
   };
 }
@@ -55,19 +62,20 @@ export const aclCommandHandler: (option: {
   enrollmentId: string;
   aclRepo: PrivateRepository;
 }) => AclCommandHandler = ({ enrollmentId, aclRepo }) => ({
-  AddAcl: async ({ payload: { entity, entityId, mspId } }) => {
+  GrantAcl: async ({ payload: { entity, entityId, accessor, expireAt } }) => {
+    const now = Date.now();
     return aclRepo
-      .create({ enrollmentId, id: entityId + mspId })
+      .create({ enrollmentId, id: entityId + accessor })
       .save({ events: [
-        { type: 'AclAdded', payload: { entity, entityId, mspId } },
+        { type: 'AclGranted', payload: { entity, entityId, accessor, grantAt: now, expireAt: expireAt || (now + 86400000) } },
       ]})
       .then(({ data }) => data);
   },
-  RevokeAcl: async ({ payload: { entity, entityId, mspId } }) => {
+  RevokeAcl: async ({ payload: { entity, entityId, accessor } }) => {
     return aclRepo
-      .create({ enrollmentId, id: entityId + mspId })
+      .create({ enrollmentId, id: entityId + accessor })
       .save({ events: [
-        { type: 'AclRevoked', payload: { entity, entityId, mspId } },
+        { type: 'AclRevoked', payload: { entity, entityId, accessor, revokeAt: Date.now() } },
       ]})
       .then(({ data }) => data);
   }
@@ -75,17 +83,30 @@ export const aclCommandHandler: (option: {
 
 export const aclReducer = (acl: Acl, event: AclEvents): Acl => {
   switch (event.type) {
-    case 'AclAdded':
-      return {
-        id: event.payload.entityId + event.payload.mspId,
-        entity: event.payload.entity,
-        entityId: event.payload.entityId,
-        mspId: event.payload.mspId,
-        status: 'A'
-      };
+    case 'AclGranted':
+      const now = Date.now();
+      if (!!acl) {
+        return {
+          ...acl,
+          status: (now > event.payload.expireAt) ? 'X' : 'A',
+          revokeAt: undefined,
+          expireAt: event.payload.expireAt,
+        };
+      } else {
+        return {
+          id: event.payload.entityId + event.payload.accessor,
+          entity: event.payload.entity,
+          entityId: event.payload.entityId,
+          accessor: event.payload.accessor,
+          status: (now > event.payload.expireAt) ? 'X' : 'A',
+          createAt: event.payload.grantAt,
+          expireAt: event.payload.expireAt,
+        };
+      }
     case 'AclRevoked':
       return {
         ...acl,
+        revokeAt: event.payload.revokeAt,
         status: 'R',
       };
     default:
@@ -119,7 +140,7 @@ export const getAclTypeDefs = (entity: string) => {
     entityName: String
     version: Int
     commitId: String
-    mspId: String
+    accessor: String
     entityId: String
     events: [Event!]
   }
@@ -133,32 +154,36 @@ export const getAclTypeDefs = (entity: string) => {
     id: String!
     entity: String!
     entityId: String!
-    mspId: String!
+    accessor: String!
     status: String!
+    createAt: String!
+    revokeAt: String
+    expireAt: String!
   }
 
   type Query {
-    "Check if the organization with the given mspId has access of the entity with the given entityId"
-    _checkAccess_${entity}(entityId: String!, mspId: String!): _Acl
+    "Check if the organization with the given accessor mspId has access of the entity with the given entityId"
+    _checkAccess_${entity}(entityId: String!, accessor: String!): _Acl
   }
-  type Mutation {
-    "Grant access of the entity with the given entityId to the organization with the given mspId"
-    _grantAccess_${entity}(entityId: String!, mspId: String!): PrvResponse!
 
-    "Revoke access of the entity with the given entityId from the organization with the given mspId"
-    _revokeAccess_${entity}(entityId: String!, mspId: String!): PrvResponse!
+  type Mutation {
+    "Grant access of the entity with the given entityId to the organization with the given accessor mspId"
+    _grantAccess_${entity}(entityId: String!, accessor: String!, expireTime: String): PrvResponse!
+
+    "Revoke access of the entity with the given entityId from the organization with the given accessor mspId"
+    _revokeAccess_${entity}(entityId: String!, accessor: String!): PrvResponse!
   }`;
 };
 
 export const getAclResolver = (entity: string, repo: PrivateRepository) => {
   return {
     Query: {
-      [`_checkAccess_${entity}`]: (_, { entityId, mspId }, { username }) => {
-        return getAcl(entityId, mspId, repo);
+      [`_checkAccess_${entity}`]: (_, { entityId, accessor }, { username }) => {
+        return getAcl(entityId, accessor, repo);
       },
     },
     Mutation: {
-      [`_grantAccess_${entity}`]: (_, { entityId, mspId }, { is_admin, username }) => {
+      [`_grantAccess_${entity}`]: (_, { entityId, accessor, expireTime }, { is_admin, username }) => {
         if (!is_admin) {
           return new ForbiddenError(UNAUTHORIZED_ACCESS);
         }
@@ -166,13 +191,13 @@ export const getAclResolver = (entity: string, repo: PrivateRepository) => {
         return aclCommandHandler({
           enrollmentId: username,
           aclRepo: repo,
-        }).AddAcl({
+        }).GrantAcl({
           payload: {
-            entity, entityId, mspId,
+            entity, entityId, accessor, expireAt: (!!expireTime && !isNaN(expireTime) ? Number(expireTime) : undefined)
           }
         });
       },
-      [`_revokeAccess_${entity}`]: (_, { entityId, mspId }, { is_admin, username }) => {
+      [`_revokeAccess_${entity}`]: (_, { entityId, accessor }, { is_admin, username }) => {
         if (!is_admin) {
           return new ForbiddenError(UNAUTHORIZED_ACCESS);
         }
@@ -182,7 +207,7 @@ export const getAclResolver = (entity: string, repo: PrivateRepository) => {
           aclRepo: repo,
         }).RevokeAcl({
           payload: {
-            entity, entityId, mspId,
+            entity, entityId, accessor,
           }
         });
       },
