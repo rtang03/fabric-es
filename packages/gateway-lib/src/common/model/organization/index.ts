@@ -11,8 +11,7 @@ export * from './domain/model';
 export * from './domain/reducer';
 export * from './domain/typeGuard';
 export { resolvers as orgResolvers } from './service/resolvers';
-export * from './service/schema';
-export { typeDefs as orgTypeDefs } from './service/typeDefs';
+export { typeDefs as orgTypeDefs } from './service/schema';
 
 export type OrgRepo = Repository<Organization, Organization, OrgEvents>;
 export type OrgCommandHandler = CommandHandler<OrgCommands>;

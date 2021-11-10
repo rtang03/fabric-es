@@ -8,6 +8,5 @@ export type ServiceContext = {
   hash: string;
   id: string;
   pubkey: string;
-  aclPath: string;
   ec: EC.ec;
 };

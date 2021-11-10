@@ -83,7 +83,6 @@ export const createService: (option: {
   serviceName: string;
   wallet: Wallet;
   keyPath?: string;
-  aclPath?: string;
   isAddUserRepo?: boolean;
 }) => Promise<FederatedService> = async ({
   asLocalhost,
@@ -95,7 +94,6 @@ export const createService: (option: {
   serviceName,
   wallet,
   keyPath,
-  aclPath,
   isAddUserRepo = false,
 }) => {
     const logger = getLogger('[gw-lib] createService.js');
@@ -139,8 +137,6 @@ export const createService: (option: {
     const mspId = gateway?.getIdentity()?.mspId;
     logger.info('mspId: ', mspId);
 
-    const aclDbPath = (aclPath) ? `${aclPath}${aclPath.endsWith('/') ? '' : '/'}${serviceName}.db` : undefined;
-
     const getPrivateRepository = <TEntity, TEvent>(
       entity: EntityType<TEntity>,
       reducer: ReducerCallback<TEntity, TEvent>,
@@ -173,6 +169,7 @@ export const createService: (option: {
         const repositories: {
           entityName: string;
           repository: Repository | PrivateRepository;
+          isPrivate: boolean;
         }[] = [];
 
         const create: (option?: {
@@ -181,22 +178,15 @@ export const createService: (option: {
           introspection?: boolean;
           catalog?: boolean;
         }) => ApolloServer = (option) => {
-          // const sdls = [];
-          // let csdl = ((option && option.catalog) || !option) ? buildCatalogedSchema(serviceName, type, sdl) : combinSchema({sdls: sdl}); // TODO: here assume using default names for the root operations
-          // if (csdl) sdls.push(csdl);
-          // if (type === ServiceType.Private) {
-          //   sdls.push({
-          //    typeDefs: getAclTypeDefs(serviceName),
-          //    resolvers: getAclResolver(serviceName),
-          //   });
-          //   csdl = combinSchema({sdls}); // TODO: here assume using default names for the root operations
-          // }
-          // const schema = buildFederatedSchema(csdl);
           if (type === ServiceType.Private) {
-            sdl.push({
-              typeDefs: getAclTypeDefs(serviceName),
-              resolvers: getAclResolver(serviceName),
-            });
+            for (const repo of repositories) {
+              if (repo.isPrivate) {
+                sdl.push({
+                  typeDefs: getAclTypeDefs(repo.entityName),
+                  resolvers: getAclResolver(repo.entityName, repo.repository as PrivateRepository),
+                });
+              }
+            }
           }
           const sdls = {
             typeDefs: mergeTypeDefs(sdl.map(s => s.typeDefs)),
@@ -213,13 +203,13 @@ export const createService: (option: {
 
           redisRepos = composeRedisRepos(client, redisRepos)(Organization, { fields: orgIndices });
           repositories.push({
-            entityName: Organization.entityName, repository: getRepository<Organization, Organization, OrgEvents>(Organization, orgReducer),
+            entityName: Organization.entityName, repository: getRepository<Organization, Organization, OrgEvents>(Organization, orgReducer), isPrivate: false,
           });
 
           if (isAddUserRepo) {
             redisRepos = composeRedisRepos(client, redisRepos)(User, { fields: userIndices });
             repositories.push({
-              entityName: User.entityName, repository: getRepository<User, User, UserEvents>(User, userReducer),
+              entityName: User.entityName, repository: getRepository<User, User, UserEvents>(User, userReducer), isPrivate: false,
             });
           }
 
@@ -229,9 +219,9 @@ export const createService: (option: {
                 schema,
                 dataSources: () =>
                   repositories.reduce(
-                    (obj, { entityName, repository }) => ({
+                    (obj, { entityName, repository, isPrivate }) => ({
                       ...obj,
-                      [entityName]: new DataSrc({ repo: repository }),
+                      [entityName]: (isPrivate) ? new DataSrc({ repo: repository, isPrivate: true }) : new DataSrc({ repo: repository }),
                     }),
                     {}
                   ),
@@ -262,7 +252,6 @@ export const createService: (option: {
                             serviceType: type,
                             ec,
                             pubkey: org.data?.items[0].pubkey,
-                            aclPath: aclDbPath,
                           }, args);
                         }
                       }
@@ -275,7 +264,6 @@ export const createService: (option: {
                       serviceType: type,
                       ec,
                       keyPath,
-                      aclPath: aclDbPath,
                     }, args);
                   } else if (type === ServiceType.Remote) {
                     return Object.assign(
@@ -311,6 +299,7 @@ export const createService: (option: {
           repositories.push({
             entityName: repository.getEntityName(),
             repository,
+            isPrivate: true,
           });
           return { create, addRepository, addPrivateRepository };
         };
@@ -336,6 +325,7 @@ export const createService: (option: {
             repositories.push({
               entityName: entity.entityName,
               repository,
+              isPrivate: false,
             });
 
             return { create, addRepository, addPrivateRepository };

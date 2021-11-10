@@ -4,7 +4,7 @@ export { createGateway } from './utils/createGateway';
 export { createGatewayWithAuth0 } from './utils/createGatewayWithAuth0';
 export { createService } from './utils/createService';
 export { getLogger } from './utils/getLogger';
-export { createRemoteData, queryRemoteData, normalizeReq } from './utils/createRemoteData';
+export { queryRemoteData, normalizeReq } from './utils/createRemoteData';
 export { createAdminService } from './admin/createAdminService';
 export { createAdminServiceWithAuth0 } from './admin/createAdminServiceWithAuth0';
 export { createQueryHandlerService } from './queryHandler';

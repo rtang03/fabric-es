@@ -4,9 +4,21 @@ mutation CreateWallet {
 }
 `;
 
-export const SET_ACL = (service) => `
-mutation _SetAcl_${service}($entityId: String!, $accessors: [String!]!) {
-  _set_acl_${service}(entityId: $entityId, accessors: $accessors)
+export const SET_ACL = (entityName) => `
+mutation _GrantAccess_${entityName}($entityId: String!, $accessor: String!) {
+  _grantAccess_${entityName}(entityId: $entityId, accessor: $accessor) {
+    ... on PrvCommit {
+      id
+      entityName
+      version
+      commitId
+      entityId
+      mspId
+    }
+    ... on SrvError {
+      message
+    }
+  }
 }
 `;
 

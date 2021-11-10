@@ -6,24 +6,33 @@ import { getAcl } from './aclService';
 
 export const catchResolverErrors: <T = any>(
   fcn: (root, variables, context) => Promise<T>,
-  option: { fcnName: string; logger: Logger; useAuth: boolean; useAdmin?: boolean }
+  option: { fcnName: string; logger: Logger; useAuth: boolean; useAdmin?: boolean; privateEntityName?: string }
 ) => (root, variables, context) => Promise<T> = <TResult>(
   fcn,
-  { fcnName, logger, useAuth, useAdmin = false }
+  { fcnName, logger, useAuth, useAdmin = false, privateEntityName = null }
 ) => async (root, variables, context) => {
   try {
     if (useAuth) {
       if (context?.user_id) {
         return await fcn(root, variables, context); // authenticated with bearer token
-      } else if (context?.accessor && context?.signature && context?.hash && context?.id && context?.pubkey && context?.aclPath && context?.ec) {
-        const { accessor, signature, hash, id, pubkey, aclPath, ec } = context;
+      } else if (privateEntityName !== null) { // (context?.accessor && context?.signature && context?.hash && context?.id && context?.pubkey && context?.aclPath && context?.ec) {
+        const { accessor, signature, hash, id, pubkey, ec, dataSources } = context;
+        if (!dataSources[privateEntityName] || !dataSources[privateEntityName].isPrivate) {
+          // useAuth is true, not login locally (user_id is empty), but not setup properly (need private-entity-name)
+          logger.warn(`${fcnName}, ${UNAUTHORIZED_ACCESS}`);
+          return new ForbiddenError(UNAUTHORIZED_ACCESS);
+        }
 
         if (ec.keyFromPublic(pubkey, 'hex').verify(hash, signature)) {
           logger.info(`Request confirmed to be originated from ${accessor}`); // TODO: 'info' or 'debug'
 
           // check if accessor entitle to access
           try {
-            await getAcl(aclPath, id, accessor);
+            const acl = await getAcl(id, accessor, dataSources[privateEntityName].repo);
+            if (!acl || acl.status !== 'A') {
+              logger.warn(`${fcnName}, ${UNAUTHORIZED_ACCESS}`);
+              return new ForbiddenError(UNAUTHORIZED_ACCESS);
+            }
           } catch (err) {
             logger.warn(`${fcnName}, ${err}`);
             return new ApolloError(err);

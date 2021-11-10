@@ -22,3 +22,4 @@ export * from './replaceTag';
 export * from './getPaginated';
 export * from './queryGetEntityByEntityName';
 export * from './queryFullTextSearch';
+export * from './commandGetByEntityId';

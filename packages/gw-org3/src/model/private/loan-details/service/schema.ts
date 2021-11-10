@@ -82,6 +82,10 @@ export const typeDefs = gql`
     company: String
   }
 
+  type Event {
+    type: String
+  }
+
   ###
   # Mutation responses
   ###
@@ -94,6 +98,7 @@ export const typeDefs = gql`
     commitId: String
     mspId: String
     entityId: String
+    events: [Event!]
   }
 
   type SrvError {

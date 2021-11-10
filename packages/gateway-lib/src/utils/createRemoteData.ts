@@ -64,7 +64,7 @@ export const normalizeReq = (
       .replace(/^\s+|\s+$/g, ''),
   });
 
-export const createRemoteData = async ({
+export const retrieveRemoteData = async ({
   accessor, keyPath, uri, query, id, context
 }: {
   accessor: string;
@@ -183,7 +183,7 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
   //  2. a corresponding private entity is not yet created.
   // *therefore if the data tracking field is missing, just need to return the private entities read locally*
   if (!presult.data?.items[0][TRACK_FIELD_S]) {
-    return result;
+    return result.filter(r => !!r);
   }
 
   if (!context.dataSources[ORGAN_NAME]) throw new Error(`${ORGAN_NAME} data source missing`);
@@ -202,7 +202,7 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
         throw new Error(util.format(`getting ${ORGAN_NAME} failed, %j`, oresult.error));
       }
 
-      await createRemoteData({
+      await retrieveRemoteData({
         accessor: context.mspId,
         keyPath: context.keyPath,
         uri: oresult.data?.items[0].url,
@@ -223,5 +223,5 @@ export const queryRemoteData: <TEntity extends BaseEntity>(
     }
   }
 
-  return result;
+  return result.filter(r => !!r);
 };

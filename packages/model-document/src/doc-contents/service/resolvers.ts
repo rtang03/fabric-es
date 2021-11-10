@@ -21,7 +21,7 @@ export const resolvers = {
           .getById({ id: documentId, enrollmentId: username })
           .then(({ currentState }) => currentState);
       },
-      { fcnName: 'getDocContentsById', logger, useAuth: true }
+      { fcnName: 'getDocContentsById', logger, useAuth: true, privateEntityName: 'docContents' }
     ),
   },
   Mutation: {

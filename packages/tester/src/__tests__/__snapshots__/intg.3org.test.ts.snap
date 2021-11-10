@@ -232,9 +232,7 @@ exports[`Multi-Org Test - Access Control of private data Org3 - query loan 5a su
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5a",
-  "details": Array [
-    null,
-  ],
+  "details": Array [],
   "documents": Array [],
   "ownerId": "USER_ORG2",
   "reference": "REF-ORG2-LOAN-5a",
@@ -247,7 +245,6 @@ Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5b",
   "details": Array [
-    null,
     Object {
       "approvedAmt": null,
       "comment": "Org2 LoanDetails 5b for Org3",
@@ -282,7 +279,6 @@ Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5c",
   "details": Array [
-    null,
     Object {
       "approvedAmt": null,
       "comment": "Org2 LoanDetails 5c for Org1 and Org3",
@@ -316,9 +312,7 @@ exports[`Multi-Org Test - Access Control of private data Org3 - query loan 5d su
 Object {
   "comment": Any<String>,
   "description": "Org2 Loan 5d",
-  "details": Array [
-    null,
-  ],
+  "details": Array [],
   "documents": Array [],
   "ownerId": "USER_ORG2",
   "reference": "REF-ORG2-LOAN-5d",

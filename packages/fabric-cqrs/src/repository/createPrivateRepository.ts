@@ -8,6 +8,7 @@ import {
   commandGetByEntityName,
   commandGetById,
   commandGetByEntityIdCommitId,
+  commandGetByEntityId,
 } from '../utils';
 
 /**
@@ -43,6 +44,7 @@ export const createPrivateRepository: <TEntity extends BaseEntity, TEvent extend
     create: commandCreate(entityName, true, commandOption, parentName),
     getCommitByEntityName: commandGetByEntityName(entityName, true, commandOption),
     getCommitByEntityIdCommitId: commandGetByEntityIdCommitId(entityName, true, commandOption),
+    getCommitById: commandGetByEntityId(entityName, true, commandOption),
     deleteByEntityIdCommitId: commandDeleteByEntityIdCommitId(entityName, true, commandOption),
     getById: commandGetById(entityName, reducer, true, commandOption),
     getEntityName: () => entityName,

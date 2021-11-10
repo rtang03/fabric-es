@@ -32,7 +32,6 @@ void (async () =>
       logger
     ),
     keyPath: process.env.ORGKEY,
-    aclPath: process.env.ACLPATH,
   })
     .then(({ config, shutdown }) => {
       const app = config([{
