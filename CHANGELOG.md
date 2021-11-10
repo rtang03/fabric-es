@@ -15,6 +15,7 @@
 
 **Merged pull requests:**
 
+- feat: Move ACL storage to private data [\#236](https://github.com/rtang03/fabric-es/pull/236) ([pangduckwai](https://github.com/pangduckwai))
 - fix: Refactor dev-net individual env specific config [\#232](https://github.com/rtang03/fabric-es/pull/232) ([pangduckwai](https://github.com/pangduckwai))
 
 ## [v0.7.16](https://github.com/rtang03/fabric-es/tree/v0.7.16) (2021-09-21)
@@ -200,7 +201,6 @@
 
 - fix: .nojerkll  [\#181](https://github.com/rtang03/fabric-es/pull/181) ([rtang03](https://github.com/rtang03))
 - docs: add typedoc [\#180](https://github.com/rtang03/fabric-es/pull/180) ([rtang03](https://github.com/rtang03))
-- chore: Prepare tester and dev-net to port to cdi-samples [\#179](https://github.com/rtang03/fabric-es/pull/179) ([pangduckwai](https://github.com/pangduckwai))
 - feat: reference Implementation robustness test [\#178](https://github.com/rtang03/fabric-es/pull/178) ([pangduckwai](https://github.com/pangduckwai))
 - refactor: remove auth-server [\#177](https://github.com/rtang03/fabric-es/pull/177) ([rtang03](https://github.com/rtang03))
 - refactor: change to external cc launcher [\#175](https://github.com/rtang03/fabric-es/pull/175) ([rtang03](https://github.com/rtang03))
@@ -239,6 +239,7 @@
 
 **Merged pull requests:**
 
+- chore: Prepare tester and dev-net to port to cdi-samples [\#179](https://github.com/rtang03/fabric-es/pull/179) ([pangduckwai](https://github.com/pangduckwai))
 - fix: missing http:// in authCheck uri [\#169](https://github.com/rtang03/fabric-es/pull/169) ([rtang03](https://github.com/rtang03))
 - fix: ui-control images with correct dependency [\#168](https://github.com/rtang03/fabric-es/pull/168) ([rtang03](https://github.com/rtang03))
 - feat: add /healthcheck probe to ui-control [\#167](https://github.com/rtang03/fabric-es/pull/167) ([rtang03](https://github.com/rtang03))
@@ -409,7 +410,6 @@
 - Use release versions as dev-net docker image versions [\#32](https://github.com/rtang03/fabric-es/pull/32) ([pangduckwai](https://github.com/pangduckwai))
 - Merge projectionDb search changes from 0.5.16 to master [\#30](https://github.com/rtang03/fabric-es/pull/30) ([pangduckwai](https://github.com/pangduckwai))
 - Update the GCP deployment of gw-org1, gw-org2, and auth-servers for release v0.6.1 [\#29](https://github.com/rtang03/fabric-es/pull/29) ([hohowin](https://github.com/hohowin))
-- V2dn3org [\#25](https://github.com/rtang03/fabric-es/pull/25) ([pangduckwai](https://github.com/pangduckwai))
 
 **Fixed bugs:**
 
