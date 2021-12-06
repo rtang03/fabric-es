@@ -44,41 +44,41 @@ jobs:
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-build.gw.sh org1 org2 org3
       - name: Run multi-org integration test
         run: cd /home/runner/work/fabric-es/fabric-es/deployments/dev-net && ./dn-run.sh 3 gw-org test
-      - name: Log into GitHub Container Registry
-        run: echo "${{ secrets.CREATE_PACKAGE }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
-      - name: Push GW-1 to GCR
-        run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$GW_1
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "$default-branch" ] && VERSION=latest
-          docker tag fabric-es/$GW_1 $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
-      - name: Push GW-2 to GCR
-        run: |
-          set -x
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$GW_2
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          [ "$VERSION" == "$default-branch" ] && VERSION=latest
-          docker tag fabric-es/$GW_2 $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
-      - name: Push Tester to GCR
-        run: |
-          set -x
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$TESTER
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          [ "$VERSION" == "$default-branch" ] && VERSION=latest
-          docker tag fabric-es/$TESTER $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+      # - name: Log into GitHub Container Registry
+      #   run: echo "${{ secrets.CREATE_PACKAGE }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+      # - name: Push GW-1 to GCR
+      #   run: |
+      #     IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$GW_1
+      #     # Change all uppercase to lowercase
+      #     IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+      #     # Strip git ref prefix from version
+      #     VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+      #     # Strip "v" prefix from tag name
+      #     [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+      #     # Use Docker `latest` tag convention
+      #     [ "$VERSION" == "$default-branch" ] && VERSION=latest
+      #     docker tag fabric-es/$GW_1 $IMAGE_ID:$VERSION
+      #     docker push $IMAGE_ID:$VERSION
+      # - name: Push GW-2 to GCR
+      #   run: |
+      #     set -x
+      #     IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$GW_2
+      #     IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+      #     VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+      #     [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+      #     [ "$VERSION" == "$default-branch" ] && VERSION=latest
+      #     docker tag fabric-es/$GW_2 $IMAGE_ID:$VERSION
+      #     docker push $IMAGE_ID:$VERSION
+      # - name: Push Tester to GCR
+      #   run: |
+      #     set -x
+      #     IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$TESTER
+      #     IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+      #     VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+      #     [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+      #     [ "$VERSION" == "$default-branch" ] && VERSION=latest
+      #     docker tag fabric-es/$TESTER $IMAGE_ID:$VERSION
+      #     docker push $IMAGE_ID:$VERSION
       - name: Cleanup artifacts
         run: sudo rm -rf /home/runner/work/fabric-es/fabric-es/deployments/dev-net/artifacts
       - name: Cleanup data volume
@@ -110,7 +110,7 @@ jobs:
         run: |
           git push "https://$CI_USER:$CI_TOKEN@github.com/$GITHUB_REPOSITORY.git" HEAD:master
       - name: Create Release
-        uses: docker://antonyurchenko/git-release:v4.1.0 
+        uses: docker://antonyurchenko/git-release:v4.1.0
         #docker://antonyurchenko/git-release:latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
