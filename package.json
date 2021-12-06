@@ -16,7 +16,7 @@
     "lint:lib": "lerna run lint --stream --scope={@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator,@fabric-es/tester}",
     "lint:app": "lerna run lint --stream --scope={@fabric-es/gw-org*,@fabric-es/model-*}",
     "publish:lib": "lerna run publish --scope={@fabric-es/fabric-cqrs,@fabric-es/gateway-lib,@fabric-es/operator}",
-    "version:patch": "lerna version patch",
+    "version:patch": "lerna version patch --force-publish",
     "typedoc": "typedoc --theme ./node_modules/typedoc-neo-theme/bin/default"
   },
   "workspaces": [
