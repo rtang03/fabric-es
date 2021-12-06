@@ -1,11 +1,16 @@
 # Changelog
 
-## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
+## [v0.7.18](https://github.com/rtang03/fabric-es/tree/v0.7.18) (2021-12-06)
 
-[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.16...HEAD)
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.17...v0.7.18)
+
+## [v0.7.17](https://github.com/rtang03/fabric-es/tree/v0.7.17) (2021-12-06)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.16...v0.7.17)
 
 **Implemented enhancements:**
 
+- Add an enrollOnly function in operator [\#225](https://github.com/rtang03/fabric-es/issues/225)
 - feat : disable userService in createAdminService [\#222](https://github.com/rtang03/fabric-es/issues/222)
 - feat: Changed add userRepo as optional in createAdminService / createAdminServiceWithAuth0 / createQueryHandlerService / createService [\#234](https://github.com/rtang03/fabric-es/pull/234) ([hkicl-ming](https://github.com/hkicl-ming))
 
@@ -122,6 +127,7 @@
 - docs: fix README [\#205](https://github.com/rtang03/fabric-es/pull/205) ([rtang03](https://github.com/rtang03))
 - feat: create / resolve DidDocument [\#204](https://github.com/rtang03/fabric-es/pull/204) ([rtang03](https://github.com/rtang03))
 - feat: enable auth0 in gateway-lib [\#203](https://github.com/rtang03/fabric-es/pull/203) ([rtang03](https://github.com/rtang03))
+- feat: model-identity - Did Document [\#199](https://github.com/rtang03/fabric-es/pull/199) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.8](https://github.com/rtang03/fabric-es/tree/v0.7.8) (2021-03-26)
 
@@ -134,7 +140,6 @@
 **Merged pull requests:**
 
 - feat: Domain Model Refactoring for Query Handler Search [\#201](https://github.com/rtang03/fabric-es/pull/201) ([pangduckwai](https://github.com/pangduckwai))
-- feat: model-identity - Did Document [\#199](https://github.com/rtang03/fabric-es/pull/199) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.6](https://github.com/rtang03/fabric-es/tree/v0.7.6) (2021-03-11)
 
@@ -201,6 +206,7 @@
 
 - fix: .nojerkll  [\#181](https://github.com/rtang03/fabric-es/pull/181) ([rtang03](https://github.com/rtang03))
 - docs: add typedoc [\#180](https://github.com/rtang03/fabric-es/pull/180) ([rtang03](https://github.com/rtang03))
+- chore: Prepare tester and dev-net to port to cdi-samples [\#179](https://github.com/rtang03/fabric-es/pull/179) ([pangduckwai](https://github.com/pangduckwai))
 - feat: reference Implementation robustness test [\#178](https://github.com/rtang03/fabric-es/pull/178) ([pangduckwai](https://github.com/pangduckwai))
 - refactor: remove auth-server [\#177](https://github.com/rtang03/fabric-es/pull/177) ([rtang03](https://github.com/rtang03))
 - refactor: change to external cc launcher [\#175](https://github.com/rtang03/fabric-es/pull/175) ([rtang03](https://github.com/rtang03))
@@ -239,7 +245,6 @@
 
 **Merged pull requests:**
 
-- chore: Prepare tester and dev-net to port to cdi-samples [\#179](https://github.com/rtang03/fabric-es/pull/179) ([pangduckwai](https://github.com/pangduckwai))
 - fix: missing http:// in authCheck uri [\#169](https://github.com/rtang03/fabric-es/pull/169) ([rtang03](https://github.com/rtang03))
 - fix: ui-control images with correct dependency [\#168](https://github.com/rtang03/fabric-es/pull/168) ([rtang03](https://github.com/rtang03))
 - feat: add /healthcheck probe to ui-control [\#167](https://github.com/rtang03/fabric-es/pull/167) ([rtang03](https://github.com/rtang03))
@@ -255,7 +260,6 @@
 - chore: attempt changelog.yaml [\#144](https://github.com/rtang03/fabric-es/pull/144) ([rtang03](https://github.com/rtang03))
 - feat: enhance GitHub Actions [\#141](https://github.com/rtang03/fabric-es/pull/141) ([rtang03](https://github.com/rtang03))
 - refactor: handle multipart form fields with content types [\#139](https://github.com/rtang03/fabric-es/pull/139) ([pangduckwai](https://github.com/pangduckwai))
-- fix: add work around to accept JSON data provided in query params [\#137](https://github.com/rtang03/fabric-es/pull/137) ([pangduckwai](https://github.com/pangduckwai))
 
 ## [v0.7.0](https://github.com/rtang03/fabric-es/tree/v0.7.0) (2020-10-09)
 
@@ -280,6 +284,7 @@
 
 **Merged pull requests:**
 
+- fix: add work around to accept JSON data provided in query params [\#137](https://github.com/rtang03/fabric-es/pull/137) ([pangduckwai](https://github.com/pangduckwai))
 - Fix issue with logging to files [\#136](https://github.com/rtang03/fabric-es/pull/136) ([pangduckwai](https://github.com/pangduckwai))
 - Tester enhancements [\#135](https://github.com/rtang03/fabric-es/pull/135) ([pangduckwai](https://github.com/pangduckwai))
 - Improve key fields tagging for pboc/etc, improve logging [\#134](https://github.com/rtang03/fabric-es/pull/134) ([pangduckwai](https://github.com/pangduckwai))
@@ -410,6 +415,7 @@
 - Use release versions as dev-net docker image versions [\#32](https://github.com/rtang03/fabric-es/pull/32) ([pangduckwai](https://github.com/pangduckwai))
 - Merge projectionDb search changes from 0.5.16 to master [\#30](https://github.com/rtang03/fabric-es/pull/30) ([pangduckwai](https://github.com/pangduckwai))
 - Update the GCP deployment of gw-org1, gw-org2, and auth-servers for release v0.6.1 [\#29](https://github.com/rtang03/fabric-es/pull/29) ([hohowin](https://github.com/hohowin))
+- V2dn3org [\#25](https://github.com/rtang03/fabric-es/pull/25) ([pangduckwai](https://github.com/pangduckwai))
 
 **Fixed bugs:**
 
