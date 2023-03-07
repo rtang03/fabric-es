@@ -1,5 +1,19 @@
 # Changelog
 
+## [Unreleased](https://github.com/rtang03/fabric-es/tree/HEAD)
+
+[Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.18...HEAD)
+
+**Fixed bugs:**
+
+- Redis connection exceed retry limit and caused microservice malfunction [\#233](https://github.com/rtang03/fabric-es/issues/233)
+
+**Merged pull requests:**
+
+- Bump minimist from 1.2.5 to 1.2.6 [\#240](https://github.com/rtang03/fabric-es/pull/240) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump axios from 0.21.1 to 0.21.2 [\#239](https://github.com/rtang03/fabric-es/pull/239) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump babel from 2.3.4 to 2.9.1 in /docs [\#238](https://github.com/rtang03/fabric-es/pull/238) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [v0.7.18](https://github.com/rtang03/fabric-es/tree/v0.7.18) (2021-12-06)
 
 [Full Changelog](https://github.com/rtang03/fabric-es/compare/v0.7.17...v0.7.18)
@@ -127,7 +141,6 @@
 - docs: fix README [\#205](https://github.com/rtang03/fabric-es/pull/205) ([rtang03](https://github.com/rtang03))
 - feat: create / resolve DidDocument [\#204](https://github.com/rtang03/fabric-es/pull/204) ([rtang03](https://github.com/rtang03))
 - feat: enable auth0 in gateway-lib [\#203](https://github.com/rtang03/fabric-es/pull/203) ([rtang03](https://github.com/rtang03))
-- feat: model-identity - Did Document [\#199](https://github.com/rtang03/fabric-es/pull/199) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.8](https://github.com/rtang03/fabric-es/tree/v0.7.8) (2021-03-26)
 
@@ -140,6 +153,7 @@
 **Merged pull requests:**
 
 - feat: Domain Model Refactoring for Query Handler Search [\#201](https://github.com/rtang03/fabric-es/pull/201) ([pangduckwai](https://github.com/pangduckwai))
+- feat: model-identity - Did Document [\#199](https://github.com/rtang03/fabric-es/pull/199) ([rtang03](https://github.com/rtang03))
 
 ## [v0.7.6](https://github.com/rtang03/fabric-es/tree/v0.7.6) (2021-03-11)
 
@@ -260,6 +274,7 @@
 - chore: attempt changelog.yaml [\#144](https://github.com/rtang03/fabric-es/pull/144) ([rtang03](https://github.com/rtang03))
 - feat: enhance GitHub Actions [\#141](https://github.com/rtang03/fabric-es/pull/141) ([rtang03](https://github.com/rtang03))
 - refactor: handle multipart form fields with content types [\#139](https://github.com/rtang03/fabric-es/pull/139) ([pangduckwai](https://github.com/pangduckwai))
+- fix: add work around to accept JSON data provided in query params [\#137](https://github.com/rtang03/fabric-es/pull/137) ([pangduckwai](https://github.com/pangduckwai))
 
 ## [v0.7.0](https://github.com/rtang03/fabric-es/tree/v0.7.0) (2020-10-09)
 
@@ -284,7 +299,6 @@
 
 **Merged pull requests:**
 
-- fix: add work around to accept JSON data provided in query params [\#137](https://github.com/rtang03/fabric-es/pull/137) ([pangduckwai](https://github.com/pangduckwai))
 - Fix issue with logging to files [\#136](https://github.com/rtang03/fabric-es/pull/136) ([pangduckwai](https://github.com/pangduckwai))
 - Tester enhancements [\#135](https://github.com/rtang03/fabric-es/pull/135) ([pangduckwai](https://github.com/pangduckwai))
 - Improve key fields tagging for pboc/etc, improve logging [\#134](https://github.com/rtang03/fabric-es/pull/134) ([pangduckwai](https://github.com/pangduckwai))
